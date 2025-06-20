@@ -1,0 +1,16 @@
+{
+  "name": "Test Configuration",
+  "version": "1.0",
+  "files": {
+    "templatePath": "README_LINK_WATCHER.md",
+    "script": "check_links.py",
+    "configFile": "test-config.json"
+  },
+  "templates": [
+    {
+      "name": "main",
+      "template": "link_watcher.py",
+      "outputFile": "output.txt"
+    }
+  ]
+}

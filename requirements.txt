@@ -1,0 +1,6 @@
+# Link Maintenance System Dependencies
+watchdog>=3.0.0          # File system monitoring
+pyyaml>=6.0              # YAML parsing
+markdown>=3.4.0          # Markdown parsing
+gitpython>=3.1.0         # Git integration
+colorama>=0.4.6          # Colored terminal output
