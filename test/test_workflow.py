@@ -13,7 +13,7 @@ def test_linkwatcher_from_different_directory():
     """Test that LinkWatcher works when called from a different directory."""
     
     # Get the LinkWatcher directory
-    linkwatcher_dir = Path(__file__).parent
+    linkwatcher_dir = Path(__file__).parent.parent
     link_watcher_script = linkwatcher_dir / "link_watcher.py"
     check_links_script = linkwatcher_dir / "check_links.py"
     

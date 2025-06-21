@@ -626,33 +626,6 @@ class LinkUpdater:
     
     def _calculate_relative_path(self, target: str, old_path: str, new_path: str, source_file: str) -> str:
         """Calculate the correct relative path from source_file to new_path."""
-        
-        # Handle the common case where we have a relative path that needs updating
-        # Example: target="target_dir/movable-file.md", old_path="test/target_dir/target_dir/movable-file.md", new_path="test/target_dir/target_dir/movable-file.md"
-        target_normalized = target.replace('\\', '/')
-        old_normalized = old_path.replace('\\', '/')
-        new_normalized = new_path.replace('\\', '/')
-        
-        # Check if the target matches the relative portion of the old path
-        old_parts = old_normalized.split('/')
-        if len(old_parts) > 1:
-            # Try to match the target against the relative portion of old_path
-            relative_old = '/'.join(old_parts[1:])  # Remove first directory component
-            if target_normalized == relative_old:
-                # This is a match! Calculate the new relative path
-                new_parts = new_normalized.split('/')
-                if len(new_parts) > 1:
-                    relative_new = '/'.join(new_parts[1:])  # Remove first directory component
-                    # Convert back to original separator style
-                    if '\\' in target:
-                        return relative_new.replace('/', '\\')
-                    else:
-                        return relative_new
-                else:
-                    # File moved to root level, just return filename
-                    return os.path.basename(new_normalized)
-        
-        # Fall back to the original complex logic
         # For the LinkWatcher use case, we need to work with the actual file system structure
         # The key insight is that we need to determine what directory the source file is in
         # relative to the project structure, then calculate the new relative path from there
@@ -1068,21 +1041,6 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
         refs_exact = self.link_db.get_references_to_file(old_rel)
         references.extend(refs_exact)
         print(f"{Fore.CYAN}Found {len(refs_exact)} references with exact path: {old_rel}")
-        
-        # Try relative path variations (remove leading directory components)
-        # For example: "test/source_dir/file.md" -> "source_dir/file.md"
-        path_parts = old_rel.split('/')
-        if len(path_parts) > 2:  # Has at least 2 directory levels
-            relative_path = '/'.join(path_parts[1:])  # Remove first directory
-            refs_relative = self.link_db.get_references_to_file(relative_path)
-            references.extend(refs_relative)
-            print(f"{Fore.CYAN}Found {len(refs_relative)} references with relative path: {relative_path}")
-            
-            # Also try backslash version for Windows
-            relative_path_backslash = relative_path.replace('/', '\\')
-            refs_backslash = self.link_db.get_references_to_file(relative_path_backslash)
-            references.extend(refs_backslash)
-            print(f"{Fore.CYAN}Found {len(refs_backslash)} references with backslash path: {relative_path_backslash}")
         
         # Try just filename
         old_filename = os.path.basename(old_rel)
