@@ -1,0 +1,12 @@
+# Configuration File
+app_name: "Test App"
+version: "1.0.0"
+
+# File references
+main_script: "../src/main.py"
+utils_script: "../src/utils.py"
+readme_file: "../README.md"
+
+# Asset references
+logo: "../assets/logo.png"
+screenshot: "../assets/screenshot.jpg"

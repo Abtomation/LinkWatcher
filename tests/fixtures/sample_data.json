@@ -1,0 +1,43 @@
+{
+  "name": "Sample Data Configuration",
+  "version": "1.0.0",
+  "files": {
+    "main_config": "config/main.yaml",
+    "user_data": "data/users.json",
+    "templates": {
+      "index": "templates/index.html",
+      "about": "templates/about.html",
+      "contact": "templates/contact.html"
+    }
+  },
+  "assets": {
+    "stylesheets": [
+      "css/main.css",
+      "css/responsive.css",
+      "css/print.css"
+    ],
+    "scripts": [
+      "js/app.js",
+      "js/vendor.js"
+    ],
+    "images": {
+      "logo": "images/logo.png",
+      "favicon": "images/favicon.ico"
+    }
+  },
+  "database": {
+    "schema": "db/schema.sql",
+    "migrations": "db/migrations/",
+    "seeds": "db/seeds.sql"
+  },
+  "external_urls": {
+    "api": "https://api.example.com",
+    "cdn": "https://cdn.example.com"
+  },
+  "non_file_settings": {
+    "debug": true,
+    "port": 3000,
+    "timeout": 5000,
+    "max_connections": 100
+  }
+}

@@ -1,0 +1,41 @@
+name: "Sample Configuration"
+version: "1.0.0"
+
+database:
+  config_file: "db_config.json"
+  schema_file: "schema.sql"
+  backup_location: "backups/db_backup.sql"
+
+logging:
+  log_file: "app.log"
+  error_log: "errors.log"
+  config: "logging_config.yaml"
+
+templates:
+  main: "templates/main.html"
+  error: "templates/error.html"
+  layout: "templates/layout.html"
+
+assets:
+  css:
+    - "styles/main.css"
+    - "styles/theme.css"
+  js:
+    - "scripts/app.js"
+    - "scripts/utils.js"
+
+data_files:
+  users: "data/users.json"
+  settings: "data/settings.json"
+  cache: "cache/app_cache.json"
+
+# External URLs (should be ignored)
+external:
+  api_url: "https://api.example.com"
+  docs_url: "https://docs.example.com"
+
+# Non-file values (should be ignored)
+settings:
+  debug: true
+  port: 8080
+  timeout: 30

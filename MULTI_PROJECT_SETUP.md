@@ -10,7 +10,7 @@ Use LinkWatcher from any project directory while keeping the tool files in one c
 ```
 📁 VS_Code/
 ├── 📁 LinkWatcher/                    # Tool installation (this directory)
-│   ├── link_watcher.py
+│   ├── old/link_watcher_old.py
 │   ├── check_links.py
 │   ├── install_global.py
 │   └── setup_project.py

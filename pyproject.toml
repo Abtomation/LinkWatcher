@@ -1,0 +1,164 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "linkwatcher"
+version = "2.0.0"
+description = "Real-time link maintenance system for file movements"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "LinkWatcher Team", email = "team@linkwatcher.dev"}
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: Microsoft :: Windows",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Software Development :: Tools",
+    "Topic :: Text Processing :: Markup",
+    "Topic :: Utilities",
+]
+requires-python = ">=3.8"
+dependencies = [
+    "watchdog>=6.0.0",
+    "PyYAML>=6.0",
+    "colorama>=0.4.6",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "pytest-mock>=3.10.0",
+    "pytest-xdist>=3.0.0",
+    "pytest-timeout>=2.1.0",
+    "coverage>=7.0.0",
+    "factory-boy>=3.2.0",
+    "freezegun>=1.2.0",
+    "responses>=0.23.0",
+]
+dev = [
+    "black>=23.0.0",
+    "isort>=5.12.0",
+    "flake8>=6.0.0",
+    "mypy>=1.0.0",
+    "pre-commit>=3.0.0",
+]
+
+[project.scripts]
+linkwatcher = "linkwatcher.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/linkwatcher/linkwatcher"
+Documentation = "https://linkwatcher.readthedocs.io"
+Repository = "https://github.com/linkwatcher/linkwatcher.git"
+"Bug Tracker" = "https://github.com/linkwatcher/linkwatcher/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["linkwatcher*"]
+
+[tool.setuptools.package-data]
+linkwatcher = ["config/*.yaml", "config/*.json"]
+
+[tool.black]
+line-length = 100
+target-version = ['py38', 'py39', 'py310', 'py311']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 100
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+
+[tool.coverage.run]
+source = ["linkwatcher"]
+omit = [
+    "*/tests/*",
+    "*/test_*",
+    "setup.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "--verbose",
+    "--tb=short",
+    "--strict-markers",
+    "--strict-config",
+    "--disable-warnings",
+]
+markers = [
+    "unit: Unit tests for individual components",
+    "integration: Integration tests for component interactions",
+    "parser: Parser-specific tests",
+    "performance: Performance and scalability tests",
+    "slow: Tests that take longer to run",
+    "manual: Manual test procedures (not run automatically)",
+    "critical: Critical functionality tests (P0 priority)",
+    "high: High priority tests (P1 priority)",
+    "medium: Medium priority tests (P2 priority)",
+    "low: Low priority tests (P3 priority)",
+]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning",
+]
+minversion = "7.0"
+timeout = 300
