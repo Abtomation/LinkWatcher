@@ -13,7 +13,7 @@ This is a test project for manual testing of the LinkWatcher markdown parser.
 ## Quick Links
 
 - [Root file](root.txt)
-- [File 1](documentation/file1.txt) and [File 2](file2.txt)
+- [File 1](file2.txt) and [File 2](file2.txt)
 - [Inline reference](inline.txt)
 
 ## Assets
@@ -23,7 +23,7 @@ This is a test project for manual testing of the LinkWatcher markdown parser.
 
 ## Code Examples (should be ignored by parser)
 
-Use this syntax: `[link text](file.txt)` to create links.
+Use this syntax: `[link text](file1.txt)` to create links.
 
 ```markdown
 # Example markdown - these should be ignored

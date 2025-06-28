@@ -201,14 +201,14 @@ def create_sample_project(base_path: Path) -> Dict[str, Path]:
         "README.md",
         "Project README",
         [
-            ("User Guide", "docs/guide.md"),
-            ("API Reference", "docs/api.md"),
+            ("User Guide", "tests/guide.md"),
+            ("API Reference", "tests/api.md"),
             ("Configuration", "config/settings.yaml"),
         ],
     )
 
     builder.add_markdown_file(
-        "docs/guide.md",
+        "tests/guide.md",
         "User Guide",
         [
             ("API Reference", "api.md"),
@@ -218,7 +218,7 @@ def create_sample_project(base_path: Path) -> Dict[str, Path]:
     )
 
     builder.add_markdown_file(
-        "docs/api.md",
+        "tests/api.md",
         "API Reference",
         [("User Guide", "guide.md"), ("Examples", "../examples/basic.py")],
     )

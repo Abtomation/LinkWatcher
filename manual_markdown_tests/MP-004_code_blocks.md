@@ -27,7 +27,7 @@ Plain code block
 [After code](test_project/file2.txt)
 
 **Expected Results:**
-- Should find ONLY: test_project/file1.txt, test_project/file2.txt
+- Should find ONLY: test_project/file1.txt, test_project/file2.txttion/file2.txt
 - Should NOT find: test_project/fake1.txt, test_project/fake2.txt, test_project/fake-config.txt, test_project/fake-docs.md, test_project/fake-another.txt
 
 **Current Parser Issue:**

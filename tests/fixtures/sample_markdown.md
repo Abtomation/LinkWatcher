@@ -29,7 +29,7 @@ import helper
 
 - [GitHub](https://github.com)
 - [Email](mailto:test@example.com)
-- [FTP](ftp://files.example.com)
+- [FTP](ftp:/files.example.com)
 
 ## Anchor Links (Should be ignored)
 

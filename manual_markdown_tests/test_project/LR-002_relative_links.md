@@ -3,19 +3,19 @@
 This file tests relative path link parsing with REAL files.
 
 ## Relative path variations:
-- [Current directory](./test_project/file3.txt)
-- [Explicit current](./test_project/docs/readmek.md)
-- [Test project root](test_project/root.txt)
+- [Current directory](file1.txt)
+- [Explicit current](../../test_project/documentation/readme.md)
+- [Test project root](root.txt)
 
 ## Different relative formats:
-- [Config file](test_project/config/settings.yaml)
-- [API docs](test_project/api/reference.txt)
-- [Assets](test_project/assets/logo.png)
+- [Config file](config/settings.yaml)
+- [API docs](api/reference.txt)
+- [Assets](assets/logo.png)
 
 ## Mixed with different paths:
 - [File 1](file1.txt)
-- [File 2](test_project/file2.txt)
-- [Inline](test_project/inline.txt)
+- [File 2](file2.txt)
+- [Inline](inline.txt)
 
 **Expected Results:**
 - Should handle all relative path formats
@@ -25,4 +25,4 @@ This file tests relative path link parsing with REAL files.
 **Manual Testing:**
 - All files exist in the test_project directory
 - You can move files between subdirectories to test relative path updates
-- Try moving docs/readme.md to test_project/documentation/readme.md
+- Try moving documentation/readme.md to documentation/readme.md

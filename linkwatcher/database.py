@@ -10,6 +10,7 @@ import threading
 from datetime import datetime
 from typing import Dict, List, Optional, Set
 
+from .logging import get_logger
 from .models import LinkReference
 
 
@@ -24,6 +25,7 @@ class LinkDatabase:
         self.files_with_links: Set[str] = set()  # files that contain links
         self.last_scan: Optional[datetime] = None
         self._lock = threading.Lock()
+        self.logger = get_logger()
 
     def add_link(self, reference: LinkReference):
         """Add a link reference to the database."""
@@ -37,12 +39,33 @@ class LinkDatabase:
     def remove_file_links(self, file_path: str):
         """Remove all links from a specific file."""
         with self._lock:
+            # Normalize the file path for comparison
+            normalized_file_path = self._normalize_path(file_path)
             self.files_with_links.discard(file_path)
+            self.files_with_links.discard(normalized_file_path)
+
             # Remove references from this file
+            removed_count = 0
             for target, references in self.links.items():
-                self.links[target] = [ref for ref in references if ref.file_path != file_path]
+                original_count = len(references)
+                # Use normalized path comparison to handle path variations
+                self.links[target] = [
+                    ref
+                    for ref in references
+                    if self._normalize_path(ref.file_path) != normalized_file_path
+                ]
+                removed_count += original_count - len(self.links[target])
+
             # Clean up empty entries
             self.links = {k: v for k, v in self.links.items() if v}
+
+            # Log removal results
+            if removed_count > 0:
+                self.logger.info(
+                    "references_removed", file_path=file_path, removed_count=removed_count
+                )
+            else:
+                self.logger.warning("no_references_to_remove", file_path=file_path)
 
     def get_references_to_file(self, file_path: str) -> List[LinkReference]:
         """Get all references pointing to a specific file."""
@@ -50,11 +73,28 @@ class LinkDatabase:
             normalized_path = self._normalize_path(file_path)
             all_references = []
 
-            # Check all stored targets to see if they could refer to this file
+            # First, try direct lookup by normalized path (most efficient)
+            if normalized_path in self.links:
+                all_references.extend(self.links[normalized_path])
+
+            # Also check for anchored versions of the same file
+            for target_path, references in self.links.items():
+                # Check if this target (possibly with anchor) points to our file
+                base_target = target_path.split("#", 1)[0] if "#" in target_path else target_path
+                if self._normalize_path(base_target) == normalized_path:
+                    # Avoid duplicates from the direct lookup above
+                    for ref in references:
+                        if ref not in all_references:
+                            all_references.append(ref)
+
+            # Finally, check all stored references to see if they could refer to this file
+            # This handles relative path resolution and filename matching
             for target_path, references in self.links.items():
                 for ref in references:
                     if self._reference_points_to_file(ref, normalized_path):
-                        all_references.append(ref)
+                        # Avoid duplicates
+                        if ref not in all_references:
+                            all_references.append(ref)
 
             return all_references
 
@@ -64,7 +104,7 @@ class LinkDatabase:
         link_target = ref.link_target
         if "#" in link_target:
             link_target = link_target.split("#", 1)[0]
-        
+
         target_norm = self._normalize_path(link_target)
         file_norm = self._normalize_path(target_file_path)
 
@@ -95,7 +135,7 @@ class LinkDatabase:
         with self._lock:
             old_normalized = self._normalize_path(old_path)
             new_normalized = self._normalize_path(new_path)
-            
+
             # Find all keys that need to be updated (including anchored links)
             keys_to_update = []
             for key in self.links.keys():
@@ -103,16 +143,16 @@ class LinkDatabase:
                 base_key = key.split("#", 1)[0] if "#" in key else key
                 if self._normalize_path(base_key) == old_normalized:
                     keys_to_update.append(key)
-            
+
             # Update each matching key
             for old_key in keys_to_update:
                 references = self.links[old_key]
                 del self.links[old_key]
-                
+
                 # Update the target in each reference
                 for ref in references:
                     ref.link_target = self._update_link_target(ref.link_target, old_path, new_path)
-                
+
                 # Create new key with updated path
                 new_key = self._update_link_target(old_key, old_path, new_path)
                 self.links[new_key] = references

@@ -63,7 +63,7 @@ Also a [link with anchor](document.md#section).
         content = """# Test Document
 
 This document references "config.yaml" and 'data.json'.
-Also mentions "path/to/file.txt" in quotes.
+Also mentions "tests/parsers/file.txt" in quotes.
 """
         md_file.write_text(content)
 
@@ -77,7 +77,7 @@ Also mentions "path/to/file.txt" in quotes.
         targets = [ref.link_target for ref in references]
         assert "config.yaml" in targets
         assert "data.json" in targets
-        assert "path/to/file.txt" in targets
+        assert "tests/parsers/file.txt" in targets
 
         # Check link types
         quoted_refs = [ref for ref in references if ref.link_type == "markdown-quoted"]
@@ -91,7 +91,7 @@ Also mentions "path/to/file.txt" in quotes.
         md_file = temp_project_dir / "test.md"
         content = """# Test Document
 
-This document mentions standalone_file.txt and another_file.json.
+This document mentions tests/parsers/file.txt and another_file.json.
 Also references path/to/document.md in the text.
 """
         md_file.write_text(content)
@@ -104,7 +104,7 @@ Also references path/to/document.md in the text.
 
         # Check specific references
         targets = [ref.link_target for ref in references]
-        assert "standalone_file.txt" in targets
+        assert "tests/parsers/file.txt" in targets
         assert "another_file.json" in targets
         assert "path/to/document.md" in targets
 
@@ -327,17 +327,17 @@ It has some words that might look like files but aren't:
     def test_mp_001_standard_links(self, temp_project_dir):
         """
         MP-001: Standard links
-        
+
         Test Case: [text](file.txt) parsing
         Expected: Correctly identify and parse standard markdown links
         Priority: Critical
         """
         parser = MarkdownParser()
-        
+
         # Create markdown file with various standard link formats
         md_file = temp_project_dir / "test.md"
         content = """# Standard Links Test
-        
+
 Standard markdown links:
 - [Simple link](file.txt)
 - [Link with path](docs/readme.md)
@@ -348,25 +348,25 @@ Standard markdown links:
 Inline: This is a [link in paragraph](inline.txt) within text.
 """
         md_file.write_text(content)
-        
+
         # Parse the file
         references = parser.parse_file(str(md_file))
-        
+
         # Should find all standard links
         targets = [ref.link_target for ref in references]
         expected_targets = [
             "file.txt",
-            "docs/readme.md", 
+            "docs/readme.md",
             "config.json",
             "first.txt",
             "second.txt",
             "file with spaces.txt",
-            "inline.txt"
+            "inline.txt",
         ]
-        
+
         for expected in expected_targets:
             assert expected in targets, f"Expected target '{expected}' not found in {targets}"
-        
+
         # Verify link types are correct
         markdown_refs = [ref for ref in references if ref.link_type == "markdown"]
         assert len(markdown_refs) >= 7
@@ -375,13 +375,13 @@ Inline: This is a [link in paragraph](inline.txt) within text.
     def test_mp_002_reference_links(self, temp_project_dir):
         """
         MP-002: Reference links
-        
+
         Test Case: [text][ref] and [ref]: url parsing
         Expected: Correctly identify reference-style links
         Priority: High
         """
         parser = MarkdownParser()
-        
+
         # Create markdown file with reference links
         md_file = temp_project_dir / "test.md"
         content = """# Reference Links Test
@@ -400,19 +400,14 @@ Also test [shorthand reference][] style.
 [shorthand reference]: shorthand.txt
 """
         md_file.write_text(content)
-        
+
         # Parse the file
         references = parser.parse_file(str(md_file))
-        
+
         # Should find reference link targets
         targets = [ref.link_target for ref in references]
-        expected_targets = [
-            "file1.txt",
-            "docs/file2.md",
-            "config/settings.yaml", 
-            "shorthand.txt"
-        ]
-        
+        expected_targets = ["../../manual_markdown_tests/test_project/documentatio/file1.txt, "docs/file2.md", "config/settings.yaml", "shorthand.txt"]
+
         for expected in expected_targets:
             assert expected in targets, f"Expected target '{expected}' not found in {targets}"
 
@@ -420,13 +415,13 @@ Also test [shorthand reference][] style.
     def test_mp_003_inline_code_fake_links(self, temp_project_dir):
         """
         MP-003: Inline code with fake links
-        
+
         Test Case: `[fake](link.txt)` should be ignored
         Expected: Links inside inline code are not parsed
         Priority: High
         """
         parser = MarkdownParser()
-        
+
         # Create markdown file with inline code containing fake links
         md_file = temp_project_dir / "test.md"
         content = """# Inline Code Test
@@ -437,23 +432,23 @@ Real links:
 Fake links in inline code (should be ignored):
 - Use `[fake link](fake.txt)` in your code
 - The syntax is `[text](url)` for links
-- Example: `[config](config.yaml)` 
+- Example: `[config](config.yaml)`
 
 Mixed content:
 - Real [link](mixed.txt) and `[fake](ignore.txt)` code
 """
         md_file.write_text(content)
-        
+
         # Parse the file
         references = parser.parse_file(str(md_file))
-        
+
         # Should find real links but not fake ones in code
         targets = [ref.link_target for ref in references]
-        
+
         # Should find real links
         assert "real.txt" in targets
         assert "mixed.txt" in targets
-        
+
         # Should NOT find fake links in inline code
         assert "fake.txt" not in targets
         assert "config.yaml" not in targets
@@ -463,13 +458,13 @@ Mixed content:
     def test_mp_004_code_blocks_fake_links(self, temp_project_dir):
         """
         MP-004: Code blocks with fake links
-        
+
         Test Case: ```[fake](link.txt)``` should be ignored
         Expected: Links inside code blocks are not parsed
         Priority: High
         """
         parser = MarkdownParser()
-        
+
         # Create markdown file with code blocks containing fake links
         md_file = temp_project_dir / "test.md"
         content = """# Code Block Test
@@ -498,17 +493,17 @@ Real link after code:
 [Real link](after.txt)
 """
         md_file.write_text(content)
-        
+
         # Parse the file
         references = parser.parse_file(str(md_file))
-        
+
         # Should find real links but not fake ones in code blocks
         targets = [ref.link_target for ref in references]
-        
+
         # Should find real links
         assert "before.txt" in targets
         assert "after.txt" in targets
-        
+
         # Should NOT find fake links in code blocks
         assert "fake1.txt" not in targets
         assert "fake2.txt" not in targets
@@ -520,19 +515,19 @@ Real link after code:
     def test_mp_005_html_links(self, temp_project_dir):
         """
         MP-005: HTML links in markdown
-        
+
         Test Case: <a href="file.txt">text</a> parsing
         Expected: HTML links in markdown are parsed
         Priority: Medium
         """
         parser = MarkdownParser()
-        
+
         # Create markdown file with HTML links
         md_file = temp_project_dir / "test.md"
         content = """# HTML Links Test
 
 HTML links in markdown:
-- <a href="file1.txt">HTML Link 1</a>
+- <a href="../../manual_markdown_tests/test_project/documentatio/file1.txt">HTML Link 1</a>
 - <a href="docs/file2.md">HTML Link 2</a>
 - <a href="config.json" title="Config">Configuration</a>
 
@@ -544,22 +539,22 @@ Self-closing and various formats:
 - <a href="spaces in name.txt">Spaces in filename</a>
 """
         md_file.write_text(content)
-        
+
         # Parse the file
         references = parser.parse_file(str(md_file))
-        
+
         # Should find HTML links
         targets = [ref.link_target for ref in references]
         expected_targets = [
-            "file1.txt",
+            "../../manual_markdown_tests/test_project/documentatio/file1.txt",
             "docs/file2.md",
             "config.json",
             "markdown.txt",
             "html.txt",
             "single-quotes.txt",
-            "spaces in name.txt"
+            "spaces in name.txt",
         ]
-        
+
         for expected in expected_targets:
             assert expected in targets, f"Expected target '{expected}' not found in {targets}"
 
@@ -567,13 +562,13 @@ Self-closing and various formats:
     def test_mp_006_image_links(self, temp_project_dir):
         """
         MP-006: Image links
-        
+
         Test Case: ![alt](image.png) parsing
         Expected: Image links are parsed correctly
         Priority: Medium
         """
         parser = MarkdownParser()
-        
+
         # Create markdown file with image links
         md_file = temp_project_dir / "test.md"
         content = """# Image Links Test
@@ -594,10 +589,10 @@ Mixed content:
 Text with ![inline image](inline.png) in paragraph.
 """
         md_file.write_text(content)
-        
+
         # Parse the file
         references = parser.parse_file(str(md_file))
-        
+
         # Should find all image links
         targets = [ref.link_target for ref in references]
         expected_targets = [
@@ -606,9 +601,9 @@ Text with ![inline image](inline.png) in paragraph.
             "assets/icon.svg",
             "images/photo1.jpg",
             "images/photo2.jpg",
-            "inline.png"
+            "inline.png",
         ]
-        
+
         for expected in expected_targets:
             assert expected in targets, f"Expected target '{expected}' not found in {targets}"
 
@@ -616,13 +611,13 @@ Text with ![inline image](inline.png) in paragraph.
     def test_mp_007_links_with_titles(self, temp_project_dir):
         """
         MP-007: Links with titles
-        
+
         Test Case: [text](file.txt "title") parsing
         Expected: Links with titles are parsed, titles preserved
         Priority: Medium
         """
         parser = MarkdownParser()
-        
+
         # Create markdown file with titled links
         md_file = temp_project_dir / "test.md"
         content = """# Links with Titles Test
@@ -640,21 +635,21 @@ Image with title:
 ![Image](image.png "Image title")
 """
         md_file.write_text(content)
-        
+
         # Parse the file
         references = parser.parse_file(str(md_file))
-        
+
         # Should find all links regardless of title format
         targets = [ref.link_target for ref in references]
         expected_targets = [
-            "file1.txt",
-            "file2.txt", 
-            "file3.txt",
+            "../../manual_markdown_tests/test_project/documentatio/file1.txt",
+            "file2.txt",
+            "../../manual_markdown_tests/test_project/documentatio/file1.txt",
             "reference1.txt",
             "reference2.txt",
-            "image.png"
+            "image.png",
         ]
-        
+
         for expected in expected_targets:
             assert expected in targets, f"Expected target '{expected}' not found in {targets}"
 
@@ -662,13 +657,13 @@ Image with title:
     def test_mp_008_malformed_links(self, temp_project_dir):
         """
         MP-008: Malformed links
-        
+
         Test Case: [text](file.txt handling of malformed syntax
         Expected: Graceful handling of malformed links
         Priority: Low
         """
         parser = MarkdownParser()
-        
+
         # Create markdown file with malformed links
         md_file = temp_project_dir / "test.md"
         content = """# Malformed Links Test
@@ -689,19 +684,19 @@ Edge cases:
 - [Link](file.txt) [Another](file2.txt) multiple on line
 """
         md_file.write_text(content)
-        
+
         # Parse the file
         references = parser.parse_file(str(md_file))
-        
+
         # Should find valid links
         targets = [ref.link_target for ref in references]
-        
+
         # Should definitely find valid links
         assert "valid.txt" in targets
         assert "escaped.txt" in targets
         assert "file.txt" in targets
         assert "file2.txt" in targets
-        
+
         # Parser should handle malformed links gracefully (not crash)
         # Some malformed links might be partially parsed, which is acceptable
 
@@ -709,13 +704,13 @@ Edge cases:
     def test_mp_009_escaped_characters(self, temp_project_dir):
         """
         MP-009: Escaped characters
-        
+
         Test Case: [text](file\.txt) with escaped characters
         Expected: Escaped characters handled correctly
         Priority: Low
         """
         parser = MarkdownParser()
-        
+
         # Create markdown file with escaped characters
         md_file = temp_project_dir / "test.md"
         content = r"""# Escaped Characters Test
@@ -739,29 +734,29 @@ Special characters in filenames:
 - [File with dashes](file-name.txt)
 """
         md_file.write_text(content)
-        
+
         # Parse the file
         references = parser.parse_file(str(md_file))
-        
+
         # Should find valid links
         targets = [ref.link_target for ref in references]
-        
+
         # Should find links with escaped characters in filenames
         expected_valid = [
             "real.txt",
-            "valid.txt", 
+            "valid.txt",
             "file with spaces.txt",
             "file.name.txt",
-            "file-name.txt"
+            "file-name.txt",
         ]
-        
+
         for expected in expected_valid:
             assert expected in targets, f"Expected target '{expected}' not found in {targets}"
-        
+
         # Should NOT find escaped link syntax
         assert "not-link.txt" not in targets
         assert "fake.txt" not in targets
-        
+
         # Files with escaped characters in names might be found depending on parser implementation
         # This is acceptable as long as the parser doesn't crash
 
@@ -774,17 +769,17 @@ Special characters in filenames:
     def test_lr_001_standard_links(self, temp_project_dir):
         """
         LR-001: Markdown standard links
-        
+
         Test Case: Parser detection of [text](file.txt) links
         Expected: Standard markdown links correctly identified
         Priority: Critical
         """
         parser = MarkdownParser()
-        
+
         # Create markdown file with standard links
         md_file = temp_project_dir / "test.md"
         content = """# Standard Links
-        
+
 - [Documentation](docs/readme.md)
 - [Configuration](config.yaml)
 - [Source code](src/main.py)
@@ -793,17 +788,17 @@ Special characters in filenames:
 Inline links: See [API reference](api.md) for details.
 """
         md_file.write_text(content)
-        
+
         # Parse the file
         references = parser.parse_file(str(md_file))
-        
+
         # Verify all standard links found
         targets = [ref.link_target for ref in references]
         expected = ["docs/readme.md", "config.yaml", "src/main.py", "tests/test_main.py", "api.md"]
-        
+
         for target in expected:
             assert target in targets, f"Standard link '{target}' not found"
-        
+
         # Verify link types
         markdown_links = [ref for ref in references if ref.link_type == "markdown"]
         assert len(markdown_links) >= 5
@@ -812,20 +807,20 @@ Inline links: See [API reference](api.md) for details.
     def test_lr_002_relative_links(self, temp_project_dir):
         """
         LR-002: Markdown relative links
-        
+
         Test Case: Parser detection of relative path links
         Expected: Relative paths correctly parsed
         Priority: Critical
         """
         parser = MarkdownParser()
-        
+
         # Create markdown file with relative links
         md_file = temp_project_dir / "test.md"
         content = """# Relative Links
-        
+
 - [Parent directory](../parent.txt)
 - [Sibling directory](../sibling/file.md)
-- [Current directory](./current.txt)
+- [Current directory](current.txt)
 - [Subdirectory](sub/file.txt)
 - [Deep path](../../deep/path/file.txt)
 
@@ -834,22 +829,22 @@ Navigation:
 - [Down two levels](dir1/dir2/file.txt)
 """
         md_file.write_text(content)
-        
+
         # Parse the file
         references = parser.parse_file(str(md_file))
-        
+
         # Verify relative links found
         targets = [ref.link_target for ref in references]
         expected_relative = [
             "../parent.txt",
-            "../sibling/file.md", 
-            "./current.txt",
+            "../sibling/file.md",
+            "current.txt",
             "sub/file.txt",
             "../../deep/path/file.txt",
             "../index.md",
-            "dir1/dir2/file.txt"
+            "dir1/dir2/file.txt",
         ]
-        
+
         for target in expected_relative:
             assert target in targets, f"Relative link '{target}' not found"
 
@@ -857,17 +852,17 @@ Navigation:
     def test_lr_003_links_with_anchors(self, temp_project_dir):
         """
         LR-003: Markdown with anchors
-        
+
         Test Case: Parser detection of links with anchors
         Expected: Links with anchors correctly parsed
         Priority: High
         """
         parser = MarkdownParser()
-        
+
         # Create markdown file with anchor links
         md_file = temp_project_dir / "test.md"
         content = """# Links with Anchors
-        
+
 - [Introduction](readme.md#introduction)
 - [Configuration](config.md#setup)
 - [API Methods](api.md#methods)
@@ -882,32 +877,30 @@ Mixed:
 - [File with anchor](guide.md#getting-started)
 """
         md_file.write_text(content)
-        
+
         # Parse the file
         references = parser.parse_file(str(md_file))
-        
+
         # Verify anchor links found
         targets = [ref.link_target for ref in references]
         expected_with_anchors = [
             "readme.md#introduction",
             "config.md#setup",
-            "api.md#methods", 
+            "api.md#methods",
             "docs/help.md#common-issues",
-            "guide.md#getting-started"
+            "guide.md#getting-started",
         ]
-        
-        expected_without_anchors = [
-            "plain.md"
-        ]
-        
+
+        expected_without_anchors = ["plain.md"]
+
         # Should find links with anchors
         for target in expected_with_anchors:
             assert target in targets, f"Anchor link '{target}' not found"
-        
+
         # Should find links without anchors
         for target in expected_without_anchors:
             assert target in targets, f"Plain link '{target}' not found"
-        
+
         # Should NOT find internal anchors (anchor-only links)
         assert "#section-1" not in targets
         assert "#section-2" not in targets

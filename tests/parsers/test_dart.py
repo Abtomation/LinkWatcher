@@ -41,12 +41,12 @@ import 'package:myapp/models/user.dart';
 
 // Relative imports
 import '../config/settings.dart';
-import './helpers/string_utils.dart';
+import 'helpers/tests/parsers/utils.dart';
 import 'widgets/custom_button.dart';
 
 // File references in comments and strings
 // See "pubspec.yaml" for dependencies
-const String configFile = "assets/config.json";
+const String configFile = "../tests/parsers/config.json";
 const String dataPath = 'data/users.json';
 
 void main() {
@@ -67,13 +67,19 @@ void main() {
 
         # Should find quoted file references
         assert "pubspec.yaml" in targets
-        assert "assets/config.json" in targets
+        assert "../tests/parsers/config.json" in targets
         assert "data/users.json" in targets
         assert "config/app.yaml" in targets
 
         # Check link types
         for ref in references:
-            assert ref.link_type in ["dart-import", "dart-part", "dart-quoted", "dart-standalone", "dart-embedded"]
+            assert ref.link_type in [
+                "dart-import",
+                "dart-part",
+                "dart-quoted",
+                "dart-standalone",
+                "dart-embedded",
+            ]
 
     def test_parse_asset_references(self, temp_project_dir):
         """Test parsing asset references in Dart files."""
@@ -93,7 +99,7 @@ class Assets {
   static const String secondaryFont = 'assets/fonts/opensans.ttf';
 
   // Data assets
-  static const String configData = "assets/data/config.json";
+  static const String configData = "tests/parsers/config.json";
   static const String localization = 'assets/i18n/en.json';
 
   // Other file references
@@ -103,7 +109,7 @@ class Assets {
 
 // Asset loading functions
 Future<String> loadAsset(String path) async {
-  // Load from "assets/data/default.json"
+  // Load from "../tests/parsers/data/default.json"
   return await rootBundle.loadString(path);
 }
 
@@ -127,11 +133,11 @@ Widget buildImage() {
             "assets/icons/app_icon.png",
             "assets/fonts/roboto.ttf",
             "assets/fonts/opensans.ttf",
-            "assets/data/config.json",
+            "tests/parsers/config.json",
             "assets/i18n/en.json",
             "README.md",
             "CHANGELOG.md",
-            "assets/data/default.json",
+            "../tests/parsers/data/default.json",
             "assets/images/placeholder.png",
         ]
 
@@ -409,7 +415,7 @@ class FlutterApp extends StatelessWidget {
             ImageIcon(AssetImage("assets/icons/custom_icon.png")),
 
             // Text with asset references
-            Text("Load config from assets/config/app.json"),
+            Text("Load config from ../tests/parsers/config/app.json"),
 
             // Network images (should be ignored)
             Image.network("https://example.com/image.png"),
@@ -435,7 +441,7 @@ class FlutterApp extends StatelessWidget {
   }
 
   Future<String> loadFile(String path) async {
-    // Implementation to load from 'assets/data/default.json'
+    // Implementation to load from '../tests/parsers/data/default.json'
     return "";
   }
 
@@ -473,10 +479,10 @@ class AssetWidget extends StatelessWidget {
             "assets/images/flutter_logo.png",
             "assets/images/background.jpg",
             "assets/icons/custom_icon.png",
-            "assets/config/app.json",
+            "../tests/parsers/config/app.json",
             "data/content.json",
             "user_data/preferences.json",
-            "assets/data/default.json",
+            "../tests/parsers/data/default.json",
             "assets/widgets/default.png",
             "assets/widgets/config.yaml",
             "assets/backgrounds/main.jpg",

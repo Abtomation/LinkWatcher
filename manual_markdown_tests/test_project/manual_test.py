@@ -6,8 +6,8 @@ This script helps you test the LinkWatcher with real files that you can
 actually move, rename, and modify.
 """
 
-import sys
 import os
+import sys
 from pathlib import Path
 
 # Add the LinkWatcher root to path
@@ -15,36 +15,38 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from linkwatcher.parsers.markdown import MarkdownParser
 
+
 def check_file_exists(file_path, base_dir):
     """Check if a referenced file actually exists."""
-    if file_path.startswith(('http://', 'https://', 'mailto:', 'tel:')):
+    if file_path.startswith(("http://", "https://", "mailto:", "tel:")):
         return "External"
-    
-    if file_path.startswith('#'):
+
+    if file_path.startswith("#"):
         return "Anchor"
-    
+
     full_path = Path(base_dir) / file_path
     return "✅ EXISTS" if full_path.exists() else "❌ MISSING"
+
 
 def test_markdown_file(md_file_path):
     """Test a markdown file and show which referenced files exist."""
     print(f"\n{'='*80}")
     print(f"Testing: {md_file_path}")
     print(f"{'='*80}")
-    
+
     if not os.path.exists(md_file_path):
         print(f"❌ Markdown file not found: {md_file_path}")
         return
-    
+
     base_dir = Path(md_file_path).parent
     parser = MarkdownParser()
-    
+
     try:
         references = parser.parse_file(md_file_path)
-        
+
         print(f"\n📊 Found {len(references)} links:")
         print("-" * 80)
-        
+
         if references:
             for i, ref in enumerate(references, 1):
                 status = check_file_exists(ref.link_target, base_dir)
@@ -54,33 +56,39 @@ def test_markdown_file(md_file_path):
                 print()
         else:
             print("No links found.")
-            
+
         # Summary
-        existing_files = [ref for ref in references if check_file_exists(ref.link_target, base_dir) == "✅ EXISTS"]
-        missing_files = [ref for ref in references if check_file_exists(ref.link_target, base_dir) == "❌ MISSING"]
-        
+        existing_files = [
+            ref for ref in references if check_file_exists(ref.link_target, base_dir) == "✅ EXISTS"
+        ]
+        missing_files = [
+            ref for ref in references if check_file_exists(ref.link_target, base_dir) == "❌ MISSING"
+        ]
+
         print(f"\n📈 Summary:")
         print(f"   ✅ Existing files: {len(existing_files)}")
         print(f"   ❌ Missing files: {len(missing_files)}")
-        
+
         if missing_files:
             print(f"\n❌ Missing files (broken links):")
             for ref in missing_files:
                 print(f"   - {ref.link_target}")
-                
+
     except Exception as e:
         print(f"❌ Error parsing file: {e}")
+
 
 def list_project_files():
     """List all files in the test project."""
     project_dir = Path(__file__).parent
     print(f"\n📁 Files in test project ({project_dir}):")
     print("-" * 60)
-    
+
     for file_path in sorted(project_dir.rglob("*")):
         if file_path.is_file() and file_path.name != "manual_test.py":
             rel_path = file_path.relative_to(project_dir)
             print(f"   {rel_path}")
+
 
 def suggest_moves():
     """Suggest file movements for testing."""
@@ -97,24 +105,27 @@ def suggest_moves():
     print("- Use LinkWatcher to update the links")
     print("- Verify the links are fixed")
 
+
 def main():
     """Main testing interface."""
     print("🧪 Manual File Movement Testing")
     print("=" * 60)
-    
+
     project_dir = Path(__file__).parent
     readme_file = project_dir / "README.md"
-    
+
     while True:
         print(f"\nOptions:")
-        print("1. Test README.md (main test file)")
+        print(
+            "1. Test ../test_project/../test_projects/../test_project/../test_projects/../test_project/../test_projects/README.md (main test file)"
+        )
         print("2. List all project files")
         print("3. Show suggested file movements")
         print("4. Test specific markdown file")
         print("5. Quit")
-        
+
         choice = input("\nYour choice (1-5): ").strip()
-        
+
         if choice == "1":
             test_markdown_file(str(readme_file))
         elif choice == "2":
@@ -129,6 +140,7 @@ def main():
             break
         else:
             print("❌ Invalid choice")
+
 
 if __name__ == "__main__":
     main()

@@ -11,21 +11,22 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from watchdog.events import DirMovedEvent
+
 from linkwatcher.service import LinkWatcherService
 
 
 def test_directory_move():
     """Test directory move functionality in detail."""
-    
+
     print("🔍 Testing Directory Move Functionality")
     print("=" * 60)
-    
+
     # Create temporary directory (same as test)
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_project_dir = Path(temp_dir)
-        
+
         print(f"📁 Test directory: {temp_project_dir}")
-        
+
         # Setup directory with multiple files (exact same as test)
         docs_dir = temp_project_dir / "docs"
         docs_dir.mkdir()
@@ -52,7 +53,7 @@ def test_directory_move():
 
         main_py = temp_project_dir / "main.py"
         main_py.write_text('# See docs/guide.md and docs/api.md\nconfig = "docs/config.yaml"')
-        
+
         print("\n📄 Created files:")
         for file_path in temp_project_dir.rglob("*"):
             if file_path.is_file():
@@ -68,7 +69,7 @@ def test_directory_move():
         stats = service.link_db.get_stats()
         print(f"\n📊 Initial state:")
         print(f"   • Total references: {stats['total_references']}")
-        
+
         print(f"\n📋 References before move:")
         for target in ["docs/guide.md", "docs/api.md", "docs/config.yaml"]:
             refs = service.link_db.get_references_to_file(target)
@@ -80,7 +81,7 @@ def test_directory_move():
         print(f"\n🔄 Performing directory move...")
         new_docs_dir = temp_project_dir / "documentation"
         docs_dir.rename(new_docs_dir)
-        
+
         print(f"   From: {docs_dir}")
         print(f"   To:   {new_docs_dir}")
 
@@ -93,8 +94,8 @@ def test_directory_move():
         print(f"\n📋 References after move:")
         for old_target, new_target in [
             ("docs/guide.md", "documentation/guide.md"),
-            ("docs/api.md", "documentation/api.md"), 
-            ("docs/config.yaml", "documentation/config.yaml")
+            ("docs/api.md", "documentation/api.md"),
+            ("docs/config.yaml", "documentation/config.yaml"),
         ]:
             old_refs = service.link_db.get_references_to_file(old_target)
             new_refs = service.link_db.get_references_to_file(new_target)
@@ -105,14 +106,14 @@ def test_directory_move():
         print(f"\n📄 File contents after move:")
         print(f"\nREADME.md:")
         print(readme.read_text())
-        
+
         print(f"\nmain.py:")
         print(main_py.read_text())
-        
+
         # Final statistics
         final_stats = service.link_db.get_stats()
         handler_stats = service.handler.get_stats()
-        
+
         print(f"\n📊 Final Statistics:")
         print(f"   • Total references: {final_stats['total_references']}")
         print(f"   • Files moved: {handler_stats['files_moved']}")

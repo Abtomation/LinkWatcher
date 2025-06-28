@@ -108,6 +108,49 @@ LinkWatcher 2.0 features a modular architecture:
 - **`linkwatcher/parsers/`** - File-type specific parsers
 - **`linkwatcher/updater.py`** - Safe file modification
 - **`linkwatcher/handler.py`** - File system event handling
+- **`linkwatcher/logging.py`** - Enhanced structured logging system
+- **`linkwatcher/logging_config.py`** - Advanced logging configuration
+
+## 📊 Enhanced Logging System
+
+LinkWatcher 2.0 includes a comprehensive logging system with:
+
+### **Features**
+- **Structured Logging**: JSON-formatted logs with contextual information
+- **Performance Monitoring**: Built-in timing and metrics collection
+- **Multiple Outputs**: Console and file logging with different formats
+- **Log Rotation**: Automatic file rotation with configurable size limits
+- **Real-time Filtering**: Runtime log filtering by component, operation, level
+- **Colored Output**: Beautiful console output with icons and colors
+
+### **Quick Logging Setup**
+```bash
+# Enable debug logging
+python link_watcher_new.py --debug
+
+# Log to file
+python link_watcher_new.py --log-file logs/linkwatcher.log
+
+# Use configuration file
+python link_watcher_new.py --config config-examples/debug-config.yaml
+```
+
+### **Real-time Dashboard**
+```bash
+# Monitor logs in real-time
+python tools/logging_dashboard.py --log-file logs/linkwatcher.log
+
+# Text mode (no curses)
+python tools/logging_dashboard.py --text-mode
+```
+
+### **Configuration Examples**
+- **[Basic Logging](config-examples/logging-config.yaml)** - Standard logging setup
+- **[Debug Configuration](config-examples/debug-config.yaml)** - Troubleshooting setup
+- **[Production Configuration](config-examples/production-config.yaml)** - Optimized for production
+- **[Advanced Configuration](config-examples/advanced-logging-config.yaml)** - All features enabled
+
+**📚 [Complete Logging Documentation](docs/LOGGING.md)**
 
 ## 🧪 Testing
 

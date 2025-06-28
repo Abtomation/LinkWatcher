@@ -55,9 +55,9 @@ Links with different separators:
 - [Mixed style](docs/sub\\file.txt)
 
 Quoted references:
-- "docs/config.yaml"
-- "docs\\settings.json"
-- 'docs/data\\info.txt'
+- "../tests/integration/config.yaml"
+- "../tests/integration/settings.json"
+- 'docs/data/info.txt'
 """
         test_file.write_text(content)
 
@@ -75,7 +75,12 @@ Quoted references:
         targets = [ref.link_target for ref in references]
 
         # Check that paths are normalized to platform-appropriate format
-        expected_files = ["docs/readme.md", "docs/api.md", "docs/config.yaml", "docs/settings.json"]
+        expected_files = [
+            "docs/readme.md",
+            "docs/api.md",
+            "../tests/integration/config.yaml",
+            "docs/settings.json",
+        ]
 
         for expected in expected_files:
             # Should find the file with normalized path
@@ -138,7 +143,7 @@ Quoted references:
         content = '''"""Main module."""
 
 # References with relative paths
-CONFIG_FILE = "../docs/config.yaml"
+CONFIG_FILE = "../../tests/integration/config.yaml"
 README_FILE = "../docs/readme.md"
 '''
         src_file.write_text(content)
@@ -153,7 +158,7 @@ README_FILE = "../docs/readme.md"
         references = service.link_db.get_all_references()
         targets = [ref.link_target for ref in references]
 
-        assert "../docs/config.yaml" in targets
+        assert "../../tests/integration/config.yaml" in targets
         assert "../docs/readme.md" in targets
 
 
@@ -365,12 +370,12 @@ class TestLongPathHandling:
             current_path.mkdir(exist_ok=True)
 
         # Create file in deep directory
-        deep_file = current_path / "deep_file.txt"
+        deep_file = current_path / "tests/integration/file.txt"
         deep_file.write_text("Deep file content")
 
         # Create reference to deep file
         test_file = temp_project_dir / "test.md"
-        relative_path = "/".join(path_components + ["deep_file.txt"])
+        relative_path = "/".join(path_components + ["tests/integration/file.txt"])
         content = f"[Deep link]({relative_path})"
         test_file.write_text(content)
 

@@ -42,7 +42,7 @@ DEFAULT_CONFIG = LinkWatcherConfig(
     enable_python_parser=True,
     enable_generic_parser=True,
     # Update behavior
-    create_backups=True,  # Create .bak files before updates
+    create_backups=False,  # Create .bak files before updates (disabled by default)
     dry_run_mode=False,  # Actually modify files
     atomic_updates=True,  # Use temporary files for safe updates
     # Performance settings
@@ -65,7 +65,7 @@ DEVELOPMENT_CONFIG = LinkWatcherConfig(
     log_level="DEBUG",
     show_statistics=True,
     # Safer defaults for development
-    create_backups=True,
+    create_backups=False,
     dry_run_mode=False,
     # Standard monitoring
     monitored_extensions=DEFAULT_CONFIG.monitored_extensions.copy(),
@@ -90,7 +90,7 @@ TESTING_CONFIG = LinkWatcherConfig(
     log_level="DEBUG",
     show_statistics=False,
     colored_output=False,
-    # Safe for testing
+    # Safe for testing (keep backups enabled for testing backup functionality)
     create_backups=True,
     dry_run_mode=True,  # Don't actually modify files in tests
     # Minimal monitoring for tests

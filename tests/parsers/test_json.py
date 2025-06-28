@@ -221,7 +221,7 @@ class TestJsonParser:
         """
         JP-004: Escaped strings
 
-        Test Case: {"file": "path\\\\with\\\\backslashes.txt"}
+        Test Case: {"file": "path/with/backslashes.txt"}
         Expected: Escaped paths handled
         Priority: Medium
         """
@@ -237,17 +237,17 @@ class TestJsonParser:
   },
   "escaped_chars": {
     "quotes": "file with \\"quotes\\".txt",
-    "newlines": "path\\nwith\\nnewlines.txt",
-    "tabs": "path\\twith\\ttabs.txt"
+    "newlines": "path/nwith/nnewlines.txt",
+    "tabs": "path/twith/ttabs.txt"
   },
   "mixed": {
     "normal": "normal/path.txt",
-    "escaped": "escaped\\\\path\\\\file.txt",
-    "unicode": "unicode\\u0020file.txt"
+    "escaped": "escaped/path/file.txt",
+    "unicode": "unicode/u0020file.txt"
   },
   "special": {
     "json_file": "data\\\\config.json",
-    "backup": "backup\\\\data\\\\file.bak"
+    "backup": "backup/data/file.bak"
   }
 }"""
         json_file.write_text(json_content)
@@ -323,7 +323,7 @@ class TestJsonParserEdgeCases:
         parser = JsonParser()
 
         # Create invalid JSON file
-        json_file = temp_project_dir / "invalid.json"
+        json_file = temp_project_dir / "tests/parsers/valid.json"
         json_content = """{
   "invalid": json,
   "missing": "quotes,
@@ -366,7 +366,7 @@ class TestJsonParserEdgeCases:
     "cache": null
   },
   "files": [
-    "file1.txt",
+    "../../manual_markdown_tests/test_project/documentatio/file1.txt",
     null,
     "file2.txt",
     null
@@ -383,7 +383,7 @@ class TestJsonParserEdgeCases:
         targets = [ref.link_target for ref in references]
         assert "config.json" in targets
         assert "data.json" in targets
-        assert "file1.txt" in targets
+        assert "../../manual_markdown_tests/test_project/documentatio/file1.txt" in targets
         assert "file2.txt" in targets
         assert "valid.json" in targets
 
@@ -402,11 +402,11 @@ class TestJsonParserEdgeCases:
     "timeout": 30
   },
   "files": [
-    "file1.txt",
+    "../../manual_markdown_tests/test_project/documentatio/file1.txt",
     123,
     "file2.txt",
     true,
-    "file3.txt"
+    "../../manual_markdown_tests/test_project/documentatio/file1.txt"
   ],
   "metadata": {
     "count": 42,
@@ -422,9 +422,9 @@ class TestJsonParserEdgeCases:
 
         targets = [ref.link_target for ref in references]
         assert "config.json" in targets
-        assert "file1.txt" in targets
+        assert "../../manual_markdown_tests/test_project/documentatio/file1.txt" in targets
         assert "file2.txt" in targets
-        assert "file3.txt" in targets
+        assert "../../manual_markdown_tests/test_project/documentatio/file1.txt" in targets
         assert "logs/app.log" in targets
 
         # Should not find numbers or booleans

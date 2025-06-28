@@ -21,7 +21,7 @@ This file tests image link parsing with REAL image files.
 Text with ![inline image](test_project/inline.txt) in paragraph.
 
 **Expected Results:**
-- Should find: test_project/assets/logo.png, test_project/assets/icon.svg, test_project/inline.txt
+- Should find: test_project/assets/logo.png, test_project/assets/icon.svg, test_projects/inline.txtt
 - Should extract ONLY the file path, NOT the title text
 
 **Current Parser Issue:**

@@ -6,7 +6,7 @@ This file tests HTML links in markdown.
 - [Markdown link](markdown.txt)
 
 ## HTML links (currently not supported):
-- <a href="file1.txt">HTML Link 1</a>
+- <a href=test_project/file1.txt/a>
 - <a href="docs/file2.md">HTML Link 2</a>
 - <a href="config.json" title="Config">Configuration</a>
 

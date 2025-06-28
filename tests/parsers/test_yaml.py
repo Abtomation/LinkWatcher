@@ -39,7 +39,7 @@ class TestYamlParser:
 application:
   name: "Test App"
   config_file: settings.conf
-  data_file: data/input.csv
+  data_file: ../tests/parsers/input.csv
   template: templates/main.html
 
 paths:
@@ -58,7 +58,7 @@ paths:
         # Check specific references
         targets = [ref.link_target for ref in references]
         assert "settings.conf" in targets
-        assert "data/input.csv" in targets
+        assert "../tests/parsers/input.csv" in targets
         assert "templates/main.html" in targets
         assert "logs/app.log" in targets
         assert "schemas/user.json" in targets
@@ -66,7 +66,7 @@ paths:
         # Check reference types
         for ref in references:
             assert ref.link_type == "yaml"
-            assert ref.source_file == str(yaml_file)
+            assert ref.file_path == str(yaml_file)
 
     def test_yp_002_nested_structures(self, temp_project_dir):
         """
@@ -272,7 +272,7 @@ script: |
 
 application:
   name: "Test App"
-  # Data file: data/input.csv (this is a comment)
+  # Data file: ../tests/parsers/input.csv (this is a comment)
   config_file: config/real.yaml  # Real reference
   # template: templates/fake.html (commented out)
 
@@ -302,7 +302,7 @@ database:
         # Commented references should NOT be found
         assert "docs/config.md" not in targets
         assert "setup/install.sh" not in targets
-        assert "data/input.csv" not in targets
+        assert "../tests/parsers/input.csv" not in targets
         assert "templates/fake.html" not in targets
         assert "logs/app.log" not in targets
         assert "db/connection.conf" not in targets

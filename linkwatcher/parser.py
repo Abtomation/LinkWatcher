@@ -8,6 +8,7 @@ specialized parsers based on file type.
 import os
 from typing import List
 
+from .logging import LogTimer, get_logger
 from .models import LinkReference
 from .parsers import DartParser, GenericParser, JsonParser, MarkdownParser, PythonParser, YamlParser
 
@@ -28,22 +29,37 @@ class LinkParser:
             ".py": PythonParser(),
         }
         self.generic_parser = GenericParser()
+        self.logger = get_logger()
 
     def parse_file(self, file_path: str) -> List[LinkReference]:
         """Parse a file and extract all link references."""
         try:
             file_ext = os.path.splitext(file_path)[1].lower()
 
-            # Use specialized parser if available
-            if file_ext in self.parsers:
-                parser = self.parsers[file_ext]
-                return parser.parse_file(file_path)
-            else:
-                # Fall back to generic parser
-                return self.generic_parser.parse_file(file_path)
+            with LogTimer("file_parsing", self.logger, file_path=file_path, file_ext=file_ext):
+                # Use specialized parser if available
+                if file_ext in self.parsers:
+                    parser = self.parsers[file_ext]
+                    self.logger.debug(
+                        "using_specialized_parser",
+                        file_path=file_path,
+                        parser_type=type(parser).__name__,
+                    )
+                    return parser.parse_file(file_path)
+                else:
+                    # Fall back to generic parser
+                    self.logger.debug(
+                        "using_generic_parser", file_path=file_path, file_ext=file_ext
+                    )
+                    return self.generic_parser.parse_file(file_path)
 
         except Exception as e:
-            print(f"Warning: Could not parse {file_path}: {e}")
+            self.logger.warning(
+                "file_parsing_failed",
+                file_path=file_path,
+                error=str(e),
+                error_type=type(e).__name__,
+            )
             return []
 
     def add_parser(self, extension: str, parser):

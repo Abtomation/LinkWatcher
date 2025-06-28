@@ -67,10 +67,10 @@ class MarkdownParser(BaseParser):
                         # Check if this overlaps with any markdown link
                         overlaps = False
                         for md_match in self.link_pattern.finditer(line):
-                            if (match.start() >= md_match.start() and match.end() <= md_match.end()):
+                            if match.start() >= md_match.start() and match.end() <= md_match.end():
                                 overlaps = True
                                 break
-                        
+
                         if not overlaps:
                             references.append(
                                 LinkReference(
@@ -91,10 +91,13 @@ class MarkdownParser(BaseParser):
                         # Check if this overlaps with any markdown link
                         overlaps = False
                         for md_match in self.link_pattern.finditer(line):
-                            if (match.start(1) >= md_match.start() and match.end(1) <= md_match.end()):
+                            if (
+                                match.start(1) >= md_match.start()
+                                and match.end(1) <= md_match.end()
+                            ):
                                 overlaps = True
                                 break
-                        
+
                         if not overlaps:
                             references.append(
                                 LinkReference(

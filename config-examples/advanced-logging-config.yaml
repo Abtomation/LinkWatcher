@@ -1,0 +1,139 @@
+# Advanced LinkWatcher Logging Configuration
+# This configuration demonstrates all advanced logging features
+
+# Basic logging settings
+log_level: "DEBUG"
+colored_output: true
+show_statistics: true
+log_file: "logs/linkwatcher-advanced.log"
+log_file_max_size_mb: 50
+log_file_backup_count: 10
+json_logs: true
+show_log_icons: true
+performance_logging: true
+
+# Advanced filtering configuration
+filters:
+  # Only log from specific components
+  components:
+    - "handler"
+    - "updater"
+    - "parser"
+
+  # Only log specific operations
+  operations:
+    - "file_move"
+    - "link_update"
+    - "file_parsing"
+
+  # Only log files matching these patterns
+  file_patterns:
+    - "docs/"
+    - ".md"
+    - "README"
+
+  # Exclude logs matching these patterns
+  exclude_patterns:
+    - "temp"
+    - ".tmp"
+    - "node_modules"
+    - ".git"
+
+  # Log level range
+  level_range:
+    min: "INFO"
+    max: "ERROR"
+
+  # Time window (in minutes) - only log for this duration
+  time_window_minutes: 60
+
+# Performance monitoring
+performance:
+  enable_timing: true
+  enable_metrics: true
+  slow_operation_threshold_ms: 1000
+  memory_monitoring: true
+
+# Alerting configuration
+alerts:
+  error_threshold: 10        # Alert after 10 errors
+  warning_threshold: 50      # Alert after 50 warnings
+  performance_threshold_ms: 5000  # Alert for operations > 5 seconds
+
+  # Alert destinations
+  email:
+    enabled: false
+    smtp_server: "smtp.example.com"
+    recipients: ["admin@example.com"]
+
+  webhook:
+    enabled: false
+    url: "https://hooks.slack.com/services/YOUR/WEBHOOK/URL"
+
+# Log rotation and archival
+rotation:
+  max_file_size_mb: 100
+  backup_count: 20
+  compress_backups: true
+  archive_old_logs: true
+  archive_after_days: 30
+
+# Debug features
+debug:
+  enable_stack_traces: true
+  enable_memory_profiling: false
+  enable_cpu_profiling: false
+  profile_output_dir: "profiles/"
+
+  # Detailed logging for specific scenarios
+  detailed_logging:
+    file_operations: true
+    link_resolution: true
+    database_operations: true
+    parser_internals: false
+
+# Export and analysis
+export:
+  auto_export_enabled: false
+  export_interval_hours: 24
+  export_format: "json"  # json, csv, or both
+  export_directory: "exports/"
+
+  # What to include in exports
+  include_metrics: true
+  include_performance_data: true
+  include_error_details: true
+
+# Integration settings
+integrations:
+  # Elasticsearch/ELK stack
+  elasticsearch:
+    enabled: false
+    host: "localhost"
+    port: 9200
+    index_prefix: "linkwatcher"
+
+  # Prometheus metrics
+  prometheus:
+    enabled: false
+    port: 8090
+    metrics_path: "/metrics"
+
+  # Grafana dashboard
+  grafana:
+    enabled: false
+    dashboard_url: "http://localhost:3000"
+
+# Development and testing
+development:
+  # Enable extra verbose logging for development
+  verbose_mode: false
+
+  # Log all function calls (very verbose)
+  trace_function_calls: false
+
+  # Enable logging of internal state changes
+  log_state_changes: true
+
+  # Mock external dependencies for testing
+  mock_file_operations: false

@@ -23,4 +23,4 @@ This file tests links with title attributes.
 - Should extract ONLY the file path, NOT the title text
 
 **Current Parser Issue:**
-The parser includes title text in the link target (e.g., 'file1.txt "This is title 1"' instead of just 'file1.txt').
+The parser includes title text in the link target (e.g., 'test_project/test_project/file1.txt "This is title 1"' instead of just test_project/file1.txton/file1.txt/file1.txtn/file1.txt').

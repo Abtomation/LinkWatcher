@@ -4,7 +4,7 @@ This directory contains the comprehensive test suite for LinkWatcher, including 
 
 ## 📋 Test Documentation Files
 
-### **TEST_PLAN.md** - Test Strategy & Procedures
+### **../tests/../tests/../test/../test/TEST_PLAN.md** - Test Strategy & Procedures
 **Purpose**: High-level test planning and strategy document
 **Contains**:
 - Test methodology and approach
@@ -19,7 +19,7 @@ This directory contains the comprehensive test suite for LinkWatcher, including 
 - Setting up test environments
 - Conducting manual testing procedures
 
-### **TEST_CASE_STATUS.md** - Implementation Tracking & Mapping
+### **../tests/../tests/../tests/../tests/../tests/../test/../test/../test/../test/../test/TEST_CASE_STATUS.md** - Implementation Tracking & Mapping
 **Purpose**: Complete tracking of test case implementation status
 **Contains**:
 - Mapping of all 111 test cases to their exact implementations
@@ -35,7 +35,7 @@ This directory contains the comprehensive test suite for LinkWatcher, including 
 - Locating test methods by test case ID
 - Tracking test infrastructure status
 
-### **TEST_CASE_TEMPLATE.md** - New Test Case Template
+### **../tests/../tests/../test/../test/TEST_CASE_TEMPLATE.md** - New Test Case Template
 **Purpose**: Template for creating new test cases
 **When to use**: Adding new test cases to the suite
 
@@ -114,7 +114,7 @@ pytest -v
 pytest -x
 
 # Run specific test file
-pytest tests/unit/test_database.py
+pytest unit/test_database.py
 
 # Run specific test method
 pytest tests/unit/test_database.py::TestLinkDatabase::test_add_reference
@@ -148,7 +148,7 @@ pytest --cov=linkwatcher --cov-fail-under=90
 ```
 
 ### Find Test Implementation
-1. Look up test case ID (e.g., FM-001) in **TEST_CASE_STATUS.md**
+1. Look up test case ID (e.g., FM-001) in **../tests/../tests/../tests/../tests/../tests/../test/../test/../test/../test/../test/TEST_CASE_STATUS.md**
 2. Find the exact test method and file location
 3. Navigate to the implementation file
 
@@ -220,8 +220,8 @@ pytest --forked
 ## 🎯 For AI Assistants
 
 **Key Points**:
-1. **TEST_PLAN.md** = Strategy and procedures (what to test, how to test)
-2. **TEST_CASE_STATUS.md** = Implementation tracking (where tests are implemented, current status)
+1. **../tests/../tests/../test/../test/TEST_PLAN.md** = Strategy and procedures (what to test, how to test)
+2. **../tests/../tests/../tests/../tests/../tests/../test/../test/../test/../test/../test/TEST_CASE_STATUS.md** = Implementation tracking (where tests are implemented, current status)
 3. All 111 test cases from `docs/testing.md` are fully implemented
 4. Use TEST_CASE_STATUS.md to find exact test method locations
 5. Test case IDs follow pattern: [Category]-[Number] (e.g., FM-001, LR-002)

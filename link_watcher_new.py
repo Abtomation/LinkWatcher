@@ -29,6 +29,7 @@ try:
 
     from linkwatcher import LinkWatcherService
     from linkwatcher.config import DEFAULT_CONFIG, LinkWatcherConfig
+    from linkwatcher.logging import LogLevel, get_logger, setup_logging
 except ImportError as e:
     print(f"Missing required dependency: {e}")
     print("Please install dependencies with: pip install -r requirements.txt")
@@ -40,6 +41,7 @@ init(autoreset=True)
 
 def load_config(config_path: str = None, args=None) -> LinkWatcherConfig:
     """Load configuration from file, environment, and command line arguments."""
+    logger = get_logger()
 
     # Start with default configuration
     config = DEFAULT_CONFIG
@@ -49,16 +51,17 @@ def load_config(config_path: str = None, args=None) -> LinkWatcherConfig:
         try:
             file_config = LinkWatcherConfig.from_file(config_path)
             config = config.merge(file_config)
-            print(f"{Fore.GREEN}✓ Loaded configuration from {config_path}")
+            logger.info("config_loaded", config_file=config_path)
         except Exception as e:
-            print(f"{Fore.YELLOW}⚠️ Warning: Could not load config file {config_path}: {e}")
+            logger.warning("config_load_failed", config_file=config_path, error=str(e))
 
     # Override with environment variables
     try:
         env_config = LinkWatcherConfig.from_env()
         config = config.merge(env_config)
+        logger.debug("environment_config_loaded")
     except Exception as e:
-        print(f"{Fore.YELLOW}⚠️ Warning: Could not load environment config: {e}")
+        logger.warning("environment_config_failed", error=str(e))
 
     # Override with command line arguments
     if args:
@@ -150,30 +153,65 @@ Examples:
         help="Enable dry run mode (preview changes without modifying files)",
     )
     parser.add_argument("--quiet", action="store_true", help="Suppress non-error output")
+    parser.add_argument("--log-file", help="Log to file (in addition to console)")
+    parser.add_argument("--debug", action="store_true", help="Enable debug logging")
     parser.add_argument("--version", action="version", version="LinkWatcher 2.0.0")
 
     args = parser.parse_args()
 
     try:
+        # Setup logging first
+        log_level = LogLevel.DEBUG if args.debug else LogLevel.INFO
+        if args.quiet:
+            log_level = LogLevel.ERROR
+
+        logger = setup_logging(
+            level=log_level,
+            log_file=args.log_file,
+            colored_output=not args.quiet,
+            show_icons=not args.quiet,
+        )
+
         # Validate project root
         project_root = validate_project_root(args.project_root)
 
         # Load configuration
         config = load_config(args.config, args)
 
+        # Update logging configuration from config
+        if config.log_file and not args.log_file:
+            logger = setup_logging(
+                level=LogLevel(config.log_level),
+                log_file=config.log_file,
+                colored_output=config.colored_output and not args.quiet,
+                show_icons=config.show_log_icons and not args.quiet,
+                json_logs=config.json_logs,
+                max_file_size=config.log_file_max_size_mb * 1024 * 1024,
+                backup_count=config.log_file_backup_count,
+            )
+
         # Validate configuration
         config_issues = config.validate()
         if config_issues:
-            print(f"{Fore.RED}✗ Configuration issues:")
+            logger.error("configuration_validation_failed", issues=config_issues)
             for issue in config_issues:
-                print(f"   • {issue}")
+                logger.error("config_issue", issue=issue)
             sys.exit(1)
+
+        # Log startup information
+        logger.info(
+            "linkwatcher_starting",
+            version="2.0.0",
+            project_root=str(project_root),
+            config_file=args.config,
+            dry_run=config.dry_run_mode,
+        )
 
         # Check git repository
         if not args.quiet:
             check_git_repository(project_root)
 
-        # Print startup information
+        # Print startup information (for backward compatibility)
         if not args.quiet:
             print_startup_info(config, project_root)
 
@@ -190,22 +228,22 @@ Examples:
         for extension, parser_class in config.custom_parsers.items():
             try:
                 # This would require dynamic loading - simplified for now
-                print(f"{Fore.YELLOW}⚠️ Custom parser for {extension} not yet implemented")
+                logger.warning("custom_parser_not_implemented", extension=extension)
             except Exception as e:
-                print(f"{Fore.YELLOW}⚠️ Warning: Could not load custom parser for {extension}: {e}")
+                logger.warning("custom_parser_load_failed", extension=extension, error=str(e))
 
         # Start the service
         service.start(initial_scan=config.initial_scan_enabled)
 
     except KeyboardInterrupt:
-        print(f"\n{Fore.YELLOW}👋 LinkWatcher stopped by user")
+        logger = get_logger()
+        logger.info("linkwatcher_stopped_by_user")
         sys.exit(0)
     except Exception as e:
-        print(f"{Fore.RED}✗ Fatal error: {e}")
+        logger = get_logger()
+        logger.critical("fatal_error", error=str(e), error_type=type(e).__name__)
         if not args.quiet:
-            import traceback
-
-            traceback.print_exc()
+            logger.exception("fatal_error_traceback")
         sys.exit(1)
 
 

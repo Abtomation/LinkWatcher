@@ -398,7 +398,7 @@ python scripts/monitor_resources.py
 - **[Test Case Guide](../docs/test-case-guide.md)** - Detailed instructions for creating and managing test cases
 - **[Test Case Template](TEST_CASE_TEMPLATE.md)** - Standardized template for documenting test cases
 - **[Testing Documentation](../docs/testing.md)** - Comprehensive catalog of all test cases
-- **[Manual Test Procedures](manual/test_procedures.md)** - Manual testing procedures and checklists
+- **[Manual Test Procedures](tests/test_procedures.md)** - Manual testing procedures and checklists
 
 ## 📁 Test Directory Structure
 

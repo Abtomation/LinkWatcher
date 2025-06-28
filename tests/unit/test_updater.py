@@ -226,8 +226,12 @@ Also a reference to "old.txt" in quotes.
 
         # Create references with correct positions
         references = [
-            LinkReference(str(test_file), 3, 13, 20, "link", "old.txt", "markdown"),  # First [link](old.txt)
-            LinkReference(str(test_file), 3, 40, 47, "link", "old.txt", "markdown"),  # second [link](old.txt)
+            LinkReference(
+                str(test_file), 3, 13, 20, "link", "old.txt", "markdown"
+            ),  # First [link](old.txt)
+            LinkReference(
+                str(test_file), 3, 40, 47, "link", "old.txt", "markdown"
+            ),  # second [link](old.txt)
             LinkReference(str(test_file), 4, 20, 29, "old.txt", "old.txt", "quoted"),  # "old.txt"
         ]
 

@@ -38,9 +38,9 @@ Configuration files:
 - Logging config: "logging.conf"
 
 Data files:
-- User data: "data/users.csv"
-- Product data: 'data/products.json'
-- Order data: "data/orders.xml"
+- User data: "../tests/parsers/users.csv"
+- Product data: '../tests/parsers/products.json'
+- Order data: "../tests/parsers/orders.xml"
 
 Documentation:
 - See "docs/readme.md" for setup instructions
@@ -48,8 +48,8 @@ Documentation:
 - Review "docs/troubleshooting.md" for common issues
 
 Scripts and tools:
-- Build script: "scripts/build.sh"
-- Deploy script: 'scripts/deploy.py'
+- Build script: "../tests/parsers/build.sh"
+- Deploy script: '../tests/parsers/deploy.py'
 - Test runner: "scripts/run_tests.bat"
 """
         text_file.write_text(content)
@@ -66,14 +66,14 @@ Scripts and tools:
             "config.yaml",
             "database.json",
             "logging.conf",
-            "data/users.csv",
-            "data/products.json",
-            "data/orders.xml",
+            "../tests/parsers/users.csv",
+            "../tests/parsers/products.json",
+            "../tests/parsers/orders.xml",
             "docs/readme.md",
             "docs/api.md",
             "docs/troubleshooting.md",
-            "scripts/build.sh",
-            "scripts/deploy.py",
+            "../tests/parsers/build.sh",
+            "../tests/parsers/deploy.py",
             "scripts/run_tests.bat",
         ]
 
@@ -182,7 +182,7 @@ report.template
 
 1. Copy "config.template.yaml" to config.yaml
 2. Edit the database settings in config.yaml
-3. Run the setup script: "scripts/setup.sh"
+3. Run the setup script: "../tests/parsers/setup.sh"
 4. Check that data.json was created
 5. Verify logs are written to "logs/setup.log"
 6. Test with sample.txt file
@@ -192,8 +192,8 @@ report.template
 Required files:
 - config.yaml (main configuration)
 - "database.conf" (database settings)
-- scripts/setup.sh (setup script)
-- 'scripts/cleanup.sh' (cleanup script)
+- ../tests/parsers/setup.sh (setup script)
+- '../tests/parsers/cleanup.sh' (cleanup script)
 
 Generated files:
 - data.json
@@ -214,14 +214,14 @@ Generated files:
         expected_targets = [
             "config.template.yaml",
             "config.yaml",
-            "scripts/setup.sh",
+            "../tests/parsers/setup.sh",
             "data.json",
             "logs/setup.log",
             "sample.txt",
             "output/results.json",
             "cleanup.sh",
             "database.conf",
-            "scripts/cleanup.sh",
+            "../tests/parsers/cleanup.sh",
             "temp/cache.tmp",
         ]
 
@@ -315,7 +315,7 @@ Edge cases:
         env_file = temp_project_dir / ".env"
         env_content = """# Environment configuration
 DATABASE_URL="sqlite:///data/app.db"
-LOG_FILE='logs/application.log'
+LOG_FILE='../tests/parsers/application.log'
 CONFIG_PATH="config/settings.yaml"
 TEMPLATE_DIR=templates/
 STATIC_FILES="static/"
@@ -330,7 +330,7 @@ BACKUP_LOCATION='backups/daily/'
         targets = [ref.link_target for ref in references]
         expected_targets = [
             "data/app.db",
-            "logs/application.log",
+            "../tests/parsers/application.log",
             "config/settings.yaml",
             "templates/",
             "static/",
@@ -396,13 +396,13 @@ CONFIGURATION:
 - Logging config: 'logging.properties'
 
 DATA FILES:
-- User data: data/users.csv
-- Product catalog: "data/products.json"
-- Order history: 'data/orders.xml'
+- User data: ../tests/parsers/users.csv
+- Product catalog: "../tests/parsers/products.json"
+- Order history: '../tests/parsers/orders.xml'
 
 SCRIPTS:
-- Build: scripts/build.sh
-- Deploy: "scripts/deploy.py"
+- Build: ../tests/parsers/build.sh
+- Deploy: "../tests/parsers/deploy.py"
 - Test: 'scripts/test.bat'
 - Cleanup: scripts/cleanup.ps1
 
@@ -429,11 +429,11 @@ Debug info in 'logs/debug.log'
             "setup.sh",
             "database.conf",
             "logging.properties",
-            "data/users.csv",
-            "data/products.json",
-            "data/orders.xml",
-            "scripts/build.sh",
-            "scripts/deploy.py",
+            "../tests/parsers/users.csv",
+            "../tests/parsers/products.json",
+            "../tests/parsers/orders.xml",
+            "../tests/parsers/build.sh",
+            "../tests/parsers/deploy.py",
             "scripts/test.bat",
             "scripts/cleanup.ps1",
             "docs/api.txt",

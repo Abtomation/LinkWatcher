@@ -1,0 +1,52 @@
+# LinkWatcher Production Configuration
+# Optimized for production use with minimal logging overhead
+
+# File monitoring settings
+monitored_extensions:
+  - ".md"
+  - ".yaml"
+  - ".yml"
+  - ".py"
+  - ".dart"
+  - ".json"
+
+ignored_directories:
+  - ".git"
+  - ".dart_tool"
+  - "node_modules"
+  - ".vscode"
+  - "build"
+  - "dist"
+  - "__pycache__"
+  - ".pytest_cache"
+  - "coverage"
+  - ".coverage"
+
+# Production settings
+create_backups: false                # Disable backups for performance
+dry_run_mode: false
+atomic_updates: true
+initial_scan_enabled: true
+scan_progress_interval: 100         # Less frequent progress updates
+
+# Production Logging Configuration
+log_level: "WARNING"                 # Only warnings and errors
+colored_output: false                # Disable colors for log aggregation
+show_statistics: false               # Disable statistics for cleaner output
+log_file: "/var/log/linkwatcher/linkwatcher.log"  # System log location
+log_file_max_size_mb: 100           # Larger files, less frequent rotation
+log_file_backup_count: 3            # Fewer backup files
+json_logs: true                      # Structured logs for monitoring systems
+show_log_icons: false                # No icons for production
+performance_logging: false          # Disable performance logging overhead
+
+# Performance settings (optimized)
+max_file_size_mb: 5                 # Smaller limit for faster processing
+
+# Enable only necessary parsers
+enable_markdown_parser: true
+enable_yaml_parser: true
+enable_json_parser: true
+enable_dart_parser: false           # Disable if not using Dart
+enable_python_parser: true
+enable_generic_parser: false        # Disable generic parser for performance

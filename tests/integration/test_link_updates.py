@@ -353,9 +353,9 @@ from utils.helper import help_function
 import utils.helper
 from utils import helper
 
-# Also reference "utils/helper.py" in comments
-# Configuration in utils/helper.py
-config_path = "utils/helper.py"
+# Also reference "../../test/integration/../../test/integration/utils/helper.py" in comments
+# Configuration in ../../test/integration/../../test/integration/utils/helper.py
+config_path = "../../test/integration/../../test/integration/utils/helper.py"
 """
         main_file.write_text(main_content)
 
@@ -375,7 +375,7 @@ config_path = "utils/helper.py"
 
         # Check string references were updated
         assert "utils/assistant.py" in main_updated
-        assert "utils/helper.py" not in main_updated
+        assert "../../test/integration/../../test/integration/utils/helper.py" not in main_updated
 
         # Note: Import statement updates would require more sophisticated parsing
         # For now, we focus on string references which are more reliable

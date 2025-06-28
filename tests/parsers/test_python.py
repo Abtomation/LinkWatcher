@@ -48,7 +48,7 @@ from ..parent_module import ParentClass
 
 # File references in comments and strings
 # See "config.yaml" for configuration
-CONFIG_FILE = "app_config.json"
+CONFIG_FILE = "tests/parsers/config.json"
 TEMPLATE_PATH = 'templates/main.html'
 """
         py_file.write_text(content)
@@ -64,7 +64,7 @@ TEMPLATE_PATH = 'templates/main.html'
 
         # Should find quoted file references
         assert "config.yaml" in targets
-        assert "app_config.json" in targets
+        assert "tests/parsers/config.json" in targets
         assert "templates/main.html" in targets
 
         # Check link types
@@ -196,7 +196,7 @@ def process_data():
     """
     Process data from input files.
 
-    Reads from "input/data.csv" and writes to 'output/results.json'.
+    Reads from "../tests/parsers/data.csv" and writes to 'output/results.json'.
 
     Args:
         None
@@ -222,7 +222,7 @@ def process_data():
             "config/app.yaml",
             "docs/README.md",
             "examples/basic.py",
-            "input/data.csv",
+            "../tests/parsers/data.csv",
             "output/results.json",
             "schemas/data.json",
         ]

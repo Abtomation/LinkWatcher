@@ -24,9 +24,9 @@ class DartParser(BaseParser):
 
         # Pattern for quoted file paths (excluding package imports)
         self.quoted_pattern = re.compile(r'[\'"]([a-zA-Z0-9_\-./\\]+\.[a-zA-Z0-9]+)[\'"]')
-        
+
         # Pattern for file paths within strings (not necessarily the entire string)
-        self.embedded_pattern = re.compile(r'([a-zA-Z0-9_\-./\\]+\.[a-zA-Z0-9]+)')
+        self.embedded_pattern = re.compile(r"([a-zA-Z0-9_\-./\\]+\.[a-zA-Z0-9]+)")
 
         # Pattern for standalone file references (unquoted)
         self.standalone_pattern = re.compile(r"(?:^|\s)([a-zA-Z0-9_\-./\\]+\.[a-zA-Z0-9]+)(?:\s|$)")
@@ -143,22 +143,29 @@ class DartParser(BaseParser):
                         # Check if this looks like part of a URL (starts with //)
                         if potential_file.startswith("//"):
                             # Check if it's preceded by http: or https:
-                            if start_pos >= 1 and line[start_pos-1] == ":":
+                            if start_pos >= 1 and line[start_pos - 1] == ":":
                                 # Check for https: or http:
-                                if start_pos >= 6 and line[start_pos-6:start_pos-1] == "https":
+                                if (
+                                    start_pos >= 6
+                                    and line[start_pos - 6 : start_pos - 1] == "https"
+                                ):
                                     continue
-                                if start_pos >= 5 and line[start_pos-5:start_pos-1] == "http":
+                                if start_pos >= 5 and line[start_pos - 5 : start_pos - 1] == "http":
                                     continue
 
                         # Skip if already found by other patterns
                         already_found = False
                         for existing_ref in references:
-                            if (existing_ref.line_number == line_num and 
-                                existing_ref.link_target == potential_file and
-                                existing_ref.column_start <= match.start(1) < existing_ref.column_end):
+                            if (
+                                existing_ref.line_number == line_num
+                                and existing_ref.link_target == potential_file
+                                and existing_ref.column_start
+                                <= match.start(1)
+                                < existing_ref.column_end
+                            ):
                                 already_found = True
                                 break
-                        
+
                         if already_found:
                             continue
 

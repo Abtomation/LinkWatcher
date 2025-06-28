@@ -8,11 +8,13 @@ Configuration: ../docs/config.yaml
 
 from utils import helper_function
 
+
 def main():
     """Main function."""
     print("Hello from main!")
     # Load config from ../docs/config.yaml
     pass
+
 
 if __name__ == "__main__":
     main()

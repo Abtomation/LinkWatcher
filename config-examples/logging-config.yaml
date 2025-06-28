@@ -1,0 +1,51 @@
+# LinkWatcher Configuration with Enhanced Logging
+# This example shows all available logging configuration options
+
+# File monitoring settings
+monitored_extensions:
+  - ".md"
+  - ".yaml"
+  - ".yml"
+  - ".py"
+  - ".dart"
+  - ".json"
+  - ".txt"
+
+ignored_directories:
+  - ".git"
+  - ".dart_tool"
+  - "node_modules"
+  - ".vscode"
+  - "build"
+  - "dist"
+  - "__pycache__"
+  - ".pytest_cache"
+
+# Update behavior
+create_backups: false
+dry_run_mode: false
+atomic_updates: true
+
+# Performance settings
+max_file_size_mb: 10
+initial_scan_enabled: true
+scan_progress_interval: 50
+
+# Enhanced Logging Configuration
+log_level: "INFO"                    # DEBUG, INFO, WARNING, ERROR, CRITICAL
+colored_output: true                 # Enable colored console output
+show_statistics: true                # Show statistics on shutdown
+log_file: "logs/linkwatcher.log"     # Log to file (optional)
+log_file_max_size_mb: 10            # Max log file size before rotation
+log_file_backup_count: 5            # Number of backup log files to keep
+json_logs: false                     # Use JSON format for file logs
+show_log_icons: true                 # Show emoji icons in console logs
+performance_logging: true           # Enable performance metrics logging
+
+# Parser settings
+enable_markdown_parser: true
+enable_yaml_parser: true
+enable_json_parser: true
+enable_dart_parser: true
+enable_python_parser: true
+enable_generic_parser: true

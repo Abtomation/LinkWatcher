@@ -61,7 +61,7 @@ This has a [markdown link](target.txt) and a "quoted_file.py".
         # Create a YAML file
         yaml_file = temp_project_dir / "config.yaml"
         data = {
-            "database": {"config_file": "db_config.json", "schema": "schema.sql"},
+            "database": {"config_file": "tests/unit/config.json", "schema": "schema.sql"},
             "logging": {"file": "app.log"},
         }
         file_helper.create_yaml_file(yaml_file, data)
@@ -74,7 +74,7 @@ This has a [markdown link](target.txt) and a "quoted_file.py".
 
         # Check for specific references
         targets = [ref.link_target for ref in references]
-        assert "db_config.json" in targets
+        assert "tests/unit/config.json" in targets
         assert "app.log" in targets
 
     def test_parse_json_file(self, temp_project_dir, file_helper):

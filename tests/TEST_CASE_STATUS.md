@@ -8,9 +8,9 @@ This document provides comprehensive tracking of test case implementation status
 ## 📊 Test Suite Status Overview
 
 ### **Implementation Summary**
-- **Total Test Cases**: 111 individual test cases
+- **Total Test Cases**: 115 individual test cases
 - **Implementation Coverage**: 100% ✅
-- **Automated Test Methods**: 165+ test methods
+- **Automated Test Methods**: 169+ test methods
 - **Manual Procedures**: 10 procedures
 - **Test Infrastructure**: Complete ✅
 
@@ -77,7 +77,15 @@ python run_tests.py --coverage
 | FM-004 | Directory rename affecting multiple files | Critical | ✅ Automated | `test_file_movement.py::test_fm_004_directory_rename` |
 | FM-005 | Nested directory movement | High | ✅ Automated | `test_file_movement.py::test_fm_005_nested_directory_movement` |
 
-#### **1.2 Link Reference Types (LR)**
+#### **1.2 Sequential File Movement (SM)**
+| Test ID | Description | Priority | Implementation | Test File |
+|---------|-------------|----------|----------------|-----------|
+| SM-001 | Sequential moves between directories | Critical | ✅ Automated | `test_sequential_moves.py::test_sm_001_sequential_directory_moves` |
+| SM-002 | Sequential renames after moves | High | ✅ Automated | `test_sequential_moves.py::test_sm_002_sequential_renames_after_moves` |
+| SM-003 | Database state debugging during moves | Medium | ✅ Automated | `test_sequential_moves.py::test_sm_003_debug_database_state_during_moves` |
+| SM-004 | Multiple files sequential moves | Medium | ✅ Automated | `test_sequential_moves.py::test_multiple_files_sequential_moves` |
+
+#### **1.3 Link Reference Types (LR)**
 | Test ID | Description | Priority | Implementation | Test File |
 |---------|-------------|----------|----------------|-----------|
 | LR-001 | Markdown standard links | Critical | ✅ Automated | `test_markdown.py::test_lr_001_standard_links` |
@@ -89,7 +97,7 @@ python run_tests.py --coverage
 | LR-007 | Dart imports | Medium | ✅ Automated | `test_dart.py::test_lr_007_dart_imports` |
 | LR-008 | Generic text files | Medium | ✅ Automated | `test_generic.py::test_lr_008_generic_text_files` |
 
-#### **1.3 Complex Scenarios (CS)**
+#### **1.4 Complex Scenarios (CS)**
 | Test ID | Description | Priority | Implementation | Test File |
 |---------|-------------|----------|----------------|-----------|
 | CS-001 | Multiple references to same file | Critical | ✅ Automated | `test_complex_scenarios.py::test_cs_001_multiple_references` |

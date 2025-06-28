@@ -69,7 +69,7 @@ python -m pytest tests/parsers/test_markdown.py --cov=linkwatcher.parsers.markdo
 # Run only critical priority tests
 python -m pytest tests/parsers/test_markdown.py -m critical -v
 
-# Run only high priority tests  
+# Run only high priority tests
 python -m pytest tests/parsers/test_markdown.py -m high -v
 
 # Run only the new documented test cases

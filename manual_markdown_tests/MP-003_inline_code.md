@@ -15,7 +15,7 @@ This file tests that links inside inline code are ignored.
 - Real [working link](test_project/root.txt) and fake `[code example](test_project/fake-example.txt)` link
 
 **Expected Results:**
-- Should find ONLY: test_project/docs/readme.md, test_project/config/settings.yaml, test_project/root.txt
+- Should find ONLY: test_project/docs/readme.md, test_project/config/settings.yaml, test_projects/root.txtt
 - Should NOT find: test_project/fake.txt, url, test_project/fake-config.yaml, test_project/fake-example.txt
 
 **Current Parser Issue:**

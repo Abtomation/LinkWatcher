@@ -35,9 +35,9 @@ class TestLinkDatabase:
 
     def test_remove_file_links(self, link_database):
         """Test removing all links from a file."""
-        ref1 = LinkReference("test.md", 1, 0, 10, "file1.txt", "file1.txt", "markdown")
+        ref1 = LinkReference("test.md", 1, 0, 10, "../../manual_markdown_tests/test_project/documentatio/file1.txt", "../../manual_markdown_tests/test_project/documentatio/file1.txt", "markdown")
         ref2 = LinkReference("test.md", 2, 0, 10, "file2.txt", "file2.txt", "markdown")
-        ref3 = LinkReference("other.md", 1, 0, 10, "file1.txt", "file1.txt", "markdown")
+        ref3 = LinkReference("other.md", 1, 0, 10, "../../manual_markdown_tests/test_project/documentatio/file1.txt", "../../manual_markdown_tests/test_project/documentatio/file1.txt", "markdown")
 
         link_database.add_link(ref1)
         link_database.add_link(ref2)
@@ -53,10 +53,10 @@ class TestLinkDatabase:
         # file2.txt should be completely removed (only referenced by test.md)
         assert "file2.txt" not in link_database.links
 
-        # file1.txt should still have reference from other.md
-        assert "file1.txt" in link_database.links
-        assert len(link_database.links["file1.txt"]) == 1
-        assert link_database.links["file1.txt"][0].file_path == "other.md"
+        # ../../manual_markdown_tests/test_project/documentatio/file1.txt should still have reference from other.md
+        assert "../../manual_markdown_tests/test_project/documentatio/file1.txt" in link_database.links
+        assert len(link_database.links["../../manual_markdown_tests/test_project/documentatio/file1.txt"]) == 1
+        assert link_database.links["../../manual_markdown_tests/test_project/documentatio/file1.txt"][0].file_path == "other.md"
 
     def test_get_references_to_file(self, link_database):
         """Test getting references to a specific file."""
@@ -98,10 +98,10 @@ class TestLinkDatabase:
     def test_normalize_path(self, link_database):
         """Test path normalization."""
         # Test various path formats
-        assert link_database._normalize_path("/test/file.txt") == "test/file.txt"
-        assert link_database._normalize_path("test\\file.txt") == "test/file.txt"
-        assert link_database._normalize_path("./test/file.txt") == "test/file.txt"
-        assert link_database._normalize_path("test/../other/file.txt") == "other/file.txt"
+        assert link_database._normalize_path("/../tests/unit/file.txt") == "../tests/unit/file.txt"
+        assert link_database._normalize_path("../tests/unit/file.txt") == "../tests/unit/file.txt"
+        assert link_database._normalize_path("./../tests/unit/file.txt") == "../tests/unit/file.txt"
+        assert link_database._normalize_path("../tests/unit/file.txt") == "../tests/unit/file.txt"
 
     def test_reference_points_to_file(self, link_database):
         """Test reference matching logic."""
@@ -151,16 +151,16 @@ class TestLinkDatabase:
         assert stats["files_with_links"] == 0
 
         # Add some references
-        ref1 = LinkReference("doc1.md", 1, 0, 10, "file1.txt", "file1.txt", "markdown")
+        ref1 = LinkReference("doc1.md", 1, 0, 10, "../../manual_markdown_tests/test_project/documentatio/file1.txt", "../../manual_markdown_tests/test_project/documentatio/file1.txt", "markdown")
         ref2 = LinkReference("doc1.md", 2, 0, 10, "file2.txt", "file2.txt", "markdown")
-        ref3 = LinkReference("doc2.md", 1, 0, 10, "file1.txt", "file1.txt", "markdown")
+        ref3 = LinkReference("doc2.md", 1, 0, 10, "../../manual_markdown_tests/test_project/documentatio/file1.txt", "../../manual_markdown_tests/test_project/documentatio/file1.txt", "markdown")
 
         link_database.add_link(ref1)
         link_database.add_link(ref2)
         link_database.add_link(ref3)
 
         stats = link_database.get_stats()
-        assert stats["total_targets"] == 2  # file1.txt, file2.txt
+        assert stats["total_targets"] == 2  # ../../manual_markdown_tests/test_project/documentation/file1.txtt file2.txt
         assert stats["total_references"] == 3  # 3 references total
         assert stats["files_with_links"] == 2  # doc1.md, doc2.md
 

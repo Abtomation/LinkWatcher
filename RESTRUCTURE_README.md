@@ -132,7 +132,7 @@ ignored_directories:
   - node_modules
   - __pycache__
 
-create_backups: true
+create_backups: false  # Disabled by default to avoid file clutter
 dry_run_mode: false
 max_file_size_mb: 10
 log_level: INFO

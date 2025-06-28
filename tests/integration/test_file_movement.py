@@ -16,7 +16,7 @@ import time
 from pathlib import Path
 
 import pytest
-from watchdog.events import FileMovedEvent, DirMovedEvent
+from watchdog.events import DirMovedEvent, FileMovedEvent
 
 from linkwatcher.service import LinkWatcherService
 
@@ -28,8 +28,8 @@ class TestFileMovement:
         """
         FM-001: Single file rename (same directory)
 
-        Test Case: Rename file.txt → newfile.txt in same directory
-        Expected: All references updated to newfile.txt
+        Test Case: Rename file.txt → tests/integration/file.txt in same directory
+        Expected: All references updated to tests/integration/file.txt
         Priority: Critical
         """
         # Setup test files
@@ -62,7 +62,7 @@ settings:
         assert stats["total_references"] >= 2
 
         # Perform file rename
-        new_file = temp_project_dir / "newfile.txt"
+        new_file = temp_project_dir / "tests/integration/file.txt"
         original_file.rename(new_file)
 
         # Simulate file system event processing
@@ -73,12 +73,12 @@ settings:
         md_updated = md_file.read_text()
         yaml_updated = yaml_file.read_text()
 
-        assert "newfile.txt" in md_updated
+        assert "tests/integration/file.txt" in md_updated
         assert "test.txt" not in md_updated
-        assert "newfile.txt" in yaml_updated
+        assert "tests/integration/file.txt" in yaml_updated
 
         # Verify database was updated
-        references = service.link_db.get_references_to_file("newfile.txt")
+        references = service.link_db.get_references_to_file("tests/integration/file.txt")
         assert len(references) >= 2
 
         old_references = service.link_db.get_references_to_file("test.txt")
@@ -347,8 +347,8 @@ from src.utils.file_utils import read_file
         readme_content = """# Project
 
 Utilities:
-- [String Utils](src/utils/string_utils.py)
-- [File Utils](src/utils/file_utils.py)
+- [String Utils](../../test/integration/src/utils/string_utils.py)
+- [File Utils](../../test/integration/src/utils/file_utils.py)
 - [Helpers](src/utils/common/helpers.py)
 """
         readme.write_text(readme_content)
@@ -413,7 +413,7 @@ class TestFileMovementEdgeCases:
     def test_move_to_existing_file(self, temp_project_dir):
         """Test handling of move to existing file (overwrite scenario)."""
         # Create two files
-        file1 = temp_project_dir / "file1.txt"
+        file1 = temp_project_dir / "../../manual_markdown_tests/test_project/documentatio/file1.txt"
         file1.write_text("Content 1")
 
         file2 = temp_project_dir / "file2.txt"
@@ -436,4 +436,4 @@ class TestFileMovementEdgeCases:
         # Reference should be updated
         readme_updated = readme.read_text()
         assert "file2.txt" in readme_updated
-        assert "file1.txt" not in readme_updated
+        assert "../../manual_markdown_tests/test_project/documentatio/file1.txt" not in readme_updated

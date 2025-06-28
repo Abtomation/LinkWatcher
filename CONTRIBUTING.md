@@ -255,7 +255,7 @@ from linkwatcher.parsers.base import BaseParser
 class YourParser(BaseParser):
     def get_supported_extensions(self):
         return ['.your_ext']
-    
+
     def parse_file(self, file_path):
         # Implementation
         pass
@@ -352,9 +352,9 @@ What should happen
 What actually happens
 
 ## Environment
-- Windows Version: 
-- Python Version: 
-- LinkWatcher Version: 
+- Windows Version:
+- Python Version:
+- LinkWatcher Version:
 
 ## Additional Context
 Any other relevant information

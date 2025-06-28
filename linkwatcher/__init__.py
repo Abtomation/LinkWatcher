@@ -9,6 +9,7 @@ __version__ = "2.0.0"
 __author__ = "LinkWatcher Team"
 
 from .database import LinkDatabase
+from .logging import LogLevel, LogTimer, get_logger, setup_logging, with_context
 from .models import FileOperation, LinkReference
 from .parser import LinkParser
 from .service import LinkWatcherService
@@ -21,4 +22,10 @@ __all__ = [
     "LinkUpdater",
     "LinkReference",
     "FileOperation",
+    # Logging
+    "get_logger",
+    "setup_logging",
+    "LogLevel",
+    "LogTimer",
+    "with_context",
 ]

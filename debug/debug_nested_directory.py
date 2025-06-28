@@ -11,19 +11,20 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from watchdog.events import DirMovedEvent
+
 from linkwatcher.service import LinkWatcherService
 
 
 def debug_nested_directory():
     """Debug the nested directory movement test case."""
-    
+
     print("🔍 Debugging Nested Directory Movement")
     print("=" * 60)
-    
+
     # Create temporary directory (exact same as test)
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_project_dir = Path(temp_dir)
-        
+
         # Setup nested directory structure (exact same as test)
         src_dir = temp_project_dir / "src"
         src_dir.mkdir()
@@ -61,7 +62,7 @@ Utilities:
 - [Helpers](src/utils/common/helpers.py)
 """
         readme.write_text(readme_content)
-        
+
         print(f"📄 Initial file contents:")
         print(f"\nmain.py:")
         print(main_py.read_text())
@@ -77,8 +78,10 @@ Utilities:
         all_refs = []
         for target, refs in service.link_db.links.items():
             for ref in refs:
-                all_refs.append((ref.file_path, ref.line_number, ref.link_type, target, ref.link_text))
-                
+                all_refs.append(
+                    (ref.file_path, ref.line_number, ref.link_type, target, ref.link_text)
+                )
+
         all_refs.sort(key=lambda x: (x[0], x[1]))
         for file_path, line_num, link_type, target, link_text in all_refs:
             print(f"   • {file_path}:{line_num} → '{target}' ('{link_text}', {link_type})")
@@ -87,7 +90,7 @@ Utilities:
         print(f"\n🔄 Moving directory...")
         helpers_dir = src_dir / "helpers"
         utils_dir.rename(helpers_dir)
-        
+
         print(f"   src/utils/ → src/helpers/")
 
         # Process directory move
@@ -101,13 +104,19 @@ Utilities:
         print(main_py.read_text())
         print(f"\nREADME.md:")
         print(readme.read_text())
-        
+
         # Check specific expectations
         main_updated = main_py.read_text()
         print(f"\n🎯 Checking expectations:")
-        print(f"   • 'src.helpers.string_utils' in main.py: {'src.helpers.string_utils' in main_updated}")
-        print(f"   • 'src.helpers.file_utils' in main.py: {'src.helpers.file_utils' in main_updated}")
-        print(f"   • 'src/helpers/common/helpers.py' in main.py: {'src/helpers/common/helpers.py' in main_updated}")
+        print(
+            f"   • 'src.helpers.string_utils' in main.py: {'src.helpers.string_utils' in main_updated}"
+        )
+        print(
+            f"   • 'src.helpers.file_utils' in main.py: {'src.helpers.file_utils' in main_updated}"
+        )
+        print(
+            f"   • 'src/helpers/common/helpers.py' in main.py: {'src/helpers/common/helpers.py' in main_updated}"
+        )
 
 
 if __name__ == "__main__":

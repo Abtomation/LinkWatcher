@@ -1,0 +1,50 @@
+# LinkWatcher Debug Configuration
+# Use this configuration for troubleshooting and development
+
+# File monitoring settings
+monitored_extensions:
+  - ".md"
+  - ".yaml"
+  - ".yml"
+  - ".py"
+  - ".dart"
+  - ".json"
+  - ".txt"
+
+ignored_directories:
+  - ".git"
+  - ".dart_tool"
+  - "node_modules"
+  - ".vscode"
+  - "build"
+  - "dist"
+  - "__pycache__"
+
+# Debug settings
+create_backups: true                 # Create backups for safety during debugging
+dry_run_mode: false                  # Set to true to preview changes only
+atomic_updates: true
+initial_scan_enabled: true
+scan_progress_interval: 10           # More frequent progress updates
+
+# Debug Logging Configuration
+log_level: "DEBUG"                   # Maximum verbosity
+colored_output: true
+show_statistics: true
+log_file: "logs/linkwatcher-debug.log"
+log_file_max_size_mb: 50            # Larger log files for debug info
+log_file_backup_count: 10           # Keep more backup files
+json_logs: true                      # Structured logs for analysis
+show_log_icons: true
+performance_logging: true           # Track performance issues
+
+# Performance settings (relaxed for debugging)
+max_file_size_mb: 50                # Allow larger files during debugging
+
+# Enable all parsers for comprehensive testing
+enable_markdown_parser: true
+enable_yaml_parser: true
+enable_json_parser: true
+enable_dart_parser: true
+enable_python_parser: true
+enable_generic_parser: true

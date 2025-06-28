@@ -20,13 +20,15 @@ class PythonParser(BaseParser):
         self.quoted_pattern = re.compile(r'[\'"]([a-zA-Z0-9_\-./\\]+\.[a-zA-Z0-9]+)[\'"]')
 
         # Pattern for file paths in comments (find all occurrences)
-        self.comment_pattern = re.compile(r'([a-zA-Z0-9_\-./\\]+\.[a-zA-Z0-9]+)')
+        self.comment_pattern = re.compile(r"([a-zA-Z0-9_\-./\\]+\.[a-zA-Z0-9]+)")
 
         # Pattern for local import statements (relative imports with dots/slashes)
-        self.local_import_pattern = re.compile(r'^\s*(?:import|from)\s+([a-zA-Z0-9_./]+)')
+        self.local_import_pattern = re.compile(r"^\s*(?:import|from)\s+([a-zA-Z0-9_./]+)")
 
         # Pattern for standard library imports (to exclude them)
-        self.stdlib_import_pattern = re.compile(r"^\s*(?:import|from)\s+(?:os|sys|re|json|datetime|pathlib|typing|collections)\b")
+        self.stdlib_import_pattern = re.compile(
+            r"^\s*(?:import|from)\s+(?:os|sys|re|json|datetime|pathlib|typing|collections)\b"
+        )
 
     def parse_file(self, file_path: str) -> List[LinkReference]:
         """Parse Python file for file references."""
@@ -62,8 +64,8 @@ class PythonParser(BaseParser):
                 if import_match:
                     import_path = import_match.group(1)
                     # Convert dot notation to file path (e.g., src.utils.string_utils -> src/utils/string_utils)
-                    if '.' in import_path and not import_path.startswith('.'):
-                        file_path_candidate = import_path.replace('.', '/')
+                    if "." in import_path and not import_path.startswith("."):
+                        file_path_candidate = import_path.replace(".", "/")
                         if self._looks_like_local_import(file_path_candidate):
                             references.append(
                                 LinkReference(
@@ -78,14 +80,14 @@ class PythonParser(BaseParser):
                             )
 
                 # Look for file paths in comments (only in lines that contain #)
-                if '#' in line:
-                    comment_part = line[line.find('#'):]  # Get only the comment part
+                if "#" in line:
+                    comment_part = line[line.find("#") :]  # Get only the comment part
                     for match in self.comment_pattern.finditer(comment_part):
                         potential_file = match.group(1)
 
                         if self._looks_like_file_path(potential_file):
                             # Adjust column position to account for the comment offset
-                            comment_start = line.find('#')
+                            comment_start = line.find("#")
                             references.append(
                                 LinkReference(
                                     file_path=file_path,
@@ -108,10 +110,10 @@ class PythonParser(BaseParser):
         """Check if an import path looks like a local module reference."""
         # Local imports typically start with project directories like src/, lib/, etc.
         # or contain multiple path segments
-        if '/' in import_path and len(import_path.split('/')) >= 2:
+        if "/" in import_path and len(import_path.split("/")) >= 2:
             # Check if it looks like a local path (not a standard library)
-            first_part = import_path.split('/')[0]
+            first_part = import_path.split("/")[0]
             # Common local directory names
-            local_dirs = {'src', 'lib', 'app', 'core', 'utils', 'helpers', 'modules', 'packages'}
-            return first_part in local_dirs or len(import_path.split('/')) >= 3
+            local_dirs = {"src", "lib", "app", "core", "utils", "helpers", "modules", "packages"}
+            return first_part in local_dirs or len(import_path.split("/")) >= 3
         return False

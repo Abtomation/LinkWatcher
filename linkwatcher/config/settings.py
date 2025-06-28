@@ -44,7 +44,7 @@ class LinkWatcherConfig:
     enable_generic_parser: bool = True
 
     # Update behavior
-    create_backups: bool = True
+    create_backups: bool = False
     dry_run_mode: bool = False
     atomic_updates: bool = True
 
@@ -57,6 +57,12 @@ class LinkWatcherConfig:
     log_level: str = "INFO"
     colored_output: bool = True
     show_statistics: bool = True
+    log_file: Optional[str] = None
+    log_file_max_size_mb: int = 10
+    log_file_backup_count: int = 5
+    json_logs: bool = False
+    show_log_icons: bool = True
+    performance_logging: bool = False
 
     # Advanced settings
     custom_parsers: Dict[str, str] = field(default_factory=dict)
@@ -195,7 +201,7 @@ class LinkWatcherConfig:
         # Override with other config's values, but only if they differ from defaults
         for key, value in other.__dict__.items():
             default_value = getattr(default_config, key)
-            
+
             # Only override if the other config's value is different from default
             if value != default_value:
                 if isinstance(value, set):
