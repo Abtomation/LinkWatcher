@@ -193,45 +193,52 @@ class LinkUpdater:
                 # Direct match (both absolute or both relative)
                 match_found = True
             else:
-                # Try to resolve old_path relative to source file for comparison
-                # This handles cases where old_path is relative but absolute_target is absolute
-                try:
-                    source_dir = os.path.dirname(source_file.replace("\\", "/"))
-                    if (
-                        source_dir
-                        and not old_path_norm.startswith("/")
-                        and ":" not in old_path_norm
-                    ):
-                        # old_path appears to be relative, resolve it relative to source
-                        resolved_old_path = os.path.normpath(
-                            os.path.join(source_dir, old_path_norm)
-                        ).replace("\\", "/")
-                        if absolute_target_norm == resolved_old_path:
-                            match_found = True
-                except:
-                    pass
-
-                # Also try the reverse: if absolute_target looks relative, resolve old_path as absolute
-                if not match_found:
+                # Try comparing paths with leading slashes stripped
+                # This handles cases where one path is absolute (/doc/...) and the other is relative (doc/...)
+                absolute_target_stripped = absolute_target_norm.lstrip("/")
+                old_path_stripped = old_path_norm.lstrip("/")
+                if absolute_target_stripped == old_path_stripped:
+                    match_found = True
+                else:
+                    # Try to resolve old_path relative to source file for comparison
+                    # This handles cases where old_path is relative but absolute_target is absolute
                     try:
-                        # Extract just the filename from absolute_target for comparison
-                        target_filename = os.path.basename(absolute_target_norm)
-                        old_filename = os.path.basename(old_path_norm)
-
-                        # If filenames match and the target resolves to the same directory as old_path
-                        if target_filename == old_filename:
-                            target_dir = os.path.dirname(absolute_target_norm)
-                            old_dir = os.path.dirname(old_path_norm) if "/" in old_path_norm else ""
-
-                            # For filename-only targets, check if they're in the expected directory
-                            if link_info["is_filename_only"]:
-                                source_dir = os.path.dirname(source_file.replace("\\", "/"))
-                                if target_dir == source_dir and (
-                                    not old_dir or old_dir == source_dir
-                                ):
-                                    match_found = True
+                        source_dir = os.path.dirname(source_file.replace("\\", "/"))
+                        if (
+                            source_dir
+                            and not old_path_norm.startswith("/")
+                            and ":" not in old_path_norm
+                        ):
+                            # old_path appears to be relative, resolve it relative to source
+                            resolved_old_path = os.path.normpath(
+                                os.path.join(source_dir, old_path_norm)
+                            ).replace("\\", "/")
+                            if absolute_target_norm == resolved_old_path:
+                                match_found = True
                     except:
                         pass
+
+                    # Also try the reverse: if absolute_target looks relative, resolve old_path as absolute
+                    if not match_found:
+                        try:
+                            # Extract just the filename from absolute_target for comparison
+                            target_filename = os.path.basename(absolute_target_norm)
+                            old_filename = os.path.basename(old_path_norm)
+
+                            # If filenames match and the target resolves to the same directory as old_path
+                            if target_filename == old_filename:
+                                target_dir = os.path.dirname(absolute_target_norm)
+                                old_dir = os.path.dirname(old_path_norm) if "/" in old_path_norm else ""
+
+                                # For filename-only targets, check if they're in the expected directory
+                                if link_info["is_filename_only"]:
+                                    source_dir = os.path.dirname(source_file.replace("\\", "/"))
+                                    if target_dir == source_dir and (
+                                        not old_dir or old_dir == source_dir
+                                    ):
+                                        match_found = True
+                        except:
+                            pass
 
             if match_found:
                 # Step 4: Convert new absolute path back to original link style
@@ -326,7 +333,8 @@ class LinkUpdater:
 
         # If original was absolute, return absolute
         if link_info["is_absolute"]:
-            result = new_path_norm
+            # Ensure the result starts with / to maintain absolute path format
+            result = new_path_norm if new_path_norm.startswith("/") else f"/{new_path_norm}"
         # If original was filename-only, check if we can keep it that way
         elif link_info["is_filename_only"]:
             new_filename = os.path.basename(new_path_norm)
