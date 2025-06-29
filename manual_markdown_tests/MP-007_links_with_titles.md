@@ -12,7 +12,7 @@ This file tests links with title attributes.
 [ref2]: reference2.txt 'Reference title 2'
 
 ## Image with title:
-![Image](image.png "Image title")
+![Image](test_project/manual_test.py "Image title")
 
 ## Mixed titles and no titles:
 - [No title](no-title.txt)

@@ -11,13 +11,41 @@ from .settings import LinkWatcherConfig
 DEFAULT_CONFIG = LinkWatcherConfig(
     # File monitoring settings
     monitored_extensions={
+        # Documentation and text files
         ".md",  # Markdown files
+        ".txt",  # Text files
         ".yaml",  # YAML files
         ".yml",  # YAML files (alternative extension)
-        ".dart",  # Dart files
-        ".py",  # Python files
         ".json",  # JSON files
-        ".txt",  # Text files
+        ".xml",  # XML files
+        ".csv",  # CSV data files
+        # Web development files
+        ".html",  # HTML files
+        ".htm",  # HTML files (alternative extension)
+        ".css",  # CSS stylesheets
+        ".js",  # JavaScript files
+        ".ts",  # TypeScript files
+        ".jsx",  # React JSX files
+        ".tsx",  # React TypeScript JSX files
+        ".vue",  # Vue.js components
+        ".php",  # PHP files
+        # Image files (commonly referenced)
+        ".png",  # PNG image files
+        ".jpg",  # JPEG image files
+        ".jpeg",  # JPEG image files (alternative extension)
+        ".gif",  # GIF image files
+        ".svg",  # SVG image files (may contain links)
+        ".webp",  # WebP image files
+        ".ico",  # Icon files
+        # Document files
+        ".pdf",  # PDF documents
+        # Source code files (project-specific, but commonly referenced)
+        ".py",  # Python files
+        ".dart",  # Dart files
+        # Media files (commonly referenced in documentation)
+        ".mp4",  # Video files
+        ".mp3",  # Audio files
+        ".wav",  # Audio files
     },
     ignored_directories={
         ".git",  # Git repository data
@@ -94,6 +122,6 @@ TESTING_CONFIG = LinkWatcherConfig(
     create_backups=True,
     dry_run_mode=True,  # Don't actually modify files in tests
     # Minimal monitoring for tests
-    monitored_extensions={".md", ".txt"},
+    monitored_extensions={".md", ".txt", ".png", ".svg"},
     ignored_directories={".git", "node_modules"},
 )

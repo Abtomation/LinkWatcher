@@ -63,7 +63,7 @@ class MarkdownParser(BaseParser):
 
         # Check for title with parentheses (this is trickier since the outer parens are already removed)
         # Look for pattern: url (title) where there's a space before the opening paren
-        paren_match = re.match(r'^(.+?)\s+\(([^)]*)\)$', link_content)
+        paren_match = re.match(r"^(.+?)\s+\(([^)]*)\)$", link_content)
         if paren_match:
             return paren_match.group(1).strip()
 
@@ -143,7 +143,10 @@ class MarkdownParser(BaseParser):
                             # Check if this overlaps with any markdown link
                             overlaps = False
                             for md_match in self.link_pattern.finditer(line):
-                                if match.start() >= md_match.start() and match.end() <= md_match.end():
+                                if (
+                                    match.start() >= md_match.start()
+                                    and match.end() <= md_match.end()
+                                ):
                                     overlaps = True
                                     break
 

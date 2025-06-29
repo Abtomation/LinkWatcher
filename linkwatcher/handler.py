@@ -46,8 +46,44 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
         self.project_root = Path(project_root).resolve()
         self.logger = get_logger()
 
-        # Configuration
-        self.monitored_extensions = {".md", ".yaml", ".yml", ".dart", ".py", ".json", ".txt"}
+        # Configuration - comprehensive set of commonly referenced file types
+        self.monitored_extensions = {
+            # Documentation and text files
+            ".md",
+            ".txt",
+            ".yaml",
+            ".yml",
+            ".json",
+            ".xml",
+            ".csv",
+            # Web development files
+            ".html",
+            ".htm",
+            ".css",
+            ".js",
+            ".ts",
+            ".jsx",
+            ".tsx",
+            ".vue",
+            ".php",
+            # Image files
+            ".png",
+            ".jpg",
+            ".jpeg",
+            ".gif",
+            ".svg",
+            ".webp",
+            ".ico",
+            # Document files
+            ".pdf",
+            # Source code files
+            ".py",
+            ".dart",
+            # Media files
+            ".mp4",
+            ".mp3",
+            ".wav",
+        }
         self.ignored_dirs = {".git", ".dart_tool", "node_modules", ".vscode", "build", "dist"}
 
         # Delayed move detection
