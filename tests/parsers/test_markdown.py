@@ -406,7 +406,7 @@ Also test [shorthand reference][] style.
 
         # Should find reference link targets
         targets = [ref.link_target for ref in references]
-        expected_targets = ["../../manual_markdown_tests/test_project/documentatio/file1.txt, "docs/file2.md", "config/settings.yaml", "shorthand.txt"]
+        expected_targets = ["file1.txt", "docs/file2.md", "config/settings.yaml", "shorthand.txt"]
 
         for expected in expected_targets:
             assert expected in targets, f"Expected target '{expected}' not found in {targets}"
@@ -642,9 +642,9 @@ Image with title:
         # Should find all links regardless of title format
         targets = [ref.link_target for ref in references]
         expected_targets = [
-            "../../manual_markdown_tests/test_project/documentatio/file1.txt",
+            "file1.txt",
             "file2.txt",
-            "../../manual_markdown_tests/test_project/documentatio/file1.txt",
+            "file3.txt",
             "reference1.txt",
             "reference2.txt",
             "image.png",

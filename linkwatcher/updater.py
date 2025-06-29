@@ -405,23 +405,53 @@ class LinkUpdater:
         if ref.link_type == "markdown":
             # For markdown links [text](target), replace just the target part
             return self._replace_markdown_target(line, ref, new_target)
+        elif ref.link_type == "markdown-reference":
+            # For reference links [label]: target "title", replace just the target part
+            return self._replace_reference_target(line, ref, new_target)
         else:
             # For other types, use position-based replacement for precision
             return self._replace_at_position(line, ref, new_target)
 
     def _replace_markdown_target(self, line: str, ref: LinkReference, new_target: str) -> str:
-        """Replace target in markdown link format."""
-        # Find the pattern [text](target) and replace just the target
+        """Replace target in markdown link format, handling titles properly."""
         import re
 
         # Escape special regex characters in the original target
         escaped_target = re.escape(ref.link_target)
 
-        # Pattern to match [text](target) where target is our specific target
-        pattern = rf"(\[[^\]]*\]\()({escaped_target})(\))"
+        # Pattern to match [text](target optional_title) where target is our specific target
+        # This handles titles in formats: "title", 'title', (title)
+        pattern = rf"(\[[^\]]*\]\()({escaped_target})(\s+[\"'(][^\"')]*[\"')])?(\))"
 
         def replace_func(match):
-            return f"{match.group(1)}{new_target}{match.group(3)}"
+            # Group 1: [text](
+            # Group 2: target (the file path we want to replace)
+            # Group 3: optional title (including the space and quotes/parens)
+            # Group 4: closing )
+            title_part = match.group(3) if match.group(3) else ""
+            return f"{match.group(1)}{new_target}{title_part}{match.group(4)}"
+
+        return re.sub(pattern, replace_func, line)
+
+    def _replace_reference_target(self, line: str, ref: LinkReference, new_target: str) -> str:
+        """Replace target in reference link format [label]: target "title"."""
+        import re
+
+        # Escape special regex characters in the original target
+        escaped_target = re.escape(ref.link_target)
+
+        # Pattern to match [label]: target optional_title
+        # This handles titles in formats: "title", 'title', (title)
+        pattern = rf"(\[[^\]]*\]:\s*)({escaped_target})(\s+[\"'(][^\"')]*[\"')])?(\s*$)"
+
+        def replace_func(match):
+            # Group 1: [label]:
+            # Group 2: target (the file path we want to replace)
+            # Group 3: optional title (including the space and quotes/parens)
+            # Group 4: end of line
+            title_part = match.group(3) if match.group(3) else ""
+            end_part = match.group(4) if match.group(4) else ""
+            return f"{match.group(1)}{new_target}{title_part}{end_part}"
 
         return re.sub(pattern, replace_func, line)
 
