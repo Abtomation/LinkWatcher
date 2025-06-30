@@ -288,6 +288,8 @@ service.force_rescan()
 ### **Common Issues**
 
 1. **Links not updating**: Check if file extension is in `monitored_extensions`
+   - See [File Type Quick Fix Guide](docs/FILE_TYPE_QUICK_FIX.md) for immediate solutions
+   - See [Troubleshooting File Types](docs/TROUBLESHOOTING_FILE_TYPES.md) for detailed diagnosis
 2. **Performance issues**: Adjust `max_file_size_mb` or add directories to `ignored_directories`
 3. **Path issues**: Ensure consistent path separators in your project
 4. **Permission errors**: Run with appropriate file system permissions

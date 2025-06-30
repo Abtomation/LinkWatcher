@@ -98,6 +98,8 @@ dev format
 | [Architecture Overview](RESTRUCTURE_README.md) | Technical architecture details |
 | [Migration Guide](docs/migration-guide.md) | Upgrading from v1.0 |
 | [Troubleshooting](docs/troubleshooting.md) | Common issues and solutions |
+| [File Type Quick Fix](docs/FILE_TYPE_QUICK_FIX.md) | **Quick fix** for file types not being monitored |
+| [File Type Troubleshooting](docs/TROUBLESHOOTING_FILE_TYPES.md) | **Detailed guide** for file type monitoring issues |
 
 ## 🏗️ Architecture
 
