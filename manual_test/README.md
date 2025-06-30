@@ -22,3 +22,10 @@ This is a test project for LinkWatcher functionality.
 ## Relative Links
 - Link to [user guide](docs/user-guide.md) again
 - Link to [main module](src/main.py) again
+
+## PowerShell Script Links
+- [Deployment Script](scripts/deploy.ps1)
+- [Setup Script](scripts/setup.ps1)
+
+## Test Cases
+- [PowerShell Links Test](TEST_POWERSHELL_LINKS.md) - Test case for .ps1 file link updates

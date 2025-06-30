@@ -25,7 +25,8 @@ def install_dependencies():
     """Install required Python packages."""
     print("\nInstalling dependencies...")
 
-    requirements_file = Path(__file__).parent / "requirements.txt"
+    # Look for requirements.txt in the parent directory (project root)
+    requirements_file = Path(__file__).parent.parent / "requirements.txt"
 
     try:
         subprocess.run(
@@ -62,7 +63,7 @@ def get_install_directory():
 
 def install_linkwatcher():
     """Install LinkWatcher to a global location."""
-    source_dir = Path(__file__).parent
+    source_dir = Path(__file__).parent.parent  # Go to project root
     install_dir = get_install_directory()
 
     print(f"\nInstalling LinkWatcher to: {install_dir}")
@@ -70,12 +71,25 @@ def install_linkwatcher():
     # Create install directory
     install_dir.mkdir(parents=True, exist_ok=True)
 
-    # Copy core files
-    core_files = ["old/link_watcher_old.py", "check_links.py", "requirements.txt"]
+    # Copy core files and directories
+    core_files = [
+        "main.py",
+        "scripts/check_links.py", 
+        "requirements.txt"
+    ]
+    
+    core_dirs = [
+        "linkwatcher",
+        "config-examples"
+    ]
 
+    # Copy files
     for file_name in core_files:
         source_file = source_dir / file_name
         dest_file = install_dir / file_name
+        
+        # Create parent directory if needed
+        dest_file.parent.mkdir(parents=True, exist_ok=True)
 
         if source_file.exists():
             shutil.copy2(source_file, dest_file)
@@ -83,6 +97,23 @@ def install_linkwatcher():
         else:
             print(f"   ❌ Missing: {file_name}")
             return False
+    
+    # Copy directories
+    for dir_name in core_dirs:
+        source_dir_path = source_dir / dir_name
+        dest_dir_path = install_dir / dir_name
+        
+        if source_dir_path.exists():
+            # Remove existing directory or file if it exists
+            if dest_dir_path.exists():
+                if dest_dir_path.is_dir():
+                    shutil.rmtree(dest_dir_path)
+                else:
+                    dest_dir_path.unlink()  # Remove file
+            shutil.copytree(source_dir_path, dest_dir_path)
+            print(f"   ✅ Copied directory: {dir_name}")
+        else:
+            print(f"   ❌ Missing directory: {dir_name}")
 
     return install_dir
 
@@ -90,63 +121,85 @@ def install_linkwatcher():
 def create_wrapper_scripts(install_dir):
     """Create wrapper scripts for easy execution."""
 
+    scripts_created = []
+
     # Windows batch script
     batch_script = install_dir / "linkwatcher.bat"
     batch_content = f"""@echo off
-python "{install_dir / 'old/link_watcher_old.py'}" %*
+python "{install_dir / 'main.py'}" %*
 """
 
-    with open(batch_script, "w") as f:
-        f.write(batch_content)
+    try:
+        with open(batch_script, "w") as f:
+            f.write(batch_content)
+        scripts_created.append(str(batch_script))
+    except Exception as e:
+        print(f"   ⚠️  Could not create {batch_script}: {e}")
 
     # PowerShell script
     ps_script = install_dir / "linkwatcher.ps1"
     ps_content = f"""# LinkWatcher Wrapper Script
-python "{install_dir / 'old/link_watcher_old.py'}" @args
+python "{install_dir / 'main.py'}" @args
 """
 
-    with open(ps_script, "w") as f:
-        f.write(ps_content)
+    try:
+        with open(ps_script, "w") as f:
+            f.write(ps_content)
+        scripts_created.append(str(ps_script))
+    except Exception as e:
+        print(f"   ⚠️  Could not create {ps_script}: {e}")
 
-    # Shell script for Unix-like systems
-    shell_script = install_dir / "linkwatcher"
+    # Shell script for Unix-like systems (skip on Windows if there's a conflict)
+    shell_script = install_dir / "linkwatcher_sh"  # Use different name to avoid conflicts
     shell_content = f"""#!/bin/bash
-python3 "{install_dir / 'old/link_watcher_old.py'}" "$@"
+python3 "{install_dir / 'main.py'}" "$@"
 """
 
-    with open(shell_script, "w") as f:
-        f.write(shell_content)
-
-    # Make shell script executable on Unix-like systems
-    if os.name != "nt":
-        os.chmod(shell_script, 0o755)
+    try:
+        with open(shell_script, "w") as f:
+            f.write(shell_content)
+        
+        # Make shell script executable on Unix-like systems
+        if os.name != "nt":
+            os.chmod(shell_script, 0o755)
+        scripts_created.append(str(shell_script))
+    except Exception as e:
+        print(f"   ⚠️  Could not create {shell_script}: {e}")
 
     # Check links wrapper
     check_batch = install_dir / "checklinks.bat"
     check_batch_content = f"""@echo off
-python "{install_dir / 'check_links.py'}" %*
+python "{install_dir / 'scripts/check_links.py'}" %*
 """
 
-    with open(check_batch, "w") as f:
-        f.write(check_batch_content)
+    try:
+        with open(check_batch, "w") as f:
+            f.write(check_batch_content)
+        scripts_created.append(str(check_batch))
+    except Exception as e:
+        print(f"   ⚠️  Could not create {check_batch}: {e}")
 
-    check_shell = install_dir / "checklinks"
+    check_shell = install_dir / "checklinks_sh"  # Use different name to avoid conflicts
     check_shell_content = f"""#!/bin/bash
-python3 "{install_dir / 'check_links.py'}" "$@"
+python3 "{install_dir / 'scripts/check_links.py'}" "$@"
 """
 
-    with open(check_shell, "w") as f:
-        f.write(check_shell_content)
+    try:
+        with open(check_shell, "w") as f:
+            f.write(check_shell_content)
+        
+        if os.name != "nt":
+            os.chmod(check_shell, 0o755)
+        scripts_created.append(str(check_shell))
+    except Exception as e:
+        print(f"   ⚠️  Could not create {check_shell}: {e}")
 
-    if os.name != "nt":
-        os.chmod(check_shell, 0o755)
-
-    print("OK: Wrapper scripts created:")
-    print(f"   - {batch_script}")
-    print(f"   - {ps_script}")
-    print(f"   - {shell_script}")
-    print(f"   - {check_batch}")
-    print(f"   - {check_shell}")
+    if scripts_created:
+        print("OK: Wrapper scripts created:")
+        for script in scripts_created:
+            print(f"   - {script}")
+    else:
+        print("⚠️  Warning: No wrapper scripts could be created")
 
     return install_dir
 
@@ -158,7 +211,7 @@ def test_installation(install_dir):
     try:
         # Test the main script
         result = subprocess.run(
-            [sys.executable, str(install_dir / "old/link_watcher_old.py"), "--help"],
+            [sys.executable, str(install_dir / "main.py"), "--help"],
             capture_output=True,
             text=True,
         )
@@ -168,7 +221,7 @@ def test_installation(install_dir):
 
             # Test check links
             result2 = subprocess.run(
-                [sys.executable, str(install_dir / "check_links.py"), "--help"],
+                [sys.executable, str(install_dir / "scripts/check_links.py"), "--help"],
                 capture_output=True,
                 text=True,
             )
@@ -229,21 +282,21 @@ def main():
     print()
     print("2. Start LinkWatcher:")
     if os.name == "nt":
-        print(f"   python \"{install_dir / 'old/link_watcher_old.py'}\"")
+        print(f"   python \"{install_dir / 'main.py'}\"")
         print(f"   # Or if {install_dir} is in your PATH:")
         print("   linkwatcher.bat")
     else:
-        print(f"   python3 \"{install_dir / 'old/link_watcher_old.py'}\"")
+        print(f"   python3 \"{install_dir / 'main.py'}\"")
         print(f"   # Or if {install_dir} is in your PATH:")
         print("   linkwatcher")
 
     print()
     print("3. Check links in current project:")
     if os.name == "nt":
-        print(f"   python \"{install_dir / 'check_links.py'}\"")
+        print(f"   python \"{install_dir / 'scripts/check_links.py'}\"")
         print("   checklinks.bat")
     else:
-        print(f"   python3 \"{install_dir / 'check_links.py'}\"")
+        print(f"   python3 \"{install_dir / 'scripts/check_links.py'}\"")
         print("   checklinks")
 
     print(f"\n💡 Tip: Add {install_dir} to your PATH environment variable")

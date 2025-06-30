@@ -228,7 +228,9 @@ class LinkUpdater:
                             # If filenames match and the target resolves to the same directory as old_path
                             if target_filename == old_filename:
                                 target_dir = os.path.dirname(absolute_target_norm)
-                                old_dir = os.path.dirname(old_path_norm) if "/" in old_path_norm else ""
+                                old_dir = (
+                                    os.path.dirname(old_path_norm) if "/" in old_path_norm else ""
+                                )
 
                                 # For filename-only targets, check if they're in the expected directory
                                 if link_info["is_filename_only"]:
@@ -486,14 +488,14 @@ class LinkUpdater:
 
         # For quoted references, the text might include quotes
         if (
-            ref.link_type in ["markdown-quoted", "quoted"]
+            ref.link_type in ["markdown-quoted", "quoted", "python-quoted"]
             and text_at_position.startswith('"')
             and text_at_position.endswith('"')
         ):
             # Replace just the content inside quotes
             return line[:start_col] + f'"{new_target}"' + line[end_col:]
         elif (
-            ref.link_type in ["markdown-quoted", "quoted"]
+            ref.link_type in ["markdown-quoted", "quoted", "python-quoted"]
             and text_at_position.startswith("'")
             and text_at_position.endswith("'")
         ):

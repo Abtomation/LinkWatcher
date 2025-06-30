@@ -4,13 +4,13 @@
 
 ```bash
 # Basic usage - monitor current directory
-python link_watcher_new.py
+python main.py
 
 # Monitor specific directory
-python link_watcher_new.py --project-root /path/to/project
+python main.py --project-root /path/to/project
 
 # Preview mode (no file changes)
-python link_watcher_new.py --dry-run
+python main.py --dry-run
 ```
 
 ## 📋 Command Line Options
@@ -161,7 +161,7 @@ python run_tests.py --performance   # Performance tests
 **Links not updating?**
 ```bash
 # Check if file extension is monitored
-python link_watcher_new.py --config debug.yaml
+python main.py --config debug.yaml
 
 # debug.yaml:
 # monitored_extensions: [".md", ".txt", ".your_extension"]
@@ -176,14 +176,14 @@ python link_watcher_new.py --config debug.yaml
 **Want to see what would change?**
 ```bash
 # Use dry run mode
-python link_watcher_new.py --dry-run
+python main.py --dry-run
 ```
 
 **Need more details?**
 ```bash
 # Enable debug logging
 export LINKWATCHER_LOG_LEVEL=DEBUG
-python link_watcher_new.py
+python main.py
 ```
 
 ## 📝 Example Link Formats Detected

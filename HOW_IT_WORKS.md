@@ -194,25 +194,25 @@ log_level: "INFO"
 ### **Basic Usage**
 ```bash
 # Start monitoring current directory
-python link_watcher_new.py
+python main.py
 
 # Monitor specific directory
-python link_watcher_new.py --project-root /path/to/project
+python main.py --project-root /path/to/project
 
 # Dry run mode (preview only)
-python link_watcher_new.py --dry-run
+python main.py --dry-run
 ```
 
 ### **With Configuration**
 ```bash
 # Use custom config file
-python link_watcher_new.py --config my-config.yaml
+python main.py --config my-config.yaml
 
 # Skip initial scan for faster startup
-python link_watcher_new.py --no-initial-scan
+python main.py --no-initial-scan
 
 # Quiet mode
-python link_watcher_new.py --quiet
+python main.py --quiet
 ```
 
 ### **Environment Variables**
@@ -222,7 +222,7 @@ export LINKWATCHER_DRY_RUN=true
 export LINKWATCHER_CREATE_BACKUPS=true
 export LINKWATCHER_LOG_LEVEL=DEBUG
 
-python link_watcher_new.py
+python main.py
 ```
 
 ## 📊 Statistics and Monitoring
@@ -295,7 +295,7 @@ service.force_rescan()
 ### **Debug Mode**
 ```bash
 # Enable detailed logging
-python link_watcher_new.py --config debug-config.yaml
+python main.py --config debug-config.yaml
 
 # Where debug-config.yaml contains:
 # log_level: "DEBUG"

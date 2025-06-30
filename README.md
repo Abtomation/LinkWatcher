@@ -20,7 +20,7 @@ cd LinkWatcher
 pip install -r requirements.txt
 
 # 3. Start monitoring your project
-python link_watcher_new.py
+python main.py
 
 # 4. Move any file - watch links update automatically! ✨
 ```
@@ -126,13 +126,13 @@ LinkWatcher 2.0 includes a comprehensive logging system with:
 ### **Quick Logging Setup**
 ```bash
 # Enable debug logging
-python link_watcher_new.py --debug
+python main.py --debug
 
 # Log to file
-python link_watcher_new.py --log-file logs/linkwatcher.log
+python main.py --log-file logs/linkwatcher.log
 
 # Use configuration file
-python link_watcher_new.py --config config-examples/debug-config.yaml
+python main.py --config config-examples/debug-config.yaml
 ```
 
 ### **Real-time Dashboard**

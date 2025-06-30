@@ -79,6 +79,10 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
             # Source code files
             ".py",
             ".dart",
+            # Script files
+            ".ps1",
+            ".sh",
+            ".bat",
             # Media files
             ".mp4",
             ".mp3",

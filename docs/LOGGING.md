@@ -74,13 +74,13 @@ export LINKWATCHER_LOG_FILE=/var/log/linkwatcher.log
 
 ```bash
 # Enable debug logging
-python link_watcher_new.py --debug
+python main.py --debug
 
 # Log to file
-python link_watcher_new.py --log-file logs/debug.log
+python main.py --log-file logs/debug.log
 
 # Quiet mode (errors only)
-python link_watcher_new.py --quiet
+python main.py --quiet
 ```
 
 ## 📝 Usage Examples
@@ -212,7 +212,7 @@ logger.operation_stats(files_moved=5, links_updated=12, errors=0)
 
 ```bash
 # Command line
-python link_watcher_new.py --debug
+python main.py --debug
 
 # Environment variable
 export LINKWATCHER_LOG_LEVEL=DEBUG

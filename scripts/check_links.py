@@ -12,15 +12,16 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Set
 
-# Add the scripts directory to the path so we can import from link_watcher
-sys.path.insert(0, os.path.dirname(__file__))
+# Add the parent directory to the path so we can import from linkwatcher
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 try:
     from colorama import Fore, Style, init
-    from link_watcher import LinkParser, LinkReference
+    from linkwatcher.parser import LinkParser
+    from linkwatcher.models import LinkReference
 except ImportError as e:
     print(f"Missing required dependency: {e}")
-    print("Please run: python scripts/setup_link_watcher.py")
+    print("Please install dependencies with: pip install -r requirements.txt")
     sys.exit(1)
 
 # Initialize colorama

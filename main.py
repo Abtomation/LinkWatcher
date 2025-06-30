@@ -6,7 +6,7 @@ Main entry point for the restructured LinkWatcher system.
 This replaces the monolithic link_watcher.py with a modular architecture.
 
 Usage:
-    python link_watcher_new.py [options]
+    python main.py [options]
 
 Options:
     --no-initial-scan    Skip initial scan of files
@@ -130,11 +130,11 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  python link_watcher_new.py                    # Start with default settings
-  python link_watcher_new.py --no-initial-scan # Skip initial scan
-  python link_watcher_new.py --dry-run         # Preview mode only
-  python link_watcher_new.py --config my.yaml  # Use custom config
-  python link_watcher_new.py --quiet           # Minimal output
+  python main.py                    # Start with default settings
+  python main.py --no-initial-scan # Skip initial scan
+  python main.py --dry-run         # Preview mode only
+  python main.py --config my.yaml  # Use custom config
+  python main.py --quiet           # Minimal output
         """,
     )
 

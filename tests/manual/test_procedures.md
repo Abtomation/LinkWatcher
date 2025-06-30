@@ -353,13 +353,13 @@ Test configuration options and customization features.
      - .git
    dry_run_mode: true
    ```
-   - Run with: `python link_watcher_new.py --config custom_config.yaml`
+   - Run with: `python main.py --config custom_config.yaml`
 
 2. **Test Command Line Options**
    ```bash
-   python link_watcher_new.py --dry-run
-   python link_watcher_new.py --quiet
-   python link_watcher_new.py --no-initial-scan
+   python main.py --dry-run
+   python main.py --quiet
+   python main.py --no-initial-scan
    ```
 
 3. **Test File Type Filtering**

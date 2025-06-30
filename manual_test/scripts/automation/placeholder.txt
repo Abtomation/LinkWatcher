@@ -1,0 +1,2 @@
+This directory is for testing script moves.
+You can move deploy.ps1 here to test link updates.

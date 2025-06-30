@@ -14,6 +14,12 @@ from pathlib import Path
 
 def find_linkwatcher_installation():
     """Find the LinkWatcher installation directory."""
+    # Known working location
+    known_location = Path(r"C:\Users\ronny\bin")
+    if (known_location / "main.py").exists():
+        return known_location
+    
+    # Fallback to search in common locations
     possible_locations = [
         Path.home() / "bin",
         Path.home() / "tools",
@@ -23,7 +29,7 @@ def find_linkwatcher_installation():
     ]
 
     for location in possible_locations:
-        if (location / "old/link_watcher_old.py").exists():
+        if (location / "main.py").exists():
             return location
 
     return None
@@ -31,7 +37,10 @@ def find_linkwatcher_installation():
 
 def create_vscode_tasks(linkwatcher_dir):
     """Create VS Code tasks for the current project."""
-    vscode_dir = Path(".vscode")
+    # Create .vscode directory in the project root (parent of LinkWatcher directory)
+    setup_script_dir = Path(__file__).parent
+    project_root = setup_script_dir.parent
+    vscode_dir = project_root / ".vscode"
     tasks_file = vscode_dir / "tasks.json"
 
     # Create .vscode directory if it doesn't exist
@@ -45,7 +54,7 @@ def create_vscode_tasks(linkwatcher_dir):
                 "label": "Start LinkWatcher",
                 "type": "shell",
                 "command": "python",
-                "args": [str(linkwatcher_dir / "old/link_watcher_old.py")],
+                "args": [str(linkwatcher_dir / "main.py")],
                 "group": "build",
                 "presentation": {"echo": True, "reveal": "always", "focus": False, "panel": "new"},
                 "problemMatcher": [],
@@ -55,7 +64,7 @@ def create_vscode_tasks(linkwatcher_dir):
                 "label": "Check Links",
                 "type": "shell",
                 "command": "python",
-                "args": [str(linkwatcher_dir / "check_links.py")],
+                "args": [str(linkwatcher_dir / "scripts/check_links.py")],
                 "group": "test",
                 "presentation": {"echo": True, "reveal": "always", "focus": False, "panel": "new"},
                 "problemMatcher": [],
@@ -97,13 +106,16 @@ def create_vscode_tasks(linkwatcher_dir):
 
 def create_convenience_scripts(linkwatcher_dir):
     """Create convenience scripts for this project."""
-    project_dir = Path(".")
+    # Create scripts in the same directory as this setup script
+    setup_script_dir = Path(__file__).parent
+    linkwatcher_project_dir = setup_script_dir
+    linkwatcher_project_dir.mkdir(exist_ok=True)
 
     # Windows batch script
-    batch_script = project_dir / "start_linkwatcher.bat"
+    batch_script = linkwatcher_project_dir / "start_linkwatcher.bat"
     batch_content = f"""@echo off
 echo Starting LinkWatcher for this project...
-python "{linkwatcher_dir / 'old/link_watcher_old.py'}"
+python "{linkwatcher_dir / 'main.py'}"
 pause
 """
 
@@ -111,10 +123,10 @@ pause
         f.write(batch_content)
 
     # PowerShell script
-    ps_script = project_dir / "start_linkwatcher.ps1"
+    ps_script = linkwatcher_project_dir / "start_linkwatcher.ps1"
     ps_content = f"""# LinkWatcher for this project
 Write-Host "Starting LinkWatcher for this project..." -ForegroundColor Cyan
-python "{linkwatcher_dir / 'old/link_watcher_old.py'}"
+python "{linkwatcher_dir / 'main.py'}"
 Read-Host "Press Enter to exit"
 """
 
@@ -122,23 +134,57 @@ Read-Host "Press Enter to exit"
         f.write(ps_content)
 
     # Shell script
-    shell_script = project_dir / "start_linkwatcher.sh"
+    shell_script = linkwatcher_project_dir / "start_linkwatcher.sh"
     shell_content = f"""#!/bin/bash
 echo "Starting LinkWatcher for this project..."
-python3 "{linkwatcher_dir / 'old/link_watcher_old.py'}"
+python3 "{linkwatcher_dir / 'main.py'}"
 """
 
     with open(shell_script, "w") as f:
         f.write(shell_content)
 
+    # Python script for background execution (the one that works)
+    python_script = linkwatcher_project_dir / "start_link_watcher.py"
+    python_content = f'''#!/usr/bin/env python3
+"""
+Start the link watcher service with better debugging
+"""
+
+import subprocess
+import sys
+import os
+
+def main():
+    print("Starting Link Watcher Service...")
+    
+    # Use the actual working LinkWatcher
+    linkwatcher_path = r"{linkwatcher_dir / 'main.py'}"
+    
+    try:
+        # Run the actual working LinkWatcher
+        subprocess.run([sys.executable, linkwatcher_path], check=True)
+    except KeyboardInterrupt:
+        print("\\nStopping service...")
+    except Exception as e:
+        print(f"Error starting LinkWatcher: {{e}}")
+
+if __name__ == "__main__":
+    main()
+'''
+
+    with open(python_script, "w") as f:
+        f.write(python_content)
+
     # Make shell script executable on Unix-like systems
     if os.name != "nt":
         os.chmod(shell_script, 0o755)
 
-    print("✅ Convenience scripts created:")
-    print(f"   - {batch_script}")
-    print(f"   - {ps_script}")
-    print(f"   - {shell_script}")
+    print("✅ Convenience scripts created in LinkWatcher directory:")
+    print(f"   - {batch_script.name}")
+    print(f"   - {ps_script.name}")
+    print(f"   - {shell_script.name}")
+    print(f"   - {python_script.name} (for background execution)")
+    print(f"   Location: {linkwatcher_project_dir.resolve()}")
 
 
 def main():
@@ -162,8 +208,8 @@ def main():
 
         if manual_path:
             linkwatcher_dir = Path(manual_path)
-            if not (linkwatcher_dir / "old/link_watcher_old.py").exists():
-                print(f"❌ ERROR: link_watcher.py not found in {linkwatcher_dir}")
+            if not (linkwatcher_dir / "main.py").exists():
+                print(f"❌ ERROR: main.py not found in {linkwatcher_dir}")
                 sys.exit(1)
         else:
             sys.exit(1)
@@ -190,20 +236,26 @@ def main():
     print(f"🔗 LinkWatcher location: {linkwatcher_dir}")
 
     print("\n📋 How to use:")
-    print("1. Start LinkWatcher:")
-    print(f"   python \"{linkwatcher_dir / 'old/link_watcher_old.py'}\"")
-    print("   # Or use convenience scripts:")
-    print("   ./start_linkwatcher.bat  (Windows)")
-    print("   ./start_linkwatcher.sh   (Linux/Mac)")
+    print("1. Start LinkWatcher in FOREGROUND (for debugging):")
+    print(f"   python \"{linkwatcher_dir / 'main.py'}\"")
+    print("   # Or use convenience scripts in LinkWatcher directory:")
+    print("   ./LinkWatcher/start_linkwatcher.bat  (Windows)")
+    print("   ./LinkWatcher/start_linkwatcher.sh   (Linux/Mac)")
 
-    print("\n2. Check links:")
-    print(f"   python \"{linkwatcher_dir / 'check_links.py'}\"")
+    print("\n2. Start LinkWatcher in BACKGROUND (recommended):")
+    print("   Start-Process -FilePath \"python\" -ArgumentList \"LinkWatcher/start_link_watcher.py\" -WindowStyle Hidden")
+    print("   # Or use PowerShell script:")
+    print("   ./LinkWatcher/start_linkwatcher.ps1")
 
-    print("\n3. VS Code integration:")
+    print("\n3. Check links:")
+    print(f"   python \"{linkwatcher_dir / 'scripts/check_links.py'}\"")
+
+    print("\n4. VS Code integration:")
     print("   Ctrl+Shift+P → 'Tasks: Run Task' → 'Start LinkWatcher'")
 
     print("\n🎯 LinkWatcher will monitor THIS project directory for file changes")
     print("   and automatically update links when files are moved or renamed!")
+    print("\n⚠️  IMPORTANT: For AI agents, always use BACKGROUND mode to avoid blocking!")
 
 
 if __name__ == "__main__":
