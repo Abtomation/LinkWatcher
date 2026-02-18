@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Domain-specific configuration for process framework scripts. Update this file when adapting framework to a new business domain.",
+  "version": "1.0",
+  "domain": "application-development",
+  "domain_description": "Application development process framework for software projects",
+
+  "workflow_phases": {
+    "description": "Valid workflow phase identifiers for tasks and context maps",
+    "values": [
+      "00-onboarding",
+      "01-planning",
+      "02-design",
+      "03-testing",
+      "04-implementation",
+      "05-validation",
+      "06-maintenance",
+      "07-deployment",
+      "cyclical",
+      "support"
+    ]
+  },
+
+  "task_types": {
+    "description": "Valid task type classifications",
+    "values": [
+      "Discrete",
+      "Cyclical",
+      "Continuous",
+      "Support",
+      "Onboarding"
+    ]
+  },
+
+  "business_domains": {
+    "description": "Valid business domain identifiers for context documentation",
+    "values": [
+      "product",
+      "technical",
+      "development",
+      "infrastructure"
+    ],
+    "default": "development"
+  },
+
+  "entity_terminology": {
+    "description": "Domain-specific entity names used in documentation and code",
+    "primary_entity": {
+      "singular": "feature",
+      "plural": "features",
+      "description": "Software features and functionality components"
+    },
+    "secondary_entity": {
+      "singular": "component",
+      "plural": "components",
+      "description": "Individual code components, modules, or classes"
+    }
+  },
+
+  "document_categories": {
+    "description": "Valid document category identifiers",
+    "values": [
+      "specification",
+      "architecture",
+      "template",
+      "guide",
+      "task",
+      "state-tracking",
+      "feedback"
+    ]
+  },
+
+  "framework_metadata": {
+    "description": "Domain-agnostic framework settings (rarely need updates)",
+    "guide_statuses": [
+      "Active",
+      "Draft",
+      "Deprecated",
+      "Under Review"
+    ],
+    "structure_change_types": [
+      "Template Update",
+      "Directory Reorganization",
+      "Metadata Structure",
+      "Documentation Architecture"
+    ]
+  },
+
+  "validation_rules": {
+    "description": "Rules for Test-ScriptDomainAlignment.ps1 validation",
+    "deprecated_keywords": [
+      "document",
+      "clause",
+      "legal-document",
+      "contract",
+      "policy"
+    ],
+    "require_config_usage": true,
+    "enforce_entity_terminology": true
+  }
+}

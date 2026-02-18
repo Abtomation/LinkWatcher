@@ -1,0 +1,12 @@
+{
+  "mcp-server-time": {
+    "type": "stdio",
+    "command": "python",
+    "args": [
+      "-m",
+      "mcp_server_time",
+      "--local-timezone",
+      "Europe/Berlin"
+    ]
+  }
+}

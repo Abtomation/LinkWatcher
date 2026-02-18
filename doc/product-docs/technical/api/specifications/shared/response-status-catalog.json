@@ -1,0 +1,66 @@
+{
+  "metadata": {
+    "description": "Canonical HTTP status codes for BreakoutBuddies internal APIs.",
+    "version": "1.0.0",
+    "last_updated": "2025-08-25",
+    "maintainers": [
+      "API Platform Team"
+    ]
+  },
+  "apis": {
+    "user-registration": {
+      "endpoints": {
+        "/auth/v1/signup": {
+          "method": "POST",
+          "scenarios": {
+            "success": {
+              "status": 200,
+              "description": "User successfully created, verification email sent"
+            },
+            "invalid_request": {
+              "status": 400,
+              "description": "Invalid email format, weak password, or missing required fields"
+            },
+            "duplicate_email": {
+              "status": 409,
+              "description": "Email already registered"
+            },
+            "rate_limited": {
+              "status": 429,
+              "description": "Rate limit exceeded (5 attempts per hour per IP)"
+            },
+            "server_error": {
+              "status": 500,
+              "description": "Server error or email service failure"
+            }
+          }
+        },
+        "/auth/v1/resend": {
+          "method": "POST",
+          "scenarios": {
+            "success": {
+              "status": 200,
+              "description": "Verification email sent successfully"
+            },
+            "invalid_request": {
+              "status": 400,
+              "description": "Invalid email format or missing email field"
+            },
+            "not_found": {
+              "status": 404,
+              "description": "Email address not found"
+            },
+            "rate_limited": {
+              "status": 429,
+              "description": "Rate limit exceeded"
+            },
+            "server_error": {
+              "status": 500,
+              "description": "Email service failure"
+            }
+          }
+        }
+      }
+    }
+  }
+}

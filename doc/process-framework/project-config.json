@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Project-specific configuration for this instance of the process framework. Update this file when adapting framework to a new project.",
+  "version": "1.0",
+
+  "project": {
+    "name": "LinkWatcher",
+    "display_name": "LinkWatcher 2.0",
+    "description": "Real-time link maintenance system using file system watching",
+    "root_directory": "c:\\Users\\ronny\\VS_Code\\LinkWatcher",
+    "repository_url": "https://github.com/Abtomation/LinkWatcher"
+  },
+
+  "paths": {
+    "description": "Project-specific directory paths relative to root or absolute",
+    "documentation_root": "doc",
+    "process_framework": "doc\\process-framework",
+    "product_docs": "doc\\product-docs",
+    "source_code": "linkwatcher",
+    "tests": "tests",
+    "scripts": "scripts",
+    "examples": "examples"
+  },
+
+  "project_metadata": {
+    "primary_language": "Python",
+    "framework": "N/A",
+    "platform": "Windows",
+    "development_approach": "Task-based development with AI-assisted workflow",
+    "documentation_style": "Markdown with frontmatter metadata"
+  },
+
+  "team": {
+    "description": "Team composition and roles",
+    "primary_developer": "ronny",
+    "ai_assistant": "Zencoder",
+    "collaboration_model": "Human-AI pair programming"
+  },
+
+  "integration": {
+    "description": "Integration with project-specific tools and systems",
+    "issue_tracker": null,
+    "ci_cd_platform": "GitHub Actions",
+    "code_hosting": "GitHub",
+    "documentation_hosting": "Repository"
+  }
+}

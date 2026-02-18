@@ -1,0 +1,526 @@
+{
+  "metadata": {
+    "version": "2.0",
+    "created": "2025-01-27",
+    "updated": "2025-07-08",
+    "description": "Central registry for all document IDs in the BreakoutBuddies project - Enhanced with semantic directory mapping",
+    "format": "semantic"
+  },
+  "prefixes": {
+    "PF-TSK": {
+      "description": "Process Framework - Tasks",
+      "category": "Process Framework",
+      "type": "Task",
+      "directories": {
+        "00-onboarding": "doc/process-framework/tasks/00-onboarding",
+        "01-planning": "doc/process-framework/tasks/01-planning",
+        "02-design": "doc/process-framework/tasks/02-design",
+        "03-testing": "doc/process-framework/tasks/03-testing",
+        "04-implementation": "doc/process-framework/tasks/04-implementation",
+        "05-validation": "doc/process-framework/tasks/05-validation",
+        "06-maintenance": "doc/process-framework/tasks/06-maintenance",
+        "07-deployment": "doc/process-framework/tasks/07-deployment",
+        "support": "doc/process-framework/tasks/support",
+        "cyclical": "doc/process-framework/tasks/cyclical",
+        "default": "01-planning"
+      },
+      "nextAvailable": 67
+    },
+    "PF-GDE": {
+      "description": "Process Framework - Guides",
+      "category": "Process Framework",
+      "type": "Guide",
+      "directories": {
+        "guides": "doc/process-framework/guides/guides",
+        "main": "doc/process-framework/guides",
+        "default": "guides"
+      },
+      "nextAvailable": 47
+    },
+    "PF-TEM": {
+      "description": "Process Framework - Templates",
+      "category": "Process Framework",
+      "type": "Template",
+      "directories": {
+        "main": "doc/process-framework/templates",
+        "default": "main"
+      },
+      "nextAvailable": 45
+    },
+    "PF-MTH": {
+      "description": "Process Framework - Methodologies",
+      "category": "Process Framework",
+      "type": "Methodology",
+      "directories": {
+        "main": "doc/process-framework/methodologies",
+        "default": "main"
+      },
+      "nextAvailable": 2
+    },
+    "PF-STA": {
+      "description": "Process Framework - State Tracking",
+      "category": "Process Framework",
+      "type": "State",
+      "directories": {
+        "permanent": "doc/process-framework/state-tracking/permanent",
+        "temporary": "doc/process-framework/state-tracking/temporary",
+        "default": "permanent"
+      },
+      "nextAvailable": 44
+    },
+    "PF-DOC": {
+      "description": "Process Framework - Documentation",
+      "category": "Process Framework",
+      "type": "Documentation",
+      "directories": {
+        "root": "doc",
+        "default": "root"
+      },
+      "nextAvailable": 1
+    },
+    "PF-MAI": {
+      "description": "Process Framework - Main/Index",
+      "category": "Process Framework",
+      "type": "Main",
+      "directories": {
+        "main": "doc/process-framework",
+        "default": "main"
+      },
+      "nextAvailable": 2
+    },
+    "PF-VIS": {
+      "description": "Process Framework - Visualization",
+      "category": "Process Framework",
+      "type": "Visualization",
+      "directories": {
+        "context-maps": "doc/process-framework/visualization/context-maps",
+        "default": "context-maps"
+      },
+      "nextAvailable": 47
+    },
+    "PF-PRO": {
+      "description": "Process Framework - Proposals",
+      "category": "Process Framework",
+      "type": "Proposal",
+      "directories": {
+        "main": "doc/process-framework/proposals",
+        "default": "main"
+      },
+      "nextAvailable": 1
+    },
+    "PF-FEE": {
+      "description": "Process Framework - Feedback",
+      "category": "Process Framework",
+      "type": "Feedback",
+      "directories": {
+        "main": "doc/process-framework/feedback",
+        "default": "main"
+      },
+      "nextAvailable": 2
+    },
+    "PF-FEA": {
+      "description": "Process Framework - Feature Implementation States",
+      "category": "Process Framework",
+      "type": "Feature State",
+      "directories": {
+        "features": "doc/process-framework/state-tracking/features",
+        "default": "features"
+      },
+      "nextAvailable": 4
+    },
+    "PF-IMP": {
+      "description": "Process Framework - Improvements",
+      "category": "Process Framework",
+      "type": "Improvement",
+      "directories": {
+        "main": "doc/process-framework/improvement",
+        "default": "main"
+      },
+      "nextAvailable": 4
+    },
+    "PF-ASS": {
+      "description": "Process Framework - Tier Assessments",
+      "category": "Process Framework",
+      "type": "Tier Assessment",
+      "directories": {
+        "tiers": "doc/process-framework/methodologies/documentation-tiers",
+        "default": "tiers"
+      },
+      "nextAvailable": 3
+    },
+    "PD-DOC": {
+      "description": "Product Documentation - Documentation",
+      "category": "Product Documentation",
+      "type": "Documentation",
+      "directories": {
+        "main": "doc/product-docs",
+        "default": "main"
+      },
+      "nextAvailable": 1
+    },
+    "PD-ASS": {
+      "description": "Process Framework - Assets",
+      "category": "Process Framework",
+      "type": "Asset",
+      "directories": {
+        "technical": "doc/product-docs/technical/assets",
+        "default": "technical"
+      },
+      "nextAvailable": 3
+    },
+    "PD-DES": {
+      "description": "Product Documentation - System-wide Design",
+      "category": "Product Documentation",
+      "type": "Design",
+      "directories": {
+        "technical": "doc/product-docs/technical/design",
+        "default": "technical"
+      },
+      "nextAvailable": 3
+    },
+    "PD-UIX": {
+      "description": "Product Documentation - UI/UX Design",
+      "category": "Product Documentation",
+      "type": "UI/UX Design Document",
+      "directories": {
+        "features": "doc/product-docs/technical/design/ui-ux/features",
+        "design-system": "doc/product-docs/technical/design/ui-ux/design-system",
+        "main": "doc/product-docs/technical/design/ui-ux",
+        "default": "features"
+      },
+      "nextAvailable": 3
+    },
+    "PD-ARC": {
+      "description": "Product Documentation - Architecture",
+      "category": "Product Documentation",
+      "type": "Architecture",
+      "directories": {
+        "main": "doc/product-docs/technical/architecture",
+        "default": "main"
+      },
+      "nextAvailable": 3
+    },
+    "PD-TDD": {
+      "description": "Product Documentation - Technical Design Documents",
+      "category": "Product Documentation",
+      "type": "Technical Design Document",
+      "directories": {
+        "main": "doc/product-docs/technical/architecture/design-docs/tdd",
+        "default": "main"
+      },
+      "nextAvailable": 21
+    },
+    "PD-FDD": {
+      "description": "Product Documentation - Functional Design Documents",
+      "category": "Product Documentation",
+      "type": "Functional Design Document",
+      "directories": {
+        "fdds": "doc/product-docs/functional-design/fdds",
+        "main": "doc/product-docs/functional-design",
+        "default": "fdds"
+      },
+      "nextAvailable": 22
+    },
+    "PD-ADR": {
+      "description": "Product Documentation - Architecture Decision Records",
+      "category": "Product Documentation",
+      "type": "Architecture Decision Records",
+      "directories": {
+        "main": "doc/product-docs/technical/architecture/design-docs/adr",
+        "default": "main"
+      },
+      "nextAvailable": 39
+    },
+    "PD-AIA": {
+      "description": "Product Documentation - Architecture Impact Assessments",
+      "category": "Product Documentation",
+      "type": "Architecture Impact Assessment",
+      "directories": {
+        "main": "doc/product-docs/technical/architecture/assessments",
+        "default": "main"
+      },
+      "nextAvailable": 10
+    },
+    "PD-TEM": {
+      "description": "Product Documentation - Templates",
+      "category": "Product Documentation",
+      "type": "Template",
+      "directories": {
+        "main": "doc/product-docs/templates",
+        "default": "main"
+      },
+      "nextAvailable": 10
+    },
+    "PD-IMP": {
+      "description": "Product Documentation - Implementation",
+      "category": "Product Documentation",
+      "type": "Implementation",
+      "directories": {
+        "implementation-plans": "doc/product-docs/technical/implementation-plans",
+        "implementation": "doc/product-docs/technical/implementation",
+        "technical": "doc/product-docs/technical",
+        "default": "implementation-plans"
+      },
+      "nextAvailable": 2
+    },
+    "PD-TEC": {
+      "description": "Product Documentation - Technical",
+      "category": "Product Documentation",
+      "type": "Technical",
+      "directories": {
+        "main": "doc/product-docs/technical",
+        "default": "main"
+      },
+      "nextAvailable": 1
+    },
+    "PD-API": {
+      "description": "Product Documentation - API Specifications",
+      "category": "Product Documentation",
+      "type": "API Specification",
+      "directories": {
+        "specifications": "doc/product-docs/technical/api/specifications/specifications",
+        "models": "doc/product-docs/technical/api/models",
+        "documentation": "doc/product-docs/technical/api/documentation",
+        "main": "doc/product-docs/technical/api",
+        "default": "specifications"
+      },
+      "nextAvailable": 44
+    },
+    "PD-CKL": {
+      "description": "Product Documentation - Checklists",
+      "category": "Product Documentation",
+      "type": "Checklist",
+      "directories": {
+        "main": "doc/product-docs/checklists",
+        "default": "main"
+      },
+      "nextAvailable": 9
+    },
+    "PD-CIC": {
+      "description": "Product Documentation - CI-CD",
+      "category": "Product Documentation",
+      "type": "CI-CD",
+      "directories": {
+        "main": "doc/product-docs/ci-cd",
+        "default": "main"
+      },
+      "nextAvailable": 4
+    },
+    "PD-GDE": {
+      "description": "Product Documentation - Guides",
+      "category": "Product Documentation",
+      "type": "Guide",
+      "directories": {
+        "main": "doc/product-docs/guides",
+        "default": "main"
+      },
+      "nextAvailable": 8
+    },
+    "PD-USR": {
+      "description": "Product Documentation - User",
+      "category": "Product Documentation",
+      "type": "User",
+      "directories": {
+        "main": "doc/product-docs/user",
+        "default": "main"
+      },
+      "nextAvailable": 1
+    },
+    "PD-UGD": {
+      "description": "Product Documentation - User Guides",
+      "category": "Product Documentation",
+      "type": "User Guide",
+      "directories": {
+        "handbooks": "doc/product-docs/user/handbooks",
+        "default": "handbooks"
+      },
+      "nextAvailable": 3
+    },
+    "PD-FEA": {
+      "description": "Product Documentation - Features",
+      "category": "Product Documentation",
+      "type": "Feature",
+      "directories": {
+        "user": "doc/product-docs/user/features",
+        "default": "user"
+      },
+      "nextAvailable": 1
+    },
+    "PD-FAQ": {
+      "description": "Product Documentation - FAQ",
+      "category": "Product Documentation",
+      "type": "FAQ",
+      "directories": {
+        "user": "doc/product-docs/user/faq",
+        "default": "user"
+      },
+      "nextAvailable": 1
+    },
+    "ART-ASS": {
+      "description": "Assessment Artifacts",
+      "category": "Artifact",
+      "type": "Assessment",
+      "directories": {
+        "assessments": "doc/process-framework/methodologies/documentation-tiers/assessments",
+        "default": "assessments"
+      },
+      "nextAvailable": 191
+    },
+    "ART-FEE": {
+      "description": "Feedback Artifacts",
+      "category": "Artifact",
+      "type": "Feedback",
+      "directories": {
+        "forms": "doc/process-framework/feedback/feedback-forms",
+        "default": "forms"
+      },
+      "nextAvailable": 170
+    },
+    "ART-REV": {
+      "description": "Review Artifacts",
+      "category": "Artifact",
+      "type": "Review",
+      "directories": {
+        "reviews": "doc/process-framework/feedback/reviews",
+        "default": "reviews"
+      },
+      "nextAvailable": 1
+    },
+    "PF-TSP": {
+      "description": "Process Framework - Test Specifications",
+      "category": "Process Framework",
+      "type": "Test Specification",
+      "directories": {
+        "feature-specs": "test/specifications/feature-specs",
+        "default": "feature-specs"
+      },
+      "nextAvailable": 35
+    },
+    "PF-TAR": {
+      "description": "Process Framework - Test Audit Reports",
+      "category": "Process Framework",
+      "type": "Test Audit Report",
+      "directories": {
+        "foundation": "doc/process-framework/test-audits/foundation",
+        "authentication": "doc/process-framework/test-audits/authentication",
+        "core-features": "doc/process-framework/test-audits/core-features",
+        "main": "doc/process-framework/test-audits",
+        "default": "foundation"
+      },
+      "nextAvailable": 6
+    },
+    "PD-TST": {
+      "description": "Process Framework - Test Files",
+      "category": "Process Framework",
+      "type": "Test File",
+      "fileType": "dart",
+      "metadataFormat": "comment",
+      "directories": {
+        "unit": "test/unit",
+        "integration": "test/integration",
+        "widget": "test/widget",
+        "e2e": "integration_test",
+        "default": "unit"
+      },
+      "nextAvailable": 98
+    },
+    "PF-VAL": {
+      "description": "Process Framework - Validation Reports",
+      "category": "Process Framework",
+      "type": "Validation Report",
+      "directories": {
+        "architectural-consistency": "doc/process-framework/validation/reports/architectural-consistency",
+        "code-quality": "doc/process-framework/validation/reports/code-quality",
+        "integration-dependencies": "doc/process-framework/validation/reports/integration-dependencies",
+        "documentation-alignment": "doc/process-framework/validation/reports/documentation-alignment",
+        "extensibility-maintainability": "doc/process-framework/validation/reports/extensibility-maintainability",
+        "ai-agent-continuity": "doc/process-framework/validation/reports/ai-agent-continuity",
+        "reports": "doc/process-framework/validation/reports",
+        "default": "reports"
+      },
+      "nextAvailable": 35
+    },
+    "PD-SCH": {
+      "description": "Product Documentation - Database Schema Design",
+      "category": "Product Documentation",
+      "type": "Schema Design",
+      "directories": {
+        "schemas": "doc/product-docs/technical/database/schemas",
+        "default": "schemas"
+      },
+      "nextAvailable": 11
+    },
+    "PD-MIG": {
+      "description": "Product Documentation - Database Migration Scripts",
+      "category": "Product Documentation",
+      "type": "Migration Script",
+      "fileType": "sql",
+      "metadataFormat": "comment",
+      "directories": {
+        "migrations": "doc/product-docs/technical/database/migrations",
+        "default": "migrations"
+      },
+      "nextAvailable": 1
+    },
+    "PD-ERD": {
+      "description": "Product Documentation - Entity Relationship Diagrams",
+      "category": "Product Documentation",
+      "type": "Entity Relationship Diagram",
+      "directories": {
+        "diagrams": "doc/product-docs/technical/database/diagrams",
+        "default": "diagrams"
+      },
+      "nextAvailable": 1
+    },
+    "PF-REF": {
+      "description": "Process Framework - Refactoring Plans",
+      "category": "Process Framework",
+      "type": "Refactoring Plan",
+      "directories": {
+        "plans": "doc/process-framework/refactoring/plans",
+        "default": "plans"
+      },
+      "nextAvailable": 20
+    },
+    "PF-TDA": {
+      "description": "Process Framework - Technical Debt Assessments",
+      "category": "Process Framework",
+      "type": "Technical Debt Assessment",
+      "directories": {
+        "assessments": "doc/process-framework/assessments/technical-debt/assessments",
+        "default": "assessments"
+      },
+      "nextAvailable": 1
+    },
+    "PF-TDI": {
+      "description": "Process Framework - Technical Debt Items",
+      "category": "Process Framework",
+      "type": "Technical Debt Item",
+      "directories": {
+        "debt-items": "doc/process-framework/assessments/technical-debt/debt-items",
+        "default": "debt-items"
+      },
+      "nextAvailable": 1
+    },
+    "PF-TDM": {
+      "description": "Process Framework - Technical Debt Matrices",
+      "category": "Process Framework",
+      "type": "Technical Debt Matrix",
+      "directories": {
+        "matrices": "doc/process-framework/assessments/technical-debt/matrices",
+        "default": "matrices"
+      },
+      "nextAvailable": 1
+    },
+    "PD-BUG": {
+      "description": "Product Documentation - Bug Reports",
+      "category": "Product Documentation",
+      "type": "Bug Report",
+      "directories": {
+        "permanent": "doc/process-framework/state-tracking/permanent",
+        "default": "permanent"
+      },
+      "nextAvailable": 5
+    }
+  }
+}
