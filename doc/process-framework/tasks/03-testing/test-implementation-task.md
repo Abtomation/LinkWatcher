@@ -2,13 +2,18 @@
 id: PF-TSK-029
 type: Process Framework
 category: Task Definition
-version: 1.1
+version: 1.2
 created: 2025-08-03
-updated: 2025-08-04
+updated: 2026-02-20
 task_type: Discrete
+status: DEPRECATED
+deprecated_date: 2026-02-20
+replaced_by: PF-TSK-053
 ---
 
-# Test Implementation
+# Test Implementation — DEPRECATED
+
+> **DEPRECATED**: This task has been absorbed into [Integration & Testing (PF-TSK-053)](../04-implementation/integration-and-testing.md). All test creation automation (`New-TestFile.ps1`), state tracking updates, bug discovery workflow, and validation scripts are now part of PF-TSK-053. Use that task instead.
 
 ## Purpose & Context
 
@@ -68,7 +73,7 @@ Implement comprehensive test cases based on existing Test Specifications, enabli
 ### Preparation
 
 1. **Review Test Specification**: Study the test specification document for the feature to understand test requirements and structure
-2. **Analyze Test Categories**: Identify which test types are required (unit, integration, widget, e2e) based on the specification
+2. **Analyze Test Categories**: Identify which test types are required based on the specification and project language (check `project-config.json` for valid test types — e.g., Python: Unit/Integration/Parser/Performance; Dart: Unit/Integration/Widget/E2E)
 3. **Set Up Test Environment**: Ensure test dependencies and mock services are available
 
 ### Execution
@@ -78,9 +83,11 @@ Implement comprehensive test cases based on existing Test Specifications, enabli
    ```powershell
    # Create test files using automation script (generates PD-TST-[SEQUENCE] IDs)
    cd test
+   # Test types depend on project language (auto-detected from project-config.json)
+   # Python: Unit, Integration, Parser, Performance
+   # Dart: Unit, Integration, Widget, E2E
    ../../scripts/file-creation/New-TestFile.ps1 -TestName "FeatureName" -TestType "Unit" -FeatureId "X.Y.Z" -ComponentName "ComponentName"
    ../../scripts/file-creation/New-TestFile.ps1 -TestName "FeatureName" -TestType "Integration" -FeatureId "X.Y.Z" -ComponentName "ComponentName"
-   ../../scripts/file-creation/New-TestFile.ps1 -TestName "FeatureName" -TestType "Widget" -FeatureId "X.Y.Z" -ComponentName "ComponentName"
 
    # Script automatically:
    # - Generates unique PD-TST ID
@@ -93,9 +100,8 @@ Implement comprehensive test cases based on existing Test Specifications, enabli
 
 5. **Implement Unit Tests**: Write comprehensive unit tests following the test specification requirements
 6. **Implement Integration Tests**: Create integration tests that validate component interactions
-7. **Implement Widget Tests**: Develop widget tests for UI components (if applicable)
-8. **Implement E2E Tests**: Create end-to-end tests for complete user workflows (if required)
-9. **Verify Test Coverage**: Ensure all test scenarios from the specification are implemented
+7. **Implement Additional Test Types**: Implement any remaining test types required by the specification (e.g., Parser tests, Performance tests for Python; Widget tests, E2E tests for Dart)
+8. **Verify Test Coverage**: Ensure all test scenarios from the specification are implemented
 
 ### Finalization
 
@@ -122,10 +128,10 @@ Implement comprehensive test cases based on existing Test Specifications, enabli
 
     ```powershell
     # Navigate to the scripts directory from project root
-    Set-Location "c:\Users\ronny\VS_Code\BreakoutBuddies\breakoutbuddies\doc\process-framework\scripts\file-creation"
+    Set-Location "<project-root>/doc/process-framework/scripts/file-creation"
 
     # Create bug report for issues found during test implementation
-    ../../scripts/file-creation/New-BugReport.ps1 -Title "User service throws null exception on empty input" -Description "getUserById() method fails with null pointer exception when passed empty string instead of returning proper error" -DiscoveredBy "Test Implementation" -Severity "High" -Component "User Management" -Environment "Development" -Evidence "Test case: test_getUserById_empty_input_returns_error"
+    .\New-BugReport.ps1 -Title "Service throws exception on empty input" -Description "Method fails with exception when passed empty string instead of returning proper error" -DiscoveredBy "Test Implementation" -Severity "High" -Component "Component Name" -Environment "Development" -Evidence "Test case: test_method_empty_input_returns_error"
     ```
 
 13. **Update Test Status**: Update test implementation status to reflect completion (automation handles initial tracking)
@@ -139,7 +145,7 @@ Implement comprehensive test cases based on existing Test Specifications, enabli
 
 ## Outputs
 
-- **Test Files** - Comprehensive test suite including unit, integration, widget, and e2e tests (located in `/test/unit/`, `/test/integration/`, `/test/widget/`, `/integration_test/`)
+- **Test Files** - Comprehensive test suite organized by test type in the project's test directory (as configured in `project-config.json`)
 - **Updated Test Tracking** - Test case implementation tracking updated with completion status
 - **Test Results Documentation** - Record of test implementation completion and coverage metrics
 - **Bug Reports** - Any bugs discovered during test implementation documented in [Bug Tracking](../../state-tracking/permanent/bug-tracking.md) with status 🆕 Reported
@@ -182,14 +188,14 @@ Before considering this task finished:
 
 ## Next Tasks
 
-- [**Feature Implementation Task**](../04-implementation/feature-implementation-task.md) - Implement the actual feature using the test suite for validation
+- [**Feature Implementation Planning**](../04-implementation/feature-implementation-planning-task.md) - Plan and implement the actual feature using the test suite for validation
 - [**Foundation Feature Implementation Task**](../04-implementation/foundation-feature-implementation-task.md) - For foundation features, implement with architectural awareness
 - [**Code Review Task**](../06-maintenance/code-review-task.md) - Review implemented tests for quality and completeness
 
 ## Related Resources
 
 - [Test Specification Creation Task](test-specification-creation-task.md) - For creating test specifications before implementation
-- [Test Implementation Tracking](../../state-tracking/discrete/test-implementation-tracking.md) - Track test implementation progress
+- [Test Implementation Tracking](../../state-tracking/permanent/test-implementation-tracking.md) - Track test implementation progress
 - [Test Registry](/test/test-registry.yaml) - Test file registry with IDs and metadata
 - [Validation Scripts](../../../scripts/validation) - Scripts for test tracking consistency validation
 - [Development Guide](/doc/product-docs/guides/guides/development-guide.md) - Testing standards and practices

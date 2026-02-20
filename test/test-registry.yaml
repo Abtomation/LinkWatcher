@@ -1,0 +1,494 @@
+# Test Registry
+# This file maintains a registry of all test files with their IDs, metadata, and relationships
+# Format: PD-TST-[SEQUENCE] for Test File IDs
+# Updated: 2026-02-20
+# Version: 2.0
+#
+# VALIDATION: Run doc/process-framework/scripts/Validate-TestTracking.ps1 to validate consistency
+# between this registry, test-implementation-tracking.md, and actual test files
+#
+# SCHEMA NOTES:
+# - crossCuttingFeatures: Optional list of additional feature IDs tested by this file
+#   (beyond the primary featureId). Used for tests that validate cross-feature interactions.
+# - testType: Unit | Integration | Parser | Performance | cross-cutting
+#   cross-cutting type indicates the test explicitly validates multi-feature interactions.
+
+testFiles:
+  # ─────────────────────────────────────────────────────────
+  # Infrastructure / Fixtures
+  # ─────────────────────────────────────────────────────────
+  - id: PD-TST-098
+    featureId: "4.1.6"
+    fileName: conftest.py
+    filePath: tests/conftest.py
+    testType: Unit
+    componentName: Test Fixtures
+    specificationPath:
+    description: "Root conftest with 8 core pytest fixtures (temp directories, sample files, mock configs)"
+    created: 2026-02-20
+    updated: 2026-02-20
+    status: "✅ Tests Implemented"
+    testCasesCount: 8
+    tier: 1
+    tddPath:
+    crossCuttingFeatures: ["4.1.1", "4.1.7"]
+
+  - id: PD-TST-099
+    featureId: "4.1.7"
+    fileName: utils.py
+    filePath: tests/utils.py
+    testType: Unit
+    componentName: Test Utilities
+    specificationPath:
+    description: "Shared test helper functions and utilities for test setup"
+    created: 2026-02-20
+    updated: 2026-02-20
+    status: "✅ Tests Implemented"
+    testCasesCount: 5
+    tier: 1
+    tddPath:
+    crossCuttingFeatures: ["4.1.6"]
+
+  - id: PD-TST-100
+    featureId: "0.1.4"
+    fileName: test_config.py
+    filePath: tests/test_config.py
+    testType: Unit
+    componentName: Configuration System (Root)
+    specificationPath:
+    description: "Root-level configuration system tests"
+    created: 2026-02-20
+    updated: 2026-02-20
+    status: "✅ Tests Implemented"
+    testCasesCount: 10
+    tier: 1
+    tddPath:
+    crossCuttingFeatures: ["4.1.1"]
+
+  - id: PD-TST-101
+    featureId: "1.1.2"
+    fileName: test_move_detection.py
+    filePath: tests/test_move_detection.py
+    testType: Integration
+    componentName: Move Detection
+    specificationPath:
+    description: "Integration tests for file move detection across handler and updater"
+    created: 2026-02-20
+    updated: 2026-02-20
+    status: "✅ Tests Implemented"
+    testCasesCount: 5
+    tier: 1
+    tddPath:
+    crossCuttingFeatures: ["2.2.1", "1.1.1", "0.1.3"]
+
+  # ─────────────────────────────────────────────────────────
+  # Unit Tests (tests/unit/)
+  # ─────────────────────────────────────────────────────────
+  - id: PD-TST-102
+    featureId: "0.1.1"
+    fileName: test_service.py
+    filePath: tests/unit/test_service.py
+    testType: Unit
+    componentName: Core Service
+    specificationPath:
+    description: "Unit tests for LinkWatcher core service orchestration (~12 test methods)"
+    created: 2026-02-20
+    updated: 2026-02-20
+    status: "✅ Tests Implemented"
+    testCasesCount: 12
+    tier: 3
+    tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md
+    crossCuttingFeatures: ["1.1.1", "1.1.3", "0.1.3"]
+
+  - id: PD-TST-103
+    featureId: "2.1.1"
+    fileName: test_parser.py
+    filePath: tests/unit/test_parser.py
+    testType: Unit
+    componentName: Parser Framework
+    specificationPath:
+    description: "Unit tests for pluggable parser framework base interface (~8 test methods)"
+    created: 2026-02-20
+    updated: 2026-02-20
+    status: "✅ Tests Implemented"
+    testCasesCount: 8
+    tier: 2
+    tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md
+    crossCuttingFeatures: ["2.1.2", "2.1.3", "2.1.4", "2.1.5", "2.1.6", "2.1.7"]
+
+  - id: PD-TST-104
+    featureId: "0.1.3"
+    fileName: test_database.py
+    filePath: tests/unit/test_database.py
+    testType: Unit
+    componentName: In-Memory Database
+    specificationPath:
+    description: "Unit tests for thread-safe in-memory link database (~15 test methods)"
+    created: 2026-02-20
+    updated: 2026-02-20
+    status: "✅ Tests Implemented"
+    testCasesCount: 15
+    tier: 2
+    tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-0.1.3-in-memory-database-t2.md
+    crossCuttingFeatures: ["0.1.2"]
+
+  - id: PD-TST-105
+    featureId: "2.2.1"
+    fileName: test_updater.py
+    filePath: tests/unit/test_updater.py
+    testType: Unit
+    componentName: Link Updater
+    specificationPath:
+    description: "Unit tests for atomic file update with safety mechanisms (~12 test methods)"
+    created: 2026-02-20
+    updated: 2026-02-20
+    status: "✅ Tests Implemented"
+    testCasesCount: 12
+    tier: 2
+    tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-2-1-link-updater-t2.md
+    crossCuttingFeatures: ["2.2.2", "2.2.3", "2.2.4", "2.2.5", "0.1.1"]
+
+  - id: PD-TST-106
+    featureId: "0.1.4"
+    fileName: test_config.py
+    filePath: tests/unit/test_config.py
+    testType: Unit
+    componentName: Configuration System
+    specificationPath:
+    description: "Unit tests for multi-source configuration system (~20 test methods)"
+    created: 2026-02-20
+    updated: 2026-02-20
+    status: "✅ Tests Implemented"
+    testCasesCount: 20
+    tier: 1
+    tddPath:
+    crossCuttingFeatures: ["1.1.4", "3.1.1"]
+
+  - id: PD-TST-107
+    featureId: "3.1.1"
+    fileName: test_logging.py
+    filePath: tests/unit/test_logging.py
+    testType: Unit
+    componentName: Logging Framework
+    specificationPath:
+    description: "Unit tests for logging framework (~18 test methods)"
+    created: 2026-02-20
+    updated: 2026-02-20
+    status: "✅ Tests Implemented"
+    testCasesCount: 18
+    tier: 2
+    tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-3-1-1-logging-framework-t2.md
+    crossCuttingFeatures: ["3.1.2", "3.1.3", "3.1.4", "3.1.5"]
+
+  - id: PD-TST-108
+    featureId: "3.1.1"
+    fileName: test_advanced_logging.py
+    filePath: tests/unit/test_advanced_logging.py
+    testType: Unit
+    componentName: Advanced Logging
+    specificationPath:
+    description: "Advanced logging tests for structured output and monitoring (~20 test methods)"
+    created: 2026-02-20
+    updated: 2026-02-20
+    status: "✅ Tests Implemented"
+    testCasesCount: 20
+    tier: 2
+    tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-3-1-1-logging-framework-t2.md
+    crossCuttingFeatures: ["3.1.2", "3.1.3", "3.1.4", "3.1.5"]
+
+  # ─────────────────────────────────────────────────────────
+  # Parser Tests (tests/parsers/)
+  # ─────────────────────────────────────────────────────────
+  - id: PD-TST-109
+    featureId: "2.1.2"
+    fileName: test_markdown.py
+    filePath: tests/parsers/test_markdown.py
+    testType: Parser
+    componentName: Markdown Parser
+    specificationPath:
+    description: "Parser tests for markdown link parsing (standard, reference, HTML, images) (~10 methods)"
+    created: 2026-02-20
+    updated: 2026-02-20
+    status: "✅ Tests Implemented"
+    testCasesCount: 10
+    tier: 1
+    tddPath:
+    crossCuttingFeatures: ["2.1.1"]
+
+  - id: PD-TST-110
+    featureId: "2.1.3"
+    fileName: test_yaml.py
+    filePath: tests/parsers/test_yaml.py
+    testType: Parser
+    componentName: YAML Parser
+    specificationPath:
+    description: "Parser tests for YAML file reference parsing with nested structures (~8 methods)"
+    created: 2026-02-20
+    updated: 2026-02-20
+    status: "✅ Tests Implemented"
+    testCasesCount: 8
+    tier: 1
+    tddPath:
+    crossCuttingFeatures: ["2.1.1"]
+
+  - id: PD-TST-111
+    featureId: "2.1.4"
+    fileName: test_json.py
+    filePath: tests/parsers/test_json.py
+    testType: Parser
+    componentName: JSON Parser
+    specificationPath:
+    description: "Parser tests for JSON file reference parsing with nested objects (~8 methods)"
+    created: 2026-02-20
+    updated: 2026-02-20
+    status: "✅ Tests Implemented"
+    testCasesCount: 8
+    tier: 1
+    tddPath:
+    crossCuttingFeatures: ["2.1.1"]
+
+  - id: PD-TST-112
+    featureId: "2.1.5"
+    fileName: test_python.py
+    filePath: tests/parsers/test_python.py
+    testType: Parser
+    componentName: Python Parser
+    specificationPath:
+    description: "Parser tests for Python import statement parsing and update (~8 methods)"
+    created: 2026-02-20
+    updated: 2026-02-20
+    status: "✅ Tests Implemented"
+    testCasesCount: 8
+    tier: 1
+    tddPath:
+    crossCuttingFeatures: ["2.1.1"]
+
+  - id: PD-TST-113
+    featureId: "2.1.6"
+    fileName: test_dart.py
+    filePath: tests/parsers/test_dart.py
+    testType: Parser
+    componentName: Dart Parser
+    specificationPath:
+    description: "Parser tests for Dart import/part statement parsing (~8 methods)"
+    created: 2026-02-20
+    updated: 2026-02-20
+    status: "✅ Tests Implemented"
+    testCasesCount: 8
+    tier: 1
+    tddPath:
+    crossCuttingFeatures: ["2.1.1"]
+
+  - id: PD-TST-114
+    featureId: "2.1.7"
+    fileName: test_generic.py
+    filePath: tests/parsers/test_generic.py
+    testType: Parser
+    componentName: Generic Parser
+    specificationPath:
+    description: "Parser tests for fallback quoted file path parser (~8 methods)"
+    created: 2026-02-20
+    updated: 2026-02-20
+    status: "✅ Tests Implemented"
+    testCasesCount: 8
+    tier: 1
+    tddPath:
+    crossCuttingFeatures: ["2.1.1"]
+
+  - id: PD-TST-115
+    featureId: "2.1.7"
+    fileName: test_image_files.py
+    filePath: tests/parsers/test_image_files.py
+    testType: Parser
+    componentName: Image File Parsing
+    specificationPath:
+    description: "Parser tests for image file reference handling (~5 methods)"
+    created: 2026-02-20
+    updated: 2026-02-20
+    status: "✅ Tests Implemented"
+    testCasesCount: 5
+    tier: 1
+    tddPath:
+    crossCuttingFeatures: ["2.1.1", "1.1.4"]
+
+  # ─────────────────────────────────────────────────────────
+  # Integration Tests (tests/integration/)
+  # ─────────────────────────────────────────────────────────
+  - id: PD-TST-116
+    featureId: "0.1.1"
+    fileName: test_service_integration.py
+    filePath: tests/integration/test_service_integration.py
+    testType: Integration
+    componentName: Service Integration
+    specificationPath:
+    description: "Integration tests for core service with subsystem coordination (~8 methods)"
+    created: 2026-02-20
+    updated: 2026-02-20
+    status: "✅ Tests Implemented"
+    testCasesCount: 8
+    tier: 3
+    tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md
+    crossCuttingFeatures: ["1.1.1", "1.1.2", "3.1.1", "0.1.3"]
+
+  - id: PD-TST-117
+    featureId: "1.1.2"
+    fileName: test_file_movement.py
+    filePath: tests/integration/test_file_movement.py
+    testType: Integration
+    componentName: File Movement
+    specificationPath:
+    description: "Integration tests for file movement detection and handling (~5 methods)"
+    created: 2026-02-20
+    updated: 2026-02-20
+    status: "✅ Tests Implemented"
+    testCasesCount: 5
+    tier: 2
+    tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-1-1-2-event-handler-t2.md
+    crossCuttingFeatures: ["1.1.3", "0.1.1", "2.1.1", "2.2.1"]
+
+  - id: PD-TST-118
+    featureId: "2.2.1"
+    fileName: test_link_updates.py
+    filePath: tests/integration/test_link_updates.py
+    testType: Integration
+    componentName: Link Updates
+    specificationPath:
+    description: "Integration tests for link update across multiple file formats (~8 methods)"
+    created: 2026-02-20
+    updated: 2026-02-20
+    status: "✅ Tests Implemented"
+    testCasesCount: 8
+    tier: 2
+    tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-2-1-link-updater-t2.md
+    crossCuttingFeatures: ["2.1.2", "2.1.3", "2.1.4", "2.1.5", "2.1.6", "2.1.7", "0.1.1", "1.1.2"]
+
+  - id: PD-TST-119
+    featureId: "0.1.1"
+    fileName: test_complex_scenarios.py
+    filePath: tests/integration/test_complex_scenarios.py
+    testType: Integration
+    componentName: Complex Scenarios
+    specificationPath:
+    description: "Integration tests for complex multi-component scenarios (~6 methods)"
+    created: 2026-02-20
+    updated: 2026-02-20
+    status: "✅ Tests Implemented"
+    testCasesCount: 6
+    tier: 3
+    tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md
+    crossCuttingFeatures: ["2.1.1", "2.2.1", "1.1.2", "0.1.3"]
+
+  - id: PD-TST-120
+    featureId: "0.1.1"
+    fileName: test_error_handling.py
+    filePath: tests/integration/test_error_handling.py
+    testType: Integration
+    componentName: Error Handling
+    specificationPath:
+    description: "Integration tests for error handling and graceful degradation (~8 methods)"
+    created: 2026-02-20
+    updated: 2026-02-20
+    status: "✅ Tests Implemented"
+    testCasesCount: 8
+    tier: 3
+    tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md
+    crossCuttingFeatures: ["2.2.1", "0.1.3", "3.1.5"]
+
+  - id: PD-TST-121
+    featureId: "1.1.2"
+    fileName: test_sequential_moves.py
+    filePath: tests/integration/test_sequential_moves.py
+    testType: Integration
+    componentName: Sequential Moves
+    specificationPath:
+    description: "Integration tests for sequential file move scenarios (~3 methods)"
+    created: 2026-02-20
+    updated: 2026-02-20
+    status: "✅ Tests Implemented"
+    testCasesCount: 3
+    tier: 2
+    tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-1-1-2-event-handler-t2.md
+    crossCuttingFeatures: ["0.1.3", "2.2.1", "0.1.1"]
+
+  - id: PD-TST-122
+    featureId: "0.1.5"
+    fileName: test_windows_platform.py
+    filePath: tests/integration/test_windows_platform.py
+    testType: Integration
+    componentName: Windows Platform
+    specificationPath:
+    description: "Integration tests for Windows-specific path handling and platform features (~8 methods)"
+    created: 2026-02-20
+    updated: 2026-02-20
+    status: "✅ Tests Implemented"
+    testCasesCount: 8
+    tier: 1
+    tddPath:
+    crossCuttingFeatures: ["1.1.1", "2.1.1", "2.2.1"]
+
+  - id: PD-TST-123
+    featureId: "1.1.4"
+    fileName: test_comprehensive_file_monitoring.py
+    filePath: tests/integration/test_comprehensive_file_monitoring.py
+    testType: Integration
+    componentName: Comprehensive File Monitoring
+    specificationPath:
+    description: "Integration tests for comprehensive file type monitoring (~3 methods)"
+    created: 2026-02-20
+    updated: 2026-02-20
+    status: "✅ Tests Implemented"
+    testCasesCount: 3
+    tier: 1
+    tddPath:
+    crossCuttingFeatures: ["1.1.1", "0.1.1"]
+
+  - id: PD-TST-124
+    featureId: "1.1.4"
+    fileName: test_image_file_monitoring.py
+    filePath: tests/integration/test_image_file_monitoring.py
+    testType: Integration
+    componentName: Image File Monitoring
+    specificationPath:
+    description: "Integration tests for image file monitoring and reference handling (~3 methods)"
+    created: 2026-02-20
+    updated: 2026-02-20
+    status: "✅ Tests Implemented"
+    testCasesCount: 3
+    tier: 1
+    tddPath:
+    crossCuttingFeatures: ["1.1.1", "2.1.1", "2.1.7"]
+
+  - id: PD-TST-125
+    featureId: "1.1.4"
+    fileName: test_powershell_script_monitoring.py
+    filePath: tests/integration/test_powershell_script_monitoring.py
+    testType: Integration
+    componentName: PowerShell Script Monitoring
+    specificationPath:
+    description: "Integration tests for PowerShell script file monitoring (~5 methods)"
+    created: 2026-02-20
+    updated: 2026-02-20
+    status: "✅ Tests Implemented"
+    testCasesCount: 5
+    tier: 1
+    tddPath:
+    crossCuttingFeatures: ["1.1.1", "1.1.2", "2.2.1", "2.1.7"]
+
+  # ─────────────────────────────────────────────────────────
+  # Performance Tests (tests/performance/)
+  # ─────────────────────────────────────────────────────────
+  - id: PD-TST-126
+    featureId: "4.1.5"
+    fileName: test_large_projects.py
+    filePath: tests/performance/test_large_projects.py
+    testType: Performance
+    componentName: Large Project Performance
+    specificationPath:
+    description: "Performance tests for large project handling and benchmarks (~5 methods)"
+    created: 2026-02-20
+    updated: 2026-02-20
+    status: "✅ Tests Implemented"
+    testCasesCount: 5
+    tier: 1
+    tddPath:
+    crossCuttingFeatures: ["0.1.1", "1.1.1", "1.1.3", "2.2.1"]

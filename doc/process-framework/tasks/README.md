@@ -48,6 +48,8 @@ Meta-framework tasks that work on the process framework itself, such as creating
 
 | Task | Description | When to Use |
 | ---- | ----------- | ----------- |
+| [Feature Enhancement](04-implementation/feature-enhancement.md) | Execute enhancement steps from the Enhancement State Tracking File, referencing existing task documentation for quality guidance, adapted to the amendment context | When working on Feature Enhancement |
+| [Feature Request Evaluation](01-planning/feature-request-evaluation.md) | Classify incoming change requests as new features or enhancements to existing features, and for enhancements create a scoped Enhancement State Tracking File | When working on Feature Request Evaluation |
 | [Retrospective Documentation Creation](00-onboarding/retrospective-documentation-creation.md) | Create tier assessments and required design documentation for all analyzed features | When working on Retrospective Documentation Creation |
 | [Codebase Feature Analysis](00-onboarding/codebase-feature-analysis.md) | Analyze implementation patterns, dependencies, and design decisions for each discovered feature | When working on Codebase Feature Analysis |
 | [Codebase Feature Discovery](00-onboarding/codebase-feature-discovery.md) | Systematically discover all features in an existing codebase and assign every source file to at least one feature | When working on Codebase Feature Discovery |
@@ -79,7 +81,6 @@ Meta-framework tasks that work on the process framework itself, such as creating
 | [Code Quality Standards Validation](05-validation/code-quality-standards-validation.md)               | Validates foundational features for code quality standards, SOLID principles, and Flutter best practices adherence                                 | When working on Code Quality Standards Validation         |
 | [Architectural Consistency Validation](05-validation/architectural-consistency-validation.md)         | Validates foundational features for architectural pattern adherence, ADR compliance, and interface consistency across the codebase                 | When working on Architectural Consistency Validation      |
 | [Test Audit](03-testing/test-audit-task.md)                                                           | Quality assurance task for evaluating implemented test suites against effectiveness criteria                                                       | When working on Test Audit                                |
-| [Test Implementation](03-testing/test-implementation-task.md)                                         | Implement comprehensive test cases based on existing Test Specifications, enabling test-driven development                                         | After Test Specifications have been created for a feature |
 | [ADR Creation](02-design/adr-creation-task.md)                                                        | Create Architecture Decision Records to document significant architectural decisions and their rationale                                           | When working on ADR Creation                              |
 | [FDD Creation](02-design/fdd-creation-task.md)                                                        | Create Functional Design Documents for features requiring functional specification                                                                 | When working on FDD Creation                              |
 | [Foundation Feature Implementation Task](04-implementation/foundation-feature-implementation-task.md) | Specialized task for implementing foundation features (0.x.x) that provide architectural foundations for the application                           | When working on Foundation Feature Implementation Task    |
@@ -92,7 +93,7 @@ Meta-framework tasks that work on the process framework itself, such as creating
 | [Test Specification Creation](03-testing/test-specification-creation-task.md) | Create comprehensive test specifications from existing Technical Design Documents to enable Test-First Development Integration approach | When working on Test Specification Creation |
 | [Feature Tier Assessment](01-planning/feature-tier-assessment-task.md) | Assess the complexity tier of features | When new features need complexity assessment |
 | [TDD Creation](02-design/tdd-creation-task.md) | Create Technical Design Documents | When assessed features need technical design |
-| [Feature Implementation](04-implementation/feature-implementation-task.md) | Implement designed features | When features have completed TDDs |
+| [Feature Implementation Planning](04-implementation/feature-implementation-planning-task.md) | Plan and execute feature implementation using decomposed tasks | When features have completed TDDs |
 | [Code Review](06-maintenance/code-review-task.md) | Review implemented code | When feature implementation is complete |
 
 | [Bug Triage](06-maintenance/bug-triage-task.md) | Systematically evaluate, prioritize, and assign reported bugs | When new bugs need evaluation and prioritization |

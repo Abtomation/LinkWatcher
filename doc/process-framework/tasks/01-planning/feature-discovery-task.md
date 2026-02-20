@@ -36,6 +36,7 @@ Identify and document potential new features through user research, competitive 
 - **Critical (Must Read):**
 
   - User feedback and feature requests (if available)
+  - [Feature Granularity Guide](/doc/process-framework/guides/guides/feature-granularity-guide.md) - Defines what constitutes a well-scoped feature with validation tests
   - [Development Guide](/doc/product-docs/guides/guides/development-guide.md) - Development standards and practices
   - [Visual Notation Guide](/doc/process-framework/guides/guides/visual-notation-guide.md) - For interpreting context map diagrams
 
@@ -65,6 +66,7 @@ Identify and document potential new features through user research, competitive 
 
 6. Conduct brainstorming sessions to generate feature ideas
 7. For each potential feature:
+   - Validate granularity using the three tests in the [Feature Granularity Guide](/doc/process-framework/guides/guides/feature-granularity-guide.md) (planning test, conversation test, independence test)
    - Document a clear description of the feature
    - Identify potential user benefits
    - Outline high-level implementation considerations
@@ -134,5 +136,6 @@ Before considering this task finished:
 
 ## Related Resources
 
+- [Feature Granularity Guide](/doc/process-framework/guides/guides/feature-granularity-guide.md) - Defines what constitutes a well-scoped feature with validation tests and scaling guidance
 - [Feature Dependencies Map](/doc/product-docs/technical/design/feature-dependencies.md) - For understanding how new features relate to existing ones
 - [Product Roadmap](/doc/product-docs/technical/implementation/roadmap.md) - For strategic alignment of discovered features

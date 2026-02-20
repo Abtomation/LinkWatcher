@@ -20,9 +20,9 @@ flowchart TD
     B -->|No| Z[Task Complete]
     B -->|Yes| C[Navigate to feedback directory]
 
-    C --> D[cd doc/process-framework/feedback]
+    C --> D[cd doc/process-framework/scripts/file-creation]
     D --> E[Run automation script]
-    E --> F[./doc/process-framework/feedback/../../process-framework/feedback/../../process-framework/feedback/../../process-framework/feedback/../../process-framework/feedback/../../process-framework/feedback/../../process-framework/feedback/../../process-framework/feedback/New-FeedbackForm.ps1 -DocumentId [PREFIX]-XXX-XXX -TaskContext Task Name]
+    E --> F[./New-FeedbackForm.ps1 -DocumentId PREFIX-XXX-XXX -TaskContext Task Name -FeedbackType MultipleTools]
 
     F --> G[Script automatically:]
     G --> H[• Assigns ART-FEE-XXX ID]

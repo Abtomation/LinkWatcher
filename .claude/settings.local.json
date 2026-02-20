@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(/c/Users/ronny/VS_Code/LinkWatcher/temp_test_script.ps1:*)",
+      "Bash(pwsh.exe -ExecutionPolicy Bypass -File /c/Users/ronny/VS_Code/LinkWatcher/temp_test_script.ps1)"
     ]
   }
 }

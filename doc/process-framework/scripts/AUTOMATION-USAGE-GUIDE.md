@@ -8,7 +8,7 @@ This guide provides instructions for using the new automation scripts that elimi
 
 ### 1. Update-FeatureImplementationState.ps1
 
-**Purpose**: Automates state file updates for Feature Implementation Task (PF-TSK-004)
+**Purpose**: Automates state file updates for Feature Implementation Planning Task (PF-TSK-044) and decomposed implementation tasks
 
 **Files Updated**:
 
@@ -194,7 +194,7 @@ Required dependencies not met. Please ensure Common-ScriptHelpers.psm1 is proper
 
 ## Integration with Process Framework Tasks
 
-### PF-TSK-004: Feature Implementation
+### PF-TSK-044: Feature Implementation Planning
 
 ```powershell
 # Start implementation

@@ -2,9 +2,9 @@
 id: PF-TEM-044
 type: Process Framework
 category: Template
-version: 1.0
+version: 1.2
 created: 2026-02-17
-updated: 2026-02-17
+updated: 2026-02-19
 creates_document_prefix: PF-STA
 creates_document_version: 1.0
 description: Template for retrospective master state tracking during onboarding
@@ -88,12 +88,25 @@ template_for: Retrospective Master State
 
 ## Unassigned Files
 
-> **Target**: This section should be EMPTY when Phase 1 is complete.
-> List all project source files not yet assigned to any feature's Code Inventory.
+> **Target**: All files should be marked ✅ in the Status column when Phase 1 is complete. Rows are never removed — the full file list is preserved as a permanent record.
+>
+> **Status**: ⬜ = not yet processed | ✅ = deeply analyzed and written to at least one feature's Code Inventory
 
-| File Path | Notes | Candidate Feature |
-|-----------|-------|-------------------|
-| [path/to/file.ext] | [note about what this file does] | [suggested feature ID] |
+| File Path | Notes | Candidate Feature | Status |
+|-----------|-------|-------------------|--------|
+| [path/to/file.ext] | [note about what this file does] | [suggested feature ID] | ⬜ |
+
+---
+
+## Existing Documentation Inventory
+
+> Cross-cutting index of all pre-existing project documentation audited during Phase 1 (PF-TSK-064 step 3b). Feature-level details are in each feature's Section 4 "Existing Project Documentation" table.
+>
+> For new projects: _No pre-existing project documentation — project started with process framework._
+
+| Document | Location | Type | Mapped Features | Confirmed (Phase 2) | Notes |
+| -------- | -------- | ---- | --------------- | -------------------- | ----- |
+| [name] | [path] | [Architecture Overview / User Guide / Test Plan / CI/CD / Troubleshooting / Developer Guide / Configuration / Changelog / Other] | [Feature IDs] | [⬜ / ✅] | [notes] |
 
 ---
 

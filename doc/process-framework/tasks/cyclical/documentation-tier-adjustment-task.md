@@ -140,7 +140,7 @@ Before considering this task finished:
 
 ## Next Tasks
 
-- [**Feature Implementation**](../04-implementation/feature-implementation-task.md) - Continue with implementation using updated requirements
+- [**Feature Implementation Planning**](../04-implementation/feature-implementation-planning-task.md) - Continue with implementation planning using updated requirements
 - [**Tools Review**](../support/tools-review-task.md) - If assessment tools need improvement based on findings
 
 ## Related Resources

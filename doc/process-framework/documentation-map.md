@@ -29,16 +29,16 @@ Our tasks are organized into four categories and follow a unified structure:
 
 #### Discrete Tasks
 
+- [Task: Feature Request Evaluation](tasks/01-planning/feature-request-evaluation.md) - Classify change requests as new features or enhancements, scope enhancements, and create Enhancement State Tracking Files
 - [Task: Feature Tier Assessment](tasks/01-planning/feature-tier-assessment-task.md) - Assess complexity of new features
 - [Task: FDD Creation](tasks/02-design/fdd-creation-task.md) - Create Functional Design Documents for Tier 2+ features
 - [Task: TDD Creation](tasks/02-design/tdd-creation-task.md) - Create Technical Design Documents
 - [Task: UI/UX Design](tasks/02-design/ui-ux-design-task.md) - Create comprehensive UI/UX design specifications for features with visual complexity
 - [Task: Test Specification Creation](tasks/03-testing/test-specification-creation-task.md) - Create comprehensive test specifications from TDDs
-- [Task: Test Implementation](tasks/03-testing/test-implementation-task.md) - Implement comprehensive test cases based on existing Test Specifications, enabling test-driven development
 - [Task: Test Audit](tasks/03-testing/test-audit-task.md) - Systematic quality assessment of test implementations using six evaluation criteria
 - [Task: Feature Implementation Planning](tasks/04-implementation/feature-implementation-planning-task.md) - Analyze design documentation and create detailed implementation plan with task sequencing and dependency mapping
 - [Task: Data Layer Implementation](tasks/04-implementation/data-layer-implementation.md) - Implement data models, repositories, and database integration for feature
-- [Task: Feature Implementation](tasks/04-implementation/feature-implementation-task.md) - Implement features based on designs
+- [Task: Feature Enhancement](tasks/04-implementation/feature-enhancement.md) - Execute enhancement steps from Enhancement State Tracking File, adapting existing task guidance to amendment context
 - [Task: Foundation Feature Implementation](tasks/04-implementation/foundation-feature-implementation-task.md) - Implement foundation features (0.x.x) that provide architectural foundations for the application
 - [Task: Architectural Consistency Validation](tasks/05-validation/architectural-consistency-validation.md) - Validate foundational features for architectural pattern adherence, ADR compliance, and interface consistency
 - [Task: Code Quality Standards Validation](tasks/05-validation/code-quality-standards-validation.md) - Validate foundational features for code quality standards, SOLID principles, and Flutter best practices adherence
@@ -74,6 +74,7 @@ Our tasks are organized into four categories and follow a unified structure:
 
 - [Process: Feature Tracking](state-tracking/permanent/feature-tracking.md) - Comprehensive list of all features with implementation status
 - [Process: Test Case Implementation Tracking](state-tracking/permanent/test-implementation-tracking.md) - Tracks implementation status of test cases derived from test specifications
+- [Process: Test Registry](/test/test-registry.yaml) - Registry of all test files with feature mappings, cross-cutting support, and PD-TST IDs
 - [Process: Definition of Done](methodologies/definition-of-done.md) - Clear criteria for when a feature is considered complete
 - [Process: Technical Debt Tracking](state-tracking/permanent/technical-debt-tracking.md) - System for tracking and managing technical debt
 - [Process: Foundational Validation Tracking](state-tracking/temporary/foundational-validation-tracking.md) - Master tracking for foundational codebase validation across all validation types
@@ -92,8 +93,11 @@ Our tasks are organized into four categories and follow a unified structure:
 - [Process: Prioritization Matrix Template](templates/templates/prioritization-matrix-template.md) - Template for debt prioritization matrices
 - [Process: Temporary Task Creation State Template](templates/templates/temp-task-creation-state-template.md) - Template for tracking multi-session task creation implementation
 - [Process: Structure Change State Template](templates/templates/structure-change-state-template.md) - Template for tracking multi-session structure change implementation
+- [Process: Enhancement State Tracking Template](templates/templates/enhancement-state-tracking-template-template.md) - Template for tracking enhancement work on existing features, used by New-EnhancementState.ps1
 - [Process: Framework Extension Concept Template](templates/templates/framework-extension-concept-template.md) - Template for creating framework extension concept documents
 - [Process: Validation Report Template](templates/templates/validation-report-template.md) - Template for creating foundational codebase validation reports
+- [Process: Cross-Cutting Test Specification Template](templates/templates/cross-cutting-test-specification-template.md) - Template for test specifications spanning multiple features
+- [Process: Enhancement Workflow Concept](proposals/proposals/enhancement-workflow-concept.md) - Framework extension concept for feature enhancement classification and execution workflow
 - [Process: Code Quality Standards Validation Concept](proposals/code-quality-standards-validation-concept.md) - Concept document for code quality validation task creation
 - [Process: Database Schema Design Task Usage Guide](guides/guides/database-schema-design-task-usage-guide.md) - Comprehensive guide for using the Database Schema Design Task effectively
 - [Process: Feature Implementation Planning Task Usage Guide](guides/guides/feature-implementation-planning-task-usage-guide.md) - Comprehensive guide for using the Feature Implementation Planning Task effectively to create detailed implementation plans
@@ -107,6 +111,12 @@ Our tasks are organized into four categories and follow a unified structure:
 
 - [Process: New Bug Report Script](scripts/file-creation/New-BugReport.ps1) - PowerShell script for creating standardized bug reports during task execution
 - [Process: New UI Design Script](scripts/file-creation/New-UIDesign.ps1) - PowerShell script for creating UI/UX Design documents with auto-assigned IDs and Design Guidelines references
+- [Process: New Test Specification Script](scripts/file-creation/New-TestSpecification.ps1) - PowerShell script for creating test specifications (supports both feature-specific and cross-cutting modes via -CrossCutting switch)
+
+### Validation Scripts
+
+- [Process: Validate ID Registry](scripts/validate-id-registry.ps1) - Validates ID registry against actual files in the repository
+- [Process: Validate Test Tracking](scripts/Validate-TestTracking.ps1) - Validates test-registry.yaml consistency with disk, tracking files, and ID counters
 
 ## Product Documentation
 
@@ -136,7 +146,7 @@ These documents describe what we're building:
 - [Process: Visual Notation Guide](guides/guides/visual-notation-guide.md) - Standard notation used in diagrams and context maps
 - [Process: Temporary State File Customization Guide](guides/guides/temp-state-tracking-customization-guide.md) - Guide for customizing temporary state files for different workflows
 - [Process: Test Specification Creation Usage Guide](guides/guides/test-specification-creation-usage-guide.md) - Comprehensive guide for using the Test Specification Creation task effectively
-- [Process: Test Implementation Usage Guide](guides/guides/test-implementation-usage-guide.md) - Comprehensive guide for using the Test Implementation task effectively
+- [Process: Integration & Testing Usage Guide](guides/guides/test-implementation-usage-guide.md) - Comprehensive guide for using the Integration & Testing task (PF-TSK-053) effectively
 - [Process: System Architecture Review Usage Guide](guides/guides/system-architecture-review-usage-guide.md) - Comprehensive guide for using the System Architecture Review task effectively
 - [Process: API Design Task Usage Guide](guides/guides/api-design-task-usage-guide.md) - Comprehensive guide for using the API Design Task effectively
 - [Process: Code Refactoring Task Usage Guide](guides/guides/code-refactoring-task-usage-guide.md) - Comprehensive guide for using the Code Refactoring Task effectively
@@ -156,6 +166,7 @@ These documents describe what we're building:
 - [Process: Architecture Assessment Creation Guide](guides/guides/architecture-assessment-creation-guide.md) - Guide for customizing architecture assessment templates
 - [Process: Architecture Decision Creation Guide](guides/guides/architecture-decision-creation-guide.md) - Guide for customizing Architecture Decision Record templates
 - [Process: Schema Design Creation Guide](guides/guides/schema-design-creation-guide.md) - Guide for customizing database schema design templates
+- [Process: Enhancement State Tracking Customization Guide](guides/guides/enhancement-state-tracking-customization-guide.md) - Step-by-step instructions for customizing Enhancement State Tracking files
 - [Process: Framework Extension Customization Guide](guides/guides/framework-extension-customization-guide.md) - Essential guide for customizing Framework Extension Concept documents
 - [Process: Foundational Validation Guide](guides/guides/foundational-validation-guide.md) - Comprehensive guide for conducting foundational codebase validation using the 6-type validation framework
 - [Process: Bug Reporting Guide](guides/guides/bug-reporting-guide.md) - Standardized procedures for reporting bugs discovered during task execution
@@ -180,6 +191,8 @@ These documents describe what we're building:
 - [FDD Creation Map](visualization/context-maps/02-design/fdd-creation-map.md) - Components for creating Functional Design Documents
 - [UI/UX Design Map](visualization/context-maps/02-design/ui-ux-design-task-map.md) - Components for creating UI/UX design specifications with Design Guidelines consultation
 - [Feature Discovery Map](visualization/context-maps/01-planning/feature-discovery-map.md) - Components for exploring features
+- [Feature Request Evaluation Map](visualization/context-maps/01-planning/feature-request-evaluation-map.md) - Components for classifying change requests and scoping enhancements
+- [Feature Enhancement Map](visualization/context-maps/04-implementation/feature-enhancement-map.md) - Components for executing enhancement steps from state file
 - [Feature Implementation Map](visualization/context-maps/04-implementation/feature-implementation-map.md) - Components for implementing features
 - [Feature Tier Assessment Map](visualization/context-maps/01-planning/feature-tier-assessment-map.md) - Components for assessing complexity
 - [Process Improvement Map](visualization/context-maps/support/process-improvement-map.md) - Components for improving processes
@@ -189,7 +202,7 @@ These documents describe what we're building:
 - [System Architecture Review Map](visualization/context-maps/01-planning/system-architecture-review-map.md) - Components for evaluating system architecture
 - [TDD Creation Map](visualization/context-maps/02-design/tdd-creation-map.md) - Components for creating design documents
 - [Test Specification Creation Map](visualization/context-maps/03-testing/test-specification-creation-map.md) - Components for creating test specifications from TDDs
-- [Test Implementation Map](visualization/context-maps/03-testing/test-implementation-map.md) - Components for implementing comprehensive test cases based on existing Test Specifications
+- [Integration & Testing Map](visualization/context-maps/04-implementation/integration-and-testing-map.md) - Components for implementing comprehensive tests and validating integration
 - [Test Audit Map](visualization/context-maps/03-testing/test-audit-map.md) - Components for systematic test quality assessment workflow
 
 #### Cyclical Task Context Maps
@@ -206,6 +219,53 @@ These documents describe what we're building:
 - [Product: Project Structure](../product-docs/technical/architecture/project-structure.md) - Detailed breakdown of the project structure
 - [Product: Component Relationship Index](../product-docs/technical/architecture/component-relationship-index.md) - Comprehensive reference of all component relationships and interactions
 
+### Retrospective Functional Design Documents (FDDs)
+
+_Created during framework onboarding (PF-TSK-066) — document existing implementation._
+
+- [FDD: Core Architecture (PD-FDD-022)](../product-docs/functional-design/fdds/fdd-0-1-1-core-architecture.md) - Tier 3 — Orchestrator/Facade service architecture
+- [FDD: In-Memory Database (PD-FDD-023)](../product-docs/functional-design/fdds/fdd-0-1-3-in-memory-database.md) - Tier 2 — Thread-safe link storage with O(1) lookups
+- [FDD: Event Handler (PD-FDD-024)](../product-docs/functional-design/fdds/fdd-1-1-2-event-handler.md) - Tier 2 — File move/create/delete event handling
+- [FDD: Logging Framework (PD-FDD-025)](../product-docs/functional-design/fdds/fdd-3-1-1-logging-framework.md) - Tier 2 — Structured logging with colored console output
+- [FDD: Parser Framework (PD-FDD-026)](../product-docs/functional-design/fdds/fdd-2-1-1-parser-framework.md) - Tier 2 — Pluggable parser system with registry
+- [FDD: Link Updater (PD-FDD-027)](../product-docs/functional-design/fdds/fdd-2-2-1-link-updater.md) - Tier 2 — Atomic file update with safety mechanisms
+- [FDD: Test Framework (PD-FDD-028)](../product-docs/functional-design/fdds/fdd-4-1-1-test-framework.md) - Tier 2 — Pytest-based test infrastructure
+- [FDD: Integration Tests (PD-FDD-029)](../product-docs/functional-design/fdds/fdd-4-1-3-integration-tests.md) - Tier 2 — 45+ integration test methods
+- [FDD: Parser Tests (PD-FDD-030)](../product-docs/functional-design/fdds/fdd-4-1-4-parser-tests.md) - Tier 2 — 80+ parser-specific test methods
+- [FDD: Test Fixtures (PD-FDD-031)](../product-docs/functional-design/fdds/fdd-4-1-6-test-fixtures.md) - Tier 2 — Comprehensive test data and sample files
+- [FDD: GitHub Actions CI (PD-FDD-032)](../product-docs/functional-design/fdds/fdd-5-1-1-github-actions-ci.md) - Tier 2 — Automated CI pipeline
+- [FDD: Test Automation (PD-FDD-033)](../product-docs/functional-design/fdds/fdd-5-1-2-test-automation.md) - Tier 2 — Automated test execution
+
+### Retrospective Technical Design Documents (TDDs)
+
+_Created during framework onboarding (PF-TSK-066) — reverse-engineered from source code._
+
+- [TDD: Core Architecture (PD-TDD-021)](../product-docs/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md) - Tier 3 — Full architecture with component diagrams
+- [TDD: In-Memory Database (PD-TDD-022)](../product-docs/technical/architecture/design-docs/tdd/tdd-0.1.3-in-memory-database-t2.md) - Tier 2 — Target-indexed storage design
+- [TDD: Event Handler (PD-TDD-023)](../product-docs/technical/architecture/design-docs/tdd/tdd-1-1-2-event-handler-t2.md) - Tier 2 — State machine and timer-based move detection
+- [TDD: Logging Framework (PD-TDD-024)](../product-docs/technical/architecture/design-docs/tdd/tdd-3-1-1-logging-framework-t2.md) - Tier 2 — Dual-formatter logging design
+- [TDD: Parser Framework (PD-TDD-025)](../product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md) - Tier 2 — Registry + Facade parser system
+- [TDD: Link Updater (PD-TDD-026)](../product-docs/technical/architecture/design-docs/tdd/tdd-2-2-1-link-updater-t2.md) - Tier 2 — Bottom-to-top atomic write strategy
+- [TDD: Test Framework (PD-TDD-027)](../product-docs/technical/architecture/design-docs/tdd/tdd-4-1-1-test-framework-t2.md) - Tier 2 — Pytest infrastructure architecture
+- [TDD: Integration Tests (PD-TDD-028)](../product-docs/technical/architecture/design-docs/tdd/tdd-4-1-3-integration-tests-t2.md) - Tier 2 — Complex scenario test design
+- [TDD: Parser Tests (PD-TDD-029)](../product-docs/technical/architecture/design-docs/tdd/tdd-4-1-4-parser-tests-t2.md) - Tier 2 — Parser edge case coverage
+- [TDD: Test Fixtures (PD-TDD-030)](../product-docs/technical/architecture/design-docs/tdd/tdd-4-1-6-test-fixtures-t2.md) - Tier 2 — Fixture architecture and data design
+- [TDD: GitHub Actions CI (PD-TDD-031)](../product-docs/technical/architecture/design-docs/tdd/tdd-5-1-1-github-actions-ci-t2.md) - Tier 2 — CI pipeline configuration design
+- [TDD: Test Automation (PD-TDD-032)](../product-docs/technical/architecture/design-docs/tdd/tdd-5-1-2-test-automation-t2.md) - Tier 2 — Automation pipeline design
+
+### Retrospective Architecture Decision Records (ADRs)
+
+_Created during framework onboarding (PF-TSK-066) — documenting existing architectural decisions._
+
+- [ADR: Orchestrator/Facade Pattern (PD-ADR-039)](../product-docs/technical/architecture/design-docs/adr/adr/orchestrator-facade-pattern-for-core-architecture.md) - 0.1.1 Core Architecture pattern decision
+- [ADR: Target-Indexed In-Memory Link Database (PD-ADR-040)](../product-docs/technical/architecture/design-docs/adr/adr/target-indexed-in-memory-link-database.md) - 0.1.3 Storage strategy decision
+
+### Retrospective Test Specifications
+
+_Created during framework onboarding (PF-TSK-066) — documenting existing test suite._
+
+- [Test Spec: Core Architecture (PF-TSP-035)](../../test/specifications/feature-specs/test-spec-0-1-1-core-architecture.md) - Tier 3 — Existing test coverage with gap analysis
+
 ## How to Use This Documentation
 
 ### For Planning New Features
@@ -218,7 +278,7 @@ These documents describe what we're building:
 
 ### During Implementation
 
-1. Follow the [Task: Feature Implementation](tasks/04-implementation/feature-implementation-task.md) process
+1. Follow the [Task: Feature Implementation Planning](tasks/04-implementation/feature-implementation-planning-task.md) process and the decomposed implementation tasks
 2. Use the appropriate specialized checklists for specific aspects (UI, API, etc.)
 3. Document any intentional technical debt in the [Process: Technical Debt Tracking](state-tracking/permanent/technical-debt-tracking.md)
 4. Adhere to the guidelines in the [Process: Development Guide](../product-docs/guides/guides/development-guide.md)
@@ -263,6 +323,8 @@ Our project uses a unified task structure with four task types:
 | PF-TSK-064 | [/process-framework/tasks/00-onboarding/codebase-feature-discovery.md](/process-framework/tasks/00-onboarding/codebase-feature-discovery.md) | Documentation | Codebase Feature Discovery | /doc/process-framework/tasks/../../../tasks/README.md |
 
 ### Discrete Tasks
+| PF-TSK-068 | [/process-framework/tasks/04-implementation/feature-enhancement.md](/process-framework/tasks/04-implementation/feature-enhancement.md) | Documentation | Feature Enhancement | /doc/process-framework/tasks/../../../tasks/README.md |
+| PF-TSK-067 | [/process-framework/tasks/01-planning/feature-request-evaluation.md](/process-framework/tasks/01-planning/feature-request-evaluation.md) | Documentation | Feature Request Evaluation | /doc/process-framework/tasks/../../../tasks/README.md |
 | PF-TSK-056 | [/process-framework/tasks/04-implementation/state-management-implementation.md](/process-framework/tasks/04-implementation/state-management-implementation.md) | Documentation | State Management Implementation | /doc/process-framework/tasks/../../../tasks/README.md |
 | PF-TSK-055 | [/process-framework/tasks/04-implementation/implementation-finalization.md](/process-framework/tasks/04-implementation/implementation-finalization.md) | Documentation | Implementation Finalization | /doc/process-framework/tasks/../../../tasks/README.md |
 | PF-TSK-054 | [/process-framework/tasks/04-implementation/quality-validation.md](/process-framework/tasks/04-implementation/quality-validation.md) | Documentation | Quality Validation | /doc/process-framework/tasks/../../../tasks/README.md |
@@ -273,7 +335,6 @@ Our project uses a unified task structure with four task types:
 
 | PF-TSK-043 | [/process-framework/tasks/02-design/ui-ux-design-task.md](/process-framework/tasks/02-design/ui-ux-design-task.md) | Documentation | UI/UX Design Task | /doc/process-framework/tasks/../../../tasks/README.md |
 
-| PF-TSK-29 | [/process-framework/tasks/03-testing/test-implementation-task.md](/process-framework/tasks/03-testing/test-implementation-task.md) | Documentation | Test Implementation | /doc/process-framework/tasks/README.md |
 | PF-TSK-17 | [/process-framework/tasks/04-implementation/task-infrastructure-setup-task.md](/process-framework/tasks/04-implementation/task-infrastructure-setup-task.md) | Documentation | Task Infrastructure Setup | /doc/process-framework/tasks/README.mdd |
 | PF-TSK-16 | [/process-framework/tasks/03-testing/test-specification-creation-task.md](/process-framework/tasks/03-testing/test-specification-creation-task.md) | Documentation | Test Specification Creation | /doc/process-framework/tasks/README.mdd |
 Self-contained tasks with a clear beginning and end. These tasks are performed on-demand when needed and have specific triggers.

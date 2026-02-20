@@ -124,7 +124,7 @@ Before considering this task finished:
 
 ## Next Tasks
 
-- [**Regular Feature Implementation**](../tasks/04-implementation/feature-implementation-task.md) - Implement features that depend on this foundation
+- [**Feature Implementation Planning**](../tasks/04-implementation/feature-implementation-planning-task.md) - Plan and implement features that depend on this foundation
 - [**Additional Foundation Features**](foundation-feature-template.md) - If multiple foundations needed
 
 ## Related Resources

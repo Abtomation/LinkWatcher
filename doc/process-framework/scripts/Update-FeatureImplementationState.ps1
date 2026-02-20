@@ -2,7 +2,7 @@
 
 <#
 .SYNOPSIS
-Automates state file updates for Feature Implementation Task (PF-TSK-004)
+Automates state file updates for Feature Implementation Planning Task (PF-TSK-044)
 
 .DESCRIPTION
 This script automates the manual state file updates required by the Feature Implementation Task,
@@ -52,7 +52,7 @@ If specified, shows what would be updated without making changes
 .NOTES
 This script addresses Process Improvement items:
 - IMP-067: Foundation Feature Implementation state file automation (Critical)
-- Manual bottleneck for PF-TSK-004 (3 files each, high frequency)
+- Manual bottleneck for feature implementation tasks (3 files each, high frequency)
 
 Created: 2025-08-23
 Version: 1.0

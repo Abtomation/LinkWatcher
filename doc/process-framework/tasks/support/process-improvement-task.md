@@ -215,7 +215,7 @@ Before considering this task finished:
 
 ## Next Tasks
 
-- [**Feature Implementation**](../04-implementation/feature-implementation-task.md) - To apply new processes to development work
+- [**Feature Implementation Planning**](../04-implementation/feature-implementation-planning-task.md) - To apply new processes to development work
 - [**Structure Change Task**](structure-change-task.md) - If process changes require structural modifications
 
 ## Related Resources

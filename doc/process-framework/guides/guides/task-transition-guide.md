@@ -2,15 +2,15 @@
 id: PF-GDE-018
 type: Process Framework
 category: Guide
-version: 1.8
+version: 2.0
 created: 2025-07-13
-updated: 2026-02-17
-change_notes: "v1.8 - Added Onboarding Workflow (PF-TSK-064/065/066) transitions for framework adoption into existing projects"
+updated: 2026-02-20
+change_notes: "v2.0 - Consolidated testing workflow: PF-TSK-029 absorbed into PF-TSK-053, spec-first/test-after as default path"
 ---
 
 # Task Transition Guide
 
-This guide provides clear guidance on when and how to transition between related tasks in the development workflow, filling a critical process gap in the framework. Updated to include all current tasks including Database Schema Design, Test Implementation, Test Audit, ADR Creation, Code Refactoring, Support Tasks, and Onboarding Tasks. Includes the new "Ready for Review" status in the feature development workflow.
+This guide provides clear guidance on when and how to transition between related tasks in the development workflow, filling a critical process gap in the framework. Updated to include all current tasks including Database Schema Design, Integration & Testing, Test Audit, ADR Creation, Code Refactoring, Support Tasks, and Onboarding Tasks.
 
 ## Overview
 
@@ -537,8 +537,8 @@ Feature Tier Assessment → [Branch based on tier result]
 
 ```
 FDD Creation → [System Architecture Review] → [Database Schema Design] → [API Design] → TDD Creation → [Conditional Branching]
-├─ Tier 2 → Feature Implementation → Testing (🧪) → Ready for Review (👀) → Code Review
-└─ Tier 3 → Test Specification Creation → [Test Implementation] → Feature Implementation → Testing (🧪) → Ready for Review (👀) → Code Review
+├─ Tier 2 → Feature Implementation → Integration & Testing → Testing (🧪) → Ready for Review (👀) → Code Review
+└─ Tier 3 → Test Specification Creation → Feature Implementation → Integration & Testing → Test Audit → Testing (🧪) → Ready for Review (👀) → Code Review
 ```
 
 **Transition Criteria:**
@@ -549,7 +549,8 @@ FDD Creation → [System Architecture Review] → [Database Schema Design] → [
 - **From Database Schema Design**: Complete when schema changes are designed and migration plan is ready
 - **From TDD Creation**: Complete when TDD is approved and linked in Feature Tracking
 - **From Test Specification Creation**: Complete when comprehensive test specifications are documented
-- **From Test Implementation**: Complete when test cases are implemented and ready for development
+- **From Feature Implementation**: Complete when feature code is implemented and ready for testing
+- **From Integration & Testing**: Complete when tests are implemented and test status is Ready for Validation
 - **To next task**: Based on original tier assessment
 
 **Optional Task Guidelines:**
@@ -572,10 +573,7 @@ FDD Creation → [System Architecture Review] → [Database Schema Design] → [
 > **📋 New Enhancement**: Decomposed mode provides granular task-by-task implementation with dedicated context preservation for multi-session development workflows.
 
 ```
-TDD Creation → [Implementation Mode Selection]
-├─ Integrated Mode (Traditional) → Feature Implementation (PF-TSK-004) → Testing → Ready for Review → Code Review
-└─ Decomposed Mode (Granular) →
-    Feature Implementation Planning (PF-TSK-044) →
+TDD Creation → Feature Implementation Planning (PF-TSK-044) →
     Data Layer Implementation (PF-TSK-051) →
     State Management Implementation (PF-TSK-056) →
     UI Implementation (PF-TSK-052) →
@@ -736,6 +734,38 @@ This enables seamless handoffs between sessions and provides comprehensive imple
 **Mode Selection Guidance:**
 
 Refer to [Foundation Feature Implementation Usage Guide](foundation-feature-implementation-usage-guide.md) for detailed mode selection criteria and transition patterns.
+
+### 1b. Enhancement Workflow (Existing Features)
+
+#### Enhancement Path
+
+```
+Change Request → Feature Request Evaluation → [Classification]
+├─ New Feature → Route to Feature Development Workflow (Section 1 above)
+└─ Enhancement → Feature Enhancement (execute steps from state file) → Code Review → Release
+```
+
+**Transition Criteria:**
+
+- **From Change Request to Feature Request Evaluation**: When someone wants to add, modify, or extend functionality — and it may be an enhancement to an existing feature
+- **From Feature Request Evaluation to Feature Enhancement**: When the Enhancement State Tracking File is created and the target feature's status is set to "🔄 Needs Revision"
+- **From Feature Enhancement to Code Review**: When all steps in the state file are complete, feature state is updated, and state file is archived
+
+**Transition Checklist (Evaluation → Enhancement):**
+
+- [ ] Change request classified as enhancement (not new feature)
+- [ ] Target feature proposed and human-approved
+- [ ] Scope assessed using practical criteria
+- [ ] Enhancement State Tracking File created and customized
+- [ ] Target feature status set to "🔄 Needs Revision" in feature tracking
+
+**Transition Checklist (Enhancement → Code Review):**
+
+- [ ] All execution steps in state file marked complete
+- [ ] All referenced documentation updated as specified
+- [ ] Target feature's implementation state file updated
+- [ ] Feature tracking status restored (removed "🔄 Needs Revision")
+- [ ] Enhancement State Tracking File archived to `temporary/old/`
 
 ### 2. Quality Assurance Workflow
 
@@ -1029,7 +1059,8 @@ Retrospective Documentation Creation (PF-TSK-066)
 
 **After Onboarding Completes:**
 
-- Use [Feature Implementation Task](../../tasks/04-implementation/feature-implementation-task.md) for extending features
+- Use [Feature Implementation Planning Task](../../tasks/04-implementation/feature-implementation-planning-task.md) for extending features
+- Use [Feature Enhancement Task](../../tasks/04-implementation/feature-enhancement.md) for enhancing existing features
 - Use [Code Review Task](../../tasks/06-maintenance/code-review-task.md) for validating implementation against documented design
 - Use [Technical Debt Assessment](../../tasks/cyclical/technical-debt-assessment-task.md) for debt discovered during analysis
 
@@ -1106,6 +1137,49 @@ What work follows the completed onboarding?
 2. Consult retrospective documentation for design decisions and patterns
 3. Use the normal development workflow (Feature Discovery → Tier Assessment → Design → Implementation)
 4. Technical debt items identified during onboarding can be addressed via Technical Debt Assessment
+
+### Transitioning FROM Feature Request Evaluation (PF-TSK-067)
+
+**Prerequisites for Transition:**
+
+- [ ] Change request classified (new feature or enhancement)
+- [ ] For enhancements: target feature proposed and human-approved
+- [ ] Enhancement State Tracking File created and customized
+- [ ] Target feature status set to "🔄 Needs Revision" in feature tracking
+
+**Next Task Selection:**
+
+- **If classified as new feature**: → Feature Tier Assessment (existing workflow)
+- **If classified as enhancement**: → Feature Enhancement (PF-TSK-068)
+
+**Preparation for Next Task:**
+
+1. Ensure Enhancement State Tracking File is fully customized (no placeholder content)
+2. Verify target feature's status shows "🔄 Needs Revision" with link to state file
+3. Confirm all execution steps have referenced task documentation links
+
+### Transitioning FROM Feature Enhancement (PF-TSK-068)
+
+**Prerequisites for Transition:**
+
+- [ ] All execution steps in Enhancement State Tracking File marked complete
+- [ ] All design documentation updates completed as scoped
+- [ ] All code changes implemented
+- [ ] All test changes implemented
+- [ ] Target feature's implementation state file updated
+- [ ] Feature tracking status restored (removed "🔄 Needs Revision")
+- [ ] Enhancement State Tracking File archived to `state-tracking/temporary/old/`
+
+**Next Task Selection:**
+
+- **Standard path**: → Code Review → Release & Deployment
+- **If enhancement revealed additional work**: → Feature Request Evaluation (new change request)
+
+**Preparation for Next Task:**
+
+1. Ensure all modified files are committed and ready for review
+2. Document any follow-up work discovered during enhancement in feature tracking
+3. Verify the archived state file is in `temporary/old/`
 
 ### Transitioning FROM Feature Discovery
 
@@ -2011,6 +2085,17 @@ Codebase Feature Discovery (PF-TSK-064) → Codebase Feature Analysis (PF-TSK-06
 **When to Use**: Adopting the process framework into an existing project with implemented but undocumented features
 **Shared State**: All three tasks share a single [Retrospective Master State File](../../state-tracking/temporary/retrospective-master-state.md)
 **Automation Scripts**: `New-RetrospectiveMasterState.ps1` (creates master state), `New-FeatureImplementationState.ps1` (creates per-feature state files with code inventories)
+
+### Scenario 15: Enhancement to Existing Feature
+
+```
+Change Request → Feature Request Evaluation (PF-TSK-067) → Feature Enhancement (PF-TSK-068) → Code Review → Release & Deployment
+```
+
+**Key Decision Points**: New feature vs. enhancement classification, target feature identification, scope assessment
+**When to Use**: When someone wants to add, modify, or extend an existing feature's capabilities
+**Shared State**: Enhancement State Tracking File (created by Evaluation, consumed by Enhancement)
+**Automation Scripts**: `New-EnhancementState.ps1` (creates enhancement state file from template)
 
 ## Transition Failure Recovery
 

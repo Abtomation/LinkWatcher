@@ -133,7 +133,7 @@ Systematic approach to identifying, categorizing, and prioritizing technical deb
 
 - [Code Refactoring Task](../06-maintenance/code-refactoring-task.md) - Provides prioritized debt items for systematic remediation
 - [System Architecture Review](../01-planning/system-architecture-review-task.md) - Informs architectural improvement decisions
-- [Feature Implementation Tasks](../04-implementation/feature-implementation-task.md) - Identifies debt considerations for new development
+- [Feature Implementation Planning](../04-implementation/feature-implementation-planning-task.md) - Identifies debt considerations for new development
 
 **Supports:**
 
@@ -186,7 +186,7 @@ Before considering this task finished:
 
 - [**Code Refactoring Task**](../06-maintenance/code-refactoring-task.md) - Use prioritized debt items from assessment for systematic remediation
 - [**System Architecture Review**](../01-planning/system-architecture-review-task.md) - Address architectural debt identified during assessment
-- [**Feature Implementation Tasks**](../04-implementation/feature-implementation-task.md) - Consider debt remediation during new feature development
+- [**Feature Implementation Planning**](../04-implementation/feature-implementation-planning-task.md) - Entry point to consider debt remediation during new feature development (leads to decomposed tasks PF-TSK-051 through PF-TSK-055)
 - [**Process Improvement Task**](../support/process-improvement-task.md) - Improve assessment process based on effectiveness metrics
 
 ## Metrics and Evaluation

@@ -11,7 +11,7 @@ state_type: Architecture Progress Tracking
 
 # Architecture Decision & Progress Tracking
 
-This file tracks cross-cutting architectural state and decisions in the BreakoutBuddies project, providing continuity for AI agents working on architectural tasks.
+This file tracks cross-cutting architectural state and decisions in the project, providing continuity for AI agents working on architectural tasks.
 
 ## Relationship to Feature Tracking
 
@@ -88,7 +88,7 @@ cd doc/product-docs/technical/architecture/design-docs/adr/
 The following tasks update this state file:
 
 - [System Architecture Review](../../tasks/01-planning/system-architecture-review.md): Updates when architectural analysis is completed
-- [Feature Implementation](../../tasks/04-implementation/feature-implementation-task.md): Updates when foundation features (0.x.x) are implemented
+- [Foundation Feature Implementation](../../tasks/04-implementation/foundation-feature-implementation-task.md): Updates when foundation features (0.x.x) are implemented
 - [Structure Change](../../tasks/support/structure-change-task.md): Updates when architectural framework changes are made
 
 ## Update History

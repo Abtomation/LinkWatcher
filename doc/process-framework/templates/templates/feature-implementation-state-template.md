@@ -2,9 +2,9 @@
 id: PF-TEM-037
 type: Process Framework
 category: Template
-version: 1.5
+version: 1.6
 created: 2025-01-20
-updated: 2026-02-17
+updated: 2026-02-19
 creates_document_prefix: PF-FIS
 creates_document_version: 1.0
 description: Template for permanent feature implementation state tracking throughout feature lifecycle
@@ -131,6 +131,16 @@ template_for: Feature State Tracking
 | ---------- | ------------- | -------- | -------- | ------------ |
 | [Doc name] | API Reference | [STATUS] | [path]   | YYYY-MM-DD   |
 
+### Existing Project Documentation
+
+> Records pre-existing project documentation identified during onboarding audit (PF-TSK-064 step 3b). Content relevance is confirmed during analysis (PF-TSK-065). Confirmed entries guide documentation creation (PF-TSK-066) to extract rather than re-derive.
+>
+> For new projects: _No pre-existing project documentation identified._
+
+| Document | Type | Relevant Content | Confirmed | Notes |
+| -------- | ---- | ---------------- | --------- | ----- |
+| [Name](path) | [Architecture Overview / User Guide / Test Plan / CI/CD / Troubleshooting / Developer Guide / Configuration / Changelog / Other] | [What's extractable for THIS feature] | [Unconfirmed / Confirmed / Partially Accurate / Outdated] | [Notes] |
+
 ### Quick Links
 
 - **Main Design**: [Link]
@@ -156,14 +166,6 @@ template_for: Feature State Tracking
 | [path]    | [Change]     | [Reason] | [Impact] | YYYY-MM-DD |
 
 **Code Markers**: All modifications include `// [FEATURE: {feature-id}]` inline markers
-
-### Files Used by This Feature
-
-| File Path | How Used | Methods/APIs Used | Notes   |
-| --------- | -------- | ----------------- | ------- |
-| [path]    | [Usage]  | [APIs]            | [Notes] |
-
-**Code Markers**: Used files include `// USED BY FEATURES: {feature-id}` comments
 
 ### Test Files
 

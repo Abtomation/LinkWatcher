@@ -243,7 +243,7 @@ Before considering this task finished:
 
 - [**TDD Creation**](tdd-creation-task.md) - Create detailed technical design based on API specifications
 - [**Test Specification Creation**](../test-specification-creation.md) - Define test cases for API endpoints and contracts
-- [**Feature Implementation**](../feature-implementation-task.md) - Implement the API according to the design specifications
+- [**Feature Implementation Planning**](../04-implementation/feature-implementation-planning-task.md) - Plan and implement the API according to the design specifications
 - [**API Documentation Creation**](../api-documentation-creation-task.md) - Create consumer-facing documentation after implementation (coming soon)
 
 ## Related Resources

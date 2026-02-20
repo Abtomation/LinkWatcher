@@ -2,9 +2,9 @@
 id: PF-TSK-030
 type: Process Framework
 category: Task Definition
-version: 1.2
+version: 1.3
 created: 2025-08-07
-updated: 2025-08-23
+updated: 2026-02-20
 task_type: Discrete
 ---
 
@@ -39,18 +39,18 @@ Comprehensive quality assurance task that evaluates implemented test suites agai
 
 ## Context Requirements
 
-[View Context Map for this task](../../../visualization/context-maps/discrete/test-audit-map.md)
+[View Context Map for this task](../../visualization/context-maps/03-testing/test-audit-map.md)
 
 - **Critical (Must Read):**
 
-  - **Test Implementation Files** - The actual test files to be audited (located in `/test/unit/`, `/test/integration/`, `/test/widget/`, `/integration_test/`)
+  - **Test Implementation Files** - The actual test files to be audited (located in the project's test directory as configured in `project-config.json`)
   - **Test Specification Document** - The test specification file for the feature being audited (located in `/test/specifications/feature-specs/`)
-  - [Test Implementation Tracking](../../state-tracking/discrete/test-implementation-tracking.md) - Current test implementation status and audit tracking
+  - [Test Implementation Tracking](../../state-tracking/permanent/test-implementation-tracking.md) - Current test implementation status and audit tracking
   - [Technical Design Document](/doc/product-docs/technical/design) - The TDD for the feature to understand implementation requirements
 
 - **Important (Load If Space):**
 
-  - [Feature Tracking](../../state-tracking/discrete/feature-tracking.md) - Feature development status and context
+  - [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Feature development status and context
   - [Test Registry](/test/test-registry.yaml) - Test file registry with IDs and metadata
   - [Existing Test Structure](/test/) - Current test organization and patterns for consistency evaluation
   - [Mock Services](/test/mocks/) - Available mock implementations used in tests
@@ -96,7 +96,7 @@ Comprehensive quality assurance task that evaluates implemented test suites agai
 
    ```powershell
    # Navigate to the test-audits directory from project root
-   Set-Location "c:\Users\ronny\VS_Code\BreakoutBuddies\breakoutbuddies\doc\process-framework\test-audits"
+   Set-Location "<project-root>/doc/process-framework/test-audits"
 
    # Create audit report using automation script
    ../../scripts/file-creation/New-TestAuditReport.ps1 -FeatureId "X.X.X" -TestFileId "PD-TST-XXX" -AuditorName "AI Agent"
@@ -141,10 +141,10 @@ Comprehensive quality assurance task that evaluates implemented test suites agai
 
    ```powershell
    # Navigate to the scripts directory from project root
-   Set-Location "c:\Users\ronny\VS_Code\BreakoutBuddies\breakoutbuddies\doc\process-framework\scripts\file-creation"
+   Set-Location "<project-root>/doc/process-framework/scripts/file-creation"
 
    # Create bug report for issues found during test audit
-   ../../scripts/file-creation/New-BugReport.ps1 -Title "Test failure reveals authentication bug" -Description "Login test consistently fails due to token validation issue" -DiscoveredBy "Test Audit" -Severity "High" -Component "Authentication" -Environment "Development" -RelatedFeature "1.2.3"
+   .\New-BugReport.ps1 -Title "Test failure reveals bug in component" -Description "Test consistently fails due to validation issue" -DiscoveredBy "Test Audit" -Severity "High" -Component "Component Name" -Environment "Development" -RelatedFeature "X.Y.Z"
    ```
 
 10. **Assign Audit Status**: Determine audit outcome based on evaluation results:
@@ -160,10 +160,10 @@ Comprehensive quality assurance task that evaluates implemented test suites agai
 
 ```powershell
 # Navigate to scripts directory from project root
-Set-Location "c:\Users\ronny\VS_Code\BreakoutBuddies\breakoutbuddies\doc\process-framework\scripts"
+Set-Location "<project-root>/doc/process-framework/scripts"
 
 # Update test audit state with comprehensive details
-../../scripts/Update-TestFileAuditState.ps1 -TestFileId "PD-TST-XXX" -AuditStatus "Tests Approved" -AuditorName "AI Agent" -TestCasesAudited 15 -PassedTests 14 -FailedTests 1 -MajorFindings @("Finding 1", "Finding 2") -AuditReportPath "../../test-audits/relative/path/to/audit-report.md"
+./Update-TestFileAuditState.ps1 -TestFileId "PD-TST-XXX" -AuditStatus "Tests Approved" -AuditorName "AI Agent" -TestCasesAudited 15 -PassedTests 14 -FailedTests 1 -MajorFindings @("Finding 1", "Finding 2") -AuditReportPath "../../test-audits/relative/path/to/audit-report.md"
 
 # Script automatically:
 # - Updates ../../state-tracking/permanent/test-implementation-tracking.md with audit status and detailed results
@@ -208,9 +208,9 @@ Set-Location "c:\Users\ronny\VS_Code\BreakoutBuddies\breakoutbuddies\doc\process
 
 **🤖 FULLY AUTOMATED** - All state file updates are handled by the `Update-TestFileAuditState.ps1` script:
 
-- [Test Implementation Tracking](../../state-tracking/discrete/test-implementation-tracking.md) - **Automatically updated** with audit status, detailed audit results, and completion timestamp
-- [Test Registry](/test/../discrete/test-registry.yaml) - **Automatically flagged** for manual review with audit completion status
-- [Feature Tracking](../../state-tracking/discrete/feature-tracking.md) - **Automatically updated** with intelligent aggregated test status based on all test files for the feature
+- [Test Implementation Tracking](../../state-tracking/permanent/test-implementation-tracking.md) - **Automatically updated** with audit status, detailed audit results, and completion timestamp
+- [Test Registry](/test/test-registry.yaml) - **Automatically flagged** for manual review with audit completion status
+- [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - **Automatically updated** with intelligent aggregated test status based on all test files for the feature
 - [Bug Tracking](../../state-tracking/permanent/bug-tracking.md) - **Manually updated** with any bugs discovered during audit, including test context and evidence
 
 **Key Automation Features**:
@@ -235,24 +235,24 @@ Before considering this task finished:
   - [ ] Clear audit decision made (Tests Approved or Needs Update)
 - [ ] **Update State Files**: **🤖 AUTOMATED** - Verify automation script successfully updated all state tracking files
   - [ ] Executed `Update-TestFileAuditState.ps1` with appropriate parameters
-  - [ ] Confirmed [Test Implementation Tracking](../../state-tracking/discrete/test-implementation-tracking.md) updated with audit status and detailed results
-  - [ ] Verified [Test Registry](/test/../discrete/test-registry.yaml) flagged for manual review with audit completion status
-  - [ ] Checked [Feature Tracking](../../state-tracking/discrete/feature-tracking.md) Test Status column shows correct aggregated status
+  - [ ] Confirmed [Test Implementation Tracking](../../state-tracking/permanent/test-implementation-tracking.md) updated with audit status and detailed results
+  - [ ] Verified [Test Registry](/test/test-registry.yaml) flagged for manual review with audit completion status
+  - [ ] Checked [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) Test Status column shows correct aggregated status
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-030" and context "Test Audit"
 
 ## Next Tasks
 
-- [**Feature Implementation Task**](../04-implementation/feature-implementation-task.md) - If tests are approved, proceed with feature implementation using tests for validation
+- [**Feature Implementation Planning**](../04-implementation/feature-implementation-planning-task.md) - If tests are approved, proceed with feature implementation planning using tests for validation
 - [**Foundation Feature Implementation Task**](../04-implementation/foundation-feature-implementation-task.md) - For foundation features with approved tests
-- [**Test Implementation Task**](../discrete/test-implementation.md) - If tests need updates, return to test implementation with audit recommendations
+- [**Integration & Testing (PF-TSK-053)**](../04-implementation/integration-and-testing.md) - If tests need updates, return to test implementation with audit recommendations
 - [**Bug Triage Task**](../06-maintenance/bug-triage-task.md) - If bugs are discovered during audit, proceed with bug triage and prioritization
 - [**Code Review Task**](../06-maintenance/code-review-task.md) - Review test improvements after re-implementation
 
 ## Related Resources
 
-- [Test Implementation Task](../discrete/test-implementation.md) - For implementing tests before audit
+- [Integration & Testing (PF-TSK-053)](../04-implementation/integration-and-testing.md) - For implementing tests before audit
 - [Test Specification Creation Task](test-specification-creation-task.md) - For creating test specifications that guide implementation
-- [Test Implementation Tracking](../../state-tracking/discrete/test-implementation-tracking.md) - Track test implementation and audit progress
-- [Test Registry](/test/../discrete/test-registry.yaml) - Test file registry with IDs and metadata
+- [Test Implementation Tracking](../../state-tracking/permanent/test-implementation-tracking.md) - Track test implementation and audit progress
+- [Test Registry](/test/test-registry.yaml) - Test file registry with IDs and metadata
 - [Development Guide](/doc/product-docs/guides/guides/development-guide.md) - Testing standards and practices
 - [Test Audit Concept](../../proposals/test-audit-concept.md) - Original concept document for this task

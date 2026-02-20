@@ -2,12 +2,12 @@
 id: PF-GDE-043
 type: Document
 category: General
-version: 1.1
+version: 1.2
 created: 2025-10-30
-updated: 2025-01-30
+updated: 2026-02-19
 guide_category: Development Process
 guide_description: Comprehensive guide for creating and maintaining feature implementation state documents as living, bidirectional documentation throughout development sessions
-related_tasks: PF-TSK-004
+related_tasks: PF-TSK-044
 guide_title: Feature Implementation State Tracking Guide
 guide_status: Active
 ---
@@ -22,7 +22,7 @@ This guide explains how to create and maintain **feature implementation state tr
 
 Use feature implementation state tracking when:
 
-- Starting implementation of a new feature in **decomposed mode (Mode B)** of the Feature Implementation task (PF-TSK-004)
+- Starting implementation of a new feature using the decomposed implementation workflow (starting with Feature Implementation Planning, PF-TSK-044)
 - Implementing complex features that span multiple AI sessions or developers
 - Tracking progress across multiple implementation tasks
 - Need to maintain context across session boundaries
@@ -86,13 +86,49 @@ The feature implementation state template (PF-TEM-037) contains 12 major section
 1. **Feature Overview** - High-level feature description and business value (stable throughout implementation)
 2. **Current State Summary** - 30-second snapshot of what's working, in progress, and blocked RIGHT NOW
 3. **Implementation Progress** - Detailed task-by-task progress through decomposed implementation sequence
-4. **Documentation Inventory** - Index of all design, user, and developer documentation related to the feature
+4. **Documentation Inventory** - Index of all design, user, and developer documentation related to the feature, plus any pre-existing project documentation identified during onboarding audit
+
+#### Understanding "Existing Project Documentation" Subsection
+
+Section 4 includes an **"Existing Project Documentation"** subsection for onboarding scenarios where the process framework is adopted into an existing project:
+
+- **When populated**: During Codebase Feature Discovery (PF-TSK-064), step 4
+- **When confirmed**: During Codebase Feature Analysis (PF-TSK-065), as part of per-feature analysis
+- **When consumed**: During Retrospective Documentation Creation (PF-TSK-066), to extract content before writing from scratch
+- **For new projects**: This subsection reads _"No pre-existing project documentation identified."_ — not applicable when the framework is used from the start
+
+**Confirmation statuses**: `Unconfirmed` → `Confirmed` / `Partially Accurate` / `Outdated`
 
 ### Code and Integration Sections
 
-5. **Code Inventory** - Complete inventory of files created, modified, and used by the feature
+5. **Code Inventory** - Complete inventory of files created, modified, and used by the feature (see detailed explanation below)
 6. **Dependencies** - Feature, system, and code-level dependencies tracking
 7. **Design Decisions** - Architectural choices, patterns, and their rationale
+
+#### Understanding Code Inventory Subsections
+
+The Code Inventory section has three critical subsections with **different purposes**:
+
+**a. Files This Feature Imports (Direct Dependencies)**
+- **Purpose**: Document what THIS feature needs to function
+- **What to list**: All `import` statements FROM this feature's code
+- **Example**: If `handler.py` has `from .logging import get_logger`, list `logging.py`
+- **Use case**: Understanding dependencies when deploying or testing this feature
+
+**b. Files That Depend On This Feature (Reverse Dependencies)**
+- **Purpose**: Document which files USE this feature (impact analysis)
+- **What to list**: All files that have `import` statements TO this feature's files
+- **Example**: If `service.py` has `from .database import LinkDatabase`, and this is the `database` feature, list `service.py`
+- **Use case**: When modifying this feature, know which files to check/test for breaking changes
+
+**c. Files Created/Modified by This Feature**
+- **Purpose**: Document ownership and scope
+- **What to list**: All files this feature created or changed
+- **Use case**: Understanding the complete footprint of this feature
+
+> **🚨 CRITICAL**: Do NOT confuse (a) and (b). They are opposite directions:
+> - (a) = What does my feature import? (Direct deps)
+> - (b) = Who imports my feature? (Reverse deps for impact analysis)
 
 ### Problem and Solution Tracking
 
@@ -119,6 +155,7 @@ Feature state documents serve **different purposes at different stages**:
 | **Post-Implementation**   | Permanent feature documentation, design decisions reference         | Documentation Inventory, Design Decisions, Lessons Learned         |
 | **During Maintenance**    | Context for bug fixes, dependency understanding                     | Issues Log, Code Inventory, Dependencies                           |
 | **During Extension**      | Foundation for modifications, understanding existing implementation | Feature Overview, Code Inventory, Design Decisions                 |
+| **During Onboarding**     | Existing doc audit, content validation, extraction source          | Documentation Inventory (Existing Project Documentation)           |
 
 ### Update Frequency Guidelines
 
@@ -358,6 +395,7 @@ During planning, set up sections that will be updated throughout implementation:
 
    - Link to feature design document
    - List planned user and developer documentation
+   - **For onboarding/retrospective mode**: Populate "Existing Project Documentation" with docs from project survey (PF-TSK-064 step 4), all marked `Unconfirmed`
 
 4. **Dependencies**:
    - Document all feature dependencies discovered during planning
@@ -803,7 +841,7 @@ Before marking a task complete, verify:
 
 - [Feature Implementation Task Decomposition Proposal](../../proposals/proposals/feature-implementation-task-decomposition-proposal.md) - Background on decomposed implementation approach
 - [Feature Implementation State Template (PF-TEM-037)](../../templates/templates/feature-implementation-state-template.md) - Template structure used by this guide
-- [Feature Implementation Task (PF-TSK-004)](../../tasks/tasks/feature-implementation-task.md) - Main feature implementation task documentation
+- [Feature Implementation Planning (PF-TSK-044)](../../tasks/04-implementation/feature-implementation-planning-task.md) - Entry point for decomposed feature implementation
 
 ### Related Tasks
 
@@ -835,6 +873,7 @@ Each decomposed implementation task has its own unique task ID assigned via the 
 | ------- | ---------- | ------------------------------------------------------------------------------------------------------------------------- | ----------------- |
 | 1.0     | 2025-01-30 | Initial guide creation: extracted instructional content from PF-TEM-037, added comprehensive examples and troubleshooting | Process Framework |
 | 1.1     | 2025-01-30 | Updated task references: clarified that decomposed tasks receive unique IDs from ID registry, not lettered subtasks       | Process Framework |
+| 1.2     | 2026-02-19 | Added "Existing Project Documentation" subsection guidance, onboarding lifecycle row, Step 4 onboarding note              | Process Framework |
 
 ---
 

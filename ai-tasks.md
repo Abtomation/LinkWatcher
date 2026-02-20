@@ -28,12 +28,17 @@ Are you ADOPTING THE FRAMEWORK into an existing project?
 │        Then → [Codebase Feature Analysis](#codebase-feature-analysis)
 │        Then → [Retrospective Documentation Creation](#retrospective-documentation-creation)
 │
-├─ No → Are you working on a NEW FEATURE?
-│  ├─ Yes → Do you need to research/plan what to build?
-│  │  ├─ Yes → Start with [Feature Discovery](#feature-discovery)
-│  │  └─ No → Is it complex (multiple components, architecture decisions)?
-│  │     ├─ Yes → Start with [Feature Tier Assessment](#feature-tier-assessment)
-│  │     └─ No → Use [Feature Implementation](#feature-implementation)
+├─ No → Are you working on a CHANGE REQUEST (new feature or enhancement)?
+│  ├─ Yes → Is it clearly a NEW feature (not modifying an existing one)?
+│  │  ├─ Yes → Do you need to research/plan what to build?
+│  │  │  ├─ Yes → Start with [Feature Discovery](#feature-discovery)
+│  │  │  └─ No → Is it complex (multiple components, architecture decisions)?
+│  │  │     ├─ Yes → Start with [Feature Tier Assessment](#feature-tier-assessment)
+│  │  │     └─ No → Use [Feature Implementation Planning](#feature-implementation-planning)
+│  │  ├─ No → Is it an ENHANCEMENT to an existing feature?
+│  │  │  ├─ Yes → Use [Feature Request Evaluation](#feature-request-evaluation) (classifies and scopes)
+│  │  │  │        Then → [Feature Enhancement](#feature-enhancement) (executes the enhancement)
+│  │  │  └─ Unsure → Use [Feature Request Evaluation](#feature-request-evaluation) (it will classify for you)
 │  │
 │  ├─ No → Are you WORKING WITH BUGS?
 │  │  ├─ Yes → What stage of bug management?
@@ -99,6 +104,7 @@ _Research, assessment, and architectural planning activities_
 
 | Task                           | Use When                                                                                | Complexity | Link                                                                                     |
 | ------------------------------ | --------------------------------------------------------------------------------------- | ---------- | ---------------------------------------------------------------------------------------- |
+| **Feature Request Evaluation** | Classify incoming change requests as new features or enhancements to existing features, and for enhancements create a scoped Enhancement State Tracking File | 🟡 Medium | [→ Definition](/doc/process-framework/tasks/01-planning/feature-request-evaluation.md) |
 | **Feature Discovery**          | Planning new features through research and analysis                                     | 🟡 Medium  | [→ Definition](/doc/process-framework/tasks/01-planning/feature-discovery-task.md)       |
 | **Feature Tier Assessment**    | New feature needs complexity evaluation                                                 | 🟢 Simple  | [→ Definition](/doc/process-framework/tasks/01-planning/feature-tier-assessment-task.md) |
 | **System Architecture Review** | Evaluating how new features fit into existing system architecture before implementation | 🟡 Medium  | [→ Definition](/doc/process-framework/tasks/01-planning/system-architecture-review.md)   |
@@ -122,7 +128,6 @@ _Test planning, implementation, and quality assurance activities_
 | Task                            | Use When                                                                               | Complexity | Link                                                                                        |
 | ------------------------------- | -------------------------------------------------------------------------------------- | ---------- | ------------------------------------------------------------------------------------------- |
 | **Test Specification Creation** | Create comprehensive test specifications from TDDs for Test-First Development          | 🟡 Medium  | [→ Definition](/doc/process-framework/tasks/03-testing/test-specification-creation-task.md) |
-| **Test Implementation**         | Implement comprehensive test cases based on existing Test Specifications               | 🟡 Medium  | [→ Definition](/doc/process-framework/tasks/03-testing/test-implementation-task.md)         |
 | **Test Audit**                  | Quality assurance evaluation of implemented test suites against effectiveness criteria | 🟡 Medium  | [→ Definition](/doc/process-framework/tasks/03-testing/test-audit-task.md)                  |
 
 ### ⚙️ 04 - Implementation Tasks
@@ -131,13 +136,13 @@ _Feature development and coding activities_
 
 | Task                                  | Use When                                                                                            | Complexity | Link                                                                                                     |
 | ------------------------------------- | --------------------------------------------------------------------------------------------------- | ---------- | -------------------------------------------------------------------------------------------------------- |
+| **Feature Enhancement** | Execute enhancement steps from the Enhancement State Tracking File, referencing existing task documentation for quality guidance, adapted to the amendment context | 🟡 Medium | [→ Definition](/doc/process-framework/tasks/04-implementation/feature-enhancement.md) |
 | **Implementation Finalization** | Complete remaining items and prepare feature for production | 🟡 Medium | [→ Definition](/doc/process-framework/tasks/04-implementation/implementation-finalization.md) |
 | **Quality Validation** | Validate implementation against quality standards and business requirements | 🟡 Medium | [→ Definition](/doc/process-framework/tasks/04-implementation/quality-validation.md) |
 | **Integration and Testing** | Integrate components and establish comprehensive test coverage | 🟡 Medium | [→ Definition](/doc/process-framework/tasks/04-implementation/integration-and-testing.md) |
 | **UI Implementation** | Build user interface components and layouts for feature | 🟡 Medium | [→ Definition](/doc/process-framework/tasks/04-implementation/ui-implementation.md) |
 | **Feature Implementation Planning**   | Analyze design documentation and create detailed implementation plan with task sequencing           | 🟡 Medium  | [→ Definition](/doc/process-framework/tasks/04-implementation/feature-implementation-planning-task.md)   |
 | **Data Layer Implementation**         | Implement data models, repositories, and database integration for feature                           | 🟡 Medium  | [→ Definition](/doc/process-framework/tasks/04-implementation/data-layer-implementation.md)              |
-| **Feature Implementation**            | Implementing features of any complexity (with design documentation)                                 | 🟡 Medium  | [→ Definition](/doc/process-framework/tasks/04-implementation/feature-implementation-task.md)            |
 | **Foundation Feature Implementation** | Implementing foundation features (0.x.x) that provide architectural foundations for the application | 🔴 Complex | [→ Definition](/doc/process-framework/tasks/04-implementation/foundation-feature-implementation-task.md) |
 
 ### ✅ 05 - Validation Tasks
@@ -203,19 +208,25 @@ _Meta-framework tasks that work on the process framework itself_
 ### For New Feature Planning
 
 ```
-Feature Discovery → Feature Tier Assessment → FDD Creation → [System Architecture Review] → [ADR Creation] → [API Design] → [Database Schema Design] → TDD Creation → [Test Specification Creation] → Feature Implementation → Code Review → Release & Deployment
+Feature Discovery → Feature Tier Assessment → FDD Creation → [System Architecture Review] → [ADR Creation] → [API Design] → [Database Schema Design] → TDD Creation → [Test Specification Creation] → Feature Implementation Planning → [Decomposed Implementation Tasks] → Code Review → Release & Deployment
 ```
 
 ### For Complex Features
 
 ```
-Feature Tier Assessment → FDD Creation → [System Architecture Review] → [ADR Creation] → [API Design] → [Database Schema Design] → TDD Creation → Test Specification Creation → Test Implementation → Test Audit → Feature Implementation → Code Review → Release & Deployment
+Feature Tier Assessment → FDD Creation → [System Architecture Review] → [ADR Creation] → [API Design] → [Database Schema Design] → TDD Creation → [Test Specification Creation] → Feature Implementation Planning → [Decomposed Implementation Tasks] → Integration & Testing → Test Audit → Code Review → Release & Deployment
 ```
 
 ### For Simple Features
 
 ```
-Feature Implementation (with lightweight design) → Code Review → Release & Deployment
+Feature Implementation Planning (with lightweight design) → [Decomposed Implementation Tasks] → Code Review → Release & Deployment
+```
+
+### For Enhancements to Existing Features
+
+```
+Feature Request Evaluation (classify + scope + create state file) → Feature Enhancement (execute steps from state file) → Code Review → Release & Deployment
 ```
 
 ### For Bug Fixes
@@ -295,7 +306,7 @@ Structure Change → Code Review → Release & Deployment
 | **🎯 Guides**           | API Specification Creation        | How to create API specifications             | [API Specification Creation Guide](/doc/process-framework/guides/guides/api-specification-creation-guide.md)                           |
 | **🎯 Guides**           | API Data Model Creation           | How to create API data models                | [API Data Model Creation Guide](/doc/process-framework/guides/guides/api-data-model-creation-guide.md)                                 |
 | **🎯 Guides**           | Foundation Feature Implementation | Comprehensive implementation guidance        | [Foundation Feature Implementation Usage Guide](/doc/process-framework/guides/guides/foundation-feature-implementation-usage-guide.md) |
-| **🎯 Guides**           | Test Implementation               | Comprehensive testing guidance               | [Test Implementation Usage Guide](/doc/process-framework/guides/guides/test-implementation-usage-guide.md)                             |
+| **🎯 Guides**           | Integration & Testing             | Comprehensive testing guidance               | [Integration & Testing Usage Guide](/doc/process-framework/guides/guides/test-implementation-usage-guide.md)                           |
 | **🗺️ Context Maps**     | API Design Task Map               | Visual API design relationships              | [API Design Task Context Map](/doc/process-framework/visualization/context-maps/02-design/api-design-task-map.md)                      |
 | **🔧 Support Tasks**    | Process Improvement               | Enhance development workflows                | [Process Improvement Task](/doc/process-framework/tasks/support/process-improvement-task.md)                                           |
 | **🔧 Support Tasks**    | Structure Change                  | Reorganize framework structure               | [Structure Change Task](/doc/process-framework/tasks/support/structure-change-task.md)                                                 |
@@ -338,7 +349,7 @@ Understanding the different types of documentation helps you choose the right re
 - **Use When**: You need comprehensive guidance beyond individual tasks
 - **Examples**:
   - [Foundation Feature Implementation Usage Guide](/doc/process-framework/guides/guides/foundation-feature-implementation-usage-guide.md)
-  - [Test Implementation Usage Guide](/doc/process-framework/guides/guides/test-implementation-usage-guide.md)
+  - [Integration & Testing Usage Guide](/doc/process-framework/guides/guides/test-implementation-usage-guide.md)
 
 ### 🎯 **Key Principle**: No Redundant Documentation
 
@@ -415,11 +426,11 @@ After completing any task, use our **hybrid feedback approach**:
 1. **Create feedback form** using the automation script:
 
    ```powershell
-   cd doc/process-framework/feedback
-   ./New-FeedbackForm.ps1 -DocumentId "PF-TSK-XXX" -TaskContext "Task Name" -FeedbackType "Multiple Tools"
+   cd doc/process-framework/scripts/file-creation
+   ./New-FeedbackForm.ps1 -DocumentId "PF-TSK-XXX" -TaskContext "Task Name" -FeedbackType "MultipleTools"
    ```
 
-   **FeedbackType options**: "Single Tool", "Multiple Tools", "Task-Level"
+   **FeedbackType options**: `"SingleTool"`, `"MultipleTools"`, `"TaskLevel"` (no spaces or hyphens)
 
 2. **Choose evaluation mode** in the enhanced template:
 

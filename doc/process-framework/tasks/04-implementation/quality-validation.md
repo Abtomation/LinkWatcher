@@ -151,8 +151,6 @@ Before considering this task finished:
 
 - [**Implementation Finalization (PF-TSK-055)**](implementation-finalization.md) - Complete remaining items, address quality issues, and prepare feature for production
 - [**Bug Report Creation (PF-TSK-034)**](../06-maintenance/bug-report-and-fix-task.md) - For any critical quality issues requiring immediate remediation
-- [**Feature Implementation Task (PF-TSK-004)**](feature-implementation-task.md) - If using integrated mode, continue with monolithic feature implementation
-
 ## Related Resources
 
 - [Dart Static Analysis](https://dart.dev/tools/analysis) - Dart analyzer and linting tools

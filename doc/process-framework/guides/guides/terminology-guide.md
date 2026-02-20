@@ -148,7 +148,7 @@ feature: "Authentication" # If applicable
 
 When referencing documents in markdown files, use the following format to clearly indicate the document category:
 
-- Process Framework reference: `[Process: Task Definition](../../../tasks/04-implementation/feature-implementation-task.md)`
+- Process Framework reference: `[Process: Task Definition](../../../tasks/04-implementation/feature-implementation-planning-task.md)`
 - Process Framework guide: `[Process: Documentation Guide](../../documentation-guide.md)`
 - Product Documentation reference: `<!-- [Product: Authentication API](../../../../product-docs/technical/api/authentication.md) - File not found -->`
 - Product User Handbook: `[Product: User Handbook](../../../../product-docs/user/handbooks/creating-an-account.md)`

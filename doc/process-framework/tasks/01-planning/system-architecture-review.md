@@ -182,7 +182,7 @@ Before considering this task finished:
 - [**API Design**](../02-design/api-design-task.md) - If API design requirements identified during assessment, design API contracts before TDD Creation
 - [**Database Schema Design**](../02-design/database-schema-design-task.md) - If database design requirements identified during assessment, design schema before TDD Creation
 - [**TDD Creation Task**](../02-design/tdd-creation-task.md) - Create Technical Design Documents based on architectural guidance and FDD requirements (if no foundation feature needed)
-- [**Feature Implementation Task**](../04-implementation/feature-implementation-task.md) - Implement feature following architectural constraints and integration strategy
+- [**Feature Implementation Planning**](../04-implementation/feature-implementation-planning-task.md) - Plan and execute feature implementation following architectural constraints and integration strategy
 
 ## Related Resources
 

@@ -276,7 +276,7 @@ When updating the feature tracking document:
 
 **Based on Tier Assessment Result:**
 
-- **Tier 1 (🔵)**: A-planning/feature-implementation-task.md) - Simple features can be implemented with lightweight design
+- **Tier 1 (🔵)**: [Feature Implementation Planning](../04-implementation/feature-implementation-planning-task.md) - Simple features can be implemented with lightweight design
 - **Tier 2 (🟠)**: A-planning/fdd-creation-task.md) - Moderate complexity requires functional design documentation before technical design
 - **Tier 3 (🔴)**: A-planning/fdd-creation-task.md) - Complex features need comprehensive functional design documentation before technical design
 

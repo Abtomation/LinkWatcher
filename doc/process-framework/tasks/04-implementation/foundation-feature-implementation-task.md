@@ -42,7 +42,7 @@ Specialized task for implementing foundation features (0.x.x) that provide archi
 - **Important (Load If Space):**
 
   - [Architectural Framework Usage Guide](../../guides/guides/architectural-framework-usage-guide.md) - **ESSENTIAL**: Step-by-step guide for using the architectural framework
-  - [Feature Implementation Task](feature-implementation-task.md) - Base implementation process for comparison
+  - [Feature Implementation Planning](feature-implementation-planning-task.md) - Base implementation planning process for comparison
   - [ADR Template](../../templates/templates/adr-template.md) - For documenting architectural decisions
   - [Foundation Feature Implementation Usage Guide](../../guides/guides/foundation-feature-implementation-usage-guide.md) - Task-specific usage guide
 
@@ -195,7 +195,7 @@ Before considering this task finished:
 ## Next Tasks
 
 - [**Code Review Task**](../06-maintenance/code-review-task.md) - Review foundation implementation for quality and architectural compliance
-- [**Feature Implementation Task**](feature-implementation-task.md) - Implement regular features that build upon this foundation
+- [**Feature Implementation Planning**](feature-implementation-planning-task.md) - Plan and implement regular features that build upon this foundation
 
 ## Related Resources
 

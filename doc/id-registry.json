@@ -24,7 +24,7 @@
         "cyclical": "doc/process-framework/tasks/cyclical",
         "default": "01-planning"
       },
-      "nextAvailable": 67
+      "nextAvailable": 69
     },
     "PF-GDE": {
       "description": "Process Framework - Guides",
@@ -35,7 +35,7 @@
         "main": "doc/process-framework/guides",
         "default": "guides"
       },
-      "nextAvailable": 47
+      "nextAvailable": 49
     },
     "PF-TEM": {
       "description": "Process Framework - Templates",
@@ -45,7 +45,7 @@
         "main": "doc/process-framework/templates",
         "default": "main"
       },
-      "nextAvailable": 45
+      "nextAvailable": 46
     },
     "PF-MTH": {
       "description": "Process Framework - Methodologies",
@@ -66,7 +66,7 @@
         "temporary": "doc/process-framework/state-tracking/temporary",
         "default": "permanent"
       },
-      "nextAvailable": 44
+      "nextAvailable": 46
     },
     "PF-DOC": {
       "description": "Process Framework - Documentation",
@@ -96,7 +96,7 @@
         "context-maps": "doc/process-framework/visualization/context-maps",
         "default": "context-maps"
       },
-      "nextAvailable": 47
+      "nextAvailable": 49
     },
     "PF-PRO": {
       "description": "Process Framework - Proposals",
@@ -106,7 +106,7 @@
         "main": "doc/process-framework/proposals",
         "default": "main"
       },
-      "nextAvailable": 1
+      "nextAvailable": 5
     },
     "PF-FEE": {
       "description": "Process Framework - Feedback",
@@ -126,7 +126,7 @@
         "features": "doc/process-framework/state-tracking/features",
         "default": "features"
       },
-      "nextAvailable": 4
+      "nextAvailable": 46
     },
     "PF-IMP": {
       "description": "Process Framework - Improvements",
@@ -208,7 +208,7 @@
         "main": "doc/product-docs/technical/architecture/design-docs/tdd",
         "default": "main"
       },
-      "nextAvailable": 21
+      "nextAvailable": 33
     },
     "PD-FDD": {
       "description": "Product Documentation - Functional Design Documents",
@@ -219,7 +219,7 @@
         "main": "doc/product-docs/functional-design",
         "default": "fdds"
       },
-      "nextAvailable": 22
+      "nextAvailable": 34
     },
     "PD-ADR": {
       "description": "Product Documentation - Architecture Decision Records",
@@ -229,7 +229,7 @@
         "main": "doc/product-docs/technical/architecture/design-docs/adr",
         "default": "main"
       },
-      "nextAvailable": 39
+      "nextAvailable": 41
     },
     "PD-AIA": {
       "description": "Product Documentation - Architecture Impact Assessments",
@@ -374,7 +374,7 @@
         "forms": "doc/process-framework/feedback/feedback-forms",
         "default": "forms"
       },
-      "nextAvailable": 170
+      "nextAvailable": 192
     },
     "ART-REV": {
       "description": "Review Artifacts",
@@ -394,7 +394,7 @@
         "feature-specs": "test/specifications/feature-specs",
         "default": "feature-specs"
       },
-      "nextAvailable": 35
+      "nextAvailable": 36
     },
     "PF-TAR": {
       "description": "Process Framework - Test Audit Reports",
@@ -422,7 +422,7 @@
         "e2e": "integration_test",
         "default": "unit"
       },
-      "nextAvailable": 98
+      "nextAvailable": 127
     },
     "PF-VAL": {
       "description": "Process Framework - Validation Reports",
@@ -520,7 +520,7 @@
         "permanent": "doc/process-framework/state-tracking/permanent",
         "default": "permanent"
       },
-      "nextAvailable": 5
+      "nextAvailable": 6
     }
   }
 }

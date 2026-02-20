@@ -215,12 +215,13 @@ Before considering this task finished:
 
 ## Next Tasks
 
-- C-testing/test-implementation-task.md) - Implement the test cases specified in the test specification document
-- C-testing/feature-implementation-task.md) - Alternative implementation path for features with existing TDDs
+- [**Integration & Testing (PF-TSK-053)**](../04-implementation/integration-and-testing.md) - Implement test cases and validate integration after feature implementation
+- [**Feature Implementation Planning**](../04-implementation/feature-implementation-planning-task.md) - Plan and execute feature implementation using decomposed tasks
 - C-testing/code-review-task.md) - Review implemented tests and code for quality assurance
 
 ## Related Resources
 
+- [Cross-Cutting Test Specification Template](../../templates/templates/cross-cutting-test-specification-template.md) - Template for tests spanning multiple features (use when test scenarios cross feature boundaries)
 - [Flutter Testing Best Practices](https://docs.flutter.dev/testing) - Official Flutter testing documentation
 - [Mockito Documentation](https://pub.dev/packages/mockito) - Mock library documentation for Dart/Flutter
 - C-testing/.ai-workspace/AI-FRAMEWORK-SUMMARY.md) - Context for AI-assisted development

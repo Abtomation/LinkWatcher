@@ -9,7 +9,7 @@ alwaysApply: true
 **LinkWatcher 2.0** is a real-time link maintenance system built with Python. It uses file system watching (via `watchdog`) to automatically detect file movements and renames, updating all references (links) across a project in real-time. It supports multiple file formats including Markdown, YAML, JSON, Python, and Dart.
 
 ## Structure
-- **linkwatcher_doc/**: Core Python package containing the service orchestration, database management, parsers, and update logic.
+- **linkwatcher/**: Core Python package containing the service orchestration, database management, parsers, and update logic.
 - **doc/process-framework/**: A structured meta-framework for development lifecycle management, including task definitions, state tracking, and templates.
 - **LinkWatcher/**: Directory containing convenience startup scripts for different shells (PowerShell, Batch, Bash).
 - **tests/**: Comprehensive test suite organized into unit, integration, parser, and performance tests.
@@ -70,8 +70,8 @@ pytest tests/
 
 ## Main Files & Resources
 - **main.py**: Primary CLI entry point for starting the monitoring service.
-- **linkwatcher_doc/service.py**: Core service orchestrator.
-- **linkwatcher_doc/database.py**: Link reference storage and management.
+- **linkwatcher/service.py**: Core service orchestrator.
+- **linkwatcher/database.py**: Link reference storage and management.
 - **dev.bat**: Windows development command utility.
 - **CLAUDE.md**: Project overview and mandatory workflow guidelines.
 - **.ai-entry-point.md**: Entry point for AI agents.

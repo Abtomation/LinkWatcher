@@ -49,7 +49,7 @@ This document tracks the testing of the current AI development framework to iden
 
 **Test Prompt**:
 ```
-I'm a new AI agent starting work on the BreakoutBuddies project. Please help me get oriented and ready to work.
+I'm a new AI agent starting work on the project. Please help me get oriented and ready to work.
 ```
 
 **Expected Results**:

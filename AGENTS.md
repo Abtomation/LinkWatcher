@@ -25,4 +25,22 @@ When you need to use ANY automation script:
 
 **Rule of thumb**: If you're reading `param()` blocks to understand how to use a script, you're doing it wrong.
 
+## 🚨 CRITICAL: Script Execution via echo Temp File Pattern
+
+When executing scripts through the Bash tool using the `echo ... > temp.ps1` pattern:
+
+- **NEVER use `"` double quotes** inside the `echo` command for parameter values
+- **ALWAYS use single quotes `'`** for ALL string parameter values
+- Double quotes are interpreted by cmd.exe and corrupt parameter values (e.g., `"3.1.1"` becomes `\3.1.1\`, creating directories instead of file content)
+
+```cmd
+# ✅ CORRECT
+echo Set-Location 'path'; ^& .\New-FDD.ps1 -FeatureId '3.1.1' -FeatureName 'My Feature' > temp.ps1 && pwsh.exe -ExecutionPolicy Bypass -File temp.ps1 && del temp.ps1
+
+# ❌ WRONG — double quotes garble the parameters
+echo Set-Location 'path'; ^& .\New-FDD.ps1 -FeatureId "3.1.1" -FeatureName "My Feature" > temp.ps1 && ...
+```
+
+See [script-development-quick-reference.md](doc/process-framework/guides/guides/script-development-quick-reference.md) for full details and recovery steps.
+
 Before you work on a problem take a deep breath and work on it step-by-step.

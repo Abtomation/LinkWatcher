@@ -2,30 +2,32 @@
 id: PF-GDE-040
 type: Document
 category: General
-version: 1.1
+version: 2.0
 created: 2025-08-03
-updated: 2025-08-04
-guide_description: Comprehensive guide for using the Test Implementation task effectively
+updated: 2026-02-20
+guide_description: Comprehensive guide for using the Integration & Testing task effectively
 guide_status: Active
-guide_title: Test Implementation Usage Guide
+guide_title: Integration & Testing Usage Guide
+change_notes: "v2.0 - Reworked for PF-TSK-053 (absorbed PF-TSK-029), made tech-agnostic"
 ---
 
-# Test Implementation Usage Guide
+# Integration & Testing Usage Guide
 
 ## Overview
 
-This guide provides step-by-step instructions for using the Test Implementation task (PF-TSK-029) to implement comprehensive test suites based on existing Test Specifications. It covers the complete workflow from preparation through finalization, including automation tools and quality validation.
+This guide provides step-by-step instructions for using the Integration & Testing task (PF-TSK-053) to implement comprehensive test suites and validate integration after feature implementation. It covers the complete workflow from preparation through finalization, including automation tools, bug discovery, and quality validation.
 
 ## When to Use
 
 Use this guide when you need to:
 
-- Implement tests for a feature that has existing Test Specifications
-- Follow test-driven development practices for foundation or application features
-- Create comprehensive test coverage before feature implementation
-- Establish test automation for complex features with behavioral specifications
+- Implement tests for a feature after implementation is complete
+- Fill test gaps identified from Test Specifications and TDDs
+- Validate end-to-end workflows and component integration
+- Create comprehensive test coverage across all required test types
+- Discover and report bugs during testing
 
-> **🚨 CRITICAL**: Test Implementation requires existing Test Specifications. If specifications don't exist, use the Test Specification Creation task first.
+> **Note**: If Test Specifications exist, they serve as the checklist for required test scenarios. If they don't exist, derive test requirements from the TDD's testing section.
 
 ## Table of Contents
 
@@ -40,226 +42,220 @@ Use this guide when you need to:
 
 Before you begin, ensure you have:
 
-- **Test Specification Document** - A completed test specification for the feature (created using Test Specification Creation task)
-- **Technical Design Document** - The TDD that the test specification was based on
-- **Development Environment** - Flutter/Dart development environment set up with test dependencies
+- **Completed Feature Implementation** - All implementation layers (data, state, UI) are complete
+- **Test Specification Document** (if exists) - A completed test specification for the feature (in `/test/specifications/feature-specs/`)
+- **Technical Design Document** - The TDD with testing requirements section
 - **Test Infrastructure** - Access to existing test directories, mock services, and test helpers
+- **Project Configuration** - `project-config.json` defines valid test types for the project language
 
 ## Background
 
-The Test Implementation task is part of the Test-First Development Integration (TFDI) approach used in BreakoutBuddies. This approach ensures high-quality code by implementing comprehensive test suites before feature implementation. The task uses existing test specifications as blueprints to create unit, integration, widget, and end-to-end tests that validate both functionality and architectural constraints.
+The Integration & Testing task is the single post-implementation testing task in the process framework. It consolidates test creation (formerly PF-TSK-029) with integration verification into one cohesive workflow. The task uses `New-TestFile.ps1` for automated test file creation with proper ID assignment and state tracking, and includes systematic bug discovery with `New-BugReport.ps1`.
 
 ## Step-by-Step Instructions
 
 ### Phase 1: Preparation
 
-#### 1. Review Test Specification
+#### 1. Review Test Specification (if exists)
 
 1. Open the test specification document for your feature (located in `/test/specifications/feature-specs/`)
 2. Study the test requirements and structure to understand what needs to be implemented
-3. Identify which test types are required (unit, integration, widget, e2e) based on the specification
+3. Identify which test types are required based on the specification
 
 **Expected Result:** Clear understanding of test requirements and categories needed
 
-#### 2. Set Up Test Environment
+#### 2. Review TDD Test Requirements
 
-1. Ensure all test dependencies are installed (`flutter pub get`)
-2. Verify access to mock services in `/test/mocks/`
-3. Check test helpers availability in `/test/test_helpers/`
+1. Read the testing section from the TDD to understand required test scenarios
+2. Note acceptance criteria and coverage thresholds
+3. Identify integration points and component boundaries
 
-**Expected Result:** Development environment ready for test implementation
+**Expected Result:** Complete list of required test scenarios from design documentation
+
+#### 3. Analyze Implementation Code
+
+1. Review all implemented feature code to understand integration points
+2. Identify component boundaries and potential failure scenarios
+3. Map out mock/stub requirements and test data needs
+
+**Expected Result:** Clear understanding of what needs testing and how components interact
+
+#### 4. Plan Test Strategy
+
+1. Determine which test types are needed (check `project-config.json` for valid types — e.g., Python: Unit/Integration/Parser/Performance; Dart: Unit/Integration/Widget/E2E)
+2. Map test types to specification requirements
+3. Prioritize tests by risk (critical paths first)
+
+**Expected Result:** Test strategy with prioritized test plan
 
 ### Phase 2: Execution
 
-#### 3. Create Test Files
+#### 5. Create Test Files
 
-Use the New-TestFile.ps1 script to generate test files for each required category:
+Use the `New-TestFile.ps1` script to generate test files for each required category:
 
 ```powershell
-# Navigate to test directory
-cd test
+# Create test files using automation script (generates PD-TST-[SEQUENCE] IDs)
+cd doc/process-framework/scripts/file-creation
+.\New-TestFile.ps1 -TestName "FeatureName" -TestType "Unit" -FeatureId "X.Y.Z" -ComponentName "ComponentName"
+.\New-TestFile.ps1 -TestName "FeatureName" -TestType "Integration" -FeatureId "X.Y.Z" -ComponentName "ComponentName"
 
-# Create unit tests
-doc\process-framework\scripts\file-creation\New-TestFile.ps1 -TestName "FeatureName" -TestType "Unit" -ComponentName "ComponentName"
-
-# Create integration tests
-doc\process-framework\scripts\file-creation\New-TestFile.ps1 -TestName "FeatureName" -TestType "Integration" -ComponentName "ComponentName"
-
-# Create widget tests (if UI components)
-doc\process-framework\scripts\file-creation\New-TestFile.ps1 -TestName "FeatureName" -TestType "Widget" -ComponentName "ComponentName"
-
-# Create E2E tests (if required)
-doc\process-framework\scripts\file-creation\New-TestFile.ps1 -TestName "FeatureName" -TestType "E2E" -ComponentName "ComponentName"
+# Script automatically:
+# - Generates unique PD-TST ID
+# - Creates test file from template with proper structure
+# - Updates test-implementation-tracking.md with file links and status
+# - Updates test-registry.yaml with test file metadata
+# - Updates feature-tracking.md with test implementation progress
 ```
 
-**Expected Result:** Test files created with proper structure and metadata
+**Expected Result:** Test files created with proper structure, IDs, and state tracking
 
-#### 4. Implement Test Cases
+#### 6. Implement Unit Tests
 
-1. **Unit Tests**: Implement individual component/service tests following the specification
-2. **Integration Tests**: Create tests that validate component interactions
-3. **Widget Tests**: Develop UI component tests (if applicable)
-4. **E2E Tests**: Implement complete user workflow tests (if required)
+- Test individual functions/methods with various inputs and edge cases
+- Test error handling and validation logic
+- Test state transitions and side effects
+- Achieve minimum 80% code coverage for business logic
 
-**Expected Result:** Comprehensive test suite covering all specification requirements
+#### 7. Implement Component Tests
+
+- Test component behavior with different state inputs
+- Test user interactions and event handling
+- Test error states and boundary conditions
+
+#### 8. Implement Integration Tests
+
+- Set up test environment with mock backends/services
+- Test complete workflows across component boundaries
+- Verify layer integration and data flow
+- Test error propagation across layers
+
+#### 9. Implement Additional Test Types
+
+Implement any remaining test types required by the specification and project language.
+
+#### 10. Create Test Mocks and Stubs
+
+- Mock external services, databases, and APIs
+- Create test data fixtures and factories
+- Set up dependency injection overrides for testing
+
+#### 11. Verify Test Coverage
+
+- Run the project's configured coverage tool
+- Review coverage report for gaps in critical paths
+- Ensure coverage meets project thresholds (typically 80%+ for business logic)
+
+**Expected Result:** Comprehensive test suite covering all specification requirements with adequate coverage
 
 ### Phase 3: Finalization
 
-#### 5. Verify and Execute Tests
+#### 12. Run Test Suite and Validate
 
-1. Run the complete test suite: `flutter test`
-2. Verify all tests pass
-3. Check test coverage meets specification requirements
+1. Execute all implemented tests to verify they pass
+2. Confirm test coverage meets project thresholds
+3. Validate error scenarios are properly tested
 
-**Expected Result:** All tests passing with adequate coverage
+#### 13. Bug Discovery
 
-#### 6. Update State Tracking
+Systematically identify and document any bugs found during testing:
 
-1. Update Test Implementation Tracking with completion status
-2. Update Test Registry with implementation status and test case counts
-3. Update Feature Tracking Test Status column
-4. Run validation scripts to ensure tracking consistency
-5. Document any issues or deviations from the specification
+- **Implementation Bugs**: Logic errors, edge case failures
+- **Integration Problems**: Issues when testing component interactions
+- **Data Handling Bugs**: Validation, transformation, or persistence issues
+- **Performance Issues**: Slow operations or memory leaks
+- **Error Handling Gaps**: Missing or inadequate error handling
 
-**Expected Result:** State tracking files updated with current progress and validation passed
-
-## Examples
-
-### Example: Repository Pattern Implementation Tests (Feature 0.2.1)
+If bugs are found, use `New-BugReport.ps1`:
 
 ```powershell
-# Create test files for Repository Pattern feature
-cd test
-.\New-TestFile.ps1 -TestName "RepositoryPattern" -TestType "Unit" -ComponentName "BaseRepository"
-.\New-TestFile.ps1 -TestName "RepositoryPattern" -TestType "Integration" -ComponentName "RepositoryFactory"
+Set-Location "<project-root>/doc/process-framework/scripts/file-creation"
+.\New-BugReport.ps1 -Title "Description" -Description "Details" -DiscoveredBy "Test Implementation" -Severity "High" -Component "ComponentName" -Environment "Development" -Evidence "Test case reference"
 ```
 
-**Unit Test Example:**
+#### 14. Update Test Status and Validate Tracking
 
-```dart
-// test/unit/repository_pattern_test.dart
-void main() {
-  group('BaseRepository Tests', () {
-    test('should perform CRUD operations correctly', () {
-      // Test implementation based on specification
-    });
-  });
-}
-```
+1. Update test implementation status to reflect completion
+2. Run validation scripts:
+   ```powershell
+   doc/process-framework/scripts/Validate-TestTracking.ps1
+   ```
+3. Update Feature Implementation State File (if applicable) with test metrics
 
-**Integration Test Example:**
-
-```dart
-// test/integration/repository_pattern_integration_test.dart
-void main() {
-  group('Repository Integration Tests', () {
-    test('should integrate with Supabase correctly', () {
-      // Integration test implementation
-    });
-  });
-}
-```
-
-## Troubleshooting
-
-### Common Issues
-
-**Issue**: Test files not created properly
-
-- **Solution**: Ensure you're in the correct directory and have proper permissions
-- **Command**: Check with `Get-Location` and verify script exists
-
-**Issue**: Tests fail during execution
-
-- **Solution**: Review test specification requirements and verify mock services are properly configured
-- **Check**: Ensure all dependencies are installed with `flutter pub get`
-
-**Issue**: Test coverage insufficient
-
-- **Solution**: Review test specification to identify missing test scenarios
-- **Tool**: Use `flutter test --coverage` to generate coverage reports
-
-## Related Resources
-
-- [Test Implementation Task Definition](../../tasks/03-testing/test-implementation-task.md) - Complete task definition
-- [Test Specification Creation Task](../../tasks/03-testing/test-specification-creation-task.md) - For creating test specifications
-- [Development Guide](/doc/product-docs/guides/guides/development-guide.md) - Testing standards and practices
-- [Test Implementation Tracking](../../state-tracking/permanent/test-implementation-tracking.md) - Track progress
-- [Test Registry](/test/test-registry.yaml) - Central registry of test files with IDs and metadata
-- [Validation Scripts](../../../scripts/validation/) - Scripts for test tracking consistency validation
-- [ ] Examples are relevant and accurate
-
-### Validation Criteria
-
-- Functional validation: Template works as intended
-- Content validation: Information is accurate and complete
-- Integration validation: Template integrates properly with related components
-- Standards validation: Follows project conventions and standards
-
-### Integration Testing Procedures
-
-- Test template with related scripts and tools
-- Verify workflow integration points
-- Validate cross-references and dependencies
-- Confirm compatibility with existing framework components]
+**Expected Result:** All state tracking files updated and validated
 
 ## Examples
 
-### Example 1: [Specific Use Case]
+### Example: Creating Tests for a Parser Feature (Python)
 
-[Provide a complete, real-world example of the process described in the guide]
-
-```bash
-# Example command or code snippet
-command --option value
+```powershell
+# Create test files for Parser Framework feature
+cd doc/process-framework/scripts/file-creation
+.\New-TestFile.ps1 -TestName "ParserFramework" -TestType "Unit" -FeatureId "2.1.1" -ComponentName "BaseParser"
+.\New-TestFile.ps1 -TestName "ParserFramework" -TestType "Integration" -FeatureId "2.1.1" -ComponentName "ParserRegistry"
 ```
 
-**Result:** [What the user should expect to see]
+**Unit Test Example (Python):**
 
-### Example 2: [Alternative Use Case] (Optional)
+```python
+# test/unit/test_parser_framework.py
+class TestBaseParser:
+    def test_should_parse_valid_input(self):
+        parser = BaseParser()
+        result = parser.parse("valid input")
+        assert result is not None
 
-[Provide another example for a different scenario if needed]
+    def test_should_handle_empty_input(self):
+        parser = BaseParser()
+        result = parser.parse("")
+        assert result == []
+```
+
+**Integration Test Example (Python):**
+
+```python
+# test/integration/test_parser_framework_integration.py
+class TestParserRegistryIntegration:
+    def test_should_dispatch_to_correct_parser(self):
+        registry = ParserRegistry()
+        result = registry.parse_file("test.md")
+        assert isinstance(result, list)
+```
 
 ## Troubleshooting
 
-### [Common Issue 1]
+### Test files not created properly
 
-**Symptom:** [Describe what the user might see or experience]
+**Symptom:** Script fails or files appear in wrong location
 
-**Cause:** [Explain the likely cause]
+**Solution:** Ensure you're running from the correct directory and `project-config.json` exists with valid test type definitions. Check that the feature ID matches a known feature.
 
-**Solution:** [Provide step-by-step instructions to resolve the issue]
+### Tests fail during execution
 
-### [Common Issue 2]
+**Symptom:** Test failures when running test suite
 
-**Symptom:** [Describe what the user might see or experience]
+**Solution:** Review test specification requirements and verify mock services are properly configured. Check that all dependencies are installed for the project.
 
-**Cause:** [Explain the likely cause]
+### Test coverage insufficient
 
-**Solution:** [Provide step-by-step instructions to resolve the issue]
+**Symptom:** Coverage below threshold after implementing all specified tests
+
+**Solution:** Review test specification and TDD to identify missing test scenarios. Focus on critical paths and edge cases. Use the project's coverage tool to identify uncovered lines.
+
+### Validation script reports errors
+
+**Symptom:** `Validate-TestTracking.ps1` reports inconsistencies
+
+**Solution:** Ensure all test files were created via `New-TestFile.ps1` (not manually). Check that test-registry.yaml entries match files on disk. Verify feature IDs are consistent across tracking files.
 
 ## Related Resources
 
-- <!-- [Link to related guide](../../guides/related-guide.md) - Template/example link commented out -->
-- <!-- [Link to relevant API documentation](../../api/relevant-api.md) - File not found -->
-- [External resource](https://example.com)
-
-<!--
-TEMPLATE USAGE GUIDANCE:
-
-ENHANCED METADATA:
-- related_script: Include if this guide helps customize templates created by a specific script
-- related_tasks: Include task IDs that this guide supports (comma-separated)
-- These fields enhance traceability and make guides easier to discover and maintain
-
-TEMPLATE CUSTOMIZATION GUIDE SECTIONS:
-For guides that help customize templates created by scripts, use these optional sections:
-- Template Structure Analysis: Break down the template structure and explain each section
-- Customization Decision Points: Guide users through key customization decisions
-- Validation and Testing: Include within Step-by-Step Instructions for testing procedures
-- Quality Assurance: Provide comprehensive QA guidance with checklists and validation criteria
-
-GENERAL GUIDE SECTIONS:
-All guides use the standard sections: Overview, When to Use, Prerequisites, Background,
-Step-by-Step Instructions, Examples, Troubleshooting, Related Resources
--->
+- [Integration & Testing Task Definition](../../tasks/04-implementation/integration-and-testing.md) - Complete task definition (PF-TSK-053)
+- [Test Specification Creation Task](../../tasks/03-testing/test-specification-creation-task.md) - For creating test specifications before implementation
+- [Test Audit Task](../../tasks/03-testing/test-audit-task.md) - Quality assessment of test implementations
+- [Test Implementation Tracking](../../state-tracking/permanent/test-implementation-tracking.md) - Track progress
+- [Test Registry](/test/test-registry.yaml) - Central registry of test files with IDs and metadata
+- [Test File Creation Guide](test-file-creation-guide.md) - Guide for customizing test file templates
+- [Bug Reporting Guide](bug-reporting-guide.md) - Standardized procedures for reporting bugs
+- [Cross-Cutting Test Specification Template](../../templates/templates/cross-cutting-test-specification-template.md) - Template for cross-feature test specs
+- [Development Guide](/doc/product-docs/guides/guides/development-guide.md) - Testing standards and practices

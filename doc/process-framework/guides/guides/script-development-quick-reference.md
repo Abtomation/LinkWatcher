@@ -185,6 +185,27 @@ echo Set-Location 'c:\Users\ronny\VS_Code\BreakoutBuddies\breakoutbuddies\doc\pr
 - Setting `$InformationPreference`
 - Using `Write-Output` instead of `Write-Host`
 
+### 🚨 Double Quotes in `echo` Cause Garbled Paths / Wrong Directory Structure
+
+**Symptom:** Script runs successfully (Exit Code 0) but creates a nested directory structure instead of the expected file. For example, running with `-FeatureId "3.1.1"` creates `fdd-\3-1-1\-\name\.md` (a deeply nested folder) instead of `fdd-3-1-1-name.md`.
+
+**Cause:** cmd.exe interprets `"` double quotes inside an `echo` command. When the temp file is written, the parameter values arrive in the PowerShell script with surrounding backslashes (e.g., `\3.1.1\`). The script then uses these as path components, turning dots and hyphens into directory separators.
+
+**Solution:** Always use single quotes `'` for ALL string parameter values inside the `echo` command:
+
+```cmd
+# ✅ CORRECT — single quotes for all parameter values
+echo Set-Location 'c:\path\to\scripts'; ^& .\New-FDD.ps1 -FeatureId '3.1.1' -FeatureName 'Parser Framework' > temp.ps1 && pwsh.exe -ExecutionPolicy Bypass -File temp.ps1 && del temp.ps1
+
+# ❌ WRONG — double quotes cause cmd.exe to garble the parameter values
+echo Set-Location 'c:\path\to\scripts'; ^& .\New-FDD.ps1 -FeatureId "3.1.1" -FeatureName "Parser Framework" > temp.ps1 && pwsh.exe -ExecutionPolicy Bypass -File temp.ps1 && del temp.ps1
+```
+
+**Recovery:** If a malformed directory structure was created by a failed script run:
+1. Delete the malformed directory (use PowerShell `Remove-Item -Recurse -Force "path\to\bad-dir"` via a temp .ps1 file)
+2. Reset the `nextAvailable` counter in `doc/id-registry.json` back to the value before the failed run
+3. Re-run the script with single quotes
+
 ### Script Fails with "Out-Null" Errors
 
 **Symptom:** Files aren't created when running scripts, or you see unexpected behavior with directory creation.

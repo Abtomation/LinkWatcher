@@ -4,13 +4,17 @@ type: Document
 category: General
 version: 1.1
 created: 2025-01-15
-updated: 2025-08-04
+updated: 2026-02-20
 visualization_type: Task Context
 task_type: Discrete
 task_name: test-implementation
 map_type: Context Map
+status: DEPRECATED
+replaced_by: visualization/context-maps/04-implementation/integration-and-testing-map.md
 ---
-# Test Implementation Context Map
+# Test Implementation Context Map — DEPRECATED
+
+> **DEPRECATED**: This context map has been superseded by the [Integration & Testing Context Map](../04-implementation/integration-and-testing-map.md) as part of the PF-TSK-029 → PF-TSK-053 consolidation.
 
 This context map provides a visual guide to the components and relationships relevant to the Test Implementation task. Use this map to identify which components require attention and how they interact during test implementation.
 

@@ -19,18 +19,18 @@ Comprehensive logging system with multiple levels. Retrospective - pre-framework
 | Factor                | Weight | Score | Weighted Score | Justification                                |
 | --------------------- | ------ | ----- | -------------- | -------------------------------------------- |
 | **Scope**             | 0.8    | 2     | 1.6            | Used across all core components              |
-| **State Management**  | 1.2    | 1     | 1.2            | Simple log level and configuration state     |
-| **Data Flow**         | 1.5    | 1     | 1.5            | Standard logging data flow                   |
+| **State Management**  | 1.2    | 2     | 2.4            | LoggingConfigManager manages runtime state, log formatters maintain formatter state, PerformanceLogger tracks timing state |
+| **Data Flow**         | 1.5    | 2     | 3.0            | Dual-formatter design (ColoredFormatter + JSONFormatter), log routing through multiple handlers and sinks |
 | **Business Logic**    | 2.5    | 2     | 5.0            | Structured logging and multi-sink handling   |
 | **UI Complexity**     | 0.5    | 1     | 0.5            | No UI components                             |
-| **API Integration**   | 1.5    | 1     | 1.5            | Standard Python logging and structlog        |
+| **API Integration**   | 1.5    | 2     | 3.0            | Internal API surface (get_logger, configure_logging, PerformanceLogger context manager) used across all components |
 | **Database Changes**  | 1.2    | 1     | 1.2            | No database interaction                      |
 | **Security Concerns** | 2.0    | 2     | 4.0            | PII protection and log injection prevention |
 | **New Technologies**  | 1.0    | 2     | 2.0            | Integration of structlog and colorama        |
 
-**Sum of Weighted Scores**: 18.5
+**Sum of Weighted Scores**: 22.7
 **Sum of Weights**: 12.2
-**Normalized Score**: 1.52
+**Normalized Score**: 1.86
 
 ## Design Requirements Evaluation
 
@@ -53,15 +53,15 @@ Comprehensive logging system with multiple levels. Retrospective - pre-framework
 
 **Assigned Tier**:
 
-- [x] Tier 1 (Simple) 🔵 (1.0-1.6)
-- [ ] Tier 2 (Moderate) 🟠 (1.61-2.3)
+- [ ] Tier 1 (Simple) 🔵 (1.0-1.6)
+- [x] Tier 2 (Moderate) 🟠 (1.61-2.3)
 - [ ] Tier 3 (Complex) 🔴 (2.31-3.0)
 
 ## Rationale
 
-**Retrospective Assessment - Pre-Framework Implementation**
+**Retrospective Assessment - Pre-Framework Implementation (Tier Adjusted in Phase 3)**
 
-With a normalized score of **1.52**, this feature falls into Tier 1 (Simple). While it is used system-wide, the implementation follows standard logging patterns and uses established libraries.
+With a recalculated normalized score of **1.86**, this feature is upgraded to Tier 2 (Moderate). Phase 2 analysis revealed significant complexity not captured in the original assessment: dual-formatter design (ColoredFormatter + JSONFormatter), PerformanceLogger with context manager state tracking, LoggingConfigManager for runtime filter management, and an internal API surface used across all components. **Upgraded from Tier 1** based on Phase 2 analysis findings.
 
 ## Special Considerations
 

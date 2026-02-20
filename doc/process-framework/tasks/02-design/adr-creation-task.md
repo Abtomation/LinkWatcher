@@ -43,9 +43,9 @@ Create Architecture Decision Records (ADRs) to document significant architectura
 
 - **Important (Load If Space):**
 
-  - A-planning/system-architecture-review.md) - For decisions arising from architectural reviews
-  - B-design/foundation-feature-implementation-task.md) - For architectural decisions during foundation work
-  - A-planning/feature-tier-assessment-task.md) - For decisions identified during complexity assessment
+  - [System Architecture Review](../01-planning/system-architecture-review.md) - For decisions arising from architectural reviews
+  - [Foundation Feature Implementation](../04-implementation/foundation-feature-implementation-task.md) - For architectural decisions during foundation work
+  - [Feature Tier Assessment](../01-planning/feature-tier-assessment-task.md) - For decisions identified during complexity assessment
   - [Component Relationship Index](../product-docs/technical/architecture/component-relationship-index.md) - For understanding component interactions
 
 - **Reference Only (Access When Needed):**
@@ -155,9 +155,9 @@ Before considering this task finished:
 
 ## Next Tasks
 
-- B-design/feature-implementation-task.md) - Implement features based on architectural decisions documented in ADRs
-- B-design/foundation-feature-implementation-task.md) - Implement foundation features with architectural decisions documented
-- A-planning/system-architecture-review.md) - Review system architecture incorporating new ADRs
+- [**Feature Implementation Planning**](../04-implementation/feature-implementation-planning-task.md) - Plan and implement features based on architectural decisions documented in ADRs
+- [**Foundation Feature Implementation**](../04-implementation/foundation-feature-implementation-task.md) - Implement foundation features with architectural decisions documented
+- [**System Architecture Review**](../01-planning/system-architecture-review.md) - Review system architecture incorporating new ADRs
 
 ## Related Resources
 

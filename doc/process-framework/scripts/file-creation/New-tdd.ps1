@@ -84,9 +84,9 @@ Invoke-StandardScriptInitialization
 # Get project root and define template paths for each tier
 $projectRoot = Get-ProjectRoot
 $templatePaths = @{
-    "1" = Join-Path $projectRoot "doc/process-framework/templates/templates/tdd-t1-template.md"
-    "2" = Join-Path $projectRoot "doc/process-framework/templates/templates/tdd-t2-template.md"
-    "3" = Join-Path $projectRoot "doc/process-framework/templates/templates/tdd-t3-template.md"
+    "1" = Join-Path $projectRoot "doc/product-docs/templates/templates/tdd-t1-template.md"
+    "2" = Join-Path $projectRoot "doc/product-docs/templates/templates/tdd-t2-template.md"
+    "3" = Join-Path $projectRoot "doc/product-docs/templates/templates/tdd-t3-template.md"
 }
 
 # Ensure template exists
@@ -108,10 +108,11 @@ $customReplacements = @{
 
 # Create custom filename pattern
 $safeFeatureName = ConvertTo-KebabCase -InputString $FeatureName
-$customFileName = "tdd-$FeatureId-$safeFeatureName-t$Tier.md"
+$safeFeatureId = $FeatureId -replace '\.', '-'
+$customFileName = "tdd-$safeFeatureId-$safeFeatureName-t$Tier.md"
 
 try {
-    $tddId = New-StandardProjectDocument -TemplatePath $templatePaths[$Tier] -IdPrefix "PD-TDD" -IdDescription "TDD Tier $Tier for feature ${FeatureId}: ${FeatureName}" -DocumentName $FeatureName -OutputDirectory "doc/product-docs/technical/architecture/design-docs/tdd/tdd" -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -FileNamePattern $customFileName -OpenInEditor:$OpenInEditor
+    $tddId = New-StandardProjectDocument -TemplatePath $templatePaths[$Tier] -IdPrefix "PD-TDD" -IdDescription "TDD Tier $Tier for feature ${FeatureId}: ${FeatureName}" -DocumentName $FeatureName -OutputDirectory "doc/product-docs/technical/architecture/design-docs/tdd" -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -FileNamePattern $customFileName -OpenInEditor:$OpenInEditor
 
     # Display success message
     $tierNames = @{
@@ -163,7 +164,7 @@ try {
             Write-Host "  - Add TDD creation date to Notes column" -ForegroundColor Cyan
         } else {
             # Prepare TDD document link
-            $tddLink = "[$tddId](../../../product-docs/technical/architecture/design-docs/tdd/tdd/$customFileName)"
+            $tddLink = "[$tddId](../../../../product-docs/technical/architecture/design-docs/tdd/$customFileName)"
 
             # Prepare additional updates for feature tracking
             $additionalUpdates = @{
@@ -200,7 +201,7 @@ try {
         Write-Warning "Failed to update feature tracking automatically: $($_.Exception.Message)"
         Write-Host "Manual Update Required:" -ForegroundColor Yellow
         Write-Host "  - Update feature $FeatureId status to '📝 TDD Created'" -ForegroundColor Cyan
-        Write-Host "  - Add TDD link: [$tddId](../../../product-docs/technical/architecture/design-docs/tdd/tdd/$customFileName)" -ForegroundColor Cyan
+        Write-Host "  - Add TDD link: [$tddId](../../../../product-docs/technical/architecture/design-docs/tdd/$customFileName)" -ForegroundColor Cyan
         Write-Host "  - Add creation date to Notes: $(Get-ProjectTimestamp -Format 'Date')" -ForegroundColor Cyan
     }
 }

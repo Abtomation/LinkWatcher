@@ -2,9 +2,9 @@
 id: PF-TSK-066
 type: Process Framework
 category: Task Definition
-version: 1.0
+version: 1.3
 created: 2026-02-17
-updated: 2026-02-17
+updated: 2026-02-20
 task_type: Onboarding
 ---
 
@@ -52,6 +52,8 @@ This is the final onboarding task that transforms code analysis into formal desi
 - **Reference Only (Access When Needed):**
   - [API Design Task](../02-design/api-design-task.md) - For documenting existing API contracts
   - [Database Schema Design Task](../02-design/database-schema-design-task.md) - For documenting existing schema
+  - [Cross-Cutting Test Specification Template](../../templates/templates/cross-cutting-test-specification-template.md) - Template for multi-feature test specifications
+  - [Test Registry](/test/test-registry.yaml) - Registry of test files with cross-cutting feature mappings
   - [Task Transition Guide](../../guides/guides/task-transition-guide.md) - Understanding documentation workflow
   - [Documentation Map](../../documentation-map.md) - For registering new documents
 
@@ -88,9 +90,12 @@ This is the final onboarding task that transforms code analysis into formal desi
 
 #### Per Feature: Document (Tier 2+ only)
 
+> **Extraction-First Principle**: Before writing any design document from scratch, check the feature's Section 4 "Existing Project Documentation" table for entries marked `Confirmed` or `Partially Accurate`. Extract validated content from those sources first, then supplement with findings from source code analysis. When reusing content, include attribution (e.g., "Derived from HOW_IT_WORKS.md, Architecture section").
+
 3. **Create Functional Design Document (Tier 2+)**:
    - Use [FDD Creation Task](../02-design/fdd-creation-task.md)
    - **Source**: [Feature Implementation State file](../../state-tracking/features/) + existing code
+   - **Check first**: Section 4 "Existing Project Documentation" for confirmed docs with functional/user-facing content
    - **Approach**: Descriptive (what it does) not prescriptive (what it should do)
    - **Content**: Document actual functionality, user flows, business rules as implemented
    - **Mark**: Add "Retrospective" note in header
@@ -99,6 +104,7 @@ This is the final onboarding task that transforms code analysis into formal desi
 4. **Create Technical Design Document (Tier 2+)**:
    - Use [TDD Creation Task](../02-design/tdd-creation-task.md)
    - **Source**: [Feature Implementation State file](../../state-tracking/features/) (Component Architecture, Data Flow, Design Decisions)
+   - **Check first**: Section 4 "Existing Project Documentation" for confirmed docs with architecture/technical content
    - **Approach**: Reverse-engineer from actual code structure
    - **Content**: Document actual architecture, components, patterns, implementation decisions
    - **Mark**: Add "Retrospective" note in header
@@ -109,6 +115,7 @@ This is the final onboarding task that transforms code analysis into formal desi
    - **Source**: [Feature Implementation State file](../../state-tracking/features/) → Test Files section
    - **Content**: Document existing tests, coverage, test scenarios
    - **Gaps**: Identify missing test coverage
+   - **Cross-cutting**: If test-registry.yaml shows test files with `crossCuttingFeatures` spanning multiple features, create cross-cutting test specifications using `New-TestSpecification.ps1 -CrossCutting -FeatureIds "X.Y.Z,A.B.C" -FeatureName "scenario-name"`. These go in `/test/specifications/cross-cutting-specs/`
    - **Mark**: Add "Retrospective" note in header
    - Update master state: Test Spec ✅
 
@@ -153,19 +160,27 @@ This is the final onboarding task that transforms code analysis into formal desi
     - All document links in [Feature Tracking](../../state-tracking/permanent/feature-tracking.md)? ✅
     - All [Feature Implementation State files](../../state-tracking/features/) linked in Feature Tracking? ✅
 
-13. **Update Documentation Map**: Add all new documents to [Documentation Map](../../documentation-map.md)
+13. **Reconcile Pre-existing Documentation**:
+    - Review the master state "Existing Documentation Inventory" table
+    - For each document, determine its disposition:
+      - **Keep**: Document serves an ongoing project purpose beyond what FDDs/TDDs cover (e.g., README.md, CONTRIBUTING.md, CHANGELOG.md, tests/README.md)
+      - **Archive**: Document's content has been fully extracted into formal design documents and no longer serves a unique purpose (e.g., HOW_IT_WORKS.md superseded by TDDs/FDDs)
+    - Archive superseded documents: move to `doc/archived-pre-framework/`
+    - Update the master state inventory with the disposition (Keep / Archived) for each document
 
-14. **Calculate Final Metrics**:
+14. **Update Documentation Map**: Add all new documents to [Documentation Map](../../documentation-map.md)
+
+15. **Calculate Final Metrics**:
     - Total features documented
     - Total documents created (by type)
     - Total sessions and time spent
     - Coverage percentage achieved
     - Record in [master state file](../../state-tracking/temporary/retrospective-master-state.md) Completion Summary section
 
-15. **Archive Master State File**:
+16. **Archive Master State File**:
     - Move from `/temporary/` to `/temporary/archived/` (or `/temporary/old/`)
 
-16. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+17. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 
@@ -180,6 +195,7 @@ This is the final onboarding task that transforms code analysis into formal desi
 ### Phase 4 Outputs: Finalization
 - **Updated [Feature Tracking](../../state-tracking/permanent/feature-tracking.md)** — All document links in appropriate columns
 - **Updated [Documentation Map](../../documentation-map.md)** — All new documents registered
+- **Reconciled pre-existing documentation** — Superseded docs archived to `doc/archived-pre-framework/`, project-essential docs (README.md, CONTRIBUTING.md, etc.) kept in place
 - **Archived [Master State File](../../state-tracking/temporary/retrospective-master-state.md)** — Moved to `/temporary/archived/`
 
 ## State Tracking
@@ -208,17 +224,20 @@ This is the final onboarding task that transforms code analysis into formal desi
 
 - [ ] **Phase 4 Complete: Finalization**
   - [ ] [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) verified complete with ALL document links
+  - [ ] Pre-existing documentation reconciled — each doc in master state inventory marked Keep or Archived; superseded docs moved to `doc/archived-pre-framework/`
   - [ ] [Documentation Map](../../documentation-map.md) updated with all new documents
   - [ ] Final metrics calculated and recorded in [master state](../../state-tracking/temporary/retrospective-master-state.md)
   - [ ] [Master State File](../../state-tracking/temporary/retrospective-master-state.md) archived to `/temporary/archived/`
 
-- [ ] **Feedback Forms**: Completed after EVERY session, using task ID "PF-TSK-066" and context "Retrospective Documentation Creation"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-066" and context "Retrospective Documentation Creation"
+  - **⚠️ IMPORTANT**: Evaluate the Retrospective Documentation Creation task (PF-TSK-066) and its tools (tier assessment workflow, documentation creation process), not the documents you created.
 
 ## Next Tasks
 
 After completing the full retrospective documentation effort:
 
-- [**Feature Implementation Task**](../04-implementation/feature-implementation-task.md) — For extending or modifying features after documentation
+- [**Feature Implementation Planning**](../04-implementation/feature-implementation-planning-task.md) — For implementing features after documentation
+- [**Feature Enhancement**](../04-implementation/feature-enhancement.md) — For extending or modifying existing features
 - [**Code Review Task**](../06-maintenance/code-review-task.md) — For validating existing implementation against documented design
 - [**Technical Debt Assessment**](../cyclical/technical-debt-assessment-task.md) — For identifying and prioritizing technical debt discovered during analysis
 

@@ -4,7 +4,7 @@ type: Process Framework
 category: State Tracking
 version: 1.1
 created: 2025-08-30
-updated: 2026-02-16
+updated: 2026-02-19
 ---
 
 # Bug Tracking
@@ -117,7 +117,7 @@ graph TD
 
 | ID         | Title                                    | Status      | Priority | Severity | Source      | Reported Date | Target Fix Date | Description                                                                                   | Related Feature           | Notes                                                                                                                                         |
 | ---------- | ---------------------------------------- | ----------- | -------- | -------- | ----------- | ------------- | --------------- | --------------------------------------------------------------------------------------------- | ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| _No high priority bugs currently reported_ |
+| PD-BUG-005 | Stale line numbers cause link updates to fail after file editing | 🆕 Reported | P3 | Medium | Development | 2026-02-19 | — | When a user edits a file and adds/removes lines, LinkWatcher does not rescan (on_modified not overridden). The database retains stale line_number values. When a referenced file is subsequently moved, the updater uses stale line numbers (updater.py:119-122) to locate lines, finds no match, and silently skips the update. | 1.1.2 Event Handler, 2.2.1 Link Updater | Environment: Development; Component: Event Handler / Link Updater; Workaround: restart LinkWatcher or trigger a rescan before moving files after edits |
 
 ### Low Priority Bugs
 
@@ -143,8 +143,8 @@ graph TD
 - **Total Active Bugs**: 1
 - **Critical (P1)**: 0
 - **High (P2)**: 0
-- **Medium (P3)**: 0
-- **Low (P4)**: 1
+- **Medium (P3)**: 1
+- **Low (P4)**: 0
 
 ### Resolution Metrics
 
@@ -165,7 +165,7 @@ graph TD
 - **Code Refactoring**: 0
 - **Deployment**: 0
 - **Monitoring**: 0
-- **Development**: 2
+- **Development**: 3
 
 ---
 
@@ -189,9 +189,15 @@ This bug tracking system integrates with the following process framework compone
 
 ### Development Tasks with Bug Discovery Integration
 
-- **[Feature Implementation Task](../../tasks/04-implementation/feature-implementation-task.md)**: Bug discovery during feature development
+- **[Data Layer Implementation (PF-TSK-051)](../../tasks/04-implementation/data-layer-implementation.md)**: Bug discovery during data model and repository work
+- **[State Management Implementation (PF-TSK-056)](../../tasks/04-implementation/state-management-implementation.md)**: Bug discovery during state layer work
+- **[UI Implementation (PF-TSK-052)](../../tasks/04-implementation/ui-implementation.md)**: Bug discovery during UI work
+- **[Integration & Testing (PF-TSK-053)](../../tasks/04-implementation/integration-and-testing.md)**: Bug discovery during integration testing
+- **[Quality Validation (PF-TSK-054)](../../tasks/04-implementation/quality-validation.md)**: Bug discovery during quality validation
+- **[Implementation Finalization (PF-TSK-055)](../../tasks/04-implementation/implementation-finalization.md)**: Bug discovery during finalization
+- **[Feature Enhancement (PF-TSK-068)](../../tasks/04-implementation/feature-enhancement.md)**: Bug discovery during enhancement work
 - **[Foundation Feature Implementation Task](../../tasks/04-implementation/foundation-feature-implementation-task.md)**: Bug discovery during foundational work
-- **[Test Implementation Task](../../tasks/03-testing/test-implementation-task.md)**: Bug discovery during test development
+- **[Integration & Testing (PF-TSK-053)](../../tasks/04-implementation/integration-and-testing.md)**: Bug discovery during test development
 - **[Test Audit Task](../../tasks/03-testing/test-audit-task.md)**: Bug discovery during test auditing
 - **[Code Review Task](../../tasks/06-maintenance/code-review-task.md)**: Bug discovery during code reviews
 - **[Code Refactoring Task](../../tasks/06-maintenance/code-refactoring-task.md)**: Bug discovery during refactoring

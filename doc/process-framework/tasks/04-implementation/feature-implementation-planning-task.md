@@ -76,7 +76,7 @@ When referencing design documents in implementation plans:
 ## When to Use
 
 - After ALL design documentation is complete and approved (FDD, TDD, and applicable API/DB/UI design)
-- Before starting feature implementation (PF-TSK-004 in decomposed mode)
+- Before starting feature implementation using the decomposed implementation tasks
 - When feature complexity requires breaking implementation into multiple phases
 - When multiple implementation tasks need coordination and dependency management
 - When long-running features need session continuity and handover support
@@ -261,7 +261,7 @@ When referencing design documents in implementation plans:
     - **Documentation Inventory**: List all design documents ([FDD](../../../../../doc/product-docs/functional-design/fdds/), [TDD](../../../../../doc/product-docs/technical/architecture/design-docs/tdd/), [API](../../../../../doc/product-docs/technical/api/), [DB](../../../../../doc/product-docs/technical/database/), [UI](../../../../../doc/product-docs/technical/ui-design/)) with direct links and which sections are relevant for each phase
     - **File and Component Context**: Document specific files in [`/lib/`](../../../../../lib/) and [`/test/`](../../../../../test/) that will be created/modified per phase
     - **Dependencies**: Document feature dependencies, system integration points, and code dependencies
-    - **Next Steps**: Specify which existing task definition to use (e.g., [Feature Implementation Task - PF-TSK-004](feature-implementation-task.md))
+    - **Next Steps**: Specify which decomposed implementation tasks to use (e.g., [Data Layer Implementation (PF-TSK-051)](data-layer-implementation.md), [UI Implementation (PF-TSK-052)](ui-implementation.md))
 
 ### Finalization
 
@@ -320,7 +320,7 @@ When referencing design documents in implementation plans:
     - Which design document sections are relevant for implementing each file
   - **Dependencies**: Feature dependencies, system integration requirements, code dependencies
   - **Issues & Resolutions Log**: (Empty during planning, will track problems during implementation)
-  - **Next Steps**: Reference to which existing task definition to use (e.g., [Feature Implementation Task - PF-TSK-004](feature-implementation-task.md))
+  - **Next Steps**: Reference to which decomposed implementation tasks to use (e.g., [Data Layer Implementation (PF-TSK-051)](data-layer-implementation.md), [UI Implementation (PF-TSK-052)](ui-implementation.md))
   - **Quality Metrics**: (Initialized with placeholders, will be populated during implementation)
   - **Lessons Learned**: (Empty during planning, will be populated throughout implementation)
 
@@ -373,7 +373,7 @@ Before considering this task finished:
     - Test files in [`/test/`](../../../../../test/) to create/modify per phase
     - Which design document sections inform implementation of each file
   - [ ] **Dependencies**: Feature, system, and code dependencies documented
-  - [ ] **Next Steps**: Reference to existing task definition to use (e.g., [Feature Implementation Task - PF-TSK-004](feature-implementation-task.md))
+  - [ ] **Next Steps**: Reference to decomposed implementation tasks to use (e.g., [Data Layer Implementation (PF-TSK-051)](data-layer-implementation.md), [UI Implementation (PF-TSK-052)](ui-implementation.md))
 - [ ] **Verify Cross-References**: Ensure proper linking between documents
   - [ ] Implementation plan references all design documents ([FDD](../../../../product-docs/functional-design/fdds/), [TDD](../../../../product-docs/technical/architecture/design-docs/tdd/), [API](../../../../product-docs/technical/api/), [DB](../../../../product-docs/technical/database/), [UI](../../../../product-docs/technical/ui-design/))
   - [ ] Feature state file references implementation plan
@@ -401,13 +401,12 @@ Before considering this task finished:
 After completing the implementation planning, begin implementing the feature using existing task definitions:
 
 1. **Begin Implementation** - Use the created implementation plan and feature state file:
-   - Follow [Feature Implementation Task (PF-TSK-004)](feature-implementation-task.md) as the process guide
+   - Follow the decomposed implementation tasks: [Data Layer (PF-TSK-051)](data-layer-implementation.md) → [State Management (PF-TSK-056)](state-management-implementation.md) → [UI (PF-TSK-052)](ui-implementation.md) → [Integration & Testing (PF-TSK-053)](integration-and-testing.md) → [Quality Validation (PF-TSK-054)](quality-validation.md) → [Implementation Finalization (PF-TSK-055)](implementation-finalization.md)
    - The feature state file you created contains all contextual information needed:
      - Which files in [`/lib/`](../../../../../lib/) to create/modify
      - Which sections of design documents to reference
      - Implementation phase sequence and dependencies
    - Update feature state document as you progress through implementation phases
-   - No need to create new task definitions - PF-TSK-004 is reusable for all features
 2. **Testing** - Follow testing strategy from implementation plan:
    - Create tests in [`/test/`](../../../../../test/) as specified in feature state file
    - For Tier 3 features, may reference [Test Specification Creation Task](../03-testing/test-specification-creation-task.md) if detailed test specs are needed
@@ -421,19 +420,19 @@ After completing the implementation planning, begin implementing the feature usi
 ```
 Implementation Planning (this task - PF-TSK-044) →
   Creates: Implementation Plan + Feature State File (with file/component context) →
-    Implementation (PF-TSK-004 - reusable task definition) →
+    Decomposed Implementation Tasks (PF-TSK-051 → 056 → 052 → 053 → 054 → 055) →
       Update Feature State throughout implementation →
         Code Review (PF-TSK-007) →
           Feature Complete
 ```
 
-**Key Concept**: This planning task prepares a detailed roadmap and context document. The actual implementation uses existing, reusable task definitions like PF-TSK-004, which guide the process while the feature state file provides all the feature-specific context.
+**Key Concept**: This planning task prepares a detailed roadmap and context document. The actual implementation uses the decomposed implementation tasks, which guide the process while the feature state file provides all the feature-specific context.
 
 ## Related Resources
 
 ### Task Definition and Execution
 
-- **[Feature Implementation Task (PF-TSK-004)](feature-implementation-task.md)** - Core task for executing implementation work
+- **[Data Layer Implementation (PF-TSK-051)](data-layer-implementation.md)** - First decomposed implementation task for data models and repositories
 - **[Task Creation Guide](../../guides/guides/task-creation-guide.md)** - How to create decomposed implementation tasks using New-Task.ps1
 - **[Task Transition Guide](../../guides/guides/task-transition-guide.md)** - Information flow and separation of concerns between tasks
 

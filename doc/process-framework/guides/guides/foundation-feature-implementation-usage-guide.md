@@ -269,18 +269,16 @@ class SupabaseAuthProvider extends AuthenticationProvider {
 
 Regular feature implementation (non-0.x.x features) can be performed in two modes:
 
-1. **Integrated Mode (Traditional)**: Single comprehensive task (PF-TSK-004) covering all implementation aspects
-2. **Decomposed Mode (Granular)**: Seven focused tasks (PF-TSK-044, PF-TSK-051, PF-TSK-056, PF-TSK-052, PF-TSK-053, PF-TSK-054, PF-TSK-055) with explicit layer separation
+Regular feature implementation uses the **Decomposed Mode**: Seven focused tasks (PF-TSK-044, PF-TSK-051, PF-TSK-056, PF-TSK-052, PF-TSK-053, PF-TSK-054, PF-TSK-055) with explicit layer separation. Start with [Feature Implementation Planning (PF-TSK-044)](../../tasks/04-implementation/feature-implementation-planning-task.md).
 
-### When to Use Integrated Mode (PF-TSK-004)
+> **Note**: The former "Integrated Mode" (PF-TSK-004) has been deprecated. All new feature implementations should use the decomposed workflow.
 
-**✅ Use Integrated Mode when:**
+### When to Use Simplified Decomposed Mode
+
+**✅ Use a subset of decomposed tasks when:**
 - Feature can be completed in a single session
 - Implementation is straightforward with minimal complexity
-- Single developer working continuously without interruption
-- Rapid prototyping or experimental features
 - Minimal layer separation (e.g., UI-only changes, simple backend updates)
-- Team prefers traditional monolithic implementation approach
 
 **✅ Integrated Mode Advantages:**
 - Faster for simple features (less task overhead)
@@ -364,7 +362,7 @@ Is the feature expected to take multiple sessions?
 - Task: Update button styling across app
 - Complexity: Low (UI-only, single file changes)
 - Sessions: 1 session expected
-- **Decision**: Use PF-TSK-004 (Integrated Mode)
+- **Decision**: Use simplified decomposed mode (skip Data Layer, State Management — go straight to UI Implementation)
 
 **Example 2: New User Profile Feature → Decomposed Mode**
 - Task: Complete user profile management with data persistence
@@ -404,7 +402,7 @@ Is the feature expected to take multiple sessions?
 ### Related Resources for Mode Selection
 
 - [Task Transition Guide](task-transition-guide.md) - Decomposed task workflow details
-- [Feature Implementation Task (PF-TSK-004)](../../tasks/04-implementation/feature-implementation-task.md) - Integrated mode task
+- [Feature Implementation Planning (PF-TSK-044)](../../tasks/04-implementation/feature-implementation-planning-task.md) - Entry point for decomposed implementation
 - [Feature Implementation Planning (PF-TSK-044)](../../tasks/04-implementation/feature-implementation-planning.md) - Decomposed mode entry point
 - [Feature Implementation State Template](../../templates/templates/feature-implementation-state-template.md) - State file for decomposed mode
 - [Feature Implementation State Tracking Guide](feature-implementation-state-tracking-guide.md) - Guide for maintaining state file
@@ -416,7 +414,7 @@ Is the feature expected to take multiple sessions?
 - [Architecture Context Packages](../../state-tracking/permanent/architecture-context-packages.md) - Architectural context management
 - [Architecture Tracking](../../state-tracking/permanent/architecture-tracking.md) - Architectural evolution tracking
 - [System Architecture Review Task](../../tasks/01-planning/system-architecture-review.md) - Task that identifies foundation features
-- [Feature Implementation Task](../../tasks/04-implementation/feature-implementation-task.md) - Regular feature implementation for comparison
+- [Feature Implementation Planning](../../tasks/04-implementation/feature-implementation-planning-task.md) - Regular feature implementation entry point for comparison
 - [ADR Template](../../templates/templates/adr-template.md) - For documenting architectural decisions
 
 <!--

@@ -79,7 +79,7 @@ Use this guide to determine which template to use for different documentation ne
 **Examples in project:**
 - [Feature Tier Assessment](../tasks/01-planning/feature-tier-assessment-task.md)
 - [TDD Creation](../tasks/02-design/tdd-creation-task.md)
-- [Feature Implementation](../tasks/04-implementation/feature-implementation-task.md)
+- [Feature Implementation Planning](../tasks/04-implementation/feature-implementation-planning-task.md)
 
 #### Guide Template
 

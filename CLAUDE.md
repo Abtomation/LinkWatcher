@@ -37,8 +37,10 @@ At the start of EVERY session, you must:
 
 **cmd.exe shell:**
 ```cmd
-echo Set-Location 'path'; ^& .\Script.ps1 -Params > temp.ps1 && pwsh.exe -File temp.ps1 && del temp.ps1
+echo Set-Location 'path'; ^& .\Script.ps1 -Param1 'value1' -Param2 'value2' > temp.ps1 && pwsh.exe -File temp.ps1 && del temp.ps1
 ```
+
+> **🚨 NEVER use `"` double quotes inside the `echo` command.** Double quotes are interpreted by cmd.exe and cause garbled parameter values — dots in values like `3.1.1` become path separators, creating nested directories instead of the intended output. Always use single quotes `'` for ALL parameter values.
 
 **Unix/bash shell** (if `^&` fails with errors):
 ```bash

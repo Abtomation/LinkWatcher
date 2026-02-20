@@ -31,7 +31,7 @@ additional_fields:
 >
 > **📖 Need Help?** See the [Feedback Form Guide](feedback-form-guide.md) for detailed instructions, time tracking requirements, and rating guidelines.
 >
-> **🚀 Quick Start**: Use the automation script: `scripts/file-creation/New-FeedbackForm.ps1 -DocumentId "PF-TSK-XXX" -TaskContext "Task Name" -FeedbackType "Multiple Tools"`
+> **🚀 Quick Start**: Use the automation script: `scripts/file-creation/New-FeedbackForm.ps1 -DocumentId "PF-TSK-XXX" -TaskContext "Task Name" -FeedbackType "MultipleTools"`
 >
 > **✅ Before Submitting**: Run validation: `./doc/process-framework/feedback/Validate-FeedbackForms.ps1` to ensure completion
 

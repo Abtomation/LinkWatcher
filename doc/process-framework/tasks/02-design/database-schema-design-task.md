@@ -177,7 +177,7 @@ Before considering this task finished:
 
 ## Next Tasks
 
-- [**Feature Implementation**](../04-implementation/feature-implementation-task.md) - Implement the feature using the designed schema
+- [**Feature Implementation Planning**](../04-implementation/feature-implementation-planning-task.md) - Plan and implement the feature using the designed schema
 - [**API Design Task**](api-design-task.md) - Design APIs that work with the new data model (if applicable)
 - [**Code Review**](../06-maintenance/code-review-task.md) - Review the schema design before implementation begins
 
@@ -185,5 +185,5 @@ Before considering this task finished:
 
 - [System Architecture Review Task](../01-planning/system-architecture-review.md) - For evaluating how schema changes fit into existing architecture
 - [API Design Task](api-design-task.md) - For designing APIs that work with the new data model
-- [Feature Implementation Task](../04-implementation/feature-implementation-task.md) - For implementing features using the designed schema
+- [Feature Implementation Planning](../04-implementation/feature-implementation-planning-task.md) - For planning and implementing features using the designed schema
 - [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md) - For tracking schema optimization opportunities

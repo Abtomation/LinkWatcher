@@ -134,8 +134,6 @@ Before considering this task finished:
 
 - [**UI Implementation (PF-TSK-052)**](ui-implementation.md) - Implement Flutter widgets and screens that consume the state providers created in this task
 - [**Integration & Testing (PF-TSK-053)**](integration-and-testing.md) - Verify state layer integrates correctly with data and UI layers through comprehensive testing
-- [**Feature Implementation Task (PF-TSK-004)**](feature-implementation-task.md) - If using integrated mode, continue with monolithic feature implementation
-
 ## Related Resources
 
 - [Riverpod Official Documentation](https://riverpod.dev) - Comprehensive Riverpod patterns and best practices

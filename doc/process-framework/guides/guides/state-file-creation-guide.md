@@ -294,7 +294,8 @@ When creating and customizing state tracking files, you'll face several critical
 
    The following tasks update this state file:
 
-   - [Feature Implementation Task](../../tasks/04-implementation/feature-implementation-task.md): Updates status when features are completed
+   - [Feature Implementation Planning Task](../../tasks/04-implementation/feature-implementation-planning-task.md): Creates state tracking file and initial implementation plan
+   - [Implementation Finalization Task](../../tasks/04-implementation/implementation-finalization.md): Updates status when features are completed
    - [Technical Debt Assessment Task](../../tasks/cyclical/technical-debt-assessment-task.md): Adds new debt items when identified
    ```
 

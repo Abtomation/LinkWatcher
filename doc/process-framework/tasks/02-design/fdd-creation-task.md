@@ -175,7 +175,7 @@ Before considering this task finished:
 
 - B-design/tdd-creation-task.md) - Create Technical Design Document based on functional requirements defined in the FDD
 - B-design/test-specification-creation-task.md) - Create comprehensive test specifications using FDD acceptance criteria
-- B-design/feature-implementation-task.md) - Implement the feature using both FDD and TDD as guidance
+- [**Feature Implementation Planning**](../04-implementation/feature-implementation-planning-task.md) - Plan and implement the feature using both FDD and TDD as guidance
 
 ## Related Resources
 

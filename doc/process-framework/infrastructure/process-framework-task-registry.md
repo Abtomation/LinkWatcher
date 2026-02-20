@@ -38,7 +38,7 @@ This document serves as the **comprehensive registry** of all process framework 
 
 - **New Task Creation Process** - **ENHANCED**: Script now automatically updates three documentation files (documentation-map.md, tasks/README.md, ai-tasks.md), requires manual registry updates
 - **Feature Tier Assessment Task** - Requires running `Update-FeatureTrackingFromAssessment.ps1` after assessment creation
-- **Test Implementation Task** - Script creates files and initial state updates, requires manual completion status updates and test case counts
+- **Integration & Testing Task** - Script creates files and initial state updates, requires manual completion status updates and test case counts (absorbed PF-TSK-029)
 - **Test Audit Task** - Manual audit judgment, **FULLY AUTOMATED** state updates with intelligent feature-level aggregation
 - **Bug Triage Task** - Manual bug evaluation with **AUTOMATED** state updates via `Update-BugStatus.ps1`
 - **Bug Fixing Task** - Manual bug resolution with **AUTOMATED** status lifecycle management via `Update-BugStatus.ps1`
@@ -57,7 +57,7 @@ This document serves as the **comprehensive registry** of all process framework 
 ### 🚨 Critical Automation Gaps Identified
 
 1. **Feature Tier Assessment**: Requires separate script execution for state updates
-2. **Test Implementation Task**: Requires manual status updates after test completion
+2. **Integration & Testing Task (PF-TSK-053)**: Requires manual status updates after test completion
 
 ## State File Update Frequency Analysis
 
@@ -163,10 +163,12 @@ This document serves as the **comprehensive registry** of all process framework 
 **🎯 KEY IMPACTS**
 
 - **Primary state file:** [`feature-tracking.md`](../state-tracking/permanent/feature-tracking.md) - Updates feature test status
-- **Enables next steps:** Test Implementation Task
+- **Enables next steps:** Integration & Testing Task (PF-TSK-053)
 - **Dependencies:** Requires System Architecture Review completion
 
-#### **5. Test Implementation Task** ([PF-TSK-029](../tasks/03-testing/test-implementation-task.md))
+#### **5. Integration & Testing Task** ([PF-TSK-053](../tasks/04-implementation/integration-and-testing.md))
+
+> **Note:** This task absorbed PF-TSK-029 (Test Implementation). PF-TSK-053 is now the single post-implementation testing task for all workflow paths.
 
 **🔧 Process Type:** 🔄 **Semi-Automated** (Script creates files and initial state updates, manual completion required)
 
@@ -175,16 +177,18 @@ This document serves as the **comprehensive registry** of all process framework 
 - **Script:** [`New-TestFile.ps1`](../scripts/file-creation/New-TestFile.ps1)
 - **Output Directory:** [`test/`](../../../test/) (various subdirectories)
 - **Auto-Update Function:** Built-in automated initial state tracking via `Update-TestImplementationStatus`
+- **Validation Script:** [`Validate-TestTracking.ps1`](../scripts/Validate-TestTracking.ps1)
 - **Manual Updates Required:** Test completion status, test case counts after implementation
 
 **📁 FILE OPERATIONS**
 | Operation | File Path | Update Method | Details |
 |-----------|-----------|---------------|---------|
-| **Creates** | Test files (multiple) | `New-TestFile.ps1` | Test files in appropriate test directories (unit/integration/widget/e2e) with proper PD-TST IDs |
+| **Creates** | Test files (multiple) | `New-TestFile.ps1` | Test files in appropriate test directories with proper PD-TST IDs |
 | **Updates** | [`bug-tracking.md`](../state-tracking/permanent/bug-tracking.md) (if bugs discovered) | [`New-BugReport.ps1`](../scripts/file-creation/New-BugReport.ps1)| Add newly discovered bugs with 🆕 Reported status for triage |
-| **Updates** | [`test-implementation-tracking.md`](../state-tracking/permanent/test-implementation-tracking.md) | `New-TestFile.ps1` | Status: "📝 Specification Created" → "🟡 Implementation In Progress"<br/>• Add test file links with correct relative paths (../../../test/unit/filename.dart)<br/>• Use filename as display name instead of PD-TST ID<br/>• Update test cases count, last updated date, notes |
+| **Updates** | [`test-implementation-tracking.md`](../state-tracking/permanent/test-implementation-tracking.md) | `New-TestFile.ps1` | Status: "📝 Specification Created" → "🟡 Implementation In Progress"<br/>• Add test file links with correct relative paths<br/>• Use filename as display name instead of PD-TST ID<br/>• Update test cases count, last updated date, notes |
 | **Updates** | [`test-registry.yaml`](../../../test/test-registry.yaml) | `New-TestFile.ps1` | Add new test file entries with metadata<br/>• Include testId, featureId, testType, componentName<br/>• Set initial status and creation timestamp |
 | **Updates** | [`feature-tracking.md`](../state-tracking/permanent/feature-tracking.md) | `New-TestFile.ps1` | Update Test Status based on implementation progress<br/>• Automatic status mapping from test implementation to feature tracking<br/>• Coordinate status across multiple state files |
+| **Updates** | Feature Implementation State File (if applicable) | Manual | Test implementation details, coverage metrics, and testing notes |
 
 **🎯 KEY IMPACTS**
 
@@ -193,8 +197,8 @@ This document serves as the **comprehensive registry** of all process framework 
 - **Test registry updates:** [`test-registry.yaml`](../../../test/test-registry.yaml) - Automatically updated with test file metadata
 - **Bug discovery integration:** Includes systematic bug identification during test development with standardized reporting via `New-BugReport.ps1`
 - **Manual completion required:** Status updates from 🟡 Implementation In Progress to 🔄 Ready for Validation, test case counts
-- **Enables next steps:** Test Audit Task, Bug Triage (for discovered bugs)
-- **Dependencies:** Requires Test Specification Creation
+- **Enables next steps:** Test Audit Task, Quality Validation (PF-TSK-054), Bug Triage (for discovered bugs)
+- **Dependencies:** Requires feature implementation completion; Test Specification (if exists) provides test blueprint
 
 #### **6. Test Audit Task** ([PF-TSK-030](../tasks/03-testing/test-audit-task.md))
 
@@ -225,7 +229,9 @@ This document serves as the **comprehensive registry** of all process framework 
 - **Enables next steps:** Feature Implementation (if tests approved), Bug Triage (for discovered bugs)
 - **Dependencies:** Requires Test Implementation completion
 
-#### **7. Feature Implementation Task** ([PF-TSK-004](../tasks/04-implementation/feature-implementation-task.md))
+#### **7. Feature Implementation Task** ([PF-TSK-004](../tasks/04-implementation/feature-implementation-task.md)) — ⚠️ DEPRECATED
+
+> **DEPRECATED**: PF-TSK-004 has been replaced by the decomposed implementation tasks (PF-TSK-044, PF-TSK-051, PF-TSK-052, PF-TSK-053, PF-TSK-054, PF-TSK-055, PF-TSK-056). For new feature implementation, start with [Feature Implementation Planning (PF-TSK-044)](../tasks/04-implementation/feature-implementation-planning-task.md). For enhancements to existing features, use [Feature Request Evaluation (PF-TSK-067)](../tasks/01-planning/feature-request-evaluation.md) → [Feature Enhancement (PF-TSK-068)](../tasks/04-implementation/feature-enhancement.md).
 
 **🔧 Process Type:** 🔄 **Semi-Automated** (Manual implementation with automated quality validation)
 

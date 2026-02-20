@@ -262,7 +262,7 @@ Before considering this task finished:
 
 ## Next Tasks
 
-- [**Feature Implementation**](../04-implementation/feature-implementation-task.md) - If issues were found, addresses the feedback from the code review
+- [**Feature Implementation Planning**](../04-implementation/feature-implementation-planning-task.md) - If issues were found, addresses the feedback from the code review
 - [**Code Refactoring**](code-refactoring-task.md) - If technical debt or code quality issues were identified
 - [**Release Deployment**](../07-deployment/release-deployment-task.md) - If the review passed, proceeds to deployment preparation
 

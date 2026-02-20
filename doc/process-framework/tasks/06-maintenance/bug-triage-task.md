@@ -181,7 +181,7 @@ Before considering this task finished:
 
 - [**Bug Fixing**](bug-fixing-task.md) - To resolve triaged bugs
 
-- [**Feature Implementation**](../04-implementation/feature-implementation-task.md) - If bugs reveal need for new functionality
+- [**Feature Implementation Planning**](../04-implementation/feature-implementation-planning-task.md) - If bugs reveal need for new functionality
 
 ## Related Resources
 

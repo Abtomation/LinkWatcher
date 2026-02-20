@@ -149,7 +149,7 @@ Before considering this task finished:
 ## Next Tasks
 
 - [**Bug Fixing**](../06-maintenance/bug-fixing-task.md) - If issues are discovered during deployment
-- [**Feature Implementation**](../04-implementation/feature-implementation-task.md) - To begin work on the next release cycle
+- [**Feature Implementation Planning**](../04-implementation/feature-implementation-planning-task.md) - To begin work on the next release cycle
 
 ## Related Resources
 

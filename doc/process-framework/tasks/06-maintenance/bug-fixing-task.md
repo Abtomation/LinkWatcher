@@ -144,7 +144,7 @@ Before considering this task finished:
 
 - [**Code Review**](code-review-task.md) - Reviews the bug fix for quality and correctness
 - [**Bug Triage**](bug-triage-task.md) - If additional bugs are discovered during fixing
-- [**Feature Implementation**](../04-implementation/feature-implementation-task.md) - If the bug fix reveals the need for new functionality
+- [**Feature Implementation Planning**](../04-implementation/feature-implementation-planning-task.md) - If the bug fix reveals the need for new functionality
 
 ## Related Resources
 

@@ -240,7 +240,7 @@ Before considering this task finished:
 ## Next Tasks
 
 - C-testing/test-specification-creation-task.md) - Create comprehensive test specifications from the TDD for Test-First Development
-- B-design/feature-implementation-task.md) - Uses the TDD and test specifications to implement the feature
+- [**Feature Implementation Planning**](../04-implementation/feature-implementation-planning-task.md) - Uses the TDD and test specifications to plan and implement the feature
 - B-design/code-review-task.md) - Uses the TDD as a reference for evaluating implementation
 
 ## Related Resources
