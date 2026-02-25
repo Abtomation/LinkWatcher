@@ -173,7 +173,7 @@ Systematically adapt the process framework from one business domain (software de
        3. **Validate new parameters**: Test new ValidateSet values, category options, etc.
        4. **Document test results**: Add "Tested: [test summary]" to state tracking file notes
        5. **Example test commands**:
-          - `./New-Task.ps1 -TaskType Support -TaskName "Test" -Category 02-drafting -WhatIf`
+          - `./New-Task.ps1 -TaskType Support -TaskName "Test" -WorkflowPhase 02-drafting -WhatIf`
           - Verify script accepts new values and creates files in correct directories
      - **Testing is NOT optional** - mark as "Proposed" only after successful testing
      - **Include test summary in approval request** to human partner

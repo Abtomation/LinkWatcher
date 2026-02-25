@@ -4,9 +4,10 @@ type: Product Documentation
 category: Functional Design Document
 version: 1.0
 created: 2026-02-19
-updated: 2026-02-19
+updated: 2026-02-20
 feature_id: 3.1.1
-feature_name: Logging Framework
+feature_name: Logging System
+consolidates: [3.1.1, 3.1.2 (Colored Console Output), 3.1.3 (Statistics Tracking), 3.1.4 (Progress Reporting), 3.1.5 (Error Reporting)]
 retrospective: true
 ---
 
@@ -14,7 +15,9 @@ retrospective: true
 
 > **Retrospective Document**: This FDD describes the existing implemented functionality of the LinkWatcher Logging Framework, documented after implementation during framework onboarding (PF-TSK-066). Content is descriptive ("what is") rather than prescriptive ("what should be").
 >
-> **Source**: Derived from [3.1.1 Implementation State](../../../process-framework/state-tracking/features/3.1.1-logging-framework-implementation-state.md), [docs/LOGGING.md](../../../../docs/LOGGING.md) (primary existing documentation), and source code analysis of `linkwatcher/logging.py` and `linkwatcher/logging_config.py`.
+> **Source**: Derived from [docs/LOGGING.md](../../../../docs/LOGGING.md) (primary existing documentation) and source code analysis of `linkwatcher/logging.py` and `linkwatcher/logging_config.py`.
+>
+> **Scope Note**: This feature consolidates old 3.1.1 (Logging Framework) with all logging sub-features: 3.1.2 (Colored Console Output), 3.1.3 (Statistics Tracking), 3.1.4 (Progress Reporting), 3.1.5 (Error Reporting). All are aspects of the unified logging system.
 
 ## Feature Overview
 
@@ -134,7 +137,7 @@ retrospective: true
 
 ### Functional Dependencies
 
-- **0.1.4 Configuration System**: Provides `log_level` and `log_file` settings that `LoggingConfigManager` reads when loading a project config file; without it, logger uses hardcoded defaults
+- **0.1.3 Configuration System**: Provides `log_level` and `log_file` settings that `LoggingConfigManager` reads when loading a project config file; without it, logger uses hardcoded defaults
 
 ### Technical Dependencies
 

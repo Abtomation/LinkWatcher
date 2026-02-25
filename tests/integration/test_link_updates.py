@@ -18,6 +18,7 @@ Test Cases Implemented:
 from pathlib import Path
 
 import pytest
+from watchdog.events import DirMovedEvent, FileCreatedEvent, FileDeletedEvent, FileMovedEvent
 
 from linkwatcher.service import LinkWatcherService
 
@@ -63,7 +64,8 @@ Mixed content with [inline link](target.txt) in paragraph.
         target_file.rename(new_target)
 
         # Process move event
-        service.handler.on_moved(None, str(target_file), str(new_target), False)
+        move_event = FileMovedEvent(str(target_file), str(new_target))
+        service.handler.on_moved(move_event)
 
         # Verify all links were updated
         md_updated = md_file.read_text()
@@ -120,7 +122,8 @@ See the [image file](../assets/image.png) for details.
         target_file.rename(new_target)
 
         # Process move event
-        service.handler.on_moved(None, str(target_file), str(new_target), False)
+        move_event = FileMovedEvent(str(target_file), str(new_target))
+        service.handler.on_moved(move_event)
 
         # Verify relative paths were updated correctly
         md_updated = md_file.read_text()
@@ -182,7 +185,8 @@ Quick links:
         target_file.rename(new_target)
 
         # Process move event
-        service.handler.on_moved(None, str(target_file), str(new_target), False)
+        move_event = FileMovedEvent(str(target_file), str(new_target))
+        service.handler.on_moved(move_event)
 
         # Verify anchors were preserved
         index_updated = index_file.read_text()
@@ -244,7 +248,8 @@ paths:
         config_file.rename(new_config)
 
         # Process move event
-        service.handler.on_moved(None, str(config_file), str(new_config), False)
+        move_event = FileMovedEvent(str(config_file), str(new_config))
+        service.handler.on_moved(move_event)
 
         # Verify YAML was updated
         yaml_updated = yaml_file.read_text()
@@ -306,7 +311,8 @@ paths:
         data_file.rename(new_data)
 
         # Process move event
-        service.handler.on_moved(None, str(data_file), str(new_data), False)
+        move_event = FileMovedEvent(str(data_file), str(new_data))
+        service.handler.on_moved(move_event)
 
         # Verify JSON was updated
         config_updated = config_json.read_text()
@@ -353,9 +359,9 @@ from utils.helper import help_function
 import utils.helper
 from utils import helper
 
-# Also reference "../../test/integration/../../test/integration/utils/helper.py" in comments
-# Configuration in ../../test/integration/../../test/integration/utils/helper.py
-config_path = "../../test/integration/../../test/integration/utils/helper.py"
+# Also reference "utils/helper.py" in comments
+# Configuration in utils/helper.py
+config_path = "utils/helper.py"
 """
         main_file.write_text(main_content)
 
@@ -368,14 +374,15 @@ config_path = "../../test/integration/../../test/integration/utils/helper.py"
         helper_file.rename(new_helper)
 
         # Process move event
-        service.handler.on_moved(None, str(helper_file), str(new_helper), False)
+        move_event = FileMovedEvent(str(helper_file), str(new_helper))
+        service.handler.on_moved(move_event)
 
         # Verify references were updated
         main_updated = main_file.read_text()
 
         # Check string references were updated
         assert "utils/assistant.py" in main_updated
-        assert "../../test/integration/../../test/integration/utils/helper.py" not in main_updated
+        assert "utils/helper.py" not in main_updated
 
         # Note: Import statement updates would require more sophisticated parsing
         # For now, we focus on string references which are more reliable
@@ -426,7 +433,8 @@ const configFile = 'lib/utils.dart';
         utils_file.rename(new_utils)
 
         # Process move event
-        service.handler.on_moved(None, str(utils_file), str(new_utils), False)
+        move_event = FileMovedEvent(str(utils_file), str(new_utils))
+        service.handler.on_moved(move_event)
 
         # Verify references were updated
         main_updated = main_dart.read_text()
@@ -487,7 +495,8 @@ Mixed content with README.txt and "LICENSE" references.
         readme_file.rename(new_readme)
 
         # Process move event
-        service.handler.on_moved(None, str(readme_file), str(new_readme), False)
+        move_event = FileMovedEvent(str(readme_file), str(new_readme))
+        service.handler.on_moved(move_event)
 
         # Verify references were updated
         notes_updated = notes_file.read_text()
@@ -528,7 +537,8 @@ HTML: <a href="shared.txt">link</a>
         # Move target
         new_target = temp_project_dir / "common.txt"
         target.rename(new_target)
-        service.handler.on_moved(None, str(target), str(new_target), False)
+        move_event = FileMovedEvent(str(target), str(new_target))
+        service.handler.on_moved(move_event)
 
         # Verify updates
         mixed_updated = mixed_file.read_text()
@@ -563,3 +573,58 @@ Extension: .txt files
         # Should not find false positives
         fake_refs = service.link_db.get_references_to_file("fake.txt")
         assert len(fake_refs) == 0
+
+
+class TestStaleLineNumberHandling:
+    """Integration tests for stale line number detection and recovery (PD-BUG-005)."""
+
+    def test_stale_triggers_rescan_and_retry(self, temp_project_dir):
+        """
+        PD-BUG-005: Full end-to-end test for stale line number recovery.
+
+        Scenario:
+        1. Initial scan builds database with correct line numbers
+        2. User edits a source file (inserts lines, shifting the link)
+        3. A referenced file is moved
+        4. Handler detects stale line numbers, rescans, and retries
+        5. Link is correctly updated despite the edit
+        """
+        # Create target file
+        target_file = temp_project_dir / "target.txt"
+        target_file.write_text("Target content")
+
+        # Create source file with a link on line 3
+        source_file = temp_project_dir / "source.md"
+        original_content = "# Title\n\nSee [link](target.txt) for info.\n"
+        source_file.write_text(original_content)
+
+        # Initialize service and scan
+        service = LinkWatcherService(str(temp_project_dir))
+        service._initial_scan()
+
+        # Verify database has reference at line 3
+        refs = service.link_db.get_references_to_file("target.txt")
+        assert len(refs) >= 1
+        source_ref = [r for r in refs if "source.md" in r.file_path]
+        assert len(source_ref) == 1
+        assert source_ref[0].line_number == 3
+
+        # Simulate user editing: insert 2 lines before the link
+        # Link is now on line 5, but database still says line 3
+        edited_content = "# Title\n\nNew paragraph 1.\n\nSee [link](target.txt) for info.\n"
+        source_file.write_text(edited_content)
+
+        # Move target file
+        new_dir = temp_project_dir / "subdir"
+        new_dir.mkdir()
+        new_target = new_dir / "target.txt"
+        target_file.rename(new_target)
+
+        # Simulate file move event
+        event = FileMovedEvent(str(target_file), str(new_target))
+        service.handler._handle_file_moved(event)
+
+        # Verify source file was updated correctly (despite stale line numbers)
+        updated_content = source_file.read_text()
+        assert "target.txt" not in updated_content or "subdir/target.txt" in updated_content
+        assert "subdir/target.txt" in updated_content

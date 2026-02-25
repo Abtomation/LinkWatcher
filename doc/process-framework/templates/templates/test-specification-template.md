@@ -35,7 +35,7 @@ This document provides comprehensive test specifications for the **[FEATURE-NAME
 Based on the feature tier assessment:
 
 - **Tier 1 🔵**: Basic unit tests and key integration scenarios
-- **Tier 2 🟠**: Comprehensive unit tests, integration tests, and widget tests
+- **Tier 2 🟠**: Comprehensive unit tests, integration tests, and UI/component tests
 - **Tier 3 🔴**: Full test suite including unit, integration, widget, and end-to-end tests
 
 **Selected Tier**: [1|2|3] - [Brief justification for tier selection]
@@ -208,17 +208,17 @@ Based on the feature tier assessment:
 | --------------- | --------------- | --------------- | ------------------ |
 | [OperationType] | [Test scenario] | [Required data] | [Expected outcome] |
 
-### Widget Tests (Flutter Features Only)
+### UI/Component Tests (Features with UI)
 
-<!-- UI component testing for Flutter features -->
+<!-- UI component testing -->
 
 #### UI Components
 
-[Map TDD UI components to widget test specifications]
+[Map TDD UI components to component test specifications]
 
-| Widget       | Test Focus     | User Interactions | Visual Validations |
-| ------------ | -------------- | ----------------- | ------------------ |
-| [WidgetName] | [What to test] | [User actions]    | [Visual checks]    |
+| Component       | Test Focus     | User Interactions | Visual Validations |
+| --------------- | -------------- | ----------------- | ------------------ |
+| [ComponentName] | [What to test] | [User actions]    | [Visual checks]    |
 
 #### State Management
 
@@ -286,17 +286,17 @@ Based on the feature tier assessment:
 test/
 ├── unit/
 │   ├── models/
-│   │   └── [feature_id]_test.dart
+│   │   └── [feature_id]_test.[ext]
 │   ├── services/
-│   │   └── [feature_id]_service_test.dart
+│   │   └── [feature_id]_service_test.[ext]
 │   └── utils/
-│       └── [feature_id]_utils_test.dart
+│       └── [feature_id]_utils_test.[ext]
 ├── integration/
-│   └── [feature_id]_integration_test.dart
-├── widget/
-│   └── [feature_id]_widget_test.dart
+│   └── [feature_id]_integration_test.[ext]
+├── ui/
+│   └── [feature_id]_ui_test.[ext]
 └── e2e/
-    └── [feature_id]_e2e_test.dart
+    └── [feature_id]_e2e_test.[ext]
 ```
 
 ### Dependencies Between Tests
@@ -350,7 +350,7 @@ test/
 - **Source TDD**: [TDD-PATH]
 - **Feature Tier Assessment**: [Link to tier assessment if available]
 - **Development Guide**: /doc/product-docs/guides/guides/development-guide.md
-- **Flutter Testing Documentation**: https://docs.flutter.dev/testing
-- **Mockito Documentation**: https://pub.dev/packages/mockito
+- **Project Testing Framework Documentation**: [Link to your project's testing framework docs]
+- **Mock Library Documentation**: [Link to your project's mock library docs]
 
 ---

@@ -35,7 +35,7 @@ class TestLinkWatcherConfig:
         assert "node_modules" in config.ignored_directories
         assert "__pycache__" in config.ignored_directories
 
-        assert config.create_backups is True
+        assert config.create_backups is False
         assert config.dry_run_mode is False
         assert config.atomic_updates is True
         assert config.log_level == "INFO"
@@ -363,7 +363,7 @@ class TestDefaultConfigurations:
         # Check some expected defaults
         assert ".md" in DEFAULT_CONFIG.monitored_extensions
         assert ".git" in DEFAULT_CONFIG.ignored_directories
-        assert DEFAULT_CONFIG.create_backups is True
+        assert DEFAULT_CONFIG.create_backups is False
         assert DEFAULT_CONFIG.log_level == "INFO"
 
     def test_testing_config_exists(self):
@@ -505,7 +505,7 @@ class TestConfigurationIntegration:
         assert config.log_level == "WARNING"
 
         # Unspecified fields should use defaults
-        assert config.create_backups is True  # Default value
+        assert config.create_backups is False  # Default value
         assert config.dry_run_mode is False  # Default value
         assert config.max_file_size_mb == 10  # Default value
 

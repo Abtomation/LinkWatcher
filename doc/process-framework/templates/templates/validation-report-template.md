@@ -248,7 +248,7 @@ Customize the "Validation Criteria Applied" section with:
 
 Customize the "Validation Criteria Applied" section with:
 
-- **Code Style Compliance**: Adherence to Dart/Flutter style guidelines
+- **Code Style Compliance**: Adherence to project code style guidelines
 - **Code Complexity**: Cyclomatic complexity and maintainability metrics
 - **Error Handling**: Comprehensive and consistent error handling
 - **Documentation Quality**: Code comments and documentation completeness
@@ -258,9 +258,9 @@ Customize the "Validation Criteria Applied" section with:
 
 Customize the "Validation Criteria Applied" section with:
 
-- **Service Integration**: Proper integration with Supabase and external services
-- **State Management**: Correct Riverpod usage and state handling
-- **Navigation Integration**: Proper GoRouter implementation
+- **Service Integration**: Proper integration with backend and external services
+- **State Management**: Correct state management usage and handling
+- **Navigation Integration**: Proper routing/navigation implementation
 - **Data Flow**: Correct data flow between components
 - **API Consistency**: Consistent API usage patterns
 

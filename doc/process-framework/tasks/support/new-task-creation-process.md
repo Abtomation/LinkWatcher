@@ -138,7 +138,7 @@ Complete process for creating a new task from concept to implementation-ready de
 6L. **Create Task Definition**: Use [New-Task.ps1](../../scripts/file-creation/New-Task.ps1) and [Task Creation Guide](../../guides/guides/task-creation-guide.md)
    ```bash
    # Windows command pattern:
-   echo Set-Location 'c:\path\to\project\doc\process-framework\scripts\file-creation'; ^& .\New-Task.ps1 -TaskType 'Discrete' -TaskName 'Your Task Name' -Category '04-implementation' -Description 'Your description' -Confirm:$false > temp_task.ps1 && pwsh.exe -ExecutionPolicy Bypass -File temp_task.ps1 && del temp_task.ps1
+   echo Set-Location 'c:\path\to\project\doc\process-framework\scripts\file-creation'; ^& .\New-Task.ps1 -TaskType 'Discrete' -TaskName 'Your Task Name' -WorkflowPhase '04-implementation' -Description 'Your description' -Confirm:$false > temp_task.ps1 && pwsh.exe -ExecutionPolicy Bypass -File temp_task.ps1 && del temp_task.ps1
    ```
    > **📝 NAMING**: Rename the generated file to include `-task` suffix (e.g., `your-task-name.md` → `your-task-name-task.md`)
 
@@ -207,7 +207,7 @@ Complete process for creating a new task from concept to implementation-ready de
    - Create task definition using [New-Task.ps1](../../scripts/file-creation/New-Task.ps1) and [Task Creation Guide](../../guides/guides/task-creation-guide.md)
      ```bash
      # Windows command pattern:
-     echo Set-Location 'c:\path\to\project\doc\process-framework\scripts\file-creation'; ^& .\New-Task.ps1 -TaskType 'Discrete' -TaskName 'Your Task Name' -Category '04-implementation' -Description 'Your description' -Confirm:$false > temp_task.ps1 && pwsh.exe -ExecutionPolicy Bypass -File temp_task.ps1 && del temp_task.ps1
+     echo Set-Location 'c:\path\to\project\doc\process-framework\scripts\file-creation'; ^& .\New-Task.ps1 -TaskType 'Discrete' -TaskName 'Your Task Name' -WorkflowPhase '04-implementation' -Description 'Your description' -Confirm:$false > temp_task.ps1 && pwsh.exe -ExecutionPolicy Bypass -File temp_task.ps1 && del temp_task.ps1
      ```
      > **Note**: Script will display prominent warnings about template nature and customization requirements
      > **✨ ENHANCED**: Script now automatically updates three documentation files: documentation-map.md, tasks/README.md, and ai-tasks.md

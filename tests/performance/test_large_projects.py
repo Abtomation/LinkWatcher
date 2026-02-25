@@ -18,6 +18,7 @@ import time
 from pathlib import Path
 
 import pytest
+from watchdog.events import FileMovedEvent
 
 from linkwatcher.service import LinkWatcherService
 
@@ -102,7 +103,8 @@ class TestLargeProjectHandling:
 
         move_start = time.time()
         test_file.rename(new_location)
-        service.handler.on_moved(None, str(test_file), str(new_location), False)
+        move_event = FileMovedEvent(str(test_file), str(new_location))
+        service.handler.on_moved(move_event)
         move_time = time.time() - move_start
 
         print(f"File move processed in {move_time:.2f} seconds")
@@ -166,7 +168,8 @@ class TestLargeProjectHandling:
 
         move_start = time.time()
         deep_file.rename(shallow_location)
-        service.handler.on_moved(None, str(deep_file), str(shallow_location), False)
+        move_event = FileMovedEvent(str(deep_file), str(shallow_location))
+        service.handler.on_moved(move_event)
         move_time = time.time() - move_start
 
         print(f"Deep file move processed in {move_time:.2f} seconds")
@@ -308,7 +311,8 @@ class TestLargeProjectHandling:
 
         move_start = time.time()
         target_file.rename(new_target)
-        service.handler.on_moved(None, str(target_file), str(new_target), False)
+        move_event = FileMovedEvent(str(target_file), str(new_target))
+        service.handler.on_moved(move_event)
         move_time = time.time() - move_start
 
         print(f"Updated {len(target_refs)} references in {move_time:.2f}s")
@@ -370,7 +374,8 @@ class TestLargeProjectHandling:
             file_path.rename(new_path)
 
             # Process move event immediately
-            service.handler.on_moved(None, str(file_path), str(new_path), False)
+            move_event = FileMovedEvent(str(file_path), str(new_path))
+            service.handler.on_moved(move_event)
 
             # Small delay to simulate real-world timing
             time.sleep(0.01)
@@ -405,7 +410,7 @@ class TestPerformanceMetrics:
         """Monitor memory usage during operations."""
         import os
 
-        import psutil
+        psutil = pytest.importorskip("psutil")
 
         # Get current process
         process = psutil.Process(os.getpid())
@@ -434,7 +439,7 @@ class TestPerformanceMetrics:
         after_scan_memory = process.memory_info().rss / 1024 / 1024  # MB
         memory_increase = after_scan_memory - initial_memory
 
-        print(f"Memory usage: {initial_memory:.1f}MB → {after_scan_memory:.1f}MB")
+        print(f"Memory usage: {initial_memory:.1f}MB -> {after_scan_memory:.1f}MB")
         print(f"Memory increase: {memory_increase:.1f}MB for {num_files} files")
 
         # Memory usage should be reasonable
@@ -447,7 +452,8 @@ class TestPerformanceMetrics:
             new_file = temp_project_dir / f"moved_{i:03d}.md"
 
             old_file.rename(new_file)
-            service.handler.on_moved(None, str(old_file), str(new_file), False)
+            move_event = FileMovedEvent(str(old_file), str(new_file))
+            service.handler.on_moved(move_event)
 
         # Check memory after operations
         final_memory = process.memory_info().rss / 1024 / 1024  # MB
@@ -464,7 +470,7 @@ class TestPerformanceMetrics:
         import threading
         import time
 
-        import psutil
+        psutil = pytest.importorskip("psutil")
 
         # CPU monitoring function
         cpu_samples = []
@@ -505,7 +511,8 @@ class TestPerformanceMetrics:
                 new_file = temp_project_dir / f"moved_{i:03d}.md"
 
                 old_file.rename(new_file)
-                service.handler.on_moved(None, str(old_file), str(new_file), False)
+                move_event = FileMovedEvent(str(old_file), str(new_file))
+                service.handler.on_moved(move_event)
 
         finally:
             # Stop monitoring

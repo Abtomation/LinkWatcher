@@ -1,0 +1,83 @@
+{
+  "__init__.py": [
+    "database.py",
+    "models.py",
+    "parser.py",
+    "service.py",
+    "updater.py"
+  ],
+  "config\\__init__.py": [
+    "config\\defaults.py",
+    "config\\settings.py"
+  ],
+  "config\\defaults.py": [
+    "config\\settings.py"
+  ],
+  "config\\settings.py": [],
+  "database.py": [
+    "models.py"
+  ],
+  "handler.py": [
+    "database.py",
+    "models.py",
+    "parser.py",
+    "updater.py",
+    "utils.py"
+  ],
+  "logging.py": [],
+  "logging_config.py": [],
+  "models.py": [],
+  "parser.py": [
+    "models.py",
+    "parsers\\__init__.py"
+  ],
+  "parsers\\__init__.py": [
+    "parsers\\base.py",
+    "parsers\\dart.py",
+    "parsers\\generic.py",
+    "parsers\\json_parser.py",
+    "parsers\\markdown.py",
+    "parsers\\python.py",
+    "parsers\\yaml_parser.py"
+  ],
+  "parsers\\base.py": [
+    "models.py",
+    "utils.py"
+  ],
+  "parsers\\dart.py": [
+    "models.py",
+    "parsers\\base.py"
+  ],
+  "parsers\\generic.py": [
+    "models.py",
+    "parsers\\base.py"
+  ],
+  "parsers\\json_parser.py": [
+    "models.py",
+    "parsers\\base.py",
+    "parsers\\generic.py"
+  ],
+  "parsers\\markdown.py": [
+    "models.py",
+    "parsers\\base.py"
+  ],
+  "parsers\\python.py": [
+    "models.py",
+    "parsers\\base.py"
+  ],
+  "parsers\\yaml_parser.py": [
+    "models.py",
+    "parsers\\base.py",
+    "parsers\\generic.py"
+  ],
+  "service.py": [
+    "database.py",
+    "handler.py",
+    "parser.py",
+    "updater.py"
+  ],
+  "updater.py": [
+    "models.py"
+  ],
+  "utils.py": []
+}

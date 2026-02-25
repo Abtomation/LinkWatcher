@@ -2,24 +2,22 @@
 id: PF-STA-001
 type: Process Framework
 category: State Tracking
-version: 1.5
+version: 2.0
 created: 2023-06-15
-updated: 2026-02-20
+updated: 2026-02-25
 ---
 
 # LinkWatcher - Feature Tracking Document
 
 This document tracks the implementation status and documentation requirements for all features in the LinkWatcher project.
 
+> **v2.0 Note**: Consolidated from 42 granular features to 9 architectural-boundary-aligned features. See [Feature Consolidation State](../temporary/feature-consolidation-state.md) for migration details.
+
 <details>
 <summary><strong>📋 Table of Contents</strong></summary>
 
 - [Status Legends](#status-legends)
-  - [Implementation Status](#implementation-status)
-  - [Documentation Tier](#documentation-tier)
-  - [Priority Levels](#priority-levels)
 - [Related Documents](#related-documents)
-- [Documentation Assessment](#documentation-assessment)
 - [Feature Categories](#feature-categories)
   - [0. System Architecture & Foundation](#0-system-architecture--foundation)
   - [1. File Watching & Detection](#1-file-watching--detection)
@@ -56,57 +54,16 @@ This document tracks the implementation status and documentation requirements fo
 | 🟠     | Tier 2 (Moderate) | FDD + Lightweight TDD focusing on key sections | 1.61-2.3               |
 | 🔴     | Tier 3 (Complex)  | FDD + Complete TDD with all sections           | 2.31-3.0               |
 
-_Note: Documentation tiers use a normalized scoring system (weighted average) that allows for flexible addition or removal of assessment criteria. For details on the scoring methodology and assessment process, see the [Process: Documentation Tier Assignments README](../../../process-framework/methodologies/documentation-tiers/README.md#normalized-scoring-system)._
-
-### Workflow-Aligned Column Structure
-
-| Column           | Purpose                                              | Content                                                                                                                                                                                      |
-| ---------------- | ---------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **FDD**          | Link to Functional Design Document                   | Path to FDD when created (Tier 2+ features only)                                                                                                                                             |
-| **Arch Review**  | Link to System Architecture Review                   | Path to Architecture Impact Assessment when System Architecture Review is completed                                                                                                          |
-| **UI Design**    | Indicates if UI/UX Design task is required           | "Yes" or "No" (determined during Feature Tier Assessment), replaced with link(s) when UI Design document(s) are completed                                                                    |
-| **API Design**   | Indicates if API Design task is required             | "Yes" or "No" (determined during Feature Tier Assessment), replaced with links when API Design documents are completed. Multiple links separated by " • " for specifications and data models |
-| **DB Design**    | Indicates if Database Schema Design task is required | "Yes" or "No" (determined during Feature Tier Assessment), replaced with link when Database Schema Design document is completed                                                              |
-| **Tech Design**  | Link to Technical Design Document                    | Path to TDD when created (separated from Notes for clarity)                                                                                                                                  |
-| **Test Status**  | Shows overall test health for the feature            | Symbol from Test Status legend above                                                                                                                                                         |
-| **Test Spec**    | Link to Test Specification Document                  | Path to test specification when created                                                                                                                                                      |
-| **Dependencies** | Features that must be completed first                | Comma-separated list of feature IDs                                                                                                                                                          |
-| **Notes**        | Additional implementation notes and context          | General notes, recommendations, and status updates                                                                                                                                           |
-
-_Note: FDD links are added when Functional Design Documents are created for Tier 2+ features. Arch Review links are added when System Architecture Review is completed with Architecture Impact Assessment document. UI Design, API Design, and DB Design columns are populated with "Yes"/"No" during Feature Tier Assessment based on design requirements evaluation. These are replaced with document links when the corresponding design tasks are completed. Tech Design links are added when TDDs are created. Test Status is calculated from detailed entries in [Test Implementation Tracking](test-implementation-tracking.md). Test Spec links are added when Test Specification documents are created._
-
-**🚨 IMPORTANT**: The feature tables below now include the FDD column as specified in the Workflow-Aligned Column Structure. For Tier 2+ features, FDD links should be added to the FDD column when Functional Design Documents are created. The FDD Creation process is fully implemented and operational.
-
-### Architecture-Specific Column Structure (0.X Features Only)
-
-| Column           | Purpose                                   | Content                                                                                             |
-| ---------------- | ----------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| **ADR**          | Architecture Decision Record              | Link to ADR when created, "N/A" for pure assessment features, "TBD" when ADR needed but not created |
-| **Tech Design**  | Link to Technical Design Document         | Path to TDD when created (same as standard features)                                                |
-| **Arch Context** | Link to Architecture Context Package      | Path to bounded architectural context for AI agent continuity                                       |
-| **Test Status**  | Shows overall test health for the feature | Symbol from Test Status legend above (same as standard features)                                    |
-| **Test Spec**    | Link to Test Specification Document       | Path to test specification when created                                                             |
-| **Dependencies** | Architectural dependencies                | Feature IDs that must be completed first (focus on architectural dependency chains)                 |
-| **Notes**        | Foundation impact and context             | **FOUNDATION** markers with system-wide impact descriptions                                         |
-
-_Note: System Architecture & Foundation features (0.X) use this specialized column structure to provide direct links to architectural context packages and decision records, enabling efficient AI agent handovers and maintaining architectural continuity across sessions._
-
 ### Test Status Legend
 
-The Test Status is automatically calculated based on all test entries for a feature in the [Test Implementation Tracking](test-implementation-tracking.md) file:
-
-| Symbol | Status           | Description                                              | Calculation Logic                                                            |
-| ------ | ---------------- | -------------------------------------------------------- | ---------------------------------------------------------------------------- |
-| ⬜     | No Tests         | No test specifications exist for this feature            | No entries in test tracking for this feature ID                              |
-| 🚫     | No Test Required | Feature explicitly marked as not requiring tests         | Feature marked as assessment/documentation type that doesn't require testing |
-| 📋     | Specs Created    | Test specifications exist but implementation not started | All test entries are "📝 Specification Created"                              |
-| 🟡     | In Progress      | Some tests implemented, some pending                     | Any test entries are "🟡 Implementation In Progress"                         |
-| ✅     | All Passing      | All test specifications implemented and passing          | All test entries are "✅ Tests Implemented"                                  |
-| 🔴     | Some Failing     | Some tests are failing                                   | Any test entries are "🔴 Tests Failing"                                      |
-| ⛔     | Blocked          | Test implementation blocked                              | Any test entries are "⛔ Implementation Blocked"                             |
-| 🔄     | Needs Update     | Tests need updates due to code changes                   | Any test entries are "🔄 Needs Update"                                       |
-
-**Priority Order**: Higher priority statuses override lower ones (🔴 > ⛔ > 🔄 > 🟡 > 📋 > ✅ > 🚫 > ⬜)
+| Symbol | Status           | Description                                              |
+| ------ | ---------------- | -------------------------------------------------------- |
+| ⬜     | No Tests         | No test specifications exist for this feature            |
+| 🚫     | No Test Required | Feature explicitly marked as not requiring tests         |
+| 📋     | Specs Created    | Test specifications exist but implementation not started |
+| 🟡     | In Progress      | Some tests implemented, some pending                     |
+| ✅     | All Passing      | All test specifications implemented and passing          |
+| 🔴     | Some Failing     | Some tests are failing                                   |
 
 ### Priority Levels
 
@@ -114,9 +71,6 @@ The Test Status is automatically calculated based on all test entries for a feat
 | -------- | --------------------------------------- |
 | P1       | Critical - Must have for MVP            |
 | P2       | High - Important for core functionality |
-| P3       | Medium - Valuable but not critical      |
-| P4       | Low - Nice to have                      |
-| P5       | Future - Planned for later phases       |
 
 ## Related Documents
 
@@ -126,30 +80,27 @@ The Test Status is automatically calculated based on all test entries for a feat
 - [Process: Definition of Done](../../../process-framework/methodologies/definition-of-done.md): Clear criteria for when a feature is considered complete
 - [Product: Feature Dependencies](../../../product-docs/technical/design/feature-dependencies.md): Visual map and matrix of feature dependencies
 - [Process: Technical Debt Tracker](technical-debt-tracking.md): System for tracking and managing technical debt
-- [Process: Architecture Tracking](architecture-tracking.md): Cross-cutting architectural state and decisions tracking
-- [Process: Architectural Framework Usage Guide](../../guides/guides/architectural-framework-usage-guide.md): **ESSENTIAL for 0.x.x features**: Step-by-step guide for architectural work
-- [Process: Feature Task Breakdown Template](../../templates/templates/feature-task-breakdown-template.md): Template for breaking down features into tasks
 - [Process: Documentation Tier Assignments](../../../process-framework/methodologies/documentation-tiers/README.md): Information about documentation tier assignments and assessment process
+- [Feature Consolidation State](../temporary/feature-consolidation-state.md): Tracks the 42→9 feature consolidation migration
+
 </details>
 
 ## Feature Categories
 
-> **📝 NOTE**: All 42 LinkWatcher features have been identified and retrospective Feature Tier Assessments have been completed in Phase 2. Statuses are currently set to 📊 Assessment Created to reflect the completion of the assessment process.
+> **📝 NOTE**: All 9 LinkWatcher features are fully implemented (retrospective — code predates the process framework). Documentation was created during onboarding ([PF-TSK-064](../../tasks/00-onboarding/codebase-feature-discovery.md)/[065](../../tasks/00-onboarding/codebase-feature-analysis.md)/[066](../../tasks/00-onboarding/retrospective-documentation-creation.md)) and is being consolidated to match the 9-feature scope.
 
 <details>
 <summary><strong>0. System Architecture & Foundation</strong></summary>
 
 ### 0.0 System Architecture & Foundation
 
-Foundation features (0.x.x) that provide architectural foundations for the application.
+Foundation features that provide architectural foundations for the application.
 
-| ID | Feature | Status | Priority | Doc Tier | ADR | Tech Design | Arch Context | Test Status | Test Spec | Dependencies | Notes |
-| -- | ------- | ------ | -------- | -------- | --- | ----------- | ------------ | ----------- | --------- | ------------ | ----- |
-| [0.1.1](../features/0.1.1-core-architecture-implementation-state.md) | Core Architecture | 📝 TDD Created | P1 | [Tier 3](../../methodologies/documentation-tiers/assessments/ART-ASS-148-0.1.1-core-architecture.md) | [ADR PD-ADR-039](../../../../product-docs/technical/architecture/design-docs/adr/adr/orchestrator-facade-pattern-for-core-architecture.md) | [TDD PD-TDD-021](../../../../product-docs/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md) | TBD | ✅ | [PF-TSP-035](../../../../../test/specifications/feature-specs/test-spec-0-1-1-core-architecture.md) | - | **FOUNDATION** Modular architecture (service, handler, parser, updater, database). Retrospective - pre-framework implementation. Score: 2.55; FDD PD-FDD-022; TDD PD-TDD-021; ADR PD-ADR-039; Test Spec PF-TSP-035 |
-| [0.1.2](../features/0.1.2-data-models-implementation-state.md) | Data Models | 📊 Assessment Created | P1 | [Tier 1](../../methodologies/documentation-tiers/assessments/ART-ASS-151-0.1.2-data-models.md) | N/A | N/A | TBD | ✅ | TBD | - | **FOUNDATION** LinkReference model for file link representation. Retrospective - pre-framework implementation.; Recommended: Tier 1 |
-| [0.1.3](../features/0.1.3-in-memory-database-implementation-state.md) | In-Memory Database | 📝 TDD Created | P1 | [Tier 2](../../methodologies/documentation-tiers/assessments/ART-ASS-149-0.1.3-in-memory-database.md) | [ADR PD-ADR-040](../../../../product-docs/technical/architecture/design-docs/adr/adr/target-indexed-in-memory-link-database.md) | [TDD PD-TDD-022](../../../../product-docs/technical/architecture/design-docs/tdd/tdd-0.1.3-in-memory-database-t2.md) | TBD | ✅ | TBD | - | **FOUNDATION** Thread-safe database with O(1) lookups. Retrospective - pre-framework implementation.; FDD PD-FDD-023; TDD PD-TDD-022; ADR PD-ADR-040 (2026-02-19); Assessment completed: ART-ASS-149 (2026-02-17); Recommended: Tier 2; |
-| [0.1.4](../features/0.1.4-configuration-system-implementation-state.md) | Configuration System | 📊 Assessment Created | P1 | [Tier 1](../../methodologies/documentation-tiers/assessments/ART-ASS-152-0.1.4-configuration-system.md) | TBD | TBD | TBD | ✅ | TBD | - | **FOUNDATION** Multi-source config (CLI, env vars, YAML/JSON). Retrospective - pre-framework implementation.; Assessment created: ART-ASS-152 (2026-02-17) |
-| [0.1.5](../features/0.1.5-path-utilities-implementation-state.md) | Path Utilities | 📊 Assessment Created | P2 | [Tier 1](../../methodologies/documentation-tiers/assessments/ART-ASS-153-0.1.5-path-utilities.md) | N/A | N/A | TBD | ✅ | TBD | - | **FOUNDATION** Windows path handling and normalization. Retrospective - pre-framework implementation.; Assessment created: ART-ASS-153 (2026-02-17); Downgraded to Tier 1 from Tier 2 |
+| ID | Feature | Status | Priority | Doc Tier | ADR | FDD | TDD | Test Status | Test Spec | Dependencies | Notes |
+| -- | ------- | ------ | -------- | -------- | --- | --- | --- | ----------- | --------- | ------------ | ----- |
+| [0.1.1](../features/0.1.1-core-architecture-implementation-state.md) | Core Architecture | 🟢 Completed | P1 | [🔴 Tier 3](../../methodologies/documentation-tiers/assessments/ART-ASS-191-0-1-1-core-architecture.md) | [PD-ADR-039](../../../product-docs/technical/architecture/design-docs/adr/adr/orchestrator-facade-pattern-for-core-architecture.md) | [PD-FDD-022](../../../product-docs/functional-design/fdds/fdd-0-1-1-core-architecture.md) | [PD-TDD-021](../../../product-docs/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md) | ✅ | [PF-TSP-035](../../../../test/specifications/feature-specs/test-spec-0-1-1-core-architecture.md) | — | **FOUNDATION** Service orchestrator (facade pattern), data models, path utilities, CLI entry point. Files: service.py, __init__.py, main.py, models.py, utils.py. Retrospective. Consolidates old 0.1.1 + 0.1.2 (Data Models) + 0.1.5 (Path Utilities). |
+| [0.1.2](../features/0.1.2-in-memory-link-database-implementation-state.md) | In-Memory Link Database | 📝 TDD Created | P1 | [🟠 Tier 2](../../methodologies/documentation-tiers/assessments/ART-ASS-192-0-1-2-in-memory-link-database.md) | [PD-ADR-040](../../../product-docs/technical/architecture/design-docs/adr/adr/target-indexed-in-memory-link-database.md) | [PD-FDD-023](../../../product-docs/functional-design/fdds/fdd-0-1-2-in-memory-database.md) | [PD-TDD-022](../../../product-docs/technical/architecture/design-docs/tdd/tdd-0-1-2-in-memory-database-t2.md) | ✅ | [PF-TSP-036](../../../../test/specifications/feature-specs/test-spec-0-1-2-in-memory-link-database.md) | 0.1.1 | **FOUNDATION** Thread-safe, target-indexed link storage with O(1) lookups. File: database.py. Retrospective. Was old 0.1.3. |
+| [0.1.3](../features/0.1.3-configuration-system-implementation-state.md) | Configuration System | 📊 Assessment Created | P1 | [🔵 Tier 1](../../methodologies/documentation-tiers/assessments/ART-ASS-193-0-1-3-configuration-system.md) | N/A | — | — | ✅ | [PF-TSP-037](../../../../test/specifications/feature-specs/test-spec-0-1-3-configuration-system.md) | — | **FOUNDATION** Multi-source config loading (YAML/JSON/env/CLI), validation, environment presets. Files: config/settings.py, config/defaults.py, config/__init__.py, config-examples/*. Retrospective. Was old 0.1.4. No FDD/TDD (Tier 1). |
 
 </details>
 
@@ -158,15 +109,11 @@ Foundation features (0.x.x) that provide architectural foundations for the appli
 
 ### 1.0 File Watching & Detection
 
-Features related to file system monitoring and movement detection.
+Real-time file system monitoring and movement detection.
 
-| ID | Feature | Status | Priority | Doc Tier | FDD | Arch Review | UI Design | API Design | DB Design | Tech Design | Test Status | Test Spec | Dependencies | Notes |
-| -- | ------- | ------ | -------- | -------- | --- | ----------- | --------- | ---------- | --------- | ----------- | ----------- | --------- | ------------ | ----- |
-| [1.1.1](../features/1.1.1-watchdog-integration-implementation-state.md) | Watchdog Integration | 📊 Assessment Created | P1 | [Tier 1](../../methodologies/documentation-tiers/assessments/ART-ASS-154-1.1.1-watchdog-integration.md) | TBD | TBD | No | No | No | TBD | ✅ | TBD | 0.1.1 | File system monitoring using watchdog library. Retrospective - pre-framework implementation.; Recommended: Tier 1; Complexity: Assessment |
-| [1.1.2](../features/1.1.2-event-handler-implementation-state.md) | Event Handler | 📝 TDD Created | P1 | [Tier 2](../../methodologies/documentation-tiers/assessments/ART-ASS-155-1.1.2-event-handler.md) | [FDD PD-FDD-024](../../../../product-docs/functional-design/fdds/fdd-1-1-2-event-handler.md) | TBD | No | No | Yes | [TDD PD-TDD-023](../../../../product-docs/technical/architecture/design-docs/tdd/tdd-1-1-2-event-handler-t2.md) | ✅ | TBD | 0.1.1, 1.1.1 | File move/create/delete/rename event handling. Retrospective - pre-framework implementation.; FDD PD-FDD-024; TDD PD-TDD-023 |
-| [1.1.3](../features/1.1.3-initial-scan-implementation-state.md) | Initial Scan | 📊 Assessment Created | P1 | [Tier 1](../../methodologies/documentation-tiers/assessments/ART-ASS-156-1.1.3-initial-scan.md) | TBD | TBD | No | No | No | TBD | ✅ | TBD | 0.1.1 | Recursive project scanning with progress reporting. Retrospective - pre-framework implementation.; Assessment completed: ART-ASS-156 (2026-02-17); Recommended: Tier 1 |
-| [1.1.4](../features/1.1.4-file-filtering-implementation-state.md) | File Filtering | 📊 Assessment Created | P2 | [Tier 1](../../methodologies/documentation-tiers/assessments/ART-ASS-157-1.1.4-file-filtering.md) | TBD | TBD | No | No | No | TBD | ✅ | TBD | 0.1.4 | Extension-based filtering and ignored directory handling. Retrospective - pre-framework implementation.; Assessment completed: ART-ASS-157 (2026-02-17); Recommended: Tier 1 |
-| [1.1.5](../features/1.1.5-real-time-monitoring-implementation-state.md) | Real-time Monitoring | 📊 Assessment Created | P1 | [Tier 1](../../methodologies/documentation-tiers/assessments/ART-ASS-158-1.1.5-real-time-monitoring.md) | TBD | TBD | No | No | No | TBD | ✅ | TBD | 1.1.1, 1.1.2 | Continuous file system monitoring and event processing. Retrospective - pre-framework implementation.; Assessment completed: ART-ASS-158 (2026-02-17); Recommended: Tier 1 |
+| ID | Feature | Status | Priority | Doc Tier | FDD | TDD | Test Status | Test Spec | Dependencies | Notes |
+| -- | ------- | ------ | -------- | -------- | --- | --- | ----------- | --------- | ------------ | ----- |
+| [1.1.1](../features/1.1.1-file-system-monitoring-implementation-state.md) | File System Monitoring | 📝 TDD Created | P1 | [🟠 Tier 2](../../methodologies/documentation-tiers/assessments/ART-ASS-194-1-1-1-file-system-monitoring.md) | [PD-FDD-024](../../../product-docs/functional-design/fdds/fdd-1-1-1-file-system-monitoring.md) | [PD-TDD-023](../../../product-docs/technical/architecture/design-docs/tdd/tdd-1-1-1-file-system-monitoring-t2.md) | ✅ | [PF-TSP-038](../../../../test/specifications/feature-specs/test-spec-1-1-1-file-system-monitoring.md) | 0.1.1 | Watchdog event handling, move detection (delete+create pairing), directory moves, file filtering, initial scan, real-time monitoring. File: handler.py. Retrospective. Consolidates old 1.1.1–1.1.5. |
 
 </details>
 
@@ -177,20 +124,10 @@ Features related to file system monitoring and movement detection.
 
 Parser implementations for different file formats and link update mechanisms.
 
-| ID | Feature | Status | Priority | Doc Tier | FDD | Arch Review | UI Design | API Design | DB Design | Tech Design | Test Status | Test Spec | Dependencies | Notes |
-| -- | ------- | ------ | -------- | -------- | --- | ----------- | --------- | ---------- | --------- | ----------- | ----------- | --------- | ------------ | ----- |
-| [2.1.1](../features/2.1.1-parser-framework-implementation-state.md) | Parser Framework | 📝 TDD Created | P1 | [Tier 2](../../methodologies/documentation-tiers/assessments/ART-ASS-159-2.1.1-parser-framework.md) | [FDD PD-FDD-026](../../../../product-docs/functional-design/fdds/fdd-2-1-1-parser-framework.md) | TBD | No | No | No | [TDD PD-TDD-025](../../../../product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md) | ✅ | TBD | 0.1.1 | Pluggable parser system with base parser interface. Retrospective - pre-framework implementation.; FDD PD-FDD-026; TDD PD-TDD-025 |
-| [2.1.2](../features/2.1.2-markdown-parser-implementation-state.md) | Markdown Parser | 📊 Assessment Created | P1 | [Tier 1](../../methodologies/documentation-tiers/assessments/ART-ASS-160-2.1.2-markdown-parser.md) | TBD | TBD | No | No | No | TBD | ✅ | TBD | 2.1.1 | Markdown link parsing (standard, reference, HTML, images). Retrospective - pre-framework implementation. |
-| [2.1.3](../features/2.1.3-yaml-parser-implementation-state.md) | YAML Parser | 📊 Assessment Created | P1 | [Tier 1](../../methodologies/documentation-tiers/assessments/ART-ASS-161-2.1.3-yaml-parser.md) | TBD | TBD | No | No | No | TBD | ✅ | TBD | 2.1.1 | YAML file reference parsing with nested structures. Retrospective - pre-framework implementation. |
-| [2.1.4](../features/2.1.4-json-parser-implementation-state.md) | JSON Parser | 📊 Assessment Created | P2 | [Tier 1](../../methodologies/documentation-tiers/assessments/ART-ASS-162-2.1.4-json-parser.md) | TBD | TBD | No | No | No | TBD | ✅ | TBD | 2.1.1 | JSON file reference parsing with nested objects. Retrospective - pre-framework implementation. |
-| [2.1.5](../features/2.1.5-python-parser-implementation-state.md) | Python Parser | 📊 Assessment Created | P2 | [Tier 1](../../methodologies/documentation-tiers/assessments/ART-ASS-163-2.1.5-python-parser.md) | TBD | TBD | No | No | No | TBD | ✅ | TBD | 2.1.1 | Python import statement parsing and update. Retrospective - pre-framework implementation. |
-| [2.1.6](../features/2.1.6-dart-parser-implementation-state.md) | Dart Parser | 📊 Assessment Created | P3 | [Tier 1](../../methodologies/documentation-tiers/assessments/ART-ASS-164-2.1.6-dart-parser.md) | TBD | TBD | No | No | No | TBD | ✅ | TBD | 2.1.1 | Dart import/part statement parsing. Retrospective - pre-framework implementation. |
-| [2.1.7](../features/2.1.7-generic-parser-implementation-state.md) | Generic Parser | 📊 Assessment Created | P2 | [Tier 1](../../methodologies/documentation-tiers/assessments/ART-ASS-165-2.1.7-generic-parser.md) | TBD | TBD | No | No | No | TBD | ✅ | TBD | 2.1.1 | Fallback parser for quoted file paths. Retrospective - pre-framework implementation. |
-| [2.2.1](../features/2.2.1-link-updater-implementation-state.md) | Link Updater | 📝 TDD Created | P1 | [Tier 2](../../methodologies/documentation-tiers/assessments/ART-ASS-166-2.2.1-link-updater.md) | [FDD PD-FDD-027](../../../../product-docs/functional-design/fdds/fdd-2-2-1-link-updater.md) | TBD | No | No | No | [TDD PD-TDD-026](../../../../product-docs/technical/architecture/design-docs/tdd/tdd-2-2-1-link-updater-t2.md) | ✅ | TBD | 0.1.1 | Atomic file update with safety mechanisms. Retrospective - pre-framework implementation.; FDD PD-FDD-027; TDD PD-TDD-026 (2026-02-20) |
-| [2.2.2](../features/2.2.2-relative-path-calculation-implementation-state.md) | Relative Path Calculation | 📊 Assessment Created | P1 | [Tier 1](../../methodologies/documentation-tiers/assessments/ART-ASS-167-2.2.2-relative-path-calculation.md) | TBD | TBD | No | No | No | TBD | ✅ | TBD | 0.1.5 | Correct relative path computation after file moves. Retrospective - pre-framework implementation. |
-| [2.2.3](../features/2.2.3-anchor-preservation-implementation-state.md) | Anchor Preservation | 📊 Assessment Created | P2 | [Tier 1](../../methodologies/documentation-tiers/assessments/ART-ASS-168-2.2.3-anchor-preservation.md) | TBD | TBD | No | No | No | TBD | ✅ | TBD | 2.2.1 | Preserve URL anchors (#section) during updates. Retrospective - pre-framework implementation. |
-| [2.2.4](../features/2.2.4-dry-run-mode-implementation-state.md) | Dry Run Mode | 📊 Assessment Created | P2 | [Tier 1](../../methodologies/documentation-tiers/assessments/ART-ASS-169-2.2.4-dry-run-mode.md) | TBD | TBD | No | No | No | TBD | ✅ | TBD | 0.1.4 | Preview changes without modifying files. Retrospective - pre-framework implementation. |
-| [2.2.5](../features/2.2.5-backup-creation-implementation-state.md) | Backup Creation | 📊 Assessment Created | P3 | [Tier 1](../../methodologies/documentation-tiers/assessments/ART-ASS-170-2.2.5-backup-creation.md) | TBD | TBD | No | No | No | TBD | ✅ | TBD | 0.1.4, 2.2.1 | Optional backup file creation before updates. Retrospective - pre-framework implementation. |
+| ID | Feature | Status | Priority | Doc Tier | FDD | TDD | Test Status | Test Spec | Dependencies | Notes |
+| -- | ------- | ------ | -------- | -------- | --- | --- | ----------- | --------- | ------------ | ----- |
+| [2.1.1](../features/2.1.1-link-parsing-system-implementation-state.md) | Link Parsing System | 📝 TDD Created | P1 | [🟠 Tier 2](../../methodologies/documentation-tiers/assessments/ART-ASS-195-2-1-1-link-parsing-system.md) | [PD-FDD-026](../../../product-docs/functional-design/fdds/fdd-2-1-1-parser-framework.md) | [PD-TDD-025](../../../product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md) | ✅ | [PF-TSP-039](../../../../test/specifications/feature-specs/test-spec-2-1-1-link-parsing-system.md) | 0.1.1 | Parser registry/facade with 6 format-specific parsers (Markdown, YAML, JSON, Python, Dart, Generic). Files: parser.py, parsers/* (8 files). Retrospective. Consolidates old 2.1.1–2.1.7. |
+| [2.2.1](../features/2.2.1-link-updating-implementation-state.md) | Link Updating | 📝 TDD Created | P1 | [🟠 Tier 2](../../methodologies/documentation-tiers/assessments/ART-ASS-196-2-2-1-link-updating.md) | [PD-FDD-027](../../../product-docs/functional-design/fdds/fdd-2-2-1-link-updater.md) | [PD-TDD-026](../../../product-docs/technical/architecture/design-docs/tdd/tdd-2-2-1-link-updater-t2.md) | ✅ | [PF-TSP-040](../../../../test/specifications/feature-specs/test-spec-2-2-1-link-updating.md) | 0.1.1 | Reference updating with relative path calculation, atomic writes, backup creation, dry-run mode. File: updater.py. Retrospective. Consolidates old 2.2.1–2.2.5. |
 
 </details>
 
@@ -201,13 +138,9 @@ Parser implementations for different file formats and link update mechanisms.
 
 Logging system and operational monitoring features.
 
-| ID | Feature | Status | Priority | Doc Tier | FDD | Arch Review | UI Design | API Design | DB Design | Tech Design | Test Status | Test Spec | Dependencies | Notes |
-| -- | ------- | ------ | -------- | -------- | --- | ----------- | --------- | ---------- | --------- | ----------- | ----------- | --------- | ------------ | ----- |
-| [3.1.1](../features/3.1.1-logging-framework-implementation-state.md) | Logging Framework | 📝 TDD Created | P1 | [Tier 2](../../methodologies/documentation-tiers/assessments/ART-ASS-171-3.1.1-logging-framework.md) | [FDD PD-FDD-025](../../../../product-docs/functional-design/fdds/fdd-3-1-1-logging-framework.md) | TBD | No | No | No | [TDD PD-TDD-024](../../../../product-docs/technical/architecture/design-docs/tdd/tdd-3-1-1-logging-framework-t2.md) | ✅ | TBD | 0.1.4 | Comprehensive logging system with multiple levels. Retrospective - pre-framework implementation.; Upgraded to Tier 2 from Tier 1 (score 1.86); FDD PD-FDD-025; TDD PD-TDD-024 |
-| [3.1.2](../features/3.1.2-colored-console-output-implementation-state.md) | Colored Console Output | 📊 Assessment Created | P3 | [Tier 1](../../methodologies/documentation-tiers/assessments/ART-ASS-172-3.1.2-colored-console-output.md) | TBD | TBD | No | No | No | TBD | ✅ | TBD | 3.1.1 | Windows-compatible colored terminal output. Retrospective - pre-framework implementation. |
-| [3.1.3](../features/3.1.3-statistics-tracking-implementation-state.md) | Statistics Tracking | 📊 Assessment Created | P2 | [Tier 1](../../methodologies/documentation-tiers/assessments/ART-ASS-173-3.1.3-statistics-tracking.md) | TBD | TBD | No | No | No | TBD | ✅ | TBD | - | Real-time statistics (files scanned, links updated, errors). Retrospective - pre-framework implementation. |
-| [3.1.4](../features/3.1.4-progress-reporting-implementation-state.md) | Progress Reporting | 📊 Assessment Created | P3 | [Tier 1](../../methodologies/documentation-tiers/assessments/ART-ASS-174-3.1.4-progress-reporting.md) | TBD | TBD | No | No | No | TBD | ✅ | TBD | 0.1.4 | Scan progress with configurable intervals. Retrospective - pre-framework implementation. |
-| [3.1.5](../features/3.1.5-error-reporting-implementation-state.md) | Error Reporting | 📊 Assessment Created | P2 | [Tier 1](../../methodologies/documentation-tiers/assessments/ART-ASS-175-3.1.5-error-reporting.md) | TBD | TBD | No | No | No | TBD | ✅ | TBD | 3.1.1 | Detailed error messages and graceful degradation. Retrospective - pre-framework implementation. |
+| ID | Feature | Status | Priority | Doc Tier | FDD | TDD | Test Status | Test Spec | Dependencies | Notes |
+| -- | ------- | ------ | -------- | -------- | --- | --- | ----------- | --------- | ------------ | ----- |
+| [3.1.1](../features/3.1.1-logging-system-implementation-state.md) | Logging System | 📝 TDD Created | P1 | [🟠 Tier 2](../../methodologies/documentation-tiers/assessments/ART-ASS-197-3-1-1-logging-system.md) | [PD-FDD-025](../../../product-docs/functional-design/fdds/fdd-3-1-1-logging-framework.md) | [PD-TDD-024](../../../product-docs/technical/architecture/design-docs/tdd/tdd-3-1-1-logging-framework-t2.md) | ✅ | [PF-TSP-041](../../../../test/specifications/feature-specs/test-spec-3-1-1-logging-system.md) | 0.1.3 | Structured logging with colored console output, JSON file logging, rotating handlers, runtime filtering, performance metrics. Files: logging.py, logging_config.py. Retrospective. Consolidates old 3.1.1–3.1.5. |
 
 </details>
 
@@ -216,18 +149,11 @@ Logging system and operational monitoring features.
 
 ### 4.0 Testing Infrastructure
 
-Testing framework, test utilities, and test coverage features.
+Testing framework, test utilities, and test coverage.
 
-| ID | Feature | Status | Priority | Doc Tier | FDD | Arch Review | UI Design | API Design | DB Design | Tech Design | Test Status | Test Spec | Dependencies | Notes |
-| -- | ------- | ------ | -------- | -------- | --- | ----------- | --------- | ---------- | --------- | ----------- | ----------- | --------- | ------------ | ----- |
-| [4.1.1](../features/4.1.1-test-framework-implementation-state.md) | Test Framework | 📝 TDD Created | P1 | [Tier 2](../../methodologies/documentation-tiers/assessments/ART-ASS-176-4.1.1-test-framework.md) | [FDD PD-FDD-028](../../../../product-docs/functional-design/fdds/fdd-4-1-1-test-framework.md) | TBD | No | No | No | [TDD PD-TDD-027](../../../../product-docs/technical/architecture/design-docs/tdd/tdd-4-1-1-test-framework-t2.md) | ✅ | TBD | - | Pytest-based test infrastructure. Retrospective - pre-framework implementation.; FDD PD-FDD-028; TDD PD-TDD-027 (2026-02-20) |
-| [4.1.2](../features/4.1.2-unit-tests-implementation-state.md) | Unit Tests | 📊 Assessment Created | P1 | [Tier 1](../../methodologies/documentation-tiers/assessments/ART-ASS-177-4.1.2-unit-tests.md) | TBD | TBD | No | No | No | TBD | ✅ | TBD | 4.1.1 | 35+ unit test methods for core components. Retrospective - pre-framework implementation.|
-| [4.1.3](../features/4.1.3-integration-tests-implementation-state.md) | Integration Tests | 📝 TDD Created | P1 | [Tier 2](../../methodologies/documentation-tiers/assessments/ART-ASS-178-4.1.3-integration-tests.md) | [FDD PD-FDD-029](../../../../product-docs/functional-design/fdds/fdd-4-1-3-integration-tests.md) | TBD | No | No | No | [TDD PD-TDD-028](../../../../product-docs/technical/architecture/design-docs/tdd/tdd-4-1-3-integration-tests-t2.md) | ✅ | TBD | 4.1.1 | 45+ integration tests for complex scenarios. Retrospective - pre-framework implementation.; FDD PD-FDD-029; TDD PD-TDD-028 (2026-02-20) |
-| [4.1.4](../features/4.1.4-parser-tests-implementation-state.md) | Parser Tests | 📝 TDD Created | P1 | [Tier 2](../../methodologies/documentation-tiers/assessments/ART-ASS-179-4.1.4-parser-tests.md) | [FDD PD-FDD-030](../../../../product-docs/functional-design/fdds/fdd-4-1-4-parser-tests.md) | TBD | No | No | No | [TDD PD-TDD-029](../../../../product-docs/technical/architecture/design-docs/tdd/tdd-4-1-4-parser-tests-t2.md) | ✅ | TBD | 4.1.1 | 80+ parser-specific tests covering edge cases. Retrospective - pre-framework implementation.; FDD PD-FDD-030; TDD PD-TDD-029 (2026-02-20) |
-| [4.1.5](../features/4.1.5-performance-tests-implementation-state.md) | Performance Tests | 📊 Assessment Created | P2 | [Tier 1](../../methodologies/documentation-tiers/assessments/ART-ASS-180-4.1.5-performance-tests.md) | TBD | TBD | No | No | No | TBD | ✅ | TBD | 4.1.1 | Large project handling and benchmark tests. Retrospective - pre-framework implementation. |
-| [4.1.6](../features/4.1.6-test-fixtures-implementation-state.md) | Test Fixtures | 📝 TDD Created | P2 | [Tier 2](../../methodologies/documentation-tiers/assessments/ART-ASS-181-4.1.6-test-fixtures.md) | [FDD PD-FDD-031](../../../../product-docs/functional-design/fdds/fdd-4-1-6-test-fixtures.md) | TBD | No | No | No | [TDD PD-TDD-030](../../../../product-docs/technical/architecture/design-docs/tdd/tdd-4-1-6-test-fixtures-t2.md) | ✅ | TBD | 4.1.1 | Comprehensive test data and sample files. Retrospective - pre-framework implementation.; FDD PD-FDD-031; TDD PD-TDD-030 (2026-02-20) |
-| [4.1.7](../features/4.1.7-test-utilities-implementation-state.md) | Test Utilities | 📊 Assessment Created | P2 | [Tier 1](../../methodologies/documentation-tiers/assessments/ART-ASS-182-4.1.7-test-utilities.md) | TBD | TBD | No | No | No | TBD | ✅ | TBD | 4.1.1 | Helper functions and test data generators. Retrospective - pre-framework implementation. |
-| [4.1.8](../features/4.1.8-test-documentation-implementation-state.md) | Test Documentation | 📊 Assessment Created | P2 | [Tier 1](../../methodologies/documentation-tiers/assessments/ART-ASS-183-4.1.8-test-documentation.md) | TBD | TBD | No | No | No | TBD | 🚫 | TBD | - | TEST_PLAN.md, TEST_CASE_STATUS.md, 111 documented test cases. Retrospective - pre-framework implementation. |
+| ID | Feature | Status | Priority | Doc Tier | FDD | TDD | Test Status | Test Spec | Dependencies | Notes |
+| -- | ------- | ------ | -------- | -------- | --- | --- | ----------- | --------- | ------------ | ----- |
+| [4.1.1](../features/4.1.1-test-suite-implementation-state.md) | Test Suite | 📝 TDD Created | P1 | [🟠 Tier 2](../../methodologies/documentation-tiers/assessments/ART-ASS-198-4-1-1-test-suite.md) | [PD-FDD-028](../../../product-docs/functional-design/fdds/fdd-4-1-1-test-suite.md) | [PD-TDD-027](../../../product-docs/technical/architecture/design-docs/tdd/tdd-4-1-1-test-suite-t2.md) | ✅ | [PF-TSP-042](../../../../test/specifications/feature-specs/test-spec-4-1-1-test-suite.md) | — | Pytest-based infrastructure with 247+ tests (unit, integration, parser, performance), fixtures, test utilities. Files: tests/*, run_tests.py, pytest.ini. Retrospective. Consolidates old 4.1.1–4.1.8. |
 
 </details>
 
@@ -236,17 +162,11 @@ Testing framework, test utilities, and test coverage features.
 
 ### 5.0 CI/CD & Deployment
 
-Continuous integration, deployment pipelines, and release features.
+Continuous integration, deployment pipelines, and development tooling.
 
-| ID | Feature | Status | Priority | Doc Tier | FDD | Arch Review | UI Design | API Design | DB Design | Tech Design | Test Status | Test Spec | Dependencies | Notes |
-| -- | ------- | ------ | -------- | -------- | --- | ----------- | --------- | ---------- | --------- | ----------- | ----------- | --------- | ------------ | ----- |
-| [5.1.1](../features/5.1.1-github-actions-ci-implementation-state.md) | GitHub Actions CI | 📝 TDD Created | P1 | [Tier 2](../../methodologies/documentation-tiers/assessments/ART-ASS-184-5.1.1-github-actions-ci.md) | [FDD PD-FDD-032](../../../../product-docs/functional-design/fdds/fdd-5-1-1-github-actions-ci.md) | TBD | No | No | No | [TDD PD-TDD-031](../../../../product-docs/technical/architecture/design-docs/tdd/tdd-5-1-1-github-actions-ci-t2.md) | ✅ | TBD | - | Automated CI pipeline with Windows testing. Retrospective - pre-framework implementation.; FDD PD-FDD-032; TDD PD-TDD-031 (2026-02-20) |
-| [5.1.2](../features/5.1.2-test-automation-implementation-state.md) | Test Automation | 📝 TDD Created | P1 | [Tier 2](../../methodologies/documentation-tiers/assessments/ART-ASS-185-5.1.2-test-automation.md) | [FDD PD-FDD-033](../../../../product-docs/functional-design/fdds/fdd-5-1-2-test-automation.md) | TBD | No | No | No | [TDD PD-TDD-032](../../../../product-docs/technical/architecture/design-docs/tdd/tdd-5-1-2-test-automation-t2.md) | ✅ | TBD | 4.1.1, 5.1.1 | Automated test execution (unit, integration, parser). Retrospective - pre-framework implementation.; FDD PD-FDD-033; TDD PD-TDD-032 (2026-02-20) |
-| [5.1.3](../features/5.1.3-code-quality-checks-implementation-state.md) | Code Quality Checks | 📊 Assessment Created | P2 | [Tier 1](../../methodologies/documentation-tiers/assessments/ART-ASS-186-5.1.3-code-quality-checks.md) | TBD | TBD | No | No | No | TBD | ✅ | TBD | 5.1.1 | Black, isort, flake8, mypy integration. Retrospective - pre-framework implementation. |
-| [5.1.4](../features/5.1.4-coverage-reporting-implementation-state.md) | Coverage Reporting | 📊 Assessment Created | P2 | [Tier 1](../../methodologies/documentation-tiers/assessments/ART-ASS-187-5.1.4-coverage-reporting.md) | TBD | TBD | No | No | No | TBD | ✅ | TBD | 5.1.1, 5.1.2 | Codecov integration for coverage tracking. Retrospective - pre-framework implementation. |
-| [5.1.5](../features/5.1.5-pre-commit-hooks-implementation-state.md) | Pre-commit Hooks | 📊 Assessment Created | P2 | [Tier 1](../../methodologies/documentation-tiers/assessments/ART-ASS-188-5.1.5-pre-commit-hooks.md) | TBD | TBD | No | No | No | TBD | ✅ | TBD | - | Local quality gates before commits. Retrospective - pre-framework implementation. |
-| [5.1.6](../features/5.1.6-package-building-implementation-state.md) | Package Building | 📊 Assessment Created | P2 | [Tier 1](../../methodologies/documentation-tiers/assessments/ART-ASS-189-5.1.6-package-building.md) | TBD | TBD | No | No | No | TBD | ✅ | TBD | - | Python package build and distribution. Retrospective - pre-framework implementation. |
-| [5.1.7](../features/5.1.7-windows-dev-scripts-implementation-state.md) | Windows Dev Scripts | 📊 Assessment Created | P3 | [Tier 1](../../methodologies/documentation-tiers/assessments/ART-ASS-190-5.1.7-windows-dev-scripts.md) | TBD | TBD | No | No | No | TBD | ✅ | TBD | - | dev.bat for Windows-native development commands. Retrospective - pre-framework implementation. |
+| ID | Feature | Status | Priority | Doc Tier | FDD | TDD | Test Status | Test Spec | Dependencies | Notes |
+| -- | ------- | ------ | -------- | -------- | --- | --- | ----------- | --------- | ------------ | ----- |
+| [5.1.1](../features/5.1.1-cicd-development-tooling-implementation-state.md) | CI/CD & Development Tooling | 📝 TDD Created | P1 | [🟠 Tier 2](../../methodologies/documentation-tiers/assessments/ART-ASS-199-5-1-1-ci-cd-development-tooling.md) | [PD-FDD-032](../../../product-docs/functional-design/fdds/fdd-5-1-1-cicd-development-tooling.md) | [PD-TDD-031](../../../product-docs/technical/architecture/design-docs/tdd/tdd-5-1-1-cicd-development-tooling-t2.md) | ✅ | [PF-TSP-043](../../../../test/specifications/feature-specs/test-spec-5-1-1-cicd-development-tooling.md) | — | GitHub Actions pipeline, pre-commit hooks, startup scripts, debug tools, benchmarks, deployment scripts. Files: .github/workflows/*, .pre-commit-config.yaml, LinkWatcher_run/*, deployment/*, scripts/*, tools/*, debug/*, examples/*. Retrospective. Consolidates old 5.1.1–5.1.7. |
 
 </details>
 
@@ -255,39 +175,38 @@ Continuous integration, deployment pipelines, and release features.
 <details>
 <summary><strong>Implementation Status Overview</strong></summary>
 
-| Status                | Count   | Percentage |
-| --------------------- | ------- | ---------- |
-| ⬜ Not Started        | 0       | 0.0%       |
-| 📊 Assessment Created | 30      | 71.4%      |
-| 📝 TDD Created        | 12      | 28.6%      |
-| 🟡 In Progress        | 0       | 0.0%       |
-| 🟢 Completed          | 0       | 0.0%       |
-| 🔄 Needs Revision     | 0       | 0.0%       |
-| 🧪 Testing            | 0       | 0.0%       |
-| **Total Features**    | **42**  | **100%**   |
+| Status                | Count  | Percentage |
+| --------------------- | ------ | ---------- |
+| 📊 Assessment Created | 1      | 11.1%      |
+| 📝 TDD Created        | 8      | 88.9%      |
+| **Total Features**    | **9**  | **100%**   |
+
+> **📝 NOTE**: All 9 features are fully implemented in code (retrospective). The status reflects documentation completeness, not implementation progress. All features have passing tests.
 
 </details>
 
 <details>
-<summary><strong>Documentation Assessment Progress</strong></summary>
+<summary><strong>Documentation Tier Distribution</strong></summary>
 
-| Status               | Count   | Percentage |
-| -------------------- | ------- | ---------- |
-| 🔵 Tier 1 (Simple)   | 30      | 71.4%      |
-| 🟠 Tier 2 (Moderate) | 11      | 26.2%      |
-| 🔴 Tier 3 (Complex)  | 1       | 2.4%       |
-| Not Assessed (TBD)   | 0       | 0.0%       |
-| **Total Features**   | **42**  | **100%**   |
-
-> **📝 NOTE**: Retrospective tier assessments have been completed for all features in Phase 2 using the Feature Tier Assessment task. Documentation requirements and design needs are now defined.
+| Tier                  | Count  | Percentage |
+| --------------------- | ------ | ---------- |
+| 🔵 Tier 1 (Simple)   | 1      | 11.1%      |
+| 🟠 Tier 2 (Moderate) | 7      | 77.8%      |
+| 🔴 Tier 3 (Complex)  | 1      | 11.1%      |
+| **Total Features**    | **9**  | **100%**   |
 
 </details>
 
 <details>
-<summary><strong>Priority Features for Next Sprint</strong></summary>
+<summary><strong>Documentation Coverage</strong></summary>
 
-Based on dependencies and current progress:
-
+| Artifact | Exists | Missing | Notes |
+|----------|--------|---------|-------|
+| FDDs | 8 | 1 (0.1.3 Configuration System — Tier 1, not required) | All consolidated |
+| TDDs | 8 | 1 (0.1.3 Configuration System — Tier 1, not required) | |
+| ADRs | 2 | — | [PD-ADR-039](../../../product-docs/technical/architecture/design-docs/adr/adr/orchestrator-facade-pattern-for-core-architecture.md) (0.1.1), [PD-ADR-040](../../../product-docs/technical/architecture/design-docs/adr/adr/target-indexed-in-memory-link-database.md) (0.1.2) |
+| Test Specs | 9 | 0 | All features have test specifications ([PF-TSP-035](../../../../test/specifications/feature-specs/test-spec-0-1-1-core-architecture.md) through [PF-TSP-043](../../../../test/specifications/feature-specs/test-spec-5-1-1-cicd-development-tooling.md)) |
+| Tier Assessments | 9 | 0 | All consolidated assessments created ([ART-ASS-191](../../methodologies/documentation-tiers/assessments/ART-ASS-191-0-1-1-core-architecture.md) through [ART-ASS-199](../../methodologies/documentation-tiers/assessments/ART-ASS-199-5-1-1-ci-cd-development-tooling.md)) |
 
 </details>
 
@@ -295,18 +214,26 @@ Based on dependencies and current progress:
 
 <details>
 <summary><strong>Tasks That Update This File</strong></summary>
-The following tasks update this state file:
 
 - [Feature Tier Assessment](../../tasks/01-planning/feature-tier-assessment-task.md): Updates when features are assessed
+- [FDD Creation](../../tasks/02-design/fdd-creation-task.md): Updates when FDDs are created
 - [TDD Creation](../../tasks/02-design/tdd-creation-task.md): Updates when technical designs are completed
-- [Feature Implementation Planning (PF-TSK-044)](../../tasks/04-implementation/feature-implementation-planning-task.md): Creates implementation plan, sets status to "In Progress"
-- [Data Layer Implementation (PF-TSK-051)](../../tasks/04-implementation/data-layer-implementation.md): Updates progress during data model and repository work
-- [State Management Implementation (PF-TSK-056)](../../tasks/04-implementation/state-management-implementation.md): Updates progress during state layer work
-- [UI Implementation (PF-TSK-052)](../../tasks/04-implementation/ui-implementation.md): Updates progress during UI work
-- [Integration & Testing (PF-TSK-053)](../../tasks/04-implementation/integration-and-testing.md): Updates test coverage metrics
-- [Quality Validation (PF-TSK-054)](../../tasks/04-implementation/quality-validation.md): Updates quality validation status
-- [Implementation Finalization (PF-TSK-055)](../../tasks/04-implementation/implementation-finalization.md): Updates status on feature completion
-- [Feature Enhancement (PF-TSK-068)](../../tasks/04-implementation/feature-enhancement.md): Updates status during enhancement work on existing features
+- [Test Specification Creation](../../tasks/03-testing/test-specification-creation-task.md): Updates Test Spec column when specs are created
+- [Feature Implementation Planning](../../tasks/04-implementation/feature-implementation-planning-task.md): Creates implementation plan, sets status to "In Progress"
+- [Feature Enhancement](../../tasks/04-implementation/feature-enhancement.md): Updates status during enhancement work
 - [Code Review](../../tasks/06-maintenance/code-review-task.md): Updates when reviews are completed
 
-## </details>
+</details>
+
+## Update History
+
+| Date | Change | Updated By |
+|------|--------|------------|
+| 2026-02-25 | v2.4 — 0.1.1 Core Architecture: Duplicate Session Prevention enhancement complete, status → 🟢 Completed | [Feature Enhancement (PF-TSK-068)](../../tasks/04-implementation/feature-enhancement.md) |
+| 2026-02-25 | v2.3 — 0.1.1 Core Architecture set to "Needs Revision" for Duplicate Session Prevention enhancement (PF-STA-049) | [Feature Request Evaluation (PF-TSK-067)](../../tasks/01-planning/feature-request-evaluation.md) |
+| 2026-02-24 | v2.2 — All 9 test specifications created (PF-TSP-035 through PF-TSP-043), Test Spec column fully populated | [Test Specification Creation (PF-TSK-012)](../../tasks/03-testing/test-specification-creation-task.md) |
+| 2026-02-21 | v2.1 — Created 9 consolidated feature state files (PF-FEA-046 to PF-FEA-054), linked all IDs and assessments | [Structure Change (PF-TSK-009)](../../tasks/support/structure-change-task.md) |
+| 2026-02-20 | v2.0 — Consolidated 42 features → 9 features | [Structure Change (PF-TSK-009)](../../tasks/support/structure-change-task.md) |
+| 2026-02-20 | v1.5 — Retrospective TDDs completed for all Tier 2+ features | [Retrospective Documentation Creation (PF-TSK-066)](../../tasks/00-onboarding/retrospective-documentation-creation.md) |
+| 2026-02-19 | v1.4 — Retrospective FDDs completed for all Tier 2+ features | [Retrospective Documentation Creation (PF-TSK-066)](../../tasks/00-onboarding/retrospective-documentation-creation.md) |
+| 2026-02-17 | v1.0 — Initial feature tracking with 42 features | [Codebase Feature Discovery (PF-TSK-064)](../../tasks/00-onboarding/codebase-feature-discovery.md) |

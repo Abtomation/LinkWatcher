@@ -34,9 +34,9 @@ $additionalMetadataFields = @{
 
 # Prepare custom replacements
 $customReplacements = @{
-    "\[Task Name\]"                                 = $TaskName
-    "\[Discrete/Cyclical/Continuous\]"              = $TaskType
-    "- \*\*Expected Completion\*\*: \[YYYY-MM-DD\]" = "- **Expected Completion**: $expectedCompletion"
+    "[Task Name]"                                 = $TaskName
+    "[Discrete/Cyclical/Continuous]"              = $TaskType
+    "- **Expected Completion**: [YYYY-MM-DD]"     = "- **Expected Completion**: $expectedCompletion"
 }
 
 # Add description if provided

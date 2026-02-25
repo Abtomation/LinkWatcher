@@ -2,7 +2,7 @@
   "metadata": {
     "version": "2.0",
     "created": "2025-01-27",
-    "updated": "2025-07-08",
+    "updated": "2026-02-21",
     "description": "Central registry for all document IDs in the BreakoutBuddies project - Enhanced with semantic directory mapping",
     "format": "semantic"
   },
@@ -66,7 +66,7 @@
         "temporary": "doc/process-framework/state-tracking/temporary",
         "default": "permanent"
       },
-      "nextAvailable": 46
+      "nextAvailable": 50
     },
     "PF-DOC": {
       "description": "Process Framework - Documentation",
@@ -106,7 +106,7 @@
         "main": "doc/process-framework/proposals",
         "default": "main"
       },
-      "nextAvailable": 5
+      "nextAvailable": 6
     },
     "PF-FEE": {
       "description": "Process Framework - Feedback",
@@ -126,7 +126,7 @@
         "features": "doc/process-framework/state-tracking/features",
         "default": "features"
       },
-      "nextAvailable": 46
+      "nextAvailable": 55
     },
     "PF-IMP": {
       "description": "Process Framework - Improvements",
@@ -364,7 +364,7 @@
         "assessments": "doc/process-framework/methodologies/documentation-tiers/assessments",
         "default": "assessments"
       },
-      "nextAvailable": 191
+      "nextAvailable": 200
     },
     "ART-FEE": {
       "description": "Feedback Artifacts",
@@ -374,7 +374,7 @@
         "forms": "doc/process-framework/feedback/feedback-forms",
         "default": "forms"
       },
-      "nextAvailable": 192
+      "nextAvailable": 201
     },
     "ART-REV": {
       "description": "Review Artifacts",
@@ -394,7 +394,7 @@
         "feature-specs": "test/specifications/feature-specs",
         "default": "feature-specs"
       },
-      "nextAvailable": 36
+      "nextAvailable": 44
     },
     "PF-TAR": {
       "description": "Process Framework - Test Audit Reports",
@@ -422,7 +422,7 @@
         "e2e": "integration_test",
         "default": "unit"
       },
-      "nextAvailable": 127
+      "nextAvailable": 128
     },
     "PF-VAL": {
       "description": "Process Framework - Validation Reports",
@@ -480,7 +480,7 @@
         "plans": "doc/process-framework/refactoring/plans",
         "default": "plans"
       },
-      "nextAvailable": 20
+      "nextAvailable": 21
     },
     "PF-TDA": {
       "description": "Process Framework - Technical Debt Assessments",
@@ -520,7 +520,7 @@
         "permanent": "doc/process-framework/state-tracking/permanent",
         "default": "permanent"
       },
-      "nextAvailable": 6
+      "nextAvailable": 16
     }
   }
 }

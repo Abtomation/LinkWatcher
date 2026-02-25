@@ -4,7 +4,7 @@
 Write-Host "Starting deployment process..."
 
 # Sample deployment logic
-$configFile = "config.json"
-$logFile = "deployment.log"
+$configFile = "../config.json"
+$logFile = "../deployment.log"
 
 Write-Host "Deployment completed successfully!"

@@ -32,16 +32,16 @@ def sample_files(temp_project_dir):
     # Create markdown file with links
     md_content = """# Test Document
 
-This is a [link to file](test.txt) and another [link](other/file.md).
+This is a [link to file](../../../test.txt) and another [link](other/file.md).
 
-Also reference to "quoted_file.py" and standalone_file.json.
+Also reference to "../quoted_file.py" and standalone_file.json.
 """
     md_file = temp_project_dir / "test.md"
     md_file.write_text(md_content)
     files["markdown"] = md_file
 
     # Create target files
-    txt_file = temp_project_dir / "test.txt"
+    txt_file = temp_project_dir / "../../../test.txt"
     txt_file.write_text("Test content")
     files["text"] = txt_file
 
@@ -53,7 +53,7 @@ Also reference to "quoted_file.py" and standalone_file.json.
     files["other"] = other_file
 
     # Create Python file
-    py_file = temp_project_dir / "quoted_file.py"
+    py_file = temp_project_dir / "../quoted_file.py"
     py_file.write_text("# Python file")
     files["python"] = py_file
 
@@ -120,7 +120,7 @@ class TestFileHelper:
     def create_markdown_file(path: Path, content: str = None) -> Path:
         """Create a markdown file with optional content."""
         if content is None:
-            content = "# Test\n\nThis is a [test link](test.txt)."
+            content = "# Test\n\nThis is a [test link](../../../test.txt)."
         path.write_text(content)
         return path
 
@@ -128,7 +128,7 @@ class TestFileHelper:
     def create_yaml_file(path: Path, data: Dict = None) -> Path:
         """Create a YAML file with optional data."""
         if data is None:
-            data = {"file_ref": "test.txt", "other": "value"}
+            data = {"file_ref": "../../../test.txt", "other": "value"}
 
         import yaml
 
@@ -140,7 +140,7 @@ class TestFileHelper:
     def create_json_file(path: Path, data: Dict = None) -> Path:
         """Create a JSON file with optional data."""
         if data is None:
-            data = {"file_ref": "test.txt", "other": "value"}
+            data = {"file_ref": "../../../test.txt", "other": "value"}
 
         import json
 

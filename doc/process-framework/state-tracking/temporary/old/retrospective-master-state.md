@@ -224,7 +224,7 @@ status: FINALIZED
 | File Path | Notes | Candidate Feature | Status |
 |-----------|-------|-------------------|--------|
 | tests/__init__.py | Tests package init | 4.1.1 | ✅ |
-| tests/conftest.py | Pytest fixtures and configuration | 4.1.1 | ✅ |
+| ../../../../../tests/conftest.py | Pytest fixtures and configuration | 4.1.1 | ✅ |
 | tests/utils.py | Test utility functions | 4.1.7 | ✅ |
 | tests/test_config.py | Config tests | 4.1.2 | ✅ |
 | tests/test_move_detection.py | Move detection tests | 4.1.2 | ✅ |
@@ -343,16 +343,16 @@ status: FINALIZED
 
 | File Path | Notes | Candidate Feature | Status |
 |-----------|-------|-------------------|--------|
-| manual_test/assets/logo.png | Manual test asset | 4.1.6 | ✅ |
-| manual_test/assets/screenshot.jpg | Manual test asset | 4.1.6 | ✅ |
-| manual_test/docs/api.md | Manual test API doc | 4.1.6 | ✅ |
-| manual_test/docs/config.yaml | Manual test config | 4.1.6 | ✅ |
-| manual_test/docs/user-guide.md | Manual test user guide | 4.1.6 | ✅ |
+| ../../../../../manual_test/assets/Test/logo.png | Manual test asset | 4.1.6 | ✅ |
+| ../../../../../manual_test/assets/screenshot.jpg | Manual test asset | 4.1.6 | ✅ |
+| ../../../../../manual_test/docs/api.mdest/doc/api.md | Manual test API doc | 4.1.6 | ✅ |
+| ../../../../../manual_test/docs/config.yamloc/config.yaml | Manual test config | 4.1.6 | ✅ |
+| ../../../../../manual_test/docs/user-guide.md | Manual test user guide | 4.1.6 | ✅ |
 | manual_test/Log.txt | Manual test log | 3.1.1 | ✅ |
 | manual_test/README.md | Manual test readme | 4.1.8 | ✅ |
 | manual_test/scripts/automation/placeholder.txt | Placeholder | 5.1.7 | ✅ |
 | manual_test/scripts/config/placeholder.txt | Placeholder | 5.1.7 | ✅ |
-| manual_test/scripts/deploy.ps1 | Deployment test script | 5.1.7 | ✅ |
+| ../../../../../manual_test/scripts/deploy.ps1 | Deployment test script | 5.1.7 | ✅ |
 | manual_test/scripts/setup.ps1 | Setup test script | 5.1.7 | ✅ |
 | manual_test/src/main.py | Test project main | 4.1.6 | ✅ |
 | manual_test/src/utils.py | Test project utils | 4.1.6 | ✅ |

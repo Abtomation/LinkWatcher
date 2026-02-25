@@ -4,9 +4,10 @@ type: Process Framework
 category: Functional Design Document
 version: 1.0
 created: 2026-02-19
-updated: 2026-02-19
+updated: 2026-02-25
 feature_id: 0.1.1
 feature_name: Core Architecture
+consolidates: [0.1.1, 0.1.2 (Data Models), 0.1.5 (Path Utilities)]
 retrospective: true
 ---
 
@@ -14,7 +15,9 @@ retrospective: true
 
 > **Retrospective Document**: This FDD describes the existing implemented functionality of the LinkWatcher Core Architecture, documented after implementation during framework onboarding (PF-TSK-066). Content is descriptive ("what is") rather than prescriptive ("what should be").
 >
-> **Source**: Derived from [0.1.1 Implementation State](../../../process-framework/state-tracking/features/0.1.1-core-architecture-implementation-state.md), [HOW_IT_WORKS.md](../../../../HOW_IT_WORKS.md), and source code analysis.
+> **Source**: Derived from [HOW_IT_WORKS.md](../../../../HOW_IT_WORKS.md) and source code analysis of `linkwatcher/service.py`, `linkwatcher/__init__.py`, `linkwatcher/models.py`, `linkwatcher/utils.py`, and `main.py`.
+>
+> **Scope Note**: This feature consolidates old 0.1.1 (Core Architecture), 0.1.2 (Data Models), and 0.1.5 (Path Utilities) into a single feature covering the service orchestrator, data models, path utilities, and CLI entry point.
 
 ## Feature Overview
 
@@ -60,6 +63,7 @@ retrospective: true
 - **0.1.1-FR-3**: The system SHALL continuously monitor the project directory for file system events (move, create, delete, rename) after initial scan completes
 - **0.1.1-FR-4**: The system SHALL automatically update all references in other files when a monitored file is moved or renamed
 - **0.1.1-FR-5**: The system SHALL handle graceful shutdown on SIGINT (Ctrl+C) and SIGTERM signals, stopping the file observer thread cleanly
+- **0.1.1-FR-8**: The system SHALL prevent multiple instances from running simultaneously on the same project by acquiring a lock file at startup and releasing it on shutdown. If another instance is already running, the system SHALL exit with an informative error message.
 - **0.1.1-FR-6**: The system SHALL report operational statistics upon shutdown (files scanned, links found, updates performed)
 - **0.1.1-FR-7**: The system SHALL provide a public Python API via `import linkwatcher` that re-exports all major classes (`LinkWatcherService`, `LinkDatabase`, `LinkParser`, `LinkUpdater`)
 
@@ -111,20 +115,24 @@ retrospective: true
 - **0.1.1-EC-4**: If the watchdog observer fails to start, the service logs the error and exits
 - **0.1.1-EC-5**: Rapid successive file operations (e.g., IDE rename) use a 2-second pending-delete timer to correctly detect moves vs. separate create/delete events
 - **0.1.1-EC-6**: If configuration file is malformed or missing, the service falls back to default configuration values
+- **0.1.1-EC-7**: If a stale lock file exists (PID no longer running), the service overrides it and acquires the lock
+- **0.1.1-EC-8**: If the lock file cannot be created (permissions, read-only filesystem), the service logs a warning and starts without duplicate protection
 
 ## Dependencies
 
+### Internal Components (consolidated into this feature)
+
+- **Data Models** (formerly 0.1.2): LinkReference and FileOperation data classes for representing links and file events — `models.py`
+- **Path Utilities** (formerly 0.1.5): Windows-native path normalization, file monitoring filters, safe file reading — `utils.py`
+
 ### Functional Dependencies
 
-- **0.1.2 Data Models**: LinkReference and FileOperation data classes for representing links and file events
-- **0.1.3 In-Memory Database**: Thread-safe storage for link references with O(1) target-path lookups
-- **0.1.4 Configuration System**: Multi-source configuration loading and validation
-- **0.1.5 Path Utilities**: Windows-native path normalization and handling
-- **1.1.1 Watchdog Integration**: File system event monitoring via watchdog library
-- **1.1.2 Event Handler**: Processing file move/create/delete events
-- **2.1.1 Parser Framework**: Multi-format link extraction from source files
-- **2.2.1 Link Updater**: Atomic file modification with safety mechanisms
-- **3.1.1 Logging Framework**: Structured logging with colored console output
+- **0.1.2 In-Memory Link Database**: Thread-safe storage for link references with O(1) target-path lookups
+- **0.1.3 Configuration System**: Multi-source configuration loading and validation
+- **1.1.1 File System Monitoring**: File system event monitoring, move detection, file filtering
+- **2.1.1 Link Parsing System**: Multi-format link extraction from source files
+- **2.2.1 Link Updating**: Atomic file modification with safety mechanisms
+- **3.1.1 Logging System**: Structured logging with colored console output
 
 ### Technical Dependencies
 

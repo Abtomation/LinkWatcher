@@ -64,17 +64,17 @@ Detail the database and data model changes:
 
 ### State Management Design
 
-Describe Riverpod provider architecture:
-- Provider structure and hierarchy
-- State notifier patterns
-- Dependency between providers
+Describe state management architecture:
+- Component structure and hierarchy
+- State management patterns
+- Dependency management between components
 - Side effect handling strategy
 
 ### UI/UX Design
 
 Outline screen layouts and user interactions:
 - New screens/pages required
-- Widget component hierarchy
+- UI component hierarchy
 - Navigation flow
 - User interaction patterns
 
@@ -142,7 +142,7 @@ Document unit test requirements:
 - Testing framework: [Framework used in project]
 - Key test scenarios: [List critical test cases]
 
-### Widget Testing
+### UI/Component Testing
 
 Describe UI component testing approach:
 - Component-level test strategy
@@ -235,7 +235,7 @@ Document rollback strategy:
 List code components to be created:
 - **Data models**: [File locations]
 - **Repositories**: [File locations]
-- **Providers**: [File locations]
+- **State management**: [File locations]
 - **Widgets**: [File locations]
 - **Tests**: [File locations]
 

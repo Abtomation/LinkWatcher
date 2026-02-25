@@ -81,7 +81,7 @@ $customReplacements = @{
 
 # Create the document using standardized process
 try {
-    $documentId = New-StandardProjectDocument -TemplatePath "../../assessments/../../../assessments/doc/process-framework/templates/templates/technical-debt-assessment-template.md" -IdPrefix "PF-TDA" -IdDescription "Technical Debt Assessment: $AssessmentName" -DocumentName $AssessmentName -DirectoryType "assessments" -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
+    $documentId = New-StandardProjectDocument -TemplatePath "doc/process-framework/templates/templates/technical-debt-assessment-template.md" -IdPrefix "PF-TDA" -IdDescription "Technical Debt Assessment: $AssessmentName" -DocumentName $AssessmentName -DirectoryType "assessments" -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
 
     # Provide success details
     $details = @(

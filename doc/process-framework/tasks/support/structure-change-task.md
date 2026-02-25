@@ -171,6 +171,7 @@ The following state files must be updated as part of this task:
 - [ ] **Verify Changes**: All affected files updated correctly
   - [ ] New documents created using established scripts (if applicable)
   - [ ] Cross-references valid (no broken links)
+  - [ ] Run `Validate-StateTracking.ps1` — 0 errors across all surfaces
 - [ ] **Update State Files**:
   - [ ] [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) updated (if this change addresses an IMP item)
   - [ ] [Documentation Map](../../documentation-map.md) updated if document organization changed
@@ -189,6 +190,7 @@ The following state files must be updated as part of this task:
   - [ ] **All automation scripts created using proper processes**: New scripts created using [document-creation-script-template.ps1](../../templates/templates/document-creation-script-template.ps1) and [Document Creation Script Development Guide](../../guides/guides/document-creation-script-development-guide.md)
   - [ ] All affected content files migrated to new structure
   - [ ] Structure change tracking file properly maintained
+  - [ ] Run `Validate-StateTracking.ps1` — 0 errors across all surfaces
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
   - [ ] Structure change state tracking file completed and properly maintained
   - [ ] [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) updated with structure change completion

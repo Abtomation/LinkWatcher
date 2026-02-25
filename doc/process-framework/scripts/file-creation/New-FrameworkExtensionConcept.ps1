@@ -86,7 +86,7 @@ $customReplacements = @{
 # Create the document using standardized process
 try {
     # Use DirectoryType for ID registry-based directory resolution
-    $documentId = New-StandardProjectDocument -TemplatePath "../../../../proposals/doc/process-framework/templates/templates/framework-extension-concept-template.md" -IdPrefix "PF-PRO" -IdDescription "Framework Extension Concept: ${ExtensionName}" -DocumentName $ExtensionName -DirectoryType "main" -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
+    $documentId = New-StandardProjectDocument -TemplatePath "doc/process-framework/templates/templates/framework-extension-concept-template.md" -IdPrefix "PF-PRO" -IdDescription "Framework Extension Concept: ${ExtensionName}" -DocumentName $ExtensionName -DirectoryType "main" -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
 
     # Provide success details
     $details = @(

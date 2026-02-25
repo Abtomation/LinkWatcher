@@ -164,7 +164,7 @@ echo Set-Location 'c:\path\to\script\directory'; ^& .\ScriptName.ps1 -Parameters
 
 **Example:**
 ```cmd
-echo Set-Location 'c:\Users\ronny\VS_Code\BreakoutBuddies\breakoutbuddies\doc\process-framework\scripts\file-creation'; ^& .\New-Task.ps1 -TaskType 'Discrete' -TaskName 'Test Task' -Category '01-planning' -Description 'Test description' -Confirm:$false -WhatIf > temp_task.ps1 && pwsh.exe -ExecutionPolicy Bypass -File temp_task.ps1 && del temp_task.ps1
+echo Set-Location 'c:\Users\ronny\VS_Code\BreakoutBuddies\breakoutbuddies\doc\process-framework\scripts\file-creation'; ^& .\New-Task.ps1 -TaskType 'Discrete' -TaskName 'Test Task' -WorkflowPhase '01-planning' -Description 'Test description' -Confirm:$false -WhatIf > temp_task.ps1 && pwsh.exe -ExecutionPolicy Bypass -File temp_task.ps1 && del temp_task.ps1
 ```
 
 **Why this works:**

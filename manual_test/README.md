@@ -12,7 +12,7 @@ This is a test project for LinkWatcher functionality.
 - [Utils](src/utils.py)
 
 ## Asset Links
-- [Logo](assets/logo.png)
+- [Logo](assets/Test/logo.png)
 - [Screenshot](assets/screenshot.jpg)
 
 ## External Links (should not be affected)

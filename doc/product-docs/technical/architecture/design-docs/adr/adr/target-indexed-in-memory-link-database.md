@@ -5,8 +5,8 @@ category: Architecture Decision Records
 version: 1.0
 created: 2026-02-19
 updated: 2026-02-19
-feature_id: 0.1.3
-feature_name: In-Memory Database
+feature_id: 0.1.2
+feature_name: In-Memory Link Database
 retrospective: true
 ---
 
@@ -132,9 +132,8 @@ Require all stored paths to be normalized before insertion; accept only exact-ma
 
 ## References
 
-- [0.1.3 Implementation State](../../../../../process-framework/state-tracking/features/0.1.3-in-memory-database-implementation-state.md) — Source code analysis with design decisions
-- [FDD PD-FDD-023](../../../../functional-design/fdds/fdd-0-1-3-in-memory-database.md) — Functional requirements for In-Memory Database
-- [TDD PD-TDD-022](../tdd/tdd-0.1.3-in-memory-database-t2.md) — Technical design document with implementation details
+- [FDD PD-FDD-023](../../../../functional-design/fdds/fdd-0-1-2-in-memory-database.md) — Functional requirements for In-Memory Link Database
+- [TDD PD-TDD-022](../tdd/tdd-0-1-2-in-memory-database-t2.md) — Technical design document with implementation details
 - [HOW_IT_WORKS.md](../../../../../../HOW_IT_WORKS.md) — User-facing architecture overview (Database System section)
 - `linkwatcher/database.py` — Primary implementation file
 

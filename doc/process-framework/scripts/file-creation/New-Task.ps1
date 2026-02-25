@@ -16,7 +16,7 @@ param(
 
     [Parameter(Mandatory = $false)]
     [ValidateSet("00-onboarding", "01-planning", "02-design", "03-testing", "04-implementation", "05-validation", "06-maintenance", "07-deployment", "support", "cyclical")]
-    [string]$Category = "01-planning",
+    [string]$WorkflowPhase = "01-planning",
 
     [Parameter(Mandatory = $false)]
     [switch]$OpenInEditor
@@ -46,7 +46,7 @@ $processFrameworkDir = Join-Path $projectRoot "doc\process-framework"
 $templatePath = Join-Path -Path $processFrameworkDir -ChildPath "templates\templates\task-template.md"
 
 try {
-    $taskId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "PF-TSK" -IdDescription "$TaskType task: ${TaskName}" -DocumentName $TaskName -DirectoryType $Category -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
+    $taskId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "PF-TSK" -IdDescription "$TaskType task: ${TaskName}" -DocumentName $TaskName -DirectoryType $WorkflowPhase -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
 
     Write-Verbose "Created task with ID: $taskId"
 
@@ -60,7 +60,7 @@ try {
 
             if ($sectionIndex -ge 0) {
                 $fileName = ConvertTo-KebabCase -InputString $TaskName
-                $relativePath = "process-framework/tasks/$Category/$fileName.md"
+                $relativePath = "process-framework/tasks/$WorkflowPhase/$fileName.md"
                 $newEntry = "| $taskId | [/$relativePath](/$relativePath) | Documentation | $TaskName | /doc/process-framework/tasks/../../../tasks/README.md |"
                 $docMap = $docMap[0..$sectionIndex] + $newEntry + $docMap[($sectionIndex + 1)..($docMap.Length - 1)]
                 $docMap | Set-Content -Path $docMapPath
@@ -99,7 +99,7 @@ try {
 
                 if ($tableStartIndex -gt $sectionIndex) {
                     $fileName = ConvertTo-KebabCase -InputString $TaskName
-                    $newEntry = "| [$TaskName]($Category/$fileName.md) | $Description | When working on $TaskName |"
+                    $newEntry = "| [$TaskName]($WorkflowPhase/$fileName.md) | $Description | When working on $TaskName |"
                     $tasksReadme = $tasksReadme[0..($tableStartIndex + 1)] + $newEntry + $tasksReadme[($tableStartIndex + 2)..($tasksReadme.Length - 1)]
                     $tasksReadme | Set-Content -Path $tasksReadmePath
                     Write-Verbose "Updated tasks README with new task"
@@ -161,10 +161,10 @@ try {
 
             # Determine the section header based on category
             $fileName = ConvertTo-KebabCase -InputString $TaskName
-            $relativePath = "/doc/process-framework/tasks/$Category/$fileName.md"
+            $relativePath = "/doc/process-framework/tasks/$WorkflowPhase/$fileName.md"
 
-            # Map category to section header (ai-tasks.md uses category-based sections)
-            $categoryToSection = @{
+            # Map workflow phase to section header (ai-tasks.md uses phase-based sections)
+            $phaseToSection = @{
                 "00-onboarding" = "### 🎓 00 - Onboarding Tasks"
                 "01-planning" = "### 📋 01 - Planning Tasks"
                 "02-design" = "### 🎨 02 - Design Tasks"
@@ -176,14 +176,14 @@ try {
                 "support" = "### 🔧 Support Tasks"
             }
 
-            $sectionHeader = $categoryToSection[$Category]
+            $sectionHeader = $phaseToSection[$WorkflowPhase]
             if (-not $sectionHeader) {
-                Write-Warning "Unknown category '$Category'. Cannot determine section header. Manual update required."
+                Write-Warning "Unknown workflow phase '$WorkflowPhase'. Cannot determine section header. Manual update required."
                 return
             }
 
             # Support Tasks section has a different table format than other categories
-            if ($Category -eq "support") {
+            if ($WorkflowPhase -eq "support") {
                 $tableHeaderPattern = "^\| Task.*\| Type.*\| Use When.*\| Link.*\|$"
                 $taskType = $TaskType
                 $useWhen = if ($Description -ne "") { $Description } else { "When working on $TaskName" }

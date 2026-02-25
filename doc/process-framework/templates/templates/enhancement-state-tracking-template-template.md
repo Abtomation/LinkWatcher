@@ -193,7 +193,7 @@ template_for: Enhancement State Tracking
 - **Applicable**: [Yes / No — required when enhancement touches multiple layers that need integration verification]
 - **Referenced Task Doc**: [Integration & Testing (PF-TSK-053)](../../tasks/04-implementation/integration-and-testing.md)
 - **Rationale**: [Why integration testing is or is not needed — e.g., "Enhancement spans data and UI layers" or "Not applicable — single-layer change with no integration concerns"]
-- **Adaptation Notes**: [Verify that changed layers work together correctly. Focus integration tests on the enhanced functionality.]
+- **Adaptation Notes**: [Verify that changed layers work together correctly. Focus integration tests on the enhanced functionality. **Important**: If the enhancement modifies artifacts outside the automated test suite (scripts, config files, build definitions, etc.), manually test them as part of this step — automated tests alone are insufficient for artifacts the test framework does not exercise.]
 - **Deliverable**: [Integration tests passing, or N/A]
 - **Session**: [1 / 2 / ...]
 

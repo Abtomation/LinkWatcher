@@ -122,27 +122,23 @@ final config = Configuration(
 
 ### Example 1: [Brief Description]
 
-```dart
-// Example code
-import 'package:breakoutbuddies<!-- <!-- /feature.dart - File not found --> - File not found -->';
+```
+// Example code (use your project's language)
+// import the feature module
 
-void main() {
-  final feature = Feature();
-  feature.doSomething();
-}
+feature = Feature()
+feature.do_something()
 ```
 
 ### Example 2: [Brief Description]
 
-```dart
-// Another example
-import 'package:breakoutbuddies/feature.dart';
+```
+// Another example (use your project's language)
+// import the feature module
 
-void anotherExample() {
-  final feature = Feature(customOption: true);
-  final result = feature.getResult();
-  print('Result: $result');
-}
+feature = Feature(custom_option=True)
+result = feature.get_result()
+print(f"Result: {result}")
 ```
 
 ## Troubleshooting

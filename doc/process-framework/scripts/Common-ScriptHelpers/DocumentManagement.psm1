@@ -681,12 +681,21 @@ function New-StandardProjectDocument {
         [string]$FileNamePattern
     )
 
-    try {
-        # Generate document ID
-        $documentId = New-ProjectId -Prefix $IdPrefix -Description $IdDescription
-        Write-Verbose "Generated document ID: $documentId"
+    # Propagate WhatIf preference across module boundaries
+    # Module functions have their own session state and don't inherit the caller's
+    # $WhatIfPreference. Check the call stack to detect if any caller used -WhatIf.
+    if (-not $WhatIfPreference -and -not $PSBoundParameters.ContainsKey('WhatIf')) {
+        foreach ($frame in Get-PSCallStack) {
+            if ($frame.InvocationInfo.BoundParameters.ContainsKey('WhatIf') -and
+                $frame.InvocationInfo.BoundParameters['WhatIf'] -eq $true) {
+                $WhatIfPreference = $true
+                break
+            }
+        }
+    }
 
-        # Resolve output directory
+    try {
+        # Resolve output directory (does not require document ID)
         if ($DirectoryType) {
             $resolvedOutputDir = Get-ProjectIdDirectory -Prefix $IdPrefix -DirectoryType $DirectoryType -CreateIfMissing
         } elseif ($OutputDirectory) {
@@ -705,7 +714,7 @@ function New-StandardProjectDocument {
         # Determine file extension based on template
         $templateExtension = [System.IO.Path]::GetExtension($TemplatePath)
 
-        # Generate filename
+        # Generate filename (does not require document ID)
         if ($FileNamePattern) {
             $fileName = $FileNamePattern
         } else {
@@ -737,23 +746,29 @@ function New-StandardProjectDocument {
             $resolvedTemplatePath = $TemplatePath
         }
 
-        # Add standard replacements
-        $standardReplacements = @{
-            "[DOCUMENT_NAME]" = $DocumentName
-            "[Document Name]" = $DocumentName
-            "[DOCUMENT_ID]" = $documentId
-            "[DATE]" = Get-ProjectTimestamp -Format "Date"
-            "[TIMESTAMP]" = Get-ProjectTimestamp -Format "DateTime"
-        }
-
-        # Merge with user-provided replacements (user replacements take precedence)
-        $finalReplacements = $standardReplacements.Clone()
-        foreach ($key in $Replacements.Keys) {
-            $finalReplacements[$key] = $Replacements[$key]
-        }
-
         # Create the document using appropriate handler based on template type
+        # ID generation, replacements, and file creation are all inside ShouldProcess
+        # to prevent consuming IDs in -WhatIf mode
         if ($PSCmdlet.ShouldProcess("Create document at $outputPath")) {
+            # Generate document ID only when actually creating the document
+            $documentId = New-ProjectId -Prefix $IdPrefix -Description $IdDescription
+            Write-Verbose "Generated document ID: $documentId"
+
+            # Add standard replacements
+            $standardReplacements = @{
+                "[DOCUMENT_NAME]" = $DocumentName
+                "[Document Name]" = $DocumentName
+                "[DOCUMENT_ID]" = $documentId
+                "[DATE]" = Get-ProjectTimestamp -Format "Date"
+                "[TIMESTAMP]" = Get-ProjectTimestamp -Format "DateTime"
+            }
+
+            # Merge with user-provided replacements (user replacements take precedence)
+            $finalReplacements = $standardReplacements.Clone()
+            foreach ($key in $Replacements.Keys) {
+                $finalReplacements[$key] = $Replacements[$key]
+            }
+
             if ($templateExtension -eq ".md") {
                 # Use existing markdown handler
                 $result = New-ProjectDocumentWithMetadata -TemplatePath $resolvedTemplatePath -OutputPath $outputPath -DocumentId $documentId -Replacements $finalReplacements -AdditionalMetadataFields $AdditionalMetadataFields -OpenInEditor:$OpenInEditor

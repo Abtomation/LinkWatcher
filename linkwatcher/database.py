@@ -12,6 +12,7 @@ from typing import Dict, List, Optional, Set
 
 from .logging import get_logger
 from .models import LinkReference
+from .utils import normalize_path
 
 
 class LinkDatabase:
@@ -30,7 +31,7 @@ class LinkDatabase:
     def add_link(self, reference: LinkReference):
         """Add a link reference to the database."""
         with self._lock:
-            target = self._normalize_path(reference.link_target)
+            target = normalize_path(reference.link_target)
             if target not in self.links:
                 self.links[target] = []
             self.links[target].append(reference)
@@ -40,7 +41,7 @@ class LinkDatabase:
         """Remove all links from a specific file."""
         with self._lock:
             # Normalize the file path for comparison
-            normalized_file_path = self._normalize_path(file_path)
+            normalized_file_path = normalize_path(file_path)
             self.files_with_links.discard(file_path)
             self.files_with_links.discard(normalized_file_path)
 
@@ -52,7 +53,7 @@ class LinkDatabase:
                 self.links[target] = [
                     ref
                     for ref in references
-                    if self._normalize_path(ref.file_path) != normalized_file_path
+                    if normalize_path(ref.file_path) != normalized_file_path
                 ]
                 removed_count += original_count - len(self.links[target])
 
@@ -70,7 +71,7 @@ class LinkDatabase:
     def get_references_to_file(self, file_path: str) -> List[LinkReference]:
         """Get all references pointing to a specific file."""
         with self._lock:
-            normalized_path = self._normalize_path(file_path)
+            normalized_path = normalize_path(file_path)
             all_references = []
 
             # First, try direct lookup by normalized path (most efficient)
@@ -81,7 +82,7 @@ class LinkDatabase:
             for target_path, references in self.links.items():
                 # Check if this target (possibly with anchor) points to our file
                 base_target = target_path.split("#", 1)[0] if "#" in target_path else target_path
-                if self._normalize_path(base_target) == normalized_path:
+                if normalize_path(base_target) == normalized_path:
                     # Avoid duplicates from the direct lookup above
                     for ref in references:
                         if ref not in all_references:
@@ -105,8 +106,8 @@ class LinkDatabase:
         if "#" in link_target:
             link_target = link_target.split("#", 1)[0]
 
-        target_norm = self._normalize_path(link_target)
-        file_norm = self._normalize_path(target_file_path)
+        target_norm = normalize_path(link_target)
+        file_norm = normalize_path(target_file_path)
 
         # Direct match
         if target_norm == file_norm:
@@ -115,12 +116,12 @@ class LinkDatabase:
         # Filename match (reference is just filename, target is full path)
         if target_norm == os.path.basename(file_norm):
             # Check if they're in the same directory
-            ref_dir = os.path.dirname(self._normalize_path(ref.file_path))
+            ref_dir = os.path.dirname(normalize_path(ref.file_path))
             file_dir = os.path.dirname(file_norm)
             return ref_dir == file_dir
 
         # Relative path resolution
-        ref_dir = os.path.dirname(self._normalize_path(ref.file_path))
+        ref_dir = os.path.dirname(normalize_path(ref.file_path))
         try:
             # Resolve the reference relative to its containing file
             resolved_target = os.path.normpath(os.path.join(ref_dir, target_norm)).replace(
@@ -133,15 +134,15 @@ class LinkDatabase:
     def update_target_path(self, old_path: str, new_path: str):
         """Update the target path for all references."""
         with self._lock:
-            old_normalized = self._normalize_path(old_path)
-            new_normalized = self._normalize_path(new_path)
+            old_normalized = normalize_path(old_path)
+            new_normalized = normalize_path(new_path)
 
             # Find all keys that need to be updated (including anchored links)
             keys_to_update = []
             for key in self.links.keys():
                 # Extract base path from key (remove anchor if present)
                 base_key = key.split("#", 1)[0] if "#" in key else key
-                if self._normalize_path(base_key) == old_normalized:
+                if normalize_path(base_key) == old_normalized:
                     keys_to_update.append(key)
 
             # Update each matching key
@@ -157,12 +158,6 @@ class LinkDatabase:
                 new_key = self._update_link_target(old_key, old_path, new_path)
                 self.links[new_key] = references
 
-    def _normalize_path(self, path: str) -> str:
-        """Normalize a path for consistent lookups."""
-        # Remove leading slash and normalize
-        path = path.lstrip("/")
-        return os.path.normpath(path).replace("\\", "/")
-
     def _update_link_target(self, original_target: str, old_path: str, new_path: str) -> str:
         """Update a link target from old path to new path, preserving format."""
         # Handle anchors
@@ -175,8 +170,8 @@ class LinkDatabase:
 
     def _replace_path_part(self, target: str, old_path: str, new_path: str) -> str:
         """Replace the path part while preserving relative/absolute format."""
-        old_normalized = self._normalize_path(old_path)
-        target_normalized = self._normalize_path(target)
+        old_normalized = normalize_path(old_path)
+        target_normalized = normalize_path(target)
 
         if target_normalized == old_normalized:
             # Exact match - preserve the original format (relative vs absolute)

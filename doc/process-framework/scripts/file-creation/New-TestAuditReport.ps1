@@ -59,18 +59,8 @@ param(
     [switch]$OpenInEditor
 )
 
-# Import the common helpers with robust path resolution
-$scriptDir = if ($PSScriptRoot) { $PSScriptRoot } else { (Get-Location).Path }
-$modulePath = Join-Path -Path $scriptDir -ChildPath "../../../Common-ScriptHelpers.psm1"
-try {
-    $resolvedPath = Resolve-Path $modulePath -ErrorAction Stop
-    Import-Module $resolvedPath -Force
-}
-catch {
-    Write-Error "Failed to import Common-ScriptHelpers module from: $modulePath"
-    Write-Error "Please ensure the script is run from the correct directory or the module path is correct."
-    exit 1
-}
+# Import the common helpers
+Import-Module (Join-Path -Path (Split-Path -Parent $PSScriptRoot) -ChildPath "Common-ScriptHelpers.psm1") -Force
 
 # Perform standard initialization
 Invoke-StandardScriptInitialization
@@ -103,7 +93,7 @@ $customReplacements = @{
 # Create the document using standardized process
 try {
     # Use DirectoryType for ID registry-based directory resolution
-    $documentId = New-StandardProjectDocument -TemplatePath "../../test-audits/../../../test-audits/doc/process-framework/templates/templates/test-audit-report-template.md" -IdPrefix "PF-TAR" -IdDescription "Test Audit Report for Feature $FeatureId" -DocumentName "audit-report-$FeatureId-$TestFileId" -DirectoryType $featureCategory -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
+    $documentId = New-StandardProjectDocument -TemplatePath "doc/process-framework/templates/templates/test-audit-report-template.md" -IdPrefix "PF-TAR" -IdDescription "Test Audit Report for Feature $FeatureId" -DocumentName "audit-report-$FeatureId-$TestFileId" -DirectoryType $featureCategory -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
 
     # Provide success details
     $details = @(

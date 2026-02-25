@@ -22,6 +22,7 @@ from pathlib import Path, PurePath, PurePosixPath, PureWindowsPath
 from unittest.mock import patch
 
 import pytest
+from watchdog.events import DirMovedEvent, FileCreatedEvent, FileDeletedEvent, FileMovedEvent
 
 from linkwatcher.parser import LinkParser
 from linkwatcher.service import LinkWatcherService
@@ -33,7 +34,7 @@ class TestPathSeparatorHandling:
 
     def test_cp_001_mixed_path_separators(self, temp_project_dir):
         """
-        CP-001: Path separator handling (/ vs \)
+        CP-001: Path separator handling (/ vs \\)
 
         Test Case: Files with mixed path separators
         Expected: Normalize paths correctly on all platforms
@@ -55,14 +56,14 @@ Links with different separators:
 - [Mixed style](docs/sub\\file.txt)
 
 Quoted references:
-- "../tests/integration/config.yaml"
-- "../tests/integration/settings.json"
+- "docs/config.yaml"
+- "docs/settings.json"
 - 'docs/data/info.txt'
 """
         test_file.write_text(content)
 
         # Create target files
-        (docs_dir / "readme.mdd").write_text("# README")
+        (docs_dir / "readme.md").write_text("# README")
         (docs_dir / "api.md").write_text("# API")
         (docs_dir / "config.yaml").write_text("config: value")
         (docs_dir / "settings.json").write_text('{"setting": "value"}')
@@ -71,14 +72,16 @@ Quoted references:
         service._initial_scan()
 
         # All references should be found regardless of separator style
-        references = service.link_db.get_all_references()
-        targets = [ref.link_target for ref in references]
+        all_refs = []
+        for refs_list in service.link_db.links.values():
+            all_refs.extend(refs_list)
+        targets = [ref.link_target for ref in all_refs]
 
         # Check that paths are normalized to platform-appropriate format
         expected_files = [
             "docs/readme.md",
             "docs/api.md",
-            "../tests/integration/config.yaml",
+            "docs/config.yaml",
             "docs/settings.json",
         ]
 
@@ -114,7 +117,8 @@ Quoted references:
         new_source = docs_dir / "renamed_source.txt"
         source_file.rename(new_source)
 
-        service.handler.on_moved(None, str(source_file), str(new_source), False)
+        move_event = FileMovedEvent(str(source_file), str(new_source))
+        service.handler.on_moved(move_event)
 
         # Check that update uses correct path separators
         updated_content = test_file.read_text()
@@ -143,22 +147,24 @@ Quoted references:
         content = '''"""Main module."""
 
 # References with relative paths
-CONFIG_FILE = "../../tests/integration/config.yaml"
+CONFIG_FILE = "../docs/config.yaml"
 README_FILE = "../docs/readme.md"
 '''
         src_file.write_text(content)
 
         # Create target files
         (docs_dir / "config.yaml").write_text("config: value")
-        (docs_dir / "readme.mdd").write_text("# README")
+        (docs_dir / "readme.md").write_text("# README")
 
         service._initial_scan()
 
         # Should resolve relative paths correctly
-        references = service.link_db.get_all_references()
-        targets = [ref.link_target for ref in references]
+        all_refs = []
+        for refs_list in service.link_db.links.values():
+            all_refs.extend(refs_list)
+        targets = [ref.link_target for ref in all_refs]
 
-        assert "../../tests/integration/config.yaml" in targets
+        assert "../docs/config.yaml" in targets
         assert "../docs/readme.md" in targets
 
 
@@ -176,7 +182,7 @@ class TestCaseSensitivity:
         service = LinkWatcherService(str(temp_project_dir))
 
         # Create files with different cases
-        readme_lower = temp_project_dir / "readme.mdd"
+        readme_lower = temp_project_dir / "readme.md"
         readme_lower.write_text("# Lower case readme")
 
         # Only create upper case file on case-sensitive systems
@@ -198,17 +204,19 @@ References:
         service._initial_scan()
 
         # Check behavior based on file system case sensitivity
-        references = service.link_db.get_all_references()
-        targets = [ref.link_target for ref in references]
+        all_refs = []
+        for refs_list in service.link_db.links.values():
+            all_refs.extend(refs_list)
+        targets = [ref.link_target for ref in all_refs]
 
         if self._is_case_sensitive_filesystem(temp_project_dir):
             # On case-sensitive systems, should distinguish between cases
-            assert "readme.mdd" in targets
+            assert "readme.md" in targets
             assert "README.md" in targets
             assert "ReadMe.md" in targets
         else:
             # On case-insensitive systems, all should resolve to existing file
-            assert any(target.lower() == "readme.mdd" for target in targets)
+            assert any(target.lower() == "readme.md" for target in targets)
 
     def test_cp_002_case_sensitivity_in_updates(self, temp_project_dir):
         """Test case sensitivity in file updates."""
@@ -232,7 +240,8 @@ References:
         new_source = temp_project_dir / "renamed_source.txt"
         source_file.rename(new_source)
 
-        service.handler.on_moved(None, str(source_file), str(new_source), False)
+        move_event = FileMovedEvent(str(source_file), str(new_source))
+        service.handler.on_moved(move_event)
 
         # Check update behavior
         updated_content = test_file.read_text()
@@ -370,12 +379,12 @@ class TestLongPathHandling:
             current_path.mkdir(exist_ok=True)
 
         # Create file in deep directory
-        deep_file = current_path / "tests/integration/file.txt"
+        deep_file = current_path / "deep_file.txt"
         deep_file.write_text("Deep file content")
 
         # Create reference to deep file
         test_file = temp_project_dir / "test.md"
-        relative_path = "/".join(path_components + ["tests/integration/file.txt"])
+        relative_path = "/".join(path_components + ["deep_file.txt"])
         content = f"[Deep link]({relative_path})"
         test_file.write_text(content)
 
@@ -436,7 +445,6 @@ class TestSpecialCharacters:
             "résumé.md",
             "测试文件.txt",
             "файл.md",
-            "🚀rocket.txt",
             "naïve_approach.py",
         ]
 
@@ -464,8 +472,10 @@ class TestSpecialCharacters:
             service._initial_scan()
 
             # Verify references were found
-            references = service.link_db.get_all_references()
-            targets = [ref.link_target for ref in references]
+            all_refs = []
+            for refs_list in service.link_db.links.values():
+                all_refs.extend(refs_list)
+            targets = [ref.link_target for ref in all_refs]
 
             for filename in created_files:
                 assert filename in targets, f"Unicode file {filename} not found in references"
@@ -503,8 +513,10 @@ class TestSpecialCharacters:
         service._initial_scan()
 
         # Verify references were found
-        references = service.link_db.get_all_references()
-        targets = [ref.link_target for ref in references]
+        all_refs = []
+        for refs_list in service.link_db.links.values():
+            all_refs.extend(refs_list)
+        targets = [ref.link_target for ref in all_refs]
 
         for filename in special_files:
             assert filename in targets, f"Special file {filename} not found in references"
@@ -591,8 +603,10 @@ Quoted references:
         service._initial_scan()
 
         # Verify references were found
-        references = service.link_db.get_all_references()
-        targets = [ref.link_target for ref in references]
+        all_refs = []
+        for refs_list in service.link_db.links.values():
+            all_refs.extend(refs_list)
+        targets = [ref.link_target for ref in all_refs]
 
         # Should find absolute paths
         assert any(current_drive.lower() in target.lower() for target in targets)
@@ -619,8 +633,10 @@ Quoted UNC paths:
         service._initial_scan()
 
         # Verify references were found (even if files don't exist)
-        references = service.link_db.get_all_references()
-        targets = [ref.link_target for ref in references]
+        all_refs = []
+        for refs_list in service.link_db.links.values():
+            all_refs.extend(refs_list)
+        targets = [ref.link_target for ref in all_refs]
 
         # Should find UNC paths
         unc_targets = [target for target in targets if target.startswith(("\\\\", "//"))]

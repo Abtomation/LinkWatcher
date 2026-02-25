@@ -430,7 +430,7 @@ After completing any task, use our **hybrid feedback approach**:
    ./New-FeedbackForm.ps1 -DocumentId "PF-TSK-XXX" -TaskContext "Task Name" -FeedbackType "MultipleTools"
    ```
 
-   **FeedbackType options**: `"SingleTool"`, `"MultipleTools"`, `"TaskLevel"` (no spaces or hyphens)
+   **FeedbackType options**: `"SingleTool"`, `"MultipleTools"`, `"TaskLevel"` (also accepts `"Single Tool"`, `"Multiple Tools"`, `"Task-Level"`)
 
 2. **Choose evaluation mode** in the enhanced template:
 

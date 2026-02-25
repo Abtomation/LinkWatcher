@@ -6,7 +6,8 @@ version: 1.0
 created: 2026-02-20
 updated: 2026-02-20
 feature_id: 2.2.1
-feature_name: Link Updater
+feature_name: Link Updating
+consolidates: [2.2.1-2.2.5]
 tier: 2
 retrospective: true
 ---
@@ -15,7 +16,9 @@ retrospective: true
 
 > **Retrospective Document**: This TDD describes the existing implemented architecture of the LinkWatcher Link Updater, documented after implementation during framework onboarding (PF-TSK-066).
 >
-> **Source**: Derived from [2.2.1 Implementation State](../../../../process-framework/state-tracking/features/2.2.1-link-updater-implementation-state.md) and source code analysis of `linkwatcher/updater.py`.
+> **Source**: Derived from source code analysis of `linkwatcher/updater.py`.
+>
+> **Scope Note**: This feature consolidates old 2.2.1 (Link Updater) with all sub-features: 2.2.2 (Relative Path Calculation), 2.2.3 (Anchor Preservation), 2.2.4 (Dry Run Mode), and 2.2.5 (Backup Creation).
 
 ## Technical Overview
 

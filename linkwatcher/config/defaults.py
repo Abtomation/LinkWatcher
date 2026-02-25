@@ -62,6 +62,7 @@ DEFAULT_CONFIG = LinkWatcherConfig(
         "target",  # Rust/Java build target
         "bin",  # Binary files
         "obj",  # Object files
+        "tests",  # Test files (prevent self-corruption)
     },
     # Parser settings - all enabled by default
     enable_markdown_parser=True,

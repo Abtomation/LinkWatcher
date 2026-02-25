@@ -1,0 +1,673 @@
+
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Dependency Map</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 20px;
+            }
+            .tree {
+                margin-left: 20px;
+            }
+            .file {
+                margin: 10px 0;
+                cursor: pointer;
+                border: 1px solid #ddd;
+                padding: 8px;
+                border-radius: 4px;
+                background-color: #f9f9f9;
+            }
+            .dependencies {
+                margin-left: 20px;
+                display: none;
+                padding: 10px;
+                border-left: 2px solid #ddd;
+            }
+            .toggle {
+                cursor: pointer;
+                color: blue;
+                text-decoration: underline;
+                margin-right: 5px;
+            }
+            .search {
+                margin-bottom: 20px;
+            }
+            #searchInput {
+                padding: 5px;
+                width: 300px;
+            }
+            .highlight {
+                background-color: #ffffcc;
+            }
+            .unused-file {
+                background-color: #ffdddd;
+                border-color: #ff9999;
+            }
+            .section-title {
+                font-weight: bold;
+                margin-top: 10px;
+                margin-bottom: 5px;
+                color: #333;
+            }
+            .dependency-item {
+                margin: 3px 0;
+                padding: 3px;
+            }
+            .imports {
+                color: #0066cc;
+            }
+            .imported-by {
+                color: #cc6600;
+            }
+            .tab-container {
+                margin-bottom: 20px;
+            }
+            .tab {
+                display: inline-block;
+                padding: 8px 16px;
+                cursor: pointer;
+                background-color: #f1f1f1;
+                border: 1px solid #ccc;
+                border-bottom: none;
+                border-radius: 4px 4px 0 0;
+            }
+            .tab.active {
+                background-color: #fff;
+                border-bottom: 1px solid #fff;
+                margin-bottom: -1px;
+                position: relative;
+            }
+            .tab-content {
+                display: none;
+                padding: 15px;
+                border: 1px solid #ccc;
+                border-radius: 0 4px 4px 4px;
+            }
+            .tab-content.active {
+                display: block;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Dependency Map</h1>
+
+        <div class="search">
+            <input type="text" id="searchInput" placeholder="Search for files...">
+            <button onclick="search()">Search</button>
+            <button onclick="expandAll()">Expand All</button>
+            <button onclick="collapseAll()">Collapse All</button>
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <div style="display: inline-block; margin-right: 20px;">
+                <span style="display: inline-block; width: 15px; height: 15px; background-color: #ffdddd; border: 1px solid #ff9999; margin-right: 5px;"></span>
+                <span>Unused Files (potentially dead code)</span>
+            </div>
+        </div>
+
+        <div class="tab-container">
+            <div class="tab active" onclick="switchTab('fileView')">File View</div>
+            <div class="tab" onclick="switchTab('dependencyMatrix')">Dependency Matrix</div>
+        </div>
+
+        <div id="fileView" class="tab-content active">
+            <div class="tree" id="tree">
+
+        <div class="file unused-file" id="__init__.py">
+            <span class="toggle" onclick="toggle(this)">[+]</span>
+            <span>__init__.py [UNUSED]</span> (5 relationships: 5 imports, 0 imported by)
+            <div class="dependencies">
+        <div class="section-title imports">Files this file imports:</div>
+<div class="dependency-item imports">database.py</div>
+<div class="dependency-item imports">models.py</div>
+<div class="dependency-item imports">parser.py</div>
+<div class="dependency-item imports">service.py</div>
+<div class="dependency-item imports">updater.py</div>
+<div class="section-title imported-by">Files that import this file:</div>
+<div class="dependency-item">Not imported by any file</div>
+
+            </div>
+        </div>
+
+        <div class="file unused-file" id="config\__init__.py">
+            <span class="toggle" onclick="toggle(this)">[+]</span>
+            <span>config\__init__.py [UNUSED]</span> (2 relationships: 2 imports, 0 imported by)
+            <div class="dependencies">
+        <div class="section-title imports">Files this file imports:</div>
+<div class="dependency-item imports">config\defaults.py</div>
+<div class="dependency-item imports">config\settings.py</div>
+<div class="section-title imported-by">Files that import this file:</div>
+<div class="dependency-item">Not imported by any file</div>
+
+            </div>
+        </div>
+
+        <div class="file " id="config\defaults.py">
+            <span class="toggle" onclick="toggle(this)">[+]</span>
+            <span>config\defaults.py</span> (2 relationships: 1 imports, 1 imported by)
+            <div class="dependencies">
+        <div class="section-title imports">Files this file imports:</div>
+<div class="dependency-item imports">config\settings.py</div>
+<div class="section-title imported-by">Files that import this file:</div>
+<div class="dependency-item imported-by">config\__init__.py</div>
+
+            </div>
+        </div>
+
+        <div class="file " id="config\settings.py">
+            <span class="toggle" onclick="toggle(this)">[+]</span>
+            <span>config\settings.py</span> (2 relationships: 0 imports, 2 imported by)
+            <div class="dependencies">
+        <div class="section-title imports">Files this file imports:</div>
+<div class="dependency-item">No imports</div>
+<div class="section-title imported-by">Files that import this file:</div>
+<div class="dependency-item imported-by">config\__init__.py</div>
+<div class="dependency-item imported-by">config\defaults.py</div>
+
+            </div>
+        </div>
+
+        <div class="file " id="database.py">
+            <span class="toggle" onclick="toggle(this)">[+]</span>
+            <span>database.py</span> (4 relationships: 1 imports, 3 imported by)
+            <div class="dependencies">
+        <div class="section-title imports">Files this file imports:</div>
+<div class="dependency-item imports">models.py</div>
+<div class="section-title imported-by">Files that import this file:</div>
+<div class="dependency-item imported-by">__init__.py</div>
+<div class="dependency-item imported-by">handler.py</div>
+<div class="dependency-item imported-by">service.py</div>
+
+            </div>
+        </div>
+
+        <div class="file " id="handler.py">
+            <span class="toggle" onclick="toggle(this)">[+]</span>
+            <span>handler.py</span> (6 relationships: 5 imports, 1 imported by)
+            <div class="dependencies">
+        <div class="section-title imports">Files this file imports:</div>
+<div class="dependency-item imports">database.py</div>
+<div class="dependency-item imports">models.py</div>
+<div class="dependency-item imports">parser.py</div>
+<div class="dependency-item imports">updater.py</div>
+<div class="dependency-item imports">utils.py</div>
+<div class="section-title imported-by">Files that import this file:</div>
+<div class="dependency-item imported-by">service.py</div>
+
+            </div>
+        </div>
+
+        <div class="file unused-file" id="logging.py">
+            <span class="toggle" onclick="toggle(this)">[+]</span>
+            <span>logging.py [UNUSED]</span> (0 relationships: 0 imports, 0 imported by)
+            <div class="dependencies">
+        <div class="section-title imports">Files this file imports:</div>
+<div class="dependency-item">No imports</div>
+<div class="section-title imported-by">Files that import this file:</div>
+<div class="dependency-item">Not imported by any file</div>
+
+            </div>
+        </div>
+
+        <div class="file unused-file" id="logging_config.py">
+            <span class="toggle" onclick="toggle(this)">[+]</span>
+            <span>logging_config.py [UNUSED]</span> (0 relationships: 0 imports, 0 imported by)
+            <div class="dependencies">
+        <div class="section-title imports">Files this file imports:</div>
+<div class="dependency-item">No imports</div>
+<div class="section-title imported-by">Files that import this file:</div>
+<div class="dependency-item">Not imported by any file</div>
+
+            </div>
+        </div>
+
+        <div class="file " id="models.py">
+            <span class="toggle" onclick="toggle(this)">[+]</span>
+            <span>models.py</span> (12 relationships: 0 imports, 12 imported by)
+            <div class="dependencies">
+        <div class="section-title imports">Files this file imports:</div>
+<div class="dependency-item">No imports</div>
+<div class="section-title imported-by">Files that import this file:</div>
+<div class="dependency-item imported-by">__init__.py</div>
+<div class="dependency-item imported-by">database.py</div>
+<div class="dependency-item imported-by">handler.py</div>
+<div class="dependency-item imported-by">parser.py</div>
+<div class="dependency-item imported-by">parsers\base.py</div>
+<div class="dependency-item imported-by">parsers\dart.py</div>
+<div class="dependency-item imported-by">parsers\generic.py</div>
+<div class="dependency-item imported-by">parsers\json_parser.py</div>
+<div class="dependency-item imported-by">parsers\markdown.py</div>
+<div class="dependency-item imported-by">parsers\python.py</div>
+<div class="dependency-item imported-by">parsers\yaml_parser.py</div>
+<div class="dependency-item imported-by">updater.py</div>
+
+            </div>
+        </div>
+
+        <div class="file " id="parser.py">
+            <span class="toggle" onclick="toggle(this)">[+]</span>
+            <span>parser.py</span> (5 relationships: 2 imports, 3 imported by)
+            <div class="dependencies">
+        <div class="section-title imports">Files this file imports:</div>
+<div class="dependency-item imports">models.py</div>
+<div class="dependency-item imports">parsers\__init__.py</div>
+<div class="section-title imported-by">Files that import this file:</div>
+<div class="dependency-item imported-by">__init__.py</div>
+<div class="dependency-item imported-by">handler.py</div>
+<div class="dependency-item imported-by">service.py</div>
+
+            </div>
+        </div>
+
+        <div class="file " id="parsers\__init__.py">
+            <span class="toggle" onclick="toggle(this)">[+]</span>
+            <span>parsers\__init__.py</span> (8 relationships: 7 imports, 1 imported by)
+            <div class="dependencies">
+        <div class="section-title imports">Files this file imports:</div>
+<div class="dependency-item imports">parsers\base.py</div>
+<div class="dependency-item imports">parsers\dart.py</div>
+<div class="dependency-item imports">parsers\generic.py</div>
+<div class="dependency-item imports">parsers\json_parser.py</div>
+<div class="dependency-item imports">parsers\markdown.py</div>
+<div class="dependency-item imports">parsers\python.py</div>
+<div class="dependency-item imports">parsers\yaml_parser.py</div>
+<div class="section-title imported-by">Files that import this file:</div>
+<div class="dependency-item imported-by">parser.py</div>
+
+            </div>
+        </div>
+
+        <div class="file " id="parsers\base.py">
+            <span class="toggle" onclick="toggle(this)">[+]</span>
+            <span>parsers\base.py</span> (9 relationships: 2 imports, 7 imported by)
+            <div class="dependencies">
+        <div class="section-title imports">Files this file imports:</div>
+<div class="dependency-item imports">models.py</div>
+<div class="dependency-item imports">utils.py</div>
+<div class="section-title imported-by">Files that import this file:</div>
+<div class="dependency-item imported-by">parsers\__init__.py</div>
+<div class="dependency-item imported-by">parsers\dart.py</div>
+<div class="dependency-item imported-by">parsers\generic.py</div>
+<div class="dependency-item imported-by">parsers\json_parser.py</div>
+<div class="dependency-item imported-by">parsers\markdown.py</div>
+<div class="dependency-item imported-by">parsers\python.py</div>
+<div class="dependency-item imported-by">parsers\yaml_parser.py</div>
+
+            </div>
+        </div>
+
+        <div class="file " id="parsers\dart.py">
+            <span class="toggle" onclick="toggle(this)">[+]</span>
+            <span>parsers\dart.py</span> (3 relationships: 2 imports, 1 imported by)
+            <div class="dependencies">
+        <div class="section-title imports">Files this file imports:</div>
+<div class="dependency-item imports">models.py</div>
+<div class="dependency-item imports">parsers\base.py</div>
+<div class="section-title imported-by">Files that import this file:</div>
+<div class="dependency-item imported-by">parsers\__init__.py</div>
+
+            </div>
+        </div>
+
+        <div class="file " id="parsers\generic.py">
+            <span class="toggle" onclick="toggle(this)">[+]</span>
+            <span>parsers\generic.py</span> (5 relationships: 2 imports, 3 imported by)
+            <div class="dependencies">
+        <div class="section-title imports">Files this file imports:</div>
+<div class="dependency-item imports">models.py</div>
+<div class="dependency-item imports">parsers\base.py</div>
+<div class="section-title imported-by">Files that import this file:</div>
+<div class="dependency-item imported-by">parsers\__init__.py</div>
+<div class="dependency-item imported-by">parsers\json_parser.py</div>
+<div class="dependency-item imported-by">parsers\yaml_parser.py</div>
+
+            </div>
+        </div>
+
+        <div class="file " id="parsers\json_parser.py">
+            <span class="toggle" onclick="toggle(this)">[+]</span>
+            <span>parsers\json_parser.py</span> (4 relationships: 3 imports, 1 imported by)
+            <div class="dependencies">
+        <div class="section-title imports">Files this file imports:</div>
+<div class="dependency-item imports">models.py</div>
+<div class="dependency-item imports">parsers\base.py</div>
+<div class="dependency-item imports">parsers\generic.py</div>
+<div class="section-title imported-by">Files that import this file:</div>
+<div class="dependency-item imported-by">parsers\__init__.py</div>
+
+            </div>
+        </div>
+
+        <div class="file " id="parsers\markdown.py">
+            <span class="toggle" onclick="toggle(this)">[+]</span>
+            <span>parsers\markdown.py</span> (3 relationships: 2 imports, 1 imported by)
+            <div class="dependencies">
+        <div class="section-title imports">Files this file imports:</div>
+<div class="dependency-item imports">models.py</div>
+<div class="dependency-item imports">parsers\base.py</div>
+<div class="section-title imported-by">Files that import this file:</div>
+<div class="dependency-item imported-by">parsers\__init__.py</div>
+
+            </div>
+        </div>
+
+        <div class="file " id="parsers\python.py">
+            <span class="toggle" onclick="toggle(this)">[+]</span>
+            <span>parsers\python.py</span> (3 relationships: 2 imports, 1 imported by)
+            <div class="dependencies">
+        <div class="section-title imports">Files this file imports:</div>
+<div class="dependency-item imports">models.py</div>
+<div class="dependency-item imports">parsers\base.py</div>
+<div class="section-title imported-by">Files that import this file:</div>
+<div class="dependency-item imported-by">parsers\__init__.py</div>
+
+            </div>
+        </div>
+
+        <div class="file " id="parsers\yaml_parser.py">
+            <span class="toggle" onclick="toggle(this)">[+]</span>
+            <span>parsers\yaml_parser.py</span> (4 relationships: 3 imports, 1 imported by)
+            <div class="dependencies">
+        <div class="section-title imports">Files this file imports:</div>
+<div class="dependency-item imports">models.py</div>
+<div class="dependency-item imports">parsers\base.py</div>
+<div class="dependency-item imports">parsers\generic.py</div>
+<div class="section-title imported-by">Files that import this file:</div>
+<div class="dependency-item imported-by">parsers\__init__.py</div>
+
+            </div>
+        </div>
+
+        <div class="file " id="service.py">
+            <span class="toggle" onclick="toggle(this)">[+]</span>
+            <span>service.py</span> (5 relationships: 4 imports, 1 imported by)
+            <div class="dependencies">
+        <div class="section-title imports">Files this file imports:</div>
+<div class="dependency-item imports">database.py</div>
+<div class="dependency-item imports">handler.py</div>
+<div class="dependency-item imports">parser.py</div>
+<div class="dependency-item imports">updater.py</div>
+<div class="section-title imported-by">Files that import this file:</div>
+<div class="dependency-item imported-by">__init__.py</div>
+
+            </div>
+        </div>
+
+        <div class="file " id="updater.py">
+            <span class="toggle" onclick="toggle(this)">[+]</span>
+            <span>updater.py</span> (4 relationships: 1 imports, 3 imported by)
+            <div class="dependencies">
+        <div class="section-title imports">Files this file imports:</div>
+<div class="dependency-item imports">models.py</div>
+<div class="section-title imported-by">Files that import this file:</div>
+<div class="dependency-item imported-by">__init__.py</div>
+<div class="dependency-item imported-by">handler.py</div>
+<div class="dependency-item imported-by">service.py</div>
+
+            </div>
+        </div>
+
+        <div class="file " id="utils.py">
+            <span class="toggle" onclick="toggle(this)">[+]</span>
+            <span>utils.py</span> (2 relationships: 0 imports, 2 imported by)
+            <div class="dependencies">
+        <div class="section-title imports">Files this file imports:</div>
+<div class="dependency-item">No imports</div>
+<div class="section-title imported-by">Files that import this file:</div>
+<div class="dependency-item imported-by">handler.py</div>
+<div class="dependency-item imported-by">parsers\base.py</div>
+
+            </div>
+        </div>
+
+            </div>
+        </div>
+
+        <div id="dependencyMatrix" class="tab-content">
+            <div class="matrix-container">
+                <table id="dependencyTable" border="1" cellspacing="0" cellpadding="5" style="border-collapse: collapse;">
+                    <thead>
+                        <tr>
+                            <th>File</th>
+                            <th>Imports</th>
+                            <th>Imported By</th>
+                            <th>Total Relationships</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        <tr class="unused-file">
+                            <td>__init__.py [UNUSED]</td>
+                            <td>5</td>
+                            <td>0</td>
+                            <td>5</td>
+                        </tr>
+
+                        <tr class="unused-file">
+                            <td>config\__init__.py [UNUSED]</td>
+                            <td>2</td>
+                            <td>0</td>
+                            <td>2</td>
+                        </tr>
+
+                        <tr >
+                            <td>config\defaults.py</td>
+                            <td>1</td>
+                            <td>1</td>
+                            <td>2</td>
+                        </tr>
+
+                        <tr >
+                            <td>config\settings.py</td>
+                            <td>0</td>
+                            <td>2</td>
+                            <td>2</td>
+                        </tr>
+
+                        <tr >
+                            <td>database.py</td>
+                            <td>1</td>
+                            <td>3</td>
+                            <td>4</td>
+                        </tr>
+
+                        <tr >
+                            <td>handler.py</td>
+                            <td>5</td>
+                            <td>1</td>
+                            <td>6</td>
+                        </tr>
+
+                        <tr class="unused-file">
+                            <td>logging.py [UNUSED]</td>
+                            <td>0</td>
+                            <td>0</td>
+                            <td>0</td>
+                        </tr>
+
+                        <tr class="unused-file">
+                            <td>logging_config.py [UNUSED]</td>
+                            <td>0</td>
+                            <td>0</td>
+                            <td>0</td>
+                        </tr>
+
+                        <tr >
+                            <td>models.py</td>
+                            <td>0</td>
+                            <td>12</td>
+                            <td>12</td>
+                        </tr>
+
+                        <tr >
+                            <td>parser.py</td>
+                            <td>2</td>
+                            <td>3</td>
+                            <td>5</td>
+                        </tr>
+
+                        <tr >
+                            <td>parsers\__init__.py</td>
+                            <td>7</td>
+                            <td>1</td>
+                            <td>8</td>
+                        </tr>
+
+                        <tr >
+                            <td>parsers\base.py</td>
+                            <td>2</td>
+                            <td>7</td>
+                            <td>9</td>
+                        </tr>
+
+                        <tr >
+                            <td>parsers\dart.py</td>
+                            <td>2</td>
+                            <td>1</td>
+                            <td>3</td>
+                        </tr>
+
+                        <tr >
+                            <td>parsers\generic.py</td>
+                            <td>2</td>
+                            <td>3</td>
+                            <td>5</td>
+                        </tr>
+
+                        <tr >
+                            <td>parsers\json_parser.py</td>
+                            <td>3</td>
+                            <td>1</td>
+                            <td>4</td>
+                        </tr>
+
+                        <tr >
+                            <td>parsers\markdown.py</td>
+                            <td>2</td>
+                            <td>1</td>
+                            <td>3</td>
+                        </tr>
+
+                        <tr >
+                            <td>parsers\python.py</td>
+                            <td>2</td>
+                            <td>1</td>
+                            <td>3</td>
+                        </tr>
+
+                        <tr >
+                            <td>parsers\yaml_parser.py</td>
+                            <td>3</td>
+                            <td>1</td>
+                            <td>4</td>
+                        </tr>
+
+                        <tr >
+                            <td>service.py</td>
+                            <td>4</td>
+                            <td>1</td>
+                            <td>5</td>
+                        </tr>
+
+                        <tr >
+                            <td>updater.py</td>
+                            <td>1</td>
+                            <td>3</td>
+                            <td>4</td>
+                        </tr>
+
+                        <tr >
+                            <td>utils.py</td>
+                            <td>0</td>
+                            <td>2</td>
+                            <td>2</td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <script>
+            function toggle(element) {
+                var dependencies = element.parentElement.querySelector('.dependencies');
+                if (dependencies.style.display === 'block') {
+                    dependencies.style.display = 'none';
+                    element.textContent = '[+]';
+                } else {
+                    dependencies.style.display = 'block';
+                    element.textContent = '[-]';
+                }
+            }
+
+            function search() {
+                var searchText = document.getElementById('searchInput').value.toLowerCase();
+                var files = document.querySelectorAll('.file');
+
+                // Remove all highlights
+                var highlights = document.querySelectorAll('.highlight');
+                highlights.forEach(function(element) {
+                    element.classList.remove('highlight');
+                });
+
+                if (searchText.trim() === '') {
+                    return;
+                }
+
+                files.forEach(function(file) {
+                    var fileText = file.textContent.toLowerCase();
+                    if (fileText.includes(searchText)) {
+                        file.classList.add('highlight');
+
+                        // Expand the file
+                        var toggle = file.querySelector('.toggle');
+                        var dependencies = file.querySelector('.dependencies');
+                        dependencies.style.display = 'block';
+                        toggle.textContent = '[-]';
+
+                        // Scroll to the first match
+                        if (file === document.querySelector('.highlight')) {
+                            file.scrollIntoView();
+                        }
+                    }
+                });
+            }
+
+            function expandAll() {
+                var toggles = document.querySelectorAll('.toggle');
+                toggles.forEach(function(toggle) {
+                    var dependencies = toggle.parentElement.querySelector('.dependencies');
+                    dependencies.style.display = 'block';
+                    toggle.textContent = '[-]';
+                });
+            }
+
+            function collapseAll() {
+                var toggles = document.querySelectorAll('.toggle');
+                toggles.forEach(function(toggle) {
+                    var dependencies = toggle.parentElement.querySelector('.dependencies');
+                    dependencies.style.display = 'none';
+                    toggle.textContent = '[+]';
+                });
+            }
+
+            function switchTab(tabId) {
+                // Hide all tab contents
+                document.querySelectorAll('.tab-content').forEach(function(content) {
+                    content.classList.remove('active');
+                });
+
+                // Deactivate all tabs
+                document.querySelectorAll('.tab').forEach(function(tab) {
+                    tab.classList.remove('active');
+                });
+
+                // Activate the selected tab and content
+                document.getElementById(tabId).classList.add('active');
+                document.querySelector('.tab[onclick="switchTab(\''+tabId+'\')"]').classList.add('active');
+            }
+        </script>
+    </body>
+    </html>

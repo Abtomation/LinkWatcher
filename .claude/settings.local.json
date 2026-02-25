@@ -3,7 +3,13 @@
     "allow": [
       "Bash(git add:*)",
       "Bash(/c/Users/ronny/VS_Code/LinkWatcher/temp_test_script.ps1:*)",
-      "Bash(pwsh.exe -ExecutionPolicy Bypass -File /c/Users/ronny/VS_Code/LinkWatcher/temp_test_script.ps1)"
+      "Bash(pwsh.exe -ExecutionPolicy Bypass -File /c/Users/ronny/VS_Code/LinkWatcher/temp_test_script.ps1)",
+      "Bash(ls:*)",
+      "Bash(/c/Users/ronny/VS_Code/LinkWatcher/temp_validate.ps1:*)",
+      "Bash(pwsh.exe -ExecutionPolicy Bypass -File /c/Users/ronny/VS_Code/LinkWatcher/temp_validate.ps1)",
+      "Bash(python -m pytest tests/unit/test_updater.py -v)",
+      "Bash(/c/Users/ronny/VS_Code/LinkWatcher/temp_feedback.ps1:*)",
+      "Bash(pwsh.exe -ExecutionPolicy Bypass -File /c/Users/ronny/VS_Code/LinkWatcher/temp_feedback.ps1)"
     ]
   }
 }

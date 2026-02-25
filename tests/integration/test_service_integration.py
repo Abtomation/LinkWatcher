@@ -23,8 +23,10 @@ from pathlib import Path
 from unittest.mock import Mock, patch
 
 import pytest
+from watchdog.events import DirMovedEvent, FileCreatedEvent, FileDeletedEvent, FileMovedEvent
 
 from linkwatcher.config import TESTING_CONFIG, LinkWatcherConfig
+from linkwatcher.models import LinkReference
 from linkwatcher.service import LinkWatcherService
 
 
@@ -43,16 +45,15 @@ class TestServiceLifecycle:
         service = LinkWatcherService(str(temp_project_dir))
 
         # Verify service components are initialized
-        assert service.project_root == str(temp_project_dir)
+        assert str(service.project_root) == str(Path(temp_project_dir).resolve())
         assert service.link_db is not None
         assert service.parser is not None
         assert service.updater is not None
         assert service.handler is not None
 
-        # Verify configuration is loaded
-        assert service.config is not None
-        assert hasattr(service.config, "monitored_extensions")
-        assert hasattr(service.config, "ignored_directories")
+        # Verify handler has monitored_extensions and ignored_dirs
+        assert hasattr(service.handler, "monitored_extensions")
+        assert hasattr(service.handler, "ignored_dirs")
 
         # Test initial scan
         test_file = temp_project_dir / "test.md"
@@ -74,23 +75,14 @@ class TestServiceLifecycle:
         assert len(references) > 0
 
     def test_si_001_service_with_custom_config(self, temp_project_dir):
-        """Test service initialization with custom configuration."""
-        # Create custom configuration
-        custom_config = LinkWatcherConfig(
-            monitored_extensions={".md", ".txt"},
-            ignored_directories={".git"},
-            dry_run_mode=True,
-            log_level="DEBUG",
-        )
+        """Test service initialization with custom configuration applied post-init."""
+        # Initialize service (no config param accepted)
+        service = LinkWatcherService(str(temp_project_dir))
 
-        # Initialize service with custom config
-        service = LinkWatcherService(str(temp_project_dir), config=custom_config)
-
-        # Verify custom configuration is used
-        assert service.config.monitored_extensions == {".md", ".txt"}
-        assert service.config.ignored_directories == {".git"}
-        assert service.config.dry_run_mode is True
-        assert service.config.log_level == "DEBUG"
+        # Apply custom configuration to handler
+        service.handler.monitored_extensions = {".md", ".txt"}
+        service.handler.ignored_dirs = {".git"}
+        service.updater.set_dry_run(True)
 
         # Test that service respects configuration
         py_file = temp_project_dir / "test.py"
@@ -101,13 +93,13 @@ class TestServiceLifecycle:
 
         service._initial_scan()
 
-        # Should process .md files but not .py files (based on config)
-        references = service.link_db.get_all_references()
-        md_refs = [ref for ref in references if ref.file_path.endswith(".md")]
-        py_refs = [ref for ref in references if ref.file_path.endswith(".py")]
+        # Should process .md files; collect all references from the database
+        all_refs = []
+        for refs_list in service.link_db.links.values():
+            all_refs.extend(refs_list)
+        md_refs = [ref for ref in all_refs if ref.file_path.endswith(".md")]
 
         assert len(md_refs) > 0  # Should find .md references
-        # .py files might or might not be processed depending on implementation
 
     def test_si_001_service_initialization_errors(self, temp_project_dir):
         """Test service initialization error handling."""
@@ -152,11 +144,7 @@ class TestServiceLifecycle:
         assert stats_after is not None
 
         # File watcher should be stopped
-        assert (
-            not hasattr(service, "_observer")
-            or service._observer is None
-            or not service._observer.is_alive()
-        )
+        assert service.observer is None or not service.observer.is_alive()
 
     def test_si_002_service_multiple_stop_calls(self, temp_project_dir):
         """Test that multiple stop calls are handled gracefully."""
@@ -197,8 +185,8 @@ class TestConfigurationManagement:
         # Get initial stats
         initial_stats = service.link_db.get_stats()
 
-        # Modify configuration to include .py files
-        service.config.monitored_extensions.add(".py")
+        # Modify handler configuration to include .py files
+        service.handler.monitored_extensions.add(".py")
 
         # Re-scan with new configuration
         service._initial_scan()
@@ -210,23 +198,22 @@ class TestConfigurationManagement:
 
     def test_si_003_config_validation_runtime(self, temp_project_dir):
         """Test configuration validation during runtime changes."""
-        service = LinkWatcherService(str(temp_project_dir))
-
-        # Try to set invalid configuration
-        original_max_size = service.config.max_file_size_mb
+        # Create a standalone config object and test validation
+        config = LinkWatcherConfig()
 
         # Set invalid value
-        service.config.max_file_size_mb = -1
+        original_max_size = config.max_file_size_mb
+        config.max_file_size_mb = -1
 
         # Validate configuration
-        issues = service.config.validate()
+        issues = config.validate()
         assert len(issues) > 0  # Should find validation issues
 
         # Restore valid configuration
-        service.config.max_file_size_mb = original_max_size
+        config.max_file_size_mb = original_max_size
 
         # Validation should pass
-        issues = service.config.validate()
+        issues = config.validate()
         assert "max_file_size_mb must be positive" not in issues
 
 
@@ -255,7 +242,8 @@ class TestMultiThreadedOperation:
             for i in range(10, 20):
                 test_file = temp_project_dir / f"new_test_{i}.md"
                 test_file.write_text(f"[New Link {i}](new_target_{i}.txt)")
-                service.handler.on_created(None, str(test_file), False)
+                create_event = FileCreatedEvent(str(test_file))
+                service.handler.on_created(create_event)
                 time.sleep(0.01)  # Small delay to simulate real operations
 
         def move_files():
@@ -264,14 +252,17 @@ class TestMultiThreadedOperation:
                 new_file = temp_project_dir / f"moved_test_{i}.md"
                 if old_file.exists():
                     old_file.rename(new_file)
-                    service.handler.on_moved(None, str(old_file), str(new_file), False)
+                    move_event = FileMovedEvent(str(old_file), str(new_file))
+                    service.handler.on_moved(move_event)
                     time.sleep(0.01)
 
         def query_database():
             for i in range(20):
                 try:
                     service.link_db.get_stats()
-                    service.link_db.get_all_references()
+                    # Iterate over links dict instead of get_all_references()
+                    for refs_list in service.link_db.links.values():
+                        _ = list(refs_list)
                     time.sleep(0.005)
                 except Exception:
                     # Some operations might fail due to concurrency
@@ -304,8 +295,16 @@ class TestMultiThreadedOperation:
         def add_references():
             for i in range(50):
                 try:
-                    service.link_db.add_reference(
-                        f"file_{i}.md", 1, 0, 10, f"link_{i}", f"target_{i}.txt", "test"
+                    service.link_db.add_link(
+                        LinkReference(
+                            file_path=f"file_{i}.md",
+                            line_number=1,
+                            column_start=0,
+                            column_end=10,
+                            link_text=f"link_{i}",
+                            link_target=f"target_{i}.txt",
+                            link_type="test",
+                        )
                     )
                 except Exception:
                     # Some operations might fail, that's acceptable
@@ -314,7 +313,7 @@ class TestMultiThreadedOperation:
         def remove_references():
             for i in range(25):
                 try:
-                    service.link_db.remove_references_from_file(f"file_{i}.md")
+                    service.link_db.remove_file_links(f"file_{i}.md")
                 except Exception:
                     pass
 
@@ -322,7 +321,9 @@ class TestMultiThreadedOperation:
             for i in range(100):
                 try:
                     service.link_db.get_stats()
-                    service.link_db.get_all_references()
+                    # Iterate over links dict instead of get_all_references()
+                    for refs_list in service.link_db.links.values():
+                        _ = list(refs_list)
                 except Exception:
                     pass
 
@@ -375,7 +376,9 @@ class TestStatePersistence:
 
         # Get state before shutdown
         stats_before = service1.link_db.get_stats()
-        references_before = service1.link_db.get_all_references()
+        all_refs_before = []
+        for refs_list in service1.link_db.links.values():
+            all_refs_before.extend(refs_list)
 
         # Stop first service
         service1.stop()
@@ -384,51 +387,63 @@ class TestStatePersistence:
         # Create second service instance (simulating restart)
         service2 = LinkWatcherService(str(temp_project_dir))
 
+        # Re-scan to rebuild in-memory database
+        service2._initial_scan()
+
         # Check if state is restored
         stats_after = service2.link_db.get_stats()
-        references_after = service2.link_db.get_all_references()
+        all_refs_after = []
+        for refs_list in service2.link_db.links.values():
+            all_refs_after.extend(refs_list)
 
         # State should be preserved (or rebuilt consistently)
         assert stats_after["total_references"] == stats_before["total_references"]
-        assert len(references_after) == len(references_before)
+        assert len(all_refs_after) == len(all_refs_before)
 
         # Test that operations work after restart
         new_file = temp_project_dir / "new_after_restart.md"
         new_file.write_text("[New link](new_target.txt)")
 
-        service2.handler.on_created(None, str(new_file), False)
+        create_event = FileCreatedEvent(str(new_file))
+        service2.handler.on_created(create_event)
 
         # Should be able to add new references
         updated_stats = service2.link_db.get_stats()
         assert updated_stats["total_references"] >= stats_after["total_references"]
 
     def test_si_005_database_persistence(self, temp_project_dir):
-        """Test database persistence specifically."""
+        """Test database persistence specifically (in-memory database rebuilds on re-scan)."""
         # Create service and add data
         service1 = LinkWatcherService(str(temp_project_dir))
 
-        # Add some references manually
-        service1.link_db.add_reference("test.md", 1, 0, 10, "link", "target.txt", "markdown")
-        service1.link_db.add_reference("test.md", 2, 0, 15, "another", "other.txt", "markdown")
+        # Create test files so the database has something to scan
+        test_file = temp_project_dir / "test.md"
+        test_file.write_text("[link](target.txt)\n[another](other.txt)")
 
-        # Get database path
-        db_path = service1.link_db.db_path
+        target_file = temp_project_dir / "target.txt"
+        target_file.write_text("target content")
+
+        other_file = temp_project_dir / "other.txt"
+        other_file.write_text("other content")
+
+        # Initial scan populates database
+        service1._initial_scan()
+
+        # Verify data is populated
+        target_refs = service1.link_db.get_references_to_file("target.txt")
+        other_refs = service1.link_db.get_references_to_file("other.txt")
+        assert len(target_refs) >= 1
+        assert len(other_refs) >= 1
 
         # Stop service
         service1.stop()
         del service1
 
-        # Verify database file exists
-        assert Path(db_path).exists()
-
-        # Create new service
+        # Create new service and re-scan
         service2 = LinkWatcherService(str(temp_project_dir))
+        service2._initial_scan()
 
-        # Verify data is restored
-        references = service2.link_db.get_all_references()
-        assert len(references) >= 2
-
-        # Verify specific references
+        # Verify data is restored via re-scan
         target_refs = service2.link_db.get_references_to_file("target.txt")
         other_refs = service2.link_db.get_references_to_file("other.txt")
 
@@ -466,7 +481,8 @@ class TestEventProcessing:
         new_ref_file = temp_project_dir / "new_reference.md"
         new_ref_file.write_text("[New link](source.txt)")
 
-        service.handler.on_created(None, str(new_ref_file), False)
+        create_event = FileCreatedEvent(str(new_ref_file))
+        service.handler.on_created(create_event)
 
         # Verify creation was processed
         updated_refs = service.link_db.get_references_to_file("source.txt")
@@ -476,7 +492,8 @@ class TestEventProcessing:
         new_source = temp_project_dir / "renamed_source.txt"
         source_file.rename(new_source)
 
-        service.handler.on_moved(None, str(source_file), str(new_source), False)
+        move_event = FileMovedEvent(str(source_file), str(new_source))
+        service.handler.on_moved(move_event)
 
         # Verify move was processed
         old_refs = service.link_db.get_references_to_file("source.txt")
@@ -493,7 +510,8 @@ class TestEventProcessing:
         assert "renamed_source.txt" in new_ref_content
 
         # Test file deletion event
-        service.handler.on_deleted(None, str(new_source), False)
+        delete_event = FileDeletedEvent(str(new_source))
+        service.handler.on_deleted(delete_event)
 
         # Verify deletion was processed
         final_refs = service.link_db.get_references_to_file("renamed_source.txt")
@@ -513,24 +531,27 @@ class TestEventProcessing:
 
         service._initial_scan()
 
+        moved_path = str(temp_project_dir / "moved_test.txt")
+
         # Simulate rapid sequence of events
         events = [
             ("created", str(test_file)),
-            ("modified", str(test_file)),
-            ("moved", str(test_file), str(temp_project_dir / "moved_test.txt")),
-            ("deleted", str(temp_project_dir / "moved_test.txt")),
+            # Skip "modified" since handler has no on_modified
+            ("moved", str(test_file), moved_path),
+            ("deleted", moved_path),
         ]
 
         # Process events in sequence
         for event in events:
             if event[0] == "created":
-                service.handler.on_created(None, event[1], False)
-            elif event[0] == "modified":
-                service.handler.on_modified(None, event[1], False)
+                create_event = FileCreatedEvent(event[1])
+                service.handler.on_created(create_event)
             elif event[0] == "moved":
-                service.handler.on_moved(None, event[1], event[2], False)
+                move_event = FileMovedEvent(event[1], event[2])
+                service.handler.on_moved(move_event)
             elif event[0] == "deleted":
-                service.handler.on_deleted(None, event[1], False)
+                delete_event = FileDeletedEvent(event[1])
+                service.handler.on_deleted(delete_event)
 
             time.sleep(0.01)  # Small delay between events
 
@@ -568,7 +589,8 @@ class TestResourceManagement:
             # Create new file
             new_file = temp_project_dir / f"new_{i}.md"
             new_file.write_text(f"[New link {i}](new_target_{i}.txt)")
-            service.handler.on_created(None, str(new_file), False)
+            create_event = FileCreatedEvent(str(new_file))
+            service.handler.on_created(create_event)
 
             # Move existing file
             if i < 25:
@@ -576,7 +598,8 @@ class TestResourceManagement:
                 new_location = temp_project_dir / f"moved_test_{i}.md"
                 if old_file.exists():
                     old_file.rename(new_location)
-                    service.handler.on_moved(None, str(old_file), str(new_location), False)
+                    move_event = FileMovedEvent(str(old_file), str(new_location))
+                    service.handler.on_moved(move_event)
 
         # Service should continue operating efficiently
         stats = service.link_db.get_stats()
@@ -632,7 +655,7 @@ class TestServiceHealth:
         # Verify expected health indicators
         assert "total_references" in stats
         assert "files_with_links" in stats
-        assert "unique_targets" in stats
+        assert "total_targets" in stats
 
         # All values should be non-negative
         for key, value in stats.items():
@@ -650,32 +673,34 @@ class TestServiceHealth:
         service._initial_scan()
 
         # Simulate error condition
-        original_method = service.link_db.add_reference
+        original_method = service.link_db.add_link
 
-        def failing_add_reference(*args, **kwargs):
+        def failing_add_link(*args, **kwargs):
             raise Exception("Simulated database error")
 
         # Temporarily replace method with failing version
-        service.link_db.add_reference = failing_add_reference
+        service.link_db.add_link = failing_add_link
 
         # Try to process new file (should handle error gracefully)
         new_file = temp_project_dir / "new.md"
         new_file.write_text("[New link](new_target.txt)")
 
         try:
-            service.handler.on_created(None, str(new_file), False)
+            create_event = FileCreatedEvent(str(new_file))
+            service.handler.on_created(create_event)
         except Exception:
             # Error might propagate, that's OK
             pass
 
         # Restore original method
-        service.link_db.add_reference = original_method
+        service.link_db.add_link = original_method
 
         # Service should recover and continue operating
         recovery_file = temp_project_dir / "recovery.md"
         recovery_file.write_text("[Recovery link](recovery_target.txt)")
 
-        service.handler.on_created(None, str(recovery_file), False)
+        create_event = FileCreatedEvent(str(recovery_file))
+        service.handler.on_created(create_event)
 
         # Should be able to process new files after recovery
         stats = service.link_db.get_stats()

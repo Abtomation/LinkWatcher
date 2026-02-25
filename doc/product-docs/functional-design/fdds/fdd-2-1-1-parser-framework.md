@@ -4,9 +4,10 @@ type: Product Documentation
 category: Functional Design Document
 version: 1.0
 created: 2026-02-19
-updated: 2026-02-19
+updated: 2026-02-20
 feature_id: 2.1.1
-feature_name: Parser Framework
+feature_name: Link Parsing System
+consolidates: [2.1.1, 2.1.2 (Markdown Parser), 2.1.3 (YAML Parser), 2.1.4 (JSON Parser), 2.1.5 (Python Parser), 2.1.6 (Dart Parser), 2.1.7 (Generic Parser)]
 retrospective: true
 ---
 
@@ -14,7 +15,9 @@ retrospective: true
 
 > **Retrospective Document**: This FDD describes the existing implemented functionality of the LinkWatcher Parser Framework, documented after implementation during framework onboarding (PF-TSK-066). Content is descriptive ("what is") rather than prescriptive ("what should be").
 >
-> **Source**: Derived from [2.1.1 Implementation State](../../../process-framework/state-tracking/features/2.1.1-parser-framework-implementation-state.md), [HOW_IT_WORKS.md](../../../../HOW_IT_WORKS.md) (Parser System section), and source code analysis of `linkwatcher/parser.py` and `linkwatcher/parsers/`.
+> **Source**: Derived from [HOW_IT_WORKS.md](../../../../HOW_IT_WORKS.md) (Parser System section) and source code analysis of `linkwatcher/parser.py` and `linkwatcher/parsers/`.
+>
+> **Scope Note**: This feature consolidates old 2.1.1 (Parser Framework) with all individual parser implementations: 2.1.2 (Markdown), 2.1.3 (YAML), 2.1.4 (JSON), 2.1.5 (Python), 2.1.6 (Dart), 2.1.7 (Generic). The framework and all parsers are a single cohesive subsystem.
 
 ## Feature Overview
 
@@ -92,8 +95,8 @@ retrospective: true
 - `LinkParser` facade with `parse_file()`, `add_parser()`, `remove_parser()`, `get_supported_extensions()`
 - `BaseParser` abstract class defining the parser interface
 - Default parser registry (6 specialized parsers + GenericParser fallback)
+- All format-specific link extraction logic: MarkdownParser, YamlParser, JsonParser, PythonParser, DartParser, GenericParser
 
 **This feature does NOT provide**:
-- The actual link extraction logic for each format (owned by 2.1.2–2.1.7)
-- File system traversal or directory walking (owned by 1.1.3 Initial Scan)
-- Persistence of extracted references (owned by 0.1.3 In-Memory Database)
+- File system traversal or directory walking (owned by 1.1.1 File System Monitoring)
+- Persistence of extracted references (owned by 0.1.2 In-Memory Link Database)

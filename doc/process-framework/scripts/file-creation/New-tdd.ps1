@@ -102,8 +102,8 @@ $additionalMetadataFields = @{
 
 # Prepare custom replacements
 $customReplacements = @{
-    '\[Feature Name\]' = $FeatureName
-    '\[FEATURE_ID\]' = $FeatureId
+    '[Feature Name]' = $FeatureName
+    '[FEATURE_ID]' = $FeatureId
 }
 
 # Create custom filename pattern

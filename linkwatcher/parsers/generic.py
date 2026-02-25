@@ -16,6 +16,7 @@ class GenericParser(BaseParser):
     """Generic parser for any text file."""
 
     def __init__(self):
+        super().__init__()
         # Pattern for quoted file paths
         self.quoted_pattern = re.compile(r'[\'"]([a-zA-Z0-9_\-./\\]+\.[a-zA-Z0-9]+)[\'"]')
 
@@ -71,7 +72,7 @@ class GenericParser(BaseParser):
             return references
 
         except Exception as e:
-            print(f"Warning: Could not parse generic file {file_path}: {e}")
+            self.logger.warning("parse_error", file_path=file_path, parser="generic", error=str(e))
             return []
 
     def _is_likely_file_reference(self, potential_file: str, line: str) -> bool:

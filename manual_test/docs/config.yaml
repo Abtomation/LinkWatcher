@@ -8,5 +8,5 @@ utils_script: "../src/utils.py"
 readme_file: "../README.md"
 
 # Asset references
-logo: "../assets/logo.png"
+logo: "../assets/Test/logo.png"
 screenshot: "../assets/screenshot.jpg"

@@ -93,7 +93,7 @@ Follow these steps to create a new task:
    cd doc/process-framework/scripts/file-creation
 
    # Create a new task (Interactive PowerShell)
-   .\New-Task.ps1 -TaskName "Task Name" -TaskType "Discrete" -Category "04-implementation" -Description "Brief task description"
+   .\New-Task.ps1 -TaskName "Task Name" -TaskType "Discrete" -WorkflowPhase "04-implementation" -Description "Brief task description"
    ```
 
    **For Automated Execution (Bash tool/CI):**
@@ -101,7 +101,7 @@ Follow these steps to create a new task:
    > **⚠️ Note**: When using the Bash tool (which runs via Windows cmd.exe), PowerShell's `-Command` parameter doesn't execute due to quote handling issues. The workaround creates a temporary script file instead.
 
    ```cmd
-   echo Set-Location 'c:\Users\ronny\VS_Code\BreakoutBuddies\breakoutbuddies\doc\process-framework\scripts\file-creation'; ^& .\New-Task.ps1 -TaskType 'Discrete' -TaskName 'Task Name' -Category '04-implementation' -Description 'Brief task description' -Confirm:$false > temp_task.ps1 && pwsh.exe -ExecutionPolicy Bypass -File temp_task.ps1 && del temp_task.ps1
+   echo Set-Location 'c:\Users\ronny\VS_Code\BreakoutBuddies\breakoutbuddies\doc\process-framework\scripts\file-creation'; ^& .\New-Task.ps1 -TaskType 'Discrete' -TaskName 'Task Name' -WorkflowPhase '04-implementation' -Description 'Brief task description' -Confirm:$false > temp_task.ps1 && pwsh.exe -ExecutionPolicy Bypass -File temp_task.ps1 && del temp_task.ps1
    ```
 
    **Key differences:**
@@ -114,7 +114,7 @@ Follow these steps to create a new task:
 
    - `-TaskName`: Name of the task (required)
    - `-TaskType`: Type of task - "Discrete", "Cyclical", or "Support" (required)
-   - `-Category`: Task category - "01-planning", "02-design", "03-testing", "04-implementation", "05-validation", "06-maintenance", "07-deployment" (optional, defaults to "01-planning")
+   - `-WorkflowPhase`: Workflow phase directory - "00-onboarding", "01-planning", "02-design", "03-testing", "04-implementation", "05-validation", "06-maintenance", "07-deployment", "support", "cyclical" (optional, defaults to "01-planning")
    - `-Description`: Brief task description (optional)
    - `-OpenInEditor`: Switch to open the created file in the editor (optional)
 
@@ -435,7 +435,7 @@ Here's an example of creating a new categorized task following the **mandatory s
    cd doc/process-framework/scripts/file-creation
 
    # Create the new task using the script
-   .\New-Task.ps1 -TaskName "Code Refactoring Task" -TaskType "Discrete" -Category "06-maintenance" -Description "Systematically improve code quality and maintainability without changing external behavior"
+   .\New-Task.ps1 -TaskName "Code Refactoring Task" -TaskType "Discrete" -WorkflowPhase "06-maintenance" -Description "Systematically improve code quality and maintainability without changing external behavior"
    ```
 
    **Script Output Example**:

@@ -2,9 +2,9 @@
 id: PF-MAI-001
 type: Process Framework
 category: Documentation Map
-version: 1.3
+version: 2.0
 created: 2023-06-15
-updated: 2025-08-07
+updated: 2026-02-20
 ---
 
 # Project Documentation Map
@@ -117,6 +117,7 @@ Our tasks are organized into four categories and follow a unified structure:
 
 - [Process: Validate ID Registry](scripts/validate-id-registry.ps1) - Validates ID registry against actual files in the repository
 - [Process: Validate Test Tracking](scripts/Validate-TestTracking.ps1) - Validates test-registry.yaml consistency with disk, tracking files, and ID counters
+- [Process: Validate State Tracking](scripts/Validate-StateTracking.ps1) - Master validation across 5 surfaces: feature-tracking links, feature state files, test-implementation-tracking, cross-references, and ID counters
 
 ## Product Documentation
 
@@ -219,52 +220,56 @@ These documents describe what we're building:
 - [Product: Project Structure](../product-docs/technical/architecture/project-structure.md) - Detailed breakdown of the project structure
 - [Product: Component Relationship Index](../product-docs/technical/architecture/component-relationship-index.md) - Comprehensive reference of all component relationships and interactions
 
-### Retrospective Functional Design Documents (FDDs)
+### Functional Design Documents (FDDs)
 
-_Created during framework onboarding (PF-TSK-066) — document existing implementation._
+_Created during framework onboarding (PF-TSK-066), consolidated to 9-feature scope (2026-02-20)._
 
-- [FDD: Core Architecture (PD-FDD-022)](../product-docs/functional-design/fdds/fdd-0-1-1-core-architecture.md) - Tier 3 — Orchestrator/Facade service architecture
-- [FDD: In-Memory Database (PD-FDD-023)](../product-docs/functional-design/fdds/fdd-0-1-3-in-memory-database.md) - Tier 2 — Thread-safe link storage with O(1) lookups
-- [FDD: Event Handler (PD-FDD-024)](../product-docs/functional-design/fdds/fdd-1-1-2-event-handler.md) - Tier 2 — File move/create/delete event handling
-- [FDD: Logging Framework (PD-FDD-025)](../product-docs/functional-design/fdds/fdd-3-1-1-logging-framework.md) - Tier 2 — Structured logging with colored console output
-- [FDD: Parser Framework (PD-FDD-026)](../product-docs/functional-design/fdds/fdd-2-1-1-parser-framework.md) - Tier 2 — Pluggable parser system with registry
-- [FDD: Link Updater (PD-FDD-027)](../product-docs/functional-design/fdds/fdd-2-2-1-link-updater.md) - Tier 2 — Atomic file update with safety mechanisms
-- [FDD: Test Framework (PD-FDD-028)](../product-docs/functional-design/fdds/fdd-4-1-1-test-framework.md) - Tier 2 — Pytest-based test infrastructure
-- [FDD: Integration Tests (PD-FDD-029)](../product-docs/functional-design/fdds/fdd-4-1-3-integration-tests.md) - Tier 2 — 45+ integration test methods
-- [FDD: Parser Tests (PD-FDD-030)](../product-docs/functional-design/fdds/fdd-4-1-4-parser-tests.md) - Tier 2 — 80+ parser-specific test methods
-- [FDD: Test Fixtures (PD-FDD-031)](../product-docs/functional-design/fdds/fdd-4-1-6-test-fixtures.md) - Tier 2 — Comprehensive test data and sample files
-- [FDD: GitHub Actions CI (PD-FDD-032)](../product-docs/functional-design/fdds/fdd-5-1-1-github-actions-ci.md) - Tier 2 — Automated CI pipeline
-- [FDD: Test Automation (PD-FDD-033)](../product-docs/functional-design/fdds/fdd-5-1-2-test-automation.md) - Tier 2 — Automated test execution
+- [FDD: Core Architecture (PD-FDD-022)](../product-docs/functional-design/fdds/fdd-0-1-1-core-architecture.md) - 0.1.1 Tier 3 — Orchestrator/Facade service, data models, path utilities
+- [FDD: In-Memory Link Database (PD-FDD-023)](../product-docs/functional-design/fdds/fdd-0-1-2-in-memory-database.md) - 0.1.2 Tier 2 — Thread-safe link storage with O(1) lookups
+- [FDD: File System Monitoring (PD-FDD-024)](../product-docs/functional-design/fdds/fdd-1-1-1-file-system-monitoring.md) - 1.1.1 Tier 2 — Watchdog event handling, move detection, file filtering
+- [FDD: Logging System (PD-FDD-025)](../product-docs/functional-design/fdds/fdd-3-1-1-logging-framework.md) - 3.1.1 Tier 2 — Structured logging with colored output, stats, progress
+- [FDD: Link Parsing System (PD-FDD-026)](../product-docs/functional-design/fdds/fdd-2-1-1-parser-framework.md) - 2.1.1 Tier 2 — Parser registry/facade with 6 format-specific parsers
+- [FDD: Link Updating (PD-FDD-027)](../product-docs/functional-design/fdds/fdd-2-2-1-link-updater.md) - 2.2.1 Tier 2 — Atomic file updates, relative path calculation, dry-run
+- [FDD: Test Suite (PD-FDD-028)](../product-docs/functional-design/fdds/fdd-4-1-1-test-suite.md) - 4.1.1 Tier 2 — Pytest infrastructure, 247+ tests, fixtures, utilities
+- [FDD: CI/CD & Development Tooling (PD-FDD-032)](../product-docs/functional-design/fdds/fdd-5-1-1-cicd-development-tooling.md) - 5.1.1 Tier 2 — GitHub Actions, pre-commit hooks, dev scripts
 
-### Retrospective Technical Design Documents (TDDs)
+> **Note**: 0.1.3 Configuration System is Tier 1 — no FDD required.
 
-_Created during framework onboarding (PF-TSK-066) — reverse-engineered from source code._
+### Technical Design Documents (TDDs)
 
-- [TDD: Core Architecture (PD-TDD-021)](../product-docs/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md) - Tier 3 — Full architecture with component diagrams
-- [TDD: In-Memory Database (PD-TDD-022)](../product-docs/technical/architecture/design-docs/tdd/tdd-0.1.3-in-memory-database-t2.md) - Tier 2 — Target-indexed storage design
-- [TDD: Event Handler (PD-TDD-023)](../product-docs/technical/architecture/design-docs/tdd/tdd-1-1-2-event-handler-t2.md) - Tier 2 — State machine and timer-based move detection
-- [TDD: Logging Framework (PD-TDD-024)](../product-docs/technical/architecture/design-docs/tdd/tdd-3-1-1-logging-framework-t2.md) - Tier 2 — Dual-formatter logging design
-- [TDD: Parser Framework (PD-TDD-025)](../product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md) - Tier 2 — Registry + Facade parser system
-- [TDD: Link Updater (PD-TDD-026)](../product-docs/technical/architecture/design-docs/tdd/tdd-2-2-1-link-updater-t2.md) - Tier 2 — Bottom-to-top atomic write strategy
-- [TDD: Test Framework (PD-TDD-027)](../product-docs/technical/architecture/design-docs/tdd/tdd-4-1-1-test-framework-t2.md) - Tier 2 — Pytest infrastructure architecture
-- [TDD: Integration Tests (PD-TDD-028)](../product-docs/technical/architecture/design-docs/tdd/tdd-4-1-3-integration-tests-t2.md) - Tier 2 — Complex scenario test design
-- [TDD: Parser Tests (PD-TDD-029)](../product-docs/technical/architecture/design-docs/tdd/tdd-4-1-4-parser-tests-t2.md) - Tier 2 — Parser edge case coverage
-- [TDD: Test Fixtures (PD-TDD-030)](../product-docs/technical/architecture/design-docs/tdd/tdd-4-1-6-test-fixtures-t2.md) - Tier 2 — Fixture architecture and data design
-- [TDD: GitHub Actions CI (PD-TDD-031)](../product-docs/technical/architecture/design-docs/tdd/tdd-5-1-1-github-actions-ci-t2.md) - Tier 2 — CI pipeline configuration design
-- [TDD: Test Automation (PD-TDD-032)](../product-docs/technical/architecture/design-docs/tdd/tdd-5-1-2-test-automation-t2.md) - Tier 2 — Automation pipeline design
+_Created during framework onboarding (PF-TSK-066), consolidated to 9-feature scope (2026-02-20)._
 
-### Retrospective Architecture Decision Records (ADRs)
+- [TDD: Core Architecture (PD-TDD-021)](../product-docs/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md) - 0.1.1 Tier 3 — Full architecture with component diagrams
+- [TDD: In-Memory Link Database (PD-TDD-022)](../product-docs/technical/architecture/design-docs/tdd/tdd-0-1-2-in-memory-database-t2.md) - 0.1.2 Tier 2 — Target-indexed storage design
+- [TDD: File System Monitoring (PD-TDD-023)](../product-docs/technical/architecture/design-docs/tdd/tdd-1-1-1-file-system-monitoring-t2.md) - 1.1.1 Tier 2 — State machine, timer-based move detection
+- [TDD: Logging System (PD-TDD-024)](../product-docs/technical/architecture/design-docs/tdd/tdd-3-1-1-logging-framework-t2.md) - 3.1.1 Tier 2 — Dual-formatter logging design
+- [TDD: Link Parsing System (PD-TDD-025)](../product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md) - 2.1.1 Tier 2 — Registry + Facade parser system
+- [TDD: Link Updating (PD-TDD-026)](../product-docs/technical/architecture/design-docs/tdd/tdd-2-2-1-link-updater-t2.md) - 2.2.1 Tier 2 — Bottom-to-top atomic write strategy
+- [TDD: Test Suite (PD-TDD-027)](../product-docs/technical/architecture/design-docs/tdd/tdd-4-1-1-test-suite-t2.md) - 4.1.1 Tier 2 — Pytest infrastructure, test categories, fixtures
+- [TDD: CI/CD & Development Tooling (PD-TDD-031)](../product-docs/technical/architecture/design-docs/tdd/tdd-5-1-1-cicd-development-tooling-t2.md) - 5.1.1 Tier 2 — CI pipeline, automation design
+
+> **Note**: 0.1.3 Configuration System is Tier 1 — no TDD required.
+
+### Architecture Decision Records (ADRs)
 
 _Created during framework onboarding (PF-TSK-066) — documenting existing architectural decisions._
 
 - [ADR: Orchestrator/Facade Pattern (PD-ADR-039)](../product-docs/technical/architecture/design-docs/adr/adr/orchestrator-facade-pattern-for-core-architecture.md) - 0.1.1 Core Architecture pattern decision
-- [ADR: Target-Indexed In-Memory Link Database (PD-ADR-040)](../product-docs/technical/architecture/design-docs/adr/adr/target-indexed-in-memory-link-database.md) - 0.1.3 Storage strategy decision
+- [ADR: Target-Indexed In-Memory Link Database (PD-ADR-040)](../product-docs/technical/architecture/design-docs/adr/adr/target-indexed-in-memory-link-database.md) - 0.1.2 In-Memory Link Database storage strategy
 
-### Retrospective Test Specifications
+### Test Specifications
 
-_Created during framework onboarding (PF-TSK-066) — documenting existing test suite._
+_Created during framework onboarding (PF-TSK-066 / PF-TSK-012) — documenting existing test suite._
 
-- [Test Spec: Core Architecture (PF-TSP-035)](../../test/specifications/feature-specs/test-spec-0-1-1-core-architecture.md) - Tier 3 — Existing test coverage with gap analysis
+- [Test Spec: Core Architecture (PF-TSP-035)](../../test/specifications/feature-specs/test-spec-0-1-1-core-architecture.md) - 0.1.1 Tier 3 — Existing test coverage with gap analysis
+- [Test Spec: In-Memory Link Database (PF-TSP-036)](../../test/specifications/feature-specs/test-spec-0-1-2-in-memory-link-database.md) - 0.1.2 Tier 2 — Database thread-safety and CRUD operations
+- [Test Spec: Configuration System (PF-TSP-037)](../../test/specifications/feature-specs/test-spec-0-1-3-configuration-system.md) - 0.1.3 Tier 1 — Multi-source config loading and validation
+- [Test Spec: File System Monitoring (PF-TSP-038)](../../test/specifications/feature-specs/test-spec-1-1-1-file-system-monitoring.md) - 1.1.1 Tier 2 — Move detection, file filtering, monitoring
+- [Test Spec: Link Parsing System (PF-TSP-039)](../../test/specifications/feature-specs/test-spec-2-1-1-link-parsing-system.md) - 2.1.1 Tier 2 — Parser registry with 6 format-specific parsers
+- [Test Spec: Link Updating (PF-TSP-040)](../../test/specifications/feature-specs/test-spec-2-2-1-link-updating.md) - 2.2.1 Tier 2 — Atomic updates, dry-run, backup creation
+- [Test Spec: Logging System (PF-TSP-041)](../../test/specifications/feature-specs/test-spec-3-1-1-logging-system.md) - 3.1.1 Tier 2 — Structured logging, filtering, metrics
+- [Test Spec: Test Suite (PF-TSP-042)](../../test/specifications/feature-specs/test-spec-4-1-1-test-suite.md) - 4.1.1 Tier 2 — Test infrastructure, fixtures, performance benchmarks
+- [Test Spec: CI/CD & Development Tooling (PF-TSP-043)](../../test/specifications/feature-specs/test-spec-5-1-1-cicd-development-tooling.md) - 5.1.1 Tier 2 — Gap analysis for pipeline validation
 
 ## How to Use This Documentation
 

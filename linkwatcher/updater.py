@@ -9,12 +9,13 @@ import os
 import shutil
 import tempfile
 from pathlib import Path
-from typing import Dict, List, Set
+from typing import Any, Dict, List, Set
 
 from colorama import Fore, Style
 
 from .logging import LogTimer, get_logger, with_context
 from .models import LinkReference
+from .utils import normalize_path
 
 
 class LinkUpdater:
@@ -31,27 +32,38 @@ class LinkUpdater:
 
     def update_references(
         self, references: List[LinkReference], old_path: str, new_path: str
-    ) -> Dict[str, int]:
+    ) -> Dict:
         """
         Update all references from old_path to new_path.
 
         Returns:
             Dict with statistics: {'files_updated': int, 'references_updated': int, 'errors': int}
         """
-        stats = {"files_updated": 0, "references_updated": 0, "errors": 0}
+        stats = {"files_updated": 0, "references_updated": 0, "errors": 0, "stale_files": []}
 
         # Group references by file for efficient processing
         files_to_update = self._group_references_by_file(references)
 
         for file_path, file_references in files_to_update.items():
             try:
-                if self._update_file_references(file_path, file_references, old_path, new_path):
+                result = self._update_file_references(
+                    file_path, file_references, old_path, new_path
+                )
+                if result == "updated":
                     stats["files_updated"] += 1
                     stats["references_updated"] += len(file_references)
                     self.logger.links_updated(file_path, len(file_references))
                     print(
                         f"{Fore.GREEN}✓ Updated {len(file_references)} reference(s) in {file_path}"
                     )
+                elif result == "stale":
+                    stats["stale_files"].append(file_path)
+                    self.logger.warning(
+                        "stale_references_detected",
+                        file_path=file_path,
+                        references_count=len(file_references),
+                    )
+                    print(f"{Fore.YELLOW}⚠ Stale line numbers in {file_path}, needs rescan")
                 else:
                     self.logger.debug("no_changes_needed", file_path=file_path)
                     print(f"{Fore.YELLOW}⚠ No changes needed in {file_path}")
@@ -80,12 +92,13 @@ class LinkUpdater:
 
     def _update_file_references(
         self, file_path: str, references: List[LinkReference], old_path: str, new_path: str
-    ) -> bool:
+    ) -> str:
         """
         Update references in a single file.
 
         Returns:
-            True if file was modified, False if no changes were needed
+            "updated" if file was modified, "no_changes" if no changes needed,
+            "stale" if stale line numbers were detected (file NOT modified).
         """
         # Resolve relative path to absolute path
         if not os.path.isabs(file_path):
@@ -100,7 +113,7 @@ class LinkUpdater:
             print(
                 f"{Fore.CYAN}[DRY RUN] Would update {len(references)} references in {abs_file_path}"
             )
-            return True
+            return "updated"
 
         try:
             # Read the current file content
@@ -119,25 +132,49 @@ class LinkUpdater:
             for ref in sorted_refs:
                 line_idx = ref.line_number - 1  # Convert to 0-based index
 
-                if 0 <= line_idx < len(lines):
-                    line = lines[line_idx]
+                # Calculate the new target path
+                new_target = self._calculate_new_target(ref, old_path, new_path)
 
-                    # Calculate the new target path
-                    new_target = self._calculate_new_target(ref, old_path, new_path)
+                if new_target == ref.link_target:
+                    continue  # No change needed for this reference
 
-                    # Update the line if the target changed
-                    if new_target != ref.link_target:
-                        updated_line = self._replace_in_line(line, ref, new_target)
-                        if updated_line != line:
-                            lines[line_idx] = updated_line
-                            changes_made = True
+                # Stale detection: line index out of bounds
+                if not (0 <= line_idx < len(lines)):
+                    self.logger.warning(
+                        "stale_line_number_detected",
+                        file_path=file_path,
+                        line_number=ref.line_number,
+                        total_lines=len(lines),
+                        link_target=ref.link_target,
+                    )
+                    return "stale"
+
+                line = lines[line_idx]
+
+                # Stale detection: expected target not found on this line
+                if ref.link_target not in line:
+                    # Check if already updated by a prior replacement on the same line
+                    if new_target in line:
+                        continue  # Already handled by an earlier replacement
+                    self.logger.warning(
+                        "stale_line_content_detected",
+                        file_path=file_path,
+                        line_number=ref.line_number,
+                        expected_target=ref.link_target,
+                    )
+                    return "stale"
+
+                updated_line = self._replace_in_line(line, ref, new_target)
+                if updated_line != line:
+                    lines[line_idx] = updated_line
+                    changes_made = True
 
             # Write the updated content if changes were made
             if changes_made:
                 self._write_file_safely(abs_file_path, "".join(lines))
-                return True
+                return "updated"
 
-            return False
+            return "no_changes"
 
         except Exception as e:
             raise Exception(f"Failed to update file {abs_file_path}: {e}")
@@ -390,8 +427,8 @@ class LinkUpdater:
 
     def _replace_path_part(self, target: str, old_path: str, new_path: str) -> str:
         """Replace the path part while preserving relative/absolute format."""
-        old_normalized = self._normalize_path(old_path)
-        target_normalized = self._normalize_path(target)
+        old_normalized = normalize_path(old_path)
+        target_normalized = normalize_path(target)
 
         if target_normalized == old_normalized:
             # Exact match - preserve the original format (relative vs absolute)
@@ -403,11 +440,6 @@ class LinkUpdater:
             return f"{prefix}{new_path}"
 
         return target  # No match, return original
-
-    def _normalize_path(self, path: str) -> str:
-        """Normalize a path for consistent comparisons."""
-        path = path.lstrip("/")
-        return os.path.normpath(path).replace("\\", "/")
 
     def _replace_in_line(self, line: str, ref: LinkReference, new_target: str) -> str:
         """Replace the target in a line based on the reference information."""

@@ -59,6 +59,9 @@ Systematically evaluate and enhance the templates, guides, and other tools by co
 
 1. Review [feedback forms](../../feedback/feedback-forms/) collected at the end of each task
 2. **Group feedback forms by task type** (e.g., all PF-TSK-002 forms together)
+   - **🚨 BATCH SIZE LIMIT**: Evaluate a maximum of **20 feedback forms per session** to prevent context window exhaustion before analysis is complete
+   - All forms belonging to the same task type **must** be included in the same session — never split a task group across sessions
+   - If total forms exceed 20, split into multiple sessions by task group boundaries (complete task groups only)
 3. Create a structured analysis framework for each task group
 4. Prepare a tracking sheet for identified improvements
 

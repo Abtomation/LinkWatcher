@@ -55,118 +55,56 @@ Use this template when implementing a new feature in the Breakout Buddies projec
 
 ### 2.1 Data Models
 
-```dart
-// Example model structure
-class ExampleModel {
-  final String id;
-  final String name;
+<!-- Define the data models/classes for this feature using your project's language -->
 
-  ExampleModel({required this.id, required this.name});
-
-  // Add serialization methods, etc.
-}
-```
+- **Model name**: [ExampleModel]
+- **Key fields**: id, name, [other fields]
+- **Serialization**: [JSON, database mapping, etc.]
+- **Validation rules**: [Required fields, constraints]
 
 ### 2.2 Repository Layer
 
-```dart
-// Example repository structure
-abstract class ExampleRepository {
-  Future<List<ExampleModel>> getAll();
-  Future<ExampleModel> getById(String id);
-  Future<void> create(ExampleModel model);
-  Future<void> update(ExampleModel model);
-  Future<void> delete(String id);
-}
-```
+<!-- Define the data access interface -->
+
+- **Repository name**: [ExampleRepository]
+- **Operations**: getAll, getById, create, update, delete
+- **Data source**: [Database, API, file system, etc.]
+- **Error handling**: [Strategy for data access errors]
 
 ### 2.3 Service Layer
 
-```dart
-// Example service structure
-class ExampleService {
-  final ExampleRepository repository;
+<!-- Define the business logic layer -->
 
-  ExampleService(this.repository);
-
-  // Business logic methods
-}
-```
+- **Service name**: [ExampleService]
+- **Dependencies**: [Repository, other services]
+- **Key methods**: [Business logic operations]
+- **Validation**: [Business rule validation]
 
 ### 2.4 State Management
 
-```dart
-// Example state management structure
-final exampleProvider = StateNotifierProvider<ExampleNotifier, ExampleState>((ref) {
-  return ExampleNotifier(ref.read(exampleRepositoryProvider));
-});
+<!-- Define state management approach using your project's chosen pattern -->
 
-class ExampleNotifier extends StateNotifier<ExampleState> {
-  final ExampleRepository repository;
-
-  ExampleNotifier(this.repository) : super(ExampleState.initial());
-
-  // State management methods
-}
-
-class ExampleState {
-  final bool isLoading;
-  final List<ExampleModel> items;
-  final String? error;
-
-  ExampleState({
-    required this.isLoading,
-    required this.items,
-    this.error,
-  });
-
-  factory ExampleState.initial() {
-    return ExampleState(
-      isLoading: false,
-      items: [],
-      error: null,
-    );
-  }
-
-  ExampleState copyWith({
-    bool? isLoading,
-    List<ExampleModel>? items,
-    String? error,
-  }) {
-    return ExampleState(
-      isLoading: isLoading ?? this.isLoading,
-      items: items ?? this.items,
-      error: error ?? this.error,
-    );
-  }
-}
-```
+- **State container**: [Describe how state is managed]
+- **State shape**: isLoading, items list, error
+- **State transitions**: initial → loading → loaded/error
+- **Side effects**: [API calls, navigation, etc.]
 
 ### 2.5 UI Components
 
 List the screens and widgets that need to be created:
 
-- `example_screen.dart`
-- `example_list_widget.dart`
-- `example_detail_widget.dart`
+- `example_screen.[ext]`
+- `example_list_component.[ext]`
+- `example_detail_component.[ext]`
 
 ### 2.6 Navigation
 
 How will this feature integrate with the app's navigation:
 
-```dart
-// Example router configuration
-GoRoute(
-  path: '/example',
-  builder: (context, state) => const ExampleScreen(),
-),
-GoRoute(
-  path: '/example/:id',
-  builder: (context, state) => ExampleDetailScreen(
-    id: state.params['id']!,
-  ),
-),
-```
+- **Routes**: [List routes/paths this feature adds]
+- **Entry points**: [How users reach this feature]
+- **Exit points**: [Where users go after completing actions]
+- **Deep linking**: [If applicable]
 
 ### 2.7 Error Handling
 
@@ -181,7 +119,7 @@ Describe how errors will be handled in this feature:
 Outline the testing approach for this feature:
 
 - **Unit Tests**: List the classes/methods that need unit tests
-- **Widget Tests**: List the widgets that need testing
+- **UI/Component Tests**: List the UI components that need testing
 - **Integration Tests**: Describe any integration tests needed
 
 ## 3. Implementation Plan

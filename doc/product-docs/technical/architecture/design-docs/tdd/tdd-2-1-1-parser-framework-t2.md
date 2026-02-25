@@ -4,9 +4,10 @@ type: Technical Design Document
 category: TDD Tier 2
 version: 1.0
 created: 2026-02-19
-updated: 2026-02-19
+updated: 2026-02-20
 feature_id: 2.1.1
-feature_name: Parser Framework
+feature_name: Link Parsing System
+consolidates: [2.1.1, 2.1.2-2.1.7]
 tier: 2
 retrospective: true
 ---
@@ -15,7 +16,9 @@ retrospective: true
 
 > **Retrospective Document**: This TDD describes the existing technical design of the LinkWatcher Parser Framework, documented after implementation during framework onboarding (PF-TSK-066). Content is reverse-engineered from source code analysis.
 >
-> **Source**: Derived from [2.1.1 Implementation State](../../../../../process-framework/state-tracking/features/2.1.1-parser-framework-implementation-state.md) and source code analysis of `linkwatcher/parser.py`, `linkwatcher/parsers/base.py`, and `linkwatcher/parsers/`.
+> **Source**: Derived from source code analysis of `linkwatcher/parser.py`, `linkwatcher/parsers/base.py`, and `linkwatcher/parsers/`.
+>
+> **Scope Note**: This feature consolidates old 2.1.1 (Parser Framework) with all individual parser sub-features: 2.1.2 (Markdown Parser), 2.1.3 (YAML Parser), 2.1.4 (JSON Parser), 2.1.5 (Python Parser), 2.1.6 (Dart Parser), and 2.1.7 (Generic Parser).
 
 ## 1. Overview
 
@@ -29,10 +32,10 @@ The framework also exposes `BaseParser` (abstract base class in `linkwatcher/par
 
 | Feature | Relationship | Description |
 | ------- | ------------ | ----------- |
-| [0.1.2 Data Models](../../../../../process-framework/state-tracking/features/0.1.2-data-models-implementation-state.md) | Depends On | `LinkReference` is the return type for all `parse_file()` calls |
-| [3.1.1 Logging Framework](../../../../../process-framework/state-tracking/features/3.1.1-logging-framework-implementation-state.md) | Depends On | `LogTimer` wraps every `parse_file()` call for performance tracking |
-| [2.1.2–2.1.7 Individual Parsers](../../../../../process-framework/state-tracking/features/2.1.2-markdown-parser-implementation-state.md) | Depended On By | All specialized parsers extend `BaseParser` and are registered in `LinkParser` |
-| [2.2.1 Link Updater](../../../../../process-framework/state-tracking/features/2.2.1-link-updater-implementation-state.md) | Depended On By | `LinkUpdater` calls `LinkParser.parse_file()` to find references to update |
+| 0.1.1 Core Architecture (includes Data Models) | Depends On | `LinkReference` is the return type for all `parse_file()` calls |
+| 3.1.1 Logging System | Depends On | `LogTimer` wraps every `parse_file()` call for performance tracking |
+| _(2.1.2–2.1.7 Individual Parsers)_ | _(consolidated into 2.1.1)_ | All specialized parsers are now part of this feature |
+| 2.2.1 Link Updating | Depended On By | `LinkUpdater` calls `LinkParser.parse_file()` to find references to update |
 
 ## 2. Key Requirements
 

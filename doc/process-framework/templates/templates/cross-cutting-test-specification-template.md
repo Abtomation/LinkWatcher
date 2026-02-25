@@ -82,8 +82,7 @@ test/integration/                          (implementation - most cross-cutting 
 ### Test File Naming
 
 ```
-test_[scenario-name].py     # Python
-[scenario_name]_test.dart   # Dart
+test_[scenario-name].[ext]   # Adapt naming to project's language conventions
 ```
 
 ### Dependencies Between Tests

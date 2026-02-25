@@ -78,7 +78,7 @@ Implement comprehensive test coverage for a feature and verify that all componen
 1. **Review Test Specification** (if exists): Study the test specification document for the feature to understand test requirements, scenarios, and coverage expectations
 2. **Review TDD Test Requirements**: Read testing section from TDD to understand required test scenarios, acceptance criteria, and coverage thresholds
 3. **Analyze Implementation Code**: Review all implemented code to understand integration points, component boundaries, and potential failure scenarios
-4. **Identify Test Scenarios**: Determine which test types are needed based on the specification and project language (check `project-config.json` for valid test types — e.g., Python: Unit/Integration/Parser/Performance; Dart: Unit/Integration/Widget/E2E)
+4. **Identify Test Scenarios**: Determine which test types are needed based on the specification and project language (check `project-config.json` for valid test types)
 5. **Plan Test Strategy**: Map out test types needed, mock/stub requirements, test data setup, and prioritize by risk
 
 ### Execution
@@ -88,8 +88,6 @@ Implement comprehensive test coverage for a feature and verify that all componen
    ```powershell
    # Create test files using automation script (generates PD-TST-[SEQUENCE] IDs)
    # Test types depend on project language (auto-detected from project-config.json)
-   # Python: Unit, Integration, Parser, Performance
-   # Dart: Unit, Integration, Widget, E2E
    cd doc/process-framework/scripts/file-creation
    .\New-TestFile.ps1 -TestName "FeatureName" -TestType "Unit" -FeatureId "X.Y.Z" -ComponentName "ComponentName"
    .\New-TestFile.ps1 -TestName "FeatureName" -TestType "Integration" -FeatureId "X.Y.Z" -ComponentName "ComponentName"
@@ -116,13 +114,13 @@ Implement comprehensive test coverage for a feature and verify that all componen
    - Test complete workflows across component boundaries
    - Verify layer integration and data flow
    - Test error propagation across layers
-10. **Implement Additional Test Types**: Implement any remaining test types required by the specification (e.g., Parser tests, Performance tests for Python; Widget tests, E2E tests for Dart)
+10. **Implement Additional Test Types**: Implement any remaining test types required by the specification and project configuration
 11. **Create Test Mocks and Stubs**: Build necessary mocks for external dependencies
     - Mock external services, databases, and APIs
     - Create test data fixtures and factories
     - Set up dependency injection overrides for testing
 12. **Verify Test Coverage**: Run project coverage tool and validate thresholds
-    - Use the project's configured coverage tool (e.g., `pytest --cov` for Python, `flutter test --coverage` for Dart)
+    - Use the project's configured coverage tool
     - Review coverage report for gaps in critical paths
 13. **Update State Files**: Document test implementation, coverage metrics, and testing notes in Feature Implementation State File (if exists)
 14. **(Optional) Identify Cross-Cutting Test Opportunities**: When integration testing reveals behaviors that span multiple features:
@@ -131,13 +129,18 @@ Implement comprehensive test coverage for a feature and verify that all componen
     - Store cross-cutting specs in `/test/specifications/cross-cutting-specs/`
     - Register cross-cutting tests in [Test Registry](/test/test-registry.yaml) with `testType: cross-cutting` and the `crossCuttingFeatures` field
     - This step is optional guidance — not every integration test warrants a formal cross-cutting specification
+15. **Verify Non-Test-Suite Artifacts**: If the implementation modified any artifacts that are not exercised by the project's automated test suite (scripts, configuration generators, build definitions, deployment manifests, etc.):
+    - Manually invoke each modified artifact with representative inputs
+    - Verify the output matches expected behavior
+    - Test the artifact in its real context (e.g., run a startup script and confirm the process launches correctly, apply a config and verify settings take effect)
+    - This step is required whenever the implementation scope extends beyond source code covered by the test framework
 
 ### Finalization
 
-15. **Run Test Suite**: Execute all implemented tests to verify they pass
-16. **Review Coverage Report**: Confirm test coverage meets project thresholds (typically 80%+ for business logic)
-17. **Validate Error Scenarios**: Ensure error handling and edge cases are properly tested
-18. **Bug Discovery During Testing**: Systematically identify and document any bugs discovered while implementing or running tests:
+16. **Run Test Suite**: Execute all implemented tests to verify they pass
+17. **Review Coverage Report**: Confirm test coverage meets project thresholds (typically 80%+ for business logic)
+18. **Validate Error Scenarios**: Ensure error handling and edge cases are properly tested
+19. **Bug Discovery During Testing**: Systematically identify and document any bugs discovered while implementing or running tests:
 
     - **Implementation Bugs**: Issues found in the code being tested (logic errors, edge case failures)
     - **Test Framework Issues**: Problems with test setup, mocking, or test infrastructure
@@ -146,7 +149,7 @@ Implement comprehensive test coverage for a feature and verify that all componen
     - **Performance Issues**: Slow operations or memory leaks revealed through testing
     - **Error Handling Gaps**: Missing or inadequate error handling discovered during testing
 
-19. **Report Discovered Bugs**: If bugs are identified during test implementation:
+20. **Report Discovered Bugs**: If bugs are identified during test implementation:
 
     - Use [New-BugReport.ps1](../../scripts/file-creation/New-BugReport.ps1) script to create standardized bug reports
     - Follow [Bug Reporting Guide](../../guides/guides/bug-reporting-guide.md) for consistent documentation
@@ -162,14 +165,14 @@ Implement comprehensive test coverage for a feature and verify that all componen
     .\New-BugReport.ps1 -Title "Service throws exception on empty input" -Description "Method fails with exception when passed empty string instead of returning proper error" -DiscoveredBy "Test Implementation" -Severity "High" -Component "Component Name" -Environment "Development" -Evidence "Test case: test_method_empty_input_returns_error"
     ```
 
-20. **Update Test Status**: Update test implementation status to reflect completion (automation handles initial tracking)
-21. **Validate Test Tracking**: Run validation scripts to ensure consistency
+21. **Update Test Status**: Update test implementation status to reflect completion (automation handles initial tracking)
+22. **Validate Test Tracking**: Run validation scripts to ensure consistency
     ```powershell
     # Validate test tracking consistency
     doc/process-framework/scripts/Validate-TestTracking.ps1
     ```
-22. **Update Code Inventory**: Document all test files and coverage metrics in Feature Implementation State File (if applicable)
-23. **MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+23. **Update Code Inventory**: Document all test files and coverage metrics in Feature Implementation State File (if applicable)
+24. **MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 

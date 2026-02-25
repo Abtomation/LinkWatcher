@@ -16,6 +16,7 @@ class PythonParser(BaseParser):
     """Parser for Python files (.py)."""
 
     def __init__(self):
+        super().__init__()
         # Pattern for quoted file paths
         self.quoted_pattern = re.compile(r'[\'"]([a-zA-Z0-9_\-./\\]+\.[a-zA-Z0-9]+)[\'"]')
 
@@ -103,7 +104,7 @@ class PythonParser(BaseParser):
             return references
 
         except Exception as e:
-            print(f"Warning: Could not parse Python file {file_path}: {e}")
+            self.logger.warning("parse_error", file_path=file_path, parser="python", error=str(e))
             return []
 
     def _looks_like_local_import(self, import_path: str) -> bool:

@@ -14,6 +14,7 @@ from pathlib import Path
 from colorama import Fore, Style
 from watchdog.observers import Observer
 
+from .config.settings import LinkWatcherConfig
 from .database import LinkDatabase
 from .handler import LinkMaintenanceHandler
 from .logging import LogTimer, get_logger, with_context
@@ -32,8 +33,9 @@ class LinkWatcherService:
     4. Provides status and statistics
     """
 
-    def __init__(self, project_root: str = "."):
+    def __init__(self, project_root: str = ".", config: LinkWatcherConfig = None):
         self.project_root = Path(project_root).resolve()
+        self.config = config
         self.logger = get_logger()
 
         # Validate project root exists
@@ -54,7 +56,12 @@ class LinkWatcherService:
         self.parser = LinkParser()
         self.updater = LinkUpdater(str(self.project_root))
         self.handler = LinkMaintenanceHandler(
-            self.link_db, self.parser, self.updater, str(self.project_root)
+            self.link_db,
+            self.parser,
+            self.updater,
+            str(self.project_root),
+            monitored_extensions=config.monitored_extensions if config else None,
+            ignored_directories=config.ignored_directories if config else None,
         )
 
         # Setup signal handlers for graceful shutdown

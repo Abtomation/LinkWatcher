@@ -224,6 +224,7 @@ This is the final onboarding task that transforms code analysis into formal desi
 
 - [ ] **Phase 4 Complete: Finalization**
   - [ ] [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) verified complete with ALL document links
+  - [ ] Run `Validate-StateTracking.ps1` — 0 errors across all surfaces
   - [ ] Pre-existing documentation reconciled — each doc in master state inventory marked Keep or Archived; superseded docs moved to `doc/archived-pre-framework/`
   - [ ] [Documentation Map](../../documentation-map.md) updated with all new documents
   - [ ] Final metrics calculated and recorded in [master state](../../state-tracking/temporary/retrospective-master-state.md)

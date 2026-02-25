@@ -4,7 +4,7 @@ type: Process Framework
 category: Test Specification
 version: 1.0
 created: 2026-02-19
-updated: 2026-02-19
+updated: 2026-02-25
 feature_id: 0.1.1
 feature_name: Core Architecture
 tdd_path: doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md
@@ -29,6 +29,8 @@ This document provides comprehensive test specifications for the **Core Architec
 ### TDD Summary
 
 The Core Architecture defines the `LinkWatcherService` class as an Orchestrator/Facade that coordinates all LinkWatcher subsystems (database, parser, updater, handler, observer) without implementing business logic itself. The service manages lifecycle (start/stop), signal handling (SIGINT/SIGTERM), initial directory scanning, and continuous file monitoring via a watchdog Observer on a daemon thread.
+
+> **Consolidated Scope (v2.0)**: Core Architecture now includes Data Models (`models.py` — `LinkReference`, `FileOperation` dataclasses) and Path Utilities (`utils.py` — `should_monitor_file()`, `should_ignore_directory()`, path normalization). These were previously tracked as separate features 0.1.2 and 0.1.5.
 
 ### Test Complexity Assessment
 
@@ -112,8 +114,22 @@ Tests cover the Orchestrator/Facade pattern: service construction wires all subs
 | LinkWatcherService | Link checking (broken) | `test_check_links_with_broken_links` — detects missing targets | `temp_project_dir`, `file_helper` |
 | LinkWatcherService | Component integration | `test_service_components_integration` — all subsystems work together | `temp_project_dir`, `sample_files` |
 
-**Test File**: `tests/unit/test_service.py`
+**Test File**: [`tests/unit/test_service.py`](../../../tests/unit/test_service.py)
 **Status**: Implemented (10 test methods)
+
+#### Duplicate Instance Prevention (Lock File)
+
+| Component | Test Focus | Key Test Cases | Mock Dependencies |
+|-----------|-----------|----------------|-------------------|
+| Lock file acquisition | Lock created on startup | `test_lock_file_created_on_startup` — `.linkwatcher.lock` created with current PID | `temp_project_dir` |
+| Lock file release | Lock removed on shutdown | `test_lock_file_removed_on_shutdown` — lock file deleted after clean stop | `temp_project_dir` |
+| Stale lock detection | Override stale lock | `test_stale_lock_file_overridden` — lock with dead PID is overridden | `temp_project_dir` |
+| Duplicate prevention | Reject second instance | `test_duplicate_instance_prevented` — exits with error when live PID lock exists | `temp_project_dir` |
+| Lock file content | Valid PID stored | `test_lock_file_contains_valid_pid` — file content matches `os.getpid()` | `temp_project_dir` |
+| Corrupt lock file | Handle invalid content | `test_corrupt_lock_file_handled` — non-numeric content treated as stale | `temp_project_dir` |
+
+**Test File**: `tests/unit/test_lock_file.py` (new)
+**Status**: Pending implementation
 
 ### Integration Tests
 
@@ -127,7 +143,7 @@ Tests cover the Orchestrator/Facade pattern: service construction wires all subs
 | Directory rename | Service → Handler → Updater → Database | `test_fm_004_directory_rename` | All files in directory updated |
 | Nested directory | Service → Handler → Updater → Database | `test_fm_005_nested_directory_movement` | Deep path chains updated |
 
-**Test File**: `tests/integration/test_file_movement.py` (7 methods including edge cases)
+**Test File**: [`tests/integration/test_file_movement.py`](../../../tests/integration/test_file_movement.py) (7 methods including edge cases)
 
 #### Data Flow Testing — Link Updates
 
@@ -141,7 +157,7 @@ Tests cover the Orchestrator/Facade pattern: service construction wires all subs
 | Python imports | Parser → Database → Updater | `test_lr_006_python_imports` | Import paths updated |
 | Dart imports | Parser → Database → Updater | `test_lr_007_dart_imports` | Dart import paths updated |
 
-**Test File**: `tests/integration/test_link_updates.py` (7 methods)
+**Test File**: [`tests/integration/test_link_updates.py`](../../../tests/integration/test_link_updates.py) (7 methods)
 
 #### Data Flow Testing — Sequential Operations
 
@@ -152,7 +168,7 @@ Tests cover the Orchestrator/Facade pattern: service construction wires all subs
 | Database state debug | `test_sm_003_debug_database_state_during_moves` | State verified at each step |
 | Multi-file moves | `test_multiple_files_sequential_moves` | All files tracked independently |
 
-**Test File**: `tests/integration/test_sequential_moves.py` (4 methods)
+**Test File**: [`tests/integration/test_sequential_moves.py`](../../../tests/integration/test_sequential_moves.py) (4 methods)
 
 #### Platform Testing — Windows
 
@@ -173,7 +189,7 @@ Tests cover the Orchestrator/Facade pattern: service construction wires all subs
 | Hidden files | `test_cp_008_hidden_file_handling` | Windows hidden attribute respected |
 | Hidden dirs | `test_cp_008_hidden_directory_handling` | Hidden directories handled |
 
-**Test File**: `tests/integration/test_windows_platform.py` (14 methods)
+**Test File**: [`tests/integration/test_windows_platform.py`](../../../tests/integration/test_windows_platform.py) (14 methods)
 
 ### End-to-End Tests (Tier 3)
 
@@ -185,8 +201,8 @@ Tests cover the Orchestrator/Facade pattern: service construction wires all subs
 | Image file monitoring | 1. Create project with image refs → 2. Scan → 3. Move image → 4. Verify refs updated | PNG/SVG references updated | Binary file confusion |
 
 **Test Files**:
-- `tests/integration/test_comprehensive_file_monitoring.py` — Full monitoring pipeline
-- `tests/integration/test_image_file_monitoring.py` (6 methods) — Image file handling
+- [`tests/integration/test_comprehensive_file_monitoring.py`](../../../tests/integration/test_comprehensive_file_monitoring.py) — Full monitoring pipeline
+- [`tests/integration/test_image_file_monitoring.py`](../../../tests/integration/test_image_file_monitoring.py) (6 methods) — Image file handling
 
 ## Mock Requirements
 
@@ -255,11 +271,14 @@ tests/
 
 ### Coverage Gaps
 
+- **~~Duplicate instance prevention~~**: Lock file lifecycle tests — **Added** (see Unit Tests > Duplicate Instance Prevention)
 - **Signal handling**: No tests for SIGINT/SIGTERM → `_signal_handler()` behavior
 - **Observer thread lifecycle**: `start()`/`stop()` with actual Observer not tested in unit tests (would require thread management in tests)
 - **CLI entry point**: `main.py` argument parsing not directly tested
 - **Configuration loading**: Multi-source config priority not tested
 - **`final.py`**: Startup helper has no tests
+- **Data Models** (`models.py`): `LinkReference` and `FileOperation` dataclass construction/equality — now in scope (consolidated from old 0.1.2)
+- **Path Utilities** (`utils.py`): `should_monitor_file()`, `should_ignore_directory()`, path normalization edge cases — now in scope (consolidated from old 0.1.5)
 
 ## AI Agent Session Handoff Notes
 
@@ -278,10 +297,10 @@ tests/
 
 ### Files to Reference
 
-- **TDD**: `doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md`
-- **Existing Tests**: `tests/unit/test_service.py`, `tests/integration/test_*.py`
-- **Fixtures**: `tests/conftest.py` — shared test setup
-- **Test Utilities**: `tests/utils.py` — helper functions
+- **TDD**: [`doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md`](../../../doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md)
+- **Existing Tests**: [`tests/unit/test_service.py`](../../../tests/unit/test_service.py), `tests/integration/test_*.py`
+- **Fixtures**: [`tests/conftest.py`](../../../tests/conftest.py) — shared test setup
+- **Test Utilities**: [`tests/utils.py`](../../../tests/utils.py) — helper functions
 
 ### Success Criteria
 

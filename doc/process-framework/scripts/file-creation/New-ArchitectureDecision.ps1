@@ -22,7 +22,10 @@ param(
     [string]$ImpactLevel = "High",
 
     [Parameter(Mandatory=$false)]
-    [switch]$OpenInEditor
+    [switch]$OpenInEditor,
+
+    [Parameter(Mandatory=$false)]
+    [switch]$DryRun
 )
 
 # Import the common helpers
@@ -62,6 +65,56 @@ try {
     catch {
         Write-Warning "Failed to update tracking files: $($_.Exception.Message)"
         Write-Host "📋 Manual tracking file updates may be required" -ForegroundColor Yellow
+    }
+
+    # 🚀 AUTOMATION ENHANCEMENT: Update feature tracking with ADR link (consistent with FDD/TDD pattern)
+    if ($RelatedFeatureId -and $RelatedFeatureId -ne "" -and $RelatedFeatureId -ne "TBD") {
+        Write-Host ""
+        Write-Host "🤖 Updating Feature Tracking..." -ForegroundColor Yellow
+
+        try {
+            # Validate dependencies for automation
+            $dependencyCheck = Test-ScriptDependencies -RequiredFunctions @(
+                "Update-FeatureTrackingStatus"
+            )
+
+            if (-not $dependencyCheck.AllDependenciesMet) {
+                Write-Warning "Automation dependencies not available. Feature tracking must be updated manually."
+                Write-Host "Manual Update Required:" -ForegroundColor Yellow
+                Write-Host "  - Add ADR link to feature $RelatedFeatureId" -ForegroundColor Cyan
+            } else {
+                # Prepare ADR document link (relative from feature-tracking.md to ADR)
+                $kebabTitle = ConvertTo-KebabCase -InputString $Title
+                $adrLink = "[$arcId](../../../../product-docs/technical/architecture/design-docs/adr/adr/$kebabTitle.md)"
+
+                # Prepare additional updates for feature tracking
+                $additionalUpdates = @{
+                    "ADR" = $adrLink
+                }
+
+                # Add notes about ADR creation
+                $automationNotes = "ADR created: $arcId - $Title ($(Get-ProjectTimestamp -Format 'Date'))"
+
+                if ($DryRun) {
+                    Write-Host "DRY RUN: Would update feature tracking for $RelatedFeatureId" -ForegroundColor Yellow
+                    Write-Host "  ADR Link: $adrLink" -ForegroundColor Cyan
+                    Write-Host "  Notes: $automationNotes" -ForegroundColor Cyan
+                } else {
+                    # Update feature tracking with ADR link
+                    $updateResult = Update-FeatureTrackingStatus -FeatureId $RelatedFeatureId -Status "📋 ADR Created" -AdditionalUpdates $additionalUpdates -Notes $automationNotes
+
+                    Write-Host "  ✅ Feature tracking updated successfully" -ForegroundColor Green
+                    Write-Host "  🔗 ADR linked in feature tracking" -ForegroundColor Green
+                }
+            }
+        }
+        catch {
+            Write-Warning "Failed to update feature tracking automatically: $($_.Exception.Message)"
+            Write-Host "Manual Update Required:" -ForegroundColor Yellow
+            Write-Host "  - Add ADR link to feature $RelatedFeatureId" -ForegroundColor Cyan
+            $kebabTitle = ConvertTo-KebabCase -InputString $Title
+            Write-Host "  - ADR link: [$arcId](../../../../product-docs/technical/architecture/design-docs/adr/adr/$kebabTitle.md)" -ForegroundColor Cyan
+        }
     }
 
     # Note: ADR documentation is managed through the central documentation map

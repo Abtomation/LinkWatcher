@@ -16,6 +16,7 @@ Test Cases Implemented:
 from pathlib import Path
 
 import pytest
+from watchdog.events import FileMovedEvent
 
 from linkwatcher.service import LinkWatcherService
 
@@ -77,7 +78,7 @@ class TestComplexScenarios:
         target_file.rename(new_target)
 
         # Process move event
-        service.handler.on_moved(None, str(target_file), str(new_target), False)
+        service.handler.on_moved(FileMovedEvent(str(target_file), str(new_target)))
 
         # Verify all files were updated
         for ref_file in referencing_files:
@@ -135,7 +136,7 @@ Back to "file_a.md" for context.
         file_a.rename(new_file_a)
 
         # Process move event
-        service.handler.on_moved(None, str(file_a), str(new_file_a), False)
+        service.handler.on_moved(FileMovedEvent(str(file_a), str(new_file_a)))
 
         # Verify File B was updated to reference new location of File A
         file_b_updated = file_b.read_text()
@@ -210,7 +211,7 @@ Back to "file_a.md" for context.
         docs_file.rename(new_docs_file)
 
         # Process move event
-        service.handler.on_moved(None, str(docs_file), str(new_docs_file), False)
+        service.handler.on_moved(FileMovedEvent(str(docs_file), str(new_docs_file)))
 
         # Verify only docs references were updated
         readme_updated = readme.read_text()
@@ -268,7 +269,7 @@ References:
         original_file.rename(new_file)
 
         # Process move event
-        service.handler.on_moved(None, str(original_file), str(new_file), False)
+        service.handler.on_moved(FileMovedEvent(str(original_file), str(new_file)))
 
         # Verify references were updated
         readme_updated = readme.read_text()
@@ -315,7 +316,7 @@ References:
         special_file.rename(new_file)
 
         # Process move event
-        service.handler.on_moved(None, str(special_file), str(new_file), False)
+        service.handler.on_moved(FileMovedEvent(str(special_file), str(new_file)))
 
         # Verify all references were updated
         readme_updated = readme.read_text()
@@ -386,7 +387,7 @@ References:
         long_path_file.rename(new_file)
 
         # Process move event
-        service.handler.on_moved(None, str(long_path_file), str(new_file), False)
+        service.handler.on_moved(FileMovedEvent(str(long_path_file), str(new_file)))
 
         # Verify reference was updated
         readme_updated = readme.read_text()
@@ -425,7 +426,7 @@ class TestComplexScenarioEdgeCases:
             new_files.append(new_file)
 
             # Process move event
-            service.handler.on_moved(None, str(old_file), str(new_file), False)
+            service.handler.on_moved(FileMovedEvent(str(old_file), str(new_file)))
 
         # Verify all references were updated
         readme_updated = readme.read_text()
@@ -458,7 +459,7 @@ class TestComplexScenarioEdgeCases:
 
         for old_file, new_file in moves:
             old_file.rename(new_file)
-            service.handler.on_moved(None, str(old_file), str(new_file), False)
+            service.handler.on_moved(FileMovedEvent(str(old_file), str(new_file)))
 
         # Verify final state
         a1_content = (temp_project_dir / "a1.txt").read_text()
@@ -489,7 +490,7 @@ class TestComplexScenarioEdgeCases:
         # Move test.txt
         new_file1 = temp_project_dir / "simple.txt"
         file1.rename(new_file1)
-        service.handler.on_moved(None, str(file1), str(new_file1), False)
+        service.handler.on_moved(FileMovedEvent(str(file1), str(new_file1)))
 
         # Verify only exact match was updated
         readme_updated = readme.read_text()

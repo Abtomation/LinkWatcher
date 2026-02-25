@@ -22,8 +22,8 @@ Invoke-StandardScriptInitialization
 
 # Prepare custom replacements
 $customReplacements = @{
-    "\[State File Name\]" = $StateName
-    "\[what this file tracks\]" = $StateName.ToLower()
+    "[State File Name]" = $StateName
+    "[what this file tracks]" = $StateName.ToLower()
 }
 
 # Add description if provided

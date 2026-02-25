@@ -40,7 +40,7 @@ class YamlParser(BaseParser):
             return references
 
         except Exception as e:
-            print(f"Warning: Could not parse YAML file {file_path}: {e}")
+            self.logger.warning("parse_error", file_path=file_path, parser="yaml", error=str(e))
             return []
 
     def _extract_yaml_file_refs(

@@ -11,7 +11,7 @@ param(
     [string]$TaskContext = "",
 
     [Parameter(Mandatory = $false)]
-    [ValidateSet("SingleTool", "MultipleTools", "TaskLevel")]
+    [ValidateSet("SingleTool", "Single Tool", "MultipleTools", "Multiple Tools", "TaskLevel", "Task-Level")]
     [string]$FeedbackType = "MultipleTools",
 
     [Parameter(Mandatory = $false)]
@@ -33,10 +33,10 @@ try {
 
     # Convert FeedbackType enum to display format
     $feedbackTypeDisplay = switch ($FeedbackType) {
-        "SingleTool"    { "Single Tool" }
-        "MultipleTools" { "Multiple Tools" }
-        "TaskLevel"     { "Task-Level" }
-        default         { $FeedbackType }
+        { $_ -in "SingleTool", "Single Tool" }       { "Single Tool" }
+        { $_ -in "MultipleTools", "Multiple Tools" }  { "Multiple Tools" }
+        { $_ -in "TaskLevel", "Task-Level" }          { "Task-Level" }
+        default                                        { $FeedbackType }
     }
 
     # Prepare custom replacements

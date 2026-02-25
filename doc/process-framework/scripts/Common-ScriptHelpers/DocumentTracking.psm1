@@ -234,48 +234,8 @@ function Update-DocumentTrackingFiles {
                     Write-Warning "Failed to update architecture-tracking.md: $($_.Exception.Message)"
                 }
 
-                # Update feature-tracking.md if this ADR is related to specific features
-                if ($relatedFeatureId -and $relatedFeatureId -ne "" -and $relatedFeatureId -ne "TBD") {
-                    try {
-                        if ($DryRun) {
-                            Write-Host "DRY RUN: Would update feature-tracking.md for feature $relatedFeatureId" -ForegroundColor Yellow
-                        } else {
-                            $featureTrackingPath = Join-Path $projectRoot "doc/process-framework/state-tracking/permanent/feature-tracking.md"
-
-                            if (Test-Path $featureTrackingPath) {
-                                # Calculate relative path from feature-tracking.md to the ADR
-                                $featureTrackingDir = Split-Path $featureTrackingPath -Parent
-                                $relativePath = [System.IO.Path]::GetRelativePath($featureTrackingDir, $DocumentPath)
-                                $relativePath = $relativePath -replace '\\', '/'  # Convert to forward slashes for markdown
-
-                                # Update the feature with ADR link
-                                $additionalUpdates = @{
-                                    "ADR" = "[$DocumentId]($relativePath)"
-                                }
-
-                                $notes = "ADR created: $DocumentId - $title ($timestamp)"
-
-                                Update-FeatureTrackingStatus -FeatureId $relatedFeatureId -Status "📋 ADR Created" -StatusColumn "Status" -AdditionalUpdates $additionalUpdates -Notes $notes
-                                Write-Verbose "Updated feature-tracking.md for feature: $relatedFeatureId"
-                            }
-                        }
-
-                        $results += @{
-                            File = "feature-tracking.md"
-                            Success = $true
-                            Message = "Updated ADR link for feature $relatedFeatureId"
-                        }
-                    } catch {
-                        $results += @{
-                            File = "feature-tracking.md"
-                            Success = $false
-                            Message = "Failed to update: $($_.Exception.Message)"
-                        }
-                        Write-Warning "Failed to update feature-tracking.md: $($_.Exception.Message)"
-                    }
-                } else {
-                    Write-Verbose "No related feature ID provided - skipping feature-tracking.md update"
-                }
+                # Note: Feature-tracking.md update is handled directly by New-ArchitectureDecision.ps1
+                # using Update-FeatureTrackingStatus (consistent with FDD/TDD pattern)
             }
 
             "ValidationReport" {

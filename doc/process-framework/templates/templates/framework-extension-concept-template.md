@@ -145,20 +145,6 @@ This framework extension should be used when:
 - **Integration Focus**: Design extensions to work harmoniously with current framework
 - **Documentation Alignment**: Maintain consistency with existing documentation standards
 
-## 🚨 Critical Success Factors
-
-### Human Collaboration Requirements
-- **Concept Approval**: Mandatory human review and approval before implementation
-- **Scope Validation**: Ensure the extension truly requires framework-level changes
-- **Integration Review**: Human oversight of how extension integrates with existing framework
-- **Final Validation**: Human confirmation that extension meets intended goals
-
-### Technical Requirements
-- **Multi-Session Design**: Must be designed for implementation across multiple AI sessions
-- **State Persistence**: Comprehensive state tracking to maintain progress
-- **Component Interdependency**: Proper management of dependencies between new components
-- **Framework Compatibility**: Ensure extension doesn't break existing functionality
-
 ## 📊 Detailed Workflow & Artifact Management
 
 ### Workflow Definition
@@ -180,13 +166,6 @@ This framework extension should be used when:
                 ↓
 [Input 3] → [Process Step 3] → [Final Output]
 ```
-
-#### Output Specifications
-[Define what outputs this extension produces and how they serve as inputs for other tasks]
-
-- **[Output Type 1]**: [Description and how it's used by other tasks]
-- **[Output Type 2]**: [Description and how it's used by other tasks]
-- **[Output Type 3]**: [Description and how it's used by other tasks]
 
 ### Artifact Dependency Map
 
@@ -277,7 +256,16 @@ This framework extension should be used when:
 - [ ] **[Criterion 2]**: [Description of what success looks like]
 - [ ] **[Criterion 3]**: [Description of what success looks like]
 
-### Integration Success Criteria
+### Human Collaboration Requirements
+- [ ] **Concept Approval**: Mandatory human review and approval before implementation
+- [ ] **Scope Validation**: Ensure the extension truly requires framework-level changes
+- [ ] **Integration Review**: Human oversight of how extension integrates with existing framework
+- [ ] **Final Validation**: Human confirmation that extension meets intended goals
+
+### Technical & Integration Requirements
+- [ ] **Multi-Session Design**: Must be designed for implementation across multiple AI sessions
+- [ ] **State Persistence**: Comprehensive state tracking to maintain progress
+- [ ] **Component Interdependency**: Proper management of dependencies between new components
 - [ ] **Framework Compatibility**: Extension works seamlessly with existing framework
 - [ ] **Documentation Consistency**: All new components follow established patterns
 - [ ] **State Tracking Integrity**: State files are properly maintained and updated

@@ -16,6 +16,7 @@ class MarkdownParser(BaseParser):
     """Parser for Markdown files (.md)."""
 
     def __init__(self):
+        super().__init__()
         # Pattern 1: Standard markdown links [text](link) - handles balanced parentheses
         # This regex properly handles nested parentheses in titles
         self.link_pattern = re.compile(r"\[([^\]]+)\]\(((?:[^()]|\([^)]*\))*)\)")
@@ -193,5 +194,5 @@ class MarkdownParser(BaseParser):
             return references
 
         except Exception as e:
-            print(f"Warning: Could not parse markdown file {file_path}: {e}")
+            self.logger.warning("parse_error", file_path=file_path, parser="markdown", error=str(e))
             return []

@@ -69,6 +69,7 @@ This task executes enhancement work on existing features by following the Enhanc
      - Extend existing code rather than building from scratch
      - Modify existing tests rather than creating a full new test suite (unless the state file specifies otherwise)
    - Execute the step
+   - **Verify all modified artifacts**: If the step produces or modifies artifacts that are not covered by the project's automated test suite (e.g., scripts, configuration files, build definitions, deployment manifests), manually invoke or inspect them to confirm they work correctly before marking the step complete
    - Mark the step complete in the state file immediately after completion
 
 5. **Handle deviations** — If a step cannot be completed as planned (e.g., referenced doc doesn't exist, scope has changed), inform the human partner and adjust the state file accordingly

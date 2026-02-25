@@ -32,6 +32,7 @@ class LinkWatcherConfig:
             "build",
             "dist",
             "__pycache__",
+            "tests",
         }
     )
 

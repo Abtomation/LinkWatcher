@@ -32,13 +32,13 @@ $additionalMetadataFields = @{
 
 # Prepare custom replacements
 $customReplacements = @{
-    "\[Enhancement Name\]"    = $EnhancementName
-    "\[Feature ID\]"          = $TargetFeature
+    "[Enhancement Name]"    = $EnhancementName
+    "[Feature ID]"          = $TargetFeature
 }
 
 # Add description if provided
 if ($Description -ne "") {
-    $customReplacements["\[Brief description of what is being enhanced\]"] = $Description
+    $customReplacements["[Brief description of what is being enhanced]"] = $Description
 }
 
 # Create the document using standardized process with custom filename pattern

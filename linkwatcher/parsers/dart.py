@@ -16,6 +16,7 @@ class DartParser(BaseParser):
     """Parser for Dart files (.dart)."""
 
     def __init__(self):
+        super().__init__()
         # Pattern for import statements
         self.import_pattern = re.compile(r"import\s+['\"]([^'\"]+)['\"]")
 
@@ -185,5 +186,5 @@ class DartParser(BaseParser):
             return references
 
         except Exception as e:
-            print(f"Warning: Could not parse Dart file {file_path}: {e}")
+            self.logger.warning("parse_error", file_path=file_path, parser="dart", error=str(e))
             return []

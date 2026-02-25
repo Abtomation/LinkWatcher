@@ -126,6 +126,10 @@ function Update-FeatureTrackingStatus {
         # Update metadata
         $updatedContent = $updatedContent -replace "updated: \d{4}-\d{2}-\d{2}", "updated: $(Get-ProjectTimestamp -Format 'Date')"
 
+        # Recalculate summary tables
+        $updatedContent = Update-FeatureTrackingSummary -Content $updatedContent
+        Write-Verbose "Recalculated summary tables"
+
         # Save updated content
         Set-Content $featureTrackingPath $updatedContent -Encoding UTF8
 
@@ -242,6 +246,10 @@ function Update-FeatureTrackingStatusWithAppend {
 
         # Update metadata
         $updatedContent = $updatedContent -replace "updated: \d{4}-\d{2}-\d{2}", "updated: $(Get-ProjectTimestamp -Format 'Date')"
+
+        # Recalculate summary tables
+        $updatedContent = Update-FeatureTrackingSummary -Content $updatedContent
+        Write-Verbose "Recalculated summary tables"
 
         # Save updated content
         Set-Content $featureTrackingPath $updatedContent -Encoding UTF8
@@ -396,11 +404,234 @@ function Update-MultipleTrackingFiles {
     return $results
 }
 
+function Update-FeatureTrackingSummary {
+    <#
+    .SYNOPSIS
+    Recalculates the Progress Summary tables in feature-tracking.md from the feature data rows.
+
+    .DESCRIPTION
+    Parses all feature tables to count statuses, tiers, and documentation artifacts,
+    then regenerates the three summary sections (Implementation Status Overview,
+    Documentation Tier Distribution, Documentation Coverage).
+
+    .PARAMETER Content
+    The full content of feature-tracking.md as a single string.
+
+    .OUTPUTS
+    The updated content with recalculated summary tables.
+    #>
+
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]$Content
+    )
+
+    $lines = $Content -split "`r?`n"
+
+    # Parse all feature rows from all tables
+    $features = @()
+    $currentHeaders = @()
+
+    foreach ($line in $lines) {
+        $trimmed = $line.Trim()
+
+        # Detect table header row (starts with | ID |)
+        if ($trimmed -match '^\|\s*ID\s*\|') {
+            $currentHeaders = @()
+            $parts = $trimmed -split '\|'
+            foreach ($part in $parts) {
+                $val = $part.Trim()
+                if ($val -ne '') { $currentHeaders += $val }
+            }
+        }
+
+        # Detect feature data row (starts with | [X.X.X] or | X.X.X)
+        if ($trimmed -match '^\|\s*\[?\d+\.\d+\.\d+' -and $currentHeaders.Count -gt 0) {
+            $parts = $trimmed -split '\|'
+            $columns = @()
+            foreach ($part in $parts) {
+                $val = $part.Trim()
+                if ($val -ne '') { $columns += $val }
+            }
+
+            $feature = @{}
+            for ($j = 0; $j -lt [Math]::Min($currentHeaders.Count, $columns.Count); $j++) {
+                $feature[$currentHeaders[$j]] = $columns[$j]
+            }
+            $features += $feature
+        }
+    }
+
+    $total = $features.Count
+    if ($total -eq 0) {
+        Write-Warning "No features found in feature tracking tables — summary not updated"
+        return $Content
+    }
+
+    # --- 1. Implementation Status Overview ---
+    $statusCounts = [ordered]@{}
+    foreach ($f in $features) {
+        $s = $f['Status']
+        if ($s) {
+            if (-not $statusCounts.Contains($s)) { $statusCounts[$s] = 0 }
+            $statusCounts[$s]++
+        }
+    }
+
+    $statusTableLines = @(
+        "| Status                | Count  | Percentage |"
+        "| --------------------- | ------ | ---------- |"
+    )
+    foreach ($key in $statusCounts.Keys) {
+        $count = $statusCounts[$key]
+        $pct = [math]::Round(($count / $total) * 100, 1)
+        $statusTableLines += "| $key | $count      | $($pct)%      |"
+    }
+    $statusTableLines += "| **Total Features**    | **$total**  | **100%**   |"
+
+    # --- 2. Documentation Tier Distribution ---
+    $tierCounts = [ordered]@{
+        '🔵 Tier 1 (Simple)'   = 0
+        '🟠 Tier 2 (Moderate)' = 0
+        '🔴 Tier 3 (Complex)'  = 0
+    }
+    foreach ($f in $features) {
+        $dt = $f['Doc Tier']
+        if ($dt -match 'Tier\s+1') { $tierCounts['🔵 Tier 1 (Simple)']++ }
+        elseif ($dt -match 'Tier\s+2') { $tierCounts['🟠 Tier 2 (Moderate)']++ }
+        elseif ($dt -match 'Tier\s+3') { $tierCounts['🔴 Tier 3 (Complex)']++ }
+    }
+
+    $tierTableLines = @(
+        "| Tier                  | Count  | Percentage |"
+        "| --------------------- | ------ | ---------- |"
+    )
+    foreach ($key in $tierCounts.Keys) {
+        $count = $tierCounts[$key]
+        $pct = [math]::Round(($count / $total) * 100, 1)
+        $tierTableLines += "| $key   | $count      | $($pct)%      |"
+    }
+    $tierTableLines += "| **Total Features**    | **$total**  | **100%**   |"
+
+    # --- 3. Documentation Coverage ---
+    $fddExists = 0; $tddExists = 0; $adrExists = 0; $testSpecExists = 0; $assessmentExists = 0
+    $tier1Info = @()
+    $adrList = @()
+
+    foreach ($f in $features) {
+        $featureId = ''
+        if ($f['ID'] -match '(\d+\.\d+\.\d+)') { $featureId = $matches[1] }
+        $featureName = $f['Feature']
+
+        if ($f['FDD'] -and $f['FDD'] -match '\[PD-FDD-') { $fddExists++ }
+        if ($f['TDD'] -and $f['TDD'] -match '\[PD-TDD-') { $tddExists++ }
+        if ($f.ContainsKey('ADR') -and $f['ADR'] -match '\[(PD-ADR-\d+)\]') {
+            $adrExists++
+            $adrList += "$($matches[1]) ($featureId)"
+        }
+        if ($f['Test Spec'] -and $f['Test Spec'] -match '\[PF-TSP-') { $testSpecExists++ }
+        if ($f['Doc Tier'] -and $f['Doc Tier'] -match '\[.*Tier.*\]\(') { $assessmentExists++ }
+
+        # Track Tier 1 features (don't need FDD/TDD)
+        if ($f['Doc Tier'] -match 'Tier\s+1') {
+            $tier1Info += "$featureId $featureName"
+        }
+    }
+
+    $fddMissing = $total - $fddExists
+    $tddMissing = $total - $tddExists
+    $testSpecMissing = $total - $testSpecExists
+    $assessmentMissing = $total - $assessmentExists
+
+    # Build missing notes for FDD/TDD (Tier 1 features don't need them)
+    $fddMissingNote = "$fddMissing"
+    $tddMissingNote = "$tddMissing"
+    if ($tier1Info.Count -gt 0 -and $fddMissing -gt 0) {
+        $tier1Note = ($tier1Info | ForEach-Object { $_ }) -join ', '
+        $fddMissingNote = "$fddMissing ($tier1Note — Tier 1, not required)"
+        $tddMissingNote = "$tddMissing ($tier1Note — Tier 1, not required)"
+    }
+
+    $adrNote = if ($adrList.Count -gt 0) { $adrList -join ', ' } else { '' }
+
+    $coverageTableLines = @(
+        "| Artifact | Exists | Missing | Notes |"
+        "|----------|--------|---------|-------|"
+        "| FDDs | $fddExists | $fddMissingNote | |"
+        "| TDDs | $tddExists | $tddMissingNote | |"
+        "| ADRs | $adrExists | $([char]0x2014) | $adrNote |"
+        "| Test Specs | $testSpecExists | $testSpecMissing | |"
+        "| Tier Assessments | $assessmentExists | $assessmentMissing | |"
+    )
+
+    # --- Build full replacement block ---
+    $summaryBlock = @()
+    $summaryBlock += "## Progress Summary"
+    $summaryBlock += ""
+    $summaryBlock += "<details>"
+    $summaryBlock += "<summary><strong>Implementation Status Overview</strong></summary>"
+    $summaryBlock += ""
+    $summaryBlock += $statusTableLines
+    $summaryBlock += ""
+    $noteEmoji = [char]::ConvertFromUtf32(0x1F4DD)
+    $summaryBlock += "> **$noteEmoji NOTE**: All $total features are fully implemented in code (retrospective). The status reflects documentation completeness, not implementation progress. All features have passing tests."
+    $summaryBlock += ""
+    $summaryBlock += "</details>"
+    $summaryBlock += ""
+    $summaryBlock += "<details>"
+    $summaryBlock += "<summary><strong>Documentation Tier Distribution</strong></summary>"
+    $summaryBlock += ""
+    $summaryBlock += $tierTableLines
+    $summaryBlock += ""
+    $summaryBlock += "</details>"
+    $summaryBlock += ""
+    $summaryBlock += "<details>"
+    $summaryBlock += "<summary><strong>Documentation Coverage</strong></summary>"
+    $summaryBlock += ""
+    $summaryBlock += $coverageTableLines
+    $summaryBlock += ""
+    $summaryBlock += "</details>"
+
+    # Replace the section between "## Progress Summary" and "## Tasks That Update This File"
+    $startIdx = -1
+    $endIdx = -1
+    for ($i = 0; $i -lt $lines.Count; $i++) {
+        if ($lines[$i] -match '^## Progress Summary') { $startIdx = $i }
+        elseif ($startIdx -ge 0 -and $lines[$i] -match '^## Tasks That Update This File') {
+            $endIdx = $i
+            break
+        }
+    }
+
+    if ($startIdx -lt 0) {
+        Write-Warning "Could not find '## Progress Summary' section — summary not updated"
+        return $Content
+    }
+    if ($endIdx -lt 0) {
+        Write-Warning "Could not find '## Tasks That Update This File' section — summary not updated"
+        return $Content
+    }
+
+    # Rebuild content: everything before summary + new summary + blank line + everything from Tasks onward
+    $before = $lines[0..($startIdx - 1)]
+    $after = $lines[$endIdx..($lines.Count - 1)]
+
+    $newLines = @()
+    $newLines += $before
+    $newLines += $summaryBlock
+    $newLines += ""
+    $newLines += $after
+
+    return ($newLines -join "`r`n")
+}
+
 # Export functions
 Export-ModuleMember -Function @(
     'Update-FeatureTrackingStatus',
     'Update-FeatureTrackingStatusWithAppend',
-    'Update-MultipleTrackingFiles'
+    'Update-MultipleTrackingFiles',
+    'Update-FeatureTrackingSummary'
 )
 
-Write-Verbose "FeatureTracking module loaded with 3 functions"
+Write-Verbose "FeatureTracking module loaded with 4 functions"

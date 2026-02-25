@@ -4,10 +4,11 @@ type: Product Documentation
 category: Technical Design Document
 version: 1.0
 created: 2026-02-19
-updated: 2026-02-19
+updated: 2026-02-25
 tier: 3
 feature_id: 0.1.1
 feature_name: Core Architecture
+consolidates: [0.1.1, 0.1.2 (Data Models), 0.1.5 (Path Utilities)]
 retrospective: true
 ---
 
@@ -15,7 +16,9 @@ retrospective: true
 
 > **Retrospective Document**: This TDD describes the existing technical design of the LinkWatcher Core Architecture, documented after implementation during framework onboarding (PF-TSK-066). Content is reverse-engineered from source code analysis.
 >
-> **Source**: Derived from [0.1.1 Implementation State](../../../../../process-framework/state-tracking/features/0.1.1-core-architecture-implementation-state.md), source code analysis, and [HOW_IT_WORKS.md](../../../../../../HOW_IT_WORKS.md).
+> **Source**: Derived from source code analysis of `linkwatcher/service.py`, `linkwatcher/__init__.py`, `linkwatcher/models.py`, `linkwatcher/utils.py`, and `main.py`, plus [HOW_IT_WORKS.md](../../../../../../HOW_IT_WORKS.md).
+>
+> **Scope Note**: This feature consolidates old 0.1.1 (Core Architecture), 0.1.2 (Data Models), and 0.1.5 (Path Utilities).
 
 ## 1. Overview
 
@@ -33,22 +36,21 @@ The Core Architecture defines the service-oriented, modular structure of LinkWat
 - Component wiring and dependency injection
 
 **Out of Scope**:
-- File event handling logic (→ 1.1.2 Event Handler)
+- File event handling logic (→ 1.1.1 Event Handler)
 - Link parsing logic (→ 2.1.1 Parser Framework)
 - Link update logic (→ 2.2.1 Link Updater)
-- In-memory storage (→ 0.1.3 In-Memory Database)
+- In-memory storage (→ 0.1.2 In-Memory Database)
 - Logging implementation (→ 3.1.1 Logging Framework)
 
 ### 1.3 Related Features
 
 | Feature | Relationship | Description |
 |---------|-------------|-------------|
-| 0.1.2 Data Models | Data dependency | Provides LinkReference and FileOperation data classes |
-| 0.1.3 In-Memory Database | Component dependency | Provides LinkDatabase for link storage |
-| 0.1.4 Configuration System | Configuration dependency | Provides LinkWatcherConfig for service configuration |
-| 0.1.5 Path Utilities | Utility dependency | Provides path normalization functions |
-| 1.1.1 Watchdog Integration | Runtime dependency | Provides Observer for file system monitoring |
-| 1.1.2 Event Handler | Runtime dependency | Provides LinkMaintenanceHandler for event processing |
+| _(Data Models)_ | _(part of 0.1.1)_ | LinkReference and FileOperation data classes (consolidated from old 0.1.2) |
+| 0.1.2 In-Memory Database | Component dependency | Provides LinkDatabase for link storage |
+| 0.1.3 Configuration System | Configuration dependency | Provides LinkWatcherConfig for service configuration |
+| _(Path Utilities)_ | _(part of 0.1.1)_ | Path normalization functions (consolidated from old 0.1.5) |
+| 1.1.1 Event Handler | Runtime dependency | Provides LinkMaintenanceHandler for event processing (includes Watchdog integration) |
 | 2.1.1 Parser Framework | Component dependency | Provides LinkParser for link extraction |
 | 2.2.1 Link Updater | Component dependency | Provides LinkUpdater for file modification |
 | 3.1.1 Logging Framework | Cross-cutting | Provides structured logging via get_logger() |
@@ -116,18 +118,18 @@ See [FDD PD-FDD-022](../../../../functional-design/fdds/fdd-0-1-1-core-architect
 │  (Orchestrator/Facade - service.py)                              │
 │                                                                  │
 │  __init__():                                                     │
-│    ├── LinkDatabase()              ← 0.1.3                       │
+│    ├── LinkDatabase()              ← 0.1.2                       │
 │    ├── LinkParser()                ← 2.1.1                       │
 │    ├── LinkUpdater(database)       ← 2.2.1                       │
-│    └── LinkMaintenanceHandler(     ← 1.1.2                       │
+│    └── LinkMaintenanceHandler(     ← 1.1.1                       │
 │          database, parser, updater)                               │
 │                                                                  │
 │  start():                                                        │
 │    ├── register signal handlers (SIGINT, SIGTERM)                │
-│    ├── Optional: initial_scan()    ← 1.1.3                       │
-│    ├── Observer(handler, path)     ← 1.1.1                       │
+│    ├── Optional: initial_scan()    ← 1.1.1 (Initial Scan)        │
+│    ├── Observer(handler, path)     ← 1.1.1 (Watchdog)           │
 │    ├── observer.start()                                          │
-│    └── while self.running: sleep(1)  ← 1.1.5                    │
+│    └── while self.running: sleep(1)  ← 1.1.1 (Monitoring)       │
 │                                                                  │
 │  stop():                                                         │
 │    ├── self.running = False                                      │
@@ -220,7 +222,33 @@ class LinkWatcherService:
         # Delegates to self.parser.parse() and self.database.add_links()
 ```
 
-### 4.2 CLI Entry Point (main.py)
+### 4.2 Duplicate Instance Prevention
+
+The service uses a PID-based lock file to prevent multiple instances from running on the same project simultaneously.
+
+**Lock File Location**: `<project_root>/.linkwatcher.lock`
+
+**Lock File Format**: Plain text file containing the PID of the running process (e.g., `12345`).
+
+**Lifecycle**:
+
+1. **Acquisition** (in `main.py`, before `LinkWatcherService` instantiation):
+   - Check if `.linkwatcher.lock` exists in the project root
+   - If exists, read the PID and check if the process is still alive (`os.kill(pid, 0)` on Unix, `psutil`-free approach via `ctypes` or `os.kill` on Windows)
+   - If PID is alive → exit with error message: "LinkWatcher is already running (PID: {pid})"
+   - If PID is stale (process not running) → log warning "Overriding stale lock file", delete and recreate
+   - If lock file does not exist → create it with current PID
+2. **Release** (in `main.py` `finally` block, after `service.start()` returns):
+   - Delete the lock file
+   - Handles both clean shutdown (Ctrl+C) and exception paths via `try/finally`
+
+**Error Handling**:
+- If lock file cannot be created (permissions) → log warning and proceed without lock protection
+- If lock file cannot be read (corrupt content) → treat as stale, override with warning
+
+**PowerShell Startup Script**: `start_linkwatcher_background.ps1` also checks for existing python processes associated with LinkWatcher before launching a new instance, providing a secondary guard at the script level.
+
+### 4.3 CLI Entry Point (main.py)
 
 ```python
 def main():
@@ -278,6 +306,7 @@ A minimal script that changes the working directory before launching, used for s
 | 0.1.1-FR-3 | Observer + handler | Watchdog daemon thread |
 | 0.1.1-FR-5 | LinkWatcherService._signal_handler() | signal.signal registration |
 | 0.1.1-FR-7 | __init__.py __all__ | Package-level re-exports |
+| 0.1.1-FR-8 | main.py lock file logic | PID-based lock file in project root |
 
 ## 6. API Specification Reference
 
@@ -303,7 +332,7 @@ No database schema — link storage uses an in-memory `Dict[str, List[LinkRefere
 ### 8.2 Security Implementation
 
 **Path Safety**:
-- All file paths normalized through `normalize_path()` (0.1.5)
+- All file paths normalized through `normalize_path()` (Path Utilities, part of 0.1.1)
 - Project directory boundary enforced — service only operates within configured path
 - No network access or external service calls
 
@@ -364,11 +393,11 @@ No database schema — link storage uses an in-memory `Dict[str, List[LinkRefere
 ### 11.1 Dependencies
 
 All dependencies are implemented and operational:
-- 0.1.2 Data Models ✅
-- 0.1.3 In-Memory Database ✅
-- 0.1.4 Configuration System ✅
-- 1.1.1 Watchdog Integration ✅
-- 1.1.2 Event Handler ✅
+- Data Models (part of 0.1.1) ✅
+- 0.1.2 In-Memory Database ✅
+- 0.1.3 Configuration System ✅
+- Path Utilities (part of 0.1.1) ✅
+- 1.1.1 Event Handler (includes Watchdog integration) ✅
 - 2.1.1 Parser Framework ✅
 - 2.2.1 Link Updater ✅
 - 3.1.1 Logging Framework ✅
@@ -402,7 +431,7 @@ Fully implemented and in production use. Retrospective documentation created dur
 
 - `final.py` purpose unclear — appears to be a startup helper that changes CWD before launching
 - Signal handling is Unix-style (SIGINT/SIGTERM) — Windows support relies on Python's signal emulation
-- Hard-coded extension/directory lists in handler (not from config) — technical debt identified in 1.1.4
+- Hard-coded extension/directory lists in handler (not from config) — technical debt identified in 1.1.1 (File Filtering)
 
 ---
 

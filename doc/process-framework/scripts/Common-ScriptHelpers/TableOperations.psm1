@@ -130,7 +130,12 @@ function Update-MarkdownTable {
             $columns = $rawColumns | ForEach-Object { $_.Trim() }
 
             # Check if this row contains our feature ID
-            if ($columns.Count -gt 0 -and $columns[0] -eq $FeatureId) {
+            # Extract plain text from potential markdown link [text](url) format
+            $cellValue = $columns[0]
+            if ($cellValue -match '^\[([^\]]+)\]') {
+                $cellValue = $matches[1]
+            }
+            if ($columns.Count -gt 0 -and $cellValue -eq $FeatureId) {
                 # Ensure we have exactly the right number of columns to match the header
                 $headerCount = $headers.Count
                 while ($columns.Count -lt $headerCount) {
@@ -300,7 +305,12 @@ function Update-MarkdownTableWithAppend {
             $columns = $rawColumns | ForEach-Object { $_.Trim() }
 
             # Check if this row contains our feature ID
-            if ($columns.Count -gt 0 -and $columns[0] -eq $FeatureId) {
+            # Extract plain text from potential markdown link [text](url) format
+            $cellValue = $columns[0]
+            if ($cellValue -match '^\[([^\]]+)\]') {
+                $cellValue = $matches[1]
+            }
+            if ($columns.Count -gt 0 -and $cellValue -eq $FeatureId) {
                 # Ensure we have exactly the right number of columns to match the header
                 $headerCount = $headers.Count
                 while ($columns.Count -lt $headerCount) {

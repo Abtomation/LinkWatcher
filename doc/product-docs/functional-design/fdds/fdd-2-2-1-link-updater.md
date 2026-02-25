@@ -6,7 +6,8 @@ version: 1.0
 created: 2026-02-19
 updated: 2026-02-20
 feature_id: 2.2.1
-feature_name: Link Updater
+feature_name: Link Updating
+consolidates: [2.2.1, 2.2.2 (Relative Path Calculation), 2.2.3 (Anchor Preservation), 2.2.4 (Dry Run Mode), 2.2.5 (Backup Creation)]
 retrospective: true
 ---
 
@@ -14,7 +15,9 @@ retrospective: true
 
 > **Retrospective Document**: This FDD describes the existing implemented functionality of the LinkWatcher Link Updater, documented after implementation during framework onboarding (PF-TSK-066). Content is descriptive ("what is") rather than prescriptive ("what should be").
 >
-> **Source**: Derived from [2.2.1 Implementation State](../../../process-framework/state-tracking/features/2.2.1-link-updater-implementation-state.md), [HOW_IT_WORKS.md](../../../../HOW_IT_WORKS.md) (Link Update Process section), and source code analysis of `linkwatcher/updater.py`.
+> **Source**: Derived from [HOW_IT_WORKS.md](../../../../HOW_IT_WORKS.md) (Link Update Process section) and source code analysis of `linkwatcher/updater.py`.
+>
+> **Scope Note**: This feature consolidates old 2.2.1 (Link Updater) with all update sub-features: 2.2.2 (Relative Path Calculation), 2.2.3 (Anchor Preservation), 2.2.4 (Dry Run Mode), 2.2.5 (Backup Creation). All are implementation details of the unified updater.
 
 ## Feature Overview
 
@@ -95,13 +98,13 @@ Not applicable — this is an internal subsystem with no direct user interface.
 
 ### Feature Dependencies
 
-- **[0.1.2 Data Models](../../../process-framework/state-tracking/features/0.1.2-data-models-implementation-state.md)**: Provides `LinkReference` data type with `line_number`, `column_start`, `link_type`, and `link_target` fields
-- **[3.1.1 Logging Framework](../../../process-framework/state-tracking/features/3.1.1-logging-framework-implementation-state.md)**: Provides `get_logger()`, `LogTimer`, and `with_context()` for structured update logging
+- **0.1.1 Core Architecture**: Provides `LinkReference` data type (models.py) with `line_number`, `column_start`, `link_type`, and `link_target` fields
+- **3.1.1 Logging System**: Provides `get_logger()`, `LogTimer`, and `with_context()` for structured update logging
 
 ### Dependent Features
 
-- **[0.1.1 Core Architecture](../../../process-framework/state-tracking/features/0.1.1-core-architecture-implementation-state.md)**: Service layer instantiates `LinkUpdater` and calls `update_references()`
-- **[1.1.2 Event Handler](../../../process-framework/state-tracking/features/1.1.2-event-handler-implementation-state.md)**: Triggers link updates via service layer on file system events
+- **0.1.1 Core Architecture**: Service layer instantiates `LinkUpdater` and calls `update_references()`
+- **1.1.1 File System Monitoring**: Triggers link updates via service layer on file system events
 
 ### External Dependencies
 

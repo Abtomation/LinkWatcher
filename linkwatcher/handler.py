@@ -18,12 +18,13 @@ from watchdog.events import (
     FileSystemEventHandler,
 )
 
+from .config.defaults import DEFAULT_CONFIG
 from .database import LinkDatabase
 from .logging import LogTimer, get_logger, with_context
 from .models import FileOperation
 from .parser import LinkParser
 from .updater import LinkUpdater
-from .utils import should_ignore_directory, should_monitor_file
+from .utils import get_relative_path, normalize_path, should_ignore_directory, should_monitor_file
 
 
 class LinkMaintenanceHandler(FileSystemEventHandler):
@@ -37,7 +38,13 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
     """
 
     def __init__(
-        self, link_db: LinkDatabase, parser: LinkParser, updater: LinkUpdater, project_root: str
+        self,
+        link_db: LinkDatabase,
+        parser: LinkParser,
+        updater: LinkUpdater,
+        project_root: str,
+        monitored_extensions: set = None,
+        ignored_directories: set = None,
     ):
         super().__init__()
         self.link_db = link_db
@@ -46,49 +53,17 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
         self.project_root = Path(project_root).resolve()
         self.logger = get_logger()
 
-        # Configuration - comprehensive set of commonly referenced file types
-        self.monitored_extensions = {
-            # Documentation and text files
-            ".md",
-            ".txt",
-            ".yaml",
-            ".yml",
-            ".json",
-            ".xml",
-            ".csv",
-            # Web development files
-            ".html",
-            ".htm",
-            ".css",
-            ".js",
-            ".ts",
-            ".jsx",
-            ".tsx",
-            ".vue",
-            ".php",
-            # Image files
-            ".png",
-            ".jpg",
-            ".jpeg",
-            ".gif",
-            ".svg",
-            ".webp",
-            ".ico",
-            # Document files
-            ".pdf",
-            # Source code files
-            ".py",
-            ".dart",
-            # Script files
-            ".ps1",
-            ".sh",
-            ".bat",
-            # Media files
-            ".mp4",
-            ".mp3",
-            ".wav",
-        }
-        self.ignored_dirs = {".git", ".dart_tool", "node_modules", ".vscode", "build", "dist"}
+        # Configuration from parameters or DEFAULT_CONFIG
+        self.monitored_extensions = (
+            monitored_extensions
+            if monitored_extensions is not None
+            else DEFAULT_CONFIG.monitored_extensions.copy()
+        )
+        self.ignored_dirs = (
+            ignored_directories
+            if ignored_directories is not None
+            else DEFAULT_CONFIG.ignored_directories.copy()
+        )
 
         # Delayed move detection
         self.pending_deletes = {}  # {file_path: (timestamp, file_size)}
@@ -241,6 +216,93 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
                 # Update the files FIRST (before modifying the database)
                 update_stats = self.updater.update_references(references, old_path, new_path)
 
+                # Handle stale line numbers: rescan affected files and retry once
+                stale_files = update_stats.get("stale_files", [])
+                if stale_files:
+                    self.logger.info(
+                        "rescanning_stale_files",
+                        stale_files=stale_files,
+                        count=len(stale_files),
+                    )
+                    print(
+                        f"{Fore.YELLOW}🔄 Rescanning {len(stale_files)} file(s) "
+                        f"with stale line numbers..."
+                    )
+
+                    # Rescan only the stale source files to refresh line numbers
+                    for stale_file in stale_files:
+                        abs_stale_path = (
+                            os.path.join(self.project_root, stale_file)
+                            if not os.path.isabs(stale_file)
+                            else stale_file
+                        )
+                        if os.path.exists(abs_stale_path):
+                            self._rescan_file_links(abs_stale_path)
+
+                    # Re-query fresh references for stale files only
+                    stale_set = set(stale_files)
+                    retry_references = []
+
+                    # Try all path variations (same as original lookup above)
+                    for ref in self.link_db.get_references_to_file(old_path):
+                        if ref.file_path in stale_set:
+                            retry_references.append(ref)
+
+                    path_parts_retry = old_path.split("/")
+                    if len(path_parts_retry) > 2:
+                        relative_old = "/".join(path_parts_retry[1:])
+                        for ref in self.link_db.get_references_to_file(relative_old):
+                            if ref.file_path in stale_set:
+                                retry_references.append(ref)
+
+                    old_fn = os.path.basename(old_path)
+                    for ref in self.link_db.get_references_to_file(old_fn):
+                        if ref.file_path in stale_set:
+                            retry_references.append(ref)
+
+                    # Deduplicate
+                    seen_retry = set()
+                    unique_retry = []
+                    for ref in retry_references:
+                        key = (ref.file_path, ref.line_number, ref.column_start, ref.link_target)
+                        if key not in seen_retry:
+                            seen_retry.add(key)
+                            unique_retry.append(ref)
+
+                    if unique_retry:
+                        print(
+                            f"{Fore.CYAN}🔄 Retrying with {len(unique_retry)} "
+                            f"fresh reference(s)..."
+                        )
+                        retry_stats = self.updater.update_references(
+                            unique_retry, old_path, new_path
+                        )
+
+                        # Merge retry results
+                        update_stats["files_updated"] += retry_stats["files_updated"]
+                        update_stats["references_updated"] += retry_stats["references_updated"]
+                        update_stats["errors"] += retry_stats["errors"]
+
+                        # Exit gate: if retry also found stale, log and move on
+                        if retry_stats.get("stale_files"):
+                            self.logger.warning(
+                                "stale_after_retry",
+                                stale_files=retry_stats["stale_files"],
+                            )
+                            print(
+                                f"{Fore.RED}⚠ References still stale after "
+                                f"rescan. Skipping to prevent loop."
+                            )
+                    else:
+                        self.logger.warning(
+                            "no_fresh_references_after_rescan",
+                            stale_files=stale_files,
+                        )
+                        print(
+                            f"{Fore.YELLOW}⚠ No fresh references found after "
+                            f"rescan for stale files"
+                        )
+
                 # Instead of trying to update the database in place, remove old references
                 # and rescan the affected files to ensure database consistency
                 affected_files = set()
@@ -255,11 +317,11 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
                         affected_files.add(ref.file_path)
 
                     # Remove from database - need to handle normalized paths
-                    old_normalized = self.link_db._normalize_path(old_target)
+                    old_normalized = normalize_path(old_target)
                     keys_to_remove = []
                     for key in self.link_db.links.keys():
                         base_key = key.split("#", 1)[0] if "#" in key else key
-                        if self.link_db._normalize_path(base_key) == old_normalized:
+                        if normalize_path(base_key) == old_normalized:
                             keys_to_remove.append(key)
 
                     for key in keys_to_remove:
@@ -771,12 +833,7 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
 
     def _get_relative_path(self, abs_path: str) -> str:
         """Convert absolute path to relative path from project root."""
-        try:
-            abs_path_obj = Path(abs_path).resolve()
-            return str(abs_path_obj.relative_to(self.project_root)).replace("\\", "/")
-        except ValueError:
-            # Path is outside project root
-            return abs_path.replace("\\", "/")
+        return get_relative_path(abs_path, str(self.project_root))
 
     def get_stats(self) -> dict:
         """Get handler statistics."""

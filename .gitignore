@@ -138,4 +138,4 @@ Thumbs.db
 *.log
 test_output/
 temp/
-.linkwatcher/
+.linkwatcher/dependency_graph.png

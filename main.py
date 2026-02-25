@@ -17,6 +17,7 @@ Options:
 """
 
 import argparse
+import os
 import sys
 from pathlib import Path
 
@@ -123,6 +124,62 @@ def print_startup_info(config: LinkWatcherConfig, project_root: Path):
     print(f"{Fore.CYAN}{'='*60}\n")
 
 
+LOCK_FILE_NAME = ".linkwatcher.lock"
+
+
+def _is_pid_running(pid: int) -> bool:
+    """Check if a process with the given PID is still running."""
+    try:
+        os.kill(pid, 0)
+        return True
+    except OSError:
+        return False
+
+
+def acquire_lock(project_root: Path) -> Path:
+    """Acquire a lock file to prevent duplicate instances.
+
+    Returns the lock file path on success.
+    Raises SystemExit if another instance is already running.
+    """
+    lock_file = project_root / LOCK_FILE_NAME
+
+    if lock_file.exists():
+        try:
+            content = lock_file.read_text().strip()
+            existing_pid = int(content)
+            if _is_pid_running(existing_pid):
+                print(f"{Fore.RED}✗ LinkWatcher is already running (PID: {existing_pid})")
+                print(f"{Fore.YELLOW}  Lock file: {lock_file}")
+                sys.exit(1)
+            else:
+                print(
+                    f"{Fore.YELLOW}⚠️ Overriding stale lock file (PID {existing_pid} is no longer running)"
+                )
+        except (ValueError, OSError):
+            print(f"{Fore.YELLOW}⚠️ Overriding invalid lock file")
+
+    try:
+        lock_file.write_text(str(os.getpid()))
+    except OSError as e:
+        print(
+            f"{Fore.YELLOW}⚠️ Could not create lock file ({e}). "
+            f"Duplicate instance protection disabled."
+        )
+        return None
+
+    return lock_file
+
+
+def release_lock(lock_file: Path):
+    """Release the lock file."""
+    if lock_file is not None and lock_file.exists():
+        try:
+            lock_file.unlink()
+        except OSError:
+            pass
+
+
 def main():
     """Main entry point."""
     parser = argparse.ArgumentParser(
@@ -215,30 +272,36 @@ Examples:
         if not args.quiet:
             print_startup_info(config, project_root)
 
-        # Create and configure service
-        service = LinkWatcherService(str(project_root))
+        # Acquire lock file to prevent duplicate instances
+        lock_file = acquire_lock(project_root)
 
-        # Apply configuration
-        service.set_dry_run(config.dry_run_mode)
-        service.updater.set_backup_enabled(config.create_backups)
-        service.handler.monitored_extensions = config.monitored_extensions
-        service.handler.ignored_dirs = config.ignored_directories
+        try:
+            # Create and configure service
+            service = LinkWatcherService(str(project_root), config=config)
 
-        # Add custom parsers if configured
-        for extension, parser_class in config.custom_parsers.items():
-            try:
-                # This would require dynamic loading - simplified for now
-                logger.warning("custom_parser_not_implemented", extension=extension)
-            except Exception as e:
-                logger.warning("custom_parser_load_failed", extension=extension, error=str(e))
+            # Apply configuration
+            service.set_dry_run(config.dry_run_mode)
+            service.updater.set_backup_enabled(config.create_backups)
 
-        # Start the service
-        service.start(initial_scan=config.initial_scan_enabled)
+            # Add custom parsers if configured
+            for extension, parser_class in config.custom_parsers.items():
+                try:
+                    # This would require dynamic loading - simplified for now
+                    logger.warning("custom_parser_not_implemented", extension=extension)
+                except Exception as e:
+                    logger.warning("custom_parser_load_failed", extension=extension, error=str(e))
+
+            # Start the service
+            service.start(initial_scan=config.initial_scan_enabled)
+        finally:
+            release_lock(lock_file)
 
     except KeyboardInterrupt:
         logger = get_logger()
         logger.info("linkwatcher_stopped_by_user")
         sys.exit(0)
+    except SystemExit:
+        raise
     except Exception as e:
         logger = get_logger()
         logger.critical("fatal_error", error=str(e), error_type=type(e).__name__)

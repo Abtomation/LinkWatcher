@@ -92,23 +92,23 @@ When referencing other tasks' outputs in Test Specifications:
 - **Critical (Must Read):**
 
   - **Functional Design Document (FDD)** - For Tier 2+ features, the FDD containing acceptance criteria and user flows that inform test scenarios
-  - [Technical Design Document](/doc/product-docs/technical/design) - The TDD for the feature being specified
-  - C-testing/methodologies/documentation-tiers/assessments) - Complexity assessment to determine test depth
+  - [Technical Design Document](/doc/product-docs/technical/architecture/design-docs/tdd/) - The TDD for the feature being specified
+  - [Tier Assessments](/doc/process-framework/methodologies/documentation-tiers/assessments/) - Complexity assessment to determine test depth
   - [Development Guide](/doc/product-docs/guides/guides/development-guide.md) - Testing standards and practices
 
 - **Important (Load If Space):**
 
   - [Test Registry](/test/test-registry.yaml) - Current test file registry with IDs and metadata
-  - C-testing/state-tracking/permanent/test-implementation-tracking.md) - Current test implementation status
+  - [Test Implementation Tracking](/doc/process-framework/state-tracking/permanent/test-implementation-tracking.md) - Current test implementation status
   - [Existing Test Structure](/test/) - Current test organization and patterns
   - [Mock Services](/test/mocks/) - Available mock implementations for testing
   - [Test Helpers](/test/test_helpers/) - Utility functions for test setup
   - [Project Structure](/doc/product-docs/technical/architecture/project-structure.md) - Understanding component relationships
 
 - **Reference Only (Access When Needed):**
-  - C-testing/state-tracking/permanent/feature-tracking.md) - Feature development status
+  - [Feature Tracking](/doc/process-framework/state-tracking/permanent/feature-tracking.md) - Feature development status
   - [Visual Notation Guide](/doc/process-framework/guides/guides/visual-notation-guide.md) - For interpreting context map diagrams
-  - C-testing/.ai-workspace/AI-FRAMEWORK-SUMMARY.md) - AI development context patterns
+  - [ID Registry](/doc/id-registry.json) - Document ID counter management
 
 ## Process
 
@@ -124,8 +124,8 @@ When referencing other tasks' outputs in Test Specifications:
 2. **Review the Target TDD**: Read the complete Technical Design Document for the feature
 3. **Assess Test Complexity**: Review the feature's tier assessment to determine appropriate test depth:
    - **Tier 1 🔵**: Basic unit tests and key integration scenarios
-   - **Tier 2 🟠**: Comprehensive unit tests, integration tests, and widget tests
-   - **Tier 3 🔴**: Full test suite including unit, integration, widget, and end-to-end tests
+   - **Tier 2 🟠**: Comprehensive unit tests, integration tests, and UI/component tests
+   - **Tier 3 🔴**: Full test suite including unit, integration, UI/component, and end-to-end tests
 4. **Analyze Existing Test Structure**: Review current test organization and identify patterns to follow
 5. **Identify Test Dependencies**: Determine what mocks, helpers, and test utilities are needed
 
@@ -146,7 +146,7 @@ When referencing other tasks' outputs in Test Specifications:
 
    - **Unit Tests**: Individual component/service testing
    - **Integration Tests**: Component interaction testing
-   - **Widget Tests**: UI component testing (for Flutter features)
+   - **UI/Component Tests**: UI component testing
    - **End-to-End Tests**: Complete user flow testing (Tier 3 only)
 
 7. **Specify Test Cases**: For each test category, define:
@@ -162,7 +162,7 @@ When referencing other tasks' outputs in Test Specifications:
    - TDD Models → Unit test specifications
    - TDD Services → Service test specifications
    - TDD Data Flow → Integration test specifications
-   - TDD UI Components → Widget test specifications
+   - TDD UI Components → UI/component test specifications
 
 9. **Define Mock Requirements**: Specify what mocks are needed and their expected behaviors
 
@@ -171,6 +171,12 @@ When referencing other tasks' outputs in Test Specifications:
     - Priority order for test implementation
     - Specific files that need to be created/modified
     - Dependencies between test files
+
+11. **Add Clickable Links**: Ensure all file path references in the specification are clickable markdown links:
+    - **Test File** references (e.g., `tests/unit/test_service.py`) must use `[`path`](../../../path)` format
+    - **Files to Reference** section paths (TDD, source code, fixtures) must be linked
+    - **Source Code** references (e.g., `linkwatcher/database.py`) must be linked
+    - Relative prefix from `test/specifications/feature-specs/` to project root is `../../../`
 
 ### Finalization
 
@@ -190,7 +196,11 @@ When referencing other tasks' outputs in Test Specifications:
 
 The following state files must be updated as part of this task:
 
-- C-testing/state-tracking/permanent/feature-tracking.md) - Update Test Status to reflect test specification creation (📋 Specs Created) and add Test Spec link
+- [Feature Tracking](/doc/process-framework/state-tracking/permanent/feature-tracking.md) - Update Test Status to reflect test specification creation (📋 Specs Created) and add Test Spec link
+- [Test Registry](/test/test-registry.yaml) - Update `specificationPath` field for all test files belonging to the feature
+- [ID Registry](/doc/id-registry.json) - Update `PF-TSP.nextAvailable` counter after creating specifications
+- [Documentation Map](/doc/process-framework/documentation-map.md) - Add new test specification entries to the Test Specifications section
+- [Test Implementation Tracking](/doc/process-framework/state-tracking/permanent/test-implementation-tracking.md) - Add section if feature category is missing
 
 **Note**: If a feature is determined to not require tests (assessment/documentation features), update the Feature Tracking Test Status directly to "🚫 No Test Required" instead of using this task.
 
@@ -206,22 +216,21 @@ Before considering this task finished:
   - [ ] Mock Requirements Documentation completed
   - [ ] AI Session Context notes included for implementation handoff
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
-  - [ ] C-testing/state-tracking/permanent/feature-tracking.md) Test Status updated to "📋 Specs Created" and Test Spec link added
+  - [ ] [Feature Tracking](/doc/process-framework/state-tracking/permanent/feature-tracking.md) — Test Status updated to "📋 Specs Created" and Test Spec link added
+  - [ ] [Test Registry](/test/test-registry.yaml) — `specificationPath` populated for all test files belonging to the feature
+  - [ ] [ID Registry](/doc/id-registry.json) — `PF-TSP.nextAvailable` counter incremented
+  - [ ] [Documentation Map](/doc/process-framework/documentation-map.md) — New test spec entries added to Test Specifications section
+  - [ ] [Test Implementation Tracking](/doc/process-framework/state-tracking/permanent/test-implementation-tracking.md) — Feature section added if missing
 - [ ] **Verify State Tracking Consistency**: Ensure all tracking files are properly updated and consistent
-
-<!-- Note to task creator: Link state files in checklist items just as in the State Tracking section -->
-
-- [ ] **Complete Feedback Forms**: Follow the C-testing/guides/guides/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-012" and context "Test Specification Creation"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](/doc/process-framework/guides/guides/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-012" and context "Test Specification Creation"
 
 ## Next Tasks
 
 - [**Integration & Testing (PF-TSK-053)**](../04-implementation/integration-and-testing.md) - Implement test cases and validate integration after feature implementation
 - [**Feature Implementation Planning**](../04-implementation/feature-implementation-planning-task.md) - Plan and execute feature implementation using decomposed tasks
-- C-testing/code-review-task.md) - Review implemented tests and code for quality assurance
+- [**Code Review**](../06-maintenance/code-review-task.md) - Review implemented tests and code for quality assurance
 
 ## Related Resources
 
 - [Cross-Cutting Test Specification Template](../../templates/templates/cross-cutting-test-specification-template.md) - Template for tests spanning multiple features (use when test scenarios cross feature boundaries)
-- [Flutter Testing Best Practices](https://docs.flutter.dev/testing) - Official Flutter testing documentation
-- [Mockito Documentation](https://pub.dev/packages/mockito) - Mock library documentation for Dart/Flutter
-- C-testing/.ai-workspace/AI-FRAMEWORK-SUMMARY.md) - Context for AI-assisted development
+- [Test Specification Creation Usage Guide](../../guides/guides/test-specification-creation-usage-guide.md) - Comprehensive guide for using this task effectively

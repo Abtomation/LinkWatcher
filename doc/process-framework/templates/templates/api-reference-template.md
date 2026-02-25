@@ -219,26 +219,19 @@ class User {
 
 [Provide a complete example of a common API usage scenario]
 
-```dart
-// Complete example code
-import 'package:example_api<!-- /example_api.dart - File not found -->';
+```
+// Complete example code (use your project's language)
+// import the API client library
 
-void main() async {
-  final client = ApiClient(apiKey: 'your_api_key');
+// Initialize client
+client = ApiClient(api_key="your_api_key")
 
-  try {
-    final user = await client.getUser(id: 'user_123');
-    print('User: ${user.name}');
+// Fetch and update a resource
+user = client.get_user(id="user_123")
+print(f"User: {user.name}")
 
-    final updatedUser = await client.updateUser(
-      id: user.id,
-      name: 'New Name',
-    );
-    print('Updated user: ${updatedUser.name}');
-  } catch (e) {
-    print('Error: $e');
-  }
-}
+updated_user = client.update_user(id=user.id, name="New Name")
+print(f"Updated user: {updated_user.name}")
 ```
 
 ### Example 2: [Another Common Use Case]

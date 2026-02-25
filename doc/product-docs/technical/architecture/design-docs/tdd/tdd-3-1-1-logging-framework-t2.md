@@ -4,9 +4,10 @@ type: Technical Design Document
 category: TDD Tier 2
 version: 1.0
 created: 2026-02-19
-updated: 2026-02-19
+updated: 2026-02-20
 feature_id: 3.1.1
-feature_name: Logging Framework
+feature_name: Logging System
+consolidates: [3.1.1-3.1.5]
 tier: 2
 retrospective: true
 ---
@@ -15,7 +16,9 @@ retrospective: true
 
 > **Retrospective Document**: This TDD describes the existing technical design of the LinkWatcher Logging Framework, documented after implementation during framework onboarding (PF-TSK-066). Content is reverse-engineered from source code analysis.
 >
-> **Source**: Derived from [3.1.1 Implementation State](../../../../../process-framework/state-tracking/features/3.1.1-logging-framework-implementation-state.md), [docs/LOGGING.md](../../../../../../docs/LOGGING.md), and source code analysis of `linkwatcher/logging.py` and `linkwatcher/logging_config.py`.
+> **Source**: Derived from [docs/LOGGING.md](../../../../../../docs/LOGGING.md) and source code analysis of `linkwatcher/logging.py` and `linkwatcher/logging_config.py`.
+>
+> **Scope Note**: This feature consolidates old 3.1.1 (Logging Framework) with all sub-features: 3.1.2 (Colored Console Output), 3.1.3 (Statistics Tracking), 3.1.4 (Progress Reporting), and 3.1.5 (Error Reporting).
 
 ## 1. Overview
 
@@ -29,13 +32,13 @@ The framework delivers dual-mode output (colored console + JSON file), per-threa
 
 | Feature | Relationship | Description |
 |---------|-------------|-------------|
-| 0.1.4 Configuration System | Consumer | Reads `log_level`, `log_file` settings from `LinkWatcherConfig` |
+| 0.1.3 Configuration System | Consumer | Reads `log_level`, `log_file` settings from `LinkWatcherConfig` |
 | 0.1.1 Core Architecture | Consumer | `service.py` uses `get_logger()`, `LogTimer`, `@with_context` |
-| 0.1.3 In-Memory Database | Consumer | `database.py` uses `get_logger()` for operation logging |
-| 1.1.2 Event Handler | Consumer | `handler.py` uses `get_logger()`, `@with_context`, `LogTimer` |
+| 0.1.2 In-Memory Database | Consumer | `database.py` uses `get_logger()` for operation logging |
+| 1.1.1 Event Handler | Consumer | `handler.py` uses `get_logger()`, `@with_context`, `LogTimer` |
 | 2.1.1 Parser Framework | Consumer | `parser.py` uses `get_logger()`, `LogTimer` |
 | 2.2.1 Link Updater | Consumer | `updater.py` uses `get_logger()`, `LogTimer`, `@with_context` |
-| 3.1.2–3.1.5 Log sub-features | Provider | Colored output, statistics, progress, error reporting all implemented within this framework |
+| _(3.1.2–3.1.5 Log sub-features)_ | _(consolidated into 3.1.1)_ | Colored output, statistics, progress, error reporting all part of this feature |
 
 ## 2. Key Requirements
 
@@ -273,7 +276,7 @@ Terminal (ANSI colors)          .log file (10MB rotation, 5 backups)
 
 All dependencies are fully implemented (retrospective document):
 
-- `linkwatcher/config/settings.py` (0.1.4) — `LinkWatcherConfig` for optional config integration
+- `linkwatcher/config/settings.py` (0.1.3) — `LinkWatcherConfig` for optional config integration
 - `structlog` — structured logging processor chain
 - `colorama` — ANSI color output on Windows
 - `PyYAML` — YAML config file parsing (optional, `LoggingConfigManager` only)

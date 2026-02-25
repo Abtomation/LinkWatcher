@@ -127,11 +127,11 @@ class TestLinkUpdater:
 
     def test_normalize_path(self):
         """Test path normalization."""
-        updater = LinkUpdater()
+        from linkwatcher.utils import normalize_path
 
-        assert updater._normalize_path("/test/file.txt") == "test/file.txt"
-        assert updater._normalize_path("test\\file.txt") == "test/file.txt"
-        assert updater._normalize_path("./test/file.txt") == "test/file.txt"
+        assert normalize_path("/test/file.txt") == "test/file.txt"
+        assert normalize_path("test\\file.txt") == "test/file.txt"
+        assert normalize_path("./test/file.txt") == "test/file.txt"
 
     def test_replace_path_part_exact_match(self):
         """Test replacing path part with exact match."""
@@ -318,3 +318,134 @@ Also a reference to "old.txt" in quotes.
 
         # Verify atomic write was used
         assert write_called
+
+
+class TestStaleLineNumberDetection:
+    """Test cases for stale line number detection (PD-BUG-005)."""
+
+    def test_stale_detection_line_out_of_bounds(self, temp_project_dir):
+        """Test that out-of-bounds line numbers are detected as stale."""
+        updater = LinkUpdater()
+        updater.set_backup_enabled(False)
+
+        # Create a short file (3 lines)
+        test_file = temp_project_dir / "doc.md"
+        content = "Line 1\nLine 2\nLine 3\n"
+        test_file.write_text(content)
+
+        # Reference pointing to line 10 (out of bounds)
+        ref = LinkReference(str(test_file), 10, 0, 7, "link", "old.txt", "markdown")
+
+        result = updater._update_file_references(str(test_file), [ref], "old.txt", "new.txt")
+
+        assert result == "stale"
+        # File must not be modified
+        assert test_file.read_text() == content
+
+    def test_stale_detection_target_not_on_expected_line(self, temp_project_dir):
+        """Test that wrong line content is detected as stale."""
+        updater = LinkUpdater()
+        updater.set_backup_enabled(False)
+
+        # Original file had link on line 2, but user inserted a line at top
+        test_file = temp_project_dir / "doc.md"
+        content = "Newly inserted line\nOriginal line 1\nSee [link](old.txt) for info.\n"
+        test_file.write_text(content)
+
+        # Stale reference: still points to line 2, but link is now on line 3
+        ref = LinkReference(str(test_file), 2, 4, 18, "link", "old.txt", "markdown")
+
+        result = updater._update_file_references(str(test_file), [ref], "old.txt", "new.txt")
+
+        assert result == "stale"
+        # File must not be modified
+        assert test_file.read_text() == content
+
+    def test_no_stale_when_line_content_matches(self, temp_project_dir):
+        """Test that correct line numbers result in successful update."""
+        updater = LinkUpdater()
+        updater.set_backup_enabled(False)
+
+        test_file = temp_project_dir / "doc.md"
+        content = "Some text [link](old.txt) more text\n"
+        test_file.write_text(content)
+
+        ref = LinkReference(str(test_file), 1, 11, 25, "link", "old.txt", "markdown")
+
+        result = updater._update_file_references(str(test_file), [ref], "old.txt", "new.txt")
+
+        assert result == "updated"
+        assert "new.txt" in test_file.read_text()
+        assert "old.txt" not in test_file.read_text()
+
+    def test_stale_detection_prevents_partial_writes(self, temp_project_dir):
+        """Test that stale detection prevents partial file modifications."""
+        updater = LinkUpdater()
+        updater.set_backup_enabled(False)
+
+        # File with links on lines 2 and 4
+        test_file = temp_project_dir / "doc.md"
+        content = (
+            "# Title\n"
+            "First [link](old.txt) here.\n"
+            "Some other text.\n"
+            "This line has NO link (was shifted).\n"
+        )
+        test_file.write_text(content)
+
+        # Line 2 has the correct link, line 4 is stale (link was shifted away)
+        references = [
+            LinkReference(str(test_file), 2, 6, 20, "link", "old.txt", "markdown"),
+            LinkReference(str(test_file), 4, 6, 20, "link", "old.txt", "markdown"),
+        ]
+
+        result = updater._update_file_references(str(test_file), references, "old.txt", "new.txt")
+
+        # Bottom-to-top processing: line 4 checked first, detected stale
+        assert result == "stale"
+        # File must be completely unchanged - no partial writes
+        assert test_file.read_text() == content
+
+    def test_update_references_reports_stale_files(self, temp_project_dir):
+        """Test that update_references tracks stale files in stats."""
+        updater = LinkUpdater()
+        updater.set_backup_enabled(False)
+
+        # File 1: correct line numbers
+        file1 = temp_project_dir / "correct.md"
+        file1.write_text("See [link](old.txt) here.\n")
+
+        # File 2: stale line numbers (3 lines, ref points to line 10)
+        file2 = temp_project_dir / "stale.md"
+        file2.write_text("Line 1\nLine 2\nLine 3\n")
+
+        references = [
+            LinkReference(str(file1), 1, 4, 18, "link", "old.txt", "markdown"),
+            LinkReference(str(file2), 10, 0, 7, "link", "old.txt", "markdown"),
+        ]
+
+        stats = updater.update_references(references, "old.txt", "new.txt")
+
+        assert stats["files_updated"] == 1
+        assert len(stats["stale_files"]) == 1
+        assert str(file2) in stats["stale_files"]
+        # Correct file should be updated
+        assert "new.txt" in file1.read_text()
+        # Stale file should be unchanged
+        assert file2.read_text() == "Line 1\nLine 2\nLine 3\n"
+
+    def test_no_changes_return_value(self, temp_project_dir):
+        """Test that unchanged target returns 'no_changes'."""
+        updater = LinkUpdater()
+        updater.set_backup_enabled(False)
+
+        test_file = temp_project_dir / "doc.md"
+        content = "See [link](other.txt) here.\n"
+        test_file.write_text(content)
+
+        # Reference target doesn't match old_path, so no change needed
+        ref = LinkReference(str(test_file), 1, 4, 19, "link", "other.txt", "markdown")
+
+        result = updater._update_file_references(str(test_file), [ref], "old.txt", "new.txt")
+
+        assert result == "no_changes"

@@ -7,8 +7,9 @@ This module defines the common interface that all parsers must implement.
 from abc import ABC, abstractmethod
 from typing import List
 
+from ..logging import get_logger
 from ..models import LinkReference
-from ..utils import looks_like_file_path, safe_file_read
+from ..utils import find_line_number, looks_like_file_path, safe_file_read
 
 
 class BaseParser(ABC):
@@ -18,6 +19,9 @@ class BaseParser(ABC):
     All file type specific parsers should inherit from this class
     and implement the parse_file method.
     """
+
+    def __init__(self):
+        self.logger = get_logger()
 
     @abstractmethod
     def parse_file(self, file_path: str) -> List[LinkReference]:
@@ -42,7 +46,4 @@ class BaseParser(ABC):
 
     def _find_line_number(self, lines: List[str], search_text: str) -> int:
         """Find line number containing specific text."""
-        for i, line in enumerate(lines, 1):
-            if search_text in line:
-                return i
-        return 0
+        return find_line_number(lines, search_text)
