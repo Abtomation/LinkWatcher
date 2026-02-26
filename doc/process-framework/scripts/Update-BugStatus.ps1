@@ -128,8 +128,12 @@ param(
     [datetime]$UpdateDate = (Get-Date)
 )
 
-# Configuration
-$BugTrackingFile = "doc/process-framework/state-tracking/permanent/bug-tracking.md"
+# Import the common helpers for Get-ProjectRoot
+Import-Module (Join-Path -Path $PSScriptRoot -ChildPath "Common-ScriptHelpers.psm1") -Force
+
+# Configuration - use project-root-relative path for reliability
+$ProjectRoot = Get-ProjectRoot
+$BugTrackingFile = Join-Path -Path $ProjectRoot -ChildPath "doc/process-framework/state-tracking/permanent/bug-tracking.md"
 $ScriptName = "Update-BugStatus.ps1"
 
 # Status emoji mapping

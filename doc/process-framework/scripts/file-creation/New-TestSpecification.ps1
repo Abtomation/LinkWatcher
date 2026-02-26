@@ -249,7 +249,7 @@ try {
 
                 # Update id-registry.json PD-TST nextAvailable
                 try {
-                    $idRegistryPath = Join-Path $projectRoot "doc/id-registry.json"
+                    $idRegistryPath = Join-Path $projectRoot "../../../id-registry.json"
                     $idRegistry = Get-Content $idRegistryPath -Raw -Encoding UTF8 | ConvertFrom-Json
                     $newNext = $nextTestId + 1
                     $idRegistry.prefixes.'PD-TST'.nextAvailable = $newNext

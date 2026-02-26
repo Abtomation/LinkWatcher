@@ -73,12 +73,7 @@ else {
     $PSScriptRoot
 }
 
-# Resolve paths relative to script location
-$TemplateFile = Join-Path $ScriptDirectory "../../templates/templates/validation-report-template.md"
-$TrackingFile = Join-Path $ScriptDirectory "../../state-tracking/temporary/foundational-validation-tracking.md"
-$IdRegistryFile = Join-Path $ScriptDirectory "../../../id-registry.json"
-
-# Import Common-ScriptHelpers for enhanced tracking functionality
+# Import Common-ScriptHelpers for enhanced tracking functionality and Get-ProjectRoot
 try {
     # Get the script directory - handle both direct execution and dot-sourcing
     if ($MyInvocation.MyCommand.Path) {
@@ -91,7 +86,6 @@ try {
     # Calculate path to Common-ScriptHelpers from scripts/file-creation directory
     # scripts/file-creation -> scripts -> process-framework
     $scriptsDir = Split-Path -Parent $scriptDir
-    $processFrameworkDir = Split-Path -Parent $scriptsDir
 
     $helpersPath = Join-Path $scriptsDir "Common-ScriptHelpers.psm1"
 
@@ -109,6 +103,12 @@ catch {
     $useEnhancedTracking = $false
     Write-Verbose "Failed to load enhanced tracking: $($_.Exception.Message)"
 }
+
+# Resolve paths using project root for reliability
+$ProjectRoot = if ($useEnhancedTracking) { Get-ProjectRoot } else { (Get-Item (Join-Path $ScriptDirectory "../../../..")).FullName }
+$TemplateFile = Join-Path $ProjectRoot "doc/process-framework/templates/templates/validation-report-template.md"
+$TrackingFile = Join-Path $ProjectRoot "doc/process-framework/state-tracking/temporary/foundational-validation-tracking.md"
+$IdRegistryFile = Join-Path $ProjectRoot "doc/id-registry.json"
 
 # Validation type mappings
 $ValidationTypeMap = @{
@@ -306,7 +306,7 @@ try {
     # Create output path
     $featureRange = ($features | Sort-Object) -join "-"
     $fileName = "$validationId-$($validationConfig.ShortName)-features-$featureRange.md"
-    $outputDir = Join-Path $ScriptDirectory "../../validation/reports/$($validationConfig.Directory)"
+    $outputDir = Join-Path $ProjectRoot "doc/process-framework/validation/reports/$($validationConfig.Directory)"
     $outputPath = Join-Path $outputDir $fileName
 
     # Ensure output directory exists

@@ -41,7 +41,8 @@ param(
 
 # --- Resolve project root ---
 if ([string]::IsNullOrWhiteSpace($ProjectRoot)) {
-    $ProjectRoot = (Get-Item (Join-Path $PSScriptRoot "../../..")).FullName
+    Import-Module (Join-Path -Path $PSScriptRoot -ChildPath "Common-ScriptHelpers.psm1") -Force
+    $ProjectRoot = Get-ProjectRoot
 }
 
 # --- Globals ---
@@ -405,7 +406,7 @@ if ($runAll -or $Surface -contains "CrossRef") {
 if ($runAll -or $Surface -contains "IdCounters") {
     Write-Host "[5/5] ID Counter Health" -ForegroundColor Cyan
 
-    $idRegistryPath = Join-Path $ProjectRoot "doc/id-registry.json"
+    $idRegistryPath = Join-Path $ProjectRoot "../../id-registry.json"
     if (-not (Test-Path $idRegistryPath)) {
         Add-CheckResult "ERROR" "IdCounters" "id-registry.json" "File not found: $idRegistryPath"
     } else {

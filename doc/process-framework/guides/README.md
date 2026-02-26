@@ -48,7 +48,6 @@ The guides in this directory serve to:
 | Guide                                                                                              | Description                                                    | When to Use                                                |
 | -------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- | ---------------------------------------------------------- |
 | [Document Creation Script Development Guide](guides/document-creation-script-development-guide.md) | Guide for developing and maintaining document creation scripts | When working on automation scripts for document generation |
-| [AI Framework Testing Guide](guides/ai-framework-testing-guide.md)                                 | Guidelines for testing AI-related functionality and frameworks | When developing or testing AI components                   |
 | [Visual Notation Guide](guides/visual-notation-guide.md)                                           | Standards for visual elements and notation in documentation    | When creating diagrams, charts, or visual documentation    |
 
 ### Process Management Guides

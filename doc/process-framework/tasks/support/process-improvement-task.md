@@ -3,9 +3,9 @@ id: PF-TSK-009
 type: Process Framework
 category: Task Definition
 domain: agnostic
-version: 1.6
+version: 2.0
 created: 2024-07-15
-updated: 2025-07-29
+updated: 2026-02-26
 task_type: Discrete
 ---
 
@@ -24,12 +24,12 @@ Analyze, optimize, and document development processes to improve efficiency, qua
 
 ## When to Use
 
-- When inefficiencies are identified in development workflows
-- When new processes need to be defined
-- When existing processes need refinement
+- When executing an improvement identified in [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md)
+- When existing processes need refinement based on feedback
 - When standardization is needed across different activities
 - When documentation of processes is incomplete or outdated
-- When feedback indicates room for process improvement
+
+> **Note**: Improvement *identification* and *prioritization* is handled by the [Tools Review Task](tools-review-task.md). This task focuses on *executing* prioritized improvements.
 
 ## Context Requirements
 
@@ -37,15 +37,14 @@ Analyze, optimize, and document development processes to improve efficiency, qua
 
 - **Critical (Must Read):**
 
-  - [Task Definitions](..) - Current task definitions
-  - [AI Framework Summary](../../../../.ai-workspace/AI-FRAMEWORK-SUMMARY.md) - Complete overview of the AI development framework and its components
-  - [Feedback Forms](../../feedback/feedback-forms) - Feedback forms from previous tasks
-  - [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) - Track process improvement initiatives
+  - [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) - Select the improvement to execute
+  - [Tools Review Summaries](../../feedback/reviews/) - Source analysis for the selected improvement
   - [Visual Notation Guide](/doc/process-framework/guides/guides/visual-notation-guide.md) - For interpreting context map diagrams
 
 - **Important (Load If Space):**
 
-  - <!-- [Templates](../../templates) - Template/example link commented out --> - Documentation templates
+  - [Task Definitions](..) - Current task definitions (read the specific file(s) being improved)
+  - [Feedback Forms](../../feedback/feedback-forms) - Source feedback forms referenced by the improvement
 
 - **Reference Only (Access When Needed):**
   - [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Can be used to identify areas needing improvement
@@ -60,110 +59,54 @@ Analyze, optimize, and document development processes to improve efficiency, qua
 
 ### Preparation
 
-1. Identify areas for improvement through feedback or observation
-2. Analyze current processes for inefficiencies or gaps
-3. Research best practices for the identified areas
-4. Prioritize improvements based on impact and effort
-5. Document the current state of processes to be improved
-6. **🚨 CRITICAL CHECKPOINT**: Ask human partner if comprehensive testing is needed for this improvement
-7. **Create comprehensive test cases** (if testing is needed):
-   - Use [AI Framework Testing Guide](../../guides/guides/ai-framework-testing-guide.md) for methodology
-   - Run `Create-TestTracking.ps1` script to generate test tracking file from template
-   - Design test scenarios that cover different workflow aspects
-   - Define expected results and success criteria
-   - Include performance metrics and baseline targets
-8. **🚨 CRITICAL CHECKPOINT**: Present findings and improvement plan, get explicit human feedback before proceeding
+1. **Select improvement** from [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md)
+2. **Review source feedback**: Read the [Tools Review summary](../../feedback/reviews/) and/or specific feedback forms that identified this improvement
+3. **Read current state**: Examine the file(s)/tool(s) to be improved to understand the current implementation
+4. **🚨 CHECKPOINT**: Present problem analysis and proposed approach(es) to human partner
 
 ### Planning
 
-9. **Execute test cases** (if testing was deemed necessary):
-   - Use `Start-TestSession.ps1` script to begin each test case with proper timing
-   - Run all defined test scenarios following the testing guide methodology
-   - Document actual vs expected results in the test tracking file
-   - Identify specific pain points and performance gaps
-   - Update test tracking with findings
-10. Propose multiple solution approaches with pros and cons of each
-11. **🚨 CRITICAL CHECKPOINT**: Get explicit human approval on the chosen approach
-12. Create a detailed implementation plan with clearly defined steps
-13. **🚨 CRITICAL CHECKPOINT**: Present the implementation plan and get explicit approval before any changes
+5. For complex improvements: propose multiple solution approaches with pros and cons
+6. **🚨 CHECKPOINT**: Get explicit human approval on the chosen approach
 
-### Execution (Incremental Implementation)
+### Execution
 
-14. Implement changes in small, reviewable increments (never all at once)
-15. For each significant change:
-    a. Present the specific change to be made
-    b. **🚨 CRITICAL CHECKPOINT**: Get explicit approval before implementing
-    c. Implement the approved change
-    d. **🚨 CRITICAL CHECKPOINT**: Confirm the change meets expectations
-    e. **Re-run relevant test cases** (if testing was used) to validate improvement using testing scripts
-16. Create or update process documentation
-17. Ensure documentation is clear and actionable
-18. Use appropriate templates and formatting
-19. Add examples and context where helpful
-20. **🚨 CRITICAL CHECKPOINT**: Review documentation with human partner before finalizing
+7. Implement changes in small, reviewable increments (never all at once)
+8. For each significant change:
+   a. Present the specific change to be made
+   b. **🚨 CHECKPOINT**: Get explicit approval before implementing
+   c. Implement the approved change
+   d. **🚨 CHECKPOINT**: Confirm the change meets expectations
+9. **Update linked documents**: Search for files that reference the changed file(s) and update or remove outdated content (guides, context maps, registry entries, templates)
+10. **🚨 CHECKPOINT**: Review changes with human partner
 
 ### Finalization
 
-21. **Conduct final testing** (if testing was used):
-    - Re-run complete test suite using established test cases
-    - Use `Analyze-TestResults.ps1` script to generate comprehensive analysis
-    - Compare results to baseline performance
-    - Document performance improvements achieved
-    - Update test tracking with final results
-22. Define how the improved process will be rolled out
-23. Identify training or communication needs
-24. Create a timeline for implementation
-25. Define success criteria for the improvement
-26. **🚨 CRITICAL CHECKPOINT**: Get final approval on the complete solution
-27. **🚨 MANDATORY FINAL STEP**: Complete the Task Completion Checklist below
+11. **🚨 CHECKPOINT**: Get final approval on the complete solution
+12. Update [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) — move completed improvement(s) from "Current Improvement Opportunities" to "Completed Improvements"
+13. Update any other affected state files
+14. **🚨 MANDATORY FINAL STEP**: Complete the Task Completion Checklist below
+
+> **Validation**: Improvements are validated through the next usage cycle. Subsequent feedback (via [Tools Review](tools-review-task.md)) will confirm whether the improvement achieved its goal.
 
 ## Tools and Scripts
 
-This task is supported by comprehensive testing infrastructure:
-
-### Testing Guide and Methodology
-
-- **[AI Framework Testing Guide](../../guides/guides/ai-framework-testing-guide.md)** - Complete methodology for testing AI frameworks and processes
-
-### PowerShell Scripts (located in `doc/process-framework/improvement/testing/`)
-
-- **`Create-TestTracking.ps1`** - Creates new test tracking files from template
-  - Usage: `.\Create-TestTracking.ps1 -SystemName "AI Framework" -TestType "Baseline"`
-- **`Start-TestSession.ps1`** - Starts test sessions with proper timing and documentation
-  - Usage: `.\Start-TestSession.ps1 -TestCase "TC-01" -TrackingFile "../state-tracking/test-file.md"`
-- **`Analyze-TestResults.ps1`** - Analyzes test results and generates comprehensive reports
-  - Usage: `.\Analyze-TestResults.ps1 -TrackingFile "../state-tracking/test-file.md" -ShowDetails`
-
-### Templates
-
-- **[AI Framework Test Tracking Template](../../templates/templates/ai-framework-test-tracking-template.md)** - Template for creating test tracking documents
+- **[New-FeedbackForm.ps1](../../scripts/file-creation/New-FeedbackForm.ps1)** - Create feedback forms for task completion
+- **[Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md)** - Central tracking file for all improvements
 
 ## Outputs
 
-- **Test Case Documentation** (if testing was used) - Comprehensive test cases and tracking in state-tracking directory
-- **Baseline Performance Analysis** (if testing was used) - Current system performance metrics and findings
-- **Process Documentation** - New or updated process documentation
-- **Task Definitions** - Updated task definitions if processes change
-- **Templates** - Templates for standardizing activities
-- **Updated Tracking** - [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) updated with improvement status
-- **Test Results** (if testing was used) - Complete test execution results and performance comparisons
+- **Process Documentation** - New or updated process documentation (task definitions, templates, guides, scripts)
+- **Updated Tracking** - [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) updated with improvement status and completion details
 
 ## State Tracking
 
 The following state files must be updated as part of this task:
 
-- **Test Tracking File** (if testing was used) - Create or update test tracking file in state-tracking directory with:
-  - Test case definitions and expected results
-  - Actual test execution results
-  - Performance metrics and baseline comparisons
-  - Identified issues and improvement opportunities
 - [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) - Update with:
-  - Process improvement initiatives and their status
-  - Implementation plans and timelines
-  - Success metrics and evaluation criteria
-  - Completion dates for implemented improvements
-  - Links to test results and performance data (if testing was used)
-  - **🚨 MANDATORY CLEANUP**: Ensure proper document organization by moving all completed improvements from "Current Improvement Opportunities" section to "Completed Improvements" section, keeping only open items in the current opportunities
+  - Completion date and impact for implemented improvements
+  - Move completed items from "Current Improvement Opportunities" to "Completed Improvements"
+  - Ensure "Current Improvement Opportunities" contains only open items
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
@@ -171,46 +114,22 @@ The following state files must be updated as part of this task:
 
 Before considering this task finished:
 
-- [ ] **Verify Testing Completed** (if testing was used): Confirm comprehensive testing was conducted
-
-  - [ ] Test cases were created using `Create-TestTracking.ps1` script
-  - [ ] Testing followed [AI Framework Testing Guide](../../guides/guides/ai-framework-testing-guide.md) methodology
-  - [ ] Baseline performance was established through systematic testing
-  - [ ] All test cases were executed using `Start-TestSession.ps1` for proper timing
-  - [ ] Performance improvements were validated through re-testing
-  - [ ] Final analysis was generated using `Analyze-TestResults.ps1` script
-  - [ ] Test tracking file was created and maintained throughout process
-
-- [ ] **Verify Incremental Implementation**: Confirm the process was implemented correctly
-
+- [ ] **Verify Incremental Implementation**: Confirm the process was followed correctly
   - [ ] Problem analysis was presented before solutions
-  - [ ] Multiple solution approaches were presented with pros/cons
-  - [ ] Implementation plan was approved before any changes
+  - [ ] Approach was approved before any changes
   - [ ] Changes were implemented incrementally (not all at once)
-  - [ ] Human feedback was solicited and received at each critical checkpoint
-  - [ ] No changes were made without explicit approval
+  - [ ] Human feedback was received at each checkpoint
 
 - [ ] **Verify Outputs**: Confirm all required outputs have been produced
+  - [ ] Process documentation changes are clear and actionable
+  - [ ] Changed files are consistent with the rest of the framework
+  - [ ] Linked documents (guides, context maps, registries) are updated or removed
 
-  - [ ] Test case documentation is comprehensive and well-structured (if testing was used)
-  - [ ] Baseline performance analysis is complete and documented (if testing was used)
-  - [ ] Process documentation is clear, complete, and actionable
-  - [ ] Task definitions are updated if processes changed
-  - [ ] Templates are created or updated as needed
-  - [ ] Implementation plan is defined with timeline
-  - [ ] Test results demonstrate measurable improvements (if testing was used)
+- [ ] **Update State Files**:
+  - [ ] Process Improvement Tracking: completed improvement moved to "Completed Improvements" with date and impact
+  - [ ] "Current Improvement Opportunities" contains only open items
+  - [ ] File metadata updated with current date
 
-- [ ] **Update State Files**: Ensure all state tracking files have been updated
-  - [ ] Test tracking file is complete with all results documented (if testing was used)
-  - [ ] Process Improvement Tracking document reflects current status
-  - [ ] **🚨 CRITICAL**: Clean up Process Improvement Tracking document organization:
-    - [ ] Move all completed improvements from "Current Improvement Opportunities" to "Completed Improvements" section
-    - [ ] Ensure "Current Improvement Opportunities" contains only open items (Status: Identified, Prioritized, In Progress, Deferred, or Rejected)
-    - [ ] Verify all completed items are properly documented in the "Completed Improvements" section with completion dates and impact
-    - [ ] Update file metadata with current date
-  - [ ] Implementation plans and timelines are recorded
-  - [ ] Success metrics and evaluation criteria are defined
-  - [ ] Performance improvements are quantified and documented (if testing was used)
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-009" and context "Process Improvement"
 
 ## Next Tasks
@@ -220,8 +139,6 @@ Before considering this task finished:
 
 ## Related Resources
 
+- [Tools Review Task](tools-review-task.md) - Identifies and prioritizes improvements (upstream of this task)
 - [Process Improvement Task Implementation Guide](../../guides/guides/process-improvement-task-implementation-guide.md) - Step-by-step guide for executing this task effectively
-- <!-- [Process Analysis Guide](../../guides/process-analysis-guide.md) - File not found --> - Guide for analyzing processes
-- <!-- [Improvement Metrics Guide](../../guides/improvement-metrics-guide.md) - File not found --> - Guide for measuring improvement impact
-- <!-- [Change Management Best Practices](../../guides/change-management-best-practices.md) - File not found --> - Best practices for managing process changes
 - [Task Creation and Improvement Guide](../task-creation-guide.md) - Guide for creating and improving tasks

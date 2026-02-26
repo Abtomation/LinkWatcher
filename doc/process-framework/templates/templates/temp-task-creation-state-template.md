@@ -84,7 +84,7 @@ List existing artifacts that can be reused:
   - **Location**: [Where the script will be placed - e.g., doc/process-framework/[category]/New-[ScriptName].ps1]
   - **Notes**: Script that generates files created by the task
 
-- [ ] **ID Registry Update**: Update doc/id-registry.json with new ID prefix for file types
+- [ ] **ID Registry Update**: Update ../../../id-registry.json with new ID prefix for file types
   - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED/SKIPPED]
   - **Dependencies**: Understanding of what file types the task will create
   - **File**: `doc/id-registry.json`

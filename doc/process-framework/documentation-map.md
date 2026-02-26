@@ -88,6 +88,7 @@ Our tasks are organized into four categories and follow a unified structure:
 - [Process: Schema Design Template](templates/templates/schema-design-template.md) - Template for database schema design documents
 - [Process: Test Audit Report Template](templates/templates/test-audit-report-template.md) - Template for systematic test quality assessment reports
 - [Process: Feedback Form Template](templates/templates/feedback-form-template.md) - Template for creating tool and process feedback forms
+- [Process: Tools Review Summary Template](templates/templates/tools-review-summary-template.md) - Standardized template for Tools Review task (PF-TSK-010) summary output documents
 - [Process: Technical Debt Assessment Template](templates/templates/technical-debt-assessment-template.md) - Template for technical debt assessment reports
 - [Process: Debt Item Template](templates/templates/debt-item-template.md) - Template for individual debt item records
 - [Process: Prioritization Matrix Template](templates/templates/prioritization-matrix-template.md) - Template for debt prioritization matrices

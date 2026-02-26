@@ -520,7 +520,7 @@ This document serves as the **comprehensive registry** of all process framework 
 
 #### **16. Code Refactoring Task** ([PF-TSK-022](../tasks/06-maintenance/code-refactoring-task.md))
 
-**🔧 Process Type:** 🔄 **Semi-Automated** (Scripts create planning files and temporary state tracking, manual implementation with comprehensive state updates)
+**🔧 Process Type:** 🔄 **Semi-Automated** (Scripts create planning files and conditional temporary state tracking, manual implementation with comprehensive state updates)
 
 **📋 AUTOMATION DETAILS**
 
@@ -535,7 +535,7 @@ This document serves as the **comprehensive registry** of all process framework 
 | Operation | File Path | Update Method | Details |
 |-----------|-----------|---------------|---------|
 | **Creates** | [`[PF-RFP-XXX]-[refactoring-scope].md`](../refactoring/plans/) | [`New-RefactoringPlan.ps1`](../scripts/file-creation/New-RefactoringPlan.ps1) | Detailed refactoring plan with scope, approach, and timeline |
-| **Creates** | [`[PF-TTS-XXX]-[task-context].md`](../state-tracking/temporary/) | [`New-TempTaskState.ps1`](../scripts/file-creation/New-TempTaskState.ps1) | Work-in-progress tracking for refactoring sessions |
+| **Creates** | [`[PF-TTS-XXX]-[task-context].md`](../state-tracking/temporary/) | [`New-TempTaskState.ps1`](../scripts/file-creation/New-TempTaskState.ps1) | Work-in-progress tracking for refactoring sessions (conditional: ≥ 5 items or 3+ sessions; otherwise use refactoring plan's Implementation Tracking) |
 | **Creates** | [`[PF-ADR-XXX]-[decision-title].md`](../architecture/adrs/) | [`New-ADR.ps1`](../scripts/file-creation/New-ADR.ps1) | Architecture Decision Records for architectural refactoring |
 | **Updates** | [`bug-tracking.md`](../state-tracking/permanent/bug-tracking.md) | [`New-BugReport.ps1`](../scripts/file-creation/New-BugReport.ps1) | Add bugs discovered during refactoring with 4-tier severity decision matrix |
 | **Updates** | [`technical-debt-tracking.md`](../state-tracking/permanent/technical-debt-tracking.md) | Manual | 3-phase updates: "🔄 In Progress" → "✅ Resolved" |
@@ -548,7 +548,7 @@ This document serves as the **comprehensive registry** of all process framework 
 
 - **Primary state file:** [`technical-debt-tracking.md`](../state-tracking/permanent/technical-debt-tracking.md) - Comprehensive 3-phase debt resolution tracking
 - **Secondary coordination:** [`feature-tracking.md`](../state-tracking/permanent/feature-tracking.md) - Updates feature quality status with clear progression path
-- **Temporary state management:** Work-in-progress tracking with archival to [`temporary/old/`](../state-tracking/temporary/old/)
+- **Temporary state management:** Work-in-progress tracking (conditional: < 5 items use refactoring plan's Implementation Tracking section) with archival to [`temporary/old/`](../state-tracking/temporary/old/) if created
 - **Bug discovery integration:** Systematic bug identification with 4-tier decision matrix (Critical/High/Medium/Low)
 - **Architectural decision capture:** ADR creation for architectural refactoring with context package integration
 - **Code quality improvement:** Reduces technical debt and improves maintainability with comprehensive state tracking
@@ -707,15 +707,15 @@ This document serves as the **comprehensive registry** of all process framework 
 **📁 FILE OPERATIONS**
 | Operation | File Path | Update Method | Details |
 |-----------|-----------|---------------|---------|
-| **Updates** | [`process-improvement-tracking.md`](../state-tracking/permanent/process-improvement-tracking.md) | Manual | Status: "Identified" → "In Progress" → "Completed"<br/>• Update improvement initiatives and status<br/>• Add implementation plans and timelines<br/>• Record success metrics and evaluation criteria<br/>• Add completion dates for implemented improvements<br/>• Link to test results and performance data (if testing used)<br/>• **🚨 MANDATORY CLEANUP**: Move completed improvements from "Current Improvement Opportunities" to "Completed Improvements" section |
+| **Updates** | [`process-improvement-tracking.md`](../state-tracking/permanent/process-improvement-tracking.md) | Manual | Status: "Identified" → "In Progress" → "Completed"<br/>• Add completion dates and impact for implemented improvements<br/>• Move completed items from "Current Improvement Opportunities" to "Completed Improvements" |
 
 **🎯 KEY IMPACTS**
 
-- **Primary state file:** [`process-improvement-tracking.md`](../state-tracking/permanent/process-improvement-tracking.md) - Tracks improvement initiatives with mandatory cleanup of completed items
-- **Incremental implementation:** Requires explicit human approval at each critical checkpoint with no changes without approval
+- **Primary state file:** [`process-improvement-tracking.md`](../state-tracking/permanent/process-improvement-tracking.md) - Tracks improvement initiatives
+- **Incremental implementation:** Requires explicit human approval at each checkpoint
+- **Upstream dependency:** Improvements are identified and prioritized by the Tools Review Task (PF-TSK-010)
 - **Enables next steps:** No next steps; completes cycle
-- **Dependencies:** Requires process analysis and improvement identification, optional comprehensive testing
-- **⚠️ Automation Gap:** Variable priority based on improvement type - testing scripts available but core process remains manual
+- **Dependencies:** Requires prioritized improvement in process-improvement-tracking.md
 
 #### **28. Framework Extension Task** ([PF-TSK-026](../tasks/support/framework-extension-task.md))
 
@@ -769,17 +769,18 @@ This document serves as the **comprehensive registry** of all process framework 
 
 #### **30. Tools Review Task** ([PF-TSK-010](../tasks/support/tools-review-task.md))
 
-**🔧 Process Type:** 🔧 **Manual Process** (No automation - requires tool evaluation)
+**🔧 Process Type:** 🔧 **Partially Automated** (Review summary creation automated, tool evaluation manual)
 
 **📋 AUTOMATION DETAILS**
 
-- **Script:** No automation script
-- **Output Directory:** N/A
-- **Auto-Update Function:** Manual updates only
+- **Script:** [`New-ReviewSummary.ps1`](../scripts/file-creation/New-ReviewSummary.ps1) — Creates review summary documents with auto-assigned ART-REV IDs
+- **Output Directory:** `doc/process-framework/feedback/reviews/`
+- **Auto-Update Function:** Manual updates for process-improvement-tracking.md
 
 **📁 FILE OPERATIONS**
 | Operation | File Path | Update Method | Details |
 |-----------|-----------|---------------|---------|
+| **Creates** | `doc/process-framework/feedback/reviews/tools-review-YYYYMMDD.md` | Script | Review summary from template (PF-TEM-046) |
 | **Updates** | [`process-improvement-tracking.md`](../state-tracking/permanent/process-improvement-tracking.md) | Manual | Updates with new improvement potential |
 
 **🎯 KEY IMPACTS**
@@ -789,7 +790,6 @@ This document serves as the **comprehensive registry** of all process framework 
 - **Technology evolution:** Keeps framework aligned with current best practices
 - **Enables next steps:** Process Improvement Task
 - **Dependencies:** Requires Feedback Forms
-- **⚠️ Automation Gap:** Low-priority candidate for tool evaluation automation
 
 ### **CYCLICAL TASKS**
 

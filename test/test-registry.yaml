@@ -94,11 +94,11 @@ testFiles:
     testType: Unit
     componentName: Core Service
     specificationPath: test/specifications/feature-specs/test-spec-0-1-1-core-architecture.md
-    description: "Unit tests for LinkWatcher core service orchestration (~12 test methods)"
+    description: "Unit tests for LinkWatcher core service orchestration (~19 test methods, includes PD-BUG-018 observer resilience regression tests)"
     created: 2026-02-20
-    updated: 2026-02-24
+    updated: 2026-02-26
     status: "✅ Tests Implemented"
-    testCasesCount: 12
+    testCasesCount: 19
     tier: 3
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md
     crossCuttingFeatures: ["1.1.1", "0.1.2"]
@@ -141,11 +141,11 @@ testFiles:
     testType: Unit
     componentName: Link Updater
     specificationPath: test/specifications/feature-specs/test-spec-2-2-1-link-updating.md
-    description: "Unit tests for atomic file update with safety mechanisms (~12 test methods)"
+    description: "Unit tests for atomic file update with safety mechanisms, stale detection, and root-relative path handling (31 test methods)"
     created: 2026-02-20
-    updated: 2026-02-24
+    updated: 2026-02-26
     status: "✅ Tests Implemented"
-    testCasesCount: 12
+    testCasesCount: 31
     tier: 2
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-2-1-link-updater-t2.md
     crossCuttingFeatures: ["0.1.1"]
@@ -504,3 +504,22 @@ testFiles:
     testCasesCount: 10
     tier: 3
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md
+
+  # ─────────────────────────────────────────────────────────
+  # Bug Regression Tests (tests/)
+  # ─────────────────────────────────────────────────────────
+  - id: PD-TST-128
+    featureId: "1.1.1"
+    fileName: test_directory_move_detection.py
+    filePath: tests/test_directory_move_detection.py
+    testType: Integration
+    componentName: Directory Move Detection
+    specificationPath: test/specifications/feature-specs/test-spec-1-1-1-file-system-monitoring.md
+    description: "Regression tests for PD-BUG-016 (directory moves via delete+create on Windows) and PD-BUG-006 (nested dir move Python imports). 17 tests covering DB lookup, relative path resolution, buffering, end-to-end move detection, and Python import updates."
+    created: 2026-02-26
+    updated: 2026-02-26
+    status: "✅ Tests Implemented"
+    testCasesCount: 17
+    tier: 2
+    tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-1-1-1-file-system-monitoring-t2.md
+    crossCuttingFeatures: ["0.1.2", "2.2.1", "2.1.1"]

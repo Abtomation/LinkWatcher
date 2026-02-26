@@ -359,7 +359,14 @@ function New-ProjectDocumentWithMetadata {
         $documentContent = Get-TemplateContentWithoutMetadata -TemplatePath $TemplatePath
 
         # Apply replacements to the content
+        # IMPORTANT: Keys are auto-escaped via [regex]::Escape() before being used in -replace.
+        # This means replacement keys must use LITERAL brackets, e.g.:
+        #   CORRECT: "[Feature Name]" = $FeatureName
+        #   WRONG:   "\[Feature Name\]" = $FeatureName  (double-escaping, will silently fail)
         foreach ($key in $Replacements.Keys) {
+            if ($key -match '\\\[|\\\]') {
+                Write-Warning "Replacement key '$key' contains escaped brackets. Keys are auto-escaped — use literal brackets (e.g., '[Feature Name]' not '\[Feature Name\]')."
+            }
             $documentContent = $documentContent -replace [regex]::Escape($key), $Replacements[$key]
         }
 
@@ -470,7 +477,14 @@ function New-ProjectDocumentWithCodeMetadata {
         $documentContent = Get-TemplateContentWithoutMetadata -TemplatePath $TemplatePath
 
         # Apply replacements to the content
+        # IMPORTANT: Keys are auto-escaped via [regex]::Escape() before being used in -replace.
+        # This means replacement keys must use LITERAL brackets, e.g.:
+        #   CORRECT: "[Feature Name]" = $FeatureName
+        #   WRONG:   "\[Feature Name\]" = $FeatureName  (double-escaping, will silently fail)
         foreach ($key in $Replacements.Keys) {
+            if ($key -match '\\\[|\\\]') {
+                Write-Warning "Replacement key '$key' contains escaped brackets. Keys are auto-escaped — use literal brackets (e.g., '[Feature Name]' not '\[Feature Name\]')."
+            }
             $documentContent = $documentContent -replace [regex]::Escape($key), $Replacements[$key]
         }
 

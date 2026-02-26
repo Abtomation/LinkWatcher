@@ -29,7 +29,6 @@ State tracking files help to:
 | [test-case-implementation-tracking.md](permanent/test-implementation-tracking.md) | Track implementation status of test cases derived from test specifications | Test Specification Creation, Feature Implementation, Code Review |
 | [technical-debt-tracking.md](permanent/technical-debt-tracking.md) | Track and manage technical debt items | Code Review, Process Improvement, Feature Implementation |
 | [process-improvement-tracking.md](permanent/process-improvement-tracking.md) | Track process improvement initiatives and their status | Process Improvement, Tools Review |
-| [ai-framework-testing-tracking.md](permanent/ai-framework-testing-tracking.md) | Track testing of the AI development framework | AI Framework Testing, Process Improvement |
 
 
 ## State File Structure

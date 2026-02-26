@@ -4,7 +4,7 @@ type: Process Framework
 category: Task Definition
 version: 1.0
 created: 2025-07-21
-updated: 2025-08-31
+updated: 2026-02-26
 task_type: Discrete
 ---
 
@@ -67,7 +67,10 @@ Systematic code improvement and technical debt reduction without changing extern
    ../../scripts/file-creation/New-RefactoringPlan.ps1 -RefactoringScope "Brief description" -TargetArea "Component/Module name"
    ```
 
-2. **Create Temporary State Tracking**:
+2. **Create Temporary State Tracking** (conditional):
+
+   - **< 5 items and ≤ 2 sessions expected**: Skip temp state file. Use the refactoring plan's "Implementation Tracking" section for all progress tracking.
+   - **≥ 5 items or multi-session (3+)**: Create a separate temp state file:
 
    ```powershell
    # Navigate to state tracking directory
@@ -77,7 +80,7 @@ Systematic code improvement and technical debt reduction without changing extern
    ../../scripts/file-creation/New-TempTaskState.ps1 -TaskName "[Refactoring Scope] Refactoring" -TaskType "Discrete" -Description "Refactoring work for [specific component/feature]"
    ```
 
-   - Document refactoring progress and blockers in the temporary state file
+   - Document refactoring progress and blockers in the chosen tracking surface
    - Update status regularly during implementation
 
 3. **Analyze Current State**: Document current code quality issues, complexity metrics, and technical debt items
@@ -198,7 +201,7 @@ When bugs are discovered during refactoring, follow this decision process:
 
 #### Phase 3: Post-Completion
 
-- [ ] **Archive Temporary State**: Move temporary state tracking to [archive](../../state-tracking/temporary/old) or delete if no longer needed
+- [ ] **Archive Temporary State** (if created in Step 2): Move temporary state tracking to [archive](../../state-tracking/temporary/old) or delete if no longer needed
 - [ ] **Update [Context Packages](../../architecture/context-packages)**: For architectural refactoring, update relevant context packages
 
 #### State File Integration Commands:
@@ -266,7 +269,7 @@ Before considering this task finished:
 - [ ] **Update State Files**: Ensure all state tracking files have been updated according to the 3-phase checklist
   - [ ] **Phase 1 (During)**: Temporary state tracking, bug tracking, technical debt progress documented
   - [ ] **Phase 2 (Completion)**: [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md) resolved items, [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) status improved, [Architecture Tracking](../../state-tracking/permanent/architecture-tracking.md) updated for foundation features, [Test Implementation Tracking](../../state-tracking/permanent/test-implementation-tracking.md) updated
-  - [ ] **Phase 3 (Post)**: Temporary state archived to [old directory](../../state-tracking/temporary/old), [Context Packages](../../architecture/context-packages) updated for architectural changes
+  - [ ] **Phase 3 (Post)**: Temporary state archived (if created) to [old directory](../../state-tracking/temporary/old), [Context Packages](../../architecture/context-packages) updated for architectural changes
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-022" and context "Code Refactoring Task"
 
 ## Next Tasks

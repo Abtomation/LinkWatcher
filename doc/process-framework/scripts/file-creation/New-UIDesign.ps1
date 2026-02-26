@@ -108,9 +108,8 @@ $customReplacements = @{
 # Create the document using standardized process
 try {
     # Use DirectoryType for ID registry-based directory resolution
-    # Get the absolute path to the template
-    $templatePath = Join-Path $PSScriptRoot "../../templates/templates/ui-design-template.md"
-    $templatePath = Resolve-Path $templatePath
+    # Get the absolute path to the template using project root for reliability
+    $templatePath = Join-Path (Get-ProjectRoot) "doc/process-framework/templates/templates/ui-design-template.md"
 
     # Generate filename with feature ID prefix for better organization and traceability
     $featureIdForFilename = $FeatureId.Replace('.', '-')

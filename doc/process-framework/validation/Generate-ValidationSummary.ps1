@@ -70,9 +70,19 @@ param(
     [switch]$OpenInEditor
 )
 
-# Configuration
-$TrackingFilePath = "../state-tracking/temporary/foundational-validation-tracking.md"
-$ReportsBasePath = "reports"
+# Import the common helpers for Get-ProjectRoot
+$helpersPath = Join-Path -Path (Split-Path -Parent $PSScriptRoot) -ChildPath "scripts/Common-ScriptHelpers.psm1"
+if (Test-Path $helpersPath) {
+    Import-Module $helpersPath -Force
+} else {
+    Write-Error "Common-ScriptHelpers.psm1 not found at: $helpersPath"
+    exit 1
+}
+
+# Configuration - use project-root-relative paths for reliability
+$ProjectRoot = Get-ProjectRoot
+$TrackingFilePath = Join-Path -Path $ProjectRoot -ChildPath "doc/process-framework/state-tracking/temporary/foundational-validation-tracking.md"
+$ReportsBasePath = Join-Path -Path $ProjectRoot -ChildPath "doc/process-framework/validation/reports"
 $ValidationTypeMap = @{
     "Architectural" = "architectural-consistency"
     "CodeQuality"   = "code-quality"

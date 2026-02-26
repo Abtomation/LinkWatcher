@@ -2,12 +2,12 @@
 id: PF-GDE-037
 type: Document
 category: General
-version: 1.0
+version: 2.0
 created: 2025-07-29
-updated: 2025-07-29
+updated: 2026-02-26
 guide_status: Active
 related_tasks: PF-TSK-009
-guide_description: Step-by-step guide for executing the Process Improvement task effectively, including testing methodology and incremental implementation approach
+guide_description: Step-by-step guide for executing the Process Improvement task effectively with incremental implementation and human checkpoints
 guide_category: Task Implementation
 guide_title: Process Improvement Task Implementation Guide
 ---
@@ -15,251 +15,149 @@ guide_title: Process Improvement Task Implementation Guide
 
 ## Overview
 
-This guide provides practical, step-by-step instructions for executing the Process Improvement task (PF-TSK-009) effectively. It covers the complete workflow from problem identification through testing, incremental implementation, and validation, ensuring systematic improvements to development processes while maintaining quality and human oversight.
+This guide provides practical instructions for executing the Process Improvement task (PF-TSK-009). The task follows a streamlined 14-step process: select an improvement from tracking, analyze and plan with human approval, implement incrementally, and update state files.
 
 ## When to Use
 
 Use this guide when you need to:
 - Execute a Process Improvement task (PF-TSK-009) systematically
-- Understand the testing methodology required for process improvements
-- Implement incremental changes with proper human feedback checkpoints
-- Navigate the complex workflow of process analysis, planning, and execution
-- Ensure all mandatory outputs and state tracking requirements are met
+- Understand how to navigate the human feedback checkpoints
+- Ensure all state tracking and documentation requirements are met
 
 > **🚨 CRITICAL**: Process improvements MUST be implemented incrementally with explicit human feedback at EACH stage. Never implement complete solutions without prior approval.
 
 ## Table of Contents
 
 1. [Prerequisites](#prerequisites)
-2. [Background](#background)
-3. [Step-by-Step Instructions](#step-by-step-instructions)
-4. [Examples](#examples)
-5. [Troubleshooting](#troubleshooting)
-6. [Related Resources](#related-resources)
+2. [Step-by-Step Instructions](#step-by-step-instructions)
+3. [Examples](#examples)
+4. [Troubleshooting](#troubleshooting)
+5. [Related Resources](#related-resources)
 
 ## Prerequisites
 
 Before you begin, ensure you have:
 
 - Access to the Process Improvement task definition (PF-TSK-009)
-- Understanding of the current process or system to be improved
-- Access to PowerShell and the testing scripts in `doc/process-framework/improvement/testing/`
-- Ability to create and update state tracking files
-- Authority to make incremental changes with human partner approval
-- Familiarity with the AI Framework Testing Guide methodology
-
-## Background
-
-The Process Improvement task follows a rigorous methodology designed to ensure systematic, measurable improvements to development processes. The approach emphasizes:
-
-**Testing-First Methodology**: All improvements must be validated through comprehensive testing that establishes baseline performance before changes and validates improvements after implementation.
-
-**Incremental Implementation**: Changes are made in small, reviewable increments with mandatory human feedback checkpoints to prevent disruption and ensure quality.
-
-**Evidence-Based Decisions**: All improvement decisions must be supported by test data, feedback analysis, and measurable performance metrics.
-
-**State Tracking Integration**: The task integrates with the project's state tracking system to maintain historical records and enable trend analysis.
+- A prioritized improvement in [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md)
+- Access to the [Tools Review summary](../../feedback/reviews/) that identified the improvement
+- Ability to make incremental changes with human partner approval
 
 ## Step-by-Step Instructions
 
-### Phase 1: Preparation (Steps 1-7)
+### Phase 1: Preparation (Steps 1-4)
 
-#### 1. Problem Identification and Analysis
+#### 1. Select and Understand the Improvement
 
-1. **Identify the improvement opportunity** from feedback, observation, or process inefficiencies
-2. **Analyze current processes** for gaps, bottlenecks, or quality issues
-3. **Research best practices** for the identified areas
-4. **Prioritize improvements** based on impact and effort required
-5. **Document current state** of processes to be improved
+1. **Open** [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md)
+2. **Select** an improvement to execute (typically HIGH priority first)
+3. **Read the source**: Open the Tools Review summary linked in the improvement's "Source" column
+4. **Read specific feedback forms** if referenced — these provide the detailed context behind the improvement
 
-**Expected Result:** Clear understanding of the problem scope and current state documentation
+**Expected Result:** Clear understanding of what needs to change and why
 
-#### 2. Create Comprehensive Test Cases
+#### 2. Analyze Current State
 
-1. **Navigate to testing directory**
-   ```powershell
-   cd doc/process-framework/improvement/testing/
-   ```
+1. **Read the file(s)** that will be modified
+2. **Identify the scope** of changes needed (which sections, how many files)
+3. **Note dependencies** — what other documents reference this file?
 
-2. **Create test tracking file**
-   ```powershell
-   .\Create-TestTracking.ps1 -SystemName "Process Improvement" -TestType "Baseline"
-   ```
+**Expected Result:** Full picture of the current state and change scope
 
-3. **Design test scenarios** covering different workflow aspects
-4. **Define expected results** and success criteria
-5. **Include performance metrics** and baseline targets
+#### 3. Present and Get Approval (CHECKPOINT)
 
-**Expected Result:** Test tracking file created with comprehensive test cases defined
+1. **Summarize the problem** based on your analysis
+2. **Propose approach(es)** — for simple changes, one approach is fine; for complex changes, present alternatives with pros/cons
+3. **Wait for explicit approval** before making any changes
 
-#### 3. Critical Checkpoint - Present Findings
+**Expected Result:** Human approval to proceed with the chosen approach
 
-1. **Prepare findings summary** including problem analysis and test plan
-2. **Present to human partner** for feedback and approval
-3. **Get explicit approval** before proceeding to planning phase
+### Phase 2: Execution (Steps 7-10)
 
-**Expected Result:** Human approval received to proceed with testing and planning
+#### 4. Implement Incrementally
 
-### Phase 2: Planning (Steps 8-12)
-
-#### 4. Execute Baseline Testing
-
-1. **Start test session**
-   ```powershell
-   .\Start-TestSession.ps1 -TestCase "TC-01" -TrackingFile "../state-tracking/test-file.md"
-   ```
-
-2. **Run all defined test scenarios** following AI Framework Testing Guide methodology
-3. **Document actual vs expected results** in test tracking file
-4. **Identify specific pain points** and performance gaps
-5. **Update test tracking** with findings
-
-**Expected Result:** Baseline performance established with documented test results
-
-#### 5. Solution Development and Approval
-
-1. **Propose multiple solution approaches** with pros and cons
-2. **Present approaches to human partner** for evaluation
-3. **Get explicit approval** on chosen approach
-4. **Create detailed implementation plan** with clearly defined steps
-5. **Present implementation plan** and get explicit approval
-
-**Expected Result:** Approved implementation plan ready for execution
-
-### Phase 3: Execution (Steps 13-19)
-
-#### 6. Incremental Implementation
-
-1. **Implement changes in small increments** (never all at once)
+1. **Make changes in small, reviewable increments** — never implement everything at once
 2. **For each significant change:**
-   - Present the specific change to be made
-   - **🚨 Get explicit approval** before implementing
-   - Implement the approved change
-   - **🚨 Confirm change meets expectations**
-   - Re-run relevant test cases to validate improvement
+   - Present what you're about to change
+   - Get approval
+   - Make the change
+   - Confirm it meets expectations
+3. **Update linked documents** — search for files that reference the changed file(s) and update or remove outdated content
 
-**Expected Result:** Changes implemented incrementally with validation at each step
+**Expected Result:** All changes implemented with human approval at each step
 
-#### 7. Documentation and Review
+### Phase 3: Finalization (Steps 11-14)
 
-1. **Create or update process documentation**
-2. **Ensure documentation is clear and actionable**
-3. **Use appropriate templates and formatting**
-4. **Add examples and context** where helpful
-5. **Review documentation with human partner** before finalizing
+#### 5. Review and Complete
 
-**Expected Result:** Complete, reviewed process documentation
+1. **Get final approval** on the complete solution
+2. **Update Process Improvement Tracking:**
+   - Move the improvement from "Current Improvement Opportunities" to "Completed Improvements"
+   - Add completion date and impact description
+3. **Update any other affected state files** (if applicable)
+4. **Complete feedback form** using `New-FeedbackForm.ps1` with task ID "PF-TSK-009"
 
-### Phase 4: Finalization (Steps 20-26)
-
-#### 8. Final Testing and Validation
-
-1. **Re-run complete test suite** using established test cases
-2. **Generate comprehensive analysis**
-   ```powershell
-   .\Analyze-TestResults.ps1 -TrackingFile "../state-tracking/test-file.md" -ShowDetails
-   ```
-3. **Compare results to baseline performance**
-4. **Document performance improvements achieved**
-5. **Update test tracking with final results**
-
-**Expected Result:** Validated improvements with quantified performance gains
-
-#### 9. Implementation Planning and Approval
-
-1. **Define rollout process** for the improved process
-2. **Identify training or communication needs**
-3. **Create implementation timeline**
-4. **Define success criteria** for the improvement
-5. **Get final approval** on complete solution
-
-**Expected Result:** Complete implementation plan with final approval
-
-#### 10. Task Completion
-
-1. **Complete all mandatory checklist items** in task definition
-2. **Update state tracking files** with improvement status
-3. **Complete feedback forms** following standard instructions
-4. **Verify all outputs** are produced and documented
-
-**Expected Result:** Task fully completed with all requirements met
+**Expected Result:** Task fully completed with all state files updated
 
 ## Examples
 
-### Example 1: Improving Feedback Collection Process
+### Example: Streamlining a Task Definition
 
-**Problem**: Feedback forms are inconsistently completed and archived
+**Improvement:** IMP-038 — "Add lightweight mode to PF-TSK-009"
 
-**Testing Approach**:
-```powershell
-# Create test tracking for feedback process improvement
-.\Create-TestTracking.ps1 -SystemName "Feedback Collection" -TestType "Process Improvement"
+**Preparation:**
+- Read the Tools Review summary identifying the problem (4/4 feedback forms flagged 27-step process as disproportionate)
+- Read the current task definition to understand the 27-step structure
+- Present analysis: testing infrastructure is the main bloat, steps 1-5 overlap with Tools Review
 
-# Test current feedback completion time and accuracy
-.\Start-TestSession.ps1 -TestCase "TC-01-Baseline" -TrackingFile "../state-tracking/feedback-improvement-test.md"
-```
+**Execution:**
+1. Replace the 27-step process with a streamlined 14-step version
+2. Remove testing infrastructure sections (Tools & Scripts, testing outputs, test tracking)
+3. Simplify the completion checklist
+4. Update linked documents (implementation guide, task registry, guides README)
+5. Delete obsolete files (testing guide, test tracking template)
 
-**Incremental Implementation**:
-1. First increment: Standardize feedback form instructions
-2. Second increment: Create feedback completion checklist
-3. Third increment: Implement archiving guidelines
+**Result:** Task reduced from 27 to 14 steps, 36% reduction in document size, clearer process flow
 
-**Result**: 40% reduction in feedback completion time, 100% improvement in archiving accuracy
+### Example: Adding Inline Guidance to a Task Step
 
-### Example 2: Task Definition Standardization
+**Improvement:** "Add test documentation cross-references to Step 11 of PF-TSK-007"
 
-**Problem**: Task definitions have inconsistent structure and missing elements
+**Preparation:**
+- Read the feedback identifying the gap (bug fix tests bypass test registry)
+- Read PF-TSK-007 Step 11 to see current content
+- Evaluate whether to reference other tasks or inline the relevant parts
 
-**Solution Approach**:
-- Analyze existing task definitions for common patterns
-- Create standardized template with required sections
-- Implement changes incrementally across task categories
-- Validate improvements through usage testing
+**Execution:**
+1. Evaluated PF-TSK-012 and PF-TSK-053 — determined their full processes are disproportionate for bug fix regression tests
+2. Extracted the relevant pieces (test registry updates, New-TestFile.ps1 for new files) and added inline guidance to Step 11
+3. Covered both scenarios: adding to existing test files (common) and creating new test files (rare)
 
-**Result**: Consistent task structure across all 22 task definitions, improved AI agent task execution efficiency
+**Result:** Bug fix tests now have self-contained guidance on test documentation standards without requiring agents to read unrelated 250-line task definitions
 
 ## Troubleshooting
-
-### Testing Scripts Not Found
-
-**Symptom:** PowerShell scripts in `doc/process-framework/improvement/testing/` are not available
-
-**Cause:** Testing infrastructure may not be fully implemented yet
-
-**Solution:**
-1. Check if testing directory exists
-2. If missing, create basic test tracking manually using the AI Framework Test Tracking Template
-3. Document test cases and results in markdown format
-4. Follow the testing methodology from the AI Framework Testing Guide
 
 ### Human Feedback Checkpoints Skipped
 
 **Symptom:** Attempting to implement changes without explicit human approval
 
-**Cause:** Misunderstanding of the incremental implementation requirement
-
 **Solution:**
 1. Stop implementation immediately
 2. Present current progress and planned changes to human partner
 3. Get explicit approval before proceeding
-4. Document approval in test tracking file
 
-### Baseline Performance Not Established
+### Linked Documents Missed
 
-**Symptom:** Unable to measure improvement effectiveness
-
-**Cause:** Skipping the baseline testing phase
+**Symptom:** After completing the improvement, other documents still reference the old version
 
 **Solution:**
-1. Return to Phase 2, Step 4
-2. Execute comprehensive baseline testing
-3. Document current performance metrics
-4. Use baseline data to validate improvements
+1. Search for references to the changed file(s) using grep/search
+2. Check: implementation guides, context maps, task registries, README files
+3. Update or remove outdated references
 
 ## Related Resources
 
 - [Process Improvement Task Definition](../../tasks/support/process-improvement-task.md) - Complete task definition with all requirements
-- [AI Framework Testing Guide](../ai-framework-testing-guide.md) - Testing methodology for process improvements
-- [AI Framework Test Tracking Template](../../templates/templates/ai-framework-test-tracking-template.md) - Template for test documentation
 - [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) - State tracking for improvement initiatives
-- [Feedback Form Completion Instructions](../feedback-form-completion-instructions.md) - Standard feedback form procedures
+- [Tools Review Task](../../tasks/support/tools-review-task.md) - Upstream task that identifies and prioritizes improvements
+- [Feedback Form Completion Instructions](../guides/feedback-form-completion-instructions.md) - Standard feedback form procedures

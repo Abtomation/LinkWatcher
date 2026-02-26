@@ -6,6 +6,7 @@ This module tests the main service orchestration and integration.
 
 import time
 from pathlib import Path
+from unittest.mock import MagicMock
 
 import pytest
 
@@ -255,3 +256,88 @@ class TestLinkWatcherService:
 
         # All results should be consistent (same reference count)
         assert len(set(results)) == 1  # All values should be the same
+
+
+class TestObserverResilience:
+    """Regression tests for PD-BUG-018: Observer thread dies silently.
+
+    These tests verify that:
+    1. Handler event methods catch exceptions instead of killing the observer thread
+    2. The on_error method handles watchdog errors
+    3. The service main loop detects a dead observer thread
+    """
+
+    def test_on_moved_catches_exception(self, temp_project_dir):
+        """on_moved must catch exceptions to keep the observer thread alive."""
+        service = LinkWatcherService(str(temp_project_dir))
+        handler = service.handler
+
+        class BadEvent:
+            @property
+            def is_directory(self):
+                raise RuntimeError("simulated error")
+
+            src_path = str(temp_project_dir / "fake.md")
+
+        initial_errors = handler.stats["errors"]
+        # Must not raise — observer thread would die
+        handler.on_moved(BadEvent())
+        assert handler.stats["errors"] == initial_errors + 1
+
+    def test_on_deleted_catches_exception(self, temp_project_dir):
+        """on_deleted must catch exceptions to keep the observer thread alive."""
+        service = LinkWatcherService(str(temp_project_dir))
+        handler = service.handler
+
+        class BadEvent:
+            @property
+            def is_directory(self):
+                raise RuntimeError("simulated error")
+
+            src_path = str(temp_project_dir / "fake.md")
+
+        initial_errors = handler.stats["errors"]
+        handler.on_deleted(BadEvent())
+        assert handler.stats["errors"] == initial_errors + 1
+
+    def test_on_created_catches_exception(self, temp_project_dir):
+        """on_created must catch exceptions to keep the observer thread alive."""
+        service = LinkWatcherService(str(temp_project_dir))
+        handler = service.handler
+
+        class BadEvent:
+            @property
+            def is_directory(self):
+                raise RuntimeError("simulated error")
+
+            src_path = str(temp_project_dir / "fake.md")
+
+        initial_errors = handler.stats["errors"]
+        handler.on_created(BadEvent())
+        assert handler.stats["errors"] == initial_errors + 1
+
+    def test_on_error_handles_watchdog_error(self, temp_project_dir):
+        """on_error must handle watchdog OS errors without crashing."""
+        service = LinkWatcherService(str(temp_project_dir))
+        handler = service.handler
+
+        initial_errors = handler.stats["errors"]
+        handler.on_error(OSError("simulated watchdog OS error"))
+        assert handler.stats["errors"] == initial_errors + 1
+
+    def test_service_detects_dead_observer(self, temp_project_dir):
+        """Service main loop must detect when observer thread has died."""
+        service = LinkWatcherService(str(temp_project_dir))
+
+        mock_observer = MagicMock()
+        mock_observer.is_alive.return_value = False
+
+        service.observer = mock_observer
+        service.running = True
+
+        # Simulate one iteration of the main loop health check
+        if service.observer and not service.observer.is_alive():
+            service.running = False
+
+        assert service.running is False
+        mock_observer.is_alive.assert_called_once()

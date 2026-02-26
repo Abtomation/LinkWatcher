@@ -86,7 +86,7 @@ Systematically evaluate and enhance the templates, guides, and other tools by co
 ## Outputs
 
 - **Improvement Opportunities** - Documented improvement opportunities in [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md)
-- **Review Summary** - Documentation of findings and identified improvements
+- **Review Summary** - Documentation of findings and identified improvements, using the [Tools Review Summary Template](../../templates/templates/tools-review-summary-template.md). Create via [`New-ReviewSummary.ps1`](../../scripts/file-creation/New-ReviewSummary.ps1)
 - **Process Improvement Tasks** - Created [Process Improvement Task](process-improvement-task.md) entries for implementation
 - **Archive of Processed Forms** - Organized archive of processed feedback forms
 

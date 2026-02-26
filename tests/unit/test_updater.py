@@ -449,3 +449,169 @@ class TestStaleLineNumberDetection:
         result = updater._update_file_references(str(test_file), [ref], "old.txt", "new.txt")
 
         assert result == "no_changes"
+
+
+class TestRootRelativePathHandling:
+    """Regression tests for PD-BUG-017: root-relative paths in scripts.
+
+    The updater previously assumed all non-absolute paths were relative to the
+    source file.  Paths that match the moved file's old_path directly are
+    project-root-relative and must be updated to new_path as-is, not converted
+    to a source-relative path.
+    """
+
+    def test_root_relative_path_preserved_in_script(self, temp_project_dir):
+        """Core regression: root-relative path must NOT be converted to source-relative.
+
+        Simulates a PowerShell script at scripts/file-creation/New-BugReport.ps1
+        containing a Join-Path -ChildPath with a root-relative path to
+        doc/state-tracking/bug-tracking.md.  When bug-tracking.md moves, the path
+        in the script must remain root-relative (not ../../...).
+        """
+        updater = LinkUpdater(str(temp_project_dir))
+        updater.set_backup_enabled(False)
+
+        # Create directory structure
+        script_dir = temp_project_dir / "scripts" / "file-creation"
+        script_dir.mkdir(parents=True)
+        target_dir = temp_project_dir / "doc" / "state-tracking"
+        target_dir.mkdir(parents=True)
+        new_target_dir = temp_project_dir / "doc" / "tracking"
+        new_target_dir.mkdir(parents=True)
+
+        # Script with a root-relative path argument
+        script_file = script_dir / "New-BugReport.ps1"
+        content = (
+            "$BugTrackingFile = Join-Path -Path $ProjectRoot "
+            '-ChildPath "doc/state-tracking/bug-tracking.md"\n'
+        )
+        script_file.write_text(content)
+
+        # Reference as GenericParser would create it
+        ref = LinkReference(
+            file_path="scripts/file-creation/New-BugReport.ps1",
+            line_number=1,
+            column_start=content.index("doc/state-tracking"),
+            column_end=content.index("doc/state-tracking")
+            + len("doc/state-tracking/bug-tracking.md"),
+            link_text="doc/state-tracking/bug-tracking.md",
+            link_target="doc/state-tracking/bug-tracking.md",
+            link_type="generic-quoted",
+        )
+
+        old_path = "doc/state-tracking/bug-tracking.md"
+        new_path = "doc/tracking/bug-tracking.md"
+
+        new_target = updater._calculate_new_target(ref, old_path, new_path)
+
+        # Must be the new root-relative path, NOT "../../tracking/bug-tracking.md"
+        assert new_target == "doc/tracking/bug-tracking.md"
+        assert not new_target.startswith(
+            "../"
+        ), f"Root-relative path was wrongly converted to source-relative: {new_target}"
+
+    def test_root_relative_path_end_to_end(self, temp_project_dir):
+        """End-to-end test: file on disk is updated with correct root-relative path."""
+        updater = LinkUpdater(str(temp_project_dir))
+        updater.set_backup_enabled(False)
+
+        script_dir = temp_project_dir / "scripts" / "deep"
+        script_dir.mkdir(parents=True)
+
+        script_file = script_dir / "tool.ps1"
+        content = '$path = "doc/config/settings.yaml"\n'
+        script_file.write_text(content)
+
+        ref = LinkReference(
+            file_path="scripts/deep/tool.ps1",
+            line_number=1,
+            column_start=content.index("doc/config"),
+            column_end=content.index("doc/config") + len("doc/config/settings.yaml"),
+            link_text="doc/config/settings.yaml",
+            link_target="doc/config/settings.yaml",
+            link_type="generic-quoted",
+        )
+
+        stats = updater.update_references(
+            [ref], "doc/config/settings.yaml", "doc/configuration/settings.yaml"
+        )
+
+        assert stats["files_updated"] == 1
+        updated = script_file.read_text()
+        assert "doc/configuration/settings.yaml" in updated
+        assert "doc/config/settings.yaml" not in updated
+        # Must NOT contain source-relative path
+        assert "../" not in updated
+
+    def test_explicit_relative_path_still_works(self, temp_project_dir):
+        """Ensure explicit relative paths (../) are NOT affected by the fix."""
+        updater = LinkUpdater(str(temp_project_dir))
+        updater.set_backup_enabled(False)
+
+        doc_dir = temp_project_dir / "doc" / "guides"
+        doc_dir.mkdir(parents=True)
+
+        md_file = doc_dir / "guide.md"
+        content = "See [tracking](../state-tracking/bug-tracking.md) for details.\n"
+        md_file.write_text(content)
+
+        ref = LinkReference(
+            file_path="doc/guides/guide.md",
+            line_number=1,
+            column_start=14,
+            column_end=14 + len("../state-tracking/bug-tracking.md"),
+            link_text="tracking",
+            link_target="../state-tracking/bug-tracking.md",
+            link_type="markdown",
+        )
+
+        old_path = "doc/state-tracking/bug-tracking.md"
+        new_path = "doc/tracking/bug-tracking.md"
+
+        new_target = updater._calculate_new_target(ref, old_path, new_path)
+
+        # "../state-tracking/bug-tracking.md" != "doc/state-tracking/bug-tracking.md"
+        # so the early check should NOT trigger; existing resolution logic handles it
+        assert new_target != old_path  # should be recalculated, not returned as-is
+
+    def test_root_relative_with_leading_slash_preserved(self):
+        """Test that /doc/... style absolute-root paths preserve the leading slash."""
+        updater = LinkUpdater()
+
+        ref = LinkReference(
+            file_path="scripts/tool.ps1",
+            line_number=1,
+            column_start=0,
+            column_end=30,
+            link_text="/doc/state/file.md",
+            link_target="/doc/state/file.md",
+            link_type="generic-quoted",
+        )
+
+        new_target = updater._calculate_new_target(
+            ref, "doc/state/file.md", "doc/new-state/file.md"
+        )
+
+        # Leading slash should be preserved
+        assert new_target == "/doc/new-state/file.md"
+
+    def test_unrelated_root_relative_path_not_modified(self):
+        """Test that a root-relative path NOT matching old_path is left alone."""
+        updater = LinkUpdater()
+
+        ref = LinkReference(
+            file_path="scripts/tool.ps1",
+            line_number=1,
+            column_start=0,
+            column_end=20,
+            link_text="doc/other/file.md",
+            link_target="doc/other/file.md",
+            link_type="generic-quoted",
+        )
+
+        new_target = updater._calculate_new_target(
+            ref, "doc/state/bug-tracking.md", "doc/new-state/bug-tracking.md"
+        )
+
+        # Different path — should not be modified
+        assert new_target == "doc/other/file.md"

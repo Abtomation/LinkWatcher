@@ -162,7 +162,7 @@ status: FINALIZED
 | linkwatcher/config/defaults.py | Default configuration values | 0.1.4 | ✅ |
 | linkwatcher/config/settings.py | LinkWatcherConfig class, multi-source loading | 0.1.4 | ✅ |
 | linkwatcher/utils.py | Path utility functions, Windows path handling | 0.1.5 | ✅ |
-| linkwatcher/handler.py | File system event handler (move/create/delete) | 1.1.2 | ✅ |
+| ../../../../../linkwatcher/handler.py | File system event handler (move/create/delete) | 1.1.2 | ✅ |
 | linkwatcher/service.py | Main orchestration service (LinkWatcherService) | 0.1.1 | ✅ |
 | linkwatcher/parser.py | LinkParser facade orchestrating all parsers | 2.1.1 | ✅ |
 | linkwatcher/parsers/__init__.py | Parsers package init | 2.1.1 | ✅ |
@@ -325,12 +325,12 @@ status: FINALIZED
 | manual_markdown_tests/MP-007_links_with_titles.md | Links with titles test | 2.1.2 | ✅ |
 | manual_markdown_tests/MP-008_malformed_links.md | Malformed links test | 2.1.2 | ✅ |
 | manual_markdown_tests/MP-009_escaped_characters.md | Escaped characters test | 2.1.2 | ✅ |
-| manual_markdown_tests/test_project/api/reference.txt | Test project API reference file | 4.1.6 | ✅ |
+| ../../../../../manual_markdown_tests/test_project/api/reference.txt | Test project API reference file | 4.1.6 | ✅ |
 | manual_markdown_tests/test_project/assets/icon.svg | Test project asset | 4.1.6 | ✅ |
 | manual_markdown_tests/test_project/assets/logo.png | Test project asset | 4.1.6 | ✅ |
-| manual_markdown_tests/test_project/config/settings.yaml | Test project config | 4.1.6 | ✅ |
+| ../../../../../manual_markdown_tests/config/settings.yaml | Test project config | 4.1.6 | ✅ |
 | manual_markdown_tests/test_project/docs/readme.md | Test project docs | 4.1.6 | ✅ |
-| manual_markdown_tests/test_project/file1.txt | Test project file | 4.1.6 | ✅ |
+| ../../../../../manual_markdown_tests/test_project/file1.txt | Test project file | 4.1.6 | ✅ |
 | manual_markdown_tests/test_project/file2.txt | Test project file | 4.1.6 | ✅ |
 | manual_markdown_tests/test_project/inline.txt | Test project inline file | 4.1.6 | ✅ |
 | manual_markdown_tests/test_project/LR-002_relative_links.md | Relative links test | 2.2.2 | ✅ |

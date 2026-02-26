@@ -13,9 +13,21 @@
 #>
 
 param(
-    [string]$RegistryPath = "../../../id-registry.json",
-    [string]$RootPath = "doc"
+    [string]$RegistryPath = "",
+    [string]$RootPath = ""
 )
+
+# Import the common helpers for Get-ProjectRoot
+Import-Module (Join-Path -Path $PSScriptRoot -ChildPath "Common-ScriptHelpers.psm1") -Force
+
+# Resolve defaults using project root for reliability
+$ProjectRoot = Get-ProjectRoot
+if ([string]::IsNullOrWhiteSpace($RegistryPath)) {
+    $RegistryPath = Join-Path -Path $ProjectRoot -ChildPath "doc/id-registry.json"
+}
+if ([string]::IsNullOrWhiteSpace($RootPath)) {
+    $RootPath = Join-Path -Path $ProjectRoot -ChildPath "doc"
+}
 
 # Load the registry
 $registry = Get-Content $RegistryPath | ConvertFrom-Json

@@ -2,9 +2,9 @@
 id: PF-TSK-007
 type: Process Framework
 category: Task Definition
-version: 1.2
+version: 1.3
 created: 2023-06-15
-updated: 2025-06-08
+updated: 2026-02-26
 task_type: Discrete
 ---
 
@@ -58,12 +58,12 @@ Diagnose, fix, and verify solutions for reported bugs or issues in the applicati
 ### Preparation
 
 1. Review the [Bug Tracking](../../state-tracking/permanent/bug-tracking.md) document to identify a triaged bug to fix (status 🔍 Triaged)
-2. Verify the bug has been properly triaged with priority and severity assigned
-3. Reproduce the bug to understand its exact behavior and confirm the issue
-4. Document the reproduction steps for future reference
-5. Analyze the affected code area to understand the context
-6. Update bug status from 🔍 Triaged to 🟡 In Progress
-   - **Manual Update**: Edit the [Bug Tracking](../../state-tracking/permanent/bug-tracking.md) file directly
+2. If no triaged bugs are found but bugs with status 🆕 Reported exist, **ask the human partner** whether to switch to [Bug Triage](bug-triage-task.md) first. Do not proceed with an un-triaged bug.
+3. Verify the selected bug has been properly triaged with priority and severity assigned
+4. Reproduce the bug to understand its exact behavior and confirm the issue
+5. Document the reproduction steps for future reference
+6. Analyze the affected code area to understand the context
+7. Update bug status from 🔍 Triaged to 🟡 In Progress
    - **Automated Option**: Use [`Update-BugStatus.ps1`](../../scripts/Update-BugStatus.ps1) script:
      ```powershell
      ../../scripts/Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "InProgress"
@@ -71,15 +71,21 @@ Diagnose, fix, and verify solutions for reported bugs or issues in the applicati
 
 ### Execution
 
-7. Analyze the code to identify the root cause of the bug
-8. Consider alternative approaches to fixing the issue
-9. Develop a fix that addresses the root cause, not just the symptoms
-10. Write or update tests to verify the fix and prevent regression
-11. Test the fix thoroughly to ensure it resolves the issue
-12. Verify that the fix doesn't introduce new problems
-13. Check for similar issues in other parts of the codebase
-14. Update bug status from 🟡 In Progress to 🧪 Fixed
-    - **Manual Update**: Edit the [Bug Tracking](../../state-tracking/permanent/bug-tracking.md) file directly
+8. Analyze the code to identify the root cause of the bug
+9. Consider alternative approaches to fixing the issue
+10. Develop a fix that addresses the root cause, not just the symptoms
+11. Write or update tests to verify the fix and prevent regression
+    - **Adding to an existing test file** (most common): Find the relevant test file in the project's test directory (see `paths.tests` in `project-config.json`). Add regression test(s) following the existing patterns in the file. After adding, update the `testCasesCount` for the file in [Test Registry](/test/test-registry.yaml). If the file is not yet in the registry, add a new entry with the next available `PD-TST` ID and bump `nextAvailable` in [ID Registry](/doc/id-registry.json).
+    - **Creating a new test file** (rare): Use [`New-TestFile.ps1`](../../scripts/file-creation/New-TestFile.ps1) which auto-updates test-registry.yaml, test-implementation-tracking.md, and feature-tracking.md:
+      ```powershell
+      cd doc/process-framework/scripts/file-creation
+      .\New-TestFile.ps1 -TestName "BugDescription" -TestType "Unit" -FeatureId "X.Y.Z" -ComponentName "ComponentName"
+      ```
+    - Ensure each regression test **fails without the fix** and **passes with it**
+12. Test the fix thoroughly to ensure it resolves the issue
+13. Verify that the fix doesn't introduce new problems
+14. Check for similar issues in other parts of the codebase
+15. Update bug status from 🟡 In Progress to 🧪 Fixed
     - **Automated Option**: Use [`Update-BugStatus.ps1`](../../scripts/Update-BugStatus.ps1) script:
       ```powershell
       ../../scripts/Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "Fixed" -FixDetails "Fixed null pointer exception" -RootCause "Missing null check" -TestsAdded "Yes" -PullRequestUrl "https://github.com/repo/pull/123"
@@ -87,17 +93,16 @@ Diagnose, fix, and verify solutions for reported bugs or issues in the applicati
 
 ### Finalization
 
-15. Document the nature of the bug and the solution approach
-16. Refactor code if necessary for better maintainability
-17. Verify the fix resolves the issue completely
-18. Update bug status from 🧪 Fixed to ✅ Verified (after testing confirmation)
-    - **Manual Update**: Edit the [Bug Tracking](../../state-tracking/permanent/bug-tracking.md) file directly
+16. Document the nature of the bug and the solution approach
+17. Refactor code if necessary for better maintainability
+18. Verify the fix resolves the issue completely
+19. Update bug status from 🧪 Fixed to ✅ Verified (after testing confirmation)
     - **Automated Option**: Use [`Update-BugStatus.ps1`](../../scripts/Update-BugStatus.ps1) script:
       ```powershell
       ../../scripts/Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "Closed" -VerificationNotes "Fix verified in production, no regressions detected"
       ```
-19. Update the [Bug Tracking](../../state-tracking/permanent/bug-tracking.md) document with fix details
-20. **🚨 MANDATORY FINAL STEP**: Complete the Task Completion Checklist below
+20. Update the [Bug Tracking](../../state-tracking/permanent/bug-tracking.md) document with fix details
+21. **🚨 MANDATORY FINAL STEP**: Complete the Task Completion Checklist below
 
 ## Outputs
 
@@ -130,6 +135,7 @@ Before considering this task finished:
 - [ ] **Verify Outputs**: Confirm all required outputs have been produced
   - [ ] Source code changes properly fix the bug
   - [ ] Tests verify the fix and prevent regression
+  - [ ] Test Registry updated (new entry or updated `testCasesCount`, ID counter bumped if new entry)
   - [ ] Bug fix documentation clearly explains the issue and solution
   - [ ] All modified files follow coding standards
 - [ ] **Update State Files**: Ensure all state tracking files have been updated

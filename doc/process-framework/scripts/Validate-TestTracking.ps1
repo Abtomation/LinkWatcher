@@ -30,7 +30,8 @@ param(
 
 # --- Resolve project root ---
 if ([string]::IsNullOrWhiteSpace($ProjectRoot)) {
-    $ProjectRoot = (Get-Item (Join-Path $PSScriptRoot "../../..")).FullName
+    Import-Module (Join-Path -Path $PSScriptRoot -ChildPath "Common-ScriptHelpers.psm1") -Force
+    $ProjectRoot = Get-ProjectRoot
 }
 
 Write-Host "========================================" -ForegroundColor Cyan
@@ -168,7 +169,7 @@ Write-Host ""
 # --- Check 4: PD-TST nextAvailable counter ---
 Write-Host "4. Checking PD-TST nextAvailable counter..." -ForegroundColor Yellow
 
-$idRegistryPath = Join-Path $ProjectRoot "doc/id-registry.json"
+$idRegistryPath = Join-Path $ProjectRoot "../../id-registry.json"
 if (Test-Path $idRegistryPath) {
     $idRegistry = Get-Content $idRegistryPath -Raw -Encoding UTF8 | ConvertFrom-Json
     $nextAvailable = $idRegistry.prefixes.'PD-TST'.nextAvailable

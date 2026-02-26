@@ -153,16 +153,23 @@ class LinkUpdater:
 
                 # Stale detection: expected target not found on this line
                 if ref.link_target not in line:
-                    # Check if already updated by a prior replacement on the same line
-                    if new_target in line:
+                    # For Python imports, link_target uses slash notation
+                    # (e.g. "src/utils/file_utils") but the line has dot
+                    # notation ("src.utils.file_utils").  Check link_text too.
+                    if ref.link_type == "python-import" and ref.link_text and ref.link_text in line:
+                        pass  # Not stale — found via dot-notation link_text
+                    elif new_target in line or (
+                        ref.link_type == "python-import" and new_target.replace("/", ".") in line
+                    ):
                         continue  # Already handled by an earlier replacement
-                    self.logger.warning(
-                        "stale_line_content_detected",
-                        file_path=file_path,
-                        line_number=ref.line_number,
-                        expected_target=ref.link_target,
-                    )
-                    return "stale"
+                    else:
+                        self.logger.warning(
+                            "stale_line_content_detected",
+                            file_path=file_path,
+                            line_number=ref.line_number,
+                            expected_target=ref.link_target,
+                        )
+                        return "stale"
 
                 updated_line = self._replace_in_line(line, ref, new_target)
                 if updated_line != line:
@@ -209,6 +216,18 @@ class LinkUpdater:
         3. If it matches the moved file, convert back to original link style with new location
         """
         try:
+            # Early check: if the original target directly matches the old path,
+            # it's a project-root-relative path (e.g., path strings in scripts).
+            # Return new_path directly to preserve the root-relative style.
+            original_norm = normalize_path(original_target)
+            old_norm = normalize_path(old_path)
+            if original_norm == old_norm:
+                new_norm = normalize_path(new_path)
+                # Preserve leading slash if original had one
+                if original_target.startswith("/"):
+                    return f"/{new_norm}"
+                return new_norm
+
             # Step 1: Analyze the original link type
             link_info = self._analyze_link_type(original_target, source_file)
 

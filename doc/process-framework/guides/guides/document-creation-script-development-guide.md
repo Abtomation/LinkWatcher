@@ -726,7 +726,7 @@ Before considering any document creation script complete, follow this comprehens
 ```powershell
 # Verify prerequisites
 Test-Path "doc/process-framework/scripts/Common-ScriptHelpers.psm1"
-Test-Path "doc/id-registry.json"
+Test-Path "../../../id-registry.json"
 Test-Path "path/to/your/template.md"
 
 # Check current working directory
@@ -810,7 +810,7 @@ Rename-Item "Common-ScriptHelpers.psm1.bak" "doc/process-framework/scripts/Commo
 
 ```powershell
 # Check ID registry was updated
-$registryContent = Get-Content "doc/id-registry.json" | ConvertFrom-Json
+$registryContent = Get-Content "../../../id-registry.json" | ConvertFrom-Json
 $prefix = "YOUR-PREFIX"  # Replace with actual prefix
 $nextAvailable = $registryContent.prefixes.$prefix.nextAvailable
 Write-Host "Next available ID for $prefix: $nextAvailable"

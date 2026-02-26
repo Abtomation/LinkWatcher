@@ -87,22 +87,70 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
 
     def on_moved(self, event):
         """Handle file/directory move events."""
-        if event.is_directory:
-            self._handle_directory_moved(event)
-        else:
-            self._handle_file_moved(event)
+        try:
+            if event.is_directory:
+                self._handle_directory_moved(event)
+            else:
+                self._handle_file_moved(event)
+        except Exception as e:
+            self.logger.error(
+                "on_moved_unhandled_error",
+                error=str(e),
+                error_type=type(e).__name__,
+                src_path=getattr(event, "src_path", "unknown"),
+            )
+            print(f"{Fore.RED}✗ Unhandled error in on_moved: {e}")
+            self.stats["errors"] += 1
 
     def on_deleted(self, event):
         """Handle file/directory deletion events."""
-        if event.is_directory:
-            self._handle_directory_deleted(event)
-        else:
-            self._handle_file_deleted(event)
+        try:
+            if event.is_directory:
+                self._handle_directory_deleted(event)
+            else:
+                # On Windows, watchdog may fire delete events for directories
+                # with is_directory=False. Check if the deleted path is a known
+                # directory in our database (has files tracked under it).
+                deleted_path = self._get_relative_path(event.src_path)
+                known_files = self._get_files_under_directory(deleted_path)
+                if known_files:
+                    self._handle_directory_deleted(event)
+                else:
+                    self._handle_file_deleted(event)
+        except Exception as e:
+            self.logger.error(
+                "on_deleted_unhandled_error",
+                error=str(e),
+                error_type=type(e).__name__,
+                src_path=getattr(event, "src_path", "unknown"),
+            )
+            print(f"{Fore.RED}✗ Unhandled error in on_deleted: {e}")
+            self.stats["errors"] += 1
 
     def on_created(self, event):
         """Handle file/directory creation events."""
-        if not event.is_directory and self._should_monitor_file(event.src_path):
-            self._handle_file_created(event)
+        try:
+            if not event.is_directory and self._should_monitor_file(event.src_path):
+                self._handle_file_created(event)
+        except Exception as e:
+            self.logger.error(
+                "on_created_unhandled_error",
+                error=str(e),
+                error_type=type(e).__name__,
+                src_path=getattr(event, "src_path", "unknown"),
+            )
+            print(f"{Fore.RED}✗ Unhandled error in on_created: {e}")
+            self.stats["errors"] += 1
+
+    def on_error(self, event):
+        """Handle watchdog errors to prevent silent observer thread death."""
+        self.logger.error(
+            "watchdog_error",
+            error=str(event),
+            error_type=type(event).__name__,
+        )
+        print(f"{Fore.RED}✗ Watchdog error: {event}")
+        self.stats["errors"] += 1
 
     @with_context(component="handler", operation="file_move")
     def _handle_file_moved(self, event: FileMovedEvent):
@@ -432,6 +480,28 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
                     total_references_updated += update_stats["references_updated"]
                     self.stats["errors"] += update_stats["errors"]
 
+                    # Handle stale references: rescan affected files and retry once
+                    stale_files = update_stats.get("stale_files", [])
+                    if stale_files:
+                        for stale_file in stale_files:
+                            abs_stale = (
+                                os.path.join(self.project_root, stale_file)
+                                if not os.path.isabs(stale_file)
+                                else stale_file
+                            )
+                            if os.path.exists(abs_stale):
+                                self._rescan_file_links(abs_stale)
+
+                        retry_refs = self.link_db.get_references_to_file(old_file_path)
+                        stale_set = set(stale_files)
+                        retry_refs = [r for r in retry_refs if r.file_path in stale_set]
+                        if retry_refs:
+                            retry_stats = self.updater.update_references(
+                                retry_refs, old_file_path, new_file_path
+                            )
+                            total_references_updated += retry_stats["references_updated"]
+                            self.stats["errors"] += retry_stats["errors"]
+
                 # Update database AFTER file contents are updated
                 self.link_db.update_target_path(old_file_path, new_file_path)
 
@@ -535,17 +605,59 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
             self.stats["errors"] += 1
 
     def _handle_directory_deleted(self, event: FileDeletedEvent):
-        """Handle directory deletion."""
+        """Handle directory deletion with move detection.
+
+        On Windows, directory moves are reported by watchdog as a directory
+        delete event followed by individual file create events (instead of
+        a DirMovedEvent). This method buffers the known files under the
+        deleted directory as pending deletes so that when the corresponding
+        file create events arrive, _detect_potential_move pairs them and
+        the moves are handled correctly.
+        """
         deleted_dir = self._get_relative_path(event.src_path)
         self.logger.warning("directory_deleted", deleted_dir=deleted_dir)
         print(f"{Fore.RED}🗑️ Directory deleted: {deleted_dir}")
 
-        # For directory deletion, we'd need to clean up all files within
-        # This is complex and might be better handled by a full rescan
-        self.logger.warning(
-            "directory_deletion_detected", deleted_dir=deleted_dir, recommendation="full_rescan"
-        )
-        print(f"{Fore.YELLOW}⚠️ Directory deletion detected. Consider running a full rescan.")
+        # Get all known files under this directory from the database
+        known_files = self._get_files_under_directory(deleted_dir)
+
+        if known_files:
+            # Buffer each file as a pending delete for move detection.
+            # When watchdog fires FileCreatedEvent for the same filenames
+            # at a new location, _detect_potential_move will match them.
+            current_time = time.time()
+            with self.move_detection_lock:
+                for file_path in known_files:
+                    self.pending_deletes[file_path] = (current_time, 0)
+
+            # Schedule delayed processing for each (handles true deletes)
+            for file_path in known_files:
+                timer = threading.Timer(
+                    self.move_detection_delay,
+                    self._process_delayed_delete,
+                    [file_path],
+                )
+                timer.start()
+
+            self.logger.info(
+                "directory_files_buffered_for_move_detection",
+                deleted_dir=deleted_dir,
+                files_count=len(known_files),
+            )
+            print(
+                f"{Fore.CYAN}📂 Buffered {len(known_files)} known file(s) "
+                f"from '{deleted_dir}' for move detection"
+            )
+        else:
+            self.logger.warning(
+                "directory_deletion_no_known_files",
+                deleted_dir=deleted_dir,
+                recommendation="full_rescan",
+            )
+            print(
+                f"{Fore.YELLOW}⚠️ Directory deletion detected with no known "
+                f"files in database. Consider running a full rescan."
+            )
 
     def _handle_file_created(self, event: FileCreatedEvent):
         """Handle file creation with move detection."""
@@ -826,6 +938,50 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
                 f"{Fore.YELLOW}Warning: Could not calculate updated path for {original_target}: {e}"
             )
             return original_target
+
+    def _get_files_under_directory(self, dir_path: str) -> set:
+        """Get all files known to the database under a given directory path.
+
+        Checks both link targets and source files to find all files
+        that are tracked in the database under the specified directory.
+
+        Link targets in the DB are stored as they appear in the source file
+        (relative to the source file's location), so we must resolve each
+        target to a project-root-relative path before comparing with dir_path.
+        """
+        dir_prefix = normalize_path(dir_path.rstrip("/\\") + "/")
+        known_files = set()
+
+        # Check link targets (keys in the links dict)
+        for target_path, references in list(self.link_db.links.items()):
+            base_target = target_path.split("#", 1)[0] if "#" in target_path else target_path
+            normalized = normalize_path(base_target)
+
+            # Direct prefix match (for already project-root-relative targets)
+            if normalized.startswith(dir_prefix):
+                known_files.add(normalized)
+                continue
+
+            # Resolve relative targets using source file paths
+            for ref in references:
+                ref_dir = os.path.dirname(normalize_path(ref.file_path))
+                try:
+                    resolved = os.path.normpath(os.path.join(ref_dir, normalized)).replace(
+                        "\\", "/"
+                    )
+                    if resolved.startswith(dir_prefix):
+                        known_files.add(resolved)
+                        break  # One match is enough for this target
+                except Exception:
+                    pass
+
+        # Check source files (files that contain links)
+        for file_path in list(self.link_db.files_with_links):
+            normalized = normalize_path(file_path)
+            if normalized.startswith(dir_prefix):
+                known_files.add(normalized)
+
+        return known_files
 
     def _should_monitor_file(self, file_path: str) -> bool:
         """Check if a file should be monitored."""

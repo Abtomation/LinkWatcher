@@ -7,5 +7,5 @@ This is the main documentation file.
 - Feature 2
 
 ## Links to other files
-- [Configuration](../config/settings.yaml)
+- [Configuration](../../config/settings.yaml)
 - [API Reference](../api/reference.txt)

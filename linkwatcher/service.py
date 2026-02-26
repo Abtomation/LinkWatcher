@@ -109,10 +109,20 @@ class LinkWatcherService:
             print(f"{Fore.GREEN}👁️ LinkWatcher is now monitoring file changes...")
             print(f"{Fore.CYAN}Press Ctrl+C to stop")
 
-            # Keep the service running
+            # Keep the service running, monitoring observer health
             try:
                 while self.running:
                     time.sleep(1)
+                    if self.observer and not self.observer.is_alive():
+                        self.logger.error(
+                            "observer_thread_died",
+                            message="Watchdog observer thread is no longer alive",
+                        )
+                        print(
+                            f"{Fore.RED}✗ CRITICAL: Watchdog observer thread died unexpectedly. "
+                            f"Shutting down."
+                        )
+                        self.running = False
             except KeyboardInterrupt:
                 pass
 

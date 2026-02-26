@@ -116,9 +116,7 @@ def main():
 
     while True:
         print(f"\nOptions:")
-        print(
-            "1. Test ../test_project/../test_projects/../test_project/../test_projects/../test_project/../test_projects/README.md (main test file)"
-        )
+        print("1. Test ../test_projects/README.md (main test file)")
         print("2. List all project files")
         print("3. Show suggested file movements")
         print("4. Test specific markdown file")

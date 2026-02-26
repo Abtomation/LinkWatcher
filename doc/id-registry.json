@@ -45,7 +45,7 @@
         "main": "doc/process-framework/templates",
         "default": "main"
       },
-      "nextAvailable": 46
+      "nextAvailable": 47
     },
     "PF-MTH": {
       "description": "Process Framework - Methodologies",
@@ -374,7 +374,7 @@
         "forms": "doc/process-framework/feedback/feedback-forms",
         "default": "forms"
       },
-      "nextAvailable": 201
+      "nextAvailable": 214
     },
     "ART-REV": {
       "description": "Review Artifacts",
@@ -422,7 +422,7 @@
         "e2e": "integration_test",
         "default": "unit"
       },
-      "nextAvailable": 128
+      "nextAvailable": 129
     },
     "PF-VAL": {
       "description": "Process Framework - Validation Reports",
@@ -520,7 +520,7 @@
         "permanent": "doc/process-framework/state-tracking/permanent",
         "default": "permanent"
       },
-      "nextAvailable": 16
+      "nextAvailable": 19
     }
   }
 }
