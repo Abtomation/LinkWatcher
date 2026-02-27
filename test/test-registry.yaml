@@ -515,11 +515,11 @@ testFiles:
     testType: Integration
     componentName: Directory Move Detection
     specificationPath: test/specifications/feature-specs/test-spec-1-1-1-file-system-monitoring.md
-    description: "Regression tests for PD-BUG-016 (directory moves via delete+create on Windows) and PD-BUG-006 (nested dir move Python imports). 17 tests covering DB lookup, relative path resolution, buffering, end-to-end move detection, and Python import updates."
+    description: "Regression tests for PD-BUG-016 (directory moves via delete+create on Windows), PD-BUG-006 (nested dir move Python imports), and PD-BUG-020 (single file move falsely triggering directory scan). 21 tests covering DB lookup, relative path resolution, buffering, end-to-end move detection, Python import updates, and single-file-delete routing."
     created: 2026-02-26
-    updated: 2026-02-26
+    updated: 2026-02-27
     status: "✅ Tests Implemented"
-    testCasesCount: 17
+    testCasesCount: 21
     tier: 2
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-1-1-1-file-system-monitoring-t2.md
     crossCuttingFeatures: ["0.1.2", "2.2.1", "2.1.1"]

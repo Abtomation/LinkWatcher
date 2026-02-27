@@ -33,13 +33,13 @@
     If specified, bypasses confirmation prompts
 
 .EXAMPLE
-    .\Update-FeatureTrackingFromAssessment.ps1 -AssessmentId "ART-ASS-001"
+    Update-FeatureTrackingFromAssessment.ps1 -AssessmentId "ART-ASS-001"
 
 .EXAMPLE
-    .\Update-FeatureTrackingFromAssessment.ps1 -AssessmentId "ART-ASS-002" -FeatureId "2.1.5" -DryRun
+    Update-FeatureTrackingFromAssessment.ps1 -AssessmentId "ART-ASS-002" -FeatureId "2.1.5" -DryRun
 
 .EXAMPLE
-    .\Update-FeatureTrackingFromAssessment.ps1 -AssessmentFile "assessments/ART-ASS-003-1.4.1-payment-processing.md" -Force
+    Update-FeatureTrackingFromAssessment.ps1 -AssessmentFile "assessments/ART-ASS-003-1.4.1-payment-processing.md" -Force
 
 .NOTES
     - Requires PowerShell execution policy to allow script execution

@@ -85,7 +85,9 @@ Diagnose, fix, and verify solutions for reported bugs or issues in the applicati
 12. Test the fix thoroughly to ensure it resolves the issue
 13. Verify that the fix doesn't introduce new problems
 14. Check for similar issues in other parts of the codebase
-15. Update bug status from 🟡 In Progress to 🧪 Fixed
+    - If the root cause is a shared pattern (e.g., regex, utility function), check **all** components that use the same pattern
+15. Create a manual validation test in the project's manual test directory that allows the human partner to independently verify the fix outside of the automated test suite (e.g., a standalone script, a sample input file, or a step-by-step reproduction procedure)
+16. Update bug status from 🟡 In Progress to 🧪 Fixed
     - **Automated Option**: Use [`Update-BugStatus.ps1`](../../scripts/Update-BugStatus.ps1) script:
       ```powershell
       ../../scripts/Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "Fixed" -FixDetails "Fixed null pointer exception" -RootCause "Missing null check" -TestsAdded "Yes" -PullRequestUrl "https://github.com/repo/pull/123"
@@ -93,16 +95,16 @@ Diagnose, fix, and verify solutions for reported bugs or issues in the applicati
 
 ### Finalization
 
-16. Document the nature of the bug and the solution approach
-17. Refactor code if necessary for better maintainability
-18. Verify the fix resolves the issue completely
-19. Update bug status from 🧪 Fixed to ✅ Verified (after testing confirmation)
+17. Document the nature of the bug and the solution approach
+18. Refactor code if necessary for better maintainability
+19. Verify the fix resolves the issue completely
+20. Update bug status from 🧪 Fixed to ✅ Verified (after testing confirmation)
     - **Automated Option**: Use [`Update-BugStatus.ps1`](../../scripts/Update-BugStatus.ps1) script:
       ```powershell
       ../../scripts/Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "Closed" -VerificationNotes "Fix verified in production, no regressions detected"
       ```
-20. Update the [Bug Tracking](../../state-tracking/permanent/bug-tracking.md) document with fix details
-21. **🚨 MANDATORY FINAL STEP**: Complete the Task Completion Checklist below
+21. Update the [Bug Tracking](../../state-tracking/permanent/bug-tracking.md) document with fix details
+22. **🚨 MANDATORY FINAL STEP**: Complete the Task Completion Checklist below
 
 ## Outputs
 

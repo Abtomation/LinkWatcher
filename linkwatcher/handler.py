@@ -27,6 +27,41 @@ from .updater import LinkUpdater
 from .utils import get_relative_path, normalize_path, should_ignore_directory, should_monitor_file
 
 
+class _PendingDirMove:
+    """Internal state for tracking a pending directory move detection.
+
+    On Windows, directory moves are reported as a directory_deleted event
+    followed by individual file_created events. This class tracks the
+    state needed to correlate these events and process the move as a
+    single batch operation.
+    """
+
+    __slots__ = (
+        "deleted_dir",
+        "known_files",
+        "dir_prefix",
+        "total_expected",
+        "new_dir",
+        "matched_count",
+        "unmatched",
+        "timestamp",
+        "max_timer",
+        "settle_timer",
+    )
+
+    def __init__(self, deleted_dir, known_files):
+        self.deleted_dir = deleted_dir
+        self.known_files = frozenset(known_files)
+        self.dir_prefix = normalize_path(deleted_dir) + "/"
+        self.total_expected = len(known_files)
+        self.new_dir = None
+        self.matched_count = 0
+        self.unmatched = set(known_files)
+        self.timestamp = time.time()
+        self.max_timer = None
+        self.settle_timer = None
+
+
 class LinkMaintenanceHandler(FileSystemEventHandler):
     """
     Handles file system events and maintains link integrity.
@@ -65,10 +100,16 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
             else DEFAULT_CONFIG.ignored_directories.copy()
         )
 
-        # Delayed move detection
+        # Delayed move detection (per-file, for individual file moves)
         self.pending_deletes = {}  # {file_path: (timestamp, file_size)}
-        self.move_detection_delay = 2.0  # seconds to wait for create after delete
+        self.move_detection_delay = 10.0  # seconds to wait for create after delete
         self.move_detection_lock = threading.Lock()
+
+        # Directory move detection (batch, for directory moves on Windows)
+        self.pending_dir_moves = {}  # {deleted_dir: _PendingDirMove}
+        self.dir_move_lock = threading.Lock()
+        self.dir_move_max_timeout = 300.0  # max wait for all files to appear
+        self.dir_move_settle_delay = 5.0  # wait after last matched file
 
         # Statistics
         self.stats = {
@@ -605,48 +646,49 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
             self.stats["errors"] += 1
 
     def _handle_directory_deleted(self, event: FileDeletedEvent):
-        """Handle directory deletion with move detection.
+        """Handle directory deletion with batch move detection (Phase 1).
 
         On Windows, directory moves are reported by watchdog as a directory
         delete event followed by individual file create events (instead of
-        a DirMovedEvent). This method buffers the known files under the
-        deleted directory as pending deletes so that when the corresponding
-        file create events arrive, _detect_potential_move pairs them and
-        the moves are handled correctly.
+        a DirMovedEvent). This method creates a _PendingDirMove entry that
+        tracks all known files and starts only a max timeout timer. No
+        per-file timers are used — instead, _match_dir_move_file correlates
+        incoming file_created events with this pending entry, and processing
+        is deferred until all files are matched (or a settle/max timer fires).
         """
         deleted_dir = self._get_relative_path(event.src_path)
         self.logger.warning("directory_deleted", deleted_dir=deleted_dir)
-        print(f"{Fore.RED}🗑️ Directory deleted: {deleted_dir}")
 
         # Get all known files under this directory from the database
         known_files = self._get_files_under_directory(deleted_dir)
 
         if known_files:
-            # Buffer each file as a pending delete for move detection.
-            # When watchdog fires FileCreatedEvent for the same filenames
-            # at a new location, _detect_potential_move will match them.
-            current_time = time.time()
-            with self.move_detection_lock:
-                for file_path in known_files:
-                    self.pending_deletes[file_path] = (current_time, 0)
+            pending = _PendingDirMove(deleted_dir, known_files)
 
-            # Schedule delayed processing for each (handles true deletes)
-            for file_path in known_files:
-                timer = threading.Timer(
-                    self.move_detection_delay,
-                    self._process_delayed_delete,
-                    [file_path],
-                )
-                timer.start()
+            with self.dir_move_lock:
+                self.pending_dir_moves[deleted_dir] = pending
+
+            print(f"{Fore.RED}Directory deleted: {deleted_dir}")
+
+            # Start only the max timer — no per-file timers, no processing yet
+            pending.max_timer = threading.Timer(
+                self.dir_move_max_timeout,
+                self._process_dir_move_timeout,
+                [deleted_dir],
+            )
+            pending.max_timer.daemon = True
+            pending.max_timer.start()
 
             self.logger.info(
                 "directory_files_buffered_for_move_detection",
                 deleted_dir=deleted_dir,
                 files_count=len(known_files),
+                max_timeout=self.dir_move_max_timeout,
             )
             print(
                 f"{Fore.CYAN}📂 Buffered {len(known_files)} known file(s) "
-                f"from '{deleted_dir}' for move detection"
+                f"from '{deleted_dir}' for move detection "
+                f"(max wait: {self.dir_move_max_timeout}s)"
             )
         else:
             self.logger.warning(
@@ -663,7 +705,11 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
         """Handle file creation with move detection."""
         created_path = self._get_relative_path(event.src_path)
 
-        # Check if this might be a move operation
+        # Check directory moves first (has priority over per-file detection)
+        if self._match_dir_move_file(created_path, event.src_path):
+            return
+
+        # Check if this might be a per-file move operation
         potential_move_source = self._detect_potential_move(created_path, event.src_path)
 
         if potential_move_source:
@@ -949,7 +995,7 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
         (relative to the source file's location), so we must resolve each
         target to a project-root-relative path before comparing with dir_path.
         """
-        dir_prefix = normalize_path(dir_path.rstrip("/\\") + "/")
+        dir_prefix = normalize_path(dir_path.rstrip("/\\")) + "/"
         known_files = set()
 
         # Check link targets (keys in the links dict)
@@ -982,6 +1028,368 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
                 known_files.add(normalized)
 
         return known_files
+
+    # --- Directory move detection (Phase 2 & 3) ---
+
+    def _match_dir_move_file(self, created_path, created_abs_path):
+        """Check if a created file matches a pending directory move (Phase 2).
+
+        Returns True if the file was claimed by a directory move, False otherwise.
+        """
+        if not self.pending_dir_moves:
+            return False
+
+        created_normalized = normalize_path(created_path)
+        created_basename = os.path.basename(created_path)
+
+        with self.dir_move_lock:
+            for deleted_dir, pending in list(self.pending_dir_moves.items()):
+                if pending.new_dir is not None:
+                    # We already know the new directory — check by prefix
+                    expected_prefix = normalize_path(pending.new_dir) + "/"
+                    if created_normalized.startswith(expected_prefix):
+                        rel_within_new = created_normalized[len(expected_prefix):]
+                        expected_old = pending.dir_prefix + rel_within_new
+                        if expected_old in pending.unmatched:
+                            pending.unmatched.discard(expected_old)
+                            pending.matched_count += 1
+                            self._reset_dir_move_settle_timer(deleted_dir, pending)
+
+                            self.logger.debug(
+                                "dir_move_file_matched",
+                                created=created_path,
+                                matched=pending.matched_count,
+                                remaining=len(pending.unmatched),
+                            )
+                            print(
+                                f"{Fore.CYAN}  📄 Matched {pending.matched_count}"
+                                f"/{pending.total_expected}: "
+                                f"{os.path.basename(created_path)}"
+                            )
+
+                            if not pending.unmatched:
+                                self.logger.info(
+                                    "dir_move_all_files_matched",
+                                    old_dir=deleted_dir,
+                                    new_dir=pending.new_dir,
+                                    count=pending.matched_count,
+                                )
+                                print(
+                                    f"{Fore.GREEN}✓ All {pending.matched_count} "
+                                    f"files matched — processing directory move"
+                                )
+                                self._trigger_dir_move_processing(
+                                    deleted_dir, pending
+                                )
+                            return True
+                else:
+                    # First match — infer new_dir from this file
+                    for known_file in list(pending.unmatched):
+                        if os.path.basename(known_file) != created_basename:
+                            continue
+
+                        # Compute relative path within old directory
+                        rel_within_dir = known_file[len(pending.dir_prefix):]
+
+                        # Check if created path ends with this relative path
+                        if rel_within_dir == created_normalized:
+                            # File was at directory root, same name
+                            new_dir = ""
+                        elif created_normalized.endswith("/" + rel_within_dir):
+                            new_dir = created_normalized[
+                                : -(len(rel_within_dir) + 1)
+                            ]
+                        elif (
+                            not "/" in rel_within_dir
+                            and created_normalized.endswith(rel_within_dir)
+                        ):
+                            # Simple filename at dir root
+                            new_dir = created_normalized[
+                                : -len(rel_within_dir)
+                            ].rstrip("/")
+                        else:
+                            continue
+
+                        # Sanity: new_dir must differ from old dir
+                        if normalize_path(new_dir) == normalize_path(
+                            deleted_dir
+                        ):
+                            continue
+
+                        # Match found — set new_dir
+                        pending.new_dir = new_dir
+                        pending.unmatched.discard(known_file)
+                        pending.matched_count = 1
+                        self._reset_dir_move_settle_timer(deleted_dir, pending)
+
+                        self.logger.info(
+                            "dir_move_detected",
+                            old_dir=deleted_dir,
+                            new_dir=new_dir,
+                            first_match=created_path,
+                            total_expected=pending.total_expected,
+                        )
+                        print(
+                            f"{Fore.CYAN}📂 Directory move detected: "
+                            f"{deleted_dir} → {new_dir} "
+                            f"(1/{pending.total_expected} matched)"
+                        )
+
+                        if not pending.unmatched:
+                            self.logger.info(
+                                "dir_move_all_files_matched",
+                                old_dir=deleted_dir,
+                                new_dir=new_dir,
+                                count=1,
+                            )
+                            print(
+                                f"{Fore.GREEN}✓ All files matched "
+                                f"— processing directory move"
+                            )
+                            self._trigger_dir_move_processing(
+                                deleted_dir, pending
+                            )
+                        return True
+
+        return False
+
+    def _reset_dir_move_settle_timer(self, deleted_dir, pending):
+        """Reset the settle timer for a directory move."""
+        if pending.settle_timer is not None:
+            pending.settle_timer.cancel()
+        pending.settle_timer = threading.Timer(
+            self.dir_move_settle_delay,
+            self._process_dir_move_settled,
+            [deleted_dir],
+        )
+        pending.settle_timer.daemon = True
+        pending.settle_timer.start()
+
+    def _trigger_dir_move_processing(self, deleted_dir, pending):
+        """Cancel timers and schedule directory move processing.
+
+        Must be called with self.dir_move_lock held.
+        """
+        if pending.settle_timer is not None:
+            pending.settle_timer.cancel()
+        if pending.max_timer is not None:
+            pending.max_timer.cancel()
+
+        if deleted_dir in self.pending_dir_moves:
+            del self.pending_dir_moves[deleted_dir]
+
+        # Process on a separate thread to not block the watchdog event thread
+        t = threading.Thread(
+            target=self._process_dir_move,
+            args=(pending,),
+            daemon=True,
+        )
+        t.start()
+
+    def _process_dir_move_settled(self, deleted_dir):
+        """Called when settle timer fires — process with whatever we have."""
+        with self.dir_move_lock:
+            pending = self.pending_dir_moves.get(deleted_dir)
+            if pending is None:
+                return  # Already processed
+
+            if pending.max_timer is not None:
+                pending.max_timer.cancel()
+
+            del self.pending_dir_moves[deleted_dir]
+
+        self.logger.info(
+            "dir_move_settle_timer_fired",
+            old_dir=deleted_dir,
+            new_dir=pending.new_dir,
+            matched=pending.matched_count,
+            unmatched=len(pending.unmatched),
+        )
+        print(
+            f"{Fore.YELLOW}⏱️ Settle timer fired for {deleted_dir} "
+            f"({pending.matched_count}/{pending.total_expected} matched)"
+        )
+        self._process_dir_move(pending)
+
+    def _process_dir_move_timeout(self, deleted_dir):
+        """Called when max timer fires — process or treat as true delete."""
+        with self.dir_move_lock:
+            pending = self.pending_dir_moves.get(deleted_dir)
+            if pending is None:
+                return  # Already processed
+
+            if pending.settle_timer is not None:
+                pending.settle_timer.cancel()
+
+            del self.pending_dir_moves[deleted_dir]
+
+        if pending.new_dir is not None:
+            # At least one match — process as partial directory move
+            self.logger.warning(
+                "dir_move_max_timeout",
+                old_dir=deleted_dir,
+                new_dir=pending.new_dir,
+                matched=pending.matched_count,
+                unmatched=len(pending.unmatched),
+            )
+            print(
+                f"{Fore.YELLOW}⏱️ Max timeout ({self.dir_move_max_timeout}s) "
+                f"for {deleted_dir} — processing with "
+                f"{pending.matched_count}/{pending.total_expected} matched"
+            )
+            self._process_dir_move(pending)
+        else:
+            # No matches at all — true directory deletion
+            self.logger.info(
+                "directory_true_delete",
+                deleted_dir=deleted_dir,
+                files_count=pending.total_expected,
+            )
+            print(
+                f"{Fore.RED}🗑️ Directory truly deleted: {deleted_dir} "
+                f"({pending.total_expected} files)"
+            )
+            self._process_dir_true_delete(pending)
+
+    def _process_dir_move(self, pending):
+        """Process a detected directory move (Phase 3).
+
+        Creates a synthetic DirMovedEvent and delegates to the existing
+        _handle_directory_moved method which walks the new directory,
+        finds all references, and updates them.
+        """
+        old_dir = pending.deleted_dir
+        new_dir = pending.new_dir
+
+        self.logger.info(
+            "dir_move_processing",
+            old_dir=old_dir,
+            new_dir=new_dir,
+            matched=pending.matched_count,
+            unmatched=len(pending.unmatched),
+            total=pending.total_expected,
+        )
+        print(
+            f"{Fore.CYAN}📂 Processing directory move: {old_dir} → {new_dir} "
+            f"({pending.matched_count}/{pending.total_expected} files matched)"
+        )
+
+        # Resolve any unmatched files via filesystem verification
+        if pending.unmatched:
+            self._resolve_unmatched_files(pending)
+
+        # Create a synthetic move event and reuse existing logic
+        project_root_str = str(self.project_root)
+
+        class _SyntheticDirMoveEvent:
+            def __init__(self, src_path, dest_path):
+                self.src_path = src_path
+                self.dest_path = dest_path
+                self.is_directory = True
+
+        synthetic = _SyntheticDirMoveEvent(
+            os.path.join(project_root_str, old_dir),
+            os.path.join(project_root_str, new_dir),
+        )
+
+        try:
+            self._handle_directory_moved(synthetic)
+        except Exception as e:
+            self.logger.error(
+                "dir_move_processing_error",
+                old_dir=old_dir,
+                new_dir=new_dir,
+                error=str(e),
+                error_type=type(e).__name__,
+            )
+            print(f"{Fore.RED}✗ Error processing directory move: {e}")
+            self.stats["errors"] += 1
+
+    def _resolve_unmatched_files(self, pending):
+        """Verify unmatched files against the filesystem."""
+        self.logger.info(
+            "resolving_unmatched_files",
+            count=len(pending.unmatched),
+            old_dir=pending.deleted_dir,
+            new_dir=pending.new_dir,
+        )
+        print(
+            f"{Fore.YELLOW}🔍 Resolving {len(pending.unmatched)} "
+            f"unmatched file(s)..."
+        )
+
+        for old_file in list(pending.unmatched):
+            rel_within_dir = old_file[len(pending.dir_prefix):]
+            new_file_path = os.path.join(
+                str(self.project_root), pending.new_dir, rel_within_dir
+            )
+            old_file_path = os.path.join(str(self.project_root), old_file)
+
+            if os.path.exists(new_file_path):
+                self.logger.info(
+                    "unmatched_file_found_at_new_location",
+                    old_path=old_file,
+                    new_path=f"{pending.new_dir}/{rel_within_dir}",
+                )
+                print(
+                    f"{Fore.GREEN}  ✓ Found at new location: "
+                    f"{rel_within_dir}"
+                )
+            elif os.path.exists(old_file_path):
+                self.logger.warning(
+                    "unmatched_file_still_at_old_location",
+                    old_path=old_file,
+                )
+                print(
+                    f"{Fore.YELLOW}  ⚠ Still at old location: "
+                    f"{rel_within_dir}"
+                )
+            else:
+                self.logger.warning(
+                    "unmatched_file_truly_deleted",
+                    old_path=old_file,
+                )
+                print(
+                    f"{Fore.RED}  🗑️ Truly deleted: {rel_within_dir}"
+                )
+                self._process_true_file_delete(old_file)
+
+    def _process_dir_true_delete(self, pending):
+        """Process a directory that was truly deleted (no move detected)."""
+        for file_path in pending.known_files:
+            self._process_true_file_delete(file_path)
+
+    def _process_true_file_delete(self, file_path):
+        """Process a single file as a true deletion."""
+        try:
+            self.link_db.remove_file_links(file_path)
+
+            references = self.link_db.get_references_to_file(file_path)
+            if references:
+                self.logger.warning(
+                    "broken_references_found",
+                    deleted_file=file_path,
+                    broken_references_count=len(references),
+                )
+                print(
+                    f"{Fore.YELLOW}  ⚠️ {len(references)} broken reference(s) "
+                    f"to deleted file: {file_path}"
+                )
+                for ref in references:
+                    print(
+                        f"     {Fore.YELLOW}• {ref.file_path}:"
+                        f"{ref.line_number} - {ref.link_text}"
+                    )
+
+            self.stats["files_deleted"] += 1
+        except Exception as e:
+            self.logger.error(
+                "file_deletion_error",
+                deleted_path=file_path,
+                error=str(e),
+                error_type=type(e).__name__,
+            )
+            self.stats["errors"] += 1
 
     def _should_monitor_file(self, file_path: str) -> bool:
         """Check if a file should be monitored."""

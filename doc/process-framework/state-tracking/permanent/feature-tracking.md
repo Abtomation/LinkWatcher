@@ -80,7 +80,7 @@ This document tracks the implementation status and documentation requirements fo
 - [Process: Definition of Done](../../../process-framework/methodologies/definition-of-done.md): Clear criteria for when a feature is considered complete
 - [Product: Feature Dependencies](../../../product-docs/technical/design/feature-dependencies.md): Visual map and matrix of feature dependencies
 - [Process: Technical Debt Tracker](technical-debt-tracking.md): System for tracking and managing technical debt
-- [Process: Documentation Tier Assignments](../../../process-framework/methodologies/documentation-tiers/README.md): Information about documentation tier assignments and assessment process
+- [Process: Documentation Tier Assignments](../../methodologies/documentation-tiers/README.md): Information about documentation tier assignments and assessment process
 - [Feature Consolidation State](../temporary/feature-consolidation-state.md): Tracks the 42→9 feature consolidation migration
 
 </details>

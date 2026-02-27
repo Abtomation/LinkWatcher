@@ -24,7 +24,8 @@ class DartParser(BaseParser):
         self.part_pattern = re.compile(r"part\s+['\"]([^'\"]+)['\"]")
 
         # Pattern for quoted file paths (excluding package imports)
-        self.quoted_pattern = re.compile(r'[\'"]([a-zA-Z0-9_\-./\\]+\.[a-zA-Z0-9]+)[\'"]')
+        # Use permissive match inside quotes — _looks_like_file_path() validates later
+        self.quoted_pattern = re.compile(r'[\'"]([^\'"]+\.[a-zA-Z0-9]+)[\'"]')
 
         # Pattern for file paths within strings (not necessarily the entire string)
         self.embedded_pattern = re.compile(r"([a-zA-Z0-9_\-./\\]+\.[a-zA-Z0-9]+)")

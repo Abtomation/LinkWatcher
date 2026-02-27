@@ -101,6 +101,10 @@ def looks_like_file_path(text: str) -> bool:
     if not text or len(text) < 3:
         return False
 
+    # Skip URLs
+    if text.startswith(("http://", "https://", "ftp://", "mailto:", "tel:", "data:")):
+        return False
+
     # Must have a file extension
     if "." not in text:
         return False

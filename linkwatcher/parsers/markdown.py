@@ -22,7 +22,8 @@ class MarkdownParser(BaseParser):
         self.link_pattern = re.compile(r"\[([^\]]+)\]\(((?:[^()]|\([^)]*\))*)\)")
 
         # Pattern 2: Standalone file references (quoted)
-        self.quoted_pattern = re.compile(r'[\'"]([a-zA-Z0-9_\-./\\]+\.[a-zA-Z0-9]+)[\'"]')
+        # Use permissive match inside quotes — _looks_like_file_path() validates later
+        self.quoted_pattern = re.compile(r'[\'"]([^\'"]+\.[a-zA-Z0-9]+)[\'"]')
 
         # Pattern 3: Reference-style link definitions [label]: url "title"
         self.reference_pattern = re.compile(r"^\s*\[([^\]]+)\]:\s*(.+)$")

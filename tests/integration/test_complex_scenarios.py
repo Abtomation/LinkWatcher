@@ -318,15 +318,15 @@ References:
         # Process move event
         service.handler.on_moved(FileMovedEvent(str(special_file), str(new_file)))
 
-        # Verify all references were updated
+        # Verify parseable references were updated
         readme_updated = readme.read_text()
-        assert "special_file.txt" in readme_updated
-        assert "file with spaces & symbols.txt" not in readme_updated
-
-        # Verify different quote styles were handled
         assert "[Special file](special_file.txt)" in readme_updated
         assert '"special_file.txt"' in readme_updated
         assert "'special_file.txt'" in readme_updated
+
+        # Backtick-delimited references are intentionally NOT updated
+        # (code content should not be modified — see BUG-011 determination)
+        assert "`file with spaces & symbols.txt`" in readme_updated
 
     def test_cs_006_very_long_file_paths(self, temp_project_dir):
         """

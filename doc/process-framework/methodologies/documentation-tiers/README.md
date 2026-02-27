@@ -51,7 +51,7 @@ This approach allows for flexibility in adding or removing assessment criteria w
 | **Scope** | 0.8 | Wide scope doesn't necessarily mean complex documentation needs |
 | **UI Complexity** | 0.5 | UI patterns are often self-explanatory and require less documentation |
 
-For detailed information on the tiered approach, see the [Documentation Tiers](../../../process-framework/methodologies/documentation-tiers/doc/product-docs/technical/README.md) document.
+For detailed information on the tiered approach, see the [Documentation Tiers](../../../product-docs/documentation-tiers/process-framework/process-framework/methodologies/documentation-tiers/doc/product-docs/technical/README.md) document.
 
 ## Assessment Process
 
@@ -92,7 +92,7 @@ Determines if the feature requires dedicated database schema design documentatio
 
 This comprehensive approach ensures that both documentation complexity and specialized design needs are identified early in the planning process.
 
-For a detailed guide on how to assess features and assign documentation tiers, see the [Assessment Guide](../../guides/guides/assessment-guide.md).
+For a detailed guide on how to assess features and assign documentation tiers, see the [Assessment Guide](../../../product-docs/documentation-tiers/process-framework/methodologies/guides/guides/assessment-guide.md).
 
 ## File Structure
 
@@ -109,7 +109,7 @@ Each assessment is an artifact with a unique ID (ART-ASS-XXX) that is automatica
 To create a new assessment, use the provided PowerShell script:
 
 ```powershell
-create-assessment-template.ps1 -FeatureId "1.1.3" -FeatureName "Password Reset Flow" -FeatureDescription "Allows users to reset their password via email verification" [-OpenInEditor]
+../../../product-docs/documentation-tiers/process-framework/methodologies/documentation-tiers/examples/create-assessment-template.ps1 -FeatureId "1.1.3" -FeatureName "Password Reset Flow" -FeatureDescription "Allows users to reset their password via email verification" [-OpenInEditor]
 ```
 
 This will:
@@ -119,13 +119,13 @@ This will:
 
 ## Tracking and Viewing Assessments
 
-The progress of documentation tier assessments is tracked directly in the [feature-tracking.md](../../state-tracking/permanent/feature-tracking.md) file.
+The progress of documentation tier assessments is tracked directly in the [feature-tracking.md](../../../product-docs/documentation-tiers/process-framework/methodologies/state-tracking/permanent/feature-tracking.md) file.
 
-For information on assessment status and how to view assessed features, refer to the <!-- [Documentation Assessment](../../state-tracking/permanent/feature-tracking.md#documentation-assessment) - File not found --> section in the feature tracking document.
+For information on assessment status and how to view assessed features, refer to the <!-- [Documentation Assessment](../../../product-docs/documentation-tiers/process-framework/methodologies/state-tracking/permanent/feature-tracking.md#documentation-assessment) - File not found --> section in the feature tracking document.
 
 ## Next Steps
 
-1. Complete assessments for all remaining features following the priority order defined in the <!-- [feature-tracking.md](../../state-tracking/permanent/feature-tracking.md#assessment-priority) - File not found --> file
+1. Complete assessments for all remaining features following the priority order defined in the <!-- [feature-tracking.md](../../../product-docs/documentation-tiers/process-framework/methodologies/state-tracking/permanent/feature-tracking.md#assessment-priority) - File not found --> file
 2. Create Technical Design Documents (TDDs) for Tier 2 and Tier 3 features
 3. Review and adjust tier assignments as needed during implementation
 
@@ -135,13 +135,13 @@ As features evolve and more information becomes available, assessments may be up
 
 1. Document the reason for the change
 2. Update the assessment date
-3. Update the [Feature Tracking Document](../../state-tracking/permanent/feature-tracking.md) if the tier changes, using the format: 🔵/🟠/🔴 [Tier 1/2/3](../../../process-framework/methodologies/documentation-tiers/assessment-link-placeholder)
+3. Update the [Feature Tracking Document](../../../product-docs/documentation-tiers/process-framework/methodologies/state-tracking/permanent/feature-tracking.md) if the tier changes, using the format: 🔵/🟠/🔴 [Tier 1/2/3](../../../product-docs/documentation-tiers/process-framework/process-framework/methodologies/documentation-tiers/assessment-link-placeholder)
 
-For details on assessment priority refer to the [Feature Tracking Document](../../state-tracking/permanent/feature-tracking.md) under the "Documentation Assessment Process" section.
+For details on assessment priority refer to the [Feature Tracking Document](../../../product-docs/documentation-tiers/process-framework/methodologies/state-tracking/permanent/feature-tracking.md) under the "Documentation Assessment Process" section.
 
 ## Adjusting Tiers During Implementation
 
-During implementation, the actual complexity of a feature may differ from the initial assessment. The [Documentation Tier Adjustment Process](../../../process-framework/methodologies/documentation-tiers/adjustment-process.md) provides a structured approach for:
+During implementation, the actual complexity of a feature may differ from the initial assessment. The [Documentation Tier Adjustment Process](../../../product-docs/documentation-tiers/process-framework/process-framework/methodologies/documentation-tiers/adjustment-process.md) provides a structured approach for:
 
 1. Identifying when a tier adjustment is needed during implementation
 2. Reassessing complexity factors based on implementation realities

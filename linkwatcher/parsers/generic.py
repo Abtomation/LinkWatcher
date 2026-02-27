@@ -18,7 +18,8 @@ class GenericParser(BaseParser):
     def __init__(self):
         super().__init__()
         # Pattern for quoted file paths
-        self.quoted_pattern = re.compile(r'[\'"]([a-zA-Z0-9_\-./\\]+\.[a-zA-Z0-9]+)[\'"]')
+        # Use permissive match inside quotes — _looks_like_file_path() validates later
+        self.quoted_pattern = re.compile(r'[\'"]([^\'"]+\.[a-zA-Z0-9]+)[\'"]')
 
         # Pattern for unquoted file paths (be conservative)
         self.unquoted_pattern = re.compile(r"(?:^|\s)([a-zA-Z0-9_\-./\\]+\.[a-zA-Z0-9]+)(?:\s|$)")

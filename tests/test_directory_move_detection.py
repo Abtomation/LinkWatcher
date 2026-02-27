@@ -138,6 +138,55 @@ class TestGetFilesUnderDirectory:
         assert len(files) > 0
         assert any("sub_project/api/reference.txt" in f for f in files)
 
+    def test_file_path_not_treated_as_directory(self, handler_with_db):
+        """A file path passed to _get_files_under_directory returns empty set.
+
+        Regression test for PD-BUG-020: When a single file is deleted,
+        on_deleted calls _get_files_under_directory with the file's path.
+        If the dir_prefix lacks a trailing slash (because normalize_path
+        strips it), the file itself can match via startswith, causing
+        the handler to treat a single-file move as a directory move and
+        walk the entire project tree.
+        """
+        handler, link_db, tmp_path = handler_with_db
+        # Pass a known file path (not a directory) — should return empty
+        files = handler._get_files_under_directory("docs/guide.md")
+        assert len(files) == 0, (
+            f"_get_files_under_directory returned {len(files)} file(s) for a "
+            f"file path 'docs/guide.md'; expected 0. Files: {files}"
+        )
+
+    def test_dir_prefix_trailing_slash_prevents_false_prefix_match(self, handler_with_db):
+        """The dir_prefix in _get_files_under_directory must have a trailing slash.
+
+        Without a trailing slash, 'docs' as prefix would match 'docs-other/...'
+        via startswith. The trailing slash ensures only actual children match.
+
+        Regression test for PD-BUG-020.
+        """
+        handler, link_db, tmp_path = handler_with_db
+
+        # Create a sibling directory that shares a prefix with 'docs'
+        docs_other = tmp_path / "docs-other"
+        docs_other.mkdir()
+        sibling = docs_other / "sibling.md"
+        sibling.write_text("# Sibling doc")
+
+        # Scan sibling into DB
+        from linkwatcher.parser import LinkParser
+        parser = LinkParser()
+        refs = parser.parse_file(str(sibling))
+        for ref in refs:
+            ref.file_path = "docs-other/sibling.md"
+            link_db.add_link(ref)
+        link_db.files_with_links.add("docs-other/sibling.md")
+
+        files = handler._get_files_under_directory("docs")
+        assert not any("docs-other" in f for f in files), (
+            f"Files from 'docs-other/' matched prefix 'docs' — "
+            f"trailing slash missing in dir_prefix. Files: {files}"
+        )
+
 
 class TestDirectoryDeleteBuffering:
     """Tests that _handle_directory_deleted buffers files for move detection."""
@@ -173,11 +222,12 @@ class TestDirectoryDeleteBuffering:
         return handler, link_db, tmp_path, docs_dir
 
     def test_directory_delete_adds_files_to_pending(self, setup):
-        """Directory delete buffers known files as pending deletes.
+        """Directory delete buffers known files in pending_dir_moves.
 
         On Windows, watchdog fires FileDeletedEvent with is_directory=False
         for directory deletes. The on_deleted routing must detect this via
-        database lookup and route to _handle_directory_deleted.
+        database lookup and route to _handle_directory_deleted, which
+        creates a _PendingDirMove entry (not per-file pending_deletes).
         """
         handler, link_db, tmp_path, docs_dir = setup
 
@@ -187,26 +237,38 @@ class TestDirectoryDeleteBuffering:
         event.is_directory = False
         handler.on_deleted(event)
 
-        # Check that known files were added to pending_deletes
-        pending_keys = set(handler.pending_deletes.keys())
+        # Check that a PendingDirMove was created (not per-file pending_deletes)
+        assert (
+            "docs" in handler.pending_dir_moves
+        ), f"Expected 'docs' in pending_dir_moves, got: {list(handler.pending_dir_moves.keys())}"
+        pending = handler.pending_dir_moves["docs"]
         assert any(
-            "docs/guide.md" in k for k in pending_keys
-        ), f"docs/guide.md should be in pending_deletes, got: {pending_keys}"
+            "docs/guide.md" in f for f in pending.unmatched
+        ), f"docs/guide.md should be in unmatched, got: {pending.unmatched}"
         assert any(
-            "docs/api.md" in k for k in pending_keys
-        ), f"docs/api.md should be in pending_deletes, got: {pending_keys}"
+            "docs/api.md" in f for f in pending.unmatched
+        ), f"docs/api.md should be in unmatched, got: {pending.unmatched}"
 
-    def test_directory_delete_sets_size_zero(self, setup):
-        """Buffered files have size 0 (wildcard for move matching)."""
+        # Clean up timer to avoid test warnings
+        if pending.max_timer:
+            pending.max_timer.cancel()
+
+    def test_directory_delete_creates_pending_dir_move(self, setup):
+        """PendingDirMove tracks correct metadata."""
         handler, link_db, tmp_path, docs_dir = setup
 
-        # Windows watchdog: is_directory=False for directory deletes
         event = FileDeletedEvent(str(docs_dir))
         event.is_directory = False
         handler.on_deleted(event)
 
-        for path, (timestamp, size) in handler.pending_deletes.items():
-            assert size == 0, f"File '{path}' should have size 0, got {size}"
+        pending = handler.pending_dir_moves["docs"]
+        assert pending.new_dir is None, "new_dir should be None before any match"
+        assert pending.matched_count == 0
+        assert pending.total_expected == len(pending.unmatched)
+
+        # Clean up timer
+        if pending.max_timer:
+            pending.max_timer.cancel()
 
     def test_empty_directory_no_directory_buffering(self, setup):
         """Directory with no known files is NOT routed to _handle_directory_deleted.
@@ -233,12 +295,78 @@ class TestDirectoryDeleteBuffering:
             "/" not in k or k == "empty" for k in pending_keys
         ), f"No child files should be buffered for unknown directory, got: {pending_keys}"
 
+    def test_pending_dir_move_prefix_has_trailing_slash(self, setup):
+        """Regression: dir_prefix must end with '/' for correct path slicing.
+
+        PD-BUG-019 fix discovered that normalize_path() strips trailing
+        slashes (via os.path.normpath), so dir_prefix must be constructed
+        as normalize_path(dir) + "/" to ensure rel_within_dir doesn't
+        start with a leading slash when sliced from known_file paths.
+        """
+        handler, link_db, tmp_path, docs_dir = setup
+
+        event = FileDeletedEvent(str(docs_dir))
+        event.is_directory = False
+        handler.on_deleted(event)
+
+        pending = handler.pending_dir_moves["docs"]
+
+        # dir_prefix MUST end with "/" for correct slicing
+        assert pending.dir_prefix.endswith(
+            "/"
+        ), f"dir_prefix must end with '/', got: {repr(pending.dir_prefix)}"
+
+        # Verify slicing produces correct relative paths (no leading slash)
+        for known_file in pending.unmatched:
+            rel_within = known_file[len(pending.dir_prefix) :]
+            assert not rel_within.startswith(
+                "/"
+            ), f"rel_within_dir should not start with '/', got: {repr(rel_within)} for {known_file}"
+
+        # Clean up timer
+        if pending.max_timer:
+            pending.max_timer.cancel()
+
+    def test_single_file_delete_not_treated_as_directory(self, setup):
+        """Regression: single file delete must NOT trigger directory move detection.
+
+        PD-BUG-020: When a file known to the database is deleted (is_directory=False),
+        _get_files_under_directory was called with the file path. Because
+        normalize_path stripped the trailing slash from the dir_prefix, the
+        file itself could match via startswith, causing on_deleted to route
+        to _handle_directory_deleted. This made the handler treat a single-file
+        move as a directory move and walk the entire project tree.
+        """
+        handler, link_db, tmp_path, docs_dir = setup
+
+        guide_path = docs_dir / "guide.md"
+
+        # Simulate single file deletion (not a directory)
+        event = FileDeletedEvent(str(guide_path))
+        event.is_directory = False
+        handler.on_deleted(event)
+
+        # Single file should go to pending_deletes (per-file move detection),
+        # NOT to pending_dir_moves (directory move detection)
+        assert len(handler.pending_dir_moves) == 0, (
+            f"Single file delete should NOT create pending_dir_moves entry, "
+            f"but found: {list(handler.pending_dir_moves.keys())}"
+        )
+        assert "docs/guide.md" in handler.pending_deletes, (
+            f"Single file delete should be in pending_deletes, "
+            f"but got: {list(handler.pending_deletes.keys())}"
+        )
+
 
 class TestDirectoryMoveViaDeleteCreate:
     """End-to-end tests for directory move detection via delete+create events."""
 
     def test_directory_move_updates_references(self, tmp_path):
-        """Full flow: dir delete + file creates = references updated."""
+        """Full flow: dir delete + file creates = references updated.
+
+        With the batch directory move detection (PD-BUG-019 fix),
+        processing happens on a separate thread after all files match.
+        """
         # Setup
         docs_dir = tmp_path / "docs"
         docs_dir.mkdir()
@@ -260,23 +388,25 @@ class TestDirectoryMoveViaDeleteCreate:
         assert len(refs) >= 1, "Should have at least 1 reference to docs/guide.md"
 
         # Step 1: Simulate directory delete event (as watchdog does on Windows)
-        # Windows watchdog fires is_directory=False for directory deletes
         dir_delete_event = FileDeletedEvent(str(docs_dir))
         dir_delete_event.is_directory = False
         service.handler.on_deleted(dir_delete_event)
 
-        # Verify files were buffered (on_deleted detected directory via DB)
+        # Verify files were buffered in pending_dir_moves
         assert (
-            len(service.handler.pending_deletes) >= 1
-        ), "Should have buffered at least 1 file from deleted directory"
+            len(service.handler.pending_dir_moves) >= 1
+        ), "Should have pending_dir_moves entry"
 
         # Step 2: Move the actual file to new location
         new_guide = new_docs_dir / "guide.md"
         guide.rename(new_guide)
 
-        # Step 3: Simulate file create event (as watchdog does on Windows)
+        # Step 3: Simulate file create event (triggers batch processing)
         file_create_event = FileCreatedEvent(str(new_guide))
         service.handler.on_created(file_create_event)
+
+        # Wait for processing thread to complete
+        time.sleep(2.0)
 
         # Verify: reference should be updated
         readme_content = readme.read_text()
@@ -288,7 +418,12 @@ class TestDirectoryMoveViaDeleteCreate:
         ), f"Old reference 'docs/guide.md' should be removed from README"
 
     def test_directory_move_multiple_files(self, tmp_path):
-        """Directory move with multiple files all detected as moves."""
+        """Directory move with multiple files all detected as moves.
+
+        The batch detection (PD-BUG-019 fix) infers new_dir from the
+        first match, then matches subsequent files by prefix. Processing
+        triggers when all files are matched.
+        """
         # Setup
         docs_dir = tmp_path / "docs"
         docs_dir.mkdir()
@@ -320,6 +455,9 @@ class TestDirectoryMoveViaDeleteCreate:
         api.rename(new_api)
         service.handler.on_created(FileCreatedEvent(str(new_api)))
 
+        # Wait for processing thread to complete
+        time.sleep(2.0)
+
         # Verify both references updated
         readme_content = readme.read_text()
         assert "documentation/guide.md" in readme_content
@@ -328,7 +466,11 @@ class TestDirectoryMoveViaDeleteCreate:
         assert "docs/api.md" not in readme_content
 
     def test_directory_move_nested_files(self, tmp_path):
-        """Directory move with nested subdirectory files."""
+        """Directory move with nested subdirectory files.
+
+        The batch detection uses relative-path-within-dir matching,
+        so nested/sub/file.md correctly matches against the pending entry.
+        """
         # Setup
         docs_dir = tmp_path / "docs"
         docs_dir.mkdir()
@@ -358,6 +500,9 @@ class TestDirectoryMoveViaDeleteCreate:
         nested.rename(new_nested)
         service.handler.on_created(FileCreatedEvent(str(new_nested)))
 
+        # Wait for processing thread
+        time.sleep(2.0)
+
         # Verify
         readme_content = readme.read_text()
         assert "documentation/guides/setup.md" in readme_content
@@ -365,7 +510,7 @@ class TestDirectoryMoveViaDeleteCreate:
 
     def test_true_directory_delete_processes_normally(self, tmp_path):
         """When a directory is actually deleted (no creates follow), files
-        are processed as deletions after the move detection delay."""
+        are processed as deletions after the max timeout."""
         docs_dir = tmp_path / "docs"
         docs_dir.mkdir()
 
@@ -378,22 +523,22 @@ class TestDirectoryMoveViaDeleteCreate:
         service = LinkWatcherService(str(tmp_path))
         service._initial_scan()
 
-        # Shorten delay for test speed
-        service.handler.move_detection_delay = 0.1
+        # Shorten max timeout for test speed
+        service.handler.dir_move_max_timeout = 0.2
 
         # Directory delete (Windows: is_directory=False)
         dir_delete_event = FileDeletedEvent(str(docs_dir))
         dir_delete_event.is_directory = False
         service.handler.on_deleted(dir_delete_event)
 
-        # Verify files are buffered
-        assert len(service.handler.pending_deletes) >= 1
+        # Verify files are buffered in pending_dir_moves
+        assert len(service.handler.pending_dir_moves) >= 1
 
-        # Wait for delayed processing to complete
-        time.sleep(0.3)
+        # Wait for max timeout + processing
+        time.sleep(0.5)
 
-        # Pending deletes should be cleared (processed as actual deletions)
-        assert len(service.handler.pending_deletes) == 0
+        # Pending should be cleared (processed as actual deletions)
+        assert len(service.handler.pending_dir_moves) == 0
 
 
 class TestNestedDirectoryMovePythonImports:

@@ -82,7 +82,7 @@ $customReplacements = @{
 
 # Create the document using standardized process
 try {
-    $assessmentId = New-StandardProjectDocument -TemplatePath "doc/process-framework/templates/templates/assessment-template.md" -IdPrefix "ART-ASS" -IdDescription "Assessment for feature ${FeatureId}: ${FeatureName}" -DocumentName $FeatureName -OutputDirectory "doc/process-framework/methodologies/documentation-tiers/assessments" -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
+    $assessmentId = New-StandardProjectDocument -TemplatePath "doc/process-framework/templates/templates/01-planning/assessment-template.md" -IdPrefix "ART-ASS" -IdDescription "Assessment for feature ${FeatureId}: ${FeatureName}" -DocumentName $FeatureName -OutputDirectory "doc/process-framework/methodologies/documentation-tiers/assessments" -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
 
     # Rename the file to include the ID and feature ID in the filename
     $assessmentsDir = Join-Path -Path (Get-ProjectRoot) -ChildPath "doc/process-framework/methodologies/documentation-tiers/assessments"

@@ -374,7 +374,7 @@
         "forms": "doc/process-framework/feedback/feedback-forms",
         "default": "forms"
       },
-      "nextAvailable": 214
+      "nextAvailable": 219
     },
     "ART-REV": {
       "description": "Review Artifacts",
@@ -520,7 +520,7 @@
         "permanent": "doc/process-framework/state-tracking/permanent",
         "default": "permanent"
       },
-      "nextAvailable": 19
+      "nextAvailable": 22
     }
   }
 }

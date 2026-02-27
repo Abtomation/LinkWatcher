@@ -1,121 +1,120 @@
 ---
 id: PD-CIC-003
 type: Documentation
-version: 1.0
+version: 2.0
 created: 2023-06-15
-updated: 2023-06-15
+updated: 2026-02-26
 ---
 
 # Release Process Guide
 
-This document outlines the release process for BreakoutBuddies, which is now automated using GitHub Actions.
+This document outlines the release process for LinkWatcher. LinkWatcher is deployed locally as a global tool installed to `C:\Users\ronny\bin\`.
 
-## Automated Release Process
+## Architecture
 
-The release process is automated using the Release Automation workflow in GitHub Actions. This workflow:
+LinkWatcher has two locations:
 
-1. Bumps the version number in `pubspec.yaml` and platform-specific files
-2. Generates a changelog from commit messages
-3. Creates a pull request for the release
+- **Source repository**: `C:\Users\ronny\VS_Code\LinkWatcher\` - development copy with full codebase, tests, docs
+- **Global install**: `C:\Users\ronny\bin\` - deployed copy that the background process runs from
 
-### Prerequisites
+The startup scripts in `LinkWatcher_run/` reference the global install location. The install script copies source files and updates all startup scripts automatically.
 
-Before starting a release:
+## Release Process
 
-1. Ensure all features for the release are merged into the `develop` branch
-2. Make sure all tests are passing on the `develop` branch (see [Testing Guide](../guides/guides/testing-guide.md))
-3. Verify that the app is working as expected according to the [Definition of Done](../../process-framework/methodologies/definition-of-done.md)
+### 1. Commit and Push Changes
 
-### Starting a Release
+Ensure all changes are committed and pushed to GitHub:
 
-To start a new release:
+```bash
+git add -A
+git commit -m "Description of changes"
+git push origin main
+```
 
-1. Go to the "Actions" tab in the GitHub repository
-2. Select the "Release Automation" workflow (see [CI/CD Environment Guide](../guides/guides/ci-cd-environment-guide.md) for details)
-3. Click "Run workflow"
-4. Configure the workflow:
-   - **Version type**: Choose from `patch` (0.0.x), `minor` (0.x.0), or `major` (x.0.0)
-   - **Base branch**: Usually `develop` (the branch to create the release from)
-5. Click "Run workflow" to start the process
+### 2. Run the Install Script
 
-### Review and Merge the Release PR
+Deploy the updated code to the global install location:
 
-Once the workflow completes:
+```bash
+python deployment/install_global.py
+```
 
-1. A pull request will be created from a branch named `prepare-release-x.y.z` to the base branch
-2. Review the changes in the PR:
-   - Version bump in `pubspec.yaml`
-   - Updated changelog
-   - Version updates in platform-specific files
-3. Complete the checklist in the PR description
-4. Merge the PR into the base branch (usually `develop`)
+This script:
+- Checks Python version (3.8+ required)
+- Installs/updates pip dependencies from `requirements.txt`
+- Removes stale files from previous installs (e.g., old `link_watcher.py`)
+- Copies `main.py`, `requirements.txt`, `linkwatcher/` package, and `config-examples/`
+- Excludes `__pycache__` and `.pyc` files from the copy
+- Creates wrapper scripts (`linkwatcher.bat`, `linkwatcher.ps1`, `checklinks.bat`)
+- Updates all startup scripts in `LinkWatcher_run/` to point to the install path
+- Runs a smoke test (`main.py --help`) to verify the install works
 
-### Create the Release
+To install to a custom location:
 
-After merging the PR:
+```bash
+python deployment/install_global.py --install-dir "D:\tools\linkwatcher"
+```
 
-1. Create a PR from `develop` to `main` (if not already done)
-2. After merging to `main`, create and push a tag:
-   ```bash
-   git checkout main
-   git pull
-   git tag vX.Y.Z  # Use the actual version number
-   git push origin vX.Y.Z
-   ```
-3. This tag will trigger the CD workflow, which will:
-   - Build the app for all platforms
-   - Deploy to app stores and web hosting
-   - Run automated deployment verification tests (see <!-- [CI/CD Environment Guide](../guides/guides/ci-cd-environment-guide.md#deployment-verification) - File not found -->)
+### 3. Restart LinkWatcher
 
-## Manual Release Process (Fallback)
+If LinkWatcher is running in the background, restart it to pick up changes:
 
-If you need to perform a release manually:
+```powershell
+# Stop existing instance
+Get-Process python* | Where-Object {
+    (Get-CimInstance Win32_Process -Filter "ProcessId = $($_.Id)").CommandLine -match "main\.py"
+} | Stop-Process -Force
 
-1. Update the version in `pubspec.yaml`
-2. Update the changelog
-3. Update version in platform-specific files:
-   - Android: `android<!-- /app/build.gradle - File not found -->`
-   - iOS: `ios/ios/Runner/Info.plist`
-4. Commit the changes:
-   ```bash
-   git commit -m "chore: prepare release X.Y.Z"
-   ```
-5. Create a tag:
-   ```bash
-   git tag vX.Y.Z
-   git push origin vX.Y.Z
-   ```
+# Start fresh
+& LinkWatcher_run\start_linkwatcher_background.ps1
+```
+
+### 4. Verify
+
+Check that LinkWatcher is running with the updated code:
+
+```powershell
+# Confirm process is running
+Get-Process python* | Where-Object {
+    (Get-CimInstance Win32_Process -Filter "ProcessId = $($_.Id)").CommandLine -match "main\.py"
+}
+
+# Check recent log output
+Get-Content LinkWatcher_run\LinkWatcherLog.txt -Tail 20
+```
+
+## What Gets Deployed
+
+| Source | Deployed To | Purpose |
+|--------|-------------|---------|
+| `main.py` | `~/bin/main.py` | Entry point |
+| `requirements.txt` | `~/bin/requirements.txt` | Dependencies |
+| `linkwatcher/` | `~/bin/linkwatcher/` | Core package (all modules) |
+| `config-examples/` | `~/bin/config-examples/` | Example configurations |
+| `scripts/check_links.py` | `~/bin/scripts/check_links.py` | Link checker utility (optional) |
 
 ## Release Checklist
 
-Before finalizing a release:
+- [ ] All changes committed and pushed to GitHub
+- [ ] Run `python deployment/install_global.py` - completes without errors
+- [ ] Restart LinkWatcher background process
+- [ ] Verify LinkWatcher is running and detecting file changes
+- [ ] Update `CHANGELOG.md` if this is a significant release
 
-- [ ] All features for the release are complete and tested according to the [Testing Checklist](../checklists/checklists/testing-checklist.md)
-- [ ] All tests are passing in the CI pipeline (see [CI/CD Environment Guide](../guides/guides/ci-cd-environment-guide.md))
-- [ ] The app has been tested on all target platforms
-- [ ] Release notes are prepared for app stores
-- [ ] Marketing materials are ready (if applicable)
-- [ ] Support team is briefed on new features and changes
+## Version Management
 
-## Post-Release Tasks
+Version is defined in `setup.py` (currently `2.0.0`). For significant releases:
 
-After a successful release:
-
-1. Monitor app performance and crash reports
-2. Address any critical issues with hotfixes if needed
-3. Update documentation to reflect new features
-4. Plan the next release cycle
-
-## Release Cadence
-
-- **Patch releases** (0.0.x): As needed for bug fixes
-- **Minor releases** (0.x.0): Every 2-4 weeks for new features
-- **Major releases** (x.0.0): Every 3-6 months for significant changes
+1. Update `version` in `setup.py`
+2. Update `CHANGELOG.md` with changes
+3. Optionally create a git tag:
+   ```bash
+   git tag v2.1.0
+   git push origin v2.1.0
+   ```
 
 ## Related Documentation
 
 - [Development Guide](../guides/guides/development-guide.md)
-- [CI/CD Environment Guide](../guides/guides/ci-cd-environment-guide.md)
 - [Testing Guide](../guides/guides/testing-guide.md)
-- [Testing Checklist](../checklists/checklists/testing-checklist.md)
 - [Definition of Done](../../process-framework/methodologies/definition-of-done.md)

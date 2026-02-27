@@ -18,7 +18,7 @@ Watchdog-based event handling with move detection (delete+create pairing via tim
 
 | Factor                | Weight | Score | Weighted Score | Justification                    |
 | --------------------- | ------ | ----- | -------------- | -------------------------------- |
-| **Scope**             | 0.8    | 2     | 1.6            | Core monitoring subsystem with watchdog integration, event handling, scanning, and filtering in handler.py |
+| **Scope**             | 0.8    | 2     | 1.6            | Core monitoring subsystem with watchdog integration, event handling, scanning, and filtering in ../../../process-framework/process-framework/methodologies/documentation-tiers/assessments/handler.py |
 | **State Management**  | 1.2    | 3     | 3.6            | Timer-based state machine for pending deletes, thread-safe event queuing, monitoring lifecycle state |
 | **Data Flow**         | 1.5    | 2     | 3.0            | File system events → watchdog → handler → pending delete queue → move detection → parser/updater pipeline |
 | **Business Logic**    | 2.5    | 3     | 7.5            | Cross-tool move detection (delete+create pairing), directory move expansion, file filtering rules, initial scan logic |
@@ -61,7 +61,7 @@ Watchdog-based event handling with move detection (delete+create pairing via tim
 
 **Retrospective Assessment - Pre-Framework Implementation**
 
-With a normalized score of **2.16**, this feature falls into Tier 2 (Moderate). The consolidation of five formerly separate sub-features into a single handler.py reflects the tight coupling of monitoring concerns:
+With a normalized score of **2.16**, this feature falls into Tier 2 (Moderate). The consolidation of five formerly separate sub-features into a single ../../../process-framework/process-framework/methodologies/documentation-tiers/assessments/handler.py reflects the tight coupling of monitoring concerns:
 
 1. **Timer-Based State Machine**: Move detection via delete+create pairing requires a sophisticated state machine with configurable timeout windows
 2. **Thread Safety**: Pending delete tracking must handle concurrent file system events without race conditions
@@ -71,11 +71,11 @@ With a normalized score of **2.16**, this feature falls into Tier 2 (Moderate). 
 
 ## Special Considerations
 
-- **Consolidated Scope**: Merges five formerly separate features (1.1.1-1.1.5) reflecting their tight coupling within handler.py
+- **Consolidated Scope**: Merges five formerly separate features (1.1.1-1.1.5) reflecting their tight coupling within ../../../process-framework/process-framework/methodologies/documentation-tiers/assessments/handler.py
 - **Race Conditions**: Timer-based move detection must handle edge cases where events arrive out of order
 - **Platform Specifics**: Windows file system events may differ from other platforms in event ordering and types
 - **Initial Scan**: First-run scanning must populate the database before monitoring begins
 
 ## Implementation Notes
 
-**Retrospective Note**: This feature was implemented before framework adoption. The Tier 2 classification is justified by the timer-based state machine complexity and thread-safety requirements. The consolidation of five sub-features into one reflects the single-file (handler.py) implementation reality. Future enhancements to the monitoring system should consider the interconnected nature of these concerns.
+**Retrospective Note**: This feature was implemented before framework adoption. The Tier 2 classification is justified by the timer-based state machine complexity and thread-safety requirements. The consolidation of five sub-features into one reflects the single-file (../../../process-framework/process-framework/methodologies/documentation-tiers/assessments/handler.py) implementation reality. Future enhancements to the monitoring system should consider the interconnected nature of these concerns.
