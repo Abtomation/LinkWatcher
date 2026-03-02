@@ -57,7 +57,7 @@ Before you begin, ensure you have:
 
 ## Background
 
-Technical Design Documents (TDDs) serve as architectural blueprints that guide feature implementation and ensure consistency across the codebase. The BreakoutBuddies project uses a tiered approach to TDD creation, where the depth and detail of documentation scales with feature complexity:
+Technical Design Documents (TDDs) serve as architectural blueprints that guide feature implementation and ensure consistency across the codebase. The project uses a tiered approach to TDD creation, where the depth and detail of documentation scales with feature complexity:
 
 ### Tier-Based Documentation Approach
 
@@ -329,7 +329,7 @@ Use this decision tree when deciding what to include in TDDs:
 > **📋 Primary Documentation**: API Design Task (PF-TSK-020)
 > **🔗 Link**: [API Data Models Registry - PF-STA-036] > **👤 Owner**: API Design Task
 
-**Brief Summary**: The authentication API provides endpoints for login, logout, and token refresh. This TDD describes how the Flutter service layer integrates with these endpoints using the Supabase client.
+**Brief Summary**: The authentication API provides endpoints for login, logout, and token refresh. This TDD describes how the service layer integrates with these endpoints using the database client.
 ```
 
 **Example 3: Referencing Database Schema**

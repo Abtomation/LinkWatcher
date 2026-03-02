@@ -15,8 +15,8 @@ This guide provides comprehensive instructions for completing feedback forms eff
 
 1. **Use the automation script** (recommended):
    ```bash
-   # Windows command pattern (use this for reliable execution):
-   echo Set-Location 'c:\Users\ronny\VS_Code\LinkWatcher\doc\process-framework\scripts\file-creation'; ^& .\New-FeedbackForm.ps1 -DocumentId 'PF-TSK-XXX' -TaskContext 'Task Name' -FeedbackType 'MultipleTools' -Confirm:$false > temp_feedback.ps1 && pwsh.exe -ExecutionPolicy Bypass -File temp_feedback.ps1 && del temp_feedback.ps1
+   # Navigate to script directory and run with bash single quotes:
+   cd /c/Users/ronny/VS_Code/LinkWatcher/doc/process-framework/scripts/file-creation && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-FeedbackForm.ps1 -DocumentId "PF-TSK-XXX" -TaskContext "Task Name" -FeedbackType "MultipleTools" -Confirm:$false'
    ```
    > **Note**: Update the path to match your actual project location
 
@@ -225,7 +225,7 @@ Before submitting your feedback form, verify:
 If you need assistance with feedback forms:
 1. Review this guide thoroughly
 2. Check existing feedback forms for examples
-3. Consult the [Assessment Quick Reference](../../../../templates/methodologies/documentation-tiers/assessment-quick-reference.md) for evaluation criteria
+3. Consult the [Assessment Guide](assessment-guide.md) for evaluation criteria
 4. Ask for clarification on specific rating scenarios
 
 Remember: Good feedback drives process improvement. Take the time to provide thoughtful, specific, and actionable feedback.

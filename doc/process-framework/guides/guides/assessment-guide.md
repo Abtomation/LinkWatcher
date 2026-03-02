@@ -9,7 +9,7 @@ updated: 2025-01-27
 
 # Documentation Tier Assessment Guide
 
-This guide provides a structured approach for assessing the appropriate documentation tier for features in the Breakout Buddies project.
+This guide provides a structured approach for assessing the appropriate documentation tier for features in your project.
 
 ## Assessment Process
 
@@ -56,7 +56,7 @@ This guide provides a structured approach for assessing the appropriate document
    - Add placeholders for scores and justifications
    - Open the file in your editor if the -OpenInEditor switch is used
 
-   For more detailed examples of script usage, including how to create multiple assessment files at once, see the <!-- [Script Usage Example](../../../methodologies/documentation-tiers/script-usage-example.md) - Template/example link commented out --> document.
+   For more detailed examples of script usage, including how to create multiple assessment files at once, see the <!-- [Script Usage Example](../../methodologies/documentation-tiers/script-usage-example.md) - Template/example link commented out --> document.
 
    **Troubleshooting Script Execution:**
 
@@ -98,7 +98,7 @@ This guide provides a structured approach for assessing the appropriate document
 
 7. **Document Special Considerations**: Note any special considerations that might affect the tier assignment.
 
-8. **Update the Feature Tracking Document**: Add the documentation tier emoji with link to the assessment, plus API Design and DB Design requirements (e.g., 🔵 [Tier 1](../../../methodologies/documentation-tiers/assessment-link-placeholder)) to the feature in the [Feature Tracking Document](../../../state-tracking/permanent/feature-tracking.md).
+8. **Update the Feature Tracking Document**: Add the documentation tier emoji with link to the assessment, plus API Design and DB Design requirements (e.g., 🔵 Tier 1 with link to assessment) to the feature in the [Feature Tracking Document](../../state-tracking/permanent/feature-tracking.md).
 
 ### Reassessment During Implementation
 
@@ -266,9 +266,9 @@ Evaluate if the feature requires **UI Design** documentation by considering:
 
 **Examples:**
 
-- **Yes**: "Escape room detail screen" (new screen layout with custom components)
-- **Yes**: "Booking flow redesign" (complex multi-step user flow)
-- **Yes**: "Points & leveling system" (custom visual progress indicators)
+- **Yes**: "Product detail screen" (new screen layout with custom components)
+- **Yes**: "Checkout flow redesign" (complex multi-step user flow)
+- **Yes**: "Dashboard analytics" (custom visual progress indicators)
 - **No**: "Database migration" (backend-only feature)
 - **No**: "Bug fix for null pointer" (code fix with no UI changes)
 
@@ -296,7 +296,7 @@ Evaluate if the feature requires **API Design** documentation by considering:
 **Examples:**
 
 - **Yes**: "Credit card integration" (new payment API endpoints)
-- **Yes**: "Bookeo integration" (complex external API integration)
+- **Yes**: "Third-party service integration" (complex external API integration)
 - **No**: "Responsive design" (UI-only changes)
 - **No**: "FAQ section" (static content display)
 
@@ -324,8 +324,8 @@ Evaluate if the feature requires **Database Design** documentation by considerin
 
 **Examples:**
 
-- **Yes**: "Friends management" (new friendship tables and relationships)
-- **Yes**: "Points & leveling system" (new tables for points, levels, achievements)
+- **Yes**: "Friends management" (new relationship tables and social connections)
+- **Yes**: "Rewards system" (new tables for points, levels, achievements)
 - **No**: "Loading state informational content" (UI enhancement only)
 - **No**: "Review reminder emails" (uses existing review data)
 
@@ -419,8 +419,8 @@ Implementation of a standard email and password registration system for user acc
 | **Data Flow**         | 1.5    | 2     | 3.0            | Data flows between UI, validation logic, API, and storage                 |
 | **Business Logic**    | 2.5    | 2     | 5.0            | Includes validation rules, error handling, and account creation logic     |
 | **UI Complexity**     | 0.5    | 1     | 0.5            | Uses standard form widgets and patterns                                   |
-| **API Integration**   | 1.5    | 2     | 3.0            | Requires integration with Supabase authentication API                     |
-| **Database Changes**  | 1.2    | 1     | 1.2            | Uses existing authentication tables in Supabase                           |
+| **API Integration**   | 1.5    | 2     | 3.0            | Requires integration with authentication API                              |
+| **Database Changes**  | 1.2    | 1     | 1.2            | Uses existing authentication tables                                       |
 | **Security Concerns** | 2.0    | 3     | 6.0            | Handles sensitive user credentials and requires secure storage            |
 | **New Technologies**  | 1.0    | 1     | 1.0            | Uses existing technologies in the project                                 |
 
@@ -432,11 +432,11 @@ Implementation of a standard email and password registration system for user acc
 
 ### API Design Required
 
-- [x] Yes - Feature requires new authentication API endpoints for registration, password validation, and account creation. Integration with Supabase authentication API requires careful design of request/response structures and error handling.
+- [x] Yes - Feature requires new authentication API endpoints for registration, password validation, and account creation. Integration with the authentication API requires careful design of request/response structures and error handling.
 
 ### Database Design Required
 
-- [ ] No - Uses existing Supabase authentication tables and user profile structures. No new database schema changes required.
+- [ ] No - Uses existing authentication tables and user profile structures. No new database schema changes required.
 
 ## Documentation Tier Assignment
 

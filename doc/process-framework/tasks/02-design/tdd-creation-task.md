@@ -2,9 +2,9 @@
 id: PF-TSK-015
 type: Process Framework
 category: Task Definition
-version: 1.5
+version: 1.6
 created: 2023-06-15
-updated: 2025-01-27
+updated: 2026-03-02
 task_type: Discrete
 change_notes: "v1.5 - Added Information Flow and Separation of Concerns sections for IMP-097/IMP-098"
 ---
@@ -93,7 +93,7 @@ When referencing other tasks' outputs in TDDs:
   - [T1 Template](/doc/product-docs/templates/templates/tdd-t1-template.md) - For Tier 1 (simple) features
   - [T2 Template](/doc/product-docs/templates/templates/tdd-t2-template.md) - For Tier 2 (moderate) features
   - [T3 Template](/doc/product-docs/templates/templates/tdd-t3-template.md) - For Tier 3 (complex) features
-  - [Feature Assessment](../discrete/methodologies/documentation-tiers/assessments) - The tier assessment for the selected feature
+  - [Feature Assessment](../../methodologies/documentation-tiers/assessments) - The tier assessment for the selected feature
 
 - **Important (Load If Space):**
 
@@ -112,6 +112,10 @@ When referencing other tasks' outputs in TDDs:
 > **⚠️ MANDATORY: Use the .../../scripts/file-creation/New-tdd.ps1 script for consistency across all design documents.**
 >
 > **⚠️ MANDATORY: Request explicit feedback from the human partner during the TDD creation process.**
+>
+> **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
+>
+> **⚠️ MANDATORY: Never proceed past a checkpoint without presenting findings and getting explicit approval.**
 
 ### Preparation
 
@@ -139,10 +143,11 @@ When referencing other tasks' outputs in TDDs:
    - Define measurable targets based on system-wide requirements
    - Consider feature complexity and user impact
    - Document any quality attribute trade-offs or constraints
+9. **🚨 CHECKPOINT**: Present quality attribute analysis, feature-specific targets, and proposed technical approach to human partner for approval
 
 ### Execution
 
-9. Create the appropriate document using the automation script:
+10. Create the appropriate document using the automation script:
 
    ```powershell
    # Navigate to the script directory
@@ -160,43 +165,44 @@ When referencing other tasks' outputs in TDDs:
    - Store the file in the /tdd subdirectory
    - Ensure the AI Agent Session Handoff Notes section is included
 
-10. Complete the document with appropriate detail for the tier, **including quality attribute requirements and implementation**:
+11. Complete the document with appropriate detail for the tier, **including quality attribute requirements and implementation**:
 
 - **Tier 1 🔵**: Key implementation approach, affected components, technical constraints, and relevant quality attribute considerations
 - **Tier 2 🟠**: Basic architecture, component interactions, data model, API details, and quality attribute requirements with implementation approach
 - **Tier 3 🔴**: Comprehensive design including security, performance, edge cases, testing strategy, and detailed quality attribute implementation with measurement approach
 
-11. **MANDATORY: Include Quality Attribute Sections** in all TDDs:
+12. **MANDATORY: Include Quality Attribute Sections** in all TDDs:
 
 - **Quality Attribute Requirements**: Feature-specific quality targets based on system-wide requirements
 - **Quality Attribute Implementation**: How the technical design achieves quality targets
 - **Quality Measurement**: How quality attributes will be monitored and validated
 
-12. Include specific "AI Agent Session Handoff Notes" section in all documents with:
+13. Include specific "AI Agent Session Handoff Notes" section in all documents with:
 
 - Summary of decisions made in this session
 - Clear next steps for subsequent AI sessions
 - Explicit list of files that will need to be modified
 - Any specific implementation challenges to be aware of
 
-13. Ensure the documentation includes appropriate diagrams or visual aids:
+14. Ensure the documentation includes appropriate diagrams or visual aids:
 
 - **Tier 1 🔵**: Simple component interaction diagram (if needed)
 - **Tier 2 🟠**: Data flow diagrams and component architecture
 - **Tier 3 🔴**: Comprehensive architecture, sequence diagrams, and state charts
 
-14. **🚨 CRITICAL**: Actively request feedback from your human partner during TDD creation:
+15. **🚨 CRITICAL**: Actively request feedback from your human partner during TDD creation:
 
 - Ask specific questions about technical approach
 - Confirm appropriate level of detail for the feature's complexity tier
 - Validate security and architectural decisions
 - **NEW**: Validate quality attribute requirements and implementation approach
+16. **🚨 CHECKPOINT**: Present completed TDD draft including quality attribute sections, diagrams, and handoff notes to human partner for review and approval
 
 ### Finalization
 
-15. Review the document for completeness, clarity, and appropriateness for the complexity tier, **ensuring quality attribute sections are complete**
-16. **Verify Automated Updates**: The .../../scripts/file-creation/New-tdd.ps1 script automatically updates feature tracking - verify the updates were applied correctly
-17. **🚨 MANDATORY FINAL STEP**: Complete the Task Completion Checklist below
+17. Review the document for completeness, clarity, and appropriateness for the complexity tier, **ensuring quality attribute sections are complete**
+18. **Verify Automated Updates**: The .../../scripts/file-creation/New-tdd.ps1 script automatically updates feature tracking - verify the updates were applied correctly
+19. **🚨 MANDATORY FINAL STEP**: Complete the Task Completion Checklist below
 
 ## Outputs
 

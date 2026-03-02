@@ -2,9 +2,9 @@
 id: PF-TSK-023
 type: Process Framework
 category: Task Definition
-version: 1.0
+version: 1.1
 created: 2025-07-24
-updated: 2025-07-24
+updated: 2026-03-02
 task_type: Cyclical
 ---
 
@@ -58,16 +58,21 @@ Systematic approach to identifying, categorizing, and prioritizing technical deb
 > **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished! 🚨**
 >
 > **⚠️ MANDATORY: Use the appropriate automation tools where indicated.**
+>
+> **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
+>
+> **⚠️ MANDATORY: Never proceed past a checkpoint without presenting findings and getting explicit approval.**
 
 ### Preparation
 
 1. **Define Assessment Scope**: Determine assessment scope (full codebase, specific modules, or feature areas based on recent development activity)
 2. **Review Context**: Load current [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md) and review recent changes, known issues, and previous assessments
 3. **Prepare Assessment Tools**: Set up assessment templates and tracking documents for systematic evaluation
+4. **🚨 CHECKPOINT**: Present assessment scope, context findings, and initial observations to human partner
 
 ### Assessment Phase
 
-4. **Systematic Code Analysis**: Review code areas using standardized debt identification criteria:
+5. **Systematic Code Analysis**: Review code areas using standardized debt identification criteria:
 
    - **Architectural Issues**: System design problems, missing patterns, coupling issues
    - **Code Quality Issues**: Readability, maintainability, duplication, complexity
@@ -78,28 +83,31 @@ Systematic approach to identifying, categorizing, and prioritizing technical deb
    - **Accessibility Issues**: Missing accessibility features or compliance gaps
    - **UX Compromises**: User experience issues requiring technical solutions
 
-5. **Document Debt Items**: For each identified debt item, document:
+6. **Document Debt Items**: For each identified debt item, document:
    - Detailed description and location
    - Category and severity assessment
    - Impact on development velocity, maintainability, and system stability
    - Estimated effort required for remediation
    - Risk assessment if left unaddressed
 
+7. **🚨 CHECKPOINT**: Present identified debt items for review before prioritization
+
 ### Prioritization Phase
 
-6. **Apply Priority Matrix**: Use impact vs. effort matrix to prioritize debt items:
+8. **Apply Priority Matrix**: Use impact vs. effort matrix to prioritize debt items:
 
    - **Critical**: High impact, any effort - must address before next release
    - **High**: High impact, low-medium effort - address in next development cycle
    - **Medium**: Medium impact, low effort OR high impact, high effort - address when convenient
    - **Low**: Low impact, any effort - nice to fix but not urgent
 
-7. **Risk Assessment**: Evaluate risks of leaving high-priority debt unaddressed
-8. **Create Remediation Plan**: Develop actionable plan for addressing prioritized debt items with timeline recommendations
+9. **Risk Assessment**: Evaluate risks of leaving high-priority debt unaddressed
+10. **Create Remediation Plan**: Develop actionable plan for addressing prioritized debt items with timeline recommendations
+11. **🚨 CHECKPOINT**: Present prioritized matrix and remediation plan to human partner for approval
 
 ### Finalization
 
-9. **🤖 AUTOMATED: Update Technical Debt Registry**: Use automation to add new debt items to [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md):
+12. **🤖 AUTOMATED: Update Technical Debt Registry**: Use automation to add new debt items to [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md):
 
    **OPTION A - Full Automation (Recommended):**
 
@@ -123,9 +131,10 @@ Systematic approach to identifying, categorizing, and prioritizing technical deb
    - Marks debt items as "Added" in their Registry Integration section
    - Maintains bidirectional linking between assessments and registry
 
-10. **Generate Assessment Report**: Create comprehensive assessment report with findings, priorities, and recommendations
-11. **Plan Integration**: Identify how debt remediation can be integrated into upcoming development cycles
-12. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+13. **Generate Assessment Report**: Create comprehensive assessment report with findings, priorities, and recommendations
+14. **Plan Integration**: Identify how debt remediation can be integrated into upcoming development cycles
+15. **🚨 CHECKPOINT**: Review complete assessment report with human partner before marking task complete
+16. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Integration Points
 

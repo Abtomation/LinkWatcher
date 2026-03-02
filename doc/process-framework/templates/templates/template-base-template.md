@@ -30,7 +30,7 @@ Replace [Template Name] with the specific type of template you're creating (e.g.
 
 <!--
 Explain what this template is for and when it should be used.
-Example: "This template provides a standardized structure for creating task definitions in the BreakoutBuddies project."
+Example: "This template provides a standardized structure for creating task definitions in the project."
 -->
 
 [Brief description of what this template is for and when it should be used. Explain the type of document this template will generate and its role in the project.]

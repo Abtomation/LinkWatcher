@@ -9,7 +9,7 @@ updated: 2025-06-16
 
 # System-Wide Technical Design Documentation
 
-This directory contains technical design documents that describe system-wide designs, cross-cutting concerns, and integration patterns for the BreakoutBuddies application.
+This directory contains technical design documents that describe system-wide designs, cross-cutting concerns, and integration patterns for the project.
 
 ## Purpose
 
@@ -57,9 +57,7 @@ Each system-wide technical design document typically includes:
 
 | Document                                                                                                                                   | Description                                         | Status      |
 | ------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------- | ----------- |
-| [User Authentication Flow](/doc/product-docs/technical/design/user-authentication-flow.md)                                                 | Design for user authentication and authorization    | Implemented |
-| <!-- [Loading State Informational Content](/doc/product-docs/technical/design/loading-state-informational-content.md) - File not found --> | Design for displaying content during loading states | Implemented |
-| <!-- [Unlocks and Progression System](/doc/product-docs/technical/design/unlocks-progression-system.md) - File not found -->               | Design for the user progression and unlocks system  | Implemented |
+
 
 ## Creating System-Wide Design Documents
 

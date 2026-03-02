@@ -2,9 +2,9 @@
 id: PF-TSK-051
 type: Process Framework
 category: Task Definition
-version: 1.0
+version: 1.1
 created: 2025-12-11
-updated: 2025-12-11
+updated: 2026-03-02
 task_type: Discrete
 ---
 
@@ -42,14 +42,14 @@ Implement data models, repositories, and database integration for feature
 
 - **Important (Load If Space):**
 
-  - **Existing Repository Patterns** - Review similar repositories in `/lib/data/repositories/` for consistency
-  - **Existing Data Models** - Review similar models in `/lib/data/models/` for patterns
-  - **Supabase Client Configuration** - Review `/lib/core/supabase_client.dart` for database connection patterns
+  - **Existing Repository Patterns** - Review similar repositories in the source directory for consistency
+  - **Existing Data Models** - Review similar models in the source directory for patterns
+  - **Database Client Configuration** - Review database connection configuration for connection patterns
   - [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - For understanding data layer interactions with other components
 
 - **Reference Only (Access When Needed):**
-  - **Supabase Documentation** - For understanding Supabase Dart client API patterns
-  - **Flutter/Dart Best Practices** - For data class and repository implementation standards
+  - **Database Documentation** - For understanding database client API patterns
+  - **Language Best Practices** - For data class and repository implementation standards
   - [Visual Notation Guide](/doc/process-framework/guides/guides/visual-notation-guide.md) - For interpreting context map diagrams
 
 ## Process
@@ -57,6 +57,10 @@ Implement data models, repositories, and database integration for feature
 > **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished! 🚨**
 >
 > **⚠️ MANDATORY: Update the Feature Implementation State file throughout this task.**
+>
+> **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
+>
+> **⚠️ MANDATORY: Never proceed past a checkpoint without presenting findings and getting explicit approval.**
 
 ### Preparation
 
@@ -69,55 +73,57 @@ Implement data models, repositories, and database integration for feature
    - Review migration scripts that will be executed
    - Identify RLS policies and security requirements
 3. **Study Existing Patterns**: Review similar implementations in the codebase
-   - Examine existing repository patterns in `/lib/data/repositories/`
-   - Review existing data model classes in `/lib/data/models/`
+   - Examine existing repository patterns in the source directory
+   - Review existing data model classes in the source directory
    - Note naming conventions and error handling approaches
+4. **🚨 CHECKPOINT**: Present implementation context, schema review findings, and existing patterns analysis to human partner for approval
 
 ### Execution
 
-4. **Execute Database Migrations**: Apply schema changes to development database
-   - Run Supabase migration scripts
+5. **Execute Database Migrations**: Apply schema changes to development database
+   - Run database migration scripts
    - Verify tables, columns, and constraints are created correctly
    - Test RLS policies if applicable
-5. **Implement Data Models**: Create Dart model classes for database entities
-   - Define model classes in `/lib/data/models/[feature]/`
-   - Implement `fromJson` and `toJson` methods for serialization
+6. **Implement Data Models**: Create model classes for database entities
+   - Define model classes in the appropriate source directory
+   - Implement serialization/deserialization methods
    - Add validation logic and business rules
-   - Include proper null safety and type definitions
-6. **Implement Repository Interfaces**: Define repository contracts
-   - Create repository interface in `/lib/data/repositories/[feature]/`
+   - Include proper type definitions and safety
+7. **Implement Repository Interfaces**: Define repository contracts
+   - Create repository interface in the appropriate source directory
    - Define CRUD methods and query operations
    - Specify return types (models, lists, error types)
-7. **Implement Repository Classes**: Build concrete repository implementations
-   - Implement repository interface with Supabase client integration
+8. **Implement Repository Classes**: Build concrete repository implementations
+   - Implement repository interface with database client integration
    - Add error handling and exception mapping
    - Implement data transformation (database → model)
    - Add logging for debugging
-8. **Write Data Layer Tests**: Create unit tests for models and repositories
+9. **Write Data Layer Tests**: Create unit tests for models and repositories
    - Test model serialization/deserialization
    - Test repository CRUD operations with mocks
    - Test error handling scenarios
    - Test data validation logic
+10. **🚨 CHECKPOINT**: Present implemented data models, repositories, test results, and any TDD deviations to human partner for review and approval
 
 ### Finalization
 
-9. **Verify Data Layer Integration**: Ensure all components work together
+11. **Verify Data Layer Integration**: Ensure all components work together
    - Run data layer unit tests and verify all pass
    - Test database connectivity and query execution
    - Verify error handling and edge cases
-10. **Update Feature Implementation State**: Document completed work
+12. **Update Feature Implementation State**: Document completed work
     - Update code inventory with new models and repositories
     - Note any deviations from TDD specifications
     - Document any issues encountered and resolutions
-11. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+13. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 
-- **Data Model Classes** - Dart model classes in `/lib/data/models/[feature]/` with serialization methods, validation, and proper typing
-- **Repository Interface** - Repository contract defining data access methods in `/lib/data/repositories/[feature]/[feature]_repository.dart`
-- **Repository Implementation** - Concrete repository class with Supabase integration in `/lib/data/repositories/[feature]/[feature]_repository_impl.dart`
+- **Data Model Classes** - Model classes in the appropriate source directory with serialization methods, validation, and proper typing
+- **Repository Interface** - Repository contract defining data access methods
+- **Repository Implementation** - Concrete repository class with database integration
 - **Database Migrations (Executed)** - Verified execution of migration scripts in development database with confirmed schema changes
-- **Data Layer Tests** - Unit tests for models and repositories in `/test/unit/data/[feature]/`
+- **Data Layer Tests** - Unit tests for models and repositories in the test directory
 - **Updated Feature Implementation State** - Code inventory and progress tracking updated with data layer components
 
 ## State Tracking
@@ -138,9 +144,9 @@ The following state files must be updated as part of this task:
 Before considering this task finished:
 
 - [ ] **Verify Outputs**: Confirm all required outputs have been produced
-  - [ ] Data model classes created in `/lib/data/models/[feature]/` with complete serialization
-  - [ ] Repository interface defined in `/lib/data/repositories/[feature]/`
-  - [ ] Repository implementation completed with Supabase integration
+  - [ ] Data model classes created in the source directory with complete serialization
+  - [ ] Repository interface defined in the source directory
+  - [ ] Repository implementation completed with database integration
   - [ ] Database migrations executed and verified in development database
   - [ ] Unit tests created and passing for all data layer components
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
@@ -153,12 +159,9 @@ Before considering this task finished:
 
 ## Next Tasks
 
-- **[State Management Implementation](state-management-implementation.md)** (PF-TSK-043) - Implement Riverpod providers and notifiers that consume the data repositories created in this task
-- **[Integration & Testing](integration-testing.md)** (PF-TSK-045) - Perform integration testing once state management and UI layers are connected to the data layer
+- **[Integration & Testing](integration-and-testing.md)** (PF-TSK-053) - Perform integration testing once data layer is connected
 
 ## Related Resources
 
 - [Feature Implementation State Template](../../templates/templates/feature-implementation-state-template.md) - Template for tracking implementation progress
 - [Task Transition Guide](../../guides/guides/task-transition-guide.md) - Guidance on transitioning between decomposed tasks
-- [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Understanding component interactions
-- [Supabase Flutter Documentation](https://supabase.com/docs/reference/dart/introduction) - Official Supabase Dart client documentation

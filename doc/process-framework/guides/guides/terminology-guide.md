@@ -11,11 +11,11 @@ updated: 2025-05-29
 
 ## Purpose
 
-This guide establishes clear terminology for the BreakoutBuddies documentation system, distinguishing between process-related documentation and product-related documentation. It serves as the reference for understanding the documentation organization and naming conventions.
+This guide establishes clear terminology for the project's documentation system, distinguishing between process-related documentation and product-related documentation. It serves as the reference for understanding the documentation organization and naming conventions.
 
 ## Terminology Separation
 
-The BreakoutBuddies project now uses two distinct terminology categories for documentation:
+The project uses two distinct terminology categories for documentation:
 
 ### Key Terminology Distinction: Guides vs. Handbooks
 
@@ -152,7 +152,7 @@ When referencing documents in markdown files, use the following format to clearl
 - Process Framework guide: `[Process: Documentation Guide](../../documentation-guide.md)`
 - Product Documentation reference: `<!-- [Product: Authentication API](../../../../product-docs/technical/api/authentication.md) - File not found -->`
 - Product User Handbook: `[Product: User Handbook](../../../../product-docs/user/handbooks/creating-an-account.md)`
-- Product Implementation Handbook: `<!-- [Product: Implementation Handbook](../../../../product-docs/technical/implementation/state-management-implementation.md) - File not found -->`
+- Product Implementation Handbook: `[Product: Implementation Guide](../../../../product-docs/technical/implementation/guide.md)`
 
 ## Transition Period
 
@@ -172,4 +172,4 @@ If you have questions about the new terminology or organization, please refer to
 
 ---
 
-_This terminology guide is part of the Process Framework and should be referenced when creating or updating any documentation in the BreakoutBuddies project._
+_This terminology guide is part of the Process Framework and should be referenced when creating or updating any documentation in the project._

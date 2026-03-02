@@ -22,7 +22,7 @@ Replace API Data Model Template with the specific type of template you're creati
 
 ## Purpose
 
-This template provides a standardized structure for creating API data model definitions in the BreakoutBuddies project. It should be used when defining data transfer objects (DTOs), request/response models, and data structures that are part of API contracts.
+This template provides a standardized structure for creating API data model definitions in the project. It should be used when defining data transfer objects (DTOs), request/response models, and data structures that are part of API contracts.
 
 **Use this template when:**
 - Defining API request and response data structures

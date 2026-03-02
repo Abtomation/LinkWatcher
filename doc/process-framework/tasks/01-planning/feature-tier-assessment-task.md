@@ -2,9 +2,9 @@
 id: PF-TSK-002
 type: Process Framework
 category: Task Definition
-version: 1.3
+version: 1.4
 created: 2023-06-15
-updated: 2025-08-02
+updated: 2026-03-02
 task_type: Discrete
 ---
 
@@ -36,7 +36,7 @@ Assess the complexity tier of unassessed features to determine appropriate docum
 - **Critical (Must Read):**
 
   - [Assessment Guide](../guides/guides/assessment-guide.md) - Detailed guidelines for assessing feature complexity tiers
-  - [Documentation Tiers README](../methodologies/documentation-tiers/README.md) - Definitions of each complexity tier and their criteria
+  - [Documentation Tiers README](../../methodologies/documentation-tiers/README.md) - Definitions of each complexity tier and their criteria
   - [Visual Notation Guide](/doc/process-framework/guides/guides/visual-notation-guide.md) - For interpreting context map diagrams
 
 - **Reference Only (Access When Needed):**
@@ -47,6 +47,10 @@ Assess the complexity tier of unassessed features to determine appropriate docum
 > **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished! 🚨**
 >
 > **⚠️ MANDATORY: Use the PowerShell automation script for ALL assessment file creation. Manual file creation is prohibited as it breaks ID tracking and causes conflicts.**
+>
+> **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
+>
+> **⚠️ MANDATORY: Never proceed past a checkpoint without presenting findings and getting explicit approval.**
 
 ### Preparation
 
@@ -75,11 +79,12 @@ Assess the complexity tier of unassessed features to determine appropriate docum
 5. Complete the assessment by evaluating and scoring each complexity factor
 6. **Evaluate API and Database Design Requirements** (see [Design Requirements Evaluation](#design-requirements-evaluation) section below)
 7. Calculate the normalized score and determine the appropriate documentation tier
-8. Verify the assessment meets quality standards
+8. **🚨 CHECKPOINT**: Present assessment scores, tier assignment, and design requirements to human partner for approval
+9. Verify the assessment meets quality standards
 
 ### Finalization
 
-9. **Run the automated update script** to update feature tracking:
+10. **Run the automated update script** to update feature tracking:
 
    ```powershell
    # Navigate to the documentation tiers directory (if not already there)
@@ -99,9 +104,9 @@ Assess the complexity tier of unassessed features to determine appropriate docum
 
    **Manual verification**: After running the script, verify the feature tracking document was updated correctly
 
-10. **For existing assessments missing Design Requirements Evaluation**: If updating an assessment that was created before the Design Requirements Evaluation section was added, add the section to the existing assessment file using the template format from the [Assessment Guide](../guides/guides/assessment-guide.md#design-requirements-evaluation)
-11. Document any insights or lessons learned from the assessment process
-12. **🚨 MANDATORY FINAL STEP**: Complete the Task Completion Checklist below
+11. **For existing assessments missing Design Requirements Evaluation**: If updating an assessment that was created before the Design Requirements Evaluation section was added, add the section to the existing assessment file using the template format from the [Assessment Guide](../guides/guides/assessment-guide.md#design-requirements-evaluation)
+12. Document any insights or lessons learned from the assessment process
+13. **🚨 MANDATORY FINAL STEP**: Complete the Task Completion Checklist below
 
 ## Outputs
 
@@ -175,9 +180,9 @@ Evaluate if the feature requires **UI Design** documentation by considering:
 
 **Examples:**
 
-- **Yes**: "Escape room detail screen" (new screen layout with custom components)
-- **Yes**: "Booking flow redesign" (complex multi-step user flow)
-- **Yes**: "Points & leveling system" (custom visual progress indicators)
+- **Yes**: "Product detail screen" (new screen layout with custom components)
+- **Yes**: "Onboarding flow redesign" (complex multi-step user flow)
+- **Yes**: "Progress tracking dashboard" (custom visual progress indicators)
 - **No**: "Database migration" (backend-only feature)
 - **No**: "Bug fix for null pointer" (code fix with no UI changes)
 
@@ -204,8 +209,8 @@ Evaluate if the feature requires **API Design** documentation by considering:
 
 **Examples:**
 
-- **Yes**: "Credit card integration" (new payment API endpoints)
-- **Yes**: "Bookeo integration" (complex external API integration)
+- **Yes**: "Payment processing integration" (new payment API endpoints)
+- **Yes**: "Third-party service integration" (complex external API integration)
 - **No**: "Responsive design" (UI-only changes)
 - **No**: "FAQ section" (static content display)
 
@@ -233,10 +238,10 @@ Evaluate if the feature requires **Database Design** documentation by considerin
 
 **Examples:**
 
-- **Yes**: "Friends management" (new friendship tables and relationships)
-- **Yes**: "Points & leveling system" (new tables for points, levels, achievements)
+- **Yes**: "User management" (new user relationship tables)
+- **Yes**: "Achievement system" (new tables for points, levels, achievements)
 - **No**: "Loading state informational content" (UI enhancement only)
-- **No**: "Review reminder emails" (uses existing review data)
+- **No**: "Notification emails" (uses existing data)
 
 ### Documentation in Assessment
 
@@ -284,7 +289,7 @@ When updating the feature tracking document:
 
 ## Related Resources
 
-- [Documentation Tier Assignments README](../methodologies/documentation-tiers/README.md) - Comprehensive overview of the tier system
-- <!-- [Normalized Scoring System Guide](../methodologies/documentation-tiers/normalized-scoring-guide.md) - File not found --> - Details on how the scoring system works
+- [Documentation Tier Assignments README](../../methodologies/documentation-tiers/README.md) - Comprehensive overview of the tier system
+- [Normalized Scoring System](../../methodologies/documentation-tiers/README.md#normalized-scoring-system) - Details on how the scoring system works
 - <!-- [Assessment Best Practices](../guides/assessment-best-practices.md) - File not found --> - Tips for accurate assessments
 - [Task Creation and Improvement Guide](../support/task-creation-guide.md) - Guide for creating and improving tasks

@@ -51,7 +51,7 @@ Before you begin, ensure you have:
 - Access to PowerShell and the New-TestSpecification.ps1 script in `test/specifications/`
 - Completed Technical Design Document (TDD) for the feature being specified
 - Understanding of the feature's complexity tier assessment
-- Familiarity with Flutter testing patterns and the project's testing framework
+- Familiarity with the project's testing patterns and testing framework
 - Access to the Test Specification Creation Task (PF-TSK-012) documentation
 - Knowledge of Test-First Development Integration principles
 
@@ -72,8 +72,8 @@ Test Specifications serve as the bridge between architectural design (TDDs) and 
 Test specifications scale with feature complexity:
 
 - **Tier 1**: Basic unit tests and key integration scenarios
-- **Tier 2**: Comprehensive unit, integration, and widget tests
-- **Tier 3**: Full test suite including unit, integration, widget, and end-to-end tests
+- **Tier 2**: Comprehensive unit, integration, and component tests
+- **Tier 3**: Full test suite including unit, integration, component, and end-to-end tests
 
 ### Integration with TDDs
 
@@ -284,7 +284,7 @@ Use this decision tree when deciding what to include in Test Specifications:
 1. **Navigate to the test specifications directory**:
 
    ```powershell
-   cd c:\Users\ronny\VS_Code\BreakoutBuddies\breakoutbuddies\test\specifications
+   cd test/specifications
    ```
 
 2. **Execute the New-TestSpecification.ps1 script**:
@@ -316,7 +316,7 @@ Use this decision tree when deciding what to include in Test Specifications:
 
    - **Unit Tests**: Map TDD models and services to unit test specifications
    - **Integration Tests**: Specify component interaction testing requirements
-   - **Widget Tests**: Define UI component testing requirements (if applicable)
+   - **Component Tests**: Define component-level testing requirements (if applicable)
    - **End-to-End Tests**: Specify user workflow testing (Tier 3 only)
 
 3. **Create detailed test specifications**:
@@ -370,7 +370,7 @@ Creating a test specification for a Tier 2 authentication feature:
 
 ```powershell
 # Navigate to specifications directory
-cd c:\Users\ronny\VS_Code\BreakoutBuddies\breakoutbuddies\test\specifications
+cd test/specifications
 
 # Create test specification
 .\New-TestSpecification.ps1 -FeatureId "1.2.3" -FeatureName "user-authentication" -TddPath "doc/product-docs/technical/design/tdd-user-authentication.md" -OpenInEditor
@@ -379,9 +379,9 @@ cd c:\Users\ronny\VS_Code\BreakoutBuddies\breakoutbuddies\test\specifications
 **Customization approach:**
 
 - **TDD Summary**: Authentication service architecture, token management, secure storage integration
-- **Test Categories**: Unit tests for AuthService, integration tests for login flow, widget tests for login UI
+- **Test Categories**: Unit tests for AuthService, integration tests for login flow, component tests for login module
 - **Specifications**: Login success/failure, token validation, session management, error handling
-- **Tier 2 Focus**: Comprehensive unit and integration coverage with key widget tests
+- **Tier 2 Focus**: Comprehensive unit and integration coverage with key component tests
 
 **Result:** Complete Tier 2 test specification covering authentication system behavioral requirements
 
@@ -391,13 +391,13 @@ Creating a comprehensive test specification for a complex booking feature:
 
 ```powershell
 # Create Tier 3 test specification
-.\New-TestSpecification.ps1 -FeatureId "BOOK-001" -FeatureName "escape-room-booking" -TddPath "doc/product-docs/technical/design/tdd-booking-system.md" -OpenInEditor
+.\New-TestSpecification.ps1 -FeatureId "ORD-001" -FeatureName "order-management" -TddPath "doc/product-docs/technical/design/tdd-order-system.md" -OpenInEditor
 ```
 
 **Customization approach:**
 
 - **TDD Summary**: Booking service, payment integration, availability checking, confirmation system
-- **Test Categories**: Full suite including unit, integration, widget, and E2E tests
+- **Test Categories**: Full suite including unit, integration, component, and E2E tests
 - **Specifications**: Booking creation, payment processing, availability validation, user workflows
 - **Tier 3 Focus**: Complete test coverage including end-to-end user journey testing
 
@@ -440,7 +440,7 @@ Creating a comprehensive test specification for a complex booking feature:
 - [Test File Creation Guide](test-file-creation-guide.md) - Guide for implementing test specifications
 - [TDD Creation Guide](tdd-creation-guide.md) - Guide for creating the source TDDs
 - [Technical Design Documents](../../../doc/product-docs/technical/design/) - Source TDDs for test specifications
-- [Flutter Testing Documentation](https://docs.flutter.dev/testing) - Official Flutter testing guide
+- Your project's testing framework documentation
 - [Guide Creation Best Practices Guide (PF-GDE-024)](guide-creation-best-practices-guide.md) - Best practices for guide creation
 
 <!--

@@ -16,7 +16,7 @@ guide_description: Guide for customizing Architecture Decision Record templates
 
 ## Overview
 
-This guide provides comprehensive instructions for creating and customizing Architecture Decision Record (ADR) documents using the New-ArchitectureDecision.ps1 script and adr-template.md. It helps you document important architectural decisions, their context, and rationale for the BreakoutBuddies project.
+This guide provides comprehensive instructions for creating and customizing Architecture Decision Record (ADR) documents using the New-ArchitectureDecision.ps1 script and adr-template.md. It helps you document important architectural decisions, their context, and rationale for your project.
 
 ## When to Use
 
@@ -195,7 +195,7 @@ When creating Architecture Decision Records, you must make several key decisions
 1. **Navigate to the ADR directory**:
 
    ```powershell
-   cd c:\Users\ronny\VS_Code\BreakoutBuddies\breakoutbuddies\doc\product-docs\technical\architecture\design-docs\adr
+   cd doc/product-docs/technical/architecture/design-docs/adr
    ```
 
 2. **Execute the New-ArchitectureDecision.ps1 script**:
@@ -325,27 +325,27 @@ Comprehensive quality assurance ensures ADRs meet project standards and provide 
 
 ### Example 1: State Management Pattern Selection ADR
 
-Creating an ADR for selecting the state management approach in the BreakoutBuddies Flutter application:
+Creating an ADR for selecting the state management approach in the application:
 
 ```powershell
 # Navigate to ADR directory
-cd c:\Users\ronny\VS_Code\BreakoutBuddies\breakoutbuddies\doc\product-docs\technical\architecture\design-docs\adr
+cd doc/product-docs/technical/architecture/design-docs/adr
 
 # Create state management decision ADR
-.\New-ArchitectureDecision.ps1 -Title "State Management Pattern Selection" -Description "Decision on state management approach for Flutter application architecture" -Status "Proposed" -OpenInEditor
+.\New-ArchitectureDecision.ps1 -Title "State Management Pattern Selection" -Description "Decision on state management approach for application architecture" -Status "Proposed" -OpenInEditor
 ```
 
 **Customization approach:**
 
 - **Context**: Document the need for consistent state management across the application, current pain points with ad-hoc state handling, and scalability requirements
-- **Decision**: Choose Riverpod as the primary state management solution for its type safety, testability, and Flutter integration
+- **Decision**: Choose the preferred state management solution based on type safety, testability, and framework integration
 - **Impact Assessment**: Technical Risk: Medium, Implementation Effort: 2-3 weeks, Affected Components: All UI screens and data layers, Migration Required: Yes, Performance Impact: Positive, Security Implications: None
 - **Alternatives**:
-  - Provider: Pros (familiar, simple) / Cons (lacks type safety, limited composition) / Rejected due to scalability concerns
-  - Bloc: Pros (predictable, testable) / Cons (verbose, steep learning curve) / Rejected due to complexity overhead
-  - GetX: Pros (feature-rich, fast) / Cons (opinionated, global state issues) / Rejected due to maintainability concerns
+  - Option A: Pros (familiar, simple) / Cons (limited composition) / Rejected due to scalability concerns
+  - Option B: Pros (predictable, testable) / Cons (verbose, steep learning curve) / Rejected due to complexity overhead
+  - Option C: Pros (feature-rich, fast) / Cons (opinionated, global state issues) / Rejected due to maintainability concerns
 - **Consequences**: Positive impacts (better testability, type safety, performance) and negative impacts (learning curve, migration effort)
-- **References**: Link to Riverpod documentation, Flutter state management best practices, and related architectural assessments
+- **References**: Link to chosen framework documentation, state management best practices, and related architectural assessments
 
 **Result:** Comprehensive ADR that guides development team on state management implementation and provides rationale for future reference
 
@@ -361,14 +361,14 @@ Creating an ADR for database schema change management:
 **Customization approach:**
 
 - **Context**: Document challenges with current manual schema changes, need for automated migrations, and production deployment requirements
-- **Decision**: Implement automated migration system using Supabase migration tools with version control integration
+- **Decision**: Implement automated migration system using the project's database migration tools with version control integration
 - **Impact Assessment**: Technical Risk: Low, Implementation Effort: 1 week, Affected Components: Database layer and deployment pipeline, Migration Required: No, Performance Impact: Neutral, Security Implications: Improved (version-controlled schema changes)
 - **Alternatives**:
   - Manual migrations: Pros (simple, direct control) / Cons (error-prone, not scalable) / Rejected due to reliability concerns
   - Custom scripts: Pros (flexible, tailored) / Cons (maintenance overhead, reinventing wheel) / Rejected due to development cost
-  - Third-party tools: Pros (feature-rich, proven) / Cons (vendor lock-in, learning curve) / Rejected due to Supabase integration
+  - Third-party tools: Pros (feature-rich, proven) / Cons (vendor lock-in, learning curve) / Rejected due to integration complexity
 - **Consequences**: Improved deployment reliability, reduced manual errors, but increased initial setup complexity
-- **References**: Supabase migration documentation, database versioning best practices, and deployment pipeline requirements
+- **References**: Database migration tool documentation, database versioning best practices, and deployment pipeline requirements
 
 **Result:** Clear guidance for database change management that supports reliable deployments and team coordination
 
@@ -394,7 +394,7 @@ Creating an ADR for database schema change management:
 
 **Solution:**
 
-1. Rewrite the decision statement to be specific and actionable (e.g., "Use Riverpod for state management" instead of "Improve state management")
+1. Rewrite the decision statement to be specific and actionable (e.g., "Use X framework for state management" instead of "Improve state management")
 2. Include implementation constraints or guidelines within the decision section
 3. Ensure the decision answers "what exactly will be done" rather than "what problem needs solving"
 4. Review the decision with stakeholders to confirm understanding and eliminate ambiguity

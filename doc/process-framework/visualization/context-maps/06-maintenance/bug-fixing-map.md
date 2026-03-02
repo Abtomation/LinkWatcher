@@ -2,9 +2,9 @@
 id: PF-VIS-003
 type: Process Framework
 category: Context Map
-version: 1.0
+version: 1.2
 created: 2025-06-12
-updated: 2025-06-12
+updated: 2026-03-02
 related_task: PF-TSK-007
 ---
 
@@ -26,10 +26,15 @@ graph TD
     Logs[/Error Logs/] --> SourceCode
     SourceCode --> DebugTools([Debugging Tools])
     SourceCode -.-> TechnicalDebtTracking[/Technical Debt Tracking/]
+    SourceCode -.-> FeatureState[/Feature State File/]
+    SourceCode -.-> TDD[/Technical Design Document/]
+    SourceCode -.-> TestSpec[/Test Specification/]
+    SourceCode -.-> FDD[/Functional Design Document/]
+    BugReport -.-> BugFixState[/Bug Fix State File/]
 
     class BugReport,SourceCode critical
     class UnitTests,Logs,DebugTools important
-    class TestRunner,TechnicalDebtTracking reference
+    class TestRunner,TechnicalDebtTracking,FeatureState,TDD,TestSpec,FDD,BugFixState reference
 ```
 
 ## Essential Components
@@ -46,6 +51,11 @@ graph TD
 ### Reference Components (Access When Needed)
 - **Test Runner**: System for executing and validating test results
 - **Technical Debt Tracking**: Documentation tracking bugs and technical debt items
+- **Bug Fix State File**: Temporary state tracking for multi-session complex bug fixes (Large effort only, created via `New-BugFixState.ps1`)
+- **Feature State File**: Feature implementation state tracking (update when fix changes design or behavior)
+- **Technical Design Document**: Technical design descriptions (update when fix changes architecture)
+- **Test Specification**: Expected behavior and test scenarios (update when fix changes behavior)
+- **Functional Design Document**: Functional behavior descriptions (update when fix changes user-facing behavior)
 
 ## Key Relationships
 
@@ -54,6 +64,8 @@ graph TD
 3. **Error Logs → Source Code**: Error logs help identify problematic code areas
 4. **Source Code → Debugging Tools**: Debugging tools are used to analyze the source code
 5. **Source Code -.-> Technical Debt Tracking**: Bug fixes may require updates to technical debt documentation
+6. **Source Code -.-> Feature State/TDD/Test Spec/FDD**: Fixes that change technical design or behavior should update the relevant feature documentation
+7. **Bug Report -.-> Bug Fix State File**: Large-effort or architectural bugs create a state tracking file to enable multi-session work and handover
 
 ## Implementation in AI Sessions
 

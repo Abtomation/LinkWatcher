@@ -235,7 +235,7 @@ try {
     if (-not $OpenInEditor) {
         $runCommand = switch ($language.ToLower()) {
             "python" { "pytest $outputDirectory/$testFileName" }
-            "dart" { "flutter test $outputDirectory/$testFileName" }
+            "dart" { "dart test $outputDirectory/$testFileName" }
             default { "Run the test file using your test runner" }
         }
 

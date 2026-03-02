@@ -12,7 +12,7 @@ task_type: Discrete
 
 ## Purpose & Context
 
-Manage the process of preparing, versioning, and deploying releases of the BreakoutBuddies application to various environments, ensuring quality and stability through proper verification and tracking.
+Manage the process of preparing, versioning, and deploying releases of the application to various environments, ensuring quality and stability through proper verification and tracking.
 
 ## AI Agent Role
 
@@ -36,13 +36,10 @@ Manage the process of preparing, versioning, and deploying releases of the Break
 - **Critical (Must Read):**
 
   - [Release Process Guide](/doc/product-docs/ci-cd/release-process.md) - Release process documentation
-  - <!-- [Deployment Checklist](/doc/product-docs/development/checklists/deployment-checklist.md) - File not found --> - Pre-deployment verification items
-  - [CI/CD Environment Guide](/doc/product-docs/guides/guides/ci-cd-environment-guide.md) - Environment configuration details
   - [Visual Notation Guide](/doc/process-framework/guides/guides/visual-notation-guide.md) - For interpreting context map diagrams
 
 - **Important (Load If Space):**
 
-  - [Environment Setup Guide](/doc/product-docs/guides/guides/environment-setup-guide.md) - Environment setup instructions
   - [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Features ready for release
 
 - **Reference Only (Access When Needed):**
@@ -53,6 +50,10 @@ Manage the process of preparing, versioning, and deploying releases of the Break
 > **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished! 🚨**
 >
 > **⚠️ MANDATORY: Always run the full test suite before deployment and verify application health afterward.**
+>
+> **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
+>
+> **⚠️ MANDATORY: Never proceed past a checkpoint without presenting findings and getting explicit approval.**
 
 ### Preparation
 
@@ -61,21 +62,23 @@ Manage the process of preparing, versioning, and deploying releases of the Break
 3. Generate release notes from completed features and fixed bugs
 4. Create a release branch if needed
 5. Update any configuration files for the target environment(s)
+6. **🚨 CHECKPOINT**: Present release scope, version numbers, and release notes to human partner for review
 
 ### Execution
 
-6. Run the full test suite on the release candidate
-7. Verify all deployment prerequisites are met
-8. Complete the pre-deployment checklist
-9. Obtain necessary approvals
-10. Deploy to the target environment(s)
-11. Monitor deployment logs for issues
-12. Verify application health post-deployment
-13. Run smoke tests to confirm basic functionality
+7. Run the full test suite on the release candidate
+8. Verify all deployment prerequisites are met
+9. Complete the pre-deployment checklist
+10. Obtain necessary approvals
+11. **🚨 CHECKPOINT**: Present pre-deployment checklist results and obtain explicit approval before deploying
+12. Deploy to the target environment(s)
+13. Monitor deployment logs for issues
+14. Verify application health post-deployment
+15. Run smoke tests to confirm basic functionality
 
 ### Finalization
 
-14. **Bug Discovery During Deployment**: Systematically identify and document any bugs discovered during deployment:
+16. **Bug Discovery During Deployment**: Systematically identify and document any bugs discovered during deployment:
 
     - **Deployment Failures**: Issues that prevent successful deployment
     - **Configuration Problems**: Environment-specific configuration issues
@@ -84,7 +87,7 @@ Manage the process of preparing, versioning, and deploying releases of the Break
     - **User Experience Issues**: UI/UX problems that only appear in production
     - **Data Migration Issues**: Problems with database migrations or data integrity
 
-15. **Report Discovered Bugs**: If bugs are identified during deployment:
+17. **Report Discovered Bugs**: If bugs are identified during deployment:
 
     - Use [../../scripts/file-creation/New-BugReport.ps1](../../scripts/file-creation/New-BugReport.ps1) script to create standardized bug reports
     - Follow [Bug Reporting Guide](../../guides/guides/bug-reporting-guide.md) for consistent documentation
@@ -97,17 +100,17 @@ Manage the process of preparing, versioning, and deploying releases of the Break
 
     ```powershell
     # Navigate to the scripts directory from project root
-    Set-Location "c:\Users\ronny\VS_Code\BreakoutBuddies\breakoutbuddies\doc\process-framework\scripts\file-creation"
+    Set-Location "doc/process-framework/scripts/file-creation"
 
     # Create bug report for issues found during deployment
     ../../scripts/file-creation/New-BugReport.ps1 -Title "API timeout in production environment" -Description "User authentication API calls timeout after 30 seconds in production but work fine in staging" -DiscoveredBy "Release Deployment" -Severity "Critical" -Component "Authentication" -Environment "Production" -Evidence "Deployment logs: /logs/deployment-2025-01-15.log"
     ```
 
-16. Update release status documentation
-17. Notify stakeholders of successful deployment
-18. Monitor application performance and error rates
-19. Document any issues encountered during deployment
-20. **🚨 MANDATORY FINAL STEP**: Complete the Task Completion Checklist below
+18. Update release status documentation
+19. Notify stakeholders of successful deployment
+20. Monitor application performance and error rates
+21. Document any issues encountered during deployment
+22. **🚨 MANDATORY FINAL STEP**: Complete the Task Completion Checklist below
 
 ## Outputs
 

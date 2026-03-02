@@ -55,19 +55,19 @@ updated: YYYY-MM-DD
 
 ```bash
 # Include any installation commands here
-flutter pub add package_name
+pip install package_name
 ```
 
 ### Basic Configuration
 
 [Explain the basic configuration steps needed.]
 
-```dart
-// Example configuration code
-final config = Configuration(
-  option1: 'value1',
-  option2: 'value2',
-);
+```python
+# Example configuration code
+config = {
+    "option1": "value1",
+    "option2": "value2",
+}
 ```
 
 ## Main Section 1

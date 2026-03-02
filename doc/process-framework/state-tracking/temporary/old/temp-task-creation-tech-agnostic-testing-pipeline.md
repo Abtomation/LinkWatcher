@@ -53,31 +53,31 @@ task_name: tech-agnostic-testing-pipeline
 - [x] Read and update New-TestFile.ps1 to read project-config.json for language detection
   - **Status**: COMPLETED
   - **Target**: `doc/process-framework/scripts/file-creation/New-TestFile.ps1`
-  - **Notes**: Complete rewrite — reads project-config.json, supports Python/Dart/generic, selects template and test types per language. Fixed corrupted LinkWatcher paths from old version.
+  - **Notes**: Complete rewrite — reads project-config.json, supports multiple languages, selects template and test types per language. Fixed corrupted paths from old version.
 
 - [x] Create test-file-template.py (Python/pytest equivalent)
   - **Status**: COMPLETED
   - **Target**: `doc/process-framework/templates/templates/test-file-template.py`
-  - **Notes**: Pytest class-based template with matching frontmatter structure to Dart template
+  - **Notes**: Pytest class-based template with matching frontmatter structure to existing templates
 
-- [x] Update test-implementation-task.md — replace BB paths, make test types generic
+- [x] Update test-implementation-task.md — replace hardcoded paths, make test types generic
   - **Status**: COMPLETED
   - **Target**: `doc/process-framework/tasks/03-testing/test-implementation-task.md`
-  - **Notes**: Removed hardcoded BB path, genericized test types, fixed broken /discrete/ paths. Version 1.1→1.2
+  - **Notes**: Removed hardcoded project path, genericized test types, fixed broken /discrete/ paths. Version 1.1→1.2
 
-- [x] Update test-audit-task.md — replace BB paths
+- [x] Update test-audit-task.md — replace hardcoded paths
   - **Status**: COMPLETED
   - **Target**: `doc/process-framework/tasks/03-testing/test-audit-task.md`
-  - **Notes**: Removed 3 hardcoded BB paths, genericized test directory refs, fixed broken /discrete/ paths. Version 1.2→1.3
+  - **Notes**: Removed 3 hardcoded project paths, genericized test directory refs, fixed broken /discrete/ paths. Version 1.2→1.3
 
-- [x] Update test-implementation-tracking.md — remove Dart validation script references
+- [x] Update test-implementation-tracking.md — remove legacy validation script references
   - **Status**: COMPLETED
   - **Target**: `doc/process-framework/state-tracking/permanent/test-implementation-tracking.md`
-  - **Notes**: Replaced entire Dart/Legacy validation section with generic Validate-TestTracking.ps1 reference. Version 2.4→2.5
+  - **Notes**: Replaced entire legacy validation section with generic Validate-TestTracking.ps1 reference. Version 2.4→2.5
 
 - [x] Verify all testing components work with LinkWatcher's Python/pytest stack
   - **Status**: COMPLETED
-  - **Notes**: Verification scan confirmed zero BB references, zero Dart-specific hardcoding in modified files. Also found ~23 BB refs in OTHER framework files (guides, non-testing tasks) — noted for future cleanup, out of scope.
+  - **Notes**: Verification scan confirmed zero project-specific references, zero technology-specific hardcoding in modified files. Also found ~23 project-specific refs in OTHER framework files (guides, non-testing tasks) — noted for future cleanup, out of scope.
 
 ### Session 2: Cross-cutting Support + Existing Test Registration (Phases 2 & 3A)
 **Priority**: HIGH — Add new capability and register existing tests
@@ -199,13 +199,13 @@ task_name: tech-agnostic-testing-pipeline
   - test-implementation-task.md genericized (v1.1→1.2)
   - test-audit-task.md genericized (v1.2→1.3), also fixed broken /discrete/ paths
   - test-implementation-tracking.md genericized (v2.4→2.5)
-  - Verification: zero BB/Dart refs remaining in testing pipeline files
+  - Verification: zero project-specific/technology-specific refs remaining in testing pipeline files
 
 **Issues/Blockers**:
 - New-FrameworkExtensionConcept.ps1 failed with path resolution error — created concept manually
 - PF-TSK-029/PF-TSK-053 overlap identified — deferred to future Process Improvement cycle
 - New-TestFile.ps1 had extensive LinkWatcher path corruption — complete rewrite was needed
-- ~23 BreakoutBuddies references found in OTHER framework files (guides, non-testing tasks) — out of scope for this extension
+- ~23 project-specific references found in OTHER framework files (guides, non-testing tasks) — out of scope for this extension
 
 **Next Session Plan**:
 - Execute Session 2: Cross-cutting Test Support + Existing Test Registration (Phases 2 & 3A)

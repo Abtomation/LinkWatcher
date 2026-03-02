@@ -69,9 +69,9 @@ graph TD
 ## Related Documentation
 
 - [Original Tier Assessments](/doc/process-framework/methodologies/documentation-tiers/assessments/) - Repository of initial assessments
-- <!-- [Tier Adjustment Template](/doc/process-framework/methodologies/documentation-tiers/tier-adjustment-template.md) - Template/example link commented out --> - Template for adjustment documentation
-- <!-- [Documentation Tier Guide](/doc/process-framework/methodologies/documentation-tiers/documentation-tier-guide.md) - File not found --> - Guidelines for tier determination
-- <!-- [TDD Templates](/doc/product-docs/technical/architecture/design-docs) - Template/example link commented out --> - Tier-specific TDD templates
+- [Documentation Tiers README](/doc/process-framework/methodologies/documentation-tiers/README.md) - Tier definitions and adjustment guidelines
+- [Assessment Guide](/doc/process-framework/guides/guides/assessment-guide.md) - Detailed guide for tier determination
+- [TDD Templates](/doc/product-docs/technical/architecture/design-docs) - Tier-specific TDD templates
 - [Feature Tracking](../../../state-tracking/permanent/feature-tracking.md) - Feature status tracking
 - [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Complete reference of component relationships
 

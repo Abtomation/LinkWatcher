@@ -2,9 +2,9 @@
 id: PF-TSK-064
 type: Process Framework
 category: Task Definition
-version: 1.4
+version: 1.5
 created: 2026-02-17
-updated: 2026-02-20
+updated: 2026-03-02
 task_type: Onboarding
 ---
 
@@ -67,6 +67,10 @@ This task produces the foundational inventory that subsequent onboarding tasks (
 > - **Phase 2** (typically many sessions): Process source files one by one in file-by-file order, writing inventory entries immediately as each file is analyzed. Each session processes ~20–30 files.
 >
 > **FEEDBACK: Complete feedback forms at every phase boundary and at the end of every session.**
+>
+> **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
+>
+> **⚠️ MANDATORY: Never proceed past a checkpoint without presenting findings and getting explicit approval.**
 
 ### Preparation
 
@@ -90,7 +94,9 @@ This task produces the foundational inventory that subsequent onboarding tasks (
    - Record the total file count in master state file under Coverage Metrics
    - Identify natural feature boundaries (directories, modules, functional areas)
 
-4. **Audit Existing Project Documentation** (first session, alongside step 3):
+4. **🚨 CHECKPOINT**: Present project structure overview, total file count, and initial observations about feature boundaries to human partner
+
+5. **Audit Existing Project Documentation** (first session, alongside step 4):
    - Identify all non-source documentation files (markdown, txt, rst, etc.) **outside** `doc/process-framework/`
      - Root docs (README.md, HOW_IT_WORKS.md, CONTRIBUTING.md, CHANGELOG.md, etc.)
      - `docs/` directory files
@@ -109,7 +115,7 @@ This task produces the foundational inventory that subsequent onboarding tasks (
 
 ### Execution
 
-5. **Discover Features (Two-Phase Approach)**:
+6. **Discover Features (Two-Phase Approach)**:
 
    > **Read the [Feature Granularity Guide](../../guides/guides/feature-granularity-guide.md) before starting this step.** The quality of the feature list determines the value of everything that follows.
 
@@ -133,7 +139,7 @@ This task produces the foundational inventory that subsequent onboarding tasks (
 
    **Output:** A reviewed candidate feature list ready for consolidation review.
 
-6. **Consolidation Review (before creating state files)**:
+7. **Consolidation Review (before creating state files)**:
 
    Review the candidate feature list systematically before committing to it. This review prevents creating state files that later need to be merged or deleted.
 
@@ -152,8 +158,8 @@ This task produces the foundational inventory that subsequent onboarding tasks (
    - If significantly above range: look for merge opportunities
    - If significantly below range: look for features that are too broad
 
-   **Validate with human partner:**
-   Present the final feature list with a one-line description per feature. Discuss any borderline cases. Agree on the list before creating state files.
+   **🚨 CHECKPOINT — Validate with human partner:**
+   Present the final feature list with a one-line description per feature. Discuss any borderline cases. Get explicit approval on the list before creating state files.
 
    > **Why this matters:** Each feature generates a state file, and subsequent tasks create documentation proportional to the feature count. Getting this right here avoids significant rework later.
 
@@ -164,7 +170,7 @@ This task produces the foundational inventory that subsequent onboarding tasks (
    d. Set status appropriately
    e. Leave tier and documentation columns empty if no assessment exists yet
 
-7. **Create Feature Implementation State Files**:
+8. **Create Feature Implementation State Files**:
    - Use the automation script: `New-FeatureImplementationState.ps1 -FeatureName "[name]" -FeatureId "[X.Y.Z]" -ImplementationMode "Retrospective Analysis" -Description "[description]"`
      - Script location: `/doc/process-framework/scripts/file-creation/New-FeatureImplementationState.ps1`
      - Automatically creates file at: `/doc/process-framework/state-tracking/features/[X.Y.Z]-[name]-implementation-state.md`
@@ -173,7 +179,9 @@ This task produces the foundational inventory that subsequent onboarding tasks (
 
    > **Sub-components:** Capabilities that were identified during discovery but classified as sub-components during consolidation review should be documented as sections or notes within their parent feature's state file. No information is lost — it's organized at the right level.
 
-8. **Populate Code Inventories — File-by-File** (Phase 2):
+9. **🚨 CHECKPOINT**: Review created state files with human partner before starting file-by-file inventory
+
+10. **Populate Code Inventories — File-by-File** (Phase 2):
 
    The master state's "Unassigned Files" list is the work queue. Process each file in order. For every file:
 
@@ -219,13 +227,13 @@ This task produces the foundational inventory that subsequent onboarding tasks (
 
 ### Finalization
 
-9. **Update Master State After Each Session**:
+11. **Update Master State After Each Session**:
    - Mark features as "Impl State ✅" in the Feature Inventory table
    - Update coverage metrics
    - Log session notes
    - **Complete feedback form for the session**
 
-10. **Quality Verification (Before Marking Task Complete)**:
+12. **Quality Verification (Before Marking Task Complete)**:
     - **Random Sampling**: Select 5-10 high-connectivity files (files with many dependencies) from different features
     - For each sampled file:
       - Re-read the actual import statements in the source file
@@ -234,7 +242,9 @@ This task produces the foundational inventory that subsequent onboarding tasks (
     - **If discrepancies found**: Fix them and document the pattern to prevent future occurrences
     - **Document the verification**: Add verification results to master state session notes
 
-11. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+13. **🚨 CHECKPOINT**: Present quality verification results and final coverage metrics to human partner for approval
+
+14. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 

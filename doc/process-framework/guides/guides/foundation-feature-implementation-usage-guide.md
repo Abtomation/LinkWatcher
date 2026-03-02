@@ -105,19 +105,22 @@ Foundation features are fundamentally different from regular business features:
 ### 2. Implementation Phase
 
 1. **Implement Foundation Components**
-   ```dart
-   // Example: Creating a foundation service pattern
-   abstract class FoundationService {
-     Future<void> initialize();
-     void dispose();
-   }
+   ```python
+   # Example: Creating a foundation service pattern
+   from abc import ABC, abstractmethod
 
-   class AuthenticationService extends FoundationService {
-     @override
-     Future<void> initialize() async {
-       // Foundation implementation
-     }
-   }
+   class FoundationService(ABC):
+       @abstractmethod
+       async def initialize(self):
+           pass
+
+       def dispose(self):
+           pass
+
+   class AuthenticationService(FoundationService):
+       async def initialize(self):
+           # Foundation implementation
+           pass
    ```
 
 2. **Create Architectural Decision Records**
@@ -198,17 +201,26 @@ Foundation features are fundamentally different from regular business features:
 4. Update auth context package with new patterns
 5. Document integration patterns for dependent features
 
-```dart
-// Foundation authentication pattern
-abstract class AuthenticationProvider {
-  Future<AuthResult> authenticate(Credentials credentials);
-  Future<void> logout();
-  Stream<AuthState> get authStateStream;
-}
+```python
+# Foundation authentication pattern
+from abc import ABC, abstractmethod
 
-class SupabaseAuthProvider extends AuthenticationProvider {
-  // Implementation following architectural patterns
-}
+class AuthenticationProvider(ABC):
+    @abstractmethod
+    async def authenticate(self, credentials: dict) -> "AuthResult":
+        pass
+
+    @abstractmethod
+    async def logout(self) -> None:
+        pass
+
+    @abstractmethod
+    def get_auth_state_stream(self):
+        pass
+
+class DatabaseAuthProvider(AuthenticationProvider):
+    # Implementation following architectural patterns
+    pass
 ```
 
 **Result**: Complete authentication foundation with clear patterns for user management, API security, and session handling features to follow
@@ -327,7 +339,7 @@ When using decomposed mode, follow this sequence:
 2. Data Layer Implementation (PF-TSK-051)
    ↓ [Implement models, repositories, migrations]
 3. State Management Implementation (PF-TSK-056)
-   ↓ [Implement Riverpod providers and notifiers]
+   ↓ [Implement state management and business logic]
 4. UI Implementation (PF-TSK-052)
    ↓ [Build widgets and screens]
 5. Integration & Testing (PF-TSK-053)

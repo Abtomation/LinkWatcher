@@ -26,7 +26,7 @@
     .\New-ImplementationPlan.ps1 -FeatureName "user-authentication" -Description "User authentication and authorization system"
 
 .EXAMPLE
-    .\New-ImplementationPlan.ps1 -FeatureName "booking-system" -Description "Escape room booking and reservation" -OpenInEditor
+    .\New-ImplementationPlan.ps1 -FeatureName "booking-system" -Description "Resource booking and reservation" -OpenInEditor
 
 .NOTES
     - Requires PowerShell execution policy to allow script execution

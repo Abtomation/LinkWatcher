@@ -123,8 +123,8 @@ $categoryAuditCriteria = @{
         CriticalPaths = @("Login flow", "Logout flow", "Token refresh", "Password reset")
     }
     "UI" = @{
-        FocusAreas = @("Widget tests", "User interaction", "State management", "Accessibility")
-        RequiredTestTypes = @("Widget", "Integration", "Golden")
+        FocusAreas = @("Component tests", "User interaction", "State management", "Accessibility")
+        RequiredTestTypes = @("Component", "Integration", "Visual")
         MinimumCoverage = 85
         CriticalPaths = @("Navigation", "Form validation", "Error states", "Loading states")
     }
@@ -414,7 +414,7 @@ function Get-FeatureTestFiles {
 
     # Simulate finding test files for the feature
     # In real implementation, this would search the test directory structure
-    return @("test_${FeatureId}_unit.dart", "test_${FeatureId}_widget.dart", "test_${FeatureId}_integration.dart")
+    return @("test_${FeatureId}_unit", "test_${FeatureId}_component", "test_${FeatureId}_integration")
 }
 
 function Generate-AuditReport {

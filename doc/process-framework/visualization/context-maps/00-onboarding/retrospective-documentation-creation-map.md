@@ -51,7 +51,7 @@ graph TD
 - **[Feature Tier Assessment Task](../01-planning/feature-tier-assessment-task.md)**: Task for creating or validating tier assessments based on actual code analysis
 
 ### Important Components (Should Understand)
-- **[Documentation Tiers README](../../methodologies/documentation-tiers/README.md)**: Defines tier documentation requirements (Tier 2: FDD+TDD, Tier 3: +TestSpec, Foundation: +ADR)
+- **[Documentation Tiers README](../../../methodologies/documentation-tiers/README.md)**: Defines tier documentation requirements (Tier 2: FDD+TDD, Tier 3: +TestSpec, Foundation: +ADR)
 - **[FDD Creation Task](../02-design/fdd-creation-task.md)**: Task for creating Functional Design Documents (Tier 2+) from implemented features
 - **[TDD Creation Task](../02-design/tdd-creation-task.md)**: Task for creating Technical Design Documents (Tier 2+) reverse-engineered from code
 - **[Test Specification Creation Task](../03-testing/test-specification-creation-task.md)**: Task for creating Test Specifications (Tier 3) documenting existing tests
@@ -98,7 +98,7 @@ graph TD
 
 - [Retrospective Documentation Creation Task (PF-TSK-066)](../../tasks/00-onboarding/retrospective-documentation-creation.md) - Full task definition with detailed process steps
 - [Codebase Feature Analysis Task (PF-TSK-065)](../../tasks/00-onboarding/codebase-feature-analysis.md) - Prerequisite task that enriches feature implementation state files
-- [Documentation Tiers README](../../methodologies/documentation-tiers/README.md) - Tier definitions and documentation requirements
+- [Documentation Tiers README](../../../methodologies/documentation-tiers/README.md) - Tier definitions and documentation requirements
 - [Feature Tier Assessment Task](../01-planning/feature-tier-assessment-task.md) - How to create tier assessments
 - [FDD Creation Task](../02-design/fdd-creation-task.md) - How to create Functional Design Documents
 - [TDD Creation Task](../02-design/tdd-creation-task.md) - How to create Technical Design Documents

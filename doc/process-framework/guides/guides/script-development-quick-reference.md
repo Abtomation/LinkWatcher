@@ -17,7 +17,7 @@ Quick reference for common script development issues and solutions
 
 ## When to Use
 
-Use this guide when you encounter issues while developing PowerShell document creation scripts for the BreakoutBuddies project. This guide provides immediate solutions to the most common problems.
+Use this guide when you encounter issues while developing PowerShell document creation scripts for the project. This guide provides immediate solutions to the most common problems.
 
 > **🚨 CRITICAL**: Always test scripts thoroughly before considering them complete. Use the testing checklist provided below.
 
@@ -36,12 +36,12 @@ Use this guide when you encounter issues while developing PowerShell document cr
 Before you begin, ensure you have:
 
 - Basic PowerShell knowledge
-- Understanding of BreakoutBuddies project structure
+- Understanding of project structure
 - Access to `doc/process-framework/scripts/Common-ScriptHelpers.psm1`
 
 ## Background
 
-This quick reference addresses the most common issues encountered when developing document creation scripts for the BreakoutBuddies project, based on real implementation experiences from the Database Schema Design Task and other script implementations.
+This quick reference addresses the most common issues encountered when developing document creation scripts for the project, based on real implementation experiences from the Database Schema Design Task and other script implementations.
 
 ## Quick Fixes
 
@@ -147,37 +147,38 @@ $documentId = New-StandardProjectDocument `
 
 **Symptom:** When AI agents execute PowerShell scripts using `pwsh.exe -Command`, no output is displayed even though the script executes successfully (Exit Code 0).
 
-**Cause:** The Bash tool (used by AI agents like Zencoder) cannot capture PowerShell console host output when using the `-Command` parameter. This affects:
-- `Write-Host` output
-- `Write-Output` output
-- Custom formatting functions from Common-ScriptHelpers
-- All console output streams
+**Status (2026-02-28):** This issue has been **resolved** in Claude Code. Output from `pwsh.exe -Command` is now captured correctly when using bash single quotes.
 
-This is **not** a PowerShell or script issue - it's a limitation of how the Bash tool spawns and captures output from PowerShell processes. The same commands work perfectly when executed directly in a terminal.
+**Preferred Solution:** Wrap the entire `-Command` argument in **bash single quotes**:
 
-**Solution:** Use the documented temp file pattern:
-
-```cmd
-# Pattern for AI agents executing through Bash tool
-echo Set-Location 'c:\path\to\script\directory'; ^& .\ScriptName.ps1 -Parameters 'values' -Confirm:$false > temp_script.ps1 && pwsh.exe -ExecutionPolicy Bypass -File temp_script.ps1 && del temp_script.ps1
+```bash
+# Preferred pattern — bash single quotes prevent shell interpretation
+cd /c/path/to/script/directory && pwsh.exe -ExecutionPolicy Bypass -Command '& .\ScriptName.ps1 -Param "value" -Confirm:$false'
 ```
 
 **Example:**
-```cmd
-echo Set-Location 'c:\Users\ronny\VS_Code\BreakoutBuddies\breakoutbuddies\doc\process-framework\scripts\file-creation'; ^& .\New-Task.ps1 -TaskType 'Discrete' -TaskName 'Test Task' -WorkflowPhase '01-planning' -Description 'Test description' -Confirm:$false -WhatIf > temp_task.ps1 && pwsh.exe -ExecutionPolicy Bypass -File temp_task.ps1 && del temp_task.ps1
+```bash
+cd /c/Users/ronny/VS_Code/LinkWatcher/doc/process-framework/scripts/file-creation && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-FeedbackForm.ps1 -DocumentId "PF-TSK-009" -TaskContext "Process Improvement" -FeedbackType "MultipleTools" -Confirm:$false'
 ```
 
 **Why this works:**
-- Creates a temporary PowerShell script file with the commands
-- Executes it using `-File` instead of `-Command`
-- `-File` execution properly captures all console output
-- Automatically cleans up the temp file afterward
+- Bash single quotes prevent `$`, `&`, and other characters from being interpreted by bash
+- PowerShell receives the command string intact and executes it normally
+- All output streams (`Write-Host`, `Write-Output`, custom formatters) are captured
 
-**For human users:** You can continue using `pwsh.exe -Command` directly in your terminal - it works fine for interactive use.
+**Fallback (complex quoting):** When bash single quotes conflict with the PowerShell command (e.g., the command itself contains single quotes), use a temp file:
 
-**Alternative (Not Recommended):** Refactoring all scripts to replace `Write-Host` with `Write-Output` would require changing Common-ScriptHelpers and all 30+ scripts, and testing shows this doesn't solve the Bash tool capture issue anyway.
+```bash
+cat > /c/path/to/project/temp.ps1 << 'ENDOFSCRIPT'
+Set-Location 'c:\path\to\script\directory'
+& .\Script.ps1 -Params -Confirm:$false
+ENDOFSCRIPT
+pwsh.exe -ExecutionPolicy Bypass -File /c/path/to/project/temp.ps1 && rm /c/path/to/project/temp.ps1
+```
 
-**Tested Solutions That Don't Work:**
+**For human users:** You can continue using `pwsh.exe -Command` directly in your terminal with any quoting style — it works fine for interactive use.
+
+**Historical context:** Prior to 2026-02-28, the Bash tool could not capture PowerShell `-Command` output. The temp file pattern was the only working approach. The solutions listed below were tested and did not work at that time:
 - `*>&1` stream redirection
 - `| Out-String` piping
 - `-NoLogo -NoProfile` flags
@@ -185,26 +186,22 @@ echo Set-Location 'c:\Users\ronny\VS_Code\BreakoutBuddies\breakoutbuddies\doc\pr
 - Setting `$InformationPreference`
 - Using `Write-Output` instead of `Write-Host`
 
-### 🚨 Double Quotes in `echo` Cause Garbled Paths / Wrong Directory Structure
+### Double Quotes in `echo` Cause Garbled Paths (Historical — Temp File Pattern)
 
-**Symptom:** Script runs successfully (Exit Code 0) but creates a nested directory structure instead of the expected file. For example, running with `-FeatureId "3.1.1"` creates `fdd-\3-1-1\-\name\.md` (a deeply nested folder) instead of `fdd-3-1-1-name.md`.
+> **Note (2026-02-28):** This issue only applies to the legacy `echo ... > temp.ps1` pattern. With the preferred `pwsh.exe -Command '...'` pattern (bash single quotes), this problem does not occur because cmd.exe is not involved in interpreting the command string.
 
-**Cause:** cmd.exe interprets `"` double quotes inside an `echo` command. When the temp file is written, the parameter values arrive in the PowerShell script with surrounding backslashes (e.g., `\3.1.1\`). The script then uses these as path components, turning dots and hyphens into directory separators.
+**Symptom:** When using the old temp file pattern, script runs successfully (Exit Code 0) but creates a nested directory structure instead of the expected file.
 
-**Solution:** Always use single quotes `'` for ALL string parameter values inside the `echo` command:
+**Cause:** cmd.exe interprets `"` double quotes inside an `echo` command, garbling parameter values.
 
-```cmd
-# ✅ CORRECT — single quotes for all parameter values
-echo Set-Location 'c:\path\to\scripts'; ^& .\New-FDD.ps1 -FeatureId '3.1.1' -FeatureName 'Parser Framework' > temp.ps1 && pwsh.exe -ExecutionPolicy Bypass -File temp.ps1 && del temp.ps1
+**Solution:** Use the preferred pattern instead:
 
-# ❌ WRONG — double quotes cause cmd.exe to garble the parameter values
-echo Set-Location 'c:\path\to\scripts'; ^& .\New-FDD.ps1 -FeatureId "3.1.1" -FeatureName "Parser Framework" > temp.ps1 && pwsh.exe -ExecutionPolicy Bypass -File temp.ps1 && del temp.ps1
+```bash
+# ✅ Preferred — bash single quotes, no echo/temp file needed
+cd /c/path/to/scripts && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-FDD.ps1 -FeatureId "3.1.1" -FeatureName "Parser Framework" -Confirm:$false'
 ```
 
-**Recovery:** If a malformed directory structure was created by a failed script run:
-1. Delete the malformed directory (use PowerShell `Remove-Item -Recurse -Force "path\to\bad-dir"` via a temp .ps1 file)
-2. Reset the `nextAvailable` counter in `doc/id-registry.json` back to the value before the failed run
-3. Re-run the script with single quotes
+If you must use the temp file fallback, use single quotes for all parameter values inside `echo`.
 
 ### Script Fails with "Out-Null" Errors
 

@@ -39,7 +39,7 @@
     ../../../product-docs/product-docs/product-docs/technical/api/specifications/New-APISpecification.ps1 -APIName "User Authentication API" -APIDescription "Handles user login, registration, and session management"
 
 .EXAMPLE
-    ../../../product-docs/product-docs/product-docs/technical/api/specifications/New-APISpecification.ps1 -APIName "Booking Management API" -APIDescription "Manages escape room bookings and reservations" -APIType "REST" -OpenInEditor
+    ../../../product-docs/product-docs/product-docs/technical/api/specifications/New-APISpecification.ps1 -APIName "Resource Management API" -APIDescription "Manages resource records and reservations" -APIType "REST" -OpenInEditor
 
 .EXAMPLE
     ../../../product-docs/product-docs/product-docs/technical/api/specifications/New-APISpecification.ps1 -APIName "Booking Fee API" -APIDescription "Handles booking fee calculations and processing" -APIType "REST" -FeatureId "5.1.1"

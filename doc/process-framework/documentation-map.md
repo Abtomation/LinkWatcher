@@ -9,7 +9,7 @@ updated: 2026-02-20
 
 # Project Documentation Map
 
-This document serves as a central index for all documentation in the Breakout Buddies project. It provides links to both process framework documents and product documentation to help you find the information you need.
+This document serves as a central index for all documentation in the project. It provides links to both process framework documents and product documentation to help you find the information you need.
 
 ## Process Framework Documents
 
@@ -33,7 +33,6 @@ Our tasks are organized into four categories and follow a unified structure:
 - [Task: Feature Tier Assessment](tasks/01-planning/feature-tier-assessment-task.md) - Assess complexity of new features
 - [Task: FDD Creation](tasks/02-design/fdd-creation-task.md) - Create Functional Design Documents for Tier 2+ features
 - [Task: TDD Creation](tasks/02-design/tdd-creation-task.md) - Create Technical Design Documents
-- [Task: UI/UX Design](tasks/02-design/ui-ux-design-task.md) - Create comprehensive UI/UX design specifications for features with visual complexity
 - [Task: Test Specification Creation](tasks/03-testing/test-specification-creation-task.md) - Create comprehensive test specifications from TDDs
 - [Task: Test Audit](tasks/03-testing/test-audit-task.md) - Systematic quality assessment of test implementations using six evaluation criteria
 - [Task: Feature Implementation Planning](tasks/04-implementation/feature-implementation-planning-task.md) - Analyze design documentation and create detailed implementation plan with task sequencing and dependency mapping
@@ -41,7 +40,7 @@ Our tasks are organized into four categories and follow a unified structure:
 - [Task: Feature Enhancement](tasks/04-implementation/feature-enhancement.md) - Execute enhancement steps from Enhancement State Tracking File, adapting existing task guidance to amendment context
 - [Task: Foundation Feature Implementation](tasks/04-implementation/foundation-feature-implementation-task.md) - Implement foundation features (0.x.x) that provide architectural foundations for the application
 - [Task: Architectural Consistency Validation](tasks/05-validation/architectural-consistency-validation.md) - Validate foundational features for architectural pattern adherence, ADR compliance, and interface consistency
-- [Task: Code Quality Standards Validation](tasks/05-validation/code-quality-standards-validation.md) - Validate foundational features for code quality standards, SOLID principles, and Flutter best practices adherence
+- [Task: Code Quality Standards Validation](tasks/05-validation/code-quality-standards-validation.md) - Validate foundational features for code quality standards, SOLID principles, and best practices adherence
 - [Task: Integration Dependencies Validation](tasks/05-validation/integration-dependencies-validation.md) - Validate foundational features for dependency health, interface contracts, and data flow integrity
 - [Task: Documentation Alignment Validation](tasks/05-validation/documentation-alignment-validation.md) - Validate foundational features for TDD alignment, ADR compliance, and API documentation accuracy
 - [Task: Extensibility Maintainability Validation](tasks/05-validation/extensibility-maintainability-validation.md) - Validate foundational features for extension points, configuration flexibility, and testing support
@@ -95,6 +94,7 @@ Our tasks are organized into four categories and follow a unified structure:
 - [Process: Temporary Task Creation State Template](templates/templates/temp-task-creation-state-template.md) - Template for tracking multi-session task creation implementation
 - [Process: Structure Change State Template](templates/templates/structure-change-state-template.md) - Template for tracking multi-session structure change implementation
 - [Process: Enhancement State Tracking Template](templates/templates/enhancement-state-tracking-template-template.md) - Template for tracking enhancement work on existing features, used by New-EnhancementState.ps1
+- [Process: Bug Fix State Tracking Template](templates/templates/bug-fix-state-tracking-template.md) - Template for tracking multi-session complex bug fix work, used by New-BugFixState.ps1
 - [Process: Framework Extension Concept Template](templates/templates/framework-extension-concept-template.md) - Template for creating framework extension concept documents
 - [Process: Validation Report Template](templates/templates/validation-report-template.md) - Template for creating foundational codebase validation reports
 - [Process: Cross-Cutting Test Specification Template](templates/templates/cross-cutting-test-specification-template.md) - Template for test specifications spanning multiple features
@@ -111,8 +111,14 @@ Our tasks are organized into four categories and follow a unified structure:
 ### Automation Scripts
 
 - [Process: New Bug Report Script](scripts/file-creation/New-BugReport.ps1) - PowerShell script for creating standardized bug reports during task execution
+- [Process: New Bug Fix State Script](scripts/file-creation/New-BugFixState.ps1) - PowerShell script for creating multi-session bug fix state tracking files (Large-effort bugs)
 - [Process: New UI Design Script](scripts/file-creation/New-UIDesign.ps1) - PowerShell script for creating UI/UX Design documents with auto-assigned IDs and Design Guidelines references
 - [Process: New Test Specification Script](scripts/file-creation/New-TestSpecification.ps1) - PowerShell script for creating test specifications (supports both feature-specific and cross-cutting modes via -CrossCutting switch)
+
+### State Update Scripts
+
+- [Process: Update Process Improvement Script](scripts/update/Update-ProcessImprovement.ps1) - Automates status transitions and completion moves in process-improvement-tracking.md
+- [Process: Update Tech Debt Script](scripts/update/Update-TechDebt.ps1) - Automates status transitions and resolution moves in technical-debt-tracking.md
 
 ### Validation Scripts
 
@@ -129,22 +135,12 @@ These documents describe what we're building:
 - [Product: Roadmap](../product-docs/technical/implementation/roadmap.md) - Strategic plan for implementation organized by phase and priority
 - [Product: Feature Dependencies](../product-docs/technical/design/feature-dependencies.md) - Visual map and matrix of feature dependencies
 
-### Process Framework Checklists
-
-- [Process: Feature Implementation Checklist](../product-docs/checklists/checklists/feature-implementation-checklist.md) - Comprehensive checklist for implementing features
-- [Process: UI Component Checklist](../product-docs/checklists/checklists/ui-component-checklist.md) - Checklist for implementing UI components
-- [Process: API Integration Checklist](../product-docs/checklists/checklists/api-integration-checklist.md) - Checklist for API integration
-- [Process: Testing Checklist](../product-docs/checklists/checklists/testing-checklist.md) - Checklist for testing
-- [Process: Security Checklist](../product-docs/checklists/checklists/security-checklist.md) - Checklist for security considerations
-- [Process: Accessibility Checklist](../product-docs/checklists/checklists/accessibility-checklist.md) - Checklist for accessibility
-- [Process: Performance Checklist](../product-docs/checklists/checklists/performance-checklist.md) - Checklist for performance optimization
-
 ### Process Framework Guides
 
 - [Process: Development Guide](../product-docs/guides/guides/development-guide.md) - Best practices and guidelines for development
 - [Process: Documentation Guide](guides/guides/documentation-guide.md) - Guidelines for documentation
 - [Process: Testing Guide](../product-docs/guides/guides/testing-guide.md) - Guide for testing the application
-- [Process: Assessment Quick Reference](methodologies/documentation-tiers/assessment-quick-reference.md) - Quick reference for feature tier assessment
+- [Process: Assessment Guide](guides/guides/assessment-guide.md) - Guide for feature tier assessment
 - [Process: Visual Notation Guide](guides/guides/visual-notation-guide.md) - Standard notation used in diagrams and context maps
 - [Process: Temporary State File Customization Guide](guides/guides/temp-state-tracking-customization-guide.md) - Guide for customizing temporary state files for different workflows
 - [Process: Test Specification Creation Usage Guide](guides/guides/test-specification-creation-usage-guide.md) - Comprehensive guide for using the Test Specification Creation task effectively
@@ -191,7 +187,6 @@ These documents describe what we're building:
 - [AI Agent Continuity Validation Map](visualization/context-maps/05-validation/ai-agent-continuity-validation-map.md) - Components for validating context clarity, modular structure, and documentation quality for AI agent workflow continuity
 - [Code Review Map](visualization/context-maps/06-maintenance/code-review-map.md) - Components for reviewing code changes
 - [FDD Creation Map](visualization/context-maps/02-design/fdd-creation-map.md) - Components for creating Functional Design Documents
-- [UI/UX Design Map](visualization/context-maps/02-design/ui-ux-design-task-map.md) - Components for creating UI/UX design specifications with Design Guidelines consultation
 - [Feature Discovery Map](visualization/context-maps/01-planning/feature-discovery-map.md) - Components for exploring features
 - [Feature Request Evaluation Map](visualization/context-maps/01-planning/feature-request-evaluation-map.md) - Components for classifying change requests and scoping enhancements
 - [Feature Enhancement Map](visualization/context-maps/04-implementation/feature-enhancement-map.md) - Components for executing enhancement steps from state file
@@ -217,7 +212,6 @@ These documents describe what we're building:
 ### Product Technical Design
 
 - [Product: Technical Design Documents](../product-docs/technical/design/README.md) - Detailed technical designs for complex features
-- [Product: UI/UX Design Guidelines (PD-UIX-001)](../product-docs/technical/design/ui-ux/design-system/design-guidelines.md) - Living reference for design principles, visual foundation (colors, typography, spacing), component library, accessibility standards (WCAG 2.1 Level AA), and platform-specific guidelines - MUST be consulted for every UI Design task
 - [Product: Project Structure](../product-docs/technical/architecture/project-structure.md) - Detailed breakdown of the project structure
 - [Product: Component Relationship Index](../product-docs/technical/architecture/component-relationship-index.md) - Comprehensive reference of all component relationships and interactions
 
@@ -285,8 +279,7 @@ _Created during framework onboarding (PF-TSK-066 / PF-TSK-012) — documenting e
 ### During Implementation
 
 1. Follow the [Task: Feature Implementation Planning](tasks/04-implementation/feature-implementation-planning-task.md) process and the decomposed implementation tasks
-2. Use the appropriate specialized checklists for specific aspects (UI, API, etc.)
-3. Document any intentional technical debt in the [Process: Technical Debt Tracking](state-tracking/permanent/technical-debt-tracking.md)
+2. Document any intentional technical debt in the [Process: Technical Debt Tracking](state-tracking/permanent/technical-debt-tracking.md)
 4. Adhere to the guidelines in the [Process: Development Guide](../product-docs/guides/guides/development-guide.md)
 
 ### After Implementation
@@ -305,10 +298,8 @@ graph TD
     A --> C[Feature Dependencies]
     C --> D[Feature Implementation Template]
     D --> E[Technical Design Documents]
-    D --> F[Feature Implementation Checklist]
-    F --> G[Specialized Checklists]
-    F --> H[Definition of Done]
-    F --> I[Technical Debt Tracker]
+    D --> F[Definition of Done]
+    D --> G[Technical Debt Tracker]
 
     classDef process fill:#d4f1f9,stroke:#0099cc,color:#005577
     classDef product fill:#d5e8d4,stroke:#82b366,color:#2d5930
@@ -331,15 +322,11 @@ Our project uses a unified task structure with four task types:
 ### Discrete Tasks
 | PF-TSK-068 | [/process-framework/tasks/04-implementation/feature-enhancement.md](/process-framework/tasks/04-implementation/feature-enhancement.md) | Documentation | Feature Enhancement | /doc/process-framework/tasks/../../../tasks/README.md |
 | PF-TSK-067 | [/process-framework/tasks/01-planning/feature-request-evaluation.md](/process-framework/tasks/01-planning/feature-request-evaluation.md) | Documentation | Feature Request Evaluation | /doc/process-framework/tasks/../../../tasks/README.md |
-| PF-TSK-056 | [/process-framework/tasks/04-implementation/state-management-implementation.md](/process-framework/tasks/04-implementation/state-management-implementation.md) | Documentation | State Management Implementation | /doc/process-framework/tasks/../../../tasks/README.md |
 | PF-TSK-055 | [/process-framework/tasks/04-implementation/implementation-finalization.md](/process-framework/tasks/04-implementation/implementation-finalization.md) | Documentation | Implementation Finalization | /doc/process-framework/tasks/../../../tasks/README.md |
 | PF-TSK-054 | [/process-framework/tasks/04-implementation/quality-validation.md](/process-framework/tasks/04-implementation/quality-validation.md) | Documentation | Quality Validation | /doc/process-framework/tasks/../../../tasks/README.md |
 | PF-TSK-053 | [/process-framework/tasks/04-implementation/integration-and-testing.md](/process-framework/tasks/04-implementation/integration-and-testing.md) | Documentation | Integration and Testing | /doc/process-framework/tasks/../../../tasks/README.md |
-| PF-TSK-052 | [/process-framework/tasks/04-implementation/ui-implementation.md](/process-framework/tasks/04-implementation/ui-implementation.md) | Documentation | UI Implementation | /doc/process-framework/tasks/../../../tasks/README.md |
 | PF-TSK-051 | [/process-framework/tasks/04-implementation/data-layer-implementation.md](/process-framework/tasks/04-implementation/data-layer-implementation.md) | Documentation | Data Layer Implementation | /doc/process-framework/tasks/../../../tasks/README.md |
 | PF-TSK-044 | [/process-framework/tasks/04-implementation/feature-implementation-planning-task.md](/process-framework/tasks/04-implementation/feature-implementation-planning-task.md) | Documentation | Feature Implementation Planning | /doc/process-framework/tasks/../../../tasks/README.md |
-
-| PF-TSK-043 | [/process-framework/tasks/02-design/ui-ux-design-task.md](/process-framework/tasks/02-design/ui-ux-design-task.md) | Documentation | UI/UX Design Task | /doc/process-framework/tasks/../../../tasks/README.md |
 
 | PF-TSK-17 | [/process-framework/tasks/04-implementation/task-infrastructure-setup-task.md](/process-framework/tasks/04-implementation/task-infrastructure-setup-task.md) | Documentation | Task Infrastructure Setup | /doc/process-framework/tasks/README.mdd |
 | PF-TSK-16 | [/process-framework/tasks/03-testing/test-specification-creation-task.md](/process-framework/tasks/03-testing/test-specification-creation-task.md) | Documentation | Test Specification Creation | /doc/process-framework/tasks/README.mdd |

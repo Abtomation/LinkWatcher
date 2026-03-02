@@ -2,9 +2,9 @@
 id: PF-TSK-033
 type: Process Framework
 category: Task Definition
-version: 1.0
+version: 1.1
 created: 2025-08-15
-updated: 2025-08-15
+updated: 2026-03-02
 task_type: Discrete
 ---
 
@@ -43,15 +43,15 @@ Systematically validates foundational features for dependency health, interface 
 
 - **Important (Load If Space):**
 
-  - **Dependency Configuration** - [pubspec.yaml](../../../../pubspec.yaml) - Project dependencies and version constraints
-  - **Codebase Structure** - [lib/ directory](../../../../lib) - Source code for foundational features to analyze
-  - **API Integration Points** - [Supabase Configuration](../../../../supabase) - External system integration configurations
+  - **Dependency Configuration** - Project dependency configuration file (e.g., requirements.txt, pyproject.toml) - Dependencies and version constraints
+  - **Codebase Structure** - Source code directory - Source code for foundational features to analyze
+  - **API Integration Points** - External system integration configurations
   - **New-ValidationReport Script** - [../../scripts/file-creation/New-ValidationReport.ps1](../../scripts/file-creation/New-ValidationReport.ps1) - Script for generating validation reports
   - **Technical Design Documents** - [TDD Directory](../../../product-docs/technical/design) - Technical specifications for integration patterns
 
 - **Reference Only (Access When Needed):**
-  - **Flutter Dependency Management** - [Flutter Documentation](https://docs.flutter.dev/development/packages-and-plugins/using-packages) - Best practices for dependency management
-  - **Integration Test Suites** - [integration_test/ directory](../../../../integration_test) - End-to-end tests for integration validation
+  - **Dependency Management Best Practices** - Best practices for dependency management in your technology stack
+  - **Integration Test Suites** - End-to-end tests for integration validation
   - **Visual Notation Guide** - [Visual Notation Guide](../../guides/guides/visual-notation-guide.md) - For interpreting context map diagrams
   - **ID Registry** - [ID Registry](../../../id-registry.json) - For understanding validation report ID assignments
 
@@ -60,34 +60,40 @@ Systematically validates foundational features for dependency health, interface 
 > **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished! 🚨**
 >
 > **⚠️ MANDATORY: Use the ../../scripts/file-creation/New-ValidationReport.ps1 script for generating validation reports.**
+>
+> **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
+>
+> **⚠️ MANDATORY: Never proceed past a checkpoint without presenting findings and getting explicit approval.**
 
 ### Preparation
 
 1. **Review Validation Scope**: Identify the specific foundational features to validate (cross-feature analysis approach, typically analyzing integration patterns across multiple features)
 2. **Load Context Files**: Review feature implementations, dependency configurations, and component relationship documentation
 3. **Prepare Integration Criteria**: Review dependency management best practices, interface contract patterns, and data flow requirements
+4. **🚨 CHECKPOINT**: Present validation scope, selected features, dependency configurations, and integration criteria to human partner for approval before execution
 
 ### Execution
 
-4. **Dependency Health Analysis**: Examine dependency versions, compatibility, security vulnerabilities, and update policies across foundational features
-5. **Interface Contract Validation**: Verify that interfaces between components are well-defined, consistent, and properly abstracted
-6. **Data Flow Integrity Assessment**: Trace data flow paths between components to identify bottlenecks, inconsistencies, or coupling issues
-7. **Integration Pattern Review**: Evaluate how features integrate with external systems (Supabase, third-party services) and internal components
-8. **Generate Validation Report**: Create detailed validation report using the automation script
+5. **Dependency Health Analysis**: Examine dependency versions, compatibility, security vulnerabilities, and update policies across foundational features
+6. **Interface Contract Validation**: Verify that interfaces between components are well-defined, consistent, and properly abstracted
+7. **Data Flow Integrity Assessment**: Trace data flow paths between components to identify bottlenecks, inconsistencies, or coupling issues
+8. **Integration Pattern Review**: Evaluate how features integrate with external systems (databases, third-party services) and internal components
+9. **Generate Validation Report**: Create detailed validation report using the automation script
    ```powershell
    # Navigate to validation directory and create integration dependencies report
    Set-Location "doc/process-framework/validation"
     ..\scripts\file-creation\New-ValidationReport.ps1 -ValidationType "IntegrationDependencies" -FeatureIds "0.2.1,0.2.2,0.2.3,0.2.4" -SessionNumber 1
    ```
-9. **Score Integration Criteria**: Apply 4-point scoring system (0-3) to each integration and dependency criterion
-10. **Document Findings**: Record specific dependency issues, integration problems, and improvement recommendations
+10. **Score Integration Criteria**: Apply 4-point scoring system (0-3) to each integration and dependency criterion
+11. **Document Findings**: Record specific dependency issues, integration problems, and improvement recommendations
 
 ### Finalization
 
-11. **Update Validation Tracking**: Update the foundational validation tracking matrix with report creation date and link
-12. **Review Quality Gates**: Ensure validation meets minimum quality thresholds (average score ≥ 2.0)
-13. **Plan Remediation**: For scores below threshold, create action items for dependency and integration improvements
-14. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+12. **🚨 CHECKPOINT**: Present integration scoring, dependency health findings, and improvement recommendations to human partner for review before finalization
+13. **Update Validation Tracking**: Update the foundational validation tracking matrix with report creation date and link
+14. **Review Quality Gates**: Ensure validation meets minimum quality thresholds (average score ≥ 2.0)
+15. **Plan Remediation**: For scores below threshold, create action items for dependency and integration improvements
+16. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 
@@ -127,7 +133,7 @@ Before considering this task finished:
 
 ## Related Resources
 
-- [Dependency Management Best Practices](https://docs.flutter.dev/development/packages-and-plugins/using-packages) - Flutter official guidance on dependency management
+- Dependency management best practices for your technology stack
 - [Component Relationship Index](../../../product-docs/technical/architecture/component-relationship-index.md) - Understanding system component interactions
-- [Integration Testing Guide](https://docs.flutter.dev/testing/integration-tests) - Flutter integration testing best practices
-- [Supabase Integration Documentation](https://supabase.com/docs/reference/dart/introduction) - External system integration patterns
+- Integration testing best practices for your technology stack
+- External system integration documentation and patterns

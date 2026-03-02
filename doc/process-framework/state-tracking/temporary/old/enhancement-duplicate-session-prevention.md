@@ -158,28 +158,6 @@ target_feature: 0.1.1
 
 ---
 
-### Step 10: State Management Implementation
-
-- **Status**: [ ] Not started
-- **Applicable**: No
-- **Referenced Task Doc**: [State Management Implementation (PF-TSK-056)](../../tasks/04-implementation/state-management-implementation.md)
-- **Rationale**: No state management layer in LinkWatcher.
-- **Adaptation Notes**: N/A
-- **Deliverable**: N/A
-- **Session**: N/A
-
----
-
-### Step 11: UI Implementation
-
-- **Status**: [ ] Not started
-- **Applicable**: No
-- **Referenced Task Doc**: [UI Implementation (PF-TSK-052)](../../tasks/04-implementation/ui-implementation.md)
-- **Rationale**: No UI components — LinkWatcher is a CLI/background service.
-- **Adaptation Notes**: N/A
-- **Deliverable**: N/A
-- **Session**: N/A
-
 ---
 
 ### Step 12: Integration & Testing

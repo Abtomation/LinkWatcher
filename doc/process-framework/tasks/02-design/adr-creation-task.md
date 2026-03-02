@@ -2,9 +2,9 @@
 id: PF-TSK-028
 type: Process Framework
 category: Task Definition
-version: 1.0
+version: 1.1
 created: 2025-08-03
-updated: 2025-08-03
+updated: 2026-03-02
 task_type: Discrete
 ---
 
@@ -50,7 +50,6 @@ Create Architecture Decision Records (ADRs) to document significant architectura
 
 - **Reference Only (Access When Needed):**
   - [Existing ADRs](../product-docs/technical/architecture/design-docs/adr/adr) - For consistency and reference
-  - [Architecture Documentation](../product-docs/technical/architecture/README.md) - For architectural context
   - [Visual Notation Guide](../discrete/guides/guides/visual-notation-guide.md) - For interpreting context map diagrams
 
 ## Process
@@ -58,6 +57,10 @@ Create Architecture Decision Records (ADRs) to document significant architectura
 > **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished! 🚨**
 >
 > **⚠️ MANDATORY: Use the ../discrete/../discrete/New-ArchitectureDecision.ps1 script - never create ADRs manually.**
+>
+> **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
+>
+> **⚠️ MANDATORY: Never proceed past a checkpoint without presenting findings and getting explicit approval.**
 
 ### Preparation
 
@@ -78,10 +81,11 @@ Create Architecture Decision Records (ADRs) to document significant architectura
    - **Title**: Clear, descriptive title for the architectural decision
    - **Description**: Brief explanation of what the decision addresses
    - **Status**: Initial status (typically "Proposed" for new decisions)
+4. **🚨 CHECKPOINT**: Present decision context, alternatives identified, and proposed decision parameters to human partner for approval
 
 ### Execution
 
-4. **Create ADR Using Automation Script**: Use the ../discrete/../discrete/New-ArchitectureDecision.ps1 script
+5. **Create ADR Using Automation Script**: Use the ../discrete/../discrete/New-ArchitectureDecision.ps1 script
 
    ```powershell
    # Navigate to ADR directory
@@ -94,7 +98,7 @@ Create Architecture Decision Records (ADRs) to document significant architectura
    .\../discrete/../discrete/New-ArchitectureDecision.ps1 -Title "Your Decision Title" -Description "Brief description" -Status "Proposed" -OpenInEditor
    ```
 
-5. **Complete ADR Documentation**: Follow the Architecture Decision Creation Guide
+6. **Complete ADR Documentation**: Follow the Architecture Decision Creation Guide
 
    - **Context Section**: Provide comprehensive problem statement and background
    - **Decision Section**: Document the specific decision made with clear, actionable statements
@@ -103,27 +107,28 @@ Create Architecture Decision Records (ADRs) to document significant architectura
    - **Consequences Section**: List both positive and negative outcomes expected
    - **References Section**: Add supporting documentation and resources
 
-6. **Review and Validate**: Ensure ADR quality and completeness
+7. **Review and Validate**: Ensure ADR quality and completeness
    - Verify all template sections are properly completed
    - Check that the decision is clear and actionable
    - Ensure alternatives analysis is thorough and objective
    - Validate that consequences are realistic and measurable
+8. **🚨 CHECKPOINT**: Present completed ADR draft with alternatives analysis and consequence assessment to human partner for review and approval
 
 ### Finalization
 
-7. **Update ADR Status**: Progress the ADR through appropriate status changes
+9. **Update ADR Status**: Progress the ADR through appropriate status changes
 
    - Keep as "Proposed" if requiring stakeholder review
    - Change to "Accepted" once decision is approved and ready for implementation
    - Update to "Deprecated" or "Superseded" if decision changes over time
 
-8. **Integrate with Project Documentation**: Ensure proper integration
+10. **Integrate with Project Documentation**: Ensure proper integration
 
    - Verify ADR is properly linked in documentation map
    - Reference ADR in related technical design documents
    - Update any affected architectural assessments or reviews
 
-9. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+11. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 
@@ -165,4 +170,3 @@ Before considering this task finished:
 - [ADR Template](../product-docs/templates/templates/adr-template.md) - Template structure and sections for ADRs
 - [../discrete/../discrete/New-ArchitectureDecision.ps1](../../../product-docs/technical/architecture/design-docs/adr/../discrete/../discrete/New-ArchitectureDecision.ps1) - Script for creating new ADRs
 - [Existing ADRs](../product-docs/technical/architecture/design-docs/adr/adr) - Reference examples and consistency patterns
-- [Architecture Documentation](../product-docs/technical/architecture/README.md) - Broader architectural context and guidelines

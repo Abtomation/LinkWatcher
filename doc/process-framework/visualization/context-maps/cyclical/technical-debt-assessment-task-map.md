@@ -32,7 +32,7 @@ graph TD
 
     DebtItemScript --> DebtItemTemplate[(Debt Item Template<br/>PF-TEM-020)]
 
-    CriteriaGuide -.-> CodeAnalysis[/Code Analysis Tools<br/>flutter analyze, etc./]
+    CriteriaGuide -.-> CodeAnalysis[/Code Analysis Tools<br/>static analysis, linters, etc./]
     PriorityGuide --> MatrixTemplate[(Priority Matrix Template<br/>PF-TEM-021)]
 
     AssessmentTemplate --> DebtTracking[/Technical Debt Tracking<br/>PF-STA-001/]
@@ -59,7 +59,7 @@ graph TD
 
 ### Reference Components (Access When Needed)
 
-- **Code Analysis Tools**: External tools (flutter analyze, pub outdated, etc.) for automated debt detection
+- **Code Analysis Tools**: External tools (static analysis, dependency audits, etc.) for automated debt detection
 - **Technical Debt Tracking (PF-STA-001)**: Permanent state file for tracking debt items across assessments
 - **Templates**: Document templates for assessments, debt items, and prioritization matrices
 

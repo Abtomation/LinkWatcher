@@ -31,18 +31,16 @@ At the start of EVERY session, you must:
 
 ## PowerShell Script Execution
 
-**CRITICAL**: PowerShell scripts CANNOT be executed using `pwsh.exe -Command` through the Bash tool - output will not be captured.
+**Preferred pattern** — use `pwsh.exe -Command` with the entire argument wrapped in **bash single quotes**:
 
-**Required pattern** - write a temp `.ps1` file, then execute with `-File`. The syntax depends on your shell:
-
-**cmd.exe shell:**
-```cmd
-echo Set-Location 'path'; ^& .\Script.ps1 -Param1 'value1' -Param2 'value2' > temp.ps1 && pwsh.exe -File temp.ps1 && del temp.ps1
+```bash
+cd /c/path/to/script/directory && pwsh.exe -ExecutionPolicy Bypass -Command '& .\Script.ps1 -Param1 "value1" -Param2 "value2" -Confirm:$false'
 ```
 
-> **🚨 NEVER use `"` double quotes inside the `echo` command.** Double quotes are interpreted by cmd.exe and cause garbled parameter values — dots in values like `3.1.1` become path separators, creating nested directories instead of the intended output. Always use single quotes `'` for ALL parameter values.
+> **Key rule**: Wrap the entire `-Command` argument in bash single quotes (`'...'`). Inside, use double quotes for PowerShell string parameters. Bash single quotes prevent interpretation of `$`, `&`, and other special characters.
 
-**Unix/bash shell** (if `^&` fails with errors):
+**Fallback pattern** — for complex cases where nested quoting is problematic, write a temp `.ps1` file:
+
 ```bash
 cat > /c/path/to/project/temp.ps1 << 'ENDOFSCRIPT'
 Set-Location 'c:\path\to\script\directory'

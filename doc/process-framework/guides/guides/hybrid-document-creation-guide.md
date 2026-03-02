@@ -64,22 +64,20 @@ task_type: Discrete
 
 #### Code Files (Comment Metadata)
 
-```dart
-/*
- * Document Metadata:
- * ID: PF-TST-001
- * Type: Test File
- * Category: Unit
- * Version: 1.0
- * Created: 2025-07-13
- * Updated: 2025-07-13
- * Test Name: UserAuthentication
- * Test Type: Unit
- * Component Name: AuthService
- */
+```python
+# Document Metadata:
+# ID: PF-TST-001
+# Type: Test File
+# Category: Unit
+# Version: 1.0
+# Created: 2025-07-13
+# Updated: 2025-07-13
+# Test Name: UserAuthentication
+# Test Type: Unit
+# Component Name: AuthService
 
-// Actual code content
-import 'package:flutter_test/flutter_test.dart';
+# Actual code content
+import pytest  # or your project's test framework
 ```
 
 ### 3. Template Structure
@@ -88,21 +86,21 @@ import 'package:flutter_test/flutter_test.dart';
 
 Templates for code files use YAML frontmatter for template metadata but generate comment metadata in output:
 
-```dart
----
-id: [DOCUMENT_ID]
-type: Template
-creates_document_type: Test File
-creates_document_category: Test
-additional_fields:
-  test_name: [TEST_NAME]
-  test_type: [TEST_TYPE]
-  component_name: [COMPONENT_NAME]
----
+```python
+# ---
+# id: [DOCUMENT_ID]
+# type: Template
+# creates_document_type: Test File
+# creates_document_category: Test
+# additional_fields:
+#   test_name: [TEST_NAME]
+#   test_type: [TEST_TYPE]
+#   component_name: [COMPONENT_NAME]
+# ---
 
-// [TEST_NAME] [TEST_TYPE] Test
-import 'package:flutter_test/flutter_test.dart';
-// ... rest of template
+# [TEST_NAME] [TEST_TYPE] Test
+import pytest  # or your project's test framework
+# ... rest of template
 ```
 
 ## ID Registry Integration
@@ -139,11 +137,11 @@ import 'package:flutter_test/flutter_test.dart';
 ### Creating Test Files
 
 ```powershell
-# Creates test/unit/userauth_test.dart with comment metadata
+# Creates test/unit/test_userauth.py with comment metadata
 ../../scripts/file-creation/New-TestFile.ps1 -TestName "UserAuth" -TestType "Unit" -ComponentName "AuthService"
 
-# Creates test/widget/loginscreen_test.dart with comment metadata
-../../scripts/file-creation/New-TestFile.ps1 -TestName "LoginScreen" -TestType "Widget" -ComponentName "LoginScreen"
+# Creates test/integration/test_loginflow.py with comment metadata
+../../scripts/file-creation/New-TestFile.ps1 -TestName "LoginFlow" -TestType "Integration" -ComponentName "LoginFlow"
 ```
 
 ### Creating Markdown Documents
@@ -232,7 +230,7 @@ Use the document creation script template:
 ### File Naming
 
 - Use kebab-case for consistency
-- Include appropriate suffixes (\_test.dart, \_component.js)
+- Include appropriate suffixes (test\_, \_test.py, \_component.js)
 - Follow project conventions
 
 ## Troubleshooting
@@ -242,7 +240,7 @@ Use the document creation script template:
 #### Template Not Found
 
 ```
-Error: Cannot find template at: templates/test-template.dart
+Error: Cannot find template at: templates/test-template.py
 ```
 
 **Solution**: Ensure template exists in correct location
@@ -258,7 +256,7 @@ Category: [TEST_TYPE]  // Should be: Category: Unit
 #### Wrong File Extension
 
 ```
-Created: userauth_test.md  // Should be: userauth_test.dart
+Created: userauth_test.md  // Should be: test_userauth.py
 ```
 
 **Solution**: Verify template has correct extension

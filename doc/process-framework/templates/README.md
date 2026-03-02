@@ -9,11 +9,11 @@ updated: 2025-07-04
 
 # Documentation Templates
 
-The BreakoutBuddies project provides specialized templates for different types of documentation. Using the appropriate template ensures consistency and completeness across similar document types.
+The project project provides specialized templates for different types of documentation. Using the appropriate template ensures consistency and completeness across similar document types.
 
 ## Purpose
 
-This directory contains template files that serve as starting points for creating various types of documentation within the BreakoutBuddies project. By using these standardized templates, we ensure that:
+This directory contains template files that serve as starting points for creating various types of documentation within the project project. By using these standardized templates, we ensure that:
 
 - Documentation follows a consistent structure
 - All necessary sections are included
@@ -35,27 +35,27 @@ This directory contains template files that serve as starting points for creatin
    - Includes sections for purpose, inputs, process, outputs, and state tracking
    - Best for: Feature development tasks, bug fixing tasks, review tasks
 
-2. **<!-- [Guide Template](templates/guide-template.md) - Template/example link commented out -->**
+2. **[Guide Template](templates/guide-template.md)**
    - For step-by-step instructions and tutorials
    - Includes sections for prerequisites, detailed steps, examples, and troubleshooting
    - Best for: Installation guides, setup instructions, how-to guides
 
-3. **<!-- [Architecture Template](templates/architecture-template.md) - Template/example link commented out -->**
+3. **[Architecture Template](templates/architecture-template.md)**
    - For technical specifications and system architecture documentation
    - Includes sections for architecture diagrams, component descriptions, data flows, and design decisions
    - Best for: Database schemas, system architecture, component documentation
 
-4. **<!-- [Process Template](templates/process-template.md) - Template/example link commented out -->**
+4. **[Process Template](templates/process-template.md)**
    - For workflows, procedures, and standards
    - Includes sections for roles and responsibilities, process steps, checklists, and exceptions
    - Best for: Development workflows, testing procedures, review processes
 
-5. **<!-- [API Reference Template](templates/api-reference-template.md) - Template/example link commented out -->**
+5. **[API Reference Template](templates/api-reference-template.md)**
    - For API documentation and reference
    - Includes sections for endpoints, request/response formats, authentication, and examples
    - Best for: REST APIs, service interfaces, library documentation
 
-6. **<!-- [General Documentation Template](templates/documentation-template.md) - Template/example link commented out -->**
+6. **[General Documentation Template](templates/documentation-template.md)**
    - For general-purpose documentation that doesn't fit the specialized templates
    - Includes basic sections common to most documentation
 
@@ -63,6 +63,11 @@ This directory contains template files that serve as starting points for creatin
    - For creating PowerShell scripts that generate documents from templates
    - Includes standardized script structure, parameter handling, and error management
    - Best for: Creating new document generation scripts, automating document creation workflows
+
+8. **[Update Script Template](templates/update-script-template.ps1)**
+   - For creating PowerShell scripts that update markdown state files via content transformation
+   - Includes Write-Log, Test-Prerequisites, content-transformer pattern, and single read-modify-write Main skeleton
+   - Best for: Creating new state file update scripts (Update-*.ps1) in `doc/process-framework/scripts/update/`
 
 ### Template Selection Guide
 
@@ -90,8 +95,7 @@ Use this guide to determine which template to use for different documentation ne
 - Creating installation or setup guides
 
 **Examples in project:**
-- [Supabase Local Setup Guide][supabase-local-setup]
-- [CI/CD Environment Guide][ci-cd-environment-guide]
+- Project-specific guides created from this template
 
 #### Architecture/Reference Template
 
@@ -106,8 +110,6 @@ Use this guide to determine which template to use for different documentation ne
 - [Project Structure][project-structure]
 
 <!-- Reference Links -->
-[supabase-local-setup]: /doc/product-docs/guides/guides/supabase-local-setup-guide.md
-[ci-cd-environment-guide]: /doc/product-docs/guides/guides/ci-cd-environment-guide.md
 [database-reference]: /doc/product-docs/technical/architecture/database-reference.md
 [project-structure]: /doc/product-docs/technical/architecture/project-structure.md
 
@@ -135,6 +137,12 @@ Use this guide to determine which template to use for different documentation ne
 **Examples in project:**
 - *No current examples - use this template for future API documentation*
 
+9. **[Lightweight Refactoring Plan Template](templates/lightweight-refactoring-plan-template.md)**
+   - Compact refactoring plan for low-effort items (≤15 min, single file, no architectural impact)
+   - Includes mandatory Documentation & State Updates checklist per item
+   - Supports batch mode for multiple quick fixes in one session
+   - Best for: Quick code refactorings, small technical debt items
+
 ### Template Selection Matrix
 
 | Documentation Need | Primary Audience | Purpose | Recommended Template |
@@ -152,6 +160,10 @@ Use this guide to determine which template to use for different documentation ne
 | User onboarding | End Users | Instructional | Guide Template |
 | PowerShell script for document creation | Developers | Development | Document Creation Script Template |
 | Automating document generation | Developers, DevOps | Development | Document Creation Script Template |
+| PowerShell script for state file updates | Developers | Development | Update Script Template |
+| Automating markdown table status changes | Developers, DevOps | Development | Update Script Template |
+| Quick refactoring plan (≤15 min) | Developers, AI Agents | Planning | Lightweight Refactoring Plan Template |
+| Batch small tech debt fixes | Developers, AI Agents | Planning | Lightweight Refactoring Plan Template |
 
 For more general guidance on identifying documentation template needs for any project, refer to the <!-- [Documentation Template Identification Guide](/doc/process-framework/guides/documentation-template-identification.md) - Template/example link commented out -->.
 
@@ -166,4 +178,4 @@ If you'd like to improve these templates or add new ones:
 
 ## Maintenance
 
-These templates are maintained by the BreakoutBuddies documentation team. If you have questions or suggestions, please contact the team lead or open an issue in the project repository.
+These templates are maintained by the project documentation team. If you have questions or suggestions, please contact the team lead or open an issue in the project repository.

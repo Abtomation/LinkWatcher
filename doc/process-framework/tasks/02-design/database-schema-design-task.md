@@ -2,9 +2,9 @@
 id: PF-TSK-021
 type: Process Framework
 category: Task Definition
-version: 1.3
+version: 1.4
 created: 2025-07-21
-updated: 2025-01-27
+updated: 2026-03-02
 task_type: Discrete
 change_notes: "v1.3 - Updated for IMP-097/IMP-098: Clarified database-only scope, added information flow section, updated outputs to remove non-database concerns"
 ---
@@ -105,6 +105,10 @@ Systematic data model planning before implementation to prevent data integrity i
 > **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished! 🚨**
 >
 > **⚠️ MANDATORY: Use the appropriate automation tools where indicated.**
+>
+> **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
+>
+> **⚠️ MANDATORY: Never proceed past a checkpoint without presenting findings and getting explicit approval.**
 
 ### Preparation
 
@@ -113,27 +117,29 @@ Systematic data model planning before implementation to prevent data integrity i
 3. **Gather Context**: Load all critical context files including feature requirements, current schema, and data flow requirements
 4. **Analyze Current State**: Review existing database schema (`/data/` and `/doc/product-docs/technical/architecture/database-reference.md`) and identify areas that will be affected by the changes
 5. **Validate Requirements**: Ensure all functional and non-functional requirements are clearly understood
+6. **🚨 CHECKPOINT**: Present current schema analysis, identified impact areas, and requirements to human partner for approval
 
 ### Execution
 
-6. **Create Schema Design Document**: Use the schema design script to generate the main design document and automatically update feature tracking
+7. **Create Schema Design Document**: Use the schema design script to generate the main design document and automatically update feature tracking
    ```powershell
    # Generate schema design document with automatic feature tracking updates
-   Set-Location "c:\Users\ronny\VS_Code\BreakoutBuddies\breakoutbuddies\doc\product-docs\technical\database"
+   Set-Location "doc/product-docs/technical/database"
    ../New-SchemaDesign.ps1 -FeatureName "Feature Name" -SchemaType "New|Modification|Optimization" -FeatureId "X.X.X"
    ```
-7. **Design Data Model**: Create entity-relationship diagrams and define data structures, relationships, and constraints
-8. **Plan Migration Strategy**: Design safe migration scripts with rollback procedures and data preservation strategies
-9. **Performance Analysis**: Plan indexes, partitioning, and optimization strategies for the new schema
-10. **Validate Design**: Review schema against business rules, technical constraints, and integration requirements
+8. **Design Data Model**: Create entity-relationship diagrams and define data structures, relationships, and constraints
+9. **Plan Migration Strategy**: Design safe migration scripts with rollback procedures and data preservation strategies
+10. **Performance Analysis**: Plan indexes, partitioning, and optimization strategies for the new schema
+11. **Validate Design**: Review schema against business rules, technical constraints, and integration requirements
+12. **🚨 CHECKPOINT**: Present schema design, data model, migration strategy, and performance analysis to human partner for review and approval
 
 ### Finalization
 
-11. **Create Migration Scripts**: Generate production-ready migration scripts with proper rollback procedures
-12. **Document Database-Level Integration Notes**: Add brief notes on database access requirements and cross-schema dependencies (detailed API specifications belong in API Design task)
-13. **Add Cross-References**: Include brief cross-reference sections linking to API Design and Test Specification tasks where appropriate
-14. **Verify Automated Updates**: Confirm that the schema design script automatically updated the [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) document, changing the DB Design column from "Yes" to a link to the schema design
-15. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+13. **Create Migration Scripts**: Generate production-ready migration scripts with proper rollback procedures
+14. **Document Database-Level Integration Notes**: Add brief notes on database access requirements and cross-schema dependencies (detailed API specifications belong in API Design task)
+15. **Add Cross-References**: Include brief cross-reference sections linking to API Design and Test Specification tasks where appropriate
+16. **Verify Automated Updates**: Confirm that the schema design script automatically updated the [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) document, changing the DB Design column from "Yes" to a link to the schema design
+17. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 

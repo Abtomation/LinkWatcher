@@ -8,7 +8,7 @@ This directory contains the infrastructure and documentation for the Code Refact
 
 | Directory        | Purpose                                      | Content Type                                      | Created By                     |
 | ---------------- | -------------------------------------------- | ------------------------------------------------- | ------------------------------ |
-| **`plans/`**     | Refactoring plan documents                   | PF-REF-XXX documents                              | ../scripts/file-creation/New-RefactoringPlan.ps1n/New-RefactoringPlan.ps1n/New-RefactoringPlan.ps1 script |
+| **`plans/`**     | Refactoring plan documents                   | PF-REF-XXX documents                              | `New-RefactoringPlan.ps1` script (supports `-Lightweight` switch) |
 | **`summaries/`** | Completed refactoring summaries and reports  | PF-REF-XXX, PF-REF-SUM-XXX, PF-COMP-XXX documents | Manual creation                |
 | **`analysis/`**  | Code analysis and assessment documents       | Analysis reports                                  | Manual creation                |
 | **`status/`**    | Status tracking and phase completion reports | Status reports                                    | Manual creation                |
@@ -17,7 +17,7 @@ This directory contains the infrastructure and documentation for the Code Refact
 
 | File                          | Purpose                                | Usage                                                                               |
 | ----------------------------- | -------------------------------------- | ----------------------------------------------------------------------------------- |
-| **`New-RefactoringPlan.ps1`** | Creates new refactoring plan documents | `.\New-RefactoringPlan.ps1 -RefactoringScope "Description" -TargetArea "Component"` |
+| **`New-RefactoringPlan.ps1`** | Creates new refactoring plan documents | `.\New-RefactoringPlan.ps1 -RefactoringScope "Description" -TargetArea "Component"` (add `-Lightweight` for quick fixes) |
 
 ### 📋 **Archive Directories**
 
@@ -32,7 +32,10 @@ This directory contains the infrastructure and documentation for the Code Refact
 
 ```powershell
 cd doc/process-framework/refactoring
-..\scripts\file-creation\New-RefactoringPlan.ps1New-RefactoringPlan.ps1New-RefactoringPlan.ps1 -RefactoringScope "User Authentication Module" -TargetArea "lib/services/auth/"
+.\New-RefactoringPlan.ps1 -RefactoringScope "User Authentication Module" -TargetArea "lib/services/auth/"
+
+# Lightweight mode for quick fixes (≤15 min, single file)
+.\New-RefactoringPlan.ps1 -RefactoringScope "Replace bare excepts (TD011)" -TargetArea "linkwatcher/handler.py" -Lightweight
 ```
 
 ### 2. **Customizing the Plan**
@@ -52,8 +55,10 @@ cd doc/process-framework/refactoring
 
 - **Location**: `plans/`
 - **Purpose**: Detailed refactoring planning and strategy documents
-- **Created By**: ../scripts/file-creation/New-RefactoringPlan.ps1n/New-RefactoringPlan.ps1n/New-RefactoringPlan.ps1 script
-- **Template**: [refactoring-plan-template.md](../templates/templates/refactoring-plan-template.md)
+- **Created By**: `New-RefactoringPlan.ps1` script
+- **Templates**:
+  - Standard: [refactoring-plan-template.md](../templates/templates/refactoring-plan-template.md) (165 lines, full metrics/strategy/lessons)
+  - Lightweight: [lightweight-refactoring-plan-template.md](../templates/templates/lightweight-refactoring-plan-template.md) (50 lines, scope/changes/results with doc checklist)
 
 ### **Refactoring Summaries (PF-REF-XXX, PF-REF-SUM-XXX)**
 

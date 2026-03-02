@@ -9,11 +9,11 @@ import os
 import shutil
 import tempfile
 from pathlib import Path
-from typing import Any, Dict, List, Set
+from typing import Dict, List
 
-from colorama import Fore, Style
+from colorama import Fore
 
-from .logging import LogTimer, get_logger, with_context
+from .logging import get_logger
 from .models import LinkReference
 from .utils import normalize_path
 
@@ -346,8 +346,6 @@ class LinkUpdater:
         """
         Convert a link target to an absolute path for comparison.
         """
-        from pathlib import Path
-
         target_norm = target.replace("\\", "/")
         source_norm = source_file.replace("\\", "/")
 
@@ -383,8 +381,6 @@ class LinkUpdater:
         """
         Convert an absolute path back to the original link style.
         """
-        from pathlib import Path
-
         new_path_norm = new_absolute_path.replace("\\", "/")
         source_norm = source_file.replace("\\", "/")
         source_dir = os.path.dirname(source_norm)
@@ -420,8 +416,6 @@ class LinkUpdater:
 
     def _calculate_relative_path_between_files(self, source_file: str, target_file: str) -> str:
         """Calculate the relative path from source_file to target_file."""
-        from pathlib import Path
-
         # Normalize paths
         source_normalized = source_file.replace("\\", "/")
         target_normalized = target_file.replace("\\", "/")

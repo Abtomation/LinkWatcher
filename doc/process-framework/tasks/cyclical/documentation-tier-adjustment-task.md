@@ -36,8 +36,7 @@ Ensure documentation requirements remain aligned with the true complexity of fea
 - **Critical (Must Read):**
 
   - [Original Assessment Document](../../../process-framework/methodologies/documentation-tiers/assessments) - Initial complexity assessment
-  - [Documentation Tiers](/doc/product-docs/guides/guides/documentation-tiers-guide.md) - Tier definitions and criteria
-  - <!-- [Normalized Scoring System](../../../process-framework/methodologies/documentation-tiers/normalized-scoring-guide.md) - File not found --> - Guide for scoring complexity
+  - [Normalized Scoring System](../../methodologies/documentation-tiers/README.md#normalized-scoring-system) - Guide for scoring complexity
   - [Visual Notation Guide](/doc/process-framework/guides/guides/visual-notation-guide.md) - For interpreting context map diagrams
 
 - **Reference Only (Access When Needed):**
@@ -48,6 +47,10 @@ Ensure documentation requirements remain aligned with the true complexity of fea
 > **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished! 🚨**
 >
 > **⚠️ MANDATORY: Always document adjustment rationale for future reference and process improvement.**
+>
+> **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
+>
+> **⚠️ MANDATORY: Never proceed past a checkpoint without presenting findings and getting explicit approval.**
 
 ### Preparation
 
@@ -61,30 +64,32 @@ Ensure documentation requirements remain aligned with the true complexity of fea
    - Reassess the complexity factors using the normalized scoring system
    - Recalculate the normalized score
    - Determine if the new score falls into a different tier range
+3. **🚨 CHECKPOINT**: Present complexity reassessment and proposed tier change to human partner for approval
 
 ### Execution
 
-3. **Document the Adjustment Rationale**
+4. **Document the Adjustment Rationale**
 
    - Document which specific complexity factors changed and why
    - Explain the impact on the overall complexity
    - Note any lessons learned for future assessments
    - Identify patterns that could improve initial assessments
 
-4. **Update the Documentation Tier**
+5. **Update the Documentation Tier**
    - Update the feature's assessment document with the new tier
    - Update the feature tracking document with the new tier emoji
    - Update any project management tools to reflect the new requirements
+6. **🚨 CHECKPOINT**: Present updated tier assignments and documentation plan to human partner for review
 
 ### Finalization
 
-5. **Adapt Documentation Plan**
+7. **Adapt Documentation Plan**
 
    - If upgrading to a higher tier: Create or expand documentation as needed
    - If downgrading to a lower tier: Simplify planned documentation
    - Allocate appropriate time for documentation tasks
 
-6. **Implement Documentation Changes**
+8. **Implement Documentation Changes**
    - Create or modify documentation according to the new tier requirements
    - Ensure documentation meets the standards for the new tier
    - **🚨 MANDATORY FINAL STEP**: Complete the Task Completion Checklist below

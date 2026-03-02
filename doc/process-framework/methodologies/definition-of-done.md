@@ -9,11 +9,9 @@ updated: 2025-05-29
 
 # Definition of Done (DoD)
 
-This document defines the criteria that must be met before a feature or task can be considered complete in the Breakout Buddies project. As a solo developer, this serves as a personal quality checklist to maintain consistent standards across the codebase.
+This document defines the criteria that must be met before a feature or task can be considered complete in the project. As a solo developer, this serves as a personal quality checklist to maintain consistent standards across the codebase.
 
-For a comprehensive implementation checklist, see the [Process: Feature Implementation Checklist](../../product-docs/checklists/checklists/feature-implementation-checklist.md).
-
-For detailed testing procedures, see the [Process: Testing Guide](../../product-docs/guides/guides/testing-guide.md) and [Process: Testing Checklist](../../product-docs/checklists/checklists/testing-checklist.md).
+For detailed testing procedures, see the project's testing documentation.
 
 ## Core Requirements
 
@@ -135,4 +133,4 @@ Before considering a feature truly done:
 
 ---
 
-*This document is part of the Process Framework and defines the criteria for considering work complete in the BreakoutBuddies project.*
+*This document is part of the Process Framework and defines the criteria for considering work complete.*

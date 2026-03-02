@@ -48,7 +48,7 @@ graph TD
 - **[Feature Tier Assessment Task](../01-planning/feature-tier-assessment-task.md)**: Understanding what complexity factors and analysis details feed into tier assessment in the next task
 
 ### Reference Components (Access When Needed)
-- **[Documentation Tiers README](../../methodologies/documentation-tiers/README.md)**: Understanding tier documentation requirements (useful context for analysis depth)
+- **[Documentation Tiers README](../../../methodologies/documentation-tiers/README.md)**: Understanding tier documentation requirements (useful context for analysis depth)
 - **[Feature Dependencies](../../../product-docs/technical/design/feature-dependencies.md)**: Existing dependency documentation (reference when documenting cross-feature dependencies)
 
 ## Key Relationships

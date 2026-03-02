@@ -13,7 +13,7 @@ guide_description: Detailed criteria for identifying technical debt
 
 ## Overview
 
-This guide provides detailed criteria for systematically identifying technical debt in the BreakoutBuddies Flutter application. It defines what constitutes technical debt, provides specific indicators to look for, and establishes consistent evaluation standards across different categories of debt.
+This guide provides detailed criteria for systematically identifying technical debt in your project. It defines what constitutes technical debt, provides specific indicators to look for, and establishes consistent evaluation standards across different categories of debt.
 
 ## When to Use
 
@@ -40,8 +40,8 @@ Use this guide when:
 
 Before using this guide, ensure you have:
 
-- **Flutter/Dart expertise**: Understanding of Flutter development patterns and best practices
-- **Codebase familiarity**: Knowledge of the BreakoutBuddies application architecture
+- **Language expertise**: Understanding of your project's development patterns and best practices
+- **Codebase familiarity**: Knowledge of the project's application architecture
 - **Business context**: Understanding of user requirements and business priorities
 - **Quality metrics access**: Ability to run code analysis tools and access quality metrics
 
@@ -76,24 +76,18 @@ The assessment focuses on identifying debt that meets these criteria and can be 
 - **Commented-out code**: Dead code that should be removed
 - **Inconsistent formatting**: Code that doesn't follow project style guidelines
 
-**Flutter-Specific Indicators:**
-```dart
-// HIGH PRIORITY: Complex widget build method
-Widget build(BuildContext context) {
-  // 150+ lines of nested widgets without extraction
-  return Scaffold(
-    body: Column(
-      children: [
-        // Deeply nested widget tree
-      ],
-    ),
-  );
-}
+**Project-Specific Indicators:**
+```python
+# HIGH PRIORITY: Complex method with too many responsibilities
+def process_request(self, request):
+    # 150+ lines mixing validation, business logic, and formatting
+    # Should be decomposed into smaller, focused methods
+    pass
 
-// MEDIUM PRIORITY: Poor state management
-class MyWidget extends StatefulWidget {
-  // Multiple setState calls, complex state logic
-}
+# MEDIUM PRIORITY: Poor state management
+class RequestHandler:
+    # Mutable shared state, no clear ownership
+    _global_cache = {}
 ```
 
 ### 2. Architecture Debt
@@ -114,20 +108,17 @@ class MyWidget extends StatefulWidget {
 - **Poor separation of concerns**: Business logic mixed with UI or data access
 - **Outdated architectural patterns**: Using deprecated or superseded approaches
 
-**Flutter-Specific Indicators:**
-```dart
-// HIGH PRIORITY: Business logic in widgets
-class UserProfileScreen extends StatefulWidget {
-  @override
-  Widget build(BuildContext context) {
-    // Direct API calls, data processing in build method
-    final userData = await ApiService.getUserData(); // Anti-pattern
-    return Scaffold(/* ... */);
-  }
-}
+**Project-Specific Indicators:**
+```python
+# HIGH PRIORITY: Business logic in presentation layer
+class UserProfileView:
+    def render(self):
+        # Direct API calls, data processing in render method
+        user_data = ApiService.get_user_data()  # Anti-pattern
+        return self._format_output(user_data)
 
-// MEDIUM PRIORITY: Inconsistent state management
-// Some screens use Riverpod, others use setState, others use BLoC
+# MEDIUM PRIORITY: Inconsistent patterns
+# Some modules use Repository pattern, others access DB directly
 ```
 
 ### 3. Performance Debt
@@ -148,28 +139,21 @@ class UserProfileScreen extends StatefulWidget {
 - **Excessive network calls**: Multiple calls where one would suffice
 - **Unoptimized images**: Large images not properly sized or compressed
 
-**Flutter-Specific Indicators:**
-```dart
-// HIGH PRIORITY: Memory leak
-class MyWidget extends StatefulWidget {
-  StreamSubscription? _subscription;
+**Project-Specific Indicators:**
+```python
+# HIGH PRIORITY: Resource leak
+class DataProcessor:
+    def start(self):
+        self._connection = database.connect()
+        self._subscription = event_bus.subscribe(self._handler)
+        # Missing cleanup method - resource leak
 
-  @override
-  void initState() {
-    _subscription = stream.listen(/*...*/);
-    // Missing dispose() method - memory leak
-  }
-}
-
-// MEDIUM PRIORITY: Inefficient list building
-ListView.builder(
-  itemCount: items.length,
-  itemBuilder: (context, index) {
-    return ExpensiveWidget(
-      data: processData(items[index]), // Processing on every build
-    );
-  },
-)
+# MEDIUM PRIORITY: Inefficient data processing
+def render_items(items):
+    results = []
+    for item in items:
+        results.append(expensive_transform(item))  # Processing on every render
+    return results
 ```
 
 ### 4. Security Debt
@@ -190,16 +174,14 @@ ListView.builder(
 - **Insecure storage**: Sensitive data stored without encryption
 - **Missing security headers**: Web deployment without proper security headers
 
-**Flutter-Specific Indicators:**
-```dart
-// HIGH PRIORITY: Hardcoded API key
-class ApiService {
-  static const String apiKey = 'sk-1234567890abcdef'; // Security risk
-}
+**Project-Specific Indicators:**
+```python
+# HIGH PRIORITY: Hardcoded API key
+class ApiService:
+    API_KEY = 'sk-1234567890abcdef'  # Security risk
 
-// MEDIUM PRIORITY: Insecure storage
-SharedPreferences prefs = await SharedPreferences.getInstance();
-prefs.setString('user_token', token); // Should be encrypted
+# MEDIUM PRIORITY: Insecure storage
+config['user_token'] = token  # Should be encrypted, not stored in plaintext
 ```
 
 ### 5. Testing Debt
@@ -220,16 +202,16 @@ prefs.setString('user_token', token); // Should be encrypted
 - **Missing edge case tests**: Only happy path testing
 - **Slow test suite**: Tests that take too long to run
 
-**Flutter-Specific Indicators:**
-```dart
-// HIGH PRIORITY: Missing widget tests for critical UI
-// No tests for login screen, payment flow, etc.
+**Project-Specific Indicators:**
+```python
+# HIGH PRIORITY: Missing tests for critical functionality
+# No tests for authentication flow, data processing pipeline, etc.
 
-// MEDIUM PRIORITY: Poor test structure
-testWidgets('test', (tester) async {
-  // 100+ lines of test code without helper methods
-  // Multiple assertions testing different things
-});
+# MEDIUM PRIORITY: Poor test structure
+def test_everything():
+    # 100+ lines of test code without helper methods
+    # Multiple assertions testing different things
+    pass
 ```
 
 ### 6. Documentation Debt
@@ -256,14 +238,17 @@ testWidgets('test', (tester) async {
 
 1. **Automated Analysis**:
    ```bash
-   # Run Flutter analyzer
-   flutter analyze
+   # Run static analysis / linter
+   # (Use your project's linting tool, e.g., flake8, pylint, eslint)
+   lint .
 
    # Check for outdated packages
-   flutter pub outdated
+   # (Use your project's dependency tool, e.g., pip list --outdated, npm outdated)
+   pip list --outdated
 
-   # Run custom linting rules
-   dart analyze --fatal-infos
+   # Run type checking
+   # (Use your project's type checker, e.g., mypy, tsc)
+   mypy src/
    ```
 
 2. **Manual Review Process**:
@@ -310,30 +295,30 @@ Estimate remediation effort considering:
 **Scenario**: Reviewing the user authentication module for code quality debt.
 
 **Analysis Process:**
-```dart
-// Found in lib/services/auth_service.dart
-class AuthService {
-  // 300+ lines - too large
-  Future<User?> authenticateUser(String email, String password,
-      bool rememberMe, String deviceId, Map<String, dynamic> metadata) {
+```python
+# Found in services/auth_service.py
+class AuthService:
+    # 300+ lines - too large
+    def authenticate_user(self, email, password,
+            remember_me=False, device_id=None, metadata=None):
 
-    // Complex method with multiple responsibilities
-    if (email == null || email.isEmpty) return null; // Poor validation
-    if (password == null || password.length < 8) return null;
+        # Complex method with multiple responsibilities
+        if not email:  # Poor validation
+            return None
+        if not password or len(password) < 8:
+            return None
 
-    // 50+ lines of authentication logic
-    // Mixed with logging, caching, and UI updates
+        # 50+ lines of authentication logic
+        # Mixed with logging, caching, and output formatting
 
-    return user;
-  }
-}
+        return user
 ```
 
 **Debt Items Identified:**
 1. **Large class**: 300+ lines violates single responsibility principle
 2. **Complex method**: Authentication method does too many things
 3. **Poor error handling**: Silent failures instead of proper error reporting
-4. **Mixed concerns**: Authentication mixed with caching and UI updates
+4. **Mixed concerns**: Authentication mixed with caching and output formatting
 
 **Priority Assessment:**
 - **Impact**: High (affects core functionality and development velocity)
@@ -342,40 +327,34 @@ class AuthService {
 
 ### Example 2: Performance Assessment
 
-**Scenario**: Analyzing the escape room listing screen for performance issues.
+**Scenario**: Analyzing the product listing endpoint for performance issues.
 
 **Analysis Process:**
-```dart
-// Found in lib/screens/room_list_screen.dart
-class RoomListScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder<List<Room>>(
-      future: ApiService.getAllRooms(), // Called on every build
-      builder: (context, snapshot) {
-        return ListView(
-          children: snapshot.data?.map((room) =>
-            ExpensiveRoomCard(
-              room: room,
-              onTap: () => processRoomData(room), // Heavy computation
-            )
-          ).toList() ?? [],
-        );
-      },
-    );
-  }
-}
+```python
+# Found in views/product_list_view.py
+class ProductListView:
+    def render(self, request):
+        # API called on every request with no caching
+        products = ApiService.get_all_products()
+
+        results = []
+        for product in products:
+            results.append({
+                "data": product,
+                "computed": process_product_data(product),  # Heavy computation per item
+            })
+        return results
 ```
 
 **Debt Items Identified:**
-1. **Unnecessary API calls**: API called on every widget rebuild
-2. **Inefficient list rendering**: Not using ListView.builder for large lists
-3. **Heavy computation in build**: Data processing during UI rendering
-4. **Missing caching**: No caching of room data
+1. **Unnecessary API calls**: API called on every request with no caching
+2. **Inefficient list processing**: Processing all items without pagination or lazy loading
+3. **Heavy computation per request**: Data processing during response generation
+4. **Missing caching**: No caching of product data
 
 **Priority Assessment:**
-- **Impact**: High (poor user experience, high server load)
-- **Effort**: Low (can be fixed with caching and ListView.builder)
+- **Impact**: High (poor performance, high server load)
+- **Effort**: Low (can be fixed with caching and pagination)
 - **Priority**: Critical Priority (Quick Win)
 
 ## Troubleshooting
@@ -420,5 +399,4 @@ class RoomListScreen extends StatelessWidget {
 
 - [Technical Debt Assessment Task Usage Guide](technical-debt-assessment-task-usage-guide.md) - Complete assessment process
 - [Prioritization Guide](prioritization-guide.md) - How to prioritize identified debt
-- [Flutter Best Practices](https://flutter.dev/docs/development/best-practices) - Official Flutter guidelines
-- [Dart Style Guide](https://dart.dev/guides/language/effective-dart/style) - Official Dart style guidelines
+- Your project's style guide and best practices documentation

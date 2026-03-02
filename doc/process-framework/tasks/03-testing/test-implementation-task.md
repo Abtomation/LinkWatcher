@@ -73,7 +73,7 @@ Implement comprehensive test cases based on existing Test Specifications, enabli
 ### Preparation
 
 1. **Review Test Specification**: Study the test specification document for the feature to understand test requirements and structure
-2. **Analyze Test Categories**: Identify which test types are required based on the specification and project language (check `project-config.json` for valid test types — e.g., Python: Unit/Integration/Parser/Performance; Dart: Unit/Integration/Widget/E2E)
+2. **Analyze Test Categories**: Identify which test types are required based on the specification and project language (check `project-config.json` for valid test types — e.g., Python: Unit/Integration/Parser/Performance)
 3. **Set Up Test Environment**: Ensure test dependencies and mock services are available
 
 ### Execution
@@ -85,7 +85,7 @@ Implement comprehensive test cases based on existing Test Specifications, enabli
    cd test
    # Test types depend on project language (auto-detected from project-config.json)
    # Python: Unit, Integration, Parser, Performance
-   # Dart: Unit, Integration, Widget, E2E
+   # Test types depend on project language (auto-detected from project-config.json)
    ../../scripts/file-creation/New-TestFile.ps1 -TestName "FeatureName" -TestType "Unit" -FeatureId "X.Y.Z" -ComponentName "ComponentName"
    ../../scripts/file-creation/New-TestFile.ps1 -TestName "FeatureName" -TestType "Integration" -FeatureId "X.Y.Z" -ComponentName "ComponentName"
 
@@ -100,7 +100,7 @@ Implement comprehensive test cases based on existing Test Specifications, enabli
 
 5. **Implement Unit Tests**: Write comprehensive unit tests following the test specification requirements
 6. **Implement Integration Tests**: Create integration tests that validate component interactions
-7. **Implement Additional Test Types**: Implement any remaining test types required by the specification (e.g., Parser tests, Performance tests for Python; Widget tests, E2E tests for Dart)
+7. **Implement Additional Test Types**: Implement any remaining test types required by the specification (e.g., Parser tests, Performance tests)
 8. **Verify Test Coverage**: Ensure all test scenarios from the specification are implemented
 
 ### Finalization

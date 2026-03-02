@@ -9,7 +9,7 @@ updated: 2025-07-04
 
 # Feature Implementation Template
 
-Use this template when implementing a new feature in the Breakout Buddies project. This structured approach will help ensure consistent, high-quality feature implementation.
+Use this template when implementing a new feature in the project. This structured approach will help ensure consistent, high-quality feature implementation.
 
 ## Feature Information
 

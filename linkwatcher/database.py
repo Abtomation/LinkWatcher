@@ -190,6 +190,37 @@ class LinkDatabase:
 
         return target  # No match, return original
 
+    def remove_targets_by_path(self, old_path: str) -> int:
+        """Remove all target entries whose key normalizes to old_path.
+
+        Handles anchored keys (e.g. 'file.md#section') by comparing the
+        base path portion. Returns the number of keys removed.
+        """
+        with self._lock:
+            old_normalized = normalize_path(old_path)
+            keys_to_remove = []
+            for key in self.links:
+                base_key = key.split("#", 1)[0] if "#" in key else key
+                if normalize_path(base_key) == old_normalized:
+                    keys_to_remove.append(key)
+            for key in keys_to_remove:
+                del self.links[key]
+            return len(keys_to_remove)
+
+    def get_all_targets_with_references(self) -> Dict[str, List[LinkReference]]:
+        """Return a snapshot copy of all targets and their references.
+
+        The returned dict is a shallow copy safe for iteration outside
+        the lock. Reference lists are also copied.
+        """
+        with self._lock:
+            return {target: list(refs) for target, refs in self.links.items()}
+
+    def get_source_files(self) -> Set[str]:
+        """Return a copy of the set of files that contain links."""
+        with self._lock:
+            return set(self.files_with_links)
+
     def clear(self):
         """Clear all data from the database."""
         with self._lock:

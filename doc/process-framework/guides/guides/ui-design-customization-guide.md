@@ -16,7 +16,7 @@ guide_title: UI/UX Design Customization Guide
 
 ## Overview
 
-This guide provides comprehensive instructions for customizing UI/UX Design Document templates after they are created using the New-UIDesign.ps1 script. UI Design Documents translate functional requirements into concrete visual and interaction designs for Flutter features.
+This guide provides comprehensive instructions for customizing UI/UX Design Document templates after they are created using the New-UIDesign.ps1 script. UI Design Documents translate functional requirements into concrete visual and interaction designs for features.
 
 ## When to Use
 
@@ -60,7 +60,7 @@ Before you begin, ensure you have:
 UI/UX Design Documents bridge the gap between functional requirements (FDD) and technical implementation (TDD). They focus on **how** users interact with and perceive a feature through visual design, layout, interaction patterns, and accessibility. UI Designs are essential for:
 
 - **Consistent User Experience**: Ensuring features follow established design system patterns
-- **Developer Clarity**: Providing implementation-ready specifications for Flutter widgets
+- **Developer Clarity**: Providing implementation-ready specifications for UI components
 - **Accessibility**: Defining inclusive design that works for all users
 - **Platform Adaptation**: Specifying iOS, Android, and Web-specific design adaptations
 - **Quality Assurance**: Creating visual standards for testing and validation
@@ -85,7 +85,7 @@ The UI Design template consists of 11 interconnected sections that provide a com
 
 ### Optional Sections
 
-- **Implementation Notes**: Flutter widget recommendations, state management, assets
+- **Implementation Notes**: UI component recommendations, state management, assets
 - **Design Handoff Checklist**: Quality gates before developer handoff
 - **Appendix**: Design decisions log, user research, design resources
 
@@ -117,7 +117,7 @@ The UI Design template consists of 11 interconnected sections that provide a com
 
 3. **Component Reusability**: Existing vs. custom components?
 
-   - **Prefer Existing**: Use Flutter Material/Cupertino components when possible
+   - **Prefer Existing**: Use platform-standard UI components when possible
    - **Customize Minimally**: Extend existing components before creating new ones
    - **Create New**: Only when existing components don't meet needs
    - **Document New**: Add reusable custom components to design system
@@ -356,7 +356,7 @@ For each screen in the flow:
 ```markdown
 ### 4.1 Component: Primary Button
 
-**Component Type**: ElevatedButton (Flutter Material)
+**Component Type**: Primary Button (standard UI component)
 
 **Variants**:
 
@@ -471,7 +471,7 @@ For each breakpoint (Mobile, Tablet, Desktop):
 
 **For Each Platform**:
 
-- List platform-specific components used (e.g., CupertinoButton for iOS)
+- List platform-specific components used (e.g., native iOS buttons for iOS)
 - Describe platform-specific behaviors (e.g., swipe gestures on iOS)
 - Note compliance with platform guidelines (HIG for iOS, Material for Android)
 
@@ -488,9 +488,9 @@ For each breakpoint (Mobile, Tablet, Desktop):
 
 **iOS Components Used**:
 
-- CupertinoNavigationBar
-- CupertinoTextField
-- CupertinoButton
+- Native iOS navigation bar
+- Native iOS text field
+- Native iOS button
 
 **iOS-Specific Behaviors**:
 
@@ -558,28 +558,28 @@ For each breakpoint (Mobile, Tablet, Desktop):
 
 #### Step 15: Implementation Notes (Section 12)
 
-**Action**: Provide Flutter-specific implementation guidance
+**Action**: Provide implementation-specific UI guidance
 
-**Step 15a: Widget Recommendations**
+**Step 15a: Component Recommendations**
 
-- List suggested Flutter widgets for this feature
+- List suggested UI components/widgets for this feature
 - Group by purpose: Screen structure, Layout, Inputs, Buttons, Display, Navigation
 
 **Example**:
 
 ```markdown
-**Suggested Flutter Widgets**:
+**Suggested UI Components**:
 
-- **Screen Structure**: Scaffold, AppBar, BottomNavigationBar
-- **Layout**: Column, Padding, SizedBox (spacing)
-- **Inputs**: TextField with InputDecoration
-- **Buttons**: ElevatedButton, TextButton
+- **Screen Structure**: Main layout container, header bar, bottom navigation
+- **Layout**: Vertical stack, padding, spacer
+- **Inputs**: Text input with validation decoration
+- **Buttons**: Primary button, text-only button
 ```
 
 **Step 15b: State Management**
 
 - Identify UI state types (Local, Feature, Global)
-- Recommend state management approach (Riverpod/Provider/BLoC)
+- Recommend state management approach appropriate to your framework
 
 **Step 15c: Asset Requirements**
 
@@ -616,7 +616,7 @@ For each breakpoint (Mobile, Tablet, Desktop):
 - User flows are intuitive and efficient
 - Accessibility requirements are comprehensive
 - Platform adaptations are appropriate
-- Design is feasible to implement in Flutter
+- Design is feasible to implement with the project's UI framework
 - Design meets business requirements
 
 **Questions to Ask**:
@@ -636,7 +636,7 @@ For each breakpoint (Mobile, Tablet, Desktop):
 - [ ] Typography follows type scale (Section 2.2)
 - [ ] Spacing uses 8px grid (Section 2.3)
 - [ ] Icons from approved library (Section 2.4)
-- [ ] Components use Flutter Material/Cupertino (Section 3)
+- [ ] Components use approved UI component library (Section 3)
 - [ ] Accessibility meets WCAG 2.1 Level AA (Section 4)
 - [ ] Platform guidelines followed (Section 5)
 - [ ] Design patterns applied correctly (Section 8)
@@ -645,14 +645,14 @@ For each breakpoint (Mobile, Tablet, Desktop):
 
 #### Step 19: Technical Feasibility Review
 
-**Action**: Confirm design is implementable in Flutter
+**Action**: Confirm design is implementable with the project's UI framework
 
 **Review Questions**:
 
-- Can all components be built with Flutter Material/Cupertino or simple custom widgets?
+- Can all components be built with standard UI components or simple custom widgets?
 - Are animations performant (60 FPS target)?
 - Are asset sizes reasonable (images, fonts)?
-- Is responsive design achievable with Flutter layout widgets?
+- Is responsive design achievable with the available layout components?
 - Are platform-specific adaptations feasible?
 
 **Risk Mitigation**: If any aspect seems difficult, consult with developer or create prototype
@@ -701,7 +701,7 @@ Before considering the UI Design complete, verify:
 
 1. **Design Review**: Visual design, brand alignment, user experience
 2. **Accessibility Audit**: WCAG compliance, screen reader support
-3. **Technical Review**: Implementation feasibility, Flutter widget choices
+3. **Technical Review**: Implementation feasibility, UI component choices
 4. **Stakeholder Review**: Meets business requirements and expectations
 
 ## Examples
@@ -792,13 +792,13 @@ Before considering the UI Design complete, verify:
 - Only create separate sections if significant design variations exist
 - Focus on navigation patterns, native components, and gesture conventions
 
-### Issue: Don't know which Flutter widgets to recommend
+### Issue: Don't know which UI components to recommend
 
 **Solution**:
 
-- Start with Material widgets (most common): TextField, ElevatedButton, Card, ListTile
-- Use Cupertino widgets for iOS-specific designs
-- Reference Flutter widget catalog: https://docs.flutter.dev/ui/widgets
+- Start with standard UI components (most common): text inputs, buttons, cards, list items
+- Use platform-native components for platform-specific designs
+- Reference your UI framework's component catalog
 - Consult with developer if unsure
 
 ### Issue: Animation specifications are unclear
@@ -832,12 +832,12 @@ Before considering the UI Design complete, verify:
 
 - [iOS Human Interface Guidelines](https://developer.apple.com/design/human-interface-guidelines/)
 - [Material Design 3](https://m3.material.io/)
-- [Flutter Design](https://docs.flutter.dev/ui)
+- Your project's UI framework documentation
 
 ### Accessibility Resources
 
 - [WCAG 2.1 Quick Reference](https://www.w3.org/WAI/WCAG21/quickref/)
-- [Flutter Accessibility](https://docs.flutter.dev/ui/accessibility-and-internationalization/accessibility)
+- Your project's UI framework accessibility documentation
 - [WebAIM Contrast Checker](https://webaim.org/resources/contrastchecker/)
 
 ### Tools

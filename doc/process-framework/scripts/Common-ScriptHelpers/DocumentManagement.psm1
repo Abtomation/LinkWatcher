@@ -445,7 +445,7 @@ function New-ProjectDocumentWithCodeMetadata {
     .EXAMPLE
     $replacements = @{ "[TEST_NAME]" = "UserAuthentication" }
     $additionalFields = @{ "test_type" = "Unit" }
-    New-ProjectDocumentWithCodeMetadata -TemplatePath "test-template.dart" -OutputPath "output.dart" -DocumentId "PF-TST-001" -Replacements $replacements -AdditionalMetadataFields $additionalFields
+    New-ProjectDocumentWithCodeMetadata -TemplatePath "test-template.py" -OutputPath "output.py" -DocumentId "PF-TST-001" -Replacements $replacements -AdditionalMetadataFields $additionalFields
     #>
 
     [CmdletBinding()]
@@ -733,8 +733,8 @@ function New-StandardProjectDocument {
             $fileName = $FileNamePattern
         } else {
             $kebabName = ConvertTo-KebabCase -InputString $DocumentName
-            if ($templateExtension -eq ".dart") {
-                $fileName = "${kebabName}_test.dart"
+            if ($templateExtension -eq ".py") {
+                $fileName = "test_${kebabName}.py"
             } elseif ($templateExtension -ne ".md") {
                 $fileName = "$kebabName$templateExtension"
             } else {

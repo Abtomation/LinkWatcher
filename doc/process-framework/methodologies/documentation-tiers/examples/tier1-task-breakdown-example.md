@@ -17,21 +17,21 @@
 ## Technical Notes for Tier 1 Features
 
 ### Implementation Approach
-Add a checkbox to the login form that, when checked, will securely store the user's authentication token for automatic login on subsequent app launches. The implementation will use Flutter's secure storage for storing credentials and modify the app startup flow to check for stored credentials.
+Add a checkbox to the login form that, when checked, will securely store the user's authentication token for automatic login on subsequent app launches. The implementation will use a secure storage library for storing credentials and modify the app startup flow to check for stored credentials.
 
 ### Key Components
-- `lib/screens/auth/login_screen.dart` - Add checkbox UI
-- `lib<!-- /features/auth/application/auth_service.dart - File not found -->` - Add methods for storing/retrieving credentials
-- `lib<!-- /features/auth/application/auth_notifier.dart - File not found -->` - Update state management
-- `lib<!-- /core/services/app_startup_service.dart - File not found -->` - Check for stored credentials on startup
+- `src/screens/auth/login_screen` - Add checkbox UI
+- `src/features/auth/application/auth_service` - Add methods for storing/retrieving credentials
+- `src/features/auth/application/auth_notifier` - Update state management
+- `src/core/services/app_startup_service` - Check for stored credentials on startup
 
 ### Technical Considerations
-- **Security**: Use flutter_secure_storage for encrypted storage of authentication tokens
+- **Security**: Use a secure storage library for encrypted storage of authentication tokens
 - **Performance**: Minimal impact as credential check happens only at startup
 - **Accessibility**: Ensure checkbox has proper label and is accessible with screen readers
 
 ### Dependencies
-- flutter_secure_storage: ^8.0.0 - For secure storage of authentication tokens
+- A secure storage library for encrypted storage of authentication tokens
 
 ## Task Breakdown
 
@@ -75,7 +75,7 @@ Tasks related to testing:
 |---------|-----------------|------------------|--------------|----------|-------|
 | T5.1 | Write unit tests for AuthService | S | T1.2 | Medium | |
 | T5.2 | Write unit tests for AuthNotifier | S | T2.1 | Medium | |
-| T5.3 | Write widget test for login screen | S | T3.2 | Medium | |
+| T5.3 | Write component test for login screen | S | T3.2 | Medium | |
 | T5.4 | Test app startup with stored credentials | S | T2.2 | Medium | |
 
 ### 6. Documentation Tasks

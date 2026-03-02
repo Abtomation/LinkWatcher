@@ -7,11 +7,10 @@ parser, updater, and file system handler.
 
 import os
 import signal
-import sys
 import time
 from pathlib import Path
 
-from colorama import Fore, Style
+from colorama import Fore
 from watchdog.observers import Observer
 
 from .config.settings import LinkWatcherConfig
@@ -218,7 +217,8 @@ class LinkWatcherService:
         print(f"   Links updated: {handler_stats['links_updated']}")
         print(f"   Errors: {handler_stats['errors']}")
         print(
-            f"   Database: {db_stats['total_references']} references to {db_stats['total_targets']} targets"
+            f"   Database: {db_stats['total_references']} references"
+            f" to {db_stats['total_targets']} targets"
         )
 
     def get_status(self) -> dict:
@@ -259,7 +259,7 @@ class LinkWatcherService:
         broken_links = []
         total_checked = 0
 
-        for target_path, references in self.link_db.links.items():
+        for target_path, references in self.link_db.get_all_targets_with_references().items():
             for ref in references:
                 total_checked += 1
 
@@ -281,7 +281,8 @@ class LinkWatcherService:
             for broken in broken_links[:10]:  # Show first 10
                 ref = broken["reference"]
                 print(
-                    f"   • {ref.file_path}:{ref.line_number} → {broken['target_path']} ({broken['reason']})"
+                    f"   • {ref.file_path}:{ref.line_number}"
+                    f" → {broken['target_path']} ({broken['reason']})"
                 )
             if len(broken_links) > 10:
                 print(f"   ... and {len(broken_links) - 10} more")

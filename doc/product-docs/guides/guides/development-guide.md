@@ -7,9 +7,9 @@ created: 2025-06-10
 updated: 2025-06-10
 ---
 
-# Breakout Buddies - Development Guide
+# Development Guide
 
-This guide provides best practices for developing the Escape Room Finder app using the defined project structure.
+This guide provides best practices for developing the project using the defined project structure.
 
 ## Development Workflow
 
@@ -44,65 +44,25 @@ This guide provides best practices for developing the Escape Room Finder app usi
 
 ### 2. Code Organization Principles
 
-#### Model-View-Controller (MVC) Pattern
+#### Layered Architecture
 
-- **Models**: Data structures in `/models`
-- **Views**: UI components in `/screens` and `/widgets`
-- **Controllers**: Business logic in `/services` and `/repositories`
+- **Models**: Data structures and domain objects
+- **Services**: Business logic and orchestration
+- **Utilities**: Shared helper functions and common operations
 
-#### Repository Pattern
+#### Separation of Concerns
 
-- Use repositories as a single source of truth for data
-- Repositories should abstract data sources (API, local storage)
-- Services should use repositories to access data
+- Keep business logic separate from I/O operations
+- Use clear interfaces between system layers
+- Services should abstract data sources and external dependencies
 
-#### Provider Pattern (with Riverpod)
-
-- Use providers for state management
-- Create providers in `/state/providers`
-- Use state notifiers for complex state management
-
-### 3. Implementation Checklists
-
-Implementation checklists are an important part of the development process. They help ensure consistent implementation and reduce the chance of missing important steps.
-
-#### Available Checklists
-
-The following checklists are available in the `/doc/product-docs/development/checklists/` directory:
-
-1. **[Feature Implementation Checklist](../../checklists/checklists/feature-implementation-checklist.md)** - Comprehensive checklist for implementing new features
-2. **[UI Component Checklist](../../checklists/checklists/ui-component-checklist.md)** - Checklist for implementing UI components
-3. **[API Integration Checklist](../../checklists/checklists/api-integration-checklist.md)** - Checklist for integrating with APIs
-4. **[Testing Checklist](../../checklists/checklists/testing-checklist.md)** - Checklist for testing implementations
-5. **[Security Checklist](../../checklists/checklists/security-checklist.md)** - Checklist for security considerations
-6. **[Accessibility Checklist](../../checklists/checklists/accessibility-checklist.md)** - Checklist for accessibility considerations
-7. **[Performance Checklist](../../checklists/checklists/performance-checklist.md)** - Checklist for performance considerations
-
-#### How to Use Checklists
-
-1. **Before Implementation**: Review the relevant checklist to understand the requirements
-2. **During Implementation**: Use the checklist as a guide to ensure all steps are completed
-3. **After Implementation**: Use the checklist to verify that all requirements have been met
-4. **During Self-Review**: Take a short break, then use the checklist as a reference for reviewing your own code
-5. **Before Committing**: Verify that all checklist items have been addressed
-
-#### When to Use Each Checklist
-
-- **Feature Implementation Checklist**: Use when implementing a new feature
-- **UI Component Checklist**: Use when implementing a new UI component
-- **API Integration Checklist**: Use when integrating with an API
-- **Testing Checklist**: Use when writing tests
-- **Security Checklist**: Use when implementing features that handle sensitive data or require authentication
-- **Accessibility Checklist**: Use when implementing UI components to ensure they are accessible
-- **Performance Checklist**: Use when implementing features that may impact performance
-
-### 6. Technical Design Documents
+### 3. Technical Design Documents
 
 Technical design documents are an important part of the development process for complex features. They help ensure that the implementation is well-thought-out and follows the project's architecture.
 
 #### Documentation Tier System
 
-Breakout Buddies uses a tiered approach to technical documentation based on feature complexity:
+The project uses a tiered approach to technical documentation based on feature complexity:
 
 1. **Tier 1 (Simple Features)** 🔵: Brief technical notes in task breakdown
 2. **Tier 2 (Moderate Features)** 🟠: Lightweight TDD focusing on key sections
@@ -153,9 +113,9 @@ Use the template in `/doc/product-docs/technical/architecture/design-docs/adr/ad
 
 ### 1. File Naming Conventions
 
-- Use snake_case for file names: `user_profile_screen.dart`
-- Use camelCase for variable and function names: `userProfileData`
-- Use PascalCase for class names: `UserProfileScreen`
+- Use snake_case for file names: `file_processor.py`
+- Use snake_case for variable and function names: `file_processor_data`
+- Use PascalCase for class names: `FileProcessor`
 
 ### 2. Directory Structure
 
@@ -166,83 +126,54 @@ Use the template in `/doc/product-docs/technical/architecture/design-docs/adr/ad
 ### 3. Code Documentation
 
 - Document all public APIs
-- Use dartdoc comments for classes and methods
+- Use docstrings for classes and methods
 - Include examples for complex functionality
 
-```dart
-/// A service for managing user profiles.
-///
-/// This service provides methods to create, update, and delete user profiles.
-/// It also handles profile image uploads and social media connections.
-///
-/// Example:
-/// ```dart
-/// final userProfileService = UserProfileService();
-/// await userProfileService.updateProfile(userId, {'name': 'John Doe'});
-/// ```
-class UserProfileService {
-  // Implementation
-}
+```python
+class FileProcessorService:
+    """A service for processing files and managing references.
+
+    This service provides methods to scan, process, and update
+    file references across the project.
+
+    Example:
+        processor = FileProcessorService(config)
+        processor.process_file(file_path)
+    """
+    pass
 ```
 
 ### 4. Error Handling
 
-- Use try-catch blocks for error-prone operations
+- Use try-except blocks for error-prone operations
 - Create custom exceptions for specific error cases
 - Log errors appropriately
-- Provide user-friendly error messages
+- Provide clear error messages
 
-```dart
-try {
-  await userProfileService.updateProfile(userId, profileData);
-} on NetworkException catch (e) {
-  log.error('Network error during profile update', e);
-  showErrorDialog('Unable to update profile. Please check your connection.');
-} on ValidationException catch (e) {
-  log.warning('Validation error during profile update', e);
-  showErrorDialog('Invalid profile data: ${e.message}');
-} catch (e) {
-  log.error('Unknown error during profile update', e);
-  showErrorDialog('An unexpected error occurred. Please try again later.');
-}
+```python
+try:
+    service.process_file(file_path, data)
+except FileNotFoundError as e:
+    logger.error(f"File not found during processing: {e}")
+    raise
+except ValidationError as e:
+    logger.warning(f"Validation error during processing: {e}")
+    raise
+except Exception as e:
+    logger.error(f"Unexpected error during processing: {e}")
+    raise
 ```
 
 ## Feature Development Guidelines
 
-### 1. Authentication & User Management
+### General Principles
 
-- Use Supabase Auth for authentication
-- Store user data in Supabase database
-- Keep sensitive user data secure
-- Implement proper validation for user inputs
-
-### 2. Escape Room Management
-
-- Create a robust data model for escape rooms
-- Implement efficient search and filtering
-- Use pagination for large result sets
-- Cache frequently accessed data
-
-### 3. Booking System
-
-- Integrate with external booking APIs
-- Implement a fallback booking system
-- Handle booking conflicts gracefully
-- Provide clear confirmation and error messages
-
-### 4. Payment Processing
-
-- Use secure payment gateways
-- Implement proper error handling for payment failures
-- Provide clear payment receipts
-- Support multiple payment methods
-
-### 5. Review & Rating System
-
-- Implement a fair and transparent rating system
-- Allow providers to respond to reviews
-- Moderate reviews for inappropriate content
-- Highlight helpful reviews
+- Follow the architecture defined in the project structure documentation
+- Implement proper validation for all inputs
+- Create robust data models for domain objects
+- Implement efficient processing for large data sets
+- Handle errors gracefully with clear messages
+- Keep sensitive data secure and properly protected
 
 ## Testing Strategy
 
@@ -252,27 +183,21 @@ try {
 - Mock external dependencies
 - Aim for high test coverage
 
-### 2. Widget Tests
-
-- Test all custom widgets
-- Test screen navigation
-- Test form validation
-
-### 3. Integration Tests
+### 2. Integration Tests
 
 - Test complete user flows
 - Test API integrations
 - Test database operations
 
-### 4. Performance Tests
+### 3. Performance Tests
 
-- Test app startup time
-- Test screen rendering performance
-- Test network request performance
+- Test startup time and initialization
+- Test processing performance with large inputs
+- Test resource usage under load
 
 ## Deployment Process
 
-The deployment process for BreakoutBuddies is automated using GitHub Actions. For complete details on the release and deployment process, see the [Release Process Guide](../../development/processes/release-process.md).
+The deployment process is automated using GitHub Actions. For complete details on the release and deployment process, see the [Release Process Guide](../../development/processes/release-process.md).
 
 Key aspects of the deployment process include:
 - Automated version bumping and changelog generation
@@ -282,9 +207,9 @@ Key aspects of the deployment process include:
 
 Before initiating a release, ensure all features are complete, tests are passing, and documentation is updated according to the [Definition of Done](../../../process-framework/methodologies/definition-of-done.md).
 
-### 3. Post-Deployment Monitoring
+### Post-Deployment Monitoring
 
-- Monitor app performance
+- Monitor application performance
 - Monitor error rates
 - Monitor user feedback
 
@@ -292,20 +217,15 @@ Before initiating a release, ensure all features are complete, tests are passing
 
 ### 1. Configuration File Management
 
-- **YAML Files**: Always update configuration files when making code changes
-  - **../../development/processes/pubspec.yaml**: Update when adding/removing dependencies, assets, or changing app metadata
-  - **analysis_options.yaml**: Update when changing linting rules or code analysis preferences
-  - **devtools_options.yaml**: Update when changing DevTools configurations
+- **Configuration Files**: Always update configuration files when making code changes
+  - **requirements.txt / setup.py**: Update when adding/removing dependencies
+  - **Configuration YAML**: Update when changing application settings or defaults
+  - **Linting configuration**: Update when changing code quality rules
 
-- **After updating ../../development/processes/pubspec.yaml**:
-  - Run `flutter pub get` to install new dependencies
+- **After updating dependencies**:
+  - Install new dependencies (`pip install -r requirements.txt`)
   - Verify that all dependencies are compatible
   - Document significant dependency changes
-
-- **Common ../../development/processes/pubspec.yaml updates**:
-  - Adding new packages: Add under `dependencies:` or `dev_dependencies:`
-  - Adding assets: Uncomment and update the `assets:` section
-  - Adding fonts: Uncomment and update the `fonts:` section
 
 ### 2. Regular Updates
 
@@ -321,12 +241,12 @@ Before initiating a release, ensure all features are complete, tests are passing
 
 ### 4. Performance Optimization
 
-- Regularly profile the app
+- Regularly profile the application
 - Optimize slow operations
 - Reduce memory usage
 
 ## Conclusion
 
-Following these guidelines will help ensure that the Escape Room Finder app is developed in a structured, maintainable way. The project structure and feature tracking documents provide a framework for organizing the codebase and tracking progress, while this development guide provides best practices for implementing features and maintaining the app.
+Following these guidelines will help ensure that the project is developed in a structured, maintainable way. The project structure and feature tracking documents provide a framework for organizing the codebase and tracking progress, while this development guide provides best practices for implementing features and maintaining the project.
 
 Remember to update the feature tracking document as features are implemented, and to follow the development workflow for all new features and changes.

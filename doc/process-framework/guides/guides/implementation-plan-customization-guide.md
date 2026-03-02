@@ -48,7 +48,7 @@ Before you begin, ensure you have:
 - **PowerShell access**: PowerShell 5.0 or higher with execution policy allowing script execution
 - **Knowledge of the feature**: Understanding of the feature requirements, architecture, and scope
 - **Design documentation**: Access to design documents, requirements specifications, and architecture decisions
-- **Project context**: Familiarity with BreakoutBuddies architecture (Flutter/Dart, Riverpod, Supabase)
+- **Project context**: Familiarity with the project's architecture and technology stack
 - **ID Registry knowledge**: Understanding of the document ID system and ID registry configuration
 
 ## Background
@@ -94,7 +94,7 @@ The implementation plan template (PF-TEM-042) is structured with these sections:
 
 1. **Navigate to the scripts directory**:
    ```powershell
-   cd "c:\Users\ronny\VS_Code\BreakoutBuddies\breakoutbuddies\doc\process-framework\scripts\file-creation"
+   cd "doc/process-framework/scripts/file-creation"
    ```
 
 2. **Execute the script with your feature information**:
@@ -184,8 +184,8 @@ For each architectural layer, follow this pattern:
 
 2. **For each phase document**:
    - Name and brief description
-   - Specific files to create in `/lib/`
-   - Specific files to modify in `/lib/`
+   - Specific files to create in the source directory
+   - Specific files to modify in the source directory
    - Duration estimate (Small/Medium/Large)
    - Which design document sections inform this phase
 
@@ -196,21 +196,21 @@ For each architectural layer, follow this pattern:
 
 4. **Technical Approach**:
    - Design patterns to follow (Singleton, Observer, Repository)
-   - Riverpod patterns (StateNotifier, FutureProvider)
-   - Code organization (where files go in `/lib/`)
+   - State management patterns appropriate to your framework
+   - Code organization (where files go in the source directory)
 
 **Expected Result:** Engineers understand exact implementation sequence and file structure
 
 ### 6. Complete Dependencies and Integration Sections
 
 1. **Internal Dependencies**:
-   - List other BreakoutBuddies features this depends on
+   - List other project features this depends on
    - Mark as "Completed" or "In Progress"
    - Document integration points
 
 2. **External Dependencies**:
    - Third-party packages (with version requirements)
-   - Supabase services (Auth, Database, Storage)
+   - Backend services (Auth, Database, Storage)
    - External APIs or services
 
 3. **Integration Points**:
@@ -226,7 +226,7 @@ For each architectural layer, follow this pattern:
 
 1. **Testing Strategy per Phase**:
    - Unit tests: Services, utilities, validation
-   - Widget tests: UI components and interactions
+   - Component tests: Module-level interactions and behavior
    - Integration tests: Cross-component flows
    - Test coverage targets: 75-85%
 
@@ -238,7 +238,7 @@ For each architectural layer, follow this pattern:
    - Mitigation must be actionable, not vague
 
 3. **Quality Standards**:
-   - Code quality: Follow Dart style guide, use linting rules
+   - Code quality: Follow the project style guide, use linting rules
    - Performance: Screen load times, API response times
    - Security: Input validation, auth checks, data handling
 
@@ -294,16 +294,16 @@ Before considering an implementation plan complete, verify:
 - [ ] Feature Overview references all relevant design documents (FDD, TDD, API, DB, UI)
 - [ ] Architecture sections document all affected layers (Data, State, UI)
 - [ ] Implementation phases are sequenced logically with clear dependencies
-- [ ] Specific file paths in `/lib/` are documented for each phase
+- [ ] Specific file paths in the source directory are documented for each phase
 - [ ] Testing strategy is defined for each phase with coverage targets
 - [ ] Risks are identified with specific, actionable mitigations
 - [ ] Success criteria are measurable and verifiable
 
 **Quality Standards:**
 - [ ] All links to design documents are functional and correct
-- [ ] File paths follow project conventions (`lib/features/[feature]/`)
-- [ ] Design patterns match project standards (Repository, StateNotifier, etc.)
-- [ ] Performance targets are realistic for Flutter/Dart applications
+- [ ] File paths follow project conventions (your project's module/package structure)
+- [ ] Design patterns match project standards (Repository, Service, etc.)
+- [ ] Performance targets are realistic for the project's technology stack
 - [ ] Security requirements address authentication, data handling, input validation
 
 **Team Alignment:**
@@ -322,9 +322,9 @@ Before considering an implementation plan complete, verify:
 
 **Completeness Validation:**
 - All design document sections relevant to implementation are referenced
-- All files to be created in `/lib/` are identified
-- All files to be modified in `/lib/` are identified
-- Test files in `/test/` are planned for each phase
+- All files to be created in the source directory are identified
+- All files to be modified in the source directory are identified
+- Test files in the test directory are planned for each phase
 
 **Realism Validation:**
 - Effort estimates are 3-8 hours per phase (not too large)
@@ -336,8 +336,8 @@ Before considering an implementation plan complete, verify:
 
 1. **Cross-reference verification**:
    - Open each design document link - verify it exists and is relevant
-   - Check that file paths in `/lib/` match project structure
-   - Confirm Riverpod patterns used match project examples
+   - Check that file paths in the source directory match project structure
+   - Confirm design patterns used match project examples
 
 2. **Stakeholder review**:
    - Share plan with product owner - verify functional coverage
@@ -377,19 +377,19 @@ Feature: Add user profile display screen
 
 **Implementation Phases:**
 1. Create UI screens (3 hours) - 2 screens showing read/edit views
-2. Add state management (2 hours) - 1 StateNotifier, 2 providers
-3. Implement tests (2 hours) - Widget tests for both screens
+2. Add state management (2 hours) - 1 service class, 2 data providers
+3. Implement tests (2 hours) - Component tests for both modules
 4. Integration (1 hour) - Wire into navigation
 
 **Result:** Implementation plan ready for engineer with clear file paths and effort estimates
 
 ### Example 2: Customizing for a Complex Feature with External Dependencies
 
-Feature: Escape room booking system with payment integration
+Feature: Order management system with payment integration
 
 ```powershell
 # Create the implementation plan
-.\New-ImplementationPlan.ps1 -FeatureName "ERM-012-booking-system" -Description "Complete booking workflow with payment processing and availability management"
+.\New-ImplementationPlan.ps1 -FeatureName "ORD-012-order-system" -Description "Complete order workflow with payment processing and inventory management"
 ```
 
 **Customization approach for complex feature:**
@@ -402,8 +402,8 @@ Feature: Escape room booking system with payment integration
 
 **Implementation Phases:**
 1. Data models & migrations (6 hours)
-2. Availability logic (8 hours)
-3. Booking service (8 hours)
+2. Inventory logic (8 hours)
+3. Order service (8 hours)
 4. Payment integration (12 hours)
 5. UI screens (12 hours)
 6. Testing & validation (8 hours)
@@ -432,15 +432,15 @@ Feature: Escape room booking system with payment integration
 
 ### Issue: Missing file paths or unclear what files to create/modify
 
-**Symptom:** Implementation Approach section doesn't specify which files go in `/lib/`
+**Symptom:** Implementation Approach section doesn't specify which files go in the source directory
 
 **Cause:** Not reviewing codebase structure or design documents for implementation guidance
 
 **Solution:**
 1. Review TDD document's "Implementation Approach" section - find file structure recommendations
-2. Look at similar features in `/lib/features/` to understand naming conventions
+2. Look at similar features in the features directory to understand naming conventions
 3. Reference UI/UX design document for screen names
-4. Document exactly: `lib/features/[feature-name]/[component].dart` for each file
+4. Document exactly the path for each file following your project's structure
 5. Mark files as "Create" or "Modify" with specific changes needed
 
 ### Issue: Dependencies not identified correctly

@@ -50,7 +50,7 @@ function Update-TestImplementationStatus {
 
     .EXAMPLE
     $additionalUpdates = @{
-        "Test File" = "[PD-TST-001](test/unit/example_test.dart)"
+        "Test File" = "[PD-TST-001](test/unit/example_test)"
         "Test Cases Count" = "15"
     }
     Update-TestImplementationStatus -FeatureId "1.2.3" -Status "🟡 Implementation In Progress" -AdditionalUpdates $additionalUpdates
@@ -177,10 +177,10 @@ function Add-TestRegistryEntry {
     The feature ID this test belongs to (e.g., "0.2.5", "1.1.1")
 
     .PARAMETER FileName
-    The test file name (e.g., "example_test.dart")
+    The test file name (e.g., "example_test")
 
     .PARAMETER FilePath
-    The relative path to the test file from project root (e.g., "test/unit/example_test.dart")
+    The relative path to the test file from project root (e.g., "test/unit/example_test")
 
     .PARAMETER TestType
     The type of test (Unit, Widget, Integration, E2E)
@@ -198,7 +198,7 @@ function Add-TestRegistryEntry {
     If specified, shows what would be added without making changes
 
     .EXAMPLE
-    Add-TestRegistryEntry -FeatureId "0.2.5" -FileName "logger_test.dart" -FilePath "test/unit/logger_test.dart" -TestType "Unit" -ComponentName "Logger" -Description "Unit tests for Logger service"
+    Add-TestRegistryEntry -FeatureId "0.2.5" -FileName "test_logger.py" -FilePath "tests/unit/test_logger.py" -TestType "Unit" -ComponentName "Logger" -Description "Unit tests for Logger service"
 
     .RETURNS
     Returns the generated PD-TST ID if successful, null if failed
@@ -628,7 +628,7 @@ function Update-TestImplementationStatusEnhanced {
     If specified, shows what would be updated without making changes
 
     .EXAMPLE
-    Update-TestImplementationStatusEnhanced -FeatureId "99.1.2" -TestFileId "PD-TST-087" -TestFilePath "test/unit/example_test.dart" -Status "🟡 Implementation In Progress"
+    Update-TestImplementationStatusEnhanced -FeatureId "99.1.2" -TestFileId "PD-TST-087" -TestFilePath "test/unit/example_test" -Status "🟡 Implementation In Progress"
     #>
 
     [CmdletBinding()]

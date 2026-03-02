@@ -11,7 +11,7 @@ updated: 2025-07-08
 
 ## Overview
 
-The Process Framework Guides directory contains comprehensive guides that provide detailed instructions, best practices, and methodologies for working within the BreakoutBuddies development process. These guides complement the task definitions by providing deeper context and detailed procedures for complex activities.
+The Process Framework Guides directory contains comprehensive guides that provide detailed instructions, best practices, and methodologies for working within the development process. These guides complement the task definitions by providing deeper context and detailed procedures for complex activities.
 
 ## Purpose
 

@@ -10,7 +10,7 @@ updated: 2025-06-05
 
 ## Overview
 
-This flowchart illustrates the complete feedback process for tools, templates, and guides used during tasks in the BreakoutBuddies project.
+This flowchart illustrates the complete feedback process for tools, templates, and guides used during tasks in the project.
 
 ## Process Flow
 

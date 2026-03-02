@@ -26,15 +26,15 @@ extension_scope: Testing task definitions, templates, scripts, tracking infrastr
 
 ## 1. Purpose & Context
 
-**Brief Description**: Transform the framework's testing pipeline from a Dart/Flutter-coupled system into a tech-stack agnostic, project-configurable testing workflow that supports cross-cutting integration tests, integrates with existing test suites, and combines framework traceability with practical execution guidance.
+**Brief Description**: Transform the framework's testing pipeline from a technology-coupled system into a tech-stack agnostic, project-configurable testing workflow that supports cross-cutting integration tests, integrates with existing test suites, and combines framework traceability with practical execution guidance.
 
 ### Extension Overview
 
 The current framework testing pipeline (Test Specification Creation → Test Implementation → Test Audit) is functionally sound in its lifecycle design but has three critical gaps when applied to the LinkWatcher project:
 
-1. **Technology coupling**: Scripts, templates, and task definitions contain hardcoded Dart/Flutter/BreakoutBuddies references that prevent use with Python/pytest
+1. **Technology coupling**: Scripts, templates, and task definitions contain hardcoded technology-specific references that prevent use with other tech stacks
 2. **Per-feature fragmentation**: Integration tests spanning multiple features have no proper home in the per-feature test specification model
-3. **No migration path**: Existing test suites (165+ methods in LinkWatcher) cannot be registered in the framework without re-creating them through the full pipeline
+3. **No migration path**: Existing test suites cannot be registered in the framework without re-creating them through the full pipeline
 
 This extension solves all three by making the pipeline configurable via `project-config.json`, adding a cross-cutting test specification concept, defining a registration workflow for existing tests, and updating the onboarding tasks to properly handle test files in future project adoptions.
 
@@ -51,13 +51,13 @@ This extension solves all three by making the pipeline configurable via `project
 
 This framework extension should be used when:
 
-- **Adopting the framework into a non-Dart project**: Any project using Python, JavaScript, Go, Rust, etc. that needs the testing pipeline
+- **Adopting the framework into a new project**: Any project using a different tech stack that needs the testing pipeline
 - **A project has an existing test suite**: Pre-existing tests need to be registered in the framework without re-implementation
 - **Integration tests cross feature boundaries**: Tests that exercise multiple features simultaneously need proper specification and tracking
 - **Test execution guidance is needed alongside traceability**: Projects need both "which tests verify which requirement" (framework) and "which tests to run when" (execution matrix)
 
 ### Example Use Cases
-- LinkWatcher (Python/pytest): 165+ existing test methods across unit, integration, parser, and performance categories need framework registration
+- Projects with existing test suites (e.g., 100+ test methods) across multiple categories need framework registration
 - Any future project onboarded via the framework that has existing tests
 - Projects with behavior-oriented test organization (e.g., by user action rather than by feature)
 
@@ -65,9 +65,9 @@ This framework extension should be used when:
 
 ### Phase 1: Genericization (Remove tech coupling)
 1. **Update New-TestFile.ps1** - Read `project-config.json` to determine language, select appropriate template, and generate correct test file structure
-2. **Create test-file-template.py** - Python/pytest equivalent of the existing test-file-template.dart
-3. **Update test-implementation-task.md** - Replace hardcoded BreakoutBuddies paths with relative references, make test types configurable
-4. **Update test-audit-task.md** - Replace hardcoded BreakoutBuddies paths with relative references
+2. **Create language-specific test templates** - Test file templates for each supported language
+3. **Update test-implementation-task.md** - Replace hardcoded project paths with relative references, make test types configurable
+4. **Update test-audit-task.md** - Replace hardcoded project paths with relative references
 
 ### Phase 2: Cross-cutting test support (New capability)
 5. **Create cross-cutting test spec template** - New template for test specifications that span multiple features
@@ -97,9 +97,9 @@ This framework extension should be used when:
 
 ### Phase 1 Outputs (Genericization)
 - **Modified New-TestFile.ps1** - Reads project-config.json, selects language-appropriate template
-- **New test-file-template.py** - Python/pytest test file template with PD-TST metadata in comments
+- **New language-specific test templates** - Test file templates with PD-TST metadata in comments
 - **Modified test-implementation-task.md** - Generic paths, configurable test types
-- **Modified test-audit-task.md** - Generic paths, no BreakoutBuddies references
+- **Modified test-audit-task.md** - Generic paths, no project-specific references
 
 ### Phase 2 Outputs (Cross-cutting support)
 - **New cross-cutting-test-specification-template.md** - Template for multi-feature test specs
@@ -129,7 +129,7 @@ This framework extension should be used when:
 ### New Artifacts Created
 | Artifact Type | Name | Purpose | Serves as Input For |
 |---------------|------|---------|-------------------|
-| Template | test-file-template.py | Python test file generation | New-TestFile.ps1 (Phase 1) |
+| Template | Language-specific test template | Test file generation per language | New-TestFile.ps1 (Phase 1) |
 | Template | cross-cutting-test-specification-template.md | Multi-feature test spec creation | Test Specification Creation task |
 | Script | Validate-TestTracking.ps1 | Registry-to-disk consistency check | Test Audit task, CI pipeline |
 | Directory | /test/specifications/cross-cutting-specs/ | Storage for cross-cutting specs | Test Specification Creation task |
@@ -138,7 +138,7 @@ This framework extension should be used when:
 | Required Artifact | Source | Usage |
 |------------------|--------|-------|
 | project-config.json | doc/process-framework/ | Language detection for template selection |
-| test-file-template.dart | templates/templates/ | Reference pattern for Python template |
+| Language-specific test template | templates/templates/ | Reference pattern for additional language templates |
 | test-registry.yaml | test/ | Schema extension target |
 | test-implementation-tracking.md | state-tracking/permanent/ | Bulk population target |
 | feature-tracking.md | state-tracking/permanent/ | Test Status column updates |
@@ -172,11 +172,11 @@ This extension enhances existing state files rather than creating new ones:
 
 | Integration Point | Current Framework Component | Integration Method |
 |------------------|----------------------------|-------------------|
-| Test file generation | New-TestFile.ps1 + test-file-template.dart | Add project-config.json reader, add Python template, select based on `primary_language` |
+| Test file generation | New-TestFile.ps1 + language-specific templates | Add project-config.json reader, add language templates, select based on `primary_language` |
 | Test specification workflow | PF-TSK-012 (Test Specification Creation) | Add reference to cross-cutting template as available option |
 | Cross-cutting test analysis | PF-TSK-053 (Integration and Testing) | Add optional cross-cutting test identification guidance |
-| Test implementation tracking | PF-TSK-029 + test-implementation-tracking.md | Remove hardcoded paths, make test types data-driven |
-| Test audit workflow | PF-TSK-030 (Test Audit) | Remove hardcoded paths, keep evaluation criteria generic |
+| Test implementation tracking | PF-TSK-029 + test-implementation-tracking.md | Remove hardcoded project paths, make test types data-driven |
+| Test audit workflow | PF-TSK-030 (Test Audit) | Remove hardcoded project paths, keep evaluation criteria generic |
 | Feature tracking | feature-tracking.md | Bulk update Test Status column for registered tests |
 | Onboarding — file classification | PF-TSK-064 (Codebase Feature Discovery) | Add test file classification (source vs test vs cross-cutting) |
 | Onboarding — test validation | PF-TSK-065 (Codebase Feature Analysis) | Add test validation, coverage analysis, registry population |
@@ -191,7 +191,7 @@ This extension enhances existing state files rather than creating new ones:
 - [ ] Create test-file-template.py (Python/pytest equivalent)
 - [ ] Update test-implementation-task.md — replace BB paths, make test types generic
 - [ ] Update test-audit-task.md — replace BB paths
-- [ ] Update test-implementation-tracking.md — remove Dart validation script references
+- [ ] Update test-implementation-tracking.md — remove legacy validation script references
 - [ ] Verify all testing components work with LinkWatcher's Python/pytest stack
 
 ### Session 2: Cross-cutting Test Support + Existing Test Registration (High Priority)
@@ -223,21 +223,21 @@ This extension enhances existing state files rather than creating new ones:
 ## 9. Success Criteria
 
 ### Functional Success Criteria
-- [ ] **New-TestFile.ps1 generates Python test files** when project-config.json specifies `primary_language: "Python"`
+- [ ] **New-TestFile.ps1 generates language-appropriate test files** based on project-config.json `primary_language` setting
 - [ ] **Cross-cutting test specs** can be created and linked to multiple features
-- [ ] **All existing 165+ test methods** are registered in test-registry.yaml
+- [ ] **All existing test methods** are registered in test-registry.yaml
 - [ ] **Validation script** confirms registry matches actual test files on disk
 - [ ] **Onboarding tasks handle test files** — Discovery classifies, Analysis validates and populates tracking, Documentation closes gaps
 
 ### Integration Success Criteria
-- [ ] **No BreakoutBuddies references** remain in any testing task, template, or script
-- [ ] **No Dart/Flutter assumptions** remain in any generic testing component
+- [ ] **No project-specific references** remain in any testing task, template, or script
+- [ ] **No technology-specific assumptions** remain in any generic testing component
 - [ ] **project-config.json** is the single source of truth for tech-stack choices
 - [ ] **Existing TEST_PLAN.md and TEST_CASE_STATUS.md** are preserved alongside framework tracking (not replaced)
 
 ### Quality Success Criteria
-- [ ] **Zero regression**: Existing framework functionality unchanged for projects that use Dart
-- [ ] **Test pipeline complete**: Spec → Implement → Audit workflow works end-to-end for Python/pytest
+- [ ] **Zero regression**: Existing framework functionality unchanged for previously supported projects
+- [ ] **Test pipeline complete**: Spec → Implement → Audit workflow works end-to-end for any configured language
 - [ ] **Cross-cutting specs documented**: At least one cross-cutting spec created as proof of concept
 - [ ] **Feature traceability**: Every test file traceable to at least one feature ID
 
@@ -245,7 +245,7 @@ This extension enhances existing state files rather than creating new ones:
 
 | Risk | Impact | Mitigation |
 |------|--------|------------|
-| New-TestFile.ps1 modification breaks Dart projects | High | Keep test-file-template.dart alongside .py; language selection is additive, not replacing |
+| New-TestFile.ps1 modification breaks existing projects | High | Keep existing templates alongside new ones; language selection is additive, not replacing |
 | Bulk registration creates inconsistent IDs | Medium | Run validation script after registration to verify |
 | Cross-cutting spec concept too complex | Low | Start with one proof-of-concept spec; simplify if needed |
 | test-registry.yaml schema change breaks existing tooling | Medium | Schema extension is additive — new optional fields only |

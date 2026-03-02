@@ -106,75 +106,75 @@ additional_fields:
 
 [Describe the data models used by this feature]
 
-```dart
-// Example model code
-class ExampleModel {
-  final String id;
-  final String name;
+```python
+# Example model code
+class ExampleModel:
+    def __init__(self, id: str, name: str):
+        self.id = id
+        self.name = name
 
-  ExampleModel({required this.id, required this.name});
-
-  // Factory methods, serialization, etc.
-}
+    # Factory methods, serialization, etc.
 ```
 
 ### 4.2 Services
 
 [Describe the services used by this feature]
 
-```dart
-// Example service code
-class ExampleService {
-  Future<List<ExampleModel>> getExamples() async {
-    // Implementation details
-  }
-}
+```python
+# Example service code
+class ExampleService:
+    def get_examples(self) -> list:
+        """Retrieve examples."""
+        # Implementation details
+        pass
 ```
 
 ### 4.3 Repositories
 
 [Describe the repositories used by this feature]
 
-```dart
-// Example repository code
-class ExampleRepository {
-  final ExampleService _service;
+```python
+# Example repository code
+class ExampleRepository:
+    def __init__(self, service: ExampleService):
+        self._service = service
 
-  ExampleRepository(this._service);
-
-  Future<List<ExampleModel>> getExamples() async {
-    // Implementation details
-  }
-}
+    def get_examples(self) -> list:
+        """Retrieve examples via service."""
+        # Implementation details
+        pass
 ```
 
-### 4.4 UI Components
+### 4.4 CLI Components
 
-[Describe the UI components used by this feature]
+[Describe the CLI components used by this feature]
 
-```dart
-// Example widget code
-class ExampleWidget extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    // Implementation details
-  }
-}
+```python
+# Example CLI component code
+class ExampleCommand:
+    def __init__(self, config: dict):
+        self.config = config
+
+    def execute(self, args: list) -> int:
+        """Execute the command and return exit code."""
+        # Implementation details
+        pass
 ```
 
 ### 4.5 State Management
 
 [Describe how state is managed for this feature]
 
-```dart
-// Example state management code
-class ExampleNotifier extends StateNotifier<ExampleState> {
-  ExampleNotifier() : super(ExampleState.initial());
+```python
+# Example state management code
+class ExampleState:
+    def __init__(self):
+        self._state = {}
 
-  void updateExample(String id) {
-    // Implementation details
-  }
-}
+    def update(self, key: str, value) -> None:
+        """Update internal state."""
+        # Implementation details
+        self._state[key] = value
 ```
 
 ## 5. Functional Requirements Reference
@@ -392,7 +392,7 @@ class ExampleNotifier extends StateNotifier<ExampleState> {
 <!-- Focus on: testability considerations in design, testing hooks, test data requirements -->
 <!-- Examples:
   - "Service layer designed with dependency injection for unit test mocking"
-  - "State management includes test helpers for widget testing"
+  - "State management includes test helpers for component testing"
   - "API integration uses test doubles for integration testing"
 -->
 
@@ -404,7 +404,7 @@ class ExampleNotifier extends StateNotifier<ExampleState> {
 **Testing Approach**:
 
 - [Unit testing strategy for services and models]
-- [Widget testing approach for UI components]
+- [Component testing approach for modules]
 - [Integration testing considerations]
 
 **Test Data Requirements**:

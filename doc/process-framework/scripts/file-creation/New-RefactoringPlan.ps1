@@ -22,14 +22,22 @@
 .PARAMETER Priority
     Priority level of the refactoring (High, Medium, Low). Defaults to "Medium"
 
+.PARAMETER Lightweight
+    If specified, creates a lightweight refactoring plan using the compact template (PF-TEM-050).
+    Use for low-effort items: ≤15 min effort, single file, no architectural impact.
+    Supports batch mode — copy the "Item N" section for multiple quick fixes.
+
 .PARAMETER OpenInEditor
     If specified, opens the created file in the default editor
 
 .EXAMPLE
-    ../../../../../../refactoring/New-RefactoringPlan.ps1 -RefactoringScope "User Authentication Module" -TargetArea "lib/services/auth/"
+    .\New-RefactoringPlan.ps1 -RefactoringScope "User Authentication Module" -TargetArea "lib/services/auth/"
 
 .EXAMPLE
-    ../../../../../../refactoring/New-RefactoringPlan.ps1 -RefactoringScope "Database Layer Optimization" -TargetArea "lib/data/" -Priority "High" -OpenInEditor
+    .\New-RefactoringPlan.ps1 -RefactoringScope "Database Layer Optimization" -TargetArea "lib/data/" -Priority "High" -OpenInEditor
+
+.EXAMPLE
+    .\New-RefactoringPlan.ps1 -RefactoringScope "Replace bare excepts in handler.py (TD011)" -TargetArea "linkwatcher/handler.py" -Lightweight
 
 .NOTES
     - Requires PowerShell execution policy to allow script execution
@@ -56,6 +64,9 @@ param(
     [string]$Priority = "Medium",
 
     [Parameter(Mandatory = $false)]
+    [switch]$Lightweight,
+
+    [Parameter(Mandatory = $false)]
     [switch]$OpenInEditor
 )
 
@@ -75,11 +86,23 @@ catch {
 # Perform standard initialization
 Invoke-StandardScriptInitialization
 
+# Select template based on -Lightweight switch
+if ($Lightweight) {
+    $templatePath = "doc/process-framework/templates/templates/lightweight-refactoring-plan-template.md"
+    $modeLabel = "Lightweight"
+} else {
+    $templatePath = "doc/process-framework/templates/templates/refactoring-plan-template.md"
+    $modeLabel = "Standard"
+}
+
 # Prepare additional metadata fields
 $additionalMetadataFields = @{
     "refactoring_scope" = $RefactoringScope
     "target_area"       = $TargetArea
     "priority"          = $Priority
+}
+if ($Lightweight) {
+    $additionalMetadataFields["mode"] = "lightweight"
 }
 
 # Prepare custom replacements for the template
@@ -94,10 +117,11 @@ $customReplacements = @{
 # Create the document using standardized process
 try {
     # Use DirectoryType for ID registry-based directory resolution
-    $documentId = New-StandardProjectDocument -TemplatePath "doc/process-framework/templates/templates/refactoring-plan-template.md" -IdPrefix "PF-REF" -IdDescription "Refactoring Plan: $RefactoringScope" -DocumentName $RefactoringScope -DirectoryType "plans" -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
+    $documentId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "PF-REF" -IdDescription "Refactoring Plan: $RefactoringScope" -DocumentName $RefactoringScope -DirectoryType "plans" -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
 
     # Provide success details
     $details = @(
+        "Mode: $modeLabel",
         "Refactoring Scope: $RefactoringScope",
         "Target Area: $TargetArea",
         "Priority: $Priority"
@@ -105,24 +129,31 @@ try {
 
     # Add next steps if not opening in editor
     if (-not $OpenInEditor) {
-        $details += @(
-            "",
-            "🚨🚨🚨 CRITICAL: TEMPLATE CREATED - EXTENSIVE CUSTOMIZATION REQUIRED 🚨🚨🚨",
-            "",
-            "⚠️  IMPORTANT: This script creates ONLY a structural template/framework.",
-            "⚠️  The generated file is NOT a functional document until extensively customized.",
-            "⚠️  AI agents MUST follow the referenced guide to properly customize the content.",
-            "",
-            "📖 MANDATORY CUSTOMIZATION GUIDE:",
-            "   doc/process-framework/guides/guides/code-refactoring-task-usage-guide.md",
-            "🎯 FOCUS AREAS: 'Refactoring Plan Development' section",
-            "",
-            "🚫 DO NOT use the generated file without proper customization!",
-            "✅ The template provides structure - YOU provide the meaningful content."
-        )
+        if ($Lightweight) {
+            $details += @(
+                "",
+                "📝 Lightweight plan created. Fill in Item sections, then update Documentation & State Updates checklist for each item."
+            )
+        } else {
+            $details += @(
+                "",
+                "🚨🚨🚨 CRITICAL: TEMPLATE CREATED - EXTENSIVE CUSTOMIZATION REQUIRED 🚨🚨🚨",
+                "",
+                "⚠️  IMPORTANT: This script creates ONLY a structural template/framework.",
+                "⚠️  The generated file is NOT a functional document until extensively customized.",
+                "⚠️  AI agents MUST follow the referenced guide to properly customize the content.",
+                "",
+                "📖 MANDATORY CUSTOMIZATION GUIDE:",
+                "   doc/process-framework/guides/guides/code-refactoring-task-usage-guide.md",
+                "🎯 FOCUS AREAS: 'Refactoring Plan Development' section",
+                "",
+                "🚫 DO NOT use the generated file without proper customization!",
+                "✅ The template provides structure - YOU provide the meaningful content."
+            )
+        }
     }
 
-    Write-ProjectSuccess -Message "Created Refactoring Plan with ID: $documentId" -Details $details
+    Write-ProjectSuccess -Message "Created $modeLabel Refactoring Plan with ID: $documentId" -Details $details
 }
 catch {
     Write-ProjectError -Message "Failed to create Refactoring Plan: $($_.Exception.Message)" -ExitCode 1

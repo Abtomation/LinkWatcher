@@ -1,6 +1,6 @@
 # Test Audits Directory
 
-This directory contains Test Audit Reports and related automation scripts for the BreakoutBuddies project's test quality assurance process.
+This directory contains Test Audit Reports and related automation scripts for the project's test quality assurance process.
 
 ## Directory Structure
 

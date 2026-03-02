@@ -2,9 +2,9 @@
 id: PF-TSK-055
 type: Process Framework
 category: Task Definition
-version: 1.0
+version: 1.1
 created: 2025-12-13
-updated: 2025-12-13
+updated: 2026-03-02
 task_type: Discrete
 ---
 
@@ -58,6 +58,10 @@ Complete remaining items and prepare feature for production deployment. This tas
 > **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished! 🚨**
 >
 > **⚠️ MANDATORY: Update Feature Implementation State File throughout finalization.**
+>
+> **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
+>
+> **⚠️ MANDATORY: Never proceed past a checkpoint without presenting findings and getting explicit approval.**
 
 ### Preparation
 
@@ -65,49 +69,52 @@ Complete remaining items and prepare feature for production deployment. This tas
 2. **Verify Prerequisites**: Confirm all implementation tasks complete, tests passing, and stakeholder approvals obtained
 3. **Review Deployment Requirements**: Read TDD deployment section to understand deployment procedures, environment requirements, and validation steps
 4. **Plan Finalization Workflow**: Determine documentation tasks, release note content, deployment procedures, and rollback strategies
+5. **🚨 CHECKPOINT**: Present quality validation results, prerequisites status, deployment requirements, and finalization workflow plan to human partner for approval before finalization begins
 
 ### Execution
 
-5. **Complete Feature Documentation**: Finalize all feature documentation
+6. **Complete Feature Documentation**: Finalize all feature documentation
    - Update code documentation (inline comments, README files)
    - Create/update user documentation (user guides, API docs)
    - Document configuration requirements and environment variables
    - Update architecture diagrams if needed
-6. **Generate Release Notes**: Create comprehensive release notes
+7. **Generate Release Notes**: Create comprehensive release notes
    - Document new features and enhancements
    - List bug fixes and improvements
    - Note breaking changes and migration steps
    - Include deployment instructions and rollback procedures
-7. **Prepare Deployment Checklist**: Create deployment execution checklist
+8. **Prepare Deployment Checklist**: Create deployment execution checklist
    - Pre-deployment validation steps
    - Deployment execution sequence
    - Post-deployment verification steps
    - Monitoring and health check procedures
-8. **Create Rollback Plan**: Document rollback procedures and triggers
+9. **Create Rollback Plan**: Document rollback procedures and triggers
    - Identify rollback trigger conditions
    - Document rollback execution steps
    - Define data migration rollback procedures
    - Establish communication plan for rollback scenarios
-9. **Prepare Deployment Configuration**: Set up deployment configurations
+10. **Prepare Deployment Configuration**: Set up deployment configurations
    - Update CI/CD pipeline configurations
    - Prepare environment-specific configurations
    - Set up feature flags if using gradual rollout
    - Configure monitoring and alerting
-10. **Conduct Final Validation**: Perform pre-deployment validation
+11. **Conduct Final Validation**: Perform pre-deployment validation
     - Run full test suite and verify all tests pass
     - Perform smoke testing in staging environment
     - Validate deployment artifacts and build integrity
     - Verify database migrations and data integrity
-11. **Update Feature Implementation State File**: Document finalization completion, deployment readiness status, and remaining items
+12. **Update Feature Implementation State File**: Document finalization completion, deployment readiness status, and remaining items
+
+13. **🚨 CHECKPOINT**: Present completed documentation, release notes, deployment checklist, rollback plan, and final validation results to human partner for review before deployment finalization
 
 ### Finalization
 
-12. **Obtain Deployment Sign-off**: Get final approvals from stakeholders
-13. **Schedule Deployment Window**: Coordinate deployment timing with stakeholders and operations team
-14. **Brief Deployment Team**: Communicate deployment plan, procedures, and rollback strategy to execution team
-15. **Archive Feature Implementation State File**: Move feature state file to completed archive with final status
-16. **Update Feature Tracking**: Mark feature as "Deployed" or "Ready for Deployment" in feature-tracking.md
-17. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+14. **Obtain Deployment Sign-off**: Get final approvals from stakeholders
+15. **Schedule Deployment Window**: Coordinate deployment timing with stakeholders and operations team
+16. **Brief Deployment Team**: Communicate deployment plan, procedures, and rollback strategy to execution team
+17. **Archive Feature Implementation State File**: Move feature state file to completed archive with final status
+18. **Update Feature Tracking**: Mark feature as "Deployed" or "Ready for Deployment" in feature-tracking.md
+19. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 
@@ -161,7 +168,7 @@ Before considering this task finished:
 - [**Post-Deployment Validation**](../05-validation/post-deployment-validation-task.md) - Validate successful deployment and monitor production behavior
 ## Related Resources
 
-- [Deployment Best Practices](https://docs.flutter.dev/deployment) - Flutter deployment guide for different platforms
+- Deployment best practices documentation for your technology stack
 - [Release Management Guide](../../guides/guides/release-management-guide.md) - Project release versioning and procedures
 - [Rollback Procedures](../../guides/guides/rollback-procedures-guide.md) - Standard rollback execution patterns
 - [Feature Implementation State Tracking Guide](../../guides/guides/feature-implementation-state-tracking-guide.md) - Guide for maintaining feature state file

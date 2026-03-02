@@ -39,15 +39,15 @@ graph TD
     AFA --> VR
     VR --> DM[Documentation Map]
 
-    FLUTTER[Flutter Best Practices] -.-> EA
+    BESTPRAC[Language Best Practices] -.-> EA
     TESTING[Testing Guidelines] -.-> TIE
-    RIVERPOD[Riverpod Documentation] -.-> AFA
+    STATEMGMT[State Management Docs] -.-> AFA
     VNG[Visual Notation Guide] -.-> VR
     IDR[(ID Registry)] -.-> VR
 
     class FT,FVT,VRT,LIB critical
     class CONFIG,TEST,TDD,NVRS,EA,CFA,TIE,AFA important
-    class FLUTTER,TESTING,RIVERPOD,VNG,IDR reference
+    class BESTPRAC,TESTING,STATEMGMT,VNG,IDR reference
 ```
 
 ## Essential Components
@@ -61,7 +61,7 @@ graph TD
 
 ### Important Components (Should Understand)
 
-- **Configuration Files (CONFIG)**: pubspec.yaml and environment configs for configuration flexibility assessment
+- **Configuration Files (CONFIG)**: Dependency manifests and environment configs for configuration flexibility assessment
 - **test/ directory (TEST)**: Testing infrastructure for coverage and maintainability evaluation
 - **Technical Design Documents (TDD)**: Architectural patterns and extension points documentation
 - **New-ValidationReport Script (NVRS)**: Automation script for generating standardized validation reports
@@ -72,9 +72,9 @@ graph TD
 
 ### Reference Components (Access When Needed)
 
-- **Flutter Best Practices (FLUTTER)**: Framework-specific extensibility patterns and architectural guidance
+- **Framework Best Practices**: Framework-specific extensibility patterns and architectural guidance
 - **Testing Guidelines (TESTING)**: Testing infrastructure best practices and coverage standards
-- **Riverpod Documentation (RIVERPOD)**: State management extensibility patterns and configuration options
+- **State Management Documentation**: State management extensibility patterns and configuration options
 - **Visual Notation Guide (VNG)**: For interpreting context map diagrams and visual elements
 - **ID Registry (IDR)**: For understanding validation report ID assignments and tracking
 
@@ -104,7 +104,7 @@ graph TD
 6. **Perform Cross-Cutting Analysis**: Unlike feature-specific validation, this focuses on system-wide extensibility and maintainability concerns
 7. **Generate Validation Report**: Use ../../scripts/file-creation/New-ValidationReport.ps1 script with ExtensibilityMaintainability validation type
 8. **Update Tracking**: Update Foundational Validation Tracking matrix and Documentation Map with new report
-9. **Reference Best Practices**: Access Flutter, testing, and Riverpod documentation only when specific guidance is needed
+9. **Reference Best Practices**: Access framework, testing, and state management documentation only when specific guidance is needed
 
 ## Related Documentation
 
@@ -113,9 +113,9 @@ graph TD
 - [Foundational Validation Tracking](../../../state-tracking/temporary/foundational-validation-tracking.md) - Master validation matrix
 - [Validation Report Template](../../../templates/templates/validation-report-template.md) - Standardized report structure
 - [../../scripts/file-creation/New-ValidationReport.ps1](../../../scripts/file-creation/New-ValidationReport.ps1) - Automation script for report generation
-- [Flutter Architecture Guide](https://docs.flutter.dev/development/data-and-backend/state-mgmt/options) - Framework-specific extensibility patterns
-- [Flutter Testing Guide](https://docs.flutter.dev/testing) - Testing infrastructure best practices
-- [Riverpod Guide](https://riverpod.dev/) - State management extensibility patterns
+- Project architecture documentation - Framework-specific extensibility patterns
+- Project testing documentation - Testing infrastructure best practices
+- State management documentation - State management extensibility patterns
 
 ---
 

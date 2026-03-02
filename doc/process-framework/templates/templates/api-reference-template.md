@@ -34,21 +34,21 @@ updated: 2025-07-04
 
 ### [Auth Method 1: e.g., API Key]
 
-```dart
-// Example code for authentication
-final client = ApiClient(apiKey: 'your_api_key');
+```python
+# Example code for authentication
+client = ApiClient(api_key="your_api_key")
 ```
 
 ### [Auth Method 2: e.g., OAuth]
 
 [Describe the OAuth flow and required parameters]
 
-```dart
-// Example code for OAuth authentication
-final client = ApiClient.oauth(
-  clientId: 'your_client_id',
-  clientSecret: 'your_client_secret',
-);
+```python
+# Example code for OAuth authentication
+client = ApiClient.oauth(
+    client_id="your_client_id",
+    client_secret="your_client_secret",
+)
 ```
 
 ## Request/Response Format
@@ -173,10 +173,10 @@ Retrieves a user by their ID.
 
 **Example:**
 
-```dart
-// Example code for using this endpoint/method
-final user = await client.getUser(id: 'user_123');
-print(user.name); // User Name
+```python
+# Example code for using this endpoint/method
+user = client.get_user(id="user_123")
+print(user.name)  # User Name
 ```
 
 ### [Endpoint/Method 2: e.g., Create User]
@@ -197,16 +197,16 @@ Creates a new user.
 | [Property 2] | [Type] | [Description] |
 | [Property 3] | [Type] | [Description] |
 
-```dart
-// Dart model representation
-class User {
-  final String id;
-  final String name;
-  final String email;
-  final DateTime createdAt;
+```python
+# Model representation
+class User:
+    def __init__(self, id: str, name: str, email: str, created_at: str):
+        self.id = id
+        self.name = name
+        self.email = email
+        self.created_at = created_at
 
-  // Constructor, serialization methods, etc.
-}
+    # Serialization methods, etc.
 ```
 
 ### [Model 2: e.g., Product]
@@ -242,9 +242,9 @@ print(f"Updated user: {updated_user.name}")
 
 [List available SDK/client libraries for different programming languages]
 
-- [Dart/Flutter SDK](https://github.com/example/dart-sdk)
-- [JavaScript SDK](https://github.com/example/js-sdk)
 - [Python SDK](https://github.com/example/python-sdk)
+- [JavaScript SDK](https://github.com/example/js-sdk)
+- [Go SDK](https://github.com/example/go-sdk)
 
 ## Changelog
 

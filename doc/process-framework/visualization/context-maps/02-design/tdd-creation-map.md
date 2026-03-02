@@ -64,7 +64,7 @@ graph TD
 
 ## Related Documentation
 
-- <!-- [TDD Templates](/doc/product-docs/technical/architecture/design-docs) - Template/example link commented out --> - Tier-specific templates
+- [TDD Templates](/doc/product-docs/technical/architecture/design-docs) - Tier-specific templates
 - [Feature Assessment](../../../methodologies/documentation-tiers/assessments) - Complexity tier assessments
 - [Project Structure](/doc/product-docs/technical/architecture/project-structure.md) - Project architecture information
 - [Existing TDDs](/doc/product-docs/technical/design) - Previously created design documents

@@ -279,11 +279,11 @@ This document serves as the **comprehensive registry** of all process framework 
 **📁 FILE OPERATIONS**
 | Operation | File Path | Update Method | Details |
 |-----------|-----------|---------------|---------|
-| **Creates** | Data model classes | Manual | Dart model classes in `/lib/data/models/[feature]/` with serialization, validation |
-| **Creates** | Repository interface | Manual | Repository contract in `/lib/data/repositories/[feature]/[feature]_repository.dart` |
-| **Creates** | Repository implementation | Manual | Concrete repository in `/lib/data/repositories/[feature]/[feature]_repository_impl.dart` |
+| **Creates** | Data model classes | Manual | Model classes in source data directory with serialization, validation |
+| **Creates** | Repository interface | Manual | Repository contract in source repositories directory |
+| **Creates** | Repository implementation | Manual | Concrete repository implementation |
 | **Creates** | Unit tests | Manual | Test files in `/test/unit/data/[feature]/` for models and repositories |
-| **Executes** | Database migrations | Manual | Run Supabase migration scripts to create database schema |
+| **Executes** | Database migrations | Manual | Run database migration scripts to create database schema |
 | **Updates** | [Feature Implementation State File](../state-tracking/permanent/feature-[feature-id]-implementation.md) | Manual | Update task sequence tracking, code inventory, implementation notes, issues log |
 
 **🎯 KEY IMPACTS**
@@ -485,7 +485,7 @@ This document serves as the **comprehensive registry** of all process framework 
 **📁 FILE OPERATIONS**
 | Operation | File Path | Update Method | Details |
 |-----------|-----------|---------------|---------|
-| **Updates** | [`bug-tracking.md`](../state-tracking/permanent/bug-tracking.md) | [`Update-BugStatus.ps1`](../scripts/Update-BugStatus.ps1) | Update bug status from 🆕 Reported to 🔍 Triaged<br/>• Automated priority (P1-P4) and severity assignments<br/>• Automated status emoji updates (🔍 Triaged)<br/>• Automated timestamp and notes updates<br/>**Usage:** `.\Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "Triaged" -Priority "High" -Severity "Medium"` |
+| **Updates** | [`bug-tracking.md`](../state-tracking/permanent/bug-tracking.md) | [`Update-BugStatus.ps1`](../scripts/Update-BugStatus.ps1) | Update bug status from 🆕 Reported to 🔍 Triaged<br/>• Automated priority (P1-P4) and scope (S/M/L) assignments<br/>• Automated status emoji updates (🔍 Triaged)<br/>• Automated timestamp and notes updates<br/>• Auto-moves bugs between active/Closed sections on Close/Reopen<br/>**Usage:** `.\Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "Triaged" -Priority "High" -Scope "S"` |
 
 **🎯 KEY IMPACTS**
 
@@ -502,13 +502,14 @@ This document serves as the **comprehensive registry** of all process framework 
 **📋 AUTOMATION DETAILS**
 
 - **Script:** [`Update-BugStatus.ps1`](../scripts/Update-BugStatus.ps1)
-- **Output Directory:** N/A (updates existing state files)
+- **State Tracking Script:** [`New-BugFixState.ps1`](../scripts/file-creation/New-BugFixState.ps1) (conditional — Large-effort or architectural bugs only)
+- **Output Directory:** [`temporary/`](../state-tracking/temporary/) (for multi-session bug fix state files)
 - **Auto-Update Function:** Automated bug status transitions through complete lifecycle
 
 **📁 FILE OPERATIONS**
 | Operation | File Path | Update Method | Details |
 |-----------|-----------|---------------|---------|
-| **Updates** | [`bug-tracking.md`](../state-tracking/permanent/bug-tracking.md) | [`Update-BugStatus.ps1`](../scripts/Update-BugStatus.ps1) | Update bug status through lifecycle:<br/>• 🔍 Triaged → 🔧 In Progress → 🧪 Testing → ✅ Fixed → 🟢 Closed<br/>• Automated status emoji updates and timestamp tracking<br/>• Automated notes management and metadata tracking<br/>• Automated fix details, root cause, and PR linking<br/>**Usage Examples:**<br/>• Start: `.\Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "InProgress"`<br/>• Complete: `.\Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "Fixed" -FixDetails "Details" -RootCause "Cause" -TestsAdded "Yes" -PullRequestUrl "URL"`<br/>• Close: `.\Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "Closed" -VerificationNotes "Verified in production"` |
+| **Updates** | [`bug-tracking.md`](../state-tracking/permanent/bug-tracking.md) | [`Update-BugStatus.ps1`](../scripts/Update-BugStatus.ps1) | Update bug status through lifecycle:<br/>• 🔍 Triaged → 🔧 In Progress → 🧪 Testing → ✅ Fixed → 🟢 Closed<br/>• Automated status emoji updates and timestamp tracking<br/>• Automated notes management and metadata tracking<br/>• Automated fix details, root cause, and PR linking<br/>• **Closure automation**: auto-moves bug to Closed Bugs section, recalculates Bug Statistics<br/>**Usage Examples:**<br/>• Start: `.\Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "InProgress"`<br/>• Complete: `.\Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "Fixed" -FixDetails "Details" -RootCause "Cause" -TestsAdded "Yes" -PullRequestUrl "URL"`<br/>• Close: `.\Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "Closed" -VerificationNotes "Verified in production"` |
 
 **🎯 KEY IMPACTS**
 
@@ -524,12 +525,14 @@ This document serves as the **comprehensive registry** of all process framework 
 
 **📋 AUTOMATION DETAILS**
 
-- **Planning Script:** [`New-RefactoringPlan.ps1`](../scripts/file-creation/New-RefactoringPlan.ps1)
-- **State Tracking Script:** [`New-TempTaskState.ps1`](../scripts/file-creation/New-TempTaskState.ps1)
+- **Planning Script:** [`New-RefactoringPlan.ps1`](../scripts/file-creation/New-RefactoringPlan.ps1) (supports `-Lightweight` switch for low-effort items)
+- **Templates:** Standard ([`refactoring-plan-template.md`](../templates/templates/refactoring-plan-template.md)) or Lightweight ([`lightweight-refactoring-plan-template.md`](../templates/templates/lightweight-refactoring-plan-template.md))
+- **State Tracking Script:** [`New-TempTaskState.ps1`](../scripts/file-creation/New-TempTaskState.ps1) (standard path only)
 - **Bug Reporting Script:** [`New-BugReport.ps1`](../scripts/file-creation/New-BugReport.ps1)
-- **ADR Creation Script:** [`New-ADR.ps1`](../scripts/file-creation/New-ADR.ps1) (for architectural refactoring)
+- **ADR Creation Script:** [`New-ADR.ps1`](../scripts/file-creation/New-ADR.ps1) (for architectural refactoring, standard path only)
 - **Output Directory:** [`plans/`](../refactoring/plans/), [`temporary/`](../state-tracking/temporary/)
 - **Auto-Update Function:** Partial automation with comprehensive manual state updates
+- **Effort Gate:** Step 1 classifies as Lightweight (≤15 min, single file, no architectural impact) or Standard
 
 **📁 FILE OPERATIONS**
 | Operation | File Path | Update Method | Details |
@@ -538,7 +541,7 @@ This document serves as the **comprehensive registry** of all process framework 
 | **Creates** | [`[PF-TTS-XXX]-[task-context].md`](../state-tracking/temporary/) | [`New-TempTaskState.ps1`](../scripts/file-creation/New-TempTaskState.ps1) | Work-in-progress tracking for refactoring sessions (conditional: ≥ 5 items or 3+ sessions; otherwise use refactoring plan's Implementation Tracking) |
 | **Creates** | [`[PF-ADR-XXX]-[decision-title].md`](../architecture/adrs/) | [`New-ADR.ps1`](../scripts/file-creation/New-ADR.ps1) | Architecture Decision Records for architectural refactoring |
 | **Updates** | [`bug-tracking.md`](../state-tracking/permanent/bug-tracking.md) | [`New-BugReport.ps1`](../scripts/file-creation/New-BugReport.ps1) | Add bugs discovered during refactoring with 4-tier severity decision matrix |
-| **Updates** | [`technical-debt-tracking.md`](../state-tracking/permanent/technical-debt-tracking.md) | Manual | 3-phase updates: "🔄 In Progress" → "✅ Resolved" |
+| **Updates** | [`technical-debt-tracking.md`](../state-tracking/permanent/technical-debt-tracking.md) | [`Update-TechDebt.ps1`](../scripts/update/Update-TechDebt.ps1) | Status transitions: Open → InProgress → Resolved (auto-moves to Recently Resolved) |
 | **Updates** | [`architecture-tracking.md`](../state-tracking/permanent/architecture-tracking.md) | Manual | Improve feature status (e.g., "🔄 Needs Revision" → "🧪 Testing") |
 | **Updates** | [`feature-tracking.md`](../state-tracking/permanent/feature-tracking.md) | Manual | For foundation features (0.x.x), document architectural improvements |
 | **Updates** | [`test-implementation-tracking.md`](../state-tracking/permanent/test-implementation-tracking.md) | Manual | Note test improvements or new test requirements |
@@ -696,18 +699,33 @@ This document serves as the **comprehensive registry** of all process framework 
 
 #### **27. Process Improvement Task** ([PF-TSK-009](../tasks/support/process-improvement-task.md))
 
-**🔧 Process Type:** 🔧 **Manual Process** (No automation - varies by improvement type)
+**🔧 Process Type:** 🔄 **Semi-Automated** (Script automates tracking updates, manual implementation)
 
 **📋 AUTOMATION DETAILS**
 
-- **Script:** No automation script
-- **Output Directory:** N/A
-- **Auto-Update Function:** Manual updates only
+- **Script:** [`Update-ProcessImprovement.ps1`](../scripts/update/Update-ProcessImprovement.ps1)
+- **Output Directory:** N/A (updates in-place)
+- **Auto-Update Function:** Status transitions, completion moves, summary count, update history, frontmatter date
 
 **📁 FILE OPERATIONS**
 | Operation | File Path | Update Method | Details |
 |-----------|-----------|---------------|---------|
-| **Updates** | [`process-improvement-tracking.md`](../state-tracking/permanent/process-improvement-tracking.md) | Manual | Status: "Identified" → "In Progress" → "Completed"<br/>• Add completion dates and impact for implemented improvements<br/>• Move completed items from "Current Improvement Opportunities" to "Completed Improvements" |
+| **Updates** | [`process-improvement-tracking.md`](../state-tracking/permanent/process-improvement-tracking.md) | Script | Status-only: updates Status and Last Updated columns in Current table<br/>Completion: moves row from Current to Completed, updates summary count, adds Update History entry |
+
+**🔧 USAGE EXAMPLES**
+```powershell
+# Status-only update (e.g., Identified → In Progress)
+.\Update-ProcessImprovement.ps1 -ImprovementId "IMP-051" -NewStatus "InProgress"
+
+# Complete an improvement
+.\Update-ProcessImprovement.ps1 -ImprovementId "IMP-063" -NewStatus "Completed" -Impact "MEDIUM" -ValidationNotes "Description of what was done."
+
+# Reject an improvement
+.\Update-ProcessImprovement.ps1 -ImprovementId "IMP-061" -NewStatus "Rejected" -Impact "—" -ValidationNotes "Reason for rejection."
+
+# Preview changes without modifying
+.\Update-ProcessImprovement.ps1 -ImprovementId "IMP-051" -NewStatus "InProgress" -WhatIf
+```
 
 **🎯 KEY IMPACTS**
 

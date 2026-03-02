@@ -2,9 +2,9 @@
 id: PF-GDE-043
 type: Document
 category: General
-version: 1.2
+version: 2.0
 created: 2025-10-30
-updated: 2026-02-19
+updated: 2026-02-27
 guide_category: Development Process
 guide_description: Comprehensive guide for creating and maintaining feature implementation state documents as living, bidirectional documentation throughout development sessions
 related_tasks: PF-TSK-044
@@ -79,7 +79,7 @@ Feature implementation state documents solve these problems by:
 
 ## Template Structure Analysis
 
-The feature implementation state template (PF-TEM-037) contains 12 major sections organized to support the entire feature lifecycle:
+The feature implementation state template (PF-TEM-037) contains 9 sections organized to support the entire feature lifecycle:
 
 ### Core Tracking Sections
 
@@ -130,16 +130,10 @@ The Code Inventory section has three critical subsections with **different purpo
 > - (a) = What does my feature import? (Direct deps)
 > - (b) = Who imports my feature? (Reverse deps for impact analysis)
 
-### Problem and Solution Tracking
+### Active Work Sections
 
-8. **Issues & Resolutions Log** - Problems encountered and their resolutions across sessions
+8. **Issues & Resolutions Log** - Problems encountered, tech debt, and known limitations
 9. **Next Steps** - Clear actionable guidance for next session or developer
-
-### Quality and Learning Sections
-
-10. **Quality Metrics** - Code quality, test coverage, and performance metrics
-11. **API Documentation Reference** - Quick reference to full API documentation for the feature
-12. **Lessons Learned** - Insights for improving future implementations and AI collaboration
 
 ## Living Documentation Principles
 
@@ -151,8 +145,8 @@ Feature state documents serve **different purposes at different stages**:
 | ------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------ |
 | **During Planning**       | Design validation, task sequencing                                  | Feature Overview, Implementation Progress, Dependencies            |
 | **During Implementation** | Progress tracking, context preservation                             | Current State, Implementation Progress, Code Inventory, Issues Log |
-| **During Testing**        | Quality validation, issue tracking                                  | Quality Metrics, Issues Log, Next Steps                            |
-| **Post-Implementation**   | Permanent feature documentation, design decisions reference         | Documentation Inventory, Design Decisions, Lessons Learned         |
+| **During Testing**        | Issue tracking, integration validation                              | Issues Log, Next Steps, Code Inventory                             |
+| **Post-Implementation**   | Permanent feature documentation, design decisions reference         | Documentation Inventory, Design Decisions                          |
 | **During Maintenance**    | Context for bug fixes, dependency understanding                     | Issues Log, Code Inventory, Dependencies                           |
 | **During Extension**      | Foundation for modifications, understanding existing implementation | Feature Overview, Code Inventory, Design Decisions                 |
 | **During Onboarding**     | Existing doc audit, content validation, extraction source          | Documentation Inventory (Existing Project Documentation)           |
@@ -171,11 +165,10 @@ Feature state documents serve **different purposes at different stages**:
 - Code Inventory (when files created/modified)
 - Design Decisions (when architectural choices made)
 
-**Update Continuously Throughout Implementation:**
+**Update As Needed:**
 
-- Lessons Learned (capture insights as they occur)
-- Quality Metrics (as tests written and coverage measured)
 - Documentation Inventory (as documentation created)
+- Dependencies (when new integrations added)
 
 **Never Archive**: The document remains active and useful throughout the feature's entire lifetime.
 
@@ -202,21 +195,21 @@ This bidirectional approach ensures:
 
 Add a header comment at the top of the file:
 
-```dart
-// FEATURE: PF-FEA-XXX
-// Feature Name: Booking Management System
-// Created: 2025-01-20
-// Purpose: Handles all booking-related operations for escape room reservations
-//
-// This file is part of the Booking Management feature and implements the
-// BookingRepository for data persistence operations.
+```python
+# FEATURE: PF-FEA-XXX
+# Feature Name: Order Management System
+# Created: 2025-01-20
+# Purpose: Handles all order-related operations for customer orders
+#
+# This file is part of the Order Management feature and implements the
+# OrderRepository for data persistence operations.
 
-import 'package:flutter/foundation.dart';
-// ... rest of imports
+from typing import List, Optional
+# ... rest of imports
 
-class BookingRepository {
-  // ... implementation
-}
+class OrderRepository:
+    # ... implementation
+    pass
 ```
 
 **Required Elements:**
@@ -230,29 +223,27 @@ class BookingRepository {
 
 Add inline markers at modification points:
 
-```dart
-class UserRepository {
-  // ... existing code ...
+```python
+class UserRepository:
+    # ... existing code ...
 
-  // [FEATURE: PF-FEA-012] Booking Integration
-  // Added: 2025-01-20 - Link users to their booking history
-  Future<List<Booking>> getUserBookings(String userId) async {
-    // Implementation that references bookings
-    return await _bookingService.getBookingsByUser(userId);
-  }
+    # [FEATURE: PF-FEA-012] Order Integration
+    # Added: 2025-01-20 - Link users to their order history
+    async def get_user_orders(self, user_id: str) -> list:
+        # Implementation that references orders
+        return await self._order_service.get_orders_by_user(user_id)
 
-  // [FEATURE: PF-FEA-012] User Profile Extension
-  // Modified: 2025-01-20 - Added bookingsCount field to user profile
-  // Original: Returned only name, email, and profile_picture
-  Future<UserProfile> getUserProfile(String userId) async {
-    final profile = await _getUserData(userId);
-    // NEW: Include bookings count
-    final bookingsCount = await _getBookingsCount(userId);
-    return profile.copyWith(bookingsCount: bookingsCount);
-  }
+    # [FEATURE: PF-FEA-012] User Profile Extension
+    # Modified: 2025-01-20 - Added orders_count field to user profile
+    # Original: Returned only name, email, and profile_picture
+    async def get_user_profile(self, user_id: str) -> dict:
+        profile = await self._get_user_data(user_id)
+        # NEW: Include orders count
+        orders_count = await self._get_orders_count(user_id)
+        profile["orders_count"] = orders_count
+        return profile
 
-  // ... rest of existing code ...
-}
+    # ... rest of existing code ...
 ```
 
 **Required Elements:**
@@ -266,17 +257,17 @@ class UserRepository {
 
 If your feature uses existing code without modification, add a comment to the **USED file** (not your feature code):
 
-```dart
-// lib/services/auth_service.dart
+```python
+# services/auth_service.py
 
-// USED BY FEATURES: PF-FEA-008, PF-FEA-012, PF-FEA-015
-// PF-FEA-008 (User Profile): Uses getCurrentUser() for profile data retrieval
-// PF-FEA-012 (Booking System): Uses signIn() and getCurrentUser() for booking flow authentication
-// PF-FEA-015 (Review System): Uses getCurrentUser() for review authorship
+# USED BY FEATURES: PF-FEA-008, PF-FEA-012, PF-FEA-015
+# PF-FEA-008 (User Profile): Uses get_current_user() for profile data retrieval
+# PF-FEA-012 (Order System): Uses sign_in() and get_current_user() for order flow authentication
+# PF-FEA-015 (Review System): Uses get_current_user() for review authorship
 
-class AuthService {
-  // ... implementation ...
-}
+class AuthService:
+    # ... implementation ...
+    pass
 ```
 
 **Required Elements:**
@@ -457,32 +448,7 @@ During planning, set up sections that will be updated throughout implementation:
 
 **Expected Result**: The document always reflects current feature state and provides complete context for next session.
 
-### Step 6: Complete Quality Sections
-
-As testing and validation occur:
-
-1. **Update Quality Metrics**:
-
-   - Run linting and document results
-   - Track test coverage percentages
-   - Measure performance metrics
-   - Document standards compliance
-
-2. **Update API Documentation Reference**:
-
-   - Link to full API documentation as it's created
-   - Document public APIs exposed by the feature
-   - List key integration points
-
-3. **Capture Lessons Learned**:
-   - Document what went well and why
-   - Note what could be improved
-   - Record effective AI collaboration patterns
-   - Provide recommendations for similar features
-
-**Expected Result**: Comprehensive quality documentation that supports deployment decisions and future improvements.
-
-### Step 7: Finalize for Deployment
+### Step 6: Finalize for Deployment
 
 Before marking feature as COMPLETE:
 
@@ -491,7 +457,6 @@ Before marking feature as COMPLETE:
    - [ ] All tasks marked complete in Implementation Progress
    - [ ] All code files documented in Code Inventory
    - [ ] All issues either resolved or tracked for future work
-   - [ ] Quality metrics meet project standards
    - [ ] Documentation inventory complete and accurate
 
 2. **Update Status**:
@@ -500,14 +465,9 @@ Before marking feature as COMPLETE:
    - Set completion to `100%`
    - Update timestamp
 
-3. **Complete Lessons Learned**:
-   - Ensure insights captured
-   - Document recommendations for similar features
-   - Note process framework improvements needed
-
 **Expected Result**: Feature state document provides complete permanent record of feature implementation.
 
-### Step 8: Maintain Post-Deployment
+### Step 7: Maintain Post-Deployment
 
 **Do NOT archive this document**. Continue to maintain it:
 
@@ -610,7 +570,7 @@ Before marking a task complete, verify:
 - [ ] Current State Summary provides useful 30-second orientation
 - [ ] Documentation links are valid and accurate
 - [ ] Examples and context are sufficient for understanding
-- [ ] Lessons learned capture valuable insights
+- [ ] Issues log captures known limitations and tech debt
 
 ### Validation Criteria
 
@@ -652,9 +612,9 @@ Before marking a task complete, verify:
 
 ## Examples
 
-### Example 1: Creating State Document for Booking Feature
+### Example 1: Creating State Document for Order Management Feature
 
-**Scenario**: Starting implementation of a booking management feature (PF-FEA-012) during decomposed implementation.
+**Scenario**: Starting implementation of an order management feature (PF-FEA-012) during decomposed implementation.
 
 **Step-by-Step Process**:
 
@@ -676,7 +636,7 @@ Before marking a task complete, verify:
    created: 2025-01-20
    updated: 2025-01-20
    feature_id: PF-FEA-012
-   feature_name: Booking Management System
+   feature_name: Order Management System
    status: PLANNING
    implementation_mode: Mode B - Decomposed Implementation
    ---
@@ -684,26 +644,26 @@ Before marking a task complete, verify:
 
 3. **Complete Feature Overview**:
 
-   - Describe booking feature purpose and functionality
-   - Document business value (improve booking conversion rate)
-   - Define scope (in scope: booking creation, cancellation; out of scope: payment processing)
+   - Describe order management feature purpose and functionality
+   - Document business value (improve order conversion rate)
+   - Define scope (in scope: order creation, cancellation; out of scope: payment processing)
 
 4. **Initialize tracking sections**:
 
    - List all 7 decomposed tasks (each with its own unique task ID from ID registry)
    - Mark the planning task as in progress (using its assigned task ID)
-   - Document dependencies on User Auth and Escape Room Catalog features
+   - Document dependencies on User Auth and Product Catalog features
 
 5. **Update continuously** during implementation:
    - After completing Data Layer task: Mark complete, document models and repos created
-   - After State Management task: Update code inventory with providers and state classes
+   - After Service Layer task: Update code inventory with services and state classes
    - Throughout: Log issues, document design decisions, track progress
 
-**Result**: Complete permanent documentation of booking feature implementation available for future reference.
+**Result**: Complete permanent documentation of order management feature implementation available for future reference.
 
 ### Example 2: Resuming Work After Session Break
 
-**Scenario**: You're an AI agent starting a new session on the booking feature. Previous session ended mid-implementation.
+**Scenario**: You're an AI agent starting a new session on the order management feature. Previous session ended mid-implementation.
 
 **Process**:
 
@@ -716,11 +676,11 @@ Before marking a task complete, verify:
    - Current Task: State Management Implementation (using its unique task ID)
    - Completion: 45%
    - What's Working: ✓ Data models complete, ✓ Repository working
-   - What's In Progress: ⚙ Creating Riverpod providers, ⚙ Implementing state notifiers
+   - What's In Progress: ⚙ Creating service layer, ⚙ Implementing business logic
 
 3. **Check Next Steps**:
 
-   - Immediate Action #1: Complete BookingNotifier implementation in `lib/notifiers/booking_notifier.dart`
+   - Immediate Action #1: Complete OrderService implementation in `services/order_service.py`
    - Files to work in: Listed clearly
    - Estimate: 1 hour
 
@@ -874,6 +834,7 @@ Each decomposed implementation task has its own unique task ID assigned via the 
 | 1.0     | 2025-01-30 | Initial guide creation: extracted instructional content from PF-TEM-037, added comprehensive examples and troubleshooting | Process Framework |
 | 1.1     | 2025-01-30 | Updated task references: clarified that decomposed tasks receive unique IDs from ID registry, not lettered subtasks       | Process Framework |
 | 1.2     | 2026-02-19 | Added "Existing Project Documentation" subsection guidance, onboarding lifecycle row, Step 4 onboarding note              | Process Framework |
+| 2.0     | 2026-02-27 | Template restructure: removed sections 10-12 (Quality Metrics, API Documentation Reference, Lessons Learned) — redundant with other tracking surfaces. Simplified sections 8-9. Updated all guide steps and references. | AI Agent (PF-TSK-009, IMP-009) |
 
 ---
 

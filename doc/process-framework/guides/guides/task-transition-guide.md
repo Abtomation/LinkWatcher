@@ -637,8 +637,8 @@ Next Task: State Management Implementation (PF-TSK-056)
 
 ```
 Prerequisites: Data layer complete
-Purpose: Implement Riverpod providers and state notifiers
-Outputs: State model classes, Riverpod providers, state notifiers, provider tests
+Purpose: Implement state management and business logic
+Outputs: State model classes, service providers, state managers, provider tests
 Next Task: UI Implementation (PF-TSK-052)
 ```
 
@@ -654,17 +654,17 @@ Next Task: UI Implementation (PF-TSK-052)
 
 ```
 Prerequisites: State management complete
-Purpose: Build Flutter widgets and screen layouts
-Outputs: Widget components, screen widgets, navigation configuration, widget tests
+Purpose: Build UI components and screen layouts
+Outputs: UI components, screen views, navigation configuration, UI tests
 Next Task: Integration & Testing (PF-TSK-053)
 ```
 
 **Transition Criteria:**
-- [ ] Widget components follow single responsibility principle
-- [ ] Screen widgets consume providers correctly
+- [ ] UI components follow single responsibility principle
+- [ ] Screen components consume services correctly
 - [ ] Navigation routes configured
 - [ ] Responsive layouts work across screen sizes
-- [ ] Widget tests cover rendering and interactions
+- [ ] Component tests cover rendering and interactions
 - [ ] Feature Implementation State File updated with UI layer inventory
 
 **Task 5: Integration & Testing (PF-TSK-053)**
@@ -672,13 +672,13 @@ Next Task: Integration & Testing (PF-TSK-053)
 ```
 Prerequisites: All layers implemented (data, state, UI)
 Purpose: Integrate components and establish comprehensive test coverage
-Outputs: Unit tests, widget tests, integration tests, test mocks, coverage report
+Outputs: Unit tests, component tests, integration tests, test mocks, coverage report
 Next Task: Quality Validation (PF-TSK-054)
 ```
 
 **Transition Criteria:**
 - [ ] Unit test coverage ≥80% for business logic
-- [ ] Widget tests cover all screens and critical components
+- [ ] Component tests cover all modules and critical components
 - [ ] Integration tests validate end-to-end workflows
 - [ ] All tests pass successfully
 - [ ] Coverage report meets project thresholds
@@ -724,7 +724,7 @@ Next Task: Testing (🧪) → Ready for Review (👀) → Code Review
 **State Tracking for Decomposed Mode:**
 
 Each decomposed task updates the **Feature Implementation State File** (`feature-implementation-state-[feature-id].md`) to preserve context:
-- **Code Inventory**: Track all created files (models, providers, widgets, tests)
+- **Code Inventory**: Track all created files (models, services, components, tests)
 - **Implementation Progress**: Track completion % across layers
 - **Implementation Notes**: Document decisions, patterns, and challenges
 - **Issues/Blockers**: Track quality issues and dependencies
@@ -895,7 +895,7 @@ Bug Discovered → New-BugReport.ps1 Script → Bug Tracking Update → [Automat
 .\New-BugReport.ps1 -Title "Test framework timeout issues" -Description "Unit tests randomly timeout during CI/CD pipeline execution" -DiscoveredBy "Testing" -Severity "High" -Component "Test Framework" -Environment "CI/CD" -Evidence "Test audit findings: 15% of tests show intermittent timeouts"
 
 # From Code Review Task
-.\New-BugReport.ps1 -Title "SQL injection vulnerability in user input" -Description "User input not properly sanitized before database queries" -DiscoveredBy "Code Review" -Severity "Critical" -Component "User Authentication" -Environment "Development" -Evidence "Code review: lib/auth/user_service.dart:45-52"
+.\New-BugReport.ps1 -Title "SQL injection vulnerability in user input" -Description "User input not properly sanitized before database queries" -DiscoveredBy "Code Review" -Severity "Critical" -Component "User Authentication" -Environment "Development" -Evidence "Code review: src/auth/user_service.py:45-52"
 
 # From Feature Implementation Task
 .\New-BugReport.ps1 -Title "Form validation fails on special characters" -Description "Registration form rejects valid email addresses with plus signs" -DiscoveredBy "Development" -Severity "Medium" -Component "User Registration" -Environment "Development" -Evidence "QA testing: emails like user+test@example.com rejected"
@@ -1569,7 +1569,7 @@ What was the audit decision?
 **Prerequisites for Transition:**
 
 - [ ] Feature implementation is complete and functional
-- [ ] All tests pass (unit, widget, integration as applicable)
+- [ ] All tests pass (unit, component, integration as applicable)
 - [ ] Feature meets all acceptance criteria
 - [ ] Code follows project standards and conventions
 - [ ] Feature status updated to "👀 Ready for Review" in Feature Tracking
@@ -1589,8 +1589,7 @@ Ready for Review → Code Review → [Conditional Branching]
 
 1. **For Code Review**: Ensure all code is committed and accessible for review
 2. **For Code Review**: Prepare context about implementation decisions and trade-offs
-3. **For Code Review**: Verify that the [Code Review Checklist](../../../product-docs/checklists/checklists/code-review-checklist.md) can be completed
-4. Update Feature Tracking with review request and reviewer assignment
+3. Update Feature Tracking with review request and reviewer assignment
 5. Ensure all related documentation is current and linked
 
 ### Transitioning FROM ADR Creation

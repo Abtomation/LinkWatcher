@@ -78,13 +78,13 @@ Write-Host "📅 Session Start: $timestamp"
 Write-Host "📊 Current Project State:"
 Write-Host "  - Active Features: Check doc/process-framework/state-tracking/feature-tracking.md"
 Write-Host "  - Recent Changes: Check git log --oneline -10"
-Write-Host "  - Test Status: Run flutter test to check current status"
+Write-Host "  - Test Status: Run your test suite to check current status"
 
 if ($FeatureId) {
     Write-Host "🎯 Focus Feature: $FeatureId"
     Write-Host "  - Check feature dependencies in feature-tracking.md"
-    Write-Host "  - Review related code in lib/ directory"
-    Write-Host "  - Check existing tests in test/ directory"
+    Write-Host "  - Review related code in src/ directory"
+    Write-Host "  - Check existing tests in tests/ directory"
 }
 
 Write-Host "✅ Quick context ready! Proceed with your task."
@@ -124,11 +124,11 @@ session_settings:
 file_priorities:
   high:
     - "*.md" # Documentation files
-    - "lib/**/*.dart" # Source code
-    - "test/**/*.dart" # Test files
+    - "src/**/*.py" # Source code (adjust path to match your project layout)
+    - "tests/**/*.py" # Test files
 
   medium:
-    - "../../improvement/refactoring/pubspec.yaml" # Dependencies
+    - "requirements.txt" # Dependencies (or pyproject.toml, setup.cfg)
     - "*.json" # Configuration
 
   low:
@@ -257,7 +257,7 @@ function Get-RecentChanges {
 }
 
 function Get-TestCoverage {
-    "Run 'flutter test --coverage' to check current coverage"
+    "Run your test suite with coverage to check current coverage"
 }
 
 function Get-FeatureDependencies {
@@ -278,7 +278,7 @@ function Get-RequiredFiles {
 
     if ($FeatureId) {
         $files += "4. ../../../state-tracking/feature-tracking.mdd (feature status)"
-        $files += "5. lib/ directory (relevant source code)"
+        $files += "5. src/ directory (relevant source code)"
     }
 
     return ($files -join "`n")
@@ -359,126 +359,143 @@ function Get-SessionRecommendations {
 
 ## Context Preservation in Code
 
-### Required Headers for All Classes
-```dart
-/// AI-CONTEXT: [Module/Feature Name]
-/// COMPLEXITY: [Tier-1/Tier-2/Tier-3]
-/// DEPENDENCIES: [List of dependencies or "None"]
-/// DEPENDENTS: [List of dependents or "None"]
-/// LAST-MODIFIED: [Date] by [AI-Session-ID]
-/// TEST-COVERAGE: [Percentage]% (target: [Target]%)
-class ExampleService {
-  // Implementation
-}
+### Required Headers for All Modules
+```python
+"""
+AI-CONTEXT: [Module/Feature Name]
+COMPLEXITY: [Tier-1/Tier-2/Tier-3]
+DEPENDENCIES: [List of dependencies or "None"]
+DEPENDENTS: [List of dependents or "None"]
+LAST-MODIFIED: [Date] by [AI-Session-ID]
+TEST-COVERAGE: [Percentage]% (target: [Target]%)
+"""
+
+
+class ExampleService:
+    """Service implementation."""
+    pass
 ````
 
 ### Method Documentation Standards
 
-```dart
-/// [Brief description of what the method does]
-///
-/// AI-CONTEXT: [Purpose within the larger system]
-/// INPUT-VALIDATION: [What validation is performed]
-/// ERROR-HANDLING: [How errors are handled]
-/// SIDE-EFFECTS: [Any side effects or state changes]
-/// PERFORMANCE: [Performance characteristics if relevant]
-///
-/// @param [param] [Description]
-/// @returns [Description of return value]
-/// @throws [Exception types and when they occur]
-Future<Result> exampleMethod(String param) async {
-  // Implementation
-}
+```python
+def example_method(self, param: str) -> Result:
+    """Brief description of what the method does.
+
+    AI-CONTEXT: [Purpose within the larger system]
+    INPUT-VALIDATION: [What validation is performed]
+    ERROR-HANDLING: [How errors are handled]
+    SIDE-EFFECTS: [Any side effects or state changes]
+    PERFORMANCE: [Performance characteristics if relevant]
+
+    Args:
+        param: Description of the parameter.
+
+    Returns:
+        Description of return value.
+
+    Raises:
+        ValueError: When the parameter is invalid.
+    """
+    # Implementation
 ```
 
 ### File Organization Patterns
 
-```dart
-// File: ../../../improvement/refactoring/lib/core/auth/auth_service.dart (EXAMPLE - not yet implemented)
-// AI-ORGANIZATION: Single responsibility, clear dependencies
+```python
+# File: src/core/auth/auth_service.py (EXAMPLE - not yet implemented)
+# AI-ORGANIZATION: Single responsibility, clear dependencies
 
-// AI-IMPORTS: Grouped by dependency level
-// Core dependencies (no external dependencies)
-import 'dart:async';
-import 'dart:convert';
+# AI-IMPORTS: Grouped by dependency level
+# Standard library imports (no external dependencies)
+import asyncio
+import json
 
-// External package dependencies
-import 'package:crypto/crypto.dart';
+# Third-party package dependencies
+import hashlib
 
-// Internal dependencies (project modules)
-import '../../improvement/shared/result.dart';  // Example - file to be created
-import '../../../improvement/refactoring/auth_models.dart';
+# Internal dependencies (project modules)
+from shared.result import Result  # Example - module to be created
+from .auth_models import User, Session, AuthResult
 
-// AI-EXPORTS: Explicit public interface
-export '../../../improvement/refactoring/auth_models.dart' show User, Session, AuthResult;
+# AI-EXPORTS: Explicit public interface
+__all__ = ["User", "Session", "AuthResult"]
 ```
 
 ## Error Handling Patterns
 
 ### Result Pattern Implementation
 
-```dart
-// AI-PATTERN: Result pattern for explicit error handling
-sealed class Result<T, E> {
-  const Result();
+```python
+# AI-PATTERN: Result pattern for explicit error handling
+from dataclasses import dataclass
+from typing import Generic, TypeVar, Union
 
-  factory Result.success(T value) = Success<T, E>;
-  factory Result.failure(E error) = Failure<T, E>;
-}
+T = TypeVar("T")
+E = TypeVar("E")
 
-class Success<T, E> extends Result<T, E> {
-  final T value;
-  const Success(this.value);
-}
 
-class Failure<T, E> extends Result<T, E> {
-  final E error;
-  const Failure(this.error);
-}
+@dataclass(frozen=True)
+class Success(Generic[T]):
+    value: T
+
+
+@dataclass(frozen=True)
+class Failure(Generic[E]):
+    error: E
+
+
+Result = Union[Success[T], Failure[E]]
 ```
 
 ### Explicit Error Types
 
-```dart
-// AI-PATTERN: Explicit error enumeration
-enum AuthError {
-  invalidEmail,
-  weakPassword,
-  userNotFound,
-  invalidCredentials,
-  networkError,
-  systemError,
-}
+```python
+# AI-PATTERN: Explicit error enumeration
+from enum import Enum, auto
+
+
+class AuthError(Enum):
+    INVALID_EMAIL = auto()
+    WEAK_PASSWORD = auto()
+    USER_NOT_FOUND = auto()
+    INVALID_CREDENTIALS = auto()
+    NETWORK_ERROR = auto()
+    SYSTEM_ERROR = auto()
 ```
 
 ## Testing Patterns
 
 ### Test Structure
 
-```dart
-// AI-TEST-PATTERN: Comprehensive test organization
-group('AuthService', () {
-  late AuthService authService;
-  late MockDependency mockDependency;
+```python
+# AI-TEST-PATTERN: Comprehensive test organization
+import pytest
+from unittest.mock import Mock
 
-  setUp(() {
-    // AI-PATTERN: Clean test setup
-    mockDependency = MockDependency();
-    authService = AuthService(dependency: mockDependency);
-  });
+from auth_service import AuthService
 
-  group('authenticate', () {
-    test('should return success when credentials are valid', () async {
-      // Arrange - Set up test data and mocks
-      // Act - Execute the method under test
-      // Assert - Verify the results
-    });
 
-    test('should return failure when email is invalid', () async {
-      // Test edge cases and error conditions
-    });
-  });
-});
+class TestAuthService:
+    """Comprehensive test suite for AuthService."""
+
+    def setup_method(self):
+        # AI-PATTERN: Clean test setup
+        self.mock_dependency = Mock()
+        self.auth_service = AuthService(dependency=self.mock_dependency)
+
+    class TestAuthenticate:
+        """Tests for the authenticate method."""
+
+        def test_should_return_success_when_credentials_are_valid(self):
+            # Arrange - Set up test data and mocks
+            # Act - Execute the method under test
+            # Assert - Verify the results
+            pass
+
+        def test_should_return_failure_when_email_is_invalid(self):
+            # Test edge cases and error conditions
+            pass
 ```
 
 ```
@@ -555,35 +572,36 @@ from typing import Dict, List, Set
 class BasicDependencyAnalyzer:
     def __init__(self, project_root: str = "."):
         self.project_root = Path(project_root)
-        self.lib_dir = self.project_root / "lib"
-        self.test_dir = self.project_root / "test"
+        self.src_dir = self.project_root / "src"
+        self.test_dir = self.project_root / "tests"
 
-    def analyze_dart_imports(self) -> Dict[str, List[str]]:
-        """Analyze Dart file imports to understand dependencies"""
+    def analyze_python_imports(self) -> Dict[str, List[str]]:
+        """Analyze Python file imports to understand dependencies"""
         dependencies = {}
 
-        for dart_file in self.lib_dir.rglob("*.dart"):
+        for py_file in self.src_dir.rglob("*.py"):
             file_deps = []
             try:
-                content = dart_file.read_text(encoding='utf-8')
+                content = py_file.read_text(encoding='utf-8')
 
                 # Find import statements
-                import_pattern = r"import\s+['\"](../../improvement/refactoring/[^'/"]+)['\"]"
-                imports = re.findall(import_pattern, content)
+                import_pattern = r"^(?:from\s+([\w.]+)\s+import|import\s+([\w.]+))"
+                imports = re.findall(import_pattern, content, re.MULTILINE)
 
-                for imp in imports:
-                    if imp.startswith('package:'):
-                        # External package
-                        package_name = imp.split('/')[0].replace('package:', '')
-                        file_deps.append(f"external:{package_name}")
-                    elif imp.startswith('../') or imp.startswith('./'):
+                for from_imp, direct_imp in imports:
+                    module = from_imp or direct_imp
+                    if module.startswith('.'):
                         # Relative import - internal dependency
-                        file_deps.append(f"internal:{imp}")
+                        file_deps.append(f"internal:{module}")
+                    elif '.' in module and not module.startswith(('os', 'sys', 'json', 're', 'pathlib')):
+                        # Likely third-party package
+                        package_name = module.split('.')[0]
+                        file_deps.append(f"external:{package_name}")
 
-                dependencies[str(dart_file.relative_to(self.project_root))] = file_deps
+                dependencies[str(py_file.relative_to(self.project_root))] = file_deps
 
             except Exception as e:
-                print(f"Error analyzing {dart_file}: {e}")
+                print(f"Error analyzing {py_file}: {e}")
 
         return dependencies
 
@@ -630,7 +648,7 @@ class BasicDependencyAnalyzer:
 
     def generate_impact_report(self, changed_files: List[str]) -> Dict:
         """Generate a basic impact report for changed files"""
-        code_deps = self.analyze_dart_imports()
+        code_deps = self.analyze_python_imports()
         feature_deps = self.analyze_feature_dependencies()
 
         impact = {
@@ -648,8 +666,10 @@ class BasicDependencyAnalyzer:
                         impact['potentially_affected'].append(file_path)
 
             # Find corresponding test files
-            if changed_file.startswith('lib/'):
-                test_file = changed_file.replace('lib/', 'test/').replace('.dart', '../../improvement/refactoring/_test.dart')
+            if changed_file.startswith('src/'):
+                # Convert src path to test path: src/core/auth.py -> tests/test_auth.py
+                module_name = Path(changed_file).stem
+                test_file = f"tests/test_{module_name}.py"
                 if (self.project_root / test_file).exists():
                     impact['tests_to_run'].append(test_file)
 
@@ -659,7 +679,7 @@ class BasicDependencyAnalyzer:
         """Save dependency analysis to file"""
         analysis = {
             'timestamp': str(Path().cwd()),  # Placeholder
-            'code_dependencies': self.analyze_dart_imports(),
+            'code_dependencies': self.analyze_python_imports(),
             'feature_dependencies': self.analyze_feature_dependencies()
         }
 
@@ -710,7 +730,7 @@ chmod +x ../.../../../../improvement/refactoring/scripts/ai-tools/analyze-depend
 ```python
 #!/usr/bin/env python3
 """
-Generate test templates for Dart classes
+Generate test templates for Python classes
 """
 
 import re
@@ -721,30 +741,30 @@ class TestTemplateGenerator:
     def __init__(self, project_root: str = "."):
         self.project_root = Path(project_root)
 
-    def analyze_dart_class(self, file_path: str) -> Dict:
-        """Analyze a Dart class to extract methods and dependencies"""
-        dart_file = self.project_root / file_path
+    def analyze_python_class(self, file_path: str) -> Dict:
+        """Analyze a Python class to extract methods and dependencies"""
+        py_file = self.project_root / file_path
 
-        if not dart_file.exists():
+        if not py_file.exists():
             raise FileNotFoundError(f"File not found: {file_path}")
 
-        content = dart_file.read_text(encoding='utf-8')
+        content = py_file.read_text(encoding='utf-8')
 
         # Extract class name
         class_match = re.search(r'class\s+(\w+)', content)
         class_name = class_match.group(1) if class_match else "UnknownClass"
 
-        # Extract public methods
-        method_pattern = r'^\s*(Future<\w+>|\w+)\s+(\w+)\s*\([^)]*\)'
+        # Extract public methods (def name(...) not starting with _)
+        method_pattern = r'^\s+def\s+(\w+)\s*\(self[^)]*\)'
         methods = re.findall(method_pattern, content, re.MULTILINE)
 
         # Extract imports for dependencies
-        import_pattern = r"import\s+['\"](../../improvement/refactoring/[^'/"]+)['\"]"
-        imports = re.findall(import_pattern, content)
+        import_pattern = r'^(?:from\s+([\w.]+)\s+import|import\s+([\w.]+))'
+        imports = re.findall(import_pattern, content, re.MULTILINE)
 
         return {
             'class_name': class_name,
-            'methods': [method[1] for method in methods if not method[1].startswith('_')],
+            'methods': [m for m in methods if not m.startswith('_')],
             'imports': imports,
             'file_path': file_path
         }
@@ -754,79 +774,66 @@ class TestTemplateGenerator:
         class_name = class_info['class_name']
         methods = class_info['methods']
 
-        template = f'''// AI-GENERATED: Test template for {class_name}
-// COVERAGE-TARGET: 90%+
-// PATTERNS: Arrange-Act-Assert, Given-When-Then
+        template = f'''# AI-GENERATED: Test template for {class_name}
+# COVERAGE-TARGET: 90%+
+# PATTERNS: Arrange-Act-Assert, Given-When-Then
 
-import 'package:test/test.dart';
-import 'package:mockito/mockito.dart';
-import 'package:mockito/annotations.dart';
+import pytest
+from unittest.mock import Mock, patch
 
-// Import the class under test
-import 'package:breakoutbuddies/{class_info['file_path'].replace('lib/', '').replace('.dart', '.dart')}';
+# Import the class under test
+from {class_info['file_path'].replace('.py', '').replace('/', '.')} import {class_name}
 
-// Generate mocks for dependencies
-// @GenerateMocks([DependencyClass])
-import '{class_name.lower()}_test.mocks.dart';
+# AI-TEST-CONTEXT: {class_name} comprehensive test suite
+# GENERATED: {self._get_timestamp()}
+# PATTERNS: Arrange-Act-Assert, Given-When-Then
+# EDGE-CASES: Invalid inputs, network failures, boundary conditions
 
-/// AI-TEST-CONTEXT: {class_name} comprehensive test suite
-/// GENERATED: {self._get_timestamp()}
-/// PATTERNS: Arrange-Act-Assert, Given-When-Then
-/// EDGE-CASES: Invalid inputs, network failures, boundary conditions
-void main() {{
-  group('{class_name}', () {{
-    late {class_name} {class_name.lower()};
-    // late MockDependency mockDependency;
+class Test{class_name}:
+    """Comprehensive test suite for {class_name}"""
 
-    setUp(() {{
-      // AI-PATTERN: Clean test setup with mocks
-      // mockDependency = MockDependency();
-      {class_name.lower()} = {class_name}(
-        // dependency: mockDependency,
-      );
-    }});
+    def setup_method(self):
+        # AI-PATTERN: Clean test setup with mocks
+        # self.mock_dependency = Mock()
+        self.{class_name.lower()} = {class_name}(
+            # dependency=self.mock_dependency,
+        )
 
 '''
 
         # Generate test groups for each method
         for method in methods:
             template += f'''
-    group('{method}', () {{
-      test('should return success when input is valid', () async {{
-        // Arrange
-        // Set up test data and mock responses
+    class Test{method.title().replace("_", "")}:
+        """Tests for {method}"""
 
-        // Act
-        // final result = await {class_name.lower()}.{method}();
+        def test_should_return_success_when_input_is_valid(self):
+            # Arrange
+            # Set up test data and mock responses
 
-        // Assert
-        // expect(result, isA<SuccessType>());
-      }});
+            # Act
+            # result = self.{class_name.lower()}.{method}()
 
-      test('should handle invalid input gracefully', () async {{
-        // Arrange
-        // Set up invalid input scenario
+            # Assert
+            # assert isinstance(result, SuccessType)
 
-        // Act
-        // final result = await {class_name.lower()}.{method}();
+        def test_should_handle_invalid_input_gracefully(self):
+            # Arrange
+            # Set up invalid input scenario
 
-        // Assert
-        // expect(result, isA<FailureType>());
-      }});
+            # Act
+            # result = self.{class_name.lower()}.{method}()
 
-      test('should handle exceptions gracefully', () async {{
-        // Arrange
-        // Set up exception scenario
+            # Assert
+            # assert isinstance(result, FailureType)
 
-        // Act & Assert
-        // expect(() => {class_name.lower()}.{method}(), throwsA(isA<ExceptionType>()));
-      }});
-    }});
-'''
+        def test_should_handle_exceptions_gracefully(self):
+            # Arrange
+            # Set up exception scenario
 
-        template += '''
-  });
-}
+            # Act & Assert
+            # with pytest.raises(ExceptionType):
+            #     self.{class_name.lower()}.{method}()
 '''
 
         return template
@@ -840,7 +847,7 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description='Generate test templates')
-    parser.add_argument('file_path', help='Path to Dart file to generate tests for')
+    parser.add_argument('file_path', help='Path to Python file to generate tests for')
     parser.add_argument('--output', help='Output file path (optional)')
 
     args = parser.parse_args()
@@ -848,7 +855,7 @@ if __name__ == "__main__":
     generator = TestTemplateGenerator()
 
     try:
-        class_info = generator.analyze_dart_class(args.file_path)
+        class_info = generator.analyze_python_class(args.file_path)
         test_template = generator.generate_test_template(class_info)
 
         if args.output:
@@ -884,10 +891,10 @@ class TestCoverageChecker:
         self.coverage_file = self.project_root / "coverage" / "lcov.info"
 
     def run_tests_with_coverage(self) -> bool:
-        """Run Flutter tests with coverage"""
+        """Run tests with coverage"""
         try:
             result = subprocess.run(
-                ["flutter", "test", "--coverage"],
+                ["pytest", "--cov", "--cov-report=lcov"],
                 cwd=self.project_root,
                 capture_output=True,
                 text=True
@@ -1057,7 +1064,7 @@ class DocumentationFreshnessTracker:
         relationships = {}
 
         # Map code files to their documentation
-        lib_files = list(self.project_root.glob("lib/**/*.dart"))
+        lib_files = list(self.project_root.glob("src/**/*.py"))
         doc_files = list(self.project_root.glob("doc/**/*.md"))
 
         for code_file in lib_files:
@@ -1290,7 +1297,7 @@ Write-Host "4. Proceed with implementation" -ForegroundColor White
 
 Write-Host "`n🔧 Available Commands:" -ForegroundColor Yellow
 Write-Host "- ./../.../../../../improvement/refactoring/scripts/ai-tools/analyze-dependencies.py --changed-files <files>" -ForegroundColor White
-Write-Host "- ../../../improvement/refactoring/scripts/ai-tools/generate-test-template.py <dart-file>" -ForegroundColor White
+Write-Host "- ../../../improvement/refactoring/scripts/ai-tools/generate-test-template.py <python-file>" -ForegroundColor White
 Write-Host "- ./.../../../../../../improvement/refactoring/scripts/ai-tools/check-test-coverage.py --run-tests" -ForegroundColor White
 Write-Host "- ./../../../../../improvement/refactoring/scripts/ai-tools/track-doc-freshness.py" -ForegroundColor White
 ```
@@ -1330,7 +1337,7 @@ if ($ChangedFiles.Count -gt 0) {
 }
 
 # Step 2: Run tests if code changed
-$codeChanged = $ChangedFiles | Where-Object { $_ -like "*.dart" -and $_ -like "lib/*" }
+$codeChanged = $ChangedFiles | Where-Object { $_ -like "*.py" -and $_ -like "src/*" }
 if ($codeChanged) {
     Write-Host "🧪 Running tests for changed code..." -ForegroundColor Yellow
     try {
@@ -1536,7 +1543,7 @@ if ($passCount -eq $totalCount) {
 # Complete session after making changes
 ../../../improvement/refactoring/scripts/ai-tools/Complete-AISession.ps1 `
     -SessionSummary "Implemented email validation for user authentication" `
-    -ChangedFiles @("../../../improvement/refactoring/lib/core/auth/auth_service.dart", "test/unit/process-framework/improvement/refactoring/../../improvement/refactoring/_test.dart") `
+    -ChangedFiles @("src/core/auth/auth_service.py", "tests/test_auth_service.py") `
     -TaskId "PF-TSK-005"
 
 # This will:
@@ -1551,7 +1558,7 @@ if ($passCount -eq $totalCount) {
 
 ```bash
 # Generate test template for a new service
-python ../../../improvement/refactoring/scripts/ai-tools/generate-test-template.py ../../../improvement/refactoring/lib/core/auth/auth_service.dart --output test/unit/process-framework/improvement/refactoring/../../improvement/refactoring/_test.dart
+python scripts/ai-tools/generate-test-template.py src/core/auth/auth_service.py --output tests/test_auth_service.py
 
 # Check test coverage after implementation
 python .../../../../../../improvement/refactoring/scripts/ai-tools/check-test-coverage.py --run-tests --min-coverage 90

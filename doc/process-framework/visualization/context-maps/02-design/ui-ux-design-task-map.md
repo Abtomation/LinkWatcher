@@ -90,7 +90,7 @@ graph TD
    - Phase 2: Core Design (wireframes, user flows, visual specifications)
    - Phase 3: Accessibility & Responsive (WCAG compliance, breakpoints, platform adaptations)
    - Phase 4: Motion & Integration (animations, design system patterns)
-   - Phase 5: Implementation & Handoff (Flutter widgets, asset specifications)
+   - Phase 5: Implementation & Handoff (UI components, asset specifications)
    - Phase 6: Quality Assurance (checklist verification, human review)
 6. **Validate Against Examples**: Reference tiered usage examples to ensure UI Design quality matches feature complexity
 7. **Update Feature Tracking**: Link the completed UI Design in the central feature tracking document (auto-updated by script)

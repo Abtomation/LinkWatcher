@@ -109,7 +109,6 @@ graph TD
 Test categories are defined by the project language in `project-config.json`:
 
 - **Python**: Unit, Integration, Parser, Performance
-- **Dart**: Unit, Integration, Widget, E2E
 
 ### Unit Tests (`/test/unit/`)
 - Test individual components in isolation
@@ -122,7 +121,7 @@ Test categories are defined by the project language in `project-config.json`:
 - Test API integrations and database operations
 
 ### Additional Types
-- Project-specific test types as configured (e.g., Parser tests, Performance tests, Widget tests, E2E tests)
+- Project-specific test types as configured (e.g., Parser tests, Performance tests, Component tests, E2E tests)
 
 ## Related Documentation
 

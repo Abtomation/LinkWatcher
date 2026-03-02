@@ -163,28 +163,6 @@ template_for: Enhancement State Tracking
 
 ---
 
-### Step 10: State Management Implementation
-
-- **Status**: [ ] Not started
-- **Applicable**: [Yes / No — required when enhancement changes state management, providers, or notifiers]
-- **Referenced Task Doc**: [State Management Implementation (PF-TSK-056)](../../tasks/04-implementation/state-management-implementation.md)
-- **Rationale**: [Why state management changes are or are not needed — e.g., "Enhancement requires new provider for retry settings" or "Not applicable — no state layer changes required"]
-- **Adaptation Notes**: [Extend existing providers and notifiers rather than creating new ones. Specify what state changes are needed.]
-- **Deliverable**: [Updated providers and/or state notifiers, or N/A]
-- **Session**: [1 / 2 / ...]
-
----
-
-### Step 11: UI Implementation
-
-- **Status**: [ ] Not started
-- **Applicable**: [Yes / No — required when enhancement changes user interface components]
-- **Referenced Task Doc**: [UI Implementation (PF-TSK-052)](../../tasks/04-implementation/ui-implementation.md)
-- **Rationale**: [Why UI changes are or are not needed — e.g., "Enhancement adds settings toggle for new feature" or "Not applicable — no UI changes required"]
-- **Adaptation Notes**: [Extend existing widgets and screens rather than creating new ones. Specify what UI changes are needed.]
-- **Deliverable**: [Updated widgets and/or screens, or N/A]
-- **Session**: [1 / 2 / ...]
-
 ---
 
 ### Step 12: Integration & Testing

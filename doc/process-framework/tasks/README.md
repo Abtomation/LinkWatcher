@@ -9,7 +9,7 @@ updated: 2025-05-27
 
 # Development Tasks
 
-This directory contains definitions for common development tasks in the BreakoutBuddies project. The task-based approach provides a streamlined, self-documenting workflow that maintains project state through artifacts rather than explicit handover documentation.
+This directory contains definitions for common development tasks in the project. The task-based approach provides a streamlined, self-documenting workflow that maintains project state through artifacts rather than explicit handover documentation.
 
 ## Purpose
 
@@ -62,23 +62,17 @@ Meta-framework tasks that work on the process framework itself, such as creating
 | [Implementation Finalization](04-implementation/implementation-finalization.md) | Complete remaining items and prepare feature for production | When working on Implementation Finalization |
 | [Quality Validation](04-implementation/quality-validation.md) | Validate implementation against quality standards and business requirements | When working on Quality Validation |
 | [Integration and Testing](04-implementation/integration-and-testing.md) | Integrate components and establish comprehensive test coverage | When working on Integration and Testing |
-| [UI Implementation](04-implementation/ui-implementation.md) | Build Flutter widgets and screen layouts for feature | When working on UI Implementation |
-| [State Management Implementation](04-implementation/state-management-implementation.md) | Implement state management using Riverpod providers and notifiers | When working on State Management Implementation |
-| [Data Layer Implementation](04-implementation/data-layer-implementation.md) | Implement data models, repositories, and database integration for feature | When working on Data Layer Implementation |
-| [Data Layer Implementation](04-implementation/data-layer-implementation.md) | Implement data models, repositories, and database integration for feature | When working on Data Layer Implementation |
-| [State Management Implementation](04-implementation/state-management-implementation.md) | Implement state management using Riverpod providers and notifiers | When working on State Management Implementation |
 | [Data Layer Implementation](04-implementation/data-layer-implementation.md) | Implement data models, repositories, and database integration for feature | When working on Data Layer Implementation |
 | [TestTask](04-implementation/testtask.md) | Test | When working on TestTask |
 | [data-layer-implementation-task](04-implementation/data-layer-implementation-task.md) | Implement data models | When working on data-layer-implementation-task |
 | [feature-implementation-planning-task](04-implementation/feature-implementation-planning-task.md) | Analyze design documentation and create detailed implementation plan with task sequencing and dependency mapping | When working on feature-implementation-planning-task |
-| [UI/UX Design Task](02-design/ui-ux-design-task.md) | Create visual design specifications, accessibility requirements, and platform-specific UI guidelines for Flutter features | When working on UI/UX Design Task |
 | [Test Automation Enhancement](support/test-automation-enhancement.md)                                 | Test task to validate ai-tasks.md automation                                                                                                       | When working on Test Automation Enhancement               |
 | [Test Automation Enhancement](support/test-automation-enhancement.md)                                 | Test task to validate ai-tasks.md automation                                                                                                       | When working on Test Automation Enhancement               |
 | [AI Agent Continuity Validation](05-validation/ai-agent-continuity-validation.md)                     | Validate foundational features for context clarity, modular structure, and documentation quality to support AI agent workflow continuity           | When working on AI Agent Continuity Validation            |
 | [Extensibility Maintainability Validation](05-validation/extensibility-maintainability-validation.md) | Validate foundational features for extension points, configuration flexibility, and testing support                                                | When working on Extensibility Maintainability Validation  |
 | [Documentation Alignment Validation](05-validation/documentation-alignment-validation.md)             | Validate foundational features for TDD alignment, ADR compliance, and API documentation accuracy                                                   | When working on Documentation Alignment Validation        |
 | [Integration Dependencies Validation](05-validation/integration-dependencies-validation.md)           | Validate foundational features for dependency health, interface contracts, and data flow integrity                                                 | When working on Integration Dependencies Validation       |
-| [Code Quality Standards Validation](05-validation/code-quality-standards-validation.md)               | Validates foundational features for code quality standards, SOLID principles, and Flutter best practices adherence                                 | When working on Code Quality Standards Validation         |
+| [Code Quality Standards Validation](05-validation/code-quality-standards-validation.md)               | Validates foundational features for code quality standards, SOLID principles, and best practices adherence                                 | When working on Code Quality Standards Validation         |
 | [Architectural Consistency Validation](05-validation/architectural-consistency-validation.md)         | Validates foundational features for architectural pattern adherence, ADR compliance, and interface consistency across the codebase                 | When working on Architectural Consistency Validation      |
 | [Test Audit](03-testing/test-audit-task.md)                                                           | Quality assurance task for evaluating implemented test suites against effectiveness criteria                                                       | When working on Test Audit                                |
 | [ADR Creation](02-design/adr-creation-task.md)                                                        | Create Architecture Decision Records to document significant architectural decisions and their rationale                                           | When working on ADR Creation                              |

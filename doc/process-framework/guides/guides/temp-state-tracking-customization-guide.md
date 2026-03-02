@@ -17,7 +17,7 @@ updated: 2025-07-28
 | Last Updated | 2025-07-28 |
 | Version | 2.0 |
 | Status | Active |
-| Owner | BreakoutBuddies Team |
+| Owner | Development Team |
 | Created By | AI Assistant |
 | Source Documents | [temp-task-creation-state-template.md](../../templates/templates/temp-task-creation-state-template.md), [structure-change-state-template.md](../../templates/templates/structure-change-state-template.md) |
 | Consumer Documents | [New Task Creation Process](../../tasks/support/new-task-creation-process.md), [Framework Extension Task](../../tasks/support/framework-extension-task.md), [Structure Change Task](../../tasks/support/structure-change-task.md) |

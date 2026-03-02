@@ -16,7 +16,7 @@ guide_title: Guide Creation Best Practices Guide
 
 ## Overview
 
-This guide provides comprehensive best practices for creating effective guides within the BreakoutBuddies task framework. It covers both general guide creation principles and specialized approaches for template customization guides, ensuring consistency, quality, and framework integration.
+This guide provides comprehensive best practices for creating effective guides within the task framework. It covers both general guide creation principles and specialized approaches for template customization guides, ensuring consistency, quality, and framework integration.
 
 ## When to Use
 
@@ -54,7 +54,7 @@ Before creating guides, ensure you have:
 
 ## Background
 
-The BreakoutBuddies project uses a structured approach to documentation through the task framework. Guides serve as instructional documents that help users accomplish specific objectives within this framework. There are two main types of guides:
+The project uses a structured approach to documentation through the task framework. Guides serve as instructional documents that help users accomplish specific objectives within this framework. There are two main types of guides:
 
 ### General Guides
 
@@ -385,7 +385,7 @@ Creating a guide for API integration best practices:
 cd doc/process-framework/guides
 
 # Create the guide
-.\New-Guide.ps1 -GuideTitle "API Integration Best Practices" -GuideDescription "Comprehensive guide for integrating third-party APIs in the BreakoutBuddies project"
+.\New-Guide.ps1 -GuideTitle "API Integration Best Practices" -GuideDescription "Comprehensive guide for integrating third-party APIs in the project"
 ```
 
 **Customization approach:**

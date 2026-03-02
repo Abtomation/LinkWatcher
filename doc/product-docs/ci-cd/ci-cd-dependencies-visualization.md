@@ -1,9 +1,9 @@
 ---
 id: PD-CIC-002
 type: Documentation
-version: 1.0
+version: 2.0
 created: 2023-06-15
-updated: 2023-06-15
+updated: 2026-02-27
 ---
 
 # CI/CD Process Dependencies Visualization
@@ -27,32 +27,16 @@ This document provides a visual representation of how the CI/CD process fits int
                                                   v                   |
                                           +----------------+          |
                                           | Test & Analyze |<---------+
-                                          +----------------+          |
-                                                  |                   |
-                                                  |                   |
-                              +-------------------+-------------------+
-                              |                   |                   |
-                              v                   v                   v
-                    +----------------+   +----------------+   +----------------+
-                    | Build Android  |   | Build iOS      |   | Build Web App  |
-                    +----------------+   +----------------+   +----------------+
-                              |                   |                   |
-                              |                   |                   v
-                              |                   |           +----------------+
-                              |                   |           | Deploy Web     |
-                              |                   |           +----------------+
-                              |                   |
-                              v                   |
-                    +----------------+            |
-                    | Deploy Android |            |
-                    | to Play Store  |            |
-                    +----------------+            |
-                                                  |
+                                          +----------------+
                                                   |
                                                   v
                                           +----------------+
-                                          | Deploy iOS     |
-                                          | to App Store   |
+                                          | Build Package  |
+                                          +----------------+
+                                                  |
+                                                  v
+                                          +----------------+
+                                          | Deploy/Publish |
                                           +----------------+
 
 +----------------------------------+     +----------------------------------+
@@ -66,8 +50,9 @@ This document provides a visual representation of how the CI/CD process fits int
 | Testing Process                  |---->| Test & Analyze Step              |
 |                                  |     |                                  |
 | - Unit Tests                     |     +----------------------------------+
-| - Widget Tests                   |
 | - Integration Tests              |
+| - Parser Tests                   |
+| - Performance Tests              |
 +----------------------------------+
 
 +----------------------------------+     +----------------------------------+
@@ -77,15 +62,6 @@ This document provides a visual representation of how the CI/CD process fits int
 | - Changelog Generation           |     | - Changelog Generation           |
 | - Release PR Creation            |     | - Release PR Creation            |
 +----------------------------------+     +----------------------------------+
-
-+----------------------------------+
-| Identified Gaps                  |
-|                                  |
-| - No iOS Deployment              |
-| - No Integration Tests in CI     |
-| - No Environment Validation      |
-| - Limited Test Coverage Reports  |
-+----------------------------------+
 ```
 
 ## Key Dependencies
@@ -99,28 +75,14 @@ This document provides a visual representation of how the CI/CD process fits int
    - GitHub Secrets provide necessary credentials for deployments
 
 3. **Testing Process → CI Pipeline**:
-   - Unit, Widget, and Integration tests feed into the Test & Analyze step
+   - Unit, integration, parser, and performance tests feed into the Test & Analyze step
    - Test results determine whether builds proceed
 
 ## Identified Gaps
 
-1. ~~**No iOS Deployment**~~: ✅ FIXED
-   - ~~iOS app is built but not deployed in the CD pipeline~~
-   - iOS deployment to App Store implemented via TestFlight
+_All previously identified gaps have been resolved._
 
-2. ~~**No Integration Tests in CI Workflow**~~: ✅ FIXED
-   - ~~CI workflow only includes unit and widget tests~~
-   - Integration tests now included in CI workflow
-
-3. ~~**No Automated Environment Validation**~~: ✅ FIXED
-   - ~~No validation step before deployment to ensure environment is properly configured~~
-   - Environment validation implemented before build and deployment steps
-
-4. ~~**Limited Test Coverage Reporting**~~: ✅ FIXED
-   - ~~Test coverage metrics are not collected or reported in CI~~
-   - Test coverage now collected and uploaded as artifacts
-
-This visualization highlights the key dependencies between the CI/CD processes and other development processes, as well as the identified gaps in the current implementation.
+This visualization highlights the key dependencies between the CI/CD processes and other development processes.
 
 ## Documentation Change Log
 
@@ -128,3 +90,4 @@ This visualization highlights the key dependencies between the CI/CD processes a
 |------------|---------------|----------------------------------------------|
 | 2025-04-28 | CI/CD Team    | Initial documentation created                |
 | 2025-04-28 | CI/CD Team    | Updated to reflect implementation of all identified gaps |
+| 2026-02-27 | AI Agent      | Adapted from mobile app pipeline to Python CLI pipeline |

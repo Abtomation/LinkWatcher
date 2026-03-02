@@ -2,9 +2,9 @@
 id: PF-VIZ-041
 type: Process Framework
 category: Context Map
-version: 1.0
+version: 1.1
 created: 2025-01-15
-updated: 2025-01-15
+updated: 2026-02-27
 task_id: PF-TSK-041
 ---
 
@@ -35,7 +35,9 @@ Visual guide to the components, relationships, and information flow relevant to 
 │  │ • Feature Priorities                     │                                               │
 │  │ • Implementation Status                  ▼                                               │
 │  │ • Dependencies                  ┌─────────────────────┐                                  │
-│  └─────────────────┘               │  DECISION FRAMEWORK │                                  │
+│  │ • Feature State File            │  DECISION FRAMEWORK │                                  │
+│  │   (known issues, bugs)          │                     │                                  │
+│  └─────────────────┘               │                     │                                  │
 │                                    │                     │                                  │
 │  ┌─────────────────┐               │ Priority Matrix:    │                                  │
 │  │ System Context  │               │ Impact × Frequency  │                                  │
@@ -69,6 +71,7 @@ Visual guide to the components, relationships, and information flow relevant to 
 
 ### Important Context (Load If Space)
 
+- **[Feature Implementation State Files](../../state-tracking/features/)** - Affected feature's known issues, related bugs, and implementation progress
 - **[Testing Guide](../../../product-docs/guides/guides/testing-guide.md)** - Understanding test-related bugs and their implications
 - **[Project Architecture](../../../product-docs/technical/architecture)** - System understanding for impact assessment
 
@@ -81,8 +84,9 @@ Visual guide to the components, relationships, and information flow relevant to 
 ### Input Processing
 
 1. **Bug Reports** → Collected from multiple sources (users, testing, monitoring)
-2. **Context Gathering** → Feature priorities, system architecture, existing bugs
-3. **Validation** → Confirm bug validity and reproduction steps
+2. **Reopened Bugs** → Previously closed bugs that recurred (moved from Closed section via Update-BugStatus.ps1)
+3. **Context Gathering** → Feature priorities, system architecture, existing bugs
+4. **Validation** → Confirm bug validity and reproduction steps
 
 ### Evaluation Process
 
@@ -95,7 +99,7 @@ Visual guide to the components, relationships, and information flow relevant to 
 
 ### Output Generation
 
-1. **Bug Registry Update** → Status change from 🆕 Reported to 🔍 Triaged
+1. **Bug Registry Update** → Status change from 🆕 Reported (or 🔄 Reopened) to 🔍 Triaged
 2. **Documentation** → Rationale, priority, severity, estimates
 3. **Workflow Trigger** → Enable next tasks (Bug Fixing, Feature Implementation)
 
@@ -138,9 +142,10 @@ Visual guide to the components, relationships, and information flow relevant to 
 ### Context Loading Priority
 
 1. Load bug tracking and feature tracking state files first
-2. Understand current system priorities and architecture
-3. Review similar bugs for consistency in triage decisions
-4. Access testing and architecture guides as needed
+2. For each bug, load the affected feature's implementation state file for known issues and related bugs
+3. Understand current system priorities and architecture
+4. Review similar bugs for consistency in triage decisions
+5. Access testing and architecture guides as needed
 
 ### Decision Making Support
 

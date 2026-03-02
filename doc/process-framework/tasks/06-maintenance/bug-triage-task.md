@@ -2,9 +2,9 @@
 id: PF-TSK-041
 type: Process Framework
 category: Task Definition
-version: 1.0
+version: 1.2
 created: 2025-08-30
-updated: 2025-08-30
+updated: 2026-03-02
 task_type: Discrete
 ---
 
@@ -41,6 +41,7 @@ Systematically evaluate, prioritize, and assign reported bugs to ensure efficien
 
 - **Important (Load If Space):**
 
+  - [Feature Implementation State Files](../../state-tracking/features/) - State file for the affected feature (known issues, related bugs, implementation progress)
   - [Testing Guide](/doc/product-docs/guides/guides/testing-guide.md) - Guidelines for understanding test-related bugs
   - [Project Architecture](/doc/product-docs/technical/architecture) - Understanding system architecture for impact assessment
 
@@ -52,51 +53,58 @@ Systematically evaluate, prioritize, and assign reported bugs to ensure efficien
 > **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished! 🚨**
 >
 > **⚠️ MANDATORY: All bug triage decisions must be documented with clear rationale.**
+>
+> **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
+>
+> **⚠️ MANDATORY: Never proceed past a checkpoint without presenting findings and getting explicit approval.**
 
 ### Preparation
 
-1. Review the [Bug Tracking](../../state-tracking/permanent/bug-tracking.md) document to identify bugs with status 🆕 Reported
+1. Review the [Bug Tracking](../../state-tracking/permanent/bug-tracking.md) document to identify bugs with status 🆕 Reported or bugs that need reopening (see [Reopen Workflow](#reopen-workflow) below)
 2. Gather all available information about each bug (reproduction steps, screenshots, logs)
 3. Understand the current development priorities from [Feature Tracking](../../state-tracking/permanent/feature-tracking.md)
-4. Review any related bugs or patterns in the bug registry
+4. For each bug, consult the affected feature's [implementation state file](../../state-tracking/features/) for known issues, related bugs, and current implementation status
+5. Review any related bugs or patterns in the bug registry
+6. **🚨 CHECKPOINT**: Present bug inventory, initial analysis, and current development priorities to human partner
 
 ### Evaluation
 
-5. **Assess Bug Validity**: Determine if the reported issue is actually a bug
+7. **Assess Bug Validity**: Determine if the reported issue is actually a bug
    - Verify reproduction steps
    - Confirm expected vs actual behavior
    - Check if it's a feature request rather than a bug
-6. **Evaluate Impact and Severity**:
+8. **Evaluate Impact and Severity**:
    - **Critical**: System crash, data loss, security vulnerability
    - **High**: Major feature not working, significant user impact
    - **Medium**: Minor feature issue, workaround available
    - **Low**: Cosmetic issue, minimal user impact
-7. **Determine Priority Level**:
+9. **Determine Priority Level**:
    - **P1 (Critical)**: System breaking, security issues - Immediate response
    - **P2 (High)**: Major functionality affected - Within 24 hours
    - **P3 (Medium)**: Minor functionality affected - Within 1 week
    - **P4 (Low)**: Cosmetic or enhancement requests - When time permits
-8. **Check for Duplicates**: Compare with existing bugs to identify duplicates
+10. **Check for Duplicates**: Compare with existing bugs to identify duplicates
+11. **🚨 CHECKPOINT**: Present triage decisions (priority, scope, duplicates, rationale) to human partner for approval
 
 ### Assignment and Documentation
 
-9. **Assign Priority and Severity**: Update bug entry with determined priority and severity
-10. **Provide Triage Rationale**: Document the reasoning behind priority and severity assignments
-11. **Identify Related Features**: Link bugs to affected features in Feature Tracking
-12. **Estimate Effort**: Provide rough effort estimate for fixing the bug
-13. **Update Bug Status**: Change status from 🆕 Reported to 🔍 Triaged
+12. **Assign Priority and Scope**: Update bug entry with determined priority (P1-P4) and scope (S/M/L for fix complexity — see [Scope Levels](../../state-tracking/permanent/bug-tracking.md#scope-levels))
+13. **Provide Triage Rationale**: Document the reasoning behind priority and scope assignments
+14. **Identify Related Features**: Link bugs to affected features in Feature Tracking
+15. **Estimate Effort**: Provide rough effort estimate for fixing the bug
+16. **Update Bug Status**: Change status from 🆕 Reported to 🔍 Triaged
     - **Manual Update**: Edit the [Bug Tracking](../../state-tracking/permanent/bug-tracking.md) file directly
     - **Optional Automation**: Use [`Update-BugStatus.ps1`](../../scripts/Update-BugStatus.ps1) script for consistent formatting:
       ```powershell
-      ../../scripts/Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "Triaged" -Priority "High" -Severity "Medium"
+      ../../scripts/Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "Triaged" -Priority "High" -Scope "S"
       ```
 
 ### Finalization
 
-14. **Update Bug Registry**: Ensure all bug information is properly recorded
-15. **Plan Next Steps**: Determine immediate next actions for high-priority bugs
-16. **Update Statistics**: Refresh bug tracking statistics
-17. **🚨 MANDATORY FINAL STEP**: Complete the Task Completion Checklist below
+17. **Update Bug Registry**: Ensure all bug information is properly recorded
+18. **Plan Next Steps**: Determine immediate next actions for high-priority bugs
+19. **Update Statistics**: Refresh bug tracking statistics
+20. **🚨 MANDATORY FINAL STEP**: Complete the Task Completion Checklist below
 
 ## Triage Decision Framework
 
@@ -128,10 +136,30 @@ Systematically evaluate, prioritize, and assign reported bugs to ensure efficien
 - **Regression Bugs**: Priority based on affected feature priority
 - **Performance Issues**: Priority based on user impact and frequency
 
+## Reopen Workflow
+
+When a previously closed bug recurs, decide whether to **reopen** the original or **create a new bug**:
+
+| Reopen the original | Create a new bug |
+|---|---|
+| Same root cause as the original fix | Different root cause or different component |
+| Fix was incomplete or regressed | Similar symptom but distinct underlying issue |
+| Discovered shortly after closure | Original was closed long ago and codebase has changed significantly |
+
+### Steps to reopen a bug
+
+1. **Update status** using the automation script:
+   ```powershell
+   ../../scripts/Update-BugStatus.ps1 -BugId "PD-BUG-XXX" -NewStatus "Reopened" -ReopenReason "Description of why the bug recurred"
+   ```
+   This automatically moves the entry from the Closed section back to the correct active priority table and recalculates statistics.
+2. **Re-evaluate priority and scope** — the original P-level and scope may no longer apply (e.g., a P4 bug that now causes data loss becomes P1)
+3. **Continue with the normal Evaluation steps** (Steps 6-9) to update the triage rationale
+
 ## Outputs
 
 - **Updated Bug Registry** - [Bug Tracking](../../state-tracking/permanent/bug-tracking.md) with triaged bugs
-- **Triage Documentation** - Clear rationale for all priority and severity assignments
+- **Triage Documentation** - Clear rationale for all priority and scope assignments
 - **Effort Estimates** - Rough estimates for bug fix complexity
 - **Duplicate Identification** - Consolidated duplicate bugs with cross-references
 
@@ -141,7 +169,7 @@ The following state files must be updated as part of this task:
 
 - [Bug Tracking](../../state-tracking/permanent/bug-tracking.md) - Update with:
   - Bug status changed from 🆕 Reported to 🔍 Triaged
-  - Priority and severity assignments
+  - Priority and scope assignments
   - Triage rationale and notes
   - Effort estimates
   - Related feature references
@@ -158,14 +186,14 @@ Before considering this task finished:
 - [ ] **Verify Evaluation Completeness**: Confirm all reported bugs have been evaluated
 
   - [ ] Bug validity has been assessed for all reported bugs
-  - [ ] Impact and severity have been determined using the framework
+  - [ ] Impact has been evaluated and scope (S/M/L) has been determined
   - [ ] Priority has been assigned using the decision matrix
   - [ ] Duplicate bugs have been identified and consolidated
   - [ ] Triage rationale is documented for all decisions
 
 - [ ] **Verify Documentation**: Confirm proper documentation
 
-  - [ ] All bugs have clear priority and severity assignments
+  - [ ] All bugs have clear priority and scope assignments
   - [ ] Triage rationale is documented for each bug
   - [ ] Related features are identified and linked
   - [ ] Effort estimates are provided where possible

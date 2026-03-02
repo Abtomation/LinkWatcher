@@ -2,9 +2,9 @@
 id: PF-TSK-012
 type: Process Framework
 category: Task Definition
-version: 1.2
+version: 1.3
 created: 2025-01-15
-updated: 2025-01-27
+updated: 2026-03-02
 task_type: Discrete
 change_notes: "v1.2 - Added Information Flow and Separation of Concerns sections for IMP-097/IMP-098"
 ---
@@ -117,6 +117,10 @@ When referencing other tasks' outputs in Test Specifications:
 > **⚠️ MANDATORY: Create test specifications that complement, not replace, the existing TDD.**
 >
 > **⚠️ MANDATORY: Use the Test Specification Template for consistency.**
+>
+> **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
+>
+> **⚠️ MANDATORY: Never proceed past a checkpoint without presenting findings and getting explicit approval.**
 
 ### Preparation
 
@@ -128,10 +132,11 @@ When referencing other tasks' outputs in Test Specifications:
    - **Tier 3 🔴**: Full test suite including unit, integration, UI/component, and end-to-end tests
 4. **Analyze Existing Test Structure**: Review current test organization and identify patterns to follow
 5. **Identify Test Dependencies**: Determine what mocks, helpers, and test utilities are needed
+6. **🚨 CHECKPOINT**: Present test complexity assessment, existing test structure analysis, and identified dependencies to human partner for approval
 
 ### Execution
 
-5. **Create Test Specification Document**: Create a new file in `/test/specifications/feature-specs/`
+7. **Create Test Specification Document**: Create a new file in `/test/specifications/feature-specs/`
 
    ```powershell
    # Navigate to test specifications directory
@@ -142,14 +147,14 @@ When referencing other tasks' outputs in Test Specifications:
    New-Item -ItemType File -Name "test-spec-[FEATURE-ID]-[feature-name].md"
    ```
 
-6. **Define Test Categories**: Based on the TDD, create test specifications for:
+8. **Define Test Categories**: Based on the TDD, create test specifications for:
 
    - **Unit Tests**: Individual component/service testing
    - **Integration Tests**: Component interaction testing
    - **UI/Component Tests**: UI component testing
    - **End-to-End Tests**: Complete user flow testing (Tier 3 only)
 
-7. **Specify Test Cases**: For each test category, define:
+9. **Specify Test Cases**: For each test category, define:
 
    - **Test Description**: What behavior is being tested
    - **Arrange**: Setup requirements and test data
@@ -157,34 +162,36 @@ When referencing other tasks' outputs in Test Specifications:
    - **Assert**: Expected outcomes and validation criteria
    - **Edge Cases**: Boundary conditions and error scenarios
 
-8. **Map TDD Components to Tests**: Create explicit mapping between:
+10. **Map TDD Components to Tests**: Create explicit mapping between:
 
    - TDD Models → Unit test specifications
    - TDD Services → Service test specifications
    - TDD Data Flow → Integration test specifications
    - TDD UI Components → UI/component test specifications
 
-9. **Define Mock Requirements**: Specify what mocks are needed and their expected behaviors
+11. **Define Mock Requirements**: Specify what mocks are needed and their expected behaviors
 
-10. **Create AI Session Context**: Add "AI Agent Session Handoff Notes" section with:
+12. **Create AI Session Context**: Add "AI Agent Session Handoff Notes" section with:
     - Summary of test specifications created
     - Priority order for test implementation
     - Specific files that need to be created/modified
     - Dependencies between test files
 
-11. **Add Clickable Links**: Ensure all file path references in the specification are clickable markdown links:
+13. **Add Clickable Links**: Ensure all file path references in the specification are clickable markdown links:
     - **Test File** references (e.g., `tests/unit/test_service.py`) must use `[`path`](../../../path)` format
     - **Files to Reference** section paths (TDD, source code, fixtures) must be linked
     - **Source Code** references (e.g., `linkwatcher/database.py`) must be linked
     - Relative prefix from `test/specifications/feature-specs/` to project root is `../../../`
 
+14. **🚨 CHECKPOINT**: Present draft test specification with test categories, test cases, mock requirements, and TDD mappings to human partner for review and approval
+
 ### Finalization
 
-11. **Review Test Coverage**: Ensure all TDD components have corresponding test specifications
-12. **Validate Test Feasibility**: Confirm all specified tests can be implemented with available tools
-13. **Update Test Status Tracking**: Record test specification completion in tracking files
-14. **Complete State Tracking Updates**: Ensure all tracking files are properly updated with the new test specification information
-15. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+15. **Review Test Coverage**: Ensure all TDD components have corresponding test specifications
+16. **Validate Test Feasibility**: Confirm all specified tests can be implemented with available tools
+17. **Update Test Status Tracking**: Record test specification completion in tracking files
+18. **Complete State Tracking Updates**: Ensure all tracking files are properly updated with the new test specification information
+19. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 

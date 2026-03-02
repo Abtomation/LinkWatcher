@@ -62,6 +62,10 @@ This task manages the systematic extension of the task-based development framewo
 > **⚠️ MANDATORY: Create comprehensive concept document and get human approval before implementation.**
 >
 > **📋 IMPORTANT: This is a multi-session task requiring temporary state tracking for implementation continuity.**
+>
+> **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
+>
+> **⚠️ MANDATORY: Never proceed past a checkpoint without presenting findings and getting explicit approval.**
 
 ### Phase 1: Concept Development & Approval
 
@@ -79,46 +83,49 @@ This task manages the systematic extension of the task-based development framewo
    - Include integration strategy with current framework workflow
 2. **Present Concept for Human Review** - Get explicit approval before proceeding to implementation
 3. **Analyze Framework Impact** - Document how the extension affects existing framework components
+4. **🚨 CHECKPOINT**: Present concept document, impact analysis, and proposed implementation approach to human partner for approval
 
 ### Phase 2: State Tracking & Planning
 
-4. **Create Temporary State Tracking File** using New-TempTaskState.ps1:
+5. **Create Temporary State Tracking File** using New-TempTaskState.ps1:
    ```powershell
    cd doc/process-framework/state-tracking
    ./New-TempTaskState.ps1 -TaskName "[Extension Name]" -TaskType "Support" -Description "Framework extension for [brief description]"
    ```
-5. **Develop Implementation Roadmap** with detailed multi-session breakdown in the temporary state file
-6. **Identify Required Components** (tasks, templates, guides, scripts, directories) and their dependencies
-7. **Plan Integration Points** with existing framework components and state tracking files
+6. **Develop Implementation Roadmap** with detailed multi-session breakdown in the temporary state file
+7. **Identify Required Components** (tasks, templates, guides, scripts, directories) and their dependencies
+8. **Plan Integration Points** with existing framework components and state tracking files
+9. **🚨 CHECKPOINT**: Present implementation roadmap, required components list, and session plan to human partner for approval
 
 ### Phase 3: Multi-Session Implementation
 
-8. **Execute Session-by-Session Implementation** following the detailed roadmap in temporary state tracking file:
-   - **Session 1**: Core task definitions and primary infrastructure
-   - **Session 2**: Supporting templates and document creation scripts
-   - **Session 3**: Usage guides and integration documentation
-   - **Session 4**: Framework integration and testing
-9. **Progressive Component Creation** using two-phase document creation approach:
-   - **Phase A - Structure Generation**: Use scripts (New-Task.ps1, New-Template.ps1, New-Guide.ps1) to generate basic document frameworks
-     - ⚠️ **CRITICAL**: Script outputs are STARTING POINTS requiring extensive customization
-     - Scripts create structural frameworks with placeholder content that MUST be replaced
-   - **Phase B - Content Customization**: Follow best practices guides to fully customize generated structures
-     - Templates require comprehensive content development following Template Development Guide
-     - Guides require extensive customization following Guide Creation Best Practices Guide
-     - Tasks require detailed process definition following Task Creation Guide
-10. **Update Temporary State Tracking** after each session with progress and next steps
-11. **Integration Testing** to ensure compatibility with existing framework components
+10. **Execute Session-by-Session Implementation** following the detailed roadmap in temporary state tracking file:
+    - **Session 1**: Core task definitions and primary infrastructure
+    - **Session 2**: Supporting templates and document creation scripts
+    - **Session 3**: Usage guides and integration documentation
+    - **Session 4**: Framework integration and testing
+11. **Progressive Component Creation** using two-phase document creation approach:
+    - **Phase A - Structure Generation**: Use scripts (New-Task.ps1, New-Template.ps1, New-Guide.ps1) to generate basic document frameworks
+      - ⚠️ **CRITICAL**: Script outputs are STARTING POINTS requiring extensive customization
+      - Scripts create structural frameworks with placeholder content that MUST be replaced
+    - **Phase B - Content Customization**: Follow best practices guides to fully customize generated structures
+      - Templates require comprehensive content development following Template Development Guide
+      - Guides require extensive customization following Guide Creation Best Practices Guide
+      - Tasks require detailed process definition following Task Creation Guide
+12. **Update Temporary State Tracking** after each session with progress and next steps
+13. **Integration Testing** to ensure compatibility with existing framework components
 
 ### Phase 4: Framework Integration & Finalization
 
-12. **Update Core Framework Files**:
+14. **🚨 CHECKPOINT**: Present completed extension components, integration test results, and remaining work to human partner for review
+15. **Update Core Framework Files**:
     - Update [ai-tasks.md](../../../ai-tasks.md) with new tasks
     - Update [documentation-map.md](../../documentation-map.md) with all new artifacts
     - Update [id-registry.json](../../../id-registry.json) with new ID prefixes if needed
-13. **Create Usage Documentation** demonstrating how to use the new framework extension
-14. **Update Permanent State Files** as defined in the concept document
-15. **Archive Temporary State Tracking** file to `/doc/process-framework/state-tracking/temporary/old/`
-16. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+16. **Create Usage Documentation** demonstrating how to use the new framework extension
+17. **Update Permanent State Files** as defined in the concept document
+18. **Archive Temporary State Tracking** file to `/doc/process-framework/state-tracking/temporary/old/`
+19. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 

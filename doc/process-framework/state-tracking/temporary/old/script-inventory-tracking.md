@@ -14,7 +14,7 @@ This temporary state file tracks all PowerShell scripts in the process framework
 
 ## Purpose
 
-Track the status of all process framework scripts during the migration from BreakoutBuddies (legal domain) to LinkWatcher (application development domain).
+Track the status of all process framework scripts during migration to a new project domain.
 
 ## Status Legend
 
@@ -154,7 +154,7 @@ These scripts may depend on:
 |------|--------|------------|
 | 2026-02-16 | Created initial script inventory | Zencoder |
 | 2026-02-16 | Updated Core.psm1 with Get-ProjectConfig/Get-DomainConfig functions | Zencoder |
-| 2026-02-16 | Updated IdRegistry.psm1 comment (BreakoutBuddies → generic) | Zencoder |
+| 2026-02-16 | Updated IdRegistry.psm1 comment (project-specific → generic) | Zencoder |
 | 2026-02-16 | Deleted automation-config.json and dependent scripts | Zencoder |
 | 2026-02-16 | Updated 6 test scripts to use Get-ProjectRoot instead of hard-coded paths | Zencoder |
 | 2026-02-16 | Updated Update-ScriptReferences.ps1 to use Get-ProjectRoot | Zencoder |
@@ -192,7 +192,7 @@ These scripts may depend on:
 ### 🎯 Result
 
 The process framework is now **project-agnostic** with dynamic configuration:
-- No hard-coded paths to BreakoutBuddies project
+- No hard-coded paths to any specific project
 - Domain configuration easily switchable (legal ↔ app-dev)
 - Project configuration centralized in project-config.json
 - All scripts use Get-ProjectRoot() for path resolution
@@ -221,7 +221,7 @@ The remaining 50 scripts are **domain-agnostic by design** - they use:
    - Both functions available in all scripts via `Common-ScriptHelpers.psm1`
 
 2. **Hard-Coded Paths Eliminated** ✅
-   - All 10 scripts with BreakoutBuddies paths updated
+   - All 10 scripts with project-specific paths updated
    - All use `Get-ProjectRoot()` for dynamic path resolution
    - Test scripts validated and working
 
@@ -275,7 +275,7 @@ Move-Item "doc\process-framework\state-tracking\temporary\script-inventory-track
 
 **Option B: Continue Framework Adaptation**
 - Focus on **documentation content** (guides, templates) not scripts
-- Update BreakoutBuddies references in `doc/product-docs/` folder
+- Update project-specific references in `doc/product-docs/` folder
 - Review state tracking files for domain-specific content
 
 ### Key Files Reference

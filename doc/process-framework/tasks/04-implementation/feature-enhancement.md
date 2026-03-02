@@ -3,9 +3,9 @@ id: PF-TSK-068
 type: Process Framework
 category: Task Definition
 domain: agnostic
-version: 1.0
+version: 1.1
 created: 2026-02-19
-updated: 2026-02-19
+updated: 2026-03-02
 task_type: Discrete
 ---
 
@@ -53,16 +53,21 @@ This task executes enhancement work on existing features by following the Enhanc
 > **CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished!**
 >
 > **IMPORTANT: Follow the Enhancement State Tracking File step by step. For each step, read the referenced task documentation and adapt it to the amendment context.**
+>
+> **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
+>
+> **⚠️ MANDATORY: Never proceed past a checkpoint without presenting findings and getting explicit approval.**
 
 ### Phase 1: Preparation
 
 1. **Read the Enhancement State Tracking File** — Understand the full scope of work: target feature, documentation inventory, sequenced steps, and session boundary planning
 2. **Verify prerequisites** — Confirm the state file was created by Feature Request Evaluation and the target feature shows "🔄 Needs Revision" in feature tracking
 3. **Review session plan** — For multi-session enhancements, identify which steps are planned for this session
+4. **🚨 CHECKPOINT**: Present enhancement scope, session plan, and state file overview to human partner for approval before executing steps
 
 ### Phase 2: Step-by-Step Execution
 
-4. **For each step in the state file**:
+5. **For each step in the state file**:
    - Read the referenced task documentation to understand the quality standards and process for that type of work
    - Adapt the guidance to the enhancement context:
      - Amend existing design docs rather than creating new ones
@@ -72,23 +77,24 @@ This task executes enhancement work on existing features by following the Enhanc
    - **Verify all modified artifacts**: If the step produces or modifies artifacts that are not covered by the project's automated test suite (e.g., scripts, configuration files, build definitions, deployment manifests), manually invoke or inspect them to confirm they work correctly before marking the step complete
    - Mark the step complete in the state file immediately after completion
 
-5. **Handle deviations** — If a step cannot be completed as planned (e.g., referenced doc doesn't exist, scope has changed), inform the human partner and adjust the state file accordingly
+6. **Handle deviations** — If a step cannot be completed as planned (e.g., referenced doc doesn't exist, scope has changed), inform the human partner and adjust the state file accordingly
 
 ### Phase 3: Session Boundary Management (multi-session enhancements only)
 
-6. **At the end of each session** — If not all steps are complete:
+7. **At the end of each session** — If not all steps are complete:
    - Ensure the state file accurately reflects what's done and what's next
    - Note any issues, decisions, or context that the next session needs
    - This task continues in the next session from where it left off
 
 ### Phase 4: Finalization
 
-7. **When all steps are complete**:
+8. **🚨 CHECKPOINT**: Present completed enhancement work, all modified artifacts, and verification results to human partner for final review
+9. **When all steps are complete**:
    - Verify all referenced documentation has been updated as specified in the state file
    - Update the target feature's implementation state file to reflect the enhancement
    - Restore the target feature's status in `feature-tracking.md` (remove "🔄 Needs Revision" and state file link, set to completed)
    - Archive the Enhancement State Tracking File to `state-tracking/temporary/old/`
-8. **MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+10. **MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 

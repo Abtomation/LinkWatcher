@@ -11,7 +11,7 @@ updated: 2025-06-07
 
 ## Purpose
 
-This guide provides best practices for migrating content between different document structures, formats, or systems in the BreakoutBuddies project. It focuses on maintaining content integrity while evolving documentation structures.
+This guide provides best practices for migrating content between different document structures, formats, or systems in the project. It focuses on maintaining content integrity while evolving documentation structures.
 
 ## Migration Planning
 

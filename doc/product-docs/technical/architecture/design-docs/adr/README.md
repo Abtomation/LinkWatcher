@@ -8,7 +8,7 @@ updated: 2023-06-15
 
 # Architecture Decision Records (ADRs)
 
-This directory contains Architecture Decision Records (ADRs) for the Breakout Buddies application.
+This directory contains Architecture Decision Records (ADRs) for the project.
 
 *Last updated: 2025-05-20*
 
@@ -47,5 +47,3 @@ Each ADR follows a standard format:
 ## Available ADRs
 
 - [ADR Template](../../../../templates/templates/adr-template.md) - Template for creating new ADRs
-- [ADR-0001: State Management with Riverpod](adr/adr-001-state-management-with-riverpod.md) - Decision to use Riverpod for state management
-- [ADR-0002: Backend Services with Supabase](adr/adr-002-backend-services-with-supabase.md) - Decision to use Supabase for backend services

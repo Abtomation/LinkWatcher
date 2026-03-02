@@ -70,7 +70,7 @@ param(
     [string]$Description,
 
     [Parameter(Mandatory = $true)]
-    [ValidateSet("TestAudit", "Testing", "CodeReview", "UserReport", "Monitoring", "Development", "FeatureImplementation")]
+    [ValidateSet("TestAudit", "Testing", "CodeReview", "UserReport", "Monitoring", "Development", "FeatureImplementation", "Refactoring")]
     [string]$DiscoveredBy,
 
     [Parameter(Mandatory = $true)]
@@ -119,6 +119,11 @@ if (-not (Test-Path $BugTrackingFile)) {
 # Read current content
 $Content = Get-Content -Path $BugTrackingFile -Raw -Encoding UTF8
 
+# Early WhatIf check — exit before consuming an ID from the registry
+if (-not $PSCmdlet.ShouldProcess($BugTrackingFile, "Add new bug report '$Title'")) {
+    return
+}
+
 # Generate unique bug ID using the central registry
 $BugId = New-ProjectId -Prefix "PD-BUG" -Description "Bug report: $Title"
 
@@ -133,36 +138,32 @@ $TableSection = switch ($Severity) {
     "Low" { "### Low Priority Bugs" }
 }
 
-# Create table row
-$TableRow = "| $BugId | $Title | 🆕 Reported | *Pending Triage* | $Severity | $DiscoveredBy | $currentDate | *TBD* | $Description"
-
-# Add optional fields
-if ($RelatedFeature -ne "") {
-    $TableRow += " | $RelatedFeature"
-}
-else {
-    $TableRow += " | N/A"
+# Map severity to priority code
+$PriorityCode = switch ($Severity) {
+    "Critical" { "P1" }
+    "High"     { "P2" }
+    "Medium"   { "P3" }
+    "Low"      { "P4" }
 }
 
-$TableRow += " | Environment: $Environment; Component: $Component"
+# Build Notes field: Source first, then component/environment, then optional details
+$NotesParts = @("Source: $DiscoveredBy", "Environment: $Environment", "Component: $Component")
+if ($ReproductionSteps -ne "") { $NotesParts += "Repro: $ReproductionSteps" }
+if ($ExpectedBehavior -ne "") { $NotesParts += "Expected: $ExpectedBehavior" }
+if ($ActualBehavior -ne "") { $NotesParts += "Actual: $ActualBehavior" }
+if ($Evidence -ne "") { $NotesParts += "Evidence: $Evidence" }
+$NotesField = $NotesParts -join "; "
 
-# Add additional details if provided
-$AdditionalDetails = @()
-if ($ReproductionSteps -ne "") { $AdditionalDetails += "Repro: $ReproductionSteps" }
-if ($ExpectedBehavior -ne "") { $AdditionalDetails += "Expected: $ExpectedBehavior" }
-if ($ActualBehavior -ne "") { $AdditionalDetails += "Actual: $ActualBehavior" }
-if ($Evidence -ne "") { $AdditionalDetails += "Evidence: $Evidence" }
+# Related feature field
+$RelatedFeatureField = if ($RelatedFeature -ne "") { $RelatedFeature } else { "N/A" }
 
-if ($AdditionalDetails.Count -gt 0) {
-    $TableRow += "; " + ($AdditionalDetails -join "; ")
-}
-
-$TableRow += " |"
+# Create table row — 9-column format: ID | Title | Status | Priority | Scope | Reported | Description | Related Feature | Notes
+$TableRow = "| $BugId | $Title | 🆕 Reported | $PriorityCode | | $currentDate | $Description | $RelatedFeatureField | $NotesField |"
 
 # Find the appropriate table and replace the "No bugs" message
 $NobugsPattern = switch ($Severity) {
     "Critical" { "\| _No critical bugs currently reported_ \|" }
-    "High" { "\| _No high priority bugs currently reported_ \|" }
+    "High" { "\| _No high priority bugs currently active_ \|" }
     "Medium" { "\| _No medium priority bugs currently reported_ \|" }
     "Low" { "\| _No low priority bugs currently reported_ \|" }
 }
@@ -189,18 +190,32 @@ if ($UpdatedContent -eq $Content) {
             $InsertPosition = $SectionMatch.Index + $LastRowMatch.Index + $LastRowMatch.Length
             $UpdatedContent = $UpdatedContent.Substring(0, $InsertPosition) + "`n$TableRow" + $UpdatedContent.Substring($InsertPosition)
         }
+        else {
+            # No PD-BUG rows found — insert after the table header separator (| --- | ... |)
+            $HeaderSepPattern = "(\| -+\s*(?:\| -+\s*)+\|)"
+            $HeaderSepMatches = [regex]::Matches($SectionContent, $HeaderSepPattern, [System.Text.RegularExpressions.RegexOptions]::Multiline)
+            if ($HeaderSepMatches.Count -gt 0) {
+                $SepMatch = $HeaderSepMatches[0]
+                $InsertPosition = $SectionMatch.Index + $SepMatch.Index + $SepMatch.Length
+                $UpdatedContent = $UpdatedContent.Substring(0, $InsertPosition) + "`n$TableRow" + $UpdatedContent.Substring($InsertPosition)
+            }
+        }
     }
 }
 
-# Update statistics - count only bug table rows with 🆕 Reported status
-$ReportedCount = ([regex]::Matches($UpdatedContent, '\| PD-BUG-\d+.*🆕 Reported')).Count
-$UpdatedContent = [regex]::Replace($UpdatedContent, '(\*\*Total Active Bugs\*\*: )\d+', "`${1}$ReportedCount")
+# Update statistics - count all active bug rows (everything before "## Closed Bugs" section)
+# Active statuses: 🆕 Reported, 🔍 Triaged, 🟡 In Progress, 🧪 Fixed, 🔄 Reopened
+$ClosedSectionIndex = $UpdatedContent.IndexOf("## Closed Bugs")
+$ActiveSection = if ($ClosedSectionIndex -gt 0) { $UpdatedContent.Substring(0, $ClosedSectionIndex) } else { $UpdatedContent }
 
-# Update priority-specific counts - count only bug table rows (Severity column is 5th column)
-$CriticalCount = ([regex]::Matches($UpdatedContent, '\| PD-BUG-\d+.*\| 🆕 Reported \|.*\| Critical \|')).Count
-$HighCount = ([regex]::Matches($UpdatedContent, '\| PD-BUG-\d+.*\| 🆕 Reported \|.*\| High \|')).Count
-$MediumCount = ([regex]::Matches($UpdatedContent, '\| PD-BUG-\d+.*\| 🆕 Reported \|.*\| Medium \|')).Count
-$LowCount = ([regex]::Matches($UpdatedContent, '\| PD-BUG-\d+.*\| 🆕 Reported \|.*\| Low \|')).Count
+$ActiveCount = ([regex]::Matches($ActiveSection, '\| PD-BUG-\d+')).Count
+$UpdatedContent = [regex]::Replace($UpdatedContent, '(\*\*Total Active Bugs\*\*: )\d+', "`${1}$ActiveCount")
+
+# Update priority-specific counts - count all active bug rows by priority code
+$CriticalCount = ([regex]::Matches($ActiveSection, '\| PD-BUG-\d+.*\| P1 \|')).Count
+$HighCount = ([regex]::Matches($ActiveSection, '\| PD-BUG-\d+.*\| P2 \|')).Count
+$MediumCount = ([regex]::Matches($ActiveSection, '\| PD-BUG-\d+.*\| P3 \|')).Count
+$LowCount = ([regex]::Matches($ActiveSection, '\| PD-BUG-\d+.*\| P4 \|')).Count
 
 $UpdatedContent = [regex]::Replace($UpdatedContent, '(\*\*Critical \(P1\)\*\*: )\d+', "`${1}$CriticalCount")
 $UpdatedContent = [regex]::Replace($UpdatedContent, '(\*\*High \(P2\)\*\*: )\d+', "`${1}$HighCount")
@@ -209,13 +224,14 @@ $UpdatedContent = [regex]::Replace($UpdatedContent, '(\*\*Low \(P4\)\*\*: )\d+',
 
 # Update source analysis based on DiscoveredBy parameter
 $SourceMap = @{
-    "Test Audit"             = "Testing"
-    "Testing"                = "Testing"
-    "Code Review"            = "Code Review"
-    "Feature Implementation" = "Development"
-    "Development"            = "Development"
-    "User Report"            = "User Reports"
-    "Monitoring"             = "Monitoring"
+    "TestAudit"             = "Test Audit"
+    "Testing"               = "Testing"
+    "CodeReview"            = "Code Review"
+    "FeatureImplementation" = "Development"
+    "Development"           = "Development"
+    "UserReport"            = "User Reports"
+    "Monitoring"            = "Monitoring"
+    "Refactoring"           = "Code Refactoring"
 }
 
 $SourceCategory = $SourceMap[$DiscoveredBy]

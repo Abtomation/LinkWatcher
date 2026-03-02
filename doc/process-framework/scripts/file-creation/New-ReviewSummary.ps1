@@ -11,7 +11,7 @@
     - Generating a unique document ID (ART-REV-XXX)
     - Creating a properly formatted review summary from the standardized template
     - Updating the ID tracker in the central ID registry
-    - Using a date-based filename pattern (tools-review-YYYYMMDD.md)
+    - Using a timestamped filename pattern (tools-review-YYYYMMDD-HHMMSS.md)
 
 .PARAMETER ReviewDate
     The date of the review in YYYY-MM-DD format. Defaults to today's date.
@@ -42,7 +42,7 @@
     - Automatically updates the central ID registry with new ID assignments
     - Creates the output directory if it doesn't exist
     - Uses standardized document creation process
-    - Filename format: tools-review-YYYYMMDD.md
+    - Filename format: tools-review-YYYYMMDD-HHMMSS.md
 #>
 
 [CmdletBinding(SupportsShouldProcess=$true)]
@@ -74,16 +74,17 @@ Invoke-StandardScriptInitialization
 
 # Prepare custom replacements
 $customReplacements = @{
-    "# Tools Review Summary — [YYYY-MM-DD]" = "# Tools Review Summary — $ReviewDate"
+    "# Tools Review Summary — [YYYY-MM-DD]" = "# Tools Review Summary — $ReviewDate-$timestamp"
     "| Forms Analyzed | [N] feedback forms |" = "| Forms Analyzed | $FormsAnalyzed feedback forms |"
     "| Date Range | [start date] to [end date] |" = "| Date Range | $DateRangeStart to $DateRangeEnd |"
     "| Task Types Covered | [N] ([list task IDs]) |" = "| Task Types Covered | $TaskTypesCovered ([list task IDs]) |"
     "| Tools Evaluated | [N]+ unique tools |" = "| Tools Evaluated | [N]+ unique tools |"
 }
 
-# Build filename from review date (tools-review-YYYYMMDD.md)
+# Build filename from review date + timestamp (tools-review-YYYYMMDD-HHMMSS.md)
 $dateForFilename = $ReviewDate -replace '-', ''
-$fileNamePattern = "tools-review-$dateForFilename.md"
+$timestamp = Get-Date -Format 'HHmmss'
+$fileNamePattern = "tools-review-$dateForFilename-$timestamp.md"
 
 # Create the document using standardized process
 try {
@@ -91,7 +92,7 @@ try {
         -TemplatePath "doc/process-framework/templates/templates/tools-review-summary-template.md" `
         -IdPrefix "ART-REV" `
         -IdDescription "Tools Review Summary $ReviewDate" `
-        -DocumentName "tools-review-$dateForFilename" `
+        -DocumentName "tools-review-$dateForFilename-$timestamp" `
         -OutputDirectory "doc/process-framework/feedback/reviews" `
         -FileNamePattern $fileNamePattern `
         -Replacements $customReplacements `

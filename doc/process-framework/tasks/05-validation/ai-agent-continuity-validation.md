@@ -2,9 +2,9 @@
 id: PF-TSK-036
 type: Process Framework
 category: Task Definition
-version: 1.0
+version: 1.1
 created: 2025-08-16
-updated: 2025-08-16
+updated: 2026-03-02
 task_type: Discrete
 ---
 
@@ -62,35 +62,41 @@ Systematically validates foundational features for AI agent workflow continuity,
 > **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished! 🚨**
 >
 > **⚠️ MANDATORY: Use the ../../scripts/file-creation/New-ValidationReport.ps1 script for generating validation reports.**
+>
+> **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
+>
+> **⚠️ MANDATORY: Never proceed past a checkpoint without presenting findings and getting explicit approval.**
 
 ### Preparation
 
 1. **Review Validation Scope**: Identify foundational features to validate for AI agent workflow continuity (workflow optimization focus)
 2. **Load Context Files**: Review process framework structure, task definitions, and documentation organization
 3. **Prepare Continuity Criteria**: Review AI agent workflow patterns and session handoff requirements
+4. **🚨 CHECKPOINT**: Present validation scope, process framework review, workflow patterns, and continuity criteria to human partner for approval before execution
 
 ### Execution
 
-4. **Context Clarity Assessment**: Evaluate how well the codebase provides clear context for AI agent understanding
-5. **Modular Structure Analysis**: Assess code organization and component separation for AI agent navigation
-6. **Documentation Quality Evaluation**: Review documentation completeness and clarity for AI agent workflow support
-7. **Session Continuity Review**: Evaluate state tracking and progress documentation for multi-session workflows
-8. **Workflow Optimization Analysis**: Assess task structure and process guidance for AI agent effectiveness
-9. **Generate Validation Report**: Create detailed validation report using the automation script
+5. **Context Clarity Assessment**: Evaluate how well the codebase provides clear context for AI agent understanding
+6. **Modular Structure Analysis**: Assess code organization and component separation for AI agent navigation
+7. **Documentation Quality Evaluation**: Review documentation completeness and clarity for AI agent workflow support
+8. **Session Continuity Review**: Evaluate state tracking and progress documentation for multi-session workflows
+9. **Workflow Optimization Analysis**: Assess task structure and process guidance for AI agent effectiveness
+10. **Generate Validation Report**: Create detailed validation report using the automation script
    ```powershell
    # Navigate to validation directory and create AI agent continuity report
    Set-Location "doc/process-framework/validation"
     ..\scripts\file-creation\New-ValidationReport.ps1 -ValidationType "AIAgentContinuity" -FeatureIds "workflow-optimization" -SessionNumber 1
    ```
-10. **Score Continuity Criteria**: Apply 4-point scoring system (0-3) to each AI agent continuity criterion
-11. **Document Findings**: Record specific workflow bottlenecks, context gaps, and optimization recommendations
+11. **Score Continuity Criteria**: Apply 4-point scoring system (0-3) to each AI agent continuity criterion
+12. **Document Findings**: Record specific workflow bottlenecks, context gaps, and optimization recommendations
 
 ### Finalization
 
-12. **Update Validation Tracking**: Update the foundational validation tracking matrix with report creation date and link
-13. **Review Quality Gates**: Ensure validation meets minimum quality thresholds (average score ≥ 2.0)
-14. **Plan Optimizations**: For scores below threshold, create action items for workflow and continuity improvements
-15. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+13. **🚨 CHECKPOINT**: Present continuity scoring, workflow bottleneck analysis, and optimization recommendations to human partner for review before finalization
+14. **Update Validation Tracking**: Update the foundational validation tracking matrix with report creation date and link
+15. **Review Quality Gates**: Ensure validation meets minimum quality thresholds (average score ≥ 2.0)
+16. **Plan Optimizations**: For scores below threshold, create action items for workflow and continuity improvements
+17. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 

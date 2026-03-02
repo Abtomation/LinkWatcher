@@ -13,7 +13,7 @@ related_tasks: PF-TSK-001
 
 ## Purpose
 
-This guide provides comprehensive instructions for creating visualizations in the BreakoutBuddies project, specifically context maps and other visual documentation that helps understand component relationships and task execution flows.
+This guide provides comprehensive instructions for creating visualizations in the project, specifically context maps and other visual documentation that helps understand component relationships and task execution flows.
 
 ## When to Use
 

@@ -39,7 +39,6 @@ This template guides the implementation of foundation features (0.x.x) that prov
 - **Important (Load If Space):**
   - [Related ADRs](../../product-docs/technical/architecture/design-docs/adr/) - Architectural decisions relevant to this foundation
   - [Dependent Features](../../state-tracking/permanent/feature-tracking.md) - Features that will be unblocked by this foundation
-  - [System Architecture Documentation](../../product-docs/technical/architecture/README.md) - Overall system architecture context
 
 ## Process
 

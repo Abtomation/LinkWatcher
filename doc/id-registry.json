@@ -2,8 +2,8 @@
   "metadata": {
     "version": "2.0",
     "created": "2025-01-27",
-    "updated": "2026-02-21",
-    "description": "Central registry for all document IDs in the BreakoutBuddies project - Enhanced with semantic directory mapping",
+    "updated": "2026-02-27",
+    "description": "Central registry for all document IDs - Enhanced with semantic directory mapping",
     "format": "semantic"
   },
   "prefixes": {
@@ -45,7 +45,7 @@
         "main": "doc/process-framework/templates",
         "default": "main"
       },
-      "nextAvailable": 47
+      "nextAvailable": 51
     },
     "PF-MTH": {
       "description": "Process Framework - Methodologies",
@@ -66,7 +66,7 @@
         "temporary": "doc/process-framework/state-tracking/temporary",
         "default": "permanent"
       },
-      "nextAvailable": 50
+      "nextAvailable": 51
     },
     "PF-DOC": {
       "description": "Process Framework - Documentation",
@@ -286,16 +286,6 @@
       },
       "nextAvailable": 44
     },
-    "PD-CKL": {
-      "description": "Product Documentation - Checklists",
-      "category": "Product Documentation",
-      "type": "Checklist",
-      "directories": {
-        "main": "doc/product-docs/checklists",
-        "default": "main"
-      },
-      "nextAvailable": 9
-    },
     "PD-CIC": {
       "description": "Product Documentation - CI-CD",
       "category": "Product Documentation",
@@ -374,7 +364,7 @@
         "forms": "doc/process-framework/feedback/feedback-forms",
         "default": "forms"
       },
-      "nextAvailable": 219
+      "nextAvailable": 247
     },
     "ART-REV": {
       "description": "Review Artifacts",
@@ -384,7 +374,7 @@
         "reviews": "doc/process-framework/feedback/reviews",
         "default": "reviews"
       },
-      "nextAvailable": 1
+      "nextAvailable": 6
     },
     "PF-TSP": {
       "description": "Process Framework - Test Specifications",
@@ -480,7 +470,7 @@
         "plans": "doc/process-framework/refactoring/plans",
         "default": "plans"
       },
-      "nextAvailable": 21
+      "nextAvailable": 28
     },
     "PF-TDA": {
       "description": "Process Framework - Technical Debt Assessments",
@@ -490,7 +480,7 @@
         "assessments": "doc/process-framework/assessments/technical-debt/assessments",
         "default": "assessments"
       },
-      "nextAvailable": 1
+      "nextAvailable": 2
     },
     "PF-TDI": {
       "description": "Process Framework - Technical Debt Items",
@@ -500,7 +490,7 @@
         "debt-items": "doc/process-framework/assessments/technical-debt/debt-items",
         "default": "debt-items"
       },
-      "nextAvailable": 1
+      "nextAvailable": 11
     },
     "PF-TDM": {
       "description": "Process Framework - Technical Debt Matrices",
@@ -520,7 +510,7 @@
         "permanent": "doc/process-framework/state-tracking/permanent",
         "default": "permanent"
       },
-      "nextAvailable": 22
+      "nextAvailable": 27
     }
   }
 }

@@ -24,17 +24,17 @@ graph TD
     classDef reference fill:#d0f9d5,stroke:#3ad83f
 
     TDD([TDD - Technical Design]) --> DataModels[Data Model Classes]
-    DBSchema([Database Schema Design]) --> Migrations[(Supabase Migrations)]
+    DBSchema([Database Schema Design]) --> Migrations[(Database Migrations)]
     TDD --> RepoInterface[Repository Interface]
     DataModels --> RepoImpl[Repository Implementation]
-    RepoImpl --> SupabaseClient[Supabase Client]
-    Migrations --> SupabaseClient
+    RepoImpl --> DBClient[Database Client]
+    Migrations --> DBClient
     RepoImpl -.-> Tests[Unit Tests]
     DataModels -.-> Tests
     RepoImpl --> StateLayer[State Management Layer]
 
     class TDD,DBSchema critical
-    class DataModels,RepoInterface,RepoImpl,SupabaseClient important
+    class DataModels,RepoInterface,RepoImpl,DBClient important
     class Tests,StateLayer reference
 ```
 
@@ -45,33 +45,33 @@ graph TD
 - **Database Schema Design**: Specifies table schemas, relationships, indexes, RLS policies, and migration scripts
 
 ### Important Components (Should Understand)
-- **Data Model Classes**: Dart classes representing database entities with fromJson/toJson methods and validation logic (`/lib/data/models/[feature]/`)
-- **Repository Interface**: Contract defining data access methods (CRUD operations, queries) (`/lib/data/repositories/[feature]/`)
-- **Repository Implementation**: Concrete implementation using Supabase client with error handling and data transformation
-- **Supabase Client**: Configured database connection instance (`/lib/core/supabase_client.dart`)
+- **Data Model Classes**: Classes representing database entities with serialization methods and validation logic
+- **Repository Interface**: Contract defining data access methods (CRUD operations, queries)
+- **Repository Implementation**: Concrete implementation using the database client with error handling and data transformation
+- **Database Client**: Configured database connection instance
 
 ### Reference Components (Access When Needed)
-- **Unit Tests**: Test coverage for model serialization and repository operations (`/test/unit/data/[feature]/`)
-- **State Management Layer**: Riverpod providers that will consume the repository (next task in sequence)
+- **Unit Tests**: Test coverage for model serialization and repository operations
+- **State Management Layer**: State management components that will consume the repository (next task in sequence)
 
 ## Key Relationships
 
 1. **TDD → Data Models**: TDD specifications drive model class structure, field types, and validation requirements
 2. **TDD → Repository Interface**: TDD defines required data access methods and query operations
-3. **Database Schema → Migrations**: Schema design is implemented through Supabase migration scripts
+3. **Database Schema → Migrations**: Schema design is implemented through database migration scripts
 4. **Data Models → Repository Implementation**: Repository transforms database records into model instances
-5. **Repository Implementation → Supabase Client**: Repository uses client for all database operations (queries, mutations)
-6. **Migrations → Supabase Client**: Migrations are executed through the Supabase client connection
+5. **Repository Implementation → Database Client**: Repository uses client for all database operations (queries, mutations)
+6. **Migrations → Database Client**: Migrations are executed through the database client connection
 7. **Repository Implementation -.-> Unit Tests**: Test coverage validates repository behavior with mocked database
-8. **Repository Implementation → State Management**: Repositories are consumed by Riverpod providers (next task)
+8. **Repository Implementation → State Management**: Repositories are consumed by state management components (next task)
 
 ## Implementation in AI Sessions
 
 1. **Start with Design Documents**: Review TDD and Database Schema Design to understand requirements
-2. **Execute Migrations First**: Run Supabase migration scripts and verify database schema is created correctly
-3. **Implement Data Models**: Create model classes in `/lib/data/models/[feature]/` following TDD specifications
-4. **Define Repository Interface**: Create interface in `/lib/data/repositories/[feature]/` based on required operations
-5. **Implement Repository**: Build concrete repository with Supabase client integration and error handling
+2. **Execute Migrations First**: Run database migration scripts and verify schema is created correctly
+3. **Implement Data Models**: Create model classes following TDD specifications
+4. **Define Repository Interface**: Create interface based on required operations
+5. **Implement Repository**: Build concrete repository with database client integration and error handling
 6. **Write Tests**: Create unit tests for models and repositories with appropriate mocking
 7. **Prepare for Handoff**: Document completed work in Feature Implementation State file for state management task
 

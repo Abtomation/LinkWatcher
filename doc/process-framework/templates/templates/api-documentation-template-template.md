@@ -22,7 +22,7 @@ Replace API Documentation Template with the specific type of template you're cre
 
 ## Purpose
 
-This template provides a standardized structure for creating user-facing API documentation in the BreakoutBuddies project. It should be used when creating comprehensive documentation that helps developers understand and integrate with API endpoints.
+This template provides a standardized structure for creating user-facing API documentation in the project. It should be used when creating comprehensive documentation that helps developers understand and integrate with API endpoints.
 
 **Use this template when:**
 - Creating user guides for API endpoints

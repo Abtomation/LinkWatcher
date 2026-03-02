@@ -55,16 +55,32 @@ cd doc/process-framework/refactoring
 - **RefactoringScope** (Required): Brief description of what will be refactored
 - **TargetArea** (Required): Specific component, module, or code area being refactored
 - **Priority** (Optional): Priority level (High/Medium/Low) - defaults to Medium
+- **Lightweight** (Optional, switch): Creates a compact plan using the [lightweight template](../../templates/templates/lightweight-refactoring-plan-template.md) (PF-TEM-050). Use for low-effort items: ≤15 min, single file, no architectural impact.
 
 ### Example Script Usage
 
 ```powershell
-# High-priority authentication service refactoring
+# Standard: High-priority authentication service refactoring
 ./New-RefactoringPlan.ps1 -RefactoringScope "Authentication Service Simplification" -TargetArea "lib/services/auth/" -Priority "High"
 
-# Database layer optimization
+# Standard: Database layer optimization
 ./New-RefactoringPlan.ps1 -RefactoringScope "Database Access Pattern Optimization" -TargetArea "lib/data/" -Priority "Medium"
+
+# Lightweight: Quick fix for bare except clauses
+./New-RefactoringPlan.ps1 -RefactoringScope "Replace bare excepts in handler.py (TD011)" -TargetArea "linkwatcher/handler.py" -Lightweight
 ```
+
+### Lightweight vs Standard Mode
+
+PF-TSK-022 includes an **Effort Assessment Gate** (Step 1) that determines which mode to use:
+
+| Criteria | Lightweight | Standard |
+|----------|-------------|----------|
+| Estimated effort | ≤ 15 min | > 15 min |
+| Files affected | Single file | Multiple files |
+| Architectural impact | None | Any |
+
+The lightweight plan (~50 lines) includes a mandatory **Documentation & State Updates** checklist per item to ensure documentation isn't forgotten even for small changes. It also supports **batch mode** — copy the "Item N" section for multiple quick fixes in one session.
 
 ## Template Structure
 

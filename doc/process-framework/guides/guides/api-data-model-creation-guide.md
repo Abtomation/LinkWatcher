@@ -15,7 +15,7 @@ guide_description: Guide for customizing API data model templates
 
 ## Overview
 
-This guide provides comprehensive instructions for creating and customizing API Data Model documents using the New-APIDataModel.ps1 script and api-data-model-template-template.md. It helps you define standardized data structures, validation rules, and documentation for API endpoints in the BreakoutBuddies project.
+This guide provides comprehensive instructions for creating and customizing API Data Model documents using the New-APIDataModel.ps1 script and api-data-model-template-template.md. It helps you define standardized data structures, validation rules, and documentation for API endpoints in your project.
 
 ## When to Use
 
@@ -54,7 +54,7 @@ Before you begin, ensure you have:
 
 ## Background
 
-API Data Models serve as the foundation for consistent data exchange between client applications and the BreakoutBuddies backend services. They define the structure, validation rules, and documentation for data that flows through API endpoints.
+API Data Models serve as the foundation for consistent data exchange between client applications and backend services. They define the structure, validation rules, and documentation for data that flows through API endpoints.
 
 ### Purpose of API Data Models
 - **Data Structure Definition**: Establish clear contracts for request and response data
@@ -155,7 +155,7 @@ When creating API data models, you must make several key decisions that impact t
 
 1. **Navigate to the API models directory**:
    ```powershell
-   cd c:\Users\ronny\VS_Code\BreakoutBuddies\breakoutbuddies\doc\product-docs\technical\api\models
+   cd doc/product-docs/technical/api/models
    ```
 
 2. **Execute the New-APIDataModel.ps1 script**:
@@ -251,11 +251,11 @@ Comprehensive quality assurance ensures API data models meet project standards a
 
 ### Example 1: User Profile Data Model
 
-Creating a comprehensive user profile data model for the BreakoutBuddies application:
+Creating a comprehensive user profile data model for the application:
 
 ```powershell
 # Navigate to API models directory
-cd c:\Users\ronny\VS_Code\BreakoutBuddies\breakoutbuddies\doc\product-docs\technical\api\models
+cd doc/product-docs/technical/api/models
 
 # Create user profile data model
 .\New-APIDataModel.ps1 -ModelName "User Profile" -ModelDescription "User account profile information including preferences and settings" -ApiVersion "v1" -RelatedEndpoints "/users/profile,/users/update-profile" -OpenInEditor

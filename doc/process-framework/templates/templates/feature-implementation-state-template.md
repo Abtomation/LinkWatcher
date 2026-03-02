@@ -2,9 +2,9 @@
 id: PF-TEM-037
 type: Process Framework
 category: Template
-version: 1.6
+version: 2.0
 created: 2025-01-20
-updated: 2026-02-19
+updated: 2026-02-27
 creates_document_prefix: PF-FIS
 creates_document_version: 1.0
 description: Template for permanent feature implementation state tracking throughout feature lifecycle
@@ -252,7 +252,7 @@ template_for: Feature State Tracking
 
 **State Management Pattern**:
 
-- Pattern: [e.g., Riverpod AsyncNotifier]
+- Pattern: [e.g., Observer, Event Bus, Redux-style]
 - Why: [Reason]
 - Where: [Components]
 
@@ -264,7 +264,7 @@ template_for: Feature State Tracking
 
 **Data Flow Pattern**:
 
-- Pattern: [e.g., Repository → Provider → UI]
+- Pattern: [e.g., Repository → Service → Controller]
 - Why: [Reason]
 - Where: [Components]
 
@@ -272,260 +272,30 @@ template_for: Feature State Tracking
 
 ## 8. Issues & Resolutions Log
 
-### Issue 1: [Issue Title]
+> Populate when issues arise during work on this feature (bug fixes, blockers, investigations). For formal bug reports, use [bug-tracking.md](../../state-tracking/permanent/bug-tracking.md); this section provides feature-local context.
 
-**Status**: [BLOCKED | IN_PROGRESS | RESOLVED | DEFERRED]
-**Severity**: [CRITICAL | HIGH | MEDIUM | LOW]
-**Reported**: YYYY-MM-DD
-**Resolved**: YYYY-MM-DD
-**Task**: PF-TSK-XXX
+| Issue | Severity | Status | Reported | Resolved | Root Cause | Resolution |
+| ----- | -------- | ------ | -------- | -------- | ---------- | ---------- |
+| [Issue title] | [CRITICAL/HIGH/MEDIUM/LOW] | [OPEN/RESOLVED/DEFERRED] | YYYY-MM-DD | YYYY-MM-DD | [Brief root cause] | [Brief resolution] |
 
-**Problem**: [Detailed description]
+### Known Limitations & Tech Debt
 
-**Impact**:
-
-- What: [Functionality affected]
-- Scope: [How much blocked]
-- Users: [Who impacted]
-
-**Investigation**:
-
-- Hypothesis 1: [What tested] → [Result]
-- Hypothesis 2: [What tested] → [Result]
-
-**Root Cause**: [Ultimate cause]
-
-**Resolution**: [How solved - specific changes]
-
-**Prevention**: [How to avoid in future]
-
-**Notes for Next Session**: [Context if spans sessions]
-
----
-
-### Tech Debt and Known Limitations
-
-| Item   | Type      | Reason   | Current Mitigation | Priority   | Estimated Effort | Future Resolution | Tracked In |
-| ------ | --------- | -------- | ------------------ | ---------- | ---------------- | ----------------- | ---------- |
-| [Item] | Tech Debt | [Reason] | [Mitigation]       | [Priority] | [Effort]         | [Plan]            | [Issue #]  |
-
-**Type Legend**:
-
-- **Tech Debt**: Shortcuts that should be refactored
-- **Known Limitation**: Feature constraints or missing functionality
-- **Architectural Constraint**: System-level limitations
+| Item | Type | Priority | Mitigation | Tracked In |
+| ---- | ---- | -------- | ---------- | ---------- |
+| [Item] | [Tech Debt / Known Limitation / Architectural Constraint] | [Priority] | [Current mitigation] | [Bug ID or debt item ref] |
 
 ---
 
 ## 9. Next Steps
 
-**Last Updated**: YYYY-MM-DD HH:MM
-
-### Immediate Next Actions
-
-1. **[Action 1 - Most Important]**
-
-   - **Why**: [Reason this is priority]
-   - **How**: [Specific steps]
-   - **Files**: [Which files]
-   - **Estimate**: [Time/complexity]
-
-2. **[Action 2]**
-
-   - **Why**: [Reason]
-   - **How**: [Steps]
-   - **Dependencies**: [What must be done first]
-   - **Estimate**: [Time/complexity]
-
-3. **[Action 3]**
-   - **Why**: [Reason]
-   - **How**: [Steps]
-   - **Estimate**: [Time/complexity]
-
-### Upcoming Work (Next 1-2 Tasks)
-
-- [ ] [Work item 1] - Expected: [Date]
-- [ ] [Work item 2] - Expected: [Date]
-- [ ] [Work item 3] - Expected: [Date]
-
-### Questions That Need Answers
-
-1. [Question affecting next steps]
-2. [Question needing clarification]
-
-### Recommended Starting Points for Next Session
-
-**If Continuing Current Task**:
-
-- Start in: [Specific file/component]
-- Context needed: [What to understand]
-- Previous work: [What just completed]
-
-**If Starting Next Task**:
-
-- Prerequisites: [What to verify]
-- Begin with: [Where to start]
-- Reference: [What to read]
-
----
-
-## 10. Quality Metrics
+> Populate during active work on this feature. Update at the end of every work session.
 
 **Last Updated**: YYYY-MM-DD
 
-### Code Quality
+1. **[Most important next action]** — [Why, what files, what to do]
+2. **[Second action]** — [Brief description]
+3. **[Third action]** — [Brief description]
 
-**Linting**:
+### Open Questions
 
-- Total Issues: [Number]
-- Critical: [Number]
-- Warnings: [Number]
-- Status: [CLEAN | NEEDS_ATTENTION]
-
-**Code Review**:
-
-- Status: [SELF_REVIEWED | PEER_REVIEWED | NOT_REVIEWED]
-- Reviewer: [Name]
-- Review Date: YYYY-MM-DD
-- Issues Found: [Number and severity]
-
-**Documentation Coverage**:
-
-- Public APIs Documented: [X]%
-- Complex Logic Explained: [YES | PARTIAL | NO]
-- Code Comments Quality: [GOOD | ADEQUATE | NEEDS_IMPROVEMENT]
-
-### Test Coverage
-
-**Unit Tests**:
-
-- Coverage: [X]%
-- Tests Written: [Number]
-- Tests Passing: [Number]
-- Critical Paths Covered: [YES | PARTIAL | NO]
-
-**Widget Tests**:
-
-- Coverage: [X]%
-- Tests Written: [Number]
-- Tests Passing: [Number]
-- Key UI Flows Covered: [YES | PARTIAL | NO]
-
-**Integration Tests**:
-
-- End-to-End Scenarios: [Number defined] / [Number implemented]
-- Tests Passing: [Number]
-- Critical User Journeys Covered: [YES | PARTIAL | NO]
-
-### Performance Metrics
-
-| Metric        | Target   | Current   | Status   | Notes   |
-| ------------- | -------- | --------- | -------- | ------- |
-| [Metric name] | [Target] | [Current] | [Status] | [Notes] |
-
-### Standards Compliance
-
-- [ ] Follows project coding standards
-- [ ] Adheres to Flutter best practices
-- [ ] Follows Riverpod patterns
-- [ ] Security requirements met
-- [ ] Accessibility requirements met
-
----
-
-## 11. API Documentation Reference
-
-### Public APIs Exposed by This Feature
-
-| Component | Type   | Documentation Link | Status   | Notes   |
-| --------- | ------ | ------------------ | -------- | ------- |
-| [Name]    | [Type] | [Link]             | [STATUS] | [Notes] |
-
-### Key Integration Points
-
-**This Feature Exposes**:
-
-- [API/capability 1]
-- [API/capability 2]
-
-**This Feature Requires**:
-
-- [Dependency 1] (`method()`)
-- [Dependency 2] (model/API)
-
-**Events Emitted**:
-
-- [Event 1], [Event 2], [Event 3]
-
-**See Full API Documentation**: [Link to comprehensive docs]
-
----
-
-## 12. Lessons Learned
-
-**Last Updated**: YYYY-MM-DD
-
-### What Went Well
-
-#### Success 1: [Title]
-
-**What Happened**: [Description]
-
-**Why It Worked**: [Contributing factors]
-
-**Application to Future Work**: [How to replicate]
-
-**Process Framework Insight**: [Framework improvement insights]
-
----
-
-### What Could Be Improved
-
-#### Improvement Area 1: [Title]
-
-**What Happened**: [Description]
-
-**Impact**: [Effect on implementation]
-
-**Root Cause**: [Why this happened]
-
-**Suggested Improvement**: [Specific recommendation]
-
-**Process Framework Action**: [Needed framework change]
-
----
-
-### AI Collaboration Patterns
-
-**Effective Patterns**:
-
-- [Pattern 1]: [What worked well]
-- [Pattern 2]: [Effective communication/workflow]
-
-**Ineffective Patterns**:
-
-- [Pattern 1]: [What didn't work] - [Why] - [Better approach]
-- [Pattern 2]: [What didn't work] - [Why] - [Better approach]
-
-### Tool and Technique Insights
-
-**Helpful Tools/Approaches**:
-
-- [Tool 1]: [How it helped] - [When to use]
-- [Tool 2]: [How it helped] - [When to use]
-
-**Limitations Discovered**:
-
-- [Limitation 1]: [What didn't work] - [Workaround] - [Alternative]
-- [Limitation 2]: [What didn't work] - [Workaround] - [Alternative]
-
-### Recommendations for Similar Features
-
-1. [Recommendation 1 with rationale]
-2. [Recommendation 2 with rationale]
-3. [Recommendation 3 with rationale]
-
-### Open Questions for Framework Evolution
-
-1. [Question about process or template]
-2. [Question about task structure or guidance]
+- [Question needing clarification before proceeding]

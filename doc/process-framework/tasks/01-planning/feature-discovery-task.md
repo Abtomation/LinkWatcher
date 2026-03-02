@@ -2,9 +2,9 @@
 id: PF-TSK-013
 type: Process Framework
 category: Task Definition
-version: 1.0
+version: 1.1
 created: 2025-06-09
-updated: 2025-01-27
+updated: 2026-03-02
 task_type: Discrete
 ---
 
@@ -53,6 +53,10 @@ Identify and document potential new features through user research, competitive 
 > **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished! 🚨**
 >
 > **⚠️ MANDATORY: Document all discovered features in the Feature Tracking document.**
+>
+> **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
+>
+> **⚠️ MANDATORY: Never proceed past a checkpoint without presenting findings and getting explicit approval.**
 
 ### Preparation
 
@@ -61,30 +65,32 @@ Identify and document potential new features through user research, competitive 
 3. Research competitive products and identify gaps in your offering
 4. Identify current market trends and emerging technologies
 5. Gather relevant stakeholder input and business requirements
+6. **🚨 CHECKPOINT**: Present research findings, identified themes, and competitive gaps to human partner
 
 ### Execution
 
-6. Conduct brainstorming sessions to generate feature ideas
-7. For each potential feature:
+7. Conduct brainstorming sessions to generate feature ideas
+8. For each potential feature:
    - Validate granularity using the three tests in the [Feature Granularity Guide](/doc/process-framework/guides/guides/feature-granularity-guide.md) (planning test, conversation test, independence test)
    - Document a clear description of the feature
    - Identify potential user benefits
    - Outline high-level implementation considerations
    - Estimate rough complexity and priority
-8. Evaluate feature ideas against strategic goals and user needs
-9. Group related features into coherent categories
-10. Prioritize features based on value, complexity, and strategic alignment
+9. Evaluate feature ideas against strategic goals and user needs
+10. Group related features into coherent categories
+11. Prioritize features based on value, complexity, and strategic alignment
+12. **🚨 CHECKPOINT**: Present prioritized feature list with descriptions and rationale to human partner for approval
 
 ### Finalization
 
-11. Add new features to the Feature Tracking document with:
+13. Add new features to the Feature Tracking document with:
     - Detailed descriptions in the "Notes" column to capture reasoning and context
     - Appropriate categorization and feature ID
     - Initial status (⬜ Not Started)
     - Priority assessment (P1-P5)
     - Dependencies (if identified)
-12. Document any technical explorations needed for complex features in the Technical Debt Tracking document
-13. **🚨 MANDATORY FINAL STEP**: Complete the Task Completion Checklist below
+14. Document any technical explorations needed for complex features in the Technical Debt Tracking document
+15. **🚨 MANDATORY FINAL STEP**: Complete the Task Completion Checklist below
 
 ## Outputs
 

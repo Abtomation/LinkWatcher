@@ -2,9 +2,9 @@
 id: PF-TSK-035
 type: Process Framework
 category: Task Definition
-version: 1.0
+version: 1.1
 created: 2025-08-16
-updated: 2025-08-16
+updated: 2026-03-02
 task_type: Discrete
 ---
 
@@ -39,20 +39,20 @@ Systematically validates foundational features for extensibility and maintainabi
   - **Feature Tracking** - [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Current status of foundational features to be validated
   - **Foundational Validation Tracking** - [Foundational Validation Tracking](../../state-tracking/temporary/foundational-validation-tracking.md) - Master validation matrix and progress tracking
   - **Validation Report Template** - [Validation Report Template](../../templates/templates/validation-report-template.md) - Template for creating validation reports
-  - **Codebase Architecture** - [lib/ directory](../../../../lib) - Source code structure for extensibility analysis
+  - **Codebase Architecture** - Source code directory - Source code structure for extensibility analysis
 
 - **Important (Load If Space):**
 
-  - **Configuration Files** - [pubspec.yaml](../../../../pubspec.yaml) and environment configs - Configuration flexibility assessment
-  - **Test Infrastructure** - [test/ directory](../../../../test) - Testing support and coverage analysis
+  - **Configuration Files** - Project dependency and environment configuration files - Configuration flexibility assessment
+  - **Test Infrastructure** - Test directory - Testing support and coverage analysis
   - **Technical Design Documents** - [TDD Directory](../../../product-docs/technical/design) - Architectural patterns and extension points
   - **New-ValidationReport Script** - [../../scripts/file-creation/New-ValidationReport.ps1](../../scripts/file-creation/New-ValidationReport.ps1) - Script for generating validation reports
   - **Component Relationship Index** - [Component Relationship Index](../../../product-docs/technical/architecture/component-relationship-index.md) - For understanding component interactions
 
 - **Reference Only (Access When Needed):**
-  - **Flutter Best Practices** - [Flutter Architecture Guide](https://docs.flutter.dev/development/data-and-backend/state-mgmt/options) - Framework-specific extensibility patterns
-  - **Testing Guidelines** - [Flutter Testing Guide](https://docs.flutter.dev/testing) - Testing infrastructure best practices
-  - **Riverpod Documentation** - [Riverpod Guide](https://riverpod.dev/) - State management extensibility patterns
+  - **Framework Best Practices** - Framework-specific extensibility patterns for your technology stack
+  - **Testing Guidelines** - Testing infrastructure best practices
+  - **State Management Documentation** - State management extensibility patterns
   - **Visual Notation Guide** - [Visual Notation Guide](../../guides/guides/visual-notation-guide.md) - For interpreting context map diagrams
   - **ID Registry** - [ID Registry](../../../id-registry.json) - For understanding validation report ID assignments
 
@@ -61,35 +61,41 @@ Systematically validates foundational features for extensibility and maintainabi
 > **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished! 🚨**
 >
 > **⚠️ MANDATORY: Use the ../../scripts/file-creation/New-ValidationReport.ps1 script for generating validation reports.**
+>
+> **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
+>
+> **⚠️ MANDATORY: Never proceed past a checkpoint without presenting findings and getting explicit approval.**
 
 ### Preparation
 
 1. **Review Validation Scope**: Identify foundational features to validate for extensibility and maintainability (cross-cutting concerns analysis)
 2. **Load Context Files**: Review codebase architecture, configuration files, and test infrastructure
 3. **Prepare Extensibility Criteria**: Review architectural patterns and maintainability requirements
+4. **🚨 CHECKPOINT**: Present validation scope, selected features, architecture review, and extensibility criteria to human partner for approval before execution
 
 ### Execution
 
-4. **Extension Points Analysis**: Evaluate how well the codebase supports future feature additions and modifications
-5. **Configuration Flexibility Assessment**: Analyze configuration patterns and environment-specific adaptability
-6. **Testing Infrastructure Evaluation**: Assess test coverage, test maintainability, and testing support for extensions
-7. **Code Maintainability Review**: Evaluate code organization, documentation, and refactoring support
-8. **Architectural Flexibility Analysis**: Assess how well the architecture supports scaling and evolution
-9. **Generate Validation Report**: Create detailed validation report using the automation script
+5. **Extension Points Analysis**: Evaluate how well the codebase supports future feature additions and modifications
+6. **Configuration Flexibility Assessment**: Analyze configuration patterns and environment-specific adaptability
+7. **Testing Infrastructure Evaluation**: Assess test coverage, test maintainability, and testing support for extensions
+8. **Code Maintainability Review**: Evaluate code organization, documentation, and refactoring support
+9. **Architectural Flexibility Analysis**: Assess how well the architecture supports scaling and evolution
+10. **Generate Validation Report**: Create detailed validation report using the automation script
    ```powershell
    # Navigate to validation directory and create extensibility maintainability report
    Set-Location "doc/process-framework/validation"
     ..\scripts\file-creation\New-ValidationReport.ps1 -ValidationType "ExtensibilityMaintainability" -FeatureIds "cross-cutting" -SessionNumber 1
    ```
-10. **Score Extensibility Criteria**: Apply 4-point scoring system (0-3) to each extensibility and maintainability criterion
-11. **Document Findings**: Record specific extensibility limitations, maintainability risks, and improvement recommendations
+11. **Score Extensibility Criteria**: Apply 4-point scoring system (0-3) to each extensibility and maintainability criterion
+12. **Document Findings**: Record specific extensibility limitations, maintainability risks, and improvement recommendations
+13. **🚨 CHECKPOINT**: Present extensibility scoring, maintainability risk assessment, and enhancement recommendations to human partner for review before finalization
 
 ### Finalization
 
-12. **Update Validation Tracking**: Update the foundational validation tracking matrix with report creation date and link
-13. **Review Quality Gates**: Ensure validation meets minimum quality thresholds (average score ≥ 2.0)
-14. **Plan Improvements**: For scores below threshold, create action items for extensibility and maintainability enhancements
-15. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+14. **Update Validation Tracking**: Update the foundational validation tracking matrix with report creation date and link
+15. **Review Quality Gates**: Ensure validation meets minimum quality thresholds (average score ≥ 2.0)
+16. **Plan Improvements**: For scores below threshold, create action items for extensibility and maintainability enhancements
+17. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 
@@ -130,7 +136,7 @@ Before considering this task finished:
 
 ## Related Resources
 
-- [Flutter Architecture Guide](https://docs.flutter.dev/development/data-and-backend/state-mgmt/options) - Framework-specific extensibility patterns
-- [Flutter Testing Guide](https://docs.flutter.dev/testing) - Testing infrastructure best practices
-- [Riverpod Guide](https://riverpod.dev/) - State management extensibility patterns
+- Framework-specific extensibility patterns for your technology stack
+- Testing infrastructure best practices
+- State management extensibility patterns
 - [SOLID Principles Guide](https://en.wikipedia.org/wiki/SOLID) - Object-oriented design principles for maintainability

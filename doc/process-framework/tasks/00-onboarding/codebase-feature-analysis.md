@@ -2,9 +2,9 @@
 id: PF-TSK-065
 type: Process Framework
 category: Task Definition
-version: 1.2
+version: 1.3
 created: 2026-02-17
-updated: 2026-02-20
+updated: 2026-03-02
 task_type: Onboarding
 ---
 
@@ -57,6 +57,10 @@ This task produces enriched Feature Implementation State files that serve as the
 > **Recommended batching**: Analyze features in the same category together to identify cross-cutting patterns.
 >
 > **FEEDBACK: Complete feedback forms after EVERY session, not just at the end.**
+>
+> **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
+>
+> **⚠️ MANDATORY: Never proceed past a checkpoint without presenting findings and getting explicit approval.**
 
 ### Preparation
 
@@ -64,10 +68,11 @@ This task produces enriched Feature Implementation State files that serve as the
    - Verify Phase 1 is complete
    - Identify which features still need analysis
    - Set status to "ANALYSIS" if not already
+2. **🚨 CHECKPOINT**: Present which features need analysis and proposed batching order to human partner
 
 ### Execution
 
-2. **Analyze Implementation Patterns** (for each feature):
+3. **Analyze Implementation Patterns** (for each feature):
    - **Check Existing Project Documentation** (before source analysis):
      - Open the feature's Section 4 "Existing Project Documentation" table
      - If entries exist: skim each listed document for content relevant to this feature
@@ -87,14 +92,16 @@ This task produces enriched Feature Implementation State files that serve as the
      - Error propagation and recovery
    - Document in [Feature Implementation State file](../../state-tracking/features/) → Design Decisions section
 
-3. **Document Dependencies** (for each feature):
+4. **Document Dependencies** (for each feature):
    - **Feature Dependencies**: Cross-feature integrations, shared components
    - **System Dependencies**: External libraries and versions
    - **Code Dependencies**: Shared utilities, base classes, interfaces
    - Document in [Feature Implementation State file](../../state-tracking/features/) → Dependencies section
    - **Format for Feature Dependency references**: Use `[feature_id Feature Name](./feature_id-feature-name-implementation-state.md)` — e.g., `**[0.1.2 Data Models](./0.1.2-data-models-implementation-state.md)**`. Do NOT use PF-FEA IDs in dependency entries.
 
-4. **Map Tests to Implementation** (for each feature):
+5. **🚨 CHECKPOINT**: Present analysis findings for first batch of features for review before continuing
+
+6. **Map Tests to Implementation** (for each feature):
    - **Test Coverage**: What's tested vs. what exists?
    - **Test Types**: Unit, integration, parser, performance, e2e?
    - **Test Gaps**: Critical paths without tests, edge cases not covered
@@ -106,7 +113,9 @@ This task produces enriched Feature Implementation State files that serve as the
      - Update [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) Test Status column (✅ for features with tests, 🚫 for features without)
      - Use the automation script `New-TestFile.ps1` for registering individual test files, or batch-populate the registry directly for large existing test suites
 
-5. **Note Complexity Factors** (for features without tier assessments):
+7. **🚨 CHECKPOINT**: Present test coverage gaps and cross-cutting patterns to human partner
+
+8. **Note Complexity Factors** (for features without tier assessments):
    - Number of files/components
    - Integration complexity
    - Data flow complexity
@@ -115,13 +124,14 @@ This task produces enriched Feature Implementation State files that serve as the
 
 ### Finalization
 
-6. **Update [Master State](../../state-tracking/temporary/retrospective-master-state.md) After Each Session**:
+9. **Update [Master State](../../state-tracking/temporary/retrospective-master-state.md) After Each Session**:
    - Mark features as "Analyzed ✅" in the Feature Inventory table
    - Update master state "Existing Documentation Inventory": mark Confirmed column ✅ for docs whose feature-level entries have all been confirmed/flagged
    - Log session notes with key discoveries
    - **Complete feedback form for the session**
 
-7. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+10. **🚨 CHECKPOINT**: Present complete analysis summary and complexity factors to human partner for approval before marking task complete
+11. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 

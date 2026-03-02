@@ -33,7 +33,7 @@ graph TD
 
     TestImpl --> UnitTests([Unit Tests])
     TestImpl --> IntegrationTests([Integration Tests])
-    TestImpl --> WidgetTests([Widget Tests])
+    TestImpl --> ComponentTests([Component Tests])
     TestImpl --> E2ETests([End-to-End Tests])
 
     TestStructure[/Existing Test Structure/] --> TestImpl
@@ -104,7 +104,7 @@ graph TD
 ### Phase 3: Test Implementation
 10. Implement Unit Tests for individual components and services
 11. Implement Integration Tests for component interactions
-12. Implement Widget Tests for UI components (Flutter features)
+12. Implement Component Tests for UI/functional components (if applicable)
 13. Implement End-to-End Tests for complete user flows (Tier 3 features)
 
 ### Phase 4: Validation and Documentation
@@ -127,15 +127,15 @@ graph TD
 - Validate data flow between services
 - Test API integrations and database operations
 
-### Widget Tests (`/test/widget/`)
-- Test UI components and user interactions
-- Validate widget behavior and state changes
-- Test responsive design and accessibility
+### Component Tests (`/test/component/` or equivalent)
+- Test individual components and their interactions
+- Validate component behavior and state changes
+- Test usability and accessibility
 
-### End-to-End Tests (`/integration_test/`)
+### End-to-End Tests (`/test/e2e/` or equivalent)
 - Test complete user workflows
 - Validate entire application behavior
-- Test cross-platform functionality
+- Test cross-environment functionality
 
 ## Related Documentation
 

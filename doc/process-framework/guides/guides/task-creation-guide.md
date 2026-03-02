@@ -11,7 +11,7 @@ updated: 2025-05-30
 
 ## Purpose
 
-This guide provides comprehensive instructions for creating new tasks and improving the overall task structure in the BreakoutBuddies project. It ensures consistency across all task documentation and helps maintain the task-based development approach.
+This guide provides comprehensive instructions for creating new tasks and improving the overall task structure. It ensures consistency across all task documentation and helps maintain the task-based development approach.
 
 ## When to Use
 
@@ -22,7 +22,7 @@ This guide provides comprehensive instructions for creating new tasks and improv
 
 ## Task Types Overview
 
-The BreakoutBuddies project organizes tasks into three categories:
+The project organizes tasks into three categories:
 
 ### 1. Discrete Tasks
 
@@ -98,17 +98,14 @@ Follow these steps to create a new task:
 
    **For Automated Execution (Bash tool/CI):**
 
-   > **⚠️ Note**: When using the Bash tool (which runs via Windows cmd.exe), PowerShell's `-Command` parameter doesn't execute due to quote handling issues. The workaround creates a temporary script file instead.
-
-   ```cmd
-   echo Set-Location 'c:\Users\ronny\VS_Code\BreakoutBuddies\breakoutbuddies\doc\process-framework\scripts\file-creation'; ^& .\New-Task.ps1 -TaskType 'Discrete' -TaskName 'Task Name' -WorkflowPhase '04-implementation' -Description 'Brief task description' -Confirm:$false > temp_task.ps1 && pwsh.exe -ExecutionPolicy Bypass -File temp_task.ps1 && del temp_task.ps1
+   ```bash
+   cd /c/path/to/project/doc/process-framework/scripts/file-creation && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-Task.ps1 -TaskType "Discrete" -TaskName "Task Name" -WorkflowPhase "04-implementation" -Description "Brief task description" -Confirm:$false'
    ```
 
-   **Key differences:**
-   - Uses `echo ... > temp.ps1` to create temporary script file
-   - Uses `-File` parameter instead of `-Command`
+   **Key points:**
+   - Wrap the entire `-Command` argument in bash single quotes
+   - Use double quotes for PowerShell string parameters inside
    - Includes `-Confirm:$false` to bypass interactive prompts
-   - Automatically cleans up temporary file after execution
 
    **Parameters:**
 

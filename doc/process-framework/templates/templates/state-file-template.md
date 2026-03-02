@@ -26,7 +26,7 @@ additional_fields:
 
 # [State File Name]
 
-This file tracks the status of [what this file tracks] in the BreakoutBuddies project.
+This file tracks the status of [what this file tracks] in the project.
 
 ## Status Legend
 

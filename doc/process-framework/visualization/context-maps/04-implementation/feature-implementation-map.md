@@ -68,9 +68,8 @@ graph TD
 
 - [Technical Design Documents](/doc/product-docs/technical/design) - Detailed feature designs
 - [Development Guide](/doc/product-docs/guides/guides/development-guide.md) - Development standards and practices
-- [Implementation Checklist](/doc/product-docs/checklists/checklists/feature-implementation-checklist.md) - Required items to complete
 - [Feature Tracking](../../../state-tracking/permanent/feature-tracking.md) - Feature status tracking
-- <!-- [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - File not found --> - Complete reference of component relationships
+- [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Complete reference of component relationships
 
 ---
 

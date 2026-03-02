@@ -3,9 +3,9 @@ id: PF-TSK-053
 type: Process Framework
 category: Task Definition
 domain: development
-version: 2.0
+version: 2.1
 created: 2025-12-13
-updated: 2026-02-20
+updated: 2026-03-02
 task_type: Discrete
 change_notes: "v2.0 - Made tech-agnostic, absorbed PF-TSK-029 (Test Implementation) automation and bug discovery workflow, unified state tracking"
 ---
@@ -72,6 +72,10 @@ Implement comprehensive test coverage for a feature and verify that all componen
 > **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished! 🚨**
 >
 > **⚠️ MANDATORY: Use automation scripts for test file creation. Update state files throughout implementation.**
+>
+> **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
+>
+> **⚠️ MANDATORY: Never proceed past a checkpoint without presenting findings and getting explicit approval.**
 
 ### Preparation
 
@@ -80,10 +84,11 @@ Implement comprehensive test coverage for a feature and verify that all componen
 3. **Analyze Implementation Code**: Review all implemented code to understand integration points, component boundaries, and potential failure scenarios
 4. **Identify Test Scenarios**: Determine which test types are needed based on the specification and project language (check `project-config.json` for valid test types)
 5. **Plan Test Strategy**: Map out test types needed, mock/stub requirements, test data setup, and prioritize by risk
+6. **🚨 CHECKPOINT**: Present test specification review, implementation code analysis, identified test scenarios, and test strategy to human partner for approval before implementation
 
 ### Execution
 
-6. **Create Test Files**: Use the `New-TestFile.ps1` script to generate test files with proper PD-TST IDs and automatic state tracking updates
+7. **Create Test Files**: Use the `New-TestFile.ps1` script to generate test files with proper PD-TST IDs and automatic state tracking updates
 
    ```powershell
    # Create test files using automation script (generates PD-TST-[SEQUENCE] IDs)
@@ -100,36 +105,36 @@ Implement comprehensive test coverage for a feature and verify that all componen
    # - Updates feature-tracking.md with test implementation progress
    ```
 
-7. **Implement Unit Tests**: Write comprehensive unit tests following specification requirements
+8. **Implement Unit Tests**: Write comprehensive unit tests following specification requirements
    - Test individual functions/methods with various inputs and edge cases
    - Test error handling and validation logic
    - Test state transitions and side effects
    - Achieve minimum 80% code coverage for business logic
-8. **Implement Component Tests**: Build tests for component-level interactions
+9. **Implement Component Tests**: Build tests for component-level interactions
    - Test component behavior with different state inputs
    - Test user interactions and event handling
    - Test error states and boundary conditions
-9. **Implement Integration Tests**: Create end-to-end integration tests validating full workflows
+10. **Implement Integration Tests**: Create end-to-end integration tests validating full workflows
    - Set up test environment with mock backends/services
    - Test complete workflows across component boundaries
    - Verify layer integration and data flow
    - Test error propagation across layers
-10. **Implement Additional Test Types**: Implement any remaining test types required by the specification and project configuration
-11. **Create Test Mocks and Stubs**: Build necessary mocks for external dependencies
+11. **Implement Additional Test Types**: Implement any remaining test types required by the specification and project configuration
+12. **Create Test Mocks and Stubs**: Build necessary mocks for external dependencies
     - Mock external services, databases, and APIs
     - Create test data fixtures and factories
     - Set up dependency injection overrides for testing
-12. **Verify Test Coverage**: Run project coverage tool and validate thresholds
+13. **Verify Test Coverage**: Run project coverage tool and validate thresholds
     - Use the project's configured coverage tool
     - Review coverage report for gaps in critical paths
-13. **Update State Files**: Document test implementation, coverage metrics, and testing notes in Feature Implementation State File (if exists)
-14. **(Optional) Identify Cross-Cutting Test Opportunities**: When integration testing reveals behaviors that span multiple features:
+14. **Update State Files**: Document test implementation, coverage metrics, and testing notes in Feature Implementation State File (if exists)
+15. **(Optional) Identify Cross-Cutting Test Opportunities**: When integration testing reveals behaviors that span multiple features:
     - Check if existing tests adequately cover the cross-feature interaction
     - If not, consider creating a cross-cutting test specification using the [Cross-Cutting Test Specification Template](../../templates/templates/cross-cutting-test-specification-template.md)
     - Store cross-cutting specs in `/test/specifications/cross-cutting-specs/`
     - Register cross-cutting tests in [Test Registry](/test/test-registry.yaml) with `testType: cross-cutting` and the `crossCuttingFeatures` field
     - This step is optional guidance — not every integration test warrants a formal cross-cutting specification
-15. **Verify Non-Test-Suite Artifacts**: If the implementation modified any artifacts that are not exercised by the project's automated test suite (scripts, configuration generators, build definitions, deployment manifests, etc.):
+16. **Verify Non-Test-Suite Artifacts**: If the implementation modified any artifacts that are not exercised by the project's automated test suite (scripts, configuration generators, build definitions, deployment manifests, etc.):
     - Manually invoke each modified artifact with representative inputs
     - Verify the output matches expected behavior
     - Test the artifact in its real context (e.g., run a startup script and confirm the process launches correctly, apply a config and verify settings take effect)
@@ -137,10 +142,13 @@ Implement comprehensive test coverage for a feature and verify that all componen
 
 ### Finalization
 
-16. **Run Test Suite**: Execute all implemented tests to verify they pass
-17. **Review Coverage Report**: Confirm test coverage meets project thresholds (typically 80%+ for business logic)
-18. **Validate Error Scenarios**: Ensure error handling and edge cases are properly tested
-19. **Bug Discovery During Testing**: Systematically identify and document any bugs discovered while implementing or running tests:
+17. **Run Test Suite**: Execute all implemented tests to verify they pass
+18. **Review Coverage Report**: Confirm test coverage meets project thresholds (typically 80%+ for business logic)
+19. **Validate Error Scenarios**: Ensure error handling and edge cases are properly tested
+
+20. **🚨 CHECKPOINT**: Present test execution results, coverage report, and error scenario validation to human partner for review before finalizing
+
+21. **Bug Discovery During Testing**: Systematically identify and document any bugs discovered while implementing or running tests:
 
     - **Implementation Bugs**: Issues found in the code being tested (logic errors, edge case failures)
     - **Test Framework Issues**: Problems with test setup, mocking, or test infrastructure
@@ -149,7 +157,7 @@ Implement comprehensive test coverage for a feature and verify that all componen
     - **Performance Issues**: Slow operations or memory leaks revealed through testing
     - **Error Handling Gaps**: Missing or inadequate error handling discovered during testing
 
-20. **Report Discovered Bugs**: If bugs are identified during test implementation:
+22. **Report Discovered Bugs**: If bugs are identified during test implementation:
 
     - Use [New-BugReport.ps1](../../scripts/file-creation/New-BugReport.ps1) script to create standardized bug reports
     - Follow [Bug Reporting Guide](../../guides/guides/bug-reporting-guide.md) for consistent documentation
@@ -165,14 +173,14 @@ Implement comprehensive test coverage for a feature and verify that all componen
     .\New-BugReport.ps1 -Title "Service throws exception on empty input" -Description "Method fails with exception when passed empty string instead of returning proper error" -DiscoveredBy "Test Implementation" -Severity "High" -Component "Component Name" -Environment "Development" -Evidence "Test case: test_method_empty_input_returns_error"
     ```
 
-21. **Update Test Status**: Update test implementation status to reflect completion (automation handles initial tracking)
-22. **Validate Test Tracking**: Run validation scripts to ensure consistency
+23. **Update Test Status**: Update test implementation status to reflect completion (automation handles initial tracking)
+24. **Validate Test Tracking**: Run validation scripts to ensure consistency
     ```powershell
     # Validate test tracking consistency
     doc/process-framework/scripts/Validate-TestTracking.ps1
     ```
-23. **Update Code Inventory**: Document all test files and coverage metrics in Feature Implementation State File (if applicable)
-24. **MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+25. **Update Code Inventory**: Document all test files and coverage metrics in Feature Implementation State File (if applicable)
+26. **MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 

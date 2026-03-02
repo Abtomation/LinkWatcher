@@ -11,7 +11,7 @@ updated: 2025-07-15
 
 ## Purpose
 
-This guide provides best practices for developing and maintaining templates in the BreakoutBuddies project. Templates ensure consistency across documents and reduce the effort required to create new content.
+This guide provides best practices for developing and maintaining templates in the project. Templates ensure consistency across documents and reduce the effort required to create new content.
 
 ## Template Design Principles
 

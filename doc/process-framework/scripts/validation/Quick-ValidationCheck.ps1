@@ -124,16 +124,16 @@ catch {
 
 # Now use Get-ProjectRoot
 $ProjectRoot = Get-ProjectRoot
-$LibPath = Join-Path $ProjectRoot "lib"
-$TestPath = Join-Path $ProjectRoot "test"
+$LibPath = Join-Path $ProjectRoot "src"
+$TestPath = Join-Path $ProjectRoot "tests"
 $DocPath = Join-Path $ProjectRoot "doc"
 
 # Validation check definitions
 $ValidationChecks = @{
     "CodeQuality"   = @{
-        "DartAnalysis"          = @{
-            Description = "Run dart analyze on lib/ directory"
-            Command     = "flutter analyze"
+        "StaticAnalysis"        = @{
+            Description = "Run static analysis on source directory"
+            Command     = "lint"
             Severity    = "Warning"
             Timeout     = 30
         }
@@ -145,7 +145,7 @@ $ValidationChecks = @{
         }
         "DocumentationCoverage" = @{
             Description      = "Check for missing documentation comments"
-            Pattern          = "^\s*(class|enum|mixin|extension)\s+\w+"
+            Pattern          = "^\s*(class|def|function)\s+\w+"
             Severity         = "Warning"
             RequiredCoverage = 80
         }
@@ -153,7 +153,7 @@ $ValidationChecks = @{
     "Architecture"  = @{
         "LayerSeparation"      = @{
             Description = "Verify proper layer separation (UI, Service, Repository)"
-            Directories = @("lib/presentation", "lib/domain", "lib/data")
+            Directories = @("src/presentation", "src/domain", "src/data")
             Severity    = "Error"
         }
         "DependencyDirection"  = @{
@@ -169,18 +169,18 @@ $ValidationChecks = @{
     }
     "Integration"   = @{
         "StateManagement" = @{
-            Description = "Verify Riverpod provider setup and usage"
-            Pattern     = "Provider|StateNotifier|Consumer"
+            Description = "Verify state management setup and usage"
+            Pattern     = "Provider|Store|State|Observer"
             Severity    = "Error"
         }
         "Navigation"      = @{
-            Description = "Check GoRouter configuration and route definitions"
-            Pattern     = "GoRoute|GoRouter"
+            Description = "Check routing configuration and route definitions"
+            Pattern     = "Route|Router|navigate"
             Severity    = "Error"
         }
         "APIIntegration"  = @{
-            Description = "Verify Supabase client configuration"
-            Pattern     = "SupabaseClient|supabase\."
+            Description = "Verify external service client configuration"
+            Pattern     = "Client|api\.|service\."
             Severity    = "Error"
         }
     }
@@ -202,37 +202,37 @@ $ValidationChecks = @{
         }
     }
     "UI"            = @{
-        "WidgetStructure"  = @{
-            Description = "Check widget composition and structure"
-            Pattern     = "class.*Widget.*extends.*StatelessWidget|StatefulWidget"
+        "ComponentStructure" = @{
+            Description = "Check UI component composition and structure"
+            Pattern     = "class.*Component|class.*View|class.*Screen"
             Severity    = "Warning"
         }
-        "ThemeConsistency" = @{
+        "ThemeConsistency"   = @{
             Description = "Verify consistent theme usage"
-            Pattern     = "Theme\.of\(context\)|context\.theme"
+            Pattern     = "theme|style|css"
             Severity    = "Warning"
         }
-        "Accessibility"    = @{
+        "Accessibility"      = @{
             Description = "Check for accessibility features"
-            Pattern     = "Semantics|semanticsLabel|Tooltip"
+            Pattern     = "aria-|role=|alt=|label"
             Severity    = "Info"
         }
     }
     "Testing"       = @{
         "TestCoverage" = @{
             Description   = "Check test file coverage"
-            TestDirectory = "test"
+            TestDirectory = "tests"
             MinCoverage   = 70
             Severity      = "Warning"
         }
         "TestQuality"  = @{
             Description = "Verify test structure and assertions"
-            Pattern     = "expect\(|test\(|group\("
+            Pattern     = "assert|test|describe|expect"
             Severity    = "Warning"
         }
         "MockUsage"    = @{
             Description = "Check proper mock usage in tests"
-            Pattern     = "Mock|when\(|verify\("
+            Pattern     = "Mock|mock|patch|stub"
             Severity    = "Info"
         }
     }
@@ -240,17 +240,17 @@ $ValidationChecks = @{
 
 # Feature mapping for foundational features
 $FoundationalFeatures = @{
-    "0.2.1"  = @{ Name = "Repository Pattern Implementation"; Path = "lib/data/repositories" }
-    "0.2.2"  = @{ Name = "Service Layer Architecture"; Path = "lib/domain/services" }
-    "0.2.3"  = @{ Name = "Data Models & DTOs"; Path = "lib/data/models" }
-    "0.2.4"  = @{ Name = "Error Handling Framework"; Path = "lib/core/error" }
-    "0.2.5"  = @{ Name = "Logging & Monitoring Setup"; Path = "lib/core/logging" }
-    "0.2.6"  = @{ Name = "Navigation & Routing Framework"; Path = "lib/core/routing" }
-    "0.2.7"  = @{ Name = "State Management Architecture"; Path = "lib/presentation/providers" }
-    "0.2.8"  = @{ Name = "API Client & Network Layer"; Path = "lib/data/datasources" }
-    "0.2.9"  = @{ Name = "Caching & Offline Support"; Path = "lib/core/cache" }
-    "0.2.10" = @{ Name = "Security & Authentication"; Path = "lib/core/auth" }
-    "0.2.11" = @{ Name = "Performance Optimization"; Path = "lib/core/performance" }
+    "0.2.1"  = @{ Name = "Repository Pattern Implementation"; Path = "src/data/repositories" }
+    "0.2.2"  = @{ Name = "Service Layer Architecture"; Path = "src/domain/services" }
+    "0.2.3"  = @{ Name = "Data Models & DTOs"; Path = "src/data/models" }
+    "0.2.4"  = @{ Name = "Error Handling Framework"; Path = "src/core/error" }
+    "0.2.5"  = @{ Name = "Logging & Monitoring Setup"; Path = "src/core/logging" }
+    "0.2.6"  = @{ Name = "Navigation & Routing Framework"; Path = "src/core/routing" }
+    "0.2.7"  = @{ Name = "State Management Architecture"; Path = "src/presentation/providers" }
+    "0.2.8"  = @{ Name = "API Client & Network Layer"; Path = "src/data/datasources" }
+    "0.2.9"  = @{ Name = "Caching & Offline Support"; Path = "src/core/cache" }
+    "0.2.10" = @{ Name = "Security & Authentication"; Path = "src/core/auth" }
+    "0.2.11" = @{ Name = "Performance Optimization"; Path = "src/core/performance" }
 }
 
 function Write-Progress-Safe {
@@ -274,9 +274,9 @@ function Get-ChecksToRun {
     return @($CheckType)
 }
 
-function Invoke-DartAnalyze {
+function Invoke-StaticAnalysis {
     try {
-        $result = & flutter analyze --no-pub 2>&1
+        $result = & lint 2>&1
         $exitCode = $LASTEXITCODE
 
         $issues = @()
@@ -303,7 +303,7 @@ function Invoke-DartAnalyze {
     catch {
         return @{
             Success   = $false
-            Issues    = @(@{ Severity = "error"; Message = "Failed to run dart analyze: $($_.Exception.Message)"; File = ""; Line = 0; Column = 0 })
+            Issues    = @(@{ Severity = "error"; Message = "Failed to run static analysis: $($_.Exception.Message)"; File = ""; Line = 0; Column = 0 })
             RawOutput = $_.Exception.Message
         }
     }
@@ -318,7 +318,7 @@ function Test-FilePattern {
 
     $findings = @()
     if (Test-Path $Path) {
-        Get-ChildItem -Path $Path -Recurse -Filter "*.dart" | ForEach-Object {
+        Get-ChildItem -Path $Path -Recurse -Filter "*.*" | ForEach-Object {
             $content = Get-Content $_.FullName -Raw
             if ($content -match $Pattern) {
                 $findings += @{
@@ -362,7 +362,7 @@ function Get-ValidationResults {
         }
 
         $featureInfo = $FoundationalFeatures[$feature]
-        $featurePath = Join-Path $LibPath $featureInfo.Path.Replace("lib/", "")
+        $featurePath = Join-Path $LibPath $featureInfo.Path.Replace("src/", "")
 
         Write-Progress-Safe "📋 Validating Feature $feature - $($featureInfo.Name)..." "Yellow"
 
@@ -396,9 +396,9 @@ function Get-ValidationResults {
                 try {
                     # Perform specific check based on type
                     switch ($checkName) {
-                        "DartAnalysis" {
+                        "StaticAnalysis" {
                             if ($checkCategory -eq "CodeQuality") {
-                                $analyzeResult = Invoke-DartAnalyze
+                                $analyzeResult = Invoke-StaticAnalysis
                                 if (-not $analyzeResult.Success) {
                                     $checkResult.Status = "FAIL"
                                     $checkResult.Issues = $analyzeResult.Issues
@@ -429,8 +429,8 @@ function Get-ValidationResults {
                         }
                         "TestCoverage" {
                             if ($checkCategory -eq "Testing") {
-                                $libFiles = Get-ChildItem -Path $LibPath -Recurse -Filter "*.dart" | Measure-Object
-                                $testFiles = Get-ChildItem -Path $TestPath -Recurse -Filter "*_test.dart" -ErrorAction SilentlyContinue | Measure-Object
+                                $libFiles = Get-ChildItem -Path $LibPath -Recurse -Filter "*.*" | Measure-Object
+                                $testFiles = Get-ChildItem -Path $TestPath -Recurse -Filter "test_*" -ErrorAction SilentlyContinue | Measure-Object
 
                                 $coverage = if ($libFiles.Count -gt 0) { ($testFiles.Count / $libFiles.Count) * 100 } else { 0 }
 

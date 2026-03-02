@@ -3,9 +3,9 @@ id: PF-TSK-067
 type: Process Framework
 category: Task Definition
 domain: agnostic
-version: 1.0
+version: 1.1
 created: 2026-02-19
-updated: 2026-02-19
+updated: 2026-03-02
 task_type: Discrete
 ---
 
@@ -56,18 +56,23 @@ This task evaluates incoming change requests to determine whether they represent
 > **CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished!**
 >
 > **IMPORTANT: The AI agent must propose the target feature and wait for human approval before creating the state file.**
+>
+> **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
+>
+> **⚠️ MANDATORY: Never proceed past a checkpoint without presenting findings and getting explicit approval.**
 
 ### Phase 1: Classification
 
 1. **Read the change request** — Understand what the human partner wants to add or change
 2. **Review feature tracking** — Read `feature-tracking.md` to understand the current feature inventory. Make yourself familiar with some potential features by looking at the feature state tracking files.
 3. **Classify the request** — Determine: is this a new feature or an enhancement to an existing feature? Apply the three validation tests from the [Feature Granularity Guide](../../guides/guides/feature-granularity-guide.md) to validate the scope of new features.
-   - **New Feature** → Continue to step 4a
-   - **Enhancement** → Continue to step 4b
+4. **🚨 CHECKPOINT**: Present classification decision with rationale to human partner for approval
+   - **New Feature** → Continue to step 5a
+   - **Enhancement** → Continue to step 5b
 
 ### Phase 2a: New Feature Routing
 
-4a. **Route to existing workflow** — For new features:
+5a. **Route to existing workflow** — For new features:
    - Add the new feature to `feature-tracking.md`
    - Create a new feature implementation state file
    - Inform the human partner that the existing workflow applies (Feature Tier Assessment → Design → Implementation)
@@ -75,20 +80,20 @@ This task evaluates incoming change requests to determine whether they represent
 
 ### Phase 2b: Enhancement Scoping
 
-4b. **Propose target feature** — Identify which existing feature this enhances:
+5b. **Propose target feature** — Identify which existing feature this enhances:
    - Locate the candidate feature in `feature-tracking.md`
    - Read the feature's implementation state file to understand its current scope
    - Locate any existing design documentation (FDD, TDD, ADR)
-   - **Present the proposal to the human partner with rationale and wait for approval before continuing**
+6. **🚨 CHECKPOINT**: Present target feature proposal with rationale to human partner and wait for explicit approval before continuing
 
-5. **Assess enhancement scope** — After human approval of the target feature, evaluate using practical criteria:
+7. **Assess enhancement scope** — After human approval of the target feature, evaluate using practical criteria:
    - How many files are affected?
    - Can all work (implementation + doc updates + state tracking) be completed in a single session, or will it span multiple sessions?
    - Which design documents (FDD, TDD, ADR) need reviewing or amending?
    - Are new tests required, or only modifications to existing tests?
    - Does the enhancement affect the feature's public interface or only internal implementation?
 
-6. **Create Enhancement State Tracking File** — Use the `New-EnhancementState.ps1` script:
+8. **Create Enhancement State Tracking File** — Use the `New-EnhancementState.ps1` script:
    ```powershell
    cd doc/process-framework/scripts/file-creation
    ./New-EnhancementState.ps1 -TargetFeature "[Feature ID]" -EnhancementName "[Brief Name]" -Description "[Scope description]"
@@ -102,8 +107,9 @@ This task evaluates incoming change requests to determine whether they represent
 
 ### Phase 3: Finalization
 
-7. **Update feature tracking** — Set the target feature's status to "🔄 Needs Revision" in `feature-tracking.md` and add a link to the Enhancement State Tracking File in the status column
-8. **MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+9. **🚨 CHECKPOINT**: Present completed Enhancement State Tracking File to human partner for review before finalizing
+10. **Update feature tracking** — Set the target feature's status to "🔄 Needs Revision" in `feature-tracking.md` and add a link to the Enhancement State Tracking File in the status column
+11. **MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 

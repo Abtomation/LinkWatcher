@@ -56,7 +56,7 @@ Use this guide when:
 
 Before conducting foundational validation, ensure you have:
 
-- **Access to the codebase**: Full read access to the Breakout Buddies Flutter application
+- **Access to the codebase**: Full read access to the project's application code
 - **Validation framework setup**: All validation tasks, templates, and scripts are available
 - **Foundational features knowledge**: Understanding of the 11 foundational features (0.2.1-0.2.11)
 - **Task system familiarity**: Experience with the AI Task-Based Development System
@@ -67,7 +67,7 @@ Before conducting foundational validation, ensure you have:
 
 ### Why Foundational Validation Matters
 
-The Breakout Buddies application has 11 foundational features that form the architectural backbone of the system. These features were implemented across multiple sessions by different AI agents, creating potential inconsistencies and quality variations.
+The project's foundational features form the architectural backbone of the system. These features were implemented across multiple sessions by different AI agents, creating potential inconsistencies and quality variations.
 
 **Key Challenges Addressed:**
 
@@ -112,7 +112,7 @@ The foundational validation framework consists of 6 specialized validation types
 
 2. **Code Quality & Standards Validation** (PF-TSK-032)
 
-   - **Focus**: Code style, SOLID principles, Flutter best practices
+   - **Focus**: Code style, SOLID principles, language best practices
    - **Sessions**: 4 sessions (2-3 features per session)
    - **Key Areas**: Formatting, naming conventions, performance
 
@@ -174,14 +174,14 @@ Each cell represents a validation report linking a specific feature to a validat
 
 ### Code Quality & Standards Validation
 
-**Purpose**: Ensure code quality, readability, and adherence to Dart/Flutter best practices.
+**Purpose**: Ensure code quality, readability, and adherence to language best practices.
 
 **Validation Criteria**:
 
 - **Code Style**: Consistent formatting, naming conventions, documentation
 - **SOLID Principles**: Single responsibility, open/closed, dependency inversion
-- **Flutter Best Practices**: Widget composition, state management, performance
-- **Dart Idioms**: Proper use of language features, null safety, async patterns
+- **Language Best Practices**: Component composition, state management, performance
+- **Language Idioms**: Proper use of language features, type safety, async patterns
 - **Performance**: Efficient algorithms, memory usage, unnecessary computations
 
 ### Integration & Dependencies Validation
@@ -246,7 +246,7 @@ Each cell represents a validation report linking a specific feature to a validat
 
    ```powershell
    # Navigate to validation directory
-   Set-Location "c:\Users\ronny\VS_Code\BreakoutBuddies\breakoutbuddies\doc\process-framework\validation"
+   Set-Location "doc/process-framework/validation"
 
    # Generate validation report for specific type and features
    ..\scripts\file-creation\New-ValidationReport.ps1 -ValidationType "ArchitecturalConsistency" -FeatureIds "0.2.1,0.2.2,0.2.3" -SessionNumber 1
@@ -433,7 +433,7 @@ Overall Score = (Sum of all validation type scores) / (Number of validation type
 
    ```powershell
    # Navigate to validation directory
-   Set-Location "c:\Users\ronny\VS_Code\BreakoutBuddies\breakoutbuddies\doc\process-framework\validation"
+   Set-Location "doc/process-framework/validation"
 
    # Generate validation report for architectural consistency
    ..\scripts\file-creation\New-ValidationReport.ps1 -ValidationType "ArchitecturalConsistency" -FeatureIds "0.2.1,0.2.2,0.2.3" -SessionNumber 1

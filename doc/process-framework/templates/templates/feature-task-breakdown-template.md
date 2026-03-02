@@ -17,7 +17,7 @@ Use this template to break down features into specific, manageable tasks for imp
 
 **Feature ID**: [ID from feature tracking document]
 
-**Documentation Tier**: [Tier 1 🔵 / Tier 2 🟠 / Tier 3 🔴] (See [Documentation Tiers](/doc/product-docs/guides/guides/documentation-tiers-guide.md))
+**Documentation Tier**: [Tier 1 / Tier 2 / Tier 3]
 
 **Feature Description**: [Brief description of the feature]
 
@@ -93,7 +93,7 @@ Tasks related to testing:
 | T5.2 | Write unit tests for repositories | S/M/L/XL | T1.2 | Medium | |
 | T5.3 | Write unit tests for services | S/M/L/XL | T1.3 | Medium | |
 | T5.4 | Write unit tests for state management | S/M/L/XL | T2.3 | Medium | |
-| T5.5 | Write widget tests | S/M/L/XL | T3.3 | Medium | |
+| T5.5 | Write component tests | S/M/L/XL | T3.3 | Medium | |
 | T5.6 | Write integration tests | S/M/L/XL | All implementation tasks | Low | |
 
 ### 6. Documentation Tasks
@@ -102,12 +102,12 @@ Tasks related to documentation:
 
 | Task ID | Task Description | Estimated Effort | Dependencies | Priority | Notes |
 |---------|-----------------|------------------|--------------|----------|-------|
-| T6.1 | Review documentation tier and adjust if needed | S | After core implementation | High | See [Documentation Tier Adjustment Process](../../methodologies/documentation-tiers/adjustment-process.md) |
+| T6.1 | Review documentation tier and adjust if needed | S | After core implementation | High | See [Documentation Tier Adjustment Process](../../tasks/cyclical/documentation-tier-adjustment-task.md) |
 | T6.2 | Update technical documentation based on (potentially adjusted) (potentially adjusted) documentation tier | S/M/L/XL | T6.1, All implementation tasks | Medium | |
 | T6.3 | Add code comments | S/M/L/XL | T6.1, All implementation tasks | Medium | |
 | T6.4 | Update user documentation (if applicable) | S/M/L/XL | All implementation tasks | Low | |
 
-*Note: For Tier 1 features, technical documentation is primarily contained within this task breakdown document. For Tier 2 and Tier 3 features, refer to the appropriate Technical Design Document. See [Documentation Tiers](/doc/product-docs/guides/guides/documentation-tiers-guide.md) for details on tier requirements.*
+*Note: For Tier 1 features, technical documentation is primarily contained within this task breakdown document. For Tier 2 and Tier 3 features, refer to the appropriate Technical Design Document.*
 
 ## Effort Estimation Guide
 

@@ -154,9 +154,9 @@ This template provides a structured approach for updating Architecture Context P
 ```markdown
 ## 🔗 Implementation Status
 - **Repository Interfaces**: ✅ Complete (was ⬜ Not Started)
-  - Changes: Base repository interface defined, escape room repository interface created
+  - Changes: Base repository interface defined, domain-specific repository interface created
 - **Base Repository**: 🟡 In Progress (was ⬜ Not Started)
-  - Changes: Supabase integration layer implemented, error handling patterns defined
+  - Changes: Data access layer implemented, error handling patterns defined
 ```
 
 ### Scenario 2: Architectural Decision Made

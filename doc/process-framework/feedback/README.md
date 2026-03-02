@@ -8,7 +8,7 @@ updated: 2023-06-15
 
 # Tool Feedback
 
-This directory contains feedback forms (artifacts) for templates, guides, and other tools (documents) used in the BreakoutBuddies project. These feedback artifacts are collected at the end of each task and are used to continuously improve our development tools.
+This directory contains feedback forms (artifacts) for templates, guides, and other tools (documents) used in the project. These feedback artifacts are collected at the end of each task and are used to continuously improve our development tools.
 
 > **Quick Reference**: See the [Feedback Process Flowchart](../../process-framework/feedback/feedback-process-flowchart.md) for a visual overview of the complete process.
 
@@ -107,9 +107,9 @@ At the end of each task, complete a feedback form for each template, guide, chec
 
    > **⚠️ Important**: Use PowerShell Core (`pwsh`) rather than Windows PowerShell for better compatibility.
 
-   ```powershell
-   # Windows command pattern (use this for reliable execution):
-   echo Set-Location 'c:\Users\ronny\VS_Code\LinkWatcher\doc\process-framework\scripts\file-creation'; ^& .\New-FeedbackForm.ps1 -DocumentId 'PF-TSK-044' -TaskContext 'Feature Implementation Planning' -FeedbackType 'MultipleTools' -Confirm:$false > temp_feedback.ps1 && pwsh.exe -ExecutionPolicy Bypass -File temp_feedback.ps1 && del temp_feedback.ps1
+   ```bash
+   # Navigate to script directory and run with bash single quotes:
+   cd /c/Users/ronny/VS_Code/LinkWatcher/doc/process-framework/scripts/file-creation && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-FeedbackForm.ps1 -DocumentId "PF-TSK-044" -TaskContext "Feature Implementation Planning" -FeedbackType "MultipleTools" -Confirm:$false'
    ```
 
    > **Note**: Update the path to match your actual project location

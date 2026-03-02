@@ -2,9 +2,9 @@
 id: PF-TSK-031
 type: Process Framework
 category: Task Definition
-version: 1.0
+version: 1.1
 created: 2025-08-15
-updated: 2025-08-15
+updated: 2026-03-02
 task_type: Discrete
 ---
 
@@ -45,7 +45,7 @@ Systematically validates foundational features for architectural pattern adheren
 
   - **Component Relationship Index** - [Component Relationship Index](../../../product-docs/technical/architecture/component-relationship-index.md) - For understanding component interactions
   - **Technical Design Documents** - [TDD Directory](../../../product-docs/technical/architecture/design-docs/tdd) - Technical specifications for foundational features
-  - **Codebase Structure** - [lib/ directory](../../../../lib) - Source code for foundational features
+  - **Codebase Structure** - Source code directory - Source code for foundational features
   - **New-ValidationReport Script** - [../../scripts/file-creation/New-ValidationReport.ps1](../../scripts/file-creation/New-ValidationReport.ps1) - Script for generating validation reports
 
 - **Reference Only (Access When Needed):**
@@ -58,33 +58,39 @@ Systematically validates foundational features for architectural pattern adheren
 > **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished! 🚨**
 >
 > **⚠️ MANDATORY: Use the ..\scripts\file-creation\New-ValidationReport.ps1 script for generating validation reports.**
+>
+> **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
+>
+> **⚠️ MANDATORY: Never proceed past a checkpoint without presenting findings and getting explicit approval.**
 
 ### Preparation
 
 1. **Review Validation Scope**: Identify the specific foundational features to validate (typically 2-3 features per session)
 2. **Load Context Files**: Review feature tracking, ADRs, and technical design documents for the selected features
 3. **Prepare Validation Criteria**: Review architectural patterns, design principles, and interface contracts that should be validated
+4. **🚨 CHECKPOINT**: Present validation scope, selected features, context files review, and validation criteria to human partner for approval before execution
 
 ### Execution
 
-4. **Analyze Architectural Patterns**: Examine each feature's implementation for adherence to established patterns (Repository, Service Layer, etc.)
-5. **Validate ADR Compliance**: Check that implementation follows architectural decisions documented in ADRs
-6. **Assess Interface Consistency**: Verify that interfaces follow consistent patterns and contracts across features
-7. **Generate Validation Report**: Create detailed validation report using the automation script
+5. **Analyze Architectural Patterns**: Examine each feature's implementation for adherence to established patterns (Repository, Service Layer, etc.)
+6. **Validate ADR Compliance**: Check that implementation follows architectural decisions documented in ADRs
+7. **Assess Interface Consistency**: Verify that interfaces follow consistent patterns and contracts across features
+8. **Generate Validation Report**: Create detailed validation report using the automation script
    ```powershell
    # Navigate to validation directory and create architectural consistency report
    Set-Location "doc/process-framework/validation"
    ..\scripts\file-creation\New-ValidationReport.ps1 -ValidationType "ArchitecturalConsistency" -FeatureIds "0.2.1,0.2.2,0.2.3" -SessionNumber 1
    ```
-8. **Score Validation Criteria**: Apply 4-point scoring system (0-3) to each validation criterion
-9. **Document Findings**: Record specific architectural deviations, inconsistencies, and recommendations
+9. **Score Validation Criteria**: Apply 4-point scoring system (0-3) to each validation criterion
+10. **Document Findings**: Record specific architectural deviations, inconsistencies, and recommendations
+11. **🚨 CHECKPOINT**: Present validation scoring, architectural findings, and recommendations to human partner for review before finalization
 
 ### Finalization
 
-10. **Update Validation Tracking**: Update the foundational validation tracking matrix with report creation date and link
-11. **Review Quality Gates**: Check if validation meets minimum quality thresholds (average score ≥ 2.0)
-12. **Plan Remediation**: For scores below threshold, create action items for architectural improvements
-13. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+12. **Update Validation Tracking**: Update the foundational validation tracking matrix with report creation date and link
+13. **Review Quality Gates**: Check if validation meets minimum quality thresholds (average score ≥ 2.0)
+14. **Plan Remediation**: For scores below threshold, create action items for architectural improvements
+15. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 
@@ -124,5 +130,5 @@ Before considering this task finished:
 
 - [Foundational Codebase Validation Concept](../../proposals/foundational-codebase-validation-concept.md) - Complete framework overview and methodology
 - [Architecture Decision Records](../../../product-docs/technical/architecture/decisions) - Architectural decisions to validate against
-- [Flutter Architecture Guidelines](../../../product-docs/technical/architecture/flutter-architecture-guidelines.md) - Platform-specific architectural patterns
+- Project architecture guidelines - Platform-specific architectural patterns
 - [Design Patterns Documentation](../../../product-docs/technical/architecture/design-patterns) - Established patterns for validation reference

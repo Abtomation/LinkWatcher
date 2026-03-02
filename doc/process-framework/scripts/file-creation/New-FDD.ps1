@@ -35,8 +35,8 @@
     # Creates: fdd-1-1-1-user-registration.md
 
 .EXAMPLE
-    .\New-FDD.ps1 -FeatureId "2.3.4" -FeatureName "Room Filtering" -Description "Advanced filtering system for escape rooms" -OpenInEditor
-    # Creates: fdd-2-3-4-room-filtering.md
+    .\New-FDD.ps1 -FeatureId "2.3.4" -FeatureName "Data Filtering" -Description "Advanced filtering system for data records" -OpenInEditor
+    # Creates: fdd-2-3-4-data-filtering.md
 
 .EXAMPLE
     .\New-FDD.ps1 -FeatureId "1.2.3" -FeatureName "Payment Processing" -Description "Stripe integration" -DryRun

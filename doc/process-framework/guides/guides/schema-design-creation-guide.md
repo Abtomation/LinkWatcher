@@ -17,7 +17,7 @@ change_notes: "v1.1 - Updated for IMP-097/IMP-098: Added separation of concerns 
 
 ## Overview
 
-This guide provides comprehensive instructions for creating and customizing Database Schema Design documents using the New-SchemaDesign.ps1 script and schema-design-template.md. It helps you plan and document database schema changes, relationships, and migration strategies for the BreakoutBuddies project.
+This guide provides comprehensive instructions for creating and customizing Database Schema Design documents using the New-SchemaDesign.ps1 script and schema-design-template.md. It helps you plan and document database schema changes, relationships, and migration strategies for your project.
 
 ## When to Use
 
@@ -220,7 +220,7 @@ When creating database schema designs, you must make several key decisions that 
 1. **Navigate to the database documentation directory**:
 
    ```powershell
-   cd c:\Users\ronny\VS_Code\BreakoutBuddies\breakoutbuddies\doc\product-docs\technical\database
+   cd doc/product-docs/technical/database
    ```
 
 2. **Execute the New-SchemaDesign.ps1 script**:
@@ -341,7 +341,7 @@ Creating a schema design for enhancing user profiles with preferences and settin
 
 ```powershell
 # Navigate to database documentation directory
-cd c:\Users\ronny\VS_Code\BreakoutBuddies\breakoutbuddies\doc\product-docs\technical\database
+cd doc/product-docs/technical/database
 
 # Create schema design for user profile enhancement
 .\New-SchemaDesign.ps1 -FeatureName "User Profile Enhancement" -SchemaType "Modification" -Description "Add user preferences and notification settings" -OpenInEditor
@@ -356,9 +356,9 @@ cd c:\Users\ronny\VS_Code\BreakoutBuddies\breakoutbuddies\doc\product-docs\techn
 
 **Result:** Comprehensive schema design that safely extends user functionality with proper performance optimization
 
-### Example 2: Booking System Schema Design
+### Example 2: Order System Schema Design
 
-Creating a new schema design for escape room booking functionality:
+Creating a new schema design for order management functionality:
 
 ```powershell
 # Create new booking system schema design
@@ -422,7 +422,7 @@ Creating a new schema design for escape room booking functionality:
 - [API Data Model Creation Guide (PF-GDE-030)](api-data-model-creation-guide.md) - Guide for creating related API data models
 - [Guide Creation Best Practices Guide (PF-GDE-024)](guide-creation-best-practices-guide.md) - Best practices for guide creation
 - [Database Design Best Practices](https://www.postgresql.org/docs/current/ddl.html) - External resource for database design principles
-- [Supabase Database Documentation](https://supabase.com/docs/guides/database) - External resource for Supabase-specific database features
+- Your project's database documentation
 
 <!--
 TEMPLATE USAGE GUIDANCE:

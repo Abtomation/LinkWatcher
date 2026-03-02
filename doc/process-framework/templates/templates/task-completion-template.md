@@ -20,8 +20,8 @@ Before considering this task finished:
 - [ ] **Update State Files**: Confirm all relevant state tracking documents have been updated
 - [ ] **Complete Feedback Forms**: Fill out a feedback form (artifact) for each tool/template/guide used during this task:
    ```bash
-   # Windows command pattern (use this for reliable execution):
-   echo Set-Location 'c:\Users\ronny\VS_Code\LinkWatcher\doc\process-framework\scripts\file-creation'; ^& .\New-FeedbackForm.ps1 -DocumentId '[TASK-ID]' -TaskContext '[Task Name]' -FeedbackType 'MultipleTools' -Confirm:$false > temp_feedback.ps1 && pwsh.exe -ExecutionPolicy Bypass -File temp_feedback.ps1 && del temp_feedback.ps1
+   # Navigate to script directory and run with bash single quotes:
+   cd /c/Users/ronny/VS_Code/LinkWatcher/doc/process-framework/scripts/file-creation && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-FeedbackForm.ps1 -DocumentId "[TASK-ID]" -TaskContext "[Task Name]" -FeedbackType "MultipleTools" -Confirm:$false'
    ```
 
    > **Note**: Update the path to match your actual project location

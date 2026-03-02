@@ -17,7 +17,7 @@ change_notes: "v1.1 - Added Separation of Concerns section for IMP-097/IMP-098"
 
 ## Overview
 
-This guide provides comprehensive instructions for creating and customizing API Specification documents using the New-APISpecification.ps1 script and api-specification-template-template.md. It helps you define complete API contracts, endpoint specifications, and documentation for the BreakoutBuddies project.
+This guide provides comprehensive instructions for creating and customizing API Specification documents using the New-APISpecification.ps1 script and api-specification-template-template.md. It helps you define complete API contracts, endpoint specifications, and documentation for your project.
 
 ## When to Use
 
@@ -58,7 +58,7 @@ Before you begin, ensure you have:
 
 ## Background
 
-API Specifications serve as comprehensive contracts that define how client applications interact with backend services in the BreakoutBuddies project. They establish the foundation for consistent API design, implementation, and consumption.
+API Specifications serve as comprehensive contracts that define how client applications interact with backend services in your project. They establish the foundation for consistent API design, implementation, and consumption.
 
 ### Purpose of API Specifications
 
@@ -277,13 +277,7 @@ Use this decision tree when deciding what to include in API specifications:
    - Identify the API endpoints needed and their relationships
    - Determine authentication and authorization requirements
 
-2. **Review shared resources**:
-
-   - **Check Response Status Catalog**: Review [Response Status Catalog](/doc/product-docs/technical/api/specifications/shared/response-status-catalog.json) to identify existing status codes for similar scenarios
-   - **Review API Specifications Directory**: Read the [API Specifications README](/doc/product-docs/technical/api/specifications/README.md) for guidance on shared resources and workflow
-   - Identify status codes that can be reused for your API endpoints
-
-3. **Gather API specification parameters**:
+2. **Gather API specification parameters**:
    - **API Name**: Descriptive name for the API (e.g., "User Authentication API", "Booking Management API")
    - **API Description**: Brief explanation of the API's purpose and functionality
    - **API Type**: Type of API (REST, GraphQL, gRPC, Service Interface)
@@ -295,7 +289,7 @@ Use this decision tree when deciding what to include in API specifications:
 1. **Navigate to the API specifications directory**:
 
    ```powershell
-   cd c:\Users\ronny\VS_Code\BreakoutBuddies\breakoutbuddies\doc\product-docs\technical\api\specifications
+   cd doc/product-docs/technical/api/specifications
    ```
 
 2. **Execute the New-APISpecification.ps1 script**:
@@ -305,78 +299,12 @@ Use this decision tree when deciding what to include in API specifications:
    .\New-APISpecification.ps1 -APIName "User Authentication API" -APIDescription "Handles user login, registration, and session management"
 
    # With specific API type
-   .\New-APISpecification.ps1 -APIName "Booking Management API" -APIDescription "Manages escape room bookings and reservations" -APIType "REST" -OpenInEditor
+   .\New-APISpecification.ps1 -APIName "Order Management API" -APIDescription "Manages customer orders and reservations" -APIType "REST" -OpenInEditor
    ```
 
 **Expected Result:** New API specification file created with proper ID, metadata, and template structure
 
-### 3. Update Response Status Catalog
-
-Before customizing your API specification, add your API's status codes to the Response Status Catalog to ensure consistency across all internal APIs.
-
-1. **Open the Response Status Catalog**:
-
-   ```powershell
-   # Open in your editor
-   code c:\Users\ronny\VS_Code\BreakoutBuddies\breakoutbuddies\doc\product-docs\technical\api\specifications\shared\response-status-catalog.json
-   ```
-
-2. **Add your API entry**:
-
-   - Add a new entry under the `apis` object with your API name (use kebab-case, e.g., `user-registration`, `booking-management`)
-   - For each endpoint, document:
-     - The endpoint path (e.g., `/auth/v1/signup`)
-     - The HTTP method (e.g., `POST`, `GET`)
-     - All scenarios with status codes and descriptions
-
-3. **Follow naming conventions**:
-
-   - Use consistent scenario names: `success`, `invalid_request`, `not_found`, `unauthorized`, `forbidden`, `rate_limited`, `server_error`
-   - Provide clear, specific descriptions explaining when each status code is returned
-   - Include relevant context (e.g., rate limits, validation rules)
-
-4. **Update metadata**:
-
-   - Increment the `version` field (e.g., from `1.0.0` to `1.1.0` for new API, or `1.0.1` for minor updates)
-   - Update the `last_updated` field to the current date (format: `YYYY-MM-DD`)
-
-**Example Entry**:
-
-```json
-{
-  "apis": {
-    "your-api-name": {
-      "endpoints": {
-        "/api/v1/resource": {
-          "method": "POST",
-          "scenarios": {
-            "success": {
-              "status": 201,
-              "description": "Resource created successfully"
-            },
-            "invalid_request": {
-              "status": 400,
-              "description": "Invalid input data or missing required fields"
-            },
-            "unauthorized": {
-              "status": 401,
-              "description": "Missing or invalid authentication token"
-            },
-            "server_error": {
-              "status": 500,
-              "description": "Internal server error"
-            }
-          }
-        }
-      }
-    }
-  }
-}
-```
-
-**Expected Result:** Response Status Catalog updated with your API's canonical status codes, ready to be referenced in your API specification
-
-### 4. Customize API Specification Content
+### 3. Customize API Specification Content
 
 1. **Complete the Overview and Authentication sections**:
 
@@ -391,11 +319,7 @@ Before customizing your API specification, add your API's status codes to the Re
    - Specify all parameters (path, query, header) with types and requirements
    - Define request body schemas with realistic examples
    - Document response formats for success and error scenarios
-   - **Reference the Response Status Catalog** for HTTP status codes:
-     - Add a note at the beginning of your Status Codes section referencing the catalog
-     - Use the canonical status codes defined in the catalog
-     - Link to the specific API entry in the catalog (e.g., `apis.user-registration.endpoints["/auth/v1/signup"].scenarios`)
-     - Include the status code descriptions from the catalog in your specification
+   - Use consistent HTTP status codes across all endpoints
 
 3. **Create detailed data models and error handling**:
 
@@ -490,11 +414,11 @@ Comprehensive quality assurance ensures API specifications meet project standard
 
 ### Example 1: User Authentication API Specification
 
-Creating a comprehensive API specification for user authentication in the BreakoutBuddies application:
+Creating a comprehensive API specification for user authentication in the application:
 
 ```powershell
 # Navigate to API specifications directory
-cd c:\Users\ronny\VS_Code\BreakoutBuddies\breakoutbuddies\doc\product-docs\technical\api\specifications
+cd doc/product-docs/technical/api/specifications
 
 # Create user authentication API specification
 .\New-APISpecification.ps1 -APIName "User Authentication API" -APIDescription "Handles user login, registration, session management, and password reset functionality" -APIType "REST" -OpenInEditor
@@ -510,20 +434,20 @@ cd c:\Users\ronny\VS_Code\BreakoutBuddies\breakoutbuddies\doc\product-docs\techn
 
 **Result:** Complete API specification with detailed endpoint definitions, authentication requirements, and comprehensive error handling
 
-### Example 2: Booking Management API Specification
+### Example 2: Order Management API Specification
 
-Creating an API specification for escape room booking functionality:
+Creating an API specification for order management functionality:
 
 ```powershell
-# Create booking management API specification
-.\New-APISpecification.ps1 -APIName "Booking Management API" -APIDescription "Manages escape room bookings, reservations, and availability" -APIType "REST"
+# Create order management API specification
+.\New-APISpecification.ps1 -APIName "Order Management API" -APIDescription "Manages customer orders, reservations, and availability" -APIType "REST"
 ```
 
 **Customization approach:**
 
 - **Overview**: Define RESTful resource-based API structure with JWT authentication
-- **Endpoints**: Include GET /bookings, POST /bookings, GET /bookings/{id}, PUT /bookings/{id}, DELETE /bookings/{id}, GET /availability
-- **Data Models**: Reference Booking, Room, and User data models with detailed field definitions
+- **Endpoints**: Include GET /orders, POST /orders, GET /orders/{id}, PUT /orders/{id}, DELETE /orders/{id}, GET /availability
+- **Data Models**: Reference Order, Product, and User data models with detailed field definitions
 - **Status Codes**: Comprehensive coverage including 200 OK, 201 Created, 400 Bad Request, 401 Unauthorized, 404 Not Found, 409 Conflict
 - **Examples**: Realistic booking scenarios with complete request/response JSON
 

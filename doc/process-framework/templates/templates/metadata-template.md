@@ -9,7 +9,7 @@ updated: 2025-07-04
 
 # Metadata Template for Documentation Files
 
-This template provides the standard metadata format to be included at the top of all documentation files in the BreakoutBuddies project.
+This template provides the standard metadata format to be included at the top of all documentation files in the project.
 
 ## Metadata Format
 

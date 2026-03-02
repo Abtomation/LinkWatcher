@@ -2,9 +2,9 @@
 id: PF-TSK-020
 type: Process Framework
 category: Task Definition
-version: 1.2
+version: 1.3
 created: 2025-07-19
-updated: 2025-01-27
+updated: 2026-03-02
 task_type: Discrete
 change_notes: "v1.2 - Added Information Flow section for IMP-097/IMP-098"
 ---
@@ -15,7 +15,7 @@ change_notes: "v1.2 - Added Information Flow section for IMP-097/IMP-098"
 
 Design comprehensive API contracts and specifications before implementation begins, ensuring consistent interfaces and proper integration patterns
 
-**🔒 API Scope**: All BreakoutBuddies APIs are **internal-only** and designed exclusively for use within the BreakoutBuddies application ecosystem. These APIs are not public-facing and are not intended for third-party integrations or external consumers.
+**🔒 API Scope**: All project APIs are **internal-only** and designed exclusively for use within the application ecosystem. These APIs are not public-facing and are not intended for third-party integrations or external consumers.
 
 ## 🤖 Automation Status
 
@@ -109,16 +109,12 @@ When referencing this task's outputs in other tasks:
 
   - **Functional Design Document (FDD)** - For Tier 2+ features, the FDD containing functional requirements and user flows that inform API design
   - [Feature Requirements](/doc/process-framework/state-tracking/permanent/feature-tracking.md) - Understanding what functionality the API must support and confirming API Design is required
-  - [Feature Tier Assessment](../../../methodologies/documentation-tiers/assessments) - Assessment that determined API design is needed
+  - [Feature Tier Assessment](../../methodologies/documentation-tiers/assessments) - Assessment that determined API design is needed
   - [System Architecture Review Results](/doc/product-docs/technical/architecture/assessments/) - Architecture decisions that impact API design
 
 - **Important (Load If Space):**
 
   - [Existing API Documentation](/doc/product-docs/technical/api/documentation/) - Current API patterns and conventions
-  - [Response Status Catalog](/doc/product-docs/technical/api/specifications/shared/response-status-catalog.json) - Canonical HTTP status codes for all internal APIs
-  - [API Specifications Directory README](/doc/product-docs/technical/api/specifications/README.md) - Guide to shared resources and API specification workflow
-  - [API Data Models Registry](../../state-tracking/permanent/api-models-registry.md) - Registry of all API data models for reusability
-  - [Data Models](/doc/product-docs/technical/api/models/) - Existing data model definition files
   - [Technical Design Documents](/doc/product-docs/technical/architecture/design-docs/tdd/) - Related technical designs
 
 - **Reference Only (Access When Needed):**
@@ -131,28 +127,23 @@ When referencing this task's outputs in other tasks:
 > **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished! 🚨**
 >
 > **⚠️ MANDATORY: Use the appropriate automation tools where indicated.**
+>
+> **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
+>
+> **⚠️ MANDATORY: Never proceed past a checkpoint without presenting findings and getting explicit approval.**
 
 ### Preparation
 
 1. **Verify API Design Requirement**: Confirm in the [Feature Tracking](../../../state-tracking/permanent/feature-tracking.md) document that the API Design column shows "Yes" for this feature
-2. Review the [Feature Tier Assessment](../../../methodologies/documentation-tiers/assessments) of this feature that determined API design is needed
+2. Review the [Feature Tier Assessment](../../methodologies/documentation-tiers/assessments) of this feature that determined API design is needed
 3. Review feature requirements and understand the functionality that needs API support
 4. Examine existing API patterns and conventions in the project
-5. **Check Response Status Catalog**: Review [Response Status Catalog](/doc/product-docs/technical/api/specifications/shared/response-status-catalog.json) to identify existing status codes for similar scenarios and ensure consistency
-6. **Check Data Models Registry**: Review [API Data Models Registry](../../state-tracking/permanent/api-models-registry.md) to identify existing data models that can be reused and avoid creating duplicates
-7. Identify additional data models and schemas that will be needed for the API
+5. Identify data models and schemas that will be needed for the API
+6. **🚨 CHECKPOINT**: Present preparation findings, identified API patterns, and data model requirements to human partner for approval
 
 ### Execution
 
-8. **Update Response Status Catalog**: Before creating the API specification, add your API's status codes to the [Response Status Catalog](/doc/product-docs/technical/api/specifications/shared/response-status-catalog.json):
-
-   - Add a new entry under `apis` for your API
-   - Define all endpoints with their HTTP methods
-   - Document all scenarios (success, error cases) with status codes and descriptions
-   - Follow existing naming patterns (e.g., `success`, `invalid_request`, `not_found`)
-   - Update the catalog's `version` and `last_updated` metadata
-
-9. **🤖 AUTOMATED - Create API Specification Document**: Use the automation script to generate the main API contract and update feature tracking:
+7. **🤖 AUTOMATED - Create API Specification Document**: Use the automation script to generate the main API contract and update feature tracking:
 
    ```powershell
    cd doc/product-docs/technical/api/specifications
@@ -169,12 +160,12 @@ When referencing this task's outputs in other tasks:
    - Adds timestamped automation notes to feature tracking
    - Provides comprehensive feedback and next steps
 
-10. **Define API Contract**: Specify endpoints, HTTP methods, URL patterns, authentication, and error handling following RESTful conventions
+8. **Define API Contract**: Specify endpoints, HTTP methods, URL patterns, authentication, and error handling following RESTful conventions
 
     - **Reference the Response Status Catalog** in your Status Codes section
     - Use the canonical status codes defined in the catalog for consistency
 
-11. **🔄 SEMI-AUTOMATED - Create Request Data Model**: Generate detailed request schema with validation rules (only if not reusing existing model):
+9. **🔄 SEMI-AUTOMATED - Create Request Data Model**: Generate detailed request schema with validation rules (only if not reusing existing model):
 
     ```powershell
     cd doc/product-docs/technical/api/models
@@ -183,7 +174,7 @@ When referencing this task's outputs in other tasks:
 
     **✅ AUTOMATED**: Feature tracking API Design column automatically updated with intelligent replacement/append logic
 
-12. **🔄 SEMI-AUTOMATED - Create Response Data Model**: Generate detailed response schema with field definitions (only if not reusing existing model):
+10. **🔄 SEMI-AUTOMATED - Create Response Data Model**: Generate detailed response schema with field definitions (only if not reusing existing model):
 
     ```powershell
     cd doc/product-docs/technical/api/models
@@ -192,24 +183,22 @@ When referencing this task's outputs in other tasks:
 
     **✅ AUTOMATED**: Feature tracking API Design column automatically updated with intelligent replacement/append logic
 
-13. **Review Design Consistency**: Validate API design against existing patterns and architectural decisions
+11. **Review Design Consistency**: Validate API design against existing patterns and architectural decisions
+12. **🚨 CHECKPOINT**: Present complete API design including specification, data models, and contract details to human partner for review and approval
 
 ### Finalization
 
-14. **Validate Complete Design**: Ensure API specification and data models work together cohesively
-15. **Verify Response Status Catalog Integration**: Confirm that your API specification correctly references the Response Status Catalog and uses canonical status codes
-16. **🔧 MANUAL - Update Data Models Registry**: Add entries for all newly created models in [API Data Models Registry](/doc/product-docs/technical/api/models/README.md) and update "Used By Features" for any reused models
-17. **✅ AUTOMATED - Feature Tracking Updates**: API specification and data model links automatically managed:
+13. **Validate Complete Design**: Ensure API specification and data models work together cohesively
+14. **✅ AUTOMATED - Feature Tracking Updates**: API specification and data model links automatically managed:
     - **../../scripts/file-creation/New-APISpecification.ps1**: Replaces "Yes" with first API spec, appends additional specs with " • " separator
     - **../../scripts/file-creation/New-APIDataModel.ps1**: Appends data model links with " • " separator using intelligent replacement/append logic
-18. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+15. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 
 - **API Specification Document** - Comprehensive API contract definition saved to `/doc/product-docs/technical/api/specifications/specifications/[api-name].md`
 - **Request Data Model** - Schema definition for request objects saved to `/doc/product-docs/technical/api/models/[api-name]-request.md`
 - **Response Data Model** - Schema definition for response objects saved to `/doc/product-docs/technical/api/models/[api-name]-response.md`
-- **Data Models Registry Update** - Registry entry in [API Data Models Registry](/doc/product-docs/technical/api/models/README.md) tracking all created models
 
 ## State Tracking
 
@@ -219,7 +208,6 @@ The following state files must be updated as part of this task:
   - **../../scripts/file-creation/New-APISpecification.ps1**: Replaces "Yes" with first API spec, appends additional specs with " • " separator
   - **../../scripts/file-creation/New-APIDataModel.ps1**: Appends data model links with " • " separator using intelligent replacement/append logic
 - **🔧 MANUAL** - [Technical Debt Tracking](../../../state-tracking/permanent/technical-debt-tracking.md) - Record any API design decisions that create technical debt
-- **🔧 MANUAL** - [API Data Models Registry](/doc/product-docs/technical/api/models/README.md) - Update with entries for all created data models
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
@@ -231,12 +219,10 @@ Before considering this task finished:
   - [ ] API Specification Document created and saved to specifications directory
   - [ ] Request Data Model created with comprehensive validation rules and examples
   - [ ] Response Data Model created with complete structure and field definitions
-  - [ ] Data Models Registry updated with entries for all created models
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
   - [ ] **✅ AUTOMATED** - [Feature Tracking](../../../state-tracking/permanent/feature-tracking.md) API Design column updates:
     - [x] **✅ AUTOMATED**: API specification and data model links automatically managed (intelligent replacement/append logic)
   - [ ] **🔧 MANUAL** - [Technical Debt Tracking](../../../state-tracking/permanent/technical-debt-tracking.md) updated with any design decisions creating technical debt
-  - [ ] **🔧 MANUAL** - [API Data Models Registry](/doc/product-docs/technical/api/models/README.md) updated with new model entries and relationships
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../../guides/guides/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-020" and context "API Design Task"
 
 ## Next Tasks

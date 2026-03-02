@@ -9,7 +9,7 @@ updated: 2025-07-19
 
 # State Tracking
 
-This directory contains state tracking files that maintain the current status of the BreakoutBuddies project. These files serve as the source of truth for project state and enable the self-documenting workflow of the task-based approach.
+This directory contains state tracking files that maintain the current status of the project. These files serve as the source of truth for project state and enable the self-documenting workflow of the task-based approach.
 
 ## Purpose
 

@@ -152,6 +152,8 @@ assessment_type: [Assessment Type]
 - **Previous Assessments**: [References to previous assessment documents]
 - **Technical Debt Tracking**: [Link to permanent state tracking]
 
+<!-- OPTIONAL APPENDICES — Include only when the assessment warrants it (e.g., large-scope assessments with raw data or detailed analysis that doesn't fit in the main sections above). For smaller assessments, omit this section entirely.
+
 ## Appendices
 
 ### Appendix A: Detailed Findings
@@ -162,6 +164,8 @@ assessment_type: [Assessment Type]
 
 ### Appendix C: Raw Data
 [Any raw data, metrics, or measurements collected]
+
+-->
 
 ---
 

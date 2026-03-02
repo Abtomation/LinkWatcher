@@ -49,11 +49,26 @@ function Get-ProjectRoot {
     $depth = 0
 
     while ($depth -lt $maxDepth) {
-        # Look for project markers
+        # Check for project-config.json first — it contains the authoritative
+        # root_directory field, so we use that instead of assuming the config
+        # file's parent directory is the project root. See PD-BUG-022.
+        $configPath = Join-Path -Path $currentPath -ChildPath "project-config.json"
+        if (Test-Path $configPath) {
+            try {
+                $config = Get-Content $configPath -Raw | ConvertFrom-Json
+                if ($config.project.root_directory -and (Test-Path $config.project.root_directory)) {
+                    $script:ProjectRoot = $config.project.root_directory
+                    return $script:ProjectRoot
+                }
+            } catch {
+                # If config is unreadable, fall through to other markers
+            }
+        }
+
+        # Standard markers (files that only exist at the project root)
         $markers = @(
             ".ai-entry-point.md",
             "ai-tasks.md",
-            "pubspec.yaml",
             ".git"
         )
 

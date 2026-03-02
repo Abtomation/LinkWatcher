@@ -2,9 +2,9 @@
 id: PF-TSK-019
 type: Process Framework
 category: Task Definition
-version: 1.0
+version: 1.1
 created: 2025-07-18
-updated: 2025-07-18
+updated: 2026-03-02
 task_type: Discrete
 ---
 
@@ -43,7 +43,6 @@ Evaluate how new features fit into existing system architecture before implement
   - [Feature Discovery Document](../feature-discovery-task.md) - Understanding of the feature requirements and scope
   - [Feature Tier Assessment](../feature-tier-assessment-task.md) - Complexity evaluation of the feature being reviewed
   - [Architecture Tracking](../../state-tracking/permanent/architecture-tracking.md) - Current architectural state and cross-cutting decisions
-  - [System Architecture Documentation](/doc/product-docs/technical/architecture/README.md) - Current system architecture overview
   - [Architecture Decision Records](/doc/product-docs/technical/architecture/design-docs/adr/README.md) - Existing architectural decisions and context
 
 - **Important (Load If Space):**
@@ -53,7 +52,7 @@ Evaluate how new features fit into existing system architecture before implement
   - [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Understanding component interactions
   - [Database Reference](/doc/product-docs/technical/architecture/database-reference.md) - Current data model and relationships
   - [Project Structure](/doc/product-docs/technical/architecture/project-structure.md) - Code organization and module structure
-  - [Technical Design Documents](/doc/product-docs/technical/architecture/design-docs/tdd/README.md) - Existing TDDs for related components
+  - [Technical Design Documents](/doc/product-docs/technical/architecture/design-docs/tdd/) - Existing TDDs for related components
 
 - **Reference Only (Access When Needed):**
   - [Code Dependency Analysis Results](../../../.ai-workspace/dependency-maps) - Detailed dependency graphs when available
@@ -65,6 +64,10 @@ Evaluate how new features fit into existing system architecture before implement
 > **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished! 🚨**
 >
 > **⚠️ MANDATORY: Use the appropriate automation tools where indicated.**
+>
+> **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
+>
+> **⚠️ MANDATORY: Never proceed past a checkpoint without presenting findings and getting explicit approval.**
 
 ### Preparation
 
@@ -74,26 +77,27 @@ Evaluate how new features fit into existing system architecture before implement
 4. **Identify Relevant Context Packages**: Determine which architectural context packages are relevant to the feature
 5. **Identify Impact Areas**: Determine which system components may be affected by the feature implementation
 6. **Prepare Analysis Framework**: Set up structured approach for architectural evaluation using assessment template
+7. **🚨 CHECKPOINT**: Present feature context, identified impact areas, and relevant context packages to human partner
 
 ### Execution
 
-5. **Component Impact Analysis**:
+8. **Component Impact Analysis**:
    - Evaluate how the feature affects existing components
    - Identify new components that need to be created
    - Assess component relationship changes and dependencies
-6. **Integration Point Assessment**:
+9. **Integration Point Assessment**:
    - Analyze API integration requirements and potential changes
    - Evaluate database schema impact and data flow implications
    - Assess external system integration needs
-7. **Architectural Consistency Review**:
+10. **Architectural Consistency Review**:
    - Verify feature aligns with existing architectural patterns and ADRs
    - Identify potential architectural conflicts or violations
    - Evaluate adherence to established architectural principles
-8. **Architectural Slice Identification**:
+11. **Architectural Slice Identification**:
    - Determine if feature requires new architectural work
    - Identify bounded architectural contexts needed
    - Assess if existing context packages need updates
-9. **Foundation Feature Decision Tree**:
+12. **Foundation Feature Decision Tree**:
    ```
    Does feature require new architectural work?
    ├─ Yes → Is architecture work cross-cutting (affects multiple features)?
@@ -103,36 +107,38 @@ Evaluate how new features fit into existing system architecture before implement
    │  └─ No → Include architectural work in feature TDD
    └─ No → Continue to existing workflow (TDD Creation, etc.)
    ```
-10. **Create Architecture Impact Assessment**: Document findings using assessment template
+13. **🚨 CHECKPOINT**: Present component impact analysis, integration points, and foundation feature decision to human partner for approval
+14. **Create Architecture Impact Assessment**: Document findings using assessment template
     ```powershell
     # Create architecture assessment document (when script is available)
     cd doc/product-docs/technical/architecture/assessments
     ../../scripts/file-creation/New-ArchitectureAssessment.ps1 -FeatureName "Feature Name" -AssessmentType "Impact"
     ```
-11. **Risk Assessment**: Identify architectural risks, complexity factors, and potential integration issues
+15. **Risk Assessment**: Identify architectural risks, complexity factors, and potential integration issues
 
 ### Finalization
 
-12. **Define Integration Strategy**: Outline approach for integrating the feature into existing architecture
-13. **Create Architectural Decisions**: Use existing ADR system if new architectural decisions are needed
+16. **Define Integration Strategy**: Outline approach for integrating the feature into existing architecture
+17. **Create Architectural Decisions**: Use existing ADR system if new architectural decisions are needed
     ```powershell
     # Create ADR if architectural decisions are required
     cd doc/product-docs/technical/architecture/design-docs/adr
     ../../scripts/file-creation/New-ArchitectureDecision.ps1 -Title "Decision Title" -Status "Proposed"
     ```
-14. **Update Architecture Context Packages**: Update or create context packages based on architectural analysis
+18. **Update Architecture Context Packages**: Update or create context packages based on architectural analysis
     - Update existing context packages with new information
     - Create new context packages if new architectural areas identified
     - Ensure context packages reflect current architectural state
-15. **Update Architecture Tracking**: Record architectural analysis outcomes and next steps
+19. **Update Architecture Tracking**: Record architectural analysis outcomes and next steps
     - Update Current Architecture State table
     - Add session summary with key outcomes
     - Update ADR index if new decisions were made
-16. **Provide Implementation Guidance**: Document architectural constraints and recommendations for next steps
+20. **🚨 CHECKPOINT**: Present complete assessment, integration strategy, and implementation guidance to human partner for final approval
+21. **Provide Implementation Guidance**: Document architectural constraints and recommendations for next steps
     - If Foundation Feature needed: Provide guidance for foundation feature implementation
     - If regular feature: Provide guidance for TDD Creation
     - Include architectural context loading instructions for next agent
-17. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+22. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 
@@ -187,6 +193,5 @@ Before considering this task finished:
 ## Related Resources
 
 - [Architecture Decision Records System](/doc/product-docs/technical/architecture/design-docs/adr/README.md) - For creating architectural decisions
-- [System Architecture Documentation](/doc/product-docs/technical/architecture/README.md) - Current architecture overview
 - [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Understanding system components
 - [Feature Tier Assessment Task](../feature-tier-assessment-task.md) - Prerequisite task for complexity evaluation

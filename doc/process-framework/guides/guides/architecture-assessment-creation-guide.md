@@ -16,7 +16,7 @@ related_tasks: PF-TSK-019
 
 ## Overview
 
-This guide provides comprehensive instructions for creating and customizing Architecture Assessment documents using the New-ArchitectureAssessment.ps1 script and architecture-impact-assessment-template.md. It helps you evaluate the architectural impact of proposed changes and ensure system integrity in the BreakoutBuddies project.
+This guide provides comprehensive instructions for creating and customizing Architecture Assessment documents using the New-ArchitectureAssessment.ps1 script and architecture-impact-assessment-template.md. It helps you evaluate the architectural impact of proposed changes and ensure system integrity in your project.
 
 ## When to Use
 
@@ -178,7 +178,7 @@ When creating architecture assessments, you must make several key decisions that
 1. **Navigate to the architecture assessments directory**:
 
    ```powershell
-   cd c:\Users\ronny\VS_Code\BreakoutBuddies\breakoutbuddies\doc\product-docs\technical\architecture\assessments
+   cd doc/product-docs/technical/architecture/assessments
    ```
 
 2. **Execute the New-ArchitectureAssessment.ps1 script**:
@@ -291,10 +291,10 @@ Creating an architecture assessment for a new real-time booking feature:
 
 ```powershell
 # Navigate to architecture assessments directory
-cd c:\Users\ronny\VS_Code\BreakoutBuddies\breakoutbuddies\doc\product-docs\technical\architecture\assessments
+cd doc/product-docs/technical/architecture/assessments
 
 # Create architecture assessment for complex new feature
-.\New-ArchitectureAssessment.ps1 -FeatureName "Real-time Booking System" -AssessmentType "New Feature" -AssessorName "Lead Architect" -FeatureComplexity "Tier 3" -OpenInEditor
+.\New-ArchitectureAssessment.ps1 -FeatureName "Real-time Order Processing" -AssessmentType "New Feature" -AssessorName "Lead Architect" -FeatureComplexity "Tier 3" -OpenInEditor
 ```
 
 **Customization approach:**

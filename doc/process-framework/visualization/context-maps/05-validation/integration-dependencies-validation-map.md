@@ -28,16 +28,16 @@ graph TD
     VRT([Validation Report Template]) --> VR
     CRI[Component Relationship Index] --> DA[Dependency Analysis]
 
-    PC[(pubspec.yaml)] --> DA
+    PC[(Dependency Manifest)] --> DA
     LIB[/lib/ directory/] --> DA
-    SUP[(Supabase Config)] --> IA[Integration Assessment]
+    SUP[(External Service Config)] --> IA[Integration Assessment]
     TDD[Technical Design Docs] --> IA
 
     DA --> VR
     IA --> VR
     VR --> DM[Documentation Map]
 
-    FD[Flutter Docs] -.-> DA
+    FD[Language/Framework Docs] -.-> DA
     IT[Integration Tests] -.-> IA
     VNG[Visual Notation Guide] -.-> VR
     IDR[(ID Registry)] -.-> VR
@@ -58,16 +58,16 @@ graph TD
 
 ### Important Components (Should Understand)
 
-- **pubspec.yaml (PC)**: Project dependencies and version constraints - core dependency health analysis
+- **Dependency Manifest (PC)**: Project dependencies and version constraints - core dependency health analysis
 - **lib/ directory (LIB)**: Source code for foundational features - implementation analysis target
-- **Supabase Configuration (SUP)**: External system integration configurations - integration pattern analysis
+- **External Service Configuration (SUP)**: External system integration configurations - integration pattern analysis
 - **Technical Design Documents (TDD)**: Technical specifications for integration patterns - design validation reference
 - **Dependency Analysis (DA)**: Process of examining dependency health, versions, and compatibility
 - **Integration Assessment (IA)**: Process of evaluating integration patterns and data flow integrity
 
 ### Reference Components (Access When Needed)
 
-- **Flutter Documentation (FD)**: Official guidance on dependency management best practices
+- **Language/Framework Documentation (FD)**: Official guidance on dependency management best practices
 - **Integration Tests (IT)**: End-to-end tests for integration validation - verification reference
 - **Visual Notation Guide (VNG)**: For interpreting context map diagrams and visual elements
 - **ID Registry (IDR)**: For understanding validation report ID assignments and tracking
@@ -78,9 +78,9 @@ graph TD
 2. **Foundational Validation Tracking → Validation Report**: Tracks validation progress and links to completed reports
 3. **Validation Report Template → Validation Report**: Provides standardized structure and scoring framework
 4. **Component Relationship Index → Dependency Analysis**: Essential reference for understanding component interactions
-5. **pubspec.yaml → Dependency Analysis**: Source of dependency versions, constraints, and configuration
+5. **Dependency Manifest → Dependency Analysis**: Source of dependency versions, constraints, and configuration
 6. **lib/ directory → Dependency Analysis**: Contains implementation code for dependency usage analysis
-7. **Supabase Configuration → Integration Assessment**: Defines external system integration patterns
+7. **External Service Configuration → Integration Assessment**: Defines external system integration patterns
 8. **Technical Design Documents → Integration Assessment**: Provides design specifications for integration validation
 9. **Dependency Analysis → Validation Report**: Feeds dependency health findings into the validation report
 10. **Integration Assessment → Validation Report**: Contributes integration pattern analysis to the validation report
@@ -90,12 +90,12 @@ graph TD
 
 1. **Start with Critical Context**: Load Feature Tracking, Foundational Validation Tracking, and Validation Report Template to understand scope and structure
 2. **Establish Component Understanding**: Review Component Relationship Index to map dependencies and integration points
-3. **Analyze Dependencies**: Examine pubspec.yaml for version constraints and lib/ directory for implementation patterns
-4. **Assess Integration Patterns**: Review Supabase configuration and Technical Design Documents for external system integration
+3. **Analyze Dependencies**: Examine dependency manifest for version constraints and lib/ directory for implementation patterns
+4. **Assess Integration Patterns**: Review external service configuration and Technical Design Documents for external system integration
 5. **Perform Cross-Feature Analysis**: Unlike other validation tasks, this focuses on integration patterns across multiple features simultaneously
 6. **Generate Validation Report**: Use ../../scripts/file-creation/New-ValidationReport.ps1 script with IntegrationDependencies validation type
 7. **Update Tracking**: Update Foundational Validation Tracking matrix and Documentation Map with new report
-8. **Reference Documentation**: Access Flutter Documentation and Integration Tests only when specific guidance is needed
+8. **Reference Documentation**: Access Language/Framework Documentation and Integration Tests only when specific guidance is needed
 
 ## Related Documentation
 
@@ -105,7 +105,7 @@ graph TD
 - [Validation Report Template](../../../templates/templates/validation-report-template.md) - Standardized report structure
 - [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Complete reference of all component relationships
 - [../../scripts/file-creation/New-ValidationReport.ps1](../../../scripts/file-creation/New-ValidationReport.ps1) - Automation script for report generation
-- [Flutter Dependency Management](https://docs.flutter.dev/development/packages-and-plugins/using-packages) - Official dependency management guidance
+- Language/Framework Dependency Management Documentation - Official dependency management guidance
 
 ---
 

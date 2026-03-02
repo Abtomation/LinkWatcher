@@ -53,6 +53,10 @@ This task manages systematic changes to documentation structures, templates, or 
 > **⚠️ MANDATORY: Create backup copies of all files before making changes.**
 >
 > **📋 IMPORTANT: Use established document creation processes for all new templates, guides, and scripts. Do NOT create these manually - use the provided scripts and follow the development guides.**
+>
+> **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
+>
+> **⚠️ MANDATORY: Never proceed past a checkpoint without presenting findings and getting explicit approval.**
 
 ### Scope Assessment
 
@@ -83,14 +87,15 @@ This task manages systematic changes to documentation structures, templates, or 
    - For markdown table changes, consider [Add-MarkdownTableColumn.ps1](../../scripts/Add-MarkdownTableColumn.ps1)
    - Verify LinkWatcher is running for automatic cross-reference updates
 
-4. **Verify**: Confirm all changes are correct:
+4. **🚨 CHECKPOINT**: Present implemented changes and affected files to human partner for review
+5. **Verify**: Confirm all changes are correct:
    - All affected files updated
    - Cross-references valid (check LinkWatcher log if relevant)
    - No broken links or orphaned references
 
-5. **Update Documentation Map**: Update [Documentation Map](../../documentation-map.md) if document organization changed
+6. **Update Documentation Map**: Update [Documentation Map](../../documentation-map.md) if document organization changed
 
-6. **🚨 MANDATORY FINAL STEP**: Complete the [Lightweight Completion Checklist](#lightweight-completion-checklist) below
+7. **🚨 MANDATORY FINAL STEP**: Complete the [Lightweight Completion Checklist](#lightweight-completion-checklist) below
 
 ---
 
@@ -110,39 +115,41 @@ This task manages systematic changes to documentation structures, templates, or 
 5. Use the existing `/doc/process-framework/state-tracking/temporary/` directory for transition files
 6. Create mapping documents and migration checklists in the temporary directory
 7. Establish clear metrics for measuring the success of the structure change
+8. **🚨 CHECKPOINT**: Present structure change proposal, migration plan, and impact analysis to human partner for approval
 
 #### Execution
 
-8. **Update or Create Templates Using Established Processes**:
+9. **Update or Create Templates Using Established Processes**:
    - **For new templates**: Use [New-Template.ps1](../../scripts/file-creation/New-Template.ps1) script following [Template Development Guide](../../guides/guides/template-development-guide.md)
    - **For existing templates**: Update following template versioning guidelines in Template Development Guide
    - **For new guides**: Use [New-Guide.ps1](../../scripts/file-creation/New-Guide.ps1) script
    - **For new scripts**: Use [document-creation-script-template.ps1](../../templates/templates/document-creation-script-template.ps1) following [Document Creation Script Development Guide](../../guides/guides/document-creation-script-development-guide.md)
-9. **Update Guide Files**: Update guides that explain the templates, ensuring consistency with template changes
-10. **Create Migration Plan**: Create a phased migration plan for updating individual files affected by structure changes
-11. **Pilot Implementation**: Implement changes on a small subset of files first to validate the approach
-12. **Thorough Testing**: Test the changes thoroughly before proceeding with full implementation
-13. **Update Automation Scripts**: Create or update any automation scripts needed to assist with the migration using established script development processes
+10. **Update Guide Files**: Update guides that explain the templates, ensuring consistency with template changes
+11. **Create Migration Plan**: Create a phased migration plan for updating individual files affected by structure changes
+12. **Pilot Implementation**: Implement changes on a small subset of files first to validate the approach
+13. **Thorough Testing**: Test the changes thoroughly before proceeding with full implementation
+14. **🚨 CHECKPOINT**: Present pilot results, migration plan, and any issues found to human partner for approval before full rollout
+15. **Update Automation Scripts**: Create or update any automation scripts needed to assist with the migration using established script development processes
     - For markdown table structure changes, consider using [Add-MarkdownTableColumn.ps1](../../scripts/Add-MarkdownTableColumn.ps1) to add columns systematically
-14. **Full Implementation**: Implement changes across all remaining files according to the migration plan
-15. **Update Cross-References**: Update cross-references and links between documents to reflect structural changes
+16. **Full Implementation**: Implement changes across all remaining files according to the migration plan
+17. **Update Cross-References**: Update cross-references and links between documents to reflect structural changes
 
 #### Finalization
 
-16. Verify all files have been updated correctly
-17. Document any issues encountered and their resolutions
-18. Update the documentation map if structure changes affected document organization
+18. Verify all files have been updated correctly
+19. Document any issues encountered and their resolutions
+20. Update the documentation map if structure changes affected document organization
 
 #### 🚨 MANDATORY Cleanup Phase
 
-19. **🚨 CRITICAL CLEANUP STEP**: Archive completed temporary state tracking files to `/doc/process-framework/state-tracking/temporary/old/`
-20. Remove excessive migration mapping documents if they don't provide ongoing value
-21. Clean up any redundant documentation created during the process
-22. Update the Process Improvement Tracking file with cleanup completion
+21. **🚨 CRITICAL CLEANUP STEP**: Archive completed temporary state tracking files to `/doc/process-framework/state-tracking/temporary/old/`
+22. Remove excessive migration mapping documents if they don't provide ongoing value
+23. Clean up any redundant documentation created during the process
+24. Update the Process Improvement Tracking file with cleanup completion
 
 #### Final Completion
 
-23. **🚨 MANDATORY FINAL STEP**: Complete the [Full Completion Checklist](#full-completion-checklist) below
+25. **🚨 MANDATORY FINAL STEP**: Complete the [Full Completion Checklist](#full-completion-checklist) below
 
 ## Outputs
 

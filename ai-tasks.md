@@ -46,6 +46,11 @@ Are you ADOPTING THE FRAMEWORK into an existing project?
 │  │  │  ├─ Have a triaged bug to fix → Use [Bug Fixing](#bug-fixing)
 │  │  │  └─ Need to systematically find bugs → Use testing tasks (Test Audit, Code Review)
 │  │
+│  ├─ No → Are you WORKING ON TECHNICAL DEBT or REFACTORING?
+│  │  ├─ Yes → What stage of tech debt management?
+│  │  │  ├─ Need to identify/assess tech debt → Use [Technical Debt Assessment](#technical-debt-assessment) (cyclical)
+│  │  │  └─ Have assessed debt to fix → Use [Code Refactoring](#code-refactoring)
+│  │
 │  ├─ No → Are you REVIEWING CODE?
 │  │  └─ Yes → Use [Code Review](#code-review)
 │  │
@@ -235,6 +240,12 @@ Feature Request Evaluation (classify + scope + create state file) → Feature En
 Bug Fixing → Code Review → Release & Deployment
 ```
 
+### For Technical Debt Reduction
+
+```
+[Technical Debt Assessment (if not yet assessed)] → Code Refactoring → Code Review → Release & Deployment
+```
+
 ### For Documentation/Process Changes
 
 ```
@@ -405,13 +416,14 @@ Need to track something new? Use the [State File Template](/doc/process-framewor
 
 6. ✅ **Follow the task process step-by-step** as documented
 7. ✅ **Use required automation scripts** (never create files manually)
-8. ✅ **Update state files** as you progress through the work
+8. ✅ **If a script fails**: Report the error → diagnose and fix the script → re-run the fixed script. Never bypass a broken script by manually creating files — fix the script first.
+9. ✅ **Update state files** as you progress through the work
 
 ### BEFORE Claiming Task Completion:
 
-9. ✅ **Verify ALL outputs** from task definition are complete
-10. ✅ **Complete ALL items** in the mandatory completion checklist
-11. ✅ **Submit feedback forms** for all tools used during the task
+10. ✅ **Verify ALL outputs** from task definition are complete
+11. ✅ **Complete ALL items** in the mandatory completion checklist
+12. ✅ **Submit feedback forms** for all tools used during the task
 
 > **🚨 Remember**: A task is NOT complete until the feedback forms are submitted!
 

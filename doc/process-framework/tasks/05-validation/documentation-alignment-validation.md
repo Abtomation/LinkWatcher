@@ -2,9 +2,9 @@
 id: PF-TSK-034
 type: Process Framework
 category: Task Definition
-version: 1.0
+version: 1.1
 created: 2025-08-16
-updated: 2025-08-16
+updated: 2026-03-02
 task_type: Discrete
 ---
 
@@ -45,7 +45,7 @@ Systematically validates foundational features for documentation alignment, ensu
 
   - **Architecture Decision Records** - [ADR Directory](../../../product-docs/technical/architecture/decisions) - Architectural decisions to validate compliance
   - **API Documentation** - [API Documentation](../../../product-docs/technical/api) - API specifications to validate against implementation
-  - **Codebase Structure** - [lib/ directory](../../../../lib) - Source code for foundational features to analyze
+  - **Codebase Structure** - Source code directory - Source code for foundational features to analyze
   - **New-ValidationReport Script** - [../../scripts/file-creation/New-ValidationReport.ps1](../../scripts/file-creation/New-ValidationReport.ps1) - Script for generating validation reports
   - **Component Relationship Index** - [Component Relationship Index](../../../product-docs/technical/architecture/component-relationship-index.md) - For understanding component interactions
 
@@ -61,34 +61,40 @@ Systematically validates foundational features for documentation alignment, ensu
 > **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished! 🚨**
 >
 > **⚠️ MANDATORY: Use the ..\scripts\file-creation\New-ValidationReport.ps1 script for generating validation reports.**
+>
+> **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
+>
+> **⚠️ MANDATORY: Never proceed past a checkpoint without presenting findings and getting explicit approval.**
 
 ### Preparation
 
 1. **Review Validation Scope**: Identify the specific foundational features to validate (typically 3-4 features per session)
 2. **Load Context Files**: Review feature implementations, existing TDDs, ADRs, and API documentation
 3. **Prepare Documentation Criteria**: Review documentation standards and alignment requirements
+4. **🚨 CHECKPOINT**: Present validation scope, selected features, TDD/ADR/API documentation inventory, and alignment criteria to human partner for approval before execution
 
 ### Execution
 
-4. **TDD Alignment Analysis**: Compare Technical Design Documents with actual implementation to identify discrepancies
-5. **ADR Compliance Validation**: Verify that architectural decisions documented in ADRs are properly implemented and followed
-6. **API Documentation Accuracy**: Cross-reference API documentation with actual API implementations and interfaces
-7. **Documentation Completeness Assessment**: Identify missing documentation for implemented features and functionality
-8. **Generate Validation Report**: Create detailed validation report using the automation script
+5. **TDD Alignment Analysis**: Compare Technical Design Documents with actual implementation to identify discrepancies
+6. **ADR Compliance Validation**: Verify that architectural decisions documented in ADRs are properly implemented and followed
+7. **API Documentation Accuracy**: Cross-reference API documentation with actual API implementations and interfaces
+8. **Documentation Completeness Assessment**: Identify missing documentation for implemented features and functionality
+9. **Generate Validation Report**: Create detailed validation report using the automation script
    ```powershell
    # Navigate to validation directory and create documentation alignment report
    Set-Location "doc/process-framework/validation"
     ..\scripts\file-creation\New-ValidationReport.ps1 -ValidationType "DocumentationAlignment" -FeatureIds "0.2.1,0.2.2,0.2.3,0.2.4" -SessionNumber 1
    ```
-9. **Score Documentation Criteria**: Apply 4-point scoring system (0-3) to each documentation alignment criterion
-10. **Document Findings**: Record specific documentation gaps, inconsistencies, and improvement recommendations
+10. **Score Documentation Criteria**: Apply 4-point scoring system (0-3) to each documentation alignment criterion
+11. **Document Findings**: Record specific documentation gaps, inconsistencies, and improvement recommendations
+12. **🚨 CHECKPOINT**: Present documentation alignment scoring, gap analysis findings, and remediation recommendations to human partner for review before finalization
 
 ### Finalization
 
-11. **Update Validation Tracking**: Update the foundational validation tracking matrix with report creation date and link
-12. **Review Quality Gates**: Ensure validation meets minimum quality thresholds (average score ≥ 2.0)
-13. **Plan Remediation**: For scores below threshold, create action items for documentation improvements
-14. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+13. **Update Validation Tracking**: Update the foundational validation tracking matrix with report creation date and link
+14. **Review Quality Gates**: Ensure validation meets minimum quality thresholds (average score ≥ 2.0)
+15. **Plan Remediation**: For scores below threshold, create action items for documentation improvements
+16. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 
@@ -131,4 +137,4 @@ Before considering this task finished:
 - [Documentation Guide](../../guides/guides/documentation-guide.md) - Standards for documentation quality and consistency
 - [TDD Creation Guide](../../guides/guides/tdd-creation-guide.md) - Guide for creating and updating Technical Design Documents
 - [ADR Creation Guide](../../guides/guides/architecture-decision-creation-guide.md) - Guide for creating Architecture Decision Records
-- [API Documentation Standards](https://docs.flutter.dev/development/packages-and-plugins/developing-packages#api-documentation) - Flutter API documentation best practices
+- API documentation standards and best practices for your technology stack

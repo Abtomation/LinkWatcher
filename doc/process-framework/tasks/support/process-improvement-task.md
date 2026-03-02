@@ -3,9 +3,9 @@ id: PF-TSK-009
 type: Process Framework
 category: Task Definition
 domain: agnostic
-version: 2.0
+version: 2.1
 created: 2024-07-15
-updated: 2026-02-26
+updated: 2026-02-28
 task_type: Discrete
 ---
 
@@ -78,21 +78,30 @@ Analyze, optimize, and document development processes to improve efficiency, qua
    c. Implement the approved change
    d. **🚨 CHECKPOINT**: Confirm the change meets expectations
 9. **Update linked documents**: Search for files that reference the changed file(s) and update or remove outdated content (guides, context maps, registry entries, templates)
-10. **🚨 CHECKPOINT**: Review changes with human partner
+10. **Log tool change in feedback database**: Record the modification for trend analysis:
+    ```bash
+    python scripts/feedback_db.py log-change --tool <TOOL_DOC_ID> --date <YYYY-MM-DD> --imp <IMP-XXX> --description "<what changed>"
+    ```
+11. **🚨 CHECKPOINT**: Review changes with human partner
 
 ### Finalization
 
-11. **🚨 CHECKPOINT**: Get final approval on the complete solution
-12. Update [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) — move completed improvement(s) from "Current Improvement Opportunities" to "Completed Improvements"
-13. Update any other affected state files
-14. **🚨 MANDATORY FINAL STEP**: Complete the Task Completion Checklist below
+12. **🚨 CHECKPOINT**: Get final approval on the complete solution
+13. Update [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) using [Update-ProcessImprovement.ps1](../../scripts/update/Update-ProcessImprovement.ps1):
+    ```powershell
+    .\Update-ProcessImprovement.ps1 -ImprovementId "IMP-XXX" -NewStatus "Completed" -Impact "HIGH|MEDIUM|LOW" -ValidationNotes "What was done."
+    ```
+14. Update any other affected state files
+15. **🚨 MANDATORY FINAL STEP**: Complete the Task Completion Checklist below
 
 > **Validation**: Improvements are validated through the next usage cycle. Subsequent feedback (via [Tools Review](tools-review-task.md)) will confirm whether the improvement achieved its goal.
 
 ## Tools and Scripts
 
+- **[Update-ProcessImprovement.ps1](../../scripts/update/Update-ProcessImprovement.ps1)** - Automate tracking file updates (status changes, completion moves, summary count, update history)
 - **[New-FeedbackForm.ps1](../../scripts/file-creation/New-FeedbackForm.ps1)** - Create feedback forms for task completion
 - **[Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md)** - Central tracking file for all improvements
+- **[feedback_db.py](/scripts/feedback_db.py)** - Record tool changes for trend analysis (`log-change` subcommand)
 
 ## Outputs
 

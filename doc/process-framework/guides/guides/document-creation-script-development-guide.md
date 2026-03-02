@@ -9,11 +9,11 @@ updated: 2025-07-08
 
 # Document Creation Script Development Guide
 
-This guide provides comprehensive instructions for creating PowerShell scripts that generate documents from templates using the BreakoutBuddies project's standardized document creation system.
+This guide provides comprehensive instructions for creating PowerShell scripts that generate documents from templates using the project's standardized document creation system.
 
 ## Overview
 
-The BreakoutBuddies project uses a standardized approach for creating documents from templates through PowerShell scripts. This system provides:
+The project uses a standardized approach for creating documents from templates through PowerShell scripts. This system provides:
 
 - **Consistent ID Management**: Automatic ID generation using the central ID registry
 - **Standardized Error Handling**: Unified error reporting and logging
@@ -35,7 +35,7 @@ Use this guide when you need to create a new PowerShell script that:
 Before using this guide, ensure you have:
 
 1. **Updated id-registry.json**: Ensure the ID registry contains necessary entries.
-2. **Project Structure**: Familiarity with the BreakoutBuddies documentation structure
+2. **Project Structure**: Familiarity with the project's documentation structure
 3. **Template System**: Understanding of the project's template system
 
 ### Required Files
@@ -948,7 +948,7 @@ The project includes several document creation scripts that follow these guideli
 
 ## Conclusion
 
-This guide provides a comprehensive framework for creating document creation scripts in the BreakoutBuddies project. By following these patterns and best practices, you can create consistent, maintainable scripts that integrate seamlessly with the project's document management system.
+This guide provides a comprehensive framework for creating document creation scripts in the project. By following these patterns and best practices, you can create consistent, maintainable scripts that integrate seamlessly with the project's document management system.
 
 Remember to:
 

@@ -64,6 +64,10 @@ Complete process for creating a new task from concept to implementation-ready de
 > **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished! 🚨**
 >
 > **⚠️ MANDATORY: Create temporary state tracking file for multi-session implementation.**
+>
+> **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
+>
+> **⚠️ MANDATORY: Never proceed past a checkpoint without presenting findings and getting explicit approval.**
 
 ## 🚨 FUNDAMENTAL CONCEPT: Two-Phase Task Creation Process
 
@@ -103,8 +107,9 @@ Complete process for creating a new task from concept to implementation-ready de
    - Reference concept document in temporary state tracking file
 3. **Review Available Artifacts**: Examine what directories, templates, guides, and state files currently exist in the process framework
 4. **Evaluate Task Requirements**: Determine which artifacts are actually needed for this specific task (not all tasks need all types of artifacts)
+5. **🚨 CHECKPOINT**: Present task concept summary, available artifacts review, and required artifacts to human partner for alignment
 
-5. **🔍 Scope Assessment — Propose Approach to Human Partner**:
+6. **🔍 Scope Assessment — Propose Approach to Human Partner**:
 
    Evaluate the following criteria:
    - Does this task create **new file types** as outputs?
@@ -137,8 +142,7 @@ Complete process for creating a new task from concept to implementation-ready de
 
 6L. **Create Task Definition**: Use [New-Task.ps1](../../scripts/file-creation/New-Task.ps1) and [Task Creation Guide](../../guides/guides/task-creation-guide.md)
    ```bash
-   # Windows command pattern:
-   echo Set-Location 'c:\path\to\project\doc\process-framework\scripts\file-creation'; ^& .\New-Task.ps1 -TaskType 'Discrete' -TaskName 'Your Task Name' -WorkflowPhase '04-implementation' -Description 'Your description' -Confirm:$false > temp_task.ps1 && pwsh.exe -ExecutionPolicy Bypass -File temp_task.ps1 && del temp_task.ps1
+   cd /c/path/to/project/doc/process-framework/scripts/file-creation && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-Task.ps1 -TaskType "Discrete" -TaskName "Your Task Name" -WorkflowPhase "04-implementation" -Description "Your description" -Confirm:$false'
    ```
    > **📝 NAMING**: Rename the generated file to include `-task` suffix (e.g., `your-task-name.md` → `your-task-name-task.md`)
 
@@ -153,15 +157,15 @@ Complete process for creating a new task from concept to implementation-ready de
    - **AI Agent Role** — Appropriate professional role after "Purpose & Context" section
    > **🌍 IMPORTANT**: Make tasks **generic and reusable** — use category references and examples instead of project-specific details.
 
-8L. **Create Context Map**: Use [New-ContextMap.ps1](../../scripts/file-creation/New-ContextMap.ps1) and customize
+8L. **🚨 CHECKPOINT**: Present customized task definition to human partner for review before creating supporting artifacts
+9L. **Create Context Map**: Use [New-ContextMap.ps1](../../scripts/file-creation/New-ContextMap.ps1) and customize
    ```bash
-   # Windows command pattern:
-   echo Set-Location 'c:\path\to\project\doc\process-framework\scripts\file-creation'; ^& .\New-ContextMap.ps1 -TaskName 'Your Task Name' -WorkflowPhase '02-drafting' -MapDescription 'Context map for Your Task Name task' -Confirm:$false > temp_map.ps1 && pwsh.exe -ExecutionPolicy Bypass -File temp_map.ps1 && del temp_map.ps1
+   cd /c/path/to/project/doc/process-framework/scripts/file-creation && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-ContextMap.ps1 -TaskName "Your Task Name" -WorkflowPhase "02-drafting" -MapDescription "Context map for Your Task Name task" -Confirm:$false'
    ```
 
-9L. **Verify Documentation Updates**: Confirm that New-Task.ps1 automatically updated documentation-map.md, tasks/README.md, and ai-tasks.md
+10L. **Verify Documentation Updates**: Confirm that New-Task.ps1 automatically updated documentation-map.md, tasks/README.md, and ai-tasks.md
 
-10L. **🚨 MANDATORY FINAL STEP**: Complete the [Lightweight Task Completion Checklist](#lightweight-task-completion-checklist) below
+11L. **🚨 MANDATORY FINAL STEP**: Complete the [Lightweight Task Completion Checklist](#lightweight-task-completion-checklist) below
 
 ### Lightweight Outputs
 
@@ -182,8 +186,7 @@ Complete process for creating a new task from concept to implementation-ready de
 5. **Create Temporary State Tracking File**: Use the [New-TempTaskState.ps1](../../scripts/file-creation/New-TempTaskState.ps1) script to create tracking file with implementation roadmap
 
    ```bash
-   # Windows command pattern:
-   echo Set-Location 'c:\path\to\project\doc\process-framework\scripts\file-creation'; ^& .\New-TempTaskState.ps1 -TaskName 'Task Name' -TaskType 'Discrete' -Description 'Brief task description' -Confirm:$false > temp_state.ps1 && pwsh.exe -ExecutionPolicy Bypass -File temp_state.ps1 && del temp_state.ps1
+   cd /c/path/to/project/doc/process-framework/scripts/file-creation && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-TempTaskState.ps1 -TaskName "Task Name" -TaskType "Discrete" -Description "Brief task description" -Confirm:$false'
    ```
    > **Note**: Update the path to match your actual project location. TaskType options: Discrete, Cyclical, Support
 
@@ -206,8 +209,7 @@ Complete process for creating a new task from concept to implementation-ready de
 
    - Create task definition using [New-Task.ps1](../../scripts/file-creation/New-Task.ps1) and [Task Creation Guide](../../guides/guides/task-creation-guide.md)
      ```bash
-     # Windows command pattern:
-     echo Set-Location 'c:\path\to\project\doc\process-framework\scripts\file-creation'; ^& .\New-Task.ps1 -TaskType 'Discrete' -TaskName 'Your Task Name' -WorkflowPhase '04-implementation' -Description 'Your description' -Confirm:$false > temp_task.ps1 && pwsh.exe -ExecutionPolicy Bypass -File temp_task.ps1 && del temp_task.ps1
+     cd /c/path/to/project/doc/process-framework/scripts/file-creation && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-Task.ps1 -TaskType "Discrete" -TaskName "Your Task Name" -WorkflowPhase "04-implementation" -Description "Your description" -Confirm:$false'
      ```
      > **Note**: Script will display prominent warnings about template nature and customization requirements
      > **✨ ENHANCED**: Script now automatically updates three documentation files: documentation-map.md, tasks/README.md, and ai-tasks.md
@@ -225,6 +227,7 @@ Complete process for creating a new task from concept to implementation-ready de
      >
      > **🌍 IMPORTANT**: Make tasks **generic and reusable** - use category references and examples (e.g., "business types: B2B, B2C, SaaS") instead of project-specific details. Use placeholders in commands. See [Task Creation Guide](../../guides/guides/task-creation-guide.md) for detailed guidance.
 
+   - **🚨 CHECKPOINT**: Present customized task definition to human partner for review before proceeding to infrastructure setup
    - **Assign AI Agent Role**: Add appropriate professional role assignment to the task definition after "Purpose & Context" section
      - Select from established professional roles (Senior Software Engineer, Software Architect, Debugging Specialist, Code Quality Auditor, Product Analyst, Technical Lead, DevOps Engineer, QA Engineer, Business Analyst, Legal Requirements Specialist, etc.)
      - Use format: Role, Mindset, Focus Areas, Communication Style (keep to 3-4 lines maximum)
@@ -244,15 +247,13 @@ Complete process for creating a new task from concept to implementation-ready de
 
    - Create task-specific template using [Template Development Guide](../../guides/guides/template-development-guide.md) and [New-Template.ps1](../../scripts/file-creation/New-Template.ps1) (if task creates files)
      ```bash
-     # Windows command pattern:
-     echo Set-Location 'c:\path\to\project\doc\process-framework\scripts\file-creation'; ^& .\New-Template.ps1 -TemplateName 'Your Template Name' -TemplateDescription 'Template description' -DocumentPrefix 'PF-XXX' -DocumentCategory 'YourCategory' -Confirm:$false > temp_template.ps1 && pwsh.exe -ExecutionPolicy Bypass -File temp_template.ps1 && del temp_template.ps1
+     cd /c/path/to/project/doc/process-framework/scripts/file-creation && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-Template.ps1 -TemplateName "Your Template Name" -TemplateDescription "Template description" -DocumentPrefix "PF-XXX" -DocumentCategory "YourCategory" -Confirm:$false'
      ```
-     > **Note**: Script will display prominent warnings about template nature and customization requirements. Update the path to match your actual project location. Replace 'PF-XXX' with the appropriate document prefix and 'YourCategory' with the document category.
+     > **Note**: Script will display prominent warnings about template nature and customization requirements. Update the path to match your actual project location. Replace `PF-XXX` with the appropriate document prefix and `YourCategory` with the document category.
 
    - Create template customization guide using [New-Guide.ps1](../../scripts/file-creation/New-Guide.ps1) and [Guide Creation Best Practices Guide](../../guides/guides/guide-creation-best-practices-guide.md) (if task creates files)
      ```bash
-     # Windows command pattern:
-     echo Set-Location 'c:\path\to\project\doc\process-framework\scripts\file-creation'; ^& .\New-Guide.ps1 -GuideTitle 'Your Guide Name' -GuideDescription 'Guide description' -GuideCategory 'guides' -Confirm:$false > temp_guide.ps1 && pwsh.exe -ExecutionPolicy Bypass -File temp_guide.ps1 && del temp_guide.ps1
+     cd /c/path/to/project/doc/process-framework/scripts/file-creation && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-Guide.ps1 -GuideTitle "Your Guide Name" -GuideDescription "Guide description" -GuideCategory "guides" -Confirm:$false'
      ```
      > **Note**: Script will display prominent warnings about template nature and customization requirements. Update the path to match your actual project location.
 
@@ -267,8 +268,7 @@ Complete process for creating a new task from concept to implementation-ready de
    - Update [Documentation Map](../../documentation-map.md) with all new artifacts
    - Create context map using [Visualization Creation Guide](../../guides/guides/visualization-creation-guide.md) and [New-ContextMap.ps1](../../scripts/file-creation/New-ContextMap.ps1)
      ```bash
-     # Windows command pattern:
-     echo Set-Location 'c:\path\to\project\doc\process-framework\scripts\file-creation'; ^& .\New-ContextMap.ps1 -TaskName 'Your Task Name' -WorkflowPhase '02-drafting' -MapDescription 'Context map for Your Task Name task' -Confirm:$false > temp_map.ps1 && pwsh.exe -ExecutionPolicy Bypass -File temp_map.ps1 && del temp_map.ps1
+     cd /c/path/to/project/doc/process-framework/scripts/file-creation && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-ContextMap.ps1 -TaskName "Your Task Name" -WorkflowPhase "02-drafting" -MapDescription "Context map for Your Task Name task" -Confirm:$false'
      ```
      > **Note**: Script will display prominent warnings about template nature and customization requirements. Update the path to match your actual project location.
 

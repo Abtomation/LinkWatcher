@@ -2,9 +2,9 @@
 id: PF-TSK-027
 type: Process Framework
 category: Task Definition
-version: 1.2
+version: 1.3
 created: 2025-08-01
-updated: 2025-01-27
+updated: 2026-03-02
 task_type: Discrete
 change_notes: "v1.2 - Added Information Flow and Separation of Concerns sections for IMP-097/IMP-098"
 ---
@@ -106,42 +106,48 @@ B-design/visualization/context-maps/discrete/fdd-creation-map.md)
 > **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished! 🚨**
 >
 > **⚠️ MANDATORY: Use the ../discrete/02-design/02-design/02-design/02-design/New-FDD.ps1 automation script for document creation.**
+>
+> **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
+>
+> **⚠️ MANDATORY: Never proceed past a checkpoint without presenting findings and getting explicit approval.**
 
 ### Preparation
 
 1. **Identify Target Feature**: Locate the feature in B-design/state-tracking/permanent/feature-tracking.md) and verify it requires FDD creation
 2. **Review Feature Tier Assessment**: Confirm the feature is Tier 2 or Tier 3, or has specific FDD triggers (complex interactions, business rules, etc.)
 3. **Gather Existing Information**: Collect any available feature discovery results, user stories, or requirements documentation
+4. **🚨 CHECKPOINT**: Present feature context, tier assessment results, and existing information to human partner for approval before proceeding
 
 ### Execution
 
-4. **🚨 MANDATORY: Consult Human Partner**: Focus consultation on high-level requirements and business context
+5. **🚨 MANDATORY: Consult Human Partner**: Focus consultation on high-level requirements and business context
    - **Human Responsibilities**: High-level user workflow, business value, and key business rules
    - **AI Responsibilities**: Detailed functional specifications, edge cases, acceptance criteria, and technical integration
    - Request overall user experience flow and primary business objectives
    - Ask about critical business constraints and validation rules
    - Clarify success criteria from business perspective
-5. **Create FDD Document**: Use the automation script to generate the FDD structure
-   ```bash
-   # Windows command pattern using absolute path with echo method:
-   echo c:\Users\[YourUsername]\VS_Code\BreakoutBuddies\breakoutbuddies\doc\process-framework\scripts\file-creation\New-FDD.ps1 -FeatureId [Feature-ID] -FeatureName "Feature Name Here" | powershell -NoProfile -
+6. **Create FDD Document**: Use the automation script to generate the FDD structure
+   ```powershell
+   # Navigate to the script directory and run the FDD creation script
+   Set-Location "doc/process-framework/scripts/file-creation"
+   .\New-FDD.ps1 -FeatureId [Feature-ID] -FeatureName "Feature Name Here"
    ```
-   > **Note**: Replace `[YourUsername]` with your actual Windows username, `[Feature-ID]` with the feature ID (e.g., 6.4.1), and `"Feature Name Here"` with your feature name.
-   > **Important**: Use the echo method to avoid PowerShell quote handling issues in Windows CMD.
-6. **Develop Detailed Functional Requirements**: Using human input as foundation, create comprehensive specifications with Feature ID prefixes:
+   > **Note**: Replace `[Feature-ID]` with the feature ID (e.g., 6.4.1), and `"Feature Name Here"` with your feature name.
+7. **Develop Detailed Functional Requirements**: Using human input as foundation, create comprehensive specifications with Feature ID prefixes:
    - Core functionality requirements ([Feature-ID]-FR-1, [Feature-ID]-FR-2, etc.)
    - User interaction flows ([Feature-ID]-UI-1, [Feature-ID]-UI-2, etc.)
    - Business rules and validation logic ([Feature-ID]-BR-1, [Feature-ID]-BR-2, etc.)
-7. **Create Detailed User Experience Flow**: Expand human-provided workflow into complete user journey with decision points and alternative paths
-8. **Define Comprehensive Acceptance Criteria**: Create testable, measurable acceptance criteria based on functional requirements
-9. **Identify Edge Cases and Error Handling**: Document edge cases and error handling scenarios with expected behaviors
-10. **Map Dependencies**: Identify functional and technical dependencies from other features or systems
+8. **Create Detailed User Experience Flow**: Expand human-provided workflow into complete user journey with decision points and alternative paths
+9. **Define Comprehensive Acceptance Criteria**: Create testable, measurable acceptance criteria based on functional requirements
+10. **Identify Edge Cases and Error Handling**: Document edge cases and error handling scenarios with expected behaviors
+11. **Map Dependencies**: Identify functional and technical dependencies from other features or systems
+12. **🚨 CHECKPOINT**: Present draft FDD with functional requirements, acceptance criteria, and edge cases to human partner for review and approval
 
 ### Finalization
 
-11. **Validate Completeness**: Review FDD against the validation checklist in the template
-12. **Verify Automated Updates**: The ../discrete/02-design/02-design/02-design/02-design/New-FDD.ps1 script automatically updates feature tracking - verify the updates were applied correctly
-13. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+13. **Validate Completeness**: Review FDD against the validation checklist in the template
+14. **Verify Automated Updates**: The ../discrete/02-design/02-design/02-design/02-design/New-FDD.ps1 script automatically updates feature tracking - verify the updates were applied correctly
+15. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 

@@ -49,6 +49,10 @@ Establishes foundational project configuration and metadata when initializing a 
 ## Process
 
 > **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished! 🚨**
+>
+> **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
+>
+> **⚠️ MANDATORY: Never proceed past a checkpoint without presenting findings and getting explicit approval.**
 
 ### Preparation
 
@@ -67,10 +71,11 @@ Establishes foundational project configuration and metadata when initializing a 
    - Source code directory
    - Tests directory
    - Scripts directory
+4. **🚨 CHECKPOINT**: Present gathered project information and identified paths to human partner for confirmation before creating configuration file
 
 ### Execution
 
-4. **Create project-config.json File**: At the project root directory, create `project-config.json` with the following structure:
+5. **Create project-config.json File**: At the project root directory, create `project-config.json` with the following structure:
 
    ```json
    {
@@ -120,22 +125,23 @@ Establishes foundational project configuration and metadata when initializing a 
    }
    ```
 
-5. **Customize Field Values**: Replace all placeholders `[...]` with actual project-specific values:
+6. **Customize Field Values**: Replace all placeholders `[...]` with actual project-specific values:
    - Use Windows path format with double backslashes (`\\`) for paths on Windows
    - Use forward slashes (`/`) for relative paths in the `paths` section
    - Set values to `null` for optional fields that don't apply
 
-6. **Validate JSON Syntax**: Ensure the file is valid JSON (check for missing commas, brackets, quotes)
+7. **Validate JSON Syntax**: Ensure the file is valid JSON (check for missing commas, brackets, quotes)
+8. **🚨 CHECKPOINT**: Present completed project-config.json to human partner for review before finalization
 
 ### Finalization
 
-7. **Verify File Location**: Confirm `project-config.json` is in the project root directory
+9. **Verify File Location**: Confirm `project-config.json` is in the project root directory
 
-8. **Test Configuration**: If automation scripts are available, test that they can read the config file successfully
+10. **Test Configuration**: If automation scripts are available, test that they can read the config file successfully
 
-9. **Document Project-Specific Notes**: If there are any non-standard configurations or important context, add comments to this task or create a project README
+11. **Document Project-Specific Notes**: If there are any non-standard configurations or important context, add comments to this task or create a project README
 
-10. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+12. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 

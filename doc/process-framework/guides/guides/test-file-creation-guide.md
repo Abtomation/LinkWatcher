@@ -16,15 +16,15 @@ guide_title: Test File Creation Guide
 
 ## Overview
 
-This guide provides comprehensive instructions for creating and customizing test files using the New-TestFile.ps1 script and test-file-template.dart. It helps you create properly structured Flutter test files with appropriate test types, imports, and scaffolding for unit, integration, widget, and end-to-end testing.
+This guide provides comprehensive instructions for creating and customizing test files using the New-TestFile.ps1 script and the appropriate test file template. It helps you create properly structured test files with appropriate test types, imports, and scaffolding for unit, integration, and end-to-end testing.
 
 ## When to Use
 
 Use this guide when you need to:
 
-- Create new test files for Flutter components, services, or features
+- Create new test files for components, services, or features
 - Generate properly structured test scaffolding with correct imports and setup
-- Ensure consistent test file organization across different test types (Unit, Integration, Widget, E2E)
+- Ensure consistent test file organization across different test types (Unit, Integration, E2E)
 - Set up test files that integrate with the project's testing framework and helpers
 - Create test files that follow the project's testing standards and patterns
 - Generate test files based on existing Test Specifications
@@ -48,7 +48,7 @@ Use this guide when you need to:
 Before you begin, ensure you have:
 
 - Access to PowerShell and the New-TestFile.ps1 script in `test/`
-- Understanding of Flutter testing framework and test types (Unit, Integration, Widget, E2E)
+- Understanding of the project's testing framework and test types (Unit, Integration, E2E)
 - Familiarity with the component or feature you're creating tests for
 - Access to existing Test Specifications for the component (if available)
 - Knowledge of the project's testing patterns and helper functions
@@ -56,22 +56,21 @@ Before you begin, ensure you have:
 
 ## Background
 
-Flutter testing in the BreakoutBuddies project follows a structured approach with different test types serving specific purposes. The New-TestFile.ps1 script automates the creation of properly configured test files that integrate with the project's testing infrastructure.
+Testing in the project follows a structured approach with different test types serving specific purposes. The New-TestFile.ps1 script automates the creation of properly configured test files that integrate with the project's testing infrastructure.
 
-### Flutter Test Types
+### Test Types
 
-The project supports four main test types, each with specific purposes and directory structures:
+The project supports several test types, each with specific purposes and directory structures:
 
-- **Unit Tests** (`test/unit/`): Test individual functions, methods, and classes in isolation
-- **Integration Tests** (`test/integration/`): Test interactions between multiple components or services
-- **Widget Tests** (`test/widget/`): Test Flutter widgets and their behavior in isolation
-- **End-to-End Tests** (`integration_test/`): Test complete user workflows across the entire application
+- **Unit Tests** (`test/unit/` or `tests/unit/`): Test individual functions, methods, and classes in isolation
+- **Integration Tests** (`test/integration/` or `tests/integration/`): Test interactions between multiple components or services
+- **End-to-End Tests** (`test/e2e/` or `tests/e2e/`): Test complete user workflows across the entire application
 
 ### Test File Structure
 
 Each generated test file includes:
 
-- **Proper imports**: Flutter test framework, component imports, and project-specific test helpers
+- **Proper imports**: Test framework, component imports, and project-specific test helpers
 - **Test environment setup**: Initialization and cleanup procedures using TestEnvSetup
 - **Test scaffolding**: Group structure with setup/teardown methods
 - **Placeholder test cases**: Template test methods following Arrange-Act-Assert pattern
@@ -83,7 +82,7 @@ Test files are designed to implement test cases defined in Test Specifications, 
 
 ## Template Structure Analysis
 
-The test-file-template.dart provides a comprehensive structure for Flutter test files. Understanding each section helps you customize the template effectively for different testing scenarios:
+The test file template provides a comprehensive structure for test files. Understanding each section helps you customize the template effectively for different testing scenarios:
 
 ### Metadata Header Section
 
@@ -95,14 +94,13 @@ The test-file-template.dart provides a comprehensive structure for Flutter test 
 
 **Standard imports included**:
 
-- `flutter_test/flutter_test.dart`: Core Flutter testing framework
-- `flutter/material.dart`: Flutter UI framework for widget tests
-- `mockito/mockito.dart`: Mocking framework for isolating dependencies
+- The project's core test framework (e.g., pytest, unittest, jest)
+- Mocking/stubbing libraries for isolating dependencies
 
 **Customizable imports**:
 
 - **Component imports**: TODO section for importing the component under test
-- **Test helpers**: Import for TestEnvSetup and project-specific utilities
+- **Test helpers**: Import for test setup utilities and project-specific helpers
 - **Mock imports**: Placeholder for test-specific mock classes
 
 ### Main Test Group Structure
@@ -150,7 +148,7 @@ When creating and customizing test files, you'll face several critical decisions
 
 - **Unit**: For testing individual functions, services, or business logic in isolation
 - **Integration**: For testing interactions between multiple components or services
-- **Widget**: For testing Flutter widgets and their UI behavior
+- **Component**: For testing components and their interactions at a higher level than unit tests
 - **E2E**: For testing complete user workflows across the application
   **Impact**: Determines directory placement, available testing utilities, and test scope
 
@@ -161,8 +159,7 @@ When creating and customizing test files, you'll face several critical decisions
 
 - Use the exact class name for unit tests (e.g., "AuthenticationService")
 - Use descriptive names for integration tests (e.g., "UserLoginFlow")
-- Use widget names for widget tests (e.g., "LoginScreen")
-- Use feature names for E2E tests (e.g., "BookingProcess")
+- Use feature names for E2E tests (e.g., "OrderProcess")
   **Impact**: Affects imports, test organization, and maintainability
 
 ### Test Scope Decision
@@ -203,7 +200,7 @@ When creating and customizing test files, you'll face several critical decisions
 
 1. **Identify the component or feature to test**:
 
-   - Determine the specific class, widget, service, or feature requiring tests
+   - Determine the specific class, component, service, or feature requiring tests
    - Review existing Test Specifications if available
    - Understand the component's dependencies and interactions
 
@@ -211,11 +208,11 @@ When creating and customizing test files, you'll face several critical decisions
 
    - **Unit**: For isolated business logic, services, or utility functions
    - **Integration**: For component interactions or data flow testing
-   - **Widget**: For Flutter UI components and their behavior
+   - **Component**: For testing components and their interactions at a higher level
    - **E2E**: For complete user workflows and application features
 
 3. **Gather component information**:
-   - Component name (exact class or widget name)
+   - Component name (exact class or module name)
    - Dependencies that need mocking
    - Expected behaviors to test
    - Error conditions and edge cases
@@ -227,7 +224,7 @@ When creating and customizing test files, you'll face several critical decisions
 1. **Navigate to the project root directory**:
 
    ```powershell
-   cd c:\Users\ronny\VS_Code\BreakoutBuddies\breakoutbuddies
+   cd your project root
    ```
 
 2. **Execute the New-TestFile.ps1 script**:
@@ -236,8 +233,8 @@ When creating and customizing test files, you'll face several critical decisions
    # Basic unit test
    doc\process-framework\scripts\file-creation\New-TestFile.ps1 -TestName "AuthenticationService" -TestType "Unit"
 
-   # Widget test with component name
-   doc\process-framework\scripts\file-creation\New-TestFile.ps1 -TestName "LoginScreen" -TestType "Widget" -ComponentName "LoginScreen" -OpenInEditor
+   # Component test with component name
+   doc\process-framework\scripts\file-creation\New-TestFile.ps1 -TestName "LinkUpdater" -TestType "Component" -ComponentName "LinkUpdater" -OpenInEditor
 
    # Integration test
    doc\process-framework\scripts\file-creation\New-TestFile.ps1 -TestName "UserLoginFlow" -TestType "Integration" -ComponentName "Authentication" -OpenInEditor
@@ -257,34 +254,33 @@ When creating and customizing test files, you'll face several critical decisions
 
 1. **Add component imports**:
 
-   ```dart
-   // Replace TODO comment with actual imports
-   import 'package:breakoutbuddies/services/authentication_service.dart';
-   import 'package:breakoutbuddies/models/user.dart';
+   ```python
+   # Replace TODO comment with actual imports
+   from services.authentication_service import AuthenticationService
+   from models.user import User
    ```
 
 2. **Add test-specific imports**:
 
-   ```dart
-   // Add mock imports
-   import '../test_helpers/mock_database.dart';
-   import '../test_helpers/mock_api_client.dart';
+   ```python
+   # Add mock imports
+   from unittest.mock import Mock, patch
+   from test_helpers.mock_database import MockDatabase
 
-   // Add test data imports if needed
-   import '../test_data/user_test_data.dart';
+   # Add test data imports if needed
+   from test_data.user_test_data import UserTestData
    ```
 
 3. **Configure test setup**:
 
-   ```dart
-   setUp(() {
-     // Initialize mocks
-     mockDatabase = MockDatabase();
-     mockApiClient = MockApiClient();
+   ```python
+   def setUp(self):
+       # Initialize mocks
+       self.mock_database = MockDatabase()
+       self.mock_api_client = Mock()
 
-     // Set up test data
-     testUser = UserTestData.validUser();
-   });
+       # Set up test data
+       self.test_user = UserTestData.valid_user()
    ```
 
 **Expected Result:** Test file with proper imports and setup configuration for the specific component being tested
@@ -293,33 +289,31 @@ When creating and customizing test files, you'll face several critical decisions
 
 1. **Replace placeholder test cases** with actual implementations:
 
-   ```dart
-   test('should authenticate user with valid credentials', () async {
-     // Arrange
-     when(mockApiClient.login(any, any)).thenAnswer((_) async =>
-       AuthResponse(success: true, token: 'valid_token'));
+   ```python
+   def test_authenticate_user_with_valid_credentials(self):
+       # Arrange
+       self.mock_api_client.login.return_value = {
+           "success": True, "token": "valid_token"
+       }
 
-     // Act
-     final result = await authService.login('user@example.com', 'password');
+       # Act
+       result = self.auth_service.login("user@example.com", "password")
 
-     // Assert
-     expect(result.isSuccess, isTrue);
-     expect(result.token, equals('valid_token'));
-   });
+       # Assert
+       assert result.is_success is True
+       assert result.token == "valid_token"
    ```
 
 2. **Add error handling tests**:
 
-   ```dart
-   test('should handle invalid credentials gracefully', () async {
-     // Arrange
-     when(mockApiClient.login(any, any)).thenThrow(
-       AuthException('Invalid credentials'));
+   ```python
+   def test_handle_invalid_credentials_gracefully(self):
+       # Arrange
+       self.mock_api_client.login.side_effect = AuthException("Invalid credentials")
 
-     // Act & Assert
-     expect(() => authService.login('invalid@example.com', 'wrong'),
-       throwsA(isA<AuthException>()));
-   });
+       # Act & Assert
+       with pytest.raises(AuthException):
+           self.auth_service.login("invalid@example.com", "wrong")
    ```
 
 3. **Implement edge case tests** based on Test Specifications:
@@ -342,14 +336,13 @@ After completing the test file customization:
 
 2. **Run Tests to Verify Functionality**:
 
-   ```powershell
-   # Run specific test file
-   flutter test test/unit/authentication_service_test.dart
+   ```bash
+   # Run specific test file (adapt command to your test runner)
+   pytest tests/unit/test_authentication_service.py
 
    # Run all tests of a specific type
-   flutter test test/unit/
-   flutter test test/widget/
-   flutter test integration_test/
+   pytest tests/unit/
+   pytest tests/integration/
    ```
 
 3. **Integration Testing**:
@@ -392,7 +385,7 @@ Creating a unit test for the AuthenticationService class:
 
 ```powershell
 # Navigate to project root
-cd c:\Users\ronny\VS_Code\BreakoutBuddies\breakoutbuddies
+cd your project root
 
 # Create unit test file
 doc\process-framework\scripts\file-creation\New-TestFile.ps1 -TestName "AuthenticationService" -TestType "Unit" -ComponentName "AuthenticationService" -OpenInEditor
@@ -407,23 +400,23 @@ doc\process-framework\scripts\file-creation\New-TestFile.ps1 -TestName "Authenti
 
 **Result:** Comprehensive unit test file testing authentication business logic in isolation
 
-### Example 2: Widget Test for Login Screen
+### Example 2: Component Test for Link Updater
 
-Creating a widget test for the LoginScreen UI component:
+Creating a component test for the LinkUpdater module:
 
 ```powershell
-# Create widget test file
-doc\process-framework\scripts\file-creation\New-TestFile.ps1 -TestName "LoginScreen" -TestType "Widget" -ComponentName "LoginScreen" -OpenInEditor
+# Create component test file
+doc\process-framework\scripts\file-creation\New-TestFile.ps1 -TestName "LinkUpdater" -TestType "Component" -ComponentName "LinkUpdater" -OpenInEditor
 ```
 
 **Customization approach:**
 
-- **Imports**: Add LoginScreen widget, authentication providers, and widget testing utilities
-- **Setup**: Initialize provider mocks, create test widget wrapper
-- **Test cases**: UI rendering, form validation, button interactions, loading states
-- **Widget interactions**: Text input, button taps, form submission, error display
+- **Imports**: Add LinkUpdater module, file system utilities, and component testing utilities
+- **Setup**: Initialize mock file system, create temporary test directories
+- **Test cases**: Link detection, path calculation, atomic file updates, dry-run mode
+- **Component interactions**: File reading, path resolution, backup creation, error handling
 
-**Result:** Complete widget test validating UI behavior and user interactions
+**Result:** Complete component test validating link update behavior and file interactions
 
 ## Troubleshooting
 
@@ -435,8 +428,8 @@ doc\process-framework\scripts\file-creation\New-TestFile.ps1 -TestName "LoginScr
 
 **Solution:**
 
-1. Verify the test type parameter is one of: Unit, Integration, Widget, E2E
-2. Check that the target directory exists (test/unit/, test/integration/, test/widget/, integration_test/)
+1. Verify the test type parameter is one of: Unit, Integration, Component, E2E
+2. Check that the target directory exists (test/unit/, test/integration/, test/component/, test/e2e/)
 3. Ensure you're running the script from the project root directory
 4. Verify PowerShell execution policy allows script execution
 
@@ -450,7 +443,7 @@ doc\process-framework\scripts\file-creation\New-TestFile.ps1 -TestName "LoginScr
 
 1. Verify the component being tested actually exists at the expected path
 2. Check the import path syntax matches the project's package structure
-3. Ensure all dependencies are properly added to pubspec.yaml
+3. Ensure all dependencies are properly added to your project's dependency file
 4. Update import paths to match the actual file locations in the project
 5. Add missing test helper imports from the test_helpers directory
 
@@ -466,16 +459,16 @@ doc\process-framework\scripts\file-creation\New-TestFile.ps1 -TestName "LoginScr
 2. Verify all mock dependencies are properly initialized in setUp method
 3. Check that test database or external service mocks are configured
 4. Review test environment configuration for missing dependencies
-5. Ensure Flutter test framework is properly configured in pubspec.yaml
+5. Ensure the test framework is properly configured in the project's dependency file
 
 ## Related Resources
 
 - [Test Specification Creation Task (PF-TSK-012)](../../tasks/03-testing/test-specification-creation-task.md) - The task that uses this guide
 - [New-TestFile.ps1 Script](../../scripts/file-creation/New-TestFile.ps1) - Script for creating test files
-- [Test File Template](../../templates/templates/test-file-template.dart) - Template customized by this guide
+- Test File Template - Template customized by this guide (create language-appropriate template per project-config.json)
 - [Test Specification Creation Guide](test-specification-creation-guide.md) - Guide for creating test specifications
-- [Flutter Testing Documentation](https://docs.flutter.dev/testing) - Official Flutter testing guide
-- [Mockito Documentation](https://pub.dev/packages/mockito) - Mocking framework documentation
+- Your project's testing framework documentation
+- Your project's mocking framework documentation
 - [Project Test Structure](../../../test/) - Existing test organization and patterns
 - [Guide Creation Best Practices Guide (PF-GDE-024)](guide-creation-best-practices-guide.md) - Best practices for guide creation
 

@@ -2,9 +2,9 @@
 id: PF-TSK-054
 type: Process Framework
 category: Task Definition
-version: 1.0
+version: 1.1
 created: 2025-12-13
-updated: 2025-12-13
+updated: 2026-03-02
 task_type: Discrete
 ---
 
@@ -50,7 +50,7 @@ Validate feature implementation against quality standards, business requirements
 
 - **Reference Only (Access When Needed):**
   - [Visual Notation Guide](/doc/process-framework/guides/guides/visual-notation-guide.md) - For interpreting context map diagrams
-  - **Security Best Practices** - [OWASP Mobile Security](https://owasp.org/www-project-mobile-top-10/) for Flutter apps
+  - **Security Best Practices** - [OWASP Security Guidelines](https://owasp.org/) for application security
   - **Performance Benchmarks** - Historical performance data for comparison
 
 ## Process
@@ -58,6 +58,10 @@ Validate feature implementation against quality standards, business requirements
 > **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished! 🚨**
 >
 > **⚠️ MANDATORY: Update Feature Implementation State File throughout validation.**
+>
+> **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
+>
+> **⚠️ MANDATORY: Never proceed past a checkpoint without presenting findings and getting explicit approval.**
 
 ### Preparation
 
@@ -65,44 +69,47 @@ Validate feature implementation against quality standards, business requirements
 2. **Gather Quality Standards**: Collect project quality standards, performance benchmarks, security requirements, and accessibility guidelines
 3. **Review Implementation**: Examine all implementation code and test results from previous tasks
 4. **Plan Validation Strategy**: Determine validation checkpoints, tools needed, and success criteria
+5. **🚨 CHECKPOINT**: Present acceptance criteria review, quality standards, implementation overview, and validation strategy to human partner for approval before validation begins
 
 ### Execution
 
-5. **Validate Code Quality**: Audit code against quality standards
-   - Run static analysis (Dart analyzer, linters)
+6. **Validate Code Quality**: Audit code against quality standards
+   - Run static analysis (linters, type checkers)
    - Check code complexity metrics (cyclomatic complexity, nesting depth)
    - Verify naming conventions and documentation
    - Review code organization and architecture patterns
-6. **Benchmark Performance**: Measure and validate performance metrics
-   - Profile app performance (CPU, memory, frame rendering)
-   - Measure screen load times and transition smoothness
+7. **Benchmark Performance**: Measure and validate performance metrics
+   - Profile application performance (CPU, memory, response times)
+   - Measure operation latency and throughput
    - Validate against performance targets from TDD
    - Identify performance bottlenecks or regressions
-7. **Audit Security**: Validate security practices and vulnerabilities
+8. **Audit Security**: Validate security practices and vulnerabilities
    - Check for hardcoded secrets or sensitive data exposure
    - Verify proper input validation and sanitization
    - Review authentication/authorization implementation
    - Check for common security vulnerabilities (injection, XSS, etc.)
-8. **Verify Accessibility**: Ensure accessibility compliance
-   - Test with screen readers (TalkBack, VoiceOver)
+9. **Verify Accessibility**: Ensure accessibility compliance
+   - Test with assistive technologies (screen readers, etc.)
    - Verify semantic labels and focus navigation
    - Check color contrast ratios meet WCAG standards
    - Validate keyboard navigation support
-9. **Validate Business Requirements**: Confirm feature meets business acceptance criteria
+10. **Validate Business Requirements**: Confirm feature meets business acceptance criteria
    - Test all user stories and acceptance criteria from TDD
    - Verify feature behavior matches specifications
    - Validate edge cases and error scenarios
    - Confirm UX flows match design requirements
-10. **Document Quality Findings**: Create quality validation report with findings and recommendations
-11. **Update Feature Implementation State File**: Document validation results, quality metrics, and any issues discovered
+11. **Document Quality Findings**: Create quality validation report with findings and recommendations
+12. **Update Feature Implementation State File**: Document validation results, quality metrics, and any issues discovered
+
+13. **🚨 CHECKPOINT**: Present quality validation findings, quality metrics, performance benchmarks, and security audit results to human partner for review before finalization
 
 ### Finalization
 
-12. **Create Quality Sign-off Report**: Compile comprehensive quality validation results
-13. **Categorize Issues by Severity**: Classify any quality issues as Critical/High/Medium/Low
-14. **Recommend Remediation**: For each issue, propose fix strategy and priority
-15. **Update Code Inventory**: Document validation completion and quality status in Feature Implementation State File
-16. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+14. **Create Quality Sign-off Report**: Compile comprehensive quality validation results
+15. **Categorize Issues by Severity**: Classify any quality issues as Critical/High/Medium/Low
+16. **Recommend Remediation**: For each issue, propose fix strategy and priority
+17. **Update Code Inventory**: Document validation completion and quality status in Feature Implementation State File
+18. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 
@@ -153,9 +160,9 @@ Before considering this task finished:
 - [**Bug Report Creation (PF-TSK-034)**](../06-maintenance/bug-report-and-fix-task.md) - For any critical quality issues requiring immediate remediation
 ## Related Resources
 
-- [Dart Static Analysis](https://dart.dev/tools/analysis) - Dart analyzer and linting tools
-- [Flutter Performance Best Practices](https://docs.flutter.dev/perf/best-practices) - Flutter performance optimization guide
-- [OWASP Mobile Security](https://owasp.org/www-project-mobile-top-10/) - Mobile app security standards
+- Static analysis and linting tools for your project's language
+- Performance optimization best practices for your technology stack
+- [OWASP Security Guidelines](https://owasp.org/) - Application security standards
 - [WCAG 2.1 Guidelines](https://www.w3.org/WAI/WCAG21/quickref/) - Web content accessibility guidelines
 - [Feature Implementation State Tracking Guide](../../guides/guides/feature-implementation-state-tracking-guide.md) - Guide for maintaining feature state file
 - [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Understanding system component interactions

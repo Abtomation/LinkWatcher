@@ -289,7 +289,7 @@ Use this decision tree when deciding what to include in FDDs:
    - **Feature ID**: 1.1.1
    - **Feature Name**: User Registration
    - **Business Value**: Enables new users to create accounts and access platform features
-   - **User Story**: As a new visitor, I want to create an account so that I can save my preferences and book escape rooms
+   - **User Story**: As a new visitor, I want to create an account so that I can save my preferences and access all features
    ```
 
 **Expected Result:** Feature Overview section provides clear context and justification for the feature
@@ -417,7 +417,7 @@ Complete example of customizing an FDD for a user registration feature:
 - **Feature ID**: 1.1.1
 - **Feature Name**: User Registration
 - **Business Value**: Enables new users to create accounts and access platform features, increasing user base and engagement
-- **User Story**: As a new visitor, I want to create an account so that I can save my preferences and book escape rooms
+- **User Story**: As a new visitor, I want to create an account so that I can save my preferences and access all features
 
 ## Functional Requirements
 

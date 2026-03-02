@@ -10,7 +10,7 @@ updated: 2025-01-11
 # Documentation Structure Guide
 
 ## Purpose
-This guide provides principles and patterns for creating consistent, maintainable documentation structures across the BreakoutBuddies project. It serves as a reference for anyone creating or updating documentation structures.
+This guide provides principles and patterns for creating consistent, maintainable documentation structures across the project. It serves as a reference for anyone creating or updating documentation structures.
 
 ## Core Principles
 

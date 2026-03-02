@@ -17,7 +17,7 @@ Systematically adapt the process framework from one business domain (software de
 
 **Current State**: 66 documents designed for software development workflows
 **Target State**: Adapted framework supporting legal document generation workflows
-**Business Domain**: Letscape - Escape room booking platform requiring legal documentation
+**Business Domain**: [Target business domain and description]
 
 ## AI Agent Role
 
@@ -61,6 +61,10 @@ Systematically adapt the process framework from one business domain (software de
 > **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished! 🚨**
 >
 > **⚠️ MANDATORY: Multi-session task - use temporary state tracking file throughout.**
+>
+> **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
+>
+> **⚠️ MANDATORY: Never proceed past a checkpoint without presenting findings and getting explicit approval.**
 
 ### Phase 1: Preparation & Analysis
 
@@ -99,10 +103,10 @@ Systematically adapt the process framework from one business domain (software de
 
    - **⚠️ IMPORTANT - KEEP File Review Protocol:**
      - Files marked KEEP should remain domain-agnostic (generic/reusable)
-     - During review, identify if KEEP files contain domain-specific references (e.g., "BreakoutBuddies project")
+     - During review, identify if KEEP files contain domain-specific references (e.g., previous project name)
      - Mark these in notes with **"Domain-ref cleanup needed"** flag
      - These references should be REMOVED (not replaced with new domain)
-     - Example: "BreakoutBuddies project" → remove entirely, keep generic
+     - Example: "[Previous project name]" → remove entirely, keep generic
      - Example: Keep "Central ID management module" (don't add domain-specific suffixes)
 
    **Review Groups:**
@@ -124,10 +128,7 @@ Systematically adapt the process framework from one business domain (software de
      - **For KEEP files**: Note if "Domain-ref cleanup needed" (has domain references to remove)
    - Update status from Pending → Reviewed → Decided
 
-7. **Get Human Approval for Deletions**
-   - Present complete list of documents marked DELETE
-   - Explain rationale for each deletion
-   - Get explicit approval before proceeding to execution
+7. **🚨 CHECKPOINT**: Present complete list of documents marked DELETE/ADAPT/KEEP with rationale, and get explicit approval before proceeding to execution
 
 ### Phase 3: Execution
 
@@ -161,7 +162,7 @@ Systematically adapt the process framework from one business domain (software de
    - Update examples, descriptions, and context for legal domain
    - Preserve core structure and functionality
    - **For files marked KEEP with "Domain-ref cleanup needed":**
-     - REMOVE domain-specific references (e.g., "BreakoutBuddies project")
+     - REMOVE domain-specific references (e.g., previous project name)
      - Do NOT replace with new domain references (keep generic)
      - Goal: Make truly domain-agnostic
    - **Only consult documents marked "Approved" for content reference**
@@ -252,10 +253,11 @@ Systematically adapt the process framework from one business domain (software de
     - Test key PowerShell scripts still function
     - Verify New-Task.ps1, New-Template.ps1, New-Guide.ps1 work
     - Check IdRegistry.psm1 functionality
+12. **🚨 CHECKPOINT**: Present adaptation summary (completed deletions, adaptations, test results, broken links fixed) to human partner for review before validation
 
 ### Phase 4: Validation & Finalization
 
-12. **Validate Domain Configuration**
+13. **Validate Domain Configuration**
     - **Verify domain-config.json exists** and contains current domain values:
       ```powershell
       Get-Content ".\doc\process-framework\domain-config.json" | ConvertFrom-Json
@@ -279,29 +281,29 @@ Systematically adapt the process framework from one business domain (software de
       - Scripts remain domain-agnostic and don't need modification
       - Validation is automatic and consistent across all scripts
 
-13. **Verify Framework Coherence**
+14. **Verify Framework Coherence**
     - Ensure adapted framework is internally consistent
     - Check that terminology is consistent throughout
     - Verify all cross-references are valid
 
-14. **Test Core Workflows**
+15. **Test Core Workflows**
     - Test task creation workflow
     - Verify state tracking still functions
     - Confirm automation scripts work
 
-15. **Create Legal Document Tracking**
+16. **Create Legal Document Tracking**
     - Create legal-document-tracking.md to replace feature-tracking.md
     - Set up tracking structure for legal documents
 
-16. **Update Documentation Map**
+17. **Update Documentation Map**
     - Reflect final structure after all changes
     - Ensure all remaining documents are properly indexed
 
-17. **Archive Temporary State**
+18. **Archive Temporary State**
     - Move legal-framework-cleanup-state.md to old/ directory
     - Document adaptation completion date
 
-18. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+19. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 

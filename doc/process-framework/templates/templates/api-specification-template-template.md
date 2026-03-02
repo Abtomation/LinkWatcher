@@ -140,8 +140,8 @@ Describe the authentication mechanism used by this API:
 <!-- Brief notes on API-level implementation concerns only (2-5 sentences) -->
 <!-- Focus on: service integration patterns, API implementation approach, architectural constraints -->
 <!-- Examples:
-  - "API implemented as REST endpoints in Flutter service layer"
-  - "Endpoints use Supabase client for backend communication"
+  - "API implemented as REST endpoints in the service layer"
+  - "Endpoints use database client for backend communication"
   - "API follows repository pattern for data access abstraction"
 -->
 
