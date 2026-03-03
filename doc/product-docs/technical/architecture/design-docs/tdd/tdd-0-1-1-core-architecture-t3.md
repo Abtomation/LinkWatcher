@@ -167,7 +167,7 @@ See [FDD PD-FDD-022](../../../../functional-design/fdds/fdd-0-1-1-core-architect
   - `LinkDatabase`: `Dict[str, List[LinkReference]]` (target-indexed)
   - `LinkParser`: Stateless facade over parser registry
   - `LinkUpdater`: Stateless (receives config per operation)
-  - `LinkMaintenanceHandler`: `pending_deletes` dict with Timer-based cleanup
+  - `LinkMaintenanceHandler`: Delegates move detection to `MoveDetector` (per-file) and `DirectoryMoveDetector` (batch directory) via callbacks
 - **Threading Model**: Observer runs on daemon thread; service main thread polls `self.running`
 
 ## 4. Detailed Design

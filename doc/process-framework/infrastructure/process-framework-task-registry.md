@@ -545,6 +545,7 @@ This document serves as the **comprehensive registry** of all process framework 
 | **Updates** | [`architecture-tracking.md`](../state-tracking/permanent/architecture-tracking.md) | Manual | Improve feature status (e.g., "🔄 Needs Revision" → "🧪 Testing") |
 | **Updates** | [`feature-tracking.md`](../state-tracking/permanent/feature-tracking.md) | Manual | For foundation features (0.x.x), document architectural improvements |
 | **Updates** | [`test-implementation-tracking.md`](../state-tracking/permanent/test-implementation-tracking.md) | Manual | Note test improvements or new test requirements |
+| **Updates** | Product documentation (TDD, FDD, feature state file, test spec) | Manual | When refactoring changes module boundaries, interfaces, or design patterns (Step 12) |
 | **Updates** | [Context Packages](../architecture/context-packages/) | Manual | Update relevant context packages for architectural refactoring |
 
 **🎯 KEY IMPACTS**
@@ -703,9 +704,10 @@ This document serves as the **comprehensive registry** of all process framework 
 
 **📋 AUTOMATION DETAILS**
 
-- **Script:** [`Update-ProcessImprovement.ps1`](../scripts/update/Update-ProcessImprovement.ps1)
+- **Creation Script:** [`New-ProcessImprovement.ps1`](../scripts/file-creation/New-ProcessImprovement.ps1)
+- **Update Script:** [`Update-ProcessImprovement.ps1`](../scripts/update/Update-ProcessImprovement.ps1)
 - **Output Directory:** N/A (updates in-place)
-- **Auto-Update Function:** Status transitions, completion moves, summary count, update history, frontmatter date
+- **Auto-Update Function:** New entries with auto-assigned PF-IMP IDs; status transitions, completion moves, summary count, update history, frontmatter date
 
 **📁 FILE OPERATIONS**
 | Operation | File Path | Update Method | Details |
@@ -791,15 +793,16 @@ This document serves as the **comprehensive registry** of all process framework 
 
 **📋 AUTOMATION DETAILS**
 
-- **Script:** [`New-ReviewSummary.ps1`](../scripts/file-creation/New-ReviewSummary.ps1) — Creates review summary documents with auto-assigned ART-REV IDs
+- **Review Script:** [`New-ReviewSummary.ps1`](../scripts/file-creation/New-ReviewSummary.ps1) — Creates review summary documents with auto-assigned ART-REV IDs
+- **Improvement Script:** [`New-ProcessImprovement.ps1`](../scripts/file-creation/New-ProcessImprovement.ps1) — Adds improvement entries with auto-assigned PF-IMP IDs
 - **Output Directory:** `doc/process-framework/feedback/reviews/`
-- **Auto-Update Function:** Manual updates for process-improvement-tracking.md
+- **Auto-Update Function:** Review summary creation and improvement entry creation automated; tool evaluation manual
 
 **📁 FILE OPERATIONS**
 | Operation | File Path | Update Method | Details |
 |-----------|-----------|---------------|---------|
 | **Creates** | `doc/process-framework/feedback/reviews/tools-review-YYYYMMDD.md` | Script | Review summary from template (PF-TEM-046) |
-| **Updates** | [`process-improvement-tracking.md`](../state-tracking/permanent/process-improvement-tracking.md) | Manual | Updates with new improvement potential |
+| **Updates** | [`process-improvement-tracking.md`](../state-tracking/permanent/process-improvement-tracking.md) | Script | Adds new improvement entries via New-ProcessImprovement.ps1 |
 
 **🎯 KEY IMPACTS**
 

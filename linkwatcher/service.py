@@ -77,7 +77,6 @@ class LinkWatcherService:
         Args:
             initial_scan: Whether to perform initial scan of all files
         """
-        self.logger.info("service_starting", initial_scan=initial_scan)
         print(f"{Fore.CYAN}🚀 Starting LinkWatcher service...")
         print(f"{Fore.CYAN}📁 Project root: {self.project_root}")
 
@@ -89,7 +88,6 @@ class LinkWatcherService:
                     self._initial_scan()
 
                 stats = self.link_db.get_stats()
-                self.logger.info("initial_scan_complete", **stats)
                 print(f"{Fore.GREEN}✓ Initial scan complete:")
                 print(f"   • {stats['files_with_links']} files with links")
                 print(f"   • {stats['total_references']} total references")
@@ -103,7 +101,6 @@ class LinkWatcherService:
             # Start watching
             self.observer.start()
             self.running = True
-            self.logger.info("file_monitoring_started")
 
             print(f"{Fore.GREEN}👁️ LinkWatcher is now monitoring file changes...")
             print(f"{Fore.CYAN}Press Ctrl+C to stop")
@@ -117,17 +114,12 @@ class LinkWatcherService:
                             "observer_thread_died",
                             message="Watchdog observer thread is no longer alive",
                         )
-                        print(
-                            f"{Fore.RED}✗ CRITICAL: Watchdog observer thread died unexpectedly. "
-                            f"Shutting down."
-                        )
                         self.running = False
             except KeyboardInterrupt:
                 pass
 
         except Exception as e:
             self.logger.error("service_start_failed", error=str(e), error_type=type(e).__name__)
-            print(f"{Fore.RED}✗ Error starting service: {e}")
             raise
         finally:
             self.stop()
@@ -135,7 +127,6 @@ class LinkWatcherService:
     def stop(self):
         """Stop the LinkWatcher service."""
         if self.running:
-            self.logger.info("service_stopping")
             print(f"\n{Fore.YELLOW}🛑 Stopping LinkWatcher service...")
             self.running = False
 
@@ -146,7 +137,6 @@ class LinkWatcherService:
 
             # Print final statistics
             self._print_final_stats()
-            self.logger.info("service_stopped")
             print(f"{Fore.GREEN}✓ LinkWatcher stopped")
 
     def _initial_scan(self):
@@ -172,7 +162,6 @@ class LinkWatcherService:
                         scanned_files += 1
 
                         if scanned_files % 50 == 0:  # Progress indicator
-                            self.logger.scan_progress(scanned_files)
                             print(f"{Fore.CYAN}   Scanned {scanned_files} files...")
 
                     except Exception as e:
@@ -182,16 +171,13 @@ class LinkWatcherService:
                             error=str(e),
                             error_type=type(e).__name__,
                         )
-                        print(f"{Fore.YELLOW}Warning: Could not scan {file_path}: {e}")
 
         self.link_db.last_scan = time.time()
-        self.logger.info("initial_scan_files_completed", total_files=scanned_files)
         print(f"{Fore.GREEN}   Scanned {scanned_files} files total")
 
     def _signal_handler(self, signum, frame):
         """Handle shutdown signals."""
         self.logger.info("shutdown_signal_received", signal=signum)
-        print(f"\n{Fore.YELLOW}Received signal {signum}, shutting down...")
         self.running = False
 
     def _print_final_stats(self):
@@ -208,17 +194,6 @@ class LinkWatcherService:
             errors=handler_stats["errors"],
             total_references=db_stats["total_references"],
             total_targets=db_stats["total_targets"],
-        )
-
-        print(f"\n{Fore.CYAN}📊 Final Statistics:")
-        print(f"   Files moved: {handler_stats['files_moved']}")
-        print(f"   Files deleted: {handler_stats['files_deleted']}")
-        print(f"   Files created: {handler_stats['files_created']}")
-        print(f"   Links updated: {handler_stats['links_updated']}")
-        print(f"   Errors: {handler_stats['errors']}")
-        print(
-            f"   Database: {db_stats['total_references']} references"
-            f" to {db_stats['total_targets']} targets"
         )
 
     def get_status(self) -> dict:

@@ -2,9 +2,9 @@
 id: PF-TSK-022
 type: Process Framework
 category: Task Definition
-version: 1.2
+version: 1.3
 created: 2025-07-21
-updated: 2026-03-02
+updated: 2026-03-03
 task_type: Discrete
 ---
 
@@ -192,7 +192,12 @@ For medium/complex refactorings (> 15 min, multiple files, or architectural impa
     - Commit changes frequently with descriptive messages
     - **🚨 CHECKPOINT**: For each significant change, present the change and get approval before proceeding
 11. **Monitor Quality Improvements**: Track code complexity, maintainability, and quality metrics during refactoring
-12. **Update Documentation**: Revise code comments, documentation, and architectural notes as needed
+12. **Update Product Documentation**: When refactoring changes module boundaries, interfaces, or design patterns, update the affected product documentation:
+    - **Feature implementation state file** — update component lists, file paths, architecture notes
+    - **TDD** — update if interface contracts, component diagrams, or design patterns changed
+    - **FDD** — update if functional behavior or user-facing workflows changed
+    - **Test spec** — update if test categories, component mappings, or coverage expectations changed
+    - **Feature tracking** — update if module scope or feature boundaries shifted
 
 #### Standard — Finalization
 
@@ -328,6 +333,7 @@ Use the checklist matching the path selected in Step 1 (Effort Assessment Gate).
 - [ ] **Update State Files**: Ensure all state tracking files have been updated according to the 3-phase checklist
   - [ ] **Phase 1 (During)**: Temporary state tracking, bug tracking, technical debt progress documented
   - [ ] **Phase 2 (Completion)**: [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md) resolved items, [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) status improved, [Architecture Tracking](../../state-tracking/permanent/architecture-tracking.md) updated for foundation features, [Test Implementation Tracking](../../state-tracking/permanent/test-implementation-tracking.md) updated
+  - [ ] **Product Documentation**: If refactoring changed module boundaries/interfaces/design patterns — feature state file, TDD, FDD, and test spec updated (Step 12)
   - [ ] **Phase 3 (Post)**: Temporary state archived (if created) to [old directory](../../state-tracking/temporary/old), [Context Packages](../../architecture/context-packages) updated for architectural changes
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-022" and context "Code Refactoring Task"
 

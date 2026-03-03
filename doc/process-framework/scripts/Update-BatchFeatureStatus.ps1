@@ -176,7 +176,7 @@ if ($DryRun) {
 # Get project root and define file paths
 $projectRoot = Get-ProjectRoot
 $trackingFiles = @(
-    Join-Path $projectRoot "doc\process-framework\state-tracking\permanent\feature-tracking.md",
+    Join-Path $projectRoot "doc/process-framework/state-tracking/permanent/feature-tracking.md",
     Join-Path $projectRoot "doc\process-framework\state-tracking\permanent\test-implementation-tracking.md",
     Join-Path $projectRoot "doc\product-docs\technical\architecture\component-relationship-index.md"
 )

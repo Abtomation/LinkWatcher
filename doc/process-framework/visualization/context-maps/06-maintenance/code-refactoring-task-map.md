@@ -2,9 +2,9 @@
 id: PF-VIS-021
 type: Document
 category: General
-version: 1.0
+version: 1.1
 created: 2025-07-21
-updated: 2025-07-21
+updated: 2026-03-03
 map_type: Context Map
 visualization_type: Task Context
 task_name: code-refactoring-task
@@ -29,10 +29,11 @@ graph TD
     QualityIssues --> RefactoringPlan
     RefactoringPlan -.-> CodingStandards[/Coding Standards/]
     RefactoringPlan -.-> PerformanceBenchmarks[/Performance Benchmarks/]
+    RefactoringPlan -.-> ProductDocs[/Product Documentation/]
 
     class TargetCode,TestCoverage critical
     class QualityIssues,RefactoringPlan important
-    class CodingStandards,PerformanceBenchmarks reference
+    class CodingStandards,PerformanceBenchmarks,ProductDocs reference
 ```
 
 ## Essential Components
@@ -51,6 +52,7 @@ graph TD
 
 - **Coding Standards**: Project-specific coding conventions and style guides for ensuring consistent improvements
 - **Performance Benchmarks**: Current performance metrics to ensure refactoring doesn't degrade performance
+- **Product Documentation**: TDDs, FDDs, feature state files, and test specs that must be updated when refactoring changes module boundaries, interfaces, or design patterns
 
 ## Key Relationships
 
@@ -60,6 +62,7 @@ graph TD
 4. **Current Quality Issues → Refactoring Plan**: Quality issues define the specific problems to be addressed and success criteria
 5. **Refactoring Plan -.-> Coding Standards**: Standards are referenced when implementing improvements to ensure consistency
 6. **Refactoring Plan -.-> Performance Benchmarks**: Benchmarks are consulted to ensure refactoring doesn't degrade performance
+7. **Refactoring Plan -.-> Product Documentation**: TDDs, FDDs, feature state files, and test specs are updated when refactoring changes module boundaries or interfaces
 
 ## Implementation in AI Sessions
 

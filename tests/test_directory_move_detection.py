@@ -27,7 +27,7 @@ from linkwatcher.updater import LinkUpdater
 
 
 class TestGetFilesUnderDirectory:
-    """Tests for _get_files_under_directory helper."""
+    """Tests for get_files_under_directory helper (on DirectoryMoveDetector)."""
 
     @pytest.fixture
     def handler_with_db(self, tmp_path):
@@ -67,28 +67,28 @@ class TestGetFilesUnderDirectory:
     def test_finds_target_files(self, handler_with_db):
         """Files that are link targets under the directory are found."""
         handler, link_db, tmp_path = handler_with_db
-        files = handler._get_files_under_directory("docs")
+        files = handler._dir_move_detector.get_files_under_directory("docs")
         # docs/api.md is a target (referenced from guide.md and README.md)
         assert any("docs/api.md" in f for f in files)
 
     def test_finds_source_files(self, handler_with_db):
         """Files that contain links under the directory are found."""
         handler, link_db, tmp_path = handler_with_db
-        files = handler._get_files_under_directory("docs")
+        files = handler._dir_move_detector.get_files_under_directory("docs")
         # docs/guide.md contains a link (is in files_with_links)
         assert any("docs/guide.md" in f for f in files)
 
     def test_finds_nested_files(self, handler_with_db):
         """Files in nested subdirectories are found."""
         handler, link_db, tmp_path = handler_with_db
-        files = handler._get_files_under_directory("docs")
+        files = handler._dir_move_detector.get_files_under_directory("docs")
         # docs/sub/nested.md contains a link
         assert any("docs/sub/nested.md" in f for f in files)
 
     def test_excludes_files_outside_directory(self, handler_with_db):
         """Files outside the specified directory are not included."""
         handler, link_db, tmp_path = handler_with_db
-        files = handler._get_files_under_directory("docs")
+        files = handler._dir_move_detector.get_files_under_directory("docs")
         assert not any("README.md" == f for f in files)
         for f in files:
             assert f.startswith("docs/"), f"File '{f}' should start with 'docs/'"
@@ -96,7 +96,7 @@ class TestGetFilesUnderDirectory:
     def test_empty_result_for_unknown_directory(self, handler_with_db):
         """Returns empty set for a directory not in the database."""
         handler, link_db, tmp_path = handler_with_db
-        files = handler._get_files_under_directory("nonexistent")
+        files = handler._dir_move_detector.get_files_under_directory("nonexistent")
         assert len(files) == 0
 
     def test_resolves_relative_targets_in_nested_project(self, tmp_path):
@@ -134,7 +134,7 @@ class TestGetFilesUnderDirectory:
 
         # DB key is "api/reference.txt" (relative to README.md)
         # but we search with the full project-root-relative dir path
-        files = handler._get_files_under_directory("sub_project/api")
+        files = handler._dir_move_detector.get_files_under_directory("sub_project/api")
         assert len(files) > 0
         assert any("sub_project/api/reference.txt" in f for f in files)
 
@@ -150,7 +150,7 @@ class TestGetFilesUnderDirectory:
         """
         handler, link_db, tmp_path = handler_with_db
         # Pass a known file path (not a directory) — should return empty
-        files = handler._get_files_under_directory("docs/guide.md")
+        files = handler._dir_move_detector.get_files_under_directory("docs/guide.md")
         assert len(files) == 0, (
             f"_get_files_under_directory returned {len(files)} file(s) for a "
             f"file path 'docs/guide.md'; expected 0. Files: {files}"
@@ -174,6 +174,7 @@ class TestGetFilesUnderDirectory:
 
         # Scan sibling into DB
         from linkwatcher.parser import LinkParser
+
         parser = LinkParser()
         refs = parser.parse_file(str(sibling))
         for ref in refs:
@@ -181,7 +182,7 @@ class TestGetFilesUnderDirectory:
             link_db.add_link(ref)
         link_db.files_with_links.add("docs-other/sibling.md")
 
-        files = handler._get_files_under_directory("docs")
+        files = handler._dir_move_detector.get_files_under_directory("docs")
         assert not any("docs-other" in f for f in files), (
             f"Files from 'docs-other/' matched prefix 'docs' — "
             f"trailing slash missing in dir_prefix. Files: {files}"
@@ -239,9 +240,9 @@ class TestDirectoryDeleteBuffering:
 
         # Check that a PendingDirMove was created (not per-file pending_deletes)
         assert (
-            "docs" in handler.pending_dir_moves
-        ), f"Expected 'docs' in pending_dir_moves, got: {list(handler.pending_dir_moves.keys())}"
-        pending = handler.pending_dir_moves["docs"]
+            "docs" in handler._dir_move_detector.pending_dir_moves
+        ), f"Expected 'docs' in pending_dir_moves, got: {list(handler._dir_move_detector.pending_dir_moves.keys())}"
+        pending = handler._dir_move_detector.pending_dir_moves["docs"]
         assert any(
             "docs/guide.md" in f for f in pending.unmatched
         ), f"docs/guide.md should be in unmatched, got: {pending.unmatched}"
@@ -261,7 +262,7 @@ class TestDirectoryDeleteBuffering:
         event.is_directory = False
         handler.on_deleted(event)
 
-        pending = handler.pending_dir_moves["docs"]
+        pending = handler._dir_move_detector.pending_dir_moves["docs"]
         assert pending.new_dir is None, "new_dir should be None before any match"
         assert pending.matched_count == 0
         assert pending.total_expected == len(pending.unmatched)
@@ -288,9 +289,10 @@ class TestDirectoryDeleteBuffering:
         event.is_directory = False
         handler.on_deleted(event)
 
-        # _handle_file_deleted buffers the directory path itself, but
-        # no child files should be buffered (as _handle_directory_deleted would do)
-        pending_keys = set(handler.pending_deletes.keys())
+        # _handle_file_deleted delegates to MoveDetector, which buffers
+        # the directory path itself. No child files should be buffered
+        # (as _handle_directory_deleted would do).
+        pending_keys = set(handler._move_detector._pending.keys())
         assert all(
             "/" not in k or k == "empty" for k in pending_keys
         ), f"No child files should be buffered for unknown directory, got: {pending_keys}"
@@ -309,7 +311,7 @@ class TestDirectoryDeleteBuffering:
         event.is_directory = False
         handler.on_deleted(event)
 
-        pending = handler.pending_dir_moves["docs"]
+        pending = handler._dir_move_detector.pending_dir_moves["docs"]
 
         # dir_prefix MUST end with "/" for correct slicing
         assert pending.dir_prefix.endswith(
@@ -346,15 +348,15 @@ class TestDirectoryDeleteBuffering:
         event.is_directory = False
         handler.on_deleted(event)
 
-        # Single file should go to pending_deletes (per-file move detection),
-        # NOT to pending_dir_moves (directory move detection)
-        assert len(handler.pending_dir_moves) == 0, (
+        # Single file should go to MoveDetector's pending buffer (per-file
+        # move detection), NOT to pending_dir_moves (directory move detection)
+        assert len(handler._dir_move_detector.pending_dir_moves) == 0, (
             f"Single file delete should NOT create pending_dir_moves entry, "
-            f"but found: {list(handler.pending_dir_moves.keys())}"
+            f"but found: {list(handler._dir_move_detector.pending_dir_moves.keys())}"
         )
-        assert "docs/guide.md" in handler.pending_deletes, (
-            f"Single file delete should be in pending_deletes, "
-            f"but got: {list(handler.pending_deletes.keys())}"
+        assert "docs/guide.md" in handler._move_detector._pending, (
+            f"Single file delete should be in MoveDetector pending, "
+            f"but got: {list(handler._move_detector._pending.keys())}"
         )
 
 
@@ -394,7 +396,7 @@ class TestDirectoryMoveViaDeleteCreate:
 
         # Verify files were buffered in pending_dir_moves
         assert (
-            len(service.handler.pending_dir_moves) >= 1
+            len(service.handler._dir_move_detector.pending_dir_moves) >= 1
         ), "Should have pending_dir_moves entry"
 
         # Step 2: Move the actual file to new location
@@ -524,7 +526,7 @@ class TestDirectoryMoveViaDeleteCreate:
         service._initial_scan()
 
         # Shorten max timeout for test speed
-        service.handler.dir_move_max_timeout = 0.2
+        service.handler._dir_move_detector._max_timeout = 0.2
 
         # Directory delete (Windows: is_directory=False)
         dir_delete_event = FileDeletedEvent(str(docs_dir))
@@ -532,13 +534,13 @@ class TestDirectoryMoveViaDeleteCreate:
         service.handler.on_deleted(dir_delete_event)
 
         # Verify files are buffered in pending_dir_moves
-        assert len(service.handler.pending_dir_moves) >= 1
+        assert len(service.handler._dir_move_detector.pending_dir_moves) >= 1
 
         # Wait for max timeout + processing
         time.sleep(0.5)
 
         # Pending should be cleared (processed as actual deletions)
-        assert len(service.handler.pending_dir_moves) == 0
+        assert len(service.handler._dir_move_detector.pending_dir_moves) == 0
 
 
 class TestNestedDirectoryMovePythonImports:

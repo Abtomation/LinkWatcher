@@ -73,29 +73,30 @@ class LinkDatabase:
         with self._lock:
             normalized_path = normalize_path(file_path)
             all_references = []
+            seen = set()
 
             # First, try direct lookup by normalized path (most efficient)
             if normalized_path in self.links:
-                all_references.extend(self.links[normalized_path])
+                for ref in self.links[normalized_path]:
+                    seen.add(id(ref))
+                    all_references.append(ref)
 
-            # Also check for anchored versions of the same file
+            # Single pass: check anchored keys and relative-path resolution
             for target_path, references in self.links.items():
                 # Check if this target (possibly with anchor) points to our file
                 base_target = target_path.split("#", 1)[0] if "#" in target_path else target_path
                 if normalize_path(base_target) == normalized_path:
-                    # Avoid duplicates from the direct lookup above
                     for ref in references:
-                        if ref not in all_references:
+                        if id(ref) not in seen:
+                            seen.add(id(ref))
                             all_references.append(ref)
+                    continue
 
-            # Finally, check all stored references to see if they could refer to this file
-            # This handles relative path resolution and filename matching
-            for target_path, references in self.links.items():
+                # Check relative path resolution and filename matching
                 for ref in references:
-                    if self._reference_points_to_file(ref, normalized_path):
-                        # Avoid duplicates
-                        if ref not in all_references:
-                            all_references.append(ref)
+                    if id(ref) not in seen and self._reference_points_to_file(ref, normalized_path):
+                        seen.add(id(ref))
+                        all_references.append(ref)
 
             return all_references
 
@@ -128,7 +129,7 @@ class LinkDatabase:
                 "\\", "/"
             )
             return resolved_target == file_norm
-        except:
+        except Exception:
             return False
 
     def update_target_path(self, old_path: str, new_path: str):

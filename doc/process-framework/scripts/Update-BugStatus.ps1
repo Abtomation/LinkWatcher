@@ -88,6 +88,10 @@ Date of the status update (optional - uses current date if not specified)
 # Reopen a bug
 .\Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "Reopened" -ReopenReason "Issue still occurs in edge case scenario"
 
+.EXAMPLE
+# Dry-run to preview changes without modifying the file
+.\Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "InProgress" -WhatIf
+
 .NOTES
 This script is part of the Bug Management automation system and integrates with:
 - Bug Triage Task (PF-TSK-041)
@@ -95,6 +99,7 @@ This script is part of the Bug Management automation system and integrates with:
 - Bug Verification processes
 #>
 
+[CmdletBinding(SupportsShouldProcess)]
 param(
     [Parameter(Mandatory = $true)]
     [string]$BugId,
@@ -152,6 +157,18 @@ $StatusEmojis = @{
     "Closed"     = "🔒"
     "Reopened"   = "🔄"
 }
+
+# Column index mapping for bug-tracking.md table rows
+# After splitting on '|' and trimming the empty leading element:
+#   [0] = ID           (e.g., PD-BUG-001)
+#   [1] = Title
+#   [2] = Status       (emoji + status text)
+#   [3] = Priority     (P1/P2/P3/P4)
+#   [4] = Scope        (S/M/L)
+#   [5] = Reported     (date)
+#   [6] = Description
+#   [7] = Related Feature
+#   [8] = Notes
 
 # Priority emoji mapping
 $PriorityEmojis = @{
@@ -222,7 +239,7 @@ function Update-BugEntryContent {
     Write-Log "Found bug entry for $BugId"
     $currentEntry = $match.Value
 
-    # Parse the table row - format: | ID | Title | Status | Priority | Scope | Reported | Description | Related Feature | Notes |
+    # Parse the table row (see column index mapping at top of script)
     $columns = $currentEntry -split '\|' | ForEach-Object { $_.Trim() }
 
     # Skip empty first element (before first |)
@@ -530,6 +547,10 @@ function Main {
                 exit 1
             }
         }
+    }
+
+    if (-not $PSCmdlet.ShouldProcess($BugTrackingFile, "Update $BugId to $NewStatus")) {
+        return
     }
 
     # Single read-modify-write cycle to avoid file locking issues

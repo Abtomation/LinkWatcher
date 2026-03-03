@@ -514,7 +514,6 @@ Real link after code:
         assert "docs.md" not in targets
         assert "another.txt" not in targets
 
-    @pytest.mark.xfail(reason="Parser has no HTML <a href> link parsing")
     @pytest.mark.medium
     def test_mp_005_html_links(self, temp_project_dir):
         """
@@ -561,6 +560,49 @@ Self-closing and various formats:
 
         for expected in expected_targets:
             assert expected in targets, f"Expected target '{expected}' not found in {targets}"
+
+    def test_html_anchor_basic_parsing(self, temp_project_dir):
+        """PD-BUG-011 regression: HTML anchor tags should be parsed in markdown."""
+        parser = MarkdownParser()
+
+        md_file = temp_project_dir / "test.md"
+        content = """# HTML Anchors
+
+- <a href="docs/guide.md">Guide</a>
+- <a href="config.json">Config</a>
+- <a href='single.txt'>Single quotes</a>
+"""
+        md_file.write_text(content)
+
+        references = parser.parse_file(str(md_file))
+        targets = [ref.link_target for ref in references]
+
+        assert "docs/guide.md" in targets
+        assert "config.json" in targets
+        assert "single.txt" in targets
+
+        # Verify link_type is html-anchor (not accidental quoted match)
+        html_refs = [r for r in references if r.link_type == "html-anchor"]
+        html_targets = [r.link_target for r in html_refs]
+        assert "docs/guide.md" in html_targets
+        assert "config.json" in html_targets
+        assert "single.txt" in html_targets
+
+    def test_html_anchor_no_double_capture(self, temp_project_dir):
+        """PD-BUG-011 regression: HTML href values must not also be captured by quoted_pattern."""
+        parser = MarkdownParser()
+
+        md_file = temp_project_dir / "test.md"
+        content = """# No duplicates
+- <a href="file.txt">link</a>
+"""
+        md_file.write_text(content)
+
+        references = parser.parse_file(str(md_file))
+        targets = [ref.link_target for ref in references]
+
+        # file.txt should appear exactly once (not duplicated by quoted_pattern)
+        assert targets.count("file.txt") == 1
 
     @pytest.mark.medium
     def test_mp_006_image_links(self, temp_project_dir):

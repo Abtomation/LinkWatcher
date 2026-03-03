@@ -51,7 +51,7 @@ The critical operation `get_references_to_file(target)` returns all references w
 
 ### 2. Single `threading.Lock` for All Operations
 
-All public database methods (`add_link`, `get_references_to_file`, `update_target_path`, `remove_file_links`, `clear`, `get_stats`) acquire a single `threading.Lock` before accessing the dictionary:
+All public database methods (`add_link`, `get_references_to_file`, `update_target_path`, `remove_file_links`, `remove_targets_by_path`, `get_all_targets_with_references`, `get_source_files`, `clear`, `get_stats`) acquire a single `threading.Lock` before accessing the dictionary:
 
 ```python
 self._lock = threading.Lock()
@@ -79,7 +79,7 @@ This handles the practical reality that parsers store links as they appear in so
 - **Simple thread safety**: Single lock eliminates deadlock risk and is straightforward to reason about; event rate (human-speed file operations) never saturates the lock
 - **Resilient lookups**: Three-level path resolution handles the full diversity of link storage formats without requiring parsers to normalize before storing
 - **Memory-efficient**: Single structure (target-indexed only) rather than maintaining both forward and reverse indexes
-- **Clean separation**: Database is a pure repository — no business logic; all consumers interact through a consistent 6-method public API
+- **Clean separation**: Database is a pure repository — no business logic; all consumers interact through a consistent 9-method public API
 
 ### Negative
 

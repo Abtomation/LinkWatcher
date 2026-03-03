@@ -207,3 +207,71 @@ class TestLinkDatabase:
         # Check that all references were added correctly
         stats = link_database.get_stats()
         assert stats["total_references"] == 300  # 3 threads * 100 references each
+
+
+class TestLongPathNormalization:
+    """PD-BUG-014: Regression tests for long path normalization in database operations."""
+
+    def test_normalize_path_strips_windows_long_path_prefix(self):
+        """normalize_path must strip the \\\\?\\ prefix so prefixed and
+        non-prefixed forms of the same path produce identical results."""
+        from linkwatcher.utils import normalize_path
+
+        plain = "C:/Users/test/project/deep/file.txt"
+        # Simulate the \\?\ prefix that Windows adds for long paths
+        prefixed = "\\\\?\\C:\\Users\\test\\project\\deep\\file.txt"
+
+        norm_plain = normalize_path(plain)
+        norm_prefixed = normalize_path(prefixed)
+        assert (
+            norm_plain == norm_prefixed
+        ), f"Prefixed path normalized differently: {norm_prefixed!r} != {norm_plain!r}"
+
+    def test_database_lookup_with_long_path_prefix(self, link_database):
+        """Database lookup must find references regardless of \\\\?\\ prefix."""
+        target = "very/deep/nested/directory/structure/file.txt"
+        ref = LinkReference("doc.md", 1, 0, 40, "file.txt", target, "markdown")
+        link_database.add_link(ref)
+
+        # Lookup with \\?\ prefixed absolute path should still resolve
+        prefixed_target = "\\\\?\\C:\\project\\" + target.replace("/", "\\")
+        non_prefixed = "C:\\project\\" + target.replace("/", "\\")
+
+        # Both forms must normalize consistently for _reference_points_to_file
+        from linkwatcher.utils import normalize_path
+
+        assert normalize_path(prefixed_target) == normalize_path(
+            non_prefixed
+        ), "Prefixed and non-prefixed absolute paths must normalize identically"
+
+    def test_database_add_and_lookup_with_long_relative_path(self, link_database):
+        """Database add/lookup must work correctly with long relative paths (>260 chars)."""
+        components = [
+            f"very_long_directory_name_{i:02d}_with_lots_of_characters" for i in range(10)
+        ]
+        long_target = "/".join(components + ["deep_file.txt"])
+        assert len(long_target) > 260, "Path must exceed 260 chars for this test"
+
+        ref = LinkReference("test.md", 1, 0, len(long_target), "Deep link", long_target, "markdown")
+        link_database.add_link(ref)
+
+        results = link_database.get_references_to_file(long_target)
+        assert len(results) >= 1, f"Expected at least 1 reference for long path, got {len(results)}"
+
+    def test_update_target_path_with_long_path_prefix(self, link_database):
+        """update_target_path must work when old/new paths have \\\\?\\ prefix."""
+        from linkwatcher.utils import normalize_path
+
+        old_target = "deep/nested/old_file.txt"
+        new_target = "deep/nested/new_file.txt"
+        ref = LinkReference("doc.md", 1, 0, 30, "old_file.txt", old_target, "markdown")
+        link_database.add_link(ref)
+
+        # Simulate update using \\?\ prefixed paths
+        old_prefixed = "\\\\?\\C:\\project\\deep\\nested\\old_file.txt"
+        new_prefixed = "\\\\?\\C:\\project\\deep\\nested\\new_file.txt"
+
+        # normalize_path must produce the same result for prefixed and non-prefixed
+        assert normalize_path(old_prefixed) == normalize_path(
+            "C:\\project\\deep\\nested\\old_file.txt"
+        ), "Prefix stripping must work for update operations"

@@ -10,7 +10,7 @@ from pathlib import Path
 import pytest
 
 from linkwatcher.models import LinkReference
-from linkwatcher.updater import LinkUpdater
+from linkwatcher.updater import LinkUpdater, UpdateResult
 
 
 class TestLinkUpdater:
@@ -132,31 +132,6 @@ class TestLinkUpdater:
         assert normalize_path("/test/file.txt") == "test/file.txt"
         assert normalize_path("test\\file.txt") == "test/file.txt"
         assert normalize_path("./test/file.txt") == "test/file.txt"
-
-    def test_replace_path_part_exact_match(self):
-        """Test replacing path part with exact match."""
-        updater = LinkUpdater()
-
-        result = updater._replace_path_part("old.txt", "old.txt", "new.txt")
-        assert result == "new.txt"
-
-        # Test with absolute path
-        result = updater._replace_path_part("/old.txt", "old.txt", "new.txt")
-        assert result == "/new.txt"
-
-    def test_replace_path_part_partial_match(self):
-        """Test replacing path part with partial match."""
-        updater = LinkUpdater()
-
-        result = updater._replace_path_part("docs/old.txt", "old.txt", "new.txt")
-        assert result == "docs/new.txt"
-
-    def test_replace_path_part_no_match(self):
-        """Test replacing path part with no match returns original."""
-        updater = LinkUpdater()
-
-        result = updater._replace_path_part("other.txt", "old.txt", "new.txt")
-        assert result == "other.txt"
 
     def test_update_references_dry_run(self, temp_project_dir):
         """Test updating references in dry run mode."""
@@ -338,7 +313,7 @@ class TestStaleLineNumberDetection:
 
         result = updater._update_file_references(str(test_file), [ref], "old.txt", "new.txt")
 
-        assert result == "stale"
+        assert result == UpdateResult.STALE
         # File must not be modified
         assert test_file.read_text() == content
 
@@ -357,7 +332,7 @@ class TestStaleLineNumberDetection:
 
         result = updater._update_file_references(str(test_file), [ref], "old.txt", "new.txt")
 
-        assert result == "stale"
+        assert result == UpdateResult.STALE
         # File must not be modified
         assert test_file.read_text() == content
 
@@ -374,7 +349,7 @@ class TestStaleLineNumberDetection:
 
         result = updater._update_file_references(str(test_file), [ref], "old.txt", "new.txt")
 
-        assert result == "updated"
+        assert result == UpdateResult.UPDATED
         assert "new.txt" in test_file.read_text()
         assert "old.txt" not in test_file.read_text()
 
@@ -402,7 +377,7 @@ class TestStaleLineNumberDetection:
         result = updater._update_file_references(str(test_file), references, "old.txt", "new.txt")
 
         # Bottom-to-top processing: line 4 checked first, detected stale
-        assert result == "stale"
+        assert result == UpdateResult.STALE
         # File must be completely unchanged - no partial writes
         assert test_file.read_text() == content
 
@@ -448,7 +423,7 @@ class TestStaleLineNumberDetection:
 
         result = updater._update_file_references(str(test_file), [ref], "old.txt", "new.txt")
 
-        assert result == "no_changes"
+        assert result == UpdateResult.NO_CHANGES
 
 
 class TestRootRelativePathHandling:

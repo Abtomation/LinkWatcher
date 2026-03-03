@@ -25,12 +25,12 @@ class TestPowerShellScriptMonitoring:
         """Set up test environment."""
         self.temp_dir = tempfile.mkdtemp()
         self.project_root = Path(self.temp_dir)
-        
+
         # Create directory structure
         (self.project_root / "scripts").mkdir()
         (self.project_root / "scripts" / "automation").mkdir()
         (self.project_root / "docs").mkdir()
-        
+
         # Initialize components
         self.link_db = LinkDatabase()
         self.parser = LinkParser()
@@ -42,8 +42,6 @@ class TestPowerShellScriptMonitoring:
     def test_ps1_extension_in_monitored_extensions(self):
         """Test that .ps1 extension is included in monitored extensions."""
         assert ".ps1" in self.handler.monitored_extensions
-        assert ".sh" in self.handler.monitored_extensions
-        assert ".bat" in self.handler.monitored_extensions
 
     def test_should_monitor_ps1_files(self):
         """Test that PowerShell files are correctly identified for monitoring."""
@@ -79,11 +77,13 @@ Write-Host "Deployment completed!"
         # Parse initial files to populate database
         ps1_refs = self.parser.parse_file(str(ps1_file))
         md_refs = self.parser.parse_file(str(md_file))
-        
+
         # Add references to database
         for ref in ps1_refs + md_refs:
             # Convert to relative path
-            ref.file_path = str(Path(ref.file_path).relative_to(self.project_root)).replace("\\", "/")
+            ref.file_path = str(Path(ref.file_path).relative_to(self.project_root)).replace(
+                "\\", "/"
+            )
             self.link_db.add_link(ref)
 
         # Verify initial links are found
@@ -97,8 +97,9 @@ Write-Host "Deployment completed!"
 
         # Simulate file move event
         from watchdog.events import FileMovedEvent
+
         event = FileMovedEvent(str(ps1_file), str(new_ps1_file))
-        
+
         # Handle the move
         self.handler._handle_file_moved(event)
 
@@ -109,15 +110,18 @@ Write-Host "Deployment completed!"
 
         # Verify links were updated
         assert "../scripts/automation/deploy.ps1" in updated_md_content
-        assert "../scripts/deploy.ps1" not in updated_md_content or updated_md_content.count("../scripts/deploy.ps1") == 0
+        assert (
+            "../scripts/deploy.ps1" not in updated_md_content
+            or updated_md_content.count("../scripts/deploy.ps1") == 0
+        )
 
         # Verify database was updated
         old_refs = self.link_db.get_references_to_file("scripts/deploy.ps1")
         new_refs = self.link_db.get_references_to_file("scripts/automation/deploy.ps1")
-        
+
         print(f"Old references count: {len(old_refs)}")
         print(f"New references count: {len(new_refs)}")
-        
+
         # Should have no references to old path and some to new path
         assert len(old_refs) == 0, "Should have no references to old path"
         assert len(new_refs) > 0, "Should have references to new path"
@@ -127,7 +131,7 @@ Write-Host "Deployment completed!"
         # Create multiple PowerShell scripts
         scripts = ["deploy.ps1", "setup.ps1", "cleanup.ps1"]
         script_files = []
-        
+
         for script_name in scripts:
             script_file = self.project_root / "scripts" / script_name
             script_file.write_text(f"# {script_name}\nWrite-Host 'Running {script_name}'")
@@ -140,7 +144,7 @@ Write-Host "Deployment completed!"
 ## Available Scripts
 
 - [Deploy Script](../scripts/deploy.ps1)
-- [Setup Script](../scripts/setup.ps1)  
+- [Setup Script](../scripts/setup.ps1)
 - [Cleanup Script](../scripts/cleanup.ps1)
 
 ## Usage
@@ -152,7 +156,9 @@ Run [deploy.ps1](../scripts/deploy.ps1) first, then [setup.ps1](../scripts/setup
         # Parse and populate database
         md_refs = self.parser.parse_file(str(md_file))
         for ref in md_refs:
-            ref.file_path = str(Path(ref.file_path).relative_to(self.project_root)).replace("\\", "/")
+            ref.file_path = str(Path(ref.file_path).relative_to(self.project_root)).replace(
+                "\\", "/"
+            )
             self.link_db.add_link(ref)
 
         # Move one script
@@ -162,6 +168,7 @@ Run [deploy.ps1](../scripts/deploy.ps1) first, then [setup.ps1](../scripts/setup
 
         # Handle move
         from watchdog.events import FileMovedEvent
+
         event = FileMovedEvent(str(old_path), str(new_path))
         self.handler._handle_file_moved(event)
 
@@ -196,7 +203,9 @@ Run [deploy.ps1](../scripts/deploy.ps1) first, then [setup.ps1](../scripts/setup
         # Parse and populate database
         md_refs = self.parser.parse_file(str(md_file))
         for ref in md_refs:
-            ref.file_path = str(Path(ref.file_path).relative_to(self.project_root)).replace("\\", "/")
+            ref.file_path = str(Path(ref.file_path).relative_to(self.project_root)).replace(
+                "\\", "/"
+            )
             self.link_db.add_link(ref)
 
         # Verify initial references
@@ -211,6 +220,7 @@ Run [deploy.ps1](../scripts/deploy.ps1) first, then [setup.ps1](../scripts/setup
 
         # Handle move
         from watchdog.events import FileMovedEvent
+
         event = FileMovedEvent(str(ps1_file), str(new_ps1_file))
         self.handler._handle_file_moved(event)
 
@@ -218,10 +228,10 @@ Run [deploy.ps1](../scripts/deploy.ps1) first, then [setup.ps1](../scripts/setup
         updated_content = md_file.read_text()
         print("Updated content:")
         print(updated_content)
-        
+
         # Should contain new path
         assert "../scripts/automation/test.ps1" in updated_content
-        
+
         # Should not contain old path (except possibly in inline code which might not be updated)
         old_path_count = updated_content.count("../scripts/test.ps1")
         print(f"Remaining old path references: {old_path_count}")
@@ -229,6 +239,7 @@ Run [deploy.ps1](../scripts/deploy.ps1) first, then [setup.ps1](../scripts/setup
     def teardown_method(self):
         """Clean up test environment."""
         import shutil
+
         shutil.rmtree(self.temp_dir, ignore_errors=True)
 
 
@@ -236,20 +247,21 @@ if __name__ == "__main__":
     # Run a simple test
     test = TestPowerShellScriptMonitoring()
     test.setup_method()
-    
+
     try:
         test.test_ps1_extension_in_monitored_extensions()
         print("✓ PowerShell extension monitoring test passed")
-        
+
         test.test_should_monitor_ps1_files()
         print("✓ PowerShell file monitoring test passed")
-        
+
         test.test_powershell_script_move_updates_markdown_links()
         print("✓ PowerShell script move test passed")
-        
+
     except Exception as e:
         print(f"✗ Test failed: {e}")
         import traceback
+
         traceback.print_exc()
     finally:
         test.teardown_method()

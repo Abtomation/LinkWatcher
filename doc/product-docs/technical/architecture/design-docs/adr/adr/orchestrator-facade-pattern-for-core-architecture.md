@@ -46,7 +46,8 @@ Use the **Orchestrator/Facade pattern** for `LinkWatcherService`:
 
 - The service class coordinates all subsystems but contains **zero business logic**
 - All subsystem instances are created in `__init__()` (constructor injection)
-- `start()` registers signal handlers, triggers optional initial scan, creates and starts the Observer, then enters a polling loop
+- `__init__()` registers signal handlers for graceful shutdown
+- `start()` triggers optional initial scan, creates and starts the Observer, then enters a polling loop
 - `stop()` sets `self.running = False`, stops and joins the Observer thread, and prints statistics
 - Signal handler (`_signal_handler`) only sets the `running` flag — no complex logic in signal context
 
@@ -71,7 +72,7 @@ Additionally, **signal handler registration occurs at the service level** (not i
 
 ### Negative
 
-- **Signal handler side effect**: Service registers SIGINT/SIGTERM handlers during `start()` — callers embedding the service must be aware this overrides their own signal handling
+- **Signal handler side effect**: Service registers SIGINT/SIGTERM handlers during `__init__()` — callers embedding the service must be aware this overrides their own signal handling
 - **Single-process limitation**: The Orchestrator pattern doesn't scale to multi-process architectures (not needed for LinkWatcher's use case)
 - **No dynamic subsystem loading**: Subsystems are hardcoded in `__init__()` — adding a new subsystem requires modifying the service class
 

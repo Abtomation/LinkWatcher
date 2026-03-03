@@ -124,14 +124,16 @@ The Link Parsing System uses a Registry+Facade pattern. `LinkParser` dispatches 
 | Non-string types | `test_json_with_numbers_and_booleans` | Numbers, booleans not detected |
 | Deep nesting | `test_deeply_nested_json` | 10 levels deep |
 | Large arrays | `test_large_json_arrays` | 100-element array |
+| Duplicate value line numbers | `test_bug013_duplicate_values_get_correct_line_numbers`, `test_bug013_mixed_duplicate_and_unique_values`, `test_bug013_adjacent_duplicate_values` | Same path on multiple lines gets unique correct line numbers (PD-BUG-013) |
 
-**Test File**: [`tests/parsers/test_json.py`](../../../tests/parsers/test_json.py) (12 methods)
+**Test File**: [`tests/parsers/test_json.py`](../../../tests/parsers/test_json.py) (15 methods)
 
 ### Parser Tests — Python
 
 | Test Focus | Key Test Cases | Edge Cases Covered |
 |-----------|----------------|-------------------|
 | Import filtering | `test_skip_import_modules` | `import os`, `import requests` excluded |
+| Dotted stdlib filtering | `test_skip_dotted_stdlib_imports` | `from email.mime.text`, `from xml.etree.ElementTree`, `from logging.handlers` excluded (TD038) |
 | String literals | `test_parse_string_literals` | Double, single, triple, raw, f-strings |
 | Docstrings | `test_docstring_references` | Module and function docstrings |
 | False positives | `test_avoid_false_positives` | Versions, emails, URLs, regex, SQL |
@@ -139,7 +141,7 @@ The Link Parsing System uses a Registry+Facade pattern. `LinkParser` dispatches 
 | Line/column | `test_line_and_column_positions` | Position accuracy |
 | Empty/error | `test_empty_file`, `test_error_handling` | Edge cases |
 
-**Test File**: [`tests/parsers/test_python.py`](../../../tests/parsers/test_python.py) (10 methods)
+**Test File**: [`tests/parsers/test_python.py`](../../../tests/parsers/test_python.py) (11 methods)
 
 ### Parser Tests — Dart
 
@@ -172,8 +174,9 @@ The Link Parsing System uses a Registry+Facade pattern. `LinkParser` dispatches 
 | Large files | `test_large_file_handling` | 3000+ lines with scattered refs |
 | Unicode | `test_unicode_handling` | French, Russian, Chinese paths |
 | Empty/error | `test_empty_file`, `test_error_handling` | Edge cases |
+| Quoted directory paths | `test_bug021_quoted_directory_paths_detected` and related tests in `TestGenericParserDirectoryPaths` class | Quoted strings containing path separators but no file extension detected as directory path references (PD-BUG-021) |
 
-**Test File**: [`tests/parsers/test_generic.py`](../../../tests/parsers/test_generic.py) (15 methods)
+**Test File**: [`tests/parsers/test_generic.py`](../../../tests/parsers/test_generic.py) (21 methods)
 
 ### Parser Tests — Image Files
 
@@ -215,6 +218,8 @@ The Link Parsing System uses a Registry+Facade pattern. `LinkParser` dispatches 
 - **Case-insensitive dispatch**: TDD mentions `.MD` routes to `MarkdownParser` — not tested
 - **LogTimer integration**: TDD mentions performance timing for every `parse_file()` call — not tested
 - **Statelessness**: Parsers are shared instances; no test verifies they produce identical results on repeated calls
+- ~~**Directory path detection**: GenericParser did not detect quoted directory paths (no file extension)~~ — **Covered** by PD-BUG-021 fix (`TestGenericParserDirectoryPaths`, 6 methods)
+- ~~**JSON duplicate value line numbers**: JsonParser assigned same line number to all occurrences of a repeated path value~~ — **Covered** by PD-BUG-013 fix (`TestJsonParserDuplicateLineNumbers`, 3 methods)
 
 ## AI Agent Session Handoff Notes
 

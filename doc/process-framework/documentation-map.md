@@ -87,6 +87,7 @@ Our tasks are organized into four categories and follow a unified structure:
 - [Process: Schema Design Template](templates/templates/schema-design-template.md) - Template for database schema design documents
 - [Process: Test Audit Report Template](templates/templates/test-audit-report-template.md) - Template for systematic test quality assessment reports
 - [Process: Feedback Form Template](templates/templates/feedback-form-template.md) - Template for creating tool and process feedback forms
+- [Process: Feedback DB Input Template](templates/templates/feedback-db-input-template.json) - JSON reference template for `feedback_db.py record --json` input format
 - [Process: Tools Review Summary Template](templates/templates/tools-review-summary-template.md) - Standardized template for Tools Review task (PF-TSK-010) summary output documents
 - [Process: Technical Debt Assessment Template](templates/templates/technical-debt-assessment-template.md) - Template for technical debt assessment reports
 - [Process: Debt Item Template](templates/templates/debt-item-template.md) - Template for individual debt item records
@@ -114,6 +115,7 @@ Our tasks are organized into four categories and follow a unified structure:
 - [Process: New Bug Fix State Script](scripts/file-creation/New-BugFixState.ps1) - PowerShell script for creating multi-session bug fix state tracking files (Large-effort bugs)
 - [Process: New UI Design Script](scripts/file-creation/New-UIDesign.ps1) - PowerShell script for creating UI/UX Design documents with auto-assigned IDs and Design Guidelines references
 - [Process: New Test Specification Script](scripts/file-creation/New-TestSpecification.ps1) - PowerShell script for creating test specifications (supports both feature-specific and cross-cutting modes via -CrossCutting switch)
+- [Process: New Process Improvement Script](scripts/file-creation/New-ProcessImprovement.ps1) - PowerShell script for adding new improvement opportunities to process-improvement-tracking.md with auto-assigned PF-IMP IDs
 
 ### State Update Scripts
 
@@ -265,6 +267,15 @@ _Created during framework onboarding (PF-TSK-066 / PF-TSK-012) — documenting e
 - [Test Spec: Logging System (PF-TSP-041)](../../test/specifications/feature-specs/test-spec-3-1-1-logging-system.md) - 3.1.1 Tier 2 — Structured logging, filtering, metrics
 - [Test Spec: Test Suite (PF-TSP-042)](../../test/specifications/feature-specs/test-spec-4-1-1-test-suite.md) - 4.1.1 Tier 2 — Test infrastructure, fixtures, performance benchmarks
 - [Test Spec: CI/CD & Development Tooling (PF-TSP-043)](../../test/specifications/feature-specs/test-spec-5-1-1-cicd-development-tooling.md) - 5.1.1 Tier 2 — Gap analysis for pipeline validation
+
+### Validation Reports
+
+_Created during foundational codebase validation (PF-TSK-031 through PF-TSK-036)._
+
+- [Validation: Architectural Consistency — Features 0.1.1–1.1.1 (PF-VAL-035)](validation/reports/architectural-consistency/PF-VAL-035-architectural-consistency-features-0.1.1-1.1.1.md) - Batch 1 — Design pattern adherence, ADR compliance, interface consistency (Score: 3.475/4.0 PASS)
+- [Validation: Architectural Consistency — Features 2.1.1–5.1.1 (PF-VAL-036)](validation/reports/architectural-consistency/PF-VAL-036-architectural-consistency-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) - Batch 2 — Design pattern adherence, ADR compliance, interface consistency (Score: 3.450/4.0 PASS)
+- [Validation: Code Quality — Features 0.1.1–1.1.1 (PF-VAL-037)](validation/reports/code-quality/PF-VAL-037-code-quality-features-0.1.1-0.1.2-0.1.3-1.1.1.md) - Batch 1 — Code style, complexity, error handling, SOLID principles, test coverage (Score: 3.050/4.0 PASS)
+- [Validation: Code Quality — Features 2.1.1–5.1.1 (PF-VAL-038)](validation/reports/code-quality/PF-VAL-038-code-quality-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) - Batch 2 — Code style, complexity, error handling, SOLID principles, test coverage (Score: 3.120/4.0 PASS)
 
 ## How to Use This Documentation
 

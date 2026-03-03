@@ -16,10 +16,9 @@ from .base import BaseParser
 class YamlParser(BaseParser):
     """Parser for YAML files (.yaml, .yml)."""
 
-    def parse_file(self, file_path: str) -> List[LinkReference]:
-        """Parse YAML file for file references."""
+    def parse_content(self, content: str, file_path: str) -> List[LinkReference]:
+        """Parse YAML content for file references."""
         try:
-            content = self._safe_read_file(file_path)
             lines = content.split("\n")
             references = []
 
@@ -35,7 +34,7 @@ class YamlParser(BaseParser):
                 from .generic import GenericParser
 
                 generic_parser = GenericParser()
-                return generic_parser.parse_file(file_path)
+                return generic_parser.parse_content(content, file_path)
 
             return references
 

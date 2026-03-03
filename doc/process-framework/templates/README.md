@@ -143,6 +143,11 @@ Use this guide to determine which template to use for different documentation ne
    - Supports batch mode for multiple quick fixes in one session
    - Best for: Quick code refactorings, small technical debt items
 
+10. **[Feedback DB Input Template](templates/feedback-db-input-template.json)**
+    - JSON reference template showing the expected input format for `feedback_db.py record --json`
+    - Documents all fields (required and optional) with placeholder values
+    - Best for: Recording feedback ratings during Tools Review (PF-TSK-010)
+
 ### Template Selection Matrix
 
 | Documentation Need | Primary Audience | Purpose | Recommended Template |
@@ -164,6 +169,7 @@ Use this guide to determine which template to use for different documentation ne
 | Automating markdown table status changes | Developers, DevOps | Development | Update Script Template |
 | Quick refactoring plan (≤15 min) | Developers, AI Agents | Planning | Lightweight Refactoring Plan Template |
 | Batch small tech debt fixes | Developers, AI Agents | Planning | Lightweight Refactoring Plan Template |
+| Recording feedback ratings to database | AI Agents | Reference | Feedback DB Input Template |
 
 For more general guidance on identifying documentation template needs for any project, refer to the <!-- [Documentation Template Identification Guide](/doc/process-framework/guides/documentation-template-identification.md) - Template/example link commented out -->.
 
@@ -173,7 +179,7 @@ If you'd like to improve these templates or add new ones:
 
 1. Review the existing templates to understand the current structure and style
 2. Make your changes or create a new template following similar conventions
-3. Update this ../../process-framework/templates/README.md to include information about your new template
+3. Update this README.md to include information about your new template
 4. Submit a pull request with your changes
 
 ## Maintenance

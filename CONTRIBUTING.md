@@ -70,19 +70,6 @@ dev clean          # Clean build artifacts
 dev build          # Build distribution package
 ```
 
-### **Alternative Makefile Commands**
-
-If you prefer Makefile commands:
-
-```bash
-make dev-setup     # Setup development environment
-make test          # Quick tests
-make test-all      # All tests
-make coverage      # Coverage report
-make lint          # Code quality checks
-make format        # Code formatting
-```
-
 ## 🧪 Testing Strategy
 
 ### **Test Structure**
@@ -392,8 +379,7 @@ Any other relevant information
 
 ### **Development Tools**
 
-- [Windows Batch Script](dev.bat) - Native Windows commands
-- [Makefile](Makefile) - Cross-compatible commands
+- [Windows Batch Script](dev.bat) - Development commands
 - [Pre-commit Config](.pre-commit-config.yaml) - Code quality hooks
 - [GitHub Actions](.github/workflows/ci.yml) - CI/CD pipeline
 

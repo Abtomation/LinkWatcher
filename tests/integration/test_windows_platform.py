@@ -367,16 +367,19 @@ class TestLongPathHandling:
         """
         service = LinkWatcherService(str(temp_project_dir))
 
-        # Create deeply nested directory structure
+        # Create nested directory structure — use fewer levels to stay
+        # within the Windows 260-char absolute path limit in temp dirs
         current_path = temp_project_dir
         path_components = []
 
-        # Build a long path (but not too long to cause issues in tests)
-        for i in range(10):
+        for i in range(4):
             component = f"very_long_directory_name_{i:02d}_with_lots_of_characters"
             path_components.append(component)
             current_path = current_path / component
-            current_path.mkdir(exist_ok=True)
+            try:
+                current_path.mkdir(exist_ok=True)
+            except OSError:
+                pytest.skip("Cannot create deep directory (path too long for this system)")
 
         # Create file in deep directory
         deep_file = current_path / "deep_file.txt"
@@ -391,9 +394,11 @@ class TestLongPathHandling:
         # Should handle long paths
         service._initial_scan()
 
-        # Verify reference was found
+        # PD-BUG-014: Verify reference was actually found (not just >= 0)
         references = service.link_db.get_references_to_file(relative_path)
-        assert len(references) >= 0  # Should handle without crashing
+        assert (
+            len(references) >= 1
+        ), f"Expected at least 1 reference for deep path, got {len(references)}"
 
     def test_cp_004_windows_long_path_support(self, temp_project_dir):
         """Test Windows long path support (>260 characters)."""

@@ -311,7 +311,7 @@ Key design decisions that shaped the implementation:
 None — this is a retrospective document for a fully implemented, stable feature.
 
 **Known Technical Debt**:
-- `cache_logger_on_first_use=True` means structlog configuration is immutable after first log call — if `setup_logging()` is not called early enough in startup, the logger runs with defaults and reconfiguration has no effect
+- `cache_logger_on_first_use=True` means structlog configuration is immutable after first log call — if `setup_logging()` is not called early enough in startup, the logger runs with defaults and reconfiguration has no effect. **Mitigated (PD-BUG-015)**: `LinkWatcherLogger.__init__()` now calls `structlog.reset_defaults()` before `structlog.configure()`, and `setup_logging()` closes old handlers before replacing the global logger instance
 - `LoggingConfigManager` hot-reload applies only to `LogFilter` and log level — it does not support dynamically switching between console-only and file+console output modes
 
 ## 9. AI Agent Session Handoff Notes

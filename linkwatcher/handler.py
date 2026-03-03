@@ -6,10 +6,7 @@ coordinates the appropriate responses.
 """
 
 import os
-import re
-import shutil
 import threading
-import time
 from pathlib import Path
 
 from colorama import Fore
@@ -22,10 +19,13 @@ from watchdog.events import (
 
 from .config.defaults import DEFAULT_CONFIG
 from .database import LinkDatabase
+from .dir_move_detector import DirectoryMoveDetector
 from .logging import get_logger, with_context
+from .move_detector import MoveDetector
 from .parser import LinkParser
+from .reference_lookup import ReferenceLookup
 from .updater import LinkUpdater
-from .utils import get_relative_path, normalize_path, should_monitor_file
+from .utils import get_relative_path, should_monitor_file
 
 
 class _SyntheticMoveEvent:
@@ -42,41 +42,6 @@ class _SyntheticMoveEvent:
         self.src_path = src_path
         self.dest_path = dest_path
         self.is_directory = is_directory
-
-
-class _PendingDirMove:
-    """Internal state for tracking a pending directory move detection.
-
-    On Windows, directory moves are reported as a directory_deleted event
-    followed by individual file_created events. This class tracks the
-    state needed to correlate these events and process the move as a
-    single batch operation.
-    """
-
-    __slots__ = (
-        "deleted_dir",
-        "known_files",
-        "dir_prefix",
-        "total_expected",
-        "new_dir",
-        "matched_count",
-        "unmatched",
-        "timestamp",
-        "max_timer",
-        "settle_timer",
-    )
-
-    def __init__(self, deleted_dir, known_files):
-        self.deleted_dir = deleted_dir
-        self.known_files = frozenset(known_files)
-        self.dir_prefix = normalize_path(deleted_dir) + "/"
-        self.total_expected = len(known_files)
-        self.new_dir = None
-        self.matched_count = 0
-        self.unmatched = set(known_files)
-        self.timestamp = time.time()
-        self.max_timer = None
-        self.settle_timer = None
 
 
 class LinkMaintenanceHandler(FileSystemEventHandler):
@@ -117,18 +82,33 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
             else DEFAULT_CONFIG.ignored_directories.copy()
         )
 
-        # Delayed move detection (per-file, for individual file moves)
-        self.pending_deletes = {}  # {file_path: (timestamp, file_size)}
-        self.move_detection_delay = 10.0  # seconds to wait for create after delete
-        self.move_detection_lock = threading.Lock()
+        # Per-file move detection (delete+create correlation)
+        self._move_detector = MoveDetector(
+            on_move_detected=self._handle_detected_move,
+            on_true_delete=self._process_true_file_delete,
+            delay=10.0,
+        )
 
         # Directory move detection (batch, for directory moves on Windows)
-        self.pending_dir_moves = {}  # {deleted_dir: _PendingDirMove}
-        self.dir_move_lock = threading.Lock()
-        self.dir_move_max_timeout = 300.0  # max wait for all files to appear
-        self.dir_move_settle_delay = 5.0  # wait after last matched file
+        self._dir_move_detector = DirectoryMoveDetector(
+            link_db=link_db,
+            project_root=self.project_root,
+            on_dir_move=self._handle_confirmed_dir_move,
+            on_true_file_delete=self._process_true_file_delete,
+            max_timeout=300.0,
+            settle_delay=5.0,
+        )
 
-        # Statistics
+        # Reference lookup, DB management, and link updates (TD022/TD035 extractions)
+        self._ref_lookup = ReferenceLookup(
+            link_db=link_db,
+            parser=parser,
+            updater=updater,
+            project_root=self.project_root,
+            logger=self.logger,
+        )
+
+        # Statistics (protected by _stats_lock — PD-BUG-026)
         self.stats = {
             "files_moved": 0,
             "files_deleted": 0,
@@ -136,6 +116,7 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
             "links_updated": 0,
             "errors": 0,
         }
+        self._stats_lock = threading.Lock()
 
         self.logger.debug(
             "handler_initialized",
@@ -157,7 +138,7 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
                 error_type=type(e).__name__,
                 src_path=getattr(event, "src_path", "unknown"),
             )
-            self.stats["errors"] += 1
+            self._update_stat("errors")
 
     def on_deleted(self, event):
         """Handle file/directory deletion events."""
@@ -169,7 +150,7 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
                 # with is_directory=False. Check if the deleted path is a known
                 # directory in our database (has files tracked under it).
                 deleted_path = self._get_relative_path(event.src_path)
-                known_files = self._get_files_under_directory(deleted_path)
+                known_files = self._dir_move_detector.get_files_under_directory(deleted_path)
                 if known_files:
                     self._handle_directory_deleted(event)
                 else:
@@ -181,7 +162,7 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
                 error_type=type(e).__name__,
                 src_path=getattr(event, "src_path", "unknown"),
             )
-            self.stats["errors"] += 1
+            self._update_stat("errors")
 
     def on_created(self, event):
         """Handle file/directory creation events."""
@@ -195,7 +176,7 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
                 error_type=type(e).__name__,
                 src_path=getattr(event, "src_path", "unknown"),
             )
-            self.stats["errors"] += 1
+            self._update_stat("errors")
 
     def on_error(self, event):
         """Handle watchdog errors to prevent silent observer thread death."""
@@ -204,69 +185,7 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
             error=str(event),
             error_type=type(event).__name__,
         )
-        self.stats["errors"] += 1
-
-    def _get_path_variations(self, path):
-        """Generate all format variations of a path for database lookup.
-
-        Returns a list of path strings covering: exact path, relative
-        (first directory stripped), backslash (Windows), and filename-only.
-        """
-        variations = [path]
-        path_parts = path.split("/")
-        if len(path_parts) > 2:  # Has at least 2 directory levels
-            relative = "/".join(path_parts[1:])  # Remove first directory
-            variations.append(relative)
-            variations.append(relative.replace("/", "\\"))  # Windows backslash
-        variations.append(os.path.basename(path))
-        return variations
-
-    def _find_references_multi_format(self, target_path, filter_files=None):
-        """Find all references to a target path using multiple path format variations.
-
-        Tries exact, relative, backslash, and filename-only variations.
-        Returns deduplicated results.
-
-        Args:
-            target_path: The target path to find references for.
-            filter_files: Optional set of file paths to restrict results to.
-        """
-        references = []
-        for variation in self._get_path_variations(target_path):
-            refs = self.link_db.get_references_to_file(variation)
-            if filter_files is not None:
-                refs = [r for r in refs if r.file_path in filter_files]
-            references.extend(refs)
-            self.logger.debug("references_found_variation", variation=variation, count=len(refs))
-
-        # Deduplicate using composite key
-        seen = set()
-        unique = []
-        for ref in references:
-            key = (ref.file_path, ref.line_number, ref.column_start, ref.link_target)
-            if key not in seen:
-                seen.add(key)
-                unique.append(ref)
-        return unique
-
-    def _collect_path_updates(self, old_path, new_path):
-        """Collect (old_target, new_target) pairs that have active references.
-
-        Uses the same path format variations as _find_references_multi_format
-        to build a list of path tuples for database cleanup after file updates.
-        """
-        pairs = [(old_path, new_path)]
-        old_parts = old_path.split("/")
-        if len(old_parts) > 2:
-            rel_old = "/".join(old_parts[1:])
-            rel_new = "/".join(new_path.split("/")[1:])
-            pairs.append((rel_old, rel_new))
-            pairs.append((rel_old.replace("/", "\\"), rel_new.replace("/", "\\")))
-        pairs.append((os.path.basename(old_path), os.path.basename(new_path)))
-
-        return [
-            (old_t, new_t) for old_t, new_t in pairs if self.link_db.get_references_to_file(old_t)
-        ]
+        self._update_stat("errors")
 
     @with_context(component="handler", operation="file_move")
     def _handle_file_moved(self, event: FileMovedEvent):
@@ -281,100 +200,31 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
 
         try:
             # Get all references to the old file using all path format variations
-            references = self._find_references_multi_format(old_path)
+            references = self._ref_lookup.find_references(old_path)
 
             if references:
                 print(f"{Fore.YELLOW}🔗 Updating {len(references)} unique references...")
 
-                # Collect all path variations that need updating FIRST
+                # Collect old path variations for DB cleanup FIRST
                 # before making any changes (since each update modifies the database)
-                path_updates = self._collect_path_updates(old_path, new_path)
+                old_targets = self._ref_lookup.get_old_path_variations(old_path)
 
                 # Update the files FIRST (before modifying the database)
                 update_stats = self.updater.update_references(references, old_path, new_path)
 
                 # Handle stale line numbers: rescan affected files and retry once
-                stale_files = update_stats.get("stale_files", [])
-                if stale_files:
-                    print(
-                        f"{Fore.YELLOW}🔄 Rescanning {len(stale_files)} file(s) "
-                        f"with stale line numbers..."
-                    )
+                self._ref_lookup.retry_stale_references(old_path, new_path, update_stats)
 
-                    # Rescan only the stale source files to refresh line numbers
-                    for stale_file in stale_files:
-                        abs_stale_path = (
-                            os.path.join(self.project_root, stale_file)
-                            if not os.path.isabs(stale_file)
-                            else stale_file
-                        )
-                        if os.path.exists(abs_stale_path):
-                            self._rescan_file_links(abs_stale_path)
-
-                    # Re-query fresh references for stale files only
-                    stale_set = set(stale_files)
-                    unique_retry = self._find_references_multi_format(
-                        old_path, filter_files=stale_set
-                    )
-
-                    if unique_retry:
-                        print(
-                            f"{Fore.CYAN}🔄 Retrying with {len(unique_retry)} "
-                            f"fresh reference(s)..."
-                        )
-                        retry_stats = self.updater.update_references(
-                            unique_retry, old_path, new_path
-                        )
-
-                        # Merge retry results
-                        update_stats["files_updated"] += retry_stats["files_updated"]
-                        update_stats["references_updated"] += retry_stats["references_updated"]
-                        update_stats["errors"] += retry_stats["errors"]
-
-                        # Exit gate: if retry also found stale, log and move on
-                        if retry_stats.get("stale_files"):
-                            self.logger.warning(
-                                "stale_after_retry",
-                                stale_files=retry_stats["stale_files"],
-                            )
-                    else:
-                        self.logger.warning(
-                            "no_fresh_references_after_rescan",
-                            stale_files=stale_files,
-                        )
-
-                # Instead of trying to update the database in place, remove old references
-                # and rescan the affected files to ensure database consistency
-                affected_files = set()
-                for ref in references:
-                    affected_files.add(ref.file_path)
-
-                # Remove old references for all path variations
-                for old_target, new_target in path_updates:
-                    # Remove references to the old target
-                    old_refs = self.link_db.get_references_to_file(old_target)
-                    for ref in old_refs:
-                        affected_files.add(ref.file_path)
-
-                    # Remove from database - thread-safe, anchor-aware removal
-                    self.link_db.remove_targets_by_path(old_target)
-
-                # Rescan all affected files to rebuild database entries
-                for file_path in affected_files:
-                    abs_file_path = (
-                        os.path.join(self.project_root, file_path)
-                        if not os.path.isabs(file_path)
-                        else file_path
-                    )
-                    if os.path.exists(abs_file_path):
-                        # First remove any remaining references from this file
-                        self.link_db.remove_file_links(file_path)
-                        # Then rescan to add updated references
-                        self._rescan_file_links(abs_file_path, remove_existing=False)
+                # Remove old DB entries and rescan affected files
+                # Pass old_path so the moved file is skipped here —
+                # _update_links_within_moved_file handles it below
+                self._ref_lookup.cleanup_after_file_move(
+                    references, old_targets, moved_file_path=old_path
+                )
 
                 # Update statistics
-                self.stats["links_updated"] += update_stats["references_updated"]
-                self.stats["errors"] += update_stats["errors"]
+                self._update_stat("links_updated", update_stats["references_updated"])
+                self._update_stat("errors", update_stats["errors"])
 
                 # Report results
                 if update_stats["files_updated"] > 0:
@@ -394,7 +244,7 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
                 # This method handles both content updates and database updates
                 self._update_links_within_moved_file(old_path, new_path, event.dest_path)
 
-            self.stats["files_moved"] += 1
+            self._update_stat("files_moved")
 
         except Exception as e:
             self.logger.error(
@@ -404,10 +254,14 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
                 error=str(e),
                 error_type=type(e).__name__,
             )
-            self.stats["errors"] += 1
+            self._update_stat("errors")
 
     def _handle_directory_moved(self, event: FileMovedEvent):
-        """Handle directory move - affects all files within."""
+        """Handle directory move - affects all files within.
+
+        Walks the moved directory to find all monitored files, then delegates
+        per-file reference updates to ReferenceLookup.process_directory_file_move().
+        """
         old_dir = self._get_relative_path(event.src_path)
         new_dir = self._get_relative_path(event.dest_path)
 
@@ -428,73 +282,22 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
                         rel_old_path = rel_new_path.replace(new_dir, old_dir, 1)
                         moved_files.append((rel_old_path, rel_new_path))
 
-            # Update each moved file
+            # Process each moved file via ReferenceLookup
             total_references_updated = 0
             for old_file_path, new_file_path in moved_files:
-                # Find references BEFORE updating database
-                references = self.link_db.get_references_to_file(old_file_path)
-
-                # For Python files, also check for module references (without .py extension)
-                if old_file_path.endswith(".py"):
-                    old_module_path = old_file_path[:-3]  # Remove .py extension
-                    new_module_path = new_file_path[:-3]  # Remove .py extension
-                    module_references = self.link_db.get_references_to_file(old_module_path)
-
-                    # Update module references separately
-                    if module_references:
-                        module_update_stats = self.updater.update_references(
-                            module_references, old_module_path, new_module_path
-                        )
-                        total_references_updated += module_update_stats["references_updated"]
-                        self.stats["errors"] += module_update_stats["errors"]
-
-                        # Update database for module references
-                        self.link_db.update_target_path(old_module_path, new_module_path)
-
-                # Update file contents FIRST (while database still has old references)
-                if references:
-                    update_stats = self.updater.update_references(
-                        references, old_file_path, new_file_path
-                    )
-                    total_references_updated += update_stats["references_updated"]
-                    self.stats["errors"] += update_stats["errors"]
-
-                    # Handle stale references: rescan affected files and retry once
-                    stale_files = update_stats.get("stale_files", [])
-                    if stale_files:
-                        for stale_file in stale_files:
-                            abs_stale = (
-                                os.path.join(self.project_root, stale_file)
-                                if not os.path.isabs(stale_file)
-                                else stale_file
-                            )
-                            if os.path.exists(abs_stale):
-                                self._rescan_file_links(abs_stale)
-
-                        retry_refs = self.link_db.get_references_to_file(old_file_path)
-                        stale_set = set(stale_files)
-                        retry_refs = [r for r in retry_refs if r.file_path in stale_set]
-                        if retry_refs:
-                            retry_stats = self.updater.update_references(
-                                retry_refs, old_file_path, new_file_path
-                            )
-                            total_references_updated += retry_stats["references_updated"]
-                            self.stats["errors"] += retry_stats["errors"]
-
-                # Update database AFTER file contents are updated
-                self.link_db.update_target_path(old_file_path, new_file_path)
-
-                # Rescan the file for its own links
-                abs_new_path = os.path.join(self.project_root, new_file_path)
-                self._rescan_moved_file_links(old_file_path, new_file_path, abs_new_path)
+                refs_updated, errors = self._ref_lookup.process_directory_file_move(
+                    old_file_path, new_file_path
+                )
+                total_references_updated += refs_updated
+                self._update_stat("errors", errors)
 
             self.logger.info(
                 "directory_move_completed",
                 total_references_updated=total_references_updated,
                 moved_files_count=len(moved_files),
             )
-            self.stats["links_updated"] += total_references_updated
-            self.stats["files_moved"] += len(moved_files)
+            self._update_stat("links_updated", total_references_updated)
+            self._update_stat("files_moved", len(moved_files))
 
         except Exception as e:
             self.logger.error(
@@ -504,129 +307,30 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
                 error=str(e),
                 error_type=type(e).__name__,
             )
-            self.stats["errors"] += 1
+            self._update_stat("errors")
 
     def _handle_file_deleted(self, event: FileDeletedEvent):
         """Handle file deletion with delayed move detection."""
         deleted_path = self._get_relative_path(event.src_path)
-
-        # Get file info before it's gone
-        file_size = 0
-        try:
-            if os.path.exists(event.src_path):
-                file_size = os.path.getsize(event.src_path)
-        except Exception:
-            pass
-
         self.logger.file_deleted(deleted_path)
-
-        # Buffer this delete event for potential move detection
-        with self.move_detection_lock:
-            self.pending_deletes[deleted_path] = (time.time(), file_size)
-
-        # Schedule delayed processing
-        timer = threading.Timer(
-            self.move_detection_delay, self._process_delayed_delete, [deleted_path]
-        )
-        timer.start()
-
-    def _process_delayed_delete(self, deleted_path: str):
-        """Process a delete event after the move detection delay."""
-        with self.move_detection_lock:
-            if deleted_path not in self.pending_deletes:
-                return  # Already processed as a move
-
-            # Remove from pending deletes
-            del self.pending_deletes[deleted_path]
-
-        # Process as actual deletion
-        try:
-            # Remove from database
-            self.link_db.remove_file_links(deleted_path)
-
-            # Find references to the deleted file (these are now broken)
-            references = self.link_db.get_references_to_file(deleted_path)
-            if references:
-                self.logger.warning(
-                    "broken_references_found",
-                    deleted_file=deleted_path,
-                    broken_references_count=len(references),
-                )
-                # Note: We don't auto-fix broken references to deleted files
-                # This is intentional - user should decide what to do
-                for ref in references:
-                    self.logger.debug(
-                        "broken_reference_detail",
-                        file_path=ref.file_path,
-                        line_number=ref.line_number,
-                        link_text=ref.link_text,
-                    )
-                    print(f"   {Fore.YELLOW}• {ref.file_path}:{ref.line_number} - {ref.link_text}")
-
-            self.stats["files_deleted"] += 1
-
-        except Exception as e:
-            self.logger.error(
-                "file_deletion_error",
-                deleted_path=deleted_path,
-                error=str(e),
-                error_type=type(e).__name__,
-            )
-            self.stats["errors"] += 1
+        self._move_detector.buffer_delete(deleted_path, event.src_path)
 
     def _handle_directory_deleted(self, event: FileDeletedEvent):
-        """Handle directory deletion with batch move detection (Phase 1).
-
-        On Windows, directory moves are reported by watchdog as a directory
-        delete event followed by individual file create events (instead of
-        a DirMovedEvent). This method creates a _PendingDirMove entry that
-        tracks all known files and starts only a max timeout timer. No
-        per-file timers are used — instead, _match_dir_move_file correlates
-        incoming file_created events with this pending entry, and processing
-        is deferred until all files are matched (or a settle/max timer fires).
-        """
+        """Handle directory deletion with batch move detection."""
         deleted_dir = self._get_relative_path(event.src_path)
         self.logger.warning("directory_deleted", deleted_dir=deleted_dir)
-
-        # Get all known files under this directory from the database
-        known_files = self._get_files_under_directory(deleted_dir)
-
-        if known_files:
-            pending = _PendingDirMove(deleted_dir, known_files)
-
-            with self.dir_move_lock:
-                self.pending_dir_moves[deleted_dir] = pending
-
-            # Start only the max timer — no per-file timers, no processing yet
-            pending.max_timer = threading.Timer(
-                self.dir_move_max_timeout,
-                self._process_dir_move_timeout,
-                [deleted_dir],
-            )
-            pending.max_timer.daemon = True
-            pending.max_timer.start()
-
-            print(
-                f"{Fore.CYAN}📂 Buffered {len(known_files)} known file(s) "
-                f"from '{deleted_dir}' for move detection "
-                f"(max wait: {self.dir_move_max_timeout}s)"
-            )
-        else:
-            print(
-                f"{Fore.YELLOW}⚠️ Directory deletion detected with no known "
-                f"files in database. Consider running a full rescan."
-            )
+        self._dir_move_detector.handle_directory_deleted(deleted_dir)
 
     def _handle_file_created(self, event: FileCreatedEvent):
         """Handle file creation with move detection."""
         created_path = self._get_relative_path(event.src_path)
 
         # Check directory moves first (has priority over per-file detection)
-        if self._match_dir_move_file(created_path, event.src_path):
+        if self._dir_move_detector.match_created_file(created_path, event.src_path):
             return
 
         # Check if this might be a per-file move operation
-        potential_move_source = self._detect_potential_move(created_path, event.src_path)
+        potential_move_source = self._move_detector.match_created_file(created_path, event.src_path)
 
         if potential_move_source:
             # Handle as move operation
@@ -639,8 +343,8 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
             self.logger.file_created(created_path)
             try:
                 # Scan the new file for links
-                self._rescan_file_links(event.src_path)
-                self.stats["files_created"] += 1
+                self._ref_lookup.rescan_file_links(event.src_path)
+                self._update_stat("files_created")
             except Exception as e:
                 self.logger.error(
                     "file_creation_error",
@@ -648,39 +352,7 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
                     error=str(e),
                     error_type=type(e).__name__,
                 )
-                self.stats["errors"] += 1
-
-    def _detect_potential_move(self, created_path: str, created_abs_path: str) -> str:
-        """Detect if a file creation is actually part of a move operation."""
-        with self.move_detection_lock:
-            if not self.pending_deletes:
-                return None
-
-            # Get file size of created file
-            try:
-                created_size = os.path.getsize(created_abs_path)
-            except Exception:
-                return None
-
-            # Look for a recently deleted file with same name and size
-            created_filename = os.path.basename(created_path)
-            current_time = time.time()
-
-            for deleted_path, (delete_time, delete_size) in list(self.pending_deletes.items()):
-                # Check if delete was recent enough
-                if current_time - delete_time > self.move_detection_delay:
-                    continue
-
-                # Check if filename matches
-                deleted_filename = os.path.basename(deleted_path)
-                if created_filename == deleted_filename:
-                    # Check if size matches (if we have size info)
-                    if delete_size == 0 or created_size == delete_size:
-                        # This looks like a move!
-                        del self.pending_deletes[deleted_path]
-                        return deleted_path
-
-            return None
+                self._update_stat("errors")
 
     def _handle_detected_move(self, old_path: str, new_path: str):
         """Handle a detected move operation."""
@@ -702,473 +374,16 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
                 error=str(e),
                 error_type=type(e).__name__,
             )
-            self.stats["errors"] += 1
+            self._update_stat("errors")
 
-    def _rescan_file_links(self, file_path: str, remove_existing: bool = True):
-        """Rescan a file and update the link database."""
-        try:
-            rel_path = self._get_relative_path(file_path)
-
-            # Remove existing links from this file (if requested)
-            if remove_existing:
-                self.link_db.remove_file_links(rel_path)
-
-            # Parse and add new links
-            references = self.parser.parse_file(file_path)
-            for ref in references:
-                # Update the reference to use relative path
-                ref.file_path = rel_path
-                self.link_db.add_link(ref)
-
-            if references:
-                print(f"{Fore.GREEN}📊 Scanned {len(references)} link(s) in {rel_path}")
-
-        except Exception as e:
-            self.logger.warning(
-                "rescan_file_error",
-                file_path=file_path,
-                error=str(e),
-                error_type=type(e).__name__,
-            )
-
-    def _rescan_moved_file_links(self, old_path: str, new_path: str, abs_new_path: str):
-        """Rescan a moved file and properly update the link database."""
-        try:
-            # Remove existing links using the OLD path (since that's what's in the database)
-            self.link_db.remove_file_links(old_path)
-
-            # Parse and add new links with the NEW path
-            references = self.parser.parse_file(abs_new_path)
-            for ref in references:
-                # Update the reference to use the new relative path
-                ref.file_path = new_path
-                self.link_db.add_link(ref)
-
-            if references:
-                print(f"{Fore.GREEN}📊 Scanned {len(references)} link(s) in {new_path}")
-
-        except Exception as e:
-            self.logger.warning(
-                "rescan_moved_file_error",
-                file_path=abs_new_path,
-                error=str(e),
-                error_type=type(e).__name__,
-            )
-
-    def _update_links_within_moved_file(
-        self, old_file_path: str, new_file_path: str, abs_new_path: str
-    ):
-        """Update relative links within a moved file to reflect its new location."""
-        try:
-            print(f"{Fore.CYAN}🔧 Updating links within moved file: {new_file_path}")
-
-            # Parse the file to get all its links
-            references = self.parser.parse_file(abs_new_path)
-            if not references:
-                return
-
-            # Filter for relative links that might need updating
-            relative_links = []
-            for ref in references:
-                # Skip absolute paths and URLs
-                if (
-                    ref.link_target.startswith("http://")
-                    or ref.link_target.startswith("https://")
-                    or ref.link_target.startswith("/")
-                    or (len(ref.link_target) > 1 and ref.link_target[1] == ":")
-                ):  # Windows drive letter
-                    continue
-
-                # This is a relative link that might need updating
-                relative_links.append(ref)
-
-            if not relative_links:
-                print(f"{Fore.CYAN}   No relative links found to update")
-                return
-
-            print(f"{Fore.CYAN}   Found {len(relative_links)} relative link(s) to check")
-
-            # Calculate the directory change
-            old_dir = os.path.dirname(old_file_path)
-            new_dir = os.path.dirname(new_file_path)
-
-            if old_dir == new_dir:
-                print(f"{Fore.CYAN}   File moved within same directory, no link updates needed")
-                return
-
-            # Read the file content
-            with open(abs_new_path, "r", encoding="utf-8") as f:
-                content = f.read()
-
-            original_content = content
-
-            # Update each relative link by direct string replacement
-            links_updated = 0
-            for ref in relative_links:
-                # Calculate what the link should be from the new location
-                new_target = self._calculate_updated_relative_path(
-                    ref.link_target, old_file_path, new_file_path
-                )
-
-                if new_target != ref.link_target:
-                    # For markdown links, replace the target in parentheses
-                    if ref.link_type == "markdown":
-                        # Replace [text](old_target) with [text](new_target)
-                        # Escape special regex characters in the old target
-                        escaped_old = re.escape(ref.link_target)
-                        pattern = rf"(\[[^\]]*\]\()({escaped_old})(\))"
-                        replacement = rf"\1{new_target}\3"
-                        new_content = re.sub(pattern, replacement, content)
-
-                        if new_content != content:
-                            content = new_content
-                            links_updated += 1
-                            print(f"{Fore.GREEN}   ✓ Updated: {ref.link_target} → {new_target}")
-                        else:
-                            print(f"{Fore.YELLOW}   ⚠ Pattern not found for: {ref.link_target}")
-                    else:
-                        # For other link types, try simple replacement
-                        if ref.link_target in content:
-                            content = content.replace(ref.link_target, new_target)
-                            links_updated += 1
-                            print(f"{Fore.GREEN}   ✓ Updated: {ref.link_target} → {new_target}")
-                        else:
-                            print(
-                                f"{Fore.YELLOW}   ⚠ Target not found in content: {ref.link_target}"
-                            )
-                else:
-                    print(f"{Fore.CYAN}   = No change needed: {ref.link_target}")
-
-            # Write the updated content back to the file if there were changes
-            if links_updated > 0 and content != original_content:
-                # Create backup if enabled
-                if self.updater.backup_enabled:
-                    backup_path = f"{abs_new_path}.linkwatcher.bak"
-                    try:
-                        shutil.copy2(abs_new_path, backup_path)
-                    except Exception as e:
-                        self.logger.warning(
-                            "backup_creation_error",
-                            file_path=abs_new_path,
-                            error=str(e),
-                        )
-
-                # Write the updated content
-                with open(abs_new_path, "w", encoding="utf-8") as f:
-                    f.write(content)
-
-            # Always update the database to reflect the new file path
-            # Remove old entries from the old path
-            self.link_db.remove_file_links(old_file_path)
-
-            # Re-scan the file to update the database with the new path
-            updated_refs = self.parser.parse_file(abs_new_path)
-            for updated_ref in updated_refs:
-                updated_ref.file_path = new_file_path
-                self.link_db.add_link(updated_ref)
-
-            if links_updated > 0:
-                print(f"{Fore.GREEN}✓ Updated {links_updated} relative link(s) in moved file")
-                self.stats["links_updated"] += links_updated
-            else:
-                print(f"{Fore.CYAN}   No links needed updating")
-
-        except Exception as e:
-            self.logger.error(
-                "update_links_within_moved_file_error",
-                old_path=old_file_path,
-                new_path=new_file_path,
-                error=str(e),
-                error_type=type(e).__name__,
-            )
-            self.stats["errors"] += 1
-
-    def _calculate_updated_relative_path(
-        self, original_target: str, old_file_path: str, new_file_path: str
-    ) -> str:
-        """Calculate how a relative path should be updated when its containing file is moved."""
-        try:
-            # Get the directories
-            old_dir = os.path.dirname(old_file_path)
-            new_dir = os.path.dirname(new_file_path)
-
-            # Convert the original relative target to an absolute path from the old location
-            if old_dir:
-                old_absolute_target = os.path.join(old_dir, original_target)
-            else:
-                old_absolute_target = original_target
-
-            # Normalize the path
-            old_absolute_target = os.path.normpath(old_absolute_target).replace("\\", "/")
-
-            # Calculate the new relative path from the new location
-            if new_dir:
-                # Use os.path.relpath to calculate the relative path
-                new_relative_target = os.path.relpath(old_absolute_target, new_dir)
-                # Normalize path separators to forward slashes
-                new_relative_target = new_relative_target.replace("\\", "/")
-            else:
-                new_relative_target = old_absolute_target
-            return new_relative_target
-
-        except Exception as e:
-            self.logger.warning(
-                "path_calculation_error",
-                original_target=original_target,
-                error=str(e),
-            )
-            return original_target
-
-    def _get_files_under_directory(self, dir_path: str) -> set:
-        """Get all files known to the database under a given directory path.
-
-        Checks both link targets and source files to find all files
-        that are tracked in the database under the specified directory.
-
-        Link targets in the DB are stored as they appear in the source file
-        (relative to the source file's location), so we must resolve each
-        target to a project-root-relative path before comparing with dir_path.
-        """
-        dir_prefix = normalize_path(dir_path.rstrip("/\\")) + "/"
-        known_files = set()
-
-        # Check link targets via thread-safe snapshot
-        all_targets = self.link_db.get_all_targets_with_references()
-        for target_path, references in all_targets.items():
-            base_target = target_path.split("#", 1)[0] if "#" in target_path else target_path
-            normalized = normalize_path(base_target)
-
-            # Direct prefix match (for already project-root-relative targets)
-            if normalized.startswith(dir_prefix):
-                known_files.add(normalized)
-                continue
-
-            # Resolve relative targets using source file paths
-            for ref in references:
-                ref_dir = os.path.dirname(normalize_path(ref.file_path))
-                try:
-                    resolved = os.path.normpath(os.path.join(ref_dir, normalized)).replace(
-                        "\\", "/"
-                    )
-                    if resolved.startswith(dir_prefix):
-                        known_files.add(resolved)
-                        break  # One match is enough for this target
-                except Exception:
-                    pass
-
-        # Check source files (files that contain links)
-        for file_path in self.link_db.get_source_files():
-            normalized = normalize_path(file_path)
-            if normalized.startswith(dir_prefix):
-                known_files.add(normalized)
-
-        return known_files
-
-    # --- Directory move detection (Phase 2 & 3) ---
-
-    def _match_dir_move_file(self, created_path, created_abs_path):
-        """Check if a created file matches a pending directory move (Phase 2).
-
-        Returns True if the file was claimed by a directory move, False otherwise.
-        """
-        if not self.pending_dir_moves:
-            return False
-
-        created_normalized = normalize_path(created_path)
-        created_basename = os.path.basename(created_path)
-
-        with self.dir_move_lock:
-            for deleted_dir, pending in list(self.pending_dir_moves.items()):
-                if pending.new_dir is not None:
-                    # We already know the new directory — check by prefix
-                    expected_prefix = normalize_path(pending.new_dir) + "/"
-                    if created_normalized.startswith(expected_prefix):
-                        rel_within_new = created_normalized[len(expected_prefix) :]
-                        expected_old = pending.dir_prefix + rel_within_new
-                        if expected_old in pending.unmatched:
-                            pending.unmatched.discard(expected_old)
-                            pending.matched_count += 1
-                            self._reset_dir_move_settle_timer(deleted_dir, pending)
-
-                            print(
-                                f"{Fore.CYAN}  📄 Matched {pending.matched_count}"
-                                f"/{pending.total_expected}: "
-                                f"{os.path.basename(created_path)}"
-                            )
-
-                            if not pending.unmatched:
-                                print(
-                                    f"{Fore.GREEN}✓ All {pending.matched_count} "
-                                    f"files matched — processing directory move"
-                                )
-                                self._trigger_dir_move_processing(deleted_dir, pending)
-                            return True
-                else:
-                    # First match — infer new_dir from this file
-                    for known_file in list(pending.unmatched):
-                        if os.path.basename(known_file) != created_basename:
-                            continue
-
-                        # Compute relative path within old directory
-                        rel_within_dir = known_file[len(pending.dir_prefix) :]
-
-                        # Check if created path ends with this relative path
-                        if rel_within_dir == created_normalized:
-                            # File was at directory root, same name
-                            new_dir = ""
-                        elif created_normalized.endswith("/" + rel_within_dir):
-                            new_dir = created_normalized[: -(len(rel_within_dir) + 1)]
-                        elif "/" not in rel_within_dir and created_normalized.endswith(
-                            rel_within_dir
-                        ):
-                            # Simple filename at dir root
-                            new_dir = created_normalized[: -len(rel_within_dir)].rstrip("/")
-                        else:
-                            continue
-
-                        # Sanity: new_dir must differ from old dir
-                        if normalize_path(new_dir) == normalize_path(deleted_dir):
-                            continue
-
-                        # Match found — set new_dir
-                        pending.new_dir = new_dir
-                        pending.unmatched.discard(known_file)
-                        pending.matched_count = 1
-                        self._reset_dir_move_settle_timer(deleted_dir, pending)
-
-                        self.logger.info(
-                            "dir_move_detected",
-                            old_dir=deleted_dir,
-                            new_dir=new_dir,
-                            first_match=created_path,
-                            total_expected=pending.total_expected,
-                        )
-
-                        if not pending.unmatched:
-                            print(
-                                f"{Fore.GREEN}✓ All files matched " f"— processing directory move"
-                            )
-                            self._trigger_dir_move_processing(deleted_dir, pending)
-                        return True
-
-        return False
-
-    def _reset_dir_move_settle_timer(self, deleted_dir, pending):
-        """Reset the settle timer for a directory move."""
-        if pending.settle_timer is not None:
-            pending.settle_timer.cancel()
-        pending.settle_timer = threading.Timer(
-            self.dir_move_settle_delay,
-            self._process_dir_move_settled,
-            [deleted_dir],
-        )
-        pending.settle_timer.daemon = True
-        pending.settle_timer.start()
-
-    def _trigger_dir_move_processing(self, deleted_dir, pending):
-        """Cancel timers and schedule directory move processing.
-
-        Must be called with self.dir_move_lock held.
-        """
-        if pending.settle_timer is not None:
-            pending.settle_timer.cancel()
-        if pending.max_timer is not None:
-            pending.max_timer.cancel()
-
-        if deleted_dir in self.pending_dir_moves:
-            del self.pending_dir_moves[deleted_dir]
-
-        # Process on a separate thread to not block the watchdog event thread
-        t = threading.Thread(
-            target=self._process_dir_move,
-            args=(pending,),
-            daemon=True,
-        )
-        t.start()
-
-    def _process_dir_move_settled(self, deleted_dir):
-        """Called when settle timer fires — process with whatever we have."""
-        with self.dir_move_lock:
-            pending = self.pending_dir_moves.get(deleted_dir)
-            if pending is None:
-                return  # Already processed
-
-            if pending.max_timer is not None:
-                pending.max_timer.cancel()
-
-            del self.pending_dir_moves[deleted_dir]
-
-        self.logger.info(
-            "dir_move_settle_timer_fired",
-            old_dir=deleted_dir,
-            new_dir=pending.new_dir,
-            matched=pending.matched_count,
-            unmatched=len(pending.unmatched),
-        )
-        self._process_dir_move(pending)
-
-    def _process_dir_move_timeout(self, deleted_dir):
-        """Called when max timer fires — process or treat as true delete."""
-        with self.dir_move_lock:
-            pending = self.pending_dir_moves.get(deleted_dir)
-            if pending is None:
-                return  # Already processed
-
-            if pending.settle_timer is not None:
-                pending.settle_timer.cancel()
-
-            del self.pending_dir_moves[deleted_dir]
-
-        if pending.new_dir is not None:
-            # At least one match — process as partial directory move
-            self.logger.warning(
-                "dir_move_max_timeout",
-                old_dir=deleted_dir,
-                new_dir=pending.new_dir,
-                matched=pending.matched_count,
-                unmatched=len(pending.unmatched),
-            )
-            self._process_dir_move(pending)
-        else:
-            # No matches at all — true directory deletion
-            self.logger.info(
-                "directory_true_delete",
-                deleted_dir=deleted_dir,
-                files_count=pending.total_expected,
-            )
-            self._process_dir_true_delete(pending)
-
-    def _process_dir_move(self, pending):
-        """Process a detected directory move (Phase 3).
-
-        Creates a synthetic DirMovedEvent and delegates to the existing
-        _handle_directory_moved method which walks the new directory,
-        finds all references, and updates them.
-        """
-        old_dir = pending.deleted_dir
-        new_dir = pending.new_dir
-
-        self.logger.info(
-            "dir_move_processing",
-            old_dir=old_dir,
-            new_dir=new_dir,
-            matched=pending.matched_count,
-            unmatched=len(pending.unmatched),
-            total=pending.total_expected,
-        )
-
-        # Resolve any unmatched files via filesystem verification
-        if pending.unmatched:
-            self._resolve_unmatched_files(pending)
-
-        # Create a synthetic move event and reuse existing logic
+    def _handle_confirmed_dir_move(self, old_dir, new_dir):
+        """Callback from DirectoryMoveDetector for confirmed directory moves."""
         project_root_str = str(self.project_root)
         synthetic = _SyntheticMoveEvent(
             os.path.join(project_root_str, old_dir),
             os.path.join(project_root_str, new_dir),
             is_directory=True,
         )
-
         try:
             self._handle_directory_moved(synthetic)
         except Exception as e:
@@ -1179,47 +394,31 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
                 error=str(e),
                 error_type=type(e).__name__,
             )
-            self.stats["errors"] += 1
+            self._update_stat("errors")
 
-    def _resolve_unmatched_files(self, pending):
-        """Verify unmatched files against the filesystem."""
-        self.logger.info(
-            "resolving_unmatched_files",
-            count=len(pending.unmatched),
-            old_dir=pending.deleted_dir,
-            new_dir=pending.new_dir,
+    def _update_links_within_moved_file(
+        self, old_file_path: str, new_file_path: str, abs_new_path: str
+    ):
+        """Update relative links within a moved file to reflect its new location.
+
+        Delegates to ReferenceLookup.update_links_within_moved_file() and
+        updates handler statistics based on the result.
+        """
+        links_updated = self._ref_lookup.update_links_within_moved_file(
+            old_file_path,
+            new_file_path,
+            abs_new_path,
+            backup_enabled=self.updater.backup_enabled,
         )
-
-        for old_file in list(pending.unmatched):
-            rel_within_dir = old_file[len(pending.dir_prefix) :]
-            new_file_path = os.path.join(str(self.project_root), pending.new_dir, rel_within_dir)
-            old_file_path = os.path.join(str(self.project_root), old_file)
-
-            if os.path.exists(new_file_path):
-                self.logger.info(
-                    "unmatched_file_found_at_new_location",
-                    old_path=old_file,
-                    new_path=f"{pending.new_dir}/{rel_within_dir}",
-                )
-            elif os.path.exists(old_file_path):
-                self.logger.warning(
-                    "unmatched_file_still_at_old_location",
-                    old_path=old_file,
-                )
-            else:
-                self.logger.warning(
-                    "unmatched_file_truly_deleted",
-                    old_path=old_file,
-                )
-                self._process_true_file_delete(old_file)
-
-    def _process_dir_true_delete(self, pending):
-        """Process a directory that was truly deleted (no move detected)."""
-        for file_path in pending.known_files:
-            self._process_true_file_delete(file_path)
+        if links_updated:
+            self._update_stat("links_updated", links_updated)
 
     def _process_true_file_delete(self, file_path):
-        """Process a single file as a true deletion."""
+        """Process a single file as a true deletion.
+
+        Used as callback by both MoveDetector (per-file deletes) and
+        DirectoryMoveDetector (unmatched files in directory deletes).
+        """
         try:
             self.link_db.remove_file_links(file_path)
 
@@ -1231,12 +430,17 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
                     broken_references_count=len(references),
                 )
                 for ref in references:
+                    self.logger.debug(
+                        "broken_reference_detail",
+                        file_path=ref.file_path,
+                        line_number=ref.line_number,
+                        link_text=ref.link_text,
+                    )
                     print(
-                        f"     {Fore.YELLOW}• {ref.file_path}:"
-                        f"{ref.line_number} - {ref.link_text}"
+                        f"   {Fore.YELLOW}• {ref.file_path}:" f"{ref.line_number} - {ref.link_text}"
                     )
 
-            self.stats["files_deleted"] += 1
+            self._update_stat("files_deleted")
         except Exception as e:
             self.logger.error(
                 "file_deletion_error",
@@ -1244,7 +448,7 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
                 error=str(e),
                 error_type=type(e).__name__,
             )
-            self.stats["errors"] += 1
+            self._update_stat("errors")
 
     def _should_monitor_file(self, file_path: str) -> bool:
         """Check if a file should be monitored."""
@@ -1254,11 +458,18 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
         """Convert absolute path to relative path from project root."""
         return get_relative_path(abs_path, str(self.project_root))
 
+    def _update_stat(self, key: str, delta: int = 1):
+        """Thread-safe stats increment (PD-BUG-026)."""
+        with self._stats_lock:
+            self.stats[key] += delta
+
     def get_stats(self) -> dict:
         """Get handler statistics."""
-        return self.stats.copy()
+        with self._stats_lock:
+            return self.stats.copy()
 
     def reset_stats(self):
         """Reset statistics counters."""
-        for key in self.stats:
-            self.stats[key] = 0
+        with self._stats_lock:
+            for key in self.stats:
+                self.stats[key] = 0

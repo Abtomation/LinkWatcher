@@ -2,9 +2,9 @@
 id: PF-TSK-007
 type: Process Framework
 category: Task Definition
-version: 1.7
+version: 1.9
 created: 2023-06-15
-updated: 2026-03-02
+updated: 2026-03-03
 task_type: Discrete
 ---
 
@@ -94,6 +94,7 @@ Diagnose, fix, and verify solutions for reported bugs or issues in the applicati
     - **Test strategy**:
       - Prefer unit tests for isolated logic bugs; add integration tests when the bug involves component interaction
       - If the root cause is a pattern (e.g., off-by-one, null handling), add 1-2 boundary/edge case tests beyond the reproduction test
+      - **Use strong assertions**: Assert the old/buggy value is **NOT** present (negative assertion), not just that the new/correct value **IS** present (positive assertion). Overly permissive tests that only check for the expected value can pass even when the bug persists alongside the fix.
       - Keep regression tests focused on the specific fix — note pre-existing test gaps for a future test audit rather than expanding scope here
     - **Adding to an existing test file** (most common): Find the relevant test file in the project's test directory (see `paths.tests` in `project-config.json`). Add regression test(s) following the existing patterns in the file. After adding, update the `testCasesCount` for the file in [Test Registry](/test/test-registry.yaml). If the file is not yet in the registry, add a new entry with the next available `PD-TST` ID and bump `nextAvailable` in [ID Registry](/doc/id-registry.json).
     - **Creating a new test file** (rare): Use [`New-TestFile.ps1`](../../scripts/file-creation/New-TestFile.ps1) which auto-updates test-registry.yaml, test-implementation-tracking.md, and feature-tracking.md:
@@ -110,7 +111,11 @@ Diagnose, fix, and verify solutions for reported bugs or issues in the applicati
 17. Check for similar issues in other parts of the codebase
     - If the root cause is a shared pattern (e.g., regex, utility function), check **all** components that use the same pattern
     - Prioritize sibling components (same role/type, e.g., all parsers, all handlers) as they most likely share the same code pattern
-18. Create a manual validation test in the project's manual test directory that allows the human partner to independently verify the fix outside of the automated test suite (e.g., a standalone script, a sample input file, or a step-by-step reproduction procedure)
+18. **Create a manual validation test** in the project's manual test directory — write it **before implementing the fix** so the bug is observable first:
+    - The test must set up a scenario the human partner can **reproduce via UI or filesystem actions** — not via programmatic API calls
+    - Print or display **before/after state** so the human can compare the result with and without the fix
+    - Example: a script that creates a temp environment with the conditions that trigger the bug, prints the current (buggy) state, then instructs the human to apply the trigger action and observe the result
+    - *Skip this step for bugs with no observable behavior* (e.g., dead code removal, internal refactoring)
 19. **Session boundary** (multi-session only): If ending a session before the fix is complete, update the Session Log in the bug fix state file with completed work and next-session plan. The next session resumes from this state file.
 20. Update bug status from 🟡 In Progress to 🧪 Fixed
     - **Automated Option**: Use [`Update-BugStatus.ps1`](../../scripts/Update-BugStatus.ps1) script:

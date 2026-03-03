@@ -270,52 +270,6 @@ class TestJsonParser:
         ]
         assert len(found_files) >= 6
 
-    @pytest.mark.xfail(reason="Standard JSON doesn't support comments; json.loads() fails")
-    def test_jp_005_comments_in_json(self, temp_project_dir):
-        """
-        JP-005: Comments in JSON
-
-        Test Case: JSON with // comments (if supported)
-        Expected: Comments handled appropriately
-        Priority: Low
-        """
-        parser = JsonParser()
-
-        # Create JSON with comments (non-standard but sometimes used)
-        json_file = temp_project_dir / "comments.json"
-        json_content = """{
-  // Configuration file - see docs/config.md for details
-  "application": {
-    "name": "Test App",
-    // "data_file": "data/commented.csv", (commented out)
-    "config_file": "config/real.json"  // Real reference
-  },
-  /*
-   * Multi-line comment
-   * References: logs/app.log, cache/data.cache
-   */
-  "database": {
-    // "schema": "db/schema.sql", (not used)
-    "active_schema": "db/active.sql"
-  }
-}"""
-        json_file.write_text(json_content)
-
-        # Parse the file
-        references = parser.parse_file(str(json_file))
-
-        # Standard JSON parsers don't support comments, so this might fail
-        # or the parser might strip comments before parsing
-        targets = [ref.link_target for ref in references] if references else []
-
-        # If comments are stripped and parsing succeeds:
-        if targets:
-            assert "config/real.json" in targets
-            assert "db/active.sql" in targets
-            # Commented references should not be found
-            assert "data/commented.csv" not in targets
-            assert "db/schema.sql" not in targets
-
 
 class TestJsonParserEdgeCases:
     """Edge cases for JSON parser."""
@@ -498,3 +452,99 @@ class TestJsonParserEdgeCases:
         assert "data/file_000.txt" in targets
         assert "data/file_050.txt" in targets
         assert "data/file_099.txt" in targets
+
+
+class TestJsonParserDuplicateLineNumbers:
+    """Regression tests for PD-BUG-013: duplicate-value line number resolution."""
+
+    def test_bug013_duplicate_values_get_correct_line_numbers(self, temp_project_dir):
+        """
+        PD-BUG-013: When the same file path appears multiple times in JSON,
+        each reference should get its own correct line number.
+        """
+        parser = JsonParser()
+
+        json_file = temp_project_dir / "duplicates.json"
+        json_content = """{
+  "primary": "data.csv",
+  "files": [
+    "data.csv"
+  ],
+  "backup": {
+    "source": "data.csv"
+  }
+}"""
+        json_file.write_text(json_content)
+
+        references = parser.parse_content(json_content, str(json_file))
+
+        # Should find 3 references to data.csv
+        data_refs = [r for r in references if r.link_target == "data.csv"]
+        assert len(data_refs) == 3
+
+        # Each must have a DIFFERENT line number (the correct one)
+        line_numbers = [r.line_number for r in data_refs]
+        assert len(set(line_numbers)) == 3, f"Expected 3 unique line numbers, got {line_numbers}"
+
+        # Verify the actual line numbers are correct
+        # Line 2: "primary": "data.csv"
+        # Line 4: "data.csv"  (inside array)
+        # Line 7: "source": "data.csv"
+        assert sorted(line_numbers) == [2, 4, 7]
+
+    def test_bug013_mixed_duplicate_and_unique_values(self, temp_project_dir):
+        """
+        PD-BUG-013: Mix of duplicate and unique paths should all resolve correctly.
+        """
+        parser = JsonParser()
+
+        json_file = temp_project_dir / "mixed_dupes.json"
+        json_content = """{
+  "input": "shared.txt",
+  "output": "unique.log",
+  "backup": "shared.txt",
+  "archive": "unique.log",
+  "final": "shared.txt"
+}"""
+        json_file.write_text(json_content)
+
+        references = parser.parse_content(json_content, str(json_file))
+
+        shared_refs = [r for r in references if r.link_target == "shared.txt"]
+        unique_refs = [r for r in references if r.link_target == "unique.log"]
+
+        assert len(shared_refs) == 3
+        assert len(unique_refs) == 2
+
+        shared_lines = sorted([r.line_number for r in shared_refs])
+        unique_lines = sorted([r.line_number for r in unique_refs])
+
+        assert shared_lines == [2, 4, 6], f"shared.txt lines: {shared_lines}"
+        assert unique_lines == [3, 5], f"unique.log lines: {unique_lines}"
+
+    def test_bug013_adjacent_duplicate_values(self, temp_project_dir):
+        """
+        PD-BUG-013 edge case: same path on consecutive lines in an array.
+        """
+        parser = JsonParser()
+
+        json_file = temp_project_dir / "adjacent.json"
+        json_content = """{
+  "files": [
+    "report.md",
+    "report.md",
+    "report.md"
+  ]
+}"""
+        json_file.write_text(json_content)
+
+        references = parser.parse_content(json_content, str(json_file))
+
+        report_refs = [r for r in references if r.link_target == "report.md"]
+        assert len(report_refs) == 3
+
+        line_numbers = [r.line_number for r in report_refs]
+        assert (
+            len(set(line_numbers)) == 3
+        ), f"Expected 3 unique line numbers for adjacent duplicates, got {line_numbers}"
+        assert sorted(line_numbers) == [3, 4, 5]

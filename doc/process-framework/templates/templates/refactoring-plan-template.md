@@ -2,9 +2,9 @@
 id: PF-TEM-029
 type: Process Framework
 category: Refactoring Plan
-version: 1.0
+version: 1.1
 created: 2025-07-21
-updated: 2025-07-21
+updated: 2026-03-03
 refactoring_scope: [Refactoring Scope]
 target_area: [Target Area]
 priority: [Priority Level]
@@ -18,7 +18,7 @@ priority: [Priority Level]
 - **Created**: [Creation Date]
 - **Author**: [Author]
 - **Status**: Planning
-
+[Debt Item Line]
 ## Refactoring Scope
 <!-- Detailed description of what will be refactored and why -->
 
@@ -53,6 +53,7 @@ priority: [Priority Level]
 <!-- Identify what depends on the code being refactored -->
 - **Internal Dependencies**: [List internal components that depend on this code]
 - **External Dependencies**: [List external systems or APIs that might be affected]
+  <!-- Conditional: For internal-only refactorings with no external consumers, write "None" or remove this line -->
 - **Risk Assessment**: [High/Medium/Low] - [Brief risk description]
 
 ## Refactoring Strategy
@@ -102,6 +103,7 @@ priority: [Priority Level]
 - **Complexity Reduction**: Target [X]% reduction in complexity score
 - **Maintainability**: Target [X]% improvement in maintainability index
 - **Performance**: [Expected performance improvements, if any]
+  <!-- Conditional: Remove or mark N/A when the refactoring does not target performance -->
 - **Technical Debt**: Target [X]% reduction in technical debt items
 
 ### Functional Requirements

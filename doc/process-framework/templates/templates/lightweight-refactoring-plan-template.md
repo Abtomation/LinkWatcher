@@ -25,7 +25,7 @@ priority: [Priority Level]
 - **Created**: [Creation Date]
 - **Author**: [Author]
 - **Status**: Planning
-- **Mode**: Lightweight (≤15 min effort, single file, no architectural impact)
+[Debt Item Line]- **Mode**: Lightweight (≤15 min effort, single file, no architectural impact)
 
 ## Item 1: [Debt Item ID] — [Brief Description]
 

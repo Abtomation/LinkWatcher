@@ -207,7 +207,7 @@ class LoggingConfigManager:
             return
 
         try:
-            with open(self.config_file, "r") as f:
+            with open(self.config_file, "r", encoding="utf-8") as f:
                 if self.config_file.suffix.lower() == ".json":
                     config = json.load(f)
                 else:
@@ -333,25 +333,6 @@ class LoggingConfigManager:
         """Get current logging metrics."""
         return self.metrics.get_metrics()
 
-    def export_logs(
-        self,
-        output_file: Union[str, Path],
-        start_time: Optional[datetime] = None,
-        end_time: Optional[datetime] = None,
-        filters: Optional[Dict[str, Any]] = None,
-    ) -> int:
-        """Export logs to file with optional filtering."""
-        # This would require access to log files or a log buffer
-        # For now, return a placeholder implementation
-        self.logger.info(
-            "log_export_requested",
-            output_file=str(output_file),
-            start_time=start_time,
-            end_time=end_time,
-            filters=filters,
-        )
-        return 0
-
     def create_debug_snapshot(self) -> Dict[str, Any]:
         """Create a debug snapshot with current state."""
         return {
@@ -380,6 +361,16 @@ def get_config_manager() -> LoggingConfigManager:
     if _config_manager is None:
         _config_manager = LoggingConfigManager()
     return _config_manager
+
+
+def reset_config_manager():
+    """Reset the global config manager instance.
+
+    Intended for test isolation — avoids tests reaching into private
+    module state (``_config_manager = None``).
+    """
+    global _config_manager
+    _config_manager = None
 
 
 def setup_advanced_logging(

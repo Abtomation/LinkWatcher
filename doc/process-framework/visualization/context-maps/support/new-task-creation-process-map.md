@@ -88,8 +88,8 @@ graph TD
 - [Temporary Task State Creation Guide](../../../guides/guides/temp-state-tracking-customization-guide.md) - Multi-session implementation tracking
 - [AI Tasks System](../../../../../ai-tasks.md) - Main task registry and categorization
 - [New-Task.ps1](../../../scripts/file-creation/New-Task.ps1) - Script for creating task definitions
-- [Documentation Map](../../../../process-framework/documentation-map.md) - Central documentation registry
-- [Process Improvement Tracking](../../../../process-framework/state-tracking/permanent/process-improvement-tracking.md) - Infrastructure completion tracking
+- [Documentation Map](../../../documentation-map.md) - Central documentation registry
+- [Process Improvement Tracking](../../../state-tracking/permanent/process-improvement-tracking.md) - Infrastructure completion tracking
 
 ---
 

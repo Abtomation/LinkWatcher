@@ -66,7 +66,7 @@
         "temporary": "doc/process-framework/state-tracking/temporary",
         "default": "permanent"
       },
-      "nextAvailable": 51
+      "nextAvailable": 52
     },
     "PF-DOC": {
       "description": "Process Framework - Documentation",
@@ -129,14 +129,14 @@
       "nextAvailable": 55
     },
     "PF-IMP": {
-      "description": "Process Framework - Improvements",
+      "description": "Process Framework - Improvement Opportunities",
       "category": "Process Framework",
-      "type": "Improvement",
+      "type": "Improvement Opportunity",
       "directories": {
-        "main": "doc/process-framework/improvement",
-        "default": "main"
+        "permanent": "doc/process-framework/state-tracking/permanent",
+        "default": "permanent"
       },
-      "nextAvailable": 4
+      "nextAvailable": 84
     },
     "PF-ASS": {
       "description": "Process Framework - Tier Assessments",
@@ -364,7 +364,7 @@
         "forms": "doc/process-framework/feedback/feedback-forms",
         "default": "forms"
       },
-      "nextAvailable": 247
+      "nextAvailable": 306
     },
     "ART-REV": {
       "description": "Review Artifacts",
@@ -374,7 +374,7 @@
         "reviews": "doc/process-framework/feedback/reviews",
         "default": "reviews"
       },
-      "nextAvailable": 6
+      "nextAvailable": 7
     },
     "PF-TSP": {
       "description": "Process Framework - Test Specifications",
@@ -428,7 +428,7 @@
         "reports": "doc/process-framework/validation/reports",
         "default": "reports"
       },
-      "nextAvailable": 35
+      "nextAvailable": 41
     },
     "PD-SCH": {
       "description": "Product Documentation - Database Schema Design",
@@ -470,7 +470,7 @@
         "plans": "doc/process-framework/refactoring/plans",
         "default": "plans"
       },
-      "nextAvailable": 28
+      "nextAvailable": 55
     },
     "PF-TDA": {
       "description": "Process Framework - Technical Debt Assessments",
@@ -510,7 +510,7 @@
         "permanent": "doc/process-framework/state-tracking/permanent",
         "default": "permanent"
       },
-      "nextAvailable": 27
+      "nextAvailable": 28
     }
   }
 }

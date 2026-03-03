@@ -6,6 +6,7 @@ of the LinkMaintenanceHandler to ensure move operations are correctly
 detected from paired delete+create events and that references are updated.
 """
 
+import threading
 import time
 from pathlib import Path
 
@@ -67,22 +68,22 @@ class TestMoveDetectionLogic:
         assert len(refs) >= 1, f"Expected at least 1 reference to file1.txt, got {len(refs)}"
 
     def test_move_detection_identifies_paired_delete_create(self, project_setup):
-        """Test that _detect_potential_move correctly pairs a delete with a create."""
+        """Test that MoveDetector correctly pairs a delete with a create."""
         handler = project_setup["handler"]
         docs_dir = project_setup["docs_dir"]
 
         created_path = "documentation/file1.txt"
         created_abs_path = str(docs_dir / "file1.txt")
 
-        # Add to pending deletes (simulate delete event)
-        handler.pending_deletes["file1.txt"] = (time.time(), 12)  # 12 bytes for "Test content"
+        # Buffer a delete event via MoveDetector (file still exists at original path)
+        handler._move_detector.buffer_delete("file1.txt", str(project_setup["test_file"]))
 
         # Create the file at the new location
         new_file = docs_dir / "file1.txt"
         new_file.write_text("Test content")
 
         # Test move detection
-        detected_source = handler._detect_potential_move(created_path, created_abs_path)
+        detected_source = handler._move_detector.match_created_file(created_path, created_abs_path)
 
         assert detected_source is not None, "Move detection should have found a matching delete"
         assert (
@@ -99,15 +100,15 @@ class TestMoveDetectionLogic:
         created_path = "documentation/file1.txt"
         created_abs_path = str(docs_dir / "file1.txt")
 
-        # Add to pending deletes (simulate delete event)
-        handler.pending_deletes["file1.txt"] = (time.time(), 12)
+        # Buffer a delete event via MoveDetector
+        handler._move_detector.buffer_delete("file1.txt", str(project_setup["test_file"]))
 
         # Create the file at the new location
         new_file = docs_dir / "file1.txt"
         new_file.write_text("Test content")
 
         # Detect the move
-        detected_source = handler._detect_potential_move(created_path, created_abs_path)
+        detected_source = handler._move_detector.match_created_file(created_path, created_abs_path)
         assert detected_source is not None, "Move should have been detected"
 
         # Handle the detected move
@@ -120,6 +121,34 @@ class TestMoveDetectionLogic:
             f"but content is: {updated_content}"
         )
 
+    def test_get_old_path_variations_same_depth(self, project_setup):
+        """Regression test for PD-BUG-024: verify old path variations for same-depth moves."""
+        handler = project_setup["handler"]
+        variations = handler._ref_lookup.get_old_path_variations("docs/guides/file.md")
+        assert "docs/guides/file.md" in variations, "Should include exact path"
+        assert "guides/file.md" in variations, "Should include relative (first dir stripped)"
+        assert "guides\\file.md" in variations, "Should include backslash variant"
+        assert "file.md" in variations, "Should include filename-only"
+
+    def test_get_old_path_variations_shallow_path(self, project_setup):
+        """Regression test for PD-BUG-024: shallow paths should not generate relative variant."""
+        handler = project_setup["handler"]
+        variations = handler._ref_lookup.get_old_path_variations("docs/file.md")
+        assert "docs/file.md" in variations, "Should include exact path"
+        assert "file.md" in variations, "Should include filename-only"
+        # Only 2 parts — relative variant should NOT be generated
+        assert (
+            len(variations) == 2
+        ), f"Expected 2 variations for shallow path, got {len(variations)}"
+
+    def test_get_old_path_variations_filename_only(self, project_setup):
+        """Regression test for PD-BUG-024: filename-only path produces minimal variations."""
+        handler = project_setup["handler"]
+        variations = handler._ref_lookup.get_old_path_variations("file.md")
+        assert "file.md" in variations, "Should include exact/filename path"
+        # Single segment — only exact + basename (which are the same)
+        assert len(variations) <= 2, f"Expected at most 2 variations, got {len(variations)}"
+
     def test_no_false_positive_without_pending_delete(self, project_setup):
         """Test that move detection does not fire without a matching pending delete."""
         handler = project_setup["handler"]
@@ -128,12 +157,95 @@ class TestMoveDetectionLogic:
         created_path = "documentation/file1.txt"
         created_abs_path = str(docs_dir / "file1.txt")
 
-        # Do NOT add any pending deletes
+        # Do NOT buffer any deletes
 
         # Create the file
         new_file = docs_dir / "file1.txt"
         new_file.write_text("Test content")
 
         # Move detection should return None
-        detected_source = handler._detect_potential_move(created_path, created_abs_path)
+        detected_source = handler._move_detector.match_created_file(created_path, created_abs_path)
         assert detected_source is None, "Should not detect a move without a matching delete"
+
+
+class TestStatsThreadSafety:
+    """Regression tests for PD-BUG-026: stats dict thread safety."""
+
+    @pytest.fixture
+    def handler(self, tmp_path):
+        """Create a minimal handler for stats testing."""
+        link_db = LinkDatabase()
+        parser = LinkParser()
+        updater = LinkUpdater(str(tmp_path))
+        return LinkMaintenanceHandler(link_db, parser, updater, str(tmp_path))
+
+    def test_stats_lock_exists(self, handler):
+        """PD-BUG-026: Handler must have a lock protecting stats access."""
+        assert hasattr(handler, "_stats_lock"), (
+            "Handler must have a _stats_lock attribute for thread-safe stats access. "
+            "Without this lock, self.stats[key] += value is not safe across threads."
+        )
+        assert isinstance(
+            handler._stats_lock, type(threading.Lock())
+        ), "_stats_lock must be a threading.Lock instance"
+
+    def test_update_stat_method_exists(self, handler):
+        """PD-BUG-026: Handler must expose a thread-safe stats update method."""
+        assert hasattr(
+            handler, "_update_stat"
+        ), "Handler must have a _update_stat method for thread-safe stat increments"
+        # Verify it actually updates the stat
+        handler._update_stat("errors", 5)
+        assert handler.stats["errors"] == 5
+
+    def test_concurrent_stats_increments_accurate(self, handler):
+        """PD-BUG-026: Stats must be accurate under concurrent access.
+
+        Spawns multiple threads each incrementing a stat counter many times.
+        The final count must equal the exact expected total — no lost increments.
+        """
+        num_threads = 10
+        increments_per_thread = 1000
+        expected_total = num_threads * increments_per_thread
+        barrier = threading.Barrier(num_threads)
+
+        def increment_stats():
+            barrier.wait()  # Synchronize thread start for max contention
+            for _ in range(increments_per_thread):
+                handler._update_stat("errors", 1)
+
+        threads = [threading.Thread(target=increment_stats) for _ in range(num_threads)]
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
+
+        actual = handler.stats["errors"]
+        assert actual == expected_total, (
+            f"Expected exactly {expected_total} errors after concurrent increments, "
+            f"got {actual}. Lost {expected_total - actual} increments — "
+            f"stats are NOT thread-safe."
+        )
+        # Negative assertion: count must not fall short
+        assert actual >= expected_total, (
+            f"Stats count {actual} is less than expected {expected_total} — "
+            f"thread-safety violation detected"
+        )
+
+    def test_get_stats_returns_snapshot(self, handler):
+        """PD-BUG-026: get_stats() must return a safe copy under concurrency."""
+        handler._update_stat("files_moved", 42)
+        snapshot = handler.get_stats()
+        # Mutating snapshot must not affect handler's internal stats
+        snapshot["files_moved"] = 999
+        assert (
+            handler.stats["files_moved"] == 42
+        ), "get_stats() must return a copy, not a reference to internal stats"
+
+    def test_reset_stats_clears_all_counters(self, handler):
+        """PD-BUG-026: reset_stats() must safely clear all counters."""
+        handler._update_stat("files_moved", 10)
+        handler._update_stat("errors", 5)
+        handler.reset_stats()
+        for key, value in handler.stats.items():
+            assert value == 0, f"Expected {key} to be 0 after reset, got {value}"

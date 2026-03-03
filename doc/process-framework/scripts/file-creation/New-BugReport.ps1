@@ -174,7 +174,7 @@ $UpdatedContent = $Content -replace $NobugsPattern, $TableRow
 # If the pattern wasn't found (table already has bugs), add to the end of the table
 if ($UpdatedContent -eq $Content) {
     # Find the specific section and add the bug after the last existing bug row
-    $SectionPattern = "($TableSection.*?)(?=^###|\z)"
+    $SectionPattern = "($TableSection.*?)(?=^#{2,3}\s|\z)"
     $SectionMatch = [regex]::Match($UpdatedContent, $SectionPattern, [System.Text.RegularExpressions.RegexOptions]::Singleline -bor [System.Text.RegularExpressions.RegexOptions]::Multiline)
 
     if ($SectionMatch.Success) {

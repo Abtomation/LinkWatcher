@@ -145,7 +145,7 @@ def run_linting():
         # Try to run flake8 if available
         cmd = ["python", "-m", "flake8", "tests/", "--max-line-length=100"]
         return run_command(cmd, "Linting Tests")
-    except:
+    except Exception:
         print("Flake8 not available, skipping linting")
         return True
 

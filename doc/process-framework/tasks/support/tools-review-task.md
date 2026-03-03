@@ -3,9 +3,9 @@ id: PF-TSK-010
 type: Process Framework
 category: Task Definition
 domain: agnostic
-version: 1.3
+version: 1.4
 created: 2023-06-15
-updated: 2025-08-07
+updated: 2026-03-02
 task_type: support
 ---
 
@@ -77,15 +77,18 @@ Systematically evaluate and enhance the templates, guides, and other tools by co
 8. Quantify ratings for effectiveness, clarity, completeness, and efficiency
 9. Prioritize potential improvements based on frequency and impact
 10. **🚨 CHECKPOINT**: Present analysis findings, identified themes, and prioritized improvement opportunities to human partner for approval
-11. Document improvement opportunities in the [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) file
-    - **🔗 TRACEABILITY REQUIREMENT**: Include link to the tools review analysis file in the improvement opportunity notes for full traceability
+11. Document improvement opportunities in the [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) file using [`New-ProcessImprovement.ps1`](../../scripts/file-creation/New-ProcessImprovement.ps1):
+    ```powershell
+    .\New-ProcessImprovement.ps1 -Source "Tools Review YYYY-MM-DD" -SourceLink "../../feedback/reviews/tools-review-YYYYMMDD.md" -Description "What needs improving" -Priority "MEDIUM" -Notes "Context"
+    ```
+    - **🔗 TRACEABILITY REQUIREMENT**: Use `-SourceLink` to include link to the tools review analysis file for full traceability
 12. **🚨 SCOPE BOUNDARY**: Tools Review identifies and documents improvements only. For implementation, create [Process Improvement Task](process-improvement-task.md) entries
-13. **Record ratings in feedback database**: After documenting improvement opportunities, record all quantified ratings from this review cycle into the feedback database:
+13. Archive processed feedback forms for future reference (archive paths are needed for the next step)
+14. **Record ratings in feedback database**: After archiving, record all quantified ratings from this review cycle into the feedback database:
     ```bash
     python scripts/feedback_db.py record --json ratings-input.json
     ```
-    Construct a JSON file containing all feedback forms analyzed in this session with their task-level and tool-level ratings. See `scripts/feedback_db.py --help` for the JSON format.
-14. Archive processed feedback forms for future reference
+    Construct a JSON file using the [feedback-db-input-template.json](../../templates/templates/feedback-db-input-template.json) as reference. Populate `archived_form_path` with the paths from Step 13.
 
 ### Finalization
 
@@ -98,7 +101,7 @@ Systematically evaluate and enhance the templates, guides, and other tools by co
 
 - **Improvement Opportunities** - Documented improvement opportunities in [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md)
 - **Review Summary** - Documentation of findings and identified improvements, using the [Tools Review Summary Template](../../templates/templates/tools-review-summary-template.md). Create via [`New-ReviewSummary.ps1`](../../scripts/file-creation/New-ReviewSummary.ps1)
-- **Ratings Database Update** - Quantified ratings recorded in `doc/process-framework/feedback/ratings.db` for trend analysis via `python scripts/feedback_db.py record`
+- **Ratings Database Update** - Quantified ratings recorded in `doc/process-framework/feedback/ratings.db` for trend analysis via `python scripts/feedback_db.py record` (use [feedback-db-input-template.json](../../templates/templates/feedback-db-input-template.json) as reference)
 - **Process Improvement Tasks** - Created [Process Improvement Task](process-improvement-task.md) entries for implementation
 - **Archive of Processed Forms** - Organized archive of processed feedback forms
 
@@ -133,9 +136,7 @@ Before considering this task finished:
   - [ ] Solicit suggestions for improvement
   - [ ] Gather overall satisfaction assessment
   - [ ] **Do not proceed** until user feedback has been collected and documented
-- [ ] **Record Ratings**: Feedback ratings recorded in database via `python scripts/feedback_db.py record`
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-010" and context "Tools Review"
-- [ ] **Archive Processed Forms**: Move analyzed feedback forms to archive:
+- [ ] **Archive Processed Forms**: Move analyzed feedback forms to archive (must happen before recording ratings):
   - [ ] Create archive folder: `/doc/process-framework/feedback/archive/YYYY-MM/tools-review-YYYYMMDD/`
   - [ ] Create subfolder: `processed-forms/` within the archive folder
   - [ ] **⚠️ CRITICAL DISTINCTION**: Only move feedback forms that were **analyzed during this session**
@@ -145,6 +146,8 @@ Before considering this task finished:
   - [ ] Move only the analyzed feedback forms to the `processed-forms/` subfolder
   - [ ] **Keep Active**: Leave newly created feedback forms in the active feedback-forms folder for future analysis
   - [ ] Document which specific forms were archived vs. kept active in the review summary
+- [ ] **Record Ratings**: Feedback ratings recorded in database via `python scripts/feedback_db.py record` using [feedback-db-input-template.json](../../templates/templates/feedback-db-input-template.json) as reference (archived_form_path is now available from previous step)
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-010" and context "Tools Review"
 - [ ] **Schedule Next Review**: Set a reminder for the next tools review cycle
 
 ## Next Tasks

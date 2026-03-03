@@ -21,6 +21,7 @@ from linkwatcher.logging import (
     PerformanceLogger,
     get_logger,
     log_context,
+    reset_logger,
     setup_logging,
     with_context,
 )
@@ -263,6 +264,60 @@ class TestPerformanceLogger:
                 "timer_not_found", timer_id="invalid_id", operation="test_operation"
             )
 
+    def test_timers_lock_exists(self):
+        """Verify PerformanceLogger has a _timers_lock for thread safety.
+
+        Regression test for PD-BUG-027.
+        """
+        perf_logger = PerformanceLogger("test.performance")
+        assert hasattr(
+            perf_logger, "_timers_lock"
+        ), "PerformanceLogger must have _timers_lock for thread-safe timer access"
+        assert isinstance(
+            perf_logger._timers_lock, type(threading.Lock())
+        ), "_timers_lock must be a threading.Lock"
+
+    def test_concurrent_start_end_timers(self):
+        """Verify concurrent start_timer/end_timer calls don't raise KeyError.
+
+        Multiple threads call start_timer and end_timer simultaneously.
+        Without lock protection, dict mutation can race causing KeyError
+        or lost timer entries.
+
+        Regression test for PD-BUG-027.
+        """
+        perf_logger = PerformanceLogger("test.performance")
+        errors = []
+        completed = []
+
+        def timer_worker(worker_id):
+            try:
+                for i in range(20):
+                    timer_id = perf_logger.start_timer(f"op_{worker_id}_{i}")
+                    # Small delay to increase race window
+                    time.sleep(0.001)
+                    with patch.object(perf_logger.logger, "info"):
+                        perf_logger.end_timer(timer_id, f"op_{worker_id}_{i}")
+                completed.append(worker_id)
+            except Exception as e:
+                errors.append((worker_id, e))
+
+        threads = []
+        for w in range(5):
+            t = threading.Thread(target=timer_worker, args=(w,))
+            threads.append(t)
+            t.start()
+
+        for t in threads:
+            t.join(timeout=10)
+
+        assert not errors, f"Thread errors: {errors}"
+        assert len(completed) == 5, f"Only {len(completed)}/5 workers completed"
+        assert len(perf_logger._timers) == 0, (
+            f"Timers dict should be empty after all end_timer calls, "
+            f"but has {len(perf_logger._timers)} leftover entries"
+        )
+
 
 class TestLinkWatcherLogger:
     """Test the main LinkWatcher logger class."""
@@ -288,6 +343,11 @@ class TestLinkWatcherLogger:
             # Test that log file was created
             logger.info("Test message")
             assert log_file.exists()
+
+            # Close handlers before TemporaryDirectory cleanup (Windows file locking)
+            for handler in logger.logger.handlers[:]:
+                handler.close()
+                logger.logger.removeHandler(handler)
 
     def test_log_level_change(self):
         """Test changing log level dynamically."""
@@ -426,7 +486,6 @@ class TestWithContextDecorator:
 class TestGlobalLoggerFunctions:
     """Test global logger setup and access functions."""
 
-    @pytest.mark.xfail(reason="Global structlog cached state bleeds between test instances")
     def test_setup_logging(self):
         """Test global logger setup."""
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -444,16 +503,87 @@ class TestGlobalLoggerFunctions:
             same_logger = get_logger()
             assert same_logger is logger
 
+            # Close handlers before TemporaryDirectory cleanup (Windows file locking)
+            for handler in logger.logger.handlers[:]:
+                handler.close()
+                logger.logger.removeHandler(handler)
+
     def test_get_logger_default(self):
         """Test getting logger with default settings."""
         # Reset global logger
-        import linkwatcher.logging
-
-        linkwatcher.logging._logger = None
+        reset_logger()
 
         logger = get_logger()
         assert isinstance(logger, LinkWatcherLogger)
         assert logger.level == LogLevel.INFO  # Default level
+
+
+class TestStructlogCacheIsolation:
+    """Regression tests for PD-BUG-015: structlog cached state bleeds between test instances."""
+
+    def test_structlog_reset_called_before_configure(self):
+        """Verify LinkWatcherLogger calls structlog.reset_defaults() before configure().
+
+        Without reset_defaults(), previously-cached BoundLogger instances retain
+        old processor chains when a new LinkWatcherLogger is created with different
+        settings (e.g., switching json_logs).
+
+        Regression test for PD-BUG-015.
+        """
+        with patch("linkwatcher.logging.structlog.reset_defaults") as mock_reset:
+            # Patch configure to avoid side effects but allow __init__ to proceed
+            with patch("linkwatcher.logging.structlog.configure"):
+                with patch("linkwatcher.logging.structlog.get_logger"):
+                    LinkWatcherLogger(name="bug015_reset_test")
+
+            mock_reset.assert_called_once()
+
+    def test_setup_logging_closes_old_handlers(self):
+        """Verify setup_logging() closes old logger's file handlers before replacing.
+
+        Without closing old handlers, RotatingFileHandler holds the file open on
+        Windows, preventing file deletion (PermissionError).
+
+        Regression test for PD-BUG-015.
+        """
+        import linkwatcher.logging as lm
+
+        temp_dir = tempfile.mkdtemp()
+        try:
+            log_file = Path(temp_dir) / "old_logger.log"
+
+            # Create a logger with a file handler
+            old_logger = setup_logging(level=LogLevel.DEBUG, log_file=str(log_file))
+            old_logger.info("message_to_file")
+            assert log_file.exists(), "Log file should exist"
+
+            # Grab a reference to the old file handler before it gets cleared
+            old_file_handlers = [
+                h
+                for h in old_logger.logger.handlers
+                if isinstance(h, logging.handlers.RotatingFileHandler)
+            ]
+            assert len(old_file_handlers) == 1, "Should have exactly one file handler"
+            old_handler = old_file_handlers[0]
+
+            # Replace with new logger — should close old handlers
+            new_logger = setup_logging(level=LogLevel.INFO)
+
+            # The old file handler's stream should be closed
+            # (RotatingFileHandler.close() sets stream to None)
+            stream_closed = old_handler.stream is None or old_handler.stream.closed
+            assert stream_closed, (
+                "Old RotatingFileHandler stream still open — setup_logging() "
+                "did not close previous logger's file handlers"
+            )
+        finally:
+            # Clean up using public API
+            from linkwatcher.logging import reset_logger
+
+            reset_logger()
+            import shutil
+
+            shutil.rmtree(temp_dir, ignore_errors=True)
 
 
 if __name__ == "__main__":

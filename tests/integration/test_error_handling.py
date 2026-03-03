@@ -549,9 +549,9 @@ class TestUnicodeAndEncoding:
         # Should handle Unicode file names
         service._initial_scan()
 
-        # Verify references were found
+        # Verify references were found — must find the link we created
         references = service.link_db.get_references_to_file("目标文件.txt")
-        assert len(references) >= 0
+        assert len(references) >= 1, "Database lookup failed for Unicode target file"
 
         # Test file move with Unicode names
         new_target = temp_project_dir / "新目标文件.txt"
@@ -560,9 +560,9 @@ class TestUnicodeAndEncoding:
         move_event = FileMovedEvent(str(target_file), str(new_target))
         service.handler.on_moved(move_event)
 
-        # Should handle Unicode file moves
+        # Should handle Unicode file moves — link must be updated to new target
         updated_content = unicode_file.read_text()
-        assert "新目标文件.txt" in updated_content or "目标文件.txt" in updated_content
+        assert "新目标文件.txt" in updated_content, "Unicode file move did not update link reference"
 
     def test_eh_007_mixed_encodings(self, temp_project_dir):
         """Test handling of files with different encodings."""

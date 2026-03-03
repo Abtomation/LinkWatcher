@@ -4,7 +4,7 @@ type: Technical Design Document
 category: TDD Tier 2
 version: 1.0
 created: 2026-02-19
-updated: 2026-02-26
+updated: 2026-03-02
 feature_id: 1.1.1
 feature_name: File System Monitoring
 consolidates: [1.1.1-1.1.5]
@@ -16,20 +16,26 @@ retrospective: true
 
 > **Retrospective Document**: This TDD describes the existing technical design of the LinkWatcher Event Handler, documented after implementation during framework onboarding (PF-TSK-066). Content is reverse-engineered from source code analysis.
 >
-> **Source**: Derived from [1.1.2 Implementation State](../../../../../process-framework/state-tracking/features/1.1.2-event-handler-implementation-state.md) and source code analysis of `linkwatcher/handler.py`.
+> **Source**: Derived from [1.1.2 Implementation State](../../../../../process-framework/state-tracking/features/1.1.2-event-handler-implementation-state.md) and source code analysis of `linkwatcher/handler.py`, `linkwatcher/move_detector.py`, and `linkwatcher/dir_move_detector.py`.
 
 ## 1. Overview
 
 ### 1.1 Purpose
 
-The Event Handler (`LinkMaintenanceHandler`) is the central coordinator for real-time file system event processing. It bridges the watchdog file monitoring layer and the link maintenance subsystems (database, parser, updater). It receives raw OS-level file events and orchestrates the full "file moved → links updated" pipeline, including a timer-based mechanism to detect moves reported as delete+create pairs.
+The Event Handler subsystem is the central coordinator for real-time file system event processing. It bridges the watchdog file monitoring layer and the link maintenance subsystems (database, parser, updater). It receives raw OS-level file events and orchestrates the full "file moved → links updated" pipeline, including timer-based mechanisms to detect moves reported as delete+create pairs.
+
+The subsystem is implemented as four modules:
+- **`linkwatcher/handler.py`** — `LinkMaintenanceHandler`: Central coordinator that receives watchdog events, delegates to detectors, and orchestrates the link update pipeline
+- **`linkwatcher/reference_lookup.py`** — `ReferenceLookup`: Reference resolution and DB management — multi-format path lookup, stale reference retry, database cleanup after moves, and file rescanning (extracted from handler.py via TD022)
+- **`linkwatcher/move_detector.py`** — `MoveDetector`: Per-file move detection state machine (delete+create correlation with timer-based buffer)
+- **`linkwatcher/dir_move_detector.py`** — `DirectoryMoveDetector`: Batch directory move detection state machine (3-phase: detect, confirm, apply)
 
 ### 1.2 Related Features
 
 | Feature | Relationship | Description |
 |---------|-------------|-------------|
 | 0.1.3 In-Memory Database | Consumer | Queries `get_references_to_file()` to find all files referencing a moved file; calls `remove_file_links()` on deletion |
-| 2.1.1 Parser Framework | Consumer | Calls `parse_file()` after a move to rebuild the moved file's link entries |
+| 2.1.1 Parser Framework | Consumer | Calls `parse_file()` to rebuild link entries after a move; calls `parse_content()` for single-read within-file link updates (PD-BUG-025) |
 | 2.2.1 Link Updater | Consumer | Calls `update_references()` to rewrite link paths in referencing files |
 | 0.1.5 Path Utilities | Consumer | Calls `should_monitor_file()` and `should_ignore_directory()` to filter events |
 | 0.1.1 Core Architecture | Provider | `LinkWatcherService` creates the handler and registers it with the Observer |
@@ -44,7 +50,7 @@ The Event Handler (`LinkMaintenanceHandler`) is the central coordinator for real
 2. **Directory move support**: Correctly update all files within a moved directory. Two mechanisms: (a) native `DirMovedEvent` via recursive walk, and (b) batch directory move detection via delete+create correlation (PD-BUG-019 fix) for Windows where watchdog fires individual file events instead of `DirMovedEvent`
 3. **Event deduplication**: Prevent the same file move from triggering duplicate processing when multiple events arrive for the same operation
 4. **Atomic link update pipeline**: For each detected move, execute the full pipeline (find references → update files → rescan moved file) without leaving the database in a partial state
-5. **Thread safety**: Protect `pending_deletes` (per-file moves) and `pending_dir_moves` (batch directory moves) from concurrent access by the watchdog daemon thread, timer callback threads, and directory move processing threads
+5. **Thread safety**: Each detector module encapsulates its own thread-safe state — `MoveDetector` protects its pending deletes dict, `DirectoryMoveDetector` protects its pending directory moves dict — preventing concurrent access issues between the watchdog daemon thread, timer callback threads, and directory move processing threads
 
 ## 3. Quality Attribute Requirements
 
@@ -52,7 +58,7 @@ The Event Handler (`LinkMaintenanceHandler`) is the central coordinator for real
 
 - **Response Time**: Link update pipeline completes within seconds of a file move event; no blocking operations on the watchdog observer thread itself. Directory moves are processed on separate daemon threads to avoid blocking event delivery
 - **Throughput**: Designed for human-speed file operations (not bulk automated moves); single-threaded event processing for per-file moves, threaded batch processing for directory moves
-- **Resource Usage**: `pending_deletes` dict accumulates entries only within 2-second windows; `pending_dir_moves` dict holds directory state for up to 300 seconds (max timeout); both cleaned up immediately on processing; minimal memory footprint
+- **Resource Usage**: `MoveDetector._pending` dict accumulates entries only within 10-second windows; `DirectoryMoveDetector.pending_dir_moves` dict holds directory state for up to 300 seconds (max timeout); both cleaned up immediately on processing; minimal memory footprint
 
 ### 3.2 Security Requirements
 
@@ -63,7 +69,7 @@ The Event Handler (`LinkMaintenanceHandler`) is the central coordinator for real
 
 - **Error Handling**: Each event handler catches exceptions per-file — errors in one file's processing don't abort the entire pipeline; errors are logged and counted in statistics
 - **Data Integrity**: After processing a move, the moved file is rescanned to ensure the database accurately reflects its new location
-- **Thread Safety**: `threading.Lock` (`move_detection_lock`) protects `pending_deletes` for per-file moves; `threading.Lock` (`dir_move_lock`) protects `pending_dir_moves` for batch directory moves. Timer callbacks, `on_created` handler, and directory move processing threads can race without data corruption
+- **Thread Safety**: Each detector encapsulates its own `threading.Lock` — `MoveDetector._lock` protects per-file move state; `DirectoryMoveDetector._dir_move_lock` protects batch directory move state. Timer callbacks, `on_created` handler, and directory move processing threads can race without data corruption
 - **Monitoring**: Statistics counters (`files_moved`, `files_deleted`, `files_created`, `links_updated`, `errors`) provide operational visibility
 
 ### 3.4 Usability Requirements
@@ -86,7 +92,7 @@ class FileOperation:
     timestamp: float      # Event timestamp
 ```
 
-**In-handler state:**
+**3-module architecture** (after TD005 God Class decomposition):
 
 ```python
 class LinkMaintenanceHandler(FileSystemEventHandler):
@@ -97,15 +103,22 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
         self.config = config
         self.logger = logger
 
-        # Per-file delayed move detection state
-        self.pending_deletes: Dict[str, Dict] = {}
-        self.move_detection_lock = threading.Lock()
+        # Per-file move detection — delegated to MoveDetector (move_detector.py)
+        self._move_detector = MoveDetector(
+            on_move_detected=self._handle_detected_move,
+            on_true_delete=self._process_true_file_delete,
+            delay=10.0,
+        )
 
-        # Batch directory move detection state (PD-BUG-019)
-        self.pending_dir_moves: Dict[str, _PendingDirMove] = {}
-        self.dir_move_lock = threading.Lock()
-        self.dir_move_max_timeout = 300.0   # Max wait for all files
-        self.dir_move_settle_delay = 5.0    # Settle after last match
+        # Batch directory move detection — delegated to DirectoryMoveDetector (dir_move_detector.py)
+        self._dir_move_detector = DirectoryMoveDetector(
+            link_db=link_db,
+            project_root=self.project_root,
+            on_dir_move=self._handle_confirmed_dir_move,
+            on_true_file_delete=self._process_true_file_delete,
+            max_timeout=300.0,
+            settle_delay=5.0,
+        )
 
         # Session statistics
         self.stats = {
@@ -115,30 +128,46 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
             "links_updated": 0,
             "errors": 0,
         }
+
+class MoveDetector:
+    """Per-file move detection via delete+create correlation (move_detector.py)."""
+    def __init__(self, on_move_detected, on_true_delete, delay=10.0):
+        self._pending: Dict[str, Tuple] = {}  # rel_path → (timestamp, file_size)
+        self._timers: Dict[str, Timer] = {}   # rel_path → Timer (tracked for cancellation)
+        self._lock = threading.Lock()
+        self._delay = delay  # Timer buffer for delete+create correlation
+
+class DirectoryMoveDetector:
+    """Batch directory move detection — 3-phase pipeline (dir_move_detector.py)."""
+    def __init__(self, link_db, project_root, on_dir_move, on_true_file_delete, ...):
+        self.pending_dir_moves: Dict[str, _PendingDirMove] = {}
+        self._dir_move_lock = threading.Lock()
+        self._max_timeout = 300.0   # Max wait for all files
+        self._settle_delay = 5.0    # Settle after last match
 ```
 
 ### 4.2 Event Routing Architecture
 
-The handler implements a **state machine with timer-based deferred processing** for move detection:
+The handler delegates move detection to two specialized detector modules, each implementing its own state machine:
 
 ```
 OS Event          Handler Method        Routing Logic
 ---------         --------------        -------------
 FileMovedEvent  → on_moved()          → _handle_file_moved() or _handle_dir_moved()
-FileDeletedEvent→ on_deleted()        → directory? → _handle_directory_deleted() → pending_dir_moves + Timer(300s)
-                                        file?      → _handle_file_deleted() → pending_deletes + Timer(2s)
-FileCreatedEvent→ on_created()        → check pending_dir_moves → batch match (Phase 2)
-                                        check pending_deletes   → _handle_file_moved()
-                                        neither                 → scan new file
-Timer callback  → _execute_delete()            → if still pending → true delete handling
-Timer callback  → _process_dir_move_settled()  → process batch with unmatched files
-Timer callback  → _process_dir_move_timeout()  → fallback: process or treat as true delete
+FileDeletedEvent→ on_deleted()        → directory? → _dir_move_detector.handle_directory_deleted() → 3-phase pipeline
+                                        file?      → _move_detector.buffer_delete() → Timer(10s)
+FileCreatedEvent→ on_created()        → _dir_move_detector.match_created_file() → batch match (Phase 2)
+                                        _move_detector.match_created_file()     → callback → _handle_detected_move()
+                                        neither                                 → scan new file
+Timer callback  → MoveDetector._timer_expired()                → callback → _process_true_file_delete()
+Timer callback  → DirectoryMoveDetector._process_dir_move_settled()  → process batch with unmatched files
+Timer callback  → DirectoryMoveDetector._process_dir_move_timeout()  → fallback: process or treat as true delete
 ```
 
-**Directory move detection on Windows** (PD-BUG-019): Windows watchdog fires `FileDeletedEvent` (with `is_directory=False`) for directory deletes, followed by individual `FileCreatedEvent` for each file. The handler detects this via database lookup (`_get_files_under_directory`) and routes to a 3-phase batch pipeline:
+**Directory move detection on Windows** (PD-BUG-019): Windows watchdog fires `FileDeletedEvent` (with `is_directory=False`) for directory deletes, followed by individual `FileCreatedEvent` for each file. The `DirectoryMoveDetector` detects this via database lookup (`get_files_under_directory`) and routes to a 3-phase batch pipeline:
 - **Phase 1 (Detect)**: Buffer known files in `_PendingDirMove`, start 300s max timer only
 - **Phase 2 (Confirm)**: First `file_created` match infers `new_dir` via path subtraction; subsequent matches use prefix; settle timer resets per match; count-based completion triggers immediate processing
-- **Phase 3 (Apply)**: Processing runs on separate daemon thread via synthetic `DirMovedEvent` → existing `_handle_directory_moved`
+- **Phase 3 (Apply)**: Processing runs on separate daemon thread; calls back to handler via `on_dir_move` callback → `_handle_confirmed_dir_move` → `_handle_directory_moved`
 
 **4-tuple deduplication key** for move events:
 ```python
@@ -157,7 +186,10 @@ def _handle_file_moved(self, src_path: str, dest_path: str):
     # Step 2: Update links in all referencing files
     updated_count = self.updater.update_references(references, src_path, dest_path)
 
-    # Step 3: Rescan the moved file to rebuild its own link entries
+    # Step 3: Update links WITHIN the moved file (single-read: read → parse_content → line-targeted replace)
+    # PD-BUG-025: Uses parse_content() to avoid double-read race; line-targeted replacement prevents substring corruption
+
+    # Step 4: Rescan the moved file to rebuild its own link entries
     new_links = self.parser.parse_file(dest_path)
     self.link_db.remove_file_links(src_path)
     for link in new_links:
@@ -182,44 +214,47 @@ def _handle_dir_moved(self, src_dir: str, dest_dir: str):
                 self._handle_file_moved(old_path, new_path)
 ```
 
-**Delayed delete + move detection** (`_handle_file_deleted`, `on_created`, `_execute_delete`):
+**Per-file move detection** (delegated to `MoveDetector` in `move_detector.py`):
 
 ```python
-def _handle_file_deleted(self, file_path: str):
-    with self.move_detection_lock:
-        self.pending_deletes[file_path] = {
-            "path": file_path,
-            "timestamp": time.time(),
-        }
-    # Schedule delete processing after 2 seconds
-    timer = threading.Timer(2.0, self._execute_delete, [file_path])
-    timer.daemon = True
-    timer.start()
+# In handler.py — on_deleted routes file deletes to MoveDetector
+def on_deleted(self, event):
+    if not event.is_directory:
+        self._move_detector.buffer_delete(rel_path, abs_path)
 
+# In handler.py — on_created checks MoveDetector first
 def on_created(self, event):
-    # Check if this create matches a pending delete (cross-tool move)
-    with self.move_detection_lock:
-        # Match by filename (not full path) to handle cross-directory moves
-        matching_delete = self._find_matching_delete(event.src_path)
-        if matching_delete:
-            del self.pending_deletes[matching_delete]
-            self._handle_file_moved(matching_delete, event.src_path)
-            return
-    # No matching delete — true file creation
+    if self._move_detector.match_created_file(rel_path, abs_path):
+        return  # Matched as move — callback fires _handle_detected_move()
     self._handle_file_created(event.src_path)
 
-def _execute_delete(self, file_path: str):
-    with self.move_detection_lock:
-        if file_path not in self.pending_deletes:
-            return  # Already processed as a move
-        del self.pending_deletes[file_path]
-    # Process as true deletion
-    self._handle_true_delete(file_path)
+# In move_detector.py — MoveDetector state machine
+class MoveDetector:
+    def buffer_delete(self, rel_path, abs_path):
+        with self._lock:
+            self._pending[rel_path] = (time.time(), file_size)
+            # Cancel existing timer for same path (re-buffered delete)
+            if rel_path in self._timers:
+                self._timers[rel_path].cancel()
+            timer = Timer(self._delay, self._timer_expired, [rel_path])
+            timer.daemon = True
+            self._timers[rel_path] = timer
+            timer.start()
+
+    def match_created_file(self, rel_path, abs_path):
+        with self._lock:
+            # Match by filename to handle cross-directory moves
+            if match_found:
+                del self._pending[deleted_path]
+                self._timers.pop(deleted_path, None).cancel()  # cancel timer
+                return deleted_path  # caller handles move via callback
+        return None
 ```
 
-**Batch directory move detection** (PD-BUG-019 fix — `_handle_directory_deleted`, `_match_dir_move_file`, `_process_dir_move`):
+**Batch directory move detection** (delegated to `DirectoryMoveDetector` in `dir_move_detector.py`):
 
 ```python
+# In dir_move_detector.py
 class _PendingDirMove:
     """Tracks state for a pending directory move detection."""
     deleted_dir: str             # Original directory path
@@ -232,25 +267,26 @@ class _PendingDirMove:
     max_timer: Timer             # 300s fallback timer
     settle_timer: Optional[Timer]  # 5s settle after last match
 
-def _handle_directory_deleted(self, event):
-    known_files = self._get_files_under_directory(deleted_dir)
-    if known_files:
-        pending = _PendingDirMove(deleted_dir, known_files)
-        self.pending_dir_moves[deleted_dir] = pending
-        # Start only max timer (300s) — no per-file timers
-        pending.max_timer = Timer(300.0, self._process_dir_move_timeout, [deleted_dir])
+class DirectoryMoveDetector:
+    def handle_directory_deleted(self, deleted_dir):
+        known_files = self.get_files_under_directory(deleted_dir)
+        if known_files:
+            pending = _PendingDirMove(deleted_dir, known_files)
+            self.pending_dir_moves[deleted_dir] = pending
+            # Start only max timer (300s) — no per-file timers
+            pending.max_timer = Timer(300.0, self._process_dir_move_timeout, [deleted_dir])
 
-def _match_dir_move_file(self, created_path, created_abs_path):
-    # Phase 2: Check each pending dir move for a match
-    # First match: infer new_dir via path subtraction
-    # Subsequent matches: prefix-based matching
-    # All matched: trigger immediate processing on daemon thread
+    def match_created_file(self, created_path, created_abs_path):
+        # Phase 2: Check each pending dir move for a match
+        # First match: infer new_dir via path subtraction
+        # Subsequent matches: prefix-based matching
+        # All matched: trigger immediate processing on daemon thread
 
-def _process_dir_move(self, pending):
-    # Phase 3: Process on separate thread
-    # Create synthetic DirMovedEvent → _handle_directory_moved()
-    # Verify unmatched files on filesystem
-    # Clean up pending_dir_moves entry
+    def _process_dir_move(self, pending):
+        # Phase 3: Process on separate thread
+        # Calls on_dir_move callback → handler._handle_confirmed_dir_move()
+        # Verify unmatched files on filesystem
+        # Clean up pending_dir_moves entry
 ```
 
 ### 4.4 Quality Attribute Implementation
@@ -264,8 +300,8 @@ def _process_dir_move(self, pending):
 #### Reliability Implementation
 
 - Per-file try/except blocks in `_handle_dir_moved` ensure one failing file doesn't abort the entire directory move
-- `move_detection_lock` prevents race conditions between timer callback and `on_created` handler for per-file moves
-- `dir_move_lock` prevents race conditions between event thread and timer/processing threads for batch directory moves
+- `MoveDetector._lock` prevents race conditions between timer callback and `on_created` handler for per-file moves
+- `DirectoryMoveDetector._dir_move_lock` prevents race conditions between event thread and timer/processing threads for batch directory moves
 - Post-move rescan ensures database consistency even if the moved file contained its own links
 - Batch directory moves: unmatched files are verified on filesystem before being treated as true deletes
 
@@ -301,16 +337,23 @@ All dependencies are fully implemented (retrospective document):
 - `linkwatcher/parser.py` (2.1.1) — file parser
 - `linkwatcher/updater.py` (2.2.1) — link updater
 - `linkwatcher/utils.py` (0.1.1) — path utilities (part of Core Architecture)
+- `linkwatcher/reference_lookup.py` (1.1.1) — reference resolution and DB management (extracted from handler.py via TD022)
+- `linkwatcher/move_detector.py` (1.1.1) — per-file move detection state machine (extracted from handler.py via TD005)
+- `linkwatcher/dir_move_detector.py` (1.1.1) — batch directory move detection state machine (extracted from handler.py via TD005)
 
 ### 6.2 Implementation Notes (Retrospective)
 
-The handler was implemented as a single class in `linkwatcher/handler.py`. Key implementation decisions:
+The handler subsystem is implemented across four modules (refactored from a single God Class via TD005, with further extraction via TD022). Key implementation decisions:
 
 1. `@with_context` logging decorator wraps event handlers to add structured log context automatically
-2. `pending_deletes` keys are full file paths (not basenames) — matching by filename/size comparison for cross-directory moves
-3. Timer threads are marked as daemon threads — they do not prevent process shutdown
-4. `_PendingDirMove.dir_prefix` must be constructed as `normalize_path(dir) + "/"` (not `normalize_path(dir + "/")`) because `os.path.normpath` strips trailing slashes — discovered during PD-BUG-019 fix
-5. Batch directory move processing defers to separate daemon threads to avoid blocking the watchdog event thread, which would cause subsequent file events to queue and timers to expire
+2. **Callback-based decoupling**: `MoveDetector` and `DirectoryMoveDetector` communicate with the handler via callbacks (`on_move_detected`, `on_true_delete`, `on_dir_move`), keeping detector modules independent of handler internals
+3. `MoveDetector._pending` keys are relative file paths — matching by filename for cross-directory moves
+4. Timer threads are marked as daemon threads — they do not prevent process shutdown
+5. `_PendingDirMove.dir_prefix` must be constructed as `normalize_path(dir) + "/"` (not `normalize_path(dir + "/")`) because `os.path.normpath` strips trailing slashes — discovered during PD-BUG-019 fix
+6. Batch directory move processing defers to separate daemon threads to avoid blocking the watchdog event thread, which would cause subsequent file events to queue and timers to expire
+7. **Shared stale-reference retry**: Both per-file and directory move pipelines use `ReferenceLookup.retry_stale_references()` (resolved TD009 duplication)
+8. **Unified DB update strategy** (TD017): Both per-file and directory move pipelines use `ReferenceLookup.find_references()` + `get_old_path_variations()` + `cleanup_after_file_move()` for reference lookup and database cleanup — ensuring consistent anchor handling, path normalization, and fresh metadata after moves
+9. **Composition-based reference delegation** (TD022): Handler delegates all reference lookup and DB management to `ReferenceLookup` instance (`self._ref_lookup`), reducing handler.py from 873 to 681 lines (22%)
 
 ## 7. Quality Measurement
 
@@ -328,29 +371,34 @@ The handler was implemented as a single class in `linkwatcher/handler.py`. Key i
 
 None — this is a retrospective document for a fully implemented, stable feature.
 
-**Known Technical Debt**:
-- The 2-second per-file delete buffer window is hardcoded — it is not configurable via `LinkWatcherConfig`
+**Known Technical Debt** (post TD005/TD009/TD018 resolution):
+- ~~TD005 God Class~~ — Resolved: handler.py decomposed into 3 modules (839 lines, down from 1281); further decomposed to 4 modules via TD022 (681 lines)
+- ~~TD009 Duplicated Stale Retry~~ — Resolved: shared `_retry_stale_references()` method used by both pipelines
+- ~~TD018 Untracked Timers~~ — Resolved: `MoveDetector` now tracks timers in `_timers` dict, cancels on match/re-buffer (PF-REF-032)
+- ~~TD017 Inconsistent DB Update~~ — Resolved: directory moves now use same remove+rescan pattern as file moves (PF-REF-033)
+- The per-file delete buffer delay (10s) is passed as a constructor parameter to `MoveDetector` but not yet exposed via `LinkWatcherConfig`
 - The deduplication mechanism uses a key tuple but the implementation details warrant verification against edge cases with very rapid sequential moves
-- `_get_files_under_directory` (line 997) uses `normalize_path(dir + "/")` which strips the trailing slash — latent issue that works for `.startswith()` checks but could match overly broad prefixes (e.g., `"docsify/"` matching `"docs"` prefix)
 
 ## 9. AI Agent Session Handoff Notes
 
 ### Current Status
 
-**Retrospective TDD** — Feature 1.1.1 File System Monitoring is fully implemented and stable. Originally created during onboarding (PF-TSK-066). Updated 2026-02-26 with PD-BUG-019 batch directory move detection design.
+**Retrospective TDD** — Feature 1.1.1 File System Monitoring is fully implemented and stable. Originally created during onboarding (PF-TSK-066). Updated 2026-02-26 with PD-BUG-019 batch directory move detection design. Updated 2026-03-02 to reflect TD005 God Class decomposition into 3-module architecture (handler.py + move_detector.py + dir_move_detector.py).
 
 ### Next Steps
 
-No further implementation work needed for PD-BUG-019. Status: 🧪 Fixed, awaiting verification.
+No outstanding implementation work. TD005 and TD009 resolved. PD-BUG-019 verified.
 
 ### Key Decisions
 
-- **Timer-based move detection** (2-second buffer) chosen over immediate delete processing to reliably detect cross-tool per-file moves
-- **Batch directory move detection** (PD-BUG-019) replaces per-file timers for directory moves — uses 3-phase approach with 300s max timer + 5s settle timer + count-based completion
+- **3-module architecture** (TD005): Handler decomposed into coordinator (`handler.py`) + two detector modules (`move_detector.py`, `dir_move_detector.py`) communicating via callbacks
+- **Timer-based move detection** (10-second buffer) chosen over immediate delete processing to reliably detect cross-tool per-file moves
+- **Batch directory move detection** (PD-BUG-019) uses 3-phase approach with 300s max timer + 5s settle timer + count-based completion
 - **No `on_modified` override** is the explicit design decision — content changes are intentionally out of scope
 - **Per-file exception handling** in directory moves ensures partial failures don't abort the full pipeline
 - **`normalize_path(dir) + "/"`** pattern (not `normalize_path(dir + "/")`) required because `os.path.normpath` strips trailing slashes
+- **Shared stale-reference retry** (TD009): Single `_retry_stale_references()` method used by both per-file and directory move pipelines
 
 ### Known Issues
 
-- Latent issue in `_get_files_under_directory` line 997: `normalize_path(dir + "/")` strips trailing slash — works for `.startswith()` but could match overly broad prefixes
+None currently outstanding.

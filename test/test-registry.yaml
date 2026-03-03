@@ -75,11 +75,11 @@ testFiles:
     testType: Integration
     componentName: Move Detection
     specificationPath: test/specifications/feature-specs/test-spec-1-1-1-file-system-monitoring.md
-    description: "Integration tests for file move detection across handler and updater"
+    description: "Integration tests for file move detection across handler and updater (includes PD-BUG-024 regression tests for _get_old_path_variations, PD-BUG-026 stats thread-safety tests)"
     created: 2026-02-20
-    updated: 2026-02-24
+    updated: 2026-03-03
     status: "✅ Tests Implemented"
-    testCasesCount: 5
+    testCasesCount: 13
     tier: 2
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-1-1-1-file-system-monitoring-t2.md
     crossCuttingFeatures: ["2.2.1", "0.1.2"]
@@ -125,11 +125,11 @@ testFiles:
     testType: Unit
     componentName: In-Memory Database
     specificationPath: test/specifications/feature-specs/test-spec-0-1-2-in-memory-link-database.md
-    description: "Unit tests for thread-safe in-memory link database (~15 test methods)"
+    description: "Unit tests for thread-safe in-memory link database (~19 test methods)"
     created: 2026-02-20
-    updated: 2026-02-24
+    updated: 2026-03-03
     status: "✅ Tests Implemented"
-    testCasesCount: 15
+    testCasesCount: 19
     tier: 2
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-2-in-memory-database-t2.md
     crossCuttingFeatures: ["0.1.1"]
@@ -141,11 +141,11 @@ testFiles:
     testType: Unit
     componentName: Link Updater
     specificationPath: test/specifications/feature-specs/test-spec-2-2-1-link-updating.md
-    description: "Unit tests for atomic file update with safety mechanisms, stale detection, and root-relative path handling (31 test methods)"
+    description: "Unit tests for atomic file update with safety mechanisms, stale detection, root-relative path handling, and link text updates (35 test methods)"
     created: 2026-02-20
-    updated: 2026-02-26
+    updated: 2026-03-03
     status: "✅ Tests Implemented"
-    testCasesCount: 31
+    testCasesCount: 35
     tier: 2
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-2-1-link-updater-t2.md
     crossCuttingFeatures: ["0.1.1"]
@@ -173,11 +173,11 @@ testFiles:
     testType: Unit
     componentName: Logging Framework
     specificationPath: test/specifications/feature-specs/test-spec-3-1-1-logging-system.md
-    description: "Unit tests for logging framework (~18 test methods)"
+    description: "Unit tests for logging framework (~25 test methods, includes PD-BUG-015 structlog cache isolation and PD-BUG-027 timer thread-safety regression tests)"
     created: 2026-02-20
-    updated: 2026-02-24
+    updated: 2026-03-03
     status: "✅ Tests Implemented"
-    testCasesCount: 18
+    testCasesCount: 25
     tier: 2
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-3-1-1-logging-framework-t2.md
 
@@ -206,11 +206,11 @@ testFiles:
     testType: Parser
     componentName: Markdown Parser
     specificationPath: test/specifications/feature-specs/test-spec-2-1-1-link-parsing-system.md
-    description: "Parser tests for markdown link parsing (standard, reference, HTML, images) (~10 methods)"
+    description: "Parser tests for markdown link parsing (standard, reference, HTML, images) (~12 methods)"
     created: 2026-02-20
-    updated: 2026-02-24
+    updated: 2026-03-03
     status: "✅ Tests Implemented"
-    testCasesCount: 10
+    testCasesCount: 12
     tier: 2
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md
 
@@ -236,11 +236,11 @@ testFiles:
     testType: Parser
     componentName: JSON Parser
     specificationPath: test/specifications/feature-specs/test-spec-2-1-1-link-parsing-system.md
-    description: "Parser tests for JSON file reference parsing with nested objects (~8 methods)"
+    description: "Parser tests for JSON file reference parsing with nested objects and duplicate value line resolution (~11 methods)"
     created: 2026-02-20
-    updated: 2026-02-24
+    updated: 2026-03-03
     status: "✅ Tests Implemented"
-    testCasesCount: 8
+    testCasesCount: 11
     tier: 2
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md
 
@@ -281,11 +281,11 @@ testFiles:
     testType: Parser
     componentName: Generic Parser
     specificationPath: test/specifications/feature-specs/test-spec-2-1-1-link-parsing-system.md
-    description: "Parser tests for fallback quoted file path parser (~8 methods)"
+    description: "Parser tests for fallback quoted file path parser (~16 methods, incl. PD-BUG-021 directory path detection)"
     created: 2026-02-20
-    updated: 2026-02-24
+    updated: 2026-03-03
     status: "✅ Tests Implemented"
-    testCasesCount: 8
+    testCasesCount: 16
     tier: 2
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md
 
@@ -347,11 +347,11 @@ testFiles:
     testType: Integration
     componentName: Link Updates
     specificationPath: test/specifications/feature-specs/test-spec-2-2-1-link-updating.md
-    description: "Integration tests for link update across multiple file formats (~8 methods)"
+    description: "Integration tests for link update across multiple file formats (~12 methods)"
     created: 2026-02-20
-    updated: 2026-02-24
+    updated: 2026-03-03
     status: "✅ Tests Implemented"
-    testCasesCount: 8
+    testCasesCount: 12
     tier: 2
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-2-1-link-updater-t2.md
     crossCuttingFeatures: ["2.1.1", "0.1.1", "1.1.1"]
@@ -363,11 +363,11 @@ testFiles:
     testType: Integration
     componentName: Complex Scenarios
     specificationPath: test/specifications/feature-specs/test-spec-0-1-1-core-architecture.md
-    description: "Integration tests for complex multi-component scenarios (~6 methods)"
+    description: "Integration tests for complex multi-component scenarios (~11 methods)"
     created: 2026-02-20
-    updated: 2026-02-24
+    updated: 2026-03-03
     status: "✅ Tests Implemented"
-    testCasesCount: 6
+    testCasesCount: 11
     tier: 3
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md
     crossCuttingFeatures: ["2.1.1", "2.2.1", "1.1.1", "0.1.2"]

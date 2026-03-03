@@ -2,9 +2,9 @@
 id: PF-TSK-041
 type: Process Framework
 category: Task Definition
-version: 1.2
+version: 1.3
 created: 2025-08-30
-updated: 2026-03-02
+updated: 2026-03-03
 task_type: Discrete
 ---
 
@@ -91,6 +91,7 @@ Systematically evaluate, prioritize, and assign reported bugs to ensure efficien
 12. **Assign Priority and Scope**: Update bug entry with determined priority (P1-P4) and scope (S/M/L for fix complexity — see [Scope Levels](../../state-tracking/permanent/bug-tracking.md#scope-levels))
 13. **Provide Triage Rationale**: Document the reasoning behind priority and scope assignments
 14. **Identify Related Features**: Link bugs to affected features in Feature Tracking
+    > **Tip**: Bugs discovered during code review often lack a "Related Feature" field. During triage, identify the affected feature from [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) and populate this field.
 15. **Estimate Effort**: Provide rough effort estimate for fixing the bug
 16. **Update Bug Status**: Change status from 🆕 Reported to 🔍 Triaged
     - **Manual Update**: Edit the [Bug Tracking](../../state-tracking/permanent/bug-tracking.md) file directly

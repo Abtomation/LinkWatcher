@@ -13,7 +13,19 @@
       "Bash(git diff *)",
       "Bash(git log *)",
       "Bash(ls *)",
-      "Bash(grep *)"
+      "Bash(grep *)",
+      "Bash(echo \"PYTHONUTF8=$PYTHONUTF8\")",
+      "Bash(echo \"PYTHONIOENCODING=$PYTHONIOENCODING\")",
+      "Bash(PYTHONUTF8=1 python -m pytest tests/integration/test_error_handling.py::TestUnicodeAndEncoding -xvs)",
+      "Bash(PYTHONUTF8=1 python -m pytest tests/ -x --timeout=60 -q)",
+      "Bash(PYTHONUTF8=1 pwsh.exe -ExecutionPolicy Bypass -Command '& .\\\\Update-BugStatus.ps1 -BugId \"\"PD-BUG-009\"\" -NewStatus \"\"Closed\"\" -VerificationNotes \"\"Fix verified: Level 1 \\(PYTHONUTF8=1 env var\\) + Level 2 \\(defensive stdout reconfigure in __init__.py\\). Test test_eh_007_unicode_file_names passes. Manual validation 5/5 checks pass. No regressions in 345-test suite. Also fixed missing encoding in logging_config.py:210.\"\" -Confirm:$false')",
+      "Bash(PYTHONUTF8=1 pwsh.exe -ExecutionPolicy Bypass -Command '& .\\\\Update-BugStatus.ps1 -BugId \"\"PD-BUG-009\"\" -NewStatus \"\"Closed\"\" -VerificationNotes \"\"Fix verified: Level 1 \\(PYTHONUTF8=1 env var\\) + Level 2 \\(defensive stdout reconfigure in __init__.py\\). Test test_eh_007_unicode_file_names passes. Manual validation 5/5 checks pass. No regressions in 345-test suite. Also fixed missing encoding in logging_config.py:210.\"\"')",
+      "Bash(PYTHONUTF8=1 pwsh.exe -ExecutionPolicy Bypass -Command '& .\\\\New-FeedbackForm.ps1 -DocumentId \"\"PF-TSK-007\"\" -TaskContext \"\"Bug Fixing - PD-BUG-009 Unicode filenames\"\" -FeedbackType \"\"MultipleTools\"\"')",
+      "Bash(xargs grep -l \"test_powershell_script_move_updates_markdown_links\")",
+      "Bash(bash LinkWatcher/start_linkwatcher_background.ps1)",
+      "Bash(python tests/manual/PD-BUG-013_json_duplicate_line_numbers_validation.py)",
+      "Bash(python -c \":*)",
+      "Bash(wc -l /c/Users/ronny/VS_Code/LinkWatcher/linkwatcher/parsers/*.py)"
     ]
   }
 }

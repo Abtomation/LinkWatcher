@@ -56,13 +56,19 @@ def main():
 
         # Create other files (simulating a real project)
         test_spec = tests_dir / "test-spec.md"
-        test_spec.write_text("# Test Spec\n[Template](../../doc/templates/templates/assessment-template.md)\n")
+        test_spec.write_text(
+            "# Test Spec\n[Template](../../doc/templates/templates/assessment-template.md)\n"
+        )
 
         dashboard = tools_dir / "dashboard.py"
-        dashboard.write_text("# Dashboard\nTEMPLATE = 'doc/templates/templates/assessment-template.md'\n")
+        dashboard.write_text(
+            "# Dashboard\nTEMPLATE = 'doc/templates/templates/assessment-template.md'\n"
+        )
 
         readme = tmp_path / "README.md"
-        readme.write_text("# Project\n[Assessment](doc/templates/templates/assessment-template.md)\n")
+        readme.write_text(
+            "# Project\n[Assessment](doc/templates/templates/assessment-template.md)\n"
+        )
 
         # Initialize LinkWatcher
         link_db = LinkDatabase()
@@ -85,11 +91,9 @@ def main():
         # === Test 1: _get_files_under_directory with file path ===
         print("\n--- Test 1: _get_files_under_directory with file path ---")
         file_path = "doc/templates/templates/assessment-template.md"
-        files = handler._get_files_under_directory(file_path)
+        files = handler._dir_move_detector.get_files_under_directory(file_path)
         print(f"  _get_files_under_directory('{file_path}') returned {len(files)} file(s)")
-        assert len(files) == 0, (
-            f"FAIL: Expected 0 files for file path, got {len(files)}: {files}"
-        )
+        assert len(files) == 0, f"FAIL: Expected 0 files for file path, got {len(files)}: {files}"
         print("  PASS: File path correctly returns empty set")
 
         # === Test 2: Single file delete does NOT create pending_dir_moves ===
@@ -98,31 +102,33 @@ def main():
         event.is_directory = False
         handler.on_deleted(event)
 
-        assert len(handler.pending_dir_moves) == 0, (
+        assert len(handler._dir_move_detector.pending_dir_moves) == 0, (
             f"FAIL: Single file delete created pending_dir_moves: "
-            f"{list(handler.pending_dir_moves.keys())}"
+            f"{list(handler._dir_move_detector.pending_dir_moves.keys())}"
         )
         rel_deleted = str(assessment.relative_to(tmp_path)).replace("\\", "/")
-        assert rel_deleted in handler.pending_deletes, (
+        assert rel_deleted in handler._move_detector._pending, (
             f"FAIL: File should be in pending_deletes, got: "
-            f"{list(handler.pending_deletes.keys())}"
+            f"{list(handler._move_detector._pending.keys())}"
         )
         print(f"  PASS: File routed to pending_deletes (per-file move detection)")
 
         # === Test 3: Real directory still works ===
         print("\n--- Test 3: Real directory delete still detected correctly ---")
         # Clear state
-        handler.pending_deletes.clear()
+        handler._move_detector._pending.clear()
 
         dir_event = FileDeletedEvent(str(templates_dir))
         dir_event.is_directory = False  # Windows behavior
         handler.on_deleted(dir_event)
 
         dir_key = "doc/templates/templates"
-        if dir_key in handler.pending_dir_moves:
-            pending = handler.pending_dir_moves[dir_key]
-            print(f"  PASS: Directory routed to pending_dir_moves "
-                  f"({pending.total_expected} files buffered)")
+        if dir_key in handler._dir_move_detector.pending_dir_moves:
+            pending = handler._dir_move_detector.pending_dir_moves[dir_key]
+            print(
+                f"  PASS: Directory routed to pending_dir_moves "
+                f"({pending.total_expected} files buffered)"
+            )
             # Clean up timer
             if pending.max_timer:
                 pending.max_timer.cancel()
@@ -130,8 +136,10 @@ def main():
             # After deleting the assessment file above, only the directory
             # itself would be checked. If no files remain, it goes to
             # file delete path, which is also acceptable.
-            print(f"  INFO: Directory had no remaining tracked files "
-                  f"(assessment-template.md was already 'deleted')")
+            print(
+                f"  INFO: Directory had no remaining tracked files "
+                f"(assessment-template.md was already 'deleted')"
+            )
 
         print("\n" + "=" * 60)
         print("ALL TESTS PASSED")

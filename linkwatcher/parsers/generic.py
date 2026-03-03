@@ -5,6 +5,7 @@ This parser handles any text file and looks for file-like patterns
 using simple heuristics. It's used as a fallback for unsupported file types.
 """
 
+import os.path
 import re
 from typing import List
 
@@ -21,13 +22,16 @@ class GenericParser(BaseParser):
         # Use permissive match inside quotes — _looks_like_file_path() validates later
         self.quoted_pattern = re.compile(r'[\'"]([^\'"]+\.[a-zA-Z0-9]+)[\'"]')
 
+        # PD-BUG-021: Pattern for quoted directory paths (paths with separators, no extension required)
+        # Captures quoted strings containing at least one path separator (/ or \)
+        self.quoted_dir_pattern = re.compile(r'[\'"]([^\'"]*[/\\][^\'"]*)[\'"]')
+
         # Pattern for unquoted file paths (be conservative)
         self.unquoted_pattern = re.compile(r"(?:^|\s)([a-zA-Z0-9_\-./\\]+\.[a-zA-Z0-9]+)(?:\s|$)")
 
-    def parse_file(self, file_path: str) -> List[LinkReference]:
-        """Parse generic text file for file references."""
+    def parse_content(self, content: str, file_path: str) -> List[LinkReference]:
+        """Parse generic text content for file references."""
         try:
-            content = self._safe_read_file(file_path)
             lines = content.split("\n")
             references = []
 
@@ -46,6 +50,28 @@ class GenericParser(BaseParser):
                                 link_text=potential_file,
                                 link_target=potential_file,
                                 link_type="generic-quoted",
+                            )
+                        )
+
+                # PD-BUG-021: Look for quoted directory paths (paths without extensions)
+                for match in self.quoted_dir_pattern.finditer(line):
+                    potential_dir = match.group(1)
+
+                    # Skip if it has a file extension (already handled by quoted_pattern)
+                    _, ext = os.path.splitext(potential_dir)
+                    if ext:
+                        continue
+
+                    if self._looks_like_directory_path(potential_dir):
+                        references.append(
+                            LinkReference(
+                                file_path=file_path,
+                                line_number=line_num,
+                                column_start=match.start(1),
+                                column_end=match.end(1),
+                                link_text=potential_dir,
+                                link_target=potential_dir,
+                                link_type="generic-quoted-dir",
                             )
                         )
 

@@ -62,6 +62,12 @@ def normalize_path(path: str) -> str:
     Returns:
         Normalized path with forward slashes
     """
+    # Strip Windows long path prefix (\\?\ or //?/) before normalization
+    # PD-BUG-014: Windows adds this prefix for paths >260 characters
+    if path.startswith("\\\\?\\"):
+        path = path[4:]
+    elif path.startswith("//?/"):
+        path = path[4:]
     # Remove leading slash and normalize
     path = path.lstrip("/")
     return os.path.normpath(path).replace("\\", "/")
@@ -164,6 +170,45 @@ def looks_like_file_path(text: str) -> bool:
     return False
 
 
+def looks_like_directory_path(text: str) -> bool:
+    """
+    Check if a string looks like a directory path (no file extension required).
+
+    PD-BUG-021: Separated from looks_like_file_path() to allow directory path
+    detection without requiring a file extension.
+
+    Args:
+        text: Text to check
+
+    Returns:
+        True if text looks like a directory path, False otherwise
+    """
+    if not text or len(text) < 3:
+        return False
+
+    # Skip URLs
+    if text.startswith(("http://", "https://", "ftp://", "mailto:", "tel:", "data:")):
+        return False
+
+    # Must have at least one path separator
+    if "/" not in text and "\\" not in text:
+        return False
+
+    # Skip paths that look like URLs (contain ://)
+    if "://" in text:
+        return False
+
+    # Skip if it contains suspicious characters
+    if any(char in text for char in ["@", "?", "&", "=", "%", ":", "*", "<", ">", "|"]):
+        return False
+
+    # Too long is suspicious
+    if len(text) > 300:
+        return False
+
+    return True
+
+
 def find_line_number(lines: list, search_text: str) -> int:
     """
     Find the line number containing specific text.
@@ -193,7 +238,7 @@ def safe_file_read(file_path: str, encoding: str = "utf-8") -> str:
         File content as string
 
     Raises:
-        Exception if file cannot be read with any encoding
+        IOError if file cannot be read with any encoding
     """
     encodings = [encoding, "utf-8", "latin-1", "cp1252"]
 
@@ -204,6 +249,6 @@ def safe_file_read(file_path: str, encoding: str = "utf-8") -> str:
         except UnicodeDecodeError:
             continue
         except Exception as e:
-            raise Exception(f"Could not read file {file_path}: {e}")
+            raise IOError(f"Could not read file {file_path}: {e}")
 
-    raise Exception(f"Could not decode file {file_path} with any encoding")
+    raise IOError(f"Could not decode file {file_path} with any encoding")

@@ -32,6 +32,11 @@ class MarkdownParser(BaseParser):
         # Look for file paths that are clearly standalone
         self.standalone_pattern = re.compile(r"(?:^|\s)([a-zA-Z0-9_\-./\\]+\.[a-zA-Z0-9]+)(?:\s|$)")
 
+        # Pattern 5: HTML anchor tags <a href="link">text</a> (PD-BUG-011)
+        self.html_anchor_pattern = re.compile(
+            r'<a\s+[^>]*href=[\'"]([^\'"]+)[\'"][^>]*>', re.IGNORECASE
+        )
+
     def _extract_url_from_link_content(self, link_content: str) -> str:
         """
         Extract just the URL from link content, removing any title.
@@ -72,10 +77,9 @@ class MarkdownParser(BaseParser):
         # If no title found, return the original content
         return link_content
 
-    def parse_file(self, file_path: str) -> List[LinkReference]:
-        """Parse markdown file for links."""
+    def parse_content(self, content: str, file_path: str) -> List[LinkReference]:
+        """Parse markdown content for links."""
         try:
-            content = self._safe_read_file(file_path)
             lines = content.split("\n")
             references = []
 
@@ -133,16 +137,45 @@ class MarkdownParser(BaseParser):
                                 )
                             )
 
+                # PD-BUG-011: Parse HTML anchor tags <a href="...">
+                html_anchor_spans = []
+                for match in self.html_anchor_pattern.finditer(line):
+                    link_target = match.group(1)
+
+                    # Skip external links
+                    if link_target.startswith(("http://", "https://", "mailto:", "tel:")):
+                        continue
+
+                    # Skip anchors only
+                    if link_target.startswith("#"):
+                        continue
+
+                    # Record span for overlap prevention with quoted_pattern
+                    html_anchor_spans.append((match.start(), match.end()))
+
+                    # Column positions cover the href value including quotes
+                    references.append(
+                        LinkReference(
+                            file_path=file_path,
+                            line_number=line_num,
+                            column_start=match.start(1) - 1,
+                            column_end=match.end(1) + 1,
+                            link_text=link_target,
+                            link_target=link_target,
+                            link_type="html-anchor",
+                        )
+                    )
+
                 # Then, look for standalone file references
                 # Skip if this line is a reference definition
                 is_reference_line = self.reference_pattern.match(line) is not None
 
                 if not is_reference_line:
-                    # Check for quoted file paths (but avoid overlapping with markdown links)
+                    # Check for quoted file paths (avoid overlapping with markdown links and HTML anchors)
                     for match in self.quoted_pattern.finditer(line):
                         potential_file = match.group(1)
                         if self._looks_like_file_path(potential_file):
-                            # Check if this overlaps with any markdown link
+                            # Check if this overlaps with any markdown link or HTML anchor
                             overlaps = False
                             for md_match in self.link_pattern.finditer(line):
                                 if (
@@ -151,6 +184,12 @@ class MarkdownParser(BaseParser):
                                 ):
                                     overlaps = True
                                     break
+
+                            if not overlaps:
+                                for span_start, span_end in html_anchor_spans:
+                                    if match.start() >= span_start and match.end() <= span_end:
+                                        overlaps = True
+                                        break
 
                             if not overlaps:
                                 references.append(

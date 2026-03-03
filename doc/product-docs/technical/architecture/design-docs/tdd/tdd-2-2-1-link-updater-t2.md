@@ -22,7 +22,7 @@ retrospective: true
 
 ## Technical Overview
 
-The `LinkUpdater` class orchestrates all file modifications when referenced files move. It implements a three-phase pipeline: (1) group references by containing file, (2) sort references bottom-to-top within each file, (3) apply replacements via link-type-specific methods and write atomically. The class exposes two safety flags (`dry_run`, `backup_enabled`) and returns accumulated statistics.
+The `LinkUpdater` class orchestrates all file modifications when referenced files move. It implements a three-phase pipeline: (1) group references by containing file, (2) sort references bottom-to-top within each file, (3) apply replacements via link-type-specific methods and write atomically. Path resolution is delegated to the `PathResolver` class (`linkwatcher/path_resolver.py`). The class exposes two safety flags (`dry_run`, `backup_enabled`) and returns accumulated statistics.
 
 ## Component Architecture
 
@@ -40,11 +40,31 @@ The `LinkUpdater` class orchestrates all file modifications when referenced file
 **Internal Methods**:
 - `_group_references_by_file(references)` — Groups `LinkReference` list into `Dict[str, List[LinkReference]]` keyed by containing file path
 - `_update_file_references(file_path, refs, old_path, new_path)` — Processes one file: read → sort → replace → write
-- `_calculate_new_target(containing_file, old_path, new_path, original_target)` — Computes new relative path from containing file to new location, preserving anchors
-- `_replace_markdown_target(line, ref, new_target)` — Replaces markdown inline link target `[text](old)` → `[text](new)`
+- `_calculate_new_target(ref, old_path, new_path)` — Delegates to `PathResolver.calculate_new_target()`
+- `_replace_markdown_target(line, ref, new_target)` — Replaces markdown inline link target `[text](old)` → `[text](new)`; when link text exactly matches `ref.link_target`, text is also updated to `new_target` (PD-BUG-012)
 - `_replace_reference_target(line, ref, new_target)` — Replaces markdown reference-style link target
 - `_replace_at_position(line, ref, new_target)` — Generic column-offset replacement for non-markdown link types
 - `_write_file_safely(file_path, content)` — Atomic write: backup (if enabled) → NamedTemporaryFile → shutil.move()
+
+### PathResolver Class
+
+**Location**: `linkwatcher/path_resolver.py`
+
+**Constructor**: `__init__(self, project_root, logger=None)`
+
+**Public API**:
+- `calculate_new_target(ref, old_path, new_path)` — Computes new target path for a reference, preserving anchors and link style
+
+**Internal Methods**:
+- `_calculate_new_target_relative(original_target, old_path, new_path, source_file)` — Multi-strategy path matching and conversion
+- `_match_direct(absolute_target_norm, old_path_norm)` — Direct path equality check
+- `_match_stripped(absolute_target_norm, old_path_norm)` — Match after stripping leading slashes
+- `_match_resolved(absolute_target_norm, old_path_norm, source_file, link_info)` — Resolve-relative and filename-only fallback match
+- `_analyze_link_type(target, source_file)` — Classify link as absolute, relative-explicit, or filename-only
+- `_resolve_to_absolute_path(target, source_file, link_info)` — Convert link target to absolute path for comparison
+- `_convert_to_original_link_type(new_absolute_path, source_file, link_info)` — Convert absolute path back to original link style
+- `_calculate_relative_path_between_files(source_file, target_file)` — Calculate relative path between two files
+- `_calculate_new_python_import(original_target, old_path, new_path)` — Python import path resolution
 
 ### Data Flow
 
@@ -89,6 +109,7 @@ The updater dispatches to type-specific replacement methods rather than using ge
 | Component | Usage | Import |
 |-----------|-------|--------|
 | `linkwatcher.models.LinkReference` | Input data type (line_number, column_start, link_type, link_target) | Direct import |
+| `linkwatcher.path_resolver.PathResolver` | Path resolution and new target calculation | Direct import |
 | `linkwatcher.logging.get_logger` | Structured logging | Direct import |
 | `linkwatcher.logging.LogTimer` | Performance timing | Direct import |
 

@@ -42,19 +42,19 @@ Who performed the update (default: "AI Agent (PF-TSK-009)")
 
 .EXAMPLE
 # Mark improvement as in progress
-.\Update-ProcessImprovement.ps1 -ImprovementId "IMP-063" -NewStatus "InProgress"
+Update-ProcessImprovement.ps1 -ImprovementId "IMP-063" -NewStatus "InProgress"
 
 .EXAMPLE
 # Complete an improvement
-.\Update-ProcessImprovement.ps1 -ImprovementId "IMP-063" -NewStatus "Completed" -Impact "MEDIUM" -ValidationNotes "Created Update-ProcessImprovement.ps1 script."
+Update-ProcessImprovement.ps1 -ImprovementId "IMP-063" -NewStatus "Completed" -Impact "MEDIUM" -ValidationNotes "Created Update-ProcessImprovement.ps1 script."
 
 .EXAMPLE
 # Reject an improvement
-.\Update-ProcessImprovement.ps1 -ImprovementId "IMP-061" -NewStatus "Rejected" -Impact "—" -ValidationNotes "Evaluated and determined not beneficial."
+Update-ProcessImprovement.ps1 -ImprovementId "IMP-061" -NewStatus "Rejected" -Impact "—" -ValidationNotes "Evaluated and determined not beneficial."
 
 .EXAMPLE
 # Defer an improvement
-.\Update-ProcessImprovement.ps1 -ImprovementId "IMP-037" -NewStatus "Deferred"
+Update-ProcessImprovement.ps1 -ImprovementId "IMP-037" -NewStatus "Deferred"
 
 .NOTES
 This script is part of the Process Improvement automation system and integrates with:
@@ -65,7 +65,7 @@ This script is part of the Process Improvement automation system and integrates 
 [CmdletBinding(SupportsShouldProcess)]
 param(
     [Parameter(Mandatory = $true)]
-    [ValidatePattern('^IMP-\d+$')]
+    [ValidatePattern('^(IMP|PF-IMP)-\d+$')]
     [string]$ImprovementId,
 
     [Parameter(Mandatory = $true)]

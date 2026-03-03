@@ -497,3 +497,82 @@ class TestComplexScenarioEdgeCases:
         assert "simple.txt" in readme_updated
         assert "test_data.txt" in readme_updated  # Should remain unchanged
         assert readme_updated.count("test.txt") == 0  # Should be completely replaced
+
+    def test_chain_reaction_db_consistency_same_dir(self, temp_project_dir):
+        """PD-BUG-008 regression: sequential same-directory moves must update DB source paths.
+
+        When file A (referencing B) is moved to A1 within the same directory,
+        the database must update the source path from A to A1. Otherwise, when
+        B is subsequently moved to B1, the updater tries to open the non-existent
+        A path instead of A1, causing a FileNotFoundError.
+        """
+        # A references B, B references C — move A then B
+        file_a = temp_project_dir / "alpha.md"
+        file_a.write_text("# Alpha\nSee [beta](beta.md) for details.")
+
+        file_b = temp_project_dir / "beta.md"
+        file_b.write_text("# Beta\nSee [gamma](gamma.md) for details.")
+
+        file_c = temp_project_dir / "gamma.md"
+        file_c.write_text("# Gamma\nStandalone content.")
+
+        service = LinkWatcherService(str(temp_project_dir))
+        service._initial_scan()
+
+        # Move A → A1 (same directory)
+        new_a = temp_project_dir / "alpha_v2.md"
+        file_a.rename(new_a)
+        service.handler.on_moved(FileMovedEvent(str(file_a), str(new_a)))
+
+        # Verify DB now has A1 as source (not A)
+        refs_to_beta = service.handler.link_db.get_references_to_file("beta.md")
+        source_files = {ref.file_path for ref in refs_to_beta}
+        assert "alpha.md" not in source_files, "DB still has stale source path 'alpha.md'"
+        assert "alpha_v2.md" in source_files, "DB missing updated source path 'alpha_v2.md'"
+
+        # Move B → B1 — this must succeed (update alpha_v2.md, not alpha.md)
+        new_b = temp_project_dir / "beta_v2.md"
+        file_b.rename(new_b)
+        service.handler.on_moved(FileMovedEvent(str(file_b), str(new_b)))
+
+        # Verify alpha_v2.md content was updated to reference beta_v2.md
+        a_content = new_a.read_text()
+        assert "beta_v2.md" in a_content, f"Expected 'beta_v2.md' in alpha_v2.md, got: {a_content}"
+        assert "beta.md" not in a_content, f"Stale 'beta.md' still in alpha_v2.md: {a_content}"
+
+    def test_chain_reaction_no_outgoing_links_file(self, temp_project_dir):
+        """PD-BUG-008 regression: moving a file with no outgoing links must not
+        leave stale entries in files_with_links set.
+
+        When file T (no outgoing links) is moved, and then file S (referencing T)
+        is also moved, the reference in S must be correctly updated.
+        """
+        # S references T; T has no outgoing links
+        file_s = temp_project_dir / "source.md"
+        file_s.write_text("# Source\nSee [target](target.txt) for info.")
+
+        file_t = temp_project_dir / "target.txt"
+        file_t.write_text("Plain target content, no links here.")
+
+        service = LinkWatcherService(str(temp_project_dir))
+        service._initial_scan()
+
+        # Move T → T1
+        new_t = temp_project_dir / "target_v2.txt"
+        file_t.rename(new_t)
+        service.handler.on_moved(FileMovedEvent(str(file_t), str(new_t)))
+
+        # Verify source.md was updated
+        s_content = file_s.read_text()
+        assert "target_v2.txt" in s_content
+
+        # Now move S → S1 (same directory)
+        new_s = temp_project_dir / "source_v2.md"
+        file_s.rename(new_s)
+        service.handler.on_moved(FileMovedEvent(str(file_s), str(new_s)))
+
+        # DB should reflect new source path
+        refs_to_target = service.handler.link_db.get_references_to_file("target_v2.txt")
+        source_files = {ref.file_path for ref in refs_to_target}
+        assert "source.md" not in source_files, "DB still has stale source path 'source.md'"
+        assert "source_v2.md" in source_files, "DB missing updated source path 'source_v2.md'"

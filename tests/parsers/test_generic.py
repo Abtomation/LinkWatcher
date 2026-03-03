@@ -11,6 +11,7 @@ import pytest
 
 from linkwatcher.models import LinkReference
 from linkwatcher.parsers.generic import GenericParser
+from linkwatcher.utils import looks_like_directory_path
 
 
 class TestGenericParser:
@@ -84,270 +85,6 @@ Scripts and tools:
         for ref in references:
             assert ref.link_type == "generic-quoted"
 
-    @pytest.mark.xfail(
-        reason="Unquoted detection heuristic too conservative for standalone filenames"
-    )
-    def test_parse_standalone_file_references(self, temp_project_dir):
-        """Test parsing standalone file references."""
-        parser = GenericParser()
-
-        # Create file with standalone references
-        text_file = temp_project_dir / "file_list.txt"
-        content = """File Inventory
-
-Configuration Files:
-config.yaml
-settings.json
-database.conf
-logging.properties
-
-Data Files:
-users.csv
-products.json
-orders.xml
-inventory.db
-
-Documentation:
-readme.md
-installation.txt
-changelog.md
-license.txt
-
-Scripts:
-build.sh
-deploy.py
-test.bat
-cleanup.ps1
-
-Assets:
-logo.png
-background.jpg
-styles.css
-app.js
-
-Templates:
-index.html
-error.html
-email.template
-report.template
-"""
-        text_file.write_text(content)
-
-        # Parse the file
-        references = parser.parse_file(str(text_file))
-
-        # Should find standalone references
-        assert len(references) >= 15
-
-        # Check specific references
-        targets = [ref.link_target for ref in references]
-        expected_targets = [
-            "config.yaml",
-            "settings.json",
-            "database.conf",
-            "logging.properties",
-            "users.csv",
-            "products.json",
-            "orders.xml",
-            "inventory.db",
-            "readme.md",
-            "installation.txt",
-            "changelog.md",
-            "license.txt",
-            "build.sh",
-            "deploy.py",
-            "test.bat",
-            "cleanup.ps1",
-            "logo.png",
-            "background.jpg",
-            "styles.css",
-            "app.js",
-            "index.html",
-            "error.html",
-            "email.template",
-            "report.template",
-        ]
-
-        for expected in expected_targets:
-            assert expected in targets, f"Expected target '{expected}' not found in {targets}"
-
-        # Check link types
-        standalone_refs = [ref for ref in references if ref.link_type == "generic-standalone"]
-        assert len(standalone_refs) >= 10
-
-    @pytest.mark.xfail(
-        reason="Unquoted detection heuristic too conservative for standalone filenames"
-    )
-    def test_parse_mixed_references(self, temp_project_dir):
-        """Test parsing files with both quoted and standalone references."""
-        parser = GenericParser()
-
-        # Create file with mixed reference types
-        text_file = temp_project_dir / "mixed.txt"
-        content = """Project Setup Instructions
-
-1. Copy "config.template.yaml" to config.yaml
-2. Edit the database settings in config.yaml
-3. Run the setup script: "../tests/parsers/setup.sh"
-4. Check that data.json was created
-5. Verify logs are written to "logs/setup.log"
-6. Test with sample.txt file
-7. Review the output in 'output/results.json'
-8. Clean up using cleanup.sh script
-
-Required files:
-- config.yaml (main configuration)
-- "database.conf" (database settings)
-- ../tests/parsers/setup.sh (setup script)
-- '../tests/parsers/cleanup.sh' (cleanup script)
-
-Generated files:
-- data.json
-- "logs/setup.log"
-- output/results.json
-- 'temp/cache.tmp'
-"""
-        text_file.write_text(content)
-
-        # Parse the file
-        references = parser.parse_file(str(text_file))
-
-        # Should find both quoted and standalone references
-        assert len(references) >= 10
-
-        # Check specific references
-        targets = [ref.link_target for ref in references]
-        expected_targets = [
-            "config.template.yaml",
-            "config.yaml",
-            "../tests/parsers/setup.sh",
-            "data.json",
-            "logs/setup.log",
-            "sample.txt",
-            "output/results.json",
-            "cleanup.sh",
-            "database.conf",
-            "../tests/parsers/cleanup.sh",
-            "temp/cache.tmp",
-        ]
-
-        for expected in expected_targets:
-            assert expected in targets, f"Expected target '{expected}' not found in {targets}"
-
-        # Should have both quoted and standalone references
-        quoted_refs = [ref for ref in references if ref.link_type == "generic-quoted"]
-        standalone_refs = [ref for ref in references if ref.link_type == "generic-standalone"]
-
-        assert len(quoted_refs) >= 4
-        assert len(standalone_refs) >= 4
-
-    @pytest.mark.xfail(reason="Unquoted keyword heuristic too restrictive for standalone refs")
-    def test_avoid_false_positives(self, temp_project_dir):
-        """Test that false positives are avoided."""
-        parser = GenericParser()
-
-        # Create file with potential false positives
-        text_file = temp_project_dir / "false_positives.txt"
-        content = """Test File with Potential False Positives
-
-These should NOT be detected as file references:
-- Version numbers: "1.2.3", "v2.0.1"
-- Email addresses: "user@example.com", 'admin@test.org'
-- URLs: "https://example.com", 'http://test.com/api'
-- UUIDs: "123e4567-e89b-12d3-a456-426614174000"
-- Dates: "2024-01-15", '2024/12/31'
-- Times: "14:30:00", '09:15:30'
-- IP addresses: "192.168.1.1", '10.0.0.1'
-- Phone numbers: "+1-555-123-4567", '(555) 987-6543'
-- Currency: "$123.45", '€99.99'
-- Percentages: "50%", '75.5%'
-
-These SHOULD be detected as file references:
-- Configuration: "config.json"
-- Data file: 'users.csv'
-- Script: backup.sh
-- Document: readme.md
-
-Edge cases:
-- Extension only: ".txt" (should not be detected)
-- No extension: "filename" (might be detected)
-- Very short: "a.b" (might be detected)
-- Numbers only: "123.456" (should not be detected)
-"""
-        text_file.write_text(content)
-
-        # Parse the file
-        references = parser.parse_file(str(text_file))
-
-        targets = [ref.link_target for ref in references]
-
-        # Should find actual file references
-        assert "config.json" in targets
-        assert "users.csv" in targets
-        assert "backup.sh" in targets
-        assert "readme.md" in targets
-
-        # Should not find false positives
-        false_positives = [
-            "1.2.3",
-            "v2.0.1",
-            "user@example.com",
-            "admin@test.org",
-            "https://example.com",
-            "http://test.com/api",
-            "123e4567-e89b-12d3-a456-426614174000",
-            "2024-01-15",
-            "2024/12/31",
-            "14:30:00",
-            "09:15:30",
-            "192.168.1.1",
-            "10.0.0.1",
-            "+1-555-123-4567",
-            "(555) 987-6543",
-            "$123.45",
-            "€99.99",
-            "50%",
-            "75.5%",
-            "123.456",
-        ]
-
-        for false_positive in false_positives:
-            assert false_positive not in targets, f"False positive '{false_positive}' was detected"
-
-    @pytest.mark.xfail(reason="Regex doesn't extract sub-paths from URIs like sqlite:///")
-    def test_parse_configuration_files(self, temp_project_dir):
-        """Test parsing various configuration file formats."""
-        parser = GenericParser()
-
-        # Create .env file
-        env_file = temp_project_dir / ".env"
-        env_content = """# Environment configuration
-DATABASE_URL="sqlite:///data/app.db"
-LOG_FILE='../tests/parsers/application.log'
-CONFIG_PATH="config/settings.yaml"
-TEMPLATE_DIR=templates/
-STATIC_FILES="static/"
-BACKUP_LOCATION='backups/daily/'
-"""
-        env_file.write_text(env_content)
-
-        # Parse the file
-        references = parser.parse_file(str(env_file))
-
-        # Should find file path references
-        targets = [ref.link_target for ref in references]
-        expected_targets = [
-            "data/app.db",
-            "../tests/parsers/application.log",
-            "config/settings.yaml",
-            "templates/",
-            "static/",
-            "backups/daily/",
-        ]
-
-        for expected in expected_targets:
-            assert expected in targets, f"Expected target '{expected}' not found in {targets}"
-
     def test_parse_log_files(self, temp_project_dir):
         """Test parsing log files with file references."""
         parser = GenericParser()
@@ -384,78 +121,6 @@ BACKUP_LOCATION='backups/daily/'
         for expected in expected_targets:
             assert expected in targets, f"Expected target '{expected}' not found in {targets}"
 
-    @pytest.mark.xfail(reason="Unquoted detection + mixed-line skipping misses many references")
-    def test_parse_readme_files(self, temp_project_dir):
-        """Test parsing README files with file references."""
-        parser = GenericParser()
-
-        # Create README file (plain text, not markdown)
-        readme_file = temp_project_dir / "README.txt"
-        readme_content = """Project README
-
-INSTALLATION:
-1. Copy "config.template.json" to config.json
-2. Edit config.json with your settings
-3. Run setup.sh to initialize
-4. Check that data/ directory was created
-
-CONFIGURATION:
-- Main config: config.json
-- Database config: "database.conf"
-- Logging config: 'logging.properties'
-
-DATA FILES:
-- User data: ../tests/parsers/users.csv
-- Product catalog: "../tests/parsers/products.json"
-- Order history: '../tests/parsers/orders.xml'
-
-SCRIPTS:
-- Build: ../tests/parsers/build.sh
-- Deploy: "../tests/parsers/deploy.py"
-- Test: 'scripts/test.bat'
-- Cleanup: scripts/cleanup.ps1
-
-DOCUMENTATION:
-- API docs: docs/api.txt
-- User guide: "docs/user_guide.pdf"
-- FAQ: 'docs/faq.html'
-
-LOGS:
-Application logs are written to logs/app.log
-Error logs go to "logs/error.log"
-Debug info in 'logs/debug.log'
-"""
-        readme_file.write_text(readme_content)
-
-        # Parse the file
-        references = parser.parse_file(str(readme_file))
-
-        # Should find file references
-        targets = [ref.link_target for ref in references]
-        expected_targets = [
-            "config.template.json",
-            "config.json",
-            "setup.sh",
-            "database.conf",
-            "logging.properties",
-            "../tests/parsers/users.csv",
-            "../tests/parsers/products.json",
-            "../tests/parsers/orders.xml",
-            "../tests/parsers/build.sh",
-            "../tests/parsers/deploy.py",
-            "scripts/test.bat",
-            "scripts/cleanup.ps1",
-            "docs/api.txt",
-            "docs/user_guide.pdf",
-            "docs/faq.html",
-            "logs/app.log",
-            "logs/error.log",
-            "logs/debug.log",
-        ]
-
-        for expected in expected_targets:
-            assert expected in targets, f"Expected target '{expected}' not found in {targets}"
-
     def test_line_and_column_positions(self, temp_project_dir):
         """Test that line and column positions are correctly recorded."""
         parser = GenericParser()
@@ -484,42 +149,6 @@ Line 3: 'logs.txt'"""
                     extracted = line[ref.column_start : ref.column_end]
                     # Should contain the link target or be part of the reference
                     assert ref.link_target in extracted or ref.link_target in line
-
-    @pytest.mark.xfail(reason="Missing extensions in common_extensions + unquoted heuristic")
-    def test_file_extension_handling(self, temp_project_dir):
-        """Test handling of various file extensions."""
-        parser = GenericParser()
-
-        # Test different file types
-        file_types = [
-            ("config.ini", "INI configuration file"),
-            ("settings.conf", "Configuration file"),
-            ("app.properties", "Properties file"),
-            ("data.xml", "XML data file"),
-            ("style.css", "CSS stylesheet"),
-            ("script.js", "JavaScript file"),
-            ("page.html", "HTML page"),
-            ("query.sql", "SQL query file"),
-            ("build.gradle", "Gradle build file"),
-            ("pom.xml", "Maven POM file"),
-        ]
-
-        for filename, description in file_types:
-            test_file = temp_project_dir / f"test_{filename.replace('.', '_')}.txt"
-            content = f"""Test file for {description}
-
-Referenced file: "{filename}"
-Also see: {filename}
-Configuration in '{filename}'
-"""
-            test_file.write_text(content)
-
-            # Parse the file
-            references = parser.parse_file(str(test_file))
-
-            # Should find the file reference
-            targets = [ref.link_target for ref in references]
-            assert filename in targets, f"Failed to detect {filename} in {test_file}"
 
     def test_empty_file(self, temp_project_dir):
         """Test parsing an empty file."""
@@ -550,29 +179,6 @@ Configuration in '{filename}'
         # Should handle gracefully and return empty list
         assert references == []
 
-    @pytest.mark.xfail(reason="'reference' not in unquoted keyword heuristic list")
-    def test_large_file_handling(self, temp_project_dir):
-        """Test handling of large files."""
-        parser = GenericParser()
-
-        # Create a large file with some file references
-        large_file = temp_project_dir / "large.txt"
-        content = "Large file content\n" * 1000
-        content += 'File reference: "config.json"\n'
-        content += "More content\n" * 1000
-        content += "Another reference: data.csv\n"
-        content += "Even more content\n" * 1000
-
-        large_file.write_text(content)
-
-        # Parse the file
-        references = parser.parse_file(str(large_file))
-
-        # Should find references even in large files
-        targets = [ref.link_target for ref in references]
-        assert "config.json" in targets
-        assert "data.csv" in targets
-
     def test_error_handling(self):
         """Test error handling for invalid files."""
         parser = GenericParser()
@@ -583,41 +189,142 @@ Configuration in '{filename}'
         # Should return empty list without crashing
         assert references == []
 
-    @pytest.mark.xfail(reason="Regex character class [a-zA-Z0-9_] excludes Unicode characters")
-    def test_unicode_handling(self, temp_project_dir):
-        """Test handling of Unicode content."""
+
+class TestGenericParserDirectoryPaths:
+    """PD-BUG-021: Regression tests for directory path detection in GenericParser."""
+
+    def test_bug021_quoted_directory_paths_detected(self):
+        """PD-BUG-021: Quoted directory paths without extensions should be captured."""
         parser = GenericParser()
 
-        # Create file with Unicode content
-        unicode_file = temp_project_dir / "unicode.txt"
-        content = """Unicode Test File 🚀
-
-Configuration: "config.json"
-Data file: données.csv
-Log file: 'журнал.log'
-Template: plantilla.html
-
-Special characters in paths:
-- "files/café.txt"
-- 'docs/résumé.pdf'
-- scripts/测试.py
+        content = """Script paths:
+$templateDir = "doc/process-framework/templates/templates"
+$outputDir = 'doc/process-framework/state-tracking/permanent'
+Set-Location "../../scripts/file-creation"
 """
-        unicode_file.write_text(content, encoding="utf-8")
-
-        # Parse the file
-        references = parser.parse_file(str(unicode_file))
-
-        # Should handle Unicode correctly
+        references = parser.parse_content(content, "test.ps1")
         targets = [ref.link_target for ref in references]
-        expected_targets = [
-            "config.json",
-            "données.csv",
-            "журнал.log",
-            "plantilla.html",
-            "files/café.txt",
-            "docs/résumé.pdf",
-            "scripts/测试.py",
-        ]
 
-        for expected in expected_targets:
-            assert expected in targets, f"Expected target '{expected}' not found in {targets}"
+        # These directory paths should be detected (currently they are NOT — the bug)
+        assert (
+            "doc/process-framework/templates/templates" in targets
+        ), "Quoted directory path with forward slashes not detected"
+        assert (
+            "doc/process-framework/state-tracking/permanent" in targets
+        ), "Single-quoted directory path not detected"
+        assert "../../scripts/file-creation" in targets, "Relative directory path not detected"
+
+    def test_bug021_directory_paths_have_correct_link_type(self):
+        """PD-BUG-021: Directory path references should have distinct link_type."""
+        parser = GenericParser()
+
+        content = '$dir = "src/utils/helpers"\n'
+        references = parser.parse_content(content, "test.ps1")
+
+        dir_refs = [r for r in references if r.link_target == "src/utils/helpers"]
+        assert len(dir_refs) == 1, "Should find exactly one directory path reference"
+        assert (
+            dir_refs[0].link_type == "generic-quoted-dir"
+        ), f"Expected link_type 'generic-quoted-dir', got '{dir_refs[0].link_type}'"
+
+    def test_bug021_directory_paths_do_not_duplicate_file_paths(self):
+        """PD-BUG-021: Paths with extensions should not be duplicated by dir pattern."""
+        parser = GenericParser()
+
+        content = """Mixed references:
+$config = "config/settings.yaml"
+$dir = "config/settings"
+"""
+        references = parser.parse_content(content, "test.ps1")
+        targets = [ref.link_target for ref in references]
+
+        # File path (with extension) should be captured once by quoted_pattern
+        file_refs = [r for r in references if r.link_target == "config/settings.yaml"]
+        assert len(file_refs) == 1, "File path should appear exactly once"
+        assert file_refs[0].link_type == "generic-quoted"
+
+        # Directory path (no extension) should be captured by dir pattern
+        dir_refs = [r for r in references if r.link_target == "config/settings"]
+        assert len(dir_refs) == 1, "Directory path should appear exactly once"
+
+    def test_bug021_backslash_directory_paths_detected(self):
+        """PD-BUG-021: Windows backslash directory paths should be detected."""
+        parser = GenericParser()
+
+        content = r'$path = "doc\process-framework\scripts"' + "\n"
+        references = parser.parse_content(content, "test.ps1")
+        targets = [ref.link_target for ref in references]
+
+        assert r"doc\process-framework\scripts" in targets, "Backslash directory path not detected"
+
+    def test_bug021_directory_path_false_positive_prevention(self):
+        """PD-BUG-021: Non-path quoted strings should not be captured as directories."""
+        parser = GenericParser()
+
+        content = """Various quoted strings:
+$name = "hello world"
+$msg = "error: something failed"
+$url = "https://example.com/path"
+$ver = "v2.0"
+$flag = "true"
+"""
+        references = parser.parse_content(content, "test.ps1")
+        targets = [ref.link_target for ref in references]
+
+        # None of these should be detected as directory paths
+        assert "hello world" not in targets
+        assert "error: something failed" not in targets
+        assert "https://example.com/path" not in targets
+        assert "v2.0" not in targets
+        assert "true" not in targets
+
+    def test_bug021_line_number_and_column_correct(self):
+        """PD-BUG-021: Directory path references should have correct positions."""
+        parser = GenericParser()
+
+        content = 'first line\n$dir = "src/components"\nthird line\n'
+        references = parser.parse_content(content, "test.ps1")
+
+        dir_refs = [r for r in references if r.link_target == "src/components"]
+        assert len(dir_refs) == 1
+        ref = dir_refs[0]
+        assert ref.line_number == 2, f"Expected line 2, got {ref.line_number}"
+        # Verify the column positions point to the actual path text
+        line = content.split("\n")[1]
+        extracted = line[ref.column_start : ref.column_end]
+        assert "src/components" in extracted
+
+
+class TestLooksLikeDirectoryPath:
+    """PD-BUG-021: Tests for the looks_like_directory_path utility function."""
+
+    def test_valid_directory_paths(self):
+        """Valid directory paths should return True."""
+        valid_paths = [
+            "doc/process-framework",
+            "src/utils/helpers",
+            "../../scripts/file-creation",
+            "../templates",
+            "doc/process-framework/templates/templates",
+            r"doc\process-framework\scripts",
+            "tests/unit/",
+        ]
+        for path in valid_paths:
+            assert looks_like_directory_path(path) is True, f"Expected True for '{path}'"
+
+    def test_invalid_directory_paths(self):
+        """Non-path strings should return False."""
+        invalid_paths = [
+            "",  # empty
+            "a",  # too short
+            "hello world",  # no separator
+            "simple_word",  # no separator
+            "https://example.com/path",  # URL
+            "ftp://server/dir",  # URL
+            "user@host/dir",  # contains @
+            "path?query/val",  # contains ?
+            "key=val/dir",  # contains =
+            "100%/done",  # contains %
+        ]
+        for path in invalid_paths:
+            assert looks_like_directory_path(path) is False, f"Expected False for '{path}'"

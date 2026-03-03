@@ -1,0 +1,25 @@
+[
+  {
+    "form_id": "YYYYMMDD-HHMMSS-PF-TSK-XXX-feedback",
+    "task_id": "PF-TSK-XXX",
+    "task_context": "Task Name",
+    "feedback_type": "MultipleTools",
+    "form_date": "YYYY-MM-DD",
+    "session_duration_minutes": null,
+    "review_cycle_id": "tools-review-YYYYMMDD",
+    "archived_form_path": "doc/process-framework/feedback/archive/YYYY-MM/tools-review-YYYYMMDD/processed-forms/FILENAME.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 5,
+    "tools": [
+      {
+        "tool_name": "Tool Display Name",
+        "tool_doc_id": "PF-XXX-NNN",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  }
+]

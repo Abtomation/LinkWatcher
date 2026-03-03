@@ -22,6 +22,10 @@
 .PARAMETER Priority
     Priority level of the refactoring (High, Medium, Low). Defaults to "Medium"
 
+.PARAMETER DebtItemId
+    Optional. The tech debt item ID that triggered this refactoring (e.g., "TD007", "PF-TDI-003").
+    When provided, auto-populates the debt_item frontmatter field and a "Debt Item" line in the plan body.
+
 .PARAMETER Lightweight
     If specified, creates a lightweight refactoring plan using the compact template (PF-TEM-050).
     Use for low-effort items: ≤15 min effort, single file, no architectural impact.
@@ -38,6 +42,9 @@
 
 .EXAMPLE
     .\New-RefactoringPlan.ps1 -RefactoringScope "Replace bare excepts in handler.py (TD011)" -TargetArea "linkwatcher/handler.py" -Lightweight
+
+.EXAMPLE
+    .\New-RefactoringPlan.ps1 -RefactoringScope "Decompose God Class (TD005)" -TargetArea "linkwatcher/handler.py" -Priority "High" -DebtItemId "TD005 (PF-TDI-001)"
 
 .NOTES
     - Requires PowerShell execution policy to allow script execution
@@ -62,6 +69,9 @@ param(
     [Parameter(Mandatory = $false)]
     [ValidateSet("High", "Medium", "Low")]
     [string]$Priority = "Medium",
+
+    [Parameter(Mandatory = $false)]
+    [string]$DebtItemId,
 
     [Parameter(Mandatory = $false)]
     [switch]$Lightweight,
@@ -104,14 +114,19 @@ $additionalMetadataFields = @{
 if ($Lightweight) {
     $additionalMetadataFields["mode"] = "lightweight"
 }
+if ($DebtItemId) {
+    $additionalMetadataFields["debt_item"] = $DebtItemId
+}
 
 # Prepare custom replacements for the template
+$debtItemLine = if ($DebtItemId) { "- **Debt Item**: $DebtItemId`n" } else { "" }
 $customReplacements = @{
     "[Refactoring Scope]" = $RefactoringScope
     "[Target Area]"       = $TargetArea
     "[Priority Level]"    = $Priority
     "[Creation Date]"     = Get-Date -Format "yyyy-MM-dd"
     "[Author]"            = "AI Agent & Human Partner"
+    "[Debt Item Line]"    = $debtItemLine
 }
 
 # Create the document using standardized process
@@ -126,6 +141,9 @@ try {
         "Target Area: $TargetArea",
         "Priority: $Priority"
     )
+    if ($DebtItemId) {
+        $details += "Debt Item: $DebtItemId"
+    }
 
     # Add next steps if not opening in editor
     if (-not $OpenInEditor) {

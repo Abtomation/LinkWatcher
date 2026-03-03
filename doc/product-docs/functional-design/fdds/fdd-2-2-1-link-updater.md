@@ -74,6 +74,7 @@ retrospective: true
 - **2.2.1-BR-4**: When `backup_enabled=True` (default), a `.linkwatcher.bak` copy is created before the atomic write
 - **2.2.1-BR-5**: Backup creation failure is non-blocking — the update proceeds even if backup fails (graceful degradation)
 - **2.2.1-BR-6**: Each link type has its own replacement method, ensuring syntax-correct modifications (markdown inline, reference-style, generic position-based)
+- **2.2.1-BR-7**: When a markdown link's display text exactly matches the old link target path, both the display text and the target are updated to the new path (PD-BUG-012)
 
 ### Acceptance Criteria
 

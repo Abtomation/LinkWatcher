@@ -64,17 +64,18 @@ The `LinkUpdater` class performs atomic file modifications to update link refere
 | LinkUpdater | Markdown anchor replace | `test_replace_markdown_target_with_anchor` — anchors preserved inline | None |
 | LinkUpdater | Non-markdown replace | `test_replace_in_line_non_markdown` — YAML `file: old.txt` replacement | None |
 | LinkUpdater | Path normalization | `test_normalize_path` — leading slashes, backslashes, `./` | None |
-| LinkUpdater | Exact path replace | `test_replace_path_part_exact_match` — exact match including leading slash | None |
-| LinkUpdater | Partial path replace | `test_replace_path_part_partial_match` — `docs/old.txt` → `docs/new.txt` | None |
-| LinkUpdater | No match | `test_replace_path_part_no_match` — non-matching path unchanged | None |
 | LinkUpdater | Dry-run update | `test_update_references_dry_run` — reports success, file unchanged | `temp_project_dir` |
 | LinkUpdater | Real update | `test_update_references_real_mode` — file content modified | `temp_project_dir` |
 | LinkUpdater | Multi-ref same file | `test_update_multiple_references_same_file` — 3 refs all updated | `temp_project_dir` |
 | LinkUpdater | Backup creation | `test_update_references_with_backup` — .linkwatcher.bak created with original content | `temp_project_dir` |
 | LinkUpdater | Error handling | `test_update_references_error_handling` — non-existent file: 1 error, 0 updates | None |
 | LinkUpdater | Atomic writes | `test_atomic_file_operations` — _write_file_safely called during updates | `temp_project_dir` |
+| LinkUpdater | Link text update (PD-BUG-012) | `test_link_text_updated_when_matches_old_target` — text matching old target updated to new target | None |
+| LinkUpdater | Link text preserved (display name) | `test_link_text_not_updated_when_display_name` — display name text preserved unchanged | None |
+| LinkUpdater | Link text preserved (filename) | `test_link_text_not_updated_when_filename_only` — filename-only text preserved unchanged | None |
+| LinkUpdater | Link text end-to-end | `test_link_text_updated_end_to_end` — full file update with link text matching old target | `temp_project_dir` |
 
-**Test File**: [`tests/unit/test_updater.py`](../../../tests/unit/test_updater.py) (20 methods)
+**Test File**: [`tests/unit/test_updater.py`](../../../tests/unit/test_updater.py) (24 methods)
 
 ### Integration Tests
 
@@ -90,8 +91,10 @@ The `LinkUpdater` class performs atomic file modifications to update link refere
 | Generic text | `test_lr_008_generic_text_files` | Quoted and standalone refs in plain text updated | `temp_project_dir` |
 | Mixed types | `test_mixed_reference_types` | 5 different reference types in one file all updated | `temp_project_dir` |
 | False positives | `test_false_positive_avoidance` | Only real link found, not URLs/emails/versions | `temp_project_dir` |
+| Substring corruption (PD-BUG-025) | `test_bug025_yaml_substring_path_not_corrupted` | YAML with config.yaml and configs/config.yaml: each updated independently, no substring corruption | `temp_project_dir` |
+| Substring corruption (PD-BUG-025) | `test_bug025_generic_quoted_substring_not_corrupted` | PowerShell with helpers.py and utils/helpers.py in quotes: each updated independently | `temp_project_dir` |
 
-**Test File**: [`tests/integration/test_link_updates.py`](../../../tests/integration/test_link_updates.py) (10 methods)
+**Test File**: [`tests/integration/test_link_updates.py`](../../../tests/integration/test_link_updates.py) (12 methods)
 
 ## Test Implementation Roadmap
 
@@ -135,8 +138,8 @@ The `LinkUpdater` class performs atomic file modifications to update link refere
 ### Files to Reference
 
 - **TDD**: [`doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-2-1-link-updater-t2.md`](../../../doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-2-1-link-updater-t2.md)
-- **Existing Tests**: [`tests/unit/test_updater.py`](../../../tests/unit/test_updater.py) (20 methods), [`tests/integration/test_link_updates.py`](../../../tests/integration/test_link_updates.py) (10 methods)
-- **Source Code**: [`linkwatcher/updater.py`](../../../linkwatcher/updater.py)
+- **Existing Tests**: [`tests/unit/test_updater.py`](../../../tests/unit/test_updater.py) (24 methods), [`tests/integration/test_link_updates.py`](../../../tests/integration/test_link_updates.py) (10 methods)
+- **Source Code**: [`linkwatcher/updater.py`](../../../linkwatcher/updater.py), [`linkwatcher/path_resolver.py`](../../../linkwatcher/path_resolver.py)
 
 ---
 

@@ -70,9 +70,10 @@ Mixed content with [inline link](target.txt) in paragraph.
         # Verify all links were updated
         md_updated = md_file.read_text()
 
-        # Count occurrences
+        # Count occurrences — subtract new_target.txt hits to get bare old refs
         new_count = md_updated.count("new_target.txt")
-        old_count = md_updated.count("target.txt")
+        total_target_count = md_updated.count("target.txt")
+        old_count = total_target_count - new_count
 
         assert new_count >= 4  # All links should be updated
         assert old_count == 0  # No old links should remain
@@ -543,7 +544,7 @@ HTML: <a href="shared.txt">link</a>
         # Verify updates
         mixed_updated = mixed_file.read_text()
         assert "common.txt" in mixed_updated
-        assert mixed_updated.count("shared.txt") == 0  # All should be updated
+        assert mixed_updated.count("shared.txt") == 1  # Only backtick code span preserved
 
     def test_false_positive_avoidance(self, temp_project_dir):
         """Test that false positives are avoided."""
@@ -628,3 +629,229 @@ class TestStaleLineNumberHandling:
         updated_content = source_file.read_text()
         assert "target.txt" not in updated_content or "subdir/target.txt" in updated_content
         assert "subdir/target.txt" in updated_content
+
+
+class TestBug010TitlePreservation:
+    """Regression tests for PD-BUG-010: Markdown link title attribute lost during updates."""
+
+    def test_bug010_title_preserved_when_file_moved_deeper(self, temp_project_dir):
+        """
+        PD-BUG-010: Markdown link title attribute lost during updates.
+
+        When a markdown file with titled links is moved to a DEEPER directory,
+        the handler's _update_links_within_moved_file must preserve title attributes
+        while updating relative paths.
+
+        Root cause: handler.py regex in _update_links_within_moved_file did not
+        include an optional title group, so links with titles failed to match
+        and were silently not updated.
+        """
+        # Create a target file at project root
+        target_file = temp_project_dir / "target.txt"
+        target_file.write_text("Target content")
+
+        # Create a markdown file at root level with titled links to target.txt
+        md_file = temp_project_dir / "guide.md"
+        md_content = """# Guide
+
+Links with titles:
+- [Link with double-quote title](target.txt "API Reference")
+- [Link with single-quote title](target.txt 'Quick Guide')
+- [Link with paren title](target.txt (See Also))
+- [Link without title](target.txt)
+"""
+        md_file.write_text(md_content)
+
+        # Initialize service and scan
+        service = LinkWatcherService(str(temp_project_dir))
+        service._initial_scan()
+
+        # Move the markdown file into a subdirectory (docs/sub/)
+        # This forces relative paths to change: target.txt → ../../target.txt
+        sub_dir = temp_project_dir / "docs" / "sub"
+        sub_dir.mkdir(parents=True)
+        new_md_file = sub_dir / "guide.md"
+        md_file.rename(new_md_file)
+
+        # Simulate move event — trigger internal link update
+        event = FileMovedEvent(str(md_file), str(new_md_file))
+        service.handler._handle_file_moved(event)
+
+        # Read updated content
+        updated_content = new_md_file.read_text()
+
+        # Old relative path (target.txt) must NOT remain — it should be ../../target.txt now
+        # Count occurrences of just "target.txt" that are NOT preceded by ../../
+        # Easiest: check that ../../target.txt appears for all links
+        assert (
+            '../../target.txt "API Reference"' in updated_content
+        ), "Double-quote title must be preserved with updated path"
+        assert (
+            "../../target.txt 'Quick Guide'" in updated_content
+        ), "Single-quote title must be preserved with updated path"
+        assert (
+            "../../target.txt (See Also)" in updated_content
+        ), "Parenthesized title must be preserved with updated path"
+        assert (
+            "[Link without title](../../target.txt)" in updated_content
+        ), "Link without title should also be updated"
+
+    def test_bug010_title_preserved_cross_depth_move(self, temp_project_dir):
+        """
+        PD-BUG-010: Title preservation when file moves across different depths.
+
+        Moving a file from a/b/doc.md to c/doc.md should update relative links
+        AND preserve any title attributes on those links.
+        """
+        # Create target file at project root level
+        target_file = temp_project_dir / "resources" / "data.txt"
+        target_file.parent.mkdir(parents=True, exist_ok=True)
+        target_file.write_text("Data content")
+
+        # Create markdown file at a/b/doc.md with link going up two levels
+        deep_dir = temp_project_dir / "a" / "b"
+        deep_dir.mkdir(parents=True)
+        md_file = deep_dir / "doc.md"
+        md_content = '# Doc\n\nSee [data](../../resources/data.txt "Important Data") for details.\n'
+        md_file.write_text(md_content)
+
+        # Initialize service and scan
+        service = LinkWatcherService(str(temp_project_dir))
+        service._initial_scan()
+
+        # Move file from a/b/doc.md to c/doc.md (shallower)
+        shallow_dir = temp_project_dir / "c"
+        shallow_dir.mkdir()
+        new_md_file = shallow_dir / "doc.md"
+        md_file.rename(new_md_file)
+
+        # Simulate move event
+        event = FileMovedEvent(str(md_file), str(new_md_file))
+        service.handler._handle_file_moved(event)
+
+        # Read updated content
+        updated_content = new_md_file.read_text()
+
+        # From c/doc.md, path to resources/data.txt is ../resources/data.txt (one level up)
+        # Old path was ../../resources/data.txt (two levels up) — must NOT remain
+        assert (
+            "../../resources/data.txt" not in updated_content
+        ), "Old relative path should be replaced"
+        assert "../resources/data.txt" in updated_content, "New relative path should be present"
+        assert '"Important Data"' in updated_content, "Title attribute must be preserved after move"
+        # Verify the complete link format
+        assert (
+            '[data](../resources/data.txt "Important Data")' in updated_content
+        ), "Complete link with title must be correctly formed"
+
+
+class TestBug025SubstringCorruption:
+    """Regression tests for PD-BUG-025: Greedy str.replace corrupts file content.
+
+    When non-markdown link types use content.replace(ref.link_target, new_target),
+    a short path like 'config.yaml' can match as a substring inside a longer path
+    like 'configs/config.yaml', corrupting the longer reference.
+    """
+
+    def test_bug025_yaml_substring_path_not_corrupted(self, temp_project_dir):
+        """
+        PD-BUG-025: A YAML file with both 'config.yaml' and 'configs/config.yaml'
+        should only update each reference independently without substring corruption.
+
+        The short path 'config.yaml' must NOT corrupt the longer 'configs/config.yaml'
+        via unbounded str.replace.
+        """
+        # Create target files
+        config_file = temp_project_dir / "config.yaml"
+        config_file.write_text("main: true")
+
+        configs_dir = temp_project_dir / "configs"
+        configs_dir.mkdir()
+        nested_config = configs_dir / "config.yaml"
+        nested_config.write_text("nested: true")
+
+        # Create a YAML file referencing both paths
+        yaml_file = temp_project_dir / "setup.yaml"
+        yaml_content = "main_config: config.yaml\n" "nested_config: configs/config.yaml\n"
+        yaml_file.write_text(yaml_content)
+
+        # Initialize service and scan
+        service = LinkWatcherService(str(temp_project_dir))
+        service._initial_scan()
+
+        # Move yaml_file into a subdirectory
+        sub_dir = temp_project_dir / "deploy"
+        sub_dir.mkdir()
+        new_yaml_file = sub_dir / "setup.yaml"
+        yaml_file.rename(new_yaml_file)
+
+        # Simulate move event
+        event = FileMovedEvent(str(yaml_file), str(new_yaml_file))
+        service.handler._handle_file_moved(event)
+
+        # Read updated content
+        updated_content = new_yaml_file.read_text()
+
+        # The short path should be updated to go up one level
+        assert (
+            "main_config: ../config.yaml" in updated_content
+        ), "Short path should be updated to ../config.yaml"
+
+        # The longer path must NOT be corrupted by the short path replacement
+        # Bug: str.replace("config.yaml", "../config.yaml") would turn
+        # "configs/config.yaml" into "configs/../config.yaml"
+        assert (
+            "configs/../config.yaml" not in updated_content
+        ), "Longer path must NOT be corrupted by substring replacement"
+        assert (
+            "../configs/config.yaml" in updated_content
+        ), "Longer path should be independently updated to ../configs/config.yaml"
+
+    def test_bug025_generic_quoted_substring_not_corrupted(self, temp_project_dir):
+        """
+        PD-BUG-025: A generic file (e.g., .ps1) with both a short quoted path
+        and a longer quoted path containing the short one as a suffix should
+        update each independently.
+        """
+        # Create target files
+        helpers_file = temp_project_dir / "helpers.py"
+        helpers_file.write_text("# helpers")
+
+        utils_dir = temp_project_dir / "utils"
+        utils_dir.mkdir()
+        utils_helpers = utils_dir / "helpers.py"
+        utils_helpers.write_text("# utils helpers")
+
+        # Create a PowerShell script referencing both paths in quotes
+        # (.ps1 is a monitored extension handled by GenericParser)
+        script_file = temp_project_dir / "run.ps1"
+        script_content = "# PowerShell script\n" '$a = "helpers.py"\n' '$b = "utils/helpers.py"\n'
+        script_file.write_text(script_content)
+
+        # Initialize service and scan
+        service = LinkWatcherService(str(temp_project_dir))
+        service._initial_scan()
+
+        # Move the script into a subdirectory
+        sub_dir = temp_project_dir / "scripts"
+        sub_dir.mkdir()
+        new_script = sub_dir / "run.ps1"
+        script_file.rename(new_script)
+
+        # Simulate move event
+        event = FileMovedEvent(str(script_file), str(new_script))
+        service.handler._handle_file_moved(event)
+
+        # Read updated content
+        updated_content = new_script.read_text()
+
+        # The short path should be updated
+        assert '"../helpers.py"' in updated_content, "Short path should be updated to ../helpers.py"
+
+        # The longer path must NOT be corrupted
+        assert (
+            "utils/../helpers.py" not in updated_content
+        ), "Longer path must NOT be corrupted by substring replacement"
+        assert (
+            '"../utils/helpers.py"' in updated_content
+        ), "Longer path should be independently updated to ../utils/helpers.py"

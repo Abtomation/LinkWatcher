@@ -14,6 +14,7 @@ import threading
 import time
 from datetime import datetime
 from enum import Enum
+from functools import wraps
 from pathlib import Path
 from typing import Any, Dict, Optional, Union
 
@@ -180,18 +181,21 @@ class PerformanceLogger:
     def __init__(self, logger_name: str = "linkwatcher.performance"):
         self.logger = structlog.get_logger(logger_name)
         self._timers = {}
+        self._timers_lock = threading.Lock()  # PD-BUG-027: thread-safe timer access
 
     def start_timer(self, operation: str) -> str:
         """Start timing an operation."""
         timer_id = f"{operation}_{int(time.time() * 1000000)}"
-        self._timers[timer_id] = time.perf_counter()
+        with self._timers_lock:
+            self._timers[timer_id] = time.perf_counter()
         return timer_id
 
     def end_timer(self, timer_id: str, operation: str, **kwargs):
         """End timing and log the result."""
-        if timer_id in self._timers:
-            duration = time.perf_counter() - self._timers[timer_id]
-            del self._timers[timer_id]
+        with self._timers_lock:
+            start_time = self._timers.pop(timer_id, None)
+        if start_time is not None:
+            duration = time.perf_counter() - start_time
 
             self.logger.info(
                 "operation_completed",
@@ -226,6 +230,10 @@ class LinkWatcherLogger:
         self.colored_output = colored_output
         self.show_icons = show_icons
         self.json_logs = json_logs
+
+        # Reset structlog to clear cached loggers from prior configurations
+        # (PD-BUG-015: without this, cached BoundLogger instances retain old processor chains)
+        structlog.reset_defaults()
 
         # Configure structlog
         structlog.configure(
@@ -390,6 +398,20 @@ def get_logger() -> LinkWatcherLogger:
     return _logger
 
 
+def reset_logger():
+    """Reset the global logger instance, closing any open handlers.
+
+    Intended for test isolation — avoids tests reaching into private
+    module state (``_logger = None``).
+    """
+    global _logger
+    if _logger is not None:
+        for handler in _logger.logger.handlers[:]:
+            handler.close()
+            _logger.logger.removeHandler(handler)
+    _logger = None
+
+
 def setup_logging(
     level: LogLevel = LogLevel.INFO,
     log_file: Optional[str] = None,
@@ -401,6 +423,11 @@ def setup_logging(
 ) -> LinkWatcherLogger:
     """Setup and configure the global logger."""
     global _logger
+    # Close old logger's handlers to release file locks
+    # (PD-BUG-015: prevents PermissionError on Windows when log files are replaced)
+    if _logger is not None:
+        for handler in _logger.logger.handlers[:]:
+            handler.close()
     _logger = LinkWatcherLogger(
         level=level,
         log_file=log_file,
@@ -417,6 +444,7 @@ def with_context(**kwargs):
     """Decorator to add context to all log messages in a function."""
 
     def decorator(func):
+        @wraps(func)
         def wrapper(*args, **func_kwargs):
             logger = get_logger()
             logger.set_context(**kwargs)

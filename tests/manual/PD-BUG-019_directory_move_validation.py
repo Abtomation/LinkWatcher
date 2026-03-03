@@ -73,10 +73,7 @@ def run_validation():
         )
 
         index = tmp_path / "index.md"
-        index.write_text(
-            "# Index\n\n"
-            "See the [guide](docs/guide.md) and [API](docs/api.md).\n"
-        )
+        index.write_text("# Index\n\n" "See the [guide](docs/guide.md) and [API](docs/api.md).\n")
 
         new_docs_dir = tmp_path / "documentation"
         new_docs_dir.mkdir()
@@ -94,8 +91,10 @@ def run_validation():
         refs_api = service.link_db.get_references_to_file("docs/api.md")
         refs_faq = service.link_db.get_references_to_file("docs/faq.md")
         refs_qs = service.link_db.get_references_to_file("docs/tutorials/quickstart.md")
-        print(f"  Initial refs: guide={len(refs_guide)}, api={len(refs_api)}, "
-              f"faq={len(refs_faq)}, quickstart={len(refs_qs)}")
+        print(
+            f"  Initial refs: guide={len(refs_guide)}, api={len(refs_api)}, "
+            f"faq={len(refs_faq)}, quickstart={len(refs_qs)}"
+        )
 
         assert len(refs_guide) >= 2, f"Expected >= 2 refs to guide, got {len(refs_guide)}"
         assert len(refs_api) >= 2, f"Expected >= 2 refs to api, got {len(refs_api)}"
@@ -108,16 +107,17 @@ def run_validation():
         dir_delete_event.is_directory = False  # Windows behavior
         service.handler.on_deleted(dir_delete_event)
 
-        pending_count = len(service.handler.pending_dir_moves)
+        pending_count = len(service.handler._dir_move_detector.pending_dir_moves)
         print(f"  Pending dir moves after delete: {pending_count}")
         assert pending_count >= 1, "Should have pending_dir_moves entry"
 
-        if "docs" in service.handler.pending_dir_moves:
-            pending = service.handler.pending_dir_moves["docs"]
+        if "docs" in service.handler._dir_move_detector.pending_dir_moves:
+            pending = service.handler._dir_move_detector.pending_dir_moves["docs"]
             print(f"  Buffered files: {pending.total_expected}")
             print(f"  dir_prefix: {repr(pending.dir_prefix)}")
-            assert pending.dir_prefix.endswith("/"), \
-                f"dir_prefix must end with '/', got: {repr(pending.dir_prefix)}"
+            assert pending.dir_prefix.endswith(
+                "/"
+            ), f"dir_prefix must end with '/', got: {repr(pending.dir_prefix)}"
 
         # Step 3b: Move files and fire create events WITH DELAYS
         # (simulates real watchdog behavior where events arrive over time)

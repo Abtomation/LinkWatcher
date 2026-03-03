@@ -189,28 +189,30 @@ function Get-NextDebtId {
 
     $content = Get-Content $TechnicalDebtTrackingFile -Raw
 
-    # Find all existing TD IDs in the main registry table
-    $tdPattern = '\|\s*(TD\d{3})\s*\|'
-    $matches = [regex]::Matches($content, $tdPattern)
+    # Find all existing TD IDs across both registry and resolved sections
+    # Matches both plain "| TD014 |" and linked "| [TD014](path) |" formats
+    $tdPattern = 'TD(\d{3})'
+    $allMatches = [regex]::Matches($content, $tdPattern)
 
     $existingIds = @()
-    foreach ($match in $matches) {
-        $id = $match.Groups[1].Value
-        if ($id -match 'TD(\d{3})') {
-            $existingIds += [int]$matches.Groups[1].Value
+    foreach ($m in $allMatches) {
+        $numericPart = [int]$m.Groups[1].Value
+        if ($numericPart -gt 0) {
+            $existingIds += $numericPart
         }
     }
 
     # Find the highest number and increment
     if ($existingIds.Count -gt 0) {
-        $maxId = ($existingIds | Measure-Object -Maximum).Maximum
-        $nextId = $maxId + 1
+        $maxId = ($existingIds | Sort-Object -Unique | Measure-Object -Maximum).Maximum
+        $nextId = [int]$maxId + 1
     }
     else {
         $nextId = 1
     }
 
-    return "TD{0:D3}" -f $nextId
+    $formattedId = "TD" + $nextId.ToString().PadLeft(3, '0')
+    return $formattedId
 }
 
 function Find-DebtEntry {
@@ -267,19 +269,26 @@ function Add-NewDebtItem {
     # Find the end of the registry table (look for the line after the last table row)
     $lines = $content -split '\r?\n'
     $registryTableEnd = -1
-    $inRegistryTable = $false
+    $foundRegistryHeading = $false
+    $foundTableRows = $false
 
     for ($i = 0; $i -lt $lines.Count; $i++) {
         $line = $lines[$i]
 
-        # Detect registry table start
+        # Detect registry heading
         if ($line -match '## Technical Debt Registry') {
-            $inRegistryTable = $true
+            $foundRegistryHeading = $true
             continue
         }
 
-        # If we're in the registry table and find a non-table line, we've found the end
-        if ($inRegistryTable -and $line -notmatch '^\|.*\|$' -and $line -notmatch '^[-\s:]+$') {
+        # After heading, look for actual table rows (start with |)
+        if ($foundRegistryHeading -and $line -match '^\|.*\|$') {
+            $foundTableRows = $true
+            continue
+        }
+
+        # Once we've seen table rows, a non-table line means end of table
+        if ($foundTableRows -and $line -notmatch '^\|.*\|$') {
             $registryTableEnd = $i
             break
         }
@@ -297,7 +306,7 @@ function Add-NewDebtItem {
     $newContent = $lines -join "`n"
     Set-Content -Path $TechnicalDebtTrackingFile -Value $newContent -NoNewline
 
-    Write-Log "Successfully added new debt item $newDebtId: $Description" -Level "SUCCESS"
+    Write-Log "Successfully added new debt item ${newDebtId}: $Description" -Level "SUCCESS"
 
     # Update the debt item file with the assigned registry ID if DebtItemId is provided
     if ($DebtItemId) {

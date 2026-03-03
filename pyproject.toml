@@ -115,7 +115,6 @@ source = ["linkwatcher"]
 omit = [
     "*/tests/*",
     "*/test_*",
-    "setup.py",
 ]
 
 [tool.coverage.report]

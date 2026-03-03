@@ -3,9 +3,9 @@ id: PF-TSK-009
 type: Process Framework
 category: Task Definition
 domain: agnostic
-version: 2.1
+version: 2.2
 created: 2024-07-15
-updated: 2026-02-28
+updated: 2026-03-03
 task_type: Discrete
 ---
 
@@ -60,6 +60,7 @@ Analyze, optimize, and document development processes to improve efficiency, qua
 ### Preparation
 
 1. **Select improvement** from [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md)
+   > **Scope rule**: Execute **one improvement per task invocation** unless the human partner explicitly approves batching multiple improvements. If batching is approved, each improvement still follows the full checkpoint workflow independently.
 2. **Review source feedback**: Read the [Tools Review summary](../../feedback/reviews/) and/or specific feedback forms that identified this improvement
 3. **Read current state**: Examine the file(s)/tool(s) to be improved to understand the current implementation
 4. **🚨 CHECKPOINT**: Present problem analysis and proposed approach(es) to human partner
@@ -72,6 +73,7 @@ Analyze, optimize, and document development processes to improve efficiency, qua
 ### Execution
 
 7. Implement changes in small, reviewable increments (never all at once)
+   - **For bulk/repetitive changes** (same pattern across many files): after applying all changes, verify completeness with grep-based checks (e.g., confirm all target files contain the new pattern, confirm no target files still contain the old pattern)
 8. For each significant change:
    a. Present the specific change to be made
    b. **🚨 CHECKPOINT**: Get explicit approval before implementing
@@ -98,6 +100,7 @@ Analyze, optimize, and document development processes to improve efficiency, qua
 
 ## Tools and Scripts
 
+- **[New-ProcessImprovement.ps1](../../scripts/file-creation/New-ProcessImprovement.ps1)** - Add new improvement entries with auto-assigned PF-IMP IDs
 - **[Update-ProcessImprovement.ps1](../../scripts/update/Update-ProcessImprovement.ps1)** - Automate tracking file updates (status changes, completion moves, summary count, update history)
 - **[New-FeedbackForm.ps1](../../scripts/file-creation/New-FeedbackForm.ps1)** - Create feedback forms for task completion
 - **[Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md)** - Central tracking file for all improvements

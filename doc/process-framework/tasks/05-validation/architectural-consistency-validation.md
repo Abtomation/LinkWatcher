@@ -90,7 +90,12 @@ Systematically validates foundational features for architectural pattern adheren
 12. **Update Validation Tracking**: Update the foundational validation tracking matrix with report creation date and link
 13. **Review Quality Gates**: Check if validation meets minimum quality thresholds (average score ≥ 2.0)
 14. **Plan Remediation**: For scores below threshold, create action items for architectural improvements
-15. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+15. **🤖 AUTOMATED: Update Technical Debt Tracking**: Add any new open issues identified during validation to [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md) using the automation script:
+
+    ```powershell
+    .\doc\process-framework\scripts\Update-TechnicalDebtTracking.ps1 -Operation "Add" -Description "Description" -Category "Category" -Location "Location" -Priority "Priority" -EstimatedEffort "Effort" -AssessmentId "PF-VAL-XXX" -Notes "Notes"
+    ```
+16. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 
@@ -104,6 +109,7 @@ The following state files must be updated as part of this task:
 
 - [Foundational Validation Tracking](../../state-tracking/temporary/foundational-validation-tracking.md) - Update validation matrix with report creation date and link in architectural consistency column for validated features
 - [Documentation Map](../../documentation-map.md) - Add new validation report to the validation reports section
+- [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md) - Add new open issues identified during validation to the Technical Debt Registry
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
@@ -118,6 +124,7 @@ Before considering this task finished:
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
   - [ ] [Foundational Validation Tracking](../../state-tracking/temporary/foundational-validation-tracking.md) updated with report creation date and link
   - [ ] [Documentation Map](../../documentation-map.md) updated with new validation report entry
+  - [ ] **AUTOMATED**: [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md) updated with new open issues using `Update-TechnicalDebtTracking.ps1`
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-031" and context "Architectural Consistency Validation"
 
 ## Next Tasks

@@ -109,7 +109,6 @@ def validate_configuration():
         ".github/workflows/ci.yml",
         ".pre-commit-config.yaml",
         "pyproject.toml",
-        "setup.py",
         "pytest.ini",
         "requirements-test.txt",
     ]
