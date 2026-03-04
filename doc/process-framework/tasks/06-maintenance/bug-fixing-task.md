@@ -2,9 +2,9 @@
 id: PF-TSK-007
 type: Process Framework
 category: Task Definition
-version: 1.9
+version: 2.0
 created: 2023-06-15
-updated: 2026-03-03
+updated: 2026-03-04
 task_type: Discrete
 ---
 
@@ -81,6 +81,7 @@ Diagnose, fix, and verify solutions for reported bugs or issues in the applicati
      ../../scripts/Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "InProgress"
      ```
 9. **🚨 CHECKPOINT**: Present reproduction results, affected code area analysis, and proposed investigation approach to human partner
+   - **S-scope bugs**: Combine with Step 12 — present reproduction, root cause analysis, and proposed fix approach in a single checkpoint. After approval, skip directly to Step 13.
 
 ### Execution
 
@@ -89,6 +90,7 @@ Diagnose, fix, and verify solutions for reported bugs or issues in the applicati
 11. Consider alternative approaches to fixing the issue
     - **If multi-session**: Document chosen approach and alternatives in the Fix Approach section
 12. **🚨 CHECKPOINT**: Present root cause analysis, proposed fix approach (with alternatives and trade-offs), and test strategy to human partner for approval
+    - **S-scope bugs**: If already covered in the combined Step 9 checkpoint, skip this step.
 13. **Write regression test(s) BEFORE implementing the fix** — this confirms the test actually catches the bug:
     - Write test(s) that reproduce the exact bug scenario and verify they **FAIL**
     - **Test strategy**:
@@ -131,7 +133,7 @@ Diagnose, fix, and verify solutions for reported bugs or issues in the applicati
     - **TDD** — update technical design descriptions that no longer match the code
     - **Test specification** — update expected behavior or add new test scenarios
     - **FDD** — update functional behavior descriptions if user-facing behavior changed
-    - *Skip this step for simple fixes (e.g., typos, off-by-one errors) that don't alter design or behavior*
+    - *Before marking N/A: briefly check each referenced document to confirm it does not describe the changed component or behavior. Skip only after verifying no documentation references the fix area.*
     - **If multi-session**: Update the Documentation Updates table in the bug fix state file
 23. Refactor code if necessary for better maintainability
 24. Verify the fix resolves the issue completely
@@ -192,7 +194,11 @@ Before considering this task finished:
   - [ ] Testing verification results are documented
   - [ ] Any lessons learned are documented for future reference
   - [ ] Related feature references are updated if bug affects specific features
-  - [ ] If fix changed technical design or behavior: feature implementation state file, TDD, test spec, and/or FDD updated as applicable
+  - [ ] If fix changed technical design or behavior (Step 22):
+    - [ ] Feature implementation state file updated, or N/A — verified file does not reference changed component
+    - [ ] TDD updated, or N/A — verified no design changes affect TDD
+    - [ ] Test specification updated, or N/A — verified no behavior change affects spec
+    - [ ] FDD updated, or N/A — verified no functional change affects FDD
   - [ ] If multi-session: bug fix state file archived to `state-tracking/temporary/old/`
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-007" and context "Bug Fixing"
 

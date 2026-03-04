@@ -2,9 +2,9 @@
 id: PF-GDE-042
 type: Document
 category: General
-version: 1.0
+version: 1.2
 created: 2025-08-17
-updated: 2025-08-17
+updated: 2026-03-04
 guide_title: Foundational Validation Guide
 guide_status: Active
 guide_description: Comprehensive guide for conducting foundational codebase validation using the 6-type validation framework
@@ -18,7 +18,9 @@ related_tasks: PF-TSK-031,PF-TSK-032,PF-TSK-033,PF-TSK-034,PF-TSK-035,PF-TSK-036
 
 This guide provides comprehensive instructions for conducting foundational codebase validation using the 6-type validation framework. It covers all aspects of the validation process, from preparation through execution to reporting and remediation tracking.
 
-The foundational validation framework systematically evaluates the 11 foundational features (0.2.1 through 0.2.11) across 6 specialized validation dimensions to ensure code quality, maintainability, and AI agent continuity.
+The foundational validation framework systematically evaluates a project's foundational features across 6 specialized validation dimensions to ensure code quality, maintainability, and AI agent continuity.
+
+> **⚠️ Project Adaptation Required**: This guide uses illustrative example feature IDs (e.g., `0.2.1`–`0.2.4`). Replace them with your project's actual foundational features as listed in your [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) file.
 
 ## When to Use
 
@@ -58,7 +60,7 @@ Before conducting foundational validation, ensure you have:
 
 - **Access to the codebase**: Full read access to the project's application code
 - **Validation framework setup**: All validation tasks, templates, and scripts are available
-- **Foundational features knowledge**: Understanding of the 11 foundational features (0.2.1-0.2.11)
+- **Foundational features knowledge**: Understanding of your project's foundational features (see [Feature Tracking](../../state-tracking/permanent/feature-tracking.md))
 - **Task system familiarity**: Experience with the AI Task-Based Development System
 - **Context maps access**: Ability to read and interpret validation task context maps
 - **Validation tracking access**: Read/write access to the foundational validation tracking file
@@ -80,23 +82,19 @@ The project's foundational features form the architectural backbone of the syste
 
 ### Foundational Features Overview
 
-| Feature ID | Feature Name                      | Description                       |
-| ---------- | --------------------------------- | --------------------------------- |
-| 0.2.1      | Repository Pattern Implementation | Data access abstraction layer     |
-| 0.2.2      | Service Layer Architecture        | Business logic organization       |
-| 0.2.3      | Data Models & DTOs                | Data structure definitions        |
-| 0.2.4      | Error Handling Framework          | Consistent error management       |
-| 0.2.5      | Logging & Monitoring Setup        | Application observability         |
-| 0.2.6      | Navigation & Routing Framework    | App navigation structure          |
-| 0.2.7      | State Management Architecture     | Application state handling        |
-| 0.2.8      | API Client & Network Layer        | External service integration      |
-| 0.2.9      | Caching & Offline Support         | Performance optimization          |
-| 0.2.10     | Security Framework                | Application security measures     |
-| 0.2.11     | Configuration Management          | Environment and settings handling |
+Consult your project's [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) file for the definitive list of foundational features. The table below is an **illustrative example**:
+
+| Feature ID | Feature Name            | Description                   |
+| ---------- | ----------------------- | ----------------------------- |
+| 0.2.1      | Core Architecture       | Central orchestration layer   |
+| 0.2.2      | Data Storage Layer      | Persistence and data access   |
+| 0.2.3      | Configuration System    | Settings loading & validation |
+| 0.2.4      | Logging & Monitoring    | Application observability     |
+| ...        | *(your other features)* | ...                           |
 
 ### Validation Philosophy
 
-The validation framework uses a **multi-dimensional approach** where each foundational feature is evaluated across 6 specialized validation types. This creates a comprehensive 66-cell validation matrix (11 features × 6 validation types) that ensures no aspect of code quality is overlooked.
+The validation framework uses a **multi-dimensional approach** where each foundational feature is evaluated across 6 specialized validation types. This creates a comprehensive validation matrix (N features × 6 validation types) that ensures no aspect of code quality is overlooked.
 
 ## Validation Framework Overview
 
@@ -141,15 +139,15 @@ The foundational validation framework consists of 6 specialized validation types
 
 ### Validation Matrix Structure
 
-The validation framework creates a 66-cell matrix:
+The validation framework creates an N×6 matrix (one row per foundational feature, one column per validation type):
 
-| Feature | Arch | Quality | Integration | Docs | Extensibility | AI Continuity |
-| ------- | ---- | ------- | ----------- | ---- | ------------- | ------------- |
-| 0.2.1   | ⏳   | ⏳      | ⏳          | ⏳   | ⏳            | ⏳            |
-| 0.2.2   | ⏳   | ⏳      | ⏳          | ⏳   | ⏳            | ⏳            |
-| ...     | ...  | ...     | ...         | ...  | ...           | ...           |
+| Feature       | Arch | Quality | Integration | Docs | Extensibility | AI Continuity |
+| ------------- | ---- | ------- | ----------- | ---- | ------------- | ------------- |
+| *(feature 1)* | ⏳   | ⏳      | ⏳          | ⏳   | ⏳            | ⏳            |
+| *(feature 2)* | ⏳   | ⏳      | ⏳          | ⏳   | ⏳            | ⏳            |
+| ...           | ...  | ...     | ...         | ...  | ...           | ...           |
 
-Each cell represents a validation report linking a specific feature to a validation type.
+Each cell represents a validation report linking a specific feature to a validation type. Populate the rows with your project's actual feature IDs from [Feature Tracking](../../state-tracking/permanent/feature-tracking.md).
 
 ## Validation Types Deep Dive
 
@@ -167,10 +165,12 @@ Each cell represents a validation report linking a specific feature to a validat
 
 **Session Planning**:
 
-- Session 1: Repository Pattern (0.2.1), Service Layer (0.2.2), Data Models (0.2.3)
-- Session 2: Error Handling (0.2.4), Logging (0.2.5), Navigation (0.2.6)
-- Session 3: State Management (0.2.7), API Client (0.2.8), Caching (0.2.9)
-- Session 4: Security (0.2.10), Configuration (0.2.11)
+Group your project's foundational features into batches of 2–4 per session, considering dependencies and related functionality. Example:
+
+- Session 1: Core architecture features (e.g., data models, service layer)
+- Session 2: Infrastructure features (e.g., logging, configuration)
+- Session 3: Remaining features
+- *(add sessions as needed for your project's feature count)*
 
 ### Code Quality & Standards Validation
 
@@ -248,8 +248,8 @@ Each cell represents a validation report linking a specific feature to a validat
    # Navigate to validation directory
    Set-Location "doc/process-framework/validation"
 
-   # Generate validation report for specific type and features
-   ..\scripts\file-creation\New-ValidationReport.ps1 -ValidationType "ArchitecturalConsistency" -FeatureIds "0.2.1,0.2.2,0.2.3" -SessionNumber 1
+   # Generate validation report for specific type and features (use your project's actual feature IDs)
+   ..\scripts\file-creation\New-ValidationReport.ps1 -ValidationType "ArchitecturalConsistency" -FeatureIds "<feature-1>,<feature-2>,<feature-3>" -SessionNumber 1
    ```
 
 3. **Review Context Requirements**
@@ -401,6 +401,16 @@ Validation Type Score = (Sum of all feature scores) / (Number of features valida
 Overall Score = (Sum of all validation type scores) / (Number of validation types completed)
 ```
 
+### Handling N/A Criteria
+
+When a validation criterion references an artifact that doesn't exist for a feature (e.g., no ADR, no TDD for Tier 1), consult the specific validation task definition for handling instructions. Each task defines whether to:
+
+- **Substitute** an equivalent criterion (e.g., PF-TSK-034 substitutes TDD Alignment with Code Documentation Accuracy for Tier 1 features)
+- **Skip** the criterion (e.g., PF-TSK-034 skips ADR Compliance when no ADRs exist)
+- **Flag as a finding** (e.g., PF-TSK-031 assesses whether a missing ADR should be created)
+
+When skipping a criterion, exclude it from the score denominator so it doesn't penalize the feature's overall score.
+
 ### Interpretation Guidelines
 
 **For Individual Features:**
@@ -425,7 +435,7 @@ Overall Score = (Sum of all validation type scores) / (Number of validation type
 
 ### Example 1: Architectural Consistency Validation Session
 
-**Scenario**: Conducting architectural consistency validation for the first batch of foundational features.
+**Scenario**: Conducting architectural consistency validation for the first batch of foundational features. *(Feature IDs below are illustrative — substitute your project's actual features.)*
 
 **Step-by-Step Example**:
 
@@ -435,7 +445,7 @@ Overall Score = (Sum of all validation type scores) / (Number of validation type
    # Navigate to validation directory
    Set-Location "doc/process-framework/validation"
 
-   # Generate validation report for architectural consistency
+   # Generate validation report for architectural consistency (use your project's feature IDs)
    ..\scripts\file-creation\New-ValidationReport.ps1 -ValidationType "ArchitecturalConsistency" -FeatureIds "0.2.1,0.2.2,0.2.3" -SessionNumber 1
    ```
 
@@ -443,37 +453,37 @@ Overall Score = (Sum of all validation type scores) / (Number of validation type
 
    - Review Architectural Consistency Validation task (PF-TSK-031)
    - Load context map for architectural validation
-   - Access Repository Pattern (0.2.1), Service Layer (0.2.2), and Data Models (0.2.3) implementations
+   - Access the selected features' implementation code
 
 3. **Conduct Analysis**
 
-   - **Repository Pattern (0.2.1)**: Score pattern adherence, interface consistency
-   - **Service Layer (0.2.2)**: Evaluate service abstractions, dependency injection
-   - **Data Models (0.2.3)**: Assess model structure, DTO patterns
+   - **Feature A (0.2.1)**: Score pattern adherence, interface consistency
+   - **Feature B (0.2.2)**: Evaluate service abstractions, dependency injection
+   - **Feature C (0.2.3)**: Assess model structure, naming patterns
 
 4. **Sample Findings**
 
-   - Repository Pattern: Score 3/4 (Good) - consistent interfaces, minor optimization opportunities
-   - Service Layer: Score 4/4 (Excellent) - exemplary dependency injection implementation
-   - Data Models: Score 2/4 (Adequate) - functional but inconsistent naming conventions
+   - Feature A: Score 3/4 (Good) - consistent interfaces, minor optimization opportunities
+   - Feature B: Score 4/4 (Excellent) - exemplary dependency injection implementation
+   - Feature C: Score 2/4 (Adequate) - functional but inconsistent naming conventions
 
 5. **Update Tracking**
-   - Update validation matrix cells for features 0.2.1, 0.2.2, 0.2.3 under Architectural column
+   - Update validation matrix cells for the validated features under Architectural column
    - Record completion date and link to validation report
-   - Note one critical issue in Data Models requiring attention
+   - Note any critical issues requiring attention
 
-**Result:** Completed architectural validation report (PF-VAL-001) with actionable recommendations and updated tracking matrix.
+**Result:** Completed architectural validation report with actionable recommendations and updated tracking matrix.
 
 ### Example 2: Critical Issue Remediation Workflow
 
 **Scenario**: Addressing a critical issue (score = 1) found during Code Quality validation.
 
-**Issue Identified**: Inconsistent error handling patterns in API Client (0.2.8) affecting system reliability.
+**Issue Identified**: Inconsistent error handling patterns in a foundational feature, affecting system reliability.
 
 **Remediation Process**:
 
 1. **Issue Documentation**: Record in validation tracking with HIGH priority
-2. **Impact Assessment**: Evaluate effect on dependent features (0.2.9, 0.2.10)
+2. **Impact Assessment**: Evaluate effect on dependent features
 3. **Remediation Planning**: Create improvement task with specific acceptance criteria
 4. **Implementation**: Execute code improvements following established patterns
 5. **Re-validation**: Conduct focused validation session to verify improvements
@@ -505,7 +515,7 @@ Overall Score = (Sum of all validation type scores) / (Number of validation type
 
 1. Verify you're working from the correct project root directory
 2. Check that all validation tasks (PF-TSK-031 through PF-TSK-036) exist in doc/process-framework/tasks/05-validation/
-3. Ensure foundational feature implementations are accessible in the lib/ directory
+3. Ensure foundational feature implementations are accessible in the project's source directories
 4. Review context map links and verify all referenced files exist
 
 ### Scoring Inconsistencies

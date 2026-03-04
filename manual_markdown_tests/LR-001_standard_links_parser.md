@@ -13,7 +13,7 @@ This file tests standard markdown link detection at the parser level with REAL f
 - [Image file](test_project/assets/logo.png)
 
 ## Path variations:
-- [File 1](test_project/file1.txt)
+- [File 1](test_project/docs/file1.txt)
 - [File 2](test_project/file2.txt)
 - [Inline reference](test_project/inline.txt)
 

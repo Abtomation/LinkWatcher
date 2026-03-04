@@ -4,7 +4,7 @@ type: Process Framework
 category: Task Definition
 version: 1.1
 created: 2025-08-15
-updated: 2026-03-02
+updated: 2026-03-04
 task_type: Discrete
 ---
 
@@ -74,6 +74,7 @@ Systematically validates foundational features for architectural pattern adheren
 
 5. **Analyze Architectural Patterns**: Examine each feature's implementation for adherence to established patterns (Repository, Service Layer, etc.)
 6. **Validate ADR Compliance**: Check that implementation follows architectural decisions documented in ADRs
+   > **When no ADR exists for a feature**: Assess whether the feature's architectural decisions are significant enough to warrant an ADR (e.g., non-obvious pattern choices, trade-offs with alternatives). If an ADR should exist, note it as a finding. If not (feature follows established project patterns without notable decisions), skip this criterion.
 7. **Assess Interface Consistency**: Verify that interfaces follow consistent patterns and contracts across features
 8. **Generate Validation Report**: Create detailed validation report using the automation script
    ```powershell
@@ -93,7 +94,7 @@ Systematically validates foundational features for architectural pattern adheren
 15. **🤖 AUTOMATED: Update Technical Debt Tracking**: Add any new open issues identified during validation to [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md) using the automation script:
 
     ```powershell
-    .\doc\process-framework\scripts\Update-TechnicalDebtTracking.ps1 -Operation "Add" -Description "Description" -Category "Category" -Location "Location" -Priority "Priority" -EstimatedEffort "Effort" -AssessmentId "PF-VAL-XXX" -Notes "Notes"
+    .\doc\process-framework\scripts\update\Update-TechDebt.ps1 -Add -Description "Description" -Category "Category" -Location "Location" -Priority "Priority" -EstimatedEffort "Effort" -AssessmentId "PF-VAL-XXX" -Notes "Notes"
     ```
 16. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
@@ -124,7 +125,7 @@ Before considering this task finished:
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
   - [ ] [Foundational Validation Tracking](../../state-tracking/temporary/foundational-validation-tracking.md) updated with report creation date and link
   - [ ] [Documentation Map](../../documentation-map.md) updated with new validation report entry
-  - [ ] **AUTOMATED**: [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md) updated with new open issues using `Update-TechnicalDebtTracking.ps1`
+  - [ ] **AUTOMATED**: [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md) updated with new open issues using `Update-TechDebt.ps1`
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-031" and context "Architectural Consistency Validation"
 
 ## Next Tasks

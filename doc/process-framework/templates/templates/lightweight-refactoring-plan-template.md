@@ -39,11 +39,13 @@ priority: [Priority Level]
 **Test Result**: [Fill after running tests]
 
 **Documentation & State Updates**:
-<!-- Check each — mark N/A or describe update -->
-- [ ] Feature implementation state file updated (or N/A)
-- [ ] TDD updated (or N/A — no interface/design change)
-- [ ] Test spec updated (or N/A — no behavior change)
-- [ ] FDD updated (or N/A — no functional change)
+<!-- Check each — for N/A, write brief justification (e.g., "Grepped TDD — no references to changed method") -->
+- [ ] Feature implementation state file ([Feature ID]) updated, or N/A — verified no reference to changed component: _[justification]_
+- [ ] TDD ([Feature ID]) updated, or N/A — verified no interface/design changes documented: _[justification]_
+- [ ] Test spec ([Feature ID]) updated, or N/A — verified no behavior change affects spec: _[justification]_
+- [ ] FDD ([Feature ID]) updated, or N/A — verified no functional change affects FDD: _[justification]_
+- [ ] ADR ([Feature ID]) updated, or N/A — verified no architectural decision affected: _[justification]_
+- [ ] Foundational validation tracking ([Feature ID]) updated, or N/A — verified feature is not foundational or change doesn't affect validation: _[justification]_
 - [ ] Technical Debt Tracking: TD item marked resolved
 
 **Bugs Discovered**: None / [Description]

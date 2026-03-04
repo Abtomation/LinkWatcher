@@ -3,7 +3,7 @@
 This file tests that links inside code blocks are ignored.
 
 ## Real link before code:
-[Before code](test_project/file1.txt)
+[Before code](test_project/docs/file1.txt)
 
 ## Code block with fake links (should be IGNORED):
 ```markdown

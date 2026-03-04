@@ -15,15 +15,15 @@ Master tracking for foundational codebase validation across all 6 validation typ
 
 | Feature | Arch. Consistency | Code Quality | Integration | Docs Alignment | Extensibility | AI Continuity |
 |---|---|---|---|---|---|---|
-| 0.1.1 Core Architecture | [PF-VAL-035](../../validation/reports/architectural-consistency/PF-VAL-035-architectural-consistency-features-0.1.1-1.1.1.md) (3.475/4.0 PASS) | [PF-VAL-037](../../validation/reports/code-quality/PF-VAL-037-code-quality-features-0.1.1-0.1.2-0.1.3-1.1.1.md) (3.050/4.0 PASS) | — | — | — | — |
-| 0.1.2 In-Memory Link Database | [PF-VAL-035](../../validation/reports/architectural-consistency/PF-VAL-035-architectural-consistency-features-0.1.1-1.1.1.md) (3.475/4.0 PASS) | [PF-VAL-037](../../validation/reports/code-quality/PF-VAL-037-code-quality-features-0.1.1-0.1.2-0.1.3-1.1.1.md) (3.050/4.0 PASS) | — | — | — | — |
-| 0.1.3 Configuration System | [PF-VAL-035](../../validation/reports/architectural-consistency/PF-VAL-035-architectural-consistency-features-0.1.1-1.1.1.md) (3.475/4.0 PASS) | [PF-VAL-037](../../validation/reports/code-quality/PF-VAL-037-code-quality-features-0.1.1-0.1.2-0.1.3-1.1.1.md) (3.050/4.0 PASS) | — | — | — | — |
-| 1.1.1 File System Monitoring | [PF-VAL-035](../../validation/reports/architectural-consistency/PF-VAL-035-architectural-consistency-features-0.1.1-1.1.1.md) (3.475/4.0 PASS) | [PF-VAL-037](../../validation/reports/code-quality/PF-VAL-037-code-quality-features-0.1.1-0.1.2-0.1.3-1.1.1.md) (3.050/4.0 PASS) | — | — | — | — |
-| 2.1.1 Link Parsing System | [PF-VAL-036](../../validation/reports/architectural-consistency/PF-VAL-036-architectural-consistency-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) (3.450/4.0 PASS) | [PF-VAL-038](../../validation/reports/code-quality/PF-VAL-038-code-quality-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) (3.120/4.0 PASS) | — | — | — | — |
-| 2.2.1 Link Updating | [PF-VAL-036](../../validation/reports/architectural-consistency/PF-VAL-036-architectural-consistency-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) (3.450/4.0 PASS) | [PF-VAL-038](../../validation/reports/code-quality/PF-VAL-038-code-quality-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) (3.120/4.0 PASS) | — | — | — | — |
-| 3.1.1 Logging System | [PF-VAL-036](../../validation/reports/architectural-consistency/PF-VAL-036-architectural-consistency-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) (3.450/4.0 PASS) | [PF-VAL-038](../../validation/reports/code-quality/PF-VAL-038-code-quality-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) (3.120/4.0 PASS) | — | — | — | — |
-| 4.1.1 Test Suite | [PF-VAL-036](../../validation/reports/architectural-consistency/PF-VAL-036-architectural-consistency-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) (3.450/4.0 PASS) | [PF-VAL-038](../../validation/reports/code-quality/PF-VAL-038-code-quality-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) (3.120/4.0 PASS) | — | — | — | — |
-| 5.1.1 CI/CD & Dev Tooling | [PF-VAL-036](../../validation/reports/architectural-consistency/PF-VAL-036-architectural-consistency-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) (3.450/4.0 PASS) | [PF-VAL-038](../../validation/reports/code-quality/PF-VAL-038-code-quality-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) (3.120/4.0 PASS) | — | — | — | — |
+| 0.1.1 Core Architecture | [PF-VAL-035](../../validation/reports/architectural-consistency/PF-VAL-035-architectural-consistency-features-0.1.1-1.1.1.md) (3.475/4.0 PASS) | [PF-VAL-037](../../validation/reports/code-quality/PF-VAL-037-code-quality-features-0.1.1-0.1.2-0.1.3-1.1.1.md) (3.050/4.0 PASS) | [PF-VAL-039](../../validation/reports/integration-dependencies/PF-VAL-039-integration-dependencies-features-0.1.1-0.1.2-0.1.3-1.1.1.md) (3.200/4.0 PASS) | [PF-VAL-042](../../validation/reports/documentation-alignment/PF-VAL-042-documentation-alignment-features-0.1.1-0.1.2-0.1.3-1.1.1.md) (2.8/4.0 PASS) | — | — |
+| 0.1.2 In-Memory Link Database | [PF-VAL-035](../../validation/reports/architectural-consistency/PF-VAL-035-architectural-consistency-features-0.1.1-1.1.1.md) (3.475/4.0 PASS) | [PF-VAL-037](../../validation/reports/code-quality/PF-VAL-037-code-quality-features-0.1.1-0.1.2-0.1.3-1.1.1.md) (3.050/4.0 PASS) | [PF-VAL-039](../../validation/reports/integration-dependencies/PF-VAL-039-integration-dependencies-features-0.1.1-0.1.2-0.1.3-1.1.1.md) (3.200/4.0 PASS) | [PF-VAL-042](../../validation/reports/documentation-alignment/PF-VAL-042-documentation-alignment-features-0.1.1-0.1.2-0.1.3-1.1.1.md) (2.6/4.0 PASS) | — | — |
+| 0.1.3 Configuration System | [PF-VAL-035](../../validation/reports/architectural-consistency/PF-VAL-035-architectural-consistency-features-0.1.1-1.1.1.md) (3.475/4.0 PASS) | [PF-VAL-037](../../validation/reports/code-quality/PF-VAL-037-code-quality-features-0.1.1-0.1.2-0.1.3-1.1.1.md) (3.050/4.0 PASS) | [PF-VAL-039](../../validation/reports/integration-dependencies/PF-VAL-039-integration-dependencies-features-0.1.1-0.1.2-0.1.3-1.1.1.md) (3.200/4.0 PASS) | [PF-VAL-042](../../validation/reports/documentation-alignment/PF-VAL-042-documentation-alignment-features-0.1.1-0.1.2-0.1.3-1.1.1.md) (2.2/4.0 PASS) | — | — |
+| 1.1.1 File System Monitoring | [PF-VAL-035](../../validation/reports/architectural-consistency/PF-VAL-035-architectural-consistency-features-0.1.1-1.1.1.md) (3.475/4.0 PASS) | [PF-VAL-037](../../validation/reports/code-quality/PF-VAL-037-code-quality-features-0.1.1-0.1.2-0.1.3-1.1.1.md) (3.050/4.0 PASS) | [PF-VAL-039](../../validation/reports/integration-dependencies/PF-VAL-039-integration-dependencies-features-0.1.1-0.1.2-0.1.3-1.1.1.md) (3.200/4.0 PASS) | [PF-VAL-042](../../validation/reports/documentation-alignment/PF-VAL-042-documentation-alignment-features-0.1.1-0.1.2-0.1.3-1.1.1.md) (2.6/4.0 PASS) | — | — |
+| 2.1.1 Link Parsing System | [PF-VAL-036](../../validation/reports/architectural-consistency/PF-VAL-036-architectural-consistency-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) (3.450/4.0 PASS) | [PF-VAL-038](../../validation/reports/code-quality/PF-VAL-038-code-quality-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) (3.120/4.0 PASS) | [PF-VAL-041](../../validation/reports/integration-dependencies/PF-VAL-041-integration-dependencies-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) (3.400/4.0 PASS) | [PF-VAL-043](../../validation/reports/documentation-alignment/PF-VAL-043-documentation-alignment-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) (2.2/4.0 PASS) | — | — |
+| 2.2.1 Link Updating | [PF-VAL-036](../../validation/reports/architectural-consistency/PF-VAL-036-architectural-consistency-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) (3.450/4.0 PASS) | [PF-VAL-038](../../validation/reports/code-quality/PF-VAL-038-code-quality-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) (3.120/4.0 PASS) | [PF-VAL-041](../../validation/reports/integration-dependencies/PF-VAL-041-integration-dependencies-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) (3.400/4.0 PASS) | [PF-VAL-043](../../validation/reports/documentation-alignment/PF-VAL-043-documentation-alignment-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) (1.8/4.0 FAIL) | — | — |
+| 3.1.1 Logging System | [PF-VAL-036](../../validation/reports/architectural-consistency/PF-VAL-036-architectural-consistency-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) (3.450/4.0 PASS) | [PF-VAL-038](../../validation/reports/code-quality/PF-VAL-038-code-quality-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) (3.120/4.0 PASS) | [PF-VAL-041](../../validation/reports/integration-dependencies/PF-VAL-041-integration-dependencies-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) (3.400/4.0 PASS) | [PF-VAL-043](../../validation/reports/documentation-alignment/PF-VAL-043-documentation-alignment-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) (2.2/4.0 PASS) | — | — |
+| 4.1.1 Test Suite | [PF-VAL-036](../../validation/reports/architectural-consistency/PF-VAL-036-architectural-consistency-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) (3.450/4.0 PASS) | [PF-VAL-038](../../validation/reports/code-quality/PF-VAL-038-code-quality-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) (3.120/4.0 PASS) | [PF-VAL-041](../../validation/reports/integration-dependencies/PF-VAL-041-integration-dependencies-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) (3.400/4.0 PASS) | [PF-VAL-043](../../validation/reports/documentation-alignment/PF-VAL-043-documentation-alignment-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) (2.6/4.0 PASS) | — | — |
+| 5.1.1 CI/CD & Dev Tooling | [PF-VAL-036](../../validation/reports/architectural-consistency/PF-VAL-036-architectural-consistency-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) (3.450/4.0 PASS) | [PF-VAL-038](../../validation/reports/code-quality/PF-VAL-038-code-quality-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) (3.120/4.0 PASS) | [PF-VAL-041](../../validation/reports/integration-dependencies/PF-VAL-041-integration-dependencies-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) (3.400/4.0 PASS) | [PF-VAL-043](../../validation/reports/documentation-alignment/PF-VAL-043-documentation-alignment-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) (2.4/4.0 PASS) | — | — |
 
 ## Progress Summary
 
@@ -31,12 +31,12 @@ Master tracking for foundational codebase validation across all 6 validation typ
 |---|---|---|---|
 | Architectural Consistency | 2 (Batch 1 + Batch 2) | 9/9 | Complete |
 | Code Quality & Standards | 2 (Batch 1 + Batch 2) | 9/9 | Complete |
-| Integration & Dependencies | 0 | 0/9 | Not Started |
-| Documentation Alignment | 0 | 0/9 | Not Started |
+| Integration & Dependencies | 2 (Batch 1 + Batch 2) | 9/9 | Complete |
+| Documentation Alignment | 2 (Batch 1 + Batch 2) | 9/9 | Complete |
 | Extensibility & Maintainability | 0 | 0/9 | Not Started |
 | AI Agent Continuity | 0 | 0/9 | Not Started |
 
-**Overall**: 18/54 cells completed (33.3%)
+**Overall**: 36/54 cells completed (66.7%)
 
 ## Validation Reports
 
@@ -46,6 +46,10 @@ Master tracking for foundational codebase validation across all 6 validation typ
 | [PF-VAL-036](../../validation/reports/architectural-consistency/PF-VAL-036-architectural-consistency-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) | Architectural Consistency | 2.1.1, 2.2.1, 3.1.1, 4.1.1, 5.1.1 | 2026-03-03 | 3.450/4.0 | PASS |
 | [PF-VAL-037](../../validation/reports/code-quality/PF-VAL-037-code-quality-features-0.1.1-0.1.2-0.1.3-1.1.1.md) | Code Quality & Standards | 0.1.1, 0.1.2, 0.1.3, 1.1.1 | 2026-03-03 | 3.050/4.0 | PASS |
 | [PF-VAL-038](../../validation/reports/code-quality/PF-VAL-038-code-quality-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) | Code Quality & Standards | 2.1.1, 2.2.1, 3.1.1, 4.1.1, 5.1.1 | 2026-03-03 | 3.120/4.0 | PASS |
+| [PF-VAL-039](../../validation/reports/integration-dependencies/PF-VAL-039-integration-dependencies-features-0.1.1-0.1.2-0.1.3-1.1.1.md) | Integration & Dependencies | 0.1.1, 0.1.2, 0.1.3, 1.1.1 | 2026-03-03 | 3.200/4.0 | PASS |
+| [PF-VAL-041](../../validation/reports/integration-dependencies/PF-VAL-041-integration-dependencies-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) | Integration & Dependencies | 2.1.1, 2.2.1, 3.1.1, 4.1.1, 5.1.1 | 2026-03-03 | 3.400/4.0 | PASS |
+| [PF-VAL-042](../../validation/reports/documentation-alignment/PF-VAL-042-documentation-alignment-features-0.1.1-0.1.2-0.1.3-1.1.1.md) | Documentation Alignment | 0.1.1, 0.1.2, 0.1.3, 1.1.1 | 2026-03-04 | 2.550/4.0 | PASS |
+| [PF-VAL-043](../../validation/reports/documentation-alignment/PF-VAL-043-documentation-alignment-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) | Documentation Alignment | 2.1.1, 2.2.1, 3.1.1, 4.1.1, 5.1.1 | 2026-03-04 | 2.240/4.0 | PASS |
 
 ## Critical Issues Tracking
 
@@ -72,20 +76,37 @@ Master tracking for foundational codebase validation across all 6 validation typ
 | setup.py duplicates pyproject.toml | Low | PF-VAL-038 | 5.1.1 | TD040 | Resolved (deleted setup.py) |
 | `safe_file_read` raises generic `Exception()` | Low | PF-VAL-037 | 0.1.1 | TD041 | Resolved (PF-REF-054) |
 | Database triple-scan in `get_references_to_file` | Low | PF-VAL-037 | 0.1.2 | TD042 | Resolved (consolidated 3→2 passes) |
+| `structlog` imported but undeclared in pyproject.toml | Low | PF-VAL-039 | 3.1.1 | TD043 | Resolved (added to pyproject.toml) |
 | Missing `@wraps` in logging.py `with_context()` | Low | PF-VAL-036 | 3.1.1 | TD028 | Resolved (verified PF-VAL-038) |
 | pytest.ini `testpaths` mismatch (`test` vs `tests`) | Low | PF-VAL-036 | 4.1.1 | TD029 | Resolved (verified PF-VAL-038) |
 | Bare `except:` in run_tests.py:148 | Low | PF-VAL-036 | 4.1.1 | TD030 | Resolved (verified PF-VAL-038) |
 | Additional bare `except:` in updater.py:274,298 | Low | PF-VAL-036 | 2.2.1 | TD020 (ext) | Resolved (verified PF-VAL-038) |
+| README.md references 6+ non-existent doc files | Medium | PF-VAL-042 | Cross-cutting | TD044 | Open |
+| TDD pseudocode drift across PD-TDD-021/022/023 | Medium | PF-VAL-042 | 0.1.1, 0.1.2, 1.1.1 | TD045 | Open |
+| FDD feature ID prefix drift in PD-FDD-023/024 | Low | PF-VAL-042 | 0.1.2, 1.1.1 | TD046 | Open |
+| Feature state files contain inaccurate details (4 files) | Medium | PF-VAL-042 | 0.1.1, 0.1.2, 0.1.3, 1.1.1 | TD047 | Open |
+| advanced-logging-config.yaml unsupported config sections | Low | PF-VAL-042 | 0.1.3 | TD048 | Open |
+| TDD API/pseudocode drift across PD-TDD-024/025/026/027/031 | Medium | PF-VAL-043 | 2.1.1–5.1.1 | TD049 | Open |
+| FDD stale TDD references "(to be created)" in PD-FDD-025/027 | Low | PF-VAL-043 | 2.2.1, 3.1.1 | TD050 | Open |
+| FDD PD-FDD-032 references deleted files (setup.py, Makefile) | Medium | PF-VAL-043 | 5.1.1 | TD051 | Open |
+| Feature state files PF-FEA-050–054 inaccurate details | Medium | PF-VAL-043 | 2.1.1–5.1.1 | TD052 | Open |
+| CI pipeline references non-existent requirements-test.txt | Medium | PF-VAL-043 | 5.1.1 | TD053 | Open |
+| pyproject.toml entry point references non-existent cli.py | Medium | PF-VAL-043 | 5.1.1 | TD054 | Open |
+| TDD PD-TDD-031 scope mismatch (2 of 7 FDD subsystems) | Low | PF-VAL-043 | 5.1.1 | TD055 | Open |
 
 ## Next Actions
 
 - [x] Batch 2: Architectural Consistency for features 2.1.1, 2.2.1, 3.1.1, 4.1.1, 5.1.1 (PF-VAL-036, 3.450/4.0 PASS)
 - [x] Code Quality & Standards Validation (PF-TSK-032) — PF-VAL-037 (3.050/4.0 PASS), PF-VAL-038 (3.120/4.0 PASS)
-- [ ] Integration & Dependencies Validation (PF-TSK-033) — IN PROGRESS
-  - Batch 1: 0.1.1, 0.1.2, 0.1.3, 1.1.1
-  - Batch 2: 2.1.1, 2.2.1, 3.1.1, 4.1.1, 5.1.1
-  - Criteria (equal 20% weight each): Component Interface Contracts, Dependency Health & Management, Data Flow Integrity, Service Integration Patterns, Cross-Feature Coupling & Cohesion
-  - Pre-analysis finding: structlog imported in logging.py but not declared in pyproject.toml [project.dependencies]
+- [x] Integration & Dependencies Validation (PF-TSK-033) — COMPLETE
+  - [x] Batch 1: 0.1.1, 0.1.2, 0.1.3, 1.1.1 (PF-VAL-039, 3.200/4.0 PASS)
+  - [x] Batch 2: 2.1.1, 2.2.1, 3.1.1, 4.1.1, 5.1.1 (PF-VAL-041, 3.400/4.0 PASS)
+  - Only open issue: TD043 (structlog undeclared in pyproject.toml)
+- [x] Documentation Alignment Validation (PF-TSK-034) — COMPLETE
+  - [x] Batch 1: 0.1.1, 0.1.2, 0.1.3, 1.1.1 (PF-VAL-042, 2.550/4.0 PASS)
+  - [x] Batch 2: 2.1.1, 2.2.1, 3.1.1, 4.1.1, 5.1.1 (PF-VAL-043, 2.240/4.0 PASS)
+- [ ] Extensibility & Maintainability Validation (PF-TSK-035)
+- [ ] AI Agent Continuity Validation (PF-TSK-036)
 
 ## Update History
 
@@ -95,3 +116,7 @@ Master tracking for foundational codebase validation across all 6 validation typ
 | 2026-03-03 | v1.1 — Batch 2 Architectural Consistency validation complete (PF-VAL-036); 9/9 features validated; TD025-TD030 added | PF-TSK-031 |
 | 2026-03-03 | v1.2 — Code Quality & Standards validation complete (PF-VAL-037, PF-VAL-038); 9/9 features validated; TD019/TD020/TD028/TD029/TD030 verified resolved | PF-TSK-032 |
 | 2026-03-03 | v1.3 — Updated stale TD statuses (TD021-TD027 marked resolved); added 12 new open TD items (TD031-TD042) from code quality validation | PF-TSK-032 |
+| 2026-03-03 | v1.4 — Integration & Dependencies Batch 1 complete (PF-VAL-039, 3.200/4.0 PASS); TD043 added (structlog undeclared) | PF-TSK-033 |
+| 2026-03-03 | v1.5 — Integration & Dependencies Batch 2 complete (PF-VAL-041, 3.400/4.0 PASS); 9/9 features validated; no new TD items | PF-TSK-033 |
+| 2026-03-04 | v1.6 — Documentation Alignment Batch 1 complete (PF-VAL-042, 2.550/4.0 PASS); 4/9 features validated; TD044-TD048 added; TD043 resolved | PF-TSK-034 |
+| 2026-03-04 | v1.7 — Documentation Alignment Batch 2 complete (PF-VAL-043, 2.240/4.0 PASS); 9/9 features validated; TD049-TD055 added; Documentation Alignment validation type complete | PF-TSK-034 |

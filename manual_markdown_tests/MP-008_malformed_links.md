@@ -15,12 +15,12 @@ This file tests graceful handling of malformed markdown syntax.
 
 ## Edge cases:
 - [Link with \[escaped\] brackets](escaped.txt)
-- [Link](file.txt) [Another](file2.txt) multiple on line
+- [Link](file.txt) [Another](test_project/file2.txt) multiple on line
 
 ## Nested brackets:
 - [Text with [nested] brackets](nested.txt)
 
 **Expected Results:**
-- Should find: valid.txt, unmatched.txt, escaped.txt, file.txt, file2.txt, nested.txt
+- Should find: valid.txt, unmatched.txt, escaped.txt, file.txt, file2.txt, test_project/nested.txt
 - Should handle malformed syntax gracefully without crashing
 - May or may not find malformed links (depends on implementation)

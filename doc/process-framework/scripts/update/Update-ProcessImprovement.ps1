@@ -73,7 +73,7 @@ param(
     [string]$NewStatus,
 
     [Parameter(Mandatory = $false)]
-    [ValidateSet("HIGH", "MEDIUM", "LOW")]
+    [ValidateSet("HIGH", "MEDIUM", "LOW", "—")]
     [string]$Impact,
 
     [Parameter(Mandatory = $false)]
@@ -267,6 +267,25 @@ function Update-SummaryCount {
     return $result
 }
 
+function Update-HistorySummaryCount {
+    param([string]$Content)
+
+    # Count data rows in the Update History section
+    $count = 0
+    $inHistorySection = $false
+    foreach ($line in ($Content -split "\r?\n")) {
+        if ($line -match "^## Update History") { $inHistorySection = $true }
+        if ($inHistorySection -and $line -match "^\s*</details>") { break }
+        if ($inHistorySection -and $line -match "^\|\s*\d{4}-" ) { $count++ }
+    }
+
+    # Update the <summary> tag: "Show update history (N entries)"
+    $result = $Content -replace '(?<=Show update history \()\d+(?= entries?\))', $count.ToString()
+
+    Write-Log "Updated history summary count to $count entries" -Level "SUCCESS"
+    return $result
+}
+
 function Add-UpdateHistoryEntry {
     param(
         [string]$Content,
@@ -376,6 +395,9 @@ function Main {
         Write-Log "Failed to add Update History entry" -Level "ERROR"
         exit 1
     }
+
+    # Step 3b: Update history summary count
+    $content = Update-HistorySummaryCount -Content $content
 
     # Step 4: Update frontmatter date
     $content = Update-FrontmatterDate -Content $content

@@ -73,7 +73,7 @@ Track the status of all process framework scripts during migration to a new proj
 | Update-FeatureTrackingFromAssessment.ps1 | Update feature tracking from assessment | Not Reviewed | Uses feature-tracking.md | - |
 | Update-ScriptReferences.ps1 | Update script references | Updated | Uses Get-ProjectRoot | Hard-coded path replaced with dynamic path |
 | Update-TechnicalDebtFromAssessment.ps1 | Update technical debt from assessment | Not Reviewed | Uses technical-debt-tracking.md | - |
-| Update-TechnicalDebtTracking.ps1 | Update technical debt tracking | Not Reviewed | Uses technical-debt-tracking.md | - |
+| Update-TechnicalDebtTracking.ps1 | DELETED — consolidated into Update-TechDebt.ps1 | Resolved | Merged into scripts/update/Update-TechDebt.ps1 | PF-IMP-102 |
 | Update-TestAuditState.ps1 | Update test audit state | Not Reviewed | Legal/appdev agnostic | - |
 | Update-TestFileAuditState.ps1 | Update test file audit state | Not Reviewed | Legal/appdev agnostic | - |
 | Update-ValidationReportState.ps1 | Update validation report state | Not Reviewed | Legal/appdev agnostic | - |

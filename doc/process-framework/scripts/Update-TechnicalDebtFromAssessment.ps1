@@ -41,7 +41,7 @@ This script is part of the Technical Debt Assessment automation system and integ
 - Technical Debt Assessment Task (PF-TSK-023)
 - New-TechnicalDebtAssessment.ps1
 - New-DebtItem.ps1
-- Update-TechnicalDebtTracking.ps1
+- Update-TechDebt.ps1
 
 The script makes the Technical Debt Assessment Task fully automated by eliminating
 the manual step of updating the technical debt tracking registry.
@@ -63,7 +63,7 @@ param(
 
 # Configuration
 $ScriptName = "Update-TechnicalDebtFromAssessment.ps1"
-$UpdateScript = "doc/process-framework/scripts/Update-TechnicalDebtTracking.ps1"
+$UpdateScript = "doc/process-framework/scripts/update/Update-TechDebt.ps1"
 
 # Import the common helpers with robust path resolution
 $scriptDir = if ($PSScriptRoot) { $PSScriptRoot } else { (Get-Location).Path }
@@ -254,14 +254,15 @@ function Process-DebtItem {
     # Build the command to add the debt item
     $addCommand = @(
         $UpdateScript,
-        "-Operation", "Add",
+        "-Add",
         "-Description", "`"$($DebtItem.Description)`"",
         "-Category", "`"$($DebtItem.Category)`"",
         "-Location", "`"$($DebtItem.Location)`"",
         "-Priority", "`"$($DebtItem.Priority)`"",
         "-EstimatedEffort", "`"$($DebtItem.EstimatedEffort)`"",
         "-AssessmentId", "`"$AssessmentId`"",
-        "-DebtItemId", "`"$debtItemId`""
+        "-DebtItemId", "`"$debtItemId`"",
+        "-Confirm:`$false"
     )
 
     try {

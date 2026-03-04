@@ -330,7 +330,7 @@ status: FINALIZED
 | manual_markdown_tests/test_project/assets/logo.png | Test project asset | 4.1.6 | ✅ |
 | ../../../../../manual_markdown_tests/config/settings.yaml | Test project config | 4.1.6 | ✅ |
 | manual_markdown_tests/test_project/docs/readme.md | Test project docs | 4.1.6 | ✅ |
-| ../../../../../manual_markdown_tests/test_project/file1.txt | Test project file | 4.1.6 | ✅ |
+| ../../../../../manual_markdown_tests/test_project/docs/file1.txt | Test project file | 4.1.6 | ✅ |
 | manual_markdown_tests/test_project/file2.txt | Test project file | 4.1.6 | ✅ |
 | manual_markdown_tests/test_project/inline.txt | Test project inline file | 4.1.6 | ✅ |
 | manual_markdown_tests/test_project/LR-002_relative_links.md | Relative links test | 2.2.2 | ✅ |

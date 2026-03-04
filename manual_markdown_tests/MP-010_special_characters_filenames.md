@@ -36,7 +36,7 @@ Regression test for BUG-007: quoted_pattern regex excluded special characters.
 - "ftp://server.example.com/data.csv"
 
 ## Mixed line with special chars and normal refs:
-- See "test_project/file with spaces.txt" and also [normal link](test_project/file1.txt)
+- See "test_project/file with spaces.txt" and also [normal link](test_project/docs/file1.txt)
 
 **Expected Results:**
 - Standard markdown links: 5 found (all special character filenames)

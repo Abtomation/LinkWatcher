@@ -23,7 +23,7 @@ This is a test project for manual testing of the LinkWatcher markdown parser.
 
 ## Code Examples (should be ignored by parser)
 
-Use this syntax: `[link text](file1.txt)` to create links.
+Use this syntax: `[link text](docs/file1.txt)` to create links.
 
 ```markdown
 # Example markdown - these should be ignored

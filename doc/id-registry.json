@@ -136,7 +136,7 @@
         "permanent": "doc/process-framework/state-tracking/permanent",
         "default": "permanent"
       },
-      "nextAvailable": 84
+      "nextAvailable": 105
     },
     "PF-ASS": {
       "description": "Process Framework - Tier Assessments",
@@ -364,7 +364,7 @@
         "forms": "doc/process-framework/feedback/feedback-forms",
         "default": "forms"
       },
-      "nextAvailable": 306
+      "nextAvailable": 336
     },
     "ART-REV": {
       "description": "Review Artifacts",
@@ -374,7 +374,7 @@
         "reviews": "doc/process-framework/feedback/reviews",
         "default": "reviews"
       },
-      "nextAvailable": 7
+      "nextAvailable": 10
     },
     "PF-TSP": {
       "description": "Process Framework - Test Specifications",
@@ -428,7 +428,7 @@
         "reports": "doc/process-framework/validation/reports",
         "default": "reports"
       },
-      "nextAvailable": 41
+      "nextAvailable": 44
     },
     "PD-SCH": {
       "description": "Product Documentation - Database Schema Design",
@@ -470,7 +470,7 @@
         "plans": "doc/process-framework/refactoring/plans",
         "default": "plans"
       },
-      "nextAvailable": 55
+      "nextAvailable": 58
     },
     "PF-TDA": {
       "description": "Process Framework - Technical Debt Assessments",

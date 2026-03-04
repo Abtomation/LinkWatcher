@@ -112,7 +112,7 @@ try {
         "",
         "🤖 AUTOMATION AVAILABLE:",
         "To automatically add this item to technical-debt-tracking.md, run:",
-        ".\doc\process-framework\scripts\Update-TechnicalDebtTracking.ps1 -Operation 'Add' -Description '$ItemTitle' -Category '$Category' -Location '$Location' -Priority '$Priority' -EstimatedEffort '[SPECIFY_EFFORT]' -DebtItemId '$documentId' -AssessmentId '$AssessmentId'",
+        ".\doc\process-framework\scripts\update\Update-TechDebt.ps1 -Add -Description '$ItemTitle' -Category '$Category' -Location '$Location' -Priority '$Priority' -EstimatedEffort '[SPECIFY_EFFORT]' -DebtItemId '$documentId' -AssessmentId '$AssessmentId' -Confirm:`$false",
         "",
         "Manual steps (if not using automation):",
         "1. Complete the debt item details using the provided template",

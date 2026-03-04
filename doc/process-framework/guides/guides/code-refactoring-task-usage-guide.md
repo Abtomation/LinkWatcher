@@ -80,6 +80,10 @@ PF-TSK-022 includes an **Effort Assessment Gate** (Step 1) that determines which
 | Files affected | Single file | Multiple files |
 | Architectural impact | None | Any |
 
+After classification, the agent loads only the applicable path document:
+- **[Lightweight Path](../../tasks/06-maintenance/code-refactoring-lightweight-path.md)** — self-contained process steps and checklist (~60 lines)
+- **[Standard Path](../../tasks/06-maintenance/code-refactoring-standard-path.md)** — full process with bug discovery, state tracking phases, and checklist (~250 lines)
+
 The lightweight plan (~50 lines) includes a mandatory **Documentation & State Updates** checklist per item to ensure documentation isn't forgotten even for small changes. It also supports **batch mode** — copy the "Item N" section for multiple quick fixes in one session.
 
 ## Template Structure
@@ -95,7 +99,7 @@ The refactoring plan template contains the following key sections that require c
 ### Core Content Sections
 
 1. **Overview**: Summary of refactoring scope and basic information
-2. **Refactoring Scope**: Detailed description, current issues, and goals
+2. **Refactoring Scope**: Detailed description, scope discovery, current issues, and goals
 3. **Current State Analysis**: Baseline metrics and affected components
 4. **Refactoring Strategy**: Approach, techniques, and implementation plan
 5. **Testing Strategy**: Test coverage and testing approach during refactoring
@@ -105,6 +109,13 @@ The refactoring plan template contains the following key sections that require c
 ## Customization Guidelines
 
 ### 1. Refactoring Scope Section
+
+**Scope Discovery Customization:**
+
+- Compare the original tech debt item description against what you actually find during code analysis
+- If scope matches, write "None — scope matches original description" in Scope Delta
+- If scope differs, briefly explain what changed and why (e.g., tech debt described a single method but the pattern exists in 3 methods)
+- This section helps future assessments calibrate tech debt descriptions more accurately
 
 **Current Issues Customization:**
 
@@ -178,6 +189,11 @@ The refactoring plan template contains the following key sections that require c
 ## Refactoring Scope
 
 Simplify the authentication service by extracting responsibilities and improving code organization.
+
+### Scope Discovery
+- **Original Tech Debt Description**: "AuthService class violates SRP — handles both authentication and token management"
+- **Actual Scope Findings**: SRP violation confirmed, but also found duplicate token validation in 3 additional methods and inconsistent error handling not mentioned in the original item
+- **Scope Delta**: Broader than described — original item focused on 2 responsibilities but actual scope includes duplication cleanup and error handling standardization across 4 methods
 
 ### Current Issues
 

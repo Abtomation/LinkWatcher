@@ -53,6 +53,8 @@ Our tasks are organized into four categories and follow a unified structure:
 - [Task: API Design](tasks/02-design/api-design-task.md) - Design comprehensive API contracts and specifications before implementation begins
 - [Task: Database Schema Design](tasks/02-design/database-schema-design-task.md) - Plan data model changes before coding to prevent data integrity issues
 - [Task: Code Refactoring](tasks/06-maintenance/code-refactoring-task.md) - Systematic code improvement and technical debt reduction without changing external behavior
+  - [Code Refactoring — Lightweight Path](tasks/06-maintenance/code-refactoring-lightweight-path.md) - Process steps and checklist for low-effort refactorings (≤ 15 min, single file)
+  - [Code Refactoring — Standard Path](tasks/06-maintenance/code-refactoring-standard-path.md) - Process steps and checklist for medium/complex refactorings (multi-file, architectural)
 - [Task: Feature Discovery](tasks/01-planning/feature-discovery-task.md) - Identify and document potential new features
 
 #### Support Tasks
@@ -120,7 +122,7 @@ Our tasks are organized into four categories and follow a unified structure:
 ### State Update Scripts
 
 - [Process: Update Process Improvement Script](scripts/update/Update-ProcessImprovement.ps1) - Automates status transitions and completion moves in process-improvement-tracking.md
-- [Process: Update Tech Debt Script](scripts/update/Update-TechDebt.ps1) - Automates status transitions and resolution moves in technical-debt-tracking.md
+- [Process: Update Tech Debt Script](scripts/update/Update-TechDebt.ps1) - Automates technical debt lifecycle management: add new items (-Add), status transitions, and resolution moves in technical-debt-tracking.md
 
 ### Validation Scripts
 
@@ -276,6 +278,10 @@ _Created during foundational codebase validation (PF-TSK-031 through PF-TSK-036)
 - [Validation: Architectural Consistency — Features 2.1.1–5.1.1 (PF-VAL-036)](validation/reports/architectural-consistency/PF-VAL-036-architectural-consistency-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) - Batch 2 — Design pattern adherence, ADR compliance, interface consistency (Score: 3.450/4.0 PASS)
 - [Validation: Code Quality — Features 0.1.1–1.1.1 (PF-VAL-037)](validation/reports/code-quality/PF-VAL-037-code-quality-features-0.1.1-0.1.2-0.1.3-1.1.1.md) - Batch 1 — Code style, complexity, error handling, SOLID principles, test coverage (Score: 3.050/4.0 PASS)
 - [Validation: Code Quality — Features 2.1.1–5.1.1 (PF-VAL-038)](validation/reports/code-quality/PF-VAL-038-code-quality-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) - Batch 2 — Code style, complexity, error handling, SOLID principles, test coverage (Score: 3.120/4.0 PASS)
+- [Validation: Integration Dependencies — Features 0.1.1–1.1.1 (PF-VAL-039)](validation/reports/integration-dependencies/PF-VAL-039-integration-dependencies-features-0.1.1-0.1.2-0.1.3-1.1.1.md) - Batch 1 — Component interfaces, dependency health, data flow, service integration, coupling (Score: 3.200/4.0 PASS)
+- [Validation: Integration Dependencies — Features 2.1.1–5.1.1 (PF-VAL-041)](validation/reports/integration-dependencies/PF-VAL-041-integration-dependencies-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) - Batch 2 — Component interfaces, dependency health, data flow, service integration, coupling (Score: 3.400/4.0 PASS)
+- [Validation: Documentation Alignment — Features 0.1.1–1.1.1 (PF-VAL-042)](validation/reports/documentation-alignment/PF-VAL-042-documentation-alignment-features-0.1.1-0.1.2-0.1.3-1.1.1.md) - Batch 1 — TDD alignment, ADR compliance, code comments, README accuracy, feature state files (Score: 2.55/4.0 PASS)
+- [Validation: Documentation Alignment — Features 2.1.1–5.1.1 (PF-VAL-043)](validation/reports/documentation-alignment/PF-VAL-043-documentation-alignment-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) - Batch 2 — TDD alignment, FDD accuracy, code comments, feature state files (Score: 2.24/4.0 PASS)
 
 ## How to Use This Documentation
 

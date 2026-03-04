@@ -27,9 +27,9 @@ The In-Memory Database (`LinkDatabase`) provides thread-safe, target-indexed sto
 
 | Feature | Relationship | Description |
 |---------|-------------|-------------|
-| 0.1.2 Data Models | Data dependency | Stores `LinkReference` instances as values in target-indexed dictionary |
+| Data Models (part of 0.1.1) | Data dependency | Stores `LinkReference` instances as values in target-indexed dictionary |
 | 0.1.1 Core Architecture | Integration | `LinkWatcherService` holds the primary `LinkDatabase` instance; database is shared across all service operations |
-| 1.1.2 Event Handler | Consumer | Handler queries database via `get_references_to_file()` when files move |
+| 1.1.1 File System Monitoring | Consumer | Handler queries database via `get_references_to_file()` when files move |
 | 2.1.1 Parser Framework | Producer | Parsers create `LinkReference` instances that are added via `add_link()` |
 | 3.1.1 Logging Framework | Cross-cutting | Uses `get_logger()` for database operation logging |
 
@@ -64,7 +64,7 @@ The In-Memory Database (`LinkDatabase`) provides thread-safe, target-indexed sto
 
 ### 3.4 Usability Requirements
 
-- **Developer Experience**: Simple public API (`add_link()`, `get_references_to_file()`, `update_target_path()`, `remove_file_links()`, `clear()`, `get_stats()`)
+- **Developer Experience**: Simple public API with 9 methods: `add_link()`, `remove_file_links()`, `get_references_to_file()`, `update_target_path()`, `remove_targets_by_path()`, `get_all_targets_with_references()`, `get_source_files()`, `clear()`, `get_stats()`
 - **Transparency**: Database operates transparently; developers interact with high-level service methods rather than database directly
 
 ## 4. Technical Design
@@ -107,7 +107,7 @@ class LinkDatabase:
 def add_link(self, reference: LinkReference):
     """Add a link reference to the database."""
     with self._lock:
-        target = self._normalize_path(reference.link_target)
+        target = normalize_path(reference.link_target)
         if target not in self.links:
             self.links[target] = []
         self.links[target].append(reference)
@@ -122,7 +122,7 @@ def get_references_to_file(self, file_path: str) -> List[LinkReference]:
       3. Relative path resolution
     """
     with self._lock:
-        normalized_path = self._normalize_path(file_path)
+        normalized_path = normalize_path(file_path)
         all_references = []
 
         # Level 1: Direct lookup
@@ -132,7 +132,7 @@ def get_references_to_file(self, file_path: str) -> List[LinkReference]:
         # Level 2: Anchor-stripped lookup
         for target_path, references in self.links.items():
             base_target = target_path.split("#", 1)[0] if "#" in target_path else target_path
-            if self._normalize_path(base_target) == normalized_path:
+            if normalize_path(base_target) == normalized_path:
                 for ref in references:
                     if ref not in all_references:
                         all_references.append(ref)
@@ -150,14 +150,14 @@ def get_references_to_file(self, file_path: str) -> List[LinkReference]:
 def update_target_path(self, old_path: str, new_path: str):
     """Update target path for all references when a file moves."""
     with self._lock:
-        old_normalized = self._normalize_path(old_path)
-        new_normalized = self._normalize_path(new_path)
+        old_normalized = normalize_path(old_path)
+        new_normalized = normalize_path(new_path)
 
         # Find keys to update (including anchored links like file.md#section)
         keys_to_update = []
         for key in self.links.keys():
             base_key = key.split("#", 1)[0] if "#" in key else key
-            if self._normalize_path(base_key) == old_normalized:
+            if normalize_path(base_key) == old_normalized:
                 keys_to_update.append(key)
 
         # Update each key
@@ -176,7 +176,7 @@ def update_target_path(self, old_path: str, new_path: str):
 def remove_file_links(self, file_path: str):
     """Remove all links from a specific source file."""
     with self._lock:
-        normalized_file_path = self._normalize_path(file_path)
+        normalized_file_path = normalize_path(file_path)
         self.files_with_links.discard(file_path)
         self.files_with_links.discard(normalized_file_path)
 
@@ -185,7 +185,7 @@ def remove_file_links(self, file_path: str):
             original_count = len(references)
             self.links[target] = [
                 ref for ref in references
-                if self._normalize_path(ref.file_path) != normalized_file_path
+                if normalize_path(ref.file_path) != normalized_file_path
             ]
             removed_count += original_count - len(self.links[target])
 
@@ -201,17 +201,13 @@ def remove_file_links(self, file_path: str):
 
 ### 4.3 Path Normalization
 
-**Normalization strategy:**
+**Shared utility:** The database imports `normalize_path()` from `linkwatcher/utils.py` (part of 0.1.1 Core Architecture) rather than implementing its own private method. This was consolidated during TD001/TD002 to eliminate duplicate implementations across modules.
 
 ```python
-def _normalize_path(self, path: str) -> str:
-    """Normalize a path for consistent lookups.
-    - Strips leading slash
-    - Normalizes separators to forward slashes
-    - Resolves .. and . components
-    """
-    path = path.lstrip("/")
-    return os.path.normpath(path).replace("\\", "/")
+from .utils import normalize_path
+
+# normalize_path(path) strips leading slash, normalizes separators
+# to forward slashes, and resolves .. and . components.
 ```
 
 **Critical for correctness:** Ensures paths stored as `docs/README.md`, `./docs/README.md`, and `docs\\README.md` all resolve to the same normalized key.
@@ -227,7 +223,7 @@ def _normalize_path(self, path: str) -> str:
 #### Security Implementation
 
 - **No validation**: Database trusts upstream path utilities (0.1.5) to prevent traversal attacks
-- **Read-only after storage**: `LinkReference` instances are immutable by convention (dataclasses with no setters)
+- **Mutable references**: `LinkReference` fields can be reassigned (e.g., `update_target_path()` mutates `ref.link_target`); dataclass fields are not frozen
 
 #### Reliability Implementation
 
@@ -237,7 +233,7 @@ def _normalize_path(self, path: str) -> str:
 
 #### Usability Implementation
 
-- **Simple API**: 6 public methods cover all use cases
+- **Simple API**: 9 public methods cover all use cases
 - **Transparent operation**: Service layer handles database calls; feature implementations don't interact with database directly
 
 ## 5. Cross-References
@@ -272,12 +268,13 @@ def _normalize_path(self, path: str) -> str:
 ### 6.1 Dependencies
 
 **Implemented first (already complete):**
-- 0.1.2 Data Models: `LinkReference` dataclass
+- Data Models (part of 0.1.1): `LinkReference` dataclass
+- Path Utilities (part of 0.1.1): `normalize_path()` shared function
 - 3.1.1 Logging Framework: `get_logger()` for operation logging
 
 **Consumes this database:**
 - 0.1.1 Core Architecture: Service instantiates database
-- 1.1.2 Event Handler: Queries database on file move events
+- 1.1.1 File System Monitoring: Queries database on file move events
 - 2.1.1 Parser Framework: Parsers populate database during scan
 
 ### 6.2 Implementation Steps

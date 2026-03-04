@@ -59,23 +59,6 @@ dev format
 - ✅ Case-insensitive file matching
 - ✅ Windows file attributes (hidden files)
 
-### **Development Setup (Windows)**
-
-```cmd
-# Setup development environment
-dev dev-setup
-
-# Run tests
-dev test
-
-# Check code quality
-dev lint
-
-# Format code
-dev format
-```
-
-> **Note**: LinkWatcher 2.0 is optimized for Windows development. All CI/CD and testing is performed on Windows platform.
 ## ✨ Features
 
 - 🔄 **Real-time monitoring** - Automatically detects file moves/renames
@@ -91,13 +74,7 @@ dev format
 
 | Document | Description |
 |----------|-------------|
-| [Installation Guide](docs/installation.md) | Detailed installation instructions |
-| [Configuration Reference](docs/configuration.md) | All configuration options |
-| [API Reference](docs/api-reference.md) | Programmatic usage |
 | [Multi-Project Setup](MULTI_PROJECT_SETUP.md) | Using across multiple projects |
-| [Architecture Overview](RESTRUCTURE_README.md) | Technical architecture details |
-| [Migration Guide](docs/migration-guide.md) | Upgrading from v1.0 |
-| [Troubleshooting](docs/troubleshooting.md) | Common issues and solutions |
 | [File Type Quick Fix](docs/FILE_TYPE_QUICK_FIX.md) | **Quick fix** for file types not being monitored |
 | [File Type Troubleshooting](docs/TROUBLESHOOTING_FILE_TYPES.md) | **Detailed guide** for file type monitoring issues |
 
@@ -152,7 +129,7 @@ python tools/logging_dashboard.py --text-mode
 - **[Production Configuration](config-examples/production-config.yaml)** - Optimized for production
 - **[Advanced Configuration](config-examples/advanced-logging-config.yaml)** - All features enabled
 
-**📚 [Complete Logging Documentation](docs/LOGGING.md)**
+**📚 See configuration examples above for logging setup.**
 
 ## 🧪 Testing
 
@@ -253,13 +230,12 @@ See [Contributing Guide](CONTRIBUTING.md) for detailed development workflow, tes
 
 ## 📜 License
 
-MIT License - see [LICENSE](LICENSE) file for details.
+MIT License
 
 ## 🔗 Links
 
 - [Contributing Guide](CONTRIBUTING.md) - Development workflow and guidelines
 - [Changelog](CHANGELOG.md) - Release history and changes
-- [Original Implementation](old/link_watcher_old.py) (archived)
 - [Test Suite](tests/) - Comprehensive test documentation
 - [Example Configurations](examples/)
 

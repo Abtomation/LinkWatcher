@@ -4,7 +4,7 @@ type: Process Framework
 category: Task Definition
 version: 1.1
 created: 2025-07-24
-updated: 2026-03-02
+updated: 2026-03-04
 task_type: Cyclical
 ---
 
@@ -90,6 +90,8 @@ Systematic approach to identifying, categorizing, and prioritizing technical deb
    - Estimated effort required for remediation
    - Risk assessment if left unaddressed
 
+   > **⚠️ Data Quality**: Before finalizing each debt item description, verify it against the actual source code. Descriptions must accurately reflect the current state of the code — not assumptions from static analysis, documentation, or analogy with similar items. Inaccurate descriptions waste remediation effort downstream (ref: PF-IMP-088).
+
 7. **🚨 CHECKPOINT**: Present identified debt items for review before prioritization
 
 ### Prioritization Phase
@@ -120,7 +122,7 @@ Systematic approach to identifying, categorizing, and prioritizing technical deb
 
    ```powershell
    # Add individual debt items manually
-   .\doc\process-framework\scripts\Update-TechnicalDebtTracking.ps1 -Operation "Add" -Description "Description" -Category "Category" -Location "Location" -Priority "Priority" -EstimatedEffort "Effort" -DebtItemId "PF-TDI-XXX" -AssessmentId "PF-TDA-XXX"
+   .\doc\process-framework\scripts\update\Update-TechDebt.ps1 -Add -Description "Description" -Category "Category" -Location "Location" -Priority "Priority" -EstimatedEffort "Effort" -DebtItemId "PF-TDI-XXX" -AssessmentId "PF-TDA-XXX"
    ```
 
    **Automation Benefits:**

@@ -117,16 +117,17 @@ See [FDD PD-FDD-022](../../../../functional-design/fdds/fdd-0-1-1-core-architect
 │                   LinkWatcherService                              │
 │  (Orchestrator/Facade - service.py)                              │
 │                                                                  │
-│  __init__():                                                     │
+│  __init__(project_root, config=None):                            │
 │    ├── LinkDatabase()              ← 0.1.2                       │
 │    ├── LinkParser()                ← 2.1.1                       │
-│    ├── LinkUpdater(database)       ← 2.2.1                       │
-│    └── LinkMaintenanceHandler(     ← 1.1.1                       │
-│          database, parser, updater)                               │
+│    ├── LinkUpdater(project_root)   ← 2.2.1                       │
+│    ├── LinkMaintenanceHandler(     ← 1.1.1                       │
+│    │     link_db, parser, updater, project_root,                 │
+│    │     monitored_extensions, ignored_directories)              │
+│    └── register signal handlers (SIGINT, SIGTERM)                │
 │                                                                  │
-│  start():                                                        │
-│    ├── register signal handlers (SIGINT, SIGTERM)                │
-│    ├── Optional: initial_scan()    ← 1.1.1 (Initial Scan)        │
+│  start(initial_scan=True):                                       │
+│    ├── Optional: _initial_scan()   ← 1.1.1 (Initial Scan)        │
 │    ├── Observer(handler, path)     ← 1.1.1 (Watchdog)           │
 │    ├── observer.start()                                          │
 │    └── while self.running: sleep(1)  ← 1.1.1 (Monitoring)       │
@@ -135,7 +136,7 @@ See [FDD PD-FDD-022](../../../../functional-design/fdds/fdd-0-1-1-core-architect
 │    ├── self.running = False                                      │
 │    ├── observer.stop()                                           │
 │    ├── observer.join()                                           │
-│    └── print_statistics()                                        │
+│    └── _print_final_stats()                                      │
 └──────────────────────────────────────────────────────────────────┘
 ```
 
@@ -143,7 +144,7 @@ See [FDD PD-FDD-022](../../../../functional-design/fdds/fdd-0-1-1-core-architect
 
 ```
 1. STARTUP PHASE:
-   main.py → parse args → load config → LinkWatcherService(config)
+   main.py → parse args → load config → LinkWatcherService(project_root, config=config)
 
 2. INITIAL SCAN PHASE:
    service.start() → os.walk(project_dir) → for each file:
@@ -178,25 +179,31 @@ See [FDD PD-FDD-022](../../../../functional-design/fdds/fdd-0-1-1-core-architect
 class LinkWatcherService:
     """Central orchestrator — coordinates all subsystems."""
 
-    def __init__(self, config: LinkWatcherConfig):
+    def __init__(self, project_root: str = ".", config: LinkWatcherConfig = None):
+        self.project_root = Path(project_root).resolve()
         self.config = config
         self.running = False
-        self.database = LinkDatabase()
+        self.link_db = LinkDatabase()
         self.parser = LinkParser()
-        self.updater = LinkUpdater(self.database, config)
+        self.updater = LinkUpdater(str(self.project_root))
         self.handler = LinkMaintenanceHandler(
-            self.database, self.parser, self.updater, config
+            self.link_db, self.parser, self.updater,
+            str(self.project_root),
+            monitored_extensions=config.monitored_extensions if config else None,
+            ignored_directories=config.ignored_directories if config else None,
         )
         self.observer = None  # Created lazily in start()
 
-    def start(self):
-        """Start monitoring: optional scan → register signals → start observer → poll."""
+        # Register signal handlers for graceful shutdown
         signal.signal(signal.SIGINT, self._signal_handler)
         signal.signal(signal.SIGTERM, self._signal_handler)
-        if self.config.initial_scan:
+
+    def start(self, initial_scan: bool = True):
+        """Start monitoring: optional scan → start observer → poll."""
+        if initial_scan:
             self._initial_scan()
         self.observer = Observer()
-        self.observer.schedule(self.handler, self.config.project_path, recursive=True)
+        self.observer.schedule(self.handler, str(self.project_root), recursive=True)
         self.observer.start()
         self.running = True
         try:
@@ -211,7 +218,7 @@ class LinkWatcherService:
         if self.observer:
             self.observer.stop()
             self.observer.join()
-        self._print_statistics()
+        self._print_final_stats()
 
     def _signal_handler(self, signum, frame):
         self.running = False
@@ -219,7 +226,7 @@ class LinkWatcherService:
     def _initial_scan(self):
         """Walk project directory, parse all monitored files, populate database."""
         # Uses os.walk with directory pruning via dirs[:] mutation
-        # Delegates to self.parser.parse() and self.database.add_links()
+        # Delegates to self.parser.parse_file() and self.link_db.add_link()
 ```
 
 ### 4.2 Duplicate Instance Prevention
@@ -253,34 +260,40 @@ The service uses a PID-based lock file to prevent multiple instances from runnin
 ```python
 def main():
     parser = argparse.ArgumentParser(description="LinkWatcher - Real-time link maintenance")
-    parser.add_argument("path", nargs="?", default=".", help="Project directory")
-    parser.add_argument("--config", help="Configuration file path")
+    parser.add_argument("--project-root", default=".", help="Project root directory")
+    parser.add_argument("--config", help="Configuration file path (YAML or JSON)")
     parser.add_argument("--dry-run", action="store_true", help="Preview changes")
-    parser.add_argument("--no-scan", action="store_true", help="Skip initial scan")
+    parser.add_argument("--no-initial-scan", action="store_true", help="Skip initial scan")
     parser.add_argument("--debug", action="store_true", help="Enable debug logging")
+    parser.add_argument("--quiet", action="store_true", help="Suppress non-error output")
+    parser.add_argument("--log-file", help="Log to file")
+    parser.add_argument("--version", action="version", version="LinkWatcher 2.0.0")
     args = parser.parse_args()
 
     # Multi-source config loading: CLI > env > file > defaults
-    config = LinkWatcherConfig.from_file(args.config) if args.config else LinkWatcherConfig()
-    # Apply CLI overrides...
+    config = load_config(args.config, args)
 
-    service = LinkWatcherService(config)
-    service.start()
+    # Lock file prevents duplicate instances
+    lock_file = acquire_lock(project_root)
+    service = LinkWatcherService(str(project_root), config=config)
+    service.start(initial_scan=config.initial_scan_enabled)
 ```
 
 ### 4.3 Package API (__init__.py)
 
 ```python
-from .service import LinkWatcherService
 from .database import LinkDatabase
+from .logging import LogLevel, LogTimer, get_logger, setup_logging, with_context
+from .models import FileOperation, LinkReference
 from .parser import LinkParser
+from .path_resolver import PathResolver
+from .service import LinkWatcherService
 from .updater import LinkUpdater
-from .models import LinkReference, FileOperation
-from .logging import get_logger, setup_logging, LogLevel
 
 __all__ = [
     "LinkWatcherService", "LinkDatabase", "LinkParser", "LinkUpdater",
-    "LinkReference", "FileOperation", "get_logger", "setup_logging", "LogLevel"
+    "PathResolver", "LinkReference", "FileOperation",
+    "get_logger", "setup_logging", "LogLevel", "LogTimer", "with_context",
 ]
 ```
 

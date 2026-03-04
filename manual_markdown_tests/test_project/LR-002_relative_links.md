@@ -3,7 +3,7 @@
 This file tests relative path link parsing with REAL files.
 
 ## Relative path variations:
-- [Current directory](file1.txt)
+- [Current directory](docs/file1.txt)
 - [Explicit current](../../test_project/documentation/readme.md)
 - [Test project root](root.txt)
 
@@ -13,7 +13,7 @@ This file tests relative path link parsing with REAL files.
 - [Assets](assets/logo.png)
 
 ## Mixed with different paths:
-- [File 1](file1.txt)
+- [File 1](docs/file1.txt)
 - [File 2](file2.txt)
 - [Inline](inline.txt)
 

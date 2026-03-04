@@ -2,17 +2,18 @@
 
 <#
 .SYNOPSIS
-Automates technical debt status updates in the Technical Debt Tracker state file
+Automates technical debt lifecycle management in the Technical Debt Tracker state file
 
 .DESCRIPTION
-This script automates debt item lifecycle transitions in technical-debt-tracking.md.
+This script automates debt item lifecycle management in technical-debt-tracking.md.
+Optionally updates a foundational validation tracking file when resolving debt items
+tracked in foundational validation (via -FoundationalNote and -FoundationalTrackingPath parameters).
 
-Updates the following file:
-- doc/process-framework/state-tracking/permanent/technical-debt-tracking.md
-
-Supports two operation modes:
-1. Status-only update: Changes Status and Resolution Date columns in the Registry table
-2. Completion (Resolved): Moves debt item from Registry to "Recently Resolved" section,
+Supports three operation modes:
+1. Add new debt item: Generates next TD### ID, inserts row into Registry table, optionally
+   updates the associated PF-TDI debt item file with the assigned ID
+2. Status-only update: Changes Status and Resolution Date columns in the Registry table
+3. Completion (Resolved): Moves debt item from Registry to "Recently Resolved" section,
    drops Estimated Effort and Status columns, sets Resolution Date, updates frontmatter date
 
 Registry table columns (11):
@@ -23,11 +24,40 @@ Recently Resolved table columns (9):
   | ID | Description | Category | Location | Created Date | Priority | Resolution Date | Assessment ID | Notes |
   idx: 0     1            2          3          4               5          6                 7               8
 
+.PARAMETER Add
+Switch to add a new debt item. Auto-generates the next TD### ID.
+
+.PARAMETER Description
+Description of the technical debt item (required for Add).
+
+.PARAMETER Category
+Category of the debt item (required for Add). Valid values:
+Architectural, Code Quality, Testing, Documentation, Performance, Security, Accessibility, UX
+
+.PARAMETER Location
+Location/path where the debt exists (required for Add). E.g., "linkwatcher/parsers/"
+
+.PARAMETER Priority
+Priority level (required for Add). Valid values: Critical, High, Medium, Low
+
+.PARAMETER EstimatedEffort
+Estimated effort to resolve (required for Add). E.g., "2 hours", "1 week"
+
+.PARAMETER AssessmentId
+ID of the assessment that identified this debt (optional for Add). E.g., "PF-TDA-001", "PF-VAL-042"
+
+.PARAMETER DebtItemId
+ID of the individual debt item document (optional for Add). E.g., "PF-TDI-001".
+When provided, updates the debt item file with the assigned TD### registry ID.
+
+.PARAMETER Notes
+Additional notes about the debt item (optional for Add).
+
 .PARAMETER DebtId
-The technical debt ID to update (e.g., "TD005")
+The technical debt ID to update (e.g., "TD005"). Required for status updates.
 
 .PARAMETER NewStatus
-The new status. Valid values: Open, InProgress, Resolved
+The new status. Valid values: Open, InProgress, Resolved. Required for status updates.
 
 .PARAMETER ResolutionNotes
 Description of what was done. Required when NewStatus is Resolved.
@@ -36,6 +66,25 @@ Appended to the Notes column in the Recently Resolved table.
 .PARAMETER PlanLink
 Optional markdown link to the refactoring plan (e.g., "[TD006](../../refactoring/plans/td006.md)").
 When provided, replaces the plain ID in the Recently Resolved table.
+
+.PARAMETER FoundationalNote
+Optional status text for the Critical Issues Tracking table in the foundational validation tracking file.
+Used together with -FoundationalTrackingPath. When both are provided (and NewStatus is Resolved),
+updates the matching row's Status column.
+Example: "Resolved (PF-REF-042, reduced to 681 LOC)"
+
+.PARAMETER FoundationalTrackingPath
+Optional absolute path to the foundational-validation-tracking.md file.
+Required together with -FoundationalNote for updating the Critical Issues Tracking table.
+Example: "c:\project\doc\process-framework\state-tracking\temporary\foundational-validation-tracking.md"
+
+.EXAMPLE
+# Add a new debt item
+.\Update-TechDebt.ps1 -Add -Description "Missing error handling in parser" -Category "Code Quality" -Location "linkwatcher/parsers/" -Priority "Medium" -EstimatedEffort "2 hours"
+
+.EXAMPLE
+# Add a new debt item with assessment and debt item links
+.\Update-TechDebt.ps1 -Add -Description "Missing Repository Pattern" -Category "Architectural" -Location "lib/services/" -Priority "Critical" -EstimatedEffort "1-2 weeks" -AssessmentId "PF-TDA-001" -DebtItemId "PF-TDI-001"
 
 .EXAMPLE
 # Mark debt item as in progress
@@ -49,27 +98,74 @@ When provided, replaces the plain ID in the Recently Resolved table.
 # Resolve with plan link
 .\Update-TechDebt.ps1 -DebtId "TD006" -NewStatus "Resolved" -ResolutionNotes "Extracted public API methods." -PlanLink "[TD006](../../refactoring/plans/td006-encapsulation-violation-fix.md)"
 
+.EXAMPLE
+# Resolve with foundational validation tracking update
+.\Update-TechDebt.ps1 -DebtId "TD022" -NewStatus "Resolved" -ResolutionNotes "Extracted ReferenceLookup class" -FoundationalNote "Resolved (PF-REF-042, reduced to 681 LOC)" -FoundationalTrackingPath "c:\project\doc\process-framework\state-tracking\temporary\foundational-validation-tracking.md"
+
 .NOTES
 This script is part of the Technical Debt automation system and integrates with:
 - Code Refactoring Task (PF-TSK-022)
 - Technical Debt Assessment Task (PF-TSK-023)
+- Validation Tasks (PF-TSK-031 through PF-TSK-036)
+- New-DebtItem.ps1
+
+Updates the following files:
+- doc/process-framework/state-tracking/permanent/technical-debt-tracking.md (always)
+- Foundational validation tracking file at -FoundationalTrackingPath (when -FoundationalNote and -FoundationalTrackingPath are provided)
 #>
 
-[CmdletBinding(SupportsShouldProcess)]
+[CmdletBinding(SupportsShouldProcess, DefaultParameterSetName = 'StatusUpdate')]
 param(
-    [Parameter(Mandatory = $true)]
+    # --- AddNew parameter set ---
+    [Parameter(Mandatory = $true, ParameterSetName = 'AddNew')]
+    [switch]$Add,
+
+    [Parameter(Mandatory = $true, ParameterSetName = 'AddNew')]
+    [string]$Description,
+
+    [Parameter(Mandatory = $true, ParameterSetName = 'AddNew')]
+    [ValidateSet("Architectural", "Code Quality", "Testing", "Documentation", "Performance", "Security", "Accessibility", "UX")]
+    [string]$Category,
+
+    [Parameter(Mandatory = $true, ParameterSetName = 'AddNew')]
+    [string]$Location,
+
+    [Parameter(Mandatory = $true, ParameterSetName = 'AddNew')]
+    [ValidateSet("Critical", "High", "Medium", "Low")]
+    [string]$Priority,
+
+    [Parameter(Mandatory = $true, ParameterSetName = 'AddNew')]
+    [string]$EstimatedEffort,
+
+    [Parameter(Mandatory = $false, ParameterSetName = 'AddNew')]
+    [string]$AssessmentId,
+
+    [Parameter(Mandatory = $false, ParameterSetName = 'AddNew')]
+    [string]$DebtItemId,
+
+    [Parameter(Mandatory = $false, ParameterSetName = 'AddNew')]
+    [string]$Notes,
+
+    # --- StatusUpdate parameter set ---
+    [Parameter(Mandatory = $true, ParameterSetName = 'StatusUpdate')]
     [ValidatePattern('^TD\d+$')]
     [string]$DebtId,
 
-    [Parameter(Mandatory = $true)]
+    [Parameter(Mandatory = $true, ParameterSetName = 'StatusUpdate')]
     [ValidateSet("Open", "InProgress", "Resolved")]
     [string]$NewStatus,
 
-    [Parameter(Mandatory = $false)]
+    [Parameter(Mandatory = $false, ParameterSetName = 'StatusUpdate')]
     [string]$ResolutionNotes,
 
-    [Parameter(Mandatory = $false)]
-    [string]$PlanLink
+    [Parameter(Mandatory = $false, ParameterSetName = 'StatusUpdate')]
+    [string]$PlanLink,
+
+    [Parameter(Mandatory = $false, ParameterSetName = 'StatusUpdate')]
+    [string]$FoundationalNote,
+
+    [Parameter(Mandatory = $false, ParameterSetName = 'StatusUpdate')]
+    [string]$FoundationalTrackingPath
 )
 
 # --- Configuration ---
@@ -104,9 +200,11 @@ function Test-Prerequisites {
         return $false
     }
 
-    if ($NewStatus -eq "Resolved" -and -not $ResolutionNotes) {
-        Write-Log "ResolutionNotes is required when transitioning to Resolved" -Level "ERROR"
-        return $false
+    if ($PSCmdlet.ParameterSetName -eq 'StatusUpdate') {
+        if ($NewStatus -eq "Resolved" -and -not $ResolutionNotes) {
+            Write-Log "ResolutionNotes is required when transitioning to Resolved" -Level "ERROR"
+            return $false
+        }
     }
 
     Write-Log "Prerequisites check passed" -Level "SUCCESS"
@@ -116,6 +214,132 @@ function Test-Prerequisites {
 # --- Content-transformer functions ---
 # Each takes a $Content string and returns modified $Content string.
 # Return $null to signal an error.
+
+function Get-NextDebtId {
+    <#
+    .SYNOPSIS
+    Gets the next available TD### ID by scanning content for existing IDs
+    #>
+    param([string]$Content)
+
+    # Find all existing TD IDs across both registry and resolved sections
+    # Matches both plain "| TD014 |" and linked "| [TD014](path) |" formats
+    $tdPattern = 'TD(\d{3})'
+    $allMatches = [regex]::Matches($Content, $tdPattern)
+
+    $existingIds = @()
+    foreach ($m in $allMatches) {
+        $numericPart = [int]$m.Groups[1].Value
+        if ($numericPart -gt 0) {
+            $existingIds += $numericPart
+        }
+    }
+
+    # Find the highest number and increment
+    if ($existingIds.Count -gt 0) {
+        $maxId = ($existingIds | Sort-Object -Unique | Measure-Object -Maximum).Maximum
+        $nextId = [int]$maxId + 1
+    }
+    else {
+        $nextId = 1
+    }
+
+    $formattedId = "TD" + $nextId.ToString().PadLeft(3, '0')
+    return $formattedId
+}
+
+function Add-NewDebtItemContent {
+    <#
+    .SYNOPSIS
+    Content transformer that inserts a new debt item row into the Registry table
+    #>
+    param(
+        [string]$Content,
+        [string]$NewDebtId,
+        [string]$Description,
+        [string]$Category,
+        [string]$Location,
+        [string]$Priority,
+        [string]$EstimatedEffort,
+        [string]$AssessmentId,
+        [string]$Notes
+    )
+
+    $assessmentIdValue = if ($AssessmentId) { $AssessmentId } else { "-" }
+    $notesValue = if ($Notes) { $Notes } else { "-" }
+
+    # Build new table row (11 columns)
+    $newRow = "| $NewDebtId | $Description | $Category | $Location | $CurrentDate | $Priority | $EstimatedEffort | Open | - | $assessmentIdValue | $notesValue |"
+
+    # Find the end of the Registry table
+    $lines = [System.Collections.ArrayList]@($Content -split "\r?\n")
+    $registryTableEnd = -1
+    $foundRegistryHeading = $false
+    $foundTableRows = $false
+
+    for ($i = 0; $i -lt $lines.Count; $i++) {
+        $line = $lines[$i]
+
+        if ($line -match '## Technical Debt Registry') {
+            $foundRegistryHeading = $true
+            continue
+        }
+
+        if ($foundRegistryHeading -and $line -match '^\|.*\|$') {
+            $foundTableRows = $true
+            continue
+        }
+
+        # Once we've seen table rows, a non-table line means end of table
+        if ($foundTableRows -and $line -notmatch '^\|.*\|$') {
+            $registryTableEnd = $i
+            break
+        }
+    }
+
+    if ($registryTableEnd -eq -1) {
+        Write-Log "Could not find end of Technical Debt Registry table" -Level "ERROR"
+        return $null
+    }
+
+    # Insert the new row before the table end
+    $lines.Insert($registryTableEnd, $newRow)
+
+    Write-Log "Added new debt item $NewDebtId to Registry table" -Level "SUCCESS"
+    return ($lines -join "`r`n")
+}
+
+function Update-DebtItemFile {
+    <#
+    .SYNOPSIS
+    Updates a PF-TDI debt item document with the assigned TD### registry ID
+    #>
+    param(
+        [string]$DebtItemId,
+        [string]$RegistryId
+    )
+
+    $debtItemDir = Join-Path -Path $ProjectRoot -ChildPath "doc/process-framework/assessments/technical-debt/debt-items"
+    $debtItemPattern = "*$DebtItemId*.md"
+    $debtItemFiles = Get-ChildItem -Path $debtItemDir -Filter $debtItemPattern -ErrorAction SilentlyContinue
+
+    if ($debtItemFiles.Count -eq 0) {
+        Write-Log "Debt item file not found for ID: $DebtItemId" -Level "WARN"
+        return
+    }
+
+    $debtItemFile = $debtItemFiles[0].FullName
+    $content = Get-Content $debtItemFile -Raw
+
+    # Update the Registry Integration section
+    $updatedContent = $content -replace 'Registry Status: Not Added', 'Registry Status: Added'
+    $updatedContent = $updatedContent -replace 'Registry ID: TBD', "Registry ID: $RegistryId"
+
+    if ($PSCmdlet.ShouldProcess($debtItemFile, "Update debt item file with registry ID $RegistryId")) {
+        Set-Content -Path $debtItemFile -Value $updatedContent -NoNewline
+        Write-Log "Updated debt item file $DebtItemId with registry ID $RegistryId" -Level "SUCCESS"
+    }
+}
 
 function Update-StatusInPlace {
     param(
@@ -258,51 +482,163 @@ function Update-FrontmatterDate {
     return $result
 }
 
+function Update-FoundationalValidationTracking {
+    <#
+    .SYNOPSIS
+    Updates the Critical Issues Tracking table in foundational-validation-tracking.md
+    when a tech debt item is resolved.
+    #>
+    [CmdletBinding(SupportsShouldProcess)]
+    param(
+        [string]$DebtId,
+        [string]$FoundationalNote,
+        [string]$FoundationalTrackingPath
+    )
+
+    if (-not (Test-Path $FoundationalTrackingPath)) {
+        Write-Log "Foundational validation tracking file not found: $FoundationalTrackingPath" -Level "WARN"
+        return
+    }
+
+    $content = Get-Content $FoundationalTrackingPath -Raw
+    $lines = [System.Collections.ArrayList]@($content -split "\r?\n")
+
+    # Find the row in "Critical Issues Tracking" where "Tracked As" column contains the DebtId
+    # Table columns: | Issue | Severity | Source Report | Feature | Tracked As | Status |
+    $inCriticalSection = $false
+    $rowIndex = -1
+    for ($i = 0; $i -lt $lines.Count; $i++) {
+        if ($lines[$i] -match '## Critical Issues Tracking') { $inCriticalSection = $true; continue }
+        if ($inCriticalSection -and $lines[$i] -match '^## (?!Critical Issues Tracking)') { break }
+        if ($inCriticalSection -and $lines[$i] -match "^\|.*\b$DebtId\b.*\|") {
+            $rowIndex = $i
+            break
+        }
+    }
+
+    if ($rowIndex -eq -1) {
+        Write-Log "$DebtId not found in foundational-validation-tracking.md Critical Issues Tracking — skipping" -Level "WARN"
+        return
+    }
+
+    # Parse the row and update the Status column (last column, index 5)
+    $row = $lines[$rowIndex]
+    $columns = $row -split '\|' | ForEach-Object { $_.Trim() }
+    if ($columns[0] -eq '') { $columns = $columns[1..($columns.Length - 1)] }
+    if ($columns[-1] -eq '') { $columns = $columns[0..($columns.Length - 2)] }
+
+    $columns[5] = $FoundationalNote
+    $updatedRow = "| " + ($columns -join " | ") + " |"
+    $lines[$rowIndex] = $updatedRow
+
+    # Update frontmatter date
+    $updatedContent = ($lines -join "`r`n")
+    $updatedContent = $updatedContent -replace '(?<=^updated:\s*)\d{4}-\d{2}-\d{2}', $CurrentDate
+
+    if ($PSCmdlet.ShouldProcess($FoundationalTrackingPath, "Update $DebtId status to '$FoundationalNote'")) {
+        Set-Content -Path $FoundationalTrackingPath -Value $updatedContent -NoNewline
+        Write-Log "Updated $DebtId in $($FoundationalTrackingPath | Split-Path -Leaf): $FoundationalNote" -Level "SUCCESS"
+    }
+}
+
 # --- Main ---
 
 function Main {
     Write-Log "Starting Technical Debt Update - $ScriptName"
-    Write-Log "Debt ID: $DebtId"
-    Write-Log "New Status: $NewStatus"
+
+    if ($PSCmdlet.ParameterSetName -eq 'AddNew') {
+        Write-Log "Operation: Add new debt item"
+        Write-Log "Description: $Description"
+    }
+    else {
+        Write-Log "Operation: Status update"
+        Write-Log "Debt ID: $DebtId"
+        Write-Log "New Status: $NewStatus"
+    }
 
     if (-not (Test-Prerequisites)) {
         exit 1
     }
 
-    if (-not $PSCmdlet.ShouldProcess($TargetFile, "Update $DebtId to $NewStatus")) {
-        return
-    }
+    if ($PSCmdlet.ParameterSetName -eq 'AddNew') {
+        # --- Add new debt item ---
+        if (-not $PSCmdlet.ShouldProcess($TargetFile, "Add new debt item: $Description")) {
+            return
+        }
 
-    # Single read-modify-write cycle
-    $content = Get-Content $TargetFile -Raw
+        # Single read-modify-write cycle
+        $content = Get-Content $TargetFile -Raw
 
-    $isResolution = $NewStatus -eq "Resolved"
+        # Generate next TD### ID from content
+        $newDebtId = Get-NextDebtId -Content $content
+        Write-Log "Generated new debt ID: $newDebtId"
 
-    if ($isResolution) {
-        # Move row from Registry to Recently Resolved
-        $content = Move-ToResolvedSection -Content $content -DebtId $DebtId -ResolutionNotes $ResolutionNotes -PlanLink $PlanLink
+        # Insert new row into Registry table
+        $content = Add-NewDebtItemContent -Content $content -NewDebtId $newDebtId `
+            -Description $Description -Category $Category -Location $Location `
+            -Priority $Priority -EstimatedEffort $EstimatedEffort `
+            -AssessmentId $AssessmentId -Notes $Notes
         if ($null -eq $content) {
-            Write-Log "Failed to move $DebtId to Recently Resolved section" -Level "ERROR"
+            Write-Log "Failed to add new debt item to Registry table" -Level "ERROR"
             exit 1
         }
+
+        # Update frontmatter date
+        $content = Update-FrontmatterDate -Content $content
+
+        # Single write
+        Set-Content -Path $TargetFile -Value $content -NoNewline
+
+        # Update the debt item file with the assigned registry ID if DebtItemId is provided
+        if ($DebtItemId) {
+            Update-DebtItemFile -DebtItemId $DebtItemId -RegistryId $newDebtId
+        }
+
+        Write-Log "Technical debt item added successfully with ID: $newDebtId" -Level "SUCCESS"
+        Write-Log "Updated file: $TargetFile"
     }
     else {
-        # Status-only update in Registry table
-        $content = Update-StatusInPlace -Content $content -DebtId $DebtId -NewStatus $NewStatus
-        if ($null -eq $content) {
-            Write-Log "Failed to update $DebtId status" -Level "ERROR"
-            exit 1
+        # --- Status update ---
+
+        # Single read-modify-write cycle
+        $content = Get-Content $TargetFile -Raw
+
+        $isResolution = $NewStatus -eq "Resolved"
+
+        if ($isResolution) {
+            # Move row from Registry to Recently Resolved
+            $content = Move-ToResolvedSection -Content $content -DebtId $DebtId -ResolutionNotes $ResolutionNotes -PlanLink $PlanLink
+            if ($null -eq $content) {
+                Write-Log "Failed to move $DebtId to Recently Resolved section" -Level "ERROR"
+                exit 1
+            }
         }
+        else {
+            # Status-only update in Registry table
+            $content = Update-StatusInPlace -Content $content -DebtId $DebtId -NewStatus $NewStatus
+            if ($null -eq $content) {
+                Write-Log "Failed to update $DebtId status" -Level "ERROR"
+                exit 1
+            }
+        }
+
+        # Update frontmatter date
+        $content = Update-FrontmatterDate -Content $content
+
+        # Write tech debt tracking file (guarded by ShouldProcess for -WhatIf support)
+        if ($PSCmdlet.ShouldProcess($TargetFile, "Update $DebtId to $NewStatus")) {
+            Set-Content -Path $TargetFile -Value $content -NoNewline
+        }
+
+        # Update foundational-validation-tracking.md if FoundationalNote and path are provided
+        # (has its own ShouldProcess guard internally)
+        if ($isResolution -and $FoundationalNote -and $FoundationalTrackingPath) {
+            Update-FoundationalValidationTracking -DebtId $DebtId -FoundationalNote $FoundationalNote -FoundationalTrackingPath $FoundationalTrackingPath
+        }
+
+        Write-Log "Technical debt update completed successfully" -Level "SUCCESS"
+        Write-Log "Updated file: $TargetFile"
     }
-
-    # Update frontmatter date
-    $content = Update-FrontmatterDate -Content $content
-
-    # Single write
-    Set-Content -Path $TargetFile -Value $content -NoNewline
-
-    Write-Log "Technical debt update completed successfully" -Level "SUCCESS"
-    Write-Log "Updated file: $TargetFile"
 }
 
 # Execute main function

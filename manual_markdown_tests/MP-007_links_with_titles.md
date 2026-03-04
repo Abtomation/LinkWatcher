@@ -3,8 +3,8 @@
 This file tests links with title attributes.
 
 ## Links with different title formats:
-- [Link 1](file1.txt "This is title 1")
-- [Link 2](file2.txt 'Single quote title')
+- [Link 1](test_project/docs/file1.txt "This is title 1")
+- [Link 2](test_project/file2.txt 'Single quote title')
 - [Link 3](file3.txt (Parentheses title))
 
 ## Reference links with titles:

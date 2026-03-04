@@ -822,7 +822,7 @@ This document serves as the **comprehensive registry** of all process framework 
 
 - **Assessment Script:** [`New-TechnicalDebtAssessment.ps1`](../scripts/file-creation/New-TechnicalDebtAssessment.ps1)
 - **Debt Item Script:** [`New-DebtItem.ps1`](../scripts/file-creation/New-DebtItem.ps1) - **ENHANCED** with assessment linking and automation guidance
-- **Registry Update Script:** [`Update-TechnicalDebtTracking.ps1`](../scripts/Update-TechnicalDebtTracking.ps1) - **NEW** individual debt item management
+- **Registry Update Script:** [`Update-TechDebt.ps1`](../scripts/update/Update-TechDebt.ps1) - Individual debt item management (Add, StatusUpdate, Resolve)
 - **Assessment Integration Script:** [`Update-TechnicalDebtFromAssessment.ps1`](../scripts/Update-TechnicalDebtFromAssessment.ps1) - **NEW** bulk assessment processing
 - **Output Directory:** [`assessments/technical-debt/`](../assessments/technical-debt/)
 - **Auto-Update Function:** **FULLY AUTOMATED** bidirectional linking and registry integration
@@ -833,7 +833,7 @@ This document serves as the **comprehensive registry** of all process framework 
 | **Creates** | `[PF-TDA-XXX]-[assessment-name].md` | `New-TechnicalDebtAssessment.ps1` | Technical debt assessment document with systematic evaluation and prioritization matrix |
 | **Creates** | `[PF-TDI-XXX]-[item-title].md` (multiple) | `New-DebtItem.ps1` | Individual debt item records with **assessment linking** and automation command guidance<br/>• Include `-AssessmentId` parameter for traceability<br/>• Auto-populate assessment reference and registry integration fields<br/>• Provide ready-to-use automation commands |
 | **Updates** | [`technical-debt-tracking.md`](../state-tracking/permanent/technical-debt-tracking.md) | [`Update-TechnicalDebtFromAssessment.ps1`](../scripts/Update-TechnicalDebtFromAssessment.ps1) | **FULLY AUTOMATED REGISTRY INTEGRATION:**<br/>• Automatically add new debt items with TD### IDs<br/>• Auto-reference assessment ID (PF-TDA-XXX) in Assessment ID column<br/>• Create bidirectional traceability between registry and assessments<br/>• **Usage:** `.\Update-TechnicalDebtFromAssessment.ps1 -AssessmentId "PF-TDA-XXX"` |
-| **Updates** | Individual debt item files | [`Update-TechnicalDebtTracking.ps1`](../scripts/Update-TechnicalDebtTracking.ps1) | **AUTOMATED REGISTRY INTEGRATION:**<br/>• Auto-update Registry Status: "Not Added" → "Added"<br/>• Auto-assign TD### Registry ID<br/>• Mark items as integrated into permanent tracking system<br/>• Maintain bidirectional linking automatically |
+| **Updates** | Individual debt item files | [`Update-TechDebt.ps1`](../scripts/update/Update-TechDebt.ps1) | **AUTOMATED REGISTRY INTEGRATION:**<br/>• Auto-update Registry Status: "Not Added" → "Added"<br/>• Auto-assign TD### Registry ID<br/>• Mark items as integrated into permanent tracking system<br/>• Maintain bidirectional linking automatically |
 
 **🎯 KEY IMPACTS**
 

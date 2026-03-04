@@ -45,7 +45,7 @@
     This script is part of the Foundational Codebase Validation Framework.
 #>
 
-[CmdletBinding()]
+[CmdletBinding(SupportsShouldProcess = $true)]
 param(
     [Parameter(Mandatory = $true)]
     [ValidateSet("ArchitecturalConsistency", "CodeQuality", "IntegrationDependencies",
@@ -297,68 +297,72 @@ try {
     Write-Host "   Session: $SessionNumber" -ForegroundColor Gray
     Write-Host ""
 
-    # Get next validation ID
-    Write-Host "🆔 Assigning validation ID..." -ForegroundColor White
-    $validationId = Get-NextValidationId
-    Write-Host "   Assigned ID: $validationId" -ForegroundColor Green
-    Write-Host ""
-
-    # Create output path
+    # Compute output path for ShouldProcess message
     $featureRange = ($features | Sort-Object) -join "-"
-    $fileName = "$validationId-$($validationConfig.ShortName)-features-$featureRange.md"
     $outputDir = Join-Path $ProjectRoot "doc/process-framework/validation/reports/$($validationConfig.Directory)"
-    $outputPath = Join-Path $outputDir $fileName
 
-    # Ensure output directory exists
-    if (-not (Test-Path $outputDir)) {
-        New-Item -ItemType Directory -Path $outputDir -Force | Out-Null
-    }
+    if ($PSCmdlet.ShouldProcess("$outputDir", "Create $($validationConfig.DisplayName) validation report for features $($features -join ', ')")) {
+        # Get next validation ID
+        Write-Host "🆔 Assigning validation ID..." -ForegroundColor White
+        $validationId = Get-NextValidationId
+        Write-Host "   Assigned ID: $validationId" -ForegroundColor Green
+        Write-Host ""
 
-    Write-Host "📁 Output Configuration:" -ForegroundColor White
-    Write-Host "   Directory: $outputDir" -ForegroundColor Gray
-    Write-Host "   Filename: $fileName" -ForegroundColor Gray
-    Write-Host "   Full Path: $outputPath" -ForegroundColor Gray
-    Write-Host ""
+        # Create output path
+        $fileName = "$validationId-$($validationConfig.ShortName)-features-$featureRange.md"
+        $outputPath = Join-Path $outputDir $fileName
 
-    # Create the validation report
-    Write-Host "📝 Generating validation report..." -ForegroundColor White
-    New-ValidationReportFromTemplate -ValidationId $validationId -OutputPath $outputPath -ValidationConfig $validationConfig -Features $features
-    Write-Host ""
-
-    # Update tracking
-    Write-Host "📊 Updating validation tracking..." -ForegroundColor White
-    if ($useEnhancedTracking) {
-        try {
-            $trackingMetadata = @{
-                "validation_type" = $validationConfig.DisplayName
-                "features"        = ($features -join ', ')
-                "batch_number"    = $BatchNumber
-                "session_number"  = $SessionNumber
-            }
-
-            Update-DocumentTrackingFiles -DocumentId $validationId -DocumentType "ValidationReport" -DocumentPath $outputPath -Metadata $trackingMetadata
+        # Ensure output directory exists
+        if (-not (Test-Path $outputDir)) {
+            New-Item -ItemType Directory -Path $outputDir -Force | Out-Null
         }
-        catch {
-            Write-Warning "Enhanced tracking failed, falling back to legacy method: $($_.Exception.Message)"
+
+        Write-Host "📁 Output Configuration:" -ForegroundColor White
+        Write-Host "   Directory: $outputDir" -ForegroundColor Gray
+        Write-Host "   Filename: $fileName" -ForegroundColor Gray
+        Write-Host "   Full Path: $outputPath" -ForegroundColor Gray
+        Write-Host ""
+
+        # Create the validation report
+        Write-Host "📝 Generating validation report..." -ForegroundColor White
+        New-ValidationReportFromTemplate -ValidationId $validationId -OutputPath $outputPath -ValidationConfig $validationConfig -Features $features
+        Write-Host ""
+
+        # Update tracking
+        Write-Host "📊 Updating validation tracking..." -ForegroundColor White
+        if ($useEnhancedTracking) {
+            try {
+                $trackingMetadata = @{
+                    "validation_type" = $validationConfig.DisplayName
+                    "features"        = ($features -join ', ')
+                    "batch_number"    = $BatchNumber
+                    "session_number"  = $SessionNumber
+                }
+
+                Update-DocumentTrackingFiles -DocumentId $validationId -DocumentType "ValidationReport" -DocumentPath $outputPath -Metadata $trackingMetadata
+            }
+            catch {
+                Write-Warning "Enhanced tracking failed, falling back to legacy method: $($_.Exception.Message)"
+                Update-ValidationTracking -ValidationId $validationId -ValidationType $ValidationType -Features $features -ReportPath $outputPath
+            }
+        }
+        else {
             Update-ValidationTracking -ValidationId $validationId -ValidationType $ValidationType -Features $features -ReportPath $outputPath
         }
-    }
-    else {
-        Update-ValidationTracking -ValidationId $validationId -ValidationType $ValidationType -Features $features -ReportPath $outputPath
-    }
-    Write-Host ""
+        Write-Host ""
 
-    Write-Host "🎉 Validation report created successfully!" -ForegroundColor Green
-    Write-Host ""
-    Write-Host "📋 Next Steps:" -ForegroundColor Yellow
-    Write-Host "   1. Open the report file: $outputPath" -ForegroundColor Gray
-    Write-Host "   2. Customize validation criteria based on validation type" -ForegroundColor Gray
-    Write-Host "   3. Conduct the validation and fill in findings" -ForegroundColor Gray
-    Write-Host "   4. Update the validation tracking file manually" -ForegroundColor Gray
-    Write-Host ""
-    Write-Host "📖 Reference:" -ForegroundColor Yellow
-    Write-Host "   Template: $TemplateFile" -ForegroundColor Gray
-    Write-Host "   Tracking: $TrackingFile" -ForegroundColor Gray
+        Write-Host "🎉 Validation report created successfully!" -ForegroundColor Green
+        Write-Host ""
+        Write-Host "📋 Next Steps:" -ForegroundColor Yellow
+        Write-Host "   1. Open the report file: $outputPath" -ForegroundColor Gray
+        Write-Host "   2. Customize validation criteria based on validation type" -ForegroundColor Gray
+        Write-Host "   3. Conduct the validation and fill in findings" -ForegroundColor Gray
+        Write-Host "   4. Update the validation tracking file manually" -ForegroundColor Gray
+        Write-Host ""
+        Write-Host "📖 Reference:" -ForegroundColor Yellow
+        Write-Host "   Template: $TemplateFile" -ForegroundColor Gray
+        Write-Host "   Tracking: $TrackingFile" -ForegroundColor Gray
+    }
 
 }
 catch {

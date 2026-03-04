@@ -10,10 +10,10 @@ This file tests links that include anchor/fragment identifiers with REAL files.
 ## Different anchor formats:
 - [Dashed anchor](test_project/docs/readme.md#quick-links)
 - [File with anchor](test_project/root.txt#section-1)
-- [Another anchor](test_project/file1.txt#content)
+- [Another anchor](test_project/docs/file1.txt#content)
 
 ## Mixed content:
-- [No anchor](test_project/file1.txt)
+- [No anchor](test_project/docs/file1.txt)
 - [With anchor](test_project/docs/readme.md#documentation)
 - [Another no anchor](test_project/file2.txt)
 

@@ -2,9 +2,9 @@
 id: PF-TEM-029
 type: Process Framework
 category: Refactoring Plan
-version: 1.1
+version: 1.2
 created: 2025-07-21
-updated: 2026-03-03
+updated: 2026-03-04
 refactoring_scope: [Refactoring Scope]
 target_area: [Target Area]
 priority: [Priority Level]
@@ -27,6 +27,12 @@ priority: [Priority Level]
 - Issue 1: [Description]
 - Issue 2: [Description]
 - Issue 3: [Description]
+
+### Scope Discovery
+<!-- Document any differences between the original tech debt description and actual findings during code analysis -->
+- **Original Tech Debt Description**: [Copy or summarize the TD item description]
+- **Actual Scope Findings**: [What was discovered during code analysis — may match or differ from original]
+- **Scope Delta**: None — scope matches original description / [Brief description of what differs and why]
 
 ### Refactoring Goals
 <!-- Clear objectives for what the refactoring should achieve -->

@@ -26,6 +26,11 @@
     Optional. The tech debt item ID that triggered this refactoring (e.g., "TD007", "PF-TDI-003").
     When provided, auto-populates the debt_item frontmatter field and a "Debt Item" line in the plan body.
 
+.PARAMETER FeatureId
+    Optional. The feature ID that owns the code being refactored (e.g., "1.1.1", "2.2.1").
+    When provided, auto-populates the feature_id frontmatter field and the documentation
+    checklist references in the lightweight template so they point to the correct feature's docs.
+
 .PARAMETER Lightweight
     If specified, creates a lightweight refactoring plan using the compact template (PF-TEM-050).
     Use for low-effort items: ≤15 min effort, single file, no architectural impact.
@@ -42,6 +47,9 @@
 
 .EXAMPLE
     .\New-RefactoringPlan.ps1 -RefactoringScope "Replace bare excepts in handler.py (TD011)" -TargetArea "linkwatcher/handler.py" -Lightweight
+
+.EXAMPLE
+    .\New-RefactoringPlan.ps1 -RefactoringScope "Extract reference lookup (TD022)" -TargetArea "linkwatcher/handler.py" -Lightweight -FeatureId "1.1.1" -DebtItemId "TD022"
 
 .EXAMPLE
     .\New-RefactoringPlan.ps1 -RefactoringScope "Decompose God Class (TD005)" -TargetArea "linkwatcher/handler.py" -Priority "High" -DebtItemId "TD005 (PF-TDI-001)"
@@ -72,6 +80,9 @@ param(
 
     [Parameter(Mandatory = $false)]
     [string]$DebtItemId,
+
+    [Parameter(Mandatory = $false)]
+    [string]$FeatureId,
 
     [Parameter(Mandatory = $false)]
     [switch]$Lightweight,
@@ -117,6 +128,9 @@ if ($Lightweight) {
 if ($DebtItemId) {
     $additionalMetadataFields["debt_item"] = $DebtItemId
 }
+if ($FeatureId) {
+    $additionalMetadataFields["feature_id"] = $FeatureId
+}
 
 # Prepare custom replacements for the template
 $debtItemLine = if ($DebtItemId) { "- **Debt Item**: $DebtItemId`n" } else { "" }
@@ -127,6 +141,7 @@ $customReplacements = @{
     "[Creation Date]"     = Get-Date -Format "yyyy-MM-dd"
     "[Author]"            = "AI Agent & Human Partner"
     "[Debt Item Line]"    = $debtItemLine
+    "[Feature ID]"        = if ($FeatureId) { $FeatureId } else { "[Feature ID]" }
 }
 
 # Create the document using standardized process
@@ -143,6 +158,9 @@ try {
     )
     if ($DebtItemId) {
         $details += "Debt Item: $DebtItemId"
+    }
+    if ($FeatureId) {
+        $details += "Feature: $FeatureId"
     }
 
     # Add next steps if not opening in editor

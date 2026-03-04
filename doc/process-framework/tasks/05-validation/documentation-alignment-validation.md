@@ -2,9 +2,9 @@
 id: PF-TSK-034
 type: Process Framework
 category: Task Definition
-version: 1.1
+version: 1.4
 created: 2025-08-16
-updated: 2026-03-02
+updated: 2026-03-04
 task_type: Discrete
 ---
 
@@ -48,6 +48,7 @@ Systematically validates foundational features for documentation alignment, ensu
   - **Codebase Structure** - Source code directory - Source code for foundational features to analyze
   - **New-ValidationReport Script** - [../../scripts/file-creation/New-ValidationReport.ps1](../../scripts/file-creation/New-ValidationReport.ps1) - Script for generating validation reports
   - **Component Relationship Index** - [Component Relationship Index](../../../product-docs/technical/architecture/component-relationship-index.md) - For understanding component interactions
+  - **Feature Implementation State Files** - [Feature State Directory](../../state-tracking/features/) - Implementation state files with feature status, TDD/FDD links, and validation context
 
 - **Reference Only (Access When Needed):**
   - **Documentation Standards** - [Documentation Guide](../../guides/guides/documentation-guide.md) - Standards for documentation quality and consistency
@@ -75,6 +76,16 @@ Systematically validates foundational features for documentation alignment, ensu
 
 ### Execution
 
+> **📋 Criteria Handling**:
+>
+> **Tier Assessment Verification**: For each feature, verify that the current tier assignment is still correct based on the feature's actual complexity and architectural significance. After confirming the tier, check that all documentation required for that tier level exists (e.g., Tier 2 requires TDD + FDD; Tier 3 additionally requires ADRs). Flag any missing required documentation as a finding.
+>
+> **Tier 1 features** lack TDDs by design. For TDD Alignment:
+> - Substitute **Configuration/Code Documentation Accuracy**: validate that inline comments, docstrings, and README sections accurately describe the feature's behavior and interfaces.
+> - Score the substituted criterion on the same 0–3 scale and note the substitution in the report.
+>
+> **ADR Compliance**: If ADRs exist for a feature, validate that the implementation complies with them. If no ADRs exist, skip this criterion — assessing whether an ADR should exist is handled by PF-TSK-031 (Architectural Consistency Validation).
+
 5. **TDD Alignment Analysis**: Compare Technical Design Documents with actual implementation to identify discrepancies
 6. **ADR Compliance Validation**: Verify that architectural decisions documented in ADRs are properly implemented and followed
 7. **API Documentation Accuracy**: Cross-reference API documentation with actual API implementations and interfaces
@@ -87,19 +98,23 @@ Systematically validates foundational features for documentation alignment, ensu
    ```
 10. **Score Documentation Criteria**: Apply 4-point scoring system (0-3) to each documentation alignment criterion
 11. **Document Findings**: Record specific documentation gaps, inconsistencies, and improvement recommendations
-12. **🚨 CHECKPOINT**: Present documentation alignment scoring, gap analysis findings, and remediation recommendations to human partner for review before finalization
+12. **Root Cause Analysis**: For each significant documentation gap identified:
+    - Identify which task in the development workflow should have created or updated the documentation (e.g., TDD Creation, Feature Implementation, Code Refactoring)
+    - Check whether that task's process steps or completion checklist explicitly require this documentation update
+    - If the originating task lacks coverage, record it as a process improvement opportunity (via New-ProcessImprovement.ps1) in addition to the documentation remediation action item
+13. **🚨 CHECKPOINT**: Present documentation alignment scoring, gap analysis findings, root cause analysis, and remediation recommendations to human partner for review before finalization
 
 ### Finalization
 
-13. **Update Validation Tracking**: Update the foundational validation tracking matrix with report creation date and link
-14. **Review Quality Gates**: Ensure validation meets minimum quality thresholds (average score ≥ 2.0)
-15. **Plan Remediation**: For scores below threshold, create action items for documentation improvements
-16. **🤖 AUTOMATED: Update Technical Debt Tracking**: Add any new open issues identified during validation to [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md) using the automation script:
+14. **Update Validation Tracking**: Update the foundational validation tracking matrix with report creation date and link
+15. **Review Quality Gates**: Ensure validation meets minimum quality thresholds (average score ≥ 2.0)
+16. **Plan Remediation**: For scores below threshold, create action items for documentation improvements
+17. **🤖 AUTOMATED: Update Technical Debt Tracking**: Add any new open issues identified during validation to [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md) using the automation script:
 
     ```powershell
-    .\doc\process-framework\scripts\Update-TechnicalDebtTracking.ps1 -Operation "Add" -Description "Description" -Category "Category" -Location "Location" -Priority "Priority" -EstimatedEffort "Effort" -AssessmentId "PF-VAL-XXX" -Notes "Notes"
+    .\doc\process-framework\scripts\update\Update-TechDebt.ps1 -Add -Description "Description" -Category "Category" -Location "Location" -Priority "Priority" -EstimatedEffort "Effort" -AssessmentId "PF-VAL-XXX" -Notes "Notes"
     ```
-17. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+18. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 
@@ -130,7 +145,7 @@ Before considering this task finished:
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
   - [ ] [Foundational Validation Tracking](../../state-tracking/temporary/foundational-validation-tracking.md) matrix updated with report creation date and link
   - [ ] [Documentation Map](../../documentation-map.md) updated with new validation report entry
-  - [ ] **AUTOMATED**: [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md) updated with new open issues using `Update-TechnicalDebtTracking.ps1`
+  - [ ] **AUTOMATED**: [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md) updated with new open issues using `Update-TechDebt.ps1`
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-034" and context "Documentation Alignment Validation"
 
 ## Next Tasks

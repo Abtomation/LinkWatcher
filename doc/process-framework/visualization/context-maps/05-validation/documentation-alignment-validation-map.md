@@ -2,9 +2,9 @@
 id: PF-VIS-031
 type: Document
 category: General
-version: 1.0
+version: 1.1
 created: 2025-08-16
-updated: 2025-08-16
+updated: 2026-03-04
 map_type: Context Map
 visualization_type: Task Context
 task_type: Discrete
@@ -32,6 +32,7 @@ graph TD
     API[(API Documentation)] --> AA[API Accuracy Assessment]
     LIB[/lib/ directory/] --> CA[Code Analysis]
     NVRS[New-ValidationReport Script] --> VR
+    FSF[(Feature State Files)] --> DA
 
     DA --> VR
     AC --> VR
@@ -46,7 +47,7 @@ graph TD
     IDR[(ID Registry)] -.-> VR
 
     class FT,FVT,VRT,TDD critical
-    class ADR,API,LIB,NVRS,DA,AC,AA,CA important
+    class ADR,API,LIB,NVRS,FSF,DA,AC,AA,CA important
     class DG,TDDG,ADRG,VNG,IDR reference
 ```
 
@@ -64,6 +65,7 @@ graph TD
 - **Architecture Decision Records (ADR)**: Architectural decisions that must be properly implemented and followed
 - **API Documentation (API)**: API specifications that must accurately reflect actual API implementations
 - **lib/ directory (LIB)**: Source code for foundational features - implementation to validate against documentation
+- **Feature State Files (FSF)**: Implementation state files with feature status, TDD/FDD links, and validation context
 - **New-ValidationReport Script (NVRS)**: Automation script for generating standardized validation reports
 - **Documentation Analysis (DA)**: Process of comparing TDDs with actual implementation
 - **ADR Compliance Check (AC)**: Process of verifying architectural decision implementation
