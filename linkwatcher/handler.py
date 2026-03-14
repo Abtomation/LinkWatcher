@@ -291,10 +291,69 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
                 total_references_updated += refs_updated
                 self._update_stat("errors", errors)
 
+            # Phase 2: Update references to the directory path itself
+            # (e.g., quoted directory paths in PowerShell scripts)
+            #
+            # Directory-path references may target the moved directory exactly
+            # OR subdirectories within it (e.g., old_dir/assessments).  The
+            # updater's path resolver expects old_path to match ref.link_target
+            # exactly, so we group references by their link_target and compute
+            # the correct per-target old→new mapping using prefix replacement.
+            dir_refs = self._ref_lookup.find_directory_path_references(old_dir)
+            dir_refs_updated = 0
+            if dir_refs:
+                from .utils import normalize_path as _norm
+
+                old_dir_norm = _norm(old_dir)
+                old_dir_prefix = old_dir_norm.rstrip("/") + "/"
+                new_dir_norm = _norm(new_dir)
+
+                # Group references by their link_target
+                refs_by_target = {}
+                for ref in dir_refs:
+                    refs_by_target.setdefault(ref.link_target, []).append(ref)
+
+                for target, target_refs in refs_by_target.items():
+                    target_norm = _norm(target)
+                    if target_norm == old_dir_norm:
+                        # Exact directory match — use old_dir / new_dir directly
+                        ref_old = old_dir
+                        ref_new = new_dir
+                    elif target_norm.startswith(old_dir_prefix):
+                        # Subdirectory match — replace the prefix
+                        suffix = target_norm[len(old_dir_prefix) :]
+                        ref_old = target
+                        ref_new = new_dir_norm + "/" + suffix
+                    else:
+                        # Fallback (e.g., backslash variant) — simple string replace
+                        ref_old = target
+                        ref_new = (
+                            target.replace(
+                                old_dir.replace("/", "\\"),
+                                new_dir.replace("/", "\\"),
+                            )
+                            if "\\" in target
+                            else target.replace(old_dir, new_dir)
+                        )
+
+                    stats = self.updater.update_references(target_refs, ref_old, ref_new)
+                    dir_refs_updated += stats["references_updated"]
+                    self._update_stat("errors", stats["errors"])
+
+                total_references_updated += dir_refs_updated
+                self._ref_lookup.cleanup_after_directory_path_move(old_dir, new_dir)
+                self.logger.info(
+                    "directory_path_references_updated",
+                    old_dir=old_dir,
+                    new_dir=new_dir,
+                    count=dir_refs_updated,
+                )
+
             self.logger.info(
                 "directory_move_completed",
                 total_references_updated=total_references_updated,
                 moved_files_count=len(moved_files),
+                dir_path_refs_updated=dir_refs_updated,
             )
             self._update_stat("links_updated", total_references_updated)
             self._update_stat("files_moved", len(moved_files))

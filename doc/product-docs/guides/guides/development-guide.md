@@ -68,7 +68,7 @@ The project uses a tiered approach to technical documentation based on feature c
 2. **Tier 2 (Moderate Features)** 🟠: Lightweight TDD focusing on key sections
 3. **Tier 3 (Complex Features)** 🔴: Complete TDD with all sections
 
-For detailed information on the tiered approach, see the [Documentation Tiers](/doc/process-framework/methodologies/documentation-tiers/README.md) document.
+For detailed information on the tiered approach, see the [Documentation Tiers](/doc/product-docs/documentation-tiers/README.md) document.
 
 #### When to Create a Technical Design Document
 
@@ -83,7 +83,7 @@ The documentation tier for each feature is indicated in the [Feature Tracking Do
 #### Technical Design Document Process
 
 1. **Check Feature Tracking**: Consult the [Feature Tracking Document](/doc/process-framework/state-tracking/permanent/feature-tracking.md) to determine the documentation tier for the feature
-2. **Assess Complexity**: If the feature doesn't have a documentation tier assigned, assess its complexity using the criteria in the [Documentation Tiers](/doc/process-framework/methodologies/documentation-tiers/README.md) document
+2. **Assess Complexity**: If the feature doesn't have a documentation tier assigned, assess its complexity using the criteria in the [Documentation Tiers](/doc/product-docs/documentation-tiers/README.md) document
 3. **Select Template**: Choose the appropriate template based on the documentation tier
 4. **Create Document**: Create the document in `/doc/product-docs/technical/design/`
 5. **Update Feature Tracking**: Add a link to the document in the feature tracking document

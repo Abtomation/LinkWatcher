@@ -93,7 +93,7 @@ When referencing other tasks' outputs in Test Specifications:
 
   - **Functional Design Document (FDD)** - For Tier 2+ features, the FDD containing acceptance criteria and user flows that inform test scenarios
   - [Technical Design Document](/doc/product-docs/technical/architecture/design-docs/tdd/) - The TDD for the feature being specified
-  - [Tier Assessments](/doc/process-framework/methodologies/documentation-tiers/assessments/) - Complexity assessment to determine test depth
+  - [Tier Assessments](/doc/product-docs/documentation-tiers/assessments) - Complexity assessment to determine test depth
   - [Development Guide](/doc/product-docs/guides/guides/development-guide.md) - Testing standards and practices
 
 - **Important (Load If Space):**

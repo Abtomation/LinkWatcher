@@ -416,7 +416,7 @@ Creating an ADR for database schema change management:
 
 - [System Architecture Review Task (PF-TSK-019)](../../tasks/01-planning/system-architecture-review.md) - The task that uses this guide
 - [New-ArchitectureDecision.ps1 Script](../../scripts/file-creation/New-ArchitectureDecision.ps1) - Script for creating ADRs
-- [ADR Template](../../templates/templates/adr-template.md) - Template customized by this guide
+- [ADR Template](../../templates/templates/02-design/adr-template.md) - Template customized by this guide
 - [Architecture Assessment Creation Guide (PF-GDE-032)](architecture-assessment-creation-guide.md) - Guide for creating related architecture assessments
 - [Guide Creation Best Practices Guide (PF-GDE-024)](guide-creation-best-practices-guide.md) - Best practices for guide creation
 - [Architecture Decision Records (ADRs)](https://adr.github.io/) - External resource for ADR principles and best practices

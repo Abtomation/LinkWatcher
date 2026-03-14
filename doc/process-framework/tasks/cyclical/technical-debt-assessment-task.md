@@ -115,7 +115,7 @@ Systematic approach to identifying, categorizing, and prioritizing technical deb
 
    ```powershell
    # Process all debt items from the assessment automatically
-   .\doc\process-framework\scripts\Update-TechnicalDebtFromAssessment.ps1 -AssessmentId "PF-TDA-XXX"
+   doc/process-framework/scripts/update/Update-TechnicalDebtFromAssessment.ps1 -AssessmentId "PF-TDA-XXX"
    ```
 
    **OPTION B - Individual Item Addition:**

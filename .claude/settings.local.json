@@ -25,7 +25,8 @@
       "Bash(bash LinkWatcher/start_linkwatcher_background.ps1)",
       "Bash(python tests/manual/PD-BUG-013_json_duplicate_line_numbers_validation.py)",
       "Bash(python -c \":*)",
-      "Bash(wc -l /c/Users/ronny/VS_Code/LinkWatcher/linkwatcher/parsers/*.py)"
+      "Bash(wc -l /c/Users/ronny/VS_Code/LinkWatcher/linkwatcher/parsers/*.py)",
+      "Bash(find /c/Users/ronny/VS_Code/LinkWatcher/config-examples -type f -name *.yaml -o -name *.yml -o -name *.json)"
     ]
   }
 }

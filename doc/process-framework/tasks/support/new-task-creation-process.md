@@ -472,7 +472,7 @@ The following state files are updated as part of this task:
 - [Task Template](../../templates/templates/task-template.md) - Template for creating task definitions
 - [Temporary Task State Template](../../templates/templates/temp-task-creation-state-template.md) - Template for multi-session state tracking
 - [Document Creation Script Template](../../templates/templates/document-creation-script-template.ps1) - Template for creating PowerShell scripts
-- [Context Map Template](../../templates/templates/context-map-template.md) - Template for creating context maps
+- [Context Map Template](../../templates/templates/support/context-map-template.md) - Template for creating context maps
 
 ### Related Tasks
 

@@ -6,7 +6,7 @@ This guide provides instructions for using the new automation scripts that elimi
 
 ## Available Automation Scripts
 
-### 1. Update-FeatureImplementationState.ps1
+### 1. update/Update-FeatureImplementationState.ps1
 
 **Purpose**: Automates state file updates for Feature Implementation Planning Task (PF-TSK-044) and decomposed implementation tasks
 
@@ -19,22 +19,22 @@ This guide provides instructions for using the new automation scripts that elimi
 **Basic Usage**:
 
 ```powershell
-.\Update-FeatureImplementationState.ps1 -FeatureId "1.2.3" -Status "🟡 In Progress"
+update\Update-FeatureImplementationState.ps1 -FeatureId "1.2.3" -Status "🟡 In Progress"
 ```
 
 **Advanced Usage**:
 
 ```powershell
-.\Update-FeatureImplementationState.ps1 -FeatureId "1.2.3" -Status "✅ Completed" -CompletionDate "2025-08-23" -ImplementationNotes "Added user authentication flow" -TestStatus "✅ Tests Implemented"
+update\Update-FeatureImplementationState.ps1 -FeatureId "1.2.3" -Status "✅ Completed" -CompletionDate "2025-08-23" -ImplementationNotes "Added user authentication flow" -TestStatus "✅ Tests Implemented"
 ```
 
 **Dry Run (Recommended First)**:
 
 ```powershell
-.\Update-FeatureImplementationState.ps1 -FeatureId "1.2.3" -Status "🟡 In Progress" -DryRun
+update\Update-FeatureImplementationState.ps1 -FeatureId "1.2.3" -Status "🟡 In Progress" -DryRun
 ```
 
-### 2. Update-TestAuditState.ps1
+### 2. update/Update-TestAuditState.ps1
 
 **Purpose**: Automates state file updates for Test Audit Task (PF-TSK-030)
 
@@ -47,16 +47,16 @@ This guide provides instructions for using the new automation scripts that elimi
 **Basic Usage**:
 
 ```powershell
-.\Update-TestAuditState.ps1 -FeatureId "1.2.3" -AuditStatus "Tests Approved"
+update\Update-TestAuditState.ps1 -FeatureId "1.2.3" -AuditStatus "Tests Approved"
 ```
 
 **Advanced Usage**:
 
 ```powershell
-.\Update-TestAuditState.ps1 -FeatureId "1.2.3" -AuditStatus "Needs Update" -AuditorName "John Doe" -MajorFindings @("Missing edge case tests", "Incomplete mock coverage") -TestCasesAudited 15 -PassedTests 13 -FailedTests 2
+update\Update-TestAuditState.ps1 -FeatureId "1.2.3" -AuditStatus "Needs Update" -AuditorName "John Doe" -MajorFindings @("Missing edge case tests", "Incomplete mock coverage") -TestCasesAudited 15 -PassedTests 13 -FailedTests 2
 ```
 
-### 3. Update-CodeReviewState.ps1
+### 3. update/Update-CodeReviewState.ps1
 
 **Purpose**: Automates state file updates for Code Review Task (PF-TSK-005)
 
@@ -68,13 +68,13 @@ This guide provides instructions for using the new automation scripts that elimi
 **Basic Usage**:
 
 ```powershell
-.\Update-CodeReviewState.ps1 -FeatureId "1.2.3" -ReviewStatus "Completed" -ReviewerName "Jane Smith"
+update\Update-CodeReviewState.ps1 -FeatureId "1.2.3" -ReviewStatus "Completed" -ReviewerName "Jane Smith"
 ```
 
 **Advanced Usage**:
 
 ```powershell
-.\Update-CodeReviewState.ps1 -FeatureId "1.2.3" -ReviewStatus "Needs Revision" -ReviewerName "John Doe" -MajorFindings @("Missing error handling", "Inconsistent naming") -SecurityIssues @("SQL injection vulnerability") -CodeQualityScore 6
+update\Update-CodeReviewState.ps1 -FeatureId "1.2.3" -ReviewStatus "Needs Revision" -ReviewerName "John Doe" -MajorFindings @("Missing error handling", "Inconsistent naming") -SecurityIssues @("SQL injection vulnerability") -CodeQualityScore 6
 ```
 
 ## Common Parameters
@@ -108,7 +108,7 @@ This guide provides instructions for using the new automation scripts that elimi
 **Dry Run Mode**: Always available with `-DryRun` parameter
 
 ```powershell
-.\Update-FeatureImplementationState.ps1 -FeatureId "1.2.3" -Status "🟡 In Progress" -DryRun
+update\Update-FeatureImplementationState.ps1 -FeatureId "1.2.3" -Status "🟡 In Progress" -DryRun
 ```
 
 **Automatic Backups**: All scripts create backups before making changes
@@ -124,10 +124,10 @@ This guide provides instructions for using the new automation scripts that elimi
 
 ```powershell
 # Test what will be changed
-.\Update-FeatureImplementationState.ps1 -FeatureId "1.2.3" -Status "🟡 In Progress" -DryRun
+update\Update-FeatureImplementationState.ps1 -FeatureId "1.2.3" -Status "🟡 In Progress" -DryRun
 
 # Apply changes after reviewing dry run output
-.\Update-FeatureImplementationState.ps1 -FeatureId "1.2.3" -Status "🟡 In Progress"
+update\Update-FeatureImplementationState.ps1 -FeatureId "1.2.3" -Status "🟡 In Progress"
 ```
 
 ### 2. Use Descriptive Feature IDs
@@ -139,7 +139,7 @@ This guide provides instructions for using the new automation scripts that elimi
 ### 3. Provide Context Information
 
 ```powershell
-.\Update-FeatureImplementationState.ps1 -FeatureId "AUTH-001" -Status "✅ Completed" -ImplementationNotes "Implemented OAuth2 integration with Google and GitHub providers" -TestStatus "✅ Tests Implemented"
+update\Update-FeatureImplementationState.ps1 -FeatureId "AUTH-001" -Status "✅ Completed" -ImplementationNotes "Implemented OAuth2 integration with Google and GitHub providers" -TestStatus "✅ Tests Implemented"
 ```
 
 ### 4. Review Script Output
@@ -198,37 +198,37 @@ Required dependencies not met. Please ensure Common-ScriptHelpers.psm1 is proper
 
 ```powershell
 # Start implementation
-.\Update-FeatureImplementationState.ps1 -FeatureId "NEW-FEATURE" -Status "🟡 In Progress"
+update\Update-FeatureImplementationState.ps1 -FeatureId "NEW-FEATURE" -Status "🟡 In Progress"
 
 # Complete implementation
-.\Update-FeatureImplementationState.ps1 -FeatureId "NEW-FEATURE" -Status "✅ Completed" -TestStatus "✅ Tests Implemented"
+update\Update-FeatureImplementationState.ps1 -FeatureId "NEW-FEATURE" -Status "✅ Completed" -TestStatus "✅ Tests Implemented"
 ```
 
 ### PF-TSK-030: Test Audit
 
 ```powershell
 # Start audit
-.\Update-TestAuditState.ps1 -FeatureId "FEATURE-ID" -AuditStatus "Audit In Progress" -AuditorName "Your Name"
+update\Update-TestAuditState.ps1 -FeatureId "FEATURE-ID" -AuditStatus "Audit In Progress" -AuditorName "Your Name"
 
 # Complete audit
-.\Update-TestAuditState.ps1 -FeatureId "FEATURE-ID" -AuditStatus "Tests Approved" -TestCasesAudited 20 -PassedTests 18 -FailedTests 2
+update\Update-TestAuditState.ps1 -FeatureId "FEATURE-ID" -AuditStatus "Tests Approved" -TestCasesAudited 20 -PassedTests 18 -FailedTests 2
 ```
 
 ### PF-TSK-005: Code Review
 
 ```powershell
 # Complete review
-.\Update-CodeReviewState.ps1 -FeatureId "FEATURE-ID" -ReviewStatus "Completed" -ReviewerName "Reviewer Name" -CodeQualityScore 8
+update\Update-CodeReviewState.ps1 -FeatureId "FEATURE-ID" -ReviewStatus "Completed" -ReviewerName "Reviewer Name" -CodeQualityScore 8
 ```
 
 ### PF-TSK-031, 032, 033, 034: Validation Tasks
 
 ```powershell
 # Start individual validation
-.\Update-ValidationReportState.ps1 -ValidationId "VAL-031-001" -ValidationStatus "Validation In Progress" -ValidatorName "AI Agent"
+update\Update-ValidationReportState.ps1 -ValidationId "VAL-031-001" -ValidationStatus "Validation In Progress" -ValidatorName "AI Agent"
 
 # Complete validation with findings
-.\Update-ValidationReportState.ps1 -ValidationId "VAL-031-001" -ValidationStatus "Validation Completed" -ValidatorName "AI Agent" -ValidationScore 8 -ValidationFindings @("Minor issues found", "Overall good quality")
+update\Update-ValidationReportState.ps1 -ValidationId "VAL-031-001" -ValidationStatus "Validation Completed" -ValidatorName "AI Agent" -ValidationScore 8 -ValidationFindings @("Minor issues found", "Overall good quality")
 
 # Batch validation processing
 .\Start-BatchValidation.ps1 -ValidationType "Architectural" -FeatureIds @("0.2.1", "0.2.2", "0.2.3") -ValidatorName "AI Agent"
@@ -241,13 +241,13 @@ Required dependencies not met. Please ensure Common-ScriptHelpers.psm1 is proper
 .\Start-BatchAudit.ps1 -FeatureIds @("1.2.1", "1.2.2", "1.2.3") -AuditorName "AI Agent" -FeatureCategory "Authentication"
 
 # Sprint completion update
-.\Update-BatchFeatureStatus.ps1 -FeatureIds @("2.1.1", "2.1.2", "2.1.3") -Status "🟢 Completed" -UpdateType "Sprint" -SprintId "Sprint-2025-08"
+update\Update-BatchFeatureStatus.ps1 -FeatureIds @("2.1.1", "2.1.2", "2.1.3") -Status "🟢 Completed" -UpdateType "Sprint" -SprintId "Sprint-2025-08"
 
 # Release preparation
-.\Update-BatchFeatureStatus.ps1 -FeatureIds @("1.1.1", "1.1.2", "1.1.3") -Status "🟢 Completed" -UpdateType "Release" -ReleaseVersion "v1.1.0"
+update\Update-BatchFeatureStatus.ps1 -FeatureIds @("1.1.1", "1.1.2", "1.1.3") -Status "🟢 Completed" -UpdateType "Release" -ReleaseVersion "v1.1.0"
 ```
 
-### 4. Update-ValidationReportState.ps1
+### 4. update/Update-ValidationReportState.ps1
 
 **Purpose**: Automates state file updates for Validation Tasks (PF-TSK-031, 032, 033, 034)
 
@@ -260,13 +260,13 @@ Required dependencies not met. Please ensure Common-ScriptHelpers.psm1 is proper
 **Basic Usage**:
 
 ```powershell
-.\Update-ValidationReportState.ps1 -ValidationId "VAL-031-001" -ValidationStatus "Validation In Progress" -ValidatorName "AI Agent"
+update\Update-ValidationReportState.ps1 -ValidationId "VAL-031-001" -ValidationStatus "Validation In Progress" -ValidatorName "AI Agent"
 ```
 
 **Advanced Usage**:
 
 ```powershell
-.\Update-ValidationReportState.ps1 -ValidationId "VAL-031-001" -ValidationStatus "Validation Completed" -ValidatorName "AI Agent" -ValidationScore 8 -ValidationFindings @("Minor pattern inconsistencies", "Good overall architecture") -FeatureId "0.2.1"
+update\Update-ValidationReportState.ps1 -ValidationId "VAL-031-001" -ValidationStatus "Validation Completed" -ValidatorName "AI Agent" -ValidationScore 8 -ValidationFindings @("Minor pattern inconsistencies", "Good overall architecture") -FeatureId "0.2.1"
 ```
 
 ### 5. Start-BatchValidation.ps1
@@ -301,20 +301,20 @@ Required dependencies not met. Please ensure Common-ScriptHelpers.psm1 is proper
 .\Start-BatchAudit.ps1 -FeatureIds @("0.2.1", "0.2.2", "0.2.3", "0.2.4") -AuditorName "AI Agent" -FeatureCategory "Foundation" -DetailedReporting -ContinueOnError
 ```
 
-### 7. Update-BatchFeatureStatus.ps1
+### 7. update/Update-BatchFeatureStatus.ps1
 
 **Purpose**: Updates multiple features simultaneously across all tracking files
 
 **Basic Usage**:
 
 ```powershell
-.\Update-BatchFeatureStatus.ps1 -FeatureIds @("1.2.1", "1.2.2", "1.2.3") -Status "🟢 Completed" -UpdateType "StatusOnly"
+update\Update-BatchFeatureStatus.ps1 -FeatureIds @("1.2.1", "1.2.2", "1.2.3") -Status "🟢 Completed" -UpdateType "StatusOnly"
 ```
 
 **Advanced Usage**:
 
 ```powershell
-.\Update-BatchFeatureStatus.ps1 -FeatureIds @("2.1.1", "2.1.2", "2.1.3") -Status "🟢 Completed" -UpdateType "Sprint" -SprintId "Sprint-2025-08" -UpdateNotes "Sprint 8 completion" -Force
+update\Update-BatchFeatureStatus.ps1 -FeatureIds @("2.1.1", "2.1.2", "2.1.3") -Status "🟢 Completed" -UpdateType "Sprint" -SprintId "Sprint-2025-08" -UpdateNotes "Sprint 8 completion" -Force
 ```
 
 ### 8. Start-AutomationMenu.ps1

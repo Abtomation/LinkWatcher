@@ -120,7 +120,7 @@ This file is updated by the following tasks:
 The project includes validation tooling to ensure data integrity between test tracking files and actual test files on disk:
 
 #### Validation Script
-- **Validate-TestTracking.ps1** (located in `doc/process-framework/scripts/`): Validates consistency between test-registry.yaml, this tracking file, and actual test files on disk
+- **Validate-TestTracking.ps1** (located in `doc/process-framework/scripts/validation/`): Validates consistency between test-registry.yaml, this tracking file, and actual test files on disk
 - **Note**: This script is language-agnostic and works with any project configured via `project-config.json`
 
 #### Validation Capabilities
@@ -133,7 +133,7 @@ The project includes validation tooling to ensure data integrity between test tr
 #### Usage
 ```powershell
 # Run validation from project root
-doc/process-framework/scripts/Validate-TestTracking.ps1
+doc/process-framework/scripts/validation/Validate-TestTracking.ps1
 ```
 
 ### Status Transitions

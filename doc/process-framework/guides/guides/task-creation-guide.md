@@ -218,7 +218,7 @@ A prioritized list of all files, information, and resources needed to complete t
 
 Include file paths where applicable and brief descriptions of each item, with links to source documents where appropriate.
 
-> **Note**: For any new task, create a corresponding context map using the [context map template](../../templates/templates/context-map-template.md) and place it in the appropriate directory under `/doc/process-framework/visualization/context-maps/`.
+> **Note**: For any new task, create a corresponding context map using the [context map template](../../templates/templates/support/context-map-template.md) and place it in the appropriate directory under `/doc/process-framework/visualization/context-maps/`.
 
 #### Process
 

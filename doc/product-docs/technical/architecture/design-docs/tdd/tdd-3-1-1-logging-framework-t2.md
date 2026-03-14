@@ -16,7 +16,7 @@ retrospective: true
 
 > **Retrospective Document**: This TDD describes the existing technical design of the LinkWatcher Logging Framework, documented after implementation during framework onboarding (PF-TSK-066). Content is reverse-engineered from source code analysis.
 >
-> **Source**: Derived from [docs/LOGGING.md](../../../../../../docs/LOGGING.md) and source code analysis of `linkwatcher/logging.py` and `linkwatcher/logging_config.py`.
+> **Source**: Derived from source code analysis of `linkwatcher/logging.py` and `linkwatcher/logging_config.py`.
 >
 > **Scope Note**: This feature consolidates old 3.1.1 (Logging Framework) with all sub-features: 3.1.2 (Colored Console Output), 3.1.3 (Statistics Tracking), 3.1.4 (Progress Reporting), and 3.1.5 (Error Reporting).
 
@@ -26,7 +26,7 @@ retrospective: true
 
 The Logging Framework provides structured, contextual, and performance-aware logging for the entire LinkWatcher application. It is implemented across two modules: `linkwatcher/logging.py` (primary interface — `LinkWatcherLogger`, `LogContext`, `PerformanceLogger`) and `linkwatcher/logging_config.py` (advanced configuration — `LogFilter`, `LogMetrics`, `LoggingConfigManager`).
 
-The framework delivers dual-mode output (colored console + JSON file), per-thread context isolation, performance timing, domain-specific convenience methods, and runtime config hot-reload — all behind a simple `get_logger()` singleton interface.
+The framework delivers dual-mode output (colored console + JSON file), per-thread context isolation, performance timing, domain-specific convenience methods (`file_moved`, `file_deleted`, `file_created`, `links_updated`, `scan_progress`, `operation_stats`), and runtime config hot-reload — all behind a simple `get_logger()` singleton interface. Test isolation is supported via `reset_logger()` and `reset_config_manager()`.
 
 ### 1.2 Related Features
 
@@ -68,7 +68,7 @@ The framework delivers dual-mode output (colored console + JSON file), per-threa
 - **Error Handling**: If file logging fails (disk full, permission denied), the system falls back to console-only output and logs the failure; console logging is not affected by file handler failures
 - **Thread Safety**: `threading.local()` provides automatic per-thread context isolation; `threading.Lock` in `LogMetrics` protects counter updates from concurrent increment races
 - **Config Integrity**: If hot-reload encounters an invalid config file, the last valid configuration is retained — the logger never enters an unconfigured state
-- **Monitoring**: `LogMetrics` accumulates per-level, per-component, and per-operation counts; `get_snapshot()` returns a thread-safe copy
+- **Monitoring**: `LogMetrics` accumulates per-level, per-component, and per-operation counts; `get_metrics()` returns a thread-safe copy
 
 ### 3.4 Usability Requirements
 
@@ -84,27 +84,35 @@ The framework delivers dual-mode output (colored console + JSON file), per-threa
 
 ```python
 class LinkWatcherLogger:
-    def __init__(self, level=LogLevel.INFO, log_file=None, colored_output=True,
-                 show_icons=True, json_logs=False, max_file_size=10*1024*1024,
-                 backup_count=5):
+    def __init__(self, name: str = "linkwatcher", level=LogLevel.INFO,
+                 log_file=None, colored_output=True, show_icons=True,
+                 json_logs=False, max_file_size=10*1024*1024, backup_count=5):
         # stdlib logging: StreamHandler (console) + RotatingFileHandler (file)
-        self._logger = logging.getLogger('linkwatcher')
-        # structlog: configured once in __init__ with cache_logger_on_first_use=True
-        self._struct_logger = structlog.get_logger()
+        self.logger = logging.getLogger(name)
+        # structlog: reset_defaults() then configure() with cache_logger_on_first_use=True
+        self.struct_logger = structlog.get_logger(name)
+        # Performance logger instance
+        self.performance = PerformanceLogger()
 
-    # Standard level methods
-    def debug(self, msg, **kwargs): ...
-    def info(self, msg, **kwargs): ...
-    def warning(self, msg, **kwargs): ...
-    def error(self, msg, **kwargs): ...
-    def critical(self, msg, **kwargs): ...
+    # Standard level methods (delegate to self.struct_logger)
+    def debug(self, message: str, **kwargs): ...
+    def info(self, message: str, **kwargs): ...
+    def warning(self, message: str, **kwargs): ...
+    def error(self, message: str, **kwargs): ...
+    def critical(self, message: str, **kwargs): ...
+    def exception(self, message: str, **kwargs): ...
+
+    # Context delegation to global log_context instance
+    def set_context(self, **kwargs): ...
+    def clear_context(self): ...
 
     # Domain-specific convenience methods
-    def file_moved(self, src: str, dest: str): ...
-    def file_deleted(self, path: str): ...
-    def links_updated(self, file: str, count: int): ...
-    def scan_progress(self, current: int, total: int): ...
-    def operation_stats(self, stats: dict): ...
+    def file_moved(self, old_path: str, new_path: str, references_count: int = 0): ...
+    def file_deleted(self, file_path: str, references_count: int = 0): ...
+    def file_created(self, file_path: str): ...
+    def links_updated(self, file_path: str, references_updated: int): ...
+    def scan_progress(self, files_scanned: int, total_files: Optional[int] = None): ...
+    def operation_stats(self, **stats): ...
 ```
 
 **Module-level singleton** (`linkwatcher/logging.py`):
@@ -118,35 +126,64 @@ def get_logger() -> LinkWatcherLogger:
         _logger = LinkWatcherLogger()  # lazy init with defaults
     return _logger
 
-def setup_logging(**kwargs) -> LinkWatcherLogger:
+def setup_logging(level=LogLevel.INFO, log_file=None, colored_output=True,
+                  show_icons=True, json_logs=False, max_file_size=10*1024*1024,
+                  backup_count=5) -> LinkWatcherLogger:
     global _logger
-    _logger = LinkWatcherLogger(**kwargs)  # one-time explicit configuration
+    # Close old logger's handlers to release file locks (PD-BUG-015)
+    if _logger is not None:
+        for handler in _logger.logger.handlers[:]:
+            handler.close()
+    _logger = LinkWatcherLogger(level=level, log_file=log_file, ...)
     return _logger
+
+def reset_logger():
+    """Reset the global logger instance, closing handlers. For test isolation."""
+    global _logger
+    if _logger is not None:
+        for handler in _logger.logger.handlers[:]:
+            handler.close()
+            _logger.logger.removeHandler(handler)
+    _logger = None
 ```
 
 **`LogContext`** (`linkwatcher/logging.py`) — Thread-local context:
 
 ```python
 class LogContext:
-    _local = threading.local()
+    """Thread-local context for logging."""
+    def __init__(self):
+        self._local = threading.local()
 
-    @classmethod
-    def set_context(cls, **kwargs): cls._local.context = kwargs
-    @classmethod
-    def get_context(cls) -> dict: return getattr(cls._local, 'context', {})
-    @classmethod
-    def clear_context(cls): cls._local.context = {}
+    def set_context(self, **kwargs):
+        """Merge kwargs into current thread's context (update, not replace)."""
+        if not hasattr(self._local, 'context'):
+            self._local.context = {}
+        self._local.context.update(kwargs)
 
-def with_context(**ctx_kwargs):
+    def get_context(self) -> dict:
+        if not hasattr(self._local, 'context'):
+            self._local.context = {}
+        return self._local.context.copy()
+
+    def clear_context(self):
+        if hasattr(self._local, 'context'):
+            self._local.context.clear()
+
+# Global context instance — shared by all modules via get_logger().set_context()
+log_context = LogContext()
+
+def with_context(**kwargs):
     """Decorator: sets context before call, clears on exit via try/finally."""
     def decorator(func):
         @wraps(func)
-        def wrapper(*args, **kwargs):
-            LogContext.set_context(**ctx_kwargs)
+        def wrapper(*args, **func_kwargs):
+            logger = get_logger()
+            logger.set_context(**kwargs)
             try:
-                return func(*args, **kwargs)
+                return func(*args, **func_kwargs)
             finally:
-                LogContext.clear_context()
+                logger.clear_context()
         return wrapper
     return decorator
 ```
@@ -155,45 +192,76 @@ def with_context(**ctx_kwargs):
 
 ```python
 class LogTimer:
-    """Context manager: records start time, emits timing log on __exit__."""
-    def __init__(self, logger, operation: str, **ctx):
-        self.logger = logger
+    """Context manager: records start time, delegates timing to PerformanceLogger on __exit__."""
+    def __init__(self, operation: str, logger: Optional[LinkWatcherLogger] = None, **kwargs):
         self.operation = operation
-        self.ctx = ctx
-        self.start = None
+        self.logger = logger or get_logger()
+        self.kwargs = kwargs
+        self.start_time = None
+        self.timer_id = None
 
     def __enter__(self):
-        self.start = time.time()
+        self.timer_id = self.logger.performance.start_timer(self.operation)
+        self.start_time = time.perf_counter()
+        self.logger.debug(f"started_{self.operation}", **self.kwargs)
         return self
 
-    def __exit__(self, *args):
-        elapsed = time.time() - self.start
-        self.logger.debug(f"{self.operation} completed in {elapsed:.3f}s", **self.ctx)
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if self.timer_id:
+            self.logger.performance.end_timer(self.timer_id, self.operation, **self.kwargs)
+        if exc_type is not None:
+            self.logger.error(f"failed_{self.operation}", error_type=exc_type.__name__,
+                              error_message=str(exc_val), **self.kwargs)
+        else:
+            self.logger.debug(f"completed_{self.operation}", **self.kwargs)
 ```
 
 **`LoggingConfigManager`** (`linkwatcher/logging_config.py`) — Advanced config:
 
 ```python
 class LoggingConfigManager:
-    def __init__(self, config_path: str, logger: LinkWatcherLogger):
-        self._config_path = config_path
-        self._logger = logger
-        self._last_mtime = 0
-        self._filter = LogFilter()
-        self._metrics = LogMetrics()
+    def __init__(self):
+        self.logger = get_logger()
+        self.log_filter = LogFilter()
+        self.metrics = LogMetrics()
+        self.config_file: Optional[Path] = None
+        self.auto_reload = False
+        self._config_watch_thread: Optional[threading.Thread] = None
+        self._stop_watching = threading.Event()
 
-    def start_watching(self):
+    def load_config_file(self, config_file, auto_reload=False):
+        """Load YAML/JSON config, optionally start watching for changes."""
+        ...
+
+    def _start_config_watching(self):
         """Start daemon thread polling config file mtime every 1 second."""
-        t = threading.Thread(target=self._watch_config_file, daemon=True)
-        t.start()
+        self._config_watch_thread = threading.Thread(
+            target=self._watch_config_file)
+        self._config_watch_thread.daemon = True
+        self._config_watch_thread.start()
 
     def _watch_config_file(self):
-        while True:
-            time.sleep(1)
-            mtime = os.stat(self._config_path).st_mtime
-            if mtime != self._last_mtime:
-                self._reload_config()
-                self._last_mtime = mtime
+        last_modified = self.config_file.stat().st_mtime
+        while not self._stop_watching.wait(1.0):
+            current_modified = self.config_file.stat().st_mtime
+            if current_modified > last_modified:
+                self.load_config_file(self.config_file, auto_reload=False)
+                last_modified = current_modified
+
+    def stop_config_watching(self): ...
+    def set_runtime_filter(self, **kwargs): ...
+    def clear_filters(self): ...
+    def get_metrics(self) -> dict: return self.metrics.get_metrics()
+    def create_debug_snapshot(self) -> dict: ...
+
+# Module-level singleton with reset for test isolation
+_config_manager: Optional[LoggingConfigManager] = None
+
+def get_config_manager() -> LoggingConfigManager: ...
+def reset_config_manager():
+    """Reset global config manager. For test isolation."""
+    global _config_manager
+    _config_manager = None
 ```
 
 ### 4.2 Output Pipeline Architecture
@@ -225,7 +293,7 @@ Terminal (ANSI colors)          .log file (10MB rotation, 5 backups)
 
 **Context Manager Pattern**:
 - `LogTimer` implements `__enter__`/`__exit__` for automatic timing with guaranteed completion log
-- Usage: `with LogTimer(logger, "initial_scan"): ...`
+- Usage: `with LogTimer("initial_scan", logger): ...`
 
 **Decorator Pattern**:
 - `@with_context(operation="file_move", src_path=src)` injects context before method execution and guarantees cleanup via `try/finally`
@@ -303,8 +371,8 @@ Key design decisions that shaped the implementation:
 
 ### 7.2 Reliability Monitoring
 
-- `LogMetrics` counters (`log_counts_by_level`, `log_counts_by_component`) provide error rate tracking
-- `get_snapshot()` returns a thread-safe copy of current metrics for external inspection
+- `LogMetrics` counters (`logs_by_level`, `logs_by_component`, `logs_by_operation`) provide error rate tracking
+- `get_metrics()` returns a thread-safe copy of current metrics for external inspection
 
 ## 8. Open Questions
 

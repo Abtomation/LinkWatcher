@@ -26,7 +26,7 @@ This file tracks the status of process improvements identified through feedback 
 
 | ID | Source | Description | Priority | Status | Last Updated | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
-| IMP-037 | [Tools Review 2026-02-21](../../feedback/reviews/tools-review-20260221.md) | Consider reducing to single tracking surface for document status | MEDIUM | Deferred | 2026-02-21 | Proposal: [PF-PRO-005](../../proposals/proposals/single-tracking-surface-proposal.md). Auto-generate feature-tracking.md from state files. ~50 files affected, 3-session estimate. |
+| IMP-037 | [Tools Review 2026-02-21](../../feedback/reviews/tools-review-20260221.md) | Consider reducing to single tracking surface for document status | MEDIUM | Deferred | 2026-02-21 | Proposal: [PF-PRO-005](../../proposals/proposals/old/single-tracking-surface-proposal.md). Auto-generate feature-tracking.md from state files. ~50 files affected, 3-session estimate. |
 
 ## Completed Improvements
 

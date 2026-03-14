@@ -54,7 +54,7 @@ goto end
 :install-dev
 echo Installing development dependencies...
 pip install -r requirements.txt
-pip install -r requirements-test.txt
+pip install ".[test]"
 pip install -e ".[dev]"
 goto end
 

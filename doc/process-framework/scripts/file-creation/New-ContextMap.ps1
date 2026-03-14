@@ -104,7 +104,7 @@ $outputDirectory = "doc/process-framework/visualization/context-maps/$WorkflowPh
 
 # Create the document using standardized process
 try {
-    $mapId = New-StandardProjectDocument -TemplatePath "doc/process-framework/templates/templates/context-map-template.md" -IdPrefix "PF-VIS" -IdDescription "Context map for ${WorkflowPhase}: ${TaskName}" -DocumentName "$($TaskName.ToLower().Replace(' ', '-'))-map" -OutputDirectory $outputDirectory -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
+    $mapId = New-StandardProjectDocument -TemplatePath "doc/process-framework/templates/templates/support/context-map-template.md" -IdPrefix "PF-VIS" -IdDescription "Context map for ${WorkflowPhase}: ${TaskName}" -DocumentName "$($TaskName.ToLower().Replace(' ', '-'))-map" -OutputDirectory $outputDirectory -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
 
     # Provide success details
     $details = @(

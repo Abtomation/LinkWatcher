@@ -130,7 +130,7 @@ List existing artifacts that can be reused:
   - **Dependencies**: Task definition completed, all components identified
   - **Guide**: [Visualization Creation Guide](../../guides/guides/visualization-creation-guide.md)
   - **Script**: `doc/process-framework/scripts/file-creation/New-ContextMap.ps1`
-  - **Template**: [Context Map Template](../templates/context-map-template.md)
+  - **Template**: [Context Map Template](support/context-map-template.md)
   - **Command**: `cd doc/process-framework/visualization && ..\scripts\file-creation\New-ContextMap.ps1 -TaskName "[Task Name]" -TaskType "[Type]" -MapDescription "Context map for [Task Name] task"`
   - **Notes**: Shows component relationships and context requirements for the task
 

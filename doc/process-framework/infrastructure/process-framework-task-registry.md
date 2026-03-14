@@ -84,9 +84,9 @@ This document serves as the **comprehensive registry** of all process framework 
 
 **📋 AUTOMATION DETAILS**
 
-- **Script:** [`New-Assessment.ps1`](../scripts/file-creation/New-Assessment.ps1)
+- **Script:** [`New-Assessment.ps1`](../scripts/file-creation/01-planning/New-Assessment.ps1)
 - **Output Directory:** [`assessments/`](../methodologies/documentation-tiers/assessments/)
-- **Auto-Update Function:** **REQUIRES** running [`Update-FeatureTrackingFromAssessment.ps1`](../methodologies/documentation-tiers/Update-FeatureTrackingFromAssessment.ps1)
+- **Auto-Update Function:** **REQUIRES** running [`Update-FeatureTrackingFromAssessment.ps1`](../../product-docs/documentation-tiers/Update-FeatureTrackingFromAssessment.ps1)
 
 **📁 FILE OPERATIONS**
 | Operation | File Path | Update Method | Details |
@@ -177,7 +177,7 @@ This document serves as the **comprehensive registry** of all process framework 
 - **Script:** [`New-TestFile.ps1`](../scripts/file-creation/New-TestFile.ps1)
 - **Output Directory:** [`test/`](../../../test/) (various subdirectories)
 - **Auto-Update Function:** Built-in automated initial state tracking via `Update-TestImplementationStatus`
-- **Validation Script:** [`Validate-TestTracking.ps1`](../scripts/Validate-TestTracking.ps1)
+- **Validation Script:** [`Validate-TestTracking.ps1`](../scripts/validation/Validate-TestTracking.ps1)
 - **Manual Updates Required:** Test completion status, test case counts after implementation
 
 **📁 FILE OPERATIONS**
@@ -207,7 +207,7 @@ This document serves as the **comprehensive registry** of all process framework 
 **📋 AUTOMATION DETAILS**
 
 - **Report Script:** [`New-TestAuditReport.ps1`](../scripts/file-creation/New-TestAuditReport.ps1)
-- **State Update Script:** [`Update-TestFileAuditState.ps1`](../scripts/Update-TestFileAuditState.ps1)
+- **State Update Script:** [`Update-TestFileAuditState.ps1`](../scripts/update/Update-TestFileAuditState.ps1)
 - **Output Directory:** [`reports/`](../test-audits/reports/)
 - **Auto-Update Function:** **FULLY AUTOMATED** state file updates with intelligent aggregation
 
@@ -478,14 +478,14 @@ This document serves as the **comprehensive registry** of all process framework 
 
 **📋 AUTOMATION DETAILS**
 
-- **Script:** [`Update-BugStatus.ps1`](../scripts/Update-BugStatus.ps1)
+- **Script:** [`Update-BugStatus.ps1`](../scripts/update/Update-BugStatus.ps1)
 - **Output Directory:** N/A (updates existing state files)
 - **Auto-Update Function:** Automated bug status transitions and state tracking
 
 **📁 FILE OPERATIONS**
 | Operation | File Path | Update Method | Details |
 |-----------|-----------|---------------|---------|
-| **Updates** | [`bug-tracking.md`](../state-tracking/permanent/bug-tracking.md) | [`Update-BugStatus.ps1`](../scripts/Update-BugStatus.ps1) | Update bug status from 🆕 Reported to 🔍 Triaged<br/>• Automated priority (P1-P4) and scope (S/M/L) assignments<br/>• Automated status emoji updates (🔍 Triaged)<br/>• Automated timestamp and notes updates<br/>• Auto-moves bugs between active/Closed sections on Close/Reopen<br/>**Usage:** `.\Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "Triaged" -Priority "High" -Scope "S"` |
+| **Updates** | [`bug-tracking.md`](../state-tracking/permanent/bug-tracking.md) | [`Update-BugStatus.ps1`](../scripts/update/Update-BugStatus.ps1) | Update bug status from 🆕 Reported to 🔍 Triaged<br/>• Automated priority (P1-P4) and scope (S/M/L) assignments<br/>• Automated status emoji updates (🔍 Triaged)<br/>• Automated timestamp and notes updates<br/>• Auto-moves bugs between active/Closed sections on Close/Reopen<br/>**Usage:** `.\Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "Triaged" -Priority "High" -Scope "S"` |
 
 **🎯 KEY IMPACTS**
 
@@ -501,7 +501,7 @@ This document serves as the **comprehensive registry** of all process framework 
 
 **📋 AUTOMATION DETAILS**
 
-- **Script:** [`Update-BugStatus.ps1`](../scripts/Update-BugStatus.ps1)
+- **Script:** [`Update-BugStatus.ps1`](../scripts/update/Update-BugStatus.ps1)
 - **State Tracking Script:** [`New-BugFixState.ps1`](../scripts/file-creation/New-BugFixState.ps1) (conditional — Large-effort or architectural bugs only)
 - **Output Directory:** [`temporary/`](../state-tracking/temporary/) (for multi-session bug fix state files)
 - **Auto-Update Function:** Automated bug status transitions through complete lifecycle
@@ -509,7 +509,7 @@ This document serves as the **comprehensive registry** of all process framework 
 **📁 FILE OPERATIONS**
 | Operation | File Path | Update Method | Details |
 |-----------|-----------|---------------|---------|
-| **Updates** | [`bug-tracking.md`](../state-tracking/permanent/bug-tracking.md) | [`Update-BugStatus.ps1`](../scripts/Update-BugStatus.ps1) | Update bug status through lifecycle:<br/>• 🔍 Triaged → 🔧 In Progress → 🧪 Testing → ✅ Fixed → 🟢 Closed<br/>• Automated status emoji updates and timestamp tracking<br/>• Automated notes management and metadata tracking<br/>• Automated fix details, root cause, and PR linking<br/>• **Closure automation**: auto-moves bug to Closed Bugs section, recalculates Bug Statistics<br/>**Usage Examples:**<br/>• Start: `.\Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "InProgress"`<br/>• Complete: `.\Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "Fixed" -FixDetails "Details" -RootCause "Cause" -TestsAdded "Yes" -PullRequestUrl "URL"`<br/>• Close: `.\Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "Closed" -VerificationNotes "Verified in production"` |
+| **Updates** | [`bug-tracking.md`](../state-tracking/permanent/bug-tracking.md) | [`Update-BugStatus.ps1`](../scripts/update/Update-BugStatus.ps1) | Update bug status through lifecycle:<br/>• 🔍 Triaged → 🔧 In Progress → 🧪 Testing → ✅ Fixed → 🟢 Closed<br/>• Automated status emoji updates and timestamp tracking<br/>• Automated notes management and metadata tracking<br/>• Automated fix details, root cause, and PR linking<br/>• **Closure automation**: auto-moves bug to Closed Bugs section, recalculates Bug Statistics<br/>**Usage Examples:**<br/>• Start: `.\Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "InProgress"`<br/>• Complete: `.\Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "Fixed" -FixDetails "Details" -RootCause "Cause" -TestsAdded "Yes" -PullRequestUrl "URL"`<br/>• Close: `.\Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "Closed" -VerificationNotes "Verified in production"` |
 
 **🎯 KEY IMPACTS**
 
@@ -823,7 +823,7 @@ This document serves as the **comprehensive registry** of all process framework 
 - **Assessment Script:** [`New-TechnicalDebtAssessment.ps1`](../scripts/file-creation/New-TechnicalDebtAssessment.ps1)
 - **Debt Item Script:** [`New-DebtItem.ps1`](../scripts/file-creation/New-DebtItem.ps1) - **ENHANCED** with assessment linking and automation guidance
 - **Registry Update Script:** [`Update-TechDebt.ps1`](../scripts/update/Update-TechDebt.ps1) - Individual debt item management (Add, StatusUpdate, Resolve)
-- **Assessment Integration Script:** [`Update-TechnicalDebtFromAssessment.ps1`](../scripts/Update-TechnicalDebtFromAssessment.ps1) - **NEW** bulk assessment processing
+- **Assessment Integration Script:** [`Update-TechnicalDebtFromAssessment.ps1`](../scripts/update/Update-TechnicalDebtFromAssessment.ps1) - **NEW** bulk assessment processing
 - **Output Directory:** [`assessments/technical-debt/`](../assessments/technical-debt/)
 - **Auto-Update Function:** **FULLY AUTOMATED** bidirectional linking and registry integration
 
@@ -832,7 +832,7 @@ This document serves as the **comprehensive registry** of all process framework 
 |-----------|-----------|---------------|---------|
 | **Creates** | `[PF-TDA-XXX]-[assessment-name].md` | `New-TechnicalDebtAssessment.ps1` | Technical debt assessment document with systematic evaluation and prioritization matrix |
 | **Creates** | `[PF-TDI-XXX]-[item-title].md` (multiple) | `New-DebtItem.ps1` | Individual debt item records with **assessment linking** and automation command guidance<br/>• Include `-AssessmentId` parameter for traceability<br/>• Auto-populate assessment reference and registry integration fields<br/>• Provide ready-to-use automation commands |
-| **Updates** | [`technical-debt-tracking.md`](../state-tracking/permanent/technical-debt-tracking.md) | [`Update-TechnicalDebtFromAssessment.ps1`](../scripts/Update-TechnicalDebtFromAssessment.ps1) | **FULLY AUTOMATED REGISTRY INTEGRATION:**<br/>• Automatically add new debt items with TD### IDs<br/>• Auto-reference assessment ID (PF-TDA-XXX) in Assessment ID column<br/>• Create bidirectional traceability between registry and assessments<br/>• **Usage:** `.\Update-TechnicalDebtFromAssessment.ps1 -AssessmentId "PF-TDA-XXX"` |
+| **Updates** | [`technical-debt-tracking.md`](../state-tracking/permanent/technical-debt-tracking.md) | [`Update-TechnicalDebtFromAssessment.ps1`](../scripts/update/Update-TechnicalDebtFromAssessment.ps1) | **FULLY AUTOMATED REGISTRY INTEGRATION:**<br/>• Automatically add new debt items with TD### IDs<br/>• Auto-reference assessment ID (PF-TDA-XXX) in Assessment ID column<br/>• Create bidirectional traceability between registry and assessments<br/>• **Usage:** `.\Update-TechnicalDebtFromAssessment.ps1 -AssessmentId "PF-TDA-XXX"` |
 | **Updates** | Individual debt item files | [`Update-TechDebt.ps1`](../scripts/update/Update-TechDebt.ps1) | **AUTOMATED REGISTRY INTEGRATION:**<br/>• Auto-update Registry Status: "Not Added" → "Added"<br/>• Auto-assign TD### Registry ID<br/>• Mark items as integrated into permanent tracking system<br/>• Maintain bidirectional linking automatically |
 
 **🎯 KEY IMPACTS**

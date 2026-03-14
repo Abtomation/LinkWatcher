@@ -49,7 +49,7 @@ Context maps are organized by task type:
 
 When creating a new context map:
 
-1. Use the [template.md](../../templates/templates/context-map-template.md) as a starting point
+1. Use the [template.md](../../templates/templates/support/context-map-template.md) as a starting point
 2. Follow the [Visual Notation Guide](/doc/process-framework/guides/guides/visual-notation-guide.md)
 3. Include only components directly relevant to the task
 4. Clearly mark component priorities (critical, important, reference)

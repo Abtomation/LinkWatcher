@@ -36,13 +36,13 @@
     If specified, shows what would be updated without making changes
 
 .EXAMPLE
-    ../../../product-docs/product-docs/product-docs/technical/api/specifications/New-APISpecification.ps1 -APIName "User Authentication API" -APIDescription "Handles user login, registration, and session management"
+    ../../../product-docs/technical/api/specifications/New-APISpecification.ps1 -APIName "User Authentication API" -APIDescription "Handles user login, registration, and session management"
 
 .EXAMPLE
-    ../../../product-docs/product-docs/product-docs/technical/api/specifications/New-APISpecification.ps1 -APIName "Resource Management API" -APIDescription "Manages resource records and reservations" -APIType "REST" -OpenInEditor
+    ../../../product-docs/technical/api/specifications/New-APISpecification.ps1 -APIName "Resource Management API" -APIDescription "Manages resource records and reservations" -APIType "REST" -OpenInEditor
 
 .EXAMPLE
-    ../../../product-docs/product-docs/product-docs/technical/api/specifications/New-APISpecification.ps1 -APIName "Booking Fee API" -APIDescription "Handles booking fee calculations and processing" -APIType "REST" -FeatureId "5.1.1"
+    ../../../product-docs/technical/api/specifications/New-APISpecification.ps1 -APIName "Booking Fee API" -APIDescription "Handles booking fee calculations and processing" -APIType "REST" -FeatureId "5.1.1"
     Creates file: api-5.1.1-booking-fee-api.md
 
 .NOTES
@@ -119,7 +119,7 @@ if ($FeatureId -ne "") {
 # Create the document using standardized process
 try {
     $projectRoot = Get-ProjectRoot
-    $templatePath = Join-Path $projectRoot "doc/process-framework/templates/templates/api-specification-template-template.md"
+    $templatePath = Join-Path $projectRoot "doc/process-framework/templates/templates/02-design/api-specification-template.md"
 
     $createParams = @{
         TemplatePath             = $templatePath

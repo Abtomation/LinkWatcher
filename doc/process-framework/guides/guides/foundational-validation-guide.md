@@ -588,7 +588,7 @@ When skipping a criterion, exclude it from the score denominator so it doesn't p
 ### Automation Scripts
 
 - [New-ValidationReport.ps1](../../scripts/file-creation/New-ValidationReport.ps1) - Generate validation report templates
-- [Update-ValidationReportState.ps1](../../scripts/Update-ValidationReportState.ps1) - Update tracking with validation results
+- [Update-ValidationReportState.ps1](../../scripts/update/Update-ValidationReportState.ps1) - Update tracking with validation results
 - [Generate-ValidationSummary.ps1](../../validation/Generate-ValidationSummary.ps1) - Create consolidated validation summaries
 
 ### Supporting Documentation

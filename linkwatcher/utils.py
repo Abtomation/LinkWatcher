@@ -5,6 +5,7 @@ This module contains common utility functions used across the system.
 """
 
 import os
+import re
 from pathlib import Path
 from typing import Set
 
@@ -154,6 +155,19 @@ def looks_like_file_path(text: str) -> bool:
         ".bat",
         ".ps1",
     }
+
+    # PD-BUG-028: Reject prose-like strings with embedded filenames.
+    # If a path segment starts with an uppercase word and has 3+ space-separated
+    # words, it's likely a sentence (e.g., "Hello from move-target-2.ps1") rather
+    # than a real file path. Filenames with spaces ("file with spaces.txt") almost
+    # never start with an uppercase word.
+    segments = re.split(r"[/\\]", text)
+    for segment in segments:
+        if segment in (".", "..", ""):
+            continue
+        words = segment.split()
+        if len(words) >= 3 and words[0][:1].isupper():
+            return False
 
     ext = os.path.splitext(text)[1].lower()
     if ext in common_extensions:

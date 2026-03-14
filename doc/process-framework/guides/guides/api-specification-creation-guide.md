@@ -497,7 +497,7 @@ Creating an API specification for order management functionality:
 
 - [API Design Task (PF-TSK-020)](../../tasks/02-design/api-design-task.md) - The task that uses this guide
 - [New-APISpecification.ps1 Script](../../scripts/file-creation/New-APISpecification.ps1) - Script for creating API specifications
-- [API Specification Template](../../templates/templates/api-specification-template-template.md) - Template customized by this guide
+- [API Specification Template](../../templates/templates/02-design/api-specification-template.md) - Template customized by this guide
 - [API Data Model Creation Guide (PF-GDE-030)](api-data-model-creation-guide.md) - Guide for creating related data models
 - [Guide Creation Best Practices Guide (PF-GDE-024)](guide-creation-best-practices-guide.md) - Best practices for guide creation
 - [OpenAPI Specification](https://swagger.io/specification/) - External resource for API specification standards

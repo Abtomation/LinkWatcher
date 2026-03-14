@@ -95,9 +95,9 @@ Systematically evaluate, prioritize, and assign reported bugs to ensure efficien
 15. **Estimate Effort**: Provide rough effort estimate for fixing the bug
 16. **Update Bug Status**: Change status from 🆕 Reported to 🔍 Triaged
     - **Manual Update**: Edit the [Bug Tracking](../../state-tracking/permanent/bug-tracking.md) file directly
-    - **Optional Automation**: Use [`Update-BugStatus.ps1`](../../scripts/Update-BugStatus.ps1) script for consistent formatting:
+    - **Optional Automation**: Use [`Update-BugStatus.ps1`](../../scripts/update/Update-BugStatus.ps1) script for consistent formatting:
       ```powershell
-      ../../scripts/Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "Triaged" -Priority "High" -Scope "S"
+      ../../scripts/update/Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "Triaged" -Priority "High" -Scope "S"
       ```
 
 ### Finalization
@@ -151,7 +151,7 @@ When a previously closed bug recurs, decide whether to **reopen** the original o
 
 1. **Update status** using the automation script:
    ```powershell
-   ../../scripts/Update-BugStatus.ps1 -BugId "PD-BUG-XXX" -NewStatus "Reopened" -ReopenReason "Description of why the bug recurred"
+   ../../scripts/update/Update-BugStatus.ps1 -BugId "PD-BUG-XXX" -NewStatus "Reopened" -ReopenReason "Description of why the bug recurred"
    ```
    This automatically moves the entry from the Closed section back to the correct active priority table and recalculates statistics.
 2. **Re-evaluate priority and scope** — the original P-level and scope may no longer apply (e.g., a P4 bug that now causes data loss becomes P1)
@@ -176,7 +176,7 @@ The following state files must be updated as part of this task:
   - Related feature references
   - Updated statistics
 
-**Automation Support**: While bug triage is primarily a manual evaluation process, the [`Update-BugStatus.ps1`](../../scripts/Update-BugStatus.ps1) script can be used to automate the status update portion for consistent formatting and automatic timestamp tracking.
+**Automation Support**: While bug triage is primarily a manual evaluation process, the [`Update-BugStatus.ps1`](../../scripts/update/Update-BugStatus.ps1) script can be used to automate the status update portion for consistent formatting and automatic timestamp tracking.
 
 ## ⚠️ MANDATORY Task Completion Checklist
 

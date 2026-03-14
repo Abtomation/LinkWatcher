@@ -47,7 +47,7 @@
 .NOTES
     This script requires:
     - Access to the central ID registry (doc/id-registry.json)
-    - The API Data Model template (doc/process-framework/templates/templates/api-data-model-template-template.md)
+    - The API Data Model template (doc/process-framework/templates/templates/02-design/api-data-model-template.md)
     - PowerShell 5.1 or later
     - When FeatureId is provided, automatically updates API Design column in feature tracking:
     - First data model: Replaces "Yes" with clickable link
@@ -109,7 +109,7 @@ $customReplacements = @{
 # Create the document using standardized process
 try {
     $projectRoot = Get-ProjectRoot
-    $templatePath = Join-Path $projectRoot "doc/process-framework/templates/templates/api-data-model-template-template.md"
+    $templatePath = Join-Path $projectRoot "doc/process-framework/templates/templates/02-design/api-data-model-template.md"
 
     $documentId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "PD-API" -IdDescription "API Data Model for $ModelName" -DocumentName $ModelName -DirectoryType "models" -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
 

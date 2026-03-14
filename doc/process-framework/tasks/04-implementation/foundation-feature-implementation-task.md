@@ -43,7 +43,7 @@ Specialized task for implementing foundation features (0.x.x) that provide archi
 
   - [Architectural Framework Usage Guide](../../guides/guides/architectural-framework-usage-guide.md) - **ESSENTIAL**: Step-by-step guide for using the architectural framework
   - [Feature Implementation Planning](feature-implementation-planning-task.md) - Base implementation planning process for comparison
-  - [ADR Template](../../templates/templates/adr-template.md) - For documenting architectural decisions
+  - [ADR Template](../../templates/templates/02-design/adr-template.md) - For documenting architectural decisions
   - [Foundation Feature Implementation Usage Guide](../../guides/guides/foundation-feature-implementation-usage-guide.md) - Task-specific usage guide
 
 - **Reference Only (Access When Needed):**

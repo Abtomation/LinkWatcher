@@ -69,7 +69,7 @@ Write-Host ""
 # Define available scripts with metadata
 $availableScripts = @{
     "1" = @{
-        Name = "Update-FeatureImplementationState.ps1"
+        Name = "update/Update-FeatureImplementationState.ps1"
         Description = "Update feature implementation status and tracking"
         Category = "Feature Management"
         Complexity = "Basic"
@@ -77,7 +77,7 @@ $availableScripts = @{
         UseCases = @("Feature completion", "Status updates", "Implementation tracking")
     }
     "2" = @{
-        Name = "Update-TestAuditState.ps1"
+        Name = "update/Update-TestAuditState.ps1"
         Description = "Update test audit status and results"
         Category = "Testing"
         Complexity = "Basic"
@@ -85,7 +85,7 @@ $availableScripts = @{
         UseCases = @("Test audits", "Quality assurance", "Test validation")
     }
     "3" = @{
-        Name = "Update-CodeReviewState.ps1"
+        Name = "update/Update-CodeReviewState.ps1"
         Description = "Update code review status and feedback"
         Category = "Code Quality"
         Complexity = "Basic"
@@ -93,7 +93,7 @@ $availableScripts = @{
         UseCases = @("Code reviews", "Quality checks", "Peer reviews")
     }
     "4" = @{
-        Name = "Update-ValidationReportState.ps1"
+        Name = "update/Update-ValidationReportState.ps1"
         Description = "Update validation task status and findings"
         Category = "Validation"
         Complexity = "Intermediate"
@@ -117,7 +117,7 @@ $availableScripts = @{
         UseCases = @("Bulk audits", "Category audits", "Sprint audits")
     }
     "7" = @{
-        Name = "Update-BatchFeatureStatus.ps1"
+        Name = "update/Update-BatchFeatureStatus.ps1"
         Description = "Update multiple features simultaneously across tracking files"
         Category = "Batch Processing"
         Complexity = "Advanced"
@@ -178,10 +178,10 @@ function Show-CommonWorkflows {
     Write-Host ""
 
     Write-Host "1. Feature Implementation Workflow:" -ForegroundColor Yellow
-    Write-Host "   • Start: Update-FeatureImplementationState.ps1 (In Progress)" -ForegroundColor Gray
-    Write-Host "   • Review: Update-CodeReviewState.ps1 (Completed)" -ForegroundColor Gray
-    Write-Host "   • Test: Update-TestAuditState.ps1 (Tests Approved)" -ForegroundColor Gray
-    Write-Host "   • Complete: Update-FeatureImplementationState.ps1 (Completed)" -ForegroundColor Gray
+    Write-Host "   • Start: update/Update-FeatureImplementationState.ps1 (In Progress)" -ForegroundColor Gray
+    Write-Host "   • Review: update/Update-CodeReviewState.ps1 (Completed)" -ForegroundColor Gray
+    Write-Host "   • Test: update/Update-TestAuditState.ps1 (Tests Approved)" -ForegroundColor Gray
+    Write-Host "   • Complete: update/Update-FeatureImplementationState.ps1 (Completed)" -ForegroundColor Gray
     Write-Host ""
 
     Write-Host "2. Validation Workflow:" -ForegroundColor Yellow
@@ -191,12 +191,12 @@ function Show-CommonWorkflows {
 
     Write-Host "3. Sprint Completion Workflow:" -ForegroundColor Yellow
     Write-Host "   • Audit: Start-BatchAudit.ps1 (by category)" -ForegroundColor Gray
-    Write-Host "   • Status: Update-BatchFeatureStatus.ps1 (Sprint completion)" -ForegroundColor Gray
+    Write-Host "   • Status: update/Update-BatchFeatureStatus.ps1 (Sprint completion)" -ForegroundColor Gray
     Write-Host ""
 
     Write-Host "4. Release Preparation Workflow:" -ForegroundColor Yellow
     Write-Host "   • Validation: Start-BatchValidation.ps1 (all types)" -ForegroundColor Gray
-    Write-Host "   • Final Status: Update-BatchFeatureStatus.ps1 (Release)" -ForegroundColor Gray
+    Write-Host "   • Final Status: update/Update-BatchFeatureStatus.ps1 (Release)" -ForegroundColor Gray
     Write-Host ""
 }
 
@@ -256,22 +256,22 @@ function Invoke-SelectedScript {
     $params = @{}
 
     switch ($script.Name) {
-        "Update-FeatureImplementationState.ps1" {
+        "update/Update-FeatureImplementationState.ps1" {
             $params.FeatureId = Get-ParameterInput -ParameterName "FeatureId" -Description "Feature identifier (e.g., 1.2.1)"
             $params.ImplementationStatus = Get-ParameterInput -ParameterName "ImplementationStatus" -Description "Implementation status" -ValidValues @("🟡 In Progress", "🔄 Needs Revision", "🟢 Completed", "🔴 Blocked", "⏸️ On Hold")
             $params.DeveloperName = Get-ParameterInput -ParameterName "DeveloperName" -Description "Developer name"
         }
-        "Update-TestAuditState.ps1" {
+        "update/Update-TestAuditState.ps1" {
             $params.FeatureId = Get-ParameterInput -ParameterName "FeatureId" -Description "Feature identifier (e.g., 1.2.1)"
             $params.AuditStatus = Get-ParameterInput -ParameterName "AuditStatus" -Description "Audit status" -ValidValues @("Audit In Progress", "Tests Approved", "Tests Need Revision", "Tests Failed")
             $params.AuditorName = Get-ParameterInput -ParameterName "AuditorName" -Description "Auditor name"
         }
-        "Update-CodeReviewState.ps1" {
+        "update/Update-CodeReviewState.ps1" {
             $params.FeatureId = Get-ParameterInput -ParameterName "FeatureId" -Description "Feature identifier (e.g., 1.2.1)"
             $params.ReviewStatus = Get-ParameterInput -ParameterName "ReviewStatus" -Description "Review status" -ValidValues @("In Progress", "Completed", "Needs Revision", "Approved")
             $params.ReviewerName = Get-ParameterInput -ParameterName "ReviewerName" -Description "Reviewer name"
         }
-        "Update-ValidationReportState.ps1" {
+        "update/Update-ValidationReportState.ps1" {
             $params.ValidationId = Get-ParameterInput -ParameterName "ValidationId" -Description "Validation identifier (e.g., VAL-031-001)"
             $params.ValidationStatus = Get-ParameterInput -ParameterName "ValidationStatus" -Description "Validation status" -ValidValues @("Validation In Progress", "Validation Completed", "Needs Revision", "Validation Failed")
             $params.ValidatorName = Get-ParameterInput -ParameterName "ValidatorName" -Description "Validator name"
@@ -288,7 +288,7 @@ function Invoke-SelectedScript {
             $params.AuditorName = Get-ParameterInput -ParameterName "AuditorName" -Description "Auditor name"
             $params.FeatureCategory = Get-ParameterInput -ParameterName "FeatureCategory" -Description "Feature category" -ValidValues @("Authentication", "UI", "API", "Data", "Integration", "Foundation")
         }
-        "Update-BatchFeatureStatus.ps1" {
+        "update/Update-BatchFeatureStatus.ps1" {
             $featureIdsInput = Get-ParameterInput -ParameterName "FeatureIds" -Description "Feature IDs (comma-separated, e.g., 1.2.1,1.2.2,1.2.3)"
             $params.FeatureIds = $featureIdsInput -split ',' | ForEach-Object { $_.Trim() }
             $params.Status = Get-ParameterInput -ParameterName "Status" -Description "New status" -ValidValues @("🟡 In Progress", "🔄 Needs Revision", "🟢 Completed", "🔴 Blocked", "⏸️ On Hold")

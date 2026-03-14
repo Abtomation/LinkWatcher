@@ -10,7 +10,15 @@ from typing import List
 
 from .logging import LogTimer, get_logger
 from .models import LinkReference
-from .parsers import DartParser, GenericParser, JsonParser, MarkdownParser, PythonParser, YamlParser
+from .parsers import (
+    DartParser,
+    GenericParser,
+    JsonParser,
+    MarkdownParser,
+    PowerShellParser,
+    PythonParser,
+    YamlParser,
+)
 
 
 class LinkParser:
@@ -27,6 +35,8 @@ class LinkParser:
             ".json": JsonParser(),
             ".dart": DartParser(),
             ".py": PythonParser(),
+            ".ps1": PowerShellParser(),
+            ".psm1": PowerShellParser(),
         }
         self.generic_parser = GenericParser()
         self.logger = get_logger()

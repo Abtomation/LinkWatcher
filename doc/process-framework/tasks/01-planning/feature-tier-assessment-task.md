@@ -36,7 +36,7 @@ Assess the complexity tier of unassessed features to determine appropriate docum
 - **Critical (Must Read):**
 
   - [Assessment Guide](../guides/guides/assessment-guide.md) - Detailed guidelines for assessing feature complexity tiers
-  - [Documentation Tiers README](../../methodologies/documentation-tiers/README.md) - Definitions of each complexity tier and their criteria
+  - [Documentation Tiers README](../../../product-docs/documentation-tiers/README.md) - Definitions of each complexity tier and their criteria
   - [Visual Notation Guide](/doc/process-framework/guides/guides/visual-notation-guide.md) - For interpreting context map diagrams
 
 - **Reference Only (Access When Needed):**
@@ -67,7 +67,7 @@ Assess the complexity tier of unassessed features to determine appropriate docum
    cd ../../methodologies/documentation-tiers
 
    # Create a new assessment document (ALL THREE PARAMETERS ARE MANDATORY)
-   ../../scripts/file-creation/New-Assessment.ps1 -FeatureId "X.X.X" -FeatureName "Feature Name" -FeatureDescription "Brief description of what the feature does"
+   ../../scripts/file-creation/01-planning/New-Assessment.ps1 -FeatureId "X.X.X" -FeatureName "Feature Name" -FeatureDescription "Brief description of what the feature does"
    ```
 
    **⚠️ CRITICAL**: All three parameters are mandatory:
@@ -289,7 +289,7 @@ When updating the feature tracking document:
 
 ## Related Resources
 
-- [Documentation Tier Assignments README](../../methodologies/documentation-tiers/README.md) - Comprehensive overview of the tier system
-- [Normalized Scoring System](../../methodologies/documentation-tiers/README.md#normalized-scoring-system) - Details on how the scoring system works
+- [Documentation Tier Assignments README](../../../product-docs/documentation-tiers/README.md) - Comprehensive overview of the tier system
+- [Normalized Scoring System](../../../product-docs/documentation-tiers/README.md#normalized-scoring-system) - Details on how the scoring system works
 - <!-- [Assessment Best Practices](../guides/assessment-best-practices.md) - File not found --> - Tips for accurate assessments
 - [Task Creation and Improvement Guide](../support/task-creation-guide.md) - Guide for creating and improving tasks

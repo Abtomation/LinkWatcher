@@ -4,7 +4,7 @@
 # Updated: 2026-02-24
 # Version: 2.2
 #
-# VALIDATION: Run doc/process-framework/scripts/Validate-TestTracking.ps1 to validate consistency
+# VALIDATION: Run doc/process-framework/scripts/validation/Validate-TestTracking.ps1 to validate consistency
 # between this registry, test-implementation-tracking.md, and actual test files
 #
 # SCHEMA NOTES:
@@ -281,11 +281,11 @@ testFiles:
     testType: Parser
     componentName: Generic Parser
     specificationPath: test/specifications/feature-specs/test-spec-2-1-1-link-parsing-system.md
-    description: "Parser tests for fallback quoted file path parser (~16 methods, incl. PD-BUG-021 directory path detection)"
+    description: "Parser tests for fallback quoted file path parser (~22 methods, incl. PD-BUG-021 directory path detection, PD-BUG-028 prose filename rejection)"
     created: 2026-02-20
-    updated: 2026-03-03
+    updated: 2026-03-13
     status: "✅ Tests Implemented"
-    testCasesCount: 16
+    testCasesCount: 22
     tier: 2
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md
 

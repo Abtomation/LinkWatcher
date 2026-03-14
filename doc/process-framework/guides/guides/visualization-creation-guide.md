@@ -271,7 +271,7 @@ For guides that help customize templates created by scripts, follow this enhance
 ## Related Resources
 
 - [Visual Notation Guide](visual-notation-guide.md) - Standard notation for all visualizations
-- [Context Map Template](../../templates/templates/context-map-template.md) - Template for creating context maps
+- [Context Map Template](../../templates/templates/support/context-map-template.md) - Template for creating context maps
 - [New-ContextMap.ps1](../../scripts/file-creation/New-ContextMap.ps1) - Script for creating context maps
 - [Task Creation Guide](task-creation-guide.md) - How to integrate visualizations with tasks
 - [Documentation Structure Guide](documentation-structure-guide.md) - Overall documentation organization

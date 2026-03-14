@@ -76,9 +76,9 @@ Diagnose, fix, and verify solutions for reported bugs or issues in the applicati
 6. Document the reproduction steps for future reference
 7. Analyze the affected code area to understand the context
 8. Update bug status from 🔍 Triaged to 🟡 In Progress
-   - **Automated Option**: Use [`Update-BugStatus.ps1`](../../scripts/Update-BugStatus.ps1) script:
+   - **Automated Option**: Use [`Update-BugStatus.ps1`](../../scripts/update/Update-BugStatus.ps1) script:
      ```powershell
-     ../../scripts/Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "InProgress"
+     ../../scripts/update/Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "InProgress"
      ```
 9. **🚨 CHECKPOINT**: Present reproduction results, affected code area analysis, and proposed investigation approach to human partner
    - **S-scope bugs**: Combine with Step 12 — present reproduction, root cause analysis, and proposed fix approach in a single checkpoint. After approval, skip directly to Step 13.
@@ -120,9 +120,9 @@ Diagnose, fix, and verify solutions for reported bugs or issues in the applicati
     - *Skip this step for bugs with no observable behavior* (e.g., dead code removal, internal refactoring)
 19. **Session boundary** (multi-session only): If ending a session before the fix is complete, update the Session Log in the bug fix state file with completed work and next-session plan. The next session resumes from this state file.
 20. Update bug status from 🟡 In Progress to 🧪 Fixed
-    - **Automated Option**: Use [`Update-BugStatus.ps1`](../../scripts/Update-BugStatus.ps1) script:
+    - **Automated Option**: Use [`Update-BugStatus.ps1`](../../scripts/update/Update-BugStatus.ps1) script:
       ```powershell
-      ../../scripts/Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "Fixed" -FixDetails "Fixed null pointer exception" -RootCause "Missing null check" -TestsAdded "Yes" -PullRequestUrl "https://github.com/repo/pull/123"
+      ../../scripts/update/Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "Fixed" -FixDetails "Fixed null pointer exception" -RootCause "Missing null check" -TestsAdded "Yes" -PullRequestUrl "https://github.com/repo/pull/123"
       ```
 
 ### Finalization
@@ -138,9 +138,9 @@ Diagnose, fix, and verify solutions for reported bugs or issues in the applicati
 23. Refactor code if necessary for better maintainability
 24. Verify the fix resolves the issue completely
 25. Update bug status from 🧪 Fixed to ✅ Verified (after testing confirmation)
-    - **Automated Option**: Use [`Update-BugStatus.ps1`](../../scripts/Update-BugStatus.ps1) script:
+    - **Automated Option**: Use [`Update-BugStatus.ps1`](../../scripts/update/Update-BugStatus.ps1) script:
       ```powershell
-      ../../scripts/Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "Closed" -VerificationNotes "Fix verified in production, no regressions detected"
+      ../../scripts/update/Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "Closed" -VerificationNotes "Fix verified in production, no regressions detected"
       ```
       > **Note**: The script automatically moves the bug entry to the Closed Bugs section and recalculates Bug Statistics — no manual editing needed.
 26. Verify the [Bug Tracking](../../state-tracking/permanent/bug-tracking.md) document was updated correctly (bug moved to Closed section, statistics updated)
@@ -174,7 +174,7 @@ The following state files must be updated as part of this task:
   - Test specification for the affected feature — update expected behavior or test scenarios
   - FDD for the affected feature — update functional behavior descriptions
 
-**Automation Support**: The [`Update-BugStatus.ps1`](../../scripts/Update-BugStatus.ps1) script can automate status updates and ensure consistent formatting. While manual updates are supported, the script provides standardized status transitions and automatic timestamp tracking.
+**Automation Support**: The [`Update-BugStatus.ps1`](../../scripts/update/Update-BugStatus.ps1) script can automate status updates and ensure consistent formatting. While manual updates are supported, the script provides standardized status transitions and automatic timestamp tracking.
 
 ## ⚠️ MANDATORY Task Completion Checklist
 

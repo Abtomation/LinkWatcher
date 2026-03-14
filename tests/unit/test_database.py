@@ -5,9 +5,6 @@ This module tests the link database functionality including
 adding, removing, and querying link references.
 """
 
-import pytest
-
-from linkwatcher.database import LinkDatabase
 from linkwatcher.models import LinkReference
 
 
@@ -263,15 +260,153 @@ class TestLongPathNormalization:
         from linkwatcher.utils import normalize_path
 
         old_target = "deep/nested/old_file.txt"
-        new_target = "deep/nested/new_file.txt"
         ref = LinkReference("doc.md", 1, 0, 30, "old_file.txt", old_target, "markdown")
         link_database.add_link(ref)
 
         # Simulate update using \\?\ prefixed paths
         old_prefixed = "\\\\?\\C:\\project\\deep\\nested\\old_file.txt"
-        new_prefixed = "\\\\?\\C:\\project\\deep\\nested\\new_file.txt"
 
         # normalize_path must produce the same result for prefixed and non-prefixed
         assert normalize_path(old_prefixed) == normalize_path(
             "C:\\project\\deep\\nested\\old_file.txt"
         ), "Prefix stripping must work for update operations"
+
+
+class TestGetReferencesToDirectory:
+    """Test cases for LinkDatabase.get_references_to_directory()."""
+
+    def test_exact_directory_match(self, link_database):
+        """References targeting the exact directory path are found."""
+        ref = LinkReference(
+            "script.ps1",
+            10,
+            5,
+            30,
+            "doc/process-framework/scripts",
+            "doc/process-framework/scripts",
+            "powershell-quoted-dir",
+        )
+        link_database.add_link(ref)
+
+        results = link_database.get_references_to_directory("doc/process-framework/scripts")
+        assert len(results) == 1
+        assert results[0].link_target == "doc/process-framework/scripts"
+
+    def test_prefix_match_subdirectory(self, link_database):
+        """References targeting subdirectories of the directory path are found."""
+        ref = LinkReference(
+            "script.ps1",
+            5,
+            0,
+            40,
+            "doc/process-framework/scripts/file-creation",
+            "doc/process-framework/scripts/file-creation",
+            "powershell-quoted-dir",
+        )
+        link_database.add_link(ref)
+
+        results = link_database.get_references_to_directory("doc/process-framework/scripts")
+        assert len(results) == 1
+        assert results[0].link_target == "doc/process-framework/scripts/file-creation"
+
+    def test_no_false_prefix_match(self, link_database):
+        """Directory paths that share a prefix but aren't subdirectories are excluded."""
+        ref = LinkReference(
+            "script.ps1",
+            5,
+            0,
+            40,
+            "doc/process-framework/scripts-old",
+            "doc/process-framework/scripts-old",
+            "powershell-quoted-dir",
+        )
+        link_database.add_link(ref)
+
+        results = link_database.get_references_to_directory("doc/process-framework/scripts")
+        assert len(results) == 0
+
+    def test_no_match_unrelated_path(self, link_database):
+        """References to unrelated paths are not returned."""
+        ref = LinkReference(
+            "readme.md",
+            1,
+            0,
+            20,
+            "src/main.py",
+            "src/main.py",
+            "markdown",
+        )
+        link_database.add_link(ref)
+
+        results = link_database.get_references_to_directory("doc/process-framework")
+        assert len(results) == 0
+
+    def test_multiple_references_to_same_directory(self, link_database):
+        """Multiple references to the same directory from different files are all found."""
+        ref1 = LinkReference(
+            "script1.ps1",
+            10,
+            5,
+            30,
+            "doc/old-dir",
+            "doc/old-dir",
+            "powershell-quoted-dir",
+        )
+        ref2 = LinkReference(
+            "script2.ps1",
+            20,
+            8,
+            35,
+            "doc/old-dir",
+            "doc/old-dir",
+            "powershell-quoted-dir",
+        )
+        link_database.add_link(ref1)
+        link_database.add_link(ref2)
+
+        results = link_database.get_references_to_directory("doc/old-dir")
+        assert len(results) == 2
+
+    def test_mixed_file_and_directory_targets(self, link_database):
+        """Only directory-path targets are returned, not file targets within the directory."""
+        dir_ref = LinkReference(
+            "script.ps1",
+            10,
+            5,
+            30,
+            "doc/old-dir",
+            "doc/old-dir",
+            "powershell-quoted-dir",
+        )
+        file_ref = LinkReference(
+            "readme.md",
+            1,
+            0,
+            20,
+            "doc/old-dir/readme.md",
+            "doc/old-dir/readme.md",
+            "markdown",
+        )
+        link_database.add_link(dir_ref)
+        link_database.add_link(file_ref)
+
+        # Both the exact dir match and the file within should be found
+        results = link_database.get_references_to_directory("doc/old-dir")
+        assert len(results) == 2
+
+    def test_deduplication(self, link_database):
+        """Duplicate references are not returned."""
+        ref = LinkReference(
+            "script.ps1",
+            10,
+            5,
+            30,
+            "doc/old-dir",
+            "doc/old-dir",
+            "powershell-quoted-dir",
+        )
+        # Add same reference object to multiple keys (simulating anchored storage)
+        link_database.add_link(ref)
+
+        results = link_database.get_references_to_directory("doc/old-dir")
+        assert len(results) == 1

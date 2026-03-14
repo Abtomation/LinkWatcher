@@ -303,6 +303,90 @@ class ReferenceLookup:
 
         return references_updated, errors
 
+    def find_directory_path_references(self, dir_path):
+        """Find all references to a directory path using multiple path variations.
+
+        Queries the database for references whose target matches the directory
+        path (exact or prefix). Tries the same path variations as file lookups:
+        exact path, relative (first dir stripped), and backslash format.
+
+        Args:
+            dir_path: The directory path to find references for.
+
+        Returns:
+            Deduplicated list of LinkReference objects targeting this directory.
+        """
+        references = []
+        # Use path variations (excluding filename-only, which doesn't apply to dirs)
+        variations = [dir_path]
+        path_parts = dir_path.split("/")
+        if len(path_parts) > 2:
+            relative = "/".join(path_parts[1:])
+            variations.append(relative)
+            variations.append(relative.replace("/", "\\"))
+        # Also try backslash version of the full path
+        variations.append(dir_path.replace("/", "\\"))
+
+        for variation in variations:
+            refs = self.link_db.get_references_to_directory(variation)
+            references.extend(refs)
+            if refs:
+                self.logger.debug(
+                    "dir_references_found_variation",
+                    variation=variation,
+                    count=len(refs),
+                )
+
+        # Deduplicate using composite key
+        seen = set()
+        unique = []
+        for ref in references:
+            key = (ref.file_path, ref.line_number, ref.column_start, ref.link_target)
+            if key not in seen:
+                seen.add(key)
+                unique.append(ref)
+        return unique
+
+    def cleanup_after_directory_path_move(self, old_dir, new_dir):
+        """Update the database after directory-path references have been updated in files.
+
+        Rescans affected files to rebuild their database entries, ensuring
+        the database reflects the new directory path in all references.
+
+        Args:
+            old_dir: The old directory path.
+            new_dir: The new directory path.
+        """
+        # Find all affected source files (files that contained directory-path references)
+        references = self.find_directory_path_references(old_dir)
+        affected_files = set()
+        for ref in references:
+            affected_files.add(ref.file_path)
+
+        # Remove old directory-path targets from the database
+        # Use the same path variations as the lookup to ensure all entries are cleaned
+        variations = [old_dir]
+        path_parts = old_dir.split("/")
+        if len(path_parts) > 2:
+            relative = "/".join(path_parts[1:])
+            variations.append(relative)
+            variations.append(relative.replace("/", "\\"))
+        variations.append(old_dir.replace("/", "\\"))
+
+        for variation in variations:
+            self.link_db.remove_targets_by_path(variation)
+
+        # Rescan affected files to rebuild their database entries
+        for file_path in affected_files:
+            abs_file_path = (
+                os.path.join(self.project_root, file_path)
+                if not os.path.isabs(file_path)
+                else file_path
+            )
+            if os.path.exists(abs_file_path):
+                self.link_db.remove_file_links(file_path)
+                self.rescan_file_links(abs_file_path, remove_existing=False)
+
     def update_links_within_moved_file(
         self,
         old_file_path: str,
@@ -388,8 +472,8 @@ class ReferenceLookup:
                 if new_target != ref.link_target:
                     # For markdown links, replace the target in parentheses
                     if ref.link_type == "markdown":
-                        # Replace [text](old_target optional_title) with [text](new_target optional_title)
-                        # Escape special regex characters in the old target
+                        # Replace [text](old) with [text](new), preserving title
+                        # Escape special regex chars in the old target
                         escaped_old = re.escape(ref.link_target)
                         # PD-BUG-010: Include optional title group to preserve title attributes
                         # Titles can be "double-quoted", 'single-quoted', or (parenthesized)
@@ -421,7 +505,8 @@ class ReferenceLookup:
                             print(f"{Fore.GREEN}   ✓ Updated: {ref.link_target} → {new_target}")
                         else:
                             print(
-                                f"{Fore.YELLOW}   ⚠ Target not found on line {ref.line_number}: {ref.link_target}"
+                                f"{Fore.YELLOW}   ⚠ Target not found on line "
+                                f"{ref.line_number}: {ref.link_target}"
                             )
                 else:
                     print(f"{Fore.CYAN}   = No change needed: {ref.link_target}")

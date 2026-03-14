@@ -43,8 +43,7 @@ retrospective: true
 
 ### Technical Design Reference
 
-> **📋 Primary Documentation**: TDD Creation Task (PF-TSK-015)
-> **🔗 Link**: [TDD to be created as part of PF-TSK-066]
+> **📋 Primary Documentation**: [TDD PD-TDD-021](../../technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md)
 >
 > **Purpose**: Detailed component architecture, design patterns (Orchestrator/Facade), and implementation decisions.
 

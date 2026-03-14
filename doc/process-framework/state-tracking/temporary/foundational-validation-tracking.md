@@ -84,15 +84,15 @@ Master tracking for foundational codebase validation across all 6 validation typ
 | README.md references 6+ non-existent doc files | Medium | PF-VAL-042 | Cross-cutting | TD044 | Open |
 | TDD pseudocode drift across PD-TDD-021/022/023 | Medium | PF-VAL-042 | 0.1.1, 0.1.2, 1.1.1 | TD045 | Open |
 | FDD feature ID prefix drift in PD-FDD-023/024 | Low | PF-VAL-042 | 0.1.2, 1.1.1 | TD046 | Open |
-| Feature state files contain inaccurate details (4 files) | Medium | PF-VAL-042 | 0.1.1, 0.1.2, 0.1.3, 1.1.1 | TD047 | Open |
-| advanced-logging-config.yaml unsupported config sections | Low | PF-VAL-042 | 0.1.3 | TD048 | Open |
-| TDD API/pseudocode drift across PD-TDD-024/025/026/027/031 | Medium | PF-VAL-043 | 2.1.1–5.1.1 | TD049 | Open |
+| Feature state files contain inaccurate details (4 files) | Medium | PF-VAL-042 | 0.1.1, 0.1.2, 0.1.3, 1.1.1 | TD047 | Resolved — all 4 feature state files corrected (PF-REF-059) |
+| advanced-logging-config.yaml unsupported config sections | Low | PF-VAL-042 | 0.1.3 | TD048 | Resolved — file deleted as duplicate (PF-REF-060) |
+| TDD API/pseudocode drift across PD-TDD-024/025/026/027/031 | Medium | PF-VAL-043 | 2.1.1–5.1.1 | TD049 | Partial — PD-TDD-024 (13 issues) and PD-TDD-025 (7 issues) fixed (PF-REF-061). Remaining: PD-TDD-026/027/031. |
 | FDD stale TDD references "(to be created)" in PD-FDD-025/027 | Low | PF-VAL-043 | 2.2.1, 3.1.1 | TD050 | Open |
-| FDD PD-FDD-032 references deleted files (setup.py, Makefile) | Medium | PF-VAL-043 | 5.1.1 | TD051 | Open |
+| FDD PD-FDD-032 references deleted files (setup.py, Makefile) | Medium | PF-VAL-043 | 5.1.1 | TD051 | Resolved — FDD updated to reflect pyproject.toml only + dev.bat only (PF-REF-063) |
 | Feature state files PF-FEA-050–054 inaccurate details | Medium | PF-VAL-043 | 2.1.1–5.1.1 | TD052 | Open |
-| CI pipeline references non-existent requirements-test.txt | Medium | PF-VAL-043 | 5.1.1 | TD053 | Open |
+| CI pipeline references non-existent requirements-test.txt | Medium | PF-VAL-043 | 5.1.1 | TD053 | Resolved - replaced requirements-test.txt with pyproject.toml test extras (PF-REF-065) |
 | pyproject.toml entry point references non-existent cli.py | Medium | PF-VAL-043 | 5.1.1 | TD054 | Open |
-| TDD PD-TDD-031 scope mismatch (2 of 7 FDD subsystems) | Low | PF-VAL-043 | 5.1.1 | TD055 | Open |
+| TDD PD-TDD-031 scope mismatch (2 of 7 FDD subsystems) | Low | PF-VAL-043 | 5.1.1 | TD055 | Resolved — TDD expanded to cover all 7 FDD subsystems (PF-REF-068) |
 
 ## Next Actions
 

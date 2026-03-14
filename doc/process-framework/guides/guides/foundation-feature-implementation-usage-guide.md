@@ -427,7 +427,7 @@ Is the feature expected to take multiple sessions?
 - [Architecture Tracking](../../state-tracking/permanent/architecture-tracking.md) - Architectural evolution tracking
 - [System Architecture Review Task](../../tasks/01-planning/system-architecture-review.md) - Task that identifies foundation features
 - [Feature Implementation Planning](../../tasks/04-implementation/feature-implementation-planning-task.md) - Regular feature implementation entry point for comparison
-- [ADR Template](../../templates/templates/adr-template.md) - For documenting architectural decisions
+- [ADR Template](../../templates/templates/02-design/adr-template.md) - For documenting architectural decisions
 
 <!--
 TEMPLATE USAGE GUIDANCE:

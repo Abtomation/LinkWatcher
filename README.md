@@ -127,7 +127,6 @@ python tools/logging_dashboard.py --text-mode
 - **[Basic Logging](config-examples/logging-config.yaml)** - Standard logging setup
 - **[Debug Configuration](config-examples/debug-config.yaml)** - Troubleshooting setup
 - **[Production Configuration](config-examples/production-config.yaml)** - Optimized for production
-- **[Advanced Configuration](config-examples/advanced-logging-config.yaml)** - All features enabled
 
 **📚 See configuration examples above for logging setup.**
 

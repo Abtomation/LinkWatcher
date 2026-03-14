@@ -43,7 +43,7 @@ retrospective: true
 
 ### Technical Design Reference
 
-> **Link**: [TDD PD-TDD-026](../../technical/architecture/design-docs/tdd/tdd-2-2-1-link-updater-t2.md) (to be created)
+> **Link**: [TDD PD-TDD-026](../../technical/architecture/design-docs/tdd/tdd-2-2-1-link-updater-t2.md)
 >
 > **Purpose**: Detailed technical design of the bottom-to-top sort, link-type dispatch, atomic write mechanism, and statistics tracking.
 

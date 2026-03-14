@@ -21,7 +21,7 @@ Use this template when implementing a new feature in the project. This structure
 
 **Complexity**: [1-5]
 
-**Documentation Tier**: [Tier 1 🔵 / Tier 2 🟠 / Tier 3 🔴] (See [Documentation Tiers](../../methodologies/documentation-tiers/README.md))
+**Documentation Tier**: [Tier 1 🔵 / Tier 2 🟠 / Tier 3 🔴] (See [Documentation Tiers](../../../product-docs/documentation-tiers/README.md))
 
 **Dependencies**: [List any features this depends on]
 
@@ -164,7 +164,7 @@ Use this checklist during implementation to ensure all aspects are covered:
 - [ ] Added error handling
 - [ ] Written tests
 - [ ] Performed manual testing
-- [ ] Reviewed documentation tier and adjusted if needed (see [Documentation Tier Assessment Guide](../../guides/guides/assessment-guide.md))
+- [ ] Reviewed documentation tier and adjusted if needed (see [Documentation Tier Assessment Guide](../../guides/guides/01-planning/assessment-guide.md))
 - [ ] Updated documentation according to the (potentially adjusted) documentation tier
 - [ ] Checked against [Definition of Done](../../methodologies/definition-of-done.md)
 - [ ] Updated feature status in [feature tracking document](../../state-tracking/permanent/feature-tracking.md) to "Completed" 🟢

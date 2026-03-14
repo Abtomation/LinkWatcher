@@ -34,7 +34,7 @@ dev test
 ```cmd
 # Install dependencies
 pip install -r requirements.txt
-pip install -r requirements-test.txt
+pip install ".[test]"
 pip install -e ".[dev]"
 
 # Install pre-commit hooks

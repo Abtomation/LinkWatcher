@@ -47,7 +47,7 @@ The subsystem is implemented as four modules:
 **Key technical requirements this design satisfies:**
 
 1. **Reliable move detection**: Handle both native `on_moved` events and the delete+create move pattern used by some tools (git, file managers) — using a 10-second timer buffer for per-file moves
-2. **Directory move support**: Correctly update all files within a moved directory. Two mechanisms: (a) native `DirMovedEvent` via recursive walk, and (b) batch directory move detection via delete+create correlation (PD-BUG-019 fix) for Windows where watchdog fires individual file events instead of `DirMovedEvent`
+2. **Directory move support**: Correctly update all files within a moved directory, as well as references to the directory path itself (e.g., quoted directory paths in scripts). Two mechanisms: (a) native `DirMovedEvent` via recursive walk, and (b) batch directory move detection via delete+create correlation (PD-BUG-019 fix) for Windows where watchdog fires individual file events instead of `DirMovedEvent`
 3. **Event deduplication**: Prevent the same file move from triggering duplicate processing when multiple events arrive for the same operation
 4. **Atomic link update pipeline**: For each detected move, execute the full pipeline (find references → update files → rescan moved file) without leaving the database in a partial state
 5. **Thread safety**: Each detector module encapsulates its own thread-safe state — `MoveDetector` protects its pending deletes dict, `DirectoryMoveDetector` protects its pending directory moves dict — preventing concurrent access issues between the watchdog daemon thread, timer callback threads, and directory move processing threads
@@ -214,7 +214,7 @@ def _handle_file_moved(self, src_path: str, dest_path: str):
 
 ```python
 def _handle_directory_moved(self, src_dir: str, dest_dir: str):
-    # Walk the new directory location
+    # Phase 1: Update references to files within the moved directory
     for root, dirs, files in os.walk(dest_dir):
         for filename in files:
             new_path = os.path.join(root, filename)
@@ -222,6 +222,16 @@ def _handle_directory_moved(self, src_dir: str, dest_dir: str):
             old_path = new_path.replace(dest_dir, src_dir, 1)
             if self._should_monitor_file(file_path):
                 self._handle_file_moved(old_path, new_path)
+
+    # Phase 2: Update references to the directory path itself
+    # Query the database for references whose link_target matches
+    # the old directory path (exact match or prefix match for
+    # subdirectory paths). These are typically quoted directory
+    # path strings in scripts (e.g., PowerShell .ps1 files).
+    dir_references = self._ref_lookup.find_directory_path_references(src_dir)
+    if dir_references:
+        self.updater.update_references(dir_references, src_dir, dest_dir)
+        self._ref_lookup.cleanup_after_directory_path_move(src_dir, dest_dir)
 ```
 
 **Per-file move detection** (delegated to `MoveDetector` in `move_detector.py`):
@@ -393,11 +403,11 @@ None — this is a retrospective document for a fully implemented, stable featur
 
 ### Current Status
 
-**Retrospective TDD** — Feature 1.1.1 File System Monitoring is fully implemented and stable. Originally created during onboarding (PF-TSK-066). Updated 2026-02-26 with PD-BUG-019 batch directory move detection design. Updated 2026-03-02 to reflect TD005 God Class decomposition. Updated 2026-03-04 to reflect 4-module architecture (handler.py + move_detector.py + dir_move_detector.py + reference_lookup.py) and correct pseudocode drift (TD045).
+**Retrospective TDD** — Feature 1.1.1 File System Monitoring is fully implemented and stable. Originally created during onboarding (PF-TSK-066). Updated 2026-02-26 with PD-BUG-019 batch directory move detection design. Updated 2026-03-02 to reflect TD005 God Class decomposition. Updated 2026-03-04 to reflect 4-module architecture (handler.py + move_detector.py + dir_move_detector.py + reference_lookup.py) and correct pseudocode drift (TD045). Updated 2026-03-13 to add directory-path reference update logic in directory move pipeline (Enhancement PF-STA-053).
 
 ### Next Steps
 
-No outstanding implementation work. TD005 and TD009 resolved. PD-BUG-019 verified.
+No outstanding implementation work. TD005 and TD009 resolved. PD-BUG-019 verified. Directory-path reference updates added (PF-STA-053).
 
 ### Key Decisions
 

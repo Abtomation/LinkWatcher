@@ -142,7 +142,7 @@ graph TD
 - [Test Specification Documents](/test/specifications/feature-specs/) - Repository of test specifications
 - [Development Guide](/doc/product-docs/guides/guides/development-guide.md) - Testing standards and practices
 - [Technical Design Documents](/doc/product-docs/technical/design) - Repository of TDDs for context
-- [Feature Tier Assessment Guide](../../../methodologies/documentation-tiers/README.md) - Understanding complexity tiers
+- [Feature Tier Assessment Guide](../../../../product-docs/documentation-tiers/README.md) - Understanding complexity tiers
 - [Test Structure Documentation](/test/) - Current test organization patterns
 - [Test Implementation Tracking](../../../state-tracking/permanent/test-implementation-tracking.md) - Test implementation status tracking
 - [Test Registry](/test/test-registry.yaml) - Central registry of test files with IDs and metadata

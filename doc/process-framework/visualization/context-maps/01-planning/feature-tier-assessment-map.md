@@ -83,8 +83,8 @@ graph TD
 ## Related Documentation
 
 - <!-- [Feature Specification Templates](/doc/process-framework/templates/feature-specification-template.md) - Template/example link commented out --> - Templates for feature requirements
-- [Documentation Tiers README](/doc/process-framework/methodologies/documentation-tiers/README.md) - Tier definitions and assessment guidelines
-- [Assessment Guide](/doc/process-framework/guides/guides/assessment-guide.md) - Detailed guide for tier determination
+- [Documentation Tiers README](/doc/product-docs/documentation-tiers/README.md) - Tier definitions and assessment guidelines
+- [Assessment Guide](/doc/process-framework/guides/guides/01-planning/assessment-guide.md) - Detailed guide for tier determination
 - [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Reference for component interactions
 - [TDD Templates](/doc/product-docs/technical/architecture/design-docs) - Tier-specific TDD templates
 - [Feature Tracking](../../../state-tracking/permanent/feature-tracking.md) - Feature status tracking

@@ -43,7 +43,7 @@ retrospective: true
 
 ### Technical Design Reference
 
-> **📋 Primary Documentation**: TDD (to be created as part of PF-TSK-066)
+> **📋 Primary Documentation**: [TDD PD-TDD-024](../../technical/architecture/design-docs/tdd/tdd-3-1-1-logging-framework-t2.md)
 >
 > **Purpose**: Detailed technical implementation of `LinkWatcherLogger`, `LogContext`, `PerformanceLogger`, `LoggingConfigManager`, design patterns, and component interactions.
 

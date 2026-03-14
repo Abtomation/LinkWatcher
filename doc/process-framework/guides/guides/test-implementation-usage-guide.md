@@ -178,7 +178,7 @@ Set-Location "<project-root>/doc/process-framework/scripts/file-creation"
 1. Update test implementation status to reflect completion
 2. Run validation scripts:
    ```powershell
-   doc/process-framework/scripts/Validate-TestTracking.ps1
+   doc/process-framework/scripts/validation/Validate-TestTracking.ps1
    ```
 3. Update Feature Implementation State File (if applicable) with test metrics
 

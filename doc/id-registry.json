@@ -66,7 +66,7 @@
         "temporary": "doc/process-framework/state-tracking/temporary",
         "default": "permanent"
       },
-      "nextAvailable": 52
+      "nextAvailable": 54
     },
     "PF-DOC": {
       "description": "Process Framework - Documentation",
@@ -364,7 +364,7 @@
         "forms": "doc/process-framework/feedback/feedback-forms",
         "default": "forms"
       },
-      "nextAvailable": 336
+      "nextAvailable": 351
     },
     "ART-REV": {
       "description": "Review Artifacts",
@@ -470,7 +470,7 @@
         "plans": "doc/process-framework/refactoring/plans",
         "default": "plans"
       },
-      "nextAvailable": 58
+      "nextAvailable": 69
     },
     "PF-TDA": {
       "description": "Process Framework - Technical Debt Assessments",
@@ -510,7 +510,7 @@
         "permanent": "doc/process-framework/state-tracking/permanent",
         "default": "permanent"
       },
-      "nextAvailable": 28
+      "nextAvailable": 29
     }
   }
 }

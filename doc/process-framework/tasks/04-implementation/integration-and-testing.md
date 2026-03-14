@@ -177,7 +177,7 @@ Implement comprehensive test coverage for a feature and verify that all componen
 24. **Validate Test Tracking**: Run validation scripts to ensure consistency
     ```powershell
     # Validate test tracking consistency
-    doc/process-framework/scripts/Validate-TestTracking.ps1
+    doc/process-framework/scripts/validation/Validate-TestTracking.ps1
     ```
 25. **Update Code Inventory**: Document all test files and coverage metrics in Feature Implementation State File (if applicable)
 26. **MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below

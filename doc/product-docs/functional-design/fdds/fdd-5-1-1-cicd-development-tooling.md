@@ -117,7 +117,7 @@ _Code coverage measurement, reporting, and Codecov integration._
 #### Core Functionality
 
 - **5.1.4-FR-1**: The system SHALL collect coverage via `pytest-cov` (wrapping `coverage.py`) configured in `pyproject.toml` under `[tool.coverage.run]` and `[tool.coverage.report]`
-- **5.1.4-FR-2**: The system SHALL limit coverage source to the `linkwatcher` package, omitting tests, test files, and `setup.py`
+- **5.1.4-FR-2**: The system SHALL limit coverage source to the `linkwatcher` package, omitting tests and test files
 - **5.1.4-FR-3**: The system SHALL upload coverage to Codecov via `codecov/codecov-action@v3` on the Python 3.11 matrix slot only (`if: matrix.python-version == '3.11'`)
 - **5.1.4-FR-4**: The system SHALL provide `run_tests.py --coverage` for local HTML coverage report generation in `htmlcov/`
 - **5.1.4-FR-5**: The system SHALL define exclusion patterns in `[tool.coverage.report]` for lines that shouldn't count (e.g., `pragma: no cover`, `__repr__`, abstract methods, Protocol definitions)
@@ -143,7 +143,7 @@ _Git hook configuration for pre-commit quality enforcement._
 
 - **5.1.5-FR-1**: The system SHALL provide a `.pre-commit-config.yaml` with 4 hook repositories: `pre-commit-hooks` (v4.4.0 — trailing whitespace, end-of-file fixer, YAML/JSON validation, merge conflict detection, large file check, debug statement detection), `black` (v23.7.0 — `--line-length=100`), `isort` (v5.12.0 — `--profile=black`), and `flake8` (v6.0.0 — `--max-line-length=100`)
 - **5.1.5-FR-2**: The system SHALL include a local `pytest-quick` hook that runs `python run_tests.py --quick` at the `commit` stage with `always_run: true`
-- **5.1.5-FR-3**: The system SHALL support installation via `pre-commit install` and `pre-commit install --hook-type commit-msg`, automated through `scripts/setup_cicd.py` and Makefile/dev.bat `pre-commit` targets
+- **5.1.5-FR-3**: The system SHALL support installation via `pre-commit install` and `pre-commit install --hook-type commit-msg`, automated through `scripts/setup_cicd.py` and `dev.bat pre-commit` target
 
 #### Business Rules
 
@@ -153,7 +153,7 @@ _Git hook configuration for pre-commit quality enforcement._
 #### Acceptance Criteria
 
 - **5.1.5-AC-1**: All 4 external hook repos plus the local pytest-quick hook execute on `git commit`
-- **5.1.5-AC-2**: `pre-commit install` is automated by setup scripts (setup_cicd.py, dev.bat, Makefile)
+- **5.1.5-AC-2**: `pre-commit install` is automated by setup scripts (setup_cicd.py, dev.bat)
 - **5.1.5-AC-3**: Hooks block the commit if formatting, linting, or quick tests fail
 
 ## Subsystem F: Package Building
@@ -164,15 +164,15 @@ _Python package configuration, build pipeline, and distribution tooling._
 
 #### Core Functionality
 
-- **5.1.6-FR-1**: The system SHALL provide dual package configuration: `pyproject.toml` (PEP 621 standard, primary) and `setup.py` (legacy compatibility) with identical metadata: name=linkwatcher, version=2.0.0, Python >=3.8
-- **5.1.6-FR-2**: The system SHALL define runtime dependencies (watchdog, PyYAML, colorama), optional dependency groups (`[test]` and `[dev]`), and an entry point (`linkwatcher=linkwatcher.cli:main`)
+- **5.1.6-FR-1**: The system SHALL provide package configuration via `pyproject.toml` (PEP 621 standard) with metadata: name=linkwatcher, version=2.0.0, Python >=3.8
+- **5.1.6-FR-2**: The system SHALL define runtime dependencies (watchdog, PyYAML, colorama) and optional dependency groups (`[test]` and `[dev]`)
 - **5.1.6-FR-3**: The system SHALL provide a CI `build` job that runs `python -m build` + `twine check dist/*`, gated behind `test` and `quality` jobs
 - **5.1.6-FR-4**: The system SHALL provide deployment scripts (`deployment/install_global.py`, `deployment/setup_project.py`) for local installation
-- **5.1.6-FR-5**: The system SHALL provide Makefile targets `clean`, `build`, and `release-check` for package management
+- **5.1.6-FR-5**: The system SHALL provide `dev.bat` commands `clean` and `build` for package management
 
 #### Business Rules
 
-- **5.1.6-BR-1**: `pyproject.toml` is the primary configuration; `setup.py` exists only for legacy tool compatibility
+- **5.1.6-BR-1**: `pyproject.toml` is the sole package configuration file (PEP 621 standard)
 - **5.1.6-BR-2**: No package build is attempted without passing tests and quality checks (CI gating)
 
 #### Acceptance Criteria
@@ -189,22 +189,18 @@ _Developer convenience scripts for Windows-native command-line usage._
 
 #### Core Functionality
 
-- **5.1.7-FR-1**: The system SHALL provide `dev.bat` (Windows batch) and `Makefile` (cross-platform make) exposing identical command sets: `install`, `install-dev`, `test`, `test-quick`, `test-all`, `coverage`, `lint`, `format`, `type-check`, `clean`, `build`, `pre-commit`, `ci-test`, and `dev-setup`
+- **5.1.7-FR-1**: The system SHALL provide `dev.bat` (Windows batch) exposing command set: `install`, `install-dev`, `test`, `test-quick`, `test-all`, `coverage`, `lint`, `format`, `type-check`, `clean`, `build`, `pre-commit`, `ci-test`, and `dev-setup`
 - **5.1.7-FR-2**: The system SHALL use goto-label routing (`if "%1"=="test" goto test`) in `dev.bat` for Windows CMD compatibility
-- **5.1.7-FR-3**: The system SHALL provide a Makefile `help` target (default) that lists all available commands
-- **5.1.7-FR-4**: The system SHALL provide a Makefile `release-check` target that chains clean -> lint -> type-check -> test-all -> build -> twine check
-- **5.1.7-FR-5**: Both scripts SHALL delegate to `run_tests.py` for test execution and to standard Python tools (black, isort, flake8, mypy) for quality checks
+- **5.1.7-FR-3**: `dev.bat` SHALL delegate to `run_tests.py` for test execution and to standard Python tools (black, isort, flake8, mypy) for quality checks
 
 #### Business Rules
 
-- **5.1.7-BR-1**: `dev.bat` and `Makefile` must expose the same commands for consistency regardless of shell choice
+- **5.1.7-BR-1**: `dev.bat` is the canonical developer command interface for Windows development
 - **5.1.7-BR-2**: All dev commands work from the project root directory without additional setup beyond `dev dev-setup`
 
 #### Acceptance Criteria
 
 - **5.1.7-AC-1**: `dev test`, `dev lint`, `dev build` all execute successfully from the project root
-- **5.1.7-AC-2**: `make help` lists all available targets
-- **5.1.7-AC-3**: `make release-check` runs the full quality pipeline end-to-end
 
 ## Dependencies
 

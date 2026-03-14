@@ -178,7 +178,7 @@ The following state files must be updated as part of this task:
 - [ ] **Verify Changes**: All affected files updated correctly
   - [ ] New documents created using established scripts (if applicable)
   - [ ] Cross-references valid (no broken links)
-  - [ ] Run `Validate-StateTracking.ps1` — 0 errors across all surfaces
+  - [ ] Run [`Validate-StateTracking.ps1`](../../scripts/validation/Validate-StateTracking.ps1) — 0 errors across all surfaces
 - [ ] **Update State Files**:
   - [ ] [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) updated (if this change addresses an IMP item)
   - [ ] [Documentation Map](../../documentation-map.md) updated if document organization changed

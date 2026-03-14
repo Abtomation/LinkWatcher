@@ -43,7 +43,7 @@ $customReplacements = @{
 
 try {
     $projectRoot = Get-ProjectRoot
-    $templatePath = Join-Path $projectRoot "doc/process-framework/templates/templates/adr-template.md"
+    $templatePath = Join-Path $projectRoot "doc/process-framework/templates/templates/02-design/adr-template.md"
     $arcId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "PD-ADR" -IdDescription "Architecture Decision: ${Title}" -DocumentName $Title -OutputDirectory "doc/product-docs/technical/architecture/design-docs/adr/adr" -Replacements $customReplacements -OpenInEditor:$OpenInEditor
 
     # Update tracking files automatically

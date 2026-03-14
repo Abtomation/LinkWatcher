@@ -327,7 +327,7 @@ Creating a secure authentication request model:
 
 - [API Design Task (PF-TSK-020)](../../tasks/02-design/api-design-task.md) - The task that uses this guide
 - [New-APIDataModel.ps1 Script](../../scripts/file-creation/New-APIDataModel.ps1) - Script for creating API data models
-- [API Data Model Template](../../templates/templates/api-data-model-template-template.md) - Template customized by this guide
+- [API Data Model Template](../../templates/templates/02-design/api-data-model-template.md) - Template customized by this guide
 - [API Specification Creation Guide](api-specification-creation-guide.md) - Guide for creating API endpoint specifications
 - [Guide Creation Best Practices Guide (PF-GDE-024)](guide-creation-best-practices-guide.md) - Best practices for guide creation
 - [JSON Schema Documentation](https://json-schema.org/) - External resource for JSON schema standards

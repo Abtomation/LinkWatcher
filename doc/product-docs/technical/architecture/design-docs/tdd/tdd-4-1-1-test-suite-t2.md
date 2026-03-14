@@ -4,7 +4,7 @@ type: Product Documentation
 category: Technical Design Document
 version: 2.0
 created: 2026-02-20
-updated: 2026-02-20
+updated: 2026-03-13
 feature_id: 4.1.1
 feature_name: Test Suite
 tier: 2
@@ -29,7 +29,7 @@ supersedes:
 
 ## Technical Overview
 
-The LinkWatcher test suite is built on pytest and comprises 247+ test methods organized across 4 test categories (unit, integration, parsers, performance). The suite includes a root `conftest.py` with shared fixtures, a `run_tests.py` CLI for category-based execution, `test_config.py` for per-environment configurations, static and manual fixture data, and dedicated test files for integration scenarios and parser coverage. The framework supports 10 custom markers and a fixture hierarchy that composes LinkWatcher components for integration testing.
+The LinkWatcher test suite is built on pytest and comprises 380+ test methods organized across 4 test categories (unit, integration, parsers, performance) plus 2 root-level test files for move detection regression tests. The suite includes a root `conftest.py` with shared fixtures (all function-scoped), a `run_tests.py` CLI for category-based execution, `test_config.py` for per-environment configurations, static and manual fixture data, and dedicated test files for integration scenarios and parser coverage. The framework supports 10 custom markers and a fixture hierarchy that composes LinkWatcher components for integration testing.
 
 ---
 
@@ -43,13 +43,13 @@ Defines strict mode, custom markers, test discovery paths, verbose output, and s
 
 ### Root conftest.py
 
-**Shared Fixtures** (session/function scoped):
+**Shared Fixtures** (all function-scoped — each test gets a fresh instance):
 - `temp_project_dir` -- Creates a temporary directory with auto-cleanup
 - `sample_files` -- Populates temp dir with sample file types
 - `link_database` -- Fresh `LinkDatabase` instance
 - `link_parser` -- Fresh `LinkParser` instance
 - `link_updater` -- Fresh `LinkUpdater` with temp dir as project root
-- `test_config` -- `LinkWatcherConfig` from TESTING_CONFIG
+- `test_config` -- `LinkWatcherConfig` from `TESTING_CONFIG` (imported from `linkwatcher.config.defaults`)
 - `link_service` -- Composite fixture: full `LinkWatcherService` with test config applied
 - `populated_database` -- Pre-populated `LinkDatabase` with sample references
 - `file_helper` -- `TestFileHelper` for creating test files on demand
@@ -76,7 +76,7 @@ Also defines `SAMPLE_CONTENTS` and `TEST_PROJECT_STRUCTURES` for test data.
 
 **Fixture Hierarchy in Root conftest.py**: All shared fixtures defined in root `tests/conftest.py` rather than per-directory. pytest automatically discovers root conftest for all subdirectories. Avoids fixture duplication across test categories.
 
-**Category-Based Test Organization**: 4-directory structure matches `run_tests.py` flags: `--unit` maps to `tests/unit/`, `--parsers` maps to `tests/parsers/`, etc. Each category has distinct characteristics (speed, isolation, realism).
+**Category-Based Test Organization**: 4-directory structure matches `run_tests.py` flags: `--unit` maps to `tests/unit/`, `--parsers` maps to `tests/parsers/`, etc. Each category has distinct characteristics (speed, isolation, realism). Two root-level test files (`test_move_detection.py`, `test_directory_move_detection.py`) sit outside the 4-category structure and serve as regression test suites for move detection scenarios.
 
 **Per-Environment Configurations**: Different test categories need different `LinkWatcherConfig` settings. Unit tests use `dry_run=True` for safety; integration tests use real file operations with backups; performance tests minimize overhead.
 
@@ -128,7 +128,7 @@ All integration tests follow a consistent pattern:
 
 ### Test File Mapping
 
-Parser tests provide one-to-one test coverage for each LinkWatcher parser implementation. The `tests/parsers/` directory contains 7 test files that directly import and test individual parser classes. Tests follow a parse-and-assert pattern using custom assertions from conftest.py, with heavy edge case coverage reflecting the critical role of parser accuracy.
+Parser tests provide one-to-one test coverage for each LinkWatcher parser implementation. The `tests/parsers/` directory contains 8 test files that directly import and test individual parser classes. Tests follow a parse-and-assert pattern using custom assertions from conftest.py, with heavy edge case coverage reflecting the critical role of parser accuracy.
 
 | Test File | Parser Under Test | Import |
 |-----------|-------------------|--------|
@@ -138,6 +138,7 @@ Parser tests provide one-to-one test coverage for each LinkWatcher parser implem
 | `test_python.py` | `parsers/python.py` | `PythonParser` |
 | `test_dart.py` | `parsers/dart.py` | `DartParser` |
 | `test_generic.py` | `parsers/generic.py` | `GenericParser` |
+| `test_powershell.py` | `parsers/powershell.py` | `PowerShellParser` |
 | `test_image_files.py` | Image file handling | Multiple parsers |
 
 ### Test Pattern: Parse-and-Assert
@@ -154,7 +155,7 @@ Each parser test file includes systematic edge case methods:
 - **Empty files**: Zero references returned without errors
 - **Malformed content**: Parser degrades gracefully (no exceptions)
 - **Special characters**: Paths with spaces, unicode, special chars
-- **Format-specific**: Markdown anchors, YAML nested refs, JSON recursive objects, Python stdlib skip list, Dart package prefix filtering
+- **Format-specific**: Markdown anchors, YAML nested refs, JSON recursive objects, Python stdlib skip list, Dart package prefix filtering, PowerShell source/dot/module patterns
 
 ### Key Technical Decisions (Parser Tests)
 
@@ -172,14 +173,13 @@ Each parser test file includes systematic edge case methods:
 
 ### Fixture Organization
 
-Test fixtures are organized into three tiers: static fixture files in `tests/fixtures/` (sample markdown, YAML, JSON), manual markdown test cases in `manual_markdown_tests/` (24 files with interactive runner), and a complete manual test project in `manual_test/` (13 files). Programmatic fixture data is also available via `tests/test_config.py` constants.
+Test fixtures are organized into three tiers: static fixture files in `tests/fixtures/` (sample markdown, YAML, JSON), manual validation scripts in `tests/manual/` (bug reproduction and parser validation), and programmatic fixture data via `tests/test_config.py` constants.
 
 | Location | Type | Contents | Consumers |
 |----------|------|----------|-----------|
 | `tests/fixtures/` | Static files | `sample_markdown.md`, `sample_config.yaml`, `sample_data.json` | Parser tests, unit tests |
-| `manual_markdown_tests/` | Manual test cases | 24 markdown files (LR-001 to MP-009) + `test_runner.py` | Interactive parser validation |
-| `manual_test/` | Project structure | 13 files across docs/, src/, assets/, scripts/ | Manual end-to-end testing |
-| `tests/test_config.py` | Constants | `SAMPLE_CONTENTS` (5 types), `TEST_PROJECT_STRUCTURES` (simple/complex) | Programmatic test data creation |
+| `tests/manual/` | Validation scripts | Bug validation scripts (PD-BUG-008 through PD-BUG-025), `powershell-parser/` test patterns, `test_procedures.md` | Manual bug reproduction and parser validation |
+| `tests/test_config.py` | Constants | `SAMPLE_CONTENTS` (5 types), `TEST_PROJECT_STRUCTURES` (simple/complex), `PERFORMANCE_TEST_CONFIGS`, `TEST_TIMEOUTS`, `TEST_FILE_PATTERNS` | Programmatic test data creation |
 
 ### Static Fixture Content
 
@@ -187,19 +187,19 @@ Test fixtures are organized into three tiers: static fixture files in `tests/fix
 - **sample_config.yaml**: YAML file with `path:` keys, `include:` lists, and nested references to other project files
 - **sample_data.json**: JSON with `"file"`, `"path"`, and `"src"` keys containing file path references
 
-### Manual Test Case Categories
+### Manual Validation Scripts
 
-| Prefix | Category | Count |
-|--------|----------|-------|
-| LR-* | Link Reference detection | Various |
-| MP-* | Multi-Parser scenarios | Various |
-| test_project_* | Project structure simulation | Various |
+| Prefix | Category | Purpose |
+|--------|----------|---------|
+| PD-BUG-* | Bug validation | Standalone scripts to reproduce and verify bug fixes (PD-BUG-008 through PD-BUG-025) |
+| `powershell-parser/` | Parser patterns | Test patterns for PowerShell parser development |
+| `test_procedures.md` | Manual procedures | Step-by-step manual testing checklists |
 
 ### Key Technical Decisions (Test Fixtures)
 
-**Static vs. Dynamic Fixture Data**: Static fixture files provide deterministic, human-readable inputs for exact-match assertions. They complement (not replace) the `TestProjectBuilder` from 4.1.7 which generates dynamic project structures for complex scenarios. Static fixtures are preferred when test correctness depends on known, inspectable content.
+**Static vs. Dynamic Fixture Data**: Static fixture files provide deterministic, human-readable inputs for exact-match assertions. They complement (not replace) dynamic project structures generated programmatically via `TestFileHelper` in conftest.py. Static fixtures are preferred when test correctness depends on known, inspectable content.
 
-**Separate Manual Test Infrastructure**: Manual test scripts (`create_test_structure.py`, `cleanup_test.py`) are kept separate from the pytest suite. Automated tests use temporary directories with automatic cleanup; manual/exploratory testing needs persistent structures. The `test_runner.py` in `manual_markdown_tests/` provides interactive parser validation outside the pytest framework.
+**Separate Manual Validation Infrastructure**: Manual validation scripts are kept separate from the pytest suite. Each bug validation script can be run standalone to reproduce and verify a specific bug fix. Automated tests use temporary directories with automatic cleanup; manual validation scripts target specific scenarios outside the pytest framework.
 
 ---
 
@@ -208,7 +208,7 @@ Test fixtures are organized into three tiers: static fixture files in `tests/fix
 | Component | Usage | Subsystems |
 |-----------|-------|------------|
 | `linkwatcher.__init__` | `LinkDatabase`, `LinkParser`, `LinkUpdater`, `LinkWatcherService` for fixtures | Test Framework |
-| `linkwatcher.config` | `TESTING_CONFIG`, `LinkWatcherConfig` for per-environment configs | Test Framework |
+| `linkwatcher.config.defaults` | `TESTING_CONFIG` preset for test fixture | Test Framework |
 | `linkwatcher.service.LinkWatcherService` | Main integration target | Integration Tests |
 | `linkwatcher.database.LinkDatabase` | Database interactions | Integration Tests, Test Framework |
 | `linkwatcher.parser.LinkParser` | Cross-component parsing | Integration Tests, Test Framework |

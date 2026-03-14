@@ -43,7 +43,7 @@ This is the final onboarding task that transforms code analysis into formal desi
 
 - **Important (Load If Space):**
 
-  - [Documentation Tiers README](../../methodologies/documentation-tiers/README.md) - Understanding tier documentation requirements
+  - [Documentation Tiers README](../../../product-docs/documentation-tiers/README.md) - Understanding tier documentation requirements
   - [FDD Creation Task](../02-design/fdd-creation-task.md) - For creating Functional Design Documents
   - [TDD Creation Task](../02-design/tdd-creation-task.md) - For creating Technical Design Documents
   - [Test Specification Creation Task](../03-testing/test-specification-creation-task.md) - For creating Test Specifications
@@ -244,7 +244,7 @@ This is the final onboarding task that transforms code analysis into formal desi
 
 - [ ] **Phase 4 Complete: Finalization**
   - [ ] [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) verified complete with ALL document links
-  - [ ] Run `Validate-StateTracking.ps1` — 0 errors across all surfaces
+  - [ ] Run [`Validate-StateTracking.ps1`](../../scripts/validation/Validate-StateTracking.ps1) — 0 errors across all surfaces
   - [ ] Pre-existing documentation reconciled — each doc in master state inventory marked Keep or Archived; superseded docs moved to `doc/archived-pre-framework/`
   - [ ] [Documentation Map](../../documentation-map.md) updated with all new documents
   - [ ] Final metrics calculated and recorded in [master state](../../state-tracking/temporary/retrospective-master-state.md)
@@ -274,5 +274,5 @@ After completing the full retrospective documentation effort:
 - [Codebase Feature Discovery (PF-TSK-064)](codebase-feature-discovery.md) - First onboarding task
 - [Codebase Feature Analysis (PF-TSK-065)](codebase-feature-analysis.md) - Second onboarding task (prerequisite)
 - [Feature Tier Assessment Task](../01-planning/feature-tier-assessment-task.md) - For creating tier assessments
-- [Documentation Tiers README](../../methodologies/documentation-tiers/README.md) - Tier definitions and documentation requirements
+- [Documentation Tiers README](../../../product-docs/documentation-tiers/README.md) - Tier definitions and documentation requirements
 - [Task Transition Guide](../../guides/guides/task-transition-guide.md) - Understanding documentation workflow

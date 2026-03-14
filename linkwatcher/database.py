@@ -136,7 +136,6 @@ class LinkDatabase:
         """Update the target path for all references."""
         with self._lock:
             old_normalized = normalize_path(old_path)
-            new_normalized = normalize_path(new_path)
 
             # Find all keys that need to be updated (including anchored links)
             keys_to_update = []
@@ -207,6 +206,39 @@ class LinkDatabase:
             for key in keys_to_remove:
                 del self.links[key]
             return len(keys_to_remove)
+
+    def get_references_to_directory(self, dir_path: str) -> List[LinkReference]:
+        """Get all references whose target matches a directory path.
+
+        Finds references where the link_target equals the directory path
+        (exact match) or starts with it as a prefix (subdirectory references).
+        Used during directory moves to update directory-path string references
+        in scripts (e.g., quoted paths in PowerShell files).
+
+        Args:
+            dir_path: The directory path to search for.
+
+        Returns:
+            Deduplicated list of LinkReference objects targeting this directory.
+        """
+        with self._lock:
+            normalized_dir = normalize_path(dir_path)
+            # Ensure prefix ends with "/" for safe prefix matching
+            dir_prefix = normalized_dir.rstrip("/") + "/"
+            all_references = []
+            seen = set()
+
+            for target_path, references in self.links.items():
+                normalized_target = normalize_path(target_path)
+                # Exact match: target IS the directory path
+                # Prefix match: target starts with dir_path/ (subdirectory)
+                if normalized_target == normalized_dir or normalized_target.startswith(dir_prefix):
+                    for ref in references:
+                        if id(ref) not in seen:
+                            seen.add(id(ref))
+                            all_references.append(ref)
+
+            return all_references
 
     def get_all_targets_with_references(self) -> Dict[str, List[LinkReference]]:
         """Return a snapshot copy of all targets and their references.

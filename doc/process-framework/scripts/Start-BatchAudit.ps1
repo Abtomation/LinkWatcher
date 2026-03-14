@@ -224,7 +224,7 @@ try {
                     $auditResult = Invoke-FeatureAudit -FeatureId $featureId -AuditorName $AuditorName -AuditCriteria $auditCriteria -OutputDirectory $OutputDirectory -DetailedReporting:$DetailedReporting
 
                     if ($auditResult.Success) {
-                        # Update state files using existing Update-TestAuditState.ps1
+                        # Update state files using existing update/Update-TestAuditState.ps1
                         $updateParams = @{
                             FeatureId = $featureId
                             AuditStatus = $auditResult.AuditStatus

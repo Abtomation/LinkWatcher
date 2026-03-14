@@ -70,7 +70,7 @@ retrospective: true
 - **2.1.1-BR-1**: File extension matching is always case-insensitive (`.MD` is treated identically to `.md`)
 - **2.1.1-BR-2**: The dispatch dictionary maps extensions to pre-instantiated parser objects — parsers are created once at startup and reused across all calls (parsers must be stateless per-call)
 - **2.1.1-BR-3**: If no specialized parser is registered for an extension, `GenericParser` is used as universal fallback — no file returns zero-result without at least a best-effort parse attempt
-- **2.1.1-BR-4**: The default registered parsers cover: `.md`/`.markdown` (Markdown), `.yaml`/`.yml` (YAML), `.json` (JSON), `.py` (Python), `.dart` (Dart)
+- **2.1.1-BR-4**: The default registered parsers cover: `.md`/`.markdown` (Markdown), `.yaml`/`.yml` (YAML), `.json` (JSON), `.py` (Python), `.dart` (Dart), `.ps1`/`.psm1` (PowerShell)
 - **2.1.1-BR-5**: `add_parser()` and `remove_parser()` operate on the live registry — changes take effect immediately for subsequent `parse_file()` calls
 - **2.1.1-BR-6**: `GenericParser` cannot be removed via `remove_parser()` without explicitly re-registering an extension; it always handles all unregistered extensions
 
@@ -81,7 +81,8 @@ retrospective: true
 - **2.1.1-AC-3**: Given a `.py` file, `parse_file()` returns Python import path references
 - **2.1.1-AC-4**: Given a file with extension `.xyz` (unregistered), `parse_file()` returns whatever `GenericParser` extracts — not an empty list by default
 - **2.1.1-AC-5**: After `add_parser('.toml', custom_parser)`, calling `parse_file('pyproject.toml')` routes to `custom_parser`
-- **2.1.1-AC-6**: `get_supported_extensions()` returns at minimum `['.md', '.markdown', '.yaml', '.yml', '.json', '.py', '.dart']`
+- **2.1.1-AC-5**: Given a `.ps1` file, `parse_file()` returns PowerShell file path references from comments (`#`, `<# #>`), string literals, `Join-Path` arguments, and `Import-Module` paths
+- **2.1.1-AC-6**: `get_supported_extensions()` returns at minimum `['.md', '.markdown', '.yaml', '.yml', '.json', '.py', '.dart', '.ps1', '.psm1']`
 - **2.1.1-AC-7**: Performance timing is logged for every `parse_file()` call
 
 ### Error Conditions
@@ -94,8 +95,8 @@ retrospective: true
 **This feature provides**:
 - `LinkParser` facade with `parse_file()`, `add_parser()`, `remove_parser()`, `get_supported_extensions()`
 - `BaseParser` abstract class defining the parser interface
-- Default parser registry (6 specialized parsers + GenericParser fallback)
-- All format-specific link extraction logic: MarkdownParser, YamlParser, JsonParser, PythonParser, DartParser, GenericParser
+- Default parser registry (7 specialized parsers + GenericParser fallback)
+- All format-specific link extraction logic: MarkdownParser, YamlParser, JsonParser, PythonParser, DartParser, PowerShellParser, GenericParser
 
 **This feature does NOT provide**:
 - File system traversal or directory walking (owned by 1.1.1 File System Monitoring)

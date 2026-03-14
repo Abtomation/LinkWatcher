@@ -68,6 +68,16 @@ class PathResolver:
                     return f"/{new_norm}"
                 return new_norm
 
+            # Directory prefix match: target is a path under the moved directory
+            old_prefix = old_norm.rstrip("/") + "/"
+            if original_norm.startswith(old_prefix):
+                new_norm = normalize_path(new_path)
+                suffix = original_norm[len(old_norm.rstrip("/")) :]
+                result = new_norm + suffix
+                if original_target.startswith("/"):
+                    return f"/{result}"
+                return result
+
             # Step 1: Analyze the original link type
             link_info = self._analyze_link_type(original_target, source_file)
 

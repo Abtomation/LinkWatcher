@@ -85,7 +85,7 @@ Our tasks are organized into four categories and follow a unified structure:
 - [Process: FDD Template](templates/templates/fdd-template.md) - Template for creating Functional Design Documents
 - [Process: UI Design Template](templates/templates/ui-design-template.md) - Comprehensive template for creating UI/UX Design Documents with wireframes, visual specifications, accessibility requirements, and platform adaptations
 - [Process: Architecture Impact Assessment Template](templates/templates/architecture-impact-assessment-template.md) - Template for creating architecture impact assessments
-- [Process: API Specification Template](templates/templates/api-specification-template-template.md) - Template for creating comprehensive API contract definitions
+- [Process: API Specification Template](templates/templates/02-design/api-specification-template.md) - Template for creating comprehensive API contract definitions
 - [Process: Schema Design Template](templates/templates/schema-design-template.md) - Template for database schema design documents
 - [Process: Test Audit Report Template](templates/templates/test-audit-report-template.md) - Template for systematic test quality assessment reports
 - [Process: Feedback Form Template](templates/templates/feedback-form-template.md) - Template for creating tool and process feedback forms
@@ -126,9 +126,9 @@ Our tasks are organized into four categories and follow a unified structure:
 
 ### Validation Scripts
 
-- [Process: Validate ID Registry](scripts/validate-id-registry.ps1) - Validates ID registry against actual files in the repository
-- [Process: Validate Test Tracking](scripts/Validate-TestTracking.ps1) - Validates test-registry.yaml consistency with disk, tracking files, and ID counters
-- [Process: Validate State Tracking](scripts/Validate-StateTracking.ps1) - Master validation across 5 surfaces: feature-tracking links, feature state files, test-implementation-tracking, cross-references, and ID counters
+- [Process: Validate ID Registry](scripts/validation/validate-id-registry.ps1) - Validates ID registry against actual files in the repository
+- [Process: Validate Test Tracking](scripts/validation/Validate-TestTracking.ps1) - Validates test-registry.yaml consistency with disk, tracking files, and ID counters
+- [Process: Validate State Tracking](scripts/validation/Validate-StateTracking.ps1) - Master validation across 5 surfaces: feature-tracking links, feature state files, test-implementation-tracking, cross-references, and ID counters
 
 ## Product Documentation
 
@@ -144,7 +144,7 @@ These documents describe what we're building:
 - [Process: Development Guide](../product-docs/guides/guides/development-guide.md) - Best practices and guidelines for development
 - [Process: Documentation Guide](guides/guides/documentation-guide.md) - Guidelines for documentation
 - [Process: Testing Guide](../product-docs/guides/guides/testing-guide.md) - Guide for testing the application
-- [Process: Assessment Guide](guides/guides/assessment-guide.md) - Guide for feature tier assessment
+- [Process: Assessment Guide](guides/guides/01-planning/assessment-guide.md) - Guide for feature tier assessment
 - [Process: Visual Notation Guide](guides/guides/visual-notation-guide.md) - Standard notation used in diagrams and context maps
 - [Process: Temporary State File Customization Guide](guides/guides/temp-state-tracking-customization-guide.md) - Guide for customizing temporary state files for different workflows
 - [Process: Test Specification Creation Usage Guide](guides/guides/test-specification-creation-usage-guide.md) - Comprehensive guide for using the Test Specification Creation task effectively
@@ -176,7 +176,7 @@ These documents describe what we're building:
 ### Visualization Resources
 
 - [Context Maps README](visualization/context-maps/README.md) - Guide to using context maps for tasks
-- [Context Maps Template](templates/templates/context-map-template.md) - Template for creating new context maps
+- [Context Maps Template](templates/templates/support/context-map-template.md) - Template for creating new context maps
 
 #### Discrete Task Context Maps
 

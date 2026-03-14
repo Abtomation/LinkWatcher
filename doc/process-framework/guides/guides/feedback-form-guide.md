@@ -225,7 +225,7 @@ Before submitting your feedback form, verify:
 If you need assistance with feedback forms:
 1. Review this guide thoroughly
 2. Check existing feedback forms for examples
-3. Consult the [Assessment Guide](assessment-guide.md) for evaluation criteria
+3. Consult the [Assessment Guide](01-planning/assessment-guide.md) for evaluation criteria
 4. Ask for clarification on specific rating scenarios
 
 Remember: Good feedback drives process improvement. Take the time to provide thoughtful, specific, and actionable feedback.

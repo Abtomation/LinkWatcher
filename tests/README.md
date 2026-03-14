@@ -83,7 +83,7 @@ tests/
 
 ### **1. Install Dependencies**
 ```bash
-pip install -r requirements-test.txt
+pip install ".[test]"
 ```
 
 ### **2. Run Quick Development Tests**

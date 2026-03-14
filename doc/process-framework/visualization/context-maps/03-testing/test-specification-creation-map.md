@@ -83,7 +83,7 @@ graph TD
 ## Related Documentation
 
 - [Technical Design Documents](/doc/product-docs/technical/design) - Repository of TDDs for features
-- [Feature Tier Assessment Guide](../../../methodologies/documentation-tiers/README.md) - Understanding complexity tiers
+- [Feature Tier Assessment Guide](../../../../product-docs/documentation-tiers/README.md) - Understanding complexity tiers
 - [Development Guide](/doc/product-docs/guides/guides/development-guide.md) - Testing standards and practices
 - [Test Structure Documentation](/test/) - Current test organization patterns
 - [Feature Tracking](../../../state-tracking/permanent/feature-tracking.md) - Feature development status tracking

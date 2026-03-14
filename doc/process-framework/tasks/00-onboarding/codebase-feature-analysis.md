@@ -45,7 +45,7 @@ This task produces enriched Feature Implementation State files that serve as the
   - [Feature Tier Assessment Task](../01-planning/feature-tier-assessment-task.md) - Understanding what analysis feeds into tier assessment
 
 - **Reference Only (Access When Needed):**
-  - [Documentation Tiers README](../../methodologies/documentation-tiers/README.md) - Understanding tier documentation requirements
+  - [Documentation Tiers README](../../../product-docs/documentation-tiers/README.md) - Understanding tier documentation requirements
   - [Feature Dependencies](../../../product-docs/technical/design/feature-dependencies.md) - Existing dependency documentation
   - [Test Registry](/test/test-registry.yaml) - Registry for mapping test files to features
   - [Test Implementation Tracking](../../state-tracking/permanent/test-implementation-tracking.md) - Test implementation status tracking

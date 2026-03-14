@@ -36,7 +36,7 @@ Ensure documentation requirements remain aligned with the true complexity of fea
 - **Critical (Must Read):**
 
   - [Original Assessment Document](../../../process-framework/methodologies/documentation-tiers/assessments) - Initial complexity assessment
-  - [Normalized Scoring System](../../methodologies/documentation-tiers/README.md#normalized-scoring-system) - Guide for scoring complexity
+  - [Normalized Scoring System](../../../product-docs/documentation-tiers/README.md#normalized-scoring-system) - Guide for scoring complexity
   - [Visual Notation Guide](/doc/process-framework/guides/guides/visual-notation-guide.md) - For interpreting context map diagrams
 
 - **Reference Only (Access When Needed):**
@@ -150,7 +150,7 @@ Before considering this task finished:
 
 ## Related Resources
 
-- [Assessment Guide](../../guides/guides/assessment-guide.md) - Guide for assessing feature complexity
+- [Assessment Guide](../../guides/guides/01-planning/assessment-guide.md) - Guide for assessing feature complexity
 - [Task Creation and Improvement Guide](../../../process-framework/tasks/task-creation-guide.md) - Guide for creating and improving tasks
 
 ## Metrics and Evaluation

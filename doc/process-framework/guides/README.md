@@ -32,7 +32,7 @@ The guides in this directory serve to:
 | ------------------------------------------------------ | ---------------------------------------------------------------- | ---------------------------------------------------- |
 | [Task Creation Guide](guides/task-creation-guide.md)   | Comprehensive guide for creating and improving development tasks | When creating new tasks or improving existing ones   |
 | [Implementation Guide](guides/implementation-guide.md) | Best practices for implementing features and functionality       | During feature development and implementation phases |
-| [Assessment Guide](guides/assessment-guide.md)         | Guidelines for assessing feature complexity and requirements     | When evaluating new features or changes              |
+| [Assessment Guide](guides/01-planning/assessment-guide.md)         | Guidelines for assessing feature complexity and requirements     | When evaluating new features or changes              |
 
 ### Documentation Guides
 

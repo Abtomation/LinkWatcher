@@ -135,10 +135,10 @@ All scripts are in `doc/process-framework/scripts/file-creation/`:
 doc/process-framework/feedback/Validate-FeedbackForms.ps1
 
 # Validate ID registry
-doc/process-framework/scripts/validate-id-registry.ps1
+doc/process-framework/scripts/validation/validate-id-registry.ps1
 
 # Validate state tracking (feature states, cross-references, ID counters)
-doc/process-framework/scripts/Validate-StateTracking.ps1
+doc/process-framework/scripts/validation/Validate-StateTracking.ps1
 ```
 
 ## Task Completion Requirements

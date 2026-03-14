@@ -61,10 +61,8 @@ def install_dependencies():
     ):
         return False
 
-    # Install test dependencies
-    if not run_command(
-        ["pip", "install", "-r", "requirements-test.txt"], "Installing test dependencies"
-    ):
+    # Install test dependencies from pyproject.toml extras
+    if not run_command(["pip", "install", ".[test]"], "Installing test dependencies"):
         return False
 
     # Install development dependencies
@@ -110,7 +108,6 @@ def validate_configuration():
         ".pre-commit-config.yaml",
         "pyproject.toml",
         "pytest.ini",
-        "requirements-test.txt",
     ]
 
     all_good = True
