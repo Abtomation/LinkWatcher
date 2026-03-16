@@ -341,6 +341,11 @@ function Update-FrontmatterDate {
 # --- Main ---
 
 function Main {
+    # Normalize short-form IDs: IMP-063 → PF-IMP-063
+    if ($ImprovementId -match '^IMP-\d+$') {
+        $script:ImprovementId = "PF-$ImprovementId"
+    }
+
     Write-Log "Starting Process Improvement Update - $ScriptName"
     Write-Log "Improvement ID: $ImprovementId"
     Write-Log "New Status: $NewStatus"

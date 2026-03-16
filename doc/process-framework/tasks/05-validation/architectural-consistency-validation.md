@@ -35,7 +35,7 @@ Systematically validates foundational features for architectural pattern adheren
 
 - **Critical (Must Read):**
 
-  - **Foundational Validation Guide** - [Foundational Validation Guide](../../guides/guides/foundational-validation-guide.md) - Comprehensive guide for conducting foundational codebase validation
+  - **Foundational Validation Guide** - [Foundational Validation Guide](../../guides/guides/05-validation/foundational-validation-guide.md) - Comprehensive guide for conducting foundational codebase validation
   - **Feature Tracking** - [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Current status of foundational features to be validated
   - **Foundational Validation Tracking** - [Foundational Validation Tracking](../../state-tracking/temporary/foundational-validation-tracking.md) - Master validation matrix and progress tracking
   - **Validation Report Template** - [Validation Report Template](../../templates/templates/validation-report-template.md) - Template for creating validation reports
@@ -49,7 +49,7 @@ Systematically validates foundational features for architectural pattern adheren
   - **New-ValidationReport Script** - [../../scripts/file-creation/New-ValidationReport.ps1](../../scripts/file-creation/New-ValidationReport.ps1) - Script for generating validation reports
 
 - **Reference Only (Access When Needed):**
-  - **Visual Notation Guide** - [Visual Notation Guide](../../guides/guides/visual-notation-guide.md) - For interpreting context map diagrams
+  - **Visual Notation Guide** - [Visual Notation Guide](../../guides/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
   - **ID Registry** - [ID Registry](../../../id-registry.json) - For understanding validation report ID assignments
   - **Documentation Map** - [Documentation Map](../../documentation-map.md) - For updating with new validation reports
 
@@ -126,7 +126,7 @@ Before considering this task finished:
   - [ ] [Foundational Validation Tracking](../../state-tracking/temporary/foundational-validation-tracking.md) updated with report creation date and link
   - [ ] [Documentation Map](../../documentation-map.md) updated with new validation report entry
   - [ ] **AUTOMATED**: [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md) updated with new open issues using `Update-TechDebt.ps1`
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-031" and context "Architectural Consistency Validation"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-031" and context "Architectural Consistency Validation"
 
 ## Next Tasks
 

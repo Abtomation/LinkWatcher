@@ -123,8 +123,8 @@ Use this guide to determine which template to use for different documentation ne
 
 **Examples in project:**
 - [Testing Guide](/doc/product-docs/guides/guides/testing-guide.md)
-- [Development Guide](/doc/product-docs/guides/guides/development-guide.md)
-- [Documentation Guide](/doc/process-framework/guides/guides/documentation-guide.md)
+- [Development Guide](/doc/process-framework/guides/guides/04-implementation/development-guide.md)
+- [Documentation Guide](/doc/process-framework/guides/guides/05-validation/documentation-guide.md)
 
 #### API Reference Template
 
@@ -143,7 +143,13 @@ Use this guide to determine which template to use for different documentation ne
    - Supports batch mode for multiple quick fixes in one session
    - Best for: Quick code refactorings, small technical debt items
 
-10. **[Feedback DB Input Template](templates/feedback-db-input-template.json)**
+10. **[Documentation-Only Refactoring Plan Template](templates/documentation-refactoring-plan-template.md)**
+    - Refactoring plan for documentation-only changes (no code changes, no test impact)
+    - Removes code metrics, performance benchmarks, and test coverage sections from the standard template
+    - Replaces with documentation quality baseline, verification approach, and documentation integrity checklist
+    - Best for: TDD/FDD corrections, state file fixes, template updates, guide revisions
+
+11. **[Feedback DB Input Template](templates/feedback-db-input-template.json)**
     - JSON reference template showing the expected input format for `feedback_db.py record --json`
     - Documents all fields (required and optional) with placeholder values
     - Best for: Recording feedback ratings during Tools Review (PF-TSK-010)
@@ -169,6 +175,7 @@ Use this guide to determine which template to use for different documentation ne
 | Automating markdown table status changes | Developers, DevOps | Development | Update Script Template |
 | Quick refactoring plan (≤15 min) | Developers, AI Agents | Planning | Lightweight Refactoring Plan Template |
 | Batch small tech debt fixes | Developers, AI Agents | Planning | Lightweight Refactoring Plan Template |
+| Documentation-only refactoring | Developers, AI Agents | Planning | Documentation-Only Refactoring Plan Template |
 | Recording feedback ratings to database | AI Agents | Reference | Feedback DB Input Template |
 
 For more general guidance on identifying documentation template needs for any project, refer to the <!-- [Documentation Template Identification Guide](/doc/process-framework/guides/documentation-template-identification.md) - Template/example link commented out -->.

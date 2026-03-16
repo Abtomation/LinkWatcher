@@ -39,7 +39,7 @@ Analyze, optimize, and document development processes to improve efficiency, qua
 
   - [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) - Select the improvement to execute
   - [Tools Review Summaries](../../feedback/reviews/) - Source analysis for the selected improvement
-  - [Visual Notation Guide](/doc/process-framework/guides/guides/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Visual Notation Guide](/doc/process-framework/guides/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 - **Important (Load If Space):**
 
@@ -64,6 +64,7 @@ Analyze, optimize, and document development processes to improve efficiency, qua
 2. **Review source feedback**: Read the [Tools Review summary](../../feedback/reviews/) and/or specific feedback forms that identified this improvement
 3. **Read current state**: Examine the file(s)/tool(s) to be improved to understand the current implementation
 4. **🚨 CHECKPOINT**: Present problem analysis and proposed approach(es) to human partner
+   > **Valid outcomes**: Approve an approach and proceed, request alternative approaches, or **reject the improvement** if analysis shows it's unnecessary (mark as Rejected in tracking and skip to finalization)
 
 ### Planning
 
@@ -142,7 +143,7 @@ Before considering this task finished:
   - [ ] "Current Improvement Opportunities" contains only open items
   - [ ] File metadata updated with current date
 
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-009" and context "Process Improvement"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-009" and context "Process Improvement"
 
 ## Next Tasks
 
@@ -152,5 +153,5 @@ Before considering this task finished:
 ## Related Resources
 
 - [Tools Review Task](tools-review-task.md) - Identifies and prioritizes improvements (upstream of this task)
-- [Process Improvement Task Implementation Guide](../../guides/guides/process-improvement-task-implementation-guide.md) - Step-by-step guide for executing this task effectively
-- [Task Creation and Improvement Guide](../task-creation-guide.md) - Guide for creating and improving tasks
+- [Process Improvement Task Implementation Guide](../../guides/guides/support/process-improvement-task-implementation-guide.md) - Step-by-step guide for executing this task effectively
+- [Task Creation and Improvement Guide](../../guides/guides/support/task-creation-guide.md) - Guide for creating and improving tasks

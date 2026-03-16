@@ -46,7 +46,7 @@ target_feature: 2.1.1
 
 ## Execution Steps
 
-> **Structure**: These steps follow the standard feature development workflow from the [Task Transition Guide](../../guides/guides/task-transition-guide.md). Each block corresponds to a task type in the workflow. The Feature Request Evaluation task (PF-TSK-067) marks each block as **Applicable** or **Not applicable** based on the enhancement scope. The Feature Enhancement task (PF-TSK-068) executes applicable blocks in order.
+> **Structure**: These steps follow the standard feature development workflow from the [Task Transition Guide](../../guides/guides/framework/task-transition-guide.md). Each block corresponds to a task type in the workflow. The Feature Request Evaluation task (PF-TSK-067) marks each block as **Applicable** or **Not applicable** based on the enhancement scope. The Feature Enhancement task (PF-TSK-068) executes applicable blocks in order.
 
 ---
 

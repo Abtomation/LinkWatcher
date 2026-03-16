@@ -52,8 +52,8 @@ Systematically adapt the process framework from one business domain (software de
   - [AI Tasks Registry](../../../ai-tasks.md) - Task system overview
 
 - **Reference Only (Access When Needed):**
-  - [Visual Notation Guide](../../guides/guides/visual-notation-guide.md) - For interpreting diagrams
-  - [Terminology Guide](../../guides/guides/terminology-guide.md) - Current terminology definitions
+  - [Visual Notation Guide](../../guides/guides/support/visual-notation-guide.md) - For interpreting diagrams
+  - [Terminology Guide](../../guides/guides/framework/terminology-guide.md) - Current terminology definitions
   - Individual framework documents as referenced in cleanup state file
 
 ## Process
@@ -362,7 +362,7 @@ Before considering this task finished:
   - [ ] [Documentation Map](../../documentation-map.md) - Reflects final structure
   - [ ] [Legal Document Tracking](../../state-tracking/permanent/legal-document-tracking.md) - Created and functional
 
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-056" and context "Framework Domain Adaptation"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-056" and context "Framework Domain Adaptation"
 
 ## Next Tasks
 

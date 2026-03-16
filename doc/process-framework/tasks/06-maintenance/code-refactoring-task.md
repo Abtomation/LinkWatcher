@@ -50,7 +50,7 @@ Systematic code improvement and technical debt reduction without changing extern
 - **Reference Only (Access When Needed):**
   - **Coding Standards** - Project-specific coding conventions and style guides
   - **Performance Benchmarks** - Current performance metrics to ensure refactoring doesn't degrade performance
-  - [Visual Notation Guide](/doc/process-framework/guides/guides/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Visual Notation Guide](/doc/process-framework/guides/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 ## Process
 
@@ -76,6 +76,8 @@ Evaluate the refactoring scope against these criteria:
 **Lightweight** — ALL criteria in the Lightweight column must apply.
 **Standard** — ANY criteria in the Standard column triggers the standard path.
 
+> **Documentation-only qualifier**: Changes that only modify documentation files (FDDs, TDDs, state files, templates, guides) qualify for Lightweight regardless of file count, provided all other Lightweight criteria are met (≤ 15 min, no architectural impact, no interface changes).
+
 > **🚨 CHECKPOINT**: Present effort classification (Lightweight or Standard) to human partner for approval.
 >
 > - **If Lightweight**: Read and follow the **[Lightweight Path](code-refactoring-lightweight-path.md)** document.
@@ -96,6 +98,7 @@ Evaluate the refactoring scope against these criteria:
 ## Next Tasks
 
 - [**Code Review Task**](code-review-task.md) - Review refactored code for quality and correctness
+- [**Manual Test Execution**](../03-testing/manual-test-execution-task.md) - Execute manual tests for groups marked for re-execution after refactoring
 - [**Technical Debt Assessment Task**](../cyclical/technical-debt-assessment-task.md) - Reassess technical debt after refactoring completion
 
 ## Related Resources

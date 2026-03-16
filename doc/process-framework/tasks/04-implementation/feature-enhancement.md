@@ -36,7 +36,7 @@ This task executes enhancement work on existing features by following the Enhanc
 
   - **Enhancement State Tracking File** — The customized state file produced by Feature Request Evaluation, located in `state-tracking/temporary/`. This is the primary input driving all work.
   - **Referenced task documentation** — Each step in the state file references an existing task definition. Read the referenced task before executing each step.
-  - [Visual Notation Guide](/doc/process-framework/guides/guides/visual-notation-guide.md) — For interpreting context map diagrams
+  - [Visual Notation Guide](/doc/process-framework/guides/guides/support/visual-notation-guide.md) — For interpreting context map diagrams
 
 - **Important (Load If Space):**
 
@@ -62,7 +62,8 @@ This task executes enhancement work on existing features by following the Enhanc
 
 1. **Read the Enhancement State Tracking File** — Understand the full scope of work: target feature, documentation inventory, sequenced steps, and session boundary planning
 2. **Verify prerequisites** — Confirm the state file was created by Feature Request Evaluation and the target feature shows "🔄 Needs Revision" in feature tracking
-3. **Review session plan** — For multi-session enhancements, identify which steps are planned for this session
+3. **Check manual test coverage** — Review [test-tracking.md](../../state-tracking/permanent/test-tracking.md) for manual test cases covering the affected feature. Note which test groups will need re-execution after the enhancement, and whether new manual test cases should be created.
+4. **Review session plan** — For multi-session enhancements, identify which steps are planned for this session
 4. **🚨 CHECKPOINT**: Present enhancement scope, session plan, and state file overview to human partner for approval before executing steps
 
 ### Phase 2: Step-by-Step Execution
@@ -92,8 +93,11 @@ This task executes enhancement work on existing features by following the Enhanc
 9. **When all steps are complete**:
    - Verify all referenced documentation has been updated as specified in the state file
    - Update the target feature's implementation state file to reflect the enhancement
-   - Restore the target feature's status in `feature-tracking.md` (remove "🔄 Needs Revision" and state file link, set to completed)
-   - Archive the Enhancement State Tracking File to `state-tracking/temporary/old/`
+   - Run [Finalize-Enhancement.ps1](../../scripts/update/Finalize-Enhancement.ps1) to restore feature tracking status and archive the state file:
+     ```powershell
+     cd doc/process-framework/scripts/update
+     .\Finalize-Enhancement.ps1 -FeatureId "X.Y.Z"
+     ```
 10. **MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
@@ -130,11 +134,13 @@ Before considering this task finished:
   - [ ] Feature tracking status restored (removed "🔄 Needs Revision", set appropriate status, removed state file link)
   - [ ] Enhancement State Tracking File archived to `state-tracking/temporary/old/`
 
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-068" and context "Feature Enhancement"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-068" and context "Feature Enhancement"
 
 ## Next Tasks
 
 - [**Code Review**](../06-maintenance/code-review-task.md) — Review the enhancement implementation for quality
+- [**Manual Test Case Creation**](../03-testing/manual-test-case-creation-task.md) — Create manual test cases for new enhancement behavior
+- [**Manual Test Execution**](../03-testing/manual-test-execution-task.md) — Execute manual tests for groups affected by the enhancement
 - [**Release & Deployment**](../07-deployment/release-deployment-task.md) — When the enhancement is ready for release
 
 ## Related Resources

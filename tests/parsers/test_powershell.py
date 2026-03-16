@@ -300,3 +300,37 @@ class TestEmbeddedMarkdownLinks:
         assert len(dir_refs) == 1
         # Should NOT also appear as embedded (no ]( pattern)
         assert len(embedded) == 0
+
+
+class TestRegexPatternFiltering:
+    """PD-BUG-033: Regex patterns in quoted strings must not be detected as file paths.
+
+    Note: The parser still extracts these patterns (it has no semantic awareness).
+    The fix is in _calculate_updated_relative_path() in reference_lookup.py, which
+    skips rewriting references whose resolved target doesn't exist on disk.
+    See TestBug033RegexNotRewrittenOnMove in tests/integration/test_link_updates.py
+    for the integration-level regression tests.
+
+    These parser-level tests document the current extraction behavior.
+    """
+
+    def test_parser_extracts_regex_as_dir_path(self):
+        """Document that the parser currently extracts regex strings with backslashes.
+
+        This is expected — the fix is in the updater layer, not the parser.
+        The parser sees backslashes as path separators (quoted_dir_pattern).
+        """
+        parser = PowerShellParser()
+        content = r"if ($fileName -match 'ART-ASS-\d+-([0-9]+\.[0-9]+\.[0-9]+)-') {" + "\n"
+        refs = parser.parse_content(content, "test.ps1")
+        # Parser DOES extract this (by design — filtered at update time)
+        regex_refs = [r for r in refs if "ART-ASS" in r.link_target]
+        assert len(regex_refs) >= 1, "Parser should extract regex string (filtered at update layer)"
+
+    def test_legitimate_single_quoted_path_still_detected(self):
+        """Single-quoted file paths must still be detected by the parser."""
+        parser = PowerShellParser()
+        content = "$path = 'src/utils/helpers.py'\n"
+        refs = parser.parse_content(content, "test.ps1")
+        targets = [r.link_target for r in refs]
+        assert "src/utils/helpers.py" in targets

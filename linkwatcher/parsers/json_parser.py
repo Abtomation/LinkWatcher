@@ -6,6 +6,7 @@ from string values throughout the JSON structure.
 """
 
 import json
+import os.path
 from typing import List
 
 from ..models import LinkReference
@@ -70,29 +71,38 @@ class JsonParser(BaseParser):
                 self._extract_json_file_refs(
                     item, file_path, lines, references, claimed, f"{path}[{i}]"
                 )
-        elif isinstance(data, str) and self._looks_like_file_path(data):
-            # Find the next unclaimed line for this value (PD-BUG-013)
-            line_num = self._find_unclaimed_line(lines, data, claimed)
-            if line_num > 0:
-                claimed.add((data, line_num))
-                # Find the column position
-                line_content = lines[line_num - 1]
-                col_start = line_content.find(f'"{data}"')
-                if col_start >= 0:
-                    col_start += 1  # Skip opening quote
-                    col_end = col_start + len(data)
-                else:
-                    col_start = line_content.find(data)
-                    col_end = col_start + len(data) if col_start >= 0 else 0
+        elif isinstance(data, str):
+            # Check for file paths (with extension) or directory paths (PD-BUG-030)
+            is_file = self._looks_like_file_path(data)
+            is_dir = False
+            if not is_file:
+                _, ext = os.path.splitext(data)
+                if not ext:
+                    is_dir = self._looks_like_directory_path(data)
 
-                references.append(
-                    LinkReference(
-                        file_path=file_path,
-                        line_number=line_num,
-                        column_start=col_start,
-                        column_end=col_end,
-                        link_text=data,
-                        link_target=data,
-                        link_type="json",
+            if is_file or is_dir:
+                # Find the next unclaimed line for this value (PD-BUG-013)
+                line_num = self._find_unclaimed_line(lines, data, claimed)
+                if line_num > 0:
+                    claimed.add((data, line_num))
+                    # Find the column position
+                    line_content = lines[line_num - 1]
+                    col_start = line_content.find(f'"{data}"')
+                    if col_start >= 0:
+                        col_start += 1  # Skip opening quote
+                        col_end = col_start + len(data)
+                    else:
+                        col_start = line_content.find(data)
+                        col_end = col_start + len(data) if col_start >= 0 else 0
+
+                    references.append(
+                        LinkReference(
+                            file_path=file_path,
+                            line_number=line_num,
+                            column_start=col_start,
+                            column_end=col_end,
+                            link_text=data,
+                            link_target=data,
+                            link_type="json-dir" if is_dir else "json",
+                        )
                     )
-                )

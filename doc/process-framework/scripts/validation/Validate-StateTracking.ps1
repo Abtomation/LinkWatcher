@@ -7,7 +7,7 @@
     Checks consistency across 5 validation surfaces:
     1. ../feature-tracking.md — all document links (FDD, TDD, ADR, Test Spec, Assessment, State File)
     2. Feature implementation state files — Section 4 (doc inventory), Section 5 (code inventory), Section 6 (dependencies)
-    3. ../test-implementation-tracking.md — test file path references
+    3. ../test-tracking.md — test file path references
     4. Cross-reference consistency — feature IDs in test-registry.yaml vs feature-tracking.md
     5. ID counter health — nextAvailable counters vs actual max IDs
 
@@ -41,7 +41,7 @@ param(
 
 # --- Resolve project root ---
 if ([string]::IsNullOrWhiteSpace($ProjectRoot)) {
-    Import-Module (Join-Path -Path $PSScriptRoot -ChildPath "Common-ScriptHelpers.psm1") -Force
+    Import-Module (Join-Path -Path (Split-Path -Parent $PSScriptRoot) -ChildPath "Common-ScriptHelpers.psm1") -Force
     $ProjectRoot = Get-ProjectRoot
 }
 
@@ -153,9 +153,9 @@ Write-Host ""
 if ($runAll -or $Surface -contains "FeatureTracking") {
     Write-Host "[1/5] Feature Tracking (feature-tracking.md)" -ForegroundColor Cyan
 
-    $ftPath = Join-Path $ProjectRoot "../doc/process-framework/state-tracking/permanent/feature-tracking.md"
+    $ftPath = Join-Path $ProjectRoot "doc/process-framework/state-tracking/permanent/feature-tracking.md"
     if (-not (Test-Path $ftPath)) {
-        Add-CheckResult "ERROR" "FeatureTracking" "../feature-tracking.md" "File not found: $ftPath"
+        Add-CheckResult "ERROR" "FeatureTracking" "feature-tracking.md" "File not found: $ftPath"
     } else {
         $ftDir = [System.IO.Path]::GetDirectoryName($ftPath)
         $ftLines = Get-Content $ftPath -Encoding UTF8
@@ -209,13 +209,13 @@ if ($runAll -or $Surface -contains "FeatureTracking") {
 # SURFACE 2: Feature State Files
 # =========================================================================
 if ($runAll -or $Surface -contains "StateFiles") {
-    Write-Host "../[2/5] Feature State Files" -ForegroundColor Cyan
+    Write-Host "[2/5] Feature State Files" -ForegroundColor Cyan
 
-    $stateDir = Join-Path $ProjectRoot "../doc/process-framework/state-tracking/features"
+    $stateDir = Join-Path $ProjectRoot "doc/process-framework/state-tracking/features"
     if (-not (Test-Path $stateDir)) {
-        Add-CheckResult "ERROR" "StateFiles" "../features" "Directory not found: $stateDir"
+        Add-CheckResult "ERROR" "StateFiles" "features" "Directory not found: $stateDir"
     } else {
-        $stateFiles = Get-ChildItem -Path $stateDir -Filter "../*-implementation-state.md" -File
+        $stateFiles = Get-ChildItem -Path $stateDir -Filter "*-implementation-state.md" -File
         Write-Host "  Found $($stateFiles.Count) state files" -ForegroundColor Gray
 
         foreach ($sf in $stateFiles) {
@@ -276,14 +276,14 @@ if ($runAll -or $Surface -contains "StateFiles") {
 }
 
 # =========================================================================
-# SURFACE 3: Test Implementation Tracking
+# SURFACE 3: Test Tracking
 # =========================================================================
 if ($runAll -or $Surface -contains "TestTracking") {
-    Write-Host "../[3/5] Test Implementation Tracking" -ForegroundColor Cyan
+    Write-Host "[3/5] Test Tracking" -ForegroundColor Cyan
 
-    $titPath = Join-Path $ProjectRoot "../doc/process-framework/state-tracking/permanent/test-implementation-tracking.md"
+    $titPath = Join-Path $ProjectRoot "doc/process-framework/state-tracking/permanent/test-tracking.md"
     if (-not (Test-Path $titPath)) {
-        Add-CheckResult "ERROR" "TestTracking" "../test-implementation-tracking.md" "File not found: $titPath"
+        Add-CheckResult "ERROR" "TestTracking" "test-tracking.md" "File not found: $titPath"
     } else {
         $titDir = [System.IO.Path]::GetDirectoryName($titPath)
         $titLines = Get-Content $titPath -Encoding UTF8
@@ -315,7 +315,7 @@ if ($runAll -or $Surface -contains "TestTracking") {
         }
 
         if (-not $Detailed -and $brokenTestFiles -eq 0 -and $testFileCount -gt 0) {
-            Write-Host "../    $([char]0x2705) $testFileCount/$testFileCount test file references valid" -ForegroundColor Green
+            Write-Host "    $([char]0x2705) $testFileCount/$testFileCount test file references valid" -ForegroundColor Green
         }
         Write-Host "  Checked $testFileCount test file references" -ForegroundColor Gray
     }
@@ -326,10 +326,10 @@ if ($runAll -or $Surface -contains "TestTracking") {
 # SURFACE 4: Cross-Reference Consistency
 # =========================================================================
 if ($runAll -or $Surface -contains "CrossRef") {
-    Write-Host "../[4/5] Cross-Reference Consistency" -ForegroundColor Cyan
+    Write-Host "[4/5] Cross-Reference Consistency" -ForegroundColor Cyan
 
-    # Load known feature IDs from ../feature-tracking.md
-    $ftPath = Join-Path $ProjectRoot "../doc/process-framework/state-tracking/permanent/feature-tracking.md"
+    # Load known feature IDs from feature-tracking.md
+    $ftPath = Join-Path $ProjectRoot "doc/process-framework/state-tracking/permanent/feature-tracking.md"
     $knownFeatureIds = @()
     if (Test-Path $ftPath) {
         $ftContent = Get-Content $ftPath -Encoding UTF8
@@ -341,12 +341,12 @@ if ($runAll -or $Surface -contains "CrossRef") {
     }
 
     if ($knownFeatureIds.Count -eq 0) {
-        Add-CheckResult "WARNING" "CrossRef" "../feature-tracking.md" "No feature IDs found — cannot cross-reference"
+        Add-CheckResult "WARNING" "CrossRef" "feature-tracking.md" "No feature IDs found — cannot cross-reference"
     } else {
         Write-Host "  Known features: $($knownFeatureIds -join ', ')" -ForegroundColor Gray
 
         # Check test-registry.yaml feature IDs
-        $registryPath = Join-Path $ProjectRoot "../test/test-registry.yaml"
+        $registryPath = Join-Path $ProjectRoot "test/test-registry.yaml"
         if (Test-Path $registryPath) {
             $registryLines = Get-Content $registryPath -Encoding UTF8
             $registryFeatureIds = @()
@@ -375,7 +375,7 @@ if ($runAll -or $Surface -contains "CrossRef") {
             foreach ($fid in $registryFeatureIds) {
                 if ($fid -notin $knownFeatureIds) {
                     $invalidPrimary += $fid
-                    Add-CheckResult "WARNING" "CrossRef" "../test-registry.yaml" "Feature ID '$fid'../ not in feature-tracking.md"
+                    Add-CheckResult "WARNING" "CrossRef" "test-registry.yaml" "Feature ID '$fid'../ not in feature-tracking.md"
                 }
             }
             if ($invalidPrimary.Count -eq 0) {
@@ -387,14 +387,14 @@ if ($runAll -or $Surface -contains "CrossRef") {
             foreach ($ccId in $crossCuttingIds) {
                 if ($ccId -notin $knownFeatureIds) {
                     $invalidCC += $ccId
-                    Add-CheckResult "WARNING" "CrossRef" "../test-registry.yaml" "Cross-cutting feature ID '$ccId'../ not in feature-tracking.md"
+                    Add-CheckResult "WARNING" "CrossRef" "test-registry.yaml" "Cross-cutting feature ID '$ccId'../ not in feature-tracking.md"
                 }
             }
             if ($invalidCC.Count -eq 0 -and $crossCuttingIds.Count -gt 0) {
                 Add-CheckResult "OK" "CrossRef" "Cross-cutting IDs" "All $($crossCuttingIds.Count) cross-cutting feature IDs match"
             }
         } else {
-            Add-CheckResult "WARNING" "CrossRef" "../test-registry.yaml" "File not found — skipping cross-reference checks"
+            Add-CheckResult "WARNING" "CrossRef" "test-registry.yaml" "File not found — skipping cross-reference checks"
         }
     }
     Write-Host ""
@@ -404,22 +404,22 @@ if ($runAll -or $Surface -contains "CrossRef") {
 # SURFACE 5: ID Counter Health
 # =========================================================================
 if ($runAll -or $Surface -contains "IdCounters") {
-    Write-Host "../[5/5] ID Counter Health" -ForegroundColor Cyan
+    Write-Host "[5/5] ID Counter Health" -ForegroundColor Cyan
 
-    $idRegistryPath = Join-Path $ProjectRoot "../../../id-registry.json"
+    $idRegistryPath = Join-Path $ProjectRoot "doc/id-registry.json"
     if (-not (Test-Path $idRegistryPath)) {
-        Add-CheckResult "ERROR" "IdCounters" "../id-registry.json" "File not found: $idRegistryPath"
+        Add-CheckResult "ERROR" "IdCounters" "doc/id-registry.json" "File not found: $idRegistryPath"
     } else {
         $idRegistry = Get-Content $idRegistryPath -Raw -Encoding UTF8 | ConvertFrom-Json
 
         # Prefixes to validate with their file patterns
         $prefixChecks = @(
-            @{ Prefix = "PF-FEA";  Dir = "../doc/process-framework/state-tracking/features";                         Pattern = "../*.md" }
-            @{ Prefix = "PD-FDD";  Dir = "../doc/product-docs/functional-design/fdds";                                Pattern = "../*.md" }
-            @{ Prefix = "PD-TDD";  Dir = "../doc/product-docs/technical/architecture/design-docs/tdd";                Pattern = "../*.md" }
-            @{ Prefix = "PD-ADR";  Dir = "../doc/product-docs/technical/architecture/design-docs/adr/adr";            Pattern = "../*.md" }
-            @{ Prefix = "ART-ASS"; Dir = "../doc/process-framework/methodologies/documentation-tiers/assessments";    Pattern = "../*.md" }
-            @{ Prefix = "PF-TSP";  Dir = "../test/specifications/feature-specs";                                       Pattern = "../*.md" }
+            @{ Prefix = "PF-FEA";  Dir = "doc/process-framework/state-tracking/features";                         Pattern = "*.md" }
+            @{ Prefix = "PD-FDD";  Dir = "doc/product-docs/functional-design/fdds";                                Pattern = "*.md" }
+            @{ Prefix = "PD-TDD";  Dir = "doc/product-docs/technical/architecture/design-docs/tdd";                Pattern = "*.md" }
+            @{ Prefix = "PD-ADR";  Dir = "doc/product-docs/technical/architecture/design-docs/adr/adr";            Pattern = "*.md" }
+            @{ Prefix = "ART-ASS"; Dir = "doc/product-docs/documentation-tiers/assessments";    Pattern = "*.md" }
+            @{ Prefix = "PF-TSP";  Dir = "test/specifications/feature-specs";                                       Pattern = "*.md" }
         )
 
         $countersFixed = 0
@@ -431,7 +431,7 @@ if ($runAll -or $Surface -contains "IdCounters") {
             $prefixKey = $prefix
             $registryEntry = $idRegistry.prefixes.$prefixKey
             if (-not $registryEntry) {
-                Add-CheckResult "WARNING" "IdCounters" $prefix "../Prefix not found in id-registry.json"
+                Add-CheckResult "WARNING" "IdCounters" $prefix "Prefix not found in id-registry.json"
                 continue
             }
             $nextAvailable = $registryEntry.nextAvailable
@@ -470,7 +470,7 @@ if ($runAll -or $Surface -contains "IdCounters") {
 
         if ($FixCounters -and $countersFixed -gt 0) {
             $idRegistry | ConvertTo-Json -Depth 10 | Set-Content $idRegistryPath -Encoding UTF8
-            Write-Host "../  Fixed $countersFixed counter(s) in id-registry.json" -ForegroundColor Magenta
+            Write-Host "  Fixed $countersFixed counter(s) in id-registry.json" -ForegroundColor Magenta
         }
     }
     Write-Host ""

@@ -54,7 +54,7 @@ This is the final onboarding task that transforms code analysis into formal desi
   - [Database Schema Design Task](../02-design/database-schema-design-task.md) - For documenting existing schema
   - [Cross-Cutting Test Specification Template](../../templates/templates/cross-cutting-test-specification-template.md) - Template for multi-feature test specifications
   - [Test Registry](/test/test-registry.yaml) - Registry of test files with cross-cutting feature mappings
-  - [Task Transition Guide](../../guides/guides/task-transition-guide.md) - Understanding documentation workflow
+  - [Task Transition Guide](../../guides/guides/framework/task-transition-guide.md) - Understanding documentation workflow
   - [Documentation Map](../../documentation-map.md) - For registering new documents
 
 ## Process
@@ -133,7 +133,7 @@ This is the final onboarding task that transforms code analysis into formal desi
    - **Cross-cutting**: If test files on disk cover multiple features, create cross-cutting test specifications using `New-TestSpecification.ps1 -CrossCutting -FeatureIds "X.Y.Z,A.B.C" -FeatureName "scenario-name"`. These go in `/test/specifications/cross-cutting-specs/`
    - **Mark**: Add "Retrospective" note in header
    - Update master state: Test Spec ✅
-   - **Multiple specs in one session**: When creating specs for several features, complete each spec fully before starting the next — create the file via `New-TestSpecification.ps1`, then update all 5 state files (feature-tracking, test-registry, id-registry, documentation-map, test-implementation-tracking) per PF-TSK-012's State Tracking section. This keeps tracking consistent and avoids end-of-session drift.
+   - **Multiple specs in one session**: When creating specs for several features, complete each spec fully before starting the next — create the file via `New-TestSpecification.ps1`, then update all 5 state files (feature-tracking, test-registry, id-registry, documentation-map, test-tracking) per PF-TSK-012's State Tracking section. This keeps tracking consistent and avoids end-of-session drift.
 
 8. **Create Architecture Decision Records (Foundation 0.x.x)**:
    - Use [ADR Creation Task](../02-design/adr-creation-task.md)
@@ -250,7 +250,7 @@ This is the final onboarding task that transforms code analysis into formal desi
   - [ ] Final metrics calculated and recorded in [master state](../../state-tracking/temporary/retrospective-master-state.md)
   - [ ] [Master State File](../../state-tracking/temporary/retrospective-master-state.md) archived to `/temporary/archived/`
 
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-066" and context "Retrospective Documentation Creation"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-066" and context "Retrospective Documentation Creation"
   - **⚠️ IMPORTANT**: Evaluate the Retrospective Documentation Creation task (PF-TSK-066) and its tools (tier assessment workflow, documentation creation process), not the documents you created.
 
 ## Next Tasks
@@ -275,4 +275,4 @@ After completing the full retrospective documentation effort:
 - [Codebase Feature Analysis (PF-TSK-065)](codebase-feature-analysis.md) - Second onboarding task (prerequisite)
 - [Feature Tier Assessment Task](../01-planning/feature-tier-assessment-task.md) - For creating tier assessments
 - [Documentation Tiers README](../../../product-docs/documentation-tiers/README.md) - Tier definitions and documentation requirements
-- [Task Transition Guide](../../guides/guides/task-transition-guide.md) - Understanding documentation workflow
+- [Task Transition Guide](../../guides/guides/framework/task-transition-guide.md) - Understanding documentation workflow

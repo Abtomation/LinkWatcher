@@ -45,7 +45,7 @@ graph TD
 
 ### Important Components (Should Understand)
 - **[Feature Implementation State Template](../../templates/templates/feature-implementation-state-template.md)**: Template for creating per-feature files that contain complete code inventories (files created/modified/used/tested)
-- **[Feature Implementation State Tracking Guide](../../guides/guides/feature-implementation-state-tracking-guide.md)**: Comprehensive guide explaining how to populate implementation state files with code inventories
+- **[Feature Implementation State Tracking Guide](../../guides/guides/04-implementation/feature-implementation-state-tracking-guide.md)**: Comprehensive guide explaining how to populate implementation state files with code inventories
 
 ### Reference Components (Access When Needed)
 - **[Feature Dependencies](../../../product-docs/technical/design/feature-dependencies.md)**: Documentation of feature relationships and dependencies (useful for understanding feature boundaries)
@@ -77,8 +77,8 @@ graph TD
 - [Codebase Feature Discovery Task (PF-TSK-064)](../../tasks/00-onboarding/codebase-feature-discovery.md) - Full task definition with detailed process steps
 - [Retrospective Master State Template](../../templates/templates/retrospective-state-template.md) - Template structure and usage
 - [Feature Implementation State Template](../../templates/templates/feature-implementation-state-template.md) - Per-feature code inventory template
-- [Feature Implementation State Tracking Guide](../../guides/guides/feature-implementation-state-tracking-guide.md) - How to populate state files
-- [Visual Notation Guide](../../guides/guides/visual-notation-guide.md) - Understanding diagram symbols and notation
+- [Feature Implementation State Tracking Guide](../../guides/guides/04-implementation/feature-implementation-state-tracking-guide.md) - How to populate state files
+- [Visual Notation Guide](../../../guides/guides/support/visual-notation-guide.md) - Understanding diagram symbols and notation
 
 ---
 

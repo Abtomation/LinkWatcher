@@ -8,7 +8,7 @@ This directory contains the infrastructure and documentation for the Code Refact
 
 | Directory        | Purpose                                      | Content Type                                      | Created By                     |
 | ---------------- | -------------------------------------------- | ------------------------------------------------- | ------------------------------ |
-| **`plans/`**     | Refactoring plan documents                   | PF-REF-XXX documents                              | `New-RefactoringPlan.ps1` script (supports `-Lightweight` switch) |
+| **`plans/`**     | Refactoring plan documents                   | PF-REF-XXX documents                              | `New-RefactoringPlan.ps1` script (supports `-Lightweight` and `-DocumentationOnly` switches) |
 | **`summaries/`** | Completed refactoring summaries and reports  | PF-REF-XXX, PF-REF-SUM-XXX, PF-COMP-XXX documents | Manual creation                |
 | **`analysis/`**  | Code analysis and assessment documents       | Analysis reports                                  | Manual creation                |
 | **`status/`**    | Status tracking and phase completion reports | Status reports                                    | Manual creation                |
@@ -17,7 +17,7 @@ This directory contains the infrastructure and documentation for the Code Refact
 
 | File                          | Purpose                                | Usage                                                                               |
 | ----------------------------- | -------------------------------------- | ----------------------------------------------------------------------------------- |
-| **`New-RefactoringPlan.ps1`** | Creates new refactoring plan documents | `.\New-RefactoringPlan.ps1 -RefactoringScope "Description" -TargetArea "Component"` (add `-Lightweight` for quick fixes) |
+| **`New-RefactoringPlan.ps1`** | Creates new refactoring plan documents | `.\New-RefactoringPlan.ps1 -RefactoringScope "Description" -TargetArea "Component"` (add `-Lightweight` for quick fixes, `-DocumentationOnly` for doc-only changes) |
 
 ### 📋 **Archive Directories**
 
@@ -36,11 +36,14 @@ cd doc/process-framework/refactoring
 
 # Lightweight mode for quick fixes (≤15 min, single file)
 .\New-RefactoringPlan.ps1 -RefactoringScope "Replace bare excepts (TD011)" -TargetArea "linkwatcher/handler.py" -Lightweight
+
+# Documentation-only mode for doc refactoring (no code/test changes)
+.\New-RefactoringPlan.ps1 -RefactoringScope "Fix TDD pseudocode drift (TD046)" -TargetArea "doc/product-docs/technical/" -DocumentationOnly
 ```
 
 ### 2. **Customizing the Plan**
 
-- Follow the [Refactoring Plan Template Customization Guide](../guides/guides/code-refactoring-task-usage-guide.md)
+- Follow the [Refactoring Plan Template Customization Guide](../guides/guides/06-maintenance/code-refactoring-task-usage-guide.md)
 - Use the [Context Map](../visualization/context-maps/06-maintenance/code-refactoring-task-map.md) for component relationships
 
 ### 3. **Completing the Refactoring**
@@ -58,6 +61,7 @@ cd doc/process-framework/refactoring
 - **Created By**: `New-RefactoringPlan.ps1` script
 - **Templates**:
   - Standard: [refactoring-plan-template.md](../templates/templates/refactoring-plan-template.md) (165 lines, full metrics/strategy/lessons)
+  - Documentation-only: [documentation-refactoring-plan-template.md](../templates/templates/documentation-refactoring-plan-template.md) (100 lines, doc quality baseline/verification instead of code metrics)
   - Lightweight: [lightweight-refactoring-plan-template.md](../templates/templates/lightweight-refactoring-plan-template.md) (50 lines, scope/changes/results with doc checklist)
 
 ### **Refactoring Summaries (PF-REF-XXX, PF-REF-SUM-XXX)**
@@ -87,7 +91,7 @@ This directory integrates with:
 
 - **[Code Refactoring Task](../tasks/06-maintenance/code-refactoring-task.md)** - Main task definition
 - **[Context Map](../visualization/context-maps/06-maintenance/code-refactoring-task-map.md)** - Component relationships
-- **[Template Customization Guide](../guides/guides/code-refactoring-task-usage-guide.md)** - Detailed usage instructions
+- **[Template Customization Guide](../guides/guides/06-maintenance/code-refactoring-task-usage-guide.md)** - Detailed usage instructions
 - **[Technical Debt Tracking](../state-tracking/permanent/technical-debt-tracking.md)** - State tracking integration
 - **[Feature Tracking](../state-tracking/permanent/feature-tracking.md)** - Feature status updates
 

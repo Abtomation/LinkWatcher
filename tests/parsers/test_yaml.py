@@ -65,7 +65,7 @@ paths:
 
         # Check reference types
         for ref in references:
-            assert ref.link_type == "yaml"
+            assert ref.link_type in ("yaml", "yaml-dir")
             assert ref.file_path == str(yaml_file)
 
     def test_yp_002_nested_structures(self, temp_project_dir):
@@ -470,3 +470,54 @@ paths:
         assert "file with spaces.txt" in targets
         assert "file-with-symbols_123.txt" in targets
         assert "path/to/file with spaces & symbols.txt" in targets
+
+
+class TestYamlParserDirectoryPaths:
+    """Regression tests for PD-BUG-030: directory paths not detected in YAML values."""
+
+    def test_bug030_directory_paths_detected_in_yaml(self, temp_project_dir):
+        """
+        PD-BUG-030: YAML values containing directory paths (no file extension)
+        should be detected as references when they contain path separators.
+        """
+        parser = YamlParser()
+
+        yaml_file = temp_project_dir / "dirs.yaml"
+        yaml_content = """directories:
+  docs: doc/product-docs/documentation-tiers
+  scripts: doc/process-framework/scripts/file-creation
+  templates: doc/process-framework/templates/templates
+"""
+        yaml_file.write_text(yaml_content)
+
+        references = parser.parse_content(yaml_content, str(yaml_file))
+
+        targets = [ref.link_target for ref in references]
+        assert "doc/product-docs/documentation-tiers" in targets
+        assert "doc/process-framework/scripts/file-creation" in targets
+        assert "doc/process-framework/templates/templates" in targets
+
+    def test_bug030_directory_paths_coexist_with_file_paths(self, temp_project_dir):
+        """
+        PD-BUG-030: Directory and file paths should both be detected in YAML.
+        """
+        parser = YamlParser()
+
+        yaml_file = temp_project_dir / "mixed.yaml"
+        yaml_content = """config:
+  output_dir: build/output
+  config_file: config/settings.yaml
+  source_dir: src/components
+  readme: docs/README.md
+"""
+        yaml_file.write_text(yaml_content)
+
+        references = parser.parse_content(yaml_content, str(yaml_file))
+
+        targets = [ref.link_target for ref in references]
+        # File paths
+        assert "config/settings.yaml" in targets
+        assert "docs/README.md" in targets
+        # Directory paths
+        assert "build/output" in targets
+        assert "src/components" in targets

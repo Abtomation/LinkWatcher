@@ -36,7 +36,7 @@ Manage the process of preparing, versioning, and deploying releases of the appli
 - **Critical (Must Read):**
 
   - [Release Process Guide](/doc/product-docs/ci-cd/release-process.md) - Release process documentation
-  - [Visual Notation Guide](/doc/process-framework/guides/guides/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Visual Notation Guide](/doc/process-framework/guides/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 - **Important (Load If Space):**
 
@@ -67,8 +67,9 @@ Manage the process of preparing, versioning, and deploying releases of the appli
 ### Execution
 
 7. Run the full test suite on the release candidate
-8. Verify all deployment prerequisites are met
-9. Complete the pre-deployment checklist
+8. **Verify manual test status**: Check [test-tracking.md](../../state-tracking/permanent/test-tracking.md) for any manual test groups marked `🔄 Needs Re-execution`. All groups must show `✅ Passed` before release. If any need re-execution, trigger [Manual Test Execution](../03-testing/manual-test-execution-task.md) first.
+9. Verify all deployment prerequisites are met
+10. Complete the pre-deployment checklist
 10. Obtain necessary approvals
 11. **🚨 CHECKPOINT**: Present pre-deployment checklist results and obtain explicit approval before deploying
 12. Deploy to the target environment(s)
@@ -90,7 +91,7 @@ Manage the process of preparing, versioning, and deploying releases of the appli
 17. **Report Discovered Bugs**: If bugs are identified during deployment:
 
     - Use [../../scripts/file-creation/New-BugReport.ps1](../../scripts/file-creation/New-BugReport.ps1) script to create standardized bug reports
-    - Follow [Bug Reporting Guide](../../guides/guides/bug-reporting-guide.md) for consistent documentation
+    - Follow [Bug Reporting Guide](../../guides/guides/06-maintenance/bug-reporting-guide.md) for consistent documentation
     - Add bug entries to [Bug Tracking](../../state-tracking/permanent/bug-tracking.md) with status 🆕 Reported
     - Include deployment context and evidence in bug reports
     - Reference specific deployment logs or monitoring data
@@ -147,7 +148,7 @@ Before considering this task finished:
   - [ ] Release status file shows correct version and date
   - [ ] Deployment status is accurately reflected
   - [ ] All included features and fixes are listed
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-008" and context "Release & Deployment"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-008" and context "Release & Deployment"
 
 ## Next Tasks
 
@@ -159,4 +160,4 @@ Before considering this task finished:
 - <!-- [Semantic Versioning Guide](/doc/product-docs/development/guides/semantic-versioning-guide.md) - File not found --> - Guide to version numbering
 - <!-- [Rollback Procedures](/doc/product-docs/development/ci-cd/rollback-procedures.md) - File not found --> - Procedures for rolling back problematic deployments
 - <!-- [CI/CD Pipeline Documentation](/doc/product-docs/development/ci-cd/pipeline-documentation.md) - File not found --> - Documentation of the CI/CD pipeline
-- [Task Creation and Improvement Guide](../task-creation-guide.md) - Guide for creating and improving tasks
+- [Task Creation and Improvement Guide](../../guides/guides/support/task-creation-guide.md) - Guide for creating and improving tasks

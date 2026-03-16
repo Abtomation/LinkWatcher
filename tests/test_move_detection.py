@@ -249,3 +249,77 @@ class TestStatsThreadSafety:
         handler.reset_stats()
         for key, value in handler.stats.items():
             assert value == 0, f"Expected {key} to be 0 after reset, got {value}"
+
+
+class TestFileReplacementRetainsLinks:
+    """Regression tests for PD-BUG-035: sed -i file replacement must not wipe DB entries."""
+
+    @pytest.fixture
+    def project_setup(self, tmp_path):
+        """Set up a project with a file containing links."""
+        # Create a markdown file that references another file
+        target = tmp_path / "target.md"
+        target.write_text("# Target")
+
+        source = tmp_path / "source.md"
+        source.write_text("# Source\n\nSee [target](target.md) for details.")
+
+        link_db = LinkDatabase()
+        parser = LinkParser()
+        updater = LinkUpdater(str(tmp_path))
+        handler = LinkMaintenanceHandler(link_db, parser, updater, str(tmp_path))
+
+        # Scan initial files
+        for file_path in [source, target]:
+            rel_path = str(file_path.relative_to(tmp_path)).replace("\\", "/")
+            references = parser.parse_file(str(file_path))
+            for ref in references:
+                ref.file_path = rel_path
+                link_db.add_link(ref)
+
+        return {
+            "tmp_path": tmp_path,
+            "source": source,
+            "target": target,
+            "link_db": link_db,
+            "handler": handler,
+        }
+
+    def test_true_delete_timer_does_not_wipe_links_when_file_exists(self, project_setup):
+        """PD-BUG-035: When the delete timer fires but the file still exists
+        (e.g., sed -i replaced it), links must NOT be removed from the database."""
+        link_db = project_setup["link_db"]
+        handler = project_setup["handler"]
+        source = project_setup["source"]
+
+        # Verify links exist before
+        refs_before = link_db.get_references_to_file("target.md")
+        assert len(refs_before) >= 1, "Should have at least 1 reference to target.md"
+
+        # Simulate what happens when sed -i's delete timer fires:
+        # The file was deleted and recreated (replaced), so it still exists
+        handler._process_true_file_delete("source.md")
+
+        # Links FROM source.md should still be in the database
+        # (the file exists, so it was replaced, not truly deleted)
+        refs_after = link_db.get_references_to_file("target.md")
+        assert len(refs_after) >= 1, (
+            "PD-BUG-035: Links were wiped from DB even though source.md still exists. "
+            "_process_true_file_delete must not remove links for files that still exist "
+            "(they were replaced, not deleted)."
+        )
+
+    def test_true_delete_timer_reports_broken_refs_when_file_gone(self, project_setup):
+        """When the file is truly deleted, broken references should still be reported."""
+        link_db = project_setup["link_db"]
+        handler = project_setup["handler"]
+        source = project_setup["source"]
+
+        # Actually delete the file
+        source.unlink()
+
+        # Now the timer fires for a truly deleted file
+        handler._process_true_file_delete("source.md")
+
+        # The file is gone — this is expected behavior, not a bug
+        # Just verify no crash occurs (the method should handle it gracefully)

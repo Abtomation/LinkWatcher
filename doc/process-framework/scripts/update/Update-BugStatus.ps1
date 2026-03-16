@@ -102,6 +102,7 @@ This script is part of the Bug Management automation system and integrates with:
 [CmdletBinding(SupportsShouldProcess)]
 param(
     [Parameter(Mandatory = $true)]
+    [ValidatePattern('^(BUG|PD-BUG)-\d+$')]
     [string]$BugId,
 
     [Parameter(Mandatory = $true)]
@@ -140,11 +141,11 @@ param(
 )
 
 # Import the common helpers for Get-ProjectRoot
-Import-Module (Join-Path -Path $PSScriptRoot -ChildPath "Common-ScriptHelpers.psm1") -Force
+Import-Module (Join-Path -Path $PSScriptRoot -ChildPath "../Common-ScriptHelpers.psm1") -Force
 
 # Configuration - use project-root-relative path for reliability
 $ProjectRoot = Get-ProjectRoot
-$BugTrackingFile = Join-Path -Path $ProjectRoot -ChildPath "../doc/process-framework/state-tracking/permanent/bug-tracking.md"
+$BugTrackingFile = Join-Path -Path $ProjectRoot -ChildPath "doc/process-framework/state-tracking/permanent/bug-tracking.md"
 $ScriptName = "../Update-BugStatus.ps1"
 
 # Status emoji mapping
@@ -499,6 +500,11 @@ function Update-BugStatisticsContent {
 }
 
 function Main {
+    # Normalize short-form IDs: BUG-001 → PD-BUG-001
+    if ($BugId -match '^BUG-\d+$') {
+        $script:BugId = "PD-$BugId"
+    }
+
     Write-Log "Starting Bug Status Update - $ScriptName"
     Write-Log "Bug ID: $BugId"
     Write-Log "New Status: $NewStatus"

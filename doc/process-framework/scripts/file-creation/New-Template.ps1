@@ -135,7 +135,7 @@ try {
             "⚠️  AI agents MUST follow the referenced guide to properly customize the content.",
             "",
             "📖 MANDATORY CUSTOMIZATION GUIDE:",
-            "   doc\process-framework\guides\guides\template-development-guide.md",
+            "doc/process-framework/guides/guides/support/template-development-guide.md",
             "🎯 FOCUS AREAS: 'Template Customization Standards' section",
             "",
             "🚫 DO NOT use the generated file without proper customization!",

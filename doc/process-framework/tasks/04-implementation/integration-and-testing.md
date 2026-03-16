@@ -50,9 +50,9 @@ Implement comprehensive test coverage for a feature and verify that all componen
   - **Test Specification Document** (if exists) - The test specification for the feature (located in `/test/specifications/feature-specs/`), serving as the checklist for required test scenarios
   - **TDD (Technical Design Document)** - Testing requirements section describing test scenarios, coverage expectations, and acceptance criteria
   - **Completed Implementation Code** - All implemented feature code to be tested
-  - [Test Implementation Tracking](../../state-tracking/permanent/test-implementation-tracking.md) - Current test implementation status
+  - [Test Tracking](../../state-tracking/permanent/test-tracking.md) - Current test implementation status
   - [Test Registry](/test/test-registry.yaml) - Test file registry with IDs and metadata
-  - [Visual Notation Guide](/doc/process-framework/guides/guides/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Visual Notation Guide](/doc/process-framework/guides/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 - **Important (Load If Space):**
 
@@ -65,7 +65,7 @@ Implement comprehensive test coverage for a feature and verify that all componen
 - **Reference Only (Access When Needed):**
   - [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - For understanding component interactions
   - **Existing Test Examples** - Similar test implementations in codebase for pattern consistency
-  - [Development Guide](/doc/product-docs/guides/guides/development-guide.md) - Testing standards and practices
+  - [Development Guide](/doc/process-framework/guides/guides/04-implementation/development-guide.md) - Testing standards and practices
 
 ## Process
 
@@ -100,7 +100,7 @@ Implement comprehensive test coverage for a feature and verify that all componen
    # Script automatically:
    # - Generates unique PD-TST ID
    # - Creates test file from template with proper structure
-   # - Updates test-implementation-tracking.md with correct file links and status
+   # - Updates test-tracking.md with correct file links and status
    # - Updates test-registry.yaml with test file metadata
    # - Updates feature-tracking.md with test implementation progress
    ```
@@ -160,7 +160,7 @@ Implement comprehensive test coverage for a feature and verify that all componen
 22. **Report Discovered Bugs**: If bugs are identified during test implementation:
 
     - Use [New-BugReport.ps1](../../scripts/file-creation/New-BugReport.ps1) script to create standardized bug reports
-    - Follow [Bug Reporting Guide](../../guides/guides/bug-reporting-guide.md) for consistent documentation
+    - Follow [Bug Reporting Guide](../../guides/guides/06-maintenance/bug-reporting-guide.md) for consistent documentation
     - Add bug entries to [Bug Tracking](../../state-tracking/permanent/bug-tracking.md) with status Reported
     - Include test implementation context and evidence in bug reports
     - Reference specific test cases that revealed the bugs
@@ -173,7 +173,11 @@ Implement comprehensive test coverage for a feature and verify that all componen
     .\New-BugReport.ps1 -Title "Service throws exception on empty input" -Description "Method fails with exception when passed empty string instead of returning proper error" -DiscoveredBy "Test Implementation" -Severity "High" -Component "Component Name" -Environment "Development" -Evidence "Test case: test_method_empty_input_returns_error"
     ```
 
-23. **Update Test Status**: Update test implementation status to reflect completion (automation handles initial tracking)
+23. **Mark manual test groups for re-execution**: If the feature has manual test cases, implementation changes may have invalidated previous results. Run `Update-TestExecutionStatus.ps1` to mark affected groups:
+    ```bash
+    cd /c/path/to/project/doc/process-framework/scripts/testing && pwsh.exe -ExecutionPolicy Bypass -Command '& .\Update-TestExecutionStatus.ps1 -FeatureId "X.Y.Z" -Status "Needs Re-execution" -Reason "Implementation changes during Integration & Testing" -Confirm:$false'
+    ```
+24. **Update Test Status**: Update test implementation status to reflect completion (automation handles initial tracking)
 24. **Validate Test Tracking**: Run validation scripts to ensure consistency
     ```powershell
     # Validate test tracking consistency
@@ -195,7 +199,7 @@ Implement comprehensive test coverage for a feature and verify that all componen
 
 The following state files are automatically updated by the `New-TestFile.ps1` script:
 
-- [Test Implementation Tracking](../../state-tracking/permanent/test-implementation-tracking.md) - Automatically updated with Implementation In Progress status, test file links with correct relative paths, and metadata
+- [Test Tracking](../../state-tracking/permanent/test-tracking.md) - Automatically updated with Implementation In Progress status, test file links with correct relative paths, and metadata
 - [Test Registry](/test/test-registry.yaml) - Automatically updated with test file entries, implementation status, and test case counts
 - [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Automatically updated with Test Status column reflecting implementation progress
 
@@ -222,7 +226,7 @@ Before considering this task finished:
   - [ ] Bug discovery performed systematically during test implementation
   - [ ] Any discovered bugs reported using `New-BugReport.ps1` script with proper context and evidence
 - [ ] **Verify State Files**: Confirm all state tracking files have been automatically updated by the script
-  - [ ] [Test Implementation Tracking](../../state-tracking/permanent/test-implementation-tracking.md) shows correct test file links and status
+  - [ ] [Test Tracking](../../state-tracking/permanent/test-tracking.md) shows correct test file links and status
   - [ ] [Test Registry](/test/test-registry.yaml) contains test file entries with proper metadata
   - [ ] [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) Test Status column reflects implementation progress
 - [ ] **Manual Status Updates**: Update completion status after test implementation
@@ -240,7 +244,7 @@ Before considering this task finished:
   - [ ] Code Inventory section updated with test files and metrics
   - [ ] Implementation Progress section reflects testing completion
   - [ ] Testing patterns and challenges documented in Implementation Notes
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-053" and context "Integration & Testing"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-053" and context "Integration & Testing"
 
 ## Next Tasks
 
@@ -252,10 +256,10 @@ Before considering this task finished:
 ## Related Resources
 
 - [Test Specification Creation Task](../03-testing/test-specification-creation-task.md) - For creating test specifications before implementation
-- [Test Implementation Tracking](../../state-tracking/permanent/test-implementation-tracking.md) - Track test implementation progress
+- [Test Tracking](../../state-tracking/permanent/test-tracking.md) - Track test implementation progress
 - [Test Registry](/test/test-registry.yaml) - Test file registry with IDs and metadata
-- [Test File Creation Guide](../../guides/guides/test-file-creation-guide.md) - Guide for customizing test file templates
-- [Bug Reporting Guide](../../guides/guides/bug-reporting-guide.md) - Standardized procedures for reporting bugs
-- [Feature Implementation State Tracking Guide](../../guides/guides/feature-implementation-state-tracking-guide.md) - Guide for maintaining feature state file
+- [Test File Creation Guide](../../guides/guides/03-testing/test-file-creation-guide.md) - Guide for customizing test file templates
+- [Bug Reporting Guide](../../guides/guides/06-maintenance/bug-reporting-guide.md) - Standardized procedures for reporting bugs
+- [Feature Implementation State Tracking Guide](../../guides/guides/04-implementation/feature-implementation-state-tracking-guide.md) - Guide for maintaining feature state file
 - [Cross-Cutting Test Specification Template](../../templates/templates/cross-cutting-test-specification-template.md) - Template for cross-feature test specs
-- [Development Guide](/doc/product-docs/guides/guides/development-guide.md) - Testing standards and practices
+- [Development Guide](/doc/process-framework/guides/guides/04-implementation/development-guide.md) - Testing standards and practices

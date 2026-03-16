@@ -10,7 +10,7 @@ addressing the critical bottleneck identified in the Process Improvement Trackin
 
 Updates the following files:
 - ../doc/process-framework/state-tracking/permanent/feature-tracking.md
-- ../doc/process-framework/state-tracking/permanent/test-implementation-tracking.md
+- ../doc/process-framework/state-tracking/permanent/test-tracking.md
 - ../doc/product-docs/technical/architecture/component-relationship-index.md
 
 .PARAMETER FeatureId
@@ -92,7 +92,7 @@ param(
 # Import required modules
 try {
     $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-    $commonHelpersPath = Join-Path $scriptDir "Common-ScriptHelpers.psm1"
+    $commonHelpersPath = Join-Path $scriptDir "../Common-ScriptHelpers.psm1"
     Import-Module $commonHelpersPath -Force
 }
 catch {
@@ -169,9 +169,9 @@ try {
         Write-Host "Creating backups..." -ForegroundColor Yellow
         $projectRoot = Get-ProjectRoot
         $filesToBackup = @(
-            "../doc/process-framework/state-tracking/permanent/feature-tracking.md",
-            "../doc/process-framework/state-tracking/permanent/test-implementation-tracking.md",
-            "../doc/product-docs/technical/architecture/component-relationship-index.md"
+            "doc/process-framework/state-tracking/permanent/feature-tracking.md",
+            "doc/process-framework/state-tracking/permanent/test-tracking.md",
+            "doc/product-docs/technical/architecture/component-relationship-index.md"
         )
 
         $backupResult = Get-StateFileBackup -FilePaths $filesToBackup -BackupPrefix "feature-implementation"
@@ -191,9 +191,9 @@ try {
         Write-Host "  ✅ Feature tracking updated successfully" -ForegroundColor Green
     }
 
-    # Update 2: Test Implementation Tracking (if test status needs updating)
+    # Update 2: Test Tracking (if test status needs updating)
     Write-Host ""
-    Write-Host "Updating Test Implementation Tracking..." -ForegroundColor Yellow
+    Write-Host "Updating Test Tracking..." -ForegroundColor Yellow
 
     $testStatus = switch ($Status) {
         "🟡 In Progress" { "🟡 Implementation In Progress" }
@@ -265,8 +265,8 @@ try {
 
     Write-Host ""
     Write-Host "Files Updated:" -ForegroundColor White
-    Write-Host "../  ✅ feature-tracking.md" -ForegroundColor Green
-    Write-Host "../  ✅ test-implementation-tracking.md" -ForegroundColor Green
+    Write-Host "  ✅ feature-tracking.md" -ForegroundColor Green
+    Write-Host "  ✅ test-tracking.md" -ForegroundColor Green
 
     if ($NewComponents.Count -gt 0 -or $NewDependencies.Count -gt 0) {
         Write-Host "  ⚠️  ../component-relationship-index.md (manual review required)" -ForegroundColor Yellow
@@ -302,7 +302,7 @@ catch {
     Write-Error "Feature implementation state update failed: $($_.Exception.Message)"
     Write-Host ""
     Write-Host "If backups were created, they can be found in:" -ForegroundColor Yellow
-    Write-Host "../  doc/process-framework/state-tracking/backups" -ForegroundColor Gray
+    Write-Host "  doc/process-framework/state-tracking/backups" -ForegroundColor Gray
     exit 1
 }
 

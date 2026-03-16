@@ -48,6 +48,8 @@ Meta-framework tasks that work on the process framework itself, such as creating
 
 | Task | Description | When to Use |
 | ---- | ----------- | ----------- |
+| [Manual Test Execution](03-testing/manual-test-execution-task.md) | Execute manual test cases systematically, record results, and report issues discovered through human interaction with the running system | When working on Manual Test Execution |
+| [Manual Test Case Creation](03-testing/manual-test-case-creation-task.md) | Create concrete, reproducible manual test cases from test specifications with exact steps, file contents, and expected outcomes | When working on Manual Test Case Creation |
 | [Feature Enhancement](04-implementation/feature-enhancement.md) | Execute enhancement steps from the Enhancement State Tracking File, referencing existing task documentation for quality guidance, adapted to the amendment context | When working on Feature Enhancement |
 | [Feature Request Evaluation](01-planning/feature-request-evaluation.md) | Classify incoming change requests as new features or enhancements to existing features, and for enhancements create a scoped Enhancement State Tracking File | When working on Feature Request Evaluation |
 | [Retrospective Documentation Creation](00-onboarding/retrospective-documentation-creation.md) | Create tier assessments and required design documentation for all analyzed features | When working on Retrospective Documentation Creation |
@@ -168,7 +170,7 @@ To create a new task:
 6. Ensure state tracking is properly defined
 7. Add the task to this index
 
-For detailed guidance on creating and improving tasks, refer to the [Task Creation and Improvement Guide](../guides/guides/task-creation-guide.md).
+For detailed guidance on creating and improving tasks, refer to the [Task Creation and Improvement Guide](../guides/guides/support/task-creation-guide.md).
 
 ## Task Flow
 

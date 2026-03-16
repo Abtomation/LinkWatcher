@@ -9,7 +9,7 @@ This script automates the manual state file updates required by the Test Audit T
 addressing the critical bottleneck identified in the Process Improvement Tracking (IMP-087).
 
 Updates the following files:
-- ../doc/process-framework/state-tracking/permanent/test-implementation-tracking.md
+- ../doc/process-framework/state-tracking/permanent/test-tracking.md
 - ../test/test-registry.yaml
 - ../doc/process-framework/state-tracking/permanent/feature-tracking.md
 
@@ -98,7 +98,7 @@ param(
 # Import required modules
 try {
     $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-    $commonHelpersPath = Join-Path $scriptDir "Common-ScriptHelpers.psm1"
+    $commonHelpersPath = Join-Path $scriptDir "../Common-ScriptHelpers.psm1"
     Import-Module $commonHelpersPath -Force
 }
 catch {
@@ -160,9 +160,9 @@ try {
         Write-Host "Creating backups..." -ForegroundColor Yellow
         $projectRoot = Get-ProjectRoot
         $filesToBackup = @(
-            "../doc/process-framework/state-tracking/permanent/test-implementation-tracking.md",
-            "../test/test-registry.yaml",
-            "../doc/process-framework/state-tracking/permanent/feature-tracking.md"
+            "doc/process-framework/state-tracking/permanent/test-tracking.md",
+            "test/test-registry.yaml",
+            "doc/process-framework/state-tracking/permanent/feature-tracking.md"
         )
 
         $backupCount = 0
@@ -177,9 +177,9 @@ try {
         Write-Host "Backup completed: $backupCount files backed up" -ForegroundColor Green
     }
 
-    # Update 1: Test Implementation Tracking
+    # Update 1: Test Tracking
     Write-Host ""
-    Write-Host "Updating Test Implementation Tracking..." -ForegroundColor Yellow
+    Write-Host "Updating Test Tracking..." -ForegroundColor Yellow
 
     # Build additional updates for test implementation tracking
     $testUpdates = @{
@@ -327,9 +327,9 @@ try {
 
     Write-Host ""
     Write-Host "Files Updated:" -ForegroundColor White
-    Write-Host "../  ✅ test-implementation-tracking.md" -ForegroundColor Green
-    Write-Host "  ⚠️  ../test-registry.yaml (manual review required)" -ForegroundColor Yellow
-    Write-Host "../  ✅ feature-tracking.md" -ForegroundColor Green
+    Write-Host "  ✅ test-tracking.md" -ForegroundColor Green
+    Write-Host "  ⚠️  test-registry.yaml (manual review required)" -ForegroundColor Yellow
+    Write-Host "  ✅ feature-tracking.md" -ForegroundColor Green
 
     if ($DryRun) {
         Write-Host ""
@@ -374,7 +374,7 @@ catch {
     Write-Error "Test audit state update failed: $($_.Exception.Message)"
     Write-Host ""
     Write-Host "If backups were created, they can be found in:" -ForegroundColor Yellow
-    Write-Host "../  doc/process-framework/state-tracking/backups" -ForegroundColor Gray
+    Write-Host "  doc/process-framework/state-tracking/backups" -ForegroundColor Gray
     exit 1
 }
 

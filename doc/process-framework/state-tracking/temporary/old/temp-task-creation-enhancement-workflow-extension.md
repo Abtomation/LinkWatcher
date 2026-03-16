@@ -90,7 +90,7 @@ Steps:
 | Template development guide | guides/guides/template-development-guide.md | Guide for creating templates |
 | Guide creation best practices | guides/guides/guide-creation-best-practices-guide.md | Guide for creating guides |
 | Script development guide | guides/guides/document-creation-script-development-guide.md | Guide for creating scripts |
-| Temp state customization guide | guides/guides/temp-state-tracking-customization-guide.md | Pattern for state file customization |
+| Temp state customization guide | guides/guides/support/temp-state-tracking-customization-guide.md | Pattern for state file customization |
 
 ## Session Tracking
 

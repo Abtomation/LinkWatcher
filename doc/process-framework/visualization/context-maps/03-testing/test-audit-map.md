@@ -29,7 +29,7 @@ graph TD
     TestSpecs --> AuditCriteria
     AuditCriteria --> AuditReport[(Audit Report)]
     AuditReport --> AuditDecision{Audit Decision}
-    AuditDecision --> |Tests Approved| TrackingUpdate[Test Implementation Tracking]
+    AuditDecision --> |Tests Approved| TrackingUpdate[Test Tracking]
     AuditDecision --> |Tests Approved with Dependencies| DepTracking[Implementation Dependencies]
     AuditDecision --> |Needs Update| TrackingUpdate
     AuditDecision --> |Tests Incomplete| TrackingUpdate
@@ -55,7 +55,7 @@ graph TD
 - **Test Specifications**: Original test specifications that define expected test behavior and coverage
 - **Audit Report**: Comprehensive documentation of audit findings, assessments, and recommendations with dependency analysis
 - **Audit Decision**: Four possible outcomes (Tests Approved, Tests Approved with Dependencies, Needs Update, Tests Incomplete)
-- **Test Implementation Tracking**: State tracking file that manages test implementation status and audit results
+- **Test Tracking**: State tracking file that manages test implementation status and audit results
 
 ### Reference Components (Access When Needed)
 
@@ -68,8 +68,8 @@ graph TD
 1. **Test Files → Six Evaluation Criteria**: Test files are systematically evaluated against each of the six quality criteria
 2. **Test Files → Test Specifications**: Original specifications provide context and expected behavior for audit assessment
 3. **Evaluation Criteria + Test Specifications → Audit Report**: Assessment results and specification context combine to create comprehensive audit documentation
-4. **Audit Report → Test Implementation Tracking**: Audit decisions update test status (Tests Approved or Needs Update)
-5. **Test Implementation Tracking -.-> Test Registry**: Optional updates to central test registry with audit status information
+4. **Audit Report → Test Tracking**: Audit decisions update test status (Tests Approved or Needs Update)
+5. **Test Tracking -.-> Test Registry**: Optional updates to central test registry with audit status information
 6. **Audit Report -.-> Validation Script**: Optional validation to ensure audit report completeness before finalization
 
 ## Implementation in AI Sessions
@@ -86,12 +86,12 @@ graph TD
 ## Related Documentation
 
 - [Test Audit Task Definition](../../tasks/03-testing/test-audit-task.md) - Complete task specification and process
-- [Test Audit Usage Guide](../../guides/guides/test-audit-usage-guide.md) - Step-by-step instructions for conducting audits
-- [Test Implementation Tracking](../../state-tracking/permanent/test-implementation-tracking.md) - Status tracking and workflow integration
+- [Test Audit Usage Guide](../../guides/guides/03-testing/test-audit-usage-guide.md) - Step-by-step instructions for conducting audits
+- [Test Tracking](../../../state-tracking/permanent/test-tracking.md) - Status tracking and workflow integration
 - [Test Audit Report Template](../../templates/templates/test-audit-report-template.md) - Standardized audit report structure
-- [New-TestAuditReport.ps1](../../test-audits/New-TestAuditReport.ps1) - Audit report creation automation
-- [Validate-AuditReport.ps1](../../test-audits/Validate-AuditReport.ps1) - Audit report validation automation
+- [New-TestAuditReport.ps1](../../scripts/file-creation/New-TestAuditReport.ps1) - Audit report creation automation
+- [Validate-AuditReport.ps1](../../scripts/validation/Validate-AuditReport.ps1) - Audit report validation automation
 
 ---
 
-_Note: This context map highlights only the components relevant to the Test Audit task. For a comprehensive view of all test-related components and their relationships, refer to the [Test Implementation Tracking](../../state-tracking/permanent/test-implementation-tracking.md) and [Test Registry](../../../../test/test-registry.yaml)._
+_Note: This context map highlights only the components relevant to the Test Audit task. For a comprehensive view of all test-related components and their relationships, refer to the [Test Tracking](../../../state-tracking/permanent/test-tracking.md) and [Test Registry](../../../../test/test-registry.yaml)._

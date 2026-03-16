@@ -18,7 +18,7 @@ Use cases:
 
 Updates the following files atomically:
 - ../doc/process-framework/state-tracking/permanent/feature-tracking.md
-- ../doc/process-framework/state-tracking/permanent/test-implementation-tracking.md
+- ../doc/process-framework/state-tracking/permanent/test-tracking.md
 - ../doc/product-docs/technical/architecture/component-relationship-index.md
 - Additional tracking files as needed
 
@@ -124,7 +124,7 @@ param(
 
 # Import required modules
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-Import-Module "../$scriptDir/Common-ScriptHelpers.psm1" -Force
+Import-Module (Join-Path $scriptDir "../Common-ScriptHelpers.psm1") -Force
 
 # Initialize script with dependency validation
 if (-not (Test-ScriptDependencies -RequiredModules @("Common-ScriptHelpers"))) {
@@ -176,9 +176,9 @@ if ($DryRun) {
 # Get project root and define file paths
 $projectRoot = Get-ProjectRoot
 $trackingFiles = @(
-    Join-Path $projectRoot "../doc/process-framework/state-tracking/permanent/feature-tracking.md",
-    Join-Path $projectRoot "../doc/process-framework/state-tracking/permanent/test-implementation-tracking.md",
-    Join-Path $projectRoot "../doc/product-docs/technical/architecture/component-relationship-index.md"
+    Join-Path $projectRoot "doc/process-framework/state-tracking/permanent/feature-tracking.md",
+    Join-Path $projectRoot "doc/process-framework/state-tracking/permanent/test-tracking.md",
+    Join-Path $projectRoot "doc/product-docs/technical/architecture/component-relationship-index.md"
 )
 
 # Confirmation prompt for bulk operations (unless Force is specified)
@@ -317,7 +317,7 @@ try {
 
     # Save batch results
     if (-not $DryRun) {
-        $resultsPath = Join-Path $projectRoot "../doc/process-framework/state-tracking/temporary/batch-update-results-$batchId.json"
+        $resultsPath = Join-Path $projectRoot "doc/process-framework/state-tracking/temporary/batch-update-results-$batchId.json"
         $batchResults | ConvertTo-Json -Depth 10 | Set-Content -Path $resultsPath -Encoding UTF8
         Write-Host "📊 Batch results saved: $resultsPath" -ForegroundColor Blue
     }
@@ -367,7 +367,7 @@ try {
         $batchResults.Duration = $batchResults.EndTime - $batchResults.StartTime
         $batchResults.Status = "FAILED"
 
-        $resultsPath = Join-Path $projectRoot "../doc/process-framework/state-tracking/temporary/batch-update-results-$batchId-FAILED.json"
+        $resultsPath = Join-Path $projectRoot "doc/process-framework/state-tracking/temporary/batch-update-results-$batchId-FAILED.json"
         $batchResults | ConvertTo-Json -Depth 10 | Set-Content -Path $resultsPath -Encoding UTF8
         Write-Host "📊 Partial batch results saved: $resultsPath" -ForegroundColor Yellow
     }

@@ -100,7 +100,7 @@ graph TD
 - [UI/UX Design Task](../../tasks/02-design/ui-ux-design-task.md) - Complete task definition with AI agent role and execution steps
 - [Design Guidelines (PD-UIX-001)](../../../../product-docs/technical/design/ui-ux/design-system/design-guidelines.md) - Living reference for design principles, visual foundation, accessibility, and platform guidelines
 - [UI Design Template](../../templates/templates/ui-design-template.md) - Comprehensive template for creating UI/UX Design Documents
-- [UI Design Customization Guide](../../guides/guides/ui-design-customization-guide.md) - 19-step guide for customizing UI Design templates
+- [UI Design Customization Guide](../../guides/guides/02-design/ui-design-customization-guide.md) - 19-step guide for customizing UI Design templates
 - [Feature Tier Assessment Task](../../tasks/01-planning/feature-tier-assessment-task.md) - Prerequisite task for determining when UI Design is needed
 - [FDD Creation Task](../../tasks/02-design/fdd-creation-task.md) - Related design task for functional requirements
 - [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Central tracking document with UI Design column

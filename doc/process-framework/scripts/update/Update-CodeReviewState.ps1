@@ -10,7 +10,7 @@ addressing the manual bottleneck for frequent development workflow updates.
 
 Updates the following files:
 - ../doc/process-framework/state-tracking/permanent/feature-tracking.md
-- ../doc/process-framework/state-tracking/permanent/test-implementation-tracking.md
+- ../doc/process-framework/state-tracking/permanent/test-tracking.md
 
 .PARAMETER FeatureId
 The feature ID being reviewed (e.g., "1.2.3")
@@ -105,7 +105,7 @@ param(
 # Import required modules
 try {
     $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-    $commonHelpersPath = Join-Path $scriptDir "Common-ScriptHelpers.psm1"
+    $commonHelpersPath = Join-Path $scriptDir "../Common-ScriptHelpers.psm1"
     Import-Module $commonHelpersPath -Force
 }
 catch {
@@ -166,8 +166,8 @@ try {
     if (-not $DryRun) {
         Write-Host "Creating backups..." -ForegroundColor Yellow
         $filesToBackup = @(
-            "../doc/process-framework/state-tracking/permanent/feature-tracking.md",
-            "../doc/process-framework/state-tracking/permanent/test-implementation-tracking.md"
+            "doc/process-framework/state-tracking/permanent/feature-tracking.md",
+            "doc/process-framework/state-tracking/permanent/test-tracking.md"
         )
 
         $backupResult = Get-StateFileBackup -FilePaths $filesToBackup -BackupPrefix "code-review"
@@ -190,7 +190,7 @@ try {
     }
 
     if ($CodeQualityScore) {
-        $featureUpdates["Code Quality Score"] = "../$CodeQualityScore/10"
+        $featureUpdates["Code Quality Score"] = "$CodeQualityScore/10"
     }
 
     # Combine all findings into a summary
@@ -229,10 +229,10 @@ try {
         Write-Host "  ✅ Feature tracking updated successfully" -ForegroundColor Green
     }
 
-    # Update 2: Test Implementation Tracking (if test status needs updating)
+    # Update 2: Test Tracking (if test status needs updating)
     if ($TestStatusUpdate -ne "No Change") {
         Write-Host ""
-        Write-Host "Updating Test Implementation Tracking..." -ForegroundColor Yellow
+        Write-Host "Updating Test Tracking..." -ForegroundColor Yellow
 
         $testUpdates = @{
             "Review Impact" = "Updated based on code review findings"
@@ -259,16 +259,16 @@ try {
         $testResult = Update-TestImplementationStatus -FeatureId $FeatureId -Status $TestStatusUpdate -AdditionalUpdates $testUpdates -DryRun:$DryRun
 
         if ($DryRun) {
-            Write-Host "  Would update test implementation status to: $TestStatusUpdate" -ForegroundColor Cyan
+            Write-Host "  Would update test status to: $TestStatusUpdate" -ForegroundColor Cyan
             foreach ($key in $testUpdates.Keys) {
                 Write-Host "    $key`: $($testUpdates[$key])" -ForegroundColor Gray
             }
         } else {
-            Write-Host "  ✅ Test implementation tracking updated successfully" -ForegroundColor Green
+            Write-Host "  ✅ Test tracking updated successfully" -ForegroundColor Green
         }
     } else {
         Write-Host ""
-        Write-Host "Test Implementation Tracking: No changes requested" -ForegroundColor Gray
+        Write-Host "Test Tracking: No changes requested" -ForegroundColor Gray
     }
 
     # Cross-reference synchronization
@@ -327,11 +327,11 @@ try {
 
     Write-Host ""
     Write-Host "Files Updated:" -ForegroundColor White
-    Write-Host "../  ✅ feature-tracking.md" -ForegroundColor Green
+    Write-Host "  ✅ feature-tracking.md" -ForegroundColor Green
     if ($TestStatusUpdate -ne "No Change") {
-        Write-Host "../  ✅ test-implementation-tracking.md" -ForegroundColor Green
+        Write-Host "  ✅ test-tracking.md" -ForegroundColor Green
     } else {
-        Write-Host "  ➖ ../test-implementation-tracking.md (no changes requested)" -ForegroundColor Gray
+        Write-Host "  ➖ test-tracking.md (no changes requested)" -ForegroundColor Gray
     }
 
     if ($DryRun) {
@@ -388,7 +388,7 @@ catch {
     Write-Error "Code review state update failed: $($_.Exception.Message)"
     Write-Host ""
     Write-Host "If backups were created, they can be found in:" -ForegroundColor Yellow
-    Write-Host "../  doc/process-framework/state-tracking/backups" -ForegroundColor Gray
+    Write-Host "  doc/process-framework/state-tracking/backups" -ForegroundColor Gray
     exit 1
 }
 

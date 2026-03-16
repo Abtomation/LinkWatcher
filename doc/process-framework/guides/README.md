@@ -30,33 +30,32 @@ The guides in this directory serve to:
 
 | Guide                                                  | Description                                                      | When to Use                                          |
 | ------------------------------------------------------ | ---------------------------------------------------------------- | ---------------------------------------------------- |
-| [Task Creation Guide](guides/task-creation-guide.md)   | Comprehensive guide for creating and improving development tasks | When creating new tasks or improving existing ones   |
-| [Implementation Guide](guides/implementation-guide.md) | Best practices for implementing features and functionality       | During feature development and implementation phases |
+| [Task Creation Guide](guides/support/task-creation-guide.md)   | Comprehensive guide for creating and improving development tasks | When creating new tasks or improving existing ones   |
 | [Assessment Guide](guides/01-planning/assessment-guide.md)         | Guidelines for assessing feature complexity and requirements     | When evaluating new features or changes              |
 
 ### Documentation Guides
 
 | Guide                                                                    | Description                                                  | When to Use                                                      |
 | ------------------------------------------------------------------------ | ------------------------------------------------------------ | ---------------------------------------------------------------- |
-| [Documentation Guide](guides/documentation-guide.md)                     | Standards and practices for project documentation            | When creating or updating any project documentation              |
-| [Documentation Structure Guide](guides/documentation-structure-guide.md) | Guidelines for organizing and structuring documentation      | When planning documentation architecture or reorganizing content |
-| [Template Development Guide](guides/template-development-guide.md)       | Instructions for creating and maintaining document templates | When developing new templates or updating existing ones          |
-| [Terminology Guide](guides/terminology-guide.md)                         | Definitions and usage of project-specific terminology        | When clarifying terminology or ensuring consistent language use  |
+| [Documentation Guide](guides/05-validation/documentation-guide.md)                     | Standards and practices for project documentation            | When creating or updating any project documentation              |
+| [Documentation Structure Guide](guides/framework/documentation-structure-guide.md) | Guidelines for organizing and structuring documentation      | When planning documentation architecture or reorganizing content |
+| [Template Development Guide](guides/support/template-development-guide.md)       | Instructions for creating and maintaining document templates | When developing new templates or updating existing ones          |
+| [Terminology Guide](guides/framework/terminology-guide.md)                         | Definitions and usage of project-specific terminology        | When clarifying terminology or ensuring consistent language use  |
 
 ### Technical Guides
 
 | Guide                                                                                              | Description                                                    | When to Use                                                |
 | -------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- | ---------------------------------------------------------- |
-| [Document Creation Script Development Guide](guides/document-creation-script-development-guide.md) | Guide for developing and maintaining document creation scripts | When working on automation scripts for document generation |
-| [Visual Notation Guide](guides/visual-notation-guide.md)                                           | Standards for visual elements and notation in documentation    | When creating diagrams, charts, or visual documentation    |
+| [Document Creation Script Development Guide](guides/support/document-creation-script-development-guide.md) | Guide for developing and maintaining document creation scripts | When working on automation scripts for document generation |
+| [Visual Notation Guide](guides/support/visual-notation-guide.md)                                           | Standards for visual elements and notation in documentation    | When creating diagrams, charts, or visual documentation    |
 
 ### Process Management Guides
 
 | Guide                                                                               | Description                                                     | When to Use                                                    |
 | ----------------------------------------------------------------------------------- | --------------------------------------------------------------- | -------------------------------------------------------------- |
-| [Feedback Form Guide](guides/feedback-form-guide.md)                                | Instructions for creating and using feedback forms              | When collecting feedback on tools, processes, or documentation |
-| [Migration Best Practices](guides/migration-best-practices.md)                      | Best practices for migrating processes, tools, or documentation | When planning or executing migration activities                |
-| [Temp Task State Creation Guide](guides/temp-state-tracking-customization-guide.md) | Guide for creating temporary task state tracking                | When managing temporary or short-term task states              |
+| [Feedback Form Guide](guides/framework/feedback-form-guide.md)                                | Instructions for creating and using feedback forms              | When collecting feedback on tools, processes, or documentation |
+| [Migration Best Practices](guides/support/migration-best-practices.md)                      | Best practices for migrating processes, tools, or documentation | When planning or executing migration activities                |
+| [Temp Task State Creation Guide](guides/support/temp-state-tracking-customization-guide.md) | Guide for creating temporary task state tracking                | When managing temporary or short-term task states              |
 
 ## Guide Creation Tools
 
@@ -115,8 +114,8 @@ These guides support the task-based development workflow by providing:
 
 ### For New Team Members
 
-1. Start with the [Terminology Guide](guides/terminology-guide.md) to understand project language
-2. Review the [Documentation Guide](guides/documentation-guide.md) for general standards
+1. Start with the [Terminology Guide](guides/framework/terminology-guide.md) to understand project language
+2. Review the [Documentation Guide](guides/05-validation/documentation-guide.md) for general standards
 3. Read guides relevant to your specific role and responsibilities
 
 ### For Ongoing Development
@@ -153,7 +152,7 @@ When using these guides:
 
 1. **Document Issues**: Note any unclear instructions or missing information
 2. **Suggest Improvements**: Propose enhancements based on practical experience
-3. **Share Feedback**: Use the [Feedback Form Guide](guides/feedback-form-guide.md) to provide structured feedback
+3. **Share Feedback**: Use the [Feedback Form Guide](guides/framework/feedback-form-guide.md) to provide structured feedback
 4. **Contribute Updates**: Help maintain guides by suggesting or implementing improvements
 
 ## Document ID Format

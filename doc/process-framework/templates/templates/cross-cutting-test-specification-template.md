@@ -93,6 +93,6 @@ test_[scenario-name].[ext]   # Adapt naming to project's language conventions
 
 - [Feature Test Specifications] - Individual feature test specs for the features covered
 - [Test Registry](/test/test-registry.yaml) - Registry entries for cross-cutting test files
-- [Test Implementation Tracking](/doc/process-framework/state-tracking/permanent/test-implementation-tracking.md) - Implementation status
+- [Test Tracking](/doc/process-framework/state-tracking/permanent/test-tracking.md) - Implementation status
 
 ---

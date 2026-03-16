@@ -41,15 +41,15 @@ Specialized task for implementing foundation features (0.x.x) that provide archi
 
 - **Important (Load If Space):**
 
-  - [Architectural Framework Usage Guide](../../guides/guides/architectural-framework-usage-guide.md) - **ESSENTIAL**: Step-by-step guide for using the architectural framework
+  - [Architectural Framework Usage Guide](../../guides/guides/01-planning/architectural-framework-usage-guide.md) - **ESSENTIAL**: Step-by-step guide for using the architectural framework
   - [Feature Implementation Planning](feature-implementation-planning-task.md) - Base implementation planning process for comparison
   - [ADR Template](../../templates/templates/02-design/adr-template.md) - For documenting architectural decisions
-  - [Foundation Feature Implementation Usage Guide](../../guides/guides/foundation-feature-implementation-usage-guide.md) - Task-specific usage guide
+  - [Foundation Feature Implementation Usage Guide](../../guides/guides/04-implementation/foundation-feature-implementation-usage-guide.md) - Task-specific usage guide
 
 - **Reference Only (Access When Needed):**
   - [Technical Design Document Template](../../templates/templates/tdd-template.md) - For complex architectural specifications
   - [Documentation Map](../../documentation-map.md) - For understanding document relationships
-  - [Visual Notation Guide](/doc/process-framework/guides/guides/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Visual Notation Guide](/doc/process-framework/guides/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 ## Process
 
@@ -96,7 +96,7 @@ Specialized task for implementing foundation features (0.x.x) that provide archi
 12. **Report Discovered Bugs**: If bugs are identified during foundation implementation:
 
     - Use [../../scripts/file-creation/New-BugReport.ps1](../../scripts/file-creation/New-BugReport.ps1) script to create standardized bug reports
-    - Follow [Bug Reporting Guide](../../guides/guides/bug-reporting-guide.md) for consistent documentation
+    - Follow [Bug Reporting Guide](../../guides/guides/06-maintenance/bug-reporting-guide.md) for consistent documentation
     - Add bug entries to [Bug Tracking](../../state-tracking/permanent/bug-tracking.md) with status 🆕 Reported
     - Include foundation implementation context and evidence in bug reports
     - Reference specific architectural components or patterns affected
@@ -196,7 +196,7 @@ Before considering this task finished:
   - [ ] [Architecture Context Packages](../../state-tracking/permanent/architecture-context-packages.md) updated with new foundations
   - [ ] [Architecture Tracking](../../state-tracking/permanent/architecture-tracking.md) updated with implementation record
   - [ ] [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) updated with status set to "👀 Ready for Review"
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-024" and context "Foundation Feature Implementation Task"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-024" and context "Foundation Feature Implementation Task"
 
 ## Next Tasks
 

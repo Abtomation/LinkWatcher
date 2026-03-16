@@ -13,7 +13,7 @@ This guide provides instructions for using the new automation scripts that elimi
 **Files Updated**:
 
 - `feature-tracking.md`
-- `test-implementation-tracking.md`
+- `test-tracking.md`
 - `component-relationship-index.md`
 
 **Basic Usage**:
@@ -40,7 +40,7 @@ update\Update-FeatureImplementationState.ps1 -FeatureId "1.2.3" -Status "🟡 In
 
 **Files Updated**:
 
-- `test-implementation-tracking.md`
+- `test-tracking.md`
 - `test-registry.yaml`
 - `feature-tracking.md`
 
@@ -63,7 +63,7 @@ update\Update-TestAuditState.ps1 -FeatureId "1.2.3" -AuditStatus "Needs Update" 
 **Files Updated**:
 
 - `feature-tracking.md`
-- `test-implementation-tracking.md`
+- `test-tracking.md`
 
 **Basic Usage**:
 

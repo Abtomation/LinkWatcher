@@ -952,3 +952,97 @@ Mixed:
         # Should NOT find internal anchors (anchor-only links)
         assert "#section-1" not in targets
         assert "#section-2" not in targets
+
+    # ========================================================================
+    # DIRECTORY PATH DETECTION TESTS (PD-BUG-031 regression)
+    # ========================================================================
+
+    @pytest.mark.high
+    def test_bug031_quoted_directory_paths_detected(self, temp_project_dir):
+        """
+        PD-BUG-031 regression: Quoted directory paths (no file extension) should be detected.
+
+        The markdown parser previously only used looks_like_file_path() which requires
+        a file extension. Directory paths like "doc/process-framework/tasks" were silently
+        skipped. The fix integrates looks_like_directory_path() for quoted strings.
+        """
+        parser = MarkdownParser()
+
+        md_file = temp_project_dir / "test.md"
+        content = """# Directory Path Test
+
+Paths in documentation:
+- Use `cd "doc/process-framework/scripts/file-creation"` to navigate
+- The templates are in "doc/process-framework/templates/templates"
+- See 'doc/product-docs/technical/architecture' for details
+
+PowerShell examples:
+```powershell
+cd "doc/process-framework/methodologies/documentation-tiers"
+```
+"""
+        md_file.write_text(content)
+
+        references = parser.parse_file(str(md_file))
+        targets = [ref.link_target for ref in references]
+
+        # Should detect quoted directory paths (no extension)
+        assert "doc/process-framework/scripts/file-creation" in targets
+        assert "doc/process-framework/templates/templates" in targets
+        assert "doc/product-docs/technical/architecture" in targets
+        assert "doc/process-framework/methodologies/documentation-tiers" in targets
+
+        # Verify link type
+        dir_refs = [r for r in references if r.link_type == "markdown-quoted-dir"]
+        assert len(dir_refs) >= 3
+
+    @pytest.mark.high
+    def test_bug031_directory_paths_no_overlap_with_markdown_links(self, temp_project_dir):
+        """
+        PD-BUG-031 regression: Directory paths inside markdown links should not
+        be double-detected by the quoted directory pattern.
+        """
+        parser = MarkdownParser()
+
+        md_file = temp_project_dir / "test.md"
+        content = """# Overlap Test
+
+- [Templates directory](doc/process-framework/templates/templates)
+- Also see "doc/process-framework/guides/guides" for guides
+"""
+        md_file.write_text(content)
+
+        references = parser.parse_file(str(md_file))
+
+        # The markdown link target should be detected once as "markdown" type
+        md_refs = [r for r in references if r.link_target == "doc/process-framework/templates/templates"]
+        assert len(md_refs) == 1
+        assert md_refs[0].link_type == "markdown"
+
+        # The standalone quoted path should be detected as directory
+        dir_refs = [r for r in references if r.link_target == "doc/process-framework/guides/guides"]
+        assert len(dir_refs) >= 1
+
+    @pytest.mark.medium
+    def test_bug031_non_directory_strings_not_detected(self, temp_project_dir):
+        """
+        PD-BUG-031 regression: Strings that look like directories but aren't
+        should not be falsely detected.
+        """
+        parser = MarkdownParser()
+
+        md_file = temp_project_dir / "test.md"
+        content = """# False Positive Test
+
+- URL: "https://github.com/user/repo"
+- Email: "user@example.com"
+- Short text: "hello"
+- No separators: "just-a-string"
+"""
+        md_file.write_text(content)
+
+        references = parser.parse_file(str(md_file))
+        dir_refs = [r for r in references if r.link_type == "markdown-quoted-dir"]
+
+        # None of these should be detected as directory paths
+        assert len(dir_refs) == 0

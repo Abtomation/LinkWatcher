@@ -6,7 +6,7 @@ param(
 )
 
 # Import Common-ScriptHelpers to get project root
-Import-Module (Join-Path -Path $PSScriptRoot -ChildPath "Common-ScriptHelpers.psm1") -Force
+Import-Module (Join-Path -Path $PSScriptRoot -ChildPath "../Common-ScriptHelpers.psm1") -Force
 
 $rootPath = Join-Path -Path (Get-ProjectRoot) -ChildPath "doc"
 $newScriptPath = "../scripts/file-creation"

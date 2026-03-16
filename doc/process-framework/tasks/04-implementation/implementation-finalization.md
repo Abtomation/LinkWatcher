@@ -49,7 +49,7 @@ Complete remaining items and prepare feature for production deployment. This tas
   - **Release Management Guide** - Project release versioning, branching strategies, and release cycles
 
 - **Reference Only (Access When Needed):**
-  - [Visual Notation Guide](/doc/process-framework/guides/guides/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Visual Notation Guide](/doc/process-framework/guides/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
   - **Previous Release Notes** - Historical release note format and content examples
   - **Deployment Runbooks** - Operational procedures for deployment execution
 
@@ -160,7 +160,7 @@ Before considering this task finished:
   - [ ] Deployment team briefed on procedures and rollback plan
   - [ ] Monitoring and alerting configured for post-deployment tracking
   - [ ] Communication plan ready for stakeholders and users
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-055" and context "Implementation Finalization"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-055" and context "Implementation Finalization"
 
 ## Next Tasks
 
@@ -171,6 +171,6 @@ Before considering this task finished:
 - Deployment best practices documentation for your technology stack
 - [Release Management Guide](../../guides/guides/release-management-guide.md) - Project release versioning and procedures
 - [Rollback Procedures](../../guides/guides/rollback-procedures-guide.md) - Standard rollback execution patterns
-- [Feature Implementation State Tracking Guide](../../guides/guides/feature-implementation-state-tracking-guide.md) - Guide for maintaining feature state file
+- [Feature Implementation State Tracking Guide](../../guides/guides/04-implementation/feature-implementation-state-tracking-guide.md) - Guide for maintaining feature state file
 - [Feature Tracking Guide](../../guides/guides/feature-tracking-guide.md) - Guide for updating feature tracking state
 - [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Understanding system component interactions

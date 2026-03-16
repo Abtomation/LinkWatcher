@@ -2,9 +2,9 @@
 id: PF-TEM-018
 type: Process Framework
 category: Proposal Template
-version: 1.0
+version: 1.1
 created: 2025-06-07
-updated: 2025-06-07
+updated: 2026-03-15
 ---
 
 # Structure Change Proposal Template
@@ -71,6 +71,52 @@ updated: 2025-06-07
 ### Phase 3: [Phase Name]
 - [Step 1]
 - [Step 2]
+
+## Task Modifications
+<!-- OPTIONAL: Include this section when the structure change requires modifying existing task definitions. Remove if not applicable. -->
+
+### [Task Name (PF-TSK-XXX)]
+<!-- For each task that needs modification, describe: -->
+
+**Changes needed:**
+- [New/modified step or context requirement]
+- [Changed output or state tracking update]
+
+**Rationale:** [Why this task needs to change as a result of the structure change]
+
+## New Tasks
+<!-- OPTIONAL: Include this section when the structure change introduces entirely new tasks. Remove if not applicable. -->
+
+### [New Task Name] ([phase category])
+
+**Purpose:** [What this task accomplishes]
+
+**When to Use:** [Trigger conditions]
+
+**AI Agent Role:** [Role — mindset, focus areas]
+
+**Process (high-level):**
+1. [Key step 1]
+2. [Key step 2]
+3. [Key step 3]
+
+**Outputs:**
+- [Primary deliverable]
+- [State tracking updates]
+
+**Workflow position:** [Which tasks precede/follow this one]
+
+## Handover Interfaces
+<!-- OPTIONAL: Include this section when the change affects how tasks hand off work to each other. Remove if not applicable. -->
+<!-- Document new or changed inputs/outputs between tasks, state file dependencies, and cross-task coordination points. -->
+
+| From Task | To Task | Interface | Change |
+|-----------|---------|-----------|--------|
+| [PF-TSK-XXX] | [PF-TSK-YYY] | [State file / artifact / output] | [New / Modified / Removed] |
+
+### Additional Tasks to Review
+<!-- List tasks that may need minor updates but require evaluation during implementation -->
+- **[Task Name (PF-TSK-XXX)]** — [Why it may be affected]
 
 ## Testing Approach
 <!-- Describe how the new structure will be tested before full implementation -->

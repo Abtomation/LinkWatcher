@@ -4,7 +4,7 @@ type: Process Framework
 category: Task Definition
 version: 2.0
 created: 2023-06-15
-updated: 2026-03-04
+updated: 2026-03-15
 task_type: Discrete
 ---
 
@@ -39,7 +39,7 @@ Diagnose, fix, and verify solutions for reported bugs or issues in the applicati
   - Specific source files containing the bug
   - [Testing Guide](/doc/product-docs/guides/guides/testing-guide.md) - Guidelines for testing and debugging
   - Tests related to the affected functionality
-  - [Visual Notation Guide](/doc/process-framework/guides/guides/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Visual Notation Guide](/doc/process-framework/guides/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 - **Important (Load If Space):**
 
@@ -71,7 +71,8 @@ Diagnose, fix, and verify solutions for reported bugs or issues in the applicati
    ```
    After creation, **customize the state file to the specific bug**: fill in the Implementation Progress table with the files/components that will need changing, identify which documents need updating in the Documentation Updates table, and outline the resolution plan in the Fix Approach section. This plan serves as the blueprint for the fix and enables session handover.
    For single-session bugs (Small/Medium effort), skip this step — no state file needed.
-5. Reproduce the bug to understand its exact behavior and confirm the issue
+5. **Check manual test coverage**: Review [test-tracking.md](../../state-tracking/permanent/test-tracking.md) for existing manual test cases covering the affected behavior. If no manual test exists and the bug involves user-observable behavior, consider creating a reproduction test case via [Manual Test Case Creation](../03-testing/manual-test-case-creation-task.md) before fixing.
+6. Reproduce the bug to understand its exact behavior and confirm the issue
    - For code-structural bugs (e.g., missing error handling, absent code paths), confirming the gap through code review serves as reproduction
 6. Document the reproduction steps for future reference
 7. Analyze the affected code area to understand the context
@@ -99,7 +100,7 @@ Diagnose, fix, and verify solutions for reported bugs or issues in the applicati
       - **Use strong assertions**: Assert the old/buggy value is **NOT** present (negative assertion), not just that the new/correct value **IS** present (positive assertion). Overly permissive tests that only check for the expected value can pass even when the bug persists alongside the fix.
       - Keep regression tests focused on the specific fix — note pre-existing test gaps for a future test audit rather than expanding scope here
     - **Adding to an existing test file** (most common): Find the relevant test file in the project's test directory (see `paths.tests` in `project-config.json`). Add regression test(s) following the existing patterns in the file. After adding, update the `testCasesCount` for the file in [Test Registry](/test/test-registry.yaml). If the file is not yet in the registry, add a new entry with the next available `PD-TST` ID and bump `nextAvailable` in [ID Registry](/doc/id-registry.json).
-    - **Creating a new test file** (rare): Use [`New-TestFile.ps1`](../../scripts/file-creation/New-TestFile.ps1) which auto-updates test-registry.yaml, test-implementation-tracking.md, and feature-tracking.md:
+    - **Creating a new test file** (rare): Use [`New-TestFile.ps1`](../../scripts/file-creation/New-TestFile.ps1) which auto-updates test-registry.yaml, test-tracking.md, and feature-tracking.md:
       ```powershell
       cd doc/process-framework/scripts/file-creation
       .\New-TestFile.ps1 -TestName "BugDescription" -TestType "Unit" -FeatureId "X.Y.Z" -ComponentName "ComponentName"
@@ -119,7 +120,12 @@ Diagnose, fix, and verify solutions for reported bugs or issues in the applicati
     - Example: a script that creates a temp environment with the conditions that trigger the bug, prints the current (buggy) state, then instructs the human to apply the trigger action and observe the result
     - *Skip this step for bugs with no observable behavior* (e.g., dead code removal, internal refactoring)
 19. **Session boundary** (multi-session only): If ending a session before the fix is complete, update the Session Log in the bug fix state file with completed work and next-session plan. The next session resumes from this state file.
-20. Update bug status from 🟡 In Progress to 🧪 Fixed
+20. **🚨 CHECKPOINT**: Present fix results for human approval before updating bug status:
+    - Code changes summary (files modified, approach taken)
+    - Test results (regression tests pass, full suite regression check)
+    - Manual validation test results (if applicable, from Step 18)
+    - Similar issues found and addressed (from Step 17)
+21. Update bug status from 🟡 In Progress to 🧪 Fixed
     - **Automated Option**: Use [`Update-BugStatus.ps1`](../../scripts/update/Update-BugStatus.ps1) script:
       ```powershell
       ../../scripts/update/Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "Fixed" -FixDetails "Fixed null pointer exception" -RootCause "Missing null check" -TestsAdded "Yes" -PullRequestUrl "https://github.com/repo/pull/123"
@@ -127,25 +133,29 @@ Diagnose, fix, and verify solutions for reported bugs or issues in the applicati
 
 ### Finalization
 
-21. Document the nature of the bug and the solution approach
-22. **Update feature documentation** (if the fix changes technical design or behavior):
+22. **Mark manual test groups for re-execution**: If the fix affects functionality covered by manual tests, run `Update-TestExecutionStatus.ps1` to mark affected groups:
+    ```bash
+    cd /c/path/to/project/doc/process-framework/scripts/testing && pwsh.exe -ExecutionPolicy Bypass -Command '& .\Update-TestExecutionStatus.ps1 -FeatureId "X.Y.Z" -Status "Needs Re-execution" -Reason "Bug fix PD-BUG-XXX" -Confirm:$false'
+    ```
+23. Document the nature of the bug and the solution approach
+23. **Update feature documentation** (if the fix changes technical design or behavior):
     - **Feature implementation state file** (`state-tracking/features/`) — update implementation notes, known issues, or status
     - **TDD** — update technical design descriptions that no longer match the code
     - **Test specification** — update expected behavior or add new test scenarios
     - **FDD** — update functional behavior descriptions if user-facing behavior changed
     - *Before marking N/A: briefly check each referenced document to confirm it does not describe the changed component or behavior. Skip only after verifying no documentation references the fix area.*
     - **If multi-session**: Update the Documentation Updates table in the bug fix state file
-23. Refactor code if necessary for better maintainability
-24. Verify the fix resolves the issue completely
-25. Update bug status from 🧪 Fixed to ✅ Verified (after testing confirmation)
+24. Refactor code if necessary for better maintainability
+25. Verify the fix resolves the issue completely
+26. Update bug status from 🧪 Fixed to ✅ Verified (after testing confirmation)
     - **Automated Option**: Use [`Update-BugStatus.ps1`](../../scripts/update/Update-BugStatus.ps1) script:
       ```powershell
       ../../scripts/update/Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "Closed" -VerificationNotes "Fix verified in production, no regressions detected"
       ```
       > **Note**: The script automatically moves the bug entry to the Closed Bugs section and recalculates Bug Statistics — no manual editing needed.
-26. Verify the [Bug Tracking](../../state-tracking/permanent/bug-tracking.md) document was updated correctly (bug moved to Closed section, statistics updated)
-27. **If multi-session**: Archive the bug fix state file to `state-tracking/temporary/old/` after the bug is closed
-28. **🚨 MANDATORY FINAL STEP**: Complete the Task Completion Checklist below
+27. Verify the [Bug Tracking](../../state-tracking/permanent/bug-tracking.md) document was updated correctly (bug moved to Closed section, statistics updated)
+28. **If multi-session**: Archive the bug fix state file to `state-tracking/temporary/old/` after the bug is closed
+29. **🚨 MANDATORY FINAL STEP**: Complete the Task Completion Checklist below
 
 ## Outputs
 
@@ -194,22 +204,24 @@ Before considering this task finished:
   - [ ] Testing verification results are documented
   - [ ] Any lessons learned are documented for future reference
   - [ ] Related feature references are updated if bug affects specific features
-  - [ ] If fix changed technical design or behavior (Step 22):
+  - [ ] If fix changed technical design or behavior (Step 23):
     - [ ] Feature implementation state file updated, or N/A — verified file does not reference changed component
     - [ ] TDD updated, or N/A — verified no design changes affect TDD
     - [ ] Test specification updated, or N/A — verified no behavior change affects spec
     - [ ] FDD updated, or N/A — verified no functional change affects FDD
   - [ ] If multi-session: bug fix state file archived to `state-tracking/temporary/old/`
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-007" and context "Bug Fixing"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-007" and context "Bug Fixing"
 
 ## Next Tasks
 
 - [**Code Review**](code-review-task.md) - Reviews the bug fix for quality and correctness
+- [**Manual Test Case Creation**](../03-testing/manual-test-case-creation-task.md) - Create reproduction/verification test cases for the bug (if not already created in Step 5)
+- [**Manual Test Execution**](../03-testing/manual-test-execution-task.md) - Validate the fix through manual testing of affected test groups
 - [**Bug Triage**](bug-triage-task.md) - If additional bugs are discovered during fixing
 - [**Feature Implementation Planning**](../04-implementation/feature-implementation-planning-task.md) - If the bug fix reveals the need for new functionality
 
 ## Related Resources
 
 - [Testing Guide](/doc/product-docs/guides/guides/testing-guide.md) - Comprehensive testing procedures and debugging approaches
-- [Visual Notation Guide](/doc/process-framework/guides/guides/visual-notation-guide.md) - For interpreting context map diagrams and component relationships
-- [Task Creation and Improvement Guide](../task-creation-guide.md) - Guide for creating and improving tasks
+- [Visual Notation Guide](/doc/process-framework/guides/guides/support/visual-notation-guide.md) - For interpreting context map diagrams and component relationships
+- [Task Creation and Improvement Guide](../../guides/guides/support/task-creation-guide.md) - Guide for creating and improving tasks

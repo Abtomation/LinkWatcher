@@ -61,11 +61,14 @@ Document the before/after structure:
 
 ## Implementation Roadmap
 
+> **Delegation Tracking**: Each work item includes a **Delegated To** field. PF-TSK-014 orchestrates the overall change but delegates specialized work (task creation, template development, script development) to their respective tasks/processes. See the delegation table in the [Structure Change Task](../../tasks/support/structure-change-task.md) for the full mapping.
+
 ### Phase 1: Preparation & Proposal (Session 1)
 **Priority**: HIGH - Must complete before any changes
 
 - [ ] **Structure Change Proposal**: Create comprehensive proposal document
   - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
+  - **Delegated To**: PF-TSK-014 direct
   - **Dependencies**: Change requirements identified, impact analysis completed
   - **Template**: [Structure Change Proposal Template](structure-change-proposal-template.md)
   - **Location**: `doc/process-framework/state-tracking/temporary/[change-name]-structure-change-proposal.md`
@@ -73,12 +76,14 @@ Document the before/after structure:
 
 - [ ] **Backup Creation**: Create backups of all files to be modified
   - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
+  - **Delegated To**: PF-TSK-014 direct
   - **Dependencies**: Affected files identified
   - **Backup Location**: [Specify backup directory or method]
   - **Notes**: Ensure rollback capability before making any changes
 
 - [ ] **Impact Assessment**: Document full impact of proposed changes
   - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
+  - **Delegated To**: PF-TSK-014 direct
   - **Dependencies**: Proposal completed, affected components identified
   - **Assessment Areas**: Templates, content files, cross-references, automation scripts
   - **Notes**: Identify all downstream effects and dependencies
@@ -88,18 +93,21 @@ Document the before/after structure:
 
 - [ ] **Template Updates**: Update or create new templates using established processes
   - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
+  - **Delegated To**: [Template Development Guide + New-Template.ps1 / PF-TSK-014 direct]
   - **Dependencies**: Proposal approved, new structure defined
-  - **Process**: Use [New-Template.ps1](../../scripts/file-creation/New-Template.ps1) for new templates, follow [Template Development Guide](../../guides/guides/template-development-guide.md) for updates
+  - **Process**: Use [New-Template.ps1](../../scripts/file-creation/New-Template.ps1) for new templates, follow [Template Development Guide](../../guides/guides/support/template-development-guide.md) for updates
   - **Notes**: Update templates before migrating content to ensure consistency
 
 - [ ] **Script Updates**: Update or create automation scripts
   - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
+  - **Delegated To**: [Document Creation Script Development Guide / PF-TSK-014 direct]
   - **Dependencies**: Template updates completed
-  - **Process**: Use [Document Creation Script Development Guide](../../guides/guides/document-creation-script-development-guide.md)
+  - **Process**: Use [Document Creation Script Development Guide](../../guides/guides/support/document-creation-script-development-guide.md)
   - **Notes**: Ensure scripts work with new structure before content migration
 
 - [ ] **Guide Updates**: Update documentation guides
   - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
+  - **Delegated To**: [New-Guide.ps1 process / PF-TSK-014 direct]
   - **Dependencies**: Templates and scripts updated
   - **Process**: Use [New-Guide.ps1](../../scripts/file-creation/New-Guide.ps1) for new guides
   - **Notes**: Update guides to reflect new structure and processes
@@ -109,6 +117,7 @@ Document the before/after structure:
 
 - [ ] **Pilot File Selection**: Choose representative files for pilot testing
   - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
+  - **Delegated To**: PF-TSK-014 direct
   - **Dependencies**: Infrastructure updates completed
   - **Pilot Criteria**: [Specify how pilot files are selected]
   - **Pilot Size**: [X files representing Y% of total affected files]
@@ -116,12 +125,14 @@ Document the before/after structure:
 
 - [ ] **Pilot Migration**: Migrate pilot files to new structure
   - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
+  - **Delegated To**: PF-TSK-014 direct
   - **Dependencies**: Pilot files selected, migration tools ready
   - **Migration Method**: [Manual/Script/Tool-assisted]
   - **Notes**: Document any issues or unexpected complications
 
 - [ ] **Pilot Validation**: Test pilot files thoroughly
   - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
+  - **Delegated To**: PF-TSK-014 direct
   - **Dependencies**: Pilot migration completed
   - **Validation Criteria**: [List specific tests and checks]
   - **Success Metrics**: [Define what constitutes successful pilot]
@@ -132,12 +143,14 @@ Document the before/after structure:
 
 - [ ] **Migration Plan Refinement**: Update migration approach based on pilot results
   - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
+  - **Delegated To**: PF-TSK-014 direct
   - **Dependencies**: Pilot validation completed successfully
   - **Refinements**: [List changes to migration approach based on pilot]
   - **Notes**: Incorporate lessons learned from pilot implementation
 
 - [ ] **Batch Migration**: Migrate remaining files in planned batches
   - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
+  - **Delegated To**: PF-TSK-014 direct
   - **Dependencies**: Migration plan refined, pilot successful
   - **Batch Strategy**: [Describe batching approach - by type, priority, etc.]
   - **Progress Tracking**: [Method for tracking migration progress]
@@ -145,6 +158,7 @@ Document the before/after structure:
 
 - [ ] **Cross-Reference Updates**: Update all cross-references and links
   - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
+  - **Delegated To**: PF-TSK-014 direct (LinkWatcher-assisted)
   - **Dependencies**: File migration completed
   - **Update Method**: [Manual/LinkWatcher/Script]
   - **Validation**: [How to verify all links are updated correctly]
@@ -155,6 +169,7 @@ Document the before/after structure:
 
 - [ ] **Comprehensive Testing**: Test entire system with new structure
   - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
+  - **Delegated To**: PF-TSK-014 direct
   - **Dependencies**: Full migration completed
   - **Test Areas**: [List all areas to test - functionality, links, scripts, etc.]
   - **Success Criteria**: [Define what constitutes successful testing]
@@ -162,12 +177,14 @@ Document the before/after structure:
 
 - [ ] **Documentation Updates**: Update system documentation
   - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
+  - **Delegated To**: PF-TSK-014 direct
   - **Dependencies**: Testing completed successfully
   - **Updates Required**: [Documentation Map, guides, README files, etc.]
   - **Notes**: Ensure all documentation reflects new structure
 
 - [ ] **Cleanup & Archival**: Clean up temporary files and archive migration artifacts
   - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
+  - **Delegated To**: PF-TSK-014 direct
   - **Dependencies**: All changes validated and documented
   - **Cleanup Items**: [List temporary files, backup files, migration artifacts]
   - **Archive Location**: `doc/process-framework/state-tracking/temporary/old/`

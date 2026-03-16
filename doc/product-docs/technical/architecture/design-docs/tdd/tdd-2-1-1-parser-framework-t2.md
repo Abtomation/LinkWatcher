@@ -199,8 +199,8 @@ No API Design, Database Schema Design, or Test Specification documents exist for
 | `linkwatcher/parsers/base.py` | `BaseParser` abstract class — extension contract |
 | `linkwatcher/parsers/__init__.py` | Package init — exports all parser classes |
 | `linkwatcher/parsers/markdown.py` | `MarkdownParser` — `.md` files |
-| `linkwatcher/parsers/yaml_parser.py` | `YamlParser` — `.yaml`/`.yml` files |
-| `linkwatcher/parsers/json_parser.py` | `JsonParser` — `.json` files |
+| `linkwatcher/parsers/yaml_parser.py` | `YamlParser` — `.yaml`/`.yml` files. Detects file path references and directory path references (PD-BUG-030). |
+| `linkwatcher/parsers/json_parser.py` | `JsonParser` — `.json` files. Detects file path references and directory path references (PD-BUG-030). |
 | `linkwatcher/parsers/python.py` | `PythonParser` — `.py` files |
 | `linkwatcher/parsers/dart.py` | `DartParser` — `.dart` files |
 | `linkwatcher/parsers/powershell.py` | `PowerShellParser` — `.ps1`/`.psm1` files. Extracts paths from `#` line comments, `<# #>` block comments (including `.EXAMPLE`/`.NOTES` sections), quoted string literals, `Join-Path` arguments, and `Import-Module` paths. Uses regex patterns: `quoted_pattern` for double/single-quoted strings, `comment_pattern` for `#` line comments, `block_comment_pattern` for `<# ... #>` regions, `join_path_pattern` for `Join-Path -ChildPath` arguments. |

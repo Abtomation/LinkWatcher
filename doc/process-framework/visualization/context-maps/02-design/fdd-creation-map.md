@@ -81,7 +81,7 @@ graph TD
 
 - [FDD Creation Task](../../tasks/02-design/fdd-creation-task.md) - Complete task definition with AI agent role and execution steps
 - [FDD Template](../../templates/templates/fdd-template.md) - Standardized template for creating Functional Design Documents
-- [FDD Customization Guide](../../guides/guides/fdd-customization-guide.md) - Step-by-step guide for customizing FDD templates
+- [FDD Customization Guide](../../guides/guides/02-design/fdd-customization-guide.md) - Step-by-step guide for customizing FDD templates
 - [Feature Tier Assessment Task](../../tasks/01-planning/feature-tier-assessment-task.md) - Prerequisite task for determining when FDD is needed
 - [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Central tracking document for all features
 - [../../scripts/file-creation/New-FDD.ps1 Script](../../../product-docs/functional-design/../../scripts/file-creation/New-FDD.ps1) - Script for creating FDD documents

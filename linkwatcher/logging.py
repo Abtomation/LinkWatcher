@@ -5,6 +5,7 @@ This module provides structured logging with multiple outputs, log levels,
 and contextual information for better debugging and monitoring.
 """
 
+import glob
 import json
 import logging
 import logging.handlers
@@ -23,6 +24,37 @@ from colorama import Fore, Style, init
 
 # Initialize colorama for cross-platform colored output
 init(autoreset=True)
+
+
+class TimestampRotatingFileHandler(logging.handlers.RotatingFileHandler):
+    """RotatingFileHandler that uses timestamps in rotated filenames.
+
+    Instead of LinkWatcherLog.txt.1, produces LinkWatcherLog_20260316-091500.txt
+    """
+
+    def doRollover(self):
+        if self.stream:
+            self.stream.close()
+            self.stream = None
+
+        # Generate timestamp-based backup name
+        timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+        base, ext = os.path.splitext(self.baseFilename)
+        backup_name = f"{base}_{timestamp}{ext}"
+
+        # Rename current log to timestamped backup
+        if os.path.exists(self.baseFilename):
+            os.rename(self.baseFilename, backup_name)
+
+        # Clean up old backups (keep only backupCount most recent)
+        if self.backupCount > 0:
+            pattern = f"{base}_*{ext}"
+            backups = sorted(glob.glob(pattern), reverse=True)
+            for old_backup in backups[self.backupCount:]:
+                os.remove(old_backup)
+
+        if not self.delay:
+            self.stream = self._open()
 
 
 class LogLevel(Enum):
@@ -285,8 +317,8 @@ class LinkWatcherLogger:
         log_path = Path(log_file)
         log_path.parent.mkdir(parents=True, exist_ok=True)
 
-        # Rotating file handler
-        file_handler = logging.handlers.RotatingFileHandler(
+        # Rotating file handler with timestamp-based filenames
+        file_handler = TimestampRotatingFileHandler(
             log_file, maxBytes=max_file_size, backupCount=backup_count, encoding="utf-8"
         )
 

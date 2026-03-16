@@ -249,7 +249,7 @@ try {
 
                 # Update id-registry.json PD-TST nextAvailable
                 try {
-                    $idRegistryPath = Join-Path $projectRoot "../../../id-registry.json"
+                    $idRegistryPath = Join-Path $projectRoot "doc/id-registry.json"
                     $idRegistry = Get-Content $idRegistryPath -Raw -Encoding UTF8 | ConvertFrom-Json
                     $newNext = $nextTestId + 1
                     $idRegistry.prefixes.'PD-TST'.nextAvailable = $newNext
@@ -305,7 +305,7 @@ try {
             "⚠️  AI agents MUST follow the referenced guide to properly customize the content.",
             "",
             "📖 MANDATORY CUSTOMIZATION GUIDE:",
-            "   doc/process-framework/guides/guides/test-specification-creation-guide.md",
+            "doc/process-framework/guides/guides/03-testing/test-specification-creation-guide.md",
             "🎯 FOCUS AREAS: 'Step-by-Step Instructions' and 'Quality Assurance' sections",
             "",
             "🚫 DO NOT use the generated file without proper customization!",

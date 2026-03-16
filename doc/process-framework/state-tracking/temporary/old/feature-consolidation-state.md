@@ -103,7 +103,7 @@ NEW 5.1.1: CI/CD & Development Tooling ← OLD 5.1.1–5.1.7
 
 | ID Range | Location | Action |
 |----------|----------|--------|
-| ART-ASS-148 through ART-ASS-190 | doc/process-framework/methodologies/documentation-tiers/assessments/ | Archive all, create 9 new consolidated assessments |
+| ART-ASS-148 through ART-ASS-190 | doc/product-docs/documentation-tiers/assessments/ | Archive all, create 9 new consolidated assessments |
 
 ---
 
@@ -215,7 +215,7 @@ NEW 5.1.1: CI/CD & Development Tooling ← OLD 5.1.1–5.1.7
 
 ### Phase 5: Assessment Consolidation
 
-- [x] **5.1** Create archive directory: `doc/process-framework/methodologies/documentation-tiers/assessments/archive/`
+- [x] **5.1** Create archive directory: `doc/product-docs/documentation-tiers/assessments/archive/`
   - **Status**: COMPLETED
 
 - [x] **5.2** Move all 42 old assessment files (ART-ASS-148–190) to archive directory

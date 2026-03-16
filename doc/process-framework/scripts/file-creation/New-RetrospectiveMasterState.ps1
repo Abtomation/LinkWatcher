@@ -140,7 +140,7 @@ try {
         "4. Begin feature discovery and code assignment",
         "",
         "📖 TASK DEFINITION:",
-        "   doc/process-framework/tasks/00-onboarding/codebase-feature-discovery.md",
+        "doc/process-framework/tasks/00-onboarding/codebase-feature-discovery.md",
         "",
         "⚠️  This is a TEMPORARY file - archive it when onboarding is complete.",
         "✅ Update this file at the END of every onboarding session."

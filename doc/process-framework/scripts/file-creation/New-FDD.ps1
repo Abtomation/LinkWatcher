@@ -138,7 +138,7 @@ try {
             "⚠️  AI agents MUST follow the referenced guide to properly customize the content.",
             "",
             "📖 MANDATORY CUSTOMIZATION GUIDE:",
-            "   doc/process-framework/guides/guides/fdd-customization-guide.md",
+            "doc/process-framework/guides/guides/02-design/fdd-customization-guide.md",
             "🎯 FOCUS AREAS: 'Functional Requirements' and 'User Experience Flow' sections",
             "",
             "🎯 What the guide will teach you:",
@@ -227,7 +227,7 @@ Before considering this script complete, test the following:
 
 CUSTOMIZATION REQUIREMENTS:
 - Ensure fdd-template.md exists in the templates directory
-- Verify fdd-customization-guide.md exists for user guidance
+- Verify doc/process-framework/guides/guides/02-design/fdd-customization-guide.md exists for user guidance
 - Test with various Feature ID formats (e.g., "1.1.1", "2.3.4")
 - Validate filename generation includes feature ID (format: fdd-[feature-id]-[feature-name].md)
 - Verify filename generation handles special characters in feature names correctly

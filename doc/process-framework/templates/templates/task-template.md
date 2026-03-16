@@ -60,7 +60,7 @@ additional_fields:
 - **Reference Only (Access When Needed):**
   - [Reference Input 1] - [Brief description with link to source]
   - [Reference Input 2] - [Brief description with link to source]
-  - [Visual Notation Guide](/doc/process-framework/guides/guides/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Visual Notation Guide](/doc/process-framework/guides/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 ## Process
 
@@ -134,7 +134,7 @@ Before considering this task finished:
 
   <!-- Note to task creator: Link state files in checklist items just as in the State Tracking section -->
 
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-XXX" and context "[Task Name]"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-XXX" and context "[Task Name]"
 
 ## Next Tasks
 

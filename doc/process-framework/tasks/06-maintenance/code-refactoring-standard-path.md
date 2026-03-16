@@ -21,6 +21,8 @@
    ```powershell
    cd doc/process-framework/scripts/file-creation
    .\New-RefactoringPlan.ps1 -RefactoringScope "Brief description" -TargetArea "Component/Module name"
+   # Add -DocumentationOnly for doc-only changes (no code metrics/test sections)
+   # Add -DebtItemId "TDXXX" to auto-populate debt item reference
    ```
 
 2. **Create Temporary State Tracking** (conditional):
@@ -40,7 +42,8 @@
    - Update status regularly during implementation
 
 3. **Analyze Current State**: Document current code quality issues, complexity metrics, and technical debt items
-4. **Verify Test Coverage**: Ensure comprehensive test coverage exists for the target code area
+4. **Check manual test coverage**: Review [test-tracking.md](../../state-tracking/permanent/test-tracking.md) for manual test cases covering the affected functionality. Note which test groups will need re-execution after refactoring.
+5. **Verify Test Coverage**: Ensure comprehensive test coverage exists for the target code area
 5. **Create Baseline Measurements**: Record current performance metrics and code quality indicators
 6. **🚨 CHECKPOINT**: Present analysis findings, baseline metrics, and test coverage status to human partner
 
@@ -128,7 +131,7 @@ When bugs are discovered during refactoring, follow this decision process:
 14. **Report Discovered Bugs**: If bugs are identified during refactoring:
 
     - Use [../../scripts/file-creation/New-BugReport.ps1](../../scripts/file-creation/New-BugReport.ps1) script to create standardized bug reports
-    - Follow [Bug Reporting Guide](../../guides/guides/bug-reporting-guide.md) for consistent documentation
+    - Follow [Bug Reporting Guide](../../guides/guides/06-maintenance/bug-reporting-guide.md) for consistent documentation
     - Add bug entries to [Bug Tracking](../../state-tracking/permanent/bug-tracking.md) with status 🆕 Reported
     - Include refactoring context and evidence in bug reports
     - Reference specific code areas or patterns that revealed the bugs
@@ -162,7 +165,8 @@ When bugs are discovered during refactoring, follow this decision process:
 - [ ] **Update [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md)**: `Update-TechDebt.ps1 -DebtId "TD###" -NewStatus "Resolved" -ResolutionNotes "..." -PlanLink "[TD###](path)"` — if the TD item is tracked in [Foundational Validation Tracking](../../state-tracking/temporary/foundational-validation-tracking.md), also pass `-FoundationalNote "Resolved (...)" -FoundationalTrackingPath "<absolute-path>"`
 - [ ] **Update [Feature Tracking](../../state-tracking/permanent/feature-tracking.md)**: Improve feature status (e.g., "🔄 Needs Revision" → "🧪 Testing")
 - [ ] **Update [Architecture Tracking](../../state-tracking/permanent/architecture-tracking.md)**: For foundation features (0.x.x), document architectural improvements
-- [ ] **Update [Test Implementation Tracking](../../state-tracking/permanent/test-implementation-tracking.md)**: Note test improvements or new test requirements
+- [ ] **Update [Test Tracking](../../state-tracking/permanent/test-tracking.md)**: Note test improvements or new test requirements
+- [ ] **Mark manual test groups for re-execution** (if applicable): `Update-TestExecutionStatus.ps1 -FeatureId "X.Y.Z" -Status "Needs Re-execution" -Reason "Refactoring [scope]"`
 
 ##### Phase 3: Post-Completion
 
@@ -192,7 +196,7 @@ When bugs are discovered during refactoring, follow this decision process:
   - [ ] Any discovered bugs reported using ../../scripts/file-creation/New-BugReport.ps1 script with proper context and evidence
 - [ ] **Update State Files**: Ensure all state tracking files have been updated according to the 3-phase checklist
   - [ ] **Phase 1 (During)**: Temporary state tracking, bug tracking, technical debt progress documented
-  - [ ] **Phase 2 (Completion)**: [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md) resolved items, [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) status improved, [Architecture Tracking](../../state-tracking/permanent/architecture-tracking.md) updated for foundation features, [Test Implementation Tracking](../../state-tracking/permanent/test-implementation-tracking.md) updated
+  - [ ] **Phase 2 (Completion)**: [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md) resolved items, [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) status improved, [Architecture Tracking](../../state-tracking/permanent/architecture-tracking.md) updated for foundation features, [Test Tracking](../../state-tracking/permanent/test-tracking.md) updated
   - [ ] **Product Documentation**: If refactoring changed module boundaries/interfaces/design patterns — feature state file, TDD, FDD, and test spec updated (Step 12)
   - [ ] **Phase 3 (Post)**: Temporary state archived (if created) to [old directory](../../state-tracking/temporary/old), [Context Packages](../../architecture/context-packages) updated for architectural changes
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-022" and context "Code Refactoring Task"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-022" and context "Code Refactoring Task"

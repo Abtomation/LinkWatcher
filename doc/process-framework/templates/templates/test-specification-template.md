@@ -2,14 +2,14 @@
 id: [PF-TSP-XXX]
 type: Process Framework
 category: Test Specification
-version: 1.1
+version: 1.2
 created: [CREATION-DATE]
 updated: [CREATION-DATE]
 feature_id: [FEATURE-ID]
 feature_name: [FEATURE-NAME]
 tdd_path: [TDD-PATH]
 test_tier: [1|2|3]
-change_notes: "v1.1 - Added cross-reference sections for IMP-097/IMP-098 (FDD, API, Schema, TDD)"
+change_notes: "v1.2 - Added Manual Test Scenarios section for manual/automated test classification"
 ---
 
 # Test Specification: [FEATURE-NAME]
@@ -240,6 +240,22 @@ Based on the feature tier assessment:
 | ------------- | ------------------- | -------------------- | ----------------- |
 | [JourneyName] | [Step-by-step flow] | [Success definition] | [Failure cases]   |
 
+### Manual Test Scenarios
+
+<!-- Scenarios requiring human interaction with the running system. Remove this section if no scenarios are classified as manual or both. -->
+
+> **Purpose**: This section identifies test scenarios that cannot be fully validated through automated tests and require manual interaction with the running system. Each scenario classified as `manual` or `both` during step 11 of the task process should have an entry here.
+
+| Scenario ID | Description | Classification | User Action | Involved Components | Expected Outcome | Test Group |
+|-------------|-------------|----------------|-------------|---------------------|------------------|------------|
+| [MS-001] | [What behavior is being validated] | [manual/both] | [What the human tester does] | [File types, link formats, system behaviors] | [Observable expected result] | [e.g., basic-file-operations] |
+
+<!-- Notes for Manual Test Case Creation task:
+- Each scenario listed here becomes an input for the Manual Test Case Creation task
+- The Manual Test Case Creation task will create concrete, executable test cases with exact file contents and verification criteria
+- Test Groups help organize related scenarios for batch execution via master tests
+-->
+
 ## Mock Requirements
 
 ### External Dependencies
@@ -349,7 +365,7 @@ test/
 
 - **Source TDD**: [TDD-PATH]
 - **Feature Tier Assessment**: [Link to tier assessment if available]
-- **Development Guide**: /doc/product-docs/guides/guides/development-guide.md
+- **Development Guide**: /doc/process-framework/guides/guides/04-implementation/development-guide.md
 - **Project Testing Framework Documentation**: [Link to your project's testing framework docs]
 - **Mock Library Documentation**: [Link to your project's mock library docs]
 

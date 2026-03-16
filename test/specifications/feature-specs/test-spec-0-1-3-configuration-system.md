@@ -125,7 +125,7 @@ This file has **0 test methods** — the `testCasesCount: 10` in the registry is
 
 - **CLI arguments**: Feature description mentions CLI as a config source — no tests for argument parsing
 - **Priority cascade**: No test verifying CLI > env > file > defaults ordering
-- **tests/test_config.py miscount**: Registry shows 10 test cases but file has 0 — it's a utility module
+- **tests/test_config.py miscount**: Registry showed 10 test cases but file has 0 — it's a utility module (fixed in test audit PF-TAR-007, 2026-03-15)
 
 ## AI Agent Session Handoff Notes
 

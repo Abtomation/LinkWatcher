@@ -477,9 +477,23 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
 
         Used as callback by both MoveDetector (per-file deletes) and
         DirectoryMoveDetector (unmatched files in directory deletes).
+
+        PD-BUG-035: If the file still exists when the timer fires, it was
+        replaced (e.g., sed -i), not truly deleted. Rescan instead of removing.
+        We no longer remove links from the database on deletion — stale entries
+        are harmless (cause non-fatal errors if targets move) and self-heal
+        on restart.
         """
         try:
-            self.link_db.remove_file_links(file_path)
+            # PD-BUG-035: Check if file was replaced rather than deleted
+            abs_path = os.path.join(str(self.project_root), file_path)
+            if os.path.exists(abs_path):
+                self.logger.info(
+                    "file_replaced_not_deleted",
+                    file_path=file_path,
+                )
+                self._ref_lookup.rescan_file_links(abs_path)
+                return
 
             references = self.link_db.get_references_to_file(file_path)
             if references:

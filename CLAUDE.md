@@ -49,7 +49,7 @@ ENDOFSCRIPT
 pwsh.exe -ExecutionPolicy Bypass -File /c/path/to/project/temp.ps1 && rm /c/path/to/project/temp.ps1
 ```
 
-See @doc/process-framework/guides/guides/script-development-quick-reference.md for details and examples.
+See @doc/process-framework/guides/guides/support/script-development-quick-reference.md for details and examples.
 
 ## Architecture Overview
 
@@ -160,7 +160,7 @@ Each task definition includes a mandatory completion checklist.
 
 ## Visual Notation
 
-Framework uses standardized diagram formats. See @doc/process-framework/guides/guides/visual-notation-guide.md for interpretation.
+Framework uses standardized diagram formats. See @doc/process-framework/guides/guides/support/visual-notation-guide.md for interpretation.
 
 ## LinkWatcher Workflow
 

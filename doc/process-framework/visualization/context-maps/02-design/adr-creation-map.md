@@ -69,7 +69,7 @@ graph TD
 ## Related Documentation
 
 - [ADR Creation Task Definition](../../../tasks/02-design/adr-creation-task.md) - Complete task workflow and requirements
-- [Architecture Decision Creation Guide](../../../guides/guides/architecture-decision-creation-guide.md) - Comprehensive customization guide
+- [Architecture Decision Creation Guide](../../../guides/guides/02-design/architecture-decision-creation-guide.md) - Comprehensive customization guide
 - [ADR Template](../../../../product-docs/templates/templates/adr-template.md) - Template structure and sections
 - [New-ArchitectureDecision.ps1](../../../scripts/file-creation/New-ArchitectureDecision.ps1) - ADR creation script
 - [Component Relationship Index](../../../../product-docs/technical/architecture/component-relationship-index.md) - Complete reference of all component relationships

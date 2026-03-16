@@ -2,11 +2,11 @@
 id: PF-TSK-012
 type: Process Framework
 category: Task Definition
-version: 1.3
+version: 1.4
 created: 2025-01-15
-updated: 2026-03-02
+updated: 2026-03-15
 task_type: Discrete
-change_notes: "v1.2 - Added Information Flow and Separation of Concerns sections for IMP-097/IMP-098"
+change_notes: "v1.4 - Added manual test classification steps (11-12), UI documentation review (step 3), manual test scenario output, and Manual Test Case Creation handover interface"
 ---
 
 # Test Specification Creation
@@ -39,7 +39,7 @@ Create comprehensive test specifications from existing Technical Design Document
 
 ## Information Flow
 
-> **📋 Detailed Guidance**: See [Task Transition Guide - Information Flow Section](../../guides/guides/task-transition-guide.md#information-flow-and-separation-of-concerns)
+> **📋 Detailed Guidance**: See [Task Transition Guide - Information Flow Section](../../guides/guides/framework/task-transition-guide.md#information-flow-and-separation-of-concerns)
 
 ### Inputs from Other Tasks
 
@@ -52,6 +52,7 @@ Create comprehensive test specifications from existing Technical Design Document
 ### Outputs to Other Tasks
 
 - **Feature Implementation Task**: Test cases, test data, mock strategies, validation criteria, test implementation roadmap
+- **Manual Test Case Creation** (future task): Manual test scenario requirements — scenarios classified as `manual` or `both` with user actions, expected outcomes, and test group assignments
 
 ### Cross-Reference Standards
 
@@ -94,12 +95,12 @@ When referencing other tasks' outputs in Test Specifications:
   - **Functional Design Document (FDD)** - For Tier 2+ features, the FDD containing acceptance criteria and user flows that inform test scenarios
   - [Technical Design Document](/doc/product-docs/technical/architecture/design-docs/tdd/) - The TDD for the feature being specified
   - [Tier Assessments](/doc/product-docs/documentation-tiers/assessments) - Complexity assessment to determine test depth
-  - [Development Guide](/doc/product-docs/guides/guides/development-guide.md) - Testing standards and practices
+  - [Development Guide](/doc/process-framework/guides/guides/04-implementation/development-guide.md) - Testing standards and practices
 
 - **Important (Load If Space):**
 
   - [Test Registry](/test/test-registry.yaml) - Current test file registry with IDs and metadata
-  - [Test Implementation Tracking](/doc/process-framework/state-tracking/permanent/test-implementation-tracking.md) - Current test implementation status
+  - [Test Tracking](/doc/process-framework/state-tracking/permanent/test-tracking.md) - Current test implementation status
   - [Existing Test Structure](/test/) - Current test organization and patterns
   - [Mock Services](/test/mocks/) - Available mock implementations for testing
   - [Test Helpers](/test/test_helpers/) - Utility functions for test setup
@@ -107,7 +108,7 @@ When referencing other tasks' outputs in Test Specifications:
 
 - **Reference Only (Access When Needed):**
   - [Feature Tracking](/doc/process-framework/state-tracking/permanent/feature-tracking.md) - Feature development status
-  - [Visual Notation Guide](/doc/process-framework/guides/guides/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Visual Notation Guide](/doc/process-framework/guides/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
   - [ID Registry](/doc/id-registry.json) - Document ID counter management
 
 ## Process
@@ -126,17 +127,18 @@ When referencing other tasks' outputs in Test Specifications:
 
 1. **Review the Functional Design Document (FDD)**: For Tier 2+ features, read the FDD to understand acceptance criteria and user flows that need testing
 2. **Review the Target TDD**: Read the complete Technical Design Document for the feature
-3. **Assess Test Complexity**: Review the feature's tier assessment to determine appropriate test depth:
+3. **Review UI Documentation** (if applicable): For features with UI interactions, review any UI documentation linked from feature tracking to identify scenarios requiring manual validation with the running system
+4. **Assess Test Complexity**: Review the feature's tier assessment to determine appropriate test depth:
    - **Tier 1 🔵**: Basic unit tests and key integration scenarios
    - **Tier 2 🟠**: Comprehensive unit tests, integration tests, and UI/component tests
    - **Tier 3 🔴**: Full test suite including unit, integration, UI/component, and end-to-end tests
-4. **Analyze Existing Test Structure**: Review current test organization and identify patterns to follow
-5. **Identify Test Dependencies**: Determine what mocks, helpers, and test utilities are needed
-6. **🚨 CHECKPOINT**: Present test complexity assessment, existing test structure analysis, and identified dependencies to human partner for approval
+5. **Analyze Existing Test Structure**: Review current test organization and identify patterns to follow
+6. **Identify Test Dependencies**: Determine what mocks, helpers, and test utilities are needed
+7. **🚨 CHECKPOINT**: Present test complexity assessment, existing test structure analysis, and identified dependencies to human partner for approval
 
 ### Execution
 
-7. **Create Test Specification Document**: Create a new file in `/test/specifications/feature-specs/`
+8. **Create Test Specification Document**: Create a new file in `/test/specifications/feature-specs/`
 
    ```powershell
    # Navigate to test specifications directory
@@ -147,57 +149,71 @@ When referencing other tasks' outputs in Test Specifications:
    New-Item -ItemType File -Name "test-spec-[FEATURE-ID]-[feature-name].md"
    ```
 
-8. **Define Test Categories**: Based on the TDD, create test specifications for:
+9. **Define Test Categories**: Based on the TDD, create test specifications for:
 
    - **Unit Tests**: Individual component/service testing
    - **Integration Tests**: Component interaction testing
    - **UI/Component Tests**: UI component testing
    - **End-to-End Tests**: Complete user flow testing (Tier 3 only)
 
-9. **Specify Test Cases**: For each test category, define:
+10. **Specify Test Cases**: For each test category, define:
 
-   - **Test Description**: What behavior is being tested
-   - **Arrange**: Setup requirements and test data
-   - **Act**: The action being performed
-   - **Assert**: Expected outcomes and validation criteria
-   - **Edge Cases**: Boundary conditions and error scenarios
+    - **Test Description**: What behavior is being tested
+    - **Arrange**: Setup requirements and test data
+    - **Act**: The action being performed
+    - **Assert**: Expected outcomes and validation criteria
+    - **Edge Cases**: Boundary conditions and error scenarios
 
-10. **Map TDD Components to Tests**: Create explicit mapping between:
+11. **Classify Test Scenarios**: For each test scenario in the specification, classify as:
+    - **`automated`** — Covered by unit/integration tests that an AI agent can implement and run
+    - **`manual`** — Requires human interaction with the running system (file moves, UI operations, observing real-time behavior)
+    - **`both`** — Needs automated regression test + manual validation
 
-   - TDD Models → Unit test specifications
-   - TDD Services → Service test specifications
-   - TDD Data Flow → Integration test specifications
-   - TDD UI Components → UI/component test specifications
+12. **Define Manual Test Requirements**: For scenarios classified as `manual` or `both`, specify in a dedicated "Manual Test Scenarios" section:
+    - What user action triggers the test
+    - What file types, link formats, or system behaviors are involved
+    - What the expected observable outcome is
+    - Which test group this scenario belongs to (e.g., basic-file-operations, parser-specific, etc.)
 
-11. **Define Mock Requirements**: Specify what mocks are needed and their expected behaviors
+13. **Map TDD Components to Tests**: Create explicit mapping between:
 
-12. **Create AI Session Context**: Add "AI Agent Session Handoff Notes" section with:
+    - TDD Models → Unit test specifications
+    - TDD Services → Service test specifications
+    - TDD Data Flow → Integration test specifications
+    - TDD UI Components → UI/component test specifications
+
+14. **Define Mock Requirements**: Specify what mocks are needed and their expected behaviors
+
+15. **Create AI Session Context**: Add "AI Agent Session Handoff Notes" section with:
     - Summary of test specifications created
     - Priority order for test implementation
     - Specific files that need to be created/modified
     - Dependencies between test files
 
-13. **Add Clickable Links**: Ensure all file path references in the specification are clickable markdown links:
+16. **Add Clickable Links**: Ensure all file path references in the specification are clickable markdown links:
     - **Test File** references (e.g., `tests/unit/test_service.py`) must use `[`path`](../../../path)` format
     - **Files to Reference** section paths (TDD, source code, fixtures) must be linked
     - **Source Code** references (e.g., `linkwatcher/database.py`) must be linked
     - Relative prefix from `test/specifications/feature-specs/` to project root is `../../../`
 
-14. **🚨 CHECKPOINT**: Present draft test specification with test categories, test cases, mock requirements, and TDD mappings to human partner for review and approval
+17. **🚨 CHECKPOINT**: Present draft test specification with test categories, test cases, manual test scenario classifications, mock requirements, and TDD mappings to human partner for review and approval
 
 ### Finalization
 
-15. **Review Test Coverage**: Ensure all TDD components have corresponding test specifications
-16. **Validate Test Feasibility**: Confirm all specified tests can be implemented with available tools
-17. **Update Test Status Tracking**: Record test specification completion in tracking files
-18. **Complete State Tracking Updates**: Ensure all tracking files are properly updated with the new test specification information
-19. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+18. **Review Test Coverage**: Ensure all TDD components have corresponding test specifications
+19. **Validate Test Feasibility**: Confirm all specified tests can be implemented with available tools
+20. **Update Test Status Tracking**: Record test specification completion in tracking files
+    - Update [Feature Tracking](/doc/process-framework/state-tracking/permanent/feature-tracking.md) Test Status — set to "🔧 Automated Only" if manual test scenarios were identified but manual test cases not yet created, or "📋 Specs Created" if no manual test scenarios apply
+    - Update [Test Tracking](/doc/process-framework/state-tracking/permanent/test-tracking.md) — add manual test scenario entries with status "⬜ Not Created" for scenarios classified as `manual` or `both`
+21. **Complete State Tracking Updates**: Ensure all tracking files are properly updated with the new test specification information
+22. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 
 - **Test Specification Document** - Comprehensive test specifications in `/test/specifications/feature-specs/test-spec-[FEATURE-ID]-[feature-name].md`
 - **Test Implementation Roadmap** - Priority-ordered list of tests to implement, included in the specification document
 - **Mock Requirements Documentation** - Detailed specifications for required mocks and their behaviors
+- **Manual Test Scenarios** (if applicable) - Section within the test specification listing scenarios classified as `manual` or `both`, with user actions, involved file types, expected outcomes, and test group assignments
 
 ## State Tracking
 
@@ -207,7 +223,7 @@ The following state files must be updated as part of this task:
 - [Test Registry](/test/test-registry.yaml) - Update `specificationPath` field for all test files belonging to the feature
 - [ID Registry](/doc/id-registry.json) - Update `PF-TSP.nextAvailable` counter after creating specifications
 - [Documentation Map](/doc/process-framework/documentation-map.md) - Add new test specification entries to the Test Specifications section
-- [Test Implementation Tracking](/doc/process-framework/state-tracking/permanent/test-implementation-tracking.md) - Add section if feature category is missing
+- [Test Tracking](/doc/process-framework/state-tracking/permanent/test-tracking.md) - Add section if feature category is missing
 
 **Note**: If a feature is determined to not require tests (assessment/documentation features), update the Feature Tracking Test Status directly to "🚫 No Test Required" instead of using this task.
 
@@ -222,18 +238,21 @@ Before considering this task finished:
   - [ ] Test Implementation Roadmap included with priority ordering
   - [ ] Mock Requirements Documentation completed
   - [ ] AI Session Context notes included for implementation handoff
+  - [ ] Test scenarios classified as `automated`, `manual`, or `both`
+  - [ ] Manual Test Scenarios section included (if any scenarios classified as `manual` or `both`)
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
-  - [ ] [Feature Tracking](/doc/process-framework/state-tracking/permanent/feature-tracking.md) — Test Status updated to "📋 Specs Created" and Test Spec link added
+  - [ ] [Feature Tracking](/doc/process-framework/state-tracking/permanent/feature-tracking.md) — Test Status updated (use "🔧 Automated Only" if manual scenarios identified, "📋 Specs Created" if no manual scenarios) and Test Spec link added
   - [ ] [Test Registry](/test/test-registry.yaml) — `specificationPath` populated for all test files belonging to the feature
   - [ ] [ID Registry](/doc/id-registry.json) — `PF-TSP.nextAvailable` counter incremented
   - [ ] [Documentation Map](/doc/process-framework/documentation-map.md) — New test spec entries added to Test Specifications section
-  - [ ] [Test Implementation Tracking](/doc/process-framework/state-tracking/permanent/test-implementation-tracking.md) — Feature section added if missing
+  - [ ] [Test Tracking](/doc/process-framework/state-tracking/permanent/test-tracking.md) — Feature section added if missing; manual test scenario entries added with "⬜ Not Created" status if applicable
 - [ ] **Verify State Tracking Consistency**: Ensure all tracking files are properly updated and consistent
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](/doc/process-framework/guides/guides/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-012" and context "Test Specification Creation"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](/doc/process-framework/guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-012" and context "Test Specification Creation"
 
 ## Next Tasks
 
-- [**Integration & Testing (PF-TSK-053)**](../04-implementation/integration-and-testing.md) - Implement test cases and validate integration after feature implementation
+- [**Integration & Testing (PF-TSK-053)**](../04-implementation/integration-and-testing.md) - Implement automated test cases and validate integration after feature implementation
+- **Manual Test Case Creation** (future task) - Create concrete, reproducible manual test cases from the manual test scenarios identified in this specification
 - [**Feature Implementation Planning**](../04-implementation/feature-implementation-planning-task.md) - Plan and execute feature implementation using decomposed tasks
 - [**Code Review**](../06-maintenance/code-review-task.md) - Review implemented tests and code for quality assurance
 

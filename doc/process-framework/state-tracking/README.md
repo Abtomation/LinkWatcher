@@ -26,7 +26,7 @@ State tracking files help to:
 | State File | Purpose | Updated By |
 |------------|---------|------------|
 | [feature-tracking.md](permanent/feature-tracking.md) | Track the status of all features | Feature Tier Assessment, TDD Creation, Test Specification Creation, Feature Implementation, Code Review |
-| [test-case-implementation-tracking.md](permanent/test-implementation-tracking.md) | Track implementation status of test cases derived from test specifications | Test Specification Creation, Feature Implementation, Code Review |
+| [test-tracking.md](permanent/test-tracking.md) | Track implementation status of test cases derived from test specifications | Test Specification Creation, Feature Implementation, Code Review |
 | [technical-debt-tracking.md](permanent/technical-debt-tracking.md) | Track and manage technical debt items | Code Review, Process Improvement, Feature Implementation |
 | [process-improvement-tracking.md](permanent/process-improvement-tracking.md) | Track process improvement initiatives and their status | Process Improvement, Tools Review |
 

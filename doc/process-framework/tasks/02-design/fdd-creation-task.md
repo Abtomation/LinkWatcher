@@ -33,7 +33,7 @@ Create comprehensive Functional Design Documents (FDD) that capture functional r
 
 ## Information Flow
 
-> **📋 Detailed Guidance**: See [Task Transition Guide - Information Flow Section](../../guides/guides/task-transition-guide.md#information-flow-and-separation-of-concerns)
+> **📋 Detailed Guidance**: See [Task Transition Guide - Information Flow Section](../../guides/guides/framework/task-transition-guide.md#information-flow-and-separation-of-concerns)
 
 ### Inputs from Other Tasks
 
@@ -82,30 +82,30 @@ When referencing other tasks' outputs in FDDs:
 
 ## Context Requirements
 
-B-design/visualization/context-maps/discrete/fdd-creation-map.md)
+[FDD Creation Context Map](../../visualization/context-maps/02-design/fdd-creation-map.md)
 
 - **Critical (Must Read):**
 
-  - **Feature Information** - Feature details from B-design/state-tracking/permanent/feature-tracking.md) including ID, name, description, and tier assessment
-  - **Feature Tier Assessment** - Complexity evaluation and FDD requirement determination from A-planning/feature-tier-assessment-task.md)
+  - **Feature Information** - Feature details from [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) including ID, name, description, and tier assessment
+  - **Feature Tier Assessment** - Complexity evaluation and FDD requirement determination from [Feature Tier Assessment Task](../01-planning/feature-tier-assessment-task.md)
   - **Human Input on Feature Behavior** - Direct consultation with human partner about how the feature should work from user perspective
-  - B-design/guides/guides/fdd-customization-guide.md) - Essential guide for understanding FDD structure and customization requirements
+  - [FDD Customization Guide](../../guides/guides/02-design/fdd-customization-guide.md) - Essential guide for understanding FDD structure and customization requirements
 
 - **Important (Load If Space):**
 
-  - B-design/templates/templates/fdd-template.md) - Template structure for creating FDD documents
-  - A-planning/feature-discovery-task.md) - Background research and analysis if available
-  - B-design/state-tracking/permanent/feature-tracking.md) - Any existing user stories or requirements documentation
+  - [FDD Template](../../templates/templates/fdd-template.md) - Template structure for creating FDD documents
+  - [Feature Discovery Task](../01-planning/feature-discovery-task.md) - Background research and analysis if available
+  - [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Any existing user stories or requirements documentation
 
 - **Reference Only (Access When Needed):**
-  - B-design/guides/guides/visual-notation-guide.md) - For interpreting context map diagrams
-  - [ID Registry](../discrete/id-registry.json) - For FDD ID assignment and directory mapping
+  - [Visual Notation Guide](../../guides/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
+  - [ID Registry](../../../id-registry.json) - For FDD ID assignment and directory mapping
 
 ## Process
 
 > **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished! 🚨**
 >
-> **⚠️ MANDATORY: Use the ../discrete/02-design/02-design/02-design/02-design/New-FDD.ps1 automation script for document creation.**
+> **⚠️ MANDATORY: Use the ../../scripts/file-creation/New-FDD.ps1 automation script for document creation.**
 >
 > **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
 >
@@ -113,7 +113,7 @@ B-design/visualization/context-maps/discrete/fdd-creation-map.md)
 
 ### Preparation
 
-1. **Identify Target Feature**: Locate the feature in B-design/state-tracking/permanent/feature-tracking.md) and verify it requires FDD creation
+1. **Identify Target Feature**: Locate the feature in [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) and verify it requires FDD creation
 2. **Review Feature Tier Assessment**: Confirm the feature is Tier 2 or Tier 3, or has specific FDD triggers (complex interactions, business rules, etc.)
 3. **Gather Existing Information**: Collect any available feature discovery results, user stories, or requirements documentation
 4. **🚨 CHECKPOINT**: Present feature context, tier assessment results, and existing information to human partner for approval before proceeding
@@ -146,19 +146,19 @@ B-design/visualization/context-maps/discrete/fdd-creation-map.md)
 ### Finalization
 
 13. **Validate Completeness**: Review FDD against the validation checklist in the template
-14. **Verify Automated Updates**: The ../discrete/02-design/02-design/02-design/02-design/New-FDD.ps1 script automatically updates feature tracking - verify the updates were applied correctly
+14. **Verify Automated Updates**: The ../../scripts/file-creation/New-FDD.ps1 script automatically updates feature tracking - verify the updates were applied correctly
 15. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 
 - **Functional Design Document (FDD)** - Complete FDD document in `/doc/product-docs/functional-design/fdds/fdd-[feature-id]-[feature-name].md` with assigned FDD ID
-- **Updated Feature Tracking** - Feature status updated to "📋 FDD Created" with FDD link in B-design/state-tracking/permanent/feature-tracking.md)
+- **Updated Feature Tracking** - Feature status updated to "📋 FDD Created" with FDD link in [Feature Tracking](../../state-tracking/permanent/feature-tracking.md)
 
 ## State Tracking
 
-The following state files are automatically updated by the ../discrete/02-design/02-design/02-design/02-design/New-FDD.ps1 script:
+The following state files are automatically updated by the ../../scripts/file-creation/New-FDD.ps1 script:
 
-- B-design/state-tracking/permanent/feature-tracking.md) - Automatically updated with feature status "📋 FDD Created" and FDD document link in the FDD column
+- [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Automatically updated with feature status "📋 FDD Created" and FDD document link in the FDD column
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
@@ -172,21 +172,21 @@ Before considering this task finished:
   - [ ] Functional requirements, user interactions, and business rules clearly documented
   - [ ] Acceptance criteria are testable and measurable
   - [ ] Edge cases and error handling scenarios identified
-- [ ] **Verify Automated Updates**: Ensure the ../discrete/02-design/02-design/02-design/02-design/New-FDD.ps1 script successfully updated state tracking files
-  - [ ] B-design/state-tracking/permanent/feature-tracking.md) automatically updated with FDD link and status "📋 FDD Created"
+- [ ] **Verify Automated Updates**: Ensure the ../../scripts/file-creation/New-FDD.ps1 script successfully updated state tracking files
+  - [ ] [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) automatically updated with FDD link and status "📋 FDD Created"
 - [ ] **Human Consultation Completed**: Confirmed that human partner was consulted about feature behavior and requirements
-- [ ] **Complete Feedback Forms**: Follow the B-design/guides/guides/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-027" and context "FDD Creation"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-027" and context "FDD Creation"
 
 ## Next Tasks
 
-- B-design/tdd-creation-task.md) - Create Technical Design Document based on functional requirements defined in the FDD
-- B-design/test-specification-creation-task.md) - Create comprehensive test specifications using FDD acceptance criteria
+- [TDD Creation Task](tdd-creation-task.md) - Create Technical Design Document based on functional requirements defined in the FDD
+- [Test Specification Creation Task](../03-testing/test-specification-creation-task.md) - Create comprehensive test specifications using FDD acceptance criteria
 - [**Feature Implementation Planning**](../04-implementation/feature-implementation-planning-task.md) - Plan and implement the feature using both FDD and TDD as guidance
 
 ## Related Resources
 
-- B-design/templates/templates/fdd-template.md) - Template for creating Functional Design Documents
-- B-design/guides/guides/fdd-customization-guide.md) - Guide for customizing FDD templates after creation
-- A-planning/feature-tier-assessment-task.md) - Task for determining if FDD is required
-- B-design/state-tracking/permanent/feature-tracking.md) - Central tracking document for all features
-- B-design/proposals/proposals/functional-design-document-integration-concept.md) - Original concept document for FDD integration
+- [FDD Template](../../templates/templates/fdd-template.md) - Template for creating Functional Design Documents
+- [FDD Customization Guide](../../guides/guides/02-design/fdd-customization-guide.md) - Guide for customizing FDD templates after creation
+- [Feature Tier Assessment Task](../01-planning/feature-tier-assessment-task.md) - Task for determining if FDD is required
+- [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Central tracking document for all features
+- [FDD Integration Concept](../../proposals/proposals/functional-design-document-integration-concept.md) - Original concept document for FDD integration

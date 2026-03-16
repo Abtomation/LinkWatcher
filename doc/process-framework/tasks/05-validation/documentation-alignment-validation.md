@@ -35,7 +35,7 @@ Systematically validates foundational features for documentation alignment, ensu
 
 - **Critical (Must Read):**
 
-  - **Foundational Validation Guide** - [Foundational Validation Guide](../../guides/guides/foundational-validation-guide.md) - Comprehensive guide for conducting foundational codebase validation
+  - **Foundational Validation Guide** - [Foundational Validation Guide](../../guides/guides/05-validation/foundational-validation-guide.md) - Comprehensive guide for conducting foundational codebase validation
   - **Feature Tracking** - [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Current status of foundational features to be validated
   - **Foundational Validation Tracking** - [Foundational Validation Tracking](../../state-tracking/temporary/foundational-validation-tracking.md) - Master validation matrix and progress tracking
   - **Validation Report Template** - [Validation Report Template](../../templates/templates/validation-report-template.md) - Template for creating validation reports
@@ -51,10 +51,10 @@ Systematically validates foundational features for documentation alignment, ensu
   - **Feature Implementation State Files** - [Feature State Directory](../../state-tracking/features/) - Implementation state files with feature status, TDD/FDD links, and validation context
 
 - **Reference Only (Access When Needed):**
-  - **Documentation Standards** - [Documentation Guide](../../guides/guides/documentation-guide.md) - Standards for documentation quality and consistency
-  - **TDD Creation Guide** - [TDD Creation Guide](../../guides/guides/tdd-creation-guide.md) - Understanding TDD structure and requirements
-  - **ADR Creation Guide** - [ADR Creation Guide](../../guides/guides/architecture-decision-creation-guide.md) - Understanding ADR format and content
-  - **Visual Notation Guide** - [Visual Notation Guide](../../guides/guides/visual-notation-guide.md) - For interpreting context map diagrams
+  - **Documentation Standards** - [Documentation Guide](../../guides/guides/05-validation/documentation-guide.md) - Standards for documentation quality and consistency
+  - **TDD Creation Guide** - [TDD Creation Guide](../../guides/guides/02-design/tdd-creation-guide.md) - Understanding TDD structure and requirements
+  - **ADR Creation Guide** - [ADR Creation Guide](../../guides/guides/02-design/architecture-decision-creation-guide.md) - Understanding ADR format and content
+  - **Visual Notation Guide** - [Visual Notation Guide](../../guides/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
   - **ID Registry** - [ID Registry](../../../id-registry.json) - For understanding validation report ID assignments
 
 ## Process
@@ -146,7 +146,7 @@ Before considering this task finished:
   - [ ] [Foundational Validation Tracking](../../state-tracking/temporary/foundational-validation-tracking.md) matrix updated with report creation date and link
   - [ ] [Documentation Map](../../documentation-map.md) updated with new validation report entry
   - [ ] **AUTOMATED**: [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md) updated with new open issues using `Update-TechDebt.ps1`
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-034" and context "Documentation Alignment Validation"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-034" and context "Documentation Alignment Validation"
 
 ## Next Tasks
 
@@ -156,7 +156,7 @@ Before considering this task finished:
 
 ## Related Resources
 
-- [Documentation Guide](../../guides/guides/documentation-guide.md) - Standards for documentation quality and consistency
-- [TDD Creation Guide](../../guides/guides/tdd-creation-guide.md) - Guide for creating and updating Technical Design Documents
-- [ADR Creation Guide](../../guides/guides/architecture-decision-creation-guide.md) - Guide for creating Architecture Decision Records
+- [Documentation Guide](../../guides/guides/05-validation/documentation-guide.md) - Standards for documentation quality and consistency
+- [TDD Creation Guide](../../guides/guides/02-design/tdd-creation-guide.md) - Guide for creating and updating Technical Design Documents
+- [ADR Creation Guide](../../guides/guides/02-design/architecture-decision-creation-guide.md) - Guide for creating Architecture Decision Records
 - API documentation standards and best practices for your technology stack

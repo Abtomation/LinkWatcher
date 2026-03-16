@@ -43,7 +43,7 @@ Establishes foundational project configuration and metadata when initializing a 
   - [ID Registry](../../../id-registry.json) - Understanding ID prefixes and directory mappings for path configuration
 
 - **Reference Only (Access When Needed):**
-  - [Documentation Structure Guide](../../guides/guides/documentation-structure-guide.md) - For understanding recommended directory structure
+  - [Documentation Structure Guide](../../guides/guides/framework/documentation-structure-guide.md) - For understanding recommended directory structure
   - [Framework Domain Adaptation](framework-domain-adaptation.md) - For comprehensive framework customization beyond config file
 
 ## Process
@@ -174,7 +174,7 @@ Before considering this task finished:
   - [ ] Path mappings correspond to actual directory structure
   - [ ] Repository URL is accessible (if provided)
 
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/feedback-form-completion-instructions.md) for task ID "PF-TSK-059" and context "Project Initiation"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for task ID "PF-TSK-059" and context "Project Initiation"
 
 ## Next Tasks
 
@@ -186,5 +186,5 @@ Before considering this task finished:
 - [Example project-config.json](../../project-config.json) - Reference implementation from LinkWatcher project
 - [Process Framework README](../../README.md) - Overview of framework structure and components
 - [Framework Domain Adaptation](framework-domain-adaptation.md) - Comprehensive framework customization for new domains
-- [Documentation Structure Guide](../../guides/guides/documentation-structure-guide.md) - Recommended directory organization patterns
+- [Documentation Structure Guide](../../guides/guides/framework/documentation-structure-guide.md) - Recommended directory organization patterns
 - [ID Registry](../../../id-registry.json) - Document ID prefixes and directory mappings

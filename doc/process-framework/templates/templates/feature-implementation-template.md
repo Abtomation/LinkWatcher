@@ -166,7 +166,7 @@ Use this checklist during implementation to ensure all aspects are covered:
 - [ ] Performed manual testing
 - [ ] Reviewed documentation tier and adjusted if needed (see [Documentation Tier Assessment Guide](../../guides/guides/01-planning/assessment-guide.md))
 - [ ] Updated documentation according to the (potentially adjusted) documentation tier
-- [ ] Checked against [Definition of Done](../../methodologies/definition-of-done.md)
+- [ ] Checked against [Definition of Done](../../guides/guides/04-implementation/definition-of-done.md)
 - [ ] Updated feature status in [feature tracking document](../../state-tracking/permanent/feature-tracking.md) to "Completed" 🟢
 
 ## Post-Implementation Review

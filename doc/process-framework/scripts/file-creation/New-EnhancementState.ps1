@@ -66,7 +66,7 @@ try {
         "⚠️  AI agents MUST follow the referenced guide to properly customize the content.",
         "",
         "📖 MANDATORY CUSTOMIZATION GUIDE:",
-        "   doc/process-framework/guides/guides/enhancement-state-tracking-customization-guide.md",
+        "doc/process-framework/guides/guides/04-implementation/enhancement-state-tracking-customization-guide.md",
         "🎯 FOCUS AREAS: Scope assessment, documentation inventory, workflow block evaluation (mark each as applicable/not applicable)",
         "",
         "🚫 DO NOT use the generated file without proper customization!",

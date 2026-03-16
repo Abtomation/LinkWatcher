@@ -39,7 +39,7 @@ This task produces enriched Feature Implementation State files that serve as the
   - [Retrospective Master State File](../../state-tracking/temporary/retrospective-master-state.md) — Read current state, verify Phase 1 complete
   - [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Feature list and current status
   - [Feature Implementation State Files](../../state-tracking/features/) — All files created during PF-TSK-064
-  - [Feature Implementation State Tracking Guide](../../guides/guides/feature-implementation-state-tracking-guide.md) - Guide for populating analysis sections
+  - [Feature Implementation State Tracking Guide](../../guides/guides/04-implementation/feature-implementation-state-tracking-guide.md) - Guide for populating analysis sections
 
 - **Important (Load If Space):**
   - [Feature Tier Assessment Task](../01-planning/feature-tier-assessment-task.md) - Understanding what analysis feeds into tier assessment
@@ -48,7 +48,7 @@ This task produces enriched Feature Implementation State files that serve as the
   - [Documentation Tiers README](../../../product-docs/documentation-tiers/README.md) - Understanding tier documentation requirements
   - [Feature Dependencies](../../../product-docs/technical/design/feature-dependencies.md) - Existing dependency documentation
   - [Test Registry](/test/test-registry.yaml) - Registry for mapping test files to features
-  - [Test Implementation Tracking](../../state-tracking/permanent/test-implementation-tracking.md) - Test implementation status tracking
+  - [Test Tracking](../../state-tracking/permanent/test-tracking.md) - Test implementation status tracking
 
 ## Process
 
@@ -109,7 +109,7 @@ This task produces enriched Feature Implementation State files that serve as the
    - Document in [Feature Implementation State file](../../state-tracking/features/) → Test Files section
    - **Register in Test Tracking Infrastructure**:
      - Add each test file to [test-registry.yaml](/test/test-registry.yaml) with feature mapping, test type, and cross-cutting features if applicable
-     - Add entries to [Test Implementation Tracking](../../state-tracking/permanent/test-implementation-tracking.md) organized by feature category
+     - Add entries to [Test Tracking](../../state-tracking/permanent/test-tracking.md) organized by feature category
      - Update [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) Test Status column (✅ for features with tests, 🚫 for features without)
      - Use the automation script `New-TestFile.ps1` for registering individual test files, or batch-populate the registry directly for large existing test suites
 
@@ -156,12 +156,12 @@ This task produces enriched Feature Implementation State files that serve as the
 - [ ] Implementation patterns analyzed and documented for every feature
 - [ ] Dependencies identified and documented for every feature
 - [ ] Test coverage mapped for every feature
-- [ ] Test files registered in [test-registry.yaml](/test/test-registry.yaml) and [test-implementation-tracking.md](../../state-tracking/permanent/test-implementation-tracking.md)
+- [ ] Test files registered in [test-registry.yaml](/test/test-registry.yaml) and [test-tracking.md](../../state-tracking/permanent/test-tracking.md)
 - [ ] Feature Tracking Test Status column updated for all features
 - [ ] Complexity factors noted for features without tier assessments
 - [ ] Existing Project Documentation entries confirmed or flagged for every analyzed feature (Section 4 Confirmed column updated)
 - [ ] Phase 2 marked complete in [master state file](../../state-tracking/temporary/retrospective-master-state.md)
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-065" and context "Codebase Feature Analysis"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-065" and context "Codebase Feature Analysis"
   - **⚠️ IMPORTANT**: Evaluate the Codebase Feature Analysis task (PF-TSK-065) and its tools (feature implementation state files, analysis process), not the features you analyzed.
 
 ## Next Tasks
@@ -178,6 +178,6 @@ This task produces enriched Feature Implementation State files that serve as the
 
 - [Codebase Feature Discovery (PF-TSK-064)](codebase-feature-discovery.md) - Prerequisite task
 - [Feature Implementation State Template](../../templates/templates/feature-implementation-state-template.md) - Template structure reference
-- [Feature Implementation State Tracking Guide](../../guides/guides/feature-implementation-state-tracking-guide.md) - Guide for populating analysis sections
+- [Feature Implementation State Tracking Guide](../../guides/guides/04-implementation/feature-implementation-state-tracking-guide.md) - Guide for populating analysis sections
 - [Test Registry](/test/test-registry.yaml) - Registry for mapping test files to features with cross-cutting support
-- [Test Implementation Tracking](../../state-tracking/permanent/test-implementation-tracking.md) - Test implementation status tracking
+- [Test Tracking](../../state-tracking/permanent/test-tracking.md) - Test implementation status tracking

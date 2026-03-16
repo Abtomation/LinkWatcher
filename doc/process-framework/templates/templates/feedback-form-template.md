@@ -29,7 +29,7 @@ additional_fields:
 
 > **🚨 CRITICAL COMPLETION REMINDER**: This feedback form MUST be fully completed before submission. Forms with template placeholders like [Rating], [Tool Name], or [Comments] will be automatically archived as incomplete and excluded from tools review analysis.
 >
-> **📖 Need Help?** See the [Feedback Form Guide](feedback-form-guide.md) for detailed instructions, time tracking requirements, and rating guidelines.
+> **📖 Need Help?** See the [Feedback Form Guide](../../guides/guides/framework/feedback-form-guide.md) for detailed instructions, time tracking requirements, and rating guidelines.
 >
 > **🚀 Quick Start**: Use the automation script: `scripts/file-creation/New-FeedbackForm.ps1 -DocumentId "PF-TSK-XXX" -TaskContext "Task Name" -FeedbackType "MultipleTools"`
 >

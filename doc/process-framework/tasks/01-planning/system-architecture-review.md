@@ -47,7 +47,7 @@ Evaluate how new features fit into existing system architecture before implement
 
 - **Important (Load If Space):**
 
-  - [Architectural Framework Usage Guide](../../guides/guides/architectural-framework-usage-guide.md) - **ESSENTIAL**: Guide for managing architectural work and context packages
+  - [Architectural Framework Usage Guide](../../guides/guides/01-planning/architectural-framework-usage-guide.md) - **ESSENTIAL**: Guide for managing architectural work and context packages
   - [Architecture Context Packages](/doc/product-docs/technical/architecture/context-packages/) - Bounded architectural contexts for specific areas
   - [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Understanding component interactions
   - [Database Reference](/doc/product-docs/technical/architecture/database-reference.md) - Current data model and relationships
@@ -57,7 +57,7 @@ Evaluate how new features fit into existing system architecture before implement
 - **Reference Only (Access When Needed):**
   - [Code Dependency Analysis Results](../../../.ai-workspace/dependency-maps) - Detailed dependency graphs when available
   - [Technical Debt Tracking](/doc/process-framework/state-tracking/permanent/technical-debt-tracking.md) - Known architectural issues
-  - [Visual Notation Guide](/doc/process-framework/guides/guides/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Visual Notation Guide](/doc/process-framework/guides/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 ## Process
 
@@ -180,7 +180,7 @@ Before considering this task finished:
   - [ ] [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) updated with status "🏗️ Architecture Reviewed" and Architecture Impact Assessment link in Arch Review column
   - [ ] [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md) updated with any identified architectural debt
   - [ ] [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) updated with architectural decisions made
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-019" and context "System Architecture Review"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-019" and context "System Architecture Review"
 
 ## Next Tasks
 

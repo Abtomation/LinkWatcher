@@ -106,8 +106,9 @@ The Link Parsing System uses a Registry+Facade pattern. `LinkParser` dispatches 
 | Empty file | `test_empty_yaml_file` | Returns empty list |
 | Binary data | `test_yaml_with_binary_data` | `!!binary` blocks handled |
 | Quoted paths | `test_quoted_file_paths` | Single, double, unquoted, special chars |
+| Directory paths | `test_bug030_directory_paths_detected_in_yaml`, `test_bug030_directory_paths_coexist_with_file_paths` | Directory paths without extensions detected alongside file paths (PD-BUG-030) |
 
-**Test File**: [`tests/parsers/test_yaml.py`](../../../tests/parsers/test_yaml.py) (11 methods)
+**Test File**: [`tests/parsers/test_yaml.py`](../../../tests/parsers/test_yaml.py) (13 methods)
 
 ### Parser Tests — JSON
 
@@ -125,8 +126,9 @@ The Link Parsing System uses a Registry+Facade pattern. `LinkParser` dispatches 
 | Deep nesting | `test_deeply_nested_json` | 10 levels deep |
 | Large arrays | `test_large_json_arrays` | 100-element array |
 | Duplicate value line numbers | `test_bug013_duplicate_values_get_correct_line_numbers`, `test_bug013_mixed_duplicate_and_unique_values`, `test_bug013_adjacent_duplicate_values` | Same path on multiple lines gets unique correct line numbers (PD-BUG-013) |
+| Directory paths | `test_bug030_directory_paths_detected_in_json`, `test_bug030_directory_paths_coexist_with_file_paths`, `test_bug030_non_path_strings_not_detected` | Directory paths without extensions detected alongside file paths, non-path strings rejected (PD-BUG-030) |
 
-**Test File**: [`tests/parsers/test_json.py`](../../../tests/parsers/test_json.py) (15 methods)
+**Test File**: [`tests/parsers/test_json.py`](../../../tests/parsers/test_json.py) (17 methods)
 
 ### Parser Tests — Python
 
@@ -190,6 +192,26 @@ The Link Parsing System uses a Registry+Facade pattern. `LinkParser` dispatches 
 | Mixed directory | `test_mixed_content_directory_parsing` | Markdown finds image refs, images have zero outgoing |
 
 **Test File**: [`tests/parsers/test_image_files.py`](../../../tests/parsers/test_image_files.py) (6 methods)
+
+### Parser Tests — PowerShell
+
+| Test Focus | Key Test Cases | Edge Cases Covered |
+|-----------|----------------|-------------------|
+| Line/block comments | `test_line_comments`, `test_block_comments` | Comments filtered from parsing |
+| Quoted strings | `test_double_quoted_strings`, `test_single_quoted_strings` | Both quoting styles |
+| Cmdlet patterns | `test_join_path_patterns`, `test_import_module_patterns`, `test_test_path_get_content` | PowerShell-specific file operations |
+| Here-strings | `test_here_strings_with_paths` | Multi-line strings |
+| Arrays | `test_array_with_paths` | Array literal file paths |
+| Write-Host | `test_write_host_with_paths` | Output statements |
+| Cmdlet/var filtering | `test_cmdlet_names_not_detected`, `test_variable_names_not_detected` | False positive prevention |
+| Backslash paths | `test_backslash_paths` | Windows-style separators |
+| Embedded markdown | `test_markdown_links_in_strings`, `test_markdown_links_in_here_strings` | `[text](path)` in PS strings |
+| Regex filtering | `test_regex_patterns_extracted_as_dir_paths`, `test_regex_filtered_at_updater_layer` | PD-BUG-033 |
+| Deduplication | `test_deduplication` | Same ref on same line |
+| Line numbers | `test_line_numbers_are_1_based` | 1-based indexing |
+
+**Test File**: [`tests/parsers/test_powershell.py`](../../../tests/parsers/test_powershell.py) (32 methods)
+**Note**: Registered as PD-TST-129 during test audit (2026-03-15) — was previously unregistered.
 
 ## Test Implementation Roadmap
 

@@ -5,6 +5,7 @@ This parser handles standard markdown links, standalone file references,
 and other markdown-specific link formats.
 """
 
+import os.path
 import re
 from typing import List
 
@@ -36,6 +37,10 @@ class MarkdownParser(BaseParser):
         self.html_anchor_pattern = re.compile(
             r'<a\s+[^>]*href=[\'"]([^\'"]+)[\'"][^>]*>', re.IGNORECASE
         )
+
+        # Pattern 6: Quoted directory paths — no extension required (PD-BUG-031)
+        # Captures quoted strings containing at least one path separator (/ or \)
+        self.quoted_dir_pattern = re.compile(r'[\'"]([^\'"]*[/\\][^\'"]*)[\'"]')
 
     def _extract_url_from_link_content(self, link_content: str) -> str:
         """
@@ -201,6 +206,45 @@ class MarkdownParser(BaseParser):
                                         link_text=potential_file,
                                         link_target=potential_file,
                                         link_type="markdown-quoted",
+                                    )
+                                )
+
+                    # PD-BUG-031: Check for quoted directory paths (no extension required)
+                    for match in self.quoted_dir_pattern.finditer(line):
+                        potential_dir = match.group(1)
+
+                        # Skip if it has a file extension (already handled by quoted_pattern)
+                        _, ext = os.path.splitext(potential_dir)
+                        if ext:
+                            continue
+
+                        if self._looks_like_directory_path(potential_dir):
+                            # Check overlap with markdown links
+                            overlaps = False
+                            for md_match in self.link_pattern.finditer(line):
+                                if (
+                                    match.start() >= md_match.start()
+                                    and match.end() <= md_match.end()
+                                ):
+                                    overlaps = True
+                                    break
+
+                            if not overlaps:
+                                for span_start, span_end in html_anchor_spans:
+                                    if match.start() >= span_start and match.end() <= span_end:
+                                        overlaps = True
+                                        break
+
+                            if not overlaps:
+                                references.append(
+                                    LinkReference(
+                                        file_path=file_path,
+                                        line_number=line_num,
+                                        column_start=match.start(1),
+                                        column_end=match.end(1),
+                                        link_text=potential_dir,
+                                        link_target=potential_dir,
+                                        link_type="markdown-quoted-dir",
                                     )
                                 )
 

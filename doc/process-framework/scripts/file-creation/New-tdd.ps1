@@ -136,7 +136,7 @@ try {
             "   You MUST consult the TDD Creation Guide before proceeding.",
             "",
             "📖 REQUIRED READING:",
-            "   doc/process-framework/guides/guides/tdd-creation-guide.md",
+            "doc/process-framework/guides/guides/02-design/tdd-creation-guide.md",
             "   Focus on: 'Step-by-Step Instructions' and 'Quality Assurance' sections",
             "",
             "⚠️  The created file is only a structural framework - it requires extensive",

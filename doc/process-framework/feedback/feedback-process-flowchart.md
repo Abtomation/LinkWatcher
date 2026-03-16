@@ -130,6 +130,6 @@ Individual feedback forms are not tracked in the documentation map - only the RE
 
 - [Feedback Process Guide](README.md) - Detailed documentation
 - [Feedback Form Template](../templates/templates/feedback-form-template.md) - Template structure
-- [Feedback Form Guide](../guides/guides/feedback-form-guide.md) - Comprehensive completion instructions
+- [Feedback Form Guide](../guides/guides/framework/feedback-form-guide.md) - Comprehensive completion instructions
 - [Tools Review Task](../tasks/support/tools-review-task.md) - How feedback is used
 - [Task Template](../templates/templates/task-template.md) - Standard task completion process

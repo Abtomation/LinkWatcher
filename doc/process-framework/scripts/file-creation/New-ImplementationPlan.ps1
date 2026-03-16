@@ -125,7 +125,7 @@ try {
             "⚠️  AI agents MUST follow the referenced guide to properly customize the content.",
             "",
             "📖 MANDATORY CUSTOMIZATION GUIDE:",
-            "   doc/process-framework/guides/guides/implementation-plan-customization-guide.md",
+            "doc/process-framework/guides/guides/04-implementation/implementation-plan-customization-guide.md",
             "🎯 FOCUS AREAS: Component breakdown, task sequencing, dependency mapping",
             "",
             "🎯 What you need to do:",

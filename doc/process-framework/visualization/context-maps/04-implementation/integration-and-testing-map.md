@@ -41,7 +41,7 @@ graph TD
     IntTest --> BugReports([Bug Reports])
     IntTest --> UpdatedMocks([Updated Mock Services])
 
-    IntTest -.-> TestImplTracking[/Test Implementation Tracking/]
+    IntTest -.-> TestImplTracking[/Test Tracking/]
     IntTest -.-> TestRegistry[/Test Registry/]
     IntTest -.-> FeatureTracking[/Feature Tracking/]
     IntTest -.-> BugTracking[/Bug Tracking/]
@@ -65,7 +65,7 @@ graph TD
 - **Test Helpers**: Utility functions for test setup that can be leveraged or extended
 
 ### Reference Components (Access When Needed)
-- **Test Implementation Tracking**: Documentation tracking test implementation status — updated during and after implementation
+- **Test Tracking**: Documentation tracking test implementation status — updated during and after implementation
 - **Test Registry**: Central registry of all test files with IDs, metadata, and relationships — updated with implementation status
 - **Feature Tracking**: Documentation tracking feature development status — updated after test implementation completion
 - **Bug Tracking**: Registry for bugs discovered during testing — updated via `New-BugReport.ps1`
@@ -126,13 +126,13 @@ Test categories are defined by the project language in `project-config.json`:
 ## Related Documentation
 
 - [Integration & Testing Task Definition](/doc/process-framework/tasks/04-implementation/integration-and-testing.md) - Complete task definition (PF-TSK-053)
-- [Integration & Testing Usage Guide](/doc/process-framework/guides/guides/test-implementation-usage-guide.md) - Step-by-step implementation guidance
+- [Integration & Testing Usage Guide](/doc/process-framework/guides/guides/03-testing/test-implementation-usage-guide.md) - Step-by-step implementation guidance
 - [Test Specification Documents](/test/specifications/feature-specs/) - Repository of test specifications
-- [Test Implementation Tracking](/doc/process-framework/state-tracking/permanent/test-implementation-tracking.md) - Test implementation status tracking
+- [Test Tracking](/doc/process-framework/state-tracking/permanent/test-tracking.md) - Test implementation status tracking
 - [Test Registry](/test/test-registry.yaml) - Central registry of test files with IDs and metadata
 - [Feature Tracking](/doc/process-framework/state-tracking/permanent/feature-tracking.md) - Feature development status tracking
-- [Bug Reporting Guide](/doc/process-framework/guides/guides/bug-reporting-guide.md) - Standardized bug reporting procedures
-- [Development Guide](/doc/product-docs/guides/guides/development-guide.md) - Testing standards and practices
+- [Bug Reporting Guide](/doc/process-framework/guides/guides/06-maintenance/bug-reporting-guide.md) - Standardized bug reporting procedures
+- [Development Guide](/doc/process-framework/guides/guides/04-implementation/development-guide.md) - Testing standards and practices
 
 ---
 

@@ -202,7 +202,7 @@ try {
             "6. Specify next steps (which task definition to use for implementation)",
             "",
             "📖 COMPREHENSIVE GUIDE:",
-            "   doc/process-framework/guides/guides/feature-implementation-state-tracking-guide.md",
+            "doc/process-framework/guides/guides/04-implementation/feature-implementation-state-tracking-guide.md",
             "🎯 KEY SECTIONS: Creating and Initializing State Files, Maintenance During Implementation",
             "",
             "⚠️  This is a PERMANENT living document - maintain it throughout the feature lifecycle!",

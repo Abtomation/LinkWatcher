@@ -54,7 +54,7 @@ Design comprehensive API contracts and specifications before implementation begi
 
 ## Information Flow
 
-> **📋 Detailed Guidance**: See [Task Transition Guide - Information Flow Section](../../guides/guides/task-transition-guide.md#information-flow-and-separation-of-concerns)
+> **📋 Detailed Guidance**: See [Task Transition Guide - Information Flow Section](../../guides/guides/framework/task-transition-guide.md#information-flow-and-separation-of-concerns)
 
 This task focuses exclusively on **API-level concerns**: endpoint specifications, request/response contracts, authentication patterns, and service integration protocols.
 
@@ -109,7 +109,7 @@ When referencing this task's outputs in other tasks:
 
   - **Functional Design Document (FDD)** - For Tier 2+ features, the FDD containing functional requirements and user flows that inform API design
   - [Feature Requirements](/doc/process-framework/state-tracking/permanent/feature-tracking.md) - Understanding what functionality the API must support and confirming API Design is required
-  - [Feature Tier Assessment](../../methodologies/documentation-tiers/assessments) - Assessment that determined API design is needed
+  - [Feature Tier Assessment](../../../product-docs/documentation-tiers/assessments) - Assessment that determined API design is needed
   - [System Architecture Review Results](/doc/product-docs/technical/architecture/assessments/) - Architecture decisions that impact API design
 
 - **Important (Load If Space):**
@@ -120,7 +120,7 @@ When referencing this task's outputs in other tasks:
 - **Reference Only (Access When Needed):**
   - [API Design Best Practices](https://restfulapi.net/) - Industry standards for REST API design
   - [OpenAPI Specification](https://swagger.io/specification/) - Standard for API documentation
-  - [Visual Notation Guide](/doc/process-framework/guides/guides/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Visual Notation Guide](/doc/process-framework/guides/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 ## Process
 
@@ -135,7 +135,7 @@ When referencing this task's outputs in other tasks:
 ### Preparation
 
 1. **Verify API Design Requirement**: Confirm in the [Feature Tracking](../../../state-tracking/permanent/feature-tracking.md) document that the API Design column shows "Yes" for this feature
-2. Review the [Feature Tier Assessment](../../methodologies/documentation-tiers/assessments) of this feature that determined API design is needed
+2. Review the [Feature Tier Assessment](../../../product-docs/documentation-tiers/assessments) of this feature that determined API design is needed
 3. Review feature requirements and understand the functionality that needs API support
 4. Examine existing API patterns and conventions in the project
 5. Identify data models and schemas that will be needed for the API
@@ -223,7 +223,7 @@ Before considering this task finished:
   - [ ] **✅ AUTOMATED** - [Feature Tracking](../../../state-tracking/permanent/feature-tracking.md) API Design column updates:
     - [x] **✅ AUTOMATED**: API specification and data model links automatically managed (intelligent replacement/append logic)
   - [ ] **🔧 MANUAL** - [Technical Debt Tracking](../../../state-tracking/permanent/technical-debt-tracking.md) updated with any design decisions creating technical debt
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../../guides/guides/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-020" and context "API Design Task"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-020" and context "API Design Task"
 
 ## Next Tasks
 
@@ -234,8 +234,8 @@ Before considering this task finished:
 
 ## Related Resources
 
-- [API Specification Creation Guide](../../../guides/guides/api-specification-creation-guide.md) - How to use the ../../scripts/file-creation/New-APISpecification.ps1 script effectively
-- [API Data Model Creation Guide](../../../guides/guides/api-data-model-creation-guide.md) - How to use the ../../scripts/file-creation/New-APIDataModel.ps1 script effectively
+- [API Specification Creation Guide](../../guides/guides/02-design/api-specification-creation-guide.md) - How to use the ../../scripts/file-creation/New-APISpecification.ps1 script effectively
+- [API Data Model Creation Guide](../../guides/guides/02-design/api-data-model-creation-guide.md) - How to use the ../../scripts/file-creation/New-APIDataModel.ps1 script effectively
 - [API Design Task Context Map](../../visualization/context-maps/02-design/api-design-task-map.md) - Visual guide to task components and relationships
 - [System Architecture Review Task](../01-planning/system-architecture-review.md) - Prerequisite task for understanding architectural constraints
-- [Visual Notation Guide](../../../guides/guides/visual-notation-guide.md) - Standard notation for API diagrams and documentation
+- [Visual Notation Guide](../../guides/guides/support/visual-notation-guide.md) - Standard notation for API diagrams and documentation

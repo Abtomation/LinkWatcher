@@ -67,7 +67,7 @@ graph TD
 ## Related Documentation
 
 - [Technical Design Documents](/doc/product-docs/technical/design) - Detailed feature designs
-- [Development Guide](/doc/product-docs/guides/guides/development-guide.md) - Development standards and practices
+- [Development Guide](/doc/process-framework/guides/guides/04-implementation/development-guide.md) - Development standards and practices
 - [Feature Tracking](../../../state-tracking/permanent/feature-tracking.md) - Feature status tracking
 - [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Complete reference of component relationships
 

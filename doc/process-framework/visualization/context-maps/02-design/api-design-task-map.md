@@ -101,8 +101,8 @@ graph TD
 - [API Data Models Registry](../../../state-tracking/permanent/api-models-registry.md) - Central registry of all API data models
 - [System Architecture Review Task](/doc/process-framework/tasks/01-planning/system-architecture-review.md) - Prerequisite architectural analysis
 - [API Design Task](/doc/process-framework/tasks/02-design/api-design-task.md) - Complete task definition using this context map
-- [API Specification Creation Guide](/doc/process-framework/guides/guides/api-specification-creation-guide.md) - How to use the ../../scripts/file-creation/New-APISpecification.ps1 script
-- [API Data Model Creation Guide](/doc/process-framework/guides/guides/api-data-model-creation-guide.md) - How to use the ../../scripts/file-creation/New-APIDataModel.ps1 script
+- [API Specification Creation Guide](/doc/process-framework/guides/guides/02-design/api-specification-creation-guide.md) - How to use the ../../scripts/file-creation/New-APISpecification.ps1 script
+- [API Data Model Creation Guide](/doc/process-framework/guides/guides/02-design/api-data-model-creation-guide.md) - How to use the ../../scripts/file-creation/New-APIDataModel.ps1 script
 
 ---
 

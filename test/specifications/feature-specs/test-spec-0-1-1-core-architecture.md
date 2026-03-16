@@ -279,6 +279,8 @@ tests/
 - **`final.py`**: Startup helper has no tests
 - **Data Models** (`models.py`): `LinkReference` and `FileOperation` dataclass construction/equality — now in scope (consolidated from old 0.1.2)
 - **Path Utilities** (`utils.py`): `should_monitor_file()`, `should_ignore_directory()`, path normalization edge cases — now in scope (consolidated from old 0.1.5)
+- **Loose assertions** (found during test audit PF-TAR-011, 2026-03-15): Several integration tests use `>= N` rather than exact counts, which could hide partial failures. Low priority but worth tightening.
+- **Permissive error recovery validation**: Some error handling tests (EH-001 through EH-008) verify service doesn't crash but don't validate actual recovery occurred (e.g., `assert service.link_db is not None` without checking DB state)
 
 ## AI Agent Session Handoff Notes
 

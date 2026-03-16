@@ -126,6 +126,7 @@ The In-Memory Link Database provides a thread-safe, target-indexed `Dict[str, Li
 - **Performance benchmark**: TDD specifies sub-millisecond O(1) lookups with 10,000+ refs — no explicit timing test exists
 - **Memory cleanup**: `remove_file_links()` should clean empty dict entries — not explicitly verified
 - **Logging**: Warning when removing links for a file with no references — not tested
+- **Untested public methods** (found during test audit PF-TAR-006, 2026-03-15): `remove_targets_by_path()`, `get_all_targets_with_references()`, `get_source_files()` — these 3 newer methods have no dedicated tests
 
 ## AI Agent Session Handoff Notes
 

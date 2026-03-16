@@ -25,7 +25,7 @@ Transform completed design documentation (FDD, TDD, API Design, Database Schema 
 
 ## Information Flow
 
-> **📋 Detailed Guidance**: See [Task Transition Guide - Information Flow Section](../../guides/guides/task-transition-guide.md#information-flow-and-separation-of-concerns)
+> **📋 Detailed Guidance**: See [Task Transition Guide - Information Flow Section](../../guides/guides/framework/task-transition-guide.md#information-flow-and-separation-of-concerns)
 
 ### Inputs from Other Tasks
 
@@ -93,7 +93,7 @@ When referencing design documents in implementation plans:
   - **TDD (Technical Design Document)** - The approved technical design at `/doc/product-docs/technical/architecture/design-docs/tdd/` containing component architecture and implementation approach
   - **FDD (Functional Design Document)** - For Tier 2+ features, the functional requirements at `/doc/product-docs/functional-design/fdds/`
   - **Feature Implementation State Template** - [Template for permanent state tracking](../../templates/templates/feature-implementation-state-template.md) - **MUST READ** to understand living document structure
-  - **Feature Implementation State Tracking Guide** - [Comprehensive guide](../../guides/guides/feature-implementation-state-tracking-guide.md) for creating and maintaining feature state documents
+  - **Feature Implementation State Tracking Guide** - [Comprehensive guide](../../guides/guides/04-implementation/feature-implementation-state-tracking-guide.md) for creating and maintaining feature state documents
 
 - **Important (Load If Space):**
 
@@ -102,12 +102,12 @@ When referencing design documents in implementation plans:
   - **UI/UX Design Documentation** - If applicable, visual specifications at `/doc/product-docs/technical/ui-design/`
   - **Component Relationship Index** - [Component interactions and dependencies](/doc/product-docs/technical/architecture/component-relationship-index.md)
   - **Codebase Structure** - Relevant source directories where feature components will be implemented
-  - **Task Transition Guide** - [For understanding information flow between tasks](../../guides/guides/task-transition-guide.md)
+  - **Task Transition Guide** - [For understanding information flow between tasks](../../guides/guides/framework/task-transition-guide.md)
 
 - **Reference Only (Access When Needed):**
   - **Architecture Decision Records** - [ADRs](/doc/product-docs/technical/architecture/adr/) relevant to this feature
   - **Test Strategy Documentation** - [Testing approaches and standards](/doc/product-docs/technical/testing/) for planning test implementation
-  - **Visual Notation Guide** - [For interpreting context map diagrams](../../guides/guides/visual-notation-guide.md)
+  - **Visual Notation Guide** - [For interpreting context map diagrams](../../guides/guides/support/visual-notation-guide.md)
 
 ## Process
 
@@ -134,7 +134,7 @@ When referencing design documents in implementation plans:
    - Complexity tier (Tier 1, 2, or 3)
    - Dependencies on other features
    - Current status and design document links
-3. **Study Feature Implementation State Template**: **CRITICAL** - Read [feature-implementation-state-template.md](../../templates/templates/feature-implementation-state-template.md) and [Feature Implementation State Tracking Guide](../../guides/guides/feature-implementation-state-tracking-guide.md) to understand:
+3. **Study Feature Implementation State Template**: **CRITICAL** - Read [feature-implementation-state-template.md](../../templates/templates/feature-implementation-state-template.md) and [Feature Implementation State Tracking Guide](../../guides/guides/04-implementation/feature-implementation-state-tracking-guide.md) to understand:
    - Living document structure and purpose
    - Sections that need initialization during planning
    - How this document will be maintained throughout implementation
@@ -402,7 +402,7 @@ Before considering this task finished:
   - [ ] Integration risks are identified
   - [ ] Testing strategy is comprehensive
   - [ ] Mitigation strategies are actionable
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-044" and context "Feature Implementation Planning Task"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-044" and context "Feature Implementation Planning Task"
 
 ## Next Tasks
 
@@ -441,13 +441,13 @@ Implementation Planning (this task - PF-TSK-044) →
 ### Task Definition and Execution
 
 - **[Data Layer Implementation (PF-TSK-051)](data-layer-implementation.md)** - First decomposed implementation task for data models and repositories
-- **[Task Creation Guide](../../guides/guides/task-creation-guide.md)** - How to create decomposed implementation tasks using New-Task.ps1
-- **[Task Transition Guide](../../guides/guides/task-transition-guide.md)** - Information flow and separation of concerns between tasks
+- **[Task Creation Guide](../../guides/guides/support/task-creation-guide.md)** - How to create decomposed implementation tasks using New-Task.ps1
+- **[Task Transition Guide](../../guides/guides/framework/task-transition-guide.md)** - Information flow and separation of concerns between tasks
 
 ### State Tracking and Documentation
 
 - **[Feature Implementation State Template](../../templates/templates/feature-implementation-state-template.md)** - Template for permanent state tracking
-- **[Feature Implementation State Tracking Guide](../../guides/guides/feature-implementation-state-tracking-guide.md)** - Comprehensive guide for maintaining living documents
+- **[Feature Implementation State Tracking Guide](../../guides/guides/04-implementation/feature-implementation-state-tracking-guide.md)** - Comprehensive guide for maintaining living documents
 - **[Feature Tracking](../../state-tracking/permanent/feature-tracking.md)** - Central feature tracking document
 
 ### Design Documentation (Inputs)

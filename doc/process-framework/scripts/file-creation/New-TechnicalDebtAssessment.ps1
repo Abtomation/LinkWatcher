@@ -101,7 +101,7 @@ try {
             "⚠️  AI agents MUST follow the referenced guide to properly customize the content.",
             "",
             "📖 MANDATORY CUSTOMIZATION GUIDE:",
-            "   doc/process-framework/guides/guides/assessment-criteria-guide.md",
+            "doc/process-framework/guides/guides/cyclical/assessment-criteria-guide.md",
             "🎯 FOCUS AREAS: 'Technical Debt Assessment Process' section",
             "",
             "🚫 DO NOT use the generated file without proper customization!",

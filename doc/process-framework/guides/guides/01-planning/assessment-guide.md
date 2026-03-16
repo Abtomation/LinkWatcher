@@ -18,7 +18,7 @@ This guide provides a structured approach for assessing the appropriate document
 > **DO NOT manually create assessment files.** The automation script is mandatory because it:
 >
 > - Ensures proper ID sequencing and prevents conflicts
-> - Maintains the ../../../../methodologies/documentation-tiers/config.json tracking system
+> - Maintains the ../../../../product-docs/documentation-tiers/config.json tracking system
 > - Applies consistent formatting and metadata
 > - Prevents human errors in file naming and structure
 >
@@ -32,13 +32,13 @@ This guide provides a structured approach for assessing the appropriate document
 
    ```batch
    # Navigate to the documentation-tiers directory
-   cd doc/process-framework/methodologies/documentation-tiers
+   cd doc/product-docs/documentation-tiers
 
    # Run the batch wrapper (recommended - handles execution policy automatically)
-   ../../../../../../methodologies/documentation-tiers/create-assessment.bat "1.2.3" "Feature Name" "Description of the feature"
+   ../../../../../../product-docs/documentation-tiers/create-assessment.bat "1.2.3" "Feature Name" "Description of the feature"
 
    # To open in editor immediately after creation
-   ../../../../../../methodologies/documentation-tiers/create-assessment.bat "1.2.3" "Feature Name" "Description of the feature" -OpenInEditor
+   ../../../../../../product-docs/documentation-tiers/create-assessment.bat "1.2.3" "Feature Name" "Description of the feature" -OpenInEditor
    ```
 
    > **💡 Alternative**: If the batch wrapper doesn't work, use PowerShell directly:
@@ -56,7 +56,7 @@ This guide provides a structured approach for assessing the appropriate document
    - Add placeholders for scores and justifications
    - Open the file in your editor if the -OpenInEditor switch is used
 
-   For more detailed examples of script usage, including how to create multiple assessment files at once, see the <!-- [Script Usage Example](../../../methodologies/documentation-tiers/script-usage-example.md) - Template/example link commented out --> document.
+   For more detailed examples of script usage, including how to create multiple assessment files at once, see the <!-- [Script Usage Example](../../../../product-docs/documentation-tiers/script-usage-example.md) - Template/example link commented out --> document.
 
    **Troubleshooting Script Execution:**
 

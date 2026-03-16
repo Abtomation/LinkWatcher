@@ -15,7 +15,7 @@ This document catalogs all document types created by framework tasks to support 
 
 #### Feature Tier Assessment Task (PF-TSK-002)
 - **Assessment Document** (ART-ASS-XXX)
-  - Location: `/doc/process-framework/methodologies/documentation-tiers/assessments/`
+  - Location: `/doc/product-docs/documentation-tiers/assessments/`
   - Format: `ART-ASS-XXX-[feature-id]-[feature-name].md`
   - Content: Tier assignment, design requirements evaluation, complexity scores
 

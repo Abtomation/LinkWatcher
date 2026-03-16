@@ -48,7 +48,7 @@ Implement comprehensive test cases based on existing Test Specifications, enabli
 
   - **Test Specification Document** - The test specification file for the feature being implemented (located in `/test/specifications/feature-specs/`)
   - [Technical Design Document](/doc/product-docs/technical/design) - The TDD for the feature to understand implementation requirements
-  - [Test Implementation Tracking](../../state-tracking/permanent/test-implementation-tracking.md) - Current test implementation status
+  - [Test Tracking](../../state-tracking/permanent/test-tracking.md) - Current test implementation status
   - [Test Registry](/test/test-registry.yaml) - Test file registry with IDs and metadata
 
 - **Important (Load If Space):**
@@ -56,13 +56,13 @@ Implement comprehensive test cases based on existing Test Specifications, enabli
   - [Existing Test Structure](/test/) - Current test organization and patterns
   - [Mock Services](/test/mocks/) - Available mock implementations for testing
   - [Test Helpers](/test/test_helpers/) - Utility functions for test setup
-  - [Development Guide](/doc/product-docs/guides/guides/development-guide.md) - Testing standards and practices
+  - [Development Guide](/doc/process-framework/guides/guides/04-implementation/development-guide.md) - Testing standards and practices
   - [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - For understanding component interactions
 
 - **Reference Only (Access When Needed):**
   - [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Feature development status
   - [Project Structure](/doc/product-docs/technical/architecture/project-structure.md) - Understanding component relationships
-  - [Visual Notation Guide](/doc/process-framework/guides/guides/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Visual Notation Guide](/doc/process-framework/guides/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 ## Process
 
@@ -92,7 +92,7 @@ Implement comprehensive test cases based on existing Test Specifications, enabli
    # Script automatically:
    # - Generates unique PD-TST ID
    # - Creates test file from template with proper structure
-   # - Updates ../../state-tracking/permanent/test-implementation-tracking.md with correct file links and status
+   # - Updates test-tracking.md with correct file links and status
    # - Updates /test/test-registry.yaml with test file metadata
    # - Updates ../../state-tracking/permanent/feature-tracking.md with test implementation progress
    # - Uses proper relative paths for clickable links in tracking files
@@ -118,7 +118,7 @@ Implement comprehensive test cases based on existing Test Specifications, enabli
 12. **Report Discovered Bugs**: If bugs are identified during test implementation:
 
     - Use [../../scripts/file-creation/New-BugReport.ps1](../../scripts/file-creation/New-BugReport.ps1) script to create standardized bug reports
-    - Follow [Bug Reporting Guide](../../guides/guides/bug-reporting-guide.md) for consistent documentation
+    - Follow [Bug Reporting Guide](../../guides/guides/06-maintenance/bug-reporting-guide.md) for consistent documentation
     - Add bug entries to [Bug Tracking](../../state-tracking/permanent/bug-tracking.md) with status 🆕 Reported
     - Include test implementation context and evidence in bug reports
     - Reference specific test cases that revealed the bugs
@@ -154,7 +154,7 @@ Implement comprehensive test cases based on existing Test Specifications, enabli
 
 The following state files are automatically updated by the ../../scripts/file-creation/New-TestFile.ps1 script:
 
-- [Test Implementation Tracking](../../state-tracking/permanent/test-implementation-tracking.md) - Automatically updated with 🟡 Implementation In Progress status, test file links with correct relative paths, and metadata
+- [Test Tracking](../../state-tracking/permanent/test-tracking.md) - Automatically updated with 🟡 Implementation In Progress status, test file links with correct relative paths, and metadata
 - [Test Registry](/test/test-registry.yaml) - Automatically updated with test file entries, implementation status, and test case counts
 - [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Automatically updated with Test Status column reflecting implementation progress
 
@@ -176,7 +176,7 @@ Before considering this task finished:
   - [ ] Bug discovery performed systematically during test implementation
   - [ ] Any discovered bugs reported using ../../scripts/file-creation/New-BugReport.ps1 script with proper context and evidence
 - [ ] **Verify State Files**: Confirm all state tracking files have been automatically updated by the script
-  - [ ] [Test Implementation Tracking](../../state-tracking/permanent/test-implementation-tracking.md) shows correct test file links and status
+  - [ ] [Test Tracking](../../state-tracking/permanent/test-tracking.md) shows correct test file links and status
   - [ ] [Test Registry](/test/test-registry.yaml) contains test file entries with proper metadata
   - [ ] [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) Test Status column reflects implementation progress
 - [ ] **Manual Status Updates**: Update completion status after test implementation
@@ -184,7 +184,7 @@ Before considering this task finished:
   - [ ] Update test case counts with actual implemented test count
 - [ ] **Run Validation**: Execute validation scripts to ensure tracking consistency
   - [ ] Run `../../scripts/tests/validate-test-tracking.ps1` and verify no errors
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-029" and context "Test Implementation"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-029" and context "Test Implementation"
 
 ## Next Tasks
 
@@ -195,7 +195,7 @@ Before considering this task finished:
 ## Related Resources
 
 - [Test Specification Creation Task](test-specification-creation-task.md) - For creating test specifications before implementation
-- [Test Implementation Tracking](../../state-tracking/permanent/test-implementation-tracking.md) - Track test implementation progress
+- [Test Tracking](../../state-tracking/permanent/test-tracking.md) - Track test implementation progress
 - [Test Registry](/test/test-registry.yaml) - Test file registry with IDs and metadata
 - [Validation Scripts](../../../scripts/validation) - Scripts for test tracking consistency validation
-- [Development Guide](/doc/product-docs/guides/guides/development-guide.md) - Testing standards and practices
+- [Development Guide](/doc/process-framework/guides/guides/04-implementation/development-guide.md) - Testing standards and practices

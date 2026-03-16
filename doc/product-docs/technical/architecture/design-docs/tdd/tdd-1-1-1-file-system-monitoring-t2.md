@@ -34,7 +34,7 @@ The subsystem is implemented as four modules:
 
 | Feature | Relationship | Description |
 |---------|-------------|-------------|
-| 0.1.2 In-Memory Database | Consumer | Queries `get_references_to_file()` to find all files referencing a moved file; calls `remove_file_links()` on deletion |
+| 0.1.2 In-Memory Database | Consumer | Queries `get_references_to_file()` to find all files referencing a moved file; calls `remove_file_links()` during move cleanup (PD-BUG-035: no longer on timer-based deletion — stale entries left for self-healing) |
 | 2.1.1 Parser Framework | Consumer | Calls `parse_file()` to rebuild link entries after a move; calls `parse_content()` for single-read within-file link updates (PD-BUG-025) |
 | 2.2.1 Link Updater | Consumer | Calls `update_references()` to rewrite link paths in referencing files |
 | 0.1.5 Path Utilities | Consumer | Calls `should_monitor_file()` and `should_ignore_directory()` to filter events |
@@ -169,7 +169,7 @@ FileDeletedEvent→ on_deleted()        → directory? → _dir_move_detector.ha
 FileCreatedEvent→ on_created()        → _dir_move_detector.match_created_file() → batch match (Phase 2)
                                         _move_detector.match_created_file()     → callback → _handle_detected_move()
                                         neither                                 → scan new file
-Timer callback  → MoveDetector._timer_expired()                → callback → _process_true_file_delete()
+Timer callback  → MoveDetector._timer_expired()                → callback → _process_true_file_delete() → if file exists: rescan (PD-BUG-035)
 Timer callback  → DirectoryMoveDetector._process_dir_move_settled()  → process batch with unmatched files
 Timer callback  → DirectoryMoveDetector._process_dir_move_timeout()  → fallback: process or treat as true delete
 ```

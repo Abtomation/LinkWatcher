@@ -65,7 +65,7 @@ try {
         "⚠️  AI agents MUST follow the referenced guide to properly customize the content.",
         "",
         "📖 MANDATORY CUSTOMIZATION GUIDE:",
-        "   doc/process-framework/guides/guides/temp-task-state-creation-guide.md",
+        "doc/process-framework/guides/guides/temp-task-state-creation-guide.md",
         "🎯 FOCUS AREAS: 'Temporary State Management' section",
         "",
         "🚫 DO NOT use the generated file without proper customization!",

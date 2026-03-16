@@ -23,6 +23,7 @@ template_for: Enhancement State Tracking
 | Metadata | Value |
 |----------|-------|
 | **Target Feature** | [Feature ID] — [Feature Name] |
+| **Secondary Features Affected** | [Feature IDs and names, or "None"] |
 | **Enhancement Description** | [Brief description of what is being enhanced] |
 | **Change Request** | [Summary of original change request] |
 | **Human Approval** | [Date] — Target feature confirmed by human partner |
@@ -51,7 +52,7 @@ template_for: Enhancement State Tracking
 
 ## Execution Steps
 
-> **Structure**: These steps follow the standard feature development workflow from the [Task Transition Guide](../../guides/guides/task-transition-guide.md). Each block corresponds to a task type in the workflow. The Feature Request Evaluation task (PF-TSK-067) marks each block as **Applicable** or **Not applicable** based on the enhancement scope. The Feature Enhancement task (PF-TSK-068) executes applicable blocks in order.
+> **Structure**: These steps follow the standard feature development workflow from the [Task Transition Guide](../../guides/guides/framework/task-transition-guide.md). Each block corresponds to a task type in the workflow. The Feature Request Evaluation task (PF-TSK-067) marks each block as **Applicable** or **Not applicable** based on the enhancement scope. The Feature Enhancement task (PF-TSK-068) executes applicable blocks in order.
 
 ---
 

@@ -65,7 +65,7 @@ function Get-RelevantTrackingFiles {
         "TestSpecification" {
             $trackingFiles += @(
                 @{
-                    Path = Join-Path $projectRoot "doc/process-framework/state-tracking/permanent/test-implementation-tracking.md"
+                    Path = Join-Path $projectRoot "doc/process-framework/state-tracking/permanent/test-tracking.md"
                     Type = "TestImplementation"
                     Required = $true
                 }

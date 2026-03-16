@@ -80,7 +80,7 @@ Get-Process python* | Where-Object {
 }
 
 # Check recent log output
-Get-Content LinkWatcher_run\LinkWatcherLog.txt -Tail 20
+Get-Content LinkWatcher_run/LinkWatcherLog.txt.1 -Tail 20
 ```
 
 ## What Gets Deployed
@@ -115,6 +115,6 @@ Version is defined in `setup.py` (currently `2.0.0`). For significant releases:
 
 ## Related Documentation
 
-- [Development Guide](../guides/guides/development-guide.md)
+- [Development Guide](../../process-framework/guides/guides/04-implementation/development-guide.md)
 - [Testing Guide](../guides/guides/testing-guide.md)
-- [Definition of Done](../../process-framework/methodologies/definition-of-done.md)
+- [Definition of Done](../../process-framework/guides/guides/04-implementation/definition-of-done.md)

@@ -23,7 +23,7 @@ Import-Module (Join-Path -Path $PSScriptRoot -ChildPath "Common-ScriptHelpers.ps
 # Resolve defaults using project root for reliability
 $ProjectRoot = Get-ProjectRoot
 if ([string]::IsNullOrWhiteSpace($RegistryPath)) {
-    $RegistryPath = Join-Path -Path $ProjectRoot -ChildPath "../doc/id-registry.json"
+    $RegistryPath = Join-Path -Path $ProjectRoot -ChildPath "doc/id-registry.json"
 }
 if ([string]::IsNullOrWhiteSpace($RootPath)) {
     $RootPath = Join-Path -Path $ProjectRoot -ChildPath "doc"
@@ -46,7 +46,7 @@ $directoryPrefixMap = @{
     "doc/process-framework/state-tracking/*" = "PF-STA"
     "doc/process-framework/guides/*" = "PF-GDE"
     "doc/process-framework/templates/*" = "PF-TEM"
-    "doc/process-framework/methodologies/documentation-tiers/assessments/*" = "ART-ASS"
+    "doc/product-docs/documentation-tiers/assessments/*" = "ART-ASS"
     "doc/process-framework/methodologies/*" = "PF-MTH"
     "doc/product-docs/technical/design/*" = "PD-TDD", "PD-DES"
     "doc/product-docs/technical/architecture/*" = "PD-ARC"

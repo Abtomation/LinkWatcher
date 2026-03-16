@@ -119,8 +119,8 @@ Key tasks affected:
 |--------|------|
 | **New** | `feature-tracking-autogeneration-guide.md` — algorithm, when to regenerate, parsing details |
 | Update | [documentation-map.md](../../../documentation-map.md) — mark ../feature-tracking.md as auto-generated |
-| Update | [state-file-creation-guide.md](../../../guides/guides/state-file-creation-guide.md) — state files as source of truth |
-| Update | [task-transition-guide.md](../../../guides/guides/task-transition-guide.md) — auto-generation workflow |
+| Update | [state-file-creation-guide.md](../../../guides/guides/support/state-file-creation-guide.md) — state files as source of truth |
+| Update | [task-transition-guide.md](../../../guides/guides/framework/task-transition-guide.md) — auto-generation workflow |
 | Update | ~10 other guides referencing manual feature-tracking edits |
 
 ### 3.4 feature-tracking.md Itself

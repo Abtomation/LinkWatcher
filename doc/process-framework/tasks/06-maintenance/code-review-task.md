@@ -38,7 +38,7 @@ Review implemented code to ensure it meets quality standards, follows project co
 
   - [Technical Design Document](/doc/product-docs/technical/design) - The technical design document for the feature
   - Source code files that were created or modified during implementation
-  - [Visual Notation Guide](/doc/process-framework/guides/guides/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Visual Notation Guide](/doc/process-framework/guides/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
   - Project dependency configuration file - To verify dependency changes and versions
 
 - **Important (Load If Space):**
@@ -50,7 +50,7 @@ Review implemented code to ensure it meets quality standards, follows project co
 - **Reference Only (Access When Needed):**
   - [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - To identify features with "👀 Ready for Review" status
   - [Architecture Decision Records](/doc/product-docs/technical/architecture/design-docs/adr/) - For architectural context
-  - [Test Implementation Tracking](../../state-tracking/permanent/test-implementation-tracking.md) - For test coverage context
+  - [Test Tracking](../../state-tracking/permanent/test-tracking.md) - For test coverage context
 
 ## Process
 
@@ -154,7 +154,7 @@ Review implemented code to ensure it meets quality standards, follows project co
 19. **Report Discovered Bugs**: If bugs are identified during code review:
 
     - Use [../../scripts/file-creation/New-BugReport.ps1](../../scripts/file-creation/New-BugReport.ps1) script to create standardized bug reports
-    - Follow [Bug Reporting Guide](../../guides/guides/bug-reporting-guide.md) for consistent documentation
+    - Follow [Bug Reporting Guide](../../guides/guides/06-maintenance/bug-reporting-guide.md) for consistent documentation
     - Add bug entries to [Bug Tracking](../../state-tracking/permanent/bug-tracking.md) with status 🆕 Reported
     - Include code review context and evidence in bug reports
     - Reference specific code locations and line numbers
@@ -204,7 +204,7 @@ The following state files must be updated as part of this task:
   - Reviewer information (AI Agent + human partner collaboration)
   - List of major findings or concerns
   - Performance and accessibility notes
-- [Test Case Implementation Tracking](../../state-tracking/permanent/test-implementation-tracking.md) - Update test status based on review:
+- [Test Tracking](../../state-tracking/permanent/test-tracking.md) - Update test status based on review:
   - Confirm "✅ Tests Implemented" if tests are passing and well-implemented
   - Change to "🔴 Tests Failing" if test issues are found
   - Change to "🔄 Needs Update" if tests need updates due to code changes
@@ -260,12 +260,12 @@ Before considering this task finished:
 
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
   - [ ] [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) shows correct review status
-  - [ ] [Test Case Implementation Tracking](../../state-tracking/permanent/test-implementation-tracking.md) updated with test review results
+  - [ ] [Test Tracking](../../state-tracking/permanent/test-tracking.md) updated with test review results
   - [ ] Review date, time, and reviewer information recorded
   - [ ] Link to review document included
   - [ ] Major findings and performance notes summarized in the tracking document
   - [ ] Test coverage percentages updated
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-005" and context "Code Review"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-005" and context "Code Review"
 
 ## Next Tasks
 
@@ -288,13 +288,13 @@ Before considering this task finished:
 
 - [Architecture Decision Records](/doc/product-docs/technical/architecture/design-docs/adr/) - Architectural context and decisions
 - [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Feature status and dependencies
-- [Test Implementation Tracking](../../state-tracking/permanent/test-implementation-tracking.md) - Test coverage and status
+- [Test Tracking](../../state-tracking/permanent/test-tracking.md) - Test coverage and status
 
 ### Development Tools & Standards
 
 - Project linting/analysis configuration - Code standards
 - Project dependency configuration - Dependencies and versions
-- [Task Creation and Improvement Guide](../task-creation-guide.md) - Guide for creating and improving tasks
+- [Task Creation and Improvement Guide](../../guides/guides/support/task-creation-guide.md) - Guide for creating and improving tasks
 
 ### Automation & Scripts
 
@@ -306,6 +306,6 @@ Before considering this task finished:
 
 If referenced files are missing or incomplete:
 
-1. Refer to the [Definition of Done](/doc/process-framework/methodologies/definition-of-done.md) as the primary quality reference
+1. Refer to the [Definition of Done](/doc/process-framework/guides/guides/04-implementation/definition-of-done.md) as the primary quality reference
 2. Focus on the review areas outlined in this task
 3. Consult with your human partner for project-specific standards and requirements

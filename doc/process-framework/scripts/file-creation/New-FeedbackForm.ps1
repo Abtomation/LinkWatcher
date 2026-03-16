@@ -69,7 +69,7 @@ try {
                 "⚠️  AI agents MUST follow the referenced guide to properly customize the content.",
                 "",
                 "📖 MANDATORY CUSTOMIZATION GUIDE:",
-                "   doc/process-framework/guides/guides/feedback-form-guide.md",
+                "doc/process-framework/guides/guides/framework/feedback-form-guide.md",
                 "🎯 FOCUS AREAS: 'Feedback Form Completion Instructions' section",
                 "",
                 "🚫 DO NOT use the generated file without proper customization!",

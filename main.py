@@ -14,6 +14,9 @@ Options:
     --config FILE        Configuration file path
     --dry-run           Enable dry run mode (no file modifications)
     --quiet             Suppress non-error output
+
+If you want to store the logs as well
+    python main.py --log-file LinkWatcher_run/LinkWatcherLog.txt --debug
 """
 
 import argparse
@@ -128,12 +131,28 @@ LOCK_FILE_NAME = ".linkwatcher.lock"
 
 
 def _is_pid_running(pid: int) -> bool:
-    """Check if a process with the given PID is still running."""
-    try:
-        os.kill(pid, 0)
-        return True
-    except OSError:
+    """Check if a process with the given PID is still running.
+
+    Note: os.kill(pid, 0) cannot be used on Windows because signal 0
+    equals CTRL_C_EVENT, which actually terminates the target process.
+    """
+    if sys.platform == "win32":
+        import ctypes
+        kernel32 = ctypes.windll.kernel32
+        PROCESS_QUERY_LIMITED_INFORMATION = 0x1000
+        handle = kernel32.OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, False, pid)
+        if handle:
+            kernel32.CloseHandle(handle)
+            return True
         return False
+    else:
+        try:
+            os.kill(pid, 0)
+            return True
+        except PermissionError:
+            return True
+        except OSError:
+            return False
 
 
 def acquire_lock(project_root: Path) -> Path:
@@ -217,7 +236,14 @@ Examples:
     args = parser.parse_args()
 
     try:
-        # Setup logging first
+        # Validate project root first (needed for lock check)
+        project_root = validate_project_root(args.project_root)
+
+        # Acquire lock BEFORE setting up file logging to avoid
+        # conflicting file handles that kill the running instance
+        lock_file = acquire_lock(project_root)
+
+        # Setup logging (safe to open log file now that we hold the lock)
         log_level = LogLevel.DEBUG if args.debug else LogLevel.INFO
         if args.quiet:
             log_level = LogLevel.ERROR
@@ -228,9 +254,6 @@ Examples:
             colored_output=not args.quiet,
             show_icons=not args.quiet,
         )
-
-        # Validate project root
-        project_root = validate_project_root(args.project_root)
 
         # Load configuration
         config = load_config(args.config, args)
@@ -271,9 +294,6 @@ Examples:
         # Print startup information (for backward compatibility)
         if not args.quiet:
             print_startup_info(config, project_root)
-
-        # Acquire lock file to prevent duplicate instances
-        lock_file = acquire_lock(project_root)
 
         try:
             # Create and configure service

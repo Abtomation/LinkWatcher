@@ -33,30 +33,30 @@ Create Architecture Decision Records (ADRs) to document significant architectura
 
 ## Context Requirements
 
-[View Context Map for this task](../discrete/visualization/context-maps/discrete/adr-creation-map.md)
+[View Context Map for this task](../../visualization/context-maps/02-design/adr-creation-map.md)
 
 - **Critical (Must Read):**
 
   - **Architectural Decision Context** - Clear understanding of the decision to be documented, including problem statement and constraints
-  - [Architecture Decision Creation Guide](../discrete/guides/guides/architecture-decision-creation-guide.md) - Comprehensive guide for customizing ADR templates
-  - [ADR Template](../product-docs/templates/templates/adr-template.md) - Template structure and required sections
+  - [Architecture Decision Creation Guide](../../guides/guides/02-design/architecture-decision-creation-guide.md) - Comprehensive guide for customizing ADR templates
+  - [ADR Template](../../templates/templates/adr-template.md) - Template structure and required sections
 
 - **Important (Load If Space):**
 
   - [System Architecture Review](../01-planning/system-architecture-review.md) - For decisions arising from architectural reviews
   - [Foundation Feature Implementation](../04-implementation/foundation-feature-implementation-task.md) - For architectural decisions during foundation work
   - [Feature Tier Assessment](../01-planning/feature-tier-assessment-task.md) - For decisions identified during complexity assessment
-  - [Component Relationship Index](../product-docs/technical/architecture/component-relationship-index.md) - For understanding component interactions
+  - [Component Relationship Index](../../../product-docs/technical/architecture/component-relationship-index.md) - For understanding component interactions
 
 - **Reference Only (Access When Needed):**
-  - [Existing ADRs](../product-docs/technical/architecture/design-docs/adr/adr) - For consistency and reference
-  - [Visual Notation Guide](../discrete/guides/guides/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Existing ADRs](../../../product-docs/technical/architecture/design-docs/adr/adr) - For consistency and reference
+  - [Visual Notation Guide](../../guides/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 ## Process
 
 > **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished! 🚨**
 >
-> **⚠️ MANDATORY: Use the ../discrete/../discrete/New-ArchitectureDecision.ps1 script - never create ADRs manually.**
+> **⚠️ MANDATORY: Use the ../../scripts/file-creation/New-ArchitectureDecision.ps1 script - never create ADRs manually.**
 >
 > **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
 >
@@ -85,17 +85,17 @@ Create Architecture Decision Records (ADRs) to document significant architectura
 
 ### Execution
 
-5. **Create ADR Using Automation Script**: Use the ../discrete/../discrete/New-ArchitectureDecision.ps1 script
+5. **Create ADR Using Automation Script**: Use the ../../scripts/file-creation/New-ArchitectureDecision.ps1 script
 
    ```powershell
    # Navigate to ADR directory
    cd doc/product-docs/technical/architecture/design-docs/adr
 
    # Create new ADR with basic information
-   .\../discrete/../discrete/New-ArchitectureDecision.ps1 -Title "Your Decision Title" -Description "Brief description of the decision" -Status "Proposed"
+   .\../../scripts/file-creation/New-ArchitectureDecision.ps1 -Title "Your Decision Title" -Description "Brief description of the decision" -Status "Proposed"
 
    # Optional: Open in editor immediately
-   .\../discrete/../discrete/New-ArchitectureDecision.ps1 -Title "Your Decision Title" -Description "Brief description" -Status "Proposed" -OpenInEditor
+   .\../../scripts/file-creation/New-ArchitectureDecision.ps1 -Title "Your Decision Title" -Description "Brief description" -Status "Proposed" -OpenInEditor
    ```
 
 6. **Complete ADR Documentation**: Follow the Architecture Decision Creation Guide
@@ -140,8 +140,8 @@ Create Architecture Decision Records (ADRs) to document significant architectura
 
 The following state files must be updated as part of this task:
 
-- [Architecture Tracking](../discrete/state-tracking/permanent/architecture-tracking.md) - Update with new architectural decision and its impact
-- [Feature Tracking](../discrete/state-tracking/permanent/feature-tracking.md) - Update ADR column for related features with link to created ADR
+- [Architecture Tracking](../../state-tracking/permanent/architecture-tracking.md) - Update with new architectural decision and its impact
+- [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Update ADR column for related features with link to created ADR
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
@@ -154,9 +154,9 @@ Before considering this task finished:
   - [ ] All ADR template sections properly completed (Context, Decision, Impact Assessment, Alternatives, Consequences, References)
   - [ ] ADR status appropriately set (Proposed/Accepted/etc.)
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
-  - [ ] [Architecture Tracking](../discrete/state-tracking/permanent/architecture-tracking.md) updated with new architectural decision
-  - [ ] [Feature Tracking](../discrete/state-tracking/permanent/feature-tracking.md) updated with ADR link in relevant feature entries
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../discrete/guides/guides/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-028" and context "ADR Creation"
+  - [ ] [Architecture Tracking](../../state-tracking/permanent/architecture-tracking.md) updated with new architectural decision
+  - [ ] [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) updated with ADR link in relevant feature entries
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-028" and context "ADR Creation"
 
 ## Next Tasks
 
@@ -166,7 +166,7 @@ Before considering this task finished:
 
 ## Related Resources
 
-- [Architecture Decision Creation Guide](../discrete/guides/guides/architecture-decision-creation-guide.md) - Comprehensive guide for creating and customizing ADRs
-- [ADR Template](../product-docs/templates/templates/adr-template.md) - Template structure and sections for ADRs
-- [../discrete/../discrete/New-ArchitectureDecision.ps1](../../../product-docs/technical/architecture/design-docs/adr/../discrete/../discrete/New-ArchitectureDecision.ps1) - Script for creating new ADRs
-- [Existing ADRs](../product-docs/technical/architecture/design-docs/adr/adr) - Reference examples and consistency patterns
+- [Architecture Decision Creation Guide](../../guides/guides/02-design/architecture-decision-creation-guide.md) - Comprehensive guide for creating and customizing ADRs
+- [ADR Template](../../templates/templates/adr-template.md) - Template structure and sections for ADRs
+- [New-ArchitectureDecision.ps1](../../scripts/file-creation/New-ArchitectureDecision.ps1) - Script for creating new ADRs
+- [Existing ADRs](../../../product-docs/technical/architecture/design-docs/adr/adr) - Reference examples and consistency patterns

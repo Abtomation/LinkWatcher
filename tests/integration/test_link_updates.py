@@ -855,3 +855,289 @@ class TestBug025SubstringCorruption:
         assert (
             '"../utils/helpers.py"' in updated_content
         ), "Longer path should be independently updated to ../utils/helpers.py"
+
+
+class TestBug032RootRelativeWithinMovedFile:
+    """Regression tests for PD-BUG-032: PowerShell script paths corrupted with spurious ../ prefix.
+
+    When a .ps1 file is moved (e.g., as part of a directory move),
+    _calculate_updated_relative_path() in reference_lookup.py incorrectly treats
+    project-root-relative paths as source-relative, prepending spurious ../
+    prefixes. Project-root-relative paths should remain unchanged.
+    """
+
+    def test_bug032_root_relative_path_unchanged_when_script_moves_deeper(
+        self, temp_project_dir
+    ):
+        """
+        PD-BUG-032: A PS1 script in a subdirectory with a project-root-relative
+        path like 'doc/product-docs/documentation-tiers/assessments' must NOT
+        get a spurious ../ prefix when the script moves to a deeper directory.
+        Reproduces the real scenario: script is already deep in the tree.
+        """
+        # Create the target directory that the path points to
+        target_dir = temp_project_dir / "doc" / "product-docs" / "documentation-tiers" / "assessments"
+        target_dir.mkdir(parents=True)
+
+        # Create a PS1 script in a subdirectory (realistic scenario)
+        script_dir = temp_project_dir / "scripts" / "file-creation"
+        script_dir.mkdir(parents=True)
+        script_file = script_dir / "New-Assessment.ps1"
+        script_content = (
+            '# Script\n'
+            '$OutputDir = "doc/product-docs/documentation-tiers/assessments"\n'
+            'Write-Host "Creating assessment in $OutputDir"\n'
+        )
+        script_file.write_text(script_content)
+
+        # Initialize service and scan
+        service = LinkWatcherService(str(temp_project_dir))
+        service._initial_scan()
+
+        # Move the script one level deeper (simulates directory restructure)
+        deeper_dir = temp_project_dir / "scripts" / "file-creation" / "01-planning"
+        deeper_dir.mkdir(parents=True)
+        new_script = deeper_dir / "New-Assessment.ps1"
+        script_file.rename(new_script)
+
+        # Simulate move event
+        event = FileMovedEvent(str(script_file), str(new_script))
+        service.handler._handle_file_moved(event)
+
+        # Read updated content
+        updated_content = new_script.read_text()
+
+        # The project-root-relative path must NOT get ../ prefix
+        assert (
+            '"doc/product-docs/documentation-tiers/assessments"' in updated_content
+        ), "Project-root-relative path should remain unchanged"
+        assert (
+            "../doc/product-docs" not in updated_content
+        ), "Must NOT prepend spurious ../ to project-root-relative path"
+
+    def test_bug032_multiple_root_relative_paths_all_preserved(self, temp_project_dir):
+        """
+        PD-BUG-032: A script in a subdirectory with multiple project-root-relative
+        paths must keep ALL of them unchanged when the script moves deeper.
+        """
+        # Create target directories (project-root-relative targets)
+        (temp_project_dir / "doc" / "templates").mkdir(parents=True)
+        (temp_project_dir / "doc" / "state-tracking" / "permanent").mkdir(parents=True)
+
+        # Create PS1 script in a subdirectory
+        script_dir = temp_project_dir / "scripts" / "update"
+        script_dir.mkdir(parents=True)
+        script_file = script_dir / "Update-State.ps1"
+        script_content = (
+            '# Update script\n'
+            '$TemplatePath = "doc/templates"\n'
+            '$TrackingFile = "doc/state-tracking/permanent"\n'
+        )
+        script_file.write_text(script_content)
+
+        # Initialize service and scan
+        service = LinkWatcherService(str(temp_project_dir))
+        service._initial_scan()
+
+        # Move the script one level deeper
+        sub_dir = temp_project_dir / "scripts" / "update" / "v2"
+        sub_dir.mkdir()
+        new_script = sub_dir / "Update-State.ps1"
+        script_file.rename(new_script)
+
+        # Simulate move event
+        event = FileMovedEvent(str(script_file), str(new_script))
+        service.handler._handle_file_moved(event)
+
+        # Read updated content
+        updated_content = new_script.read_text()
+
+        # Both project-root-relative paths must remain unchanged
+        assert (
+            '"doc/templates"' in updated_content
+        ), "First project-root-relative path should remain unchanged"
+        assert (
+            '"doc/state-tracking/permanent"' in updated_content
+        ), "Second project-root-relative path should remain unchanged"
+        assert (
+            "../doc/" not in updated_content
+        ), "Must NOT prepend ../ to any project-root-relative path"
+
+    def test_bug032_source_relative_path_still_updated_correctly(self, temp_project_dir):
+        """
+        PD-BUG-032 negative test: Normal source-relative paths (e.g., ../config.yaml)
+        must still be updated correctly when the containing file moves.
+        Ensures the fix doesn't break existing source-relative behavior.
+        """
+        # Create a config file at project root
+        config_file = temp_project_dir / "config.yaml"
+        config_file.write_text("key: value")
+
+        # Create a markdown file in a subdirectory with a source-relative link
+        sub_dir = temp_project_dir / "docs"
+        sub_dir.mkdir()
+        md_file = sub_dir / "guide.md"
+        md_content = "# Guide\n\nSee [config](../config.yaml) for details.\n"
+        md_file.write_text(md_content)
+
+        # Initialize service and scan
+        service = LinkWatcherService(str(temp_project_dir))
+        service._initial_scan()
+
+        # Move the markdown file deeper
+        deep_dir = temp_project_dir / "docs" / "guides" / "sub"
+        deep_dir.mkdir(parents=True)
+        new_md = deep_dir / "guide.md"
+        md_file.rename(new_md)
+
+        # Simulate move event
+        event = FileMovedEvent(str(md_file), str(new_md))
+        service.handler._handle_file_moved(event)
+
+        # Read updated content
+        updated_content = new_md.read_text()
+
+        # Source-relative path must be updated to reflect new depth
+        assert (
+            "../config.yaml" not in updated_content
+            or "../../../config.yaml" in updated_content
+        ), "Source-relative path should be updated to new relative depth"
+        assert (
+            "../../../config.yaml" in updated_content
+        ), "Path should go up 3 levels from docs/guides/sub/ to reach config.yaml"
+
+
+class TestBug033RegexNotRewrittenOnMove:
+    """Regression tests for PD-BUG-033: PowerShell parser corrupts regex patterns on file move.
+
+    When a .ps1 file containing regex patterns in single-quoted strings is moved,
+    _calculate_updated_relative_path() should skip targets that don't resolve to
+    real files/directories on disk. Regex patterns like '\\d+' resolve to
+    non-existent paths and must be left unchanged.
+
+    Uses exact patterns from the corrupted Update-FeatureTrackingFromAssessment.ps1.
+    """
+
+    def test_bug033_regex_with_digit_class_preserved_on_move(self, temp_project_dir):
+        """Regex 'ART-ASS-\\d+-([0-9]+\\.[0-9]+\\.[0-9]+)-' must not be rewritten.
+
+        Original line 124 was corrupted from:
+            if ($fileName -match 'ART-ASS-\\d+-([0-9]+\\.[0-9]+\\.[0-9]+)-')
+        To:
+            if ($fileName -match '../../../product-docs/documentation-tiers/ART-ASS-/d+...')
+        """
+        # Create a .ps1 file with the exact regex pattern
+        script_dir = temp_project_dir / "scripts" / "update"
+        script_dir.mkdir(parents=True)
+        script_file = script_dir / "Update-Tracking.ps1"
+        script_content = (
+            "# Script\n"
+            "if ($fileName -match 'ART-ASS-\\d+-([0-9]+\\.[0-9]+\\.[0-9]+)-') {\n"
+            "    $FeatureId = $matches[1]\n"
+            "}\n"
+        )
+        script_file.write_text(script_content)
+
+        # Initialize service and scan
+        service = LinkWatcherService(str(temp_project_dir))
+        service._initial_scan()
+
+        # Move the script to a deeper directory
+        deeper_dir = temp_project_dir / "scripts" / "update" / "sub"
+        deeper_dir.mkdir()
+        new_script = deeper_dir / "Update-Tracking.ps1"
+        script_file.rename(new_script)
+
+        # Simulate move event
+        event = FileMovedEvent(str(script_file), str(new_script))
+        service.handler._handle_file_moved(event)
+
+        # Read updated content
+        updated_content = new_script.read_text()
+
+        # Regex pattern must be unchanged
+        assert "ART-ASS-\\d+-([0-9]+\\.[0-9]+\\.[0-9]+)-" in updated_content, (
+            "Regex pattern was corrupted during file move"
+        )
+
+    def test_bug033_regex_with_escaped_brackets_preserved_on_move(self, temp_project_dir):
+        r"""Regex '\[x\]\s+Tier\s+(\d+)' must not be rewritten.
+
+        Original line 151 was corrupted from:
+            if ($content -match '\[x\]\s+Tier\s+(\d+)')
+        To:
+            if ($content -match '../../../../../../../../[x/]/s+Tier/s+(/d+)')
+        """
+        script_dir = temp_project_dir / "scripts"
+        script_dir.mkdir(parents=True)
+        script_file = script_dir / "Parse-Tier.ps1"
+        script_content = (
+            "# Tier parser\n"
+            "if ($content -match '\\[x\\]\\s+Tier\\s+(\\d+)') {\n"
+            "    $tier = $matches[1]\n"
+            "}\n"
+        )
+        script_file.write_text(script_content)
+
+        service = LinkWatcherService(str(temp_project_dir))
+        service._initial_scan()
+
+        deeper_dir = temp_project_dir / "scripts" / "sub"
+        deeper_dir.mkdir()
+        new_script = deeper_dir / "Parse-Tier.ps1"
+        script_file.rename(new_script)
+
+        event = FileMovedEvent(str(script_file), str(new_script))
+        service.handler._handle_file_moved(event)
+
+        updated_content = new_script.read_text()
+
+        assert "\\[x\\]\\s+Tier\\s+(\\d+)" in updated_content, (
+            "Regex pattern with escaped brackets was corrupted during file move"
+        )
+
+    def test_bug033_real_path_still_updated_alongside_regex(self, temp_project_dir):
+        """A file with BOTH regex patterns and real source-relative paths:
+        only real paths get updated, regex stays unchanged.
+
+        Uses a source-relative path (../config.yaml from scripts/) so the
+        existence check resolves it correctly and the updater recalculates it.
+        """
+        # Create target file at project root (source-relative from scripts/)
+        config_file = temp_project_dir / "config.yaml"
+        config_file.write_text("key: value")
+
+        script_dir = temp_project_dir / "scripts"
+        script_dir.mkdir(parents=True)
+        script_file = script_dir / "Mixed.ps1"
+        script_content = (
+            "# Mixed content\n"
+            '$cfg = "../config.yaml"\n'
+            "if ($id -match '(ART-ASS-\\d+)-') {\n"
+            "    Write-Host $id\n"
+            "}\n"
+        )
+        script_file.write_text(script_content)
+
+        service = LinkWatcherService(str(temp_project_dir))
+        service._initial_scan()
+
+        deeper_dir = temp_project_dir / "scripts" / "sub"
+        deeper_dir.mkdir()
+        new_script = deeper_dir / "Mixed.ps1"
+        script_file.rename(new_script)
+
+        event = FileMovedEvent(str(script_file), str(new_script))
+        service.handler._handle_file_moved(event)
+
+        updated_content = new_script.read_text()
+
+        # Source-relative path should be updated (target exists → recalculate)
+        assert "../../config.yaml" in updated_content, (
+            "Source-relative path should be updated to reflect new depth"
+        )
+
+        # Regex pattern should be unchanged (target doesn't exist → skip)
+        assert "(ART-ASS-\\d+)-" in updated_content, (
+            "Regex pattern should be preserved unchanged"
+        )

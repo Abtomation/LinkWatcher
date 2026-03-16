@@ -10,7 +10,7 @@ focusing on individual test files rather than entire features. This addresses th
 critical bottleneck identified in the Process Improvement Tracking (IMP-087).
 
 Updates the following files:
-- ../doc/process-framework/state-tracking/permanent/test-implementation-tracking.md
+- ../doc/process-framework/state-tracking/permanent/test-tracking.md
 - ../test/test-registry.yaml
 - ../doc/process-framework/state-tracking/permanent/feature-tracking.md (aggregated status)
 
@@ -100,7 +100,7 @@ param(
 # Import required modules
 try {
     $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-    $commonHelpersPath = Join-Path $scriptDir "Common-ScriptHelpers.psm1"
+    $commonHelpersPath = Join-Path $scriptDir "../Common-ScriptHelpers.psm1"
     Import-Module $commonHelpersPath -Force
 }
 catch {
@@ -129,10 +129,10 @@ function Get-FeatureIdFromTestFile {
     param([string]$TestFileId)
 
     $projectRoot = Get-ProjectRoot
-    $testTrackingPath = Join-Path $projectRoot "../doc/process-framework/state-tracking/permanent/test-implementation-tracking.md"
+    $testTrackingPath = Join-Path $projectRoot "doc/process-framework/state-tracking/permanent/test-tracking.md"
 
     if (-not (Test-Path $testTrackingPath)) {
-        throw "Test implementation tracking file not found: $testTrackingPath"
+        throw "Test tracking file not found: $testTrackingPath"
     }
 
     $content = Get-Content $testTrackingPath -Raw
@@ -143,7 +143,7 @@ function Get-FeatureIdFromTestFile {
         return $featureId
     }
 
-    throw "Test file ID '$TestFileId' not found in test implementation tracking"
+    throw "Test file ID '$TestFileId' not found in test tracking"
 }
 
 # Helper function to update individual test file status
@@ -156,10 +156,10 @@ function Update-IndividualTestFileStatus {
     )
 
     $projectRoot = Get-ProjectRoot
-    $testTrackingPath = Join-Path $projectRoot "../doc/process-framework/state-tracking/permanent/test-implementation-tracking.md"
+    $testTrackingPath = Join-Path $projectRoot "doc/process-framework/state-tracking/permanent/test-tracking.md"
 
     if ($DryRun) {
-        Write-Host "../DRY RUN: Would update test file $TestFileId in test-implementation-tracking.md" -ForegroundColor Cyan
+        Write-Host "DRY RUN: Would update test file $TestFileId in test-tracking.md" -ForegroundColor Cyan
         Write-Host "  Status: $Status" -ForegroundColor Gray
         foreach ($key in $AdditionalUpdates.Keys) {
             Write-Host "  $key`: $($AdditionalUpdates[$key])" -ForegroundColor Gray
@@ -168,7 +168,7 @@ function Update-IndividualTestFileStatus {
     }
 
     if (-not (Test-Path $testTrackingPath)) {
-        throw "Test implementation tracking file not found: $testTrackingPath"
+        throw "Test tracking file not found: $testTrackingPath"
     }
 
     $content = Get-Content $testTrackingPath -Raw
@@ -213,7 +213,7 @@ function Update-IndividualTestFileStatus {
     }
 
     if (-not $updated) {
-        throw "Test file ID '$TestFileId' not found in test implementation tracking"
+        throw "Test file ID '$TestFileId' not found in test tracking"
     }
 
     # Write back to file
@@ -266,9 +266,9 @@ try {
         Write-Host "Creating backups..." -ForegroundColor Yellow
         $projectRoot = Get-ProjectRoot
         $filesToBackup = @(
-            "../doc/process-framework/state-tracking/permanent/test-implementation-tracking.md",
-            "../test/test-registry.yaml",
-            "../doc/process-framework/state-tracking/permanent/feature-tracking.md"
+            "doc/process-framework/state-tracking/permanent/test-tracking.md",
+            "test/test-registry.yaml",
+            "doc/process-framework/state-tracking/permanent/feature-tracking.md"
         )
 
         $backupCount = 0
@@ -285,7 +285,7 @@ try {
 
     # Update 1: Individual Test File Status
     Write-Host ""
-    Write-Host "Updating Test Implementation Tracking..." -ForegroundColor Yellow
+    Write-Host "Updating Test Tracking..." -ForegroundColor Yellow
 
     # Build additional updates for test implementation tracking
     $testUpdates = @{
@@ -357,7 +357,7 @@ try {
 
     # Calculate aggregated test status for the feature
     $projectRoot = Get-ProjectRoot
-    $testTrackingPath = Join-Path $projectRoot "../doc/process-framework/state-tracking/permanent/test-implementation-tracking.md"
+    $testTrackingPath = Join-Path $projectRoot "doc/process-framework/state-tracking/permanent/test-tracking.md"
     $content = Get-Content $testTrackingPath -Raw
 
     # Find all test files for this feature and their statuses
@@ -451,9 +451,9 @@ try {
 
     Write-Host ""
     Write-Host "Files Updated:" -ForegroundColor White
-    Write-Host "  ✅ ../test-implementation-tracking.md (individual test file)" -ForegroundColor Green
-    Write-Host "  ⚠️  ../test-registry.yaml (manual review required)" -ForegroundColor Yellow
-    Write-Host "  ✅ ../feature-tracking.md (aggregated status)" -ForegroundColor Green
+    Write-Host "  ✅ test-tracking.md (individual test file)" -ForegroundColor Green
+    Write-Host "  ⚠️  test-registry.yaml (manual review required)" -ForegroundColor Yellow
+    Write-Host "  ✅ feature-tracking.md (aggregated status)" -ForegroundColor Green
 
     if ($DryRun) {
         Write-Host ""

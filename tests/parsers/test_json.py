@@ -67,7 +67,7 @@ class TestJsonParser:
 
         # Check reference types
         for ref in references:
-            assert ref.link_type == "json"
+            assert ref.link_type in ("json", "json-dir")
             assert ref.file_path == str(json_file)
 
     def test_jp_002_nested_objects(self, temp_project_dir):
@@ -548,3 +548,87 @@ class TestJsonParserDuplicateLineNumbers:
             len(set(line_numbers)) == 3
         ), f"Expected 3 unique line numbers for adjacent duplicates, got {line_numbers}"
         assert sorted(line_numbers) == [3, 4, 5]
+
+
+class TestJsonParserDirectoryPaths:
+    """Regression tests for PD-BUG-030: directory paths not detected in JSON values."""
+
+    def test_bug030_directory_paths_detected_in_json(self, temp_project_dir):
+        """
+        PD-BUG-030: JSON values containing directory paths (no file extension)
+        should be detected as references when they contain path separators.
+        """
+        parser = JsonParser()
+
+        json_file = temp_project_dir / "registry.json"
+        json_content = """{
+  "directories": {
+    "docs": "doc/product-docs/documentation-tiers",
+    "scripts": "doc/process-framework/scripts/file-creation",
+    "templates": "doc/process-framework/templates/templates"
+  }
+}"""
+        json_file.write_text(json_content)
+
+        references = parser.parse_content(json_content, str(json_file))
+
+        targets = [ref.link_target for ref in references]
+        assert "doc/product-docs/documentation-tiers" in targets
+        assert "doc/process-framework/scripts/file-creation" in targets
+        assert "doc/process-framework/templates/templates" in targets
+
+    def test_bug030_directory_paths_coexist_with_file_paths(self, temp_project_dir):
+        """
+        PD-BUG-030: Directory paths and file paths should both be detected
+        without interfering with each other.
+        """
+        parser = JsonParser()
+
+        json_file = temp_project_dir / "mixed.json"
+        json_content = """{
+  "config": {
+    "output_dir": "build/output",
+    "config_file": "config/settings.json",
+    "source_dir": "src/components",
+    "readme": "docs/README.md"
+  }
+}"""
+        json_file.write_text(json_content)
+
+        references = parser.parse_content(json_content, str(json_file))
+
+        targets = [ref.link_target for ref in references]
+        # File paths (have extensions)
+        assert "config/settings.json" in targets
+        assert "docs/README.md" in targets
+        # Directory paths (no extensions)
+        assert "build/output" in targets
+        assert "src/components" in targets
+
+    def test_bug030_non_path_strings_not_detected(self, temp_project_dir):
+        """
+        PD-BUG-030: Non-path strings should NOT be falsely detected as
+        directory paths just because they exist in JSON.
+        """
+        parser = JsonParser()
+
+        json_file = temp_project_dir / "nonpaths.json"
+        json_content = """{
+  "name": "My Application",
+  "version": "2.0",
+  "description": "A test application for unit testing",
+  "author": "Test User",
+  "real_path": "src/utils/helpers"
+}"""
+        json_file.write_text(json_content)
+
+        references = parser.parse_content(json_content, str(json_file))
+
+        targets = [ref.link_target for ref in references]
+        # Only the real path should be detected
+        assert "src/utils/helpers" in targets
+        # Non-path strings should not be detected
+        assert "My Application" not in targets
+        assert "2.0" not in targets
+        assert "A test application for unit testing" not in targets
+        assert "Test User" not in targets

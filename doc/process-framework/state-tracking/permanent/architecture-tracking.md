@@ -72,8 +72,8 @@ cd doc/product-docs/technical/architecture/design-docs/adr/
 ## Related Documentation
 
 ### Essential Guides
-- [Architectural Framework Usage Guide](../../guides/guides/architectural-framework-usage-guide.md) - **START HERE**: Comprehensive guide for using the architectural framework
-- [Task Transition Guide](../../guides/guides/task-transition-guide.md) - Workflow patterns including architectural transitions
+- [Architectural Framework Usage Guide](../../guides/guides/01-planning/architectural-framework-usage-guide.md) - **START HERE**: Comprehensive guide for using the architectural framework
+- [Task Transition Guide](../../guides/guides/framework/task-transition-guide.md) - Workflow patterns including architectural transitions
 
 ### Architecture Context Packages
 - [Data Architecture Context](../../../product-docs/technical/architecture/context-packages/data-architecture-context.md) - Repository pattern and data layer architecture

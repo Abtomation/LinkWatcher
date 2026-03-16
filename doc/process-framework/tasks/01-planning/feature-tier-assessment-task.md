@@ -37,7 +37,7 @@ Assess the complexity tier of unassessed features to determine appropriate docum
 
   - [Assessment Guide](../guides/guides/assessment-guide.md) - Detailed guidelines for assessing feature complexity tiers
   - [Documentation Tiers README](../../../product-docs/documentation-tiers/README.md) - Definitions of each complexity tier and their criteria
-  - [Visual Notation Guide](/doc/process-framework/guides/guides/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Visual Notation Guide](/doc/process-framework/guides/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 - **Reference Only (Access When Needed):**
   - [Feature Tracking](../state-tracking/permanent/feature-tracking.md) - List of features and their current assessment status
@@ -64,7 +64,7 @@ Assess the complexity tier of unassessed features to determine appropriate docum
 
    ```powershell
    # Navigate to the documentation tiers directory
-   cd ../../methodologies/documentation-tiers
+   cd ../../../product-docs/documentation-tiers
 
    # Create a new assessment document (ALL THREE PARAMETERS ARE MANDATORY)
    ../../scripts/file-creation/01-planning/New-Assessment.ps1 -FeatureId "X.X.X" -FeatureName "Feature Name" -FeatureDescription "Brief description of what the feature does"
@@ -88,7 +88,7 @@ Assess the complexity tier of unassessed features to determine appropriate docum
 
    ```powershell
    # Navigate to the documentation tiers directory (if not already there)
-   cd doc/process-framework/methodologies/documentation-tiers
+   cd doc/product-docs/documentation-tiers
 
    # Run the automated update script (AssessmentId and FeatureId are required)
    .\Update-FeatureTrackingFromAssessment.ps1 -FeatureId "X.X.X" -AssessmentId "ART-ASS-XXX"
@@ -110,7 +110,7 @@ Assess the complexity tier of unassessed features to determine appropriate docum
 
 ## Outputs
 
-- **Assessment Document** - New document in the `../../methodologies/documentation-tiers/assessments/` directory with tier assignment, design requirements evaluation, and rationale
+- **Assessment Document** - New document in the `../../../product-docs/documentation-tiers/assessments/` directory with tier assignment, design requirements evaluation, and rationale
 - **Updated Feature Tracking** - Feature entry in the tracking document updated with assessment results, including API Design and DB Design requirements
 
 ## State Tracking
@@ -147,7 +147,7 @@ Before considering this task finished:
   - [ ] Feature Tracking document API Design column updated with "Yes" or "No" based on assessment
   - [ ] Feature Tracking document DB Design column updated with "Yes" or "No" based on assessment
   - [ ] For existing assessments: Added Design Requirements Evaluation section if it was missing
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../guides/guides/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-002" and context "Feature Tier Assessment"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-002" and context "Feature Tier Assessment"
 
 ## Design Requirements Evaluation
 
@@ -277,7 +277,7 @@ When updating the feature tracking document:
 
 ## Next Tasks
 
-**📋 For guidance on choosing the next task, see the [Task Transition Guide](../guides/guides/task-transition-guide.md)**
+**📋 For guidance on choosing the next task, see the [Task Transition Guide](../../guides/guides/framework/task-transition-guide.md)**
 
 **Based on Tier Assessment Result:**
 

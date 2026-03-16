@@ -145,7 +145,7 @@ try {
             "⚠️  AI agents MUST follow the referenced guide to properly customize the content.",
             "",
             "📖 MANDATORY CUSTOMIZATION GUIDE:",
-            "   doc/process-framework/guides/guides/ui-design-customization-guide.md",
+            "doc/process-framework/guides/guides/02-design/ui-design-customization-guide.md",
             "🎯 FOCUS AREAS: 'Wireframes & User Flows' and 'Visual Design Specifications' sections",
             "",
             "🎯 What the guide will teach you:",
@@ -234,7 +234,7 @@ Before considering this script complete, test the following:
 
 CUSTOMIZATION REQUIREMENTS:
 - Ensure ui-design-template.md exists in the templates directory
-- Verify ui-design-customization-guide.md exists for user guidance
+- Verify doc/process-framework/guides/guides/02-design/ui-design-customization-guide.md exists for user guidance
 - Verify design-guidelines.md (PD-UIX-001) exists for design system reference
 - Test with various Feature ID formats (e.g., "1.1.1", "2.3.4")
 - Validate filename generation includes feature ID (format: ui-design-[feature-id]-[feature-name].md)

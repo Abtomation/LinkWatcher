@@ -38,7 +38,7 @@ Systematically evaluate and enhance the templates, guides, and other tools by co
 
   - [Feedback Forms](../../feedback) - Collected feedback on tools used in previous tasks
   - [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) - Current improvement initiatives
-  - [Visual Notation Guide](/doc/process-framework/guides/guides/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Visual Notation Guide](/doc/process-framework/guides/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 - **Important (Load If Space):**
 
@@ -63,10 +63,10 @@ Systematically evaluate and enhance the templates, guides, and other tools by co
 
 1. Review [feedback forms](../../feedback/feedback-forms/) collected at the end of each task
 2. **Group feedback forms by task type** (e.g., all PF-TSK-002 forms together)
-   - **🚨 BATCH SIZE LIMIT**: Evaluate a maximum of **15 feedback forms per session** to prevent context window exhaustion before analysis is complete
+   - **🚨 BATCH SIZE LIMIT**: Evaluate a maximum of **40 feedback forms per session** to prevent context window exhaustion before analysis is complete
    - **Analysis quality over speed**: Analyze each form individually and thoroughly before moving to the next. Do not parallelize form analysis — sequential, careful reading catches improvement patterns that batch scanning misses.
    - All forms belonging to the same task type **must** be included in the same session — never split a task group across sessions
-   - If total forms exceed 15, split into multiple sessions by task group boundaries (complete task groups only)
+   - If total forms exceed 40, split into multiple sessions by task group boundaries (complete task groups only)
 3. Create a structured analysis framework for each task group
 4. Prepare a tracking sheet for identified improvements
 5. **🚨 CHECKPOINT**: Present feedback inventory, task groupings, and initial themes to human partner for alignment
@@ -148,7 +148,7 @@ Before considering this task finished:
   - [ ] **Keep Active**: Leave newly created feedback forms in the active feedback-forms folder for future analysis
   - [ ] Document which specific forms were archived vs. kept active in the review summary
 - [ ] **Record Ratings**: Feedback ratings recorded in database via `python scripts/feedback_db.py record` using [feedback-db-input-template.json](../../templates/templates/feedback-db-input-template.json) as reference (archived_form_path is now available from previous step)
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-010" and context "Tools Review"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-010" and context "Tools Review"
 - [ ] **Schedule Next Review**: Set a reminder for the next tools review cycle
 
 ## Next Tasks
@@ -158,7 +158,7 @@ Before considering this task finished:
 ## Related Resources
 
 - [Feedback Process Guide](../../feedback/README.md) - Guide for collecting and processing feedback
-- [Task Creation and Improvement Guide](../task-creation-guide.md) - Guide for creating and improving tasks
+- [Task Creation and Improvement Guide](../../guides/guides/support/task-creation-guide.md) - Guide for creating and improving tasks
 
 ## Critical Process Note
 

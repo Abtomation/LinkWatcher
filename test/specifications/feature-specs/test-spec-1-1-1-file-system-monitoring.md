@@ -205,6 +205,8 @@ File System Monitoring uses the `LinkMaintenanceHandler` class to process watchd
 - **Error resilience**: Per-file try/except in directory moves not tested with intentional failures
 - **Batch dir move settle timer**: Behavior when only some files match and settle timer fires (partial match processing) not explicitly tested
 - **Thread contention**: `dir_move_lock` under concurrent watchdog events and timer callbacks not stress-tested
+- **Content save no-trigger** (found during test audit PF-TAR-012, 2026-03-15): TDD acceptance criteria states "Content save (without move) does NOT trigger link maintenance" — no test verifies this
+- **Sleep-based synchronization** (audit observation): Directory move tests rely on `time.sleep(2.0)` for thread completion — fragile under load, consider event-based synchronization
 
 ## AI Agent Session Handoff Notes
 

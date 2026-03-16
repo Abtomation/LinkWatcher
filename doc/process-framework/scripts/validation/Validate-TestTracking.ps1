@@ -6,7 +6,7 @@
 .DESCRIPTION
     This script checks for consistency between:
     - ../test-registry.yaml entries and actual test files on disk
-    - test-implementation-tracking.md entries and test-registry.yaml
+    - test-tracking.md entries and test-registry.yaml
     - feature-tracking.md Test Status column and actual test coverage
     - id-registry.json PD-TST nextAvailable counter
 
@@ -44,9 +44,9 @@ $errorCount = 0
 $warningCount = 0
 
 # --- Load ../test-registry.yaml ---
-$registryPath = Join-Path $ProjectRoot "../test/test-registry.yaml"
+$registryPath = Join-Path $ProjectRoot "test/test-registry.yaml"
 if (-not (Test-Path $registryPath)) {
-    Write-Host "FATAL: ../test-registry.yaml not found at $registryPath" -ForegroundColor Red
+    Write-Host "FATAL: test/test-registry.yaml not found at $registryPath" -ForegroundColor Red
     exit 1
 }
 
@@ -69,7 +69,7 @@ foreach ($line in (Get-Content $registryPath -Encoding UTF8)) {
 }
 if ($currentEntry) { $registryEntries += $currentEntry }
 
-Write-Host "../Loaded $($registryEntries.Count) entries from test-registry.yaml" -ForegroundColor Gray
+Write-Host "Loaded $($registryEntries.Count) entries from test-registry.yaml" -ForegroundColor Gray
 Write-Host ""
 
 # --- Check 1: Registry entries with missing files on disk ---
@@ -114,8 +114,8 @@ $registeredPaths = $registryEntries | ForEach-Object { $_['filePath'] }
 
 $unregisteredFiles = @()
 if (Test-Path $testsDir) {
-    $testFiles = Get-ChildItem -Path $testsDir -Recurse -Include "../*.py" -File | Where-Object {
-        $_.Name -ne "../__init__.py" -and $_.Name -ne "__pycache__"
+    $testFiles = Get-ChildItem -Path $testsDir -Recurse -Include "*.py" -File | Where-Object {
+        $_.Name -ne "__init__.py" -and $_.Name -ne "__pycache__"
     }
     foreach ($file in $testFiles) {
         $relativePath = $file.FullName.Substring($ProjectRoot.Length + 1).Replace('\', '/')
@@ -169,7 +169,7 @@ Write-Host ""
 # --- Check 4: PD-TST nextAvailable counter ---
 Write-Host "4. Checking PD-TST nextAvailable counter..." -ForegroundColor Yellow
 
-$idRegistryPath = Join-Path $ProjectRoot "../../../id-registry.json"
+$idRegistryPath = Join-Path $ProjectRoot "doc/id-registry.json"
 if (Test-Path $idRegistryPath) {
     $idRegistry = Get-Content $idRegistryPath -Raw -Encoding UTF8 | ConvertFrom-Json
     $nextAvailable = $idRegistry.prefixes.'PD-TST'.nextAvailable
@@ -192,7 +192,7 @@ if (Test-Path $idRegistryPath) {
         Write-Host "  OK: PD-TST nextAvailable ($nextAvailable) is consistent with highest ID (PD-TST-$('{0:D3}' -f $maxId))" -ForegroundColor Green
     }
 } else {
-    Write-Host "  WARNING: ../id-registry.json not found" -ForegroundColor Yellow
+    Write-Host "  WARNING: doc/id-registry.json not found" -ForegroundColor Yellow
     $warningCount++
 }
 Write-Host ""
@@ -200,7 +200,7 @@ Write-Host ""
 # --- Check 5: Cross-cutting feature ID validation ---
 Write-Host "5. Checking cross-cutting feature IDs..." -ForegroundColor Yellow
 
-$featureTrackingPath = Join-Path $ProjectRoot "../doc/process-framework/state-tracking/permanent/feature-tracking.md"
+$featureTrackingPath = Join-Path $ProjectRoot "doc/process-framework/state-tracking/permanent/feature-tracking.md"
 $knownFeatureIds = @()
 if (Test-Path $featureTrackingPath) {
     $ftContent = Get-Content $featureTrackingPath -Encoding UTF8

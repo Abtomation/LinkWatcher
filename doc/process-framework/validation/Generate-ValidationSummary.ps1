@@ -305,7 +305,7 @@ $(if ($SummaryData.OverallStats.CriticalIssues -gt 0) {
 ## Related Resources
 
 - [Foundational Validation Tracking](../state-tracking/temporary/foundational-validation-tracking.md) - Detailed validation progress
-- [Foundational Validation Guide](../guides/guides/foundational-validation-guide.md) - Complete validation process guide
+- [Foundational Validation Guide](../guides/guides/05-validation/foundational-validation-guide.md) - Complete validation process guide
 - [Validation Reports](reports/) - Individual validation reports by type
 
 ---

@@ -24,7 +24,7 @@
         "cyclical": "doc/process-framework/tasks/cyclical",
         "default": "01-planning"
       },
-      "nextAvailable": 69
+      "nextAvailable": 71
     },
     "PF-GDE": {
       "description": "Process Framework - Guides",
@@ -35,7 +35,7 @@
         "main": "doc/process-framework/guides",
         "default": "guides"
       },
-      "nextAvailable": 49
+      "nextAvailable": 50
     },
     "PF-TEM": {
       "description": "Process Framework - Templates",
@@ -45,7 +45,7 @@
         "main": "doc/process-framework/templates",
         "default": "main"
       },
-      "nextAvailable": 51
+      "nextAvailable": 55
     },
     "PF-MTH": {
       "description": "Process Framework - Methodologies",
@@ -66,7 +66,7 @@
         "temporary": "doc/process-framework/state-tracking/temporary",
         "default": "permanent"
       },
-      "nextAvailable": 54
+      "nextAvailable": 56
     },
     "PF-DOC": {
       "description": "Process Framework - Documentation",
@@ -96,7 +96,7 @@
         "context-maps": "doc/process-framework/visualization/context-maps",
         "default": "context-maps"
       },
-      "nextAvailable": 49
+      "nextAvailable": 51
     },
     "PF-PRO": {
       "description": "Process Framework - Proposals",
@@ -106,7 +106,7 @@
         "main": "doc/process-framework/proposals",
         "default": "main"
       },
-      "nextAvailable": 6
+      "nextAvailable": 7
     },
     "PF-FEE": {
       "description": "Process Framework - Feedback",
@@ -126,7 +126,7 @@
         "features": "doc/process-framework/state-tracking/features",
         "default": "features"
       },
-      "nextAvailable": 55
+      "nextAvailable": 56
     },
     "PF-IMP": {
       "description": "Process Framework - Improvement Opportunities",
@@ -136,14 +136,14 @@
         "permanent": "doc/process-framework/state-tracking/permanent",
         "default": "permanent"
       },
-      "nextAvailable": 105
+      "nextAvailable": 123
     },
     "PF-ASS": {
       "description": "Process Framework - Tier Assessments",
       "category": "Process Framework",
       "type": "Tier Assessment",
       "directories": {
-        "tiers": "doc/process-framework/methodologies/documentation-tiers",
+        "tiers": "doc/product-docs/documentation-tiers",
         "default": "tiers"
       },
       "nextAvailable": 3
@@ -351,10 +351,10 @@
       "category": "Artifact",
       "type": "Assessment",
       "directories": {
-        "assessments": "doc/process-framework/methodologies/documentation-tiers/assessments",
+        "assessments": "doc/product-docs/documentation-tiers/assessments",
         "default": "assessments"
       },
-      "nextAvailable": 200
+      "nextAvailable": 201
     },
     "ART-FEE": {
       "description": "Feedback Artifacts",
@@ -364,7 +364,7 @@
         "forms": "doc/process-framework/feedback/feedback-forms",
         "default": "forms"
       },
-      "nextAvailable": 351
+      "nextAvailable": 380
     },
     "ART-REV": {
       "description": "Review Artifacts",
@@ -374,7 +374,7 @@
         "reviews": "doc/process-framework/feedback/reviews",
         "default": "reviews"
       },
-      "nextAvailable": 10
+      "nextAvailable": 13
     },
     "PF-TSP": {
       "description": "Process Framework - Test Specifications",
@@ -391,13 +391,13 @@
       "category": "Process Framework",
       "type": "Test Audit Report",
       "directories": {
-        "foundation": "doc/process-framework/test-audits/foundation",
-        "authentication": "doc/process-framework/test-audits/authentication",
-        "core-features": "doc/process-framework/test-audits/core-features",
-        "main": "doc/process-framework/test-audits",
+        "foundation": "doc/product-docs/test-audits/foundation",
+        "authentication": "doc/product-docs/test-audits/authentication",
+        "core-features": "doc/product-docs/test-audits/core-features",
+        "main": "doc/product-docs/test-audits",
         "default": "foundation"
       },
-      "nextAvailable": 6
+      "nextAvailable": 13
     },
     "PD-TST": {
       "description": "Process Framework - Test Files",
@@ -412,7 +412,7 @@
         "e2e": "integration_test",
         "default": "unit"
       },
-      "nextAvailable": 129
+      "nextAvailable": 130
     },
     "PF-VAL": {
       "description": "Process Framework - Validation Reports",
@@ -428,7 +428,7 @@
         "reports": "doc/process-framework/validation/reports",
         "default": "reports"
       },
-      "nextAvailable": 44
+      "nextAvailable": 46
     },
     "PD-SCH": {
       "description": "Product Documentation - Database Schema Design",
@@ -510,7 +510,27 @@
         "permanent": "doc/process-framework/state-tracking/permanent",
         "default": "permanent"
       },
-      "nextAvailable": 29
+      "nextAvailable": 38
+    },
+    "MT-GRP": {
+      "description": "Manual Testing - Test Groups",
+      "category": "Testing",
+      "type": "Manual Test Group",
+      "directories": {
+        "templates": "test/manual-testing/templates",
+        "default": "templates"
+      },
+      "nextAvailable": 2
+    },
+    "MT": {
+      "description": "Manual Testing - Test Cases",
+      "category": "Testing",
+      "type": "Manual Test Case",
+      "directories": {
+        "templates": "test/manual-testing/templates",
+        "default": "templates"
+      },
+      "nextAvailable": 2
     }
   }
 }

@@ -5,6 +5,7 @@ This parser handles YAML files and extracts file path references
 from values throughout the YAML structure.
 """
 
+import os.path
 from typing import List
 
 import yaml
@@ -52,23 +53,32 @@ class YamlParser(BaseParser):
         elif isinstance(data, list):
             for i, item in enumerate(data):
                 self._extract_yaml_file_refs(item, file_path, lines, references, f"{path}[{i}]")
-        elif isinstance(data, str) and self._looks_like_file_path(data):
-            # Find all occurrences of this value to get accurate line numbers
-            line_num, col_start = self._find_next_occurrence(lines, data, references)
-            if line_num > 0:
-                col_end = col_start + len(data) if col_start >= 0 else 0
+        elif isinstance(data, str):
+            # Check for file paths (with extension) or directory paths (PD-BUG-030)
+            is_file = self._looks_like_file_path(data)
+            is_dir = False
+            if not is_file:
+                _, ext = os.path.splitext(data)
+                if not ext:
+                    is_dir = self._looks_like_directory_path(data)
 
-                references.append(
-                    LinkReference(
-                        file_path=file_path,
-                        line_number=line_num,
-                        column_start=col_start,
-                        column_end=col_end,
-                        link_text=data,
-                        link_target=data,
-                        link_type="yaml",
+            if is_file or is_dir:
+                # Find all occurrences of this value to get accurate line numbers
+                line_num, col_start = self._find_next_occurrence(lines, data, references)
+                if line_num > 0:
+                    col_end = col_start + len(data) if col_start >= 0 else 0
+
+                    references.append(
+                        LinkReference(
+                            file_path=file_path,
+                            line_number=line_num,
+                            column_start=col_start,
+                            column_end=col_end,
+                            link_text=data,
+                            link_target=data,
+                            link_type="yaml-dir" if is_dir else "yaml",
+                        )
                     )
-                )
 
     def _find_next_occurrence(
         self, lines: List[str], search_text: str, existing_refs: List[LinkReference]

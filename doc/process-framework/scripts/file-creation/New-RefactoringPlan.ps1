@@ -35,6 +35,13 @@
     If specified, creates a lightweight refactoring plan using the compact template (PF-TEM-050).
     Use for low-effort items: ≤15 min effort, single file, no architectural impact.
     Supports batch mode — copy the "Item N" section for multiple quick fixes.
+    Mutually exclusive with -DocumentationOnly.
+
+.PARAMETER DocumentationOnly
+    If specified, creates a documentation-only refactoring plan using the documentation template (PF-TEM-052).
+    Use for refactoring that involves only documentation changes (no code changes, no test impact).
+    Removes code metrics, performance benchmarks, and test coverage sections.
+    Mutually exclusive with -Lightweight.
 
 .PARAMETER OpenInEditor
     If specified, opens the created file in the default editor
@@ -50,6 +57,9 @@
 
 .EXAMPLE
     .\New-RefactoringPlan.ps1 -RefactoringScope "Extract reference lookup (TD022)" -TargetArea "linkwatcher/handler.py" -Lightweight -FeatureId "1.1.1" -DebtItemId "TD022"
+
+.EXAMPLE
+    .\New-RefactoringPlan.ps1 -RefactoringScope "Fix TDD pseudocode drift (TD046)" -TargetArea "doc/product-docs/technical/" -DocumentationOnly -DebtItemId "TD046"
 
 .EXAMPLE
     .\New-RefactoringPlan.ps1 -RefactoringScope "Decompose God Class (TD005)" -TargetArea "linkwatcher/handler.py" -Priority "High" -DebtItemId "TD005 (PF-TDI-001)"
@@ -88,6 +98,9 @@ param(
     [switch]$Lightweight,
 
     [Parameter(Mandatory = $false)]
+    [switch]$DocumentationOnly,
+
+    [Parameter(Mandatory = $false)]
     [switch]$OpenInEditor
 )
 
@@ -107,10 +120,19 @@ catch {
 # Perform standard initialization
 Invoke-StandardScriptInitialization
 
-# Select template based on -Lightweight switch
+# Validate mutually exclusive switches
+if ($Lightweight -and $DocumentationOnly) {
+    Write-Error "-Lightweight and -DocumentationOnly are mutually exclusive. Use one or the other."
+    exit 1
+}
+
+# Select template based on mode switches
 if ($Lightweight) {
     $templatePath = "doc/process-framework/templates/templates/lightweight-refactoring-plan-template.md"
     $modeLabel = "Lightweight"
+} elseif ($DocumentationOnly) {
+    $templatePath = "doc/process-framework/templates/templates/documentation-refactoring-plan-template.md"
+    $modeLabel = "Documentation-only"
 } else {
     $templatePath = "doc/process-framework/templates/templates/refactoring-plan-template.md"
     $modeLabel = "Standard"
@@ -124,6 +146,9 @@ $additionalMetadataFields = @{
 }
 if ($Lightweight) {
     $additionalMetadataFields["mode"] = "lightweight"
+}
+if ($DocumentationOnly) {
+    $additionalMetadataFields["mode"] = "documentation-only"
 }
 if ($DebtItemId) {
     $additionalMetadataFields["debt_item"] = $DebtItemId
@@ -170,6 +195,12 @@ try {
                 "",
                 "📝 Lightweight plan created. Fill in Item sections, then update Documentation & State Updates checklist for each item."
             )
+        } elseif ($DocumentationOnly) {
+            $details += @(
+                "",
+                "📝 Documentation-only plan created. Code metrics, test coverage, and performance sections have been removed.",
+                "   Fill in documentation quality baseline, affected documents, and verification approach."
+            )
         } else {
             $details += @(
                 "",
@@ -180,7 +211,7 @@ try {
                 "⚠️  AI agents MUST follow the referenced guide to properly customize the content.",
                 "",
                 "📖 MANDATORY CUSTOMIZATION GUIDE:",
-                "   doc/process-framework/guides/guides/code-refactoring-task-usage-guide.md",
+                "doc/process-framework/guides/guides/06-maintenance/code-refactoring-task-usage-guide.md",
                 "🎯 FOCUS AREAS: 'Refactoring Plan Development' section",
                 "",
                 "🚫 DO NOT use the generated file without proper customization!",

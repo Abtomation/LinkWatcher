@@ -110,7 +110,7 @@ try {
             "⚠️  AI agents MUST follow the referenced guide to properly customize the content.",
             "",
             "📖 MANDATORY CUSTOMIZATION GUIDE:",
-            "   doc/process-framework/guides/guides/framework-extension-task-usage-guide.md",
+            "doc/process-framework/guides/guides/framework-extension-task-usage-guide.md",
             "🎯 FOCUS AREAS: 'Concept Development & Approval' section",
             "",
             "🎯 What the guide will teach you:",

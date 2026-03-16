@@ -38,7 +38,7 @@ Systematic data model planning before implementation to prevent data integrity i
 
 ## Information Flow
 
-> **📋 Detailed Guidance**: See [Task Transition Guide - Information Flow Section](../../guides/guides/task-transition-guide.md#task-transitions) for comprehensive information flow patterns.
+> **📋 Detailed Guidance**: See [Task Transition Guide - Information Flow Section](../../guides/guides/framework/task-transition-guide.md#task-transitions) for comprehensive information flow patterns.
 
 ### Inputs from Other Tasks
 
@@ -79,7 +79,7 @@ Systematic data model planning before implementation to prevent data integrity i
 
   - **Functional Design Document (FDD)** - For Tier 2+ features, the FDD containing functional requirements and data requirements that inform schema design (located in `/doc/product-docs/functional-design/fdds/`)
   - [Feature Requirements](/doc/process-framework/state-tracking/permanent/feature-tracking.md) - Understanding what functionality requires database changes and confirming DB Design is required
-  - [Feature Tier Assessment](../../methodologies/documentation-tiers/assessments) - Assessment that determined database design is needed
+  - [Feature Tier Assessment](../../../product-docs/documentation-tiers/assessments) - Assessment that determined database design is needed
   - **Current Database Schema** - Existing schema documentation and structure:
     - Current schema: `/data/`
     - Database reference: `/doc/product-docs/technical/architecture/database-reference.md`
@@ -98,7 +98,7 @@ Systematic data model planning before implementation to prevent data integrity i
     - Architecture documentation: `/doc/product-docs/technical/architecture/`
     - Database diagrams: `/doc/product-docs/technical/database/diagrams/`
   - **Security Policies** - Data security and privacy requirements
-  - [Visual Notation Guide](/doc/process-framework/guides/guides/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Visual Notation Guide](/doc/process-framework/guides/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 ## Process
 
@@ -113,7 +113,7 @@ Systematic data model planning before implementation to prevent data integrity i
 ### Preparation
 
 1. **Verify DB Design Requirement**: Confirm in the [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) document that the DB Design column shows "Yes" for this feature
-2. Review the [Feature Tier Assessment](../../methodologies/documentation-tiers/assessments) that determined database design is needed
+2. Review the [Feature Tier Assessment](../../../product-docs/documentation-tiers/assessments) that determined database design is needed
 3. **Gather Context**: Load all critical context files including feature requirements, current schema, and data flow requirements
 4. **Analyze Current State**: Review existing database schema (`/data/` and `/doc/product-docs/technical/architecture/database-reference.md`) and identify areas that will be affected by the changes
 5. **Validate Requirements**: Ensure all functional and non-functional requirements are clearly understood
@@ -179,7 +179,7 @@ Before considering this task finished:
   - [ ] [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) DB Design column **AUTOMATICALLY UPDATED** from "Yes" to link to completed database schema design document (verify the automation worked correctly)
   - [ ] [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md) **MANUALLY UPDATED** with schema optimization opportunities identified during design
   - [ ] Database Schema Tracking updated with new schema changes
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-021" and context "Database Schema Design Task"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-021" and context "Database Schema Design Task"
 
 ## Next Tasks
 

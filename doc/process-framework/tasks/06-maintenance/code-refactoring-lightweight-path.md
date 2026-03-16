@@ -59,4 +59,4 @@ For batch mode: copy the "Item N" section in the generated plan for each additio
   - [ ] [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md): resolved items updated via `Update-TechDebt.ps1`
   - [ ] [Feature Tracking](../../state-tracking/permanent/feature-tracking.md): feature status updated if applicable
   - [ ] [Bug Tracking](../../state-tracking/permanent/bug-tracking.md): any discovered bugs added
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-022" and context "Code Refactoring Task"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-022" and context "Code Refactoring Task"

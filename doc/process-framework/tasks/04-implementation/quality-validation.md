@@ -49,7 +49,7 @@ Validate feature implementation against quality standards, business requirements
   - **Accessibility Guidelines** - [WCAG 2.1 Standards](https://www.w3.org/WAI/WCAG21/quickref/) for accessibility compliance
 
 - **Reference Only (Access When Needed):**
-  - [Visual Notation Guide](/doc/process-framework/guides/guides/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Visual Notation Guide](/doc/process-framework/guides/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
   - **Security Best Practices** - [OWASP Security Guidelines](https://owasp.org/) for application security
   - **Performance Benchmarks** - Historical performance data for comparison
 
@@ -152,7 +152,7 @@ Before considering this task finished:
   - [ ] Security vulnerabilities addressed or documented for remediation
   - [ ] Accessibility compliance meets project standards
   - [ ] Business acceptance criteria validated successfully
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-054" and context "Quality Validation"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-054" and context "Quality Validation"
 
 ## Next Tasks
 
@@ -164,5 +164,5 @@ Before considering this task finished:
 - Performance optimization best practices for your technology stack
 - [OWASP Security Guidelines](https://owasp.org/) - Application security standards
 - [WCAG 2.1 Guidelines](https://www.w3.org/WAI/WCAG21/quickref/) - Web content accessibility guidelines
-- [Feature Implementation State Tracking Guide](../../guides/guides/feature-implementation-state-tracking-guide.md) - Guide for maintaining feature state file
+- [Feature Implementation State Tracking Guide](../../guides/guides/04-implementation/feature-implementation-state-tracking-guide.md) - Guide for maintaining feature state file
 - [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Understanding system component interactions

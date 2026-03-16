@@ -29,16 +29,12 @@ Are you ADOPTING THE FRAMEWORK into an existing project?
 │        Then → [Retrospective Documentation Creation](#retrospective-documentation-creation)
 │
 ├─ No → Are you working on a CHANGE REQUEST (new feature or enhancement)?
-│  ├─ Yes → Is it clearly a NEW feature (not modifying an existing one)?
-│  │  ├─ Yes → Do you need to research/plan what to build?
-│  │  │  ├─ Yes → Start with [Feature Discovery](#feature-discovery)
-│  │  │  └─ No → Is it complex (multiple components, architecture decisions)?
-│  │  │     ├─ Yes → Start with [Feature Tier Assessment](#feature-tier-assessment)
-│  │  │     └─ No → Use [Feature Implementation Planning](#feature-implementation-planning)
-│  │  ├─ No → Is it an ENHANCEMENT to an existing feature?
-│  │  │  ├─ Yes → Use [Feature Request Evaluation](#feature-request-evaluation) (classifies and scopes)
-│  │  │  │        Then → [Feature Enhancement](#feature-enhancement) (executes the enhancement)
-│  │  │  └─ Unsure → Use [Feature Request Evaluation](#feature-request-evaluation) (it will classify for you)
+│  ├─ Yes → Do you need to research/discover what to build first?
+│  │  ├─ Yes → Start with [Feature Discovery](#feature-discovery)
+│  │  └─ No → Start with [Feature Request Evaluation](#feature-request-evaluation)
+│  │           It classifies the request and routes to the correct next task:
+│  │           ├─ New feature → [Feature Tier Assessment](#feature-tier-assessment) → Design → Implementation
+│  │           └─ Enhancement → [Feature Enhancement](#feature-enhancement) (executes from state file)
 │  │
 │  ├─ No → Are you WORKING WITH BUGS?
 │  │  ├─ Yes → What stage of bug management?
@@ -109,7 +105,7 @@ _Research, assessment, and architectural planning activities_
 
 | Task                           | Use When                                                                                | Complexity | Link                                                                                     |
 | ------------------------------ | --------------------------------------------------------------------------------------- | ---------- | ---------------------------------------------------------------------------------------- |
-| **Feature Request Evaluation** | Classify incoming change requests as new features or enhancements to existing features, and for enhancements create a scoped Enhancement State Tracking File | 🟡 Medium | [→ Definition](/doc/process-framework/tasks/01-planning/feature-request-evaluation.md) |
+| **Feature Request Evaluation** | **ENTRY POINT for all change requests** — classifies as new feature or enhancement, routes to correct workflow. For new features: adds to tracking and routes to Feature Tier Assessment. For enhancements: creates scoped Enhancement State Tracking File | 🟡 Medium | [→ Definition](/doc/process-framework/tasks/01-planning/feature-request-evaluation.md) |
 | **Feature Discovery**          | Planning new features through research and analysis                                     | 🟡 Medium  | [→ Definition](/doc/process-framework/tasks/01-planning/feature-discovery-task.md)       |
 | **Feature Tier Assessment**    | New feature needs complexity evaluation                                                 | 🟢 Simple  | [→ Definition](/doc/process-framework/tasks/01-planning/feature-tier-assessment-task.md) |
 | **System Architecture Review** | Evaluating how new features fit into existing system architecture before implementation | 🟡 Medium  | [→ Definition](/doc/process-framework/tasks/01-planning/system-architecture-review.md)   |
@@ -132,6 +128,8 @@ _Test planning, implementation, and quality assurance activities_
 
 | Task                            | Use When                                                                               | Complexity | Link                                                                                        |
 | ------------------------------- | -------------------------------------------------------------------------------------- | ---------- | ------------------------------------------------------------------------------------------- |
+| **Manual Test Execution** | Execute manual test cases systematically, record results, and report issues discovered through human interaction with the running system | 🟡 Medium | [→ Definition](/doc/process-framework/tasks/03-testing/manual-test-execution-task.md) |
+| **Manual Test Case Creation** | Create concrete, reproducible manual test cases from test specifications with exact steps, file contents, and expected outcomes | 🟡 Medium | [→ Definition](/doc/process-framework/tasks/03-testing/manual-test-case-creation-task.md) |
 | **Test Specification Creation** | Create comprehensive test specifications from TDDs for Test-First Development          | 🟡 Medium  | [→ Definition](/doc/process-framework/tasks/03-testing/test-specification-creation-task.md) |
 | **Test Audit**                  | Quality assurance evaluation of implemented test suites against effectiveness criteria | 🟡 Medium  | [→ Definition](/doc/process-framework/tasks/03-testing/test-audit-task.md)                  |
 
@@ -208,30 +206,30 @@ _Meta-framework tasks that work on the process framework itself_
 
 ## 🔄 Common Workflows
 
-**📋 For detailed guidance on task transitions, see the [Task Transition Guide](/doc/process-framework/guides/guides/task-transition-guide.md)**
+**📋 For detailed guidance on task transitions, see the [Task Transition Guide](/doc/process-framework/guides/guides/framework/task-transition-guide.md)**
 
-### For New Feature Planning
+### For New Feature Planning (research needed)
 
 ```
-Feature Discovery → Feature Tier Assessment → FDD Creation → [System Architecture Review] → [ADR Creation] → [API Design] → [Database Schema Design] → TDD Creation → [Test Specification Creation] → Feature Implementation Planning → [Decomposed Implementation Tasks] → Code Review → Release & Deployment
+Feature Discovery → Feature Request Evaluation (classify as new) → Feature Tier Assessment → FDD Creation → [System Architecture Review] → [ADR Creation] → [API Design] → [Database Schema Design] → TDD Creation → [Test Specification Creation] → Feature Implementation Planning → [Decomposed Implementation Tasks] → Code Review → Release & Deployment
 ```
 
 ### For Complex Features
 
 ```
-Feature Tier Assessment → FDD Creation → [System Architecture Review] → [ADR Creation] → [API Design] → [Database Schema Design] → TDD Creation → [Test Specification Creation] → Feature Implementation Planning → [Decomposed Implementation Tasks] → Integration & Testing → Test Audit → Code Review → Release & Deployment
+Feature Request Evaluation (classify as new) → Feature Tier Assessment → FDD Creation → [System Architecture Review] → [ADR Creation] → [API Design] → [Database Schema Design] → TDD Creation → [Test Specification Creation] → Feature Implementation Planning → [Decomposed Implementation Tasks] → Integration & Testing → Test Audit → Code Review → Release & Deployment
 ```
 
 ### For Simple Features
 
 ```
-Feature Implementation Planning (with lightweight design) → [Decomposed Implementation Tasks] → Code Review → Release & Deployment
+Feature Request Evaluation (classify as new) → Feature Tier Assessment → Feature Implementation Planning (with lightweight design) → [Decomposed Implementation Tasks] → Code Review → Release & Deployment
 ```
 
 ### For Enhancements to Existing Features
 
 ```
-Feature Request Evaluation (classify + scope + create state file) → Feature Enhancement (execute steps from state file) → Code Review → Release & Deployment
+Feature Request Evaluation (classify as enhancement + scope + create state file) → Feature Enhancement (execute steps from state file) → Code Review → Release & Deployment
 ```
 
 ### For Bug Fixes
@@ -313,11 +311,11 @@ Structure Change → Code Review → Release & Deployment
 | **🔧 Automation**       | Task Creation Script              | Create new framework tasks                   | [New Task Creation Process](/doc/process-framework/tasks/support/new-task-creation-process.md)                                         |
 | **📝 Feedback**         | Feedback Process                  | Submit tool and task feedback                | [Feedback Process Guide](/doc/process-framework/feedback/README.md)                                                                    |
 | **📝 Feedback**         | Feedback Flowchart                | Visual feedback process guide                | [Feedback Process Flowchart](/doc/process-framework/feedback/feedback-process-flowchart.md)                                            |
-| **🎯 Guides**           | Task Transition Guide             | Guidance on task transitions                 | [Task Transition Guide](/doc/process-framework/guides/guides/task-transition-guide.md)                                                 |
-| **🎯 Guides**           | API Specification Creation        | How to create API specifications             | [API Specification Creation Guide](/doc/process-framework/guides/guides/api-specification-creation-guide.md)                           |
-| **🎯 Guides**           | API Data Model Creation           | How to create API data models                | [API Data Model Creation Guide](/doc/process-framework/guides/guides/api-data-model-creation-guide.md)                                 |
-| **🎯 Guides**           | Foundation Feature Implementation | Comprehensive implementation guidance        | [Foundation Feature Implementation Usage Guide](/doc/process-framework/guides/guides/foundation-feature-implementation-usage-guide.md) |
-| **🎯 Guides**           | Integration & Testing             | Comprehensive testing guidance               | [Integration & Testing Usage Guide](/doc/process-framework/guides/guides/test-implementation-usage-guide.md)                           |
+| **🎯 Guides**           | Task Transition Guide             | Guidance on task transitions                 | [Task Transition Guide](/doc/process-framework/guides/guides/framework/task-transition-guide.md)                                                 |
+| **🎯 Guides**           | API Specification Creation        | How to create API specifications             | [API Specification Creation Guide](/doc/process-framework/guides/guides/02-design/api-specification-creation-guide.md)                           |
+| **🎯 Guides**           | API Data Model Creation           | How to create API data models                | [API Data Model Creation Guide](/doc/process-framework/guides/guides/02-design/api-data-model-creation-guide.md)                                 |
+| **🎯 Guides**           | Foundation Feature Implementation | Comprehensive implementation guidance        | [Foundation Feature Implementation Usage Guide](/doc/process-framework/guides/guides/04-implementation/foundation-feature-implementation-usage-guide.md) |
+| **🎯 Guides**           | Integration & Testing             | Comprehensive testing guidance               | [Integration & Testing Usage Guide](/doc/process-framework/guides/guides/03-testing/test-implementation-usage-guide.md)                           |
 | **🗺️ Context Maps**     | API Design Task Map               | Visual API design relationships              | [API Design Task Context Map](/doc/process-framework/visualization/context-maps/02-design/api-design-task-map.md)                      |
 | **🔧 Support Tasks**    | Process Improvement               | Enhance development workflows                | [Process Improvement Task](/doc/process-framework/tasks/support/process-improvement-task.md)                                           |
 | **🔧 Support Tasks**    | Structure Change                  | Reorganize framework structure               | [Structure Change Task](/doc/process-framework/tasks/support/structure-change-task.md)                                                 |
@@ -343,8 +341,8 @@ Understanding the different types of documentation helps you choose the right re
 - **Content**: Script parameters, template customization, examples, troubleshooting
 - **Use When**: You need to use a PowerShell script or customize a template
 - **Examples**:
-  - [API Specification Creation Guide](/doc/process-framework/guides/guides/api-specification-creation-guide.md)
-  - [API Data Model Creation Guide](/doc/process-framework/guides/guides/api-data-model-creation-guide.md)
+  - [API Specification Creation Guide](/doc/process-framework/guides/guides/02-design/api-specification-creation-guide.md)
+  - [API Data Model Creation Guide](/doc/process-framework/guides/guides/02-design/api-data-model-creation-guide.md)
 
 ### 🗺️ **Context Maps** (Visual relationships)
 
@@ -359,8 +357,8 @@ Understanding the different types of documentation helps you choose the right re
 - **Content**: Workflows, best practices, common pitfalls, advanced techniques
 - **Use When**: You need comprehensive guidance beyond individual tasks
 - **Examples**:
-  - [Foundation Feature Implementation Usage Guide](/doc/process-framework/guides/guides/foundation-feature-implementation-usage-guide.md)
-  - [Integration & Testing Usage Guide](/doc/process-framework/guides/guides/test-implementation-usage-guide.md)
+  - [Foundation Feature Implementation Usage Guide](/doc/process-framework/guides/guides/04-implementation/foundation-feature-implementation-usage-guide.md)
+  - [Integration & Testing Usage Guide](/doc/process-framework/guides/guides/03-testing/test-implementation-usage-guide.md)
 
 ### 🎯 **Key Principle**: No Redundant Documentation
 

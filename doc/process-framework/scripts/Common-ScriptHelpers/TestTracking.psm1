@@ -81,12 +81,12 @@ function Update-TestImplementationStatus {
 
         Write-Verbose "Updating test implementation status for feature: $FeatureId"
 
-        # Update test-implementation-tracking.md
-        $testTrackingPath = Join-Path $projectRoot "doc/process-framework/state-tracking/permanent/test-implementation-tracking.md"
+        # Update test-tracking.md
+        $testTrackingPath = Join-Path $projectRoot "doc/process-framework/state-tracking/permanent/test-tracking.md"
         if (Test-Path $testTrackingPath) {
             try {
                 if ($DryRun) {
-                    Write-Host "DRY RUN: Would update test-implementation-tracking.md" -ForegroundColor Yellow
+                    Write-Host "DRY RUN: Would update test-tracking.md" -ForegroundColor Yellow
                     Write-Host "  Feature ID: $FeatureId" -ForegroundColor Cyan
                     Write-Host "  Status: $Status" -ForegroundColor Cyan
                     if ($AdditionalUpdates.Count -gt 0) {
@@ -111,26 +111,26 @@ function Update-TestImplementationStatus {
 
                     # Save updated content
                     Set-Content $testTrackingPath $updatedContent -Encoding UTF8
-                    Write-Verbose "Updated test-implementation-tracking.md"
+                    Write-Verbose "Updated test-tracking.md"
                 }
 
                 $results += @{
-                    File = "test-implementation-tracking.md"
+                    File = "test-tracking.md"
                     Success = $true
                     Message = "Updated test implementation status"
                 }
             } catch {
                 $results += @{
-                    File = "test-implementation-tracking.md"
+                    File = "test-tracking.md"
                     Success = $false
                     Message = "Failed to update: $($_.Exception.Message)"
                 }
-                Write-Warning "Failed to update test-implementation-tracking.md: $($_.Exception.Message)"
+                Write-Warning "Failed to update test-tracking.md: $($_.Exception.Message)"
             }
         } else {
-            Write-Warning "Test implementation tracking file not found: $testTrackingPath"
+            Write-Warning "Test tracking file not found: $testTrackingPath"
             $results += @{
-                File = "test-implementation-tracking.md"
+                File = "test-tracking.md"
                 Success = $false
                 Message = "File not found"
             }
@@ -343,7 +343,7 @@ function Add-TestRegistryEntry {
 function Get-TestTrackingSectionTitle {
     <#
     .SYNOPSIS
-    Determines the appropriate section title for a feature ID in test-implementation-tracking.md
+    Determines the appropriate section title for a feature ID in test-tracking.md
     #>
     param([string]$FeatureId)
 
@@ -362,7 +362,7 @@ function Get-TestTrackingSectionTitle {
 function Get-TestTrackingSectionNumber {
     <#
     .SYNOPSIS
-    Determines the appropriate section number for a feature ID in test-implementation-tracking.md
+    Determines the appropriate section number for a feature ID in test-tracking.md
     #>
     param([string]$FeatureId)
 
@@ -381,10 +381,10 @@ function Get-TestTrackingSectionNumber {
 function Ensure-TestTrackingSection {
     <#
     .SYNOPSIS
-    Ensures that the required section exists in test-implementation-tracking.md
+    Ensures that the required section exists in test-tracking.md
 
     .PARAMETER Content
-    The current content of the test-implementation-tracking.md file
+    The current content of the test-tracking.md file
 
     .PARAMETER FeatureId
     The feature ID to determine which section is needed
@@ -464,25 +464,31 @@ $sectionHeader
 function Add-TestImplementationEntry {
     <#
     .SYNOPSIS
-    Adds a new test implementation entry to the test-implementation-tracking.md file
+    Adds a new test implementation entry to the test-tracking.md file
 
     .PARAMETER Content
-    The current content of the test-implementation-tracking.md file
+    The current content of the test-tracking.md file
 
     .PARAMETER TestFileId
-    The test file ID (e.g., PD-TST-087)
+    The test file ID (e.g., PD-TST-087 or MT-001)
 
     .PARAMETER FeatureId
     The feature ID (e.g., 99.1.2)
 
     .PARAMETER TestFilePath
-    The path to the test file
+    The path to the test file or test case
 
     .PARAMETER Status
     The implementation status
 
+    .PARAMETER TestType
+    The test type: "Automated", "Manual Group", or "Manual Case" (default: "Automated")
+
     .PARAMETER TestCasesCount
     Number of test cases (optional)
+
+    .PARAMETER LastExecuted
+    Date of last manual test execution (optional, defaults to "—" for automated tests)
 
     .PARAMETER Notes
     Additional notes (optional)
@@ -508,7 +514,14 @@ function Add-TestImplementationEntry {
         [string]$Status,
 
         [Parameter(Mandatory=$false)]
+        [ValidateSet("Automated", "Manual Group", "Manual Case")]
+        [string]$TestType = "Automated",
+
+        [Parameter(Mandatory=$false)]
         [string]$TestCasesCount = "",
+
+        [Parameter(Mandatory=$false)]
+        [string]$LastExecuted = "",
 
         [Parameter(Mandatory=$false)]
         [string]$Notes = ""
@@ -519,12 +532,17 @@ function Add-TestImplementationEntry {
     $sectionTitle = Get-TestTrackingSectionTitle -FeatureId $FeatureId
     $sectionHeader = "## $sectionNumber. $sectionTitle"
 
+    # Default LastExecuted based on test type
+    if (-not $LastExecuted) {
+        $LastExecuted = "—"
+    }
+
     # Create the test file link - extract filename from path for display
     $fileName = Split-Path $TestFilePath -Leaf
     $testFileLink = "[$fileName]($TestFilePath)"
 
-    # Create the new table row
-    $newRow = "| $TestFileId | $FeatureId | $testFileLink | $Status | $TestCasesCount | $timestamp | $Notes |"
+    # Create the new table row (9 columns: Test ID, Feature ID, Test Type, Test File/Case, Status, Test Cases Count, Last Executed, Last Updated, Notes)
+    $newRow = "| $TestFileId | $FeatureId | $TestType | $testFileLink | $Status | $TestCasesCount | $LastExecuted | $timestamp | $Notes |"
 
     $lines = $Content -split '\r?\n'
     $updatedLines = @()
@@ -661,12 +679,12 @@ function Update-TestImplementationStatusEnhanced {
 
         Write-Verbose "Updating test implementation status (enhanced) for feature: $FeatureId"
 
-        # Update test-implementation-tracking.md
-        $testTrackingPath = Join-Path $projectRoot "doc/process-framework/state-tracking/permanent/test-implementation-tracking.md"
+        # Update test-tracking.md
+        $testTrackingPath = Join-Path $projectRoot "doc/process-framework/state-tracking/permanent/test-tracking.md"
         if (Test-Path $testTrackingPath) {
             try {
                 if ($DryRun) {
-                    Write-Host "DRY RUN: Would update test-implementation-tracking.md (enhanced)" -ForegroundColor Yellow
+                    Write-Host "DRY RUN: Would update test-tracking.md (enhanced)" -ForegroundColor Yellow
                     Write-Host "  Feature ID: $FeatureId" -ForegroundColor Cyan
                     Write-Host "  Test File ID: $TestFileId" -ForegroundColor Cyan
                     Write-Host "  Test File Path: $TestFilePath" -ForegroundColor Cyan
@@ -692,7 +710,7 @@ function Update-TestImplementationStatusEnhanced {
 
                     # Save updated content
                     Set-Content $testTrackingPath $updatedContent -Encoding UTF8
-                    Write-Verbose "Updated test-implementation-tracking.md with enhanced functionality"
+                    Write-Verbose "Updated test-tracking.md with enhanced functionality"
                 }
 
                 return @{
@@ -700,14 +718,14 @@ function Update-TestImplementationStatusEnhanced {
                     Message = "Updated test implementation tracking (enhanced)"
                 }
             } catch {
-                Write-Warning "Failed to update test-implementation-tracking.md: $($_.Exception.Message)"
+                Write-Warning "Failed to update test-tracking.md: $($_.Exception.Message)"
                 return @{
                     Success = $false
                     Message = "Failed to update: $($_.Exception.Message)"
                 }
             }
         } else {
-            Write-Warning "Test implementation tracking file not found: $testTrackingPath"
+            Write-Warning "Test tracking file not found: $testTrackingPath"
             return @{
                 Success = $false
                 Message = "File not found"

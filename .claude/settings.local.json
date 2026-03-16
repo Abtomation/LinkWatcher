@@ -26,7 +26,12 @@
       "Bash(python tests/manual/PD-BUG-013_json_duplicate_line_numbers_validation.py)",
       "Bash(python -c \":*)",
       "Bash(wc -l /c/Users/ronny/VS_Code/LinkWatcher/linkwatcher/parsers/*.py)",
-      "Bash(find /c/Users/ronny/VS_Code/LinkWatcher/config-examples -type f -name *.yaml -o -name *.yml -o -name *.json)"
+      "Bash(find /c/Users/ronny/VS_Code/LinkWatcher/config-examples -type f -name *.yaml -o -name *.yml -o -name *.json)",
+      "Bash(pwsh.exe -Command 'Get-Process python* -ErrorAction SilentlyContinue | Select-Object Id, ProcessName, StartTime | Format-Table -AutoSize')",
+      "Bash(pwsh.exe -Command 'Get-Process -Id 18364 -ErrorAction SilentlyContinue | Select-Object Id, ProcessName, StartTime | Format-Table -AutoSize')",
+      "Bash(pwsh.exe -Command 'Stop-Process -Name python* -Force -ErrorAction SilentlyContinue; Start-Sleep -Seconds 1; Remove-Item \"\"c:\\\\Users\\\\ronny\\\\VS_Code\\\\LinkWatcher\\\\.linkwatcher.lock\"\" -ErrorAction SilentlyContinue')",
+      "Bash(pwsh.exe -Command 'if \\(Get-Process -Id 26388 -ErrorAction SilentlyContinue\\) { Write-Host \"\"ALIVE after 30s\"\" } else { Write-Host \"\"DEAD\"\" }')",
+      "Bash(pwsh.exe -Command 'if \\(Get-Process -Id 26388 -ErrorAction SilentlyContinue\\) { Write-Host \"\"ALIVE after 90s\"\" } else { Write-Host \"\"DEAD\"\" }')"
     ]
   }
 }

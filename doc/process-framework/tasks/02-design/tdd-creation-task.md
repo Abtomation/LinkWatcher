@@ -34,7 +34,7 @@ Create a detailed technical design document for a feature that provides a compre
 
 ## Information Flow
 
-> **📋 Detailed Guidance**: See [Task Transition Guide - Information Flow Section](../../guides/guides/task-transition-guide.md#information-flow-and-separation-of-concerns)
+> **📋 Detailed Guidance**: See [Task Transition Guide - Information Flow Section](../../guides/guides/framework/task-transition-guide.md#information-flow-and-separation-of-concerns)
 
 ### Inputs from Other Tasks
 
@@ -93,7 +93,7 @@ When referencing other tasks' outputs in TDDs:
   - [T1 Template](/doc/product-docs/templates/templates/tdd-t1-template.md) - For Tier 1 (simple) features
   - [T2 Template](/doc/product-docs/templates/templates/tdd-t2-template.md) - For Tier 2 (moderate) features
   - [T3 Template](/doc/product-docs/templates/templates/tdd-t3-template.md) - For Tier 3 (complex) features
-  - [Feature Assessment](../../methodologies/documentation-tiers/assessments) - The tier assessment for the selected feature
+  - [Feature Assessment](../../../product-docs/documentation-tiers/assessments) - The tier assessment for the selected feature
 
 - **Important (Load If Space):**
 
@@ -103,7 +103,7 @@ When referencing other tasks' outputs in TDDs:
 
 - **Reference Only (Access When Needed):**
   - [Feature Tracking](../discrete/state-tracking/permanent/feature-tracking.md) - To identify features that have been assessed but need TDDs
-  - [Visual Notation Guide](/doc/process-framework/guides/guides/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Visual Notation Guide](/doc/process-framework/guides/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 ## Process
 
@@ -241,7 +241,7 @@ Before considering this task finished:
   - [ ] Feature Tracking document status automatically updated from "📋 FDD Created" (for Tier 2+) or "📊 Assessment Created" (for Tier 1) to "📝 TDD Created"
   - [ ] Feature Tracking document automatically includes link to TDD in the "Tech Design" column
   - [ ] Feature Tracking document automatically updated with TDD creation date in the "Notes" column
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-015" and context "TDD Creation"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-015" and context "TDD Creation"
 
 ## Next Tasks
 

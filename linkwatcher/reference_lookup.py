@@ -561,6 +561,25 @@ class ReferenceLookup:
             old_dir = os.path.dirname(old_file_path)
             new_dir = os.path.dirname(new_file_path)
 
+            # PD-BUG-032: Detect project-root-relative paths before applying
+            # source-relative logic. A path that resolves from the project root
+            # but NOT from the file's directory is project-root-relative (e.g.,
+            # "doc/templates" in a PS script at scripts/file-creation/).
+            # These should not be recalculated when the containing file moves.
+            # When old_dir is empty (file at root), source == root resolution,
+            # so we can't distinguish — fall through to source-relative (safe).
+            if old_dir and not original_target.startswith(("./", "../")):
+                root_resolved = os.path.join(
+                    str(self.project_root), original_target
+                )
+                source_resolved = os.path.join(
+                    str(self.project_root), old_dir, original_target
+                )
+                if os.path.exists(root_resolved) and not os.path.exists(
+                    source_resolved
+                ):
+                    return original_target
+
             # Convert the original relative target to an absolute path from the old location
             if old_dir:
                 old_absolute_target = os.path.join(old_dir, original_target)
@@ -569,6 +588,15 @@ class ReferenceLookup:
 
             # Normalize the path
             old_absolute_target = os.path.normpath(old_absolute_target).replace("\\", "/")
+
+            # PD-BUG-033: Skip non-existent targets — if the resolved path doesn't
+            # exist as a file or directory, the extracted "link" was never a real path
+            # (e.g., regex patterns, filter strings, example text in PowerShell scripts).
+            abs_target_check = os.path.join(
+                str(self.project_root), old_absolute_target
+            )
+            if not os.path.exists(abs_target_check):
+                return original_target
 
             # Calculate the new relative path from the new location
             if new_dir:

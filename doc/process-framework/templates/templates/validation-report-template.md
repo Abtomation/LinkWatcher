@@ -298,7 +298,7 @@ Customize the "Validation Criteria Applied" section with:
 
 - [Foundational Codebase Validation Concept](/doc/process-framework/proposals/foundational-codebase-validation-concept.md)
 - [Validation Framework Tasks](/doc/process-framework/tasks/05-validation/) (validation task definitions)
-- [Template Development Guide](/doc/process-framework/guides/guides/template-development-guide.md)
+- [Template Development Guide](/doc/process-framework/guides/guides/support/template-development-guide.md)
 - [Feature Tracking](/doc/process-framework/state-tracking/permanent/feature-tracking.md)
 
 ---

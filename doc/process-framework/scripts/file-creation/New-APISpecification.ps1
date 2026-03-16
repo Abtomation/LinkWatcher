@@ -161,7 +161,7 @@ try {
             "⚠️  AI agents MUST follow the referenced guide to properly customize the content.",
             "",
             "📖 MANDATORY CUSTOMIZATION GUIDE:",
-            "   doc/process-framework/guides/guides/api-specification-creation-guide.md",
+            "doc/process-framework/guides/guides/02-design/api-specification-creation-guide.md",
             "🎯 FOCUS AREAS: 'Step-by-Step Instructions' and 'Quality Assurance' sections",
             "",
             "🚫 DO NOT use the generated file without proper customization!",

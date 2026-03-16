@@ -107,7 +107,7 @@ param(
 
 # Import required modules
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-Import-Module "../$scriptDir/Common-ScriptHelpers.psm1" -Force
+Import-Module (Join-Path $scriptDir "../Common-ScriptHelpers.psm1") -Force
 
 # Verify that required functions are available
 $requiredFunctions = @("Get-ProjectRoot", "Update-DocumentTrackingFiles")
@@ -130,9 +130,9 @@ if (-not $ValidationDate) {
 
 # Get project root and define file paths
 $projectRoot = Get-ProjectRoot
-$validationTrackingPath = Join-Path $projectRoot "../doc/process-framework/state-tracking/temporary/foundational-validation-tracking.md"
-$documentationMapPath = Join-Path $projectRoot "../doc/process-framework/documentation-map.md"
-$featureTrackingPath = Join-Path $projectRoot "../doc/process-framework/state-tracking/permanent/feature-tracking.md"
+$validationTrackingPath = Join-Path $projectRoot "doc/process-framework/state-tracking/temporary/foundational-validation-tracking.md"
+$documentationMapPath = Join-Path $projectRoot "doc/process-framework/documentation-map.md"
+$featureTrackingPath = Join-Path $projectRoot "doc/process-framework/state-tracking/permanent/feature-tracking.md"
 
 Write-Host "🚀 Starting Validation Report State Update" -ForegroundColor Green
 Write-Host "   Validation ID: $ValidationId" -ForegroundColor Cyan

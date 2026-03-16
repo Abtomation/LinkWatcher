@@ -232,7 +232,7 @@ try {
     Write-Host "   You MUST consult the Task Creation Guide before proceeding with customization." -ForegroundColor Yellow
     Write-Host ""
     Write-Host "� REQUIRED READING:" -ForegroundColor Cyan
-    Write-Host "   doc/process-framework/guides/guides/task-creation-guide.md" -ForegroundColor White
+    Write-Host "doc/process-framework/guides/guides/support/task-creation-guide.md" -ForegroundColor White
     Write-Host "   Focus on: 'Phase 2: Content Customization' section" -ForegroundColor Gray
     Write-Host ""
     Write-Host "⚠️  The created file is only a structural framework - it requires extensive" -ForegroundColor Yellow

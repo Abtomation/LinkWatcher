@@ -114,7 +114,7 @@ try {
             "⚠️  AI agents MUST follow the Test Audit task process to properly complete the audit.",
             "",
             "📖 MANDATORY PROCESS REFERENCE:",
-            "   doc/process-framework/tasks/03-testing/test-audit-task.md",
+            "doc/process-framework/tasks/03-testing/test-audit-task.md",
             "🎯 FOCUS AREAS: 'Process' section with six evaluation criteria",
             "",
             "🎯 What you need to complete:",
@@ -175,8 +175,8 @@ EXAMPLE TEST COMMANDS:
 ./New-TestAuditReport.ps1 -FeatureId "0.2.3" -TestFileId "PD-TST-001" -AuditorName "Test Auditor"
 
 # Verify created document
-Get-Content "../../test-audits/../../test-audits/../../../../test-audits/doc/process-framework/test-audits/foundation/audit-report-0.2.3-PD-TST-001.md" | Select-Object -First 20
+Get-Content "../../product-docs/test-audits/foundation/audit-report-0.2.3-PD-TST-001.md" | Select-Object -First 20
 
 # Cleanup
-Remove-Item "../../test-audits/../../test-audits/../../../../test-audits/doc/process-framework/test-audits/foundation/audit-report-0.2.3-PD-TST-001.md" -Force
+Remove-Item "../../product-docs/test-audits/foundation/audit-report-0.2.3-PD-TST-001.md" -Force
 #>
