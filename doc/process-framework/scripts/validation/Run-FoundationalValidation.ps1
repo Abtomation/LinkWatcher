@@ -67,19 +67,19 @@ Suppress progress messages, show only results
 Show what would be done without actually performing validation
 
 .EXAMPLE
-.\Run-FoundationalValidation.ps1
+Run-FoundationalValidation.ps1
 Runs all validation types on all foundational features
 
 .EXAMPLE
-.\Run-FoundationalValidation.ps1 -FeatureIds "0.2.1,0.2.2" -ValidationType "CodeQuality" -GenerateReports -UpdateTracking
+Run-FoundationalValidation.ps1 -FeatureIds "0.2.1,0.2.2" -ValidationType "CodeQuality" -GenerateReports -UpdateTracking
 Validates specific features for code quality and generates reports
 
 .EXAMPLE
-.\Run-FoundationalValidation.ps1 -ValidationType "All" -GenerateReports -UpdateTracking -Detailed
+Run-FoundationalValidation.ps1 -ValidationType "All" -GenerateReports -UpdateTracking -Detailed
 Comprehensive validation with detailed reports and tracking updates
 
 .EXAMPLE
-.\Run-FoundationalValidation.ps1 -FeatureIds "0.2.1" -ValidationType "All" -GenerateReports -UpdateTracking -Detailed
+Run-FoundationalValidation.ps1 -FeatureIds "0.2.1" -ValidationType "All" -GenerateReports -UpdateTracking -Detailed
 Complete validation for a specific foundational feature
 
 .NOTES
@@ -131,12 +131,15 @@ $ErrorActionPreference = "Stop"
 
 # Import Common-ScriptHelpers first to get access to Get-ProjectRoot
 try {
-    $ScriptsDir = Split-Path -Parent $PSScriptRoot
-    $commonHelpersPath = Join-Path $ScriptsDir "Common-ScriptHelpers.psm1"
+    $dir = $PSScriptRoot
+    while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
+        $dir = Split-Path -Parent $dir
+    }
+    $commonHelpersPath = Join-Path $dir "Common-ScriptHelpers.psm1"
     if (Test-Path $commonHelpersPath) {
         Import-Module $commonHelpersPath -Force
     } else {
-        throw "Common-ScriptHelpers.psm1 not found at: $commonHelpersPath"
+        throw "Common-ScriptHelpers.psm1 not found searching up from: $PSScriptRoot"
     }
 }
 catch {
@@ -146,7 +149,7 @@ catch {
 
 # Now use Get-ProjectRoot
 $ProjectRoot = Get-ProjectRoot
-$ProcessFrameworkDir = Join-Path $ProjectRoot "doc\process-framework"
+$ProcessFrameworkDir = Join-Path $ProjectRoot "doc/product-docs"
 $ScriptsDir = Join-Path $ProcessFrameworkDir "scripts"
 
 # Script paths

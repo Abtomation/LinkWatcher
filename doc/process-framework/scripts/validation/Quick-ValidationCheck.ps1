@@ -109,12 +109,15 @@ $ErrorActionPreference = "Stop"
 
 # Import Common-ScriptHelpers first to get access to Get-ProjectRoot
 try {
-    $scriptsDir = Split-Path -Parent $PSScriptRoot
-    $commonHelpersPath = Join-Path $scriptsDir "Common-ScriptHelpers.psm1"
+    $dir = $PSScriptRoot
+    while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
+        $dir = Split-Path -Parent $dir
+    }
+    $commonHelpersPath = Join-Path $dir "Common-ScriptHelpers.psm1"
     if (Test-Path $commonHelpersPath) {
         Import-Module $commonHelpersPath -Force
     } else {
-        throw "Common-ScriptHelpers.psm1 not found at: $commonHelpersPath"
+        throw "Common-ScriptHelpers.psm1 not found searching up from: $PSScriptRoot"
     }
 }
 catch {

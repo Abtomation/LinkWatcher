@@ -86,9 +86,9 @@ graph TD
 ## Related Documentation
 
 - [Test Audit Task Definition](../../tasks/03-testing/test-audit-task.md) - Complete task specification and process
-- [Test Audit Usage Guide](../../guides/guides/03-testing/test-audit-usage-guide.md) - Step-by-step instructions for conducting audits
+- [Test Audit Usage Guide](../../../guides/03-testing/test-audit-usage-guide.md) - Step-by-step instructions for conducting audits
 - [Test Tracking](../../../state-tracking/permanent/test-tracking.md) - Status tracking and workflow integration
-- [Test Audit Report Template](../../templates/templates/test-audit-report-template.md) - Standardized audit report structure
+- [Test Audit Report Template](../../../templates/03-testing/test-audit-report-template.md) - Standardized audit report structure
 - [New-TestAuditReport.ps1](../../scripts/file-creation/New-TestAuditReport.ps1) - Audit report creation automation
 - [Validate-AuditReport.ps1](../../scripts/validation/Validate-AuditReport.ps1) - Audit report validation automation
 

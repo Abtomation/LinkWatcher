@@ -33,7 +33,7 @@ Create comprehensive Functional Design Documents (FDD) that capture functional r
 
 ## Information Flow
 
-> **📋 Detailed Guidance**: See [Task Transition Guide - Information Flow Section](../../guides/guides/framework/task-transition-guide.md#information-flow-and-separation-of-concerns)
+> **📋 Detailed Guidance**: See [Task Transition Guide - Information Flow Section](../../guides/framework/task-transition-guide.md#information-flow-and-separation-of-concerns)
 
 ### Inputs from Other Tasks
 
@@ -89,23 +89,23 @@ When referencing other tasks' outputs in FDDs:
   - **Feature Information** - Feature details from [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) including ID, name, description, and tier assessment
   - **Feature Tier Assessment** - Complexity evaluation and FDD requirement determination from [Feature Tier Assessment Task](../01-planning/feature-tier-assessment-task.md)
   - **Human Input on Feature Behavior** - Direct consultation with human partner about how the feature should work from user perspective
-  - [FDD Customization Guide](../../guides/guides/02-design/fdd-customization-guide.md) - Essential guide for understanding FDD structure and customization requirements
+  - [FDD Customization Guide](../../guides/02-design/fdd-customization-guide.md) - Essential guide for understanding FDD structure and customization requirements
 
 - **Important (Load If Space):**
 
-  - [FDD Template](../../templates/templates/fdd-template.md) - Template structure for creating FDD documents
+  - [FDD Template](../../templates/02-design/fdd-template.md) - Template structure for creating FDD documents
   - [Feature Discovery Task](../01-planning/feature-discovery-task.md) - Background research and analysis if available
   - [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Any existing user stories or requirements documentation
 
 - **Reference Only (Access When Needed):**
-  - [Visual Notation Guide](../../guides/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting context map diagrams
   - [ID Registry](../../../id-registry.json) - For FDD ID assignment and directory mapping
 
 ## Process
 
 > **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished! 🚨**
 >
-> **⚠️ MANDATORY: Use the ../../scripts/file-creation/New-FDD.ps1 automation script for document creation.**
+> **⚠️ MANDATORY: Use the ../../scripts/file-creation/02-design/New-FDD.ps1 automation script for document creation.**
 >
 > **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
 >
@@ -146,7 +146,7 @@ When referencing other tasks' outputs in FDDs:
 ### Finalization
 
 13. **Validate Completeness**: Review FDD against the validation checklist in the template
-14. **Verify Automated Updates**: The ../../scripts/file-creation/New-FDD.ps1 script automatically updates feature tracking - verify the updates were applied correctly
+14. **Verify Automated Updates**: The ../../scripts/file-creation/02-design/New-FDD.ps1 script automatically updates feature tracking - verify the updates were applied correctly
 15. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
@@ -156,7 +156,7 @@ When referencing other tasks' outputs in FDDs:
 
 ## State Tracking
 
-The following state files are automatically updated by the ../../scripts/file-creation/New-FDD.ps1 script:
+The following state files are automatically updated by the ../../scripts/file-creation/02-design/New-FDD.ps1 script:
 
 - [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Automatically updated with feature status "📋 FDD Created" and FDD document link in the FDD column
 
@@ -172,10 +172,10 @@ Before considering this task finished:
   - [ ] Functional requirements, user interactions, and business rules clearly documented
   - [ ] Acceptance criteria are testable and measurable
   - [ ] Edge cases and error handling scenarios identified
-- [ ] **Verify Automated Updates**: Ensure the ../../scripts/file-creation/New-FDD.ps1 script successfully updated state tracking files
+- [ ] **Verify Automated Updates**: Ensure the ../../scripts/file-creation/02-design/New-FDD.ps1 script successfully updated state tracking files
   - [ ] [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) automatically updated with FDD link and status "📋 FDD Created"
 - [ ] **Human Consultation Completed**: Confirmed that human partner was consulted about feature behavior and requirements
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-027" and context "FDD Creation"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-027" and context "FDD Creation"
 
 ## Next Tasks
 
@@ -185,8 +185,8 @@ Before considering this task finished:
 
 ## Related Resources
 
-- [FDD Template](../../templates/templates/fdd-template.md) - Template for creating Functional Design Documents
-- [FDD Customization Guide](../../guides/guides/02-design/fdd-customization-guide.md) - Guide for customizing FDD templates after creation
+- [FDD Template](../../templates/02-design/fdd-template.md) - Template for creating Functional Design Documents
+- [FDD Customization Guide](../../guides/02-design/fdd-customization-guide.md) - Guide for customizing FDD templates after creation
 - [Feature Tier Assessment Task](../01-planning/feature-tier-assessment-task.md) - Task for determining if FDD is required
 - [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Central tracking document for all features
 - [FDD Integration Concept](../../proposals/proposals/functional-design-document-integration-concept.md) - Original concept document for FDD integration

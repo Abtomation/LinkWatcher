@@ -94,11 +94,11 @@ testFiles:
     testType: Unit
     componentName: Core Service
     specificationPath: test/specifications/feature-specs/test-spec-0-1-1-core-architecture.md
-    description: "Unit tests for LinkWatcher core service orchestration (~19 test methods, includes PD-BUG-018 observer resilience regression tests)"
+    description: "Unit tests for LinkWatcher core service orchestration (~24 test methods, includes PD-BUG-018 observer resilience and PD-BUG-040 file filter regression tests)"
     created: 2026-02-20
-    updated: 2026-02-26
+    updated: 2026-03-17
     status: "✅ Tests Implemented"
-    testCasesCount: 19
+    testCasesCount: 24
     tier: 3
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md
     crossCuttingFeatures: ["1.1.1", "0.1.2"]
@@ -515,11 +515,11 @@ testFiles:
     testType: Integration
     componentName: Directory Move Detection
     specificationPath: test/specifications/feature-specs/test-spec-1-1-1-file-system-monitoring.md
-    description: "Regression tests for PD-BUG-016 (directory moves via delete+create on Windows), PD-BUG-006 (nested dir move Python imports), and PD-BUG-020 (single file move falsely triggering directory scan). 21 tests covering DB lookup, relative path resolution, buffering, end-to-end move detection, Python import updates, and single-file-delete routing."
+    description: "Regression tests for PD-BUG-016 (directory moves via delete+create on Windows), PD-BUG-006 (nested dir move Python imports), PD-BUG-020 (single file move falsely triggering directory scan), PD-BUG-038 (co-moved reference lookup), and PD-BUG-039 (outward links in moved files). 24 tests covering DB lookup, relative path resolution, buffering, end-to-end move detection, Python import updates, single-file-delete routing, outward link adjustment, and co-moved file reference updates."
     created: 2026-02-26
-    updated: 2026-02-27
+    updated: 2026-03-17
     status: "✅ Tests Implemented"
-    testCasesCount: 21
+    testCasesCount: 24
     tier: 2
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-1-1-1-file-system-monitoring-t2.md
     crossCuttingFeatures: ["0.1.2", "2.2.1", "2.1.1"]

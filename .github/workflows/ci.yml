@@ -113,9 +113,9 @@ jobs:
 
     - name: Run linting
       run: |
-        flake8 linkwatcher tests --max-line-length=100 --extend-ignore=E203,W503
-        black --check linkwatcher tests
-        isort --check-only linkwatcher tests
+        flake8 linkwatcher test/automated --max-line-length=100 --extend-ignore=E203,W503
+        black --check linkwatcher test/automated
+        isort --check-only linkwatcher test/automated
       continue-on-error: true
 
     - name: Run type checking

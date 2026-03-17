@@ -35,10 +35,10 @@ Systematically validates foundational features for extensibility and maintainabi
 
 - **Critical (Must Read):**
 
-  - **Foundational Validation Guide** - [Foundational Validation Guide](../../guides/guides/05-validation/foundational-validation-guide.md) - Comprehensive guide for conducting foundational codebase validation
+  - **Foundational Validation Guide** - [Foundational Validation Guide](../../guides/05-validation/foundational-validation-guide.md) - Comprehensive guide for conducting foundational codebase validation
   - **Feature Tracking** - [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Current status of foundational features to be validated
   - **Foundational Validation Tracking** - [Foundational Validation Tracking](../../state-tracking/temporary/foundational-validation-tracking.md) - Master validation matrix and progress tracking
-  - **Validation Report Template** - [Validation Report Template](../../templates/templates/validation-report-template.md) - Template for creating validation reports
+  - **Validation Report Template** - [Validation Report Template](../../templates/05-validation/validation-report-template.md) - Template for creating validation reports
   - **Codebase Architecture** - Source code directory - Source code structure for extensibility analysis
 
 - **Important (Load If Space):**
@@ -46,21 +46,21 @@ Systematically validates foundational features for extensibility and maintainabi
   - **Configuration Files** - Project dependency and environment configuration files - Configuration flexibility assessment
   - **Test Infrastructure** - Test directory - Testing support and coverage analysis
   - **Technical Design Documents** - [TDD Directory](../../../product-docs/technical/design) - Architectural patterns and extension points
-  - **New-ValidationReport Script** - [../../scripts/file-creation/New-ValidationReport.ps1](../../scripts/file-creation/New-ValidationReport.ps1) - Script for generating validation reports
+  - **New-ValidationReport Script** - [../../scripts/file-creation/05-validation/New-ValidationReport.ps1](../../scripts/file-creation/05-validation/New-ValidationReport.ps1) - Script for generating validation reports
   - **Component Relationship Index** - [Component Relationship Index](../../../product-docs/technical/architecture/component-relationship-index.md) - For understanding component interactions
 
 - **Reference Only (Access When Needed):**
   - **Framework Best Practices** - Framework-specific extensibility patterns for your technology stack
   - **Testing Guidelines** - Testing infrastructure best practices
   - **State Management Documentation** - State management extensibility patterns
-  - **Visual Notation Guide** - [Visual Notation Guide](../../guides/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
+  - **Visual Notation Guide** - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting context map diagrams
   - **ID Registry** - [ID Registry](../../../id-registry.json) - For understanding validation report ID assignments
 
 ## Process
 
 > **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished! 🚨**
 >
-> **⚠️ MANDATORY: Use the ../../scripts/file-creation/New-ValidationReport.ps1 script for generating validation reports.**
+> **⚠️ MANDATORY: Use the ../../scripts/file-creation/05-validation/New-ValidationReport.ps1 script for generating validation reports.**
 >
 > **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
 >
@@ -83,7 +83,7 @@ Systematically validates foundational features for extensibility and maintainabi
 10. **Generate Validation Report**: Create detailed validation report using the automation script
    ```powershell
    # Navigate to validation directory and create extensibility maintainability report
-   Set-Location "doc/process-framework/validation"
+   Set-Location "doc/product-docs/validation"
     ..\scripts\file-creation\New-ValidationReport.ps1 -ValidationType "ExtensibilityMaintainability" -FeatureIds "cross-cutting" -SessionNumber 1
    ```
 11. **Score Extensibility Criteria**: Apply 4-point scoring system (0-3) to each extensibility and maintainability criterion
@@ -104,7 +104,7 @@ Systematically validates foundational features for extensibility and maintainabi
 
 ## Outputs
 
-- **Extensibility & Maintainability Validation Report** - Detailed validation report with scoring and findings, created in `doc/process-framework/validation/reports/extensibility-maintainability/PF-VAL-XXX-extensibility-maintainability-cross-cutting.md`
+- **Extensibility & Maintainability Validation Report** - Detailed validation report with scoring and findings, created in doc/product-docs/validation/reports/extensibility-maintainability/PF-VAL-XXX-extensibility-maintainability-cross-cutting.md
 - **Updated Foundational Validation Tracking** - Matrix cell updated with report creation date and link in [Foundational Validation Tracking](../../state-tracking/temporary/foundational-validation-tracking.md)
 - **Extensibility Gap Analysis** - Comprehensive analysis of extension limitations and architectural constraints
 - **Maintainability Risk Assessment** - Evaluation of code maintainability risks and improvement opportunities
@@ -125,15 +125,15 @@ The following state files must be updated as part of this task:
 Before considering this task finished:
 
 - [ ] **Verify Outputs**: Confirm all required outputs have been produced
-  - [ ] Extensibility & Maintainability validation report generated using ../../scripts/file-creation/New-ValidationReport.ps1 script
+  - [ ] Extensibility & Maintainability validation report generated using ../../scripts/file-creation/05-validation/New-ValidationReport.ps1 script
   - [ ] Validation report contains comprehensive scoring (0-3 scale) for all extensibility and maintainability criteria
   - [ ] Extension limitations and maintainability risks documented with specific improvement recommendations
-  - [ ] Report saved in correct directory: `doc/process-framework/validation/reports/extensibility-maintainability/`
+  - [ ] Report saved in correct directory: `doc/product-docs/validation/reports/extensibility-maintainability`
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
   - [ ] [Foundational Validation Tracking](../../state-tracking/temporary/foundational-validation-tracking.md) matrix updated with report creation date and link
   - [ ] [Documentation Map](../../documentation-map.md) updated with new validation report entry
   - [ ] **AUTOMATED**: [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md) updated with new open issues using `Update-TechDebt.ps1`
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-035" and context "Extensibility Maintainability Validation"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-035" and context "Extensibility Maintainability Validation"
 
 ## Next Tasks
 

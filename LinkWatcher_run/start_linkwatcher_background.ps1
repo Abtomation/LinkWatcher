@@ -38,7 +38,7 @@ if (Test-Path $lockFile) {
 Write-Host "Starting LinkWatcher in background for $projectRoot..." -ForegroundColor Cyan
 
 # Start LinkWatcher with explicit project root and logging
-$logFile = Join-Path $scriptDir "LinkWatcherLog_20260316-121408.txt"
+$logFile = Join-Path $scriptDir "LinkWatcherLog.txt"
 $stdoutLog = Join-Path $scriptDir "LinkWatcherStdout.txt"
 $stderrLog = Join-Path $scriptDir "LinkWatcherError.txt"
 $arguments = "C:\Users\ronny\bin\main.py --project-root `"$projectRoot`" --log-file `"$logFile`" --debug"
@@ -46,6 +46,11 @@ $arguments = "C:\Users\ronny\bin\main.py --project-root `"$projectRoot`" --log-f
 $process = Start-Process -FilePath "python" -ArgumentList $arguments -WorkingDirectory $projectRoot -WindowStyle Hidden -PassThru -RedirectStandardOutput $stdoutLog -RedirectStandardError $stderrLog
 
 if ($process) {
+    # Write PID to lock file immediately so subsequent launches see it
+    # (main.py also writes the lock, but there's a race window between
+    # Start-Process returning and main.py's acquire_lock running)
+    $lockFile = Join-Path $projectRoot ".linkwatcher.lock"
+    Set-Content -Path $lockFile -Value $process.Id -NoNewline
     Write-Host "LinkWatcher started successfully in background (PID: $($process.Id))" -ForegroundColor Green
     Write-Host "  Project root: $projectRoot" -ForegroundColor Green
     Write-Host "  Log file: $logFile" -ForegroundColor Green

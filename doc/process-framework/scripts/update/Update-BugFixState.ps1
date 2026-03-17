@@ -94,14 +94,18 @@ param(
     [switch]$DryRun
 )
 
-# Import the common helpers
+# Import the common helpers with walk-up path resolution
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-$helpersPath = Join-Path $scriptDir "Common-ScriptHelpers.psm1"
+$dir = $scriptDir
+while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
+    $dir = Split-Path -Parent $dir
+}
+$helpersPath = Join-Path $dir "Common-ScriptHelpers.psm1"
 
 if (Test-Path $helpersPath) {
     Import-Module $helpersPath -Force
 } else {
-    Write-Error "Cannot find common helpers at: $helpersPath"
+    Write-Error "Cannot find Common-ScriptHelpers.psm1 searching up from: $scriptDir"
     exit 1
 }
 

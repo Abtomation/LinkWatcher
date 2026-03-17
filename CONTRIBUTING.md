@@ -119,8 +119,8 @@ python run_tests.py --parsers
 python run_tests.py --performance
 
 # By file
-pytest tests/unit/test_database.py
-pytest tests/integration/test_windows_platform.py
+pytest test/automated/unit/test_database.py
+pytest test/automated/integration/test_windows_platform.py
 
 # By test method
 pytest tests/unit/test_database.py::TestLinkDatabase::test_add_link
@@ -251,7 +251,7 @@ class YourParser(BaseParser):
 2. **Add comprehensive tests**
 
 ```python
-# tests/parsers/test_your_parser.py
+# test/automated/parsers/test_your_parser.py
 class TestYourParser:
     def test_parse_valid_file(self):
         # Test implementation

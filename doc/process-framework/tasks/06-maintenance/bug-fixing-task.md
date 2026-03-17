@@ -37,9 +37,8 @@ Diagnose, fix, and verify solutions for reported bugs or issues in the applicati
 
   - [Bug Tracking](../../state-tracking/permanent/bug-tracking.md) - Central bug registry and status tracking
   - Specific source files containing the bug
-  - [Testing Guide](/doc/product-docs/guides/guides/testing-guide.md) - Guidelines for testing and debugging
   - Tests related to the affected functionality
-  - [Visual Notation Guide](/doc/process-framework/guides/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Visual Notation Guide](/doc/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 - **Important (Load If Space):**
 
@@ -47,7 +46,7 @@ Diagnose, fix, and verify solutions for reported bugs or issues in the applicati
 
 - **Reference Only (Access When Needed):**
   - [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - To understand feature relationships and priorities when bugs affect specific features
-  - [Bug Fix State Template](../../templates/templates/bug-fix-state-tracking-template.md) - For multi-session complex bug fixes (Large effort)
+  - [Bug Fix State Template](../../templates/06-maintenance/bug-fix-state-tracking-template.md) - For multi-session complex bug fixes (Large effort)
 
 ## Process
 
@@ -83,6 +82,11 @@ Diagnose, fix, and verify solutions for reported bugs or issues in the applicati
      ```
 9. **🚨 CHECKPOINT**: Present reproduction results, affected code area analysis, and proposed investigation approach to human partner
    - **S-scope bugs**: Combine with Step 12 — present reproduction, root cause analysis, and proposed fix approach in a single checkpoint. After approval, skip directly to Step 13.
+   - **Not-a-bug**: If investigation reveals the reported issue is expected behavior, user error, already fixed, or otherwise not a bug — present the evidence to the human partner. If they agree, transition to **Rejected** and skip to finalization:
+     ```powershell
+     ../../scripts/update/Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "Rejected" -RejectionReason "Reason for rejection"
+     ```
+     Then skip directly to Step 27 (verify tracking update) → Step 29 (completion checklist). Steps 10–26 do not apply.
 
 ### Execution
 
@@ -100,7 +104,7 @@ Diagnose, fix, and verify solutions for reported bugs or issues in the applicati
       - **Use strong assertions**: Assert the old/buggy value is **NOT** present (negative assertion), not just that the new/correct value **IS** present (positive assertion). Overly permissive tests that only check for the expected value can pass even when the bug persists alongside the fix.
       - Keep regression tests focused on the specific fix — note pre-existing test gaps for a future test audit rather than expanding scope here
     - **Adding to an existing test file** (most common): Find the relevant test file in the project's test directory (see `paths.tests` in `project-config.json`). Add regression test(s) following the existing patterns in the file. After adding, update the `testCasesCount` for the file in [Test Registry](/test/test-registry.yaml). If the file is not yet in the registry, add a new entry with the next available `PD-TST` ID and bump `nextAvailable` in [ID Registry](/doc/id-registry.json).
-    - **Creating a new test file** (rare): Use [`New-TestFile.ps1`](../../scripts/file-creation/New-TestFile.ps1) which auto-updates test-registry.yaml, test-tracking.md, and feature-tracking.md:
+    - **Creating a new test file** (rare): Use [`New-TestFile.ps1`](../../scripts/file-creation/03-testing/New-TestFile.ps1) which auto-updates test-registry.yaml, test-tracking.md, and feature-tracking.md:
       ```powershell
       cd doc/process-framework/scripts/file-creation
       .\New-TestFile.ps1 -TestName "BugDescription" -TestType "Unit" -FeatureId "X.Y.Z" -ComponentName "ComponentName"
@@ -147,6 +151,11 @@ Diagnose, fix, and verify solutions for reported bugs or issues in the applicati
     - **If multi-session**: Update the Documentation Updates table in the bug fix state file
 24. Refactor code if necessary for better maintainability
 25. Verify the fix resolves the issue completely
+25b. **Run test tracking validation** (if tests were added or modified):
+    ```powershell
+    doc/process-framework/scripts/validation/Validate-TestTracking.ps1
+    ```
+    Fix any mismatches in `testCasesCount` or missing registry entries before proceeding.
 26. Update bug status from 🧪 Fixed to ✅ Verified (after testing confirmation)
     - **Automated Option**: Use [`Update-BugStatus.ps1`](../../scripts/update/Update-BugStatus.ps1) script:
       ```powershell
@@ -169,7 +178,7 @@ Diagnose, fix, and verify solutions for reported bugs or issues in the applicati
 The following state files must be updated as part of this task:
 
 - [Bug Tracking](../../state-tracking/permanent/bug-tracking.md) - Update with:
-  - Bug status progression: 🔍 Triaged → 🟡 In Progress → 🧪 Fixed → ✅ Verified
+  - Bug status progression: 🔍 Triaged → 🟡 In Progress → 🧪 Fixed → ✅ Verified (or 🟡 In Progress → ❌ Rejected for not-a-bug)
   - Fix date and resolution details
   - Root cause analysis and solution approach
   - Link to relevant pull request or commit (if applicable)
@@ -177,7 +186,7 @@ The following state files must be updated as part of this task:
   - Testing verification results
   - For bugs affecting specific features: Reference related feature ID from [Feature Tracking](../../state-tracking/permanent/feature-tracking.md)
 - **Conditional — multi-session** (only for Large-effort or architectural bugs):
-  - [Bug fix state file](../../state-tracking/temporary/) — created via [`New-BugFixState.ps1`](../../scripts/file-creation/New-BugFixState.ps1), tracks root cause, fix approach, implementation progress, validation status, and session log. Archive to `state-tracking/temporary/old/` when bug is closed.
+  - [Bug fix state file](../../state-tracking/temporary/) — created via [`New-BugFixState.ps1`](../../scripts/file-creation/06-maintenance/New-BugFixState.ps1), tracks root cause, fix approach, implementation progress, validation status, and session log. Archive to `state-tracking/temporary/old/` when bug is closed.
 - **Conditional** (only when fix changes technical design or behavior):
   - [Feature implementation state files](../../state-tracking/features/) — update implementation notes, known issues, or status
   - TDD for the affected feature — update technical design descriptions
@@ -210,7 +219,7 @@ Before considering this task finished:
     - [ ] Test specification updated, or N/A — verified no behavior change affects spec
     - [ ] FDD updated, or N/A — verified no functional change affects FDD
   - [ ] If multi-session: bug fix state file archived to `state-tracking/temporary/old/`
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-007" and context "Bug Fixing"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-007" and context "Bug Fixing"
 
 ## Next Tasks
 
@@ -222,6 +231,5 @@ Before considering this task finished:
 
 ## Related Resources
 
-- [Testing Guide](/doc/product-docs/guides/guides/testing-guide.md) - Comprehensive testing procedures and debugging approaches
-- [Visual Notation Guide](/doc/process-framework/guides/guides/support/visual-notation-guide.md) - For interpreting context map diagrams and component relationships
-- [Task Creation and Improvement Guide](../../guides/guides/support/task-creation-guide.md) - Guide for creating and improving tasks
+- [Visual Notation Guide](/doc/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams and component relationships
+- [Task Creation and Improvement Guide](../../guides/support/task-creation-guide.md) - Guide for creating and improving tasks

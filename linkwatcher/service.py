@@ -14,7 +14,7 @@ from colorama import Fore
 from watchdog.observers import Observer
 
 from .config.settings import LinkWatcherConfig
-from .database import LinkDatabase
+from .database import LinkDatabase, LinkDatabaseInterface
 from .handler import LinkMaintenanceHandler
 from .logging import LogTimer, get_logger, with_context
 from .parser import LinkParser
@@ -52,7 +52,7 @@ class LinkWatcherService:
         # Initialize components
         self.logger.debug("initializing_components")
         self.link_db = LinkDatabase()
-        self.parser = LinkParser()
+        self.parser = LinkParser(config=config)
         self.updater = LinkUpdater(str(self.project_root))
         self.handler = LinkMaintenanceHandler(
             self.link_db,
@@ -61,6 +61,7 @@ class LinkWatcherService:
             str(self.project_root),
             monitored_extensions=config.monitored_extensions if config else None,
             ignored_directories=config.ignored_directories if config else None,
+            config=config,
         )
 
         # Setup signal handlers for graceful shutdown

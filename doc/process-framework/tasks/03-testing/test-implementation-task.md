@@ -56,13 +56,13 @@ Implement comprehensive test cases based on existing Test Specifications, enabli
   - [Existing Test Structure](/test/) - Current test organization and patterns
   - [Mock Services](/test/mocks/) - Available mock implementations for testing
   - [Test Helpers](/test/test_helpers/) - Utility functions for test setup
-  - [Development Guide](/doc/process-framework/guides/guides/04-implementation/development-guide.md) - Testing standards and practices
+  - [Development Guide](/doc/process-framework/guides/04-implementation/development-guide.md) - Testing standards and practices
   - [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - For understanding component interactions
 
 - **Reference Only (Access When Needed):**
   - [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Feature development status
   - [Project Structure](/doc/product-docs/technical/architecture/project-structure.md) - Understanding component relationships
-  - [Visual Notation Guide](/doc/process-framework/guides/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Visual Notation Guide](/doc/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 ## Process
 
@@ -78,7 +78,7 @@ Implement comprehensive test cases based on existing Test Specifications, enabli
 
 ### Execution
 
-4. **Create Test Files**: Use the ../../scripts/file-creation/New-TestFile.ps1 script to generate test files with proper PD-TST IDs and automatic state tracking updates
+4. **Create Test Files**: Use the ../../scripts/file-creation/03-testing/New-TestFile.ps1 script to generate test files with proper PD-TST IDs and automatic state tracking updates
 
    ```powershell
    # Create test files using automation script (generates PD-TST-[SEQUENCE] IDs)
@@ -86,8 +86,8 @@ Implement comprehensive test cases based on existing Test Specifications, enabli
    # Test types depend on project language (auto-detected from project-config.json)
    # Python: Unit, Integration, Parser, Performance
    # Test types depend on project language (auto-detected from project-config.json)
-   ../../scripts/file-creation/New-TestFile.ps1 -TestName "FeatureName" -TestType "Unit" -FeatureId "X.Y.Z" -ComponentName "ComponentName"
-   ../../scripts/file-creation/New-TestFile.ps1 -TestName "FeatureName" -TestType "Integration" -FeatureId "X.Y.Z" -ComponentName "ComponentName"
+   ../../scripts/file-creation/03-testing/New-TestFile.ps1 -TestName "FeatureName" -TestType "Unit" -FeatureId "X.Y.Z" -ComponentName "ComponentName"
+   ../../scripts/file-creation/03-testing/New-TestFile.ps1 -TestName "FeatureName" -TestType "Integration" -FeatureId "X.Y.Z" -ComponentName "ComponentName"
 
    # Script automatically:
    # - Generates unique PD-TST ID
@@ -117,8 +117,8 @@ Implement comprehensive test cases based on existing Test Specifications, enabli
 
 12. **Report Discovered Bugs**: If bugs are identified during test implementation:
 
-    - Use [../../scripts/file-creation/New-BugReport.ps1](../../scripts/file-creation/New-BugReport.ps1) script to create standardized bug reports
-    - Follow [Bug Reporting Guide](../../guides/guides/06-maintenance/bug-reporting-guide.md) for consistent documentation
+    - Use [../../scripts/file-creation/06-maintenance/New-BugReport.ps1](../../scripts/file-creation/06-maintenance/New-BugReport.ps1) script to create standardized bug reports
+    - Follow [Bug Reporting Guide](../../guides/06-maintenance/bug-reporting-guide.md) for consistent documentation
     - Add bug entries to [Bug Tracking](../../state-tracking/permanent/bug-tracking.md) with status 🆕 Reported
     - Include test implementation context and evidence in bug reports
     - Reference specific test cases that revealed the bugs
@@ -152,7 +152,7 @@ Implement comprehensive test cases based on existing Test Specifications, enabli
 
 ## State Tracking
 
-The following state files are automatically updated by the ../../scripts/file-creation/New-TestFile.ps1 script:
+The following state files are automatically updated by the ../../scripts/file-creation/03-testing/New-TestFile.ps1 script:
 
 - [Test Tracking](../../state-tracking/permanent/test-tracking.md) - Automatically updated with 🟡 Implementation In Progress status, test file links with correct relative paths, and metadata
 - [Test Registry](/test/test-registry.yaml) - Automatically updated with test file entries, implementation status, and test case counts
@@ -174,7 +174,7 @@ Before considering this task finished:
   - [ ] All tests pass when executed
   - [ ] Test coverage meets specification requirements
   - [ ] Bug discovery performed systematically during test implementation
-  - [ ] Any discovered bugs reported using ../../scripts/file-creation/New-BugReport.ps1 script with proper context and evidence
+  - [ ] Any discovered bugs reported using ../../scripts/file-creation/06-maintenance/New-BugReport.ps1 script with proper context and evidence
 - [ ] **Verify State Files**: Confirm all state tracking files have been automatically updated by the script
   - [ ] [Test Tracking](../../state-tracking/permanent/test-tracking.md) shows correct test file links and status
   - [ ] [Test Registry](/test/test-registry.yaml) contains test file entries with proper metadata
@@ -184,7 +184,7 @@ Before considering this task finished:
   - [ ] Update test case counts with actual implemented test count
 - [ ] **Run Validation**: Execute validation scripts to ensure tracking consistency
   - [ ] Run `../../scripts/tests/validate-test-tracking.ps1` and verify no errors
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-029" and context "Test Implementation"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-029" and context "Test Implementation"
 
 ## Next Tasks
 
@@ -198,4 +198,4 @@ Before considering this task finished:
 - [Test Tracking](../../state-tracking/permanent/test-tracking.md) - Track test implementation progress
 - [Test Registry](/test/test-registry.yaml) - Test file registry with IDs and metadata
 - [Validation Scripts](../../../scripts/validation) - Scripts for test tracking consistency validation
-- [Development Guide](/doc/process-framework/guides/guides/04-implementation/development-guide.md) - Testing standards and practices
+- [Development Guide](/doc/process-framework/guides/04-implementation/development-guide.md) - Testing standards and practices

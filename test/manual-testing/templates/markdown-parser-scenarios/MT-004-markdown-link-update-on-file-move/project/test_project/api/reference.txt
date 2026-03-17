@@ -1,0 +1,14 @@
+API Reference
+=============
+
+GET /users
+- Returns list of users
+
+POST /users
+- Creates a new user
+
+PUT /users/{id}
+- Updates existing user
+
+DELETE /users/{id}
+- Deletes user

@@ -85,11 +85,10 @@ The Configuration System provides multi-source configuration loading (YAML, JSON
 | YAML roundtrip | `test_config_file_roundtrip_yaml` | Save + reload preserves all values | `temp_project_dir` |
 | Env override file | `test_env_override_file_config` | Env vars merge over file config | `temp_project_dir`, `patch.dict` |
 | Partial loading | `test_partial_config_loading` | Specified fields set, defaults for rest | `temp_project_dir` |
-| Custom parsers | `test_config_with_custom_parsers` | Parser mappings loaded from config | `temp_project_dir` |
 | Malformed JSON | `test_malformed_json_handling` | Raises `json.JSONDecodeError` | `temp_project_dir` |
 | Malformed YAML | `test_malformed_yaml_handling` | Raises `yaml.YAMLError` | `temp_project_dir` |
 
-**Test File**: [`tests/unit/test_config.py`](../../../tests/unit/test_config.py) — 7 test methods in `TestConfigurationIntegration`
+**Test File**: [`tests/unit/test_config.py`](../../../tests/unit/test_config.py) — 6 test methods in `TestConfigurationIntegration`
 
 ### Utility Module (tests/test_config.py)
 

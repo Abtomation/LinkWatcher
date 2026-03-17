@@ -74,7 +74,14 @@ The In-Memory Database (`LinkDatabase`) provides thread-safe, target-indexed sto
 **Primary storage structure:**
 
 ```python
-class LinkDatabase:
+class LinkDatabaseInterface(ABC):
+    """Abstract interface for link database implementations."""
+    # Declares abstract methods: add_link, remove_file_links,
+    # get_references_to_file, update_target_path, remove_targets_by_path,
+    # get_references_to_directory, get_all_targets_with_references,
+    # get_source_files, clear, get_stats, last_scan (property)
+
+class LinkDatabase(LinkDatabaseInterface):
     def __init__(self):
         # Target-indexed dictionary: target_path -> [LinkReference, ...]
         self.links: Dict[str, List[LinkReference]] = {}
@@ -82,8 +89,8 @@ class LinkDatabase:
         # Set of source files that contain at least one link
         self.files_with_links: Set[str] = set()
 
-        # Timestamp of last scan (optional, for metadata)
-        self.last_scan: Optional[datetime] = None
+        # Timestamp of last scan (property backed by _last_scan)
+        self._last_scan: Optional[float] = None
 
         # Single lock protecting all operations
         self._lock = threading.Lock()

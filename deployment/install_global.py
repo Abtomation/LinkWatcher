@@ -159,9 +159,9 @@ def create_wrapper_scripts(install_dir):
 
     # Add check_links wrappers only if check_links.py exists
     if (install_dir / "scripts" / "check_links.py").exists():
-        wrappers["checklinks.bat"] = (
-            f'@echo off\npython "{install_dir / "scripts" / "check_links.py"}" %*\n'
-        )
+        wrappers[
+            "checklinks.bat"
+        ] = f'@echo off\npython "{install_dir / "scripts" / "check_links.py"}" %*\n'
 
     for name, content in wrappers.items():
         script_path = install_dir / name
@@ -249,9 +249,14 @@ def update_startup_scripts(project_root, install_dir):
             f'$stderrLog = Join-Path $scriptDir "LinkWatcherError.txt"\n'
             f'$arguments = "{main_py_path} --project-root `"$projectRoot`" --log-file `"$logFile`" --debug"\n'
             f"\n"
-            f"$process = Start-Process -FilePath \"python\" -ArgumentList $arguments -WorkingDirectory $projectRoot -WindowStyle Hidden -PassThru -RedirectStandardOutput $stdoutLog -RedirectStandardError $stderrLog\n"
+            f'$process = Start-Process -FilePath "python" -ArgumentList $arguments -WorkingDirectory $projectRoot -WindowStyle Hidden -PassThru -RedirectStandardOutput $stdoutLog -RedirectStandardError $stderrLog\n'
             f"\n"
             f"if ($process) {{\n"
+            f"    # Write PID to lock file immediately so subsequent launches see it\n"
+            f"    # (main.py also writes the lock, but there's a race window between\n"
+            f"    # Start-Process returning and main.py's acquire_lock running)\n"
+            f'    $lockFile = Join-Path $projectRoot ".linkwatcher.lock"\n'
+            f"    Set-Content -Path $lockFile -Value $process.Id -NoNewline\n"
             f'    Write-Host "LinkWatcher started successfully in background (PID: $($process.Id))" -ForegroundColor Green\n'
             f'    Write-Host "  Project root: $projectRoot" -ForegroundColor Green\n'
             f'    Write-Host "  Log file: $logFile" -ForegroundColor Green\n'

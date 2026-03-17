@@ -104,7 +104,7 @@ graph TD
 - [TDD Creation Task](../02-design/tdd-creation-task.md) - How to create Technical Design Documents
 - [Test Specification Creation Task](../03-testing/test-specification-creation-task.md) - How to create Test Specifications
 - [ADR Creation Task](../02-design/adr-creation-task.md) - How to create Architecture Decision Records
-- [Visual Notation Guide](../../../guides/guides/support/visual-notation-guide.md) - Understanding diagram symbols and notation
+- [Visual Notation Guide](../../../guides/support/visual-notation-guide.md) - Understanding diagram symbols and notation
 
 ---
 

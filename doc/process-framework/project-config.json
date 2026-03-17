@@ -17,9 +17,15 @@
     "process_framework": "doc\\process-framework",
     "product_docs": "doc\\product-docs",
     "source_code": "linkwatcher",
-    "tests": "tests",
+    "tests": "test/automated",
     "scripts": "scripts",
     "examples": "examples"
+  },
+
+  "testing": {
+    "description": "Test runner configuration for validation scripts",
+    "testCountCommand": "python -m pytest --collect-only -q",
+    "testDirectory": "test/automated"
   },
 
   "project_metadata": {

@@ -43,7 +43,7 @@ Establishes foundational project configuration and metadata when initializing a 
   - [ID Registry](../../../id-registry.json) - Understanding ID prefixes and directory mappings for path configuration
 
 - **Reference Only (Access When Needed):**
-  - [Documentation Structure Guide](../../guides/guides/framework/documentation-structure-guide.md) - For understanding recommended directory structure
+  - [Documentation Structure Guide](../../guides/framework/documentation-structure-guide.md) - For understanding recommended directory structure
   - [Framework Domain Adaptation](framework-domain-adaptation.md) - For comprehensive framework customization beyond config file
 
 ## Process
@@ -94,10 +94,16 @@ Establishes foundational project configuration and metadata when initializing a 
      "paths": {
        "description": "Project-specific directory paths relative to root",
        "documentation_root": "doc",
-       "process_framework": "doc/process-framework",
+       "process_framework": "doc/product-docs",
        "source_code": "[src directory name]",
        "tests": "[test directory name]",
        "scripts": "scripts"
+     },
+
+     "testing": {
+       "description": "Test runner configuration for validation scripts",
+       "testCountCommand": "[Command to collect tests, e.g. 'python -m pytest --collect-only -q' or 'dart test --reporter=json' or null]",
+       "testDirectory": "[Test directory relative to root, e.g. 'test/automated']"
      },
 
      "project_metadata": {
@@ -148,6 +154,7 @@ Establishes foundational project configuration and metadata when initializing a 
 - **project-config.json** - JSON configuration file created at project root directory containing:
   - Project identification (name, display name, description, repository URL)
   - Directory path mappings (documentation, source code, tests, scripts)
+  - Testing configuration (test count command for validation scripts)
   - Project metadata (language, framework, platform, development approach)
   - Team composition and collaboration model
   - Integration configurations (issue tracker, CI/CD, code hosting)
@@ -174,7 +181,7 @@ Before considering this task finished:
   - [ ] Path mappings correspond to actual directory structure
   - [ ] Repository URL is accessible (if provided)
 
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for task ID "PF-TSK-059" and context "Project Initiation"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for task ID "PF-TSK-059" and context "Project Initiation"
 
 ## Next Tasks
 
@@ -186,5 +193,5 @@ Before considering this task finished:
 - [Example project-config.json](../../project-config.json) - Reference implementation from LinkWatcher project
 - [Process Framework README](../../README.md) - Overview of framework structure and components
 - [Framework Domain Adaptation](framework-domain-adaptation.md) - Comprehensive framework customization for new domains
-- [Documentation Structure Guide](../../guides/guides/framework/documentation-structure-guide.md) - Recommended directory organization patterns
+- [Documentation Structure Guide](../../guides/framework/documentation-structure-guide.md) - Recommended directory organization patterns
 - [ID Registry](../../../id-registry.json) - Document ID prefixes and directory mappings

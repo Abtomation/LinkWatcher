@@ -46,4 +46,4 @@ Each ADR follows a standard format:
 
 ## Available ADRs
 
-- [ADR Template](../../../../templates/templates/adr-template.md) - Template for creating new ADRs
+- [ADR Template](../../../../../process-framework/templates/02-design/adr-template.md) - Template for creating new ADRs

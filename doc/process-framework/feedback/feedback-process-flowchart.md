@@ -20,7 +20,7 @@ flowchart TD
     B -->|No| Z[Task Complete]
     B -->|Yes| C[Navigate to feedback directory]
 
-    C --> D[cd doc/process-framework/scripts/file-creation]
+    C --> D[cd doc/process-framework/scripts/file-creation/support]
     D --> E[Run automation script]
     E --> F[./New-FeedbackForm.ps1 -DocumentId PREFIX-XXX-XXX -TaskContext Task Name -FeedbackType MultipleTools]
 
@@ -72,8 +72,8 @@ flowchart TD
 ```
 /doc/process-framework/feedback/
 ├── README.mdss documentation
-├── ../../process-framework/feedback/feedback-process-flowchart.md      # This flowchart
-├── scripts/file-creation/New-FeedbackForm.ps1
+├── feedback-process-flowchart.md      # This flowchart
+├── scripts/file-creation/support/New-FeedbackForm.ps1
 ├── config.json                     # ID tracking
 └── feedback-forms/                    # All feedback files
     ├── ../../process-framework/feedback/20250127-210602-PF-TSK-002-feedback.md
@@ -111,7 +111,7 @@ Individual feedback forms are not tracked in the documentation map - only the RE
 
 | Issue | Solution |
 |-------|----------|
-| Script not found | Ensure you're in `/doc/process-framework/feedback/` directory |
+| Script not found | Ensure you're in `/doc/process-framework/scripts/file-creation/support` directory |
 | Permission denied | Run PowerShell as administrator or check execution policy |
 | ID tracker error | Verify `../../process-framework/feedback/../../process-framework/feedback/directory.json` exists and is properly formatted |
 | Template not found | Ensure `../doc/process-framework/templates/feedback-form-template.md` exists |
@@ -129,7 +129,7 @@ Individual feedback forms are not tracked in the documentation map - only the RE
 ## Related Documents
 
 - [Feedback Process Guide](README.md) - Detailed documentation
-- [Feedback Form Template](../templates/templates/feedback-form-template.md) - Template structure
-- [Feedback Form Guide](../guides/guides/framework/feedback-form-guide.md) - Comprehensive completion instructions
+- [Feedback Form Template](../templates/support/feedback-form-template.md) - Template structure
+- [Feedback Form Guide](../guides/framework/feedback-form-guide.md) - Comprehensive completion instructions
 - [Tools Review Task](../tasks/support/tools-review-task.md) - How feedback is used
-- [Task Template](../templates/templates/task-template.md) - Standard task completion process
+- [Task Template](../templates/support/task-template.md) - Standard task completion process

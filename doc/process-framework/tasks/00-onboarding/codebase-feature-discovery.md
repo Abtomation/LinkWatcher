@@ -39,14 +39,14 @@ This task produces the foundational inventory that subsequent onboarding tasks (
 
 - **Critical (Must Read):**
 
-  - [Retrospective Master State Template](../../templates/templates/retrospective-state-template.md) - Template for tracking codebase-wide progress
-  - [Feature Implementation State Template](../../templates/templates/feature-implementation-state-template.md) - Template for per-feature code analysis
+  - [Retrospective Master State Template](../../templates/00-onboarding/retrospective-state-template.md) - Template for tracking codebase-wide progress
+  - [Feature Implementation State Template](../../templates/04-implementation/feature-implementation-state-template.md) - Template for per-feature code analysis
   - [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Feature status and tier assessments
   - **Existing Codebase** - Source code, tests, and configuration
 
 - **Important (Load If Space):**
 
-  - [Feature Implementation State Tracking Guide](../../guides/guides/04-implementation/feature-implementation-state-tracking-guide.md) - Comprehensive guide for using the state template
+  - [Feature Implementation State Tracking Guide](../../guides/04-implementation/feature-implementation-state-tracking-guide.md) - Comprehensive guide for using the state template
 
 - **Reference Only (Access When Needed):**
   - [Feature Dependencies](../../../product-docs/technical/design/feature-dependencies.md) - Understanding feature relationships
@@ -56,7 +56,7 @@ This task produces the foundational inventory that subsequent onboarding tasks (
 
 **Getting feature granularity right is the single most important outcome of this task.** Every downstream task — analysis, documentation, planning, implementation tracking — builds on the feature list produced here.
 
-> **🚨 CRITICAL**: Read the [Feature Granularity Guide](../../guides/guides/01-planning/feature-granularity-guide.md) before starting feature discovery. It defines what constitutes a well-scoped feature, provides three validation tests, identifies common granularity mistakes in both directions, and offers scaling guidance by project size.
+> **🚨 CRITICAL**: Read the [Feature Granularity Guide](../../guides/01-planning/feature-granularity-guide.md) before starting feature discovery. It defines what constitutes a well-scoped feature, provides three validation tests, identifies common granularity mistakes in both directions, and offers scaling guidance by project size.
 
 ## Process
 
@@ -75,16 +75,16 @@ This task produces the foundational inventory that subsequent onboarding tasks (
 ### Preparation
 
 1. **Check for Existing Master State File**:
-   - Look in `/doc/process-framework/state-tracking/temporary/` for an existing retrospective master state file
+   - Look in `/doc/process-framework/state-tracking/temporary` for an existing retrospective master state file
    - **If found**: Read it, understand current phase and progress, continue from where the previous session left off
    - **If not found**: This is the first session — proceed to step 2
 
 2. **Create Master State File** (first session only):
    - Use the automation script: `New-RetrospectiveMasterState.ps1 -ProjectName "[Project Name]"`
-     - Script location: `/doc/process-framework/scripts/file-creation/New-RetrospectiveMasterState.ps1`
+     - Script location: /doc/process-framework/scripts/file-creation/00-onboarding/New-RetrospectiveMasterState.ps1
      - Automatically creates file at: `/doc/process-framework/state-tracking/temporary/retrospective-master-state.md`
      - Automatically fills in project name, start date, and sets status to "DISCOVERY"
-   - Template reference: [Retrospective Master State Template](../../templates/templates/retrospective-state-template.md)
+   - Template reference: [Retrospective Master State Template](../../templates/00-onboarding/retrospective-state-template.md)
 
 3. **Survey the Project Structure & List All Unassigned Files** (first session only):
    - Scan the codebase directory structure (source directories, modules, packages)
@@ -97,10 +97,10 @@ This task produces the foundational inventory that subsequent onboarding tasks (
 4. **🚨 CHECKPOINT**: Present project structure overview, total file count, and initial observations about feature boundaries to human partner
 
 5. **Audit Existing Project Documentation** (first session, alongside step 4):
-   - Identify all non-source documentation files (markdown, txt, rst, etc.) **outside** `doc/process-framework/`
+   - Identify all non-source documentation files (markdown, txt, rst, etc.) **outside** `doc/product-docs`
      - Root docs (README.md, HOW_IT_WORKS.md, CONTRIBUTING.md, CHANGELOG.md, etc.)
      - `docs/` directory files
-     - `tests/` documentation files (README.md, TEST_PLAN.md, TEST_CASE_STATUS.md, etc.)
+     - `test/` documentation files (test-registry.yaml, specifications/, audits/, etc.)
      - Any other project-level documentation
    - For each documentation file:
      a. Classify its **Type**: Architecture Overview, User Guide, Test Plan, CI/CD, Troubleshooting, Developer Guide, Configuration, Changelog, or Other
@@ -117,7 +117,7 @@ This task produces the foundational inventory that subsequent onboarding tasks (
 
 6. **Discover Features (Two-Phase Approach)**:
 
-   > **Read the [Feature Granularity Guide](../../guides/guides/01-planning/feature-granularity-guide.md) before starting this step.** The quality of the feature list determines the value of everything that follows.
+   > **Read the [Feature Granularity Guide](../../guides/01-planning/feature-granularity-guide.md) before starting this step.** The quality of the feature list determines the value of everything that follows.
 
    **Phase A — Top-Down Capability Discovery:**
    Start from what the system *does*, not from its file structure.
@@ -154,7 +154,7 @@ This task produces the foundational inventory that subsequent onboarding tasks (
    - Is any candidate difficult to describe without listing several distinct capabilities? → Consider splitting
 
    **Check against scaling guidance:**
-   - Compare your feature count to the ranges in the [Feature Granularity Guide](../../guides/guides/01-planning/feature-granularity-guide.md#scaling-guidance)
+   - Compare your feature count to the ranges in the [Feature Granularity Guide](../../guides/01-planning/feature-granularity-guide.md#scaling-guidance)
    - If significantly above range: look for merge opportunities
    - If significantly below range: look for features that are too broad
 
@@ -172,7 +172,7 @@ This task produces the foundational inventory that subsequent onboarding tasks (
 
 8. **Create Feature Implementation State Files**:
    - Use the automation script: `New-FeatureImplementationState.ps1 -FeatureName "[name]" -FeatureId "[X.Y.Z]" -ImplementationMode "Retrospective Analysis" -Description "[description]"`
-     - Script location: `/doc/process-framework/scripts/file-creation/New-FeatureImplementationState.ps1`
+     - Script location: /doc/process-framework/scripts/file-creation/04-implementation/New-FeatureImplementationState.ps1
      - Automatically creates file at: `/doc/process-framework/state-tracking/features/[X.Y.Z]-[name]-implementation-state.md`
      - Automatically sets `implementation_mode: Retrospective Analysis` in metadata
      - Automatically links the file in [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) in the ID column (when `-FeatureId` is provided)
@@ -278,7 +278,7 @@ This task produces the foundational inventory that subsequent onboarding tasks (
 
 **🚨 TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF 🚨**
 
-- [ ] Master State File created in `/doc/process-framework/state-tracking/temporary/`
+- [ ] Master State File created in `/doc/process-framework/state-tracking/temporary`
 - [ ] ALL features discovered and added to Feature Tracking
 - [ ] **Consolidation Review completed** (Step 6): Feature list validated against granularity criteria and approved by human partner
 - [ ] Feature Implementation State File created for EVERY feature (including Tier 1)
@@ -287,7 +287,7 @@ This task produces the foundational inventory that subsequent onboarding tasks (
 - [ ] Existing Project Documentation audit complete — all non-source docs classified and mapped to features in master state "Existing Documentation Inventory" section
 - [ ] **Quality Verification completed** (Step 10): Random sample of 5-10 high-connectivity files verified, all import statements match documentation
 - [ ] Phase 1 marked complete in master state file
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-064" and context "Codebase Feature Discovery"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-064" and context "Codebase Feature Discovery"
   - **⚠️ IMPORTANT**: Evaluate the Codebase Feature Discovery task (PF-TSK-064) and its tools (master state file, feature implementation state files), not the features you discovered.
 
 ## Next Tasks
@@ -303,9 +303,9 @@ This task produces the foundational inventory that subsequent onboarding tasks (
 
 ## Related Resources
 
-- [Feature Granularity Guide](../../guides/guides/01-planning/feature-granularity-guide.md) - Defines what constitutes a well-scoped feature with validation tests and scaling guidance
-- [Retrospective Master State Template](../../templates/templates/retrospective-state-template.md) - Template for tracking codebase-wide progress
-- [Feature Implementation State Template](../../templates/templates/feature-implementation-state-template.md) - Template for per-feature code analysis
-- [Feature Implementation State Tracking Guide](../../guides/guides/04-implementation/feature-implementation-state-tracking-guide.md) - Comprehensive guide for using the state template
+- [Feature Granularity Guide](../../guides/01-planning/feature-granularity-guide.md) - Defines what constitutes a well-scoped feature with validation tests and scaling guidance
+- [Retrospective Master State Template](../../templates/00-onboarding/retrospective-state-template.md) - Template for tracking codebase-wide progress
+- [Feature Implementation State Template](../../templates/04-implementation/feature-implementation-state-template.md) - Template for per-feature code analysis
+- [Feature Implementation State Tracking Guide](../../guides/04-implementation/feature-implementation-state-tracking-guide.md) - Comprehensive guide for using the state template
 - [Test Registry](/test/test-registry.yaml) - Registry of all test files mapped to features (populated during PF-TSK-065)
 - [Test Tracking](../../state-tracking/permanent/test-tracking.md) - Test implementation status tracking (populated during PF-TSK-065)

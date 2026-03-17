@@ -37,7 +37,7 @@ Ensure documentation requirements remain aligned with the true complexity of fea
 
   - [Original Assessment Document](../../../product-docs/documentation-tiers/assessments) - Initial complexity assessment
   - [Normalized Scoring System](../../../product-docs/documentation-tiers/README.md#normalized-scoring-system) - Guide for scoring complexity
-  - [Visual Notation Guide](/doc/process-framework/guides/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Visual Notation Guide](/doc/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 - **Reference Only (Access When Needed):**
   - [Feature Tracking Document](../../state-tracking/permanent/feature-tracking.md) - Current documentation tier assignment
@@ -140,7 +140,7 @@ Before considering this task finished:
   - [ ] Feature tracking document shows the new documentation tier
   - [ ] Project timeline reflects any changes to documentation schedule
   - [ ] Adjustment date and rationale are recorded
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-011" and context "Documentation Tier Adjustment"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-011" and context "Documentation Tier Adjustment"
 - [ ] **Communicate Changes**: Ensure all stakeholders are aware of the tier adjustment and its implications
 
 ## Next Tasks
@@ -150,8 +150,8 @@ Before considering this task finished:
 
 ## Related Resources
 
-- [Assessment Guide](../../guides/guides/01-planning/assessment-guide.md) - Guide for assessing feature complexity
-- [Task Creation and Improvement Guide](../../guides/guides/support/task-creation-guide.md) - Guide for creating and improving tasks
+- [Assessment Guide](../../guides/01-planning/assessment-guide.md) - Guide for assessing feature complexity
+- [Task Creation and Improvement Guide](../../guides/support/task-creation-guide.md) - Guide for creating and improving tasks
 
 ## Metrics and Evaluation
 

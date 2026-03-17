@@ -92,7 +92,11 @@ param(
 
 # Import required modules
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-Import-Module "$scriptDir\Common-ScriptHelpers.psm1" -Force
+$dir = $scriptDir
+while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
+    $dir = Split-Path -Parent $dir
+}
+Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 
 # Initialize script with dependency validation
 if (-not (Test-ScriptDependencies -RequiredModules @("Common-ScriptHelpers"))) {
@@ -103,7 +107,7 @@ if (-not (Test-ScriptDependencies -RequiredModules @("Common-ScriptHelpers"))) {
 # Get project root and set default paths
 $projectRoot = Get-ProjectRoot
 if (-not $OutputDirectory) {
-    $OutputDirectory = Join-Path $projectRoot "doc\process-framework\validation\reports"
+    $OutputDirectory = Join-Path $projectRoot "doc/product-docs/validation/reports"
 }
 
 # Ensure output directory exists
@@ -304,7 +308,7 @@ function New-ValidationReport {
 
     try {
         # Check if New-ValidationReport.ps1 script exists
-        $validationScriptPath = Join-Path $projectRoot "file-creation\New-ValidationReport.ps1"
+        $validationScriptPath = Join-Path $projectRoot "file-creation\05-validation\New-ValidationReport.ps1"
 
         if (Test-Path $validationScriptPath) {
             # Use existing validation script

@@ -17,6 +17,7 @@ Supports all bug status transitions:
 - 🟡 In Progress → 🧪 Testing (Bug Fixing Task)
 - 🧪 Testing → ✅ Fixed (Bug Fixing Task)
 - ✅ Fixed → 🔒 Closed (Bug Verification)
+- 🟡 In Progress → ❌ Rejected (Bug Fixing Task — not-a-bug)
 - Any Status → 🔄 Reopened (Bug Verification)
 
 When transitioning to Closed:
@@ -38,6 +39,7 @@ The new status for the bug. Valid values:
 - "Fixed" (✅)
 - "Closed" (🔒) — auto-moves to Closed section, recalculates stats
 - "Reopened" (🔄)
+- "Rejected" (❌) — not-a-bug, auto-moves to Closed section, recalculates stats
 
 .PARAMETER Priority
 Bug priority (Critical, High, Medium, Low) - used when transitioning to Triaged
@@ -89,6 +91,10 @@ Date of the status update (optional - uses current date if not specified)
 ../Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "Reopened" -ReopenReason "Issue still occurs in edge case scenario"
 
 .EXAMPLE
+# Reject a bug (not-a-bug)
+../Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "Rejected" -RejectionReason "Expected behavior per design spec"
+
+.EXAMPLE
 # Dry-run to preview changes without modifying the file
 ../Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "InProgress" -WhatIf
 
@@ -106,7 +112,7 @@ param(
     [string]$BugId,
 
     [Parameter(Mandatory = $true)]
-    [ValidateSet("Triaged", "InProgress", "Testing", "Fixed", "Closed", "Reopened")]
+    [ValidateSet("Triaged", "InProgress", "Testing", "Fixed", "Closed", "Reopened", "Rejected")]
     [string]$NewStatus,
 
     [Parameter(Mandatory = $false)]
@@ -137,11 +143,18 @@ param(
     [string]$ReopenReason,
 
     [Parameter(Mandatory = $false)]
+    [string]$RejectionReason,
+
+    [Parameter(Mandatory = $false)]
     [datetime]$UpdateDate = (Get-Date)
 )
 
 # Import the common helpers for Get-ProjectRoot
-Import-Module (Join-Path -Path $PSScriptRoot -ChildPath "../Common-ScriptHelpers.psm1") -Force
+$dir = $PSScriptRoot
+while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
+    $dir = Split-Path -Parent $dir
+}
+Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 
 # Configuration - use project-root-relative path for reliability
 $ProjectRoot = Get-ProjectRoot
@@ -157,6 +170,7 @@ $StatusEmojis = @{
     "Fixed"      = "✅"
     "Closed"     = "🔒"
     "Reopened"   = "🔄"
+    "Rejected"   = "❌"
 }
 
 # Column index mapping for bug-tracking.md table rows
@@ -279,6 +293,9 @@ function Update-BugEntryContent {
         }
         "Reopened" {
             if ($UpdateData.ReopenReason) { $notes += "; Reopen Reason: $($UpdateData.ReopenReason)" }
+        }
+        "Rejected" {
+            if ($UpdateData.RejectionReason) { $notes += "; Rejected: $($UpdateData.RejectionReason)" }
         }
     }
 
@@ -523,6 +540,7 @@ function Main {
     if ($PullRequestUrl) { $updateData.PullRequestUrl = $PullRequestUrl }
     if ($VerificationNotes) { $updateData.VerificationNotes = $VerificationNotes }
     if ($ReopenReason) { $updateData.ReopenReason = $ReopenReason }
+    if ($RejectionReason) { $updateData.RejectionReason = $RejectionReason }
 
     # Validate required parameters for specific status transitions
     switch ($NewStatus) {
@@ -553,6 +571,12 @@ function Main {
                 exit 1
             }
         }
+        "Rejected" {
+            if (-not $RejectionReason) {
+                Write-Log "RejectionReason is required when transitioning to Rejected status" -Level "ERROR"
+                exit 1
+            }
+        }
     }
 
     if (-not $PSCmdlet.ShouldProcess($BugTrackingFile, "Update $BugId to $NewStatus")) {
@@ -569,8 +593,8 @@ function Main {
         exit 1
     }
 
-    # Step 2: When closing, move the row to the Closed Bugs section
-    if ($NewStatus -eq "Closed") {
+    # Step 2: When closing or rejecting, move the row to the Closed Bugs section
+    if ($NewStatus -eq "Closed" -or $NewStatus -eq "Rejected") {
         $content = Move-BugToClosedSectionContent -Content $content -BugId $BugId
         if ($null -eq $content) {
             Write-Log "Failed to move bug $BugId to Closed section" -Level "ERROR"

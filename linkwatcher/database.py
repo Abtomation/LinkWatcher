@@ -7,6 +7,7 @@ the need to scan all files every time a change occurs.
 
 import os
 import threading
+from abc import ABC, abstractmethod
 from datetime import datetime
 from typing import Dict, List, Optional, Set
 
@@ -15,7 +16,77 @@ from .models import LinkReference
 from .utils import normalize_path
 
 
-class LinkDatabase:
+class LinkDatabaseInterface(ABC):
+    """Abstract interface for link database implementations.
+
+    Defines the contract that any link storage backend must implement.
+    Consumers should type-hint against this interface rather than
+    the concrete LinkDatabase class.
+    """
+
+    @property
+    @abstractmethod
+    def last_scan(self) -> Optional[float]:
+        """Timestamp of the last full scan, or None."""
+        ...
+
+    @last_scan.setter
+    @abstractmethod
+    def last_scan(self, value: Optional[float]):
+        ...
+
+    @abstractmethod
+    def add_link(self, reference: LinkReference):
+        """Add a link reference to the database."""
+        ...
+
+    @abstractmethod
+    def remove_file_links(self, file_path: str):
+        """Remove all links from a specific file."""
+        ...
+
+    @abstractmethod
+    def get_references_to_file(self, file_path: str) -> List[LinkReference]:
+        """Get all references pointing to a specific file."""
+        ...
+
+    @abstractmethod
+    def update_target_path(self, old_path: str, new_path: str):
+        """Update the target path for all references."""
+        ...
+
+    @abstractmethod
+    def remove_targets_by_path(self, old_path: str) -> int:
+        """Remove all target entries whose key normalizes to old_path."""
+        ...
+
+    @abstractmethod
+    def get_references_to_directory(self, dir_path: str) -> List[LinkReference]:
+        """Get all references whose target matches a directory path."""
+        ...
+
+    @abstractmethod
+    def get_all_targets_with_references(self) -> Dict[str, List[LinkReference]]:
+        """Return a snapshot copy of all targets and their references."""
+        ...
+
+    @abstractmethod
+    def get_source_files(self) -> Set[str]:
+        """Return a copy of the set of files that contain links."""
+        ...
+
+    @abstractmethod
+    def clear(self):
+        """Clear all data from the database."""
+        ...
+
+    @abstractmethod
+    def get_stats(self) -> Dict[str, int]:
+        """Get database statistics."""
+        ...
+
+
+class LinkDatabase(LinkDatabaseInterface):
     """
     In-memory database of file links for fast lookups and updates.
     This replaces the need to scan all files every time.
@@ -24,9 +95,18 @@ class LinkDatabase:
     def __init__(self):
         self.links: Dict[str, List[LinkReference]] = {}  # target_file -> [references]
         self.files_with_links: Set[str] = set()  # files that contain links
-        self.last_scan: Optional[datetime] = None
+        self._last_scan: Optional[float] = None
         self._lock = threading.Lock()
         self.logger = get_logger()
+
+    @property
+    def last_scan(self) -> Optional[float]:
+        """Timestamp of the last full scan, or None."""
+        return self._last_scan
+
+    @last_scan.setter
+    def last_scan(self, value: Optional[float]):
+        self._last_scan = value
 
     def add_link(self, reference: LinkReference):
         """Add a link reference to the database."""

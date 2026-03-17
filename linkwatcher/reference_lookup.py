@@ -16,7 +16,7 @@ from pathlib import Path
 
 from colorama import Fore
 
-from .database import LinkDatabase
+from .database import LinkDatabaseInterface
 from .logging import get_logger
 from .parser import LinkParser
 from .updater import LinkUpdater
@@ -40,7 +40,7 @@ class ReferenceLookup:
 
     def __init__(
         self,
-        link_db: LinkDatabase,
+        link_db: LinkDatabaseInterface,
         parser: LinkParser,
         updater: LinkUpdater,
         project_root: Path,
@@ -569,15 +569,9 @@ class ReferenceLookup:
             # When old_dir is empty (file at root), source == root resolution,
             # so we can't distinguish — fall through to source-relative (safe).
             if old_dir and not original_target.startswith(("./", "../")):
-                root_resolved = os.path.join(
-                    str(self.project_root), original_target
-                )
-                source_resolved = os.path.join(
-                    str(self.project_root), old_dir, original_target
-                )
-                if os.path.exists(root_resolved) and not os.path.exists(
-                    source_resolved
-                ):
+                root_resolved = os.path.join(str(self.project_root), original_target)
+                source_resolved = os.path.join(str(self.project_root), old_dir, original_target)
+                if os.path.exists(root_resolved) and not os.path.exists(source_resolved):
                     return original_target
 
             # Convert the original relative target to an absolute path from the old location
@@ -592,9 +586,7 @@ class ReferenceLookup:
             # PD-BUG-033: Skip non-existent targets — if the resolved path doesn't
             # exist as a file or directory, the extracted "link" was never a real path
             # (e.g., regex patterns, filter strings, example text in PowerShell scripts).
-            abs_target_check = os.path.join(
-                str(self.project_root), old_absolute_target
-            )
+            abs_target_check = os.path.join(str(self.project_root), old_absolute_target)
             if not os.path.exists(abs_target_check):
                 return original_target
 

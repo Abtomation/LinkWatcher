@@ -6,8 +6,9 @@ specialized parsers based on file type.
 """
 
 import os
-from typing import List
+from typing import List, Optional
 
+from .config.settings import LinkWatcherConfig
 from .logging import LogTimer, get_logger
 from .models import LinkReference
 from .parsers import (
@@ -27,19 +28,30 @@ class LinkParser:
     This provides a unified interface while delegating to specialized parsers.
     """
 
-    def __init__(self):
-        self.parsers = {
-            ".md": MarkdownParser(),
-            ".yaml": YamlParser(),
-            ".yml": YamlParser(),
-            ".json": JsonParser(),
-            ".dart": DartParser(),
-            ".py": PythonParser(),
-            ".ps1": PowerShellParser(),
-            ".psm1": PowerShellParser(),
-        }
-        self.generic_parser = GenericParser()
+    def __init__(self, config: Optional[LinkWatcherConfig] = None):
+        self.parsers = {}
         self.logger = get_logger()
+
+        if config is None or config.enable_markdown_parser:
+            self.parsers[".md"] = MarkdownParser()
+        if config is None or config.enable_yaml_parser:
+            yaml_parser = YamlParser()
+            self.parsers[".yaml"] = yaml_parser
+            self.parsers[".yml"] = yaml_parser
+        if config is None or config.enable_json_parser:
+            self.parsers[".json"] = JsonParser()
+        if config is None or config.enable_dart_parser:
+            self.parsers[".dart"] = DartParser()
+        if config is None or config.enable_python_parser:
+            self.parsers[".py"] = PythonParser()
+        if config is None or config.enable_powershell_parser:
+            ps_parser = PowerShellParser()
+            self.parsers[".ps1"] = ps_parser
+            self.parsers[".psm1"] = ps_parser
+
+        self.generic_parser = (
+            GenericParser() if (config is None or config.enable_generic_parser) else None
+        )
 
     def parse_file(self, file_path: str) -> List[LinkReference]:
         """Parse a file and extract all link references."""
@@ -56,12 +68,15 @@ class LinkParser:
                         parser_type=type(parser).__name__,
                     )
                     return parser.parse_file(file_path)
-                else:
+                elif self.generic_parser is not None:
                     # Fall back to generic parser
                     self.logger.debug(
                         "using_generic_parser", file_path=file_path, file_ext=file_ext
                     )
                     return self.generic_parser.parse_file(file_path)
+                else:
+                    self.logger.debug("no_parser_available", file_path=file_path, file_ext=file_ext)
+                    return []
 
         except Exception as e:
             self.logger.warning(
@@ -92,12 +107,15 @@ class LinkParser:
                         parser_type=type(parser).__name__,
                     )
                     return parser.parse_content(content, file_path)
-                else:
+                elif self.generic_parser is not None:
                     # Fall back to generic parser
                     self.logger.debug(
                         "using_generic_parser", file_path=file_path, file_ext=file_ext
                     )
                     return self.generic_parser.parse_content(content, file_path)
+                else:
+                    self.logger.debug("no_parser_available", file_path=file_path, file_ext=file_ext)
+                    return []
 
         except Exception as e:
             self.logger.warning(

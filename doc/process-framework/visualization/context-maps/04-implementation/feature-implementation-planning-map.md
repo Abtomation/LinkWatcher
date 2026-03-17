@@ -124,7 +124,7 @@ graph TD
 1. **Load Feature Context**: Read feature-tracking.md to get feature ID, complexity tier, design document links
 2. **Read Design Documents**: Review TDD (required), FDD (if applicable), and other design docs for implementation guidance
 3. **Understand Templates**: Read feature-implementation-state-template.md to understand permanent state tracking structure
-4. **Reference Guide**: Use [implementation-plan-customization-guide.md](../../guides/guides/04-implementation/implementation-plan-customization-guide.md) for step-by-step customization instructions
+4. **Reference Guide**: Use [implementation-plan-customization-guide.md](../../../guides/04-implementation/implementation-plan-customization-guide.md) for step-by-step customization instructions
 
 ### During Planning
 1. **Use Automation Scripts**: Execute New-ImplementationPlan.ps1 and New-FeatureImplementationState.ps1 to create documents with proper IDs
@@ -140,9 +140,9 @@ graph TD
 ## Related Documentation
 
 - [Feature Implementation Planning Task (PF-TSK-044)](../../tasks/04-implementation/feature-implementation-planning-task.md) - Complete task definition with detailed process
-- [Implementation Plan Template (PF-TEM-042)](../../templates/templates/implementation-plan-template-template.md) - Template structure for implementation plans
-- [Implementation Plan Customization Guide (PF-GDE-046)](../../guides/guides/04-implementation/implementation-plan-customization-guide.md) - Step-by-step customization instructions
-- [Feature Implementation State Template (PF-TEM-037)](../../templates/templates/feature-implementation-state-template.md) - Permanent state tracking template
+- [Implementation Plan Template (PF-TEM-042)](../../../templates/04-implementation/implementation-plan-template-template.md) - Template structure for implementation plans
+- [Implementation Plan Customization Guide (PF-GDE-046)](../../../guides/04-implementation/implementation-plan-customization-guide.md) - Step-by-step customization instructions
+- [Feature Implementation State Template (PF-TEM-037)](../../../templates/04-implementation/feature-implementation-state-template.md) - Permanent state tracking template
 - [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Registry of all features and their status
 - [New-ImplementationPlan.ps1](../../scripts/file-creation/New-ImplementationPlan.ps1) - Script for creating implementation plans
 - [New-FeatureImplementationState.ps1](../../scripts/file-creation/New-FeatureImplementationState.ps1) - Script for creating feature state documents

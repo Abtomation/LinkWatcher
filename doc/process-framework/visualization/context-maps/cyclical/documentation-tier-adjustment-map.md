@@ -70,7 +70,7 @@ graph TD
 
 - [Original Tier Assessments](/doc/product-docs/documentation-tiers/assessments) - Repository of initial assessments
 - [Documentation Tiers README](/doc/product-docs/documentation-tiers/README.md) - Tier definitions and adjustment guidelines
-- [Assessment Guide](/doc/process-framework/guides/guides/01-planning/assessment-guide.md) - Detailed guide for tier determination
+- [Assessment Guide](/doc/process-framework/guides/03-testing/assessment-guide.md) - Detailed guide for tier determination
 - [TDD Templates](/doc/product-docs/technical/architecture/design-docs) - Tier-specific TDD templates
 - [Feature Tracking](../../../state-tracking/permanent/feature-tracking.md) - Feature status tracking
 - [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Complete reference of component relationships

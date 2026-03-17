@@ -35,10 +35,10 @@ Systematically validates foundational features for AI agent workflow continuity,
 
 - **Critical (Must Read):**
 
-  - **Foundational Validation Guide** - [Foundational Validation Guide](../../guides/guides/05-validation/foundational-validation-guide.md) - Comprehensive guide for conducting foundational codebase validation
+  - **Foundational Validation Guide** - [Foundational Validation Guide](../../guides/05-validation/foundational-validation-guide.md) - Comprehensive guide for conducting foundational codebase validation
   - **Feature Tracking** - [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Current status of foundational features to be validated
   - **Foundational Validation Tracking** - [Foundational Validation Tracking](../../state-tracking/temporary/foundational-validation-tracking.md) - Master validation matrix and progress tracking
-  - **Validation Report Template** - [Validation Report Template](../../templates/templates/validation-report-template.md) - Template for creating validation reports
+  - **Validation Report Template** - [Validation Report Template](../../templates/05-validation/validation-report-template.md) - Template for creating validation reports
   - **Process Framework Documentation** - [Documentation Map](../../documentation-map.md) - Structure and organization of process framework
 
 - **Important (Load If Space):**
@@ -47,21 +47,21 @@ Systematically validates foundational features for AI agent workflow continuity,
   - **Context Maps** - [Context Maps Directory](../../visualization/context-maps) - Visual guidance for AI agent task execution
   - **State Tracking Files** - [State Tracking Directory](../../state-tracking) - Session continuity and progress tracking patterns
   - **Codebase Structure** - [lib/ directory](../../../../lib) - Code organization and modular structure
-  - **New-ValidationReport Script** - [../../scripts/file-creation/New-ValidationReport.ps1](../../scripts/file-creation/New-ValidationReport.ps1) - Script for generating validation reports
+  - **New-ValidationReport Script** - [../../scripts/file-creation/05-validation/New-ValidationReport.ps1](../../scripts/file-creation/05-validation/New-ValidationReport.ps1) - Script for generating validation reports
   - **Component Relationship Index** - [Component Relationship Index](../../../product-docs/technical/architecture/component-relationship-index.md) - For understanding component interactions
 
 - **Reference Only (Access When Needed):**
   - **AI Tasks System** - [AI Tasks Registry](../../../ai-tasks.md) - Task discovery and selection patterns
   - **Template System** - [Templates Directory](../../templates) - Standardized document creation patterns
   - **Guide System** - [Guides Directory](../../guides) - Process guidance and best practices
-  - **Visual Notation Guide** - [Visual Notation Guide](../../guides/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
+  - **Visual Notation Guide** - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting context map diagrams
   - **ID Registry** - [ID Registry](../../../id-registry.json) - For understanding validation report ID assignments
 
 ## Process
 
 > **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished! 🚨**
 >
-> **⚠️ MANDATORY: Use the ../../scripts/file-creation/New-ValidationReport.ps1 script for generating validation reports.**
+> **⚠️ MANDATORY: Use the ../../scripts/file-creation/05-validation/New-ValidationReport.ps1 script for generating validation reports.**
 >
 > **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
 >
@@ -84,7 +84,7 @@ Systematically validates foundational features for AI agent workflow continuity,
 10. **Generate Validation Report**: Create detailed validation report using the automation script
    ```powershell
    # Navigate to validation directory and create AI agent continuity report
-   Set-Location "doc/process-framework/validation"
+   Set-Location "doc/product-docs/validation"
     ..\scripts\file-creation\New-ValidationReport.ps1 -ValidationType "AIAgentContinuity" -FeatureIds "workflow-optimization" -SessionNumber 1
    ```
 11. **Score Continuity Criteria**: Apply 4-point scoring system (0-3) to each AI agent continuity criterion
@@ -105,7 +105,7 @@ Systematically validates foundational features for AI agent workflow continuity,
 
 ## Outputs
 
-- **AI Agent Continuity Validation Report** - Detailed validation report with scoring and findings, created in `doc/process-framework/validation/reports/ai-agent-continuity/PF-VAL-XXX-ai-agent-continuity-workflow-optimization.md`
+- **AI Agent Continuity Validation Report** - Detailed validation report with scoring and findings, created in doc/product-docs/validation/reports/ai-agent-continuity/PF-VAL-XXX-ai-agent-continuity-workflow-optimization.md
 - **Updated Foundational Validation Tracking** - Matrix cell updated with report creation date and link in [Foundational Validation Tracking](../../state-tracking/temporary/foundational-validation-tracking.md)
 - **Workflow Bottleneck Analysis** - Comprehensive analysis of AI agent workflow obstacles and context gaps
 - **Continuity Gap Assessment** - Evaluation of session handoff effectiveness and multi-session workflow support
@@ -126,15 +126,15 @@ The following state files must be updated as part of this task:
 Before considering this task finished:
 
 - [ ] **Verify Outputs**: Confirm all required outputs have been produced
-  - [ ] AI Agent Continuity validation report generated using ../../scripts/file-creation/New-ValidationReport.ps1 script
+  - [ ] AI Agent Continuity validation report generated using ../../scripts/file-creation/05-validation/New-ValidationReport.ps1 script
   - [ ] Validation report contains comprehensive scoring (0-3 scale) for all continuity and workflow criteria
   - [ ] Workflow bottlenecks and context gaps documented with specific optimization recommendations
-  - [ ] Report saved in correct directory: `doc/process-framework/validation/reports/ai-agent-continuity/`
+  - [ ] Report saved in correct directory: `doc/product-docs/validation/reports/ai-agent-continuity`
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
   - [ ] [Foundational Validation Tracking](../../state-tracking/temporary/foundational-validation-tracking.md) matrix updated with report creation date and link
   - [ ] [Documentation Map](../../documentation-map.md) updated with new validation report entry
   - [ ] **AUTOMATED**: [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md) updated with new open issues using `Update-TechDebt.ps1`
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-036" and context "AI Agent Continuity Validation"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-036" and context "AI Agent Continuity Validation"
 
 ## Next Tasks
 

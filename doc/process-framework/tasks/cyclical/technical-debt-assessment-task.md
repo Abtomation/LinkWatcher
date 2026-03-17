@@ -42,7 +42,7 @@ Systematic approach to identifying, categorizing, and prioritizing technical deb
 - **Important (Load If Space):**
 
   - [Architecture Documentation](/doc/product-docs/technical/architecture/) - System architecture and design patterns
-  - [Coding Standards](/doc/process-framework/guides/guides/) - Project coding standards and best practices
+  - [Coding Standards](/doc/process-framework/guides/03-testing) - Project coding standards and best practices
   - **Test Coverage Reports** - Current test coverage metrics and gaps
   - [Bug Tracking](../../state-tracking/permanent/bug-tracking.md) - Known bugs that may indicate debt areas
   - [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Recent feature development that may have introduced debt
@@ -51,7 +51,7 @@ Systematic approach to identifying, categorizing, and prioritizing technical deb
   - **Performance Metrics** - Application performance data and bottlenecks
   - **Developer Feedback** - Team feedback on code maintainability and development friction
   - [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) - Process effectiveness metrics
-  - [Visual Notation Guide](/doc/process-framework/guides/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Visual Notation Guide](/doc/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 ## Process
 
@@ -191,7 +191,7 @@ Before considering this task finished:
   - [ ] **AUTOMATED**: Individual debt item files (PF-TDI-XXX) updated with registry IDs and marked as "Added" via automation
   - [ ] **MANUAL**: [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) updated with assessment effectiveness metrics
   - [ ] **MANUAL**: [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) updated with debt-related considerations (if applicable)
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-023" and context "Technical Debt Assessment"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-023" and context "Technical Debt Assessment"
 
 ## Next Tasks
 

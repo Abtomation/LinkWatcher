@@ -113,7 +113,7 @@ NEW 5.1.1: CI/CD & Development Tooling ← OLD 5.1.1–5.1.7
 
 - [x] **1.1** Rewrite `feature-tracking.md` with 9 consolidated features
   - **Status**: COMPLETED
-  - **File**: `doc/process-framework/state-tracking/permanent/feature-tracking.md`
+  - **File**: doc/process-framework/state-tracking/permanent/feature-tracking.md
   - **Action**: Complete rewrite — 9 features with new descriptions, key files, and linked artifacts
   - **Notes**: Each feature links to all relevant FDDs, TDDs, ADRs, test specs
 
@@ -228,7 +228,7 @@ NEW 5.1.1: CI/CD & Development Tooling ← OLD 5.1.1–5.1.7
 
 ### Phase 6: Feature State Files Cleanup
 
-- [x] **6.1** Confirm deletion of all 42 old feature state files in `doc/process-framework/state-tracking/features/`
+- [x] **6.1** Confirm deletion of all 42 old feature state files in `doc/process-framework/state-tracking/features`
   - **Status**: COMPLETED
   - **Notes**: Directory is empty — files were already deleted. Staged for deletion in git.
 

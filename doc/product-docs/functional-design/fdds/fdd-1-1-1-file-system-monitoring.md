@@ -56,7 +56,7 @@ retrospective: true
 ### Core Functionality
 
 - **1.1.1-FR-1**: The system SHALL detect when a file is moved or renamed and automatically update all links in other files that reference the moved file
-- **1.1.1-FR-2**: The system SHALL detect when a directory is moved or renamed and automatically update all links in other files that reference any file within the moved directory, as well as references to the directory path itself (e.g., quoted directory paths in scripts)
+- **1.1.1-FR-2**: The system SHALL detect when a directory is moved or renamed and automatically update all links in other files that reference any file within the moved directory, references to the directory path itself, and references to parent/ancestor directory paths that are prefixes of the moved directory (e.g., a reference to `validation/reports` is updated when `validation/reports/code-quality/` moves)
 - **1.1.1-FR-3**: The system SHALL detect when a file is deleted and report all broken links that still reference the deleted file
 - **1.1.1-FR-4**: The system SHALL detect moves reported as delete+create pairs (by tools that don't use native move events) and process them as moves rather than separate delete and create operations
 - **1.1.1-FR-5**: The system SHALL scan newly created files and add their links to the database so their references are tracked going forward
@@ -77,7 +77,7 @@ retrospective: true
 - **1.1.1-BR-2**: Delete events are held for 10 seconds before processing; if a matching create event arrives within that window, the pair is processed as a move (not a delete+create)
 - **1.1.1-BR-3**: After a file move, the moved file itself is rescanned to rebuild its own link entries in the database, ensuring the database reflects the file's new location
 - **1.1.1-BR-4**: Duplicate events for the same file operation are detected and deduplicated to prevent processing the same move multiple times
-- **1.1.1-BR-5**: Directory moves process every file within the moved directory individually — each file's references are updated based on the calculated old→new path mapping. Additionally, references to the directory path itself in the link database are updated to the new path.
+- **1.1.1-BR-5**: Directory moves process every file within the moved directory individually — each file's references are updated based on the calculated old→new path mapping. Additionally, references to the directory path itself in the link database are updated to the new path. References to parent/ancestor directory paths (paths that are prefixes of the moved directory) are also updated via prefix replacement.
 - **1.1.1-BR-6**: File content changes (on_modified events) do not trigger link maintenance — LinkWatcher only responds to structural file path changes
 
 ## User Experience Flow

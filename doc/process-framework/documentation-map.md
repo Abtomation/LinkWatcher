@@ -78,55 +78,55 @@ Our tasks are organized into four categories and follow a unified structure:
 - [Process: Feature Tracking](state-tracking/permanent/feature-tracking.md) - Comprehensive list of all features with implementation status
 - [Process: Test Tracking](state-tracking/permanent/test-tracking.md) - Tracks implementation status of test cases derived from test specifications
 - [Process: Test Registry](/test/test-registry.yaml) - Registry of all test files with feature mappings, cross-cutting support, and PD-TST IDs
-- [Process: Definition of Done](guides/guides/04-implementation/definition-of-done.md) - Clear criteria for when a feature is considered complete
+- [Process: Definition of Done](guides/04-implementation/definition-of-done.md) - Clear criteria for when a feature is considered complete
 - [Process: Technical Debt Tracking](state-tracking/permanent/technical-debt-tracking.md) - System for tracking and managing technical debt
 - [Process: Foundational Validation Tracking](state-tracking/temporary/foundational-validation-tracking.md) - Master tracking for foundational codebase validation across all validation types
-- [Process: Feature Implementation Template](templates/templates/feature-implementation-template.md) - Template for planning and implementing features
-- [Process: Implementation Plan Template](templates/templates/implementation-plan-template.md) - Template for creating implementation plan documents that define sequenced execution strategies for feature implementation
-- [Process: Foundation Feature Template](templates/templates/foundation-feature-template.md) - Template for foundation feature structure and architectural documentation
-- [Process: FDD Template](templates/templates/fdd-template.md) - Template for creating Functional Design Documents
-- [Process: UI Design Template](templates/templates/ui-design-template.md) - Comprehensive template for creating UI/UX Design Documents with wireframes, visual specifications, accessibility requirements, and platform adaptations
-- [Process: Architecture Impact Assessment Template](templates/templates/architecture-impact-assessment-template.md) - Template for creating architecture impact assessments
-- [Process: API Specification Template](templates/templates/02-design/api-specification-template.md) - Template for creating comprehensive API contract definitions
-- [Process: Schema Design Template](templates/templates/schema-design-template.md) - Template for database schema design documents
-- [Process: Test Audit Report Template](templates/templates/test-audit-report-template.md) - Template for systematic test quality assessment reports
-- [Process: Feedback Form Template](templates/templates/feedback-form-template.md) - Template for creating tool and process feedback forms
-- [Process: Feedback DB Input Template](templates/templates/feedback-db-input-template.json) - JSON reference template for `feedback_db.py record --json` input format
-- [Process: Tools Review Summary Template](templates/templates/tools-review-summary-template.md) - Standardized template for Tools Review task (PF-TSK-010) summary output documents
-- [Process: Technical Debt Assessment Template](templates/templates/technical-debt-assessment-template.md) - Template for technical debt assessment reports
-- [Process: Debt Item Template](templates/templates/debt-item-template.md) - Template for individual debt item records
-- [Process: Prioritization Matrix Template](templates/templates/prioritization-matrix-template.md) - Template for debt prioritization matrices
-- [Process: Temporary Task Creation State Template](templates/templates/temp-task-creation-state-template.md) - Template for tracking multi-session task creation implementation
-- [Process: Structure Change State Template](templates/templates/structure-change-state-template.md) - Template for tracking multi-session structure change implementation
-- [Process: Enhancement State Tracking Template](templates/templates/enhancement-state-tracking-template-template.md) - Template for tracking enhancement work on existing features, used by New-EnhancementState.ps1
-- [Process: Bug Fix State Tracking Template](templates/templates/bug-fix-state-tracking-template.md) - Template for tracking multi-session complex bug fix work, used by New-BugFixState.ps1
-- [Process: Framework Extension Concept Template](templates/templates/framework-extension-concept-template.md) - Template for creating framework extension concept documents
-- [Process: Validation Report Template](templates/templates/validation-report-template.md) - Template for creating foundational codebase validation reports
-- [Process: Cross-Cutting Test Specification Template](templates/templates/cross-cutting-test-specification-template.md) - Template for test specifications spanning multiple features
-- [Process: Manual Master Test Template](templates/templates/manual-master-test-template.md) - Template for group-level master test files with quick validation sequences
-- [Process: Manual Test Case Template](templates/templates/manual-test-case-template.md) - Template for individual manual test case files with exact steps, preconditions, and expected outcomes
-- [Process: Documentation-Only Refactoring Plan Template](templates/templates/documentation-refactoring-plan-template.md) - Template for documentation-only refactoring plans (no code metrics/test sections), used by New-RefactoringPlan.ps1 -DocumentationOnly
+- [Process: Feature Implementation Template](templates/04-implementation/feature-implementation-template.md) - Template for planning and implementing features
+- [Process: Implementation Plan Template](templates/04-implementation/implementation-plan-template-template.md) - Template for creating implementation plan documents that define sequenced execution strategies for feature implementation
+- [Process: Foundation Feature Template](templates/04-implementation/foundation-feature-template.md) - Template for foundation feature structure and architectural documentation
+- [Process: FDD Template](templates/02-design/fdd-template.md) - Template for creating Functional Design Documents
+- [Process: UI Design Template](templates/02-design/ui-design-template.md) - Comprehensive template for creating UI/UX Design Documents with wireframes, visual specifications, accessibility requirements, and platform adaptations
+- [Process: Architecture Impact Assessment Template](templates/02-design/architecture-impact-assessment-template.md) - Template for creating architecture impact assessments
+- [Process: API Specification Template](templates/02-design/api-specification-template.md) - Template for creating comprehensive API contract definitions
+- [Process: Schema Design Template](templates/02-design/schema-design-template.md) - Template for database schema design documents
+- [Process: Test Audit Report Template](templates/03-testing/test-audit-report-template.md) - Template for systematic test quality assessment reports
+- [Process: Feedback Form Template](templates/support/feedback-form-template.md) - Template for creating tool and process feedback forms
+- [Process: Feedback DB Input Template](templates/support/feedback-db-input-template.json) - JSON reference template for `feedback_db.py record --json` input format
+- [Process: Tools Review Summary Template](templates/support/tools-review-summary-template.md) - Standardized template for Tools Review task (PF-TSK-010) summary output documents
+- [Process: Technical Debt Assessment Template](templates/cyclical/technical-debt-assessment-template.md) - Template for technical debt assessment reports
+- [Process: Debt Item Template](templates/cyclical/debt-item-template.md) - Template for individual debt item records
+- [Process: Prioritization Matrix Template](templates/cyclical/prioritization-matrix-template.md) - Template for debt prioritization matrices
+- [Process: Temporary Task Creation State Template](templates/support/temp-task-creation-state-template.md) - Template for tracking multi-session task creation implementation
+- [Process: Structure Change State Template](templates/support/structure-change-state-template.md) - Template for tracking multi-session structure change implementation
+- [Process: Enhancement State Tracking Template](templates/04-implementation/enhancement-state-tracking-template-template.md) - Template for tracking enhancement work on existing features, used by New-EnhancementState.ps1
+- [Process: Bug Fix State Tracking Template](templates/06-maintenance/bug-fix-state-tracking-template.md) - Template for tracking multi-session complex bug fix work, used by New-BugFixState.ps1
+- [Process: Framework Extension Concept Template](templates/support/framework-extension-concept-template.md) - Template for creating framework extension concept documents
+- [Process: Validation Report Template](templates/05-validation/validation-report-template.md) - Template for creating foundational codebase validation reports
+- [Process: Cross-Cutting Test Specification Template](templates/03-testing/cross-cutting-test-specification-template.md) - Template for test specifications spanning multiple features
+- [Process: Manual Master Test Template](templates/03-testing/manual-master-test-template.md) - Template for group-level master test files with quick validation sequences
+- [Process: Manual Test Case Template](templates/03-testing/manual-test-case-template.md) - Template for individual manual test case files with exact steps, preconditions, and expected outcomes
+- [Process: Documentation-Only Refactoring Plan Template](templates/06-maintenance/documentation-refactoring-plan-template.md) - Template for documentation-only refactoring plans (no code metrics/test sections), used by New-RefactoringPlan.ps1 -DocumentationOnly
 - [Process: Enhancement Workflow Concept](proposals/proposals/enhancement-workflow-concept.md) - Framework extension concept for feature enhancement classification and execution workflow
 - [Process: Code Quality Standards Validation Concept](proposals/code-quality-standards-validation-concept.md) - Concept document for code quality validation task creation
-- [Process: Database Schema Design Task Usage Guide](guides/guides/database-schema-design-task-usage-guide.md) - Comprehensive guide for using the Database Schema Design Task effectively
-- [Process: Feature Implementation Planning Task Usage Guide](guides/guides/feature-implementation-planning-task-usage-guide.md) - Comprehensive guide for using the Feature Implementation Planning Task effectively to create detailed implementation plans
-- [Process: Foundation Feature Implementation Usage Guide](guides/guides/04-implementation/foundation-feature-implementation-usage-guide.md) - Comprehensive guide for using the Foundation Feature Implementation task effectively
-- [Process: Test Audit Usage Guide](guides/guides/03-testing/test-audit-usage-guide.md) - Comprehensive guide for conducting systematic test quality assessments
-- [Process: Feedback Form Guide](guides/guides/framework/feedback-form-guide.md) - Comprehensive guide for completing feedback forms effectively
-- [Process: Feedback Form Completion Instructions](guides/guides/framework/feedback-form-completion-instructions.md) - Standardized instructions for completing feedback forms (referenced by all tasks)
-- [Process: Task Transition Guide](guides/guides/framework/task-transition-guide.md) - Guidance on when and how to transition between related tasks
+- [Process: Foundation Feature Implementation Usage Guide](guides/04-implementation/foundation-feature-implementation-usage-guide.md) - Comprehensive guide for using the Foundation Feature Implementation task effectively
+- [Process: Test Audit Usage Guide](guides/03-testing/test-audit-usage-guide.md) - Comprehensive guide for conducting systematic test quality assessments
+- [Process: Test Infrastructure Guide](guides/test-infrastructure-guide.md) - How the test/ directory connects to the process framework — directory conventions, automation scripts, and tracking relationships
+- [Process: Feedback Form Guide](guides/framework/feedback-form-guide.md) - Comprehensive guide for completing feedback forms effectively
+- [Process: Feedback Form Completion Instructions](guides/framework/feedback-form-completion-instructions.md) - Standardized instructions for completing feedback forms (referenced by all tasks)
+- [Process: Task Transition Guide](guides/framework/task-transition-guide.md) - Guidance on when and how to transition between related tasks
 
 ### Automation Scripts
 
-- [Process: New Manual Test Case Script](scripts/file-creation/New-ManualTestCase.ps1) - PowerShell script for creating manual test case directories with auto-assigned MT IDs, state tracking updates, and master test integration
-- [Process: New Bug Report Script](scripts/file-creation/New-BugReport.ps1) - PowerShell script for creating standardized bug reports during task execution
-- [Process: New Bug Fix State Script](scripts/file-creation/New-BugFixState.ps1) - PowerShell script for creating multi-session bug fix state tracking files (Large-effort bugs)
-- [Process: New UI Design Script](scripts/file-creation/New-UIDesign.ps1) - PowerShell script for creating UI/UX Design documents with auto-assigned IDs and Design Guidelines references
-- [Process: New Test Specification Script](scripts/file-creation/New-TestSpecification.ps1) - PowerShell script for creating test specifications (supports both feature-specific and cross-cutting modes via -CrossCutting switch)
-- [Process: New Process Improvement Script](scripts/file-creation/New-ProcessImprovement.ps1) - PowerShell script for adding new improvement opportunities to process-improvement-tracking.md with auto-assigned PF-IMP IDs
+- [Process: New Manual Test Case Script](scripts/file-creation/03-testing/New-ManualTestCase.ps1) - PowerShell script for creating manual test case directories with auto-assigned MT IDs, state tracking updates, and master test integration
+- [Process: New Bug Report Script](scripts/file-creation/06-maintenance/New-BugReport.ps1) - PowerShell script for creating standardized bug reports during task execution
+- [Process: New Bug Fix State Script](scripts/file-creation/06-maintenance/New-BugFixState.ps1) - PowerShell script for creating multi-session bug fix state tracking files (Large-effort bugs)
+- [Process: New UI Design Script](scripts/file-creation/02-design/New-UIDesign.ps1) - PowerShell script for creating UI/UX Design documents with auto-assigned IDs and Design Guidelines references
+- [Process: New Test Specification Script](scripts/file-creation/03-testing/New-TestSpecification.ps1) - PowerShell script for creating test specifications (supports both feature-specific and cross-cutting modes via -CrossCutting switch)
+- [Process: New Process Improvement Script](scripts/file-creation/support/New-ProcessImprovement.ps1) - PowerShell script for adding new improvement opportunities to process-improvement-tracking.md with auto-assigned PF-IMP IDs
 
 ### Testing Scripts
 
+- [Process: Run-Tests Script](scripts/test/Run-Tests.ps1) - Project-agnostic test runner that reads project-config.json and wraps pytest with category-based execution (-Unit, -Integration, -Parsers, -Performance, -All, -Coverage)
 - [Process: Setup-TestEnvironment Script](scripts/test/manual-testing/Setup-TestEnvironment.ps1) - Copies pristine test fixtures into workspace for clean manual test execution
 - [Process: Verify-TestResult Script](scripts/test/manual-testing/Verify-TestResult.ps1) - Compares workspace state against expected state after manual test execution
 - [Process: Update-TestExecutionStatus Script](scripts/test/manual-testing/Update-TestExecutionStatus.ps1) - Updates test-tracking.md and feature-tracking.md with manual test execution results
@@ -151,46 +151,48 @@ These documents describe what we're building:
 - [Product: Roadmap](../product-docs/technical/implementation/roadmap.md) - Strategic plan for implementation organized by phase and priority
 - [Product: Feature Dependencies](../product-docs/technical/design/feature-dependencies.md) - Visual map and matrix of feature dependencies
 
+### User Handbooks
+
+- [Product: File Type Quick Fix](../product-docs/user/handbooks/file-type-quick-fix.md) - Quick solutions for adding file type monitoring support
+- [Product: Troubleshooting File Types](../product-docs/user/handbooks/troubleshooting-file-types.md) - Detailed diagnosis and fixes for file type monitoring issues
+
 ### Process Framework Guides
 
-- [Process: Development Guide](guides/guides/04-implementation/development-guide.md) - Best practices and guidelines for development
-- [Process: Documentation Guide](guides/guides/05-validation/documentation-guide.md) - Guidelines for documentation
-- [Process: Testing Guide](../product-docs/guides/guides/testing-guide.md) - Guide for testing the application
-- [Process: Assessment Guide](guides/guides/01-planning/assessment-guide.md) - Guide for feature tier assessment
-- [Process: Visual Notation Guide](guides/guides/support/visual-notation-guide.md) - Standard notation used in diagrams and context maps
-- [Process: Temporary State File Customization Guide](guides/guides/support/temp-state-tracking-customization-guide.md) - Guide for customizing temporary state files for different workflows
-- [Process: Test Specification Creation Usage Guide](guides/guides/test-specification-creation-usage-guide.md) - Comprehensive guide for using the Test Specification Creation task effectively
-- [Process: Integration & Testing Usage Guide](guides/guides/03-testing/test-implementation-usage-guide.md) - Comprehensive guide for using the Integration & Testing task (PF-TSK-053) effectively
-- [Process: System Architecture Review Usage Guide](guides/guides/system-architecture-review-usage-guide.md) - Comprehensive guide for using the System Architecture Review task effectively
-- [Process: Architectural Framework Usage Guide](guides/guides/01-planning/architectural-framework-usage-guide.md) - Step-by-step guide for using the Architectural Integration Framework to manage cross-cutting architectural work
-- [Process: API Design Task Usage Guide](guides/guides/api-design-task-usage-guide.md) - Comprehensive guide for using the API Design Task effectively
-- [Process: Code Refactoring Task Usage Guide](guides/guides/06-maintenance/code-refactoring-task-usage-guide.md) - Comprehensive guide for using the Code Refactoring Task effectively
+- [Process: Development Guide](guides/04-implementation/development-guide.md) - Best practices and guidelines for development
+- [Process: Documentation Guide](guides/05-validation/documentation-guide.md) - Guidelines for documentation
+- [Process: Assessment Guide](guides/01-planning/assessment-guide.md) - Guide for feature tier assessment
+- [Process: Visual Notation Guide](guides/support/visual-notation-guide.md) - Standard notation used in diagrams and context maps
+- [Process: Temporary State File Customization Guide](guides/support/temp-state-tracking-customization-guide.md) - Guide for customizing temporary state files for different workflows
+- [Process: Test Specification Creation Guide](guides/03-testing/test-specification-creation-guide.md) - Comprehensive guide for using the Test Specification Creation task effectively
+- [Process: Integration & Testing Usage Guide](guides/03-testing/test-implementation-usage-guide.md) - Comprehensive guide for using the Integration & Testing task (PF-TSK-053) effectively
+- [Process: Architectural Framework Usage Guide](guides/01-planning/architectural-framework-usage-guide.md) - Step-by-step guide for using the Architectural Integration Framework to manage cross-cutting architectural work
+- [Process: Code Refactoring Task Usage Guide](guides/06-maintenance/code-refactoring-task-usage-guide.md) - Comprehensive guide for using the Code Refactoring Task effectively
 
-- [Process: Assessment Criteria Guide](guides/guides/cyclical/assessment-criteria-guide.md) - Detailed criteria for identifying technical debt
-- [Process: Prioritization Guide](guides/guides/cyclical/prioritization-guide.md) - Guide for applying impact/effort matrix to prioritize debt
-- [Process: Guide Creation Best Practices Guide](guides/guides/support/guide-creation-best-practices-guide.md) - Best practices for creating effective guides within the task framework
-- [Process: Debt Item Creation Guide](guides/guides/cyclical/debt-item-creation-guide.md) - Guide for customizing technical debt item templates
-- [Process: State File Creation Guide](guides/guides/support/state-file-creation-guide.md) - Guide for customizing state tracking file templates
-- [Process: Test File Creation Guide](guides/guides/03-testing/test-file-creation-guide.md) - Guide for customizing test file templates
-- [Process: Test Specification Creation Guide](guides/guides/03-testing/test-specification-creation-guide.md) - Guide for customizing test specification templates
-- [Process: TDD Creation Guide](guides/guides/02-design/tdd-creation-guide.md) - Guide for customizing Technical Design Document templates
-- [Process: FDD Customization Guide](guides/guides/02-design/fdd-customization-guide.md) - Guide for customizing Functional Design Document templates
-- [Process: UI Design Customization Guide](guides/guides/02-design/ui-design-customization-guide.md) - 19-step guide across 6 phases for customizing UI/UX Design Document templates with tiered examples
-- [Process: API Data Model Creation Guide](guides/guides/02-design/api-data-model-creation-guide.md) - Guide for customizing API data model templates
-- [Process: API Specification Creation Guide](guides/guides/02-design/api-specification-creation-guide.md) - Guide for customizing API specification templates
-- [Process: Architecture Assessment Creation Guide](guides/guides/02-design/architecture-assessment-creation-guide.md) - Guide for customizing architecture assessment templates
-- [Process: Architecture Decision Creation Guide](guides/guides/02-design/architecture-decision-creation-guide.md) - Guide for customizing Architecture Decision Record templates
-- [Process: Schema Design Creation Guide](guides/guides/02-design/schema-design-creation-guide.md) - Guide for customizing database schema design templates
-- [Process: Enhancement State Tracking Customization Guide](guides/guides/04-implementation/enhancement-state-tracking-customization-guide.md) - Step-by-step instructions for customizing Enhancement State Tracking files
-- [Process: Manual Test Case Customization Guide](guides/guides/03-testing/manual-test-case-customization-guide.md) - Step-by-step instructions for customizing manual test case and master test templates created by New-ManualTestCase.ps1
-- [Process: Framework Extension Customization Guide](guides/guides/support/framework-extension-customization-guide.md) - Essential guide for customizing Framework Extension Concept documents
-- [Process: Foundational Validation Guide](guides/guides/05-validation/foundational-validation-guide.md) - Comprehensive guide for conducting foundational codebase validation using the 6-type validation framework
-- [Process: Bug Reporting Guide](guides/guides/06-maintenance/bug-reporting-guide.md) - Standardized procedures for reporting bugs discovered during task execution
+- [Process: Assessment Criteria Guide](guides/cyclical/assessment-criteria-guide.md) - Detailed criteria for identifying technical debt
+- [Process: Prioritization Guide](guides/cyclical/prioritization-guide.md) - Guide for applying impact/effort matrix to prioritize debt
+- [Process: Guide Creation Best Practices Guide](guides/support/guide-creation-best-practices-guide.md) - Best practices for creating effective guides within the task framework
+- [Process: Debt Item Creation Guide](guides/cyclical/debt-item-creation-guide.md) - Guide for customizing technical debt item templates
+- [Process: State File Creation Guide](guides/support/state-file-creation-guide.md) - Guide for customizing state tracking file templates
+- [Process: Test File Creation Guide](guides/03-testing/test-file-creation-guide.md) - Guide for customizing test file templates
+- [Process: Test Specification Creation Guide](guides/03-testing/test-specification-creation-guide.md) - Guide for customizing test specification templates
+- [Process: TDD Creation Guide](guides/02-design/tdd-creation-guide.md) - Guide for customizing Technical Design Document templates
+- [Process: FDD Customization Guide](guides/02-design/fdd-customization-guide.md) - Guide for customizing Functional Design Document templates
+- [Process: UI Design Customization Guide](guides/02-design/ui-design-customization-guide.md) - 19-step guide across 6 phases for customizing UI/UX Design Document templates with tiered examples
+- [Process: API Data Model Creation Guide](guides/02-design/api-data-model-creation-guide.md) - Guide for customizing API data model templates
+- [Process: API Specification Creation Guide](guides/02-design/api-specification-creation-guide.md) - Guide for customizing API specification templates
+- [Process: Architecture Assessment Creation Guide](guides/02-design/architecture-assessment-creation-guide.md) - Guide for customizing architecture assessment templates
+- [Process: Architecture Decision Creation Guide](guides/02-design/architecture-decision-creation-guide.md) - Guide for customizing Architecture Decision Record templates
+- [Process: Schema Design Creation Guide](guides/02-design/schema-design-creation-guide.md) - Guide for customizing database schema design templates
+- [Process: Enhancement State Tracking Customization Guide](guides/04-implementation/enhancement-state-tracking-customization-guide.md) - Step-by-step instructions for customizing Enhancement State Tracking files
+- [Process: Manual Test Case Customization Guide](guides/03-testing/manual-test-case-customization-guide.md) - Step-by-step instructions for customizing manual test case and master test templates created by New-ManualTestCase.ps1
+- [Process: Framework Extension Customization Guide](guides/support/framework-extension-customization-guide.md) - Essential guide for customizing Framework Extension Concept documents
+- [Process: Foundational Validation Guide](guides/05-validation/foundational-validation-guide.md) - Comprehensive guide for conducting foundational codebase validation using the 6-type validation framework
+- [Process: Bug Reporting Guide](guides/06-maintenance/bug-reporting-guide.md) - Standardized procedures for reporting bugs discovered during task execution
 
 ### Visualization Resources
 
 - [Context Maps README](visualization/context-maps/README.md) - Guide to using context maps for tasks
-- [Context Maps Template](templates/templates/support/context-map-template.md) - Template for creating new context maps
+- [Context Maps Template](templates/support/context-map-template.md) - Template for creating new context maps
 
 #### Discrete Task Context Maps
 
@@ -290,16 +292,28 @@ _Created during framework onboarding (PF-TSK-066 / PF-TSK-012) — documenting e
 
 _Created during foundational codebase validation (PF-TSK-031 through PF-TSK-036)._
 
-- [Validation: Architectural Consistency — Features 0.1.1–1.1.1 (PF-VAL-035)](validation/reports/architectural-consistency/PF-VAL-035-architectural-consistency-features-0.1.1-1.1.1.md) - Batch 1 — Design pattern adherence, ADR compliance, interface consistency (Score: 3.475/4.0 PASS)
-- [Validation: Architectural Consistency — Features 2.1.1–5.1.1 (PF-VAL-036)](validation/reports/architectural-consistency/PF-VAL-036-architectural-consistency-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) - Batch 2 — Design pattern adherence, ADR compliance, interface consistency (Score: 3.450/4.0 PASS)
-- [Validation: Code Quality — Features 0.1.1–1.1.1 (PF-VAL-037)](validation/reports/code-quality/PF-VAL-037-code-quality-features-0.1.1-0.1.2-0.1.3-1.1.1.md) - Batch 1 — Code style, complexity, error handling, SOLID principles, test coverage (Score: 3.050/4.0 PASS)
-- [Validation: Code Quality — Features 2.1.1–5.1.1 (PF-VAL-038)](validation/reports/code-quality/PF-VAL-038-code-quality-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) - Batch 2 — Code style, complexity, error handling, SOLID principles, test coverage (Score: 3.120/4.0 PASS)
-- [Validation: Integration Dependencies — Features 0.1.1–1.1.1 (PF-VAL-039)](validation/reports/integration-dependencies/PF-VAL-039-integration-dependencies-features-0.1.1-0.1.2-0.1.3-1.1.1.md) - Batch 1 — Component interfaces, dependency health, data flow, service integration, coupling (Score: 3.200/4.0 PASS)
-- [Validation: Integration Dependencies — Features 2.1.1–5.1.1 (PF-VAL-041)](validation/reports/integration-dependencies/PF-VAL-041-integration-dependencies-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) - Batch 2 — Component interfaces, dependency health, data flow, service integration, coupling (Score: 3.400/4.0 PASS)
-- [Validation: Documentation Alignment — Features 0.1.1–1.1.1 (PF-VAL-042)](validation/reports/documentation-alignment/PF-VAL-042-documentation-alignment-features-0.1.1-0.1.2-0.1.3-1.1.1.md) - Batch 1 — TDD alignment, ADR compliance, code comments, README accuracy, feature state files (Score: 2.55/4.0 PASS)
-- [Validation: Documentation Alignment — Features 2.1.1–5.1.1 (PF-VAL-043)](validation/reports/documentation-alignment/PF-VAL-043-documentation-alignment-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) - Batch 2 — TDD alignment, FDD accuracy, code comments, feature state files (Score: 2.24/4.0 PASS)
-- [Validation: Extensibility & Maintainability — All Features (PF-VAL-044)](validation/reports/extensibility-maintainability/PF-VAL-044-extensibility-maintainability-features-0.1.1-0.1.2-0.1.3-1.1.1-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) - All 9 features — Modularity, extension points, configuration flexibility, testing support, scalability (Score: 3.044/4.0 PASS)
-- [Validation: AI Agent Continuity — All Features (PF-VAL-045)](validation/reports/ai-agent-continuity/PF-VAL-045-ai-agent-continuity-features-0.1.1-0.1.2-0.1.3-1.1.1-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) - All 9 features — Context window optimization, documentation clarity, naming conventions, code readability, continuation points (Score: 3.244/4.0 PASS)
+- [Validation: Architectural Consistency — Features 0.1.1–1.1.1 (PF-VAL-035)](../product-docs/validation/reports/architectural-consistency/PF-VAL-035-architectural-consistency-features-0.1.1-1.1.1.md) - Batch 1 — Design pattern adherence, ADR compliance, interface consistency (Score: 3.475/4.0 PASS)
+- [Validation: Architectural Consistency — Features 2.1.1–5.1.1 (PF-VAL-036)](../product-docs/validation/reports/architectural-consistency/PF-VAL-036-architectural-consistency-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) - Batch 2 — Design pattern adherence, ADR compliance, interface consistency (Score: 3.450/4.0 PASS)
+- [Validation: Code Quality — Features 0.1.1–1.1.1 (PF-VAL-037)](../product-docs/validation/reports/code-quality/PF-VAL-037-code-quality-features-0.1.1-0.1.2-0.1.3-1.1.1.md) - Batch 1 — Code style, complexity, error handling, SOLID principles, test coverage (Score: 3.050/4.0 PASS)
+- [Validation: Code Quality — Features 2.1.1–5.1.1 (PF-VAL-038)](../product-docs/validation/reports/code-quality/PF-VAL-038-code-quality-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) - Batch 2 — Code style, complexity, error handling, SOLID principles, test coverage (Score: 3.120/4.0 PASS)
+- [Validation: Integration Dependencies — Features 0.1.1–1.1.1 (PF-VAL-039)](../product-docs/validation/reports/integration-dependencies/PF-VAL-039-integration-dependencies-features-0.1.1-0.1.2-0.1.3-1.1.1.md) - Batch 1 — Component interfaces, dependency health, data flow, service integration, coupling (Score: 3.200/4.0 PASS)
+- [Validation: Integration Dependencies — Features 2.1.1–5.1.1 (PF-VAL-041)](../product-docs/validation/reports/integration-dependencies/PF-VAL-041-integration-dependencies-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) - Batch 2 — Component interfaces, dependency health, data flow, service integration, coupling (Score: 3.400/4.0 PASS)
+- [Validation: Documentation Alignment — Features 0.1.1–1.1.1 (PF-VAL-042)](../product-docs/validation/reports/documentation-alignment/PF-VAL-042-documentation-alignment-features-0.1.1-0.1.2-0.1.3-1.1.1.md) - Batch 1 — TDD alignment, ADR compliance, code comments, README accuracy, feature state files (Score: 2.55/4.0 PASS)
+- [Validation: Documentation Alignment — Features 2.1.1–5.1.1 (PF-VAL-043)](../product-docs/validation/reports/documentation-alignment/PF-VAL-043-documentation-alignment-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) - Batch 2 — TDD alignment, FDD accuracy, code comments, feature state files (Score: 2.24/4.0 PASS)
+- [Validation: Extensibility & Maintainability — All Features (PF-VAL-044)](../product-docs/validation/reports/extensibility-maintainability/PF-VAL-044-extensibility-maintainability-features-0.1.1-0.1.2-0.1.3-1.1.1-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) - All 9 features — Modularity, extension points, configuration flexibility, testing support, scalability (Score: 3.044/4.0 PASS)
+- [Validation: AI Agent Continuity — All Features (PF-VAL-045)](../product-docs/validation/reports/ai-agent-continuity/PF-VAL-045-ai-agent-continuity-features-0.1.1-0.1.2-0.1.3-1.1.1-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) - All 9 features — Context window optimization, documentation clarity, naming conventions, code readability, continuation points (Score: 3.244/4.0 PASS)
+
+### Test Audit Reports
+
+_Created during test audit sessions (PF-TSK-030). Located in `test/audits/` (moved from `doc/product-docs/test-audits/` during SC-006 test directory consolidation)._
+
+- [Audit: Core Architecture 0.1.1 (PF-TAR-011)](../../test/audits/foundation/audit-report-0-1-1-pd-tst-102.md) - Foundation feature test quality assessment
+- [Audit: In-Memory Database 0.1.2 (PF-TAR-011)](../../test/audits/foundation/audit-report-0-1-2-pd-tst-104.md) - Database test quality assessment
+- [Audit: Configuration System 0.1.3](../../test/audits/foundation/audit-report-0-1-3-pd-tst-106.md) - Configuration test quality assessment
+- [Audit: File System Monitoring 1.1.1 (PF-TAR-012)](../../test/audits/authentication/audit-report-1-1-1-pd-tst-101.md) - File watching test quality assessment
+- [Audit: Link Parsing System 2.1.1 (PF-TAR-010)](../../test/audits/core-features/audit-report-2-1-1-pd-tst-103.md) - Parser test quality assessment
+- [Audit: Link Updating 2.2.1](../../test/audits/core-features/audit-report-2-2-1-pd-tst-105.md) - Updater test quality assessment
+- [Audit: Logging System 3.1.1](../../test/audits/core-features/audit-report-3-1-1-pd-tst-107.md) - Logging test quality assessment
 
 ## How to Use This Documentation
 
@@ -315,12 +329,12 @@ _Created during foundational codebase validation (PF-TSK-031 through PF-TSK-036)
 
 1. Follow the [Task: Feature Implementation Planning](tasks/04-implementation/feature-implementation-planning-task.md) process and the decomposed implementation tasks
 2. Document any intentional technical debt in the [Process: Technical Debt Tracking](state-tracking/permanent/technical-debt-tracking.md)
-4. Adhere to the guidelines in the [Process: Development Guide](guides/guides/04-implementation/development-guide.md)
+4. Adhere to the guidelines in the [Process: Development Guide](guides/04-implementation/development-guide.md)
 
 ### After Implementation
 
 1. Follow the [Task: Code Review](tasks/06-maintenance/code-review-task.md) process
-2. Verify your implementation against the [Process: Definition of Done](guides/guides/04-implementation/definition-of-done.md) criteria
+2. Verify your implementation against the [Process: Definition of Done](guides/04-implementation/definition-of-done.md) criteria
 3. Update the [Process: Feature Tracking](state-tracking/permanent/feature-tracking.md) document
 4. Use the [Task: Bug Fixing](tasks/06-maintenance/bug-fixing-task.md) process for any issues that arise
 5. Plan for addressing any technical debt created during implementation

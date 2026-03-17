@@ -113,11 +113,11 @@ graph TD
 - [Documentation Alignment Validation Task](../../../tasks/05-validation/documentation-alignment-validation.md) - Complete task definition and process
 - [Feature Tracking](../../../state-tracking/permanent/feature-tracking.md) - Current status of foundational features
 - [Foundational Validation Tracking](../../../state-tracking/temporary/foundational-validation-tracking.md) - Master validation matrix
-- [Validation Report Template](../../../templates/templates/validation-report-template.md) - Standardized report structure
+- [Validation Report Template](../../../templates/05-validation/validation-report-template.md) - Standardized report structure
 - [Technical Design Documents](../../../../product-docs/technical/design) - TDD directory for alignment validation
 - [Architecture Decision Records](../../../../product-docs/technical/architecture/decisions) - ADR directory for compliance validation
-- [../../scripts/file-creation/New-ValidationReport.ps1](../../../scripts/file-creation/New-ValidationReport.ps1) - Automation script for report generation
-- [Documentation Guide](../../../guides/guides/05-validation/documentation-guide.md) - Documentation standards and quality criteria
+- [../../scripts/file-creation/New-ValidationReport.ps1](../../../scripts/file-creation/05-validation/New-ValidationReport.ps1) - Automation script for report generation
+- [Documentation Guide](../../../guides/05-validation/documentation-guide.md) - Documentation standards and quality criteria
 
 ---
 

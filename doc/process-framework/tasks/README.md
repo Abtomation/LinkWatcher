@@ -131,10 +131,10 @@ Additional sections for specific task types:
 
 At the end of each task, feedback should be collected on the tools used during the task:
 
-1. **Create Feedback Form**: Use the [feedback form template](../templates/templates/feedback-form-template.md)
+1. **Create Feedback Form**: Use the [feedback form template](../templates/support/feedback-form-template.md)
 2. **Evaluate Tools**: Rate and provide comments on each tool's effectiveness, clarity, completeness, and efficiency
 3. **Suggest Improvements**: Document what worked well and what could be improved
-4. **Save Feedback**: Store the feedback form (artifact) in the `/doc/process-framework/feedback/feedback-forms/` directory with the naming convention `YYYYMMDD-HHMMSS-document-id-feedback.md`
+4. **Save Feedback**: Store the feedback form (artifact) in the `/doc/process-framework/feedback/feedback-forms` directory with the naming convention `YYYYMMDD-HHMMSS-document-id-feedback.md`
 
 > **Important**: Feedback forms are artifacts (using ART-FEE-XXX IDs), not documents. They evaluate documents (with [PREFIX]-XXX-XXX IDs).
 
@@ -163,14 +163,14 @@ State tracking is a core component of the task-based approach:
 To create a new task:
 
 1. Determine the appropriate task type (Discrete, Cyclical, Continuous, or Support)
-2. Use the [task template](../templates/templates/task-template.md)
+2. Use the [task template](../templates/support/task-template.md)
 3. Place the task in the appropriate subdirectory
 4. Focus on a specific, well-defined activity
 5. Include clear guidance on context, process, and outputs
 6. Ensure state tracking is properly defined
 7. Add the task to this index
 
-For detailed guidance on creating and improving tasks, refer to the [Task Creation and Improvement Guide](../guides/guides/support/task-creation-guide.md).
+For detailed guidance on creating and improving tasks, refer to the [Task Creation and Improvement Guide](../guides/support/task-creation-guide.md).
 
 ## Task Flow
 

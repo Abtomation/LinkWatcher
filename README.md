@@ -75,8 +75,8 @@ dev format
 | Document | Description |
 |----------|-------------|
 | [Multi-Project Setup](MULTI_PROJECT_SETUP.md) | Using across multiple projects |
-| [File Type Quick Fix](docs/FILE_TYPE_QUICK_FIX.md) | **Quick fix** for file types not being monitored |
-| [File Type Troubleshooting](docs/TROUBLESHOOTING_FILE_TYPES.md) | **Detailed guide** for file type monitoring issues |
+| [File Type Quick Fix](doc/product-docs/user/handbooks/file-type-quick-fix.md) | **Quick fix** for file types not being monitored |
+| [File Type Troubleshooting](doc/product-docs/user/handbooks/troubleshooting-file-types.md) | **Detailed guide** for file type monitoring issues |
 
 ## 🏗️ Architecture
 
@@ -145,33 +145,33 @@ dev test-all
 dev coverage
 
 # Run specific test categories
-python run_tests.py --unit          # Unit tests (35+ methods)
-python run_tests.py --integration   # Integration tests (45+ methods)
-python run_tests.py --parsers       # Parser tests (80+ methods)
-python run_tests.py --performance   # Performance tests (5+ methods)
+pytest test/automated/unit/              # Unit tests (35+ methods)
+pytest test/automated/integration/       # Integration tests (45+ methods)
+pytest test/automated/parsers/           # Parser tests (80+ methods)
+pytest test/automated/performance/       # Performance tests (slower)
 ```
 
-### **Alternative pytest Commands**
+### **Alternative: Process Framework Test Runner**
+```cmd
+# Project-agnostic test runner (reads project-config.json)
+pwsh.exe -ExecutionPolicy Bypass -Command '& doc/process-framework/scripts/test/Run-Tests.ps1 -Unit'
+pwsh.exe -ExecutionPolicy Bypass -Command '& doc/process-framework/scripts/test/Run-Tests.ps1 -All -Coverage'
+```
+
+### **Direct pytest Commands**
 ```cmd
 # Run all tests
-pytest tests/
+pytest test/automated/
 
 # Run with coverage
-pytest tests/ --cov=linkwatcher --cov-report=html
-
-# Run specific test categories
-pytest tests/unit/              # Unit tests
-pytest tests/integration/       # Integration tests
-pytest tests/parsers/           # Parser tests
-pytest tests/performance/       # Performance tests (slower)
+pytest test/automated/ --cov=linkwatcher --cov-report=html
 ```
 
 **Test Documentation:**
-- [Test Suite Overview](tests/README.md) - **Complete guide** to test structure, documentation files, and usage
-- [Test Plan](tests/TEST_PLAN.md) - **Strategy & Procedures**: Test methodology, execution matrices, environment setup, risk assessment
-- [Test Case Status](tests/TEST_CASE_STATUS.md) - **Implementation Tracking**: Complete mapping of all 111 test cases to their implementations, status tracking, execution metrics
-- [Manual Procedures](tests/manual/test_procedures.md) - Manual testing checklists
-- [Test Template](tests/TEST_CASE_TEMPLATE.md) - Template for new test cases
+- [Test Infrastructure Guide](doc/process-framework/guides/test-infrastructure-guide.md) - How the test/ directory connects to the process framework
+- [Test Registry](test/test-registry.yaml) - Central registry of all test files with PD-TST IDs
+- [Test Specifications](test/specifications/feature-specs/) - Feature-level test specifications
+- [Manual Test Cases](test/manual-testing/) - Formal manual test framework with MT-* IDs
 
 ## 🚀 CI/CD Pipeline
 

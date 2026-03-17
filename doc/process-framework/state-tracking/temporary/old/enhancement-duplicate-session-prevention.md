@@ -241,7 +241,7 @@ target_feature: 0.1.1
 - Step 6: TDD Amendment — added Section 4.2 (Duplicate Instance Prevention) to PD-TDD-021
 - Step 7: Test Specification — added 6 lock file test cases to PF-TSP-035
 - Step 12: Integration & Testing — implemented lock mechanism in main.py, updated PowerShell script
-- Step 15: Update Tests — created tests/unit/test_lock_file.py (10 tests, all passing)
+- Step 15: Update Tests — created test/automated/unit/test_lock_file.py (10 tests, all passing)
 - Step 16: Code Review — reviewed all 4 focus areas, no issues found
 - Step 17: Update Feature State — updated PF-FEA-046 with enhancement details
 

@@ -55,12 +55,12 @@ Comprehensive quality assurance task that evaluates implemented test suites agai
   - [Existing Test Structure](/test/) - Current test organization and patterns for consistency evaluation
   - [Mock Services](/test/mocks/) - Available mock implementations used in tests
   - [Test Helpers](/test/test_helpers/) - Utility functions used in test setup
-  - [Development Guide](/doc/process-framework/guides/guides/04-implementation/development-guide.md) - Testing standards and practices
+  - [Development Guide](/doc/process-framework/guides/04-implementation/development-guide.md) - Testing standards and practices
   - [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - For understanding component interactions
 
 - **Reference Only (Access When Needed):**
   - [Project Structure](/doc/product-docs/technical/architecture/project-structure.md) - Understanding component relationships
-  - [Visual Notation Guide](/doc/process-framework/guides/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Visual Notation Guide](/doc/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 ## Process
 
@@ -104,7 +104,7 @@ Comprehensive quality assurance task that evaluates implemented test suites agai
    Set-Location "<project-root>/doc/product-docs/test-audits"
 
    # Create audit report using automation script
-   ../../scripts/file-creation/New-TestAuditReport.ps1 -FeatureId "X.X.X" -TestFileId "PD-TST-XXX" -AuditorName "AI Agent"
+   ../../scripts/file-creation/03-testing/New-TestAuditReport.ps1 -FeatureId "X.X.X" -TestFileId "PD-TST-XXX" -AuditorName "AI Agent"
 
    # Script automatically:
    # - Generates unique PF-TAR ID (format: PF-TAR-XXX)
@@ -113,7 +113,7 @@ Comprehensive quality assurance task that evaluates implemented test suites agai
    # - Returns the full path to the created audit report file
    ```
 
-   **Script Location**: `/doc/process-framework/scripts/file-creation/New-TestAuditReport.ps1`
+   **Script Location**: /doc/process-framework/scripts/file-creation/03-testing/New-TestAuditReport.ps1
    **Output Location**: `/doc/product-docs/test-audits/[category]/audit-report-[feature-id]-[test-file-id].md`
 
 8. **Document Findings**: Complete the audit report with specific findings, recommendations, and audit decision
@@ -135,8 +135,8 @@ Comprehensive quality assurance task that evaluates implemented test suites agai
 
 10. **Report Discovered Bugs**: If bugs are identified during audit:
 
-   - Use [New-BugReport.ps1](../../scripts/file-creation/New-BugReport.ps1) script to create standardized bug reports
-   - Follow [Bug Reporting Guide](../../guides/guides/06-maintenance/bug-reporting-guide.md) for consistent documentation
+   - Use [New-BugReport.ps1](../../scripts/file-creation/06-maintenance/New-BugReport.ps1) script to create standardized bug reports
+   - Follow [Bug Reporting Guide](../../guides/06-maintenance/bug-reporting-guide.md) for consistent documentation
    - Add bug entries to [Bug Tracking](../../state-tracking/permanent/bug-tracking.md) with status 🆕 Reported
    - Include test audit context and evidence in bug reports
    - Reference audit report in bug documentation
@@ -257,7 +257,7 @@ Before considering this task finished:
   - [ ] Confirmed [Test Tracking](../../state-tracking/permanent/test-tracking.md) updated with audit status and detailed results
   - [ ] Verified [Test Registry](/test/test-registry.yaml) flagged for manual review with audit completion status
   - [ ] Checked [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) Test Status column shows correct aggregated status
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-030" and context "Test Audit"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-030" and context "Test Audit"
 
 ## Next Tasks
 
@@ -273,5 +273,5 @@ Before considering this task finished:
 - [Test Specification Creation Task](test-specification-creation-task.md) - For creating test specifications that guide implementation
 - [Test Tracking](../../state-tracking/permanent/test-tracking.md) - Track test implementation and audit progress
 - [Test Registry](/test/test-registry.yaml) - Test file registry with IDs and metadata
-- [Development Guide](/doc/process-framework/guides/guides/04-implementation/development-guide.md) - Testing standards and practices
+- [Development Guide](/doc/process-framework/guides/04-implementation/development-guide.md) - Testing standards and practices
 - [Test Audit Concept](../../proposals/test-audit-concept.md) - Original concept document for this task

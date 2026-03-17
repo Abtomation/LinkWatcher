@@ -67,12 +67,11 @@ Visual guide to the components, relationships, and information flow relevant to 
 
 - **[Bug Tracking](../../state-tracking/permanent/bug-tracking.md)** - Central registry of all bugs with current status
 - **[Feature Tracking](../../state-tracking/permanent/feature-tracking.md)** - Feature priorities and relationships for impact assessment
-- **[Visual Notation Guide](../../../guides/guides/support/visual-notation-guide.md)** - For interpreting context map diagrams
+- **[Visual Notation Guide](../../../guides/support/visual-notation-guide.md)** - For interpreting context map diagrams
 
 ### Important Context (Load If Space)
 
 - **[Feature Implementation State Files](../../state-tracking/features/)** - Affected feature's known issues, related bugs, and implementation progress
-- **[Testing Guide](../../../product-docs/guides/guides/testing-guide.md)** - Understanding test-related bugs and their implications
 - **[Project Architecture](../../../product-docs/technical/architecture)** - System understanding for impact assessment
 
 ### Reference Resources (Access When Needed)

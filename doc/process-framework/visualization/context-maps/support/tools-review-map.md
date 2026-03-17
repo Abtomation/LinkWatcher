@@ -68,7 +68,7 @@ graph TD
 
 ## Related Documentation
 
-- [Tool Feedback Forms](/doc/process-framework/feedback/feedback-forms/) - Repository of tool feedback
+- [Tool Feedback Forms](/doc/process-framework/feedback/feedback-forms) - Repository of tool feedback
 - <!-- [Tools Review Template](/doc/process-framework/templates/tools-review-template.md) - Template/example link commented out --> - Template for tools review
 - [Automation Scripts](/scripts/) - Project automation scripts
 - [Process Improvement Task](/doc/process-framework/tasks/support/process-improvement-task.md) - Task for implementing improvements

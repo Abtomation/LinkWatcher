@@ -35,7 +35,7 @@
    Set-Location "doc/process-framework/state-tracking"
 
    # Create temporary tracking file for refactoring work
-   ../../scripts/file-creation/New-TempTaskState.ps1 -TaskName "[Refactoring Scope] Refactoring" -TaskType "Discrete" -Description "Refactoring work for [specific component/feature]"
+   ../../scripts/file-creation/support/New-TempTaskState.ps1 -TaskName "[Refactoring Scope] Refactoring" -TaskType "Discrete" -Description "Refactoring work for [specific component/feature]"
    ```
 
    - Document refactoring progress and blockers in the chosen tracking surface
@@ -58,10 +58,10 @@
 
    ```powershell
    # Navigate to ADR creation directory
-   Set-Location "doc/process-framework/scripts/file-creation"
+   Set-Location "doc/process-framework/scripts/file-creation/02-design"
 
    # Create ADR for architectural decisions made during refactoring
-   ../../scripts/file-creation/New-ADR.ps1 -Title "[Decision Title]" -Context "[Refactoring context and need for decision]"
+   ./New-ArchitectureDecision.ps1 -Title "[Decision Title]" -Context "[Refactoring context and need for decision]"
    ```
 
    **When to Create ADRs During Refactoring**:
@@ -125,13 +125,13 @@ When bugs are discovered during refactoring, follow this decision process:
 
 ```powershell
 # For bugs discovered during refactoring
-../../scripts/file-creation/New-BugReport.ps1 -Title "[Bug Title]" -Description "[Description]" -DiscoveredBy "Refactoring" -Severity "[Critical/High/Medium/Low]" -Component "[Component]" -Environment "Development" -Evidence "Discovered during refactoring: [specific location and context]"
+../../scripts/file-creation/06-maintenance/New-BugReport.ps1 -Title "[Bug Title]" -Description "[Description]" -DiscoveredBy "Refactoring" -Severity "[Critical/High/Medium/Low]" -Component "[Component]" -Environment "Development" -Evidence "Discovered during refactoring: [specific location and context]"
 ```
 
 14. **Report Discovered Bugs**: If bugs are identified during refactoring:
 
-    - Use [../../scripts/file-creation/New-BugReport.ps1](../../scripts/file-creation/New-BugReport.ps1) script to create standardized bug reports
-    - Follow [Bug Reporting Guide](../../guides/guides/06-maintenance/bug-reporting-guide.md) for consistent documentation
+    - Use [../../scripts/file-creation/06-maintenance/New-BugReport.ps1](../../scripts/file-creation/06-maintenance/New-BugReport.ps1) script to create standardized bug reports
+    - Follow [Bug Reporting Guide](../../guides/06-maintenance/bug-reporting-guide.md) for consistent documentation
     - Add bug entries to [Bug Tracking](../../state-tracking/permanent/bug-tracking.md) with status 🆕 Reported
     - Include refactoring context and evidence in bug reports
     - Reference specific code areas or patterns that revealed the bugs
@@ -144,7 +144,7 @@ When bugs are discovered during refactoring, follow this decision process:
     Set-Location "doc/process-framework/scripts/file-creation"
 
     # Create bug report for issues found during refactoring
-    ../../scripts/file-creation/New-BugReport.ps1 -Title "Race condition in async data processing" -Description "Refactoring revealed race condition in async data processing that causes intermittent data corruption" -DiscoveredBy "Development" -Severity "High" -Component "Data Processing" -Environment "Development" -Evidence "Code analysis during refactoring: src/services/data_processor.py:89-102"
+    ../../scripts/file-creation/06-maintenance/New-BugReport.ps1 -Title "Race condition in async data processing" -Description "Refactoring revealed race condition in async data processing that causes intermittent data corruption" -DiscoveredBy "Development" -Severity "High" -Component "Data Processing" -Environment "Development" -Evidence "Code analysis during refactoring: src/services/data_processor.py:89-102"
     ```
 
 15. **Validate Behavior Preservation**: Run full test suite to confirm no functional changes
@@ -193,10 +193,10 @@ When bugs are discovered during refactoring, follow this decision process:
     - [ ] Data handling bugs exposed during validation improvements
     - [ ] Concurrency issues checked in multi-threaded code areas
     - [ ] Resource management problems identified during cleanup
-  - [ ] Any discovered bugs reported using ../../scripts/file-creation/New-BugReport.ps1 script with proper context and evidence
+  - [ ] Any discovered bugs reported using ../../scripts/file-creation/06-maintenance/New-BugReport.ps1 script with proper context and evidence
 - [ ] **Update State Files**: Ensure all state tracking files have been updated according to the 3-phase checklist
   - [ ] **Phase 1 (During)**: Temporary state tracking, bug tracking, technical debt progress documented
   - [ ] **Phase 2 (Completion)**: [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md) resolved items, [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) status improved, [Architecture Tracking](../../state-tracking/permanent/architecture-tracking.md) updated for foundation features, [Test Tracking](../../state-tracking/permanent/test-tracking.md) updated
   - [ ] **Product Documentation**: If refactoring changed module boundaries/interfaces/design patterns — feature state file, TDD, FDD, and test spec updated (Step 12)
   - [ ] **Phase 3 (Post)**: Temporary state archived (if created) to [old directory](../../state-tracking/temporary/old), [Context Packages](../../architecture/context-packages) updated for architectural changes
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-022" and context "Code Refactoring Task"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-022" and context "Code Refactoring Task"

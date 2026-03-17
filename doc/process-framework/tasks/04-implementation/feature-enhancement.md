@@ -36,7 +36,7 @@ This task executes enhancement work on existing features by following the Enhanc
 
   - **Enhancement State Tracking File** — The customized state file produced by Feature Request Evaluation, located in `state-tracking/temporary/`. This is the primary input driving all work.
   - **Referenced task documentation** — Each step in the state file references an existing task definition. Read the referenced task before executing each step.
-  - [Visual Notation Guide](/doc/process-framework/guides/guides/support/visual-notation-guide.md) — For interpreting context map diagrams
+  - [Visual Notation Guide](/doc/process-framework/guides/support/visual-notation-guide.md) — For interpreting context map diagrams
 
 - **Important (Load If Space):**
 
@@ -134,7 +134,7 @@ Before considering this task finished:
   - [ ] Feature tracking status restored (removed "🔄 Needs Revision", set appropriate status, removed state file link)
   - [ ] Enhancement State Tracking File archived to `state-tracking/temporary/old/`
 
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-068" and context "Feature Enhancement"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-068" and context "Feature Enhancement"
 
 ## Next Tasks
 

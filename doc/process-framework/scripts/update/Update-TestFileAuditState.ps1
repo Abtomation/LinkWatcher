@@ -45,7 +45,7 @@ Number of tests that failed the audit (optional)
 If specified, shows what would be updated without making changes
 
 .EXAMPLE
-.\Update-TestFileAuditState.ps1 -TestFileId "PD-TST-084" -AuditStatus "Tests Approved" -AuditReportPath "../doc/process-framework/validation/reports/test-audit/audit-PD-TST-084.md"
+.\Update-TestFileAuditState.ps1 -TestFileId "PD-TST-084" -AuditStatus "Tests Approved" -AuditReportPath "../doc/product-docs/validation/reports/test-audit/audit-PD-TST-084.md"
 
 .EXAMPLE
 ../Update-TestFileAuditState.ps1 -TestFileId "PD-TST-084" -AuditStatus "Needs Update" -AuditorName "John Doe" -MajorFindings @("Missing edge case tests", "Incomplete mock coverage") -DryRun
@@ -97,11 +97,14 @@ param(
     [switch]$DryRun
 )
 
-# Import required modules
+# Import required modules with walk-up path resolution
 try {
     $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-    $commonHelpersPath = Join-Path $scriptDir "../Common-ScriptHelpers.psm1"
-    Import-Module $commonHelpersPath -Force
+    $dir = $scriptDir
+    while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
+        $dir = Split-Path -Parent $dir
+    }
+    Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 }
 catch {
     Write-Error "Failed to import Common-ScriptHelpers module: $($_.Exception.Message)"

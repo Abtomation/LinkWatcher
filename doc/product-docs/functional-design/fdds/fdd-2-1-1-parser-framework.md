@@ -76,7 +76,7 @@ retrospective: true
 
 ### Acceptance Criteria
 
-- **2.1.1-AC-1**: Given a `.md` file, `parse_file()` returns only markdown link references (not YAML or JSON references)
+- **2.1.1-AC-1**: Given a `.md` file, `parse_file()` returns markdown link references — including `[text](path)` links, reference-style `[label]: path` definitions, HTML `<a href>` tags, quoted file/directory paths (`"path"`, `'path'`), backtick-delimited file/directory paths (`` `path` ``), and standalone file references
 - **2.1.1-AC-2**: Given a `.yaml` file, `parse_file()` returns YAML-format file path references
 - **2.1.1-AC-3**: Given a `.py` file, `parse_file()` returns Python import path references
 - **2.1.1-AC-4**: Given a file with extension `.xyz` (unregistered), `parse_file()` returns whatever `GenericParser` extracts — not an empty list by default

@@ -79,12 +79,12 @@ graph TD
 ## Related Documentation
 
 - [Foundation Feature Implementation Task](../../tasks/04-implementation/foundation-feature-implementation-task.md) - Complete task definition and process
-- [Foundation Feature Template](../../templates/templates/foundation-feature-template.md) - Template for foundation feature structure and architectural documentation
-- [Foundation Feature Implementation Usage Guide](../../guides/guides/04-implementation/foundation-feature-implementation-usage-guide.md) - Comprehensive guide for using this task effectively
+- [Foundation Feature Template](../../../templates/04-implementation/foundation-feature-template.md) - Template for foundation feature structure and architectural documentation
+- [Foundation Feature Implementation Usage Guide](../../../guides/04-implementation/foundation-feature-implementation-usage-guide.md) - Comprehensive guide for using this task effectively
 - [Architecture Context Packages](../../state-tracking/permanent/architecture-context-packages.md) - Current architectural context and component relationships
 - [Architecture Tracking](../../state-tracking/permanent/architecture-tracking.md) - Ongoing architectural decisions and evolution
 - [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Foundation feature status and dependencies
-- [ADR Template](../../templates/templates/adr-template.md) - For documenting architectural decisions
+- [ADR Template](../../../templates/02-design/adr-template.md) - For documenting architectural decisions
 
 ---
 

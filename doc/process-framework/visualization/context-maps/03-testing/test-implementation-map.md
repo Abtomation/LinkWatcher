@@ -140,7 +140,7 @@ graph TD
 ## Related Documentation
 
 - [Test Specification Documents](/test/specifications/feature-specs/) - Repository of test specifications
-- [Development Guide](/doc/process-framework/guides/guides/04-implementation/development-guide.md) - Testing standards and practices
+- [Development Guide](/doc/process-framework/guides/04-implementation/development-guide.md) - Testing standards and practices
 - [Technical Design Documents](/doc/product-docs/technical/design) - Repository of TDDs for context
 - [Feature Tier Assessment Guide](../../../../product-docs/documentation-tiers/README.md) - Understanding complexity tiers
 - [Test Structure Documentation](/test/) - Current test organization patterns

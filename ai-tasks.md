@@ -206,7 +206,7 @@ _Meta-framework tasks that work on the process framework itself_
 
 ## 🔄 Common Workflows
 
-**📋 For detailed guidance on task transitions, see the [Task Transition Guide](/doc/process-framework/guides/guides/framework/task-transition-guide.md)**
+**📋 For detailed guidance on task transitions, see the [Task Transition Guide](/doc/process-framework/guides/framework/task-transition-guide.md)**
 
 ### For New Feature Planning (research needed)
 
@@ -307,15 +307,15 @@ Structure Change → Code Review → Release & Deployment
 | **🏗️ Infrastructure**   | Process Framework Registry        | Complete task catalog with automation status | [Process Framework Task Registry](/doc/process-framework/infrastructure/process-framework-task-registry.md)                            |
 | **📊 State Tracking**   | Feature Tracking                  | Track feature development status             | [Feature Tracking](/doc/process-framework/state-tracking/permanent/feature-tracking.md)                                                |
 | **📊 State Tracking**   | Technical Debt Tracking           | Track technical debt items                   | [Technical Debt Tracking](/doc/process-framework/state-tracking/permanent/technical-debt-tracking.md)                                  |
-| **📖 Templates**        | State File Template               | Create new tracking files                    | [State File Template](/doc/process-framework/templates/templates/state-file-template.md)                                               |
+| **📖 Templates**        | State File Template               | Create new tracking files                    | [State File Template](/doc/process-framework/templates/support/state-file-template.md)                                               |
 | **🔧 Automation**       | Task Creation Script              | Create new framework tasks                   | [New Task Creation Process](/doc/process-framework/tasks/support/new-task-creation-process.md)                                         |
 | **📝 Feedback**         | Feedback Process                  | Submit tool and task feedback                | [Feedback Process Guide](/doc/process-framework/feedback/README.md)                                                                    |
 | **📝 Feedback**         | Feedback Flowchart                | Visual feedback process guide                | [Feedback Process Flowchart](/doc/process-framework/feedback/feedback-process-flowchart.md)                                            |
-| **🎯 Guides**           | Task Transition Guide             | Guidance on task transitions                 | [Task Transition Guide](/doc/process-framework/guides/guides/framework/task-transition-guide.md)                                                 |
-| **🎯 Guides**           | API Specification Creation        | How to create API specifications             | [API Specification Creation Guide](/doc/process-framework/guides/guides/02-design/api-specification-creation-guide.md)                           |
-| **🎯 Guides**           | API Data Model Creation           | How to create API data models                | [API Data Model Creation Guide](/doc/process-framework/guides/guides/02-design/api-data-model-creation-guide.md)                                 |
-| **🎯 Guides**           | Foundation Feature Implementation | Comprehensive implementation guidance        | [Foundation Feature Implementation Usage Guide](/doc/process-framework/guides/guides/04-implementation/foundation-feature-implementation-usage-guide.md) |
-| **🎯 Guides**           | Integration & Testing             | Comprehensive testing guidance               | [Integration & Testing Usage Guide](/doc/process-framework/guides/guides/03-testing/test-implementation-usage-guide.md)                           |
+| **🎯 Guides**           | Task Transition Guide             | Guidance on task transitions                 | [Task Transition Guide](/doc/process-framework/guides/framework/task-transition-guide.md)                                                 |
+| **🎯 Guides**           | API Specification Creation        | How to create API specifications             | [API Specification Creation Guide](/doc/process-framework/guides/02-design/api-specification-creation-guide.md)                           |
+| **🎯 Guides**           | API Data Model Creation           | How to create API data models                | [API Data Model Creation Guide](/doc/process-framework/guides/02-design/api-data-model-creation-guide.md)                                 |
+| **🎯 Guides**           | Foundation Feature Implementation | Comprehensive implementation guidance        | [Foundation Feature Implementation Usage Guide](/doc/process-framework/guides/04-implementation/foundation-feature-implementation-usage-guide.md) |
+| **🎯 Guides**           | Integration & Testing             | Comprehensive testing guidance               | [Integration & Testing Usage Guide](/doc/process-framework/guides/03-testing/test-implementation-usage-guide.md)                           |
 | **🗺️ Context Maps**     | API Design Task Map               | Visual API design relationships              | [API Design Task Context Map](/doc/process-framework/visualization/context-maps/02-design/api-design-task-map.md)                      |
 | **🔧 Support Tasks**    | Process Improvement               | Enhance development workflows                | [Process Improvement Task](/doc/process-framework/tasks/support/process-improvement-task.md)                                           |
 | **🔧 Support Tasks**    | Structure Change                  | Reorganize framework structure               | [Structure Change Task](/doc/process-framework/tasks/support/structure-change-task.md)                                                 |
@@ -341,8 +341,8 @@ Understanding the different types of documentation helps you choose the right re
 - **Content**: Script parameters, template customization, examples, troubleshooting
 - **Use When**: You need to use a PowerShell script or customize a template
 - **Examples**:
-  - [API Specification Creation Guide](/doc/process-framework/guides/guides/02-design/api-specification-creation-guide.md)
-  - [API Data Model Creation Guide](/doc/process-framework/guides/guides/02-design/api-data-model-creation-guide.md)
+  - [API Specification Creation Guide](/doc/process-framework/guides/02-design/api-specification-creation-guide.md)
+  - [API Data Model Creation Guide](/doc/process-framework/guides/02-design/api-data-model-creation-guide.md)
 
 ### 🗺️ **Context Maps** (Visual relationships)
 
@@ -357,8 +357,8 @@ Understanding the different types of documentation helps you choose the right re
 - **Content**: Workflows, best practices, common pitfalls, advanced techniques
 - **Use When**: You need comprehensive guidance beyond individual tasks
 - **Examples**:
-  - [Foundation Feature Implementation Usage Guide](/doc/process-framework/guides/guides/04-implementation/foundation-feature-implementation-usage-guide.md)
-  - [Integration & Testing Usage Guide](/doc/process-framework/guides/guides/03-testing/test-implementation-usage-guide.md)
+  - [Foundation Feature Implementation Usage Guide](/doc/process-framework/guides/04-implementation/foundation-feature-implementation-usage-guide.md)
+  - [Integration & Testing Usage Guide](/doc/process-framework/guides/03-testing/test-implementation-usage-guide.md)
 
 ### 🎯 **Key Principle**: No Redundant Documentation
 
@@ -382,7 +382,7 @@ Understanding the different types of documentation helps you choose the right re
 
 ### Creating New State Files
 
-Need to track something new? Use the [State File Template](/doc/process-framework/templates/templates/state-file-template.md) to create:
+Need to track something new? Use the [State File Template](/doc/process-framework/templates/support/state-file-template.md) to create:
 
 - Bug Tracking
 - Release Status
@@ -452,7 +452,7 @@ After completing any task, use our **hybrid feedback approach**:
 
 4. **Identify follow-up actions**: Mark tools scoring ≤3 for detailed feedback
 
-**Files saved**: `doc/process-framework/feedback/feedback-forms/YYYYMMDD-HHMMSS-TASK-ID-feedback.md` (template format)
+**Files saved**: doc/process-framework/feedback/feedback-forms/YYYYMMDD-HHMMSS-TASK-ID-feedback.md (template format)
 
 > ⚠️ **Important**: Use **TASK ID** (e.g., PF-TSK-002) in filename, NOT artifact IDs created during task
 >

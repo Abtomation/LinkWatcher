@@ -138,6 +138,7 @@ def _is_pid_running(pid: int) -> bool:
     """
     if sys.platform == "win32":
         import ctypes
+
         kernel32 = ctypes.windll.kernel32
         PROCESS_QUERY_LIMITED_INFORMATION = 0x1000
         handle = kernel32.OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, False, pid)
@@ -167,7 +168,7 @@ def acquire_lock(project_root: Path) -> Path:
         try:
             content = lock_file.read_text().strip()
             existing_pid = int(content)
-            if _is_pid_running(existing_pid):
+            if existing_pid != os.getpid() and _is_pid_running(existing_pid):
                 print(f"{Fore.RED}✗ LinkWatcher is already running (PID: {existing_pid})")
                 print(f"{Fore.YELLOW}  Lock file: {lock_file}")
                 sys.exit(1)
@@ -304,7 +305,7 @@ Examples:
             service.updater.set_backup_enabled(config.create_backups)
 
             # Add custom parsers if configured
-            for extension, parser_class in config.custom_parsers.items():
+            for extension, parser_class in getattr(config, "custom_parsers", {}).items():
                 try:
                     # This would require dynamic loading - simplified for now
                     logger.warning("custom_parser_not_implemented", extension=extension)

@@ -16,6 +16,7 @@
     3. Duplicate IDs in registry
     4. PD-TST nextAvailable counter consistency
     5. Cross-cutting feature ID validation
+    6. testCasesCount validation against actual test runner collection (requires testing.testCountCommand in project-config.json)
 .PARAMETER ProjectRoot
     Path to the project root directory. Defaults to auto-detection.
 .EXAMPLE
@@ -30,7 +31,11 @@ param(
 
 # --- Resolve project root ---
 if ([string]::IsNullOrWhiteSpace($ProjectRoot)) {
-    Import-Module (Join-Path -Path $PSScriptRoot -ChildPath "Common-ScriptHelpers.psm1") -Force
+    $dir = $PSScriptRoot
+    while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
+        $dir = Split-Path -Parent $dir
+    }
+    Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
     $ProjectRoot = Get-ProjectRoot
 }
 
@@ -245,6 +250,105 @@ if ($invalidFeatureRefs.Count -gt 0) {
     $warningCount += $invalidFeatureRefs.Count
 } else {
     Write-Host "  OK: All feature ID references are valid" -ForegroundColor Green
+}
+Write-Host ""
+
+# --- Check 6: testCasesCount validation via project test runner ---
+Write-Host "6. Checking testCasesCount against actual test collection..." -ForegroundColor Yellow
+
+$configPath = Join-Path $ProjectRoot "doc/process-framework/project-config.json"
+$testCountCommand = $null
+$testDirectory = $null
+
+if (Test-Path $configPath) {
+    $config = Get-Content $configPath -Raw -Encoding UTF8 | ConvertFrom-Json
+    if ($config.testing -and $config.testing.testCountCommand) {
+        $testCountCommand = $config.testing.testCountCommand
+        $testDirectory = if ($config.testing.testDirectory) { $config.testing.testDirectory } else { $config.paths.tests }
+    }
+}
+
+if (-not $testCountCommand) {
+    Write-Host "  SKIPPED: No testing.testCountCommand configured in project-config.json" -ForegroundColor Gray
+} else {
+    $testDir = Join-Path $ProjectRoot $testDirectory
+    if (-not (Test-Path $testDir)) {
+        Write-Host "  SKIPPED: Test directory not found: $testDir" -ForegroundColor Gray
+    } else {
+        # Run test collection command and capture output
+        try {
+            $originalLocation = Get-Location
+            Set-Location $ProjectRoot
+            $fullCommand = "$testCountCommand `"$testDirectory`""
+            $collectOutput = Invoke-Expression $fullCommand 2>&1
+            $collectExitCode = $LASTEXITCODE
+            Set-Location $originalLocation
+
+            if ($collectExitCode -ne 0 -and $collectExitCode -ne 5) {
+                # Exit code 5 = no tests collected (empty files), which is fine
+                Write-Host "  WARNING: Test collection command failed (exit code $collectExitCode)" -ForegroundColor Yellow
+                $warningCount++
+            } else {
+                # Parse pytest --collect-only -q output format: "path/to/file.py::TestClass::test_method"
+                # Count items per file path
+                $actualCounts = @{}
+                foreach ($line in $collectOutput) {
+                    $lineStr = "$line".Trim()
+                    if ($lineStr -match '^(.+\.py)::') {
+                        $filePath = $matches[1].Replace('\', '/')
+                        if (-not $actualCounts.ContainsKey($filePath)) {
+                            $actualCounts[$filePath] = 0
+                        }
+                        $actualCounts[$filePath]++
+                    }
+                }
+
+                # Compare with registry testCasesCount
+                $countMismatches = @()
+                foreach ($entry in $registryEntries) {
+                    $regPath = $entry['filePath']
+                    $regCount = $entry['testCasesCount']
+                    if (-not $regPath -or -not $regCount) { continue }
+                    $regCountInt = [int]$regCount
+
+                    # Normalize registry path for comparison
+                    $normalizedRegPath = $regPath.Replace('\', '/')
+
+                    # Find matching actual count
+                    $actualCount = $null
+                    foreach ($actualPath in $actualCounts.Keys) {
+                        # Match by exact path or by file name within the path
+                        if ($actualPath -eq $normalizedRegPath -or $actualPath.EndsWith($normalizedRegPath) -or $normalizedRegPath.EndsWith($actualPath)) {
+                            $actualCount = $actualCounts[$actualPath]
+                            break
+                        }
+                    }
+
+                    if ($null -ne $actualCount -and $actualCount -ne $regCountInt) {
+                        $countMismatches += [PSCustomObject]@{
+                            ID = $entry['id']
+                            FilePath = $regPath
+                            RegistryCount = $regCountInt
+                            ActualCount = $actualCount
+                        }
+                    }
+                }
+
+                if ($countMismatches.Count -gt 0) {
+                    Write-Host "  WARNING: $($countMismatches.Count) testCasesCount mismatch(es):" -ForegroundColor Yellow
+                    foreach ($m in $countMismatches) {
+                        Write-Host "    - $($m.ID) ($($m.FilePath)): registry=$($m.RegistryCount), actual=$($m.ActualCount)" -ForegroundColor Yellow
+                    }
+                    $warningCount += $countMismatches.Count
+                } else {
+                    Write-Host "  OK: All testCasesCount values match actual test collection ($($actualCounts.Count) files checked)" -ForegroundColor Green
+                }
+            }
+        } catch {
+            Write-Host "  WARNING: Failed to run test collection command: $($_.Exception.Message)" -ForegroundColor Yellow
+            $warningCount++
+        }
+    }
 }
 Write-Host ""
 

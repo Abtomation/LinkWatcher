@@ -38,7 +38,7 @@ Systematic data model planning before implementation to prevent data integrity i
 
 ## Information Flow
 
-> **📋 Detailed Guidance**: See [Task Transition Guide - Information Flow Section](../../guides/guides/framework/task-transition-guide.md#task-transitions) for comprehensive information flow patterns.
+> **📋 Detailed Guidance**: See [Task Transition Guide - Information Flow Section](../../guides/framework/task-transition-guide.md#task-transitions) for comprehensive information flow patterns.
 
 ### Inputs from Other Tasks
 
@@ -98,7 +98,7 @@ Systematic data model planning before implementation to prevent data integrity i
     - Architecture documentation: `/doc/product-docs/technical/architecture/`
     - Database diagrams: `/doc/product-docs/technical/database/diagrams/`
   - **Security Policies** - Data security and privacy requirements
-  - [Visual Notation Guide](/doc/process-framework/guides/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Visual Notation Guide](/doc/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 ## Process
 
@@ -179,7 +179,7 @@ Before considering this task finished:
   - [ ] [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) DB Design column **AUTOMATICALLY UPDATED** from "Yes" to link to completed database schema design document (verify the automation worked correctly)
   - [ ] [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md) **MANUALLY UPDATED** with schema optimization opportunities identified during design
   - [ ] Database Schema Tracking updated with new schema changes
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-021" and context "Database Schema Design Task"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-021" and context "Database Schema Design Task"
 
 ## Next Tasks
 

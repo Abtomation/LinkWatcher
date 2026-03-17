@@ -89,11 +89,14 @@ param(
     [switch]$DryRun
 )
 
-# Import required modules
+# Import required modules with walk-up path resolution
 try {
     $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-    $commonHelpersPath = Join-Path $scriptDir "../Common-ScriptHelpers.psm1"
-    Import-Module $commonHelpersPath -Force
+    $dir = $scriptDir
+    while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
+        $dir = Split-Path -Parent $dir
+    }
+    Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 }
 catch {
     Write-Error "Failed to import Common-ScriptHelpers module: $($_.Exception.Message)"

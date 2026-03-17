@@ -228,7 +228,7 @@ DocumentManagement.psm1 regex escaping behavior and Update-BugStatus.ps1 non-fun
 
 ## Archived Forms
 
-The following 11 feedback forms were analyzed in this review and archived to `doc/process-framework/feedback/archive/2026-02/tools-review-20260226/processed-forms/`:
+The following 11 feedback forms were analyzed in this review and archived to `doc/process-framework/feedback/archive/2026-02/tools-review-20260226/processed-forms`:
 
 | Form | Task | Context |
 |------|------|---------|

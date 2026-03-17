@@ -50,7 +50,7 @@ Implement data models, repositories, and database integration for feature
 - **Reference Only (Access When Needed):**
   - **Database Documentation** - For understanding database client API patterns
   - **Language Best Practices** - For data class and repository implementation standards
-  - [Visual Notation Guide](/doc/process-framework/guides/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Visual Notation Guide](/doc/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 ## Process
 
@@ -155,7 +155,7 @@ Before considering this task finished:
     - [ ] Code inventory with new models and repositories
     - [ ] Implementation notes documenting any deviations or decisions
     - [ ] Issues log if any problems were encountered
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-051" and context "Data Layer Implementation"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-051" and context "Data Layer Implementation"
 
 ## Next Tasks
 
@@ -163,5 +163,5 @@ Before considering this task finished:
 
 ## Related Resources
 
-- [Feature Implementation State Template](../../templates/templates/feature-implementation-state-template.md) - Template for tracking implementation progress
-- [Task Transition Guide](../../guides/guides/framework/task-transition-guide.md) - Guidance on transitioning between decomposed tasks
+- [Feature Implementation State Template](../../templates/04-implementation/feature-implementation-state-template.md) - Template for tracking implementation progress
+- [Task Transition Guide](../../guides/framework/task-transition-guide.md) - Guidance on transitioning between decomposed tasks

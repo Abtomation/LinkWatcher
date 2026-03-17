@@ -75,10 +75,8 @@ graph TD
 ## Related Documentation
 
 - [Code Refactoring Task Definition](../../tasks/06-maintenance/code-refactoring-task.md) - Complete task definition and process
-- [Refactoring Plan Template](../../templates/templates/refactoring-plan-template.md) - Template for creating refactoring plans
+- [Refactoring Plan Template](../../../templates/06-maintenance/refactoring-plan-template.md) - Template for creating refactoring plans
 - [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md) - For identifying refactoring targets
-- [Code Quality Standards](../../guides/guides/code-quality-standards.md) - Project coding standards and best practices
-- [Testing Guidelines](../../guides/guides/testing-guidelines.md) - Ensuring behavior preservation during refactoring
 - [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Complete reference of all component relationships
 
 ---

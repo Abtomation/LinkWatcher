@@ -95,7 +95,7 @@ Remove Section 4 from state files; keep only feature-tracking.md. Rejected becau
 | Modify | [FeatureTracking.psm1](../../../scripts/Common-ScriptHelpers/FeatureTracking.psm1) | Add `Get-FeatureStateFiles`, `Extract-DocumentationInventory` helper functions |
 | Modify | [Update-BatchFeatureStatus.ps1](../../../scripts/file-creation/Update-BatchFeatureStatus.ps1) | Call generation script after state file updates instead of `Update-FeatureTrackingStatus` |
 | Modify | [Update-FeatureImplementationState.ps1](../../../scripts/file-creation/Update-FeatureImplementationState.ps1) | Remove direct feature-tracking writes; call generation script |
-| Modify | [New-FeatureImplementationState.ps1](../../../scripts/file-creation/New-FeatureImplementationState.ps1) | Add optional `-RegenerateTracking` switch |
+| Modify | [New-FeatureImplementationState.ps1](../../../scripts/file-creation/04-implementation/New-FeatureImplementationState.ps1) | Add optional `-RegenerateTracking` switch |
 | Modify | [Validate-StateTracking.ps1](../../../scripts/validation/Validate-StateTracking.ps1) | Add cross-surface validation: state file Section 4 matches generated row |
 | Modify | FDD/TDD/ADR creation scripts | Stop calling `Update-FeatureTrackingStatus` — generation picks up links from state file Section 4 automatically |
 
@@ -119,8 +119,8 @@ Key tasks affected:
 |--------|------|
 | **New** | `feature-tracking-autogeneration-guide.md` — algorithm, when to regenerate, parsing details |
 | Update | [documentation-map.md](../../../documentation-map.md) — mark ../feature-tracking.md as auto-generated |
-| Update | [state-file-creation-guide.md](../../../guides/guides/support/state-file-creation-guide.md) — state files as source of truth |
-| Update | [task-transition-guide.md](../../../guides/guides/framework/task-transition-guide.md) — auto-generation workflow |
+| Update | [state-file-creation-guide.md](../../../guides/support/state-file-creation-guide.md) — state files as source of truth |
+| Update | [task-transition-guide.md](../../../guides/framework/task-transition-guide.md) — auto-generation workflow |
 | Update | ~10 other guides referencing manual feature-tracking edits |
 
 ### 3.4 feature-tracking.md Itself

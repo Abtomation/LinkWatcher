@@ -37,12 +37,11 @@ Systematically evaluate, prioritize, and assign reported bugs to ensure efficien
 
   - [Bug Tracking](../../state-tracking/permanent/bug-tracking.md) - Current bug registry and status
   - [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - To understand feature priorities and relationships
-  - [Visual Notation Guide](/doc/process-framework/guides/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Visual Notation Guide](/doc/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 - **Important (Load If Space):**
 
   - [Feature Implementation State Files](../../state-tracking/features/) - State file for the affected feature (known issues, related bugs, implementation progress)
-  - [Testing Guide](/doc/product-docs/guides/guides/testing-guide.md) - Guidelines for understanding test-related bugs
   - [Project Architecture](/doc/product-docs/technical/architecture) - Understanding system architecture for impact assessment
 
 - **Reference Only (Access When Needed):**
@@ -204,7 +203,7 @@ Before considering this task finished:
   - [ ] Bug status updated from 🆕 Reported to 🔍 Triaged
   - [ ] Statistics section is updated with current numbers
   - [ ] All required fields are populated for triaged bugs
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-041" and context "Bug Triage"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-041" and context "Bug Triage"
 
 ## Next Tasks
 
@@ -216,5 +215,5 @@ Before considering this task finished:
 
 - [Bug Tracking State File](../../state-tracking/permanent/bug-tracking.md) - Central bug registry
 - [Feature Tracking State File](../../state-tracking/permanent/feature-tracking.md) - Feature priorities and relationships
-- [Task Transition Guide](../../guides/guides/framework/task-transition-guide.md) - Guidance on transitioning between tasks
-- [Task Creation and Improvement Guide](../../guides/guides/support/task-creation-guide.md) - Guide for creating and improving tasks
+- [Task Transition Guide](../../guides/framework/task-transition-guide.md) - Guidance on transitioning between tasks
+- [Task Creation and Improvement Guide](../../guides/support/task-creation-guide.md) - Guide for creating and improving tasks

@@ -64,7 +64,7 @@ Description of what was done. Required when NewStatus is Resolved.
 Appended to the Notes column in the Recently Resolved table.
 
 .PARAMETER PlanLink
-Optional markdown link to the refactoring plan (e.g., "[TD006](../../refactoring/plans/td006.md)").
+Optional markdown link to the refactoring plan (e.g., "[TD006](../../../product-docs/refactoring/plans/archive/td006.md)").
 When provided, replaces the plain ID in the Recently Resolved table.
 
 .PARAMETER FoundationalNote
@@ -96,7 +96,7 @@ Example: "c:\project\doc\process-framework\state-tracking\temporary\foundational
 
 .EXAMPLE
 # Resolve with plan link
-.\Update-TechDebt.ps1 -DebtId "TD006" -NewStatus "Resolved" -ResolutionNotes "Extracted public API methods." -PlanLink "[TD006](../../refactoring/plans/td006-encapsulation-violation-fix.md)"
+.\Update-TechDebt.ps1 -DebtId "TD006" -NewStatus "Resolved" -ResolutionNotes "Extracted public API methods." -PlanLink "[TD006](../../../product-docs/refactoring/plans/archive/td006-encapsulation-violation-fix.md)"
 
 .EXAMPLE
 # Resolve with foundational validation tracking update
@@ -170,7 +170,11 @@ param(
 
 # --- Configuration ---
 
-Import-Module (Join-Path -Path $PSScriptRoot -ChildPath "../Common-ScriptHelpers.psm1") -Force
+$dir = $PSScriptRoot
+while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
+    $dir = Split-Path -Parent $dir
+}
+Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 
 $ProjectRoot = Get-ProjectRoot
 $TargetFile = Join-Path -Path $ProjectRoot -ChildPath "doc/process-framework/state-tracking/permanent/technical-debt-tracking.md"

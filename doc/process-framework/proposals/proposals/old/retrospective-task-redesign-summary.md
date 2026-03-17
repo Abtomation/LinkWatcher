@@ -152,7 +152,7 @@ TEMPORARY TRACKING:
    - Completely redesigned with code-first approach
 
 2. **Templates**:
-   - `/doc/process-framework/templates/templates/retrospective-state-template.md`
+   - `/doc/process-framework/templates/00-onboarding/retrospective-state-template.md`
    - New template for tracking multi-session progress
 
 3. **Proposals**:
@@ -321,7 +321,7 @@ FEATURE TRACKING WITH TIER ASSESSMENTS ✅
 ## References
 
 - [Retrospective Feature Documentation Task (PF-TSK-060)](../tasks/cyclical/retrospective-feature-documentation-task.md)
-- [Retrospective State Template](../templates/templates/retrospective-state-template.md)
-- [Feature Implementation State Template](../templates/templates/feature-implementation-state-template.md)
+- [Retrospective State Template](../../../templates/00-onboarding/retrospective-state-template.md)
+- [Feature Implementation State Template](../../../templates/04-implementation/feature-implementation-state-template.md)
 - [Document Types Created by Tasks](document-types-created-by-tasks.md)
 - [Original Concept](retrospective-documentation-concept.md) (superseded)

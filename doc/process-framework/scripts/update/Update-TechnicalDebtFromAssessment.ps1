@@ -65,16 +65,17 @@ param(
 $ScriptName = "../Update-TechnicalDebtFromAssessment.ps1"
 $UpdateScript = "../doc/process-framework/scripts/update/Update-TechDebt.ps1"
 
-# Import the common helpers with robust path resolution
+# Import the common helpers with walk-up path resolution
 $scriptDir = if ($PSScriptRoot) { $PSScriptRoot } else { (Get-Location).Path }
-$modulePath = Join-Path -Path $scriptDir -ChildPath "Common-ScriptHelpers.psm1"
+$dir = $scriptDir
+while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
+    $dir = Split-Path -Parent $dir
+}
 try {
-    $resolvedPath = Resolve-Path $modulePath -ErrorAction Stop
-    Import-Module $resolvedPath -Force
+    Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 }
 catch {
-    Write-Error "Failed to import Common-ScriptHelpers module from: $modulePath"
-    Write-Error "Please ensure the script is run from the correct directory or the module path is correct."
+    Write-Error "Failed to import Common-ScriptHelpers module. Searched up from: $scriptDir"
     exit 1
 }
 

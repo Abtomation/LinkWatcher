@@ -22,8 +22,8 @@ Split into **two clearly labeled sections**:
 
 ## Files Updated
 
-✅ **Template**: [feature-implementation-state-template.md](../../../templates/templates/feature-implementation-state-template.md)
-✅ **Guide**: [feature-implementation-state-tracking-guide.md](../../../guides/guides/04-implementation/feature-implementation-state-tracking-guide.md)
+✅ **Template**: [feature-implementation-state-template.md](../../../templates/04-implementation/feature-implementation-state-template.md)
+✅ **Guide**: [feature-implementation-state-tracking-guide.md](../../../guides/04-implementation/feature-implementation-state-tracking-guide.md)
 
 ## Files Requiring Update
 
@@ -77,7 +77,7 @@ Each feature implementation state file needs:
 
 ## List of Files to Update
 
-All 42 files in `doc/process-framework/state-tracking/features/`:
+All 42 files in `doc/process-framework/state-tracking/features`:
 
 - ../../features/0.1.1-core-architecture-implementation-state.md
 - ../../features/0.1.2-data-models-implementation-state.md

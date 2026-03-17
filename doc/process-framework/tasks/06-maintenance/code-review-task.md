@@ -38,7 +38,7 @@ Review implemented code to ensure it meets quality standards, follows project co
 
   - [Technical Design Document](/doc/product-docs/technical/design) - The technical design document for the feature
   - Source code files that were created or modified during implementation
-  - [Visual Notation Guide](/doc/process-framework/guides/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Visual Notation Guide](/doc/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
   - Project dependency configuration file - To verify dependency changes and versions
 
 - **Important (Load If Space):**
@@ -153,8 +153,8 @@ Review implemented code to ensure it meets quality standards, follows project co
 
 19. **Report Discovered Bugs**: If bugs are identified during code review:
 
-    - Use [../../scripts/file-creation/New-BugReport.ps1](../../scripts/file-creation/New-BugReport.ps1) script to create standardized bug reports
-    - Follow [Bug Reporting Guide](../../guides/guides/06-maintenance/bug-reporting-guide.md) for consistent documentation
+    - Use [../../scripts/file-creation/06-maintenance/New-BugReport.ps1](../../scripts/file-creation/06-maintenance/New-BugReport.ps1) script to create standardized bug reports
+    - Follow [Bug Reporting Guide](../../guides/06-maintenance/bug-reporting-guide.md) for consistent documentation
     - Add bug entries to [Bug Tracking](../../state-tracking/permanent/bug-tracking.md) with status 🆕 Reported
     - Include code review context and evidence in bug reports
     - Reference specific code locations and line numbers
@@ -167,7 +167,7 @@ Review implemented code to ensure it meets quality standards, follows project co
     Set-Location "doc/process-framework/scripts/file-creation"
 
     # Create bug report for issues found during code review
-    ../../scripts/file-creation/New-BugReport.ps1 -Title "Unhandled exception in data validation" -Description "Method validate_input() doesn't handle None parameter" -DiscoveredBy "Code Review" -Severity "High" -Component "Data Validation" -Environment "Development" -Evidence "Code location: src/services/validator.py:142"
+    ../../scripts/file-creation/06-maintenance/New-BugReport.ps1 -Title "Unhandled exception in data validation" -Description "Method validate_input() doesn't handle None parameter" -DiscoveredBy "Code Review" -Severity "High" -Component "Data Validation" -Environment "Development" -Evidence "Code location: src/services/validator.py:142"
     ```
 
 ### Finalization
@@ -247,7 +247,7 @@ Before considering this task finished:
   - [ ] Platform compatibility verified (target environments as applicable)
   - [ ] Security review completed (input validation, secure storage, API security)
   - [ ] Bug discovery performed systematically across all review areas
-  - [ ] Any discovered bugs reported using ../../scripts/file-creation/New-BugReport.ps1 script with proper context and evidence
+  - [ ] Any discovered bugs reported using ../../scripts/file-creation/06-maintenance/New-BugReport.ps1 script with proper context and evidence
 
 - [ ] **Verify Outputs**: Confirm all required outputs have been produced
 
@@ -265,7 +265,7 @@ Before considering this task finished:
   - [ ] Link to review document included
   - [ ] Major findings and performance notes summarized in the tracking document
   - [ ] Test coverage percentages updated
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-005" and context "Code Review"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-005" and context "Code Review"
 
 ## Next Tasks
 
@@ -294,7 +294,7 @@ Before considering this task finished:
 
 - Project linting/analysis configuration - Code standards
 - Project dependency configuration - Dependencies and versions
-- [Task Creation and Improvement Guide](../../guides/guides/support/task-creation-guide.md) - Guide for creating and improving tasks
+- [Task Creation and Improvement Guide](../../guides/support/task-creation-guide.md) - Guide for creating and improving tasks
 
 ### Automation & Scripts
 
@@ -306,6 +306,6 @@ Before considering this task finished:
 
 If referenced files are missing or incomplete:
 
-1. Refer to the [Definition of Done](/doc/process-framework/guides/guides/04-implementation/definition-of-done.md) as the primary quality reference
+1. Refer to the [Definition of Done](/doc/process-framework/guides/04-implementation/definition-of-done.md) as the primary quality reference
 2. Focus on the review areas outlined in this task
 3. Consult with your human partner for project-specific standards and requirements

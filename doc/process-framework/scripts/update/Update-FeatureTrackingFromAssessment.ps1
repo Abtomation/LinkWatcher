@@ -71,7 +71,11 @@ param(
 )
 
 # Import the common helpers
-Import-Module (Join-Path -Path $PSScriptRoot -ChildPath "../Common-ScriptHelpers.psm1") -Force
+$dir = $PSScriptRoot
+while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
+    $dir = Split-Path -Parent $dir
+}
+Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 
 # Perform standard initialization
 Invoke-StandardScriptInitialization

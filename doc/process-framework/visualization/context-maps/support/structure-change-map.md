@@ -72,7 +72,7 @@ graph TD
 
 ## Related Documentation
 
-- [Structure Change Proposal Template](/doc/process-framework/templates/templates/structure-change-proposal-template.md) - Template for change proposals
+- [Structure Change Proposal Template](/doc/process-framework/templates/support/structure-change-proposal-template.md) - Template for change proposals
 - [Architecture Documentation](/doc/product-docs/technical/architecture) - Current architecture documentation
 - [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Component relationship documentation
 - <!-- [Refactoring Guide](/doc/product-docs/development/guides/refactoring-guide.md) - File not found --> - Guide for code refactoring

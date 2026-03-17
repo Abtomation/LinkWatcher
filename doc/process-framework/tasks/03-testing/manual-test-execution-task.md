@@ -49,7 +49,7 @@ Manual test execution validates system behavior that cannot be covered by automa
 - **Reference Only (Access When Needed):**
   - [Manual Test Case Creation Task](manual-test-case-creation-task.md) — If test cases need updates during execution
   - [Bug Triage Task](../06-maintenance/bug-triage-task.md) — For reporting discovered failures
-  - [Visual Notation Guide](/doc/process-framework/guides/guides/support/visual-notation-guide.md) — For interpreting context map diagrams
+  - [Visual Notation Guide](/doc/process-framework/guides/support/visual-notation-guide.md) — For interpreting context map diagrams
 
 ## Process
 
@@ -90,7 +90,7 @@ Manual test execution validates system behavior that cannot be covered by automa
    cd /c/path/to/project/doc/process-framework/scripts/testing && pwsh.exe -ExecutionPolicy Bypass -Command '& .\Update-TestExecutionStatus.ps1 -Group "group-name" -Status "Passed" -Confirm:$false'
    ```
    > For failures, use `-Status "Failed" -Reason "description of failure"`.
-8. **Report bugs**: For test failures that indicate genuine defects, create bug reports using [New-BugReport.ps1](../../scripts/file-creation/New-BugReport.ps1):
+8. **Report bugs**: For test failures that indicate genuine defects, create bug reports using [New-BugReport.ps1](../../scripts/file-creation/06-maintenance/New-BugReport.ps1):
    ```bash
    cd /c/path/to/project/doc/process-framework/scripts/file-creation && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-BugReport.ps1 -Title "Brief description" -Description "Detailed description" -DiscoveredBy "Testing" -Severity "High" -Component "ComponentName" -Confirm:$false'
    ```
@@ -123,7 +123,7 @@ Before considering this task finished:
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
   - [ ] [Test Tracking](../../state-tracking/permanent/test-tracking.md) — execution status and dates updated
   - [ ] [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) — Test Status reflects current state
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-070" and context "Manual Test Execution"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-070" and context "Manual Test Execution"
 
 ## Next Tasks
 
@@ -136,4 +136,4 @@ Before considering this task finished:
 - [Setup-TestEnvironment.ps1](../../scripts/test/manual-testing/Setup-TestEnvironment.ps1) — Environment setup script
 - [Verify-TestResult.ps1](../../scripts/test/manual-testing/Verify-TestResult.ps1) — Result verification script
 - [Update-TestExecutionStatus.ps1](../../scripts/test/manual-testing/Update-TestExecutionStatus.ps1) — Status update script
-- [New-BugReport.ps1](../../scripts/file-creation/New-BugReport.ps1) — Bug report creation script for discovered defects
+- [New-BugReport.ps1](../../scripts/file-creation/06-maintenance/New-BugReport.ps1) — Bug report creation script for discovered defects

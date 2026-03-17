@@ -50,7 +50,7 @@ Systematic code improvement and technical debt reduction without changing extern
 - **Reference Only (Access When Needed):**
   - **Coding Standards** - Project-specific coding conventions and style guides
   - **Performance Benchmarks** - Current performance metrics to ensure refactoring doesn't degrade performance
-  - [Visual Notation Guide](/doc/process-framework/guides/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Visual Notation Guide](/doc/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 ## Process
 
@@ -87,7 +87,7 @@ Evaluate the refactoring scope against these criteria:
 
 ## Outputs
 
-- **Refactoring Plan Document** - Lightweight or standard plan documenting scope, changes, and results (stored in `doc/process-framework/refactoring/plans/`)
+- **Refactoring Plan Document** - Lightweight or standard plan documenting scope, changes, and results (stored in `doc/product-docs/refactoring/plans`)
 - **Refactored Code** - Improved code with better structure, reduced complexity, and maintained functionality
 - **Updated Test Suite** - Enhanced or additional tests to cover refactored code areas (standard path)
 - **Quality Metrics Report** - Before/after comparison of code quality indicators and performance metrics (standard path)
@@ -104,5 +104,3 @@ Evaluate the refactoring scope against these criteria:
 ## Related Resources
 
 - [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md) - For identifying refactoring targets
-- [Code Quality Standards](../../guides/guides/code-quality-standards.md) - Project coding standards and best practices
-- [Testing Guidelines](../../guides/guides/testing-guidelines.md) - Ensuring behavior preservation during refactoring

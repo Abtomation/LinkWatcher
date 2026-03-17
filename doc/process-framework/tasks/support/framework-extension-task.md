@@ -37,18 +37,18 @@ This task manages the systematic extension of the task-based development framewo
 - **Critical (Must Read):**
 
   - **Framework Extension Concept Document** - Human-provided concept document defining the extension scope, workflow, and integration strategy
-  - [Framework Extension Customization Guide](../../guides/guides/support/framework-extension-customization-guide.md) - Essential guide for customizing Framework Extension Concept documents
+  - [Framework Extension Customization Guide](../../guides/support/framework-extension-customization-guide.md) - Essential guide for customizing Framework Extension Concept documents
   - [Task-Based Development Principles](../../../ai-tasks.md#understanding-task-based-development) - Understanding of framework principles for consistent extension
   - [New Task Creation Process](new-task-creation-process.md) - For creating individual tasks within the extension
-  - [Visual Notation Guide](/doc/process-framework/guides/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Visual Notation Guide](/doc/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 - **Important (Load If Space):**
 
   - [Documentation Map](../../documentation-map.md) - For understanding current framework structure and updating with new artifacts
   - [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) - For tracking framework capability enhancements
-  - [New-TempTaskState.ps1](../../scripts/file-creation/New-TempTaskState.ps1) - Script for creating multi-session implementation tracking
-  - [Template Development Guide](../../guides/guides/support/template-development-guide.md) - For creating extension-specific templates
-  - [Document Creation Script Development Guide](../../guides/guides/support/document-creation-script-development-guide.md) - For creating automation scripts
+  - [New-TempTaskState.ps1](../../scripts/file-creation/support/New-TempTaskState.ps1) - Script for creating multi-session implementation tracking
+  - [Template Development Guide](../../guides/support/template-development-guide.md) - For creating extension-specific templates
+  - [Document Creation Script Development Guide](../../guides/support/document-creation-script-development-guide.md) - For creating automation scripts
 
 - **Reference Only (Access When Needed):**
   - [ID Registry](../../../id-registry.json) - For adding new ID prefixes for extension-created file types
@@ -75,7 +75,7 @@ This task manages the systematic extension of the task-based development framewo
    ./New-FrameworkExtensionConcept.ps1 -ExtensionName "[Extension Name]" -ExtensionDescription "[Brief description]" -ExtensionScope "[Extension scope]" -OpenInEditor
    ```
    - Script creates structural template in `/doc/process-framework/proposals/proposals/[extension-name]-concept.md`
-   - **CRITICAL**: Template requires extensive customization following [Framework Extension Customization Guide](../../guides/guides/support/framework-extension-customization-guide.md)
+   - **CRITICAL**: Template requires extensive customization following [Framework Extension Customization Guide](../../guides/support/framework-extension-customization-guide.md)
    - Define extension scope and new capabilities to be added
    - Specify workflow definition with clear input-process-output flow
    - Create artifact dependency map showing how new artifacts serve as inputs for subsequent tasks
@@ -196,7 +196,7 @@ Before considering this task finished:
   - [ ] Temporary state tracking file archived to `/doc/process-framework/state-tracking/temporary/old/`
   - [ ] [Documentation Map](../../documentation-map.md) reflects all new artifacts
   - [ ] [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) updated with framework capability enhancement
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-026" and context "Framework Extension Task"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-026" and context "Framework Extension Task"
 
 ## Next Tasks
 
@@ -214,13 +214,13 @@ Before considering this task finished:
 
 ### Development Infrastructure
 
-- [Template Development Guide](../../guides/guides/support/template-development-guide.md) - For creating extension-specific templates
-- [Document Creation Script Development Guide](../../guides/guides/support/document-creation-script-development-guide.md) - For creating automation scripts
-- [Framework Extension Customization Guide](../../guides/guides/support/framework-extension-customization-guide.md) - For customizing Framework Extension Concept documents
-- [Visualization Creation Guide](../../guides/guides/support/visualization-creation-guide.md) - For creating context maps
+- [Template Development Guide](../../guides/support/template-development-guide.md) - For creating extension-specific templates
+- [Document Creation Script Development Guide](../../guides/support/document-creation-script-development-guide.md) - For creating automation scripts
+- [Framework Extension Customization Guide](../../guides/support/framework-extension-customization-guide.md) - For customizing Framework Extension Concept documents
+- [Visualization Creation Guide](../../guides/support/visualization-creation-guide.md) - For creating context maps
 
 ### State Management
 
-- [New-TempTaskState.ps1](../../scripts/file-creation/New-TempTaskState.ps1) - Script for multi-session implementation tracking
+- [New-TempTaskState.ps1](../../scripts/file-creation/support/New-TempTaskState.ps1) - Script for multi-session implementation tracking
 - [Documentation Map](../../documentation-map.md) - Framework structure and artifact relationships
 - [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) - Framework capability tracking

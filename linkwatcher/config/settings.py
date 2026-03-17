@@ -42,6 +42,7 @@ class LinkWatcherConfig:
     enable_json_parser: bool = True
     enable_dart_parser: bool = True
     enable_python_parser: bool = True
+    enable_powershell_parser: bool = True
     enable_generic_parser: bool = True
 
     # Update behavior
@@ -65,10 +66,10 @@ class LinkWatcherConfig:
     show_log_icons: bool = True
     performance_logging: bool = False
 
-    # Advanced settings
-    custom_parsers: Dict[str, str] = field(default_factory=dict)
-    exclude_patterns: Set[str] = field(default_factory=set)
-    include_patterns: Set[str] = field(default_factory=set)
+    # Move detection timing
+    move_detect_delay: float = 10.0
+    dir_move_max_timeout: float = 300.0
+    dir_move_settle_delay: float = 5.0
 
     @classmethod
     def from_file(cls, config_path: str) -> "LinkWatcherConfig":
@@ -111,19 +112,11 @@ class LinkWatcherConfig:
         if "ignored_directories" in data:
             config.ignored_directories = set(data["ignored_directories"])
 
-        if "exclude_patterns" in data:
-            config.exclude_patterns = set(data["exclude_patterns"])
-
-        if "include_patterns" in data:
-            config.include_patterns = set(data["include_patterns"])
-
         # Set other attributes
         for key, value in data.items():
             if hasattr(config, key) and key not in [
                 "monitored_extensions",
                 "ignored_directories",
-                "exclude_patterns",
-                "include_patterns",
             ]:
                 setattr(config, key, value)
 
@@ -233,5 +226,13 @@ class LinkWatcherConfig:
         # Check scan progress interval
         if self.scan_progress_interval <= 0:
             issues.append("scan_progress_interval must be positive")
+
+        # Check move detection timing
+        if self.move_detect_delay <= 0:
+            issues.append("move_detect_delay must be positive")
+        if self.dir_move_max_timeout <= 0:
+            issues.append("dir_move_max_timeout must be positive")
+        if self.dir_move_settle_delay <= 0:
+            issues.append("dir_move_settle_delay must be positive")
 
         return issues

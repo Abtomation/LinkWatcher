@@ -52,12 +52,12 @@ Implement comprehensive test coverage for a feature and verify that all componen
   - **Completed Implementation Code** - All implemented feature code to be tested
   - [Test Tracking](../../state-tracking/permanent/test-tracking.md) - Current test implementation status
   - [Test Registry](/test/test-registry.yaml) - Test file registry with IDs and metadata
-  - [Visual Notation Guide](/doc/process-framework/guides/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Visual Notation Guide](/doc/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 - **Important (Load If Space):**
 
   - **Feature Tracking** - [Feature details from feature-tracking.md](../../state-tracking/permanent/feature-tracking.md) for context
-  - **Feature Implementation State File** (if exists) - Implementation progress and context at `/doc/process-framework/state-tracking/features/`
+  - **Feature Implementation State File** (if exists) - Implementation progress and context at `/doc/process-framework/state-tracking/features`
   - [Existing Test Structure](/test/) - Current test organization and patterns
   - [Mock Services](/test/mocks/) - Available mock implementations for testing
   - [Test Helpers](/test/test_helpers/) - Utility functions for test setup
@@ -65,7 +65,7 @@ Implement comprehensive test coverage for a feature and verify that all componen
 - **Reference Only (Access When Needed):**
   - [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - For understanding component interactions
   - **Existing Test Examples** - Similar test implementations in codebase for pattern consistency
-  - [Development Guide](/doc/process-framework/guides/guides/04-implementation/development-guide.md) - Testing standards and practices
+  - [Development Guide](/doc/process-framework/guides/04-implementation/development-guide.md) - Testing standards and practices
 
 ## Process
 
@@ -130,7 +130,7 @@ Implement comprehensive test coverage for a feature and verify that all componen
 14. **Update State Files**: Document test implementation, coverage metrics, and testing notes in Feature Implementation State File (if exists)
 15. **(Optional) Identify Cross-Cutting Test Opportunities**: When integration testing reveals behaviors that span multiple features:
     - Check if existing tests adequately cover the cross-feature interaction
-    - If not, consider creating a cross-cutting test specification using the [Cross-Cutting Test Specification Template](../../templates/templates/cross-cutting-test-specification-template.md)
+    - If not, consider creating a cross-cutting test specification using the [Cross-Cutting Test Specification Template](../../templates/03-testing/cross-cutting-test-specification-template.md)
     - Store cross-cutting specs in `/test/specifications/cross-cutting-specs/`
     - Register cross-cutting tests in [Test Registry](/test/test-registry.yaml) with `testType: cross-cutting` and the `crossCuttingFeatures` field
     - This step is optional guidance — not every integration test warrants a formal cross-cutting specification
@@ -159,8 +159,8 @@ Implement comprehensive test coverage for a feature and verify that all componen
 
 22. **Report Discovered Bugs**: If bugs are identified during test implementation:
 
-    - Use [New-BugReport.ps1](../../scripts/file-creation/New-BugReport.ps1) script to create standardized bug reports
-    - Follow [Bug Reporting Guide](../../guides/guides/06-maintenance/bug-reporting-guide.md) for consistent documentation
+    - Use [New-BugReport.ps1](../../scripts/file-creation/06-maintenance/New-BugReport.ps1) script to create standardized bug reports
+    - Follow [Bug Reporting Guide](../../guides/06-maintenance/bug-reporting-guide.md) for consistent documentation
     - Add bug entries to [Bug Tracking](../../state-tracking/permanent/bug-tracking.md) with status Reported
     - Include test implementation context and evidence in bug reports
     - Reference specific test cases that revealed the bugs
@@ -244,7 +244,7 @@ Before considering this task finished:
   - [ ] Code Inventory section updated with test files and metrics
   - [ ] Implementation Progress section reflects testing completion
   - [ ] Testing patterns and challenges documented in Implementation Notes
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-053" and context "Integration & Testing"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-053" and context "Integration & Testing"
 
 ## Next Tasks
 
@@ -258,8 +258,8 @@ Before considering this task finished:
 - [Test Specification Creation Task](../03-testing/test-specification-creation-task.md) - For creating test specifications before implementation
 - [Test Tracking](../../state-tracking/permanent/test-tracking.md) - Track test implementation progress
 - [Test Registry](/test/test-registry.yaml) - Test file registry with IDs and metadata
-- [Test File Creation Guide](../../guides/guides/03-testing/test-file-creation-guide.md) - Guide for customizing test file templates
-- [Bug Reporting Guide](../../guides/guides/06-maintenance/bug-reporting-guide.md) - Standardized procedures for reporting bugs
-- [Feature Implementation State Tracking Guide](../../guides/guides/04-implementation/feature-implementation-state-tracking-guide.md) - Guide for maintaining feature state file
-- [Cross-Cutting Test Specification Template](../../templates/templates/cross-cutting-test-specification-template.md) - Template for cross-feature test specs
-- [Development Guide](/doc/process-framework/guides/guides/04-implementation/development-guide.md) - Testing standards and practices
+- [Test File Creation Guide](../../guides/03-testing/test-file-creation-guide.md) - Guide for customizing test file templates
+- [Bug Reporting Guide](../../guides/06-maintenance/bug-reporting-guide.md) - Standardized procedures for reporting bugs
+- [Feature Implementation State Tracking Guide](../../guides/04-implementation/feature-implementation-state-tracking-guide.md) - Guide for maintaining feature state file
+- [Cross-Cutting Test Specification Template](../../templates/03-testing/cross-cutting-test-specification-template.md) - Template for cross-feature test specs
+- [Development Guide](/doc/process-framework/guides/04-implementation/development-guide.md) - Testing standards and practices

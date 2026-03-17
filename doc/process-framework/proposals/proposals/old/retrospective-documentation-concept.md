@@ -112,7 +112,7 @@ All documents are marked "Retrospective" and use existing templates/creation tas
 ## References
 
 - [Retrospective Feature Documentation Task (PF-TSK-060)](../tasks/cyclical/retrospective-feature-documentation-task.md) - **Authoritative task definition**
-- [Retrospective Master State Template](../templates/templates/retrospective-state-template.md) - Master tracking template
-- [Feature Implementation State Template](../templates/templates/feature-implementation-state-template.md) - Per-feature code analysis template
+- [Retrospective Master State Template](../../../templates/00-onboarding/retrospective-state-template.md) - Master tracking template
+- [Feature Implementation State Template](../../../templates/04-implementation/feature-implementation-state-template.md) - Per-feature code analysis template
 - [Feature Tracking](../state-tracking/permanent/feature-tracking.md) - Feature status tracking
 - [Retrospective Task Redesign Summary](retrospective-task-redesign-summary.md) - Historical v1.0 redesign notes

@@ -83,11 +83,11 @@ graph TD
 ## Related Documentation
 
 - [Framework Extension Task Definition](../../tasks/support/framework-extension-task.md) - Complete task definition and process
-- [Framework Extension Customization Guide](../../guides/guides/support/framework-extension-customization-guide.md) - Essential guide for customizing Framework Extension Concept documents
-- [Framework Extension Concept Template](../../templates/templates/framework-extension-concept-template.md) - Template for concept documents
+- [Framework Extension Customization Guide](../../../guides/support/framework-extension-customization-guide.md) - Essential guide for customizing Framework Extension Concept documents
+- [Framework Extension Concept Template](../../../templates/support/framework-extension-concept-template.md) - Template for concept documents
 - [New Task Creation Process](../../tasks/support/new-task-creation-process.md) - Process for creating individual tasks
-- [Template Development Guide](../../guides/guides/support/template-development-guide.md) - Best practices for template creation
-- [Guide Creation Best Practices Guide](../../guides/guides/support/guide-creation-best-practices-guide.md) - Standards for guide creation
+- [Template Development Guide](../../../guides/support/template-development-guide.md) - Best practices for template creation
+- [Guide Creation Best Practices Guide](../../../guides/support/guide-creation-best-practices-guide.md) - Standards for guide creation
 
 ---
 

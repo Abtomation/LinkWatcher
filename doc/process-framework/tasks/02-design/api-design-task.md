@@ -54,7 +54,7 @@ Design comprehensive API contracts and specifications before implementation begi
 
 ## Information Flow
 
-> **📋 Detailed Guidance**: See [Task Transition Guide - Information Flow Section](../../guides/guides/framework/task-transition-guide.md#information-flow-and-separation-of-concerns)
+> **📋 Detailed Guidance**: See [Task Transition Guide - Information Flow Section](../../guides/framework/task-transition-guide.md#information-flow-and-separation-of-concerns)
 
 This task focuses exclusively on **API-level concerns**: endpoint specifications, request/response contracts, authentication patterns, and service integration protocols.
 
@@ -120,7 +120,7 @@ When referencing this task's outputs in other tasks:
 - **Reference Only (Access When Needed):**
   - [API Design Best Practices](https://restfulapi.net/) - Industry standards for REST API design
   - [OpenAPI Specification](https://swagger.io/specification/) - Standard for API documentation
-  - [Visual Notation Guide](/doc/process-framework/guides/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Visual Notation Guide](/doc/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 ## Process
 
@@ -169,7 +169,7 @@ When referencing this task's outputs in other tasks:
 
     ```powershell
     cd doc/product-docs/technical/api/models
-    ../../scripts/file-creation/New-APIDataModel.ps1 -ModelName "[API Name] Request" -ModelDescription "[Brief description]" -FeatureId "[FeatureId]"
+    ../../scripts/file-creation/02-design/New-APIDataModel.ps1 -ModelName "[API Name] Request" -ModelDescription "[Brief description]" -FeatureId "[FeatureId]"
     ```
 
     **✅ AUTOMATED**: Feature tracking API Design column automatically updated with intelligent replacement/append logic
@@ -178,7 +178,7 @@ When referencing this task's outputs in other tasks:
 
     ```powershell
     cd doc/product-docs/technical/api/models
-    ../../scripts/file-creation/New-APIDataModel.ps1 -ModelName "[API Name] Response" -ModelDescription "[Brief description]" -FeatureId "[FeatureId]"
+    ../../scripts/file-creation/02-design/New-APIDataModel.ps1 -ModelName "[API Name] Response" -ModelDescription "[Brief description]" -FeatureId "[FeatureId]"
     ```
 
     **✅ AUTOMATED**: Feature tracking API Design column automatically updated with intelligent replacement/append logic
@@ -223,7 +223,7 @@ Before considering this task finished:
   - [ ] **✅ AUTOMATED** - [Feature Tracking](../../../state-tracking/permanent/feature-tracking.md) API Design column updates:
     - [x] **✅ AUTOMATED**: API specification and data model links automatically managed (intelligent replacement/append logic)
   - [ ] **🔧 MANUAL** - [Technical Debt Tracking](../../../state-tracking/permanent/technical-debt-tracking.md) updated with any design decisions creating technical debt
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-020" and context "API Design Task"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-020" and context "API Design Task"
 
 ## Next Tasks
 
@@ -234,8 +234,8 @@ Before considering this task finished:
 
 ## Related Resources
 
-- [API Specification Creation Guide](../../guides/guides/02-design/api-specification-creation-guide.md) - How to use the ../../scripts/file-creation/New-APISpecification.ps1 script effectively
-- [API Data Model Creation Guide](../../guides/guides/02-design/api-data-model-creation-guide.md) - How to use the ../../scripts/file-creation/New-APIDataModel.ps1 script effectively
+- [API Specification Creation Guide](../../guides/02-design/api-specification-creation-guide.md) - How to use the ../../scripts/file-creation/02-design/New-APISpecification.ps1 script effectively
+- [API Data Model Creation Guide](../../guides/02-design/api-data-model-creation-guide.md) - How to use the ../../scripts/file-creation/02-design/New-APIDataModel.ps1 script effectively
 - [API Design Task Context Map](../../visualization/context-maps/02-design/api-design-task-map.md) - Visual guide to task components and relationships
 - [System Architecture Review Task](../01-planning/system-architecture-review.md) - Prerequisite task for understanding architectural constraints
-- [Visual Notation Guide](../../guides/guides/support/visual-notation-guide.md) - Standard notation for API diagrams and documentation
+- [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - Standard notation for API diagrams and documentation

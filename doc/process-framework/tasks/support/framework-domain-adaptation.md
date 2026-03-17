@@ -52,8 +52,8 @@ Systematically adapt the process framework from one business domain (software de
   - [AI Tasks Registry](../../../ai-tasks.md) - Task system overview
 
 - **Reference Only (Access When Needed):**
-  - [Visual Notation Guide](../../guides/guides/support/visual-notation-guide.md) - For interpreting diagrams
-  - [Terminology Guide](../../guides/guides/framework/terminology-guide.md) - Current terminology definitions
+  - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting diagrams
+  - [Terminology Guide](../../guides/framework/terminology-guide.md) - Current terminology definitions
   - Individual framework documents as referenced in cleanup state file
 
 ## Process
@@ -308,8 +308,8 @@ Systematically adapt the process framework from one business domain (software de
 ## Outputs
 
 - **Adapted Task Definitions** - Tasks modified for legal context in `/doc/process-framework/tasks/`
-- **Adapted Templates** - Templates for legal documents and processes in `/doc/process-framework/templates/`
-- **Adapted Guides** - Guides using legal terminology and examples in `/doc/process-framework/guides/`
+- **Adapted Templates** - Templates for legal documents and processes in `/doc/process-framework/templates`
+- **Adapted Guides** - Guides using legal terminology and examples in `/doc/process-framework/guides`
 - **Updated Documentation Map** - Reflects cleaned-up structure at `/doc/process-framework/documentation-map.md`
 - **Legal Document Tracking** - Replacement for feature-tracking.md at `/doc/process-framework/state-tracking/permanent/legal-document-tracking.md`
 - **Cleaned Directory Structure** - Removed unnecessary directories
@@ -362,7 +362,7 @@ Before considering this task finished:
   - [ ] [Documentation Map](../../documentation-map.md) - Reflects final structure
   - [ ] [Legal Document Tracking](../../state-tracking/permanent/legal-document-tracking.md) - Created and functional
 
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-056" and context "Framework Domain Adaptation"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-056" and context "Framework Domain Adaptation"
 
 ## Next Tasks
 

@@ -288,7 +288,7 @@ The following user feedback was collected across the 23 feedback forms:
 
 ### Forms Analyzed in This Review (to be archived)
 
-All 23 feedback forms in `doc/process-framework/feedback/feedback-forms/` dated 2026-02-17 through 2026-02-20 were analyzed:
+All 23 feedback forms in `doc/process-framework/feedback/feedback-forms` dated 2026-02-17 through 2026-02-20 were analyzed:
 
 - ART-FEE-169 (PF-TSK-002)
 - ART-FEE-170 through ART-FEE-173 (PF-TSK-064, 4 forms)

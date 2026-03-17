@@ -37,27 +37,27 @@ Complete process for creating a new task from concept to implementation-ready de
 - **Critical (Must Read):**
 
   - **Task Concept Description** - Human-provided description of the new task concept and its purpose
-  - [Task Creation Guide](../../guides/guides/support/task-creation-guide.md) - Understanding task structure requirements
-  - [Temporary State Tracking Customization Guide](../../guides/guides/support/temp-state-tracking-customization-guide.md) - For creating and managing multi-session state tracking
+  - [Task Creation Guide](../../guides/support/task-creation-guide.md) - Understanding task structure requirements
+  - [Temporary State Tracking Customization Guide](../../guides/support/temp-state-tracking-customization-guide.md) - For creating and managing multi-session state tracking
   - [AI Tasks System](../../../ai-tasks.md) - For updating the main task registry
 
 - **Important (Load If Space):**
 
-  - [Document Creation Script Development Guide](../../guides/guides/support/document-creation-script-development-guide.md) - For creating scripts when task generates new files
-  - [Template Development Guide](../../guides/guides/support/template-development-guide.md) - For creating templates when needed
-  - [Documentation Structure Guide](../../guides/guides/framework/documentation-structure-guide.md) - For organizing and structuring documentation
-  - [Visualization Creation Guide](../../guides/guides/support/visualization-creation-guide.md) - For creating context maps
+  - [Document Creation Script Development Guide](../../guides/support/document-creation-script-development-guide.md) - For creating scripts when task generates new files
+  - [Template Development Guide](../../guides/support/template-development-guide.md) - For creating templates when needed
+  - [Documentation Structure Guide](../../guides/framework/documentation-structure-guide.md) - For organizing and structuring documentation
+  - [Visualization Creation Guide](../../guides/support/visualization-creation-guide.md) - For creating context maps
   - [ID Registry](../../../id-registry.json) - For understanding and updating ID prefixes
 
 - **Reference Only (Access When Needed):**
   - [Documentation Map](../../documentation-map.md) - For updating with new artifacts
-  - [Visual Notation Guide](../../guides/guides/support/visual-notation-guide.md) - For creating context maps
+  - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For creating context maps
   - [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) - For tracking infrastructure completion
-  - [New-Task.ps1](../../scripts/file-creation/New-Task.ps1) - Script for creating task definitions
-  - [New-TempTaskState.ps1](../../scripts/file-creation/New-TempTaskState.ps1) - Script for creating temporary state files
-  - [New-Template.ps1](../../scripts/file-creation/New-Template.ps1) - Script for creating templates
-  - [New-Guide.ps1](../../scripts/file-creation/New-Guide.ps1) - Script for creating guides
-  - [New-ContextMap.ps1](../../scripts/file-creation/New-ContextMap.ps1) - Script for creating context maps
+  - [New-Task.ps1](../../scripts/file-creation/support/New-Task.ps1) - Script for creating task definitions
+  - [New-TempTaskState.ps1](../../scripts/file-creation/support/New-TempTaskState.ps1) - Script for creating temporary state files
+  - [New-Template.ps1](../../scripts/file-creation/support/New-Template.ps1) - Script for creating templates
+  - [New-Guide.ps1](../../scripts/file-creation/support/New-Guide.ps1) - Script for creating guides
+  - [New-ContextMap.ps1](../../scripts/file-creation/02-design/New-ContextMap.ps1) - Script for creating context maps
 
 ## Process
 
@@ -140,13 +140,13 @@ Complete process for creating a new task from concept to implementation-ready de
 
 ### Lightweight Execution
 
-6L. **Create Task Definition**: Use [New-Task.ps1](../../scripts/file-creation/New-Task.ps1) and [Task Creation Guide](../../guides/guides/support/task-creation-guide.md)
+6L. **Create Task Definition**: Use [New-Task.ps1](../../scripts/file-creation/support/New-Task.ps1) and [Task Creation Guide](../../guides/support/task-creation-guide.md)
    ```bash
    cd /c/path/to/project/doc/process-framework/scripts/file-creation && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-Task.ps1 -TaskType "Discrete" -TaskName "Your Task Name" -WorkflowPhase "04-implementation" -Description "Your description" -Confirm:$false'
    ```
    > **📝 NAMING**: Rename the generated file to include `-task` suffix (e.g., `your-task-name.md` → `your-task-name-task.md`)
 
-7L. **🚨 CRITICAL: Customize Task Definition Content** — Using the [Task Creation Guide](../../guides/guides/support/task-creation-guide.md), customize all placeholder sections:
+7L. **🚨 CRITICAL: Customize Task Definition Content** — Using the [Task Creation Guide](../../guides/support/task-creation-guide.md), customize all placeholder sections:
    - **When to Use** — Clear criteria and trigger conditions
    - **Context Requirements** — Critical, Important, and Reference inputs with actual links
    - **Process** — Detailed step-by-step instructions (Preparation, Execution, Finalization)
@@ -158,7 +158,7 @@ Complete process for creating a new task from concept to implementation-ready de
    > **🌍 IMPORTANT**: Make tasks **generic and reusable** — use category references and examples instead of project-specific details.
 
 8L. **🚨 CHECKPOINT**: Present customized task definition to human partner for review before creating supporting artifacts
-9L. **Create Context Map**: Use [New-ContextMap.ps1](../../scripts/file-creation/New-ContextMap.ps1) and customize
+9L. **Create Context Map**: Use [New-ContextMap.ps1](../../scripts/file-creation/02-design/New-ContextMap.ps1) and customize
    ```bash
    cd /c/path/to/project/doc/process-framework/scripts/file-creation && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-ContextMap.ps1 -TaskName "Your Task Name" -WorkflowPhase "02-drafting" -MapDescription "Context map for Your Task Name task" -Confirm:$false'
    ```
@@ -183,16 +183,16 @@ Complete process for creating a new task from concept to implementation-ready de
 
 ### Execution
 
-5. **Create Temporary State Tracking File**: Use the [New-TempTaskState.ps1](../../scripts/file-creation/New-TempTaskState.ps1) script to create tracking file with implementation roadmap
+5. **Create Temporary State Tracking File**: Use the [New-TempTaskState.ps1](../../scripts/file-creation/support/New-TempTaskState.ps1) script to create tracking file with implementation roadmap
 
    ```bash
    cd /c/path/to/project/doc/process-framework/scripts/file-creation && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-TempTaskState.ps1 -TaskName "Task Name" -TaskType "Discrete" -Description "Brief task description" -Confirm:$false'
    ```
    > **Note**: Update the path to match your actual project location. TaskType options: Discrete, Cyclical, Support
 
-   **Reference**: [Temporary State File Customization Guide](../../guides/guides/support/temp-state-tracking-customization-guide.md)
+   **Reference**: [Temporary State File Customization Guide](../../guides/support/temp-state-tracking-customization-guide.md)
 
-6. **🚨 CRITICAL: Customize Temporary State File** - Using the [Temporary State File Customization Guide](../../guides/guides/support/temp-state-tracking-customization-guide.md), customize the generated temp state file:
+6. **🚨 CRITICAL: Customize Temporary State File** - Using the [Temporary State File Customization Guide](../../guides/support/temp-state-tracking-customization-guide.md), customize the generated temp state file:
 
    - **Task Overview** - Update task name, type, and ID information
    - **Infrastructure Analysis** - Document which artifacts are needed vs. available for reuse
@@ -207,7 +207,7 @@ Complete process for creating a new task from concept to implementation-ready de
 
    **Session 1 - Core Task Infrastructure:**
 
-   - Create task definition using [New-Task.ps1](../../scripts/file-creation/New-Task.ps1) and [Task Creation Guide](../../guides/guides/support/task-creation-guide.md)
+   - Create task definition using [New-Task.ps1](../../scripts/file-creation/support/New-Task.ps1) and [Task Creation Guide](../../guides/support/task-creation-guide.md)
      ```bash
      cd /c/path/to/project/doc/process-framework/scripts/file-creation && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-Task.ps1 -TaskType "Discrete" -TaskName "Your Task Name" -WorkflowPhase "04-implementation" -Description "Your description" -Confirm:$false'
      ```
@@ -215,7 +215,7 @@ Complete process for creating a new task from concept to implementation-ready de
      > **✨ ENHANCED**: Script now automatically updates three documentation files: documentation-map.md, tasks/README.md, and ai-tasks.md
      > **📝 NAMING**: Rename the generated file to include `-task` suffix (e.g., `your-task-name.md` → `your-task-name-task.md`) for easy identification
 
-   - **🚨 CRITICAL: Phase 2 - Customize Task Definition Content** - Using the [Task Creation Guide](../../guides/guides/support/task-creation-guide.md), customize all placeholder sections in the generated task file:
+   - **🚨 CRITICAL: Phase 2 - Customize Task Definition Content** - Using the [Task Creation Guide](../../guides/support/task-creation-guide.md), customize all placeholder sections in the generated task file:
      - **When to Use** - Clear criteria and trigger conditions specific to this task
      - **Context Requirements** - Critical, Important, and Reference inputs with actual links to files
      - **Process** - Detailed step-by-step instructions (Preparation, Execution, Finalization) specific to this task
@@ -225,7 +225,7 @@ Complete process for creating a new task from concept to implementation-ready de
      - **Next Tasks** - Link to actual follow-up tasks in the workflow
      > **Reference**: See "Phase 2: Content Customization" section above - this transforms the meta-template into a functional task definition
      >
-     > **🌍 IMPORTANT**: Make tasks **generic and reusable** - use category references and examples (e.g., "business types: B2B, B2C, SaaS") instead of project-specific details. Use placeholders in commands. See [Task Creation Guide](../../guides/guides/support/task-creation-guide.md) for detailed guidance.
+     > **🌍 IMPORTANT**: Make tasks **generic and reusable** - use category references and examples (e.g., "business types: B2B, B2C, SaaS") instead of project-specific details. Use placeholders in commands. See [Task Creation Guide](../../guides/support/task-creation-guide.md) for detailed guidance.
 
    - **🚨 CHECKPOINT**: Present customized task definition to human partner for review before proceeding to infrastructure setup
    - **Assign AI Agent Role**: Add appropriate professional role assignment to the task definition after "Purpose & Context" section
@@ -238,20 +238,20 @@ Complete process for creating a new task from concept to implementation-ready de
    > **⚠️ CONDITIONAL**: Only execute if task creates new files as outputs
 
    - Create directory structure for task outputs (consider using subdirectories for better organization)
-   - Create document creation script using [Document Creation Script Development Guide](../../guides/guides/support/document-creation-script-development-guide.md) and [Document Creation Script Template](../../templates/templates/document-creation-script-template.ps1)
+   - Create document creation script using [Document Creation Script Development Guide](../../guides/support/document-creation-script-development-guide.md) and [Document Creation Script Template](../../templates/support/document-creation-script-template.ps1)
      - Use `DirectoryType` parameter for ID registry-based directory resolution
      - Configure subdirectory mappings in ID registry if needed
    - Update [ID Registry](../../../id-registry.json) with new ID prefix for file types created by task
 
    **Session 3 - Templates and Guides:**
 
-   - Create task-specific template using [Template Development Guide](../../guides/guides/support/template-development-guide.md) and [New-Template.ps1](../../scripts/file-creation/New-Template.ps1) (if task creates files)
+   - Create task-specific template using [Template Development Guide](../../guides/support/template-development-guide.md) and [New-Template.ps1](../../scripts/file-creation/support/New-Template.ps1) (if task creates files)
      ```bash
      cd /c/path/to/project/doc/process-framework/scripts/file-creation && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-Template.ps1 -TemplateName "Your Template Name" -TemplateDescription "Template description" -DocumentPrefix "PF-XXX" -DocumentCategory "YourCategory" -Confirm:$false'
      ```
      > **Note**: Script will display prominent warnings about template nature and customization requirements. Update the path to match your actual project location. Replace `PF-XXX` with the appropriate document prefix and `YourCategory` with the document category.
 
-   - Create template customization guide using [New-Guide.ps1](../../scripts/file-creation/New-Guide.ps1) and [Guide Creation Best Practices Guide](../../guides/guides/support/guide-creation-best-practices-guide.md) (if task creates files)
+   - Create template customization guide using [New-Guide.ps1](../../scripts/file-creation/support/New-Guide.ps1) and [Guide Creation Best Practices Guide](../../guides/support/guide-creation-best-practices-guide.md) (if task creates files)
      ```bash
      cd /c/path/to/project/doc/process-framework/scripts/file-creation && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-Guide.ps1 -GuideTitle "Your Guide Name" -GuideDescription "Guide description" -GuideCategory "guides" -Confirm:$false'
      ```
@@ -266,7 +266,7 @@ Complete process for creating a new task from concept to implementation-ready de
    **Session 4 - Documentation and Visualization:**
 
    - Update [Documentation Map](../../documentation-map.md) with all new artifacts
-   - Create context map using [Visualization Creation Guide](../../guides/guides/support/visualization-creation-guide.md) and [New-ContextMap.ps1](../../scripts/file-creation/New-ContextMap.ps1)
+   - Create context map using [Visualization Creation Guide](../../guides/support/visualization-creation-guide.md) and [New-ContextMap.ps1](../../scripts/file-creation/02-design/New-ContextMap.ps1)
      ```bash
      cd /c/path/to/project/doc/process-framework/scripts/file-creation && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-ContextMap.ps1 -TaskName "Your Task Name" -WorkflowPhase "02-drafting" -MapDescription "Context map for Your Task Name task" -Confirm:$false'
      ```
@@ -305,13 +305,13 @@ Complete process for creating a new task from concept to implementation-ready de
 > **⚠️ CONDITIONAL**: Only produced if task creates new files as outputs
 
 - **Task Output Directory Structure** - Directories created for storing task outputs
-- **Document Creation Script** - PowerShell script for generating files created by the task (using [document-creation-script-development-guide.md](../../guides/guides/support/document-creation-script-development-guide.md) and [document-creation-script-template.ps1](../../scripts/file-creation/document-creation-script-template.ps1))
+- **Document Creation Script** - PowerShell script for generating files created by the task (using [document-creation-script-development-guide.md](../../guides/support/document-creation-script-development-guide.md) and [document-creation-script-template.ps1](../../scripts/file-creation/document-creation-script-template.ps1))
 - **Updated ID Registry** - New ID prefix added to [id-registry.json](../../../id-registry.json) for file types created by task
 
 ### Session 3 Outputs (Templates and Guides)
 
-- **Task-Specific Template** - Template for files generated by the task (created using [template-development-guide.md](../../guides/guides/support/template-development-guide.md) and [New-Template.ps1](../../scripts/file-creation/New-Template.ps1), only if task creates files)
-- **Template Customization Guide** - Comprehensive guide for customizing the template created by the task's script (created using [New-Guide.ps1](../../scripts/file-creation/New-Guide.ps1) and [guide-creation-best-practices-guide.md](../../guides/guides/support/guide-creation-best-practices-guide.md), only if task creates files)
+- **Task-Specific Template** - Template for files generated by the task (created using [template-development-guide.md](../../guides/support/template-development-guide.md) and [New-Template.ps1](../../scripts/file-creation/support/New-Template.ps1), only if task creates files)
+- **Template Customization Guide** - Comprehensive guide for customizing the template created by the task's script (created using [New-Guide.ps1](../../scripts/file-creation/support/New-Guide.ps1) and [guide-creation-best-practices-guide.md](../../guides/support/guide-creation-best-practices-guide.md), only if task creates files)
   - **Purpose**: Helps users understand how to use the script and customize the resulting template
   - **Content**: Template structure analysis, customization decision points, step-by-step instructions
   - **NOT**: A guide for executing the task workflow itself
@@ -353,7 +353,7 @@ The following state files are updated as part of this task:
 
 - [ ] **Scope Assessment Documented**: Human partner approved Lightweight Mode
 - [ ] **Task Definition Verified**:
-  - [ ] Task definition file generated using [New-Task.ps1](../../scripts/file-creation/New-Task.ps1)
+  - [ ] Task definition file generated using [New-Task.ps1](../../scripts/file-creation/support/New-Task.ps1)
   - [ ] **🚨 Task definition content fully customized** — All placeholder sections replaced with task-specific content:
     - [ ] When to Use section has clear criteria
     - [ ] Context Requirements lists actual files with links
@@ -364,9 +364,9 @@ The following state files are updated as part of this task:
     - [ ] Next Tasks links to actual follow-up tasks
     - [ ] **🌍 Task is generic and reusable** — Uses category references and examples instead of project-specific details
   - [ ] **AI Agent Role assigned** with appropriate professional role, mindset, focus areas, and communication style
-- [ ] **Context Map Created**: Context map created using [New-ContextMap.ps1](../../scripts/file-creation/New-ContextMap.ps1) and customized with task-specific components
+- [ ] **Context Map Created**: Context map created using [New-ContextMap.ps1](../../scripts/file-creation/02-design/New-ContextMap.ps1) and customized with task-specific components
 - [ ] **Documentation Updates Verified**: Confirm New-Task.ps1 automatically updated documentation-map.md, tasks/README.md, and ai-tasks.md
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-001" and context "New Task Creation Process (Lightweight)"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-001" and context "New Task Creation Process (Lightweight)"
   - **⚠️ IMPORTANT**: Evaluate the New Task Creation Process itself (PF-TSK-001), not the task you created.
 
 ---
@@ -378,7 +378,7 @@ The following state files are updated as part of this task:
 #### Session 1 Completion (Core Infrastructure)
 
 - [ ] **Core Outputs Verified**:
-  - [ ] Task definition file generated using [New-Task.ps1](../../scripts/file-creation/New-Task.ps1) and [Task Creation Guide](../../guides/guides/support/task-creation-guide.md)
+  - [ ] Task definition file generated using [New-Task.ps1](../../scripts/file-creation/support/New-Task.ps1) and [Task Creation Guide](../../guides/support/task-creation-guide.md)
   - [ ] **🚨 Phase 2: Task definition content fully customized** - All placeholder sections replaced with task-specific content:
     - [ ] When to Use section has clear criteria
     - [ ] Context Requirements lists actual files with links
@@ -389,7 +389,7 @@ The following state files are updated as part of this task:
     - [ ] Next Tasks links to actual follow-up tasks
     - [ ] **🌍 Task is generic and reusable** - Uses category references and examples instead of project-specific details, placeholders in commands
   - [ ] **AI Agent Role assigned** to task definition after "Purpose & Context" section with appropriate professional role, mindset, focus areas, and communication style
-  - [ ] Temporary state tracking file created using [New-TempTaskState.ps1](../../scripts/file-creation/New-TempTaskState.ps1) script
+  - [ ] Temporary state tracking file created using [New-TempTaskState.ps1](../../scripts/file-creation/support/New-TempTaskState.ps1) script
   - [ ] File creation evaluation completed (CREATES_FILES or NO_FILES_CREATED decision made)
   - [ ] ✅ **AUTOMATED**: Documentation Map, Tasks README, and AI Tasks registry automatically updated by script
 
@@ -399,15 +399,15 @@ The following state files are updated as part of this task:
 
 - [ ] **Document Creation Infrastructure Verified**:
   - [ ] Task output directory structure created
-  - [ ] Document creation script created using [Document Creation Script Development Guide](../../guides/guides/support/document-creation-script-development-guide.md) and [Document Creation Script Template](../../templates/templates/document-creation-script-template.ps1)
+  - [ ] Document creation script created using [Document Creation Script Development Guide](../../guides/support/document-creation-script-development-guide.md) and [Document Creation Script Template](../../templates/support/document-creation-script-template.ps1)
   - [ ] ID registry updated with new prefix for file types created by task
   - [ ] Script tested and functional
 
 #### Session 3 Completion (Templates and Guides)
 
 - [ ] **Templates and Guides Verified**:
-  - [ ] Task-specific template created using [Template Development Guide](../../guides/guides/support/template-development-guide.md) and [New-Template.ps1](../../scripts/file-creation/New-Template.ps1) (if task creates files)
-  - [ ] Template customization guide created using [New-Guide.ps1](../../scripts/file-creation/New-Guide.ps1) and [Guide Creation Best Practices Guide](../../guides/guides/support/guide-creation-best-practices-guide.md) (if task creates files)
+  - [ ] Task-specific template created using [Template Development Guide](../../guides/support/template-development-guide.md) and [New-Template.ps1](../../scripts/file-creation/support/New-Template.ps1) (if task creates files)
+  - [ ] Template customization guide created using [New-Guide.ps1](../../scripts/file-creation/support/New-Guide.ps1) and [Guide Creation Best Practices Guide](../../guides/support/guide-creation-best-practices-guide.md) (if task creates files)
   - [ ] Guide focuses on template customization and script usage, NOT task execution workflow
   - [ ] Both documents properly integrated with task definition
 
@@ -415,7 +415,7 @@ The following state files are updated as part of this task:
 
 - [ ] **Documentation and Visualization Verified**:
   - [ ] [Documentation Map](../../documentation-map.md) updated with all new artifacts
-  - [ ] Context map created using [Visualization Creation Guide](../../guides/guides/support/visualization-creation-guide.md) and [New-ContextMap.ps1](../../scripts/file-creation/New-ContextMap.ps1)
+  - [ ] Context map created using [Visualization Creation Guide](../../guides/support/visualization-creation-guide.md) and [New-ContextMap.ps1](../../scripts/file-creation/02-design/New-ContextMap.ps1)
   - [ ] Context map properly shows component relationships and task context
 
 #### Final Task Completion (All Sessions)
@@ -425,7 +425,7 @@ The following state files are updated as part of this task:
   - [ ] [Documentation Map](../../documentation-map.md) updated with all new artifacts
   - [ ] Temporary state tracking file deleted (task infrastructure complete)
   - [ ] Task fully functional and ready for use
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-001" and context "New Task Creation Process (Full Mode)"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-001" and context "New Task Creation Process (Full Mode)"
   - **⚠️ IMPORTANT**: Evaluate the New Task Creation Process itself (PF-TSK-001), not the task you created. Assess how well the process worked, the effectiveness of the tools used (New-Task.ps1, guides, etc.), and the clarity of the process steps.
 
 ## Next Tasks
@@ -452,27 +452,27 @@ The following state files are updated as part of this task:
 
 ### Core Guides
 
-- [Task Creation Guide](../../guides/guides/support/task-creation-guide.md) - Comprehensive guide for creating and improving tasks
-- [Temporary State File Customization Guide](../../guides/guides/support/temp-state-tracking-customization-guide.md) - Guide for customizing temporary state files for different workflows
-- [Document Creation Script Development Guide](../../guides/guides/support/document-creation-script-development-guide.md) - Guide for creating PowerShell scripts that generate documents
-- [Template Development Guide](../../guides/guides/support/template-development-guide.md) - Guide for creating new templates
-- [Documentation Structure Guide](../../guides/guides/framework/documentation-structure-guide.md) - Guide for organizing and structuring documentation
-- [Visualization Creation Guide](../../guides/guides/support/visualization-creation-guide.md) - Guide for creating context maps and other visualizations
+- [Task Creation Guide](../../guides/support/task-creation-guide.md) - Comprehensive guide for creating and improving tasks
+- [Temporary State File Customization Guide](../../guides/support/temp-state-tracking-customization-guide.md) - Guide for customizing temporary state files for different workflows
+- [Document Creation Script Development Guide](../../guides/support/document-creation-script-development-guide.md) - Guide for creating PowerShell scripts that generate documents
+- [Template Development Guide](../../guides/support/template-development-guide.md) - Guide for creating new templates
+- [Documentation Structure Guide](../../guides/framework/documentation-structure-guide.md) - Guide for organizing and structuring documentation
+- [Visualization Creation Guide](../../guides/support/visualization-creation-guide.md) - Guide for creating context maps and other visualizations
 
 ### Automation Scripts
 
-- [New-Task.ps1](../../scripts/file-creation/New-Task.ps1) - Script for creating task definitions
-- [New-TempTaskState.ps1](../../scripts/file-creation/New-TempTaskState.ps1) - Script for creating temporary state tracking files
-- [New-Template.ps1](../../scripts/file-creation/New-Template.ps1) - Script for creating templates
-- [New-Guide.ps1](../../scripts/file-creation/New-Guide.ps1) - Script for creating guides
-- [New-ContextMap.ps1](../../scripts/file-creation/New-ContextMap.ps1) - Script for creating context maps
+- [New-Task.ps1](../../scripts/file-creation/support/New-Task.ps1) - Script for creating task definitions
+- [New-TempTaskState.ps1](../../scripts/file-creation/support/New-TempTaskState.ps1) - Script for creating temporary state tracking files
+- [New-Template.ps1](../../scripts/file-creation/support/New-Template.ps1) - Script for creating templates
+- [New-Guide.ps1](../../scripts/file-creation/support/New-Guide.ps1) - Script for creating guides
+- [New-ContextMap.ps1](../../scripts/file-creation/02-design/New-ContextMap.ps1) - Script for creating context maps
 
 ### Templates
 
-- [Task Template](../../templates/templates/task-template.md) - Template for creating task definitions
-- [Temporary Task State Template](../../templates/templates/temp-task-creation-state-template.md) - Template for multi-session state tracking
-- [Document Creation Script Template](../../templates/templates/document-creation-script-template.ps1) - Template for creating PowerShell scripts
-- [Context Map Template](../../templates/templates/support/context-map-template.md) - Template for creating context maps
+- [Task Template](../../templates/support/task-template.md) - Template for creating task definitions
+- [Temporary Task State Template](../../templates/support/temp-task-creation-state-template.md) - Template for multi-session state tracking
+- [Document Creation Script Template](../../templates/support/document-creation-script-template.ps1) - Template for creating PowerShell scripts
+- [Context Map Template](../../templates/support/context-map-template.md) - Template for creating context maps
 
 ### Related Tasks
 

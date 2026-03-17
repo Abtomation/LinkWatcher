@@ -11,6 +11,7 @@ file size within a configurable time window.
 import os
 import threading
 import time
+from typing import Callable
 
 
 class MoveDetector:
@@ -27,7 +28,12 @@ class MoveDetector:
         delay: Seconds to wait for a matching create after a delete.
     """
 
-    def __init__(self, on_move_detected, on_true_delete, delay=10.0):
+    def __init__(
+        self,
+        on_move_detected: Callable[[str, str], None],
+        on_true_delete: Callable[[str], None],
+        delay: float = 10.0,
+    ):
         self._on_move = on_move_detected
         self._on_delete = on_true_delete
         self._pending = {}  # {rel_path: (timestamp, file_size)}

@@ -53,7 +53,7 @@ When updating state files:
 
 To create a new state file:
 
-1. Use the [state file template](../templates/templates/state-file-template.md)
+1. Use the [state file template](../templates/support/state-file-template.md)
 2. Focus on a specific aspect of project state
 3. Define clear status codes and transitions
 4. Document which tasks update this state file
@@ -65,7 +65,7 @@ To create a new state file:
 Temporary state files in the `temporary/` directory track multi-session implementation work, complex task creation processes, or evaluation implementations. These files provide detailed tracking during active development phases.
 
 ### Lifecycle Management
-- **Creation**: Use `New-TempTaskState.ps1` to create temporary state files
+- **Creation**: Use `support/New-TempTaskState.ps1` to create temporary state files
 - **Active Use**: Update regularly during implementation sessions
 - **Completion**: When all objectives are met, **move** (don't delete) to `temporary/old/` directory
 - **Archival**: Files in `temporary/old/` serve as historical reference and lessons learned
@@ -92,6 +92,6 @@ state-tracking/
 ├── permanent/          # Long-term project state files
 ├── temporary/          # Active temporary state files
 │   └── old/           # Archived temporary state files
-├── ../scripts/file-creation/New-TempTaskState.ps1ion/New-TempTaskState.ps1ion/New-TempTaskState.ps1
+├── ../scripts/file-creation/support/New-TempTaskState.ps1
 └── README.md
 ```

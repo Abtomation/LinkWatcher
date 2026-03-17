@@ -42,7 +42,7 @@ graph TD
 - **[Retrospective Master State File](../../state-tracking/temporary/retrospective-master-state.md)**: Tracks overall progress across all onboarding phases; read to verify Phase 1 complete, update after each session with analysis progress
 - **[Feature Implementation State Files](../../state-tracking/features)**: Per-feature files created in PF-TSK-064 containing code inventories; these are enriched during analysis with Design Decisions, Dependencies, and Implementation Patterns
 - **[Feature Tracking](../../state-tracking/permanent/feature-tracking.md)**: Permanent registry of all features; used to identify which features need analysis
-- **[Feature Implementation State Tracking Guide](../../guides/guides/04-implementation/feature-implementation-state-tracking-guide.md)**: Guide for populating Design Decisions, Dependencies, and Implementation Patterns sections
+- **[Feature Implementation State Tracking Guide](../../../guides/04-implementation/feature-implementation-state-tracking-guide.md)**: Guide for populating Design Decisions, Dependencies, and Implementation Patterns sections
 
 ### Important Components (Should Understand)
 - **[Feature Tier Assessment Task](../01-planning/feature-tier-assessment-task.md)**: Understanding what complexity factors and analysis details feed into tier assessment in the next task
@@ -75,9 +75,9 @@ graph TD
 
 - [Codebase Feature Analysis Task (PF-TSK-065)](../../tasks/00-onboarding/codebase-feature-analysis.md) - Full task definition with detailed process steps
 - [Codebase Feature Discovery Task (PF-TSK-064)](../../tasks/00-onboarding/codebase-feature-discovery.md) - Prerequisite task that creates the initial feature implementation state files
-- [Feature Implementation State Template](../../templates/templates/feature-implementation-state-template.md) - Template structure for enrichment
-- [Feature Implementation State Tracking Guide](../../guides/guides/04-implementation/feature-implementation-state-tracking-guide.md) - How to populate analysis sections
-- [Visual Notation Guide](../../../guides/guides/support/visual-notation-guide.md) - Understanding diagram symbols and notation
+- [Feature Implementation State Template](../../../templates/04-implementation/feature-implementation-state-template.md) - Template structure for enrichment
+- [Feature Implementation State Tracking Guide](../../../guides/04-implementation/feature-implementation-state-tracking-guide.md) - How to populate analysis sections
+- [Visual Notation Guide](../../../guides/support/visual-notation-guide.md) - Understanding diagram symbols and notation
 
 ---
 

@@ -30,41 +30,41 @@ This directory contains template files that serve as starting points for creatin
 
 ### Available Templates
 
-1. **[Task Template](templates/task-template.md)**
+1. **[Task Template](support/task-template.md)**
    - For defining development tasks
    - Includes sections for purpose, inputs, process, outputs, and state tracking
    - Best for: Feature development tasks, bug fixing tasks, review tasks
 
-2. **[Guide Template](templates/guide-template.md)**
+2. **[Guide Template](support/guide-template.md)**
    - For step-by-step instructions and tutorials
    - Includes sections for prerequisites, detailed steps, examples, and troubleshooting
    - Best for: Installation guides, setup instructions, how-to guides
 
-3. **[Architecture Template](templates/architecture-template.md)**
+3. **[Architecture Template](02-design/architecture-template.md)**
    - For technical specifications and system architecture documentation
    - Includes sections for architecture diagrams, component descriptions, data flows, and design decisions
    - Best for: Database schemas, system architecture, component documentation
 
-4. **[Process Template](templates/process-template.md)**
+4. **[Process Template](support/process-template.md)**
    - For workflows, procedures, and standards
    - Includes sections for roles and responsibilities, process steps, checklists, and exceptions
    - Best for: Development workflows, testing procedures, review processes
 
-5. **[API Reference Template](templates/api-reference-template.md)**
+5. **[API Reference Template](02-design/api-reference-template.md)**
    - For API documentation and reference
    - Includes sections for endpoints, request/response formats, authentication, and examples
    - Best for: REST APIs, service interfaces, library documentation
 
-6. **[General Documentation Template](templates/documentation-template.md)**
+6. **[General Documentation Template](support/documentation-template.md)**
    - For general-purpose documentation that doesn't fit the specialized templates
    - Includes basic sections common to most documentation
 
-7. **[Document Creation Script Template](templates/document-creation-script-template.ps1)**
+7. **[Document Creation Script Template](support/document-creation-script-template.ps1)**
    - For creating PowerShell scripts that generate documents from templates
    - Includes standardized script structure, parameter handling, and error management
    - Best for: Creating new document generation scripts, automating document creation workflows
 
-8. **[Update Script Template](templates/update-script-template.ps1)**
+8. **[Update Script Template](support/update-script-template.ps1)**
    - For creating PowerShell scripts that update markdown state files via content transformation
    - Includes Write-Log, Test-Prerequisites, content-transformer pattern, and single read-modify-write Main skeleton
    - Best for: Creating new state file update scripts (Update-*.ps1) in `doc/process-framework/scripts/update/`
@@ -122,9 +122,8 @@ Use this guide to determine which template to use for different documentation ne
 - Establishing standards and best practices
 
 **Examples in project:**
-- [Testing Guide](/doc/product-docs/guides/guides/testing-guide.md)
-- [Development Guide](/doc/process-framework/guides/guides/04-implementation/development-guide.md)
-- [Documentation Guide](/doc/process-framework/guides/guides/05-validation/documentation-guide.md)
+- [Development Guide](/doc/process-framework/guides/04-implementation/development-guide.md)
+- [Documentation Guide](/doc/process-framework/guides/05-validation/documentation-guide.md)
 
 #### API Reference Template
 
@@ -137,19 +136,19 @@ Use this guide to determine which template to use for different documentation ne
 **Examples in project:**
 - *No current examples - use this template for future API documentation*
 
-9. **[Lightweight Refactoring Plan Template](templates/lightweight-refactoring-plan-template.md)**
+9. **[Lightweight Refactoring Plan Template](06-maintenance/lightweight-refactoring-plan-template.md)**
    - Compact refactoring plan for low-effort items (≤15 min, single file, no architectural impact)
    - Includes mandatory Documentation & State Updates checklist per item
    - Supports batch mode for multiple quick fixes in one session
    - Best for: Quick code refactorings, small technical debt items
 
-10. **[Documentation-Only Refactoring Plan Template](templates/documentation-refactoring-plan-template.md)**
+10. **[Documentation-Only Refactoring Plan Template](06-maintenance/documentation-refactoring-plan-template.md)**
     - Refactoring plan for documentation-only changes (no code changes, no test impact)
     - Removes code metrics, performance benchmarks, and test coverage sections from the standard template
     - Replaces with documentation quality baseline, verification approach, and documentation integrity checklist
     - Best for: TDD/FDD corrections, state file fixes, template updates, guide revisions
 
-11. **[Feedback DB Input Template](templates/feedback-db-input-template.json)**
+11. **[Feedback DB Input Template](support/feedback-db-input-template.json)**
     - JSON reference template showing the expected input format for `feedback_db.py record --json`
     - Documents all fields (required and optional) with placeholder values
     - Best for: Recording feedback ratings during Tools Review (PF-TSK-010)

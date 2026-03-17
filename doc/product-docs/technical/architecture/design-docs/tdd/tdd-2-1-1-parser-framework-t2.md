@@ -198,7 +198,7 @@ No API Design, Database Schema Design, or Test Specification documents exist for
 | `linkwatcher/parser.py` | `LinkParser` facade — dispatch registry and public API |
 | `linkwatcher/parsers/base.py` | `BaseParser` abstract class — extension contract |
 | `linkwatcher/parsers/__init__.py` | Package init — exports all parser classes |
-| `linkwatcher/parsers/markdown.py` | `MarkdownParser` — `.md` files |
+| `linkwatcher/parsers/markdown.py` | `MarkdownParser` — `.md` files. Extracts `[text](path)` links, `[label]: path` reference definitions, `<a href>` tags, quoted file/directory paths (`"path"`, `'path"`, `` `path` ``), and standalone file references. Backtick-delimited paths are treated as quoted strings for both file and directory detection. |
 | `linkwatcher/parsers/yaml_parser.py` | `YamlParser` — `.yaml`/`.yml` files. Detects file path references and directory path references (PD-BUG-030). |
 | `linkwatcher/parsers/json_parser.py` | `JsonParser` — `.json` files. Detects file path references and directory path references (PD-BUG-030). |
 | `linkwatcher/parsers/python.py` | `PythonParser` — `.py` files |

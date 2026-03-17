@@ -214,24 +214,43 @@ def _handle_file_moved(self, src_path: str, dest_path: str):
 
 ```python
 def _handle_directory_moved(self, src_dir: str, dest_dir: str):
-    # Phase 1: Update references to files within the moved directory
+    # Build set of co-moved file old paths (PD-BUG-038)
+    moved_files = []
+    co_moved_old_paths = set()
     for root, dirs, files in os.walk(dest_dir):
         for filename in files:
             new_path = os.path.join(root, filename)
-            # Calculate old path by path prefix substitution
             old_path = new_path.replace(dest_dir, src_dir, 1)
             if self._should_monitor_file(file_path):
-                self._handle_file_moved(old_path, new_path)
+                moved_files.append((old_path, new_path))
+                co_moved_old_paths.add(old_path)
+
+    # Phase 1: Update references to files within the moved directory
+    # co_moved_old_paths excludes co-moved files from updates and cleanup
+    for old_path, new_path in moved_files:
+        self._ref_lookup.process_directory_file_move(
+            old_path, new_path, co_moved_old_paths=co_moved_old_paths
+        )
+
+    # Phase 1b: Update outward-pointing links within moved files (PD-BUG-039)
+    for old_path, new_path in moved_files:
+        self._update_links_within_moved_file(old_path, new_path, abs_new)
 
     # Phase 2: Update references to the directory path itself
-    # Query the database for references whose link_target matches
-    # the old directory path (exact match or prefix match for
-    # subdirectory paths). These are typically quoted directory
-    # path strings in scripts (e.g., PowerShell .ps1 files).
     dir_references = self._ref_lookup.find_directory_path_references(src_dir)
     if dir_references:
         self.updater.update_references(dir_references, src_dir, dest_dir)
         self._ref_lookup.cleanup_after_directory_path_move(src_dir, dest_dir)
+
+    # Phase 3: Update references to parent/ancestor directory paths
+    # When src_dir = "a/b/c/d", find references targeting "a/b/c", "a/b", "a"
+    # and apply prefix replacement (old_parent → new_parent) so ancestor
+    # references stay consistent. Uses find_parent_directory_references().
+    parent_refs = self._ref_lookup.find_parent_directory_references(src_dir, dest_dir)
+    if parent_refs:
+        for old_parent, new_parent, refs in parent_refs:
+            self.updater.update_references(refs, old_parent, new_parent)
+            self._ref_lookup.cleanup_after_directory_path_move(old_parent, new_parent)
 ```
 
 **Per-file move detection** (delegated to `MoveDetector` in `move_detector.py`):
@@ -372,7 +391,7 @@ The handler subsystem is implemented across four modules (refactored from a sing
 5. `_PendingDirMove.dir_prefix` must be constructed as `normalize_path(dir) + "/"` (not `normalize_path(dir + "/")`) because `os.path.normpath` strips trailing slashes — discovered during PD-BUG-019 fix
 6. Batch directory move processing defers to separate daemon threads to avoid blocking the watchdog event thread, which would cause subsequent file events to queue and timers to expire
 7. **Shared stale-reference retry**: Both per-file and directory move pipelines use `ReferenceLookup.retry_stale_references()` (resolved TD009 duplication)
-8. **Unified DB update strategy** (TD017): Both per-file and directory move pipelines use `ReferenceLookup.find_references()` + `get_old_path_variations()` + `cleanup_after_file_move()` for reference lookup and database cleanup — ensuring consistent anchor handling, path normalization, and fresh metadata after moves
+8. **Unified DB update strategy** (TD017): Both per-file and directory move pipelines use `ReferenceLookup.find_references()` + `get_old_path_variations()` + `cleanup_after_file_move()` for reference lookup and database cleanup — ensuring consistent anchor handling, path normalization, and fresh metadata after moves. Directory moves pass `co_moved_old_paths` to exclude co-moved files from updates and cleanup rescans (PD-BUG-038), deferring their rescan to `_update_links_within_moved_file`
 9. **Composition-based reference delegation** (TD022): Handler delegates all reference lookup and DB management to `ReferenceLookup` instance (`self._ref_lookup`), reducing handler.py from 873 to ~475 lines (46%)
 
 ## 7. Quality Measurement
@@ -407,7 +426,7 @@ None — this is a retrospective document for a fully implemented, stable featur
 
 ### Next Steps
 
-No outstanding implementation work. TD005 and TD009 resolved. PD-BUG-019 verified. Directory-path reference updates added (PF-STA-053).
+No outstanding implementation work. TD005 and TD009 resolved. PD-BUG-019 verified. Directory-path reference updates added (PF-STA-053). Parent directory prefix replacement added (PF-STA-058).
 
 ### Key Decisions
 

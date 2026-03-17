@@ -41,7 +41,11 @@ param(
 
 # --- Resolve project root ---
 if ([string]::IsNullOrWhiteSpace($ProjectRoot)) {
-    Import-Module (Join-Path -Path (Split-Path -Parent $PSScriptRoot) -ChildPath "Common-ScriptHelpers.psm1") -Force
+    $dir = $PSScriptRoot
+    while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
+        $dir = Split-Path -Parent $dir
+    }
+    Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
     $ProjectRoot = Get-ProjectRoot
 }
 

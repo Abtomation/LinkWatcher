@@ -37,9 +37,9 @@ This task evaluates incoming change requests to determine whether they represent
 
   - **Change Request** — The human partner's description of what needs to be added or changed
   - [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) — Current feature inventory to identify existing features
-  - [Feature Granularity Guide](../../guides/guides/01-planning/feature-granularity-guide.md) — Defines what constitutes a well-scoped feature (used when classifying requests and validating new feature scope)
-  - [Enhancement State Tracking Customization Guide](../../guides/guides/04-implementation/enhancement-state-tracking-customization-guide.md) — Guide for customizing the Enhancement State Tracking File
-  - [Visual Notation Guide](/doc/process-framework/guides/guides/support/visual-notation-guide.md) — For interpreting context map diagrams
+  - [Feature Granularity Guide](../../guides/01-planning/feature-granularity-guide.md) — Defines what constitutes a well-scoped feature (used when classifying requests and validating new feature scope)
+  - [Enhancement State Tracking Customization Guide](../../guides/04-implementation/enhancement-state-tracking-customization-guide.md) — Guide for customizing the Enhancement State Tracking File
+  - [Visual Notation Guide](/doc/process-framework/guides/support/visual-notation-guide.md) — For interpreting context map diagrams
 
 - **Important (Load If Space):**
 
@@ -65,7 +65,7 @@ This task evaluates incoming change requests to determine whether they represent
 
 1. **Read the change request** — Understand what the human partner wants to add or change
 2. **Review feature tracking** — Read `feature-tracking.md` to understand the current feature inventory. Make yourself familiar with some potential features by looking at the feature state tracking files.
-3. **Classify the request** — Determine: is this a new feature or an enhancement to an existing feature? Apply the three validation tests from the [Feature Granularity Guide](../../guides/guides/01-planning/feature-granularity-guide.md) to validate the scope of new features.
+3. **Classify the request** — Determine: is this a new feature or an enhancement to an existing feature? Apply the three validation tests from the [Feature Granularity Guide](../../guides/01-planning/feature-granularity-guide.md) to validate the scope of new features.
 4. **🚨 CHECKPOINT**: Present classification decision with rationale to human partner for approval
    - **New Feature** → Continue to step 5a
    - **Enhancement** → Continue to step 5b
@@ -98,7 +98,7 @@ This task evaluates incoming change requests to determine whether they represent
    cd doc/process-framework/scripts/file-creation
    ./New-EnhancementState.ps1 -TargetFeature "[Feature ID]" -EnhancementName "[Brief Name]" -Description "[Scope description]"
    ```
-   Then customize the generated file following the [Enhancement State Tracking Customization Guide](../../guides/guides/04-implementation/enhancement-state-tracking-customization-guide.md). The template contains 17 pre-defined workflow blocks mirroring the standard feature development workflow. Customization involves:
+   Then customize the generated file following the [Enhancement State Tracking Customization Guide](../../guides/04-implementation/enhancement-state-tracking-customization-guide.md). The template contains 17 pre-defined workflow blocks mirroring the standard feature development workflow. Customization involves:
    - Filling in enhancement metadata (target feature, scope description, estimated sessions)
    - Building the existing documentation inventory (links to current FDD, TDD, ADR, state file)
    - Evaluating each workflow block and marking it **Applicable** or **Not Applicable** with rationale
@@ -149,7 +149,7 @@ Before considering this task finished:
   - [ ] Session boundary planning included (if multi-session)
   - [ ] Target feature status set to "🔄 Needs Revision" in feature tracking with link to state file
 
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-067" and context "Feature Request Evaluation"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-067" and context "Feature Request Evaluation"
 
 ## Next Tasks
 
@@ -158,7 +158,7 @@ Before considering this task finished:
 
 ## Related Resources
 
-- [Feature Granularity Guide](../../guides/guides/01-planning/feature-granularity-guide.md) — Defines what constitutes a well-scoped feature with validation tests and scaling guidance
+- [Feature Granularity Guide](../../guides/01-planning/feature-granularity-guide.md) — Defines what constitutes a well-scoped feature with validation tests and scaling guidance
 - [Enhancement Workflow Concept (PF-PRO-002)](../../proposals/proposals/enhancement-workflow-concept.md) — Full design rationale for this workflow
 - [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) — Current feature inventory
-- [Enhancement State Tracking Customization Guide](../../guides/guides/04-implementation/enhancement-state-tracking-customization-guide.md) — Guide for customizing state files
+- [Enhancement State Tracking Customization Guide](../../guides/04-implementation/enhancement-state-tracking-customization-guide.md) — Guide for customizing state files

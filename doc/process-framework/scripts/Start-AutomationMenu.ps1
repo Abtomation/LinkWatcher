@@ -56,7 +56,11 @@ param(
 
 # Import required modules
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-Import-Module "$scriptDir\Common-ScriptHelpers.psm1" -Force
+$dir = $scriptDir
+while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
+    $dir = Split-Path -Parent $dir
+}
+Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 
 # Initialize script
 Write-Host "🎯 Process Framework Automation Menu" -ForegroundColor Green

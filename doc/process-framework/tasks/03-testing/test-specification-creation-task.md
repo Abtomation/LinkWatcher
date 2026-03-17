@@ -39,7 +39,7 @@ Create comprehensive test specifications from existing Technical Design Document
 
 ## Information Flow
 
-> **📋 Detailed Guidance**: See [Task Transition Guide - Information Flow Section](../../guides/guides/framework/task-transition-guide.md#information-flow-and-separation-of-concerns)
+> **📋 Detailed Guidance**: See [Task Transition Guide - Information Flow Section](../../guides/framework/task-transition-guide.md#information-flow-and-separation-of-concerns)
 
 ### Inputs from Other Tasks
 
@@ -95,7 +95,7 @@ When referencing other tasks' outputs in Test Specifications:
   - **Functional Design Document (FDD)** - For Tier 2+ features, the FDD containing acceptance criteria and user flows that inform test scenarios
   - [Technical Design Document](/doc/product-docs/technical/architecture/design-docs/tdd/) - The TDD for the feature being specified
   - [Tier Assessments](/doc/product-docs/documentation-tiers/assessments) - Complexity assessment to determine test depth
-  - [Development Guide](/doc/process-framework/guides/guides/04-implementation/development-guide.md) - Testing standards and practices
+  - [Development Guide](/doc/process-framework/guides/04-implementation/development-guide.md) - Testing standards and practices
 
 - **Important (Load If Space):**
 
@@ -108,7 +108,7 @@ When referencing other tasks' outputs in Test Specifications:
 
 - **Reference Only (Access When Needed):**
   - [Feature Tracking](/doc/process-framework/state-tracking/permanent/feature-tracking.md) - Feature development status
-  - [Visual Notation Guide](/doc/process-framework/guides/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Visual Notation Guide](/doc/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
   - [ID Registry](/doc/id-registry.json) - Document ID counter management
 
 ## Process
@@ -191,7 +191,7 @@ When referencing other tasks' outputs in Test Specifications:
     - Dependencies between test files
 
 16. **Add Clickable Links**: Ensure all file path references in the specification are clickable markdown links:
-    - **Test File** references (e.g., `tests/unit/test_service.py`) must use `[`path`](../../../path)` format
+    - **Test File** references (e.g., `test/automated/unit/test_service.py`) must use `[`path`](../../../path)` format
     - **Files to Reference** section paths (TDD, source code, fixtures) must be linked
     - **Source Code** references (e.g., `linkwatcher/database.py`) must be linked
     - Relative prefix from `test/specifications/feature-specs/` to project root is `../../../`
@@ -247,7 +247,7 @@ Before considering this task finished:
   - [ ] [Documentation Map](/doc/process-framework/documentation-map.md) — New test spec entries added to Test Specifications section
   - [ ] [Test Tracking](/doc/process-framework/state-tracking/permanent/test-tracking.md) — Feature section added if missing; manual test scenario entries added with "⬜ Not Created" status if applicable
 - [ ] **Verify State Tracking Consistency**: Ensure all tracking files are properly updated and consistent
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](/doc/process-framework/guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-012" and context "Test Specification Creation"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](/doc/process-framework/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-012" and context "Test Specification Creation"
 
 ## Next Tasks
 
@@ -258,5 +258,5 @@ Before considering this task finished:
 
 ## Related Resources
 
-- [Cross-Cutting Test Specification Template](../../templates/templates/cross-cutting-test-specification-template.md) - Template for tests spanning multiple features (use when test scenarios cross feature boundaries)
-- [Test Specification Creation Usage Guide](../../guides/guides/test-specification-creation-usage-guide.md) - Comprehensive guide for using this task effectively
+- [Cross-Cutting Test Specification Template](../../templates/03-testing/cross-cutting-test-specification-template.md) - Template for tests spanning multiple features (use when test scenarios cross feature boundaries)
+- [Test Specification Creation Guide](../../guides/03-testing/test-specification-creation-guide.md) - Comprehensive guide for using this task effectively

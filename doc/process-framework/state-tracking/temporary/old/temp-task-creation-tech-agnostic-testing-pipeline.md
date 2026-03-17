@@ -52,7 +52,7 @@ task_name: tech-agnostic-testing-pipeline
 
 - [x] Read and update New-TestFile.ps1 to read project-config.json for language detection
   - **Status**: COMPLETED
-  - **Target**: `doc/process-framework/scripts/file-creation/New-TestFile.ps1`
+  - **Target**: doc/process-framework/scripts/file-creation/03-testing/New-TestFile.ps1
   - **Notes**: Complete rewrite — reads project-config.json, supports multiple languages, selects template and test types per language. Fixed corrupted paths from old version.
 
 - [x] Create test-file-template.py (Python/pytest equivalent)
@@ -67,7 +67,7 @@ task_name: tech-agnostic-testing-pipeline
 
 - [x] Update test-audit-task.md — replace hardcoded paths
   - **Status**: COMPLETED
-  - **Target**: `doc/process-framework/tasks/03-testing/test-audit-task.md`
+  - **Target**: doc/process-framework/tasks/03-testing/test-audit-task.md
   - **Notes**: Removed 3 hardcoded project paths, genericized test directory refs, fixed broken /discrete/ paths. Version 1.2→1.3
 
 - [x] Update test-implementation-tracking.md — remove legacy validation script references
@@ -101,17 +101,17 @@ task_name: tech-agnostic-testing-pipeline
 
 - [x] Add cross-cutting test analysis as optional guidance in PF-TSK-053
   - **Status**: COMPLETED
-  - **Target**: `doc/process-framework/tasks/04-implementation/integration-and-testing.md`
+  - **Target**: doc/process-framework/tasks/04-implementation/integration-and-testing.md
   - **Notes**: Added as step 11 (optional) in Execution section with template reference and registry guidance
 
 - [x] Add cross-cutting template reference in PF-TSK-012
   - **Status**: COMPLETED
-  - **Target**: `doc/process-framework/tasks/03-testing/test-specification-creation-task.md`
+  - **Target**: doc/process-framework/tasks/03-testing/test-specification-creation-task.md
   - **Notes**: Added to Related Resources section as first entry
 
 - [x] Extend New-TestSpecification.ps1 with cross-cutting support
   - **Status**: COMPLETED
-  - **Target**: `doc/process-framework/scripts/file-creation/New-TestSpecification.ps1`
+  - **Target**: doc/process-framework/scripts/file-creation/03-testing/New-TestSpecification.ps1
   - **Notes**: Added -CrossCutting switch, -FeatureIds parameter, template/directory routing, custom YAML registry append, id-registry.json PD-TST update. Full backward compatibility preserved.
 
 #### Phase 3A: Register existing LinkWatcher tests
@@ -132,7 +132,7 @@ task_name: tech-agnostic-testing-pipeline
 
 - [x] Update feature-tracking.md Test Status column
   - **Status**: COMPLETED (verified — no changes needed)
-  - **Target**: `doc/process-framework/state-tracking/permanent/feature-tracking.md`
+  - **Target**: doc/process-framework/state-tracking/permanent/feature-tracking.md
   - **Notes**: All Test Status values already set correctly during Phase 2 analysis. ✅ for tested features, 🚫 for 4.1.8 (Test Documentation).
 
 ### Session 3: Onboarding Integration, Validation & Finalization (Phases 3B & 4)
@@ -143,17 +143,17 @@ task_name: tech-agnostic-testing-pipeline
 
 - [x] Update PF-TSK-064 (Codebase Feature Discovery) — add test file classification
   - **Status**: COMPLETED
-  - **Target**: `doc/process-framework/tasks/00-onboarding/codebase-feature-discovery.md`
+  - **Target**: doc/process-framework/tasks/00-onboarding/codebase-feature-discovery.md
   - **Notes**: Added test file classification guidance in step 7, test tracking references in Related Resources. v1.2→1.3
 
 - [x] Update PF-TSK-065 (Codebase Feature Analysis) — add test validation and registry population
   - **Status**: COMPLETED
-  - **Target**: `doc/process-framework/tasks/00-onboarding/codebase-feature-analysis.md`
+  - **Target**: doc/process-framework/tasks/00-onboarding/codebase-feature-analysis.md
   - **Notes**: Extended step 4 with test-registry.yaml and test-implementation-tracking.md population, added checklist items, context requirements, related resources. v1.1→1.2
 
 - [x] Update PF-TSK-066 (Retrospective Documentation Creation) — add test spec gap closure
   - **Status**: COMPLETED
-  - **Target**: `doc/process-framework/tasks/00-onboarding/retrospective-documentation-creation.md`
+  - **Target**: doc/process-framework/tasks/00-onboarding/retrospective-documentation-creation.md
   - **Notes**: Extended step 5 with cross-cutting test specification creation guidance and New-TestSpecification.ps1 -CrossCutting usage, added context requirements. v1.2→1.3
 
 #### Phase 4: Integration & validation

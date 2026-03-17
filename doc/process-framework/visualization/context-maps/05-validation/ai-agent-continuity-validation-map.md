@@ -112,7 +112,7 @@ graph TD
 - [Foundational Validation Tracking](../../../state-tracking/temporary/foundational-validation-tracking.md) - Master validation matrix
 - [Documentation Map](../../../documentation-map.md) - Process framework structure and organization
 - [AI Tasks System](../../../ai-tasks.md) - Task discovery and selection patterns
-- [../../scripts/file-creation/New-ValidationReport.ps1](../../../scripts/file-creation/New-ValidationReport.ps1) - Automation script for report generation
+- [../../scripts/file-creation/New-ValidationReport.ps1](../../../scripts/file-creation/05-validation/New-ValidationReport.ps1) - Automation script for report generation
 
 ---
 

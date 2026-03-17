@@ -12,7 +12,7 @@
       "category": "Process Framework",
       "type": "Task",
       "directories": {
-        "00-onboarding": "doc/process-framework/tasks/00-onboarding",
+        "00-onboarding": "doc/product-docs/tasks/00-onboarding",
         "01-planning": "doc/process-framework/tasks/01-planning",
         "02-design": "doc/process-framework/tasks/02-design",
         "03-testing": "doc/process-framework/tasks/03-testing",
@@ -31,11 +31,11 @@
       "category": "Process Framework",
       "type": "Guide",
       "directories": {
-        "guides": "doc/process-framework/guides/guides",
+        "guides": "doc/process-framework/guides/03-testing",
         "main": "doc/process-framework/guides",
         "default": "guides"
       },
-      "nextAvailable": 50
+      "nextAvailable": 51
     },
     "PF-TEM": {
       "description": "Process Framework - Templates",
@@ -45,7 +45,7 @@
         "main": "doc/process-framework/templates",
         "default": "main"
       },
-      "nextAvailable": 55
+      "nextAvailable": 63
     },
     "PF-MTH": {
       "description": "Process Framework - Methodologies",
@@ -66,7 +66,7 @@
         "temporary": "doc/process-framework/state-tracking/temporary",
         "default": "permanent"
       },
-      "nextAvailable": 56
+      "nextAvailable": 59
     },
     "PF-DOC": {
       "description": "Process Framework - Documentation",
@@ -136,7 +136,7 @@
         "permanent": "doc/process-framework/state-tracking/permanent",
         "default": "permanent"
       },
-      "nextAvailable": 123
+      "nextAvailable": 138
     },
     "PF-ASS": {
       "description": "Process Framework - Tier Assessments",
@@ -241,16 +241,6 @@
       },
       "nextAvailable": 10
     },
-    "PD-TEM": {
-      "description": "Product Documentation - Templates",
-      "category": "Product Documentation",
-      "type": "Template",
-      "directories": {
-        "main": "doc/product-docs/templates",
-        "default": "main"
-      },
-      "nextAvailable": 10
-    },
     "PD-IMP": {
       "description": "Product Documentation - Implementation",
       "category": "Product Documentation",
@@ -301,7 +291,7 @@
       "category": "Product Documentation",
       "type": "Guide",
       "directories": {
-        "main": "doc/product-docs/guides",
+        "main": "doc/process-framework/guides",
         "default": "main"
       },
       "nextAvailable": 8
@@ -364,7 +354,7 @@
         "forms": "doc/process-framework/feedback/feedback-forms",
         "default": "forms"
       },
-      "nextAvailable": 380
+      "nextAvailable": 396
     },
     "ART-REV": {
       "description": "Review Artifacts",
@@ -374,7 +364,7 @@
         "reviews": "doc/process-framework/feedback/reviews",
         "default": "reviews"
       },
-      "nextAvailable": 13
+      "nextAvailable": 14
     },
     "PF-TSP": {
       "description": "Process Framework - Test Specifications",
@@ -391,10 +381,10 @@
       "category": "Process Framework",
       "type": "Test Audit Report",
       "directories": {
-        "foundation": "doc/product-docs/test-audits/foundation",
-        "authentication": "doc/product-docs/test-audits/authentication",
-        "core-features": "doc/product-docs/test-audits/core-features",
-        "main": "doc/product-docs/test-audits",
+        "foundation": "test/audits/foundation",
+        "authentication": "test/audits/authentication",
+        "core-features": "test/audits/core-features",
+        "main": "test/audits",
         "default": "foundation"
       },
       "nextAvailable": 13
@@ -419,13 +409,13 @@
       "category": "Process Framework",
       "type": "Validation Report",
       "directories": {
-        "architectural-consistency": "doc/process-framework/validation/reports/architectural-consistency",
-        "code-quality": "doc/process-framework/validation/reports/code-quality",
-        "integration-dependencies": "doc/process-framework/validation/reports/integration-dependencies",
-        "documentation-alignment": "doc/process-framework/validation/reports/documentation-alignment",
-        "extensibility-maintainability": "doc/process-framework/validation/reports/extensibility-maintainability",
-        "ai-agent-continuity": "doc/process-framework/validation/reports/ai-agent-continuity",
-        "reports": "doc/process-framework/validation/reports",
+        "architectural-consistency": "doc/product-docs/validation/reports/architectural-consistency",
+        "code-quality": "doc/product-docs/validation/reports/code-quality",
+        "integration-dependencies": "doc/product-docs/validation/reports/integration-dependencies",
+        "documentation-alignment": "doc/product-docs/validation/reports/documentation-alignment",
+        "extensibility-maintainability": "doc/product-docs/validation/reports/extensibility-maintainability",
+        "ai-agent-continuity": "doc/product-docs/validation/reports/ai-agent-continuity",
+        "reports": "doc/product-docs/validation/reports",
         "default": "reports"
       },
       "nextAvailable": 46
@@ -467,10 +457,10 @@
       "category": "Process Framework",
       "type": "Refactoring Plan",
       "directories": {
-        "plans": "doc/process-framework/refactoring/plans",
+        "plans": "doc/product-docs/refactoring/plans",
         "default": "plans"
       },
-      "nextAvailable": 69
+      "nextAvailable": 74
     },
     "PF-TDA": {
       "description": "Process Framework - Technical Debt Assessments",
@@ -510,7 +500,7 @@
         "permanent": "doc/process-framework/state-tracking/permanent",
         "default": "permanent"
       },
-      "nextAvailable": 38
+      "nextAvailable": 42
     },
     "MT-GRP": {
       "description": "Manual Testing - Test Groups",
@@ -520,7 +510,7 @@
         "templates": "test/manual-testing/templates",
         "default": "templates"
       },
-      "nextAvailable": 2
+      "nextAvailable": 4
     },
     "MT": {
       "description": "Manual Testing - Test Cases",
@@ -530,7 +520,7 @@
         "templates": "test/manual-testing/templates",
         "default": "templates"
       },
-      "nextAvailable": 2
+      "nextAvailable": 5
     }
   }
 }

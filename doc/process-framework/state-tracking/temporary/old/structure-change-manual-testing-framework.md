@@ -74,8 +74,8 @@ change_name: manual-testing-framework
 | ../feature-tracking.md Test Status legend | Same file, extended legend | Add new status entries |
 | — | test/manual-testing/ skeleton | Create directories + README |
 | — | scripts/testing/*.ps1 | Create new scripts |
-| — | templates/templates/manual-*.md | Create via ../New-Template.ps1 |
-| — | tasks/03-testing/manual-test-*.md | Create via ../New-Task.ps1 |
+| — | templates/templates/manual-*.md | Create via support/New-Template.ps1 |
+| — | tasks/03-testing/manual-test-*.md | Create via support/New-Task.ps1 |
 
 ## Implementation Roadmap
 

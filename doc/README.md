@@ -68,14 +68,14 @@ To create new documentation:
 
 1. Determine whether your documentation is Process Framework or Product Documentation
 2. Choose the appropriate directory for your documentation
-3. Copy the template from [Process: Documentation Template](process-framework/templates/templates/documentation-template.md)
+3. Copy the template from [Process: Documentation Template](process-framework/templates/support/documentation-template.md)
 4. Fill in the template with your content
-5. Follow the guidelines in the [Process: Documentation Guide](process-framework/guides/guides/05-validation/documentation-guide.md)
+5. Follow the guidelines in the [Process: Documentation Guide](process-framework/guides/05-validation/documentation-guide.md)
 6. **Add your new documentation to the [Process: Documentation Map](process-framework/documentation-map.md)**
 
 ## Documentation Standards
 
-All documentation should follow the standards outlined in the [Process: Documentation Guide](process-framework/guides/guides/05-validation/documentation-guide.md). This ensures consistency and quality across all documentation.
+All documentation should follow the standards outlined in the [Process: Documentation Guide](process-framework/guides/05-validation/documentation-guide.md). This ensures consistency and quality across all documentation.
 
 ## Contributing to Documentation
 
@@ -83,7 +83,7 @@ When you identify documentation needs or improvements:
 
 1. Directly suggest specific changes to existing documentation
 2. Provide complete new documentation when needed
-3. Follow the [Process: Documentation Guide](process-framework/guides/guides/05-validation/documentation-guide.md) standards
+3. Follow the [Process: Documentation Guide](process-framework/guides/05-validation/documentation-guide.md) standards
 4. Update the [Process: Documentation Map](process-framework/documentation-map.md) for any new or moved files
 5. Ensure all links remain functional after changes
 

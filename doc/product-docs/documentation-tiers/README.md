@@ -51,7 +51,7 @@ This approach allows for flexibility in adding or removing assessment criteria w
 | **Scope** | 0.8 | Wide scope doesn't necessarily mean complex documentation needs |
 | **UI Complexity** | 0.5 | UI patterns are often self-explanatory and require less documentation |
 
-For detailed information on the tiered approach, see the [Documentation Tiers Guide](../../../product-docs/guides/guides/documentation-tiers-guide.md).
+For detailed information on the tiered approach, see the assessment criteria below.
 
 ## Assessment Process
 
@@ -92,7 +92,7 @@ Determines if the feature requires dedicated database schema design documentatio
 
 This comprehensive approach ensures that both documentation complexity and specialized design needs are identified early in the planning process.
 
-For a detailed guide on how to assess features and assign documentation tiers, see the [Assessment Guide](../../guides/guides/assessment-guide.md).
+For a detailed guide on how to assess features and assign documentation tiers, see the [Assessment Guide](../../guides/01-planning/assessment-guide.md).
 
 ## File Structure
 
@@ -109,7 +109,7 @@ Each assessment is an artifact with a unique ID (ART-ASS-XXX) that is automatica
 To create a new assessment, use the provided PowerShell script:
 
 ```powershell
-../../scripts/file-creation/New-Assessment.ps1 -FeatureId "1.1.3" -FeatureName "Password Reset Flow" -FeatureDescription "Allows users to reset their password via email verification" [-OpenInEditor]
+../../scripts/file-creation/01-planning/New-Assessment.ps1 -FeatureId "1.1.3" -FeatureName "Password Reset Flow" -FeatureDescription "Allows users to reset their password via email verification" [-OpenInEditor]
 ```
 
 This will:

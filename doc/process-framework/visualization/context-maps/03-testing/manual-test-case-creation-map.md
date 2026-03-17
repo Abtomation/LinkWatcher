@@ -89,8 +89,8 @@ graph TD
 ## Related Documentation
 
 - [Manual Test Case Creation Task](/doc/process-framework/tasks/03-testing/manual-test-case-creation-task.md) - Full task definition with process steps
-- [Manual Master Test Template](/doc/process-framework/templates/templates/manual-master-test-template.md) - Template for group-level master tests
-- [Manual Test Case Template](/doc/process-framework/templates/templates/manual-test-case-template.md) - Template for individual test cases
+- [Manual Master Test Template](/doc/process-framework/templates/03-testing/manual-master-test-template.md) - Template for group-level master tests
+- [Manual Test Case Template](/doc/process-framework/templates/03-testing/manual-test-case-template.md) - Template for individual test cases
 - [Test Tracking](/doc/process-framework/state-tracking/permanent/test-tracking.md) - Test creation and execution status
 - [Feature Tracking](/doc/process-framework/state-tracking/permanent/feature-tracking.md) - Feature development status with test coverage
 - [Test Specification Creation Task](/doc/process-framework/tasks/03-testing/test-specification-creation-task.md) - Upstream task that identifies manual test scenarios

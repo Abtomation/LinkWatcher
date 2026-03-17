@@ -71,7 +71,7 @@ graph TD
 - [Example project-config.json](/doc/process-framework/project-config.json) - Reference template with complete structure
 - [Process Framework README](/doc/process-framework/README.md) - Framework overview and directory organization
 - [ID Registry](/doc/id-registry.json) - Document ID prefixes and directory mappings
-- [Documentation Structure Guide](/doc/process-framework/guides/guides/framework/documentation-structure-guide.md) - Directory organization patterns
+- [Documentation Structure Guide](/doc/process-framework/guides/framework/documentation-structure-guide.md) - Directory organization patterns
 - [Framework Domain Adaptation](/doc/process-framework/tasks/support/framework-domain-adaptation.md) - Comprehensive framework customization
 
 ---

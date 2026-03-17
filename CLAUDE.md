@@ -29,6 +29,19 @@ At the start of EVERY session, you must:
 
 2. **Get current time** (for time tracking - use MCP server if available)
 
+## Prohibited Git Commands
+
+**CRITICAL**: The following git commands are **NEVER** allowed in this project. The working tree frequently contains hundreds of uncommitted changes from LinkWatcher link updates and parallel sessions. These commands will destroy that work.
+
+- `git stash` — captures the entire dirty working tree; pop/apply causes merge conflicts and data loss
+- `git checkout -- <path>` — silently reverts ALL uncommitted changes in the target path
+- `git reset --hard` — destroys all uncommitted changes project-wide
+- `git clean -f` — deletes untracked files permanently
+
+**If you need to test whether a change is pre-existing**: use `git diff HEAD -- <file>` or `git show HEAD:<file>` to inspect the committed version without modifying the working tree.
+
+**No exceptions.** If you believe one of these commands is necessary, ask the user first and explain exactly what will be lost.
+
 ## PowerShell Script Execution
 
 **Preferred pattern** — use `pwsh.exe -Command` with the entire argument wrapped in **bash single quotes**:
@@ -49,7 +62,7 @@ ENDOFSCRIPT
 pwsh.exe -ExecutionPolicy Bypass -File /c/path/to/project/temp.ps1 && rm /c/path/to/project/temp.ps1
 ```
 
-See @doc/process-framework/guides/guides/support/script-development-quick-reference.md for details and examples.
+See @doc/process-framework/guides/support/script-development-quick-reference.md for details and examples.
 
 ## Architecture Overview
 
@@ -57,7 +70,7 @@ See @doc/process-framework/guides/guides/support/script-development-quick-refere
 
 The project maintains clear separation between two concerns:
 
-- **Process Framework** (`doc/process-framework/`): HOW to develop the project (tasks, templates, workflows)
+- **Process Framework** (`doc/product-docs`): HOW to develop the project (tasks, templates, workflows)
 - **Product Documentation** (`docs/`): Project-specific documentation (testing, CI/CD, configuration, troubleshooting)
 
 ### Process Framework Structure
@@ -79,7 +92,7 @@ doc/process-framework/
 ├── state-tracking/
 │   ├── permanent/            # Long-term tracking (feature-tracking.md, bug-tracking.md, etc.)
 │   └── temporary/            # Session-specific state files
-├── guides/guides/            # Best practices and reference guides
+├── guides/                   # Best practices and reference guides
 └── feedback/                 # Task completion feedback forms
 ```
 
@@ -100,7 +113,7 @@ All framework documents use structured IDs:
 
 ### Creating Framework Documents
 
-All scripts are in `doc/process-framework/scripts/file-creation/`:
+All scripts are in `doc/process-framework/scripts/file-creation`:
 
 ```powershell
 # Create new task definition
@@ -145,7 +158,7 @@ doc/process-framework/scripts/validation/Validate-StateTracking.ps1
 
 **CRITICAL**: Tasks are NOT complete until:
 1. All deliverables are created
-2. Feedback form is completed using templates in `doc/process-framework/templates/templates/feedback-form-template.md`
+2. Feedback form is completed using templates in doc/process-framework/templates/00-onboarding/feedback-form-template.md
 3. Session duration is manually calculated and entered in feedback form
 4. State files are updated
 
@@ -160,7 +173,7 @@ Each task definition includes a mandatory completion checklist.
 
 ## Visual Notation
 
-Framework uses standardized diagram formats. See @doc/process-framework/guides/guides/support/visual-notation-guide.md for interpretation.
+Framework uses standardized diagram formats. See @doc/process-framework/guides/support/visual-notation-guide.md for interpretation.
 
 ## LinkWatcher Workflow
 

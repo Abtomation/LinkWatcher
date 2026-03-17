@@ -41,6 +41,6 @@ echo Set-Location 'path'; ^& .\New-FDD.ps1 -FeatureId '3.1.1' -FeatureName 'My F
 echo Set-Location 'path'; ^& .\New-FDD.ps1 -FeatureId "3.1.1" -FeatureName "My Feature" > temp.ps1 && ...
 ```
 
-See [script-development-quick-reference.md](doc/process-framework/guides/guides/support/script-development-quick-reference.md) for full details and recovery steps.
+See [script-development-quick-reference.md](doc/process-framework/guides/support/script-development-quick-reference.md) for full details and recovery steps.
 
 Before you work on a problem take a deep breath and work on it step-by-step.

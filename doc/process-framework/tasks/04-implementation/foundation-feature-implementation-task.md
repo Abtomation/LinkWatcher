@@ -35,21 +35,21 @@ Specialized task for implementing foundation features (0.x.x) that provide archi
 
 - **Critical (Must Read):**
 
-  - [Foundation Feature Template](../../templates/templates/foundation-feature-template.md) - Template for foundation feature structure and architectural documentation
+  - [Foundation Feature Template](../../templates/04-implementation/foundation-feature-template.md) - Template for foundation feature structure and architectural documentation
   - [Architecture Context Packages](../../state-tracking/permanent/architecture-context-packages.md) - Current architectural context and component relationships
   - [Architecture Tracking](../../state-tracking/permanent/architecture-tracking.md) - Ongoing architectural decisions and evolution
 
 - **Important (Load If Space):**
 
-  - [Architectural Framework Usage Guide](../../guides/guides/01-planning/architectural-framework-usage-guide.md) - **ESSENTIAL**: Step-by-step guide for using the architectural framework
+  - [Architectural Framework Usage Guide](../../guides/01-planning/architectural-framework-usage-guide.md) - **ESSENTIAL**: Step-by-step guide for using the architectural framework
   - [Feature Implementation Planning](feature-implementation-planning-task.md) - Base implementation planning process for comparison
-  - [ADR Template](../../templates/templates/02-design/adr-template.md) - For documenting architectural decisions
-  - [Foundation Feature Implementation Usage Guide](../../guides/guides/04-implementation/foundation-feature-implementation-usage-guide.md) - Task-specific usage guide
+  - [ADR Template](../../templates/02-design/adr-template.md) - For documenting architectural decisions
+  - [Foundation Feature Implementation Usage Guide](../../guides/04-implementation/foundation-feature-implementation-usage-guide.md) - Task-specific usage guide
 
 - **Reference Only (Access When Needed):**
-  - [Technical Design Document Template](../../templates/templates/tdd-template.md) - For complex architectural specifications
+  - [Technical Design Document Template](../../templates/02-design/tdd-t3-template.md) - For complex architectural specifications
   - [Documentation Map](../../documentation-map.md) - For understanding document relationships
-  - [Visual Notation Guide](/doc/process-framework/guides/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Visual Notation Guide](/doc/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 ## Process
 
@@ -65,7 +65,7 @@ Specialized task for implementing foundation features (0.x.x) that provide archi
 
 1. **Review Architecture Context**: Study current [Architecture Context Packages](../../state-tracking/permanent/architecture-context-packages.md) to understand existing architectural foundations
 2. **Analyze Cross-Cutting Impact**: Identify which components and features will be affected by this foundation implementation
-3. **Create Foundation Feature Structure**: Use [Foundation Feature Template](../../templates/templates/foundation-feature-template.md) to establish the feature structure
+3. **Create Foundation Feature Structure**: Use [Foundation Feature Template](../../templates/04-implementation/foundation-feature-template.md) to establish the feature structure
 4. **🚨 CHECKPOINT**: Present architecture context review, cross-cutting impact analysis, and foundation feature structure to human partner for approval before implementation
 
 ### Execution
@@ -75,7 +75,7 @@ Specialized task for implementing foundation features (0.x.x) that provide archi
    ```powershell
    # Create ADR for architectural decisions
    cd doc/process-framework/templates
-   ../../scripts/file-creation/New-ADR.ps1 -Title "Foundation Feature Architecture Decision" -Context "Foundation implementation context"
+   ../../scripts/file-creation/02-design/New-ArchitectureDecision.ps1 -Title "Foundation Feature Architecture Decision" -Context "Foundation implementation context"
    ```
 7. **Update Architecture Context**: Modify [Architecture Context Packages](../../state-tracking/permanent/architecture-context-packages.md) to reflect new architectural foundations
 8. **Establish Patterns**: Document reusable patterns that other features can follow
@@ -95,8 +95,8 @@ Specialized task for implementing foundation features (0.x.x) that provide archi
 
 12. **Report Discovered Bugs**: If bugs are identified during foundation implementation:
 
-    - Use [../../scripts/file-creation/New-BugReport.ps1](../../scripts/file-creation/New-BugReport.ps1) script to create standardized bug reports
-    - Follow [Bug Reporting Guide](../../guides/guides/06-maintenance/bug-reporting-guide.md) for consistent documentation
+    - Use [../../scripts/file-creation/06-maintenance/New-BugReport.ps1](../../scripts/file-creation/06-maintenance/New-BugReport.ps1) script to create standardized bug reports
+    - Follow [Bug Reporting Guide](../../guides/06-maintenance/bug-reporting-guide.md) for consistent documentation
     - Add bug entries to [Bug Tracking](../../state-tracking/permanent/bug-tracking.md) with status 🆕 Reported
     - Include foundation implementation context and evidence in bug reports
     - Reference specific architectural components or patterns affected
@@ -109,7 +109,7 @@ Specialized task for implementing foundation features (0.x.x) that provide archi
     Set-Location "doc/process-framework/scripts/file-creation"
 
     # Create bug report for issues found during foundation implementation
-    ../../scripts/file-creation/New-BugReport.ps1 -Title "Foundation module causes circular dependency" -Description "New foundation module creates circular dependency between service components" -DiscoveredBy "Feature Implementation" -Severity "Critical" -Component "Core Foundation" -Environment "Development" -Evidence "Architecture analysis: circular dependency in src/core/"
+    ../../scripts/file-creation/06-maintenance/New-BugReport.ps1 -Title "Foundation module causes circular dependency" -Description "New foundation module creates circular dependency between service components" -DiscoveredBy "Feature Implementation" -Severity "Critical" -Component "Core Foundation" -Environment "Development" -Evidence "Architecture analysis: circular dependency in src/core/"
     ```
 
 13. **Update Architecture Tracking**: Record the foundation implementation in [Architecture Tracking](../../state-tracking/permanent/architecture-tracking.md)
@@ -191,12 +191,12 @@ Before considering this task finished:
   - [ ] Foundational validation executed and reports generated (using Quick-ValidationCheck.ps1 and/or Run-FoundationalValidation.ps1)
   - [ ] Validation reports show acceptable quality scores (average ≥ 2.0 on 4-point scale)
   - [ ] Bug discovery performed systematically during foundation implementation
-  - [ ] Any discovered bugs reported using ../../scripts/file-creation/New-BugReport.ps1 script with proper context and evidence
+  - [ ] Any discovered bugs reported using ../../scripts/file-creation/06-maintenance/New-BugReport.ps1 script with proper context and evidence
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
   - [ ] [Architecture Context Packages](../../state-tracking/permanent/architecture-context-packages.md) updated with new foundations
   - [ ] [Architecture Tracking](../../state-tracking/permanent/architecture-tracking.md) updated with implementation record
   - [ ] [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) updated with status set to "👀 Ready for Review"
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-024" and context "Foundation Feature Implementation Task"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-024" and context "Foundation Feature Implementation Task"
 
 ## Next Tasks
 

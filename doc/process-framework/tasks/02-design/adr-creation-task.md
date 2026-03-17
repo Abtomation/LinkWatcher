@@ -38,8 +38,8 @@ Create Architecture Decision Records (ADRs) to document significant architectura
 - **Critical (Must Read):**
 
   - **Architectural Decision Context** - Clear understanding of the decision to be documented, including problem statement and constraints
-  - [Architecture Decision Creation Guide](../../guides/guides/02-design/architecture-decision-creation-guide.md) - Comprehensive guide for customizing ADR templates
-  - [ADR Template](../../templates/templates/adr-template.md) - Template structure and required sections
+  - [Architecture Decision Creation Guide](../../guides/02-design/architecture-decision-creation-guide.md) - Comprehensive guide for customizing ADR templates
+  - [ADR Template](../../templates/02-design/adr-template.md) - Template structure and required sections
 
 - **Important (Load If Space):**
 
@@ -50,13 +50,13 @@ Create Architecture Decision Records (ADRs) to document significant architectura
 
 - **Reference Only (Access When Needed):**
   - [Existing ADRs](../../../product-docs/technical/architecture/design-docs/adr/adr) - For consistency and reference
-  - [Visual Notation Guide](../../guides/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 ## Process
 
 > **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished! 🚨**
 >
-> **⚠️ MANDATORY: Use the ../../scripts/file-creation/New-ArchitectureDecision.ps1 script - never create ADRs manually.**
+> **⚠️ MANDATORY: Use the ../../scripts/file-creation/02-design/New-ArchitectureDecision.ps1 script - never create ADRs manually.**
 >
 > **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
 >
@@ -85,17 +85,17 @@ Create Architecture Decision Records (ADRs) to document significant architectura
 
 ### Execution
 
-5. **Create ADR Using Automation Script**: Use the ../../scripts/file-creation/New-ArchitectureDecision.ps1 script
+5. **Create ADR Using Automation Script**: Use the ../../scripts/file-creation/02-design/New-ArchitectureDecision.ps1 script
 
    ```powershell
    # Navigate to ADR directory
    cd doc/product-docs/technical/architecture/design-docs/adr
 
    # Create new ADR with basic information
-   .\../../scripts/file-creation/New-ArchitectureDecision.ps1 -Title "Your Decision Title" -Description "Brief description of the decision" -Status "Proposed"
+   ..\..\scripts\file-creation\02-design\New-ArchitectureDecision.ps1 -Title "Your Decision Title" -Description "Brief description of the decision" -Status "Proposed"
 
    # Optional: Open in editor immediately
-   .\../../scripts/file-creation/New-ArchitectureDecision.ps1 -Title "Your Decision Title" -Description "Brief description" -Status "Proposed" -OpenInEditor
+   ..\..\scripts\file-creation\02-design\New-ArchitectureDecision.ps1 -Title "Your Decision Title" -Description "Brief description" -Status "Proposed" -OpenInEditor
    ```
 
 6. **Complete ADR Documentation**: Follow the Architecture Decision Creation Guide
@@ -156,7 +156,7 @@ Before considering this task finished:
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
   - [ ] [Architecture Tracking](../../state-tracking/permanent/architecture-tracking.md) updated with new architectural decision
   - [ ] [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) updated with ADR link in relevant feature entries
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-028" and context "ADR Creation"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-028" and context "ADR Creation"
 
 ## Next Tasks
 
@@ -166,7 +166,7 @@ Before considering this task finished:
 
 ## Related Resources
 
-- [Architecture Decision Creation Guide](../../guides/guides/02-design/architecture-decision-creation-guide.md) - Comprehensive guide for creating and customizing ADRs
-- [ADR Template](../../templates/templates/adr-template.md) - Template structure and sections for ADRs
-- [New-ArchitectureDecision.ps1](../../scripts/file-creation/New-ArchitectureDecision.ps1) - Script for creating new ADRs
+- [Architecture Decision Creation Guide](../../guides/02-design/architecture-decision-creation-guide.md) - Comprehensive guide for creating and customizing ADRs
+- [ADR Template](../../templates/02-design/adr-template.md) - Template structure and sections for ADRs
+- [New-ArchitectureDecision.ps1](../../scripts/file-creation/02-design/New-ArchitectureDecision.ps1) - Script for creating new ADRs
 - [Existing ADRs](../../../product-docs/technical/architecture/design-docs/adr/adr) - Reference examples and consistency patterns

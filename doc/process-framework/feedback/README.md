@@ -10,7 +10,7 @@ updated: 2023-06-15
 
 This directory contains feedback forms (artifacts) for templates, guides, and other tools (documents) used in the project. These feedback artifacts are collected at the end of each task and are used to continuously improve our development tools.
 
-> **Quick Reference**: See the [Feedback Process Flowchart](../../process-framework/feedback/feedback-process-flowchart.md) for a visual overview of the complete process.
+> **Quick Reference**: See the [Feedback Process Flowchart](feedback-process-flowchart.md) for a visual overview of the complete process.
 
 ## Purpose
 
@@ -22,7 +22,7 @@ The feedback collected in this directory serves several purposes:
 
 ## Feedback Form Structure
 
-We use a **hybrid feedback approach** with the enhanced [Feedback Form Template](../templates/templates/feedback-form-template.md) that supports:
+We use a **hybrid feedback approach** with the enhanced [Feedback Form Template](../templates/support/feedback-form-template.md) that supports:
 
 ### Flexible Evaluation Modes
 - **Single Tool**: Detailed evaluation of one specific tool
@@ -130,7 +130,7 @@ At the end of each task, complete a feedback form for each template, guide, chec
    - Provide human feedback when prompted by the AI assistant
 
 3. **File Location**:
-   - All feedback forms are automatically saved in `/doc/process-framework/feedback/feedback-forms/`
+   - All feedback forms are automatically saved in `/doc/process-framework/feedback/feedback-forms`
    - Files follow the naming convention: `../../process-framework/feedback/YYYYMMDD-HHMMSS-document-id-feedback.md`
 
 The feedback should be specific, actionable, and focused on how the tool could be improved to better support the development process.

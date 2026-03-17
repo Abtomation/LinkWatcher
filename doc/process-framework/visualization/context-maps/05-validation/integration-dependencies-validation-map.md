@@ -102,9 +102,9 @@ graph TD
 - [Integration Dependencies Validation Task](../../../tasks/05-validation/integration-dependencies-validation.md) - Complete task definition and process
 - [Feature Tracking](../../../state-tracking/permanent/feature-tracking.md) - Current status of foundational features
 - [Foundational Validation Tracking](../../../state-tracking/temporary/foundational-validation-tracking.md) - Master validation matrix
-- [Validation Report Template](../../../templates/templates/validation-report-template.md) - Standardized report structure
+- [Validation Report Template](../../../templates/05-validation/validation-report-template.md) - Standardized report structure
 - [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Complete reference of all component relationships
-- [../../scripts/file-creation/New-ValidationReport.ps1](../../../scripts/file-creation/New-ValidationReport.ps1) - Automation script for report generation
+- [../../scripts/file-creation/New-ValidationReport.ps1](../../../scripts/file-creation/05-validation/New-ValidationReport.ps1) - Automation script for report generation
 - Language/Framework Dependency Management Documentation - Official dependency management guidance
 
 ---

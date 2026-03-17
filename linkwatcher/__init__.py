@@ -25,7 +25,7 @@ del _sys
 __version__ = "2.0.0"
 __author__ = "LinkWatcher Team"
 
-from .database import LinkDatabase
+from .database import LinkDatabase, LinkDatabaseInterface
 from .logging import LogLevel, LogTimer, get_logger, setup_logging, with_context
 from .models import FileOperation, LinkReference
 from .parser import LinkParser
@@ -36,6 +36,7 @@ from .updater import LinkUpdater
 __all__ = [
     "LinkWatcherService",
     "LinkDatabase",
+    "LinkDatabaseInterface",
     "LinkParser",
     "LinkUpdater",
     "PathResolver",

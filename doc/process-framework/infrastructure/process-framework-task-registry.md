@@ -106,7 +106,7 @@ This document serves as the **comprehensive registry** of all process framework 
 
 **📋 AUTOMATION DETAILS**
 
-- **Script:** [`New-FDD.ps1`](../scripts/file-creation/New-FDD.ps1)
+- **Script:** [`New-FDD.ps1`](../scripts/file-creation/02-design/New-FDD.ps1)
 - **Output Directory:** [`fdds/`](../../product-docs/functional-design/fdds/)
 - **Auto-Update Function:** Built-in automated feature tracking updates
 
@@ -128,7 +128,7 @@ This document serves as the **comprehensive registry** of all process framework 
 
 **📋 AUTOMATION DETAILS**
 
-- **Script:** [`New-tdd.ps1`](../scripts/file-creation/New-tdd.ps1)
+- **Script:** [`New-tdd.ps1`](../scripts/file-creation/02-design/New-tdd.ps1)
 - **Output Directory:** [`tdd/`](../../product-docs/technical/architecture/design-docs/tdd/tdd/)
 - **Auto-Update Function:** Built-in automated feature tracking updates
 
@@ -150,7 +150,7 @@ This document serves as the **comprehensive registry** of all process framework 
 
 **📋 AUTOMATION DETAILS**
 
-- **Script:** [`New-TestSpecification.ps1`](../scripts/file-creation/New-TestSpecification.ps1)
+- **Script:** [`New-TestSpecification.ps1`](../scripts/file-creation/03-testing/New-TestSpecification.ps1)
 - **Output Directory:** [`feature-specs/`](../../../test/specifications/feature-specs/)
 - **Auto-Update Function:** Built-in automated feature tracking updates via `Update-DocumentTrackingFiles`
 
@@ -174,7 +174,7 @@ This document serves as the **comprehensive registry** of all process framework 
 
 **📋 AUTOMATION DETAILS**
 
-- **Script:** [`New-TestFile.ps1`](../scripts/file-creation/New-TestFile.ps1)
+- **Script:** [`New-TestFile.ps1`](../scripts/file-creation/03-testing/New-TestFile.ps1)
 - **Output Directory:** [`test/`](../../../test/) (various subdirectories)
 - **Auto-Update Function:** Built-in automated initial state tracking via `Update-TestImplementationStatus`
 - **Validation Script:** [`Validate-TestTracking.ps1`](../scripts/validation/Validate-TestTracking.ps1)
@@ -184,7 +184,7 @@ This document serves as the **comprehensive registry** of all process framework 
 | Operation | File Path | Update Method | Details |
 |-----------|-----------|---------------|---------|
 | **Creates** | Test files (multiple) | `New-TestFile.ps1` | Test files in appropriate test directories with proper PD-TST IDs |
-| **Updates** | [`bug-tracking.md`](../state-tracking/permanent/bug-tracking.md) (if bugs discovered) | [`New-BugReport.ps1`](../scripts/file-creation/New-BugReport.ps1)| Add newly discovered bugs with 🆕 Reported status for triage |
+| **Updates** | [`bug-tracking.md`](../state-tracking/permanent/bug-tracking.md) (if bugs discovered) | [`New-BugReport.ps1`](../scripts/file-creation/06-maintenance/New-BugReport.ps1)| Add newly discovered bugs with 🆕 Reported status for triage |
 | **Updates** | [`test-tracking.md`](../state-tracking/permanent/test-tracking.md) | `New-TestFile.ps1` | Status: "📝 Specification Created" → "🟡 Implementation In Progress"<br/>• Add test file links with correct relative paths<br/>• Use filename as display name instead of PD-TST ID<br/>• Update test cases count, last updated date, notes |
 | **Updates** | [`test-registry.yaml`](../../../test/test-registry.yaml) | `New-TestFile.ps1` | Add new test file entries with metadata<br/>• Include testId, featureId, testType, componentName<br/>• Set initial status and creation timestamp |
 | **Updates** | [`feature-tracking.md`](../state-tracking/permanent/feature-tracking.md) | `New-TestFile.ps1` | Update Test Status based on implementation progress<br/>• Automatic status mapping from test implementation to feature tracking<br/>• Coordinate status across multiple state files |
@@ -206,7 +206,7 @@ This document serves as the **comprehensive registry** of all process framework 
 
 **📋 AUTOMATION DETAILS**
 
-- **Report Script:** [`New-TestAuditReport.ps1`](../scripts/file-creation/New-TestAuditReport.ps1)
+- **Report Script:** [`New-TestAuditReport.ps1`](../scripts/file-creation/03-testing/New-TestAuditReport.ps1)
 - **State Update Script:** [`Update-TestFileAuditState.ps1`](../scripts/update/Update-TestFileAuditState.ps1)
 - **Output Directory:** [`test-audits/`](../../product-docs/test-audits/)
 - **Auto-Update Function:** **FULLY AUTOMATED** state file updates with intelligent aggregation
@@ -215,7 +215,7 @@ This document serves as the **comprehensive registry** of all process framework 
 | Operation | File Path | Update Method | Details |
 |-----------|-----------|---------------|---------|
 | **Creates** | `[PF-TAR-XXX]-[feature-id]-[test-file-id].md` | `New-TestAuditReport.ps1` | Test audit report with quality assessment and recommendations |
-| **Updates** | [`bug-tracking.md`](../state-tracking/permanent/bug-tracking.md) (if bugs discovered) | [`New-BugReport.ps1`](../scripts/file-creation/New-BugReport.ps1)| Add newly discovered bugs with 🆕 Reported status for triage |
+| **Updates** | [`bug-tracking.md`](../state-tracking/permanent/bug-tracking.md) (if bugs discovered) | [`New-BugReport.ps1`](../scripts/file-creation/06-maintenance/New-BugReport.ps1)| Add newly discovered bugs with 🆕 Reported status for triage |
 | **Updates** | [`test-tracking.md`](../state-tracking/permanent/test-tracking.md) | `Update-TestFileAuditState.ps1` | **AUTOMATED**: Update individual test file audit status with comprehensive details<br/>• Audit status (✅ Tests Approved/🔴 Audit Failed/🔄 Needs Update)<br/>• Detailed audit results (passed/failed test counts)<br/>• Auditor information and major findings<br/>• Audit date and completion timestamp |
 | **Updates** | [`test-registry.yaml`](../../../test/test-registry.yaml) | `Update-TestFileAuditState.ps1` | **AUTOMATED**: Flag for manual review with audit completion status<br/>• Add auditStatus, auditDate, auditor fields |
 | **Updates** | [`feature-tracking.md`](../state-tracking/permanent/feature-tracking.md) | `Update-TestFileAuditState.ps1` | **AUTOMATED**: Intelligent aggregated test status calculation<br/>• 🔴 Tests Failed Audit (any test fails)<br/>• 🟡 Tests Partially Approved (mixed statuses)<br/>• ✅ Tests Approved (all tests approved)<br/>• Last audit date tracking |
@@ -250,7 +250,7 @@ This document serves as the **comprehensive registry** of all process framework 
 | **Creates** | Validation reports | [`Quick-ValidationCheck.ps1`](../scripts/validation/Quick-ValidationCheck.ps1) | Quick health check reports (console/JSON/CSV output) |
 | **Creates** | Quality validation reports | [`Run-FoundationalValidation.ps1`](../scripts/validation/Run-FoundationalValidation.ps1) | Code quality validation reports for foundational features |
 | **Creates** | `[api-name]-docs.md` (API features only) | Manual | API Consumer Documentation with usage examples and integration guidance |
-| **Updates** | [`bug-tracking.md`](../state-tracking/permanent/bug-tracking.md) (if bugs discovered) | [`New-BugReport.ps1`](../scripts/file-creation/New-BugReport.ps1)| Add newly discovered bugs with 🆕 Reported status for triage |
+| **Updates** | [`bug-tracking.md`](../state-tracking/permanent/bug-tracking.md) (if bugs discovered) | [`New-BugReport.ps1`](../scripts/file-creation/06-maintenance/New-BugReport.ps1)| Add newly discovered bugs with 🆕 Reported status for triage |
 | **Updates** | [`feature-tracking.md`](../state-tracking/permanent/feature-tracking.md) | Manual | Update implementation status (🟡 In Progress/🔄 Needs Revision/🟢 Completed)<br/>• Add implementation start and completion dates<br/>• Link to relevant pull request or commit<br/>• **API Design column**: Manually add consumer documentation link for API features<br/>• Document design deviations with justification |
 | **Updates** | [`test-tracking.md`](../state-tracking/permanent/test-tracking.md) | Manual | Update test implementation status during development<br/>• Change status based on implementation progress |
 | **Updates** | [`component-relationship-index.md`](../../product-docs/technical/architecture/component-relationship-index.md) | Manual | Update if new components or relationships are added<br/>• Document new dependencies |
@@ -313,7 +313,7 @@ This document serves as the **comprehensive registry** of all process framework 
 | **Creates** | Validation reports | [`Quick-ValidationCheck.ps1`](../scripts/validation/Quick-ValidationCheck.ps1) | Quick health check reports (console/JSON/CSV output) |
 | **Creates** | Comprehensive validation reports | [`Run-FoundationalValidation.ps1`](../scripts/validation/Run-FoundationalValidation.ps1) | Detailed validation reports in `scripts/validation/validation-reports/` |
 | **Updates** | [`foundational-validation-tracking.md`](../state-tracking/temporary/foundational-validation-tracking.md) | [`Run-FoundationalValidation.ps1`](../scripts/validation/Run-FoundationalValidation.ps1) | Update validation matrix with report creation dates and links |
-| **Updates** | [`bug-tracking.md`](../state-tracking/permanent/bug-tracking.md) (if bugs discovered) | [`New-BugReport.ps1`](../scripts/file-creation/New-BugReport.ps1)| Add newly discovered bugs with 🆕 Reported status for triage |
+| **Updates** | [`bug-tracking.md`](../state-tracking/permanent/bug-tracking.md) (if bugs discovered) | [`New-BugReport.ps1`](../scripts/file-creation/06-maintenance/New-BugReport.ps1)| Add newly discovered bugs with 🆕 Reported status for triage |
 | **Updates** | [`architecture-context-packages.md`](../state-tracking/permanent/architecture-context-packages.md) | Manual | Update with new architectural foundations and component relationships |
 | **Updates** | [`architecture-tracking.md`](../state-tracking/permanent/architecture-tracking.md) | Manual | Record foundation implementation and architectural evolution<br/>• Update component status and key decisions |
 | **Updates** | [`feature-tracking.md`](../state-tracking/permanent/feature-tracking.md) | Manual | Update with foundation feature completion status |
@@ -336,7 +336,7 @@ This document serves as the **comprehensive registry** of all process framework 
 
 **📋 AUTOMATION DETAILS**
 
-- **Script:** [`New-ArchitectureDecision.ps1`](../../../scripts/file-creation/New-ArchitectureDecision.ps1)
+- **Script:** [`New-ArchitectureDecision.ps1`](../scripts/file-creation/02-design/New-ArchitectureDecision.ps1)
 - **Output Directory:** [`adr/`](../../../product-docs/technical/architecture/design-docs/adr/adr/)
 - **Auto-Update Function:** `Update-DocumentTrackingFiles` + Script updates
 
@@ -362,8 +362,8 @@ This document serves as the **comprehensive registry** of all process framework 
 
 **📋 AUTOMATION DETAILS**
 
-- **Script:** [`New-APISpecification.ps1`](../scripts/file-creation/New-APISpecification.ps1)
-- **Additional Script:** [`New-APIDataModel.ps1`](../scripts/file-creation/New-APIDataModel.ps1)
+- **Script:** [`New-APISpecification.ps1`](../scripts/file-creation/02-design/New-APISpecification.ps1)
+- **Additional Script:** [`New-APIDataModel.ps1`](../scripts/file-creation/02-design/New-APIDataModel.ps1)
 - **Output Directory:** [`specifications/`](../../product-docs/technical/api/specifications/specifications/) + [`models/`](../../product-docs/technical/api/models/)
 - **Auto-Update Function:** Built-in automated feature tracking updates with intelligent replacement/append logic
 
@@ -393,7 +393,7 @@ This document serves as the **comprehensive registry** of all process framework 
 
 **📋 AUTOMATION DETAILS**
 
-- **Script:** [`New-SchemaDesign.ps1`](../scripts/file-creation/New-SchemaDesign.ps1)
+- **Script:** [`New-SchemaDesign.ps1`](../scripts/file-creation/02-design/New-SchemaDesign.ps1)
 - **Output Directory:** [`schemas/`](../../product-docs/technical/database/schemas/) + [`migrations/`](../../product-docs/technical/database/migrations/) + [`diagrams/`](../../product-docs/technical/database/diagrams/)
 - **Auto-Update Function:** Built-in automated feature tracking updates
 
@@ -421,7 +421,7 @@ This document serves as the **comprehensive registry** of all process framework 
 
 **📋 AUTOMATION DETAILS**
 
-- **Script:** [`New-UIDesign.ps1`](../scripts/file-creation/New-UIDesign.ps1)
+- **Script:** [`New-UIDesign.ps1`](../scripts/file-creation/02-design/New-UIDesign.ps1)
 - **Output Directory:** [`design/ui-ux/`](../../product-docs/technical/design/ui-ux/) with subdirectories:
   - `design-system/` - Design system documentation
   - `mockups/` - UI mockups and high-fidelity designs
@@ -458,7 +458,7 @@ This document serves as the **comprehensive registry** of all process framework 
 **📁 FILE OPERATIONS**
 | Operation | File Path | Update Method | Details |
 |-----------|-----------|---------------|---------|
-| **Updates** | [`bug-tracking.md`](../state-tracking/permanent/bug-tracking.md) (if bugs discovered) | [`New-BugReport.ps1`](../scripts/file-creation/New-BugReport.ps1)| Add newly discovered bugs with 🆕 Reported status for triage |
+| **Updates** | [`bug-tracking.md`](../state-tracking/permanent/bug-tracking.md) (if bugs discovered) | [`New-BugReport.ps1`](../scripts/file-creation/06-maintenance/New-BugReport.ps1)| Add newly discovered bugs with 🆕 Reported status for triage |
 | **Updates** | [`feature-tracking.md`](../state-tracking/permanent/feature-tracking.md) | Manual | Update code review status (🟢 Completed/🔄 Needs Revision)<br/>• Add review date, reviewer information<br/>• Link to review document, list major findings |
 | **Updates** | [`test-tracking.md`](../state-tracking/permanent/test-tracking.md) | Manual | Update test status based on review findings<br/>• Confirm "✅ Tests Implemented" or change to "🔴 Tests Failing"/"🔄 Needs Update" |
 
@@ -502,7 +502,7 @@ This document serves as the **comprehensive registry** of all process framework 
 **📋 AUTOMATION DETAILS**
 
 - **Script:** [`Update-BugStatus.ps1`](../scripts/update/Update-BugStatus.ps1)
-- **State Tracking Script:** [`New-BugFixState.ps1`](../scripts/file-creation/New-BugFixState.ps1) (conditional — Large-effort or architectural bugs only)
+- **State Tracking Script:** [`New-BugFixState.ps1`](../scripts/file-creation/06-maintenance/New-BugFixState.ps1) (conditional — Large-effort or architectural bugs only)
 - **Output Directory:** [`temporary/`](../state-tracking/temporary/) (for multi-session bug fix state files)
 - **Auto-Update Function:** Automated bug status transitions through complete lifecycle
 
@@ -525,22 +525,22 @@ This document serves as the **comprehensive registry** of all process framework 
 
 **📋 AUTOMATION DETAILS**
 
-- **Planning Script:** [`New-RefactoringPlan.ps1`](../scripts/file-creation/New-RefactoringPlan.ps1) (supports `-Lightweight` and `-DocumentationOnly` switches)
-- **Templates:** Standard ([`refactoring-plan-template.md`](../templates/templates/refactoring-plan-template.md)), Documentation-only ([`documentation-refactoring-plan-template.md`](../templates/templates/documentation-refactoring-plan-template.md)), or Lightweight ([`lightweight-refactoring-plan-template.md`](../templates/templates/lightweight-refactoring-plan-template.md))
-- **State Tracking Script:** [`New-TempTaskState.ps1`](../scripts/file-creation/New-TempTaskState.ps1) (standard path only)
-- **Bug Reporting Script:** [`New-BugReport.ps1`](../scripts/file-creation/New-BugReport.ps1)
-- **ADR Creation Script:** [`New-ADR.ps1`](../scripts/file-creation/New-ADR.ps1) (for architectural refactoring, standard path only)
-- **Output Directory:** [`plans/`](../refactoring/plans/), [`temporary/`](../state-tracking/temporary/)
+- **Planning Script:** [`New-RefactoringPlan.ps1`](../scripts/file-creation/06-maintenance/New-RefactoringPlan.ps1) (supports `-Lightweight` and `-DocumentationOnly` switches)
+- **Templates:** Standard ([`refactoring-plan-template.md`](../templates/06-maintenance/refactoring-plan-template.md)), Documentation-only ([`documentation-refactoring-plan-template.md`](../templates/06-maintenance/documentation-refactoring-plan-template.md)), or Lightweight ([`lightweight-refactoring-plan-template.md`](../templates/06-maintenance/lightweight-refactoring-plan-template.md))
+- **State Tracking Script:** [`New-TempTaskState.ps1`](../scripts/file-creation/support/New-TempTaskState.ps1) (standard path only)
+- **Bug Reporting Script:** [`New-BugReport.ps1`](../scripts/file-creation/06-maintenance/New-BugReport.ps1)
+- **ADR Creation Script:** [`New-ArchitectureDecision.ps1`](../scripts/file-creation/02-design/New-ArchitectureDecision.ps1) (for architectural refactoring, standard path only)
+- **Output Directory:** [`plans/`](../../product-docs/refactoring/plans/), [`temporary/`](../state-tracking/temporary/)
 - **Auto-Update Function:** Partial automation with comprehensive manual state updates
 - **Effort Gate:** Step 1 classifies as Lightweight (≤15 min, single file, no architectural impact) or Standard
 
 **📁 FILE OPERATIONS**
 | Operation | File Path | Update Method | Details |
 |-----------|-----------|---------------|---------|
-| **Creates** | [`[PF-RFP-XXX]-[refactoring-scope].md`](../refactoring/plans/) | [`New-RefactoringPlan.ps1`](../scripts/file-creation/New-RefactoringPlan.ps1) | Detailed refactoring plan with scope, approach, and timeline |
-| **Creates** | [`[PF-TTS-XXX]-[task-context].md`](../state-tracking/temporary/) | [`New-TempTaskState.ps1`](../scripts/file-creation/New-TempTaskState.ps1) | Work-in-progress tracking for refactoring sessions (conditional: ≥ 5 items or 3+ sessions; otherwise use refactoring plan's Implementation Tracking) |
-| **Creates** | [`[PF-ADR-XXX]-[decision-title].md`](../architecture/adrs/) | [`New-ADR.ps1`](../scripts/file-creation/New-ADR.ps1) | Architecture Decision Records for architectural refactoring |
-| **Updates** | [`bug-tracking.md`](../state-tracking/permanent/bug-tracking.md) | [`New-BugReport.ps1`](../scripts/file-creation/New-BugReport.ps1) | Add bugs discovered during refactoring with 4-tier severity decision matrix |
+| **Creates** | [`[PF-RFP-XXX]-[refactoring-scope].md`](../../product-docs/refactoring/plans/) | [`New-RefactoringPlan.ps1`](../scripts/file-creation/06-maintenance/New-RefactoringPlan.ps1) | Detailed refactoring plan with scope, approach, and timeline |
+| **Creates** | [`[PF-TTS-XXX]-[task-context].md`](../state-tracking/temporary/) | [`New-TempTaskState.ps1`](../scripts/file-creation/support/New-TempTaskState.ps1) | Work-in-progress tracking for refactoring sessions (conditional: ≥ 5 items or 3+ sessions; otherwise use refactoring plan's Implementation Tracking) |
+| **Creates** | [`[PF-ADR-XXX]-[decision-title].md`](../architecture/adrs/) | [`New-ArchitectureDecision.ps1`](../scripts/file-creation/02-design/New-ArchitectureDecision.ps1) | Architecture Decision Records for architectural refactoring |
+| **Updates** | [`bug-tracking.md`](../state-tracking/permanent/bug-tracking.md) | [`New-BugReport.ps1`](../scripts/file-creation/06-maintenance/New-BugReport.ps1) | Add bugs discovered during refactoring with 4-tier severity decision matrix |
 | **Updates** | [`technical-debt-tracking.md`](../state-tracking/permanent/technical-debt-tracking.md) | [`Update-TechDebt.ps1`](../scripts/update/Update-TechDebt.ps1) | Status transitions: Open → InProgress → Resolved (auto-moves to Recently Resolved) |
 | **Updates** | [`architecture-tracking.md`](../state-tracking/permanent/architecture-tracking.md) | Manual | Improve feature status (e.g., "🔄 Needs Revision" → "🧪 Testing") |
 | **Updates** | [`feature-tracking.md`](../state-tracking/permanent/feature-tracking.md) | Manual | For foundation features (0.x.x), document architectural improvements |
@@ -573,7 +573,7 @@ This document serves as the **comprehensive registry** of all process framework 
 **📁 FILE OPERATIONS**
 | Operation | File Path | Update Method | Details |
 |-----------|-----------|---------------|---------|
-| **Updates** | [`bug-tracking.md`](../state-tracking/permanent/bug-tracking.md) (if bugs discovered) | [`New-BugReport.ps1`](../scripts/file-creation/New-BugReport.ps1)| Add newly discovered bugs with 🆕 Reported status for triage |
+| **Updates** | [`bug-tracking.md`](../state-tracking/permanent/bug-tracking.md) (if bugs discovered) | [`New-BugReport.ps1`](../scripts/file-creation/06-maintenance/New-BugReport.ps1)| Add newly discovered bugs with 🆕 Reported status for triage |
 | **Updates** | [`feature-tracking.md`](../state-tracking/permanent/feature-tracking.md) | Manual | Update deployment status for released features<br/>• Add release version and deployment date |
 
 **🎯 KEY IMPACTS**
@@ -592,7 +592,7 @@ This document serves as the **comprehensive registry** of all process framework 
 
 **📋 AUTOMATION DETAILS**
 
-- **Script:** [`New-ArchitectureAssessment.ps1`](../scripts/file-creation/New-ArchitectureAssessment.ps1)
+- **Script:** [`New-ArchitectureAssessment.ps1`](../scripts/file-creation/02-design/New-ArchitectureAssessment.ps1)
 - **Output Directory:** [`assessments/`](../../product-docs/technical/architecture/assessments/assessments/)
 - **Auto-Update Function:** Built-in automated feature tracking and architecture tracking updates
 
@@ -641,7 +641,7 @@ This document serves as the **comprehensive registry** of all process framework 
 
 **📋 AUTOMATION DETAILS**
 
-- **Script:** [`New-ValidationReport.ps1`](../scripts/file-creation/New-ValidationReport.ps1)
+- **Script:** [`New-ValidationReport.ps1`](../scripts/file-creation/05-validation/New-ValidationReport.ps1)
 - **Output Directory:** [`reports/[validation-type]/`](../validation/reports/)
 - **Auto-Update Function:** `Update-DocumentTrackingFiles`
 
@@ -677,17 +677,17 @@ This document serves as the **comprehensive registry** of all process framework 
 
 **📋 AUTOMATION DETAILS**
 
-- **Script:** [`New-Task.ps1`](../scripts/file-creation/New-Task.ps1)
+- **Script:** [`New-Task.ps1`](../scripts/file-creation/support/New-Task.ps1)
 - **Output Directory:** [`tasks/[task-type]/`](../tasks/)
 - **Auto-Update Function:** **ENHANCED** - Script now handles three documentation file updates automatically
 
 **📁 FILE OPERATIONS**
 | Operation | File Path | Update Method | Details |
 |-----------|-----------|---------------|---------|
-| **Creates** | `[kebab-case-task-name].md` | [`New-Task.ps1`](../scripts/file-creation/New-Task.ps1) | New task document with standardized structure |
-| **Updates** | [`documentation-map.md`](../documentation-map.md) | [`New-Task.ps1`](../scripts/file-creation/New-Task.ps1) | Add new task to appropriate task category section |
-| **Updates** | [`tasks/README.md`](../tasks/README.md) | [`New-Task.ps1`](../scripts/file-creation/New-Task.ps1) | Add new task to task type table with flexible pattern matching |
-| **Updates** | [`ai-tasks.md`](../../../ai-tasks.md) | [`New-Task.ps1`](../scripts/file-creation/New-Task.ps1) | **NEW**: Add new task to AI Tasks main entry point with correct section and table format |
+| **Creates** | `[kebab-case-task-name].md` | [`New-Task.ps1`](../scripts/file-creation/support/New-Task.ps1) | New task document with standardized structure |
+| **Updates** | [`documentation-map.md`](../documentation-map.md) | [`New-Task.ps1`](../scripts/file-creation/support/New-Task.ps1) | Add new task to appropriate task category section |
+| **Updates** | [`tasks/README.md`](../tasks/README.md) | [`New-Task.ps1`](../scripts/file-creation/support/New-Task.ps1) | Add new task to task type table with flexible pattern matching |
+| **Updates** | [`ai-tasks.md`](../../../ai-tasks.md) | [`New-Task.ps1`](../scripts/file-creation/support/New-Task.ps1) | **NEW**: Add new task to AI Tasks main entry point with correct section and table format |
 | **Updates** | [`process-framework-task-registry.md`](process-framework-task-registry.md) | Manual | Add new task entry with its file update requirements (**THIS FILE**) |
 
 **🎯 KEY IMPACTS**
@@ -704,7 +704,7 @@ This document serves as the **comprehensive registry** of all process framework 
 
 **📋 AUTOMATION DETAILS**
 
-- **Creation Script:** [`New-ProcessImprovement.ps1`](../scripts/file-creation/New-ProcessImprovement.ps1)
+- **Creation Script:** [`New-ProcessImprovement.ps1`](../scripts/file-creation/support/New-ProcessImprovement.ps1)
 - **Update Script:** [`Update-ProcessImprovement.ps1`](../scripts/update/Update-ProcessImprovement.ps1)
 - **Output Directory:** N/A (updates in-place)
 - **Auto-Update Function:** New entries with auto-assigned PF-IMP IDs; status transitions, completion moves, summary count, update history, frontmatter date
@@ -743,14 +743,14 @@ This document serves as the **comprehensive registry** of all process framework 
 
 **📋 AUTOMATION DETAILS**
 
-- **Script:** [`New-FrameworkExtensionConcept.ps1`](../scripts/file-creation/New-FrameworkExtensionConcept.ps1)
+- **Script:** [`New-FrameworkExtensionConcept.ps1`](../scripts/file-creation/support/New-FrameworkExtensionConcept.ps1)
 - **Output Directory:** [`proposals/`](../proposals/)
 - **Auto-Update Function:** Manual updates only
 
 **📁 FILE OPERATIONS**
 | Operation | File Path | Update Method | Details |
 |-----------|-----------|---------------|---------|
-| **Creates** | Framework extension concept document | [`New-FrameworkExtensionConcept.ps1`](../scripts/file-creation/New-FrameworkExtensionConcept.ps1) | Detailed concept document for framework extension |
+| **Creates** | Framework extension concept document | [`New-FrameworkExtensionConcept.ps1`](../scripts/file-creation/support/New-FrameworkExtensionConcept.ps1) | Detailed concept document for framework extension |
 | **Updates** | Multiple process framework files (varies) | Manual | Updates vary based on extension scope |
 
 **🎯 KEY IMPACTS**
@@ -768,7 +768,7 @@ This document serves as the **comprehensive registry** of all process framework 
 
 **📋 AUTOMATION DETAILS**
 
-- **Script:** [`New-StructureChangeState.ps1`](../scripts/file-creation/New-StructureChangeState.ps1)
+- **Script:** [`New-StructureChangeState.ps1`](../scripts/file-creation/support/New-StructureChangeState.ps1)
 - **Output Directory:** [`temporary/`](../state-tracking/temporary/)
 - **Auto-Update Function:** Manual updates only
 
@@ -793,9 +793,9 @@ This document serves as the **comprehensive registry** of all process framework 
 
 **📋 AUTOMATION DETAILS**
 
-- **Review Script:** [`New-ReviewSummary.ps1`](../scripts/file-creation/New-ReviewSummary.ps1) — Creates review summary documents with auto-assigned ART-REV IDs
-- **Improvement Script:** [`New-ProcessImprovement.ps1`](../scripts/file-creation/New-ProcessImprovement.ps1) — Adds improvement entries with auto-assigned PF-IMP IDs
-- **Output Directory:** `doc/process-framework/feedback/reviews/`
+- **Review Script:** [`New-ReviewSummary.ps1`](../scripts/file-creation/06-maintenance/New-ReviewSummary.ps1) — Creates review summary documents with auto-assigned ART-REV IDs
+- **Improvement Script:** [`New-ProcessImprovement.ps1`](../scripts/file-creation/support/New-ProcessImprovement.ps1) — Adds improvement entries with auto-assigned PF-IMP IDs
+- **Output Directory:** `doc/process-framework/feedback/reviews`
 - **Auto-Update Function:** Review summary creation and improvement entry creation automated; tool evaluation manual
 
 **📁 FILE OPERATIONS**
@@ -820,8 +820,8 @@ This document serves as the **comprehensive registry** of all process framework 
 
 **📋 AUTOMATION DETAILS**
 
-- **Assessment Script:** [`New-TechnicalDebtAssessment.ps1`](../scripts/file-creation/New-TechnicalDebtAssessment.ps1)
-- **Debt Item Script:** [`New-DebtItem.ps1`](../scripts/file-creation/New-DebtItem.ps1) - **ENHANCED** with assessment linking and automation guidance
+- **Assessment Script:** [`New-TechnicalDebtAssessment.ps1`](../scripts/file-creation/cyclical/New-TechnicalDebtAssessment.ps1)
+- **Debt Item Script:** [`New-DebtItem.ps1`](../scripts/file-creation/cyclical/New-DebtItem.ps1) - **ENHANCED** with assessment linking and automation guidance
 - **Registry Update Script:** [`Update-TechDebt.ps1`](../scripts/update/Update-TechDebt.ps1) - Individual debt item management (Add, StatusUpdate, Resolve)
 - **Assessment Integration Script:** [`Update-TechnicalDebtFromAssessment.ps1`](../scripts/update/Update-TechnicalDebtFromAssessment.ps1) - **NEW** bulk assessment processing
 - **Output Directory:** [`assessments/technical-debt/`](../assessments/technical-debt/)

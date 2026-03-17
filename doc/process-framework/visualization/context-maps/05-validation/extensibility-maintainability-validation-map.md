@@ -111,8 +111,8 @@ graph TD
 - [Extensibility Maintainability Validation Task](../../../tasks/05-validation/extensibility-maintainability-validation.md) - Complete task definition and process
 - [Feature Tracking](../../../state-tracking/permanent/feature-tracking.md) - Current status of foundational features
 - [Foundational Validation Tracking](../../../state-tracking/temporary/foundational-validation-tracking.md) - Master validation matrix
-- [Validation Report Template](../../../templates/templates/validation-report-template.md) - Standardized report structure
-- [../../scripts/file-creation/New-ValidationReport.ps1](../../../scripts/file-creation/New-ValidationReport.ps1) - Automation script for report generation
+- [Validation Report Template](../../../templates/05-validation/validation-report-template.md) - Standardized report structure
+- [../../scripts/file-creation/New-ValidationReport.ps1](../../../scripts/file-creation/05-validation/New-ValidationReport.ps1) - Automation script for report generation
 - Project architecture documentation - Framework-specific extensibility patterns
 - Project testing documentation - Testing infrastructure best practices
 - State management documentation - State management extensibility patterns

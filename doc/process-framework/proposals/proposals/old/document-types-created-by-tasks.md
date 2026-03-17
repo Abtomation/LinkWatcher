@@ -89,7 +89,7 @@ This document catalogs all document types created by framework tasks to support 
   - Format: `[feature-id]-[feature-name]-implementation-plan.md`
   - Content: Implementation phases, file mapping, dependency map, testing strategy
 - **Feature Implementation State File** (PF-FIS-XXX) - **PERMANENT**
-  - Location: `/doc/process-framework/state-tracking/features/`
+  - Location: `/doc/process-framework/state-tracking/features`
   - Format: `[feature-id]-implementation-state.md`
   - Content: Living document tracking implementation progress, code inventory, design decisions
 

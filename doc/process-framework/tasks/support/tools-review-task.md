@@ -38,7 +38,7 @@ Systematically evaluate and enhance the templates, guides, and other tools by co
 
   - [Feedback Forms](../../feedback) - Collected feedback on tools used in previous tasks
   - [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) - Current improvement initiatives
-  - [Visual Notation Guide](/doc/process-framework/guides/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Visual Notation Guide](/doc/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 - **Important (Load If Space):**
 
@@ -78,7 +78,7 @@ Systematically evaluate and enhance the templates, guides, and other tools by co
 8. Quantify ratings for effectiveness, clarity, completeness, and efficiency
 9. Prioritize potential improvements based on frequency and impact
 10. **🚨 CHECKPOINT**: Present analysis findings, identified themes, and prioritized improvement opportunities to human partner for approval
-11. Document improvement opportunities in the [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) file using [`New-ProcessImprovement.ps1`](../../scripts/file-creation/New-ProcessImprovement.ps1):
+11. Document improvement opportunities in the [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) file using [`New-ProcessImprovement.ps1`](../../scripts/file-creation/support/New-ProcessImprovement.ps1):
     ```powershell
     .\New-ProcessImprovement.ps1 -Source "Tools Review YYYY-MM-DD" -SourceLink "../../feedback/reviews/tools-review-YYYYMMDD.md" -Description "What needs improving" -Priority "MEDIUM" -Notes "Context"
     ```
@@ -89,7 +89,7 @@ Systematically evaluate and enhance the templates, guides, and other tools by co
     ```bash
     python scripts/feedback_db.py record --json ratings-input.json
     ```
-    Construct a JSON file using the [feedback-db-input-template.json](../../templates/templates/feedback-db-input-template.json) as reference. Populate `archived_form_path` with the paths from Step 13.
+    Construct a JSON file using the [feedback-db-input-template.json](../../templates/support/feedback-db-input-template.json) as reference. Populate `archived_form_path` with the paths from Step 13.
 
 ### Finalization
 
@@ -101,8 +101,8 @@ Systematically evaluate and enhance the templates, guides, and other tools by co
 ## Outputs
 
 - **Improvement Opportunities** - Documented improvement opportunities in [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md)
-- **Review Summary** - Documentation of findings and identified improvements, using the [Tools Review Summary Template](../../templates/templates/tools-review-summary-template.md). Create via [`New-ReviewSummary.ps1`](../../scripts/file-creation/New-ReviewSummary.ps1)
-- **Ratings Database Update** - Quantified ratings recorded in `doc/process-framework/feedback/ratings.db` for trend analysis via `python scripts/feedback_db.py record` (use [feedback-db-input-template.json](../../templates/templates/feedback-db-input-template.json) as reference)
+- **Review Summary** - Documentation of findings and identified improvements, using the [Tools Review Summary Template](../../templates/support/tools-review-summary-template.md). Create via [`New-ReviewSummary.ps1`](../../scripts/file-creation/06-maintenance/New-ReviewSummary.ps1)
+- **Ratings Database Update** - Quantified ratings recorded in `doc/process-framework/feedback/ratings.db` for trend analysis via `python scripts/feedback_db.py record` (use [feedback-db-input-template.json](../../templates/support/feedback-db-input-template.json) as reference)
 - **Process Improvement Tasks** - Created [Process Improvement Task](process-improvement-task.md) entries for implementation
 - **Archive of Processed Forms** - Organized archive of processed feedback forms
 
@@ -147,8 +147,8 @@ Before considering this task finished:
   - [ ] Move only the analyzed feedback forms to the `processed-forms/` subfolder
   - [ ] **Keep Active**: Leave newly created feedback forms in the active feedback-forms folder for future analysis
   - [ ] Document which specific forms were archived vs. kept active in the review summary
-- [ ] **Record Ratings**: Feedback ratings recorded in database via `python scripts/feedback_db.py record` using [feedback-db-input-template.json](../../templates/templates/feedback-db-input-template.json) as reference (archived_form_path is now available from previous step)
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-010" and context "Tools Review"
+- [ ] **Record Ratings**: Feedback ratings recorded in database via `python scripts/feedback_db.py record` using [feedback-db-input-template.json](../../templates/support/feedback-db-input-template.json) as reference (archived_form_path is now available from previous step)
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-010" and context "Tools Review"
 - [ ] **Schedule Next Review**: Set a reminder for the next tools review cycle
 
 ## Next Tasks
@@ -158,7 +158,7 @@ Before considering this task finished:
 ## Related Resources
 
 - [Feedback Process Guide](../../feedback/README.md) - Guide for collecting and processing feedback
-- [Task Creation and Improvement Guide](../../guides/guides/support/task-creation-guide.md) - Guide for creating and improving tasks
+- [Task Creation and Improvement Guide](../../guides/support/task-creation-guide.md) - Guide for creating and improving tasks
 
 ## Critical Process Note
 

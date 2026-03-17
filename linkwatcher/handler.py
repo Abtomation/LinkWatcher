@@ -18,7 +18,7 @@ from watchdog.events import (
 )
 
 from .config.defaults import DEFAULT_CONFIG
-from .database import LinkDatabase
+from .database import LinkDatabaseInterface
 from .dir_move_detector import DirectoryMoveDetector
 from .logging import get_logger, with_context
 from .move_detector import MoveDetector
@@ -56,12 +56,13 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
 
     def __init__(
         self,
-        link_db: LinkDatabase,
+        link_db: LinkDatabaseInterface,
         parser: LinkParser,
         updater: LinkUpdater,
         project_root: str,
         monitored_extensions: set = None,
         ignored_directories: set = None,
+        config=None,
     ):
         super().__init__()
         self.link_db = link_db
@@ -82,11 +83,20 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
             else DEFAULT_CONFIG.ignored_directories.copy()
         )
 
+        # Move detection timing from config or defaults
+        move_delay = config.move_detect_delay if config else DEFAULT_CONFIG.move_detect_delay
+        dir_max_timeout = (
+            config.dir_move_max_timeout if config else DEFAULT_CONFIG.dir_move_max_timeout
+        )
+        dir_settle = (
+            config.dir_move_settle_delay if config else DEFAULT_CONFIG.dir_move_settle_delay
+        )
+
         # Per-file move detection (delete+create correlation)
         self._move_detector = MoveDetector(
             on_move_detected=self._handle_detected_move,
             on_true_delete=self._process_true_file_delete,
-            delay=10.0,
+            delay=move_delay,
         )
 
         # Directory move detection (batch, for directory moves on Windows)
@@ -95,8 +105,8 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
             project_root=self.project_root,
             on_dir_move=self._handle_confirmed_dir_move,
             on_true_file_delete=self._process_true_file_delete,
-            max_timeout=300.0,
-            settle_delay=5.0,
+            max_timeout=dir_max_timeout,
+            settle_delay=dir_settle,
         )
 
         # Reference lookup, DB management, and link updates (TD022/TD035 extractions)
@@ -129,7 +139,7 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
         try:
             if event.is_directory:
                 self._handle_directory_moved(event)
-            else:
+            elif self._should_monitor_file(event.dest_path):
                 self._handle_file_moved(event)
         except Exception as e:
             self.logger.error(
@@ -153,7 +163,7 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
                 known_files = self._dir_move_detector.get_files_under_directory(deleted_path)
                 if known_files:
                     self._handle_directory_deleted(event)
-                else:
+                elif self._should_monitor_file(event.src_path):
                     self._handle_file_deleted(event)
         except Exception as e:
             self.logger.error(
@@ -290,6 +300,13 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
                 )
                 total_references_updated += refs_updated
                 self._update_stat("errors", errors)
+
+            # Phase 1.5: Update outward-pointing links inside moved files
+            # (PD-BUG-039 fix: directory moves must adjust relative links
+            # within moved files, just like individual file moves do)
+            for old_file_path, new_file_path in moved_files:
+                abs_new_path = os.path.join(str(self.project_root), new_file_path)
+                self._update_links_within_moved_file(old_file_path, new_file_path, abs_new_path)
 
             # Phase 2: Update references to the directory path itself
             # (e.g., quoted directory paths in PowerShell scripts)

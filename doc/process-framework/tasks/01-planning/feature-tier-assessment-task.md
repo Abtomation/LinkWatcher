@@ -35,9 +35,9 @@ Assess the complexity tier of unassessed features to determine appropriate docum
 
 - **Critical (Must Read):**
 
-  - [Assessment Guide](../guides/guides/assessment-guide.md) - Detailed guidelines for assessing feature complexity tiers
+  - [Assessment Guide](../../guides/01-planning/assessment-guide.md) - Detailed guidelines for assessing feature complexity tiers
   - [Documentation Tiers README](../../../product-docs/documentation-tiers/README.md) - Definitions of each complexity tier and their criteria
-  - [Visual Notation Guide](/doc/process-framework/guides/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Visual Notation Guide](/doc/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 - **Reference Only (Access When Needed):**
   - [Feature Tracking](../state-tracking/permanent/feature-tracking.md) - List of features and their current assessment status
@@ -54,7 +54,7 @@ Assess the complexity tier of unassessed features to determine appropriate docum
 
 ### Preparation
 
-1. Review the [Assessment Guide](../guides/guides/assessment-guide.md) for detailed instructions on how to perform assessments
+1. Review the [Assessment Guide](../../guides/01-planning/assessment-guide.md) for detailed instructions on how to perform assessments
 2. Identify features without tier assessments in the [Feature Tracking](../state-tracking/permanent/feature-tracking.md) document
 3. Select a feature or group of similar features to assess
 
@@ -104,7 +104,7 @@ Assess the complexity tier of unassessed features to determine appropriate docum
 
    **Manual verification**: After running the script, verify the feature tracking document was updated correctly
 
-11. **For existing assessments missing Design Requirements Evaluation**: If updating an assessment that was created before the Design Requirements Evaluation section was added, add the section to the existing assessment file using the template format from the [Assessment Guide](../guides/guides/assessment-guide.md#design-requirements-evaluation)
+11. **For existing assessments missing Design Requirements Evaluation**: If updating an assessment that was created before the Design Requirements Evaluation section was added, add the section to the existing assessment file using the template format from the [Assessment Guide](../../guides/01-planning/assessment-guide.md#design-requirements-evaluation)
 12. Document any insights or lessons learned from the assessment process
 13. **🚨 MANDATORY FINAL STEP**: Complete the Task Completion Checklist below
 
@@ -147,7 +147,7 @@ Before considering this task finished:
   - [ ] Feature Tracking document API Design column updated with "Yes" or "No" based on assessment
   - [ ] Feature Tracking document DB Design column updated with "Yes" or "No" based on assessment
   - [ ] For existing assessments: Added Design Requirements Evaluation section if it was missing
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-002" and context "Feature Tier Assessment"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-002" and context "Feature Tier Assessment"
 
 ## Design Requirements Evaluation
 
@@ -277,7 +277,7 @@ When updating the feature tracking document:
 
 ## Next Tasks
 
-**📋 For guidance on choosing the next task, see the [Task Transition Guide](../../guides/guides/framework/task-transition-guide.md)**
+**📋 For guidance on choosing the next task, see the [Task Transition Guide](../../guides/framework/task-transition-guide.md)**
 
 **Based on Tier Assessment Result:**
 

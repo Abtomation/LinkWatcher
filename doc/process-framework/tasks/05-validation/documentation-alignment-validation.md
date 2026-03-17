@@ -35,10 +35,10 @@ Systematically validates foundational features for documentation alignment, ensu
 
 - **Critical (Must Read):**
 
-  - **Foundational Validation Guide** - [Foundational Validation Guide](../../guides/guides/05-validation/foundational-validation-guide.md) - Comprehensive guide for conducting foundational codebase validation
+  - **Foundational Validation Guide** - [Foundational Validation Guide](../../guides/05-validation/foundational-validation-guide.md) - Comprehensive guide for conducting foundational codebase validation
   - **Feature Tracking** - [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Current status of foundational features to be validated
   - **Foundational Validation Tracking** - [Foundational Validation Tracking](../../state-tracking/temporary/foundational-validation-tracking.md) - Master validation matrix and progress tracking
-  - **Validation Report Template** - [Validation Report Template](../../templates/templates/validation-report-template.md) - Template for creating validation reports
+  - **Validation Report Template** - [Validation Report Template](../../templates/05-validation/validation-report-template.md) - Template for creating validation reports
   - **Technical Design Documents** - [TDD Directory](../../../product-docs/technical/design) - Technical specifications to validate against implementation
 
 - **Important (Load If Space):**
@@ -46,15 +46,15 @@ Systematically validates foundational features for documentation alignment, ensu
   - **Architecture Decision Records** - [ADR Directory](../../../product-docs/technical/architecture/decisions) - Architectural decisions to validate compliance
   - **API Documentation** - [API Documentation](../../../product-docs/technical/api) - API specifications to validate against implementation
   - **Codebase Structure** - Source code directory - Source code for foundational features to analyze
-  - **New-ValidationReport Script** - [../../scripts/file-creation/New-ValidationReport.ps1](../../scripts/file-creation/New-ValidationReport.ps1) - Script for generating validation reports
+  - **New-ValidationReport Script** - [../../scripts/file-creation/05-validation/New-ValidationReport.ps1](../../scripts/file-creation/05-validation/New-ValidationReport.ps1) - Script for generating validation reports
   - **Component Relationship Index** - [Component Relationship Index](../../../product-docs/technical/architecture/component-relationship-index.md) - For understanding component interactions
   - **Feature Implementation State Files** - [Feature State Directory](../../state-tracking/features/) - Implementation state files with feature status, TDD/FDD links, and validation context
 
 - **Reference Only (Access When Needed):**
-  - **Documentation Standards** - [Documentation Guide](../../guides/guides/05-validation/documentation-guide.md) - Standards for documentation quality and consistency
-  - **TDD Creation Guide** - [TDD Creation Guide](../../guides/guides/02-design/tdd-creation-guide.md) - Understanding TDD structure and requirements
-  - **ADR Creation Guide** - [ADR Creation Guide](../../guides/guides/02-design/architecture-decision-creation-guide.md) - Understanding ADR format and content
-  - **Visual Notation Guide** - [Visual Notation Guide](../../guides/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
+  - **Documentation Standards** - [Documentation Guide](../../guides/05-validation/documentation-guide.md) - Standards for documentation quality and consistency
+  - **TDD Creation Guide** - [TDD Creation Guide](../../guides/02-design/tdd-creation-guide.md) - Understanding TDD structure and requirements
+  - **ADR Creation Guide** - [ADR Creation Guide](../../guides/02-design/architecture-decision-creation-guide.md) - Understanding ADR format and content
+  - **Visual Notation Guide** - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting context map diagrams
   - **ID Registry** - [ID Registry](../../../id-registry.json) - For understanding validation report ID assignments
 
 ## Process
@@ -93,7 +93,7 @@ Systematically validates foundational features for documentation alignment, ensu
 9. **Generate Validation Report**: Create detailed validation report using the automation script
    ```powershell
    # Navigate to validation directory and create documentation alignment report
-   Set-Location "doc/process-framework/validation"
+   Set-Location "doc/product-docs/validation"
     ..\scripts\file-creation\New-ValidationReport.ps1 -ValidationType "DocumentationAlignment" -FeatureIds "0.2.1,0.2.2,0.2.3,0.2.4" -SessionNumber 1
    ```
 10. **Score Documentation Criteria**: Apply 4-point scoring system (0-3) to each documentation alignment criterion
@@ -118,7 +118,7 @@ Systematically validates foundational features for documentation alignment, ensu
 
 ## Outputs
 
-- **Documentation Alignment Validation Report** - Detailed validation report with scoring and findings, created in `doc/process-framework/validation/reports/documentation-alignment/PF-VAL-XXX-documentation-alignment-features-[feature-range].md`
+- **Documentation Alignment Validation Report** - Detailed validation report with scoring and findings, created in doc/product-docs/validation/reports/documentation-alignment/PF-VAL-XXX-documentation-alignment-features-[feature-range].md
 - **Updated Foundational Validation Tracking** - Matrix cell updated with report creation date and link in [Foundational Validation Tracking](../../state-tracking/temporary/foundational-validation-tracking.md)
 - **Documentation Gap Analysis** - Comprehensive analysis of missing or outdated documentation identified during validation
 - **Remediation Action Items** - Specific recommendations for improving documentation alignment and completeness
@@ -138,15 +138,15 @@ The following state files must be updated as part of this task:
 Before considering this task finished:
 
 - [ ] **Verify Outputs**: Confirm all required outputs have been produced
-  - [ ] Documentation Alignment validation report generated using ../../scripts/file-creation/New-ValidationReport.ps1 script
+  - [ ] Documentation Alignment validation report generated using ../../scripts/file-creation/05-validation/New-ValidationReport.ps1 script
   - [ ] Validation report contains comprehensive scoring (0-3 scale) for all documentation criteria
   - [ ] Documentation gaps and inconsistencies documented with specific remediation recommendations
-  - [ ] Report saved in correct directory: `doc/process-framework/validation/reports/documentation-alignment/`
+  - [ ] Report saved in correct directory: `doc/product-docs/validation/reports/documentation-alignment`
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
   - [ ] [Foundational Validation Tracking](../../state-tracking/temporary/foundational-validation-tracking.md) matrix updated with report creation date and link
   - [ ] [Documentation Map](../../documentation-map.md) updated with new validation report entry
   - [ ] **AUTOMATED**: [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md) updated with new open issues using `Update-TechDebt.ps1`
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-034" and context "Documentation Alignment Validation"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-034" and context "Documentation Alignment Validation"
 
 ## Next Tasks
 
@@ -156,7 +156,7 @@ Before considering this task finished:
 
 ## Related Resources
 
-- [Documentation Guide](../../guides/guides/05-validation/documentation-guide.md) - Standards for documentation quality and consistency
-- [TDD Creation Guide](../../guides/guides/02-design/tdd-creation-guide.md) - Guide for creating and updating Technical Design Documents
-- [ADR Creation Guide](../../guides/guides/02-design/architecture-decision-creation-guide.md) - Guide for creating Architecture Decision Records
+- [Documentation Guide](../../guides/05-validation/documentation-guide.md) - Standards for documentation quality and consistency
+- [TDD Creation Guide](../../guides/02-design/tdd-creation-guide.md) - Guide for creating and updating Technical Design Documents
+- [ADR Creation Guide](../../guides/02-design/architecture-decision-creation-guide.md) - Guide for creating Architecture Decision Records
 - API documentation standards and best practices for your technology stack

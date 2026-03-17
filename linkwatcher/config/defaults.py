@@ -70,6 +70,7 @@ DEFAULT_CONFIG = LinkWatcherConfig(
     enable_json_parser=True,
     enable_dart_parser=True,
     enable_python_parser=True,
+    enable_powershell_parser=True,
     enable_generic_parser=True,
     # Update behavior
     create_backups=False,  # Create .bak files before updates (disabled by default)
@@ -83,10 +84,10 @@ DEFAULT_CONFIG = LinkWatcherConfig(
     log_level="INFO",  # Standard logging level
     colored_output=True,  # Use colors in console output
     show_statistics=True,  # Show statistics on shutdown
-    # Advanced settings (empty by default)
-    custom_parsers={},  # No custom parsers
-    exclude_patterns=set(),  # No additional exclusions
-    include_patterns=set(),  # No forced inclusions
+    # Move detection timing
+    move_detect_delay=10.0,  # Seconds to wait for matching create after delete
+    dir_move_max_timeout=300.0,  # Max seconds to wait for all directory files
+    dir_move_settle_delay=5.0,  # Seconds after last match before processing
 )
 
 # Configuration for different environments

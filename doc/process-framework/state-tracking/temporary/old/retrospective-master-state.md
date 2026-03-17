@@ -223,45 +223,45 @@ status: FINALIZED
 
 | File Path | Notes | Candidate Feature | Status |
 |-----------|-------|-------------------|--------|
-| tests/__init__.py | Tests package init | 4.1.1 | ✅ |
+| test/automated/__init__.py | Tests package init | 4.1.1 | ✅ |
 | ../../../../../tests/conftest.py | Pytest fixtures and configuration | 4.1.1 | ✅ |
-| tests/utils.py | Test utility functions | 4.1.7 | ✅ |
-| tests/test_config.py | Config tests | 4.1.2 | ✅ |
-| tests/test_move_detection.py | Move detection tests | 4.1.2 | ✅ |
-| tests/fixtures/__init__.py | Fixtures package init | 4.1.6 | ✅ |
-| tests/fixtures/sample_config.yaml | Sample YAML config fixture | 4.1.6 | ✅ |
-| tests/fixtures/sample_data.json | Sample JSON data fixture | 4.1.6 | ✅ |
-| tests/fixtures/sample_markdown.md | Sample markdown fixture | 4.1.6 | ✅ |
-| tests/unit/__init__.py | Unit tests package init | 4.1.2 | ✅ |
-| tests/unit/test_advanced_logging.py | Advanced logging unit tests | 4.1.2 | ✅ |
-| tests/unit/test_config.py | Configuration unit tests | 4.1.2 | ✅ |
-| tests/unit/test_database.py | Database unit tests | 4.1.2 | ✅ |
-| tests/unit/test_logging.py | Logging unit tests | 4.1.2 | ✅ |
-| tests/unit/test_parser.py | Parser unit tests | 4.1.2 | ✅ |
-| tests/unit/test_service.py | Service unit tests | 4.1.2 | ✅ |
-| tests/unit/test_updater.py | Updater unit tests | 4.1.2 | ✅ |
-| tests/integration/__init__.py | Integration tests package init | 4.1.3 | ✅ |
-| tests/integration/test_complex_scenarios.py | Complex scenario integration tests | 4.1.3 | ✅ |
-| tests/integration/test_comprehensive_file_monitoring.py | Comprehensive file monitoring tests | 4.1.3 | ✅ |
-| tests/integration/test_error_handling.py | Error handling integration tests | 4.1.3 | ✅ |
-| tests/integration/test_file_movement.py | File movement integration tests | 4.1.3 | ✅ |
-| tests/integration/test_image_file_monitoring.py | Image file monitoring tests | 4.1.3 | ✅ |
-| tests/integration/test_link_updates.py | Link update integration tests | 4.1.3 | ✅ |
-| tests/integration/test_powershell_script_monitoring.py | PowerShell script monitoring tests | 4.1.3 | ✅ |
-| tests/integration/test_sequential_moves.py | Sequential move tests | 4.1.3 | ✅ |
-| tests/integration/test_service_integration.py | Service integration tests | 4.1.3 | ✅ |
-| tests/integration/test_windows_platform.py | Windows platform tests | 4.1.3 | ✅ |
-| tests/parsers/__init__.py | Parser tests package init | 4.1.4 | ✅ |
-| tests/parsers/test_dart.py | Dart parser tests | 4.1.4 | ✅ |
-| tests/parsers/test_generic.py | Generic parser tests | 4.1.4 | ✅ |
-| tests/parsers/test_image_files.py | Image file parser tests | 4.1.4 | ✅ |
-| tests/parsers/test_json.py | JSON parser tests | 4.1.4 | ✅ |
-| tests/parsers/test_markdown.py | Markdown parser tests | 4.1.4 | ✅ |
-| tests/parsers/test_python.py | Python parser tests | 4.1.4 | ✅ |
-| tests/parsers/test_yaml.py | YAML parser tests | 4.1.4 | ✅ |
-| tests/performance/__init__.py | Performance tests package init | 4.1.5 | ✅ |
-| tests/performance/test_large_projects.py | Large project performance tests | 4.1.5 | ✅ |
-| tests/manual/test_procedures.md | Manual test procedures document | 4.1.8 | ✅ |
+| test/automated/utils.py | Test utility functions | 4.1.7 | ✅ |
+| test/automated/test_config.py | Config tests | 4.1.2 | ✅ |
+| test/automated/test_move_detection.py | Move detection tests | 4.1.2 | ✅ |
+| test/automated/fixtures/__init__.py | Fixtures package init | 4.1.6 | ✅ |
+| test/automated/fixtures/sample_config.yaml | Sample YAML config fixture | 4.1.6 | ✅ |
+| test/automated/fixtures/sample_data.json | Sample JSON data fixture | 4.1.6 | ✅ |
+| test/automated/fixtures/sample_markdown.md | Sample markdown fixture | 4.1.6 | ✅ |
+| test/automated/unit/__init__.py | Unit tests package init | 4.1.2 | ✅ |
+| test/automated/unit/test_advanced_logging.py | Advanced logging unit tests | 4.1.2 | ✅ |
+| test/automated/unit/test_config.py | Configuration unit tests | 4.1.2 | ✅ |
+| test/automated/unit/test_database.py | Database unit tests | 4.1.2 | ✅ |
+| test/automated/unit/test_logging.py | Logging unit tests | 4.1.2 | ✅ |
+| test/automated/unit/test_parser.py | Parser unit tests | 4.1.2 | ✅ |
+| test/automated/unit/test_service.py | Service unit tests | 4.1.2 | ✅ |
+| test/automated/unit/test_updater.py | Updater unit tests | 4.1.2 | ✅ |
+| test/automated/integration/__init__.py | Integration tests package init | 4.1.3 | ✅ |
+| test/automated/integration/test_complex_scenarios.py | Complex scenario integration tests | 4.1.3 | ✅ |
+| test/automated/integration/test_comprehensive_file_monitoring.py | Comprehensive file monitoring tests | 4.1.3 | ✅ |
+| test/automated/integration/test_error_handling.py | Error handling integration tests | 4.1.3 | ✅ |
+| test/automated/integration/test_file_movement.py | File movement integration tests | 4.1.3 | ✅ |
+| test/automated/integration/test_image_file_monitoring.py | Image file monitoring tests | 4.1.3 | ✅ |
+| test/automated/integration/test_link_updates.py | Link update integration tests | 4.1.3 | ✅ |
+| test/automated/integration/test_powershell_script_monitoring.py | PowerShell script monitoring tests | 4.1.3 | ✅ |
+| test/automated/integration/test_sequential_moves.py | Sequential move tests | 4.1.3 | ✅ |
+| test/automated/integration/test_service_integration.py | Service integration tests | 4.1.3 | ✅ |
+| test/automated/integration/test_windows_platform.py | Windows platform tests | 4.1.3 | ✅ |
+| test/automated/parsers/__init__.py | Parser tests package init | 4.1.4 | ✅ |
+| test/automated/parsers/test_dart.py | Dart parser tests | 4.1.4 | ✅ |
+| test/automated/parsers/test_generic.py | Generic parser tests | 4.1.4 | ✅ |
+| test/automated/parsers/test_image_files.py | Image file parser tests | 4.1.4 | ✅ |
+| test/automated/parsers/test_json.py | JSON parser tests | 4.1.4 | ✅ |
+| test/automated/parsers/test_markdown.py | Markdown parser tests | 4.1.4 | ✅ |
+| test/automated/parsers/test_python.py | Python parser tests | 4.1.4 | ✅ |
+| test/automated/parsers/test_yaml.py | YAML parser tests | 4.1.4 | ✅ |
+| test/automated/performance/__init__.py | Performance tests package init | 4.1.5 | ✅ |
+| test/automated/performance/test_large_projects.py | Large project performance tests | 4.1.5 | ✅ |
+| test/automated/bug-validation/test_procedures.md | Manual test procedures document | 4.1.8 | ✅ |
 | tests/README.md | Test suite documentation | 4.1.8 | ✅ |
 | tests/TEST_CASE_STATUS.md | Test case implementation tracking | 4.1.8 | ✅ |
 | tests/TEST_CASE_TEMPLATE.md | Test case template | 4.1.8 | ✅ |
@@ -774,7 +774,7 @@ status: FINALIZED
 - All tracking files updated: master state, feature-tracking, id-registry
 
 **Key Issues Found & Fixed**:
-1. New-tdd.ps1: Template paths pointed to `doc/process-framework/templates/templates/` instead of `doc/product-docs/templates/templates/`
+1. New-tdd.ps1: Template paths pointed to `doc/process-framework/templates/templates` instead of `doc/process-framework/templates/templates/`
 2. New-TestSpecification.ps1: Missing `$projectRoot = Get-ProjectRoot` and garbled template path with `../../../../../../` prefix
 3. 0.1.1 Test Spec was incorrectly marked N/A in master state (Tier 3 needs Test Spec) — fixed to ⬜ then ✅
 

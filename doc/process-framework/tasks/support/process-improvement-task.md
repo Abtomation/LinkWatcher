@@ -39,7 +39,7 @@ Analyze, optimize, and document development processes to improve efficiency, qua
 
   - [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) - Select the improvement to execute
   - [Tools Review Summaries](../../feedback/reviews/) - Source analysis for the selected improvement
-  - [Visual Notation Guide](/doc/process-framework/guides/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Visual Notation Guide](/doc/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 - **Important (Load If Space):**
 
@@ -101,9 +101,9 @@ Analyze, optimize, and document development processes to improve efficiency, qua
 
 ## Tools and Scripts
 
-- **[New-ProcessImprovement.ps1](../../scripts/file-creation/New-ProcessImprovement.ps1)** - Add new improvement entries with auto-assigned PF-IMP IDs
+- **[New-ProcessImprovement.ps1](../../scripts/file-creation/support/New-ProcessImprovement.ps1)** - Add new improvement entries with auto-assigned PF-IMP IDs
 - **[Update-ProcessImprovement.ps1](../../scripts/update/Update-ProcessImprovement.ps1)** - Automate tracking file updates (status changes, completion moves, summary count, update history)
-- **[New-FeedbackForm.ps1](../../scripts/file-creation/New-FeedbackForm.ps1)** - Create feedback forms for task completion
+- **[New-FeedbackForm.ps1](../../scripts/file-creation/support/New-FeedbackForm.ps1)** - Create feedback forms for task completion
 - **[Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md)** - Central tracking file for all improvements
 - **[feedback_db.py](/scripts/feedback_db.py)** - Record tool changes for trend analysis (`log-change` subcommand)
 
@@ -143,7 +143,7 @@ Before considering this task finished:
   - [ ] "Current Improvement Opportunities" contains only open items
   - [ ] File metadata updated with current date
 
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-009" and context "Process Improvement"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-009" and context "Process Improvement"
 
 ## Next Tasks
 
@@ -153,5 +153,5 @@ Before considering this task finished:
 ## Related Resources
 
 - [Tools Review Task](tools-review-task.md) - Identifies and prioritizes improvements (upstream of this task)
-- [Process Improvement Task Implementation Guide](../../guides/guides/support/process-improvement-task-implementation-guide.md) - Step-by-step guide for executing this task effectively
-- [Task Creation and Improvement Guide](../../guides/guides/support/task-creation-guide.md) - Guide for creating and improving tasks
+- [Process Improvement Task Implementation Guide](../../guides/support/process-improvement-task-implementation-guide.md) - Step-by-step guide for executing this task effectively
+- [Task Creation and Improvement Guide](../../guides/support/task-creation-guide.md) - Guide for creating and improving tasks

@@ -38,13 +38,13 @@ This task **orchestrates** systematic changes to documentation structures, templ
 
 - **Critical (Must Read):**
 
-  - [Structure Change Proposal](../../templates/templates/structure-change-proposal-template.md) - Detailed description of proposed changes
+  - [Structure Change Proposal](../../templates/support/structure-change-proposal-template.md) - Detailed description of proposed changes
   - [Documentation Map](../../documentation-map.md) - Map of all documentation
-  - [Visual Notation Guide](/doc/process-framework/guides/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Visual Notation Guide](/doc/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 - **Important (Load If Space):**
-  - [Template Development Guide](../../guides/guides/support/template-development-guide.md) - **REQUIRED** for creating or updating templates
-  - [Document Creation Script Development Guide](../../guides/guides/support/document-creation-script-development-guide.md) - **REQUIRED** for creating automation scripts
+  - [Template Development Guide](../../guides/support/template-development-guide.md) - **REQUIRED** for creating or updating templates
+  - [Document Creation Script Development Guide](../../guides/support/document-creation-script-development-guide.md) - **REQUIRED** for creating automation scripts
   - [Process Framework Documentation](../../../process-framewor) - Current documentation structure
   - [Feedback Forms](../../feedback/feedback-forms) - Feedback related to current structure
 
@@ -85,7 +85,7 @@ This task **orchestrates** systematic changes to documentation structures, templ
 > For small, contained structure changes (≤ 5 files, single-type, no breaking changes).
 
 3. **Make Changes**: Implement the structure change directly:
-   - Use established scripts when creating new documents ([New-Template.ps1](../../scripts/file-creation/New-Template.ps1), [New-Guide.ps1](../../scripts/file-creation/New-Guide.ps1), etc.)
+   - Use established scripts when creating new documents ([New-Template.ps1](../../scripts/file-creation/support/New-Template.ps1), [New-Guide.ps1](../../scripts/file-creation/support/New-Guide.ps1), etc.)
    - For markdown table changes, consider [Add-MarkdownTableColumn.ps1](../../scripts/Add-MarkdownTableColumn.ps1)
    - Verify LinkWatcher is running for automatic cross-reference updates
 
@@ -107,18 +107,18 @@ This task **orchestrates** systematic changes to documentation structures, templ
 
 #### Preparation
 
-3. **Create Structure Change Proposal**: Use the [New-StructureChangeProposal.ps1](../../scripts/file-creation/New-StructureChangeProposal.ps1) script:
+3. **Create Structure Change Proposal**: Use the [New-StructureChangeProposal.ps1](../../scripts/file-creation/support/New-StructureChangeProposal.ps1) script:
    ```powershell
    cd doc/process-framework/scripts/file-creation
    .\New-StructureChangeProposal.ps1 -ChangeName "Change Name" -Description "Brief description"
    ```
-4. **Create Structure Change State Tracking File**: Use the [New-StructureChangeState.ps1](../../scripts/file-creation/New-StructureChangeState.ps1) script to create tracking file with implementation roadmap
+4. **Create Structure Change State Tracking File**: Use the [New-StructureChangeState.ps1](../../scripts/file-creation/support/New-StructureChangeState.ps1) script to create tracking file with implementation roadmap
    ```powershell
    # Navigate to the state-tracking directory and create structure change state tracking file
    cd doc/process-framework/state-tracking
    ./New-StructureChangeState.ps1 -ChangeName "Change Name" -ChangeType "Template Update|Directory Reorganization|Metadata Structure|Documentation Architecture" -Description "Brief description"
    ```
-5. Use the existing `/doc/process-framework/state-tracking/temporary/` directory for transition files
+5. Use the existing `/doc/process-framework/state-tracking/temporary` directory for transition files
 6. Create mapping documents and migration checklists in the temporary directory
 7. Establish clear metrics for measuring the success of the structure change
 8. **🚨 CHECKPOINT**: Present structure change proposal, migration plan, and impact analysis to human partner for approval
@@ -132,9 +132,9 @@ This task **orchestrates** systematic changes to documentation structures, templ
    | Deliverable Type | Delegate To | Process |
    |---|---|---|
    | New task definition | [New Task Creation Process (PF-TSK-001)](new-task-creation-process.md) | Full task creation workflow with quality gates |
-   | New/updated template | [Template Development Guide](../../guides/guides/support/template-development-guide.md) + [New-Template.ps1](../../scripts/file-creation/New-Template.ps1) | Template development process |
-   | New/updated guide | [New-Guide.ps1](../../scripts/file-creation/New-Guide.ps1) | Guide creation process |
-   | New automation script | [Document Creation Script Development Guide](../../guides/guides/support/document-creation-script-development-guide.md) + [script template](../../templates/templates/document-creation-script-template.ps1) | Script development process |
+   | New/updated template | [Template Development Guide](../../guides/support/template-development-guide.md) + [New-Template.ps1](../../scripts/file-creation/support/New-Template.ps1) | Template development process |
+   | New/updated guide | [New-Guide.ps1](../../scripts/file-creation/support/New-Guide.ps1) | Guide creation process |
+   | New automation script | [Document Creation Script Development Guide](../../guides/support/document-creation-script-development-guide.md) + [script template](../../templates/support/document-creation-script-template.ps1) | Script development process |
    | Content migration | PF-TSK-014 (this task) | Direct execution — see step 12 |
    | Cross-reference updates | PF-TSK-014 (this task) | Direct execution — LinkWatcher handles most |
 
@@ -203,7 +203,7 @@ The following state files must be updated as part of this task:
 - [ ] **Update State Files**:
   - [ ] [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) updated (if this change addresses an IMP item)
   - [ ] [Documentation Map](../../documentation-map.md) updated if document organization changed
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-014" and context "Structure Change (Lightweight)"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-014" and context "Structure Change (Lightweight)"
 
 ---
 
@@ -222,7 +222,7 @@ The following state files must be updated as part of this task:
   - [ ] Structure change state tracking file completed and properly maintained
   - [ ] [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) updated with structure change completion
   - [ ] [Documentation Map](../../documentation-map.md) updated if document organization changed
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-014" and context "Structure Change (Full)"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-014" and context "Structure Change (Full)"
 - [ ] **🚨 MANDATORY Cleanup Phase**: Remove temporary documentation artifacts created during the structure change:
   - [ ] **🚨 CRITICAL**: Archive completed temporary state tracking files to `/doc/process-framework/state-tracking/temporary/old/`
   - [ ] Remove excessive migration mapping documents if they don't provide ongoing value
@@ -244,17 +244,17 @@ The following state files must be updated as part of this task:
 ### Delegation Targets (for Full Process)
 
 - [New Task Creation Process (PF-TSK-001)](new-task-creation-process.md) - **DELEGATE** task definition creation here
-- [Template Development Guide](../../guides/guides/support/template-development-guide.md) - **DELEGATE** template creation/updates here
-- [New-Template.ps1](../../scripts/file-creation/New-Template.ps1) - Script for creating new templates
-- [New-Guide.ps1](../../scripts/file-creation/New-Guide.ps1) - Script for creating new guides
-- [Document Creation Script Template](../../templates/templates/document-creation-script-template.ps1) - Template for creating automation scripts
-- [Document Creation Script Development Guide](../../guides/guides/support/document-creation-script-development-guide.md) - **DELEGATE** script creation here
+- [Template Development Guide](../../guides/support/template-development-guide.md) - **DELEGATE** template creation/updates here
+- [New-Template.ps1](../../scripts/file-creation/support/New-Template.ps1) - Script for creating new templates
+- [New-Guide.ps1](../../scripts/file-creation/support/New-Guide.ps1) - Script for creating new guides
+- [Document Creation Script Template](../../templates/support/document-creation-script-template.ps1) - Template for creating automation scripts
+- [Document Creation Script Development Guide](../../guides/support/document-creation-script-development-guide.md) - **DELEGATE** script creation here
 
 ### Additional Resources
 
-- [Documentation Structure Guide](../../guides/guides/framework/documentation-structure-guide.md) - Principles for documentation structure
-- [Migration Best Practices](../../guides/guides/support/migration-best-practices.md) - Guidance for content migration
-- [Task Creation and Improvement Guide](../../guides/guides/support/task-creation-guide.md) - Guide for creating and improving tasks
+- [Documentation Structure Guide](../../guides/framework/documentation-structure-guide.md) - Principles for documentation structure
+- [Migration Best Practices](../../guides/support/migration-best-practices.md) - Guidance for content migration
+- [Task Creation and Improvement Guide](../../guides/support/task-creation-guide.md) - Guide for creating and improving tasks
 
 ### Automation Scripts
 

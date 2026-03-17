@@ -64,7 +64,11 @@ param(
 )
 
 # Import the common helpers
-Import-Module (Join-Path -Path (Split-Path -Parent (Split-Path -Parent $PSScriptRoot)) -ChildPath "Common-ScriptHelpers.psm1") -Force
+$dir = $PSScriptRoot
+while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
+    $dir = Split-Path -Parent $dir
+}
+Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 
 # Perform standard initialization
 Invoke-StandardScriptInitialization
@@ -82,7 +86,7 @@ $customReplacements = @{
 
 # Create the document using standardized process
 try {
-    $assessmentId = New-StandardProjectDocument -TemplatePath "doc/process-framework/templates/templates/01-planning/assessment-template.md" -IdPrefix "ART-ASS" -IdDescription "Assessment for feature ${FeatureId}: ${FeatureName}" -DocumentName $FeatureName -OutputDirectory "doc/product-docs/documentation-tiers/assessments" -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
+    $assessmentId = New-StandardProjectDocument -TemplatePath "doc/process-framework/templates/01-planning/assessment-template.md" -IdPrefix "ART-ASS" -IdDescription "Assessment for feature ${FeatureId}: ${FeatureName}" -DocumentName $FeatureName -OutputDirectory "doc/product-docs/documentation-tiers/assessments" -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
 
     # Rename the file to include the ID and feature ID in the filename
     $assessmentsDir = Join-Path -Path (Get-ProjectRoot) -ChildPath "doc/product-docs/documentation-tiers/assessments"
@@ -112,7 +116,7 @@ try {
             "⚠️  AI agents MUST follow the referenced guide to properly customize the content.",
             "",
             "📖 MANDATORY CUSTOMIZATION GUIDE:",
-            "doc/process-framework/guides/guides/assessment-guide.md",
+            "doc/process-framework/guides/03-testing/assessment-guide.md",
             "🎯 FOCUS AREAS: 'Documentation Tier Assessment Process' section",
             "",
             "🚫 DO NOT use the generated file without proper customization!",

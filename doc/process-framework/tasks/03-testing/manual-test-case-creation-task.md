@@ -58,8 +58,8 @@ ENHANCEMENT:    Test Spec Creation → Feature Enhancement → Manual Test Case 
   - **Test Specification** (new feature/enhancement paths) - Manual test scenarios section identifying what needs manual validation
   - **Bug Report** (bug fix path) - Reproduction steps and expected vs. actual behavior
   - **Refactoring Plan** (tech debt path) - Affected functionality and expected behavior preservation
-  - [Manual Test Case Template](../../templates/templates/manual-test-case-template.md) - Template for individual test case files
-  - [Manual Master Test Template](../../templates/templates/manual-master-test-template.md) - Template for group-level quick validation files
+  - [Manual Test Case Template](../../templates/03-testing/manual-test-case-template.md) - Template for individual test case files
+  - [Manual Master Test Template](../../templates/03-testing/manual-master-test-template.md) - Template for group-level quick validation files
 
 - **Important (Load If Space):**
 
@@ -69,8 +69,8 @@ ENHANCEMENT:    Test Spec Creation → Feature Enhancement → Manual Test Case 
   - **Existing test cases for the same feature** - To avoid duplication and ensure consistency
 
 - **Reference Only (Access When Needed):**
-  - [Manual Test Case Customization Guide](../../guides/guides/03-testing/manual-test-case-customization-guide.md) - For template customization guidance
-  - [Visual Notation Guide](/doc/process-framework/guides/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Manual Test Case Customization Guide](../../guides/03-testing/manual-test-case-customization-guide.md) - For template customization guidance
+  - [Visual Notation Guide](/doc/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 ## Process
 
@@ -94,7 +94,7 @@ ENHANCEMENT:    Test Spec Creation → Feature Enhancement → Manual Test Case 
 
 ### Execution
 
-5. **Create test case via script**: For each test case, run [New-ManualTestCase.ps1](../../scripts/file-creation/New-ManualTestCase.ps1). Use `-NewGroup` for the first test case in a new group.
+5. **Create test case via script**: For each test case, run [New-ManualTestCase.ps1](../../scripts/file-creation/03-testing/New-ManualTestCase.ps1). Use `-NewGroup` for the first test case in a new group.
    ```bash
    cd /c/path/to/project/doc/process-framework/scripts/file-creation && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-ManualTestCase.ps1 -TestCaseName "descriptive-name" -GroupName "group-name" -FeatureId "X.Y.Z" -FeatureName "Feature Name" -NewGroup -Source "Test Spec PF-TSP-NNN" -Description "Brief description" -Confirm:$false'
    ```
@@ -102,7 +102,7 @@ ENHANCEMENT:    Test Spec Creation → Feature Enhancement → Manual Test Case 
    >
    > **Why master test first**: When `-NewGroup` is used, the script creates the master test file before the test case. The master test defines the group's scope and validation strategy. Individual test cases support isolation when the master test fails.
 
-6. **Customize test-case.md**: Following the [Manual Test Case Customization Guide](../../guides/guides/03-testing/manual-test-case-customization-guide.md), replace all placeholder content with:
+6. **Customize test-case.md**: Following the [Manual Test Case Customization Guide](../../guides/03-testing/manual-test-case-customization-guide.md), replace all placeholder content with:
    - **Preconditions**: Exact starting state (services running, configuration, initial file state)
    - **Steps**: Numbered, unambiguous actions using specific tools (e.g., "In File Explorer, drag `report.md` from `docs/` to `archive/`")
    - **Expected Results**: Concrete, verifiable outcomes (e.g., exact file contents after the action, specific log messages, observable UI state)
@@ -154,7 +154,7 @@ Before considering this task finished:
   - [ ] [Test Tracking](../../state-tracking/permanent/test-tracking.md) updated with all new manual test entries
   - [ ] [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) Test Status updated if needed
 - [ ] **Human Review**: Human partner has reviewed and approved the test cases
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-069" and context "Manual Test Case Creation"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-069" and context "Manual Test Case Creation"
 
 ## Next Tasks
 
@@ -164,7 +164,7 @@ Before considering this task finished:
 ## Related Resources
 
 - [Test Specification Creation](test-specification-creation-task.md) — Upstream task that identifies which scenarios need manual test cases
-- [New-ManualTestCase.ps1](../../scripts/file-creation/New-ManualTestCase.ps1) — Creation script for test case directories with automatic state tracking updates
-- [Manual Test Case Template](../../templates/templates/manual-test-case-template.md) — Template for individual test case files
-- [Manual Master Test Template](../../templates/templates/manual-master-test-template.md) — Template for group-level quick validation files
-- [Manual Test Case Customization Guide](../../guides/guides/03-testing/manual-test-case-customization-guide.md) — Guide for customizing test case and master test templates
+- [New-ManualTestCase.ps1](../../scripts/file-creation/03-testing/New-ManualTestCase.ps1) — Creation script for test case directories with automatic state tracking updates
+- [Manual Test Case Template](../../templates/03-testing/manual-test-case-template.md) — Template for individual test case files
+- [Manual Master Test Template](../../templates/03-testing/manual-master-test-template.md) — Template for group-level quick validation files
+- [Manual Test Case Customization Guide](../../guides/03-testing/manual-test-case-customization-guide.md) — Guide for customizing test case and master test templates

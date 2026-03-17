@@ -94,8 +94,8 @@ When starting a technical debt assessment:
 ## Related Documentation
 
 - [Technical Debt Assessment Task](../../tasks/cyclical/technical-debt-assessment-task.md) - Complete task definition with step-by-step process
-- [Assessment Criteria Guide](../../guides/guides/cyclical/assessment-criteria-guide.md) - Detailed identification criteria
-- [Prioritization Guide](../../guides/guides/cyclical/prioritization-guide.md) - Impact/effort prioritization framework
+- [Assessment Criteria Guide](../../guides/cyclical/assessment-criteria-guide.md) - Detailed identification criteria
+- [Prioritization Guide](../../guides/cyclical/prioritization-guide.md) - Impact/effort prioritization framework
 - [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md) - Permanent state tracking
 
 ---

@@ -115,6 +115,5 @@ Version is defined in `setup.py` (currently `2.0.0`). For significant releases:
 
 ## Related Documentation
 
-- [Development Guide](../../process-framework/guides/guides/04-implementation/development-guide.md)
-- [Testing Guide](../guides/guides/testing-guide.md)
-- [Definition of Done](../../process-framework/guides/guides/04-implementation/definition-of-done.md)
+- [Development Guide](../../process-framework/guides/04-implementation/development-guide.md)
+- [Definition of Done](../../process-framework/guides/04-implementation/definition-of-done.md)

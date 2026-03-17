@@ -35,10 +35,10 @@ Systematically validates foundational features for architectural pattern adheren
 
 - **Critical (Must Read):**
 
-  - **Foundational Validation Guide** - [Foundational Validation Guide](../../guides/guides/05-validation/foundational-validation-guide.md) - Comprehensive guide for conducting foundational codebase validation
+  - **Foundational Validation Guide** - [Foundational Validation Guide](../../guides/05-validation/foundational-validation-guide.md) - Comprehensive guide for conducting foundational codebase validation
   - **Feature Tracking** - [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Current status of foundational features to be validated
   - **Foundational Validation Tracking** - [Foundational Validation Tracking](../../state-tracking/temporary/foundational-validation-tracking.md) - Master validation matrix and progress tracking
-  - **Validation Report Template** - [Validation Report Template](../../templates/templates/validation-report-template.md) - Template for creating validation reports
+  - **Validation Report Template** - [Validation Report Template](../../templates/05-validation/validation-report-template.md) - Template for creating validation reports
   - **Architecture Decision Records** - [ADR Directory](../../../product-docs/technical/architecture) - Architectural decisions to validate against
 
 - **Important (Load If Space):**
@@ -46,10 +46,10 @@ Systematically validates foundational features for architectural pattern adheren
   - **Component Relationship Index** - [Component Relationship Index](../../../product-docs/technical/architecture/component-relationship-index.md) - For understanding component interactions
   - **Technical Design Documents** - [TDD Directory](../../../product-docs/technical/architecture/design-docs/tdd) - Technical specifications for foundational features
   - **Codebase Structure** - Source code directory - Source code for foundational features
-  - **New-ValidationReport Script** - [../../scripts/file-creation/New-ValidationReport.ps1](../../scripts/file-creation/New-ValidationReport.ps1) - Script for generating validation reports
+  - **New-ValidationReport Script** - [../../scripts/file-creation/05-validation/New-ValidationReport.ps1](../../scripts/file-creation/05-validation/New-ValidationReport.ps1) - Script for generating validation reports
 
 - **Reference Only (Access When Needed):**
-  - **Visual Notation Guide** - [Visual Notation Guide](../../guides/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
+  - **Visual Notation Guide** - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting context map diagrams
   - **ID Registry** - [ID Registry](../../../id-registry.json) - For understanding validation report ID assignments
   - **Documentation Map** - [Documentation Map](../../documentation-map.md) - For updating with new validation reports
 
@@ -79,7 +79,7 @@ Systematically validates foundational features for architectural pattern adheren
 8. **Generate Validation Report**: Create detailed validation report using the automation script
    ```powershell
    # Navigate to validation directory and create architectural consistency report
-   Set-Location "doc/process-framework/validation"
+   Set-Location "doc/product-docs/validation"
    ..\scripts\file-creation\New-ValidationReport.ps1 -ValidationType "ArchitecturalConsistency" -FeatureIds "0.2.1,0.2.2,0.2.3" -SessionNumber 1
    ```
 9. **Score Validation Criteria**: Apply 4-point scoring system (0-3) to each validation criterion
@@ -100,7 +100,7 @@ Systematically validates foundational features for architectural pattern adheren
 
 ## Outputs
 
-- **Architectural Consistency Validation Report** - Detailed validation report with scoring and findings, created in `doc/process-framework/validation/reports/architectural-consistency/PF-VAL-XXX-architectural-consistency-features-[feature-range].md`
+- **Architectural Consistency Validation Report** - Detailed validation report with scoring and findings, created in doc/product-docs/validation/reports/architectural-consistency/PF-VAL-XXX-architectural-consistency-features-[feature-range].md
 - **Updated Validation Tracking Matrix** - Foundational validation tracking file updated with report creation date and link in the architectural consistency column for validated features
 - **Remediation Action Items** - List of architectural improvements needed for features scoring below quality threshold (if applicable)
 
@@ -126,7 +126,7 @@ Before considering this task finished:
   - [ ] [Foundational Validation Tracking](../../state-tracking/temporary/foundational-validation-tracking.md) updated with report creation date and link
   - [ ] [Documentation Map](../../documentation-map.md) updated with new validation report entry
   - [ ] **AUTOMATED**: [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md) updated with new open issues using `Update-TechDebt.ps1`
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-031" and context "Architectural Consistency Validation"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-031" and context "Architectural Consistency Validation"
 
 ## Next Tasks
 

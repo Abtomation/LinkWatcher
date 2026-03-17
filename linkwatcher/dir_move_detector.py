@@ -18,6 +18,7 @@ Phase 3 (Process): When all files match (or a settle/max timer fires),
 import os
 import threading
 import time
+from typing import Callable
 
 from colorama import Fore
 
@@ -76,10 +77,10 @@ class DirectoryMoveDetector:
         self,
         link_db,
         project_root,
-        on_dir_move,
-        on_true_file_delete,
-        max_timeout=300.0,
-        settle_delay=5.0,
+        on_dir_move: Callable[[str, str], None],
+        on_true_file_delete: Callable[[str], None],
+        max_timeout: float = 300.0,
+        settle_delay: float = 5.0,
     ):
         self._link_db = link_db
         self._project_root = project_root

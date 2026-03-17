@@ -52,9 +52,9 @@ This is the final onboarding task that transforms code analysis into formal desi
 - **Reference Only (Access When Needed):**
   - [API Design Task](../02-design/api-design-task.md) - For documenting existing API contracts
   - [Database Schema Design Task](../02-design/database-schema-design-task.md) - For documenting existing schema
-  - [Cross-Cutting Test Specification Template](../../templates/templates/cross-cutting-test-specification-template.md) - Template for multi-feature test specifications
+  - [Cross-Cutting Test Specification Template](../../templates/03-testing/cross-cutting-test-specification-template.md) - Template for multi-feature test specifications
   - [Test Registry](/test/test-registry.yaml) - Registry of test files with cross-cutting feature mappings
-  - [Task Transition Guide](../../guides/guides/framework/task-transition-guide.md) - Understanding documentation workflow
+  - [Task Transition Guide](../../guides/framework/task-transition-guide.md) - Understanding documentation workflow
   - [Documentation Map](../../documentation-map.md) - For registering new documents
 
 ## Process
@@ -183,7 +183,7 @@ This is the final onboarding task that transforms code analysis into formal desi
 17. **Reconcile Pre-existing Documentation**:
     - Review the master state "Existing Documentation Inventory" table
     - For each document, determine its disposition:
-      - **Keep**: Document serves an ongoing project purpose beyond what FDDs/TDDs cover (e.g., README.md, CONTRIBUTING.md, CHANGELOG.md, tests/README.md)
+      - **Keep**: Document serves an ongoing project purpose beyond what FDDs/TDDs cover (e.g., README.md, CONTRIBUTING.md, CHANGELOG.md)
       - **Archive**: Document's content has been fully extracted into formal design documents and no longer serves a unique purpose (e.g., HOW_IT_WORKS.md superseded by TDDs/FDDs)
     - Archive superseded documents: move to `doc/archived-pre-framework/`
     - Update the master state inventory with the disposition (Keep / Archived) for each document
@@ -250,7 +250,7 @@ This is the final onboarding task that transforms code analysis into formal desi
   - [ ] Final metrics calculated and recorded in [master state](../../state-tracking/temporary/retrospective-master-state.md)
   - [ ] [Master State File](../../state-tracking/temporary/retrospective-master-state.md) archived to `/temporary/archived/`
 
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-066" and context "Retrospective Documentation Creation"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-066" and context "Retrospective Documentation Creation"
   - **⚠️ IMPORTANT**: Evaluate the Retrospective Documentation Creation task (PF-TSK-066) and its tools (tier assessment workflow, documentation creation process), not the documents you created.
 
 ## Next Tasks
@@ -275,4 +275,4 @@ After completing the full retrospective documentation effort:
 - [Codebase Feature Analysis (PF-TSK-065)](codebase-feature-analysis.md) - Second onboarding task (prerequisite)
 - [Feature Tier Assessment Task](../01-planning/feature-tier-assessment-task.md) - For creating tier assessments
 - [Documentation Tiers README](../../../product-docs/documentation-tiers/README.md) - Tier definitions and documentation requirements
-- [Task Transition Guide](../../guides/guides/framework/task-transition-guide.md) - Understanding documentation workflow
+- [Task Transition Guide](../../guides/framework/task-transition-guide.md) - Understanding documentation workflow

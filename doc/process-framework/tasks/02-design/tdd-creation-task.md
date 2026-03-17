@@ -34,7 +34,7 @@ Create a detailed technical design document for a feature that provides a compre
 
 ## Information Flow
 
-> **📋 Detailed Guidance**: See [Task Transition Guide - Information Flow Section](../../guides/guides/framework/task-transition-guide.md#information-flow-and-separation-of-concerns)
+> **📋 Detailed Guidance**: See [Task Transition Guide - Information Flow Section](../../guides/framework/task-transition-guide.md#information-flow-and-separation-of-concerns)
 
 ### Inputs from Other Tasks
 
@@ -90,9 +90,9 @@ When referencing other tasks' outputs in TDDs:
   - **Functional Design Document (FDD)** - For Tier 2+ features, the FDD created in the previous step containing functional requirements and user flows
   - [System Quality Attributes](/doc/product-docs/technical/architecture/quality-attributes.md) - **MANDATORY**: System-wide quality requirements that must be analyzed and integrated into all TDDs
   - [TDD Templates](/doc/product-docs/technical/architecture/design-docs) - Tier-specific templates for technical design documents:
-  - [T1 Template](/doc/product-docs/templates/templates/tdd-t1-template.md) - For Tier 1 (simple) features
-  - [T2 Template](/doc/product-docs/templates/templates/tdd-t2-template.md) - For Tier 2 (moderate) features
-  - [T3 Template](/doc/product-docs/templates/templates/tdd-t3-template.md) - For Tier 3 (complex) features
+  - [T1 Template](/doc/process-framework/templates/02-design/tdd-t1-template.md) - For Tier 1 (simple) features
+  - [T2 Template](/doc/process-framework/templates/02-design/tdd-t2-template.md) - For Tier 2 (moderate) features
+  - [T3 Template](/doc/process-framework/templates/02-design/tdd-t3-template.md) - For Tier 3 (complex) features
   - [Feature Assessment](../../../product-docs/documentation-tiers/assessments) - The tier assessment for the selected feature
 
 - **Important (Load If Space):**
@@ -103,7 +103,7 @@ When referencing other tasks' outputs in TDDs:
 
 - **Reference Only (Access When Needed):**
   - [Feature Tracking](../discrete/state-tracking/permanent/feature-tracking.md) - To identify features that have been assessed but need TDDs
-  - [Visual Notation Guide](/doc/process-framework/guides/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Visual Notation Guide](/doc/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 ## Process
 
@@ -241,7 +241,7 @@ Before considering this task finished:
   - [ ] Feature Tracking document status automatically updated from "📋 FDD Created" (for Tier 2+) or "📊 Assessment Created" (for Tier 1) to "📝 TDD Created"
   - [ ] Feature Tracking document automatically includes link to TDD in the "Tech Design" column
   - [ ] Feature Tracking document automatically updated with TDD creation date in the "Notes" column
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-015" and context "TDD Creation"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-015" and context "TDD Creation"
 
 ## Next Tasks
 
@@ -252,9 +252,9 @@ Before considering this task finished:
 ## Related Resources
 
 - [TDD Templates](/doc/product-docs/technical/architecture/design-docs) - Tier-specific templates for technical design documents:
-  - [T1 Template](/doc/product-docs/templates/templates/tdd-t1-template.md) - For Tier 1 (simple) features
-  - [T2 Template](/doc/product-docs/templates/templates/tdd-t2-template.md) - For Tier 2 (moderate) features
-  - [T3 Template](/doc/product-docs/templates/templates/tdd-t3-template.md) - For Tier 3 (complex) features
+  - [T1 Template](/doc/process-framework/templates/02-design/tdd-t1-template.md) - For Tier 1 (simple) features
+  - [T2 Template](/doc/process-framework/templates/02-design/tdd-t2-template.md) - For Tier 2 (moderate) features
+  - [T3 Template](/doc/process-framework/templates/02-design/tdd-t3-template.md) - For Tier 3 (complex) features
 - [TDD Generation Script](/doc/product-docs/technical/architecture/design-docs/tdd/.../../scripts/file-creation/New-tdd.ps1) - Script for generating TDD documents
 - [Architecture Decision Records](/doc/product-docs/technical/architecture/design-docs/adr) - Repository of past architectural decisions
 - <!-- [API Design Guidelines](/doc/product-docs/technical/architecture/api-design-guidelines.md) - File not found --> - Standards for designing APIs

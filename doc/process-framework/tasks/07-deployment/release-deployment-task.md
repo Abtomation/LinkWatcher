@@ -36,7 +36,7 @@ Manage the process of preparing, versioning, and deploying releases of the appli
 - **Critical (Must Read):**
 
   - [Release Process Guide](/doc/product-docs/ci-cd/release-process.md) - Release process documentation
-  - [Visual Notation Guide](/doc/process-framework/guides/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Visual Notation Guide](/doc/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 - **Important (Load If Space):**
 
@@ -90,8 +90,8 @@ Manage the process of preparing, versioning, and deploying releases of the appli
 
 17. **Report Discovered Bugs**: If bugs are identified during deployment:
 
-    - Use [../../scripts/file-creation/New-BugReport.ps1](../../scripts/file-creation/New-BugReport.ps1) script to create standardized bug reports
-    - Follow [Bug Reporting Guide](../../guides/guides/06-maintenance/bug-reporting-guide.md) for consistent documentation
+    - Use [../../scripts/file-creation/06-maintenance/New-BugReport.ps1](../../scripts/file-creation/06-maintenance/New-BugReport.ps1) script to create standardized bug reports
+    - Follow [Bug Reporting Guide](../../guides/06-maintenance/bug-reporting-guide.md) for consistent documentation
     - Add bug entries to [Bug Tracking](../../state-tracking/permanent/bug-tracking.md) with status 🆕 Reported
     - Include deployment context and evidence in bug reports
     - Reference specific deployment logs or monitoring data
@@ -104,7 +104,7 @@ Manage the process of preparing, versioning, and deploying releases of the appli
     Set-Location "doc/process-framework/scripts/file-creation"
 
     # Create bug report for issues found during deployment
-    ../../scripts/file-creation/New-BugReport.ps1 -Title "API timeout in production environment" -Description "User authentication API calls timeout after 30 seconds in production but work fine in staging" -DiscoveredBy "Release Deployment" -Severity "Critical" -Component "Authentication" -Environment "Production" -Evidence "Deployment logs: /logs/deployment-2025-01-15.log"
+    ../../scripts/file-creation/06-maintenance/New-BugReport.ps1 -Title "API timeout in production environment" -Description "User authentication API calls timeout after 30 seconds in production but work fine in staging" -DiscoveredBy "Release Deployment" -Severity "Critical" -Component "Authentication" -Environment "Production" -Evidence "Deployment logs: /logs/deployment-2025-01-15.log"
     ```
 
 18. Update release status documentation
@@ -143,12 +143,12 @@ Before considering this task finished:
   - [ ] Deployment report documents the process and any issues
   - [ ] Release version has been properly incremented
   - [ ] Bug discovery performed systematically during deployment and monitoring
-  - [ ] Any discovered bugs reported using ../../scripts/file-creation/New-BugReport.ps1 script with proper context and evidence
+  - [ ] Any discovered bugs reported using ../../scripts/file-creation/06-maintenance/New-BugReport.ps1 script with proper context and evidence
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
   - [ ] Release status file shows correct version and date
   - [ ] Deployment status is accurately reflected
   - [ ] All included features and fixes are listed
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-008" and context "Release & Deployment"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-008" and context "Release & Deployment"
 
 ## Next Tasks
 
@@ -160,4 +160,4 @@ Before considering this task finished:
 - <!-- [Semantic Versioning Guide](/doc/product-docs/development/guides/semantic-versioning-guide.md) - File not found --> - Guide to version numbering
 - <!-- [Rollback Procedures](/doc/product-docs/development/ci-cd/rollback-procedures.md) - File not found --> - Procedures for rolling back problematic deployments
 - <!-- [CI/CD Pipeline Documentation](/doc/product-docs/development/ci-cd/pipeline-documentation.md) - File not found --> - Documentation of the CI/CD pipeline
-- [Task Creation and Improvement Guide](../../guides/guides/support/task-creation-guide.md) - Guide for creating and improving tasks
+- [Task Creation and Improvement Guide](../../guides/support/task-creation-guide.md) - Guide for creating and improving tasks

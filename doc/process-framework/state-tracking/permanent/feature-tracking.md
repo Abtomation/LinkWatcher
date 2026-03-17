@@ -80,7 +80,7 @@ This document tracks the implementation status and documentation requirements fo
 <details>
 <summary><strong>Planning & Implementation Resources</strong></summary>
 
-- [Process: Definition of Done](../../guides/guides/04-implementation/definition-of-done.md): Clear criteria for when a feature is considered complete
+- [Process: Definition of Done](../../guides/04-implementation/definition-of-done.md): Clear criteria for when a feature is considered complete
 - [Product: Feature Dependencies](../../../product-docs/technical/design/feature-dependencies.md): Visual map and matrix of feature dependencies
 - [Process: Technical Debt Tracker](technical-debt-tracking.md): System for tracking and managing technical debt
 - [Process: Documentation Tier Assignments](../../../product-docs/documentation-tiers/README.md): Information about documentation tier assignments and assessment process
@@ -129,7 +129,7 @@ Parser implementations for different file formats and link update mechanisms.
 
 | ID | Feature | Status | Priority | Doc Tier | FDD | TDD | Test Status | Test Spec | Dependencies | Notes |
 | -- | ------- | ------ | -------- | -------- | --- | --- | ----------- | --------- | ------------ | ----- |
-| [2.1.1](../features/2.1.1-link-parsing-system-implementation-state.md) | Link Parsing System | 📝 TDD Created | P1 | [🟠 Tier 2](../../../product-docs/documentation-tiers/assessments/ART-ASS-195-2-1-1-link-parsing-system.md) | [PD-FDD-026](../../../product-docs/functional-design/fdds/fdd-2-1-1-parser-framework.md) | [PD-TDD-025](../../../product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md) | 🟡 Tests Partially Approved | [PF-TSP-039](../../../../test/specifications/feature-specs/test-spec-2-1-1-link-parsing-system.md) | 0.1.1 | Parser registry/facade with 7 format-specific parsers (Markdown, YAML, JSON, Python, Dart, PowerShell, Generic). Files: parser.py, parsers/* (9 files). Retrospective. Consolidates old 2.1.1–2.1.7. |
+| [2.1.1](../features/2.1.1-link-parsing-system-implementation-state.md) | Link Parsing System | ✅ Complete | P1 | [🟠 Tier 2](../../../product-docs/documentation-tiers/assessments/ART-ASS-195-2-1-1-link-parsing-system.md) | [PD-FDD-026](../../../product-docs/functional-design/fdds/fdd-2-1-1-parser-framework.md) | [PD-TDD-025](../../../product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md) | 🟡 In Progress | [PF-TSP-039](../../../../test/specifications/feature-specs/test-spec-2-1-1-link-parsing-system.md) | 0.1.1 | Parser registry/facade with 7 format-specific parsers (Markdown, YAML, JSON, Python, Dart, PowerShell, Generic). Files: parser.py, parsers/* (9 files). Retrospective. Consolidates old 2.1.1–2.1.7. |
 | [2.2.1](../features/2.2.1-link-updating-implementation-state.md) | Link Updating | 📝 TDD Created | P1 | [🟠 Tier 2](../../../product-docs/documentation-tiers/assessments/ART-ASS-196-2-2-1-link-updating.md) | [PD-FDD-027](../../../product-docs/functional-design/fdds/fdd-2-2-1-link-updater.md) | [PD-TDD-026](../../../product-docs/technical/architecture/design-docs/tdd/tdd-2-2-1-link-updater-t2.md) | ✅ Tests Approved | [PF-TSP-040](../../../../test/specifications/feature-specs/test-spec-2-2-1-link-updating.md) | 0.1.1 | Reference updating with relative path calculation, atomic writes, backup creation, dry-run mode. File: updater.py. Retrospective. Consolidates old 2.2.1–2.2.5. |
 
 </details>
@@ -199,7 +199,7 @@ On-demand link health auditing and broken link reporting.
 | ✅ Complete | 1      | 10%      |
 | **Total Features**    | **10**  | **100%**   |
 
-> **📝 NOTE**: 9 of 10 features are fully implemented in code (retrospective). Feature 6.1.1 (Link Validation) is a new feature not yet implemented. For retrospective features, the status reflects documentation completeness.
+> **📝 NOTE**: All 10 features are fully implemented in code (retrospective). The status reflects documentation completeness, not implementation progress. All features have passing tests.
 
 </details>
 
@@ -247,6 +247,8 @@ On-demand link health auditing and broken link reporting.
 
 | Date | Change | Updated By |
 |------|--------|------------|
+| 2026-03-16 | v2.7 — 1.1.1 File System Monitoring set to "Needs Revision" for Parent Directory Reference Updates enhancement (PF-STA-058) | [Feature Request Evaluation (PF-TSK-067)](../../tasks/01-planning/feature-request-evaluation.md) |
+| 2026-03-16 | v2.6 — 2.1.1 Link Parsing System set to "Needs Revision" for Backtick-Delimited Path Detection enhancement (PF-STA-057) | [Feature Request Evaluation (PF-TSK-067)](../../tasks/01-planning/feature-request-evaluation.md) |
 | 2026-03-16 | v2.5 — Added feature 6.1.1 Link Validation in new category "6. Link Validation & Reporting" (PF-FEA-055) | [Feature Request Evaluation (PF-TSK-067)](../../tasks/01-planning/feature-request-evaluation.md) |
 | 2026-02-25 | v2.4 — 0.1.1 Core Architecture: Duplicate Session Prevention enhancement complete, status → 🟢 Completed | [Feature Enhancement (PF-TSK-068)](../../tasks/04-implementation/feature-enhancement.md) |
 | 2026-02-25 | v2.3 — 0.1.1 Core Architecture set to "Needs Revision" for Duplicate Session Prevention enhancement (PF-STA-049) | [Feature Request Evaluation (PF-TSK-067)](../../tasks/01-planning/feature-request-evaluation.md) |
@@ -256,35 +258,3 @@ On-demand link health auditing and broken link reporting.
 | 2026-02-20 | v1.5 — Retrospective TDDs completed for all Tier 2+ features | [Retrospective Documentation Creation (PF-TSK-066)](../../tasks/00-onboarding/retrospective-documentation-creation.md) |
 | 2026-02-19 | v1.4 — Retrospective FDDs completed for all Tier 2+ features | [Retrospective Documentation Creation (PF-TSK-066)](../../tasks/00-onboarding/retrospective-documentation-creation.md) |
 | 2026-02-17 | v1.0 — Initial feature tracking with 42 features | [Codebase Feature Discovery (PF-TSK-064)](../../tasks/00-onboarding/codebase-feature-discovery.md) |
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
