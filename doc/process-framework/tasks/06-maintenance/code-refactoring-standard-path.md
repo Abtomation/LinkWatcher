@@ -147,7 +147,7 @@ When bugs are discovered during refactoring, follow this decision process:
     ../../scripts/file-creation/06-maintenance/New-BugReport.ps1 -Title "Race condition in async data processing" -Description "Refactoring revealed race condition in async data processing that causes intermittent data corruption" -DiscoveredBy "Development" -Severity "High" -Component "Data Processing" -Environment "Development" -Evidence "Code analysis during refactoring: src/services/data_processor.py:89-102"
     ```
 
-15. **Validate Behavior Preservation**: Run full test suite to confirm no functional changes
+15. **Validate Behavior Preservation**: Run full test suite (`Run-Tests.ps1 -All`) to confirm no functional changes. If manual tests exist for the affected features, set their status to "Needs Re-execution" in test-tracking.md.
 16. **Measure Improvements**: Compare final metrics against baseline measurements
 17. **🚨 CHECKPOINT**: Present before/after metrics, discovered bugs, and improvement summary to human partner for review
 18. **Update Refactoring Plan**: Document actual results, lessons learned, and any remaining technical debt

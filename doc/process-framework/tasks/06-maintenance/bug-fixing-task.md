@@ -70,7 +70,7 @@ Diagnose, fix, and verify solutions for reported bugs or issues in the applicati
    ```
    After creation, **customize the state file to the specific bug**: fill in the Implementation Progress table with the files/components that will need changing, identify which documents need updating in the Documentation Updates table, and outline the resolution plan in the Fix Approach section. This plan serves as the blueprint for the fix and enables session handover.
    For single-session bugs (Small/Medium effort), skip this step — no state file needed.
-5. **Check manual test coverage**: Review [test-tracking.md](../../state-tracking/permanent/test-tracking.md) for existing manual test cases covering the affected behavior. If no manual test exists and the bug involves user-observable behavior, consider creating a reproduction test case via [Manual Test Case Creation](../03-testing/manual-test-case-creation-task.md) before fixing.
+5. **Check manual test coverage**: Review [test-tracking.md](../../state-tracking/permanent/test-tracking.md) for existing manual test cases covering the affected behavior. If no manual test exists and the bug involves user-observable behavior, consider creating a reproduction test case via [Manual Test Case Creation](../03-testing/e2e-acceptance-test-case-creation-task.md) before fixing.
 6. Reproduce the bug to understand its exact behavior and confirm the issue
    - For code-structural bugs (e.g., missing error handling, absent code paths), confirming the gap through code review serves as reproduction
 6. Document the reproduction steps for future reference
@@ -114,22 +114,23 @@ Diagnose, fix, and verify solutions for reported bugs or issues in the applicati
     - **If multi-session**: Track each file change in the Implementation Progress table
 15. Verify regression tests now **PASS** with the fix applied, and test thoroughly to ensure the fix resolves the issue completely
     - **If multi-session (architectural changes)**: Run the full test suite and document results in the Validation Status section of the bug fix state file
-16. Verify that the fix doesn't introduce new problems
-17. Check for similar issues in other parts of the codebase
+16. **Run full regression test suite** (`Run-Tests.ps1 -All`) to confirm the fix doesn't introduce regressions elsewhere. If manual tests exist for the affected feature, set their status to "Needs Re-execution" in test-tracking.md.
+17. Verify that the fix doesn't introduce new problems
+18. Check for similar issues in other parts of the codebase
     - If the root cause is a shared pattern (e.g., regex, utility function), check **all** components that use the same pattern
     - Prioritize sibling components (same role/type, e.g., all parsers, all handlers) as they most likely share the same code pattern
-18. **Create a manual validation test** in the project's manual test directory — write it **before implementing the fix** so the bug is observable first:
+19. **Create a manual validation test** in the project's manual test directory — write it **before implementing the fix** so the bug is observable first:
     - The test must set up a scenario the human partner can **reproduce via UI or filesystem actions** — not via programmatic API calls
     - Print or display **before/after state** so the human can compare the result with and without the fix
     - Example: a script that creates a temp environment with the conditions that trigger the bug, prints the current (buggy) state, then instructs the human to apply the trigger action and observe the result
     - *Skip this step for bugs with no observable behavior* (e.g., dead code removal, internal refactoring)
-19. **Session boundary** (multi-session only): If ending a session before the fix is complete, update the Session Log in the bug fix state file with completed work and next-session plan. The next session resumes from this state file.
-20. **🚨 CHECKPOINT**: Present fix results for human approval before updating bug status:
+20. **Session boundary** (multi-session only): If ending a session before the fix is complete, update the Session Log in the bug fix state file with completed work and next-session plan. The next session resumes from this state file.
+21. **🚨 CHECKPOINT**: Present fix results for human approval before updating bug status:
     - Code changes summary (files modified, approach taken)
     - Test results (regression tests pass, full suite regression check)
-    - Manual validation test results (if applicable, from Step 18)
-    - Similar issues found and addressed (from Step 17)
-21. Update bug status from 🟡 In Progress to 🧪 Fixed
+    - Manual validation test results (if applicable, from Step 19)
+    - Similar issues found and addressed (from Step 18)
+22. Update bug status from 🟡 In Progress to 🧪 Fixed
     - **Automated Option**: Use [`Update-BugStatus.ps1`](../../scripts/update/Update-BugStatus.ps1) script:
       ```powershell
       ../../scripts/update/Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "Fixed" -FixDetails "Fixed null pointer exception" -RootCause "Missing null check" -TestsAdded "Yes" -PullRequestUrl "https://github.com/repo/pull/123"
@@ -137,34 +138,34 @@ Diagnose, fix, and verify solutions for reported bugs or issues in the applicati
 
 ### Finalization
 
-22. **Mark manual test groups for re-execution**: If the fix affects functionality covered by manual tests, run `Update-TestExecutionStatus.ps1` to mark affected groups:
+23. **Mark manual test groups for re-execution**: If the fix affects functionality covered by manual tests, run `Update-TestExecutionStatus.ps1` to mark affected groups:
     ```bash
     cd /c/path/to/project/doc/process-framework/scripts/testing && pwsh.exe -ExecutionPolicy Bypass -Command '& .\Update-TestExecutionStatus.ps1 -FeatureId "X.Y.Z" -Status "Needs Re-execution" -Reason "Bug fix PD-BUG-XXX" -Confirm:$false'
     ```
-23. Document the nature of the bug and the solution approach
-23. **Update feature documentation** (if the fix changes technical design or behavior):
+24. Document the nature of the bug and the solution approach
+25. **Update feature documentation** (if the fix changes technical design or behavior):
     - **Feature implementation state file** (`state-tracking/features/`) — update implementation notes, known issues, or status
     - **TDD** — update technical design descriptions that no longer match the code
     - **Test specification** — update expected behavior or add new test scenarios
     - **FDD** — update functional behavior descriptions if user-facing behavior changed
     - *Before marking N/A: briefly check each referenced document to confirm it does not describe the changed component or behavior. Skip only after verifying no documentation references the fix area.*
     - **If multi-session**: Update the Documentation Updates table in the bug fix state file
-24. Refactor code if necessary for better maintainability
-25. Verify the fix resolves the issue completely
-25b. **Run test tracking validation** (if tests were added or modified):
+26. Refactor code if necessary for better maintainability
+27. Verify the fix resolves the issue completely
+28. **Run test tracking validation** (if tests were added or modified):
     ```powershell
     doc/process-framework/scripts/validation/Validate-TestTracking.ps1
     ```
     Fix any mismatches in `testCasesCount` or missing registry entries before proceeding.
-26. Update bug status from 🧪 Fixed to ✅ Verified (after testing confirmation)
+29. Update bug status from 🧪 Fixed to ✅ Verified (after testing confirmation)
     - **Automated Option**: Use [`Update-BugStatus.ps1`](../../scripts/update/Update-BugStatus.ps1) script:
       ```powershell
       ../../scripts/update/Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "Closed" -VerificationNotes "Fix verified in production, no regressions detected"
       ```
       > **Note**: The script automatically moves the bug entry to the Closed Bugs section and recalculates Bug Statistics — no manual editing needed.
-27. Verify the [Bug Tracking](../../state-tracking/permanent/bug-tracking.md) document was updated correctly (bug moved to Closed section, statistics updated)
-28. **If multi-session**: Archive the bug fix state file to `state-tracking/temporary/old/` after the bug is closed
-29. **🚨 MANDATORY FINAL STEP**: Complete the Task Completion Checklist below
+30. Verify the [Bug Tracking](../../state-tracking/permanent/bug-tracking.md) document was updated correctly (bug moved to Closed section, statistics updated)
+31. **If multi-session**: Archive the bug fix state file to `state-tracking/temporary/old/` after the bug is closed
+32. **🚨 MANDATORY FINAL STEP**: Complete the Task Completion Checklist below
 
 ## Outputs
 
@@ -224,8 +225,8 @@ Before considering this task finished:
 ## Next Tasks
 
 - [**Code Review**](code-review-task.md) - Reviews the bug fix for quality and correctness
-- [**Manual Test Case Creation**](../03-testing/manual-test-case-creation-task.md) - Create reproduction/verification test cases for the bug (if not already created in Step 5)
-- [**Manual Test Execution**](../03-testing/manual-test-execution-task.md) - Validate the fix through manual testing of affected test groups
+- [**Manual Test Case Creation**](../03-testing/e2e-acceptance-test-case-creation-task.md) - Create reproduction/verification test cases for the bug (if not already created in Step 5)
+- [**Manual Test Execution**](../03-testing/e2e-acceptance-test-execution-task.md) - Validate the fix through manual testing of affected test groups
 - [**Bug Triage**](bug-triage-task.md) - If additional bugs are discovered during fixing
 - [**Feature Implementation Planning**](../04-implementation/feature-implementation-planning-task.md) - If the bug fix reveals the need for new functionality
 

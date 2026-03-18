@@ -94,6 +94,8 @@ This task manages the systematic extension of the task-based development framewo
    ```
 6. **Develop Implementation Roadmap** with detailed multi-session breakdown in the temporary state file
 7. **Identify Required Components** (tasks, templates, guides, scripts, directories) and their dependencies
+   - If the extension introduces language-specific commands or tooling, check if new fields are needed in `languages-config/` files. Use [Update-LanguageConfig.ps1](../../scripts/update/Update-LanguageConfig.ps1) to add fields consistently across all language configs and the template.
+   - For each new task, verify its "When to Use" section defines concrete triggers (specific events, states, or conditions) — not generic "when needed" statements.
 8. **Plan Integration Points** with existing framework components and state tracking files
 9. **🚨 CHECKPOINT**: Present implementation roadmap, required components list, and session plan to human partner for approval
 

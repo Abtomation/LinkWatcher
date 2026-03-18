@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Language-specific configuration for Python projects using the process framework.",
+  "language": "python",
+  "version": "1.0",
+
+  "testing": {
+    "baseCommand": "python -m pytest",
+    "coverageArgs": "--cov={module} --cov-report=html --cov-report=term",
+    "coverageFullArgs": "--cov={module} --cov-report=html --cov-report=term-missing --cov-report=xml",
+    "discoveryCommand": "python -m pytest --collect-only -q",
+    "discoveryOutputPattern": "^(.+\\.py)::",
+    "testFileExtension": ".py",
+    "testFileNamePattern": "test_{name}",
+    "testFileExclusions": ["__init__.py", "__pycache__"],
+    "lintCommand": "python -m flake8 {testDir} --max-line-length=100",
+    "stopOnFirstFailure": "-x",
+    "verboseFlag": "-v",
+    "markers": {
+      "slow": "-m slow",
+      "critical": "-m critical",
+      "notSlow": "-m \"not slow\""
+    }
+  }
+}

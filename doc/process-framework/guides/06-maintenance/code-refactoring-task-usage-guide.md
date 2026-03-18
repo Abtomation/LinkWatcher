@@ -55,7 +55,7 @@ cd doc/product-docs/refactoring
 - **RefactoringScope** (Required): Brief description of what will be refactored
 - **TargetArea** (Required): Specific component, module, or code area being refactored
 - **Priority** (Optional): Priority level (High/Medium/Low) - defaults to Medium
-- **Lightweight** (Optional, switch): Creates a compact plan using the [lightweight template](../../templates/06-maintenance/lightweight-refactoring-plan-template.md) (PF-TEM-050). Use for low-effort items: ≤15 min, single file, no architectural impact. Mutually exclusive with -DocumentationOnly.
+- **Lightweight** (Optional, switch): Creates a compact plan using the [lightweight template](../../templates/06-maintenance/lightweight-refactoring-plan-template.md) (PF-TEM-050). Use for changes with no architectural impact and no interface/API changes (any file count, any effort level). Only use Standard for refactorings that redesign interfaces, decompose classes, or change architectural patterns. Mutually exclusive with -DocumentationOnly.
 - **DocumentationOnly** (Optional, switch): Creates a documentation-focused plan using the [documentation-only template](../../templates/06-maintenance/documentation-refactoring-plan-template.md) (PF-TEM-052). Use for refactoring that involves only documentation changes (no code changes, no test impact). Removes code metrics, performance benchmarks, and test coverage sections. Mutually exclusive with -Lightweight.
 
 ### Example Script Usage
@@ -80,13 +80,12 @@ PF-TSK-022 includes an **Effort Assessment Gate** (Step 1) that determines which
 
 | Criteria | Lightweight | Documentation-Only | Standard |
 |----------|-------------|-------------------|----------|
-| Estimated effort | ≤ 15 min | Any | > 15 min |
-| Files affected | Single file | Documentation files only | Multiple files |
-| Architectural impact | None | None | Any |
+| Architectural impact | None | None | Any (class decomposition, interface redesign, pattern changes) |
+| Interface/API changes | None | None | Any (public API signature changes, contract modifications) |
+| Files affected | Any count | Documentation files only | Any count |
 | Code changes | Any | None | Any |
-| Test impact | Minimal | None | Any |
 
-> **Documentation-only qualifier**: Changes that only modify documentation files (FDDs, TDDs, state files, templates, guides) with no code or test changes should use `-DocumentationOnly`. This replaces code metrics, test coverage, and performance sections with documentation-focused equivalents. For quick single-file doc fixes (≤ 15 min), `-Lightweight` remains appropriate.
+> **Key principle**: File count and effort alone do not determine the path. A 5-file dead code removal or config wiring change is Lightweight. A single-file class decomposition that changes interfaces is Standard. Documentation-only changes (FDDs, TDDs, state files, templates, guides) with no code or test changes should use `-DocumentationOnly`.
 
 After classification, the agent loads only the applicable path document:
 - **[Lightweight Path](../../tasks/06-maintenance/code-refactoring-lightweight-path.md)** — self-contained process steps and checklist (~60 lines)

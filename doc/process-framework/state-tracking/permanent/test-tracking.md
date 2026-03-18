@@ -10,7 +10,7 @@ state_type: Implementation Status
 ---
 # Test Tracking
 
-This file tracks the implementation status of all tests — automated and manual — derived from test specifications in the LinkWatcher project. Each entry represents a test file or manual test case and its associated status, organized by feature categories.
+This file tracks the implementation status of all tests — automated and E2E acceptance — derived from test specifications in the LinkWatcher project. Each entry represents a test file or E2E acceptance test case and its associated status, organized by feature categories.
 
 ## Status Legend
 
@@ -28,15 +28,15 @@ This file tracks the implementation status of all tests — automated and manual
 | 🔄 **Needs Update** | Test specification or implementation needs updates due to code changes or audit findings |
 | 🗑️ **Removed** | Test file has been removed due to being outdated or no longer needed |
 
-### Manual Test Statuses
+### E2E Acceptance Test Statuses
 
 | Status | Description |
 |--------|-------------|
-| 📋 **Case Created** | Manual test case exists but has never been executed |
+| 📋 **Case Created** | E2E acceptance test case exists but has never been executed |
 | ✅ **Passed** | Last execution passed |
 | 🔴 **Failed** | Last execution failed |
 | 🔄 **Needs Re-execution** | Code changes invalidated the last result |
-| ⬜ **Not Created** | Manual test case needed but not yet created |
+| ⬜ **Not Created** | E2E acceptance test case needed but not yet created |
 
 # Test Status by Feature Category
 
@@ -80,13 +80,13 @@ This file tracks the implementation status of all tests — automated and manual
 | PD-TST-105 | 2.2.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 2026-03-15 | —; Auditor: AI Agent; Audit Status: Tests Approved; Audit Results: Passed: 28, Failed: 0; Audit Date: 2026-03-15; Test Cases Audited: 28; Audit Report: ../../../../test/audits/core-features/audit-report-2-2-1-pd-tst-105.md; Major Findings: Bottom-to-top sort not verified; Same-line multi-ref not tested | 2026-02-20 | Link updater atomic operations |
 | PD-TST-118 | 2.2.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 2026-03-15 | —; Audit Date: 2026-03-15; Audit Report: ../../../../test/audits/core-features/audit-report-2-2-1-pd-tst-105.md; Audit Status: Tests Approved; Major Findings: Comprehensive multi-format integration coverage; Test Cases Audited: 23; Auditor: AI Agent; Audit Results: Passed: 23, Failed: 0 | 2026-02-20 | Link update across file formats |
 | PD-TST-129 | 2.1.1 | Automated | [test_powershell.py](../../../../test/automated/parsers/test_powershell.py) | ✅ Tests Approved | 32 | — | 2026-03-15 | PowerShell parser tests — cmdlet patterns, embedded markdown links, regex filtering (PD-BUG-033), deduplication. Registered during test audit. |
-| MT-GRP-01 | 2.1.1 | Manual Group | [master-test-powershell-regex-preservation.md](../../../../test/manual-testing/templates/powershell-regex-preservation/master-test-powershell-regex-preservation.md) | ✅ Passed | 1 | 2026-03-15 | 2026-03-15 | PD-BUG-033: Regex preservation on file move |
-| MT-001 | 2.1.1 | Manual Case | [MT-001-regex-preserved-on-file-move](../../../../test/manual-testing/templates/powershell-regex-preservation/MT-001-regex-preserved-on-file-move/test-case.md) | ✅ Passed | — | 2026-03-15 | 2026-03-15 | Verify regex patterns not rewritten, real paths updated |
-| MT-GRP-02 | 2.1.1 | Manual Group | [master-test-powershell-parser-patterns.md](../../../../test/manual-testing/templates/powershell-parser-patterns/master-test-powershell-parser-patterns.md) | 📋 Case Created | 2 | — | 2026-03-16 | PowerShell parser: move md file (20 refs), move ps1 file (11 refs) |
-| MT-002 | 2.1.1 | Manual Case | [MT-002-powershell-md-file-move](../../../../test/manual-testing/templates/powershell-parser-patterns/MT-002-powershell-md-file-move/test-case.md) | 📋 Case Created | — | — | 2026-03-16 | Move markdown file referenced in PS comments/strings, verify 20 path updates |
-| MT-003 | 2.1.1 | Manual Case | [MT-003-powershell-script-file-move](../../../../test/manual-testing/templates/powershell-parser-patterns/MT-003-powershell-script-file-move/test-case.md) | 📋 Case Created | — | — | 2026-03-16 | Move PS script referenced via Import-Module/Join-Path, verify 11 path updates |
-| MT-GRP-03 | 2.1.1 | Manual Group | [master-test-markdown-parser-scenarios.md](../../../../test/manual-testing/templates/markdown-parser-scenarios/master-test-markdown-parser-scenarios.md) | 📋 Case Created | 1 | — | 2026-03-16 | Markdown parser: move file, verify link updates across standard/special-char scenarios |
-| MT-004 | 2.1.1 | Manual Case | [MT-004-markdown-link-update-on-file-move](../../../../test/manual-testing/templates/markdown-parser-scenarios/MT-004-markdown-link-update-on-file-move/test-case.md) | 📋 Case Created | — | — | 2026-03-16 | Move docs/readme.md, verify markdown links updated, code blocks ignored |
+| E2E-GRP-01 | 2.1.1 | E2E Group | [master-test-powershell-regex-preservation.md](../../../../test/e2e-acceptance-testing/templates/powershell-regex-preservation/master-test-powershell-regex-preservation.md) | ✅ Passed | 1 | 2026-03-15 | 2026-03-15 | PD-BUG-033: Regex preservation on file move |
+| E2E-001 | 2.1.1 | E2E Case | [E2E-001-regex-preserved-on-file-move](../../../../test/e2e-acceptance-testing/templates/powershell-regex-preservation/E2E-001-regex-preserved-on-file-move/test-case.md) | ✅ Passed | — | 2026-03-15 | 2026-03-15 | Verify regex patterns not rewritten, real paths updated |
+| E2E-GRP-02 | 2.1.1 | E2E Group | [master-test-powershell-parser-patterns.md](../../../../test/e2e-acceptance-testing/templates/powershell-parser-patterns/master-test-powershell-parser-patterns.md) | 📋 Case Created | 2 | — | 2026-03-16 | PowerShell parser: move md file (20 refs), move ps1 file (11 refs) |
+| E2E-002 | 2.1.1 | E2E Case | [E2E-002-powershell-md-file-move](../../../../test/e2e-acceptance-testing/templates/powershell-parser-patterns/E2E-002-powershell-md-file-move/test-case.md) | 📋 Case Created | — | — | 2026-03-16 | Move markdown file referenced in PS comments/strings, verify 20 path updates |
+| E2E-003 | 2.1.1 | E2E Case | [E2E-003-powershell-script-file-move](../../../../test/e2e-acceptance-testing/templates/powershell-parser-patterns/E2E-003-powershell-script-file-move/test-case.md) | 📋 Case Created | — | — | 2026-03-16 | Move PS script referenced via Import-Module/Join-Path, verify 11 path updates |
+| E2E-GRP-03 | 2.1.1 | E2E Group | [master-test-markdown-parser-scenarios.md](../../../../test/e2e-acceptance-testing/templates/markdown-parser-scenarios/master-test-markdown-parser-scenarios.md) | 📋 Case Created | 1 | — | 2026-03-16 | Markdown parser: move file, verify link updates across standard/special-char scenarios |
+| E2E-004 | 2.1.1 | E2E Case | [E2E-004-markdown-link-update-on-file-move](../../../../test/e2e-acceptance-testing/templates/markdown-parser-scenarios/E2E-004-markdown-link-update-on-file-move/test-case.md) | 📋 Case Created | — | — | 2026-03-16 | Move docs/readme.md, verify markdown links updated, code blocks ignored |
 
 ## 3. Logging & Monitoring
 
@@ -115,17 +115,17 @@ This file tracks the implementation status of all tests — automated and manual
 
 ### How to Use This File
 
-This file tracks tests at the **test file level** (automated) and **test case/group level** (manual). Each entry represents either an automated test file or a manual test case/group. For detailed test case information, refer to the actual test files or manual test case documents.
+This file tracks tests at the **test file level** (automated) and **test case/group level** (E2E acceptance). Each entry represents either an automated test file or an E2E acceptance test case/group. For detailed test case information, refer to the actual test files or E2E acceptance test case documents.
 
 ### Column Definitions
 
-- **Test ID**: Unique identifier (PD-TST-### for automated, MT-GRP-## for manual groups, MT-### for manual cases)
+- **Test ID**: Unique identifier (PD-TST-### for automated, E2E-GRP-## for E2E groups, E2E-### for E2E cases)
 - **Feature ID**: Reference to the feature being tested (links to feature-tracking.md)
-- **Test Type**: `Automated`, `Manual Group`, or `Manual Case`
-- **Test File/Case**: Path and link to the test file or manual test case document
+- **Test Type**: `Automated`, `E2E Group`, or `E2E Case`
+- **Test File/Case**: Path and link to the test file or E2E acceptance test case document
 - **Status**: Current status (see Status Legend above)
 - **Test Cases Count**: Number of test cases (automated files only)
-- **Last Executed**: Date of last manual test execution (— for automated tests)
+- **Last Executed**: Date of last E2E acceptance test execution (— for automated tests)
 - **Last Updated**: Date of last update to this entry
 - **Notes**: Additional context, blockers, or important information
 
@@ -134,8 +134,8 @@ This file tracks tests at the **test file level** (automated) and **test case/gr
 This file is updated by the following tasks:
 - **[Integration & Testing (PF-TSK-053)](../../tasks/04-implementation/integration-and-testing.md)**: Updates automated test implementation status and test case counts
 - **[New-TestFile.ps1](../../../../scripts/New-TestFile.ps1)**: Generates Test File IDs and updates test registry
-- **Manual Test Case Creation**: Adds manual test case/group entries (future task)
-- **Manual Test Execution**: Updates manual test execution status and dates (future task)
+- **E2E Acceptance Test Case Creation**: Adds E2E acceptance test case/group entries (PF-TSK-069)
+- **E2E Acceptance Test Execution**: Updates E2E acceptance test execution status and dates (PF-TSK-070)
 
 **Note**: Test specification status is tracked in the [Feature Tracking](feature-tracking.md) file to avoid redundancy.
 
@@ -175,9 +175,9 @@ doc/process-framework/scripts/validation/Validate-TestTracking.ps1
 9. **Any Status** → **🔄 Needs Update** (when code changes require test updates)
 10. **Any Status** → **🗑️ Removed** (when test file is deleted or no longer needed)
 
-#### Manual Tests
+#### E2E Acceptance Tests
 
-1. **⬜ Not Created** → **📋 Case Created** (when manual test case is written)
+1. **⬜ Not Created** → **📋 Case Created** (when E2E acceptance test case is written)
 2. **📋 Case Created** → **✅ Passed** (when first execution passes)
 3. **📋 Case Created** → **🔴 Failed** (when first execution fails)
 4. **✅ Passed** → **🔄 Needs Re-execution** (when code changes invalidate the result)
@@ -193,11 +193,11 @@ When creating new automated test files:
 3. Update the [test-registry.yaml](../../../../test/test-registry.yaml) file
 4. Test specification status is tracked in the [Feature Tracking](feature-tracking.md) file
 
-### Adding Manual Test Cases
+### Adding E2E Acceptance Test Cases
 
-When creating new manual test cases:
-1. Create test case using the Manual Test Case Creation task (future)
-2. Add entry to this file with Test Type "Manual Case" or "Manual Group" and status "📋 Case Created"
+When creating new E2E acceptance test cases:
+1. Create test case using the E2E Acceptance Test Case Creation task (PF-TSK-069)
+2. Add entry to this file with Test Type "E2E Case" or "E2E Group" and status "📋 Case Created"
 3. Set Last Executed to "—" (not yet executed)
 4. Update [Feature Tracking](feature-tracking.md) Test Status if needed
 

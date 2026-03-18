@@ -22,6 +22,7 @@ This document provides comprehensive test specifications for the **Link Parsing 
 
 **Test Tier**: 2 (Unit + Integration)
 **TDD Reference**: [TDD PD-TDD-025](../../../doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md)
+**Implementation Coverage**: 107/110 scenarios implemented (97%)
 
 ## Feature Context
 
@@ -66,7 +67,7 @@ The Link Parsing System uses a Registry+Facade pattern. `LinkParser` dispatches 
 | LinkParser | Binary file | `test_parse_binary_file` — returns empty list, no crash | `temp_project_dir` |
 | LinkParser | Thread safety | `test_parser_thread_safety` — 3 threads × 5 files = 15 refs | `temp_project_dir`, `file_helper` |
 
-**Test File**: [`tests/unit/test_parser.py`](../../../tests/unit/test_parser.py) (12 methods)
+**Test File**: [`test/automated/unit/test_parser.py`](../../../test/automated/unit/test_parser.py) (12 methods)
 
 ### Parser Tests — Markdown
 
@@ -90,7 +91,7 @@ The Link Parsing System uses a Registry+Facade pattern. `LinkParser` dispatches 
 | Complex document | `test_complex_markdown_document` | 7+ targets, mixed formats |
 | Empty/error | `test_empty_file`, `test_file_with_no_links`, `test_error_handling` | Edge cases |
 
-**Test File**: [`tests/parsers/test_markdown.py`](../../../tests/parsers/test_markdown.py) (24 methods)
+**Test File**: [`test/automated/parsers/test_markdown.py`](../../../test/automated/parsers/test_markdown.py) (24 methods)
 
 ### Parser Tests — YAML
 
@@ -108,7 +109,7 @@ The Link Parsing System uses a Registry+Facade pattern. `LinkParser` dispatches 
 | Quoted paths | `test_quoted_file_paths` | Single, double, unquoted, special chars |
 | Directory paths | `test_bug030_directory_paths_detected_in_yaml`, `test_bug030_directory_paths_coexist_with_file_paths` | Directory paths without extensions detected alongside file paths (PD-BUG-030) |
 
-**Test File**: [`tests/parsers/test_yaml.py`](../../../tests/parsers/test_yaml.py) (13 methods)
+**Test File**: [`test/automated/parsers/test_yaml.py`](../../../test/automated/parsers/test_yaml.py) (13 methods)
 
 ### Parser Tests — JSON
 
@@ -128,7 +129,7 @@ The Link Parsing System uses a Registry+Facade pattern. `LinkParser` dispatches 
 | Duplicate value line numbers | `test_bug013_duplicate_values_get_correct_line_numbers`, `test_bug013_mixed_duplicate_and_unique_values`, `test_bug013_adjacent_duplicate_values` | Same path on multiple lines gets unique correct line numbers (PD-BUG-013) |
 | Directory paths | `test_bug030_directory_paths_detected_in_json`, `test_bug030_directory_paths_coexist_with_file_paths`, `test_bug030_non_path_strings_not_detected` | Directory paths without extensions detected alongside file paths, non-path strings rejected (PD-BUG-030) |
 
-**Test File**: [`tests/parsers/test_json.py`](../../../tests/parsers/test_json.py) (17 methods)
+**Test File**: [`test/automated/parsers/test_json.py`](../../../test/automated/parsers/test_json.py) (17 methods)
 
 ### Parser Tests — Python
 
@@ -143,7 +144,7 @@ The Link Parsing System uses a Registry+Facade pattern. `LinkParser` dispatches 
 | Line/column | `test_line_and_column_positions` | Position accuracy |
 | Empty/error | `test_empty_file`, `test_error_handling` | Edge cases |
 
-**Test File**: [`tests/parsers/test_python.py`](../../../tests/parsers/test_python.py) (11 methods)
+**Test File**: [`test/automated/parsers/test_python.py`](../../../test/automated/parsers/test_python.py) (11 methods)
 
 ### Parser Tests — Dart
 
@@ -158,7 +159,7 @@ The Link Parsing System uses a Registry+Facade pattern. `LinkParser` dispatches 
 | Complex file | `test_complex_dart_file` | 22+ refs across multiple classes |
 | Empty/error | `test_empty_file`, `test_error_handling` | Edge cases |
 
-**Test File**: [`tests/parsers/test_dart.py`](../../../tests/parsers/test_dart.py) (12 methods)
+**Test File**: [`test/automated/parsers/test_dart.py`](../../../test/automated/parsers/test_dart.py) (12 methods)
 
 ### Parser Tests — Generic
 
@@ -178,7 +179,7 @@ The Link Parsing System uses a Registry+Facade pattern. `LinkParser` dispatches 
 | Empty/error | `test_empty_file`, `test_error_handling` | Edge cases |
 | Quoted directory paths | `test_bug021_quoted_directory_paths_detected` and related tests in `TestGenericParserDirectoryPaths` class | Quoted strings containing path separators but no file extension detected as directory path references (PD-BUG-021) |
 
-**Test File**: [`tests/parsers/test_generic.py`](../../../tests/parsers/test_generic.py) (21 methods)
+**Test File**: [`test/automated/parsers/test_generic.py`](../../../test/automated/parsers/test_generic.py) (21 methods)
 
 ### Parser Tests — Image Files
 
@@ -191,7 +192,7 @@ The Link Parsing System uses a Registry+Facade pattern. `LinkParser` dispatches 
 | Extension classification | `test_image_file_extensions_not_in_specialized_parsers` | .png, .svg, .jpg not specialized |
 | Mixed directory | `test_mixed_content_directory_parsing` | Markdown finds image refs, images have zero outgoing |
 
-**Test File**: [`tests/parsers/test_image_files.py`](../../../tests/parsers/test_image_files.py) (6 methods)
+**Test File**: [`test/automated/parsers/test_image_files.py`](../../../test/automated/parsers/test_image_files.py) (6 methods)
 
 ### Parser Tests — PowerShell
 
@@ -210,7 +211,7 @@ The Link Parsing System uses a Registry+Facade pattern. `LinkParser` dispatches 
 | Deduplication | `test_deduplication` | Same ref on same line |
 | Line numbers | `test_line_numbers_are_1_based` | 1-based indexing |
 
-**Test File**: [`tests/parsers/test_powershell.py`](../../../tests/parsers/test_powershell.py) (32 methods)
+**Test File**: [`test/automated/parsers/test_powershell.py`](../../../test/automated/parsers/test_powershell.py) (32 methods)
 **Note**: Registered as PD-TST-129 during test audit (2026-03-15) — was previously unregistered.
 
 ## Test Implementation Roadmap
@@ -254,7 +255,7 @@ The Link Parsing System uses a Registry+Facade pattern. `LinkParser` dispatches 
 ### Files to Reference
 
 - **TDD**: [`doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md`](../../../doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md)
-- **Existing Tests**: [`tests/unit/test_parser.py`](../../../tests/unit/test_parser.py), `tests/parsers/test_*.py` (7 files)
+- **Existing Tests**: [`test/automated/unit/test_parser.py`](../../../test/automated/unit/test_parser.py), `test/automated/parsers/test_*.py` (7 files)
 - **Source Code**: [`linkwatcher/parser.py`](../../../linkwatcher/parser.py), [`linkwatcher/parsers/`](../../../linkwatcher/parsers/) (7 parser modules)
 
 ---

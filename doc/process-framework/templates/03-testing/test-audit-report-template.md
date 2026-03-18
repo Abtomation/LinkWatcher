@@ -61,6 +61,15 @@ audit_date: [Audit Date]
 - [Specific recommendation 1]
 - [Specific recommendation 2]
 
+#### Assertion Quality Assessment
+
+<!-- Structured sub-assessment of how well assertions verify behavior -->
+
+- **Assertion density**: [Average assertions per test method. Target: ≥2. Count `assert` statements or `self.assert*` calls per test method.]
+- **Behavioral assertions**: [Do tests check return values, state changes, and side effects — or just "no exception thrown"? List any tests with weak assertions (e.g., `assert result is not None` without checking the actual value).]
+- **Edge case assertions**: [Do tests include boundary conditions, error paths, and empty/null inputs? Note any missing edge case coverage.]
+- **Mutation testing** _(optional)_: [If mutation testing tools are available (e.g., `mutmut` for Python), report mutation kill rate. Otherwise state "Not performed".]
+
 ---
 
 ### 2. Coverage Completeness
@@ -68,18 +77,28 @@ audit_date: [Audit Date]
 
 **Assessment**: [PASS/FAIL/PARTIAL]
 
+**Code Coverage Data** _(from `Run-Tests.ps1 -Coverage`)_:
+
+| Source Module | Coverage % | Uncovered Areas |
+|---------------|-----------|-----------------|
+| [module/file.py] | [XX%] | [Brief description of uncovered lines/branches] |
+
+**Overall Project Coverage**: [XX%]
+
 **Findings**:
 - **Existing Implementation Coverage**: [Analysis of test coverage for existing implementations]
+- **Code Coverage Gaps**: [Source files/modules with low coverage and what's missing]
 - **Missing Test Scenarios**: [Identified gaps in testing existing code]
 - **Placeholder Test Quality**: [Assessment of placeholder tests for missing implementations]
 - **Edge Cases Coverage**: [Assessment of boundary condition testing]
 
 **Evidence**:
-- [Coverage metrics or analysis for existing implementations]
+- [Coverage metrics from HTML report for existing implementations]
+- [Specific uncovered code paths identified in coverage report]
 - [Examples of well-structured vs poor placeholder tests]
 
 **Recommendations**:
-- [Coverage improvement recommendations for existing implementations]
+- [Coverage improvement recommendations targeting low-coverage modules]
 - [Implementation priority recommendations for missing dependencies]
 
 ---

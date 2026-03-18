@@ -16,8 +16,8 @@
       "Bash(grep *)",
       "Bash(echo \"PYTHONUTF8=$PYTHONUTF8\")",
       "Bash(echo \"PYTHONIOENCODING=$PYTHONIOENCODING\")",
-      "Bash(PYTHONUTF8=1 python -m pytest tests/integration/test_error_handling.py::TestUnicodeAndEncoding -xvs)",
-      "Bash(PYTHONUTF8=1 python -m pytest tests/ -x --timeout=60 -q)",
+      "Bash(PYTHONUTF8=1 python -m pytest test/automated/integration/test_error_handling.py::TestUnicodeAndEncoding -xvs)",
+      "Bash(PYTHONUTF8=1 python -m pytest test/automated/ -x --timeout=60 -q)",
       "Bash(PYTHONUTF8=1 pwsh.exe -ExecutionPolicy Bypass -Command '& .\\\\Update-BugStatus.ps1 -BugId \"\"PD-BUG-009\"\" -NewStatus \"\"Closed\"\" -VerificationNotes \"\"Fix verified: Level 1 \\(PYTHONUTF8=1 env var\\) + Level 2 \\(defensive stdout reconfigure in __init__.py\\). Test test_eh_007_unicode_file_names passes. Manual validation 5/5 checks pass. No regressions in 345-test suite. Also fixed missing encoding in logging_config.py:210.\"\" -Confirm:$false')",
       "Bash(PYTHONUTF8=1 pwsh.exe -ExecutionPolicy Bypass -Command '& .\\\\Update-BugStatus.ps1 -BugId \"\"PD-BUG-009\"\" -NewStatus \"\"Closed\"\" -VerificationNotes \"\"Fix verified: Level 1 \\(PYTHONUTF8=1 env var\\) + Level 2 \\(defensive stdout reconfigure in __init__.py\\). Test test_eh_007_unicode_file_names passes. Manual validation 5/5 checks pass. No regressions in 345-test suite. Also fixed missing encoding in logging_config.py:210.\"\"')",
       "Bash(PYTHONUTF8=1 pwsh.exe -ExecutionPolicy Bypass -Command '& .\\\\New-FeedbackForm.ps1 -DocumentId \"\"PF-TSK-007\"\" -TaskContext \"\"Bug Fixing - PD-BUG-009 Unicode filenames\"\" -FeedbackType \"\"MultipleTools\"\"')",
@@ -31,7 +31,8 @@
       "Bash(pwsh.exe -Command 'Get-Process -Id 18364 -ErrorAction SilentlyContinue | Select-Object Id, ProcessName, StartTime | Format-Table -AutoSize')",
       "Bash(pwsh.exe -Command 'Stop-Process -Name python* -Force -ErrorAction SilentlyContinue; Start-Sleep -Seconds 1; Remove-Item \"\"c:\\\\Users\\\\ronny\\\\VS_Code\\\\LinkWatcher\\\\.linkwatcher.lock\"\" -ErrorAction SilentlyContinue')",
       "Bash(pwsh.exe -Command 'if \\(Get-Process -Id 26388 -ErrorAction SilentlyContinue\\) { Write-Host \"\"ALIVE after 30s\"\" } else { Write-Host \"\"DEAD\"\" }')",
-      "Bash(pwsh.exe -Command 'if \\(Get-Process -Id 26388 -ErrorAction SilentlyContinue\\) { Write-Host \"\"ALIVE after 90s\"\" } else { Write-Host \"\"DEAD\"\" }')"
+      "Bash(pwsh.exe -Command 'if \\(Get-Process -Id 26388 -ErrorAction SilentlyContinue\\) { Write-Host \"\"ALIVE after 90s\"\" } else { Write-Host \"\"DEAD\"\" }')",
+      "Bash(git mv:*)"
     ]
   }
 }

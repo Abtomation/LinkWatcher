@@ -1,72 +1,72 @@
 <#
 .SYNOPSIS
-    Project-agnostic test runner that wraps pytest with category-based execution.
+    Language-agnostic test runner that uses project and language configuration for command execution.
 
 .DESCRIPTION
-    Reads project-config.json to determine the test directory and project module name,
-    then executes pytest with the appropriate flags for the selected test category.
+    Reads project-config.json for project-specific settings (test directory, module name, quick categories)
+    and languages-config/{language}-config.json for language-specific commands (test runner, coverage, lint).
 
-    Supports: Unit, Integration, Parser, Performance, Critical, Quick, All, Coverage, Discovery.
+    Test categories are discovered dynamically by scanning subdirectories of the test directory.
+    Use -ListCategories to see available categories.
 
-.PARAMETER Unit
-    Run unit tests only.
-
-.PARAMETER Integration
-    Run integration tests only.
-
-.PARAMETER Parsers
-    Run parser-specific tests only.
-
-.PARAMETER Performance
-    Run performance/slow tests only.
-
-.PARAMETER Critical
-    Run only critical priority tests (pytest marker: critical).
+.PARAMETER Category
+    Run tests in a specific subdirectory category (e.g., -Category unit, -Category integration).
+    Categories are discovered from subdirectories of the test directory.
 
 .PARAMETER Quick
-    Run a quick subset (unit + parsers, stop on first failure). Default if no flag given.
+    Run quick subset: categories defined in project-config.json quickCategories, stop on first failure.
+    Default if no flag given.
 
 .PARAMETER All
     Run all tests (excluding slow by default).
 
 .PARAMETER Coverage
-    Generate coverage report. Can combine with -Unit or -All.
+    Generate coverage report. Can combine with -Category or -All.
 
 .PARAMETER Discover
     Run test discovery to check for collection issues.
 
 .PARAMETER Lint
-    Run flake8 linting on test files.
+    Run language-specific linting on test files.
 
-.PARAMETER Verbose
-    Enable verbose pytest output.
+.PARAMETER Critical
+    Run only critical priority tests (uses language marker syntax).
+
+.PARAMETER Performance
+    Run performance/slow tests (uses language marker syntax).
+
+.PARAMETER ListCategories
+    List available test categories (subdirectories) and exit.
+
+.PARAMETER VerboseOutput
+    Enable verbose test output.
 
 .EXAMPLE
-    .\Run-Tests.ps1 -Unit
+    .\Run-Tests.ps1 -Category unit
     .\Run-Tests.ps1 -All -Coverage
-    .\Run-Tests.ps1 -Parsers -Verbose
+    .\Run-Tests.ps1 -Quick
+    .\Run-Tests.ps1 -ListCategories
 
 .NOTES
-    Requires: Python with pytest installed.
-    Config: Reads doc/process-framework/project-config.json for paths.
+    Config: project-config.json (project settings) + languages-config/{language}-config.json (commands).
+    Categories are auto-discovered from test directory subdirectories.
 #>
 
 [CmdletBinding()]
 param(
-    [switch]$Unit,
-    [switch]$Integration,
-    [switch]$Parsers,
-    [switch]$Performance,
-    [switch]$Critical,
+    [string]$Category,
     [switch]$Quick,
     [switch]$All,
     [switch]$Coverage,
     [switch]$Discover,
     [switch]$Lint,
+    [switch]$Critical,
+    [switch]$Performance,
+    [switch]$ListCategories,
     [switch]$VerboseOutput
 )
 
-# --- Resolve project root and config ---
+# --- Resolve project root and configs ---
 $scriptDir = if ($PSScriptRoot) { $PSScriptRoot } else { (Get-Location).Path }
 $projectRoot = (Resolve-Path (Join-Path $scriptDir "../../../..")).Path
 $configPath = Join-Path $projectRoot "doc/process-framework/project-config.json"
@@ -77,14 +77,81 @@ if (-not (Test-Path $configPath)) {
 }
 
 $config = Get-Content $configPath -Raw | ConvertFrom-Json
-$testDir = $config.paths.tests
+$testDir = $config.testing.testDirectory
+if (-not $testDir) { $testDir = $config.paths.tests }
 $moduleName = $config.project.name.ToLower()
+$language = $config.testing.language
 
-# Resolve test directory relative to project root
+if (-not $language) {
+    Write-Error "testing.language not set in project-config.json"
+    exit 1
+}
+
+# --- Load language config ---
+$langConfigPath = Join-Path $projectRoot "doc/process-framework/languages-config/$language-config.json"
+if (-not (Test-Path $langConfigPath)) {
+    Write-Error "Language config not found: $langConfigPath. Create it or check testing.language in project-config.json."
+    exit 1
+}
+
+$langConfig = Get-Content $langConfigPath -Raw | ConvertFrom-Json
+$testing = $langConfig.testing
+
+# --- Helper: substitute placeholders in a string ---
+function Expand-Placeholders {
+    param([string]$Template)
+    $Template = $Template -replace '\{module\}', $moduleName
+    $Template = $Template -replace '\{testDir\}', $testDir
+    return $Template
+}
+
+# --- Helper: split a command string into an array ---
+function Split-Command {
+    param([string]$CommandString)
+    # Handle quoted segments (e.g., -m "not slow")
+    $parts = [System.Collections.ArrayList]@()
+    $regex = [regex]'"([^"]+)"|(\S+)'
+    foreach ($match in $regex.Matches($CommandString)) {
+        if ($match.Groups[1].Success) {
+            [void]$parts.Add($match.Groups[1].Value)
+        } else {
+            [void]$parts.Add($match.Groups[2].Value)
+        }
+    }
+    return $parts.ToArray()
+}
+
+# --- Helper: build base command array from language config ---
+function Get-BaseCommand {
+    return Split-Command (Expand-Placeholders $testing.baseCommand)
+}
+
+# --- Resolve test directory relative to project root ---
 $testPath = Join-Path $projectRoot $testDir
 if (-not (Test-Path $testPath)) {
     Write-Error "Test directory not found: $testPath"
     exit 1
+}
+
+# --- Discover categories from subdirectories ---
+# Exclude common non-test directories (caches, fixtures, helpers)
+$excludedDirs = @('__pycache__', '.pytest_cache', 'fixtures', 'helpers', 'utils', 'conftest', 'node_modules', '.dart_tool', 'build')
+$categories = Get-ChildItem -Path $testPath -Directory |
+    Where-Object { $_.Name -notin $excludedDirs -and -not $_.Name.StartsWith('.') } |
+    ForEach-Object { $_.Name }
+
+# --- List categories ---
+if ($ListCategories) {
+    Write-Host "Available test categories (subdirectories of $testDir):"
+    foreach ($cat in $categories) {
+        Write-Host "  - $cat"
+    }
+    $quickCats = $config.testing.quickCategories
+    if ($quickCats) {
+        Write-Host ""
+        Write-Host "Quick categories: $($quickCats -join ', ')"
+    }
+    exit 0
 }
 
 # --- Helper: run a command and return success ---
@@ -115,97 +182,143 @@ function Invoke-TestCommand {
 }
 
 # --- Default to Quick if nothing specified ---
-$anyFlag = $Unit -or $Integration -or $Parsers -or $Performance -or $Critical -or $Quick -or $All -or $Coverage -or $Discover -or $Lint
+$anyFlag = $Category -or $Quick -or $All -or $Coverage -or $Discover -or $Lint -or $Critical -or $Performance
 if (-not $anyFlag) { $Quick = $true }
 
 $success = $true
 
 # --- Discovery ---
 if ($Discover) {
-    $cmd = @("python", "-m", "pytest", "--collect-only", "-q")
+    if ($testing.discoveryCommand) {
+        $cmd = Split-Command (Expand-Placeholders $testing.discoveryCommand)
+    } else {
+        $cmd = Get-BaseCommand
+        $cmd += "--collect-only"
+        $cmd += "-q"
+    }
     $result = Invoke-TestCommand -Command $cmd -Description "Test Discovery"
     $success = $success -and $result
 }
 
 # --- Lint ---
 if ($Lint) {
-    $cmd = @("python", "-m", "flake8", $testDir, "--max-line-length=100")
-    $result = Invoke-TestCommand -Command $cmd -Description "Linting Tests"
-    $success = $success -and $result
+    if ($testing.lintCommand) {
+        $cmd = Split-Command (Expand-Placeholders $testing.lintCommand)
+        $result = Invoke-TestCommand -Command $cmd -Description "Linting Tests"
+        $success = $success -and $result
+    } else {
+        Write-Host "No lintCommand defined in $language-config.json — skipping lint."
+    }
 }
 
-# --- Unit ---
-if ($Unit) {
-    $cmd = @("python", "-m", "pytest", "$testDir/unit/")
-    if ($VerboseOutput) { $cmd += "-v" }
-    if ($Coverage) { $cmd += "--cov=$moduleName"; $cmd += "--cov-report=html"; $cmd += "--cov-report=term" }
-    $result = Invoke-TestCommand -Command $cmd -Description "Unit Tests"
-    $success = $success -and $result
-}
-
-# --- Integration ---
-if ($Integration) {
-    $cmd = @("python", "-m", "pytest", "$testDir/integration/")
-    if ($VerboseOutput) { $cmd += "-v" }
-    $result = Invoke-TestCommand -Command $cmd -Description "Integration Tests"
-    $success = $success -and $result
-}
-
-# --- Parsers ---
-if ($Parsers) {
-    $cmd = @("python", "-m", "pytest", "$testDir/parsers/")
-    if ($VerboseOutput) { $cmd += "-v" }
-    $result = Invoke-TestCommand -Command $cmd -Description "Parser Tests"
-    $success = $success -and $result
-}
-
-# --- Performance ---
-if ($Performance) {
-    $cmd = @("python", "-m", "pytest", "$testDir/performance/", "-m", "slow")
-    if ($VerboseOutput) { $cmd += "-v" }
-    $result = Invoke-TestCommand -Command $cmd -Description "Performance Tests"
+# --- Category (dynamic) ---
+if ($Category) {
+    if ($Category -notin $categories) {
+        Write-Error "Unknown category '$Category'. Available: $($categories -join ', '). Use -ListCategories to see all."
+        exit 1
+    }
+    $cmd = Get-BaseCommand
+    $cmd += "$testDir/$Category/"
+    if ($VerboseOutput -and $testing.verboseFlag) { $cmd += $testing.verboseFlag }
+    if ($Coverage -and $testing.coverageArgs) {
+        $covArgs = Split-Command (Expand-Placeholders $testing.coverageArgs)
+        $cmd += $covArgs
+    }
+    $result = Invoke-TestCommand -Command $cmd -Description "$Category Tests"
     $success = $success -and $result
 }
 
 # --- Critical ---
 if ($Critical) {
-    $cmd = @("python", "-m", "pytest", "-m", "critical")
-    if ($VerboseOutput) { $cmd += "-v" }
-    $result = Invoke-TestCommand -Command $cmd -Description "Critical Tests"
-    $success = $success -and $result
+    if ($testing.markers -and $testing.markers.critical) {
+        $cmd = Get-BaseCommand
+        $markerArgs = Split-Command $testing.markers.critical
+        $cmd += $markerArgs
+        if ($VerboseOutput -and $testing.verboseFlag) { $cmd += $testing.verboseFlag }
+        $result = Invoke-TestCommand -Command $cmd -Description "Critical Tests"
+        $success = $success -and $result
+    } else {
+        Write-Host "No critical marker defined in $language-config.json — skipping."
+    }
+}
+
+# --- Performance ---
+if ($Performance) {
+    if ($testing.markers -and $testing.markers.slow) {
+        $cmd = Get-BaseCommand
+        $cmd += "$testDir/"
+        $markerArgs = Split-Command $testing.markers.slow
+        $cmd += $markerArgs
+        if ($VerboseOutput -and $testing.verboseFlag) { $cmd += $testing.verboseFlag }
+        $result = Invoke-TestCommand -Command $cmd -Description "Performance Tests"
+        $success = $success -and $result
+    } else {
+        Write-Host "No slow marker defined in $language-config.json — skipping."
+    }
 }
 
 # --- Quick ---
 if ($Quick) {
-    $cmd = @("python", "-m", "pytest", "$testDir/unit/", "$testDir/parsers/", "-x")
-    if ($VerboseOutput) { $cmd += "-v" }
-    $result = Invoke-TestCommand -Command $cmd -Description "Quick Tests (unit + parsers)"
+    $quickCats = $config.testing.quickCategories
+    if (-not $quickCats -or $quickCats.Count -eq 0) {
+        Write-Host "No quickCategories defined in project-config.json — running all with stop-on-first-failure."
+        $quickCats = @()
+    }
+
+    $cmd = Get-BaseCommand
+    if ($quickCats.Count -gt 0) {
+        foreach ($cat in $quickCats) {
+            if ($cat -in $categories) {
+                $cmd += "$testDir/$cat/"
+            } else {
+                Write-Host "Warning: quickCategory '$cat' not found in $testDir — skipping."
+            }
+        }
+    } else {
+        $cmd += "$testDir/"
+    }
+    if ($testing.stopOnFirstFailure) { $cmd += $testing.stopOnFirstFailure }
+    if ($VerboseOutput -and $testing.verboseFlag) { $cmd += $testing.verboseFlag }
+    $catNames = if ($quickCats.Count -gt 0) { $quickCats -join " + " } else { "all" }
+    $result = Invoke-TestCommand -Command $cmd -Description "Quick Tests ($catNames)"
     $success = $success -and $result
 }
 
 # --- All ---
 if ($All) {
-    $cmd = @("python", "-m", "pytest", "$testDir/")
-    if ($VerboseOutput) { $cmd += "-v" }
-    if ($Coverage) { $cmd += "--cov=$moduleName"; $cmd += "--cov-report=html"; $cmd += "--cov-report=term" }
-    $cmd += "-m"
-    $cmd += "not slow"
+    $cmd = Get-BaseCommand
+    $cmd += "$testDir/"
+    if ($VerboseOutput -and $testing.verboseFlag) { $cmd += $testing.verboseFlag }
+    if ($Coverage -and $testing.coverageArgs) {
+        $covArgs = Split-Command (Expand-Placeholders $testing.coverageArgs)
+        $cmd += $covArgs
+    }
+    if ($testing.markers -and $testing.markers.notSlow) {
+        $markerArgs = Split-Command $testing.markers.notSlow
+        $cmd += $markerArgs
+    }
     $result = Invoke-TestCommand -Command $cmd -Description "All Tests (excluding slow)"
     $success = $success -and $result
 }
 
-# --- Coverage only ---
-if ($Coverage -and -not ($Unit -or $All)) {
-    $cmd = @("python", "-m", "pytest", "$testDir/", "--cov=$moduleName", "--cov-report=html", "--cov-report=term-missing", "--cov-report=xml")
+# --- Coverage only (standalone) ---
+if ($Coverage -and -not ($Category -or $All)) {
+    $cmd = Get-BaseCommand
+    $cmd += "$testDir/"
+    if ($testing.coverageFullArgs) {
+        $covArgs = Split-Command (Expand-Placeholders $testing.coverageFullArgs)
+        $cmd += $covArgs
+    } elseif ($testing.coverageArgs) {
+        $covArgs = Split-Command (Expand-Placeholders $testing.coverageArgs)
+        $cmd += $covArgs
+    }
     $result = Invoke-TestCommand -Command $cmd -Description "Coverage Report Generation"
     $success = $success -and $result
 
     if ($result) {
         Write-Host ""
         Write-Host ("=" * 60)
-        Write-Host "Coverage reports generated:"
-        Write-Host "- HTML report: htmlcov/index.html"
-        Write-Host "- XML report: coverage.xml"
+        Write-Host "Coverage report generated."
         Write-Host ("=" * 60)
     }
 }

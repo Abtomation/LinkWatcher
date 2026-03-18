@@ -33,7 +33,8 @@
 
 .PARAMETER Lightweight
     If specified, creates a lightweight refactoring plan using the compact template (PF-TEM-050).
-    Use for low-effort items: ≤15 min effort, single file, no architectural impact.
+    Use for changes with no architectural impact (any file count, any effort level).
+    Only use Standard for refactorings that redesign interfaces, decompose classes, or change architectural patterns.
     Supports batch mode — copy the "Item N" section for multiple quick fixes.
     Mutually exclusive with -DocumentationOnly.
 
@@ -192,7 +193,7 @@ try {
         if ($Lightweight) {
             $details += @(
                 "",
-                "📝 Lightweight plan created. Fill in Item sections, then update Documentation & State Updates checklist for each item."
+                "📝 Lightweight plan created. Fill in Item sections (and optional Dependencies section for multi-file changes), then update Documentation & State Updates checklist for each item."
             )
         } elseif ($DocumentationOnly) {
             $details += @(

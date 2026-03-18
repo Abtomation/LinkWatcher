@@ -6,7 +6,7 @@ version: 1.0
 created: 2026-03-02
 updated: 2026-03-02
 usage_context: Process Framework - Refactoring Plan Creation
-description: Compact refactoring plan for low-effort items (≤15 min, single file, no architectural impact). Supports batch mode for multiple quick fixes in one session.
+description: Compact refactoring plan for changes with no architectural impact. Supports batch mode for multiple quick fixes in one session.
 creates_document_category: Refactoring Plan
 creates_document_type: Process Framework
 creates_document_version: 1.0
@@ -25,7 +25,13 @@ priority: [Priority Level]
 - **Created**: [Creation Date]
 - **Author**: [Author]
 - **Status**: Planning
-[Debt Item Line]- **Mode**: Lightweight (≤15 min effort, single file, no architectural impact)
+[Debt Item Line]- **Mode**: Lightweight (no architectural impact)
+
+<!-- Optional: Include for multi-file changes where dependency awareness matters. Omit for single-file changes. -->
+## Dependencies and Impact
+- **Affected Components**: [List files/modules that will be modified]
+- **Internal Dependencies**: [Components that depend on the changed code]
+- **Risk Assessment**: [Low/Medium] — [Brief risk description]
 
 ## Item 1: [Debt Item ID] — [Brief Description]
 

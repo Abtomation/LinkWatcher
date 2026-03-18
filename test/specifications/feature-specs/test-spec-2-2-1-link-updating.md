@@ -22,6 +22,7 @@ This document provides comprehensive test specifications for the **Link Updating
 
 **Test Tier**: 2 (Unit + Integration)
 **TDD Reference**: [TDD PD-TDD-026](../../../doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-2-1-link-updater-t2.md)
+**Implementation Coverage**: 36/40 scenarios implemented (90%)
 
 ## Feature Context
 
@@ -75,7 +76,7 @@ The `LinkUpdater` class performs atomic file modifications to update link refere
 | LinkUpdater | Link text preserved (filename) | `test_link_text_not_updated_when_filename_only` — filename-only text preserved unchanged | None |
 | LinkUpdater | Link text end-to-end | `test_link_text_updated_end_to_end` — full file update with link text matching old target | `temp_project_dir` |
 
-**Test File**: [`tests/unit/test_updater.py`](../../../tests/unit/test_updater.py) (24 methods)
+**Test File**: [`test/automated/unit/test_updater.py`](../../../test/automated/unit/test_updater.py) (24 methods)
 
 ### Integration Tests
 
@@ -94,7 +95,7 @@ The `LinkUpdater` class performs atomic file modifications to update link refere
 | Substring corruption (PD-BUG-025) | `test_bug025_yaml_substring_path_not_corrupted` | YAML with config.yaml and configs/config.yaml: each updated independently, no substring corruption | `temp_project_dir` |
 | Substring corruption (PD-BUG-025) | `test_bug025_generic_quoted_substring_not_corrupted` | PowerShell with helpers.py and utils/helpers.py in quotes: each updated independently | `temp_project_dir` |
 
-**Test File**: [`tests/integration/test_link_updates.py`](../../../tests/integration/test_link_updates.py) (12 methods)
+**Test File**: [`test/automated/integration/test_link_updates.py`](../../../test/automated/integration/test_link_updates.py) (12 methods)
 
 ## Test Implementation Roadmap
 
@@ -138,7 +139,7 @@ The `LinkUpdater` class performs atomic file modifications to update link refere
 ### Files to Reference
 
 - **TDD**: [`doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-2-1-link-updater-t2.md`](../../../doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-2-1-link-updater-t2.md)
-- **Existing Tests**: [`tests/unit/test_updater.py`](../../../tests/unit/test_updater.py) (24 methods), [`tests/integration/test_link_updates.py`](../../../tests/integration/test_link_updates.py) (10 methods)
+- **Existing Tests**: [`test/automated/unit/test_updater.py`](../../../test/automated/unit/test_updater.py) (24 methods), [`test/automated/integration/test_link_updates.py`](../../../test/automated/integration/test_link_updates.py) (10 methods)
 - **Source Code**: [`linkwatcher/updater.py`](../../../linkwatcher/updater.py), [`linkwatcher/path_resolver.py`](../../../linkwatcher/path_resolver.py)
 
 ---

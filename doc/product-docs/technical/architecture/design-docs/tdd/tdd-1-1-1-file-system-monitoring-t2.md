@@ -362,9 +362,9 @@ class DirectoryMoveDetector:
 ### 5.2 Testing Reference
 
 > **📋 Primary Documentation**: Test Specification Creation Task (PF-TSK-012)
-> **🔗 Link**: [Existing integration tests in tests/integration/]
+> **🔗 Link**: [Existing integration tests in test/automated/integration/]
 >
-> **Brief Summary**: The handler is covered primarily through integration tests (`test_file_movement.py`, `test_complex_scenarios.py`, `test_sequential_moves.py`, `test_windows_platform.py`) that verify end-to-end event processing. Unit tests in `tests/unit/test_handler.py` cover individual methods.
+> **Brief Summary**: The handler is covered primarily through integration tests (`test_file_movement.py`, `test_complex_scenarios.py`, `test_sequential_moves.py`, `test_windows_platform.py`) that verify end-to-end event processing. Unit tests in `test/automated/unit/test_handler.py` cover individual methods.
 
 ## 6. Implementation Plan
 

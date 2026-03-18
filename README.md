@@ -153,9 +153,11 @@ pytest test/automated/performance/       # Performance tests (slower)
 
 ### **Alternative: Process Framework Test Runner**
 ```cmd
-# Project-agnostic test runner (reads project-config.json)
-pwsh.exe -ExecutionPolicy Bypass -Command '& doc/process-framework/scripts/test/Run-Tests.ps1 -Unit'
+# Language-agnostic test runner (reads project-config.json + languages-config/)
+pwsh.exe -ExecutionPolicy Bypass -Command '& doc/process-framework/scripts/test/Run-Tests.ps1 -ListCategories'
+pwsh.exe -ExecutionPolicy Bypass -Command '& doc/process-framework/scripts/test/Run-Tests.ps1 -Category unit'
 pwsh.exe -ExecutionPolicy Bypass -Command '& doc/process-framework/scripts/test/Run-Tests.ps1 -All -Coverage'
+pwsh.exe -ExecutionPolicy Bypass -Command '& doc/process-framework/scripts/test/Run-Tests.ps1 -Quick'
 ```
 
 ### **Direct pytest Commands**
@@ -171,7 +173,7 @@ pytest test/automated/ --cov=linkwatcher --cov-report=html
 - [Test Infrastructure Guide](doc/process-framework/guides/test-infrastructure-guide.md) - How the test/ directory connects to the process framework
 - [Test Registry](test/test-registry.yaml) - Central registry of all test files with PD-TST IDs
 - [Test Specifications](test/specifications/feature-specs/) - Feature-level test specifications
-- [Manual Test Cases](test/manual-testing/) - Formal manual test framework with MT-* IDs
+- [E2E Acceptance Tests](test/e2e-acceptance-testing) - Formal E2E acceptance test framework with E2E-* IDs
 
 ## 🚀 CI/CD Pipeline
 

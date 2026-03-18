@@ -4,19 +4,20 @@
 .SYNOPSIS
     Master state validation script — validates that state tracking entries match actual files on disk.
 .DESCRIPTION
-    Checks consistency across 5 validation surfaces:
+    Checks consistency across 6 validation surfaces:
     1. ../feature-tracking.md — all document links (FDD, TDD, ADR, Test Spec, Assessment, State File)
     2. Feature implementation state files — Section 4 (doc inventory), Section 5 (code inventory), Section 6 (dependencies)
     3. ../test-tracking.md — test file path references
     4. Cross-reference consistency — feature IDs in test-registry.yaml vs feature-tracking.md
     5. ID counter health — nextAvailable counters vs actual max IDs
+    6. Feature Dependencies — regenerate feature-dependencies.md if stale
 
     Created as IMP-028 from Tools Review 2026-02-21.
 .PARAMETER ProjectRoot
     Path to the project root directory. Defaults to auto-detection from script location.
 .PARAMETER Surface
     Which validation surfaces to run. Accepts one or more of:
-    "FeatureTracking", "StateFiles", "TestTracking", "CrossRef", "IdCounters", "All"
+    "FeatureTracking", "StateFiles", "TestTracking", "CrossRef", "IdCounters", "FeatureDeps", "All"
     Default: "All"
 .PARAMETER Detailed
     Show every checked link, not just failures.
@@ -56,6 +57,26 @@ $warningCount = 0
 $passCount = 0
 
 $runAll = $Surface -contains "All"
+
+# --- Load language config for test file extension ---
+$projectConfigPath = Join-Path $ProjectRoot "doc/process-framework/project-config.json"
+$testFileExtRegex = '\.py$'  # fallback
+if (Test-Path $projectConfigPath) {
+    try {
+        $projCfg = Get-Content $projectConfigPath -Raw | ConvertFrom-Json
+        $lang = $projCfg.project_metadata.primary_language.ToLower()
+        $langCfgPath = Join-Path $ProjectRoot "doc/process-framework/languages-config/$lang-config.json"
+        if (Test-Path $langCfgPath) {
+            $langCfg = Get-Content $langCfgPath -Raw | ConvertFrom-Json
+            $ext = $langCfg.testing.testFileExtension
+            if ($ext) {
+                $testFileExtRegex = [regex]::Escape($ext) + '$'
+            }
+        }
+    } catch {
+        Write-Warning "Could not load language config, using .py fallback for test file matching"
+    }
+}
 
 # --- Helper: Resolve a markdown-relative path to an absolute path ---
 function Resolve-MarkdownLink {
@@ -302,7 +323,7 @@ if ($runAll -or $Surface -contains "TestTracking") {
                 # The test file link is typically the 1st link in the row
                 foreach ($link in $links) {
                     # Only check links that look like test file paths (not task links)
-                    if ($link.Path -match '\.\./.*tests/' -or $link.Path -match '../../../../../../../../.py$') {
+                    if ($link.Path -match '\.\./.*tests/' -or $link.Path -match $testFileExtRegex) {
                         $testFileCount++
                         $resolved = Resolve-MarkdownLink -LinkPath $link.Path -SourceFileDir $titDir
                         if ($null -eq $resolved) { continue }
@@ -475,6 +496,45 @@ if ($runAll -or $Surface -contains "IdCounters") {
         if ($FixCounters -and $countersFixed -gt 0) {
             $idRegistry | ConvertTo-Json -Depth 10 | Set-Content $idRegistryPath -Encoding UTF8
             Write-Host "  Fixed $countersFixed counter(s) in id-registry.json" -ForegroundColor Magenta
+        }
+    }
+    Write-Host ""
+}
+
+# =========================================================================
+# Surface 6: Feature Dependencies freshness
+# =========================================================================
+if ($runAll -or $Surface -contains "FeatureDeps") {
+    Write-Host "========================================" -ForegroundColor Cyan
+    Write-Host "  Surface 6: Feature Dependencies" -ForegroundColor Cyan
+    Write-Host "========================================" -ForegroundColor Cyan
+
+    $depsFile = Join-Path $ProjectRoot "doc/product-docs/technical/design/feature-dependencies.md"
+    $updateScript = Join-Path $ProjectRoot "doc/process-framework/scripts/update/Update-FeatureDependencies.ps1"
+
+    if (-not (Test-Path $updateScript)) {
+        Add-CheckResult "WARNING" "FeatureDeps" "Script" "Update-FeatureDependencies.ps1 not found"
+    } else {
+        # Check if any state file is newer than the generated dependencies file
+        $needsRegeneration = $false
+        if (-not (Test-Path $depsFile)) {
+            $needsRegeneration = $true
+        } else {
+            $depsLastWrite = (Get-Item $depsFile).LastWriteTime
+            $stateDir = Join-Path $ProjectRoot "doc/process-framework/state-tracking/features"
+            $newerFiles = Get-ChildItem -Path $stateDir -Filter "*-implementation-state.md" |
+                Where-Object { $_.LastWriteTime -gt $depsLastWrite }
+            if ($newerFiles.Count -gt 0) {
+                $needsRegeneration = $true
+            }
+        }
+
+        if ($needsRegeneration) {
+            Write-Host "  Feature state files are newer than feature-dependencies.md — regenerating..." -ForegroundColor Yellow
+            & $updateScript -Confirm:$false
+            Add-CheckResult "OK" "FeatureDeps" "Regenerated" "feature-dependencies.md updated from state files"
+        } else {
+            Add-CheckResult "OK" "FeatureDeps" "UpToDate" "feature-dependencies.md is current"
         }
     }
     Write-Host ""

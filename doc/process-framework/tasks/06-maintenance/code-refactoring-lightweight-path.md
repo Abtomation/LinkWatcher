@@ -2,7 +2,7 @@
 
 > **Parent task**: [Code Refactoring Task](code-refactoring-task.md) (PF-TSK-022)
 >
-> **Scope**: Low-effort refactorings (≤ 15 min, single file, no architectural impact). Supports batch mode — multiple quick fixes in one session using one plan document.
+> **Scope**: Refactorings with no architectural impact and no interface/API changes (any file count, any effort level). Supports batch mode — multiple quick fixes in one session using one plan document.
 
 ## Process
 
@@ -25,7 +25,9 @@ For batch mode: copy the "Item N" section in the generated plan for each additio
 
 **L4. Implement Changes**: Apply refactoring. Run tests after each change to verify behavior preservation.
 
-**L5. Complete Documentation & State Updates Checklist**: For each item in the plan, check every item in the "Documentation & State Updates" section. Each N/A requires a brief justification note in the plan (e.g., "Grepped TDD — no references to changed method"):
+**L5. Run Regression Tests**: Run `Run-Tests.ps1 -All` to confirm the refactoring preserves all existing behavior across the full test suite. If manual tests exist for the affected feature, set their status to "Needs Re-execution" in test-tracking.md.
+
+**L6. Complete Documentation & State Updates Checklist**: For each item in the plan, check every item in the "Documentation & State Updates" section. Each N/A requires a brief justification note in the plan (e.g., "Grepped TDD — no references to changed method"):
    - Feature implementation state file updated, or N/A — verified file does not reference changed component (grep state file for component/method name)
    - TDD updated, or N/A — verified no interface/design changes documented (grep TDD for references to changed component)
    - Test spec updated, or N/A — verified no behavior change affects spec (grep test spec for changed component)
@@ -34,16 +36,16 @@ For batch mode: copy the "Item N" section in the generated plan for each additio
    - Foundational validation tracking updated, or N/A — verified feature is not foundational or change doesn't affect validation (check foundational-validation-tracking.md for feature)
    - Technical Debt Tracking: TD item marked resolved
 
-**L6. Fill Results**: Record test results, bugs discovered, and doc updates in the plan. Complete the Results Summary table.
+**L7. Fill Results**: Record test results, bugs discovered, and doc updates in the plan. Complete the Results Summary table.
 
-**L7. Update State Files**:
+**L8. Update State Files**:
    - [ ] [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md): Mark resolved items using `Update-TechDebt.ps1 -DebtId "TD###" -NewStatus "Resolved" -ResolutionNotes "..."` — if tracked in [Foundational Validation Tracking](../../state-tracking/temporary/foundational-validation-tracking.md), also pass `-FoundationalNote "Resolved (...)" -FoundationalTrackingPath "<absolute-path>"`
    - [ ] [Feature Tracking](../../state-tracking/permanent/feature-tracking.md): Update feature status if applicable
    - [ ] [Bug Tracking](../../state-tracking/permanent/bug-tracking.md): Report any discovered bugs using New-BugReport.ps1
 
-**L8. 🚨 CHECKPOINT**: Present results summary to human partner for review.
+**L9. 🚨 CHECKPOINT**: Present results summary to human partner for review.
 
-**L9. 🚨 MANDATORY FINAL STEP**: Complete the Task Completion Checklist below.
+**L10. 🚨 MANDATORY FINAL STEP**: Complete the Task Completion Checklist below.
 
 ## ⚠️ MANDATORY Task Completion Checklist
 

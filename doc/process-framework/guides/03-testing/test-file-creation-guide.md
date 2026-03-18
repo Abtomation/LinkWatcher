@@ -241,7 +241,18 @@ When creating and customizing test files, you'll face several critical decisions
 
    # End-to-end test
    doc/process-framework/scripts/file-creation/03-testing/New-TestFile.ps1 -TestName "BookingProcess" -TestType "E2E" -ComponentName "BookingFlow"
+
+   # Critical priority test (foundation component — must pass before release)
+   doc/process-framework/scripts/file-creation/03-testing/New-TestFile.ps1 -TestName "CoreService" -TestType "Unit" -ComponentName "CoreService" -Priority "Critical" -FeatureId "0.1.1"
+
+   # Extended priority test (performance — not release-blocking)
+   doc/process-framework/scripts/file-creation/03-testing/New-TestFile.ps1 -TestName "LargeProjectBenchmark" -TestType "Performance" -Priority "Extended"
    ```
+
+   **Priority guidelines** (`-Priority` parameter, default: Standard):
+   - **Critical**: Foundation features, core data models, parsers — must pass before any release
+   - **Standard**: Normal test coverage — integration tests, non-critical unit tests (default)
+   - **Extended**: Performance benchmarks, stress tests, edge cases — not release-blocking
 
 3. **Verify test file creation**:
    - Check the success message for the assigned ID (PF-TST-XXX)

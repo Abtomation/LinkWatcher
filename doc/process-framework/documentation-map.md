@@ -34,8 +34,8 @@ Our tasks are organized into four categories and follow a unified structure:
 - [Task: FDD Creation](tasks/02-design/fdd-creation-task.md) - Create Functional Design Documents for Tier 2+ features
 - [Task: TDD Creation](tasks/02-design/tdd-creation-task.md) - Create Technical Design Documents
 - [Task: Test Specification Creation](tasks/03-testing/test-specification-creation-task.md) - Create comprehensive test specifications from TDDs
-- [Task: Manual Test Case Creation](tasks/03-testing/manual-test-case-creation-task.md) - Create concrete, reproducible manual test cases from test specifications with exact steps, file contents, and expected outcomes
-- [Task: Manual Test Execution](tasks/03-testing/manual-test-execution-task.md) - Execute manual test cases systematically, record results, and report issues through human interaction with the running system
+- [Task: E2E Acceptance Test Case Creation](tasks/03-testing/e2e-acceptance-test-case-creation-task.md) - Create concrete, reproducible E2E acceptance test cases from test specifications with exact steps, file contents, and expected outcomes
+- [Task: E2E Acceptance Test Execution](tasks/03-testing/e2e-acceptance-test-execution-task.md) - Execute E2E acceptance test cases systematically, record results, and report issues through human interaction with the running system
 - [Task: Test Audit](tasks/03-testing/test-audit-task.md) - Systematic quality assessment of test implementations using six evaluation criteria
 - [Task: Feature Implementation Planning](tasks/04-implementation/feature-implementation-planning-task.md) - Analyze design documentation and create detailed implementation plan with task sequencing and dependency mapping
 - [Task: Data Layer Implementation](tasks/04-implementation/data-layer-implementation.md) - Implement data models, repositories, and database integration for feature
@@ -92,6 +92,7 @@ Our tasks are organized into four categories and follow a unified structure:
 - [Process: Test Audit Report Template](templates/03-testing/test-audit-report-template.md) - Template for systematic test quality assessment reports
 - [Process: Feedback Form Template](templates/support/feedback-form-template.md) - Template for creating tool and process feedback forms
 - [Process: Feedback DB Input Template](templates/support/feedback-db-input-template.json) - JSON reference template for `feedback_db.py record --json` input format
+- [Process: Language Config Template](templates/support/language-config-template.json) - JSON template for adding new language configurations to languages-config/
 - [Process: Tools Review Summary Template](templates/support/tools-review-summary-template.md) - Standardized template for Tools Review task (PF-TSK-010) summary output documents
 - [Process: Technical Debt Assessment Template](templates/cyclical/technical-debt-assessment-template.md) - Template for technical debt assessment reports
 - [Process: Debt Item Template](templates/cyclical/debt-item-template.md) - Template for individual debt item records
@@ -103,8 +104,8 @@ Our tasks are organized into four categories and follow a unified structure:
 - [Process: Framework Extension Concept Template](templates/support/framework-extension-concept-template.md) - Template for creating framework extension concept documents
 - [Process: Validation Report Template](templates/05-validation/validation-report-template.md) - Template for creating foundational codebase validation reports
 - [Process: Cross-Cutting Test Specification Template](templates/03-testing/cross-cutting-test-specification-template.md) - Template for test specifications spanning multiple features
-- [Process: Manual Master Test Template](templates/03-testing/manual-master-test-template.md) - Template for group-level master test files with quick validation sequences
-- [Process: Manual Test Case Template](templates/03-testing/manual-test-case-template.md) - Template for individual manual test case files with exact steps, preconditions, and expected outcomes
+- [Process: E2E Acceptance Master Test Template](templates/03-testing/e2e-acceptance-master-test-template.md) - Template for group-level master test files with quick validation sequences
+- [Process: E2E Acceptance Test Case Template](templates/03-testing/e2e-acceptance-test-case-template.md) - Template for individual E2E acceptance test case files with exact steps, preconditions, and expected outcomes
 - [Process: Documentation-Only Refactoring Plan Template](templates/06-maintenance/documentation-refactoring-plan-template.md) - Template for documentation-only refactoring plans (no code metrics/test sections), used by New-RefactoringPlan.ps1 -DocumentationOnly
 - [Process: Enhancement Workflow Concept](proposals/proposals/enhancement-workflow-concept.md) - Framework extension concept for feature enhancement classification and execution workflow
 - [Process: Code Quality Standards Validation Concept](proposals/code-quality-standards-validation-concept.md) - Concept document for code quality validation task creation
@@ -117,7 +118,7 @@ Our tasks are organized into four categories and follow a unified structure:
 
 ### Automation Scripts
 
-- [Process: New Manual Test Case Script](scripts/file-creation/03-testing/New-ManualTestCase.ps1) - PowerShell script for creating manual test case directories with auto-assigned MT IDs, state tracking updates, and master test integration
+- [Process: New E2E Acceptance Test Case Script](scripts/file-creation/03-testing/New-E2EAcceptanceTestCase.ps1) - PowerShell script for creating E2E acceptance test case directories with auto-assigned E2E IDs, state tracking updates, and master test integration
 - [Process: New Bug Report Script](scripts/file-creation/06-maintenance/New-BugReport.ps1) - PowerShell script for creating standardized bug reports during task execution
 - [Process: New Bug Fix State Script](scripts/file-creation/06-maintenance/New-BugFixState.ps1) - PowerShell script for creating multi-session bug fix state tracking files (Large-effort bugs)
 - [Process: New UI Design Script](scripts/file-creation/02-design/New-UIDesign.ps1) - PowerShell script for creating UI/UX Design documents with auto-assigned IDs and Design Guidelines references
@@ -126,15 +127,19 @@ Our tasks are organized into four categories and follow a unified structure:
 
 ### Testing Scripts
 
-- [Process: Run-Tests Script](scripts/test/Run-Tests.ps1) - Project-agnostic test runner that reads project-config.json and wraps pytest with category-based execution (-Unit, -Integration, -Parsers, -Performance, -All, -Coverage)
-- [Process: Setup-TestEnvironment Script](scripts/test/manual-testing/Setup-TestEnvironment.ps1) - Copies pristine test fixtures into workspace for clean manual test execution
-- [Process: Verify-TestResult Script](scripts/test/manual-testing/Verify-TestResult.ps1) - Compares workspace state against expected state after manual test execution
-- [Process: Update-TestExecutionStatus Script](scripts/test/manual-testing/Update-TestExecutionStatus.ps1) - Updates test-tracking.md and feature-tracking.md with manual test execution results
+- [Process: Run-Tests Script](scripts/test/Run-Tests.ps1) - Language-agnostic test runner that reads project-config.json and languages-config/{language}-config.json for dynamic category-based execution (-Category, -Quick, -All, -Coverage, -ListCategories)
+- [Process: Language Configurations](languages-config/README.md) - Language-specific command configurations for framework scripts (testing, linting, coverage)
+- [Process: Setup-TestEnvironment Script](scripts/test/e2e-acceptance-testing/Setup-TestEnvironment.ps1) - Copies pristine test fixtures into workspace for clean E2E acceptance test execution
+- [Process: Verify-TestResult Script](scripts/test/e2e-acceptance-testing/Verify-TestResult.ps1) - Compares workspace state against expected state after E2E acceptance test execution
+- [Process: Run-E2EAcceptanceTest Script](scripts/test/e2e-acceptance-testing/Run-E2EAcceptanceTest.ps1) - Orchestrates scripted E2E acceptance test pipeline: Setup → run.ps1 → wait → Verify
+- [Process: Update-TestExecutionStatus Script](scripts/test/e2e-acceptance-testing/Update-TestExecutionStatus.ps1) - Updates test-tracking.md and feature-tracking.md with E2E acceptance test execution results
 
 ### State Update Scripts
 
 - [Process: Update Process Improvement Script](scripts/update/Update-ProcessImprovement.ps1) - Automates status transitions and completion moves in process-improvement-tracking.md
 - [Process: Update Tech Debt Script](scripts/update/Update-TechDebt.ps1) - Automates technical debt lifecycle management: add new items (-Add), status transitions, and resolution moves in technical-debt-tracking.md
+- [Process: Update Language Config Script](scripts/update/Update-LanguageConfig.ps1) - Adds fields consistently across all language config files and template to prevent drift (-List to audit, -Section/-FieldName to add)
+- [Process: Update Feature Dependencies Script](scripts/update/Update-FeatureDependencies.ps1) - Auto-generates feature-dependencies.md from feature state files (Mermaid graph + priority matrix). Integrated into Validate-StateTracking.ps1 Surface 6
 
 ### Validation Scripts
 
@@ -148,8 +153,7 @@ These documents describe what we're building:
 
 ### Core Product Documents
 
-- [Product: Roadmap](../product-docs/technical/implementation/roadmap.md) - Strategic plan for implementation organized by phase and priority
-- [Product: Feature Dependencies](../product-docs/technical/design/feature-dependencies.md) - Visual map and matrix of feature dependencies
+- [Product: Feature Dependencies](../product-docs/technical/design/feature-dependencies.md) - Auto-generated visual map and matrix of feature dependencies
 
 ### User Handbooks
 
@@ -184,7 +188,7 @@ These documents describe what we're building:
 - [Process: Architecture Decision Creation Guide](guides/02-design/architecture-decision-creation-guide.md) - Guide for customizing Architecture Decision Record templates
 - [Process: Schema Design Creation Guide](guides/02-design/schema-design-creation-guide.md) - Guide for customizing database schema design templates
 - [Process: Enhancement State Tracking Customization Guide](guides/04-implementation/enhancement-state-tracking-customization-guide.md) - Step-by-step instructions for customizing Enhancement State Tracking files
-- [Process: Manual Test Case Customization Guide](guides/03-testing/manual-test-case-customization-guide.md) - Step-by-step instructions for customizing manual test case and master test templates created by New-ManualTestCase.ps1
+- [Process: E2E Acceptance Test Case Customization Guide](guides/03-testing/e2e-acceptance-test-case-customization-guide.md) - Step-by-step instructions for customizing E2E acceptance test case and master test templates created by New-E2EAcceptanceTestCase.ps1
 - [Process: Framework Extension Customization Guide](guides/support/framework-extension-customization-guide.md) - Essential guide for customizing Framework Extension Concept documents
 - [Process: Foundational Validation Guide](guides/05-validation/foundational-validation-guide.md) - Comprehensive guide for conducting foundational codebase validation using the 6-type validation framework
 - [Process: Bug Reporting Guide](guides/06-maintenance/bug-reporting-guide.md) - Standardized procedures for reporting bugs discovered during task execution
@@ -219,8 +223,8 @@ These documents describe what we're building:
 - [System Architecture Review Map](visualization/context-maps/01-planning/system-architecture-review-map.md) - Components for evaluating system architecture
 - [TDD Creation Map](visualization/context-maps/02-design/tdd-creation-map.md) - Components for creating design documents
 - [Test Specification Creation Map](visualization/context-maps/03-testing/test-specification-creation-map.md) - Components for creating test specifications from TDDs
-- [Manual Test Case Creation Map](visualization/context-maps/03-testing/manual-test-case-creation-map.md) - Components for creating concrete manual test cases from test specifications
-- [Manual Test Execution Map](visualization/context-maps/03-testing/manual-test-execution-map.md) - Components for executing manual test cases and recording results
+- [E2E Acceptance Test Case Creation Map](visualization/context-maps/03-testing/e2e-acceptance-test-case-creation-map.md) - Components for creating concrete E2E acceptance test cases from test specifications
+- [E2E Acceptance Test Execution Map](visualization/context-maps/03-testing/e2e-acceptance-test-execution-map.md) - Components for executing E2E acceptance test cases and recording results
 - [Integration & Testing Map](visualization/context-maps/04-implementation/integration-and-testing-map.md) - Components for implementing comprehensive tests and validating integration
 - [Test Audit Map](visualization/context-maps/03-testing/test-audit-map.md) - Components for systematic test quality assessment workflow
 
@@ -343,8 +347,7 @@ _Created during test audit sessions (PF-TSK-030). Located in `test/audits/` (mov
 
 ```mermaid
 graph TD
-    A[Feature Tracking] --> B[Roadmap]
-    A --> C[Feature Dependencies]
+    A[Feature Tracking] --> C[Feature Dependencies]
     C --> D[Feature Implementation Template]
     D --> E[Technical Design Documents]
     D --> F[Definition of Done]
@@ -353,8 +356,8 @@ graph TD
     classDef process fill:#d4f1f9,stroke:#0099cc,color:#005577
     classDef product fill:#d5e8d4,stroke:#82b366,color:#2d5930
 
-    class A,D,F,G,H,I process
-    class B,C,E product
+    class A,D,F,G process
+    class C,E product
 ```
 
 This diagram shows how the various documents relate to each other in the development workflow, with process framework documents in blue and product documentation in green.
@@ -369,8 +372,8 @@ Our project uses a unified task structure with four task types:
 | PF-TSK-064 | [/process-framework/tasks/00-onboarding/codebase-feature-discovery.md](/process-framework/tasks/00-onboarding/codebase-feature-discovery.md) | Documentation | Codebase Feature Discovery | /doc/process-framework/tasks/../../../tasks/README.md |
 
 ### Discrete Tasks
-| PF-TSK-070 | [/process-framework/tasks/03-testing/manual-test-execution-task.md](/process-framework/tasks/03-testing/manual-test-execution-task.md) | Documentation | Manual Test Execution | /doc/process-framework/tasks/../../../tasks/README.md |
-| PF-TSK-069 | [/process-framework/tasks/03-testing/manual-test-case-creation-task.md](/process-framework/tasks/03-testing/manual-test-case-creation-task.md) | Documentation | Manual Test Case Creation | /doc/process-framework/tasks/../../../tasks/README.md |
+| PF-TSK-070 | [/process-framework/tasks/03-testing/e2e-acceptance-test-execution-task.md](/process-framework/tasks/03-testing/e2e-acceptance-test-execution-task.md) | Documentation | E2E Acceptance Test Execution | /doc/process-framework/tasks/../../../tasks/README.md |
+| PF-TSK-069 | [/process-framework/tasks/03-testing/e2e-acceptance-test-case-creation-task.md](/process-framework/tasks/03-testing/e2e-acceptance-test-case-creation-task.md) | Documentation | E2E Acceptance Test Case Creation | /doc/process-framework/tasks/../../../tasks/README.md |
 | PF-TSK-068 | [/process-framework/tasks/04-implementation/feature-enhancement.md](/process-framework/tasks/04-implementation/feature-enhancement.md) | Documentation | Feature Enhancement | /doc/process-framework/tasks/../../../tasks/README.md |
 | PF-TSK-067 | [/process-framework/tasks/01-planning/feature-request-evaluation.md](/process-framework/tasks/01-planning/feature-request-evaluation.md) | Documentation | Feature Request Evaluation | /doc/process-framework/tasks/../../../tasks/README.md |
 | PF-TSK-055 | [/process-framework/tasks/04-implementation/implementation-finalization.md](/process-framework/tasks/04-implementation/implementation-finalization.md) | Documentation | Implementation Finalization | /doc/process-framework/tasks/../../../tasks/README.md |

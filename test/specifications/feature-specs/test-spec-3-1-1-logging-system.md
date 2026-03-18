@@ -22,6 +22,7 @@ This document provides comprehensive test specifications for the **Logging Syste
 
 **Test Tier**: 2 (Unit + Integration)
 **TDD Reference**: [TDD PD-TDD-024](../../../doc/product-docs/technical/architecture/design-docs/tdd/tdd-3-1-1-logging-framework-t2.md)
+**Implementation Coverage**: 39/46 scenarios implemented (85%)
 
 ## Feature Context
 
@@ -108,7 +109,7 @@ The Logging System provides `LinkWatcherLogger` with domain-specific methods, `L
 | setup_logging | Setup | `test_setup_logging` — returns LinkWatcherLogger, get_logger returns same | None |
 | get_logger | Default | `test_get_logger_default` — creates default INFO-level logger | None |
 
-**Test File**: [`tests/unit/test_logging.py`](../../../tests/unit/test_logging.py) (20 methods)
+**Test File**: [`test/automated/unit/test_logging.py`](../../../test/automated/unit/test_logging.py) (20 methods)
 
 ### Unit Tests — Advanced Logging
 
@@ -156,7 +157,7 @@ The Logging System provides `LinkWatcherLogger` with domain-specific methods, `L
 | Logging overhead | `test_logging_overhead` | 1000 log ops < 1 second | None |
 | Filter performance | `test_filter_performance` | 10000 filter evals < 100ms | None |
 
-**Test File**: [`tests/unit/test_advanced_logging.py`](../../../tests/unit/test_advanced_logging.py) (19 methods)
+**Test File**: [`test/automated/unit/test_advanced_logging.py`](../../../test/automated/unit/test_advanced_logging.py) (19 methods)
 
 ## Test Implementation Roadmap
 
@@ -203,7 +204,7 @@ The Logging System provides `LinkWatcherLogger` with domain-specific methods, `L
 ### Files to Reference
 
 - **TDD**: [`doc/product-docs/technical/architecture/design-docs/tdd/tdd-3-1-1-logging-framework-t2.md`](../../../doc/product-docs/technical/architecture/design-docs/tdd/tdd-3-1-1-logging-framework-t2.md)
-- **Existing Tests**: [`tests/unit/test_logging.py`](../../../tests/unit/test_logging.py) (20 methods), [`tests/unit/test_advanced_logging.py`](../../../tests/unit/test_advanced_logging.py) (19 methods)
+- **Existing Tests**: [`test/automated/unit/test_logging.py`](../../../test/automated/unit/test_logging.py) (20 methods), [`test/automated/unit/test_advanced_logging.py`](../../../test/automated/unit/test_advanced_logging.py) (19 methods)
 - **Source Code**: [`linkwatcher/logging.py`](../../../linkwatcher/logging.py), [`linkwatcher/logging_config.py`](../../../linkwatcher/logging_config.py)
 
 ---

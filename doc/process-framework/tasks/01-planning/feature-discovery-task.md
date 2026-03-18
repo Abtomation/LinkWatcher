@@ -144,4 +144,3 @@ Before considering this task finished:
 
 - [Feature Granularity Guide](/doc/process-framework/guides/03-testing/feature-granularity-guide.md) - Defines what constitutes a well-scoped feature with validation tests and scaling guidance
 - [Feature Dependencies Map](/doc/product-docs/technical/design/feature-dependencies.md) - For understanding how new features relate to existing ones
-- [Product Roadmap](/doc/product-docs/technical/implementation/roadmap.md) - For strategic alignment of discovered features

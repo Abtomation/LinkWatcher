@@ -22,12 +22,13 @@ This document provides comprehensive test specifications for the **Test Suite** 
 
 **Test Tier**: 2 (Infrastructure validation + performance)
 **TDD Reference**: [TDD PD-TDD-027](../../../doc/product-docs/technical/architecture/design-docs/tdd/tdd-4-1-1-test-suite-t2.md)
+**Implementation Coverage**: 7/11 scenarios implemented (64%)
 
 ## Feature Context
 
 ### TDD Summary
 
-The Test Suite infrastructure consists of pytest configuration (`pytest.ini`), shared fixtures (`conftest.py`), test utilities (`utils.py`), a CLI test runner (`run_tests.py`), test configuration presets (`tests/test_config.py`), and performance benchmarks. It provides the foundation for all 328 test methods across 4 categories (unit, integration, parser, performance).
+The Test Suite infrastructure consists of pytest configuration (`pytest.ini`), shared fixtures (`conftest.py`), test utilities (`utils.py`), a CLI test runner (`run_tests.py`), test configuration presets (`test/automated/test_config.py`), and performance benchmarks. It provides the foundation for all 328 test methods across 4 categories (unit, integration, parser, performance).
 
 ### Test Complexity Assessment
 
@@ -41,7 +42,7 @@ The Test Suite infrastructure consists of pytest configuration (`pytest.ini`), s
 
 **Acceptance Criteria to Test**:
 - 328 test methods discoverable via `pytest --collect-only`
-- `run_tests.py --unit` executes only `tests/unit/`
+- `run_tests.py --unit` executes only `test/automated/unit/`
 - Shared fixtures available in all subdirectories
 - Custom assertions provide clear error messages
 
@@ -49,7 +50,7 @@ The Test Suite infrastructure consists of pytest configuration (`pytest.ini`), s
 
 ### Shared Fixtures (conftest.py)
 
-[`tests/conftest.py`](../../../tests/conftest.py) provides 9 fixtures used across the entire test suite:
+[`test/automated/conftest.py`](../../../test/automated/conftest.py) provides 9 fixtures used across the entire test suite:
 
 | Fixture | Scope | Purpose | Used By |
 |---------|-------|---------|---------|
@@ -67,7 +68,7 @@ The Test Suite infrastructure consists of pytest configuration (`pytest.ini`), s
 
 ### Test Utilities (utils.py)
 
-[`tests/utils.py`](../../../tests/utils.py) provides builder classes and helpers:
+[`test/automated/utils.py`](../../../test/automated/utils.py) provides builder classes and helpers:
 
 | Utility | Type | Purpose |
 |---------|------|---------|
@@ -85,7 +86,7 @@ The Test Suite infrastructure consists of pytest configuration (`pytest.ini`), s
 | `generate_yaml_with_file_refs()` | Function | Content generator for YAML |
 | `generate_json_with_file_refs()` | Function | Content generator for JSON |
 
-### Test Configuration ([tests/test_config.py](../../../tests/test_config.py))
+### Test Configuration ([test/automated/test_config.py](../../../test/automated/test_config.py))
 
 **Note**: This file (PD-TST-100) is a utility module, not a test file. It contains:
 - `TEST_ENVIRONMENTS` — 4 presets (unit, integration, performance, manual)
@@ -108,7 +109,7 @@ The Test Suite infrastructure consists of pytest configuration (`pytest.ini`), s
 | Memory usage | 200 files | `test_memory_usage_monitoring` — scan <100MB, 10 ops <20MB additional | `psutil` |
 | CPU usage | 100 files | `test_cpu_usage_monitoring` — avg CPU <80%, peak <95% | `psutil` |
 
-**Test File**: [`tests/performance/test_large_projects.py`](../../../tests/performance/test_large_projects.py) (7 methods)
+**Test File**: [`test/automated/performance/test_large_projects.py`](../../../test/automated/performance/test_large_projects.py) (7 methods)
 
 ## Test Implementation Roadmap
 
@@ -128,7 +129,7 @@ The Test Suite infrastructure consists of pytest configuration (`pytest.ini`), s
 3. **Low Priority** (Gaps identified)
    - [ ] `run_tests.py` CLI execution modes (TDD: 10 execution modes — not tested via test code)
    - [ ] Marker-based filtering (`@pytest.mark.slow` registered but not in pytest config)
-   - [ ] Category execution isolation (`--unit` only runs `tests/unit/`)
+   - [ ] Category execution isolation (`--unit` only runs `test/automated/unit/`)
    - [ ] Fixture independence verification (one test's fixture doesn't affect another's)
    - [ ] `conftest.py` fixture availability from nested subdirectories
 
@@ -150,8 +151,8 @@ The Test Suite infrastructure consists of pytest configuration (`pytest.ini`), s
 ### Files to Reference
 
 - **TDD**: [`doc/product-docs/technical/architecture/design-docs/tdd/tdd-4-1-1-test-suite-t2.md`](../../../doc/product-docs/technical/architecture/design-docs/tdd/tdd-4-1-1-test-suite-t2.md)
-- **Infrastructure**: [`tests/conftest.py`](../../../tests/conftest.py), [`tests/utils.py`](../../../tests/utils.py), [`tests/test_config.py`](../../../tests/test_config.py)
-- **Performance Tests**: [`tests/performance/test_large_projects.py`](../../../tests/performance/test_large_projects.py)
+- **Infrastructure**: [`test/automated/conftest.py`](../../../test/automated/conftest.py), [`test/automated/utils.py`](../../../test/automated/utils.py), [`test/automated/test_config.py`](../../../test/automated/test_config.py)
+- **Performance Tests**: [`test/automated/performance/test_large_projects.py`](../../../test/automated/performance/test_large_projects.py)
 - **Config**: [`pyproject.toml`](../../../pyproject.toml) (test config)
 
 ---

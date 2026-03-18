@@ -325,6 +325,11 @@ Use this decision tree when deciding what to include in Test Specifications:
    - Specify mock requirements and test data needs
    - Include performance and security testing requirements where applicable
 
+4. **Set the Implementation Coverage summary** in the Overview section:
+   - Count the total scenarios defined across all Test Categories tables
+   - For new specs (before any tests are written): `**Implementation Coverage**: 0/N scenarios implemented (0%)`
+   - Update this line as tests are implemented — it provides at-a-glance coverage status
+
 **Expected Result:** Comprehensive test specification with tier-appropriate detail and clear testing requirements
 
 ### Validation and Testing

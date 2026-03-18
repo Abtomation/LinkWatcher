@@ -75,7 +75,7 @@ dev build          # Build distribution package
 ### **Test Structure**
 
 ```
-tests/
+test/automated/
 ├── unit/                    # Unit tests (35+ methods)
 │   ├── test_database.py     # Database operations
 │   ├── test_parser.py       # Core parsing functionality
@@ -123,7 +123,7 @@ pytest test/automated/unit/test_database.py
 pytest test/automated/integration/test_windows_platform.py
 
 # By test method
-pytest tests/unit/test_database.py::TestLinkDatabase::test_add_link
+pytest test/automated/unit/test_database.py::TestLinkDatabase::test_add_link
 ```
 
 ## 📋 Development Workflow
@@ -372,7 +372,7 @@ Any other relevant information
 
 ### **Documentation**
 
-- [Test Plan](tests/TEST_PLAN.md) - Comprehensive testing strategy
+- [Test Plan](test/automated/TEST_PLAN.md) - Comprehensive testing strategy
 - [CI/CD Guide](docs/ci-cd.md) - Pipeline documentation
 - [Architecture Overview](RESTRUCTURE_README.md) - Technical details
 - [API Reference](docs/api-reference.md) - Programmatic usage

@@ -922,6 +922,77 @@ $templatePath = switch ($Type) {
 }
 ```
 
+### Using Language Configuration
+
+When your script needs language-specific commands (e.g., test runners, linters, coverage tools), load the language config from `languages-config/` rather than hardcoding commands.
+
+#### Loading Language Config Pattern
+
+```powershell
+# --- Load project config ---
+$configPath = Join-Path $projectRoot "doc/process-framework/project-config.json"
+$config = Get-Content $configPath -Raw | ConvertFrom-Json
+$language = $config.testing.language
+
+# --- Load language config ---
+$langConfigPath = Join-Path $projectRoot "doc/process-framework/languages-config/$language-config.json"
+if (-not (Test-Path $langConfigPath)) {
+    Write-Error "Language config not found: $langConfigPath"
+    exit 1
+}
+$langConfig = Get-Content $langConfigPath -Raw | ConvertFrom-Json
+```
+
+#### Placeholder Substitution Pattern
+
+Language configs use `{module}` and `{testDir}` placeholders. Replace them at runtime:
+
+```powershell
+function Expand-Placeholders {
+    param([string]$Template)
+    $Template = $Template -replace '\{module\}', $moduleName
+    $Template = $Template -replace '\{testDir\}', $testDir
+    return $Template
+}
+
+$command = Expand-Placeholders $langConfig.testing.baseCommand
+```
+
+#### When to Use Language Config vs. Hardcoded Commands
+
+| Scenario | Approach |
+|----------|----------|
+| Command varies by language (test runner, linter) | Read from language config |
+| Command is framework-internal (PowerShell module import, ID registry) | Hardcode — not language-dependent |
+| Command is project-specific (custom build step) | Read from project-config.json |
+
+#### Adding New Fields to Language Config
+
+If your new script needs a language-specific command that isn't in the language config yet, use [Update-LanguageConfig.ps1](/doc/process-framework/scripts/update/Update-LanguageConfig.ps1) to add the field consistently across all configs and the template:
+
+```powershell
+# Add to all language configs + template in one command
+.\Update-LanguageConfig.ps1 -Section "testing" -FieldName "newCommand" `
+    -DefaultValue "[new command placeholder]" `
+    -TemplateComment "OPTIONAL. Description of the new command." `
+    -LanguageValues @{ "python" = "python -m tool {testDir}" }
+
+# Audit for drift between configs and template
+.\Update-LanguageConfig.ps1 -List
+```
+
+This is done via the **Process Improvement task** (PF-TSK-009) or **Framework Extension task** (PF-TSK-063).
+
+#### Creating a New Language Config
+
+When onboarding a project that uses a language without an existing config:
+
+1. Copy the [language config template](/doc/process-framework/templates/support/language-config-template.json) to `languages-config/{language}-config.json`
+2. Fill in language-specific values
+3. This is done during **Project Initiation** (PF-TSK-059)
+
+**Reference implementation**: See [Run-Tests.ps1](/doc/process-framework/scripts/test/Run-Tests.ps1) for a complete example of language config usage.
+
 ### Conditional Processing
 
 ```powershell

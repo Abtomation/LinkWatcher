@@ -22,6 +22,7 @@ This document provides comprehensive test specifications for the **File System M
 
 **Test Tier**: 2 (Unit + Integration)
 **TDD Reference**: [TDD PD-TDD-023](../../../doc/product-docs/technical/architecture/design-docs/tdd/tdd-1-1-1-file-system-monitoring-t2.md)
+**Implementation Coverage**: 48/56 scenarios implemented (86%)
 
 ## Feature Context
 
@@ -67,7 +68,7 @@ File System Monitoring uses the `LinkMaintenanceHandler` class to process watchd
 |-----------|-----------|----------------|----------|
 | Move detection | Delete+create pairing | `test_move_detection_logic` — simulates pending delete + file creation, verifies handler detects move and updates references | Manual setup |
 
-**Test File**: [`tests/test_move_detection.py`](../../../tests/test_move_detection.py)
+**Test File**: [`test/automated/test_move_detection.py`](../../../test/automated/test_move_detection.py)
 **Status**: Implemented (1 test method)
 
 ### Integration Tests
@@ -84,7 +85,7 @@ File System Monitoring uses the `LinkMaintenanceHandler` class to process watchd
 | Non-existent file | `test_move_nonexistent_file` | No crash, database remains clean | `temp_project_dir` |
 | Overwrite target | `test_move_to_existing_file` | References updated from source to destination | `temp_project_dir` |
 
-**Test File**: [`tests/integration/test_file_movement.py`](../../../tests/integration/test_file_movement.py) (7 methods)
+**Test File**: [`test/automated/integration/test_file_movement.py`](../../../test/automated/integration/test_file_movement.py) (7 methods)
 
 #### Sequential Moves
 
@@ -95,7 +96,7 @@ File System Monitoring uses the `LinkMaintenanceHandler` class to process watchd
 | Debug database state | `test_sm_003_debug_database_state_during_moves` | State verified at each step (diagnostic) | `temp_project_dir`, `file_helper` |
 | Multi-file independence | `test_multiple_files_sequential_moves` | One file's moves don't corrupt another file's references | `temp_project_dir`, `file_helper` |
 
-**Test File**: [`tests/integration/test_sequential_moves.py`](../../../tests/integration/test_sequential_moves.py) (4 methods)
+**Test File**: [`test/automated/integration/test_sequential_moves.py`](../../../test/automated/integration/test_sequential_moves.py) (4 methods)
 
 #### File Type Monitoring
 
@@ -109,7 +110,7 @@ File System Monitoring uses the `LinkMaintenanceHandler` class to process watchd
 | Multi-type detection | `test_comprehensive_link_detection_and_updates` | 9 file types detected in single scan | `LinkWatcherService` |
 | Category coverage | `test_extension_coverage_by_category` | Minimum thresholds per category | `LinkWatcherService` |
 
-**Test File**: [`tests/integration/test_comprehensive_file_monitoring.py`](../../../tests/integration/test_comprehensive_file_monitoring.py) (7 methods)
+**Test File**: [`test/automated/integration/test_comprehensive_file_monitoring.py`](../../../test/automated/integration/test_comprehensive_file_monitoring.py) (7 methods)
 
 #### Image File Monitoring
 
@@ -122,7 +123,7 @@ File System Monitoring uses the `LinkMaintenanceHandler` class to process watchd
 | SVG parsing | `test_svg_file_parsing` | SVG with embedded `<a href>` returns references | `LinkParser` |
 | Parser delegation | `test_parser_extension_support` | Image extensions not in specialized parser list | `LinkParser` |
 
-**Test File**: [`tests/integration/test_image_file_monitoring.py`](../../../tests/integration/test_image_file_monitoring.py) (6 methods)
+**Test File**: [`test/automated/integration/test_image_file_monitoring.py`](../../../test/automated/integration/test_image_file_monitoring.py) (6 methods)
 
 #### PowerShell Script Monitoring
 
@@ -134,7 +135,7 @@ File System Monitoring uses the `LinkMaintenanceHandler` class to process watchd
 | Multi-script | `test_multiple_powershell_scripts_move` | Only moved script's links updated | Manual setup |
 | Link formats | `test_powershell_script_with_different_link_formats` | Standard, titled, reference-style, inline code links handled | Manual setup |
 
-**Test File**: [`tests/integration/test_powershell_script_monitoring.py`](../../../tests/integration/test_powershell_script_monitoring.py) (5 methods)
+**Test File**: [`test/automated/integration/test_powershell_script_monitoring.py`](../../../test/automated/integration/test_powershell_script_monitoring.py) (5 methods)
 
 #### Directory Move Detection (PD-BUG-019)
 
@@ -159,7 +160,7 @@ File System Monitoring uses the `LinkMaintenanceHandler` class to process watchd
 | Python imports | `test_nested_subdirectory_python_imports` | Nested package imports updated correctly | `tmp_path` |
 | Python imports | `test_database_updated_after_nested_dir_move` | Link database reflects new paths after move | `tmp_path` |
 
-**Test File**: [`tests/test_directory_move_detection.py`](../../../tests/test_directory_move_detection.py) (18 methods)
+**Test File**: [`test/automated/test_directory_move_detection.py`](../../../test/automated/test_directory_move_detection.py) (18 methods)
 
 ## Test Implementation Roadmap
 
@@ -219,9 +220,9 @@ File System Monitoring uses the `LinkMaintenanceHandler` class to process watchd
 ### Files to Reference
 
 - **TDD**: [`doc/product-docs/technical/architecture/design-docs/tdd/tdd-1-1-1-file-system-monitoring-t2.md`](../../../doc/product-docs/technical/architecture/design-docs/tdd/tdd-1-1-1-file-system-monitoring-t2.md)
-- **Existing Tests**: [`tests/test_move_detection.py`](../../../tests/test_move_detection.py), [`tests/integration/test_file_movement.py`](../../../tests/integration/test_file_movement.py), [`tests/integration/test_sequential_moves.py`](../../../tests/integration/test_sequential_moves.py), [`tests/integration/test_comprehensive_file_monitoring.py`](../../../tests/integration/test_comprehensive_file_monitoring.py), [`tests/integration/test_image_file_monitoring.py`](../../../tests/integration/test_image_file_monitoring.py), [`tests/integration/test_powershell_script_monitoring.py`](../../../tests/integration/test_powershell_script_monitoring.py)
+- **Existing Tests**: [`test/automated/test_move_detection.py`](../../../test/automated/test_move_detection.py), [`test/automated/integration/test_file_movement.py`](../../../test/automated/integration/test_file_movement.py), [`test/automated/integration/test_sequential_moves.py`](../../../test/automated/integration/test_sequential_moves.py), [`test/automated/integration/test_comprehensive_file_monitoring.py`](../../../test/automated/integration/test_comprehensive_file_monitoring.py), [`test/automated/integration/test_image_file_monitoring.py`](../../../test/automated/integration/test_image_file_monitoring.py), [`test/automated/integration/test_powershell_script_monitoring.py`](../../../test/automated/integration/test_powershell_script_monitoring.py)
 - **Source Code**: [`linkwatcher/handler.py`](../../../linkwatcher/handler.py)
-- **Fixtures**: [`tests/conftest.py`](../../../tests/conftest.py) — `temp_project_dir`, `file_helper`
+- **Fixtures**: [`test/automated/conftest.py`](../../../test/automated/conftest.py) — `temp_project_dir`, `file_helper`
 
 ---
 

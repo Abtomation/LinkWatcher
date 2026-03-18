@@ -19,7 +19,7 @@ audit_date: 2026-03-15
 |-------|-------|
 | **Feature ID** | 2.1.1 |
 | **Feature Name** | Link Parsing System |
-| **Test File IDs** | PD-TST-103, 109-115 (automated), MT-GRP-01/MT-001 (manual) |
+| **Test File IDs** | PD-TST-103, 109-115 (automated), E2E-GRP-01/E2E-001 (manual) |
 | **Test File Locations** | `tests/unit/test_parser.py`, `tests/parsers/*.py` |
 | **Feature Category** | CORE-FEATURES |
 | **Auditor** | AI Agent |
@@ -49,7 +49,7 @@ audit_date: 2026-03-15
 | Test File | Implementation Status | Can Be Tested? | Blocker | Placeholder Quality |
 |-----------|----------------------|----------------|---------|-------------------|
 | All 9 automated files | EXISTS (complete) | YES | None | N/A |
-| MT-GRP-01/MT-001 | EXISTS | YES | None | N/A |
+| E2E-GRP-01/E2E-001 | EXISTS | YES | None | N/A |
 
 **Implementation Dependencies Summary**:
 - **Testable Components**: All 7 parsers (Markdown, YAML, JSON, Python, Dart, Generic, PowerShell) + LinkParser facade + image handling
@@ -71,7 +71,7 @@ audit_date: 2026-03-15
 - **Generic** (test_generic.py): Quoted refs, directory paths (PD-BUG-021), prose filename rejection (PD-BUG-028), binary file handling
 - **Image** (test_image_files.py): PNG/SVG handling, corrupted files, mixed content directories
 - **PowerShell** (test_powershell.py): 32 tests covering cmdlet patterns (Join-Path, Import-Module, Get-Content, Test-Path), here-strings, embedded markdown links, regex pattern filtering (PD-BUG-033), deduplication
-- **Manual** (MT-001): PowerShell regex preservation on file move
+- **E2E** (E2E-001): PowerShell regex preservation on file move
 
 **Evidence**:
 - 7 distinct bug regression tests across parsers: PD-BUG-011, -013, -021, -028, -030, -031, -033
@@ -144,7 +144,7 @@ audit_date: 2026-03-15
   - PD-TST-113: 8 → 11
   - PD-TST-114: 22 → 21
   - PD-TST-115: 5 → 6
-- Manual test entries (MT-GRP-01, MT-001) are properly tracked in test-tracking.md
+- Manual test entries (E2E-GRP-01, E2E-001) are properly tracked in test-tracking.md
 
 **Recommendations**:
 - Register test_powershell.py in test-registry.yaml with a new PD-TST ID

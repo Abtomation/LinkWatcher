@@ -20,7 +20,7 @@ feature_id: 2.2.1
 | **Feature ID** | 2.2.1 |
 | **Feature Name** | Link Updating |
 | **Test File IDs** | PD-TST-105 (unit), PD-TST-118 (integration) |
-| **Test File Locations** | `tests/unit/test_updater.py`, `tests/integration/test_link_updates.py` |
+| **Test File Locations** | `test/automated/unit/test_updater.py`, `test/automated/integration/test_link_updates.py` |
 | **Feature Category** | CORE-FEATURES |
 | **Auditor** | AI Agent |
 | **Audit Date** | 2026-03-15 |
@@ -32,8 +32,8 @@ feature_id: 2.2.1
 
 | Test File | Location | Test Cases | Status |
 |-----------|----------|------------|--------|
-| test_updater.py | tests/unit/test_updater.py | 28 | ✅ All passing |
-| test_link_updates.py | tests/integration/test_link_updates.py | 23 | ✅ All passing |
+| test_updater.py | test/automated/unit/test_updater.py | 28 | ✅ All passing |
+| test_link_updates.py | test/automated/integration/test_link_updates.py | 23 | ✅ All passing |
 
 ## Implementation Dependency Analysis
 

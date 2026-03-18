@@ -236,6 +236,7 @@ Before considering this task finished:
 - [ ] **Verify Outputs**: Confirm all required outputs have been produced
   - [ ] Test Specification Document created in `/test/specifications/feature-specs/`
   - [ ] Test Implementation Roadmap included with priority ordering
+  - [ ] Implementation Coverage summary line set in Overview (e.g., `0/N scenarios implemented (0%)`)
   - [ ] Mock Requirements Documentation completed
   - [ ] AI Session Context notes included for implementation handoff
   - [ ] Test scenarios classified as `automated`, `manual`, or `both`

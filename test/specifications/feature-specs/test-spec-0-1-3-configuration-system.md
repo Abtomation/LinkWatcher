@@ -22,6 +22,7 @@ This document provides comprehensive test specifications for the **Configuration
 
 **Test Tier**: 1 (Basic unit tests + key integration)
 **TDD Reference**: None (Tier 1 — no TDD required)
+**Implementation Coverage**: 32/35 scenarios implemented (91%)
 
 ## Feature Context
 
@@ -64,7 +65,7 @@ The Configuration System provides multi-source configuration loading (YAML, JSON
 | LinkWatcherConfig | Invalid scan interval | `test_validate_invalid_scan_interval` — interval=0 error | None |
 | LinkWatcherConfig | Multiple issues | `test_validate_multiple_issues` — all issues reported simultaneously | None |
 
-**Test File**: [`tests/unit/test_config.py`](../../../tests/unit/test_config.py) — 22 test methods in `TestLinkWatcherConfig`
+**Test File**: [`test/automated/unit/test_config.py`](../../../test/automated/unit/test_config.py) — 22 test methods in `TestLinkWatcherConfig`
 
 #### Default Configurations
 
@@ -75,7 +76,7 @@ The Configuration System provides multi-source configuration loading (YAML, JSON
 | Config independence | Isolation | `test_configs_are_independent` — modifying one doesn't affect another | None |
 | Both configs | Validation | `test_config_validation` — both pass validation | None |
 
-**Test File**: [`tests/unit/test_config.py`](../../../tests/unit/test_config.py) — 4 test methods in `TestDefaultConfigurations`
+**Test File**: [`test/automated/unit/test_config.py`](../../../test/automated/unit/test_config.py) — 4 test methods in `TestDefaultConfigurations`
 
 ### Integration Tests
 
@@ -88,11 +89,11 @@ The Configuration System provides multi-source configuration loading (YAML, JSON
 | Malformed JSON | `test_malformed_json_handling` | Raises `json.JSONDecodeError` | `temp_project_dir` |
 | Malformed YAML | `test_malformed_yaml_handling` | Raises `yaml.YAMLError` | `temp_project_dir` |
 
-**Test File**: [`tests/unit/test_config.py`](../../../tests/unit/test_config.py) — 6 test methods in `TestConfigurationIntegration`
+**Test File**: [`test/automated/unit/test_config.py`](../../../test/automated/unit/test_config.py) — 6 test methods in `TestConfigurationIntegration`
 
-### Utility Module (tests/test_config.py)
+### Utility Module (test/automated/test_config.py)
 
-**Note**: [`tests/test_config.py`](../../../tests/test_config.py) (PD-TST-100) is a **configuration/utility module**, not a test file. It provides:
+**Note**: [`test/automated/test_config.py`](../../../test/automated/test_config.py) (PD-TST-100) is a **configuration/utility module**, not a test file. It provides:
 - `TEST_ENVIRONMENTS` dict (unit/integration/performance/manual presets)
 - `SAMPLE_CONTENTS` and `TEST_PROJECT_STRUCTURES` for use by other tests
 - Helper functions: `get_test_config()`, `get_test_data_dir()`, `create_test_project()`
@@ -124,7 +125,7 @@ This file has **0 test methods** — the `testCasesCount: 10` in the registry is
 
 - **CLI arguments**: Feature description mentions CLI as a config source — no tests for argument parsing
 - **Priority cascade**: No test verifying CLI > env > file > defaults ordering
-- **tests/test_config.py miscount**: Registry showed 10 test cases but file has 0 — it's a utility module (fixed in test audit PF-TAR-007, 2026-03-15)
+- **test/automated/test_config.py miscount**: Registry showed 10 test cases but file has 0 — it's a utility module (fixed in test audit PF-TAR-007, 2026-03-15)
 
 ## AI Agent Session Handoff Notes
 
@@ -136,9 +137,9 @@ This file has **0 test methods** — the `testCasesCount: 10` in the registry is
 
 ### Files to Reference
 
-- **Existing Tests**: [`tests/unit/test_config.py`](../../../tests/unit/test_config.py) (33 methods), [`tests/test_config.py`](../../../tests/test_config.py) (utility module)
+- **Existing Tests**: [`test/automated/unit/test_config.py`](../../../test/automated/unit/test_config.py) (33 methods), [`test/automated/test_config.py`](../../../test/automated/test_config.py) (utility module)
 - **Source Code**: [`linkwatcher/config/settings.py`](../../../linkwatcher/config/settings.py), [`linkwatcher/config/defaults.py`](../../../linkwatcher/config/defaults.py), [`linkwatcher/config/__init__.py`](../../../linkwatcher/config/__init__.py)
-- **Fixtures**: [`tests/conftest.py`](../../../tests/conftest.py) — `temp_project_dir`, `test_config`
+- **Fixtures**: [`test/automated/conftest.py`](../../../test/automated/conftest.py) — `temp_project_dir`, `test_config`
 
 ---
 

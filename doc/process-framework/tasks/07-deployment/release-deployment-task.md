@@ -67,19 +67,20 @@ Manage the process of preparing, versioning, and deploying releases of the appli
 ### Execution
 
 7. Run the full test suite on the release candidate
-8. **Verify manual test status**: Check [test-tracking.md](../../state-tracking/permanent/test-tracking.md) for any manual test groups marked `🔄 Needs Re-execution`. All groups must show `✅ Passed` before release. If any need re-execution, trigger [Manual Test Execution](../03-testing/manual-test-execution-task.md) first.
-9. Verify all deployment prerequisites are met
-10. Complete the pre-deployment checklist
-10. Obtain necessary approvals
-11. **🚨 CHECKPOINT**: Present pre-deployment checklist results and obtain explicit approval before deploying
-12. Deploy to the target environment(s)
-13. Monitor deployment logs for issues
-14. Verify application health post-deployment
-15. Run smoke tests to confirm basic functionality
+8. **Run full pre-release test sweep**: Execute `Run-Tests.ps1 -All` to confirm all automated tests pass. This is a release gate — no deployment if tests fail. Pay special attention to **Critical** priority tests in [test-registry.yaml](/test/test-registry.yaml) — these cover foundation features and must all pass. Extended priority tests (performance, edge cases) are informational but not release-blocking.
+9. **Verify manual test status**: Check [test-tracking.md](../../state-tracking/permanent/test-tracking.md) for any manual test groups marked `🔄 Needs Re-execution`. All groups must show `✅ Passed` before release. If any need re-execution, trigger [Manual Test Execution](../03-testing/e2e-acceptance-test-execution-task.md) first.
+10. Verify all deployment prerequisites are met
+11. Complete the pre-deployment checklist
+12. Obtain necessary approvals
+13. **🚨 CHECKPOINT**: Present pre-deployment checklist results (including full test sweep results) and obtain explicit approval before deploying
+14. Deploy to the target environment(s)
+15. Monitor deployment logs for issues
+16. Verify application health post-deployment
+17. Run smoke tests to confirm basic functionality
 
 ### Finalization
 
-16. **Bug Discovery During Deployment**: Systematically identify and document any bugs discovered during deployment:
+18. **Bug Discovery During Deployment**: Systematically identify and document any bugs discovered during deployment:
 
     - **Deployment Failures**: Issues that prevent successful deployment
     - **Configuration Problems**: Environment-specific configuration issues
@@ -88,7 +89,7 @@ Manage the process of preparing, versioning, and deploying releases of the appli
     - **User Experience Issues**: UI/UX problems that only appear in production
     - **Data Migration Issues**: Problems with database migrations or data integrity
 
-17. **Report Discovered Bugs**: If bugs are identified during deployment:
+19. **Report Discovered Bugs**: If bugs are identified during deployment:
 
     - Use [../../scripts/file-creation/06-maintenance/New-BugReport.ps1](../../scripts/file-creation/06-maintenance/New-BugReport.ps1) script to create standardized bug reports
     - Follow [Bug Reporting Guide](../../guides/06-maintenance/bug-reporting-guide.md) for consistent documentation
@@ -107,11 +108,11 @@ Manage the process of preparing, versioning, and deploying releases of the appli
     ../../scripts/file-creation/06-maintenance/New-BugReport.ps1 -Title "API timeout in production environment" -Description "User authentication API calls timeout after 30 seconds in production but work fine in staging" -DiscoveredBy "Release Deployment" -Severity "Critical" -Component "Authentication" -Environment "Production" -Evidence "Deployment logs: /logs/deployment-2025-01-15.log"
     ```
 
-18. Update release status documentation
-19. Notify stakeholders of successful deployment
-20. Monitor application performance and error rates
-21. Document any issues encountered during deployment
-22. **🚨 MANDATORY FINAL STEP**: Complete the Task Completion Checklist below
+20. Update release status documentation
+21. Notify stakeholders of successful deployment
+22. Monitor application performance and error rates
+23. Document any issues encountered during deployment
+24. **🚨 MANDATORY FINAL STEP**: Complete the Task Completion Checklist below
 
 ## Outputs
 

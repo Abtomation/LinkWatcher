@@ -194,6 +194,10 @@ function Add-TestRegistryEntry {
     .PARAMETER Description
     Description of what the test covers
 
+    .PARAMETER Priority
+    Test priority: Critical, Standard, or Extended (default: Standard)
+    Critical = must pass before any release; Standard = normal coverage; Extended = edge cases, performance
+
     .PARAMETER DryRun
     If specified, shows what would be added without making changes
 
@@ -226,6 +230,10 @@ function Add-TestRegistryEntry {
 
         [Parameter(Mandatory=$false)]
         [string]$Description = "",
+
+        [Parameter(Mandatory=$false)]
+        [ValidateSet("Critical", "Standard", "Extended")]
+        [string]$Priority = "Standard",
 
         [Parameter(Mandatory=$false)]
         [switch]$DryRun
@@ -266,6 +274,7 @@ function Add-TestRegistryEntry {
     file_name: "$FileName"
     file_path: "$FilePath"
     test_type: "$TestType"
+    priority: "$Priority"
     component_name: "$ComponentName"
     description: "$Description"
     created_date: "$timestamp"
@@ -340,42 +349,81 @@ function Add-TestRegistryEntry {
     }
 }
 
+function Get-TestTrackingSectionHeader {
+    <#
+    .SYNOPSIS
+    Finds the actual section header in test-tracking.md content that matches a feature ID.
+    Matches by the leading number in "## N. Title" against the feature ID's major version.
+
+    .PARAMETER Content
+    The content of test-tracking.md
+
+    .PARAMETER FeatureId
+    The feature ID (e.g., "1.1.1", "2.2.1")
+
+    .RETURNS
+    The full section header string (e.g., "## 1. File Watching & Detection"), or $null if not found
+    #>
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]$Content,
+
+        [Parameter(Mandatory=$true)]
+        [string]$FeatureId
+    )
+
+    # Extract major version number from feature ID (e.g., "1" from "1.1.1", "0" from "0.1.2")
+    $majorVersion = ($FeatureId -split '\.')[0]
+
+    # Find the matching section header in the content
+    $pattern = "^## $majorVersion\. .+"
+    $match = [regex]::Match($Content, $pattern, [System.Text.RegularExpressions.RegexOptions]::Multiline)
+
+    if ($match.Success) {
+        return $match.Value.Trim()
+    }
+
+    return $null
+}
+
 function Get-TestTrackingSectionTitle {
     <#
     .SYNOPSIS
-    Determines the appropriate section title for a feature ID in test-tracking.md
+    Determines the appropriate section title for a feature ID in test-tracking.md.
+    Reads from test-tracking.md on disk to get the actual section title.
+    Falls back to a generated title if the file cannot be read.
     #>
     param([string]$FeatureId)
 
-    # Parse feature ID to determine section
-    if ($FeatureId -match '^99\.') {
-        return "Test Features (Development & Testing)"
-    } elseif ($FeatureId -match '^0\.') {
-        return "System Architecture & Foundation Tests"
-    } elseif ($FeatureId -match '^1\.') {
-        return "User Authentication & Registration Tests"
-    } else {
-        return "Other Tests"
+    # Try to read the actual section header from test-tracking.md
+    try {
+        $projectRoot = Get-ProjectRoot
+        $trackingPath = Join-Path $projectRoot "doc/process-framework/state-tracking/permanent/test-tracking.md"
+        if (Test-Path $trackingPath) {
+            $content = Get-Content $trackingPath -Raw -Encoding UTF8
+            $header = Get-TestTrackingSectionHeader -Content $content -FeatureId $FeatureId
+            if ($header -and $header -match '^## \d+\.\s+(.+)$') {
+                return $matches[1]
+            }
+        }
+    } catch {
+        Write-Verbose "Could not read test-tracking.md for section title: $($_.Exception.Message)"
     }
+
+    # Fallback: generate from major version
+    $majorVersion = ($FeatureId -split '\.')[0]
+    return "Feature Group $majorVersion"
 }
 
 function Get-TestTrackingSectionNumber {
     <#
     .SYNOPSIS
-    Determines the appropriate section number for a feature ID in test-tracking.md
+    Determines the appropriate section number for a feature ID in test-tracking.md.
+    Extracts the major version from the feature ID.
     #>
     param([string]$FeatureId)
 
-    # Parse feature ID to determine section number
-    if ($FeatureId -match '^99\.') {
-        return "99"
-    } elseif ($FeatureId -match '^0\.') {
-        return "0"
-    } elseif ($FeatureId -match '^1\.') {
-        return "1"
-    } else {
-        return "12"  # Default "Other" section
-    }
+    return ($FeatureId -split '\.')[0]
 }
 
 function Ensure-TestTrackingSection {
@@ -401,11 +449,19 @@ function Ensure-TestTrackingSection {
         [string]$FeatureId
     )
 
+    # First check if a matching section already exists in the content
+    $existingHeader = Get-TestTrackingSectionHeader -Content $Content -FeatureId $FeatureId
+    if ($existingHeader) {
+        Write-Verbose "Section already exists: $existingHeader"
+        return $Content
+    }
+
+    # Section doesn't exist — construct a new one
     $sectionNumber = Get-TestTrackingSectionNumber -FeatureId $FeatureId
     $sectionTitle = Get-TestTrackingSectionTitle -FeatureId $FeatureId
     $sectionHeader = "## $sectionNumber. $sectionTitle"
 
-    # Check if section already exists
+    # Double-check with exact match (shouldn't reach here, but safety)
     if ($Content -match [regex]::Escape($sectionHeader)) {
         Write-Verbose "Section already exists: $sectionHeader"
         return $Content
@@ -470,7 +526,7 @@ function Add-TestImplementationEntry {
     The current content of the test-tracking.md file
 
     .PARAMETER TestFileId
-    The test file ID (e.g., PD-TST-087 or MT-001)
+    The test file ID (e.g., PD-TST-087 or E2E-001)
 
     .PARAMETER FeatureId
     The feature ID (e.g., 99.1.2)
@@ -514,7 +570,7 @@ function Add-TestImplementationEntry {
         [string]$Status,
 
         [Parameter(Mandatory=$false)]
-        [ValidateSet("Automated", "Manual Group", "Manual Case")]
+        [ValidateSet("Automated", "E2E Group", "E2E Case")]
         [string]$TestType = "Automated",
 
         [Parameter(Mandatory=$false)]
@@ -528,9 +584,13 @@ function Add-TestImplementationEntry {
     )
 
     $timestamp = Get-ProjectTimestamp -Format "Date"
-    $sectionNumber = Get-TestTrackingSectionNumber -FeatureId $FeatureId
-    $sectionTitle = Get-TestTrackingSectionTitle -FeatureId $FeatureId
-    $sectionHeader = "## $sectionNumber. $sectionTitle"
+    $sectionHeader = Get-TestTrackingSectionHeader -Content $Content -FeatureId $FeatureId
+    if (-not $sectionHeader) {
+        # Fallback: construct from helpers (may trigger Ensure-TestTrackingSection to create it)
+        $sectionNumber = Get-TestTrackingSectionNumber -FeatureId $FeatureId
+        $sectionTitle = Get-TestTrackingSectionTitle -FeatureId $FeatureId
+        $sectionHeader = "## $sectionNumber. $sectionTitle"
+    }
 
     # Default LastExecuted based on test type
     if (-not $LastExecuted) {

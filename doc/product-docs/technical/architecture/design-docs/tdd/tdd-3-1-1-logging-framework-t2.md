@@ -334,7 +334,7 @@ Terminal (ANSI colors)          .log file (10MB rotation, 5 backups)
 ### 5.2 Testing Reference
 
 > **📋 Primary Documentation**: Existing test suite
-> **🔗 Link**: [tests/unit/test_logging.py](../../../../../../test/automated/unit/test_logging.py), [tests/unit/test_advanced_logging.py](../../../../../../test/automated/unit/test_advanced_logging.py)
+> **🔗 Link**: [test/automated/unit/test_logging.py](../../../../../../test/automated/unit/test_logging.py), [test/automated/unit/test_advanced_logging.py](../../../../../../test/automated/unit/test_advanced_logging.py)
 
 **Brief Summary**: The logging framework is covered by two unit test files. `test_logging.py` covers `LinkWatcherLogger`, `LogContext`, `PerformanceLogger`, and the singleton API. `test_advanced_logging.py` covers `LogFilter`, `LogMetrics`, and `LoggingConfigManager` including hot-reload behavior.
 

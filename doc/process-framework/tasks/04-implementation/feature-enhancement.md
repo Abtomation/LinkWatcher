@@ -77,6 +77,7 @@ This task executes enhancement work on existing features by following the Enhanc
    - Execute the step
    - **Verify all modified artifacts**: If the step produces or modifies artifacts that are not covered by the project's automated test suite (e.g., scripts, configuration files, build definitions, deployment manifests), manually invoke or inspect them to confirm they work correctly before marking the step complete
    - Mark the step complete in the state file immediately after completion
+   - **If the step involves code changes**: Run `Run-Tests.ps1 -All` to confirm no regressions. If manual tests exist for the enhanced feature, set their status to "Needs Re-execution" in test-tracking.md.
 
 6. **Handle deviations** — If a step cannot be completed as planned (e.g., referenced doc doesn't exist, scope has changed), inform the human partner and adjust the state file accordingly
 
@@ -139,8 +140,8 @@ Before considering this task finished:
 ## Next Tasks
 
 - [**Code Review**](../06-maintenance/code-review-task.md) — Review the enhancement implementation for quality
-- [**Manual Test Case Creation**](../03-testing/manual-test-case-creation-task.md) — Create manual test cases for new enhancement behavior
-- [**Manual Test Execution**](../03-testing/manual-test-execution-task.md) — Execute manual tests for groups affected by the enhancement
+- [**Manual Test Case Creation**](../03-testing/e2e-acceptance-test-case-creation-task.md) — Create manual test cases for new enhancement behavior
+- [**Manual Test Execution**](../03-testing/e2e-acceptance-test-execution-task.md) — Execute manual tests for groups affected by the enhancement
 - [**Release & Deployment**](../07-deployment/release-deployment-task.md) — When the enhancement is ready for release
 
 ## Related Resources

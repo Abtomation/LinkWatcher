@@ -21,10 +21,9 @@
     The name of the test (e.g., "UserAuthentication", "PaymentProcessing")
 
 .PARAMETER TestType
-    The type of test to create. Valid values depend on the project's primary language:
-    - Python: Unit, Integration, Parser, Performance
-    - Dart: Unit, Integration, Widget, E2E
-    If not specified or invalid for the language, defaults to Unit.
+    The type of test to create. Valid values are discovered dynamically by scanning
+    subdirectories of the test directory (same logic as Run-Tests.ps1).
+    Use any subdirectory name (e.g., Unit, Integration, Parser, Performance).
 
 .PARAMETER ComponentName
     The name of the component being tested (optional)
@@ -52,7 +51,7 @@
     - Automatically updates the central ID registry with new ID assignments
     - Creates the output directory if it doesn't exist
     - Uses standardized document creation process
-    - Reads project-config.json for language-aware template selection
+    - Reads project-config.json + languages-config/{language}-config.json for language-aware behavior
     - When FeatureId is provided, automatically updates test implementation tracking
     - Integrates with Process Framework automation infrastructure
     - Supports dry run mode for safe testing
@@ -60,7 +59,7 @@
     Template Metadata:
     - Script Type: Document Creation Script
     - Created: 2025-07-13
-    - Updated: 2026-02-20 (tech-agnostic genericization)
+    - Updated: 2026-03-18 (IMP-139: language-agnostic via languages-config)
     - For: Creating test files from language-specific templates
 #>
 
@@ -77,6 +76,10 @@ param(
 
     [Parameter(Mandatory=$false)]
     [string]$FeatureId = "",
+
+    [Parameter(Mandatory=$false)]
+    [ValidateSet("Critical", "Standard", "Extended")]
+    [string]$Priority = "Standard",
 
     [Parameter(Mandatory=$false)]
     [switch]$OpenInEditor,
@@ -120,72 +123,62 @@ if (Test-Path $projectConfigPath) {
     Write-Warning "project-config.json not found at $projectConfigPath, defaulting to Dart"
 }
 
-# --- Language-specific configuration ---
-$languageConfig = switch ($language.ToLower()) {
-    "python" {
-        @{
-            ValidTestTypes = @("Unit", "Integration", "Parser", "Performance")
-            TemplateName = "test-file-template.py"
-            FilePrefix = "test_"
-            FileSuffix = ""
-            FileExtension = ".py"
-            TestsRoot = if ($testsDir) { $testsDir } else { "tests" }
-            DirectoryMap = @{
-                "unit" = "unit"
-                "integration" = "integration"
-                "parser" = "parsers"
-                "performance" = "performance"
-            }
-        }
-    }
-    "dart" {
-        @{
-            ValidTestTypes = @("Unit", "Integration", "Widget", "E2E")
-            TemplateName = "test-file-template.dart"
-            FilePrefix = ""
-            FileSuffix = "_test"
-            FileExtension = ".dart"
-            TestsRoot = if ($testsDir) { $testsDir } else { "test" }
-            DirectoryMap = @{
-                "unit" = "unit"
-                "integration" = "integration"
-                "widget" = "widget"
-                "e2e" = "../integration_test"
-            }
-        }
-    }
-    default {
-        Write-Warning "Unsupported language '$language', using Python defaults"
-        @{
-            ValidTestTypes = @("Unit", "Integration")
-            TemplateName = "test-file-template.py"
-            FilePrefix = "test_"
-            FileSuffix = ""
-            FileExtension = ".py"
-            TestsRoot = if ($testsDir) { $testsDir } else { "tests" }
-            DirectoryMap = @{
-                "unit" = "unit"
-                "integration" = "integration"
-            }
-        }
-    }
-}
-
-# Validate TestType against language-specific valid types
-if ($TestType -notin $languageConfig.ValidTestTypes) {
-    $validList = $languageConfig.ValidTestTypes -join ', '
-    Write-Error "Invalid TestType '$TestType' for $language projects. Valid types: $validList"
+# --- Language configuration from languages-config/{language}-config.json ---
+$langConfigPath = Join-Path $projectRoot "doc/process-framework/languages-config/$($language.ToLower())-config.json"
+if (-not (Test-Path $langConfigPath)) {
+    Write-Error "Language config not found: $langConfigPath. Create it from languages-config/ template."
     exit 1
 }
 
-# Determine output directory based on test type and language
-$testTypeDir = $languageConfig.DirectoryMap[$TestType.ToLower()]
-if (-not $testTypeDir) { $testTypeDir = "unit" }
-$outputDirectory = Join-Path $projectRoot (Join-Path $languageConfig.TestsRoot $testTypeDir)
+try {
+    $langConfig = Get-Content $langConfigPath -Raw | ConvertFrom-Json
+    Write-Host "📋 Loaded language config: $langConfigPath" -ForegroundColor Cyan
+} catch {
+    Write-Error "Could not parse language config: $($_.Exception.Message)"
+    exit 1
+}
 
-# Generate test file name based on language conventions
+$testingConfig = $langConfig.testing
+$testsRoot = if ($testsDir) { $testsDir } else { "test" }
+$fileExtension = $testingConfig.testFileExtension
+$namePattern = $testingConfig.testFileNamePattern
+
+if (-not $fileExtension -or -not $namePattern) {
+    Write-Error "Language config missing required fields: testFileExtension, testFileNamePattern"
+    exit 1
+}
+
+# --- Discover valid test types by scanning test subdirectories (same logic as Run-Tests.ps1) ---
+$testPath = Join-Path $projectRoot $testsRoot
+$excludedDirs = @('__pycache__', '.pytest_cache', 'fixtures', 'helpers', 'utils', 'conftest', 'node_modules', '.dart_tool', 'build')
+$validTestTypes = @()
+
+if (Test-Path $testPath) {
+    $validTestTypes = Get-ChildItem -Path $testPath -Directory |
+        Where-Object { $_.Name -notin $excludedDirs -and -not $_.Name.StartsWith('.') } |
+        ForEach-Object { $_.Name }
+}
+
+if ($validTestTypes.Count -eq 0) {
+    Write-Error "No test type directories found in $testPath"
+    exit 1
+}
+
+# Validate TestType against discovered directories (case-insensitive)
+$matchedDir = $validTestTypes | Where-Object { $_ -eq $TestType.ToLower() }
+if (-not $matchedDir) {
+    $validList = $validTestTypes -join ', '
+    Write-Error "Invalid TestType '$TestType' for $language projects. Available directories: $validList"
+    exit 1
+}
+
+# Determine output directory
+$testTypeDir = $matchedDir
+$outputDirectory = Join-Path $projectRoot (Join-Path $testsRoot $testTypeDir)
+
+# Generate test file name from pattern
 $sanitizedName = $TestName.ToLower() -replace '\s+', '_'
-$testFileName = "$($languageConfig.FilePrefix)$sanitizedName$($languageConfig.FileSuffix)$($languageConfig.FileExtension)"
+$testFileName = $namePattern.Replace('{name}', $sanitizedName) + $fileExtension
 
 # Prepare additional metadata fields
 $additionalMetadataFields = @{
@@ -212,10 +205,11 @@ $customReplacements = @{
 
 # Create the document using standardized process
 try {
-    $templatePath = Join-Path $projectRoot "doc/process-framework/templates/03-testing/$($languageConfig.TemplateName)"
+    $templateName = "test-file-template$fileExtension"
+    $templatePath = Join-Path $projectRoot "doc/process-framework/templates/03-testing/$templateName"
 
     if (-not (Test-Path $templatePath)) {
-        Write-Error "Template not found: $templatePath. Please create the $($languageConfig.TemplateName) template first."
+        Write-Error "Template not found: $templatePath. Please create the $templateName template first."
         exit 1
     }
 
@@ -237,11 +231,8 @@ try {
 
     # Add next steps if not opening in editor
     if (-not $OpenInEditor) {
-        $runCommand = switch ($language.ToLower()) {
-            "python" { "pytest $outputDirectory/$testFileName" }
-            "dart" { "dart test $outputDirectory/$testFileName" }
-            default { "Run the test file using your test runner" }
-        }
+        $baseCommand = $testingConfig.baseCommand
+        $runCommand = if ($baseCommand) { "$baseCommand $outputDirectory/$testFileName" } else { "Run the test file using your test runner" }
 
         $details += @(
             "",
@@ -270,7 +261,7 @@ try {
                 Write-Host "`n🔄 Updating test implementation tracking..." -ForegroundColor Cyan
 
                 # Prepare relative paths for registry and tracking
-                $relativePath = "$($languageConfig.TestsRoot)/$testTypeDir/$testFileName"
+                $relativePath = "$testsRoot/$testTypeDir/$testFileName"
                 $trackingRelativePath = "../../../$relativePath"
 
                 # Prepare additional updates for test implementation tracking
@@ -300,7 +291,7 @@ try {
                     $specPath = if ($TestSpecification -ne "") { $TestSpecification } else { $null }
                     $description = "$TestType tests for $($additionalUpdates['Component Name']) component - created via New-TestFile.ps1"
 
-                    $registryTestId = Add-TestRegistryEntry -FeatureId $FeatureId -FileName $testFileName -FilePath $relativePath -TestType $TestType -ComponentName $($additionalUpdates['Component Name']) -SpecificationPath $specPath -Description $description -DryRun:$DryRun
+                    $registryTestId = Add-TestRegistryEntry -FeatureId $FeatureId -FileName $testFileName -FilePath $relativePath -TestType $TestType -ComponentName $($additionalUpdates['Component Name']) -SpecificationPath $specPath -Description $description -Priority $Priority -DryRun:$DryRun
 
                     # Update test implementation tracking
                     if ($registryTestId) {

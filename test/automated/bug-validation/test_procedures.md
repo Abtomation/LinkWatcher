@@ -1,10 +1,10 @@
-# Manual Test Procedures
+# E2E Acceptance Test Procedures
 
 This document contains manual test procedures for LinkWatcher that require human interaction and cannot be easily automated.
 
 ## 🎯 Overview
 
-Manual testing covers:
+E2E acceptance testing covers:
 - **Real-world usage scenarios** - How users actually interact with the system
 - **Windows compatibility** - Testing on Windows operating system
 - **IDE integration** - Testing with various editors and tools
@@ -45,7 +45,7 @@ Each file should contain references to other files in the project.
 
 ## 🧪 Manual Test Cases
 
-### **MT-001: VS Code Integration**
+### **E2E-001: VS Code Integration**
 
 #### **Objective**
 Verify LinkWatcher works correctly with VS Code file operations.
@@ -97,7 +97,7 @@ Record any issues, performance observations, or unexpected behavior.
 
 ---
 
-### **MT-002: Windows Explorer Integration**
+### **E2E-002: Windows Explorer Integration**
 
 #### **Objective**
 Verify LinkWatcher works with Windows Explorer file operations.
@@ -138,7 +138,7 @@ Verify LinkWatcher works with Windows Explorer file operations.
 
 ---
 
-### **MT-003: Command Line Operations**
+### **E2E-003: Command Line Operations**
 
 #### **Objective**
 Verify LinkWatcher works with command-line file operations.
@@ -185,7 +185,7 @@ Verify LinkWatcher works with command-line file operations.
 
 ---
 
-### **MT-004: Git Operations**
+### **E2E-004: Git Operations**
 
 #### **Objective**
 Verify LinkWatcher works with Git file operations.
@@ -223,7 +223,7 @@ Verify LinkWatcher works with Git file operations.
 
 ---
 
-### **MT-005: Multiple IDE Testing**
+### **E2E-005: Multiple IDE Testing**
 
 #### **Objective**
 Test LinkWatcher with various IDEs and editors.
@@ -251,7 +251,7 @@ For each IDE:
 
 ---
 
-### **MT-006: Performance and Responsiveness**
+### **E2E-006: Performance and Responsiveness**
 
 #### **Objective**
 Evaluate user experience and system responsiveness.
@@ -280,7 +280,7 @@ Evaluate user experience and system responsiveness.
 
 ---
 
-### **MT-007: Error Handling and Recovery**
+### **E2E-007: Error Handling and Recovery**
 
 #### **Objective**
 Test system behavior under error conditions.
@@ -312,7 +312,7 @@ Test system behavior under error conditions.
 
 ---
 
-### **MT-008: Windows Compatibility**
+### **E2E-008: Windows Compatibility**
 
 #### **Objective**
 Verify consistent behavior on Windows operating system.
@@ -336,7 +336,7 @@ For each platform:
 
 ---
 
-### **MT-009: Configuration and Customization**
+### **E2E-009: Configuration and Customization**
 
 #### **Objective**
 Test configuration options and customization features.
@@ -374,7 +374,7 @@ Test configuration options and customization features.
 
 ---
 
-### **MT-010: User Experience Validation**
+### **E2E-010: User Experience Validation**
 
 #### **Objective**
 Evaluate overall user experience and usability.
@@ -413,16 +413,16 @@ Evaluate overall user experience and usability.
 ### **Test Results Summary**
 | Test Case | Status | Notes |
 |-----------|--------|-------|
-| MT-001 | ⬜ Pass ⬜ Fail | |
-| MT-002 | ⬜ Pass ⬜ Fail | |
-| MT-003 | ⬜ Pass ⬜ Fail | |
-| MT-004 | ⬜ Pass ⬜ Fail | |
-| MT-005 | ⬜ Pass ⬜ Fail | |
-| MT-006 | ⬜ Pass ⬜ Fail | |
-| MT-007 | ⬜ Pass ⬜ Fail | |
-| MT-008 | ⬜ Pass ⬜ Fail | |
-| MT-009 | ⬜ Pass ⬜ Fail | |
-| MT-010 | ⬜ Pass ⬜ Fail | |
+| E2E-001 | ⬜ Pass ⬜ Fail | |
+| E2E-002 | ⬜ Pass ⬜ Fail | |
+| E2E-003 | ⬜ Pass ⬜ Fail | |
+| E2E-004 | ⬜ Pass ⬜ Fail | |
+| E2E-005 | ⬜ Pass ⬜ Fail | |
+| E2E-006 | ⬜ Pass ⬜ Fail | |
+| E2E-007 | ⬜ Pass ⬜ Fail | |
+| E2E-008 | ⬜ Pass ⬜ Fail | |
+| E2E-009 | ⬜ Pass ⬜ Fail | |
+| E2E-010 | ⬜ Pass ⬜ Fail | |
 
 ### **Overall Assessment**
 - **Critical Issues Found**: ___________

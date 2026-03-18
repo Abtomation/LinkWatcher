@@ -19,8 +19,8 @@ audit_date: 2026-03-15
 |-------|-------|
 | **Feature ID** | 2.1.1 |
 | **Feature Name** | Link Parsing System |
-| **Test File IDs** | PD-TST-103, 109-115 (automated), MT-GRP-01/MT-001 (manual) |
-| **Test File Locations** | `tests/unit/test_parser.py`, `tests/parsers/*.py` |
+| **Test File IDs** | PD-TST-103, 109-115 (automated), E2E-GRP-01/E2E-001 (manual) |
+| **Test File Locations** | `test/automated/unit/test_parser.py`, `test/automated/parsers/*.py` |
 | **Feature Category** | CORE-FEATURES |
 | **Auditor** | AI Agent |
 | **Audit Date** | 2026-03-15 |
@@ -32,15 +32,15 @@ audit_date: 2026-03-15
 
 | Test File | Location | Test Cases | Status |
 |-----------|----------|------------|--------|
-| test_parser.py | tests/unit/test_parser.py | 12 | ✅ All passing |
-| test_markdown.py | tests/parsers/test_markdown.py | 59 | ✅ 52 passed, 7 xfailed |
-| test_yaml.py | tests/parsers/test_yaml.py | 13 | ✅ All passing |
-| test_json.py | tests/parsers/test_json.py | 17 | ✅ All passing |
-| test_python.py | tests/parsers/test_python.py | 8 | ✅ All passing |
-| test_dart.py | tests/parsers/test_dart.py | 11 | ✅ All passing |
-| test_generic.py | tests/parsers/test_generic.py | 21 | ✅ All passing |
-| test_image_files.py | tests/parsers/test_image_files.py | 6 | ✅ All passing |
-| test_powershell.py | tests/parsers/test_powershell.py | 32 | ✅ All passing |
+| test_parser.py | test/automated/unit/test_parser.py | 12 | ✅ All passing |
+| test_markdown.py | test/automated/parsers/test_markdown.py | 59 | ✅ 52 passed, 7 xfailed |
+| test_yaml.py | test/automated/parsers/test_yaml.py | 13 | ✅ All passing |
+| test_json.py | test/automated/parsers/test_json.py | 17 | ✅ All passing |
+| test_python.py | test/automated/parsers/test_python.py | 8 | ✅ All passing |
+| test_dart.py | test/automated/parsers/test_dart.py | 11 | ✅ All passing |
+| test_generic.py | test/automated/parsers/test_generic.py | 21 | ✅ All passing |
+| test_image_files.py | test/automated/parsers/test_image_files.py | 6 | ✅ All passing |
+| test_powershell.py | test/automated/parsers/test_powershell.py | 32 | ✅ All passing |
 | MT-GRP-01 (manual) | test/manual-testing/templates/powershell-regex-preservation/ | 1 | ✅ Passed |
 | **Total** | | **179 automated + 1 manual** | |
 
@@ -49,7 +49,7 @@ audit_date: 2026-03-15
 | Test File | Implementation Status | Can Be Tested? | Blocker | Placeholder Quality |
 |-----------|----------------------|----------------|---------|-------------------|
 | All 9 automated files | EXISTS (complete) | YES | None | N/A |
-| MT-GRP-01/MT-001 | EXISTS | YES | None | N/A |
+| E2E-GRP-01/E2E-001 | EXISTS | YES | None | N/A |
 
 **Implementation Dependencies Summary**:
 - **Testable Components**: All 7 parsers (Markdown, YAML, JSON, Python, Dart, Generic, PowerShell) + LinkParser facade + image handling
@@ -71,7 +71,7 @@ audit_date: 2026-03-15
 - **Generic** (test_generic.py): Quoted refs, directory paths (PD-BUG-021), prose filename rejection (PD-BUG-028), binary file handling
 - **Image** (test_image_files.py): PNG/SVG handling, corrupted files, mixed content directories
 - **PowerShell** (test_powershell.py): 32 tests covering cmdlet patterns (Join-Path, Import-Module, Get-Content, Test-Path), here-strings, embedded markdown links, regex pattern filtering (PD-BUG-033), deduplication
-- **Manual** (MT-001): PowerShell regex preservation on file move
+- **E2E** (E2E-001): PowerShell regex preservation on file move
 
 **Evidence**:
 - 7 distinct bug regression tests across parsers: PD-BUG-011, -013, -021, -028, -030, -031, -033
@@ -137,14 +137,14 @@ audit_date: 2026-03-15
 **Assessment**: PASS (2/4)
 
 **Findings**:
-- **CRITICAL**: `tests/parsers/test_powershell.py` (32 tests) is NOT registered in test-registry.yaml
+- **CRITICAL**: `test/automated/parsers/test_powershell.py` (32 tests) is NOT registered in test-registry.yaml
 - Multiple registry testCasesCount discrepancies:
   - PD-TST-103: 8 → 12
   - PD-TST-109: 29 → 59
   - PD-TST-113: 8 → 11
   - PD-TST-114: 22 → 21
   - PD-TST-115: 5 → 6
-- Manual test entries (MT-GRP-01, MT-001) are properly tracked in test-tracking.md
+- Manual test entries (E2E-GRP-01, E2E-001) are properly tracked in test-tracking.md
 
 **Recommendations**:
 - Register test_powershell.py in test-registry.yaml with a new PD-TST ID
@@ -159,7 +159,7 @@ audit_date: 2026-03-15
 179 automated tests across 9 files provide comprehensive coverage of all 7+ parser implementations plus the facade layer. Seven distinct bug regression test suites protect against known issues. Known limitations are properly tracked via xfail. The test suite is the most thorough in the project (largest by test count). The unregistered test_powershell.py is a tracking issue, not a quality issue — the tests themselves are excellent. Average score: 3.7/4.0.
 
 ### Critical Issues
-- `tests/parsers/test_powershell.py` (32 tests) not registered in test-registry.yaml — must be registered
+- `test/automated/parsers/test_powershell.py` (32 tests) not registered in test-registry.yaml — must be registered
 
 ### Improvement Opportunities
 - Register test_powershell.py with new PD-TST ID
@@ -176,7 +176,7 @@ audit_date: 2026-03-15
 ## Action Items
 
 ### For Test Implementation Team
-- [ ] Register tests/parsers/test_powershell.py in test-registry.yaml (new PD-TST ID for feature 2.1.1)
+- [ ] Register test/automated/parsers/test_powershell.py in test-registry.yaml (new PD-TST ID for feature 2.1.1)
 - [ ] Update PD-TST-103 testCasesCount 8 → 12
 - [ ] Update PD-TST-109 testCasesCount 29 → 59
 - [ ] Update PD-TST-113 testCasesCount 8 → 11

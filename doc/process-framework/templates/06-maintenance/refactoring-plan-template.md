@@ -43,7 +43,7 @@ priority: [Priority Level]
 ## Current State Analysis
 
 ### Code Quality Metrics (Baseline)
-<!-- Record current metrics before refactoring -->
+<!-- Conditional: Include only for refactorings that target measurable complexity/performance improvement (e.g., class decomposition, algorithm optimization). Omit for straightforward changes (dead code removal, config wiring, pattern replacement). -->
 - **Complexity Score**: [Current complexity measurement]
 - **Maintainability Index**: [Current maintainability score]
 - **Code Coverage**: [Current test coverage percentage]
@@ -105,7 +105,7 @@ priority: [Priority Level]
 ## Success Criteria
 
 ### Quality Improvements
-<!-- Measurable improvements expected from refactoring -->
+<!-- Conditional: Include only when Code Quality Metrics (Baseline) section is included. Omit for straightforward changes. -->
 - **Complexity Reduction**: Target [X]% reduction in complexity score
 - **Maintainability**: Target [X]% improvement in maintainability index
 - **Performance**: [Expected performance improvements, if any]
@@ -128,7 +128,7 @@ priority: [Priority Level]
 | [Date] | [Phase] | [Description] | [Issues] | [Next steps] |
 
 ### Metrics Tracking
-<!-- Track improvements during refactoring -->
+<!-- Conditional: Include only when Code Quality Metrics (Baseline) section is included. Omit for straightforward changes. -->
 | Metric | Baseline | Current | Target | Status |
 |--------|----------|---------|--------|--------|
 | Complexity Score | [Baseline] | [Current] | [Target] | [Status] |
@@ -138,7 +138,7 @@ priority: [Priority Level]
 ## Results and Lessons Learned
 
 ### Final Metrics
-<!-- Record final metrics after refactoring completion -->
+<!-- Conditional: Include only when Code Quality Metrics (Baseline) section is included. Omit for straightforward changes. -->
 - **Complexity Score**: [Final score] (Change: [+/-X%])
 - **Maintainability Index**: [Final score] (Change: [+/-X%])
 - **Code Coverage**: [Final percentage] (Change: [+/-X%])

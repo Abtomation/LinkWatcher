@@ -48,6 +48,29 @@ Write-Host ""
 $errorCount = 0
 $warningCount = 0
 
+# --- Load project config and language config ---
+$configPath = Join-Path $ProjectRoot "doc/process-framework/project-config.json"
+$langConfig = $null
+$testDirectory = $null
+
+if (Test-Path $configPath) {
+    $config = Get-Content $configPath -Raw -Encoding UTF8 | ConvertFrom-Json
+    $testDirectory = if ($config.testing -and $config.testing.testDirectory) { $config.testing.testDirectory } elseif ($config.paths.tests) { $config.paths.tests } else { $null }
+
+    if ($config.testing -and $config.testing.language) {
+        $langConfigPath = Join-Path $ProjectRoot "doc/process-framework/languages-config/$($config.testing.language)-config.json"
+        if (Test-Path $langConfigPath) {
+            $langConfig = Get-Content $langConfigPath -Raw -Encoding UTF8 | ConvertFrom-Json
+        }
+    }
+}
+
+# Extract language-specific settings with fallback warnings
+$testFileExtension = if ($langConfig -and $langConfig.testing.testFileExtension) { $langConfig.testing.testFileExtension } else { $null }
+$testFileExclusions = if ($langConfig -and $langConfig.testing.testFileExclusions) { @($langConfig.testing.testFileExclusions) } else { @() }
+$discoveryOutputPattern = if ($langConfig -and $langConfig.testing.discoveryOutputPattern) { $langConfig.testing.discoveryOutputPattern } else { $null }
+$testCountCommand = if ($langConfig -and $langConfig.testing.discoveryCommand) { $langConfig.testing.discoveryCommand } else { $null }
+
 # --- Load ../test-registry.yaml ---
 $registryPath = Join-Path $ProjectRoot "test/test-registry.yaml"
 if (-not (Test-Path $registryPath)) {
@@ -114,13 +137,15 @@ Write-Host ""
 # --- Check 2: Test files on disk not in registry ---
 Write-Host "2. Checking for unregistered test files..." -ForegroundColor Yellow
 
-$testsDir = Join-Path $ProjectRoot "tests"
+$testsDir = if ($testDirectory) { Join-Path $ProjectRoot $testDirectory } else { Join-Path $ProjectRoot "tests" }
 $registeredPaths = $registryEntries | ForEach-Object { $_['filePath'] }
 
 $unregisteredFiles = @()
-if (Test-Path $testsDir) {
-    $testFiles = Get-ChildItem -Path $testsDir -Recurse -Include "*.py" -File | Where-Object {
-        $_.Name -ne "__init__.py" -and $_.Name -ne "__pycache__"
+if (-not $testFileExtension) {
+    Write-Host "  SKIPPED: No testFileExtension in language config — cannot scan for unregistered files" -ForegroundColor Gray
+} elseif (Test-Path $testsDir) {
+    $testFiles = Get-ChildItem -Path $testsDir -Recurse -Include "*$testFileExtension" -File | Where-Object {
+        $_.Name -notin $testFileExclusions -and $_.Directory.Name -notin $testFileExclusions
     }
     foreach ($file in $testFiles) {
         $relativePath = $file.FullName.Substring($ProjectRoot.Length + 1).Replace('\', '/')
@@ -256,20 +281,8 @@ Write-Host ""
 # --- Check 6: testCasesCount validation via project test runner ---
 Write-Host "6. Checking testCasesCount against actual test collection..." -ForegroundColor Yellow
 
-$configPath = Join-Path $ProjectRoot "doc/process-framework/project-config.json"
-$testCountCommand = $null
-$testDirectory = $null
-
-if (Test-Path $configPath) {
-    $config = Get-Content $configPath -Raw -Encoding UTF8 | ConvertFrom-Json
-    if ($config.testing -and $config.testing.testCountCommand) {
-        $testCountCommand = $config.testing.testCountCommand
-        $testDirectory = if ($config.testing.testDirectory) { $config.testing.testDirectory } else { $config.paths.tests }
-    }
-}
-
 if (-not $testCountCommand) {
-    Write-Host "  SKIPPED: No testing.testCountCommand configured in project-config.json" -ForegroundColor Gray
+    Write-Host "  SKIPPED: No discoveryCommand found in language config (check testing.language in project-config.json)" -ForegroundColor Gray
 } else {
     $testDir = Join-Path $ProjectRoot $testDirectory
     if (-not (Test-Path $testDir)) {
@@ -289,17 +302,21 @@ if (-not $testCountCommand) {
                 Write-Host "  WARNING: Test collection command failed (exit code $collectExitCode)" -ForegroundColor Yellow
                 $warningCount++
             } else {
-                # Parse pytest --collect-only -q output format: "path/to/file.py::TestClass::test_method"
-                # Count items per file path
+                # Parse discovery output using language-config pattern
+                # e.g. pytest: "path/to/file.py::TestClass::test_method" → pattern "^(.+\.py)::"
                 $actualCounts = @{}
-                foreach ($line in $collectOutput) {
-                    $lineStr = "$line".Trim()
-                    if ($lineStr -match '^(.+\.py)::') {
-                        $filePath = $matches[1].Replace('\', '/')
-                        if (-not $actualCounts.ContainsKey($filePath)) {
-                            $actualCounts[$filePath] = 0
+                if (-not $discoveryOutputPattern) {
+                    Write-Host "  SKIPPED: No discoveryOutputPattern in language config — cannot parse discovery output" -ForegroundColor Gray
+                } else {
+                    foreach ($line in $collectOutput) {
+                        $lineStr = "$line".Trim()
+                        if ($lineStr -match $discoveryOutputPattern) {
+                            $filePath = $matches[1].Replace('\', '/')
+                            if (-not $actualCounts.ContainsKey($filePath)) {
+                                $actualCounts[$filePath] = 0
+                            }
+                            $actualCounts[$filePath]++
                         }
-                        $actualCounts[$filePath]++
                     }
                 }
 
@@ -349,6 +366,33 @@ if (-not $testCountCommand) {
             $warningCount++
         }
     }
+}
+# --- Check 7: Priority field validation ---
+Write-Host "Check 7: Priority field validation" -ForegroundColor Cyan
+$validPriorities = @("Critical", "Standard", "Extended")
+$missingPriority = 0
+$invalidPriority = 0
+foreach ($entry in $registryEntries) {
+    $priority = $entry.priority
+    if (-not $priority) {
+        Write-Host "  WARNING: $($entry.id) ($($entry.fileName)) — missing priority field" -ForegroundColor Yellow
+        $missingPriority++
+        $warningCount++
+    } elseif ($priority -notin $validPriorities) {
+        Write-Host "  ERROR: $($entry.id) ($($entry.fileName)) — invalid priority '$priority' (expected: $($validPriorities -join ', '))" -ForegroundColor Red
+        $invalidPriority++
+        $errorCount++
+    }
+}
+if ($missingPriority -eq 0 -and $invalidPriority -eq 0) {
+    $priorityCounts = @{}
+    foreach ($entry in $registryEntries) {
+        $p = $entry.priority
+        if (-not $priorityCounts.ContainsKey($p)) { $priorityCounts[$p] = 0 }
+        $priorityCounts[$p]++
+    }
+    $summary = ($priorityCounts.GetEnumerator() | Sort-Object Name | ForEach-Object { "$($_.Key): $($_.Value)" }) -join ", "
+    Write-Host "  OK: All entries have valid priority field ($summary)" -ForegroundColor Green
 }
 Write-Host ""
 

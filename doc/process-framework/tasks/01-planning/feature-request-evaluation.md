@@ -3,9 +3,9 @@ id: PF-TSK-067
 type: Process Framework
 category: Task Definition
 domain: agnostic
-version: 1.1
+version: 1.2
 created: 2026-02-19
-updated: 2026-03-02
+updated: 2026-03-17
 task_type: Discrete
 ---
 
@@ -80,25 +80,29 @@ This task evaluates incoming change requests to determine whether they represent
 
 ### Phase 2b: Enhancement Scoping
 
-5b. **Propose target feature** — Identify which existing feature this enhances:
-   - Locate the candidate feature in `feature-tracking.md`
-   - Read the feature's implementation state file to understand its current scope
+5b. **Propose target feature(s)** — Identify which existing feature(s) this enhances:
+   - Locate the candidate feature(s) in `feature-tracking.md`
+   - Read each feature's implementation state file to understand its current scope
    - Locate any existing design documentation (FDD, TDD, ADR)
+   - **Multi-feature requests**: If the change request affects multiple existing features, identify all of them. Present the full list at the checkpoint below.
 6. **🚨 CHECKPOINT**: Present target feature proposal with rationale to human partner and wait for explicit approval before continuing
+   - **For multi-feature requests**: Present all affected features and confirm with the human partner whether to proceed with separate Enhancement State Tracking Files for each, or whether the request should be split into independent evaluations. The default is **one state file per target feature**, each scoped to that feature's portion of the work, with cross-references linking the related state files.
 
-7. **Assess enhancement scope** — After human approval of the target feature, evaluate using practical criteria:
+7. **Assess enhancement scope** — After human approval of the target feature(s), evaluate each using practical criteria:
    - How many files are affected?
    - Can all work (implementation + doc updates + state tracking) be completed in a single session, or will it span multiple sessions?
    - Which design documents (FDD, TDD, ADR) need reviewing or amending?
    - Are new tests required, or only modifications to existing tests?
    - Does the enhancement affect the feature's public interface or only internal implementation?
 
-8. **Create Enhancement State Tracking File** — Use the `New-EnhancementState.ps1` script:
+8. **Create Enhancement State Tracking File(s)** — Use the `New-EnhancementState.ps1` script for each target feature:
    ```powershell
    cd doc/process-framework/scripts/file-creation
    ./New-EnhancementState.ps1 -TargetFeature "[Feature ID]" -EnhancementName "[Brief Name]" -Description "[Scope description]"
    ```
-   Then customize the generated file following the [Enhancement State Tracking Customization Guide](../../guides/04-implementation/enhancement-state-tracking-customization-guide.md). The template contains 17 pre-defined workflow blocks mirroring the standard feature development workflow. Customization involves:
+   **Multi-feature requests**: Run the script once per target feature. In each generated state file, add a "Related Enhancement State Files" section listing the other state files created for the same change request, so the Feature Enhancement task can coordinate the work.
+
+   Then customize each generated file following the [Enhancement State Tracking Customization Guide](../../guides/04-implementation/enhancement-state-tracking-customization-guide.md). The template contains 17 pre-defined workflow blocks mirroring the standard feature development workflow. Customization involves:
    - Filling in enhancement metadata (target feature, scope description, estimated sessions)
    - Building the existing documentation inventory (links to current FDD, TDD, ADR, state file)
    - Evaluating each workflow block and marking it **Applicable** or **Not Applicable** with rationale

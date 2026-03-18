@@ -23,9 +23,10 @@
   },
 
   "testing": {
-    "description": "Test runner configuration for validation scripts",
-    "testCountCommand": "python -m pytest --collect-only -q",
-    "testDirectory": "test/automated"
+    "description": "Test runner configuration — language-specific commands are in languages-config/{language}-config.json",
+    "language": "python",
+    "testDirectory": "test/automated",
+    "quickCategories": ["unit", "parsers"]
   },
 
   "project_metadata": {

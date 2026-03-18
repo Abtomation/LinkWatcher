@@ -2,9 +2,9 @@
 id: PF-TSK-030
 type: Process Framework
 category: Task Definition
-version: 1.4
+version: 1.5
 created: 2025-08-07
-updated: 2026-03-02
+updated: 2026-03-17
 task_type: Discrete
 ---
 
@@ -77,27 +77,39 @@ Comprehensive quality assurance task that evaluates implemented test suites agai
 1. **Review Test Implementation**: Examine the implemented test suite files and understand their structure and coverage
 2. **Analyze Test Specification**: Compare implementation against original test specification to understand intended behavior
 3. **Understand Feature Context**: Review feature documentation, TDD, and requirements to grasp the feature's purpose and complexity
-4. **🚨 CHECKPOINT**: Present audit scope, test implementation overview, and feature context to human partner for approval before conducting audit
+4. **Run Code Coverage Analysis**: Execute tests with coverage to gather quantitative data for the audit
+
+   ```powershell
+   # Run tests with coverage using the language-agnostic test runner
+   Run-Tests.ps1 -All -Coverage
+   ```
+
+   - Review the coverage summary output (per-source-file percentages)
+   - Open the HTML coverage report for detailed line-by-line analysis
+   - Note low-coverage source files relevant to the feature being audited
+   - This data feeds into criterion "2. Coverage Completeness" as quantitative evidence
+
+5. **🚨 CHECKPOINT**: Present audit scope, test implementation overview, coverage summary, and feature context to human partner for approval before conducting audit
 
 ### Execution
 
-5. **Assess Implementation Dependencies**: Before evaluating test quality, determine what can actually be tested:
+6. **Assess Implementation Dependencies**: Before evaluating test quality, determine what can actually be tested:
 
    - **Implementation Status Check**: Verify which classes/components referenced in tests actually exist in the codebase
    - **Testability Analysis**: Identify tests that cannot be implemented due to missing dependencies
    - **Placeholder Assessment**: Evaluate quality and completeness of placeholder tests for missing implementations
    - **Documentation Review**: Check if placeholder tests clearly specify implementation requirements
 
-6. **Conduct Systematic Audit**: Evaluate implementable tests against all six quality criteria:
+7. **Conduct Systematic Audit**: Evaluate implementable tests against all six quality criteria:
 
-   - **Purpose Fulfillment**: Does the test really fulfill its intended purpose?
+   - **Purpose Fulfillment**: Does the test really fulfill its intended purpose? Include **Assertion Quality Assessment**: assertion density (target ≥2 per method), behavioral vs superficial assertions, edge case coverage, and optional mutation testing.
    - **Coverage Completeness**: Are all implementable scenarios covered with tests?
    - **Test Quality & Structure**: Could the test be optimized?
    - **Performance & Efficiency**: Are tests efficient and performant?
    - **Maintainability**: Will these tests be maintainable long-term?
    - **Integration Alignment**: Do tests align with overall testing strategy?
 
-7. **Create Audit Report**: Generate comprehensive audit report using automation script
+8. **Create Audit Report**: Generate comprehensive audit report using automation script
 
    ```powershell
    # Navigate to the test-audits directory from project root
@@ -116,7 +128,7 @@ Comprehensive quality assurance task that evaluates implemented test suites agai
    **Script Location**: /doc/process-framework/scripts/file-creation/03-testing/New-TestAuditReport.ps1
    **Output Location**: `/doc/product-docs/test-audits/[category]/audit-report-[feature-id]-[test-file-id].md`
 
-8. **Document Findings**: Complete the audit report with specific findings, recommendations, and audit decision
+9. **Document Findings**: Complete the audit report with specific findings, recommendations, and audit decision
 
    **⚠️ Error Handling Guidance**:
 
@@ -125,7 +137,7 @@ Comprehensive quality assurance task that evaluates implemented test suites agai
    - **Missing Test Files**: Report gaps in test coverage or missing test specifications
    - **Configuration Issues**: Identify test setup or environment configuration problems
 
-9. **Bug Discovery During Audit**: Identify and document any bugs discovered during test execution:
+10. **Bug Discovery During Audit**: Identify and document any bugs discovered during test execution:
 
    - **Test Failures**: Analyze failing tests to determine if they indicate actual bugs
    - **Unexpected Behavior**: Document any behavior that doesn't match expected outcomes
@@ -133,7 +145,7 @@ Comprehensive quality assurance task that evaluates implemented test suites agai
    - **Integration Problems**: Note issues discovered during integration test execution
    - **Performance Issues**: Document performance-related bugs found during testing
 
-10. **Report Discovered Bugs**: If bugs are identified during audit:
+11. **Report Discovered Bugs**: If bugs are identified during audit:
 
    - Use [New-BugReport.ps1](../../scripts/file-creation/06-maintenance/New-BugReport.ps1) script to create standardized bug reports
    - Follow [Bug Reporting Guide](../../guides/06-maintenance/bug-reporting-guide.md) for consistent documentation
@@ -152,14 +164,14 @@ Comprehensive quality assurance task that evaluates implemented test suites agai
    .\New-BugReport.ps1 -Title "Test failure reveals bug in component" -Description "Test consistently fails due to validation issue" -DiscoveredBy "Test Audit" -Severity "High" -Component "Component Name" -Environment "Development" -RelatedFeature "X.Y.Z"
    ```
 
-11. **Assign Audit Status**: Determine audit outcome based on evaluation results:
+12. **Assign Audit Status**: Determine audit outcome based on evaluation results:
 
 - **✅ Tests Approved**: All implementable tests are complete and high quality
 - **🟡 Tests Approved with Dependencies**: Current tests are good, but some tests await implementation
 - **🔄 Needs Update**: Existing tests have issues that need fixing
 - **🔴 Tests Incomplete**: Missing tests for existing implementations
 
-12. **Validate Audit Report**: Run the validation script to verify report completeness before presenting to human partner
+13. **Validate Audit Report**: Run the validation script to verify report completeness before presenting to human partner
 
    ```powershell
    # Navigate to scripts/validation directory from project root
@@ -171,11 +183,11 @@ Comprehensive quality assurance task that evaluates implemented test suites agai
 
    Address any errors or warnings before proceeding. The script checks metadata completeness, all six evaluation criteria, audit decision consistency, required sections, and template placeholders.
 
-13. **🚨 CHECKPOINT**: Present audit findings, quality criteria scores, discovered bugs, and proposed audit status to human partner for review and approval
+14. **🚨 CHECKPOINT**: Present audit findings, quality criteria scores, coverage data, discovered bugs, and proposed audit status to human partner for review and approval
 
 ### Finalization
 
-14. **Update Test Tracking**: **🤖 AUTOMATED** - Update test implementation tracking with audit results using automation script
+15. **Update Test Tracking**: **🤖 AUTOMATED** - Update test implementation tracking with audit results using automation script
 
 ```powershell
 # Navigate to scripts directory from project root
@@ -200,21 +212,21 @@ Set-Location "<project-root>/doc/process-framework/scripts"
 - `"Audit Failed"` → 🔴 Audit Failed
 - `"Audit In Progress"` → 🔍 Audit In Progress
 
-15. **Verify Automated Updates**: Confirm the automation script successfully updated all state files:
+16. **Verify Automated Updates**: Confirm the automation script successfully updated all state files:
 
     - **../../state-tracking/permanent/test-tracking.md**: Individual test file status with audit details
     - **/test/test-registry.yaml**: Test file audit completion status
     - **../../state-tracking/permanent/feature-tracking.md**: Aggregated feature test status
 
-16. **Document Implementation Dependencies**: If status is "🟡 Tests Approved with Dependencies", clearly document:
+17. **Document Implementation Dependencies**: If status is "🟡 Tests Approved with Dependencies", clearly document:
 
     - Which implementations are missing and blocking tests
     - Recommended implementation priority order
     - Expected impact on feature development timeline
 
-17. **Provide Feedback**: Deliver actionable recommendations for improvement if tests need updates
+18. **Provide Feedback**: Deliver actionable recommendations for improvement if tests need updates
 
-18. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+19. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 

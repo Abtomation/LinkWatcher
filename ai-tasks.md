@@ -128,8 +128,8 @@ _Test planning, implementation, and quality assurance activities_
 
 | Task                            | Use When                                                                               | Complexity | Link                                                                                        |
 | ------------------------------- | -------------------------------------------------------------------------------------- | ---------- | ------------------------------------------------------------------------------------------- |
-| **Manual Test Execution** | Execute manual test cases systematically, record results, and report issues discovered through human interaction with the running system | 🟡 Medium | [→ Definition](/doc/process-framework/tasks/03-testing/manual-test-execution-task.md) |
-| **Manual Test Case Creation** | Create concrete, reproducible manual test cases from test specifications with exact steps, file contents, and expected outcomes | 🟡 Medium | [→ Definition](/doc/process-framework/tasks/03-testing/manual-test-case-creation-task.md) |
+| **E2E Acceptance Test Execution** | Execute E2E acceptance test cases systematically, record results, and report issues discovered through human interaction with the running system | 🟡 Medium | [→ Definition](/doc/process-framework/tasks/03-testing/e2e-acceptance-test-execution-task.md) |
+| **E2E Acceptance Test Case Creation** | Create concrete, reproducible E2E acceptance test cases from test specifications with exact steps, file contents, and expected outcomes | 🟡 Medium | [→ Definition](/doc/process-framework/tasks/03-testing/e2e-acceptance-test-case-creation-task.md) |
 | **Test Specification Creation** | Create comprehensive test specifications from TDDs for Test-First Development          | 🟡 Medium  | [→ Definition](/doc/process-framework/tasks/03-testing/test-specification-creation-task.md) |
 | **Test Audit**                  | Quality assurance evaluation of implemented test suites against effectiveness criteria | 🟡 Medium  | [→ Definition](/doc/process-framework/tasks/03-testing/test-audit-task.md)                  |
 

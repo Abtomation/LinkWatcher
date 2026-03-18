@@ -101,9 +101,10 @@ Establishes foundational project configuration and metadata when initializing a 
      },
 
      "testing": {
-       "description": "Test runner configuration for validation scripts",
-       "testCountCommand": "[Command to collect tests, e.g. 'python -m pytest --collect-only -q' or 'dart test --reporter=json' or null]",
-       "testDirectory": "[Test directory relative to root, e.g. 'test/automated']"
+       "description": "Test runner configuration — language-specific commands are in languages-config/{language}-config.json",
+       "language": "[Language name matching a file in languages-config/, e.g. 'python' or 'dart']",
+       "testDirectory": "[Test directory relative to root, e.g. 'test/automated']",
+       "quickCategories": ["[subdirectory names for -Quick flag, e.g. 'unit', 'widget']"]
      },
 
      "project_metadata": {
@@ -137,27 +138,29 @@ Establishes foundational project configuration and metadata when initializing a 
    - Set values to `null` for optional fields that don't apply
 
 7. **Validate JSON Syntax**: Ensure the file is valid JSON (check for missing commas, brackets, quotes)
-8. **🚨 CHECKPOINT**: Present completed project-config.json to human partner for review before finalization
+8. **Set Up Language Configuration**: Check if `languages-config/{language}-config.json` exists for the project's language. If not, copy the [language config template](/doc/process-framework/templates/support/language-config-template.json) to `languages-config/{language}-config.json` and fill in language-specific values (test runner, coverage, lint commands). See [languages-config README](/doc/process-framework/languages-config/README.md).
+9. **🚨 CHECKPOINT**: Present completed project-config.json (and language config if new) to human partner for review before finalization
 
 ### Finalization
 
-9. **Verify File Location**: Confirm `project-config.json` is in the project root directory
+10. **Verify File Location**: Confirm `project-config.json` is in the project root directory and language config is in `languages-config/`
 
-10. **Test Configuration**: If automation scripts are available, test that they can read the config file successfully
+11. **Test Configuration**: If automation scripts are available, test that they can read the config file successfully (e.g., `Run-Tests.ps1 -ListCategories`)
 
-11. **Document Project-Specific Notes**: If there are any non-standard configurations or important context, add comments to this task or create a project README
+12. **Document Project-Specific Notes**: If there are any non-standard configurations or important context, add comments to this task or create a project README
 
-12. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+13. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 
 - **project-config.json** - JSON configuration file created at project root directory containing:
   - Project identification (name, display name, description, repository URL)
   - Directory path mappings (documentation, source code, tests, scripts)
-  - Testing configuration (test count command for validation scripts)
+  - Testing configuration (language, test directory, quick categories)
   - Project metadata (language, framework, platform, development approach)
   - Team composition and collaboration model
   - Integration configurations (issue tracker, CI/CD, code hosting)
+- **Language config** (if new) - `languages-config/{language}-config.json` with language-specific test runner commands
 
 ## State Tracking
 

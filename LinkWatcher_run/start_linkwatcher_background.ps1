@@ -38,7 +38,7 @@ if (Test-Path $lockFile) {
 Write-Host "Starting LinkWatcher in background for $projectRoot..." -ForegroundColor Cyan
 
 # Start LinkWatcher with explicit project root and logging
-$logFile = Join-Path $scriptDir "LinkWatcherLog.txt"
+$logFile = Join-Path $scriptDir "LinkWatcherLog_20260318-095051.txt"
 $stdoutLog = Join-Path $scriptDir "LinkWatcherStdout.txt"
 $stderrLog = Join-Path $scriptDir "LinkWatcherError.txt"
 $arguments = "C:\Users\ronny\bin\main.py --project-root `"$projectRoot`" --log-file `"$logFile`" --debug"

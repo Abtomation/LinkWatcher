@@ -195,6 +195,16 @@ try {
         $dbDesignRequired = $true
     }
 
+    # Add tier emoji to recommended tier
+    $tierEmojis = @{
+        "Tier 1" = "🔵 Tier 1"
+        "Tier 2" = "🟡 Tier 2"
+        "Tier 3" = "🔴 Tier 3"
+    }
+    if ($tierEmojis.ContainsKey($recommendedTier)) {
+        $recommendedTier = $tierEmojis[$recommendedTier]
+    }
+
     # Determine appropriate status if not provided
     if (-not $Status) {
         $Status = "📊 Assessment Created"
@@ -257,6 +267,16 @@ try {
     }
 
     $notesString = $assessmentNotes -join "; "
+
+    # Make notes idempotent: check if this assessment is already recorded in feature-tracking.md
+    $featureTrackingPath = Join-Path -Path (Get-ProjectRoot) -ChildPath "doc/process-framework/state-tracking/permanent/feature-tracking.md"
+    if (Test-Path $featureTrackingPath) {
+        $ftContent = Get-Content $featureTrackingPath -Raw -Encoding UTF8
+        if ($ftContent -match [regex]::Escape($AssessmentId)) {
+            $notesString = ""
+            Write-Verbose "Assessment $AssessmentId already recorded in notes — skipping note append"
+        }
+    }
 
     # Display what will be updated
     Write-Host ""

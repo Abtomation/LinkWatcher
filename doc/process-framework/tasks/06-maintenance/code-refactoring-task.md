@@ -68,15 +68,15 @@ Evaluate the refactoring scope against these criteria:
 
 | Criteria | Lightweight | Standard |
 |----------|-------------|----------|
-| Estimated code effort | ≤ 15 minutes | > 15 minutes |
-| Files affected | Single file | Multiple files |
-| Architectural impact | None | Any |
-| Interface/API changes | None | Any |
+| Architectural impact | None | Any (class decomposition, interface redesign, pattern changes) |
+| Interface/API changes | None | Any (public API signature changes, contract modifications) |
+| Files affected | Any count | Any count |
+| Estimated effort | Any | Any |
 
-**Lightweight** — ALL criteria in the Lightweight column must apply.
-**Standard** — ANY criteria in the Standard column triggers the standard path.
+**Lightweight** — No architectural impact AND no interface/API changes.
+**Standard** — ANY architectural impact OR interface/API change triggers the standard path.
 
-> **Documentation-only qualifier**: Changes that only modify documentation files (FDDs, TDDs, state files, templates, guides) qualify for Lightweight regardless of file count, provided all other Lightweight criteria are met (≤ 15 min, no architectural impact, no interface changes).
+> **Key principle**: File count and effort alone do not determine the path. A 5-file dead code removal or config wiring change is Lightweight. A single-file class decomposition that changes interfaces is Standard.
 
 > **🚨 CHECKPOINT**: Present effort classification (Lightweight or Standard) to human partner for approval.
 >
@@ -98,7 +98,7 @@ Evaluate the refactoring scope against these criteria:
 ## Next Tasks
 
 - [**Code Review Task**](code-review-task.md) - Review refactored code for quality and correctness
-- [**Manual Test Execution**](../03-testing/manual-test-execution-task.md) - Execute manual tests for groups marked for re-execution after refactoring
+- [**Manual Test Execution**](../03-testing/e2e-acceptance-test-execution-task.md) - Execute manual tests for groups marked for re-execution after refactoring
 - [**Technical Debt Assessment Task**](../cyclical/technical-debt-assessment-task.md) - Reassess technical debt after refactoring completion
 
 ## Related Resources

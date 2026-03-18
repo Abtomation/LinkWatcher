@@ -170,11 +170,11 @@ This framework extension should be used when:
 ### Artifact Dependency Map
 
 #### New Artifacts Created
-| Artifact Type | Name | Purpose | Serves as Input For |
-|---------------|------|---------|-------------------|
-| [Type 1] | [Name 1] | [Purpose 1] | [Task/Process 1] |
-| [Type 2] | [Name 2] | [Purpose 2] | [Task/Process 2] |
-| [Type 3] | [Name 3] | [Purpose 3] | [Task/Process 3] |
+| Artifact Type | Name | Directory | Purpose | Serves as Input For |
+|---------------|------|-----------|---------|-------------------|
+| [Type 1] | [Name 1] | [Directory 1] | [Purpose 1] | [Task/Process 1] |
+| [Type 2] | [Name 2] | [Directory 2] | [Purpose 2] | [Task/Process 2] |
+| [Type 3] | [Name 3] | [Directory 3] | [Purpose 3] | [Task/Process 3] |
 
 #### Dependencies on Existing Artifacts
 | Required Artifact | Source | Usage |

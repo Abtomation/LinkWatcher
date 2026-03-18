@@ -82,6 +82,11 @@ The Test Audit process evaluates tests against six comprehensive quality criteri
 - Coverage of intended functionality
 - Validation of expected behaviors
 - Edge case handling appropriateness
+- **Assertion Quality** (sub-assessment):
+  - *Assertion density*: Count assertions per test method — target ≥2. Tests with only one `assert` or none beyond "no exception" are weak.
+  - *Behavioral assertions*: Do assertions check actual return values, state changes, and side effects? Flag tests that only assert `is not None` or `assertTrue(True)`.
+  - *Edge case assertions*: Are boundary conditions, error paths, and empty/null inputs covered with specific assertions?
+  - *Mutation testing* (optional): If tools are available (e.g., `mutmut` for Python), report mutation kill rate. Not required.
 
 **Assessment Levels**: PASS (fully fulfills purpose), PARTIAL (mostly fulfills with gaps), FAIL (does not fulfill purpose)
 
@@ -89,6 +94,7 @@ The Test Audit process evaluates tests against six comprehensive quality criteri
 **Question**: Are all implementable scenarios covered with tests?
 
 **Focus Areas**:
+- **Code Coverage Data**: Quantitative line/branch coverage from `Run-Tests.ps1 -Coverage` — include per-module percentages and overall project coverage in the audit report
 - **Existing Implementation Coverage**: Test coverage for existing implementations
 - **Missing Implementation Analysis**: Identification of tests that cannot be implemented due to missing dependencies
 - **Placeholder Test Quality**: Assessment of placeholder tests for missing implementations
@@ -161,12 +167,18 @@ The Test Audit process evaluates tests against six comprehensive quality criteri
    - Check related source code being tested
    - Review any existing documentation or comments
 
-3. **Set Up Audit Environment**
+3. **Run Code Coverage Analysis**
+   - Execute `Run-Tests.ps1 -All -Coverage` to generate coverage data
+   - Review the terminal summary for per-source-file percentages
+   - Open the HTML coverage report (e.g., `htmlcov/index.html`) for line-by-line detail
+   - Note which source files relevant to the feature have low coverage — this feeds into criterion "2. Coverage Completeness"
+
+4. **Set Up Audit Environment**
    - Ensure you have Quality Assurance Engineer mindset
    - Prepare for systematic evaluation against all six criteria
-   - Have Test Tracking file ready for updates
+   - Have Test Tracking file and coverage data ready for the audit
 
-**Expected Result:** Complete context understanding and readiness to conduct systematic audit
+**Expected Result:** Complete context understanding, coverage data collected, and readiness to conduct systematic audit
 
 ### 2. Create Audit Report
 

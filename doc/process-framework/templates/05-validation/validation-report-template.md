@@ -218,10 +218,6 @@ validation_session: [Session number for this validation type]
 
 - [List of documents, code files, and other materials reviewed]
 
-### Appendix C: Detailed Evidence
-
-[Supporting evidence for findings - code snippets, screenshots, etc.]
-
 ---
 
 ## Validation Sign-Off

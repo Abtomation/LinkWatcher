@@ -22,6 +22,7 @@ This document provides comprehensive test specifications for the **In-Memory Lin
 
 **Test Tier**: 2 (Unit + Integration)
 **TDD Reference**: [TDD PD-TDD-022](../../../doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-2-in-memory-database-t2.md)
+**Implementation Coverage**: 11/15 scenarios implemented (73%)
 
 ## Feature Context
 
@@ -82,7 +83,7 @@ The In-Memory Link Database provides a thread-safe, target-indexed `Dict[str, Li
 | LinkDatabase | Clear | `test_clear` — resets links, files_with_links, last_scan to empty/None | `link_database` |
 | LinkDatabase | Thread safety | `test_thread_safety` — 3 threads x 100 refs = 300 total without corruption | `link_database` |
 
-**Test File**: [`tests/unit/test_database.py`](../../../tests/unit/test_database.py)
+**Test File**: [`test/automated/unit/test_database.py`](../../../test/automated/unit/test_database.py)
 **Status**: Implemented (11 test methods)
 
 ## Mock Requirements
@@ -139,9 +140,9 @@ The In-Memory Link Database provides a thread-safe, target-indexed `Dict[str, Li
 ### Files to Reference
 
 - **TDD**: [`doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-2-in-memory-database-t2.md`](../../../doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-2-in-memory-database-t2.md)
-- **Existing Tests**: [`tests/unit/test_database.py`](../../../tests/unit/test_database.py)
+- **Existing Tests**: [`test/automated/unit/test_database.py`](../../../test/automated/unit/test_database.py)
 - **Source Code**: [`linkwatcher/database.py`](../../../linkwatcher/database.py)
-- **Fixtures**: [`tests/conftest.py`](../../../tests/conftest.py) — `link_database` fixture
+- **Fixtures**: [`test/automated/conftest.py`](../../../test/automated/conftest.py) — `link_database` fixture
 
 ---
 

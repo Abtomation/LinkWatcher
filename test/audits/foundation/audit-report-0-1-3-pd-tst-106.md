@@ -20,7 +20,7 @@ auditor: AI Agent
 | **Feature ID** | 0.1.3 |
 | **Feature Name** | Configuration System |
 | **Test File ID** | PD-TST-106 (primary), PD-TST-100 (utility module) |
-| **Test File Location** | `tests/unit/test_config.py` |
+| **Test File Location** | `test/automated/unit/test_config.py` |
 | **Feature Category** | FOUNDATION |
 | **Auditor** | AI Agent |
 | **Audit Date** | 2026-03-15 |
@@ -32,8 +32,8 @@ auditor: AI Agent
 
 | Test File | Location | Test Cases | Status |
 |-----------|----------|------------|--------|
-| test_config.py (unit) | tests/unit/test_config.py | 33 | ✅ All passing |
-| test_config.py (root) | tests/test_config.py | 0 (utility module) | N/A — not a test file |
+| test_config.py (unit) | test/automated/unit/test_config.py | 33 | ✅ All passing |
+| test_config.py (root) | test/automated/test_config.py | 0 (utility module) | N/A — not a test file |
 
 ## Implementation Dependency Analysis
 
@@ -79,11 +79,11 @@ auditor: AI Agent
 - **Existing Implementation Coverage**: All implemented config sources tested (JSON, YAML, env vars). Validation rules all covered.
 - **Missing Test Scenarios**: (1) CLI argument config loading not tested; (2) Priority cascade (CLI > env > file > defaults) not tested; (3) Config hot-reload not tested
 - **Edge Cases Coverage**: Good — malformed JSON/YAML, unsupported formats, partial configs, custom parsers config
-- **Note on PD-TST-100**: `tests/test_config.py` is a utility module providing `TEST_ENVIRONMENTS`, `SAMPLE_CONTENTS`, `create_test_project()` — it contains 0 test methods. Registry incorrectly shows 10 test cases.
+- **Note on PD-TST-100**: `test/automated/test_config.py` is a utility module providing `TEST_ENVIRONMENTS`, `SAMPLE_CONTENTS`, `create_test_project()` — it contains 0 test methods. Registry incorrectly shows 10 test cases.
 
 **Evidence**:
 - Test spec correctly identifies CLI arguments as untested: "Feature description mentions CLI as a config source — no tests for argument parsing"
-- `tests/test_config.py` has no `test_` methods — confirmed by pytest (0 collected)
+- `test/automated/test_config.py` has no `test_` methods — confirmed by pytest (0 collected)
 
 **Recommendations**:
 - Update PD-TST-100 testCasesCount from 10 to 0 in registry (utility module, not a test file)
@@ -123,7 +123,7 @@ auditor: AI Agent
 - Environment variable patching is lightweight
 
 **Evidence**:
-- `pytest tests/unit/test_config.py` → 33 passed in 0.49s
+- `pytest test/automated/unit/test_config.py` → 33 passed in 0.49s
 
 **Recommendations**:
 - None

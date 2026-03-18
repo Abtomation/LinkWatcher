@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Language-specific configuration for [Language] projects using the process framework. Copy this file to languages-config/{language}-config.json and fill in the values.",
+  "language": "[language-name]",
+  "version": "1.0",
+
+  "testing": {
+    "_comment_baseCommand": "REQUIRED. The command to run tests. Placeholders: {testDir} = test directory from project-config.json, {module} = project name from project-config.json.",
+    "baseCommand": "[test-runner-command, e.g. 'python -m pytest' or 'dart test' or 'go test']",
+
+    "_comment_coverageArgs": "REQUIRED. Arguments appended to baseCommand for coverage reporting. Use {module} and {testDir} placeholders.",
+    "coverageArgs": "[coverage flags, e.g. '--cov={module} --cov-report=html --cov-report=term']",
+
+    "_comment_coverageFullArgs": "OPTIONAL. Extended coverage arguments for standalone coverage generation (XML output, term-missing, etc.). Falls back to coverageArgs if omitted.",
+    "coverageFullArgs": "[extended coverage flags, e.g. '--cov={module} --cov-report=html --cov-report=term-missing --cov-report=xml']",
+
+    "_comment_discoveryCommand": "REQUIRED. Command to collect/discover tests without running them. Used by Validate-TestTracking.ps1.",
+    "discoveryCommand": "[discovery command, e.g. 'python -m pytest --collect-only -q' or 'dart test --reporter=json']",
+
+    "_comment_discoveryOutputPattern": "REQUIRED. Regex to extract file path from each line of discovery output. Must have capture group 1 = file path. Used by Validate-TestTracking.ps1 Check 6.",
+    "discoveryOutputPattern": "[regex, e.g. '^(.+\\\\.py)::' for pytest or '^(.+\\\\.dart)' for dart]",
+
+    "_comment_testFileExtension": "REQUIRED. File extension for test files (including dot). Used by Validate-TestTracking.ps1 Check 2.",
+    "testFileExtension": "[extension, e.g. '.py' or '.dart' or '_test.go']",
+
+    "_comment_testFileNamePattern": "REQUIRED. Naming pattern for new test files created by New-TestFile.ps1. Use {name} as placeholder for the sanitized test name. Extension is appended from testFileExtension. Examples: 'test_{name}' (Python), '{name}_test' (Dart/Go), '{name}.test' (JS/Jest), '{name}Test' (Java).",
+    "testFileNamePattern": "[pattern, e.g. 'test_{name}' or '{name}_test']",
+
+    "_comment_testFileExclusions": "OPTIONAL. File/directory names to exclude when scanning for test files. Omit or use empty array if none.",
+    "testFileExclusions": ["[e.g. '__init__.py']", "[e.g. '__pycache__']"],
+
+    "_comment_lintCommand": "OPTIONAL. Linting command for test files. Omit if not applicable. Use {testDir} placeholder.",
+    "lintCommand": "[lint command, e.g. 'python -m flake8 {testDir} --max-line-length=100']",
+
+    "_comment_stopOnFirstFailure": "REQUIRED. Flag to stop test execution on first failure. Used by -Quick mode.",
+    "stopOnFirstFailure": "[flag, e.g. '-x' for pytest, '--fail-fast' for dart test]",
+
+    "_comment_verboseFlag": "REQUIRED. Flag for verbose test output.",
+    "verboseFlag": "[flag, e.g. '-v' for pytest, '--reporter=expanded' for dart test]",
+
+    "_comment_markers": "OPTIONAL. Test marker/tag syntax for filtering test subsets. Keys are semantic names, values are CLI arguments.",
+    "markers": {
+      "slow": "[marker flag, e.g. '-m slow' or '--tags slow']",
+      "critical": "[marker flag, e.g. '-m critical' or '--tags critical']",
+      "notSlow": "[exclude-slow flag, e.g. '-m \"not slow\"' or '--exclude-tags slow']"
+    }
+  }
+}

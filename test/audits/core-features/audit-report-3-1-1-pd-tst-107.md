@@ -20,7 +20,7 @@ audit_date: 2026-03-15
 | **Feature ID** | 3.1.1 |
 | **Feature Name** | Logging System |
 | **Test File IDs** | PD-TST-107 (core), PD-TST-108 (advanced) |
-| **Test File Locations** | `tests/unit/test_logging.py`, `tests/unit/test_advanced_logging.py` |
+| **Test File Locations** | `test/automated/unit/test_logging.py`, `test/automated/unit/test_advanced_logging.py` |
 | **Feature Category** | CORE-FEATURES |
 | **Auditor** | AI Agent |
 | **Audit Date** | 2026-03-15 |
@@ -32,8 +32,8 @@ audit_date: 2026-03-15
 
 | Test File | Location | Test Cases | Status |
 |-----------|----------|------------|--------|
-| test_logging.py | tests/unit/test_logging.py | 25 | ✅ All passing |
-| test_advanced_logging.py | tests/unit/test_advanced_logging.py | 19 | ✅ All passing |
+| test_logging.py | test/automated/unit/test_logging.py | 25 | ✅ All passing |
+| test_advanced_logging.py | test/automated/unit/test_advanced_logging.py | 19 | ✅ All passing |
 
 ## Implementation Dependency Analysis
 

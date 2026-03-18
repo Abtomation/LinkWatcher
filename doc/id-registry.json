@@ -66,7 +66,7 @@
         "temporary": "doc/process-framework/state-tracking/temporary",
         "default": "permanent"
       },
-      "nextAvailable": 59
+      "nextAvailable": 60
     },
     "PF-DOC": {
       "description": "Process Framework - Documentation",
@@ -106,7 +106,7 @@
         "main": "doc/process-framework/proposals",
         "default": "main"
       },
-      "nextAvailable": 7
+      "nextAvailable": 9
     },
     "PF-FEE": {
       "description": "Process Framework - Feedback",
@@ -136,7 +136,7 @@
         "permanent": "doc/process-framework/state-tracking/permanent",
         "default": "permanent"
       },
-      "nextAvailable": 138
+      "nextAvailable": 148
     },
     "PF-ASS": {
       "description": "Process Framework - Tier Assessments",
@@ -354,7 +354,7 @@
         "forms": "doc/process-framework/feedback/feedback-forms",
         "default": "forms"
       },
-      "nextAvailable": 396
+      "nextAvailable": 408
     },
     "ART-REV": {
       "description": "Review Artifacts",
@@ -502,22 +502,22 @@
       },
       "nextAvailable": 42
     },
-    "MT-GRP": {
-      "description": "Manual Testing - Test Groups",
+    "E2E-GRP": {
+      "description": "E2E Acceptance Testing - Test Groups",
       "category": "Testing",
-      "type": "Manual Test Group",
+      "type": "E2E Acceptance Test Group",
       "directories": {
-        "templates": "test/manual-testing/templates",
+        "templates": "test/e2e-acceptance-testing/templates",
         "default": "templates"
       },
       "nextAvailable": 4
     },
-    "MT": {
-      "description": "Manual Testing - Test Cases",
+    "E2E": {
+      "description": "E2E Acceptance Testing - Test Cases",
       "category": "Testing",
-      "type": "Manual Test Case",
+      "type": "E2E Acceptance Test Case",
       "directories": {
-        "templates": "test/manual-testing/templates",
+        "templates": "test/e2e-acceptance-testing/templates",
         "default": "templates"
       },
       "nextAvailable": 5

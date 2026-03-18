@@ -205,7 +205,7 @@ No API Design, Database Schema Design, or Test Specification documents exist for
 | `linkwatcher/parsers/dart.py` | `DartParser` — `.dart` files |
 | `linkwatcher/parsers/powershell.py` | `PowerShellParser` — `.ps1`/`.psm1` files. Extracts paths from `#` line comments, `<# #>` block comments (including `.EXAMPLE`/`.NOTES` sections), quoted string literals, `Join-Path` arguments, and `Import-Module` paths. Uses regex patterns: `quoted_pattern` for double/single-quoted strings, `comment_pattern` for `#` line comments, `block_comment_pattern` for `<# ... #>` regions, `join_path_pattern` for `Join-Path -ChildPath` arguments. |
 | `linkwatcher/parsers/generic.py` | `GenericParser` — fallback for all other file types |
-| `tests/unit/test_parser.py` | Unit tests for `LinkParser` facade |
+| `test/automated/unit/test_parser.py` | Unit tests for `LinkParser` facade |
 
 ## 7. Quality Measurement
 
@@ -215,7 +215,7 @@ No API Design, Database Schema Design, or Test Specification documents exist for
 
 ### 7.2 Reliability Monitoring
 
-Unit tests in `tests/unit/test_parser.py` cover the dispatch logic and fallback behavior. Parser correctness is validated by the full parser test suite in `tests/parsers/`.
+Unit tests in `test/automated/unit/test_parser.py` cover the dispatch logic and fallback behavior. Parser correctness is validated by the full parser test suite in `test/automated/parsers/`.
 
 ## 8. Open Questions
 

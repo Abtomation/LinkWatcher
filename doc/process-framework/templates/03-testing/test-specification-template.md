@@ -21,6 +21,7 @@ This document provides comprehensive test specifications for the **[FEATURE-NAME
 **Test Tier**: [1|2|3] (Basic/Comprehensive/Full Suite)
 **TDD Reference**: [TDD-PATH]
 **Created**: [CREATION-DATE]
+**Implementation Coverage**: [X/Y scenarios implemented (Z%)] — see [Coverage Gaps](#coverage-gaps) for details
 
 ## Feature Context
 

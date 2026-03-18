@@ -19,6 +19,7 @@ This document provides test specifications for **cross-cutting** test scenarios 
 **Test Type**: Cross-Cutting
 **Features Covered**: [FEATURE-ID-1], [FEATURE-ID-2], ...
 **Created**: [CREATION-DATE]
+**Implementation Coverage**: [X/Y scenarios implemented (Z%)] — see [Coverage Gaps](#coverage-gaps) for details
 
 ## Feature Context
 

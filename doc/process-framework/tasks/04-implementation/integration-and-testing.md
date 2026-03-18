@@ -94,14 +94,18 @@ Implement comprehensive test coverage for a feature and verify that all componen
    # Create test files using automation script (generates PD-TST-[SEQUENCE] IDs)
    # Test types depend on project language (auto-detected from project-config.json)
    cd doc/process-framework/scripts/file-creation
-   .\New-TestFile.ps1 -TestName "FeatureName" -TestType "Unit" -FeatureId "X.Y.Z" -ComponentName "ComponentName"
+   .\New-TestFile.ps1 -TestName "FeatureName" -TestType "Unit" -FeatureId "X.Y.Z" -ComponentName "ComponentName" -Priority "Critical"
    .\New-TestFile.ps1 -TestName "FeatureName" -TestType "Integration" -FeatureId "X.Y.Z" -ComponentName "ComponentName"
+
+   # -Priority: Critical (must pass before release), Standard (default), Extended (not blocking)
+   # Use Critical for foundation features, parsers, core data models
+   # Use Extended for performance benchmarks and stress tests
 
    # Script automatically:
    # - Generates unique PD-TST ID
    # - Creates test file from template with proper structure
    # - Updates test-tracking.md with correct file links and status
-   # - Updates test-registry.yaml with test file metadata
+   # - Updates test-registry.yaml with test file metadata (including priority)
    # - Updates feature-tracking.md with test implementation progress
    ```
 

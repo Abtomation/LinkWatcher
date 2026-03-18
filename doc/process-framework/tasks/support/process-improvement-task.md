@@ -60,7 +60,7 @@ Analyze, optimize, and document development processes to improve efficiency, qua
 ### Preparation
 
 1. **Select improvement** from [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md)
-   > **Scope rule**: Execute **one improvement per task invocation** unless the human partner explicitly approves batching multiple improvements. If batching is approved, each improvement still follows the full checkpoint workflow independently.
+   > After completing an improvement (including tracking update), ask the human partner: **"Continue with another improvement or close the session?"** Each improvement follows the full checkpoint workflow independently. The feedback form is deferred until the session ends — one form covers all improvements done in the session.
 2. **Review source feedback**: Read the [Tools Review summary](../../feedback/reviews/) and/or specific feedback forms that identified this improvement
 3. **Read current state**: Examine the file(s)/tool(s) to be improved to understand the current implementation
 4. **🚨 CHECKPOINT**: Present problem analysis and proposed approach(es) to human partner
@@ -95,7 +95,8 @@ Analyze, optimize, and document development processes to improve efficiency, qua
     .\Update-ProcessImprovement.ps1 -ImprovementId "IMP-XXX" -NewStatus "Completed" -Impact "HIGH|MEDIUM|LOW" -ValidationNotes "What was done."
     ```
 14. Update any other affected state files
-15. **🚨 MANDATORY FINAL STEP**: Complete the Task Completion Checklist below
+15. **Ask**: "Continue with another improvement or close the session?" If continuing, return to step 1 for the next improvement.
+16. **🚨 MANDATORY FINAL STEP** (session end only): Complete the Task Completion Checklist below — one feedback form covering all improvements done in this session
 
 > **Validation**: Improvements are validated through the next usage cycle. Subsequent feedback (via [Tools Review](tools-review-task.md)) will confirm whether the improvement achieved its goal.
 

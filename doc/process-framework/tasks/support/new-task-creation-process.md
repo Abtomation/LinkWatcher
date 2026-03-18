@@ -147,7 +147,7 @@ Complete process for creating a new task from concept to implementation-ready de
    > **📝 NAMING**: Rename the generated file to include `-task` suffix (e.g., `your-task-name.md` → `your-task-name-task.md`)
 
 7L. **🚨 CRITICAL: Customize Task Definition Content** — Using the [Task Creation Guide](../../guides/support/task-creation-guide.md), customize all placeholder sections:
-   - **When to Use** — Clear criteria and trigger conditions
+   - **When to Use** — Concrete triggers (specific events, states, or conditions) — not generic "when needed"
    - **Context Requirements** — Critical, Important, and Reference inputs with actual links
    - **Process** — Detailed step-by-step instructions (Preparation, Execution, Finalization)
    - **Outputs** — Specific outputs with exact file locations and formats
@@ -216,7 +216,7 @@ Complete process for creating a new task from concept to implementation-ready de
      > **📝 NAMING**: Rename the generated file to include `-task` suffix (e.g., `your-task-name.md` → `your-task-name-task.md`) for easy identification
 
    - **🚨 CRITICAL: Phase 2 - Customize Task Definition Content** - Using the [Task Creation Guide](../../guides/support/task-creation-guide.md), customize all placeholder sections in the generated task file:
-     - **When to Use** - Clear criteria and trigger conditions specific to this task
+     - **When to Use** - Concrete triggers (specific events, states, or conditions) — not generic "when needed"
      - **Context Requirements** - Critical, Important, and Reference inputs with actual links to files
      - **Process** - Detailed step-by-step instructions (Preparation, Execution, Finalization) specific to this task
      - **Outputs** - Specific outputs with exact file locations and formats
@@ -355,7 +355,7 @@ The following state files are updated as part of this task:
 - [ ] **Task Definition Verified**:
   - [ ] Task definition file generated using [New-Task.ps1](../../scripts/file-creation/support/New-Task.ps1)
   - [ ] **🚨 Task definition content fully customized** — All placeholder sections replaced with task-specific content:
-    - [ ] When to Use section has clear criteria
+    - [ ] When to Use section has concrete triggers (specific events, states, or conditions — not generic "when needed")
     - [ ] Context Requirements lists actual files with links
     - [ ] Process section has detailed step-by-step instructions
     - [ ] Outputs section specifies exact deliverables and locations
@@ -380,7 +380,7 @@ The following state files are updated as part of this task:
 - [ ] **Core Outputs Verified**:
   - [ ] Task definition file generated using [New-Task.ps1](../../scripts/file-creation/support/New-Task.ps1) and [Task Creation Guide](../../guides/support/task-creation-guide.md)
   - [ ] **🚨 Phase 2: Task definition content fully customized** - All placeholder sections replaced with task-specific content:
-    - [ ] When to Use section has clear criteria
+    - [ ] When to Use section has concrete triggers (specific events, states, or conditions — not generic "when needed")
     - [ ] Context Requirements lists actual files with links
     - [ ] Process section has detailed step-by-step instructions
     - [ ] Outputs section specifies exact deliverables and locations
