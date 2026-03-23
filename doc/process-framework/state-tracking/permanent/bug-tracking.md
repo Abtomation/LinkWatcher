@@ -133,6 +133,7 @@ graph TD
 
 | ID | Title | Status | Priority | Scope | Reported | Description | Related Feature | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| PD-BUG-049 | Updater tries to update moved file at old path during move processing | ❌ Rejected | P4 | Low | 2026-03-23 | During file move, updater tried to write to the moved file at its old path, causing `file_update_failed`. The internal link (`Import-Module` with hardcoded relative path) wasn't updated by LinkWatcher because the path was a fragment inside a `Join-Path` expression — a known parser limitation, not a bug. | 2.2.1 Link Updating | Rejected: 2026-03-23 — Not a LinkWatcher bug. The script used a hardcoded `Join-Path -Path (Split-Path -Parent $PSScriptRoot) -ChildPath "scripts/..."` pattern that breaks on move. Fix: adopted the walk-up resolution pattern already used by other validation scripts (Validate-AuditReport.ps1). Script-level fix applied. |
 | PD-BUG-046 | File moves not detected for non-monitored extensions even when referenced by monitored files | 🔒 Closed | P3 | S | 2026-03-18 | Non-monitored extensions (.conf, .sql, .txt etc.) invisible to move detection even when referenced by monitored files. | 1.1.1, 2.2.1 | Fixed: 2026-03-18. Root cause: `_should_monitor_file()` filter in on_deleted/on_created/on_moved blocked events for non-monitored extensions. Fix: Added `_is_known_reference_target()` fallback using fast basename check against DB keys. Also added `has_pending` check in on_created for move correlation. Files changed: handler.py. Tests added: 3 regression tests in test_move_detection.py. Verified: unit tests pass (476/477), E2E TE-E2E-005 confirmed fix works. |
 | PD-BUG-044 | E2E test reference resolution fails for nested project structures | ❌ Rejected | P3 | M | 2026-03-18 | Compound bug report covering multiple distinct issues discovered during WF-001 E2E testing. | 2.1.1, 2.2.1 | Rejected: 2026-03-18 — Compound report split into specific bugs. Real bugs: PD-BUG-045 (Python import resolution), PD-BUG-046 (non-monitored extension move detection). Other sub-issues were test fixture design problems (fabricated paths in PS fixtures) or test infrastructure issues (Verify script CRLF/LF sensitivity). JSON reference resolution (TE-E2E-006) confirmed working after re-test with proper timing. |
 | PD-BUG-036 | Relative paths with ../ not found during file move reference lookup | ❌ Rejected | P2 | M | 2026-03-15 | get_path_variations() searches using project-relative paths, but the markdown parser stores link targets as-is (e.g. ../../guides/guides/file.md). These relative paths never match any search variation, so references using ../ are silently missed during moves. | 2.1.1 / 2.2.1 | Source: Development; Environment: Development; Component: reference_lookup; Rejected: 2026-03-16 — Not a bug. database.py _reference_points_to_file() already resolves relative paths by joining ref_dir + target and comparing to the search path. Observed "missed updates" during visual-notation-guide.md move were caused by pre-existing broken links in 4 context maps: links used ../../ (2 levels up) but needed ../../../ (3 levels up) to reach doc/process-framework/guides/ from visualization/context-maps/00-onboarding/. The links never pointed to the correct file. No code fix needed. |
@@ -185,11 +186,11 @@ graph TD
 
 ### Current Status Summary
 
-- **Total Active Bugs**: 0
+- **Total Active Bugs**: 1
 - **Critical (P1)**: 0
 - **High (P2)**: 0
 - **Medium (P3)**: 0
-- **Low (P4)**: 0
+- **Low (P4)**: 1
 
 ---
 

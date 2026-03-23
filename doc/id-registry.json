@@ -106,7 +106,7 @@
         "main": "doc/process-framework/proposals",
         "default": "main"
       },
-      "nextAvailable": 11
+      "nextAvailable": 12
     },
     "PF-FEE": {
       "description": "Process Framework - Feedback",
@@ -500,7 +500,7 @@
         "permanent": "doc/process-framework/state-tracking/permanent",
         "default": "permanent"
       },
-      "nextAvailable": 49
+      "nextAvailable": 50
     },
     "TE-E2G": {
       "description": "E2E Acceptance Testing - Test Groups",

@@ -102,7 +102,7 @@ type: Artifact
 All task definitions include a "Task Completion" section that references this feedback process.
 
 ### Tools Review Process
-Feedback forms are aggregated and analyzed during the [Tools Review Task](../tasks/support/tools-review-task.md) for continuous improvement.
+Feedback forms are aggregated and analyzed during the [Tools Review Task](../../tasks/support/tools-review-task.md) for continuous improvement.
 
 ### Documentation Map
 Individual feedback forms are not tracked in the documentation map - only the README and this flowchart are included.
@@ -128,8 +128,8 @@ Individual feedback forms are not tracked in the documentation map - only the RE
 
 ## Related Documents
 
-- [Feedback Process Guide](README.md) - Detailed documentation
-- [Feedback Form Template](../templates/support/feedback-form-template.md) - Template structure
-- [Feedback Form Guide](../guides/framework/feedback-form-guide.md) - Comprehensive completion instructions
-- [Tools Review Task](../tasks/support/tools-review-task.md) - How feedback is used
-- [Task Template](../templates/support/task-template.md) - Standard task completion process
+- [Feedback Process Guide](../../feedback/README.md) - Detailed documentation
+- [Feedback Form Template](../../templates/support/feedback-form-template.md) - Template structure
+- [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) - Comprehensive completion instructions
+- [Tools Review Task](../../tasks/support/tools-review-task.md) - How feedback is used
+- [Task Template](../../templates/support/task-template.md) - Standard task completion process

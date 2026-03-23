@@ -10,7 +10,7 @@ updated: 2023-06-15
 
 This directory contains feedback forms (artifacts) for templates, guides, and other tools (documents) used in the project. These feedback artifacts are collected at the end of each task and are used to continuously improve our development tools.
 
-> **Quick Reference**: See the [Feedback Process Flowchart](feedback-process-flowchart.md) for a visual overview of the complete process.
+> **Quick Reference**: See the [Feedback Process Flowchart](../visualization/process-flows/feedback-process-flowchart.md) for a visual overview of the complete process.
 
 ## Purpose
 

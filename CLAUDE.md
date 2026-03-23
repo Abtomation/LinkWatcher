@@ -145,7 +145,7 @@ All scripts are in `doc/process-framework/scripts/file-creation`:
 
 ```powershell
 # Validate feedback forms
-doc/process-framework/feedback/Validate-FeedbackForms.ps1
+doc/process-framework/scripts/validation/Validate-FeedbackForms.ps1
 
 # Validate ID registry
 doc/process-framework/scripts/validation/validate-id-registry.ps1

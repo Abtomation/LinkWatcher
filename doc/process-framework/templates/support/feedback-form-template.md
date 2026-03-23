@@ -33,7 +33,7 @@ additional_fields:
 >
 > **🚀 Quick Start**: Use the automation script: `scripts/file-creation/New-FeedbackForm.ps1 -DocumentId "PF-TSK-XXX" -TaskContext "Task Name" -FeedbackType "MultipleTools"`
 >
-> **✅ Before Submitting**: Run validation: doc/process-framework/feedback/Validate-FeedbackForms.ps1 to ensure completion
+> **✅ Before Submitting**: Run validation: doc/process-framework/scripts/validation/Validate-FeedbackForms.ps1 to ensure completion
 
 | Task Evaluated | [Task Name (PF-TSK-XXX)] |
 | Task Context | [Brief description of what was accomplished] |

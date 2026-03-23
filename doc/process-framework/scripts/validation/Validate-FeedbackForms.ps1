@@ -14,8 +14,17 @@ param(
     [switch]$FixIncomplete
 )
 
-# Import the common helpers
-Import-Module (Join-Path -Path (Split-Path -Parent $PSScriptRoot) -ChildPath "scripts/Common-ScriptHelpers.psm1") -Force
+# Import the common helpers with walk-up path resolution
+$dir = if ($PSScriptRoot) { $PSScriptRoot } else { (Get-Location).Path }
+while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
+    $dir = Split-Path -Parent $dir
+}
+try {
+    Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
+} catch {
+    Write-Error "Failed to import Common-ScriptHelpers module. Searched up from: $PSScriptRoot"
+    exit 1
+}
 
 # Perform standard initialization
 Invoke-StandardScriptInitialization

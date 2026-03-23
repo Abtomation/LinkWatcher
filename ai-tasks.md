@@ -333,7 +333,7 @@ Validation Preparation (PF-TSK-077) → [Select features + dimensions] → Dimen
 | **📖 Templates**        | State File Template               | Create new tracking files                    | [State File Template](/doc/process-framework/templates/support/state-file-template.md)                                               |
 | **🔧 Automation**       | Task Creation Script              | Create new framework tasks                   | [New Task Creation Process](/doc/process-framework/tasks/support/new-task-creation-process.md)                                         |
 | **📝 Feedback**         | Feedback Process                  | Submit tool and task feedback                | [Feedback Process Guide](/doc/process-framework/feedback/README.md)                                                                    |
-| **📝 Feedback**         | Feedback Flowchart                | Visual feedback process guide                | [Feedback Process Flowchart](/doc/process-framework/feedback/feedback-process-flowchart.md)                                            |
+| **📝 Feedback**         | Feedback Flowchart                | Visual feedback process guide                | [Feedback Process Flowchart](/doc/process-framework/visualization/process-flows/feedback-process-flowchart.md)                                            |
 | **🎯 Guides**           | Task Transition Guide             | Guidance on task transitions                 | [Task Transition Guide](/doc/process-framework/guides/framework/task-transition-guide.md)                                                 |
 | **🎯 Guides**           | API Specification Creation        | How to create API specifications             | [API Specification Creation Guide](/doc/process-framework/guides/02-design/api-specification-creation-guide.md)                           |
 | **🎯 Guides**           | API Data Model Creation           | How to create API data models                | [API Data Model Creation Guide](/doc/process-framework/guides/02-design/api-data-model-creation-guide.md)                                 |
@@ -485,7 +485,7 @@ After completing any task, use our **hybrid feedback approach**:
 >
 > 📋 **More details**: See the [Feedback Process Guide](/doc/process-framework/feedback/README.md)
 >
-> 🔄 **Visual guide**: See the [Feedback Process Flowchart](/doc/process-framework/feedback/feedback-process-flowchart.md)
+> 🔄 **Visual guide**: See the [Feedback Process Flowchart](/doc/process-framework/visualization/process-flows/feedback-process-flowchart.md)
 
 ### Best Practices
 
