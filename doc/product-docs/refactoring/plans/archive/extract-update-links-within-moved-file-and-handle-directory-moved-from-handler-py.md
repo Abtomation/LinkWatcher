@@ -172,6 +172,6 @@ Handler retains event dispatch + directory walking (its core orchestration role)
 
 ## Related Documentation
 
-- [Technical Debt Tracking](/doc/process-framework/state-tracking/permanent/technical-debt-tracking.md)
+- [Technical Debt Tracking](/doc/product-docs/state-tracking/permanent/technical-debt-tracking.md)
 - [TD005 God Class Decomposition](/doc/product-docs/refactoring/plans/decompose-god-class-linkmaintenancehandler-td005.md)
 - [TD022 Reference Lookup Extraction](/doc/product-docs/refactoring/plans/extract-reference-lookup-from-handler-py-into-reference-lookup-py-td022.md)

@@ -67,4 +67,4 @@ mode: lightweight
 | 1 | TD051 | Complete | None | FDD PD-FDD-032, foundational-validation-tracking.md |
 
 ## Related Documentation
-- [Technical Debt Tracking](/doc/process-framework/state-tracking/permanent/technical-debt-tracking.md)
+- [Technical Debt Tracking](/doc/product-docs/state-tracking/permanent/technical-debt-tracking.md)

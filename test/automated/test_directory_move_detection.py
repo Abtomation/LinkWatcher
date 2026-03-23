@@ -15,7 +15,6 @@ dot-notation line content.
 
 import shutil
 import time
-from pathlib import Path
 
 import pytest
 from watchdog.events import DirMovedEvent, FileCreatedEvent, FileDeletedEvent
@@ -240,9 +239,10 @@ class TestDirectoryDeleteBuffering:
         handler.on_deleted(event)
 
         # Check that a PendingDirMove was created (not per-file pending_deletes)
-        assert (
-            "docs" in handler._dir_move_detector.pending_dir_moves
-        ), f"Expected 'docs' in pending_dir_moves, got: {list(handler._dir_move_detector.pending_dir_moves.keys())}"
+        assert "docs" in handler._dir_move_detector.pending_dir_moves, (
+            "Expected 'docs' in pending_dir_moves, got: "
+            f"{list(handler._dir_move_detector.pending_dir_moves.keys())}"
+        )
         pending = handler._dir_move_detector.pending_dir_moves["docs"]
         assert any(
             "docs/guide.md" in f for f in pending.unmatched
@@ -420,7 +420,7 @@ class TestDirectoryMoveViaDeleteCreate:
         ), f"Expected 'documentation/guide.md' in README, got: {readme_content}"
         assert (
             "docs/guide.md" not in readme_content
-        ), f"Old reference 'docs/guide.md' should be removed from README"
+        ), "Old reference 'docs/guide.md' should be removed from README"
 
     def test_directory_move_multiple_files(self, tmp_path):
         """Directory move with multiple files all detected as moves.
@@ -770,8 +770,8 @@ class TestDirectoryMoveCoMovedReferences:
         assert (
             "guides/b.md" in readme_content
         ), f"Expected 'guides/b.md' in README, got: {readme_content}"
-        assert "docs/a.md" not in readme_content, f"Old 'docs/a.md' should be gone from README"
-        assert "docs/b.md" not in readme_content, f"Old 'docs/b.md' should be gone from README"
+        assert "docs/a.md" not in readme_content, "Old 'docs/a.md' should be gone from README"
+        assert "docs/b.md" not in readme_content, "Old 'docs/b.md' should be gone from README"
 
     def test_deep_relative_path_references_updated(self, tmp_path):
         """References using deep relative paths (../../) must be found and updated.
@@ -820,3 +820,161 @@ class TestDirectoryMoveCoMovedReferences:
         assert (
             "docs/guides/setup.md" not in updated
         ), f"Old path 'docs/guides/setup.md' should be gone, got: {updated}"
+
+
+class TestDirectoryMoveCrossReferencesWithinMovedDir:
+    """Regression tests for PD-BUG-050: directory move fails to update
+    cross-references when both the referencing file and the referenced file
+    are within the moved directory.
+
+    Root cause: _handle_directory_moved processes each moved file via
+    process_directory_file_move(). When file A references file B, and both
+    are in the moved directory, the updater tries to write to file A at its
+    OLD path (because the DB source_file entry still has the old path),
+    causing Errno 2 (file not found).
+    """
+
+    def test_cross_references_within_moved_directory_updated(self, tmp_path):
+        """When files within a moved directory reference each other,
+        all cross-references must be updated to reflect new paths."""
+        # Setup: features/ contains a.md and b.md that reference each other
+        features_dir = tmp_path / "features"
+        features_dir.mkdir()
+        file_a = features_dir / "a.md"
+        file_a.write_text("# Feature A\nSee also [Feature B](b.md).\n")
+        file_b = features_dir / "b.md"
+        file_b.write_text("# Feature B\nSee also [Feature A](a.md).\n")
+
+        # External file also references both
+        readme = tmp_path / "README.md"
+        readme.write_text("# Project\n\n" "- [A](features/a.md)\n" "- [B](features/b.md)\n")
+
+        service = LinkWatcherService(str(tmp_path))
+        service._initial_scan()
+
+        # Move features/ to product/features/
+        product_dir = tmp_path / "product"
+        product_dir.mkdir()
+        new_features = product_dir / "features"
+        features_dir.rename(new_features)
+
+        move_event = DirMovedEvent(str(features_dir), str(new_features))
+        service.handler.on_moved(move_event)
+
+        # External references in README must be updated
+        readme_content = readme.read_text()
+        assert (
+            "product/features/a.md" in readme_content
+        ), f"Expected 'product/features/a.md' in README, got: {readme_content}"
+        assert (
+            "product/features/b.md" in readme_content
+        ), f"Expected 'product/features/b.md' in README, got: {readme_content}"
+
+        # Internal cross-references should be preserved (sibling relative links)
+        a_content = (new_features / "a.md").read_text()
+        b_content = (new_features / "b.md").read_text()
+        assert (
+            "b.md" in a_content
+        ), f"a.md should still reference b.md via relative path, got: {a_content}"
+        assert (
+            "a.md" in b_content
+        ), f"b.md should still reference a.md via relative path, got: {b_content}"
+
+    def test_external_deep_relative_reference_to_moved_file(self, tmp_path):
+        """An external file using a deep relative path (../../../../../) to
+        reference a file in the moved directory must have its link updated.
+
+        Reproduces PD-BUG-050 scenario: ADR at doc/a/b/c/d/e/adr.md
+        references doc/state/features/core.md via ../../../../../state/features/core.md.
+        When state/features/ moves to product/state/features/, the link must update.
+        """
+        # Create deep directory structure for the referencing file
+        adr_dir = tmp_path / "doc" / "a" / "b" / "c" / "d" / "e"
+        adr_dir.mkdir(parents=True)
+        adr = adr_dir / "adr.md"
+
+        # Create the target file in the directory that will move
+        features_dir = tmp_path / "doc" / "state" / "features"
+        features_dir.mkdir(parents=True)
+        core = features_dir / "core.md"
+        core.write_text("# Core Architecture\n")
+
+        # ADR references core.md via deep relative path
+        adr.write_text("# ADR\n\n" "- [Core State](../../../../../state/features/core.md)\n")
+
+        service = LinkWatcherService(str(tmp_path))
+        service._initial_scan()
+
+        # Move doc/state/features/ to doc/product/state/features/
+        product_dir = tmp_path / "doc" / "product" / "state"
+        product_dir.mkdir(parents=True)
+        new_features = product_dir / "features"
+        features_dir.rename(new_features)
+
+        move_event = DirMovedEvent(str(features_dir), str(new_features))
+        service.handler.on_moved(move_event)
+
+        # ADR reference must be updated
+        adr_content = adr.read_text()
+        assert "state/features/core.md" not in adr_content.replace(
+            "product/state/", ""
+        ), f"Old path 'state/features/core.md' should be gone from ADR, got: {adr_content}"
+        assert (
+            "product/state/features/core.md" in adr_content
+        ), f"Expected 'product/state/features/core.md' in ADR, got: {adr_content}"
+
+    def test_external_file_referencing_moved_files_updated(self, tmp_path):
+        """An external file referencing files inside the moved directory via
+        absolute project paths must have ALL references updated, even when
+        the moved files also cross-reference each other."""
+        # Setup: state/ contains core.md, db.md, monitoring.md
+        # They cross-reference each other AND an external tracker references all
+        state_dir = tmp_path / "state"
+        state_dir.mkdir()
+
+        core = state_dir / "core.md"
+        core.write_text("# Core\n" "Depends on [DB](db.md) and [Monitoring](monitoring.md).\n")
+        db = state_dir / "db.md"
+        db.write_text("# DB\nUsed by [Core](core.md).\n")
+        monitoring = state_dir / "monitoring.md"
+        monitoring.write_text("# Monitoring\nUsed by [Core](core.md).\n")
+
+        tracker = tmp_path / "tracker.md"
+        tracker.write_text(
+            "# Tracker\n\n"
+            "| Feature | State |\n"
+            "| [Core](state/core.md) | Done |\n"
+            "| [DB](state/db.md) | Done |\n"
+            "| [Monitoring](state/monitoring.md) | Done |\n"
+        )
+
+        service = LinkWatcherService(str(tmp_path))
+        service._initial_scan()
+
+        # Move state/ to product/state/
+        product_dir = tmp_path / "product"
+        product_dir.mkdir()
+        new_state = product_dir / "state"
+        state_dir.rename(new_state)
+
+        move_event = DirMovedEvent(str(state_dir), str(new_state))
+        service.handler.on_moved(move_event)
+
+        # ALL references in tracker must be updated
+        tracker_content = tracker.read_text()
+        assert (
+            "product/state/core.md" in tracker_content
+        ), f"Expected 'product/state/core.md' in tracker, got: {tracker_content}"
+        assert (
+            "product/state/db.md" in tracker_content
+        ), f"Expected 'product/state/db.md' in tracker, got: {tracker_content}"
+        assert (
+            "product/state/monitoring.md" in tracker_content
+        ), f"Expected 'product/state/monitoring.md' in tracker, got: {tracker_content}"
+        # Old paths must be gone
+        assert "state/core.md" not in tracker_content.replace(
+            "product/state/", ""
+        ), "Old 'state/core.md' should be gone from tracker"
+        assert "state/db.md" not in tracker_content.replace(
+            "product/state/", ""
+        ), "Old 'state/db.md' should be gone from tracker"

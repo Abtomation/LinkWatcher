@@ -50,4 +50,4 @@ refactoring_scope: Remove duplicate Makefile — dev.bat is canonical
 | 1 | TD039 | Complete | None | CONTRIBUTING.md updated |
 
 ## Related Documentation
-- [Technical Debt Tracking](/doc/process-framework/state-tracking/permanent/technical-debt-tracking.md)
+- [Technical Debt Tracking](/doc/product-docs/state-tracking/permanent/technical-debt-tracking.md)

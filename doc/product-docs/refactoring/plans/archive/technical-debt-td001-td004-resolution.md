@@ -136,5 +136,5 @@ Work through one TD item at a time, in priority order: TD003 → TD001 → TD002
 - **TD004 was simpler than estimated**: main.py was already overwriting handler attributes post-construction. The fix was just to pass them through the constructor instead — a clean API improvement rather than a major rewiring.
 
 ## Related Documentation
-- [Technical Debt Tracking](/doc/process-framework/state-tracking/permanent/technical-debt-tracking.md)
+- [Technical Debt Tracking](/doc/product-docs/state-tracking/permanent/technical-debt-tracking.md)
 - [Temporary State File](/doc/process-framework/state-tracking/temporary/temp-task-creation-tech-debt-td001-td004-refactoring.md)

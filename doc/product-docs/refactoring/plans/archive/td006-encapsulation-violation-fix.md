@@ -102,5 +102,5 @@ Add missing public methods to `LinkDatabase` that encapsulate the operations pre
 - TD007: Mega Method — _handle_file_moved still needs decomposition (separate item)
 
 ## Related Documentation
-- [Technical Debt Tracking](/doc/process-framework/state-tracking/permanent/technical-debt-tracking.md)
+- [Technical Debt Tracking](/doc/product-docs/state-tracking/permanent/technical-debt-tracking.md)
 - [Technical Debt Assessment PF-TDA-001](/doc/process-framework/assessments/technical-debt/assessments/handler-module-structural-debt-assessment.md)

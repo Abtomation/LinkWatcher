@@ -72,4 +72,4 @@ target_area: linkwatcher/parser.py, linkwatcher/config/settings.py
 - TD059: `custom_parsers`, `exclude_patterns`, `include_patterns` config fields still unused
 
 ## Related Documentation
-- [Technical Debt Tracking](/doc/process-framework/state-tracking/permanent/technical-debt-tracking.md)
+- [Technical Debt Tracking](/doc/product-docs/state-tracking/permanent/technical-debt-tracking.md)

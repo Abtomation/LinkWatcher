@@ -50,4 +50,4 @@ mode: lightweight
 | 1 | TD017 | Complete | None | TD tracking |
 
 ## Related Documentation
-- [Technical Debt Tracking](/doc/process-framework/state-tracking/permanent/technical-debt-tracking.md)
+- [Technical Debt Tracking](/doc/product-docs/state-tracking/permanent/technical-debt-tracking.md)

@@ -52,4 +52,4 @@ refactoring_scope: Track and cancel per-file move detection timers in MoveDetect
 | 1 | TD018 | Complete | None | TDD PD-TDD-023, Feature State 1.1.1 |
 
 ## Related Documentation
-- [Technical Debt Tracking](/doc/process-framework/state-tracking/permanent/technical-debt-tracking.md)
+- [Technical Debt Tracking](/doc/product-docs/state-tracking/permanent/technical-debt-tracking.md)

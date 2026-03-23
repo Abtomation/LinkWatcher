@@ -9,7 +9,7 @@ This script automates bug status transitions in the ../bug-tracking.md state fil
 supporting the complete bug lifecycle from Reported to Closed.
 
 Updates the following file:
-- ../doc/process-framework/state-tracking/permanent/bug-tracking.md
+- doc/product-docs/state-tracking/permanent/bug-tracking.md
 
 Supports all bug status transitions:
 - 🆕 Reported → 🔍 Triaged (Bug Triage Task)
@@ -158,7 +158,7 @@ Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 
 # Configuration - use project-root-relative path for reliability
 $ProjectRoot = Get-ProjectRoot
-$BugTrackingFile = Join-Path -Path $ProjectRoot -ChildPath "doc/process-framework/state-tracking/permanent/bug-tracking.md"
+$BugTrackingFile = Join-Path -Path $ProjectRoot -ChildPath "doc/product-docs/state-tracking/permanent/bug-tracking.md"
 $ScriptName = "../Update-BugStatus.ps1"
 
 # Status emoji mapping

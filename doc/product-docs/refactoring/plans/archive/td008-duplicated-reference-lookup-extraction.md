@@ -151,5 +151,5 @@ Extract Method refactoring — pull the duplicated path-format logic into privat
 - TD007 (Mega Method) — this refactoring is a prerequisite step toward decomposing `_handle_file_moved`
 
 ## Related Documentation
-- [Technical Debt Tracking](/doc/process-framework/state-tracking/permanent/technical-debt-tracking.md)
+- [Technical Debt Tracking](/doc/product-docs/state-tracking/permanent/technical-debt-tracking.md)
 - [PF-TDA-001 Assessment](/doc/process-framework/assessments/technical-debt/assessments/handler-module-structural-debt-assessment.md)

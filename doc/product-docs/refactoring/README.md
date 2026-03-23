@@ -92,8 +92,8 @@ This directory integrates with:
 - **[Code Refactoring Task](../../process-framework/tasks/06-maintenance/code-refactoring-task.md)** - Main task definition
 - **[Context Map](../../process-framework/visualization/context-maps/06-maintenance/code-refactoring-task-map.md)** - Component relationships
 - **[Template Customization Guide](../../process-framework/guides/06-maintenance/code-refactoring-task-usage-guide.md)** - Detailed usage instructions
-- **[Technical Debt Tracking](../../process-framework/state-tracking/permanent/technical-debt-tracking.md)** - State tracking integration
-- **[Feature Tracking](../../process-framework/state-tracking/permanent/feature-tracking.md)** - Feature status updates
+- **[Technical Debt Tracking](../state-tracking/permanent/technical-debt-tracking.md)** - State tracking integration
+- **[Feature Tracking](../state-tracking/permanent/feature-tracking.md)** - Feature status updates
 
 ## Directory Cleanup History
 

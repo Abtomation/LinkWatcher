@@ -9,9 +9,9 @@ This script automates the manual state file updates required by the Test Audit T
 addressing the critical bottleneck identified in the Process Improvement Tracking (IMP-087).
 
 Updates the following files:
-- ../doc/process-framework/state-tracking/permanent/test-tracking.md
+- ../doc/test/state-tracking/permanent/test-tracking.md
 - ../test/test-registry.yaml
-- ../doc/process-framework/state-tracking/permanent/feature-tracking.md
+- ../doc/product-docs/state-tracking/permanent/feature-tracking.md
 
 .PARAMETER FeatureId
 The feature ID being audited (e.g., "1.2.3")
@@ -163,9 +163,9 @@ try {
         Write-Host "Creating backups..." -ForegroundColor Yellow
         $projectRoot = Get-ProjectRoot
         $filesToBackup = @(
-            "doc/process-framework/state-tracking/permanent/test-tracking.md",
+            "test/state-tracking/permanent/test-tracking.md",
             "test/test-registry.yaml",
-            "doc/process-framework/state-tracking/permanent/feature-tracking.md"
+            "doc/product-docs/state-tracking/permanent/feature-tracking.md"
         )
 
         $backupCount = 0

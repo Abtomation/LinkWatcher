@@ -51,4 +51,4 @@ target_area: pyproject.toml
 | 1 | TD054 | Complete | None | FDD 5.1.1 (5.1.6-FR-2) |
 
 ## Related Documentation
-- [Technical Debt Tracking](/doc/process-framework/state-tracking/permanent/technical-debt-tracking.md)
+- [Technical Debt Tracking](/doc/product-docs/state-tracking/permanent/technical-debt-tracking.md)

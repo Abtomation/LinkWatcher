@@ -128,9 +128,9 @@ Test categories are defined by the project language in `project-config.json`:
 - [Integration & Testing Task Definition](/doc/process-framework/tasks/04-implementation/integration-and-testing.md) - Complete task definition (PF-TSK-053)
 - [Integration & Testing Usage Guide](/doc/process-framework/guides/03-testing/test-implementation-usage-guide.md) - Step-by-step implementation guidance
 - [Test Specification Documents](/test/specifications/feature-specs/) - Repository of test specifications
-- [Test Tracking](/doc/process-framework/state-tracking/permanent/test-tracking.md) - Test implementation status tracking
+- [Test Tracking](/test/state-tracking/permanent/test-tracking.md) - Test implementation status tracking
 - [Test Registry](/test/test-registry.yaml) - Central registry of test files with IDs and metadata
-- [Feature Tracking](/doc/process-framework/state-tracking/permanent/feature-tracking.md) - Feature development status tracking
+- [Feature Tracking](/doc/product-docs/state-tracking/permanent/feature-tracking.md) - Feature development status tracking
 - [Bug Reporting Guide](/doc/process-framework/guides/06-maintenance/bug-reporting-guide.md) - Standardized bug reporting procedures
 - [Development Guide](/doc/process-framework/guides/04-implementation/development-guide.md) - Testing standards and practices
 

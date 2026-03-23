@@ -93,7 +93,7 @@ The Test Audit process follows these steps:
 ## Related Documentation
 
 - [Test Audit Task Definition](../../process-framework/tasks/03-testing/test-audit-task.md)
-- [Test Tracking](../../process-framework/state-tracking/permanent/test-tracking.md)
+- [Test Tracking](../../../test/state-tracking/permanent/test-tracking.md)
 - [Test Audit Concept](../../process-framework/proposals/test-audit-concept.md)
 - [Test Registry](../../../test/test-registry.yaml)
 

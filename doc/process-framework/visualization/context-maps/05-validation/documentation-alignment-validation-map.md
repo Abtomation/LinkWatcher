@@ -111,7 +111,7 @@ graph TD
 ## Related Documentation
 
 - [Documentation Alignment Validation Task](../../../tasks/05-validation/documentation-alignment-validation.md) - Complete task definition and process
-- [Feature Tracking](../../../state-tracking/permanent/feature-tracking.md) - Current status of features
+- [Feature Tracking](../../../../product-docs/state-tracking/permanent/feature-tracking.md) - Current status of features
 - Validation Tracking State File - Active validation tracking matrix (file location depends on validation round)
 - [Validation Report Template](../../../templates/05-validation/validation-report-template.md) - Standardized report structure
 - [Technical Design Documents](../../../../product-docs/technical/design) - TDD directory for alignment validation

@@ -89,7 +89,7 @@ When referencing design documents in implementation plans:
 
 - **Critical (Must Read):**
 
-  - **Feature Tracking** - [Feature details from feature-tracking.md](../../state-tracking/permanent/feature-tracking.md) including feature ID, name, complexity tier, and design document links
+  - **Feature Tracking** - [Feature details from feature-tracking.md](../../../product-docs/state-tracking/permanent/feature-tracking.md) including feature ID, name, complexity tier, and design document links
   - **TDD (Technical Design Document)** - The approved technical design at `/doc/product-docs/technical/architecture/design-docs/tdd/` containing component architecture and implementation approach
   - **FDD (Functional Design Document)** - For Tier 2+ features, the functional requirements at `/doc/product-docs/functional-design/fdds/`
   - **Feature Implementation State Template** - [Template for permanent state tracking](../../templates/04-implementation/feature-implementation-state-template.md) - **MUST READ** to understand living document structure
@@ -129,7 +129,7 @@ When referencing design documents in implementation plans:
    - API Design documents - if applicable, service contracts and endpoints
    - Database Schema Design - if applicable, data model and migration strategy
    - UI/UX Design documents - if applicable, visual specifications and component structure
-2. **Review Feature Context**: Load feature details from [feature-tracking.md](../../state-tracking/permanent/feature-tracking.md):
+2. **Review Feature Context**: Load feature details from [feature-tracking.md](../../../product-docs/state-tracking/permanent/feature-tracking.md):
    - Feature ID and name
    - Complexity tier (Tier 1, 2, or 3)
    - Dependencies on other features
@@ -255,7 +255,7 @@ When referencing design documents in implementation plans:
 
     - **Automatically assign** a unique Feature ID (PF-FEA-XXX) from the ID registry
     - **Update the registry** with the next available ID
-    - Create file at [`/doc/process-framework/state-tracking/features/`](../../../state-tracking/features/)
+    - Create file at [`/doc/product-docs/state-tracking/features/`](../../../state-tracking/features/)
     - Filename format: `[feature-name]-implementation-state.md` (e.g., `user-authentication-implementation-state.md`)
     - Automatically populate metadata (feature ID, name, status "PLANNING")
     - Provide structure for contextual information sections
@@ -284,7 +284,7 @@ When referencing design documents in implementation plans:
     - Risks have specific, actionable mitigation strategies
     - Testing strategy covers all critical paths
 
-21. **Update Feature Tracking**: Update [`feature-tracking.md`](../../state-tracking/permanent/feature-tracking.md):
+21. **Update Feature Tracking**: Update [`feature-tracking.md`](../../../product-docs/state-tracking/permanent/feature-tracking.md):
 
     - Add link to Implementation Plan in Notes column
     - Update status to indicate planning is complete
@@ -312,7 +312,7 @@ When referencing design documents in implementation plans:
   - **Testing Strategy**: Testing approach per implementation phase (unit, component, integration, e2e)
   - **Risk Assessment**: Identified risks with severity levels and specific mitigation strategies
   - **Success Criteria**: Measurable completion criteria for the implementation
-- **Feature Implementation State File** - **PERMANENT** living document at [`/doc/process-framework/state-tracking/features/`](../../state-tracking/features/)`[feature-id]-implementation-state.md` initialized with:
+- **Feature Implementation State File** - **PERMANENT** living document at [`/doc/product-docs/state-tracking/features/`](../../state-tracking/features/)`[feature-id]-implementation-state.md` initialized with:
 
   - **Metadata**: Feature ID, name, status "PLANNING", implementation mode
   - **Feature Overview**: Complete feature description, business value, scope (in/out of scope)
@@ -338,12 +338,12 @@ When referencing design documents in implementation plans:
 
 The following state files must be updated as part of this task:
 
-- **[Feature Tracking](../../state-tracking/permanent/feature-tracking.md)** - Manual update required:
+- **[Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md)** - Manual update required:
   - Locate the feature entry in the appropriate category section
   - Add link to Implementation Plan document in the **Notes** column: `Implementation Plan: [PD-IMP-XXX](...)`
   - Add link to Feature State document in the **Notes** column: `State: [feature-id]-implementation-state.md`
   - Update status if applicable (e.g., from "📝 TDD Created" to "🟡 In Progress" when implementation begins)
-- **New Feature Implementation State File** - Create at [`/doc/process-framework/state-tracking/features/`](../../state-tracking/features/)`[feature-id]-implementation-state.md`:
+- **New Feature Implementation State File** - Create at [`/doc/product-docs/state-tracking/features/`](../../state-tracking/features/)`[feature-id]-implementation-state.md`:
   - Use [Feature Implementation State Template](../../templates/04-implementation/feature-implementation-state-template.md) as base
   - Follow naming convention: `[feature-id]-implementation-state.md` (e.g., `PF-FEA-012-implementation-state.md`)
   - Initialize with planning-phase information including detailed file and component context
@@ -367,7 +367,7 @@ Before considering this task finished:
   - [ ] **Risk Assessment**: Risks identified with severity levels and specific, actionable mitigation strategies
   - [ ] **Success Criteria**: Measurable completion criteria defined
 - [ ] **Verify Outputs - Feature Implementation State File**: Confirm state document is properly initialized
-  - [ ] File created at [`/doc/process-framework/state-tracking/features/`](../../state-tracking/features/)`[feature-id]-implementation-state.md` with proper naming
+  - [ ] File created at [`/doc/product-docs/state-tracking/features/`](../../state-tracking/features/)`[feature-id]-implementation-state.md` with proper naming
   - [ ] **Metadata**: Feature ID, name, status "PLANNING", implementation mode
   - [ ] **Feature Overview**: Complete description, business value, scope (in/out of scope)
   - [ ] **Current State Summary**: Initial state documented showing planning activities
@@ -388,7 +388,7 @@ Before considering this task finished:
   - [ ] Feature state file includes specific file paths in the source directory and the test directory
   - [ ] Both documents reference feature tracking entry
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
-  - [ ] [`feature-tracking.md`](../../state-tracking/permanent/feature-tracking.md) updated with:
+  - [ ] [`feature-tracking.md`](../../../product-docs/state-tracking/permanent/feature-tracking.md) updated with:
     - Link to Implementation Plan document in Notes column
     - Link to Feature State document in Notes column
     - Planning completion date in Notes column
@@ -448,7 +448,7 @@ Implementation Planning (this task - PF-TSK-044) →
 
 - **[Feature Implementation State Template](../../templates/04-implementation/feature-implementation-state-template.md)** - Template for permanent state tracking
 - **[Feature Implementation State Tracking Guide](../../guides/04-implementation/feature-implementation-state-tracking-guide.md)** - Comprehensive guide for maintaining living documents
-- **[Feature Tracking](../../state-tracking/permanent/feature-tracking.md)** - Central feature tracking document
+- **[Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md)** - Central feature tracking document
 
 ### Design Documentation (Inputs)
 

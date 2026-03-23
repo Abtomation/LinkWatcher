@@ -35,7 +35,7 @@ Systematic approach to identifying, categorizing, and prioritizing technical deb
 
 - **Critical (Must Read):**
 
-  - [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md) - Current debt registry and management strategy
+  - [Technical Debt Tracking](../../../product-docs/state-tracking/permanent/technical-debt-tracking.md) - Current debt registry and management strategy
   - **Current Codebase** - Source code files in scope for assessment (lib/, test/, integration_test/)
   - **Recent Change Logs** - Git commit history and recent development activity
 
@@ -44,8 +44,8 @@ Systematic approach to identifying, categorizing, and prioritizing technical deb
   - [Architecture Documentation](/doc/product-docs/technical/architecture/) - System architecture and design patterns
   - [Coding Standards](/doc/process-framework/guides/03-testing) - Project coding standards and best practices
   - **Test Coverage Reports** - Current test coverage metrics and gaps
-  - [Bug Tracking](../../state-tracking/permanent/bug-tracking.md) - Known bugs that may indicate debt areas
-  - [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Recent feature development that may have introduced debt
+  - [Bug Tracking](../../../product-docs/state-tracking/permanent/bug-tracking.md) - Known bugs that may indicate debt areas
+  - [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) - Recent feature development that may have introduced debt
 
 - **Reference Only (Access When Needed):**
   - **Performance Metrics** - Application performance data and bottlenecks
@@ -66,7 +66,7 @@ Systematic approach to identifying, categorizing, and prioritizing technical deb
 ### Preparation
 
 1. **Define Assessment Scope**: Determine assessment scope (full codebase, specific modules, or feature areas based on recent development activity)
-2. **Review Context**: Load current [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md) and review recent changes, known issues, and previous assessments
+2. **Review Context**: Load current [Technical Debt Tracking](../../../product-docs/state-tracking/permanent/technical-debt-tracking.md) and review recent changes, known issues, and previous assessments
 3. **Prepare Assessment Tools**: Set up assessment templates and tracking documents for systematic evaluation
 4. **🚨 CHECKPOINT**: Present assessment scope, context findings, and initial observations to human partner
 
@@ -109,7 +109,7 @@ Systematic approach to identifying, categorizing, and prioritizing technical deb
 
 ### Finalization
 
-12. **🤖 AUTOMATED: Update Technical Debt Registry**: Use automation to add new debt items to [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md):
+12. **🤖 AUTOMATED: Update Technical Debt Registry**: Use automation to add new debt items to [Technical Debt Tracking](../../../product-docs/state-tracking/permanent/technical-debt-tracking.md):
 
    **OPTION A - Full Automation (Recommended):**
 
@@ -161,7 +161,7 @@ Systematic approach to identifying, categorizing, and prioritizing technical deb
 ## Outputs
 
 - **Technical Debt Assessment Report** - Comprehensive assessment document with findings, analysis, and recommendations (stored in `/doc/process-framework/technical-debt-assessments/reports/`)
-- **Updated Technical Debt Registry** - Enhanced [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md) with newly identified debt items
+- **Updated Technical Debt Registry** - Enhanced [Technical Debt Tracking](../../../product-docs/state-tracking/permanent/technical-debt-tracking.md) with newly identified debt items
 - **Debt Prioritization Matrix** - Visual representation of debt priority based on impact/effort analysis (included in assessment report)
 - **Remediation Roadmap** - Actionable plan for addressing prioritized debt items with timeline recommendations (included in assessment report)
 - **Integration Recommendations** - Specific guidance on integrating debt remediation into upcoming development cycles
@@ -170,9 +170,9 @@ Systematic approach to identifying, categorizing, and prioritizing technical deb
 
 The following state files must be updated as part of this task:
 
-- [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md) - Add newly identified debt items with complete metadata (ID, description, category, location, priority, effort estimation, status)
+- [Technical Debt Tracking](../../../product-docs/state-tracking/permanent/technical-debt-tracking.md) - Add newly identified debt items with complete metadata (ID, description, category, location, priority, effort estimation, status)
 - [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) - Track assessment effectiveness and process improvements identified during the assessment
-- [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Update with debt-related blockers or considerations that may impact feature development
+- [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) - Update with debt-related blockers or considerations that may impact feature development
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
@@ -186,11 +186,11 @@ Before considering this task finished:
   - [ ] Remediation Roadmap created with actionable timeline recommendations
   - [ ] Integration Recommendations documented for upcoming development cycles
 - [ ] **🤖 AUTOMATED: Update State Files**: Ensure all state tracking files have been updated using automation scripts
-  - [ ] **AUTOMATED**: [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md) updated with newly identified debt items using `Update-TechnicalDebtFromAssessment.ps1`
+  - [ ] **AUTOMATED**: [Technical Debt Tracking](../../../product-docs/state-tracking/permanent/technical-debt-tracking.md) updated with newly identified debt items using `Update-TechnicalDebtFromAssessment.ps1`
   - [ ] **AUTOMATED**: All debt items assigned TD### IDs and linked to assessment ID (PF-TDA-XXX) via automation
   - [ ] **AUTOMATED**: Individual debt item files (PF-TDI-XXX) updated with registry IDs and marked as "Added" via automation
   - [ ] **MANUAL**: [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) updated with assessment effectiveness metrics
-  - [ ] **MANUAL**: [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) updated with debt-related considerations (if applicable)
+  - [ ] **MANUAL**: [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) updated with debt-related considerations (if applicable)
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-023" and context "Technical Debt Assessment"
 
 ## Next Tasks
@@ -228,7 +228,7 @@ Before considering this task finished:
 
 ## Related Resources
 
-- [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md) - Current debt registry and management strategy
+- [Technical Debt Tracking](../../../product-docs/state-tracking/permanent/technical-debt-tracking.md) - Current debt registry and management strategy
 - [Code Refactoring Task](../06-maintenance/code-refactoring-task.md) - Systematic approach to debt remediation
 - [System Architecture Review](../01-planning/system-architecture-review-task.md) - Architectural assessment and improvement
 - [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) - Process effectiveness metrics and improvements

@@ -28,8 +28,8 @@ source_improvement: IMP-037
 
 Document status (FDD, TDD, ADR, Test Spec IDs and completion status) is currently tracked in **two independent surfaces** that must be kept in sync manually:
 
-1. **[feature-tracking.md](../../../state-tracking/permanent/feature-tracking.md)** — master table with one row per feature, columns for each document type
-2. **Individual feature state files** (e.g., [0.1.1-core-architecture-implementation-state.md](../../../state-tracking/features/0.1.1-core-architecture-implementation-state.md)) — Section 4 "Documentation Inventory" tables
+1. **[feature-tracking.md](../../../../product-docs/state-tracking/permanent/feature-tracking.md)** — master table with one row per feature, columns for each document type
+2. **Individual feature state files** (e.g., [0.1.1-core-architecture-implementation-state.md](../../../../product-docs/state-tracking/features/0.1.1-core-architecture-implementation-state.md)) — Section 4 "Documentation Inventory" tables
 
 This creates sync overhead: scripts must write to both surfaces, and when persistence fails (see IMP-033) or a manual update misses one surface, the two diverge with no automated detection.
 

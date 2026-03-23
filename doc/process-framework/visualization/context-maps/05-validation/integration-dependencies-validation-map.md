@@ -100,7 +100,7 @@ graph TD
 ## Related Documentation
 
 - [Integration Dependencies Validation Task](../../../tasks/05-validation/integration-dependencies-validation.md) - Complete task definition and process
-- [Feature Tracking](../../../state-tracking/permanent/feature-tracking.md) - Current status of features
+- [Feature Tracking](../../../../product-docs/state-tracking/permanent/feature-tracking.md) - Current status of features
 - Validation Tracking State File - Active validation tracking matrix (file location depends on validation round)
 - [Validation Report Template](../../../templates/05-validation/validation-report-template.md) - Standardized report structure
 - [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Complete reference of all component relationships

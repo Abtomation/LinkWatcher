@@ -86,8 +86,8 @@ graph TD
 - [Feature Tier Assessment Guide](../../../../product-docs/documentation-tiers/README.md) - Understanding complexity tiers
 - [Development Guide](/doc/process-framework/guides/04-implementation/development-guide.md) - Testing standards and practices
 - [Test Structure Documentation](/test/) - Current test organization patterns
-- [Feature Tracking](../../../state-tracking/permanent/feature-tracking.md) - Feature development status tracking
-- [Test Tracking](../../../state-tracking/permanent/test-tracking.md) - Test specification and implementation tracking
+- [Feature Tracking](../../../../product-docs/state-tracking/permanent/feature-tracking.md) - Feature development status tracking
+- [Test Tracking](../../../../../test/state-tracking/permanent/test-tracking.md) - Test specification and implementation tracking
 - [Test Registry](/test/test-registry.yaml) - Central registry of test files with IDs and metadata
 
 ---

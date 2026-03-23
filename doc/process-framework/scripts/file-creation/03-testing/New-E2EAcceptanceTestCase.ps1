@@ -396,7 +396,7 @@ Write-Warning "run.ps1 is a skeleton — replace this with the actual test actio
     }
 
     # --- 7. Update test-tracking.md (dedicated E2E section) ---
-    $testTrackingPath = Join-Path $projectRoot "doc/process-framework/state-tracking/permanent/test-tracking.md"
+    $testTrackingPath = Join-Path $projectRoot "test/state-tracking/permanent/test-tracking.md"
     if (Test-Path $testTrackingPath) {
         $trackingContent = Get-Content $testTrackingPath -Raw -Encoding UTF8
 
@@ -541,7 +541,7 @@ Write-Warning "run.ps1 is a skeleton — replace this with the actual test actio
     }
 
     # --- 9. Update feature-tracking.md Test Status (all features) ---
-    $featureTrackingPath = Join-Path $projectRoot "doc/process-framework/state-tracking/permanent/feature-tracking.md"
+    $featureTrackingPath = Join-Path $projectRoot "doc/product-docs/state-tracking/permanent/feature-tracking.md"
     if (Test-Path $featureTrackingPath) {
         foreach ($fId in $featureIdArray) {
             try {

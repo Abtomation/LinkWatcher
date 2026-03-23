@@ -182,7 +182,7 @@ The script provides clear feedback:
 📝 Title: Login form validation fails
 ✅ Bug report created successfully!
 📍 Bug ID: BUG-042
-📂 Added to: /doc/process-framework/state-tracking/permanent/bug-tracking.md
+📂 Added to: /doc/product-docs/state-tracking/permanent/bug-tracking.md
 
 🔄 Next Steps:
   1. Run Bug Triage task to evaluate and prioritize this bug

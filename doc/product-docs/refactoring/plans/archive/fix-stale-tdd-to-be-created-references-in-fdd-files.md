@@ -53,4 +53,4 @@ refactoring_scope: Fix stale TDD to-be-created references in FDD files
 | 1 | TD050 | Complete | None | 5 FDDs (PD-FDD-022, 023, 024, 025, 027) |
 
 ## Related Documentation
-- [Technical Debt Tracking](/doc/process-framework/state-tracking/permanent/technical-debt-tracking.md)
+- [Technical Debt Tracking](/doc/product-docs/state-tracking/permanent/technical-debt-tracking.md)

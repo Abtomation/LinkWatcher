@@ -83,7 +83,7 @@ graph TD
 - <!-- [Error Log Analysis Guide](/doc/product-docs/development/guides/error-log-analysis.md) - File not found --> - How to interpret error logs
 - <!-- [Debugging Guide](/doc/product-docs/development/guides/debugging-guide.md) - File not found --> - Techniques for debugging code
 - <!-- [Unit Testing Guide](/doc/product-docs/development/guides/unit-testing-guide.md) - File not found --> - Standards for unit tests
-- [Technical Debt Tracking](../../../state-tracking/permanent/technical-debt-tracking.md) - Technical debt status
+- [Technical Debt Tracking](../../../../product-docs/state-tracking/permanent/technical-debt-tracking.md) - Technical debt status
 - [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Complete reference of component relationships
 
 ---

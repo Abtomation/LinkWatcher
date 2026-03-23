@@ -81,8 +81,8 @@ graph TD
 
 - [E2E Acceptance Test Execution Task](/doc/process-framework/tasks/03-testing/e2e-acceptance-test-execution-task.md) - Full task definition
 - [E2E Acceptance Test Case Creation Task](/doc/process-framework/tasks/03-testing/e2e-acceptance-test-case-creation-task.md) - Upstream task creating test cases
-- [Test Tracking](/doc/process-framework/state-tracking/permanent/test-tracking.md) - Test status tracking
-- [Feature Tracking](/doc/process-framework/state-tracking/permanent/feature-tracking.md) - Feature-level status
+- [Test Tracking](/test/state-tracking/permanent/test-tracking.md) - Test status tracking
+- [Feature Tracking](/doc/product-docs/state-tracking/permanent/feature-tracking.md) - Feature-level status
 
 ---
 

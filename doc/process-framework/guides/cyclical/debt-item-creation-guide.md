@@ -522,7 +522,7 @@ Creating a debt item for code duplication:
 - [Guide Creation Best Practices Guide (PF-GDE-024)](../support/guide-creation-best-practices-guide.md) - Best practices for creating and customizing guides
 - [New-DebtItem.ps1 Script](../../scripts/file-creation/cyclical/New-DebtItem.ps1) - The script used to create debt items
 - [Debt Item Template](../../templates/cyclical/debt-item-template.md) - The template customized by this guide
-- [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md) - Central tracking for all technical debt items
+- [Technical Debt Tracking](../../../product-docs/state-tracking/permanent/technical-debt-tracking.md) - Central tracking for all technical debt items
 
 <!--
 TEMPLATE USAGE GUIDANCE:

@@ -104,7 +104,7 @@ catch {
 # Resolve paths using project root for reliability
 $ProjectRoot = if ($useEnhancedTracking) { Get-ProjectRoot } else { (Get-Item (Join-Path $ScriptDirectory "../../../../..")).FullName }
 $TemplateFile = Join-Path $ProjectRoot "doc/process-framework/templates/05-validation/validation-report-template.md"
-$TrackingFile = Join-Path $ProjectRoot "doc/process-framework/state-tracking/temporary/foundational-validation-tracking.md"
+$TrackingFile = Join-Path $ProjectRoot "doc/product-docs/state-tracking/temporary/validation-tracking.md"
 $IdRegistryFile = Join-Path $ProjectRoot "doc/id-registry.json"
 
 # Validation type mappings

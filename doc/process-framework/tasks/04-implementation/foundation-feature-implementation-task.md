@@ -37,7 +37,7 @@ Specialized task for implementing foundation features (0.x.x) that provide archi
 
   - [Foundation Feature Template](../../templates/04-implementation/foundation-feature-template.md) - Template for foundation feature structure and architectural documentation
   - [Architecture Context Packages](../../state-tracking/permanent/architecture-context-packages.md) - Current architectural context and component relationships
-  - [Architecture Tracking](../../state-tracking/permanent/architecture-tracking.md) - Ongoing architectural decisions and evolution
+  - [Architecture Tracking](../../../product-docs/state-tracking/permanent/architecture-tracking.md) - Ongoing architectural decisions and evolution
 
 - **Important (Load If Space):**
 
@@ -97,7 +97,7 @@ Specialized task for implementing foundation features (0.x.x) that provide archi
 
     - Use [../../scripts/file-creation/06-maintenance/New-BugReport.ps1](../../scripts/file-creation/06-maintenance/New-BugReport.ps1) script to create standardized bug reports
     - Follow [Bug Reporting Guide](../../guides/06-maintenance/bug-reporting-guide.md) for consistent documentation
-    - Add bug entries to [Bug Tracking](../../state-tracking/permanent/bug-tracking.md) with status 🆕 Reported
+    - Add bug entries to [Bug Tracking](../../../product-docs/state-tracking/permanent/bug-tracking.md) with status 🆕 Reported
     - Include foundation implementation context and evidence in bug reports
     - Reference specific architectural components or patterns affected
     - Note impact on system architecture and dependent features
@@ -112,7 +112,7 @@ Specialized task for implementing foundation features (0.x.x) that provide archi
     ../../scripts/file-creation/06-maintenance/New-BugReport.ps1 -Title "Foundation module causes circular dependency" -Description "New foundation module creates circular dependency between service components" -DiscoveredBy "Feature Implementation" -Severity "Critical" -Component "Core Foundation" -Environment "Development" -Evidence "Architecture analysis: circular dependency in src/core/"
     ```
 
-13. **Update Architecture Tracking**: Record the foundation implementation in [Architecture Tracking](../../state-tracking/permanent/architecture-tracking.md)
+13. **Update Architecture Tracking**: Record the foundation implementation in [Architecture Tracking](../../../product-docs/state-tracking/permanent/architecture-tracking.md)
 14. **Verify Cross-Cutting Integration**: Ensure the foundation properly integrates with existing system components
 15. **Document Usage Patterns**: Update documentation to show how other features should interact with this foundation
 16. **Run Foundational Validation**: Execute automated validation to ensure implementation meets foundational standards:
@@ -165,15 +165,15 @@ Specialized task for implementing foundation features (0.x.x) that provide archi
 - **Foundation Usage Patterns** - Documentation of how other features should interact with this foundation
 - **Comprehensive Test Suite** - Tests that validate both functionality and architectural constraints
 - **Validation Reports** - Automated validation reports confirming implementation meets foundational standards (generated in `scripts/validation/validation-reports/`)
-- **Bug Reports** - Any bugs discovered during foundation implementation documented in [Bug Tracking](../../state-tracking/permanent/bug-tracking.md) with status 🆕 Reported
+- **Bug Reports** - Any bugs discovered during foundation implementation documented in [Bug Tracking](../../../product-docs/state-tracking/permanent/bug-tracking.md) with status 🆕 Reported
 
 ## State Tracking
 
 The following state files must be updated as part of this task:
 
 - [Architecture Context Packages](../../state-tracking/permanent/architecture-context-packages.md) - Update with new architectural foundations and component relationships
-- [Architecture Tracking](../../state-tracking/permanent/architecture-tracking.md) - Record foundation implementation and architectural evolution
-- [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Update with foundation feature status (set to "👀 Ready for Review" when implementation and testing are complete)
+- [Architecture Tracking](../../../product-docs/state-tracking/permanent/architecture-tracking.md) - Record foundation implementation and architectural evolution
+- [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) - Update with foundation feature status (set to "👀 Ready for Review" when implementation and testing are complete)
 
 **Automation Available**: Use `Update-FeatureImplementationState.ps1` to automate state file updates. See [Automation Usage Guide](../../scripts/AUTOMATION-USAGE-GUIDE.md) for examples.
 
@@ -194,8 +194,8 @@ Before considering this task finished:
   - [ ] Any discovered bugs reported using ../../scripts/file-creation/06-maintenance/New-BugReport.ps1 script with proper context and evidence
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
   - [ ] [Architecture Context Packages](../../state-tracking/permanent/architecture-context-packages.md) updated with new foundations
-  - [ ] [Architecture Tracking](../../state-tracking/permanent/architecture-tracking.md) updated with implementation record
-  - [ ] [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) updated with status set to "👀 Ready for Review"
+  - [ ] [Architecture Tracking](../../../product-docs/state-tracking/permanent/architecture-tracking.md) updated with implementation record
+  - [ ] [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) updated with status set to "👀 Ready for Review"
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-024" and context "Foundation Feature Implementation Task"
 
 ## Next Tasks
@@ -207,4 +207,4 @@ Before considering this task finished:
 
 - [Foundation Feature Implementation Task Concept](../../proposals/proposals/old/foundation-feature-implementation-task-concept.md) - Original concept document
 - [Architecture Context Packages](../../state-tracking/permanent/architecture-context-packages.md) - Architectural context and relationships
-- [Architecture Tracking](../../state-tracking/permanent/architecture-tracking.md) - Architectural evolution tracking
+- [Architecture Tracking](../../../product-docs/state-tracking/permanent/architecture-tracking.md) - Architectural evolution tracking

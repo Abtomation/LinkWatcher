@@ -78,7 +78,7 @@ graph TD
 - <!-- [Refactoring Guide](/doc/product-docs/development/guides/refactoring-guide.md) - File not found --> - Guide for code refactoring
 - <!-- [Unit Testing Guide](/doc/product-docs/development/guides/unit-testing-guide.md) - File not found --> - Guide for unit testing
 - <!-- [Build Configuration](/doc/product-docs/technical/build/build-configuration.md) - File not found --> - Build system documentation
-- [Technical Debt Tracking](../../../state-tracking/permanent/technical-debt-tracking.md) - Technical debt status
+- [Technical Debt Tracking](../../../../product-docs/state-tracking/permanent/technical-debt-tracking.md) - Technical debt status
 
 ---
 

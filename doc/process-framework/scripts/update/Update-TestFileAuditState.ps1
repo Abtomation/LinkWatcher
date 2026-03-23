@@ -10,9 +10,9 @@ focusing on individual test files rather than entire features. This addresses th
 critical bottleneck identified in the Process Improvement Tracking (IMP-087).
 
 Updates the following files:
-- ../doc/process-framework/state-tracking/permanent/test-tracking.md
+- ../doc/test/state-tracking/permanent/test-tracking.md
 - ../test/test-registry.yaml
-- ../doc/process-framework/state-tracking/permanent/feature-tracking.md (aggregated status)
+- ../doc/product-docs/state-tracking/permanent/feature-tracking.md (aggregated status)
 
 .PARAMETER TestFileId
 The test file ID being audited (e.g., "PD-TST-084")
@@ -132,7 +132,7 @@ function Get-FeatureIdFromTestFile {
     param([string]$TestFileId)
 
     $projectRoot = Get-ProjectRoot
-    $testTrackingPath = Join-Path $projectRoot "doc/process-framework/state-tracking/permanent/test-tracking.md"
+    $testTrackingPath = Join-Path $projectRoot "test/state-tracking/permanent/test-tracking.md"
 
     if (-not (Test-Path $testTrackingPath)) {
         throw "Test tracking file not found: $testTrackingPath"
@@ -159,7 +159,7 @@ function Update-IndividualTestFileStatus {
     )
 
     $projectRoot = Get-ProjectRoot
-    $testTrackingPath = Join-Path $projectRoot "doc/process-framework/state-tracking/permanent/test-tracking.md"
+    $testTrackingPath = Join-Path $projectRoot "test/state-tracking/permanent/test-tracking.md"
 
     if ($DryRun) {
         Write-Host "DRY RUN: Would update test file $TestFileId in test-tracking.md" -ForegroundColor Cyan
@@ -270,9 +270,9 @@ try {
         Write-Host "Creating backups..." -ForegroundColor Yellow
         $projectRoot = Get-ProjectRoot
         $filesToBackup = @(
-            "doc/process-framework/state-tracking/permanent/test-tracking.md",
+            "test/state-tracking/permanent/test-tracking.md",
             "test/test-registry.yaml",
-            "doc/process-framework/state-tracking/permanent/feature-tracking.md"
+            "doc/product-docs/state-tracking/permanent/feature-tracking.md"
         )
 
         $backupCount = 0
@@ -361,7 +361,7 @@ try {
 
     # Calculate aggregated test status for the feature
     $projectRoot = Get-ProjectRoot
-    $testTrackingPath = Join-Path $projectRoot "doc/process-framework/state-tracking/permanent/test-tracking.md"
+    $testTrackingPath = Join-Path $projectRoot "test/state-tracking/permanent/test-tracking.md"
     $content = Get-Content $testTrackingPath -Raw
 
     # Find all test files for this feature and their statuses

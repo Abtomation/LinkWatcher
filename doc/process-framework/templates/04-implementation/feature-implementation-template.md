@@ -154,7 +154,7 @@ Use this section for any notes, questions, or concerns that arise during impleme
 
 Use this checklist during implementation to ensure all aspects are covered:
 
-- [ ] Updated feature status in [feature tracking document](../../state-tracking/permanent/feature-tracking.md) to "In Progress" 🟡
+- [ ] Updated feature status in [feature tracking document](../../../product-docs/state-tracking/permanent/feature-tracking.md) to "In Progress" 🟡
 - [ ] Created necessary data models
 - [ ] Implemented repository layer
 - [ ] Implemented service layer
@@ -167,7 +167,7 @@ Use this checklist during implementation to ensure all aspects are covered:
 - [ ] Reviewed documentation tier and adjusted if needed (see [Documentation Tier Assessment Guide](../../guides/01-planning/assessment-guide.md))
 - [ ] Updated documentation according to the (potentially adjusted) documentation tier
 - [ ] Checked against [Definition of Done](../../guides/04-implementation/definition-of-done.md)
-- [ ] Updated feature status in [feature tracking document](../../state-tracking/permanent/feature-tracking.md) to "Completed" 🟢
+- [ ] Updated feature status in [feature tracking document](../../../product-docs/state-tracking/permanent/feature-tracking.md) to "Completed" 🟢
 
 ## Post-Implementation Review
 

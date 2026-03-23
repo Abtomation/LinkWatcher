@@ -36,7 +36,7 @@ Systematically validates selected features for adherence to code quality standar
 - **Critical (Must Read):**
 
   - **Feature Validation Guide** - [Feature Validation Guide](../../guides/05-validation/feature-validation-guide.md) - Comprehensive guide for conducting feature validation
-  - **Feature Tracking** - [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Current status of features to be validated
+  - **Feature Tracking** - [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) - Current status of features to be validated
   - **Validation Tracking** - Link to the active validation tracking state file for the current validation round — see [Feature Validation Guide](../../guides/05-validation/feature-validation-guide.md) for setup
   - **Validation Report Template** - [Validation Report Template](../../templates/05-validation/validation-report-template.md) - Template for creating validation reports
   - **Codebase Structure** - Source code directory - Source code for selected features to analyze
@@ -92,7 +92,7 @@ Systematically validates selected features for adherence to code quality standar
 12. **Update Validation Tracking**: Update the validation tracking matrix with report creation date and link
 13. **Review Quality Gates**: Ensure validation meets minimum quality thresholds (average score ≥ 2.0)
 14. **Plan Remediation**: For scores below threshold, create action items for code quality improvements
-15. **🤖 AUTOMATED: Update Technical Debt Tracking**: Add any new open issues identified during validation to [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md) using the automation script:
+15. **🤖 AUTOMATED: Update Technical Debt Tracking**: Add any new open issues identified during validation to [Technical Debt Tracking](../../../product-docs/state-tracking/permanent/technical-debt-tracking.md) using the automation script:
 
     ```powershell
     .\doc\process-framework\scripts\update\Update-TechDebt.ps1 -Add -Description "Description" -Category "Category" -Location "Location" -Priority "Priority" -EstimatedEffort "Effort" -AssessmentId "PF-VAL-XXX" -Notes "Notes"
@@ -112,7 +112,7 @@ The following state files must be updated as part of this task:
 
 - **Validation Tracking State File** - Update the active validation tracking matrix with report creation date and link (file location depends on validation round — see Feature Validation Guide)
 - [Documentation Map](../../documentation-map.md) - Add new validation report to the validation reports section
-- [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md) - Add new open issues identified during validation to the Technical Debt Registry
+- [Technical Debt Tracking](../../../product-docs/state-tracking/permanent/technical-debt-tracking.md) - Add new open issues identified during validation to the Technical Debt Registry
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
@@ -127,7 +127,7 @@ Before considering this task finished:
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
   - [ ] Validation tracking state file updated with report creation date and link
   - [ ] [Documentation Map](../../documentation-map.md) updated with new validation report entry
-  - [ ] **AUTOMATED**: [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md) updated with new open issues using `Update-TechDebt.ps1`
+  - [ ] **AUTOMATED**: [Technical Debt Tracking](../../../product-docs/state-tracking/permanent/technical-debt-tracking.md) updated with new open issues using `Update-TechDebt.ps1`
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-032" and context "Code Quality Standards Validation"
 
 ## Next Tasks

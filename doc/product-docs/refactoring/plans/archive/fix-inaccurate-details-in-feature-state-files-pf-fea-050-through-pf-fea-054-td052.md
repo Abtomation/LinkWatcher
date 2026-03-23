@@ -124,6 +124,6 @@ priority: Medium
 **Total**: 35 corrections across 5 feature state files.
 
 ## Related Documentation
-- [Technical Debt Tracking](/doc/process-framework/state-tracking/permanent/technical-debt-tracking.md)
+- [Technical Debt Tracking](/doc/product-docs/state-tracking/permanent/technical-debt-tracking.md)
 - [Validation Report PF-VAL-043](/doc/product-docs/validation/reports/documentation-alignment/PF-VAL-043-documentation-alignment-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md)
 - [TD047 Refactoring Plan (PF-FEA-046 through PF-FEA-049)](/doc/product-docs/refactoring/plans/fix-inaccurate-details-in-feature-state-files-pf-fea-046-through-pf-fea-049-td047.md)

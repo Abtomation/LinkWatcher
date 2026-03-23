@@ -44,7 +44,7 @@ Validate feature implementation against quality standards, business requirements
 
 - **Important (Load If Space):**
 
-  - **Feature Tracking** - [Feature details from feature-tracking.md](../../state-tracking/permanent/feature-tracking.md) for business context
+  - **Feature Tracking** - [Feature details from feature-tracking.md](../../../product-docs/state-tracking/permanent/feature-tracking.md) for business context
   - [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - For understanding component interactions
   - **Accessibility Guidelines** - [WCAG 2.1 Standards](https://www.w3.org/WAI/WCAG21/quickref/) for accessibility compliance
 

@@ -63,12 +63,12 @@ $customFileName = "bug-fix-state-$kebabBugId.md"
 
 # Build absolute template path
 $projectRoot = Get-ProjectRoot
-$processFrameworkDir = Join-Path $projectRoot "doc/product-docs"
-$templatePath = Join-Path -Path $processFrameworkDir -ChildPath "templates\templates\bug-fix-state-tracking-template.md"
+$processFrameworkDir = Join-Path $projectRoot "doc/process-framework"
+$templatePath = Join-Path -Path $processFrameworkDir -ChildPath "templates\06-maintenance\bug-fix-state-tracking-template.md"
 
 try {
     $idDesc = "Bug fix state tracking for ${BugId}: ${BugTitle}"
-    $stateId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "PF-STA" -IdDescription $idDesc -DocumentName $BugTitle -OutputDirectory "doc/process-framework/state-tracking/temporary" -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -FileNamePattern $customFileName -OpenInEditor:$OpenInEditor
+    $stateId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "PF-STA" -IdDescription $idDesc -DocumentName $BugTitle -OutputDirectory "doc/product-docs/state-tracking/temporary" -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -FileNamePattern $customFileName -OpenInEditor:$OpenInEditor
 
     $details = @(
         "",

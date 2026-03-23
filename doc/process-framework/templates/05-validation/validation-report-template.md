@@ -295,6 +295,6 @@ Customize the "Validation Criteria Applied" section with:
 - [Feature Validation Guide](/doc/process-framework/guides/05-validation/feature-validation-guide.md)
 - [Validation Framework Tasks](/doc/process-framework/tasks/05-validation) (validation task definitions)
 - [Template Development Guide](/doc/process-framework/guides/support/template-development-guide.md)
-- [Feature Tracking](/doc/process-framework/state-tracking/permanent/feature-tracking.md)
+- [Feature Tracking](/doc/product-docs/state-tracking/permanent/feature-tracking.md)
 
 ---

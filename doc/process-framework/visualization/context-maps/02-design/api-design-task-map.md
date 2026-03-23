@@ -97,7 +97,7 @@ graph TD
 
 ## Related Documentation
 
-- [Feature Tracking](/doc/process-framework/state-tracking/permanent/feature-tracking.md) - Current feature requirements and status
+- [Feature Tracking](/doc/product-docs/state-tracking/permanent/feature-tracking.md) - Current feature requirements and status
 - [API Data Models Registry](../../../state-tracking/permanent/api-models-registry.md) - Central registry of all API data models
 - [System Architecture Review Task](/doc/process-framework/tasks/01-planning/system-architecture-review.md) - Prerequisite architectural analysis
 - [API Design Task](/doc/process-framework/tasks/02-design/api-design-task.md) - Complete task definition using this context map

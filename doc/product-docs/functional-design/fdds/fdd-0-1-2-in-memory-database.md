@@ -15,7 +15,7 @@ retrospective: true
 
 > **Retrospective Document**: This FDD describes the existing implemented functionality of the LinkWatcher In-Memory Database, documented after implementation during framework onboarding (PF-TSK-066). Content is descriptive ("what is") rather than prescriptive ("what should be").
 >
-> **Source**: Derived from [0.1.3 Implementation State](../../../process-framework/state-tracking/features/0.1.3-in-memory-database-implementation-state.md), [HOW_IT_WORKS.md](../../../../HOW_IT_WORKS.md) (Database System section), and source code analysis of `linkwatcher/database.py`.
+> **Source**: Derived from [0.1.3 Implementation State](../../state-tracking/features/archive/0.1.3-in-memory-database-implementation-state.md), [HOW_IT_WORKS.md](../../../../HOW_IT_WORKS.md) (Database System section), and source code analysis of `linkwatcher/database.py`.
 
 ## Feature Overview
 

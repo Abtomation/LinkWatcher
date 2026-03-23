@@ -86,7 +86,7 @@ When referencing other tasks' outputs in FDDs:
 
 - **Critical (Must Read):**
 
-  - **Feature Information** - Feature details from [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) including ID, name, description, and tier assessment
+  - **Feature Information** - Feature details from [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) including ID, name, description, and tier assessment
   - **Feature Tier Assessment** - Complexity evaluation and FDD requirement determination from [Feature Tier Assessment Task](../01-planning/feature-tier-assessment-task.md)
   - **Human Input on Feature Behavior** - Direct consultation with human partner about how the feature should work from user perspective
   - [FDD Customization Guide](../../guides/02-design/fdd-customization-guide.md) - Essential guide for understanding FDD structure and customization requirements
@@ -95,7 +95,7 @@ When referencing other tasks' outputs in FDDs:
 
   - [FDD Template](../../templates/02-design/fdd-template.md) - Template structure for creating FDD documents
   - [Feature Discovery Task](../01-planning/feature-discovery-task.md) - Background research and analysis if available
-  - [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Any existing user stories or requirements documentation
+  - [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) - Any existing user stories or requirements documentation
 
 - **Reference Only (Access When Needed):**
   - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting context map diagrams
@@ -113,7 +113,7 @@ When referencing other tasks' outputs in FDDs:
 
 ### Preparation
 
-1. **Identify Target Feature**: Locate the feature in [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) and verify it requires FDD creation
+1. **Identify Target Feature**: Locate the feature in [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) and verify it requires FDD creation
 2. **Review Feature Tier Assessment**: Confirm the feature is Tier 2 or Tier 3, or has specific FDD triggers (complex interactions, business rules, etc.)
 3. **Gather Existing Information**: Collect any available feature discovery results, user stories, or requirements documentation
 4. **🚨 CHECKPOINT**: Present feature context, tier assessment results, and existing information to human partner for approval before proceeding
@@ -152,13 +152,13 @@ When referencing other tasks' outputs in FDDs:
 ## Outputs
 
 - **Functional Design Document (FDD)** - Complete FDD document in `/doc/product-docs/functional-design/fdds/fdd-[feature-id]-[feature-name].md` with assigned FDD ID
-- **Updated Feature Tracking** - Feature status updated to "📋 FDD Created" with FDD link in [Feature Tracking](../../state-tracking/permanent/feature-tracking.md)
+- **Updated Feature Tracking** - Feature status updated to "📋 FDD Created" with FDD link in [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md)
 
 ## State Tracking
 
 The following state files are automatically updated by the ../../scripts/file-creation/02-design/New-FDD.ps1 script:
 
-- [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Automatically updated with feature status "📋 FDD Created" and FDD document link in the FDD column
+- [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) - Automatically updated with feature status "📋 FDD Created" and FDD document link in the FDD column
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
@@ -173,7 +173,7 @@ Before considering this task finished:
   - [ ] Acceptance criteria are testable and measurable
   - [ ] Edge cases and error handling scenarios identified
 - [ ] **Verify Automated Updates**: Ensure the ../../scripts/file-creation/02-design/New-FDD.ps1 script successfully updated state tracking files
-  - [ ] [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) automatically updated with FDD link and status "📋 FDD Created"
+  - [ ] [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) automatically updated with FDD link and status "📋 FDD Created"
 - [ ] **Human Consultation Completed**: Confirmed that human partner was consulted about feature behavior and requirements
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-027" and context "FDD Creation"
 
@@ -188,5 +188,5 @@ Before considering this task finished:
 - [FDD Template](../../templates/02-design/fdd-template.md) - Template for creating Functional Design Documents
 - [FDD Customization Guide](../../guides/02-design/fdd-customization-guide.md) - Guide for customizing FDD templates after creation
 - [Feature Tier Assessment Task](../01-planning/feature-tier-assessment-task.md) - Task for determining if FDD is required
-- [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Central tracking document for all features
+- [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) - Central tracking document for all features
 - [FDD Integration Concept](../../proposals/proposals/functional-design-document-integration-concept.md) - Original concept document for FDD integration

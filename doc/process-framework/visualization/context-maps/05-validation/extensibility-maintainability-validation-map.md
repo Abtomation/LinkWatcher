@@ -109,7 +109,7 @@ graph TD
 ## Related Documentation
 
 - [Extensibility Maintainability Validation Task](../../../tasks/05-validation/extensibility-maintainability-validation.md) - Complete task definition and process
-- [Feature Tracking](../../../state-tracking/permanent/feature-tracking.md) - Current status of features
+- [Feature Tracking](../../../../product-docs/state-tracking/permanent/feature-tracking.md) - Current status of features
 - Validation Tracking State File - Active validation tracking matrix (file location depends on validation round)
 - [Validation Report Template](../../../templates/05-validation/validation-report-template.md) - Standardized report structure
 - [../../scripts/file-creation/New-ValidationReport.ps1](../../../scripts/file-creation/05-validation/New-ValidationReport.ps1) - Automation script for report generation

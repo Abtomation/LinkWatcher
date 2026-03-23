@@ -555,7 +555,7 @@ Critical coverage gaps in authentication testing pose security risks. The test s
 
 ### Core Documentation
 - [Test Audit Task Definition](../../tasks/03-testing/test-audit-task.md) - Complete task specification and process
-- [Test Tracking](../../state-tracking/permanent/test-tracking.md) - Status tracking and workflow
+- [Test Tracking](../../../../test/state-tracking/permanent/test-tracking.md) - Status tracking and workflow
 - [Test Audit Concept](../../proposals/test-audit-concept.md) - Background and rationale for test audits
 
 ### Scripts and Tools

@@ -72,7 +72,7 @@ graph TD
 - <!-- [Code Review Checklist](/doc/process-framework/templates/code-review-checklist.md) - Template/example link commented out --> - Standard review criteria
 - <!-- [Coding Standards](/doc/product-docs/development/guides/coding-standards.md) - File not found --> - Project-specific coding standards
 - <!-- [Unit Testing Standards](/doc/product-docs/development/guides/unit-testing-standards.md) - File not found --> - Standards for unit tests
-- [Technical Debt Tracking](../../../state-tracking/permanent/technical-debt-tracking.md) - Technical debt status
+- [Technical Debt Tracking](../../../../product-docs/state-tracking/permanent/technical-debt-tracking.md) - Technical debt status
 - [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Complete reference of component relationships
 
 ---

@@ -44,7 +44,7 @@ Complete remaining items and prepare feature for production deployment. This tas
 
 - **Important (Load If Space):**
 
-  - **Feature Tracking** - [Feature details from feature-tracking.md](../../state-tracking/permanent/feature-tracking.md) for feature context
+  - **Feature Tracking** - [Feature details from feature-tracking.md](../../../product-docs/state-tracking/permanent/feature-tracking.md) for feature context
   - [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - For understanding system dependencies
   - **Release Management Guide** - Project release versioning, branching strategies, and release cycles
 
@@ -132,7 +132,7 @@ Complete remaining items and prepare feature for production deployment. This tas
 The following state files must be updated as part of this task:
 
 - [Feature Implementation State File](../../state-tracking/permanent/feature-implementation-state-[feature-id].md) - Update **Implementation Progress** section to 100% completion, finalize **Implementation Notes** with deployment readiness status and lessons learned, archive file after completion
-- [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Update feature status to "Deployed" or "Ready for Deployment" with deployment date/window
+- [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) - Update feature status to "Deployed" or "Ready for Deployment" with deployment date/window
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
@@ -153,7 +153,7 @@ Before considering this task finished:
   - [ ] [Feature Implementation State File](../../state-tracking/permanent/feature-implementation-state-[feature-id].md) Implementation Progress updated to 100%
   - [ ] Implementation Notes finalized with deployment readiness and lessons learned
   - [ ] Feature state file archived to permanent/archive/ directory
-  - [ ] [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) updated with deployment status
+  - [ ] [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) updated with deployment status
 - [ ] **Deployment Readiness Verification**
   - [ ] Stakeholder sign-off obtained for deployment
   - [ ] Deployment window scheduled and communicated

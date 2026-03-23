@@ -328,8 +328,8 @@ Validation Preparation (PF-TSK-077) → [Select features + dimensions] → Dimen
 | **📋 Task Definitions** | All Categorized Tasks             | Complete task workflows and processes        | [↑ Task Definitions](#task-definitions)                                                                                                |
 | **🔄 Workflows**        | Common Task Workflows             | Standard development workflows               | [↑ Common Workflows](#common-workflows)                                                                                                |
 | **🏗️ Infrastructure**   | Process Framework Registry        | Complete task catalog with automation status | [Process Framework Task Registry](/doc/process-framework/infrastructure/process-framework-task-registry.md)                            |
-| **📊 State Tracking**   | Feature Tracking                  | Track feature development status             | [Feature Tracking](/doc/process-framework/state-tracking/permanent/feature-tracking.md)                                                |
-| **📊 State Tracking**   | Technical Debt Tracking           | Track technical debt items                   | [Technical Debt Tracking](/doc/process-framework/state-tracking/permanent/technical-debt-tracking.md)                                  |
+| **📊 State Tracking**   | Feature Tracking                  | Track feature development status             | [Feature Tracking](/doc/product-docs/state-tracking/permanent/feature-tracking.md)                                                |
+| **📊 State Tracking**   | Technical Debt Tracking           | Track technical debt items                   | [Technical Debt Tracking](/doc/product-docs/state-tracking/permanent/technical-debt-tracking.md)                                  |
 | **📖 Templates**        | State File Template               | Create new tracking files                    | [State File Template](/doc/process-framework/templates/support/state-file-template.md)                                               |
 | **🔧 Automation**       | Task Creation Script              | Create new framework tasks                   | [New Task Creation Process](/doc/process-framework/tasks/support/new-task-creation-process.md)                                         |
 | **📝 Feedback**         | Feedback Process                  | Submit tool and task feedback                | [Feedback Process Guide](/doc/process-framework/feedback/README.md)                                                                    |
@@ -400,8 +400,8 @@ Understanding the different types of documentation helps you choose the right re
 
 | File                                                                                                  | Purpose                          | Status    |
 | ----------------------------------------------------------------------------------------------------- | -------------------------------- | --------- |
-| [Feature Tracking](/doc/process-framework/state-tracking/permanent/feature-tracking.md)               | Track feature development status | ✅ Active |
-| [Technical Debt Tracking](/doc/process-framework/state-tracking/permanent/technical-debt-tracking.md) | Track technical debt items       | ✅ Active |
+| [Feature Tracking](/doc/product-docs/state-tracking/permanent/feature-tracking.md)               | Track feature development status | ✅ Active |
+| [Technical Debt Tracking](/doc/product-docs/state-tracking/permanent/technical-debt-tracking.md) | Track technical debt items       | ✅ Active |
 
 ### Creating New State Files
 

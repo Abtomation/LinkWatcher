@@ -188,6 +188,6 @@ Extract two self-contained state machine classes from `LinkMaintenanceHandler` t
 TD015, TD016, TD017, TD018 remain open but are independent of this refactoring.
 
 ## Related Documentation
-- [Technical Debt Tracking](/doc/process-framework/state-tracking/permanent/technical-debt-tracking.md)
+- [Technical Debt Tracking](/doc/product-docs/state-tracking/permanent/technical-debt-tracking.md)
 - [Technical Debt Assessment PF-TDA-001](/doc/process-framework/assessments/technical-debt/assessments/handler-module-structural-debt-assessment.md)
 - [Previous refactoring: PF-REF-028 (Mega Method)](/doc/product-docs/refactoring/plans/archive/decompose-handle-file-moved-mega-method-into-focused-sub-methods.md)

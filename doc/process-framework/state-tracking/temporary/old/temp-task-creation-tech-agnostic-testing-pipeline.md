@@ -132,7 +132,7 @@ task_name: tech-agnostic-testing-pipeline
 
 - [x] Update feature-tracking.md Test Status column
   - **Status**: COMPLETED (verified — no changes needed)
-  - **Target**: doc/process-framework/state-tracking/permanent/feature-tracking.md
+  - **Target**: doc/product-docs/state-tracking/permanent/feature-tracking.md
   - **Notes**: All Test Status values already set correctly during Phase 2 analysis. ✅ for tested features, 🚫 for 4.1.8 (Test Documentation).
 
 ### Session 3: Onboarding Integration, Validation & Finalization (Phases 3B & 4)

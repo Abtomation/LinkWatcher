@@ -78,11 +78,11 @@ Create a technical design document based on the feature's documentation tier:
 - **Tier 2 (🟠)**: Create a lightweight TDD using the [Lightweight Template](/doc/process-framework/templates/02-design/tdd-t2-template.md)
 - **Tier 3 (🔴)**: Create a full TDD using the [Full Template](/doc/process-framework/templates/02-design/tdd-t3-template.md)
 
-The documentation tier for each feature is indicated in the [Feature Tracking Document](/doc/process-framework/state-tracking/permanent/feature-tracking.md) in the format: 🔵/🟠/🔴 <!-- [Tier 1/2/3](../../development/processes/link-to-assessment) - Template/example link commented out -->.
+The documentation tier for each feature is indicated in the [Feature Tracking Document](/doc/product-docs/state-tracking/permanent/feature-tracking.md) in the format: 🔵/🟠/🔴 <!-- [Tier 1/2/3](../../development/processes/link-to-assessment) - Template/example link commented out -->.
 
 #### Technical Design Document Process
 
-1. **Check Feature Tracking**: Consult the [Feature Tracking Document](/doc/process-framework/state-tracking/permanent/feature-tracking.md) to determine the documentation tier for the feature
+1. **Check Feature Tracking**: Consult the [Feature Tracking Document](/doc/product-docs/state-tracking/permanent/feature-tracking.md) to determine the documentation tier for the feature
 2. **Assess Complexity**: If the feature doesn't have a documentation tier assigned, assess its complexity using the criteria in the [Documentation Tiers](/doc/product-docs/documentation-tiers/README.md) document
 3. **Select Template**: Choose the appropriate template based on the documentation tier
 4. **Create Document**: Create the document in `/doc/product-docs/technical/design/`

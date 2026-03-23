@@ -16,7 +16,7 @@ task_name: tech-debt-td001-td004-refactoring
 
 - **Task**: Code Refactoring (PF-TSK-022)
 - **Refactoring Plan**: [PF-REF-020](/doc/product-docs/refactoring/plans/technical-debt-td001-td004-resolution.md)
-- **Scope**: Resolve TD001-TD004 from [Technical Debt Tracking](/doc/process-framework/state-tracking/permanent/technical-debt-tracking.md)
+- **Scope**: Resolve TD001-TD004 from [Technical Debt Tracking](/doc/product-docs/state-tracking/permanent/technical-debt-tracking.md)
 
 ## TD Item Status
 

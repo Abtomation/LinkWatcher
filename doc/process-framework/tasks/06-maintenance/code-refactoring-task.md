@@ -92,7 +92,7 @@ Evaluate the refactoring scope against these criteria:
 - **Updated Test Suite** - Enhanced or additional tests to cover refactored code areas (standard path)
 - **Quality Metrics Report** - Before/after comparison of code quality indicators and performance metrics (standard path)
 - **Technical Debt Reduction** - Documented reduction in technical debt items and code quality issues
-- **Bug Reports** - Any bugs discovered during refactoring documented in [Bug Tracking](../../state-tracking/permanent/bug-tracking.md) with status 🆕 Reported
+- **Bug Reports** - Any bugs discovered during refactoring documented in [Bug Tracking](../../../product-docs/state-tracking/permanent/bug-tracking.md) with status 🆕 Reported
 - **Updated State Files** - All relevant state tracking files updated according to the applicable path
 
 ## Next Tasks
@@ -103,4 +103,4 @@ Evaluate the refactoring scope against these criteria:
 
 ## Related Resources
 
-- [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md) - For identifying refactoring targets
+- [Technical Debt Tracking](../../../product-docs/state-tracking/permanent/technical-debt-tracking.md) - For identifying refactoring targets

@@ -73,5 +73,5 @@ Two standard library imports used inside method bodies instead of at module leve
 - **Status**: Complete
 
 ## Related Documentation
-- [Technical Debt Tracking](/doc/process-framework/state-tracking/permanent/technical-debt-tracking.md)
+- [Technical Debt Tracking](/doc/product-docs/state-tracking/permanent/technical-debt-tracking.md)
 - [Handler Module Structural Debt Assessment](/doc/process-framework/assessments/technical-debt/assessments/handler-module-structural-debt-assessment.md)

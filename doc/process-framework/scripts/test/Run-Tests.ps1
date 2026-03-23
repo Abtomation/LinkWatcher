@@ -464,7 +464,7 @@ if ($UpdateTracking -and $script:capturedTestOutput.Count -gt 0) {
             } else {
                 # Update test-tracking.md directly — match rows by PD-TST ID in column 0
                 # Columns: Test ID(0) | Feature ID(1) | Test Type(2) | Test File/Case(3) | Status(4) | Test Cases Count(5) | Last Executed(6) | Last Updated(7) | Notes(8)
-                $trackingPath = Join-Path $projectRoot "doc/process-framework/state-tracking/permanent/test-tracking.md"
+                $trackingPath = Join-Path $projectRoot "test/state-tracking/permanent/test-tracking.md"
                 $trackingContent = Get-Content $trackingPath -Raw -Encoding UTF8
                 $trackingLines = $trackingContent -split '\r?\n'
 
@@ -543,7 +543,7 @@ if ($UpdateTracking -and $Coverage -and $script:capturedTestOutput.Count -gt 0) 
         $runType = if ($All) { "All (excl. slow)" } elseif ($Category -and $Category.Count -gt 0) { "Category: $($Category -join ', ')" } else { "Full" }
         $newRow = "| $timestamp | $totalCoverage | $testsPassed | $testsSkipped | $testsFailed | $runType |"
 
-        $trackingPath = Join-Path $projectRoot "doc/process-framework/state-tracking/permanent/test-tracking.md"
+        $trackingPath = Join-Path $projectRoot "test/state-tracking/permanent/test-tracking.md"
         $trackingContent = Get-Content $trackingPath -Raw -Encoding UTF8
         $trackingLines = $trackingContent -split '\r?\n'
 

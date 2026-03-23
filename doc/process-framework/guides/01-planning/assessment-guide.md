@@ -26,7 +26,7 @@ This guide provides a structured approach for assessing the appropriate document
 
 ### Initial Assessment
 
-1. **Identify the Feature**: Locate the feature in the [Feature Tracking Document](../../state-tracking/permanent/feature-tracking.md) and note its ID and description.
+1. **Identify the Feature**: Locate the feature in the [Feature Tracking Document](../../../product-docs/state-tracking/permanent/feature-tracking.md) and note its ID and description.
 
 2. **Create Assessment File**: **MANDATORY: Use the provided automation script** to create an assessment file with the correct template:
 
@@ -98,7 +98,7 @@ This guide provides a structured approach for assessing the appropriate document
 
 7. **Document Special Considerations**: Note any special considerations that might affect the tier assignment.
 
-8. **Update the Feature Tracking Document**: Add the documentation tier emoji with link to the assessment, plus API Design and DB Design requirements (e.g., 🔵 Tier 1 with link to assessment) to the feature in the [Feature Tracking Document](../../state-tracking/permanent/feature-tracking.md).
+8. **Update the Feature Tracking Document**: Add the documentation tier emoji with link to the assessment, plus API Design and DB Design requirements (e.g., 🔵 Tier 1 with link to assessment) to the feature in the [Feature Tracking Document](../../../product-docs/state-tracking/permanent/feature-tracking.md).
 
 ### Reassessment During Implementation
 

@@ -15,7 +15,7 @@ retrospective: true
 
 > **Retrospective Document**: This TDD describes the existing technical design of the LinkWatcher In-Memory Database, documented after implementation during framework onboarding (PF-TSK-066). Content is reverse-engineered from source code analysis.
 >
-> **Source**: Derived from [0.1.3 Implementation State](../../../../../process-framework/state-tracking/features/0.1.3-in-memory-database-implementation-state.md) and source code analysis of `linkwatcher/database.py`.
+> **Source**: Derived from [0.1.3 Implementation State](../../../../state-tracking/features/archive/0.1.3-in-memory-database-implementation-state.md) and source code analysis of `linkwatcher/database.py`.
 
 ## 1. Overview
 
@@ -355,7 +355,7 @@ This section maintains context between development sessions:
 
 ### Key Decisions
 
-**Documented in section 7 (Design Decisions) of [Feature Implementation State](../../../../../process-framework/state-tracking/features/0.1.3-in-memory-database-implementation-state.md):**
+**Documented in section 7 (Design Decisions) of [Feature Implementation State](../../../../state-tracking/features/archive/0.1.3-in-memory-database-implementation-state.md):**
 
 1. **Target-indexed dictionary** for O(1) "what links to this file?" queries
 2. **Single `threading.Lock`** for simplicity and deadlock-free thread safety

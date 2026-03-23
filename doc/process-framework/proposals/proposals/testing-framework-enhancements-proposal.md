@@ -277,7 +277,7 @@ Rationale: Start with the quick wins (132, 133, 135, 136 are all low-effort addi
 
 - [Process Improvement Tracking](/doc/process-framework/state-tracking/permanent/process-improvement-tracking.md) — PF-IMP-132 through PF-IMP-137
 - [Test Infrastructure Guide](/doc/process-framework/guides/03-testing/test-infrastructure-guide.md)
-- [Test Tracking](/doc/process-framework/state-tracking/permanent/test-tracking.md)
-- [Feature Tracking](/doc/process-framework/state-tracking/permanent/feature-tracking.md)
+- [Test Tracking](/test/state-tracking/permanent/test-tracking.md)
+- [Feature Tracking](/doc/product-docs/state-tracking/permanent/feature-tracking.md)
 - [Run-Tests.ps1](/doc/process-framework/scripts/test/Run-Tests.ps1) — already made language-agnostic (PF-IMP-131)
 - [Language Configurations](/doc/process-framework/languages-config/README.md)

@@ -34,7 +34,7 @@ This task executes enhancement work on existing features by following the Enhanc
 
 - **Critical (Must Read):**
 
-  - **Enhancement State Tracking File** — The customized state file produced by Feature Request Evaluation, located in `state-tracking/temporary/`. This is the primary input driving all work.
+  - **Enhancement State Tracking File** — The customized state file produced by Feature Request Evaluation, located in `product-docs/state-tracking/temporary/`. This is the primary input driving all work.
   - **Referenced task documentation** — Each step in the state file references an existing task definition. Read the referenced task before executing each step.
   - [Visual Notation Guide](/doc/process-framework/guides/support/visual-notation-guide.md) — For interpreting context map diagrams
 
@@ -42,7 +42,7 @@ This task executes enhancement work on existing features by following the Enhanc
 
   - **Target feature's implementation state file** — In `state-tracking/features/X.Y.Z-*-implementation-state.md`
   - **Existing design docs** (FDD, TDD, ADR) listed in the state file's documentation inventory
-  - [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) — For status restoration on completion
+  - [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) — For status restoration on completion
 
 - **Reference Only (Access When Needed):**
   - [Enhancement Workflow Concept (PF-PRO-002)](../../proposals/proposals/enhancement-workflow-concept.md) — Full design rationale for this workflow
@@ -62,7 +62,7 @@ This task executes enhancement work on existing features by following the Enhanc
 
 1. **Read the Enhancement State Tracking File** — Understand the full scope of work: target feature, documentation inventory, sequenced steps, and session boundary planning
 2. **Verify prerequisites** — Confirm the state file was created by Feature Request Evaluation and the target feature shows "🔄 Needs Revision" in feature tracking
-3. **Check manual test coverage** — Review [test-tracking.md](../../state-tracking/permanent/test-tracking.md) for manual test cases covering the affected feature. Note which test groups will need re-execution after the enhancement, and whether new manual test cases should be created.
+3. **Check manual test coverage** — Review [test-tracking.md](../../../../test/state-tracking/permanent/test-tracking.md) for manual test cases covering the affected feature. Note which test groups will need re-execution after the enhancement, and whether new manual test cases should be created.
 4. **Review session plan** — For multi-session enhancements, identify which steps are planned for this session
 4. **🚨 CHECKPOINT**: Present enhancement scope, session plan, and state file overview to human partner for approval before executing steps
 
@@ -108,14 +108,14 @@ This task executes enhancement work on existing features by following the Enhanc
 - **Updated design documentation** — Amended FDD, TDD, and/or ADR as scoped in the state file
 - **Updated feature implementation state file** — Target feature's state reflects the enhancement
 - **Restored feature tracking status** — Target feature status restored from "🔄 Needs Revision" to appropriate status, state file link removed
-- **Archived Enhancement State Tracking File** — Completed state file moved to `state-tracking/temporary/old/`
+- **Archived Enhancement State Tracking File** — Completed state file moved to `product-docs/state-tracking/temporary/old/`
 
 ## State Tracking
 
 The following state files must be updated as part of this task:
 
-- **Enhancement State Tracking File** (`state-tracking/temporary/`) — Mark each step complete as work progresses; archive to `temporary/old/` on completion
-- [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) — Restore target feature status on completion (remove "🔄 Needs Revision" and state file link)
+- **Enhancement State Tracking File** (`product-docs/state-tracking/temporary/`) — Mark each step complete as work progresses; archive to `temporary/old/` on completion
+- [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) — Restore target feature status on completion (remove "🔄 Needs Revision" and state file link)
 - **Target feature's implementation state file** (`state-tracking/features/X.Y.Z-*.md`) — Update to reflect the enhancement work
 
 ## MANDATORY Task Completion Checklist
@@ -133,7 +133,7 @@ Before considering this task finished:
 - [ ] **Verify State Files Updated**:
   - [ ] Target feature's implementation state file updated to reflect the enhancement
   - [ ] Feature tracking status restored (removed "🔄 Needs Revision", set appropriate status, removed state file link)
-  - [ ] Enhancement State Tracking File archived to `state-tracking/temporary/old/`
+  - [ ] Enhancement State Tracking File archived to `product-docs/state-tracking/temporary/old/`
 
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-068" and context "Feature Enhancement"
 
@@ -148,4 +148,4 @@ Before considering this task finished:
 
 - [Feature Request Evaluation](../01-planning/feature-request-evaluation.md) — The task that creates the Enhancement State Tracking File consumed by this task
 - [Enhancement Workflow Concept (PF-PRO-002)](../../proposals/proposals/enhancement-workflow-concept.md) — Full design rationale for this workflow
-- [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) — Current feature inventory and status
+- [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) — Current feature inventory and status

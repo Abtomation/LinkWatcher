@@ -3,7 +3,7 @@
     Auto-generates the Feature Dependencies Map (feature-dependencies.md) from feature state files.
 
 .DESCRIPTION
-    Reads all *-implementation-state.md files in state-tracking/features/, parses their
+    Reads all *-implementation-state.md files in product-docs/state-tracking/features/, parses their
     "## 6. Dependencies" sections to extract dependency edges, reads feature-tracking.md
     for status/tier/priority metadata, and generates:
     - A Mermaid dependency graph (color-coded by phase)
@@ -29,8 +29,8 @@ $ErrorActionPreference = 'Stop'
 
 # --- Resolve paths ---
 $projectRoot = (Resolve-Path (Join-Path $PSScriptRoot '../../../../')).Path
-$featuresDir = Join-Path $projectRoot 'doc/process-framework/state-tracking/features'
-$trackingFile = Join-Path $projectRoot 'doc/process-framework/state-tracking/permanent/feature-tracking.md'
+$featuresDir = Join-Path $projectRoot 'doc/product-docs/state-tracking/features'
+$trackingFile = Join-Path $projectRoot 'doc/product-docs/state-tracking/permanent/feature-tracking.md'
 $outputFile = Join-Path $projectRoot 'doc/product-docs/technical/design/feature-dependencies.md'
 
 # --- Parse feature state files ---
@@ -218,7 +218,7 @@ generated: true
 # Feature Dependencies Map
 
 > **Auto-generated** by `Update-FeatureDependencies.ps1` on $generatedDate.
-> Source: feature state files in `doc/process-framework/state-tracking/features/`.
+> Source: feature state files in `doc/product-docs/state-tracking/features/`.
 > Do not edit manually — changes will be overwritten on next generation.
 
 This document maps the dependencies between features ($featureCount features, $edgeCount dependency edges).

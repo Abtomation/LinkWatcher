@@ -66,7 +66,7 @@
         "temporary": "doc/process-framework/state-tracking/temporary",
         "default": "permanent"
       },
-      "nextAvailable": 64
+      "nextAvailable": 65
     },
     "PF-DOC": {
       "description": "Process Framework - Documentation",
@@ -123,7 +123,7 @@
       "category": "Process Framework",
       "type": "Feature State",
       "directories": {
-        "features": "doc/process-framework/state-tracking/features",
+        "features": "doc/product-docs/state-tracking/features",
         "default": "features"
       },
       "nextAvailable": 56
@@ -500,7 +500,7 @@
         "permanent": "doc/process-framework/state-tracking/permanent",
         "default": "permanent"
       },
-      "nextAvailable": 50
+      "nextAvailable": 51
     },
     "TE-E2G": {
       "description": "E2E Acceptance Testing - Test Groups",

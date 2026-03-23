@@ -269,7 +269,7 @@ try {
     $notesString = $assessmentNotes -join "; "
 
     # Make notes idempotent: check if this assessment is already recorded in feature-tracking.md
-    $featureTrackingPath = Join-Path -Path (Get-ProjectRoot) -ChildPath "doc/process-framework/state-tracking/permanent/feature-tracking.md"
+    $featureTrackingPath = Join-Path -Path (Get-ProjectRoot) -ChildPath "doc/product-docs/state-tracking/permanent/feature-tracking.md"
     if (Test-Path $featureTrackingPath) {
         $ftContent = Get-Content $featureTrackingPath -Raw -Encoding UTF8
         if ($ftContent -match [regex]::Escape($AssessmentId)) {

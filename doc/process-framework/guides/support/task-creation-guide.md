@@ -468,7 +468,7 @@ Here's an example of creating a new categorized task following the **mandatory s
      - <!-- [Code Quality Reports](/doc/product-docs/development/reports/code-quality-reports.md) - File not found --> - Metrics indicating problem areas
 
    - **Reference Only (Access When Needed):**
-     - [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md) - Items marked for refactoring
+     - [Technical Debt Tracking](../../../product-docs/state-tracking/permanent/technical-debt-tracking.md) - Items marked for refactoring
 
    ## Process
 

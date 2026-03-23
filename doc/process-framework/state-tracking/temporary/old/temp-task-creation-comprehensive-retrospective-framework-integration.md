@@ -66,7 +66,7 @@ task_name: comprehensive-retrospective-framework-integration
 - [x] **Update feature-tracking.md header**
   - **Status**: COMPLETED
   - **Action**: Replaced previous project name with current project name
-  - **File**: doc/process-framework/state-tracking/permanent/feature-tracking.md
+  - **File**: doc/product-docs/state-tracking/permanent/feature-tracking.md
   - **Changes**: Updated title, description, feature categories (0-5), version to 1.4
   - **Notes**: Added placeholder note about Phase 2 population
 

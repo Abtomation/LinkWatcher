@@ -68,5 +68,5 @@ None.
 None related to this scope.
 
 ## Related Documentation
-- [Technical Debt Tracking](/doc/process-framework/state-tracking/permanent/technical-debt-tracking.md)
+- [Technical Debt Tracking](/doc/product-docs/state-tracking/permanent/technical-debt-tracking.md)
 - [ADR-040: Target-Indexed In-Memory Link Database](/doc/product-docs/technical/architecture/design-docs/adr/adr/target-indexed-in-memory-link-database.md)

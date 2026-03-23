@@ -50,4 +50,4 @@ refactoring_scope: Add reset functions for global singletons in logging modules
 | 1 | TD036 | Complete | None | None |
 
 ## Related Documentation
-- [Technical Debt Tracking](/doc/process-framework/state-tracking/permanent/technical-debt-tracking.md)
+- [Technical Debt Tracking](/doc/product-docs/state-tracking/permanent/technical-debt-tracking.md)

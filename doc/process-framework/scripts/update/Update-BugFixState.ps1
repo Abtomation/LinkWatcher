@@ -9,7 +9,7 @@ This script automates the manual state file updates required by the Bug Fixing T
 addressing the critical bottleneck identified in the Process Improvement Tracking.
 
 Updates the following files:
-- ../doc/process-framework/state-tracking/permanent/feature-tracking.md
+- ../doc/product-docs/state-tracking/permanent/feature-tracking.md
 
 .PARAMETER FeatureId
 The feature ID where the bug was reported (e.g., "1.2.3")

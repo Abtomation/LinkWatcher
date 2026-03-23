@@ -84,7 +84,7 @@ function Update-FeatureTrackingWithArchReview {
 
     try {
         $projectRoot = Get-ProjectRoot
-        $featureTrackingPath = Join-Path -Path $projectRoot -ChildPath "doc/process-framework/state-tracking/permanent/feature-tracking.md"
+        $featureTrackingPath = Join-Path -Path $projectRoot -ChildPath "doc/product-docs/state-tracking/permanent/feature-tracking.md"
 
         if (-not (Test-Path $featureTrackingPath)) {
             Write-Host "⚠️ Feature tracking file not found at: $featureTrackingPath" -ForegroundColor Yellow
@@ -135,7 +135,7 @@ function Update-ArchitectureTracking {
 
     try {
         $projectRoot = Get-ProjectRoot
-        $archTrackingPath = Join-Path -Path $projectRoot -ChildPath "doc/process-framework/state-tracking/permanent/architecture-tracking.md"
+        $archTrackingPath = Join-Path -Path $projectRoot -ChildPath "doc/product-docs/state-tracking/permanent/architecture-tracking.md"
 
         if (-not (Test-Path $archTrackingPath)) {
             Write-Host "⚠️ Architecture tracking file not found at: $archTrackingPath" -ForegroundColor Yellow

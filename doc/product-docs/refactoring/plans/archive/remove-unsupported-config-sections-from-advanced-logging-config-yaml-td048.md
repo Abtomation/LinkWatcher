@@ -54,4 +54,4 @@ priority: Medium
 | 1 | TD048 | Complete | None | README.md, 0.1.3 state, 3.1.1 state, 3.1.1 archive state |
 
 ## Related Documentation
-- [Technical Debt Tracking](/doc/process-framework/state-tracking/permanent/technical-debt-tracking.md)
+- [Technical Debt Tracking](/doc/product-docs/state-tracking/permanent/technical-debt-tracking.md)

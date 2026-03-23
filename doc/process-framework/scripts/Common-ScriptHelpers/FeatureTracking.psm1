@@ -22,7 +22,7 @@ maintainability and reduce complexity.
 Version: 1.0 (Extracted Module)
 Created: 2025-08-30
 Extracted From: StateFileManagement.psm1
-Dependencies: Get-ProjectRoot, Get-ProjectTimestamp, Update-MarkdownTable, Get-TrackingFilesByFeatureType
+Dependencies: Get-ProjectRoot, Get-ProjectTimestamp, Update-MarkdownTable
 #>
 
 # Configure UTF-8 encoding for consistent Unicode support
@@ -82,7 +82,7 @@ function Update-FeatureTrackingStatus {
 
     try {
         $projectRoot = Get-ProjectRoot
-        $featureTrackingPath = Join-Path $projectRoot "doc/process-framework/state-tracking/permanent/feature-tracking.md"
+        $featureTrackingPath = Join-Path $projectRoot "doc/product-docs/state-tracking/permanent/feature-tracking.md"
 
         if (-not (Test-Path $featureTrackingPath)) {
             throw "Feature tracking file not found: $featureTrackingPath"
@@ -199,7 +199,7 @@ function Update-FeatureTrackingStatusWithAppend {
 
     try {
         $projectRoot = Get-ProjectRoot
-        $featureTrackingPath = Join-Path $projectRoot "doc/process-framework/state-tracking/permanent/feature-tracking.md"
+        $featureTrackingPath = Join-Path $projectRoot "doc/product-docs/state-tracking/permanent/feature-tracking.md"
 
         if (-not (Test-Path $featureTrackingPath)) {
             throw "Feature tracking file not found: $featureTrackingPath"

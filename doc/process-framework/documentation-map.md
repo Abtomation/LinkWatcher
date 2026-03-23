@@ -81,12 +81,12 @@ Our tasks are organized into four categories and follow a unified structure:
 
 ### Core Process Documents
 
-- [Process: Feature Tracking](state-tracking/permanent/feature-tracking.md) - Comprehensive list of all features with implementation status
-- [Process: Test Tracking](state-tracking/permanent/test-tracking.md) - Tracks implementation status of test cases derived from test specifications
+- [Process: Feature Tracking](../product-docs/state-tracking/permanent/feature-tracking.md) - Comprehensive list of all features with implementation status
+- [Process: Test Tracking](../../test/state-tracking/permanent/test-tracking.md) - Tracks implementation status of test cases derived from test specifications
 - [Process: Test Registry](/test/test-registry.yaml) - Registry of all test files with feature mappings, cross-cutting support, and PD-TST IDs
 - [Process: Definition of Done](guides/04-implementation/definition-of-done.md) - Clear criteria for when a feature is considered complete
-- [Process: Technical Debt Tracking](state-tracking/permanent/technical-debt-tracking.md) - System for tracking and managing technical debt
-- [Process: Foundational Validation Tracking](state-tracking/temporary/foundational-validation-tracking.md) - Master tracking for foundational codebase validation across all validation types
+- [Process: Technical Debt Tracking](../product-docs/state-tracking/permanent/technical-debt-tracking.md) - System for tracking and managing technical debt
+- [Process: Validation Tracking](../product-docs/state-tracking/temporary/validation-tracking.md) - Master tracking for codebase validation across all validation types
 - [Process: Feature Implementation Template](templates/04-implementation/feature-implementation-template.md) - Template for planning and implementing features
 - [Process: Implementation Plan Template](templates/04-implementation/implementation-plan-template-template.md) - Template for creating implementation plan documents that define sequenced execution strategies for feature implementation
 - [Process: Foundation Feature Template](templates/04-implementation/foundation-feature-template.md) - Template for foundation feature structure and architectural documentation
@@ -356,7 +356,7 @@ _Created during test audit sessions (PF-TSK-030). Located in `test/audits/` (mov
 ### For Planning New Features
 
 1. Use the [Task: Feature Discovery](tasks/01-planning/feature-discovery-task.md) process to identify potential new features
-2. Check the [Process: Feature Tracking](state-tracking/permanent/feature-tracking.md) document to identify features that need implementation
+2. Check the [Process: Feature Tracking](../product-docs/state-tracking/permanent/feature-tracking.md) document to identify features that need implementation
 3. Use the [Task: Feature Tier Assessment](tasks/01-planning/feature-tier-assessment-task.md) process to determine the feature's complexity
 4. Follow the [Task: TDD Creation](tasks/02-design/tdd-creation-task.md) process to create tier-appropriate design documentation
 5. Consult the [Product: Feature Dependencies](../product-docs/technical/design/feature-dependencies.md) map to understand dependencies
@@ -364,14 +364,14 @@ _Created during test audit sessions (PF-TSK-030). Located in `test/audits/` (mov
 ### During Implementation
 
 1. Follow the [Task: Feature Implementation Planning](tasks/04-implementation/feature-implementation-planning-task.md) process and the decomposed implementation tasks
-2. Document any intentional technical debt in the [Process: Technical Debt Tracking](state-tracking/permanent/technical-debt-tracking.md)
+2. Document any intentional technical debt in the [Process: Technical Debt Tracking](../product-docs/state-tracking/permanent/technical-debt-tracking.md)
 4. Adhere to the guidelines in the [Process: Development Guide](guides/04-implementation/development-guide.md)
 
 ### After Implementation
 
 1. Follow the [Task: Code Review](tasks/06-maintenance/code-review-task.md) process
 2. Verify your implementation against the [Process: Definition of Done](guides/04-implementation/definition-of-done.md) criteria
-3. Update the [Process: Feature Tracking](state-tracking/permanent/feature-tracking.md) document
+3. Update the [Process: Feature Tracking](../product-docs/state-tracking/permanent/feature-tracking.md) document
 4. Use the [Task: Bug Fixing](tasks/06-maintenance/bug-fixing-task.md) process for any issues that arise
 5. Plan for addressing any technical debt created during implementation
 

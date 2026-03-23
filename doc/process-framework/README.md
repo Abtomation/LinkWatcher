@@ -45,7 +45,7 @@ The Process Framework documentation is organized into the following directories:
 - [Terminology Guide](guides/framework/terminology-guide.md): Explains the terminology separation between Process Framework and Product Documentation
 - [Documentation Map](documentation-map.md): Central reference for all documentation files
 - [Document Creation System](improvement/document-creation-system.md): System for creating and managing documentation
-- [Architecture Tracking](state-tracking/permanent/architecture-tracking.md): Cross-cutting architectural state management and AI agent continuity
+- [Architecture Tracking](../product-docs/state-tracking/permanent/architecture-tracking.md): Cross-cutting architectural state management and AI agent continuity
 
 ## Document ID Format
 

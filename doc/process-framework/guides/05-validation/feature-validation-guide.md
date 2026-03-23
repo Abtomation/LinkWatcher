@@ -20,7 +20,7 @@ This guide provides comprehensive instructions for conducting feature validation
 
 The feature validation framework systematically evaluates a project's selected features across multiple specialized validation dimensions to ensure code quality, maintainability, security, performance, and AI agent continuity. The framework includes 11 validation dimensions — not all dimensions apply to every project or feature. Use the [Validation Preparation task](../../tasks/05-validation/validation-preparation.md) (PF-TSK-077) to select which features and dimensions to validate.
 
-> **⚠️ Project Adaptation Required**: This guide uses illustrative example feature IDs (e.g., `0.2.1`–`0.2.4`). Replace them with your project's actual features as listed in your [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) file.
+> **⚠️ Project Adaptation Required**: This guide uses illustrative example feature IDs (e.g., `0.2.1`–`0.2.4`). Replace them with your project's actual features as listed in your [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) file.
 
 ## When to Use
 
@@ -95,7 +95,7 @@ Before conducting feature validation, ensure you have:
 
 - **Access to the codebase**: Full read access to the project's application code
 - **Validation framework setup**: All validation tasks, templates, and scripts are available
-- **Feature knowledge**: Understanding of the features to be validated (see [Feature Tracking](../../state-tracking/permanent/feature-tracking.md))
+- **Feature knowledge**: Understanding of the features to be validated (see [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md))
 - **Task system familiarity**: Experience with the AI Task-Based Development System
 - **Context maps access**: Ability to read and interpret validation task context maps
 - **Validation tracking access**: Read/write access to the validation tracking file
@@ -117,7 +117,7 @@ Features implemented across multiple sessions by different AI agents can develop
 
 ### Feature Scope
 
-Consult your project's [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) file for the definitive list of features to validate. The table below is an **illustrative example**:
+Consult your project's [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) file for the definitive list of features to validate. The table below is an **illustrative example**:
 
 | Feature ID | Feature Name            | Description                   |
 | ---------- | ----------------------- | ----------------------------- |
@@ -182,7 +182,7 @@ The validation framework creates an N×M matrix (one row per selected feature, o
 | *(feature 2)* | ⏳   | ⏳      | ⏳          | ⏳   | ... | N/A      | ⏳          | ... |
 | ...           | ...  | ...     | ...         | ...  | ... | ...      | ...         | ... |
 
-Each cell represents a validation report linking a specific feature to a dimension. **N/A** marks dimensions explicitly excluded for a feature. Populate the rows with your project's actual feature IDs from [Feature Tracking](../../state-tracking/permanent/feature-tracking.md).
+Each cell represents a validation report linking a specific feature to a dimension. **N/A** marks dimensions explicitly excluded for a feature. Populate the rows with your project's actual feature IDs from [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md).
 
 ## Validation Types Deep Dive
 
@@ -645,5 +645,5 @@ When skipping a criterion, exclude it from the score denominator so it doesn't p
 ### Supporting Documentation
 
 - [AI Task-Based Development System](../../../ai-tasks.md) - Main task system entry point
-- [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Current feature status
+- [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) - Current feature status
 - [Visual Notation Guide](../support/visual-notation-guide.md) - For interpreting context maps and diagrams

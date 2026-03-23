@@ -493,7 +493,7 @@ Complete example of customizing an FDD for a user registration feature:
 - [New-FDD.ps1 Script](../../scripts/file-creation/02-design/New-FDD.ps1) - Script for creating FDD documents
 - [FDD Creation Task](../../tasks/02-design/fdd-creation-task.md) - Task definition for creating FDDs
 - [Feature Tier Assessment Task](../../tasks/01-planning/feature-tier-assessment-task.md) - Determines when FDD is required
-- [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Central feature tracking document
+- [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) - Central feature tracking document
 
 ---
 

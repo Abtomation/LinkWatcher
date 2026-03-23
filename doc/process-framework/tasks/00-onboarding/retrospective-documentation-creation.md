@@ -37,7 +37,7 @@ This is the final onboarding task that transforms code analysis into formal desi
 - **Critical (Must Read):**
 
   - [Retrospective Master State File](../../state-tracking/temporary/retrospective-master-state.md) — Read current state, verify Phase 2 complete
-  - [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Feature list, tiers, and documentation links
+  - [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) - Feature list, tiers, and documentation links
   - [Feature Implementation State Files](../../state-tracking/features/) — All enriched files from PF-TSK-065
   - [Feature Tier Assessment Task](../01-planning/feature-tier-assessment-task.md) - For creating tier assessments
 
@@ -90,7 +90,7 @@ This is the final onboarding task that transforms code analysis into formal desi
      - Compare assessment tier with actual complexity discovered
      - If inaccurate, update the assessment
      - Document any discrepancies in master state session notes
-   - Update [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) with tier assignment
+   - Update [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) with tier assignment
    - Update [master state](../../state-tracking/temporary/retrospective-master-state.md): mark feature as "📊 Assessment Created"
 
 4. **🚨 CHECKPOINT**: Present tier assessments for current batch of features for review before creating documents
@@ -151,7 +151,7 @@ This is the final onboarding task that transforms code analysis into formal desi
 
 10. **🚨 CHECKPOINT**: Present created documents for current batch of features for review
 
-11. **Update [Feature Tracking](../../state-tracking/permanent/feature-tracking.md)**:
+11. **Update [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md)**:
     - Add document links to appropriate columns as documents are created
 
 12. **Update [Master State](../../state-tracking/temporary/retrospective-master-state.md) After Each Session**:
@@ -175,7 +175,7 @@ This is the final onboarding task that transforms code analysis into formal desi
     - All documents marked "Retrospective"? ✅
 
 15. **Verify Tracking Completeness**:
-    - All document links in [Feature Tracking](../../state-tracking/permanent/feature-tracking.md)? ✅
+    - All document links in [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md)? ✅
     - All [Feature Implementation State files](../../state-tracking/features/) linked in Feature Tracking? ✅
 
 16. **🚨 CHECKPOINT**: Present completeness verification results and reconciliation plan to human partner for approval
@@ -213,7 +213,7 @@ This is the final onboarding task that transforms code analysis into formal desi
 - **API/DB Design Documents** — Conditional per assessment, marked "Retrospective"
 
 ### Phase 4 Outputs: Finalization
-- **Updated [Feature Tracking](../../state-tracking/permanent/feature-tracking.md)** — All document links in appropriate columns
+- **Updated [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md)** — All document links in appropriate columns
 - **Updated [Documentation Map](../../documentation-map.md)** — All new documents registered
 - **Reconciled pre-existing documentation** — Superseded docs archived to `doc/archived-pre-framework/`, project-essential docs (README.md, CONTRIBUTING.md, etc.) kept in place
 - **Archived [Master State File](../../state-tracking/temporary/retrospective-master-state.md)** — Moved to `/temporary/archived/`
@@ -224,7 +224,7 @@ This is the final onboarding task that transforms code analysis into formal desi
 
 - [Retrospective Master State File](../../state-tracking/temporary/retrospective-master-state.md) — Phase 3+4 progress, final metrics, archived on completion
 - [Feature Implementation State Files](../../state-tracking/features/) — Documentation Inventory section updated with created document links
-- [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) — Tier assignments and all document links added
+- [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) — Tier assignments and all document links added
 - [Documentation Map](../../documentation-map.md) — All new documents registered
 
 ## ⚠️ MANDATORY Task Completion Checklist
@@ -233,17 +233,17 @@ This is the final onboarding task that transforms code analysis into formal desi
 
 - [ ] **Phase 3 Complete: Tier Assessment & Documentation**
   - [ ] Every feature has a tier assessment (created or validated)
-  - [ ] [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) updated with all tier assignments
+  - [ ] [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) updated with all tier assignments
   - [ ] **All Tier 2+ features**: FDD created, marked "Retrospective"
   - [ ] **All Tier 2+ features**: TDD created, marked "Retrospective"
   - [ ] **All Tier 3 features**: Test Specification created, marked "Retrospective"
   - [ ] **All Foundation 0.x.x features**: ADR created where architectural decisions exist, marked "Retrospective"
   - [ ] **Conditional documents**: API/DB designs created where assessment indicates
   - [ ] All documents accurately reflect implemented code
-  - [ ] All document links added to [Feature Tracking](../../state-tracking/permanent/feature-tracking.md)
+  - [ ] All document links added to [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md)
 
 - [ ] **Phase 4 Complete: Finalization**
-  - [ ] [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) verified complete with ALL document links
+  - [ ] [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) verified complete with ALL document links
   - [ ] Run [`Validate-StateTracking.ps1`](../../scripts/validation/Validate-StateTracking.ps1) — 0 errors across all surfaces
   - [ ] Pre-existing documentation reconciled — each doc in master state inventory marked Keep or Archived; superseded docs moved to `doc/archived-pre-framework/`
   - [ ] [Documentation Map](../../documentation-map.md) updated with all new documents

@@ -50,14 +50,14 @@ Implement comprehensive test coverage for a feature and verify that all componen
   - **Test Specification Document** (if exists) - The test specification for the feature (located in `/test/specifications/feature-specs/`), serving as the checklist for required test scenarios
   - **TDD (Technical Design Document)** - Testing requirements section describing test scenarios, coverage expectations, and acceptance criteria
   - **Completed Implementation Code** - All implemented feature code to be tested
-  - [Test Tracking](../../state-tracking/permanent/test-tracking.md) - Current test implementation status
+  - [Test Tracking](../../../../test/state-tracking/permanent/test-tracking.md) - Current test implementation status
   - [Test Registry](/test/test-registry.yaml) - Test file registry with IDs and metadata
   - [Visual Notation Guide](/doc/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 - **Important (Load If Space):**
 
-  - **Feature Tracking** - [Feature details from feature-tracking.md](../../state-tracking/permanent/feature-tracking.md) for context
-  - **Feature Implementation State File** (if exists) - Implementation progress and context at `/doc/process-framework/state-tracking/features`
+  - **Feature Tracking** - [Feature details from feature-tracking.md](../../../product-docs/state-tracking/permanent/feature-tracking.md) for context
+  - **Feature Implementation State File** (if exists) - Implementation progress and context at `/doc/product-docs/state-tracking/features`
   - [Existing Test Structure](/test/) - Current test organization and patterns
   - [Mock Services](/test/mocks/) - Available mock implementations for testing
   - [Test Helpers](/test/test_helpers/) - Utility functions for test setup
@@ -165,7 +165,7 @@ Implement comprehensive test coverage for a feature and verify that all componen
 
     - Use [New-BugReport.ps1](../../scripts/file-creation/06-maintenance/New-BugReport.ps1) script to create standardized bug reports
     - Follow [Bug Reporting Guide](../../guides/06-maintenance/bug-reporting-guide.md) for consistent documentation
-    - Add bug entries to [Bug Tracking](../../state-tracking/permanent/bug-tracking.md) with status Reported
+    - Add bug entries to [Bug Tracking](../../../product-docs/state-tracking/permanent/bug-tracking.md) with status Reported
     - Include test implementation context and evidence in bug reports
     - Reference specific test cases that revealed the bugs
 
@@ -196,16 +196,16 @@ Implement comprehensive test coverage for a feature and verify that all componen
 - **Updated Test Tracking** - Test case implementation tracking updated with completion status via automation scripts
 - **Test Results Documentation** - Record of test implementation completion and coverage metrics
 - **Coverage Report** - Test coverage analysis showing percentage coverage by file/class
-- **Bug Reports** - Any bugs discovered during test implementation documented in [Bug Tracking](../../state-tracking/permanent/bug-tracking.md) with status Reported
+- **Bug Reports** - Any bugs discovered during test implementation documented in [Bug Tracking](../../../product-docs/state-tracking/permanent/bug-tracking.md) with status Reported
 - **Updated Feature Implementation State File** (if applicable) - Test implementation details, coverage metrics, and testing notes
 
 ## State Tracking
 
 The following state files are automatically updated by the `New-TestFile.ps1` script:
 
-- [Test Tracking](../../state-tracking/permanent/test-tracking.md) - Automatically updated with Implementation In Progress status, test file links with correct relative paths, and metadata
+- [Test Tracking](../../../../test/state-tracking/permanent/test-tracking.md) - Automatically updated with Implementation In Progress status, test file links with correct relative paths, and metadata
 - [Test Registry](/test/test-registry.yaml) - Automatically updated with test file entries, implementation status, and test case counts
-- [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Automatically updated with Test Status column reflecting implementation progress
+- [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) - Automatically updated with Test Status column reflecting implementation progress
 
 **Manual updates required for:**
 
@@ -230,9 +230,9 @@ Before considering this task finished:
   - [ ] Bug discovery performed systematically during test implementation
   - [ ] Any discovered bugs reported using `New-BugReport.ps1` script with proper context and evidence
 - [ ] **Verify State Files**: Confirm all state tracking files have been automatically updated by the script
-  - [ ] [Test Tracking](../../state-tracking/permanent/test-tracking.md) shows correct test file links and status
+  - [ ] [Test Tracking](../../../../test/state-tracking/permanent/test-tracking.md) shows correct test file links and status
   - [ ] [Test Registry](/test/test-registry.yaml) contains test file entries with proper metadata
-  - [ ] [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) Test Status column reflects implementation progress
+  - [ ] [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) Test Status column reflects implementation progress
 - [ ] **Manual Status Updates**: Update completion status after test implementation
   - [ ] Change test status from Implementation In Progress to Ready for Validation
   - [ ] Update test case counts with actual implemented test count
@@ -260,7 +260,7 @@ Before considering this task finished:
 ## Related Resources
 
 - [Test Specification Creation Task](../03-testing/test-specification-creation-task.md) - For creating test specifications before implementation
-- [Test Tracking](../../state-tracking/permanent/test-tracking.md) - Track test implementation progress
+- [Test Tracking](../../../../test/state-tracking/permanent/test-tracking.md) - Track test implementation progress
 - [Test Registry](/test/test-registry.yaml) - Test file registry with IDs and metadata
 - [Test File Creation Guide](../../guides/03-testing/test-file-creation-guide.md) - Guide for customizing test file templates
 - [Bug Reporting Guide](../../guides/06-maintenance/bug-reporting-guide.md) - Standardized procedures for reporting bugs

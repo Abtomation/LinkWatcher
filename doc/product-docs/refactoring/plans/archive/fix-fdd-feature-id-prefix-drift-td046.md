@@ -52,4 +52,4 @@ target_area: FDD Documents
 | 1 | TD046 | Complete | None | PD-FDD-023, PD-FDD-024 |
 
 ## Related Documentation
-- [Technical Debt Tracking](/doc/process-framework/state-tracking/permanent/technical-debt-tracking.md)
+- [Technical Debt Tracking](/doc/product-docs/state-tracking/permanent/technical-debt-tracking.md)

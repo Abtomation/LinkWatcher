@@ -116,7 +116,7 @@ The following state files must be updated as part of this task:
 - [State File 1] - Update with [specific information to update]
 - [State File 2] - Update with [specific information to update]
 
-<!-- Note to task creator: Replace placeholders with actual linked state files (e.g., [Feature Tracking](../../state-tracking/permanent/feature-tracking.md)) -->
+<!-- Note to task creator: Replace placeholders with actual linked state files (e.g., [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md)) -->
 
 ## ⚠️ MANDATORY Task Completion Checklist
 

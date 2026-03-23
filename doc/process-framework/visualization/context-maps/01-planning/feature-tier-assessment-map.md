@@ -87,7 +87,7 @@ graph TD
 - [Assessment Guide](/doc/process-framework/guides/03-testing/assessment-guide.md) - Detailed guide for tier determination
 - [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Reference for component interactions
 - [TDD Templates](/doc/product-docs/technical/architecture/design-docs) - Tier-specific TDD templates
-- [Feature Tracking](../../../state-tracking/permanent/feature-tracking.md) - Feature status tracking
+- [Feature Tracking](../../../../product-docs/state-tracking/permanent/feature-tracking.md) - Feature status tracking
 
 ---
 

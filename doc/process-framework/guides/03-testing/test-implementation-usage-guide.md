@@ -253,7 +253,7 @@ class TestParserRegistryIntegration:
 - [Integration & Testing Task Definition](../../tasks/04-implementation/integration-and-testing.md) - Complete task definition (PF-TSK-053)
 - [Test Specification Creation Task](../../tasks/03-testing/test-specification-creation-task.md) - For creating test specifications before implementation
 - [Test Audit Task](../../tasks/03-testing/test-audit-task.md) - Quality assessment of test implementations
-- [Test Tracking](../../state-tracking/permanent/test-tracking.md) - Track progress
+- [Test Tracking](../../../../test/state-tracking/permanent/test-tracking.md) - Track progress
 - [Test Registry](/test/test-registry.yaml) - Central registry of test files with IDs and metadata
 - [Test File Creation Guide](test-file-creation-guide.md) - Guide for customizing test file templates
 - [Bug Reporting Guide](../06-maintenance/bug-reporting-guide.md) - Standardized procedures for reporting bugs

@@ -173,9 +173,9 @@ This file tracks the progress and results of the **Feature Validation Framework*
 
 ### Cross-References
 
-- **Feature Implementation Status**: [Feature Tracking](../../state-tracking/permanent/feature-tracking.md)
-- **Quality Issues**: [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md)
-- **Test Coverage**: [Test Tracking](../../state-tracking/permanent/test-tracking.md)
+- **Feature Implementation Status**: [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md)
+- **Quality Issues**: [Technical Debt Tracking](../../../product-docs/state-tracking/permanent/technical-debt-tracking.md)
+- **Test Coverage**: [Test Tracking](../../../../test/state-tracking/permanent/test-tracking.md)
 
 ### Synchronization Points
 

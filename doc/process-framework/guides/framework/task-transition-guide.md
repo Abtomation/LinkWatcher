@@ -1091,7 +1091,7 @@ Retrospective Documentation Creation (PF-TSK-066)
 
 - [ ] [Retrospective Master State File](../../state-tracking/temporary/retrospective-master-state.md) created with project name and DISCOVERY status
 - [ ] ALL source files listed and assigned to features (100% codebase file coverage)
-- [ ] ALL features added to [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) with IDs and descriptions
+- [ ] ALL features added to [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) with IDs and descriptions
 - [ ] [Feature Implementation State file](../../state-tracking/features) created for every feature with complete code inventory
 - [ ] Phase 1 marked complete in master state file
 
@@ -1135,7 +1135,7 @@ Retrospective Documentation Creation (PF-TSK-066)
 - [ ] All Tier 2+ features have FDD and TDD, marked "Retrospective"
 - [ ] All Tier 3 features have Test Specifications, marked "Retrospective"
 - [ ] All Foundation 0.x.x features have ADRs where architectural decisions exist
-- [ ] All document links added to [Feature Tracking](../../state-tracking/permanent/feature-tracking.md)
+- [ ] All document links added to [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md)
 - [ ] [Documentation Map](../../documentation-map.md) updated with all new documents
 - [ ] Final metrics recorded in master state Completion Summary
 - [ ] [Master State File](../../state-tracking/temporary/retrospective-master-state.md) archived to `/temporary/archived/`
@@ -1367,7 +1367,7 @@ What was the original tier assessment?
 
 **Preparation for System Architecture Review:**
 
-1. **Load Current Architecture State**: Review [Architecture Tracking](../../state-tracking/permanent/architecture-tracking.md)
+1. **Load Current Architecture State**: Review [Architecture Tracking](../../../product-docs/state-tracking/permanent/architecture-tracking.md)
 2. **Gather Feature Context**: Ensure FDD and Feature Tier Assessment are complete
 3. **Identify Relevant Context Packages**: Determine which [Architecture Context Packages](/doc/product-docs/technical/architecture/context-packages/) apply
 4. **Review Related ADRs**: Check existing [Architecture Decision Records](/doc/product-docs/technical/architecture/design-docs/adr/README.md)

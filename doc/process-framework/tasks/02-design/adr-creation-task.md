@@ -140,8 +140,8 @@ Create Architecture Decision Records (ADRs) to document significant architectura
 
 The following state files must be updated as part of this task:
 
-- [Architecture Tracking](../../state-tracking/permanent/architecture-tracking.md) - Update with new architectural decision and its impact
-- [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Update ADR column for related features with link to created ADR
+- [Architecture Tracking](../../../product-docs/state-tracking/permanent/architecture-tracking.md) - Update with new architectural decision and its impact
+- [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) - Update ADR column for related features with link to created ADR
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
@@ -154,8 +154,8 @@ Before considering this task finished:
   - [ ] All ADR template sections properly completed (Context, Decision, Impact Assessment, Alternatives, Consequences, References)
   - [ ] ADR status appropriately set (Proposed/Accepted/etc.)
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
-  - [ ] [Architecture Tracking](../../state-tracking/permanent/architecture-tracking.md) updated with new architectural decision
-  - [ ] [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) updated with ADR link in relevant feature entries
+  - [ ] [Architecture Tracking](../../../product-docs/state-tracking/permanent/architecture-tracking.md) updated with new architectural decision
+  - [ ] [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) updated with ADR link in relevant feature entries
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-028" and context "ADR Creation"
 
 ## Next Tasks

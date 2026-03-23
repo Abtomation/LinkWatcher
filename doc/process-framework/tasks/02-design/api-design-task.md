@@ -108,7 +108,7 @@ When referencing this task's outputs in other tasks:
 - **Critical (Must Read):**
 
   - **Functional Design Document (FDD)** - For Tier 2+ features, the FDD containing functional requirements and user flows that inform API design
-  - [Feature Requirements](/doc/process-framework/state-tracking/permanent/feature-tracking.md) - Understanding what functionality the API must support and confirming API Design is required
+  - [Feature Requirements](/doc/product-docs/state-tracking/permanent/feature-tracking.md) - Understanding what functionality the API must support and confirming API Design is required
   - [Feature Tier Assessment](../../../product-docs/documentation-tiers/assessments) - Assessment that determined API design is needed
   - [System Architecture Review Results](/doc/product-docs/technical/architecture/assessments/) - Architecture decisions that impact API design
 

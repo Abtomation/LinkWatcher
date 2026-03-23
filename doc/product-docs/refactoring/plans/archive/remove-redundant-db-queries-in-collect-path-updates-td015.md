@@ -47,4 +47,4 @@ refactoring_scope: Remove redundant DB queries in _collect_path_updates (TD015)
 | 1 | TD015 | Complete | None | None |
 
 ## Related Documentation
-- [Technical Debt Tracking](/doc/process-framework/state-tracking/permanent/technical-debt-tracking.md)
+- [Technical Debt Tracking](/doc/product-docs/state-tracking/permanent/technical-debt-tracking.md)

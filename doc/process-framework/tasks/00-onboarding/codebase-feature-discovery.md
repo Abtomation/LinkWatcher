@@ -41,7 +41,7 @@ This task produces the foundational inventory that subsequent onboarding tasks (
 
   - [Retrospective Master State Template](../../templates/00-onboarding/retrospective-state-template.md) - Template for tracking codebase-wide progress
   - [Feature Implementation State Template](../../templates/04-implementation/feature-implementation-state-template.md) - Template for per-feature code analysis
-  - [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Feature status and tier assessments
+  - [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) - Feature status and tier assessments
   - **Existing Codebase** - Source code, tests, and configuration
 
 - **Important (Load If Space):**
@@ -164,7 +164,7 @@ This task produces the foundational inventory that subsequent onboarding tasks (
    > **Why this matters:** Each feature generates a state file, and subsequent tasks create documentation proportional to the feature count. Getting this right here avoids significant rework later.
 
    **After consolidation, for each confirmed feature:**
-   a. Add entry to [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) (if not already there)
+   a. Add entry to [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) (if not already there)
    b. Assign Feature ID (e.g., 1.2.3 or 0.1.1 for foundation)
    c. Add feature name and brief description
    d. Set status appropriately
@@ -173,9 +173,9 @@ This task produces the foundational inventory that subsequent onboarding tasks (
 8. **Create Feature Implementation State Files**:
    - Use the automation script: `New-FeatureImplementationState.ps1 -FeatureName "[name]" -FeatureId "[X.Y.Z]" -ImplementationMode "Retrospective Analysis" -Description "[description]"`
      - Script location: /doc/process-framework/scripts/file-creation/04-implementation/New-FeatureImplementationState.ps1
-     - Automatically creates file at: `/doc/process-framework/state-tracking/features/[X.Y.Z]-[name]-implementation-state.md`
+     - Automatically creates file at: `/doc/product-docs/state-tracking/features/[X.Y.Z]-[name]-implementation-state.md`
      - Automatically sets `implementation_mode: Retrospective Analysis` in metadata
-     - Automatically links the file in [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) in the ID column (when `-FeatureId` is provided)
+     - Automatically links the file in [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) in the ID column (when `-FeatureId` is provided)
 
    > **Sub-components:** Capabilities that were identified during discovery but classified as sub-components during consolidation review should be documented as sections or notes within their parent feature's state file. No information is lost — it's organized at the right level.
 
@@ -250,7 +250,7 @@ This task produces the foundational inventory that subsequent onboarding tasks (
 
 - **Retrospective Master State File** — Created (or updated) with Phase 1 progress
 - **Feature Implementation State Files** (PF-FIS-XXX) — one per feature, **PERMANENT**:
-  - Location: `/doc/process-framework/state-tracking/features/[feature-id]-implementation-state.md`
+  - Location: `/doc/product-docs/state-tracking/features/[feature-id]-implementation-state.md`
   - Content: Complete code inventory (files created/modified/used), test files
   - Marked: `implementation_mode: Retrospective Analysis`
 - **Updated Feature Tracking** — All features added with IDs and descriptions
@@ -266,13 +266,13 @@ This task produces the foundational inventory that subsequent onboarding tasks (
   - Lifecycle: Shared across all onboarding tasks (PF-TSK-064, PF-TSK-065, PF-TSK-066), archived when complete
 
 - **Feature Implementation State Files** (PERMANENT) — one per feature:
-  - Location: `/doc/process-framework/state-tracking/features/[feature-id]-implementation-state.md`
+  - Location: `/doc/product-docs/state-tracking/features/[feature-id]-implementation-state.md`
   - Marked: `implementation_mode: Retrospective Analysis`
   - Lifecycle: Permanent (never archived)
 
 ### Existing State Files Updated
 
-- [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) — Feature entries added with IDs and descriptions
+- [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) — Feature entries added with IDs and descriptions
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
@@ -308,4 +308,4 @@ This task produces the foundational inventory that subsequent onboarding tasks (
 - [Feature Implementation State Template](../../templates/04-implementation/feature-implementation-state-template.md) - Template for per-feature code analysis
 - [Feature Implementation State Tracking Guide](../../guides/04-implementation/feature-implementation-state-tracking-guide.md) - Comprehensive guide for using the state template
 - [Test Registry](/test/test-registry.yaml) - Registry of all test files mapped to features (populated during PF-TSK-065)
-- [Test Tracking](../../state-tracking/permanent/test-tracking.md) - Test implementation status tracking (populated during PF-TSK-065)
+- [Test Tracking](../../../../test/state-tracking/permanent/test-tracking.md) - Test implementation status tracking (populated during PF-TSK-065)

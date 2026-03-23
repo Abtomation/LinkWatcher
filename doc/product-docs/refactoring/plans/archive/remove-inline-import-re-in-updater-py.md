@@ -48,4 +48,4 @@ target_area: linkwatcher/updater.py
 | 1 | TD025 | Complete | None | TD025 description corrected |
 
 ## Related Documentation
-- [Technical Debt Tracking](/doc/process-framework/state-tracking/permanent/technical-debt-tracking.md)
+- [Technical Debt Tracking](/doc/product-docs/state-tracking/permanent/technical-debt-tracking.md)

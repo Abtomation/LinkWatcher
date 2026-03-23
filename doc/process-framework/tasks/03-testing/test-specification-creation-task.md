@@ -100,14 +100,14 @@ When referencing other tasks' outputs in Test Specifications:
 - **Important (Load If Space):**
 
   - [Test Registry](/test/test-registry.yaml) - Current test file registry with IDs and metadata
-  - [Test Tracking](/doc/process-framework/state-tracking/permanent/test-tracking.md) - Current test implementation status
+  - [Test Tracking](/test/state-tracking/permanent/test-tracking.md) - Current test implementation status
   - [Existing Test Structure](/test/) - Current test organization and patterns
   - [Mock Services](/test/mocks/) - Available mock implementations for testing
   - [Test Helpers](/test/test_helpers/) - Utility functions for test setup
   - [Project Structure](/doc/product-docs/technical/architecture/project-structure.md) - Understanding component relationships
 
 - **Reference Only (Access When Needed):**
-  - [Feature Tracking](/doc/process-framework/state-tracking/permanent/feature-tracking.md) - Feature development status
+  - [Feature Tracking](/doc/product-docs/state-tracking/permanent/feature-tracking.md) - Feature development status
   - [Visual Notation Guide](/doc/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
   - [ID Registry](/doc/id-registry.json) - Document ID counter management
 
@@ -204,8 +204,8 @@ When referencing other tasks' outputs in Test Specifications:
 18. **Review Test Coverage**: Ensure all TDD components have corresponding test specifications
 19. **Validate Test Feasibility**: Confirm all specified tests can be implemented with available tools
 20. **Update Test Status Tracking**: Record test specification completion in tracking files
-    - Update [Feature Tracking](/doc/process-framework/state-tracking/permanent/feature-tracking.md) Test Status — set to "🔧 Automated Only" if manual test scenarios were identified but manual test cases not yet created, or "📋 Specs Created" if no manual test scenarios apply
-    - Update [Test Tracking](/doc/process-framework/state-tracking/permanent/test-tracking.md) — add manual test scenario entries with status "⬜ Not Created" for scenarios classified as `manual` or `both`
+    - Update [Feature Tracking](/doc/product-docs/state-tracking/permanent/feature-tracking.md) Test Status — set to "🔧 Automated Only" if manual test scenarios were identified but manual test cases not yet created, or "📋 Specs Created" if no manual test scenarios apply
+    - Update [Test Tracking](/test/state-tracking/permanent/test-tracking.md) — add manual test scenario entries with status "⬜ Not Created" for scenarios classified as `manual` or `both`
 21. **Complete State Tracking Updates**: Ensure all tracking files are properly updated with the new test specification information
 22. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
@@ -220,11 +220,11 @@ When referencing other tasks' outputs in Test Specifications:
 
 The following state files must be updated as part of this task:
 
-- [Feature Tracking](/doc/process-framework/state-tracking/permanent/feature-tracking.md) - Update Test Status to reflect test specification creation (📋 Specs Created) and add Test Spec link
+- [Feature Tracking](/doc/product-docs/state-tracking/permanent/feature-tracking.md) - Update Test Status to reflect test specification creation (📋 Specs Created) and add Test Spec link
 - [Test Registry](/test/test-registry.yaml) - Update `specificationPath` field for all test files belonging to the feature
 - [ID Registry](/doc/id-registry.json) - Update `PF-TSP.nextAvailable` counter after creating specifications
 - [Documentation Map](/doc/process-framework/documentation-map.md) - Add new test specification entries to the Test Specifications section
-- [Test Tracking](/doc/process-framework/state-tracking/permanent/test-tracking.md) - Add section if feature category is missing
+- [Test Tracking](/test/state-tracking/permanent/test-tracking.md) - Add section if feature category is missing
 
 **Note**: If a feature is determined to not require tests (assessment/documentation features), update the Feature Tracking Test Status directly to "🚫 No Test Required" instead of using this task.
 
@@ -243,11 +243,11 @@ Before considering this task finished:
   - [ ] Test scenarios classified as `automated`, `manual`, or `both`
   - [ ] Manual Test Scenarios section included (if any scenarios classified as `manual` or `both`)
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
-  - [ ] [Feature Tracking](/doc/process-framework/state-tracking/permanent/feature-tracking.md) — Test Status updated (use "🔧 Automated Only" if manual scenarios identified, "📋 Specs Created" if no manual scenarios) and Test Spec link added
+  - [ ] [Feature Tracking](/doc/product-docs/state-tracking/permanent/feature-tracking.md) — Test Status updated (use "🔧 Automated Only" if manual scenarios identified, "📋 Specs Created" if no manual scenarios) and Test Spec link added
   - [ ] [Test Registry](/test/test-registry.yaml) — `specificationPath` populated for all test files belonging to the feature
   - [ ] [ID Registry](/doc/id-registry.json) — `PF-TSP.nextAvailable` counter incremented
   - [ ] [Documentation Map](/doc/process-framework/documentation-map.md) — New test spec entries added to Test Specifications section
-  - [ ] [Test Tracking](/doc/process-framework/state-tracking/permanent/test-tracking.md) — Feature section added if missing; manual test scenario entries added with "⬜ Not Created" status if applicable
+  - [ ] [Test Tracking](/test/state-tracking/permanent/test-tracking.md) — Feature section added if missing; manual test scenario entries added with "⬜ Not Created" status if applicable
 - [ ] **Verify State Tracking Consistency**: Ensure all tracking files are properly updated and consistent
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](/doc/process-framework/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-012" and context "Test Specification Creation"
 

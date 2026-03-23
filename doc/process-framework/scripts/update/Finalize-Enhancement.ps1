@@ -24,7 +24,7 @@ Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 
 # Configuration
 $ProjectRoot = Get-ProjectRoot
-$FeatureTrackingFile = Join-Path -Path $ProjectRoot -ChildPath "doc/process-framework/state-tracking/permanent/feature-tracking.md"
+$FeatureTrackingFile = Join-Path -Path $ProjectRoot -ChildPath "doc/product-docs/state-tracking/permanent/feature-tracking.md"
 $ArchiveDir = Join-Path -Path $ProjectRoot -ChildPath "doc/process-framework/state-tracking/temporary/old"
 
 function Write-Log {

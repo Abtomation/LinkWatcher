@@ -114,7 +114,7 @@ $currentDate = Get-Date -Format "yyyy-MM-dd"
 
 # Path to bug tracking file - use project root for reliable path resolution
 $ProjectRoot = Get-ProjectRoot
-$BugTrackingFile = Join-Path -Path $ProjectRoot -ChildPath "doc/process-framework/state-tracking/permanent/bug-tracking.md"
+$BugTrackingFile = Join-Path -Path $ProjectRoot -ChildPath "doc/product-docs/state-tracking/permanent/bug-tracking.md"
 
 if (-not (Test-Path $BugTrackingFile)) {
     Write-ProjectError -Message "Bug tracking file not found: $BugTrackingFile" -ExitCode 1

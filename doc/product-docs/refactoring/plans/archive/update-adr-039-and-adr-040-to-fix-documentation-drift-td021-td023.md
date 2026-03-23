@@ -68,4 +68,4 @@ priority: Medium
 | 2 | TD023 | Complete | None | ADR-039 |
 
 ## Related Documentation
-- [Technical Debt Tracking](/doc/process-framework/state-tracking/permanent/technical-debt-tracking.md)
+- [Technical Debt Tracking](/doc/product-docs/state-tracking/permanent/technical-debt-tracking.md)

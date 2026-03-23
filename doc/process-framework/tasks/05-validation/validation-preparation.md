@@ -37,7 +37,7 @@ Plans a validation round by selecting features to validate, evaluating which val
 - **Critical (Must Read):**
 
   - **Feature Validation Guide** - [Feature Validation Guide](../../guides/05-validation/feature-validation-guide.md) - Comprehensive guide including the Dimension Catalog with applicability criteria
-  - **Feature Tracking** - [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Current status of features to determine validation scope
+  - **Feature Tracking** - [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) - Current status of features to determine validation scope
   - **Validation Tracking Template** - [Validation Tracking Template](../../templates/05-validation/validation-tracking-template.md) - Template for creating the feature×dimension tracking matrix
 
 - **Important (Load If Space):**
@@ -62,7 +62,7 @@ Plans a validation round by selecting features to validate, evaluating which val
 ### Preparation
 
 1. **Identify Validation Trigger**: Document why this validation round is being initiated (milestone, new features, periodic review, specific concern)
-2. **Review Feature Tracking**: Examine [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) to identify features eligible for validation — typically features with status "Implemented", "Testing", or "Complete"
+2. **Review Feature Tracking**: Examine [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) to identify features eligible for validation — typically features with status "Implemented", "Testing", or "Complete"
 3. **Select Feature Scope**: Choose which features to include in this validation round based on:
    - Implementation completeness (features must be sufficiently implemented to validate)
    - Priority and risk level (high-risk features first)
@@ -160,4 +160,4 @@ Before considering this task finished:
 
 - [Feature Validation Guide](../../guides/05-validation/feature-validation-guide.md) - Comprehensive guide with Dimension Catalog
 - [Validation Tracking Template](../../templates/05-validation/validation-tracking-template.md) - Template for creating tracking matrices
-- [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Feature implementation status
+- [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) - Feature implementation status

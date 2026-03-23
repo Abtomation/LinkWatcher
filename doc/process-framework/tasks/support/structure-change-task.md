@@ -189,7 +189,7 @@ The following state files must be updated as part of this task:
 - [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) - Update to reflect the process improvement
 - [Documentation Map](../../documentation-map.md) - Update if document organization changes
 
-<!-- Note to task creator: Replace placeholders with actual linked state files (e.g., [Feature Tracking](../../state-tracking/permanent/feature-tracking.md)) -->
+<!-- Note to task creator: Replace placeholders with actual linked state files (e.g., [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md)) -->
 
 ## ⚠️ MANDATORY Task Completion Checklists
 

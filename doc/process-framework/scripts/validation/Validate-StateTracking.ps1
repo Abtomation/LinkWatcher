@@ -178,7 +178,7 @@ Write-Host ""
 if ($runAll -or $Surface -contains "FeatureTracking") {
     Write-Host "[1/5] Feature Tracking (feature-tracking.md)" -ForegroundColor Cyan
 
-    $ftPath = Join-Path $ProjectRoot "doc/process-framework/state-tracking/permanent/feature-tracking.md"
+    $ftPath = Join-Path $ProjectRoot "doc/product-docs/state-tracking/permanent/feature-tracking.md"
     if (-not (Test-Path $ftPath)) {
         Add-CheckResult "ERROR" "FeatureTracking" "feature-tracking.md" "File not found: $ftPath"
     } else {
@@ -236,7 +236,7 @@ if ($runAll -or $Surface -contains "FeatureTracking") {
 if ($runAll -or $Surface -contains "StateFiles") {
     Write-Host "[2/5] Feature State Files" -ForegroundColor Cyan
 
-    $stateDir = Join-Path $ProjectRoot "doc/process-framework/state-tracking/features"
+    $stateDir = Join-Path $ProjectRoot "doc/product-docs/state-tracking/features"
     if (-not (Test-Path $stateDir)) {
         Add-CheckResult "ERROR" "StateFiles" "features" "Directory not found: $stateDir"
     } else {
@@ -306,7 +306,7 @@ if ($runAll -or $Surface -contains "StateFiles") {
 if ($runAll -or $Surface -contains "TestTracking") {
     Write-Host "[3/5] Test Tracking" -ForegroundColor Cyan
 
-    $titPath = Join-Path $ProjectRoot "doc/process-framework/state-tracking/permanent/test-tracking.md"
+    $titPath = Join-Path $ProjectRoot "test/state-tracking/permanent/test-tracking.md"
     if (-not (Test-Path $titPath)) {
         Add-CheckResult "ERROR" "TestTracking" "test-tracking.md" "File not found: $titPath"
     } else {
@@ -354,7 +354,7 @@ if ($runAll -or $Surface -contains "CrossRef") {
     Write-Host "[4/5] Cross-Reference Consistency" -ForegroundColor Cyan
 
     # Load known feature IDs from feature-tracking.md
-    $ftPath = Join-Path $ProjectRoot "doc/process-framework/state-tracking/permanent/feature-tracking.md"
+    $ftPath = Join-Path $ProjectRoot "doc/product-docs/state-tracking/permanent/feature-tracking.md"
     $knownFeatureIds = @()
     if (Test-Path $ftPath) {
         $ftContent = Get-Content $ftPath -Encoding UTF8
@@ -439,7 +439,7 @@ if ($runAll -or $Surface -contains "IdCounters") {
 
         # Prefixes to validate with their file patterns
         $prefixChecks = @(
-            @{ Prefix = "PF-FEA";  Dir = "doc/process-framework/state-tracking/features";                         Pattern = "*.md" }
+            @{ Prefix = "PF-FEA";  Dir = "doc/product-docs/state-tracking/features";                         Pattern = "*.md" }
             @{ Prefix = "PD-FDD";  Dir = "doc/product-docs/functional-design/fdds";                                Pattern = "*.md" }
             @{ Prefix = "PD-TDD";  Dir = "doc/product-docs/technical/architecture/design-docs/tdd";                Pattern = "*.md" }
             @{ Prefix = "PD-ADR";  Dir = "doc/product-docs/technical/architecture/design-docs/adr/adr";            Pattern = "*.md" }
@@ -521,7 +521,7 @@ if ($runAll -or $Surface -contains "FeatureDeps") {
             $needsRegeneration = $true
         } else {
             $depsLastWrite = (Get-Item $depsFile).LastWriteTime
-            $stateDir = Join-Path $ProjectRoot "doc/process-framework/state-tracking/features"
+            $stateDir = Join-Path $ProjectRoot "doc/product-docs/state-tracking/features"
             $newerFiles = Get-ChildItem -Path $stateDir -Filter "*-implementation-state.md" |
                 Where-Object { $_.LastWriteTime -gt $depsLastWrite }
             if ($newerFiles.Count -gt 0) {

@@ -66,8 +66,8 @@ ENHANCEMENT:    Test Spec Creation → Feature Enhancement → E2E Acceptance Te
 - **Important (Load If Space):**
 
   - **Feature documentation** (FDD, TDD, UI documentation) - For understanding the feature's intended behavior and user interactions
-  - [Test Tracking](../../state-tracking/permanent/test-tracking.md) - Current E2E acceptance test coverage and status
-  - [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Feature status and test coverage overview
+  - [Test Tracking](../../../../test/state-tracking/permanent/test-tracking.md) - Current E2E acceptance test coverage and status
+  - [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) - Feature status and test coverage overview
   - **Existing test cases for the same feature** - To avoid duplication and ensure consistency
 
 - **Reference Only (Access When Needed):**
@@ -126,7 +126,7 @@ ENHANCEMENT:    Test Spec Creation → Feature Enhancement → E2E Acceptance Te
 
 ### Finalization
 
-14. **Verify state tracking updates**: Confirm that New-E2EAcceptanceTestCase.ps1 correctly updated [test-tracking.md](../../state-tracking/permanent/test-tracking.md) and [feature-tracking.md](../../state-tracking/permanent/feature-tracking.md) for all created test cases
+14. **Verify state tracking updates**: Confirm that New-E2EAcceptanceTestCase.ps1 correctly updated [test-tracking.md](../../../../test/state-tracking/permanent/test-tracking.md) and [feature-tracking.md](../../../product-docs/state-tracking/permanent/feature-tracking.md) for all created test cases
 15. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
@@ -143,8 +143,8 @@ ENHANCEMENT:    Test Spec Creation → Feature Enhancement → E2E Acceptance Te
 
 The following state files must be updated as part of this task:
 
-- [Test Tracking](../../state-tracking/permanent/test-tracking.md) — Add new E2E acceptance test entries (groups and individual cases) with status `📋 Case Created` and appropriate Test Type (`E2E Group` or `E2E Case`)
-- [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) — Update the feature's Test Status if E2E acceptance test coverage changes the overall status
+- [Test Tracking](../../../../test/state-tracking/permanent/test-tracking.md) — Add new E2E acceptance test entries (groups and individual cases) with status `📋 Case Created` and appropriate Test Type (`E2E Group` or `E2E Case`)
+- [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) — Update the feature's Test Status if E2E acceptance test coverage changes the overall status
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
@@ -159,8 +159,8 @@ Before considering this task finished:
   - [ ] Expected results are concrete and verifiable (not vague descriptions)
   - [ ] Project fixtures contain real, complete files (not placeholder content)
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
-  - [ ] [Test Tracking](../../state-tracking/permanent/test-tracking.md) updated with all new E2E acceptance test entries
-  - [ ] [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) Test Status updated if needed
+  - [ ] [Test Tracking](../../../../test/state-tracking/permanent/test-tracking.md) updated with all new E2E acceptance test entries
+  - [ ] [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) Test Status updated if needed
   - [ ] Cross-cutting spec Coverage Summary updated (milestone path only — skip if not applicable)
 - [ ] **Human Review**: Human partner has reviewed and approved the test cases
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-069" and context "E2E Acceptance Test Case Creation"

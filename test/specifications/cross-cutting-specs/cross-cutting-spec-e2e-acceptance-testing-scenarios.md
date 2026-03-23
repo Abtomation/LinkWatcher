@@ -182,7 +182,7 @@ All 19 spec scenarios now have E2E test cases. No remaining coverage gaps.
 
 - [User Workflow Map](/doc/product-docs/technical/design/user-workflow-map.md) — Workflow definitions and feature mappings
 - [Test Registry](/test/test-registry.yaml) — Registry entries for cross-cutting test files
-- [Test Tracking](/doc/process-framework/state-tracking/permanent/test-tracking.md) — Implementation status
+- [Test Tracking](/test/state-tracking/permanent/test-tracking.md) — Implementation status
 - Feature Test Specifications:
   - [0.1.1 Core Architecture](/test/specifications/feature-specs/test-spec-0-1-1-core-architecture.md)
   - [0.1.2 In-Memory Database](/test/specifications/feature-specs/test-spec-0-1-2-in-memory-link-database.md)

@@ -9,8 +9,8 @@ This script automates the manual state file updates required by the Feature Impl
 addressing the critical bottleneck identified in the Process Improvement Tracking (IMP-067).
 
 Updates the following files:
-- ../doc/process-framework/state-tracking/permanent/feature-tracking.md
-- ../doc/process-framework/state-tracking/permanent/test-tracking.md
+- ../doc/product-docs/state-tracking/permanent/feature-tracking.md
+- ../doc/test/state-tracking/permanent/test-tracking.md
 - ../doc/product-docs/technical/architecture/component-relationship-index.md
 
 .PARAMETER FeatureId
@@ -172,8 +172,8 @@ try {
         Write-Host "Creating backups..." -ForegroundColor Yellow
         $projectRoot = Get-ProjectRoot
         $filesToBackup = @(
-            "doc/process-framework/state-tracking/permanent/feature-tracking.md",
-            "doc/process-framework/state-tracking/permanent/test-tracking.md",
+            "doc/product-docs/state-tracking/permanent/feature-tracking.md",
+            "test/state-tracking/permanent/test-tracking.md",
             "doc/product-docs/technical/architecture/component-relationship-index.md"
         )
 

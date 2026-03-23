@@ -74,9 +74,9 @@ updates the matching row's Status column.
 Example: "Resolved (PF-REF-042, reduced to 681 LOC)"
 
 .PARAMETER FoundationalTrackingPath
-Optional absolute path to the foundational-validation-tracking.md file.
+Optional absolute path to the validation-tracking.md file.
 Required together with -FoundationalNote for updating the Critical Issues Tracking table.
-Example: "c:\project\doc\process-framework\state-tracking\temporary\foundational-validation-tracking.md"
+Example: "c:\project\doc\product-docs\state-tracking\temporary\validation-tracking.md"
 
 .EXAMPLE
 # Add a new debt item
@@ -100,7 +100,7 @@ Example: "c:\project\doc\process-framework\state-tracking\temporary\foundational
 
 .EXAMPLE
 # Resolve with foundational validation tracking update
-.\Update-TechDebt.ps1 -DebtId "TD022" -NewStatus "Resolved" -ResolutionNotes "Extracted ReferenceLookup class" -FoundationalNote "Resolved (PF-REF-042, reduced to 681 LOC)" -FoundationalTrackingPath "c:\project\doc\process-framework\state-tracking\temporary\foundational-validation-tracking.md"
+.\Update-TechDebt.ps1 -DebtId "TD022" -NewStatus "Resolved" -ResolutionNotes "Extracted ReferenceLookup class" -FoundationalNote "Resolved (PF-REF-042, reduced to 681 LOC)" -FoundationalTrackingPath "c:\project\doc\product-docs\state-tracking\temporary\validation-tracking.md"
 
 .NOTES
 This script is part of the Technical Debt automation system and integrates with:
@@ -110,7 +110,7 @@ This script is part of the Technical Debt automation system and integrates with:
 - New-DebtItem.ps1
 
 Updates the following files:
-- doc/process-framework/state-tracking/permanent/technical-debt-tracking.md (always)
+- doc/product-docs/state-tracking/permanent/technical-debt-tracking.md (always)
 - Foundational validation tracking file at -FoundationalTrackingPath (when -FoundationalNote and -FoundationalTrackingPath are provided)
 #>
 
@@ -177,7 +177,7 @@ while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
 Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 
 $ProjectRoot = Get-ProjectRoot
-$TargetFile = Join-Path -Path $ProjectRoot -ChildPath "doc/process-framework/state-tracking/permanent/technical-debt-tracking.md"
+$TargetFile = Join-Path -Path $ProjectRoot -ChildPath "doc/product-docs/state-tracking/permanent/technical-debt-tracking.md"
 $ScriptName = "Update-TechDebt.ps1"
 $CurrentDate = Get-Date -Format "yyyy-MM-dd"
 
@@ -489,7 +489,7 @@ function Update-FrontmatterDate {
 function Update-FoundationalValidationTracking {
     <#
     .SYNOPSIS
-    Updates the Critical Issues Tracking table in foundational-validation-tracking.md
+    Updates the Critical Issues Tracking table in validation-tracking.md
     when a tech debt item is resolved.
     #>
     [CmdletBinding(SupportsShouldProcess)]
@@ -521,7 +521,7 @@ function Update-FoundationalValidationTracking {
     }
 
     if ($rowIndex -eq -1) {
-        Write-Log "$DebtId not found in foundational-validation-tracking.md Critical Issues Tracking — skipping" -Level "WARN"
+        Write-Log "$DebtId not found in validation-tracking.md Critical Issues Tracking — skipping" -Level "WARN"
         return
     }
 
@@ -634,7 +634,7 @@ function Main {
             Set-Content -Path $TargetFile -Value $content -NoNewline
         }
 
-        # Update foundational-validation-tracking.md if FoundationalNote and path are provided
+        # Update validation-tracking.md if FoundationalNote and path are provided
         # (has its own ShouldProcess guard internally)
         if ($isResolution -and $FoundationalNote -and $FoundationalTrackingPath) {
             Update-FoundationalValidationTracking -DebtId $DebtId -FoundationalNote $FoundationalNote -FoundationalTrackingPath $FoundationalTrackingPath

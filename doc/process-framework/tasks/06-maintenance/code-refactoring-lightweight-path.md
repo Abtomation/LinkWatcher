@@ -39,9 +39,9 @@ For batch mode: copy the "Item N" section in the generated plan for each additio
 **L7. Fill Results**: Record test results, bugs discovered, and doc updates in the plan. Complete the Results Summary table.
 
 **L8. Update State Files**:
-   - [ ] [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md): Mark resolved items using `Update-TechDebt.ps1 -DebtId "TD###" -NewStatus "Resolved" -ResolutionNotes "..."` — if tracked in a validation tracking file (e.g., [foundational-validation-tracking.md](../../state-tracking/temporary/foundational-validation-tracking.md)), also pass `-FoundationalNote "Resolved (...)" -FoundationalTrackingPath "<absolute-path>"`
-   - [ ] [Feature Tracking](../../state-tracking/permanent/feature-tracking.md): Update feature status if applicable
-   - [ ] [Bug Tracking](../../state-tracking/permanent/bug-tracking.md): Report any discovered bugs using New-BugReport.ps1
+   - [ ] [Technical Debt Tracking](../../../product-docs/state-tracking/permanent/technical-debt-tracking.md): Mark resolved items using `Update-TechDebt.ps1 -DebtId "TD###" -NewStatus "Resolved" -ResolutionNotes "..."` — if tracked in a validation tracking file (e.g., [validation-tracking.md](../../../product-docs/state-tracking/temporary/validation-tracking.md)), also pass `-FoundationalNote "Resolved (...)" -FoundationalTrackingPath "<absolute-path>"`
+   - [ ] [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md): Update feature status if applicable
+   - [ ] [Bug Tracking](../../../product-docs/state-tracking/permanent/bug-tracking.md): Report any discovered bugs using New-BugReport.ps1
 
 **L9. 🚨 CHECKPOINT**: Present results summary to human partner for review.
 
@@ -58,7 +58,7 @@ For batch mode: copy the "Item N" section in the generated plan for each additio
   - [ ] Results Summary table filled in the plan
   - [ ] Any discovered bugs reported using New-BugReport.ps1
 - [ ] **Update State Files**:
-  - [ ] [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md): resolved items updated via `Update-TechDebt.ps1`
-  - [ ] [Feature Tracking](../../state-tracking/permanent/feature-tracking.md): feature status updated if applicable
-  - [ ] [Bug Tracking](../../state-tracking/permanent/bug-tracking.md): any discovered bugs added
+  - [ ] [Technical Debt Tracking](../../../product-docs/state-tracking/permanent/technical-debt-tracking.md): resolved items updated via `Update-TechDebt.ps1`
+  - [ ] [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md): feature status updated if applicable
+  - [ ] [Bug Tracking](../../../product-docs/state-tracking/permanent/bug-tracking.md): any discovered bugs added
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-022" and context "Code Refactoring Task"

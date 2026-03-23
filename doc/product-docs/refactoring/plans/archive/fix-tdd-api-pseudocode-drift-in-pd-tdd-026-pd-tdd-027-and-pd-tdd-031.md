@@ -130,6 +130,6 @@ Read each TDD alongside its source code, identify every discrepancy, and update 
 - TD055 (TDD PD-TDD-031 scope narrower than FDD) — separate scope concern, not a drift issue
 
 ## Related Documentation
-- [Technical Debt Tracking](/doc/process-framework/state-tracking/permanent/technical-debt-tracking.md)
+- [Technical Debt Tracking](/doc/product-docs/state-tracking/permanent/technical-debt-tracking.md)
 - [Validation Report PF-VAL-043](/doc/product-docs/validation/reports/documentation-alignment/PF-VAL-043-documentation-alignment-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md)
 - [PF-REF-061: PD-TDD-024/025 fixes](/doc/product-docs/refactoring/plans/fix-tdd-api-pseudocode-drift-in-pd-tdd-024-and-pd-tdd-025.md)

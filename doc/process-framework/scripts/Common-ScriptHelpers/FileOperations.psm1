@@ -65,7 +65,7 @@ function Get-RelevantTrackingFiles {
         "TestSpecification" {
             $trackingFiles += @(
                 @{
-                    Path = Join-Path $projectRoot "doc/process-framework/state-tracking/permanent/test-tracking.md"
+                    Path = Join-Path $projectRoot "doc/product-docs/state-tracking/permanent/test-tracking.md"
                     Type = "TestImplementation"
                     Required = $true
                 }
@@ -74,7 +74,7 @@ function Get-RelevantTrackingFiles {
         "ValidationReport" {
             $trackingFiles += @(
                 @{
-                    Path = Join-Path $projectRoot "doc/process-framework/state-tracking/temporary/foundational-validation-tracking-round2.md"
+                    Path = Join-Path $projectRoot "doc/product-docs/state-tracking/temporary/validation-tracking.md"
                     Type = "ValidationTracking"
                     Required = $true
                 }
@@ -83,7 +83,7 @@ function Get-RelevantTrackingFiles {
         "FeatureImplementation" {
             $trackingFiles += @(
                 @{
-                    Path = Join-Path $projectRoot "doc/process-framework/state-tracking/permanent/feature-tracking.md"
+                    Path = Join-Path $projectRoot "doc/product-docs/state-tracking/permanent/feature-tracking.md"
                     Type = "FeatureTracking"
                     Required = $true
                 }
@@ -174,58 +174,10 @@ function Get-StateFileBackup {
     }
 }
 
-function Get-TrackingFilesByFeatureType {
-    <#
-    .SYNOPSIS
-    Gets tracking files relevant for a specific feature type based on feature ID pattern
-
-    .PARAMETER FeatureId
-    The feature ID to determine tracking file relevance
-
-    .EXAMPLE
-    $trackingFiles = Get-TrackingFilesByFeatureType -FeatureId "1.1.1"
-    #>
-
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory=$true)]
-        [string]$FeatureId
-    )
-
-    $projectRoot = Get-ProjectRoot
-    $trackingFiles = @()
-
-    # Architecture features (0.x.x pattern)
-    if ($FeatureId -match '^0\.\d+\.\d+$') {
-        $trackingFiles += @(
-            @{
-                Path = Join-Path $projectRoot "doc/process-framework/state-tracking/permanent/feature-tracking.md"
-                Type = "ArchitectureFeature"
-                Required = $true
-                Section = "Architecture"
-            }
-        )
-    }
-    # Standard features (non-0.x.x pattern)
-    else {
-        $trackingFiles += @(
-            @{
-                Path = Join-Path $projectRoot "doc/process-framework/state-tracking/permanent/feature-tracking.md"
-                Type = "StandardFeature"
-                Required = $true
-                Section = "Standard"
-            }
-        )
-    }
-
-    return $trackingFiles
-}
-
 # Export functions
 Export-ModuleMember -Function @(
     'Get-RelevantTrackingFiles',
-    'Get-StateFileBackup',
-    'Get-TrackingFilesByFeatureType'
+    'Get-StateFileBackup'
 )
 
 Write-Verbose "FileOperations module loaded with 3 functions"

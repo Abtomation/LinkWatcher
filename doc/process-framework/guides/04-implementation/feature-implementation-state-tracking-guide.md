@@ -307,7 +307,7 @@ The state document's Code Inventory section provides high-level tracking, but co
    - Example: `PF-FEA-012-implementation-state.md`
    - Use flat structure (one file per feature, no subdirectories)
 
-4. **Location**: Always place in `doc/process-framework/state-tracking/features`
+4. **Location**: Always place in `doc/product-docs/state-tracking/features`
 
 **Expected Result**: You have a new state document ready for customization with correct naming and location.
 
@@ -622,7 +622,7 @@ Before marking a task complete, verify:
 
    ```bash
    cp doc/process-framework/templates/04-implementation/feature-implementation-state-template.md \
-      doc/process-framework/state-tracking/features/PF-FEA-012-implementation-state.md
+      doc/product-docs/state-tracking/features/PF-FEA-012-implementation-state.md
    ```
 
 2. **Populate metadata**:
@@ -668,7 +668,7 @@ Before marking a task complete, verify:
 **Process**:
 
 1. **Open state document**:
-   `doc/process-framework/state-tracking/features/PF-FEA-012-implementation-state.md`
+   `doc/product-docs/state-tracking/features/PF-FEA-012-implementation-state.md`
 
 2. **Read Current State Summary** (30 seconds):
 

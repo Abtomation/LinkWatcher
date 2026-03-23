@@ -36,7 +36,7 @@ This task evaluates incoming change requests to determine whether they represent
 - **Critical (Must Read):**
 
   - **Change Request** — The human partner's description of what needs to be added or changed
-  - [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) — Current feature inventory to identify existing features
+  - [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) — Current feature inventory to identify existing features
   - [Feature Granularity Guide](../../guides/01-planning/feature-granularity-guide.md) — Defines what constitutes a well-scoped feature (used when classifying requests and validating new feature scope)
   - [Enhancement State Tracking Customization Guide](../../guides/04-implementation/enhancement-state-tracking-customization-guide.md) — Guide for customizing the Enhancement State Tracking File
   - [Visual Notation Guide](/doc/process-framework/guides/support/visual-notation-guide.md) — For interpreting context map diagrams
@@ -122,7 +122,7 @@ This task evaluates incoming change requests to determine whether they represent
 - **Classification Decision** — New feature or enhancement, with rationale communicated to human partner
 - **Human-approved target feature** — AI agent's proposal confirmed by human partner (enhancement path only)
 - **For new features**: New entry in `feature-tracking.md` + new feature implementation state file
-- **For enhancements**: Customized Enhancement State Tracking File in `state-tracking/temporary/` with:
+- **For enhancements**: Customized Enhancement State Tracking File in `product-docs/state-tracking/temporary/` with:
   - Target feature identification and existing doc inventory
   - Scope assessment using practical criteria
   - 17 workflow blocks each evaluated as Applicable/Not Applicable with rationale and adaptation notes
@@ -133,9 +133,9 @@ This task evaluates incoming change requests to determine whether they represent
 
 The following state files must be updated as part of this task:
 
-- [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) — For new features: add new entry. For enhancements: set target feature status to "🔄 Needs Revision" with link to Enhancement State Tracking File
-- **Enhancement State Tracking File** (created by this task) — In `state-tracking/temporary/`
-- **Feature Implementation State File** — For new features: create new state file. For enhancements: no change (handled by Feature Enhancement task) — In `state-tracking/feature/`
+- [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) — For new features: add new entry. For enhancements: set target feature status to "🔄 Needs Revision" with link to Enhancement State Tracking File
+- **Enhancement State Tracking File** (created by this task) — In `product-docs/state-tracking/temporary/`
+- **Feature Implementation State File** — For new features: create new state file. For enhancements: no change (handled by Feature Enhancement task) — In `product-docs/state-tracking/features/`
 
 ## MANDATORY Task Completion Checklist
 
@@ -166,5 +166,5 @@ Before considering this task finished:
 
 - [Feature Granularity Guide](../../guides/01-planning/feature-granularity-guide.md) — Defines what constitutes a well-scoped feature with validation tests and scaling guidance
 - [Enhancement Workflow Concept (PF-PRO-002)](../../proposals/proposals/enhancement-workflow-concept.md) — Full design rationale for this workflow
-- [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) — Current feature inventory
+- [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) — Current feature inventory
 - [Enhancement State Tracking Customization Guide](../../guides/04-implementation/enhancement-state-tracking-customization-guide.md) — Guide for customizing state files

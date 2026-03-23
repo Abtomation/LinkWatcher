@@ -16,7 +16,7 @@ retrospective: true
 
 > **Retrospective Document**: This TDD describes the existing technical design of the LinkWatcher Event Handler, documented after implementation during framework onboarding (PF-TSK-066). Content is reverse-engineered from source code analysis.
 >
-> **Source**: Derived from [1.1.2 Implementation State](../../../../../process-framework/state-tracking/features/1.1.2-event-handler-implementation-state.md) and source code analysis of `linkwatcher/handler.py`, `linkwatcher/move_detector.py`, and `linkwatcher/dir_move_detector.py`.
+> **Source**: Derived from [1.1.2 Implementation State](../../../../state-tracking/features/archive/1.1.2-event-handler-implementation-state.md) and source code analysis of `linkwatcher/handler.py`, `linkwatcher/move_detector.py`, and `linkwatcher/dir_move_detector.py`.
 
 ## 1. Overview
 

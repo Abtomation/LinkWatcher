@@ -78,7 +78,7 @@ Systematic data model planning before implementation to prevent data integrity i
 - **Critical (Must Read):**
 
   - **Functional Design Document (FDD)** - For Tier 2+ features, the FDD containing functional requirements and data requirements that inform schema design (located in `/doc/product-docs/functional-design/fdds/`)
-  - [Feature Requirements](/doc/process-framework/state-tracking/permanent/feature-tracking.md) - Understanding what functionality requires database changes and confirming DB Design is required
+  - [Feature Requirements](/doc/product-docs/state-tracking/permanent/feature-tracking.md) - Understanding what functionality requires database changes and confirming DB Design is required
   - [Feature Tier Assessment](../../../product-docs/documentation-tiers/assessments) - Assessment that determined database design is needed
   - **Current Database Schema** - Existing schema documentation and structure:
     - Current schema: `/data/`
@@ -112,7 +112,7 @@ Systematic data model planning before implementation to prevent data integrity i
 
 ### Preparation
 
-1. **Verify DB Design Requirement**: Confirm in the [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) document that the DB Design column shows "Yes" for this feature
+1. **Verify DB Design Requirement**: Confirm in the [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) document that the DB Design column shows "Yes" for this feature
 2. Review the [Feature Tier Assessment](../../../product-docs/documentation-tiers/assessments) that determined database design is needed
 3. **Gather Context**: Load all critical context files including feature requirements, current schema, and data flow requirements
 4. **Analyze Current State**: Review existing database schema (`/data/` and `/doc/product-docs/technical/architecture/database-reference.md`) and identify areas that will be affected by the changes
@@ -138,7 +138,7 @@ Systematic data model planning before implementation to prevent data integrity i
 13. **Create Migration Scripts**: Generate production-ready migration scripts with proper rollback procedures
 14. **Document Database-Level Integration Notes**: Add brief notes on database access requirements and cross-schema dependencies (detailed API specifications belong in API Design task)
 15. **Add Cross-References**: Include brief cross-reference sections linking to API Design and Test Specification tasks where appropriate
-16. **Verify Automated Updates**: Confirm that the schema design script automatically updated the [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) document, changing the DB Design column from "Yes" to a link to the schema design
+16. **Verify Automated Updates**: Confirm that the schema design script automatically updated the [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) document, changing the DB Design column from "Yes" to a link to the schema design
 17. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
@@ -158,8 +158,8 @@ Systematic data model planning before implementation to prevent data integrity i
 
 The following state files are updated as part of this task:
 
-- [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - **AUTOMATICALLY UPDATED** by the schema design script: DB Design column changes from "Yes" to a link to the completed database schema design document
-- [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md) - **MANUAL UPDATE REQUIRED**: Add any schema optimization opportunities identified during design
+- [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) - **AUTOMATICALLY UPDATED** by the schema design script: DB Design column changes from "Yes" to a link to the completed database schema design document
+- [Technical Debt Tracking](../../../product-docs/state-tracking/permanent/technical-debt-tracking.md) - **MANUAL UPDATE REQUIRED**: Add any schema optimization opportunities identified during design
 - **Database Schema Tracking** - Track schema changes across features (to be created as part of task infrastructure)
 
 ## ⚠️ MANDATORY Task Completion Checklist
@@ -176,8 +176,8 @@ Before considering this task finished:
   - [ ] Database-level integration notes documented (with cross-references to API Design task for detailed specifications)
   - [ ] Cross-reference sections added linking to API Design and Test Specification tasks
 - [ ] **Verify State File Updates**: Ensure all state tracking files have been updated
-  - [ ] [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) DB Design column **AUTOMATICALLY UPDATED** from "Yes" to link to completed database schema design document (verify the automation worked correctly)
-  - [ ] [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md) **MANUALLY UPDATED** with schema optimization opportunities identified during design
+  - [ ] [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) DB Design column **AUTOMATICALLY UPDATED** from "Yes" to link to completed database schema design document (verify the automation worked correctly)
+  - [ ] [Technical Debt Tracking](../../../product-docs/state-tracking/permanent/technical-debt-tracking.md) **MANUALLY UPDATED** with schema optimization opportunities identified during design
   - [ ] Database Schema Tracking updated with new schema changes
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-021" and context "Database Schema Design Task"
 
@@ -192,4 +192,4 @@ Before considering this task finished:
 - [System Architecture Review Task](../01-planning/system-architecture-review.md) - For evaluating how schema changes fit into existing architecture
 - [API Design Task](api-design-task.md) - For designing APIs that work with the new data model
 - [Feature Implementation Planning](../04-implementation/feature-implementation-planning-task.md) - For planning and implementing features using the designed schema
-- [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md) - For tracking schema optimization opportunities
+- [Technical Debt Tracking](../../../product-docs/state-tracking/permanent/technical-debt-tracking.md) - For tracking schema optimization opportunities

@@ -68,7 +68,7 @@ graph TD
 - [Feature Assessment](../../../../product-docs/documentation-tiers/assessments) - Complexity tier assessments
 - [Project Structure](/doc/product-docs/technical/architecture/project-structure.md) - Project architecture information
 - [Existing TDDs](/doc/product-docs/technical/design) - Previously created design documents
-- [Feature Tracking](../../../state-tracking/permanent/feature-tracking.md) - Feature status tracking
+- [Feature Tracking](../../../../product-docs/state-tracking/permanent/feature-tracking.md) - Feature status tracking
 - [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Complete reference of component relationships
 
 ---

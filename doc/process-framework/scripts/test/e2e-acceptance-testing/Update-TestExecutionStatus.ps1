@@ -96,8 +96,8 @@ $statusMap = @{
 $emojiStatus = $statusMap[$Status]
 $timestamp = Get-Date -Format "yyyy-MM-dd"
 
-$testTrackingPath = Join-Path $ProjectRoot "doc/process-framework/state-tracking/permanent/test-tracking.md"
-$featureTrackingPath = Join-Path $ProjectRoot "doc/process-framework/state-tracking/permanent/feature-tracking.md"
+$testTrackingPath = Join-Path $ProjectRoot "test/state-tracking/permanent/test-tracking.md"
+$featureTrackingPath = Join-Path $ProjectRoot "doc/product-docs/state-tracking/permanent/feature-tracking.md"
 
 if (-not (Test-Path $testTrackingPath)) {
     Write-Error "Test tracking file not found: $testTrackingPath"

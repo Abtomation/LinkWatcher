@@ -45,12 +45,12 @@ Comprehensive quality assurance task that evaluates implemented test suites agai
 
   - **Test Implementation Files** - The actual test files to be audited (located in the project's test directory as configured in `project-config.json`)
   - **Test Specification Document** - The test specification file for the feature being audited (located in `/test/specifications/feature-specs/`)
-  - [Test Tracking](../../state-tracking/permanent/test-tracking.md) - Current test implementation status and audit tracking
+  - [Test Tracking](../../../../test/state-tracking/permanent/test-tracking.md) - Current test implementation status and audit tracking
   - [Technical Design Document](/doc/product-docs/technical/design) - The TDD for the feature to understand implementation requirements
 
 - **Important (Load If Space):**
 
-  - [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Feature development status and context
+  - [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) - Feature development status and context
   - [Test Registry](/test/test-registry.yaml) - Test file registry with IDs and metadata
   - [Existing Test Structure](/test/) - Current test organization and patterns for consistency evaluation
   - [Mock Services](/test/mocks/) - Available mock implementations used in tests
@@ -149,7 +149,7 @@ Comprehensive quality assurance task that evaluates implemented test suites agai
 
    - Use [New-BugReport.ps1](../../scripts/file-creation/06-maintenance/New-BugReport.ps1) script to create standardized bug reports
    - Follow [Bug Reporting Guide](../../guides/06-maintenance/bug-reporting-guide.md) for consistent documentation
-   - Add bug entries to [Bug Tracking](../../state-tracking/permanent/bug-tracking.md) with status 🆕 Reported
+   - Add bug entries to [Bug Tracking](../../../product-docs/state-tracking/permanent/bug-tracking.md) with status 🆕 Reported
    - Include test audit context and evidence in bug reports
    - Reference audit report in bug documentation
    - Note impact on test audit results
@@ -197,9 +197,9 @@ Set-Location "<project-root>/doc/process-framework/scripts"
 ./Update-TestFileAuditState.ps1 -TestFileId "PD-TST-XXX" -AuditStatus "Tests Approved" -AuditorName "AI Agent" -TestCasesAudited 15 -PassedTests 14 -FailedTests 1 -MajorFindings @("Finding 1", "Finding 2") -AuditReportPath "../../../product-docs/test-audits/relative/path/to/audit-report.md"
 
 # Script automatically:
-# - Updates ../../state-tracking/permanent/test-tracking.md with audit status and detailed results
+# - Updates ../../../../test/state-tracking/permanent/test-tracking.md with audit status and detailed results
 # - Updates /test/test-registry.yaml with audit completion status
-# - Updates ../../state-tracking/permanent/feature-tracking.md with aggregated test status for the feature
+# - Updates ../../../product-docs/state-tracking/permanent/feature-tracking.md with aggregated test status for the feature
 # - Creates automatic backups before making changes
 # - Calculates intelligent feature-level status based on all test files
 ```
@@ -233,16 +233,16 @@ Set-Location "<project-root>/doc/process-framework/scripts"
 - **Test Audit Report** - Comprehensive document analyzing test quality with specific findings and recommendations (located in `/doc/product-docs/test-audits/[category]/`)
 - **Updated Test Tracking** - Test tracking updated with audit status and audit report link
 - **Updated Test Registry** - Test registry updated with audit completion status
-- **Bug Reports** - Any bugs discovered during audit documented in [Bug Tracking](../../state-tracking/permanent/bug-tracking.md) with status 🆕 Reported
+- **Bug Reports** - Any bugs discovered during audit documented in [Bug Tracking](../../../product-docs/state-tracking/permanent/bug-tracking.md) with status 🆕 Reported
 
 ## State Tracking
 
 **🤖 FULLY AUTOMATED** - All state file updates are handled by the `Update-TestFileAuditState.ps1` script:
 
-- [Test Tracking](../../state-tracking/permanent/test-tracking.md) - **Automatically updated** with audit status, detailed audit results, and completion timestamp
+- [Test Tracking](../../../../test/state-tracking/permanent/test-tracking.md) - **Automatically updated** with audit status, detailed audit results, and completion timestamp
 - [Test Registry](/test/test-registry.yaml) - **Automatically flagged** for manual review with audit completion status
-- [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - **Automatically updated** with intelligent aggregated test status based on all test files for the feature
-- [Bug Tracking](../../state-tracking/permanent/bug-tracking.md) - **Manually updated** with any bugs discovered during audit, including test context and evidence
+- [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) - **Automatically updated** with intelligent aggregated test status based on all test files for the feature
+- [Bug Tracking](../../../product-docs/state-tracking/permanent/bug-tracking.md) - **Manually updated** with any bugs discovered during audit, including test context and evidence
 
 **Key Automation Features**:
 
@@ -266,9 +266,9 @@ Before considering this task finished:
   - [ ] Clear audit decision made (Tests Approved or Needs Update)
 - [ ] **Update State Files**: **🤖 AUTOMATED** - Verify automation script successfully updated all state tracking files
   - [ ] Executed `Update-TestFileAuditState.ps1` with appropriate parameters
-  - [ ] Confirmed [Test Tracking](../../state-tracking/permanent/test-tracking.md) updated with audit status and detailed results
+  - [ ] Confirmed [Test Tracking](../../../../test/state-tracking/permanent/test-tracking.md) updated with audit status and detailed results
   - [ ] Verified [Test Registry](/test/test-registry.yaml) flagged for manual review with audit completion status
-  - [ ] Checked [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) Test Status column shows correct aggregated status
+  - [ ] Checked [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) Test Status column shows correct aggregated status
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-030" and context "Test Audit"
 
 ## Next Tasks
@@ -283,7 +283,7 @@ Before considering this task finished:
 
 - [Integration & Testing (PF-TSK-053)](../04-implementation/integration-and-testing.md) - For implementing tests before audit
 - [Test Specification Creation Task](test-specification-creation-task.md) - For creating test specifications that guide implementation
-- [Test Tracking](../../state-tracking/permanent/test-tracking.md) - Track test implementation and audit progress
+- [Test Tracking](../../../../test/state-tracking/permanent/test-tracking.md) - Track test implementation and audit progress
 - [Test Registry](/test/test-registry.yaml) - Test file registry with IDs and metadata
 - [Development Guide](/doc/process-framework/guides/04-implementation/development-guide.md) - Testing standards and practices
 - [Test Audit Concept](../../proposals/test-audit-concept.md) - Original concept document for this task

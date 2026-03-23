@@ -53,4 +53,4 @@ priority: Medium
 | 1 | TD059 | Complete | None | Test spec 0.1.3 updated |
 
 ## Related Documentation
-- [Technical Debt Tracking](/doc/process-framework/state-tracking/permanent/technical-debt-tracking.md)
+- [Technical Debt Tracking](/doc/product-docs/state-tracking/permanent/technical-debt-tracking.md)

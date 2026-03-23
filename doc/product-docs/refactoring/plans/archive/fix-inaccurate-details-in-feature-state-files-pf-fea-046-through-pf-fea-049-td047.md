@@ -135,5 +135,5 @@ priority: Medium
 | 4 | TD047 (PF-FEA-049) | Complete | None | State file: 7 corrections |
 
 ## Related Documentation
-- [Technical Debt Tracking](/doc/process-framework/state-tracking/permanent/technical-debt-tracking.md)
+- [Technical Debt Tracking](/doc/product-docs/state-tracking/permanent/technical-debt-tracking.md)
 - [Validation Report PF-VAL-042](/doc/product-docs/validation/reports/documentation-alignment/PF-VAL-042-documentation-alignment-features-0.1.1-0.1.2-0.1.3-1.1.1.md)

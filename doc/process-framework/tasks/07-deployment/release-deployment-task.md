@@ -40,10 +40,10 @@ Manage the process of preparing, versioning, and deploying releases of the appli
 
 - **Important (Load If Space):**
 
-  - [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Features ready for release
+  - [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) - Features ready for release
 
 - **Reference Only (Access When Needed):**
-  - [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md) - Technical debt items addressed in this release
+  - [Technical Debt Tracking](../../../product-docs/state-tracking/permanent/technical-debt-tracking.md) - Technical debt items addressed in this release
 
 ## Process
 
@@ -57,7 +57,7 @@ Manage the process of preparing, versioning, and deploying releases of the appli
 
 ### Preparation
 
-1. Review [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) and [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md) to identify what's included in the release
+1. Review [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) and [Technical Debt Tracking](../../../product-docs/state-tracking/permanent/technical-debt-tracking.md) to identify what's included in the release
 2. Update version numbers according to semantic versioning
 3. Generate release notes from completed features and fixed bugs
 4. Create a release branch if needed
@@ -68,7 +68,7 @@ Manage the process of preparing, versioning, and deploying releases of the appli
 
 7. Run the full test suite on the release candidate
 8. **Run full pre-release test sweep**: Execute `Run-Tests.ps1 -All` to confirm all automated tests pass. This is a release gate — no deployment if tests fail. Pay special attention to **Critical** priority tests in [test-registry.yaml](/test/test-registry.yaml) — these cover foundation features and must all pass. Extended priority tests (performance, edge cases) are informational but not release-blocking.
-9. **Verify E2E acceptance test status**: Check the dedicated **E2E Acceptance Tests** section in [test-tracking.md](../../state-tracking/permanent/test-tracking.md) for any E2E groups marked `🔄 Needs Re-execution`. All groups must show `✅ Passed` before release. If any need re-execution, trigger [E2E Acceptance Test Execution](../03-testing/e2e-acceptance-test-execution-task.md) first. Also check the **Workflow Milestone Tracking** — are all workflows in the release scope covered by E2E tests? Flag any workflow with `⬜ Not Created` status as a release risk.
+9. **Verify E2E acceptance test status**: Check the dedicated **E2E Acceptance Tests** section in [test-tracking.md](../../../../test/state-tracking/permanent/test-tracking.md) for any E2E groups marked `🔄 Needs Re-execution`. All groups must show `✅ Passed` before release. If any need re-execution, trigger [E2E Acceptance Test Execution](../03-testing/e2e-acceptance-test-execution-task.md) first. Also check the **Workflow Milestone Tracking** — are all workflows in the release scope covered by E2E tests? Flag any workflow with `⬜ Not Created` status as a release risk.
 10. Verify all deployment prerequisites are met
 11. Complete the pre-deployment checklist
 12. Obtain necessary approvals
@@ -93,7 +93,7 @@ Manage the process of preparing, versioning, and deploying releases of the appli
 
     - Use [../../scripts/file-creation/06-maintenance/New-BugReport.ps1](../../scripts/file-creation/06-maintenance/New-BugReport.ps1) script to create standardized bug reports
     - Follow [Bug Reporting Guide](../../guides/06-maintenance/bug-reporting-guide.md) for consistent documentation
-    - Add bug entries to [Bug Tracking](../../state-tracking/permanent/bug-tracking.md) with status 🆕 Reported
+    - Add bug entries to [Bug Tracking](../../../product-docs/state-tracking/permanent/bug-tracking.md) with status 🆕 Reported
     - Include deployment context and evidence in bug reports
     - Reference specific deployment logs or monitoring data
     - Note impact on deployment success and user experience
@@ -117,14 +117,14 @@ Manage the process of preparing, versioning, and deploying releases of the appli
 ## Outputs
 
 - **Release Notes** - Document release version, included features, bug fixes, and known issues (format per project convention)
-- **Bug Reports** - Any bugs discovered during deployment documented in [Bug Tracking](../../state-tracking/permanent/bug-tracking.md) with status 🆕 Reported
+- **Bug Reports** - Any bugs discovered during deployment documented in [Bug Tracking](../../../product-docs/state-tracking/permanent/bug-tracking.md) with status 🆕 Reported
 
 ## State Tracking
 
 The following state files must be updated as part of this task:
 
-- [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Update feature statuses to reflect release
-- [Bug Tracking](../../state-tracking/permanent/bug-tracking.md) - Update bug statuses for fixes included in release
+- [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) - Update feature statuses to reflect release
+- [Bug Tracking](../../../product-docs/state-tracking/permanent/bug-tracking.md) - Update bug statuses for fixes included in release
 
 ## ⚠️ MANDATORY Task Completion Checklist
 

@@ -35,8 +35,8 @@ Systematically evaluate, prioritize, and assign reported bugs to ensure efficien
 
 - **Critical (Must Read):**
 
-  - [Bug Tracking](../../state-tracking/permanent/bug-tracking.md) - Current bug registry and status
-  - [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - To understand feature priorities and relationships
+  - [Bug Tracking](../../../product-docs/state-tracking/permanent/bug-tracking.md) - Current bug registry and status
+  - [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) - To understand feature priorities and relationships
   - [Visual Notation Guide](/doc/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 - **Important (Load If Space):**
@@ -59,9 +59,9 @@ Systematically evaluate, prioritize, and assign reported bugs to ensure efficien
 
 ### Preparation
 
-1. Review the [Bug Tracking](../../state-tracking/permanent/bug-tracking.md) document to identify bugs with status 🆕 Reported or bugs that need reopening (see [Reopen Workflow](#reopen-workflow) below)
+1. Review the [Bug Tracking](../../../product-docs/state-tracking/permanent/bug-tracking.md) document to identify bugs with status 🆕 Reported or bugs that need reopening (see [Reopen Workflow](#reopen-workflow) below)
 2. Gather all available information about each bug (reproduction steps, screenshots, logs)
-3. Understand the current development priorities from [Feature Tracking](../../state-tracking/permanent/feature-tracking.md)
+3. Understand the current development priorities from [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md)
 4. For each bug, consult the affected feature's [implementation state file](../../state-tracking/features/) for known issues, related bugs, and current implementation status
 5. Review any related bugs or patterns in the bug registry
 6. **🚨 CHECKPOINT**: Present bug inventory, initial analysis, and current development priorities to human partner
@@ -87,13 +87,13 @@ Systematically evaluate, prioritize, and assign reported bugs to ensure efficien
 
 ### Assignment and Documentation
 
-12. **Assign Priority and Scope**: Update bug entry with determined priority (P1-P4) and scope (S/M/L for fix complexity — see [Scope Levels](../../state-tracking/permanent/bug-tracking.md#scope-levels))
+12. **Assign Priority and Scope**: Update bug entry with determined priority (P1-P4) and scope (S/M/L for fix complexity — see [Scope Levels](../../../product-docs/state-tracking/permanent/bug-tracking.md#scope-levels))
 13. **Provide Triage Rationale**: Document the reasoning behind priority and scope assignments
 14. **Identify Related Features**: Link bugs to affected features in Feature Tracking
-    > **Tip**: Bugs discovered during code review often lack a "Related Feature" field. During triage, identify the affected feature from [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) and populate this field.
+    > **Tip**: Bugs discovered during code review often lack a "Related Feature" field. During triage, identify the affected feature from [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) and populate this field.
 15. **Estimate Effort**: Provide rough effort estimate for fixing the bug
 16. **Update Bug Status**: Change status from 🆕 Reported to 🔍 Triaged
-    - **Manual Update**: Edit the [Bug Tracking](../../state-tracking/permanent/bug-tracking.md) file directly
+    - **Manual Update**: Edit the [Bug Tracking](../../../product-docs/state-tracking/permanent/bug-tracking.md) file directly
     - **Optional Automation**: Use [`Update-BugStatus.ps1`](../../scripts/update/Update-BugStatus.ps1) script for consistent formatting:
       ```powershell
       ../../scripts/update/Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "Triaged" -Priority "High" -Scope "S"
@@ -158,7 +158,7 @@ When a previously closed bug recurs, decide whether to **reopen** the original o
 
 ## Outputs
 
-- **Updated Bug Registry** - [Bug Tracking](../../state-tracking/permanent/bug-tracking.md) with triaged bugs
+- **Updated Bug Registry** - [Bug Tracking](../../../product-docs/state-tracking/permanent/bug-tracking.md) with triaged bugs
 - **Triage Documentation** - Clear rationale for all priority and scope assignments
 - **Effort Estimates** - Rough estimates for bug fix complexity
 - **Duplicate Identification** - Consolidated duplicate bugs with cross-references
@@ -167,7 +167,7 @@ When a previously closed bug recurs, decide whether to **reopen** the original o
 
 The following state files must be updated as part of this task:
 
-- [Bug Tracking](../../state-tracking/permanent/bug-tracking.md) - Update with:
+- [Bug Tracking](../../../product-docs/state-tracking/permanent/bug-tracking.md) - Update with:
   - Bug status changed from 🆕 Reported to 🔍 Triaged
   - Priority and scope assignments
   - Triage rationale and notes
@@ -213,7 +213,7 @@ Before considering this task finished:
 
 ## Related Resources
 
-- [Bug Tracking State File](../../state-tracking/permanent/bug-tracking.md) - Central bug registry
-- [Feature Tracking State File](../../state-tracking/permanent/feature-tracking.md) - Feature priorities and relationships
+- [Bug Tracking State File](../../../product-docs/state-tracking/permanent/bug-tracking.md) - Central bug registry
+- [Feature Tracking State File](../../../product-docs/state-tracking/permanent/feature-tracking.md) - Feature priorities and relationships
 - [Task Transition Guide](../../guides/framework/task-transition-guide.md) - Guidance on transitioning between tasks
 - [Task Creation and Improvement Guide](../../guides/support/task-creation-guide.md) - Guide for creating and improving tasks

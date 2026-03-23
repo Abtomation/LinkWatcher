@@ -39,7 +39,7 @@ target_feature: 2.1.1
 
 | Document Type | ID | Location | Action Needed |
 |---------------|-----|----------|---------------|
-| Feature State File | PF-FEA-050 | [2.1.1-link-parsing-system-implementation-state.md](../../features/2.1.1-link-parsing-system-implementation-state.md) | Update on completion |
+| Feature State File | PF-FEA-050 | [2.1.1-link-parsing-system-implementation-state.md](../../../../product-docs/state-tracking/features/2.1.1-link-parsing-system-implementation-state.md) | Update on completion |
 | FDD | PD-FDD-026 | [fdd-2-1-1-parser-framework.md](../../../../product-docs/functional-design/fdds/fdd-2-1-1-parser-framework.md) | Amend — update supported link syntax to include backtick-delimited paths |
 | TDD | PD-TDD-025 | [tdd-2-1-1-parser-framework-t2.md](../../../../product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md) | Amend — update MarkdownParser pattern descriptions |
 | ADR | N/A | N/A | No change |

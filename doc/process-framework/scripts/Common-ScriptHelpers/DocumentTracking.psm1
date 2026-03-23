@@ -102,7 +102,7 @@ function Update-DocumentTrackingFiles {
                         Write-Host "  Test Spec Link: $DocumentPath" -ForegroundColor Cyan
                     } else {
                         # Calculate relative path from feature-tracking.md to the test specification
-                        $featureTrackingPath = Join-Path $projectRoot "doc/process-framework/state-tracking/permanent/feature-tracking.md"
+                        $featureTrackingPath = Join-Path $projectRoot "doc/product-docs/state-tracking/permanent/feature-tracking.md"
                         $featureTrackingDir = Split-Path $featureTrackingPath -Parent
                         $relativePath = [System.IO.Path]::GetRelativePath($featureTrackingDir, $DocumentPath)
                         $relativePath = $relativePath -replace '\\', '/'  # Convert to forward slashes for markdown
@@ -154,7 +154,7 @@ function Update-DocumentTrackingFiles {
                         Write-Host "  Title: $title" -ForegroundColor Cyan
                         Write-Host "  Status: $status" -ForegroundColor Cyan
                     } else {
-                        $archTrackingPath = Join-Path $projectRoot "doc/process-framework/state-tracking/permanent/architecture-tracking.md"
+                        $archTrackingPath = Join-Path $projectRoot "doc/product-docs/state-tracking/permanent/architecture-tracking.md"
 
                         if (Test-Path $archTrackingPath) {
                             # Calculate relative path from architecture-tracking.md to the ADR

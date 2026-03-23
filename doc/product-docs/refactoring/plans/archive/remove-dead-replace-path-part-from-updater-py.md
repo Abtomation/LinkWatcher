@@ -48,4 +48,4 @@ refactoring_scope: Remove dead _replace_path_part from updater.py
 | 1 | TD027 | Complete | None | test-spec-2-2-1 |
 
 ## Related Documentation
-- [Technical Debt Tracking](/doc/process-framework/state-tracking/permanent/technical-debt-tracking.md)
+- [Technical Debt Tracking](/doc/product-docs/state-tracking/permanent/technical-debt-tracking.md)

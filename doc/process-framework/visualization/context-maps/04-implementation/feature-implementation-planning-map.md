@@ -41,7 +41,7 @@ graph TD
 
     OUTPUTS["📤 Planning Outputs"]
     IMPLPLAN_DOC["Implementation Plan<br/>(PD-IMP-XXX)<br/>in /product-docs/technical/"]
-    FEATSTATE_DOC["Feature State Document<br/>(PF-FEA-XXX)<br/>in /process-framework/state-tracking/features/"]
+    FEATSTATE_DOC["Feature State Document<br/>(PF-FEA-XXX)<br/>in /product-docs/state-tracking/features/"]
 
     REFERENCE["📚 Reference Materials"]
     TEMPLATE_IMPL["Implementation Plan Template<br/>(PF-TEM-042)"]

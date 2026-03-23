@@ -40,7 +40,7 @@ Ensure documentation requirements remain aligned with the true complexity of fea
   - [Visual Notation Guide](/doc/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 - **Reference Only (Access When Needed):**
-  - [Feature Tracking Document](../../state-tracking/permanent/feature-tracking.md) - Current documentation tier assignment
+  - [Feature Tracking Document](../../../product-docs/state-tracking/permanent/feature-tracking.md) - Current documentation tier assignment
 
 ## Process
 
@@ -119,7 +119,7 @@ Ensure documentation requirements remain aligned with the true complexity of fea
 
 The following state files must be updated as part of this task:
 
-- [Feature Tracking Document](../../state-tracking/permanent/feature-tracking.md) - Update with:
+- [Feature Tracking Document](../../../product-docs/state-tracking/permanent/feature-tracking.md) - Update with:
   - New documentation tier emoji (🔵/🟠/🔴)
   - Link to updated assessment document
   - Date of tier adjustment

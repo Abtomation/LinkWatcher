@@ -65,4 +65,4 @@ priority: [Priority Level]
 | 1 | [TD###] | [Complete/Blocked] | [None/Yes] | [None/List] |
 
 ## Related Documentation
-- [Technical Debt Tracking](/doc/process-framework/state-tracking/permanent/technical-debt-tracking.md)
+- [Technical Debt Tracking](/doc/product-docs/state-tracking/permanent/technical-debt-tracking.md)

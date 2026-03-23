@@ -148,5 +148,5 @@ Extract Move Object (composition pattern). Create a `ReferenceLookup` class that
 - `_update_links_within_moved_file` (147 lines) + `_calculate_updated_relative_path` (35 lines) remain in handler.py — potential future extraction as `link_content_updater.py`
 
 ## Related Documentation
-- [Technical Debt Tracking](/doc/process-framework/state-tracking/permanent/technical-debt-tracking.md)
+- [Technical Debt Tracking](/doc/product-docs/state-tracking/permanent/technical-debt-tracking.md)
 - [TD005 — God Class decomposition](/doc/product-docs/refactoring/plans/decompose-god-class-linkmaintenancehandler-td005.md)

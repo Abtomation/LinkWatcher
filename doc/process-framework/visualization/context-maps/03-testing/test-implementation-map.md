@@ -144,9 +144,9 @@ graph TD
 - [Technical Design Documents](/doc/product-docs/technical/design) - Repository of TDDs for context
 - [Feature Tier Assessment Guide](../../../../product-docs/documentation-tiers/README.md) - Understanding complexity tiers
 - [Test Structure Documentation](/test/) - Current test organization patterns
-- [Test Tracking](../../../state-tracking/permanent/test-tracking.md) - Test implementation status tracking
+- [Test Tracking](../../../../../test/state-tracking/permanent/test-tracking.md) - Test implementation status tracking
 - [Test Registry](/test/test-registry.yaml) - Central registry of test files with IDs and metadata
-- [Feature Tracking](../../../state-tracking/permanent/feature-tracking.md) - Feature development status tracking
+- [Feature Tracking](../../../../product-docs/state-tracking/permanent/feature-tracking.md) - Feature development status tracking
 
 ---
 

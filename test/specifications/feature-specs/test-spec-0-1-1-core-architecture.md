@@ -319,7 +319,7 @@ test/automated/
 - **FDD**: [PD-FDD-022](../../../doc/product-docs/functional-design/fdds/fdd-0-1-1-core-architecture.md)
 - **ADR**: [PD-ADR-039](../../../doc/product-docs/technical/architecture/design-docs/adr/adr/orchestrator-facade-pattern-for-core-architecture.md)
 - **Feature Tier Assessment**: [ART-ASS-191](../../../doc/product-docs/documentation-tiers/assessments/ART-ASS-191-0-1-1-core-architecture.md)
-- **Implementation State**: [PF-FEA-003](../../../doc/process-framework/state-tracking/features/0.1.1-core-architecture-implementation-state.md)
+- **Implementation State**: [PF-FEA-003](../../../doc/product-docs/state-tracking/features/0.1.1-core-architecture-implementation-state.md)
 
 ---
 

@@ -43,10 +43,10 @@ Identify and document potential new features through user research, competitive 
 - **Important (Load If Space):**
 
   - Competitive analysis data (if available)
-  - [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md) - To identify opportunities for improvements
+  - [Technical Debt Tracking](../../../product-docs/state-tracking/permanent/technical-debt-tracking.md) - To identify opportunities for improvements
 
 - **Reference Only (Access When Needed):**
-  - [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - To understand existing features and gaps
+  - [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) - To understand existing features and gaps
 
 ## Process
 
@@ -95,20 +95,20 @@ Identify and document potential new features through user research, competitive 
 
 ## Outputs
 
-- **Updated Feature Tracking** - New features added to [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) with:
+- **Updated Feature Tracking** - New features added to [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) with:
   - Clear descriptions and justifications in the "Notes" column
   - Appropriate categories and initial status
   - Priority assessment
   - Dependencies (if identified)
   - User benefit information
 - **User Workflow Map** - [User Workflow Map](/doc/product-docs/technical/design/user-workflow-map.md) created or updated with user-facing workflows mapped to features
-- **Technical Exploration Items** - Any identified items requiring technical investigation before implementation added to [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md)
+- **Technical Exploration Items** - Any identified items requiring technical investigation before implementation added to [Technical Debt Tracking](../../../product-docs/state-tracking/permanent/technical-debt-tracking.md)
 
 ## State Tracking
 
 The following state files must be updated as part of this task:
 
-- [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Update with:
+- [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) - Update with:
   - New feature entries with appropriate IDs
   - Initial status (⬜ Not Started)
   - Priority assessment (P1-P5)
@@ -116,7 +116,7 @@ The following state files must be updated as part of this task:
   - Categorical grouping
   - Dependencies (if known)
   - User benefit information
-- [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md) - Update with:
+- [Technical Debt Tracking](../../../product-docs/state-tracking/permanent/technical-debt-tracking.md) - Update with:
   - Any technical explorations needed before implementation
   - Open questions that require investigation
 

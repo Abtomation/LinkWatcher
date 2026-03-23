@@ -112,5 +112,5 @@ Read each TDD alongside its source code, identify every discrepancy, and update 
 - TD049 remains open for 3 TDDs: PD-TDD-026 (2.2.1 Updater), PD-TDD-027 (4.1.1 Tests), PD-TDD-031 (5.1.1 CI/CD)
 
 ## Related Documentation
-- [Technical Debt Tracking](/doc/process-framework/state-tracking/permanent/technical-debt-tracking.md)
+- [Technical Debt Tracking](/doc/product-docs/state-tracking/permanent/technical-debt-tracking.md)
 - [Validation Report PF-VAL-043](/doc/product-docs/validation/reports/documentation-alignment/PF-VAL-043-documentation-alignment-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md)

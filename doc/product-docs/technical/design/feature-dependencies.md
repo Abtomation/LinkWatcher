@@ -11,7 +11,7 @@ generated: true
 # Feature Dependencies Map
 
 > **Auto-generated** by Update-FeatureDependencies.ps1 on 2026-03-18.
-> Source: feature state files in doc/process-framework/state-tracking/features/.
+> Source: feature state files in doc/product-docs/state-tracking/features/.
 > Do not edit manually — changes will be overwritten on next generation.
 
 This document maps the dependencies between features (10 features, 19 dependency edges).

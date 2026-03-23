@@ -82,7 +82,7 @@ graph TD
 ## Related Documentation
 
 - [Feature Request Evaluation Task](../../../tasks/01-planning/feature-request-evaluation.md) — Task definition
-- [Feature Tracking](../../../state-tracking/permanent/feature-tracking.md) — Current feature inventory
+- [Feature Tracking](../../../../product-docs/state-tracking/permanent/feature-tracking.md) — Current feature inventory
 - [Enhancement Workflow Concept (PF-PRO-002)](../../../proposals/proposals/enhancement-workflow-concept.md) — Full design rationale
 
 ---

@@ -230,7 +230,7 @@ Write-Host ""
 # --- Check 5: Cross-cutting feature ID validation ---
 Write-Host "5. Checking cross-cutting feature IDs..." -ForegroundColor Yellow
 
-$featureTrackingPath = Join-Path $ProjectRoot "doc/process-framework/state-tracking/permanent/feature-tracking.md"
+$featureTrackingPath = Join-Path $ProjectRoot "doc/product-docs/state-tracking/permanent/feature-tracking.md"
 $knownFeatureIds = @()
 if (Test-Path $featureTrackingPath) {
     $ftContent = Get-Content $featureTrackingPath -Encoding UTF8
@@ -408,7 +408,7 @@ if ($e2eRegistryIds.Count -eq 0) {
     # Read test-tracking.md and extract E2E IDs from the dedicated section
     $trackingE2eIds = @()
     $inE2eSection = $false
-    $testTrackingPath = Join-Path $ProjectRoot "doc/process-framework/state-tracking/permanent/test-tracking.md"
+    $testTrackingPath = Join-Path $ProjectRoot "test/state-tracking/permanent/test-tracking.md"
     $trackingContent = Get-Content $testTrackingPath -Encoding UTF8
     foreach ($tLine in $trackingContent) {
         if ($tLine -match '^## E2E Acceptance Tests') { $inE2eSection = $true }

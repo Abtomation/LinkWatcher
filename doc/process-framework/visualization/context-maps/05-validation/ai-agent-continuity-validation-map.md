@@ -108,7 +108,7 @@ graph TD
 ## Related Documentation
 
 - [AI Agent Continuity Validation Task](../../../tasks/05-validation/ai-agent-continuity-validation.md) - Complete task definition and process
-- [Feature Tracking](../../../state-tracking/permanent/feature-tracking.md) - Current status of features
+- [Feature Tracking](../../../../product-docs/state-tracking/permanent/feature-tracking.md) - Current status of features
 - Validation Tracking State File - Active validation tracking matrix (file location depends on validation round)
 - [Documentation Map](../../../documentation-map.md) - Process framework structure and organization
 - [AI Tasks System](../../../ai-tasks.md) - Task discovery and selection patterns

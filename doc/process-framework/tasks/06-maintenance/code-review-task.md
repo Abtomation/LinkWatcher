@@ -48,9 +48,9 @@ Review implemented code to ensure it meets quality standards, follows project co
   - Environment configuration files - For environment-specific settings review
 
 - **Reference Only (Access When Needed):**
-  - [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - To identify features with "👀 Ready for Review" status
+  - [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) - To identify features with "👀 Ready for Review" status
   - [Architecture Decision Records](/doc/product-docs/technical/architecture/design-docs/adr/) - For architectural context
-  - [Test Tracking](../../state-tracking/permanent/test-tracking.md) - For test coverage context
+  - [Test Tracking](../../../../test/state-tracking/permanent/test-tracking.md) - For test coverage context
 
 ## Process
 
@@ -64,7 +64,7 @@ Review implemented code to ensure it meets quality standards, follows project co
 
 ### Preparation
 
-1. Review the [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) document to identify features with "👀 Ready for Review" status
+1. Review the [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) document to identify features with "👀 Ready for Review" status
 2. Select the next feature for code review
 3. Review the TDD to understand the intended design and requirements
 4. Review the implementation checklist to ensure all aspects are covered
@@ -155,7 +155,7 @@ Review implemented code to ensure it meets quality standards, follows project co
 
     - Use [../../scripts/file-creation/06-maintenance/New-BugReport.ps1](../../scripts/file-creation/06-maintenance/New-BugReport.ps1) script to create standardized bug reports
     - Follow [Bug Reporting Guide](../../guides/06-maintenance/bug-reporting-guide.md) for consistent documentation
-    - Add bug entries to [Bug Tracking](../../state-tracking/permanent/bug-tracking.md) with status 🆕 Reported
+    - Add bug entries to [Bug Tracking](../../../product-docs/state-tracking/permanent/bug-tracking.md) with status 🆕 Reported
     - Include code review context and evidence in bug reports
     - Reference specific code locations and line numbers
     - Note impact on code review results and deployment readiness
@@ -186,17 +186,17 @@ Review implemented code to ensure it meets quality standards, follows project co
 ## Outputs
 
 - **Code Review Document** - Comprehensive document with findings, recommendations, and positive acknowledgments
-- **Updated Feature Tracking** - [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) with review status updated
+- **Updated Feature Tracking** - [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) with review status updated
 - **Test Coverage Report** - Generated coverage report from test runner
 - **Code Quality Metrics** - Results from static analysis and formatting checks
 - **Performance Analysis** - Profiling tool findings and performance recommendations
-- **Bug Reports** - Any bugs discovered during code review documented in [Bug Tracking](../../state-tracking/permanent/bug-tracking.md) with status 🆕 Reported
+- **Bug Reports** - Any bugs discovered during code review documented in [Bug Tracking](../../../product-docs/state-tracking/permanent/bug-tracking.md) with status 🆕 Reported
 
 ## State Tracking
 
 The following state files must be updated as part of this task:
 
-- [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Update with:
+- [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) - Update with:
   - Code review status (🟢 Completed/🔄 Needs Revision)
   - Test Summary status (recalculated based on test case implementation tracking updates)
   - Review date and time
@@ -204,7 +204,7 @@ The following state files must be updated as part of this task:
   - Reviewer information (AI Agent + human partner collaboration)
   - List of major findings or concerns
   - Performance and accessibility notes
-- [Test Tracking](../../state-tracking/permanent/test-tracking.md) - Update test status based on review:
+- [Test Tracking](../../../../test/state-tracking/permanent/test-tracking.md) - Update test status based on review:
   - Confirm "✅ Tests Implemented" if tests are passing and well-implemented
   - Change to "🔴 Tests Failing" if test issues are found
   - Change to "🔄 Needs Update" if tests need updates due to code changes
@@ -259,8 +259,8 @@ Before considering this task finished:
   - [ ] Review follows the code review checklist completely
 
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
-  - [ ] [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) shows correct review status
-  - [ ] [Test Tracking](../../state-tracking/permanent/test-tracking.md) updated with test review results
+  - [ ] [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) shows correct review status
+  - [ ] [Test Tracking](../../../../test/state-tracking/permanent/test-tracking.md) updated with test review results
   - [ ] Review date, time, and reviewer information recorded
   - [ ] Link to review document included
   - [ ] Major findings and performance notes summarized in the tracking document
@@ -287,8 +287,8 @@ Before considering this task finished:
 ### Project-Specific Resources
 
 - [Architecture Decision Records](/doc/product-docs/technical/architecture/design-docs/adr/) - Architectural context and decisions
-- [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Feature status and dependencies
-- [Test Tracking](../../state-tracking/permanent/test-tracking.md) - Test coverage and status
+- [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) - Feature status and dependencies
+- [Test Tracking](../../../../test/state-tracking/permanent/test-tracking.md) - Test coverage and status
 
 ### Development Tools & Standards
 

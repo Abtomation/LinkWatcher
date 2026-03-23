@@ -20,7 +20,17 @@ class LinkWatcherConfig:
 
     # File monitoring settings
     monitored_extensions: Set[str] = field(
-        default_factory=lambda: {".md", ".yaml", ".yml", ".dart", ".py", ".json", ".txt"}
+        default_factory=lambda: {
+            ".md",
+            ".yaml",
+            ".yml",
+            ".dart",
+            ".py",
+            ".json",
+            ".txt",
+            ".ps1",
+            ".psm1",
+        }
     )
 
     ignored_directories: Set[str] = field(

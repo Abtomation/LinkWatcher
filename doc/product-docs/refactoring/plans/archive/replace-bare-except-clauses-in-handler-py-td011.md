@@ -103,5 +103,5 @@ Direct replacement of `except:` with `except Exception:` at both locations. No l
 - **Status**: Complete
 
 ## Related Documentation
-- [Technical Debt Tracking](/doc/process-framework/state-tracking/permanent/technical-debt-tracking.md)
+- [Technical Debt Tracking](/doc/product-docs/state-tracking/permanent/technical-debt-tracking.md)
 - [Handler Module Structural Debt Assessment](/doc/process-framework/assessments/technical-debt/assessments/handler-module-structural-debt-assessment.md)

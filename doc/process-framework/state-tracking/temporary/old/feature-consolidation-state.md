@@ -113,7 +113,7 @@ NEW 5.1.1: CI/CD & Development Tooling ← OLD 5.1.1–5.1.7
 
 - [x] **1.1** Rewrite `feature-tracking.md` with 9 consolidated features
   - **Status**: COMPLETED
-  - **File**: doc/process-framework/state-tracking/permanent/feature-tracking.md
+  - **File**: doc/product-docs/state-tracking/permanent/feature-tracking.md
   - **Action**: Complete rewrite — 9 features with new descriptions, key files, and linked artifacts
   - **Notes**: Each feature links to all relevant FDDs, TDDs, ADRs, test specs
 

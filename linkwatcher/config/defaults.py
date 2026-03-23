@@ -43,6 +43,7 @@ DEFAULT_CONFIG = LinkWatcherConfig(
         ".py",  # Python files
         ".dart",  # Dart files
         ".ps1",  # PowerShell scripts
+        ".psm1",  # PowerShell modules
         # Media files (commonly referenced in documentation)
         ".mp4",  # Video files
         ".mp3",  # Audio files

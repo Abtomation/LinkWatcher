@@ -71,7 +71,7 @@ graph TD
 
 ## Related Documentation
 
-- [Feature Tracking](../../../state-tracking/permanent/feature-tracking.md) - Feature status tracking
+- [Feature Tracking](../../../../product-docs/state-tracking/permanent/feature-tracking.md) - Feature status tracking
 - <!-- [Release Checklist](/doc/process-framework/templates/release-checklist.md) - Template/example link commented out --> - Standardized release preparation steps
 - <!-- [Release Notes Template](/doc/process-framework/templates/release-notes-template.md) - Template/example link commented out --> - Template for release notes
 - [Build Scripts](/scripts/build_production.sh) - Scripts for building deployment packages
