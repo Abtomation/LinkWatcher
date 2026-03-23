@@ -64,6 +64,8 @@
       "directories": {
         "permanent": "doc/process-framework/state-tracking/permanent",
         "temporary": "doc/process-framework/state-tracking/temporary",
+        "product-permanent": "doc/product-docs/state-tracking/permanent",
+        "product-temporary": "doc/product-docs/state-tracking/temporary",
         "default": "permanent"
       },
       "nextAvailable": 65
@@ -497,7 +499,7 @@
       "category": "Product Documentation",
       "type": "Bug Report",
       "directories": {
-        "permanent": "doc/process-framework/state-tracking/permanent",
+        "permanent": "doc/product-docs/state-tracking/permanent",
         "default": "permanent"
       },
       "nextAvailable": 51
