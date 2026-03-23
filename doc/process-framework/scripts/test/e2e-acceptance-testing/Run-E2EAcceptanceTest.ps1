@@ -25,6 +25,11 @@
     Seconds to wait between action execution and verification (default: 5).
     Allows the system under test to process events before checking results.
 
+.PARAMETER SettleSeconds
+    Seconds to wait after LinkWatcher initial scan completes before executing
+    the test action (default: 3). Allows LinkWatcher to finish indexing all
+    links after file discovery.
+
 .PARAMETER Detailed
     Show line-by-line diff for mismatched files (passed to Verify-TestResult.ps1).
 
@@ -48,8 +53,8 @@
     Test cases without run.ps1 are skipped — execute them directly following test-case.md.
 
     Created: 2026-03-18
-    Version: 1.0
-    Task: Process Improvement (PF-TSK-009), PF-IMP-134
+    Version: 1.1
+    Task: Process Improvement (PF-TSK-009), PF-IMP-134, PF-IMP-154
 #>
 
 [CmdletBinding()]
@@ -62,6 +67,9 @@ param(
 
     [Parameter(Mandatory=$false)]
     [int]$WaitSeconds = 5,
+
+    [Parameter(Mandatory=$false)]
+    [int]$SettleSeconds = 3,
 
     [Parameter(Mandatory=$false)]
     [switch]$Detailed,
@@ -120,9 +128,9 @@ if ($TestCase -and $Group) {
         Write-Error "Group not found: $Group"
         exit 1
     }
-    $tcDirs = Get-ChildItem $groupDir -Directory | Where-Object { $_.Name -match '^E2E-\d+' }
+    $tcDirs = Get-ChildItem $groupDir -Directory | Where-Object { $_.Name -match '^TE-E2E-\d+' }
     foreach ($tc in $tcDirs) {
-        $id = ($tc.Name -split '-', 3)[0..1] -join '-'
+        $id = ($tc.Name -split '-', 4)[0..2] -join '-'
         $testCases += @{ Group = $Group; CaseDir = $tc.Name; CaseId = $id; Path = $tc.FullName }
     }
 } else {
@@ -133,9 +141,9 @@ if ($TestCase -and $Group) {
     }
     $allGroups = Get-ChildItem $templatesDir -Directory
     foreach ($grp in $allGroups) {
-        $tcDirs = Get-ChildItem $grp.FullName -Directory | Where-Object { $_.Name -match '^E2E-\d+' }
+        $tcDirs = Get-ChildItem $grp.FullName -Directory | Where-Object { $_.Name -match '^TE-E2E-\d+' }
         foreach ($tc in $tcDirs) {
-            $id = ($tc.Name -split '-', 3)[0..1] -join '-'
+            $id = ($tc.Name -split '-', 4)[0..2] -join '-'
             $testCases += @{ Group = $grp.Name; CaseDir = $tc.Name; CaseId = $id; Path = $tc.FullName }
         }
     }
@@ -181,20 +189,99 @@ $passed = 0
 $failed = 0
 $errors = 0
 
+# --- Helper: Stop LinkWatcher ---
+$projectLockFile = Join-Path $ProjectRoot ".linkwatcher.lock"
+
+function Stop-LinkWatcher {
+    param(
+        [Parameter(Mandatory=$false)]
+        [string]$LockPath = $projectLockFile
+    )
+    if (Test-Path $LockPath) {
+        try {
+            $lwPid = [int](Get-Content $LockPath -Raw).Trim()
+            $lwProc = Get-Process -Id $lwPid -ErrorAction SilentlyContinue
+            if ($lwProc) {
+                Stop-Process -Id $lwPid -Force -ErrorAction SilentlyContinue
+                Start-Sleep -Milliseconds 500
+                Write-Host "  🛑 Stopped LinkWatcher (PID: $lwPid)" -ForegroundColor DarkYellow
+            }
+        } catch {
+            Write-Host "  ⚠️  Could not stop LinkWatcher: $($_.Exception.Message)" -ForegroundColor Yellow
+        }
+        Remove-Item $LockPath -Force -ErrorAction SilentlyContinue
+    }
+}
+
+function Start-LinkWatcher {
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]$WatchPath,
+        [int]$MaxWaitSeconds = 30,
+        [int]$SettleDelay = 3,
+        [switch]$DryRun
+    )
+
+    # Start LinkWatcher scoped to the workspace directory (not full project)
+    $mainPy = Join-Path $ProjectRoot "main.py"
+    $logFile = Join-Path $WatchPath "linkwatcher-e2e.log"
+    $arguments = "`"$mainPy`" --project-root `"$WatchPath`" --log-file `"$logFile`" --debug"
+    if ($DryRun) {
+        $arguments += " --dry-run"
+    }
+
+    $lwProcess = Start-Process -FilePath "python" -ArgumentList $arguments -WorkingDirectory $WatchPath -WindowStyle Hidden -PassThru -RedirectStandardOutput (Join-Path $WatchPath "lw-stdout.txt") -RedirectStandardError (Join-Path $WatchPath "lw-stderr.txt")
+
+    if (-not $lwProcess) {
+        Write-Host "  ❌ Failed to start LinkWatcher" -ForegroundColor Red
+        return
+    }
+    $dryRunLabel = if ($DryRun) { ", dry-run" } else { "" }
+    Write-Host "  ▶️  LinkWatcher started scoped to workspace (PID: $($lwProcess.Id)${dryRunLabel})" -ForegroundColor DarkGray
+
+    # Wait for initial scan to complete by polling the log file
+    $startTime = Get-Date
+    $scanComplete = $false
+
+    Write-Host "  ⏳ Waiting for initial scan to complete (max ${MaxWaitSeconds}s)..." -ForegroundColor DarkGray
+    while (-not $scanComplete -and ((Get-Date) - $startTime).TotalSeconds -lt $MaxWaitSeconds) {
+        Start-Sleep -Seconds 1
+        if (Test-Path $logFile) {
+            $recentLines = Get-Content $logFile -Tail 20 -ErrorAction SilentlyContinue
+            if ($recentLines -match 'completed_initial_scan') {
+                $scanComplete = $true
+            }
+        }
+    }
+
+    if ($scanComplete) {
+        $elapsed = [math]::Round(((Get-Date) - $startTime).TotalSeconds, 1)
+        Write-Host "  ✅ Initial scan completed in ${elapsed}s" -ForegroundColor Green
+    } else {
+        Write-Host "  ⚠️  Scan wait timed out after ${MaxWaitSeconds}s — proceeding anyway" -ForegroundColor Yellow
+    }
+
+    # Settling delay: let LinkWatcher finish indexing links after file discovery
+    if ($SettleDelay -gt 0) {
+        Write-Host "  ⏳ Settling ${SettleDelay}s for link indexing..." -ForegroundColor DarkGray
+        Start-Sleep -Seconds $SettleDelay
+    }
+}
+
 foreach ($tc in $scriptedCases) {
     $runScriptPath = Join-Path $tc.Path "run.ps1"
     $workspaceCasePath = Join-Path $workspaceDir "$($tc.Group)/$($tc.CaseDir)"
 
     Write-Host "━━━ $($tc.CaseId) ($($tc.Group)/$($tc.CaseDir)) ━━━" -ForegroundColor White
 
-    # Step 1: Setup
-    Write-Host "  1️⃣  Setting up test environment..." -ForegroundColor DarkGray
-    $setupArgs = @{
-        ProjectRoot = $ProjectRoot
-    }
-    if ($Group) { $setupArgs.Group = $tc.Group }
-    if ($Clean) { $setupArgs.Clean = $true }
+    # Step 1: Stop any running LinkWatcher (project-level or previous workspace-scoped)
+    Write-Host "  1️⃣  Stopping LinkWatcher for clean setup..." -ForegroundColor DarkGray
+    Stop-LinkWatcher -LockPath $projectLockFile
+    $workspaceLockFile = Join-Path $workspaceCasePath ".linkwatcher.lock"
+    Stop-LinkWatcher -LockPath $workspaceLockFile
 
+    # Step 2: Setup test environment (no LW running = no false move events)
+    Write-Host "  2️⃣  Setting up test environment..." -ForegroundColor DarkGray
     try {
         & $setupScript -Group $tc.Group -ProjectRoot $ProjectRoot -Clean:$Clean
     } catch {
@@ -211,29 +298,53 @@ foreach ($tc in $scriptedCases) {
         continue
     }
 
-    # Step 2: Execute run.ps1
-    Write-Host "  2️⃣  Executing run.ps1..." -ForegroundColor DarkGray
+    # Parse test-case.md frontmatter for lw_flags (e.g., --dry-run)
+    $testCaseMd = Join-Path $tc.Path "test-case.md"
+    $useDryRun = $false
+    if (Test-Path $testCaseMd) {
+        $tcContent = Get-Content $testCaseMd -Raw -ErrorAction SilentlyContinue
+        if ($tcContent -match '(?m)^lw_flags:\s*"([^"]*)"') {
+            $lwFlags = $Matches[1]
+            if ($lwFlags -match '--dry-run') {
+                $useDryRun = $true
+            }
+        }
+    }
+
+    # Step 3: Start LinkWatcher scoped to workspace (not full project)
+    $dryRunMsg = if ($useDryRun) { " in dry-run mode" } else { "" }
+    Write-Host "  3️⃣  Starting LinkWatcher (workspace-scoped${dryRunMsg})..." -ForegroundColor DarkGray
+    Start-LinkWatcher -WatchPath $workspaceCasePath -SettleDelay $SettleSeconds -DryRun:$useDryRun
+
+    # Step 4: Execute run.ps1
+    Write-Host "  4️⃣  Executing run.ps1..." -ForegroundColor DarkGray
+    $runFailed = $false
     try {
+        $global:LASTEXITCODE = 0
         & $runScriptPath -WorkspacePath $workspaceCasePath
         if ($LASTEXITCODE -and $LASTEXITCODE -ne 0) {
             Write-Host "  ❌ run.ps1 exited with code $LASTEXITCODE" -ForegroundColor Red
             $errors++
-            continue
+            $runFailed = $true
         }
     } catch {
         Write-Host "  ❌ run.ps1 failed: $($_.Exception.Message)" -ForegroundColor Red
         $errors++
+        $runFailed = $true
+    }
+    if ($runFailed) {
+        Stop-LinkWatcher -LockPath $workspaceLockFile
         continue
     }
 
-    # Step 3: Wait for system propagation
+    # Step 5: Wait for system propagation
     if ($WaitSeconds -gt 0) {
-        Write-Host "  3️⃣  Waiting ${WaitSeconds}s for system propagation..." -ForegroundColor DarkGray
+        Write-Host "  5️⃣  Waiting ${WaitSeconds}s for system propagation..." -ForegroundColor DarkGray
         Start-Sleep -Seconds $WaitSeconds
     }
 
-    # Step 4: Verify
-    Write-Host "  4️⃣  Verifying results..." -ForegroundColor DarkGray
+    # Step 6: Verify
+    Write-Host "  6️⃣  Verifying results..." -ForegroundColor DarkGray
     & $verifyScript -TestCase $tc.CaseId -Group $tc.Group -ProjectRoot $ProjectRoot -Detailed:$Detailed
 
     if ($LASTEXITCODE -eq 0) {
@@ -241,6 +352,13 @@ foreach ($tc in $scriptedCases) {
     } else {
         $failed++
     }
+
+    # Step 7: Stop LinkWatcher (workspace-scoped or project-level if run.ps1 restarted it)
+    Stop-LinkWatcher -LockPath $workspaceLockFile
+    Stop-LinkWatcher -LockPath $projectLockFile
+    Remove-Item (Join-Path $workspaceCasePath "linkwatcher-e2e.log") -Force -ErrorAction SilentlyContinue
+    Remove-Item (Join-Path $workspaceCasePath "lw-stdout.txt") -Force -ErrorAction SilentlyContinue
+    Remove-Item (Join-Path $workspaceCasePath "lw-stderr.txt") -Force -ErrorAction SilentlyContinue
 
     Write-Host ""
 }
@@ -254,6 +372,13 @@ Write-Host "  ❌ Errors:  $errors" -ForegroundColor $(if ($errors -gt 0) { "Red
 Write-Host "  ⏭️  Skipped: $($manualCases.Count) (non-scripted)" -ForegroundColor Yellow
 Write-Host "  Total:     $($testCases.Count)" -ForegroundColor Cyan
 Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Cyan
+
+# Restart project-level LinkWatcher (was stopped for E2E testing)
+$startLwScript = Join-Path $ProjectRoot "LinkWatcher_run/start_linkwatcher_background.ps1"
+if (Test-Path $startLwScript) {
+    Write-Host "Restarting project-level LinkWatcher..." -ForegroundColor Cyan
+    & $startLwScript
+}
 
 if ($failed -gt 0 -or $errors -gt 0) {
     exit 1

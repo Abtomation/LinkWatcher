@@ -93,7 +93,7 @@ The `LinkUpdater` class performs atomic file modifications to update link refere
 | Mixed types | `test_mixed_reference_types` | 5 different reference types in one file all updated | `temp_project_dir` |
 | False positives | `test_false_positive_avoidance` | Only real link found, not URLs/emails/versions | `temp_project_dir` |
 | Substring corruption (PD-BUG-025) | `test_bug025_yaml_substring_path_not_corrupted` | YAML with config.yaml and configs/config.yaml: each updated independently, no substring corruption | `temp_project_dir` |
-| Substring corruption (PD-BUG-025) | `test_bug025_generic_quoted_substring_not_corrupted` | PowerShell with helpers.py and utils/helpers.py in quotes: each updated independently | `temp_project_dir` |
+| Substring corruption (PD-BUG-025) | `test_bug025_generic_quoted_substring_not_corrupted` | PowerShell with helpers.py and core/helpers.py in quotes: each updated independently | `temp_project_dir` |
 
 **Test File**: [`test/automated/integration/test_link_updates.py`](../../../test/automated/integration/test_link_updates.py) (12 methods)
 

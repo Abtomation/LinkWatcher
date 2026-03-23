@@ -2,10 +2,10 @@
 
 <#
 .SYNOPSIS
-Quick validation check for foundational features and codebase health
+Quick validation check for selected features and codebase health
 
 .DESCRIPTION
-This script performs rapid validation checks on foundational features to provide
+This script performs rapid validation checks on selected features to provide
 immediate feedback on code quality, architectural consistency, and implementation status.
 It's designed for quick health checks during development and CI/CD processes.
 
@@ -18,7 +18,7 @@ Key Features:
 
 .PARAMETER FeatureIds
 Comma-separated list of feature IDs to validate (e.g., "0.2.1,0.2.2,0.2.3")
-If not specified, validates all foundational features (0.2.1-0.2.11)
+If not specified, validates all selected features (0.2.1-0.2.11)
 
 .PARAMETER CheckType
 Type of validation checks to perform:
@@ -59,7 +59,7 @@ Suppress progress messages, show only results
 
 .EXAMPLE
 .\Quick-ValidationCheck.ps1
-Runs all checks on all foundational features with console output
+Runs all checks on all selected features with console output
 
 .EXAMPLE
 .\Quick-ValidationCheck.ps1 -FeatureIds "0.2.1,0.2.2" -CheckType "CodeQuality" -OutputFormat "JSON" -OutputPath "validation-results.json"
@@ -70,7 +70,7 @@ Validates specific features for code quality and saves results as JSON
 Validates UI components, shows warnings and errors, fails on critical issues
 
 .NOTES
-This script is part of the Foundational Codebase Validation Framework.
+This script is part of the Feature Validation Framework.
 It provides rapid feedback complementing the comprehensive validation reports.
 #>
 
@@ -241,7 +241,7 @@ $ValidationChecks = @{
     }
 }
 
-# Feature mapping for foundational features
+# Feature mapping for selected features
 $FoundationalFeatures = @{
     "0.2.1"  = @{ Name = "Repository Pattern Implementation"; Path = "src/data/repositories" }
     "0.2.2"  = @{ Name = "Service Layer Architecture"; Path = "src/domain/services" }

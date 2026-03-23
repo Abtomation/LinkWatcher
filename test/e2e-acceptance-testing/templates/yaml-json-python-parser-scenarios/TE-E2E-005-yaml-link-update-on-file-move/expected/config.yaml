@@ -1,0 +1,13 @@
+# Application configuration
+config_file: moved/settings.conf
+schema_file: data/schema.sql
+
+database:
+  connections:
+    primary:
+      config: moved/settings.conf
+      schema: data/schema.sql
+
+input_files:
+  - moved/settings.conf
+  - data/schema.sql

@@ -12,6 +12,8 @@ from pathlib import Path
 
 import pytest
 
+from watchdog.events import FileCreatedEvent, FileDeletedEvent
+
 from linkwatcher.database import LinkDatabase
 from linkwatcher.handler import LinkMaintenanceHandler
 from linkwatcher.parser import LinkParser
@@ -75,8 +77,11 @@ class TestMoveDetectionLogic:
         created_path = "documentation/file1.txt"
         created_abs_path = str(docs_dir / "file1.txt")
 
-        # Buffer a delete event via MoveDetector (file still exists at original path)
+        # Buffer a delete event via MoveDetector
         handler._move_detector.buffer_delete("file1.txt", str(project_setup["test_file"]))
+
+        # Actually delete the old file (simulates real move — file gone from old location)
+        project_setup["test_file"].unlink()
 
         # Create the file at the new location
         new_file = docs_dir / "file1.txt"
@@ -102,6 +107,9 @@ class TestMoveDetectionLogic:
 
         # Buffer a delete event via MoveDetector
         handler._move_detector.buffer_delete("file1.txt", str(project_setup["test_file"]))
+
+        # Actually delete the old file (simulates real move)
+        project_setup["test_file"].unlink()
 
         # Create the file at the new location
         new_file = docs_dir / "file1.txt"
@@ -136,18 +144,21 @@ class TestMoveDetectionLogic:
         variations = handler._ref_lookup.get_old_path_variations("docs/file.md")
         assert "docs/file.md" in variations, "Should include exact path"
         assert "file.md" in variations, "Should include filename-only"
+        assert "docs/file" in variations, "Should include extensionless variant (PD-BUG-043)"
         # Only 2 parts — relative variant should NOT be generated
+        # 3 variations: exact, filename-only, extensionless
         assert (
-            len(variations) == 2
-        ), f"Expected 2 variations for shallow path, got {len(variations)}"
+            len(variations) == 3
+        ), f"Expected 3 variations for shallow path, got {len(variations)}"
 
     def test_get_old_path_variations_filename_only(self, project_setup):
         """Regression test for PD-BUG-024: filename-only path produces minimal variations."""
         handler = project_setup["handler"]
         variations = handler._ref_lookup.get_old_path_variations("file.md")
         assert "file.md" in variations, "Should include exact/filename path"
-        # Single segment — only exact + basename (which are the same)
-        assert len(variations) <= 2, f"Expected at most 2 variations, got {len(variations)}"
+        assert "file" in variations, "Should include extensionless variant (PD-BUG-043)"
+        # Single segment — only exact + basename + extensionless
+        assert len(variations) <= 3, f"Expected at most 3 variations, got {len(variations)}"
 
     def test_no_false_positive_without_pending_delete(self, project_setup):
         """Test that move detection does not fire without a matching pending delete."""
@@ -166,6 +177,157 @@ class TestMoveDetectionLogic:
         # Move detection should return None
         detected_source = handler._move_detector.match_created_file(created_path, created_abs_path)
         assert detected_source is None, "Should not detect a move without a matching delete"
+
+
+class TestBulkOperationMoveDetection:
+    """Regression tests for PD-BUG-042: move detection confused by rapid
+    file creation and deletion cycles.
+
+    When bulk operations (cleanup + copy) generate delete events followed by
+    create events at the SAME location, the pending deletes should not match
+    against unrelated creates that arrive later (e.g., from an actual file move).
+    """
+
+    @pytest.fixture
+    def project_setup(self, tmp_path):
+        """Set up a test project with handler and files."""
+        # Create initial project structure
+        data_dir = tmp_path / "data"
+        data_dir.mkdir()
+        settings_file = data_dir / "settings.conf"
+        settings_file.write_text("key=value")
+
+        config_file = tmp_path / "config.yaml"
+        config_file.write_text("config_file: data/settings.conf\n")
+
+        moved_dir = tmp_path / "moved"
+        moved_dir.mkdir()
+
+        # Initialize components
+        link_db = LinkDatabase()
+        parser = LinkParser()
+        updater = LinkUpdater(str(tmp_path))
+        handler = LinkMaintenanceHandler(link_db, parser, updater, str(tmp_path))
+
+        # Scan initial files
+        for file_path in tmp_path.rglob("*"):
+            if file_path.is_file():
+                rel_path = str(file_path.relative_to(tmp_path)).replace("\\", "/")
+                references = parser.parse_file(str(file_path))
+                for ref in references:
+                    ref.file_path = rel_path
+                    link_db.add_link(ref)
+
+        return {
+            "tmp_path": tmp_path,
+            "data_dir": data_dir,
+            "settings_file": settings_file,
+            "moved_dir": moved_dir,
+            "link_db": link_db,
+            "handler": handler,
+        }
+
+    def test_per_file_move_rejected_when_old_path_recreated(self, project_setup):
+        """PD-BUG-042: MoveDetector must not match a create against a pending
+        delete when the old file has been re-created at its original location.
+
+        Simulates: setup deletes settings.conf, setup re-creates it (copy),
+        then a real move creates settings.conf at a new location. The pending
+        delete from setup should NOT match the real move's create.
+        """
+        handler = project_setup["handler"]
+        tmp_path = project_setup["tmp_path"]
+        settings_file = project_setup["settings_file"]
+        moved_dir = project_setup["moved_dir"]
+
+        # Phase 1: Setup cleanup — buffer a delete for settings.conf
+        handler._move_detector.buffer_delete(
+            "data/settings.conf", str(settings_file)
+        )
+
+        # Phase 2: Setup copy — re-create the file at the same location
+        # (simulates fixture copy; the file still exists at old path)
+        settings_file.write_text("key=value")
+
+        # Phase 3: Real move — file created at new location
+        new_file = moved_dir / "settings.conf"
+        new_file.write_text("key=value")
+        new_rel = "moved/settings.conf"
+        new_abs = str(new_file)
+
+        # The pending delete from Phase 1 should NOT match this create
+        # because the old file still exists at data/settings.conf
+        matched = handler._move_detector.match_created_file(new_rel, new_abs)
+
+        assert matched is None, (
+            "PD-BUG-042: MoveDetector matched a stale pending delete against "
+            "an unrelated create. When the old file has been re-created at its "
+            "original location, the pending delete must be discarded, not matched."
+        )
+
+    def test_per_file_real_move_still_detected(self, project_setup):
+        """PD-BUG-042: MoveDetector must still detect real moves where the old
+        file is truly gone from its original location."""
+        handler = project_setup["handler"]
+        settings_file = project_setup["settings_file"]
+        moved_dir = project_setup["moved_dir"]
+
+        # Buffer a delete
+        handler._move_detector.buffer_delete(
+            "data/settings.conf", str(settings_file)
+        )
+
+        # Actually delete the old file (simulates a real move)
+        settings_file.unlink()
+
+        # Create at new location
+        new_file = moved_dir / "settings.conf"
+        new_file.write_text("key=value")
+        new_rel = "moved/settings.conf"
+        new_abs = str(new_file)
+
+        # This SHOULD match — old file is truly gone
+        matched = handler._move_detector.match_created_file(new_rel, new_abs)
+
+        assert matched == "data/settings.conf", (
+            f"Real move should be detected when old file is gone, "
+            f"but got: {matched}"
+        )
+
+    def test_dir_move_rejected_when_old_dir_still_exists(self, project_setup):
+        """PD-BUG-042: DirectoryMoveDetector must not infer a directory move
+        when the old directory still exists on the filesystem.
+
+        Simulates: setup deletes data/ dir, setup re-creates it (copy),
+        then a file is created under a different directory. The stale directory
+        buffer should not claim the create.
+        """
+        handler = project_setup["handler"]
+        tmp_path = project_setup["tmp_path"]
+        data_dir = project_setup["data_dir"]
+        moved_dir = project_setup["moved_dir"]
+
+        # Phase 1: Buffer directory deletion
+        handler._dir_move_detector.handle_directory_deleted("data")
+
+        # Phase 2: Directory re-created by setup (still exists)
+        # data_dir already exists — simulates fixture copy restoring it
+
+        # Phase 3: A file created under moved/ (from a real move)
+        new_file = moved_dir / "settings.conf"
+        new_file.write_text("key=value")
+
+        # The directory move detector should NOT claim this create
+        # because data/ still exists on the filesystem
+        claimed = handler._dir_move_detector.match_created_file(
+            "moved/settings.conf", str(new_file)
+        )
+
+        assert not claimed, (
+            "PD-BUG-042: DirectoryMoveDetector claimed a file create for a "
+            "stale directory buffer. When the old directory still exists on "
+            "the filesystem, the buffer should be invalidated."
+        )
 
 
 class TestStatsThreadSafety:
@@ -323,3 +485,115 @@ class TestFileReplacementRetainsLinks:
 
         # The file is gone — this is expected behavior, not a bug
         # Just verify no crash occurs (the method should handle it gracefully)
+
+
+class TestNonMonitoredExtensionMoveDetection:
+    """Regression tests for PD-BUG-046: file moves not detected for
+    non-monitored extensions even when referenced by monitored files.
+
+    When a file with an extension not in monitored_extensions (e.g., .conf)
+    is moved across directories, the DELETE+CREATE events must still be
+    processed for move detection if the file is a known reference target.
+    """
+
+    @pytest.fixture
+    def project_setup(self, tmp_path):
+        """Set up a project where a .yaml file references a .conf file."""
+        data_dir = tmp_path / "data"
+        data_dir.mkdir()
+        conf_file = data_dir / "settings.conf"
+        conf_file.write_text("key=value\n")
+
+        moved_dir = tmp_path / "moved"
+        moved_dir.mkdir()
+
+        yaml_file = tmp_path / "config.yaml"
+        yaml_file.write_text("config_file: data/settings.conf\n")
+
+        link_db = LinkDatabase()
+        parser = LinkParser()
+        updater = LinkUpdater(str(tmp_path))
+        handler = LinkMaintenanceHandler(link_db, parser, updater, str(tmp_path))
+
+        # Scan the yaml file so the DB knows about the reference
+        for file_path in tmp_path.rglob("*"):
+            if file_path.is_file():
+                rel_path = str(file_path.relative_to(tmp_path)).replace("\\", "/")
+                references = parser.parse_file(str(file_path))
+                for ref in references:
+                    ref.file_path = rel_path
+                    link_db.add_link(ref)
+
+        return {
+            "tmp_path": tmp_path,
+            "conf_file": conf_file,
+            "yaml_file": yaml_file,
+            "moved_dir": moved_dir,
+            "link_db": link_db,
+            "handler": handler,
+        }
+
+    def test_conf_file_is_referenced_but_not_monitored(self, project_setup):
+        """Verify precondition: .conf is referenced but not in monitored_extensions."""
+        handler = project_setup["handler"]
+        link_db = project_setup["link_db"]
+
+        # .conf should NOT be in monitored extensions
+        assert ".conf" not in handler.monitored_extensions, (
+            ".conf should not be in monitored_extensions for this test to be valid"
+        )
+
+        # But it IS referenced by a monitored file
+        refs = link_db.get_references_to_file("data/settings.conf")
+        assert len(refs) >= 1, (
+            "Expected at least 1 reference to data/settings.conf from config.yaml"
+        )
+
+    def test_on_deleted_buffers_non_monitored_referenced_file(self, project_setup):
+        """PD-BUG-046: on_deleted must buffer deletes for files that are
+        known reference targets, even if their extension is not monitored."""
+        handler = project_setup["handler"]
+        conf_file = project_setup["conf_file"]
+
+        # Simulate watchdog DELETE event for .conf file
+        event = FileDeletedEvent(str(conf_file))
+        handler.on_deleted(event)
+
+        # The move detector should have a pending delete for this file
+        assert handler._move_detector.has_pending, (
+            "PD-BUG-046: on_deleted dropped the DELETE event for a non-monitored "
+            "extension (.conf) that IS a known reference target. The move detector "
+            "must buffer this delete for potential move correlation."
+        )
+
+    def test_full_move_detected_for_non_monitored_extension(self, project_setup):
+        """PD-BUG-046: Full move (delete+create) of a non-monitored file that
+        is a known reference target should be detected and references updated."""
+        handler = project_setup["handler"]
+        conf_file = project_setup["conf_file"]
+        yaml_file = project_setup["yaml_file"]
+        moved_dir = project_setup["moved_dir"]
+
+        # Simulate DELETE event
+        delete_event = FileDeletedEvent(str(conf_file))
+        handler.on_deleted(delete_event)
+
+        # Actually move the file
+        new_file = moved_dir / "settings.conf"
+        conf_file.rename(new_file)
+
+        # Simulate CREATE event
+        create_event = FileCreatedEvent(str(new_file))
+        handler.on_created(create_event)
+
+        # Verify the yaml file was updated
+        updated_content = yaml_file.read_text()
+        assert "moved/settings.conf" in updated_content, (
+            f"PD-BUG-046: YAML reference should be updated from "
+            f"'data/settings.conf' to 'moved/settings.conf', "
+            f"but content is: {updated_content}"
+        )
+        assert "data/settings.conf" not in updated_content, (
+            f"PD-BUG-046: Old reference 'data/settings.conf' should no longer "
+            f"be present after the move, but content is: {updated_content}"
+        )

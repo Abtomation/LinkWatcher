@@ -141,15 +141,15 @@ Move E2E entries out of per-feature sections into a dedicated top-level section 
 
 | Workflow | Required Features | Features Ready | E2E Spec | E2E Cases | Status |
 |----------|------------------|----------------|----------|-----------|--------|
-| WF-001: File move → links updated | 1.1.1, 2.1.1, 2.2.1 | 3/3 | PF-TSP-XXX | E2E-GRP-01, E2E-GRP-02, E2E-GRP-03 | ✅ Covered |
+| WF-001: File move → links updated | 1.1.1, 2.1.1, 2.2.1 | 3/3 | PF-TSP-XXX | TE-E2G-001, TE-E2G-002, TE-E2G-003 | ✅ Covered |
 | WF-002: Startup + initial scan | 0.1.1, 0.1.2, 1.1.1, 2.1.1 | 4/4 | — | — | ⬜ Not Created |
 
 ### E2E Test Cases
 
 | Test ID | Workflow | Feature IDs | Test Type | Test File/Case | Status | Last Executed | Last Updated | Notes |
 |---------|----------|-------------|-----------|----------------|--------|---------------|--------------|-------|
-| E2E-GRP-01 | WF-001 | 1.1.1, 2.1.1, 2.2.1 | E2E Group | [master-test-...] | ✅ Passed | 2026-03-15 | ... | ... |
-| E2E-001 | WF-001 | 1.1.1, 2.1.1, 2.2.1 | E2E Case | [test-case.md] | ✅ Passed | 2026-03-15 | ... | ... |
+| TE-E2G-001 | WF-001 | 1.1.1, 2.1.1, 2.2.1 | E2E Group | [master-test-...] | ✅ Passed | 2026-03-15 | ... | ... |
+| TE-E2E-001 | WF-001 | 1.1.1, 2.1.1, 2.2.1 | E2E Case | [test-case.md] | ✅ Passed | 2026-03-15 | ... | ... |
 ```
 
 **Key changes:**
@@ -164,12 +164,12 @@ E2E test cases need entries in test-registry.yaml. Currently missing entirely. A
 
 ```yaml
 # E2E Acceptance Tests
-E2E-001:
+TE-E2E-001:
   name: "Regex preserved on file move"
   type: e2e-acceptance
-  path: "test/e2e-acceptance-testing/templates/powershell-regex-preservation/E2E-001-regex-preserved-on-file-move/test-case.md"
-  featureIds: ["2.1.1"]  # or ["1.1.1", "2.1.1", "2.2.1"] for multi-feature
-  group: "E2E-GRP-01"
+  path: "test/e2e-acceptance-testing/templates/powershell-regex-preservation/TE-E2E-001-regex-preserved-on-file-move/test-case.md"
+  featureIds: ["1.1.1", "2.1.1", "2.2.1"]
+  group: "TE-E2G-001"
   workflow: "WF-001"
   priority: Critical
   executionMode: scripted  # or manual

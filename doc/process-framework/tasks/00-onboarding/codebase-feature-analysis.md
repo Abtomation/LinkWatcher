@@ -96,6 +96,7 @@ This task produces enriched Feature Implementation State files that serve as the
    - **Feature Dependencies**: Cross-feature integrations, shared components
    - **System Dependencies**: External libraries and versions
    - **Code Dependencies**: Shared utilities, base classes, interfaces
+   - **User-Facing Workflows**: Identify which user workflows this feature participates in (e.g., "file move → links updated" requires detection + parsing + updating). Create or update [User Workflow Map](/doc/product-docs/technical/design/user-workflow-map.md) with workflow definitions, required features, and priorities
    - Document in [Feature Implementation State file](../../state-tracking/features/) → Dependencies section
    - **Format for Feature Dependency references**: Use `[feature_id Feature Name](./feature_id-feature-name-implementation-state.md)` — e.g., `**[0.1.2 Data Models](./0.1.2-data-models-implementation-state.md)**`. Do NOT use PF-FEA IDs in dependency entries.
 

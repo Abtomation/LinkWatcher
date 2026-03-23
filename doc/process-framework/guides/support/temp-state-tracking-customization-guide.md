@@ -19,7 +19,7 @@ updated: 2025-07-28
 | Status | Active |
 | Owner | Development Team |
 | Created By | AI Assistant |
-| Source Documents | [temp-task-creation-state-template.md](../../templates/support/temp-task-creation-state-template.md), [structure-change-state-template.md](../../templates/support/structure-change-state-template.md) |
+| Source Documents | [temp-task-creation-state-template.md](../../templates/support/temp-task-creation-state-template.md), [temp-process-improvement-state-template.md](../../templates/support/temp-process-improvement-state-template.md), [structure-change-state-template.md](../../templates/support/structure-change-state-template.md) |
 | Consumer Documents | [New Task Creation Process](../../tasks/support/new-task-creation-process.md), [Framework Extension Task](../../tasks/support/framework-extension-task.md), [Structure Change Task](../../tasks/support/structure-change-task.md) |
 | Consumer Working Modes | Task Creation, Framework Extension, Structure Changes, Multi-Session Development |
 | Governed By | /doc/process-framework/README.mdd |
@@ -57,23 +57,24 @@ Choose the appropriate template based on your workflow type:
 - Focus on artifact creation and integration
 
 ### Structure Change Workflows
-**Use**: `structure-change-state-template.md`
+**Use**: `structure-change-state-template.md` (or `structure-change-state-rename-template.md` for renames)
 **Script**: `New-StructureChangeState.ps1`
 **Best For**:
 - Reorganizing existing structure
 - Migrating files or directories
 - Changing documentation architecture
 - Modifying existing templates
+- Renaming/moving files or directories (use `-ChangeType "Rename"` for lightweight template)
 
 **Characteristics**:
-- Modifies EXISTING artifacts (rollback essential)
-- 5-phase structure: Preparation → Infrastructure → Pilot → Migration → Validation
-- Built-in rollback planning and testing phases
-- Focus on migration safety and validation
+- Modifies EXISTING artifacts (rollback essential for complex changes)
+- Full template: 5-phase structure with rollback, pilot, and metrics sections
+- Rename template: 2-phase structure (Preparation + Execution) — no pilot/rollback/metrics overhead
+- Use `-ChangeType "Rename"` for simple rename/move operations
 
 ### Process Improvement Workflows
-**Use**: `temp-task-creation-state-template.md` (with heavy customization)
-**Script**: `New-TempTaskState.ps1`
+**Use**: `temp-process-improvement-state-template.md`
+**Script**: `New-TempTaskState.ps1 -Variant ProcessImprovement`
 **Best For**:
 - Improving existing processes
 - Enhancing framework capabilities
@@ -81,11 +82,12 @@ Choose the appropriate template based on your workflow type:
 - Adding specialized tools
 
 **Characteristics**:
-- Adapts task creation phases to improvement workflow
+- Purpose-built template — minimal customization needed
 - Phase 1: Problem analysis and solution design
 - Phase 2: Implementation and testing
 - Phase 3: Documentation and integration
-- Phase 4: Validation and rollout
+- Phase 4: Validation and completion
+- Includes: IMP references, affected components table, validation criteria
 
 ## Phase Customization Patterns
 
@@ -243,7 +245,7 @@ Phase 4: Framework Integration & Testing
 ### Example 4: Process Improvement
 **Scenario**: Improving feedback collection process
 
-**Template**: `temp-task-creation-state-template.md` (customized)
+**Template**: `temp-process-improvement-state-template.md` (via `New-TempTaskState.ps1 -Variant ProcessImprovement`)
 
 **Phase Adaptation**:
 ```markdown
@@ -301,6 +303,7 @@ Phase 4: Framework Integration & Testing
 
 ### Templates
 - [Temporary Task Creation State Template](../../templates/support/temp-task-creation-state-template.md) - For task creation workflows
+- [Temporary Process Improvement State Template](../../templates/support/temp-process-improvement-state-template.md) - For process improvement workflows
 - [Structure Change State Template](../../templates/support/structure-change-state-template.md) - For structure change workflows
 
 ### Scripts

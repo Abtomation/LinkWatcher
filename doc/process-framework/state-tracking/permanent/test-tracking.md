@@ -4,7 +4,7 @@ type: Process Framework
 category: State File
 version: 3.0
 created: 2025-07-13
-updated: 2026-03-15
+updated: 2026-03-23
 tracking_scope: Test Tracking (Automated + Manual)
 state_type: Implementation Status
 ---
@@ -38,76 +38,126 @@ This file tracks the implementation status of all tests — automated and E2E ac
 | 🔄 **Needs Re-execution** | Code changes invalidated the last result |
 | ⬜ **Not Created** | E2E acceptance test case needed but not yet created |
 
+## Coverage Summary
+
+| Date | Total Coverage | Tests Passed | Tests Skipped | Tests Failed | Run Type |
+|------|---------------|--------------|---------------|--------------|----------|
+| 2026-03-22 | 57% | 186 | 0 | 0 | Category: unit |
+| 2026-03-22 | 86% | 477 | 5 | 0 | All (excl. slow) |
+
+## Testing Infrastructure
+
+> Shared test fixtures, utilities, and performance benchmarks. These are project-specific implementations of the patterns described in the [Testing Setup Guide](/doc/process-framework/guides/03-testing/testing-setup-guide.md).
+
+| Test ID | Feature ID | Test Type | Test File/Case | Status | Test Cases Count | Last Executed | Last Updated | Notes |
+|---------|------------|-----------|----------------|--------|------------------|---------------|--------------|-------|
+| PD-TST-098 | — | Automated | [conftest.py](../../../../test/automated/conftest.py) | ✅ Tests Implemented | 8 | — | 2026-03-22 | Root test fixtures (9 shared fixtures) |
+| PD-TST-099 | — | Automated | [utils.py](../../../../test/automated/utils.py) | ✅ Tests Implemented | 5 | — | 2026-03-22 | Test utility functions and builders |
+| PD-TST-126 | — | Automated | [test_large_projects.py](../../../../test/automated/performance/test_large_projects.py) | ✅ Tests Implemented | 4 | Run 2026-03-22: 2 passed, 2 skipped | 2026-03-22 | Performance benchmarks |
+
 # Test Status by Feature Category
 
 ## 0. System Architecture & Foundation
 
 | Test ID | Feature ID | Test Type | Test File/Case | Status | Test Cases Count | Last Executed | Last Updated | Notes |
 |---------|------------|-----------|----------------|--------|------------------|---------------|--------------|-------|
-| PD-TST-102 | 0.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 2026-03-15 | —; Audit Date: 2026-03-15; Major Findings: See PF-TAR-011 for consolidated audit findings; Audit Report: ../../../../test/audits/foundation/audit-report-0-1-1-pd-tst-102.md; Audit Status: Tests Approved; Auditor: AI Agent | 2026-02-20 | Core service orchestration unit tests |
-| PD-TST-116 | 0.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 2026-03-15 | —; Audit Report: ../../../../test/audits/foundation/audit-report-0-1-1-pd-tst-102.md; Audit Date: 2026-03-15; Audit Status: Tests Approved; Major Findings: See PF-TAR-011 for consolidated audit findings; Auditor: AI Agent | 2026-02-20 | Service integration with subsystems |
-| PD-TST-119 | 0.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 2026-03-15 | —; Auditor: AI Agent; Audit Status: Tests Approved; Audit Report: ../../../../test/audits/foundation/audit-report-0-1-1-pd-tst-102.md; Major Findings: See PF-TAR-011 for consolidated audit findings; Audit Date: 2026-03-15 | 2026-02-20 | Complex multi-component scenarios |
-| PD-TST-120 | 0.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 2026-03-15 | —; Audit Status: Tests Approved; Auditor: AI Agent; Major Findings: See PF-TAR-011 for consolidated audit findings; Audit Report: ../../../../test/audits/foundation/audit-report-0-1-1-pd-tst-102.md; Audit Date: 2026-03-15 | 2026-02-20 | Error handling and graceful degradation |
-| PD-TST-104 | 0.1.2 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 2026-03-15 | —; Test Cases Audited: 22; Auditor: AI Agent; Audit Results: Passed: 22, Failed: 0; Audit Status: Tests Approved; Major Findings: 3 untested public methods: remove_targets_by_path, get_all_targets_with_references, get_source_files; No O(1) performance benchmark with 10k+ refs; Audit Report: ../../../../test/audits/foundation/audit-report-0-1-2-pd-tst-104.md; Audit Date: 2026-03-15 | 2026-02-20 | In-memory database thread-safe operations |
+| PD-TST-102 | 0.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 24 | Run 2026-03-22: 24 passed | 2026-03-22 | Core service orchestration unit tests |
+| PD-TST-116 | 0.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 17 | Run 2026-03-22: 17 passed | 2026-03-22 | Service integration with subsystems |
+| PD-TST-119 | 0.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 11 | Run 2026-03-22: 11 passed | 2026-03-22 | Complex multi-component scenarios |
+| PD-TST-120 | 0.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 19 | Run 2026-03-22: 18 passed, 1 skipped | 2026-03-22 | Error handling and graceful degradation |
+| PD-TST-104 | 0.1.2 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 26 | Run 2026-03-22: 26 passed | 2026-03-22 | In-memory database thread-safe operations |
 | PD-TST-100 | 0.1.3 | Automated | [test_config.py](../../../../test/automated/test_config.py) | ✅ Tests Implemented | 10 | — | 2026-02-20 | Configuration system tests (root) |
-| PD-TST-106 | 0.1.3 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 2026-03-15 | —; Auditor: AI Agent; Audit Date: 2026-03-15; Audit Status: Tests Approved; Major Findings: PD-TST-100 is utility module with 0 tests (registry showed 10); CLI argument config loading not tested; Audit Results: Passed: 33, Failed: 0; Audit Report: ../../../../test/audits/foundation/audit-report-0-1-3-pd-tst-106.md; Test Cases Audited: 33 | 2026-02-20 | Configuration system unit tests |
-| PD-TST-122 | 0.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 2026-03-15 | —; Audit Date: 2026-03-15; Auditor: AI Agent; Audit Report: ../../../../test/audits/foundation/audit-report-0-1-1-pd-tst-102.md; Audit Status: Tests Approved; Major Findings: See PF-TAR-011 for consolidated audit findings | 2026-02-20 | Windows path handling integration tests |
-| PD-TST-127 | 0.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 2026-03-15 | —; Audit Report: ../../../../test/audits/foundation/audit-report-0-1-1-pd-tst-102.md; Audit Date: 2026-03-15; Auditor: AI Agent; Major Findings: See PF-TAR-011 for consolidated audit findings; Audit Status: Tests Approved | 2026-02-25 | Duplicate instance prevention lock file mechanism |
+| PD-TST-106 | 0.1.3 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 42 | Run 2026-03-22: 42 passed | 2026-03-22 | Configuration system unit tests |
+| PD-TST-122 | 0.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 16 | Run 2026-03-22: 14 passed, 2 skipped | 2026-03-22 | Windows path handling integration tests |
+| PD-TST-127 | 0.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 10 | Run 2026-03-22: 10 passed | 2026-03-22 | Duplicate instance prevention lock file mechanism |
 
 ## 1. File Watching & Detection
 
 | Test ID | Feature ID | Test Type | Test File/Case | Status | Test Cases Count | Last Executed | Last Updated | Notes |
 |---------|------------|-----------|----------------|--------|------------------|---------------|--------------|-------|
-| PD-TST-101 | 1.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 2026-03-15 | —; Audit Status: Tests Approved; Audit Date: 2026-03-15; Audit Report: ../../../../test/audits/authentication/audit-report-1-1-1-pd-tst-101.md; Major Findings: See PF-TAR-012 for consolidated audit findings; Auditor: AI Agent | 2026-02-20 | File move detection integration |
-| PD-TST-117 | 1.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 2026-03-15 | —; Major Findings: See PF-TAR-012 for consolidated audit findings; Audit Report: ../../../../test/audits/authentication/audit-report-1-1-1-pd-tst-101.md; Auditor: AI Agent; Audit Status: Tests Approved; Audit Date: 2026-03-15 | 2026-02-20 | File movement handling integration |
-| PD-TST-121 | 1.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 2026-03-15 | —; Major Findings: See PF-TAR-012 for consolidated audit findings; Auditor: AI Agent; Audit Report: ../../../../test/audits/authentication/audit-report-1-1-1-pd-tst-101.md; Audit Date: 2026-03-15; Audit Status: Tests Approved | 2026-02-20 | Sequential file move scenarios |
-| PD-TST-123 | 1.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 2026-03-15 | —; Major Findings: See PF-TAR-012 for consolidated audit findings; Audit Date: 2026-03-15; Audit Status: Tests Approved; Auditor: AI Agent; Audit Report: ../../../../test/audits/authentication/audit-report-1-1-1-pd-tst-101.md | 2026-02-20 | Comprehensive file type monitoring |
-| PD-TST-124 | 1.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 2026-03-15 | —; Audit Date: 2026-03-15; Auditor: AI Agent; Major Findings: See PF-TAR-012 for consolidated audit findings; Audit Status: Tests Approved; Audit Report: ../../../../test/audits/authentication/audit-report-1-1-1-pd-tst-101.md | 2026-02-20 | Image file monitoring |
-| PD-TST-125 | 1.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 2026-03-15 | —; Audit Status: Tests Approved; Auditor: AI Agent; Major Findings: See PF-TAR-012 for consolidated audit findings; Audit Date: 2026-03-15; Audit Report: ../../../../test/audits/authentication/audit-report-1-1-1-pd-tst-101.md | 2026-02-20 | PowerShell script monitoring |
+| PD-TST-101 | 1.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 20 | Run 2026-03-22: 20 passed | 2026-03-22 | File move detection integration |
+| PD-TST-117 | 1.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 7 | Run 2026-03-22: 7 passed | 2026-03-22 | File movement handling integration |
+| PD-TST-121 | 1.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 4 | Run 2026-03-22: 4 passed | 2026-03-22 | Sequential file move scenarios |
+| PD-TST-123 | 1.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 7 | Run 2026-03-22: 7 passed | 2026-03-22 | Comprehensive file type monitoring |
+| PD-TST-124 | 1.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 6 | Run 2026-03-22: 6 passed | 2026-03-22 | Image file monitoring |
+| PD-TST-125 | 1.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 5 | Run 2026-03-22: 5 passed | 2026-03-22 | PowerShell script monitoring |
 
 ## 2. Link Parsing & Update
 
 | Test ID | Feature ID | Test Type | Test File/Case | Status | Test Cases Count | Last Executed | Last Updated | Notes |
 |---------|------------|-----------|----------------|--------|------------------|---------------|--------------|-------|
-| PD-TST-103 | 2.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 2026-03-15 | —; Audit Report: ../../../../test/audits/core-features/audit-report-2-1-1-pd-tst-103.md; Auditor: AI Agent; Audit Date: 2026-03-15; Major Findings: See PF-TAR-010 for consolidated audit findings; Audit Status: Tests Approved | 2026-02-20 | Parser framework base interface |
-| PD-TST-109 | 2.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 2026-03-15 | —; Auditor: AI Agent; Audit Status: Tests Approved; Major Findings: See PF-TAR-010 for consolidated audit findings; Audit Date: 2026-03-15; Audit Report: ../../../../test/audits/core-features/audit-report-2-1-1-pd-tst-103.md | 2026-02-20 | Markdown link parsing |
-| PD-TST-110 | 2.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 2026-03-15 | —; Audit Report: ../../../../test/audits/core-features/audit-report-2-1-1-pd-tst-103.md; Audit Status: Tests Approved; Auditor: AI Agent; Audit Date: 2026-03-15; Major Findings: See PF-TAR-010 for consolidated audit findings | 2026-02-20 | YAML file reference parsing |
-| PD-TST-111 | 2.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 2026-03-15 | —; Audit Status: Tests Approved; Audit Report: ../../../../test/audits/core-features/audit-report-2-1-1-pd-tst-103.md; Auditor: AI Agent; Audit Date: 2026-03-15; Major Findings: See PF-TAR-010 for consolidated audit findings | 2026-02-20 | JSON file reference parsing |
-| PD-TST-112 | 2.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 2026-03-15 | —; Audit Report: ../../../../test/audits/core-features/audit-report-2-1-1-pd-tst-103.md; Major Findings: See PF-TAR-010 for consolidated audit findings; Audit Status: Tests Approved; Auditor: AI Agent; Audit Date: 2026-03-15 | 2026-02-20 | Python import parsing |
-| PD-TST-113 | 2.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 2026-03-15 | —; Audit Report: ../../../../test/audits/core-features/audit-report-2-1-1-pd-tst-103.md; Auditor: AI Agent; Major Findings: See PF-TAR-010 for consolidated audit findings; Audit Status: Tests Approved; Audit Date: 2026-03-15 | 2026-02-20 | Dart import/part parsing |
-| PD-TST-114 | 2.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 2026-03-15 | —; Audit Report: ../../../../test/audits/core-features/audit-report-2-1-1-pd-tst-103.md; Audit Date: 2026-03-15; Major Findings: See PF-TAR-010 for consolidated audit findings; Audit Status: Tests Approved; Auditor: AI Agent | 2026-02-20 | Generic fallback parser |
-| PD-TST-115 | 2.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 2026-03-15 | —; Major Findings: See PF-TAR-010 for consolidated audit findings; Audit Date: 2026-03-15; Auditor: AI Agent; Audit Status: Tests Approved; Audit Report: ../../../../test/audits/core-features/audit-report-2-1-1-pd-tst-103.md | 2026-02-20 | Image file reference handling |
-| PD-TST-105 | 2.2.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 2026-03-15 | —; Auditor: AI Agent; Audit Status: Tests Approved; Audit Results: Passed: 28, Failed: 0; Audit Date: 2026-03-15; Test Cases Audited: 28; Audit Report: ../../../../test/audits/core-features/audit-report-2-2-1-pd-tst-105.md; Major Findings: Bottom-to-top sort not verified; Same-line multi-ref not tested | 2026-02-20 | Link updater atomic operations |
-| PD-TST-118 | 2.2.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 2026-03-15 | —; Audit Date: 2026-03-15; Audit Report: ../../../../test/audits/core-features/audit-report-2-2-1-pd-tst-105.md; Audit Status: Tests Approved; Major Findings: Comprehensive multi-format integration coverage; Test Cases Audited: 23; Auditor: AI Agent; Audit Results: Passed: 23, Failed: 0 | 2026-02-20 | Link update across file formats |
-| PD-TST-129 | 2.1.1 | Automated | [test_powershell.py](../../../../test/automated/parsers/test_powershell.py) | ✅ Tests Approved | 32 | — | 2026-03-15 | PowerShell parser tests — cmdlet patterns, embedded markdown links, regex filtering (PD-BUG-033), deduplication. Registered during test audit. |
-| E2E-GRP-01 | 2.1.1 | E2E Group | [master-test-powershell-regex-preservation.md](../../../../test/e2e-acceptance-testing/templates/powershell-regex-preservation/master-test-powershell-regex-preservation.md) | ✅ Passed | 1 | 2026-03-15 | 2026-03-15 | PD-BUG-033: Regex preservation on file move |
-| E2E-001 | 2.1.1 | E2E Case | [E2E-001-regex-preserved-on-file-move](../../../../test/e2e-acceptance-testing/templates/powershell-regex-preservation/E2E-001-regex-preserved-on-file-move/test-case.md) | ✅ Passed | — | 2026-03-15 | 2026-03-15 | Verify regex patterns not rewritten, real paths updated |
-| E2E-GRP-02 | 2.1.1 | E2E Group | [master-test-powershell-parser-patterns.md](../../../../test/e2e-acceptance-testing/templates/powershell-parser-patterns/master-test-powershell-parser-patterns.md) | 📋 Case Created | 2 | — | 2026-03-16 | PowerShell parser: move md file (20 refs), move ps1 file (11 refs) |
-| E2E-002 | 2.1.1 | E2E Case | [E2E-002-powershell-md-file-move](../../../../test/e2e-acceptance-testing/templates/powershell-parser-patterns/E2E-002-powershell-md-file-move/test-case.md) | 📋 Case Created | — | — | 2026-03-16 | Move markdown file referenced in PS comments/strings, verify 20 path updates |
-| E2E-003 | 2.1.1 | E2E Case | [E2E-003-powershell-script-file-move](../../../../test/e2e-acceptance-testing/templates/powershell-parser-patterns/E2E-003-powershell-script-file-move/test-case.md) | 📋 Case Created | — | — | 2026-03-16 | Move PS script referenced via Import-Module/Join-Path, verify 11 path updates |
-| E2E-GRP-03 | 2.1.1 | E2E Group | [master-test-markdown-parser-scenarios.md](../../../../test/e2e-acceptance-testing/templates/markdown-parser-scenarios/master-test-markdown-parser-scenarios.md) | 📋 Case Created | 1 | — | 2026-03-16 | Markdown parser: move file, verify link updates across standard/special-char scenarios |
-| E2E-004 | 2.1.1 | E2E Case | [E2E-004-markdown-link-update-on-file-move](../../../../test/e2e-acceptance-testing/templates/markdown-parser-scenarios/E2E-004-markdown-link-update-on-file-move/test-case.md) | 📋 Case Created | — | — | 2026-03-16 | Move docs/readme.md, verify markdown links updated, code blocks ignored |
+| PD-TST-103 | 2.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 12 | Run 2026-03-22: 12 passed | 2026-03-22 | Parser framework base interface |
+| PD-TST-109 | 2.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 24 | Run 2026-03-22: 24 passed | 2026-03-22 | Markdown link parsing |
+| PD-TST-110 | 2.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 12 | Run 2026-03-22: 12 passed | 2026-03-22 | YAML file reference parsing |
+| PD-TST-111 | 2.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 16 | Run 2026-03-22: 16 passed | 2026-03-22 | JSON file reference parsing |
+| PD-TST-112 | 2.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 8 | Run 2026-03-22: 8 passed | 2026-03-22 | Python import parsing |
+| PD-TST-113 | 2.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 11 | Run 2026-03-22: 11 passed | 2026-03-22 | Dart import/part parsing |
+| PD-TST-114 | 2.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 21 | Run 2026-03-22: 21 passed | 2026-03-22 | Generic fallback parser |
+| PD-TST-115 | 2.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 6 | Run 2026-03-22: 6 passed | 2026-03-22 | Image file reference handling |
+| PD-TST-105 | 2.2.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 28 | Run 2026-03-22: 28 passed | 2026-03-22 | Link updater atomic operations |
+| PD-TST-118 | 2.2.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 26 | Run 2026-03-22: 26 passed | 2026-03-22 | Link update across file formats |
+| PD-TST-129 | 2.1.1 | Automated | [test_powershell.py](../../../../test/automated/parsers/test_powershell.py) | ✅ Tests Implemented | 32 | Run 2026-03-22: 32 passed | 2026-03-22 | PowerShell parser tests — cmdlet patterns, embedded markdown links, regex filtering (PD-BUG-033), deduplication. Registered during test audit. |
 
 ## 3. Logging & Monitoring
 
 | Test ID | Feature ID | Test Type | Test File/Case | Status | Test Cases Count | Last Executed | Last Updated | Notes |
 |---------|------------|-----------|----------------|--------|------------------|---------------|--------------|-------|
-| PD-TST-107 | 3.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 2026-03-15 | —; Test Cases Audited: 25; Audit Date: 2026-03-15; Audit Results: Passed: 25, Failed: 0; Audit Report: ../../../../test/audits/core-features/audit-report-3-1-1-pd-tst-107.md; Audit Status: Tests Approved; Auditor: AI Agent; Major Findings: Domain methods links_updated/scan_progress/operation_stats not tested; Config hot-reload and log rotation not tested | 2026-02-20 | Logging framework core tests |
-| PD-TST-108 | 3.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 2026-03-15 | —; Audit Date: 2026-03-15; Audit Status: Tests Approved; Audit Report: ../../../../test/audits/core-features/audit-report-3-1-1-pd-tst-107.md; Test Cases Audited: 19; Auditor: AI Agent; Major Findings: 1.1s sleep in test_time_window_filtering could use mock time; Audit Results: Passed: 19, Failed: 0 | 2026-02-20 | Advanced logging features |
+| PD-TST-107 | 3.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 25 | Run 2026-03-22: 25 passed | 2026-03-22 | Logging framework core tests |
+| PD-TST-108 | 3.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 19 | Run 2026-03-22: 19 passed | 2026-03-22 | Advanced logging features |
 
-## 4. Testing Infrastructure
+## E2E Acceptance Tests
 
-| Test ID | Feature ID | Test Type | Test File/Case | Status | Test Cases Count | Last Executed | Last Updated | Notes |
-|---------|------------|-----------|----------------|--------|------------------|---------------|--------------|-------|
-| PD-TST-098 | 4.1.1 | Automated | [conftest.py](../../../../test/automated/conftest.py) | ✅ Tests Implemented | 8 | — | 2026-02-20 | Root test fixtures |
-| PD-TST-099 | 4.1.1 | Automated | [utils.py](../../../../test/automated/utils.py) | ✅ Tests Implemented | 5 | — | 2026-02-20 | Test utility functions |
-| PD-TST-126 | 4.1.1 | Automated | [test_large_projects.py](../../../../test/automated/performance/test_large_projects.py) | ✅ Tests Implemented | 5 | — | 2026-02-20 | Performance benchmarks |
+> E2E acceptance tests validate user-facing workflows that span multiple features. They require a running LinkWatcher instance and simulate real user actions. See [User Workflow Map](/doc/product-docs/technical/design/user-workflow-map.md) for workflow definitions and [Cross-Cutting E2E Spec (PF-TSP-044)](/test/specifications/cross-cutting-specs/cross-cutting-spec-e2e-acceptance-testing-scenarios.md) for scenario details.
 
-## 5. CI/CD & Deployment
+### Workflow Milestone Tracking
 
-| Test ID | Feature ID | Test Type | Test File/Case | Status | Test Cases Count | Last Executed | Last Updated | Notes |
-|---------|------------|-----------|----------------|--------|------------------|---------------|--------------|-------|
-| — | 5.1.1 | — | — | 🚫 No Test Required | 0 | — | 2026-02-24 | CI/CD validated through pipeline execution itself. See [test-spec-5-1-1](../../../../test/specifications/feature-specs/test-spec-5-1-1-cicd-development-tooling.md) for gap analysis. |
+| Workflow | Description | Required Features | Features Ready | E2E Spec | E2E Cases | Status |
+|----------|-------------|------------------|----------------|----------|-----------|--------|
+| WF-001 | Single file move → links updated | 1.1.1, 2.1.1, 2.2.1 | 3/3 | [PF-TSP-044](/test/specifications/cross-cutting-specs/cross-cutting-spec-e2e-acceptance-testing-scenarios.md) | TE-E2G-001, TE-E2G-002, TE-E2G-003, TE-E2G-004 | 🔄 Re-execution Needed |
+| WF-002 | Directory move → contained refs updated | 1.1.1, 0.1.2, 2.1.1, 2.2.1 | 4/4 | [PF-TSP-044](/test/specifications/cross-cutting-specs/cross-cutting-spec-e2e-acceptance-testing-scenarios.md) | TE-E2G-005 | ✅ Covered |
+| WF-003 | Startup → initial project scan | 0.1.1, 0.1.3, 0.1.2, 2.1.1, 1.1.1, 3.1.1 | 6/6 | [PF-TSP-044](/test/specifications/cross-cutting-specs/cross-cutting-spec-e2e-acceptance-testing-scenarios.md) | TE-E2G-006 | ✅ Covered |
+| WF-004 | Rapid sequential moves → consistency | 1.1.1, 0.1.2, 2.2.1 | 3/3 | [PF-TSP-044](/test/specifications/cross-cutting-specs/cross-cutting-spec-e2e-acceptance-testing-scenarios.md) | TE-E2G-007 | ✅ Covered |
+| WF-005 | Multi-format file move | 2.1.1, 2.2.1, 1.1.1 | 3/3 | [PF-TSP-044](/test/specifications/cross-cutting-specs/cross-cutting-spec-e2e-acceptance-testing-scenarios.md) | TE-E2G-008 | ✅ Covered |
+| WF-007 | Dry-run mode → preview | 0.1.3, 0.1.1, 2.2.1, 3.1.1 | 4/4 | [PF-TSP-044](/test/specifications/cross-cutting-specs/cross-cutting-spec-e2e-acceptance-testing-scenarios.md) | TE-E2G-009 | 🔴 Failing |
+| WF-008 | Graceful shutdown → no corruption | 0.1.1, 2.2.1, 0.1.2 | 3/3 | [PF-TSP-044](/test/specifications/cross-cutting-specs/cross-cutting-spec-e2e-acceptance-testing-scenarios.md) | TE-E2G-010 | ✅ Covered |
+
+### E2E Test Cases
+
+| Test ID | Workflow | Feature IDs | Test Type | Test File/Case | Status | Last Executed | Last Updated | Notes |
+|---------|----------|-------------|-----------|----------------|--------|---------------|--------------|-------|
+| TE-E2G-001 | WF-001 | 1.1.1, 2.1.1, 2.2.1 | E2E Group | [master-test-powershell-regex-preservation.md](../../../../test/e2e-acceptance-testing/templates/powershell-regex-preservation/master-test-powershell-regex-preservation.md) | ✅ Passed | 2026-03-15 | 2026-03-15 | PD-BUG-033: Regex preservation on file move |
+| TE-E2E-001 | WF-001 | 1.1.1, 2.1.1, 2.2.1 | E2E Case | [TE-E2E-001-regex-preserved-on-file-move](../../../../test/e2e-acceptance-testing/templates/powershell-regex-preservation/TE-E2E-001-regex-preserved-on-file-move/test-case.md) | ✅ Passed | 2026-03-15 | 2026-03-15 | Verify regex patterns not rewritten, real paths updated |
+| TE-E2G-002 | WF-001 | 1.1.1, 2.1.1, 2.2.1 | E2E Group | [master-test-powershell-parser-patterns.md](../../../../test/e2e-acceptance-testing/templates/powershell-parser-patterns/master-test-powershell-parser-patterns.md) | 🔴 Failed | 2026-03-18 | 2026-03-18 | PD-BUG-044: Reference resolution fails for nested project structures |
+| TE-E2E-002 | WF-001 | 1.1.1, 2.1.1, 2.2.1 | E2E Case | [TE-E2E-002-powershell-md-file-move](../../../../test/e2e-acceptance-testing/templates/powershell-parser-patterns/TE-E2E-002-powershell-md-file-move/test-case.md) | 🔴 Failed | 2026-03-18 | 2026-03-18 | PD-BUG-044: Reference resolution fails for nested project structures |
+| TE-E2E-003 | WF-001 | 1.1.1, 2.1.1, 2.2.1 | E2E Case | [TE-E2E-003-powershell-script-file-move](../../../../test/e2e-acceptance-testing/templates/powershell-parser-patterns/TE-E2E-003-powershell-script-file-move/test-case.md) | 🔴 Failed | 2026-03-18 | 2026-03-18 | PD-BUG-044: Reference resolution fails for nested project structures |
+| TE-E2G-003 | WF-001 | 1.1.1, 2.1.1, 2.2.1 | E2E Group | [master-test-markdown-parser-scenarios.md](../../../../test/e2e-acceptance-testing/templates/markdown-parser-scenarios/master-test-markdown-parser-scenarios.md) | 🔴 Failed | 2026-03-18 | 2026-03-18 | PD-BUG-044: Verify script line ending mismatch (links correctly updated) |
+| TE-E2E-004 | WF-001 | 1.1.1, 2.1.1, 2.2.1 | E2E Case | [TE-E2E-004-markdown-link-update-on-file-move](../../../../test/e2e-acceptance-testing/templates/markdown-parser-scenarios/TE-E2E-004-markdown-link-update-on-file-move/test-case.md) | 🔴 Failed | 2026-03-18 | 2026-03-18 | PD-BUG-044: Verify script line ending mismatch (links correctly updated) |
+| TE-E2G-004 | WF-001 | 1.1.1, 2.1.1, 2.2.1 | E2E Group | [master-test-yaml-json-python-parser-scenarios.md](../../../../test/e2e-acceptance-testing/templates/yaml-json-python-parser-scenarios/master-test-yaml-json-python-parser-scenarios.md) | ✅ Passed | 2026-03-23 | 2026-03-23 | YAML, JSON, Python parser scenarios |
+| TE-E2E-005 | WF-001 | 1.1.1, 2.1.1, 2.2.1 | E2E Case | [TE-E2E-005-yaml-link-update-on-file-move](../../../../test/e2e-acceptance-testing/templates/yaml-json-python-parser-scenarios/TE-E2E-005-yaml-link-update-on-file-move/test-case.md) | ✅ Passed | 2026-03-23 | 2026-03-23 | PD-BUG-046 fix verified — .conf move detected, YAML refs updated |
+| TE-E2E-006 | WF-001 | 1.1.1, 2.1.1, 2.2.1 | E2E Case | [TE-E2E-006-json-link-update-on-file-move](../../../../test/e2e-acceptance-testing/templates/yaml-json-python-parser-scenarios/TE-E2E-006-json-link-update-on-file-move/test-case.md) | ✅ Passed | 2026-03-23 | 2026-03-23 | JSON link update on file move |
+| TE-E2E-007 | WF-001 | 1.1.1, 2.1.1, 2.2.1 | E2E Case | [TE-E2E-007-python-import-update-on-file-move](../../../../test/e2e-acceptance-testing/templates/yaml-json-python-parser-scenarios/TE-E2E-007-python-import-update-on-file-move/test-case.md) | ✅ Passed | 2026-03-23 | 2026-03-23 | Python import update on file move |
+| TE-E2G-005 | WF-001, WF-002 | 1.1.1, 0.1.2, 2.1.1, 2.2.1 | E2E Group | [master-test-runtime-dynamic-operations.md](../../../../test/e2e-acceptance-testing/templates/runtime-dynamic-operations/master-test-runtime-dynamic-operations.md) | ✅ Passed | 2026-03-23 | 2026-03-23 | Runtime dynamic operations: file/directory create, move, rename |
+| TE-E2E-008 | WF-001 | 1.1.1, 2.1.1, 2.2.1 | E2E Case | [TE-E2E-008-file-create-and-move](../../../../test/e2e-acceptance-testing/templates/runtime-dynamic-operations/TE-E2E-008-file-create-and-move/test-case.md) | ✅ Passed | 2026-03-23 | 2026-03-23 | File create and move |
+| TE-E2E-009 | WF-002 | 1.1.1, 0.1.2, 2.1.1, 2.2.1 | E2E Case | [TE-E2E-009-directory-create-and-move](../../../../test/e2e-acceptance-testing/templates/runtime-dynamic-operations/TE-E2E-009-directory-create-and-move/test-case.md) | ✅ Passed | 2026-03-23 | 2026-03-23 | Directory create and move |
+| TE-E2E-010 | WF-001 | 1.1.1, 2.1.1, 2.2.1 | E2E Case | [TE-E2E-010-file-create-and-rename](../../../../test/e2e-acceptance-testing/templates/runtime-dynamic-operations/TE-E2E-010-file-create-and-rename/test-case.md) | ✅ Passed | 2026-03-23 | 2026-03-23 | File create and rename |
+| TE-E2E-011 | WF-002 | 1.1.1, 0.1.2, 2.1.1, 2.2.1 | E2E Case | [TE-E2E-011-directory-create-and-rename](../../../../test/e2e-acceptance-testing/templates/runtime-dynamic-operations/TE-E2E-011-directory-create-and-rename/test-case.md) | ✅ Passed | 2026-03-23 | 2026-03-23 | Directory create and rename |
+| TE-E2E-013 | WF-002 | 1.1.1, 0.1.2, 2.1.1, 2.2.1 | E2E Case | [TE-E2E-013-nested-directory-move](../../../../test/e2e-acceptance-testing/templates/runtime-dynamic-operations/TE-E2E-013-nested-directory-move/test-case.md) | ✅ Passed | 2026-03-23 | 2026-03-23 | Nested directory move |
+| TE-E2E-014 | WF-002 | 1.1.1, 0.1.2, 2.1.1, 2.2.1 | E2E Case | [TE-E2E-014-directory-move-internal-refs](../../../../test/e2e-acceptance-testing/templates/runtime-dynamic-operations/TE-E2E-014-directory-move-internal-refs/test-case.md) | ✅ Passed | 2026-03-23 | 2026-03-23 | Directory move — internal references preserved |
+| TE-E2G-006 | WF-003 | 0.1.1, 0.1.2, 0.1.3, 1.1.1, 2.1.1, 2.2.1 | E2E Group | [master-test-startup-operations.md](../../../../test/e2e-acceptance-testing/templates/startup-operations/master-test-startup-operations.md) | 🔴 Failed | 2026-03-23 | 2026-03-23 | PD-BUG-047: TE-E2E-012 run.ps1 infrastructure issue |
+| TE-E2E-012 | WF-003 | 0.1.1, 0.1.2, 0.1.3, 1.1.1, 2.1.1, 2.2.1 | E2E Case | [TE-E2E-012-file-operations-during-startup](../../../../test/e2e-acceptance-testing/templates/startup-operations/TE-E2E-012-file-operations-during-startup/test-case.md) | 🔴 Failed | 2026-03-23 | 2026-03-23 | PD-BUG-047: TE-E2E-012 run.ps1 infrastructure issue |
+| TE-E2E-015 | WF-003 | 0.1.1, 0.1.3, 0.1.2, 2.1.1, 1.1.1 | E2E Case | [TE-E2E-015-startup-custom-config-excludes](../../../../test/e2e-acceptance-testing/templates/startup-operations/TE-E2E-015-startup-custom-config-excludes/test-case.md) | ✅ Passed | 2026-03-23 | 2026-03-23 | Startup with custom config excludes |
+| TE-E2G-007 | WF-004 | 1.1.1, 0.1.2, 2.2.1 | E2E Group | [master-test-rapid-sequential-moves.md](../../../../test/e2e-acceptance-testing/templates/rapid-sequential-moves/master-test-rapid-sequential-moves.md) | ✅ Passed | 2026-03-23 | 2026-03-23 | Rapid sequential moves: consistency under fast operations |
+| TE-E2E-016 | WF-004 | 1.1.1, 0.1.2, 2.2.1 | E2E Case | [TE-E2E-016-two-files-moved-rapidly](../../../../test/e2e-acceptance-testing/templates/rapid-sequential-moves/TE-E2E-016-two-files-moved-rapidly/test-case.md) | ✅ Passed | 2026-03-23 | 2026-03-23 | Two files moved rapidly |
+| TE-E2E-017 | WF-004 | 1.1.1, 0.1.2, 2.2.1 | E2E Case | [TE-E2E-017-move-file-then-referencing-file](../../../../test/e2e-acceptance-testing/templates/rapid-sequential-moves/TE-E2E-017-move-file-then-referencing-file/test-case.md) | ✅ Passed | 2026-03-23 | 2026-03-23 | Move file then move referencing file |
+| TE-E2G-008 | WF-005 | 2.1.1, 2.2.1, 1.1.1 | E2E Group | [master-test-multi-format-references.md](../../../../test/e2e-acceptance-testing/templates/multi-format-references/master-test-multi-format-references.md) | ✅ Passed | 2026-03-23 | 2026-03-23 | Multi-format: single file move updates refs across all formats |
+| TE-E2E-018 | WF-005 | 2.1.1, 2.2.1, 1.1.1 | E2E Case | [TE-E2E-018-file-referenced-from-all-formats](../../../../test/e2e-acceptance-testing/templates/multi-format-references/TE-E2E-018-file-referenced-from-all-formats/test-case.md) | ✅ Passed | 2026-03-23 | 2026-03-23 | File referenced from all formats |
+| TE-E2G-009 | WF-007 | 0.1.3, 0.1.1, 2.2.1, 3.1.1 | E2E Group | [master-test-dry-run-mode.md](../../../../test/e2e-acceptance-testing/templates/dry-run-mode/master-test-dry-run-mode.md) | 🔴 Failed | 2026-03-23 | 2026-03-23 | PD-BUG-048: orchestrator lacks --dry-run support |
+| TE-E2E-019 | WF-007 | 0.1.3, 0.1.1, 2.2.1, 3.1.1 | E2E Case | [TE-E2E-019-move-file-dry-run-no-changes](../../../../test/e2e-acceptance-testing/templates/dry-run-mode/TE-E2E-019-move-file-dry-run-no-changes/test-case.md) | 🔴 Failed | 2026-03-23 | 2026-03-23 | PD-BUG-048: orchestrator lacks --dry-run support |
+| TE-E2G-010 | WF-008 | 0.1.1, 2.2.1, 0.1.2 | E2E Group | [master-test-graceful-shutdown.md](../../../../test/e2e-acceptance-testing/templates/graceful-shutdown/master-test-graceful-shutdown.md) | ✅ Passed | 2026-03-23 | 2026-03-23 | Graceful shutdown: no corruption on Ctrl+C |
+| TE-E2E-020 | WF-008 | 0.1.1, 2.2.1, 0.1.2 | E2E Case | [TE-E2E-020-stop-during-idle](../../../../test/e2e-acceptance-testing/templates/graceful-shutdown/TE-E2E-020-stop-during-idle/test-case.md) | ✅ Passed | 2026-03-23 | 2026-03-23 | Stop during idle |
+| TE-E2E-021 | WF-008 | 0.1.1, 2.2.1, 0.1.2 | E2E Case | [TE-E2E-021-stop-immediately-after-move](../../../../test/e2e-acceptance-testing/templates/graceful-shutdown/TE-E2E-021-stop-immediately-after-move/test-case.md) | ✅ Passed | 2026-03-23 | 2026-03-23 | Stop immediately after file move |
+| TE-E2G-011 | — | 0.1.1, 2.2.1, 3.1.1 | E2E Group | [master-test-error-recovery.md](../../../../test/e2e-acceptance-testing/templates/error-recovery/master-test-error-recovery.md) | ✅ Passed | 2026-03-23 | 2026-03-23 | Error recovery: read-only file handling |
+| TE-E2E-022 | — | 0.1.1, 2.2.1, 3.1.1 | E2E Case | [TE-E2E-022-read-only-referencing-file](../../../../test/e2e-acceptance-testing/templates/error-recovery/TE-E2E-022-read-only-referencing-file/test-case.md) | ✅ Passed | 2026-03-23 | 2026-03-23 | Read-only referencing file |
 
 ---
 
@@ -119,7 +169,7 @@ This file tracks tests at the **test file level** (automated) and **test case/gr
 
 ### Column Definitions
 
-- **Test ID**: Unique identifier (PD-TST-### for automated, E2E-GRP-## for E2E groups, E2E-### for E2E cases)
+- **Test ID**: Unique identifier (PD-TST-### for automated, TE-E2G-### for E2E groups, TE-E2E-### for E2E cases)
 - **Feature ID**: Reference to the feature being tested (links to feature-tracking.md)
 - **Test Type**: `Automated`, `E2E Group`, or `E2E Case`
 - **Test File/Case**: Path and link to the test file or E2E acceptance test case document
@@ -204,3 +254,22 @@ When creating new E2E acceptance test cases:
 ---
 
 ## Recent Updates
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

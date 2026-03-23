@@ -16,18 +16,18 @@ usage_context: E2E Acceptance Test Case Creation Task (PF-TSK-069)
 <!-- Replace all [PLACEHOLDERS] with actual values -->
 <!-- Remove all instructional comments when creating the actual file -->
 
+---
+id: [GROUP-ID]
+type: E2E Acceptance Test Group
+feature_ids: ["[FEATURE-ID]"]
+workflow: [WF-NNN]
+test_cases_count: [NUMBER]
+estimated_duration: [X minutes]
+created: [YYYY-MM-DD]
+updated: [YYYY-MM-DD]
+---
+
 # Master Test: [GROUP-NAME]
-
-## Metadata
-
-| Field | Value |
-|-------|-------|
-| Group ID | [GROUP-ID] |
-| Feature | [FEATURE-ID] — [FEATURE-NAME] |
-| Test Cases Covered | [NUMBER] |
-| Estimated Duration | [X minutes] |
-| Created | [YYYY-MM-DD] |
-| Last Updated | [YYYY-MM-DD] |
 
 ## Purpose
 

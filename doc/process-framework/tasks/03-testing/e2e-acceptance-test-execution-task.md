@@ -59,48 +59,49 @@ E2E acceptance test execution validates system behavior that cannot be covered b
 
 ### Preparation
 
-1. **Identify what needs testing**: Review [test-tracking.md](../../state-tracking/permanent/test-tracking.md) for groups marked `🔄 Needs Re-execution`. For release validation, identify all groups that must pass.
-2. **Set up test environment**: Run [Setup-TestEnvironment.ps1](../../scripts/test/e2e-acceptance-testing/Setup-TestEnvironment.ps1) to copy pristine templates into the workspace:
+1. **Identify what needs testing**: Review the dedicated **E2E Acceptance Tests** section in [test-tracking.md](../../state-tracking/permanent/test-tracking.md) for groups marked `🔄 Needs Re-execution`. Also check the **Workflow Milestone Tracking** sub-section for workflows with `⬜ Not Created` status — these may need test case creation (PF-TSK-069) first. For release validation, identify all groups that must pass.
+2. **Install code changes globally** (if code was modified since last install): Ensure the system under test uses the latest code. For Python projects: `pip install -e .` from the project root. Skip if no code changes since last install.
+3. **Set up test environment**: Run [Setup-TestEnvironment.ps1](../../scripts/test/e2e-acceptance-testing/Setup-TestEnvironment.ps1) to copy pristine templates into the workspace:
    ```bash
    cd /c/path/to/project/doc/process-framework/scripts/test/e2e-acceptance-testing && pwsh.exe -ExecutionPolicy Bypass -Command '& .\Setup-TestEnvironment.ps1 -Group "group-name" -Clean -Confirm:$false'
    ```
    > Omit `-Group` to set up all groups. Use `-Clean` to remove any previous workspace state.
-3. **Review the master test** for the target group to understand the quick validation sequence
+4. **Review the master test** for the target group to understand the quick validation sequence
 
 ### Execution
 
-4. **Check for scripted test cases**: If test cases have `Execution Mode: scripted` (i.e., they have a `run.ps1` file), offer the human partner a choice:
-   - **Run automatically** via [Run-E2EAcceptanceTest.ps1](../../scripts/test/e2e-acceptance-testing/Run-E2EAcceptanceTest.ps1) — orchestrates Setup → run.ps1 → wait → Verify:
+5. **Check for scripted test cases**: If test cases have `Execution Mode: scripted` (i.e., they have a `run.ps1` file), offer the human partner a choice:
+   - **Run automatically** via [Run-E2EAcceptanceTest.ps1](../../scripts/test/e2e-acceptance-testing/Run-E2EAcceptanceTest.ps1) — stops project LW, starts a workspace-scoped LW per test case (fast scan), then runs Setup → settle → run.ps1 → wait → Verify:
      ```bash
      cd /c/path/to/project/doc/process-framework/scripts/test/e2e-acceptance-testing && pwsh.exe -ExecutionPolicy Bypass -Command '& .\Run-E2EAcceptanceTest.ps1 -Group "group-name" -Clean -Detailed'
      ```
+     > Use `-SettleSeconds N` (default: 3) to adjust the delay between scan completion and test action. Use `-WaitSeconds N` (default: 5) for propagation delay after the action.
    - **Run manually** — human follows the Steps section in test-case.md (same as manual test cases)
-   > If all test cases in a group are scripted and the human chooses automatic execution, `Run-E2EAcceptanceTest.ps1` handles the entire pipeline. Skip to step 7 for result recording.
-5. **Execute master test first** (manual test cases): Follow the master test's Quick Validation Sequence step by step
-   - **If master test passes** → Group is validated. Skip to step 8.
-   - **If master test fails** → Continue to step 6 to isolate the issue.
-6. **Execute individual test cases** (manual test cases): Follow each test-case.md's Steps section exactly. For each test case:
+   > If all test cases in a group are scripted and the human chooses automatic execution, `Run-E2EAcceptanceTest.ps1` handles the entire pipeline. Skip to step 8 for result recording.
+6. **Execute master test first** (manual test cases): Follow the master test's Quick Validation Sequence step by step
+   - **If master test passes** → Group is validated. Skip to step 9.
+   - **If master test fails** → Continue to step 7 to isolate the issue.
+7. **Execute individual test cases** (manual test cases): Follow each test-case.md's Steps section exactly. For each test case:
    - Verify preconditions are met
    - Execute steps in order
    - Observe and record actual results
    - Compare against expected results
-7. **Verify results** (manual test cases only — scripted tests verify automatically): Run [Verify-TestResult.ps1](../../scripts/test/e2e-acceptance-testing/Verify-TestResult.ps1) to compare workspace against expected state:
+8. **Verify results** (manual test cases only — scripted tests verify automatically): Run [Verify-TestResult.ps1](../../scripts/test/e2e-acceptance-testing/Verify-TestResult.ps1) to compare workspace against expected state:
    ```bash
    cd /c/path/to/project/doc/process-framework/scripts/test/e2e-acceptance-testing && pwsh.exe -ExecutionPolicy Bypass -Command '& .\Verify-TestResult.ps1 -Group "group-name" -Detailed'
    ```
    > Use `-TestCase "E2E-NNN"` for a single test case. Use `-Detailed` to see line-by-line diffs for failures.
+8a. **On failure — root cause analysis**: When a test case fails, the AI agent MUST investigate the root cause before proceeding. Check system logs, trace the event flow, and identify whether the failure is caused by a code defect, test fixture issue, infrastructure problem, or environmental factor. Document the root cause clearly.
+   > **🚨 CRITICAL**: Do NOT propose or attempt to fix the issue during test execution. The purpose of this task is to discover and document failures, not to fix them. Fixes belong in a separate Bug Fixing task (PF-TSK-048).
+8b. **On failure — always file a bug**: Every test failure MUST result in a bug report, regardless of root cause. Add the bug entry to [bug-tracking.md](../../state-tracking/permanent/bug-tracking.md) with: root cause analysis, affected test cases, component involved, and severity assessment. Increment the PD-BUG counter in [id-registry.json](/doc/id-registry.json).
 
 ### Finalization
 
-8. **Record results**: Run [Update-TestExecutionStatus.ps1](../../scripts/test/e2e-acceptance-testing/Update-TestExecutionStatus.ps1) to update tracking files:
+9. **Record results**: Run [Update-TestExecutionStatus.ps1](../../scripts/test/e2e-acceptance-testing/Update-TestExecutionStatus.ps1) to update tracking files:
    ```bash
    cd /c/path/to/project/doc/process-framework/scripts/test/e2e-acceptance-testing && pwsh.exe -ExecutionPolicy Bypass -Command '& .\Update-TestExecutionStatus.ps1 -Group "group-name" -Status "Passed" -Confirm:$false'
    ```
-   > For failures, use `-Status "Failed" -Reason "description of failure"`.
-9. **Report bugs**: For test failures that indicate genuine defects, create bug reports using [New-BugReport.ps1](../../scripts/file-creation/06-maintenance/New-BugReport.ps1):
-   ```bash
-   cd /c/path/to/project/doc/process-framework/scripts/file-creation && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-BugReport.ps1 -Title "Brief description" -Description "Detailed description" -DiscoveredBy "Testing" -Severity "High" -Component "ComponentName" -Confirm:$false'
-   ```
+   > For failures, use `-Status "Failed" -Reason "PD-BUG-NNN: description of failure"`. Always reference the bug ID.
 10. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
@@ -141,7 +142,7 @@ Before considering this task finished:
 
 - [E2E Acceptance Test Case Creation Task](manual-test-case-creation-task.md) — Upstream task that creates the test cases executed here
 - [Setup-TestEnvironment.ps1](../../scripts/test/e2e-acceptance-testing/Setup-TestEnvironment.ps1) — Environment setup script
-- [Run-E2EAcceptanceTest.ps1](../../scripts/test/e2e-acceptance-testing/Run-E2EAcceptanceTest.ps1) — Orchestrator for scripted test cases (Setup → run.ps1 → wait → Verify)
+- [Run-E2EAcceptanceTest.ps1](../../scripts/test/e2e-acceptance-testing/Run-E2EAcceptanceTest.ps1) — Orchestrator for scripted test cases (workspace-scoped LW → Setup → settle → run.ps1 → wait → Verify)
 - [Verify-TestResult.ps1](../../scripts/test/e2e-acceptance-testing/Verify-TestResult.ps1) — Result verification script
 - [Update-TestExecutionStatus.ps1](../../scripts/test/e2e-acceptance-testing/Update-TestExecutionStatus.ps1) — Status update script
 - [New-BugReport.ps1](../../scripts/file-creation/06-maintenance/New-BugReport.ps1) — Bug report creation script for discovered defects

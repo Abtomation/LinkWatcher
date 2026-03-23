@@ -51,7 +51,7 @@ priority: [Priority Level]
 - [ ] Test spec ([Feature ID]) updated, or N/A — verified no behavior change affects spec: _[justification]_
 - [ ] FDD ([Feature ID]) updated, or N/A — verified no functional change affects FDD: _[justification]_
 - [ ] ADR ([Feature ID]) updated, or N/A — verified no architectural decision affected: _[justification]_
-- [ ] Foundational validation tracking ([Feature ID]) updated, or N/A — verified feature is not foundational or change doesn't affect validation: _[justification]_
+- [ ] Validation tracking updated, or N/A — verified feature is not tracked in a validation round or change doesn't affect validation: _[justification]_
 - [ ] Technical Debt Tracking: TD item marked resolved
 
 **Bugs Discovered**: None / [Description]

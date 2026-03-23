@@ -155,6 +155,7 @@ When referencing other tasks' outputs in Test Specifications:
    - **Integration Tests**: Component interaction testing
    - **UI/Component Tests**: UI component testing
    - **End-to-End Tests**: Complete user flow testing (Tier 3 only)
+   - **Cross-Feature Workflows**: Reference [User Workflow Map](/doc/product-docs/technical/design/user-workflow-map.md) to list which user workflows this feature participates in. For each workflow, note whether this is the **last** feature needed — if so, a cross-cutting E2E test specification should be created (milestone trigger)
 
 10. **Specify Test Cases**: For each test category, define:
 
@@ -166,10 +167,10 @@ When referencing other tasks' outputs in Test Specifications:
 
 11. **Classify Test Scenarios**: For each test scenario in the specification, classify as:
     - **`automated`** — Covered by unit/integration tests that an AI agent can implement and run
-    - **`manual`** — Requires human interaction with the running system (file moves, UI operations, observing real-time behavior)
-    - **`both`** — Needs automated regression test + manual validation
+    - **`e2e`** — Requires human interaction with the running system (file moves, UI operations, observing real-time behavior). Validated through E2E acceptance testing
+    - **`both`** — Needs automated regression test + E2E acceptance validation
 
-12. **Define Manual Test Requirements**: For scenarios classified as `manual` or `both`, specify in a dedicated "Manual Test Scenarios" section:
+12. **Define E2E Acceptance Test Requirements**: For scenarios classified as `e2e` or `both`, specify in a dedicated "E2E Acceptance Test Scenarios" section:
     - What user action triggers the test
     - What file types, link formats, or system behaviors are involved
     - What the expected observable outcome is
@@ -213,7 +214,7 @@ When referencing other tasks' outputs in Test Specifications:
 - **Test Specification Document** - Comprehensive test specifications in `/test/specifications/feature-specs/test-spec-[FEATURE-ID]-[feature-name].md`
 - **Test Implementation Roadmap** - Priority-ordered list of tests to implement, included in the specification document
 - **Mock Requirements Documentation** - Detailed specifications for required mocks and their behaviors
-- **Manual Test Scenarios** (if applicable) - Section within the test specification listing scenarios classified as `manual` or `both`, with user actions, involved file types, expected outcomes, and test group assignments
+- **E2E Acceptance Test Scenarios** (if applicable) - Section within the test specification listing scenarios classified as `e2e` or `both`, with user actions, involved file types, expected outcomes, and test group assignments
 
 ## State Tracking
 

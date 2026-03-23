@@ -6,7 +6,7 @@ version: 1.0
 created: 2025-08-15
 updated: 2025-08-15
 usage_context: Process Framework - Validation Creation
-description: Template for foundational codebase validation reports
+description: Template for feature validation reports
 creates_document_category: Validation
 creates_document_prefix: PF-VAL
 creates_document_type: Process Framework
@@ -18,7 +18,7 @@ template_for: Validation
 
 ## Purpose
 
-This template provides a standardized structure for creating foundational codebase validation reports. It supports all 6 validation types in the foundational validation framework and ensures consistent reporting across validation sessions.
+This template provides a standardized structure for creating feature validation reports. It supports all validation dimensions in the feature validation framework and ensures consistent reporting across validation sessions.
 
 **Note**: This template is designed for individual validation type reports that populate specific cells in the validation matrix. Each report focuses on one validation type applied to a group of features.
 
@@ -292,7 +292,7 @@ Customize the "Validation Criteria Applied" section with:
 
 ## Related Resources
 
-- [Foundational Codebase Validation Concept](/doc/process-framework/proposals/foundational-codebase-validation-concept.md)
+- [Feature Validation Guide](/doc/process-framework/guides/05-validation/feature-validation-guide.md)
 - [Validation Framework Tasks](/doc/process-framework/tasks/05-validation) (validation task definitions)
 - [Template Development Guide](/doc/process-framework/guides/support/template-development-guide.md)
 - [Feature Tracking](/doc/process-framework/state-tracking/permanent/feature-tracking.md)

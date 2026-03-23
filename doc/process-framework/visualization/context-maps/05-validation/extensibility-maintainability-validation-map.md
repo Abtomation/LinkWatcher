@@ -24,7 +24,7 @@ graph TD
     classDef reference fill:#d0f9d5,stroke:#3ad83f
 
     FT([Feature Tracking]) --> VR[Validation Report]
-    FVT([Foundational Validation Tracking]) --> VR
+    FVT([Validation Tracking]) --> VR
     VRT([Validation Report Template]) --> VR
     LIB[(lib/ directory)] --> EA[Extensibility Analysis]
 
@@ -54,8 +54,8 @@ graph TD
 
 ### Critical Components (Must Understand)
 
-- **Feature Tracking (FT)**: Current status of foundational features to be validated - provides scope and context
-- **Foundational Validation Tracking (FVT)**: Master validation matrix and progress tracking - central coordination point
+- **Feature Tracking (FT)**: Current status of features to be validated - provides scope and context
+- **Validation Tracking (FVT)**: Active validation tracking matrix and progress tracking - central coordination point
 - **Validation Report Template (VRT)**: Standardized template for creating validation reports with consistent structure
 - **lib/ directory (LIB)**: Source code structure for extensibility analysis - primary codebase to evaluate
 
@@ -80,8 +80,8 @@ graph TD
 
 ## Key Relationships
 
-1. **Feature Tracking → Validation Report**: Provides the scope of foundational features to be validated for extensibility and maintainability
-2. **Foundational Validation Tracking → Validation Report**: Tracks validation progress and links to completed reports
+1. **Feature Tracking → Validation Report**: Provides the scope of features to be validated for extensibility and maintainability
+2. **Validation Tracking → Validation Report**: Tracks validation progress and links to completed reports
 3. **Validation Report Template → Validation Report**: Provides standardized structure and scoring framework
 4. **lib/ directory → Extensibility Analysis**: Contains source code for evaluating extension points and architectural flexibility
 5. **Configuration Files → Config Flexibility Assessment**: Source for analyzing configuration patterns and environment adaptability
@@ -96,21 +96,21 @@ graph TD
 
 ## Implementation in AI Sessions
 
-1. **Start with Critical Context**: Load Feature Tracking, Foundational Validation Tracking, and Validation Report Template to understand scope and structure
+1. **Start with Critical Context**: Load Feature Tracking, Validation Tracking, and Validation Report Template to understand scope and structure
 2. **Analyze Codebase Structure**: Review lib/ directory for extensibility patterns and architectural flexibility
 3. **Evaluate Configuration Flexibility**: Examine configuration files for adaptability and environment-specific support
 4. **Assess Testing Infrastructure**: Review test/ directory for coverage, maintainability, and extension testing support
 5. **Analyze Architectural Flexibility**: Review Technical Design Documents for documented extension points and scalability patterns
 6. **Perform Cross-Cutting Analysis**: Unlike feature-specific validation, this focuses on system-wide extensibility and maintainability concerns
 7. **Generate Validation Report**: Use ../../scripts/file-creation/New-ValidationReport.ps1 script with ExtensibilityMaintainability validation type
-8. **Update Tracking**: Update Foundational Validation Tracking matrix and Documentation Map with new report
+8. **Update Tracking**: Update Validation Tracking matrix and Documentation Map with new report
 9. **Reference Best Practices**: Access framework, testing, and state management documentation only when specific guidance is needed
 
 ## Related Documentation
 
 - [Extensibility Maintainability Validation Task](../../../tasks/05-validation/extensibility-maintainability-validation.md) - Complete task definition and process
-- [Feature Tracking](../../../state-tracking/permanent/feature-tracking.md) - Current status of foundational features
-- [Foundational Validation Tracking](../../../state-tracking/temporary/foundational-validation-tracking.md) - Master validation matrix
+- [Feature Tracking](../../../state-tracking/permanent/feature-tracking.md) - Current status of features
+- Validation Tracking State File - Active validation tracking matrix (file location depends on validation round)
 - [Validation Report Template](../../../templates/05-validation/validation-report-template.md) - Standardized report structure
 - [../../scripts/file-creation/New-ValidationReport.ps1](../../../scripts/file-creation/05-validation/New-ValidationReport.ps1) - Automation script for report generation
 - Project architecture documentation - Framework-specific extensibility patterns

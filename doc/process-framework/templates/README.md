@@ -45,12 +45,7 @@ This directory contains template files that serve as starting points for creatin
    - Includes sections for architecture diagrams, component descriptions, data flows, and design decisions
    - Best for: Database schemas, system architecture, component documentation
 
-4. **[Process Template](support/process-template.md)**
-   - For workflows, procedures, and standards
-   - Includes sections for roles and responsibilities, process steps, checklists, and exceptions
-   - Best for: Development workflows, testing procedures, review processes
-
-5. **[API Reference Template](02-design/api-reference-template.md)**
+4. **[API Reference Template](02-design/api-reference-template.md)**
    - For API documentation and reference
    - Includes sections for endpoints, request/response formats, authentication, and examples
    - Best for: REST APIs, service interfaces, library documentation

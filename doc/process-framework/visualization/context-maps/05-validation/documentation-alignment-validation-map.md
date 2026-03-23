@@ -24,7 +24,7 @@ graph TD
     classDef reference fill:#d0f9d5,stroke:#3ad83f
 
     FT([Feature Tracking]) --> VR[Validation Report]
-    FVT([Foundational Validation Tracking]) --> VR
+    FVT([Validation Tracking]) --> VR
     VRT([Validation Report Template]) --> VR
     TDD[(Technical Design Docs)] --> DA[Documentation Analysis]
 
@@ -55,8 +55,8 @@ graph TD
 
 ### Critical Components (Must Understand)
 
-- **Feature Tracking (FT)**: Current status of foundational features to be validated - provides scope and context
-- **Foundational Validation Tracking (FVT)**: Master validation matrix and progress tracking - central coordination point
+- **Feature Tracking (FT)**: Current status of features to be validated - provides scope and context
+- **Validation Tracking (FVT)**: Active validation tracking matrix and progress tracking - central coordination point
 - **Validation Report Template (VRT)**: Standardized template for creating validation reports with consistent structure
 - **Technical Design Documents (TDD)**: Technical specifications that must align with actual implementation - primary validation target
 
@@ -64,7 +64,7 @@ graph TD
 
 - **Architecture Decision Records (ADR)**: Architectural decisions that must be properly implemented and followed
 - **API Documentation (API)**: API specifications that must accurately reflect actual API implementations
-- **lib/ directory (LIB)**: Source code for foundational features - implementation to validate against documentation
+- **lib/ directory (LIB)**: Source code for selected features - implementation to validate against documentation
 - **Feature State Files (FSF)**: Implementation state files with feature status, TDD/FDD links, and validation context
 - **New-ValidationReport Script (NVRS)**: Automation script for generating standardized validation reports
 - **Documentation Analysis (DA)**: Process of comparing TDDs with actual implementation
@@ -82,8 +82,8 @@ graph TD
 
 ## Key Relationships
 
-1. **Feature Tracking → Validation Report**: Provides the scope of foundational features to be validated in each session
-2. **Foundational Validation Tracking → Validation Report**: Tracks validation progress and links to completed reports
+1. **Feature Tracking → Validation Report**: Provides the scope of features to be validated in each session
+2. **Validation Tracking → Validation Report**: Tracks validation progress and links to completed reports
 3. **Validation Report Template → Validation Report**: Provides standardized structure and scoring framework
 4. **Technical Design Documents → Documentation Analysis**: Primary source for TDD-implementation alignment validation
 5. **Architecture Decision Records → ADR Compliance Check**: Source for architectural decision compliance validation
@@ -98,21 +98,21 @@ graph TD
 
 ## Implementation in AI Sessions
 
-1. **Start with Critical Context**: Load Feature Tracking, Foundational Validation Tracking, and Validation Report Template to understand scope and structure
+1. **Start with Critical Context**: Load Feature Tracking, Validation Tracking, and Validation Report Template to understand scope and structure
 2. **Identify Documentation Sources**: Review Technical Design Documents as primary validation targets for alignment assessment
 3. **Perform TDD Alignment Analysis**: Compare TDDs with actual implementation in lib/ directory to identify discrepancies
 4. **Conduct ADR Compliance Check**: Verify that Architecture Decision Records are properly implemented in the codebase
 5. **Execute API Accuracy Assessment**: Cross-reference API Documentation with actual API implementations and interfaces
 6. **Analyze Documentation Completeness**: Examine code for missing or outdated documentation requirements
 7. **Generate Validation Report**: Use ../../scripts/file-creation/New-ValidationReport.ps1 script with DocumentationAlignment validation type
-8. **Update Tracking**: Update Foundational Validation Tracking matrix and Documentation Map with new report
+8. **Update Tracking**: Update Validation Tracking matrix and Documentation Map with new report
 9. **Reference Standards**: Access Documentation Guide and creation guides only when specific guidance is needed for validation criteria
 
 ## Related Documentation
 
 - [Documentation Alignment Validation Task](../../../tasks/05-validation/documentation-alignment-validation.md) - Complete task definition and process
-- [Feature Tracking](../../../state-tracking/permanent/feature-tracking.md) - Current status of foundational features
-- [Foundational Validation Tracking](../../../state-tracking/temporary/foundational-validation-tracking.md) - Master validation matrix
+- [Feature Tracking](../../../state-tracking/permanent/feature-tracking.md) - Current status of features
+- Validation Tracking State File - Active validation tracking matrix (file location depends on validation round)
 - [Validation Report Template](../../../templates/05-validation/validation-report-template.md) - Standardized report structure
 - [Technical Design Documents](../../../../product-docs/technical/design) - TDD directory for alignment validation
 - [Architecture Decision Records](../../../../product-docs/technical/architecture/decisions) - ADR directory for compliance validation

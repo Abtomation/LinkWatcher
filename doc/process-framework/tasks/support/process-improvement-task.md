@@ -68,35 +68,40 @@ Analyze, optimize, and document development processes to improve efficiency, qua
 
 ### Planning
 
-5. For complex improvements: propose multiple solution approaches with pros and cons
-6. **🚨 CHECKPOINT**: Get explicit human approval on the chosen approach
+5. **For multi-session improvements**: Create a state tracking file to track progress across sessions:
+   ```powershell
+   .\New-TempTaskState.ps1 -TaskName "<Improvement Name>" -Variant "ProcessImprovement" -Description "<scope>"
+   ```
+   > Single-session improvements do not need a state file — skip this step.
+6. For complex improvements: propose multiple solution approaches with pros and cons
+7. **🚨 CHECKPOINT**: Get explicit human approval on the chosen approach
 
 ### Execution
 
-7. Implement changes in small, reviewable increments (never all at once)
+8. Implement changes in small, reviewable increments (never all at once)
    - **For bulk/repetitive changes** (same pattern across many files): after applying all changes, verify completeness with grep-based checks (e.g., confirm all target files contain the new pattern, confirm no target files still contain the old pattern)
-8. For each significant change:
+9. For each significant change:
    a. Present the specific change to be made
    b. **🚨 CHECKPOINT**: Get explicit approval before implementing
    c. Implement the approved change
    d. **🚨 CHECKPOINT**: Confirm the change meets expectations
-9. **Update linked documents**: Search for files that reference the changed file(s) and update or remove outdated content (guides, context maps, registry entries, templates)
-10. **Log tool change in feedback database**: Record the modification for trend analysis:
+10. **Update linked documents**: Search for files that reference the changed file(s) and update or remove outdated content (guides, context maps, registry entries, templates)
+11. **Log tool change in feedback database**: Record the modification for trend analysis:
     ```bash
     python scripts/feedback_db.py log-change --tool <TOOL_DOC_ID> --date <YYYY-MM-DD> --imp <IMP-XXX> --description "<what changed>"
     ```
-11. **🚨 CHECKPOINT**: Review changes with human partner
+12. **🚨 CHECKPOINT**: Review changes with human partner
 
 ### Finalization
 
-12. **🚨 CHECKPOINT**: Get final approval on the complete solution
-13. Update [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) using [Update-ProcessImprovement.ps1](../../scripts/update/Update-ProcessImprovement.ps1):
+13. **🚨 CHECKPOINT**: Get final approval on the complete solution
+14. Update [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) using [Update-ProcessImprovement.ps1](../../scripts/update/Update-ProcessImprovement.ps1):
     ```powershell
     .\Update-ProcessImprovement.ps1 -ImprovementId "IMP-XXX" -NewStatus "Completed" -Impact "HIGH|MEDIUM|LOW" -ValidationNotes "What was done."
     ```
-14. Update any other affected state files
-15. **Ask**: "Continue with another improvement or close the session?" If continuing, return to step 1 for the next improvement.
-16. **🚨 MANDATORY FINAL STEP** (session end only): Complete the Task Completion Checklist below — one feedback form covering all improvements done in this session
+15. Update any other affected state files
+16. **Ask**: "Continue with another improvement or close the session?" If continuing, return to step 1 for the next improvement.
+17. **🚨 MANDATORY FINAL STEP** (session end only): Complete the Task Completion Checklist below — one feedback form covering all improvements done in this session
 
 > **Validation**: Improvements are validated through the next usage cycle. Subsequent feedback (via [Tools Review](tools-review-task.md)) will confirm whether the improvement achieved its goal.
 
@@ -104,6 +109,7 @@ Analyze, optimize, and document development processes to improve efficiency, qua
 
 - **[New-ProcessImprovement.ps1](../../scripts/file-creation/support/New-ProcessImprovement.ps1)** - Add new improvement entries with auto-assigned PF-IMP IDs
 - **[Update-ProcessImprovement.ps1](../../scripts/update/Update-ProcessImprovement.ps1)** - Automate tracking file updates (status changes, completion moves, summary count, update history)
+- **[New-TempTaskState.ps1 -Variant ProcessImprovement](../../scripts/file-creation/support/New-TempTaskState.ps1)** - Create multi-session process improvement state tracking files (uses [process improvement template](../../templates/support/temp-process-improvement-state-template.md))
 - **[New-FeedbackForm.ps1](../../scripts/file-creation/support/New-FeedbackForm.ps1)** - Create feedback forms for task completion
 - **[Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md)** - Central tracking file for all improvements
 - **[feedback_db.py](/scripts/feedback_db.py)** - Record tool changes for trend analysis (`log-change` subcommand)

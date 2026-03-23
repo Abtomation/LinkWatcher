@@ -60,22 +60,22 @@ goto end
 
 :test
 echo Running quick tests...
-python run_tests.py --quick
+pwsh.exe -ExecutionPolicy Bypass -Command "& doc/process-framework/scripts/test/Run-Tests.ps1 -Quick"
 goto end
 
 :test-quick
 echo Running quick development tests...
-python run_tests.py --unit --parsers
+pwsh.exe -ExecutionPolicy Bypass -Command "& doc/process-framework/scripts/test/Run-Tests.ps1 -Category unit,parsers"
 goto end
 
 :test-all
 echo Running all tests...
-python run_tests.py --all
+pwsh.exe -ExecutionPolicy Bypass -Command "& doc/process-framework/scripts/test/Run-Tests.ps1 -All"
 goto end
 
 :coverage
 echo Running tests with coverage...
-python run_tests.py --coverage
+pwsh.exe -ExecutionPolicy Bypass -Command "& doc/process-framework/scripts/test/Run-Tests.ps1 -Coverage"
 echo Coverage report generated in htmlcov/index.html
 goto end
 
@@ -124,10 +124,10 @@ goto end
 
 :ci-test
 echo Running CI test suite locally...
-python run_tests.py --discover
-python run_tests.py --unit --coverage
-python run_tests.py --parsers
-python run_tests.py --integration
+pwsh.exe -ExecutionPolicy Bypass -Command "& doc/process-framework/scripts/test/Run-Tests.ps1 -Discover"
+pwsh.exe -ExecutionPolicy Bypass -Command "& doc/process-framework/scripts/test/Run-Tests.ps1 -Category unit -Coverage"
+pwsh.exe -ExecutionPolicy Bypass -Command "& doc/process-framework/scripts/test/Run-Tests.ps1 -Category parsers"
+pwsh.exe -ExecutionPolicy Bypass -Command "& doc/process-framework/scripts/test/Run-Tests.ps1 -Category integration"
 goto end
 
 :dev-setup

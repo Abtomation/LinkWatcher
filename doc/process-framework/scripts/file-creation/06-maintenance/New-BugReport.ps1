@@ -70,7 +70,7 @@ param(
     [string]$Description,
 
     [Parameter(Mandatory = $true)]
-    [ValidateSet("TestAudit", "Testing", "CodeReview", "UserReport", "Monitoring", "Development", "FeatureImplementation", "Refactoring")]
+    [ValidateSet("TestAudit", "Testing", "E2ETesting", "CodeReview", "UserReport", "Monitoring", "Development", "FeatureImplementation", "Refactoring")]
     [string]$DiscoveredBy,
 
     [Parameter(Mandatory = $true)]
@@ -230,6 +230,7 @@ $UpdatedContent = [regex]::Replace($UpdatedContent, '(\*\*Low \(P4\)\*\*: )\d+',
 $SourceMap = @{
     "TestAudit"             = "Test Audit"
     "Testing"               = "Testing"
+    "E2ETesting"            = "E2E Testing"
     "CodeReview"            = "Code Review"
     "FeatureImplementation" = "Development"
     "Development"           = "Development"

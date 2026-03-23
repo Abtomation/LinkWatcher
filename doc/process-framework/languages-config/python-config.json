@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "description": "Language-specific configuration for Python projects using the process framework.",
+  "description": "Framework wrapper config for Python projects — used by Run-Tests.ps1. Pytest-native config (markers, discovery, warnings, timeout) stays in pytest.ini at project root.",
   "language": "python",
   "version": "1.0",
 
@@ -20,6 +20,11 @@
       "slow": "-m slow",
       "critical": "-m critical",
       "notSlow": "-m \"not slow\""
+    },
+    "testSetup": {
+      "mechanism": "pytest-fixtures",
+      "configFiles": ["test/automated/conftest.py"],
+      "discoveryCommand": "python -m pytest --fixtures -q"
     }
   }
 }

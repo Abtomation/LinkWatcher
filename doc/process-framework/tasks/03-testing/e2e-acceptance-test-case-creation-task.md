@@ -56,6 +56,8 @@ ENHANCEMENT:    Test Spec Creation → Feature Enhancement → E2E Acceptance Te
 - **Critical (Must Read):**
 
   - **Test Specification** (new feature/enhancement paths) - E2E acceptance test scenarios section identifying what needs E2E acceptance validation
+  - **Cross-Cutting E2E Test Specification** (milestone path) - [Cross-cutting E2E spec](/test/specifications/cross-cutting-specs/) defining scenarios that span multiple features, organized by user workflow
+  - [User Workflow Map](/doc/product-docs/technical/design/user-workflow-map.md) - Workflow definitions and feature mappings for multi-feature test cases
   - **Bug Report** (bug fix path) - Reproduction steps and expected vs. actual behavior
   - **Refactoring Plan** (tech debt path) - Affected functionality and expected behavior preservation
   - [E2E Acceptance Test Case Template](../../templates/03-testing/e2e-acceptance-test-case-template.md) - Template for individual test case files
@@ -83,6 +85,7 @@ ENHANCEMENT:    Test Spec Creation → Feature Enhancement → E2E Acceptance Te
 1. **Identify the workflow context**: Determine which path triggered this task (new feature, bug fix, tech debt, or enhancement) — this affects what inputs are available and what the test cases need to demonstrate
 2. **Review inputs based on context**:
    - **New feature/enhancement**: Read the test specification's E2E acceptance test scenarios section. Identify which scenarios need individual test cases and which group they belong to
+   - **Cross-feature milestone**: Read the [cross-cutting E2E test specification](/test/specifications/cross-cutting-specs/) for the triggered workflow. Use `-FeatureIds` to attribute the test case to all participating features and `-Workflow` to link to the workflow map
    - **Bug fix**: Read the bug report. Extract the reproduction steps and define what "fixed" looks like as a concrete expected outcome
    - **Tech debt**: Read the refactoring plan. Identify behaviors that must be preserved and create baseline E2E acceptance test cases that capture current correct behavior
 3. **Review existing test cases**: Check `test/e2e-acceptance-testing/templates/` for existing test groups related to the same feature. Determine whether new test cases should join an existing group or form a new group
@@ -96,9 +99,9 @@ ENHANCEMENT:    Test Spec Creation → Feature Enhancement → E2E Acceptance Te
 
 5. **Create test case via script**: For each test case, run [New-E2EAcceptanceTestCase.ps1](../../scripts/file-creation/03-testing/New-E2EAcceptanceTestCase.ps1). Use `-NewGroup` for the first test case in a new group. Use `-Scripted` for test cases where the action can be automated (e.g., file moves, content edits).
    ```bash
-   cd /c/path/to/project/doc/process-framework/scripts/file-creation/03-testing && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-E2EAcceptanceTestCase.ps1 -TestCaseName "descriptive-name" -GroupName "group-name" -FeatureId "X.Y.Z" -FeatureName "Feature Name" -NewGroup -Source "Test Spec PF-TSP-NNN" -Description "Brief description" -Confirm:$false'
+   cd /c/path/to/project/doc/process-framework/scripts/file-creation/03-testing && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-E2EAcceptanceTestCase.ps1 -TestCaseName "descriptive-name" -GroupName "group-name" -FeatureIds "X.Y.Z" -FeatureName "Feature Name" -Workflow "WF-NNN" -NewGroup -Source "Test Spec PF-TSP-NNN" -Description "Brief description" -Confirm:$false'
    ```
-   > The script automatically: creates the `E2E-NNN-[name]/` directory with `project/`, `expected/`, and `test-case.md`; assigns an E2E ID from the registry; updates the master test's "If Failed" table; adds an entry to test-tracking.md; updates feature-tracking.md Test Status.
+   > The script automatically: creates the `E2E-NNN-[name]/` directory with `project/`, `expected/`, and `test-case.md`; assigns an E2E ID from the registry; updates the master test's "If Failed" table; adds an entry to test-tracking.md; updates feature-tracking.md Test Status. When `-NewGroup` is used, also adds a TE-E2G group row to the E2E Test Cases table and updates the Workflow Milestone Tracking table (if `-Workflow` is provided).
    >
    > When `-Scripted` is used, the script also creates a `run.ps1` skeleton and sets `Execution Mode` to `scripted` in test-case.md. Scripted test cases can be executed automatically via [Run-E2EAcceptanceTest.ps1](../../scripts/test/e2e-acceptance-testing/Run-E2EAcceptanceTest.ps1) or manually by following the Steps section.
    >
@@ -115,15 +118,16 @@ ENHANCEMENT:    Test Spec Creation → Feature Enhancement → E2E Acceptance Te
 9. **Customize run.ps1** (scripted tests only): Replace the skeleton with the actual test action. The script receives a `$WorkspacePath` parameter and should perform only the action (e.g., `Move-Item`). See the [E2E Acceptance Test Case Customization Guide](../../guides/03-testing/e2e-acceptance-test-case-customization-guide.md) for examples.
 10. **Update master test Quick Validation Sequence** (if adding to existing group): Incorporate the new scenario into the group's `master-test-[group-name].md` Quick Validation Sequence. The "If Failed" table is already updated by the script.
 11. **Repeat steps 5–10** for each additional test case in the plan
-12. **🚨 CHECKPOINT**: Present the completed test cases to the human partner for review. Confirm that:
+12. **Update cross-cutting spec coverage** (milestone path only): If test cases were created from a [cross-cutting E2E test specification](/test/specifications/cross-cutting-specs/), update the spec's **Coverage Summary** table with the new E2E IDs, scenario mappings, group assignments, and statuses
+13. **🚨 CHECKPOINT**: Present the completed test cases to the human partner for review. Confirm that:
     - Steps are unambiguous and executable by someone unfamiliar with the codebase
     - Expected results are concrete and verifiable
     - Pass criteria are complete and measurable
 
 ### Finalization
 
-13. **Verify state tracking updates**: Confirm that New-E2EAcceptanceTestCase.ps1 correctly updated [test-tracking.md](../../state-tracking/permanent/test-tracking.md) and [feature-tracking.md](../../state-tracking/permanent/feature-tracking.md) for all created test cases
-14. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+14. **Verify state tracking updates**: Confirm that New-E2EAcceptanceTestCase.ps1 correctly updated [test-tracking.md](../../state-tracking/permanent/test-tracking.md) and [feature-tracking.md](../../state-tracking/permanent/feature-tracking.md) for all created test cases
+15. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 
@@ -157,6 +161,7 @@ Before considering this task finished:
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
   - [ ] [Test Tracking](../../state-tracking/permanent/test-tracking.md) updated with all new E2E acceptance test entries
   - [ ] [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) Test Status updated if needed
+  - [ ] Cross-cutting spec Coverage Summary updated (milestone path only — skip if not applicable)
 - [ ] **Human Review**: Human partner has reviewed and approved the test cases
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-069" and context "E2E Acceptance Test Case Creation"
 

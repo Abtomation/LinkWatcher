@@ -104,7 +104,7 @@ function Update-TestImplementationStatus {
                     $content = Get-Content $testTrackingPath -Raw -Encoding UTF8
 
                     # Update the table using the extracted function
-                    $updatedContent = Update-MarkdownTable -Content $content -FeatureId $FeatureId -StatusColumn "Implementation Status" -Status $Status -AdditionalUpdates $AdditionalUpdates -Notes $Notes
+                    $updatedContent = Update-MarkdownTable -Content $content -FeatureId $FeatureId -StatusColumn "Status" -Status $Status -AdditionalUpdates $AdditionalUpdates -Notes $Notes
 
                     # Update metadata timestamp
                     $updatedContent = $updatedContent -replace "updated: \d{4}-\d{2}-\d{2}", "updated: $timestamp"
@@ -473,9 +473,9 @@ function Ensure-TestTrackingSection {
     $sectionContent = @"
 $sectionHeader
 
-| Test File ID | Feature ID | Test File | Implementation Status | Test Cases Count | Last Updated | Notes |
-|--------------|------------|-----------|----------------------|------------------|--------------|-------|
-| *No test files created yet* | | | | | | |
+| Test ID | Feature ID | Test Type | Test File/Case | Status | Test Cases Count | Last Executed | Last Updated | Notes |
+|---------|------------|-----------|----------------|--------|------------------|---------------|--------------|-------|
+| *No test files created yet* | | | | | | | | |
 
 "@
 

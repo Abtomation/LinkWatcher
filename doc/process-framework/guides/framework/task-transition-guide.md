@@ -973,36 +973,55 @@ Bug Fixing → Testing (🧪) → Ready for Review (👀) → Code Review → [V
 - **After significant changes**: When codebase changes substantially
 - **Quality concerns**: When code quality metrics decline
 
-#### Foundational Codebase Validation (Cyclical)
+#### Feature Validation (Cyclical)
 
 ```
-[Validation Trigger] → [Select Validation Type] → Validation Task Execution → [Conditional Branching]
-├─ Critical Issues Found → [Immediate Remediation] → [Re-validation]
-├─ Issues Found → [Plan Improvements] → [Continue Development]
-└─ Validation Passed → [Update Tracking] → [Continue Development]
+[Validation Trigger] → Validation Preparation (PF-TSK-077)
+  ├── Select feature scope
+  ├── Evaluate dimension applicability (see Dimension Catalog)
+  ├── Create tracking state file
+  └── Plan session sequence
+      │
+      ├── Dimension Task A → Validate feature group → Report → Update tracking
+      ├── Dimension Task B → Validate feature group → Report → Update tracking
+      └── ... (repeat for selected dimensions)
+          │
+          ├─ Critical Issues Found → [Immediate Remediation] → [Re-validation]
+          ├─ Issues Found → [Plan Improvements] → [Continue Development]
+          └─ Validation Passed → [Update Tracking] → [Continue Development]
 ```
 
-**Validation Types Available:**
+**Validation Dimensions Available (11 total):**
 
+*Core dimensions (universal):*
 - **Architectural Consistency Validation** (PF-TSK-031): Pattern adherence, ADR compliance, interface consistency
 - **Code Quality Standards Validation** (PF-TSK-032): SOLID principles, best practices, maintainability
 - **Integration Dependencies Validation** (PF-TSK-033): Dependency health, data flow, integration patterns
 - **Documentation Alignment Validation** (PF-TSK-034): TDD compliance, API documentation accuracy
+
+*Extended dimensions (evaluate per project/feature):*
 - **Extensibility Maintainability Validation** (PF-TSK-035): Extension points, testing support, modularity
 - **AI Agent Continuity Validation** (PF-TSK-036): Context clarity, workflow optimization, session handoffs
+- **Security & Data Protection Validation** (PF-TSK-072): Auth, input validation, secrets management, OWASP
+- **Performance & Scalability Validation** (PF-TSK-073): Resource efficiency, algorithmic complexity, I/O patterns
+- **Observability Validation** (PF-TSK-074): Logging coverage, monitoring, alerting, error traceability
+- **Accessibility / UX Compliance Validation** (PF-TSK-075): WCAG compliance, keyboard navigation, screen readers
+- **Data Integrity Validation** (PF-TSK-076): Data consistency, constraint enforcement, migration safety
+
+> See the [Dimension Catalog](../05-validation/feature-validation-guide.md#dimension-catalog) in the Feature Validation Guide for full applicability criteria.
 
 **Trigger Conditions:**
 
-- **Before major releases**: Validate foundational feature quality and consistency
-- **After foundational feature implementation**: Ensure architectural integrity
+- **Before major releases**: Validate feature quality and consistency
+- **After feature implementation**: Ensure architectural integrity
 - **Quality gate requirements**: When systematic validation is needed for quality assurance
 - **Technical debt assessment follow-up**: Validate improvements after debt remediation
 - **Onboarding preparation**: Establish baseline quality metrics for new team members
 
 **Validation Workflow:**
 
-1. **Planning**: Select validation type and features to validate using [Foundational Validation Guide](../05-validation/foundational-validation-guide.md)
-2. **Execution**: Follow validation task procedures with comprehensive scoring criteria
+1. **Preparation**: Run [Validation Preparation](../../tasks/05-validation/validation-preparation.md) (PF-TSK-077) to select features, evaluate dimension applicability, and create tracking state file
+2. **Execution**: Follow dimension task procedures in planned sequence with comprehensive scoring criteria
 3. **Reporting**: Generate validation reports using automation scripts (New-ValidationReport.ps1)
 4. **Tracking**: Update validation matrix using Update-ValidationReportState.ps1
 5. **Action**: Address findings based on severity and impact assessment
@@ -2096,21 +2115,22 @@ Change Request → Feature Request Evaluation (PF-TSK-067) → Feature Enhanceme
 **Shared State**: Enhancement State Tracking File (created by Evaluation, consumed by Enhancement)
 **Automation Scripts**: `New-EnhancementState.ps1` (creates enhancement state file from template)
 
-### Scenario 16: Manual Testing Workflows
+### Scenario 16: E2E Acceptance Testing Workflows
 
-Manual test cases are created and executed at different points depending on the context:
+E2E acceptance test cases are created and executed at different points depending on the context:
 
 ```
-NEW FEATURE:    ... → Test Spec Creation (classifies manual scenarios) → Implementation → Manual Test Case Creation → Manual Test Execution
-BUG FIX:        Manual Test Case Creation (reproduction case) → Bug Fixing → Manual Test Execution (validate fix)
-TECH DEBT:      Manual Test Case Creation (capture behavior) → Code Refactoring → Manual Test Execution (verify preservation)
-ENHANCEMENT:    ... → Test Spec Creation → Feature Enhancement → Manual Test Case Creation → Manual Test Execution
-RELEASE:        Manual Test Execution (all groups must pass before deployment)
+NEW FEATURE:    ... → Test Spec Creation (classifies E2E scenarios) → Implementation → E2E Test Case Creation → E2E Test Execution
+BUG FIX:        E2E Test Case Creation (reproduction case) → Bug Fixing → E2E Test Execution (validate fix)
+TECH DEBT:      E2E Test Case Creation (capture behavior) → Code Refactoring → E2E Test Execution (verify preservation)
+ENHANCEMENT:    ... → Test Spec Creation → Feature Enhancement → E2E Test Case Creation → E2E Test Execution
+MILESTONE:      Test Spec Creation (milestone detected) → Cross-cutting E2E Test Spec → E2E Test Case Creation → E2E Test Execution
+RELEASE:        E2E Test Execution (all groups must pass before deployment)
 ```
 
-**Key Decision Points**: Test Spec Creation (PF-TSK-012) classifies scenarios as manual/automated; code change tasks mark groups for re-execution; Release & Deployment gates on all groups passing
+**Key Decision Points**: Test Spec Creation (PF-TSK-012) classifies scenarios as e2e/automated; milestone trigger when all features for a workflow are implemented (see [User Workflow Map](/doc/product-docs/technical/design/user-workflow-map.md)); code change tasks mark groups for re-execution; Release & Deployment gates on all groups passing
 **When to Use**: Whenever system behavior needs validation through human interaction with the running application
-**Automation Scripts**: `New-ManualTestCase.ps1` (creates test case + updates tracking), `Setup-TestEnvironment.ps1` (prepares workspace), `Verify-TestResult.ps1` (compares results), `Update-TestExecutionStatus.ps1` (records results)
+**Automation Scripts**: `New-E2EAcceptanceTestCase.ps1` (creates test case + updates tracking), `Setup-TestEnvironment.ps1` (prepares workspace), `Verify-TestResult.ps1` (compares results), `Update-TestExecutionStatus.ps1` (records results)
 
 ## Transition Failure Recovery
 

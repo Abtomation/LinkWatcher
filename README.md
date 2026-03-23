@@ -1,11 +1,8 @@
 # LinkWatcher 2.0 - Real-time Link Maintenance System
 
-[![CI/CD Pipeline](https://github.com/YOUR_USERNAME/LinkWatcher/workflows/CI%2FCD%20Pipeline/badge.svg)](https://github.com/YOUR_USERNAME/LinkWatcher/actions)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![Windows](https://img.shields.io/badge/platform-Windows-blue.svg)](https://www.microsoft.com/windows)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![codecov](https://codecov.io/gh/YOUR_USERNAME/LinkWatcher/branch/main/graph/badge.svg)](https://codecov.io/gh/YOUR_USERNAME/LinkWatcher)
-[![Tests](https://img.shields.io/badge/tests-247%20passing-green.svg)](./tests/)
 
 A modern, reliable link maintenance system that uses file system watching to detect file movements and automatically update all references in real-time.
 
@@ -175,28 +172,6 @@ pytest test/automated/ --cov=linkwatcher --cov-report=html
 - [Test Specifications](test/specifications/feature-specs/) - Feature-level test specifications
 - [E2E Acceptance Tests](test/e2e-acceptance-testing) - Formal E2E acceptance test framework with E2E-* IDs
 
-## 🚀 CI/CD Pipeline
-
-LinkWatcher features a comprehensive Windows-focused CI/CD pipeline:
-
-**Automated Testing:**
-- ✅ **247+ test methods** across all components
-- ✅ **Python 3.8-3.11** compatibility testing
-- ✅ **Windows-only** platform testing
-- ✅ **Code coverage** reporting via Codecov
-- ✅ **Performance benchmarks** on large projects
-
-**Code Quality:**
-- ✅ **Pre-commit hooks** (black, isort, flake8, mypy)
-- ✅ **Automated formatting** and linting
-- ✅ **Type checking** with mypy
-- ✅ **Security scanning** for dependencies
-
-**Pipeline Status:**
-- **Build Status**: ![CI/CD Pipeline](https://github.com/YOUR_USERNAME/LinkWatcher/workflows/CI%2FCD%20Pipeline/badge.svg)
-- **Coverage**: ![codecov](https://codecov.io/gh/YOUR_USERNAME/LinkWatcher/branch/main/graph/badge.svg)
-- **Tests**: ![Tests](https://img.shields.io/badge/tests-247%20passing-green.svg)
-
 ## 📊 Performance
 
 - Handles **1000+ files** efficiently
@@ -227,17 +202,14 @@ dev lint
 dev format
 ```
 
-See [Contributing Guide](CONTRIBUTING.md) for detailed development workflow, testing guidelines, and code standards.
-
 ## 📜 License
 
 MIT License
 
 ## 🔗 Links
 
-- [Contributing Guide](CONTRIBUTING.md) - Development workflow and guidelines
 - [Changelog](CHANGELOG.md) - Release history and changes
-- [Test Suite](tests/) - Comprehensive test documentation
+- [Test Suite](test/automated/) - Comprehensive test documentation
 - [Example Configurations](examples/)
 
 ---

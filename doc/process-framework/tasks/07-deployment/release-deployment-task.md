@@ -2,9 +2,9 @@
 id: PF-TSK-008
 type: Process Framework
 category: Task Definition
-version: 1.1
+version: 1.2
 created: 2024-07-15
-updated: 2025-06-08
+updated: 2026-03-22
 task_type: Discrete
 ---
 
@@ -68,7 +68,7 @@ Manage the process of preparing, versioning, and deploying releases of the appli
 
 7. Run the full test suite on the release candidate
 8. **Run full pre-release test sweep**: Execute `Run-Tests.ps1 -All` to confirm all automated tests pass. This is a release gate — no deployment if tests fail. Pay special attention to **Critical** priority tests in [test-registry.yaml](/test/test-registry.yaml) — these cover foundation features and must all pass. Extended priority tests (performance, edge cases) are informational but not release-blocking.
-9. **Verify manual test status**: Check [test-tracking.md](../../state-tracking/permanent/test-tracking.md) for any manual test groups marked `🔄 Needs Re-execution`. All groups must show `✅ Passed` before release. If any need re-execution, trigger [Manual Test Execution](../03-testing/e2e-acceptance-test-execution-task.md) first.
+9. **Verify E2E acceptance test status**: Check the dedicated **E2E Acceptance Tests** section in [test-tracking.md](../../state-tracking/permanent/test-tracking.md) for any E2E groups marked `🔄 Needs Re-execution`. All groups must show `✅ Passed` before release. If any need re-execution, trigger [E2E Acceptance Test Execution](../03-testing/e2e-acceptance-test-execution-task.md) first. Also check the **Workflow Milestone Tracking** — are all workflows in the release scope covered by E2E tests? Flag any workflow with `⬜ Not Created` status as a release risk.
 10. Verify all deployment prerequisites are met
 11. Complete the pre-deployment checklist
 12. Obtain necessary approvals
@@ -116,21 +116,15 @@ Manage the process of preparing, versioning, and deploying releases of the appli
 
 ## Outputs
 
-- **Updated Release Status** - `<!-- /doc/process-framework/state-tracking/release-status.md - File not found -->` updated with new release information
-- **Release Notes** - `<!-- /doc/releases/release-notes-vX.Y.Z.md - File not found -->` for the new version
-- **Deployment Report** - `<!-- /doc/releases/deployment-report-vX.Y.Z.md - File not found -->` documenting the deployment process
+- **Release Notes** - Document release version, included features, bug fixes, and known issues (format per project convention)
 - **Bug Reports** - Any bugs discovered during deployment documented in [Bug Tracking](../../state-tracking/permanent/bug-tracking.md) with status 🆕 Reported
 
 ## State Tracking
 
 The following state files must be updated as part of this task:
 
-- <!-- [Release Status](../../state-tracking/release-status.md) - File not found --> - Update with:
-  - Release version and semantic versioning explanation
-  - Release date and environment details
-  - List of features and bug fixes included
-  - Known issues or limitations
-  - Deployment status for each environment
+- [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Update feature statuses to reflect release
+- [Bug Tracking](../../state-tracking/permanent/bug-tracking.md) - Update bug statuses for fixes included in release
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
@@ -139,16 +133,13 @@ The following state files must be updated as part of this task:
 Before considering this task finished:
 
 - [ ] **Verify Outputs**: Confirm all required outputs have been produced
-  - [ ] Release status document is updated with all details
   - [ ] Release notes are comprehensive and accurate
-  - [ ] Deployment report documents the process and any issues
   - [ ] Release version has been properly incremented
   - [ ] Bug discovery performed systematically during deployment and monitoring
-  - [ ] Any discovered bugs reported using ../../scripts/file-creation/06-maintenance/New-BugReport.ps1 script with proper context and evidence
+  - [ ] Any discovered bugs reported using New-BugReport.ps1 script with proper context and evidence
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
-  - [ ] Release status file shows correct version and date
-  - [ ] Deployment status is accurately reflected
-  - [ ] All included features and fixes are listed
+  - [ ] Feature tracking updated to reflect released features
+  - [ ] Bug tracking updated for fixes included in release
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-008" and context "Release & Deployment"
 
 ## Next Tasks
@@ -158,7 +149,6 @@ Before considering this task finished:
 
 ## Related Resources
 
-- <!-- [Semantic Versioning Guide](/doc/product-docs/development/guides/semantic-versioning-guide.md) - File not found --> - Guide to version numbering
-- <!-- [Rollback Procedures](/doc/product-docs/development/ci-cd/rollback-procedures.md) - File not found --> - Procedures for rolling back problematic deployments
-- <!-- [CI/CD Pipeline Documentation](/doc/product-docs/development/ci-cd/pipeline-documentation.md) - File not found --> - Documentation of the CI/CD pipeline
+- [CI/CD Setup Guide](../../guides/07-deployment/ci-cd-setup-guide.md) - Guide for setting up CI/CD infrastructure
+- [Testing Setup Guide](../../guides/03-testing/testing-setup-guide.md) - Guide for test infrastructure scaffolding
 - [Task Creation and Improvement Guide](../../guides/support/task-creation-guide.md) - Guide for creating and improving tasks

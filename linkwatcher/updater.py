@@ -134,6 +134,9 @@ class LinkUpdater:
                 references, key=lambda r: (r.line_number, r.column_start), reverse=True
             )
 
+            # Phase 1: Collect python-import module rename mappings
+            python_module_renames = {}
+
             for ref in sorted_refs:
                 line_idx = ref.line_number - 1  # Convert to 0-based index
 
@@ -142,6 +145,12 @@ class LinkUpdater:
 
                 if new_target == ref.link_target:
                     continue  # No change needed for this reference
+
+                # Collect module rename mapping for Phase 2 (PD-BUG-045)
+                if ref.link_type == "python-import" and ref.link_text:
+                    new_module = new_target.replace("/", ".")
+                    if ref.link_text != new_module:
+                        python_module_renames[ref.link_text] = new_module
 
                 # Stale detection: line index out of bounds
                 if not (0 <= line_idx < len(lines)):
@@ -179,6 +188,22 @@ class LinkUpdater:
                 updated_line = self._replace_in_line(line, ref, new_target)
                 if updated_line != line:
                     lines[line_idx] = updated_line
+                    changes_made = True
+
+            # Phase 2 (PD-BUG-045): File-wide module usage replacement.
+            # When a Python import is updated (e.g., "import utils.helpers" →
+            # "import core.helpers"), usage sites on other lines
+            # (e.g., "utils.helpers.func()") must also be updated.
+            if python_module_renames:
+                content = "".join(lines)
+                for old_module, new_module in python_module_renames.items():
+                    # Use word-boundary regex to avoid false positives on
+                    # substrings (e.g., "my_utils.helpers" should not match).
+                    pattern = r"\b" + re.escape(old_module) + r"\b"
+                    content = re.sub(pattern, new_module, content)
+                new_lines = content.splitlines(True)
+                if new_lines != lines:
+                    lines = new_lines
                     changes_made = True
 
             # Write the updated content if changes were made

@@ -12,7 +12,7 @@ task_type: Discrete
 
 ## Purpose & Context
 
-Systematically validates foundational features for documentation alignment, ensuring that Technical Design Documents (TDDs), Architecture Decision Records (ADRs), and API documentation accurately reflect the implemented code and maintain consistency across the codebase.
+Systematically validates selected features for documentation alignment, ensuring that Technical Design Documents (TDDs), Architecture Decision Records (ADRs), and API documentation accurately reflect the implemented code and maintain consistency across the codebase.
 
 ## AI Agent Role
 
@@ -23,7 +23,7 @@ Systematically validates foundational features for documentation alignment, ensu
 
 ## When to Use
 
-- When validating foundational features for documentation alignment as part of the validation framework
+- When validating selected features for documentation alignment as part of the validation framework
 - Before major releases to ensure documentation accuracy and completeness
 - When investigating discrepancies between documentation and implementation
 - As part of regular documentation quality assessments
@@ -35,9 +35,9 @@ Systematically validates foundational features for documentation alignment, ensu
 
 - **Critical (Must Read):**
 
-  - **Foundational Validation Guide** - [Foundational Validation Guide](../../guides/05-validation/foundational-validation-guide.md) - Comprehensive guide for conducting foundational codebase validation
-  - **Feature Tracking** - [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Current status of foundational features to be validated
-  - **Foundational Validation Tracking** - [Foundational Validation Tracking](../../state-tracking/temporary/foundational-validation-tracking.md) - Master validation matrix and progress tracking
+  - **Feature Validation Guide** - [Feature Validation Guide](../../guides/05-validation/feature-validation-guide.md) - Comprehensive guide for conducting feature validation
+  - **Feature Tracking** - [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Current status of features to be validated
+  - **Validation Tracking** - Link to the active validation tracking state file for the current validation round — see [Feature Validation Guide](../../guides/05-validation/feature-validation-guide.md) for setup
   - **Validation Report Template** - [Validation Report Template](../../templates/05-validation/validation-report-template.md) - Template for creating validation reports
   - **Technical Design Documents** - [TDD Directory](../../../product-docs/technical/design) - Technical specifications to validate against implementation
 
@@ -45,7 +45,7 @@ Systematically validates foundational features for documentation alignment, ensu
 
   - **Architecture Decision Records** - [ADR Directory](../../../product-docs/technical/architecture/decisions) - Architectural decisions to validate compliance
   - **API Documentation** - [API Documentation](../../../product-docs/technical/api) - API specifications to validate against implementation
-  - **Codebase Structure** - Source code directory - Source code for foundational features to analyze
+  - **Codebase Structure** - Source code directory - Source code for selected features to analyze
   - **New-ValidationReport Script** - [../../scripts/file-creation/05-validation/New-ValidationReport.ps1](../../scripts/file-creation/05-validation/New-ValidationReport.ps1) - Script for generating validation reports
   - **Component Relationship Index** - [Component Relationship Index](../../../product-docs/technical/architecture/component-relationship-index.md) - For understanding component interactions
   - **Feature Implementation State Files** - [Feature State Directory](../../state-tracking/features/) - Implementation state files with feature status, TDD/FDD links, and validation context
@@ -69,7 +69,7 @@ Systematically validates foundational features for documentation alignment, ensu
 
 ### Preparation
 
-1. **Review Validation Scope**: Identify the specific foundational features to validate (typically 3-4 features per session)
+1. **Review Validation Scope**: Identify the specific selected features to validate (typically 3-4 features per session)
 2. **Load Context Files**: Review feature implementations, existing TDDs, ADRs, and API documentation
 3. **Prepare Documentation Criteria**: Review documentation standards and alignment requirements
 4. **🚨 CHECKPOINT**: Present validation scope, selected features, TDD/ADR/API documentation inventory, and alignment criteria to human partner for approval before execution
@@ -106,7 +106,7 @@ Systematically validates foundational features for documentation alignment, ensu
 
 ### Finalization
 
-14. **Update Validation Tracking**: Update the foundational validation tracking matrix with report creation date and link
+14. **Update Validation Tracking**: Update the validation tracking matrix with report creation date and link
 15. **Review Quality Gates**: Ensure validation meets minimum quality thresholds (average score ≥ 2.0)
 16. **Plan Remediation**: For scores below threshold, create action items for documentation improvements
 17. **🤖 AUTOMATED: Update Technical Debt Tracking**: Add any new open issues identified during validation to [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md) using the automation script:
@@ -119,7 +119,7 @@ Systematically validates foundational features for documentation alignment, ensu
 ## Outputs
 
 - **Documentation Alignment Validation Report** - Detailed validation report with scoring and findings, created in doc/product-docs/validation/reports/documentation-alignment/PF-VAL-XXX-documentation-alignment-features-[feature-range].md
-- **Updated Foundational Validation Tracking** - Matrix cell updated with report creation date and link in [Foundational Validation Tracking](../../state-tracking/temporary/foundational-validation-tracking.md)
+- **Updated Validation Tracking** - Matrix cell updated with report creation date and link in the active validation tracking state file
 - **Documentation Gap Analysis** - Comprehensive analysis of missing or outdated documentation identified during validation
 - **Remediation Action Items** - Specific recommendations for improving documentation alignment and completeness
 
@@ -127,7 +127,7 @@ Systematically validates foundational features for documentation alignment, ensu
 
 The following state files must be updated as part of this task:
 
-- [Foundational Validation Tracking](../../state-tracking/temporary/foundational-validation-tracking.md) - Update validation matrix with report creation date and link for Documentation Alignment validation type
+- **Validation Tracking State File** - Update the active validation tracking matrix with report creation date and link (file location depends on validation round — see Feature Validation Guide)
 - [Documentation Map](../../documentation-map.md) - Add new validation report to the appropriate section with ID, path, and description
 - [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md) - Add new open issues identified during validation to the Technical Debt Registry
 
@@ -143,7 +143,7 @@ Before considering this task finished:
   - [ ] Documentation gaps and inconsistencies documented with specific remediation recommendations
   - [ ] Report saved in correct directory: `doc/product-docs/validation/reports/documentation-alignment`
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
-  - [ ] [Foundational Validation Tracking](../../state-tracking/temporary/foundational-validation-tracking.md) matrix updated with report creation date and link
+  - [ ] Validation tracking state file matrix updated with report creation date and link
   - [ ] [Documentation Map](../../documentation-map.md) updated with new validation report entry
   - [ ] **AUTOMATED**: [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md) updated with new open issues using `Update-TechDebt.ps1`
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-034" and context "Documentation Alignment Validation"

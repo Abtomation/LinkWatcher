@@ -10,8 +10,8 @@
     Use -ListCategories to see available categories.
 
 .PARAMETER Category
-    Run tests in a specific subdirectory category (e.g., -Category unit, -Category integration).
-    Categories are discovered from subdirectories of the test directory.
+    Run tests in one or more subdirectory categories (e.g., -Category unit, -Category unit,integration).
+    Multiple categories can be comma-separated. Categories are discovered from subdirectories of the test directory.
 
 .PARAMETER Quick
     Run quick subset: categories defined in project-config.json quickCategories, stop on first failure.
@@ -41,11 +41,18 @@
 .PARAMETER VerboseOutput
     Enable verbose test output.
 
+.PARAMETER UpdateTracking
+    After running tests, parse per-file pass/fail results and update test-tracking.md
+    via TestTracking.psm1. Requires verbose pytest output to parse individual test results.
+    Looks up PD-TST IDs from test-registry.yaml to match file paths to tracking entries.
+
 .EXAMPLE
     .\Run-Tests.ps1 -Category unit
+    .\Run-Tests.ps1 -Category unit,integration
     .\Run-Tests.ps1 -All -Coverage
     .\Run-Tests.ps1 -Quick
     .\Run-Tests.ps1 -ListCategories
+    .\Run-Tests.ps1 -Category unit -UpdateTracking
 
 .NOTES
     Config: project-config.json (project settings) + languages-config/{language}-config.json (commands).
@@ -54,7 +61,7 @@
 
 [CmdletBinding()]
 param(
-    [string]$Category,
+    [string[]]$Category,
     [switch]$Quick,
     [switch]$All,
     [switch]$Coverage,
@@ -63,7 +70,8 @@ param(
     [switch]$Critical,
     [switch]$Performance,
     [switch]$ListCategories,
-    [switch]$VerboseOutput
+    [switch]$VerboseOutput,
+    [switch]$UpdateTracking
 )
 
 # --- Resolve project root and configs ---
@@ -96,6 +104,26 @@ if (-not (Test-Path $langConfigPath)) {
 
 $langConfig = Get-Content $langConfigPath -Raw | ConvertFrom-Json
 $testing = $langConfig.testing
+
+# --- Resolve python executable (handles PATH inherited from bash in Unix format) ---
+$baseCmd = ($testing.baseCommand -split '\s+')[0]
+if (-not (Get-Command $baseCmd -ErrorAction SilentlyContinue)) {
+    # Try common Windows Python locations
+    $pythonCandidates = @(
+        "$env:LOCALAPPDATA\Microsoft\WindowsApps\python.exe",
+        "$env:LOCALAPPDATA\Programs\Python\Python311\python.exe",
+        "$env:LOCALAPPDATA\Programs\Python\Python310\python.exe",
+        "$env:LOCALAPPDATA\Programs\Python\Python39\python.exe"
+    )
+    $resolvedPython = $pythonCandidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+    if ($resolvedPython) {
+        $testing.baseCommand = $testing.baseCommand -replace [regex]::Escape($baseCmd), "`"$resolvedPython`""
+        Write-Host "Resolved $baseCmd to: $resolvedPython"
+    } else {
+        Write-Error "$baseCmd not found in PATH or common locations. Install Python or update PATH."
+        exit 1
+    }
+}
 
 # --- Helper: substitute placeholders in a string ---
 function Expand-Placeholders {
@@ -154,6 +182,9 @@ if ($ListCategories) {
     exit 0
 }
 
+# --- Collected test output for tracking (populated when -UpdateTracking is active) ---
+$script:capturedTestOutput = @()
+
 # --- Helper: run a command and return success ---
 function Invoke-TestCommand {
     param(
@@ -169,7 +200,16 @@ function Invoke-TestCommand {
 
     Push-Location $projectRoot
     try {
-        & $Command[0] $Command[1..($Command.Length - 1)]
+        if ($script:UpdateTracking) {
+            # Capture output line-by-line while still displaying it
+            $output = & $Command[0] $Command[1..($Command.Length - 1)] 2>&1
+            foreach ($line in $output) {
+                Write-Host $line
+                $script:capturedTestOutput += $line.ToString()
+            }
+        } else {
+            & $Command[0] $Command[1..($Command.Length - 1)]
+        }
         return $LASTEXITCODE -eq 0
     }
     catch {
@@ -182,8 +222,14 @@ function Invoke-TestCommand {
 }
 
 # --- Default to Quick if nothing specified ---
-$anyFlag = $Category -or $Quick -or $All -or $Coverage -or $Discover -or $Lint -or $Critical -or $Performance
+$anyFlag = ($Category -and $Category.Count -gt 0) -or $Quick -or $All -or $Coverage -or $Discover -or $Lint -or $Critical -or $Performance
 if (-not $anyFlag) { $Quick = $true }
+
+# --- UpdateTracking requires verbose output for per-test parsing ---
+if ($UpdateTracking) {
+    $VerboseOutput = $true
+    $script:UpdateTracking = $true
+}
 
 $success = $true
 
@@ -211,20 +257,25 @@ if ($Lint) {
     }
 }
 
-# --- Category (dynamic) ---
+# --- Category (dynamic, supports multiple) ---
 if ($Category) {
-    if ($Category -notin $categories) {
-        Write-Error "Unknown category '$Category'. Available: $($categories -join ', '). Use -ListCategories to see all."
-        exit 1
+    foreach ($cat in $Category) {
+        if ($cat -notin $categories) {
+            Write-Error "Unknown category '$cat'. Available: $($categories -join ', '). Use -ListCategories to see all."
+            exit 1
+        }
     }
     $cmd = Get-BaseCommand
-    $cmd += "$testDir/$Category/"
+    foreach ($cat in $Category) {
+        $cmd += "$testDir/$cat/"
+    }
     if ($VerboseOutput -and $testing.verboseFlag) { $cmd += $testing.verboseFlag }
     if ($Coverage -and $testing.coverageArgs) {
         $covArgs = Split-Command (Expand-Placeholders $testing.coverageArgs)
         $cmd += $covArgs
     }
-    $result = Invoke-TestCommand -Command $cmd -Description "$Category Tests"
+    $catNames = $Category -join " + "
+    $result = Invoke-TestCommand -Command $cmd -Description "$catNames Tests"
     $success = $success -and $result
 }
 
@@ -302,7 +353,7 @@ if ($All) {
 }
 
 # --- Coverage only (standalone) ---
-if ($Coverage -and -not ($Category -or $All)) {
+if ($Coverage -and -not (($Category -and $Category.Count -gt 0) -or $All)) {
     $cmd = Get-BaseCommand
     $cmd += "$testDir/"
     if ($testing.coverageFullArgs) {
@@ -320,6 +371,202 @@ if ($Coverage -and -not ($Category -or $All)) {
         Write-Host ("=" * 60)
         Write-Host "Coverage report generated."
         Write-Host ("=" * 60)
+    }
+}
+
+# --- Update tracking if requested ---
+if ($UpdateTracking -and $script:capturedTestOutput.Count -gt 0) {
+    Write-Host ""
+    Write-Host ("=" * 60)
+    Write-Host "Updating test-tracking.md with execution results..."
+    Write-Host ("=" * 60)
+
+    # Parse verbose pytest output: lines like "test/automated/unit/test_config.py::TestClass::test_method PASSED"
+    $fileResults = @{}
+    foreach ($line in $script:capturedTestOutput) {
+        if ($line -match '^(test/.+?\.py)::.+\s+(PASSED|FAILED|SKIPPED|ERROR)') {
+            $filePath = $matches[1]
+            $result = $matches[2]
+            if (-not $fileResults.ContainsKey($filePath)) {
+                $fileResults[$filePath] = @{ Passed = 0; Failed = 0; Skipped = 0; Error = 0 }
+            }
+            switch ($result) {
+                'PASSED'  { $fileResults[$filePath].Passed++ }
+                'FAILED'  { $fileResults[$filePath].Failed++ }
+                'SKIPPED' { $fileResults[$filePath].Skipped++ }
+                'ERROR'   { $fileResults[$filePath].Error++ }
+            }
+        }
+    }
+
+    if ($fileResults.Count -eq 0) {
+        Write-Host "No per-test results found in output — skipping tracking update."
+    } else {
+        # Load test-registry.yaml to map file paths to PD-TST IDs
+        $registryPath = Join-Path $projectRoot "test/test-registry.yaml"
+        if (-not (Test-Path $registryPath)) {
+            Write-Host "test-registry.yaml not found — skipping tracking update."
+        } else {
+            $registryContent = Get-Content $registryPath -Raw -Encoding UTF8
+
+            # Build lookup table: filePath → { testId, featureId } from YAML list format
+            $registryLines = $registryContent -split '\r?\n'
+            $registryLookup = @{}
+            $currentEntry = @{}
+            for ($i = 0; $i -lt $registryLines.Count; $i++) {
+                $rline = $registryLines[$i]
+                if ($rline -match '^\s+-\s+id:\s*(PD-TST-\d+)') {
+                    $currentEntry = @{ id = $matches[1] }
+                }
+                if ($currentEntry.id -and $rline -match '^\s+featureId:\s*"?([^"]+)"?') {
+                    $currentEntry.featureId = $matches[1]
+                }
+                if ($currentEntry.id -and $rline -match '^\s+filePath:\s*"?([^"]+)"?') {
+                    $fp = $matches[1] -replace '\\', '/'
+                    $registryLookup[$fp] = $currentEntry
+                    $currentEntry = @{}
+                }
+            }
+
+            # Build per-test-file update list
+            $timestamp = Get-Date -Format "yyyy-MM-dd"
+            $updatesByTestId = @{}
+            $skippedCount = 0
+
+            foreach ($filePath in $fileResults.Keys) {
+                $stats = $fileResults[$filePath]
+                $total = $stats.Passed + $stats.Failed + $stats.Skipped + $stats.Error
+                $normalizedPath = ($filePath -replace '\\', '/').TrimStart('/')
+
+                $entry = $registryLookup[$normalizedPath]
+                if (-not $entry) {
+                    Write-Host "  SKIP: $filePath (not in test-registry.yaml)"
+                    $skippedCount++
+                    continue
+                }
+
+                $runNote = "Run $timestamp`: $($stats.Passed) passed"
+                if ($stats.Failed -gt 0) { $runNote += ", $($stats.Failed) failed" }
+                if ($stats.Skipped -gt 0) { $runNote += ", $($stats.Skipped) skipped" }
+
+                $updatesByTestId[$entry.id] = @{
+                    Status = if ($stats.Failed -gt 0 -or $stats.Error -gt 0) { "🔴 Tests Failing" } else { "✅ Tests Implemented" }
+                    TestCasesCount = "$total"
+                    RunNote = $runNote
+                    FilePath = $filePath
+                    Passed = $stats.Passed
+                    Failed = $stats.Failed
+                }
+            }
+
+            if ($updatesByTestId.Count -eq 0) {
+                Write-Host "No test files matched registry entries — skipping tracking update."
+            } else {
+                # Update test-tracking.md directly — match rows by PD-TST ID in column 0
+                # Columns: Test ID(0) | Feature ID(1) | Test Type(2) | Test File/Case(3) | Status(4) | Test Cases Count(5) | Last Executed(6) | Last Updated(7) | Notes(8)
+                $trackingPath = Join-Path $projectRoot "doc/process-framework/state-tracking/permanent/test-tracking.md"
+                $trackingContent = Get-Content $trackingPath -Raw -Encoding UTF8
+                $trackingLines = $trackingContent -split '\r?\n'
+
+                $updatedCount = 0
+                $updatedLines = @()
+                foreach ($line in $trackingLines) {
+                    if ($line -match '^\|\s*(PD-TST-\d+)\s*\|') {
+                        $rowTestId = $matches[1]
+                        if ($updatesByTestId.ContainsKey($rowTestId)) {
+                            $u = $updatesByTestId[$rowTestId]
+                            # Parse columns: split on | and remove first/last empty elements
+                            $rawCols = $line -split '\|'
+                            if ($rawCols.Count -gt 2) {
+                                $rawCols = $rawCols[1..($rawCols.Count-2)]
+                            }
+                            $cols = $rawCols | ForEach-Object { $_.Trim() }
+
+                            if ($cols.Count -ge 9) {
+                                $cols[4] = $u.Status                    # Status
+                                $cols[5] = $u.TestCasesCount            # Test Cases Count
+                                $cols[6] = $u.RunNote                   # Last Executed (includes run details)
+                                $cols[7] = $timestamp                   # Last Updated
+                                # Preserve existing Notes — don't append run notes there
+                            }
+
+                            $updatedLines += "| " + ($cols -join " | ") + " |"
+                            Write-Host "  OK: $rowTestId ($($u.FilePath)) — $($u.Passed)p/$($u.Failed)f"
+                            $updatedCount++
+                            continue
+                        }
+                    }
+                    $updatedLines += $line
+                }
+
+                # Write back
+                $updatedContent = $updatedLines -join "`n"
+                $updatedContent = $updatedContent -replace "updated: \d{4}-\d{2}-\d{2}", "updated: $timestamp"
+                Set-Content $trackingPath $updatedContent -Encoding UTF8
+
+                Write-Host ""
+                Write-Host "Tracking update: $updatedCount updated, $skippedCount skipped (of $($fileResults.Count) test files)"
+            }
+        }
+    }
+}
+
+# --- Update coverage summary if -Coverage -UpdateTracking ---
+if ($UpdateTracking -and $Coverage -and $script:capturedTestOutput.Count -gt 0) {
+    Write-Host ""
+    Write-Host ("=" * 60)
+    Write-Host "Updating coverage summary in test-tracking.md..."
+    Write-Host ("=" * 60)
+
+    # Parse TOTAL line: "TOTAL                                 2710    392    86%"
+    $totalCoverage = $null
+    foreach ($line in $script:capturedTestOutput) {
+        if ($line -match '^TOTAL\s+\d+\s+\d+\s+(\d+)%') {
+            $totalCoverage = "$($matches[1])%"
+        }
+    }
+
+    # Parse pytest summary line: "477 passed, 5 skipped, 3 deselected, 7 xfailed"
+    $testsPassed = "—"
+    $testsSkipped = "—"
+    $testsFailed = "—"
+    foreach ($line in $script:capturedTestOutput) {
+        if ($line -match '(\d+) passed') { $testsPassed = $matches[1] }
+        if ($line -match '(\d+) failed') { $testsFailed = $matches[1] }
+        if ($line -match '(\d+) skipped') { $testsSkipped = $matches[1] }
+    }
+    if ($testsFailed -eq "—") { $testsFailed = "0" }
+    if ($testsSkipped -eq "—") { $testsSkipped = "0" }
+
+    if ($totalCoverage) {
+        $timestamp = Get-Date -Format "yyyy-MM-dd"
+        $runType = if ($All) { "All (excl. slow)" } elseif ($Category -and $Category.Count -gt 0) { "Category: $($Category -join ', ')" } else { "Full" }
+        $newRow = "| $timestamp | $totalCoverage | $testsPassed | $testsSkipped | $testsFailed | $runType |"
+
+        $trackingPath = Join-Path $projectRoot "doc/process-framework/state-tracking/permanent/test-tracking.md"
+        $trackingContent = Get-Content $trackingPath -Raw -Encoding UTF8
+        $trackingLines = $trackingContent -split '\r?\n'
+
+        # Insert after the Coverage Summary header row (|------|...)
+        $updatedLines = @()
+        $inserted = $false
+        foreach ($tline in $trackingLines) {
+            $updatedLines += $tline
+            if (-not $inserted -and $tline -match '^\|[-\s|]+\|$' -and $updatedLines[-2] -match 'Date.*Total Coverage') {
+                $updatedLines += $newRow
+                $inserted = $true
+            }
+        }
+
+        if ($inserted) {
+            $updatedContent = $updatedLines -join "`n"
+            Set-Content $trackingPath $updatedContent -Encoding UTF8
+            Write-Host "  Coverage: $totalCoverage ($testsPassed passed, $testsFailed failed, $testsSkipped skipped) — $runType"
+        } else {
+            Write-Host "  Could not find Coverage Summary table in test-tracking.md — skipping."
+        }
+    } else {
+        Write-Host "  No TOTAL coverage line found in output — skipping coverage tracking."
     }
 }
 

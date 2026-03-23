@@ -147,11 +147,11 @@ dev coverage           # With coverage report
 dev lint               # Check code style
 dev format             # Format code
 
-# Specific test categories
-python run_tests.py --unit          # Unit tests
-python run_tests.py --integration   # Integration tests
-python run_tests.py --parsers       # Parser tests
-python run_tests.py --performance   # Performance tests
+# Specific test categories (using process framework test runner)
+pwsh.exe -ExecutionPolicy Bypass -Command "& doc/process-framework/scripts/test/Run-Tests.ps1 -Category unit"
+pwsh.exe -ExecutionPolicy Bypass -Command "& doc/process-framework/scripts/test/Run-Tests.ps1 -Category integration"
+pwsh.exe -ExecutionPolicy Bypass -Command "& doc/process-framework/scripts/test/Run-Tests.ps1 -Category parsers"
+pwsh.exe -ExecutionPolicy Bypass -Command "& doc/process-framework/scripts/test/Run-Tests.ps1 -Performance"
 ```
 
 ## 🔍 Troubleshooting
@@ -229,5 +229,3 @@ part 'models.dart';                ← Part statement
 
 - [HOW_IT_WORKS.md](HOW_IT_WORKS.md) - Detailed architecture explanation
 - [README.md](README.md) - Project overview and installation
-- [CONTRIBUTING.md](CONTRIBUTING.md) - Development guidelines
-- [tests/README.md](tests/README.md) - Testing documentation

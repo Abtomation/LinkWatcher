@@ -139,7 +139,9 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
         try:
             if event.is_directory:
                 self._handle_directory_moved(event)
-            elif self._should_monitor_file(event.dest_path):
+            elif self._should_monitor_file(event.dest_path) or self._is_known_reference_target(event.src_path):
+                # PD-BUG-046: Also process moves for non-monitored files that
+                # are known reference targets in the link database.
                 self._handle_file_moved(event)
         except Exception as e:
             self.logger.error(
@@ -163,7 +165,9 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
                 known_files = self._dir_move_detector.get_files_under_directory(deleted_path)
                 if known_files:
                     self._handle_directory_deleted(event)
-                elif self._should_monitor_file(event.src_path):
+                elif self._should_monitor_file(event.src_path) or self._is_known_reference_target(event.src_path):
+                    # PD-BUG-046: Also buffer deletes for non-monitored files
+                    # that are known reference targets in the link database.
                     self._handle_file_deleted(event)
         except Exception as e:
             self.logger.error(
@@ -177,7 +181,14 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
     def on_created(self, event):
         """Handle file/directory creation events."""
         try:
-            if not event.is_directory and self._should_monitor_file(event.src_path):
+            if not event.is_directory and (
+                self._should_monitor_file(event.src_path)
+                # PD-BUG-046: Also process creates for non-monitored files when
+                # the move detector has pending deletes — this allows correlation
+                # of DELETE+CREATE pairs for referenced non-monitored files.
+                # The move detector's match_created_file will filter non-matches.
+                or self._move_detector.has_pending
+            ):
                 self._handle_file_created(event)
         except Exception as e:
             self.logger.error(
@@ -543,6 +554,23 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
     def _should_monitor_file(self, file_path: str) -> bool:
         """Check if a file should be monitored."""
         return should_monitor_file(file_path, self.monitored_extensions, self.ignored_dirs)
+
+    def _is_known_reference_target(self, abs_path: str) -> bool:
+        """Check if a file is a known reference target in the link database.
+
+        PD-BUG-046: Files that are referenced by monitored files should have
+        their moves detected even if their own extension is not in
+        monitored_extensions.
+
+        Uses a fast basename check against DB keys to avoid expensive
+        full-path resolution scans (which would block the observer thread).
+        """
+        filename = os.path.basename(abs_path)
+        with self.link_db._lock:
+            for target_key in self.link_db.links:
+                if os.path.basename(target_key) == filename:
+                    return True
+        return False
 
     def _get_relative_path(self, abs_path: str) -> str:
         """Convert absolute path to relative path from project root."""

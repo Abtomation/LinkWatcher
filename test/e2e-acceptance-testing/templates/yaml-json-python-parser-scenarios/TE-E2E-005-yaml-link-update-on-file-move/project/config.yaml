@@ -1,0 +1,13 @@
+# Application configuration
+config_file: data/settings.conf
+schema_file: data/schema.sql
+
+database:
+  connections:
+    primary:
+      config: data/settings.conf
+      schema: data/schema.sql
+
+input_files:
+  - data/settings.conf
+  - data/schema.sql

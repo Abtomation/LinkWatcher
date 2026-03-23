@@ -1,18 +1,15 @@
-<!-- Replace all [PLACEHOLDERS] with actual values -->
-<!-- Remove all instructional comments when creating the actual file -->
+---
+id: TE-E2G-003
+type: E2E Acceptance Test Group
+feature_ids: ["1.1.1", "2.1.1", "2.2.1"]
+workflow: WF-001
+test_cases_count: 1
+estimated_duration: 5 minutes
+created: 2026-03-16
+updated: 2026-03-16
+---
 
 # Master Test: markdown-parser-scenarios
-
-## Metadata
-
-| Field | Value |
-|-------|-------|
-| Group ID | E2E-GRP-03 |
-| Feature | 2.1.1 — Link Parsing System |
-| Test Cases Covered | 1 |
-| Estimated Duration | [ESTIMATED DURATION] |
-| Created | 2026-03-16 |
-| Last Updated | 2026-03-16 |
 
 ## Purpose
 
@@ -69,7 +66,7 @@ Run individual test cases to isolate the issue:
 
 | Test Case | Path | Description |
 |-----------|------|-------------|
-| E2E-004 | [E2E-004-markdown-link-update-on-file-move/test-case.md](E2E-004-markdown-link-update-on-file-move/test-case.md) | Move files referenced in markdown links (standard, special characters, quoted) and verify LinkWatcher updates all references |
+| TE-E2E-004 | [TE-E2E-004-markdown-link-update-on-file-move/test-case.md](TE-E2E-004-markdown-link-update-on-file-move/test-case.md) | Move files referenced in markdown links (standard, special characters, quoted) and verify LinkWatcher updates all references |
 
 ## Notes
 

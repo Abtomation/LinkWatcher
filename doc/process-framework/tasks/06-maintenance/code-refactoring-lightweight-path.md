@@ -33,13 +33,13 @@ For batch mode: copy the "Item N" section in the generated plan for each additio
    - Test spec updated, or N/A — verified no behavior change affects spec (grep test spec for changed component)
    - FDD updated, or N/A — verified no functional change affects FDD (grep FDD for changed component)
    - ADR updated, or N/A — verified no architectural decision affected (grep ADR directory for changed component)
-   - Foundational validation tracking updated, or N/A — verified feature is not foundational or change doesn't affect validation (check foundational-validation-tracking.md for feature)
+   - Validation tracking updated, or N/A — verified feature is not tracked or change doesn't affect validation (check validation-tracking file for feature)
    - Technical Debt Tracking: TD item marked resolved
 
 **L7. Fill Results**: Record test results, bugs discovered, and doc updates in the plan. Complete the Results Summary table.
 
 **L8. Update State Files**:
-   - [ ] [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md): Mark resolved items using `Update-TechDebt.ps1 -DebtId "TD###" -NewStatus "Resolved" -ResolutionNotes "..."` — if tracked in [Foundational Validation Tracking](../../state-tracking/temporary/foundational-validation-tracking.md), also pass `-FoundationalNote "Resolved (...)" -FoundationalTrackingPath "<absolute-path>"`
+   - [ ] [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md): Mark resolved items using `Update-TechDebt.ps1 -DebtId "TD###" -NewStatus "Resolved" -ResolutionNotes "..."` — if tracked in a validation tracking file (e.g., [foundational-validation-tracking.md](../../state-tracking/temporary/foundational-validation-tracking.md)), also pass `-FoundationalNote "Resolved (...)" -FoundationalTrackingPath "<absolute-path>"`
    - [ ] [Feature Tracking](../../state-tracking/permanent/feature-tracking.md): Update feature status if applicable
    - [ ] [Bug Tracking](../../state-tracking/permanent/bug-tracking.md): Report any discovered bugs using New-BugReport.ps1
 

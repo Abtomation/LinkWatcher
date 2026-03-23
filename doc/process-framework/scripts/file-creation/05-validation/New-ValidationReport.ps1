@@ -2,10 +2,10 @@
 
 <#
 .SYNOPSIS
-    Creates a new foundational codebase validation report from template.
+    Creates a new validation report from template.
 
 .DESCRIPTION
-    This script generates a new validation report for foundational features using the
+    This script generates a new validation report for selected features using the
     standardized validation report template. It automatically assigns IDs, creates the
     report in the appropriate subdirectory, and updates the validation tracking file.
 
@@ -42,7 +42,7 @@
     Version: 1.0
     Created: 2025-08-15
 
-    This script is part of the Foundational Codebase Validation Framework.
+    This script is part of the Feature Validation Framework.
 #>
 
 [CmdletBinding(SupportsShouldProcess = $true)]
@@ -280,7 +280,7 @@ function Update-ValidationTracking {
 
 # Main execution
 try {
-    Write-Host "🔍 Creating Foundational Codebase Validation Report..." -ForegroundColor Cyan
+    Write-Host "🔍 Creating Feature Validation Report..." -ForegroundColor Cyan
     Write-Host ""
 
     # Validate inputs

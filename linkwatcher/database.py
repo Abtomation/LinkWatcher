@@ -208,9 +208,35 @@ class LinkDatabase(LinkDatabaseInterface):
             resolved_target = os.path.normpath(os.path.join(ref_dir, target_norm)).replace(
                 "\\", "/"
             )
-            return resolved_target == file_norm
+            if resolved_target == file_norm:
+                return True
         except Exception:
-            return False
+            pass
+
+        # PD-BUG-045: Suffix match for project-root-relative references.
+        # Python imports (e.g., "utils/helpers") resolve from the Python project
+        # root, not from the importing file's directory.  When the LinkWatcher
+        # project root is an ancestor of the Python project, the DB key
+        # ("utils/helpers") is a proper suffix of the moved file's full
+        # project-relative path ("sub/project/utils/helpers").  Also try with
+        # .py extension stripped from file_norm for extensionless targets.
+        # Constraint: the reference's source file must be under the same
+        # directory subtree (the inferred sub-project root) to avoid matching
+        # unrelated files elsewhere in the project.
+        suffix = "/" + target_norm
+        subtree_root = None
+        if file_norm.endswith(suffix):
+            subtree_root = file_norm[: -len(suffix)]
+        else:
+            file_no_ext, ext = os.path.splitext(file_norm)
+            if ext and file_no_ext.endswith(suffix):
+                subtree_root = file_no_ext[: -len(suffix)]
+        if subtree_root is not None:
+            ref_path_norm = normalize_path(ref.file_path)
+            if ref_path_norm.startswith(subtree_root + "/"):
+                return True
+
+        return False
 
     def update_target_path(self, old_path: str, new_path: str):
         """Update the target path for all references."""

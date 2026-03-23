@@ -24,7 +24,7 @@
         "cyclical": "doc/process-framework/tasks/cyclical",
         "default": "01-planning"
       },
-      "nextAvailable": 71
+      "nextAvailable": 78
     },
     "PF-GDE": {
       "description": "Process Framework - Guides",
@@ -35,7 +35,7 @@
         "main": "doc/process-framework/guides",
         "default": "guides"
       },
-      "nextAvailable": 51
+      "nextAvailable": 53
     },
     "PF-TEM": {
       "description": "Process Framework - Templates",
@@ -45,7 +45,7 @@
         "main": "doc/process-framework/templates",
         "default": "main"
       },
-      "nextAvailable": 63
+      "nextAvailable": 64
     },
     "PF-MTH": {
       "description": "Process Framework - Methodologies",
@@ -66,7 +66,7 @@
         "temporary": "doc/process-framework/state-tracking/temporary",
         "default": "permanent"
       },
-      "nextAvailable": 60
+      "nextAvailable": 64
     },
     "PF-DOC": {
       "description": "Process Framework - Documentation",
@@ -96,7 +96,7 @@
         "context-maps": "doc/process-framework/visualization/context-maps",
         "default": "context-maps"
       },
-      "nextAvailable": 51
+      "nextAvailable": 57
     },
     "PF-PRO": {
       "description": "Process Framework - Proposals",
@@ -106,7 +106,7 @@
         "main": "doc/process-framework/proposals",
         "default": "main"
       },
-      "nextAvailable": 9
+      "nextAvailable": 11
     },
     "PF-FEE": {
       "description": "Process Framework - Feedback",
@@ -136,7 +136,7 @@
         "permanent": "doc/process-framework/state-tracking/permanent",
         "default": "permanent"
       },
-      "nextAvailable": 148
+      "nextAvailable": 168
     },
     "PF-ASS": {
       "description": "Process Framework - Tier Assessments",
@@ -354,7 +354,7 @@
         "forms": "doc/process-framework/feedback/feedback-forms",
         "default": "forms"
       },
-      "nextAvailable": 408
+      "nextAvailable": 435
     },
     "ART-REV": {
       "description": "Review Artifacts",
@@ -374,7 +374,7 @@
         "feature-specs": "test/specifications/feature-specs",
         "default": "feature-specs"
       },
-      "nextAvailable": 44
+      "nextAvailable": 45
     },
     "PF-TAR": {
       "description": "Process Framework - Test Audit Reports",
@@ -402,7 +402,7 @@
         "e2e": "integration_test",
         "default": "unit"
       },
-      "nextAvailable": 130
+      "nextAvailable": 131
     },
     "PF-VAL": {
       "description": "Process Framework - Validation Reports",
@@ -500,9 +500,9 @@
         "permanent": "doc/process-framework/state-tracking/permanent",
         "default": "permanent"
       },
-      "nextAvailable": 42
+      "nextAvailable": 49
     },
-    "E2E-GRP": {
+    "TE-E2G": {
       "description": "E2E Acceptance Testing - Test Groups",
       "category": "Testing",
       "type": "E2E Acceptance Test Group",
@@ -510,9 +510,9 @@
         "templates": "test/e2e-acceptance-testing/templates",
         "default": "templates"
       },
-      "nextAvailable": 4
+      "nextAvailable": 12
     },
-    "E2E": {
+    "TE-E2E": {
       "description": "E2E Acceptance Testing - Test Cases",
       "category": "Testing",
       "type": "E2E Acceptance Test Case",
@@ -520,7 +520,7 @@
         "templates": "test/e2e-acceptance-testing/templates",
         "default": "templates"
       },
-      "nextAvailable": 5
+      "nextAvailable": 23
     }
   }
 }

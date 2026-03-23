@@ -1,0 +1,3 @@
+# Settings
+
+Configuration reference.

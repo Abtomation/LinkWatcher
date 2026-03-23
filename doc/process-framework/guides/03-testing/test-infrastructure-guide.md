@@ -85,7 +85,7 @@ The process framework eliminated redundant test tracking files. There is **no** 
 | Script | Location | Purpose |
 |--------|----------|---------|
 | `New-TestFile.ps1` | `scripts/file-creation/` | Create automated test files with PD-TST IDs |
-| `New-E2EAcceptanceTestCase.ps1` | `scripts/file-creation/` | Create E2E acceptance test cases with E2E IDs |
+| `New-E2EAcceptanceTestCase.ps1` | `scripts/file-creation/` | Create E2E acceptance test cases with TE-E2E/TE-E2G IDs |
 | `New-TestSpecification.ps1` | `scripts/file-creation/` | Create test specifications with PF-TSP IDs |
 | `New-TestAuditReport.ps1` | `scripts/file-creation/` | Create test audit reports with PF-TAR IDs |
 | `Run-Tests.ps1` | `scripts/test/` | Language-agnostic test runner (reads project-config.json + languages-config/) |
@@ -118,17 +118,22 @@ E2E acceptance test cases support two execution modes, set via the `Execution Mo
 
 Scripted test cases include a `run.ps1` file that performs the test action (e.g., `Move-Item`, `Set-Content`). The script contains **only the action** — setup and verification are handled by existing infrastructure.
 
-**Pipeline**: `Setup-TestEnvironment.ps1` → `run.ps1` → wait for propagation → `Verify-TestResult.ps1`
+**Pipeline**: Stop LW → `Setup-TestEnvironment.ps1` → Start LW (workspace-scoped) → settle → `run.ps1` → wait for propagation → `Verify-TestResult.ps1` → Stop LW
+
+LinkWatcher is started scoped to the workspace case directory (not the full project), keeping scan times to a few seconds instead of 40-65s. A configurable settling delay (`-SettleSeconds`, default 3) after scan completion ensures link indexing finishes before the test action runs.
 
 ```bash
 # Run a single scripted test case
-pwsh.exe -ExecutionPolicy Bypass -Command '& doc/process-framework/scripts/test/e2e-acceptance-testing/Run-E2EAcceptanceTest.ps1 -TestCase "E2E-001" -Group "my-group"'
+pwsh.exe -ExecutionPolicy Bypass -Command '& doc/process-framework/scripts/test/e2e-acceptance-testing/Run-E2EAcceptanceTest.ps1 -TestCase "TE-E2E-001" -Group "my-group"'
 
 # Run all scripted tests in a group (clean workspace, detailed diffs)
 pwsh.exe -ExecutionPolicy Bypass -Command '& doc/process-framework/scripts/test/e2e-acceptance-testing/Run-E2EAcceptanceTest.ps1 -Group "my-group" -Clean -Detailed'
 
 # Run all scripted tests across all groups
 pwsh.exe -ExecutionPolicy Bypass -Command '& doc/process-framework/scripts/test/e2e-acceptance-testing/Run-E2EAcceptanceTest.ps1'
+
+# Increase settling delay for complex fixtures
+pwsh.exe -ExecutionPolicy Bypass -Command '& doc/process-framework/scripts/test/e2e-acceptance-testing/Run-E2EAcceptanceTest.ps1 -Group "my-group" -SettleSeconds 5'
 ```
 
 Test cases without `run.ps1` are automatically skipped by `Run-E2EAcceptanceTest.ps1` with a message suggesting manual execution.
@@ -141,6 +146,36 @@ Test cases without `run.ps1` are automatically skipped by `Run-E2EAcceptanceTest
 | **What they test** | Individual components in isolation | End-to-end behavior on real file system |
 | **Speed** | Fast (seconds) | Slower (waits for system event propagation) |
 | **When to run** | Every code change, CI | After significant changes, pre-release |
+
+## User Workflow Map and E2E Test Planning
+
+E2E acceptance tests validate **user-facing workflows** that span multiple features. The planning and tracking flow:
+
+```
+User Workflow Map (what workflows exist, which features they need)
+    → Milestone: all features for a workflow reach "Implemented"
+    → Cross-cutting E2E Test Specification (scenarios per workflow)
+    → E2E Test Case Creation (PF-TSK-069)
+    → E2E Test Execution (PF-TSK-070)
+```
+
+**Key files:**
+- [User Workflow Map](/doc/product-docs/technical/design/user-workflow-map.md) — planning artifact mapping workflows to features
+- [Cross-cutting E2E specs](/test/specifications/cross-cutting-specs/) — scenario definitions per workflow
+- **test-tracking.md** dedicated E2E section — Workflow Milestone Tracking + E2E Test Cases table
+- **test-registry.yaml** — E2E entries with `featureIds` (multi-feature), `workflow`, `group` fields
+
+**E2E entries in test-registry.yaml** use `type: e2e-group` or `type: e2e-case` with `TE-E2G-NNN` / `TE-E2E-NNN` IDs:
+```yaml
+- id: TE-E2E-001
+  type: e2e-case
+  featureIds: ["1.1.1", "2.1.1", "2.2.1"]
+  workflow: WF-001
+  group: TE-E2G-001
+  filePath: e2e-acceptance-testing/templates/<group>/TE-E2E-001-<name>/test-case.md
+  executionMode: scripted
+  priority: Critical
+```
 
 ## Test Priority
 
@@ -212,11 +247,17 @@ pwsh.exe -ExecutionPolicy Bypass -Command '& doc/process-framework/scripts/test/
 # Quick run (categories from project-config.json quickCategories, stop on first failure)
 pwsh.exe -ExecutionPolicy Bypass -Command '& doc/process-framework/scripts/test/Run-Tests.ps1 -Quick'
 
+# Multiple categories at once
+pwsh.exe -ExecutionPolicy Bypass -Command '& doc/process-framework/scripts/test/Run-Tests.ps1 -Category unit,integration'
+
 # All tests with coverage
 pwsh.exe -ExecutionPolicy Bypass -Command '& doc/process-framework/scripts/test/Run-Tests.ps1 -All -Coverage'
 
 # Test discovery
 pwsh.exe -ExecutionPolicy Bypass -Command '& doc/process-framework/scripts/test/Run-Tests.ps1 -Discover'
+
+# Run tests and auto-update test-tracking.md with per-file pass/fail results
+pwsh.exe -ExecutionPolicy Bypass -Command '& doc/process-framework/scripts/test/Run-Tests.ps1 -Category unit -UpdateTracking'
 ```
 
 ## Setting Up Test Infrastructure for a New Project

@@ -116,7 +116,7 @@ foreach ($grp in $groups) {
     }
 
     # Find all test case directories (E2E-NNN-*)
-    $testCases = Get-ChildItem $srcGroup -Directory | Where-Object { $_.Name -match '^E2E-\d+' }
+    $testCases = Get-ChildItem $srcGroup -Directory | Where-Object { $_.Name -match '^TE-E2E-\d+' }
 
     foreach ($tc in $testCases) {
         $srcProject = Join-Path $tc.FullName "project"

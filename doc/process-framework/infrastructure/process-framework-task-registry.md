@@ -72,7 +72,7 @@ This document serves as the **comprehensive registry** of all process framework 
 | [Technical Debt Tracking](../state-tracking/permanent/technical-debt-tracking.md)                   | 3 tasks             | **MEDIUM**          |
 | [Test Registry](../../test/test-registry.yaml)                                                      | 2 tasks             | **MEDIUM**          |
 | [Documentation Map](../documentation-map.md)                                                        | 6+ validation tasks | **MEDIUM**          |
-| [Foundational Validation Tracking](../state-tracking/temporary/foundational-validation-tracking.md) | 6 validation tasks  | **MEDIUM**          |
+| [Validation Tracking](../state-tracking/temporary/foundational-validation-tracking.md) | 6 validation tasks  | **MEDIUM**          |
 
 ## Task Catalog
 
@@ -240,7 +240,7 @@ This document serves as the **comprehensive registry** of all process framework 
 - **Implementation Script:** No automation script (manual coding)
 - **Validation Scripts:**
   - [`Quick-ValidationCheck.ps1`](../scripts/validation/Quick-ValidationCheck.ps1) - Fast health check
-  - [`Run-FoundationalValidation.ps1`](../scripts/validation/Run-FoundationalValidation.ps1) - Code quality validation for foundational features
+  - [`Run-FoundationalValidation.ps1`](../scripts/validation/Run-FoundationalValidation.ps1) - Code quality validation for selected features
 - **Output Directory:** `scripts/validation/validation-reports/`
 - **Auto-Update Function:** Automated quality validation reporting
 
@@ -248,7 +248,7 @@ This document serves as the **comprehensive registry** of all process framework 
 | Operation | File Path | Update Method | Details |
 |-----------|-----------|---------------|---------|
 | **Creates** | Validation reports | [`Quick-ValidationCheck.ps1`](../scripts/validation/Quick-ValidationCheck.ps1) | Quick health check reports (console/JSON/CSV output) |
-| **Creates** | Quality validation reports | [`Run-FoundationalValidation.ps1`](../scripts/validation/Run-FoundationalValidation.ps1) | Code quality validation reports for foundational features |
+| **Creates** | Quality validation reports | [`Run-FoundationalValidation.ps1`](../scripts/validation/Run-FoundationalValidation.ps1) | Code quality validation reports for selected features |
 | **Creates** | `[api-name]-docs.md` (API features only) | Manual | API Consumer Documentation with usage examples and integration guidance |
 | **Updates** | [`bug-tracking.md`](../state-tracking/permanent/bug-tracking.md) (if bugs discovered) | [`New-BugReport.ps1`](../scripts/file-creation/06-maintenance/New-BugReport.ps1)| Add newly discovered bugs with 🆕 Reported status for triage |
 | **Updates** | [`feature-tracking.md`](../state-tracking/permanent/feature-tracking.md) | Manual | Update implementation status (🟡 In Progress/🔄 Needs Revision/🟢 Completed)<br/>• Add implementation start and completion dates<br/>• Link to relevant pull request or commit<br/>• **API Design column**: Manually add consumer documentation link for API features<br/>• Document design deviations with justification |
@@ -312,7 +312,7 @@ This document serves as the **comprehensive registry** of all process framework 
 |-----------|-----------|---------------|---------|
 | **Creates** | Validation reports | [`Quick-ValidationCheck.ps1`](../scripts/validation/Quick-ValidationCheck.ps1) | Quick health check reports (console/JSON/CSV output) |
 | **Creates** | Comprehensive validation reports | [`Run-FoundationalValidation.ps1`](../scripts/validation/Run-FoundationalValidation.ps1) | Detailed validation reports in `scripts/validation/validation-reports/` |
-| **Updates** | [`foundational-validation-tracking.md`](../state-tracking/temporary/foundational-validation-tracking.md) | [`Run-FoundationalValidation.ps1`](../scripts/validation/Run-FoundationalValidation.ps1) | Update validation matrix with report creation dates and links |
+| **Updates** | [`validation-tracking.md`](../state-tracking/temporary/foundational-validation-tracking.md) | [`Run-FoundationalValidation.ps1`](../scripts/validation/Run-FoundationalValidation.ps1) | Update validation matrix with report creation dates and links |
 | **Updates** | [`bug-tracking.md`](../state-tracking/permanent/bug-tracking.md) (if bugs discovered) | [`New-BugReport.ps1`](../scripts/file-creation/06-maintenance/New-BugReport.ps1)| Add newly discovered bugs with 🆕 Reported status for triage |
 | **Updates** | [`architecture-context-packages.md`](../state-tracking/permanent/architecture-context-packages.md) | Manual | Update with new architectural foundations and component relationships |
 | **Updates** | [`architecture-tracking.md`](../state-tracking/permanent/architecture-tracking.md) | Manual | Record foundation implementation and architectural evolution<br/>• Update component status and key decisions |
@@ -322,7 +322,7 @@ This document serves as the **comprehensive registry** of all process framework 
 
 - **Primary state file:** [`architecture-tracking.md`](../state-tracking/permanent/architecture-tracking.md) - Tracks foundational architectural changes
 - **Secondary coordination:** [`feature-tracking.md`](../state-tracking/permanent/feature-tracking.md) - Updates feature completion status
-- **Validation integration:** Automated foundational validation ensures implementation meets architectural standards
+- **Validation integration:** Automated feature validation ensures implementation meets architectural standards
 - **Quality assurance:** Comprehensive validation across all 6 validation types (Architectural, Code Quality, Integration, Documentation, Extensibility, AI Agent Continuity)
 - **Architecture foundation:** Establishes core architectural components and patterns
 - **Bug discovery integration:** Includes systematic bug identification during Finalization phase for architectural and foundation issues with standardized reporting via `New-BugReport.ps1`
@@ -635,7 +635,7 @@ This document serves as the **comprehensive registry** of all process framework 
 
 ### **VALIDATION TASKS** (All use same automation and file operations)
 
-#### **20-25. Validation Tasks** (6 tasks: Architectural Consistency, Code Quality Standards, Integration Dependencies, Documentation Alignment, Extensibility Maintainability, AI Agent Continuity)
+#### **20-30. Validation Tasks** (11 tasks: Architectural Consistency, Code Quality Standards, Integration Dependencies, Documentation Alignment, Extensibility Maintainability, AI Agent Continuity, Security & Data Protection, Performance & Scalability, Observability, Accessibility / UX Compliance, Data Integrity)
 
 **🔧 Process Type:** 🤖 **Fully Automated** (Script creates files AND updates state)
 
@@ -649,14 +649,14 @@ This document serves as the **comprehensive registry** of all process framework 
 | Operation | File Path | Update Method | Details |
 |-----------|-----------|---------------|---------|
 | **Creates** | `[PF-VAL-XXX]-[validation-type]-features-[feature-range].md` | Script | Comprehensive validation report for specific validation type |
-| **Updates** | [`foundational-validation-tracking.md`](../state-tracking/temporary/foundational-validation-tracking.md) | Auto | Update validation matrix with report creation date and link<br/>• Update specific validation type column for validated features |
+| **Updates** | [`validation-tracking.md`](../state-tracking/temporary/foundational-validation-tracking.md) | Auto | Update validation matrix with report creation date and link<br/>• Update specific validation type column for validated features |
 | **Updates** | [`documentation-map.md`](../documentation-map.md) | Auto | Add new validation report to validation reports section<br/>• Include report ID, path, and description |
 
 **🎯 KEY IMPACTS**
 
-- **Primary state file:** [`foundational-validation-tracking.md`](../state-tracking/temporary/foundational-validation-tracking.md) - Tracks validation completion across features
+- **Primary state file:** [`validation-tracking.md`](../state-tracking/temporary/foundational-validation-tracking.md) - Tracks validation completion across features
 - **Documentation registry:** Updates validation report catalog
-- **Quality assurance:** Validates features meet foundational standards
+- **Quality assurance:** Validates features meet quality standards
 - **Enables next steps:** Feature completion certification, release readiness
 - **Dependencies:** Requires completed features for meaningful validation
 
@@ -668,6 +668,11 @@ This document serves as the **comprehensive registry** of all process framework 
 - **23. Documentation Alignment** ([PF-TSK-034](../tasks/05-validation/documentation-alignment-validation.md))
 - **24. Extensibility Maintainability** ([PF-TSK-035](../tasks/05-validation/extensibility-maintainability-validation.md))
 - **25. AI Agent Continuity** ([PF-TSK-036](../tasks/05-validation/ai-agent-continuity-validation.md))
+- **26. Security & Data Protection** ([PF-TSK-072](../tasks/05-validation/security-data-protection-validation.md))
+- **27. Performance & Scalability** ([PF-TSK-073](../tasks/05-validation/performance-scalability-validation.md))
+- **28. Observability** ([PF-TSK-074](../tasks/05-validation/observability-validation.md))
+- **29. Accessibility / UX Compliance** ([PF-TSK-075](../tasks/05-validation/accessibility-ux-compliance-validation.md))
+- **30. Data Integrity** ([PF-TSK-076](../tasks/05-validation/data-integrity-validation.md))
 
 ### **SUPPORT TASKS**
 

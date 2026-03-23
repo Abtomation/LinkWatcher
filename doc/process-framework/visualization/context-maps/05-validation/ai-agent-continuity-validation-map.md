@@ -24,7 +24,7 @@ graph TD
     classDef reference fill:#d0f9d5,stroke:#3ad83f
 
     FT([Feature Tracking]) --> VR[Validation Report]
-    FVT([Foundational Validation Tracking]) --> VR
+    FVT([Validation Tracking]) --> VR
     VRT([Validation Report Template]) --> VR
     DM([Documentation Map]) --> CCA[Context Clarity Assessment]
 
@@ -56,8 +56,8 @@ graph TD
 
 ### Critical Components (Must Understand)
 
-- **Feature Tracking (FT)**: Current status of foundational features to be validated - provides scope and context
-- **Foundational Validation Tracking (FVT)**: Master validation matrix and progress tracking - central coordination point
+- **Feature Tracking (FT)**: Current status of features to be validated - provides scope and context
+- **Validation Tracking (FVT)**: Active validation tracking matrix and progress tracking - central coordination point
 - **Validation Report Template (VRT)**: Standardized template for creating validation reports with consistent structure
 - **Documentation Map (DM)**: Process framework structure and organization - key for context clarity assessment
 
@@ -84,7 +84,7 @@ graph TD
 
 ## Key Relationships
 
-1. **Feature Tracking → Validation Report**: Provides the scope of foundational features to be validated for AI agent continuity
+1. **Feature Tracking → Validation Report**: Provides the scope of features to be validated for AI agent continuity
 2. **Documentation Map → Context Clarity Assessment**: Primary source for evaluating process framework organization and clarity
 3. **Task Definitions → Modular Structure Analysis**: Source for analyzing task structure and workflow patterns
 4. **Context Maps → Documentation Quality Evaluation**: Visual guidance components for assessing documentation effectiveness
@@ -95,21 +95,21 @@ graph TD
 
 ## Implementation in AI Sessions
 
-1. **Start with Critical Context**: Load Feature Tracking, Foundational Validation Tracking, and Documentation Map to understand scope and framework structure
+1. **Start with Critical Context**: Load Feature Tracking, Validation Tracking, and Documentation Map to understand scope and framework structure
 2. **Assess Context Clarity**: Evaluate how well the process framework provides clear context for AI agent understanding
 3. **Analyze Modular Structure**: Review task definitions and code organization for AI agent navigation effectiveness
 4. **Evaluate Documentation Quality**: Assess context maps, guides, and documentation for AI agent workflow support
 5. **Review Session Continuity**: Examine state tracking patterns for multi-session workflow effectiveness
 6. **Optimize Workflow Patterns**: Analyze overall task structure and process guidance for AI agent efficiency
 7. **Generate Validation Report**: Use ../../scripts/file-creation/New-ValidationReport.ps1 script with AIAgentContinuity validation type
-8. **Update Tracking**: Update Foundational Validation Tracking matrix and Documentation Map with new report
+8. **Update Tracking**: Update Validation Tracking matrix and Documentation Map with new report
 9. **Reference Support Systems**: Access AI Tasks, Templates, and Guides only when specific workflow analysis is needed
 
 ## Related Documentation
 
 - [AI Agent Continuity Validation Task](../../../tasks/05-validation/ai-agent-continuity-validation.md) - Complete task definition and process
-- [Feature Tracking](../../../state-tracking/permanent/feature-tracking.md) - Current status of foundational features
-- [Foundational Validation Tracking](../../../state-tracking/temporary/foundational-validation-tracking.md) - Master validation matrix
+- [Feature Tracking](../../../state-tracking/permanent/feature-tracking.md) - Current status of features
+- Validation Tracking State File - Active validation tracking matrix (file location depends on validation round)
 - [Documentation Map](../../../documentation-map.md) - Process framework structure and organization
 - [AI Tasks System](../../../ai-tasks.md) - Task discovery and selection patterns
 - [../../scripts/file-creation/New-ValidationReport.ps1](../../../scripts/file-creation/05-validation/New-ValidationReport.ps1) - Automation script for report generation

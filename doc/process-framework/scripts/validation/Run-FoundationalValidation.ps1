@@ -2,11 +2,11 @@
 
 <#
 .SYNOPSIS
-Comprehensive foundational codebase validation for foundational features
+Comprehensive feature validation for selected features
 
 .DESCRIPTION
-This script performs comprehensive validation of foundational features (0.2.1-0.2.11)
-using the complete Foundational Codebase Validation Framework. It generates detailed
+This script performs comprehensive validation of selected features (0.2.1-0.2.11)
+using the complete Feature Validation Framework. It generates detailed
 validation reports, updates tracking files, and provides actionable recommendations.
 
 Key Features:
@@ -26,8 +26,8 @@ Validation Types:
 6. AI Agent Continuity - Context optimization, documentation clarity, readability
 
 .PARAMETER FeatureIds
-Comma-separated list of foundational feature IDs to validate (e.g., "0.2.1,0.2.2,0.2.3")
-If not specified, validates all foundational features (0.2.1-0.2.11)
+Comma-separated list of feature IDs to validate (e.g., "0.2.1,0.2.2,0.2.3")
+If not specified, validates all selected features (0.2.1-0.2.11)
 
 .PARAMETER ValidationType
 Type of validation to perform:
@@ -68,7 +68,7 @@ Show what would be done without actually performing validation
 
 .EXAMPLE
 Run-FoundationalValidation.ps1
-Runs all validation types on all foundational features
+Runs all validation types on all selected features
 
 .EXAMPLE
 Run-FoundationalValidation.ps1 -FeatureIds "0.2.1,0.2.2" -ValidationType "CodeQuality" -GenerateReports -UpdateTracking
@@ -80,10 +80,10 @@ Comprehensive validation with detailed reports and tracking updates
 
 .EXAMPLE
 Run-FoundationalValidation.ps1 -FeatureIds "0.2.1" -ValidationType "All" -GenerateReports -UpdateTracking -Detailed
-Complete validation for a specific foundational feature
+Complete validation for a specific selected feature
 
 .NOTES
-This script is part of the Foundational Codebase Validation Framework.
+This script is part of the Feature Validation Framework.
 It integrates with New-ValidationReport.ps1 and Update-ValidationReportState.ps1
 for comprehensive validation workflow automation.
 #>
@@ -167,7 +167,7 @@ $ValidationTypeMap = @{
     "AIAgentContinuity"            = "AIAgentContinuity"
 }
 
-# Foundational features mapping
+# Selected features mapping
 $FoundationalFeatures = @{
     "0.2.1"  = @{ Name = "Repository Pattern Implementation"; Priority = "High" }
     "0.2.2"  = @{ Name = "Service Layer Architecture"; Priority = "High" }
@@ -421,7 +421,7 @@ function Show-ValidationSummary {
     param($Summary, $ValidationResults)
 
     Write-Host ""
-    Write-Host "🎯 Foundational Validation Summary" -ForegroundColor Cyan
+    Write-Host "🎯 Feature Validation Summary" -ForegroundColor Cyan
     Write-Host "==================================" -ForegroundColor Cyan
     Write-Host "Timestamp: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')" -ForegroundColor Gray
     Write-Host ""
@@ -496,14 +496,14 @@ function Show-ValidationSummary {
 
 # Main execution
 try {
-    Write-Progress-Safe "🚀 Starting Foundational Codebase Validation..." "Cyan"
+    Write-Progress-Safe "🚀 Starting Feature Validation..." "Cyan"
     Write-Progress-Safe ""
 
     $featuresToValidate = Get-FeaturesToValidate
     $validationTypesToRun = Get-ValidationTypesToRun
 
     if ($featuresToValidate.Count -eq 0) {
-        throw "No valid foundational features specified for validation"
+        throw "No valid features specified for validation"
     }
 
     Write-Progress-Safe "📋 Validation Configuration:" "Yellow"
@@ -621,7 +621,7 @@ try {
 
 }
 catch {
-    Write-Error "❌ Foundational validation failed: $($_.Exception.Message)"
+    Write-Error "❌ Feature validation failed: $($_.Exception.Message)"
     if ($FailOnCritical) {
         exit 3
     }

@@ -43,6 +43,13 @@
       "slow": "[marker flag, e.g. '-m slow' or '--tags slow']",
       "critical": "[marker flag, e.g. '-m critical' or '--tags critical']",
       "notSlow": "[exclude-slow flag, e.g. '-m \"not slow\"' or '--exclude-tags slow']"
+    },
+
+    "_comment_testSetup": "OPTIONAL. Declares where shared test setup (fixtures, helpers, factories) is defined. mechanism = how the language handles shared setup; configFiles = paths to setup files relative to project root; discoveryCommand = command to list available fixtures/helpers (null if not supported).",
+    "testSetup": {
+      "mechanism": "[e.g. 'pytest-fixtures', 'jest-setup', 'helper-imports', 'base-class']",
+      "configFiles": ["[e.g. 'test/conftest.py' or 'test/helpers/test_helpers.dart' or 'jest.setup.js']"],
+      "discoveryCommand": "[e.g. 'python -m pytest --fixtures -q', or null if not supported]"
     }
   }
 }

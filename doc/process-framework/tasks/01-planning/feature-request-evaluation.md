@@ -75,6 +75,7 @@ This task evaluates incoming change requests to determine whether they represent
 5a. **Route to existing workflow** — For new features:
    - Add the new feature to `feature-tracking.md`
    - Create a new feature implementation state file
+   - Check [User Workflow Map](/doc/product-docs/technical/design/user-workflow-map.md) — does this feature create a new user workflow or extend an existing one? Update the map accordingly
    - Inform the human partner that the existing workflow applies (Feature Tier Assessment → Design → Implementation)
    - This task is complete. Proceed to the Task Completion Checklist.
 
@@ -84,6 +85,7 @@ This task evaluates incoming change requests to determine whether they represent
    - Locate the candidate feature(s) in `feature-tracking.md`
    - Read each feature's implementation state file to understand its current scope
    - Locate any existing design documentation (FDD, TDD, ADR)
+   - Check [User Workflow Map](/doc/product-docs/technical/design/user-workflow-map.md) — does this enhancement affect any user workflows? Note in the map
    - **Multi-feature requests**: If the change request affects multiple existing features, identify all of them. Present the full list at the checkpoint below.
 6. **🚨 CHECKPOINT**: Present target feature proposal with rationale to human partner and wait for explicit approval before continuing
    - **For multi-feature requests**: Present all affected features and confirm with the human partner whether to proceed with separate Enhancement State Tracking Files for each, or whether the request should be split into independent evaluations. The default is **one state file per target feature**, each scoped to that feature's portion of the work, with cross-references linking the related state files.

@@ -40,15 +40,15 @@ graph TD
 
 ### Critical Components (Must Understand)
 
-- **Feature Tracking**: Current status and details of foundational features to be validated
-- **Validation Tracking**: Master validation matrix tracking progress across all validation types
+- **Feature Tracking**: Current status and details of features to be validated
+- **Validation Tracking**: Active validation tracking matrix tracking progress across all validation types
 - **Validation Report Template**: Standardized template for creating architectural consistency reports
 - **ADR Directory**: Architecture Decision Records that define the architectural standards to validate against
 
 ### Important Components (Should Understand)
 
 - **Component Relationship Index**: Understanding of how components interact architecturally
-- **Technical Design Documents**: Detailed specifications for foundational features
+- **Technical Design Documents**: Detailed specifications for selected features
 - **lib/ Codebase**: Source code implementations to analyze for architectural patterns
 - **New-ValidationReport Script**: Automation tool for generating validation reports
 
@@ -77,8 +77,8 @@ graph TD
 ## Related Documentation
 
 - [Architectural Consistency Validation Task](../../tasks/05-validation/architectural-consistency-validation-task.md) - Complete task definition and process
-- [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Current status of foundational features
-- [Foundational Validation Tracking](../../../state-tracking/temporary/foundational-validation-tracking.md) - Master validation matrix
+- [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Current status of features
+- Validation Tracking State File - Active validation tracking matrix (file location depends on validation round)
 - [Architecture Decision Records](../../../product-docs/technical/architecture/decisions) - Architectural standards and decisions
 - [Component Relationship Index](../../../product-docs/technical/architecture/component-relationship-index.md) - Complete reference of all component relationships
 

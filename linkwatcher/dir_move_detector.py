@@ -141,6 +141,18 @@ class DirectoryMoveDetector:
 
         with self._lock:
             for deleted_dir, pending in list(self.pending_dir_moves.items()):
+                # PD-BUG-042: If the old directory has been re-created
+                # (e.g., by a bulk copy after cleanup), this pending
+                # entry is stale — remove it and skip matching.
+                old_dir_abs = os.path.join(self._project_root, deleted_dir)
+                if os.path.isdir(old_dir_abs):
+                    if pending.settle_timer is not None:
+                        pending.settle_timer.cancel()
+                    if pending.max_timer is not None:
+                        pending.max_timer.cancel()
+                    del self.pending_dir_moves[deleted_dir]
+                    continue
+
                 if pending.new_dir is not None:
                     # We already know the new directory — check by prefix
                     expected_prefix = normalize_path(pending.new_dir) + "/"

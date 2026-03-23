@@ -318,6 +318,7 @@ Use this decision tree when deciding what to include in Test Specifications:
    - **Integration Tests**: Specify component interaction testing requirements
    - **Component Tests**: Define component-level testing requirements (if applicable)
    - **End-to-End Tests**: Specify user workflow testing (Tier 3 only)
+   - **Cross-Feature Workflows**: Reference the [User Workflow Map](/doc/product-docs/technical/design/user-workflow-map.md) to identify which user workflows this feature participates in. For each, note whether this is the last feature needed (milestone trigger for cross-cutting E2E test specification creation)
 
 3. **Create detailed test specifications**:
    - Map each TDD component to specific test requirements

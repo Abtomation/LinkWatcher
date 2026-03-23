@@ -12,7 +12,7 @@ task_type: Discrete
 
 ## Purpose & Context
 
-Systematically validates foundational features for extensibility and maintainability, ensuring that the codebase provides appropriate extension points, configuration flexibility, and comprehensive testing support to facilitate future development and maintenance activities.
+Systematically validates selected features for extensibility and maintainability, ensuring that the codebase provides appropriate extension points, configuration flexibility, and comprehensive testing support to facilitate future development and maintenance activities.
 
 ## AI Agent Role
 
@@ -23,7 +23,7 @@ Systematically validates foundational features for extensibility and maintainabi
 
 ## When to Use
 
-- When validating foundational features for extensibility and maintainability as part of the validation framework
+- When validating selected features for extensibility and maintainability as part of the validation framework
 - Before implementing major architectural changes to assess current extensibility
 - When planning feature roadmaps that require extensible foundations
 - As part of technical debt assessment focusing on maintainability concerns
@@ -35,9 +35,9 @@ Systematically validates foundational features for extensibility and maintainabi
 
 - **Critical (Must Read):**
 
-  - **Foundational Validation Guide** - [Foundational Validation Guide](../../guides/05-validation/foundational-validation-guide.md) - Comprehensive guide for conducting foundational codebase validation
-  - **Feature Tracking** - [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Current status of foundational features to be validated
-  - **Foundational Validation Tracking** - [Foundational Validation Tracking](../../state-tracking/temporary/foundational-validation-tracking.md) - Master validation matrix and progress tracking
+  - **Feature Validation Guide** - [Feature Validation Guide](../../guides/05-validation/feature-validation-guide.md) - Comprehensive guide for conducting feature validation
+  - **Feature Tracking** - [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Current status of features to be validated
+  - **Validation Tracking** - Link to the active validation tracking state file for the current validation round — see [Feature Validation Guide](../../guides/05-validation/feature-validation-guide.md) for setup
   - **Validation Report Template** - [Validation Report Template](../../templates/05-validation/validation-report-template.md) - Template for creating validation reports
   - **Codebase Architecture** - Source code directory - Source code structure for extensibility analysis
 
@@ -68,7 +68,7 @@ Systematically validates foundational features for extensibility and maintainabi
 
 ### Preparation
 
-1. **Review Validation Scope**: Identify foundational features to validate for extensibility and maintainability (cross-cutting concerns analysis)
+1. **Review Validation Scope**: Identify selected features to validate for extensibility and maintainability (cross-cutting concerns analysis)
 2. **Load Context Files**: Review codebase architecture, configuration files, and test infrastructure
 3. **Prepare Extensibility Criteria**: Review architectural patterns and maintainability requirements
 4. **🚨 CHECKPOINT**: Present validation scope, selected features, architecture review, and extensibility criteria to human partner for approval before execution
@@ -92,7 +92,7 @@ Systematically validates foundational features for extensibility and maintainabi
 
 ### Finalization
 
-14. **Update Validation Tracking**: Update the foundational validation tracking matrix with report creation date and link
+14. **Update Validation Tracking**: Update the validation tracking matrix with report creation date and link
 15. **Review Quality Gates**: Ensure validation meets minimum quality thresholds (average score ≥ 2.0)
 16. **Plan Improvements**: For scores below threshold, create action items for extensibility and maintainability enhancements
 17. **🤖 AUTOMATED: Update Technical Debt Tracking**: Add any new open issues identified during validation to [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md) using the automation script:
@@ -105,7 +105,7 @@ Systematically validates foundational features for extensibility and maintainabi
 ## Outputs
 
 - **Extensibility & Maintainability Validation Report** - Detailed validation report with scoring and findings, created in doc/product-docs/validation/reports/extensibility-maintainability/PF-VAL-XXX-extensibility-maintainability-cross-cutting.md
-- **Updated Foundational Validation Tracking** - Matrix cell updated with report creation date and link in [Foundational Validation Tracking](../../state-tracking/temporary/foundational-validation-tracking.md)
+- **Updated Validation Tracking** - Matrix cell updated with report creation date and link in the active validation tracking state file
 - **Extensibility Gap Analysis** - Comprehensive analysis of extension limitations and architectural constraints
 - **Maintainability Risk Assessment** - Evaluation of code maintainability risks and improvement opportunities
 - **Enhancement Recommendations** - Specific recommendations for improving extensibility and maintainability
@@ -114,7 +114,7 @@ Systematically validates foundational features for extensibility and maintainabi
 
 The following state files must be updated as part of this task:
 
-- [Foundational Validation Tracking](../../state-tracking/temporary/foundational-validation-tracking.md) - Update validation matrix with report creation date and link for Extensibility & Maintainability validation type
+- **Validation Tracking State File** - Update the active validation tracking matrix with report creation date and link (file location depends on validation round — see Feature Validation Guide)
 - [Documentation Map](../../documentation-map.md) - Add new validation report to the appropriate section with ID, path, and description
 - [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md) - Add new open issues identified during validation to the Technical Debt Registry
 
@@ -130,7 +130,7 @@ Before considering this task finished:
   - [ ] Extension limitations and maintainability risks documented with specific improvement recommendations
   - [ ] Report saved in correct directory: `doc/product-docs/validation/reports/extensibility-maintainability`
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
-  - [ ] [Foundational Validation Tracking](../../state-tracking/temporary/foundational-validation-tracking.md) matrix updated with report creation date and link
+  - [ ] Validation tracking state file matrix updated with report creation date and link
   - [ ] [Documentation Map](../../documentation-map.md) updated with new validation report entry
   - [ ] **AUTOMATED**: [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md) updated with new open issues using `Update-TechDebt.ps1`
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-035" and context "Extensibility Maintainability Validation"

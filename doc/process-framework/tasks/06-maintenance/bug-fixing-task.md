@@ -123,7 +123,10 @@ Diagnose, fix, and verify solutions for reported bugs or issues in the applicati
     - The test must set up a scenario the human partner can **reproduce via UI or filesystem actions** — not via programmatic API calls
     - Print or display **before/after state** so the human can compare the result with and without the fix
     - Example: a script that creates a temp environment with the conditions that trigger the bug, prints the current (buggy) state, then instructs the human to apply the trigger action and observe the result
-    - *Skip this step for bugs with no observable behavior* (e.g., dead code removal, internal refactoring)
+    - *Skip this step when:*
+      - The bug has no observable behavior (e.g., dead code removal, internal refactoring)
+      - The bug is non-UI / non-filesystem (e.g., internal logic error, code-structural fix) with no user-observable symptom
+      - Existing automated tests already reproduce the exact scenario — manual validation would duplicate coverage
 20. **Session boundary** (multi-session only): If ending a session before the fix is complete, update the Session Log in the bug fix state file with completed work and next-session plan. The next session resumes from this state file.
 21. **🚨 CHECKPOINT**: Present fix results for human approval before updating bug status:
     - Code changes summary (files modified, approach taken)
@@ -165,7 +168,8 @@ Diagnose, fix, and verify solutions for reported bugs or issues in the applicati
       > **Note**: The script automatically moves the bug entry to the Closed Bugs section and recalculates Bug Statistics — no manual editing needed.
 30. Verify the [Bug Tracking](../../state-tracking/permanent/bug-tracking.md) document was updated correctly (bug moved to Closed section, statistics updated)
 31. **If multi-session**: Archive the bug fix state file to `state-tracking/temporary/old/` after the bug is closed
-32. **🚨 MANDATORY FINAL STEP**: Complete the Task Completion Checklist below
+32. **Batch opportunity**: Check [Bug Tracking](../../state-tracking/permanent/bug-tracking.md) for additional triaged bugs. Ask the human partner if they want to fix another bug in this session before proceeding to the feedback form. If yes, loop back to Step 1 (Preparation) for the next bug. Defer the feedback form until all bugs in the session are complete.
+33. **🚨 MANDATORY FINAL STEP**: Complete the Task Completion Checklist below
 
 ## Outputs
 

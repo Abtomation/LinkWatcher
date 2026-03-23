@@ -1,15 +1,15 @@
+---
+id: TE-E2G-001
+type: E2E Acceptance Test Group
+feature_ids: ["1.1.1", "2.1.1", "2.2.1"]
+workflow: WF-001
+test_cases_count: 1
+estimated_duration: 5 minutes
+created: 2026-03-15
+updated: 2026-03-15
+---
+
 # Master Test: powershell-regex-preservation
-
-## Metadata
-
-| Field | Value |
-|-------|-------|
-| Group ID | E2E-GRP-01 |
-| Feature | 2.1.1 — Link Parsing System |
-| Test Cases Covered | 1 |
-| Estimated Duration | 5 minutes |
-| Created | 2026-03-15 |
-| Last Updated | 2026-03-15 |
 
 ## Purpose
 
@@ -48,7 +48,7 @@ Run individual test cases to isolate the issue:
 
 | Test Case | Path | Description |
 |-----------|------|-------------|
-| E2E-001 | [E2E-001-regex-preserved-on-file-move/test-case.md](E2E-001-regex-preserved-on-file-move/test-case.md) | Verify regex patterns in PS1 files are not rewritten when the file is moved, while real paths are still updated |
+| TE-E2E-001 | [TE-E2E-001-regex-preserved-on-file-move/test-case.md](TE-E2E-001-regex-preserved-on-file-move/test-case.md) | Verify regex patterns in PS1 files are not rewritten when the file is moved, while real paths are still updated |
 
 ## Notes
 

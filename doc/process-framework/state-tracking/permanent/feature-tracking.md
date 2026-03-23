@@ -4,7 +4,7 @@ type: Process Framework
 category: State Tracking
 version: 2.0
 created: 2023-06-15
-updated: 2026-03-18
+updated: 2026-03-23
 ---
 
 # LinkWatcher - Feature Tracking Document
@@ -101,9 +101,9 @@ Foundation features that provide architectural foundations for the application.
 
 |  ID  |  Feature  |  Status  |  Priority  |  Doc Tier  |  ADR  |  FDD  |  TDD  |  Test Status  |  Test Spec  |  Dependencies  |  Notes  |
 |  --  |  -------  |  ------  |  --------  |  --------  |  ---  |  ---  |  ---  |  -----------  |  ---------  |  ------------  |  -----  |
-|  [0.1.1](../features/0.1.1-core-architecture-implementation-state.md)  |  Core Architecture  |  🟢 Completed  |  P1  |  [🔴 Tier 3](../../../product-docs/documentation-tiers/assessments/ART-ASS-191-0-1-1-core-architecture.md)  |  [PD-ADR-039](../../../product-docs/technical/architecture/design-docs/adr/adr/orchestrator-facade-pattern-for-core-architecture.md)  |  [PD-FDD-022](../../../product-docs/functional-design/fdds/fdd-0-1-1-core-architecture.md)  |  [PD-TDD-021](../../../product-docs/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md)  |  ✅ Tests Approved  |  [PF-TSP-035](../../../../test/specifications/feature-specs/test-spec-0-1-1-core-architecture.md)  |  —  |  **FOUNDATION** Service orchestrator (facade pattern), data models, path utilities, CLI entry point. Files: service.py, __init__.py, main.py, models.py, utils.py. Retrospective. Consolidates old 0.1.1 + 0.1.2 (Data Models) + 0.1.5 (Path Utilities).  |
-|  [0.1.2](../features/0.1.2-in-memory-link-database-implementation-state.md)  |  In-Memory Link Database  |  📝 TDD Created  |  P1  |  [🟠 Tier 2](../../../product-docs/documentation-tiers/assessments/ART-ASS-192-0-1-2-in-memory-link-database.md)  |  [PD-ADR-040](../../../product-docs/technical/architecture/design-docs/adr/adr/target-indexed-in-memory-link-database.md)  |  [PD-FDD-023](../../../product-docs/functional-design/fdds/fdd-0-1-2-in-memory-database.md)  |  [PD-TDD-022](../../../product-docs/technical/architecture/design-docs/tdd/tdd-0-1-2-in-memory-database-t2.md)  |  ✅ Tests Approved  |  [PF-TSP-036](../../../../test/specifications/feature-specs/test-spec-0-1-2-in-memory-link-database.md)  |  0.1.1  |  **FOUNDATION** Thread-safe, target-indexed link storage with O(1) lookups. File: database.py. Retrospective. Was old 0.1.3.  |
-|  [0.1.3](../features/0.1.3-configuration-system-implementation-state.md)  |  Configuration System  |  📊 Assessment Created  |  P1  |  [🔵 Tier 1](../../../product-docs/documentation-tiers/assessments/ART-ASS-193-0-1-3-configuration-system.md)  |  N/A  |  —  |  —  |  🟡 Tests Partially Approved  |  [PF-TSP-037](../../../../test/specifications/feature-specs/test-spec-0-1-3-configuration-system.md)  |  —  |  **FOUNDATION** Multi-source config loading (YAML/JSON/env/CLI), validation, environment presets. Files: config/settings.py, config/defaults.py, config/__init__.py, config-examples/*. Retrospective. Was old 0.1.4. No FDD/TDD (Tier 1).  |
+| [0.1.1](../features/0.1.1-core-architecture-implementation-state.md) | Core Architecture | 🟢 Completed | P1 | [🔴 Tier 3](../../../product-docs/documentation-tiers/assessments/ART-ASS-191-0-1-1-core-architecture.md) | [PD-ADR-039](../../../product-docs/technical/architecture/design-docs/adr/adr/orchestrator-facade-pattern-for-core-architecture.md) | [PD-FDD-022](../../../product-docs/functional-design/fdds/fdd-0-1-1-core-architecture.md) | [PD-TDD-021](../../../product-docs/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md) | 🔴 Some Failing | [PF-TSP-035](../../../../test/specifications/feature-specs/test-spec-0-1-1-core-architecture.md) | — | **FOUNDATION** Service orchestrator (facade pattern), data models, path utilities, CLI entry point. Files: service.py, __init__.py, main.py, models.py, utils.py. Retrospective. Consolidates old 0.1.1 + 0.1.2 (Data Models) + 0.1.5 (Path Utilities). |
+| [0.1.2](../features/0.1.2-in-memory-link-database-implementation-state.md) | In-Memory Link Database | 📝 TDD Created | P1 | [🟠 Tier 2](../../../product-docs/documentation-tiers/assessments/ART-ASS-192-0-1-2-in-memory-link-database.md) | [PD-ADR-040](../../../product-docs/technical/architecture/design-docs/adr/adr/target-indexed-in-memory-link-database.md) | [PD-FDD-023](../../../product-docs/functional-design/fdds/fdd-0-1-2-in-memory-database.md) | [PD-TDD-022](../../../product-docs/technical/architecture/design-docs/tdd/tdd-0-1-2-in-memory-database-t2.md) | 🔴 Some Failing | [PF-TSP-036](../../../../test/specifications/feature-specs/test-spec-0-1-2-in-memory-link-database.md) | 0.1.1 | **FOUNDATION** Thread-safe, target-indexed link storage with O(1) lookups. File: database.py. Retrospective. Was old 0.1.3. |
+| [0.1.3](../features/0.1.3-configuration-system-implementation-state.md) | Configuration System | 📊 Assessment Created | P1 | [🔵 Tier 1](../../../product-docs/documentation-tiers/assessments/ART-ASS-193-0-1-3-configuration-system.md) | N/A | — | — | 🔴 Some Failing | [PF-TSP-037](../../../../test/specifications/feature-specs/test-spec-0-1-3-configuration-system.md) | — | **FOUNDATION** Multi-source config loading (YAML/JSON/env/CLI), validation, environment presets. Files: config/settings.py, config/defaults.py, config/__init__.py, config-examples/*. Retrospective. Was old 0.1.4. No FDD/TDD (Tier 1). |
 
 </details>
 
@@ -116,7 +116,7 @@ Real-time file system monitoring and movement detection.
 
 |  ID  |  Feature  |  Status  |  Priority  |  Doc Tier  |  FDD  |  TDD  |  Test Status  |  Test Spec  |  Dependencies  |  Notes  |
 |  --  |  -------  |  ------  |  --------  |  --------  |  ---  |  ---  |  -----------  |  ---------  |  ------------  |  -----  |
-| [1.1.1](../features/1.1.1-file-system-monitoring-implementation-state.md) | File System Monitoring | ✅ Complete | P1 | [🟠 Tier 2](../../../product-docs/documentation-tiers/assessments/ART-ASS-194-1-1-1-file-system-monitoring.md) | [PD-FDD-024](../../../product-docs/functional-design/fdds/fdd-1-1-1-file-system-monitoring.md) | [PD-TDD-023](../../../product-docs/technical/architecture/design-docs/tdd/tdd-1-1-1-file-system-monitoring-t2.md) | 🟡 In Progress | [PF-TSP-038](../../../../test/specifications/feature-specs/test-spec-1-1-1-file-system-monitoring.md) | 0.1.1 | Watchdog event handling, move detection (delete+create pairing), directory moves, file filtering, initial scan, real-time monitoring. Files: handler.py, move_detector.py, dir_move_detector.py (TD005 decomposition). Retrospective. Consolidates old 1.1.1–1.1.5. |
+| [1.1.1](../features/1.1.1-file-system-monitoring-implementation-state.md) | File System Monitoring | ✅ Complete | P1 | [🟠 Tier 2](../../../product-docs/documentation-tiers/assessments/ART-ASS-194-1-1-1-file-system-monitoring.md) | [PD-FDD-024](../../../product-docs/functional-design/fdds/fdd-1-1-1-file-system-monitoring.md) | [PD-TDD-023](../../../product-docs/technical/architecture/design-docs/tdd/tdd-1-1-1-file-system-monitoring-t2.md) | 🔴 Some Failing | [PF-TSP-044](../../../../test/specifications/cross-cutting-specs/cross-cutting-spec-e2e-acceptance-testing-scenarios.md) | 0.1.1 | Watchdog event handling, move detection (delete+create pairing), directory moves, file filtering, initial scan, real-time monitoring. Files: handler.py, move_detector.py, dir_move_detector.py (TD005 decomposition). Retrospective. Consolidates old 1.1.1–1.1.5.; Test specification created: PF-TSP-044 (2026-03-18) |
 
 </details>
 
@@ -129,8 +129,8 @@ Parser implementations for different file formats and link update mechanisms.
 
 |  ID  |  Feature  |  Status  |  Priority  |  Doc Tier  |  FDD  |  TDD  |  Test Status  |  Test Spec  |  Dependencies  |  Notes  |
 |  --  |  -------  |  ------  |  --------  |  --------  |  ---  |  ---  |  -----------  |  ---------  |  ------------  |  -----  |
-|  [2.1.1](../features/2.1.1-link-parsing-system-implementation-state.md)  |  Link Parsing System  |  ✅ Complete  |  P1  |  [🟠 Tier 2](../../../product-docs/documentation-tiers/assessments/ART-ASS-195-2-1-1-link-parsing-system.md)  |  [PD-FDD-026](../../../product-docs/functional-design/fdds/fdd-2-1-1-parser-framework.md)  |  [PD-TDD-025](../../../product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md)  |  🟡 In Progress  |  [PF-TSP-039](../../../../test/specifications/feature-specs/test-spec-2-1-1-link-parsing-system.md)  |  0.1.1  |  Parser registry/facade with 7 format-specific parsers (Markdown, YAML, JSON, Python, Dart, PowerShell, Generic). Files: parser.py, parsers/* (9 files). Retrospective. Consolidates old 2.1.1–2.1.7.  |
-|  [2.2.1](../features/2.2.1-link-updating-implementation-state.md)  |  Link Updating  |  📝 TDD Created  |  P1  |  [🟠 Tier 2](../../../product-docs/documentation-tiers/assessments/ART-ASS-196-2-2-1-link-updating.md)  |  [PD-FDD-027](../../../product-docs/functional-design/fdds/fdd-2-2-1-link-updater.md)  |  [PD-TDD-026](../../../product-docs/technical/architecture/design-docs/tdd/tdd-2-2-1-link-updater-t2.md)  |  ✅ Tests Approved  |  [PF-TSP-040](../../../../test/specifications/feature-specs/test-spec-2-2-1-link-updating.md)  |  0.1.1  |  Reference updating with relative path calculation, atomic writes, backup creation, dry-run mode. File: updater.py. Retrospective. Consolidates old 2.2.1–2.2.5.  |
+| [2.1.1](../features/2.1.1-link-parsing-system-implementation-state.md) | Link Parsing System | ✅ Complete | P1 | [🟠 Tier 2](../../../product-docs/documentation-tiers/assessments/ART-ASS-195-2-1-1-link-parsing-system.md) | [PD-FDD-026](../../../product-docs/functional-design/fdds/fdd-2-1-1-parser-framework.md) | [PD-TDD-025](../../../product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md) | 🔴 Some Failing | [PF-TSP-039](../../../../test/specifications/feature-specs/test-spec-2-1-1-link-parsing-system.md) | 0.1.1 | Parser registry/facade with 7 format-specific parsers (Markdown, YAML, JSON, Python, Dart, PowerShell, Generic). Files: parser.py, parsers/* (9 files). Retrospective. Consolidates old 2.1.1–2.1.7. |
+| [2.2.1](../features/2.2.1-link-updating-implementation-state.md) | Link Updating | 📝 TDD Created | P1 | [🟠 Tier 2](../../../product-docs/documentation-tiers/assessments/ART-ASS-196-2-2-1-link-updating.md) | [PD-FDD-027](../../../product-docs/functional-design/fdds/fdd-2-2-1-link-updater.md) | [PD-TDD-026](../../../product-docs/technical/architecture/design-docs/tdd/tdd-2-2-1-link-updater-t2.md) | 🔴 Some Failing | [PF-TSP-040](../../../../test/specifications/feature-specs/test-spec-2-2-1-link-updating.md) | 0.1.1 | Reference updating with relative path calculation, atomic writes, backup creation, dry-run mode. File: updater.py. Retrospective. Consolidates old 2.2.1–2.2.5. |
 
 </details>
 
@@ -143,7 +143,7 @@ Logging system and operational monitoring features.
 
 |  ID  |  Feature  |  Status  |  Priority  |  Doc Tier  |  FDD  |  TDD  |  Test Status  |  Test Spec  |  Dependencies  |  Notes  |
 |  --  |  -------  |  ------  |  --------  |  --------  |  ---  |  ---  |  -----------  |  ---------  |  ------------  |  -----  |
-|  [3.1.1](../features/3.1.1-logging-system-implementation-state.md)  |  Logging System  |  📝 TDD Created  |  P1  |  [🟠 Tier 2](../../../product-docs/documentation-tiers/assessments/ART-ASS-197-3-1-1-logging-system.md)  |  [PD-FDD-025](../../../product-docs/functional-design/fdds/fdd-3-1-1-logging-framework.md)  |  [PD-TDD-024](../../../product-docs/technical/architecture/design-docs/tdd/tdd-3-1-1-logging-framework-t2.md)  |  ✅ Tests Approved  |  [PF-TSP-041](../../../../test/specifications/feature-specs/test-spec-3-1-1-logging-system.md)  |  0.1.3  |  Structured logging with colored console output, JSON file logging, rotating handlers, runtime filtering, performance metrics. Files: logging.py, logging_config.py. Retrospective. Consolidates old 3.1.1–3.1.5.  |
+| [3.1.1](../features/3.1.1-logging-system-implementation-state.md) | Logging System | 📝 TDD Created | P1 | [🟠 Tier 2](../../../product-docs/documentation-tiers/assessments/ART-ASS-197-3-1-1-logging-system.md) | [PD-FDD-025](../../../product-docs/functional-design/fdds/fdd-3-1-1-logging-framework.md) | [PD-TDD-024](../../../product-docs/technical/architecture/design-docs/tdd/tdd-3-1-1-logging-framework-t2.md) | 🔴 Some Failing | [PF-TSP-041](../../../../test/specifications/feature-specs/test-spec-3-1-1-logging-system.md) | 0.1.3 | Structured logging with colored console output, JSON file logging, rotating handlers, runtime filtering, performance metrics. Files: logging.py, logging_config.py. Retrospective. Consolidates old 3.1.1–3.1.5. |
 
 </details>
 
@@ -156,7 +156,7 @@ Testing framework, test utilities, and test coverage.
 
 |  ID  |  Feature  |  Status  |  Priority  |  Doc Tier  |  FDD  |  TDD  |  Test Status  |  Test Spec  |  Dependencies  |  Notes  |
 |  --  |  -------  |  ------  |  --------  |  --------  |  ---  |  ---  |  -----------  |  ---------  |  ------------  |  -----  |
-|  [4.1.1](../features/4.1.1-test-suite-implementation-state.md)  |  Test Suite  |  📝 TDD Created  |  P1  |  [🟠 Tier 2](../../../product-docs/documentation-tiers/assessments/ART-ASS-198-4-1-1-test-suite.md)  |  [PD-FDD-028](../../../product-docs/functional-design/fdds/fdd-4-1-1-test-suite.md)  |  [PD-TDD-027](../../../product-docs/technical/architecture/design-docs/tdd/tdd-4-1-1-test-suite-t2.md)  |  ✅  |  [PF-TSP-042](../../../../test/specifications/feature-specs/test-spec-4-1-1-test-suite.md)  |  —  |  Pytest-based infrastructure with 247+ tests (unit, integration, parser, performance), fixtures, test utilities. Files: tests/*, run_tests.py, pytest.ini. Retrospective. Consolidates old 4.1.1–4.1.8.  |
+|  [4.1.1](../features/archive/4.1.1-test-suite-implementation-state.md)  |  Test Suite  |  🗄️ Archived  |  —  |  —  |  —  |  —  |  —  |  —  |  —  |  Generalized into framework (PF-PRO-009, 2026-03-22). Testing infrastructure is now a framework concern, not a product feature. See [Testing Setup Guide](../../guides/03-testing/testing-setup-guide.md) and [Test Infrastructure Guide](../../guides/03-testing/test-infrastructure-guide.md).  |
 
 </details>
 
@@ -169,7 +169,7 @@ Continuous integration, deployment pipelines, and development tooling.
 
 |  ID  |  Feature  |  Status  |  Priority  |  Doc Tier  |  FDD  |  TDD  |  Test Status  |  Test Spec  |  Dependencies  |  Notes  |
 |  --  |  -------  |  ------  |  --------  |  --------  |  ---  |  ---  |  -----------  |  ---------  |  ------------  |  -----  |
-|  [5.1.1](../features/5.1.1-cicd-development-tooling-implementation-state.md)  |  CI/CD & Development Tooling  |  📝 TDD Created  |  P1  |  [🟠 Tier 2](../../../product-docs/documentation-tiers/assessments/ART-ASS-199-5-1-1-ci-cd-development-tooling.md)  |  [PD-FDD-032](../../../product-docs/functional-design/fdds/fdd-5-1-1-cicd-development-tooling.md)  |  [PD-TDD-031](../../../product-docs/technical/architecture/design-docs/tdd/tdd-5-1-1-cicd-development-tooling-t2.md)  |  ✅  |  [PF-TSP-043](../../../../test/specifications/feature-specs/test-spec-5-1-1-cicd-development-tooling.md)  |  —  |  GitHub Actions pipeline, pre-commit hooks, startup scripts, debug tools, benchmarks, deployment scripts. Files: .github/workflows/*, .pre-commit-config.yaml, LinkWatcher_run/*, deployment/*, scripts/*, tools/*, debug/*, examples/*. Retrospective. Consolidates old 5.1.1–5.1.7.  |
+|  [5.1.1](../features/archive/5.1.1-cicd-development-tooling-implementation-state.md)  |  CI/CD & Development Tooling  |  🗄️ Archived  |  —  |  —  |  —  |  —  |  —  |  —  |  —  |  Generalized into framework (PF-PRO-009, 2026-03-22). CI/CD infrastructure is now a framework concern, not a product feature. See [CI/CD Setup Guide](../../guides/07-deployment/ci-cd-setup-guide.md). Major components deleted (ci.yml, run_tests.py, setup_cicd.py).  |
 
 </details>
 
@@ -194,9 +194,10 @@ On-demand link health auditing and broken link reporting.
 | Status                | Count  | Percentage |
 | --------------------- | ------ | ---------- |
 | 🟢 Completed | 1      | 10%      |
-| 📝 TDD Created | 5      | 50%      |
+| 📝 TDD Created | 3      | 30%      |
 | 📊 Assessment Created | 2      | 20%      |
 | ✅ Complete | 2      | 20%      |
+| 🗄️ Archived | 2      | 20%      |
 | **Total Features**    | **10**  | **100%**   |
 
 > **📝 NOTE**: All 10 features are fully implemented in code (retrospective). The status reflects documentation completeness, not implementation progress. All features have passing tests.
@@ -209,7 +210,7 @@ On-demand link health auditing and broken link reporting.
 | Tier                  | Count  | Percentage |
 | --------------------- | ------ | ---------- |
 | 🔵 Tier 1 (Simple)   | 2      | 20%      |
-| 🟠 Tier 2 (Moderate)   | 7      | 70%      |
+| 🟠 Tier 2 (Moderate)   | 5      | 50%      |
 | 🔴 Tier 3 (Complex)   | 1      | 10%      |
 | **Total Features**    | **10**  | **100%**   |
 
@@ -220,11 +221,11 @@ On-demand link health auditing and broken link reporting.
 
 | Artifact | Exists | Missing | Notes |
 |----------|--------|---------|-------|
-| FDDs | 8 | 2 (0.1.3 Configuration System, 6.1.1 Link Validation — Tier 1, not required) | |
-| TDDs | 8 | 2 (0.1.3 Configuration System, 6.1.1 Link Validation — Tier 1, not required) | |
+| FDDs | 6 | 4 (0.1.3 Configuration System, 6.1.1 Link Validation — Tier 1, not required) | |
+| TDDs | 6 | 4 (0.1.3 Configuration System, 6.1.1 Link Validation — Tier 1, not required) | |
 | ADRs | 2 | — | PD-ADR-039 (0.1.1), PD-ADR-040 (0.1.2) |
-| Test Specs | 9 | 1 | |
-| Tier Assessments | 10 | 0 | |
+| Test Specs | 7 | 3 | |
+| Tier Assessments | 8 | 2 | |
 
 </details>
 
@@ -258,6 +259,99 @@ On-demand link health auditing and broken link reporting.
 | 2026-02-20 | v1.5 — Retrospective TDDs completed for all Tier 2+ features | [Retrospective Documentation Creation (PF-TSK-066)](../../tasks/00-onboarding/retrospective-documentation-creation.md) |
 | 2026-02-19 | v1.4 — Retrospective FDDs completed for all Tier 2+ features | [Retrospective Documentation Creation (PF-TSK-066)](../../tasks/00-onboarding/retrospective-documentation-creation.md) |
 | 2026-02-17 | v1.0 — Initial feature tracking with 42 features | [Codebase Feature Discovery (PF-TSK-064)](../../tasks/00-onboarding/codebase-feature-discovery.md) |
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

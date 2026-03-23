@@ -41,8 +41,8 @@ graph TD
 
 ### Critical Components (Must Understand)
 
-- **Feature Tracking**: Current status and details of foundational features to be validated
-- **Validation Tracking**: Master validation matrix tracking progress across all validation types
+- **Feature Tracking**: Current status and details of features to be validated
+- **Validation Tracking**: Active validation tracking matrix tracking progress across all validation types
 - **Validation Report Template**: Standardized template for creating code quality validation reports
 - **lib/ Codebase**: Source code implementations to analyze for quality standards
 
@@ -84,8 +84,8 @@ graph TD
 
 - [Code Quality Standards Validation Task](../../tasks/05-validation/code-quality-standards-validation-task.md) - Complete task definition and process
 - [Code Quality Standards Validation Concept](../../proposals/code-quality-standards-validation-concept.md) - Detailed concept document
-- [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Current status of foundational features
-- [Foundational Validation Tracking](../../../state-tracking/temporary/foundational-validation-tracking.md) - Master validation matrix
+- [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Current status of features
+- Validation Tracking State File - Active validation tracking matrix (file location depends on validation round)
 - Language Style Guide - Official language coding standards
 - [Component Relationship Index](../../../product-docs/technical/architecture/component-relationship-index.md) - Complete reference of all component relationships
 

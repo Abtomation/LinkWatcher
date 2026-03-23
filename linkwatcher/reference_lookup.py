@@ -56,7 +56,8 @@ class ReferenceLookup:
         """Generate all format variations of a path for database lookup.
 
         Returns a list of path strings covering: exact path, relative
-        (first directory stripped), backslash (Windows), and filename-only.
+        (first directory stripped), backslash (Windows), filename-only,
+        and extensionless (for parsers that store module-style references).
         """
         variations = [path]
         path_parts = path.split("/")
@@ -65,6 +66,12 @@ class ReferenceLookup:
             variations.append(relative)
             variations.append(relative.replace("/", "\\"))  # Windows backslash
         variations.append(os.path.basename(path))
+
+        # Extensionless variation: some parsers (e.g., PythonParser for imports)
+        # store targets without file extension.  PD-BUG-043.
+        root, ext = os.path.splitext(path)
+        if ext and root:
+            variations.append(root)
         return variations
 
     def find_references(self, target_path, filter_files=None):

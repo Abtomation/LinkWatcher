@@ -184,31 +184,10 @@ try {
     Write-Host ""
     Write-Host "Updating Test Tracking..." -ForegroundColor Yellow
 
-    # Build additional updates for test implementation tracking
+    # Build additional updates using actual test-tracking.md column names:
+    # Test ID | Feature ID | Test Type | Test File/Case | Status | Test Cases Count | Last Executed | Last Updated | Notes
     $testUpdates = @{
-        "Audit Status" = $AuditStatus
-        "Audit Date" = $AuditDate
         "Last Updated" = $timestamp
-    }
-
-    if ($AuditReportPath) {
-        $testUpdates["Audit Report"] = $AuditReportPath
-    }
-
-    if ($AuditorName) {
-        $testUpdates["Auditor"] = $AuditorName
-    }
-
-    if ($TestCasesAudited) {
-        $testUpdates["Test Cases Audited"] = $TestCasesAudited
-    }
-
-    if ($PassedTests -or $FailedTests) {
-        $testUpdates["Audit Results"] = "Passed: $PassedTests, Failed: $FailedTests"
-    }
-
-    if ($MajorFindings.Count -gt 0) {
-        $testUpdates["Major Findings"] = $MajorFindings -join "; "
     }
 
     # Map audit status to test implementation status
@@ -219,13 +198,21 @@ try {
         "Audit Failed" { "🔴 Audit Failed" }
     }
 
-    $testResult = Update-TestImplementationStatus -FeatureId $FeatureId -Status $testImplStatus -AdditionalUpdates $testUpdates -DryRun:$DryRun
+    # Build audit note for the Notes column (audit metadata doesn't have its own columns)
+    $auditNoteParts = @("Audit $AuditDate`: $AuditStatus")
+    if ($AuditorName) { $auditNoteParts += "Auditor: $AuditorName" }
+    if ($AuditReportPath) { $auditNoteParts += "Report: $AuditReportPath" }
+    if ($TestCasesAudited) { $auditNoteParts += "Cases: $TestCasesAudited" }
+    if ($PassedTests -or $FailedTests) { $auditNoteParts += "Results: $PassedTests passed, $FailedTests failed" }
+    if ($MajorFindings.Count -gt 0) { $auditNoteParts += "Findings: $($MajorFindings -join '; ')" }
+    $auditNote = $auditNoteParts -join "; "
+
+    $testResult = Update-TestImplementationStatus -FeatureId $FeatureId -Status $testImplStatus -AdditionalUpdates $testUpdates -Notes $auditNote -DryRun:$DryRun
 
     if ($DryRun) {
-        Write-Host "  Would update test implementation tracking with audit status: $testImplStatus" -ForegroundColor Cyan
-        foreach ($key in $testUpdates.Keys) {
-            Write-Host "    $key`: $($testUpdates[$key])" -ForegroundColor Gray
-        }
+        Write-Host "  Would update test implementation tracking:" -ForegroundColor Cyan
+        Write-Host "    Status: $testImplStatus" -ForegroundColor Gray
+        Write-Host "    Notes (append): $auditNote" -ForegroundColor Gray
     } else {
         Write-Host "  ✅ Test implementation tracking updated successfully" -ForegroundColor Green
     }
@@ -261,25 +248,17 @@ try {
         "Audit Failed" { "🔴 Tests Failed Audit" }
     }
 
-    $featureUpdates = @{
-        "Audit Date" = $AuditDate
-    }
+    # Build audit note for feature tracking Notes column
+    # (feature-tracking.md has no Audit Date/Report/Findings columns — route to Notes)
+    $featureAuditNote = "Audit $AuditDate`: $featureTestStatus"
+    if ($AuditReportPath) { $featureAuditNote += "; Report: $AuditReportPath" }
+    if ($MajorFindings.Count -gt 0) { $featureAuditNote += "; Findings: $($MajorFindings -join '; ')" }
 
-    if ($AuditReportPath) {
-        $featureUpdates["Audit Report"] = $AuditReportPath
-    }
-
-    if ($MajorFindings.Count -gt 0) {
-        $featureUpdates["Audit Findings"] = $MajorFindings -join "; "
-    }
-
-    $featureResult = Update-FeatureTrackingStatus -FeatureId $FeatureId -Status $featureTestStatus -StatusColumn "Test Status" -AdditionalUpdates $featureUpdates -DryRun:$DryRun
+    $featureResult = Update-FeatureTrackingStatus -FeatureId $FeatureId -Status $featureTestStatus -StatusColumn "Test Status" -Notes $featureAuditNote -DryRun:$DryRun
 
     if ($DryRun) {
         Write-Host "  Would update feature tracking test status to: $featureTestStatus" -ForegroundColor Cyan
-        foreach ($key in $featureUpdates.Keys) {
-            Write-Host "    $key`: $($featureUpdates[$key])" -ForegroundColor Gray
-        }
+        Write-Host "    Notes (append): $featureAuditNote" -ForegroundColor Gray
     } else {
         Write-Host "  ✅ Feature tracking updated successfully" -ForegroundColor Green
     }

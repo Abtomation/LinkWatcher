@@ -1,0 +1,13 @@
+# Pipeline configuration
+pipeline:
+  stages:
+    build:
+      source: data/settings.conf
+      output: data/schema.sql
+
+defaults: &defaults
+  config_file: data/settings.conf
+  schema: data/schema.sql
+
+production:
+  <<: *defaults

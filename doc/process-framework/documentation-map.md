@@ -41,12 +41,18 @@ Our tasks are organized into four categories and follow a unified structure:
 - [Task: Data Layer Implementation](tasks/04-implementation/data-layer-implementation.md) - Implement data models, repositories, and database integration for feature
 - [Task: Feature Enhancement](tasks/04-implementation/feature-enhancement.md) - Execute enhancement steps from Enhancement State Tracking File, adapting existing task guidance to amendment context
 - [Task: Foundation Feature Implementation](tasks/04-implementation/foundation-feature-implementation-task.md) - Implement foundation features (0.x.x) that provide architectural foundations for the application
-- [Task: Architectural Consistency Validation](tasks/05-validation/architectural-consistency-validation.md) - Validate foundational features for architectural pattern adherence, ADR compliance, and interface consistency
-- [Task: Code Quality Standards Validation](tasks/05-validation/code-quality-standards-validation.md) - Validate foundational features for code quality standards, SOLID principles, and best practices adherence
-- [Task: Integration Dependencies Validation](tasks/05-validation/integration-dependencies-validation.md) - Validate foundational features for dependency health, interface contracts, and data flow integrity
-- [Task: Documentation Alignment Validation](tasks/05-validation/documentation-alignment-validation.md) - Validate foundational features for TDD alignment, ADR compliance, and API documentation accuracy
-- [Task: Extensibility Maintainability Validation](tasks/05-validation/extensibility-maintainability-validation.md) - Validate foundational features for extension points, configuration flexibility, and testing support
-- [Task: AI Agent Continuity Validation](tasks/05-validation/ai-agent-continuity-validation.md) - Validate foundational features for context clarity, modular structure, and documentation quality to support AI agent workflow continuity
+- [Task: Validation Preparation](tasks/05-validation/validation-preparation.md) - Plan validation rounds by selecting features and applicable dimensions, create tracking state file
+- [Task: Architectural Consistency Validation](tasks/05-validation/architectural-consistency-validation.md) - Validate selected features for architectural pattern adherence, ADR compliance, and interface consistency
+- [Task: Code Quality Standards Validation](tasks/05-validation/code-quality-standards-validation.md) - Validate selected features for code quality standards, SOLID principles, and best practices adherence
+- [Task: Integration Dependencies Validation](tasks/05-validation/integration-dependencies-validation.md) - Validate selected features for dependency health, interface contracts, and data flow integrity
+- [Task: Documentation Alignment Validation](tasks/05-validation/documentation-alignment-validation.md) - Validate selected features for TDD alignment, ADR compliance, and API documentation accuracy
+- [Task: Extensibility Maintainability Validation](tasks/05-validation/extensibility-maintainability-validation.md) - Validate selected features for extension points, configuration flexibility, and testing support
+- [Task: AI Agent Continuity Validation](tasks/05-validation/ai-agent-continuity-validation.md) - Validate selected features for context clarity, modular structure, and documentation quality to support AI agent workflow continuity
+- [Task: Security & Data Protection Validation](tasks/05-validation/security-data-protection-validation.md) - Validate selected features for security best practices, data protection, input validation, and secrets management
+- [Task: Performance & Scalability Validation](tasks/05-validation/performance-scalability-validation.md) - Validate selected features for performance characteristics, resource efficiency, and scalability patterns
+- [Task: Observability Validation](tasks/05-validation/observability-validation.md) - Validate selected features for logging coverage, monitoring instrumentation, alerting readiness, and diagnostic traceability
+- [Task: Accessibility / UX Compliance Validation](tasks/05-validation/accessibility-ux-compliance-validation.md) - Validate selected features for accessibility standards, UX compliance, keyboard navigation, and inclusive design patterns
+- [Task: Data Integrity Validation](tasks/05-validation/data-integrity-validation.md) - Validate selected features for data consistency, constraint enforcement, migration safety, and backup/recovery patterns
 - [Task: Code Review](tasks/06-maintenance/code-review-task.md) - Review code for quality and correctness
 - [Task: Bug Triage](tasks/06-maintenance/bug-triage-task.md) - Systematically evaluate, prioritize, and assign reported bugs
 - [Task: Bug Fixing](tasks/06-maintenance/bug-fixing-task.md) - Diagnose and fix bugs
@@ -98,11 +104,12 @@ Our tasks are organized into four categories and follow a unified structure:
 - [Process: Debt Item Template](templates/cyclical/debt-item-template.md) - Template for individual debt item records
 - [Process: Prioritization Matrix Template](templates/cyclical/prioritization-matrix-template.md) - Template for debt prioritization matrices
 - [Process: Temporary Task Creation State Template](templates/support/temp-task-creation-state-template.md) - Template for tracking multi-session task creation implementation
+- [Process: Temporary Process Improvement State Template](templates/support/temp-process-improvement-state-template.md) - Template for tracking multi-session process improvement implementation (via `New-TempTaskState.ps1 -Variant ProcessImprovement`)
 - [Process: Structure Change State Template](templates/support/structure-change-state-template.md) - Template for tracking multi-session structure change implementation
 - [Process: Enhancement State Tracking Template](templates/04-implementation/enhancement-state-tracking-template-template.md) - Template for tracking enhancement work on existing features, used by New-EnhancementState.ps1
 - [Process: Bug Fix State Tracking Template](templates/06-maintenance/bug-fix-state-tracking-template.md) - Template for tracking multi-session complex bug fix work, used by New-BugFixState.ps1
 - [Process: Framework Extension Concept Template](templates/support/framework-extension-concept-template.md) - Template for creating framework extension concept documents
-- [Process: Validation Report Template](templates/05-validation/validation-report-template.md) - Template for creating foundational codebase validation reports
+- [Process: Validation Report Template](templates/05-validation/validation-report-template.md) - Template for creating feature validation reports
 - [Process: Cross-Cutting Test Specification Template](templates/03-testing/cross-cutting-test-specification-template.md) - Template for test specifications spanning multiple features
 - [Process: E2E Acceptance Master Test Template](templates/03-testing/e2e-acceptance-master-test-template.md) - Template for group-level master test files with quick validation sequences
 - [Process: E2E Acceptance Test Case Template](templates/03-testing/e2e-acceptance-test-case-template.md) - Template for individual E2E acceptance test case files with exact steps, preconditions, and expected outcomes
@@ -112,6 +119,8 @@ Our tasks are organized into four categories and follow a unified structure:
 - [Process: Foundation Feature Implementation Usage Guide](guides/04-implementation/foundation-feature-implementation-usage-guide.md) - Comprehensive guide for using the Foundation Feature Implementation task effectively
 - [Process: Test Audit Usage Guide](guides/03-testing/test-audit-usage-guide.md) - Comprehensive guide for conducting systematic test quality assessments
 - [Process: Test Infrastructure Guide](guides/test-infrastructure-guide.md) - How the test/ directory connects to the process framework — directory conventions, automation scripts, and tracking relationships
+- [Process: Testing Setup Guide](guides/03-testing/testing-setup-guide.md) - Language-specific guide for scaffolding test infrastructure in new or existing projects
+- [Process: CI/CD Setup Guide](guides/07-deployment/ci-cd-setup-guide.md) - Guide for scaffolding CI/CD infrastructure (pipelines, pre-commit hooks, dev scripts)
 - [Process: Feedback Form Guide](guides/framework/feedback-form-guide.md) - Comprehensive guide for completing feedback forms effectively
 - [Process: Feedback Form Completion Instructions](guides/framework/feedback-form-completion-instructions.md) - Standardized instructions for completing feedback forms (referenced by all tasks)
 - [Process: Task Transition Guide](guides/framework/task-transition-guide.md) - Guidance on when and how to transition between related tasks
@@ -154,6 +163,7 @@ These documents describe what we're building:
 ### Core Product Documents
 
 - [Product: Feature Dependencies](../product-docs/technical/design/feature-dependencies.md) - Auto-generated visual map and matrix of feature dependencies
+- [Product: User Workflow Map](../product-docs/technical/design/user-workflow-map.md) - Maps user-facing workflows to required features; bridge between feature-centric development and cross-feature E2E testing
 
 ### User Handbooks
 
@@ -190,8 +200,18 @@ These documents describe what we're building:
 - [Process: Enhancement State Tracking Customization Guide](guides/04-implementation/enhancement-state-tracking-customization-guide.md) - Step-by-step instructions for customizing Enhancement State Tracking files
 - [Process: E2E Acceptance Test Case Customization Guide](guides/03-testing/e2e-acceptance-test-case-customization-guide.md) - Step-by-step instructions for customizing E2E acceptance test case and master test templates created by New-E2EAcceptanceTestCase.ps1
 - [Process: Framework Extension Customization Guide](guides/support/framework-extension-customization-guide.md) - Essential guide for customizing Framework Extension Concept documents
-- [Process: Foundational Validation Guide](guides/05-validation/foundational-validation-guide.md) - Comprehensive guide for conducting foundational codebase validation using the 6-type validation framework
+- [Process: Feature Validation Guide](guides/05-validation/feature-validation-guide.md) - Comprehensive guide for conducting feature validation using the 6-type validation framework
 - [Process: Bug Reporting Guide](guides/06-maintenance/bug-reporting-guide.md) - Standardized procedures for reporting bugs discovered during task execution
+- [Process: Feature Granularity Guide](guides/01-planning/feature-granularity-guide.md) - Defines well-scoped features and provides practical tests for validating feature granularity
+- [Process: Documentation Structure Guide](guides/framework/documentation-structure-guide.md) - Guide for organizing documentation structure within the framework
+- [Process: Migration Best Practices](guides/support/migration-best-practices.md) - Best practices for migrating documentation and framework components
+- [Process: Process Improvement Task Implementation Guide](guides/support/process-improvement-task-implementation-guide.md) - Practical instructions for executing the Process Improvement task (PF-TSK-009)
+- [Process: Feature Implementation State Tracking Guide](guides/04-implementation/feature-implementation-state-tracking-guide.md) - How to create and maintain feature implementation state tracking documents
+- [Process: Task Creation Guide](guides/support/task-creation-guide.md) - Guide for creating and improving task definitions
+- [Process: Visualization Creation Guide](guides/support/visualization-creation-guide.md) - Guide for creating context maps and other visualizations
+- [Process: Implementation Plan Customization Guide](guides/04-implementation/implementation-plan-customization-guide.md) - How to use New-ImplementationPlan.ps1 and customize implementation plan templates
+- [Process: Template Development Guide](guides/support/template-development-guide.md) - Guide for developing and maintaining framework templates
+- [Process: Document Creation Script Development Guide](guides/support/document-creation-script-development-guide.md) - Standardized approach for creating documents from templates through PowerShell scripts
 
 ### Visualization Resources
 
@@ -209,6 +229,12 @@ These documents describe what we're building:
 - [Documentation Alignment Validation Map](visualization/context-maps/05-validation/documentation-alignment-validation-map.md) - Components for validating TDD alignment, ADR compliance, and API documentation accuracy
 - [Extensibility Maintainability Validation Map](visualization/context-maps/05-validation/extensibility-maintainability-validation-map.md) - Components for validating extension points, configuration flexibility, and testing support
 - [AI Agent Continuity Validation Map](visualization/context-maps/05-validation/ai-agent-continuity-validation-map.md) - Components for validating context clarity, modular structure, and documentation quality for AI agent workflow continuity
+- [Security & Data Protection Validation Map](visualization/context-maps/05-validation/security-data-protection-validation-map.md) - Components for validating security best practices, data protection, and secrets management
+- [Performance & Scalability Validation Map](visualization/context-maps/05-validation/performance-scalability-validation-map.md) - Components for validating performance characteristics, resource efficiency, and scalability patterns
+- [Observability Validation Map](visualization/context-maps/05-validation/observability-validation-map.md) - Components for validating logging coverage, monitoring instrumentation, and diagnostic traceability
+- [Accessibility / UX Compliance Validation Map](visualization/context-maps/05-validation/accessibility-ux-compliance-validation-map.md) - Components for validating accessibility standards, UX compliance, and inclusive design patterns
+- [Data Integrity Validation Map](visualization/context-maps/05-validation/data-integrity-validation-map.md) - Components for validating data consistency, constraint enforcement, and recovery patterns
+- [Validation Preparation Map](visualization/context-maps/05-validation/validation-preparation-map.md) - Components for planning validation rounds and creating tracking state files
 - [Code Review Map](visualization/context-maps/06-maintenance/code-review-map.md) - Components for reviewing code changes
 - [FDD Creation Map](visualization/context-maps/02-design/fdd-creation-map.md) - Components for creating Functional Design Documents
 - [Feature Discovery Map](visualization/context-maps/01-planning/feature-discovery-map.md) - Components for exploring features
@@ -251,8 +277,8 @@ _Created during framework onboarding (PF-TSK-066), consolidated to 9-feature sco
 - [FDD: Logging System (PD-FDD-025)](../product-docs/functional-design/fdds/fdd-3-1-1-logging-framework.md) - 3.1.1 Tier 2 — Structured logging with colored output, stats, progress
 - [FDD: Link Parsing System (PD-FDD-026)](../product-docs/functional-design/fdds/fdd-2-1-1-parser-framework.md) - 2.1.1 Tier 2 — Parser registry/facade with 6 format-specific parsers
 - [FDD: Link Updating (PD-FDD-027)](../product-docs/functional-design/fdds/fdd-2-2-1-link-updater.md) - 2.2.1 Tier 2 — Atomic file updates, relative path calculation, dry-run
-- [FDD: Test Suite (PD-FDD-028)](../product-docs/functional-design/fdds/fdd-4-1-1-test-suite.md) - 4.1.1 Tier 2 — Pytest infrastructure, 247+ tests, fixtures, utilities
-- [FDD: CI/CD & Development Tooling (PD-FDD-032)](../product-docs/functional-design/fdds/fdd-5-1-1-cicd-development-tooling.md) - 5.1.1 Tier 2 — GitHub Actions, pre-commit hooks, dev scripts
+- ~~FDD: Test Suite (PD-FDD-028)~~ - 🗄️ Archived (PF-PRO-009) — generalized into [Testing Setup Guide](guides/03-testing/testing-setup-guide.md)
+- ~~FDD: CI/CD & Development Tooling (PD-FDD-032)~~ - 🗄️ Archived (PF-PRO-009) — generalized into [CI/CD Setup Guide](guides/07-deployment/ci-cd-setup-guide.md)
 
 > **Note**: 0.1.3 Configuration System is Tier 1 — no FDD required.
 
@@ -266,8 +292,8 @@ _Created during framework onboarding (PF-TSK-066), consolidated to 9-feature sco
 - [TDD: Logging System (PD-TDD-024)](../product-docs/technical/architecture/design-docs/tdd/tdd-3-1-1-logging-framework-t2.md) - 3.1.1 Tier 2 — Dual-formatter logging design
 - [TDD: Link Parsing System (PD-TDD-025)](../product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md) - 2.1.1 Tier 2 — Registry + Facade parser system
 - [TDD: Link Updating (PD-TDD-026)](../product-docs/technical/architecture/design-docs/tdd/tdd-2-2-1-link-updater-t2.md) - 2.2.1 Tier 2 — Bottom-to-top atomic write strategy
-- [TDD: Test Suite (PD-TDD-027)](../product-docs/technical/architecture/design-docs/tdd/tdd-4-1-1-test-suite-t2.md) - 4.1.1 Tier 2 — Pytest infrastructure, test categories, fixtures
-- [TDD: CI/CD & Development Tooling (PD-TDD-031)](../product-docs/technical/architecture/design-docs/tdd/tdd-5-1-1-cicd-development-tooling-t2.md) - 5.1.1 Tier 2 — CI pipeline, automation design
+- ~~TDD: Test Suite (PD-TDD-027)~~ - 🗄️ Archived (PF-PRO-009) — generalized into [Testing Setup Guide](guides/03-testing/testing-setup-guide.md)
+- ~~TDD: CI/CD & Development Tooling (PD-TDD-031)~~ - 🗄️ Archived (PF-PRO-009) — generalized into [CI/CD Setup Guide](guides/07-deployment/ci-cd-setup-guide.md)
 
 > **Note**: 0.1.3 Configuration System is Tier 1 — no TDD required.
 
@@ -289,12 +315,18 @@ _Created during framework onboarding (PF-TSK-066 / PF-TSK-012) — documenting e
 - [Test Spec: Link Parsing System (PF-TSP-039)](../../test/specifications/feature-specs/test-spec-2-1-1-link-parsing-system.md) - 2.1.1 Tier 2 — Parser registry with 6 format-specific parsers
 - [Test Spec: Link Updating (PF-TSP-040)](../../test/specifications/feature-specs/test-spec-2-2-1-link-updating.md) - 2.2.1 Tier 2 — Atomic updates, dry-run, backup creation
 - [Test Spec: Logging System (PF-TSP-041)](../../test/specifications/feature-specs/test-spec-3-1-1-logging-system.md) - 3.1.1 Tier 2 — Structured logging, filtering, metrics
-- [Test Spec: Test Suite (PF-TSP-042)](../../test/specifications/feature-specs/test-spec-4-1-1-test-suite.md) - 4.1.1 Tier 2 — Test infrastructure, fixtures, performance benchmarks
-- [Test Spec: CI/CD & Development Tooling (PF-TSP-043)](../../test/specifications/feature-specs/test-spec-5-1-1-cicd-development-tooling.md) - 5.1.1 Tier 2 — Gap analysis for pipeline validation
+- ~~Test Spec: Test Suite (PF-TSP-042)~~ - 🗄️ Archived (PF-PRO-009) — testing infrastructure generalized into framework
+- ~~Test Spec: CI/CD & Development Tooling (PF-TSP-043)~~ - 🗄️ Archived (PF-PRO-009) — CI/CD infrastructure generalized into framework
+
+### Cross-Cutting Test Specifications
+
+_Located in `test/specifications/cross-cutting-specs/` — test specifications spanning multiple features._
+
+- [E2E Acceptance Testing Scenarios (PF-TSP-044)](../../test/specifications/cross-cutting-specs/cross-cutting-spec-e2e-acceptance-testing-scenarios.md) - Cross-cutting — 19 E2E scenarios across 8 workflows, organized by [User Workflow Map](../product-docs/technical/design/user-workflow-map.md)
 
 ### Validation Reports
 
-_Created during foundational codebase validation (PF-TSK-031 through PF-TSK-036)._
+_Created during feature validation (PF-TSK-031 through PF-TSK-036)._
 
 - [Validation: Architectural Consistency — Features 0.1.1–1.1.1 (PF-VAL-035)](../product-docs/validation/reports/architectural-consistency/PF-VAL-035-architectural-consistency-features-0.1.1-1.1.1.md) - Batch 1 — Design pattern adherence, ADR compliance, interface consistency (Score: 3.475/4.0 PASS)
 - [Validation: Architectural Consistency — Features 2.1.1–5.1.1 (PF-VAL-036)](../product-docs/validation/reports/architectural-consistency/PF-VAL-036-architectural-consistency-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) - Batch 2 — Design pattern adherence, ADR compliance, interface consistency (Score: 3.450/4.0 PASS)
@@ -372,6 +404,12 @@ Our project uses a unified task structure with four task types:
 | PF-TSK-064 | [/process-framework/tasks/00-onboarding/codebase-feature-discovery.md](/process-framework/tasks/00-onboarding/codebase-feature-discovery.md) | Documentation | Codebase Feature Discovery | /doc/process-framework/tasks/../../../tasks/README.md |
 
 ### Discrete Tasks
+| PF-TSK-077 | [/process-framework/tasks/05-validation/validation-preparation.md](/process-framework/tasks/05-validation/validation-preparation.md) | Documentation | Validation Preparation | /doc/process-framework/tasks/../../../tasks/README.md |
+| PF-TSK-076 | [/process-framework/tasks/05-validation/data-integrity-validation.md](/process-framework/tasks/05-validation/data-integrity-validation.md) | Documentation | Data Integrity Validation | /doc/process-framework/tasks/../../../tasks/README.md |
+| PF-TSK-075 | [/process-framework/tasks/05-validation/accessibility-ux-compliance-validation.md](/process-framework/tasks/05-validation/accessibility-ux-compliance-validation.md) | Documentation | Accessibility UX Compliance Validation | /doc/process-framework/tasks/../../../tasks/README.md |
+| PF-TSK-074 | [/process-framework/tasks/05-validation/observability-validation.md](/process-framework/tasks/05-validation/observability-validation.md) | Documentation | Observability Validation | /doc/process-framework/tasks/../../../tasks/README.md |
+| PF-TSK-073 | [/process-framework/tasks/05-validation/performance-scalability-validation.md](/process-framework/tasks/05-validation/performance-scalability-validation.md) | Documentation | Performance Scalability Validation | /doc/process-framework/tasks/../../../tasks/README.md |
+| PF-TSK-072 | [/process-framework/tasks/05-validation/security-data-protection-validation.md](/process-framework/tasks/05-validation/security-data-protection-validation.md) | Documentation | Security Data Protection Validation | /doc/process-framework/tasks/../../../tasks/README.md |
 | PF-TSK-070 | [/process-framework/tasks/03-testing/e2e-acceptance-test-execution-task.md](/process-framework/tasks/03-testing/e2e-acceptance-test-execution-task.md) | Documentation | E2E Acceptance Test Execution | /doc/process-framework/tasks/../../../tasks/README.md |
 | PF-TSK-069 | [/process-framework/tasks/03-testing/e2e-acceptance-test-case-creation-task.md](/process-framework/tasks/03-testing/e2e-acceptance-test-case-creation-task.md) | Documentation | E2E Acceptance Test Case Creation | /doc/process-framework/tasks/../../../tasks/README.md |
 | PF-TSK-068 | [/process-framework/tasks/04-implementation/feature-enhancement.md](/process-framework/tasks/04-implementation/feature-enhancement.md) | Documentation | Feature Enhancement | /doc/process-framework/tasks/../../../tasks/README.md |

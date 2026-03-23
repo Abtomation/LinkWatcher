@@ -116,7 +116,8 @@ This task **orchestrates** systematic changes to documentation structures, templ
    ```powershell
    # Navigate to the state-tracking directory and create structure change state tracking file
    cd doc/process-framework/state-tracking
-   ./New-StructureChangeState.ps1 -ChangeName "Change Name" -ChangeType "Template Update|Directory Reorganization|Metadata Structure|Documentation Architecture" -Description "Brief description"
+   ./New-StructureChangeState.ps1 -ChangeName "Change Name" -ChangeType "Template Update|Directory Reorganization|Metadata Structure|Documentation Architecture|Rename" -Description "Brief description"
+   # Use -ChangeType "Rename" for lightweight rename/move operations (simplified template without pilot/rollback/metrics sections)
    ```
 5. Use the existing `/doc/process-framework/state-tracking/temporary` directory for transition files
 6. Create mapping documents and migration checklists in the temporary directory
@@ -164,9 +165,10 @@ This task **orchestrates** systematic changes to documentation structures, templ
 #### 🚨 MANDATORY Cleanup Phase
 
 16. **🚨 CRITICAL CLEANUP STEP**: Archive completed temporary state tracking files to `/doc/process-framework/state-tracking/temporary/old/`
-17. Remove excessive migration mapping documents if they don't provide ongoing value
-18. Clean up any redundant documentation created during the process
-19. Update the Process Improvement Tracking file with cleanup completion
+17. **Archive completed proposal**: Move the structure change proposal to its `old/` subdirectory (e.g., `proposals/proposals/old/`) — the proposal has served its purpose and should not remain alongside active proposals
+18. Remove excessive migration mapping documents if they don't provide ongoing value
+19. Clean up any redundant documentation created during the process
+20. Update the Process Improvement Tracking file with cleanup completion
 
 #### Final Completion
 
@@ -225,14 +227,15 @@ The following state files must be updated as part of this task:
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-014" and context "Structure Change (Full)"
 - [ ] **🚨 MANDATORY Cleanup Phase**: Remove temporary documentation artifacts created during the structure change:
   - [ ] **🚨 CRITICAL**: Archive completed temporary state tracking files to `/doc/process-framework/state-tracking/temporary/old/`
+  - [ ] **🚨 CRITICAL**: Archive completed structure change proposal to its `old/` subdirectory
   - [ ] Remove excessive migration mapping documents if they don't provide ongoing value
   - [ ] Clean up any redundant documentation created during the process
   - [ ] Update the Process Improvement Tracking file with cleanup completion
         **Cleanup Criteria**:
   - Archive: Completed temporary state tracking files (move to old/ directory for historical reference)
+  - Archive: Completed proposals (move to proposals/old/ directory — no longer active)
   - Keep: Files that provide ongoing reference value or audit trail
   - Remove: Redundant tracking files, excessive migration artifacts, temporary working documents
-  - Archive: Files that may have historical value but aren't needed for daily operations
 
 ## Next Tasks
 

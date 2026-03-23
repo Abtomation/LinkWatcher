@@ -24,7 +24,7 @@ graph TD
     classDef reference fill:#d0f9d5,stroke:#3ad83f
 
     FT([Feature Tracking]) --> VR[Validation Report]
-    FVT([Foundational Validation Tracking]) --> VR
+    FVT([Validation Tracking]) --> VR
     VRT([Validation Report Template]) --> VR
     CRI[Component Relationship Index] --> DA[Dependency Analysis]
 
@@ -51,15 +51,15 @@ graph TD
 
 ### Critical Components (Must Understand)
 
-- **Feature Tracking (FT)**: Current status of foundational features to be validated - provides scope and context
-- **Foundational Validation Tracking (FVT)**: Master validation matrix and progress tracking - central coordination point
+- **Feature Tracking (FT)**: Current status of features to be validated - provides scope and context
+- **Validation Tracking (FVT)**: Active validation tracking matrix and progress tracking - central coordination point
 - **Validation Report Template (VRT)**: Standardized template for creating validation reports with consistent structure
 - **Component Relationship Index (CRI)**: Understanding component interactions and dependencies - essential for integration analysis
 
 ### Important Components (Should Understand)
 
 - **Dependency Manifest (PC)**: Project dependencies and version constraints - core dependency health analysis
-- **lib/ directory (LIB)**: Source code for foundational features - implementation analysis target
+- **lib/ directory (LIB)**: Source code for selected features - implementation analysis target
 - **External Service Configuration (SUP)**: External system integration configurations - integration pattern analysis
 - **Technical Design Documents (TDD)**: Technical specifications for integration patterns - design validation reference
 - **Dependency Analysis (DA)**: Process of examining dependency health, versions, and compatibility
@@ -74,8 +74,8 @@ graph TD
 
 ## Key Relationships
 
-1. **Feature Tracking → Validation Report**: Provides the scope of foundational features to be validated in each session
-2. **Foundational Validation Tracking → Validation Report**: Tracks validation progress and links to completed reports
+1. **Feature Tracking → Validation Report**: Provides the scope of features to be validated in each session
+2. **Validation Tracking → Validation Report**: Tracks validation progress and links to completed reports
 3. **Validation Report Template → Validation Report**: Provides standardized structure and scoring framework
 4. **Component Relationship Index → Dependency Analysis**: Essential reference for understanding component interactions
 5. **Dependency Manifest → Dependency Analysis**: Source of dependency versions, constraints, and configuration
@@ -88,20 +88,20 @@ graph TD
 
 ## Implementation in AI Sessions
 
-1. **Start with Critical Context**: Load Feature Tracking, Foundational Validation Tracking, and Validation Report Template to understand scope and structure
+1. **Start with Critical Context**: Load Feature Tracking, Validation Tracking, and Validation Report Template to understand scope and structure
 2. **Establish Component Understanding**: Review Component Relationship Index to map dependencies and integration points
 3. **Analyze Dependencies**: Examine dependency manifest for version constraints and lib/ directory for implementation patterns
 4. **Assess Integration Patterns**: Review external service configuration and Technical Design Documents for external system integration
 5. **Perform Cross-Feature Analysis**: Unlike other validation tasks, this focuses on integration patterns across multiple features simultaneously
 6. **Generate Validation Report**: Use ../../scripts/file-creation/New-ValidationReport.ps1 script with IntegrationDependencies validation type
-7. **Update Tracking**: Update Foundational Validation Tracking matrix and Documentation Map with new report
+7. **Update Tracking**: Update Validation Tracking matrix and Documentation Map with new report
 8. **Reference Documentation**: Access Language/Framework Documentation and Integration Tests only when specific guidance is needed
 
 ## Related Documentation
 
 - [Integration Dependencies Validation Task](../../../tasks/05-validation/integration-dependencies-validation.md) - Complete task definition and process
-- [Feature Tracking](../../../state-tracking/permanent/feature-tracking.md) - Current status of foundational features
-- [Foundational Validation Tracking](../../../state-tracking/temporary/foundational-validation-tracking.md) - Master validation matrix
+- [Feature Tracking](../../../state-tracking/permanent/feature-tracking.md) - Current status of features
+- Validation Tracking State File - Active validation tracking matrix (file location depends on validation round)
 - [Validation Report Template](../../../templates/05-validation/validation-report-template.md) - Standardized report structure
 - [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Complete reference of all component relationships
 - [../../scripts/file-creation/New-ValidationReport.ps1](../../../scripts/file-creation/05-validation/New-ValidationReport.ps1) - Automation script for report generation

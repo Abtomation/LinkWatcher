@@ -253,7 +253,7 @@ update\Update-BatchFeatureStatus.ps1 -FeatureIds @("1.1.1", "1.1.2", "1.1.3") -S
 
 **Files Updated**:
 
-- `foundational-validation-tracking-round2.md`
+- `validation-tracking.md`
 - `documentation-map.md`
 - `feature-tracking.md` (cross-references)
 

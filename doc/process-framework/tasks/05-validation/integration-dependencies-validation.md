@@ -12,7 +12,7 @@ task_type: Discrete
 
 ## Purpose & Context
 
-Systematically validates foundational features for dependency health, interface contracts, and data flow integrity to ensure proper integration between components and external systems while maintaining loose coupling and high cohesion.
+Systematically validates selected features for dependency health, interface contracts, and data flow integrity to ensure proper integration between components and external systems while maintaining loose coupling and high cohesion.
 
 ## AI Agent Role
 
@@ -23,7 +23,7 @@ Systematically validates foundational features for dependency health, interface 
 
 ## When to Use
 
-- When validating foundational features for integration and dependency health as part of the validation framework
+- When validating selected features for integration and dependency health as part of the validation framework
 - Before major system integrations to establish baseline dependency health
 - When investigating integration issues or dependency conflicts
 - As part of regular system health assessments focusing on component interactions
@@ -35,16 +35,16 @@ Systematically validates foundational features for dependency health, interface 
 
 - **Critical (Must Read):**
 
-  - **Foundational Validation Guide** - [Foundational Validation Guide](../../guides/05-validation/foundational-validation-guide.md) - Comprehensive guide for conducting foundational codebase validation
-  - **Feature Tracking** - [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Current status of foundational features to be validated
-  - **Foundational Validation Tracking** - [Foundational Validation Tracking](../../state-tracking/temporary/foundational-validation-tracking.md) - Master validation matrix and progress tracking
+  - **Feature Validation Guide** - [Feature Validation Guide](../../guides/05-validation/feature-validation-guide.md) - Comprehensive guide for conducting feature validation
+  - **Feature Tracking** - [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Current status of features to be validated
+  - **Validation Tracking** - Link to the active validation tracking state file for the current validation round — see [Feature Validation Guide](../../guides/05-validation/feature-validation-guide.md) for setup
   - **Validation Report Template** - [Validation Report Template](../../templates/05-validation/validation-report-template.md) - Template for creating validation reports
   - **Component Relationship Index** - [Component Relationship Index](../../../product-docs/technical/architecture/component-relationship-index.md) - For understanding component interactions and dependencies
 
 - **Important (Load If Space):**
 
   - **Dependency Configuration** - Project dependency configuration file (e.g., requirements.txt, pyproject.toml) - Dependencies and version constraints
-  - **Codebase Structure** - Source code directory - Source code for foundational features to analyze
+  - **Codebase Structure** - Source code directory - Source code for selected features to analyze
   - **API Integration Points** - External system integration configurations
   - **New-ValidationReport Script** - [../../scripts/file-creation/05-validation/New-ValidationReport.ps1](../../scripts/file-creation/05-validation/New-ValidationReport.ps1) - Script for generating validation reports
   - **Technical Design Documents** - [TDD Directory](../../../product-docs/technical/design) - Technical specifications for integration patterns
@@ -67,14 +67,14 @@ Systematically validates foundational features for dependency health, interface 
 
 ### Preparation
 
-1. **Review Validation Scope**: Identify the specific foundational features to validate (cross-feature analysis approach, typically analyzing integration patterns across multiple features)
+1. **Review Validation Scope**: Identify the specific selected features to validate (cross-feature analysis approach, typically analyzing integration patterns across multiple features)
 2. **Load Context Files**: Review feature implementations, dependency configurations, and component relationship documentation
 3. **Prepare Integration Criteria**: Review dependency management best practices, interface contract patterns, and data flow requirements
 4. **🚨 CHECKPOINT**: Present validation scope, selected features, dependency configurations, and integration criteria to human partner for approval before execution
 
 ### Execution
 
-5. **Dependency Health Analysis**: Examine dependency versions, compatibility, security vulnerabilities, and update policies across foundational features
+5. **Dependency Health Analysis**: Examine dependency versions, compatibility, security vulnerabilities, and update policies across selected features
 6. **Interface Contract Validation**: Verify that interfaces between components are well-defined, consistent, and properly abstracted
 7. **Data Flow Integrity Assessment**: Trace data flow paths between components to identify bottlenecks, inconsistencies, or coupling issues
 8. **Integration Pattern Review**: Evaluate how features integrate with external systems (databases, third-party services) and internal components
@@ -90,7 +90,7 @@ Systematically validates foundational features for dependency health, interface 
 ### Finalization
 
 12. **🚨 CHECKPOINT**: Present integration scoring, dependency health findings, and improvement recommendations to human partner for review before finalization
-13. **Update Validation Tracking**: Update the foundational validation tracking matrix with report creation date and link
+13. **Update Validation Tracking**: Update the validation tracking matrix with report creation date and link
 14. **Review Quality Gates**: Ensure validation meets minimum quality thresholds (average score ≥ 2.0)
 15. **Plan Remediation**: For scores below threshold, create action items for dependency and integration improvements
 16. **🤖 AUTOMATED: Update Technical Debt Tracking**: Add any new open issues identified during validation to [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md) using the automation script:
@@ -103,7 +103,7 @@ Systematically validates foundational features for dependency health, interface 
 ## Outputs
 
 - **Integration & Dependencies Validation Report** - Detailed validation report with scoring and findings, created in doc/product-docs/validation/reports/integration-dependencies/PF-VAL-XXX-integration-dependencies-features-[feature-range].md
-- **Updated Foundational Validation Tracking** - Matrix cell updated with report creation date and link in [Foundational Validation Tracking](../../state-tracking/temporary/foundational-validation-tracking.md)
+- **Updated Validation Tracking** - Matrix cell updated with report creation date and link in the active validation tracking state file
 - **Integration Issues Log** - Critical integration and dependency issues identified during validation, documented in the validation report
 - **Remediation Action Items** - Specific recommendations for improving dependency health and integration patterns
 
@@ -111,7 +111,7 @@ Systematically validates foundational features for dependency health, interface 
 
 The following state files must be updated as part of this task:
 
-- [Foundational Validation Tracking](../../state-tracking/temporary/foundational-validation-tracking.md) - Update validation matrix with report creation date and link for Integration & Dependencies validation type
+- **Validation Tracking State File** - Update the active validation tracking matrix with report creation date and link (file location depends on validation round — see Feature Validation Guide)
 - [Documentation Map](../../documentation-map.md) - Add new validation report to the appropriate section with ID, path, and description
 - [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md) - Add new open issues identified during validation to the Technical Debt Registry
 
@@ -127,7 +127,7 @@ Before considering this task finished:
   - [ ] Critical integration issues documented with specific remediation recommendations
   - [ ] Report saved in correct directory: `doc/product-docs/validation/reports/integration-dependencies`
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
-  - [ ] [Foundational Validation Tracking](../../state-tracking/temporary/foundational-validation-tracking.md) matrix updated with report creation date and link
+  - [ ] Validation tracking state file updated with report creation date and link
   - [ ] [Documentation Map](../../documentation-map.md) updated with new validation report entry
   - [ ] **AUTOMATED**: [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md) updated with new open issues using `Update-TechDebt.ps1`
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-033" and context "Integration Dependencies Validation"

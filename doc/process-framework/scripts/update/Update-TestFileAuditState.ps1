@@ -184,17 +184,18 @@ function Update-IndividualTestFileStatus {
         if ($lines[$i] -match "\|\s*$TestFileId\s*\|") {
             # Parse the current line
             $parts = $lines[$i] -split '\|'
-            if ($parts.Count -ge 8) {
-                # Columns: Test File ID | Feature ID | Test File | Implementation Status | Test Cases Count | Last Updated | Notes
-                # Update the Implementation Status (column 4, index 4)
-                $parts[4] = " $Status "
+            if ($parts.Count -ge 10) {
+                # Columns: Test ID | Feature ID | Test Type | Test File/Case | Status | Test Cases Count | Last Executed | Last Updated | Notes
+                # Index:     1         2            3            4               5          6                 7               8              9
+                # Update Status (column 5, index 5)
+                $parts[5] = " $Status "
 
-                # Update last updated (column 6, index 6)
-                $parts[6] = " $(Get-Date -Format 'yyyy-MM-dd') "
+                # Update Last Updated (column 8, index 8)
+                $parts[8] = " $(Get-Date -Format 'yyyy-MM-dd') "
 
                 # Update notes if additional updates provided
                 if ($AdditionalUpdates.Count -gt 0) {
-                    $currentNotes = $parts[7].Trim()
+                    $currentNotes = $parts[9].Trim()
                     $newNotes = @()
 
                     if ($currentNotes -and $currentNotes -ne "") {
@@ -205,7 +206,7 @@ function Update-IndividualTestFileStatus {
                         $newNotes += "$key`: $($AdditionalUpdates[$key])"
                     }
 
-                    $parts[7] = " $($newNotes -join '; ') "
+                    $parts[9] = " $($newNotes -join '; ') "
                 }
 
                 $lines[$i] = $parts -join '|'
@@ -368,10 +369,10 @@ try {
     $lines = $content -split "`r?`n"
 
     foreach ($line in $lines) {
-        # Pattern: | Test File ID | Feature ID | Test File | Implementation Status | ...
-        if ($line -match "\|\s*([^|]+)\s*\|\s*$FeatureId\s*\|\s*[^|]+\s*\|\s*([^|]+)\s*\|") {
+        # Pattern: | Test ID | Feature ID | Test Type | Test File/Case | Status | ...
+        if ($line -match "\|\s*([^|]+)\s*\|\s*$FeatureId\s*\|\s*[^|]+\s*\|\s*[^|]+\s*\|\s*([^|]+)\s*\|") {
             $testId = $matches[1].Trim()
-            $status = $matches[2].Trim()  # This is actually the Implementation Status column
+            $status = $matches[2].Trim()  # Status column (5th column)
 
             # Update the status if this is our current test file
             if ($testId -eq $TestFileId) {
@@ -401,21 +402,16 @@ try {
         "⬜ No Tests"
     }
 
-    $featureUpdates = @{
-        "Last Test Audit" = $AuditDate
-    }
+    # Build audit note for feature tracking Notes column
+    # (feature-tracking.md has no audit-specific columns — route to Notes)
+    $featureAuditNote = "Test Audit $AuditDate`: $aggregatedStatus"
+    if ($AuditReportPath) { $featureAuditNote += "; Report: $AuditReportPath" }
 
-    if ($AuditReportPath) {
-        $featureUpdates["Latest Audit Report"] = $AuditReportPath
-    }
-
-    $featureResult = Update-FeatureTrackingStatus -FeatureId $FeatureId -Status $aggregatedStatus -StatusColumn "Test Status" -AdditionalUpdates $featureUpdates -DryRun:$DryRun
+    $featureResult = Update-FeatureTrackingStatus -FeatureId $FeatureId -Status $aggregatedStatus -StatusColumn "Test Status" -Notes $featureAuditNote -DryRun:$DryRun
 
     if ($DryRun) {
         Write-Host "  Would update feature $FeatureId test status to: $aggregatedStatus" -ForegroundColor Cyan
-        foreach ($key in $featureUpdates.Keys) {
-            Write-Host "    $key`: $($featureUpdates[$key])" -ForegroundColor Gray
-        }
+        Write-Host "    Notes (append): $featureAuditNote" -ForegroundColor Gray
     } else {
         Write-Host "  ✅ Feature tracking updated successfully" -ForegroundColor Green
     }

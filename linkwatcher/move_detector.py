@@ -36,7 +36,7 @@ class MoveDetector:
     ):
         self._on_move = on_move_detected
         self._on_delete = on_true_delete
-        self._pending = {}  # {rel_path: (timestamp, file_size)}
+        self._pending = {}  # {rel_path: (timestamp, file_size, abs_path)}
         self._timers = {}  # {rel_path: threading.Timer}
         self._delay = delay
         self._lock = threading.Lock()
@@ -56,7 +56,7 @@ class MoveDetector:
             pass
 
         with self._lock:
-            self._pending[rel_path] = (time.time(), file_size)
+            self._pending[rel_path] = (time.time(), file_size, abs_path)
 
             # Cancel existing timer for this path (re-buffered delete)
             old_timer = self._timers.get(rel_path)
@@ -87,12 +87,25 @@ class MoveDetector:
             created_filename = os.path.basename(rel_path)
             current_time = time.time()
 
-            for deleted_path, (delete_time, delete_size) in list(self._pending.items()):
+            for deleted_path, (delete_time, delete_size, deleted_abs) in list(
+                self._pending.items()
+            ):
                 if current_time - delete_time > self._delay:
                     continue
 
                 if os.path.basename(deleted_path) == created_filename:
                     if delete_size == 0 or created_size == delete_size:
+                        # PD-BUG-042: If the old file has been re-created at
+                        # its original location (e.g., by a bulk copy after
+                        # cleanup), this pending delete is stale — discard it
+                        # instead of matching it with an unrelated create.
+                        if os.path.exists(deleted_abs):
+                            del self._pending[deleted_path]
+                            timer = self._timers.pop(deleted_path, None)
+                            if timer is not None:
+                                timer.cancel()
+                            continue
+
                         del self._pending[deleted_path]
                         # Cancel the pending timer — no longer needed
                         timer = self._timers.pop(deleted_path, None)

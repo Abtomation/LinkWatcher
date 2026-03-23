@@ -2,9 +2,9 @@
 id: PF-TSK-059
 type: Process Framework
 category: Task Definition
-version: 1.0
+version: 1.1
 created: 2026-02-16
-updated: 2026-02-16
+updated: 2026-03-22
 task_type: Support
 ---
 
@@ -139,17 +139,34 @@ Establishes foundational project configuration and metadata when initializing a 
 
 7. **Validate JSON Syntax**: Ensure the file is valid JSON (check for missing commas, brackets, quotes)
 8. **Set Up Language Configuration**: Check if `languages-config/{language}-config.json` exists for the project's language. If not, copy the [language config template](/doc/process-framework/templates/support/language-config-template.json) to `languages-config/{language}-config.json` and fill in language-specific values (test runner, coverage, lint commands). See [languages-config README](/doc/process-framework/languages-config/README.md).
-9. **🚨 CHECKPOINT**: Present completed project-config.json (and language config if new) to human partner for review before finalization
+
+9. **Set Up Testing Infrastructure**: Follow the [Testing Setup Guide](/doc/process-framework/guides/03-testing/testing-setup-guide.md) to scaffold the test environment:
+   - Create test directory structure matching `project-config.json` categories
+   - Create test runner config (e.g., `pytest.ini` for Python)
+   - Create shared fixtures/setup file (e.g., `conftest.py` for Python)
+   - Update `testSetup` section in language config
+   - Initialize empty `test-registry.yaml` and `test-tracking.md`
+
+10. **Set Up CI/CD Infrastructure** (optional): Follow the [CI/CD Setup Guide](/doc/process-framework/guides/07-deployment/ci-cd-setup-guide.md) to scaffold development tooling:
+    - Create pre-commit hooks config (`.pre-commit-config.yaml`)
+    - Create dev script (`dev.bat` / `dev.sh`)
+    - Create CI pipeline (if using a Git hosting platform)
+
+11. **🚨 CHECKPOINT**: Present completed project-config.json, language config, test infrastructure, and CI/CD setup to human partner for review before finalization
 
 ### Finalization
 
-10. **Verify File Location**: Confirm `project-config.json` is in the project root directory and language config is in `languages-config/`
+12. **Verify File Location**: Confirm `project-config.json` is in the project root directory and language config is in `languages-config/`
 
-11. **Test Configuration**: If automation scripts are available, test that they can read the config file successfully (e.g., `Run-Tests.ps1 -ListCategories`)
+13. **Test Configuration**: Verify the full setup works:
+    - `Run-Tests.ps1 -ListCategories` shows test categories
+    - `Run-Tests.ps1 -Quick` runs successfully (if test files exist)
+    - `pre-commit run --all-files` passes (if pre-commit was set up)
+    - `dev test` works (if dev script was created)
 
-12. **Document Project-Specific Notes**: If there are any non-standard configurations or important context, add comments to this task or create a project README
+14. **Document Project-Specific Notes**: If there are any non-standard configurations or important context, add comments to this task or create a project README
 
-13. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+15. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 
@@ -161,6 +178,8 @@ Establishes foundational project configuration and metadata when initializing a 
   - Team composition and collaboration model
   - Integration configurations (issue tracker, CI/CD, code hosting)
 - **Language config** (if new) - `languages-config/{language}-config.json` with language-specific test runner commands
+- **Test infrastructure** - Test directory structure, test runner config, shared fixtures, empty `test-registry.yaml` and `test-tracking.md`
+- **CI/CD infrastructure** (optional) - Pre-commit hooks, dev script, CI pipeline
 
 ## State Tracking
 
@@ -183,6 +202,10 @@ Before considering this task finished:
   - [ ] File is readable by automation scripts (if applicable)
   - [ ] Path mappings correspond to actual directory structure
   - [ ] Repository URL is accessible (if provided)
+  - [ ] `Run-Tests.ps1 -ListCategories` discovers test categories
+  - [ ] Test runner config exists (e.g., `pytest.ini`)
+  - [ ] Shared fixtures/setup file exists (e.g., `conftest.py`)
+  - [ ] Pre-commit hooks work (if configured): `pre-commit run --all-files`
 
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for task ID "PF-TSK-059" and context "Project Initiation"
 
@@ -198,3 +221,5 @@ Before considering this task finished:
 - [Framework Domain Adaptation](framework-domain-adaptation.md) - Comprehensive framework customization for new domains
 - [Documentation Structure Guide](../../guides/framework/documentation-structure-guide.md) - Recommended directory organization patterns
 - [ID Registry](../../../id-registry.json) - Document ID prefixes and directory mappings
+- [Testing Setup Guide](../../guides/03-testing/testing-setup-guide.md) - Language-specific test infrastructure scaffolding
+- [CI/CD Setup Guide](../../guides/07-deployment/ci-cd-setup-guide.md) - CI pipeline, pre-commit hooks, dev scripts

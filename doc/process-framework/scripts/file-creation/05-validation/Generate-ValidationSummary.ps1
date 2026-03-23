@@ -9,7 +9,7 @@
 .DESCRIPTION
     This PowerShell script creates consolidated validation summaries by:
     - Aggregating data from all validation reports across validation types
-    - Calculating overall foundational codebase health scores
+    - Calculating overall codebase health scores
     - Identifying critical issues and improvement priorities
     - Creating actionable improvement roadmaps
     - Generating executive summaries for stakeholder communication
@@ -220,7 +220,7 @@ created: $(Get-Date -Format "yyyy-MM-dd")
 summary_type: $SummaryType
 validation_types: $($SelectedValidationTypes -join ',')
 ---
-# Foundational Codebase Validation Summary
+# Feature Validation Summary
 
 ## Executive Summary
 
@@ -269,22 +269,22 @@ $(if ($SummaryData.OverallStats.AverageScore -ge 3.0) {
 
 ### Critical Issues Summary
 $(if ($SummaryData.OverallStats.CriticalIssues -gt 0) {
-"⚠️ **$($SummaryData.OverallStats.CriticalIssues) critical issues** require immediate attention across the foundational codebase."
+"⚠️ **$($SummaryData.OverallStats.CriticalIssues) critical issues** require immediate attention across the codebase."
 } else {
-"✅ **No critical issues** identified in the validated foundational features."
+"✅ **No critical issues** identified in the validated selected features."
 })
 
 ### Improvement Recommendations
 
 #### High Priority Actions
 1. **Address Critical Issues**: Focus on any features with scores of 1/4 (Poor)
-2. **Standardize Patterns**: Ensure consistency across similar foundational features
+2. **Standardize Patterns**: Ensure consistency across similar selected features
 3. **Documentation Updates**: Align implementation with design documentation
 
 #### Medium Priority Actions
 1. **Performance Optimization**: Review features scoring 2/4 (Adequate) for optimization opportunities
 2. **Code Quality Enhancement**: Apply best practices to improve maintainability
-3. **Testing Coverage**: Ensure comprehensive test coverage for all foundational features
+3. **Testing Coverage**: Ensure comprehensive test coverage for all selected features
 
 #### Long-term Strategic Actions
 1. **Architecture Evolution**: Plan for scalability and extensibility improvements
@@ -301,7 +301,7 @@ $(if ($SummaryData.OverallStats.CriticalIssues -gt 0) {
 ### Immediate Actions (Next 1-2 Sessions)
 - Address any critical issues (score = 1) identified in validation reports
 - Complete remaining validation types for comprehensive coverage
-- Update foundational features with highest impact on system reliability
+- Update selected features with highest impact on system reliability
 
 ### Short-term Goals (Next 2-4 Weeks)
 - Achieve overall foundation score ≥ 3.0 across all validation types
@@ -311,12 +311,12 @@ $(if ($SummaryData.OverallStats.CriticalIssues -gt 0) {
 ### Long-term Objectives (Next 1-3 Months)
 - Maintain foundation score ≥ 3.5 through continuous improvement
 - Implement automated validation checks in development workflow
-- Create validation framework for new foundational features
+- Create validation framework for new selected features
 
 ## Related Resources
 
-- [Foundational Validation Tracking](../../../state-tracking/temporary/foundational-validation-tracking.md) - Detailed validation progress
-- [Foundational Validation Guide](../../../guides/05-validation/foundational-validation-guide.md) - Complete validation process guide
+- [Feature Validation Tracking](../../../state-tracking/temporary/foundational-validation-tracking.md) - Detailed validation progress
+- [Feature Validation Guide](../../../guides/05-validation/feature-validation-guide.md) - Complete validation process guide
 - [Validation Reports](../../../validation/reports) - Individual validation reports by type
 
 ---

@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "paths": {
+      "utils": {
+        "path": "src/utils.js"
+      }
+    }
+  },
+  "include": [
+    {"file": "src/utils.js", "type": "source"},
+    {"file": "src/index.js", "type": "entry"}
+  ]
+}

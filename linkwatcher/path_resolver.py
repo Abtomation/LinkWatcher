@@ -32,7 +32,9 @@ class PathResolver:
 
         # Special handling for Python imports
         if ref.link_type == "python-import":
-            return self._calculate_new_python_import(original_target, old_path, new_path)
+            return self._calculate_new_python_import(
+                original_target, old_path, new_path, ref.file_path
+            )
 
         # Handle anchors
         if "#" in original_target:
@@ -102,6 +104,21 @@ class PathResolver:
             if match_found:
                 # Step 4: Convert new absolute path back to original link style
                 return self._convert_to_original_link_type(new_path_norm, source_file, link_info)
+
+            # PD-BUG-045: Suffix match for nested project contexts.
+            # When the original target (e.g., "utils/helpers.py") is a suffix of
+            # old_path (e.g., "sub/project/utils/helpers.py"), extract the
+            # corresponding suffix from new_path.  Constrained: source file
+            # must be under the same sub-project root.
+            suffix_tag = "/" + original_norm
+            if old_norm.endswith(suffix_tag):
+                subtree_root = old_norm[: -len(suffix_tag)]
+                source_norm = normalize_path(source_file)
+                if source_norm.startswith(subtree_root + "/"):
+                    target_depth = original_norm.count("/") + 1
+                    new_norm = normalize_path(new_path)
+                    new_parts = new_norm.split("/")
+                    return "/".join(new_parts[-target_depth:])
 
             # No match found, return original
             return original_target
@@ -295,7 +312,7 @@ class PathResolver:
             return target_normalized
 
     def _calculate_new_python_import(
-        self, original_target: str, old_path: str, new_path: str
+        self, original_target: str, old_path: str, new_path: str, source_file: str = ""
     ) -> str:
         """Calculate new target for Python import statements."""
         # For Python imports, original_target is already in slash notation (link_target)
@@ -306,13 +323,37 @@ class PathResolver:
         old_normalized = old_path.replace("\\", "/")
         new_normalized = new_path.replace("\\", "/")
 
-        # Check if the import path matches the old path
-        if target_normalized == old_normalized:
-            # Exact match - replace entirely and convert to dot notation for return
-            return new_normalized.replace("/", ".")
-        elif target_normalized.startswith(old_normalized + "/"):
+        # PD-BUG-043: Import targets are extensionless (e.g., "utils/helpers")
+        # but old_path/new_path may arrive with .py extension from file-move
+        # handlers.  Strip extension for comparison.
+        old_no_ext = old_normalized[:-3] if old_normalized.endswith(".py") else old_normalized
+        new_no_ext = new_normalized[:-3] if new_normalized.endswith(".py") else new_normalized
+
+        # Check if the import path matches the old path (with or without extension)
+        if target_normalized == old_normalized or target_normalized == old_no_ext:
+            # Exact match - replace entirely
+            return new_no_ext
+        elif target_normalized.startswith(old_normalized + "/") or target_normalized.startswith(
+            old_no_ext + "/"
+        ):
             # Partial match - replace the prefix
-            suffix = target_normalized[len(old_normalized) :]
-            return (new_normalized + suffix).replace("/", ".")
+            prefix = old_normalized if target_normalized.startswith(old_normalized + "/") else old_no_ext
+            suffix = target_normalized[len(prefix) :]
+            return new_no_ext + suffix
+
+        # PD-BUG-045: Suffix match for nested project contexts.
+        # When LinkWatcher's project root is an ancestor of the Python project,
+        # old_path is the full nested path (e.g., "sub/project/utils/helpers")
+        # but the import target is just "utils/helpers".  Extract the same
+        # number of trailing path components from new_path.
+        # Constrained: source file must be under the same sub-project root.
+        suffix_tag = "/" + target_normalized
+        if old_no_ext.endswith(suffix_tag):
+            subtree_root = old_no_ext[: -len(suffix_tag)]
+            source_norm = normalize_path(source_file)
+            if source_norm.startswith(subtree_root + "/"):
+                target_depth = target_normalized.count("/") + 1
+                new_parts = new_no_ext.split("/")
+                return "/".join(new_parts[-target_depth:])
 
         return original_target  # No change needed

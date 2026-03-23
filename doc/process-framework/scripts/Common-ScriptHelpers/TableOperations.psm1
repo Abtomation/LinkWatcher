@@ -38,7 +38,12 @@ function Update-MarkdownTable {
     The full content of the markdown file
 
     .PARAMETER FeatureId
-    The feature ID to locate and update
+    The value to match in the target column (default: first column). Despite the name,
+    this can match any value — use MatchColumn to specify which column to search.
+
+    .PARAMETER MatchColumn
+    The column name to match FeatureId against. Defaults to the first column (index 0).
+    Use this when the match value isn't in the first column (e.g., "Feature ID" in test-tracking.md).
 
     .PARAMETER StatusColumn
     The column name to update with the status
@@ -54,6 +59,10 @@ function Update-MarkdownTable {
 
     .EXAMPLE
     $updatedContent = Update-MarkdownTable -Content $content -FeatureId "1.2.3" -StatusColumn "Status" -Status "🟢 Completed"
+
+    .EXAMPLE
+    # Match on Feature ID column (not first column)
+    $updatedContent = Update-MarkdownTable -Content $content -FeatureId "0.1.1" -MatchColumn "Feature ID" -StatusColumn "Status" -Status "✅ Tests Approved"
     #>
 
     [CmdletBinding()]
@@ -63,6 +72,9 @@ function Update-MarkdownTable {
 
         [Parameter(Mandatory=$true)]
         [string]$FeatureId,
+
+        [Parameter(Mandatory=$false)]
+        [string]$MatchColumn,
 
         [Parameter(Mandatory=$true)]
         [string]$StatusColumn,

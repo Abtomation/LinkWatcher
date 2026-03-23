@@ -12,7 +12,7 @@ task_type: Discrete
 
 ## Purpose & Context
 
-Systematically validates foundational features for adherence to code quality standards, SOLID principles, and coding best practices to ensure maintainable, readable, and well-structured code across the codebase.
+Systematically validates selected features for adherence to code quality standards, SOLID principles, and coding best practices to ensure maintainable, readable, and well-structured code across the codebase.
 
 ## AI Agent Role
 
@@ -23,7 +23,7 @@ Systematically validates foundational features for adherence to code quality sta
 
 ## When to Use
 
-- When validating foundational features for code quality as part of the validation framework
+- When validating selected features for code quality as part of the validation framework
 - Before major refactoring efforts to establish baseline quality metrics
 - When investigating code maintainability issues or technical debt
 - As part of regular code quality assessments
@@ -35,11 +35,11 @@ Systematically validates foundational features for adherence to code quality sta
 
 - **Critical (Must Read):**
 
-  - **Foundational Validation Guide** - [Foundational Validation Guide](../../guides/05-validation/foundational-validation-guide.md) - Comprehensive guide for conducting foundational codebase validation
-  - **Feature Tracking** - [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Current status of foundational features to be validated
-  - **Foundational Validation Tracking** - [Foundational Validation Tracking](../../state-tracking/temporary/foundational-validation-tracking.md) - Master validation matrix and progress tracking
+  - **Feature Validation Guide** - [Feature Validation Guide](../../guides/05-validation/feature-validation-guide.md) - Comprehensive guide for conducting feature validation
+  - **Feature Tracking** - [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Current status of features to be validated
+  - **Validation Tracking** - Link to the active validation tracking state file for the current validation round — see [Feature Validation Guide](../../guides/05-validation/feature-validation-guide.md) for setup
   - **Validation Report Template** - [Validation Report Template](../../templates/05-validation/validation-report-template.md) - Template for creating validation reports
-  - **Codebase Structure** - Source code directory - Source code for foundational features to analyze
+  - **Codebase Structure** - Source code directory - Source code for selected features to analyze
 
 - **Important (Load If Space):**
 
@@ -67,7 +67,7 @@ Systematically validates foundational features for adherence to code quality sta
 
 ### Preparation
 
-1. **Review Validation Scope**: Identify the specific foundational features to validate (typically 2-3 features per session)
+1. **Review Validation Scope**: Identify the specific selected features to validate (typically 2-3 features per session)
 2. **Load Context Files**: Review feature implementations, tests, and existing code quality configurations
 3. **Prepare Quality Criteria**: Review project coding style guides, SOLID principles, and best practices documentation
 4. **🚨 CHECKPOINT**: Present validation scope, selected features, context files review, and quality criteria to human partner for approval before execution
@@ -89,7 +89,7 @@ Systematically validates foundational features for adherence to code quality sta
 
 ### Finalization
 
-12. **Update Validation Tracking**: Update the foundational validation tracking matrix with report creation date and link
+12. **Update Validation Tracking**: Update the validation tracking matrix with report creation date and link
 13. **Review Quality Gates**: Ensure validation meets minimum quality thresholds (average score ≥ 2.0)
 14. **Plan Remediation**: For scores below threshold, create action items for code quality improvements
 15. **🤖 AUTOMATED: Update Technical Debt Tracking**: Add any new open issues identified during validation to [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md) using the automation script:
@@ -103,14 +103,14 @@ Systematically validates foundational features for adherence to code quality sta
 ## Outputs
 
 - **Code Quality Validation Report** - Detailed validation report with scoring and findings, created in doc/product-docs/validation/reports/code-quality/PF-VAL-XXX-code-quality-features-[feature-range].md
-- **Updated Validation Tracking Matrix** - Foundational validation tracking file updated with report creation date and link in the code quality column for validated features
+- **Updated Validation Tracking Matrix** - Validation tracking file updated with report creation date and link in the code quality column for validated features
 - **Quality Improvement Recommendations** - List of specific code quality improvements needed for features scoring below quality threshold (if applicable)
 
 ## State Tracking
 
 The following state files must be updated as part of this task:
 
-- [Foundational Validation Tracking](../../state-tracking/temporary/foundational-validation-tracking.md) - Update validation matrix with report creation date and link in code quality column for validated features
+- **Validation Tracking State File** - Update the active validation tracking matrix with report creation date and link (file location depends on validation round — see Feature Validation Guide)
 - [Documentation Map](../../documentation-map.md) - Add new validation report to the validation reports section
 - [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md) - Add new open issues identified during validation to the Technical Debt Registry
 
@@ -125,7 +125,7 @@ Before considering this task finished:
   - [ ] Validation report contains detailed findings and quality improvement recommendations
   - [ ] Quality gate assessment completed (average score ≥ 2.0 or remediation plan created)
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
-  - [ ] [Foundational Validation Tracking](../../state-tracking/temporary/foundational-validation-tracking.md) updated with report creation date and link
+  - [ ] Validation tracking state file updated with report creation date and link
   - [ ] [Documentation Map](../../documentation-map.md) updated with new validation report entry
   - [ ] **AUTOMATED**: [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md) updated with new open issues using `Update-TechDebt.ps1`
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-032" and context "Code Quality Standards Validation"
@@ -138,7 +138,7 @@ Before considering this task finished:
 
 ## Related Resources
 
-- [Foundational Codebase Validation Concept](../../proposals/foundational-codebase-validation-concept.md) - Complete framework overview and methodology
+- [Feature Validation Guide](../../guides/05-validation/feature-validation-guide.md) - Comprehensive guide for conducting feature validation
 - [Code Quality Standards Validation Concept](../../proposals/code-quality-standards-validation-concept.md) - Detailed concept document for this task
 - Official coding standards for your project's language
 - Platform-specific best practices for your technology stack

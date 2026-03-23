@@ -36,19 +36,19 @@ Use this guide when the [E2E Acceptance Test Case Creation task (PF-TSK-069)](/d
 **New group + first test case:**
 
 ```bash
-cd /c/path/to/project/doc/process-framework/scripts/file-creation && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-E2EAcceptanceTestCase.ps1 -TestCaseName "descriptive-name" -GroupName "group-name" -FeatureId "X.Y.Z" -FeatureName "Feature Name" -NewGroup -Source "Test Spec PF-TSP-NNN" -Description "Brief description" -Confirm:$false'
+cd /c/path/to/project/doc/process-framework/scripts/file-creation && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-E2EAcceptanceTestCase.ps1 -TestCaseName "descriptive-name" -GroupName "group-name" -FeatureIds "X.Y.Z" -FeatureName "Feature Name" -NewGroup -Source "Test Spec PF-TSP-NNN" -Description "Brief description" -Confirm:$false'
 ```
 
 **Additional test case in existing group:**
 
 ```bash
-cd /c/path/to/project/doc/process-framework/scripts/file-creation/03-testing && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-E2EAcceptanceTestCase.ps1 -TestCaseName "descriptive-name" -GroupName "group-name" -FeatureId "X.Y.Z" -FeatureName "Feature Name" -Source "Test Spec PF-TSP-NNN" -Description "Brief description" -Confirm:$false'
+cd /c/path/to/project/doc/process-framework/scripts/file-creation/03-testing && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-E2EAcceptanceTestCase.ps1 -TestCaseName "descriptive-name" -GroupName "group-name" -FeatureIds "X.Y.Z" -FeatureName "Feature Name" -Source "Test Spec PF-TSP-NNN" -Description "Brief description" -Confirm:$false'
 ```
 
 **Scripted test case (automatable):**
 
 ```bash
-cd /c/path/to/project/doc/process-framework/scripts/file-creation/03-testing && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-E2EAcceptanceTestCase.ps1 -TestCaseName "move-readme" -GroupName "group-name" -FeatureId "X.Y.Z" -FeatureName "Feature Name" -Scripted -Source "Test Spec PF-TSP-NNN" -Description "Move readme and verify link updates" -Confirm:$false'
+cd /c/path/to/project/doc/process-framework/scripts/file-creation/03-testing && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-E2EAcceptanceTestCase.ps1 -TestCaseName "move-readme" -GroupName "group-name" -FeatureIds "X.Y.Z" -FeatureName "Feature Name" -Scripted -Source "Test Spec PF-TSP-NNN" -Description "Move readme and verify link updates" -Confirm:$false'
 ```
 
 When `-Scripted` is used, the script additionally creates a `run.ps1` skeleton and sets `Execution Mode` to `scripted` in test-case.md.
@@ -166,7 +166,7 @@ pwsh.exe -ExecutionPolicy Bypass -Command '& doc/process-framework/scripts/test/
 | Element | Convention | Example |
 |---------|-----------|---------|
 | Group directory | `<descriptive-name>` | `basic-file-operations` |
-| Test case directory | `E2E-NNN-<descriptive-name>` | `E2E-001-single-file-rename` |
+| Test case directory | `TE-E2E-NNN-<descriptive-name>` | `TE-E2E-001-single-file-rename` |
 | Master test file | `master-test-<group-name>.md` | `master-test-basic-file-operations.md` |
 | Test case file | `test-case.md` (always) | `test-case.md` |
 
@@ -176,8 +176,9 @@ pwsh.exe -ExecutionPolicy Bypass -Command '& doc/process-framework/scripts/test/
 |-----------|----------|-------------|
 | `-TestCaseName` | Yes | Short descriptive name (used in directory, e.g., `single-file-rename`) |
 | `-GroupName` | Yes | Test group name (must match existing directory, or use `-NewGroup`) |
-| `-FeatureId` | Yes | Feature ID (e.g., `1.1.1`) |
-| `-FeatureName` | Yes | Human-readable feature name |
+| `-FeatureIds` | Yes | Feature ID(s), comma-separated for multi-feature (e.g., `"1.1.1,2.1.1,2.2.1"`) |
+| `-FeatureName` | Yes | Human-readable name for the primary feature |
+| `-Workflow` | No | Workflow ID from User Workflow Map (e.g., `"WF-001"`) |
 | `-Priority` | No | P0/P1/P2/P3 (default: P1) |
 | `-Source` | No | What triggered creation (e.g., `Test Spec PF-TSP-038`) |
 | `-Description` | No | Brief description of what the test validates |

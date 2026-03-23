@@ -46,8 +46,8 @@ $customReplacements = @{
 # Create the document using standardized process
 # Build absolute template path
 $projectRoot = Get-ProjectRoot
-$processFrameworkDir = Join-Path $projectRoot "doc/product-docs"
-$templatePath = Join-Path -Path $processFrameworkDir -ChildPath "templates\templates\task-template.md"
+$processFrameworkDir = Join-Path $projectRoot "doc/process-framework"
+$templatePath = Join-Path -Path $processFrameworkDir -ChildPath "templates\support\task-template.md"
 
 try {
     $taskId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "PF-TSK" -IdDescription "$TaskType task: ${TaskName}" -DocumentName $TaskName -DirectoryType $WorkflowPhase -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor

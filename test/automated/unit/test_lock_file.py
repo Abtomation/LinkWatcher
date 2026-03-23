@@ -66,10 +66,12 @@ class TestLockFile:
     def test_duplicate_instance_prevented(self, tmp_path):
         """Test that a second instance is prevented when a live PID lock exists."""
         lock_file_path = tmp_path / LOCK_FILE_NAME
-        lock_file_path.write_text(str(os.getpid()))
+        fake_pid = os.getpid() + 1
+        lock_file_path.write_text(str(fake_pid))
 
-        with pytest.raises(SystemExit) as exc_info:
-            acquire_lock(tmp_path)
+        with patch("main._is_pid_running", return_value=True):
+            with pytest.raises(SystemExit) as exc_info:
+                acquire_lock(tmp_path)
 
         assert exc_info.value.code == 1
 

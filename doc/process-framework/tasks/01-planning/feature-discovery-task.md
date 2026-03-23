@@ -78,7 +78,8 @@ Identify and document potential new features through user research, competitive 
    - Estimate rough complexity and priority
 9. Evaluate feature ideas against strategic goals and user needs
 10. Group related features into coherent categories
-11. Prioritize features based on value, complexity, and strategic alignment
+11. **Identify user-facing workflows**: Ask *"What does the user DO with this software?"* Map each workflow to the features that enable it. Create or update [User Workflow Map](/doc/product-docs/technical/design/user-workflow-map.md) with workflow definitions, required features, and priorities
+12. Prioritize features based on value, complexity, and strategic alignment
 12. **🚨 CHECKPOINT**: Present prioritized feature list with descriptions and rationale to human partner for approval
 
 ### Finalization
@@ -100,6 +101,7 @@ Identify and document potential new features through user research, competitive 
   - Priority assessment
   - Dependencies (if identified)
   - User benefit information
+- **User Workflow Map** - [User Workflow Map](/doc/product-docs/technical/design/user-workflow-map.md) created or updated with user-facing workflows mapped to features
 - **Technical Exploration Items** - Any identified items requiring technical investigation before implementation added to [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md)
 
 ## State Tracking

@@ -84,18 +84,18 @@ if ($TestCase -and $Group) {
     }
 } elseif ($Group) {
     # All test cases in a group
-    $tcDirs = Get-ChildItem (Join-Path $templatesDir $Group) -Directory | Where-Object { $_.Name -match '^E2E-\d+' }
+    $tcDirs = Get-ChildItem (Join-Path $templatesDir $Group) -Directory | Where-Object { $_.Name -match '^TE-E2E-\d+' }
     foreach ($tc in $tcDirs) {
-        $id = ($tc.Name -split '-', 3)[0..1] -join '-'
+        $id = ($tc.Name -split '-', 4)[0..2] -join '-'
         $testCasesToVerify += @{ Group = $Group; CaseDir = $tc.Name; CaseId = $id }
     }
 } else {
     # All groups, all test cases
     $allGroups = Get-ChildItem $templatesDir -Directory
     foreach ($grp in $allGroups) {
-        $tcDirs = Get-ChildItem $grp.FullName -Directory | Where-Object { $_.Name -match '^E2E-\d+' }
+        $tcDirs = Get-ChildItem $grp.FullName -Directory | Where-Object { $_.Name -match '^TE-E2E-\d+' }
         foreach ($tc in $tcDirs) {
-            $id = ($tc.Name -split '-', 3)[0..1] -join '-'
+            $id = ($tc.Name -split '-', 4)[0..2] -join '-'
             $testCasesToVerify += @{ Group = $grp.Name; CaseDir = $tc.Name; CaseId = $id }
         }
     }
@@ -141,8 +141,12 @@ foreach ($tc in $testCasesToVerify) {
             continue
         }
 
-        $expContent = Get-Content $expFile.FullName -Raw -Encoding UTF8
-        $wsContent = Get-Content $workspaceFile -Raw -Encoding UTF8
+        $expContent = (Get-Content $expFile.FullName -Raw -Encoding UTF8) -replace '\r\n', "`n"
+        $wsContent = (Get-Content $workspaceFile -Raw -Encoding UTF8) -replace '\r\n', "`n"
+
+        # Normalize trailing whitespace (PowerShell Set-Content may add extra newline)
+        $expContent = $expContent.TrimEnd()
+        $wsContent = $wsContent.TrimEnd()
 
         if ($expContent -ne $wsContent) {
             Write-Host "  🔴 $($tc.CaseId): Mismatch: $relativePath" -ForegroundColor Red

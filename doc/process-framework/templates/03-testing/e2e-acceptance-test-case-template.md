@@ -12,25 +12,24 @@ usage_context: E2E Acceptance Test Case Creation Task (PF-TSK-069)
 ---
 
 <!-- TEMPLATE STARTS BELOW THIS LINE -->
-<!-- Copy everything below into test/e2e-acceptance-testing/templates/<group>/E2E-NNN-<name>/test-case.md -->
+<!-- Copy everything below into test/e2e-acceptance-testing/templates/<group>/TE-E2E-NNN-<name>/test-case.md -->
 <!-- Replace all [PLACEHOLDERS] with actual values -->
 <!-- Remove all instructional comments when creating the actual file -->
 
-# Test Case: [E2E-NNN] [TITLE]
-
-## Metadata
-
-| Field | Value |
-|-------|-------|
-| Test Case ID | [E2E-NNN] |
-| Group | [GROUP-NAME] |
-| Feature | [FEATURE-ID] — [FEATURE-NAME] |
-| Priority | [P0 / P1 / P2 / P3] |
-| Estimated Duration | [X minutes] |
-| Created | [YYYY-MM-DD] |
-| Last Updated | [YYYY-MM-DD] |
-| Source | [Test Spec / Bug Report / Refactoring Plan] — [SOURCE-ID] |
-| Execution Mode | [manual / scripted] |
+---
+id: [E2E-NNN]
+type: E2E Acceptance Test Case
+group: [GROUP-ID]
+feature_ids: [FEATURE-IDS-YAML]
+workflow: [WF-NNN]
+priority: [P0 / P1 / P2 / P3]
+execution_mode: [manual / scripted]
+estimated_duration: [X minutes]
+source: [Test Spec / Bug Report / Refactoring Plan] — [SOURCE-ID]
+lw_flags: ""
+created: [YYYY-MM-DD]
+updated: [YYYY-MM-DD]
+---
 
 <!-- Priority Guide:
   P0 — Critical path, blocks release. Must pass before any deployment.
@@ -38,6 +37,8 @@ usage_context: E2E Acceptance Test Case Creation Task (PF-TSK-069)
   P2 — Medium priority. Important but not blocking.
   P3 — Low priority. Edge cases and nice-to-have validations.
 -->
+
+# Test Case: [E2E-NNN] [TITLE]
 
 <!-- Execution Mode:
   manual — Human follows Steps section to execute (default)
@@ -132,7 +133,7 @@ usage_context: E2E Acceptance Test Case Creation Task (PF-TSK-069)
 
 <!-- How to confirm the test passed — multiple methods can be used -->
 
-- [ ] **Automated comparison**: Run `Verify-TestResult.ps1 -TestCase [E2E-NNN]` — compares workspace against `expected/`
+- [ ] **Automated comparison**: Run `Verify-TestResult.ps1 -TestCase [TE-E2E-NNN]` — compares workspace against `expected/`
 - [ ] **Visual inspection**: Open files listed in Expected Results and confirm changes
 - [ ] **Log check**: Check application log for [specific messages or absence of errors]
 

@@ -87,10 +87,13 @@ param(
     [string]$GroupName,
 
     [Parameter(Mandatory=$true)]
-    [string]$FeatureId,
+    [string]$FeatureIds,
 
     [Parameter(Mandatory=$true)]
     [string]$FeatureName,
+
+    [Parameter(Mandatory=$false)]
+    [string]$Workflow = "",
 
     [Parameter(Mandatory=$false)]
     [ValidateSet("P0", "P1", "P2", "P3")]
@@ -126,16 +129,25 @@ try {
     $projectRoot = Get-ProjectRoot
     $timestamp = Get-ProjectTimestamp -Format "Date"
 
-    # --- 1. Assign MT ID from registry ---
+    # --- 0. Parse FeatureIds (comma-separated string → array) ---
+    $featureIdArray = $FeatureIds -split ',' | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne '' }
+    $primaryFeatureId = $featureIdArray[0]
+    $featureIdsDisplay = $featureIdArray -join ', '
+    $featureIdsYaml = '["' + ($featureIdArray -join '", "') + '"]'
+
+    Write-Verbose "Feature IDs: $featureIdsDisplay (primary: $primaryFeatureId)"
+    if ($Workflow) { Write-Verbose "Workflow: $Workflow" }
+
+    # --- 1. Assign TE-E2E ID from registry ---
     $idRegistryPath = Join-Path $projectRoot "doc/id-registry.json"
     $idRegistry = Get-Content $idRegistryPath -Raw -Encoding UTF8 | ConvertFrom-Json
 
-    $e2ePrefix = $idRegistry.prefixes.E2E
-    $e2eId = "E2E-{0:D3}" -f $e2ePrefix.nextAvailable
+    $e2ePrefix = $idRegistry.prefixes.'TE-E2E'
+    $e2eId = "TE-E2E-{0:D3}" -f $e2ePrefix.nextAvailable
 
     # Increment the counter
     $e2ePrefix.nextAvailable = $e2ePrefix.nextAvailable + 1
-    if ($PSCmdlet.ShouldProcess($idRegistryPath, "Update E2E ID counter")) {
+    if ($PSCmdlet.ShouldProcess($idRegistryPath, "Update TE-E2E ID counter")) {
         $idRegistry | ConvertTo-Json -Depth 10 | Set-Content $idRegistryPath -Encoding UTF8
     }
 
@@ -161,11 +173,11 @@ try {
             }
         }
 
-        # Assign E2E-GRP ID
-        $grpPrefix = $idRegistry.prefixes.'E2E-GRP'
-        $grpId = "E2E-GRP-{0:D2}" -f $grpPrefix.nextAvailable
+        # Assign TE-E2G ID
+        $grpPrefix = $idRegistry.prefixes.'TE-E2G'
+        $grpId = "TE-E2G-{0:D3}" -f $grpPrefix.nextAvailable
         $grpPrefix.nextAvailable = $grpPrefix.nextAvailable + 1
-        if ($PSCmdlet.ShouldProcess($idRegistryPath, "Update E2E-GRP ID counter")) {
+        if ($PSCmdlet.ShouldProcess($idRegistryPath, "Update TE-E2G ID counter")) {
             $idRegistry | ConvertTo-Json -Depth 10 | Set-Content $idRegistryPath -Encoding UTF8
         }
 
@@ -190,7 +202,7 @@ try {
             # Apply replacements
             $masterContent = $masterContent -replace '\[GROUP-NAME\]', $GroupName
             $masterContent = $masterContent -replace '\[GROUP-ID\]', $grpId
-            $masterContent = $masterContent -replace '\[FEATURE-ID\]', $FeatureId
+            $masterContent = $masterContent -replace '\[FEATURE-ID\]', $featureIdsDisplay
             $masterContent = $masterContent -replace '\[FEATURE-NAME\]', $FeatureName
             $masterContent = $masterContent -replace '\[NUMBER\]', "0"
             $masterContent = $masterContent -replace '\[YYYY-MM-DD\]', $timestamp
@@ -208,6 +220,20 @@ try {
     # Verify group directory exists (skip check in WhatIf mode since creation was simulated)
     if (-not $WhatIfPreference -and -not (Test-Path $groupDir)) {
         throw "Group directory does not exist: $groupDir. Use -NewGroup to create it."
+    }
+
+    # Resolve group ID for existing groups (read from master test YAML frontmatter)
+    $grpIdForRegistry = "—"
+    if ($NewGroup) {
+        $grpIdForRegistry = $grpId
+    } elseif (Test-Path $masterTestFile) {
+        $masterLines = Get-Content $masterTestFile -Encoding UTF8
+        foreach ($mLine in $masterLines) {
+            if ($mLine -match '^id:\s*(TE-E2G-\d+)') {
+                $grpIdForRegistry = $matches[1]
+                break
+            }
+        }
     }
 
     # --- 4. Create test case directory structure ---
@@ -268,10 +294,14 @@ Write-Warning "run.ps1 is a skeleton — replace this with the actual test actio
 
         # Apply replacements
         $testCaseContent = $testCaseContent -replace '\[E2E-NNN\]', $e2eId
+        $testCaseContent = $testCaseContent -replace '\[TE-E2E-NNN\]', $e2eId
         $testCaseContent = $testCaseContent -replace '\[TITLE\]', ($TestCaseName -replace '-', ' ')
         $testCaseContent = $testCaseContent -replace '\[GROUP-NAME\]', $GroupName
-        $testCaseContent = $testCaseContent -replace '\[FEATURE-ID\]', $FeatureId
+        $testCaseContent = $testCaseContent -replace '\[GROUP-ID\]', $grpIdForRegistry
+        $testCaseContent = $testCaseContent -replace '\[FEATURE-IDS-YAML\]', $featureIdsYaml
+        $testCaseContent = $testCaseContent -replace '\[FEATURE-ID\]', $featureIdsDisplay
         $testCaseContent = $testCaseContent -replace '\[FEATURE-NAME\]', $FeatureName
+        $testCaseContent = $testCaseContent -replace '\[WF-NNN\]', $(if ($Workflow) { $Workflow } else { "[WF-NNN]" })
         $testCaseContent = $testCaseContent -replace '\[P0 / P1 / P2 / P3\]', $Priority
         $testCaseContent = $testCaseContent -replace '\[YYYY-MM-DD\]', $timestamp
         if ($Source) {
@@ -365,7 +395,7 @@ Write-Warning "run.ps1 is a skeleton — replace this with the actual test actio
         Write-Warning "Master test file not found: $masterTestFile. Skipping master test update."
     }
 
-    # --- 7. Update test-tracking.md ---
+    # --- 7. Update test-tracking.md (dedicated E2E section) ---
     $testTrackingPath = Join-Path $projectRoot "doc/process-framework/state-tracking/permanent/test-tracking.md"
     if (Test-Path $testTrackingPath) {
         $trackingContent = Get-Content $testTrackingPath -Raw -Encoding UTF8
@@ -373,17 +403,104 @@ Write-Warning "run.ps1 is a skeleton — replace this with the actual test actio
         # Build relative path from test-tracking.md to the test case
         $testCaseRelativePath = "../../../../test/e2e-acceptance-testing/templates/$GroupName/$e2eId-$TestCaseName/test-case.md"
         $trackingNotes = if ($Description) { $Description } else { ($TestCaseName -replace '-', ' ') }
+        $workflowCol = if ($Workflow) { $Workflow } else { "—" }
+        $testCaseLink = "[$e2eId-$TestCaseName]($testCaseRelativePath)"
 
-        $updatedContent = Add-TestImplementationEntry `
-            -Content $trackingContent `
-            -TestFileId $e2eId `
-            -FeatureId $FeatureId `
-            -TestFilePath $testCaseRelativePath `
-            -Status "📋 Case Created" `
-            -TestType "E2E Case" `
-            -TestCasesCount "" `
-            -LastExecuted "—" `
-            -Notes $trackingNotes
+        # Build the new row for the dedicated E2E Test Cases table
+        # Columns: Test ID | Workflow | Feature IDs | Test Type | Test File/Case | Status | Last Executed | Last Updated | Notes
+        $newRow = "| $e2eId | $workflowCol | $featureIdsDisplay | E2E Case | $testCaseLink | 📋 Case Created | — | $timestamp | $trackingNotes |"
+
+        # Build TE-E2G group row if -NewGroup (inserted before the test case row)
+        $newGroupRow = $null
+        if ($NewGroup) {
+            $masterTestRelativePath = "../../../../test/e2e-acceptance-testing/templates/$GroupName/master-test-$GroupName.md"
+            $masterTestLink = "[master-test-$GroupName.md]($masterTestRelativePath)"
+            $groupNotes = ($GroupName -replace '-', ' ')
+            $newGroupRow = "| $grpIdForRegistry | $workflowCol | $featureIdsDisplay | E2E Group | $masterTestLink | 📋 Case Created | — | $timestamp | $groupNotes |"
+        }
+
+        # Find the E2E Test Cases table and append the row(s) before the --- separator
+        $lines = $trackingContent -split '\r?\n'
+        $updatedLines = @()
+        $inE2eSection = $false
+        $inE2eTable = $false
+        $rowAdded = $false
+
+        foreach ($line in $lines) {
+            if ($line -match '^### E2E Test Cases') {
+                $inE2eSection = $true
+            }
+
+            # Detect end of E2E section (next ## or ---)
+            if ($inE2eSection -and $inE2eTable -and ($line -match '^---$' -or ($line -match '^## ' -and $line -notmatch '^### '))) {
+                if (-not $rowAdded) {
+                    if ($newGroupRow) { $updatedLines += $newGroupRow }
+                    $updatedLines += $newRow
+                    $rowAdded = $true
+                }
+                $inE2eSection = $false
+                $inE2eTable = $false
+            }
+
+            # Detect table start in E2E section
+            if ($inE2eSection -and $line -match '^\|.*Test ID.*\|') {
+                $inE2eTable = $true
+            }
+
+            # Detect end of table rows (empty line after table)
+            if ($inE2eSection -and $inE2eTable -and $line -match '^\s*$' -and -not $rowAdded) {
+                if ($newGroupRow) { $updatedLines += $newGroupRow }
+                $updatedLines += $newRow
+                $rowAdded = $true
+                $inE2eTable = $false
+            }
+
+            $updatedLines += $line
+        }
+
+        if (-not $rowAdded) {
+            Write-Warning "Could not find E2E Test Cases table in test-tracking.md"
+        }
+
+        $updatedContent = $updatedLines -join "`n"
+
+        # --- 7b. Update Workflow Milestone Tracking table (if -NewGroup and -Workflow) ---
+        if ($NewGroup -and $Workflow) {
+            $milestoneLines = $updatedContent -split '\r?\n'
+            $milestoneUpdated = @()
+            $milestoneFound = $false
+
+            foreach ($mLine in $milestoneLines) {
+                if (-not $milestoneFound -and $mLine -match "^\|.*$([regex]::Escape($Workflow)).*\|") {
+                    # Parse the row columns and append the group ID to the E2E Cases column (index 5)
+                    $cols = $mLine -split '\|' | ForEach-Object { $_.Trim() }
+                    # cols[0] = empty (before first |), cols[1..N] = actual columns, cols[-1] = empty (after last |)
+                    if ($cols.Count -ge 8) {
+                        $e2eCasesCol = $cols[6]
+                        if ($e2eCasesCol -eq '—' -or $e2eCasesCol -eq '' -or $e2eCasesCol -eq '-') {
+                            $cols[6] = $grpIdForRegistry
+                        } else {
+                            $cols[6] = "$e2eCasesCol, $grpIdForRegistry"
+                        }
+                        # Update status to "📋 Cases Created" if currently at an earlier stage
+                        if ($cols[7] -match '⏳|—') {
+                            $cols[7] = '📋 Cases Created'
+                        }
+                        # Rebuild the row
+                        $mLine = "| " + ($cols[1..($cols.Count-2)] -join " | ") + " |"
+                        $milestoneFound = $true
+                        Write-Verbose "Updated Workflow Milestone Tracking: $Workflow += $grpIdForRegistry"
+                    }
+                }
+                $milestoneUpdated += $mLine
+            }
+
+            if (-not $milestoneFound) {
+                Write-Warning "Workflow $Workflow not found in Workflow Milestone Tracking table"
+            }
+
+            $updatedContent = $milestoneUpdated -join "`n"
+        }
 
         if ($PSCmdlet.ShouldProcess($testTrackingPath, "Add E2E test entry to test-tracking.md")) {
             Set-Content $testTrackingPath $updatedContent -Encoding UTF8
@@ -393,18 +510,49 @@ Write-Warning "run.ps1 is a skeleton — replace this with the actual test actio
         Write-Warning "Test tracking file not found: $testTrackingPath"
     }
 
-    # --- 8. Update feature-tracking.md Test Status ---
+    # --- 8. Add E2E entry to test-registry.yaml ---
+    $testRegistryPath = Join-Path $projectRoot "test/test-registry.yaml"
+    if (Test-Path $testRegistryPath) {
+        $registryContent = Get-Content $testRegistryPath -Raw -Encoding UTF8
+        $executionMode = if ($Scripted) { "scripted" } else { "manual" }
+
+        $yamlEntry = @"
+
+  - id: $e2eId
+    type: e2e-case
+    featureIds: $featureIdsYaml
+    workflow: $workflowCol
+    group: $grpIdForRegistry
+    name: $TestCaseName
+    filePath: e2e-acceptance-testing/templates/$GroupName/$e2eId-$TestCaseName/test-case.md
+    executionMode: $executionMode
+    priority: $Priority
+    status: "📋 Case Created"
+    created: $timestamp
+    updated: $timestamp
+"@
+
+        if ($PSCmdlet.ShouldProcess($testRegistryPath, "Add E2E entry to test-registry.yaml")) {
+            # Append to end of file
+            $registryContent = $registryContent.TrimEnd() + $yamlEntry
+            Set-Content $testRegistryPath $registryContent -Encoding UTF8
+            Write-Verbose "Added $e2eId to test-registry.yaml"
+        }
+    }
+
+    # --- 9. Update feature-tracking.md Test Status (all features) ---
     $featureTrackingPath = Join-Path $projectRoot "doc/process-framework/state-tracking/permanent/feature-tracking.md"
     if (Test-Path $featureTrackingPath) {
-        # Update Test Status — if it was "🔧 Automated Only", change to the appropriate status
-        try {
-            Update-FeatureTrackingStatus `
-                -FeatureId $FeatureId `
-                -Status "🟡 In Progress" `
-                -StatusColumn "Test Status"
-            Write-Verbose "Updated feature-tracking.md Test Status for $FeatureId"
-        } catch {
-            Write-Warning "Could not update feature-tracking.md: $($_.Exception.Message)"
+        foreach ($fId in $featureIdArray) {
+            try {
+                Update-FeatureTrackingStatus `
+                    -FeatureId $fId `
+                    -Status "🟡 In Progress" `
+                    -StatusColumn "Test Status"
+                Write-Verbose "Updated feature-tracking.md Test Status for $fId"
+            } catch {
+                Write-Warning "Could not update feature-tracking.md for $fId`: $($_.Exception.Message)"
+            }
         }
     }
 
@@ -412,7 +560,8 @@ Write-Warning "run.ps1 is a skeleton — replace this with the actual test actio
     $details = @(
         "Test Case ID: $e2eId",
         "Directory: test/e2e-acceptance-testing/templates/$GroupName/$e2eId-$TestCaseName/",
-        "Feature: $FeatureId — $FeatureName",
+        "Features: $featureIdsDisplay — $FeatureName",
+        "Workflow: $(if ($Workflow) { $Workflow } else { '(not specified)' })",
         "Priority: $Priority"
     )
     if ($NewGroup) {
@@ -433,8 +582,17 @@ Write-Warning "run.ps1 is a skeleton — replace this with the actual test actio
     $details += @(
         "",
         "State tracking updated:",
-        "  - test-tracking.md: $e2eId entry added",
-        "  - feature-tracking.md: Test Status updated",
+        "  - test-tracking.md: $e2eId entry added (dedicated E2E section)"
+    )
+    if ($NewGroup) {
+        $details += "  - test-tracking.md: $grpIdForRegistry group entry added (E2E Test Cases table)"
+        if ($Workflow) {
+            $details += "  - test-tracking.md: Workflow Milestone Tracking updated ($Workflow += $grpIdForRegistry)"
+        }
+    }
+    $details += @(
+        "  - test-registry.yaml: $e2eId entry added",
+        "  - feature-tracking.md: Test Status updated for $featureIdsDisplay",
         "  - master-test-$GroupName.md: If Failed table updated"
     )
 

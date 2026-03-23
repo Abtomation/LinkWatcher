@@ -1,18 +1,15 @@
-<!-- Replace all [PLACEHOLDERS] with actual values -->
-<!-- Remove all instructional comments when creating the actual file -->
+---
+id: TE-E2G-002
+type: E2E Acceptance Test Group
+feature_ids: ["1.1.1", "2.1.1", "2.2.1"]
+workflow: WF-001
+test_cases_count: 2
+estimated_duration: 6 minutes
+created: 2026-03-16
+updated: 2026-03-16
+---
 
 # Master Test: powershell-parser-patterns
-
-## Metadata
-
-| Field | Value |
-|-------|-------|
-| Group ID | E2E-GRP-05 |
-| Feature | 2.1.1 — Link Parsing System |
-| Test Cases Covered | 1 |
-| Estimated Duration | [ESTIMATED DURATION] |
-| Created | 2026-03-16 |
-| Last Updated | 2026-03-16 |
 
 ## Purpose
 

@@ -13,6 +13,7 @@ because the stale detection compared slash-notation link_target against
 dot-notation line content.
 """
 
+import shutil
 import time
 from pathlib import Path
 
@@ -399,9 +400,11 @@ class TestDirectoryMoveViaDeleteCreate:
             len(service.handler._dir_move_detector.pending_dir_moves) >= 1
         ), "Should have pending_dir_moves entry"
 
-        # Step 2: Move the actual file to new location
+        # Step 2: Move the actual file to new location (remove old dir to
+        # simulate real Windows directory move where the whole dir is gone)
         new_guide = new_docs_dir / "guide.md"
         guide.rename(new_guide)
+        docs_dir.rmdir()  # Old dir gone after move (realistic)
 
         # Step 3: Simulate file create event (triggers batch processing)
         file_create_event = FileCreatedEvent(str(new_guide))
@@ -448,13 +451,16 @@ class TestDirectoryMoveViaDeleteCreate:
         dir_delete_event.is_directory = False
         service.handler.on_deleted(dir_delete_event)
 
-        # Step 2: Move files and fire create events
+        # Step 2: Move files and fire create events (remove old dir to
+        # simulate real Windows directory move where the whole dir is gone)
         new_guide = new_docs_dir / "guide.md"
         guide.rename(new_guide)
-        service.handler.on_created(FileCreatedEvent(str(new_guide)))
 
         new_api = new_docs_dir / "api.md"
         api.rename(new_api)
+        docs_dir.rmdir()  # Old dir gone after move (realistic)
+
+        service.handler.on_created(FileCreatedEvent(str(new_guide)))
         service.handler.on_created(FileCreatedEvent(str(new_api)))
 
         # Wait for processing thread to complete
@@ -497,9 +503,11 @@ class TestDirectoryMoveViaDeleteCreate:
         dir_delete_event.is_directory = False
         service.handler.on_deleted(dir_delete_event)
 
-        # File create at new location
+        # File create at new location (remove old dir tree to simulate
+        # real Windows directory move where the whole dir is gone)
         new_nested = new_sub_dir / "setup.md"
         nested.rename(new_nested)
+        shutil.rmtree(str(docs_dir))  # Old dir gone after move (realistic)
         service.handler.on_created(FileCreatedEvent(str(new_nested)))
 
         # Wait for processing thread

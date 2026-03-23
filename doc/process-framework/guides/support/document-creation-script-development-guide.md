@@ -236,73 +236,10 @@ if (Test-Path $readmePath) {
 
 ## Common Patterns and Examples
 
-### Example 1: Template Creation Script
-
-The `New-Template.ps1` script in the templates directory is a real-world example of a document creation script that creates new templates:
+### Minimal Document Creation Script
 
 ```powershell
-# New-Template.ps1
-[CmdletBinding(SupportsShouldProcess=$true)]
-param(
-    [Parameter(Mandatory=$true)]
-    [string]$TemplateName,
-
-    [Parameter(Mandatory=$true)]
-    [string]$TemplateDescription,
-
-    [Parameter(Mandatory=$true)]
-    [string]$DocumentPrefix,
-
-    [Parameter(Mandatory=$true)]
-    [string]$DocumentCategory,
-
-    [Parameter(Mandatory=$false)]
-    [string]$OutputDirectory = "doc/process-framework/templates/support",
-
-    [Parameter(Mandatory=$false)]
-    [switch]$OpenInEditor
-)
-
-# Import the common helpers
-Import-Module (Join-Path -Path (Split-Path -Parent (Split-Path -Parent $PSScriptRoot)) -ChildPath "../../scripts/Common-ScriptHelpers.psm1") -Force
-Invoke-StandardScriptInitialization
-
-# Get current date in YYYY-MM-DD format
-$currentDate = Get-Date -Format "yyyy-MM-dd"
-
-# Prepare additional metadata fields
-$additionalMetadataFields = @{
-    "template_for" = $DocumentCategory
-    "creates_document_type" = "Process Framework"
-    "creates_document_category" = $DocumentCategory
-    "creates_document_prefix" = $DocumentPrefix
-    "creates_document_version" = "1.0"
-    "usage_context" = "Process Framework - $DocumentCategory Creation"
-    "description" = $TemplateDescription
-}
-
-# Create the template using standardized process
-try {
-    $templateId = New-StandardProjectDocument -TemplatePath "doc/process-framework/templates/support/template-base-template.md" -IdPrefix "PF-TEM" -IdDescription "$TemplateName template" -DocumentName "$($TemplateName.ToLower().Replace(' ', '-'))-template" -OutputDirectory $OutputDirectory -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
-
-    Write-ProjectSuccess -Message "Created template with ID: $templateId" -Details $details
-}
-catch {
-    Write-ProjectError -Message "Failed to create template: $($_.Exception.Message)" -ExitCode 1
-}
-```
-
-This script demonstrates:
-
-- Using a base template to create new templates
-- Proper metadata handling for templates
-- Standardized error handling and success reporting
-- Dynamic path resolution for different script locations
-
-### Example 2: Simple Document Creation Script
-
-```powershell
-# ../New-SimpleDocument.ps1
+# New-SimpleDocument.ps1
 [CmdletBinding(SupportsShouldProcess=$true)]
 param(
     [Parameter(Mandatory=$true)]
@@ -324,7 +261,7 @@ $customReplacements = @{
 }
 
 try {
-    $documentId = New-StandardProjectDocument -TemplatePath "../doc/templates/simple-template.md" -IdPrefix "PF-DOC" -IdDescription "Simple document: ${DocumentTitle}" -DocumentName $DocumentTitle -OutputDirectory "doc/documents" -Replacements $customReplacements -OpenInEditor:$OpenInEditor
+    $documentId = New-StandardProjectDocument -TemplatePath "doc/templates/simple-template.md" -IdPrefix "PF-DOC" -IdDescription "Simple document: ${DocumentTitle}" -DocumentName $DocumentTitle -OutputDirectory "doc/documents" -Replacements $customReplacements -OpenInEditor:$OpenInEditor
 
     Write-ProjectSuccess -Message "Created document with ID: $documentId"
 }
@@ -333,61 +270,7 @@ catch {
 }
 ```
 
-### Example 2: Complex Script with Validation
-
-```powershell
-# ../New-ComplexDocument.ps1
-[CmdletBinding(SupportsShouldProcess=$true)]
-param(
-    [Parameter(Mandatory=$true)]
-    [ValidateLength(5, 50)]
-    [string]$Title,
-
-    [Parameter(Mandatory=$true)]
-    [ValidateSet("Feature", "Bug", "Enhancement")]
-    [string]$Type,
-
-    [Parameter(Mandatory=$false)]
-    [ValidateSet("High", "Medium", "Low")]
-    [string]$Priority = "Medium",
-
-    [Parameter(Mandatory=$false)]
-    [string]$DirectoryType,
-
-    [Parameter(Mandatory=$false)]
-    [switch]$OpenInEditor
-)
-
-Import-Module (Join-Path -Path (Split-Path -Parent $PSScriptRoot) -ChildPath "../../scripts/Common-ScriptHelpers.psm1") -Force
-Invoke-StandardScriptInitialization
-
-$additionalMetadataFields = @{
-    "document_type" = $Type
-    "priority" = $Priority
-    "created_by" = $env:USERNAME
-}
-
-$customReplacements = @{
-    "[Document Title]" = $Title
-    "[Document Type]" = $Type
-    "[Priority Level]" = $Priority
-    "[Creation Date]" = Get-Date -Format "yyyy-MM-dd"
-}
-
-try {
-    $documentId = New-StandardProjectDocument -TemplatePath "../doc/templates/complex-template.md" -IdPrefix "PF-CMP" -IdDescription "$Type document: ${Title}" -DocumentName $Title -DirectoryType $DirectoryType -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
-
-    $details = @(
-        "Type: $Type",
-        "Priority: $Priority"
-    )
-
-    Write-ProjectSuccess -Message "Created $Type document with ID: $documentId" -Details $details
-}
-catch {
-    Write-ProjectError -Message "Failed to create document: $($_.Exception.Message)" -ExitCode 1
-}
-```
+> **Real-world examples**: See [New-Template.ps1](/doc/process-framework/scripts/file-creation/support/New-Template.ps1) (metadata-heavy), [New-TempTaskState.ps1](/doc/process-framework/scripts/file-creation/support/New-TempTaskState.ps1) (variant selection), or [New-E2EAcceptanceTestCase.ps1](/doc/process-framework/scripts/file-creation/03-testing/New-E2EAcceptanceTestCase.ps1) (complex with state updates).
 
 ## ID Registry Integration
 
@@ -588,45 +471,6 @@ catch {
 }
 ```
 
-## Testing and Validation
-
-### Unit Testing
-
-Create test scripts for your document creation scripts:
-
-```powershell
-# ../Test-NewYourScript.ps1
-Describe "New-YourScript" {
-    It "Should create document with valid parameters" {
-        $result = .\../New-YourScript.ps1 -Title "Test" -Type "Feature" -WhatIf
-        $result | Should -Not -BeNullOrEmpty
-    }
-
-    It "Should validate required parameters" {
-        { .\../New-YourScript.ps1 -Type "Feature" } | Should -Throw
-    }
-}
-```
-
-### Integration Testing
-
-Test the complete workflow:
-
-```powershell
-# Create test document
-$documentId = .\../New-YourScript.ps1 -Title "Integration Test" -Type "Feature"
-
-# Verify document was created
-$documentPath = "../doc/documents/integration-test.md"
-Test-Path $documentPath | Should -Be $true
-
-# Verify ID was registered
-Test-IdExists -Id $documentId | Should -Be $true
-
-# Clean up
-Remove-Item $documentPath -Force
-```
-
 ## Troubleshooting
 
 ### Common Issues
@@ -715,114 +559,9 @@ Remove-Item $documentPath -Force
    $metadata = Get-TemplateMetadata -TemplatePath $TemplatePath
    ```
 
-## Script Testing Methodology
+## Script Testing Checklist
 
-### Systematic Testing Approach
-
-Before considering any document creation script complete, follow this comprehensive testing methodology:
-
-#### 1. **Pre-Testing Setup**
-
-```powershell
-# Verify prerequisites
-Test-Path "doc/process-framework/scripts/Common-ScriptHelpers.psm1"
-Test-Path "../../../id-registry.json"
-Test-Path "path/to/your/template.md"
-
-# Check current working directory
-Get-Location
-```
-
-#### 2. **Module Import Testing**
-
-```powershell
-# Test module import in isolation
-$scriptDir = (Get-Location).Path
-$modulePath = Join-Path -Path $scriptDir -ChildPath "relative/path/to/Common-ScriptHelpers.psm1"
-try {
-    $resolvedPath = Resolve-Path $modulePath -ErrorAction Stop
-    Import-Module $resolvedPath -Force
-    Write-Host "✅ Module import successful"
-} catch {
-    Write-Host "❌ Module import failed: $($_.Exception.Message)"
-}
-```
-
-#### 3. **Basic Functionality Testing**
-
-```powershell
-# Test with minimal parameters
-./New-YourScript.ps1 -PrimaryParam "Test Document" -SecondaryParam "Test"
-
-# Verify document creation
-$expectedPath = "expected/output/path/test-document.md"
-if (Test-Path $expectedPath) {
-    Write-Host "✅ Document created successfully"
-    Get-Content $expectedPath | Select-Object -First 10
-} else {
-    Write-Host "❌ Document not created at expected path: $expectedPath"
-}
-```
-
-#### 4. **Template Replacement Verification**
-
-```powershell
-# Check for unreplaced placeholders
-$content = Get-Content $expectedPath -Raw
-$unreplacedPlaceholders = [regex]::Matches($content, '\[([^\]]+)\]') | ForEach-Object { $_.Value }
-
-if ($unreplacedPlaceholders.Count -eq 0) {
-    Write-Host "✅ All template placeholders replaced"
-} else {
-    Write-Host "❌ Unreplaced placeholders found:"
-    $unreplacedPlaceholders | ForEach-Object { Write-Host "  - $_" }
-}
-```
-
-#### 5. **Metadata Validation**
-
-```powershell
-# Extract and validate metadata
-$metadataLines = Get-Content $expectedPath | Select-Object -First 15
-$metadataSection = ($metadataLines -join "`n") -split "---"
-if ($metadataSection.Count -ge 2) {
-    Write-Host "✅ Metadata section found"
-    Write-Host $metadataSection[1]
-} else {
-    Write-Host "❌ Metadata section missing or malformed"
-}
-```
-
-#### 6. **Error Handling Testing**
-
-```powershell
-# Test with invalid parameters
-./New-YourScript.ps1 -PrimaryParam "" -SecondaryParam "Test"  # Empty required param
-./New-YourScript.ps1 -PrimaryParam "Test" -NonExistentParam "Invalid"  # Invalid param
-
-# Test with missing dependencies
-Rename-Item "doc/process-framework/scripts/Common-ScriptHelpers.psm1" "Common-ScriptHelpers.psm1.bak"
-./New-YourScript.ps1 -PrimaryParam "Test" -SecondaryParam "Test"  # Should fail gracefully
-Rename-Item "Common-ScriptHelpers.psm1.bak" "doc/process-framework/scripts/Common-ScriptHelpers.psm1"
-```
-
-#### 7. **Cleanup and ID Verification**
-
-```powershell
-# Check ID registry was updated
-$registryContent = Get-Content "../../../id-registry.json" | ConvertFrom-Json
-$prefix = "YOUR-PREFIX"  # Replace with actual prefix
-$nextAvailable = $registryContent.prefixes.$prefix.nextAvailable
-Write-Host "Next available ID for $prefix: $nextAvailable"
-
-# Clean up test files
-Remove-Item $expectedPath -Force -ErrorAction SilentlyContinue
-Write-Host "✅ Test cleanup completed"
-```
-
-### Testing Checklist
-
-Use this checklist for every script:
+Before considering any document creation script complete:
 
 - [ ] **Module Import**: Script loads Common-ScriptHelpers without errors
 - [ ] **Basic Creation**: Document is created in correct location with correct name
@@ -832,74 +571,8 @@ Use this checklist for every script:
 - [ ] **Error Handling**: Script fails gracefully with helpful error messages
 - [ ] **Parameter Validation**: Invalid parameters are caught and reported
 - [ ] **Directory Creation**: Output directories are created if they don't exist
-- [ ] **File Permissions**: Script works with various file permission scenarios
-- [ ] **Cross-Platform**: Script works in different PowerShell environments
 
-### Automated Testing Script Template
-
-Create a test script alongside your document creation script:
-
-```powershell
-# Test-YourScript.ps1
-param(
-    [switch]$Cleanup
-)
-
-$testName = "Test Document $(Get-Date -Format 'HHmmss')"
-$scriptPath = "./New-YourScript.ps1"
-
-try {
-    Write-Host "🧪 Testing $scriptPath..."
-
-    # Run the script
-    & $scriptPath -PrimaryParam $testName -SecondaryParam "Test"
-
-    # Verify results
-    $expectedFile = "path/to/expected/output.md"
-    if (Test-Path $expectedFile) {
-        Write-Host "✅ Test passed: Document created"
-
-        # Check content
-        $content = Get-Content $expectedFile -Raw
-        if ($content -match $testName) {
-            Write-Host "✅ Test passed: Content replacement worked"
-        } else {
-            Write-Host "❌ Test failed: Content replacement failed"
-        }
-    } else {
-        Write-Host "❌ Test failed: Document not created"
-    }
-
-} finally {
-    if ($Cleanup -and (Test-Path $expectedFile)) {
-        Remove-Item $expectedFile -Force
-        Write-Host "🧹 Cleanup completed"
-    }
-}
-```
-
-## Best Practices
-
-### Script Organization
-
-1. **Consistent Naming**: Use `New-[DocumentType].ps1` pattern
-2. **Parameter Order**: Mandatory parameters first, optional parameters last
-3. **Documentation**: Include comprehensive help documentation
-4. **Error Handling**: Use standardized error handling patterns
-
-### Code Quality
-
-1. **Parameter Validation**: Use appropriate validation attributes
-2. **Error Messages**: Provide clear, actionable error messages
-3. **Success Messages**: Include relevant details in success messages
-4. **Logging**: Use Write-Verbose for debugging information
-
-### Maintenance
-
-1. **Version Control**: Track script changes in version control
-2. **Documentation**: Keep this guide updated with new patterns
-3. **Testing**: Maintain test scripts for all document creation scripts
-4. **Review**: Regular code reviews for new scripts
+**Quick validation**: Run with `-WhatIf` first, then create a real test document and verify the output. Clean up test files afterward.
 
 ## Advanced Topics
 
@@ -1007,29 +680,6 @@ if ($Priority -eq "High") {
     $customReplacements["[Priority Badge]"] = "Priority: $Priority"
 }
 ```
-
-## Real-World Examples
-
-The project includes several document creation scripts that follow these guidelines:
-
-1. **Template Creation Script** - [New-Template.ps1](/doc/process-framework/scripts/file-creation/support/New-Template.ps1)
-   - Creates new templates with proper metadata
-   - Located in the scripts/file-creation directory as per best practices
-   - Uses the template base template as its source
-
-## Conclusion
-
-This guide provides a comprehensive framework for creating document creation scripts in the project. By following these patterns and best practices, you can create consistent, maintainable scripts that integrate seamlessly with the project's document management system.
-
-Remember to:
-
-- Test your scripts thoroughly
-- Follow the established patterns
-- Update documentation when adding new features
-- Use the standardized error handling and success reporting
-- Place all document creation scripts in the `doc/process-framework/scripts/file-creation` directory
-
-For additional support or questions, refer to the project's documentation or contact the human user.
 
 ## Related Resources
 

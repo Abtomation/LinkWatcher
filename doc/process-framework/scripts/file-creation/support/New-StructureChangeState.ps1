@@ -11,7 +11,7 @@ param(
     [string]$Description = "",
 
     [Parameter(Mandatory = $false)]
-    [ValidateSet("Template Update", "Directory Reorganization", "Metadata Structure", "Documentation Architecture")]
+    [ValidateSet("Template Update", "Directory Reorganization", "Metadata Structure", "Documentation Architecture", "Rename")]
     [string]$ChangeType = "Template Update",
 
     [Parameter(Mandatory = $false)]
@@ -36,6 +36,13 @@ $additionalMetadataFields = @{
     "change_name" = ConvertTo-KebabCase -InputString $ChangeName
 }
 
+# Select template based on ChangeType
+if ($ChangeType -eq "Rename") {
+    $templatePath = "doc/process-framework/templates/support/structure-change-state-rename-template.md"
+} else {
+    $templatePath = "doc/process-framework/templates/support/structure-change-state-template.md"
+}
+
 # Prepare custom replacements
 $customReplacements = @{
     "[Change Name]"                                                                            = $ChangeName
@@ -53,7 +60,7 @@ $kebabName = ConvertTo-KebabCase -InputString $ChangeName
 $customFileName = "structure-change-$kebabName.md"
 
 try {
-    $stateId = New-StandardProjectDocument -TemplatePath "doc/process-framework/templates/support/structure-change-state-template.md" -IdPrefix "PF-STA" -IdDescription "Structure change state for: ${ChangeName}" -DocumentName $ChangeName -OutputDirectory "doc/process-framework/state-tracking/temporary" -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -FileNamePattern $customFileName -OpenInEditor:$OpenInEditor
+    $stateId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "PF-STA" -IdDescription "Structure change state for: ${ChangeName}" -DocumentName $ChangeName -OutputDirectory "doc/process-framework/state-tracking/temporary" -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -FileNamePattern $customFileName -OpenInEditor:$OpenInEditor
 
     $details = @(
         "",

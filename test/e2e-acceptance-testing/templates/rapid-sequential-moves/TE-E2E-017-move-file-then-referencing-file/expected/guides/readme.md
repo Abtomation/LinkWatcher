@@ -1,0 +1,1 @@
+[Config](../archive/settings.md)

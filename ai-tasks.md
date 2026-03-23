@@ -154,12 +154,18 @@ _Quality validation and compliance verification activities_
 
 | Task                                         | Use When                                                                                                                                 | Complexity | Link                                                                                                   |
 | -------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ---------- | ------------------------------------------------------------------------------------------------------ |
-| **Architectural Consistency Validation**     | Validate foundational features for architectural pattern adherence, ADR compliance, and interface consistency                            | 🟡 Medium  | [→ Definition](/doc/process-framework/tasks/05-validation/architectural-consistency-validation.md)     |
-| **Code Quality Standards Validation**        | Validate foundational features for code quality standards, SOLID principles, and best practices adherence                        | 🟡 Medium  | [→ Definition](/doc/process-framework/tasks/05-validation/code-quality-standards-validation.md)        |
-| **Integration Dependencies Validation**      | Validate foundational features for dependency health, interface contracts, and data flow integrity                                       | 🟡 Medium  | [→ Definition](/doc/process-framework/tasks/05-validation/integration-dependencies-validation.md)      |
-| **Documentation Alignment Validation**       | Validate foundational features for TDD alignment, ADR compliance, and API documentation accuracy                                         | 🟡 Medium  | [→ Definition](/doc/process-framework/tasks/05-validation/documentation-alignment-validation.md)       |
-| **Extensibility Maintainability Validation** | Validate foundational features for extension points, configuration flexibility, and testing support                                      | 🟡 Medium  | [→ Definition](/doc/process-framework/tasks/05-validation/extensibility-maintainability-validation.md) |
-| **AI Agent Continuity Validation**           | Validate foundational features for context clarity, modular structure, and documentation quality to support AI agent workflow continuity | 🟡 Medium  | [→ Definition](/doc/process-framework/tasks/05-validation/ai-agent-continuity-validation.md)           |
+| **Validation Preparation**                   | **ENTRY POINT for validation rounds** — select features, evaluate dimension applicability, create tracking state file, plan session sequence | 🟢 Simple  | [→ Definition](/doc/process-framework/tasks/05-validation/validation-preparation.md)                   |
+| **Architectural Consistency Validation**     | Validate selected features for architectural pattern adherence, ADR compliance, and interface consistency                            | 🟡 Medium  | [→ Definition](/doc/process-framework/tasks/05-validation/architectural-consistency-validation.md)     |
+| **Code Quality Standards Validation**        | Validate selected features for code quality standards, SOLID principles, and best practices adherence                        | 🟡 Medium  | [→ Definition](/doc/process-framework/tasks/05-validation/code-quality-standards-validation.md)        |
+| **Integration Dependencies Validation**      | Validate selected features for dependency health, interface contracts, and data flow integrity                                       | 🟡 Medium  | [→ Definition](/doc/process-framework/tasks/05-validation/integration-dependencies-validation.md)      |
+| **Documentation Alignment Validation**       | Validate selected features for TDD alignment, ADR compliance, and API documentation accuracy                                         | 🟡 Medium  | [→ Definition](/doc/process-framework/tasks/05-validation/documentation-alignment-validation.md)       |
+| **Extensibility Maintainability Validation** | Validate selected features for extension points, configuration flexibility, and testing support                                      | 🟡 Medium  | [→ Definition](/doc/process-framework/tasks/05-validation/extensibility-maintainability-validation.md) |
+| **AI Agent Continuity Validation**           | Validate selected features for context clarity, modular structure, and documentation quality to support AI agent workflow continuity | 🟡 Medium  | [→ Definition](/doc/process-framework/tasks/05-validation/ai-agent-continuity-validation.md)           |
+| **Security & Data Protection Validation**    | Validate selected features for security best practices, data protection, input validation, and secrets management | 🟡 Medium  | [→ Definition](/doc/process-framework/tasks/05-validation/security-data-protection-validation.md)      |
+| **Performance & Scalability Validation**     | Validate selected features for performance characteristics, resource efficiency, and scalability patterns | 🟡 Medium  | [→ Definition](/doc/process-framework/tasks/05-validation/performance-scalability-validation.md)       |
+| **Observability Validation**                 | Validate selected features for logging coverage, monitoring instrumentation, alerting readiness, and diagnostic traceability | 🟡 Medium  | [→ Definition](/doc/process-framework/tasks/05-validation/observability-validation.md)                 |
+| **Accessibility / UX Compliance Validation** | Validate selected features for accessibility standards, UX compliance, keyboard navigation, and inclusive design patterns | 🟡 Medium  | [→ Definition](/doc/process-framework/tasks/05-validation/accessibility-ux-compliance-validation.md)   |
+| **Data Integrity Validation**                | Validate selected features for data consistency, constraint enforcement, migration safety, and backup/recovery patterns | 🟡 Medium  | [→ Definition](/doc/process-framework/tasks/05-validation/data-integrity-validation.md)                |
 
 ### 🔧 06 - Maintenance Tasks
 
@@ -249,6 +255,23 @@ Bug Fixing → Code Review → Release & Deployment
 ```
 Structure Change → Code Review → Release & Deployment
 ```
+
+### For E2E Acceptance Testing (milestone-triggered)
+
+```
+After milestone (all features for a user workflow implemented):
+  Cross-cutting E2E Test Specification (New-TestSpecification.ps1 -CrossCutting) → E2E Test Case Creation (PF-TSK-069) → E2E Test Execution (PF-TSK-070)
+```
+
+> **Milestone trigger**: Check [User Workflow Map](/doc/product-docs/technical/design/user-workflow-map.md) — when all required features for a workflow reach "Implemented," create the cross-cutting E2E test specification for that workflow.
+
+### For Feature Validation
+
+```
+Validation Preparation (PF-TSK-077) → [Select features + dimensions] → Dimension Task(s) → Code Review → Release & Deployment
+```
+
+> **Entry point**: Always start with [Validation Preparation](/doc/process-framework/tasks/05-validation/validation-preparation.md) to select features, evaluate dimension applicability, and create tracking state file. See [Dimension Catalog](/doc/process-framework/guides/05-validation/feature-validation-guide.md#dimension-catalog) for the full list of 11 validation dimensions.
 
 ### Always Running
 
@@ -436,7 +459,7 @@ After completing any task, use our **hybrid feedback approach**:
 1. **Create feedback form** using the automation script:
 
    ```powershell
-   cd doc/process-framework/scripts/file-creation
+   cd doc/process-framework/scripts/file-creation/support
    ./New-FeedbackForm.ps1 -DocumentId "PF-TSK-XXX" -TaskContext "Task Name" -FeedbackType "MultipleTools"
    ```
 
