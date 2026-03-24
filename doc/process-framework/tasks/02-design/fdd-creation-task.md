@@ -99,7 +99,7 @@ When referencing other tasks' outputs in FDDs:
 
 - **Reference Only (Access When Needed):**
   - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting context map diagrams
-  - [ID Registry](../../../id-registry.json) - For FDD ID assignment and directory mapping
+  - [PD ID Registry](../../PF-id-registry.json) - For FDD ID assignment and directory mapping
 
 ## Process
 

@@ -106,6 +106,7 @@ Our tasks are organized into four categories and follow a unified structure:
 - [Process: Temporary Task Creation State Template](templates/support/temp-task-creation-state-template.md) - Template for tracking multi-session task creation implementation
 - [Process: Temporary Process Improvement State Template](templates/support/temp-process-improvement-state-template.md) - Template for tracking multi-session process improvement implementation (via `New-TempTaskState.ps1 -Variant ProcessImprovement`)
 - [Process: Structure Change State Template](templates/support/structure-change-state-template.md) - Template for tracking multi-session structure change implementation
+- [Process: Structure Change State Content Update Template](templates/support/structure-change-state-content-update-template.md) - Lightweight template for content-only structure changes (no pilot/rollback/metrics sections)
 - [Process: Enhancement State Tracking Template](templates/04-implementation/enhancement-state-tracking-template-template.md) - Template for tracking enhancement work on existing features, used by New-EnhancementState.ps1
 - [Process: Bug Fix State Tracking Template](templates/06-maintenance/bug-fix-state-tracking-template.md) - Template for tracking multi-session complex bug fix work, used by New-BugFixState.ps1
 - [Process: Framework Extension Concept Template](templates/support/framework-extension-concept-template.md) - Template for creating framework extension concept documents
@@ -308,46 +309,46 @@ _Created during framework onboarding (PF-TSK-066) — documenting existing archi
 
 _Created during framework onboarding (PF-TSK-066 / PF-TSK-012) — documenting existing test suite._
 
-- [Test Spec: Core Architecture (PF-TSP-035)](../../test/specifications/feature-specs/test-spec-0-1-1-core-architecture.md) - 0.1.1 Tier 3 — Existing test coverage with gap analysis
-- [Test Spec: In-Memory Link Database (PF-TSP-036)](../../test/specifications/feature-specs/test-spec-0-1-2-in-memory-link-database.md) - 0.1.2 Tier 2 — Database thread-safety and CRUD operations
-- [Test Spec: Configuration System (PF-TSP-037)](../../test/specifications/feature-specs/test-spec-0-1-3-configuration-system.md) - 0.1.3 Tier 1 — Multi-source config loading and validation
-- [Test Spec: File System Monitoring (PF-TSP-038)](../../test/specifications/feature-specs/test-spec-1-1-1-file-system-monitoring.md) - 1.1.1 Tier 2 — Move detection, file filtering, monitoring
-- [Test Spec: Link Parsing System (PF-TSP-039)](../../test/specifications/feature-specs/test-spec-2-1-1-link-parsing-system.md) - 2.1.1 Tier 2 — Parser registry with 6 format-specific parsers
-- [Test Spec: Link Updating (PF-TSP-040)](../../test/specifications/feature-specs/test-spec-2-2-1-link-updating.md) - 2.2.1 Tier 2 — Atomic updates, dry-run, backup creation
-- [Test Spec: Logging System (PF-TSP-041)](../../test/specifications/feature-specs/test-spec-3-1-1-logging-system.md) - 3.1.1 Tier 2 — Structured logging, filtering, metrics
-- ~~Test Spec: Test Suite (PF-TSP-042)~~ - 🗄️ Archived (PF-PRO-009) — testing infrastructure generalized into framework
-- ~~Test Spec: CI/CD & Development Tooling (PF-TSP-043)~~ - 🗄️ Archived (PF-PRO-009) — CI/CD infrastructure generalized into framework
+- [Test Spec: Core Architecture (TE-TSP-035)](../../test/specifications/feature-specs/test-spec-0-1-1-core-architecture.md) - 0.1.1 Tier 3 — Existing test coverage with gap analysis
+- [Test Spec: In-Memory Link Database (TE-TSP-036)](../../test/specifications/feature-specs/test-spec-0-1-2-in-memory-link-database.md) - 0.1.2 Tier 2 — Database thread-safety and CRUD operations
+- [Test Spec: Configuration System (TE-TSP-037)](../../test/specifications/feature-specs/test-spec-0-1-3-configuration-system.md) - 0.1.3 Tier 1 — Multi-source config loading and validation
+- [Test Spec: File System Monitoring (TE-TSP-038)](../../test/specifications/feature-specs/test-spec-1-1-1-file-system-monitoring.md) - 1.1.1 Tier 2 — Move detection, file filtering, monitoring
+- [Test Spec: Link Parsing System (TE-TSP-039)](../../test/specifications/feature-specs/test-spec-2-1-1-link-parsing-system.md) - 2.1.1 Tier 2 — Parser registry with 6 format-specific parsers
+- [Test Spec: Link Updating (TE-TSP-040)](../../test/specifications/feature-specs/test-spec-2-2-1-link-updating.md) - 2.2.1 Tier 2 — Atomic updates, dry-run, backup creation
+- [Test Spec: Logging System (TE-TSP-041)](../../test/specifications/feature-specs/test-spec-3-1-1-logging-system.md) - 3.1.1 Tier 2 — Structured logging, filtering, metrics
+- ~~Test Spec: Test Suite (TE-TSP-042)~~ - 🗄️ Archived (PF-PRO-009) — testing infrastructure generalized into framework
+- ~~Test Spec: CI/CD & Development Tooling (TE-TSP-043)~~ - 🗄️ Archived (PF-PRO-009) — CI/CD infrastructure generalized into framework
 
 ### Cross-Cutting Test Specifications
 
 _Located in `test/specifications/cross-cutting-specs/` — test specifications spanning multiple features._
 
-- [E2E Acceptance Testing Scenarios (PF-TSP-044)](../../test/specifications/cross-cutting-specs/cross-cutting-spec-e2e-acceptance-testing-scenarios.md) - Cross-cutting — 19 E2E scenarios across 8 workflows, organized by [User Workflow Map](../product-docs/technical/design/user-workflow-map.md)
+- [E2E Acceptance Testing Scenarios (TE-TSP-044)](../../test/specifications/cross-cutting-specs/cross-cutting-spec-e2e-acceptance-testing-scenarios.md) - Cross-cutting — 19 E2E scenarios across 8 workflows, organized by [User Workflow Map](../product-docs/technical/design/user-workflow-map.md)
 
 ### Validation Reports
 
 _Created during feature validation (PF-TSK-031 through PF-TSK-036)._
 
-- [Validation: Architectural Consistency — Features 0.1.1–1.1.1 (PF-VAL-035)](../product-docs/validation/reports/architectural-consistency/PF-VAL-035-architectural-consistency-features-0.1.1-1.1.1.md) - Batch 1 — Design pattern adherence, ADR compliance, interface consistency (Score: 3.475/4.0 PASS)
-- [Validation: Architectural Consistency — Features 2.1.1–5.1.1 (PF-VAL-036)](../product-docs/validation/reports/architectural-consistency/PF-VAL-036-architectural-consistency-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) - Batch 2 — Design pattern adherence, ADR compliance, interface consistency (Score: 3.450/4.0 PASS)
-- [Validation: Code Quality — Features 0.1.1–1.1.1 (PF-VAL-037)](../product-docs/validation/reports/code-quality/PF-VAL-037-code-quality-features-0.1.1-0.1.2-0.1.3-1.1.1.md) - Batch 1 — Code style, complexity, error handling, SOLID principles, test coverage (Score: 3.050/4.0 PASS)
-- [Validation: Code Quality — Features 2.1.1–5.1.1 (PF-VAL-038)](../product-docs/validation/reports/code-quality/PF-VAL-038-code-quality-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) - Batch 2 — Code style, complexity, error handling, SOLID principles, test coverage (Score: 3.120/4.0 PASS)
-- [Validation: Integration Dependencies — Features 0.1.1–1.1.1 (PF-VAL-039)](../product-docs/validation/reports/integration-dependencies/PF-VAL-039-integration-dependencies-features-0.1.1-0.1.2-0.1.3-1.1.1.md) - Batch 1 — Component interfaces, dependency health, data flow, service integration, coupling (Score: 3.200/4.0 PASS)
-- [Validation: Integration Dependencies — Features 2.1.1–5.1.1 (PF-VAL-041)](../product-docs/validation/reports/integration-dependencies/PF-VAL-041-integration-dependencies-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) - Batch 2 — Component interfaces, dependency health, data flow, service integration, coupling (Score: 3.400/4.0 PASS)
-- [Validation: Documentation Alignment — Features 0.1.1–1.1.1 (PF-VAL-042)](../product-docs/validation/reports/documentation-alignment/PF-VAL-042-documentation-alignment-features-0.1.1-0.1.2-0.1.3-1.1.1.md) - Batch 1 — TDD alignment, ADR compliance, code comments, README accuracy, feature state files (Score: 2.55/4.0 PASS)
-- [Validation: Documentation Alignment — Features 2.1.1–5.1.1 (PF-VAL-043)](../product-docs/validation/reports/documentation-alignment/PF-VAL-043-documentation-alignment-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) - Batch 2 — TDD alignment, FDD accuracy, code comments, feature state files (Score: 2.24/4.0 PASS)
-- [Validation: Extensibility & Maintainability — All Features (PF-VAL-044)](../product-docs/validation/reports/extensibility-maintainability/PF-VAL-044-extensibility-maintainability-features-0.1.1-0.1.2-0.1.3-1.1.1-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) - All 9 features — Modularity, extension points, configuration flexibility, testing support, scalability (Score: 3.044/4.0 PASS)
-- [Validation: AI Agent Continuity — All Features (PF-VAL-045)](../product-docs/validation/reports/ai-agent-continuity/PF-VAL-045-ai-agent-continuity-features-0.1.1-0.1.2-0.1.3-1.1.1-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) - All 9 features — Context window optimization, documentation clarity, naming conventions, code readability, continuation points (Score: 3.244/4.0 PASS)
+- [Validation: Architectural Consistency — Features 0.1.1–1.1.1 (PD-VAL-035)](../product-docs/validation/reports/architectural-consistency/PD-VAL-035-architectural-consistency-features-0.1.1-1.1.1.md) - Batch 1 — Design pattern adherence, ADR compliance, interface consistency (Score: 3.475/4.0 PASS)
+- [Validation: Architectural Consistency — Features 2.1.1–5.1.1 (PD-VAL-036)](../product-docs/validation/reports/architectural-consistency/PD-VAL-036-architectural-consistency-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) - Batch 2 — Design pattern adherence, ADR compliance, interface consistency (Score: 3.450/4.0 PASS)
+- [Validation: Code Quality — Features 0.1.1–1.1.1 (PD-VAL-037)](../product-docs/validation/reports/code-quality/PD-VAL-037-code-quality-features-0.1.1-0.1.2-0.1.3-1.1.1.md) - Batch 1 — Code style, complexity, error handling, SOLID principles, test coverage (Score: 3.050/4.0 PASS)
+- [Validation: Code Quality — Features 2.1.1–5.1.1 (PD-VAL-038)](../product-docs/validation/reports/code-quality/PD-VAL-038-code-quality-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) - Batch 2 — Code style, complexity, error handling, SOLID principles, test coverage (Score: 3.120/4.0 PASS)
+- [Validation: Integration Dependencies — Features 0.1.1–1.1.1 (PD-VAL-039)](../product-docs/validation/reports/integration-dependencies/PD-VAL-039-integration-dependencies-features-0.1.1-0.1.2-0.1.3-1.1.1.md) - Batch 1 — Component interfaces, dependency health, data flow, service integration, coupling (Score: 3.200/4.0 PASS)
+- [Validation: Integration Dependencies — Features 2.1.1–5.1.1 (PD-VAL-041)](../product-docs/validation/reports/integration-dependencies/PD-VAL-041-integration-dependencies-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) - Batch 2 — Component interfaces, dependency health, data flow, service integration, coupling (Score: 3.400/4.0 PASS)
+- [Validation: Documentation Alignment — Features 0.1.1–1.1.1 (PD-VAL-042)](../product-docs/validation/reports/documentation-alignment/PD-VAL-042-documentation-alignment-features-0.1.1-0.1.2-0.1.3-1.1.1.md) - Batch 1 — TDD alignment, ADR compliance, code comments, README accuracy, feature state files (Score: 2.55/4.0 PASS)
+- [Validation: Documentation Alignment — Features 2.1.1–5.1.1 (PD-VAL-043)](../product-docs/validation/reports/documentation-alignment/PD-VAL-043-documentation-alignment-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) - Batch 2 — TDD alignment, FDD accuracy, code comments, feature state files (Score: 2.24/4.0 PASS)
+- [Validation: Extensibility & Maintainability — All Features (PD-VAL-044)](../product-docs/validation/reports/extensibility-maintainability/PD-VAL-044-extensibility-maintainability-features-0.1.1-0.1.2-0.1.3-1.1.1-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) - All 9 features — Modularity, extension points, configuration flexibility, testing support, scalability (Score: 3.044/4.0 PASS)
+- [Validation: AI Agent Continuity — All Features (PD-VAL-045)](../product-docs/validation/reports/ai-agent-continuity/PD-VAL-045-ai-agent-continuity-features-0.1.1-0.1.2-0.1.3-1.1.1-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) - All 9 features — Context window optimization, documentation clarity, naming conventions, code readability, continuation points (Score: 3.244/4.0 PASS)
 
 ### Test Audit Reports
 
 _Created during test audit sessions (PF-TSK-030). Located in `test/audits/` (moved from `doc/product-docs/test-audits/` during SC-006 test directory consolidation)._
 
-- [Audit: Core Architecture 0.1.1 (PF-TAR-011)](../../test/audits/foundation/audit-report-0-1-1-pd-tst-102.md) - Foundation feature test quality assessment
-- [Audit: In-Memory Database 0.1.2 (PF-TAR-011)](../../test/audits/foundation/audit-report-0-1-2-pd-tst-104.md) - Database test quality assessment
+- [Audit: Core Architecture 0.1.1 (TE-TAR-011)](../../test/audits/foundation/audit-report-0-1-1-pd-tst-102.md) - Foundation feature test quality assessment
+- [Audit: In-Memory Database 0.1.2 (TE-TAR-011)](../../test/audits/foundation/audit-report-0-1-2-pd-tst-104.md) - Database test quality assessment
 - [Audit: Configuration System 0.1.3](../../test/audits/foundation/audit-report-0-1-3-pd-tst-106.md) - Configuration test quality assessment
-- [Audit: File System Monitoring 1.1.1 (PF-TAR-012)](../../test/audits/authentication/audit-report-1-1-1-pd-tst-101.md) - File watching test quality assessment
-- [Audit: Link Parsing System 2.1.1 (PF-TAR-010)](../../test/audits/core-features/audit-report-2-1-1-pd-tst-103.md) - Parser test quality assessment
+- [Audit: File System Monitoring 1.1.1 (TE-TAR-012)](../../test/audits/authentication/audit-report-1-1-1-pd-tst-101.md) - File watching test quality assessment
+- [Audit: Link Parsing System 2.1.1 (TE-TAR-010)](../../test/audits/core-features/audit-report-2-1-1-pd-tst-103.md) - Parser test quality assessment
 - [Audit: Link Updating 2.2.1](../../test/audits/core-features/audit-report-2-2-1-pd-tst-105.md) - Updater test quality assessment
 - [Audit: Logging System 3.1.1](../../test/audits/core-features/audit-report-3-1-1-pd-tst-107.md) - Logging test quality assessment
 
@@ -404,6 +405,7 @@ Our project uses a unified task structure with four task types:
 | PF-TSK-064 | [/process-framework/tasks/00-onboarding/codebase-feature-discovery.md](/process-framework/tasks/00-onboarding/codebase-feature-discovery.md) | Documentation | Codebase Feature Discovery | /doc/process-framework/tasks/../../../tasks/README.md |
 
 ### Discrete Tasks
+| PF-TSK-078 | [/process-framework/tasks/04-implementation/core-logic-implementation.md](/process-framework/tasks/04-implementation/core-logic-implementation.md) | Documentation | Core Logic Implementation | /doc/process-framework/tasks/../../../tasks/README.md |
 | PF-TSK-077 | [/process-framework/tasks/05-validation/validation-preparation.md](/process-framework/tasks/05-validation/validation-preparation.md) | Documentation | Validation Preparation | /doc/process-framework/tasks/../../../tasks/README.md |
 | PF-TSK-076 | [/process-framework/tasks/05-validation/data-integrity-validation.md](/process-framework/tasks/05-validation/data-integrity-validation.md) | Documentation | Data Integrity Validation | /doc/process-framework/tasks/../../../tasks/README.md |
 | PF-TSK-075 | [/process-framework/tasks/05-validation/accessibility-ux-compliance-validation.md](/process-framework/tasks/05-validation/accessibility-ux-compliance-validation.md) | Documentation | Accessibility UX Compliance Validation | /doc/process-framework/tasks/../../../tasks/README.md |

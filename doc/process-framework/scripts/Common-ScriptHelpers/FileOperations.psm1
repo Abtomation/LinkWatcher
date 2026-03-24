@@ -1,4 +1,4 @@
-﻿# FileOperations.psm1
+# FileOperations.psm1
 # File system operations and backup functions
 # Extracted from StateFileManagement.psm1 as part of module decomposition
 #
@@ -43,7 +43,7 @@ function Get-RelevantTrackingFiles {
     Additional metadata that might affect which tracking files are relevant
 
     .EXAMPLE
-    $trackingFiles = Get-RelevantTrackingFiles -DocumentType "TestSpecification" -DocumentId "PF-TSP-013"
+    $trackingFiles = Get-RelevantTrackingFiles -DocumentType "TestSpecification" -DocumentId "TE-TSP-013"
     #>
 
     [CmdletBinding()]

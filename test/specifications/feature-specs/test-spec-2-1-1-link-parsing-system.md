@@ -1,5 +1,5 @@
 ---
-id: PF-TSP-039
+id: TE-TSP-039
 type: Process Framework
 category: Test Specification
 version: 1.0
@@ -212,7 +212,7 @@ The Link Parsing System uses a Registry+Facade pattern. `LinkParser` dispatches 
 | Line numbers | `test_line_numbers_are_1_based` | 1-based indexing |
 
 **Test File**: [`test/automated/parsers/test_powershell.py`](../../../test/automated/parsers/test_powershell.py) (32 methods)
-**Note**: Registered as PD-TST-129 during test audit (2026-03-15) — was previously unregistered.
+**Note**: Registered as TE-TST-129 during test audit (2026-03-15) — was previously unregistered.
 
 ## Test Implementation Roadmap
 

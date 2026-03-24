@@ -1,5 +1,5 @@
 ---
-id: PF-STA-061
+id: PD-STA-061
 type: Document
 category: General
 version: 1.0
@@ -111,7 +111,7 @@ Rename E2E IDs to follow standard prefix convention and add YAML frontmatter to 
   - PF-GDE-028 (Test Specification Creation Guide) — cross-feature workflow participation
   - PF-GDE-049 (E2E Acceptance Test Case Customization Guide) — multi-feature examples
   - PF-GDE-018 (Task Transition Guide) — milestone-triggered E2E workflow
-- [ ] Update ai-tasks.md — add milestone-triggered E2E workflow to Common Workflows
+- [ ] Update doc/process-framework/ai-tasks.md — add milestone-triggered E2E workflow to Common Workflows
 - [ ] Update documentation-map.md if any new entries needed
 - [ ] Run Validate-StateTracking.ps1
 - [ ] Mark PF-IMP-145 as Completed in process-improvement-tracking.md

@@ -1,4 +1,4 @@
-﻿# Core.psm1
+# Core.psm1
 # Core infrastructure functions for PowerShell scripts
 # Provides project root discovery, module loading, and ID generation
 
@@ -36,7 +36,7 @@ function Get-ProjectRoot {
     Gets the project root directory from any script location
 
     .DESCRIPTION
-    Finds the project root by looking for key markers like .ai-entry-point.md
+    Finds the project root by looking for key markers like doc/process-framework/.ai-entry-point.md
     Caches the result for performance
     #>
 
@@ -67,8 +67,8 @@ function Get-ProjectRoot {
 
         # Standard markers (files that only exist at the project root)
         $markers = @(
-            ".ai-entry-point.md",
-            "ai-tasks.md",
+            "doc/process-framework/.ai-entry-point.md",
+            "doc/process-framework/ai-tasks.md",
             ".git"
         )
 
@@ -179,7 +179,7 @@ function New-ProjectId {
     Creates a new project ID with standardized error handling
 
     .PARAMETER Prefix
-    The ID prefix (e.g., "PF-TSK", "ART-FEE")
+    The ID prefix (e.g., "PF-TSK", "PF-FEE")
 
     .PARAMETER Description
     Description for the ID registry
@@ -216,7 +216,7 @@ function Get-ProjectIdDirectory {
     Gets the appropriate directory for a document with a specific prefix
 
     .PARAMETER Prefix
-    The ID prefix (e.g., "PF-TSK", "ART-FEE")
+    The ID prefix (e.g., "PF-TSK", "PF-FEE")
 
     .PARAMETER DirectoryType
     Semantic directory type (e.g., "discrete", "tier1", "active") - preferred over DirectoryIndex
@@ -232,7 +232,7 @@ function Get-ProjectIdDirectory {
     # Returns: "C:\Project\doc\process-framework\tasks\discrete"
 
     .EXAMPLE
-    $outputDir = Get-ProjectIdDirectory -Prefix "ART-FEE" -CreateIfMissing
+    $outputDir = Get-ProjectIdDirectory -Prefix "PF-FEE" -CreateIfMissing
     # Returns: "C:\Project\doc\process-framework\feedback\feedback-forms" (default)
     #>
 

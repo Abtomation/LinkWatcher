@@ -84,10 +84,10 @@ List existing artifacts that can be reused:
   - **Location**: [Where the script will be placed - e.g., doc/process-framework/[category]/New-[ScriptName].ps1]
   - **Notes**: Script that generates files created by the task
 
-- [ ] **ID Registry Update**: Update ../../../id-registry.json with new ID prefix for file types
+- [ ] **ID Registry Update**: Update the appropriate ID registry (PF/PD/TE-id-registry.json) with new ID prefix for file types
   - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED/SKIPPED]
   - **Dependencies**: Understanding of what file types the task will create
-  - **File**: `doc/id-registry.json`
+  - **File**: `doc/process-framework/PF-id-registry.json` (or PD/TE registry as appropriate)
   - **New Prefix**: [e.g., PF-XXX or PD-XXX]
   - **Directory Mapping**: [Directory where files will be stored - include subdirectories if needed, e.g., doc/product-docs/technical/api/specifications/specifications]
   - **Notes**: Add new prefix entry with appropriate directory mapping. Use subdirectories for better organization when task creates multiple file types.
@@ -109,8 +109,8 @@ List existing artifacts that can be reused:
   - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
   - **Dependencies**: Task definition and core infrastructure completed
   - **Guide**: [Documentation Guide](../../guides/05-validation/documentation-guide.md)
-  - **Script**: `doc/process-framework/guides/New-Guide.ps1`
-  - **Command**: `cd doc/process-framework/guides && .\New-Guide.ps1 -GuideTitle "[Task Name] Usage Guide" -GuideDescription "Comprehensive guide for using the [Task Name] task effectively"`
+  - **Script**: `doc/process-framework/scripts/file-creation/support/New-Guide.ps1`
+  - **Command**: `cd doc/process-framework/scripts/file-creation/support && .\New-Guide.ps1 -GuideTitle "[Task Name] Usage Guide" -SubDirectory "[phase-directory]" -GuideDescription "Comprehensive guide for using the [Task Name] task effectively"`
   - **Notes**: Explains how to use the task effectively, always needed for new tasks
 
 ### Phase 4: Documentation and Visualization (Session 4)

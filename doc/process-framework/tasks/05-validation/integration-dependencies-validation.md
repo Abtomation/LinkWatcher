@@ -53,7 +53,7 @@ Systematically validates selected features for dependency health, interface cont
   - **Dependency Management Best Practices** - Best practices for dependency management in your technology stack
   - **Integration Test Suites** - End-to-end tests for integration validation
   - **Visual Notation Guide** - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting context map diagrams
-  - **ID Registry** - [ID Registry](../../../id-registry.json) - For understanding validation report ID assignments
+  - **ID Registry** - [PD ID Registry](../../PF-id-registry.json) - For understanding validation report ID assignments
 
 ## Process
 

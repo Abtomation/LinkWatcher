@@ -88,7 +88,7 @@ Analyze, optimize, and document development processes to improve efficiency, qua
 10. **Update linked documents**: Search for files that reference the changed file(s) and update or remove outdated content (guides, context maps, registry entries, templates)
 11. **Log tool change in feedback database**: Record the modification for trend analysis:
     ```bash
-    python scripts/feedback_db.py log-change --tool <TOOL_DOC_ID> --date <YYYY-MM-DD> --imp <IMP-XXX> --description "<what changed>"
+    python doc/process-framework/scripts/feedback_db.py log-change --tool <TOOL_DOC_ID> --date <YYYY-MM-DD> --imp <IMP-XXX> --description "<what changed>"
     ```
 12. **🚨 CHECKPOINT**: Review changes with human partner
 
@@ -112,7 +112,7 @@ Analyze, optimize, and document development processes to improve efficiency, qua
 - **[New-TempTaskState.ps1 -Variant ProcessImprovement](../../scripts/file-creation/support/New-TempTaskState.ps1)** - Create multi-session process improvement state tracking files (uses [process improvement template](../../templates/support/temp-process-improvement-state-template.md))
 - **[New-FeedbackForm.ps1](../../scripts/file-creation/support/New-FeedbackForm.ps1)** - Create feedback forms for task completion
 - **[Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md)** - Central tracking file for all improvements
-- **[feedback_db.py](/scripts/feedback_db.py)** - Record tool changes for trend analysis (`log-change` subcommand)
+- **[feedback_db.py](../../scripts/feedback_db.py)** - Record tool changes for trend analysis (`log-change` subcommand)
 
 ## Outputs
 

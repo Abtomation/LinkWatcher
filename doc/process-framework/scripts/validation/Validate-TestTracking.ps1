@@ -8,7 +8,7 @@
     - ../test-registry.yaml entries and actual test files on disk
     - test-tracking.md entries and test-registry.yaml
     - feature-tracking.md Test Status column and actual test coverage
-    - id-registry.json PD-TST nextAvailable counter
+    - TE-id-registry.json TE-TST nextAvailable counter
 
     Checks performed:
     1. Registry entries with missing files on disk
@@ -196,19 +196,19 @@ if ($duplicates.Count -gt 0) {
 }
 Write-Host ""
 
-# --- Check 4: PD-TST nextAvailable counter ---
-Write-Host "4. Checking PD-TST nextAvailable counter..." -ForegroundColor Yellow
+# --- Check 4: TE-TST nextAvailable counter ---
+Write-Host "4. Checking TE-TST nextAvailable counter..." -ForegroundColor Yellow
 
-$idRegistryPath = Join-Path $ProjectRoot "doc/id-registry.json"
+$idRegistryPath = Join-Path $ProjectRoot "test/TE-id-registry.json"
 if (Test-Path $idRegistryPath) {
     $idRegistry = Get-Content $idRegistryPath -Raw -Encoding UTF8 | ConvertFrom-Json
-    $nextAvailable = $idRegistry.prefixes.'PD-TST'.nextAvailable
+    $nextAvailable = $idRegistry.prefixes.'TE-TST'.nextAvailable
 
     # Find highest ID in registry
     $maxId = 0
     foreach ($entry in $registryEntries) {
         $id = $entry['id']
-        if ($id -match '../PD-TST-(/d+)') {
+        if ($id -match 'TE-TST-(\d+)') {
             $num = [int]$matches[1]
             if ($num -gt $maxId) { $maxId = $num }
         }
@@ -216,13 +216,13 @@ if (Test-Path $idRegistryPath) {
 
     $expectedNext = $maxId + 1
     if ($nextAvailable -ne $expectedNext) {
-        Write-Host "  WARNING: PD-TST nextAvailable is $nextAvailable but highest ID is PD-TST-$('{0:D3}' -f $maxId) (expected nextAvailable: $expectedNext)" -ForegroundColor Yellow
+        Write-Host "  WARNING: TE-TST nextAvailable is $nextAvailable but highest ID is TE-TST-$('{0:D3}' -f $maxId) (expected nextAvailable: $expectedNext)" -ForegroundColor Yellow
         $warningCount++
     } else {
-        Write-Host "  OK: PD-TST nextAvailable ($nextAvailable) is consistent with highest ID (PD-TST-$('{0:D3}' -f $maxId))" -ForegroundColor Green
+        Write-Host "  OK: TE-TST nextAvailable ($nextAvailable) is consistent with highest ID (TE-TST-$('{0:D3}' -f $maxId))" -ForegroundColor Green
     }
 } else {
-    Write-Host "  WARNING: doc/id-registry.json not found" -ForegroundColor Yellow
+    Write-Host "  WARNING: test/TE-id-registry.json not found" -ForegroundColor Yellow
     $warningCount++
 }
 Write-Host ""

@@ -109,7 +109,7 @@ When referencing other tasks' outputs in Test Specifications:
 - **Reference Only (Access When Needed):**
   - [Feature Tracking](/doc/product-docs/state-tracking/permanent/feature-tracking.md) - Feature development status
   - [Visual Notation Guide](/doc/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
-  - [ID Registry](/doc/id-registry.json) - Document ID counter management
+  - [TE ID Registry](/test/TE-id-registry.json) - Test document ID counter management
 
 ## Process
 
@@ -222,7 +222,7 @@ The following state files must be updated as part of this task:
 
 - [Feature Tracking](/doc/product-docs/state-tracking/permanent/feature-tracking.md) - Update Test Status to reflect test specification creation (📋 Specs Created) and add Test Spec link
 - [Test Registry](/test/test-registry.yaml) - Update `specificationPath` field for all test files belonging to the feature
-- [ID Registry](/doc/id-registry.json) - Update `PF-TSP.nextAvailable` counter after creating specifications
+- [TE ID Registry](/test/TE-id-registry.json) - Update `TE-TSP.nextAvailable` counter after creating specifications
 - [Documentation Map](/doc/process-framework/documentation-map.md) - Add new test specification entries to the Test Specifications section
 - [Test Tracking](/test/state-tracking/permanent/test-tracking.md) - Add section if feature category is missing
 
@@ -245,7 +245,7 @@ Before considering this task finished:
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
   - [ ] [Feature Tracking](/doc/product-docs/state-tracking/permanent/feature-tracking.md) — Test Status updated (use "🔧 Automated Only" if manual scenarios identified, "📋 Specs Created" if no manual scenarios) and Test Spec link added
   - [ ] [Test Registry](/test/test-registry.yaml) — `specificationPath` populated for all test files belonging to the feature
-  - [ ] [ID Registry](/doc/id-registry.json) — `PF-TSP.nextAvailable` counter incremented
+  - [ ] [TE ID Registry](/test/TE-id-registry.json) — `TE-TSP.nextAvailable` counter incremented
   - [ ] [Documentation Map](/doc/process-framework/documentation-map.md) — New test spec entries added to Test Specifications section
   - [ ] [Test Tracking](/test/state-tracking/permanent/test-tracking.md) — Feature section added if missing; manual test scenario entries added with "⬜ Not Created" status if applicable
 - [ ] **Verify State Tracking Consistency**: Ensure all tracking files are properly updated and consistent

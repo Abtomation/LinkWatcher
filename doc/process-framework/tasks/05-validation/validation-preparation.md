@@ -49,7 +49,7 @@ Plans a validation round by selecting features to validate, evaluating which val
 - **Reference Only (Access When Needed):**
   - **Dimension Task Definitions** - [05-validation tasks](../05-validation/) - Individual dimension task definitions for understanding validation criteria
   - **Visual Notation Guide** - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting context map diagrams
-  - **ID Registry** - [ID Registry](../../../id-registry.json) - For understanding document ID assignments
+  - **ID Registry** - [PD ID Registry](../../PF-id-registry.json) - For understanding document ID assignments
 
 ## Process
 

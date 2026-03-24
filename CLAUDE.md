@@ -12,8 +12,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **CRITICAL**: This project uses a strict task-based approach. Before ANY work:
 
-1. **Read the entry point**: @.ai-entry-point.md
-2. **Select a task**: @ai-tasks.md - All work MUST be done within a task framework
+1. **Read the entry point**: @doc/process-framework/.ai-entry-point.md
+2. **Select a task**: @doc/process-framework/ai-tasks.md - All work MUST be done within a task framework
 3. **If no task fits**: Ask the user before proceeding
 
 **No exceptions** - working without a task selection violates the project methodology.
@@ -107,7 +107,7 @@ doc/process-framework/
 
 All framework documents use structured IDs:
 - `PF-XXX-###` format (e.g., `PF-TSK-001` for tasks)
-- Tracked in @doc/id-registry.json
+- Tracked in @doc/process-framework/PF-id-registry.json, @doc/product-docs/PD-id-registry.json, and @test/TE-id-registry.json
 
 ## Common Commands
 
@@ -166,7 +166,7 @@ Each task definition includes a mandatory completion checklist.
 
 ## Key References
 
-- **Task Registry**: @ai-tasks.md
+- **Task Registry**: @doc/process-framework/ai-tasks.md
 - **Documentation Map**: @doc/process-framework/documentation-map.md (index of all framework documents)
 - **Process Framework README**: @doc/process-framework/README.md
 - **Project README**: @README.md

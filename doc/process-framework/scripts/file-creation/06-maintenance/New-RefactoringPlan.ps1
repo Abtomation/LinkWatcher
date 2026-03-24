@@ -172,7 +172,7 @@ $customReplacements = @{
 # Create the document using standardized process
 try {
     # Use DirectoryType for ID registry-based directory resolution
-    $documentId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "PF-REF" -IdDescription "Refactoring Plan: $RefactoringScope" -DocumentName $RefactoringScope -DirectoryType "plans" -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
+    $documentId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "PD-REF" -IdDescription "Refactoring Plan: $RefactoringScope" -DocumentName $RefactoringScope -DirectoryType "plans" -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
 
     # Provide success details
     $details = @(

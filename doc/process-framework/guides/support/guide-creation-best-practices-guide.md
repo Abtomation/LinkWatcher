@@ -207,11 +207,11 @@ When creating guides, you must make several key decisions that impact effectiven
 2. **Execute the New-Guide.ps1 script with appropriate parameters**
 
    ```powershell
-   # For general guides
-   .\New-Guide.ps1 -GuideTitle "Your Guide Title" -GuideDescription "Brief description of guide purpose"
+   # For general guides (-SubDirectory controls placement within guides/)
+   .\New-Guide.ps1 -GuideTitle "Your Guide Title" -SubDirectory "support" -GuideDescription "Brief description of guide purpose"
 
    # For template customization guides
-   .\New-Guide.ps1 -GuideTitle "Template Creation Guide" -GuideDescription "Guide for customizing templates" -RelatedScript "New-ScriptName.ps1" -RelatedTasks "PF-TSK-XXX"
+   .\New-Guide.ps1 -GuideTitle "Template Creation Guide" -SubDirectory "02-design" -GuideDescription "Guide for customizing templates" -RelatedScript "New-ScriptName.ps1" -RelatedTasks "PF-TSK-XXX"
    ```
 
 3. **Verify structure generation and ID assignment**
@@ -385,7 +385,7 @@ Creating a guide for API integration best practices:
 cd doc/process-framework/guides
 
 # Create the guide
-.\New-Guide.ps1 -GuideTitle "API Integration Best Practices" -GuideDescription "Comprehensive guide for integrating third-party APIs in the project"
+.\New-Guide.ps1 -GuideTitle "API Integration Best Practices" -SubDirectory "02-design" -GuideDescription "Comprehensive guide for integrating third-party APIs in the project"
 ```
 
 **Customization approach:**
@@ -407,7 +407,7 @@ Creating a guide for customizing debt item templates:
 cd doc/process-framework/guides
 
 # Create the template customization guide
-.\New-Guide.ps1 -GuideTitle "Debt Item Creation Guide" -GuideDescription "Guide for customizing technical debt item templates" -RelatedScript "New-DebtItem.ps1" -RelatedTasks "PF-TSK-023"
+.\New-Guide.ps1 -GuideTitle "Debt Item Creation Guide" -SubDirectory "cyclical" -GuideDescription "Guide for customizing technical debt item templates" -RelatedScript "New-DebtItem.ps1" -RelatedTasks "PF-TSK-023"
 ```
 
 **Customization approach:**
@@ -426,7 +426,7 @@ cd doc/process-framework/guides
 
 ```powershell
 # DON'T DO THIS
-.\New-Guide.ps1 -GuideTitle "Code Refactoring Task Usage Guide" -GuideDescription "How to execute the code refactoring task step-by-step"
+.\New-Guide.ps1 -GuideTitle "Code Refactoring Task Usage Guide" -SubDirectory "06-maintenance" -GuideDescription "How to execute the code refactoring task step-by-step"
 ```
 
 **Problems with this approach:**
@@ -440,7 +440,7 @@ cd doc/process-framework/guides
 
 ```powershell
 # DO THIS INSTEAD
-.\New-Guide.ps1 -GuideTitle "Refactoring Plan Customization Guide" -GuideDescription "Guide for customizing refactoring plan documents created by the Code Refactoring Task" -RelatedScript "New-RefactoringPlan.ps1" -RelatedTasks "PF-TSK-022"
+.\New-Guide.ps1 -GuideTitle "Refactoring Plan Customization Guide" -SubDirectory "06-maintenance" -GuideDescription "Guide for customizing refactoring plan documents created by the Code Refactoring Task" -RelatedScript "New-RefactoringPlan.ps1" -RelatedTasks "PF-TSK-022"
 ```
 
 **Benefits of this approach:**

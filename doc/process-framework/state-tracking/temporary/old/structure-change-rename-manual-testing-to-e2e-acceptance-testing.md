@@ -1,5 +1,5 @@
 ---
-id: PF-STA-059
+id: PD-STA-059
 type: Document
 category: General
 version: 1.0
@@ -39,7 +39,7 @@ change_name: rename-manual-testing-to-e2e-acceptance-testing
 | Context maps | 2 | visualization/context-maps/03-testing/ | MODERATE | Rename files + update titles and component references |
 | State tracking | 2 | state-tracking/permanent/ | MODERATE | test-tracking.md, feature-tracking.md — MT-GRP/MT references |
 | Documentation map | 1 | doc/process-framework/ | COMPLEX | 8+ entry updates, section headers, script descriptions |
-| ai-tasks.md | 1 | root | MODERATE | Task names, descriptions, workflow references |
+| doc/process-framework/ai-tasks.md | 1 | root | MODERATE | Task names, descriptions, workflow references |
 | README.md | 1 | root | SIMPLE | Test documentation section |
 | Test specs | 1 | test/specifications/ | SIMPLE | test-spec-4-1-1 references |
 | TDD/FDD docs | 2 | doc/product-docs/ | SIMPLE | Feature 4.1.1 test suite docs |
@@ -268,7 +268,7 @@ change_name: rename-manual-testing-to-e2e-acceptance-testing
 - test-infrastructure-guide.md fully updated
 - 2 context maps renamed + updated
 - documentation-map.md updated (15 edits)
-- ai-tasks.md updated (2 table rows)
+- doc/process-framework/ai-tasks.md updated (2 table rows)
 - test-tracking.md fully updated (IDs, type labels, links, process instructions)
 
 **Issues/Blockers**:

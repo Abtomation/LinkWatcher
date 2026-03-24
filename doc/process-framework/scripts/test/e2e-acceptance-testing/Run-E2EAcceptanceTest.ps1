@@ -36,6 +36,10 @@
 .PARAMETER Clean
     Remove existing workspace before setup (passed to Setup-TestEnvironment.ps1).
 
+.PARAMETER SkipTracking
+    Skip automatic tracking updates (Update-TestExecutionStatus.ps1) after each test case.
+    By default, tracking is updated automatically with pass/fail results.
+
 .PARAMETER ProjectRoot
     Optional: Project root path. Auto-detected if not specified.
 
@@ -53,8 +57,8 @@
     Test cases without run.ps1 are skipped — execute them directly following test-case.md.
 
     Created: 2026-03-18
-    Version: 1.1
-    Task: Process Improvement (PF-TSK-009), PF-IMP-134, PF-IMP-154
+    Version: 1.2
+    Task: Process Improvement (PF-TSK-009), PF-IMP-134, PF-IMP-154, PF-IMP-169
 #>
 
 [CmdletBinding()]
@@ -78,6 +82,9 @@ param(
     [switch]$Clean,
 
     [Parameter(Mandatory=$false)]
+    [switch]$SkipTracking,
+
+    [Parameter(Mandatory=$false)]
     [string]$ProjectRoot = ""
 )
 
@@ -99,6 +106,7 @@ $workspaceDir = Join-Path $ProjectRoot "test/e2e-acceptance-testing/workspace"
 # Validate sibling scripts exist
 $setupScript = Join-Path $PSScriptRoot "Setup-TestEnvironment.ps1"
 $verifyScript = Join-Path $PSScriptRoot "Verify-TestResult.ps1"
+$trackingScript = Join-Path $PSScriptRoot "Update-TestExecutionStatus.ps1"
 
 if (-not (Test-Path $setupScript)) {
     Write-Error "Setup-TestEnvironment.ps1 not found at: $setupScript"
@@ -349,11 +357,23 @@ foreach ($tc in $scriptedCases) {
 
     if ($LASTEXITCODE -eq 0) {
         $passed++
+        $tcStatus = "Passed"
     } else {
         $failed++
+        $tcStatus = "Failed"
     }
 
-    # Step 7: Stop LinkWatcher (workspace-scoped or project-level if run.ps1 restarted it)
+    # Step 7: Update tracking files
+    if (-not $SkipTracking -and (Test-Path $trackingScript)) {
+        Write-Host "  7️⃣  Updating tracking ($tcStatus)..." -ForegroundColor DarkGray
+        try {
+            & $trackingScript -TestCase $tc.CaseId -Status $tcStatus -ProjectRoot $ProjectRoot
+        } catch {
+            Write-Host "  ⚠️  Tracking update failed: $($_.Exception.Message)" -ForegroundColor Yellow
+        }
+    }
+
+    # Step 8: Stop LinkWatcher (workspace-scoped or project-level if run.ps1 restarted it)
     Stop-LinkWatcher -LockPath $workspaceLockFile
     Stop-LinkWatcher -LockPath $projectLockFile
     Remove-Item (Join-Path $workspaceCasePath "linkwatcher-e2e.log") -Force -ErrorAction SilentlyContinue

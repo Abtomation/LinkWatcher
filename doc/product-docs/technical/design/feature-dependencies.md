@@ -4,17 +4,17 @@ type: Product Documentation
 category: Technical Design
 version: 2.0
 created: 2023-06-15
-updated: 2026-03-18
+updated: 2026-03-24
 generated: true
 ---
 
 # Feature Dependencies Map
 
-> **Auto-generated** by Update-FeatureDependencies.ps1 on 2026-03-18.
+> **Auto-generated** by Update-FeatureDependencies.ps1 on 2026-03-24.
 > Source: feature state files in doc/product-docs/state-tracking/features/.
 > Do not edit manually — changes will be overwritten on next generation.
 
-This document maps the dependencies between features (10 features, 19 dependency edges).
+This document maps the dependencies between features (8 features, 18 dependency edges).
 
 ## Dependency Visualization
 
@@ -36,8 +36,6 @@ graph TD
     F2_1_1["2.1.1 Link Parsing System"]
     F2_2_1["2.2.1 Link Updating"]
     F3_1_1["3.1.1 Logging System"]
-    F4_1_1["4.1.1 Test Suite"]
-    F5_1_1["5.1.1 CI/CD & Development Tooling"]
     F6_1_1["6.1.1 Link Validation"]
 
     F0_1_1 --> F0_1_2
@@ -56,14 +54,6 @@ graph TD
     F2_2_1 --> F0_1_2
     F2_2_1 --> F3_1_1
     F3_1_1 --> F0_1_3
-    F4_1_1 -.-> F0_1_1
-    F4_1_1 -.-> F0_1_2
-    F4_1_1 -.-> F0_1_3
-    F4_1_1 -.-> F1_1_1
-    F4_1_1 -.-> F2_1_1
-    F4_1_1 -.-> F2_2_1
-    F4_1_1 -.-> F3_1_1
-    F5_1_1 --> F4_1_1
     F6_1_1 --> F0_1_1
     F6_1_1 --> F2_1_1
 
@@ -74,8 +64,6 @@ graph TD
     class F2_1_1 linkprocessing
     class F2_2_1 linkprocessing
     class F3_1_1 monitoring
-    class F4_1_1 testing
-    class F5_1_1 cicd
     class F6_1_1 validation
 ```
 
@@ -101,8 +89,6 @@ graph TD
 | 2.1.1 | Link Parsing System | Link Processing | 0.1.1 | P1 | 🟠 Tier 2 | ✅ Complete |
 | 2.2.1 | Link Updating | Link Processing | 0.1.1, 0.1.2, 3.1.1 | P1 | 🟠 Tier 2 | 📝 TDD Created |
 | 3.1.1 | Logging System | Monitoring | 0.1.3 | P1 | 🟠 Tier 2 | 📝 TDD Created |
-| 4.1.1 | Test Suite | Testing | All 0.x.x-3.x.x | P1 | 🟠 Tier 2 | 📝 TDD Created |
-| 5.1.1 | CI/CD & Development Tooling | CI/CD | 4.1.1 | P1 | 🟠 Tier 2 | 📝 TDD Created |
 | 6.1.1 | Link Validation | Validation | 0.1.1, 2.1.1 | P2 | 🔵 Tier 1 | 📊 Assessment Created |
 
 ## Dependency Summary
@@ -110,13 +96,12 @@ graph TD
 ### Most Depended-On Features (highest fan-in)
 
 - **0.1.1 Core Architecture**: 5 features depend on this
-- **2.1.1 Link Parsing System**: 3 features depend on this
 - **0.1.2 In-Memory Link Database**: 3 features depend on this
+- **2.1.1 Link Parsing System**: 3 features depend on this
 - **3.1.1 Logging System**: 2 features depend on this
 - **2.2.1 Link Updating**: 2 features depend on this
 - **0.1.3 Configuration System**: 2 features depend on this
 - **1.1.1 File System Monitoring**: 1 features depend on this
-- **4.1.1 Test Suite**: 1 features depend on this
 
 ### Features With No Dependencies (root nodes)
 

@@ -174,7 +174,7 @@ Feature state files currently lack some data present in feature-tracking.md:
 
 ### To Implement
 
-Select the **Process Improvement** task from [ai-tasks.md](/ai-tasks.md) and follow the 3-session plan in Section 5.
+Select the **Process Improvement** task from [ai-tasks.md](/doc/process-framework/ai-tasks.md) and follow the 3-session plan in Section 5.
 
 ---
 

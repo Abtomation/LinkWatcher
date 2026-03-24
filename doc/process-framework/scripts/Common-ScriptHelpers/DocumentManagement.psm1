@@ -1,4 +1,4 @@
-﻿# DocumentManagement.psm1
+# DocumentManagement.psm1
 # Document creation and template management functions
 # Provides document metadata, template processing, and file creation utilities
 
@@ -620,7 +620,7 @@ function New-StandardProjectDocument {
     Path to the template file (relative to project root or absolute)
 
     .PARAMETER IdPrefix
-    The ID prefix for the document (e.g., "PF-TSK", "ART-FEE")
+    The ID prefix for the document (e.g., "PF-TSK", "PF-FEE")
 
     .PARAMETER IdDescription
     Description for the ID registry
@@ -758,6 +758,11 @@ function New-StandardProjectDocument {
             $resolvedTemplatePath = Join-Path -Path $projectRoot -ChildPath $TemplatePath
         } else {
             $resolvedTemplatePath = $TemplatePath
+        }
+
+        # Validate template exists before proceeding
+        if (-not (Test-Path $resolvedTemplatePath)) {
+            Write-ProjectError -Message "Template not found: $resolvedTemplatePath" -ExitCode 1
         }
 
         # Create the document using appropriate handler based on template type

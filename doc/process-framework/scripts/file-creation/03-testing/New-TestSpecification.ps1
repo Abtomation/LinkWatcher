@@ -178,7 +178,7 @@ if ($CrossCutting) {
 
 # --- Create the document ---
 try {
-    $documentId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "PF-TSP" -IdDescription "test-spec-$FeatureName" -DocumentName $documentName -OutputDirectory $outputDirectory -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
+    $documentId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "TE-TSP" -IdDescription "test-spec-$FeatureName" -DocumentName $documentName -OutputDirectory $outputDirectory -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
 
     # --- Update feature tracking ---
     try {
@@ -251,18 +251,18 @@ try {
                 $registryContent = $registryContent.TrimEnd() + "`n" + $yamlEntry + "`n"
                 Set-Content $testRegistryPath $registryContent -Encoding UTF8 -NoNewline
 
-                # Update id-registry.json PD-TST nextAvailable
+                # Update TE-id-registry.json TE-TST nextAvailable
                 try {
-                    $idRegistryPath = Join-Path $projectRoot "doc/id-registry.json"
+                    $idRegistryPath = Join-Path $projectRoot "test/TE-id-registry.json"
                     $idRegistry = Get-Content $idRegistryPath -Raw -Encoding UTF8 | ConvertFrom-Json
                     $newNext = $nextTestId + 1
-                    $idRegistry.prefixes.'PD-TST'.nextAvailable = $newNext
+                    $idRegistry.prefixes.'TE-TST'.nextAvailable = $newNext
                     $idRegistry | ConvertTo-Json -Depth 10 | Set-Content $idRegistryPath -Encoding UTF8
-                    Write-Host "  📝 Updated id-registry.json PD-TST nextAvailable to $newNext" -ForegroundColor Green
+                    Write-Host "  📝 Updated TE-id-registry.json TE-TST nextAvailable to $newNext" -ForegroundColor Green
                 }
                 catch {
-                    Write-Warning "Failed to update id-registry.json: $($_.Exception.Message)"
-                    Write-Host "  Manual update required: PD-TST nextAvailable should be $($nextTestId + 1)" -ForegroundColor Yellow
+                    Write-Warning "Failed to update TE-id-registry.json: $($_.Exception.Message)"
+                    Write-Host "  Manual update required: TE-TST nextAvailable should be $($nextTestId + 1)" -ForegroundColor Yellow
                 }
 
                 Write-Host "  ✅ Registry entry created: $testFileId (cross-cutting)" -ForegroundColor Green

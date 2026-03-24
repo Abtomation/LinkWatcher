@@ -57,7 +57,7 @@ Choose the appropriate template based on your workflow type:
 - Focus on artifact creation and integration
 
 ### Structure Change Workflows
-**Use**: `structure-change-state-template.md` (or `structure-change-state-rename-template.md` for renames)
+**Use**: `structure-change-state-template.md` (or `-rename-template.md` for renames, `-content-update-template.md` for content-only changes)
 **Script**: `New-StructureChangeState.ps1`
 **Best For**:
 - Reorganizing existing structure
@@ -65,12 +65,15 @@ Choose the appropriate template based on your workflow type:
 - Changing documentation architecture
 - Modifying existing templates
 - Renaming/moving files or directories (use `-ChangeType "Rename"` for lightweight template)
+- Updating content across many files without moving them (use `-ChangeType "Content Update"` for lightweight template)
 
 **Characteristics**:
 - Modifies EXISTING artifacts (rollback essential for complex changes)
 - Full template: 5-phase structure with rollback, pilot, and metrics sections
 - Rename template: 2-phase structure (Preparation + Execution) — no pilot/rollback/metrics overhead
+- Content Update template: 2-phase structure (Preparation + Execution) — for content-only changes without file moves
 - Use `-ChangeType "Rename"` for simple rename/move operations
+- Use `-ChangeType "Content Update"` for content changes across files (no structural reorganization)
 
 ### Process Improvement Workflows
 **Use**: `temp-process-improvement-state-template.md`

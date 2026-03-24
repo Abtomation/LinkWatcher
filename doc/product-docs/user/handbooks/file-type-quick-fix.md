@@ -1,3 +1,12 @@
+---
+id: PD-UGD-001
+type: Product Documentation
+category: User Guide
+version: 1.0
+created: 2025-01-01
+updated: 2025-01-01
+---
+
 # File Type Quick Fix Guide
 
 ## 🚨 File Type Not Working? Quick Fix!

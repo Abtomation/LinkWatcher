@@ -1,5 +1,5 @@
 ---
-id: PF-TAR-011
+id: TE-TAR-011
 type: Document
 category: General
 version: 1.0
@@ -8,7 +8,7 @@ updated: 2026-03-15
 feature_id: 0.1.1
 audit_date: 2026-03-15
 auditor: AI Agent
-test_file_id: PD-TST-102
+test_file_id: TE-TST-102
 ---
 
 # Test Audit Report - Feature 0.1.1
@@ -19,7 +19,7 @@ test_file_id: PD-TST-102
 |-------|-------|
 | **Feature ID** | 0.1.1 |
 | **Feature Name** | Core Architecture |
-| **Test File IDs** | PD-TST-102, 116, 119, 120, 122, 127 |
+| **Test File IDs** | TE-TST-102, 116, 119, 120, 122, 127 |
 | **Test File Locations** | `test/automated/unit/test_service.py`, `test/automated/integration/test_service_integration.py`, `test/automated/integration/test_complex_scenarios.py`, `test/automated/integration/test_error_handling.py`, `test/automated/integration/test_windows_platform.py`, `test/automated/unit/test_lock_file.py` |
 | **Feature Category** | FOUNDATION |
 | **Feature Tier** | Tier 3 (Full Suite) |
@@ -125,10 +125,10 @@ All test files test existing, fully-implemented components. No missing dependenc
 **Findings**:
 - Tests align with TDD (PD-TDD-021) and test spec (PF-TSP-035)
 - Registry counts significantly outdated for 4 of 6 files:
-  - PD-TST-116: 8 → 17
-  - PD-TST-119: 6 → 11
-  - PD-TST-120: 8 → 19
-  - PD-TST-122: 8 → 16
+  - TE-TST-116: 8 → 17
+  - TE-TST-119: 6 → 11
+  - TE-TST-120: 8 → 19
+  - TE-TST-122: 8 → 16
 - Cross-cutting features correctly documented in registry
 
 ## Overall Audit Summary
@@ -155,10 +155,10 @@ All test files test existing, fully-implemented components. No missing dependenc
 ## Action Items
 
 ### For Test Implementation Team
-- [ ] Update PD-TST-116 testCasesCount 8 → 17
-- [ ] Update PD-TST-119 testCasesCount 6 → 11
-- [ ] Update PD-TST-120 testCasesCount 8 → 19
-- [ ] Update PD-TST-122 testCasesCount 8 → 16
+- [ ] Update TE-TST-116 testCasesCount 8 → 17
+- [ ] Update TE-TST-119 testCasesCount 6 → 11
+- [ ] Update TE-TST-120 testCasesCount 8 → 19
+- [ ] Update TE-TST-122 testCasesCount 8 → 16
 
 ## Audit Completion
 

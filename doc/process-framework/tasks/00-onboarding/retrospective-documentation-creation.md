@@ -183,7 +183,7 @@ This is the final onboarding task that transforms code analysis into formal desi
 17. **Reconcile Pre-existing Documentation**:
     - Review the master state "Existing Documentation Inventory" table
     - For each document, determine its disposition:
-      - **Keep**: Document serves an ongoing project purpose beyond what FDDs/TDDs cover (e.g., README.md, CONTRIBUTING.md, CHANGELOG.md)
+      - **Keep**: Document serves an ongoing project purpose beyond what FDDs/TDDs cover (e.g., README.md, CONTRIBUTING.md)
       - **Archive**: Document's content has been fully extracted into formal design documents and no longer serves a unique purpose (e.g., HOW_IT_WORKS.md superseded by TDDs/FDDs)
     - Archive superseded documents: move to `doc/archived-pre-framework/`
     - Update the master state inventory with the disposition (Keep / Archived) for each document

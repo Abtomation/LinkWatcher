@@ -31,15 +31,15 @@ Use the `New-TestAuditReport.ps1` script to create a new audit report:
 ```powershell
 # Basic usage
 # Run from doc/process-framework/scripts/file-creation/03-testing/
-.\New-TestAuditReport.ps1 -FeatureId "0.2.3" -TestFileId "PD-TST-001" -AuditorName "AI Agent"
+.\New-TestAuditReport.ps1 -FeatureId "0.2.3" -TestFileId "TE-TST-001" -AuditorName "AI Agent"
 
 # Open in editor after creation
-.\New-TestAuditReport.ps1 -FeatureId "1.1.2" -TestFileId "PD-TST-015" -AuditorName "QA Engineer" -OpenInEditor
+.\New-TestAuditReport.ps1 -FeatureId "1.1.2" -TestFileId "TE-TST-015" -AuditorName "QA Engineer" -OpenInEditor
 ```
 
 **Parameters**:
 - `FeatureId`: The feature ID being audited (determines category directory)
-- `TestFileId`: The test file ID being audited (e.g., "PD-TST-001")
+- `TestFileId`: The test file ID being audited (e.g., "TE-TST-001")
 - `AuditorName`: Name of the auditor (default: "AI Agent")
 - `OpenInEditor`: Optional switch to open the created file in the default editor
 
@@ -50,13 +50,13 @@ Use the `Validate-AuditReport.ps1` script to validate audit report completeness:
 ```powershell
 # Basic validation
 # Run from doc/process-framework/scripts/validation/
-.\Validate-AuditReport.ps1 -ReportFile "../../../product-docs/test-audits/foundation/audit-report-0.2.3-PD-TST-001.md"
+.\Validate-AuditReport.ps1 -ReportFile "../../../product-docs/test-audits/foundation/audit-report-0.2.3-TE-TST-001.md"
 
 # Detailed validation with all issues
-.\Validate-AuditReport.ps1 -ReportFile "../../../product-docs/test-audits/foundation/audit-report-0.2.3-PD-TST-001.md" -Detailed
+.\Validate-AuditReport.ps1 -ReportFile "../../../product-docs/test-audits/foundation/audit-report-0.2.3-TE-TST-001.md" -Detailed
 
 # Validation with automatic fixes (where possible)
-.\Validate-AuditReport.ps1 -ReportFile "../../../product-docs/test-audits/foundation/audit-report-0.2.3-PD-TST-001.md" -Fix
+.\Validate-AuditReport.ps1 -ReportFile "../../../product-docs/test-audits/foundation/audit-report-0.2.3-TE-TST-001.md" -Fix
 ```
 
 **Validation Checks**:
@@ -105,9 +105,9 @@ audit-report-[FEATURE_ID]-[TEST_FILE_ID].md
 ```
 
 Examples:
-- `audit-report-0.2.3-PD-TST-001.md`
-- `audit-report-1.1.2-PD-TST-015.md`
-- `audit-report-2.1.1-PD-TST-025.md`
+- `audit-report-0.2.3-TE-TST-001.md`
+- `audit-report-1.1.2-TE-TST-015.md`
+- `audit-report-2.1.1-TE-TST-025.md`
 
 ## Automation Scripts
 

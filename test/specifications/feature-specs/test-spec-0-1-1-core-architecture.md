@@ -1,5 +1,5 @@
 ---
-id: PF-TSP-035
+id: TE-TSP-035
 type: Process Framework
 category: Test Specification
 version: 1.0
@@ -318,7 +318,7 @@ test/automated/
 - **Source TDD**: [PD-TDD-021](../../../doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md)
 - **FDD**: [PD-FDD-022](../../../doc/product-docs/functional-design/fdds/fdd-0-1-1-core-architecture.md)
 - **ADR**: [PD-ADR-039](../../../doc/product-docs/technical/architecture/design-docs/adr/adr/orchestrator-facade-pattern-for-core-architecture.md)
-- **Feature Tier Assessment**: [ART-ASS-191](../../../doc/product-docs/documentation-tiers/assessments/ART-ASS-191-0-1-1-core-architecture.md)
+- **Feature Tier Assessment**: [ART-ASS-191](../../../doc/product-docs/documentation-tiers/assessments/PD-ASS-191-0-1-1-core-architecture.md)
 - **Implementation State**: [PF-FEA-003](../../../doc/product-docs/state-tracking/features/0.1.1-core-architecture-implementation-state.md)
 
 ---

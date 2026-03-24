@@ -1,5 +1,5 @@
 ---
-id: PF-STA-043
+id: PD-STA-043
 type: Process Framework
 category: State Tracking
 version: 1.1
@@ -375,7 +375,6 @@ status: FINALIZED
 | File Path | Notes | Candidate Feature | Status |
 |-----------|-------|-------------------|--------|
 | README.md | Project README | 0.1.1 | ✅ |
-| CHANGELOG.md | Version history | 5.1.6 | ✅ |
 | CONTRIBUTING.md | Contribution guide | 0.1.1 | ✅ |
 | HOW_IT_WORKS.md | Architecture explanation | 0.1.1 | ✅ |
 | QUICK_REFERENCE.md | Quick reference guide | 0.1.1 | ✅ |
@@ -384,8 +383,8 @@ status: FINALIZED
 | MULTI_PROJECT_SETUP.md | Multi-project setup guide | 5.1.6 | ✅ |
 | AGENTS.md | Agent instructions | 0.1.1 | ✅ |
 | CLAUDE.md | Claude instructions | 0.1.1 | ✅ |
-| ai-tasks.md | AI task system | 0.1.1 | ✅ |
-| .ai-entry-point.md | AI entry point marker | 0.1.1 | ✅ |
+| doc/process-framework/ai-tasks.md | AI task system | 0.1.1 | ✅ |
+| doc/process-framework/.ai-entry-point.md | AI entry point marker | 0.1.1 | ✅ |
 
 ---
 
@@ -399,7 +398,6 @@ status: FINALIZED
 | README.md | Root | Architecture Overview | 0.1.1 | ✅ | Keep | Project entry point, installation guide — ongoing purpose |
 | QUICK_REFERENCE.md | Root | User Guide | 0.1.4, 1.1.4, 2.2.4 | ✅ | Keep | User-facing CLI reference — not superseded by design docs |
 | CONTRIBUTING.md | Root | Developer Guide | 4.1.1, 5.1.3, 5.1.5, 5.1.7 | ✅ | Keep | Developer contribution guide — ongoing purpose |
-| CHANGELOG.md | Root | Changelog | 0.1.1 | ✅ | Keep | Version history — ongoing purpose |
 | CI_CD_IMPLEMENTATION_SUMMARY.md | Root → archived | CI/CD | 5.1.1, 5.1.2, 5.1.3, 5.1.4, 5.1.5, 5.1.6, 5.1.7 | ✅ | Archived | Superseded by FDD PD-FDD-032/033, TDD PD-TDD-031/032 |
 | MARKDOWN_TEST_CASES_SUMMARY.md | Root → archived | Test Plan | 2.1.2, 4.1.4 | ✅ | Archived | Superseded by FDD PD-FDD-030 (Parser Tests) |
 | docs/LOGGING.md | docs/ → archived | Developer Guide | 3.1.1, 3.1.2, 3.1.3, 3.1.4, 3.1.5 | ✅ | Archived | Superseded by FDD PD-FDD-025, TDD PD-TDD-024 |

@@ -484,14 +484,14 @@ doc/process-framework/scripts/testing/     # Testing automation scripts
 ### Test Cases for This Structure Change
 
 1. **State file rename**: Verify all cross-references to ../test-implementation-tracking.md are updated
-2. **New task definitions**: Verify tasks are correctly registered in ai-tasks.md and ../documentation-map.md
+2. **New task definitions**: Verify tasks are correctly registered in doc/process-framework/ai-tasks.md and ../documentation-map.md
 3. **Script functionality**: Test Setup-TestEnvironment.ps1, Verify-TestResult.ps1, ../Update-TestExecutionStatus.ps1 with sample data
 4. **Handover interfaces**: Trace a complete workflow (e.g., bug fix path) through all task modifications to verify interface consistency
 5. **Template completeness**: Create a sample test case from the template and verify it contains all needed information
 
 ### Success Criteria
 
-- All new tasks registered in ai-tasks.md and ../documentation-map.md
+- All new tasks registered in doc/process-framework/ai-tasks.md and ../documentation-map.md
 - ../test-tracking.md (renamed) contains both automated and manual test entries
 - Scripts execute without errors on sample data
 - All modified tasks have explicit handover interfaces to/from new tasks

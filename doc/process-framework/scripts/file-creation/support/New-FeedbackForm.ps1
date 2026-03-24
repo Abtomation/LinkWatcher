@@ -56,7 +56,7 @@ try {
 
     # Create document using standardized process
     $templatePath = "doc/process-framework/templates/support/feedback-form-template.md"
-    $artifactId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "ART-FEE" -IdDescription "Feedback form for ${DocumentId}" -DocumentName "$DocumentId-feedback" -OutputDirectory "doc/process-framework/feedback/$OutputDir" -Replacements $customReplacements -FileNamePattern "$formattedTimestamp-$DocumentId-feedback.md" -OpenInEditor:$OpenInEditor
+    $artifactId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "PF-FEE" -IdDescription "Feedback form for ${DocumentId}" -DocumentName "$DocumentId-feedback" -OutputDirectory "doc/process-framework/feedback/$OutputDir" -Replacements $customReplacements -FileNamePattern "$formattedTimestamp-$DocumentId-feedback.md" -OpenInEditor:$OpenInEditor
 
     if ($artifactId) {
         $details = @(

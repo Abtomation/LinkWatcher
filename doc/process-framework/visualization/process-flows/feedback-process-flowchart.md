@@ -1,5 +1,5 @@
 ---
-id: PF-FEE-001
+id: PF-VIS-001
 type: Documentation
 version: 1.0
 created: 2025-06-03
@@ -91,7 +91,7 @@ flowchart TD
 #### Metadata ID Format
 ```yaml
 ---
-id: ART-FEE-XXX  # Automatically assigned
+id: PF-FEE-XXX  # Automatically assigned
 type: Artifact
 ---
 ```

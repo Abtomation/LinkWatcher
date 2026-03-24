@@ -1,5 +1,5 @@
 ---
-id: PF-REF-059
+id: PD-REF-059
 type: Process Framework
 category: Refactoring Plan
 version: 1.0
@@ -136,4 +136,4 @@ priority: Medium
 
 ## Related Documentation
 - [Technical Debt Tracking](/doc/product-docs/state-tracking/permanent/technical-debt-tracking.md)
-- [Validation Report PF-VAL-042](/doc/product-docs/validation/reports/documentation-alignment/PF-VAL-042-documentation-alignment-features-0.1.1-0.1.2-0.1.3-1.1.1.md)
+- [Validation Report PF-VAL-042](/doc/product-docs/validation/reports/documentation-alignment/PD-VAL-042-documentation-alignment-features-0.1.1-0.1.2-0.1.3-1.1.1.md)

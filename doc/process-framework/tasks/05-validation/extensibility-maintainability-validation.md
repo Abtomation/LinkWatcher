@@ -54,7 +54,7 @@ Systematically validates selected features for extensibility and maintainability
   - **Testing Guidelines** - Testing infrastructure best practices
   - **State Management Documentation** - State management extensibility patterns
   - **Visual Notation Guide** - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting context map diagrams
-  - **ID Registry** - [ID Registry](../../../id-registry.json) - For understanding validation report ID assignments
+  - **ID Registry** - [PD ID Registry](../../PF-id-registry.json) - For understanding validation report ID assignments
 
 ## Process
 

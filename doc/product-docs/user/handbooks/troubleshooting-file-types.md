@@ -1,3 +1,12 @@
+---
+id: PD-UGD-002
+type: Product Documentation
+category: User Guide
+version: 1.0
+created: 2025-01-01
+updated: 2025-01-01
+---
+
 # Troubleshooting File Type Monitoring Issues
 
 This guide helps you diagnose and fix issues when certain file types are not being monitored for link updates during move/rename operations.

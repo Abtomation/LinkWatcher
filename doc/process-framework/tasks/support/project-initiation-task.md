@@ -40,7 +40,7 @@ Establishes foundational project configuration and metadata when initializing a 
 - **Important (Load If Space):**
 
   - [Process Framework README](../../README.md) - Understanding framework structure and directory organization
-  - [ID Registry](../../../id-registry.json) - Understanding ID prefixes and directory mappings for path configuration
+  - [PF ID Registry](../../PF-id-registry.json) - Understanding ID prefixes and directory mappings for path configuration
 
 - **Reference Only (Access When Needed):**
   - [Documentation Structure Guide](../../guides/framework/documentation-structure-guide.md) - For understanding recommended directory structure
@@ -220,6 +220,6 @@ Before considering this task finished:
 - [Process Framework README](../../README.md) - Overview of framework structure and components
 - [Framework Domain Adaptation](framework-domain-adaptation.md) - Comprehensive framework customization for new domains
 - [Documentation Structure Guide](../../guides/framework/documentation-structure-guide.md) - Recommended directory organization patterns
-- [ID Registry](../../../id-registry.json) - Document ID prefixes and directory mappings
+- [PF ID Registry](../../PF-id-registry.json) - Document ID prefixes and directory mappings
 - [Testing Setup Guide](../../guides/03-testing/testing-setup-guide.md) - Language-specific test infrastructure scaffolding
 - [CI/CD Setup Guide](../../guides/07-deployment/ci-cd-setup-guide.md) - CI pipeline, pre-commit hooks, dev scripts

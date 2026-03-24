@@ -11,7 +11,7 @@ param(
     [string]$Description = "",
 
     [Parameter(Mandatory = $false)]
-    [ValidateSet("Template Update", "Directory Reorganization", "Metadata Structure", "Documentation Architecture", "Rename")]
+    [ValidateSet("Template Update", "Directory Reorganization", "Metadata Structure", "Documentation Architecture", "Rename", "Content Update")]
     [string]$ChangeType = "Template Update",
 
     [Parameter(Mandatory = $false)]
@@ -39,6 +39,8 @@ $additionalMetadataFields = @{
 # Select template based on ChangeType
 if ($ChangeType -eq "Rename") {
     $templatePath = "doc/process-framework/templates/support/structure-change-state-rename-template.md"
+} elseif ($ChangeType -eq "Content Update") {
+    $templatePath = "doc/process-framework/templates/support/structure-change-state-content-update-template.md"
 } else {
     $templatePath = "doc/process-framework/templates/support/structure-change-state-template.md"
 }
@@ -46,7 +48,7 @@ if ($ChangeType -eq "Rename") {
 # Prepare custom replacements
 $customReplacements = @{
     "[Change Name]"                                                                            = $ChangeName
-    "[Template Update/Directory Reorganization/Metadata Structure/Documentation Architecture]" = $ChangeType
+    "[Template Update/Directory Reorganization/Metadata Structure/Documentation Architecture/Content Update]" = $ChangeType
     "[YYYY-MM-DD]"                                                                             = $expectedCompletion
 }
 

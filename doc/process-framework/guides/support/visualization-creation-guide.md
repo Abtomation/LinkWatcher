@@ -244,10 +244,10 @@ When creating guides for template customization (like guides for New-\* scripts)
 
 ```powershell
 # Example: Creating a guide for a script that creates templates
-.\New-Guide.ps1 -GuideTitle "Debt Item Creation Guide" -GuideDescription "Guide for customizing technical debt item templates" -RelatedScript "New-DebtItem.ps1" -RelatedTasks "PF-TSK-023"
+.\New-Guide.ps1 -GuideTitle "Debt Item Creation Guide" -SubDirectory "cyclical" -GuideDescription "Guide for customizing technical debt item templates" -RelatedScript "New-DebtItem.ps1" -RelatedTasks "PF-TSK-023"
 
 # Example: Creating a guide related to multiple tasks
-.\New-Guide.ps1 -GuideTitle "API Design Guide" -GuideDescription "Guide for API design templates" -RelatedScript "New-APISpecification.ps1" -RelatedTasks "PF-TSK-020,PF-TSK-021"
+.\New-Guide.ps1 -GuideTitle "API Design Guide" -SubDirectory "02-design" -GuideDescription "Guide for API design templates" -RelatedScript "New-APISpecification.ps1" -RelatedTasks "PF-TSK-020,PF-TSK-021"
 ```
 
 ### Benefits of Enhanced Metadata

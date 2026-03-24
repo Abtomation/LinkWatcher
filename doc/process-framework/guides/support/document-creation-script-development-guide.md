@@ -34,7 +34,7 @@ Use this guide when you need to create a new PowerShell script that:
 
 Before using this guide, ensure you have:
 
-1. **Updated id-registry.json**: Ensure the ID registry contains necessary entries.
+1. **Updated ID registry**: Ensure the appropriate ID registry (PF/PD/TE-id-registry.json) contains necessary entries.
 2. **Project Structure**: Familiarity with the project's documentation structure
 3. **Template System**: Understanding of the project's template system
 
@@ -44,7 +44,7 @@ Ensure these files exist in your project:
 
 - doc/process-framework/scripts/Common-ScriptHelpers.psm1
 - `doc/process-framework/scripts/IdRegistry.psm1`
-- `doc/id-registry.json`
+- the appropriate ID registry (PF/PD/TE-id-registry.json)
 - `../doc/process-framework/templates/support/document-creation-script-template.ps1`
 
 ## Step-by-Step Development Process
@@ -55,7 +55,7 @@ Before creating a script, determine:
 
 1. **Document Type**: What type of document will be created?
 2. **Template Location**: Where is the template file located?
-3. **ID Prefix**: What ID prefix should be used? (Update `doc/id-registry.json` if new directory is used)
+3. **ID Prefix**: What ID prefix should be used? (Update the appropriate ID registry (PF/PD/TE-id-registry.json) if new directory is used)
 4. **Parameters**: What parameters does the script need?
 5. **Output Location**: Where should the created documents be stored?
 6. **Special Requirements**: Any unique requirements or integrations?
@@ -276,7 +276,7 @@ catch {
 
 ### Understanding ID Prefixes
 
-Check `doc/id-registry.json` for available prefixes:
+Check the appropriate ID registry (PF/PD/TE-id-registry.json) for available prefixes:
 
 ```json
 {
@@ -490,7 +490,7 @@ catch {
 
 2. **ID Registry Errors**:
 
-   - Verify `doc/id-registry.json` exists and is valid JSON
+   - Verify the appropriate ID registry (PF/PD/TE-id-registry.json) exists and is valid JSON
    - Check that the ID prefix exists in the registry
    - Ensure proper permissions for file updates
 

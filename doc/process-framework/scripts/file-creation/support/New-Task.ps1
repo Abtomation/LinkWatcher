@@ -32,6 +32,42 @@ Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 # Perform standard initialization
 Invoke-StandardScriptInitialization
 
+# Helper: pad table row cells to match separator line column widths
+function Format-AlignedTableRow {
+    param(
+        [string[]]$FileLines,
+        [int]$TableHeaderIndex,
+        [string[]]$Cells
+    )
+    # Separator line is immediately after the header
+    $separatorLine = $FileLines[$TableHeaderIndex + 1]
+    # Extract column widths from separator segments (e.g., "| ---- | ---------- |")
+    $segments = $separatorLine -split '\|'
+    # Skip first/last empty segments from leading/trailing pipe
+    $colWidths = @()
+    foreach ($seg in $segments) {
+        $trimmed = $seg.Trim()
+        if ($trimmed -match '^-+$') {
+            $colWidths += $seg.Length  # preserve original spacing including surrounding spaces
+        }
+    }
+    # Build padded row
+    $paddedCells = @()
+    for ($c = 0; $c -lt $Cells.Count; $c++) {
+        if ($c -lt $colWidths.Count) {
+            $targetWidth = $colWidths[$c] - 2  # subtract 2 for the surrounding spaces
+            $cell = $Cells[$c]
+            if ($cell.Length -lt $targetWidth) {
+                $cell = $cell + (' ' * ($targetWidth - $cell.Length))
+            }
+            $paddedCells += " $cell "
+        } else {
+            $paddedCells += " $($Cells[$c]) "
+        }
+    }
+    return "|" + ($paddedCells -join '|') + "|"
+}
+
 # Prepare additional metadata fields
 $additionalMetadataFields = @{
     "task_type" = $TaskType
@@ -103,7 +139,12 @@ try {
 
                 if ($tableStartIndex -gt $sectionIndex) {
                     $fileName = ConvertTo-KebabCase -InputString $TaskName
-                    $newEntry = "| [$TaskName]($WorkflowPhase/$fileName.md) | $Description | When working on $TaskName |"
+                    $cells = @(
+                        "[$TaskName]($WorkflowPhase/$fileName.md)",
+                        $Description,
+                        "When working on $TaskName"
+                    )
+                    $newEntry = Format-AlignedTableRow -FileLines $tasksReadme -TableHeaderIndex $tableStartIndex -Cells $cells
                     $tasksReadme = $tasksReadme[0..($tableStartIndex + 1)] + $newEntry + $tasksReadme[($tableStartIndex + 2)..($tasksReadme.Length - 1)]
                     $tasksReadme | Set-Content -Path $tasksReadmePath
                     Write-Verbose "Updated tasks README with new task"
@@ -119,12 +160,12 @@ try {
     }
 
     # Update the AI Tasks main entry point
-    $aiTasksPath = Join-Path -Path $projectRoot -ChildPath "ai-tasks.md"
+    $aiTasksPath = Join-Path -Path $projectRoot -ChildPath "doc/process-framework/ai-tasks.md"
     if (Test-Path $aiTasksPath) {
         if ($PSCmdlet.ShouldProcess("Update AI Tasks main entry point with new task")) {
             $aiTasks = Get-Content -Path $aiTasksPath
 
-            # Validate ai-tasks.md structure matches script expectations
+            # Validate doc/process-framework/ai-tasks.md structure matches script expectations
             $expectedSections = @(
                 "### 🎓 00 - Onboarding Tasks",
                 "### 📋 01 - Planning Tasks",
@@ -167,7 +208,7 @@ try {
             $fileName = ConvertTo-KebabCase -InputString $TaskName
             $relativePath = "/doc/process-framework/tasks/$WorkflowPhase/$fileName.md"
 
-            # Map workflow phase to section header (ai-tasks.md uses phase-based sections)
+            # Map workflow phase to section header (doc/process-framework/ai-tasks.md uses phase-based sections)
             $phaseToSection = @{
                 "00-onboarding" = "### 🎓 00 - Onboarding Tasks"
                 "01-planning" = "### 📋 01 - Planning Tasks"
@@ -187,16 +228,13 @@ try {
             }
 
             # Support Tasks section has a different table format than other categories
+            $useWhen = if ($Description -ne "") { $Description } else { "When working on $TaskName" }
             if ($WorkflowPhase -eq "support") {
                 $tableHeaderPattern = "^\| Task.*\| Type.*\| Use When.*\| Link.*\|$"
-                $taskType = $TaskType
-                $useWhen = if ($Description -ne "") { $Description } else { "When working on $TaskName" }
-                $newEntry = "| **$TaskName** | $taskType | $useWhen | [→ Definition]($relativePath) |"
+                $cells = @("**$TaskName**", $TaskType, $useWhen, "[→ Definition]($relativePath)")
             } else {
                 $tableHeaderPattern = "^\| Task.*\| Use When.*\| Complexity.*\| Link.*\|$"
-                $complexity = "🟡 Medium"
-                $useWhen = if ($Description -ne "") { $Description } else { "When working on $TaskName" }
-                $newEntry = "| **$TaskName** | $useWhen | $complexity | [→ Definition]($relativePath) |"
+                $cells = @("**$TaskName**", $useWhen, "🟡 Medium", "[→ Definition]($relativePath)")
             }
 
             $sectionIndex = $aiTasks.IndexOf($sectionHeader)
@@ -213,6 +251,7 @@ try {
                 if ($tableStartIndex -gt $sectionIndex) {
                     # Insert after the separator line (which is after the header)
                     $insertIndex = $tableStartIndex + 2
+                    $newEntry = Format-AlignedTableRow -FileLines $aiTasks -TableHeaderIndex $tableStartIndex -Cells $cells
                     $aiTasks = $aiTasks[0..($insertIndex - 1)] + $newEntry + $aiTasks[$insertIndex..($aiTasks.Length - 1)]
                     $aiTasks | Set-Content -Path $aiTasksPath
                     Write-Verbose "Updated AI Tasks main entry point with new task"

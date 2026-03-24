@@ -55,7 +55,7 @@ Systematically validates selected features for documentation alignment, ensuring
   - **TDD Creation Guide** - [TDD Creation Guide](../../guides/02-design/tdd-creation-guide.md) - Understanding TDD structure and requirements
   - **ADR Creation Guide** - [ADR Creation Guide](../../guides/02-design/architecture-decision-creation-guide.md) - Understanding ADR format and content
   - **Visual Notation Guide** - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting context map diagrams
-  - **ID Registry** - [ID Registry](../../../id-registry.json) - For understanding validation report ID assignments
+  - **ID Registry** - [PD ID Registry](../../PF-id-registry.json) - For understanding validation report ID assignments
 
 ## Process
 

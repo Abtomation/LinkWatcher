@@ -1,5 +1,5 @@
 ---
-id: ART-REV-001
+id: PF-REV-001
 type: Artifact
 category: Review
 version: 1.0

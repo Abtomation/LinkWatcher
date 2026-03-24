@@ -109,7 +109,7 @@ This framework extension should be used when:
 - **Updated Core Framework Files**:
   - **ai-tasks.md**: New tasks integrated into main task registry
   - **documentation-map.md**: All new artifacts and their relationships
-  - **id-registry.json**: New ID prefixes for extension-created file types (if needed)
+  - **ID registries**: New ID prefixes in the appropriate registry (PF/PD/TE-id-registry.json) for extension-created file types (if needed)
 - **Integration Documentation** - How the extension works with existing framework workflow
 
 ### State Tracking Outputs

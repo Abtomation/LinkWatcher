@@ -1,11 +1,11 @@
 ---
-id: PF-TAR-008
+id: TE-TAR-008
 type: Document
 category: General
 version: 1.0
 created: 2026-03-15
 updated: 2026-03-15
-test_file_id: PD-TST-107
+test_file_id: TE-TST-107
 feature_id: 3.1.1
 auditor: AI Agent
 audit_date: 2026-03-15
@@ -19,7 +19,7 @@ audit_date: 2026-03-15
 |-------|-------|
 | **Feature ID** | 3.1.1 |
 | **Feature Name** | Logging System |
-| **Test File IDs** | PD-TST-107 (core), PD-TST-108 (advanced) |
+| **Test File IDs** | TE-TST-107 (core), TE-TST-108 (advanced) |
 | **Test File Locations** | `test/automated/unit/test_logging.py`, `test/automated/unit/test_advanced_logging.py` |
 | **Feature Category** | CORE-FEATURES |
 | **Auditor** | AI Agent |
@@ -164,15 +164,15 @@ audit_date: 2026-03-15
 **Findings**:
 - Tests align with TDD specification (PD-TDD-024) and test spec (PF-TSP-041)
 - Both test files properly registered in test-registry.yaml
-- Registry discrepancy: PD-TST-108 testCasesCount shows 20, actual is 19
+- Registry discrepancy: TE-TST-108 testCasesCount shows 20, actual is 19
 - Global logger state (`_global_logger`) requires `reset_logger()` between tests — handled correctly
 - Singleton pattern for `LoggingConfigManager` tested via `test_config_manager_singleton`
 
 **Evidence**:
-- test-registry.yaml PD-TST-108: `testCasesCount: 20` vs actual 19
+- test-registry.yaml TE-TST-108: `testCasesCount: 20` vs actual 19
 
 **Recommendations**:
-- Update PD-TST-108 testCasesCount from 20 to 19
+- Update TE-TST-108 testCasesCount from 20 to 19
 
 ## Overall Audit Summary
 
@@ -187,7 +187,7 @@ All 44 tests pass across both test files, covering all 10 major logging componen
 
 ### Improvement Opportunities
 - Add tests for domain-specific methods: `links_updated()`, `scan_progress()`, `operation_stats()` (Medium priority)
-- Fix registry discrepancy: PD-TST-108 testCasesCount 20 → 19
+- Fix registry discrepancy: TE-TST-108 testCasesCount 20 → 19
 - Consider mock-time approach for time window test to improve execution speed
 
 ### Strengths Identified
@@ -200,7 +200,7 @@ All 44 tests pass across both test files, covering all 10 major logging componen
 
 ### For Test Implementation Team
 - [ ] Add tests for `links_updated()`, `scan_progress()`, `operation_stats()` domain methods
-- [ ] Update PD-TST-108 testCasesCount from 20 to 19
+- [ ] Update TE-TST-108 testCasesCount from 20 to 19
 
 ### For Feature Implementation Team
 - No action needed
@@ -219,7 +219,7 @@ All 44 tests pass across both test files, covering all 10 major logging componen
 - [ ] Test registry updated with audit status
 
 ### Next Steps
-1. Fix PD-TST-108 testCasesCount in registry
+1. Fix TE-TST-108 testCasesCount in registry
 2. Run Update-TestFileAuditState.ps1
 3. Proceed with Batch 2 audit
 

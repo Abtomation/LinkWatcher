@@ -179,7 +179,14 @@ This guide provides best practices for migrating content between different docum
 ### Special Cases
 
 - **Deprecation**: Marking content as obsolete
-- **Archiving**: Moving content to long-term storage
+- **Archiving**: Moving content to long-term storage. For archiving features from active tracking, follow this checklist:
+  1. Audit the feature's cross-reference footprint (grep for feature ID across the project)
+  2. Move feature state file to the archive directory (e.g., `features/archive/`)
+  3. Update feature-tracking.md: change status to "🗄️ Archived" with rationale and date
+  4. Update or archive related design documents (FDDs, TDDs, ADRs, test specs) — add archive notices pointing to replacement docs
+  5. Update documentation-map.md: mark archived entries with ~~strikethrough~~ and archive notice
+  6. Triage cross-references: update references that should point to replacement content, leave historical references as-is
+  7. Run `Validate-StateTracking.ps1` to confirm no broken links remain
 - **Regeneration**: Recreating content from source material
 - **Translation**: Converting between languages or terminologies
 

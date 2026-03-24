@@ -116,8 +116,9 @@ This task **orchestrates** systematic changes to documentation structures, templ
    ```powershell
    # Navigate to the state-tracking directory and create structure change state tracking file
    cd doc/process-framework/state-tracking
-   ./New-StructureChangeState.ps1 -ChangeName "Change Name" -ChangeType "Template Update|Directory Reorganization|Metadata Structure|Documentation Architecture|Rename" -Description "Brief description"
+   ./New-StructureChangeState.ps1 -ChangeName "Change Name" -ChangeType "Template Update|Directory Reorganization|Metadata Structure|Documentation Architecture|Rename|Content Update" -Description "Brief description"
    # Use -ChangeType "Rename" for lightweight rename/move operations (simplified template without pilot/rollback/metrics sections)
+   # Use -ChangeType "Content Update" for content-only changes across files (simplified template without pilot/rollback/metrics sections)
    ```
 5. Use the existing `/doc/process-framework/state-tracking/temporary` directory for transition files
 6. Create mapping documents and migration checklists in the temporary directory

@@ -48,14 +48,12 @@ goto end
 
 :install
 echo Installing production dependencies...
-pip install -r requirements.txt
+pip install -e .
 goto end
 
 :install-dev
 echo Installing development dependencies...
-pip install -r requirements.txt
-pip install ".[test]"
-pip install -e ".[dev]"
+pip install -e ".[dev,test]"
 goto end
 
 :test

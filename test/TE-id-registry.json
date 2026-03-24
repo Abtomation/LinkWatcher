@@ -1,0 +1,84 @@
+{
+  "metadata": {
+    "name": "TE-id-registry",
+    "version": "1.0",
+    "created": "2026-03-24",
+    "updated": "2026-03-24",
+    "description": "Test Artifacts ID Registry - test specifications, audit reports, and test files",
+    "format": "semantic"
+  },
+  "prefixes": {
+    "TE-E2G": {
+      "description": "E2E Acceptance Testing - Test Groups",
+      "category": "Testing",
+      "type": "E2E Acceptance Test Group",
+      "directories": {
+        "templates": "test/e2e-acceptance-testing/templates",
+        "default": "templates"
+      },
+      "nextAvailable": 12
+    },
+    "TE-E2E": {
+      "description": "E2E Acceptance Testing - Test Cases",
+      "category": "Testing",
+      "type": "E2E Acceptance Test Case",
+      "directories": {
+        "templates": "test/e2e-acceptance-testing/templates",
+        "default": "templates"
+      },
+      "nextAvailable": 23
+    },
+    "TE-TSP": {
+      "description": "Test - Test Specifications",
+      "category": "Testing",
+      "type": "Test Specification",
+      "directories": {
+        "feature-specs": "test/specifications/feature-specs",
+        "cross-cutting-specs": "test/specifications/cross-cutting-specs",
+        "default": "feature-specs"
+      },
+      "nextAvailable": 45
+    },
+    "TE-TAR": {
+      "description": "Test - Test Audit Reports",
+      "category": "Testing",
+      "type": "Test Audit Report",
+      "directories": {
+        "foundation": "test/audits/foundation",
+        "authentication": "test/audits/authentication",
+        "core-features": "test/audits/core-features",
+        "main": "test/audits",
+        "legacy-foundation": "doc/product-docs/test-audits/foundation",
+        "legacy-authentication": "doc/product-docs/test-audits/authentication",
+        "legacy-core-features": "doc/product-docs/test-audits/core-features",
+        "default": "foundation"
+      },
+      "nextAvailable": 13
+    },
+    "TE-TST": {
+      "description": "Test - Test Files",
+      "category": "Testing",
+      "type": "Test File",
+      "fileType": "dart",
+      "metadataFormat": "comment",
+      "directories": {
+        "unit": "test/unit",
+        "integration": "test/integration",
+        "widget": "test/widget",
+        "e2e": "integration_test",
+        "default": "unit"
+      },
+      "nextAvailable": 132
+    },
+    "TE-STA": {
+      "description": "Test - State Tracking",
+      "category": "Testing",
+      "type": "State",
+      "directories": {
+        "main": "test",
+        "default": "main"
+      },
+      "nextAvailable": 1
+    }
+  }
+}

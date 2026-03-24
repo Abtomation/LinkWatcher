@@ -14,7 +14,7 @@ git clone https://github.com/YOUR_USERNAME/LinkWatcher.git
 cd LinkWatcher
 
 # 2. Install dependencies
-pip install -r requirements.txt
+pip install -e .
 
 # 3. Start monitoring your project
 python main.py
@@ -71,7 +71,8 @@ dev format
 
 | Document | Description |
 |----------|-------------|
-| [Multi-Project Setup](MULTI_PROJECT_SETUP.md) | Using across multiple projects |
+| [Quick Reference](doc/product-docs/user/handbooks/quick-reference.md) | CLI options, config, environment variables, examples |
+| [Multi-Project Setup](doc/product-docs/user/handbooks/multi-project-setup.md) | Using across multiple projects |
 | [File Type Quick Fix](doc/product-docs/user/handbooks/file-type-quick-fix.md) | **Quick fix** for file types not being monitored |
 | [File Type Troubleshooting](doc/product-docs/user/handbooks/troubleshooting-file-types.md) | **Detailed guide** for file type monitoring issues |
 
@@ -208,9 +209,8 @@ MIT License
 
 ## 🔗 Links
 
-- [Changelog](CHANGELOG.md) - Release history and changes
 - [Test Suite](test/automated/) - Comprehensive test documentation
-- [Example Configurations](examples/)
+- [Example Configurations](config-examples/) - YAML configuration examples
 
 ---
 

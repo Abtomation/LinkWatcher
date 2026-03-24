@@ -86,7 +86,7 @@ graph TD
 
 - [Task Creation Guide](../../../guides/support/task-creation-guide.md) - Understanding task structure requirements
 - [Temporary Task State Creation Guide](../../../guides/support/temp-state-tracking-customization-guide.md) - Multi-session implementation tracking
-- [AI Tasks System](../../../../../ai-tasks.md) - Main task registry and categorization
+- [AI Tasks System](../../../ai-tasks.md) - Main task registry and categorization
 - [New-Task.ps1](../../../scripts/file-creation/support/New-Task.ps1) - Script for creating task definitions
 - [Documentation Map](../../../documentation-map.md) - Central documentation registry
 - [Process Improvement Tracking](../../../state-tracking/permanent/process-improvement-tracking.md) - Infrastructure completion tracking

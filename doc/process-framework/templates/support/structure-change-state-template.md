@@ -16,7 +16,7 @@ change_name: [CHANGE-NAME]
 - **Change Name**: [Change Name]
 - **Change ID**: [To be assigned - SC-XXX format]
 - **Proposal Document**: [Link to structure-change-proposal document]
-- **Change Type**: [Template Update/Directory Reorganization/Metadata Structure/Documentation Architecture]
+- **Change Type**: [Template Update/Directory Reorganization/Metadata Structure/Documentation Architecture/Content Update]
 - **Scope**: [Brief description of what's being changed]
 - **Expected Completion**: [YYYY-MM-DD]
 

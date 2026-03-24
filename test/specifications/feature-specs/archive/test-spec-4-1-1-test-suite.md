@@ -1,5 +1,5 @@
 ---
-id: PF-TSP-042
+id: TE-TSP-042
 type: Process Framework
 category: Test Specification
 version: 1.0
@@ -88,7 +88,7 @@ The Test Suite infrastructure consists of pytest configuration (`pytest.ini`), s
 
 ### Test Configuration ([test/automated/test_config.py](../../../test/automated/test_config.py))
 
-**Note**: This file (PD-TST-100) is a utility module, not a test file. It contains:
+**Note**: This file (TE-TST-100) is a utility module, not a test file. It contains:
 - `TEST_ENVIRONMENTS` — 4 presets (unit, integration, performance, manual)
 - `SAMPLE_CONTENTS` — 5 content types (markdown, yaml, json, python, text)
 - `TEST_PROJECT_STRUCTURES` — simple and complex project layouts

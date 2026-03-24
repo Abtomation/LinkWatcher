@@ -1,5 +1,5 @@
 ---
-id: PF-TAR-012
+id: TE-TAR-012
 type: Document
 category: General
 version: 1.0
@@ -8,7 +8,7 @@ updated: 2026-03-15
 auditor: AI Agent
 audit_date: 2026-03-15
 feature_id: 1.1.1
-test_file_id: PD-TST-101
+test_file_id: TE-TST-101
 ---
 
 # Test Audit Report - Feature 1.1.1
@@ -19,7 +19,7 @@ test_file_id: PD-TST-101
 |-------|-------|
 | **Feature ID** | 1.1.1 |
 | **Feature Name** | File System Monitoring |
-| **Test File IDs** | PD-TST-101, 117, 121, 123, 124, 125, 128 |
+| **Test File IDs** | TE-TST-101, 117, 121, 123, 124, 125, 128 |
 | **Test File Locations** | `test/automated/test_move_detection.py`, `test/automated/integration/test_file_movement.py`, `test/automated/integration/test_sequential_moves.py`, `test/automated/integration/test_comprehensive_file_monitoring.py`, `test/automated/integration/test_image_file_monitoring.py`, `test/automated/integration/test_powershell_script_monitoring.py`, `test/automated/test_directory_move_detection.py` |
 | **Feature Category** | FILE WATCHING |
 | **Auditor** | AI Agent |
@@ -131,11 +131,11 @@ All test files test existing, fully-implemented components. No missing dependenc
 **Findings**:
 - Tests align with TDD (PD-TDD-023) and test spec (PF-TSP-038)
 - Registry counts outdated for 4 of 7 files:
-  - PD-TST-101: 5 → 12
-  - PD-TST-117: 5 → 7
-  - PD-TST-121: 3 → 4
-  - PD-TST-123: 3 → 7
-  - PD-TST-124: 3 → 6
+  - TE-TST-101: 5 → 12
+  - TE-TST-117: 5 → 7
+  - TE-TST-121: 3 → 4
+  - TE-TST-123: 3 → 7
+  - TE-TST-124: 3 → 6
 - Cross-cutting features correctly documented
 
 ## Overall Audit Summary
@@ -163,11 +163,11 @@ All test files test existing, fully-implemented components. No missing dependenc
 ## Action Items
 
 ### For Test Implementation Team
-- [ ] Update PD-TST-101 testCasesCount 5 → 12
-- [ ] Update PD-TST-117 testCasesCount 5 → 7
-- [ ] Update PD-TST-121 testCasesCount 3 → 4
-- [ ] Update PD-TST-123 testCasesCount 3 → 7
-- [ ] Update PD-TST-124 testCasesCount 3 → 6
+- [ ] Update TE-TST-101 testCasesCount 5 → 12
+- [ ] Update TE-TST-117 testCasesCount 5 → 7
+- [ ] Update TE-TST-121 testCasesCount 3 → 4
+- [ ] Update TE-TST-123 testCasesCount 3 → 7
+- [ ] Update TE-TST-124 testCasesCount 3 → 6
 
 ## Audit Completion
 

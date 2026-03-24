@@ -55,7 +55,7 @@ Systematically validates selected features for AI agent workflow continuity, ens
   - **Template System** - [Templates Directory](../../templates) - Standardized document creation patterns
   - **Guide System** - [Guides Directory](../../guides) - Process guidance and best practices
   - **Visual Notation Guide** - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting context map diagrams
-  - **ID Registry** - [ID Registry](../../../id-registry.json) - For understanding validation report ID assignments
+  - **ID Registry** - [PD ID Registry](../../PF-id-registry.json) - For understanding validation report ID assignments
 
 ## Process
 

@@ -1,5 +1,5 @@
 ---
-id: PF-STA-054
+id: PD-STA-054
 type: Document
 category: General
 version: 1.0
@@ -182,7 +182,7 @@ change_name: manual-testing-framework
   - **Status**: COMPLETED
   - **Deliverables**: `templates/`, `workspace/`, `results/` directories; README.md; .gitignore
 
-- [x] **Documentation updates**: ../documentation-map.md updated with task, context map, 3 scripts; ai-tasks.md and ../tasks/README.md auto-updated and link-fixed
+- [x] **Documentation updates**: ../documentation-map.md updated with task, context map, 3 scripts; doc/process-framework/ai-tasks.md and ../tasks/README.md auto-updated and link-fixed
 
 - [x] **🚨 CHECKPOINT**: All Phase 4 artifacts presented and approved by human partner
 
@@ -384,7 +384,7 @@ change_name: manual-testing-framework
 | Test Case | Description | Expected Result | Actual Result | Status |
 |-----------|-------------|----------------|---------------|--------|
 | TC-001 | File rename: ../test-implementation-tracking.md → ../test-tracking.md | All cross-references updated, no broken links | 13 files updated, grep confirms 0 remaining references | PASSED |
-| TC-002 | New tasks registered in ai-tasks.md | Both new tasks appear in 03-testing section | PF-TSK-069 + PF-TSK-070 both registered with -task suffix links | PASSED |
+| TC-002 | New tasks registered in doc/process-framework/ai-tasks.md | Both new tasks appear in 03-testing section | PF-TSK-069 + PF-TSK-070 both registered with -task suffix links | PASSED |
 | TC-003 | New tasks registered in ../documentation-map.md | Both new tasks listed with links | Both in discrete tasks section + proper task listing | PASSED |
 | TC-004 | ../Setup-TestEnvironment.ps1 with sample data | Templates copied to workspace correctly | — | PENDING |
 | TC-005 | ../Verify-TestResult.ps1 with matching files | Reports all green / pass | — | PENDING |
@@ -398,7 +398,7 @@ change_name: manual-testing-framework
 
 - [ ] **Functional Criteria**:
   - [ ] ../test-tracking.md (renamed) tracks both automated and manual test entries
-  - [ ] All new tasks registered in ai-tasks.md and ../documentation-map.md
+  - [ ] All new tasks registered in doc/process-framework/ai-tasks.md and ../documentation-map.md
   - [ ] All three new scripts execute without errors on sample data
   - [ ] All modified tasks have explicit handover interfaces to/from new tasks
   - [ ] test/manual-testing/ directory structure created with README.md

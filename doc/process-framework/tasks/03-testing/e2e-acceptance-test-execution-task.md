@@ -93,11 +93,11 @@ E2E acceptance test execution validates system behavior that cannot be covered b
    > Use `-TestCase "E2E-NNN"` for a single test case. Use `-Detailed` to see line-by-line diffs for failures.
 8a. **On failure — root cause analysis**: When a test case fails, the AI agent MUST investigate the root cause before proceeding. Check system logs, trace the event flow, and identify whether the failure is caused by a code defect, test fixture issue, infrastructure problem, or environmental factor. Document the root cause clearly.
    > **🚨 CRITICAL**: Do NOT propose or attempt to fix the issue during test execution. The purpose of this task is to discover and document failures, not to fix them. Fixes belong in a separate Bug Fixing task (PF-TSK-048).
-8b. **On failure — always file a bug**: Every test failure MUST result in a bug report, regardless of root cause. Add the bug entry to [bug-tracking.md](../../../product-docs/state-tracking/permanent/bug-tracking.md) with: root cause analysis, affected test cases, component involved, and severity assessment. Increment the PD-BUG counter in [id-registry.json](/doc/id-registry.json).
+8b. **On failure — always file a bug**: Every test failure MUST result in a bug report, regardless of root cause. Add the bug entry to [bug-tracking.md](../../../product-docs/state-tracking/permanent/bug-tracking.md) with: root cause analysis, affected test cases, component involved, and severity assessment. Increment the PD-BUG counter in [PD ID Registry](/doc/product-docs/PD-id-registry.json).
 
 ### Finalization
 
-9. **Record results**: Run [Update-TestExecutionStatus.ps1](../../scripts/test/e2e-acceptance-testing/Update-TestExecutionStatus.ps1) to update tracking files:
+9. **Record results**: For **scripted tests**, `Run-E2EAcceptanceTest.ps1` automatically calls `Update-TestExecutionStatus.ps1` per test case after verification (use `-SkipTracking` to disable). For **non-scripted tests** or to add a `-Reason` to failures, run manually:
    ```bash
    cd /c/path/to/project/doc/process-framework/scripts/test/e2e-acceptance-testing && pwsh.exe -ExecutionPolicy Bypass -Command '& .\Update-TestExecutionStatus.ps1 -Group "group-name" -Status "Passed" -Confirm:$false'
    ```

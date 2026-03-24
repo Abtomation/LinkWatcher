@@ -34,9 +34,10 @@ try:
     from linkwatcher import LinkWatcherService
     from linkwatcher.config import DEFAULT_CONFIG, LinkWatcherConfig
     from linkwatcher.logging import LogLevel, get_logger, setup_logging
+    from linkwatcher.validator import LinkValidator
 except ImportError as e:
     print(f"Missing required dependency: {e}")
-    print("Please install dependencies with: pip install -r requirements.txt")
+    print("Please install dependencies with: pip install -e .")
     sys.exit(1)
 
 # Initialize colorama for cross-platform colored output
@@ -212,6 +213,7 @@ Examples:
   python main.py --dry-run         # Preview mode only
   python main.py --config my.yaml  # Use custom config
   python main.py --quiet           # Minimal output
+  python main.py --validate        # Check all links and report broken ones
         """,
     )
 
@@ -232,6 +234,11 @@ Examples:
     parser.add_argument("--quiet", action="store_true", help="Suppress non-error output")
     parser.add_argument("--log-file", help="Log to file (in addition to console)")
     parser.add_argument("--debug", action="store_true", help="Enable debug logging")
+    parser.add_argument(
+        "--validate",
+        action="store_true",
+        help="Scan workspace for broken links and exit (does not start watcher)",
+    )
     parser.add_argument("--version", action="version", version="LinkWatcher 2.0.0")
 
     args = parser.parse_args()
@@ -239,6 +246,41 @@ Examples:
     try:
         # Validate project root first (needed for lock check)
         project_root = validate_project_root(args.project_root)
+
+        # --validate mode: scan for broken links and exit (no lock needed)
+        if args.validate:
+            log_level = LogLevel.DEBUG if args.debug else LogLevel.INFO
+            if args.quiet:
+                log_level = LogLevel.ERROR
+            setup_logging(
+                level=log_level,
+                colored_output=not args.quiet,
+                show_icons=not args.quiet,
+            )
+            config = load_config(args.config, args)
+            validator = LinkValidator(str(project_root), config)
+
+            if not args.quiet:
+                print(f"{Fore.CYAN}🔍 Validating links in {project_root}...")
+
+            result = validator.validate()
+            report = LinkValidator.format_report(result)
+
+            if not args.quiet:
+                print(report)
+
+            # Determine output directory
+            log_file = args.log_file or config.log_file
+            if log_file:
+                output_dir = str(Path(log_file).parent)
+            else:
+                output_dir = str(project_root)
+            report_path = LinkValidator.write_report(result, output_dir)
+
+            if not args.quiet:
+                print(f"{Fore.CYAN}📄 Report written to {report_path}")
+
+            sys.exit(0 if result.is_clean else 1)
 
         # Acquire lock BEFORE setting up file logging to avoid
         # conflicting file handles that kill the running instance

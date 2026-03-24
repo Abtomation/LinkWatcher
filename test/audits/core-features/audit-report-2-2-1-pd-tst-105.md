@@ -1,12 +1,12 @@
 ---
-id: PF-TAR-009
+id: TE-TAR-009
 type: Document
 category: General
 version: 1.0
 created: 2026-03-15
 updated: 2026-03-15
 auditor: AI Agent
-test_file_id: PD-TST-105
+test_file_id: TE-TST-105
 audit_date: 2026-03-15
 feature_id: 2.2.1
 ---
@@ -19,7 +19,7 @@ feature_id: 2.2.1
 |-------|-------|
 | **Feature ID** | 2.2.1 |
 | **Feature Name** | Link Updating |
-| **Test File IDs** | PD-TST-105 (unit), PD-TST-118 (integration) |
+| **Test File IDs** | TE-TST-105 (unit), TE-TST-118 (integration) |
 | **Test File Locations** | `test/automated/unit/test_updater.py`, `test/automated/integration/test_link_updates.py` |
 | **Feature Category** | CORE-FEATURES |
 | **Auditor** | AI Agent |
@@ -126,12 +126,12 @@ feature_id: 2.2.1
 
 **Findings**:
 - Tests align with TDD specification and test spec (PF-TSP-040)
-- Registry counts significantly outdated: PD-TST-105 shows 35 (actual 28), PD-TST-118 shows 15 (actual 23)
+- Registry counts significantly outdated: TE-TST-105 shows 35 (actual 28), TE-TST-118 shows 15 (actual 23)
 - Cross-cutting features correctly documented in registry
 
 **Recommendations**:
-- Update PD-TST-105 testCasesCount from 35 to 28
-- Update PD-TST-118 testCasesCount from 15 to 23
+- Update TE-TST-105 testCasesCount from 35 to 28
+- Update TE-TST-118 testCasesCount from 15 to 23
 
 ## Overall Audit Summary
 
@@ -157,8 +157,8 @@ All 51 tests pass across unit and integration files, covering all major code pat
 ## Action Items
 
 ### For Test Implementation Team
-- [ ] Update PD-TST-105 testCasesCount 35 → 28
-- [ ] Update PD-TST-118 testCasesCount 15 → 23
+- [ ] Update TE-TST-105 testCasesCount 35 → 28
+- [ ] Update TE-TST-118 testCasesCount 15 → 23
 - [ ] Add sort order verification test (Medium priority)
 
 ### For Feature Implementation Team

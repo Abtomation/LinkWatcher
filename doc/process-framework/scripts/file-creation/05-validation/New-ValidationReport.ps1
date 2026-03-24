@@ -105,7 +105,7 @@ catch {
 $ProjectRoot = if ($useEnhancedTracking) { Get-ProjectRoot } else { (Get-Item (Join-Path $ScriptDirectory "../../../../..")).FullName }
 $TemplateFile = Join-Path $ProjectRoot "doc/process-framework/templates/05-validation/validation-report-template.md"
 $TrackingFile = Join-Path $ProjectRoot "doc/product-docs/state-tracking/temporary/validation-tracking.md"
-$IdRegistryFile = Join-Path $ProjectRoot "doc/id-registry.json"
+$IdRegistryFile = Join-Path $ProjectRoot "doc/product-docs/PD-id-registry.json"
 
 # Validation type mappings
 $ValidationTypeMap = @{
@@ -163,20 +163,20 @@ function Get-NextValidationId {
         $scriptsDir = Split-Path -Parent $scriptDir
         $processFrameworkDir = Split-Path -Parent $scriptsDir
         $docDir = Split-Path -Parent $processFrameworkDir
-        $absoluteIdRegistryPath = Join-Path $docDir "id-registry.json"
+        $absoluteIdRegistryPath = Join-Path $docDir "product-docs/PD-id-registry.json"
 
         if (-not (Test-Path $absoluteIdRegistryPath)) {
             throw "ID registry not found at: $absoluteIdRegistryPath"
         }
 
         $idRegistry = Get-Content $absoluteIdRegistryPath -Raw | ConvertFrom-Json
-        $currentId = $idRegistry.prefixes."PF-VAL".nextAvailable
+        $currentId = $idRegistry.prefixes."PD-VAL".nextAvailable
 
         # Update the registry
-        $idRegistry.prefixes."PF-VAL".nextAvailable = $currentId + 1
+        $idRegistry.prefixes."PD-VAL".nextAvailable = $currentId + 1
         $idRegistry | ConvertTo-Json -Depth 10 | Set-Content $absoluteIdRegistryPath
 
-        return "PF-VAL-{0:D3}" -f $currentId
+        return "PD-VAL-{0:D3}" -f $currentId
     }
     catch {
         Write-Error "Failed to get next validation ID: $_"

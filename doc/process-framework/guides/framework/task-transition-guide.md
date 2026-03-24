@@ -574,9 +574,9 @@ FDD Creation → [System Architecture Review] → [Database Schema Design] → [
 
 ```
 TDD Creation → Feature Implementation Planning (PF-TSK-044) →
-    Data Layer Implementation (PF-TSK-051) →
-    State Management Implementation (PF-TSK-056) →
-    UI Implementation (PF-TSK-052) →
+    [Data Layer Implementation (PF-TSK-051)] →          ← if DB needed
+    Core Logic Implementation (PF-TSK-078)   →          ← general-purpose coding
+      OR [State Management (PF-TSK-056) → UI (PF-TSK-052)] → ← if layered UI feature
     Integration & Testing (PF-TSK-053) →
     Quality Validation (PF-TSK-054) →
     Implementation Finalization (PF-TSK-055) →
@@ -607,7 +607,7 @@ TDD Creation → Feature Implementation Planning (PF-TSK-044) →
 Prerequisites: TDD Creation complete
 Purpose: Analyze requirements and create implementation roadmap
 Outputs: Implementation plan, dependency map, risk mitigation strategies
-Next Task: Data Layer Implementation (PF-TSK-051)
+Next Task: Data Layer Implementation (PF-TSK-051) or Core Logic Implementation (PF-TSK-078)
 ```
 
 **Transition Criteria:**
@@ -632,6 +632,25 @@ Next Task: State Management Implementation (PF-TSK-056)
 - [ ] Database migrations created and tested
 - [ ] Data access tests pass with ≥80% coverage
 - [ ] Feature Implementation State File updated with data layer inventory
+
+**Task 2b: Core Logic Implementation (PF-TSK-078)**
+
+```
+Prerequisites: Implementation planning complete, data layer complete (if applicable)
+Purpose: Implement core business logic modules, wire integration points, write tracked unit tests
+Outputs: Source modules, tracked unit tests (via New-TestFile.ps1), integration wiring, bug reports (if applicable)
+Next Task: Integration & Testing (PF-TSK-053)
+```
+
+**Transition Criteria:**
+- [ ] Source modules created and functional
+- [ ] Integration points wired (CLI, services, events)
+- [ ] Unit tests created via `New-TestFile.ps1` and all passing
+- [ ] Feature Tracking status updated to 🧪 Testing
+- [ ] Feature Implementation State File updated with code inventory
+- [ ] Bugs discovered but not fixed documented in Bug Tracking
+
+> **When to use PF-TSK-078 vs PF-TSK-056/052**: Use Core Logic Implementation for non-UI features or features without distinct state management/UI layers. Use the State Management → UI chain for features with layered UI architecture.
 
 **Task 3: State Management Implementation (PF-TSK-056)**
 
@@ -2190,7 +2209,7 @@ RELEASE:        E2E Test Execution (all groups must pass before deployment)
 
 ### Issue: Unclear Which Task to Use Next
 
-**Solution**: Use the decision trees in this guide and consult the task selection guide in ai-tasks.md
+**Solution**: Use the decision trees in this guide and consult the task selection guide in doc/process-framework/ai-tasks.md
 
 ### Issue: Prerequisites Not Met
 

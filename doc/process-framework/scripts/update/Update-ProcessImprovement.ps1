@@ -184,72 +184,41 @@ function Move-ToCompletedSection {
         [string]$ValidationNotes
     )
 
-    $lines = [System.Collections.ArrayList]@($Content -split "\r?\n")
-
-    # Find the improvement row in the Current table
-    $rowIndex = -1
-    for ($i = 0; $i -lt $lines.Count; $i++) {
-        if ($lines[$i] -match "^\|\s*$ImprovementId\s*\|") {
-            $rowIndex = $i
-            break
-        }
+    # Use the generic Move-MarkdownTableRow helper from TableOperations.psm1
+    # Source table: | ID | Source | Description | Priority | Status | Last Updated | Notes |
+    # Dest table:   | ID | Description | Completed Date | Impact | Validation Notes |
+    $columnMapping = [ordered]@{
+        "ID"               = "ID"
+        "Description"      = "Description"
+        "Completed Date"   = "Completed Date"
+        "Impact"           = "Impact"
+        "Validation Notes" = "Validation Notes"
+    }
+    $additionalColumns = [ordered]@{
+        "Completed Date"   = $CurrentDate
+        "Impact"           = $Impact
+        "Validation Notes" = $ValidationNotes
     }
 
-    if ($rowIndex -eq -1) {
-        Write-Log "Could not find $ImprovementId in Current table" -Level "ERROR"
+    $result = Move-MarkdownTableRow `
+        -Content $Content `
+        -RowIdPattern ([regex]::Escape($ImprovementId)) `
+        -SourceSection "## Current Improvement Opportunities" `
+        -DestinationSection "## Completed Improvements" `
+        -ColumnMapping $columnMapping `
+        -AdditionalColumns $additionalColumns
+
+    if ($null -eq $result.Content) {
+        Write-Log "Failed to move $ImprovementId to Completed section" -Level "ERROR"
+        if ($result.SourceRow) {
+            Write-Log "Source row found but insertion failed. Check destination section." -Level "ERROR"
+        }
         return $null
     }
 
-    # Parse the row to extract Description
-    $row = $lines[$rowIndex]
-    $columns = $row -split '\|' | ForEach-Object { $_.Trim() }
-    if ($columns[0] -eq '') { $columns = $columns[1..($columns.Length - 1)] }
-    if ($columns[-1] -eq '') { $columns = $columns[0..($columns.Length - 2)] }
-
-    # Current table: | ID | Source | Description | Priority | Status | Last Updated | Notes |
-    $description = $columns[2]
-
-    # Remove the row from Current table
-    $lines.RemoveAt($rowIndex)
     Write-Log "Removed $ImprovementId from Current Improvement Opportunities"
-
-    # Build the Completed table row
-    # Completed table: | ID | Description | Completed Date | Impact | Validation Notes |
-    $completedRow = "| $ImprovementId | $description | $CurrentDate | $Impact | $ValidationNotes |"
-
-    # Find insertion point: after the last data row in the Completed Improvements table
-    # The Completed section is inside a <details> block
-    $insertAfterIndex = -1
-    $inCompletedSection = $false
-    for ($i = 0; $i -lt $lines.Count; $i++) {
-        if ($lines[$i] -match "^## Completed Improvements") { $inCompletedSection = $true }
-        if ($inCompletedSection) {
-            if ($lines[$i] -match "^\|\s*IMP-\d+") { $insertAfterIndex = $i }
-            if ($lines[$i] -match "^\s*</details>") { break }
-        }
-    }
-
-    # If no IMP rows in Completed section, insert after the table separator
-    if ($insertAfterIndex -eq -1) {
-        $inCompletedSection = $false
-        for ($i = 0; $i -lt $lines.Count; $i++) {
-            if ($lines[$i] -match "^## Completed Improvements") { $inCompletedSection = $true }
-            if ($inCompletedSection -and $lines[$i] -match "^\|\s*-") {
-                $insertAfterIndex = $i
-                break
-            }
-        }
-    }
-
-    if ($insertAfterIndex -eq -1) {
-        Write-Log "Could not find insertion point in Completed Improvements section" -Level "ERROR"
-        return $null
-    }
-
-    $lines.Insert($insertAfterIndex + 1, $completedRow)
     Write-Log "Added $ImprovementId to Completed Improvements section" -Level "SUCCESS"
-
-    return ($lines -join "`r`n")
+    return $result.Content
 }
 
 function Update-SummaryCount {

@@ -1,5 +1,5 @@
 ---
-id: PD-GDE-007
+id: PF-GDE-007
 type: Product Documentation
 category: Guide
 version: 1.0
@@ -200,7 +200,7 @@ except Exception as e:
 The deployment process is automated using GitHub Actions. For complete details on the release and deployment process, see the [Release Process Guide](../../development/processes/release-process.md).
 
 Key aspects of the deployment process include:
-- Automated version bumping and changelog generation
+- Automated version bumping
 - Pull request creation for release reviews
 - Automated builds for all target platforms
 - Deployment to test and production environments
@@ -218,12 +218,12 @@ Before initiating a release, ensure all features are complete, tests are passing
 ### 1. Configuration File Management
 
 - **Configuration Files**: Always update configuration files when making code changes
-  - **requirements.txt / setup.py**: Update when adding/removing dependencies
+  - **pyproject.toml**: Update when adding/removing dependencies
   - **Configuration YAML**: Update when changing application settings or defaults
   - **Linting configuration**: Update when changing code quality rules
 
 - **After updating dependencies**:
-  - Install new dependencies (`pip install -r requirements.txt`)
+  - Install new dependencies (`pip install -e .`)
   - Verify that all dependencies are compatible
   - Document significant dependency changes
 

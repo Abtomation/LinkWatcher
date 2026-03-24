@@ -41,9 +41,9 @@ python deployment/install_global.py
 
 This script:
 - Checks Python version (3.8+ required)
-- Installs/updates pip dependencies from `requirements.txt`
+- Installs/updates pip dependencies from `pyproject.toml`
 - Removes stale files from previous installs (e.g., old `link_watcher.py`)
-- Copies `main.py`, `requirements.txt`, `linkwatcher/` package, and `config-examples/`
+- Copies `main.py`, `pyproject.toml`, `linkwatcher/` package, and `config-examples/`
 - Excludes `__pycache__` and `.pyc` files from the copy
 - Creates wrapper scripts (`linkwatcher.bat`, `linkwatcher.ps1`, `checklinks.bat`)
 - Updates all startup scripts in `LinkWatcher_run/` to point to the install path
@@ -99,14 +99,12 @@ Get-Content LinkWatcher_run/LinkWatcherLog.txt.1 -Tail 20
 - [ ] Run `python deployment/install_global.py` - completes without errors
 - [ ] Restart LinkWatcher background process
 - [ ] Verify LinkWatcher is running and detecting file changes
-- [ ] Update `CHANGELOG.md` if this is a significant release
 
 ## Version Management
 
 Version is defined in `setup.py` (currently `2.0.0`). For significant releases:
 
 1. Update `version` in `setup.py`
-2. Update `CHANGELOG.md` with changes
 3. Optionally create a git tag:
    ```bash
    git tag v2.1.0

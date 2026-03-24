@@ -1,5 +1,5 @@
 ---
-id: PF-STA-006
+id: TE-STA-001
 type: Process Framework
 category: State File
 version: 3.0
@@ -51,9 +51,10 @@ This file tracks the implementation status of all tests — automated and E2E ac
 
 | Test ID | Feature ID | Test Type | Test File/Case | Status | Test Cases Count | Last Executed | Last Updated | Notes |
 |---------|------------|-----------|----------------|--------|------------------|---------------|--------------|-------|
-| PD-TST-098 | — | Automated | [conftest.py](../../automated/conftest.py) | ✅ Tests Implemented | 8 | — | 2026-03-22 | Root test fixtures (9 shared fixtures) |
-| PD-TST-099 | — | Automated | [utils.py](../../automated/utils.py) | ✅ Tests Implemented | 5 | — | 2026-03-22 | Test utility functions and builders |
-| PD-TST-126 | — | Automated | [test_large_projects.py](../../automated/performance/test_large_projects.py) | ✅ Tests Implemented | 4 | Run 2026-03-22: 2 passed, 2 skipped | 2026-03-22 | Performance benchmarks |
+| TE-TST-098 | — | Automated | [conftest.py](../../automated/conftest.py) | ✅ Tests Implemented | 8 | — | 2026-03-22 | Root test fixtures (9 shared fixtures) |
+| TE-TST-099 | — | Automated | [utils.py](../../automated/utils.py) | ✅ Tests Implemented | 5 | — | 2026-03-22 | Test utility functions and builders |
+| TE-TST-126 | — | Automated | [test_large_projects.py](../../automated/performance/test_large_projects.py) | ✅ Tests Implemented | 4 | Run 2026-03-22: 2 passed, 2 skipped | 2026-03-22 | Performance benchmarks |
+| TE-TST-131 | — | Automated | [test_benchmark.py](../../automated/performance/test_benchmark.py) | ✅ Tests Implemented | 3 | Run 2026-03-24: 3 passed | 2026-03-24 | Parsing, database, and scan benchmarks |
 
 # Test Status by Feature Category
 
@@ -61,49 +62,49 @@ This file tracks the implementation status of all tests — automated and E2E ac
 
 | Test ID | Feature ID | Test Type | Test File/Case | Status | Test Cases Count | Last Executed | Last Updated | Notes |
 |---------|------------|-----------|----------------|--------|------------------|---------------|--------------|-------|
-| PD-TST-102 | 0.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 24 | Run 2026-03-22: 24 passed | 2026-03-22 | Core service orchestration unit tests |
-| PD-TST-116 | 0.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 17 | Run 2026-03-22: 17 passed | 2026-03-22 | Service integration with subsystems |
-| PD-TST-119 | 0.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 11 | Run 2026-03-22: 11 passed | 2026-03-22 | Complex multi-component scenarios |
-| PD-TST-120 | 0.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 19 | Run 2026-03-22: 18 passed, 1 skipped | 2026-03-22 | Error handling and graceful degradation |
-| PD-TST-104 | 0.1.2 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 26 | Run 2026-03-22: 26 passed | 2026-03-22 | In-memory database thread-safe operations |
-| PD-TST-100 | 0.1.3 | Automated | [test_config.py](../../automated/test_config.py) | ✅ Tests Implemented | 10 | — | 2026-02-20 | Configuration system tests (root) |
-| PD-TST-106 | 0.1.3 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 42 | Run 2026-03-22: 42 passed | 2026-03-22 | Configuration system unit tests |
-| PD-TST-122 | 0.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 16 | Run 2026-03-22: 14 passed, 2 skipped | 2026-03-22 | Windows path handling integration tests |
-| PD-TST-127 | 0.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 10 | Run 2026-03-22: 10 passed | 2026-03-22 | Duplicate instance prevention lock file mechanism |
+| TE-TST-102 | 0.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 24 | Run 2026-03-22: 24 passed | 2026-03-22 | Core service orchestration unit tests |
+| TE-TST-116 | 0.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 17 | Run 2026-03-22: 17 passed | 2026-03-22 | Service integration with subsystems |
+| TE-TST-119 | 0.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 11 | Run 2026-03-22: 11 passed | 2026-03-22 | Complex multi-component scenarios |
+| TE-TST-120 | 0.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 19 | Run 2026-03-22: 18 passed, 1 skipped | 2026-03-22 | Error handling and graceful degradation |
+| TE-TST-104 | 0.1.2 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 26 | Run 2026-03-22: 26 passed | 2026-03-22 | In-memory database thread-safe operations |
+| TE-TST-100 | 0.1.3 | Automated | [test_config.py](../../automated/test_config.py) | ✅ Tests Implemented | 10 | — | 2026-02-20 | Configuration system tests (root) |
+| TE-TST-106 | 0.1.3 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 42 | Run 2026-03-22: 42 passed | 2026-03-22 | Configuration system unit tests |
+| TE-TST-122 | 0.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 16 | Run 2026-03-22: 14 passed, 2 skipped | 2026-03-22 | Windows path handling integration tests |
+| TE-TST-127 | 0.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 10 | Run 2026-03-22: 10 passed | 2026-03-22 | Duplicate instance prevention lock file mechanism |
 
 ## 1. File Watching & Detection
 
 | Test ID | Feature ID | Test Type | Test File/Case | Status | Test Cases Count | Last Executed | Last Updated | Notes |
 |---------|------------|-----------|----------------|--------|------------------|---------------|--------------|-------|
-| PD-TST-101 | 1.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 20 | Run 2026-03-22: 20 passed | 2026-03-22 | File move detection integration |
-| PD-TST-117 | 1.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 7 | Run 2026-03-22: 7 passed | 2026-03-22 | File movement handling integration |
-| PD-TST-121 | 1.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 4 | Run 2026-03-22: 4 passed | 2026-03-22 | Sequential file move scenarios |
-| PD-TST-123 | 1.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 7 | Run 2026-03-22: 7 passed | 2026-03-22 | Comprehensive file type monitoring |
-| PD-TST-124 | 1.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 6 | Run 2026-03-22: 6 passed | 2026-03-22 | Image file monitoring |
-| PD-TST-125 | 1.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 5 | Run 2026-03-22: 5 passed | 2026-03-22 | PowerShell script monitoring |
+| TE-TST-101 | 1.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 20 | Run 2026-03-22: 20 passed | 2026-03-22 | File move detection integration |
+| TE-TST-117 | 1.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 7 | Run 2026-03-22: 7 passed | 2026-03-22 | File movement handling integration |
+| TE-TST-121 | 1.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 4 | Run 2026-03-22: 4 passed | 2026-03-22 | Sequential file move scenarios |
+| TE-TST-123 | 1.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 7 | Run 2026-03-22: 7 passed | 2026-03-22 | Comprehensive file type monitoring |
+| TE-TST-124 | 1.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 6 | Run 2026-03-22: 6 passed | 2026-03-22 | Image file monitoring |
+| TE-TST-125 | 1.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 5 | Run 2026-03-22: 5 passed | 2026-03-22 | PowerShell script monitoring |
 
 ## 2. Link Parsing & Update
 
 | Test ID | Feature ID | Test Type | Test File/Case | Status | Test Cases Count | Last Executed | Last Updated | Notes |
 |---------|------------|-----------|----------------|--------|------------------|---------------|--------------|-------|
-| PD-TST-103 | 2.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 12 | Run 2026-03-22: 12 passed | 2026-03-22 | Parser framework base interface |
-| PD-TST-109 | 2.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 24 | Run 2026-03-22: 24 passed | 2026-03-22 | Markdown link parsing |
-| PD-TST-110 | 2.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 12 | Run 2026-03-22: 12 passed | 2026-03-22 | YAML file reference parsing |
-| PD-TST-111 | 2.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 16 | Run 2026-03-22: 16 passed | 2026-03-22 | JSON file reference parsing |
-| PD-TST-112 | 2.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 8 | Run 2026-03-22: 8 passed | 2026-03-22 | Python import parsing |
-| PD-TST-113 | 2.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 11 | Run 2026-03-22: 11 passed | 2026-03-22 | Dart import/part parsing |
-| PD-TST-114 | 2.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 21 | Run 2026-03-22: 21 passed | 2026-03-22 | Generic fallback parser |
-| PD-TST-115 | 2.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 6 | Run 2026-03-22: 6 passed | 2026-03-22 | Image file reference handling |
-| PD-TST-105 | 2.2.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 28 | Run 2026-03-22: 28 passed | 2026-03-22 | Link updater atomic operations |
-| PD-TST-118 | 2.2.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 26 | Run 2026-03-22: 26 passed | 2026-03-22 | Link update across file formats |
-| PD-TST-129 | 2.1.1 | Automated | [test_powershell.py](../../automated/parsers/test_powershell.py) | ✅ Tests Implemented | 32 | Run 2026-03-22: 32 passed | 2026-03-22 | PowerShell parser tests — cmdlet patterns, embedded markdown links, regex filtering (PD-BUG-033), deduplication. Registered during test audit. |
+| TE-TST-103 | 2.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 12 | Run 2026-03-22: 12 passed | 2026-03-22 | Parser framework base interface |
+| TE-TST-109 | 2.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 24 | Run 2026-03-22: 24 passed | 2026-03-22 | Markdown link parsing |
+| TE-TST-110 | 2.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 12 | Run 2026-03-22: 12 passed | 2026-03-22 | YAML file reference parsing |
+| TE-TST-111 | 2.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 16 | Run 2026-03-22: 16 passed | 2026-03-22 | JSON file reference parsing |
+| TE-TST-112 | 2.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 8 | Run 2026-03-22: 8 passed | 2026-03-22 | Python import parsing |
+| TE-TST-113 | 2.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 11 | Run 2026-03-22: 11 passed | 2026-03-22 | Dart import/part parsing |
+| TE-TST-114 | 2.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 21 | Run 2026-03-22: 21 passed | 2026-03-22 | Generic fallback parser |
+| TE-TST-115 | 2.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 6 | Run 2026-03-22: 6 passed | 2026-03-22 | Image file reference handling |
+| TE-TST-105 | 2.2.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 28 | Run 2026-03-22: 28 passed | 2026-03-22 | Link updater atomic operations |
+| TE-TST-118 | 2.2.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 26 | Run 2026-03-22: 26 passed | 2026-03-22 | Link update across file formats |
+| TE-TST-129 | 2.1.1 | Automated | [test_powershell.py](../../automated/parsers/test_powershell.py) | ✅ Tests Implemented | 32 | Run 2026-03-22: 32 passed | 2026-03-22 | PowerShell parser tests — cmdlet patterns, embedded markdown links, regex filtering (PD-BUG-033), deduplication. Registered during test audit. |
 
 ## 3. Logging & Monitoring
 
 | Test ID | Feature ID | Test Type | Test File/Case | Status | Test Cases Count | Last Executed | Last Updated | Notes |
 |---------|------------|-----------|----------------|--------|------------------|---------------|--------------|-------|
-| PD-TST-107 | 3.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 25 | Run 2026-03-22: 25 passed | 2026-03-22 | Logging framework core tests |
-| PD-TST-108 | 3.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 19 | Run 2026-03-22: 19 passed | 2026-03-22 | Advanced logging features |
+| TE-TST-107 | 3.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 25 | Run 2026-03-22: 25 passed | 2026-03-22 | Logging framework core tests |
+| TE-TST-108 | 3.1.1 | Automated | ✅ Tests Approved | ✅ Tests Implemented | 19 | Run 2026-03-22: 19 passed | 2026-03-22 | Advanced logging features |
 
 ## E2E Acceptance Tests
 
@@ -169,7 +170,7 @@ This file tracks tests at the **test file level** (automated) and **test case/gr
 
 ### Column Definitions
 
-- **Test ID**: Unique identifier (PD-TST-### for automated, TE-E2G-### for E2E groups, TE-E2E-### for E2E cases)
+- **Test ID**: Unique identifier (TE-TST-### for automated, TE-E2G-### for E2E groups, TE-E2E-### for E2E cases)
 - **Feature ID**: Reference to the feature being tested (links to feature-tracking.md)
 - **Test Type**: `Automated`, `E2E Group`, or `E2E Case`
 - **Test File/Case**: Path and link to the test file or E2E acceptance test case document

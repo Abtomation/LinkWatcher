@@ -31,14 +31,12 @@ def check_python_version():
 
 
 def install_dependencies(project_root):
-    """Install required Python packages."""
+    """Install required Python packages from pyproject.toml."""
     print("\nInstalling dependencies...")
-
-    requirements_file = project_root / "requirements.txt"
 
     try:
         subprocess.run(
-            [sys.executable, "-m", "pip", "install", "-r", str(requirements_file)],
+            [sys.executable, "-m", "pip", "install", "-e", str(project_root)],
             check=True,
             capture_output=True,
             text=True,
@@ -89,7 +87,7 @@ def install_linkwatcher(project_root, install_dir):
     # Core files to copy (relative to project root)
     core_files = [
         "main.py",
-        "requirements.txt",
+        "pyproject.toml",
     ]
 
     # Core directories to copy (full replacement)
@@ -99,9 +97,7 @@ def install_linkwatcher(project_root, install_dir):
     ]
 
     # Optional files (copy if they exist, skip silently if not)
-    optional_files = [
-        "scripts/check_links.py",
-    ]
+    optional_files = []
 
     # Copy required files
     for file_name in core_files:

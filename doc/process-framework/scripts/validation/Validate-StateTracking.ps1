@@ -22,7 +22,7 @@
 .PARAMETER Detailed
     Show every checked link, not just failures.
 .PARAMETER FixCounters
-    Auto-fix nextAvailable counters in id-registry.json (Surface 5 only).
+    Auto-fix nextAvailable counters in ID registries (Surface 5 only).
 .EXAMPLE
     ../Validate-StateTracking.ps1
 .EXAMPLE
@@ -431,32 +431,44 @@ if ($runAll -or $Surface -contains "CrossRef") {
 if ($runAll -or $Surface -contains "IdCounters") {
     Write-Host "[5/5] ID Counter Health" -ForegroundColor Cyan
 
-    $idRegistryPath = Join-Path $ProjectRoot "doc/id-registry.json"
-    if (-not (Test-Path $idRegistryPath)) {
-        Add-CheckResult "ERROR" "IdCounters" "doc/id-registry.json" "File not found: $idRegistryPath"
-    } else {
-        $idRegistry = Get-Content $idRegistryPath -Raw -Encoding UTF8 | ConvertFrom-Json
+    # Load all three ID registries
+    $registryMap = @{
+        'PF' = @{ Path = (Join-Path $ProjectRoot "doc/process-framework/PF-id-registry.json"); Registry = $null; Fixed = 0 }
+        'PD' = @{ Path = (Join-Path $ProjectRoot "doc/product-docs/PD-id-registry.json"); Registry = $null; Fixed = 0 }
+        'TE' = @{ Path = (Join-Path $ProjectRoot "test/TE-id-registry.json"); Registry = $null; Fixed = 0 }
+    }
+    $allLoaded = $true
+    foreach ($key in $registryMap.Keys) {
+        $regPath = $registryMap[$key].Path
+        if (Test-Path $regPath) {
+            $registryMap[$key].Registry = Get-Content $regPath -Raw -Encoding UTF8 | ConvertFrom-Json
+        } else {
+            Add-CheckResult "ERROR" "IdCounters" "$key-id-registry.json" "File not found: $regPath"
+            $allLoaded = $false
+        }
+    }
 
+    if ($allLoaded) {
         # Prefixes to validate with their file patterns
         $prefixChecks = @(
-            @{ Prefix = "PF-FEA";  Dir = "doc/product-docs/state-tracking/features";                         Pattern = "*.md" }
-            @{ Prefix = "PD-FDD";  Dir = "doc/product-docs/functional-design/fdds";                                Pattern = "*.md" }
-            @{ Prefix = "PD-TDD";  Dir = "doc/product-docs/technical/architecture/design-docs/tdd";                Pattern = "*.md" }
-            @{ Prefix = "PD-ADR";  Dir = "doc/product-docs/technical/architecture/design-docs/adr/adr";            Pattern = "*.md" }
-            @{ Prefix = "ART-ASS"; Dir = "doc/product-docs/documentation-tiers/assessments";    Pattern = "*.md" }
-            @{ Prefix = "PF-TSP";  Dir = "test/specifications/feature-specs";                                       Pattern = "*.md" }
+            @{ Prefix = "PD-FIS";  Dir = "doc/product-docs/state-tracking/features";                              Pattern = "*.md"; Domain = "PD" }
+            @{ Prefix = "PD-FDD";  Dir = "doc/product-docs/functional-design/fdds";                                Pattern = "*.md"; Domain = "PD" }
+            @{ Prefix = "PD-TDD";  Dir = "doc/product-docs/technical/architecture/design-docs/tdd";                Pattern = "*.md"; Domain = "PD" }
+            @{ Prefix = "PD-ADR";  Dir = "doc/product-docs/technical/architecture/design-docs/adr/adr";            Pattern = "*.md"; Domain = "PD" }
+            @{ Prefix = "PD-ASS";  Dir = "doc/product-docs/documentation-tiers/assessments";                       Pattern = "*.md"; Domain = "PD" }
+            @{ Prefix = "TE-TSP";  Dir = "test/specifications/feature-specs";                                       Pattern = "*.md"; Domain = "TE" }
         )
 
-        $countersFixed = 0
         foreach ($check in $prefixChecks) {
             $prefix = $check.Prefix
+            $domain = $check.Domain
             $dirPath = Join-Path $ProjectRoot $check.Dir
 
-            # Get nextAvailable from registry
-            $prefixKey = $prefix
-            $registryEntry = $idRegistry.prefixes.$prefixKey
+            # Get nextAvailable from the correct registry
+            $idRegistry = $registryMap[$domain].Registry
+            $registryEntry = $idRegistry.prefixes.$prefix
             if (-not $registryEntry) {
-                Add-CheckResult "WARNING" "IdCounters" $prefix "Prefix not found in id-registry.json"
+                Add-CheckResult "WARNING" "IdCounters" $prefix "Prefix not found in $domain-id-registry.json"
                 continue
             }
             $nextAvailable = $registryEntry.nextAvailable
@@ -483,8 +495,8 @@ if ($runAll -or $Surface -contains "IdCounters") {
             } elseif ($nextAvailable -lt $expectedNext) {
                 Add-CheckResult "ERROR" "IdCounters" $prefix "nextAvailable=$nextAvailable but max ID is $prefix-$maxId (would cause collision! expected: $expectedNext)"
                 if ($FixCounters) {
-                    $idRegistry.prefixes.$prefixKey.nextAvailable = $expectedNext
-                    $countersFixed++
+                    $idRegistry.prefixes.$prefix.nextAvailable = $expectedNext
+                    $registryMap[$domain].Fixed++
                     Write-Host "      Fixed: nextAvailable set to $expectedNext" -ForegroundColor Magenta
                 }
             } else {
@@ -493,9 +505,13 @@ if ($runAll -or $Surface -contains "IdCounters") {
             }
         }
 
-        if ($FixCounters -and $countersFixed -gt 0) {
-            $idRegistry | ConvertTo-Json -Depth 10 | Set-Content $idRegistryPath -Encoding UTF8
-            Write-Host "  Fixed $countersFixed counter(s) in id-registry.json" -ForegroundColor Magenta
+        if ($FixCounters) {
+            foreach ($key in $registryMap.Keys) {
+                if ($registryMap[$key].Fixed -gt 0) {
+                    $registryMap[$key].Registry | ConvertTo-Json -Depth 10 | Set-Content $registryMap[$key].Path -Encoding UTF8
+                    Write-Host "  Fixed $($registryMap[$key].Fixed) counter(s) in $key-id-registry.json" -ForegroundColor Magenta
+                }
+            }
         }
     }
     Write-Host ""

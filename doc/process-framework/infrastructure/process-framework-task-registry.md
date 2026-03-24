@@ -291,8 +291,40 @@ This document serves as the **comprehensive registry** of all process framework 
 - **Primary state file:** Feature Implementation State File - Tracks data layer implementation progress within multi-task feature workflow
 - **Code artifacts:** Creates foundational data access layer for feature (models, repositories, database integration)
 - **Dependencies:** Provides data access interfaces for state management layer
-- **Enables next steps:** State Management Implementation Task (PF-TSK-043), Integration & Testing
+- **Enables next steps:** State Management Implementation Task (PF-TSK-056), Integration & Testing
 - **Prerequisites:** Feature Implementation Planning Task (PF-TSK-044), Database Schema Design completed, migrations prepared
+
+#### **7b. Core Logic Implementation Task** ([PF-TSK-078](../tasks/04-implementation/core-logic-implementation.md))
+
+**🔧 Process Type:** 🔄 **Semi-Automated** (Manual implementation with automated test tracking)
+
+**📋 AUTOMATION DETAILS**
+
+- **Script:** None (manual implementation)
+- **Test File Creation:** [`New-TestFile.ps1`](../scripts/file-creation/03-testing/New-TestFile.ps1) - Creates tracked unit test files with TE-TST IDs
+- **Bug Reporting:** [`New-BugReport.ps1`](../scripts/file-creation/06-maintenance/New-BugReport.ps1) - Documents bugs discovered during implementation
+- **Output Directory:** Project source directories (feature-dependent)
+
+**📁 FILE OPERATIONS**
+| Operation | File Path | Update Method | Details |
+|-----------|-----------|---------------|---------|
+| **Creates** | Source modules | Manual | Core business logic modules in project source directory |
+| **Creates** | Integration wiring | Manual | CLI commands, service registrations, event hooks |
+| **Creates** | Unit tests | `New-TestFile.ps1` | Tracked test files with TE-TST IDs in project test directory |
+| **Creates** | Bug reports (if applicable) | `New-BugReport.ps1` | Bug reports for issues not fixed in this session |
+| **Updates** | [Feature Implementation State Files](../../product-docs/state-tracking/features/) | Manual | Code inventory, task sequence, implementation notes, issues log |
+| **Updates** | [Feature Tracking](../../product-docs/state-tracking/permanent/feature-tracking.md) | Manual | Status → 🧪 Testing |
+| **Updates** | [Test Tracking](../../../test/state-tracking/permanent/test-tracking.md) | `New-TestFile.ps1` | Automated test file links and status |
+| **Updates** | [Test Registry](/test/test-registry.yaml) | `New-TestFile.ps1` | Automated test file metadata |
+| **Updates** | [Bug Tracking](../../product-docs/state-tracking/permanent/bug-tracking.md) | Manual | Bug entries if bugs discovered (optional) |
+
+**🎯 KEY IMPACTS**
+
+- **Primary state file:** Feature Implementation State File - Tracks core logic implementation progress within multi-task feature workflow
+- **Code artifacts:** Creates core business logic modules, integration wiring, and tracked unit tests
+- **Dependencies:** May depend on Data Layer Implementation (PF-TSK-051) for data access
+- **Enables next steps:** Integration & Testing (PF-TSK-053), Quality Validation (PF-TSK-054)
+- **Prerequisites:** Feature Implementation Planning (PF-TSK-044), design documentation (TDD/FDD if Tier 2+)
 
 #### **8. Foundation Feature Implementation Task** ([PF-TSK-024](../tasks/04-implementation/foundation-feature-implementation-task.md))
 
@@ -692,7 +724,7 @@ This document serves as the **comprehensive registry** of all process framework 
 | **Creates** | `[kebab-case-task-name].md` | [`New-Task.ps1`](../scripts/file-creation/support/New-Task.ps1) | New task document with standardized structure |
 | **Updates** | [`documentation-map.md`](../documentation-map.md) | [`New-Task.ps1`](../scripts/file-creation/support/New-Task.ps1) | Add new task to appropriate task category section |
 | **Updates** | [`tasks/README.md`](../tasks/README.md) | [`New-Task.ps1`](../scripts/file-creation/support/New-Task.ps1) | Add new task to task type table with flexible pattern matching |
-| **Updates** | [`ai-tasks.md`](../../../ai-tasks.md) | [`New-Task.ps1`](../scripts/file-creation/support/New-Task.ps1) | **NEW**: Add new task to AI Tasks main entry point with correct section and table format |
+| **Updates** | [`ai-tasks.md`](../ai-tasks.md) | [`New-Task.ps1`](../scripts/file-creation/support/New-Task.ps1) | **NEW**: Add new task to AI Tasks main entry point with correct section and table format |
 | **Updates** | [`process-framework-task-registry.md`](process-framework-task-registry.md) | Manual | Add new task entry with its file update requirements (**THIS FILE**) |
 
 **🎯 KEY IMPACTS**

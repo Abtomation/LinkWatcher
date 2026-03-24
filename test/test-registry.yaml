@@ -1,6 +1,6 @@
 # Test Registry
 # This file maintains a registry of all test files with their IDs, metadata, and relationships
-# Format: PD-TST-[SEQUENCE] for Test File IDs
+# Format: TE-TST-[SEQUENCE] for Test File IDs
 # Updated: 2026-03-18
 # Version: 2.3
 #
@@ -26,7 +26,7 @@ testFiles:
   # ─────────────────────────────────────────────────────────
   # Infrastructure / Fixtures
   # ─────────────────────────────────────────────────────────
-  - id: PD-TST-098
+  - id: TE-TST-098
     featureId: "infrastructure"
     fileName: conftest.py
     filePath: test/automated/conftest.py
@@ -39,7 +39,7 @@ testFiles:
     status: "✅ Tests Implemented"
     testCasesCount: 8
 
-  - id: PD-TST-099
+  - id: TE-TST-099
     featureId: "infrastructure"
     fileName: utils.py
     filePath: test/automated/utils.py
@@ -53,7 +53,7 @@ testFiles:
     testCasesCount: 5
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-4-1-1-test-suite-t2.md
 
-  - id: PD-TST-100
+  - id: TE-TST-100
     featureId: "0.1.3"
     fileName: test_config.py
     filePath: test/automated/test_config.py
@@ -70,7 +70,7 @@ testFiles:
     tddPath:
     crossCuttingFeatures: ["4.1.1"]
 
-  - id: PD-TST-101
+  - id: TE-TST-101
     featureId: "1.1.1"
     fileName: test_move_detection.py
     filePath: test/automated/test_move_detection.py
@@ -90,7 +90,7 @@ testFiles:
   # ─────────────────────────────────────────────────────────
   # Unit Tests (test/automated/unit/)
   # ─────────────────────────────────────────────────────────
-  - id: PD-TST-102
+  - id: TE-TST-102
     featureId: "0.1.1"
     fileName: test_service.py
     filePath: test/automated/unit/test_service.py
@@ -107,7 +107,7 @@ testFiles:
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md
     crossCuttingFeatures: ["1.1.1", "0.1.2"]
 
-  - id: PD-TST-103
+  - id: TE-TST-103
     featureId: "2.1.1"
     fileName: test_parser.py
     filePath: test/automated/unit/test_parser.py
@@ -123,7 +123,7 @@ testFiles:
     tier: 2
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md
 
-  - id: PD-TST-104
+  - id: TE-TST-104
     featureId: "0.1.2"
     fileName: test_database.py
     filePath: test/automated/unit/test_database.py
@@ -140,7 +140,7 @@ testFiles:
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-2-in-memory-database-t2.md
     crossCuttingFeatures: ["0.1.1"]
 
-  - id: PD-TST-105
+  - id: TE-TST-105
     featureId: "2.2.1"
     fileName: test_updater.py
     filePath: test/automated/unit/test_updater.py
@@ -157,7 +157,7 @@ testFiles:
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-2-1-link-updater-t2.md
     crossCuttingFeatures: ["0.1.1"]
 
-  - id: PD-TST-106
+  - id: TE-TST-106
     featureId: "0.1.3"
     fileName: test_config.py
     filePath: test/automated/unit/test_config.py
@@ -174,7 +174,7 @@ testFiles:
     tddPath:
     crossCuttingFeatures: ["1.1.1", "3.1.1"]
 
-  - id: PD-TST-107
+  - id: TE-TST-107
     featureId: "3.1.1"
     fileName: test_logging.py
     filePath: test/automated/unit/test_logging.py
@@ -190,7 +190,7 @@ testFiles:
     tier: 2
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-3-1-1-logging-framework-t2.md
 
-  - id: PD-TST-108
+  - id: TE-TST-108
     featureId: "3.1.1"
     fileName: test_advanced_logging.py
     filePath: test/automated/unit/test_advanced_logging.py
@@ -209,7 +209,7 @@ testFiles:
   # ─────────────────────────────────────────────────────────
   # Parser Tests (test/automated/parsers/)
   # ─────────────────────────────────────────────────────────
-  - id: PD-TST-109
+  - id: TE-TST-109
     featureId: "2.1.1"
     fileName: test_markdown.py
     filePath: test/automated/parsers/test_markdown.py
@@ -225,7 +225,7 @@ testFiles:
     tier: 2
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md
 
-  - id: PD-TST-110
+  - id: TE-TST-110
     featureId: "2.1.1"
     fileName: test_yaml.py
     filePath: test/automated/parsers/test_yaml.py
@@ -241,7 +241,7 @@ testFiles:
     tier: 2
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md
 
-  - id: PD-TST-111
+  - id: TE-TST-111
     featureId: "2.1.1"
     fileName: test_json.py
     filePath: test/automated/parsers/test_json.py
@@ -257,7 +257,7 @@ testFiles:
     tier: 2
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md
 
-  - id: PD-TST-112
+  - id: TE-TST-112
     featureId: "2.1.1"
     fileName: test_python.py
     filePath: test/automated/parsers/test_python.py
@@ -273,7 +273,7 @@ testFiles:
     tier: 2
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md
 
-  - id: PD-TST-113
+  - id: TE-TST-113
     featureId: "2.1.1"
     fileName: test_dart.py
     filePath: test/automated/parsers/test_dart.py
@@ -289,7 +289,7 @@ testFiles:
     tier: 2
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md
 
-  - id: PD-TST-114
+  - id: TE-TST-114
     featureId: "2.1.1"
     fileName: test_generic.py
     filePath: test/automated/parsers/test_generic.py
@@ -305,7 +305,7 @@ testFiles:
     tier: 2
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md
 
-  - id: PD-TST-115
+  - id: TE-TST-115
     featureId: "2.1.1"
     fileName: test_image_files.py
     filePath: test/automated/parsers/test_image_files.py
@@ -325,7 +325,7 @@ testFiles:
   # ─────────────────────────────────────────────────────────
   # Integration Tests (test/automated/integration/)
   # ─────────────────────────────────────────────────────────
-  - id: PD-TST-116
+  - id: TE-TST-116
     featureId: "0.1.1"
     fileName: test_service_integration.py
     filePath: test/automated/integration/test_service_integration.py
@@ -342,7 +342,7 @@ testFiles:
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md
     crossCuttingFeatures: ["1.1.1", "3.1.1", "0.1.2"]
 
-  - id: PD-TST-117
+  - id: TE-TST-117
     featureId: "1.1.1"
     fileName: test_file_movement.py
     filePath: test/automated/integration/test_file_movement.py
@@ -359,7 +359,7 @@ testFiles:
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-1-1-1-file-system-monitoring-t2.md
     crossCuttingFeatures: ["0.1.1", "2.1.1", "2.2.1"]
 
-  - id: PD-TST-118
+  - id: TE-TST-118
     featureId: "2.2.1"
     fileName: test_link_updates.py
     filePath: test/automated/integration/test_link_updates.py
@@ -376,7 +376,7 @@ testFiles:
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-2-1-link-updater-t2.md
     crossCuttingFeatures: ["2.1.1", "0.1.1", "1.1.1"]
 
-  - id: PD-TST-119
+  - id: TE-TST-119
     featureId: "0.1.1"
     fileName: test_complex_scenarios.py
     filePath: test/automated/integration/test_complex_scenarios.py
@@ -393,7 +393,7 @@ testFiles:
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md
     crossCuttingFeatures: ["2.1.1", "2.2.1", "1.1.1", "0.1.2"]
 
-  - id: PD-TST-120
+  - id: TE-TST-120
     featureId: "0.1.1"
     fileName: test_error_handling.py
     filePath: test/automated/integration/test_error_handling.py
@@ -410,7 +410,7 @@ testFiles:
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md
     crossCuttingFeatures: ["2.2.1", "0.1.2", "3.1.1"]
 
-  - id: PD-TST-121
+  - id: TE-TST-121
     featureId: "1.1.1"
     fileName: test_sequential_moves.py
     filePath: test/automated/integration/test_sequential_moves.py
@@ -427,7 +427,7 @@ testFiles:
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-1-1-1-file-system-monitoring-t2.md
     crossCuttingFeatures: ["0.1.2", "2.2.1", "0.1.1"]
 
-  - id: PD-TST-122
+  - id: TE-TST-122
     featureId: "0.1.1"
     fileName: test_windows_platform.py
     filePath: test/automated/integration/test_windows_platform.py
@@ -444,7 +444,7 @@ testFiles:
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md
     crossCuttingFeatures: ["1.1.1", "2.1.1", "2.2.1"]
 
-  - id: PD-TST-123
+  - id: TE-TST-123
     featureId: "1.1.1"
     fileName: test_comprehensive_file_monitoring.py
     filePath: test/automated/integration/test_comprehensive_file_monitoring.py
@@ -461,7 +461,7 @@ testFiles:
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-1-1-1-file-system-monitoring-t2.md
     crossCuttingFeatures: ["0.1.1"]
 
-  - id: PD-TST-124
+  - id: TE-TST-124
     featureId: "1.1.1"
     fileName: test_image_file_monitoring.py
     filePath: test/automated/integration/test_image_file_monitoring.py
@@ -478,7 +478,7 @@ testFiles:
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-1-1-1-file-system-monitoring-t2.md
     crossCuttingFeatures: ["2.1.1"]
 
-  - id: PD-TST-125
+  - id: TE-TST-125
     featureId: "1.1.1"
     fileName: test_powershell_script_monitoring.py
     filePath: test/automated/integration/test_powershell_script_monitoring.py
@@ -498,7 +498,7 @@ testFiles:
   # ─────────────────────────────────────────────────────────
   # Performance Tests (test/automated/performance/)
   # ─────────────────────────────────────────────────────────
-  - id: PD-TST-126
+  - id: TE-TST-126
     featureId: "4.1.1"
     fileName: test_large_projects.py
     filePath: test/automated/performance/test_large_projects.py
@@ -512,10 +512,24 @@ testFiles:
     testCasesCount: 4
     crossCuttingFeatures: ["0.1.1", "1.1.1", "2.2.1"]
 
+  - id: TE-TST-131
+    featureId: "cross-cutting"
+    fileName: test_benchmark.py
+    filePath: test/automated/performance/test_benchmark.py
+    testType: Performance
+    priority: Extended
+    componentName: Component Benchmarks
+    description: "Benchmark tests for parsing throughput, database operations, and initial scan performance"
+    created: 2026-03-24
+    updated: 2026-03-24
+    status: "✅ Tests Implemented"
+    testCasesCount: 3
+    crossCuttingFeatures: ["0.1.1", "0.1.2", "2.1.1"]
+
   # ─────────────────────────────────────────────────────────
   # Lock File Tests (test/automated/unit/)
   # ─────────────────────────────────────────────────────────
-  - id: PD-TST-127
+  - id: TE-TST-127
     featureId: "0.1.1"
     fileName: test_lock_file.py
     filePath: test/automated/unit/test_lock_file.py
@@ -534,7 +548,7 @@ testFiles:
   # ─────────────────────────────────────────────────────────
   # Bug Regression Tests (test/automated/)
   # ─────────────────────────────────────────────────────────
-  - id: PD-TST-128
+  - id: TE-TST-128
     featureId: "1.1.1"
     fileName: test_directory_move_detection.py
     filePath: test/automated/test_directory_move_detection.py
@@ -554,7 +568,7 @@ testFiles:
   # ─────────────────────────────────────────────────────────
   # PowerShell Parser Tests (test/automated/parsers/)
   # ─────────────────────────────────────────────────────────
-  - id: PD-TST-129
+  - id: TE-TST-129
     featureId: "2.1.1"
     fileName: test_powershell.py
     filePath: test/automated/parsers/test_powershell.py
@@ -571,7 +585,7 @@ testFiles:
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md
 
   # Cross-cutting specification: E2E Acceptance Testing Scenarios
-  - id: PD-TST-130
+  - id: TE-TST-130
     featureId: "1.1.1"
     fileName: cross-cutting-spec-e2e-acceptance-testing-scenarios.md
     filePath: specifications/cross-cutting-specs/cross-cutting-spec-e2e-acceptance-testing-scenarios.md

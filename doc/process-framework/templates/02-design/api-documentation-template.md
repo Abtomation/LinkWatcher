@@ -302,7 +302,6 @@ This template uses the following placeholder conventions:
 - Include error handling and troubleshooting guidance
 - Keep authentication instructions clear and prominent
 - Link to related API specifications and data models
-- Update changelog with every API version release
 
 ## Extension Points
 

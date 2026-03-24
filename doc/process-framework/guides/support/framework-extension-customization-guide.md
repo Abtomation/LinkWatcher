@@ -223,7 +223,7 @@ Before submitting your customized Framework Extension Concept document, verify:
 ### Framework Infrastructure
 - [Documentation Map](../documentation-map.md) - Complete framework documentation index
 - [AI Tasks Registry](../../ai-tasks.md) - Main task registry and entry point
-- [ID Registry](../id-registry.md) - Document ID assignment and tracking
+- [PF ID Registry](../PF-id-registry.json) - Document ID assignment and tracking
 
 ---
 

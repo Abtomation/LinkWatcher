@@ -341,7 +341,7 @@ When using decomposed mode, follow this sequence:
 3. State Management Implementation (PF-TSK-056)
    ↓ [Implement state management and business logic]
 4. UI Implementation (PF-TSK-052)
-   ↓ [Build widgets and screens]
+   ↓ [Build UI components and screens]
 5. Integration & Testing (PF-TSK-053)
    ↓ [Integrate layers and test]
 6. Quality Validation (PF-TSK-054)

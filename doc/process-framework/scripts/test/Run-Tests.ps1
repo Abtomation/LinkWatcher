@@ -44,7 +44,7 @@
 .PARAMETER UpdateTracking
     After running tests, parse per-file pass/fail results and update test-tracking.md
     via TestTracking.psm1. Requires verbose pytest output to parse individual test results.
-    Looks up PD-TST IDs from test-registry.yaml to match file paths to tracking entries.
+    Looks up TE-TST IDs from test-registry.yaml to match file paths to tracking entries.
 
 .EXAMPLE
     .\Run-Tests.ps1 -Category unit
@@ -402,7 +402,7 @@ if ($UpdateTracking -and $script:capturedTestOutput.Count -gt 0) {
     if ($fileResults.Count -eq 0) {
         Write-Host "No per-test results found in output — skipping tracking update."
     } else {
-        # Load test-registry.yaml to map file paths to PD-TST IDs
+        # Load test-registry.yaml to map file paths to TE-TST IDs
         $registryPath = Join-Path $projectRoot "test/test-registry.yaml"
         if (-not (Test-Path $registryPath)) {
             Write-Host "test-registry.yaml not found — skipping tracking update."
@@ -415,7 +415,7 @@ if ($UpdateTracking -and $script:capturedTestOutput.Count -gt 0) {
             $currentEntry = @{}
             for ($i = 0; $i -lt $registryLines.Count; $i++) {
                 $rline = $registryLines[$i]
-                if ($rline -match '^\s+-\s+id:\s*(PD-TST-\d+)') {
+                if ($rline -match '^\s+-\s+id:\s*(TE-TST-\d+)') {
                     $currentEntry = @{ id = $matches[1] }
                 }
                 if ($currentEntry.id -and $rline -match '^\s+featureId:\s*"?([^"]+)"?') {
@@ -462,7 +462,7 @@ if ($UpdateTracking -and $script:capturedTestOutput.Count -gt 0) {
             if ($updatesByTestId.Count -eq 0) {
                 Write-Host "No test files matched registry entries — skipping tracking update."
             } else {
-                # Update test-tracking.md directly — match rows by PD-TST ID in column 0
+                # Update test-tracking.md directly — match rows by TE-TST ID in column 0
                 # Columns: Test ID(0) | Feature ID(1) | Test Type(2) | Test File/Case(3) | Status(4) | Test Cases Count(5) | Last Executed(6) | Last Updated(7) | Notes(8)
                 $trackingPath = Join-Path $projectRoot "test/state-tracking/permanent/test-tracking.md"
                 $trackingContent = Get-Content $trackingPath -Raw -Encoding UTF8
@@ -471,7 +471,7 @@ if ($UpdateTracking -and $script:capturedTestOutput.Count -gt 0) {
                 $updatedCount = 0
                 $updatedLines = @()
                 foreach ($line in $trackingLines) {
-                    if ($line -match '^\|\s*(PD-TST-\d+)\s*\|') {
+                    if ($line -match '^\|\s*(TE-TST-\d+)\s*\|') {
                         $rowTestId = $matches[1]
                         if ($updatesByTestId.ContainsKey($rowTestId)) {
                             $u = $updatesByTestId[$rowTestId]

@@ -94,7 +94,7 @@ $fileNamePattern = "tools-review-$dateForFilename-$timestamp.md"
 try {
     $documentId = New-StandardProjectDocument `
         -TemplatePath "doc/process-framework/templates/support/tools-review-summary-template.md" `
-        -IdPrefix "ART-REV" `
+        -IdPrefix "PF-REV" `
         -IdDescription "Tools Review Summary $ReviewDate" `
         -DocumentName "tools-review-$dateForFilename-$timestamp" `
         -OutputDirectory "doc/process-framework/feedback/reviews" `

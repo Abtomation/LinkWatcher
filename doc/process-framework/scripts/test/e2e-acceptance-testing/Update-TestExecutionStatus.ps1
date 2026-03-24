@@ -41,8 +41,8 @@
 
 .NOTES
     Created: 2026-03-15
-    Updated: 2026-03-18
-    Version: 2.0
+    Updated: 2026-03-24
+    Version: 2.1
     Task: E2E Acceptance Test Execution (PF-TSK-070)
 #>
 
@@ -157,7 +157,11 @@ foreach ($line in $lines) {
                 $cells[6] = $timestamp
                 $cells[7] = $timestamp
                 if ($Reason -and $cells.Count -ge 9) {
-                    $cells[8] = $Reason
+                    # For individual test case updates, always overwrite notes.
+                    # For group/feature updates, only fill in empty notes to preserve case-level notes.
+                    if ($TestCase -or -not $cells[8].Trim()) {
+                        $cells[8] = $Reason
+                    }
                 }
 
                 $line = "| " + ($cells -join " | ") + " |"

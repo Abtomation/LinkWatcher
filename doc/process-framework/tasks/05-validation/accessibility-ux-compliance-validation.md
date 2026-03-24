@@ -52,7 +52,7 @@ Systematically validates selected features for accessibility standards complianc
 - **Reference Only (Access When Needed):**
   - **Architecture Decision Records** - [ADR Directory](../../../product-docs/technical/architecture) - Accessibility-related architectural decisions
   - **Visual Notation Guide** - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting context map diagrams
-  - **ID Registry** - [ID Registry](../../../id-registry.json) - For understanding validation report ID assignments
+  - **ID Registry** - [PD ID Registry](../../PF-id-registry.json) - For understanding validation report ID assignments
 
 ## Process
 

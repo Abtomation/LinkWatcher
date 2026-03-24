@@ -47,7 +47,7 @@ Complete process for creating a new task from concept to implementation-ready de
   - [Template Development Guide](../../guides/support/template-development-guide.md) - For creating templates when needed
   - [Documentation Structure Guide](../../guides/framework/documentation-structure-guide.md) - For organizing and structuring documentation
   - [Visualization Creation Guide](../../guides/support/visualization-creation-guide.md) - For creating context maps
-  - [ID Registry](../../../id-registry.json) - For understanding and updating ID prefixes
+  - [PF ID Registry](../../PF-id-registry.json) - For understanding and updating ID prefixes
 
 - **Reference Only (Access When Needed):**
   - [Documentation Map](../../documentation-map.md) - For updating with new artifacts
@@ -163,7 +163,7 @@ Complete process for creating a new task from concept to implementation-ready de
    cd /c/path/to/project/doc/process-framework/scripts/file-creation && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-ContextMap.ps1 -TaskName "Your Task Name" -WorkflowPhase "02-drafting" -MapDescription "Context map for Your Task Name task" -Confirm:$false'
    ```
 
-10L. **Verify Documentation Updates**: Confirm that New-Task.ps1 automatically updated documentation-map.md, tasks/README.md, and ai-tasks.md
+10L. **Verify Documentation Updates**: Confirm that New-Task.ps1 automatically updated documentation-map.md, tasks/README.md, and doc/process-framework/ai-tasks.md
 
 11L. **🚨 MANDATORY FINAL STEP**: Complete the [Lightweight Task Completion Checklist](#lightweight-task-completion-checklist) below
 
@@ -171,7 +171,7 @@ Complete process for creating a new task from concept to implementation-ready de
 
 - **Task Definition File** — Generated and fully customized task definition with AI Agent Role
 - **Context Map** — Visual representation of task context and component relationships
-- **✅ AUTOMATED Documentation Updates** — documentation-map.md, tasks/README.md, ai-tasks.md updated by New-Task.ps1
+- **✅ AUTOMATED Documentation Updates** — documentation-map.md, tasks/README.md, doc/process-framework/ai-tasks.md updated by New-Task.ps1
 
 > **Not produced in Lightweight Mode**: No temp state file, no concept document, no templates, no guides, no scripts, no directory structures, no ID registry changes.
 
@@ -212,7 +212,7 @@ Complete process for creating a new task from concept to implementation-ready de
      cd /c/path/to/project/doc/process-framework/scripts/file-creation && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-Task.ps1 -TaskType "Discrete" -TaskName "Your Task Name" -WorkflowPhase "04-implementation" -Description "Your description" -Confirm:$false'
      ```
      > **Note**: Script will display prominent warnings about template nature and customization requirements
-     > **✨ ENHANCED**: Script now automatically updates three documentation files: documentation-map.md, tasks/README.md, and ai-tasks.md
+     > **✨ ENHANCED**: Script now automatically updates three documentation files: documentation-map.md, tasks/README.md, and doc/process-framework/ai-tasks.md
      > **📝 NAMING**: Rename the generated file to include `-task` suffix (e.g., `your-task-name.md` → `your-task-name-task.md`) for easy identification
 
    - **🚨 CRITICAL: Phase 2 - Customize Task Definition Content** - Using the [Task Creation Guide](../../guides/support/task-creation-guide.md), customize all placeholder sections in the generated task file:
@@ -241,7 +241,7 @@ Complete process for creating a new task from concept to implementation-ready de
    - Create document creation script using [Document Creation Script Development Guide](../../guides/support/document-creation-script-development-guide.md) and [Document Creation Script Template](../../templates/support/document-creation-script-template.ps1)
      - Use `DirectoryType` parameter for ID registry-based directory resolution
      - Configure subdirectory mappings in ID registry if needed
-   - Update [ID Registry](../../../id-registry.json) with new ID prefix for file types created by task
+   - Update [PF ID Registry](../../PF-id-registry.json) with new ID prefix for file types created by task
 
    **Session 3 - Templates and Guides:**
 
@@ -253,7 +253,7 @@ Complete process for creating a new task from concept to implementation-ready de
 
    - Create template customization guide using [New-Guide.ps1](../../scripts/file-creation/support/New-Guide.ps1) and [Guide Creation Best Practices Guide](../../guides/support/guide-creation-best-practices-guide.md) (if task creates files)
      ```bash
-     cd /c/path/to/project/doc/process-framework/scripts/file-creation && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-Guide.ps1 -GuideTitle "Your Guide Name" -GuideDescription "Guide description" -GuideCategory "guides" -Confirm:$false'
+     cd /c/path/to/project/doc/process-framework/scripts/file-creation/support && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-Guide.ps1 -GuideTitle "Your Guide Name" -SubDirectory "support" -GuideDescription "Guide description" -Confirm:$false'
      ```
      > **Note**: Script will display prominent warnings about template nature and customization requirements. Update the path to match your actual project location.
 
@@ -306,7 +306,7 @@ Complete process for creating a new task from concept to implementation-ready de
 
 - **Task Output Directory Structure** - Directories created for storing task outputs
 - **Document Creation Script** - PowerShell script for generating files created by the task (using [document-creation-script-development-guide.md](../../guides/support/document-creation-script-development-guide.md) and [document-creation-script-template.ps1](../../scripts/file-creation/document-creation-script-template.ps1))
-- **Updated ID Registry** - New ID prefix added to [id-registry.json](../../../id-registry.json) for file types created by task
+- **Updated ID Registry** - New ID prefix added to the appropriate [ID registry](../../PF-id-registry.json) for file types created by task
 
 ### Session 3 Outputs (Templates and Guides)
 
@@ -365,7 +365,7 @@ The following state files are updated as part of this task:
     - [ ] **🌍 Task is generic and reusable** — Uses category references and examples instead of project-specific details
   - [ ] **AI Agent Role assigned** with appropriate professional role, mindset, focus areas, and communication style
 - [ ] **Context Map Created**: Context map created using [New-ContextMap.ps1](../../scripts/file-creation/02-design/New-ContextMap.ps1) and customized with task-specific components
-- [ ] **Documentation Updates Verified**: Confirm New-Task.ps1 automatically updated documentation-map.md, tasks/README.md, and ai-tasks.md
+- [ ] **Documentation Updates Verified**: Confirm New-Task.ps1 automatically updated documentation-map.md, tasks/README.md, and doc/process-framework/ai-tasks.md
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-001" and context "New Task Creation Process (Lightweight)"
   - **⚠️ IMPORTANT**: Evaluate the New Task Creation Process itself (PF-TSK-001), not the task you created.
 

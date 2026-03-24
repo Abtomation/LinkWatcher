@@ -314,7 +314,7 @@ Systematically adapt the process framework from one business domain (software de
 - **Legal Document Tracking** - Replacement for feature-tracking.md at `/doc/process-framework/state-tracking/permanent/legal-document-tracking.md`
 - **Cleaned Directory Structure** - Removed unnecessary directories
 - **Updated Scripts** - Scripts adapted for legal context (parameter names, help text)
-- **Updated ID Registry** - New ID prefixes for legal document types at `/doc/id-registry.json`
+- **Updated ID Registry** - New ID prefixes for legal document types in the appropriate ID registry
 - **Archived Temporary State** - Domain adaptation state file archived at `/doc/process-framework/state-tracking/temporary/old/`
 
 ## State Tracking
@@ -323,7 +323,7 @@ The following state files must be updated as part of this task:
 
 - [Legal Framework Cleanup State](../../state-tracking/temporary/legal-framework-cleanup-state.md) - Track review status and decisions for each document
 - [Documentation Map](../../documentation-map.md) - Update continuously as structure changes
-- [ID Registry](../../../id-registry.json) - Add new ID prefixes for legal document types
+- [PF ID Registry](../../PF-id-registry.json) - Add new ID prefixes for legal document types
 - [Legal Document Tracking](../../state-tracking/permanent/legal-document-tracking.md) - Create to replace feature-tracking.md
 
 ## ⚠️ MANDATORY Task Completion Checklist

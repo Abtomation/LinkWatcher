@@ -31,17 +31,22 @@
 .PARAMETER RelatedTasks
     Optional comma-separated list of task IDs this guide relates to (e.g., "PF-TSK-023,PF-TSK-024")
 
+.PARAMETER SubDirectory
+    Subdirectory within doc/process-framework/guides/ where the guide will be placed.
+    Examples: "01-planning", "02-design", "03-testing", "04-implementation", "05-validation",
+    "06-maintenance", "07-deployment", "cyclical", "framework", "support"
+
 .PARAMETER OpenInEditor
     If specified, opens the created file in the default editor
 
 .EXAMPLE
-    ../../../../../../../../../../guides/New-Guide.ps1 -GuideTitle "API Integration Setup" -GuideDescription "Step-by-step guide for integrating third-party APIs"
+    .\New-Guide.ps1 -GuideTitle "API Integration Setup" -SubDirectory "02-design" -GuideDescription "Step-by-step guide for integrating third-party APIs"
 
 .EXAMPLE
-    ../../../../../../../../../../guides/New-Guide.ps1 -GuideTitle "Testing Best Practices" -GuideDescription "Comprehensive guide for writing effective tests" -GuideCategory "Development Process" -OpenInEditor
+    .\New-Guide.ps1 -GuideTitle "Testing Best Practices" -SubDirectory "03-testing" -GuideDescription "Comprehensive guide for writing effective tests" -GuideCategory "Development Process" -OpenInEditor
 
 .EXAMPLE
-    ../../../../../../../../../../guides/New-Guide.ps1 -GuideTitle "Debt Item Creation Guide" -GuideDescription "Guide for customizing technical debt item templates" -RelatedScript "../../../../../../../../../../guides/New-DebtItem.ps1" -RelatedTasks "PF-TSK-023"
+    .\New-Guide.ps1 -GuideTitle "Debt Item Creation Guide" -SubDirectory "cyclical" -GuideDescription "Guide for customizing technical debt item templates" -RelatedScript "New-DebtItem.ps1" -RelatedTasks "PF-TSK-023"
 
 .NOTES
     - Requires PowerShell execution policy to allow script execution
@@ -76,6 +81,9 @@ param(
 
     [Parameter(Mandatory = $false)]
     [string]$RelatedTasks = "",
+
+    [Parameter(Mandatory = $true)]
+    [string]$SubDirectory,
 
     [Parameter(Mandatory = $false)]
     [switch]$OpenInEditor
@@ -125,7 +133,8 @@ $customReplacements = @{
 
 # Create the document using standardized process
 try {
-    $documentId = New-StandardProjectDocument -TemplatePath "doc/process-framework/templates/support/guide-template.md" -IdPrefix "PF-GDE" -IdDescription "Guide: $GuideTitle" -DocumentName $GuideTitle -OutputDirectory "doc/process-framework/guides/03-testing" -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
+    $outputDir = "doc/process-framework/guides/$SubDirectory"
+    $documentId = New-StandardProjectDocument -TemplatePath "doc/process-framework/templates/support/guide-template.md" -IdPrefix "PF-GDE" -IdDescription "Guide: $GuideTitle" -DocumentName $GuideTitle -OutputDirectory $outputDir -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
 
     # Provide success details
     $details = @(

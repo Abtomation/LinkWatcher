@@ -436,6 +436,9 @@ function Update-FeatureTrackingSummary {
     foreach ($line in $lines) {
         $trimmed = $line.Trim()
 
+        # Stop parsing before Archived Features section — those are not active
+        if ($trimmed -match '^## Archived Features') { break }
+
         # Detect table header row (starts with | ID |)
         if ($trimmed -match '^\|\s*ID\s*\|') {
             $currentHeaders = @()
@@ -488,7 +491,7 @@ function Update-FeatureTrackingSummary {
         $pct = [math]::Round(($count / $total) * 100, 1)
         $statusTableLines += "| $key | $count      | $($pct)%      |"
     }
-    $statusTableLines += "| **Total Features**    | **$total**  | **100%**   |"
+    $statusTableLines += "| **Total Active**    | **$total**  | **100%**   |"
 
     # --- 2. Documentation Tier Distribution ---
     $tierCounts = [ordered]@{
@@ -512,7 +515,7 @@ function Update-FeatureTrackingSummary {
         $pct = [math]::Round(($count / $total) * 100, 1)
         $tierTableLines += "| $key   | $count      | $($pct)%      |"
     }
-    $tierTableLines += "| **Total Features**    | **$total**  | **100%**   |"
+    $tierTableLines += "| **Total Active**    | **$total**  | **100%**   |"
 
     # --- 3. Documentation Coverage ---
     $fddExists = 0; $tddExists = 0; $adrExists = 0; $testSpecExists = 0; $assessmentExists = 0
@@ -575,7 +578,7 @@ function Update-FeatureTrackingSummary {
     $summaryBlock += $statusTableLines
     $summaryBlock += ""
     $noteEmoji = [char]::ConvertFromUtf32(0x1F4DD)
-    $summaryBlock += "> **$noteEmoji NOTE**: All $total features are fully implemented in code (retrospective). The status reflects documentation completeness, not implementation progress. All features have passing tests."
+    $summaryBlock += "> **$noteEmoji NOTE**: All $total active features are fully implemented in code (retrospective). The status reflects documentation completeness, not implementation progress. All features have passing tests. See [Archived Features](#archived-features) for retired features."
     $summaryBlock += ""
     $summaryBlock += "</details>"
     $summaryBlock += ""

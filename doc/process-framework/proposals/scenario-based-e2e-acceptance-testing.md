@@ -488,7 +488,7 @@ Sessions 2 and 3 both depend on Session 1 but are independent of each other — 
 
 - [ ] Task definitions updated with workflow map creation/consumption steps
 - [ ] Guides updated with cross-feature workflow guidance
-- [ ] ai-tasks.md shows milestone-triggered E2E workflow
+- [ ] doc/process-framework/ai-tasks.md shows milestone-triggered E2E workflow
 - [ ] Clear process path from feature completion → milestone detection → E2E test creation
 - [ ] Release deployment task includes E2E coverage gate
 
@@ -520,7 +520,7 @@ Sessions 2 and 3 both depend on Session 1 but are independent of each other — 
 - [ ] **3-session split**: Content → Infrastructure → Documentation — agree with this sequencing?
 - [ ] **Session 1 scope**: Workflow map + E2E spec + tracking restructure — achievable in one session?
 - [ ] **Session 2 scope**: 4 script updates + validation — achievable in one session?
-- [ ] **Session 3 scope**: 7 tasks + 4 guides + ai-tasks.md — achievable in one session?
+- [ ] **Session 3 scope**: 7 tasks + 4 guides + doc/process-framework/ai-tasks.md — achievable in one session?
 
 ### Approval Decision
 

@@ -1,5 +1,5 @@
 ---
-id: PF-STA-044
+id: PD-STA-044
 type: Document
 category: General
 version: 1.0
@@ -35,8 +35,8 @@ task_name: enhancement-workflow-extension
 
 | # | Target File | Change | Status | Session |
 |---|-------------|--------|--------|---------|
-| 8 | ai-tasks.md | Add enhancement branch to decision tree | COMPLETED | 2 |
-| 9 | ai-tasks.md | Add tasks to 01-planning and 04-implementation tables | COMPLETED | 2 |
+| 8 | doc/process-framework/ai-tasks.md | Add enhancement branch to decision tree | COMPLETED | 2 |
+| 9 | doc/process-framework/ai-tasks.md | Add tasks to 01-planning and 04-implementation tables | COMPLETED | 2 |
 | 10 | task-transition-guide.md | Add enhancement workflow transitions | COMPLETED | 2 |
 | 11 | feature-implementation-task.md (PF-TSK-004) | Add deprecation notice | COMPLETED | 2 |
 | 12 | documentation-map.md | Register all new artifacts | COMPLETED | 2 |
@@ -70,8 +70,8 @@ Steps:
 - [x] 2.3 Create New-EnhancementState.ps1 script (tested with WhatIf)
 - [x] 2.4 Create Enhancement State Tracking Customization Guide using New-Guide.ps1 (PF-GDE-047)
 - [x] 2.5 Fully customize guide with step-by-step instructions and examples
-- [x] 2.6 Update ai-tasks.md decision tree with enhancement branch
-- [x] 2.7 Update ai-tasks.md task tables with both new tasks (auto-populated by LinkWatcher)
+- [x] 2.6 Update doc/process-framework/ai-tasks.md decision tree with enhancement branch
+- [x] 2.7 Update doc/process-framework/ai-tasks.md task tables with both new tasks (auto-populated by LinkWatcher)
 - [x] 2.8 Update task-transition-guide.md with enhancement workflow transitions (v1.9)
 - [x] 2.9 Add PF-TSK-004 deprecation notice (feature-implementation-task.md)
 - [x] 2.10 Update documentation-map.md with all new artifacts (tasks, context maps, template, guide, proposal)
@@ -133,7 +133,7 @@ Steps:
 - Created Enhancement State Tracking Template (PF-TEM-045)
 - Created New-EnhancementState.ps1 script
 - Created Enhancement State Tracking Customization Guide (PF-GDE-047)
-- Updated ai-tasks.md decision tree with enhancement branch
+- Updated doc/process-framework/ai-tasks.md decision tree with enhancement branch
 - Updated task-transition-guide.md with enhancement workflow transitions (v1.9)
 - Added PF-TSK-004 deprecation notice
 - Updated documentation-map.md with all new artifacts
@@ -160,7 +160,7 @@ This state file can be archived to `temporary/old/` when:
 - [ ] Enhancement State Tracking Template created and customized
 - [ ] New-EnhancementState.ps1 script created and tested
 - [ ] Enhancement State Tracking Customization Guide created and customized
-- [ ] ai-tasks.md updated (decision tree + task tables)
+- [ ] doc/process-framework/ai-tasks.md updated (decision tree + task tables)
 - [ ] task-transition-guide.md updated
 - [ ] PF-TSK-004 deprecation notice added
 - [ ] documentation-map.md updated with all new artifacts

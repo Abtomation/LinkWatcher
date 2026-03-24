@@ -105,7 +105,7 @@ $customReplacements = @{
 try {
     $projectRoot = Get-ProjectRoot
     $templatePath = Join-Path $projectRoot "doc/process-framework/templates/cyclical/debt-item-template.md"
-    $documentId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "PF-TDI" -IdDescription "Technical Debt Item: $ItemTitle" -DocumentName $ItemTitle -DirectoryType "debt-items" -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
+    $documentId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "PD-TDI" -IdDescription "Technical Debt Item: $ItemTitle" -DocumentName $ItemTitle -DirectoryType "debt-items" -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
 
     # Provide success details
     $details = @(

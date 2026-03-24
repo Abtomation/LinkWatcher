@@ -155,7 +155,7 @@ The Feature Enhancement task instructs the AI agent to read the referenced docum
 ### Framework Evolution Approach
 
 - **No existing tasks modified**: This extension adds new tasks without changing existing task definitions
-- **Decision tree updated**: ai-tasks.md gets a new branch for enhancement vs. new feature classification
+- **Decision tree updated**: doc/process-framework/ai-tasks.md gets a new branch for enhancement vs. new feature classification
 - **PF-TSK-004 deprecated**: The monolithic Feature Implementation Task is marked as superseded by the decomposed 04-implementation tasks and this new enhancement workflow
 - **Backward compatible**: Existing workflows continue to work unchanged
 
@@ -261,8 +261,8 @@ This extension uses the existing state tracking infrastructure:
 | Template | Enhancement State Tracking Template | Structured format for enhancement execution plans | HIGH |
 | Script | New-EnhancementState.ps1 | Create Enhancement State Tracking Files from template | HIGH |
 | Guide | Enhancement State Tracking Customization Guide | Guide for customizing enhancement state files (separate from task docs) | HIGH |
-| Edit | ai-tasks.md decision tree update | Add enhancement branch to task selection | HIGH |
-| Edit | ai-tasks.md task table update | Add new tasks to 01-planning and 04-implementation tables | HIGH |
+| Edit | doc/process-framework/ai-tasks.md decision tree update | Add enhancement branch to task selection | HIGH |
+| Edit | doc/process-framework/ai-tasks.md task table update | Add new tasks to 01-planning and 04-implementation tables | HIGH |
 | Edit | task-transition-guide.md | Add enhancement workflow transitions | HIGH |
 | Edit | PF-TSK-004 deprecation notice | Mark Feature Implementation Task as deprecated | MEDIUM |
 | Edit | documentation-map.md | Register new tasks, template, guide, and script | MEDIUM |
@@ -271,7 +271,7 @@ This extension uses the existing state tracking infrastructure:
 
 | Integration Point | Current Framework Component | Integration Method |
 |------------------|----------------------------|-------------------|
-| Task selection decision tree | ai-tasks.md | Add "New Feature vs Enhancement" branch before "Are you working on a NEW FEATURE?" |
+| Task selection decision tree | doc/process-framework/ai-tasks.md | Add "New Feature vs Enhancement" branch before "Are you working on a NEW FEATURE?" |
 | Planning task category | 01-planning task table | Add Feature Request Evaluation task row |
 | Implementation task category | 04-implementation task table | Add Feature Enhancement task row |
 | Task transitions | task-transition-guide.md | Add enhancement workflow transitions (evaluation → enhancement, enhancement → code review) |
@@ -298,8 +298,8 @@ This extension uses the existing state tracking infrastructure:
 - [ ] Create New-EnhancementState.ps1 script for creating state tracking files from template
 - [ ] Create Enhancement State Tracking Customization Guide using New-Guide.ps1
 - [ ] Fully customize guide with step-by-step customization instructions and examples
-- [ ] Update ai-tasks.md decision tree with new enhancement branch
-- [ ] Update ai-tasks.md task tables with new tasks
+- [ ] Update doc/process-framework/ai-tasks.md decision tree with new enhancement branch
+- [ ] Update doc/process-framework/ai-tasks.md task tables with new tasks
 - [ ] Update task-transition-guide.md with enhancement workflow transitions
 - [ ] Add PF-TSK-004 deprecation notice
 - [ ] Update documentation-map.md with all new artifacts (tasks, template, guide, script)
@@ -319,7 +319,7 @@ This extension uses the existing state tracking infrastructure:
 
 ### Integration Success Criteria
 
-- [ ] **Decision tree updated**: ai-tasks.md routes users to the right workflow for both new features and enhancements
+- [ ] **Decision tree updated**: doc/process-framework/ai-tasks.md routes users to the right workflow for both new features and enhancements
 - [ ] **Task transitions documented**: task-transition-guide.md includes enhancement workflow transitions
 - [ ] **PF-TSK-004 deprecated**: Feature Implementation Task marked as superseded with clear pointer to replacements
 - [ ] **Documentation complete**: documentation-map.md includes all new artifacts (tasks, template, guide, script)

@@ -98,7 +98,7 @@ This task produces the foundational inventory that subsequent onboarding tasks (
 
 5. **Audit Existing Project Documentation** (first session, alongside step 4):
    - Identify all non-source documentation files (markdown, txt, rst, etc.) **outside** `doc/product-docs`
-     - Root docs (README.md, HOW_IT_WORKS.md, CONTRIBUTING.md, CHANGELOG.md, etc.)
+     - Root docs (README.md, HOW_IT_WORKS.md, CONTRIBUTING.md, etc.)
      - `docs/` directory files
      - `test/` documentation files (test-registry.yaml, specifications/, audits/, etc.)
      - Any other project-level documentation

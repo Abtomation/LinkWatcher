@@ -51,7 +51,7 @@ This task manages the systematic extension of the task-based development framewo
   - [Document Creation Script Development Guide](../../guides/support/document-creation-script-development-guide.md) - For creating automation scripts
 
 - **Reference Only (Access When Needed):**
-  - [ID Registry](../../../id-registry.json) - For adding new ID prefixes for extension-created file types
+  - [PF ID Registry](../../PF-id-registry.json) - For adding new ID prefixes for extension-created file types
   - [Structure Change Task](structure-change-task.md) - For understanding structural modifications vs. extensions
   - [Process Improvement Task](process-improvement-task.md) - For understanding granular improvements vs. extensions
 
@@ -123,7 +123,7 @@ This task manages the systematic extension of the task-based development framewo
 15. **Update Core Framework Files**:
     - Update [ai-tasks.md](../../../ai-tasks.md) with new tasks
     - Update [documentation-map.md](../../documentation-map.md) with all new artifacts
-    - Update [id-registry.json](../../../id-registry.json) with new ID prefixes if needed
+    - Update the appropriate [ID registry](../../PF-id-registry.json) with new ID prefixes if needed
 16. **Create Usage Documentation** demonstrating how to use the new framework extension
 17. **Update Permanent State Files** as defined in the concept document
 18. **Archive Temporary State Tracking** file to `/doc/process-framework/state-tracking/temporary/old/`
@@ -141,7 +141,7 @@ This task manages the systematic extension of the task-based development framewo
 - **New Task Definitions** - Multiple interconnected tasks with clear input requirements, process workflows, and output specifications
 - **Supporting Infrastructure** - Templates, guides, scripts, and directories for extension functionality
 - **Integration Documentation** - Documentation showing how the extension works with existing framework workflow
-- **Updated Core Framework Files** - Modified ai-tasks.md, documentation-map.md, and id-registry.json
+- **Updated Core Framework Files** - Modified ai-tasks.md, documentation-map.md, and the appropriate ID registry
 
 ### State Tracking Outputs
 
@@ -191,7 +191,7 @@ Before considering this task finished:
 
   - [ ] [ai-tasks.md](../../../ai-tasks.md) updated with new tasks
   - [ ] [Documentation Map](../../documentation-map.md) updated with all new artifacts and relationships
-  - [ ] [ID Registry](../../../id-registry.json) updated with new prefixes if needed
+  - [ ] [PF ID Registry](../../PF-id-registry.json) updated with new prefixes if needed
   - [ ] Permanent state files updated as defined in concept document
 
 - [ ] **Update State Files**: Ensure all state tracking files have been updated

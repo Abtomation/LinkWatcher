@@ -46,7 +46,7 @@
 
 .NOTES
     This script requires:
-    - Access to the central ID registry (doc/id-registry.json)
+    - Access to the appropriate ID registry (PF/PD/TE-id-registry.json)
     - The API Data Model template (doc/process-framework/templates/02-design/api-data-model-template.md)
     - PowerShell 5.1 or later
     - When FeatureId is provided, automatically updates API Design column in feature tracking:

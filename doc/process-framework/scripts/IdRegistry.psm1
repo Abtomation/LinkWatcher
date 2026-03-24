@@ -1,26 +1,55 @@
-﻿# IdRegistry.psm1
+# IdRegistry.psm1
 # Central ID management module for process framework projects
-# Uses the central ID registry (id-registry.json) to manage document IDs
+# Uses domain-specific ID registries (PF/PD/TE-id-registry.json) to manage document IDs
 
 function Get-IdRegistryPath {
     <#
     .SYNOPSIS
-    Gets the path to the central ID registry file
+    Gets the path to the appropriate ID registry file based on prefix
+
+    .PARAMETER Prefix
+    The ID prefix (e.g., "PF-TSK", "PD-TDD", "TE-TSP"). Determines which registry file to use.
+    If omitted, returns the process framework registry (PF-id-registry.json).
     #>
-    # Navigate from scripts -> process-framework -> doc to reach the registry file
+    param(
+        [Parameter(Mandatory=$false)]
+        [string]$Prefix
+    )
+
     $processFrameworkDir = Split-Path -Parent $PSScriptRoot
     $docDir = Split-Path -Parent $processFrameworkDir
-    return Join-Path -Path $docDir -ChildPath "id-registry.json"
+    $projectRoot = Split-Path -Parent $docDir
+
+    # Hardcoded prefix-to-registry mapping
+    if ($Prefix) {
+        $prefixKey = ($Prefix -split '-')[0] + '-'
+        switch ($prefixKey) {
+            'PD-' { return Join-Path -Path $docDir -ChildPath "product-docs/PD-id-registry.json" }
+            'TE-' { return Join-Path -Path $projectRoot -ChildPath "test/TE-id-registry.json" }
+            default { return Join-Path -Path $processFrameworkDir -ChildPath "PF-id-registry.json" }
+        }
+    }
+
+    # Default: process framework registry
+    return Join-Path -Path $processFrameworkDir -ChildPath "PF-id-registry.json"
 }
 
 function Get-IdRegistry {
     <#
     .SYNOPSIS
-    Loads the central ID registry
+    Loads the ID registry for a given prefix
+
+    .PARAMETER Prefix
+    Optional prefix to determine which registry to load. If omitted, loads the PF registry.
     #>
-    $registryPath = Get-IdRegistryPath
+    param(
+        [Parameter(Mandatory=$false)]
+        [string]$Prefix
+    )
+
+    $registryPath = Get-IdRegistryPath -Prefix $Prefix
     if (-not (Test-Path $registryPath)) {
-        throw "Central ID registry not found at: $registryPath"
+        throw "ID registry not found at: $registryPath"
     }
 
     try {
@@ -51,7 +80,7 @@ function Update-NextAvailableCounter {
         [int]$NewValue
     )
 
-    $registryPath = Get-IdRegistryPath
+    $registryPath = Get-IdRegistryPath -Prefix $Prefix
     try {
         $content = Get-Content -Path $registryPath -Raw
 
@@ -78,13 +107,16 @@ function Save-IdRegistry {
     <#
     .SYNOPSIS
     Saves the ID registry back to disk
+
+    .PARAMETER Registry
+    The registry object to save. Must have lastUpdatedPrefix set.
     #>
     param(
         [Parameter(Mandatory=$true)]
         [PSCustomObject]$Registry
     )
 
-    $registryPath = Get-IdRegistryPath
+    $registryPath = Get-IdRegistryPath -Prefix $Registry.lastUpdatedPrefix
     try {
         # Update the metadata
         $Registry.metadata.updated = Get-Date -Format "yyyy-MM-dd"
@@ -109,7 +141,7 @@ function Get-NextAvailableId {
         [string]$Prefix
     )
 
-    $registry = Get-IdRegistry
+    $registry = Get-IdRegistry -Prefix $Prefix
 
     if (-not $registry.prefixes.$Prefix) {
         throw "Prefix '$Prefix' not found in ID registry. Available prefixes: $($registry.prefixes.PSObject.Properties.Name -join ', ')"
@@ -134,7 +166,7 @@ function New-NextId {
         [string]$Description = ""
     )
 
-    $registry = Get-IdRegistry
+    $registry = Get-IdRegistry -Prefix $Prefix
 
     if (-not $registry.prefixes.$Prefix) {
         throw "Prefix '$Prefix' not found in ID registry. Available prefixes: $($registry.prefixes.PSObject.Properties.Name -join ', ')"
@@ -166,12 +198,12 @@ function Test-IdExists {
         [string]$Id
     )
 
-    $registry = Get-IdRegistry
-
     # Parse the ID to get prefix and number
     if ($Id -match '^([A-Z]+-[A-Z]+)-(\d+)$') {
         $prefix = $matches[1]
         $number = [int]$matches[2]
+
+        $registry = Get-IdRegistry -Prefix $prefix
 
         if ($registry.prefixes.$prefix) {
             # ID exists if it's less than nextAvailable
@@ -192,7 +224,7 @@ function Get-PrefixInfo {
         [string]$Prefix
     )
 
-    $registry = Get-IdRegistry
+    $registry = Get-IdRegistry -Prefix $Prefix
 
     if (-not $registry.prefixes.$Prefix) {
         throw "Prefix '$Prefix' not found in ID registry"
@@ -381,7 +413,7 @@ function Get-DirectoryForPrefixType {
     # Returns: "C:\Project\doc\process-framework\tasks\discrete"
 
     .EXAMPLE
-    Get-DirectoryForPrefixType -Prefix "ART-FEE" -DirectoryType "forms"
+    Get-DirectoryForPrefixType -Prefix "PF-FEE" -DirectoryType "forms"
     # Returns: "doc/process-framework/feedback/feedback-forms"
     #>
     param(
@@ -475,7 +507,7 @@ function Test-ValidDirectoryForPrefix {
     Optional project root path for resolving relative paths
 
     .EXAMPLE
-    Test-ValidDirectoryForPrefix -Prefix "ART-FEE" -Directory "doc/process-framework/feedback/feedback-forms"
+    Test-ValidDirectoryForPrefix -Prefix "PF-FEE" -Directory "doc/process-framework/feedback/feedback-forms"
     # Returns: $true
     #>
     param(
@@ -507,19 +539,26 @@ function Test-ValidDirectoryForPrefix {
 function Get-AllPrefixes {
     <#
     .SYNOPSIS
-    Gets all available prefixes and their information
+    Gets all available prefixes and their information from all registries
     #>
-    $registry = Get-IdRegistry
-
     $prefixes = @()
-    foreach ($prefix in $registry.prefixes.PSObject.Properties) {
-        $prefixes += [PSCustomObject]@{
-            Prefix = $prefix.Name
-            Description = $prefix.Value.description
-            Category = $prefix.Value.category
-            Type = $prefix.Value.type
-            NextAvailable = $prefix.Value.nextAvailable
-            LastAssigned = $prefix.Value.nextAvailable - 1
+
+    # Load all three registries
+    foreach ($samplePrefix in @('PF-TSK', 'PD-DOC', 'TE-E2G')) {
+        $registryPath = Get-IdRegistryPath -Prefix $samplePrefix
+        if (Test-Path $registryPath) {
+            $registry = Get-IdRegistry -Prefix $samplePrefix
+            foreach ($prefix in $registry.prefixes.PSObject.Properties) {
+                $prefixes += [PSCustomObject]@{
+                    Prefix = $prefix.Name
+                    Description = $prefix.Value.description
+                    Category = $prefix.Value.category
+                    Type = $prefix.Value.type
+                    NextAvailable = $prefix.Value.nextAvailable
+                    LastAssigned = $prefix.Value.nextAvailable - 1
+                    Registry = (Split-Path $registryPath -Leaf)
+                }
+            }
         }
     }
 

@@ -139,7 +139,7 @@ try {
     if ($Workflow) { Write-Verbose "Workflow: $Workflow" }
 
     # --- 1. Assign TE-E2E ID from registry ---
-    $idRegistryPath = Join-Path $projectRoot "doc/id-registry.json"
+    $idRegistryPath = Join-Path $projectRoot "test/TE-id-registry.json"
     $idRegistry = Get-Content $idRegistryPath -Raw -Encoding UTF8 | ConvertFrom-Json
 
     $e2ePrefix = $idRegistry.prefixes.'TE-E2E'

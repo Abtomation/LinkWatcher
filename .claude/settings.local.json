@@ -5,7 +5,7 @@
       "Bash(pwsh.exe -ExecutionPolicy Bypass -Command *)",
       "Bash(pwsh.exe -File *)",
       "Bash(cd * && pwsh.exe -ExecutionPolicy Bypass -Command *)",
-      "Bash(python scripts/feedback_db.py *)",
+      "Bash(python doc/process-framework/scripts/feedback_db.py *)",
       "Bash(python -m pytest *)",
       "Bash(python run_tests.py *)",
       "Bash(git add *)",
@@ -33,7 +33,11 @@
       "Bash(pwsh.exe -Command 'if \\(Get-Process -Id 26388 -ErrorAction SilentlyContinue\\) { Write-Host \"\"ALIVE after 30s\"\" } else { Write-Host \"\"DEAD\"\" }')",
       "Bash(pwsh.exe -Command 'if \\(Get-Process -Id 26388 -ErrorAction SilentlyContinue\\) { Write-Host \"\"ALIVE after 90s\"\" } else { Write-Host \"\"DEAD\"\" }')",
       "Bash(git mv:*)",
-      "Bash(pwsh.exe -Command 'Get-ExecutionPolicy -List | Format-Table -AutoSize')"
+      "Bash(pwsh.exe -Command 'Get-ExecutionPolicy -List | Format-Table -AutoSize')",
+      "Bash(python scripts/check_links.py)",
+      "Bash(find /c/Users/ronny/VS_Code/LinkWatcher -name *-REF-* -type f)",
+      "Bash(find /c/Users/ronny/VS_Code/LinkWatcher -name ART-ASS-* -type f)",
+      "Bash(find /c/Users/ronny/VS_Code/LinkWatcher -name PF-VAL-* -type f)"
     ]
   }
 }

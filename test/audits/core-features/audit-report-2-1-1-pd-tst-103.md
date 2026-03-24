@@ -1,5 +1,5 @@
 ---
-id: PF-TAR-010
+id: TE-TAR-010
 type: Document
 category: General
 version: 1.0
@@ -7,7 +7,7 @@ created: 2026-03-15
 updated: 2026-03-15
 feature_id: 2.1.1
 auditor: AI Agent
-test_file_id: PD-TST-103
+test_file_id: TE-TST-103
 audit_date: 2026-03-15
 ---
 
@@ -19,7 +19,7 @@ audit_date: 2026-03-15
 |-------|-------|
 | **Feature ID** | 2.1.1 |
 | **Feature Name** | Link Parsing System |
-| **Test File IDs** | PD-TST-103, 109-115 (automated), E2E-GRP-01/E2E-001 (manual) |
+| **Test File IDs** | TE-TST-103, 109-115 (automated), E2E-GRP-01/E2E-001 (manual) |
 | **Test File Locations** | `test/automated/unit/test_parser.py`, `test/automated/parsers/*.py` |
 | **Feature Category** | CORE-FEATURES |
 | **Auditor** | AI Agent |
@@ -139,15 +139,15 @@ audit_date: 2026-03-15
 **Findings**:
 - **CRITICAL**: `test/automated/parsers/test_powershell.py` (32 tests) is NOT registered in test-registry.yaml
 - Multiple registry testCasesCount discrepancies:
-  - PD-TST-103: 8 → 12
-  - PD-TST-109: 29 → 59
-  - PD-TST-113: 8 → 11
-  - PD-TST-114: 22 → 21
-  - PD-TST-115: 5 → 6
+  - TE-TST-103: 8 → 12
+  - TE-TST-109: 29 → 59
+  - TE-TST-113: 8 → 11
+  - TE-TST-114: 22 → 21
+  - TE-TST-115: 5 → 6
 - Manual test entries (E2E-GRP-01, E2E-001) are properly tracked in test-tracking.md
 
 **Recommendations**:
-- Register test_powershell.py in test-registry.yaml with a new PD-TST ID
+- Register test_powershell.py in test-registry.yaml with a new TE-TST ID
 - Update all testCasesCount discrepancies
 
 ## Overall Audit Summary
@@ -162,7 +162,7 @@ audit_date: 2026-03-15
 - `test/automated/parsers/test_powershell.py` (32 tests) not registered in test-registry.yaml — must be registered
 
 ### Improvement Opportunities
-- Register test_powershell.py with new PD-TST ID
+- Register test_powershell.py with new TE-TST ID
 - Update 5 testCasesCount discrepancies in registry
 - Address xfail limitations in markdown parser (inline code blocks) when feasible
 
@@ -176,12 +176,12 @@ audit_date: 2026-03-15
 ## Action Items
 
 ### For Test Implementation Team
-- [ ] Register test/automated/parsers/test_powershell.py in test-registry.yaml (new PD-TST ID for feature 2.1.1)
-- [ ] Update PD-TST-103 testCasesCount 8 → 12
-- [ ] Update PD-TST-109 testCasesCount 29 → 59
-- [ ] Update PD-TST-113 testCasesCount 8 → 11
-- [ ] Update PD-TST-114 testCasesCount 22 → 21
-- [ ] Update PD-TST-115 testCasesCount 5 → 6
+- [ ] Register test/automated/parsers/test_powershell.py in test-registry.yaml (new TE-TST ID for feature 2.1.1)
+- [ ] Update TE-TST-103 testCasesCount 8 → 12
+- [ ] Update TE-TST-109 testCasesCount 29 → 59
+- [ ] Update TE-TST-113 testCasesCount 8 → 11
+- [ ] Update TE-TST-114 testCasesCount 22 → 21
+- [ ] Update TE-TST-115 testCasesCount 5 → 6
 
 ### For Feature Implementation Team
 - No action needed

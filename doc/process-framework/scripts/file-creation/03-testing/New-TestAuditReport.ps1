@@ -97,7 +97,7 @@ $customReplacements = @{
 # Create the document using standardized process
 try {
     # Use DirectoryType for ID registry-based directory resolution
-    $documentId = New-StandardProjectDocument -TemplatePath "doc/process-framework/templates/03-testing/test-audit-report-template.md" -IdPrefix "PF-TAR" -IdDescription "Test Audit Report for Feature $FeatureId" -DocumentName "audit-report-$FeatureId-$TestFileId" -DirectoryType $featureCategory -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
+    $documentId = New-StandardProjectDocument -TemplatePath "doc/process-framework/templates/03-testing/test-audit-report-template.md" -IdPrefix "TE-TAR" -IdDescription "Test Audit Report for Feature $FeatureId" -DocumentName "audit-report-$FeatureId-$TestFileId" -DirectoryType $featureCategory -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
 
     # Provide success details
     $details = @(

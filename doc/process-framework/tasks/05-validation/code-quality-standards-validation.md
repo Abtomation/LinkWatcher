@@ -53,7 +53,7 @@ Systematically validates selected features for adherence to code quality standar
   - **Framework Best Practices** - Platform-specific best practices for your technology stack
   - **Code Quality Tools Configuration** - Linting and analysis configuration files
   - **Visual Notation Guide** - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting context map diagrams
-  - **ID Registry** - [ID Registry](../../../id-registry.json) - For understanding validation report ID assignments
+  - **ID Registry** - [PD ID Registry](../../PF-id-registry.json) - For understanding validation report ID assignments
 
 ## Process
 

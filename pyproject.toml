@@ -115,6 +115,12 @@ omit = [
     "*/test_*",
 ]
 
+[tool.coverage.xml]
+output = "build/coverage/coverage.xml"
+
+[tool.coverage.html]
+directory = "build/coverage/htmlcov"
+
 [tool.coverage.report]
 exclude_lines = [
     "pragma: no cover",
@@ -130,12 +136,14 @@ exclude_lines = [
 ]
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
+# NOTE: Framework wrapper config is in doc/process-framework/languages-config/python-config.json
+#       pyproject.toml = pytest runtime config (markers, discovery, warnings, timeout)
+#       python-config.json = Run-Tests.ps1 wrapper config (CLI flags, coverage args, categories)
+testpaths = ["test/automated"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
 addopts = [
-    "--verbose",
     "--tb=short",
     "--strict-markers",
     "--strict-config",

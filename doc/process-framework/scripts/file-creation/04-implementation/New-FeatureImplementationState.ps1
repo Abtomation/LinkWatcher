@@ -238,7 +238,7 @@ Before considering this script complete, test the following:
 
 4. ID REGISTRY TEST:
    - Create a test document
-   - Check that id-registry.json was updated with nextAvailable incremented
+   - Check that the appropriate ID registry was updated with nextAvailable incremented
    - Verify the assigned ID appears in the document frontmatter
 
 5. ERROR HANDLING TEST:

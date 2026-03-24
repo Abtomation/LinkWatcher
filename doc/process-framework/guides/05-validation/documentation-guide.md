@@ -99,7 +99,6 @@ project/
 ├── README.md
 ├── CONTRIBUTING.md
 ├── LICENSE
-├── CHANGELOG.md
 ├── doc/
 │   ├── product-docs/
 │   │   ├── technical/
@@ -357,7 +356,6 @@ def process_file(filepath: str) -> dict:
 
 ### Handling Changes
 
-- Use a changelog to track documentation changes
 - Update documentation when code changes
 - Archive outdated documentation instead of deleting it
 

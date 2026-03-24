@@ -84,7 +84,7 @@ task_name: [TASK-NAME]
 
 - [ ] **Log tool change**: Record modification in feedback database
   - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
-  - **Command**: `python scripts/feedback_db.py log-change --tool <TOOL_DOC_ID> --date <YYYY-MM-DD> --imp <IMP-XXX> --description "<what changed>"`
+  - **Command**: `python doc/process-framework/scripts/feedback_db.py log-change --tool <TOOL_DOC_ID> --date <YYYY-MM-DD> --imp <IMP-XXX> --description "<what changed>"`
 
 ### Phase 4: Validation & Completion (Session 4)
 

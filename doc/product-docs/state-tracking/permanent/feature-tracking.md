@@ -1,10 +1,10 @@
 ---
-id: PF-STA-001
+id: PD-STA-001
 type: Process Framework
 category: State Tracking
 version: 2.0
 created: 2023-06-15
-updated: 2026-03-23
+updated: 2026-03-22
 ---
 
 # LinkWatcher - Feature Tracking Document
@@ -23,9 +23,8 @@ This document tracks the implementation status and documentation requirements fo
   - [1. File Watching & Detection](#1-file-watching--detection)
   - [2. Link Parsing & Update](#2-link-parsing--update)
   - [3. Logging & Monitoring](#3-logging--monitoring)
-  - [4. Testing Infrastructure](#4-testing-infrastructure)
-  - [5. CI/CD & Deployment](#5-cicd--deployment)
   - [6. Link Validation & Reporting](#6-link-validation--reporting)
+- [Archived Features](#archived-features)
 - [Progress Summary](#progress-summary)
 
 </details>
@@ -101,9 +100,9 @@ Foundation features that provide architectural foundations for the application.
 
 |  ID  |  Feature  |  Status  |  Priority  |  Doc Tier  |  ADR  |  FDD  |  TDD  |  Test Status  |  Test Spec  |  Dependencies  |  Notes  |
 |  --  |  -------  |  ------  |  --------  |  --------  |  ---  |  ---  |  ---  |  -----------  |  ---------  |  ------------  |  -----  |
-| [0.1.1](../features/0.1.1-core-architecture-implementation-state.md) | Core Architecture | 🟢 Completed | P1 | [🔴 Tier 3](../../documentation-tiers/assessments/ART-ASS-191-0-1-1-core-architecture.md) | [PD-ADR-039](../../technical/architecture/design-docs/adr/adr/orchestrator-facade-pattern-for-core-architecture.md) | [PD-FDD-022](../../functional-design/fdds/fdd-0-1-1-core-architecture.md) | [PD-TDD-021](../../technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md) | 🔴 Some Failing | [PF-TSP-035](../../../../test/specifications/feature-specs/test-spec-0-1-1-core-architecture.md) | — | **FOUNDATION** Service orchestrator (facade pattern), data models, path utilities, CLI entry point. Files: service.py, __init__.py, main.py, models.py, utils.py. Retrospective. Consolidates old 0.1.1 + 0.1.2 (Data Models) + 0.1.5 (Path Utilities). |
-| [0.1.2](../features/0.1.2-in-memory-link-database-implementation-state.md) | In-Memory Link Database | 📝 TDD Created | P1 | [🟠 Tier 2](../../documentation-tiers/assessments/ART-ASS-192-0-1-2-in-memory-link-database.md) | [PD-ADR-040](../../technical/architecture/design-docs/adr/adr/target-indexed-in-memory-link-database.md) | [PD-FDD-023](../../functional-design/fdds/fdd-0-1-2-in-memory-database.md) | [PD-TDD-022](../../technical/architecture/design-docs/tdd/tdd-0-1-2-in-memory-database-t2.md) | 🔴 Some Failing | [PF-TSP-036](../../../../test/specifications/feature-specs/test-spec-0-1-2-in-memory-link-database.md) | 0.1.1 | **FOUNDATION** Thread-safe, target-indexed link storage with O(1) lookups. File: database.py. Retrospective. Was old 0.1.3. |
-| [0.1.3](../features/0.1.3-configuration-system-implementation-state.md) | Configuration System | 📊 Assessment Created | P1 | [🔵 Tier 1](../../documentation-tiers/assessments/ART-ASS-193-0-1-3-configuration-system.md) | N/A | — | — | 🔴 Some Failing | [PF-TSP-037](../../../../test/specifications/feature-specs/test-spec-0-1-3-configuration-system.md) | — | **FOUNDATION** Multi-source config loading (YAML/JSON/env/CLI), validation, environment presets. Files: config/settings.py, config/defaults.py, config/__init__.py, config-examples/*. Retrospective. Was old 0.1.4. No FDD/TDD (Tier 1). |
+| [0.1.1](../features/0.1.1-core-architecture-implementation-state.md) | Core Architecture | 🟢 Completed | P1 | [🔴 Tier 3](../../documentation-tiers/assessments/PD-ASS-191-0-1-1-core-architecture.md) | [PD-ADR-039](../../technical/architecture/design-docs/adr/adr/orchestrator-facade-pattern-for-core-architecture.md) | [PD-FDD-022](../../functional-design/fdds/fdd-0-1-1-core-architecture.md) | [PD-TDD-021](../../technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md) | 🔴 Some Failing | [PF-TSP-035](../../../../test/specifications/feature-specs/test-spec-0-1-1-core-architecture.md) | — | **FOUNDATION** Service orchestrator (facade pattern), data models, path utilities, CLI entry point. Files: service.py, __init__.py, main.py, models.py, utils.py. Retrospective. Consolidates old 0.1.1 + 0.1.2 (Data Models) + 0.1.5 (Path Utilities). |
+| [0.1.2](../features/0.1.2-in-memory-link-database-implementation-state.md) | In-Memory Link Database | 📝 TDD Created | P1 | [🟠 Tier 2](../../documentation-tiers/assessments/PD-ASS-192-0-1-2-in-memory-link-database.md) | [PD-ADR-040](../../technical/architecture/design-docs/adr/adr/target-indexed-in-memory-link-database.md) | [PD-FDD-023](../../functional-design/fdds/fdd-0-1-2-in-memory-database.md) | [PD-TDD-022](../../technical/architecture/design-docs/tdd/tdd-0-1-2-in-memory-database-t2.md) | 🔴 Some Failing | [PF-TSP-036](../../../../test/specifications/feature-specs/test-spec-0-1-2-in-memory-link-database.md) | 0.1.1 | **FOUNDATION** Thread-safe, target-indexed link storage with O(1) lookups. File: database.py. Retrospective. Was old 0.1.3. |
+| [0.1.3](../features/0.1.3-configuration-system-implementation-state.md) | Configuration System | 📊 Assessment Created | P1 | [🔵 Tier 1](../../documentation-tiers/assessments/PD-ASS-193-0-1-3-configuration-system.md) | N/A | — | — | 🔴 Some Failing | [PF-TSP-037](../../../../test/specifications/feature-specs/test-spec-0-1-3-configuration-system.md) | — | **FOUNDATION** Multi-source config loading (YAML/JSON/env/CLI), validation, environment presets. Files: config/settings.py, config/defaults.py, config/__init__.py, config-examples/*. Retrospective. Was old 0.1.4. No FDD/TDD (Tier 1). |
 
 </details>
 
@@ -116,7 +115,7 @@ Real-time file system monitoring and movement detection.
 
 |  ID  |  Feature  |  Status  |  Priority  |  Doc Tier  |  FDD  |  TDD  |  Test Status  |  Test Spec  |  Dependencies  |  Notes  |
 |  --  |  -------  |  ------  |  --------  |  --------  |  ---  |  ---  |  -----------  |  ---------  |  ------------  |  -----  |
-| [1.1.1](../features/1.1.1-file-system-monitoring-implementation-state.md) | File System Monitoring | ✅ Complete | P1 | [🟠 Tier 2](../../documentation-tiers/assessments/ART-ASS-194-1-1-1-file-system-monitoring.md) | [PD-FDD-024](../../functional-design/fdds/fdd-1-1-1-file-system-monitoring.md) | [PD-TDD-023](../../technical/architecture/design-docs/tdd/tdd-1-1-1-file-system-monitoring-t2.md) | 🔴 Some Failing | [PF-TSP-044](../../../../test/specifications/cross-cutting-specs/cross-cutting-spec-e2e-acceptance-testing-scenarios.md) | 0.1.1 | Watchdog event handling, move detection (delete+create pairing), directory moves, file filtering, initial scan, real-time monitoring. Files: handler.py, move_detector.py, dir_move_detector.py (TD005 decomposition). Retrospective. Consolidates old 1.1.1–1.1.5.; Test specification created: PF-TSP-044 (2026-03-18) |
+| [1.1.1](../features/1.1.1-file-system-monitoring-implementation-state.md) | File System Monitoring | ✅ Complete | P1 | [🟠 Tier 2](../../documentation-tiers/assessments/PD-ASS-194-1-1-1-file-system-monitoring.md) | [PD-FDD-024](../../functional-design/fdds/fdd-1-1-1-file-system-monitoring.md) | [PD-TDD-023](../../technical/architecture/design-docs/tdd/tdd-1-1-1-file-system-monitoring-t2.md) | 🔴 Some Failing | [PF-TSP-044](../../../../test/specifications/cross-cutting-specs/cross-cutting-spec-e2e-acceptance-testing-scenarios.md) | 0.1.1 | Watchdog event handling, move detection (delete+create pairing), directory moves, file filtering, initial scan, real-time monitoring. Files: handler.py, move_detector.py, dir_move_detector.py (TD005 decomposition). Retrospective. Consolidates old 1.1.1–1.1.5.; Test specification created: PF-TSP-044 (2026-03-18) |
 
 </details>
 
@@ -129,8 +128,8 @@ Parser implementations for different file formats and link update mechanisms.
 
 |  ID  |  Feature  |  Status  |  Priority  |  Doc Tier  |  FDD  |  TDD  |  Test Status  |  Test Spec  |  Dependencies  |  Notes  |
 |  --  |  -------  |  ------  |  --------  |  --------  |  ---  |  ---  |  -----------  |  ---------  |  ------------  |  -----  |
-| [2.1.1](../features/2.1.1-link-parsing-system-implementation-state.md) | Link Parsing System | ✅ Complete | P1 | [🟠 Tier 2](../../documentation-tiers/assessments/ART-ASS-195-2-1-1-link-parsing-system.md) | [PD-FDD-026](../../functional-design/fdds/fdd-2-1-1-parser-framework.md) | [PD-TDD-025](../../technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md) | 🔴 Some Failing | [PF-TSP-039](../../../../test/specifications/feature-specs/test-spec-2-1-1-link-parsing-system.md) | 0.1.1 | Parser registry/facade with 7 format-specific parsers (Markdown, YAML, JSON, Python, Dart, PowerShell, Generic). Files: parser.py, parsers/* (9 files). Retrospective. Consolidates old 2.1.1–2.1.7. |
-| [2.2.1](../features/2.2.1-link-updating-implementation-state.md) | Link Updating | 📝 TDD Created | P1 | [🟠 Tier 2](../../documentation-tiers/assessments/ART-ASS-196-2-2-1-link-updating.md) | [PD-FDD-027](../../functional-design/fdds/fdd-2-2-1-link-updater.md) | [PD-TDD-026](../../technical/architecture/design-docs/tdd/tdd-2-2-1-link-updater-t2.md) | 🔴 Some Failing | [PF-TSP-040](../../../../test/specifications/feature-specs/test-spec-2-2-1-link-updating.md) | 0.1.1 | Reference updating with relative path calculation, atomic writes, backup creation, dry-run mode. File: updater.py. Retrospective. Consolidates old 2.2.1–2.2.5. |
+| [2.1.1](../features/2.1.1-link-parsing-system-implementation-state.md) | Link Parsing System | ✅ Complete | P1 | [🟠 Tier 2](../../documentation-tiers/assessments/PD-ASS-195-2-1-1-link-parsing-system.md) | [PD-FDD-026](../../functional-design/fdds/fdd-2-1-1-parser-framework.md) | [PD-TDD-025](../../technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md) | 🔴 Some Failing | [PF-TSP-039](../../../../test/specifications/feature-specs/test-spec-2-1-1-link-parsing-system.md) | 0.1.1 | Parser registry/facade with 7 format-specific parsers (Markdown, YAML, JSON, Python, Dart, PowerShell, Generic). Files: parser.py, parsers/* (9 files). Retrospective. Consolidates old 2.1.1–2.1.7. |
+| [2.2.1](../features/2.2.1-link-updating-implementation-state.md) | Link Updating | 📝 TDD Created | P1 | [🟠 Tier 2](../../documentation-tiers/assessments/PD-ASS-196-2-2-1-link-updating.md) | [PD-FDD-027](../../functional-design/fdds/fdd-2-2-1-link-updater.md) | [PD-TDD-026](../../technical/architecture/design-docs/tdd/tdd-2-2-1-link-updater-t2.md) | 🔴 Some Failing | [PF-TSP-040](../../../../test/specifications/feature-specs/test-spec-2-2-1-link-updating.md) | 0.1.1 | Reference updating with relative path calculation, atomic writes, backup creation, dry-run mode. File: updater.py. Retrospective. Consolidates old 2.2.1–2.2.5. |
 
 </details>
 
@@ -143,33 +142,7 @@ Logging system and operational monitoring features.
 
 |  ID  |  Feature  |  Status  |  Priority  |  Doc Tier  |  FDD  |  TDD  |  Test Status  |  Test Spec  |  Dependencies  |  Notes  |
 |  --  |  -------  |  ------  |  --------  |  --------  |  ---  |  ---  |  -----------  |  ---------  |  ------------  |  -----  |
-| [3.1.1](../features/3.1.1-logging-system-implementation-state.md) | Logging System | 📝 TDD Created | P1 | [🟠 Tier 2](../../documentation-tiers/assessments/ART-ASS-197-3-1-1-logging-system.md) | [PD-FDD-025](../../functional-design/fdds/fdd-3-1-1-logging-framework.md) | [PD-TDD-024](../../technical/architecture/design-docs/tdd/tdd-3-1-1-logging-framework-t2.md) | 🔴 Some Failing | [PF-TSP-041](../../../../test/specifications/feature-specs/test-spec-3-1-1-logging-system.md) | 0.1.3 | Structured logging with colored console output, JSON file logging, rotating handlers, runtime filtering, performance metrics. Files: logging.py, logging_config.py. Retrospective. Consolidates old 3.1.1–3.1.5. |
-
-</details>
-
-<details>
-<summary><strong>4. Testing Infrastructure</strong></summary>
-
-### 4.0 Testing Infrastructure
-
-Testing framework, test utilities, and test coverage.
-
-|  ID  |  Feature  |  Status  |  Priority  |  Doc Tier  |  FDD  |  TDD  |  Test Status  |  Test Spec  |  Dependencies  |  Notes  |
-|  --  |  -------  |  ------  |  --------  |  --------  |  ---  |  ---  |  -----------  |  ---------  |  ------------  |  -----  |
-|  [4.1.1](../features/archive/4.1.1-test-suite-implementation-state.md)  |  Test Suite  |  🗄️ Archived  |  —  |  —  |  —  |  —  |  —  |  —  |  —  |  Generalized into framework (PF-PRO-009, 2026-03-22). Testing infrastructure is now a framework concern, not a product feature. See [Testing Setup Guide](../../../process-framework/guides/03-testing/testing-setup-guide.md) and [Test Infrastructure Guide](../../../process-framework/guides/03-testing/test-infrastructure-guide.md).  |
-
-</details>
-
-<details>
-<summary><strong>5. CI/CD & Deployment</strong></summary>
-
-### 5.0 CI/CD & Deployment
-
-Continuous integration, deployment pipelines, and development tooling.
-
-|  ID  |  Feature  |  Status  |  Priority  |  Doc Tier  |  FDD  |  TDD  |  Test Status  |  Test Spec  |  Dependencies  |  Notes  |
-|  --  |  -------  |  ------  |  --------  |  --------  |  ---  |  ---  |  -----------  |  ---------  |  ------------  |  -----  |
-|  [5.1.1](../features/archive/5.1.1-cicd-development-tooling-implementation-state.md)  |  CI/CD & Development Tooling  |  🗄️ Archived  |  —  |  —  |  —  |  —  |  —  |  —  |  —  |  Generalized into framework (PF-PRO-009, 2026-03-22). CI/CD infrastructure is now a framework concern, not a product feature. See [CI/CD Setup Guide](../../../process-framework/guides/07-deployment/ci-cd-setup-guide.md). Major components deleted (ci.yml, run_tests.py, setup_cicd.py).  |
+| [3.1.1](../features/3.1.1-logging-system-implementation-state.md) | Logging System | 📝 TDD Created | P1 | [🟠 Tier 2](../../documentation-tiers/assessments/PD-ASS-197-3-1-1-logging-system.md) | [PD-FDD-025](../../functional-design/fdds/fdd-3-1-1-logging-framework.md) | [PD-TDD-024](../../technical/architecture/design-docs/tdd/tdd-3-1-1-logging-framework-t2.md) | 🔴 Some Failing | [PF-TSP-041](../../../../test/specifications/feature-specs/test-spec-3-1-1-logging-system.md) | 0.1.3 | Structured logging with colored console output, JSON file logging, rotating handlers, runtime filtering, performance metrics. Files: logging.py, logging_config.py. Retrospective. Consolidates old 3.1.1–3.1.5. |
 
 </details>
 
@@ -182,7 +155,21 @@ On-demand link health auditing and broken link reporting.
 
 |  ID  |  Feature  |  Status  |  Priority  |  Doc Tier  |  FDD  |  TDD  |  Test Status  |  Test Spec  |  Dependencies  |  Notes  |
 |  --  |  -------  |  ------  |  --------  |  --------  |  ---  |  ---  |  -----------  |  ---------  |  ------------  |  -----  |
-|  [6.1.1](../../../product-docs/state-tracking/features/6.1.1-Link%20Validation-implementation-state.md)  |  Link Validation  |  📊 Assessment Created  |  P2  |  [🔵 Tier 1](../../documentation-tiers/assessments/ART-ASS-200-6.1.1-link-validation.md)  |  N/A  |  —  |  ⬜  |  —  |  0.1.1, 2.1.1  |  On-demand workspace scanner that checks all existing links across all supported file formats and reports broken references. New feature.  |
+| [6.1.1](../../../product-docs/state-tracking/features/6.1.1-Link%20Validation-implementation-state.md) | Link Validation | ⚙️ Implementation | P2 | [🔵 Tier 1](../../documentation-tiers/assessments/PD-ASS-200-6.1.1-link-validation.md) | N/A | — | ✅ 20/20 | — | 0.1.1, 2.1.1 | Implementation Plan: [PD-IMP-002](../../technical/implementation-plans/6-1-1-link-validation-implementation-plan.md). All 3 phases complete. Code review pending. |
+
+</details>
+
+## Archived Features
+
+<details>
+<summary><strong>Show archived features (2 items)</strong></summary>
+
+Features that have been generalized into the process framework or otherwise retired from active product tracking.
+
+| ID | Feature | Archive Date | Rationale | Replacement |
+| -- | ------- | ------------ | --------- | ----------- |
+| [5.1.1](../features/archive/5.1.1-cicd-development-tooling-implementation-state.md) | CI/CD & Development Tooling | 2026-03-22 | Generalized into framework (PF-PRO-009, 2026-03-22). CI/CD infrastructure is now a framework concern, not a product feature. Major components deleted (ci.yml, run_tests.py, setup_cicd.py). | [CI/CD Setup Guide](../../../process-framework/guides/07-deployment/ci-cd-setup-guide.md) |
+| [4.1.1](../features/archive/4.1.1-test-suite-implementation-state.md) | Test Suite | 2026-03-22 | Generalized into framework (PF-PRO-009, 2026-03-22). Testing infrastructure is now a framework concern, not a product feature. | [Testing Setup Guide](../../../process-framework/guides/03-testing/testing-setup-guide.md), [Test Infrastructure Guide](../../../process-framework/guides/03-testing/test-infrastructure-guide.md) |
 
 </details>
 
@@ -193,14 +180,15 @@ On-demand link health auditing and broken link reporting.
 
 | Status                | Count  | Percentage |
 | --------------------- | ------ | ---------- |
-| 🟢 Completed | 1      | 10%      |
-| 📝 TDD Created | 3      | 30%      |
-| 📊 Assessment Created | 2      | 20%      |
-| ✅ Complete | 2      | 20%      |
-| 🗄️ Archived | 2      | 20%      |
-| **Total Features**    | **10**  | **100%**   |
+| 🟢 Completed | 1      | 11.1%      |
+| 📝 TDD Created | 3      | 33.3%      |
+| 📊 Assessment Created | 1      | 11.1%      |
+| ✅ Complete | 2      | 22.2%      |
+| 🟡 In Progress | 1      | 11.1%      |
+| ⚙️ Implementation | 1      | 11.1%      |
+| **Total Active**    | **9**  | **100%**   |
 
-> **📝 NOTE**: All 10 features are fully implemented in code (retrospective). The status reflects documentation completeness, not implementation progress. All features have passing tests.
+> **📝 NOTE**: All 9 active features are fully implemented in code (retrospective). The status reflects documentation completeness, not implementation progress. All features have passing tests. See [Archived Features](#archived-features) for retired features.
 
 </details>
 
@@ -209,10 +197,10 @@ On-demand link health auditing and broken link reporting.
 
 | Tier                  | Count  | Percentage |
 | --------------------- | ------ | ---------- |
-| 🔵 Tier 1 (Simple)   | 2      | 20%      |
-| 🟠 Tier 2 (Moderate)   | 5      | 50%      |
-| 🔴 Tier 3 (Complex)   | 1      | 10%      |
-| **Total Features**    | **10**  | **100%**   |
+| 🔵 Tier 1 (Simple)   | 2      | 22.2%      |
+| 🟠 Tier 2 (Moderate)   | 5      | 55.6%      |
+| 🔴 Tier 3 (Complex)   | 1      | 11.1%      |
+| **Total Active**    | **9**  | **100%**   |
 
 </details>
 
@@ -221,11 +209,11 @@ On-demand link health auditing and broken link reporting.
 
 | Artifact | Exists | Missing | Notes |
 |----------|--------|---------|-------|
-| FDDs | 6 | 4 (0.1.3 Configuration System, 6.1.1 Link Validation — Tier 1, not required) | |
-| TDDs | 6 | 4 (0.1.3 Configuration System, 6.1.1 Link Validation — Tier 1, not required) | |
+| FDDs | 6 | 3 (0.1.3 Configuration System, 6.1.1 Link Validation — Tier 1, not required) | |
+| TDDs | 6 | 3 (0.1.3 Configuration System, 6.1.1 Link Validation — Tier 1, not required) | |
 | ADRs | 2 | — | PD-ADR-039 (0.1.1), PD-ADR-040 (0.1.2) |
-| Test Specs | 7 | 3 | |
-| Tier Assessments | 8 | 2 | |
+| Test Specs | 7 | 2 | |
+| Tier Assessments | 8 | 1 | |
 
 </details>
 
@@ -248,6 +236,8 @@ On-demand link health auditing and broken link reporting.
 
 | Date | Change | Updated By |
 |------|--------|------------|
+| 2026-03-24 | v2.9 — 6.1.1 Link Validation: All 3 implementation phases complete (validator.py, CLI --validate, 20 unit tests), status → ⚙️ Implementation | Implementation |
+| 2026-03-24 | v2.8 — 6.1.1 Link Validation: Implementation plan created (PD-IMP-002), status → 📋 Implementation Planned | [Feature Implementation Planning (PF-TSK-044)](../../../process-framework/tasks/04-implementation/feature-implementation-planning-task.md) |
 | 2026-03-16 | v2.7 — 1.1.1 File System Monitoring set to "Needs Revision" for Parent Directory Reference Updates enhancement (PF-STA-058) | [Feature Request Evaluation (PF-TSK-067)](../../../process-framework/tasks/01-planning/feature-request-evaluation.md) |
 | 2026-03-16 | v2.6 — 2.1.1 Link Parsing System set to "Needs Revision" for Backtick-Delimited Path Detection enhancement (PF-STA-057) | [Feature Request Evaluation (PF-TSK-067)](../../../process-framework/tasks/01-planning/feature-request-evaluation.md) |
 | 2026-03-16 | v2.5 — Added feature 6.1.1 Link Validation in new category "6. Link Validation & Reporting" (PF-FEA-055) | [Feature Request Evaluation (PF-TSK-067)](../../../process-framework/tasks/01-planning/feature-request-evaluation.md) |
@@ -259,3 +249,6 @@ On-demand link health auditing and broken link reporting.
 | 2026-02-20 | v1.5 — Retrospective TDDs completed for all Tier 2+ features | [Retrospective Documentation Creation (PF-TSK-066)](../../../process-framework/tasks/00-onboarding/retrospective-documentation-creation.md) |
 | 2026-02-19 | v1.4 — Retrospective FDDs completed for all Tier 2+ features | [Retrospective Documentation Creation (PF-TSK-066)](../../../process-framework/tasks/00-onboarding/retrospective-documentation-creation.md) |
 | 2026-02-17 | v1.0 — Initial feature tracking with 42 features | [Codebase Feature Discovery (PF-TSK-064)](../../../process-framework/tasks/00-onboarding/codebase-feature-discovery.md) |
+| 2026-03-22 | Archived feature 4.1.1: Generalized into framework (PF-PRO-009, 2026-03-22). Testing infrastructure is now a framework concern, not a product feature. | [Archive-Feature.ps1](../../../process-framework/scripts/update/Archive-Feature.ps1) |
+| 2026-03-22 | Archived feature 5.1.1: Generalized into framework (PF-PRO-009, 2026-03-22). CI/CD infrastructure is now a framework concern, not a product feature. Major components deleted (ci.yml, run_tests.py, setup_cicd.py). | [Archive-Feature.ps1](../../../process-framework/scripts/update/Archive-Feature.ps1) |
+

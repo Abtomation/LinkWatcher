@@ -1,5 +1,5 @@
 ---
-id: PF-STA-063
+id: PD-STA-063
 type: Document
 category: General
 version: 1.0
@@ -68,7 +68,7 @@ change_name: generalize-validation-framework
 | Update common workflows | `ai-tasks.md` — added "For Feature Validation" workflow | ✅ Complete |
 | Update task-transition-guide | Updated Feature Validation section with preparation step + 11 dimensions | ✅ Complete |
 | Update documentation-map | Added Validation Preparation task + context map entries | ✅ Complete |
-| Update ai-tasks.md | Added Validation Preparation as entry point with 🟢 Simple | ✅ Complete |
+| Update doc/process-framework/ai-tasks.md | Added Validation Preparation as entry point with 🟢 Simple | ✅ Complete |
 
 ## Key Design Decisions
 
@@ -118,7 +118,7 @@ change_name: generalize-validation-framework
 - Created 5 context maps (PF-VIS-051–055) for all new tasks
 - Customized all 10 files with dimension-specific content following existing validation task patterns
 - Updated registries: ai-tasks.md, documentation-map.md, task-registry.md
-- Fixed auto-generated task names in ai-tasks.md (added `&` and `/` symbols)
+- Fixed auto-generated task names in doc/process-framework/ai-tasks.md (added `&` and `/` symbols)
 
 **Phase 3 completed in same session (continued below)**
 

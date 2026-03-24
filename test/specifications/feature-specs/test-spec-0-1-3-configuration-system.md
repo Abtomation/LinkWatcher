@@ -1,5 +1,5 @@
 ---
-id: PF-TSP-037
+id: TE-TSP-037
 type: Process Framework
 category: Test Specification
 version: 1.0
@@ -93,7 +93,7 @@ The Configuration System provides multi-source configuration loading (YAML, JSON
 
 ### Utility Module (test/automated/test_config.py)
 
-**Note**: [`test/automated/test_config.py`](../../../test/automated/test_config.py) (PD-TST-100) is a **configuration/utility module**, not a test file. It provides:
+**Note**: [`test/automated/test_config.py`](../../../test/automated/test_config.py) (TE-TST-100) is a **configuration/utility module**, not a test file. It provides:
 - `TEST_ENVIRONMENTS` dict (unit/integration/performance/manual presets)
 - `SAMPLE_CONTENTS` and `TEST_PROJECT_STRUCTURES` for use by other tests
 - Helper functions: `get_test_config()`, `get_test_data_dir()`, `create_test_project()`
