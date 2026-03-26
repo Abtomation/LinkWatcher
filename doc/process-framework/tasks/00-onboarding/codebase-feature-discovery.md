@@ -100,7 +100,7 @@ This task produces the foundational inventory that subsequent onboarding tasks (
    - Identify all non-source documentation files (markdown, txt, rst, etc.) **outside** `doc/product-docs`
      - Root docs (README.md, HOW_IT_WORKS.md, CONTRIBUTING.md, etc.)
      - `docs/` directory files
-     - `test/` documentation files (test-registry.yaml, specifications/, audits/, etc.)
+     - `test/` documentation files (specifications/, audits/, etc.)
      - Any other project-level documentation
    - For each documentation file:
      a. Classify its **Type**: Architecture Overview, User Guide, Test Plan, CI/CD, Troubleshooting, Developer Guide, Configuration, Changelog, or Other
@@ -307,5 +307,5 @@ This task produces the foundational inventory that subsequent onboarding tasks (
 - [Retrospective Master State Template](../../templates/00-onboarding/retrospective-state-template.md) - Template for tracking codebase-wide progress
 - [Feature Implementation State Template](../../templates/04-implementation/feature-implementation-state-template.md) - Template for per-feature code analysis
 - [Feature Implementation State Tracking Guide](../../guides/04-implementation/feature-implementation-state-tracking-guide.md) - Comprehensive guide for using the state template
-- [Test Registry](/test/test-registry.yaml) - Registry of all test files mapped to features (populated during PF-TSK-065)
+- [Test Query Tool](/test/test_query.py) - Query test files by feature, priority, and markers
 - [Test Tracking](../../../../test/state-tracking/permanent/test-tracking.md) - Test implementation status tracking (populated during PF-TSK-065)

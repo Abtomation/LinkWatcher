@@ -51,7 +51,7 @@ Verify unit test completeness, implement integration and cross-component tests, 
   - **TDD (Technical Design Document)** - Testing requirements section describing test scenarios, coverage expectations, and acceptance criteria
   - **Completed Implementation Code** - All implemented feature code to be tested
   - [Test Tracking](../../../../test/state-tracking/permanent/test-tracking.md) - Current test implementation status
-  - [Test Registry](/test/test-registry.yaml) - Test file registry with IDs and metadata
+  - [Test Query Tool](/test/test_query.py) - Query test files by feature, priority, and markers
   - [Visual Notation Guide](/doc/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 - **Important (Load If Space):**
@@ -102,10 +102,9 @@ Verify unit test completeness, implement integration and cross-component tests, 
    # Use Extended for performance benchmarks and stress tests
 
    # Script automatically:
-   # - Generates unique PD-TST ID
+   # - Writes pytest markers (feature, priority, test_type)
    # - Creates test file from template with proper structure
    # - Updates test-tracking.md with correct file links and status
-   # - Updates test-registry.yaml with test file metadata (including priority)
    # - Updates feature-tracking.md with test implementation progress
    ```
 
@@ -136,7 +135,7 @@ Verify unit test completeness, implement integration and cross-component tests, 
     - Check if existing tests adequately cover the cross-feature interaction
     - If not, consider creating a cross-cutting test specification using the [Cross-Cutting Test Specification Template](../../templates/03-testing/cross-cutting-test-specification-template.md)
     - Store cross-cutting specs in `/test/specifications/cross-cutting-specs/`
-    - Register cross-cutting tests in [Test Registry](/test/test-registry.yaml) with `testType: cross-cutting` and the `crossCuttingFeatures` field
+    - Add `cross_cutting` pytest marker to cross-cutting test files listing the additional feature IDs
     - This step is optional guidance — not every integration test warrants a formal cross-cutting specification
 16. **Verify Non-Test-Suite Artifacts**: If the implementation modified any artifacts that are not exercised by the project's automated test suite (scripts, configuration generators, build definitions, deployment manifests, etc.):
     - Manually invoke each modified artifact with representative inputs
@@ -204,7 +203,6 @@ Verify unit test completeness, implement integration and cross-component tests, 
 The following state files are automatically updated by the `New-TestFile.ps1` script:
 
 - [Test Tracking](../../../../test/state-tracking/permanent/test-tracking.md) - Automatically updated with Implementation In Progress status, test file links with correct relative paths, and metadata
-- [Test Registry](/test/test-registry.yaml) - Automatically updated with test file entries, metadata, and test case counts (status tracked in test-tracking.md)
 - [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) - Automatically updated with Test Status column reflecting implementation progress
 
 **Manual updates required for:**
@@ -232,7 +230,6 @@ Before considering this task finished:
   - [ ] Any discovered bugs reported using `New-BugReport.ps1` script with proper context and evidence
 - [ ] **Verify State Files**: Confirm all state tracking files have been automatically updated by the script
   - [ ] [Test Tracking](../../../../test/state-tracking/permanent/test-tracking.md) shows correct test file links and status
-  - [ ] [Test Registry](/test/test-registry.yaml) contains test file entries with proper metadata
   - [ ] [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) Test Status column reflects implementation progress
 - [ ] **Manual Status Updates**: Update completion status after test implementation
   - [ ] Change test status from Implementation In Progress to Ready for Validation
@@ -262,7 +259,6 @@ Before considering this task finished:
 
 - [Test Specification Creation Task](../03-testing/test-specification-creation-task.md) - For creating test specifications before implementation
 - [Test Tracking](../../../../test/state-tracking/permanent/test-tracking.md) - Track test implementation progress
-- [Test Registry](/test/test-registry.yaml) - Test file registry with IDs and metadata
 - [Test File Creation Guide](../../guides/03-testing/test-file-creation-guide.md) - Guide for customizing test file templates
 - [Bug Reporting Guide](../../guides/06-maintenance/bug-reporting-guide.md) - Standardized procedures for reporting bugs
 - [Feature Implementation State Tracking Guide](../../guides/04-implementation/feature-implementation-state-tracking-guide.md) - Guide for maintaining feature state file

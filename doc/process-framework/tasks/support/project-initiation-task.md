@@ -145,7 +145,7 @@ Establishes foundational project configuration and metadata when initializing a 
    - Create test runner config (e.g., `pytest.ini` for Python)
    - Create shared fixtures/setup file (e.g., `conftest.py` for Python)
    - Update `testSetup` section in language config
-   - Initialize empty `test-registry.yaml` and `test-tracking.md`
+   - Initialize empty `test-tracking.md`
 
 10. **Set Up CI/CD Infrastructure** (optional): Follow the [CI/CD Setup Guide](/doc/process-framework/guides/07-deployment/ci-cd-setup-guide.md) to scaffold development tooling:
     - Create pre-commit hooks config (`.pre-commit-config.yaml`)
@@ -178,7 +178,7 @@ Establishes foundational project configuration and metadata when initializing a 
   - Team composition and collaboration model
   - Integration configurations (issue tracker, CI/CD, code hosting)
 - **Language config** (if new) - `languages-config/{language}-config.json` with language-specific test runner commands
-- **Test infrastructure** - Test directory structure, test runner config, shared fixtures, empty `test-registry.yaml` and `test-tracking.md`
+- **Test infrastructure** - Test directory structure, test runner config, shared fixtures, empty `test-tracking.md`
 - **CI/CD infrastructure** (optional) - Pre-commit hooks, dev script, CI pipeline
 
 ## State Tracking

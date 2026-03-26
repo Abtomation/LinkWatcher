@@ -2,9 +2,9 @@
 id: TE-STA-001
 type: Process Framework
 category: State File
-version: 3.0
+version: 4.0
 created: 2025-07-13
-updated: 2026-03-23
+updated: 2026-03-26
 tracking_scope: Test Tracking (Automated + Manual)
 state_type: Implementation Status
 ---
@@ -41,62 +41,62 @@ This file tracks the implementation status of all **automated** tests derived fr
 
 > Shared test fixtures, utilities, and performance benchmarks. These are project-specific implementations of the patterns described in the [Test Infrastructure Guide](/doc/process-framework/guides/03-testing/test-infrastructure-guide.md).
 
-| Test ID | Feature ID | Test Type | Test File/Case | Status | Test Cases Count | Last Executed | Last Updated | Notes |
-|---------|------------|-----------|----------------|--------|------------------|---------------|--------------|-------|
-| TE-TST-098 | — | Automated | [conftest.py](../../automated/conftest.py) | ✅ Tests Implemented | 8 | — | 2026-03-22 | Root test fixtures (9 shared fixtures) |
-| TE-TST-099 | — | Automated | [utils.py](../../automated/utils.py) | ✅ Tests Implemented | 5 | — | 2026-03-22 | Test utility functions and builders |
-| TE-TST-126 | — | Automated | [test_large_projects.py](../../automated/performance/test_large_projects.py) | ✅ Tests Implemented | 4 | Run 2026-03-22: 2 passed, 2 skipped | 2026-03-22 | Performance benchmarks |
-| TE-TST-131 | — | Automated | [test_benchmark.py](../../automated/performance/test_benchmark.py) | ✅ Tests Implemented | 3 | Run 2026-03-24: 3 passed | 2026-03-24 | Parsing, database, and scan benchmarks |
+| Feature ID | Test Type | Test File/Case | Status | Test Cases Count | Last Executed | Last Updated | Notes |
+|------------|-----------|----------------|--------|------------------|---------------|--------------|-------|
+| — | Automated | [conftest.py](../../automated/conftest.py) | ✅ Tests Implemented | 8 | — | 2026-03-22 | Root test fixtures (9 shared fixtures) |
+| — | Automated | [utils.py](../../automated/utils.py) | ✅ Tests Implemented | 5 | — | 2026-03-22 | Test utility functions and builders |
+| — | Automated | [test_large_projects.py](../../automated/performance/test_large_projects.py) | ✅ Tests Implemented | 4 | Run 2026-03-22: 2 passed, 2 skipped | 2026-03-22 | Performance benchmarks |
+| — | Automated | [test_benchmark.py](../../automated/performance/test_benchmark.py) | ✅ Tests Implemented | 3 | Run 2026-03-24: 3 passed | 2026-03-24 | Parsing, database, and scan benchmarks |
 
 # Test Status by Feature Category
 
 ## 0. System Architecture & Foundation
 
-| Test ID | Feature ID | Test Type | Test File/Case | Status | Test Cases Count | Last Executed | Last Updated | Notes |
-|---------|------------|-----------|----------------|--------|------------------|---------------|--------------|-------|
-| TE-TST-102 | 0.1.1 | Automated | [test_service.py](../../automated/unit/test_service.py) | ✅ Tests Implemented | 24 | Run 2026-03-22: 24 passed | 2026-03-22 | Core service orchestration unit tests |
-| TE-TST-116 | 0.1.1 | Automated | [test_service_integration.py](../../automated/integration/test_service_integration.py) | ✅ Tests Implemented | 17 | Run 2026-03-22: 17 passed | 2026-03-22 | Service integration with subsystems |
-| TE-TST-119 | 0.1.1 | Automated | [test_complex_scenarios.py](../../automated/integration/test_complex_scenarios.py) | ✅ Tests Implemented | 11 | Run 2026-03-22: 11 passed | 2026-03-22 | Complex multi-component scenarios |
-| TE-TST-120 | 0.1.1 | Automated | [test_error_handling.py](../../automated/integration/test_error_handling.py) | ✅ Tests Implemented | 19 | Run 2026-03-22: 18 passed, 1 skipped | 2026-03-22 | Error handling and graceful degradation |
-| TE-TST-104 | 0.1.2 | Automated | [test_database.py](../../automated/unit/test_database.py) | ✅ Tests Implemented | 26 | Run 2026-03-22: 26 passed | 2026-03-22 | In-memory database thread-safe operations |
-| TE-TST-100 | 0.1.3 | Automated | [test_config.py](../../automated/test_config.py) | ✅ Tests Implemented | 10 | — | 2026-02-20 | Configuration system tests (root) |
-| TE-TST-106 | 0.1.3 | Automated | [test_config.py](../../automated/unit/test_config.py) | ✅ Tests Implemented | 42 | Run 2026-03-22: 42 passed | 2026-03-22 | Configuration system unit tests |
-| TE-TST-122 | 0.1.1 | Automated | [test_windows_platform.py](../../automated/integration/test_windows_platform.py) | ✅ Tests Implemented | 16 | Run 2026-03-22: 14 passed, 2 skipped | 2026-03-22 | Windows path handling integration tests |
-| TE-TST-127 | 0.1.1 | Automated | [test_lock_file.py](../../automated/unit/test_lock_file.py) | ✅ Tests Implemented | 10 | Run 2026-03-22: 10 passed | 2026-03-22 | Duplicate instance prevention lock file mechanism |
+| Feature ID | Test Type | Test File/Case | Status | Test Cases Count | Last Executed | Last Updated | Notes |
+|------------|-----------|----------------|--------|------------------|---------------|--------------|-------|
+| 0.1.1 | Automated | [test_service.py](../../automated/unit/test_service.py) | ✅ Tests Implemented | 24 | Run 2026-03-22: 24 passed | 2026-03-22 | Core service orchestration unit tests |
+| 0.1.1 | Automated | [test_service_integration.py](../../automated/integration/test_service_integration.py) | ✅ Tests Implemented | 17 | Run 2026-03-22: 17 passed | 2026-03-22 | Service integration with subsystems |
+| 0.1.1 | Automated | [test_complex_scenarios.py](../../automated/integration/test_complex_scenarios.py) | ✅ Tests Implemented | 11 | Run 2026-03-22: 11 passed | 2026-03-22 | Complex multi-component scenarios |
+| 0.1.1 | Automated | [test_error_handling.py](../../automated/integration/test_error_handling.py) | ✅ Tests Implemented | 19 | Run 2026-03-22: 18 passed, 1 skipped | 2026-03-22 | Error handling and graceful degradation |
+| 0.1.2 | Automated | [test_database.py](../../automated/unit/test_database.py) | ✅ Tests Implemented | 26 | Run 2026-03-22: 26 passed | 2026-03-22 | In-memory database thread-safe operations |
+| 0.1.3 | Automated | [test_config.py](../../automated/test_config.py) | ✅ Tests Implemented | 10 | — | 2026-02-20 | Configuration system tests (root) |
+| 0.1.3 | Automated | [test_config.py](../../automated/unit/test_config.py) | ✅ Tests Implemented | 42 | Run 2026-03-22: 42 passed | 2026-03-22 | Configuration system unit tests |
+| 0.1.1 | Automated | [test_windows_platform.py](../../automated/integration/test_windows_platform.py) | ✅ Tests Implemented | 16 | Run 2026-03-22: 14 passed, 2 skipped | 2026-03-22 | Windows path handling integration tests |
+| 0.1.1 | Automated | [test_lock_file.py](../../automated/unit/test_lock_file.py) | ✅ Tests Implemented | 10 | Run 2026-03-22: 10 passed | 2026-03-22 | Duplicate instance prevention lock file mechanism |
 
 ## 1. File Watching & Detection
 
-| Test ID | Feature ID | Test Type | Test File/Case | Status | Test Cases Count | Last Executed | Last Updated | Notes |
-|---------|------------|-----------|----------------|--------|------------------|---------------|--------------|-------|
-| TE-TST-101 | 1.1.1 | Automated | [test_move_detection.py](../../automated/test_move_detection.py) | ✅ Tests Implemented | 20 | Run 2026-03-22: 20 passed | 2026-03-22 | File move detection integration |
-| TE-TST-117 | 1.1.1 | Automated | [test_file_movement.py](../../automated/integration/test_file_movement.py) | ✅ Tests Implemented | 7 | Run 2026-03-22: 7 passed | 2026-03-22 | File movement handling integration |
-| TE-TST-121 | 1.1.1 | Automated | [test_sequential_moves.py](../../automated/integration/test_sequential_moves.py) | ✅ Tests Implemented | 4 | Run 2026-03-22: 4 passed | 2026-03-22 | Sequential file move scenarios |
-| TE-TST-123 | 1.1.1 | Automated | [test_comprehensive_file_monitoring.py](../../automated/integration/test_comprehensive_file_monitoring.py) | ✅ Tests Implemented | 7 | Run 2026-03-22: 7 passed | 2026-03-22 | Comprehensive file type monitoring |
-| TE-TST-124 | 1.1.1 | Automated | [test_image_file_monitoring.py](../../automated/integration/test_image_file_monitoring.py) | ✅ Tests Implemented | 6 | Run 2026-03-22: 6 passed | 2026-03-22 | Image file monitoring |
-| TE-TST-125 | 1.1.1 | Automated | [test_powershell_script_monitoring.py](../../automated/integration/test_powershell_script_monitoring.py) | ✅ Tests Implemented | 5 | Run 2026-03-22: 5 passed | 2026-03-22 | PowerShell script monitoring |
+| Feature ID | Test Type | Test File/Case | Status | Test Cases Count | Last Executed | Last Updated | Notes |
+|------------|-----------|----------------|--------|------------------|---------------|--------------|-------|
+| 1.1.1 | Automated | [test_move_detection.py](../../automated/test_move_detection.py) | ✅ Tests Implemented | 20 | Run 2026-03-22: 20 passed | 2026-03-22 | File move detection integration |
+| 1.1.1 | Automated | [test_file_movement.py](../../automated/integration/test_file_movement.py) | ✅ Tests Implemented | 7 | Run 2026-03-22: 7 passed | 2026-03-22 | File movement handling integration |
+| 1.1.1 | Automated | [test_sequential_moves.py](../../automated/integration/test_sequential_moves.py) | ✅ Tests Implemented | 4 | Run 2026-03-22: 4 passed | 2026-03-22 | Sequential file move scenarios |
+| 1.1.1 | Automated | [test_comprehensive_file_monitoring.py](../../automated/integration/test_comprehensive_file_monitoring.py) | ✅ Tests Implemented | 7 | Run 2026-03-22: 7 passed | 2026-03-22 | Comprehensive file type monitoring |
+| 1.1.1 | Automated | [test_image_file_monitoring.py](../../automated/integration/test_image_file_monitoring.py) | ✅ Tests Implemented | 6 | Run 2026-03-22: 6 passed | 2026-03-22 | Image file monitoring |
+| 1.1.1 | Automated | [test_powershell_script_monitoring.py](../../automated/integration/test_powershell_script_monitoring.py) | ✅ Tests Implemented | 5 | Run 2026-03-22: 5 passed | 2026-03-22 | PowerShell script monitoring |
 
 ## 2. Link Parsing & Update
 
-| Test ID | Feature ID | Test Type | Test File/Case | Status | Test Cases Count | Last Executed | Last Updated | Notes |
-|---------|------------|-----------|----------------|--------|------------------|---------------|--------------|-------|
-| TE-TST-103 | 2.1.1 | Automated | [test_parser.py](../../automated/unit/test_parser.py) | ✅ Tests Implemented | 12 | Run 2026-03-22: 12 passed | 2026-03-22 | Parser framework base interface |
-| TE-TST-109 | 2.1.1 | Automated | [test_markdown.py](../../automated/parsers/test_markdown.py) | ✅ Tests Implemented | 24 | Run 2026-03-22: 24 passed | 2026-03-22 | Markdown link parsing |
-| TE-TST-110 | 2.1.1 | Automated | [test_yaml.py](../../automated/parsers/test_yaml.py) | ✅ Tests Implemented | 12 | Run 2026-03-22: 12 passed | 2026-03-22 | YAML file reference parsing |
-| TE-TST-111 | 2.1.1 | Automated | [test_json.py](../../automated/parsers/test_json.py) | ✅ Tests Implemented | 16 | Run 2026-03-22: 16 passed | 2026-03-22 | JSON file reference parsing |
-| TE-TST-112 | 2.1.1 | Automated | [test_python.py](../../automated/parsers/test_python.py) | ✅ Tests Implemented | 8 | Run 2026-03-22: 8 passed | 2026-03-22 | Python import parsing |
-| TE-TST-113 | 2.1.1 | Automated | [test_dart.py](../../automated/parsers/test_dart.py) | ✅ Tests Implemented | 11 | Run 2026-03-22: 11 passed | 2026-03-22 | Dart import/part parsing |
-| TE-TST-114 | 2.1.1 | Automated | [test_generic.py](../../automated/parsers/test_generic.py) | ✅ Tests Implemented | 21 | Run 2026-03-22: 21 passed | 2026-03-22 | Generic fallback parser |
-| TE-TST-115 | 2.1.1 | Automated | [test_image_files.py](../../automated/parsers/test_image_files.py) | ✅ Tests Implemented | 6 | Run 2026-03-22: 6 passed | 2026-03-22 | Image file reference handling |
-| TE-TST-105 | 2.2.1 | Automated | [test_updater.py](../../automated/unit/test_updater.py) | ✅ Tests Implemented | 28 | Run 2026-03-22: 28 passed | 2026-03-22 | Link updater atomic operations |
-| TE-TST-118 | 2.2.1 | Automated | [test_link_updates.py](../../automated/integration/test_link_updates.py) | ✅ Tests Implemented | 26 | Run 2026-03-22: 26 passed | 2026-03-22 | Link update across file formats |
-| TE-TST-129 | 2.1.1 | Automated | [test_powershell.py](../../automated/parsers/test_powershell.py) | ✅ Tests Implemented | 32 | Run 2026-03-22: 32 passed | 2026-03-22 | PowerShell parser tests — cmdlet patterns, embedded markdown links, regex filtering (PD-BUG-033), deduplication. Registered during test audit. |
+| Feature ID | Test Type | Test File/Case | Status | Test Cases Count | Last Executed | Last Updated | Notes |
+|------------|-----------|----------------|--------|------------------|---------------|--------------|-------|
+| 2.1.1 | Automated | [test_parser.py](../../automated/unit/test_parser.py) | ✅ Tests Implemented | 12 | Run 2026-03-22: 12 passed | 2026-03-22 | Parser framework base interface |
+| 2.1.1 | Automated | [test_markdown.py](../../automated/parsers/test_markdown.py) | ✅ Tests Implemented | 24 | Run 2026-03-22: 24 passed | 2026-03-22 | Markdown link parsing |
+| 2.1.1 | Automated | [test_yaml.py](../../automated/parsers/test_yaml.py) | ✅ Tests Implemented | 12 | Run 2026-03-22: 12 passed | 2026-03-22 | YAML file reference parsing |
+| 2.1.1 | Automated | [test_json.py](../../automated/parsers/test_json.py) | ✅ Tests Implemented | 16 | Run 2026-03-22: 16 passed | 2026-03-22 | JSON file reference parsing |
+| 2.1.1 | Automated | [test_python.py](../../automated/parsers/test_python.py) | ✅ Tests Implemented | 8 | Run 2026-03-22: 8 passed | 2026-03-22 | Python import parsing |
+| 2.1.1 | Automated | [test_dart.py](../../automated/parsers/test_dart.py) | ✅ Tests Implemented | 11 | Run 2026-03-22: 11 passed | 2026-03-22 | Dart import/part parsing |
+| 2.1.1 | Automated | [test_generic.py](../../automated/parsers/test_generic.py) | ✅ Tests Implemented | 21 | Run 2026-03-22: 21 passed | 2026-03-22 | Generic fallback parser |
+| 2.1.1 | Automated | [test_image_files.py](../../automated/parsers/test_image_files.py) | ✅ Tests Implemented | 6 | Run 2026-03-22: 6 passed | 2026-03-22 | Image file reference handling |
+| 2.2.1 | Automated | [test_updater.py](../../automated/unit/test_updater.py) | ✅ Tests Implemented | 28 | Run 2026-03-22: 28 passed | 2026-03-22 | Link updater atomic operations |
+| 2.2.1 | Automated | [test_link_updates.py](../../automated/integration/test_link_updates.py) | ✅ Tests Implemented | 26 | Run 2026-03-22: 26 passed | 2026-03-22 | Link update across file formats |
+| 2.1.1 | Automated | [test_powershell.py](../../automated/parsers/test_powershell.py) | ✅ Tests Implemented | 32 | Run 2026-03-22: 32 passed | 2026-03-22 | PowerShell parser tests — cmdlet patterns, embedded markdown links, regex filtering (PD-BUG-033), deduplication. Registered during test audit. |
 
 ## 3. Logging & Monitoring
 
-| Test ID | Feature ID | Test Type | Test File/Case | Status | Test Cases Count | Last Executed | Last Updated | Notes |
-|---------|------------|-----------|----------------|--------|------------------|---------------|--------------|-------|
-| TE-TST-107 | 3.1.1 | Automated | [test_logging.py](../../automated/unit/test_logging.py) | ✅ Tests Implemented | 25 | Run 2026-03-22: 25 passed | 2026-03-22 | Logging framework core tests |
-| TE-TST-108 | 3.1.1 | Automated | [test_advanced_logging.py](../../automated/unit/test_advanced_logging.py) | ✅ Tests Implemented | 19 | Run 2026-03-22: 19 passed | 2026-03-22 | Advanced logging features |
+| Feature ID | Test Type | Test File/Case | Status | Test Cases Count | Last Executed | Last Updated | Notes |
+|------------|-----------|----------------|--------|------------------|---------------|--------------|-------|
+| 3.1.1 | Automated | [test_logging.py](../../automated/unit/test_logging.py) | ✅ Tests Implemented | 25 | Run 2026-03-22: 25 passed | 2026-03-22 | Logging framework core tests |
+| 3.1.1 | Automated | [test_advanced_logging.py](../../automated/unit/test_advanced_logging.py) | ✅ Tests Implemented | 19 | Run 2026-03-22: 19 passed | 2026-03-22 | Advanced logging features |
 
 ---
 
@@ -108,10 +108,9 @@ This file tracks automated tests at the **test file level**. Each entry represen
 
 ### Column Definitions
 
-- **Test ID**: Unique identifier (TE-TST-### for automated tests)
 - **Feature ID**: Reference to the feature being tested (links to feature-tracking.md)
 - **Test Type**: `Automated`
-- **Test File/Case**: Path and link to the test file
+- **Test File/Case**: Path and link to the test file (unique identifier)
 - **Status**: Current status (see Status Legend above)
 - **Test Cases Count**: Number of test cases
 - **Last Executed**: Date/result of last test execution
@@ -122,7 +121,7 @@ This file tracks automated tests at the **test file level**. Each entry represen
 
 This file is updated by the following tasks:
 - **[Integration & Testing (PF-TSK-053)](../../../doc/process-framework/tasks/04-implementation/integration-and-testing.md)**: Updates automated test implementation status and test case counts
-- **[New-TestFile.ps1](../../../doc/process-framework/scripts/file-creation/03-testing/New-TestFile.ps1)**: Generates Test File IDs and updates test registry
+- **[New-TestFile.ps1](../../../doc/process-framework/scripts/file-creation/03-testing/New-TestFile.ps1)**: Creates test files with pytest markers and adds tracking entry
 
 **Note**: Test specification status is tracked in the [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) file to avoid redundancy.
 
@@ -131,14 +130,14 @@ This file is updated by the following tasks:
 The project includes validation tooling to ensure data integrity between test tracking files and actual test files on disk:
 
 #### Validation Script
-- **Validate-TestTracking.ps1** (located in `doc/process-framework/scripts/validation/`): Validates consistency between test-registry.yaml, this tracking file, and actual test files on disk
+- **Validate-TestTracking.ps1** (located in `doc/process-framework/scripts/validation/`): Validates consistency between pytest markers (via `test_query.py`), this tracking file, and actual test files on disk
 - **Note**: This script is language-agnostic and works with any project configured via `project-config.json`
 
 #### Validation Capabilities
-- Validates consistency between test registry, tracking files, and actual test files
-- Checks for orphaned files, missing references, and ID conflicts
-- Ensures YAML structure integrity and ID uniqueness
-- Cross-references registry and tracking file entries
+- Validates consistency between pytest markers in test files, tracking files, and actual test files on disk
+- Checks for orphaned files and missing references
+- Verifies marker integrity and metadata consistency
+- Cross-references marker metadata and tracking file entries
 - Generates detailed validation reports for quality assurance
 
 #### Usage
@@ -165,10 +164,9 @@ doc/process-framework/scripts/validation/Validate-TestTracking.ps1
 ### Adding New Test Files
 
 When creating new automated test files:
-1. Use the [New-TestFile.ps1](../../../doc/process-framework/scripts/file-creation/03-testing/New-TestFile.ps1) script to generate Test File ID
+1. Use the [New-TestFile.ps1](../../../doc/process-framework/scripts/file-creation/03-testing/New-TestFile.ps1) script to create the test file with pytest markers
 2. Add entry to this file with "⬜ Not Started" implementation status and Test Type "Automated"
-3. Update the [test-registry.yaml](../../test-registry.yaml) file
-4. Test specification status is tracked in the [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) file
+3. Test specification status is tracked in the [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) file
 
 ---
 

@@ -70,7 +70,7 @@ This document serves as the **comprehensive registry** of all process framework 
 | [Test Tracking](../../../test/state-tracking/permanent/test-tracking.md)         | 4 tasks             | **HIGH**            |
 | [Architecture Tracking](../../product-docs/state-tracking/permanent/architecture-tracking.md)                       | 4 tasks             | **HIGH**            |
 | [Technical Debt Tracking](../../product-docs/state-tracking/permanent/technical-debt-tracking.md)                   | 3 tasks             | **MEDIUM**          |
-| [Test Registry](../../../test/test-registry.yaml)                                                    | 2 tasks             | **MEDIUM**          |
+| Pytest Markers (via [test_query.py](../../scripts/test/test_query.py))                               | 2 tasks             | **MEDIUM**          |
 | [Documentation Map](../documentation-map.md)                                                        | 6+ validation tasks | **MEDIUM**          |
 | [Validation Tracking](../../product-docs/state-tracking/temporary/validation-tracking.md) | 6 validation tasks  | **MEDIUM**          |
 
@@ -183,10 +183,9 @@ This document serves as the **comprehensive registry** of all process framework 
 **📁 FILE OPERATIONS**
 | Operation | File Path | Update Method | Details |
 |-----------|-----------|---------------|---------|
-| **Creates** | Test files (multiple) | `New-TestFile.ps1` | Test files in appropriate test directories with proper PD-TST IDs |
+| **Creates** | Test files (multiple) | `New-TestFile.ps1` | Test files in appropriate test directories with pytest markers (feature, priority, test_type) |
 | **Updates** | [`bug-tracking.md`](../../product-docs/state-tracking/permanent/bug-tracking.md) (if bugs discovered) | [`New-BugReport.ps1`](../scripts/file-creation/06-maintenance/New-BugReport.ps1)| Add newly discovered bugs with 🆕 Reported status for triage |
-| **Updates** | [`test-tracking.md`](../../../test/state-tracking/permanent/test-tracking.md) | `New-TestFile.ps1` | Status: "📝 Specification Created" → "🟡 Implementation In Progress"<br/>• Add test file links with correct relative paths<br/>• Use filename as display name instead of PD-TST ID<br/>• Update test cases count, last updated date, notes |
-| **Updates** | [`test-registry.yaml`](../../../test/test-registry.yaml) | `New-TestFile.ps1` | Add new test file entries with metadata<br/>• Include testId, featureId, testType, componentName<br/>• Set creation timestamp (status tracked in test-tracking.md) |
+| **Updates** | [`test-tracking.md`](../../../test/state-tracking/permanent/test-tracking.md) | `New-TestFile.ps1` | Status: "📝 Specification Created" → "🟡 Implementation In Progress"<br/>• Add test file links with correct relative paths<br/>• Use filename as display name<br/>• Update test cases count, last updated date, notes |
 | **Updates** | [`feature-tracking.md`](../../product-docs/state-tracking/permanent/feature-tracking.md) | `New-TestFile.ps1` | Update Test Status based on implementation progress<br/>• Automatic status mapping from test implementation to feature tracking<br/>• Coordinate status across multiple state files |
 | **Updates** | Feature Implementation State File (if applicable) | Manual | Test implementation details, coverage metrics, and testing notes |
 
@@ -194,7 +193,7 @@ This document serves as the **comprehensive registry** of all process framework 
 
 - **Primary state file:** [`test-tracking.md`](../../../test/state-tracking/permanent/test-tracking.md) - Tracks implementation progress with clickable file links
 - **Secondary coordination:** [`feature-tracking.md`](../../product-docs/state-tracking/permanent/feature-tracking.md) - Updates feature test status
-- **Test registry updates:** [`test-registry.yaml`](../../../test/test-registry.yaml) - Automatically updated with test file metadata
+- **Pytest markers:** Written into test files as single source of truth (query via `test_query.py`)
 - **Bug discovery integration:** Includes systematic bug identification during test development with standardized reporting via `New-BugReport.ps1`
 - **Manual completion required:** Status updates from 🟡 Implementation In Progress to 🔄 Ready for Validation, test case counts
 - **Enables next steps:** Test Audit Task, Quality Validation (PF-TSK-054), Bug Triage (for discovered bugs)
@@ -218,7 +217,6 @@ This document serves as the **comprehensive registry** of all process framework 
 | **Updates** | [`test-tracking.md`](../../../test/state-tracking/permanent/test-tracking.md) | `New-TestAuditReport.ps1` | Links audit report in Test File/Case column for the target test file ID |
 | **Updates** | [`bug-tracking.md`](../../product-docs/state-tracking/permanent/bug-tracking.md) (if bugs discovered) | [`New-BugReport.ps1`](../scripts/file-creation/06-maintenance/New-BugReport.ps1)| Add newly discovered bugs with 🆕 Reported status for triage |
 | **Updates** | [`test-tracking.md`](../../../test/state-tracking/permanent/test-tracking.md) | `Update-TestFileAuditState.ps1` | **AUTOMATED**: Update individual test file audit status with comprehensive details<br/>• Audit status (✅ Tests Approved/🔴 Audit Failed/🔄 Needs Update)<br/>• Detailed audit results (passed/failed test counts)<br/>• Auditor information and major findings<br/>• Audit date and completion timestamp |
-| **Updates** | [`test-registry.yaml`](../../../test/test-registry.yaml) | `Update-TestFileAuditState.ps1` | **AUTOMATED**: Flag for manual review with audit completion status<br/>• Add auditStatus, auditDate, auditor fields |
 | **Updates** | [`feature-tracking.md`](../../product-docs/state-tracking/permanent/feature-tracking.md) | `Update-TestFileAuditState.ps1` | **AUTOMATED**: Intelligent aggregated test status calculation<br/>• 🔴 Tests Failed Audit (any test fails)<br/>• 🟡 Tests Partially Approved (mixed statuses)<br/>• ✅ Tests Approved (all tests approved)<br/>• Last audit date tracking |
 
 **🎯 KEY IMPACTS**
@@ -302,7 +300,7 @@ This document serves as the **comprehensive registry** of all process framework 
 **📋 AUTOMATION DETAILS**
 
 - **Script:** None (manual implementation)
-- **Test File Creation:** [`New-TestFile.ps1`](../scripts/file-creation/03-testing/New-TestFile.ps1) - Creates tracked unit test files with TE-TST IDs
+- **Test File Creation:** [`New-TestFile.ps1`](../scripts/file-creation/03-testing/New-TestFile.ps1) - Creates tracked unit test files with pytest markers
 - **Bug Reporting:** [`New-BugReport.ps1`](../scripts/file-creation/06-maintenance/New-BugReport.ps1) - Documents bugs discovered during implementation
 - **Output Directory:** Project source directories (feature-dependent)
 
@@ -311,12 +309,11 @@ This document serves as the **comprehensive registry** of all process framework 
 |-----------|-----------|---------------|---------|
 | **Creates** | Source modules | Manual | Core business logic modules in project source directory |
 | **Creates** | Integration wiring | Manual | CLI commands, service registrations, event hooks |
-| **Creates** | Unit tests | `New-TestFile.ps1` | Tracked test files with TE-TST IDs in project test directory |
+| **Creates** | Unit tests | `New-TestFile.ps1` | Tracked test files with pytest markers in project test directory |
 | **Creates** | Bug reports (if applicable) | `New-BugReport.ps1` | Bug reports for issues not fixed in this session |
 | **Updates** | [Feature Implementation State Files](../../product-docs/state-tracking/features/) | Manual | Code inventory, task sequence, implementation notes, issues log |
 | **Updates** | [Feature Tracking](../../product-docs/state-tracking/permanent/feature-tracking.md) | Manual | Status → 🧪 Testing |
 | **Updates** | [Test Tracking](../../../test/state-tracking/permanent/test-tracking.md) | `New-TestFile.ps1` | Automated test file links and status |
-| **Updates** | [Test Registry](/test/test-registry.yaml) | `New-TestFile.ps1` | Automated test file metadata |
 | **Updates** | [Bug Tracking](../../product-docs/state-tracking/permanent/bug-tracking.md) | Manual | Bug entries if bugs discovered (optional) |
 
 **🎯 KEY IMPACTS**

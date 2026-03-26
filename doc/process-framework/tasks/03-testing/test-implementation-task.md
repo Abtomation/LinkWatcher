@@ -49,7 +49,7 @@ Implement comprehensive test cases based on existing Test Specifications, enabli
   - **Test Specification Document** - The test specification file for the feature being implemented (located in `/test/specifications/feature-specs/`)
   - [Technical Design Document](/doc/product-docs/technical/design) - The TDD for the feature to understand implementation requirements
   - [Test Tracking](../../../../test/state-tracking/permanent/test-tracking.md) - Current test implementation status
-  - [Test Registry](/test/test-registry.yaml) - Test file registry with IDs and metadata
+  - [Test Query Tool](/test/test_query.py) - Query test files by feature, priority, and markers
 
 - **Important (Load If Space):**
 
@@ -90,10 +90,9 @@ Implement comprehensive test cases based on existing Test Specifications, enabli
    ../../scripts/file-creation/03-testing/New-TestFile.ps1 -TestName "FeatureName" -TestType "Integration" -FeatureId "X.Y.Z" -ComponentName "ComponentName"
 
    # Script automatically:
-   # - Generates unique PD-TST ID
+   # - Writes pytest markers (feature, priority, test_type)
    # - Creates test file from template with proper structure
    # - Updates test-tracking.md with correct file links and status
-   # - Updates /test/test-registry.yaml with test file metadata
    # - Updates ../../../product-docs/state-tracking/permanent/feature-tracking.md with test implementation progress
    # - Uses proper relative paths for clickable links in tracking files
    ```
@@ -155,7 +154,6 @@ Implement comprehensive test cases based on existing Test Specifications, enabli
 The following state files are automatically updated by the ../../scripts/file-creation/03-testing/New-TestFile.ps1 script:
 
 - [Test Tracking](../../../../test/state-tracking/permanent/test-tracking.md) - Automatically updated with 🟡 Implementation In Progress status, test file links with correct relative paths, and metadata
-- [Test Registry](/test/test-registry.yaml) - Automatically updated with test file entries, implementation status, and test case counts
 - [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) - Automatically updated with Test Status column reflecting implementation progress
 
 **Manual updates required only for:**
@@ -177,7 +175,6 @@ Before considering this task finished:
   - [ ] Any discovered bugs reported using ../../scripts/file-creation/06-maintenance/New-BugReport.ps1 script with proper context and evidence
 - [ ] **Verify State Files**: Confirm all state tracking files have been automatically updated by the script
   - [ ] [Test Tracking](../../../../test/state-tracking/permanent/test-tracking.md) shows correct test file links and status
-  - [ ] [Test Registry](/test/test-registry.yaml) contains test file entries with proper metadata
   - [ ] [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) Test Status column reflects implementation progress
 - [ ] **Manual Status Updates**: Update completion status after test implementation
   - [ ] Change test status from 🟡 Implementation In Progress or 🔄 Ready for Validation
@@ -196,6 +193,5 @@ Before considering this task finished:
 
 - [Test Specification Creation Task](test-specification-creation-task.md) - For creating test specifications before implementation
 - [Test Tracking](../../../../test/state-tracking/permanent/test-tracking.md) - Track test implementation progress
-- [Test Registry](/test/test-registry.yaml) - Test file registry with IDs and metadata
 - [Validation Scripts](../../scripts/validation) - Scripts for test tracking consistency validation
 - [Development Guide](/doc/process-framework/guides/04-implementation/development-guide.md) - Testing standards and practices

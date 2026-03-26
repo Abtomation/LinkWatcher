@@ -510,35 +510,9 @@ Write-Warning "run.ps1 is a skeleton — replace this with the actual test actio
         Write-Warning "Test tracking file not found: $testTrackingPath"
     }
 
-    # --- 8. Add E2E entry to test-registry.yaml ---
-    $testRegistryPath = Join-Path $projectRoot "test/test-registry.yaml"
-    if (Test-Path $testRegistryPath) {
-        $registryContent = Get-Content $testRegistryPath -Raw -Encoding UTF8
-        $executionMode = if ($Scripted) { "scripted" } else { "manual" }
-
-        $yamlEntry = @"
-
-  - id: $e2eId
-    type: e2e-case
-    featureIds: $featureIdsYaml
-    workflow: $workflowCol
-    group: $grpIdForRegistry
-    name: $TestCaseName
-    filePath: e2e-acceptance-testing/templates/$GroupName/$e2eId-$TestCaseName/test-case.md
-    executionMode: $executionMode
-    priority: $Priority
-    status: "📋 Case Created"
-    created: $timestamp
-    updated: $timestamp
-"@
-
-        if ($PSCmdlet.ShouldProcess($testRegistryPath, "Add E2E entry to test-registry.yaml")) {
-            # Append to end of file
-            $registryContent = $registryContent.TrimEnd() + $yamlEntry
-            Set-Content $testRegistryPath $registryContent -Encoding UTF8
-            Write-Verbose "Added $e2eId to test-registry.yaml"
-        }
-    }
+    # --- 8. (Removed) test-registry.yaml entry ---
+    # SC-007: E2E entries are tracked in e2e-test-tracking.md (IMP-210).
+    # test-registry.yaml has been retired. No registry write needed.
 
     # --- 9. Update feature-tracking.md Test Status (all features) ---
     $featureTrackingPath = Join-Path $projectRoot "doc/product-docs/state-tracking/permanent/feature-tracking.md"
@@ -591,7 +565,6 @@ Write-Warning "run.ps1 is a skeleton — replace this with the actual test actio
         }
     }
     $details += @(
-        "  - test-registry.yaml: $e2eId entry added",
         "  - feature-tracking.md: Test Status updated for $featureIdsDisplay",
         "  - master-test-$GroupName.md: If Failed table updated"
     )

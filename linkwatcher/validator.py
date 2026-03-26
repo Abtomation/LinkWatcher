@@ -60,16 +60,16 @@ _VALIDATION_EXTRA_IGNORED_DIRS: Set[str] = {
 # Patterns that indicate a target string is a shell command, not a file path.
 _COMMAND_PATTERN = re.compile(
     r"^(?:"
-    r"Bash\(|"               # Claude Code permission strings
-    r"pwsh(?:\.exe)?\s|"     # PowerShell invocations
-    r"python\s|"             # Python invocations
-    r"pip\s|"                # pip commands
-    r"npm\s|"                # npm commands
-    r"git\s|"                # git commands
-    r"find\s|"               # find commands
-    r"grep\s|"               # grep commands
-    r"curl\s|"               # curl commands
-    r"echo\s"                # echo commands
+    r"Bash\(|"  # Claude Code permission strings
+    r"pwsh(?:\.exe)?\s|"  # PowerShell invocations
+    r"python\s|"  # Python invocations
+    r"pip\s|"  # pip commands
+    r"npm\s|"  # npm commands
+    r"git\s|"  # git commands
+    r"find\s|"  # find commands
+    r"grep\s|"  # grep commands
+    r"curl\s|"  # curl commands
+    r"echo\s"  # echo commands
     r")",
     re.IGNORECASE,
 )
@@ -87,11 +87,26 @@ _PLACEHOLDER_PATTERN = re.compile(r"YYYY|XXXX|HHMMSS|<[^>]+>|\[[a-z][a-z-]*\]")
 # Link types that represent bare/standalone path text (no explicit link syntax).
 # These are safe to skip inside fenced code blocks because real references in
 # code blocks use proper link syntax ([text](path)) which has its own link_type.
-_STANDALONE_LINK_TYPES: frozenset = frozenset({
-    "markdown-standalone",
-    "markdown-quoted",
-    "markdown-quoted-dir",
-})
+_STANDALONE_LINK_TYPES: frozenset = frozenset(
+    {
+        "markdown-standalone",
+        "markdown-quoted",
+        "markdown-quoted-dir",
+    }
+)
+
+# Link types whose paths are data values (config entries, registry fields,
+# prose mentions) rather than explicit navigable links.  These commonly use
+# project-root-relative paths regardless of the source file's location, so
+# the validator applies a project-root fallback before flagging them broken.
+_DATA_VALUE_LINK_TYPES: frozenset = _STANDALONE_LINK_TYPES | frozenset(
+    {
+        "yaml",
+        "yaml-dir",
+        "json",
+        "json-dir",
+    }
+)
 
 # File extensions whose links should be validated.  Source code files (.py,
 # .ps1, .psm1, .dart, …) contain string literals and comments with paths that
@@ -140,9 +155,7 @@ class LinkValidator:
                 # Only validate documentation files — source code files (.py,
                 # .ps1, etc.) contain string/comment paths that are data values,
                 # not document cross-references.
-                if not should_monitor_file(
-                    file_path, _VALIDATION_EXTENSIONS, ignored_dirs
-                ):
+                if not should_monitor_file(file_path, _VALIDATION_EXTENSIONS, ignored_dirs):
                     continue
 
                 self._check_file(file_path, result)
@@ -192,6 +205,17 @@ class LinkValidator:
             result.links_checked += 1
 
             if not self._target_exists(file_path, target):
+                # Data-value link types (standalone prose mentions, YAML/JSON
+                # config entries) are often written as project-root-relative
+                # even inside deeply nested files.  Try root-relative
+                # resolution as fallback before declaring them broken.
+                if (
+                    ref.link_type in _DATA_VALUE_LINK_TYPES
+                    and not target.startswith(("/", ".", "\\"))
+                    and self._target_exists_at_root(target)
+                ):
+                    continue
+
                 rel_source = os.path.relpath(file_path, self.project_root)
                 result.broken_links.append(
                     BrokenLink(
@@ -275,6 +299,16 @@ class LinkValidator:
             pass
         return frozenset(code_lines)
 
+    def _target_exists_at_root(self, target: str) -> bool:
+        """Check whether *target* exists when resolved against project root."""
+        # Strip anchor
+        if "#" in target:
+            target = target.split("#", 1)[0]
+            if not target:
+                return True
+        resolved = os.path.normpath(os.path.join(self.project_root, target))
+        return os.path.exists(resolved)
+
     def _target_exists(self, source_file: str, target: str) -> bool:
         """Resolve *target* relative to *source_file* and check existence."""
         # Strip anchor (e.g. file.md#section → file.md)
@@ -288,9 +322,7 @@ class LinkValidator:
         # This is the convention used by markdown links in this project:
         # [text](/doc/process-framework/...) means <project_root>/doc/...
         if target.startswith("/"):
-            resolved = os.path.normpath(
-                os.path.join(self.project_root, target.lstrip("/"))
-            )
+            resolved = os.path.normpath(os.path.join(self.project_root, target.lstrip("/")))
         else:
             # Resolve relative to the directory containing the source file
             source_dir = os.path.dirname(source_file)

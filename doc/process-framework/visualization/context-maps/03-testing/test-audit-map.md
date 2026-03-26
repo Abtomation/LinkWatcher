@@ -94,4 +94,4 @@ graph TD
 
 ---
 
-_Note: This context map highlights only the components relevant to the Test Audit task. For a comprehensive view of all test-related components and their relationships, refer to the [Test Tracking](../../../../../test/state-tracking/permanent/test-tracking.md) and [Test Registry](../../../../../test/test-registry.yaml)._
+_Note: This context map highlights only the components relevant to the Test Audit task. For a comprehensive view of all test-related components and their relationships, refer to the [Test Tracking](../../../../../test/state-tracking/permanent/test-tracking.md) and [Test Query Tool](/doc/process-framework/scripts/test/test_query.py)._

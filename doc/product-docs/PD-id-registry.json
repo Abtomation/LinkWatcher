@@ -274,7 +274,7 @@
       "category": "Product Documentation",
       "type": "Technical Debt Assessment",
       "directories": {
-        "assessments": "doc/process-framework/assessments/technical-debt/assessments",
+        "assessments": "doc/product-docs/assessments/technical-debt/assessments",
         "default": "assessments"
       },
       "nextAvailable": 2
@@ -284,7 +284,7 @@
       "category": "Product Documentation",
       "type": "Technical Debt Item",
       "directories": {
-        "debt-items": "doc/process-framework/assessments/technical-debt/debt-items",
+        "debt-items": "doc/product-docs/assessments/technical-debt/debt-items",
         "default": "debt-items"
       },
       "nextAvailable": 11
@@ -294,7 +294,7 @@
       "category": "Product Documentation",
       "type": "Technical Debt Matrix",
       "directories": {
-        "matrices": "doc/process-framework/assessments/technical-debt/matrices",
+        "matrices": "doc/product-docs/assessments/technical-debt/matrices",
         "default": "matrices"
       },
       "nextAvailable": 1

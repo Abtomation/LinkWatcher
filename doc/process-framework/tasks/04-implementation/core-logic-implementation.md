@@ -96,16 +96,15 @@ Implement core business logic modules, wire integration points, and write unit t
 7. **Write Unit Tests**: Create tracked test files alongside the implementation using `New-TestFile.ps1`
 
    ```powershell
-   # Create test files using automation script (generates TE-TST-[SEQUENCE] IDs)
+   # Create test files using automation script (writes pytest markers)
    # Test types depend on project language (auto-detected from project-config.json)
    cd doc/process-framework/scripts/file-creation/03-testing
    .\New-TestFile.ps1 -TestName "FeatureName" -TestType "Unit" -FeatureId "X.Y.Z" -ComponentName "ComponentName"
 
    # Script automatically:
-   # - Generates unique TE-TST ID
+   # - Writes pytest markers (feature, priority, test_type)
    # - Creates test file from template with proper structure
    # - Updates test-tracking.md with correct file links and status
-   # - Updates test-registry.yaml with test file metadata
    # - Updates feature-tracking.md with test implementation progress
    ```
 
@@ -148,7 +147,7 @@ Implement core business logic modules, wire integration points, and write unit t
 ## Outputs
 
 - **Source Modules** - New or modified source files implementing the feature's core business logic
-- **Unit Tests** - Tracked test files (created via `New-TestFile.ps1`) covering the implemented logic with proper TE-TST IDs
+- **Unit Tests** - Tracked test files (created via `New-TestFile.ps1`) covering the implemented logic, tracked via pytest markers
 - **Integration Wiring** - CLI commands, service registrations, or event hooks connecting the new module to the system
 - **Updated Feature Implementation State** - Code inventory and progress tracking updated with new components
 - **Bug Reports** (if applicable) - Any bugs discovered during implementation documented via `New-BugReport.ps1` in [Bug Tracking](../../../product-docs/state-tracking/permanent/bug-tracking.md)
@@ -160,7 +159,6 @@ The following state files must be updated as part of this task:
 ### Automated Updates (via `New-TestFile.ps1`)
 
 - [Test Tracking](../../../../test/state-tracking/permanent/test-tracking.md) - Automatically updated with test file links and status
-- [Test Registry](/test/test-registry.yaml) - Automatically updated with test file entries and metadata
 - [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) - Test Status column automatically updated with implementation progress
 
 ### Manual Updates Required

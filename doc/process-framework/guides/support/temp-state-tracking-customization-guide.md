@@ -12,7 +12,7 @@ updated: 2025-07-28
 | Metadata | Value |
 |----------|-------|
 | Document Type | Process Guide |
-| Template Source | /doc/process-framework/templates/guide-template.mdd |
+| Template Source | /doc/process-framework/templates/guide-template.md |
 | Created Date | 2024-12-19 |
 | Last Updated | 2025-07-28 |
 | Version | 2.0 |
@@ -22,7 +22,7 @@ updated: 2025-07-28
 | Source Documents | [temp-task-creation-state-template.md](../../templates/support/temp-task-creation-state-template.md), [temp-process-improvement-state-template.md](../../templates/support/temp-process-improvement-state-template.md), [structure-change-state-template.md](../../templates/support/structure-change-state-template.md) |
 | Consumer Documents | [New Task Creation Process](../../tasks/support/new-task-creation-process.md), [Framework Extension Task](../../tasks/support/framework-extension-task.md), [Structure Change Task](../../tasks/support/structure-change-task.md) |
 | Consumer Working Modes | Task Creation, Framework Extension, Structure Changes, Multi-Session Development |
-| Governed By | /doc/process-framework/README.mdd |
+| Governed By | /doc/process-framework/README.md |
 
 ## Overview
 

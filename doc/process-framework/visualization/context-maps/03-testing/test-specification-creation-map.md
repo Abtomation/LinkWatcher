@@ -88,7 +88,6 @@ graph TD
 - [Test Structure Documentation](/test/) - Current test organization patterns
 - [Feature Tracking](../../../../product-docs/state-tracking/permanent/feature-tracking.md) - Feature development status tracking
 - [Test Tracking](../../../../../test/state-tracking/permanent/test-tracking.md) - Test specification and implementation tracking
-- [Test Registry](/test/test-registry.yaml) - Central registry of test files with IDs and metadata
+- [Test Query Tool](/doc/process-framework/scripts/test/test_query.py) - Query test file metadata via pytest markers
 
 ---
-

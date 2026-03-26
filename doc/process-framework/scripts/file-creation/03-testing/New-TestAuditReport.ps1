@@ -2,6 +2,7 @@
 # Creates a new Test Audit Report with an automatically assigned ID
 # Uses the central ID registry system and standardized document creation
 # Updates test-tracking.md: links audit report in Test File/Case column for the target test file
+# SC-007: Uses file path as test file identifier (not TE-TST/PD-TST IDs)
 
 <#
 .SYNOPSIS
@@ -12,14 +13,14 @@
     - Generating a unique document ID (TE-TAR-XXX)
     - Creating a properly formatted audit report file
     - Updating the ID tracker in the central ID registry
-    - Updating test-tracking.md: links audit report in Test File/Case column for the TestFileId
+    - Updating test-tracking.md: links audit report in Test File/Case column for the target test file
     - Providing a complete template for test quality assessment
 
 .PARAMETER FeatureId
     The feature ID being audited (e.g., "0.2.3", "1.1.2")
 
-.PARAMETER TestFileId
-    The test file ID being audited (e.g., "PD-TST-001")
+.PARAMETER TestFilePath
+    Relative path to the test file being audited (e.g., "test/automated/unit/test_service.py")
 
 .PARAMETER AuditorName
     Name of the auditor conducting the assessment (default: "AI Agent")
@@ -28,10 +29,10 @@
     If specified, opens the created file in the default editor
 
 .EXAMPLE
-    .\New-TestAuditReport.ps1 -FeatureId "0.2.3" -TestFileId "PD-TST-001" -AuditorName "AI Agent"
+    .\New-TestAuditReport.ps1 -FeatureId "0.2.3" -TestFilePath "test/automated/unit/test_service.py" -AuditorName "AI Agent"
 
 .EXAMPLE
-    .\New-TestAuditReport.ps1 -FeatureId "1.1.2" -TestFileId "PD-TST-015" -AuditorName "QA Engineer" -OpenInEditor
+    .\New-TestAuditReport.ps1 -FeatureId "1.1.2" -TestFilePath "test/automated/integration/test_auth.py" -AuditorName "QA Engineer" -OpenInEditor
 
 .NOTES
     - Requires PowerShell execution policy to allow script execution
@@ -39,10 +40,12 @@
     - Creates the output directory if it doesn't exist
     - Uses standardized document creation process
     - Determines feature category automatically based on feature ID
+    - SC-007: Uses file path as identifier (not PD-TST/TE-TST IDs)
 
     Script Metadata:
     - Script Type: Document Creation Script
     - Created: 2025-08-07
+    - Updated: 2026-03-26 (SC-007: file path identifier)
     - For: Creating Test Audit Report documents from templates
 #>
 
@@ -52,7 +55,7 @@ param(
     [string]$FeatureId,
 
     [Parameter(Mandatory = $true)]
-    [string]$TestFileId,
+    [string]$TestFilePath,
 
     [Parameter(Mandatory = $false)]
     [string]$AuditorName = "AI Agent",
@@ -79,18 +82,22 @@ $featureCategory = switch -Regex ($FeatureId) {
     default { "foundation" }
 }
 
+# Derive a short name from the test file path for document naming
+$testFileName = Split-Path $TestFilePath -Leaf
+$testFileBaseName = [System.IO.Path]::GetFileNameWithoutExtension($testFileName)
+
 # Prepare additional metadata fields
 $additionalMetadataFields = @{
-    "feature_id"   = $FeatureId
-    "test_file_id" = $TestFileId
-    "auditor"      = $AuditorName
-    "audit_date"   = Get-Date -Format "yyyy-MM-dd"
+    "feature_id"     = $FeatureId
+    "test_file_path" = $TestFilePath
+    "auditor"        = $AuditorName
+    "audit_date"     = Get-Date -Format "yyyy-MM-dd"
 }
 
 # Prepare custom replacements for template
 $customReplacements = @{
     "[Feature ID]"       = $FeatureId
-    "[Test File ID]"     = $TestFileId
+    "[Test File ID]"     = $testFileName
     "[Auditor Name]"     = $AuditorName
     "[Audit Date]"       = Get-Date -Format "yyyy-MM-dd"
     "[Feature Category]" = $featureCategory.ToUpper()
@@ -98,42 +105,43 @@ $customReplacements = @{
 
 # Create the document using standardized process
 try {
-    # Use DirectoryType for ID registry-based directory resolution
-    if (-not $PSCmdlet.ShouldProcess("audit-report-$FeatureId-$TestFileId", "Create test audit report")) {
+    $kebabFeatureId = ($FeatureId -replace '\.', '-')
+    $docName = "audit-report-$kebabFeatureId-$testFileBaseName"
+
+    if (-not $PSCmdlet.ShouldProcess($docName, "Create test audit report")) {
         return
     }
 
-    $documentId = New-StandardProjectDocument -TemplatePath "doc/process-framework/templates/03-testing/test-audit-report-template.md" -IdPrefix "TE-TAR" -IdDescription "Test Audit Report for Feature $FeatureId" -DocumentName "audit-report-$FeatureId-$TestFileId" -DirectoryType $featureCategory -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
+    $documentId = New-StandardProjectDocument -TemplatePath "doc/process-framework/templates/03-testing/test-audit-report-template.md" -IdPrefix "TE-TAR" -IdDescription "Test Audit Report for Feature $FeatureId" -DocumentName $docName -DirectoryType $featureCategory -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
 
     # --- State file updates ---
     $projectRoot = Get-ProjectRoot
     $stateUpdates = @()
 
-    # 1. Update test-tracking.md: set Test File/Case to audit report link, Status to "🔍 Audit In Progress"
+    # 1. Update test-tracking.md: link audit report for the test file (SC-007: match by file path, not ID)
     $testTrackingPath = Join-Path $projectRoot "test/state-tracking/permanent/test-tracking.md"
     if (Test-Path $testTrackingPath) {
         $trackingContent = Get-Content $testTrackingPath -Raw -Encoding UTF8
 
         # Build relative path from test-tracking.md to the audit report
-        $kebabFeatureId = ($FeatureId -replace '\.', '-')
-        $kebabTestFileId = ($TestFileId -replace '\.', '-').ToLower()
-        $auditFileName = "audit-report-$kebabFeatureId-$kebabTestFileId.md"
+        $auditFileName = "$docName.md"
         $auditRelativePath = "../../audits/$featureCategory/$auditFileName"
         $auditLink = "[$documentId]($auditRelativePath)"
 
-        # Find the row matching TestFileId and update it
+        # Find the row matching the test file name in the Test File/Case column
         $lines = $trackingContent -split '\r?\n'
         $updatedLines = @()
         $rowUpdated = $false
 
         foreach ($line in $lines) {
-            if (-not $rowUpdated -and $line -match "^\|.*$([regex]::Escape($TestFileId)).*\|") {
-                # Parse columns: | Test ID | Feature ID | Test Type | Test File/Case | Status | ...
+            if (-not $rowUpdated -and $line -match "^\|.*$([regex]::Escape($testFileName)).*\|") {
+                # Parse columns (8-column format — SC-007):
+                # | Feature ID | Test Type | Test File/Case | Status | Test Cases Count | Last Executed | Last Updated | Notes |
                 $cols = $line -split '\|' | ForEach-Object { $_.Trim() }
-                # cols[0] = empty, cols[1]=Test ID, cols[2]=Feature ID, cols[3]=Test Type,
-                # cols[4]=Test File/Case, cols[5]=Status, cols[6..]=rest
-                if ($cols.Count -ge 6) {
-                    $cols[4] = $auditLink
+                # cols[0] = empty, cols[1]=Feature ID, cols[2]=Test Type, cols[3]=Test File/Case,
+                # cols[4]=Status, cols[5..]=rest
+                if ($cols.Count -ge 5) {
+                    $cols[3] = $auditLink
                     # Rebuild row preserving column spacing
                     $line = "| " + ($cols[1..($cols.Count-2)] -join " | ") + " |"
                     $rowUpdated = $true
@@ -144,12 +152,12 @@ try {
 
         if ($rowUpdated) {
             $updatedContent = $updatedLines -join "`n"
-            if ($PSCmdlet.ShouldProcess($testTrackingPath, "Update test-tracking.md: link audit report for $TestFileId")) {
+            if ($PSCmdlet.ShouldProcess($testTrackingPath, "Update test-tracking.md: link audit report for $testFileName")) {
                 Set-Content $testTrackingPath $updatedContent -Encoding UTF8
-                $stateUpdates += "test-tracking.md: $TestFileId Test File/Case → $documentId"
+                $stateUpdates += "test-tracking.md: $testFileName Test File/Case → $documentId"
             }
         } else {
-            Write-Warning "Could not find $TestFileId in test-tracking.md — manual update needed"
+            Write-Warning "Could not find $testFileName in test-tracking.md — manual update needed"
         }
     } else {
         Write-Warning "Test tracking file not found: $testTrackingPath"
@@ -158,7 +166,7 @@ try {
     # Provide success details
     $details = @(
         "Feature ID: $FeatureId",
-        "Test File ID: $TestFileId",
+        "Test File: $TestFilePath",
         "Auditor: $AuditorName",
         "Category: $featureCategory"
     )
@@ -238,12 +246,9 @@ Before considering this script complete, test the following:
    - Verify error messages are helpful
 
 EXAMPLE TEST COMMANDS:
-# Basic test
-./New-TestAuditReport.ps1 -FeatureId "0.2.3" -TestFileId "PD-TST-001" -AuditorName "Test Auditor"
-
-# Verify created document
-Get-Content "../../product-docs/test-audits/foundation/audit-report-0.2.3-PD-TST-001.md" | Select-Object -First 20
+# Basic test (SC-007: uses file path)
+./New-TestAuditReport.ps1 -FeatureId "0.2.3" -TestFilePath "test/automated/unit/test_service.py" -AuditorName "Test Auditor"
 
 # Cleanup
-Remove-Item "../../product-docs/test-audits/foundation/audit-report-0.2.3-PD-TST-001.md" -Force
+Remove-Item "../../audits/foundation/audit-report-0-2-3-test_service.md" -Force
 #>

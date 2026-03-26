@@ -67,7 +67,7 @@ Manage the process of preparing, versioning, and deploying releases of the appli
 ### Execution
 
 7. Run the full test suite on the release candidate
-8. **Run full pre-release test sweep**: Execute `Run-Tests.ps1 -All` to confirm all automated tests pass. This is a release gate — no deployment if tests fail. Pay special attention to **Critical** priority tests in [test-registry.yaml](/test/test-registry.yaml) — these cover foundation features and must all pass. Extended priority tests (performance, edge cases) are informational but not release-blocking.
+8. **Run full pre-release test sweep**: Execute `Run-Tests.ps1 -All` to confirm all automated tests pass. This is a release gate — no deployment if tests fail. Pay special attention to **Critical** priority tests (query via `test_query.py --summary` or `pytest -m 'priority("Critical")'`) — these cover foundation features and must all pass. Extended priority tests (performance, edge cases) are informational but not release-blocking.
 9. **Verify E2E acceptance test status**: Check [e2e-test-tracking.md](../../../../test/state-tracking/permanent/e2e-test-tracking.md) for any E2E groups marked `🔄 Needs Re-execution`. All groups must show `✅ Passed` before release. If any need re-execution, trigger [E2E Acceptance Test Execution](../03-testing/e2e-acceptance-test-execution-task.md) first. Also check the **Workflow Milestone Tracking** — are all workflows in the release scope covered by E2E tests? Flag any workflow with `⬜ Not Created` status as a release risk.
 10. Verify all deployment prerequisites are met
 11. Complete the pre-deployment checklist

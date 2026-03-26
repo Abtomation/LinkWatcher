@@ -23,6 +23,14 @@ import pytest
 # Import the component under test
 # TODO(dev): Add import for [COMPONENT_NAME]
 
+pytestmark = [
+    pytest.mark.feature("[FEATURE_ID]"),
+    pytest.mark.priority("[PRIORITY]"),
+    pytest.mark.test_type("[TEST_TYPE_MARKER]"),
+    # TODO(dev): Uncomment and set specification path if a test spec exists
+    # pytest.mark.specification("test/specifications/feature-specs/..."),
+]
+
 
 class Test[TEST_NAME]:
     """[TEST_TYPE] tests for [COMPONENT_NAME] component."""

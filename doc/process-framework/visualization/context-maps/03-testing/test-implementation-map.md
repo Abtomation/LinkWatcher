@@ -145,8 +145,7 @@ graph TD
 - [Feature Tier Assessment Guide](../../../../product-docs/documentation-tiers/README.md) - Understanding complexity tiers
 - [Test Structure Documentation](/test/) - Current test organization patterns
 - [Test Tracking](../../../../../test/state-tracking/permanent/test-tracking.md) - Test implementation status tracking
-- [Test Registry](/test/test-registry.yaml) - Central registry of test files with IDs and metadata
+- [Test Query Tool](/doc/process-framework/scripts/test/test_query.py) - Query test file metadata via pytest markers
 - [Feature Tracking](../../../../product-docs/state-tracking/permanent/feature-tracking.md) - Feature development status tracking
 
 ---
-

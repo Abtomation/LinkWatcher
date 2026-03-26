@@ -100,7 +100,7 @@ When referencing other tasks' outputs in Test Specifications:
 
 - **Important (Load If Space):**
 
-  - [Test Registry](/test/test-registry.yaml) - Current test file registry with IDs and metadata
+  - Pytest markers (via `test_query.py --feature X.Y.Z`) - Current test file metadata
   - [Test Tracking](/test/state-tracking/permanent/test-tracking.md) - Current test implementation status
   - [Existing Test Structure](/test/) - Current test organization and patterns
   <!-- - [Mock Services](/test/mocks/) - Directory does not exist in this project -->
@@ -222,7 +222,6 @@ When referencing other tasks' outputs in Test Specifications:
 The following state files must be updated as part of this task:
 
 - [Feature Tracking](/doc/product-docs/state-tracking/permanent/feature-tracking.md) - Update Test Status to reflect test specification creation (📋 Specs Created) and add Test Spec link
-- [Test Registry](/test/test-registry.yaml) - Update `specificationPath` field for all test files belonging to the feature
 - [TE ID Registry](/test/TE-id-registry.json) - Update `TE-TSP.nextAvailable` counter after creating specifications
 - [Documentation Map](/doc/process-framework/documentation-map.md) - Add new test specification entries to the Test Specifications section
 - [Test Tracking](/test/state-tracking/permanent/test-tracking.md) - Add section if feature category is missing
@@ -245,7 +244,6 @@ Before considering this task finished:
   - [ ] Manual Test Scenarios section included (if any scenarios classified as `manual` or `both`)
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
   - [ ] [Feature Tracking](/doc/product-docs/state-tracking/permanent/feature-tracking.md) — Test Status updated (use "🔧 Automated Only" if manual scenarios identified, "📋 Specs Created" if no manual scenarios) and Test Spec link added
-  - [ ] [Test Registry](/test/test-registry.yaml) — `specificationPath` populated for all test files belonging to the feature
   - [ ] [TE ID Registry](/test/TE-id-registry.json) — `TE-TSP.nextAvailable` counter incremented
   - [ ] [Documentation Map](/doc/process-framework/documentation-map.md) — New test spec entries added to Test Specifications section
   - [ ] [Test Tracking](/test/state-tracking/permanent/test-tracking.md) — Feature section added if missing; manual test scenario entries added with "⬜ Not Created" status if applicable

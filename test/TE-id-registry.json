@@ -3,8 +3,8 @@
     "name": "TE-id-registry",
     "version": "1.0",
     "created": "2026-03-24",
-    "updated": "2026-03-24",
-    "description": "Test Artifacts ID Registry - test specifications, audit reports, and test files",
+    "updated": "2026-03-26",
+    "description": "Test Artifacts ID Registry - test specifications, audit reports, E2E tests, and state tracking",
     "format": "semantic"
   },
   "prefixes": {
@@ -54,21 +54,6 @@
         "default": "foundation"
       },
       "nextAvailable": 13
-    },
-    "TE-TST": {
-      "description": "Test - Test Files",
-      "category": "Testing",
-      "type": "Test File",
-      "fileType": "dart",
-      "metadataFormat": "comment",
-      "directories": {
-        "unit": "test/unit",
-        "integration": "test/integration",
-        "widget": "test/widget",
-        "e2e": "integration_test",
-        "default": "unit"
-      },
-      "nextAvailable": 133
     },
     "TE-STA": {
       "description": "Test - State Tracking",

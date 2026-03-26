@@ -20,7 +20,7 @@ auditor: AI Agent
 | **Feature ID** | 0.1.2 |
 | **Feature Name** | In-Memory Link Database |
 | **Test File ID** | TE-TST-104 |
-| **Test File Location** | `tests/unit/test_database.py` |
+| **Test File Location** | `test/automated/unit/test_database.py` |
 | **Feature Category** | FOUNDATION |
 | **Auditor** | AI Agent |
 | **Audit Date** | 2026-03-15 |
@@ -32,7 +32,7 @@ auditor: AI Agent
 
 | Test File | Location | Test Cases | Status |
 |-----------|----------|------------|--------|
-| test_database.py | tests/unit/test_database.py | 22 | ✅ All passing |
+| test_database.py | test/automated/unit/test_database.py | 22 | ✅ All passing |
 
 ## Implementation Dependency Analysis
 
@@ -123,7 +123,7 @@ auditor: AI Agent
 - All tests are in-memory operations
 
 **Evidence**:
-- `pytest tests/unit/test_database.py` → 22 passed in 0.48s
+- `pytest test/automated/unit/test_database.py` → 22 passed in 0.48s
 
 **Recommendations**:
 - None — execution time is excellent
@@ -225,4 +225,3 @@ All 22 tests pass, covering all core CRUD operations, thread safety, path normal
 **Audit Completed By**: AI Agent
 **Completion Date**: 2026-03-15
 **Report Version**: 1.0
-

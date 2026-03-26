@@ -255,7 +255,7 @@ All three components use constructor injection (callbacks) and maintain clean se
 1. **Handler continued decomposition** → TD022 (new — TD005 is resolved)
    - **Description**: Continue `LinkMaintenanceHandler` decomposition. TD005 extracted move_detector.py and dir_move_detector.py (1281→839 LOC). Remaining: reference lookup, update orchestration, database cleanup responsibilities.
    - **Benefits**: Better testability, smaller modules, clearer responsibilities
-   - **Planning Notes**: Original decomposition plan at doc/product-docs/refactoring/plans/decompose-god-class-linkmaintenancehandler-td005.md — reference_lookup.py extraction still pending
+   - **Planning Notes**: Original decomposition plan at doc/product-docs/refactoring/plans/archive/decompose-god-class-linkmaintenancehandler-td005.md — reference_lookup.py extraction still pending
 
 ## Cross-Feature Analysis
 

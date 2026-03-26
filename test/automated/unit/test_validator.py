@@ -37,9 +37,7 @@ def _create_file(base: str, rel_path: str, content: str = "") -> str:
 def _make_config(**overrides) -> LinkWatcherConfig:
     """Return a minimal config suitable for tests."""
     cfg = LinkWatcherConfig()
-    cfg.monitored_extensions = overrides.get(
-        "monitored_extensions", {".md", ".yaml", ".json"}
-    )
+    cfg.monitored_extensions = overrides.get("monitored_extensions", {".md", ".yaml", ".json"})
     cfg.ignored_directories = overrides.get("ignored_directories", {".git"})
     # Disable parsers we don't need so tests run faster
     cfg.enable_dart_parser = False
@@ -76,11 +74,7 @@ class TestValidationResult:
         assert r.is_clean is True
 
     def test_not_clean_when_broken(self):
-        r = ValidationResult(
-            broken_links=[
-                BrokenLink("a.md", 1, "b.md", "markdown")
-            ]
-        )
+        r = ValidationResult(broken_links=[BrokenLink("a.md", 1, "b.md", "markdown")])
         assert r.is_clean is False
 
     def test_defaults(self):
@@ -99,9 +93,7 @@ class TestLinkValidator:
     def test_valid_links_no_broken(self, tmp_path):
         """A workspace where all links resolve — expect zero broken links."""
         _create_file(str(tmp_path), "docs/target.md", "# Target")
-        _create_file(
-            str(tmp_path), "source.md", "[link](docs/target.md)\n"
-        )
+        _create_file(str(tmp_path), "source.md", "[link](docs/target.md)\n")
 
         cfg = _make_config()
         v = LinkValidator(str(tmp_path), cfg)
@@ -113,9 +105,7 @@ class TestLinkValidator:
 
     def test_broken_link_detected(self, tmp_path):
         """A link to a non-existent file should be reported."""
-        _create_file(
-            str(tmp_path), "source.md", "[link](docs/does-not-exist.md)\n"
-        )
+        _create_file(str(tmp_path), "source.md", "[link](docs/does-not-exist.md)\n")
 
         cfg = _make_config()
         v = LinkValidator(str(tmp_path), cfg)
@@ -130,9 +120,7 @@ class TestLinkValidator:
     def test_anchor_stripped_before_check(self, tmp_path):
         """file.md#section should check file.md existence only."""
         _create_file(str(tmp_path), "target.md", "# Section")
-        _create_file(
-            str(tmp_path), "source.md", "[link](target.md#section)\n"
-        )
+        _create_file(str(tmp_path), "source.md", "[link](target.md#section)\n")
 
         cfg = _make_config()
         v = LinkValidator(str(tmp_path), cfg)
@@ -149,9 +137,7 @@ class TestLinkValidator:
         result = v.validate()
 
         # Pure anchors should not produce broken links
-        assert all(
-            bl.target_path != "#section" for bl in result.broken_links
-        )
+        assert all(bl.target_path != "#section" for bl in result.broken_links)
 
     def test_url_links_skipped(self, tmp_path):
         """HTTP/HTTPS links should not be checked."""
@@ -169,9 +155,7 @@ class TestLinkValidator:
 
     def test_ignored_directories_skipped(self, tmp_path):
         """Files inside ignored directories should not be scanned."""
-        _create_file(
-            str(tmp_path), ".git/config.md", "[link](missing.md)\n"
-        )
+        _create_file(str(tmp_path), ".git/config.md", "[link](missing.md)\n")
         _create_file(str(tmp_path), "source.md", "# ok\n")
 
         cfg = _make_config(ignored_directories={".git"})
@@ -184,9 +168,7 @@ class TestLinkValidator:
 
     def test_monitored_extensions_respected(self, tmp_path):
         """Only files with monitored extensions should be scanned."""
-        _create_file(
-            str(tmp_path), "readme.txt", "[link](missing.md)\n"
-        )
+        _create_file(str(tmp_path), "readme.txt", "[link](missing.md)\n")
 
         cfg = _make_config(monitored_extensions={".md"})  # .txt not included
         v = LinkValidator(str(tmp_path), cfg)
@@ -225,9 +207,7 @@ class TestLinkValidator:
     def test_subdirectory_link_resolution(self, tmp_path):
         """Links should resolve relative to the source file's directory."""
         _create_file(str(tmp_path), "docs/guide.md", "# Guide")
-        _create_file(
-            str(tmp_path), "docs/index.md", "[guide](guide.md)\n"
-        )
+        _create_file(str(tmp_path), "docs/index.md", "[guide](guide.md)\n")
 
         cfg = _make_config()
         v = LinkValidator(str(tmp_path), cfg)
@@ -238,9 +218,7 @@ class TestLinkValidator:
     def test_parent_directory_link(self, tmp_path):
         """../file.md should resolve correctly."""
         _create_file(str(tmp_path), "readme.md", "# Root")
-        _create_file(
-            str(tmp_path), "docs/index.md", "[up](../readme.md)\n"
-        )
+        _create_file(str(tmp_path), "docs/index.md", "[up](../readme.md)\n")
 
         cfg = _make_config()
         v = LinkValidator(str(tmp_path), cfg)
@@ -258,9 +236,7 @@ class TestLinkValidator:
 
     def test_linkwatcher_run_dir_ignored(self, tmp_path):
         """Files in LinkWatcher_run/ should be skipped automatically."""
-        _create_file(
-            str(tmp_path), "LinkWatcher_run/log.md", "[link](missing.md)\n"
-        )
+        _create_file(str(tmp_path), "LinkWatcher_run/log.md", "[link](missing.md)\n")
         _create_file(str(tmp_path), "source.md", "# ok\n")
 
         cfg = _make_config()
@@ -272,13 +248,7 @@ class TestLinkValidator:
 
     def test_standalone_link_in_code_block_skipped(self, tmp_path):
         """Bare paths inside fenced code blocks should be skipped."""
-        content = (
-            "# Guide\n"
-            "\n"
-            "```bash\n"
-            "path/to/missing.ps1\n"
-            "```\n"
-        )
+        content = "# Guide\n" "\n" "```bash\n" "path/to/missing.ps1\n" "```\n"
         _create_file(str(tmp_path), "source.md", content)
 
         cfg = _make_config()
@@ -291,13 +261,7 @@ class TestLinkValidator:
 
     def test_proper_link_in_code_block_still_checked(self, tmp_path):
         """Proper [text](path) links inside code blocks are still checked."""
-        content = (
-            "# Guide\n"
-            "\n"
-            "```markdown\n"
-            "[link](docs/does-not-exist.md)\n"
-            "```\n"
-        )
+        content = "# Guide\n" "\n" "```markdown\n" "[link](docs/does-not-exist.md)\n" "```\n"
         _create_file(str(tmp_path), "source.md", content)
 
         cfg = _make_config()
@@ -309,11 +273,7 @@ class TestLinkValidator:
 
     def test_standalone_link_outside_code_block_still_checked(self, tmp_path):
         """Bare paths in normal prose should still be checked."""
-        content = (
-            "# Guide\n"
-            "\n"
-            "See path/to/missing.md for details.\n"
-        )
+        content = "# Guide\n" "\n" "See path/to/missing.md for details.\n"
         _create_file(str(tmp_path), "source.md", content)
 
         cfg = _make_config()
@@ -352,25 +312,16 @@ class TestLinkValidator:
         result = v.validate()
 
         assert not result.is_clean
-        assert any(
-            bl.target_path == "/does/not/exist.md"
-            for bl in result.broken_links
-        )
+        assert any(bl.target_path == "/does/not/exist.md" for bl in result.broken_links)
 
     def test_old_and_archive_dirs_ignored(self, tmp_path):
         """Files in old/ and archive/ directories are excluded from validation."""
         # Broken link inside old/ — should NOT be reported
-        _create_file(
-            str(tmp_path), "old/stale.md", "[link](does/not/exist.md)\n"
-        )
+        _create_file(str(tmp_path), "old/stale.md", "[link](does/not/exist.md)\n")
         # Broken link inside archive/ — should NOT be reported
-        _create_file(
-            str(tmp_path), "archive/stale.md", "[link](does/not/exist.md)\n"
-        )
+        _create_file(str(tmp_path), "archive/stale.md", "[link](does/not/exist.md)\n")
         # Broken link in a real dir — SHOULD be reported
-        _create_file(
-            str(tmp_path), "docs/active.md", "[link](does/not/exist.md)\n"
-        )
+        _create_file(str(tmp_path), "docs/active.md", "[link](does/not/exist.md)\n")
 
         cfg = _make_config()
         v = LinkValidator(str(tmp_path), cfg)
@@ -384,8 +335,7 @@ class TestLinkValidator:
     def test_fixtures_dir_ignored(self, tmp_path):
         """Test fixture files should be excluded from validation."""
         _create_file(
-            str(tmp_path), "fixtures/sample.json",
-            '{"path": "data/does-not-exist.json"}\n'
+            str(tmp_path), "fixtures/sample.json", '{"path": "data/does-not-exist.json"}\n'
         )
         _create_file(str(tmp_path), "docs/real.md", "# ok\n")
 
@@ -398,9 +348,7 @@ class TestLinkValidator:
 
     def test_source_code_files_not_validated(self, tmp_path):
         """Python/PowerShell files should not be scanned for validation."""
-        _create_file(
-            str(tmp_path), "script.py", '"missing_file.md"\n'
-        )
+        _create_file(str(tmp_path), "script.py", '"missing_file.md"\n')
         _create_file(str(tmp_path), "source.md", "# ok\n")
 
         cfg = _make_config()
@@ -410,6 +358,129 @@ class TestLinkValidator:
         # script.py should not be scanned — only .md files
         for bl in result.broken_links:
             assert not bl.source_file.endswith(".py")
+
+    def test_standalone_root_relative_path_resolved(self, tmp_path):
+        """Standalone paths that exist at project root should not be broken.
+
+        Standalone paths in prose are typically project-root-relative
+        (e.g. 'doc/guide.md' mentioned in a deeply nested file).
+        The validator should try root resolution as fallback.
+        """
+        _create_file(str(tmp_path), "doc/scripts/helper.ps1", "# helper")
+        # Standalone mention of a project-root-relative path in a nested file
+        _create_file(
+            str(tmp_path),
+            "doc/deep/nested/source.md",
+            "Run validation: doc/scripts/helper.ps1 to check.\n",
+        )
+
+        cfg = _make_config()
+        v = LinkValidator(str(tmp_path), cfg)
+        result = v.validate()
+
+        # doc/scripts/helper.ps1 exists at root — should NOT be broken
+        targets = {bl.target_path for bl in result.broken_links}
+        assert "doc/scripts/helper.ps1" not in targets
+
+    def test_standalone_root_relative_broken_still_detected(self, tmp_path):
+        """Standalone paths that don't exist anywhere should still be broken."""
+        _create_file(
+            str(tmp_path),
+            "doc/deep/source.md",
+            "See doc/nonexistent/missing.md for details.\n",
+        )
+
+        cfg = _make_config()
+        v = LinkValidator(str(tmp_path), cfg)
+        result = v.validate()
+
+        targets = {bl.target_path for bl in result.broken_links}
+        assert "doc/nonexistent/missing.md" in targets
+
+    def test_standalone_in_table_root_relative_resolved(self, tmp_path):
+        """Standalone paths inside table cells should also get root fallback."""
+        _create_file(str(tmp_path), "scripts/tool.ps1", "# tool")
+        _create_file(
+            str(tmp_path),
+            "doc/report.md",
+            "| Tool | Path |\n| --- | --- |\n| Linter | scripts/tool.ps1 |\n",
+        )
+
+        cfg = _make_config()
+        v = LinkValidator(str(tmp_path), cfg)
+        result = v.validate()
+
+        targets = {bl.target_path for bl in result.broken_links}
+        assert "scripts/tool.ps1" not in targets
+
+    def test_markdown_link_no_root_fallback(self, tmp_path):
+        """Proper [text](path) links should NOT get root-relative fallback.
+
+        Only standalone/data-value link types benefit from dual resolution.
+        Proper markdown links have explicit syntax — the author chose
+        the relative path deliberately, so wrong paths should be flagged.
+        """
+        _create_file(str(tmp_path), "doc/guide.md", "# Guide")
+        _create_file(
+            str(tmp_path),
+            "doc/deep/nested/source.md",
+            "[link](doc/guide.md)\n",  # Wrong: should be ../../guide.md
+        )
+
+        cfg = _make_config()
+        v = LinkValidator(str(tmp_path), cfg)
+        result = v.validate()
+
+        # This should still be broken — proper links don't get root fallback
+        targets = {bl.target_path for bl in result.broken_links}
+        assert "doc/guide.md" in targets
+
+    def test_yaml_root_relative_path_resolved(self, tmp_path):
+        """YAML data-value paths that exist at project root should not be broken."""
+        _create_file(str(tmp_path), "test/automated/unit/test_service.py", "# test")
+        _create_file(
+            str(tmp_path),
+            "test/test-registry.yaml",
+            "- filePath: test/automated/unit/test_service.py\n",
+        )
+
+        cfg = _make_config()
+        v = LinkValidator(str(tmp_path), cfg)
+        result = v.validate()
+
+        targets = {bl.target_path for bl in result.broken_links}
+        assert "test/automated/unit/test_service.py" not in targets
+
+    def test_yaml_broken_path_still_detected(self, tmp_path):
+        """YAML paths that don't exist anywhere should still be broken."""
+        _create_file(
+            str(tmp_path),
+            "config/registry.yaml",
+            "- filePath: nonexistent/module/test.py\n",
+        )
+
+        cfg = _make_config()
+        v = LinkValidator(str(tmp_path), cfg)
+        result = v.validate()
+
+        targets = {bl.target_path for bl in result.broken_links}
+        assert "nonexistent/module/test.py" in targets
+
+    def test_json_root_relative_path_resolved(self, tmp_path):
+        """JSON data-value paths that exist at project root should not be broken."""
+        _create_file(str(tmp_path), "doc/feedback/form.md", "# form")
+        _create_file(
+            str(tmp_path),
+            "data/ratings.json",
+            '{"source": "doc/feedback/form.md"}\n',
+        )
+
+        cfg = _make_config()
+        v = LinkValidator(str(tmp_path), cfg)
+        result = v.validate()
+
+        targets = {bl.target_path for bl in result.broken_links}
+        assert "doc/feedback/form.md" not in targets
 
 
 # ---------------------------------------------------------------------------
@@ -427,24 +498,24 @@ class TestShouldCheckTarget:
         assert LinkValidator._should_check_target("app.utils", "python-import") is False
 
     def test_shell_command_bash_skipped(self):
-        assert LinkValidator._should_check_target(
-            "Bash(python scripts/run.py)", "json"
-        ) is False
+        assert LinkValidator._should_check_target("Bash(python scripts/run.py)", "json") is False
 
     def test_shell_command_pwsh_skipped(self):
-        assert LinkValidator._should_check_target(
-            "pwsh.exe -ExecutionPolicy Bypass -File script.ps1", "yaml"
-        ) is False
+        assert (
+            LinkValidator._should_check_target(
+                "pwsh.exe -ExecutionPolicy Bypass -File script.ps1", "yaml"
+            )
+            is False
+        )
 
     def test_shell_command_python_skipped(self):
-        assert LinkValidator._should_check_target(
-            "python main.py --validate", "generic-unquoted"
-        ) is False
+        assert (
+            LinkValidator._should_check_target("python main.py --validate", "generic-unquoted")
+            is False
+        )
 
     def test_shell_command_git_skipped(self):
-        assert LinkValidator._should_check_target(
-            "git status", "generic-unquoted"
-        ) is False
+        assert LinkValidator._should_check_target("git status", "generic-unquoted") is False
 
     def test_wildcard_glob_skipped(self):
         assert LinkValidator._should_check_target("*.md", "generic-unquoted") is False
@@ -457,9 +528,9 @@ class TestShouldCheckTarget:
 
     def test_target_with_spaces_skipped(self):
         """Targets containing spaces are likely prose or commands, not paths."""
-        assert LinkValidator._should_check_target(
-            "some random text.md", "generic-unquoted"
-        ) is False
+        assert (
+            LinkValidator._should_check_target("some random text.md", "generic-unquoted") is False
+        )
 
     def test_non_path_string_skipped(self):
         """Strings that don't look like file paths should be rejected."""
@@ -480,21 +551,33 @@ class TestShouldCheckTarget:
 
     def test_placeholder_skipped(self):
         """Template placeholders should be skipped."""
-        assert LinkValidator._should_check_target(
-            "feedback-forms/YYYYMMDD-HHMMSS-feedback.md", "markdown-standalone"
-        ) is False
+        assert (
+            LinkValidator._should_check_target(
+                "feedback-forms/YYYYMMDD-HHMMSS-feedback.md", "markdown-standalone"
+            )
+            is False
+        )
 
     def test_square_bracket_placeholder_skipped(self):
         """Square-bracket template placeholders like [feature-id] should be skipped."""
-        assert LinkValidator._should_check_target(
-            "state-tracking/features/feature-implementation-state-[feature-id].md", "markdown"
-        ) is False
-        assert LinkValidator._should_check_target(
-            "visualization/context-maps/[task-type]/[task-name]-map.md", "markdown"
-        ) is False
-        assert LinkValidator._should_check_target(
-            "architecture/context-packages/[architecture-area]-context.md", "markdown"
-        ) is False
+        assert (
+            LinkValidator._should_check_target(
+                "state-tracking/features/feature-implementation-state-[feature-id].md", "markdown"
+            )
+            is False
+        )
+        assert (
+            LinkValidator._should_check_target(
+                "visualization/context-maps/[task-type]/[task-name]-map.md", "markdown"
+            )
+            is False
+        )
+        assert (
+            LinkValidator._should_check_target(
+                "architecture/context-packages/[architecture-area]-context.md", "markdown"
+            )
+            is False
+        )
 
     def test_dot_relative_accepted(self):
         """Paths starting with ./ or ../ are real references."""
@@ -505,14 +588,16 @@ class TestShouldCheckTarget:
         assert LinkValidator._should_check_target("../readme.md", "markdown") is True
 
     def test_valid_deep_path_accepted(self):
-        assert LinkValidator._should_check_target(
-            "doc/process-framework/tasks/task.md", "markdown"
-        ) is True
+        assert (
+            LinkValidator._should_check_target("doc/process-framework/tasks/task.md", "markdown")
+            is True
+        )
 
     def test_root_relative_accepted(self):
-        assert LinkValidator._should_check_target(
-            "/doc/process-framework/tasks/task.md", "markdown"
-        ) is True
+        assert (
+            LinkValidator._should_check_target("/doc/process-framework/tasks/task.md", "markdown")
+            is True
+        )
 
 
 # ---------------------------------------------------------------------------

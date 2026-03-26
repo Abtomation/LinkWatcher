@@ -95,16 +95,15 @@ The Integration & Testing task is the single post-implementation testing task in
 Use the `New-TestFile.ps1` script to generate test files for each required category:
 
 ```powershell
-# Create test files using automation script (generates PD-TST-[SEQUENCE] IDs)
+# Create test files using automation script (writes pytest markers)
 cd doc/process-framework/scripts/file-creation
 .\New-TestFile.ps1 -TestName "FeatureName" -TestType "Unit" -FeatureId "X.Y.Z" -ComponentName "ComponentName"
 .\New-TestFile.ps1 -TestName "FeatureName" -TestType "Integration" -FeatureId "X.Y.Z" -ComponentName "ComponentName"
 
 # Script automatically:
-# - Generates unique PD-TST ID
+# - Writes pytest markers (feature, priority, test_type) into test file
 # - Creates test file from template with proper structure
 # - Updates test-tracking.md with file links and status
-# - Updates test-registry.yaml with test file metadata
 # - Updates feature-tracking.md with test implementation progress
 ```
 
@@ -246,7 +245,7 @@ class TestParserRegistryIntegration:
 
 **Symptom:** `Validate-TestTracking.ps1` reports inconsistencies
 
-**Solution:** Ensure all test files were created via `New-TestFile.ps1` (not manually). Check that test-registry.yaml entries match files on disk. Verify feature IDs are consistent across tracking files.
+**Solution:** Ensure all test files were created via `New-TestFile.ps1` (not manually). Check that pytest markers in test files match expected metadata (use `test_query.py` to inspect). Verify feature IDs are consistent across tracking files.
 
 ## Related Resources
 
@@ -254,7 +253,6 @@ class TestParserRegistryIntegration:
 - [Test Specification Creation Task](../../tasks/03-testing/test-specification-creation-task.md) - For creating test specifications before implementation
 - [Test Audit Task](../../tasks/03-testing/test-audit-task.md) - Quality assessment of test implementations
 - [Test Tracking](../../../../test/state-tracking/permanent/test-tracking.md) - Track progress
-- [Test Registry](/test/test-registry.yaml) - Central registry of test files with IDs and metadata
 - [Test File Creation Guide](test-file-creation-guide.md) - Guide for customizing test file templates
 - [Bug Reporting Guide](../06-maintenance/bug-reporting-guide.md) - Standardized procedures for reporting bugs
 - [Cross-Cutting Test Specification Template](../../templates/03-testing/cross-cutting-test-specification-template.md) - Template for cross-feature test specs

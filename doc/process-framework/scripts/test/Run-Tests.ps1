@@ -42,9 +42,9 @@
     Enable verbose test output.
 
 .PARAMETER UpdateTracking
-    After running tests, parse per-file pass/fail results and update test-tracking.md
-    via TestTracking.psm1. Requires verbose pytest output to parse individual test results.
-    Looks up TE-TST IDs from test-registry.yaml to match file paths to tracking entries.
+    After running tests, parse per-file pass/fail results and update test-tracking.md.
+    Requires verbose pytest output to parse individual test results.
+    Matches test-tracking.md rows by file name (SC-007: no registry lookup needed).
 
 .EXAMPLE
     .\Run-Tests.ps1 -Category unit
@@ -406,79 +406,49 @@ if ($UpdateTracking -and $script:capturedTestOutput.Count -gt 0) {
     if ($fileResults.Count -eq 0) {
         Write-Host "No per-test results found in output — skipping tracking update."
     } else {
-        # Load test-registry.yaml to map file paths to TE-TST IDs
-        $registryPath = Join-Path $projectRoot "test/test-registry.yaml"
-        if (-not (Test-Path $registryPath)) {
-            Write-Host "test-registry.yaml not found — skipping tracking update."
+        # SC-007: Match test-tracking.md rows by file name (no registry needed)
+        # Build per-file update list from test results
+        $timestamp = Get-Date -Format "yyyy-MM-dd"
+        $updatesByFileName = @{}
+        $skippedCount = 0
+
+        foreach ($filePath in $fileResults.Keys) {
+            $stats = $fileResults[$filePath]
+            $total = $stats.Passed + $stats.Failed + $stats.Skipped + $stats.Error
+            $fileName = Split-Path $filePath -Leaf
+
+            $runNote = "Run $timestamp`: $($stats.Passed) passed"
+            if ($stats.Failed -gt 0) { $runNote += ", $($stats.Failed) failed" }
+            if ($stats.Skipped -gt 0) { $runNote += ", $($stats.Skipped) skipped" }
+
+            $updatesByFileName[$fileName] = @{
+                Status = if ($stats.Failed -gt 0 -or $stats.Error -gt 0) { "🔴 Tests Failing" } else { "✅ Tests Implemented" }
+                TestCasesCount = "$total"
+                RunNote = $runNote
+                FilePath = $filePath
+                Passed = $stats.Passed
+                Failed = $stats.Failed
+            }
+        }
+
+        if ($updatesByFileName.Count -eq 0) {
+            Write-Host "No test files to update — skipping tracking update."
         } else {
-            $registryContent = Get-Content $registryPath -Raw -Encoding UTF8
+            # Update test-tracking.md directly — match rows by file name in Test File/Case column
+            # 8-column format (SC-007): Feature ID(0) | Test Type(1) | Test File/Case(2) | Status(3) | Test Cases Count(4) | Last Executed(5) | Last Updated(6) | Notes(7)
+            $trackingPath = Join-Path $projectRoot "test/state-tracking/permanent/test-tracking.md"
+            $trackingContent = Get-Content $trackingPath -Raw -Encoding UTF8
+            $trackingLines = $trackingContent -split '\r?\n'
 
-            # Build lookup table: filePath → { testId, featureId } from YAML list format
-            $registryLines = $registryContent -split '\r?\n'
-            $registryLookup = @{}
-            $currentEntry = @{}
-            for ($i = 0; $i -lt $registryLines.Count; $i++) {
-                $rline = $registryLines[$i]
-                if ($rline -match '^\s+-\s+id:\s*(TE-TST-\d+)') {
-                    $currentEntry = @{ id = $matches[1] }
-                }
-                if ($currentEntry.id -and $rline -match '^\s+featureId:\s*"?([^"]+)"?') {
-                    $currentEntry.featureId = $matches[1]
-                }
-                if ($currentEntry.id -and $rline -match '^\s+filePath:\s*"?([^"]+)"?') {
-                    $fp = $matches[1] -replace '\\', '/'
-                    $registryLookup[$fp] = $currentEntry
-                    $currentEntry = @{}
-                }
-            }
-
-            # Build per-test-file update list
-            $timestamp = Get-Date -Format "yyyy-MM-dd"
-            $updatesByTestId = @{}
-            $skippedCount = 0
-
-            foreach ($filePath in $fileResults.Keys) {
-                $stats = $fileResults[$filePath]
-                $total = $stats.Passed + $stats.Failed + $stats.Skipped + $stats.Error
-                $normalizedPath = ($filePath -replace '\\', '/').TrimStart('/')
-
-                $entry = $registryLookup[$normalizedPath]
-                if (-not $entry) {
-                    Write-Host "  SKIP: $filePath (not in test-registry.yaml)"
-                    $skippedCount++
-                    continue
-                }
-
-                $runNote = "Run $timestamp`: $($stats.Passed) passed"
-                if ($stats.Failed -gt 0) { $runNote += ", $($stats.Failed) failed" }
-                if ($stats.Skipped -gt 0) { $runNote += ", $($stats.Skipped) skipped" }
-
-                $updatesByTestId[$entry.id] = @{
-                    Status = if ($stats.Failed -gt 0 -or $stats.Error -gt 0) { "🔴 Tests Failing" } else { "✅ Tests Implemented" }
-                    TestCasesCount = "$total"
-                    RunNote = $runNote
-                    FilePath = $filePath
-                    Passed = $stats.Passed
-                    Failed = $stats.Failed
-                }
-            }
-
-            if ($updatesByTestId.Count -eq 0) {
-                Write-Host "No test files matched registry entries — skipping tracking update."
-            } else {
-                # Update test-tracking.md directly — match rows by TE-TST ID in column 0
-                # Columns: Test ID(0) | Feature ID(1) | Test Type(2) | Test File/Case(3) | Status(4) | Test Cases Count(5) | Last Executed(6) | Last Updated(7) | Notes(8)
-                $trackingPath = Join-Path $projectRoot "test/state-tracking/permanent/test-tracking.md"
-                $trackingContent = Get-Content $trackingPath -Raw -Encoding UTF8
-                $trackingLines = $trackingContent -split '\r?\n'
-
-                $updatedCount = 0
-                $updatedLines = @()
-                foreach ($line in $trackingLines) {
-                    if ($line -match '^\|\s*(TE-TST-\d+)\s*\|') {
-                        $rowTestId = $matches[1]
-                        if ($updatesByTestId.ContainsKey($rowTestId)) {
-                            $u = $updatesByTestId[$rowTestId]
+            $updatedCount = 0
+            $updatedLines = @()
+            foreach ($line in $trackingLines) {
+                $matched = $false
+                if ($line -match '^\|') {
+                    foreach ($fileName in $updatesByFileName.Keys) {
+                        $escapedName = [regex]::Escape($fileName)
+                        if ($line -match $escapedName) {
+                            $u = $updatesByFileName[$fileName]
                             # Parse columns: split on | and remove first/last empty elements
                             $rawCols = $line -split '\|'
                             if ($rawCols.Count -gt 2) {
@@ -486,31 +456,34 @@ if ($UpdateTracking -and $script:capturedTestOutput.Count -gt 0) {
                             }
                             $cols = $rawCols | ForEach-Object { $_.Trim() }
 
-                            if ($cols.Count -ge 9) {
-                                $cols[4] = $u.Status                    # Status
-                                $cols[5] = $u.TestCasesCount            # Test Cases Count
-                                $cols[6] = $u.RunNote                   # Last Executed (includes run details)
-                                $cols[7] = $timestamp                   # Last Updated
-                                # Preserve existing Notes — don't append run notes there
+                            if ($cols.Count -ge 8) {
+                                $cols[3] = $u.Status                    # Status
+                                $cols[4] = $u.TestCasesCount            # Test Cases Count
+                                $cols[5] = $u.RunNote                   # Last Executed
+                                $cols[6] = $timestamp                   # Last Updated
+                                # Preserve existing Notes (col 7)
                             }
 
                             $updatedLines += "| " + ($cols -join " | ") + " |"
-                            Write-Host "  OK: $rowTestId ($($u.FilePath)) — $($u.Passed)p/$($u.Failed)f"
+                            Write-Host "  OK: $fileName ($($u.FilePath)) — $($u.Passed)p/$($u.Failed)f"
                             $updatedCount++
-                            continue
+                            $matched = $true
+                            break
                         }
                     }
+                }
+                if (-not $matched) {
                     $updatedLines += $line
                 }
-
-                # Write back
-                $updatedContent = $updatedLines -join "`n"
-                $updatedContent = $updatedContent -replace "updated: \d{4}-\d{2}-\d{2}", "updated: $timestamp"
-                Set-Content $trackingPath $updatedContent -Encoding UTF8
-
-                Write-Host ""
-                Write-Host "Tracking update: $updatedCount updated, $skippedCount skipped (of $($fileResults.Count) test files)"
             }
+
+            # Write back
+            $updatedContent = $updatedLines -join "`n"
+            $updatedContent = $updatedContent -replace "updated: \d{4}-\d{2}-\d{2}", "updated: $timestamp"
+            Set-Content $trackingPath $updatedContent -Encoding UTF8
+
+            Write-Host ""
+            Write-Host "Tracking update: $updatedCount updated, $skippedCount skipped (of $($fileResults.Count) test files)"
         }
     }
 }

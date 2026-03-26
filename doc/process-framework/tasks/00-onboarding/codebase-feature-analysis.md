@@ -47,7 +47,7 @@ This task produces enriched Feature Implementation State files that serve as the
 - **Reference Only (Access When Needed):**
   - [Documentation Tiers README](../../../product-docs/documentation-tiers/README.md) - Understanding tier documentation requirements
   - [Feature Dependencies](../../../product-docs/technical/design/feature-dependencies.md) - Existing dependency documentation
-  - [Test Registry](/test/test-registry.yaml) - Registry for mapping test files to features
+  - [Test Query Tool](/test/test_query.py) - Query test files by feature, priority, and markers
   - [Test Tracking](../../../../test/state-tracking/permanent/test-tracking.md) - Test implementation status tracking
 
 ## Process
@@ -109,7 +109,7 @@ This task produces enriched Feature Implementation State files that serve as the
    - **Cross-cutting Tests**: Identify test files that validate interactions across multiple features
    - Document in [Feature Implementation State file](../../state-tracking/features/) → Test Files section
    - **Register in Test Tracking Infrastructure**:
-     - Add each test file to [test-registry.yaml](/test/test-registry.yaml) with feature mapping, test type, and cross-cutting features if applicable
+     - Ensure each test file has pytest markers (feature, priority, test_type, cross_cutting)
      - Add entries to [Test Tracking](../../../../test/state-tracking/permanent/test-tracking.md) organized by feature category
      - Update [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) Test Status column (✅ for features with tests, 🚫 for features without)
      - Use the automation script `New-TestFile.ps1` for registering individual test files, or batch-populate the registry directly for large existing test suites
@@ -157,7 +157,7 @@ This task produces enriched Feature Implementation State files that serve as the
 - [ ] Implementation patterns analyzed and documented for every feature
 - [ ] Dependencies identified and documented for every feature
 - [ ] Test coverage mapped for every feature
-- [ ] Test files registered in [test-registry.yaml](/test/test-registry.yaml) and [test-tracking.md](../../../../test/state-tracking/permanent/test-tracking.md)
+- [ ] Test files have pytest markers and are listed in [test-tracking.md](../../../../test/state-tracking/permanent/test-tracking.md)
 - [ ] Feature Tracking Test Status column updated for all features
 - [ ] Complexity factors noted for features without tier assessments
 - [ ] Existing Project Documentation entries confirmed or flagged for every analyzed feature (Section 4 Confirmed column updated)
@@ -180,5 +180,5 @@ This task produces enriched Feature Implementation State files that serve as the
 - [Codebase Feature Discovery (PF-TSK-064)](codebase-feature-discovery.md) - Prerequisite task
 - [Feature Implementation State Template](../../templates/04-implementation/feature-implementation-state-template.md) - Template structure reference
 - [Feature Implementation State Tracking Guide](../../guides/04-implementation/feature-implementation-state-tracking-guide.md) - Guide for populating analysis sections
-- [Test Registry](/test/test-registry.yaml) - Registry for mapping test files to features with cross-cutting support
+- [Test Query Tool](/test/test_query.py) - Query test files by feature, priority, and markers
 - [Test Tracking](../../../../test/state-tracking/permanent/test-tracking.md) - Test implementation status tracking

@@ -2,21 +2,18 @@
 
 <#
 .SYNOPSIS
-    Validates test tracking consistency across registry, tracking files, and disk.
+    Validates test tracking consistency using pytest markers as single source of truth.
 .DESCRIPTION
-    This script checks for consistency between:
-    - ../test-registry.yaml entries and actual test files on disk
-    - test-tracking.md entries and test-registry.yaml
-    - feature-tracking.md Test Status column and actual test coverage
-    - TE-id-registry.json TE-TST nextAvailable counter
+    SC-007: This script validates consistency between:
+    - Pytest markers in test files (via test_query.py --dump) and actual files on disk
+    - test-tracking.md entries and marker-bearing test files
+    - Feature IDs in markers against known features from feature-tracking.md
+    - Test counts from markers against pytest collection
+    - test_type marker vs directory convention (warning only — marker is authoritative)
 
-    Checks performed:
-    1. Registry entries with missing files on disk
-    2. Test files on disk not in registry
-    3. Duplicate IDs in registry
-    4. PD-TST nextAvailable counter consistency
-    5. Cross-cutting feature ID validation
-    6. testCasesCount validation against actual test runner collection (requires testing.testCountCommand in project-config.json)
+    E2E entries (TE-E2G-*, TE-E2E-*) are tracked in e2e-test-tracking.md (IMP-210).
+    E2E cross-reference check against test-registry.yaml is retained for historical validation
+    but skips gracefully when the registry is absent.
 .PARAMETER ProjectRoot
     Path to the project root directory. Defaults to auto-detection.
 .EXAMPLE
@@ -40,7 +37,7 @@ if ([string]::IsNullOrWhiteSpace($ProjectRoot)) {
 }
 
 Write-Host "========================================" -ForegroundColor Cyan
-Write-Host "  Test Tracking Validation" -ForegroundColor Cyan
+Write-Host "  Test Tracking Validation (SC-007)" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "Project Root: $ProjectRoot" -ForegroundColor Gray
 Write-Host ""
@@ -65,170 +62,145 @@ if (Test-Path $configPath) {
     }
 }
 
-# Extract language-specific settings with fallback warnings
+# Extract language-specific settings
 $testFileExtension = if ($langConfig -and $langConfig.testing.testFileExtension) { $langConfig.testing.testFileExtension } else { $null }
 $testFileExclusions = if ($langConfig -and $langConfig.testing.testFileExclusions) { @($langConfig.testing.testFileExclusions) } else { @() }
 $discoveryOutputPattern = if ($langConfig -and $langConfig.testing.discoveryOutputPattern) { $langConfig.testing.discoveryOutputPattern } else { $null }
 $testCountCommand = if ($langConfig -and $langConfig.testing.discoveryCommand) { $langConfig.testing.discoveryCommand } else { $null }
 
-# --- Load ../test-registry.yaml ---
-$registryPath = Join-Path $ProjectRoot "test/test-registry.yaml"
-if (-not (Test-Path $registryPath)) {
-    Write-Host "FATAL: test/test-registry.yaml not found at $registryPath" -ForegroundColor Red
+# --- Load marker data from test_query.py ---
+Write-Host "Loading marker data from test_query.py..." -ForegroundColor Gray
+
+$testQueryPath = Join-Path $ProjectRoot "doc/process-framework/scripts/test/test_query.py"
+if (-not (Test-Path $testQueryPath)) {
+    Write-Host "FATAL: test_query.py not found at $testQueryPath" -ForegroundColor Red
     exit 1
 }
 
-# Simple YAML parsing for our list-based registry format
-$registryContent = Get-Content $registryPath -Raw -Encoding UTF8
-$registryEntries = @()
-$currentEntry = $null
-
-foreach ($line in (Get-Content $registryPath -Encoding UTF8)) {
-    $trimmed = $line.Trim()
-    if ($trimmed -match '^- id:\s*(.+)$') {
-        if ($currentEntry) { $registryEntries += $currentEntry }
-        $currentEntry = @{ id = $matches[1].Trim() }
-    }
-    elseif ($currentEntry -and $trimmed -match '^(\w+):\s*(.*)$') {
-        $key = $matches[1].Trim()
-        $value = $matches[2].Trim().Trim('"')
-        $currentEntry[$key] = $value
-    }
+try {
+    $queryOutput = python $testQueryPath --dump --format json 2>&1
+    $markerData = $queryOutput | ConvertFrom-Json
+} catch {
+    Write-Host "FATAL: Failed to run test_query.py --dump --format json: $($_.Exception.Message)" -ForegroundColor Red
+    exit 1
 }
-if ($currentEntry) { $registryEntries += $currentEntry }
 
-Write-Host "Loaded $($registryEntries.Count) entries from test-registry.yaml" -ForegroundColor Gray
+$markerEntries = if ($markerData -is [array]) { $markerData } else { @($markerData) }
+Write-Host "Loaded $($markerEntries.Count) entries from test_query.py" -ForegroundColor Gray
 Write-Host ""
 
-# --- Check 1: Registry entries with missing files on disk ---
-Write-Host "1. Checking registry entries against disk..." -ForegroundColor Yellow
+# --- Check 1: Marker entries with missing files on disk ---
+Write-Host "1. Checking marker entries against disk..." -ForegroundColor Yellow
 
 $missingFiles = @()
-foreach ($entry in $registryEntries) {
-    $filePath = $entry['filePath']
+foreach ($entry in $markerEntries) {
+    $filePath = $entry.file
     if ([string]::IsNullOrWhiteSpace($filePath)) { continue }
 
-    # filePath in registry is relative to test/ directory or project root
     $fullPath = Join-Path $ProjectRoot $filePath
     if (-not (Test-Path $fullPath)) {
-        # Try relative to test/ directory
-        $fullPath = Join-Path $ProjectRoot "test" $filePath
-        if (-not (Test-Path $fullPath)) {
-            $missingFiles += [PSCustomObject]@{
-                ID = $entry['id']
-                FilePath = $filePath
-                FileName = $entry['fileName']
-            }
+        $missingFiles += [PSCustomObject]@{
+            FilePath = $filePath
+            Feature = $entry.feature
         }
     }
 }
 
 if ($missingFiles.Count -gt 0) {
-    Write-Host "  ERROR: $($missingFiles.Count) registry entries have missing files:" -ForegroundColor Red
+    Write-Host "  ERROR: $($missingFiles.Count) marker entries have missing files:" -ForegroundColor Red
     foreach ($f in $missingFiles) {
-        Write-Host "    - $($f.ID): $($f.FilePath)" -ForegroundColor Red
+        Write-Host "    - $($f.FilePath) (feature: $($f.Feature))" -ForegroundColor Red
     }
     $errorCount += $missingFiles.Count
 } else {
-    Write-Host "  OK: All $($registryEntries.Count) registry entries have matching files on disk" -ForegroundColor Green
+    Write-Host "  OK: All $($markerEntries.Count) marker entries have matching files on disk" -ForegroundColor Green
 }
 Write-Host ""
 
-# --- Check 2: Test files on disk not in registry ---
-Write-Host "2. Checking for unregistered test files..." -ForegroundColor Yellow
+# --- Check 2: Test files on disk not in marker data ---
+Write-Host "2. Checking for unmarked test files..." -ForegroundColor Yellow
 
-$testsDir = if ($testDirectory) { Join-Path $ProjectRoot $testDirectory } else { Join-Path $ProjectRoot "tests" }
-$registeredPaths = $registryEntries | ForEach-Object { $_['filePath'] }
+$testsDir = if ($testDirectory) { Join-Path $ProjectRoot $testDirectory } else { Join-Path $ProjectRoot "test" }
+$markerPaths = $markerEntries | ForEach-Object { $_.file_path.Replace('\', '/') }
 
-$unregisteredFiles = @()
+$unmarkedFiles = @()
 if (-not $testFileExtension) {
-    Write-Host "  SKIPPED: No testFileExtension in language config — cannot scan for unregistered files" -ForegroundColor Gray
+    Write-Host "  SKIPPED: No testFileExtension in language config — cannot scan" -ForegroundColor Gray
 } elseif (Test-Path $testsDir) {
-    $testFiles = Get-ChildItem -Path $testsDir -Recurse -Include "*$testFileExtension" -File | Where-Object {
-        $_.Name -notin $testFileExclusions -and $_.Directory.Name -notin $testFileExclusions
-    }
-    foreach ($file in $testFiles) {
-        $relativePath = $file.FullName.Substring($ProjectRoot.Length + 1).Replace('\', '/')
-        $relativeFromTests = $file.FullName.Substring((Join-Path $ProjectRoot "test").Length + 1).Replace('\', '/')
-
-        $found = $false
-        foreach ($regPath in $registeredPaths) {
-            $normalizedRegPath = $regPath.Replace('\', '/')
-            if ($relativePath -eq $normalizedRegPath -or $relativeFromTests -eq $normalizedRegPath -or $file.Name -eq ($registryEntries | Where-Object { $_['filePath'] -eq $regPath } | Select-Object -First 1)['fileName']) {
-                $found = $true
-                break
-            }
+    # Only scan the automated test directory
+    $automatedDir = Join-Path $testsDir "automated"
+    if (Test-Path $automatedDir) {
+        $testFiles = Get-ChildItem -Path $automatedDir -Recurse -Include "*$testFileExtension" -File | Where-Object {
+            $_.Name -notin $testFileExclusions -and $_.Directory.Name -notin $testFileExclusions
         }
-        if (-not $found) {
-            $unregisteredFiles += [PSCustomObject]@{
-                FileName = $file.Name
-                RelativePath = $relativePath
+        foreach ($file in $testFiles) {
+            $relativePath = $file.FullName.Substring($ProjectRoot.Length + 1).Replace('\', '/')
+            if ($relativePath -notin $markerPaths) {
+                $unmarkedFiles += [PSCustomObject]@{
+                    FileName = $file.Name
+                    RelativePath = $relativePath
+                }
             }
         }
     }
 }
 
-if ($unregisteredFiles.Count -gt 0) {
-    Write-Host "  WARNING: $($unregisteredFiles.Count) test files on disk not in registry:" -ForegroundColor Yellow
-    foreach ($f in $unregisteredFiles) {
+if ($unmarkedFiles.Count -gt 0) {
+    Write-Host "  WARNING: $($unmarkedFiles.Count) test files on disk have no pytestmark:" -ForegroundColor Yellow
+    foreach ($f in $unmarkedFiles) {
         Write-Host "    - $($f.RelativePath)" -ForegroundColor Yellow
     }
-    $warningCount += $unregisteredFiles.Count
+    $warningCount += $unmarkedFiles.Count
 } else {
-    Write-Host "  OK: All test files on disk are registered" -ForegroundColor Green
+    Write-Host "  OK: All test files on disk have pytest markers" -ForegroundColor Green
 }
 Write-Host ""
 
-# --- Check 3: Duplicate IDs ---
-Write-Host "3. Checking for duplicate IDs..." -ForegroundColor Yellow
+# --- Check 3: Cross-reference markers ↔ test-tracking.md ---
+Write-Host "3. Checking marker entries against test-tracking.md..." -ForegroundColor Yellow
 
-$ids = $registryEntries | ForEach-Object { $_['id'] }
-$duplicates = @($ids | Group-Object | Where-Object { $_.Count -gt 1 })
-
-if ($duplicates.Count -gt 0) {
-    Write-Host "  ERROR: $($duplicates.Count) duplicate ID(s) found:" -ForegroundColor Red
-    foreach ($d in $duplicates) {
-        Write-Host "    - $($d.Name) (appears $($d.Count) times)" -ForegroundColor Red
-    }
-    $errorCount += $duplicates.Count
+$testTrackingPath = Join-Path $ProjectRoot "test/state-tracking/permanent/test-tracking.md"
+if (-not (Test-Path $testTrackingPath)) {
+    Write-Host "  WARNING: test-tracking.md not found" -ForegroundColor Yellow
+    $warningCount++
 } else {
-    Write-Host "  OK: No duplicate IDs found" -ForegroundColor Green
-}
-Write-Host ""
+    $trackingContent = Get-Content $testTrackingPath -Encoding UTF8
 
-# --- Check 4: TE-TST nextAvailable counter ---
-Write-Host "4. Checking TE-TST nextAvailable counter..." -ForegroundColor Yellow
-
-$idRegistryPath = Join-Path $ProjectRoot "test/TE-id-registry.json"
-if (Test-Path $idRegistryPath) {
-    $idRegistry = Get-Content $idRegistryPath -Raw -Encoding UTF8 | ConvertFrom-Json
-    $nextAvailable = $idRegistry.prefixes.'TE-TST'.nextAvailable
-
-    # Find highest ID in registry
-    $maxId = 0
-    foreach ($entry in $registryEntries) {
-        $id = $entry['id']
-        if ($id -match 'TE-TST-(\d+)') {
-            $num = [int]$matches[1]
-            if ($num -gt $maxId) { $maxId = $num }
+    # Extract file references from tracking table rows
+    $trackingFiles = @()
+    foreach ($line in $trackingContent) {
+        # Match markdown links in table rows: [filename](path)
+        if ($line -match '^\|' -and $line -match '\[([^\]]+)\]\(([^)]+)\)') {
+            $trackingFiles += $matches[2].Replace('\', '/')
         }
     }
 
-    $expectedNext = $maxId + 1
-    if ($nextAvailable -ne $expectedNext) {
-        Write-Host "  WARNING: TE-TST nextAvailable is $nextAvailable but highest ID is TE-TST-$('{0:D3}' -f $maxId) (expected nextAvailable: $expectedNext)" -ForegroundColor Yellow
-        $warningCount++
-    } else {
-        Write-Host "  OK: TE-TST nextAvailable ($nextAvailable) is consistent with highest ID (TE-TST-$('{0:D3}' -f $maxId))" -ForegroundColor Green
+    # Check: marker entries not in tracking
+    $missingInTracking = @()
+    foreach ($entry in $markerEntries) {
+        $entryPath = $entry.file.Replace('\', '/')
+        $entryFileName = Split-Path $entryPath -Leaf
+        # Match by filename since tracking uses relative paths from its own location
+        $found = $trackingFiles | Where-Object { $_ -match [regex]::Escape($entryFileName) }
+        if (-not $found) {
+            $missingInTracking += $entryPath
+        }
     }
-} else {
-    Write-Host "  WARNING: test/TE-id-registry.json not found" -ForegroundColor Yellow
-    $warningCount++
+
+    if ($missingInTracking.Count -gt 0) {
+        Write-Host "  WARNING: $($missingInTracking.Count) marker entries not found in test-tracking.md:" -ForegroundColor Yellow
+        foreach ($m in $missingInTracking) {
+            Write-Host "    - $m" -ForegroundColor Yellow
+        }
+        $warningCount += $missingInTracking.Count
+    } else {
+        Write-Host "  OK: All marker entries have corresponding test-tracking.md rows" -ForegroundColor Green
+    }
 }
 Write-Host ""
 
-# --- Check 5: Cross-cutting feature ID validation ---
-Write-Host "5. Checking cross-cutting feature IDs..." -ForegroundColor Yellow
+# --- Check 4: Feature ID validation ---
+Write-Host "4. Checking feature IDs in markers..." -ForegroundColor Yellow
 
 $featureTrackingPath = Join-Path $ProjectRoot "doc/product-docs/state-tracking/permanent/feature-tracking.md"
 $knownFeatureIds = @()
@@ -242,25 +214,24 @@ if (Test-Path $featureTrackingPath) {
 }
 
 $invalidFeatureRefs = @()
-foreach ($entry in $registryEntries) {
-    $featureId = $entry['featureId']
+foreach ($entry in $markerEntries) {
+    $featureId = $entry.feature
     if ($featureId -and $featureId -notin $knownFeatureIds -and $knownFeatureIds.Count -gt 0) {
         $invalidFeatureRefs += [PSCustomObject]@{
-            ID = $entry['id']
+            FilePath = $entry.file
             FeatureId = $featureId
-            Type = "Primary featureId"
+            Type = "feature marker"
         }
     }
 
-    $crossCutting = $entry['crossCuttingFeatures']
-    if ($crossCutting) {
-        $ccIds = [regex]::Matches($crossCutting, '../[/d]+/.[/d]+/.[/d]+') | ForEach-Object { $_.Value }
-        foreach ($ccId in $ccIds) {
+    # Check cross-cutting features
+    if ($entry.cross_cutting) {
+        foreach ($ccId in $entry.cross_cutting) {
             if ($ccId -notin $knownFeatureIds -and $knownFeatureIds.Count -gt 0) {
                 $invalidFeatureRefs += [PSCustomObject]@{
-                    ID = $entry['id']
+                    FilePath = $entry.file
                     FeatureId = $ccId
-                    Type = "crossCuttingFeatures"
+                    Type = "cross_cutting marker"
                 }
             }
         }
@@ -270,7 +241,7 @@ foreach ($entry in $registryEntries) {
 if ($invalidFeatureRefs.Count -gt 0) {
     Write-Host "  WARNING: $($invalidFeatureRefs.Count) references to unknown feature IDs:" -ForegroundColor Yellow
     foreach ($r in $invalidFeatureRefs) {
-        Write-Host "    - $($r.ID): feature $($r.FeatureId) ($($r.Type))" -ForegroundColor Yellow
+        Write-Host "    - $($r.FilePath): feature $($r.FeatureId) ($($r.Type))" -ForegroundColor Yellow
     }
     $warningCount += $invalidFeatureRefs.Count
 } else {
@@ -278,17 +249,54 @@ if ($invalidFeatureRefs.Count -gt 0) {
 }
 Write-Host ""
 
-# --- Check 6: testCasesCount validation via project test runner ---
-Write-Host "6. Checking testCasesCount against actual test collection..." -ForegroundColor Yellow
+# --- Check 5: test_type marker vs directory convention ---
+Write-Host "5. Checking test_type marker vs directory convention..." -ForegroundColor Yellow
+
+$typeMismatches = @()
+foreach ($entry in $markerEntries) {
+    $filePath = $entry.file.Replace('\', '/')
+    $testType = $entry.test_type
+
+    if (-not $testType) { continue }
+
+    # Infer expected type from directory path
+    $expectedType = $null
+    if ($filePath -match '/unit/') { $expectedType = "unit" }
+    elseif ($filePath -match '/integration/') { $expectedType = "integration" }
+    elseif ($filePath -match '/parsers?/') { $expectedType = "parser" }
+    elseif ($filePath -match '/performance/') { $expectedType = "performance" }
+    elseif ($filePath -match '/e2e/') { $expectedType = "e2e" }
+
+    if ($expectedType -and $testType -ne $expectedType) {
+        $typeMismatches += [PSCustomObject]@{
+            FilePath = $filePath
+            MarkerType = $testType
+            DirectoryType = $expectedType
+        }
+    }
+}
+
+if ($typeMismatches.Count -gt 0) {
+    Write-Host "  WARNING: $($typeMismatches.Count) test_type marker/directory mismatch(es) (marker is authoritative):" -ForegroundColor Yellow
+    foreach ($m in $typeMismatches) {
+        Write-Host "    - $($m.FilePath): marker='$($m.MarkerType)', directory='$($m.DirectoryType)'" -ForegroundColor Yellow
+    }
+    $warningCount += $typeMismatches.Count
+} else {
+    Write-Host "  OK: All test_type markers match directory convention" -ForegroundColor Green
+}
+Write-Host ""
+
+# --- Check 6: testCasesCount validation via test runner ---
+Write-Host "6. Checking test counts against pytest collection..." -ForegroundColor Yellow
 
 if (-not $testCountCommand) {
-    Write-Host "  SKIPPED: No discoveryCommand found in language config (check testing.language in project-config.json)" -ForegroundColor Gray
+    Write-Host "  SKIPPED: No discoveryCommand in language config" -ForegroundColor Gray
 } else {
     $testDir = Join-Path $ProjectRoot $testDirectory
     if (-not (Test-Path $testDir)) {
         Write-Host "  SKIPPED: Test directory not found: $testDir" -ForegroundColor Gray
     } else {
-        # Run test collection command and capture output
         try {
             $originalLocation = Get-Location
             Set-Location $ProjectRoot
@@ -298,148 +306,130 @@ if (-not $testCountCommand) {
             Set-Location $originalLocation
 
             if ($collectExitCode -ne 0 -and $collectExitCode -ne 5) {
-                # Exit code 5 = no tests collected (empty files), which is fine
                 Write-Host "  WARNING: Test collection command failed (exit code $collectExitCode)" -ForegroundColor Yellow
                 $warningCount++
+            } elseif (-not $discoveryOutputPattern) {
+                Write-Host "  SKIPPED: No discoveryOutputPattern in language config" -ForegroundColor Gray
             } else {
-                # Parse discovery output using language-config pattern
-                # e.g. pytest: "path/to/file.py::TestClass::test_method" → pattern "^(.+\.py)::"
+                # Parse discovery output
                 $actualCounts = @{}
-                if (-not $discoveryOutputPattern) {
-                    Write-Host "  SKIPPED: No discoveryOutputPattern in language config — cannot parse discovery output" -ForegroundColor Gray
-                } else {
-                    foreach ($line in $collectOutput) {
-                        $lineStr = "$line".Trim()
-                        if ($lineStr -match $discoveryOutputPattern) {
-                            $filePath = $matches[1].Replace('\', '/')
-                            if (-not $actualCounts.ContainsKey($filePath)) {
-                                $actualCounts[$filePath] = 0
-                            }
-                            $actualCounts[$filePath]++
+                foreach ($line in $collectOutput) {
+                    $lineStr = "$line".Trim()
+                    if ($lineStr -match $discoveryOutputPattern) {
+                        $filePath = $matches[1].Replace('\', '/')
+                        if (-not $actualCounts.ContainsKey($filePath)) {
+                            $actualCounts[$filePath] = 0
                         }
+                        $actualCounts[$filePath]++
                     }
                 }
 
-                # Compare with registry testCasesCount
+                # Compare with marker test_count
                 $countMismatches = @()
-                foreach ($entry in $registryEntries) {
-                    $regPath = $entry['filePath']
-                    $regCount = $entry['testCasesCount']
-                    if (-not $regPath -or -not $regCount) { continue }
-                    $regCountInt = [int]$regCount
+                foreach ($entry in $markerEntries) {
+                    $markerPath = $entry.file.Replace('\', '/')
+                    $markerCount = $entry.test_count
+                    if (-not $markerCount) { continue }
 
-                    # Normalize registry path for comparison
-                    $normalizedRegPath = $regPath.Replace('\', '/')
-
-                    # Find matching actual count
                     $actualCount = $null
                     foreach ($actualPath in $actualCounts.Keys) {
-                        # Match by exact path or by file name within the path
-                        if ($actualPath -eq $normalizedRegPath -or $actualPath.EndsWith($normalizedRegPath) -or $normalizedRegPath.EndsWith($actualPath)) {
+                        if ($actualPath -eq $markerPath -or $actualPath.EndsWith($markerPath) -or $markerPath.EndsWith($actualPath)) {
                             $actualCount = $actualCounts[$actualPath]
                             break
                         }
                     }
 
-                    if ($null -ne $actualCount -and $actualCount -ne $regCountInt) {
+                    if ($null -ne $actualCount -and $actualCount -ne [int]$markerCount) {
                         $countMismatches += [PSCustomObject]@{
-                            ID = $entry['id']
-                            FilePath = $regPath
-                            RegistryCount = $regCountInt
+                            FilePath = $markerPath
+                            MarkerCount = $markerCount
                             ActualCount = $actualCount
                         }
                     }
                 }
 
                 if ($countMismatches.Count -gt 0) {
-                    Write-Host "  WARNING: $($countMismatches.Count) testCasesCount mismatch(es):" -ForegroundColor Yellow
+                    Write-Host "  WARNING: $($countMismatches.Count) test count mismatch(es):" -ForegroundColor Yellow
                     foreach ($m in $countMismatches) {
-                        Write-Host "    - $($m.ID) ($($m.FilePath)): registry=$($m.RegistryCount), actual=$($m.ActualCount)" -ForegroundColor Yellow
+                        Write-Host "    - $($m.FilePath): marker=$($m.MarkerCount), actual=$($m.ActualCount)" -ForegroundColor Yellow
                     }
                     $warningCount += $countMismatches.Count
                 } else {
-                    Write-Host "  OK: All testCasesCount values match actual test collection ($($actualCounts.Count) files checked)" -ForegroundColor Green
+                    Write-Host "  OK: All test counts match ($($actualCounts.Count) files checked)" -ForegroundColor Green
                 }
             }
         } catch {
-            Write-Host "  WARNING: Failed to run test collection command: $($_.Exception.Message)" -ForegroundColor Yellow
+            Write-Host "  WARNING: Failed to run test collection: $($_.Exception.Message)" -ForegroundColor Yellow
             $warningCount++
         }
     }
 }
-# --- Check 7: Priority field validation ---
-Write-Host "Check 7: Priority field validation" -ForegroundColor Cyan
-$validPriorities = @("Critical", "Standard", "Extended")
-$missingPriority = 0
-$invalidPriority = 0
-foreach ($entry in $registryEntries) {
-    $priority = $entry.priority
-    if (-not $priority) {
-        Write-Host "  WARNING: $($entry.id) ($($entry.fileName)) — missing priority field" -ForegroundColor Yellow
-        $missingPriority++
-        $warningCount++
-    } elseif ($priority -notin $validPriorities) {
-        Write-Host "  ERROR: $($entry.id) ($($entry.fileName)) — invalid priority '$priority' (expected: $($validPriorities -join ', '))" -ForegroundColor Red
-        $invalidPriority++
-        $errorCount++
-    }
-}
-if ($missingPriority -eq 0 -and $invalidPriority -eq 0) {
-    $priorityCounts = @{}
-    foreach ($entry in $registryEntries) {
-        $p = $entry.priority
-        if (-not $priorityCounts.ContainsKey($p)) { $priorityCounts[$p] = 0 }
-        $priorityCounts[$p]++
-    }
-    $summary = ($priorityCounts.GetEnumerator() | Sort-Object Name | ForEach-Object { "$($_.Key): $($_.Value)" }) -join ", "
-    Write-Host "  OK: All entries have valid priority field ($summary)" -ForegroundColor Green
-}
 Write-Host ""
 
-# --- Check 8: E2E entries cross-reference (registry ↔ test-tracking.md) ---
-Write-Host "Check 8: E2E entries cross-reference" -ForegroundColor Cyan
+# --- Check 7: E2E entries cross-reference (registry ↔ e2e-test-tracking.md) ---
+# E2E entries tracked in e2e-test-tracking.md (IMP-210 completed)
+Write-Host "7. Checking E2E entries cross-reference..." -ForegroundColor Yellow
 
-$e2eRegistryEntries = $registryEntries | Where-Object { $_['type'] -match 'e2e' -or $_['id'] -match '^TE-E2[EG]-' }
-$e2eRegistryIds = $e2eRegistryEntries | ForEach-Object { $_['id'] }
-
-if ($e2eRegistryIds.Count -eq 0) {
-    Write-Host "  SKIPPED: No E2E entries found in test-registry.yaml" -ForegroundColor Gray
-} else {
-    # Read e2e-test-tracking.md and extract E2E IDs
-    $trackingE2eIds = @()
-    $e2eTrackingPath = Join-Path $ProjectRoot "test/state-tracking/permanent/e2e-test-tracking.md"
-    if (-not (Test-Path $e2eTrackingPath)) {
-        Write-Host "  WARNING: e2e-test-tracking.md not found at: $e2eTrackingPath" -ForegroundColor Yellow
-        $warningCount++
-    } else {
-        $trackingContent = Get-Content $e2eTrackingPath -Encoding UTF8
-        foreach ($tLine in $trackingContent) {
-            if ($tLine -match '^\|\s*(TE-E2[EG]-\d+)') {
-                $trackingE2eIds += $matches[1]
+$registryPath = Join-Path $ProjectRoot "test/test-registry.yaml"
+if (Test-Path $registryPath) {
+    # Parse E2E entries from registry
+    $e2eRegistryIds = @()
+    $currentEntry = $null
+    foreach ($line in (Get-Content $registryPath -Encoding UTF8)) {
+        $trimmed = $line.Trim()
+        if ($trimmed -match '^-\s+id:\s*(.+)$') {
+            if ($currentEntry -and $currentEntry['id'] -match '^TE-E2[EG]-') {
+                $e2eRegistryIds += $currentEntry['id']
             }
+            $idValue = $matches[1].Trim()
+            $currentEntry = @{ id = $idValue }
         }
-
-        $missingInTracking = @($e2eRegistryIds | Where-Object { $_ -notin $trackingE2eIds })
-        $missingInRegistry = @($trackingE2eIds | Where-Object { $_ -notin $e2eRegistryIds })
-
-        if ($missingInTracking.Count -gt 0) {
-            Write-Host "  WARNING: $($missingInTracking.Count) E2E entries in registry but not in e2e-test-tracking.md:" -ForegroundColor Yellow
-            foreach ($m in $missingInTracking) {
-                Write-Host "    - $m" -ForegroundColor Yellow
+        elseif ($currentEntry -and $trimmed -match '^(\w+):\s*(.*)$') {
+            $key = $matches[1]
+            $val = $matches[2]
+            if ($key -and $val) {
+                $currentEntry[$key.Trim()] = $val.Trim().Trim('"')
             }
-            $warningCount += $missingInTracking.Count
-        }
-        if ($missingInRegistry.Count -gt 0) {
-            Write-Host "  WARNING: $($missingInRegistry.Count) E2E entries in e2e-test-tracking.md but not in registry:" -ForegroundColor Yellow
-            foreach ($m in $missingInRegistry) {
-                Write-Host "    - $m" -ForegroundColor Yellow
-            }
-            $warningCount += $missingInRegistry.Count
-        }
-        if ($missingInTracking.Count -eq 0 -and $missingInRegistry.Count -eq 0) {
-            Write-Host "  OK: All $($e2eRegistryIds.Count) E2E entries cross-reference correctly between registry and e2e-test-tracking.md" -ForegroundColor Green
         }
     }
+    if ($currentEntry -and $currentEntry['id'] -match '^TE-E2[EG]-') { $e2eRegistryIds += $currentEntry['id'] }
+
+    if ($e2eRegistryIds.Count -eq 0) {
+        Write-Host "  SKIPPED: No E2E entries found in test-registry.yaml" -ForegroundColor Gray
+    } else {
+        $e2eTrackingPath = Join-Path $ProjectRoot "test/state-tracking/permanent/e2e-test-tracking.md"
+        if (-not (Test-Path $e2eTrackingPath)) {
+            Write-Host "  WARNING: e2e-test-tracking.md not found" -ForegroundColor Yellow
+            $warningCount++
+        } else {
+            $trackingE2eIds = @()
+            $trackingContent = Get-Content $e2eTrackingPath -Encoding UTF8
+            foreach ($tLine in $trackingContent) {
+                if ($tLine -match '^\|\s*(TE-E2[EG]-\d+)') {
+                    $trackingE2eIds += $matches[1]
+                }
+            }
+
+            $missingInTracking = @($e2eRegistryIds | Where-Object { $_ -notin $trackingE2eIds })
+            $missingInRegistry = @($trackingE2eIds | Where-Object { $_ -notin $e2eRegistryIds })
+
+            if ($missingInTracking.Count -gt 0) {
+                Write-Host "  WARNING: $($missingInTracking.Count) E2E entries in registry but not in tracking:" -ForegroundColor Yellow
+                foreach ($m in $missingInTracking) { Write-Host "    - $m" -ForegroundColor Yellow }
+                $warningCount += $missingInTracking.Count
+            }
+            if ($missingInRegistry.Count -gt 0) {
+                Write-Host "  WARNING: $($missingInRegistry.Count) E2E entries in tracking but not in registry:" -ForegroundColor Yellow
+                foreach ($m in $missingInRegistry) { Write-Host "    - $m" -ForegroundColor Yellow }
+                $warningCount += $missingInRegistry.Count
+            }
+            if ($missingInTracking.Count -eq 0 -and $missingInRegistry.Count -eq 0) {
+                Write-Host "  OK: All $($e2eRegistryIds.Count) E2E entries cross-reference correctly" -ForegroundColor Green
+            }
+        }
+    }
+} else {
+    Write-Host "  SKIPPED: test-registry.yaml not found (E2E entries tracked in e2e-test-tracking.md)" -ForegroundColor Gray
 }
 Write-Host ""
 
@@ -447,7 +437,7 @@ Write-Host ""
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "  Validation Summary" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
-Write-Host "  Registry entries: $($registryEntries.Count)" -ForegroundColor Gray
+Write-Host "  Marker entries: $($markerEntries.Count)" -ForegroundColor Gray
 Write-Host "  Errors:   $errorCount" -ForegroundColor $(if ($errorCount -eq 0) { "Green" } else { "Red" })
 Write-Host "  Warnings: $warningCount" -ForegroundColor $(if ($warningCount -eq 0) { "Green" } else { "Yellow" })
 

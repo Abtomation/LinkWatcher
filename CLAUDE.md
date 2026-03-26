@@ -158,7 +158,7 @@ doc/process-framework/scripts/validation/Validate-StateTracking.ps1
 
 **CRITICAL**: Tasks are NOT complete until:
 1. All deliverables are created
-2. Feedback form is completed using templates in doc/process-framework/templates/00-onboarding/feedback-form-template.md
+2. Feedback form is completed using templates in doc/process-framework/templates/support/feedback-form-template.md
 3. Session duration is manually calculated and entered in feedback form
 4. State files are updated
 

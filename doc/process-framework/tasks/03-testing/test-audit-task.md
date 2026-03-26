@@ -52,7 +52,6 @@ Comprehensive quality assurance task that evaluates implemented test suites agai
 - **Important (Load If Space):**
 
   - [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) - Feature development status and context
-  - [Test Registry](/test/test-registry.yaml) - Test file registry with IDs and metadata
   - [Existing Test Structure](/test/) - Current test organization and patterns for consistency evaluation
   <!-- - [Mock Services](/test/mocks/) - Directory does not exist in this project -->
   <!-- - [Test Helpers](/test/test_helpers/) - Directory does not exist in this project -->
@@ -117,13 +116,13 @@ Comprehensive quality assurance task that evaluates implemented test suites agai
    Set-Location "<project-root>/doc/product-docs/test-audits"
 
    # Create audit report using automation script
-   ../../scripts/file-creation/03-testing/New-TestAuditReport.ps1 -FeatureId "X.X.X" -TestFileId "PD-TST-XXX" -AuditorName "AI Agent"
+   ../../scripts/file-creation/03-testing/New-TestAuditReport.ps1 -FeatureId "X.X.X" -TestFilePath "test/automated/unit/test_example.py" -AuditorName "AI Agent"
 
    # Script automatically:
    # - Generates unique TE-TAR ID (format: TE-TAR-XXX)
    # - Creates audit report from template in appropriate feature category directory
    # - Updates TE-id-registry.json with the new ID
-   # - Links audit report in test-tracking.md for the target TestFileId
+   # - Links audit report in test-tracking.md for the target test file
    # - Returns the full path to the created audit report file
    ```
 
@@ -196,11 +195,10 @@ Comprehensive quality assurance task that evaluates implemented test suites agai
 Set-Location "<project-root>/doc/process-framework/scripts"
 
 # Update test audit state with comprehensive details
-./Update-TestFileAuditState.ps1 -TestFileId "PD-TST-XXX" -AuditStatus "Tests Approved" -AuditorName "AI Agent" -TestCasesAudited 15 -PassedTests 14 -FailedTests 1 -MajorFindings @("Finding 1", "Finding 2") -AuditReportPath "../../../product-docs/test-audits/relative/path/to/audit-report.md"
+./Update-TestFileAuditState.ps1 -TestFilePath "test/automated/unit/test_example.py" -AuditStatus "Tests Approved" -AuditorName "AI Agent" -TestCasesAudited 15 -PassedTests 14 -FailedTests 1 -MajorFindings @("Finding 1", "Finding 2") -AuditReportPath "../../../product-docs/test-audits/relative/path/to/audit-report.md"
 
 # Script automatically:
 # - Updates ../../../../test/state-tracking/permanent/test-tracking.md with audit status and detailed results
-# - Updates /test/test-registry.yaml with audit completion status
 # - Updates ../../../product-docs/state-tracking/permanent/feature-tracking.md with aggregated test status for the feature
 # - Creates automatic backups before making changes
 # - Calculates intelligent feature-level status based on all test files
@@ -217,7 +215,6 @@ Set-Location "<project-root>/doc/process-framework/scripts"
 16. **Verify Automated Updates**: Confirm the automation script successfully updated all state files:
 
     - **../../state-tracking/permanent/test-tracking.md**: Individual test file status with audit details
-    - **/test/test-registry.yaml**: Test file audit completion status
     - **../../../product-docs/state-tracking/permanent/feature-tracking.md**: Aggregated feature test status
 
 17. **Document Implementation Dependencies**: If status is "🟡 Tests Approved with Dependencies", clearly document:
@@ -242,7 +239,6 @@ Set-Location "<project-root>/doc/process-framework/scripts"
 **🤖 FULLY AUTOMATED** - All state file updates are handled by the `Update-TestFileAuditState.ps1` script:
 
 - [Test Tracking](../../../../test/state-tracking/permanent/test-tracking.md) - **Automatically updated** with audit status, detailed audit results, and completion timestamp
-- [Test Registry](/test/test-registry.yaml) - **Automatically flagged** for manual review with audit completion status
 - [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) - **Automatically updated** with intelligent aggregated test status based on all test files for the feature
 - [Bug Tracking](../../../product-docs/state-tracking/permanent/bug-tracking.md) - **Manually updated** with any bugs discovered during audit, including test context and evidence
 
@@ -269,7 +265,6 @@ Before considering this task finished:
 - [ ] **Update State Files**: **🤖 AUTOMATED** - Verify automation script successfully updated all state tracking files
   - [ ] Executed `Update-TestFileAuditState.ps1` with appropriate parameters
   - [ ] Confirmed [Test Tracking](../../../../test/state-tracking/permanent/test-tracking.md) updated with audit status and detailed results
-  - [ ] Verified [Test Registry](/test/test-registry.yaml) flagged for manual review with audit completion status
   - [ ] Checked [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) Test Status column shows correct aggregated status
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-030" and context "Test Audit"
 
@@ -286,6 +281,4 @@ Before considering this task finished:
 - [Integration & Testing (PF-TSK-053)](../04-implementation/integration-and-testing.md) - For implementing tests before audit
 - [Test Specification Creation Task](test-specification-creation-task.md) - For creating test specifications that guide implementation
 - [Test Tracking](../../../../test/state-tracking/permanent/test-tracking.md) - Track test implementation and audit progress
-- [Test Registry](/test/test-registry.yaml) - Test file registry with IDs and metadata
 - [Development Guide](/doc/process-framework/guides/04-implementation/development-guide.md) - Testing standards and practices
-

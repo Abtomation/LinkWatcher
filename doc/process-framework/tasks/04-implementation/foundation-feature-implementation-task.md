@@ -82,17 +82,16 @@ Specialized task for implementing foundation features (0.x.x) that provide archi
 9. **Implement Tests**: Create tracked tests that validate both functionality and architectural constraints using `New-TestFile.ps1`
 
    ```powershell
-   # Create test files using automation script (generates TE-TST-[SEQUENCE] IDs)
+   # Create test files using automation script (writes pytest markers)
    # Test types depend on project language (auto-detected from project-config.json)
    cd doc/process-framework/scripts/file-creation/03-testing
    .\New-TestFile.ps1 -TestName "FeatureName" -TestType "Unit" -FeatureId "0.X.Z" -ComponentName "ComponentName" -Priority "Critical"
 
    # Use Critical priority for foundation features
    # Script automatically:
-   # - Generates unique TE-TST ID
+   # - Writes pytest markers (feature, priority, test_type)
    # - Creates test file from template with proper structure
    # - Updates test-tracking.md with correct file links and status
-   # - Updates test-registry.yaml with test file metadata
    # - Updates feature-tracking.md with test implementation progress
    ```
 10. **🚨 CHECKPOINT**: Present core foundation implementation, architectural decisions, established patterns, and test results to human partner for review before finalization
@@ -187,7 +186,6 @@ Specialized task for implementing foundation features (0.x.x) that provide archi
 ### Automated Updates (via `New-TestFile.ps1`)
 
 - [Test Tracking](../../../../test/state-tracking/permanent/test-tracking.md) - Automatically updated with test file links and status
-- [Test Registry](/test/test-registry.yaml) - Automatically updated with test file entries and metadata
 - [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) - Automatically updated with test implementation progress
 
 ### Manual Updates

@@ -2,15 +2,13 @@
 LinkWatcher - Link Validation Report
 ============================================================
 
-Files scanned : 390
-Links checked : 3976
-Broken links  : 543
-Duration      : 2.03s
+Files scanned : 391
+Links checked : 3843
+Broken links  : 285
+Duration      : 1.91s
 
 Broken links:
 ------------------------------------------------------------
-  CLAUDE.md:161
-    -> doc/process-framework/templates/00-onboarding/feedback-form-template.md  (markdown-standalone)
   config-examples/debug-config.yaml:34
     -> logs/linkwatcher-debug.log  (yaml)
   config-examples/logging-config.yaml:38
@@ -27,98 +25,24 @@ Broken links:
     -> /doc/product-docs/path/to/document.md  (markdown)
   doc/process-framework/evaluation-reports/20260325-framework-evaluation-testing-setup-tasks-templates-scripts-guides-state.md:93
     -> visualization/context-maps/03-testing/test-implementation-map.md  (markdown-standalone)
-  doc/process-framework/evaluation-reports/20260325-framework-evaluation-testing-setup-tasks-templates-scripts-guides-state.md:107
-    -> test/state-tracking/permanent/test-tracking.md  (markdown-standalone)
   doc/process-framework/evaluation-reports/20260325-framework-evaluation-testing-setup-tasks-templates-scripts-guides-state.md:108
     -> test/test-registry.yaml  (markdown-standalone)
   doc/process-framework/evaluation-reports/20260325-framework-evaluation-testing-setup-tasks-templates-scripts-guides-state.md:123
     -> guides/test-infrastructure-guide.md  (markdown-standalone)
-  doc/process-framework/evaluation-reports/20260325-framework-evaluation-testing-setup-tasks-templates-scripts-guides-state.md:124
-    -> test/state-tracking/permanent/test-tracking.md  (markdown-standalone)
   doc/process-framework/evaluation-reports/20260325-framework-evaluation-testing-setup-tasks-templates-scripts-guides-state.md:138
     -> tasks/03-testing/test-implementation-task.md  (markdown-standalone)
-  doc/process-framework/evaluation-reports/20260325-framework-evaluation-testing-setup-tasks-templates-scripts-guides-state.md:153
-    -> test/state-tracking/permanent/test-tracking.md  (markdown-standalone)
   doc/process-framework/evaluation-reports/20260325-framework-evaluation-testing-setup-tasks-templates-scripts-guides-state.md:154
     -> scripts/validation/Validate-TestTracking.ps1  (markdown-standalone)
   doc/process-framework/evaluation-reports/20260325-framework-evaluation-testing-setup-tasks-templates-scripts-guides-state.md:168
     -> test/test-registry.yaml  (markdown-standalone)
   doc/process-framework/evaluation-reports/20260325-framework-evaluation-testing-setup-tasks-templates-scripts-guides-state.md:183
     -> test/test-registry.yaml  (markdown-standalone)
-  doc/process-framework/evaluation-reports/20260325-framework-evaluation-testing-setup-tasks-templates-scripts-guides-state.md:184
-    -> test/state-tracking/permanent/test-tracking.md  (markdown-standalone)
-  doc/process-framework/evaluation-reports/20260325-framework-evaluation-testing-setup-tasks-templates-scripts-guides-state.md:185
-    -> test/state-tracking/permanent/test-tracking.md  (markdown-standalone)
   doc/process-framework/evaluation-reports/20260325-framework-evaluation-testing-setup-tasks-templates-scripts-guides-state.md:186
     -> test/test-registry.yaml  (markdown-standalone)
-  doc/process-framework/feedback/ratings-input-20260325.json:10
-    -> doc/process-framework/feedback/archive/2026-03/tools-review-20260325/processed-forms/20260324-084951-PF-TSK-010-feedback.md  (json)
-  doc/process-framework/feedback/ratings-input-20260325.json:27
-    -> doc/process-framework/feedback/archive/2026-03/tools-review-20260325/processed-forms/20260324-091658-PF-TSK-009-feedback.md  (json)
-  doc/process-framework/feedback/ratings-input-20260325.json:44
-    -> doc/process-framework/feedback/archive/2026-03/tools-review-20260325/processed-forms/20260324-093652-PF-TSK-009-feedback.md  (json)
-  doc/process-framework/feedback/ratings-input-20260325.json:61
-    -> doc/process-framework/feedback/archive/2026-03/tools-review-20260325/processed-forms/20260324-104558-PF-TSK-009-feedback.md  (json)
-  doc/process-framework/feedback/ratings-input-20260325.json:78
-    -> doc/process-framework/feedback/archive/2026-03/tools-review-20260325/processed-forms/20260324-110122-PF-TSK-044-feedback.md  (json)
-  doc/process-framework/feedback/ratings-input-20260325.json:95
-    -> doc/process-framework/feedback/archive/2026-03/tools-review-20260325/processed-forms/20260324-111747-PF-TSK-009-feedback.md  (json)
-  doc/process-framework/feedback/ratings-input-20260325.json:112
-    -> doc/process-framework/feedback/archive/2026-03/tools-review-20260325/processed-forms/20260324-111837-PF-TSK-044-feedback.md  (json)
-  doc/process-framework/feedback/ratings-input-20260325.json:128
-    -> doc/process-framework/feedback/archive/2026-03/tools-review-20260325/processed-forms/20260324-143443-PF-TSK-009-feedback.md  (json)
-  doc/process-framework/feedback/ratings-input-20260325.json:145
-    -> doc/process-framework/feedback/archive/2026-03/tools-review-20260325/processed-forms/20260324-152828-PF-TSK-009-feedback.md  (json)
-  doc/process-framework/feedback/ratings-input-20260325.json:162
-    -> doc/process-framework/feedback/archive/2026-03/tools-review-20260325/processed-forms/20260324-153931-PF-TSK-009-feedback.md  (json)
-  doc/process-framework/feedback/ratings-input-20260325.json:179
-    -> doc/process-framework/feedback/archive/2026-03/tools-review-20260325/processed-forms/20260324-162152-PF-TSK-001-feedback.md  (json)
-  doc/process-framework/feedback/ratings-input-20260325.json:196
-    -> doc/process-framework/feedback/archive/2026-03/tools-review-20260325/processed-forms/20260324-174046-PF-TSK-005-feedback.md  (json)
-  doc/process-framework/feedback/ratings-input-20260325.json:211
-    -> doc/process-framework/feedback/archive/2026-03/tools-review-20260325/processed-forms/20260324-180711-PF-TSK-041-feedback.md  (json)
-  doc/process-framework/feedback/feedback-forms/20260325-202629-PF-TSK-010-feedback.md:18
-    -> doc/process-framework/scripts/validation/Validate-FeedbackForms.ps1  (markdown-standalone)
-  doc/process-framework/feedback/feedback-forms/20260325-205957-PF-TSK-079-feedback.md:18
-    -> doc/process-framework/scripts/validation/Validate-FeedbackForms.ps1  (markdown-standalone)
-  doc/process-framework/feedback/feedback-forms/20260325-215423-PF-TSK-007-feedback.md:18
-    -> doc/process-framework/scripts/validation/Validate-FeedbackForms.ps1  (markdown-standalone)
-  doc/process-framework/feedback/feedback-forms/20260325-220436-PF-TSK-009-feedback.md:18
-    -> doc/process-framework/scripts/validation/Validate-FeedbackForms.ps1  (markdown-standalone)
-  doc/process-framework/feedback/feedback-forms/20260325-220634-PF-TSK-009-feedback.md:18
-    -> doc/process-framework/scripts/validation/Validate-FeedbackForms.ps1  (markdown-standalone)
-  doc/process-framework/feedback/feedback-forms/20260325-221914-PF-TSK-009-feedback.md:18
-    -> doc/process-framework/scripts/validation/Validate-FeedbackForms.ps1  (markdown-standalone)
-  doc/process-framework/feedback/feedback-forms/20260325-223328-PF-TSK-009-feedback.md:18
-    -> doc/process-framework/scripts/validation/Validate-FeedbackForms.ps1  (markdown-standalone)
-  doc/process-framework/feedback/feedback-forms/20260325-224549-PF-TSK-009-feedback.md:18
-    -> doc/process-framework/scripts/validation/Validate-FeedbackForms.ps1  (markdown-standalone)
-  doc/process-framework/feedback/feedback-forms/20260325-224751-PF-TSK-009-feedback.md:18
-    -> doc/process-framework/scripts/validation/Validate-FeedbackForms.ps1  (markdown-standalone)
-  doc/process-framework/feedback/feedback-forms/20260325-225617-PF-TSK-009-feedback.md:18
-    -> doc/process-framework/scripts/validation/Validate-FeedbackForms.ps1  (markdown-standalone)
-  doc/process-framework/feedback/feedback-forms/20260325-230704-PF-TSK-007-feedback.md:18
-    -> doc/process-framework/scripts/validation/Validate-FeedbackForms.ps1  (markdown-standalone)
-  doc/process-framework/feedback/feedback-forms/20260326-093601-PF-TSK-009-feedback.md:18
-    -> doc/process-framework/scripts/validation/Validate-FeedbackForms.ps1  (markdown-standalone)
-  doc/process-framework/feedback/feedback-forms/20260326-095023-PF-TSK-007-feedback.md:18
-    -> doc/process-framework/scripts/validation/Validate-FeedbackForms.ps1  (markdown-standalone)
-  doc/process-framework/feedback/reviews/tools-review-20260317-141335.md:255
-    -> doc/process-framework/ai-tasks.md  (markdown-standalone)
   doc/process-framework/guides/01-planning/assessment-guide.md:21
     -> ../../../../product-docs/documentation-tiers/config.json  (markdown-standalone)
   doc/process-framework/guides/01-planning/assessment-guide.md:59
     -> .\New-TierAssessment.ps1  (markdown-standalone)
-  doc/process-framework/guides/02-design/api-data-model-creation-guide.md:299
-    -> doc/process-framework/scripts/Common-ScriptHelpers.psm1  (markdown-standalone)
-  doc/process-framework/guides/02-design/api-specification-creation-guide.md:467
-    -> doc/process-framework/scripts/Common-ScriptHelpers.psm1  (markdown-standalone)
-  doc/process-framework/guides/02-design/architecture-assessment-creation-guide.md:340
-    -> doc/process-framework/scripts/Common-ScriptHelpers.psm1  (markdown-standalone)
-  doc/process-framework/guides/02-design/architecture-decision-creation-guide.md:386
-    -> doc/process-framework/scripts/Common-ScriptHelpers.psm1  (markdown-standalone)
-  doc/process-framework/guides/02-design/schema-design-creation-guide.md:388
-    -> doc/process-framework/scripts/Common-ScriptHelpers.psm1  (markdown-standalone)
   doc/process-framework/guides/02-design/tdd-creation-guide.md:591
     -> ../../../product-docs/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/guides/03-testing/test-specification-creation-guide.md:370
@@ -139,8 +63,6 @@ Broken links:
     -> lib/auth/  (markdown-quoted-dir)
   doc/process-framework/guides/framework/feedback-form-completion-instructions.md:44
     -> ../../feedback/README.md  (markdown)
-  doc/process-framework/guides/framework/task-transition-guide.md:2243
-    -> doc/process-framework/ai-tasks.md  (markdown-standalone)
   doc/process-framework/guides/framework/terminology-guide.md:151
     -> path/to/task.md  (markdown)
   doc/process-framework/guides/framework/terminology-guide.md:152
@@ -151,10 +73,6 @@ Broken links:
     -> path/to/handbook.md  (markdown)
   doc/process-framework/guides/framework/terminology-guide.md:155
     -> path/to/guide.md  (markdown)
-  doc/process-framework/guides/support/document-creation-script-development-guide.md:45
-    -> doc/process-framework/scripts/Common-ScriptHelpers.psm1  (markdown-standalone)
-  doc/process-framework/guides/support/script-development-quick-reference.md:40
-    -> doc/process-framework/scripts/Common-ScriptHelpers.psm1  (markdown-standalone)
   doc/process-framework/guides/support/script-development-quick-reference.md:223
     -> ../../guides/related-guide.md  (markdown)
   doc/process-framework/guides/support/script-development-quick-reference.md:224
@@ -162,61 +80,45 @@ Broken links:
   doc/process-framework/guides/support/task-creation-guide.md:521
     -> ../../../tasks/config.json  (markdown-standalone)
   doc/process-framework/guides/support/temp-state-tracking-customization-guide.md:15
-    -> /doc/process-framework/templates/guide-template.mdd  (markdown-standalone)
-  doc/process-framework/guides/support/temp-state-tracking-customization-guide.md:25
-    -> /doc/process-framework/README.mdd  (markdown-standalone)
+    -> /doc/process-framework/templates/guide-template.md  (markdown-standalone)
   doc/process-framework/guides/support/visualization-creation-guide.md:110
     -> path/to/file.md  (markdown)
   doc/process-framework/guides/support/visualization-creation-guide.md:112
     -> path/to/file.md  (markdown)
   doc/process-framework/guides/support/visualization-creation-guide.md:114
     -> path/to/file.md  (markdown)
-  doc/process-framework/infrastructure/process-framework-task-registry.md:257
+  doc/process-framework/infrastructure/process-framework-task-registry.md:73
+    -> ../../scripts/test/test_query.py  (markdown)
+  doc/process-framework/infrastructure/process-framework-task-registry.md:255
     -> ../../product-docs/technical/architecture/component-relationship-index.md  (markdown)
-  doc/process-framework/infrastructure/process-framework-task-registry.md:350
+  doc/process-framework/infrastructure/process-framework-task-registry.md:347
     -> ../state-tracking/permanent/architecture-context-packages.md  (markdown)
-  doc/process-framework/infrastructure/process-framework-task-registry.md:412
+  doc/process-framework/infrastructure/process-framework-task-registry.md:409
     -> ../state-tracking/permanent/api-models-registry.md  (markdown)
-  doc/process-framework/infrastructure/process-framework-task-registry.md:582
+  doc/process-framework/infrastructure/process-framework-task-registry.md:579
     -> ../architecture/context-packages/  (markdown)
-  doc/process-framework/languages-config/python-config.json:26
-    -> test/automated/conftest.py  (json)
-  doc/process-framework/proposals/scenario-based-e2e-acceptance-testing.md:491
-    -> doc/process-framework/ai-tasks.md  (markdown-standalone)
-  doc/process-framework/proposals/scenario-based-e2e-acceptance-testing.md:523
-    -> doc/process-framework/ai-tasks.md  (markdown-standalone)
+  doc/process-framework/infrastructure/process-framework-task-registry.md:887
+    -> ../assessments/technical-debt/  (markdown)
   doc/process-framework/proposals/proposals/structure-change-marker-based-test-infrastructure-proposal.md:123
     -> ../../automated/...  (markdown)
   doc/process-framework/proposals/proposals/structure-change-marker-based-test-infrastructure-proposal.md:128
     -> ../../automated/unit/test_service.py  (markdown)
-  doc/process-framework/scripts/update/doc/product-docs/refactoring/plans/wire-parser-enable-disable-config-flags-into-linkparser-runtime.md:11
-    -> linkwatcher/config/settings.py  (markdown-standalone)
-  doc/process-framework/scripts/update/doc/product-docs/refactoring/plans/wire-parser-enable-disable-config-flags-into-linkparser-runtime.md:17
-    -> linkwatcher/service.py  (markdown-standalone)
-  doc/process-framework/state-tracking/permanent/process-improvement-tracking.md:43
-    -> doc/process-framework/ai-tasks.md  (markdown-standalone)
-  doc/process-framework/state-tracking/permanent/process-improvement-tracking.md:97
-    -> doc/process-framework/ai-tasks.md  (markdown-standalone)
-  doc/process-framework/state-tracking/permanent/process-improvement-tracking.md:98
-    -> doc/process-framework/scripts/file-creation/06-maintenance/New-ReviewSummary.ps1  (markdown-standalone)
   doc/process-framework/state-tracking/permanent/process-improvement-tracking.md:164
     -> ../Common-ScriptHelpers.psm1  (markdown-standalone)
-  doc/process-framework/state-tracking/permanent/process-improvement-tracking.md:227
-    -> test/state-tracking/permanent/e2e-test-tracking.md  (markdown-standalone)
-  doc/process-framework/state-tracking/permanent/process-improvement-tracking.md:266
-    -> doc/process-framework/ai-tasks.md  (markdown-standalone)
   doc/process-framework/state-tracking/permanent/process-improvement-tracking.md:392
     -> ../Common-ScriptHelpers.psm1  (markdown-standalone)
-  doc/process-framework/state-tracking/permanent/process-improvement-tracking.md:507
-    -> doc/process-framework/ai-tasks.md  (markdown-standalone)
-  doc/process-framework/state-tracking/permanent/process-improvement-tracking.md:516
-    -> doc/process-framework/scripts/file-creation/06-maintenance/New-ReviewSummary.ps1  (markdown-standalone)
-  doc/process-framework/state-tracking/permanent/process-improvement-tracking.md:585
-    -> test/state-tracking/permanent/e2e-test-tracking.md  (markdown-standalone)
+  doc/process-framework/tasks/00-onboarding/codebase-feature-analysis.md:50
+    -> /test/test_query.py  (markdown)
   doc/process-framework/tasks/00-onboarding/codebase-feature-analysis.md:101
     -> ./feature_id-feature-name-implementation-state.md  (markdown)
   doc/process-framework/tasks/00-onboarding/codebase-feature-analysis.md:101
     -> ./0.1.2-data-models-implementation-state.md  (markdown)
+  doc/process-framework/tasks/00-onboarding/codebase-feature-analysis.md:183
+    -> /test/test_query.py  (markdown)
+  doc/process-framework/tasks/00-onboarding/codebase-feature-discovery.md:310
+    -> /test/test_query.py  (markdown)
+  doc/process-framework/tasks/00-onboarding/retrospective-documentation-creation.md:56
+    -> /test/test_query.py  (markdown)
   doc/process-framework/tasks/01-planning/system-architecture-review.md:51
     -> /doc/product-docs/technical/architecture/context-packages/  (markdown)
   doc/process-framework/tasks/01-planning/system-architecture-review.md:52
@@ -247,14 +149,16 @@ Broken links:
     -> .../../scripts/file-creation/New-tdd.ps1  (markdown-standalone)
   doc/process-framework/tasks/02-design/tdd-creation-task.md:260
     -> /doc/product-docs/technical/architecture/api-design-guidelines.md  (markdown)
-  doc/process-framework/tasks/03-testing/test-audit-task.md:57
+  doc/process-framework/tasks/03-testing/test-audit-task.md:56
     -> /test/mocks/  (markdown)
-  doc/process-framework/tasks/03-testing/test-audit-task.md:58
+  doc/process-framework/tasks/03-testing/test-audit-task.md:57
     -> /test/test_helpers/  (markdown)
-  doc/process-framework/tasks/03-testing/test-audit-task.md:60
+  doc/process-framework/tasks/03-testing/test-audit-task.md:59
     -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
-  doc/process-framework/tasks/03-testing/test-audit-task.md:63
+  doc/process-framework/tasks/03-testing/test-audit-task.md:62
     -> /doc/product-docs/technical/architecture/project-structure.md  (markdown)
+  doc/process-framework/tasks/03-testing/test-implementation-task.md:52
+    -> /test/test_query.py  (markdown)
   doc/process-framework/tasks/03-testing/test-implementation-task.md:57
     -> /test/mocks/  (markdown)
   doc/process-framework/tasks/03-testing/test-implementation-task.md:58
@@ -277,6 +181,8 @@ Broken links:
     -> /doc/product-docs/technical/architecture/quality-attributes.md  (markdown)
   doc/process-framework/tasks/04-implementation/implementation-finalization.md:36
     -> ../../visualization/context-maps/04-implementation/implementation-finalization-map.md  (markdown)
+  doc/process-framework/tasks/04-implementation/integration-and-testing.md:54
+    -> /test/test_query.py  (markdown)
   doc/process-framework/tasks/04-implementation/integration-and-testing.md:62
     -> /test/mocks/  (markdown)
   doc/process-framework/tasks/04-implementation/integration-and-testing.md:63
@@ -331,18 +237,6 @@ Broken links:
     -> state-tracking/permanent/legal-document-tracking.md  (markdown-standalone)
   doc/process-framework/tasks/support/framework-domain-adaptation.md:363
     -> state-tracking/permanent/legal-document-tracking.md  (markdown-standalone)
-  doc/process-framework/tasks/support/new-task-creation-process.md:168
-    -> doc/process-framework/ai-tasks.md  (markdown-standalone)
-  doc/process-framework/tasks/support/new-task-creation-process.md:180
-    -> doc/process-framework/ai-tasks.md  (markdown-standalone)
-  doc/process-framework/tasks/support/new-task-creation-process.md:221
-    -> doc/process-framework/ai-tasks.md  (markdown-standalone)
-  doc/process-framework/tasks/support/new-task-creation-process.md:377
-    -> doc/process-framework/ai-tasks.md  (markdown-standalone)
-  doc/process-framework/tasks/support/tools-review-task.md:105
-    -> doc/process-framework/scripts/feedback_db.py  (markdown-standalone)
-  doc/process-framework/tasks/support/tools-review-task.md:150
-    -> doc/process-framework/scripts/feedback_db.py  (markdown-standalone)
   doc/process-framework/templates/README.md:108
     -> /doc/product-docs/technical/architecture/database-reference.md  (markdown-reference)
   doc/process-framework/templates/README.md:109
@@ -379,8 +273,6 @@ Broken links:
     -> /doc/product-docs/path/to/document1.md  (markdown)
   doc/process-framework/templates/support/faq-template.md:72
     -> /doc/product-docs/path/to/document2.md  (markdown)
-  doc/process-framework/templates/support/feedback-form-template.md:36
-    -> doc/process-framework/scripts/validation/Validate-FeedbackForms.ps1  (markdown-standalone)
   doc/process-framework/templates/support/guide-template.md:168
     -> ../../guides/related-guide.md  (markdown)
   doc/process-framework/templates/support/guide-template.md:169
@@ -409,16 +301,12 @@ Broken links:
     -> ../link-to-resource1.md  (markdown)
   doc/process-framework/templates/support/task-template.md:161
     -> ../link-to-resource2.md  (markdown)
-  doc/process-framework/templates/support/temp-process-improvement-state-template.md:87
-    -> doc/process-framework/scripts/feedback_db.py  (markdown-standalone)
   doc/process-framework/templates/support/temp-task-creation-state-template.md:55
     -> .\New-Task.ps1  (markdown-standalone)
   doc/process-framework/templates/support/temp-task-creation-state-template.md:105
     -> .\New-Template.ps1  (markdown-standalone)
   doc/process-framework/templates/support/temp-task-creation-state-template.md:113
     -> .\New-Guide.ps1  (markdown-standalone)
-  doc/process-framework/templates/support/temp-task-creation-state-template.md:132
-    -> doc/process-framework/scripts/file-creation/02-design/New-ContextMap.ps1  (markdown-standalone)
   doc/process-framework/templates/support/temp-task-creation-state-template.md:134
     -> ..\scripts\file-creation\New-ContextMap.ps1  (markdown-standalone)
   doc/process-framework/templates/support/user-handbook-template.md:30
@@ -583,50 +471,16 @@ Broken links:
     -> /ART-ASS-001-1.1.1-email-password-registration.md  (markdown-standalone)
   doc/product-docs/documentation-tiers/README.md:102
     -> /ART-ASS-002-1.1.2-social-login-integration.md  (markdown-standalone)
-  doc/product-docs/documentation-tiers/assessments/PD-ASS-194-1-1-1-file-system-monitoring.md:21
-    -> linkwatcher/handler.py  (markdown-standalone)
-  doc/product-docs/documentation-tiers/assessments/PD-ASS-194-1-1-1-file-system-monitoring.md:64
-    -> linkwatcher/handler.py  (markdown-standalone)
-  doc/product-docs/documentation-tiers/assessments/PD-ASS-194-1-1-1-file-system-monitoring.md:74
-    -> linkwatcher/handler.py  (markdown-standalone)
   doc/product-docs/functional-design/fdds/fdd-0-1-2-in-memory-database.md:93
     -> src/docs/guide.md  (markdown-standalone)
   doc/product-docs/functional-design/fdds/fdd-3-1-1-logging-framework.md:96
     -> old/path.md  (markdown-standalone)
-  doc/product-docs/refactoring/plans/wire-parser-enable-disable-config-flags-into-linkparser-runtime.md:11
-    -> linkwatcher/config/settings.py  (markdown-standalone)
-  doc/product-docs/refactoring/plans/wire-parser-enable-disable-config-flags-into-linkparser-runtime.md:17
-    -> linkwatcher/service.py  (markdown-standalone)
   doc/product-docs/state-tracking/features/0.1.1-core-architecture-implementation-state.md:164
     -> test/automated/unit/test_models.py  (markdown-standalone)
   doc/product-docs/state-tracking/features/0.1.1-core-architecture-implementation-state.md:165
     -> test/automated/unit/test_utils.py  (markdown-standalone)
-  doc/product-docs/state-tracking/features/0.1.1-core-architecture-implementation-state.md:227
-    -> linkwatcher/database.py  (markdown-standalone)
-  doc/product-docs/state-tracking/features/0.1.1-core-architecture-implementation-state.md:229
-    -> linkwatcher/parser.py  (markdown-standalone)
-  doc/product-docs/state-tracking/features/0.1.1-core-architecture-implementation-state.md:230
-    -> linkwatcher/updater.py  (markdown-standalone)
-  doc/product-docs/state-tracking/features/0.1.1-core-architecture-implementation-state.md:231
-    -> linkwatcher/logging.py  (markdown-standalone)
-  doc/product-docs/state-tracking/features/0.1.1-core-architecture-implementation-state.md:232
-    -> linkwatcher/config/settings.py  (markdown-standalone)
-  doc/product-docs/state-tracking/features/0.1.1-core-architecture-implementation-state.md:238
-    -> test/automated/unit/test_service.py  (markdown-standalone)
-  doc/product-docs/state-tracking/features/0.1.1-core-architecture-implementation-state.md:240
-    -> test/automated/utils.py  (markdown-standalone)
   doc/product-docs/state-tracking/features/0.1.1-core-architecture-implementation-state.md:242
     -> scripts/benchmark.py  (markdown-standalone)
-  doc/product-docs/state-tracking/features/0.1.1-core-architecture-implementation-state.md:244
-    -> linkwatcher/database.py  (markdown-standalone)
-  doc/product-docs/state-tracking/features/0.1.1-core-architecture-implementation-state.md:246
-    -> linkwatcher/parser.py  (markdown-standalone)
-  doc/product-docs/state-tracking/features/0.1.1-core-architecture-implementation-state.md:247
-    -> linkwatcher/updater.py  (markdown-standalone)
-  doc/product-docs/state-tracking/features/0.1.2-in-memory-link-database-implementation-state.md:185
-    -> linkwatcher/models.py  (markdown-standalone)
-  doc/product-docs/state-tracking/features/0.1.2-in-memory-link-database-implementation-state.md:186
-    -> linkwatcher/utils.py  (markdown-standalone)
   doc/product-docs/state-tracking/features/0.1.3-configuration-system-implementation-state.md:116
     -> docs/configuration.md  (markdown-standalone)
   doc/product-docs/state-tracking/features/0.1.3-configuration-system-implementation-state.md:122
@@ -639,42 +493,22 @@ Broken links:
     -> docs/LOGGING.md  (markdown-standalone)
   doc/product-docs/state-tracking/permanent/bug-tracking.md:138
     -> scripts/...  (markdown-quoted-dir)
-  doc/product-docs/state-tracking/permanent/bug-tracking.md:144
-    -> linkwatcher/utils.py  (markdown-standalone)
   doc/product-docs/state-tracking/permanent/bug-tracking.md:159
     -> a/b/c/file.md  (markdown-standalone)
-  doc/product-docs/state-tracking/permanent/bug-tracking.md:164
-    -> parsers/generic.py  (markdown-standalone)
-  doc/product-docs/state-tracking/permanent/bug-tracking.md:168
-    -> linkwatcher/logging.py  (markdown-standalone)
   doc/product-docs/state-tracking/permanent/bug-tracking.md:179
     -> app/utils.helpers  (markdown-standalone)
   doc/product-docs/state-tracking/permanent/bug-tracking.md:180
     -> settings/application.conf  (markdown-standalone)
-  doc/product-docs/state-tracking/permanent/bug-tracking.md:182
-    -> LinkWatcher_run/start_linkwatcher_background.ps1  (markdown-standalone)
-  doc/product-docs/state-tracking/permanent/technical-debt-tracking.md:62
-    -> doc/product-docs/technical/architecture/design-docs/adr/adr/target-indexed-in-memory-link-database.md  (markdown-standalone)
-  doc/product-docs/state-tracking/permanent/technical-debt-tracking.md:63
-    -> doc/product-docs/technical/architecture/design-docs/adr/adr/orchestrator-facade-pattern-for-core-architecture.md  (markdown-standalone)
   doc/product-docs/state-tracking/permanent/technical-debt-tracking.md:76
     -> scripts/setup_cicd.py  (markdown-standalone)
   doc/product-docs/state-tracking/permanent/technical-debt-tracking.md:83
     -> config-examples/advanced-logging-config.yaml  (markdown-standalone)
   doc/product-docs/state-tracking/permanent/technical-debt-tracking.md:86
     -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-5-1-1-cicd-development-tooling-t2.md  (markdown-standalone)
-  doc/product-docs/state-tracking/permanent/technical-debt-tracking.md:92
-    -> linkwatcher/reference_lookup.py  (markdown-standalone)
   doc/product-docs/state-tracking/permanent/technical-debt-tracking.md:93
     -> .github/workflows/ci.yml  (markdown-standalone)
   doc/product-docs/state-tracking/permanent/technical-debt-tracking.md:95
     -> doc/product-docs/functional-design/fdds/fdd-5-1-1-cicd-development-tooling.md  (markdown-standalone)
-  doc/product-docs/state-tracking/permanent/technical-debt-tracking.md:98
-    -> linkwatcher/handler.py  (markdown-standalone)
-  doc/product-docs/state-tracking/permanent/technical-debt-tracking.md:101
-    -> linkwatcher/updater.py  (markdown-standalone)
-  doc/product-docs/state-tracking/permanent/technical-debt-tracking.md:103
-    -> linkwatcher/updater.py  (markdown-standalone)
   doc/product-docs/state-tracking/permanent/technical-debt-tracking.md:157
     -> ../../refactoring/plans/your-plan-file.md  (markdown)
   doc/product-docs/templates/templates/faq-template.md:71
@@ -699,66 +533,8 @@ Broken links:
     -> path/to/document1.md  (markdown)
   doc/product-docs/templates/templates/user-handbook-template.md:90
     -> path/to/document2.md  (markdown)
-  doc/product-docs/test-audits/authentication/audit-report-1-1-1-pd-tst-101.md:35
-    -> tests/test_move_detection.py  (markdown-standalone)
-  doc/product-docs/test-audits/authentication/audit-report-1-1-1-pd-tst-101.md:36
-    -> tests/integration/test_file_movement.py  (markdown-standalone)
-  doc/product-docs/test-audits/authentication/audit-report-1-1-1-pd-tst-101.md:37
-    -> tests/integration/test_sequential_moves.py  (markdown-standalone)
-  doc/product-docs/test-audits/authentication/audit-report-1-1-1-pd-tst-101.md:38
-    -> tests/integration/test_comprehensive_file_monitoring.py  (markdown-standalone)
-  doc/product-docs/test-audits/authentication/audit-report-1-1-1-pd-tst-101.md:39
-    -> tests/integration/test_image_file_monitoring.py  (markdown-standalone)
-  doc/product-docs/test-audits/authentication/audit-report-1-1-1-pd-tst-101.md:40
-    -> tests/integration/test_powershell_script_monitoring.py  (markdown-standalone)
-  doc/product-docs/test-audits/authentication/audit-report-1-1-1-pd-tst-101.md:41
-    -> tests/test_directory_move_detection.py  (markdown-standalone)
-  doc/product-docs/test-audits/core-features/audit-report-2-1-1-pd-tst-103.md:35
-    -> tests/unit/test_parser.py  (markdown-standalone)
-  doc/product-docs/test-audits/core-features/audit-report-2-1-1-pd-tst-103.md:36
-    -> tests/parsers/test_markdown.py  (markdown-standalone)
-  doc/product-docs/test-audits/core-features/audit-report-2-1-1-pd-tst-103.md:37
-    -> tests/parsers/test_yaml.py  (markdown-standalone)
-  doc/product-docs/test-audits/core-features/audit-report-2-1-1-pd-tst-103.md:38
-    -> tests/parsers/test_json.py  (markdown-standalone)
-  doc/product-docs/test-audits/core-features/audit-report-2-1-1-pd-tst-103.md:39
-    -> tests/parsers/test_python.py  (markdown-standalone)
-  doc/product-docs/test-audits/core-features/audit-report-2-1-1-pd-tst-103.md:40
-    -> tests/parsers/test_dart.py  (markdown-standalone)
-  doc/product-docs/test-audits/core-features/audit-report-2-1-1-pd-tst-103.md:41
-    -> tests/parsers/test_generic.py  (markdown-standalone)
-  doc/product-docs/test-audits/core-features/audit-report-2-1-1-pd-tst-103.md:42
-    -> tests/parsers/test_image_files.py  (markdown-standalone)
-  doc/product-docs/test-audits/core-features/audit-report-2-1-1-pd-tst-103.md:43
-    -> tests/parsers/test_powershell.py  (markdown-standalone)
-  doc/product-docs/test-audits/core-features/audit-report-2-1-1-pd-tst-103.md:179
-    -> tests/parsers/test_powershell.py  (markdown-standalone)
-  doc/product-docs/test-audits/core-features/audit-report-2-2-1-pd-tst-105.md:35
-    -> tests/unit/test_updater.py  (markdown-standalone)
-  doc/product-docs/test-audits/core-features/audit-report-2-2-1-pd-tst-105.md:36
-    -> tests/integration/test_link_updates.py  (markdown-standalone)
-  doc/product-docs/test-audits/core-features/audit-report-3-1-1-pd-tst-107.md:35
-    -> tests/unit/test_logging.py  (markdown-standalone)
-  doc/product-docs/test-audits/core-features/audit-report-3-1-1-pd-tst-107.md:36
-    -> tests/unit/test_advanced_logging.py  (markdown-standalone)
-  doc/product-docs/test-audits/foundation/audit-report-0-1-1-pd-tst-102.md:36
-    -> tests/unit/test_service.py  (markdown-standalone)
-  doc/product-docs/test-audits/foundation/audit-report-0-1-1-pd-tst-102.md:37
-    -> tests/integration/test_service_integration.py  (markdown-standalone)
-  doc/product-docs/test-audits/foundation/audit-report-0-1-1-pd-tst-102.md:38
-    -> tests/integration/test_complex_scenarios.py  (markdown-standalone)
-  doc/product-docs/test-audits/foundation/audit-report-0-1-1-pd-tst-102.md:39
-    -> tests/integration/test_error_handling.py  (markdown-standalone)
-  doc/product-docs/test-audits/foundation/audit-report-0-1-1-pd-tst-102.md:40
-    -> tests/integration/test_windows_platform.py  (markdown-standalone)
-  doc/product-docs/test-audits/foundation/audit-report-0-1-1-pd-tst-102.md:41
-    -> tests/unit/test_lock_file.py  (markdown-standalone)
-  doc/product-docs/test-audits/foundation/audit-report-0-1-2-pd-tst-104.md:35
-    -> tests/unit/test_database.py  (markdown-standalone)
-  doc/product-docs/test-audits/foundation/audit-report-0-1-3-pd-tst-106.md:35
-    -> tests/unit/test_config.py  (markdown-standalone)
-  doc/product-docs/test-audits/foundation/audit-report-0-1-3-pd-tst-106.md:36
-    -> tests/test_config.py  (markdown-standalone)
+  doc/product-docs/test-audits/README.md:42
+    -> test/automated/unit/test_example.py  (markdown-quoted)
   doc/product-docs/user/handbooks/quick-reference.md:87
     -> src/utils.py  (markdown)
   doc/product-docs/user/handbooks/quick-reference.md:87
@@ -769,56 +545,16 @@ Broken links:
     -> config/settings.yaml  (markdown)
   doc/product-docs/validation/reports/ai-agent-continuity/PD-VAL-045-ai-agent-continuity-features-0.1.1-0.1.2-0.1.3-1.1.1-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md:318
     -> logging.py/logging_config.py  (markdown-standalone)
-  doc/product-docs/validation/reports/architectural-consistency/PD-VAL-035-architectural-consistency-features-0.1.1-1.1.1.md:258
-    -> doc/product-docs/refactoring/plans/decompose-god-class-linkmaintenancehandler-td005.md  (markdown-standalone)
-  doc/product-docs/validation/reports/code-quality/PD-VAL-037-code-quality-features-0.1.1-0.1.2-0.1.3-1.1.1.md:44
-    -> config/settings.py  (markdown-standalone)
-  doc/product-docs/validation/reports/code-quality/PD-VAL-037-code-quality-features-0.1.1-0.1.2-0.1.3-1.1.1.md:44
-    -> config/__init__.py  (markdown-standalone)
-  doc/product-docs/validation/reports/code-quality/PD-VAL-037-code-quality-features-0.1.1-0.1.2-0.1.3-1.1.1.md:142
-    -> config/settings.py  (markdown-standalone)
-  doc/product-docs/validation/reports/code-quality/PD-VAL-037-code-quality-features-0.1.1-0.1.2-0.1.3-1.1.1.md:142
-    -> config/defaults.py  (markdown-standalone)
-  doc/product-docs/validation/reports/code-quality/PD-VAL-037-code-quality-features-0.1.1-0.1.2-0.1.3-1.1.1.md:142
-    -> config/__init__.py  (markdown-standalone)
-  doc/product-docs/validation/reports/code-quality/PD-VAL-037-code-quality-features-0.1.1-0.1.2-0.1.3-1.1.1.md:213
-    -> doc/product-docs/refactoring/plans/decompose-handle-file-moved-mega-method-into-focused-sub-methods.md  (markdown-standalone)
   doc/product-docs/validation/reports/code-quality/PD-VAL-037-code-quality-features-0.1.1-0.1.2-0.1.3-1.1.1.md:218
-    -> doc/product-docs/refactoring/plans/remove-dual-print-logger-output-in-updater-py.md  (markdown-standalone)
-  doc/product-docs/validation/reports/code-quality/PD-VAL-037-code-quality-features-0.1.1-0.1.2-0.1.3-1.1.1.md:285
-    -> config/settings.py  (markdown-standalone)
-  doc/product-docs/validation/reports/code-quality/PD-VAL-038-code-quality-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md:42
-    -> parsers/base.py  (markdown-standalone)
-  doc/product-docs/validation/reports/code-quality/PD-VAL-038-code-quality-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md:42
-    -> parsers/__init__.py  (markdown-standalone)
+    -> doc/product-docs/refactoring/plans/archive/remove-dual-print-logger-output-in-updater-py.md  (markdown-standalone)
   doc/product-docs/validation/reports/code-quality/PD-VAL-038-code-quality-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md:46
     -> .pre-commit-config.yaml  (markdown-standalone)
-  doc/product-docs/validation/reports/code-quality/PD-VAL-038-code-quality-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md:80
-    -> parsers/base.py  (markdown-standalone)
-  doc/product-docs/validation/reports/code-quality/PD-VAL-038-code-quality-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md:80
-    -> parsers/__init__.py  (markdown-standalone)
   doc/product-docs/validation/reports/code-quality/PD-VAL-038-code-quality-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md:215
     -> .github/workflows/ci.yml  (markdown-standalone)
   doc/product-docs/validation/reports/code-quality/PD-VAL-038-code-quality-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md:215
     -> .pre-commit-config.yaml  (markdown-standalone)
   doc/product-docs/validation/reports/code-quality/PD-VAL-038-code-quality-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md:316
     -> .pre-commit-config.yaml  (markdown-standalone)
-  doc/product-docs/validation/reports/code-quality/PD-VAL-038-code-quality-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md:325
-    -> parsers/base.py  (markdown-standalone)
-  doc/product-docs/validation/reports/code-quality/PD-VAL-038-code-quality-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md:326
-    -> parsers/__init__.py  (markdown-standalone)
-  doc/product-docs/validation/reports/code-quality/PD-VAL-038-code-quality-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md:327
-    -> parsers/markdown.py  (markdown-standalone)
-  doc/product-docs/validation/reports/code-quality/PD-VAL-038-code-quality-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md:328
-    -> parsers/yaml_parser.py  (markdown-standalone)
-  doc/product-docs/validation/reports/code-quality/PD-VAL-038-code-quality-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md:329
-    -> parsers/json_parser.py  (markdown-standalone)
-  doc/product-docs/validation/reports/code-quality/PD-VAL-038-code-quality-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md:330
-    -> parsers/dart.py  (markdown-standalone)
-  doc/product-docs/validation/reports/code-quality/PD-VAL-038-code-quality-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md:331
-    -> parsers/python.py  (markdown-standalone)
-  doc/product-docs/validation/reports/code-quality/PD-VAL-038-code-quality-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md:332
-    -> parsers/generic.py  (markdown-standalone)
   doc/product-docs/validation/reports/documentation-alignment/PD-VAL-042-documentation-alignment-features-0.1.1-0.1.2-0.1.3-1.1.1.md:29
     -> docs/README.md  (markdown-standalone)
   doc/product-docs/validation/reports/documentation-alignment/PD-VAL-042-documentation-alignment-features-0.1.1-0.1.2-0.1.3-1.1.1.md:163
@@ -827,272 +563,20 @@ Broken links:
     -> docs/README.md  (markdown-standalone)
   doc/product-docs/validation/reports/documentation-alignment/PD-VAL-042-documentation-alignment-features-0.1.1-0.1.2-0.1.3-1.1.1.md:225
     -> docs/README.md  (markdown-standalone)
-  doc/product-docs/validation/reports/extensibility-maintainability/PD-VAL-044-extensibility-maintainability-features-0.1.1-0.1.2-0.1.3-1.1.1-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md:393
-    -> config/settings.py  (markdown-standalone)
   doc/product-docs/validation/reports/integration-dependencies/PD-VAL-041-integration-dependencies-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md:190
     -> Makefile/setup.py  (markdown-standalone)
-  test/test-registry.yaml:34
-    -> test/automated/conftest.py  (yaml)
-  test/test-registry.yaml:46
-    -> test/automated/utils.py  (yaml)
-  test/test-registry.yaml:54
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-4-1-1-test-suite-t2.md  (yaml)
-  test/test-registry.yaml:59
-    -> test/automated/test_config.py  (yaml)
-  test/test-registry.yaml:63
-    -> test/specifications/feature-specs/test-spec-0-1-3-configuration-system.md  (yaml)
-  test/test-registry.yaml:75
-    -> test/automated/test_move_detection.py  (yaml)
-  test/test-registry.yaml:79
-    -> test/specifications/feature-specs/test-spec-1-1-1-file-system-monitoring.md  (yaml)
-  test/test-registry.yaml:85
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-1-1-1-file-system-monitoring-t2.md  (yaml)
-  test/test-registry.yaml:94
-    -> test/automated/unit/test_service.py  (yaml)
-  test/test-registry.yaml:98
-    -> test/specifications/feature-specs/test-spec-0-1-1-core-architecture.md  (yaml)
-  test/test-registry.yaml:104
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md  (yaml)
-  test/test-registry.yaml:110
-    -> test/automated/unit/test_parser.py  (yaml)
-  test/test-registry.yaml:114
-    -> test/specifications/feature-specs/test-spec-2-1-1-link-parsing-system.md  (yaml)
-  test/test-registry.yaml:120
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md  (yaml)
-  test/test-registry.yaml:125
-    -> test/automated/unit/test_database.py  (yaml)
-  test/test-registry.yaml:129
-    -> test/specifications/feature-specs/test-spec-0-1-2-in-memory-link-database.md  (yaml)
-  test/test-registry.yaml:135
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-2-in-memory-database-t2.md  (yaml)
-  test/test-registry.yaml:141
-    -> test/automated/unit/test_updater.py  (yaml)
-  test/test-registry.yaml:145
-    -> test/specifications/feature-specs/test-spec-2-2-1-link-updating.md  (yaml)
-  test/test-registry.yaml:151
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-2-1-link-updater-t2.md  (yaml)
-  test/test-registry.yaml:157
-    -> test/automated/unit/test_config.py  (yaml)
-  test/test-registry.yaml:161
-    -> test/specifications/feature-specs/test-spec-0-1-3-configuration-system.md  (yaml)
-  test/test-registry.yaml:173
-    -> test/automated/unit/test_logging.py  (yaml)
-  test/test-registry.yaml:177
-    -> test/specifications/feature-specs/test-spec-3-1-1-logging-system.md  (yaml)
-  test/test-registry.yaml:183
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-3-1-1-logging-framework-t2.md  (yaml)
-  test/test-registry.yaml:188
-    -> test/automated/unit/test_advanced_logging.py  (yaml)
-  test/test-registry.yaml:192
-    -> test/specifications/feature-specs/test-spec-3-1-1-logging-system.md  (yaml)
-  test/test-registry.yaml:198
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-3-1-1-logging-framework-t2.md  (yaml)
-  test/test-registry.yaml:206
-    -> test/automated/parsers/test_markdown.py  (yaml)
-  test/test-registry.yaml:210
-    -> test/specifications/feature-specs/test-spec-2-1-1-link-parsing-system.md  (yaml)
-  test/test-registry.yaml:216
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md  (yaml)
-  test/test-registry.yaml:221
-    -> test/automated/parsers/test_yaml.py  (yaml)
-  test/test-registry.yaml:225
-    -> test/specifications/feature-specs/test-spec-2-1-1-link-parsing-system.md  (yaml)
-  test/test-registry.yaml:231
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md  (yaml)
-  test/test-registry.yaml:236
-    -> test/automated/parsers/test_json.py  (yaml)
-  test/test-registry.yaml:240
-    -> test/specifications/feature-specs/test-spec-2-1-1-link-parsing-system.md  (yaml)
-  test/test-registry.yaml:246
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md  (yaml)
-  test/test-registry.yaml:251
-    -> test/automated/parsers/test_python.py  (yaml)
-  test/test-registry.yaml:255
-    -> test/specifications/feature-specs/test-spec-2-1-1-link-parsing-system.md  (yaml)
-  test/test-registry.yaml:261
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md  (yaml)
-  test/test-registry.yaml:266
-    -> test/automated/parsers/test_dart.py  (yaml)
-  test/test-registry.yaml:270
-    -> test/specifications/feature-specs/test-spec-2-1-1-link-parsing-system.md  (yaml)
-  test/test-registry.yaml:276
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md  (yaml)
-  test/test-registry.yaml:281
-    -> test/automated/parsers/test_generic.py  (yaml)
-  test/test-registry.yaml:285
-    -> test/specifications/feature-specs/test-spec-2-1-1-link-parsing-system.md  (yaml)
-  test/test-registry.yaml:291
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md  (yaml)
-  test/test-registry.yaml:296
-    -> test/automated/parsers/test_image_files.py  (yaml)
-  test/test-registry.yaml:300
-    -> test/specifications/feature-specs/test-spec-2-1-1-link-parsing-system.md  (yaml)
-  test/test-registry.yaml:306
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md  (yaml)
-  test/test-registry.yaml:315
-    -> test/automated/integration/test_service_integration.py  (yaml)
-  test/test-registry.yaml:319
-    -> test/specifications/feature-specs/test-spec-0-1-1-core-architecture.md  (yaml)
-  test/test-registry.yaml:325
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md  (yaml)
-  test/test-registry.yaml:331
-    -> test/automated/integration/test_file_movement.py  (yaml)
-  test/test-registry.yaml:335
-    -> test/specifications/feature-specs/test-spec-1-1-1-file-system-monitoring.md  (yaml)
-  test/test-registry.yaml:341
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-1-1-1-file-system-monitoring-t2.md  (yaml)
-  test/test-registry.yaml:347
-    -> test/automated/integration/test_link_updates.py  (yaml)
-  test/test-registry.yaml:351
-    -> test/specifications/feature-specs/test-spec-2-2-1-link-updating.md  (yaml)
-  test/test-registry.yaml:357
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-2-1-link-updater-t2.md  (yaml)
-  test/test-registry.yaml:363
-    -> test/automated/integration/test_complex_scenarios.py  (yaml)
-  test/test-registry.yaml:367
-    -> test/specifications/feature-specs/test-spec-0-1-1-core-architecture.md  (yaml)
-  test/test-registry.yaml:373
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md  (yaml)
-  test/test-registry.yaml:379
-    -> test/automated/integration/test_error_handling.py  (yaml)
-  test/test-registry.yaml:383
-    -> test/specifications/feature-specs/test-spec-0-1-1-core-architecture.md  (yaml)
-  test/test-registry.yaml:389
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md  (yaml)
-  test/test-registry.yaml:395
-    -> test/automated/integration/test_sequential_moves.py  (yaml)
-  test/test-registry.yaml:399
-    -> test/specifications/feature-specs/test-spec-1-1-1-file-system-monitoring.md  (yaml)
-  test/test-registry.yaml:405
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-1-1-1-file-system-monitoring-t2.md  (yaml)
-  test/test-registry.yaml:411
-    -> test/automated/integration/test_windows_platform.py  (yaml)
-  test/test-registry.yaml:415
-    -> test/specifications/feature-specs/test-spec-0-1-1-core-architecture.md  (yaml)
-  test/test-registry.yaml:421
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md  (yaml)
-  test/test-registry.yaml:427
-    -> test/automated/integration/test_comprehensive_file_monitoring.py  (yaml)
-  test/test-registry.yaml:431
-    -> test/specifications/feature-specs/test-spec-1-1-1-file-system-monitoring.md  (yaml)
-  test/test-registry.yaml:437
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-1-1-1-file-system-monitoring-t2.md  (yaml)
-  test/test-registry.yaml:443
-    -> test/automated/integration/test_image_file_monitoring.py  (yaml)
-  test/test-registry.yaml:447
-    -> test/specifications/feature-specs/test-spec-1-1-1-file-system-monitoring.md  (yaml)
-  test/test-registry.yaml:453
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-1-1-1-file-system-monitoring-t2.md  (yaml)
-  test/test-registry.yaml:459
-    -> test/automated/integration/test_powershell_script_monitoring.py  (yaml)
-  test/test-registry.yaml:463
-    -> test/specifications/feature-specs/test-spec-1-1-1-file-system-monitoring.md  (yaml)
-  test/test-registry.yaml:469
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-1-1-1-file-system-monitoring-t2.md  (yaml)
-  test/test-registry.yaml:478
-    -> test/automated/performance/test_large_projects.py  (yaml)
-  test/test-registry.yaml:491
-    -> test/automated/performance/test_benchmark.py  (yaml)
-  test/test-registry.yaml:507
-    -> test/automated/unit/test_lock_file.py  (yaml)
-  test/test-registry.yaml:511
-    -> test/specifications/feature-specs/test-spec-0-1-1-core-architecture.md  (yaml)
-  test/test-registry.yaml:517
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md  (yaml)
-  test/test-registry.yaml:525
-    -> test/automated/test_directory_move_detection.py  (yaml)
-  test/test-registry.yaml:529
-    -> test/specifications/feature-specs/test-spec-1-1-1-file-system-monitoring.md  (yaml)
-  test/test-registry.yaml:535
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-1-1-1-file-system-monitoring-t2.md  (yaml)
-  test/test-registry.yaml:544
-    -> test/automated/parsers/test_powershell.py  (yaml)
-  test/test-registry.yaml:548
-    -> test/specifications/feature-specs/test-spec-2-1-1-link-parsing-system.md  (yaml)
-  test/test-registry.yaml:554
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md  (yaml)
-  test/test-registry.yaml:576
-    -> test/automated/unit/test_validator.py  (yaml)
-  test/audits/authentication/audit-report-1-1-1-pd-tst-101.md:35
-    -> test/automated/test_move_detection.py  (markdown-standalone)
-  test/audits/authentication/audit-report-1-1-1-pd-tst-101.md:36
-    -> test/automated/integration/test_file_movement.py  (markdown-standalone)
-  test/audits/authentication/audit-report-1-1-1-pd-tst-101.md:37
-    -> test/automated/integration/test_sequential_moves.py  (markdown-standalone)
-  test/audits/authentication/audit-report-1-1-1-pd-tst-101.md:38
-    -> test/automated/integration/test_comprehensive_file_monitoring.py  (markdown-standalone)
-  test/audits/authentication/audit-report-1-1-1-pd-tst-101.md:39
-    -> test/automated/integration/test_image_file_monitoring.py  (markdown-standalone)
-  test/audits/authentication/audit-report-1-1-1-pd-tst-101.md:40
-    -> test/automated/integration/test_powershell_script_monitoring.py  (markdown-standalone)
-  test/audits/authentication/audit-report-1-1-1-pd-tst-101.md:41
-    -> test/automated/test_directory_move_detection.py  (markdown-standalone)
-  test/audits/core-features/audit-report-2-1-1-pd-tst-103.md:35
-    -> test/automated/unit/test_parser.py  (markdown-standalone)
-  test/audits/core-features/audit-report-2-1-1-pd-tst-103.md:36
-    -> test/automated/parsers/test_markdown.py  (markdown-standalone)
-  test/audits/core-features/audit-report-2-1-1-pd-tst-103.md:37
-    -> test/automated/parsers/test_yaml.py  (markdown-standalone)
-  test/audits/core-features/audit-report-2-1-1-pd-tst-103.md:38
-    -> test/automated/parsers/test_json.py  (markdown-standalone)
-  test/audits/core-features/audit-report-2-1-1-pd-tst-103.md:39
-    -> test/automated/parsers/test_python.py  (markdown-standalone)
-  test/audits/core-features/audit-report-2-1-1-pd-tst-103.md:40
-    -> test/automated/parsers/test_dart.py  (markdown-standalone)
-  test/audits/core-features/audit-report-2-1-1-pd-tst-103.md:41
-    -> test/automated/parsers/test_generic.py  (markdown-standalone)
-  test/audits/core-features/audit-report-2-1-1-pd-tst-103.md:42
-    -> test/automated/parsers/test_image_files.py  (markdown-standalone)
-  test/audits/core-features/audit-report-2-1-1-pd-tst-103.md:43
-    -> test/automated/parsers/test_powershell.py  (markdown-standalone)
-  test/audits/core-features/audit-report-2-1-1-pd-tst-103.md:179
-    -> test/automated/parsers/test_powershell.py  (markdown-standalone)
-  test/audits/core-features/audit-report-2-2-1-pd-tst-105.md:35
-    -> test/automated/unit/test_updater.py  (markdown-standalone)
-  test/audits/core-features/audit-report-2-2-1-pd-tst-105.md:36
-    -> test/automated/integration/test_link_updates.py  (markdown-standalone)
-  test/audits/core-features/audit-report-3-1-1-pd-tst-107.md:35
-    -> test/automated/unit/test_logging.py  (markdown-standalone)
-  test/audits/core-features/audit-report-3-1-1-pd-tst-107.md:36
-    -> test/automated/unit/test_advanced_logging.py  (markdown-standalone)
-  test/audits/foundation/audit-report-0-1-1-pd-tst-102.md:36
-    -> test/automated/unit/test_service.py  (markdown-standalone)
-  test/audits/foundation/audit-report-0-1-1-pd-tst-102.md:37
-    -> test/automated/integration/test_service_integration.py  (markdown-standalone)
-  test/audits/foundation/audit-report-0-1-1-pd-tst-102.md:38
-    -> test/automated/integration/test_complex_scenarios.py  (markdown-standalone)
-  test/audits/foundation/audit-report-0-1-1-pd-tst-102.md:39
-    -> test/automated/integration/test_error_handling.py  (markdown-standalone)
-  test/audits/foundation/audit-report-0-1-1-pd-tst-102.md:40
-    -> test/automated/integration/test_windows_platform.py  (markdown-standalone)
-  test/audits/foundation/audit-report-0-1-1-pd-tst-102.md:41
-    -> test/automated/unit/test_lock_file.py  (markdown-standalone)
-  test/audits/foundation/audit-report-0-1-2-pd-tst-104.md:35
-    -> test/automated/unit/test_database.py  (markdown-standalone)
-  test/audits/foundation/audit-report-0-1-3-pd-tst-106.md:35
-    -> test/automated/unit/test_config.py  (markdown-standalone)
-  test/audits/foundation/audit-report-0-1-3-pd-tst-106.md:36
-    -> test/automated/test_config.py  (markdown-standalone)
-  test/specifications/feature-specs/test-spec-0-1-1-core-architecture.md:10
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md  (markdown-standalone)
-  test/specifications/feature-specs/test-spec-0-1-2-in-memory-link-database.md:10
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-2-in-memory-database-t2.md  (markdown-standalone)
-  test/specifications/feature-specs/test-spec-1-1-1-file-system-monitoring.md:10
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-1-1-1-file-system-monitoring-t2.md  (markdown-standalone)
-  test/specifications/feature-specs/test-spec-2-1-1-link-parsing-system.md:10
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md  (markdown-standalone)
+  test/audits/README.md:42
+    -> test/automated/unit/test_example.py  (markdown-quoted)
+  test/specifications/cross-cutting-specs/cross-cutting-spec-e2e-acceptance-testing-scenarios.md:184
+    -> /test/test-registry.yaml  (markdown)
   test/specifications/feature-specs/test-spec-2-1-1-link-parsing-system.md:79
     -> path/to/file.ext  (markdown-standalone)
-  test/specifications/feature-specs/test-spec-2-2-1-link-updating.md:10
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-2-1-link-updater-t2.md  (markdown-standalone)
   test/specifications/feature-specs/test-spec-2-2-1-link-updating.md:63
     -> ../old.txt  (markdown-standalone)
   test/specifications/feature-specs/test-spec-2-2-1-link-updating.md:63
     -> ../new.txt  (markdown-standalone)
   test/specifications/feature-specs/test-spec-2-2-1-link-updating.md:96
     -> core/helpers.py  (markdown-standalone)
-  test/specifications/feature-specs/test-spec-3-1-1-logging-system.md:10
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-3-1-1-logging-framework-t2.md  (markdown-standalone)
   test/specifications/feature-specs/test-spec-3-1-1-logging-system.md:123
     -> docs/  (markdown-quoted-dir)
 ------------------------------------------------------------

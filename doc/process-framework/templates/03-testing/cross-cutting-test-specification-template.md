@@ -93,7 +93,7 @@ test_[scenario-name].[ext]   # Adapt naming to project's language conventions
 ## Related Resources
 
 - [Feature Test Specifications] - Individual feature test specs for the features covered
-- [Test Registry](/test/test-registry.yaml) - Registry entries for cross-cutting test files
+- [Test Query Tool](/doc/process-framework/scripts/test/test_query.py) - Query cross-cutting test files via pytest markers with `cross_cutting` field
 - [Test Tracking](/test/state-tracking/permanent/test-tracking.md) - Implementation status
 
 ---

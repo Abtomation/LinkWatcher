@@ -9,9 +9,8 @@ This script automates the manual state file updates required by the Test Audit T
 addressing the critical bottleneck identified in the Process Improvement Tracking (IMP-087).
 
 Updates the following files:
-- ../doc/test/state-tracking/permanent/test-tracking.md
-- ../test/test-registry.yaml
-- ../doc/product-docs/state-tracking/permanent/feature-tracking.md
+- test/state-tracking/permanent/test-tracking.md
+- doc/product-docs/state-tracking/permanent/feature-tracking.md
 
 .PARAMETER FeatureId
 The feature ID being audited (e.g., "1.2.3")
@@ -164,7 +163,6 @@ try {
         $projectRoot = Get-ProjectRoot
         $filesToBackup = @(
             "test/state-tracking/permanent/test-tracking.md",
-            "test/test-registry.yaml",
             "doc/product-docs/state-tracking/permanent/feature-tracking.md"
         )
 
@@ -184,8 +182,8 @@ try {
     Write-Host ""
     Write-Host "Updating Test Tracking..." -ForegroundColor Yellow
 
-    # Build additional updates using actual test-tracking.md column names:
-    # Test ID | Feature ID | Test Type | Test File/Case | Status | Test Cases Count | Last Executed | Last Updated | Notes
+    # Build additional updates using actual test-tracking.md column names (SC-007: 8-column format):
+    # Feature ID | Test Type | Test File/Case | Status | Test Cases Count | Last Executed | Last Updated | Notes
     $testUpdates = @{
         "Last Updated" = $timestamp
     }
@@ -217,26 +215,7 @@ try {
         Write-Host "  ✅ Test implementation tracking updated successfully" -ForegroundColor Green
     }
 
-    # Update 2: Test Registry (YAML)
-    Write-Host ""
-    Write-Host "Updating Test Registry..." -ForegroundColor Yellow
-
-    if ($DryRun) {
-        Write-Host "  Would update test registry YAML with audit completion status" -ForegroundColor Cyan
-        Write-Host "    auditStatus: $AuditStatus" -ForegroundColor Gray
-        Write-Host "    auditDate: $AuditDate" -ForegroundColor Gray
-        if ($AuditorName) {
-            Write-Host "    auditor: $AuditorName" -ForegroundColor Gray
-        }
-    } else {
-        # Note: This would require YAML parsing and updating - simplified for now
-        Write-Host "  ⚠️  Test registry YAML update requires manual review" -ForegroundColor Yellow
-        Write-Host "     Feature ID: $FeatureId" -ForegroundColor Gray
-        Write-Host "     Audit Status: $AuditStatus" -ForegroundColor Gray
-        Write-Host "     Audit Date: $AuditDate" -ForegroundColor Gray
-    }
-
-    # Update 3: Feature Tracking
+    # Update 2: Feature Tracking
     Write-Host ""
     Write-Host "Updating Feature Tracking..." -ForegroundColor Yellow
 
@@ -310,7 +289,6 @@ try {
     Write-Host ""
     Write-Host "Files Updated:" -ForegroundColor White
     Write-Host "  ✅ test-tracking.md" -ForegroundColor Green
-    Write-Host "  ⚠️  test-registry.yaml (manual review required)" -ForegroundColor Yellow
     Write-Host "  ✅ feature-tracking.md" -ForegroundColor Green
 
     if ($DryRun) {

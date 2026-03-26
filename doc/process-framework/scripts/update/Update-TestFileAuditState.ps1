@@ -9,13 +9,14 @@ This script automates the manual state file updates required by the Test Audit T
 focusing on individual test files rather than entire features. This addresses the
 critical bottleneck identified in the Process Improvement Tracking (IMP-087).
 
-Updates the following files:
-- ../doc/test/state-tracking/permanent/test-tracking.md
-- ../test/test-registry.yaml
-- ../doc/product-docs/state-tracking/permanent/feature-tracking.md (aggregated status)
+SC-007: Uses file path as test file identifier (not PD-TST/TE-TST IDs).
 
-.PARAMETER TestFileId
-The test file ID being audited (e.g., "PD-TST-084")
+Updates the following files:
+- test/state-tracking/permanent/test-tracking.md
+- doc/product-docs/state-tracking/permanent/feature-tracking.md (aggregated status)
+
+.PARAMETER TestFilePath
+Relative path to the test file being audited (e.g., "test/automated/unit/test_service.py")
 
 .PARAMETER AuditStatus
 The audit status (e.g., "Tests Approved", "Needs Update", "Audit In Progress")
@@ -45,28 +46,30 @@ Number of tests that failed the audit (optional)
 If specified, shows what would be updated without making changes
 
 .EXAMPLE
-.\Update-TestFileAuditState.ps1 -TestFileId "PD-TST-084" -AuditStatus "Tests Approved" -AuditReportPath "../doc/product-docs/validation/reports/test-audit/audit-PD-TST-084.md"
+.\Update-TestFileAuditState.ps1 -TestFilePath "test/automated/unit/test_service.py" -AuditStatus "Tests Approved" -AuditReportPath "test/audits/foundation/audit-report-0-1-1-test_service.md"
 
 .EXAMPLE
-../Update-TestFileAuditState.ps1 -TestFileId "PD-TST-084" -AuditStatus "Needs Update" -AuditorName "John Doe" -MajorFindings @("Missing edge case tests", "Incomplete mock coverage") -DryRun
+.\Update-TestFileAuditState.ps1 -TestFilePath "test/automated/unit/test_service.py" -AuditStatus "Needs Update" -AuditorName "John Doe" -MajorFindings @("Missing edge case tests", "Incomplete mock coverage") -DryRun
 
 .EXAMPLE
-../Update-TestFileAuditState.ps1 -TestFileId "PD-TST-084" -AuditStatus "Tests Approved" -TestCasesAudited 15 -PassedTests 13 -FailedTests 2
+.\Update-TestFileAuditState.ps1 -TestFilePath "test/automated/unit/test_service.py" -AuditStatus "Tests Approved" -TestCasesAudited 15 -PassedTests 13 -FailedTests 2
 
 .NOTES
 This script addresses Process Improvement items:
 - IMP-087: Test Audit state file update automation (High)
 - Manual bottleneck for PF-TSK-030 (3 files, critical for quality assurance)
 - Individual test file focus for granular audit control
+- SC-007: Uses file path as identifier (not PD-TST/TE-TST IDs)
 
 Created: 2025-08-29
-Version: 1.0
+Updated: 2026-03-26 (SC-007: file path identifier)
+Version: 2.0
 #>
 
 [CmdletBinding()]
 param(
     [Parameter(Mandatory=$true)]
-    [string]$TestFileId,
+    [string]$TestFilePath,
 
     [Parameter(Mandatory=$true)]
     [ValidateSet("Audit In Progress", "Tests Approved", "Needs Update", "Audit Failed")]
@@ -127,9 +130,9 @@ if (-not $dependencyCheck.AllDependenciesMet) {
     exit 1
 }
 
-# Helper function to get feature ID from test file ID
+# Helper function to get feature ID from test file path (SC-007)
 function Get-FeatureIdFromTestFile {
-    param([string]$TestFileId)
+    param([string]$TestFilePath)
 
     $projectRoot = Get-ProjectRoot
     $testTrackingPath = Join-Path $projectRoot "test/state-tracking/permanent/test-tracking.md"
@@ -138,21 +141,28 @@ function Get-FeatureIdFromTestFile {
         throw "Test tracking file not found: $testTrackingPath"
     }
 
-    $content = Get-Content $testTrackingPath -Raw
+    $fileName = Split-Path $TestFilePath -Leaf
+    $content = Get-Content $testTrackingPath -Encoding UTF8
 
-    # Look for the test file ID in the tracking file
-    if ($content -match "\|\s*$TestFileId\s*\|\s*([^|]+)\s*\|") {
-        $featureId = $matches[1].Trim()
-        return $featureId
+    # Look for the test file name in test-tracking.md table rows
+    # 8-column format: | Feature ID | Test Type | Test File/Case | Status | ...
+    foreach ($line in $content) {
+        if ($line -match "^\|" -and $line -match [regex]::Escape($fileName)) {
+            $cols = $line -split '\|' | ForEach-Object { $_.Trim() }
+            # cols[0]=empty, cols[1]=Feature ID, cols[2]=Test Type, cols[3]=Test File/Case, ...
+            if ($cols.Count -ge 4 -and $cols[1] -match '^\d+\.\d+\.\d+$') {
+                return $cols[1]
+            }
+        }
     }
 
-    throw "Test file ID '$TestFileId' not found in test tracking"
+    throw "Test file '$fileName' not found in test tracking"
 }
 
-# Helper function to update individual test file status
+# Helper function to update individual test file status (SC-007: match by file path)
 function Update-IndividualTestFileStatus {
     param(
-        [string]$TestFileId,
+        [string]$TestFilePath,
         [string]$Status,
         [hashtable]$AdditionalUpdates = @{},
         [switch]$DryRun
@@ -160,9 +170,10 @@ function Update-IndividualTestFileStatus {
 
     $projectRoot = Get-ProjectRoot
     $testTrackingPath = Join-Path $projectRoot "test/state-tracking/permanent/test-tracking.md"
+    $fileName = Split-Path $TestFilePath -Leaf
 
     if ($DryRun) {
-        Write-Host "DRY RUN: Would update test file $TestFileId in test-tracking.md" -ForegroundColor Cyan
+        Write-Host "DRY RUN: Would update test file $fileName in test-tracking.md" -ForegroundColor Cyan
         Write-Host "  Status: $Status" -ForegroundColor Gray
         foreach ($key in $AdditionalUpdates.Keys) {
             Write-Host "  $key`: $($AdditionalUpdates[$key])" -ForegroundColor Gray
@@ -176,26 +187,28 @@ function Update-IndividualTestFileStatus {
 
     $content = Get-Content $testTrackingPath -Raw
 
-    # Find the line with the test file ID and update it
+    # Find the line with the test file name and update it
     $lines = $content -split "`r?`n"
     $updated = $false
+    $escapedFileName = [regex]::Escape($fileName)
 
     for ($i = 0; $i -lt $lines.Count; $i++) {
-        if ($lines[$i] -match "\|\s*$TestFileId\s*\|") {
+        if ($lines[$i] -match "^\|" -and $lines[$i] -match $escapedFileName) {
             # Parse the current line
             $parts = $lines[$i] -split '\|'
-            if ($parts.Count -ge 10) {
-                # Columns: Test ID | Feature ID | Test Type | Test File/Case | Status | Test Cases Count | Last Executed | Last Updated | Notes
-                # Index:     1         2            3            4               5          6                 7               8              9
-                # Update Status (column 5, index 5)
-                $parts[5] = " $Status "
+            if ($parts.Count -ge 9) {
+                # 8-column format (SC-007):
+                # Feature ID | Test Type | Test File/Case | Status | Test Cases Count | Last Executed | Last Updated | Notes
+                # Index: 1        2            3              4          5                 6               7              8
+                # Update Status (column 4, index 4)
+                $parts[4] = " $Status "
 
-                # Update Last Updated (column 8, index 8)
-                $parts[8] = " $(Get-Date -Format 'yyyy-MM-dd') "
+                # Update Last Updated (column 7, index 7)
+                $parts[7] = " $(Get-Date -Format 'yyyy-MM-dd') "
 
                 # Update notes if additional updates provided
                 if ($AdditionalUpdates.Count -gt 0) {
-                    $currentNotes = $parts[9].Trim()
+                    $currentNotes = $parts[8].Trim()
                     $newNotes = @()
 
                     if ($currentNotes -and $currentNotes -ne "") {
@@ -206,7 +219,7 @@ function Update-IndividualTestFileStatus {
                         $newNotes += "$key`: $($AdditionalUpdates[$key])"
                     }
 
-                    $parts[9] = " $($newNotes -join '; ') "
+                    $parts[8] = " $($newNotes -join '; ') "
                 }
 
                 $lines[$i] = $parts -join '|'
@@ -217,7 +230,7 @@ function Update-IndividualTestFileStatus {
     }
 
     if (-not $updated) {
-        throw "Test file ID '$TestFileId' not found in test tracking"
+        throw "Test file '$fileName' not found in test tracking"
     }
 
     # Write back to file
@@ -231,7 +244,7 @@ function Update-IndividualTestFileStatus {
 try {
     Write-Host "Test File Audit State Update" -ForegroundColor Green
     Write-Host "============================" -ForegroundColor Green
-    Write-Host "Test File ID: $TestFileId" -ForegroundColor Cyan
+    Write-Host "Test File: $TestFilePath" -ForegroundColor Cyan
     Write-Host "Audit Status: $AuditStatus" -ForegroundColor Cyan
 
     if ($DryRun) {
@@ -239,8 +252,8 @@ try {
         Write-Host ""
     }
 
-    # Get the feature ID for this test file
-    $FeatureId = Get-FeatureIdFromTestFile -TestFileId $TestFileId
+    # Get the feature ID for this test file (SC-007: lookup by file path)
+    $FeatureId = Get-FeatureIdFromTestFile -TestFilePath $TestFilePath
     Write-Host "Associated Feature ID: $FeatureId" -ForegroundColor Cyan
     Write-Host ""
 
@@ -271,7 +284,6 @@ try {
         $projectRoot = Get-ProjectRoot
         $filesToBackup = @(
             "test/state-tracking/permanent/test-tracking.md",
-            "test/test-registry.yaml",
             "doc/product-docs/state-tracking/permanent/feature-tracking.md"
         )
 
@@ -325,37 +337,19 @@ try {
         "Audit Failed" { "🔴 Audit Failed" }
     }
 
-    $testResult = Update-IndividualTestFileStatus -TestFileId $TestFileId -Status $testImplStatus -AdditionalUpdates $testUpdates -DryRun:$DryRun
+    $testFileName = Split-Path $TestFilePath -Leaf
+    $testResult = Update-IndividualTestFileStatus -TestFilePath $TestFilePath -Status $testImplStatus -AdditionalUpdates $testUpdates -DryRun:$DryRun
 
     if ($DryRun) {
-        Write-Host "  Would update test file $TestFileId with audit status: $testImplStatus" -ForegroundColor Cyan
+        Write-Host "  Would update test file $testFileName with audit status: $testImplStatus" -ForegroundColor Cyan
         foreach ($key in $testUpdates.Keys) {
             Write-Host "    $key`: $($testUpdates[$key])" -ForegroundColor Gray
         }
     } else {
-        Write-Host "  ✅ Test file $TestFileId updated successfully" -ForegroundColor Green
+        Write-Host "  ✅ Test file $testFileName updated successfully" -ForegroundColor Green
     }
 
-    # Update 2: Test Registry (YAML) - Update specific test file entry
-    Write-Host ""
-    Write-Host "Updating Test Registry..." -ForegroundColor Yellow
-
-    if ($DryRun) {
-        Write-Host "  Would update test registry YAML for test file $TestFileId" -ForegroundColor Cyan
-        Write-Host "    auditStatus: $AuditStatus" -ForegroundColor Gray
-        Write-Host "    auditDate: $AuditDate" -ForegroundColor Gray
-        if ($AuditorName) {
-            Write-Host "    auditor: $AuditorName" -ForegroundColor Gray
-        }
-    } else {
-        # Note: This would require YAML parsing and updating - simplified for now
-        Write-Host "  ⚠️  Test registry YAML update requires manual review" -ForegroundColor Yellow
-        Write-Host "     Test File ID: $TestFileId" -ForegroundColor Gray
-        Write-Host "     Audit Status: $AuditStatus" -ForegroundColor Gray
-        Write-Host "     Audit Date: $AuditDate" -ForegroundColor Gray
-    }
-
-    # Update 3: Feature Tracking (Aggregated Status)
+    # Update 2: Feature Tracking (Aggregated Status)
     Write-Host ""
     Write-Host "Updating Feature Tracking (Aggregated)..." -ForegroundColor Yellow
 
@@ -369,17 +363,20 @@ try {
     $lines = $content -split "`r?`n"
 
     foreach ($line in $lines) {
-        # Pattern: | Test ID | Feature ID | Test Type | Test File/Case | Status | ...
-        if ($line -match "\|\s*([^|]+)\s*\|\s*$FeatureId\s*\|\s*[^|]+\s*\|\s*[^|]+\s*\|\s*([^|]+)\s*\|") {
-            $testId = $matches[1].Trim()
-            $status = $matches[2].Trim()  # Status column (5th column)
+        # 8-column format (SC-007): | Feature ID | Test Type | Test File/Case | Status | ...
+        if ($line -match "^\|\s*$([regex]::Escape($FeatureId))\s*\|") {
+            $cols = $line -split '\|' | ForEach-Object { $_.Trim() }
+            # cols[0]=empty, cols[1]=Feature ID, cols[2]=Test Type, cols[3]=Test File/Case, cols[4]=Status
+            if ($cols.Count -ge 5) {
+                $status = $cols[4]
 
-            # Update the status if this is our current test file
-            if ($testId -eq $TestFileId) {
-                $status = $testImplStatus
+                # Update the status if this is our current test file
+                if ($cols[3] -match [regex]::Escape($testFileName)) {
+                    $status = $testImplStatus
+                }
+
+                $featureTestStatuses += $status
             }
-
-            $featureTestStatuses += $status
         }
     }
 
@@ -420,7 +417,7 @@ try {
     Write-Host ""
     Write-Host "Test File Audit State Update Summary" -ForegroundColor Green
     Write-Host "====================================" -ForegroundColor Green
-    Write-Host "Test File ID: $TestFileId" -ForegroundColor White
+    Write-Host "Test File: $TestFilePath" -ForegroundColor White
     Write-Host "Feature ID: $FeatureId" -ForegroundColor White
     Write-Host "Audit Status: $AuditStatus" -ForegroundColor White
     Write-Host "Audit Date: $AuditDate" -ForegroundColor White
@@ -451,7 +448,6 @@ try {
     Write-Host ""
     Write-Host "Files Updated:" -ForegroundColor White
     Write-Host "  ✅ test-tracking.md (individual test file)" -ForegroundColor Green
-    Write-Host "  ⚠️  test-registry.yaml (manual review required)" -ForegroundColor Yellow
     Write-Host "  ✅ feature-tracking.md (aggregated status)" -ForegroundColor Green
 
     if ($DryRun) {
@@ -471,15 +467,15 @@ try {
         Write-Host ""
         Write-Host "Next Steps:" -ForegroundColor Yellow
         if ($AuditStatus -eq "Needs Update") {
-            Write-Host "  1. Address the identified issues in test file $TestFileId" -ForegroundColor Gray
+            Write-Host "  1. Address the identified issues in test file $testFileName" -ForegroundColor Gray
             Write-Host "  2. Re-run tests after fixes are applied" -ForegroundColor Gray
             Write-Host "  3. Schedule follow-up audit when ready" -ForegroundColor Gray
         } elseif ($AuditStatus -eq "Tests Approved") {
-            Write-Host "  1. Test file $TestFileId is approved" -ForegroundColor Gray
+            Write-Host "  1. Test file $testFileName is approved" -ForegroundColor Gray
             Write-Host "  2. Check if all tests for feature $FeatureId are approved" -ForegroundColor Gray
             Write-Host "  3. If all tests approved, feature is ready for implementation" -ForegroundColor Gray
         } elseif ($AuditStatus -eq "Audit Failed") {
-            Write-Host "  1. Review audit report for critical issues in $TestFileId" -ForegroundColor Gray
+            Write-Host "  1. Review audit report for critical issues in $testFileName" -ForegroundColor Gray
             Write-Host "  2. Address fundamental test problems before proceeding" -ForegroundColor Gray
             Write-Host "  3. Consider reverting to previous test implementation if needed" -ForegroundColor Gray
         }

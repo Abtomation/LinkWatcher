@@ -14,13 +14,13 @@
     - Updating the ID tracker in the central ID registry
     - Updating feature tracking with test specification link and status
     - Providing a complete template for test specification creation from TDDs
-    - For cross-cutting specs: adding a placeholder entry to test-registry.yaml
-
     Supports two modes:
     - Feature-specific (default): Creates a single-feature test spec in feature-specs/
     - Cross-cutting (-CrossCutting): Creates a multi-feature test spec in cross-cutting-specs/
 
     Note: This script creates the specification document and updates feature tracking.
+    SC-007: test-registry.yaml entry creation removed — cross-cutting relationships
+    are tracked via pytest markers in test files.
     Test implementation tracking files are updated separately during the Test Implementation Task.
 
 .PARAMETER FeatureId
@@ -56,7 +56,6 @@
     - Automatically updates the central ID registry with new ID assignments
     - Creates the output directory if it doesn't exist
     - Uses standardized document creation process
-    - Cross-cutting mode adds a placeholder entry to test-registry.yaml
 
     Template Metadata:
     - Template ID: PF-TEM-020 (based on document creation script template)
@@ -200,83 +199,10 @@ try {
         Write-Host "📋 Manual feature tracking updates may be required" -ForegroundColor Yellow
     }
 
-    # --- Add test-registry.yaml entry for cross-cutting specs ---
-    if ($CrossCutting) {
-        try {
-            Write-Host "`n🔄 Adding cross-cutting entry to test-registry.yaml..." -ForegroundColor Cyan
-            $testRegistryPath = Join-Path $projectRoot "test/test-registry.yaml"
-
-            if (Test-Path $testRegistryPath) {
-                $registryContent = Get-Content $testRegistryPath -Raw -Encoding UTF8
-
-                # Find the highest PD-TST ID in the registry
-                $maxId = 0
-                $idMatches = [regex]::Matches($registryContent, 'PD-TST-(\d+)')
-                foreach ($match in $idMatches) {
-                    $currentId = [int]$match.Groups[1].Value
-                    if ($currentId -gt $maxId) { $maxId = $currentId }
-                }
-                $nextTestId = $maxId + 1
-                $testFileId = "PD-TST-{0:D3}" -f $nextTestId
-
-                # Build the cross-cutting features YAML array
-                $crossCuttingYaml = ($featureIdArray | ForEach-Object { "`"$_`"" }) -join ', '
-
-                # Build the relative spec path from test/ directory
-                $relativeSpecPath = "specifications/cross-cutting-specs/$actualFileName"
-
-                # Build the YAML entry in our list format
-                $timestamp = Get-Date -Format "yyyy-MM-dd"
-                $yamlEntry = @"
-
-  # Cross-cutting specification: $FeatureName
-  - id: $testFileId
-    featureId: "$FeatureId"
-    fileName: $actualFileName
-    filePath: $relativeSpecPath
-    testType: cross-cutting
-    componentName: $FeatureName
-    specificationPath: $relativeSpecPath
-    description: "Cross-cutting test specification covering features: $($featureIdArray -join ', ')"
-    created: $timestamp
-    updated: $timestamp
-    status: "📝 Specification Created"
-    testCasesCount: 0
-    tier:
-    tddPath: $TddPath
-    crossCuttingFeatures: [$crossCuttingYaml]
-"@
-
-                # Append the entry to the end of the file
-                $registryContent = $registryContent.TrimEnd() + "`n" + $yamlEntry + "`n"
-                Set-Content $testRegistryPath $registryContent -Encoding UTF8 -NoNewline
-
-                # Update TE-id-registry.json TE-TST nextAvailable
-                try {
-                    $idRegistryPath = Join-Path $projectRoot "test/TE-id-registry.json"
-                    $idRegistry = Get-Content $idRegistryPath -Raw -Encoding UTF8 | ConvertFrom-Json
-                    $newNext = $nextTestId + 1
-                    $idRegistry.prefixes.'TE-TST'.nextAvailable = $newNext
-                    $idRegistry | ConvertTo-Json -Depth 10 | Set-Content $idRegistryPath -Encoding UTF8
-                    Write-Host "  📝 Updated TE-id-registry.json TE-TST nextAvailable to $newNext" -ForegroundColor Green
-                }
-                catch {
-                    Write-Warning "Failed to update TE-id-registry.json: $($_.Exception.Message)"
-                    Write-Host "  Manual update required: TE-TST nextAvailable should be $($nextTestId + 1)" -ForegroundColor Yellow
-                }
-
-                Write-Host "  ✅ Registry entry created: $testFileId (cross-cutting)" -ForegroundColor Green
-                Write-Host "  📋 Features: $($featureIdArray -join ', ')" -ForegroundColor Green
-                Write-Host "  📝 Status: Specification Created (pending test implementation)" -ForegroundColor Green
-            } else {
-                Write-Warning "test-registry.yaml not found at $testRegistryPath — skipping registry entry"
-            }
-        }
-        catch {
-            Write-Warning "Failed to add test-registry entry: $($_.Exception.Message)"
-            Write-Host "Manual registry update required for cross-cutting spec" -ForegroundColor Yellow
-        }
-    }
+    # --- (Removed) test-registry.yaml entry for cross-cutting specs ---
+    # SC-007: test-registry.yaml has been retired. Cross-cutting relationships are tracked
+    # via pytest `cross_cutting` markers in test files and `specification` markers linking
+    # to spec documents. No registry write needed.
 
     # --- Provide success details ---
     $details = @(
@@ -288,9 +214,6 @@ try {
         $details += "Mode: Cross-cutting"
         $details += "Features: $($featureIdArray -join ', ')"
         $details += "Output: $outputDirectory"
-        if ($testFileId) {
-            $details += "Registry Entry: $testFileId"
-        }
     } else {
         $details += "Feature ID: $FeatureId"
     }

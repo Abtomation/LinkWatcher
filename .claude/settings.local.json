@@ -37,7 +37,8 @@
       "Bash(python scripts/check_links.py)",
       "Bash(find /c/Users/ronny/VS_Code/LinkWatcher -name *-REF-* -type f)",
       "Bash(find /c/Users/ronny/VS_Code/LinkWatcher -name ART-ASS-* -type f)",
-      "Bash(find /c/Users/ronny/VS_Code/LinkWatcher -name PF-VAL-* -type f)"
+      "Bash(find /c/Users/ronny/VS_Code/LinkWatcher -name PF-VAL-* -type f)",
+      "Bash(python main.py --validate --dry-run)"
     ]
   }
 }

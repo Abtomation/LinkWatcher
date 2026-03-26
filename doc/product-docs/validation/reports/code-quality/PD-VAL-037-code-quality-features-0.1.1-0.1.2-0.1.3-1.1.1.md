@@ -41,7 +41,7 @@ validation_session: 1
 |---|---|---|---|
 | 0.1.1 | Core Architecture | Implemented | service.py (293 LOC), __init__.py, models.py (32 LOC), utils.py (254 LOC) |
 | 0.1.2 | In-Memory Link Database | Implemented | database.py (240 LOC) |
-| 0.1.3 | Configuration System | Implemented | config/settings.py (238 LOC), config/defaults.py, config/__init__.py |
+| 0.1.3 | Configuration System | Implemented | linkwatcher/config/settings.py (238 LOC), linkwatcher/config/defaults.py, linkwatcher/config/__init__.py |
 | 1.1.1 | File System Monitoring | Implemented | handler.py (681 LOC), move_detector.py (112 LOC), dir_move_detector.py (409 LOC), reference_lookup.py (256 LOC) |
 
 ### Validation Criteria Applied
@@ -139,7 +139,7 @@ validation_session: 1
 
 ### Feature 0.1.3 - Configuration System
 
-**Files**: config/settings.py (238 LOC), config/defaults.py (~160 LOC), config/__init__.py (~20 LOC)
+**Files**: linkwatcher/config/settings.py (238 LOC), linkwatcher/config/defaults.py (~160 LOC), linkwatcher/config/__init__.py (~20 LOC)
 
 #### Per-Criterion Scores
 
@@ -210,12 +210,12 @@ validation_session: 1
 1. **Continue handler.py decomposition (TD005)**
    - **Description**: Extract `_update_links_within_moved_file` and directory move orchestration into separate classes
    - **Rationale**: Reduces handler.py from ~680 to ~400 LOC; improves testability and readability
-   - **Dependencies**: Existing refactoring plan in doc/product-docs/refactoring/plans/decompose-handle-file-moved-mega-method-into-focused-sub-methods.md
+   - **Dependencies**: Existing refactoring plan in doc/product-docs/refactoring/plans/archive/decompose-handle-file-moved-mega-method-into-focused-sub-methods.md
 
 2. **Migrate print() to logger across service.py and handler.py (TD026)**
    - **Description**: Replace 46 print() calls in service.py (33) and handler.py (13) with appropriate logger levels
    - **Rationale**: Enables consistent output control, filtering, and redirection
-   - **Dependencies**: Existing refactoring plan in doc/product-docs/refactoring/plans/remove-dual-print-logger-output-in-updater-py.md
+   - **Dependencies**: Existing refactoring plan in doc/product-docs/refactoring/plans/archive/remove-dual-print-logger-output-in-updater-py.md
 
 ### Medium-Term Improvements
 
@@ -268,7 +268,7 @@ Code quality validation was conducted by systematically reading all source files
 
 ### Appendix B: Reference Materials
 
-- Source files: linkwatcher/service.py, __init__.py, models.py, utils.py, database.py, config/settings.py, config/defaults.py, handler.py, move_detector.py, dir_move_detector.py, reference_lookup.py
+- Source files: linkwatcher/service.py, __init__.py, models.py, utils.py, database.py, linkwatcher/config/settings.py, linkwatcher/config/defaults.py, handler.py, move_detector.py, dir_move_detector.py, reference_lookup.py
 - Test specifications: PF-TSP-035, PF-TSP-036, PF-TSP-037, PF-TSP-038
 - Technical debt tracking: TD005, TD019, TD020, TD022, TD026
 - ADRs: PD-ADR-039 (Orchestrator/Facade), PD-ADR-040 (Target-Indexed DB)
@@ -282,7 +282,7 @@ Code quality validation was conducted by systematically reading all source files
 | models.py | 32 | 0 | 2 | 0 | 0 |
 | utils.py | 254 | 7 | 0 | 0 | 0 |
 | database.py | 240 | 13 | 1 | 0 | 4 |
-| config/settings.py | 238 | 10 | 1 | 0 | 0 |
+| linkwatcher/config/settings.py | 238 | 10 | 1 | 0 | 0 |
 | handler.py | 681 | 24 | 2 | 13 | 29 |
 | move_detector.py | 112 | 5 | 1 | 0 | 0 |
 | dir_move_detector.py | 409 | 12 | 2 | 5 | 11 |

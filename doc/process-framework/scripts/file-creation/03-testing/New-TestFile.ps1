@@ -2,6 +2,7 @@
 # Creates a new test file with an automatically assigned ID
 # Uses the central ID registry system and standardized document creation
 # Reads project-config.json to determine language and select appropriate template
+# SC-007: Writes pytest markers as single source of truth (no test-registry.yaml)
 
 <#
 .SYNOPSIS
@@ -12,10 +13,10 @@
     - Reading project-config.json to determine the project's primary language
     - Selecting the appropriate language-specific template
     - Generating a unique document ID (PD-TST-XXX)
-    - Creating a properly formatted test file
+    - Creating a properly formatted test file with pytest markers
     - Updating the ID tracker in the central ID registry
+    - Writing pytest markers (feature, priority, test_type, specification) into the file
     - Automatically updating test implementation tracking (when FeatureId provided)
-    - Updating test-registry.yaml with implementation progress
 
 .PARAMETER TestName
     The name of the test (e.g., "UserAuthentication", "PaymentProcessing")
@@ -193,7 +194,7 @@ if ($FeatureId -ne "") {
     $additionalMetadataFields["feature_id"] = $FeatureId
 }
 
-# Prepare custom replacements for template
+# Prepare custom replacements for template (includes pytest marker placeholders — SC-007)
 $customReplacements = @{
     "[TEST_NAME]" = $TestName
     "[TEST_TYPE]" = $TestType
@@ -201,6 +202,9 @@ $customReplacements = @{
     "[TEST_FILE_NAME]" = $sanitizedName
     "[CREATED_DATE]" = Get-Date -Format "yyyy-MM-dd"
     "[UPDATED_DATE]" = Get-Date -Format "yyyy-MM-dd"
+    "[FEATURE_ID]" = if ($FeatureId -ne "") { $FeatureId } else { "TODO" }
+    "[PRIORITY]" = $Priority
+    "[TEST_TYPE_MARKER]" = $testTypeDir.ToLower()
 }
 
 # Create the document using standardized process
@@ -249,66 +253,48 @@ try {
 
     Write-ProjectSuccess -Message "Created test file with ID: $documentId" -Details $details
 
-    # Automation Integration: Update test implementation tracking if FeatureId provided
+    # Automation Integration: Write pytest markers and update tracking (SC-007)
     if ($FeatureId -ne "") {
         try {
             # Check if automation functions are available
             $automationFunctions = @(
                 "Update-TestImplementationStatus",
                 "Update-TestImplementationStatusEnhanced",
-                "Add-TestRegistryEntry"
+                "Add-PytestMarkers"
             )
 
             $missingFunctions = $automationFunctions | Where-Object { -not (Get-Command $_ -ErrorAction SilentlyContinue) }
 
             if ($missingFunctions.Count -eq 0) {
-                Write-Host "`n🔄 Updating test implementation tracking..." -ForegroundColor Cyan
+                Write-Host "`n🔄 Updating pytest markers and test tracking..." -ForegroundColor Cyan
 
-                # Prepare relative paths for registry and tracking
+                # Prepare relative paths for tracking
                 $relativePath = "$testsRoot/$testTypeDir/$testFileName"
-                $trackingRelativePath = "../../../$relativePath"
+                $trackingRelativePath = "../../automated/$testTypeDir/$testFileName"
 
-                # Prepare additional updates for test implementation tracking
-                $additionalUpdates = @{
-                    "Test File" = "[$testFileName]($trackingRelativePath)"
-                    "Test File ID" = $documentId
-                    "Test Type" = $TestType
-                    "Component Name" = if ($ComponentName -ne "") { $ComponentName } else { $TestName }
-                }
-
-                # Add notes about test file creation
-                $automationNotes = "Test file created: $documentId ($(Get-ProjectTimestamp -Format 'Date')) - $TestType test for $($additionalUpdates['Component Name'])"
+                # Write pytest markers into the created test file (SC-007: markers are source of truth)
+                $testFileFullPath = Join-Path $outputDirectory $testFileName
+                $specPath = if ($TestSpecification -ne "") { $TestSpecification } else { $null }
 
                 if ($DryRun) {
-                    Write-Host "DRY RUN: Would update test implementation tracking for $FeatureId" -ForegroundColor Yellow
-                    Write-Host "  Status: 📝 Specification Created → 🟡 Implementation In Progress" -ForegroundColor Cyan
-                    Write-Host "  Test File: [$testFileName]($trackingRelativePath)" -ForegroundColor Cyan
-                    Write-Host "  Test Type: $TestType" -ForegroundColor Cyan
-                    Write-Host "  Component: $($additionalUpdates['Component Name'])" -ForegroundColor Cyan
-
-                    Write-Host "DRY RUN: Would add entry to test-registry.yaml" -ForegroundColor Yellow
+                    Write-Host "DRY RUN: Would write pytest markers for $FeatureId" -ForegroundColor Yellow
                     Write-Host "  Feature ID: $FeatureId" -ForegroundColor Cyan
-                    Write-Host "  File Path: $relativePath" -ForegroundColor Cyan
-                    Write-Host "  Test Type: $TestType" -ForegroundColor Cyan
+                    Write-Host "  Test Type: $($testTypeDir.ToLower())" -ForegroundColor Cyan
+                    Write-Host "  Priority: $Priority" -ForegroundColor Cyan
+                    Write-Host "  Test File: [$testFileName]($trackingRelativePath)" -ForegroundColor Cyan
+
+                    Write-Host "DRY RUN: Would update test-tracking.md for $FeatureId" -ForegroundColor Yellow
                 } else {
-                    # Add entry to test registry
-                    $specPath = if ($TestSpecification -ne "") { $TestSpecification } else { $null }
-                    $description = "$TestType tests for $($additionalUpdates['Component Name']) component - created via New-TestFile.ps1"
+                    # Write markers into the test file
+                    Add-PytestMarkers -FilePath $testFileFullPath -FeatureId $FeatureId -TestType $testTypeDir.ToLower() -Priority $Priority -SpecificationPath $specPath
 
-                    $registryTestId = Add-TestRegistryEntry -FeatureId $FeatureId -FileName $testFileName -FilePath $relativePath -TestType $TestType -ComponentName $($additionalUpdates['Component Name']) -SpecificationPath $specPath -Description $description -Priority $Priority -DryRun:$DryRun
+                    # Update test implementation tracking (file path as identifier — SC-007)
+                    $updateResult = Update-TestImplementationStatusEnhanced -FeatureId $FeatureId -TestFilePath $trackingRelativePath -Status "🟡 Implementation In Progress" -DryRun:$DryRun
 
-                    # Update test implementation tracking
-                    if ($registryTestId) {
-                        $updateResult = Update-TestImplementationStatusEnhanced -FeatureId $FeatureId -TestFileId $registryTestId -TestFilePath $trackingRelativePath -Status "🟡 Implementation In Progress" -DryRun:$DryRun
-                    } else {
-                        Write-Warning "Could not get test registry ID, falling back to basic update"
-                        $updateResult = Update-TestImplementationStatus -FeatureId $FeatureId -Status "🟡 Implementation In Progress" -AdditionalUpdates $additionalUpdates -DryRun:$DryRun
-                    }
-
-                    Write-Host "  ✅ Test implementation tracking updated successfully" -ForegroundColor Green
+                    Write-Host "  ✅ Pytest markers written to test file" -ForegroundColor Green
+                    Write-Host "  ✅ Test implementation tracking updated" -ForegroundColor Green
                     Write-Host "  🟡 Status: 📝 Specification Created → 🟡 Implementation In Progress" -ForegroundColor Green
                     Write-Host "  🔗 Test file linked in tracking" -ForegroundColor Green
-                    Write-Host "  📝 Test registry entry created: $registryTestId" -ForegroundColor Green
                 }
             } else {
                 Write-Host "`n⚠️  Automation functions not available:" -ForegroundColor Yellow
@@ -316,11 +302,10 @@ try {
                 Write-Host "Manual Update Required:" -ForegroundColor Yellow
                 Write-Host "  - Update feature $FeatureId test status to '🟡 Implementation In Progress'" -ForegroundColor Cyan
                 Write-Host "  - Add test file link: [$testFileName]($trackingRelativePath)" -ForegroundColor Cyan
-                Write-Host "  - Update test-registry.yaml with new test file entry" -ForegroundColor Cyan
             }
         }
         catch {
-            Write-Warning "Failed to update test implementation tracking automatically: $($_.Exception.Message)"
+            Write-Warning "Failed to update test tracking automatically: $($_.Exception.Message)"
             Write-Host "Manual Update Required:" -ForegroundColor Yellow
             Write-Host "  - Update feature $FeatureId test status to '🟡 Implementation In Progress'" -ForegroundColor Cyan
         }

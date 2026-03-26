@@ -187,8 +187,8 @@ The Test Audit process evaluates tests against six comprehensive quality criteri
    # Navigate to scripts directory
    cd doc/process-framework/scripts/file-creation
 
-   # Create new audit report (example for feature 0.2.3, test PD-TST-001)
-   .\New-TestAuditReport.ps1 -FeatureId "0.2.3" -TestFileId "PD-TST-001" -AuditorName "AI Agent"
+   # Create new audit report (example for feature 0.2.3)
+   .\New-TestAuditReport.ps1 -FeatureId "0.2.3" -TestFilePath "test/automated/unit/test_example.py" -AuditorName "AI Agent"
    ```
 
 2. **Verify Report Creation**
@@ -294,7 +294,7 @@ The Test Audit process evaluates tests against six comprehensive quality criteri
 3. **Validate Report Completeness**
    ```powershell
    # Validate the completed audit report
-   .\Validate-AuditReport.ps1 -ReportFile "foundation/audit-report-0.2.3-PD-TST-001.md" -Detailed
+   .\Validate-AuditReport.ps1 -ReportFile "foundation/audit-report-0-2-3-test_example.md" -Detailed
    ```
 
 **Expected Result:** Complete, validated audit report ready for finalization
@@ -395,15 +395,15 @@ Before finalizing any audit report, complete this comprehensive checklist:
 
 ### Example 1: Foundation Feature Test Audit
 
-**Scenario**: Auditing AppError base class tests (Feature 0.2.4, Test PD-TST-026)
+**Scenario**: Auditing AppError base class tests (Feature 0.2.4, test file test_app_error.py)
 
 **Step 1: Create Audit Report**
 ```powershell
 cd doc/process-framework/scripts/file-creation
-.\New-TestAuditReport.ps1 -FeatureId "0.2.4" -TestFileId "PD-TST-026" -AuditorName "AI Agent"
+.\New-TestAuditReport.ps1 -FeatureId "0.2.4" -TestFilePath "test/automated/unit/test_app_error.py" -AuditorName "AI Agent"
 ```
 
-**Result**: Creates `foundation/audit-report-0.2.4-PD-TST-026.md` with TE-TAR-001 ID
+**Result**: Creates `foundation/audit-report-0-2-4-test_app_error.md` with TE-TAR-001 ID
 
 **Step 2: Sample Evaluation (Purpose Fulfillment)**
 ```markdown
@@ -439,7 +439,7 @@ All six evaluation criteria received PASS or PARTIAL assessments. The test suite
 
 ### Example 2: Authentication Feature Audit with Issues
 
-**Scenario**: Auditing authentication service tests (Feature 1.2.1, Test PD-TST-035) that need improvements
+**Scenario**: Auditing authentication service tests (Feature 1.2.1, test file test_auth.py) that need improvements
 
 **Sample Evaluation (Coverage Completeness)**
 ```markdown
@@ -565,7 +565,7 @@ Critical coverage gaps in authentication testing pose security risks. The test s
 
 ### Templates and References
 - [Test Audit Report Template](../../templates/03-testing/test-audit-report-template.md) - Report structure template
-- [Test Registry](../../../../test/test-registry.yaml) - Test file registry and metadata
+- [Test Query Tool](/doc/process-framework/scripts/test/test_query.py) - Query test file metadata via pytest markers
 
 ### Process Framework
 - [AI Tasks Registry](../../ai-tasks.md) - Complete task catalog and workflow integration

@@ -53,7 +53,7 @@ This is the final onboarding task that transforms code analysis into formal desi
   - [API Design Task](../02-design/api-design-task.md) - For documenting existing API contracts
   - [Database Schema Design Task](../02-design/database-schema-design-task.md) - For documenting existing schema
   - [Cross-Cutting Test Specification Template](../../templates/03-testing/cross-cutting-test-specification-template.md) - Template for multi-feature test specifications
-  - [Test Registry](/test/test-registry.yaml) - Registry of test files with cross-cutting feature mappings
+  - [Test Query Tool](/test/test_query.py) - Query test files by feature, priority, and markers
   - [Task Transition Guide](../../guides/framework/task-transition-guide.md) - Understanding documentation workflow
   - [Documentation Map](../../documentation-map.md) - For registering new documents
 

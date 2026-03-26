@@ -41,7 +41,6 @@ update\Update-FeatureImplementationState.ps1 -FeatureId "1.2.3" -Status "🟡 In
 **Files Updated**:
 
 - `test-tracking.md`
-- `test-registry.yaml`
 - `feature-tracking.md`
 
 **Basic Usage**:

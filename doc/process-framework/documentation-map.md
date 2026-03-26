@@ -85,7 +85,7 @@ Our tasks are organized into four categories and follow a unified structure:
 - [Process: Feature Tracking](../product-docs/state-tracking/permanent/feature-tracking.md) - Comprehensive list of all features with implementation status
 - [Process: Test Tracking](../../test/state-tracking/permanent/test-tracking.md) - Tracks implementation status of automated test files derived from test specifications
 - [Process: E2E Acceptance Test Tracking](../../test/state-tracking/permanent/e2e-test-tracking.md) - Tracks E2E acceptance test cases, workflow milestones, and execution status
-- [Process: Test Registry](/test/test-registry.yaml) - Registry of all test files with feature mappings, cross-cutting support, and PD-TST IDs
+- [Process: Test Query Tool](scripts/test/test_query.py) - AST-based query tool for test metadata from pytest markers (replaces test-registry.yaml — SC-007)
 - [Process: Definition of Done](guides/04-implementation/definition-of-done.md) - Clear criteria for when a feature is considered complete
 - [Process: Technical Debt Tracking](../product-docs/state-tracking/permanent/technical-debt-tracking.md) - System for tracking and managing technical debt
 - [Process: Validation Tracking](../product-docs/state-tracking/temporary/validation-tracking.md) - Master tracking for codebase validation across all validation types
@@ -157,7 +157,7 @@ Our tasks are organized into four categories and follow a unified structure:
 ### Validation Scripts
 
 - [Process: Validate ID Registry](scripts/validation/validate-id-registry.ps1) - Validates ID registry against actual files in the repository
-- [Process: Validate Test Tracking](scripts/validation/Validate-TestTracking.ps1) - Validates test-registry.yaml consistency with disk, tracking files, and ID counters
+- [Process: Validate Test Tracking](scripts/validation/Validate-TestTracking.ps1) - Validates pytest markers (via test_query.py) consistency with test-tracking.md and actual test files on disk
 - [Process: Validate State Tracking](scripts/validation/Validate-StateTracking.ps1) - Master validation across 5 surfaces: feature-tracking links, feature state files, test-tracking, cross-references, and ID counters
 
 ## Product Documentation

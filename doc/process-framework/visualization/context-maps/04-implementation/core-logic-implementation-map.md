@@ -51,7 +51,7 @@ graph TD
 - **TDD (Technical Design Document)**: Module specifications, interface contracts, and component design guiding the implementation
 - **Feature Implementation State**: Tracks implementation progress, code inventory, and task completion across the feature lifecycle
 - **Source Modules**: The core business logic code being created or modified
-- **Unit Tests**: Test files created via `New-TestFile.ps1` with proper TE-TST IDs for automated tracking
+- **Unit Tests**: Test files created via `New-TestFile.ps1` with pytest markers for automated tracking
 
 ### Important Components (Should Understand)
 - **Integration Wiring**: CLI commands, service registrations, or event hooks connecting new modules to the existing system
@@ -61,7 +61,7 @@ graph TD
 ### Reference Components (Access When Needed)
 - **FDD (Functional Design Document)**: Business requirements and acceptance criteria (Tier 2+ features only)
 - **Existing Source Code**: Similar modules in the codebase for pattern consistency
-- **Test Registry**: YAML registry of all test files — automatically updated by `New-TestFile.ps1`
+- **Test Tracking**: Test implementation status — automatically updated by `New-TestFile.ps1`
 - **Bug Tracking / New-BugReport.ps1**: For documenting bugs discovered but not fixed in this session
 
 ## Key Relationships
@@ -70,7 +70,7 @@ graph TD
 2. **TDD → Core Logic**: Design specifications guide interface contracts and module structure
 3. **Core Logic ↔ Feature State**: Bidirectional — reads context, writes progress and code inventory
 4. **Unit Tests → New-TestFile.ps1**: All test files created through automation for proper tracking
-5. **New-TestFile.ps1 → Tracking Files**: Script auto-updates test-tracking.md, test-registry.yaml, and feature-tracking.md
+5. **New-TestFile.ps1 → Tracking Files**: Script auto-updates test-tracking.md and feature-tracking.md
 6. **Core Logic -.-> Bug Report**: Optional — only when bugs are discovered that won't be fixed in this session
 
 ## Task Position in Implementation Chain

@@ -20,7 +20,7 @@ test_file_id: TE-TST-102
 | **Feature ID** | 0.1.1 |
 | **Feature Name** | Core Architecture |
 | **Test File IDs** | TE-TST-102, 116, 119, 120, 122, 127 |
-| **Test File Locations** | `tests/unit/test_service.py`, `tests/integration/test_service_integration.py`, `tests/integration/test_complex_scenarios.py`, `tests/integration/test_error_handling.py`, `tests/integration/test_windows_platform.py`, `tests/unit/test_lock_file.py` |
+| **Test File Locations** | `test/automated/unit/test_service.py`, `test/automated/integration/test_service_integration.py`, `test/automated/integration/test_complex_scenarios.py`, `test/automated/integration/test_error_handling.py`, `test/automated/integration/test_windows_platform.py`, `test/automated/unit/test_lock_file.py` |
 | **Feature Category** | FOUNDATION |
 | **Feature Tier** | Tier 3 (Full Suite) |
 | **Auditor** | AI Agent |
@@ -33,12 +33,12 @@ test_file_id: TE-TST-102
 
 | Test File | Location | Test Cases | Status |
 |-----------|----------|------------|--------|
-| test_service.py | tests/unit/test_service.py | 19 | ✅ All passing |
-| test_service_integration.py | tests/integration/test_service_integration.py | 17 | ✅ All passing |
-| test_complex_scenarios.py | tests/integration/test_complex_scenarios.py | 11 | ✅ All passing |
-| test_error_handling.py | tests/integration/test_error_handling.py | 19 | ✅ All passing |
-| test_windows_platform.py | tests/integration/test_windows_platform.py | 16 | ✅ All passing |
-| test_lock_file.py | tests/unit/test_lock_file.py | 10 | ✅ All passing |
+| test_service.py | test/automated/unit/test_service.py | 19 | ✅ All passing |
+| test_service_integration.py | test/automated/integration/test_service_integration.py | 17 | ✅ All passing |
+| test_complex_scenarios.py | test/automated/integration/test_complex_scenarios.py | 11 | ✅ All passing |
+| test_error_handling.py | test/automated/integration/test_error_handling.py | 19 | ✅ All passing |
+| test_windows_platform.py | test/automated/integration/test_windows_platform.py | 16 | ✅ All passing |
+| test_lock_file.py | test/automated/unit/test_lock_file.py | 10 | ✅ All passing |
 | **Total** | | **92** | |
 
 ## Implementation Dependency Analysis

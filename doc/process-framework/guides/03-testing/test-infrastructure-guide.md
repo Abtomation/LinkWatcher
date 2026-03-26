@@ -58,7 +58,6 @@ test/
 ├── audits/                         # Test audit reports (TE-TAR-*)
 │   └── <category>/                 # Grouped by feature category
 │
-└── test-registry.yaml              # Central registry of all test files (PD-TST-*)
 ```
 
 ## How It Connects to the Process Framework
@@ -67,7 +66,7 @@ test/
 
 | File | Location | Purpose | Updated By |
 |------|----------|---------|------------|
-| **test-registry.yaml** | `test/` | Central registry of all automated test files with TE-TST IDs, feature mappings, and metadata (priority, testType, crossCuttingFeatures) | `New-TestFile.ps1` (automated), manual edits |
+| **pytest markers** (via `test_query.py`) | `test/automated/` | Test metadata embedded as pytest markers in test files (feature, priority, test_type) | `New-TestFile.ps1` (automated), manual edits |
 | **test-tracking.md** | `test/state-tracking/permanent` | Automated test implementation progress, audit results | `New-TestFile.ps1`, manual edits |
 | **e2e-test-tracking.md** | `test/state-tracking/permanent` | E2E acceptance test cases, workflow milestones, execution status | `New-E2EAcceptanceTestCase.ps1`, `Update-TestExecutionStatus.ps1`, manual edits |
 | **feature-tracking.md** | `doc/process-framework/state-tracking/permanent` | Feature-level test status column | `New-TestFile.ps1`, `Update-TestExecutionStatus.ps1` |
@@ -76,7 +75,7 @@ test/
 
 The process framework eliminated redundant test tracking files. There is **no** separate README, TEST_PLAN, TEST_CASE_STATUS, or TEST_CASE_TEMPLATE in the test directory. All tracking is handled by:
 
-- **test-registry.yaml** — what test files exist, their IDs, features, and metadata
+- **pytest markers** — what test files exist and their metadata (query via `test_query.py`)
 - **test-tracking.md** — automated test status, audit results
 - **e2e-test-tracking.md** — E2E acceptance test cases and workflow milestones
 - **test specifications** — what should be tested (derived from TDDs)
@@ -86,7 +85,7 @@ The process framework eliminated redundant test tracking files. There is **no** 
 
 | Script | Location | Purpose |
 |--------|----------|---------|
-| `New-TestFile.ps1` | `scripts/file-creation/` | Create automated test files with PD-TST IDs |
+| `New-TestFile.ps1` | `scripts/file-creation/` | Create automated test files with pytest markers |
 | `New-E2EAcceptanceTestCase.ps1` | `scripts/file-creation/` | Create E2E acceptance test cases with TE-E2E/TE-E2G IDs |
 | `New-TestSpecification.ps1` | `scripts/file-creation/` | Create test specifications with PF-TSP IDs |
 | `New-TestAuditReport.ps1` | `scripts/file-creation/` | Create test audit reports with TE-TAR IDs, update test-tracking.md |
@@ -165,23 +164,11 @@ User Workflow Map (what workflows exist, which features they need)
 - [User Workflow Map](/doc/product-docs/technical/design/user-workflow-map.md) — planning artifact mapping workflows to features
 - [Cross-cutting E2E specs](/test/specifications/cross-cutting-specs/) — scenario definitions per workflow
 - **e2e-test-tracking.md** — Workflow Milestone Tracking + E2E Test Cases table
-- **test-registry.yaml** — E2E entries with `featureIds` (multi-feature), `workflow`, `group` fields
-
-**E2E entries in test-registry.yaml** use `type: e2e-group` or `type: e2e-case` with `TE-E2G-NNN` / `TE-E2E-NNN` IDs:
-```yaml
-- id: TE-E2E-001
-  type: e2e-case
-  featureIds: ["1.1.1", "2.1.1", "2.2.1"]
-  workflow: WF-001
-  group: TE-E2G-001
-  filePath: e2e-acceptance-testing/templates/<group>/TE-E2E-001-<name>/test-case.md
-  executionMode: scripted
-  priority: Critical
-```
+- **test-registry.yaml** — E2E entries only (retained until E2E marker migration in Phase 7), with `featureIds` (multi-feature), `workflow`, `group` fields and `TE-E2G-NNN` / `TE-E2E-NNN` IDs
 
 ## Test Priority
 
-Each test file in `test-registry.yaml` has a `priority` field indicating its importance for release gating:
+Each test file has a `priority` pytest marker indicating its importance for release gating:
 
 | Priority | Meaning | When to Run | Examples |
 |----------|---------|-------------|----------|
@@ -318,14 +305,13 @@ Create a shared setup file appropriate for your language (e.g., `conftest.py` fo
 
 ### 5. Initialize framework tracking
 
-Create `test/test-registry.yaml` with the standard header. Register each test file as it's created:
+Ensure test files have pytest markers for framework tracking. Use `New-TestFile.ps1` which writes markers automatically:
 
 ```powershell
-# Via New-TestFile.ps1 (preferred — auto-updates registry + tracking)
+# Via New-TestFile.ps1 (preferred — auto-writes markers + updates tracking)
 # Or manually via TestTracking.psm1:
-Add-TestRegistryEntry -FeatureId "X.Y.Z" -FileName "test_example.py" `
-  -FilePath "test/automated/unit/test_example.py" -TestType "Unit" `
-  -ComponentName "Example Component"
+Add-PytestMarkers -TestFilePath "test/automated/unit/test_example.py" `
+  -FeatureId "X.Y.Z" -TestType "Unit" -Priority "Standard"
 ```
 
 **Expected Result:** `Validate-TestTracking.ps1` passes with 0 errors.

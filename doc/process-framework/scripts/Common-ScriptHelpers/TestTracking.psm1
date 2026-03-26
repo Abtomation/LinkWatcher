@@ -1,26 +1,29 @@
 ﻿# TestTracking.psm1
-# Test tracking operations and registry management
+# Test tracking operations and marker management
 # Extracted from StateFileManagement.psm1 as part of module decomposition
 #
-# VERSION 1.0 - EXTRACTED MODULE
-# This module contains test-specific tracking operations
+# VERSION 2.0 - MARKER-BASED (SC-007)
+# This module contains test-specific tracking operations.
+# As of SC-007, test metadata is stored as pytest markers in test files
+# (single source of truth) rather than in test-registry.yaml.
 
 <#
 .SYNOPSIS
-Test tracking operations and registry management for PowerShell scripts
+Test tracking operations and pytest marker management for PowerShell scripts
 
 .DESCRIPTION
 This module provides specialized functionality for test tracking:
 - Updating test implementation status in tracking files
-- Adding test registry entries to test-registry.yaml
-- Managing test file metadata and cross-references
+- Writing pytest markers into test files (feature, priority, test_type, specification)
+- Managing test file metadata via markers as single source of truth
 
 This is a focused module extracted from StateFileManagement.psm1 to improve
 maintainability and reduce complexity.
 
 .NOTES
-Version: 1.0 (Extracted Module)
+Version: 2.0 (Marker-Based — SC-007)
 Created: 2025-08-30
+Updated: 2026-03-26
 Extracted From: StateFileManagement.psm1
 Dependencies: Get-ProjectRoot, Get-ProjectTimestamp, Update-MarkdownTable
 #>
@@ -164,188 +167,97 @@ function Update-TestImplementationStatus {
     }
 }
 
-function Add-TestRegistryEntry {
+function Add-PytestMarkers {
     <#
     .SYNOPSIS
-    Adds a new test file entry to test-registry.yaml
+    Writes pytest markers into a Python test file
 
     .DESCRIPTION
-    Creates a new test file entry in the test-registry.yaml file with proper formatting and metadata.
-    Automatically generates the next available PD-TST ID and inserts the entry in the correct location.
+    Updates the pytestmark list in a Python test file with feature, priority, test_type,
+    and optionally specification markers. These markers serve as the single source of truth
+    for test metadata (SC-007).
+
+    .PARAMETER FilePath
+    Absolute path to the Python test file
 
     .PARAMETER FeatureId
     The feature ID this test belongs to (e.g., "0.2.5", "1.1.1")
 
-    .PARAMETER FileName
-    The test file name (e.g., "example_test")
-
-    .PARAMETER FilePath
-    The relative path to the test file from project root (e.g., "test/unit/example_test")
-
     .PARAMETER TestType
-    The type of test (Unit, Widget, Integration, E2E)
-
-    .PARAMETER ComponentName
-    The name of the component being tested
-
-    .PARAMETER SpecificationPath
-    Optional path to the test specification file
-
-    .PARAMETER Description
-    Description of what the test covers
+    The test type marker value (e.g., "unit", "integration", "parser", "performance")
 
     .PARAMETER Priority
     Test priority: Critical, Standard, or Extended (default: Standard)
-    Critical = must pass before any release; Standard = normal coverage; Extended = edge cases, performance
+
+    .PARAMETER SpecificationPath
+    Optional relative path to the test specification file
 
     .PARAMETER DryRun
-    If specified, shows what would be added without making changes
+    If specified, shows what would be changed without making changes
 
     .EXAMPLE
-    Add-TestRegistryEntry -FeatureId "0.2.5" -FileName "test_logger.py" -FilePath "tests/unit/test_logger.py" -TestType "Unit" -ComponentName "Logger" -Description "Unit tests for Logger service"
+    Add-PytestMarkers -FilePath "C:\project\test\unit\test_service.py" -FeatureId "0.1.1" -TestType "unit" -Priority "Critical"
 
-    .RETURNS
-    Returns the generated PD-TST ID if successful, null if failed
+    .EXAMPLE
+    Add-PytestMarkers -FilePath "C:\project\test\unit\test_service.py" -FeatureId "0.1.1" -TestType "unit" -SpecificationPath "test/specifications/feature-specs/test-spec-0-1-1.md"
     #>
 
     [CmdletBinding()]
     param(
         [Parameter(Mandatory=$true)]
-        [string]$FeatureId,
-
-        [Parameter(Mandatory=$true)]
-        [string]$FileName,
-
-        [Parameter(Mandatory=$true)]
         [string]$FilePath,
 
         [Parameter(Mandatory=$true)]
-        [string]$TestType,
+        [string]$FeatureId,
 
         [Parameter(Mandatory=$true)]
-        [string]$ComponentName,
-
-        [Parameter(Mandatory=$false)]
-        [string]$SpecificationPath = $null,
-
-        [Parameter(Mandatory=$false)]
-        [string]$Description = "",
+        [string]$TestType,
 
         [Parameter(Mandatory=$false)]
         [ValidateSet("Critical", "Standard", "Extended")]
         [string]$Priority = "Standard",
 
         [Parameter(Mandatory=$false)]
+        [string]$SpecificationPath = $null,
+
+        [Parameter(Mandatory=$false)]
         [switch]$DryRun
     )
 
     try {
-        $projectRoot = Get-ProjectRoot
-        $testRegistryPath = Join-Path $projectRoot "test/test-registry.yaml"
-        $timestamp = Get-ProjectTimestamp -Format "Date"
-
-        if (-not (Test-Path $testRegistryPath)) {
-            throw "Test registry file not found: $testRegistryPath"
+        if (-not (Test-Path $FilePath)) {
+            throw "Test file not found: $FilePath"
         }
 
-        # Read current content
-        $content = Get-Content $testRegistryPath -Raw -Encoding UTF8
-        $lines = $content -split '\r?\n'
+        $content = Get-Content $FilePath -Raw -Encoding UTF8
 
-        # Find the highest existing PD-TST ID to generate the next one
-        $maxId = 0
-        foreach ($line in $lines) {
-            # Look for both formats: "- id: PD-TST-001" and "PD-TST-001:"
-            if ($line -match 'PD-TST-(\d+)[:)]?') {
-                $currentId = [int]$matches[1]
-                if ($currentId -gt $maxId) {
-                    $maxId = $currentId
-                }
-            }
-        }
+        # Replace template placeholders in pytestmark block
+        $updated = $content
+        $updated = $updated -replace '\[FEATURE_ID\]', $FeatureId
+        $updated = $updated -replace '\[PRIORITY\]', $Priority
+        $updated = $updated -replace '\[TEST_TYPE_MARKER\]', $TestType.ToLower()
 
-        $nextId = $maxId + 1
-        $testFileId = "PD-TST-{0:D3}" -f $nextId
-
-        # Create the new YAML entry
-        $yamlEntry = @"
-  $testFileId`:
-    feature_id: "$FeatureId"
-    file_name: "$FileName"
-    file_path: "$FilePath"
-    test_type: "$TestType"
-    priority: "$Priority"
-    component_name: "$ComponentName"
-    description: "$Description"
-    created_date: "$timestamp"
-    status: "Created"
-"@
-
+        # If specification path provided, uncomment and set the specification marker
         if ($SpecificationPath) {
-            $yamlEntry += "`n    specification_path: `"$SpecificationPath`""
+            $updated = $updated -replace '    # TODO\(dev\): Uncomment and set specification path if a test spec exists\r?\n    # pytest\.mark\.specification\("test/specifications/feature-specs/\.\.\."\),', "    pytest.mark.specification(`"$SpecificationPath`"),"
         }
 
         if ($DryRun) {
-            Write-Host "DRY RUN: Would add new entry to test-registry.yaml" -ForegroundColor Yellow
-            Write-Host "  Test File ID: $testFileId" -ForegroundColor Cyan
+            Write-Host "DRY RUN: Would update pytest markers in $FilePath" -ForegroundColor Yellow
             Write-Host "  Feature ID: $FeatureId" -ForegroundColor Cyan
-            Write-Host "  File Path: $FilePath" -ForegroundColor Cyan
             Write-Host "  Test Type: $TestType" -ForegroundColor Cyan
-            Write-Host "  Component: $ComponentName" -ForegroundColor Cyan
-            Write-Host ""
-            Write-Host "YAML Entry:" -ForegroundColor Yellow
-            Write-Host $yamlEntry -ForegroundColor Cyan
-            return $testFileId
-        }
-
-        # Create backup
-        $backupPath = Get-StateFileBackup -FilePath $testRegistryPath
-        Write-Verbose "Created backup: $backupPath"
-
-        # Find the appropriate location to insert the new entry
-        # Insert at the end of the test_files section
-        $updatedLines = @()
-        $inTestFilesSection = $false
-        $insertIndex = -1
-
-        for ($i = 0; $i -lt $lines.Count; $i++) {
-            $line = $lines[$i]
-
-            if ($line -match '^test_files:') {
-                $inTestFilesSection = $true
-                $updatedLines += $line
-                continue
+            Write-Host "  Priority: $Priority" -ForegroundColor Cyan
+            if ($SpecificationPath) {
+                Write-Host "  Specification: $SpecificationPath" -ForegroundColor Cyan
             }
-
-            # If we're in the test_files section and encounter a non-indented line, we've reached the end
-            if ($inTestFilesSection -and $line -match '^[a-zA-Z]' -and -not ($line -match '^\s')) {
-                $insertIndex = $i
-                break
-            }
-
-            $updatedLines += $line
+            return
         }
 
-        # Insert the new entry
-        if ($insertIndex -eq -1) {
-            # Add at the end of the file
-            $updatedLines += $yamlEntry -split '\r?\n'
-        } else {
-            # Insert before the next section
-            $updatedLines += $yamlEntry -split '\r?\n'
-            $updatedLines += $lines[$insertIndex..($lines.Count-1)]
-        }
-
-        # Write back to file
-        $updatedContent = $updatedLines -join "`n"
-        Set-Content $testRegistryPath $updatedContent -Encoding UTF8
-
-        Write-Verbose "Added new test registry entry: $testFileId for feature $FeatureId"
-        return $testFileId
+        Set-Content $FilePath $updated -Encoding UTF8
+        Write-Verbose "Updated pytest markers in $FilePath"
 
     } catch {
-        Write-Error "Failed to add test registry entry: $($_.Exception.Message)"
-        return $null
+        Write-Error "Failed to update pytest markers: $($_.Exception.Message)"
     }
 }
 
@@ -469,13 +381,13 @@ function Ensure-TestTrackingSection {
 
     Write-Verbose "Creating missing section: $sectionHeader"
 
-    # Create the section content
+    # Create the section content (8-column format, file path as identifier — SC-007)
     $sectionContent = @"
 $sectionHeader
 
-| Test ID | Feature ID | Test Type | Test File/Case | Status | Test Cases Count | Last Executed | Last Updated | Notes |
-|---------|------------|-----------|----------------|--------|------------------|---------------|--------------|-------|
-| *No test files created yet* | | | | | | | | |
+| Feature ID | Test Type | Test File/Case | Status | Test Cases Count | Last Executed | Last Updated | Notes |
+|------------|-----------|----------------|--------|------------------|---------------|--------------|-------|
+| *No test files created yet* | | | | | | | |
 
 "@
 
@@ -525,26 +437,23 @@ function Add-TestImplementationEntry {
     .PARAMETER Content
     The current content of the test-tracking.md file
 
-    .PARAMETER TestFileId
-    The test file ID (e.g., PD-TST-087 or E2E-001)
-
     .PARAMETER FeatureId
     The feature ID (e.g., 99.1.2)
 
     .PARAMETER TestFilePath
-    The path to the test file or test case
+    The path to the test file (used as unique identifier and display link)
 
     .PARAMETER Status
     The implementation status
 
     .PARAMETER TestType
-    The test type: "Automated", "Manual Group", or "Manual Case" (default: "Automated")
+    The test type: "Automated", "E2E Group", or "E2E Case" (default: "Automated")
 
     .PARAMETER TestCasesCount
     Number of test cases (optional)
 
     .PARAMETER LastExecuted
-    Date of last manual test execution (optional, defaults to "—" for automated tests)
+    Date of last test execution (optional, defaults to "—")
 
     .PARAMETER Notes
     Additional notes (optional)
@@ -556,9 +465,6 @@ function Add-TestImplementationEntry {
     param(
         [Parameter(Mandatory=$true)]
         [string]$Content,
-
-        [Parameter(Mandatory=$true)]
-        [string]$TestFileId,
 
         [Parameter(Mandatory=$true)]
         [string]$FeatureId,
@@ -601,8 +507,8 @@ function Add-TestImplementationEntry {
     $fileName = Split-Path $TestFilePath -Leaf
     $testFileLink = "[$fileName]($TestFilePath)"
 
-    # Create the new table row (9 columns: Test ID, Feature ID, Test Type, Test File/Case, Status, Test Cases Count, Last Executed, Last Updated, Notes)
-    $newRow = "| $TestFileId | $FeatureId | $TestType | $testFileLink | $Status | $TestCasesCount | $LastExecuted | $timestamp | $Notes |"
+    # Create the new table row (8 columns: Feature ID, Test Type, Test File/Case, Status, Test Cases Count, Last Executed, Last Updated, Notes — SC-007)
+    $newRow = "| $FeatureId | $TestType | $testFileLink | $Status | $TestCasesCount | $LastExecuted | $timestamp | $Notes |"
 
     $lines = $Content -split '\r?\n'
     $updatedLines = @()
@@ -673,7 +579,7 @@ function Add-TestImplementationEntry {
     if (-not $entryAdded) {
         Write-Warning "Failed to add test entry to section $sectionHeader"
     } else {
-        Write-Verbose "Added test entry $TestFileId to section $sectionHeader"
+        Write-Verbose "Added test entry for $TestFilePath to section $sectionHeader"
     }
 
     return $updatedLines -join "`n"
@@ -687,11 +593,8 @@ function Update-TestImplementationStatusEnhanced {
     .PARAMETER FeatureId
     The feature ID to update
 
-    .PARAMETER TestFileId
-    The test file ID (e.g., PD-TST-087)
-
     .PARAMETER TestFilePath
-    The path to the test file
+    The path to the test file (used as unique identifier — SC-007)
 
     .PARAMETER Status
     The new test implementation status
@@ -706,16 +609,13 @@ function Update-TestImplementationStatusEnhanced {
     If specified, shows what would be updated without making changes
 
     .EXAMPLE
-    Update-TestImplementationStatusEnhanced -FeatureId "99.1.2" -TestFileId "PD-TST-087" -TestFilePath "test/unit/example_test" -Status "🟡 Implementation In Progress"
+    Update-TestImplementationStatusEnhanced -FeatureId "0.1.1" -TestFilePath "../../automated/unit/test_service.py" -Status "🟡 Implementation In Progress"
     #>
 
     [CmdletBinding()]
     param(
         [Parameter(Mandatory=$true)]
         [string]$FeatureId,
-
-        [Parameter(Mandatory=$true)]
-        [string]$TestFileId,
 
         [Parameter(Mandatory=$true)]
         [string]$TestFilePath,
@@ -746,7 +646,6 @@ function Update-TestImplementationStatusEnhanced {
                 if ($DryRun) {
                     Write-Host "DRY RUN: Would update test-tracking.md (enhanced)" -ForegroundColor Yellow
                     Write-Host "  Feature ID: $FeatureId" -ForegroundColor Cyan
-                    Write-Host "  Test File ID: $TestFileId" -ForegroundColor Cyan
                     Write-Host "  Test File Path: $TestFilePath" -ForegroundColor Cyan
                     Write-Host "  Status: $Status" -ForegroundColor Cyan
                     if ($TestCasesCount) { Write-Host "  Test Cases: $TestCasesCount" -ForegroundColor Cyan }
@@ -762,8 +661,8 @@ function Update-TestImplementationStatusEnhanced {
                     # Ensure the required section exists
                     $contentWithSection = Ensure-TestTrackingSection -Content $content -FeatureId $FeatureId
 
-                    # Add the test implementation entry
-                    $updatedContent = Add-TestImplementationEntry -Content $contentWithSection -TestFileId $TestFileId -FeatureId $FeatureId -TestFilePath $TestFilePath -Status $Status -TestCasesCount $TestCasesCount -Notes $Notes
+                    # Add the test implementation entry (file path as identifier — SC-007)
+                    $updatedContent = Add-TestImplementationEntry -Content $contentWithSection -FeatureId $FeatureId -TestFilePath $TestFilePath -Status $Status -TestCasesCount $TestCasesCount -Notes $Notes
 
                     # Update metadata timestamp
                     $updatedContent = $updatedContent -replace "updated: \d{4}-\d{2}-\d{2}", "updated: $timestamp"
@@ -802,7 +701,7 @@ function Update-TestImplementationStatusEnhanced {
 # Export functions
 Export-ModuleMember -Function @(
     'Update-TestImplementationStatus',
-    'Add-TestRegistryEntry',
+    'Add-PytestMarkers',
     'Get-TestTrackingSectionTitle',
     'Get-TestTrackingSectionNumber',
     'Ensure-TestTrackingSection',
@@ -810,4 +709,4 @@ Export-ModuleMember -Function @(
     'Update-TestImplementationStatusEnhanced'
 )
 
-Write-Verbose "TestTracking module loaded with 7 functions"
+Write-Verbose "TestTracking module loaded with 7 functions (SC-007: marker-based)"
