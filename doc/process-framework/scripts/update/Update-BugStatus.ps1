@@ -67,12 +67,15 @@ Notes from verification process - used when transitioning to Closed
 .PARAMETER ReopenReason
 Reason for reopening the bug - used when transitioning to Reopened
 
+.PARAMETER TriageNotes
+Triage rationale to append to the Notes field - used when transitioning to Triaged
+
 .PARAMETER UpdateDate
 Date of the status update (optional - uses current date if not specified)
 
 .EXAMPLE
 # Triage a bug
-../Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "Triaged" -Priority "High" -Scope "S"
+../Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "Triaged" -Priority "High" -Scope "S" -TriageNotes "Impacts all users on startup; root cause likely in config loader"
 
 .EXAMPLE
 # Start working on a bug
@@ -144,6 +147,9 @@ param(
 
     [Parameter(Mandatory = $false)]
     [string]$RejectionReason,
+
+    [Parameter(Mandatory = $false)]
+    [string]$TriageNotes,
 
     [Parameter(Mandatory = $false)]
     [datetime]$UpdateDate = (Get-Date)
@@ -282,6 +288,9 @@ function Update-BugEntryContent {
     $currentDate = Get-Date -Format "yyyy-MM-dd"
 
     switch ($NewStatus) {
+        "Triaged" {
+            if ($UpdateData.TriageNotes) { $notes += "; Triage: $($UpdateData.TriageNotes)" }
+        }
         "Fixed" {
             if ($UpdateData.FixDetails) { $notes += "; Fix: $($UpdateData.FixDetails)" }
             if ($UpdateData.RootCause) { $notes += "; Root Cause: $($UpdateData.RootCause)" }
@@ -541,6 +550,7 @@ function Main {
     if ($VerificationNotes) { $updateData.VerificationNotes = $VerificationNotes }
     if ($ReopenReason) { $updateData.ReopenReason = $ReopenReason }
     if ($RejectionReason) { $updateData.RejectionReason = $RejectionReason }
+    if ($TriageNotes) { $updateData.TriageNotes = $TriageNotes }
 
     # Validate required parameters for specific status transitions
     switch ($NewStatus) {

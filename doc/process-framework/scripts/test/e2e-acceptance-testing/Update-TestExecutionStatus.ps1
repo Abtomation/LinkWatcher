@@ -2,11 +2,11 @@
 
 <#
 .SYNOPSIS
-    Updates E2E acceptance test execution status in test-tracking.md and feature-tracking.md.
+    Updates E2E acceptance test execution status in e2e-test-tracking.md and feature-tracking.md.
 
 .DESCRIPTION
     After executing E2E acceptance tests, this script updates tracking files with results.
-    Searches the dedicated "E2E Acceptance Tests" section in test-tracking.md.
+    Reads from e2e-test-tracking.md (split from test-tracking.md per PF-IMP-210).
     Can mark individual E2E test cases, entire groups, or all tests for a feature.
     Updates feature-tracking.md Test Status for all features listed in the entry's Feature IDs column.
     Updates Workflow Milestone Tracking row status based on aggregate test results.
@@ -22,7 +22,7 @@
 
 .PARAMETER Status
     New status. Options: "Passed", "Failed", "Needs Re-execution".
-    Maps to emoji statuses in test-tracking.md.
+    Maps to emoji statuses in e2e-test-tracking.md.
 
 .PARAMETER Reason
     Optional: Why the status changed (e.g., "Bug fix PD-BUG-028", "Release validation").
@@ -96,15 +96,15 @@ $statusMap = @{
 $emojiStatus = $statusMap[$Status]
 $timestamp = Get-Date -Format "yyyy-MM-dd"
 
-$testTrackingPath = Join-Path $ProjectRoot "test/state-tracking/permanent/test-tracking.md"
+$testTrackingPath = Join-Path $ProjectRoot "test/state-tracking/permanent/e2e-test-tracking.md"
 $featureTrackingPath = Join-Path $ProjectRoot "doc/product-docs/state-tracking/permanent/feature-tracking.md"
 
 if (-not (Test-Path $testTrackingPath)) {
-    Write-Error "Test tracking file not found: $testTrackingPath"
+    Write-Error "E2E test tracking file not found: $testTrackingPath"
     exit 1
 }
 
-# Read test-tracking.md
+# Read e2e-test-tracking.md
 $content = Get-Content $testTrackingPath -Raw -Encoding UTF8
 $lines = $content -split '\r?\n'
 $updatedLines = @()
@@ -187,7 +187,7 @@ foreach ($line in $lines) {
 }
 
 if ($matchCount -eq 0) {
-    Write-Warning "No matching entries found in E2E Acceptance Tests section of test-tracking.md."
+    Write-Warning "No matching entries found in e2e-test-tracking.md."
     Write-Warning "Selectors: FeatureId='$FeatureId', Group='$Group', TestCase='$TestCase'"
 } else {
     # --- Update Workflow Milestone Tracking rows ---
@@ -221,7 +221,7 @@ if ($matchCount -eq 0) {
     if ($PSCmdlet.ShouldProcess($testTrackingPath, "Update $matchCount test tracking entries to '$emojiStatus'")) {
         $updatedContent = ($updatedLines -join "`n") -replace "updated: \d{4}-\d{2}-\d{2}", "updated: $timestamp"
         Set-Content $testTrackingPath $updatedContent -Encoding UTF8
-        Write-Host "  ✅ Updated $matchCount entries in test-tracking.md → $emojiStatus" -ForegroundColor Green
+        Write-Host "  ✅ Updated $matchCount entries in e2e-test-tracking.md → $emojiStatus" -ForegroundColor Green
         if ($affectedWorkflows.Count -gt 0) {
             Write-Host "  ✅ Updated milestone status for workflows: $($affectedWorkflows -join ', ')" -ForegroundColor Green
         }

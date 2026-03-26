@@ -18,7 +18,7 @@ priority: Low
 - **Created**: 2026-03-02
 - **Author**: AI Agent & Human Partner
 - **Status**: Complete
-- **Assessment**: [PF-TDA-001](../../assessments/technical-debt/assessments/handler-module-structural-debt-assessment.md)
+- **Assessment**: PF-TDA-001 <!-- [PF-TDA-001](../../assessments/technical-debt/assessments/handler-module-structural-debt-assessment.md) - Removed: file deleted -->
 - **Debt Item**: PF-TDI-008
 
 ## Refactoring Scope
@@ -74,4 +74,4 @@ Two standard library imports used inside method bodies instead of at module leve
 
 ## Related Documentation
 - [Technical Debt Tracking](/doc/product-docs/state-tracking/permanent/technical-debt-tracking.md)
-- [Handler Module Structural Debt Assessment](/doc/process-framework/assessments/technical-debt/assessments/handler-module-structural-debt-assessment.md)
+<!-- - [Handler Module Structural Debt Assessment](/doc/process-framework/assessments/technical-debt/assessments/handler-module-structural-debt-assessment.md) - Removed: file deleted -->

@@ -27,7 +27,7 @@ updated: 2025-05-30
 
 [Provide clear instructions for the first step. Use screenshots where helpful.]
 
-!<!-- [Screenshot description](/path/to/screenshot1.png) - Template/example link commented out -->
+`![Screenshot description](/path/to/screenshot1.png)` *(replace with actual screenshot)*
 
 [Additional explanation if needed]
 
@@ -35,7 +35,7 @@ updated: 2025-05-30
 
 [Provide clear instructions for the second step. Use screenshots where helpful.]
 
-!<!-- [Screenshot description](/path/to/screenshot2.png) - Template/example link commented out -->
+`![Screenshot description](/path/to/screenshot2.png)` *(replace with actual screenshot)*
 
 [Additional explanation if needed]
 
@@ -71,8 +71,8 @@ updated: 2025-05-30
 
 [List related features or functionality that users might want to explore next:]
 
-- <!-- [Related Feature 1](/doc/product-docs/user/features/related-feature-1.md) - Template/example link commented out -->
-- <!-- [Related Feature 2](/doc/product-docs/user/features/related-feature-2.md) - Template/example link commented out -->
+- `[Related Feature 1](related-feature-1.md)` *(replace with actual link)*
+- `[Related Feature 2](related-feature-2.md)` *(replace with actual link)*
 
 ## FAQs
 
@@ -86,8 +86,8 @@ A: [Answer to the question]
 
 ## Related Documentation
 
-- <!-- [Related Document 1](/doc/product-docs/path/to/document1.md) - Template/example link commented out -->
-- <!-- [Related Document 2](/doc/product-docs/path/to/document2.md) - Template/example link commented out -->
+- `[Related Document 1](path/to/document1.md)` *(replace with actual link)*
+- `[Related Document 2](path/to/document2.md)` *(replace with actual link)*
 
 ---
 

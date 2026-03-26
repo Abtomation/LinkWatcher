@@ -168,7 +168,7 @@ pytest test/automated/ --cov=linkwatcher --cov-report=html
 ```
 
 **Test Documentation:**
-- [Test Infrastructure Guide](doc/process-framework/guides/test-infrastructure-guide.md) - How the test/ directory connects to the process framework
+- [Test Infrastructure Guide](doc/process-framework/guides/03-testing/test-infrastructure-guide.md) - How the test/ directory connects to the process framework
 - [Test Registry](test/test-registry.yaml) - Central registry of all test files with PD-TST IDs
 - [Test Specifications](test/specifications/feature-specs/) - Feature-level test specifications
 - [E2E Acceptance Tests](test/e2e-acceptance-testing) - Formal E2E acceptance test framework with E2E-* IDs

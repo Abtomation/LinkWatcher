@@ -40,7 +40,7 @@ Assess the complexity tier of unassessed features to determine appropriate docum
   - [Visual Notation Guide](/doc/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 - **Reference Only (Access When Needed):**
-  - [Feature Tracking](../state-tracking/permanent/feature-tracking.md) - List of features and their current assessment status
+  - [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) - List of features and their current assessment status
 
 ## Process
 
@@ -55,7 +55,7 @@ Assess the complexity tier of unassessed features to determine appropriate docum
 ### Preparation
 
 1. Review the [Assessment Guide](../../guides/01-planning/assessment-guide.md) for detailed instructions on how to perform assessments
-2. Identify features without tier assessments in the [Feature Tracking](../state-tracking/permanent/feature-tracking.md) document
+2. Identify features without tier assessments in the [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) document
 3. Select a feature or group of similar features to assess
 
 ### Execution
@@ -117,7 +117,7 @@ Assess the complexity tier of unassessed features to determine appropriate docum
 
 The following state files must be updated as part of this task:
 
-- [Feature Tracking](../state-tracking/permanent/feature-tracking.md) - Update with:
+- [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) - Update with:
   - Status change from "⬜ Not Started" to "📊 Assessment Created"
   - Documentation tier emoji (🔵/🟠/🔴)
   - UI Design column with "Yes" or "No"
@@ -291,5 +291,5 @@ When updating the feature tracking document:
 
 - [Documentation Tier Assignments README](../../../product-docs/documentation-tiers/README.md) - Comprehensive overview of the tier system
 - [Normalized Scoring System](../../../product-docs/documentation-tiers/README.md#normalized-scoring-system) - Details on how the scoring system works
-- <!-- [Assessment Best Practices](../guides/assessment-best-practices.md) - File not found --> - Tips for accurate assessments
-- [Task Creation and Improvement Guide](../support/task-creation-guide.md) - Guide for creating and improving tasks
+
+- [Task Creation and Improvement Guide](../../guides/support/task-creation-guide.md) - Guide for creating and improving tasks

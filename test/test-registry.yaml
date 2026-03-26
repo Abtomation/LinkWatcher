@@ -1,8 +1,8 @@
 # Test Registry
 # This file maintains a registry of all test files with their IDs, metadata, and relationships
 # Format: TE-TST-[SEQUENCE] for Test File IDs
-# Updated: 2026-03-18
-# Version: 2.3
+# Updated: 2026-03-25
+# Version: 2.4
 #
 # VALIDATION: Run doc/process-framework/scripts/validation/Validate-TestTracking.ps1 to validate consistency
 # between this registry, test-tracking.md, and actual test files
@@ -16,6 +16,8 @@
 #   Critical = must pass before any release (core functionality, foundation features)
 #   Standard = normal test coverage, expected to pass (default for new entries)
 #   Extended = edge cases, performance, stress tests (not release-blocking)
+# - status: NOT stored here. Test implementation status lives in
+#   test/state-tracking/permanent/test-tracking.md (single source of truth).
 #
 # CONSOLIDATION NOTE (v2.1): Feature IDs updated from 42-feature to 9-feature scope.
 # Mapping: 0.1.2(Data Models)/0.1.5(Path Utils)→0.1.1, 0.1.3(DB)→0.1.2, 0.1.4(Config)→0.1.3,
@@ -36,7 +38,6 @@ testFiles:
     description: "Root conftest with 9 shared pytest fixtures (temp directories, sample files, mock configs)"
     created: 2026-02-20
     updated: 2026-03-22
-    status: "✅ Tests Implemented"
     testCasesCount: 8
 
   - id: TE-TST-099
@@ -49,7 +50,6 @@ testFiles:
     description: "Shared test helper functions and utilities for test setup"
     created: 2026-02-20
     updated: 2026-03-22
-    status: "✅ Tests Implemented"
     testCasesCount: 5
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-4-1-1-test-suite-t2.md
 
@@ -64,7 +64,6 @@ testFiles:
     description: "Test configuration utility module (TEST_ENVIRONMENTS, SAMPLE_CONTENTS, create_test_project). Not a test file — contains 0 test methods."
     created: 2026-02-20
     updated: 2026-03-15
-    status: "✅ Tests Implemented"
     testCasesCount: 0
     tier: 1
     tddPath:
@@ -81,7 +80,6 @@ testFiles:
     description: "Integration tests for file move detection across handler and updater (includes PD-BUG-024 regression tests for _get_old_path_variations, PD-BUG-026 stats thread-safety tests, PD-BUG-035 file replacement retention tests, PD-BUG-042 bulk operation stale delete tests, PD-BUG-046 non-monitored extension move detection tests)"
     created: 2026-02-20
     updated: 2026-03-18
-    status: "✅ Tests Implemented"
     testCasesCount: 20
     tier: 2
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-1-1-1-file-system-monitoring-t2.md
@@ -101,7 +99,6 @@ testFiles:
     description: "Unit tests for LinkWatcher core service orchestration (~24 test methods, includes PD-BUG-018 observer resilience and PD-BUG-040 file filter regression tests)"
     created: 2026-02-20
     updated: 2026-03-17
-    status: "✅ Tests Implemented"
     testCasesCount: 24
     tier: 3
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md
@@ -118,7 +115,6 @@ testFiles:
     description: "Unit tests for pluggable parser framework base interface (~12 test methods)"
     created: 2026-02-20
     updated: 2026-03-15
-    status: "✅ Tests Implemented"
     testCasesCount: 12
     tier: 2
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md
@@ -134,7 +130,6 @@ testFiles:
     description: "Unit tests for thread-safe in-memory link database (~22 test methods)"
     created: 2026-02-20
     updated: 2026-03-15
-    status: "✅ Tests Implemented"
     testCasesCount: 22
     tier: 2
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-2-in-memory-database-t2.md
@@ -151,7 +146,6 @@ testFiles:
     description: "Unit tests for atomic file update with safety mechanisms, stale detection, root-relative path handling, and link text updates (28 test methods)"
     created: 2026-02-20
     updated: 2026-03-15
-    status: "✅ Tests Implemented"
     testCasesCount: 28
     tier: 2
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-2-1-link-updater-t2.md
@@ -168,7 +162,6 @@ testFiles:
     description: "Unit tests for multi-source configuration system (~20 test methods)"
     created: 2026-02-20
     updated: 2026-02-24
-    status: "✅ Tests Implemented"
     testCasesCount: 20
     tier: 1
     tddPath:
@@ -185,7 +178,6 @@ testFiles:
     description: "Unit tests for logging framework (~25 test methods, includes PD-BUG-015 structlog cache isolation and PD-BUG-027 timer thread-safety regression tests)"
     created: 2026-02-20
     updated: 2026-03-03
-    status: "✅ Tests Implemented"
     testCasesCount: 25
     tier: 2
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-3-1-1-logging-framework-t2.md
@@ -201,7 +193,6 @@ testFiles:
     description: "Advanced logging tests for structured output and monitoring (~19 test methods)"
     created: 2026-02-20
     updated: 2026-03-15
-    status: "✅ Tests Implemented"
     testCasesCount: 19
     tier: 2
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-3-1-1-logging-framework-t2.md
@@ -220,7 +211,6 @@ testFiles:
     description: "Parser tests for markdown link parsing (standard, reference, HTML, images, directory paths) (~59 methods)"
     created: 2026-02-20
     updated: 2026-03-15
-    status: "✅ Tests Implemented"
     testCasesCount: 59
     tier: 2
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md
@@ -236,7 +226,6 @@ testFiles:
     description: "Parser tests for YAML file reference parsing with nested structures and directory path detection (~13 methods)"
     created: 2026-02-20
     updated: 2026-03-15
-    status: "✅ Tests Implemented"
     testCasesCount: 13
     tier: 2
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md
@@ -252,7 +241,6 @@ testFiles:
     description: "Parser tests for JSON file reference parsing with nested objects, duplicate value line resolution, and directory path detection (~17 methods)"
     created: 2026-02-20
     updated: 2026-03-15
-    status: "✅ Tests Implemented"
     testCasesCount: 17
     tier: 2
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md
@@ -268,7 +256,6 @@ testFiles:
     description: "Parser tests for Python import statement parsing and update (~8 methods)"
     created: 2026-02-20
     updated: 2026-02-24
-    status: "✅ Tests Implemented"
     testCasesCount: 8
     tier: 2
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md
@@ -284,7 +271,6 @@ testFiles:
     description: "Parser tests for Dart import/part statement parsing (~11 methods)"
     created: 2026-02-20
     updated: 2026-03-15
-    status: "✅ Tests Implemented"
     testCasesCount: 11
     tier: 2
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md
@@ -300,7 +286,6 @@ testFiles:
     description: "Parser tests for fallback quoted file path parser (~21 methods, incl. PD-BUG-021 directory path detection, PD-BUG-028 prose filename rejection)"
     created: 2026-02-20
     updated: 2026-03-15
-    status: "✅ Tests Implemented"
     testCasesCount: 21
     tier: 2
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md
@@ -316,7 +301,6 @@ testFiles:
     description: "Parser tests for image file reference handling (~6 methods)"
     created: 2026-02-20
     updated: 2026-03-15
-    status: "✅ Tests Implemented"
     testCasesCount: 6
     tier: 2
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md
@@ -336,7 +320,6 @@ testFiles:
     description: "Integration tests for core service with subsystem coordination (~17 methods)"
     created: 2026-02-20
     updated: 2026-03-15
-    status: "✅ Tests Implemented"
     testCasesCount: 17
     tier: 3
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md
@@ -353,7 +336,6 @@ testFiles:
     description: "Integration tests for file movement detection and handling (~7 methods)"
     created: 2026-02-20
     updated: 2026-03-15
-    status: "✅ Tests Implemented"
     testCasesCount: 7
     tier: 2
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-1-1-1-file-system-monitoring-t2.md
@@ -370,7 +352,6 @@ testFiles:
     description: "Integration tests for link update across multiple file formats (~26 methods)"
     created: 2026-02-20
     updated: 2026-03-18
-    status: "✅ Tests Implemented"
     testCasesCount: 26
     tier: 2
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-2-1-link-updater-t2.md
@@ -387,7 +368,6 @@ testFiles:
     description: "Integration tests for complex multi-component scenarios (~11 methods)"
     created: 2026-02-20
     updated: 2026-03-15
-    status: "✅ Tests Implemented"
     testCasesCount: 11
     tier: 3
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md
@@ -404,7 +384,6 @@ testFiles:
     description: "Integration tests for error handling and graceful degradation (~19 methods)"
     created: 2026-02-20
     updated: 2026-03-15
-    status: "✅ Tests Implemented"
     testCasesCount: 19
     tier: 3
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md
@@ -421,7 +400,6 @@ testFiles:
     description: "Integration tests for sequential file move scenarios (~4 methods)"
     created: 2026-02-20
     updated: 2026-03-15
-    status: "✅ Tests Implemented"
     testCasesCount: 4
     tier: 2
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-1-1-1-file-system-monitoring-t2.md
@@ -438,7 +416,6 @@ testFiles:
     description: "Integration tests for Windows-specific path handling and platform features (~16 methods)"
     created: 2026-02-20
     updated: 2026-03-15
-    status: "✅ Tests Implemented"
     testCasesCount: 16
     tier: 3
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md
@@ -455,7 +432,6 @@ testFiles:
     description: "Integration tests for comprehensive file type monitoring (~7 methods)"
     created: 2026-02-20
     updated: 2026-03-15
-    status: "✅ Tests Implemented"
     testCasesCount: 7
     tier: 2
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-1-1-1-file-system-monitoring-t2.md
@@ -472,7 +448,6 @@ testFiles:
     description: "Integration tests for image file monitoring and reference handling (~6 methods)"
     created: 2026-02-20
     updated: 2026-03-15
-    status: "✅ Tests Implemented"
     testCasesCount: 6
     tier: 2
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-1-1-1-file-system-monitoring-t2.md
@@ -489,7 +464,6 @@ testFiles:
     description: "Integration tests for PowerShell script file monitoring (~5 methods)"
     created: 2026-02-20
     updated: 2026-02-24
-    status: "✅ Tests Implemented"
     testCasesCount: 5
     tier: 2
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-1-1-1-file-system-monitoring-t2.md
@@ -508,7 +482,6 @@ testFiles:
     description: "Performance tests for large project handling and benchmarks"
     created: 2026-02-20
     updated: 2026-03-22
-    status: "✅ Tests Implemented"
     testCasesCount: 4
     crossCuttingFeatures: ["0.1.1", "1.1.1", "2.2.1"]
 
@@ -522,7 +495,6 @@ testFiles:
     description: "Benchmark tests for parsing throughput, database operations, and initial scan performance"
     created: 2026-03-24
     updated: 2026-03-24
-    status: "✅ Tests Implemented"
     testCasesCount: 3
     crossCuttingFeatures: ["0.1.1", "0.1.2", "2.1.1"]
 
@@ -540,7 +512,6 @@ testFiles:
     description: "Unit tests for PID-based lock file mechanism — acquisition, release, stale/corrupt handling (~10 methods)"
     created: 2026-02-25
     updated: 2026-02-25
-    status: "✅ Tests Implemented"
     testCasesCount: 10
     tier: 3
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md
@@ -556,11 +527,10 @@ testFiles:
     priority: Standard
     componentName: Directory Move Detection
     specificationPath: test/specifications/feature-specs/test-spec-1-1-1-file-system-monitoring.md
-    description: "Regression tests for PD-BUG-016 (directory moves via delete+create on Windows), PD-BUG-006 (nested dir move Python imports), PD-BUG-020 (single file move falsely triggering directory scan), PD-BUG-038 (co-moved reference lookup), and PD-BUG-039 (outward links in moved files). 24 tests covering DB lookup, relative path resolution, buffering, end-to-end move detection, Python import updates, single-file-delete routing, outward link adjustment, and co-moved file reference updates."
+    description: "Regression tests for PD-BUG-016 (directory moves via delete+create on Windows), PD-BUG-006 (nested dir move Python imports), PD-BUG-020 (single file move falsely triggering directory scan), PD-BUG-038 (co-moved reference lookup), PD-BUG-039 (outward links in moved files), and PD-BUG-050 (stale DB source paths during directory move cross-references). 25 tests covering DB lookup, relative path resolution, buffering, end-to-end move detection, Python import updates, single-file-delete routing, outward link adjustment, co-moved file reference updates, and zero-error assertion for intra-directory cross-references."
     created: 2026-02-26
-    updated: 2026-03-17
-    status: "✅ Tests Implemented"
-    testCasesCount: 24
+    updated: 2026-03-25
+    testCasesCount: 25
     tier: 2
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-1-1-1-file-system-monitoring-t2.md
     crossCuttingFeatures: ["0.1.2", "2.2.1", "2.1.1"]
@@ -579,7 +549,6 @@ testFiles:
     description: "Parser tests for PowerShell script file path parsing — cmdlet patterns (Join-Path, Import-Module, Get-Content, Test-Path), here-strings, embedded markdown links, regex filtering (PD-BUG-033), deduplication (~32 methods)"
     created: 2026-03-15
     updated: 2026-03-15
-    status: "✅ Tests Implemented"
     testCasesCount: 32
     tier: 2
     tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md
@@ -595,11 +564,26 @@ testFiles:
     description: "Cross-cutting test specification covering features: 1.1.1, 2.1.1, 2.2.1, 0.1.1, 0.1.2, 0.1.3, 3.1.1"
     created: 2026-03-18
     updated: 2026-03-18
-    status: "📝 Specification Created"
     testCasesCount: 0
     tier:
     tddPath: 
     crossCuttingFeatures: ["1.1.1", "2.1.1", "2.2.1", "0.1.1", "0.1.2", "0.1.3", "3.1.1"]
+
+  # Link Validation (Feature 6.1.1)
+  - id: TE-TST-132
+    featureId: "6.1.1"
+    fileName: test_validator.py
+    filePath: test/automated/unit/test_validator.py
+    testType: Unit
+    priority: Standard
+    componentName: Link Validator
+    description: "Tests for link validation module: BrokenLink/ValidationResult dataclasses, LinkValidator scanning (valid links, broken links, anchors, code blocks, root-relative paths, directory exclusions), target filtering heuristics (_should_check_target for URLs, imports, commands, wildcards, placeholders, bare filenames), and report formatting."
+    created: 2026-03-24
+    updated: 2026-03-25
+    testCasesCount: 49
+    tier: 2
+    tddPath:
+    crossCuttingFeatures: []
 
   # ─────────────────────────────────────────────────────────
   # E2E Acceptance Tests
@@ -613,7 +597,6 @@ testFiles:
     filePath: e2e-acceptance-testing/templates/powershell-regex-preservation/master-test-powershell-regex-preservation.md
     testCasesCount: 1
     priority: Critical
-    status: "✅ Passed"
     created: 2026-03-15
     updated: 2026-03-15
 
@@ -626,7 +609,6 @@ testFiles:
     filePath: e2e-acceptance-testing/templates/powershell-regex-preservation/TE-E2E-001-regex-preserved-on-file-move/test-case.md
     executionMode: scripted
     priority: Critical
-    status: "✅ Passed"
     created: 2026-03-15
     updated: 2026-03-15
 
@@ -638,7 +620,6 @@ testFiles:
     filePath: e2e-acceptance-testing/templates/powershell-parser-patterns/master-test-powershell-parser-patterns.md
     testCasesCount: 2
     priority: Critical
-    status: "📋 Case Created"
     created: 2026-03-16
     updated: 2026-03-16
 
@@ -651,7 +632,6 @@ testFiles:
     filePath: e2e-acceptance-testing/templates/powershell-parser-patterns/TE-E2E-002-powershell-md-file-move/test-case.md
     executionMode: scripted
     priority: Critical
-    status: "📋 Case Created"
     created: 2026-03-16
     updated: 2026-03-16
 
@@ -664,7 +644,6 @@ testFiles:
     filePath: e2e-acceptance-testing/templates/powershell-parser-patterns/TE-E2E-003-powershell-script-file-move/test-case.md
     executionMode: scripted
     priority: Critical
-    status: "📋 Case Created"
     created: 2026-03-16
     updated: 2026-03-16
 
@@ -676,7 +655,6 @@ testFiles:
     filePath: e2e-acceptance-testing/templates/markdown-parser-scenarios/master-test-markdown-parser-scenarios.md
     testCasesCount: 1
     priority: Critical
-    status: "📋 Case Created"
     created: 2026-03-16
     updated: 2026-03-16
 
@@ -689,7 +667,6 @@ testFiles:
     filePath: e2e-acceptance-testing/templates/markdown-parser-scenarios/TE-E2E-004-markdown-link-update-on-file-move/test-case.md
     executionMode: scripted
     priority: Critical
-    status: "📋 Case Created"
     created: 2026-03-16
     updated: 2026-03-16
   - id: TE-E2E-005
@@ -700,8 +677,7 @@ testFiles:
     name: yaml-link-update-on-file-move
     filePath: e2e-acceptance-testing/templates/yaml-json-python-parser-scenarios/TE-E2E-005-yaml-link-update-on-file-move/test-case.md
     executionMode: scripted
-    priority: P1
-    status: "📋 Case Created"
+    priority: Critical
     created: 2026-03-18
     updated: 2026-03-18
   - id: TE-E2E-006
@@ -712,8 +688,7 @@ testFiles:
     name: json-link-update-on-file-move
     filePath: e2e-acceptance-testing/templates/yaml-json-python-parser-scenarios/TE-E2E-006-json-link-update-on-file-move/test-case.md
     executionMode: scripted
-    priority: P1
-    status: "📋 Case Created"
+    priority: Critical
     created: 2026-03-18
     updated: 2026-03-18
   - id: TE-E2E-007
@@ -724,8 +699,7 @@ testFiles:
     name: python-import-update-on-file-move
     filePath: e2e-acceptance-testing/templates/yaml-json-python-parser-scenarios/TE-E2E-007-python-import-update-on-file-move/test-case.md
     executionMode: scripted
-    priority: P1
-    status: "📋 Case Created"
+    priority: Critical
     created: 2026-03-18
     updated: 2026-03-18
   - id: TE-E2E-008
@@ -736,8 +710,7 @@ testFiles:
     name: file-create-and-move
     filePath: e2e-acceptance-testing/templates/runtime-dynamic-operations/TE-E2E-008-file-create-and-move/test-case.md
     executionMode: scripted
-    priority: P1
-    status: "📋 Case Created"
+    priority: Critical
     created: 2026-03-18
     updated: 2026-03-18
   - id: TE-E2E-009
@@ -748,8 +721,7 @@ testFiles:
     name: directory-create-and-move
     filePath: e2e-acceptance-testing/templates/runtime-dynamic-operations/TE-E2E-009-directory-create-and-move/test-case.md
     executionMode: scripted
-    priority: P1
-    status: "📋 Case Created"
+    priority: Critical
     created: 2026-03-18
     updated: 2026-03-18
   - id: TE-E2E-010
@@ -760,8 +732,7 @@ testFiles:
     name: file-create-and-rename
     filePath: e2e-acceptance-testing/templates/runtime-dynamic-operations/TE-E2E-010-file-create-and-rename/test-case.md
     executionMode: scripted
-    priority: P1
-    status: "📋 Case Created"
+    priority: Critical
     created: 2026-03-18
     updated: 2026-03-18
   - id: TE-E2E-011
@@ -772,8 +743,7 @@ testFiles:
     name: directory-create-and-rename
     filePath: e2e-acceptance-testing/templates/runtime-dynamic-operations/TE-E2E-011-directory-create-and-rename/test-case.md
     executionMode: scripted
-    priority: P1
-    status: "📋 Case Created"
+    priority: Critical
     created: 2026-03-18
     updated: 2026-03-18
   - id: TE-E2E-012
@@ -784,8 +754,7 @@ testFiles:
     name: file-operations-during-startup
     filePath: e2e-acceptance-testing/templates/startup-operations/TE-E2E-012-file-operations-during-startup/test-case.md
     executionMode: scripted
-    priority: P1
-    status: "📋 Case Created"
+    priority: Critical
     created: 2026-03-18
     updated: 2026-03-18
   - id: TE-E2E-013
@@ -796,8 +765,7 @@ testFiles:
     name: nested-directory-move
     filePath: e2e-acceptance-testing/templates/runtime-dynamic-operations/TE-E2E-013-nested-directory-move/test-case.md
     executionMode: scripted
-    priority: P1
-    status: "📋 Case Created"
+    priority: Critical
     created: 2026-03-18
     updated: 2026-03-18
   - id: TE-E2E-014
@@ -808,8 +776,7 @@ testFiles:
     name: directory-move-internal-refs
     filePath: e2e-acceptance-testing/templates/runtime-dynamic-operations/TE-E2E-014-directory-move-internal-refs/test-case.md
     executionMode: scripted
-    priority: P2
-    status: "📋 Case Created"
+    priority: Standard
     created: 2026-03-18
     updated: 2026-03-18
   - id: TE-E2E-015
@@ -820,8 +787,7 @@ testFiles:
     name: startup-custom-config-excludes
     filePath: e2e-acceptance-testing/templates/startup-operations/TE-E2E-015-startup-custom-config-excludes/test-case.md
     executionMode: scripted
-    priority: P2
-    status: "📋 Case Created"
+    priority: Standard
     created: 2026-03-18
     updated: 2026-03-18
   - id: TE-E2E-016
@@ -832,8 +798,7 @@ testFiles:
     name: two-files-moved-rapidly
     filePath: e2e-acceptance-testing/templates/rapid-sequential-moves/TE-E2E-016-two-files-moved-rapidly/test-case.md
     executionMode: scripted
-    priority: P2
-    status: "📋 Case Created"
+    priority: Standard
     created: 2026-03-18
     updated: 2026-03-18
   - id: TE-E2E-017
@@ -844,8 +809,7 @@ testFiles:
     name: move-file-then-referencing-file
     filePath: e2e-acceptance-testing/templates/rapid-sequential-moves/TE-E2E-017-move-file-then-referencing-file/test-case.md
     executionMode: scripted
-    priority: P2
-    status: "📋 Case Created"
+    priority: Standard
     created: 2026-03-18
     updated: 2026-03-18
   - id: TE-E2E-018
@@ -856,8 +820,7 @@ testFiles:
     name: file-referenced-from-all-formats
     filePath: e2e-acceptance-testing/templates/multi-format-references/TE-E2E-018-file-referenced-from-all-formats/test-case.md
     executionMode: scripted
-    priority: P2
-    status: "📋 Case Created"
+    priority: Standard
     created: 2026-03-18
     updated: 2026-03-18
   - id: TE-E2E-019
@@ -868,8 +831,7 @@ testFiles:
     name: move-file-dry-run-no-changes
     filePath: e2e-acceptance-testing/templates/dry-run-mode/TE-E2E-019-move-file-dry-run-no-changes/test-case.md
     executionMode: scripted
-    priority: P3
-    status: "📋 Case Created"
+    priority: Extended
     created: 2026-03-18
     updated: 2026-03-18
   - id: TE-E2E-020
@@ -880,8 +842,7 @@ testFiles:
     name: stop-during-idle
     filePath: e2e-acceptance-testing/templates/graceful-shutdown/TE-E2E-020-stop-during-idle/test-case.md
     executionMode: scripted
-    priority: P2
-    status: "📋 Case Created"
+    priority: Standard
     created: 2026-03-18
     updated: 2026-03-18
   - id: TE-E2E-021
@@ -892,10 +853,10 @@ testFiles:
     name: stop-immediately-after-move
     filePath: e2e-acceptance-testing/templates/graceful-shutdown/TE-E2E-021-stop-immediately-after-move/test-case.md
     executionMode: scripted
-    priority: P2
-    status: "📋 Case Created"
+    priority: Standard
     created: 2026-03-18
     updated: 2026-03-18
+    
   - id: TE-E2E-022
     type: e2e-case
     featureIds: ["0.1.1", "2.2.1", "3.1.1"]
@@ -904,7 +865,6 @@ testFiles:
     name: read-only-referencing-file
     filePath: e2e-acceptance-testing/templates/error-recovery/TE-E2E-022-read-only-referencing-file/test-case.md
     executionMode: scripted
-    priority: P2
-    status: "📋 Case Created"
+    priority: Standard
     created: 2026-03-18
     updated: 2026-03-18

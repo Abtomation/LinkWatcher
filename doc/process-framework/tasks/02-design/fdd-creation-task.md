@@ -189,4 +189,4 @@ Before considering this task finished:
 - [FDD Customization Guide](../../guides/02-design/fdd-customization-guide.md) - Guide for customizing FDD templates after creation
 - [Feature Tier Assessment Task](../01-planning/feature-tier-assessment-task.md) - Task for determining if FDD is required
 - [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) - Central tracking document for all features
-- [FDD Integration Concept](../../proposals/proposals/functional-design-document-integration-concept.md) - Original concept document for FDD integration
+

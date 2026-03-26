@@ -20,6 +20,14 @@ from watchdog.events import DirMovedEvent, FileMovedEvent
 
 from linkwatcher.service import LinkWatcherService
 
+pytestmark = [
+    pytest.mark.feature("1.1.1"),
+    pytest.mark.priority("Standard"),
+    pytest.mark.cross_cutting(["0.1.1", "2.1.1", "2.2.1"]),
+    pytest.mark.test_type("integration"),
+    pytest.mark.specification("test/specifications/feature-specs/test-spec-1-1-1-file-system-monitoring.md"),
+]
+
 
 class TestFileMovement:
     """Integration tests for file movement scenarios."""

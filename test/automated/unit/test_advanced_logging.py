@@ -22,6 +22,13 @@ from linkwatcher.logging_config import (
     setup_advanced_logging,
 )
 
+pytestmark = [
+    pytest.mark.feature("3.1.1"),
+    pytest.mark.priority("Standard"),
+    pytest.mark.test_type("unit"),
+    pytest.mark.specification("test/specifications/feature-specs/test-spec-3-1-1-logging-system.md"),
+]
+
 
 class TestLogFilter:
     """Test the LogFilter class."""

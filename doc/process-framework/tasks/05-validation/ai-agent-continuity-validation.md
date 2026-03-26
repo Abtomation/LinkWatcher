@@ -43,15 +43,15 @@ Systematically validates selected features for AI agent workflow continuity, ens
 
 - **Important (Load If Space):**
 
-  - **Task Definitions** - [Tasks Directory](../../../tasks) - Task structure and workflow patterns for AI agent execution
+  - **Task Definitions** - [Tasks Directory](../../tasks) - Task structure and workflow patterns for AI agent execution
   - **Context Maps** - [Context Maps Directory](../../visualization/context-maps) - Visual guidance for AI agent task execution
   - **State Tracking Files** - [State Tracking Directory](../../state-tracking) - Session continuity and progress tracking patterns
-  - **Codebase Structure** - [lib/ directory](../../../../lib) - Code organization and modular structure
+  - **Codebase Structure** - [linkwatcher/ directory](../../../../linkwatcher) - Code organization and modular structure
   - **New-ValidationReport Script** - [../../scripts/file-creation/05-validation/New-ValidationReport.ps1](../../scripts/file-creation/05-validation/New-ValidationReport.ps1) - Script for generating validation reports
-  - **Component Relationship Index** - [Component Relationship Index](../../../product-docs/technical/architecture/component-relationship-index.md) - For understanding component interactions
+  <!-- Component Relationship Index - Removed: file deleted -->
 
 - **Reference Only (Access When Needed):**
-  - **AI Tasks System** - [AI Tasks Registry](../../../ai-tasks.md) - Task discovery and selection patterns
+  - **AI Tasks System** - [AI Tasks Registry](../../ai-tasks.md) - Task discovery and selection patterns
   - **Template System** - [Templates Directory](../../templates) - Standardized document creation patterns
   - **Guide System** - [Guides Directory](../../guides) - Process guidance and best practices
   - **Visual Notation Guide** - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting context map diagrams
@@ -144,7 +144,7 @@ Before considering this task finished:
 
 ## Related Resources
 
-- [AI Tasks System](../../../ai-tasks.md) - Task discovery and selection patterns for AI agents
+- [AI Tasks System](../../ai-tasks.md) - Task discovery and selection patterns for AI agents
 - [Documentation Map](../../documentation-map.md) - Process framework structure and organization
 - [Context Maps Directory](../../visualization/context-maps) - Visual guidance for AI agent task execution
 - [State Tracking Directory](../../state-tracking) - Session continuity and progress tracking patterns

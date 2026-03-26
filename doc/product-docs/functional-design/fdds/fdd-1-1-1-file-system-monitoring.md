@@ -15,7 +15,8 @@ retrospective: true
 
 > **Retrospective Document**: This FDD describes the existing implemented functionality of the LinkWatcher Event Handler, documented after implementation during framework onboarding (PF-TSK-066). Content is descriptive ("what is") rather than prescriptive ("what should be").
 >
-> **Source**: Derived from [1.1.2 Implementation State](../../state-tracking/features/archive/1.1.2-event-handler-implementation-state.md), [HOW_IT_WORKS.md](../../../../HOW_IT_WORKS.md) (Event Handler section), and source code analysis of `linkwatcher/handler.py`.
+> **Source**: Derived from [1.1.2 Implementation State](../../state-tracking/features/archive/1.1.2-event-handler-implementation-state.md) and source code analysis of `linkwatcher/handler.py`.
+<!-- HOW_IT_WORKS.md (Event Handler section) was removed — content superseded by this FDD and TDD PD-TDD-023 -->
 
 ## Feature Overview
 
@@ -28,12 +29,12 @@ retrospective: true
 
 ### Architecture Overview Reference
 
-> **📋 Primary Documentation**: [HOW_IT_WORKS.md](../../../../HOW_IT_WORKS.md) - Event Handler section
+<!-- HOW_IT_WORKS.md (Event Handler section) was removed — content extracted into this FDD and TDD PD-TDD-023 during PF-TSK-066 -->
 > **👤 Source**: Pre-framework project documentation (Confirmed in PF-TSK-065 analysis)
 >
 > **Purpose**: Overview of event types, detection strategy, and processing pipeline.
 
-**Functional Architecture Summary** (derived from HOW_IT_WORKS.md):
+**Functional Architecture Summary**:
 
 - The handler receives file system events from the watchdog Observer (running on a daemon thread) and coordinates the link maintenance workflow
 - Move events trigger a four-step pipeline: find references → update files → rescan moved file → log results

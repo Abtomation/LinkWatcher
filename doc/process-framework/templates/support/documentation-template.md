@@ -177,8 +177,8 @@ print(f"Result: {result}")
 
 [List related documentation, tutorials, or external resources. Use the new reference format.]
 
-- <!-- [Product: Related Document](/doc/product-docs/technical/related-document.md) - Template/example link commented out -->
-- <!-- [Product: API Reference](/doc/product-docs/technical/api/api-reference.md) - File not found -->
+- `[Product: Related Document](/doc/product-docs/technical/related-document.md)` *(replace with actual link)*
+- `[Product: API Reference](/doc/product-docs/technical/api/api-reference.md)` *(replace with actual link)*
 - [External resource](https://example.com)
 
 ---

@@ -281,7 +281,7 @@ Items to complete before handoff:
 
 - [Feature Specification](../specifications/[feature-name]-specification.md)
 - [Feature Implementation State](../state-tracking/[feature-id]-state.md)
-- [Task Definition: Feature Implementation Planning](../../process-framework/tasks/04-implementation/feature-implementation-planning-task.md)
+- [Task Definition: Feature Implementation Planning](../../tasks/04-implementation/feature-implementation-planning-task.md)
 - [Architecture Documentation](../technical/architecture/[feature-name]-architecture.md)
 
 ---

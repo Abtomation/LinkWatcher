@@ -31,7 +31,7 @@ Before considering this task finished:
    - Places file in `/doc/process-framework/feedback/feedback-forms`
    - Assigns unique artifact IDs (`ART-FEE-XXX`) in metadata
 
-   For more details, see the [Feedback Process Guide](../../feedback/README.md).
+   For more details, see the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md).
 
 ## Usage Instructions
 

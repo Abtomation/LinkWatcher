@@ -68,7 +68,7 @@ Manage the process of preparing, versioning, and deploying releases of the appli
 
 7. Run the full test suite on the release candidate
 8. **Run full pre-release test sweep**: Execute `Run-Tests.ps1 -All` to confirm all automated tests pass. This is a release gate — no deployment if tests fail. Pay special attention to **Critical** priority tests in [test-registry.yaml](/test/test-registry.yaml) — these cover foundation features and must all pass. Extended priority tests (performance, edge cases) are informational but not release-blocking.
-9. **Verify E2E acceptance test status**: Check the dedicated **E2E Acceptance Tests** section in [test-tracking.md](../../../../test/state-tracking/permanent/test-tracking.md) for any E2E groups marked `🔄 Needs Re-execution`. All groups must show `✅ Passed` before release. If any need re-execution, trigger [E2E Acceptance Test Execution](../03-testing/e2e-acceptance-test-execution-task.md) first. Also check the **Workflow Milestone Tracking** — are all workflows in the release scope covered by E2E tests? Flag any workflow with `⬜ Not Created` status as a release risk.
+9. **Verify E2E acceptance test status**: Check [e2e-test-tracking.md](../../../../test/state-tracking/permanent/e2e-test-tracking.md) for any E2E groups marked `🔄 Needs Re-execution`. All groups must show `✅ Passed` before release. If any need re-execution, trigger [E2E Acceptance Test Execution](../03-testing/e2e-acceptance-test-execution-task.md) first. Also check the **Workflow Milestone Tracking** — are all workflows in the release scope covered by E2E tests? Flag any workflow with `⬜ Not Created` status as a release risk.
 10. Verify all deployment prerequisites are met
 11. Complete the pre-deployment checklist
 12. Obtain necessary approvals
@@ -150,5 +150,5 @@ Before considering this task finished:
 ## Related Resources
 
 - [CI/CD Setup Guide](../../guides/07-deployment/ci-cd-setup-guide.md) - Guide for setting up CI/CD infrastructure
-- [Testing Setup Guide](../../guides/03-testing/testing-setup-guide.md) - Guide for test infrastructure scaffolding
+- [Test Infrastructure Guide](../../guides/03-testing/test-infrastructure-guide.md) - Test directory structure, tracking, and scaffolding
 - [Task Creation and Improvement Guide](../../guides/support/task-creation-guide.md) - Guide for creating and improving tasks

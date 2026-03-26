@@ -14,7 +14,7 @@ This guide provides instructions for using the new automation scripts that elimi
 
 - `feature-tracking.md`
 - `test-tracking.md`
-- `component-relationship-index.md`
+<!-- - `component-relationship-index.md` - Removed: file deleted -->
 
 **Basic Usage**:
 
@@ -369,4 +369,4 @@ For issues or enhancement requests:
 **Created**: 2025-08-23
 **Updated**: 2025-08-23
 **Version**: 1.2 (Phase 3B - Workflow Integration & User Experience)
-**Related Implementation**: [Automation Enhancement Phase 3A](../state-tracking/temporary/automation-enhancement-phase3a-implementation-20250823.md) | [Phase 3B Implementation](../state-tracking/temporary/automation-enhancement-phase3b-implementation-20250823.md)
+**Related Implementation**: ~~Automation Enhancement Phase 3A~~ *(state files archived)* | ~~Phase 3B Implementation~~ *(state files archived)*

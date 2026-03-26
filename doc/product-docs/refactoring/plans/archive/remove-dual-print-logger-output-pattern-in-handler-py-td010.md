@@ -125,4 +125,4 @@ During systematic code review, discovered 8 issues (3 filed as bug reports, 4 ad
 
 ## Related Documentation
 - [Technical Debt Tracking](/doc/product-docs/state-tracking/permanent/technical-debt-tracking.md)
-- [Technical Debt Assessment PF-TDA-001](/doc/process-framework/assessments/technical-debt/assessments/handler-module-structural-debt-assessment.md)
+<!-- - [Technical Debt Assessment PF-TDA-001](/doc/process-framework/assessments/technical-debt/assessments/handler-module-structural-debt-assessment.md) - Removed: file deleted -->

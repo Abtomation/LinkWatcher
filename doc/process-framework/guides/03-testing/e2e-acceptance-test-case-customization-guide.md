@@ -21,7 +21,7 @@ This guide explains how to use `New-E2EAcceptanceTestCase.ps1` to create E2E acc
 
 ## When to Use
 
-Use this guide when the [E2E Acceptance Test Case Creation task (PF-TSK-069)](/doc/process-framework/tasks/03-testing/manual-test-case-creation-task.md) requires you to create concrete test cases. The script handles infrastructure; this guide focuses on content customization.
+Use this guide when the [E2E Acceptance Test Case Creation task (PF-TSK-069)](/doc/process-framework/tasks/03-testing/e2e-acceptance-test-case-creation-task.md) requires you to create concrete test cases. The script handles infrastructure; this guide focuses on content customization.
 
 ## Prerequisites
 
@@ -204,7 +204,7 @@ pwsh.exe -ExecutionPolicy Bypass -Command '& doc/process-framework/scripts/test/
 
 ## Related Resources
 
-- [E2E Acceptance Test Case Creation Task](/doc/process-framework/tasks/03-testing/manual-test-case-creation-task.md) — Task definition
+- [E2E Acceptance Test Case Creation Task](/doc/process-framework/tasks/03-testing/e2e-acceptance-test-case-creation-task.md) — Task definition
 - [E2E Acceptance Test Case Template](/doc/process-framework/templates/03-testing/e2e-acceptance-test-case-template.md) — Template for test-case.md
 - [E2E Acceptance Master Test Template](/doc/process-framework/templates/03-testing/e2e-acceptance-master-test-template.md) — Template for master test files
 - [New-E2EAcceptanceTestCase.ps1](/doc/process-framework/scripts/file-creation/03-testing/New-E2EAcceptanceTestCase.ps1) — Creation script

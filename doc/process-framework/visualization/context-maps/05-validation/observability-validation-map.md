@@ -75,11 +75,9 @@ graph TD
 
 ## Related Documentation
 
-- [Observability Validation Task](../../tasks/05-validation/observability-validation.md) - Complete task definition and process
-- [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Current status of features
+- [Observability Validation Task](../../../tasks/05-validation/observability-validation.md) - Complete task definition and process
+- [Feature Tracking](../../../../product-docs/state-tracking/permanent/feature-tracking.md) - Current status of features
 - Validation Tracking State File - Active validation tracking matrix (file location depends on validation round)
-- [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Complete reference of all component relationships
+<!-- [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Removed: file deleted -->
 
 ---
-
-_Note: This context map highlights only the components relevant to this specific task. For a comprehensive view of all components, refer to the [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md)._

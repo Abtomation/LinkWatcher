@@ -47,7 +47,7 @@ Systematically validates selected features for logging coverage, monitoring inst
   - **Technical Design Documents** - [TDD Directory](../../../product-docs/technical/architecture/design-docs/tdd) - Logging and monitoring design specifications
   - **Existing Log Output** - Sample log files or log output for analysis
   - **New-ValidationReport Script** - [../../scripts/file-creation/05-validation/New-ValidationReport.ps1](../../scripts/file-creation/05-validation/New-ValidationReport.ps1) - Script for generating validation reports
-  - **Component Relationship Index** - [Component Relationship Index](../../../product-docs/technical/architecture/component-relationship-index.md) - For understanding component interactions
+  <!-- Component Relationship Index - Removed: file deleted -->
 
 - **Reference Only (Access When Needed):**
   - **Architecture Decision Records** - [ADR Directory](../../../product-docs/technical/architecture) - Logging and monitoring architectural decisions
@@ -141,4 +141,4 @@ Before considering this task finished:
 
 - [Feature Validation Guide](../../guides/05-validation/feature-validation-guide.md) - Comprehensive guide for conducting feature validation
 - [Technical Design Documents](../../../product-docs/technical/architecture/design-docs/tdd) - Logging and monitoring specifications
-- [Component Relationship Index](../../../product-docs/technical/architecture/component-relationship-index.md) - For understanding component interactions and data flow
+<!-- [Component Relationship Index](../../../product-docs/technical/architecture/component-relationship-index.md) - Removed: file deleted -->

@@ -140,7 +140,7 @@ Establishes foundational project configuration and metadata when initializing a 
 7. **Validate JSON Syntax**: Ensure the file is valid JSON (check for missing commas, brackets, quotes)
 8. **Set Up Language Configuration**: Check if `languages-config/{language}-config.json` exists for the project's language. If not, copy the [language config template](/doc/process-framework/templates/support/language-config-template.json) to `languages-config/{language}-config.json` and fill in language-specific values (test runner, coverage, lint commands). See [languages-config README](/doc/process-framework/languages-config/README.md).
 
-9. **Set Up Testing Infrastructure**: Follow the [Testing Setup Guide](/doc/process-framework/guides/03-testing/testing-setup-guide.md) to scaffold the test environment:
+9. **Set Up Testing Infrastructure**: Follow the [Test Infrastructure Guide](/doc/process-framework/guides/03-testing/test-infrastructure-guide.md) "Setting Up Test Infrastructure" section to scaffold the test environment:
    - Create test directory structure matching `project-config.json` categories
    - Create test runner config (e.g., `pytest.ini` for Python)
    - Create shared fixtures/setup file (e.g., `conftest.py` for Python)
@@ -212,7 +212,7 @@ Before considering this task finished:
 ## Next Tasks
 
 - [**Framework Domain Adaptation**](framework-domain-adaptation.md) - For comprehensive framework customization beyond configuration file (adapting task categories, document types, ID prefixes)
-- **Begin Development Workflow** - Use appropriate task from [AI Tasks Registry](../../../ai-tasks.md) based on your next activity (feature planning, implementation, etc.)
+- **Begin Development Workflow** - Use appropriate task from [AI Tasks Registry](../../ai-tasks.md) based on your next activity (feature planning, implementation, etc.)
 
 ## Related Resources
 
@@ -221,5 +221,5 @@ Before considering this task finished:
 - [Framework Domain Adaptation](framework-domain-adaptation.md) - Comprehensive framework customization for new domains
 - [Documentation Structure Guide](../../guides/framework/documentation-structure-guide.md) - Recommended directory organization patterns
 - [PF ID Registry](../../PF-id-registry.json) - Document ID prefixes and directory mappings
-- [Testing Setup Guide](../../guides/03-testing/testing-setup-guide.md) - Language-specific test infrastructure scaffolding
+- [Test Infrastructure Guide](../../guides/03-testing/test-infrastructure-guide.md) - Test directory structure, tracking, and scaffolding
 - [CI/CD Setup Guide](../../guides/07-deployment/ci-cd-setup-guide.md) - CI pipeline, pre-commit hooks, dev scripts

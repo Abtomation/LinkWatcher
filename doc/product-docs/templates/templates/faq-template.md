@@ -68,8 +68,8 @@ A: [Provide a clear, concise answer to the question. Include technical details a
 
 ## Related Documentation
 
-- <!-- [Related Document 1](/doc/product-docs/path/to/document1.md) - Template/example link commented out -->
-- <!-- [Related Document 2](/doc/product-docs/path/to/document2.md) - Template/example link commented out -->
+- `[Related Document 1](/doc/product-docs/path/to/document1.md)` *(replace with actual link)*
+- `[Related Document 2](/doc/product-docs/path/to/document2.md)` *(replace with actual link)*
 
 ---
 

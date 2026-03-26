@@ -2,6 +2,7 @@
 id: PF-TSK-012
 type: Process Framework
 category: Task Definition
+domain: agnostic
 version: 1.4
 created: 2025-01-15
 updated: 2026-03-15
@@ -102,9 +103,9 @@ When referencing other tasks' outputs in Test Specifications:
   - [Test Registry](/test/test-registry.yaml) - Current test file registry with IDs and metadata
   - [Test Tracking](/test/state-tracking/permanent/test-tracking.md) - Current test implementation status
   - [Existing Test Structure](/test/) - Current test organization and patterns
-  - [Mock Services](/test/mocks/) - Available mock implementations for testing
-  - [Test Helpers](/test/test_helpers/) - Utility functions for test setup
-  - [Project Structure](/doc/product-docs/technical/architecture/project-structure.md) - Understanding component relationships
+  <!-- - [Mock Services](/test/mocks/) - Directory does not exist in this project -->
+  <!-- - [Test Helpers](/test/test_helpers/) - Directory does not exist in this project -->
+  <!-- - [Project Structure](/doc/product-docs/technical/architecture/project-structure.md) - Removed: file deleted -->
 
 - **Reference Only (Access When Needed):**
   - [Feature Tracking](/doc/product-docs/state-tracking/permanent/feature-tracking.md) - Feature development status
@@ -192,7 +193,7 @@ When referencing other tasks' outputs in Test Specifications:
     - Dependencies between test files
 
 16. **Add Clickable Links**: Ensure all file path references in the specification are clickable markdown links:
-    - **Test File** references (e.g., `test/automated/unit/test_service.py`) must use `[`path`](../../../path)` format
+    - **Test File** references (e.g., `test/automated/unit/test_service.py`) must use markdown link format: `[path](relative/path/to/file)` with correct relative prefix
     - **Files to Reference** section paths (TDD, source code, fixtures) must be linked
     - **Source Code** references (e.g., `linkwatcher/database.py`) must be linked
     - Relative prefix from `test/specifications/feature-specs/` to project root is `../../../`

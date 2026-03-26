@@ -13,6 +13,14 @@ import pytest
 from linkwatcher.parser import LinkParser
 from linkwatcher.service import LinkWatcherService
 
+pytestmark = [
+    pytest.mark.feature("1.1.1"),
+    pytest.mark.priority("Standard"),
+    pytest.mark.cross_cutting(["2.1.1"]),
+    pytest.mark.test_type("integration"),
+    pytest.mark.specification("test/specifications/feature-specs/test-spec-1-1-1-file-system-monitoring.md"),
+]
+
 
 class TestImageFileMonitoring:
     """Test image file monitoring functionality."""

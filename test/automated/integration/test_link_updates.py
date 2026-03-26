@@ -22,6 +22,14 @@ from watchdog.events import DirMovedEvent, FileCreatedEvent, FileDeletedEvent, F
 
 from linkwatcher.service import LinkWatcherService
 
+pytestmark = [
+    pytest.mark.feature("2.2.1"),
+    pytest.mark.priority("Standard"),
+    pytest.mark.cross_cutting(["2.1.1", "0.1.1", "1.1.1"]),
+    pytest.mark.test_type("integration"),
+    pytest.mark.specification("test/specifications/feature-specs/test-spec-2-2-1-link-updating.md"),
+]
+
 
 class TestLinkReferences:
     """Integration tests for different types of link references."""

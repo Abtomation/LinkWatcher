@@ -22,6 +22,13 @@ from watchdog.events import FileMovedEvent
 
 from linkwatcher.service import LinkWatcherService
 
+pytestmark = [
+    pytest.mark.feature("4.1.1"),
+    pytest.mark.priority("Extended"),
+    pytest.mark.cross_cutting(["0.1.1", "1.1.1", "2.2.1"]),
+    pytest.mark.test_type("performance"),
+]
+
 
 class TestLargeProjectHandling:
     """Performance tests for large project scenarios."""

@@ -193,7 +193,7 @@ The Test Audit process evaluates tests against six comprehensive quality criteri
 
 2. **Verify Report Creation**
    - Check that report was created in correct feature category directory
-   - Confirm PF-TAR ID was assigned correctly
+   - Confirm TE-TAR ID was assigned correctly
    - Open the generated report file
 
 3. **Initial Report Customization**
@@ -403,7 +403,7 @@ cd doc/process-framework/scripts/file-creation
 .\New-TestAuditReport.ps1 -FeatureId "0.2.4" -TestFileId "PD-TST-026" -AuditorName "AI Agent"
 ```
 
-**Result**: Creates `foundation/audit-report-0.2.4-PD-TST-026.md` with PF-TAR-001 ID
+**Result**: Creates `foundation/audit-report-0.2.4-PD-TST-026.md` with TE-TAR-001 ID
 
 **Step 2: Sample Evaluation (Purpose Fulfillment)**
 ```markdown
@@ -556,7 +556,7 @@ Critical coverage gaps in authentication testing pose security risks. The test s
 ### Core Documentation
 - [Test Audit Task Definition](../../tasks/03-testing/test-audit-task.md) - Complete task specification and process
 - [Test Tracking](../../../../test/state-tracking/permanent/test-tracking.md) - Status tracking and workflow
-- [Test Audit Concept](../../proposals/test-audit-concept.md) - Background and rationale for test audits
+
 
 ### Scripts and Tools
 - [New-TestAuditReport.ps1](../../scripts/file-creation/03-testing/New-TestAuditReport.ps1) - Audit report creation script

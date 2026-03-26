@@ -44,7 +44,7 @@ description: Template for creating UI/UX Design Documents for UI features
 ### Design System Guidelines
 
 > **📋 Primary Documentation**: Design Guidelines (PD-UIX-001)
-> **🔗 Link**: [Design System Guidelines](../../../product-docs/technical/design/ui-ux/design-system/design-guidelines.md) > **👤 Owner**: Design System
+> **🔗 Link**: Design System Guidelines (project-specific, create at `product-docs/technical/design/ui-ux/design-system/design-guidelines.md`) > **👤 Owner**: Design System
 >
 > **Purpose**: All UI designs MUST follow established design system patterns for consistency. This includes colors, typography, spacing, components, and interaction patterns.
 

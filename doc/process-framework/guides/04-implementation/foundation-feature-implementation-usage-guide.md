@@ -44,7 +44,7 @@ Use this guide when:
 Before you begin, ensure you have:
 
 - **Task Definition Access**: Read the complete [Foundation Feature Implementation Task](../../tasks/04-implementation/foundation-feature-implementation-task.md) definition
-- **Architectural Context**: Access to [Architecture Context Packages](../../state-tracking/permanent/architecture-context-packages.md) for the relevant architectural area
+
 - **Foundation Specification**: Foundation feature specification from System Architecture Review
 - **Development Environment**: Set up with architectural constraints and dependencies
 - **ADR System Access**: Familiarity with the existing ADR system and `New-ArchitectureDecision.ps1` script
@@ -415,7 +415,7 @@ Is the feature expected to take multiple sessions?
 
 - [Task Transition Guide](../framework/task-transition-guide.md) - Decomposed task workflow details
 - [Feature Implementation Planning (PF-TSK-044)](../../tasks/04-implementation/feature-implementation-planning-task.md) - Entry point for decomposed implementation
-- [Feature Implementation Planning (PF-TSK-044)](../../tasks/04-implementation/feature-implementation-planning.md) - Decomposed mode entry point
+- [Feature Implementation Planning (PF-TSK-044)](../../tasks/04-implementation/feature-implementation-planning-task.md) - Decomposed mode entry point
 - [Feature Implementation State Template](../../templates/04-implementation/feature-implementation-state-template.md) - State file for decomposed mode
 - [Feature Implementation State Tracking Guide](feature-implementation-state-tracking-guide.md) - Guide for maintaining state file
 
@@ -423,7 +423,7 @@ Is the feature expected to take multiple sessions?
 
 - [Foundation Feature Implementation Task](../../tasks/04-implementation/foundation-feature-implementation-task.md) - Complete task definition
 - [Foundation Feature Template](../../templates/04-implementation/foundation-feature-template.md) - Template for foundation feature structure
-- [Architecture Context Packages](../../state-tracking/permanent/architecture-context-packages.md) - Architectural context management
+
 - [Architecture Tracking](../../../product-docs/state-tracking/permanent/architecture-tracking.md) - Architectural evolution tracking
 - [System Architecture Review Task](../../tasks/01-planning/system-architecture-review.md) - Task that identifies foundation features
 - [Feature Implementation Planning](../../tasks/04-implementation/feature-implementation-planning-task.md) - Regular feature implementation entry point for comparison

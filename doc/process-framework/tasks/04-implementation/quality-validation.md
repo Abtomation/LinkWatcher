@@ -45,7 +45,7 @@ Validate feature implementation against quality standards, business requirements
 - **Important (Load If Space):**
 
   - **Feature Tracking** - [Feature details from feature-tracking.md](../../../product-docs/state-tracking/permanent/feature-tracking.md) for business context
-  - [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - For understanding component interactions
+  <!-- [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Removed: file deleted -->
   - **Accessibility Guidelines** - [WCAG 2.1 Standards](https://www.w3.org/WAI/WCAG21/quickref/) for accessibility compliance
 
 - **Reference Only (Access When Needed):**
@@ -157,7 +157,7 @@ Before considering this task finished:
 ## Next Tasks
 
 - [**Implementation Finalization (PF-TSK-055)**](implementation-finalization.md) - Complete remaining items, address quality issues, and prepare feature for production
-- [**Bug Report Creation (PF-TSK-034)**](../06-maintenance/bug-report-and-fix-task.md) - For any critical quality issues requiring immediate remediation
+- [**Bug Triage (PF-TSK-034)**](../06-maintenance/bug-triage-task.md) - For any critical quality issues requiring immediate remediation
 ## Related Resources
 
 - Static analysis and linting tools for your project's language
@@ -165,4 +165,4 @@ Before considering this task finished:
 - [OWASP Security Guidelines](https://owasp.org/) - Application security standards
 - [WCAG 2.1 Guidelines](https://www.w3.org/WAI/WCAG21/quickref/) - Web content accessibility guidelines
 - [Feature Implementation State Tracking Guide](../../guides/04-implementation/feature-implementation-state-tracking-guide.md) - Guide for maintaining feature state file
-- [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Understanding system component interactions
+<!-- [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Removed: file deleted -->

@@ -203,6 +203,7 @@ _Meta-framework tasks that work on the process framework itself_
 
 | Task                          | Type     | Use When                                                                         | Link                                                                              |
 | ----------------------------- | -------- | -------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| **Framework Evaluation**      | Support  | Structurally evaluate the process framework or specific parts of it for completeness, consistency, redundancy, accuracy, effectiveness, automation coverage, and scalability | [→ Definition](/doc/process-framework/tasks/support/framework-evaluation.md)      |
 | **Project Initiation** | Support | Initial project setup including project-config.json creation | [→ Definition](/doc/process-framework/tasks/support/project-initiation-task.md) |
 | **New Task Creation Process** | Discrete | Creating new tasks for the framework                                             | [→ Definition](/doc/process-framework/tasks/support/new-task-creation-process.md) |
 | **Process Improvement**       | Discrete | Enhancing development workflows                                                  | [→ Definition](/doc/process-framework/tasks/support/process-improvement-task.md)  |
@@ -334,13 +335,13 @@ Validation Preparation (PF-TSK-077) → [Select features + dimensions] → Dimen
 | **📊 State Tracking**   | Technical Debt Tracking           | Track technical debt items                   | [Technical Debt Tracking](/doc/product-docs/state-tracking/permanent/technical-debt-tracking.md)                                  |
 | **📖 Templates**        | State File Template               | Create new tracking files                    | [State File Template](/doc/process-framework/templates/support/state-file-template.md)                                               |
 | **🔧 Automation**       | Task Creation Script              | Create new framework tasks                   | [New Task Creation Process](/doc/process-framework/tasks/support/new-task-creation-process.md)                                         |
-| **📝 Feedback**         | Feedback Process                  | Submit tool and task feedback                | [Feedback Process Guide](/doc/process-framework/feedback/README.md)                                                                    |
+| **📝 Feedback**         | Feedback Process                  | Submit tool and task feedback                | [Feedback Process Guide](/doc/process-framework/feedback/archive/README.md)                                                            |
 | **📝 Feedback**         | Feedback Flowchart                | Visual feedback process guide                | [Feedback Process Flowchart](/doc/process-framework/visualization/process-flows/feedback-process-flowchart.md)                                            |
 | **🎯 Guides**           | Task Transition Guide             | Guidance on task transitions                 | [Task Transition Guide](/doc/process-framework/guides/framework/task-transition-guide.md)                                                 |
 | **🎯 Guides**           | API Specification Creation        | How to create API specifications             | [API Specification Creation Guide](/doc/process-framework/guides/02-design/api-specification-creation-guide.md)                           |
 | **🎯 Guides**           | API Data Model Creation           | How to create API data models                | [API Data Model Creation Guide](/doc/process-framework/guides/02-design/api-data-model-creation-guide.md)                                 |
 | **🎯 Guides**           | Foundation Feature Implementation | Comprehensive implementation guidance        | [Foundation Feature Implementation Usage Guide](/doc/process-framework/guides/04-implementation/foundation-feature-implementation-usage-guide.md) |
-| **🎯 Guides**           | Integration & Testing             | Comprehensive testing guidance               | [Integration & Testing Usage Guide](/doc/process-framework/guides/03-testing/test-implementation-usage-guide.md)                           |
+| **🎯 Guides**           | Integration & Testing             | Comprehensive testing guidance               | [Integration & Testing Usage Guide](/doc/process-framework/guides/03-testing/integration-and-testing-usage-guide.md)                           |
 | **🗺️ Context Maps**     | API Design Task Map               | Visual API design relationships              | [API Design Task Context Map](/doc/process-framework/visualization/context-maps/02-design/api-design-task-map.md)                      |
 | **🔧 Support Tasks**    | Process Improvement               | Enhance development workflows                | [Process Improvement Task](/doc/process-framework/tasks/support/process-improvement-task.md)                                           |
 | **🔧 Support Tasks**    | Structure Change                  | Reorganize framework structure               | [Structure Change Task](/doc/process-framework/tasks/support/structure-change-task.md)                                                 |
@@ -383,7 +384,7 @@ Understanding the different types of documentation helps you choose the right re
 - **Use When**: You need comprehensive guidance beyond individual tasks
 - **Examples**:
   - [Foundation Feature Implementation Usage Guide](/doc/process-framework/guides/04-implementation/foundation-feature-implementation-usage-guide.md)
-  - [Integration & Testing Usage Guide](/doc/process-framework/guides/03-testing/test-implementation-usage-guide.md)
+  - [Integration & Testing Usage Guide](/doc/process-framework/guides/03-testing/integration-and-testing-usage-guide.md)
 
 ### 🎯 **Key Principle**: No Redundant Documentation
 
@@ -485,7 +486,7 @@ After completing any task, use our **hybrid feedback approach**:
 >
 > 📈 **Why this matters**: Your feedback drives continuous improvement through the [Tools Review Task](/doc/process-framework/tasks/support/tools-review-task.md)
 >
-> 📋 **More details**: See the [Feedback Process Guide](/doc/process-framework/feedback/README.md)
+> 📋 **More details**: See the [Feedback Process Guide](/doc/process-framework/feedback/archive/README.md)
 >
 > 🔄 **Visual guide**: See the [Feedback Process Flowchart](/doc/process-framework/visualization/process-flows/feedback-process-flowchart.md)
 

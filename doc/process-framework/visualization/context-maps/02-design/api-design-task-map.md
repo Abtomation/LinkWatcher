@@ -98,7 +98,7 @@ graph TD
 ## Related Documentation
 
 - [Feature Tracking](/doc/product-docs/state-tracking/permanent/feature-tracking.md) - Current feature requirements and status
-- [API Data Models Registry](../../../state-tracking/permanent/api-models-registry.md) - Central registry of all API data models
+<!-- - [API Data Models Registry](../../../state-tracking/permanent/api-models-registry.md) - Central registry of all API data models (file not created yet) -->
 - [System Architecture Review Task](/doc/process-framework/tasks/01-planning/system-architecture-review.md) - Prerequisite architectural analysis
 - [API Design Task](/doc/process-framework/tasks/02-design/api-design-task.md) - Complete task definition using this context map
 - [API Specification Creation Guide](/doc/process-framework/guides/02-design/api-specification-creation-guide.md) - How to use the ../../scripts/file-creation/New-APISpecification.ps1 script
@@ -106,4 +106,3 @@ graph TD
 
 ---
 
-_Note: This context map highlights only the components relevant to this specific task. For a comprehensive view of all components, refer to the [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md)._

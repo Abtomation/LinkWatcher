@@ -43,7 +43,7 @@ additional_fields:
 
 ## 3. Quality Attribute Requirements
 
-> **Reference**: [System Quality Attributes](/doc/product-docs/technical/architecture/quality-attributes.md)
+> **Reference**: <!-- quality-attributes.md has been removed --> Define quality attributes relevant to this feature
 
 ### 3.1 Performance Requirements
 

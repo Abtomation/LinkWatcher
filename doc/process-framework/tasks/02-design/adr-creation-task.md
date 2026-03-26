@@ -46,7 +46,7 @@ Create Architecture Decision Records (ADRs) to document significant architectura
   - [System Architecture Review](../01-planning/system-architecture-review.md) - For decisions arising from architectural reviews
   - [Foundation Feature Implementation](../04-implementation/foundation-feature-implementation-task.md) - For architectural decisions during foundation work
   - [Feature Tier Assessment](../01-planning/feature-tier-assessment-task.md) - For decisions identified during complexity assessment
-  - [Component Relationship Index](../../../product-docs/technical/architecture/component-relationship-index.md) - For understanding component interactions
+  <!-- [Component Relationship Index](../../../product-docs/technical/architecture/component-relationship-index.md) - Removed: file deleted -->
 
 - **Reference Only (Access When Needed):**
   - [Existing ADRs](../../../product-docs/technical/architecture/design-docs/adr/adr) - For consistency and reference

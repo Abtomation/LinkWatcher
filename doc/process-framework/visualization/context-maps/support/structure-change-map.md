@@ -74,7 +74,7 @@ graph TD
 
 - [Structure Change Proposal Template](/doc/process-framework/templates/support/structure-change-proposal-template.md) - Template for change proposals
 - [Architecture Documentation](/doc/product-docs/technical/architecture) - Current architecture documentation
-- [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Component relationship documentation
+<!-- [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Removed: file deleted -->
 - <!-- [Refactoring Guide](/doc/product-docs/development/guides/refactoring-guide.md) - File not found --> - Guide for code refactoring
 - <!-- [Unit Testing Guide](/doc/product-docs/development/guides/unit-testing-guide.md) - File not found --> - Guide for unit testing
 - <!-- [Build Configuration](/doc/product-docs/technical/build/build-configuration.md) - File not found --> - Build system documentation
@@ -82,4 +82,3 @@ graph TD
 
 ---
 
-*Note: This context map highlights only the components relevant to structure changes. For a comprehensive view of all components, refer to the [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md).*

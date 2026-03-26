@@ -32,6 +32,14 @@ from linkwatcher.parser import LinkParser
 from linkwatcher.service import LinkWatcherService
 from linkwatcher.updater import LinkUpdater
 
+pytestmark = [
+    pytest.mark.feature("0.1.1"),
+    pytest.mark.priority("Standard"),
+    pytest.mark.cross_cutting(["2.2.1", "0.1.2", "3.1.1"]),
+    pytest.mark.test_type("integration"),
+    pytest.mark.specification("test/specifications/feature-specs/test-spec-0-1-1-core-architecture.md"),
+]
+
 
 class TestFilePermissionErrors:
     """Test handling of file permission errors."""

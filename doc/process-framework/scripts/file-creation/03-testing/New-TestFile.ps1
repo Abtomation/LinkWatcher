@@ -213,6 +213,10 @@ try {
         exit 1
     }
 
+    if (-not $PSCmdlet.ShouldProcess("$outputDirectory/$testFileName", "Create test file")) {
+        return
+    }
+
     $documentId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "PD-TST" -IdDescription "test_file" -DocumentName $TestName -OutputDirectory $outputDirectory -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
 
     # Provide success details

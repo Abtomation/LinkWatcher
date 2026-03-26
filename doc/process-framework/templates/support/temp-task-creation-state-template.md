@@ -75,7 +75,7 @@ List existing artifacts that can be reused:
   - **Command**: `mkdir -p [directory-path]` or manual creation
   - **Notes**: Create the directory where task outputs will be stored. Consider using subdirectories for better organization of different file types.
 
-- [ ] **Document Creation Script**: Create script for generating new files using [document-creation-script-development-guide.md](../../guides/support/document-creation-script-development-guide.md) and [document-creation-script-template.ps1](../../scripts/file-creation/document-creation-script-template.ps1)
+- [ ] **Document Creation Script**: Create script for generating new files using [document-creation-script-development-guide.md](../../guides/support/document-creation-script-development-guide.md)
 
   - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED/SKIPPED]
   - **Dependencies**: Task definition completed, directory structure created

@@ -11,7 +11,7 @@ addressing the critical bottleneck identified in the Process Improvement Trackin
 Updates the following files:
 - ../doc/product-docs/state-tracking/permanent/feature-tracking.md
 - ../doc/test/state-tracking/permanent/test-tracking.md
-- ../doc/product-docs/technical/architecture/component-relationship-index.md
+# - ../doc/product-docs/technical/architecture/component-relationship-index.md (Removed: file deleted)
 
 .PARAMETER FeatureId
 The feature ID to update (e.g., "1.2.3")
@@ -173,8 +173,8 @@ try {
         $projectRoot = Get-ProjectRoot
         $filesToBackup = @(
             "doc/product-docs/state-tracking/permanent/feature-tracking.md",
-            "test/state-tracking/permanent/test-tracking.md",
-            "doc/product-docs/technical/architecture/component-relationship-index.md"
+            "test/state-tracking/permanent/test-tracking.md"
+            # "doc/product-docs/technical/architecture/component-relationship-index.md" # Removed: file deleted
         )
 
         $backupResult = Get-StateFileBackup -FilePaths $filesToBackup -BackupPrefix "feature-implementation"
@@ -271,12 +271,7 @@ try {
     Write-Host "  ✅ feature-tracking.md" -ForegroundColor Green
     Write-Host "  ✅ test-tracking.md" -ForegroundColor Green
 
-    if ($NewComponents.Count -gt 0 -or $NewDependencies.Count -gt 0) {
-        Write-Host "  ⚠️  ../component-relationship-index.md (manual review required)" -ForegroundColor Yellow
-    }
-    else {
-        Write-Host "  ➖ ../component-relationship-index.md (no changes needed)" -ForegroundColor Gray
-    }
+    # component-relationship-index.md references removed (file deleted)
 
     if ($DryRun) {
         Write-Host ""

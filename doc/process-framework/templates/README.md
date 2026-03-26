@@ -106,7 +106,7 @@ Use this guide to determine which template to use for different documentation ne
 
 <!-- Reference Links -->
 [database-reference]: /doc/product-docs/technical/architecture/database-reference.md
-[project-structure]: /doc/product-docs/technical/architecture/project-structure.md
+<!-- [project-structure]: /doc/product-docs/technical/architecture/project-structure.md - Removed: file deleted -->
 
 #### Process Template
 

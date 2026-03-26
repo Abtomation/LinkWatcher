@@ -303,6 +303,13 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
                         rel_old_path = rel_new_path.replace(new_dir, old_dir, 1)
                         moved_files.append((rel_old_path, rel_new_path))
 
+            # Phase 0: Update DB source paths so that cross-reference
+            # lookups resolve to the NEW (existing) file locations.
+            # Without this, the updater tries to open moved files at their
+            # OLD paths, causing Errno 2 errors (PD-BUG-050).
+            for old_file_path, new_file_path in moved_files:
+                self.link_db.update_source_path(old_file_path, new_file_path)
+
             # Process each moved file via ReferenceLookup
             total_references_updated = 0
             for old_file_path, new_file_path in moved_files:

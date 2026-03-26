@@ -73,8 +73,6 @@ graph TD
 - <!-- [Documentation Standards](/doc/process-framework/guides/documentation-standards.md) - File not found --> - Standards for documentation
 - <!-- [Documentation Structure Guide](/doc/product-docs/technical/documentation-structure.md) - File not found --> - Guide to documentation organization
 - [Technical Debt Tracking](../../../../product-docs/state-tracking/permanent/technical-debt-tracking.md) - Technical debt status
-- [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Complete reference of component relationships
+<!-- [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Removed: file deleted -->
 
 ---
-
-*Note: This context map highlights only the components relevant to documentation review. For a comprehensive view of all components, refer to the [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md).*

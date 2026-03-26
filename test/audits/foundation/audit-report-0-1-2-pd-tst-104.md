@@ -25,8 +25,8 @@ auditor: AI Agent
 | **Auditor** | AI Agent |
 | **Audit Date** | 2026-03-15 |
 | **Audit Status** | COMPLETED |
-| **Test Spec** | [PF-TSP-036](../../../../test/specifications/feature-specs/test-spec-0-1-2-in-memory-link-database.md) |
-| **TDD** | [PD-TDD-022](../../technical/architecture/design-docs/tdd/tdd-0-1-2-in-memory-database-t2.md) |
+| **Test Spec** | [PF-TSP-036](../../specifications/feature-specs/test-spec-0-1-2-in-memory-link-database.md) |
+| **TDD** | [PD-TDD-022](../../../doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-2-in-memory-database-t2.md) |
 
 ## Test Files Audited
 

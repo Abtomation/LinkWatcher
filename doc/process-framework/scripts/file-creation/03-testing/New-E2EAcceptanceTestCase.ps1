@@ -2,7 +2,7 @@
 # Creates a new E2E acceptance test case directory structure with an automatically assigned E2E-NNN ID
 # Creates test-case.md from template, project/ and expected/ subdirectories
 # Optionally creates run.ps1 skeleton for scripted (automatable) test cases
-# Updates master test file's "If Failed" table, test-tracking.md, and feature-tracking.md
+# Updates master test file's "If Failed" table, e2e-test-tracking.md, and feature-tracking.md
 
 <#
 .SYNOPSIS
@@ -15,7 +15,7 @@
     - Copying and customizing test-case.md from the E2E acceptance test case template
     - Optionally creating a run.ps1 skeleton for scripted (automatable) test cases
     - Adding the test case to the group's master test "If Failed" table
-    - Adding a new entry to test-tracking.md via Add-TestImplementationEntry
+    - Adding a new entry to e2e-test-tracking.md
     - Updating feature-tracking.md Test Status via Update-FeatureTrackingStatus
 
 .PARAMETER TestCaseName
@@ -67,7 +67,7 @@
     - Requires PowerShell execution policy to allow script execution
     - Automatically updates the central ID registry with new E2E ID assignments
     - Creates the test group directory if -NewGroup is specified
-    - Updates master test, test-tracking.md, and feature-tracking.md automatically
+    - Updates master test, e2e-test-tracking.md, and feature-tracking.md automatically
     - The test-case.md, project/, and expected/ contents must be customized after creation
     - When -Scripted is used, run.ps1 skeleton is also created and must be customized
     - Scripted test cases can be executed via Run-E2EAcceptanceTest.ps1 (Setup → run.ps1 → wait → Verify)
@@ -395,12 +395,12 @@ Write-Warning "run.ps1 is a skeleton — replace this with the actual test actio
         Write-Warning "Master test file not found: $masterTestFile. Skipping master test update."
     }
 
-    # --- 7. Update test-tracking.md (dedicated E2E section) ---
-    $testTrackingPath = Join-Path $projectRoot "test/state-tracking/permanent/test-tracking.md"
+    # --- 7. Update e2e-test-tracking.md ---
+    $testTrackingPath = Join-Path $projectRoot "test/state-tracking/permanent/e2e-test-tracking.md"
     if (Test-Path $testTrackingPath) {
         $trackingContent = Get-Content $testTrackingPath -Raw -Encoding UTF8
 
-        # Build relative path from test-tracking.md to the test case
+        # Build relative path from e2e-test-tracking.md to the test case
         $testCaseRelativePath = "../../../../test/e2e-acceptance-testing/templates/$GroupName/$e2eId-$TestCaseName/test-case.md"
         $trackingNotes = if ($Description) { $Description } else { ($TestCaseName -replace '-', ' ') }
         $workflowCol = if ($Workflow) { $Workflow } else { "—" }
@@ -459,7 +459,7 @@ Write-Warning "run.ps1 is a skeleton — replace this with the actual test actio
         }
 
         if (-not $rowAdded) {
-            Write-Warning "Could not find E2E Test Cases table in test-tracking.md"
+            Write-Warning "Could not find E2E Test Cases table in e2e-test-tracking.md"
         }
 
         $updatedContent = $updatedLines -join "`n"
@@ -502,9 +502,9 @@ Write-Warning "run.ps1 is a skeleton — replace this with the actual test actio
             $updatedContent = $milestoneUpdated -join "`n"
         }
 
-        if ($PSCmdlet.ShouldProcess($testTrackingPath, "Add E2E test entry to test-tracking.md")) {
+        if ($PSCmdlet.ShouldProcess($testTrackingPath, "Add E2E test entry to e2e-test-tracking.md")) {
             Set-Content $testTrackingPath $updatedContent -Encoding UTF8
-            Write-Verbose "Updated test-tracking.md with $e2eId"
+            Write-Verbose "Updated e2e-test-tracking.md with $e2eId"
         }
     } else {
         Write-Warning "Test tracking file not found: $testTrackingPath"
@@ -582,12 +582,12 @@ Write-Warning "run.ps1 is a skeleton — replace this with the actual test actio
     $details += @(
         "",
         "State tracking updated:",
-        "  - test-tracking.md: $e2eId entry added (dedicated E2E section)"
+        "  - e2e-test-tracking.md: $e2eId entry added"
     )
     if ($NewGroup) {
-        $details += "  - test-tracking.md: $grpIdForRegistry group entry added (E2E Test Cases table)"
+        $details += "  - e2e-test-tracking.md: $grpIdForRegistry group entry added (E2E Test Cases table)"
         if ($Workflow) {
-            $details += "  - test-tracking.md: Workflow Milestone Tracking updated ($Workflow += $grpIdForRegistry)"
+            $details += "  - e2e-test-tracking.md: Workflow Milestone Tracking updated ($Workflow += $grpIdForRegistry)"
         }
     }
     $details += @(

@@ -211,9 +211,9 @@ Before submitting your customized Framework Extension Concept document, verify:
 ## Related Resources
 
 ### Framework Documentation
-- [Framework Extension Task Definition](../tasks/support/framework-extension-task.md) - Complete task definition and process
+- [Framework Extension Task Definition](../../tasks/support/framework-extension-task.md) - Complete task definition and process
 - [Framework Extension Concept Template](../../templates/support/framework-extension-concept-template.md) - Template structure and sections
-- [New-FrameworkExtensionConcept.ps1](../proposals/New-FrameworkExtensionConcept.ps1) - Script for generating concept templates
+- [New-FrameworkExtensionConcept.ps1](../../scripts/file-creation/support/New-FrameworkExtensionConcept.ps1) - Script for generating concept templates
 
 ### Supporting Guides
 - [Template Development Guide](template-development-guide.md) - Best practices for creating templates
@@ -221,13 +221,13 @@ Before submitting your customized Framework Extension Concept document, verify:
 - [Task Definition Guide](task-definition-guide.md) - Guidelines for defining new tasks
 
 ### Framework Infrastructure
-- [Documentation Map](../documentation-map.md) - Complete framework documentation index
+- [Documentation Map](../../documentation-map.md) - Complete framework documentation index
 - [AI Tasks Registry](../../ai-tasks.md) - Main task registry and entry point
-- [PF ID Registry](../PF-id-registry.json) - Document ID assignment and tracking
+- [PF ID Registry](../../PF-id-registry.json) - Document ID assignment and tracking
 
 ---
 
-*This guide focuses specifically on customizing Framework Extension Concept documents. For guidance on using the Framework Extension Task itself, see the [Framework Extension Task Definition](../tasks/support/framework-extension-task.md).*
+*This guide focuses specifically on customizing Framework Extension Concept documents. For guidance on using the Framework Extension Task itself, see the [Framework Extension Task Definition](../../tasks/support/framework-extension-task.md).*
    - Session 2: Templates for performance specifications and reports
    - Session 3: Guides for performance monitoring usage
    - Session 4: Integration with existing development tasks
@@ -303,7 +303,7 @@ Before submitting your customized Framework Extension Concept document, verify:
 ## Related Resources
 
 ### Framework Documentation
-- [Framework Extension Task Definition](../../support/framework-extension-task.md) - Complete task definition and specifications
+- [Framework Extension Task Definition](../../tasks/support/framework-extension-task.md) - Complete task definition and specifications
 - [Framework Extension Concept Template](../../templates/support/framework-extension-concept-template.md) - Template for creating concept documents
 - [Task Creation Guide](task-creation-guide.md) - Guide for creating individual tasks
 - [Documentation Structure Guide](../framework/documentation-structure-guide.md) - Framework documentation standards
@@ -318,6 +318,6 @@ Before submitting your customized Framework Extension Concept document, verify:
 - [Guide Creation Best Practices Guide](guide-creation-best-practices-guide.md) - Best practices for creating guides
 
 ### Process Framework Core
-- [AI Tasks Registry](../../../ai-tasks.md) - Complete list of available tasks
+- [AI Tasks Registry](../../ai-tasks.md) - Complete list of available tasks
 - [Documentation Map](../../documentation-map.md) - Map of all framework documentation
 - [Process Framework Overview](../../README.md) - Overview of the entire process framework

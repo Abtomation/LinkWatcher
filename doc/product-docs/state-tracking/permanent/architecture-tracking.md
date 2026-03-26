@@ -76,9 +76,9 @@ cd doc/product-docs/technical/architecture/design-docs/adr/
 - [Task Transition Guide](../../../process-framework/guides/framework/task-transition-guide.md) - Workflow patterns including architectural transitions
 
 ### Architecture Context Packages
-- [Data Architecture Context](../../../product-docs/technical/architecture/context-packages/data-architecture-context.md) - Repository pattern and data layer architecture
-- [Auth Architecture Context](../../../product-docs/technical/architecture/context-packages/auth-architecture-context.md) - Authentication and authorization architecture
-- [API Architecture Context](../../../product-docs/technical/architecture/context-packages/api-architecture-context.md) - API design patterns and standards
+- ~~Data Architecture Context~~ - Repository pattern and data layer architecture *(context packages not yet created for this project)*
+- ~~Auth Architecture Context~~ - Authentication and authorization architecture *(context packages not yet created for this project)*
+- ~~API Architecture Context~~ - API design patterns and standards *(context packages not yet created for this project)*
 
 ### Primary Tracking
 - [Feature Tracking](feature-tracking.md) - Primary tracking for foundation features (0.x.x) with architectural context links

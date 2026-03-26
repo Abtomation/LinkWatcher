@@ -56,7 +56,7 @@ This guide provides a structured approach for assessing the appropriate document
    - Add placeholders for scores and justifications
    - Open the file in your editor if the -OpenInEditor switch is used
 
-   For more detailed examples of script usage, including how to create multiple assessment files at once, see the <!-- [Script Usage Example](../../../../product-docs/documentation-tiers/script-usage-example.md) - Template/example link commented out --> document.
+   For more detailed examples of script usage, including how to create multiple assessment files at once, refer to the script's built-in help (`Get-Help .\New-TierAssessment.ps1 -Full`).
 
    **Troubleshooting Script Execution:**
 

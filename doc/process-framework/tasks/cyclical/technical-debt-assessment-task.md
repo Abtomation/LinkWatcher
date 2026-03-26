@@ -143,7 +143,7 @@ Systematic approach to identifying, categorizing, and prioritizing technical deb
 **Feeds Into:**
 
 - [Code Refactoring Task](../06-maintenance/code-refactoring-task.md) - Provides prioritized debt items for systematic remediation
-- [System Architecture Review](../01-planning/system-architecture-review-task.md) - Informs architectural improvement decisions
+- [System Architecture Review](../01-planning/system-architecture-review.md) - Informs architectural improvement decisions
 - [Feature Implementation Planning](../04-implementation/feature-implementation-planning-task.md) - Identifies debt considerations for new development
 
 **Supports:**
@@ -196,7 +196,7 @@ Before considering this task finished:
 ## Next Tasks
 
 - [**Code Refactoring Task**](../06-maintenance/code-refactoring-task.md) - Use prioritized debt items from assessment for systematic remediation
-- [**System Architecture Review**](../01-planning/system-architecture-review-task.md) - Address architectural debt identified during assessment
+- [**System Architecture Review**](../01-planning/system-architecture-review.md) - Address architectural debt identified during assessment
 - [**Feature Implementation Planning**](../04-implementation/feature-implementation-planning-task.md) - Entry point to consider debt remediation during new feature development (leads to decomposed tasks PF-TSK-051 through PF-TSK-055)
 - [**Process Improvement Task**](../support/process-improvement-task.md) - Improve assessment process based on effectiveness metrics
 
@@ -230,5 +230,5 @@ Before considering this task finished:
 
 - [Technical Debt Tracking](../../../product-docs/state-tracking/permanent/technical-debt-tracking.md) - Current debt registry and management strategy
 - [Code Refactoring Task](../06-maintenance/code-refactoring-task.md) - Systematic approach to debt remediation
-- [System Architecture Review](../01-planning/system-architecture-review-task.md) - Architectural assessment and improvement
+- [System Architecture Review](../01-planning/system-architecture-review.md) - Architectural assessment and improvement
 - [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) - Process effectiveness metrics and improvements

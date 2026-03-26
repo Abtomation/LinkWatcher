@@ -15,7 +15,7 @@ task_name: enhancement-workflow-extension
 ## Extension Overview
 
 - **Parent Task**: Framework Extension Task (PF-TSK-026)
-- **Concept Document**: [Enhancement Workflow Concept (PF-PRO-002)](../../proposals/proposals/enhancement-workflow-concept.md)
+- **Concept Document**: [Enhancement Workflow Concept (PF-PRO-002)](../../proposals/proposals/old/enhancement-workflow-concept.md)
 - **Concept Status**: APPROVED (2026-02-19)
 - **Extension Scope**: 2 tasks + 1 template + 1 script + 1 guide + framework integration edits
 

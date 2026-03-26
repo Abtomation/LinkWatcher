@@ -95,7 +95,7 @@ try {
     if (Test-Path $docMapPath) {
         if ($PSCmdlet.ShouldProcess("Update documentation map with new task")) {
             $docMap = Get-Content -Path $docMapPath
-            $sectionHeader = "### $TaskType Tasks"
+            $sectionHeader = "#### $TaskType Tasks"
             $sectionIndex = $docMap.IndexOf($sectionHeader)
 
             if ($sectionIndex -ge 0) {

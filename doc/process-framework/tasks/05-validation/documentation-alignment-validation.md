@@ -43,11 +43,11 @@ Systematically validates selected features for documentation alignment, ensuring
 
 - **Important (Load If Space):**
 
-  - **Architecture Decision Records** - [ADR Directory](../../../product-docs/technical/architecture/decisions) - Architectural decisions to validate compliance
+  - **Architecture Decision Records** - [ADR Directory](../../../product-docs/technical/architecture/design-docs/adr/adr) - Architectural decisions to validate compliance
   - **API Documentation** - [API Documentation](../../../product-docs/technical/api) - API specifications to validate against implementation
   - **Codebase Structure** - Source code directory - Source code for selected features to analyze
   - **New-ValidationReport Script** - [../../scripts/file-creation/05-validation/New-ValidationReport.ps1](../../scripts/file-creation/05-validation/New-ValidationReport.ps1) - Script for generating validation reports
-  - **Component Relationship Index** - [Component Relationship Index](../../../product-docs/technical/architecture/component-relationship-index.md) - For understanding component interactions
+  <!-- Component Relationship Index - Removed: file deleted -->
   - **Feature Implementation State Files** - [Feature State Directory](../../state-tracking/features/) - Implementation state files with feature status, TDD/FDD links, and validation context
 
 - **Reference Only (Access When Needed):**

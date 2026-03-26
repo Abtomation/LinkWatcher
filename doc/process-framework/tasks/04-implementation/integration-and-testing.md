@@ -5,7 +5,7 @@ category: Task Definition
 domain: development
 version: 2.1
 created: 2025-12-13
-updated: 2026-03-02
+updated: 2026-03-25
 task_type: Discrete
 change_notes: "v2.0 - Made tech-agnostic, absorbed PF-TSK-029 (Test Implementation) automation and bug discovery workflow, unified state tracking"
 ---
@@ -14,14 +14,14 @@ change_notes: "v2.0 - Made tech-agnostic, absorbed PF-TSK-029 (Test Implementati
 
 ## Purpose & Context
 
-Implement comprehensive test coverage for a feature and verify that all components integrate correctly. This task creates test files using automation scripts, fills test gaps identified from Test Specifications and TDDs, validates end-to-end workflows, and ensures proper coverage across all required test types. The goal is to confirm the feature functions as a cohesive system with robust test coverage.
+Verify unit test completeness, implement integration and cross-component tests, validate end-to-end workflows, and ensure proper coverage across all required test types. Unit tests are created by implementation tasks (PF-TSK-078, PF-TSK-051, PF-TSK-022); this task verifies their completeness against the Test Specification, fills any remaining gaps, and builds the higher-level test layers (component, integration, e2e). The goal is to confirm the feature functions as a cohesive system with robust test coverage.
 
 
 ## AI Agent Role
 
 **Role**: Test Engineer
 **Mindset**: Quality-focused engineer specializing in test strategy, comprehensive coverage, and integration verification
-**Focus Areas**: Test implementation, integration test design, test coverage analysis, mock/stub creation, error scenario testing, bug discovery
+**Focus Areas**: Integration test design, cross-component validation, e2e workflow testing, coverage gap analysis, mock/stub creation, error scenario testing, bug discovery
 **Communication Style**: Propose test scenarios with edge cases, highlight integration risks, ask about acceptable test coverage thresholds and testing priorities
 
 ## When to Use
@@ -59,11 +59,11 @@ Implement comprehensive test coverage for a feature and verify that all componen
   - **Feature Tracking** - [Feature details from feature-tracking.md](../../../product-docs/state-tracking/permanent/feature-tracking.md) for context
   - **Feature Implementation State File** (if exists) - Implementation progress and context at `/doc/product-docs/state-tracking/features`
   - [Existing Test Structure](/test/) - Current test organization and patterns
-  - [Mock Services](/test/mocks/) - Available mock implementations for testing
-  - [Test Helpers](/test/test_helpers/) - Utility functions for test setup
+  <!-- - [Mock Services](/test/mocks/) - Directory does not exist in this project -->
+  <!-- - [Test Helpers](/test/test_helpers/) - Directory does not exist in this project -->
 
 - **Reference Only (Access When Needed):**
-  - [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - For understanding component interactions
+  <!-- [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Removed: file deleted -->
   - **Existing Test Examples** - Similar test implementations in codebase for pattern consistency
   - [Development Guide](/doc/process-framework/guides/04-implementation/development-guide.md) - Testing standards and practices
 
@@ -109,11 +109,11 @@ Implement comprehensive test coverage for a feature and verify that all componen
    # - Updates feature-tracking.md with test implementation progress
    ```
 
-8. **Implement Unit Tests**: Write comprehensive unit tests following specification requirements
-   - Test individual functions/methods with various inputs and edge cases
-   - Test error handling and validation logic
-   - Test state transitions and side effects
-   - Achieve minimum 80% code coverage for business logic
+8. **Verify Unit Test Completeness**: Review unit tests created by implementation tasks (PF-TSK-078, PF-TSK-051, PF-TSK-022) against the Test Specification
+   - Check that all specified unit test scenarios are covered
+   - Identify any gaps in edge case coverage, error handling, or state transitions
+   - Fill remaining gaps by creating additional unit tests via `New-TestFile.ps1`
+   - Verify minimum 80% code coverage for business logic
 9. **Implement Component Tests**: Build tests for component-level interactions
    - Test component behavior with different state inputs
    - Test user interactions and event handling
@@ -204,7 +204,7 @@ Implement comprehensive test coverage for a feature and verify that all componen
 The following state files are automatically updated by the `New-TestFile.ps1` script:
 
 - [Test Tracking](../../../../test/state-tracking/permanent/test-tracking.md) - Automatically updated with Implementation In Progress status, test file links with correct relative paths, and metadata
-- [Test Registry](/test/test-registry.yaml) - Automatically updated with test file entries, implementation status, and test case counts
+- [Test Registry](/test/test-registry.yaml) - Automatically updated with test file entries, metadata, and test case counts (status tracked in test-tracking.md)
 - [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) - Automatically updated with Test Status column reflecting implementation progress
 
 **Manual updates required for:**
@@ -220,7 +220,8 @@ The following state files are automatically updated by the `New-TestFile.ps1` sc
 Before considering this task finished:
 
 - [ ] **Verify Outputs**: Confirm all required outputs have been produced
-  - [ ] Test files created using `New-TestFile.ps1` for all required test categories
+  - [ ] Unit test completeness verified against Test Specification (gaps filled via `New-TestFile.ps1`)
+  - [ ] Component, integration, and e2e test files created using `New-TestFile.ps1`
   - [ ] All tests pass when executed
   - [ ] Test coverage meets specification requirements (typically 80%+ for business logic)
   - [ ] Integration tests validate end-to-end workflows

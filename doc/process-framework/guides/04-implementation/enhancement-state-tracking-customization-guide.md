@@ -492,6 +492,6 @@ For single-session enhancements: Remove the Session Boundary Planning section en
 - [Enhancement State Tracking Template (PF-TEM-045)](../../templates/04-implementation/enhancement-state-tracking-template-template.md) — The template that `New-EnhancementState.ps1` uses
 - [Feature Request Evaluation Task (PF-TSK-067)](../../tasks/01-planning/feature-request-evaluation.md) — The task that uses this guide
 - [Feature Enhancement Task (PF-TSK-068)](../../tasks/04-implementation/feature-enhancement.md) — The task that consumes the customized state file
-- [Enhancement Workflow Concept (PF-PRO-002)](../../proposals/proposals/enhancement-workflow-concept.md) — Design rationale for the workflow
+- [Enhancement Workflow Concept (PF-PRO-002)](../../proposals/proposals/old/enhancement-workflow-concept.md) — Design rationale for the workflow
 - [Task Transition Guide](../framework/task-transition-guide.md) — The standard feature development workflow that this template follows
 - [Documentation Tier Adjustment (PF-TSK-011)](../../tasks/cyclical/documentation-tier-adjustment-task.md) — Referenced by Step 1 (Tier Reassessment)

@@ -644,6 +644,6 @@ When skipping a criterion, exclude it from the score denominator so it doesn't p
 
 ### Supporting Documentation
 
-- [AI Task-Based Development System](../../../ai-tasks.md) - Main task system entry point
+- [AI Task-Based Development System](../../ai-tasks.md) - Main task system entry point
 - [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) - Current feature status
 - [Visual Notation Guide](../support/visual-notation-guide.md) - For interpreting context maps and diagrams

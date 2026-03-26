@@ -4,7 +4,7 @@ type: Process Framework
 category: Task Definition
 version: 1.2
 created: 2025-07-26
-updated: 2026-03-02
+updated: 2026-03-25
 task_type: Discrete
 ---
 
@@ -36,7 +36,7 @@ Specialized task for implementing foundation features (0.x.x) that provide archi
 - **Critical (Must Read):**
 
   - [Foundation Feature Template](../../templates/04-implementation/foundation-feature-template.md) - Template for foundation feature structure and architectural documentation
-  - [Architecture Context Packages](../../state-tracking/permanent/architecture-context-packages.md) - Current architectural context and component relationships
+
   - [Architecture Tracking](../../../product-docs/state-tracking/permanent/architecture-tracking.md) - Ongoing architectural decisions and evolution
 
 - **Important (Load If Space):**
@@ -63,7 +63,7 @@ Specialized task for implementing foundation features (0.x.x) that provide archi
 
 ### Preparation
 
-1. **Review Architecture Context**: Study current [Architecture Context Packages](../../state-tracking/permanent/architecture-context-packages.md) to understand existing architectural foundations
+1. **Review Architecture Context**: Study current architectural foundations
 2. **Analyze Cross-Cutting Impact**: Identify which components and features will be affected by this foundation implementation
 3. **Create Foundation Feature Structure**: Use [Foundation Feature Template](../../templates/04-implementation/foundation-feature-template.md) to establish the feature structure
 4. **🚨 CHECKPOINT**: Present architecture context review, cross-cutting impact analysis, and foundation feature structure to human partner for approval before implementation
@@ -77,9 +77,24 @@ Specialized task for implementing foundation features (0.x.x) that provide archi
    cd doc/process-framework/templates
    ../../scripts/file-creation/02-design/New-ArchitectureDecision.ps1 -Title "Foundation Feature Architecture Decision" -Context "Foundation implementation context"
    ```
-7. **Update Architecture Context**: Modify [Architecture Context Packages](../../state-tracking/permanent/architecture-context-packages.md) to reflect new architectural foundations
+7. **Update Architecture Context**: Document new architectural foundations
 8. **Establish Patterns**: Document reusable patterns that other features can follow
-9. **Implement Tests**: Create comprehensive tests that validate both functionality and architectural constraints
+9. **Implement Tests**: Create tracked tests that validate both functionality and architectural constraints using `New-TestFile.ps1`
+
+   ```powershell
+   # Create test files using automation script (generates TE-TST-[SEQUENCE] IDs)
+   # Test types depend on project language (auto-detected from project-config.json)
+   cd doc/process-framework/scripts/file-creation/03-testing
+   .\New-TestFile.ps1 -TestName "FeatureName" -TestType "Unit" -FeatureId "0.X.Z" -ComponentName "ComponentName" -Priority "Critical"
+
+   # Use Critical priority for foundation features
+   # Script automatically:
+   # - Generates unique TE-TST ID
+   # - Creates test file from template with proper structure
+   # - Updates test-tracking.md with correct file links and status
+   # - Updates test-registry.yaml with test file metadata
+   # - Updates feature-tracking.md with test implementation progress
+   ```
 10. **🚨 CHECKPOINT**: Present core foundation implementation, architectural decisions, established patterns, and test results to human partner for review before finalization
 
 ### Finalization
@@ -169,9 +184,15 @@ Specialized task for implementing foundation features (0.x.x) that provide archi
 
 ## State Tracking
 
-The following state files must be updated as part of this task:
+### Automated Updates (via `New-TestFile.ps1`)
 
-- [Architecture Context Packages](../../state-tracking/permanent/architecture-context-packages.md) - Update with new architectural foundations and component relationships
+- [Test Tracking](../../../../test/state-tracking/permanent/test-tracking.md) - Automatically updated with test file links and status
+- [Test Registry](/test/test-registry.yaml) - Automatically updated with test file entries and metadata
+- [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) - Automatically updated with test implementation progress
+
+### Manual Updates
+
+
 - [Architecture Tracking](../../../product-docs/state-tracking/permanent/architecture-tracking.md) - Record foundation implementation and architectural evolution
 - [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) - Update with foundation feature status (set to "👀 Ready for Review" when implementation and testing are complete)
 
@@ -187,13 +208,14 @@ Before considering this task finished:
   - [ ] Foundation feature implementation is complete and functional
   - [ ] ADRs created for all significant architectural decisions
   - [ ] Foundation usage patterns documented
-  - [ ] Comprehensive test suite implemented and passing
+  - [ ] Comprehensive test suite created via `New-TestFile.ps1` and passing
   - [ ] Foundational validation executed and reports generated (using Quick-ValidationCheck.ps1 and/or Run-FoundationalValidation.ps1)
   - [ ] Validation reports show acceptable quality scores (average ≥ 2.0 on 4-point scale)
   - [ ] Bug discovery performed systematically during foundation implementation
   - [ ] Any discovered bugs reported using ../../scripts/file-creation/06-maintenance/New-BugReport.ps1 script with proper context and evidence
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
-  - [ ] [Architecture Context Packages](../../state-tracking/permanent/architecture-context-packages.md) updated with new foundations
+  - [ ] Test tracking files automatically updated by `New-TestFile.ps1` (verify correctness)
+
   - [ ] [Architecture Tracking](../../../product-docs/state-tracking/permanent/architecture-tracking.md) updated with implementation record
   - [ ] [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) updated with status set to "👀 Ready for Review"
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-024" and context "Foundation Feature Implementation Task"
@@ -205,6 +227,5 @@ Before considering this task finished:
 
 ## Related Resources
 
-- [Foundation Feature Implementation Task Concept](../../proposals/proposals/old/foundation-feature-implementation-task-concept.md) - Original concept document
-- [Architecture Context Packages](../../state-tracking/permanent/architecture-context-packages.md) - Architectural context and relationships
+
 - [Architecture Tracking](../../../product-docs/state-tracking/permanent/architecture-tracking.md) - Architectural evolution tracking

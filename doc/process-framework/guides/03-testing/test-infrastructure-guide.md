@@ -4,8 +4,8 @@ type: Document
 category: Guide
 version: 1.1
 created: 2026-03-16
-updated: 2026-03-18
-guide_description: How the test/ directory connects to the process framework
+updated: 2026-03-25
+guide_description: How the test/ directory connects to the process framework, including new-project scaffolding
 related_tasks: PF-TSK-053,PF-TSK-012,PF-TSK-030,PF-TSK-069,PF-TSK-070
 guide_status: Active
 guide_category: 03-testing
@@ -55,7 +55,7 @@ test/
 │   ├── workspace/                  # Generated working copies (gitignored)
 │   └── results/                    # Execution logs (gitignored)
 │
-├── audits/                         # Test audit reports (PF-TAR-*)
+├── audits/                         # Test audit reports (TE-TAR-*)
 │   └── <category>/                 # Grouped by feature category
 │
 └── test-registry.yaml              # Central registry of all test files (PD-TST-*)
@@ -67,16 +67,18 @@ test/
 
 | File | Location | Purpose | Updated By |
 |------|----------|---------|------------|
-| **test-registry.yaml** | `test/` | Central registry of all automated test files with PD-TST IDs, feature mappings, and status | `New-TestFile.ps1` (automated), manual edits |
-| **test-tracking.md** | `doc/process-framework/state-tracking/permanent` | Workflow status tracker — test implementation progress, audit results, execution dates | `New-TestFile.ps1`, `Update-TestExecutionStatus.ps1`, manual edits |
+| **test-registry.yaml** | `test/` | Central registry of all automated test files with TE-TST IDs, feature mappings, and metadata (priority, testType, crossCuttingFeatures) | `New-TestFile.ps1` (automated), manual edits |
+| **test-tracking.md** | `test/state-tracking/permanent` | Automated test implementation progress, audit results | `New-TestFile.ps1`, manual edits |
+| **e2e-test-tracking.md** | `test/state-tracking/permanent` | E2E acceptance test cases, workflow milestones, execution status | `New-E2EAcceptanceTestCase.ps1`, `Update-TestExecutionStatus.ps1`, manual edits |
 | **feature-tracking.md** | `doc/process-framework/state-tracking/permanent` | Feature-level test status column | `New-TestFile.ps1`, `Update-TestExecutionStatus.ps1` |
 
 ### Key Principle: No Duplicate Tracking
 
 The process framework eliminated redundant test tracking files. There is **no** separate README, TEST_PLAN, TEST_CASE_STATUS, or TEST_CASE_TEMPLATE in the test directory. All tracking is handled by:
 
-- **test-registry.yaml** — what test files exist, their IDs, features, and status
-- **test-tracking.md** — workflow status, audit results, execution history
+- **test-registry.yaml** — what test files exist, their IDs, features, and metadata
+- **test-tracking.md** — automated test status, audit results
+- **e2e-test-tracking.md** — E2E acceptance test cases and workflow milestones
 - **test specifications** — what should be tested (derived from TDDs)
 - **E2E acceptance test case templates** (PF-TEM-053, PF-TEM-054) — how to create E2E acceptance tests
 
@@ -87,12 +89,12 @@ The process framework eliminated redundant test tracking files. There is **no** 
 | `New-TestFile.ps1` | `scripts/file-creation/` | Create automated test files with PD-TST IDs |
 | `New-E2EAcceptanceTestCase.ps1` | `scripts/file-creation/` | Create E2E acceptance test cases with TE-E2E/TE-E2G IDs |
 | `New-TestSpecification.ps1` | `scripts/file-creation/` | Create test specifications with PF-TSP IDs |
-| `New-TestAuditReport.ps1` | `scripts/file-creation/` | Create test audit reports with PF-TAR IDs |
+| `New-TestAuditReport.ps1` | `scripts/file-creation/` | Create test audit reports with TE-TAR IDs, update test-tracking.md |
 | `Run-Tests.ps1` | `scripts/test/` | Language-agnostic test runner (reads project-config.json + languages-config/) |
 | `Setup-TestEnvironment.ps1` | `scripts/test/e2e-acceptance-testing/` | Copy pristine fixtures to workspace for E2E acceptance testing |
 | `Verify-TestResult.ps1` | `scripts/test/e2e-acceptance-testing/` | Compare workspace state against expected state |
 | `Run-E2EAcceptanceTest.ps1` | `scripts/test/e2e-acceptance-testing/` | Orchestrate scripted test pipeline: Setup → run.ps1 → wait → Verify |
-| `Update-TestExecutionStatus.ps1` | `scripts/test/e2e-acceptance-testing/` | Update test-tracking.md with E2E acceptance test results |
+| `Update-TestExecutionStatus.ps1` | `scripts/test/e2e-acceptance-testing/` | Update e2e-test-tracking.md with E2E acceptance test results |
 | `Validate-TestTracking.ps1` | `scripts/validation/` | Validate consistency between registry, tracking, and disk |
 
 ### Related Tasks
@@ -162,7 +164,7 @@ User Workflow Map (what workflows exist, which features they need)
 **Key files:**
 - [User Workflow Map](/doc/product-docs/technical/design/user-workflow-map.md) — planning artifact mapping workflows to features
 - [Cross-cutting E2E specs](/test/specifications/cross-cutting-specs/) — scenario definitions per workflow
-- **test-tracking.md** dedicated E2E section — Workflow Milestone Tracking + E2E Test Cases table
+- **e2e-test-tracking.md** — Workflow Milestone Tracking + E2E Test Cases table
 - **test-registry.yaml** — E2E entries with `featureIds` (multi-feature), `workflow`, `group` fields
 
 **E2E entries in test-registry.yaml** use `type: e2e-group` or `type: e2e-case` with `TE-E2G-NNN` / `TE-E2E-NNN` IDs:
@@ -262,18 +264,80 @@ pwsh.exe -ExecutionPolicy Bypass -Command '& doc/process-framework/scripts/test/
 
 ## Setting Up Test Infrastructure for a New Project
 
-When adopting the process framework into an existing project:
+Use this section when adopting the process framework into an existing project or scaffolding tests for a new one. This is typically done during Project Initiation (PF-TSK-063) or the onboarding workflow (PF-TSK-064 → PF-TSK-066).
 
-1. Create the `test/` directory structure (automated/, specifications/, e2e-acceptance-testing/)
-2. Create `test/test-registry.yaml` with the standard header
-3. Ensure a language config exists in `languages-config/` for your language (create one if not — see [README](/doc/process-framework/languages-config/README.md))
-4. Set `testing.language` and `testing.testDirectory` in `project-config.json`
-5. Optionally set `testing.quickCategories` for your most-used test subdirectories
-6. Set up language-specific test runner config (e.g., `pytest.ini` for Python)
-7. Migrate existing tests into subdirectories (unit/, integration/, etc.)
-8. Register test files using `New-TestFile.ps1`
+### 1. Create test directory structure
 
-This is typically done during the onboarding workflow (PF-TSK-064 Codebase Feature Discovery → PF-TSK-066 Retrospective Documentation Creation).
+Create subdirectories matching your test categories in `project-config.json`:
+
+```bash
+mkdir -p test/automated/unit
+mkdir -p test/automated/integration
+mkdir -p test/automated/performance   # optional
+mkdir -p test/specifications/feature-specs
+mkdir -p test/e2e-acceptance-testing/templates
+```
+
+**Expected Result:** Subdirectories exist and `Run-Tests.ps1 -ListCategories` shows them.
+
+### 2. Configure project and language settings
+
+Ensure `project-config.json` has the testing section:
+
+```json
+{
+  "testing": {
+    "testDirectory": "test/automated",
+    "quickCategories": ["unit"],
+    "language": "<your-language>"
+  }
+}
+```
+
+Ensure a language config exists in `languages-config/{language}-config.json`. If not, create one from the [Language Config Template](/doc/process-framework/templates/support/language-config-template.json) — see the [Language Configurations README](/doc/process-framework/languages-config/README.md) for details.
+
+### 3. Create test runner configuration
+
+Each language has a native config file that the test runner reads directly. Create the appropriate config for your language:
+
+| Language | Native Config | Framework Config | Runner Setup |
+|----------|--------------|-----------------|--------------|
+| Python | `pytest.ini` or `pyproject.toml` | `python-config.json` | `pip install pytest pytest-cov` |
+| Dart | `dart_test.yaml` | `dart-config.json` | Included with Flutter SDK |
+| JavaScript | `jest.config.js` | `javascript-config.json` | `npm install --save-dev jest` |
+
+Consult your language config's `testing.baseCommand` and `testing.discoveryCommand` fields for the expected runner and discovery commands.
+
+**Expected Result:** Your language's test discovery command finds tests from the configured directory.
+
+### 4. Create shared test fixtures / setup
+
+Create a shared setup file appropriate for your language (e.g., `conftest.py` for Python, `jest.setup.js` for JavaScript). Register it in your language config's `testSetup.configFiles` array.
+
+**Expected Result:** Your language's fixture/setup discovery command shows the shared fixtures.
+
+### 5. Initialize framework tracking
+
+Create `test/test-registry.yaml` with the standard header. Register each test file as it's created:
+
+```powershell
+# Via New-TestFile.ps1 (preferred — auto-updates registry + tracking)
+# Or manually via TestTracking.psm1:
+Add-TestRegistryEntry -FeatureId "X.Y.Z" -FileName "test_example.py" `
+  -FilePath "test/automated/unit/test_example.py" -TestType "Unit" `
+  -ComponentName "Example Component"
+```
+
+**Expected Result:** `Validate-TestTracking.ps1` passes with 0 errors.
+
+### 6. Verify the setup
+
+```powershell
+Run-Tests.ps1 -ListCategories      # Categories discovered
+Run-Tests.ps1 -Quick                # Quick tests pass
+Run-Tests.ps1 -All -Coverage        # Full run with coverage
+Validate-TestTracking.ps1           # Framework tracking consistent
+```
 
 ## Related Resources
 
@@ -283,3 +347,5 @@ This is typically done during the onboarding workflow (PF-TSK-064 Codebase Featu
 - [E2E Acceptance Test Case Creation Task (PF-TSK-069)](/doc/process-framework/tasks/03-testing/e2e-acceptance-test-case-creation-task.md)
 - [E2E Acceptance Test Case Template (PF-TEM-054)](/doc/process-framework/templates/03-testing/e2e-acceptance-test-case-template.md)
 - [Test File Template (test-file-template.py)](/doc/process-framework/templates/03-testing/test-file-template.py)
+- [Language Config Template](/doc/process-framework/templates/support/language-config-template.json) — Template for new language configurations
+- [Language Configurations README](/doc/process-framework/languages-config/README.md) — How to add support for new languages

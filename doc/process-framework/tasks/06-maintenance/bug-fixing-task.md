@@ -70,7 +70,7 @@ Diagnose, fix, and verify solutions for reported bugs or issues in the applicati
    ```
    After creation, **customize the state file to the specific bug**: fill in the Implementation Progress table with the files/components that will need changing, identify which documents need updating in the Documentation Updates table, and outline the resolution plan in the Fix Approach section. This plan serves as the blueprint for the fix and enables session handover.
    For single-session bugs (Small/Medium effort), skip this step — no state file needed.
-5. **Check manual test coverage**: Review [test-tracking.md](../../../../test/state-tracking/permanent/test-tracking.md) for existing manual test cases covering the affected behavior. If no manual test exists and the bug involves user-observable behavior, consider creating a reproduction test case via [Manual Test Case Creation](../03-testing/e2e-acceptance-test-case-creation-task.md) before fixing.
+5. **Check manual test coverage**: Review [e2e-test-tracking.md](../../../../test/state-tracking/permanent/e2e-test-tracking.md) for existing E2E test cases covering the affected behavior. If no E2E test exists and the bug involves user-observable behavior, consider creating a reproduction test case via [E2E Test Case Creation](../03-testing/e2e-acceptance-test-case-creation-task.md) before fixing.
 6. Reproduce the bug to understand its exact behavior and confirm the issue
    - For code-structural bugs (e.g., missing error handling, absent code paths), confirming the gap through code review serves as reproduction
 6. Document the reproduction steps for future reference
@@ -114,7 +114,7 @@ Diagnose, fix, and verify solutions for reported bugs or issues in the applicati
     - **If multi-session**: Track each file change in the Implementation Progress table
 15. Verify regression tests now **PASS** with the fix applied, and test thoroughly to ensure the fix resolves the issue completely
     - **If multi-session (architectural changes)**: Run the full test suite and document results in the Validation Status section of the bug fix state file
-16. **Run full regression test suite** (`Run-Tests.ps1 -All`) to confirm the fix doesn't introduce regressions elsewhere. If manual tests exist for the affected feature, set their status to "Needs Re-execution" in test-tracking.md.
+16. **Run full regression test suite** (`Run-Tests.ps1 -All`) to confirm the fix doesn't introduce regressions elsewhere. If E2E tests exist for the affected feature, set their status to "Needs Re-execution" in e2e-test-tracking.md.
 17. Verify that the fix doesn't introduce new problems
 18. Check for similar issues in other parts of the codebase
     - If the root cause is a shared pattern (e.g., regex, utility function), check **all** components that use the same pattern

@@ -223,7 +223,7 @@ Solution: Use only: Critical, High, Medium, Low
 
 ## Related Resources
 
-- [Bug Tracking State File](../state-tracking/permanent/bug-tracking.md) - Central bug registry
+- [Bug Tracking State File](../../../product-docs/state-tracking/permanent/bug-tracking.md) - Central bug registry
 - [Bug Triage Task](../../tasks/06-maintenance/bug-triage-task.md) - Bug evaluation and prioritization
 - [Bug Fixing Task](../../tasks/06-maintenance/bug-fixing-task.md) - Bug resolution workflow
 - [Test Audit Task](../../tasks/03-testing/test-audit-task.md) - Testing workflow with bug discovery

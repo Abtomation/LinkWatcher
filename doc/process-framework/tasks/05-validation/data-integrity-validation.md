@@ -47,7 +47,7 @@ Systematically validates selected features for data consistency, constraint enfo
   - **Technical Design Documents** - [TDD Directory](../../../product-docs/technical/architecture/design-docs/tdd) - Data handling design specifications
   - **Test Suites** - Test directory - Existing data integrity and edge case tests
   - **New-ValidationReport Script** - [../../scripts/file-creation/05-validation/New-ValidationReport.ps1](../../scripts/file-creation/05-validation/New-ValidationReport.ps1) - Script for generating validation reports
-  - **Component Relationship Index** - [Component Relationship Index](../../../product-docs/technical/architecture/component-relationship-index.md) - For understanding component interactions
+  <!-- Component Relationship Index - Removed: file deleted -->
 
 - **Reference Only (Access When Needed):**
   - **Architecture Decision Records** - [ADR Directory](../../../product-docs/technical/architecture) - Data-related architectural decisions
@@ -141,4 +141,4 @@ Before considering this task finished:
 
 - [Feature Validation Guide](../../guides/05-validation/feature-validation-guide.md) - Comprehensive guide for conducting feature validation
 - [Database Schema Designs](../../../product-docs/technical/database/schemas) - Data model specifications
-- [Component Relationship Index](../../../product-docs/technical/architecture/component-relationship-index.md) - For understanding component interactions and data flow
+<!-- [Component Relationship Index](../../../product-docs/technical/architecture/component-relationship-index.md) - Removed: file deleted -->

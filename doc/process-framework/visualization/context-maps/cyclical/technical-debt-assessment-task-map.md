@@ -93,11 +93,10 @@ When starting a technical debt assessment:
 
 ## Related Documentation
 
-- [Technical Debt Assessment Task](../../tasks/cyclical/technical-debt-assessment-task.md) - Complete task definition with step-by-step process
-- [Assessment Criteria Guide](../../guides/cyclical/assessment-criteria-guide.md) - Detailed identification criteria
-- [Prioritization Guide](../../guides/cyclical/prioritization-guide.md) - Impact/effort prioritization framework
-- [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md) - Permanent state tracking
+- [Technical Debt Assessment Task](../../../tasks/cyclical/technical-debt-assessment-task.md) - Complete task definition with step-by-step process
+- [Assessment Criteria Guide](../../../guides/cyclical/assessment-criteria-guide.md) - Detailed identification criteria
+- [Prioritization Guide](../../../guides/cyclical/prioritization-guide.md) - Impact/effort prioritization framework
+- [Technical Debt Tracking](../../../../product-docs/state-tracking/permanent/technical-debt-tracking.md) - Permanent state tracking
 
 ---
 
-_Note: This context map highlights only the components relevant to this specific task. For a comprehensive view of all components, refer to the [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md)._

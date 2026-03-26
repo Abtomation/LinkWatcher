@@ -47,7 +47,7 @@ Systematically validates selected features for extensibility and maintainability
   - **Test Infrastructure** - Test directory - Testing support and coverage analysis
   - **Technical Design Documents** - [TDD Directory](../../../product-docs/technical/design) - Architectural patterns and extension points
   - **New-ValidationReport Script** - [../../scripts/file-creation/05-validation/New-ValidationReport.ps1](../../scripts/file-creation/05-validation/New-ValidationReport.ps1) - Script for generating validation reports
-  - **Component Relationship Index** - [Component Relationship Index](../../../product-docs/technical/architecture/component-relationship-index.md) - For understanding component interactions
+  <!-- Component Relationship Index - Removed: file deleted -->
 
 - **Reference Only (Access When Needed):**
   - **Framework Best Practices** - Framework-specific extensibility patterns for your technology stack

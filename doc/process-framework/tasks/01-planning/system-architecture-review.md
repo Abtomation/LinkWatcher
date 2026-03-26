@@ -40,22 +40,22 @@ Evaluate how new features fit into existing system architecture before implement
 - **Critical (Must Read):**
 
   - **Functional Design Document (FDD)** - For Tier 2+ features, the FDD containing functional requirements and user flows that inform architectural decisions
-  - [Feature Discovery Document](../feature-discovery-task.md) - Understanding of the feature requirements and scope
-  - [Feature Tier Assessment](../feature-tier-assessment-task.md) - Complexity evaluation of the feature being reviewed
+  - [Feature Discovery Document](feature-discovery-task.md) - Understanding of the feature requirements and scope
+  - [Feature Tier Assessment](feature-tier-assessment-task.md) - Complexity evaluation of the feature being reviewed
   - [Architecture Tracking](../../../product-docs/state-tracking/permanent/architecture-tracking.md) - Current architectural state and cross-cutting decisions
   - [Architecture Decision Records](/doc/product-docs/technical/architecture/design-docs/adr/README.md) - Existing architectural decisions and context
 
 - **Important (Load If Space):**
 
   - [Architectural Framework Usage Guide](../../guides/01-planning/architectural-framework-usage-guide.md) - **ESSENTIAL**: Guide for managing architectural work and context packages
-  - [Architecture Context Packages](/doc/product-docs/technical/architecture/context-packages/) - Bounded architectural contexts for specific areas
-  - [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Understanding component interactions
-  - [Database Reference](/doc/product-docs/technical/architecture/database-reference.md) - Current data model and relationships
-  - [Project Structure](/doc/product-docs/technical/architecture/project-structure.md) - Code organization and module structure
+  <!-- - [Architecture Context Packages](/doc/product-docs/technical/architecture/context-packages/) - Removed: directory not present in this project -->
+  <!-- [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Removed: file deleted -->
+  <!-- - [Database Reference](/doc/product-docs/technical/architecture/database-reference.md) - Removed: file not present in this project -->
+  <!-- - [Project Structure](/doc/product-docs/technical/architecture/project-structure.md) - Removed: file deleted -->
   - [Technical Design Documents](/doc/product-docs/technical/architecture/design-docs/tdd/) - Existing TDDs for related components
 
 - **Reference Only (Access When Needed):**
-  - [Code Dependency Analysis Results](../../../.ai-workspace/dependency-maps) - Detailed dependency graphs when available
+  <!-- - [Code Dependency Analysis Results](../../../.ai-workspace/dependency-maps) - Removed: directory not present in this project -->
   - [Technical Debt Tracking](/doc/product-docs/state-tracking/permanent/technical-debt-tracking.md) - Known architectural issues
   - [Visual Notation Guide](/doc/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
@@ -193,5 +193,5 @@ Before considering this task finished:
 ## Related Resources
 
 - [Architecture Decision Records System](/doc/product-docs/technical/architecture/design-docs/adr/README.md) - For creating architectural decisions
-- [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Understanding system components
-- [Feature Tier Assessment Task](../feature-tier-assessment-task.md) - Prerequisite task for complexity evaluation
+<!-- [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Removed: file deleted -->
+- [Feature Tier Assessment Task](feature-tier-assessment-task.md) - Prerequisite task for complexity evaluation

@@ -19,6 +19,13 @@ import pytest
 from linkwatcher import LinkDatabase, LinkParser, LinkWatcherService
 from linkwatcher.models import LinkReference
 
+pytestmark = [
+    pytest.mark.feature("cross-cutting"),
+    pytest.mark.priority("Extended"),
+    pytest.mark.cross_cutting(["0.1.1", "0.1.2", "2.1.1"]),
+    pytest.mark.test_type("performance"),
+]
+
 
 def create_benchmark_files(base_dir: Path, num_files: int = 100) -> List[Path]:
     """Create test files for benchmarking."""

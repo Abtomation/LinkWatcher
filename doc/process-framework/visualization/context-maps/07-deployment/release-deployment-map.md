@@ -74,11 +74,9 @@ graph TD
 - [Feature Tracking](../../../../product-docs/state-tracking/permanent/feature-tracking.md) - Feature status tracking
 - <!-- [Release Checklist](/doc/process-framework/templates/release-checklist.md) - Template/example link commented out --> - Standardized release preparation steps
 - <!-- [Release Notes Template](/doc/process-framework/templates/release-notes-template.md) - Template/example link commented out --> - Template for release notes
-- [Build Scripts](/scripts/build_production.sh) - Scripts for building deployment packages
+<!-- - [Build Scripts](/scripts/build_production.sh) - Scripts for building deployment packages (not yet created) -->
 - <!-- [Deployment Scripts](/scripts/deploy.sh) - File not found --> - Scripts for deployment
 - <!-- [Deployment Environment Guide](/doc/product-docs/technical/deployment/environment-guide.md) - File not found --> - Guide to deployment environments
-- [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Complete reference of component relationships
+<!-- [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Removed: file deleted -->
 
 ---
-
-*Note: This context map highlights only the components relevant to release and deployment. For a comprehensive view of all components, refer to the [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md).*

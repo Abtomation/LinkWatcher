@@ -47,7 +47,7 @@ Systematically validates selected features for adherence to code quality standar
   - **SOLID Principles Documentation** - Reference materials for SOLID principles assessment
   - **Test Suites** - Test directory - Existing tests for coverage and quality analysis
   - **New-ValidationReport Script** - [../../scripts/file-creation/05-validation/New-ValidationReport.ps1](../../scripts/file-creation/05-validation/New-ValidationReport.ps1) - Script for generating validation reports
-  - **Component Relationship Index** - [Component Relationship Index](../../../product-docs/technical/architecture/component-relationship-index.md) - For understanding component interactions
+  <!-- Component Relationship Index - Removed: file deleted -->
 
 - **Reference Only (Access When Needed):**
   - **Framework Best Practices** - Platform-specific best practices for your technology stack
@@ -139,7 +139,7 @@ Before considering this task finished:
 ## Related Resources
 
 - [Feature Validation Guide](../../guides/05-validation/feature-validation-guide.md) - Comprehensive guide for conducting feature validation
-- [Code Quality Standards Validation Concept](../../proposals/code-quality-standards-validation-concept.md) - Detailed concept document for this task
+
 - Official coding standards for your project's language
 - Platform-specific best practices for your technology stack
 - [SOLID Principles Reference](https://en.wikipedia.org/wiki/SOLID) - Object-oriented design principles documentation

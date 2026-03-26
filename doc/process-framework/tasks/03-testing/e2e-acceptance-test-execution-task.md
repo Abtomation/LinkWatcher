@@ -26,7 +26,7 @@ E2E acceptance test execution validates system behavior that cannot be covered b
 
 ## When to Use
 
-- After code changes that affect tested functionality — test-tracking.md shows groups marked `🔄 Needs Re-execution`
+- After code changes that affect tested functionality — e2e-test-tracking.md shows groups marked `🔄 Needs Re-execution`
 - After E2E acceptance test cases are created — initial validation of new test cases
 - As part of release validation — all test groups must pass before deployment
 - When investigating a suspected regression — targeted execution of specific groups
@@ -37,7 +37,7 @@ E2E acceptance test execution validates system behavior that cannot be covered b
 
 - **Critical (Must Read):**
 
-  - [Test Tracking](../../../../test/state-tracking/permanent/test-tracking.md) — Identifies which groups need re-execution and current status of all E2E acceptance tests
+  - [E2E Test Tracking](../../../../test/state-tracking/permanent/e2e-test-tracking.md) — Identifies which groups need re-execution and current status of all E2E acceptance tests
   - **Master test file** for the target group — Defines the quick validation sequence
   - **Individual test-case.md files** — Exact steps, preconditions, expected results
 
@@ -59,7 +59,7 @@ E2E acceptance test execution validates system behavior that cannot be covered b
 
 ### Preparation
 
-1. **Identify what needs testing**: Review the dedicated **E2E Acceptance Tests** section in [test-tracking.md](../../../../test/state-tracking/permanent/test-tracking.md) for groups marked `🔄 Needs Re-execution`. Also check the **Workflow Milestone Tracking** sub-section for workflows with `⬜ Not Created` status — these may need test case creation (PF-TSK-069) first. For release validation, identify all groups that must pass.
+1. **Identify what needs testing**: Review [e2e-test-tracking.md](../../../../test/state-tracking/permanent/e2e-test-tracking.md) for groups marked `🔄 Needs Re-execution`. Also check the **Workflow Milestone Tracking** section for workflows with `⬜ Not Created` status — these may need test case creation (PF-TSK-069) first. For release validation, identify all groups that must pass.
 2. **Install code changes globally** (if code was modified since last install): Ensure the system under test uses the latest code. For Python projects: `pip install -e .` from the project root. Skip if no code changes since last install.
 3. **Set up test environment**: Run [Setup-TestEnvironment.ps1](../../scripts/test/e2e-acceptance-testing/Setup-TestEnvironment.ps1) to copy pristine templates into the workspace:
    ```bash
@@ -106,7 +106,7 @@ E2E acceptance test execution validates system behavior that cannot be covered b
 
 ## Outputs
 
-- **Updated test-tracking.md** — Execution status (`✅ Passed` or `🔴 Failed`), Last Executed date for each tested group/case
+- **Updated e2e-test-tracking.md** — Execution status (`✅ Passed` or `🔴 Failed`), Last Executed date for each tested group/case
 - **Updated feature-tracking.md** — Test Status updated based on execution results
 - **Bug reports** (if failures found) — Created via `New-BugReport.ps1` for genuine defects
 - **Test session log** (optional) — In `test/e2e-acceptance-testing/results/` for audit trail
@@ -115,7 +115,7 @@ E2E acceptance test execution validates system behavior that cannot be covered b
 
 The following state files are updated as part of this task:
 
-- [Test Tracking](../../../../test/state-tracking/permanent/test-tracking.md) — Update execution status and Last Executed date for each tested group/case (automated via `Update-TestExecutionStatus.ps1`)
+- [E2E Test Tracking](../../../../test/state-tracking/permanent/e2e-test-tracking.md) — Update execution status and Last Executed date for each tested group/case (automated via `Update-TestExecutionStatus.ps1`)
 - [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) — Update Test Status based on execution results (automated via `Update-TestExecutionStatus.ps1`)
 
 ## ⚠️ MANDATORY Task Completion Checklist
@@ -129,7 +129,7 @@ Before considering this task finished:
   - [ ] Results recorded via `Update-TestExecutionStatus.ps1`
   - [ ] Bug reports created for any genuine defects
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
-  - [ ] [Test Tracking](../../../../test/state-tracking/permanent/test-tracking.md) — execution status and dates updated
+  - [ ] [E2E Test Tracking](../../../../test/state-tracking/permanent/e2e-test-tracking.md) — execution status and dates updated
   - [ ] [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) — Test Status reflects current state
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-070" and context "E2E Acceptance Test Execution"
 

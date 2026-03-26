@@ -1,6 +1,7 @@
 ﻿# New-TestAuditReport.ps1
 # Creates a new Test Audit Report with an automatically assigned ID
 # Uses the central ID registry system and standardized document creation
+# Updates test-tracking.md: links audit report in Test File/Case column for the target test file
 
 <#
 .SYNOPSIS
@@ -8,9 +9,10 @@
 
 .DESCRIPTION
     This PowerShell script generates Test Audit Report documents by:
-    - Generating a unique document ID (PF-TAR-XXX)
+    - Generating a unique document ID (TE-TAR-XXX)
     - Creating a properly formatted audit report file
     - Updating the ID tracker in the central ID registry
+    - Updating test-tracking.md: links audit report in Test File/Case column for the TestFileId
     - Providing a complete template for test quality assessment
 
 .PARAMETER FeatureId
@@ -97,7 +99,61 @@ $customReplacements = @{
 # Create the document using standardized process
 try {
     # Use DirectoryType for ID registry-based directory resolution
+    if (-not $PSCmdlet.ShouldProcess("audit-report-$FeatureId-$TestFileId", "Create test audit report")) {
+        return
+    }
+
     $documentId = New-StandardProjectDocument -TemplatePath "doc/process-framework/templates/03-testing/test-audit-report-template.md" -IdPrefix "TE-TAR" -IdDescription "Test Audit Report for Feature $FeatureId" -DocumentName "audit-report-$FeatureId-$TestFileId" -DirectoryType $featureCategory -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
+
+    # --- State file updates ---
+    $projectRoot = Get-ProjectRoot
+    $stateUpdates = @()
+
+    # 1. Update test-tracking.md: set Test File/Case to audit report link, Status to "🔍 Audit In Progress"
+    $testTrackingPath = Join-Path $projectRoot "test/state-tracking/permanent/test-tracking.md"
+    if (Test-Path $testTrackingPath) {
+        $trackingContent = Get-Content $testTrackingPath -Raw -Encoding UTF8
+
+        # Build relative path from test-tracking.md to the audit report
+        $kebabFeatureId = ($FeatureId -replace '\.', '-')
+        $kebabTestFileId = ($TestFileId -replace '\.', '-').ToLower()
+        $auditFileName = "audit-report-$kebabFeatureId-$kebabTestFileId.md"
+        $auditRelativePath = "../../audits/$featureCategory/$auditFileName"
+        $auditLink = "[$documentId]($auditRelativePath)"
+
+        # Find the row matching TestFileId and update it
+        $lines = $trackingContent -split '\r?\n'
+        $updatedLines = @()
+        $rowUpdated = $false
+
+        foreach ($line in $lines) {
+            if (-not $rowUpdated -and $line -match "^\|.*$([regex]::Escape($TestFileId)).*\|") {
+                # Parse columns: | Test ID | Feature ID | Test Type | Test File/Case | Status | ...
+                $cols = $line -split '\|' | ForEach-Object { $_.Trim() }
+                # cols[0] = empty, cols[1]=Test ID, cols[2]=Feature ID, cols[3]=Test Type,
+                # cols[4]=Test File/Case, cols[5]=Status, cols[6..]=rest
+                if ($cols.Count -ge 6) {
+                    $cols[4] = $auditLink
+                    # Rebuild row preserving column spacing
+                    $line = "| " + ($cols[1..($cols.Count-2)] -join " | ") + " |"
+                    $rowUpdated = $true
+                }
+            }
+            $updatedLines += $line
+        }
+
+        if ($rowUpdated) {
+            $updatedContent = $updatedLines -join "`n"
+            if ($PSCmdlet.ShouldProcess($testTrackingPath, "Update test-tracking.md: link audit report for $TestFileId")) {
+                Set-Content $testTrackingPath $updatedContent -Encoding UTF8
+                $stateUpdates += "test-tracking.md: $TestFileId Test File/Case → $documentId"
+            }
+        } else {
+            Write-Warning "Could not find $TestFileId in test-tracking.md — manual update needed"
+        }
+    } else {
+        Write-Warning "Test tracking file not found: $testTrackingPath"
+    }
 
     # Provide success details
     $details = @(
@@ -106,6 +162,13 @@ try {
         "Auditor: $AuditorName",
         "Category: $featureCategory"
     )
+    if ($stateUpdates.Count -gt 0) {
+        $details += ""
+        $details += "📊 State file updates:"
+        foreach ($update in $stateUpdates) {
+            $details += "  - $update"
+        }
+    }
 
     # Add next steps if not opening in editor
     if (-not $OpenInEditor) {

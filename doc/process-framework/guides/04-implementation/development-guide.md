@@ -28,7 +28,7 @@ This guide provides best practices for developing the project using the defined 
    - Review the technical design before implementation
 
 3. **Implementation**
-   - Follow the architecture defined in `/doc/product-docs/technical/architecture/project-structure.md`
+   - Follow the architecture defined in the project structure documentation <!-- project-structure.md removed -->
    - Use the appropriate implementation checklists from `/doc/product-docs/development/checklists/`
    - Implement the feature according to the technical design document or FDD requirements
    - Write tests for the feature
@@ -78,7 +78,7 @@ Create a technical design document based on the feature's documentation tier:
 - **Tier 2 (🟠)**: Create a lightweight TDD using the [Lightweight Template](/doc/process-framework/templates/02-design/tdd-t2-template.md)
 - **Tier 3 (🔴)**: Create a full TDD using the [Full Template](/doc/process-framework/templates/02-design/tdd-t3-template.md)
 
-The documentation tier for each feature is indicated in the [Feature Tracking Document](/doc/product-docs/state-tracking/permanent/feature-tracking.md) in the format: 🔵/🟠/🔴 <!-- [Tier 1/2/3](../../development/processes/link-to-assessment) - Template/example link commented out -->.
+The documentation tier for each feature is indicated in the [Feature Tracking Document](/doc/product-docs/state-tracking/permanent/feature-tracking.md) in the format: 🔵/🟠/🔴.
 
 #### Technical Design Document Process
 
@@ -197,7 +197,7 @@ except Exception as e:
 
 ## Deployment Process
 
-The deployment process is automated using GitHub Actions. For complete details on the release and deployment process, see the [Release Process Guide](../../development/processes/release-process.md).
+The deployment process is automated using GitHub Actions. For complete details on the release and deployment process, see the [Release & Deployment Task](../../tasks/07-deployment/release-deployment-task.md).
 
 Key aspects of the deployment process include:
 - Automated version bumping

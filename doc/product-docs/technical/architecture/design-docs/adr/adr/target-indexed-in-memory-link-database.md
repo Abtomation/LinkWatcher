@@ -132,9 +132,9 @@ Require all stored paths to be normalized before insertion; accept only exact-ma
 
 ## References
 
-- [FDD PD-FDD-023](../../../../functional-design/fdds/fdd-0-1-2-in-memory-database.md) — Functional requirements for In-Memory Link Database
-- [TDD PD-TDD-022](../tdd/tdd-0-1-2-in-memory-database-t2.md) — Technical design document with implementation details
-- [HOW_IT_WORKS.md](../../../../../../HOW_IT_WORKS.md) — User-facing architecture overview (Database System section)
+- [FDD PD-FDD-023](../../../../../functional-design/fdds/fdd-0-1-2-in-memory-database.md) — Functional requirements for In-Memory Link Database
+- [TDD PD-TDD-022](../../tdd/tdd-0-1-2-in-memory-database-t2.md) — Technical design document with implementation details
+
 - `linkwatcher/database.py` — Primary implementation file
 
 ---

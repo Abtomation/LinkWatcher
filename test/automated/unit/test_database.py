@@ -5,7 +5,17 @@ This module tests the link database functionality including
 adding, removing, and querying link references.
 """
 
+import pytest
+
 from linkwatcher.models import LinkReference
+
+pytestmark = [
+    pytest.mark.feature("0.1.2"),
+    pytest.mark.priority("Critical"),
+    pytest.mark.cross_cutting(["0.1.1"]),
+    pytest.mark.test_type("unit"),
+    pytest.mark.specification("test/specifications/feature-specs/test-spec-0-1-2-in-memory-link-database.md"),
+]
 
 
 class TestLinkDatabase:

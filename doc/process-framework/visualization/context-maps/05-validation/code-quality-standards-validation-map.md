@@ -82,13 +82,12 @@ graph TD
 
 ## Related Documentation
 
-- [Code Quality Standards Validation Task](../../tasks/05-validation/code-quality-standards-validation-task.md) - Complete task definition and process
-- [Code Quality Standards Validation Concept](../../proposals/code-quality-standards-validation-concept.md) - Detailed concept document
-- [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Current status of features
+- [Code Quality Standards Validation Task](../../../tasks/05-validation/code-quality-standards-validation.md) - Complete task definition and process
+
+- [Feature Tracking](../../../../product-docs/state-tracking/permanent/feature-tracking.md) - Current status of features
 - Validation Tracking State File - Active validation tracking matrix (file location depends on validation round)
 - Language Style Guide - Official language coding standards
-- [Component Relationship Index](../../../product-docs/technical/architecture/component-relationship-index.md) - Complete reference of all component relationships
+
 
 ---
 
-_Note: This context map highlights only the components relevant to this specific task. For a comprehensive view of all components, refer to the [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md)._

@@ -36,7 +36,7 @@ This task produces enriched Feature Implementation State files that serve as the
 
 - **Critical (Must Read):**
 
-  - [Retrospective Master State File](../../state-tracking/temporary/retrospective-master-state.md) — Read current state, verify Phase 1 complete
+  - [Retrospective Master State File](../../state-tracking/temporary/old/retrospective-master-state.md) — Read current state, verify Phase 1 complete
   - [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) - Feature list and current status
   - [Feature Implementation State Files](../../state-tracking/features/) — All files created during PF-TSK-064
   - [Feature Implementation State Tracking Guide](../../guides/04-implementation/feature-implementation-state-tracking-guide.md) - Guide for populating analysis sections
@@ -64,7 +64,7 @@ This task produces enriched Feature Implementation State files that serve as the
 
 ### Preparation
 
-1. **Read [Master State File](../../state-tracking/temporary/retrospective-master-state.md)**:
+1. **Read [Master State File](../../state-tracking/temporary/old/retrospective-master-state.md)**:
    - Verify Phase 1 is complete
    - Identify which features still need analysis
    - Set status to "ANALYSIS" if not already
@@ -98,7 +98,7 @@ This task produces enriched Feature Implementation State files that serve as the
    - **Code Dependencies**: Shared utilities, base classes, interfaces
    - **User-Facing Workflows**: Identify which user workflows this feature participates in (e.g., "file move → links updated" requires detection + parsing + updating). Create or update [User Workflow Map](/doc/product-docs/technical/design/user-workflow-map.md) with workflow definitions, required features, and priorities
    - Document in [Feature Implementation State file](../../state-tracking/features/) → Dependencies section
-   - **Format for Feature Dependency references**: Use `[feature_id Feature Name](./feature_id-feature-name-implementation-state.md)` — e.g., `**[0.1.2 Data Models](./0.1.2-data-models-implementation-state.md)**`. Do NOT use PF-FEA IDs in dependency entries.
+   - **Format for Feature Dependency references**: Use `[feature_id Feature Name](./feature_id-feature-name-implementation-state.md)` — e.g., `**[0.1.2 Data Models](./0.1.2-data-models-implementation-state.md)**` (these are example paths within the feature state directory, not links to actual files). Do NOT use PF-FEA IDs in dependency entries.
 
 5. **🚨 CHECKPOINT**: Present analysis findings for first batch of features for review before continuing
 
@@ -125,7 +125,7 @@ This task produces enriched Feature Implementation State files that serve as the
 
 ### Finalization
 
-9. **Update [Master State](../../state-tracking/temporary/retrospective-master-state.md) After Each Session**:
+9. **Update [Master State](../../state-tracking/temporary/old/retrospective-master-state.md) After Each Session**:
    - Mark features as "Analyzed ✅" in the Feature Inventory table
    - Update master state "Existing Documentation Inventory": mark Confirmed column ✅ for docs whose feature-level entries have all been confirmed/flagged
    - Log session notes with key discoveries
@@ -147,7 +147,7 @@ This task produces enriched Feature Implementation State files that serve as the
 
 ### Existing State Files Updated
 
-- [Retrospective Master State File](../../state-tracking/temporary/retrospective-master-state.md) — Phase 2 progress, features marked as analyzed
+- [Retrospective Master State File](../../state-tracking/temporary/old/retrospective-master-state.md) — Phase 2 progress, features marked as analyzed
 - [Feature Implementation State Files](../../state-tracking/features/) — Enriched with analysis content (Design Decisions, Dependencies, Implementation Patterns)
 
 ## ⚠️ MANDATORY Task Completion Checklist
@@ -161,7 +161,7 @@ This task produces enriched Feature Implementation State files that serve as the
 - [ ] Feature Tracking Test Status column updated for all features
 - [ ] Complexity factors noted for features without tier assessments
 - [ ] Existing Project Documentation entries confirmed or flagged for every analyzed feature (Section 4 Confirmed column updated)
-- [ ] Phase 2 marked complete in [master state file](../../state-tracking/temporary/retrospective-master-state.md)
+- [ ] Phase 2 marked complete in [master state file](../../state-tracking/temporary/old/retrospective-master-state.md)
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-065" and context "Codebase Feature Analysis"
   - **⚠️ IMPORTANT**: Evaluate the Codebase Feature Analysis task (PF-TSK-065) and its tools (feature implementation state files, analysis process), not the features you analyzed.
 

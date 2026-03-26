@@ -225,7 +225,7 @@ Key test scenarios:
 ## Related Documentation
 
 - [Tier Assessment: ART-ASS-200](../../documentation-tiers/assessments/PD-ASS-200-6.1.1-link-validation.md)
-- [Feature State: 6.1.1](../../state-tracking/features/6.1.1-Link%20Validation-implementation-state.md)
+- [Feature State: 6.1.1](<../../state-tracking/features/6.1.1-Link Validation-implementation-state.md>)
 - [Feature Tracking](../../state-tracking/permanent/feature-tracking.md)
 - [Task: Feature Implementation Planning (PF-TSK-044)](../../../process-framework/tasks/04-implementation/feature-implementation-planning-task.md)
 

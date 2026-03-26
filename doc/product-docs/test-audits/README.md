@@ -85,8 +85,8 @@ The Test Audit process follows these steps:
 
 ## ID Registry Integration
 
-- **Prefix**: `PF-TAR` (Process Framework - Test Audit Report)
-- **ID Format**: `PF-TAR-001`, `PF-TAR-002`, etc.
+- **Prefix**: `TE-TAR` (Test - Test Audit Report)
+- **ID Format**: `TE-TAR-001`, `TE-TAR-002`, etc.
 - **Auto-assignment**: IDs are automatically assigned by the creation script
 - **Registry**: Central ID registry tracks all assigned IDs
 
@@ -94,7 +94,7 @@ The Test Audit process follows these steps:
 
 - [Test Audit Task Definition](../../process-framework/tasks/03-testing/test-audit-task.md)
 - [Test Tracking](../../../test/state-tracking/permanent/test-tracking.md)
-- [Test Audit Concept](../../process-framework/proposals/test-audit-concept.md)
+- ~~Test Audit Concept~~ *(archived — concepts integrated into test audit task)*
 - [Test Registry](../../../test/test-registry.yaml)
 
 ## File Naming Convention
@@ -114,8 +114,9 @@ Examples:
 ### New-TestAuditReport.ps1 (doc/process-framework/scripts/file-creation/03-testing/)
 - Creates new audit reports from template
 - Automatically determines feature category
-- Assigns unique PF-TAR ID
-- Updates central ID registry
+- Assigns unique TE-TAR ID
+- Updates TE-id-registry.json
+- Links audit report in test-tracking.md for the target test file
 - Provides comprehensive template with all required sections
 
 ### Validate-AuditReport.ps1 (doc/process-framework/scripts/validation/)

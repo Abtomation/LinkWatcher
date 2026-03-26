@@ -1,5 +1,5 @@
 ---
-id: PF-TSK-056
+id: PF-TSK-080
 type: Process Framework
 category: Task Definition
 version: 1.0
@@ -35,21 +35,21 @@ Systematically adapt the process framework from one business domain (software de
 
 ## Context Requirements
 
-[View Context Map for this task](../../visualization/context-maps/support/framework-domain-adaptation-map.md)
+View Context Map for this task <!-- Context map not yet created: framework-domain-adaptation-map.md -->
 
 - **Critical (Must Read):**
 
-  - [Framework Domain Adaptation Concept](../../proposals/proposals/old/framework-domain-adaptation-concept.md) - Complete adaptation strategy and approach
-  - [Legal Framework Cleanup State](../../state-tracking/temporary/legal-framework-cleanup-state.md) - Current document inventory and tracking
+  - Framework Domain Adaptation Concept <!-- Removed: file deleted --> - Complete adaptation strategy and approach
+  - Legal Framework Cleanup State <!-- Removed: file deleted --> - Current document inventory and tracking
   - Business Context Document - Business requirements and domain context
   - [Process Framework README](../../README.md) - Understanding the framework structure
   - [Documentation Map](../../documentation-map.md) - Complete framework structure overview
 
 - **Important (Load If Space):**
 
-  - [Domain Terminology Mapping](../../proposals/proposals/old/framework-domain-adaptation-concept.md#domain-terminology-mapping) - Software dev → Legal mappings
-  - [Deletion Criteria](../../proposals/proposals/old/framework-domain-adaptation-concept.md#deletion-criteria) - DELETE vs. ADAPT vs. KEEP guidelines
-  - [AI Tasks Registry](../../../ai-tasks.md) - Task system overview
+  - Domain Terminology Mapping <!-- Removed: file deleted --> - Software dev → Legal mappings
+  - Deletion Criteria <!-- Removed: file deleted --> - DELETE vs. ADAPT vs. KEEP guidelines
+  - [AI Tasks Registry](../../ai-tasks.md) - Task system overview
 
 - **Reference Only (Access When Needed):**
   - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting diagrams
@@ -75,13 +75,13 @@ Systematically adapt the process framework from one business domain (software de
    - Document understanding before proceeding
 
 2. **Review Domain Adaptation Concept**
-   - Read [Framework Domain Adaptation Concept](../../proposals/proposals/old/framework-domain-adaptation-concept.md)
+   - Read Framework Domain Adaptation Concept <!-- Link removed: file deleted -->
    - Understand the 3-decision framework: DELETE / ADAPT / KEEP
    - Review domain terminology mapping (software dev → legal)
    - Confirm deletion criteria with human partner
 
 3. **Access Temporary State Tracking File**
-   - Use existing [Legal Framework Cleanup State](../../state-tracking/temporary/legal-framework-cleanup-state.md)
+   - Use existing Legal Framework Cleanup State <!-- Removed: file deleted -->
    - File is organized by process flow order, not file type
    - Includes decision tracking columns (DELETE/ADAPT/KEEP + notes)
    - Update status as you progress through documents
@@ -95,7 +95,7 @@ Systematically adapt the process framework from one business domain (software de
 ### Phase 2: Systematic Review (Process Flow Order)
 
 5. **Review Documents in Process Flow Order**
-   - Follow the order in [Legal Framework Cleanup State](../../state-tracking/temporary/legal-framework-cleanup-state.md)
+   - Follow the order in Legal Framework Cleanup State <!-- Removed: file deleted -->
    - For each document, make one of three decisions:
      - **DELETE**: Not applicable to legal domain
      - **ADAPT**: Reusable with modifications for legal context
@@ -321,10 +321,10 @@ Systematically adapt the process framework from one business domain (software de
 
 The following state files must be updated as part of this task:
 
-- [Legal Framework Cleanup State](../../state-tracking/temporary/legal-framework-cleanup-state.md) - Track review status and decisions for each document
+- Legal Framework Cleanup State <!-- Removed: file deleted --> - Track review status and decisions for each document
 - [Documentation Map](../../documentation-map.md) - Update continuously as structure changes
 - [PF ID Registry](../../PF-id-registry.json) - Add new ID prefixes for legal document types
-- [Legal Document Tracking](../../state-tracking/permanent/legal-document-tracking.md) - Create to replace feature-tracking.md
+- Legal Document Tracking <!-- To be created at: state-tracking/permanent/legal-document-tracking.md --> - Create to replace feature-tracking.md
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
@@ -358,11 +358,11 @@ Before considering this task finished:
   - [ ] Temporary state file archived
 
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
-  - [ ] [Legal Framework Cleanup State](../../state-tracking/temporary/legal-framework-cleanup-state.md) - All documents marked as Approved
+  - [ ] Legal Framework Cleanup State <!-- Removed: file deleted --> - All documents marked as Approved
   - [ ] [Documentation Map](../../documentation-map.md) - Reflects final structure
-  - [ ] [Legal Document Tracking](../../state-tracking/permanent/legal-document-tracking.md) - Created and functional
+  - [ ] Legal Document Tracking <!-- To be created at: state-tracking/permanent/legal-document-tracking.md --> - Created and functional
 
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-056" and context "Framework Domain Adaptation"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-080" and context "Framework Domain Adaptation"
 
 ## Next Tasks
 
@@ -399,8 +399,8 @@ Quick reference for adaptations:
 
 ## Related Resources
 
-- [Framework Domain Adaptation Concept](../../proposals/proposals/old/framework-domain-adaptation-concept.md) - Complete strategy document
-- [Legal Framework Cleanup State](../../state-tracking/temporary/legal-framework-cleanup-state.md) - Document tracking
+- Framework Domain Adaptation Concept <!-- Removed: file deleted --> - Complete strategy document
+- Legal Framework Cleanup State <!-- Removed: file deleted --> - Document tracking
 - Business Context Document - Business requirements and domain context
 - [New Task Creation Process](new-task-creation-process.md) - Process being followed to create this task
 - [Structure Change Task](structure-change-task.md) - Similar but different scope

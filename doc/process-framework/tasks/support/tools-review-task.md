@@ -157,7 +157,7 @@ Before considering this task finished:
 
 ## Related Resources
 
-- [Feedback Process Guide](../../feedback/README.md) - Guide for collecting and processing feedback
+- [Feedback Process Guide](../../feedback/archive/README.md) - Guide for collecting and processing feedback
 - [Task Creation and Improvement Guide](../../guides/support/task-creation-guide.md) - Guide for creating and improving tasks
 
 ## Critical Process Note

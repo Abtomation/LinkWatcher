@@ -92,7 +92,7 @@ Determines if the feature requires dedicated database schema design documentatio
 
 This comprehensive approach ensures that both documentation complexity and specialized design needs are identified early in the planning process.
 
-For a detailed guide on how to assess features and assign documentation tiers, see the [Assessment Guide](../../guides/01-planning/assessment-guide.md).
+For a detailed guide on how to assess features and assign documentation tiers, see the [Assessment Guide](../../process-framework/guides/01-planning/assessment-guide.md).
 
 ## File Structure
 
@@ -119,13 +119,13 @@ This will:
 
 ## Tracking and Viewing Assessments
 
-The progress of documentation tier assessments is tracked directly in the [feature-tracking.md](../../state-tracking/permanent/feature-tracking.md) file.
+The progress of documentation tier assessments is tracked directly in the [feature-tracking.md](../state-tracking/permanent/feature-tracking.md) file.
 
-For information on assessment status and how to view assessed features, refer to the [Documentation Assessment](../../state-tracking/permanent/feature-tracking.md#documentation-assessment) section in the feature tracking document.
+For information on assessment status and how to view assessed features, refer to the [Documentation Assessment](../state-tracking/permanent/feature-tracking.md#documentation-assessment) section in the feature tracking document.
 
 ## Next Steps
 
-1. Complete assessments for all remaining features following the priority order defined in the [feature-tracking.md](../../state-tracking/permanent/feature-tracking.md#assessment-priority) file
+1. Complete assessments for all remaining features following the priority order defined in the [feature-tracking.md](../state-tracking/permanent/feature-tracking.md#assessment-priority) file
 2. Create Technical Design Documents (TDDs) for Tier 2 and Tier 3 features
 3. Review and adjust tier assignments as needed during implementation
 
@@ -135,13 +135,13 @@ As features evolve and more information becomes available, assessments may be up
 
 1. Document the reason for the change
 2. Update the assessment date
-3. Update the [Feature Tracking Document](../../state-tracking/permanent/feature-tracking.md) if the tier changes, using the format: 🔵/🟠/🔴 Tier 1/2/3 (with link to assessment)
+3. Update the [Feature Tracking Document](../state-tracking/permanent/feature-tracking.md) if the tier changes, using the format: 🔵/🟠/🔴 Tier 1/2/3 (with link to assessment)
 
-For details on assessment priority refer to the [Feature Tracking Document](../../state-tracking/permanent/feature-tracking.md) under the "Documentation Assessment Process" section.
+For details on assessment priority refer to the [Feature Tracking Document](../state-tracking/permanent/feature-tracking.md) under the "Documentation Assessment Process" section.
 
 ## Adjusting Tiers During Implementation
 
-During implementation, the actual complexity of a feature may differ from the initial assessment. The [Documentation Tier Adjustment Process](../../tasks/cyclical/documentation-tier-adjustment-task.md) provides a structured approach for:
+During implementation, the actual complexity of a feature may differ from the initial assessment. The [Documentation Tier Adjustment Process](../../process-framework/tasks/cyclical/documentation-tier-adjustment-task.md) provides a structured approach for:
 
 1. Identifying when a tier adjustment is needed during implementation
 2. Reassessing complexity factors based on implementation realities

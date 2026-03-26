@@ -1053,8 +1053,13 @@ Bug Fixing → Testing (🧪) → Ready for Review (👀) → Code Review → [V
 [Process Issue Identified] → Process Improvement → [Structure Change] → [Tools Review] → [Continue Development]
 ```
 
+```
+[Framework Quality Concern] → Framework Evaluation → Process Improvement (IMP entries) → [Structure Change] → [Continue Development]
+```
+
 **Transition Criteria:**
 
+- **Framework Evaluation**: When the framework itself needs structural quality assessment (periodic review, after major changes, before extensions)
 - **Process Improvement**: When development workflows need enhancement
 - **Structure Change**: When directory structures or documentation architecture needs reorganization
 - **Tools Review**: When project tools need evaluation or enhancement
@@ -1065,6 +1070,7 @@ Bug Fixing → Testing (🧪) → Ready for Review (👀) → Code Review → [V
 - **Parallel execution**: Support tasks can run alongside development work
 - **As needed basis**: Triggered by process inefficiencies or improvement opportunities
 - **Framework evolution**: Continuous improvement of the development process itself
+- **Framework Evaluation → Process Improvement**: Evaluation findings are registered as IMP entries, then addressed via Process Improvement
 
 ### 6. Onboarding Workflow (Framework Adoption)
 
@@ -1080,7 +1086,7 @@ Retrospective Documentation Creation (PF-TSK-066)
 [Framework Fully Adopted] → Normal Development Workflow
 ```
 
-**Shared State**: All three tasks share a single [Retrospective Master State File](../../state-tracking/temporary/retrospective-master-state.md) that tracks progress across phases. Each session must start by reading it and end by updating it.
+**Shared State**: All three tasks share a single [Retrospective Master State File](../../state-tracking/temporary/old/retrospective-master-state.md) that tracks progress across phases. Each session must start by reading it and end by updating it.
 
 **Transition Criteria:**
 
@@ -1108,7 +1114,7 @@ Retrospective Documentation Creation (PF-TSK-066)
 
 **Prerequisites for Transition:**
 
-- [ ] [Retrospective Master State File](../../state-tracking/temporary/retrospective-master-state.md) created with project name and DISCOVERY status
+- [ ] [Retrospective Master State File](../../state-tracking/temporary/old/retrospective-master-state.md) created with project name and DISCOVERY status
 - [ ] ALL source files listed and assigned to features (100% codebase file coverage)
 - [ ] ALL features added to [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) with IDs and descriptions
 - [ ] [Feature Implementation State file](../../state-tracking/features) created for every feature with complete code inventory
@@ -1133,7 +1139,7 @@ Retrospective Documentation Creation (PF-TSK-066)
 - [ ] Dependencies identified and documented for every feature
 - [ ] Test coverage mapped for every feature
 - [ ] Complexity factors noted for features without tier assessments
-- [ ] Phase 2 marked complete in [master state file](../../state-tracking/temporary/retrospective-master-state.md)
+- [ ] Phase 2 marked complete in [master state file](../../state-tracking/temporary/old/retrospective-master-state.md)
 
 **Next Task Selection:**
 
@@ -1157,7 +1163,7 @@ Retrospective Documentation Creation (PF-TSK-066)
 - [ ] All document links added to [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md)
 - [ ] [Documentation Map](../../documentation-map.md) updated with all new documents
 - [ ] Final metrics recorded in master state Completion Summary
-- [ ] [Master State File](../../state-tracking/temporary/retrospective-master-state.md) archived to `/temporary/archived/`
+- [ ] [Master State File](../../state-tracking/temporary/old/retrospective-master-state.md) archived to `/temporary/archived/`
 
 **Next Task Selection:**
 
@@ -1388,7 +1394,7 @@ What was the original tier assessment?
 
 1. **Load Current Architecture State**: Review [Architecture Tracking](../../../product-docs/state-tracking/permanent/architecture-tracking.md)
 2. **Gather Feature Context**: Ensure FDD and Feature Tier Assessment are complete
-3. **Identify Relevant Context Packages**: Determine which [Architecture Context Packages](/doc/product-docs/technical/architecture/context-packages/) apply
+3. **Identify Relevant Context Packages**: Determine which architectural context areas apply to this feature
 4. **Review Related ADRs**: Check existing [Architecture Decision Records](/doc/product-docs/technical/architecture/design-docs/adr/README.md)
 5. **Prepare Impact Analysis Framework**: Set up structured approach for architectural evaluation
 
@@ -1443,7 +1449,7 @@ Does feature require new architectural work?
 **Preparation for Next Task:**
 
 1. **For Foundation Features**: Load Architecture Context Package for focused architectural work
-2. **Review Architectural Framework Usage Guide**: [Architectural Framework Usage Guide](../architectural-framework-usage-guide.md) for step-by-step instructions
+2. **Review Architectural Framework Usage Guide**: [Architectural Framework Usage Guide](../01-planning/architectural-framework-usage-guide.md) for step-by-step instructions
 3. Review architectural decisions that impact design
 4. Identify system patterns and constraints to follow
 5. Understand integration points with existing architecture
@@ -1854,6 +1860,22 @@ What type of improvement was made?
 
 - **Always**: → Update Task Transition Guide (this document) to include new task
 
+#### FROM Framework Evaluation
+
+**Prerequisites for Transition:**
+
+- [ ] Evaluation scope defined and approved
+- [ ] All selected dimensions evaluated with scores and evidence
+- [ ] Evaluation report created via New-FrameworkEvaluationReport.ps1
+- [ ] IMP entries registered for actionable findings
+
+**Next Task Selection:**
+
+- **Improvements needed**: → Process Improvement (to address IMP entries from evaluation)
+- **Structural issues found**: → Structure Change (for reorganization needs)
+- **Missing tasks identified**: → New Task Creation Process (to fill gaps)
+- **No major issues**: → Return to development work
+
 ### Transitioning FROM Bug Discovery
 
 **Prerequisites for Transition:**
@@ -2111,7 +2133,16 @@ Process Improvement → [Structure Change] → [Tools Review] → [New Task Crea
 **Key Decision Points**: Process effectiveness, structural organization, tool efficiency
 **When to Use**: When development workflows need enhancement or new capabilities
 
-### Scenario 14: Framework Onboarding (Existing Project)
+### Scenario 14: Framework Quality Assessment
+
+```
+Framework Evaluation → Process Improvement (IMP entries) → [Structure Change] → [New Task Creation Process] → Continue Development
+```
+
+**Key Decision Points**: Evaluation scope, dimension selection, finding severity, improvement priority
+**When to Use**: Periodic framework health checks, after major structural changes, before framework extensions, when specific framework areas feel problematic
+
+### Scenario 15: Framework Onboarding (Existing Project)
 
 ```
 Codebase Feature Discovery (PF-TSK-064) → Codebase Feature Analysis (PF-TSK-065) → Retrospective Documentation Creation (PF-TSK-066) → [Normal Development Workflow]
@@ -2120,10 +2151,10 @@ Codebase Feature Discovery (PF-TSK-064) → Codebase Feature Analysis (PF-TSK-06
 **Timeline**: Multi-session per task; total depends on project size and feature count
 **Key Decision Points**: Feature boundary identification, tier assessment accuracy, documentation completeness
 **When to Use**: Adopting the process framework into an existing project with implemented but undocumented features
-**Shared State**: All three tasks share a single [Retrospective Master State File](../../state-tracking/temporary/retrospective-master-state.md)
+**Shared State**: All three tasks share a single [Retrospective Master State File](../../state-tracking/temporary/old/retrospective-master-state.md)
 **Automation Scripts**: `New-RetrospectiveMasterState.ps1` (creates master state), `New-FeatureImplementationState.ps1` (creates per-feature state files with code inventories)
 
-### Scenario 15: Enhancement to Existing Feature
+### Scenario 16: Enhancement to Existing Feature
 
 ```
 Change Request → Feature Request Evaluation (PF-TSK-067) → Feature Enhancement (PF-TSK-068) → Code Review → Release & Deployment
@@ -2134,7 +2165,7 @@ Change Request → Feature Request Evaluation (PF-TSK-067) → Feature Enhanceme
 **Shared State**: Enhancement State Tracking File (created by Evaluation, consumed by Enhancement)
 **Automation Scripts**: `New-EnhancementState.ps1` (creates enhancement state file from template)
 
-### Scenario 16: E2E Acceptance Testing Workflows
+### Scenario 17: E2E Acceptance Testing Workflows
 
 E2E acceptance test cases are created and executed at different points depending on the context:
 

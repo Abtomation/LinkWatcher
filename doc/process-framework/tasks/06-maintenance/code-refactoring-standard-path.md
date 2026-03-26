@@ -76,7 +76,7 @@
 
    - Link ADR to refactoring plan in the plan document
    - Update [Architecture Tracking](../../../product-docs/state-tracking/permanent/architecture-tracking.md)
-   - Update relevant [Context Packages](../../architecture/context-packages) with decision impact
+   - Update relevant [Architecture Tracking](../../../product-docs/state-tracking/permanent/architecture-tracking.md) with decision impact
 
 10. **Implement Incremental Changes**: Apply refactoring in small, testable increments
     - Run existing tests after each change to ensure behavior preservation
@@ -171,7 +171,7 @@ When bugs are discovered during refactoring, follow this decision process:
 ##### Phase 3: Post-Completion
 
 - [ ] **Archive Temporary State** (if created in Step 2): Move temporary state tracking to [archive](../../state-tracking/temporary/old) or delete if no longer needed
-- [ ] **Update [Context Packages](../../architecture/context-packages)**: For architectural refactoring, update relevant context packages
+- [ ] **Update [Architecture Tracking](../../../product-docs/state-tracking/permanent/architecture-tracking.md)**: For architectural refactoring, update relevant context packages
 
 20. **🚨 MANDATORY FINAL STEP**: Complete the Task Completion Checklist below
 
@@ -198,5 +198,5 @@ When bugs are discovered during refactoring, follow this decision process:
   - [ ] **Phase 1 (During)**: Temporary state tracking, bug tracking, technical debt progress documented
   - [ ] **Phase 2 (Completion)**: [Technical Debt Tracking](../../../product-docs/state-tracking/permanent/technical-debt-tracking.md) resolved items, [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) status improved, [Architecture Tracking](../../../product-docs/state-tracking/permanent/architecture-tracking.md) updated for foundation features, [Test Tracking](../../../../test/state-tracking/permanent/test-tracking.md) updated
   - [ ] **Product Documentation**: If refactoring changed module boundaries/interfaces/design patterns — feature state file, TDD, FDD, and test spec updated (Step 12)
-  - [ ] **Phase 3 (Post)**: Temporary state archived (if created) to [old directory](../../state-tracking/temporary/old), [Context Packages](../../architecture/context-packages) updated for architectural changes
+  - [ ] **Phase 3 (Post)**: Temporary state archived (if created) to [old directory](../../state-tracking/temporary/old), [Architecture Tracking](../../../product-docs/state-tracking/permanent/architecture-tracking.md) updated for architectural changes
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-022" and context "Code Refactoring Task"

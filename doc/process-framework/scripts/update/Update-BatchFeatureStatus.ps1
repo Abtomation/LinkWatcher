@@ -19,7 +19,7 @@ Use cases:
 Updates the following files atomically:
 - ../doc/product-docs/state-tracking/permanent/feature-tracking.md
 - ../doc/test/state-tracking/permanent/test-tracking.md
-- ../doc/product-docs/technical/architecture/component-relationship-index.md
+# - ../doc/product-docs/technical/architecture/component-relationship-index.md (Removed: file deleted)
 - Additional tracking files as needed
 
 .PARAMETER FeatureIds
@@ -181,8 +181,8 @@ if ($DryRun) {
 $projectRoot = Get-ProjectRoot
 $trackingFiles = @(
     Join-Path $projectRoot "doc/product-docs/state-tracking/permanent/feature-tracking.md",
-    Join-Path $projectRoot "test/state-tracking/permanent/test-tracking.md",
-    Join-Path $projectRoot "doc/product-docs/technical/architecture/component-relationship-index.md"
+    Join-Path $projectRoot "test/state-tracking/permanent/test-tracking.md"
+    # Join-Path $projectRoot "doc/product-docs/technical/architecture/component-relationship-index.md" # Removed: file deleted
 )
 
 # Confirmation prompt for bulk operations (unless Force is specified)

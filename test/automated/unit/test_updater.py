@@ -12,6 +12,14 @@ import pytest
 from linkwatcher.models import LinkReference
 from linkwatcher.updater import LinkUpdater, UpdateResult
 
+pytestmark = [
+    pytest.mark.feature("2.2.1"),
+    pytest.mark.priority("Critical"),
+    pytest.mark.cross_cutting(["0.1.1"]),
+    pytest.mark.test_type("unit"),
+    pytest.mark.specification("test/specifications/feature-specs/test-spec-2-2-1-link-updating.md"),
+]
+
 
 class TestLinkUpdater:
     """Test cases for LinkUpdater."""

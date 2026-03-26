@@ -53,7 +53,7 @@ As a [user type], I want to [action] so that [benefit].
 
 ## Quality Attribute Considerations
 
-> **Reference**: [System Quality Attributes](/doc/product-docs/technical/architecture/quality-attributes.md)
+> **Reference**: <!-- quality-attributes.md has been removed --> Define quality attributes relevant to this feature
 
 ### Applicable Quality Requirements
 

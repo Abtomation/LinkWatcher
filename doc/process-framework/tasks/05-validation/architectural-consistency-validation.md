@@ -43,7 +43,7 @@ Systematically validates selected features for architectural pattern adherence, 
 
 - **Important (Load If Space):**
 
-  - **Component Relationship Index** - [Component Relationship Index](../../../product-docs/technical/architecture/component-relationship-index.md) - For understanding component interactions
+  <!-- Component Relationship Index - Removed: file deleted -->
   - **Technical Design Documents** - [TDD Directory](../../../product-docs/technical/architecture/design-docs/tdd) - Technical specifications for selected features
   - **Codebase Structure** - Source code directory - Source code for selected features
   - **New-ValidationReport Script** - [../../scripts/file-creation/05-validation/New-ValidationReport.ps1](../../scripts/file-creation/05-validation/New-ValidationReport.ps1) - Script for generating validation reports
@@ -137,6 +137,6 @@ Before considering this task finished:
 ## Related Resources
 
 - [Feature Validation Guide](../../guides/05-validation/feature-validation-guide.md) - Comprehensive guide for conducting feature validation
-- [Architecture Decision Records](../../../product-docs/technical/architecture/decisions) - Architectural decisions to validate against
+- [Architecture Decision Records](../../../product-docs/technical/architecture/design-docs/adr/adr) - Architectural decisions to validate against
 - Project architecture guidelines - Platform-specific architectural patterns
-- [Design Patterns Documentation](../../../product-docs/technical/architecture/design-patterns) - Established patterns for validation reference
+<!-- - [Design Patterns Documentation](../../../product-docs/technical/architecture/design-patterns) - Directory does not exist -->

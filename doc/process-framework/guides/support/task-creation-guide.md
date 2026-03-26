@@ -465,7 +465,7 @@ Here's an example of creating a new categorized task following the **mandatory s
    - **Critical (Must Read):**
 
      - [Development Guide](/doc/process-framework/guides/04-implementation/development-guide.md) - Coding standards to follow
-     - <!-- [Code Quality Reports](/doc/product-docs/development/reports/code-quality-reports.md) - File not found --> - Metrics indicating problem areas
+     - `Code Quality Reports` *(not yet created)* - Metrics indicating problem areas
 
    - **Reference Only (Access When Needed):**
      - [Technical Debt Tracking](../../../product-docs/state-tracking/permanent/technical-debt-tracking.md) - Items marked for refactoring

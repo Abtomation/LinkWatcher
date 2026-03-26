@@ -15,7 +15,8 @@ retrospective: true
 
 > **Retrospective Document**: This FDD describes the existing implemented functionality of the LinkWatcher Parser Framework, documented after implementation during framework onboarding (PF-TSK-066). Content is descriptive ("what is") rather than prescriptive ("what should be").
 >
-> **Source**: Derived from [HOW_IT_WORKS.md](../../../../HOW_IT_WORKS.md) (Parser System section) and source code analysis of `linkwatcher/parser.py` and `linkwatcher/parsers/`.
+> **Source**: Derived from source code analysis of `linkwatcher/parser.py` and `linkwatcher/parsers/`.
+<!-- HOW_IT_WORKS.md (Parser System section) was removed — content superseded by this FDD and TDD PD-TDD-025 -->
 >
 > **Scope Note**: This feature consolidates old 2.1.1 (Parser Framework) with all individual parser implementations: 2.1.2 (Markdown), 2.1.3 (YAML), 2.1.4 (JSON), 2.1.5 (Python), 2.1.6 (Dart), 2.1.7 (Generic). The framework and all parsers are a single cohesive subsystem.
 
@@ -30,12 +31,12 @@ retrospective: true
 
 ### Architecture Overview Reference
 
-> **📋 Primary Documentation**: [HOW_IT_WORKS.md](../../../../HOW_IT_WORKS.md) — Parser System section
+<!-- HOW_IT_WORKS.md (Parser System section) was removed — content extracted into this FDD and TDD PD-TDD-025 during PF-TSK-066 -->
 > **👤 Source**: Pre-framework project documentation (Confirmed in PF-TSK-065 analysis)
 >
 > **Purpose**: Overview of the parser registry design, base parser interface, and dispatch mechanism.
 
-**Functional Architecture Summary** (derived from HOW_IT_WORKS.md):
+**Functional Architecture Summary**:
 
 - The Parser Framework provides a single `parse_file(file_path)` entry point that automatically selects the correct parser for any file based on its extension
 - Six specialized parsers handle specific formats; a GenericParser provides best-effort fallback for all other file types

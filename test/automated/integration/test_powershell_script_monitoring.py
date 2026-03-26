@@ -17,6 +17,14 @@ from linkwatcher.handler import LinkMaintenanceHandler
 from linkwatcher.parser import LinkParser
 from linkwatcher.updater import LinkUpdater
 
+pytestmark = [
+    pytest.mark.feature("1.1.1"),
+    pytest.mark.priority("Standard"),
+    pytest.mark.cross_cutting(["2.2.1", "2.1.1"]),
+    pytest.mark.test_type("integration"),
+    pytest.mark.specification("test/specifications/feature-specs/test-spec-1-1-1-file-system-monitoring.md"),
+]
+
 
 class TestPowerShellScriptMonitoring:
     """Test PowerShell script file monitoring and link updates."""

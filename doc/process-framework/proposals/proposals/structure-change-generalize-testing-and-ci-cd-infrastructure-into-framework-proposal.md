@@ -125,7 +125,7 @@ No duplication with proposed new guides:
 | Existing guide | Purpose | Proposed guide | Overlap? |
 |---|---|---|---|
 | test-infrastructure-guide.md (PF-GDE-050) | How test/ connects to framework ("what exists") | Testing setup guide ("how to scaffold") | No |
-| test-implementation-usage-guide.md (PF-GDE-040) | How to use PF-TSK-053 ("how to write tests") | Testing setup guide ("how to create skeleton") | No |
+| integration-and-testing-usage-guide.md (PF-GDE-040) | How to use PF-TSK-053 ("how to write tests") | Testing setup guide ("how to create skeleton") | No |
 | No deployment guide exists | — | CI/CD setup guide | No — `07-deployment/` guide directory doesn't exist |
 
 ### Testing Tasks — All Current (no updates needed)
@@ -179,7 +179,7 @@ No duplication with proposed new guides:
 - `tasks/03-testing/e2e-acceptance-test-case-creation-task.md` — v1.1, no stale refs
 - `tasks/04-implementation/integration-and-testing.md` — v2.1, no stale refs
 - `guides/03-testing/test-infrastructure-guide.md` — no overlap with new testing setup guide
-- `guides/03-testing/test-implementation-usage-guide.md` — no overlap with new testing setup guide
+- `guides/03-testing/integration-and-testing-usage-guide.md` — no overlap with new testing setup guide
 
 ### New files
 - `guides/03-testing/testing-setup-guide.md` — Language-specific testing scaffolding guide

@@ -26,7 +26,7 @@
         "cyclical": "doc/process-framework/tasks/cyclical",
         "default": "01-planning"
       },
-      "nextAvailable": 79
+      "nextAvailable": 81
     },
     "PF-GDE": {
       "description": "Process Framework - Guides",
@@ -46,7 +46,7 @@
         "main": "doc/process-framework/templates",
         "default": "main"
       },
-      "nextAvailable": 64
+      "nextAvailable": 65
     },
     "PF-DOC": {
       "description": "Process Framework - Documentation",
@@ -77,7 +77,7 @@
         "process-flows": "doc/process-framework/visualization/process-flows",
         "default": "context-maps"
       },
-      "nextAvailable": 58
+      "nextAvailable": 59
     },
     "PF-PRO": {
       "description": "Process Framework - Proposals",
@@ -87,7 +87,7 @@
         "main": "doc/process-framework/proposals",
         "default": "main"
       },
-      "nextAvailable": 12
+      "nextAvailable": 13
     },
     "PF-IMP": {
       "description": "Process Framework - Improvement Opportunities",
@@ -97,7 +97,7 @@
         "permanent": "doc/process-framework/state-tracking/permanent",
         "default": "permanent"
       },
-      "nextAvailable": 185
+      "nextAvailable": 213
     },
     "PF-STA": {
       "description": "Process Framework - State Tracking (framework only)",
@@ -110,7 +110,7 @@
         "product-temporary": "doc/product-docs/state-tracking/temporary",
         "default": "permanent"
       },
-      "nextAvailable": 65
+      "nextAvailable": 66
     },
     "PF-FEE": {
       "description": "Process Framework - Feedback Artifacts",
@@ -121,7 +121,7 @@
         "archive": "doc/process-framework/feedback/archive",
         "default": "forms"
       },
-      "nextAvailable": 446
+      "nextAvailable": 462
     },
     "PF-REV": {
       "description": "Process Framework - Review Artifacts",
@@ -160,6 +160,16 @@
       "directories": {
         "guides": "doc/process-framework/guides",
         "default": "guides"
+      },
+      "nextAvailable": 2
+    },
+    "PF-EVR": {
+      "description": "Process Framework - Evaluation Reports",
+      "category": "Process Framework",
+      "type": "Evaluation Report",
+      "directories": {
+        "main": "doc/process-framework/evaluation-reports",
+        "default": "main"
       },
       "nextAvailable": 2
     }

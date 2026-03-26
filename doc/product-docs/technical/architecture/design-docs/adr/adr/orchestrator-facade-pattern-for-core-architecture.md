@@ -104,10 +104,10 @@ Subsystems loaded dynamically from a registry or configuration.
 
 ## References
 
-- [0.1.1 Implementation State](../../../../state-tracking/features/0.1.1-core-architecture-implementation-state.md) — Source code analysis with design decisions
-- [FDD PD-FDD-022](../../../../functional-design/fdds/fdd-0-1-1-core-architecture.md) — Functional requirements for Core Architecture
-- [TDD PD-TDD-021](../tdd/tdd-0-1-1-core-architecture-t3.md) — Technical design document with component diagrams
-- [HOW_IT_WORKS.md](../../../../../../HOW_IT_WORKS.md) — User-facing architecture overview
+- [0.1.1 Implementation State](../../../../../state-tracking/features/0.1.1-core-architecture-implementation-state.md) — Source code analysis with design decisions
+- [FDD PD-FDD-022](../../../../../functional-design/fdds/fdd-0-1-1-core-architecture.md) — Functional requirements for Core Architecture
+- [TDD PD-TDD-021](../../tdd/tdd-0-1-1-core-architecture-t3.md) — Technical design document with component diagrams
+
 - `linkwatcher/service.py` — Primary implementation file (~200 LOC)
 - `linkwatcher/__init__.py` — Package public API surface
 

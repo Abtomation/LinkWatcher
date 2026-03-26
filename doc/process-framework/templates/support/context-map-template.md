@@ -59,10 +59,7 @@ graph TD
 
 ## Related Documentation
 
-- <!-- [Link to Documentation 1](/path/to/documentation1.md) - Template/example link commented out --> - Detailed information about Component 1
-- <!-- [Link to Documentation 2](/path/to/documentation2.md) - Template/example link commented out --> - Detailed information about Component 2
-- [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Complete reference of all component relationships
+- `[Link to Documentation 1](/path/to/documentation1.md)` *(replace with actual link)* - Detailed information about Component 1
+- `[Link to Documentation 2](/path/to/documentation2.md)` *(replace with actual link)* - Detailed information about Component 2
 
 ---
-
-*Note: This context map highlights only the components relevant to this specific task. For a comprehensive view of all components, refer to the [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md).*

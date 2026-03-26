@@ -26,17 +26,17 @@ This is the final onboarding task that transforms code analysis into formal desi
 ## When to Use
 
 - After [Codebase Feature Analysis (PF-TSK-065)](codebase-feature-analysis.md) is complete
-- [Master state file](../../state-tracking/temporary/retrospective-master-state.md) shows Phase 2 done (all features analyzed)
+- [Master state file](../../state-tracking/temporary/old/retrospective-master-state.md) shows Phase 2 done (all features analyzed)
 - All [Feature Implementation State files](../../state-tracking/features/) have enriched analysis content
 - Ready to create formal design documentation
 
 ## Context Requirements
 
-**[📊 View Context Map for this task](../../visualization/context-maps/onboarding/retrospective-documentation-creation-map.md)** - Visual guide showing all components and their relationships
+**[📊 View Context Map for this task](../../visualization/context-maps/00-onboarding/retrospective-documentation-creation-map.md)** - Visual guide showing all components and their relationships
 
 - **Critical (Must Read):**
 
-  - [Retrospective Master State File](../../state-tracking/temporary/retrospective-master-state.md) — Read current state, verify Phase 2 complete
+  - [Retrospective Master State File](../../state-tracking/temporary/old/retrospective-master-state.md) — Read current state, verify Phase 2 complete
   - [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) - Feature list, tiers, and documentation links
   - [Feature Implementation State Files](../../state-tracking/features/) — All enriched files from PF-TSK-065
   - [Feature Tier Assessment Task](../01-planning/feature-tier-assessment-task.md) - For creating tier assessments
@@ -71,7 +71,7 @@ This is the final onboarding task that transforms code analysis into formal desi
 
 ### Preparation
 
-1. **Read [Master State File](../../state-tracking/temporary/retrospective-master-state.md)**:
+1. **Read [Master State File](../../state-tracking/temporary/old/retrospective-master-state.md)**:
    - Verify Phase 2 is complete
    - Identify which features still need assessment and documentation
    - Set status to "ASSESSMENT_AND_DOCUMENTATION" if not already
@@ -91,7 +91,7 @@ This is the final onboarding task that transforms code analysis into formal desi
      - If inaccurate, update the assessment
      - Document any discrepancies in master state session notes
    - Update [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) with tier assignment
-   - Update [master state](../../state-tracking/temporary/retrospective-master-state.md): mark feature as "📊 Assessment Created"
+   - Update [master state](../../state-tracking/temporary/old/retrospective-master-state.md): mark feature as "📊 Assessment Created"
 
 4. **🚨 CHECKPOINT**: Present tier assessments for current batch of features for review before creating documents
 
@@ -120,7 +120,7 @@ This is the final onboarding task that transforms code analysis into formal desi
 7. **Create Test Specification (Tier 3 only)**:
    - Use [Test Specification Creation Task](../03-testing/test-specification-creation-task.md)
    - **Check first**: The feature's test files listed in Section 6 of the [Feature Implementation State file](../../state-tracking/features/); browse the existing test directory structure on disk
-   - **Source**: Existing test files (primary), [Feature Implementation State file](../../state-tracking/features/) → Test Files section and [Master State File](../../state-tracking/temporary/retrospective-master-state.md) (secondary)
+   - **Source**: Existing test files (primary), [Feature Implementation State file](../../state-tracking/features/) → Test Files section and [Master State File](../../state-tracking/temporary/old/retrospective-master-state.md) (secondary)
    - **Approach**: Document and formalize existing test coverage, then identify gaps — not design tests from scratch
    - **Adapting PF-TSK-012 steps**: The task assumes pre-implementation spec creation. For retrospective use:
      - *Preparation Steps 1-5*: Replace "Review the Target TDD" with reviewing existing test files and the feature state file
@@ -154,7 +154,7 @@ This is the final onboarding task that transforms code analysis into formal desi
 11. **Update [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md)**:
     - Add document links to appropriate columns as documents are created
 
-12. **Update [Master State](../../state-tracking/temporary/retrospective-master-state.md) After Each Session**:
+12. **Update [Master State](../../state-tracking/temporary/old/retrospective-master-state.md) After Each Session**:
    - Mark assessment and document completion status per feature
    - Log session notes
    - **Complete feedback form for the session**
@@ -195,7 +195,7 @@ This is the final onboarding task that transforms code analysis into formal desi
     - Total documents created (by type)
     - Total sessions and time spent
     - Coverage percentage achieved
-    - Record in [master state file](../../state-tracking/temporary/retrospective-master-state.md) Completion Summary section
+    - Record in [master state file](../../state-tracking/temporary/old/retrospective-master-state.md) Completion Summary section
 
 20. **Archive Master State File**:
     - Move from `/temporary/` to `/temporary/archived/` (or `/temporary/old/`)
@@ -216,13 +216,13 @@ This is the final onboarding task that transforms code analysis into formal desi
 - **Updated [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md)** — All document links in appropriate columns
 - **Updated [Documentation Map](../../documentation-map.md)** — All new documents registered
 - **Reconciled pre-existing documentation** — Superseded docs archived to `doc/archived-pre-framework/`, project-essential docs (README.md, CONTRIBUTING.md, etc.) kept in place
-- **Archived [Master State File](../../state-tracking/temporary/retrospective-master-state.md)** — Moved to `/temporary/archived/`
+- **Archived [Master State File](../../state-tracking/temporary/old/retrospective-master-state.md)** — Moved to `/temporary/archived/`
 
 ## State Tracking
 
 ### Existing State Files Updated
 
-- [Retrospective Master State File](../../state-tracking/temporary/retrospective-master-state.md) — Phase 3+4 progress, final metrics, archived on completion
+- [Retrospective Master State File](../../state-tracking/temporary/old/retrospective-master-state.md) — Phase 3+4 progress, final metrics, archived on completion
 - [Feature Implementation State Files](../../state-tracking/features/) — Documentation Inventory section updated with created document links
 - [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) — Tier assignments and all document links added
 - [Documentation Map](../../documentation-map.md) — All new documents registered
@@ -247,8 +247,8 @@ This is the final onboarding task that transforms code analysis into formal desi
   - [ ] Run [`Validate-StateTracking.ps1`](../../scripts/validation/Validate-StateTracking.ps1) — 0 errors across all surfaces
   - [ ] Pre-existing documentation reconciled — each doc in master state inventory marked Keep or Archived; superseded docs moved to `doc/archived-pre-framework/`
   - [ ] [Documentation Map](../../documentation-map.md) updated with all new documents
-  - [ ] Final metrics calculated and recorded in [master state](../../state-tracking/temporary/retrospective-master-state.md)
-  - [ ] [Master State File](../../state-tracking/temporary/retrospective-master-state.md) archived to `/temporary/archived/`
+  - [ ] Final metrics calculated and recorded in [master state](../../state-tracking/temporary/old/retrospective-master-state.md)
+  - [ ] [Master State File](../../state-tracking/temporary/old/retrospective-master-state.md) archived to `/temporary/archived/`
 
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-066" and context "Retrospective Documentation Creation"
   - **⚠️ IMPORTANT**: Evaluate the Retrospective Documentation Creation task (PF-TSK-066) and its tools (tier assessment workflow, documentation creation process), not the documents you created.

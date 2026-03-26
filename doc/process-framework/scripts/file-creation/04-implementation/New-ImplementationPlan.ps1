@@ -19,11 +19,20 @@
 .PARAMETER Description
     Brief description of the feature (optional, used in metadata)
 
+.PARAMETER Tier
+    Documentation tier (1, 2, or 3). Tier 1 uses a lightweight template (~90 lines)
+    focused on phases, tasks, and testing. Tiers 2/3 use the full template (~290 lines)
+    with data layer, state management, UI, deployment, and stakeholder sections.
+    Default: uses the full template (backwards compatible).
+
 .PARAMETER OpenInEditor
     If specified, opens the created file in the default editor
 
 .EXAMPLE
     .\New-ImplementationPlan.ps1 -FeatureName "user-authentication" -Description "User authentication and authorization system"
+
+.EXAMPLE
+    .\New-ImplementationPlan.ps1 -FeatureName "link-validation" -Description "On-demand link health audit" -Tier 1
 
 .EXAMPLE
     .\New-ImplementationPlan.ps1 -FeatureName "booking-system" -Description "Resource booking and reservation" -OpenInEditor
@@ -47,6 +56,10 @@ param(
 
     [Parameter(Mandatory = $false)]
     [string]$Description = "",
+
+    [Parameter(Mandatory = $false)]
+    [ValidateSet(1, 2, 3)]
+    [int]$Tier,
 
     [Parameter(Mandatory = $false)]
     [switch]$OpenInEditor
@@ -83,13 +96,17 @@ $customReplacements = @{
 
 # Create the document using standardized process
 try {
-    # Check if implementation plan template exists
-    $templatePath = "doc/process-framework/templates/04-implementation/implementation-plan-template-template.md"
+    # Select template based on tier
+    if ($Tier -eq 1) {
+        $templatePath = "doc/process-framework/templates/04-implementation/implementation-plan-tier1-template.md"
+    } else {
+        $templatePath = "doc/process-framework/templates/04-implementation/implementation-plan-template-template.md"
+    }
 
     if (-not (Test-Path $templatePath)) {
         Write-Warning "Implementation plan template not found at: $templatePath"
         Write-Warning "Please create the template using New-Template.ps1 before using this script."
-        Write-Error "Template file required: implementation-plan-template.md"
+        Write-Error "Template file required: $(Split-Path $templatePath -Leaf)"
         exit 1
     }
 

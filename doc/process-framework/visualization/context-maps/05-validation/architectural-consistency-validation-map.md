@@ -76,12 +76,11 @@ graph TD
 
 ## Related Documentation
 
-- [Architectural Consistency Validation Task](../../tasks/05-validation/architectural-consistency-validation-task.md) - Complete task definition and process
-- [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Current status of features
+- [Architectural Consistency Validation Task](../../../tasks/05-validation/architectural-consistency-validation.md) - Complete task definition and process
+- [Feature Tracking](../../../../product-docs/state-tracking/permanent/feature-tracking.md) - Current status of features
 - Validation Tracking State File - Active validation tracking matrix (file location depends on validation round)
-- [Architecture Decision Records](../../../product-docs/technical/architecture/decisions) - Architectural standards and decisions
-- [Component Relationship Index](../../../product-docs/technical/architecture/component-relationship-index.md) - Complete reference of all component relationships
+- [Architecture Decision Records](../../../../product-docs/technical/architecture/design-docs/adr/adr) - Architectural standards and decisions
+<!-- [Component Relationship Index](../../../product-docs/technical/architecture/component-relationship-index.md) - Removed: file deleted -->
 
 ---
 
-_Note: This context map highlights only the components relevant to this specific task. For a comprehensive view of all components, refer to the [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md)._

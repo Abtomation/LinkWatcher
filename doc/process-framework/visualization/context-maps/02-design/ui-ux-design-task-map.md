@@ -97,14 +97,14 @@ graph TD
 
 ## Related Documentation
 
-- [UI/UX Design Task](../../tasks/02-design/ui-ux-design-task.md) - Complete task definition with AI agent role and execution steps
-- [Design Guidelines (PD-UIX-001)](../../../../product-docs/technical/design/ui-ux/design-system/design-guidelines.md) - Living reference for design principles, visual foundation, accessibility, and platform guidelines
+<!-- - [UI/UX Design Task](../../tasks/02-design/ui-ux-design-task.md) - Complete task definition with AI agent role and execution steps (task not yet created) -->
+<!-- - [Design Guidelines (PD-UIX-001)](../../../../product-docs/technical/design/ui-ux/design-system/design-guidelines.md) - Living reference for design principles (file not yet created) -->
 - [UI Design Template](../../../templates/02-design/ui-design-template.md) - Comprehensive template for creating UI/UX Design Documents
 - [UI Design Customization Guide](../../../guides/02-design/ui-design-customization-guide.md) - 19-step guide for customizing UI Design templates
-- [Feature Tier Assessment Task](../../tasks/01-planning/feature-tier-assessment-task.md) - Prerequisite task for determining when UI Design is needed
-- [FDD Creation Task](../../tasks/02-design/fdd-creation-task.md) - Related design task for functional requirements
-- [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Central tracking document with UI Design column
-- [New-UIDesign.ps1 Script](../../scripts/file-creation/New-UIDesign.ps1) - Script for creating UI Design documents
+- [Feature Tier Assessment Task](../../../tasks/01-planning/feature-tier-assessment-task.md) - Prerequisite task for determining when UI Design is needed
+- [FDD Creation Task](../../../tasks/02-design/fdd-creation-task.md) - Related design task for functional requirements
+- [Feature Tracking](../../../../product-docs/state-tracking/permanent/feature-tracking.md) - Central tracking document with UI Design column
+- [New-UIDesign.ps1 Script](../../../scripts/file-creation/02-design/New-UIDesign.ps1) - Script for creating UI Design documents
 
 ---
 

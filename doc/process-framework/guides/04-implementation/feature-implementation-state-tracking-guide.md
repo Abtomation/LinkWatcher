@@ -799,7 +799,7 @@ Before marking a task complete, verify:
 
 ### Process Framework Documentation
 
-- [Feature Implementation Task Decomposition Proposal](../../proposals/proposals/feature-implementation-task-decomposition-proposal.md) - Background on decomposed implementation approach
+
 - [Feature Implementation State Template (PF-TEM-037)](../../templates/04-implementation/feature-implementation-state-template.md) - Template structure used by this guide
 - [Feature Implementation Planning (PF-TSK-044)](../../tasks/04-implementation/feature-implementation-planning-task.md) - Entry point for decomposed feature implementation
 

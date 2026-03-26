@@ -20,6 +20,14 @@ from watchdog.events import FileMovedEvent
 
 from linkwatcher.service import LinkWatcherService
 
+pytestmark = [
+    pytest.mark.feature("0.1.1"),
+    pytest.mark.priority("Standard"),
+    pytest.mark.cross_cutting(["2.1.1", "2.2.1", "1.1.1", "0.1.2"]),
+    pytest.mark.test_type("integration"),
+    pytest.mark.specification("test/specifications/feature-specs/test-spec-0-1-1-core-architecture.md"),
+]
+
 
 class TestComplexScenarios:
     """Integration tests for complex multi-file scenarios."""

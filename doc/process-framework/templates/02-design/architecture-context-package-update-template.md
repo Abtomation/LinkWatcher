@@ -74,7 +74,7 @@ This template provides a structured approach for updating Architecture Context P
 ```markdown
 ## 🎯 Quality Attribute Focus
 
-> **Reference**: [System Quality Attributes](/doc/product-docs/technical/architecture/quality-attributes.md)
+> **Reference**: <!-- quality-attributes.md has been removed --> Define quality attributes relevant to this architectural area
 
 **Primary Quality Concerns**: [Top 3 quality attributes for this architectural area]
 - **[Quality Attribute 1]**: [Current status and focus]
@@ -185,7 +185,7 @@ When creating a new Architecture Context Package, include these quality attribut
 ```markdown
 ## 🎯 Quality Attribute Focus
 
-> **Reference**: [System Quality Attributes](/doc/product-docs/technical/architecture/quality-attributes.md)
+> **Reference**: <!-- quality-attributes.md has been removed --> Define quality attributes relevant to this architectural area
 
 **Primary Quality Concerns**: [Top 3 quality attributes for this architectural area]
 - **Performance**: [How this area impacts system performance]

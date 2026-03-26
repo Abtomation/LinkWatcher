@@ -4,7 +4,7 @@ type: Process Framework
 category: Task Definition
 version: 1.1
 created: 2025-12-11
-updated: 2026-03-02
+updated: 2026-03-25
 task_type: Discrete
 ---
 
@@ -45,7 +45,7 @@ Implement data models, repositories, and database integration for feature
   - **Existing Repository Patterns** - Review similar repositories in the source directory for consistency
   - **Existing Data Models** - Review similar models in the source directory for patterns
   - **Database Client Configuration** - Review database connection configuration for connection patterns
-  - [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - For understanding data layer interactions with other components
+  <!-- [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Removed: file deleted -->
 
 - **Reference Only (Access When Needed):**
   - **Database Documentation** - For understanding database client API patterns
@@ -98,7 +98,23 @@ Implement data models, repositories, and database integration for feature
    - Add error handling and exception mapping
    - Implement data transformation (database → model)
    - Add logging for debugging
-9. **Write Data Layer Tests**: Create unit tests for models and repositories
+9. **Write Data Layer Tests**: Create tracked unit tests for models and repositories using `New-TestFile.ps1`
+
+   ```powershell
+   # Create test files using automation script (generates TE-TST-[SEQUENCE] IDs)
+   # Test types depend on project language (auto-detected from project-config.json)
+   cd doc/process-framework/scripts/file-creation/03-testing
+   .\New-TestFile.ps1 -TestName "FeatureName" -TestType "Unit" -FeatureId "X.Y.Z" -ComponentName "DataModel"
+   .\New-TestFile.ps1 -TestName "FeatureName" -TestType "Unit" -FeatureId "X.Y.Z" -ComponentName "Repository"
+
+   # Script automatically:
+   # - Generates unique TE-TST ID
+   # - Creates test file from template with proper structure
+   # - Updates test-tracking.md with correct file links and status
+   # - Updates test-registry.yaml with test file metadata
+   # - Updates feature-tracking.md with test implementation progress
+   ```
+
    - Test model serialization/deserialization
    - Test repository CRUD operations with mocks
    - Test error handling scenarios
@@ -128,7 +144,13 @@ Implement data models, repositories, and database integration for feature
 
 ## State Tracking
 
-The following state files must be updated as part of this task:
+### Automated Updates (via `New-TestFile.ps1`)
+
+- [Test Tracking](../../../../test/state-tracking/permanent/test-tracking.md) - Automatically updated with test file links and status
+- [Test Registry](/test/test-registry.yaml) - Automatically updated with test file entries and metadata
+- [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) - Automatically updated with test implementation progress
+
+### Manual Updates
 
 - [Feature Implementation State File](../../state-tracking/permanent/feature-[feature-id]-implementation.md) - Update with:
   - Task sequence tracking (mark data layer task as in_progress, then completed)
@@ -148,8 +170,9 @@ Before considering this task finished:
   - [ ] Repository interface defined in the source directory
   - [ ] Repository implementation completed with database integration
   - [ ] Database migrations executed and verified in development database
-  - [ ] Unit tests created and passing for all data layer components
+  - [ ] Unit tests created via `New-TestFile.ps1` and passing for all data layer components
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
+  - [ ] Test tracking files automatically updated by `New-TestFile.ps1` (verify correctness)
   - [ ] [Feature Implementation State File](../../state-tracking/permanent/feature-[feature-id]-implementation.md) updated with:
     - [ ] Task sequence tracking (data layer task marked as completed)
     - [ ] Code inventory with new models and repositories

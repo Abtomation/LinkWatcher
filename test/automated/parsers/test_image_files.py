@@ -13,6 +13,14 @@ import pytest
 from linkwatcher.parser import LinkParser
 from linkwatcher.parsers.generic import GenericParser
 
+pytestmark = [
+    pytest.mark.feature("2.1.1"),
+    pytest.mark.priority("Critical"),
+    pytest.mark.cross_cutting(["1.1.1"]),
+    pytest.mark.test_type("parser"),
+    pytest.mark.specification("test/specifications/feature-specs/test-spec-2-1-1-link-parsing-system.md"),
+]
+
 
 class TestImageFileParsing:
     """Test parsing of various image file formats."""

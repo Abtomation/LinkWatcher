@@ -25,7 +25,7 @@ auditor: AI Agent
 | **Auditor** | AI Agent |
 | **Audit Date** | 2026-03-15 |
 | **Audit Status** | COMPLETED |
-| **Test Spec** | [PF-TSP-037](../../../../test/specifications/feature-specs/test-spec-0-1-3-configuration-system.md) |
+| **Test Spec** | [PF-TSP-037](../../specifications/feature-specs/test-spec-0-1-3-configuration-system.md) |
 | **TDD** | None (Tier 1 — no TDD required) |
 
 ## Test Files Audited

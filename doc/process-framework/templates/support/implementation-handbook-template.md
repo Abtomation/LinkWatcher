@@ -184,9 +184,9 @@ void testExampleFeature() {
 
 ## Related Documentation
 
-- <!-- [Related Design Document](/doc/product-docs/technical/design/related-design.md) - Template/example link commented out -->
-- <!-- [Related API Documentation](/doc/product-docs/technical/api/related-api.md) - Template/example link commented out -->
-- <!-- [Related Architecture Decision](/doc/product-docs/technical/architecture/adr/related-adr.md) - Template/example link commented out -->
+- `[Related Design Document](/doc/product-docs/technical/design/related-design.md)` *(replace with actual link)*
+- `[Related API Documentation](/doc/product-docs/technical/api/related-api.md)` *(replace with actual link)*
+- `[Related Architecture Decision](/doc/product-docs/technical/architecture/adr/related-adr.md)` *(replace with actual link)*
 
 ---
 

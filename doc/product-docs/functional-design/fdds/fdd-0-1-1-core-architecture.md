@@ -15,7 +15,8 @@ retrospective: true
 
 > **Retrospective Document**: This FDD describes the existing implemented functionality of the LinkWatcher Core Architecture, documented after implementation during framework onboarding (PF-TSK-066). Content is descriptive ("what is") rather than prescriptive ("what should be").
 >
-> **Source**: Derived from [HOW_IT_WORKS.md](../../../../HOW_IT_WORKS.md) and source code analysis of `linkwatcher/service.py`, `linkwatcher/__init__.py`, `linkwatcher/models.py`, `linkwatcher/utils.py`, and `main.py`.
+> **Source**: Derived from source code analysis of `linkwatcher/service.py`, `linkwatcher/__init__.py`, `linkwatcher/models.py`, `linkwatcher/utils.py`, and `main.py`.
+<!-- HOW_IT_WORKS.md was removed — content superseded by this FDD and TDD PD-TDD-021 -->
 >
 > **Scope Note**: This feature consolidates old 0.1.1 (Core Architecture), 0.1.2 (Data Models), and 0.1.5 (Path Utilities) into a single feature covering the service orchestrator, data models, path utilities, and CLI entry point.
 
@@ -30,7 +31,7 @@ retrospective: true
 
 ### Architecture Overview Reference
 
-> **📋 Primary Documentation**: [HOW_IT_WORKS.md](../../../../HOW_IT_WORKS.md)
+<!-- HOW_IT_WORKS.md was removed — content was extracted into this FDD and TDD PD-TDD-021 during PF-TSK-066 -->
 > **👤 Source**: Pre-framework project documentation (Confirmed in PF-TSK-065 analysis)
 >
 > **Purpose**: Comprehensive architecture overview covering the modular component design, data flow, and operational phases.

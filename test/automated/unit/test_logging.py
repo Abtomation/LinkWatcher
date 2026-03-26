@@ -26,6 +26,13 @@ from linkwatcher.logging import (
     with_context,
 )
 
+pytestmark = [
+    pytest.mark.feature("3.1.1"),
+    pytest.mark.priority("Standard"),
+    pytest.mark.test_type("unit"),
+    pytest.mark.specification("test/specifications/feature-specs/test-spec-3-1-1-logging-system.md"),
+]
+
 
 class TestLogContext:
     """Test the thread-local logging context."""

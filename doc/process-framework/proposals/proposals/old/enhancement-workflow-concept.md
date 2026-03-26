@@ -166,7 +166,7 @@ The Feature Enhancement task instructs the AI agent to read the referenced docum
 #### Input Requirements
 
 - **Change Request**: A description of what needs to be added, changed, or extended (from human partner)
-- **Feature Tracking**: Current feature inventory to identify existing features ([feature-tracking.md](../../state-tracking/permanent/feature-tracking.md))
+- **Feature Tracking**: Current feature inventory to identify existing features ([feature-tracking.md](../../../../product-docs/state-tracking/permanent/feature-tracking.md))
 - **Feature State Files**: Implementation state of the target feature (`state-tracking/features/X.Y.Z-*-implementation-state.md`)
 - **Existing Design Docs**: Any FDD, TDD, or ADR associated with the target feature
 

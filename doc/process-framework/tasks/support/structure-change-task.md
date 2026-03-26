@@ -45,7 +45,7 @@ This task **orchestrates** systematic changes to documentation structures, templ
 - **Important (Load If Space):**
   - [Template Development Guide](../../guides/support/template-development-guide.md) - **REQUIRED** for creating or updating templates
   - [Document Creation Script Development Guide](../../guides/support/document-creation-script-development-guide.md) - **REQUIRED** for creating automation scripts
-  - [Process Framework Documentation](../../../process-framewor) - Current documentation structure
+  - [Process Framework Documentation](../../README.md) - Current documentation structure
   - [Feedback Forms](../../feedback/feedback-forms) - Feedback related to current structure
 
 ## Process
@@ -240,7 +240,7 @@ The following state files must be updated as part of this task:
 
 ## Next Tasks
 
-- [**Process Improvement**](../06-maintenance/process-improvement-task.md) - If further process refinements are needed
+- [**Process Improvement**](process-improvement-task.md) - If further process refinements are needed
 - [**Tools Review**](tools-review-task.md) - Review any tools affected by structure changes
 
 ## Related Resources

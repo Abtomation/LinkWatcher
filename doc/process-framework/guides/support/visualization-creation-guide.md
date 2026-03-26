@@ -107,11 +107,11 @@ List all files, resources, and information needed:
 
 ```markdown
 - **Critical (Must Read):**
-  - [File Name](path/to/file.md) - Brief description of why it's critical
+  - `[File Name](path/to/file.md)` - Brief description of why it's critical
 - **Important (Load If Space):**
-  - [File Name](path/to/file.md) - Description of its importance
+  - `[File Name](path/to/file.md)` - Description of its importance
 - **Reference Only (Access When Needed):**
-  - [File Name](path/to/file.md) - When and why to access
+  - `[File Name](path/to/file.md)` - When and why to access
 ```
 
 #### Component Relationships

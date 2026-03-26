@@ -1,0 +1,215 @@
+---
+id: PF-TSK-079
+type: Process Framework
+category: Task Definition
+domain: agnostic
+version: 1.0
+created: 2026-03-24
+updated: 2026-03-24
+task_type: Support
+---
+
+# Framework Evaluation
+
+## Purpose & Context
+
+Structurally evaluate the process framework — or a targeted subset of it — across seven evaluation dimensions: completeness, consistency, redundancy, accuracy, effectiveness, automation coverage, and scalability. The task produces a structured evaluation report with scored findings and registers actionable improvements as IMP entries for follow-up via Process Improvement (PF-TSK-009).
+
+This task is analogous to the code validation tasks (05-validation) but targets the framework's own artifacts: tasks, templates, guides, scripts, context maps, state files, and workflows.
+
+## AI Agent Role
+
+**Role**: Process Quality Auditor
+**Mindset**: Critical, systematic, evidence-based — assess against concrete criteria, not opinion
+**Focus Areas**: Structural integrity, cross-reference accuracy, convention adherence, gap identification, scalability assessment
+**Communication Style**: Present findings with evidence (file paths, specific examples), propose severity levels, ask about evaluation scope priorities
+
+## When to Use
+
+- When periodically reviewing the framework's health (e.g., quarterly, after a batch of new tasks)
+- When onboarding a new project and wanting to assess framework readiness
+- When a specific framework area feels problematic (e.g., "test scripts seem inconsistent")
+- After a significant structural change (SC-* task completion) to verify integrity
+- When evaluating whether the framework scales to a different project size or type
+- Before a major framework extension to identify gaps that should be addressed first
+
+## Context Requirements
+
+[View Context Map for this task](../../visualization/context-maps/support/framework-evaluation-map.md)
+
+- **Critical (Must Read):**
+
+  - **Evaluation Scope** — Human partner specifies what to evaluate: entire framework, a specific phase (e.g., "03-testing tasks"), a component type (e.g., "all templates"), or a workflow (e.g., "enhancement workflow end-to-end")
+  - [Documentation Map](../../documentation-map.md) — Central index of all framework artifacts; starting point for completeness checks
+  - [AI Tasks System](../../ai-tasks.md) — Task registry; the authoritative list of all tasks and workflows
+
+- **Important (Load If Space):**
+
+  - [Process Framework Task Registry](../../infrastructure/process-framework-task-registry.md) — Automation status, script locations, file update patterns per task
+  - [PF ID Registry](../../PF-id-registry.json) — ID prefixes, directory mappings, counter state
+  - [Task Creation Guide](../../guides/support/task-creation-guide.md) — Defines expected task structure and quality standards
+
+- **Reference Only (Access When Needed):**
+  - [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) — For registering new IMP entries
+  - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) — For interpreting context map diagrams
+  - Individual task definitions, templates, guides, scripts — loaded as needed during evaluation
+
+## Process
+
+> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished! 🚨**
+>
+> **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
+>
+> **⚠️ MANDATORY: Never proceed past a checkpoint without presenting findings and getting explicit approval.**
+
+### Preparation
+
+1. **Define Evaluation Scope**: Agree with human partner on what to evaluate. Options:
+   - **Full framework** — all tasks, templates, guides, scripts, context maps, state files
+   - **Phase scope** — a specific workflow phase (e.g., "01-planning", "05-validation")
+   - **Component type** — all artifacts of one type (e.g., "all creation scripts", "all templates")
+   - **Workflow scope** — an end-to-end workflow (e.g., "Feature Enhancement workflow from request to deployment")
+   - **Targeted** — a specific set of artifacts identified by the human partner
+
+2. **Select Evaluation Dimensions**: Determine which of the seven dimensions to evaluate. By default, all dimensions apply. The human partner may narrow the focus.
+
+   | # | Dimension | What It Assesses | Default |
+   |---|-----------|-----------------|---------|
+   | 1 | **Completeness** | Are all expected artifacts present? Do tasks have context maps, templates have guides, scripts have error handling? | Always |
+   | 2 | **Consistency** | Do artifacts follow the same structure, naming conventions, metadata format, and cross-referencing patterns? | Always |
+   | 3 | **Redundancy** | Is there duplicated content, overlapping task responsibilities, or unnecessary artifacts? | Always |
+   | 4 | **Accuracy** | Do cross-references resolve? Do ID registries match actual files? Do scripts reference existing templates? | Always |
+   | 5 | **Effectiveness** | Are process steps clear and actionable? Are templates useful? Do guides answer the questions they should? | Always |
+   | 6 | **Automation Coverage** | Are manual steps that could be scripted still manual? Do existing scripts cover the full workflow? | Always |
+   | 7 | **Scalability** | Would this work for small and large projects? Are there hardcoded assumptions about project size, language, or domain? | On request |
+
+3. **🚨 CHECKPOINT**: Present evaluation scope and selected dimensions to human partner for approval before starting analysis.
+
+### Execution
+
+4. **Inventory Artifacts in Scope**: List all artifacts within the evaluation scope. For each, note:
+   - File path and ID
+   - Type (task, template, guide, script, context map, state file)
+   - Last updated date (from metadata)
+   - Relationships (what references it, what it references)
+
+5. **Evaluate Each Dimension**: For each selected dimension, systematically assess the artifacts in scope:
+
+   **Dimension 1 — Completeness**:
+   - For each task: Does it have a context map? Are referenced templates/guides/scripts present?
+   - For each template: Is there a corresponding creation script? A customization guide (if complex)?
+   - For each script: Does it have error handling, `-WhatIf` support, and documentation?
+   - For each workflow in ai-tasks.md: Can every step be executed with existing artifacts?
+
+   **Dimension 2 — Consistency**:
+   - Do all tasks follow the unified task structure (Purpose, AI Agent Role, When to Use, Context Requirements, Process, Outputs, State Tracking, Checklist, Next Tasks)?
+   - Do all templates use the same metadata format and placeholder conventions?
+   - Do all scripts follow the same import pattern, parameter naming, and error handling approach?
+   - Are naming conventions consistent (e.g., `-task` suffix, kebab-case filenames)?
+
+   **Dimension 3 — Redundancy**:
+   - Are there tasks with overlapping responsibilities?
+   - Is the same guidance duplicated across multiple guides or task definitions?
+   - Are there templates that could be consolidated?
+   - Are there scripts that duplicate logic instead of sharing modules?
+
+   **Dimension 4 — Accuracy**:
+   - Verify cross-references: Do links in task definitions resolve to existing files?
+   - Verify ID registry: Do `nextAvailable` counters match actual file counts? Do directory mappings match reality?
+   - Verify documentation map: Are all artifacts listed? Are there stale entries?
+   - Verify script references: Do scripts point to existing templates and output directories?
+
+   **Dimension 5 — Effectiveness**:
+   - Are process steps specific and actionable (not vague like "review the code")?
+   - Do task definitions include enough context for an AI agent to execute without guessing?
+   - Are templates structured so that placeholders clearly indicate what content is needed?
+   - Do guides answer practical questions rather than restating what's already in the task?
+
+   **Dimension 6 — Automation Coverage**:
+   - Which task outputs are created manually vs. via scripts?
+   - Are there recurring manual steps that could be automated?
+   - Do validation scripts cover the scope needed?
+   - Are state file updates automated where they should be?
+
+   **Dimension 7 — Scalability** (when selected):
+   - Are there hardcoded project-specific references (paths, feature names, language-specific commands)?
+   - Would the framework work for a 5-file project? A 500-file project?
+   - Does the task/template complexity scale appropriately with project size?
+   - Are there unnecessary overhead for simple projects or missing structure for complex ones?
+
+6. **Score Findings**: For each dimension evaluated, assign a score:
+
+   | Score | Label | Meaning |
+   |-------|-------|---------|
+   | 4 | Excellent | No issues found; meets or exceeds expectations |
+   | 3 | Good | Minor issues only; functional and effective |
+   | 2 | Adequate | Notable gaps or issues; works but needs improvement |
+   | 1 | Poor | Significant problems; impedes framework effectiveness |
+
+7. **Identify Improvements**: For each finding with score ≤ 3, draft an improvement entry with:
+   - Description of the issue
+   - Affected artifact(s)
+   - Suggested fix
+   - Estimated effort (Low / Medium / High)
+   - Suggested priority (Low / Medium / High)
+
+8. **🚨 CHECKPOINT**: Present evaluation findings summary to human partner:
+   - Dimension scores with key evidence
+   - Top findings (most impactful issues)
+   - Proposed improvement entries
+   - Get approval before generating the report
+
+### Finalization
+
+9. **Generate Evaluation Report**: Use the creation script to generate the report from the template:
+   ```bash
+   cd /c/path/to/project/doc/process-framework/scripts/file-creation/support && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-FrameworkEvaluationReport.ps1 -EvaluationScope "Description of scope" -Confirm:$false'
+   ```
+   Then customize the generated report with the evaluation findings, dimension scores, and improvement recommendations.
+
+10. **Register Improvement Entries**: For each approved improvement, add an IMP entry to [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) using the automation script:
+    ```bash
+    cd /c/path/to/project/doc/process-framework/scripts/file-creation/support && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-ProcessImprovement.ps1 -Description "Improvement description" -Priority "MEDIUM" -Source "Framework Evaluation PF-EVR-XXX" -SourceLink "../../evaluation-reports/FILENAME.md" -Confirm:$false'
+    ```
+
+11. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+
+## Outputs
+
+- **Framework Evaluation Report** — Structured report in `doc/process-framework/evaluation-reports/`, created via `New-FrameworkEvaluationReport.ps1`. Contains: evaluation scope, dimension scores, detailed findings per dimension, improvement recommendations, and overall assessment.
+- **Improvement Entries** — IMP entries registered in [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) for each actionable finding, with source linking back to the evaluation report.
+
+## State Tracking
+
+The following state files must be updated as part of this task:
+
+- [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) — Add IMP entries for each improvement identified during evaluation
+
+## ⚠️ MANDATORY Task Completion Checklist
+
+**🚨 TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF 🚨**
+
+Before considering this task finished:
+
+- [ ] **Verify Outputs**: Confirm all required outputs have been produced
+  - [ ] Framework Evaluation Report created in `doc/process-framework/evaluation-reports/` via script
+  - [ ] Report customized with all evaluation findings, dimension scores, and recommendations
+  - [ ] All dimension scores include supporting evidence (file paths, specific examples)
+- [ ] **Update State Files**: Ensure all state tracking files have been updated
+  - [ ] IMP entries added to [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) for each approved improvement
+  - [ ] Each IMP entry links back to the evaluation report as source
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-079" and context "Framework Evaluation"
+
+## Next Tasks
+
+- [**Process Improvement**](process-improvement-task.md) — Implement the IMP entries identified by the evaluation
+- [**Structure Change**](structure-change-task.md) — If evaluation reveals structural reorganization needs
+- [**New Task Creation Process**](new-task-creation-process.md) — If evaluation identifies missing tasks
+
+## Related Resources
+
+- [Documentation Map](../../documentation-map.md) — Central index of all framework artifacts
+- [Process Framework Task Registry](../../infrastructure/process-framework-task-registry.md) — Task automation status overview
+- [Task Creation Guide](../../guides/support/task-creation-guide.md) — Expected task structure and quality standards
+- [AI Tasks System](../../ai-tasks.md) — Task registry and workflow definitions
+- [Feature Validation Guide](../../guides/05-validation/feature-validation-guide.md) — Analogous approach for code validation (reference for evaluation methodology)

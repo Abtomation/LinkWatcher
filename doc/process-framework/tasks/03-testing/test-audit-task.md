@@ -2,6 +2,7 @@
 id: PF-TSK-030
 type: Process Framework
 category: Task Definition
+domain: agnostic
 version: 1.5
 created: 2025-08-07
 updated: 2026-03-17
@@ -53,13 +54,13 @@ Comprehensive quality assurance task that evaluates implemented test suites agai
   - [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) - Feature development status and context
   - [Test Registry](/test/test-registry.yaml) - Test file registry with IDs and metadata
   - [Existing Test Structure](/test/) - Current test organization and patterns for consistency evaluation
-  - [Mock Services](/test/mocks/) - Available mock implementations used in tests
-  - [Test Helpers](/test/test_helpers/) - Utility functions used in test setup
+  <!-- - [Mock Services](/test/mocks/) - Directory does not exist in this project -->
+  <!-- - [Test Helpers](/test/test_helpers/) - Directory does not exist in this project -->
   - [Development Guide](/doc/process-framework/guides/04-implementation/development-guide.md) - Testing standards and practices
-  - [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - For understanding component interactions
+  <!-- [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Removed: file deleted -->
 
 - **Reference Only (Access When Needed):**
-  - [Project Structure](/doc/product-docs/technical/architecture/project-structure.md) - Understanding component relationships
+  <!-- - [Project Structure](/doc/product-docs/technical/architecture/project-structure.md) - Removed: file deleted -->
   - [Visual Notation Guide](/doc/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 ## Process
@@ -119,9 +120,10 @@ Comprehensive quality assurance task that evaluates implemented test suites agai
    ../../scripts/file-creation/03-testing/New-TestAuditReport.ps1 -FeatureId "X.X.X" -TestFileId "PD-TST-XXX" -AuditorName "AI Agent"
 
    # Script automatically:
-   # - Generates unique PF-TAR ID (format: PF-TAR-XXX)
+   # - Generates unique TE-TAR ID (format: TE-TAR-XXX)
    # - Creates audit report from template in appropriate feature category directory
-   # - Updates central ID registry at /doc/process-framework/central-id-registry.yaml
+   # - Updates TE-id-registry.json with the new ID
+   # - Links audit report in test-tracking.md for the target TestFileId
    # - Returns the full path to the created audit report file
    ```
 
@@ -216,7 +218,7 @@ Set-Location "<project-root>/doc/process-framework/scripts"
 
     - **../../state-tracking/permanent/test-tracking.md**: Individual test file status with audit details
     - **/test/test-registry.yaml**: Test file audit completion status
-    - **../../state-tracking/permanent/feature-tracking.md**: Aggregated feature test status
+    - **../../../product-docs/state-tracking/permanent/feature-tracking.md**: Aggregated feature test status
 
 17. **Document Implementation Dependencies**: If status is "🟡 Tests Approved with Dependencies", clearly document:
 
@@ -286,4 +288,4 @@ Before considering this task finished:
 - [Test Tracking](../../../../test/state-tracking/permanent/test-tracking.md) - Track test implementation and audit progress
 - [Test Registry](/test/test-registry.yaml) - Test file registry with IDs and metadata
 - [Development Guide](/doc/process-framework/guides/04-implementation/development-guide.md) - Testing standards and practices
-- [Test Audit Concept](../../proposals/test-audit-concept.md) - Original concept document for this task
+

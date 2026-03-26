@@ -134,7 +134,7 @@ When referencing this task's outputs in other tasks:
 
 ### Preparation
 
-1. **Verify API Design Requirement**: Confirm in the [Feature Tracking](../../../state-tracking/permanent/feature-tracking.md) document that the API Design column shows "Yes" for this feature
+1. **Verify API Design Requirement**: Confirm in the [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) document that the API Design column shows "Yes" for this feature
 2. Review the [Feature Tier Assessment](../../../product-docs/documentation-tiers/assessments) of this feature that determined API design is needed
 3. Review feature requirements and understand the functionality that needs API support
 4. Examine existing API patterns and conventions in the project
@@ -204,10 +204,10 @@ When referencing this task's outputs in other tasks:
 
 The following state files must be updated as part of this task:
 
-- **✅ AUTOMATED** - [Feature Tracking](../../../state-tracking/permanent/feature-tracking.md) - API Design column updates:
+- **✅ AUTOMATED** - [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) - API Design column updates:
   - **../../scripts/file-creation/New-APISpecification.ps1**: Replaces "Yes" with first API spec, appends additional specs with " • " separator
   - **../../scripts/file-creation/New-APIDataModel.ps1**: Appends data model links with " • " separator using intelligent replacement/append logic
-- **🔧 MANUAL** - [Technical Debt Tracking](../../../state-tracking/permanent/technical-debt-tracking.md) - Record any API design decisions that create technical debt
+- **🔧 MANUAL** - [Technical Debt Tracking](../../../product-docs/state-tracking/permanent/technical-debt-tracking.md) - Record any API design decisions that create technical debt
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
@@ -220,17 +220,17 @@ Before considering this task finished:
   - [ ] Request Data Model created with comprehensive validation rules and examples
   - [ ] Response Data Model created with complete structure and field definitions
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
-  - [ ] **✅ AUTOMATED** - [Feature Tracking](../../../state-tracking/permanent/feature-tracking.md) API Design column updates:
+  - [ ] **✅ AUTOMATED** - [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) API Design column updates:
     - [x] **✅ AUTOMATED**: API specification and data model links automatically managed (intelligent replacement/append logic)
-  - [ ] **🔧 MANUAL** - [Technical Debt Tracking](../../../state-tracking/permanent/technical-debt-tracking.md) updated with any design decisions creating technical debt
+  - [ ] **🔧 MANUAL** - [Technical Debt Tracking](../../../product-docs/state-tracking/permanent/technical-debt-tracking.md) updated with any design decisions creating technical debt
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-020" and context "API Design Task"
 
 ## Next Tasks
 
 - [**TDD Creation**](tdd-creation-task.md) - Create detailed technical design based on API specifications
-- [**Test Specification Creation**](../test-specification-creation.md) - Define test cases for API endpoints and contracts
+- [**Test Specification Creation**](../03-testing/test-specification-creation-task.md) - Define test cases for API endpoints and contracts
 - [**Feature Implementation Planning**](../04-implementation/feature-implementation-planning-task.md) - Plan and implement the API according to the design specifications
-- [**API Documentation Creation**](../api-documentation-creation-task.md) - Create consumer-facing documentation after implementation (coming soon)
+
 
 ## Related Resources
 

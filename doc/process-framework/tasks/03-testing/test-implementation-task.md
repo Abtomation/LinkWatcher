@@ -54,14 +54,14 @@ Implement comprehensive test cases based on existing Test Specifications, enabli
 - **Important (Load If Space):**
 
   - [Existing Test Structure](/test/) - Current test organization and patterns
-  - [Mock Services](/test/mocks/) - Available mock implementations for testing
-  - [Test Helpers](/test/test_helpers/) - Utility functions for test setup
+  <!-- - [Mock Services](/test/mocks/) - Directory does not exist in this project -->
+  <!-- - [Test Helpers](/test/test_helpers/) - Directory does not exist in this project -->
   - [Development Guide](/doc/process-framework/guides/04-implementation/development-guide.md) - Testing standards and practices
-  - [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - For understanding component interactions
+  <!-- [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Removed: file deleted -->
 
 - **Reference Only (Access When Needed):**
   - [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) - Feature development status
-  - [Project Structure](/doc/product-docs/technical/architecture/project-structure.md) - Understanding component relationships
+  <!-- - [Project Structure](/doc/product-docs/technical/architecture/project-structure.md) - Removed: file deleted -->
   - [Visual Notation Guide](/doc/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 ## Process
@@ -197,5 +197,5 @@ Before considering this task finished:
 - [Test Specification Creation Task](test-specification-creation-task.md) - For creating test specifications before implementation
 - [Test Tracking](../../../../test/state-tracking/permanent/test-tracking.md) - Track test implementation progress
 - [Test Registry](/test/test-registry.yaml) - Test file registry with IDs and metadata
-- [Validation Scripts](../../../scripts/validation) - Scripts for test tracking consistency validation
+- [Validation Scripts](../../scripts/validation) - Scripts for test tracking consistency validation
 - [Development Guide](/doc/process-framework/guides/04-implementation/development-guide.md) - Testing standards and practices

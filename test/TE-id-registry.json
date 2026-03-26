@@ -68,7 +68,7 @@
         "e2e": "integration_test",
         "default": "unit"
       },
-      "nextAvailable": 132
+      "nextAvailable": 133
     },
     "TE-STA": {
       "description": "Test - State Tracking",
@@ -78,7 +78,7 @@
         "main": "test",
         "default": "main"
       },
-      "nextAvailable": 1
+      "nextAvailable": 3
     }
   }
 }

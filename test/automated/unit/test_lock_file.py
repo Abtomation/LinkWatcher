@@ -17,6 +17,13 @@ import pytest
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from main import LOCK_FILE_NAME, _is_pid_running, acquire_lock, release_lock
 
+pytestmark = [
+    pytest.mark.feature("0.1.1"),
+    pytest.mark.priority("Critical"),
+    pytest.mark.test_type("unit"),
+    pytest.mark.specification("test/specifications/feature-specs/test-spec-0-1-1-core-architecture.md"),
+]
+
 
 class TestLockFile:
     """Test cases for the lock file mechanism."""

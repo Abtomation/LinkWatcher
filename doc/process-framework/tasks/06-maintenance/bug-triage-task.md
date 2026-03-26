@@ -96,7 +96,7 @@ Systematically evaluate, prioritize, and assign reported bugs to ensure efficien
     - **Manual Update**: Edit the [Bug Tracking](../../../product-docs/state-tracking/permanent/bug-tracking.md) file directly
     - **Optional Automation**: Use [`Update-BugStatus.ps1`](../../scripts/update/Update-BugStatus.ps1) script for consistent formatting:
       ```powershell
-      ../../scripts/update/Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "Triaged" -Priority "High" -Scope "S"
+      ../../scripts/update/Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "Triaged" -Priority "High" -Scope "S" -TriageNotes "Rationale for priority and scope"
       ```
 
 ### Finalization

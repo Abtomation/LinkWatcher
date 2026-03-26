@@ -74,11 +74,9 @@ graph TD
 
 ## Related Documentation
 
-- [Code Refactoring Task Definition](../../tasks/06-maintenance/code-refactoring-task.md) - Complete task definition and process
+- [Code Refactoring Task Definition](../../../tasks/06-maintenance/code-refactoring-task.md) - Complete task definition and process
 - [Refactoring Plan Template](../../../templates/06-maintenance/refactoring-plan-template.md) - Template for creating refactoring plans
-- [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md) - For identifying refactoring targets
-- [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Complete reference of all component relationships
+- [Technical Debt Tracking](../../../../product-docs/state-tracking/permanent/technical-debt-tracking.md) - For identifying refactoring targets
+<!-- [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Removed: file deleted -->
 
 ---
-
-_Note: This context map highlights only the components relevant to this specific task. For a comprehensive view of all components, refer to the [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md)._

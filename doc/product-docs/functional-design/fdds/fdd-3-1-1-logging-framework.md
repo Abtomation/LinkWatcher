@@ -15,7 +15,7 @@ retrospective: true
 
 > **Retrospective Document**: This FDD describes the existing implemented functionality of the LinkWatcher Logging Framework, documented after implementation during framework onboarding (PF-TSK-066). Content is descriptive ("what is") rather than prescriptive ("what should be").
 >
-> **Source**: Derived from [docs/LOGGING.md](../../../../docs/LOGGING.md) (primary existing documentation) and source code analysis of `linkwatcher/logging.py` and `linkwatcher/logging_config.py`.
+> **Source**: Derived from `docs/LOGGING.md` (removed — content now captured in this FDD) and source code analysis of `linkwatcher/logging.py` and `linkwatcher/logging_config.py`.
 >
 > **Scope Note**: This feature consolidates old 3.1.1 (Logging Framework) with all logging sub-features: 3.1.2 (Colored Console Output), 3.1.3 (Statistics Tracking), 3.1.4 (Progress Reporting), 3.1.5 (Error Reporting). All are aspects of the unified logging system.
 
@@ -30,12 +30,12 @@ retrospective: true
 
 ### Architecture Overview Reference
 
-> **📋 Primary Documentation**: [docs/LOGGING.md](../../../../docs/LOGGING.md)
+> **📋 Primary Documentation**: `docs/LOGGING.md` (removed — content now captured in this FDD)
 > **👤 Source**: Pre-framework project documentation (Confirmed in PF-TSK-065 analysis)
 >
 > **Purpose**: Complete logging system documentation — log levels, configuration options, API usage, performance monitoring, and advanced features.
 
-**Functional Architecture Summary** (derived from docs/LOGGING.md):
+**Functional Architecture Summary** (derived from `docs/LOGGING.md`):
 
 - The logging system provides two parallel output streams: a human-readable colored console and an optional JSON file with rotation
 - Every LinkWatcher component uses a shared `get_logger()` singleton that is configured once at startup

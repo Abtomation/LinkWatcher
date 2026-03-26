@@ -56,6 +56,14 @@ class LinkDatabaseInterface(ABC):
         ...
 
     @abstractmethod
+    def update_source_path(self, old_path: str, new_path: str) -> int:
+        """Update file_path on all references whose source matches old_path.
+
+        Returns the number of references updated.
+        """
+        ...
+
+    @abstractmethod
     def remove_targets_by_path(self, old_path: str) -> int:
         """Remove all target entries whose key normalizes to old_path."""
         ...
@@ -295,6 +303,26 @@ class LinkDatabase(LinkDatabaseInterface):
                 return f"{prefix}{new_path}"
 
         return target  # No match, return original
+
+    def update_source_path(self, old_path: str, new_path: str) -> int:
+        """Update file_path on all references whose source matches old_path.
+
+        Returns the number of references updated.
+        """
+        with self._lock:
+            old_normalized = normalize_path(old_path)
+            updated = 0
+            for references in self.links.values():
+                for ref in references:
+                    if normalize_path(ref.file_path) == old_normalized:
+                        ref.file_path = new_path
+                        updated += 1
+            # Update files_with_links tracking set
+            if updated:
+                self.files_with_links.discard(old_path)
+                self.files_with_links.discard(old_normalized)
+                self.files_with_links.add(new_path)
+            return updated
 
     def remove_targets_by_path(self, old_path: str) -> int:
         """Remove all target entries whose key normalizes to old_path.

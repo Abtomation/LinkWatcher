@@ -79,24 +79,6 @@ Test specifications scale with feature complexity:
 
 Test specifications are derived from TDDs and must reference the source TDD, maintaining alignment between architectural design and behavioral validation.
 
-## Template Structure Analysis
-
-[Optional section for template customization guides. Analyze the template structure section by section, explaining the purpose of each part and how they work together. Include:
-
-- Template sections breakdown
-- Required vs. optional sections
-- Section interdependencies
-- Customization impact areas]
-
-## Customization Decision Points
-
-[Optional section for template customization guides. Identify key decision points users must make when customizing the template. Include:
-
-- Critical customization choices
-- Decision criteria and guidelines
-- Impact of different choices
-- Recommended approaches for common scenarios]
-
 ## Separation of Concerns and Cross-Referencing
 
 > **📋 Detailed Guidance**: See [Task Transition Guide - Information Flow Section](../framework/task-transition-guide.md#information-flow-and-separation-of-concerns)
@@ -333,41 +315,6 @@ Use this decision tree when deciding what to include in Test Specifications:
 
 **Expected Result:** Comprehensive test specification with tier-appropriate detail and clear testing requirements
 
-### Validation and Testing
-
-[Optional subsection for template customization guides. Include within the relevant step above or as a separate step. Provide:
-
-- Methods to validate the customized template
-- Testing procedures to ensure functionality
-- Integration testing with related components
-- Quality checks and verification steps]
-
-## Quality Assurance
-
-[Optional section for template customization guides. Provide comprehensive quality assurance guidance including:
-
-### Self-Review Checklist
-
-- [ ] Template sections are properly customized
-- [ ] All required fields are completed
-- [ ] Customization aligns with task requirements
-- [ ] Cross-references and links are correct
-- [ ] Examples are relevant and accurate
-
-### Validation Criteria
-
-- Functional validation: Template works as intended
-- Content validation: Information is accurate and complete
-- Integration validation: Template integrates properly with related components
-- Standards validation: Follows project conventions and standards
-
-### Integration Testing Procedures
-
-- Test template with related scripts and tools
-- Verify workflow integration points
-- Validate cross-references and dependencies
-- Confirm compatibility with existing framework components]
-
 ## Examples
 
 ### Example 1: Tier 2 Authentication Feature Test Specification
@@ -445,7 +392,7 @@ Creating a comprehensive test specification for a complex booking feature:
 - [Test Specification Template](../../templates/03-testing/test-specification-template.md) - Template customized by this guide
 - [Test File Creation Guide](test-file-creation-guide.md) - Guide for implementing test specifications
 - [TDD Creation Guide](../02-design/tdd-creation-guide.md) - Guide for creating the source TDDs
-- [Technical Design Documents](../../../doc/product-docs/technical/design/) - Source TDDs for test specifications
+- [Technical Design Documents](../../../product-docs/technical/design/) - Source TDDs for test specifications
 - Your project's testing framework documentation
 - [Guide Creation Best Practices Guide (PF-GDE-024)](../support/guide-creation-best-practices-guide.md) - Best practices for guide creation
 

@@ -45,11 +45,11 @@ This task evaluates incoming change requests to determine whether they represent
 
   - Feature State Files (`state-tracking/features/X.Y.Z-*-implementation-state.md`) — Implementation state of candidate target features
   - Existing Design Docs (FDD, TDD, ADR) associated with the target feature — For understanding current scope and design
-  - [Enhancement Workflow Concept (PF-PRO-002)](../../proposals/proposals/enhancement-workflow-concept.md) — Full design rationale for this workflow
+  - [Enhancement Workflow Concept (PF-PRO-002)](../../proposals/proposals/old/enhancement-workflow-concept.md) — Full design rationale for this workflow
 
 - **Reference Only (Access When Needed):**
   - [Feature Tier Assessment Task](feature-tier-assessment-task.md) — For routing new features to the correct workflow
-  - [Task-Based Development Principles](../../../ai-tasks.md#understanding-task-based-development) — For understanding framework principles
+  - [Task-Based Development Principles](../../ai-tasks.md#understanding-task-based-development) — For understanding framework principles
 
 ## Process
 
@@ -165,6 +165,6 @@ Before considering this task finished:
 ## Related Resources
 
 - [Feature Granularity Guide](../../guides/01-planning/feature-granularity-guide.md) — Defines what constitutes a well-scoped feature with validation tests and scaling guidance
-- [Enhancement Workflow Concept (PF-PRO-002)](../../proposals/proposals/enhancement-workflow-concept.md) — Full design rationale for this workflow
+- [Enhancement Workflow Concept (PF-PRO-002)](../../proposals/proposals/old/enhancement-workflow-concept.md) — Full design rationale for this workflow
 - [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) — Current feature inventory
 - [Enhancement State Tracking Customization Guide](../../guides/04-implementation/enhancement-state-tracking-customization-guide.md) — Guide for customizing state files

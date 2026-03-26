@@ -45,8 +45,7 @@ Complete remaining items and prepare feature for production deployment. This tas
 - **Important (Load If Space):**
 
   - **Feature Tracking** - [Feature details from feature-tracking.md](../../../product-docs/state-tracking/permanent/feature-tracking.md) for feature context
-  - [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - For understanding system dependencies
-  - **Release Management Guide** - Project release versioning, branching strategies, and release cycles
+    - **Release Management Guide** - Project release versioning, branching strategies, and release cycles
 
 - **Reference Only (Access When Needed):**
   - [Visual Notation Guide](/doc/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
@@ -164,10 +163,9 @@ Before considering this task finished:
 
 ## Next Tasks
 
-- [**Deployment Execution**](../07-deployment/deployment-execution-task.md) - Execute deployment according to deployment checklist and procedures
-- [**Post-Deployment Validation**](../05-validation/post-deployment-validation-task.md) - Validate successful deployment and monitor production behavior
+- [**Release & Deployment**](../07-deployment/release-deployment-task.md) - Prepare and deploy releases
+
 ## Related Resources
 
 - Deployment best practices documentation for your technology stack
 - [Feature Implementation State Tracking Guide](../../guides/04-implementation/feature-implementation-state-tracking-guide.md) - Guide for maintaining feature state file
-- [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Understanding system component interactions

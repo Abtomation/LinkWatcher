@@ -61,6 +61,8 @@ Review implemented code to ensure it meets quality standards, follows project co
 > **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
 >
 > **⚠️ MANDATORY: Never proceed past a checkpoint without presenting findings and getting explicit approval.**
+>
+> **🚫 NO CODE CHANGES: This task is a read-only quality gate. Do NOT fix bugs, refactor code, or make any code changes during Code Review. Report all findings as bugs (via New-BugReport.ps1) or technical debt items. If the user requests code changes during review, explain that fixes should be done in a separate Bug Fixing or Code Refactoring task after the review is complete.**
 
 ### Preparation
 
@@ -139,9 +141,9 @@ Review implemented code to ensure it meets quality standards, follows project co
     - API endpoint security
     - Sensitive data exposure in logs
 
-### Bug Discovery During Review
+### Defect Discovery During Review
 
-18. **Identify and Document Bugs**: During code review, systematically identify any bugs or defects:
+18. **Identify Defects**: During code review, systematically identify any defects:
 
     - **Logic Errors**: Incorrect business logic implementation or algorithmic flaws
     - **Security Vulnerabilities**: Authentication bypasses, data exposure, injection vulnerabilities
@@ -150,17 +152,24 @@ Review implemented code to ensure it meets quality standards, follows project co
     - **Error Handling Gaps**: Missing error handling, improper exception management
     - **State Management Issues**: Incorrect state handling, state mutation problems
     - **Platform-Specific Issues**: Platform compatibility problems, accessibility violations
+    - **Technical Debt**: Code that works but has known quality/design problems — shortcuts, suboptimal patterns, missing abstractions
 
-19. **Report Discovered Bugs**: If bugs are identified during code review:
+19. **Route Discovered Defects**: Classify each finding and route to the correct tracking system:
 
-    - Use [../../scripts/file-creation/06-maintenance/New-BugReport.ps1](../../scripts/file-creation/06-maintenance/New-BugReport.ps1) script to create standardized bug reports
-    - Follow [Bug Reporting Guide](../../guides/06-maintenance/bug-reporting-guide.md) for consistent documentation
-    - Add bug entries to [Bug Tracking](../../../product-docs/state-tracking/permanent/bug-tracking.md) with status 🆕 Reported
-    - Include code review context and evidence in bug reports
+    | Finding type | Condition | Route to | Fix task |
+    |---|---|---|---|
+    | **Bug** | Wrong behavior on a released/completed feature | [Bug Tracking](../../../product-docs/state-tracking/permanent/bug-tracking.md) via [New-BugReport.ps1](../../scripts/file-creation/06-maintenance/New-BugReport.ps1) | [Bug Triage](bug-triage-task.md) → [Bug Fixing](bug-fixing-task.md) |
+    | **Tech Debt** | Code works but has quality/design problems (any feature) | [Technical Debt Tracking](../../../product-docs/state-tracking/permanent/technical-debt-tracking.md) via [Update-TechDebt.ps1 -Add](../../scripts/update/Update-TechDebt.ps1) | [Technical Debt Assessment](../cyclical/technical-debt-assessment-task.md) → [Code Refactoring](code-refactoring-task.md) |
+    | **Implementation Gap** | Wrong behavior on an in-progress/unreleased feature | Feature's [implementation state file](../../../product-docs/state-tracking/features/) section 8 (Issues & Resolutions Log) with status OPEN | Current implementation or [Feature Enhancement](../04-implementation/feature-enhancement.md) task |
+
+    For all finding types:
+    - Document in the code review findings with severity levels
     - Reference specific code locations and line numbers
     - Note impact on code review results and deployment readiness
 
-    **Example Bug Report Command**:
+    > **Key distinction**: Bugs are wrong behavior on released features. Tech debt is working code with quality problems. Implementation gaps are defects on features still being built. Do not route implementation gaps through Bug Triage — they are picked up by the next implementation session via the feature state file.
+
+    **Example Bug Report Command (released features only)**:
 
     ```powershell
     # Navigate to the scripts directory from project root
@@ -190,7 +199,7 @@ Review implemented code to ensure it meets quality standards, follows project co
 - **Test Coverage Report** - Generated coverage report from test runner
 - **Code Quality Metrics** - Results from static analysis and formatting checks
 - **Performance Analysis** - Profiling tool findings and performance recommendations
-- **Bug Reports** - Any bugs discovered during code review documented in [Bug Tracking](../../../product-docs/state-tracking/permanent/bug-tracking.md) with status 🆕 Reported
+- **Defect Reports** - Findings routed per step 19: bugs → [Bug Tracking](../../../product-docs/state-tracking/permanent/bug-tracking.md), tech debt → [Technical Debt Tracking](../../../product-docs/state-tracking/permanent/technical-debt-tracking.md), implementation gaps → feature state file
 
 ## State Tracking
 
@@ -246,8 +255,8 @@ Before considering this task finished:
   - [ ] Accessibility features tested (screen reader, keyboard navigation, color contrast)
   - [ ] Platform compatibility verified (target environments as applicable)
   - [ ] Security review completed (input validation, secure storage, API security)
-  - [ ] Bug discovery performed systematically across all review areas
-  - [ ] Any discovered bugs reported using ../../scripts/file-creation/06-maintenance/New-BugReport.ps1 script with proper context and evidence
+  - [ ] Defect discovery performed systematically across all review areas
+  - [ ] Discovered defects routed correctly: bugs → bug-tracking (released features), tech debt → technical-debt-tracking, implementation gaps → feature state file (in-progress features)
 
 - [ ] **Verify Outputs**: Confirm all required outputs have been produced
 

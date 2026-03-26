@@ -85,13 +85,13 @@ graph TD
 
 ## Related Documentation
 
-- [Test Audit Task Definition](../../tasks/03-testing/test-audit-task.md) - Complete task specification and process
+- [Test Audit Task Definition](../../../tasks/03-testing/test-audit-task.md) - Complete task specification and process
 - [Test Audit Usage Guide](../../../guides/03-testing/test-audit-usage-guide.md) - Step-by-step instructions for conducting audits
 - [Test Tracking](../../../../../test/state-tracking/permanent/test-tracking.md) - Status tracking and workflow integration
 - [Test Audit Report Template](../../../templates/03-testing/test-audit-report-template.md) - Standardized audit report structure
-- [New-TestAuditReport.ps1](../../scripts/file-creation/New-TestAuditReport.ps1) - Audit report creation automation
-- [Validate-AuditReport.ps1](../../scripts/validation/Validate-AuditReport.ps1) - Audit report validation automation
+- [New-TestAuditReport.ps1](../../../scripts/file-creation/03-testing/New-TestAuditReport.ps1) - Audit report creation automation
+- [Validate-AuditReport.ps1](../../../scripts/validation/Validate-AuditReport.ps1) - Audit report validation automation
 
 ---
 
-_Note: This context map highlights only the components relevant to the Test Audit task. For a comprehensive view of all test-related components and their relationships, refer to the [Test Tracking](../../../../../test/state-tracking/permanent/test-tracking.md) and [Test Registry](../../../../test/test-registry.yaml)._
+_Note: This context map highlights only the components relevant to the Test Audit task. For a comprehensive view of all test-related components and their relationships, refer to the [Test Tracking](../../../../../test/state-tracking/permanent/test-tracking.md) and [Test Registry](../../../../../test/test-registry.yaml)._

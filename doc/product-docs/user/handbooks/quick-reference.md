@@ -84,7 +84,7 @@ set LINKWATCHER_COLORED_OUTPUT=1
 3. Searches database for all references to src/utils.py
 4. Updates each file containing references:
    - Python imports: from src.utils -> from src.helpers.utils
-   - Markdown links: [Utils](src/utils.py) -> [Utils](src/helpers/utils.py)
+   - Markdown links: `[Utils](src/utils.py)` -> `[Utils](src/helpers/utils.py)`
    - YAML configs: file: src/utils.py -> file: src/helpers/utils.py
 5. Updates internal database
 6. Shows confirmation: "Updated 3 references in 2 files"
@@ -168,9 +168,9 @@ python main.py --debug
 ## Example Link Formats Detected
 
 ### Markdown Files
-```markdown
-[API Guide](docs/api.md)           <- Standard markdown link
-[Config](config/settings.yaml)     <- Cross-format reference
+```text
+`[API Guide](docs/api.md)`           <- Standard markdown link
+`[Config](config/settings.yaml)`     <- Cross-format reference
 "src/utils.py"                     <- Quoted file path
 docs/examples/basic.md             <- Standalone file reference
 ```

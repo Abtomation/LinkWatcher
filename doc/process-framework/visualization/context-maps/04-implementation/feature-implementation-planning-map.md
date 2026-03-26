@@ -139,13 +139,13 @@ graph TD
 
 ## Related Documentation
 
-- [Feature Implementation Planning Task (PF-TSK-044)](../../tasks/04-implementation/feature-implementation-planning-task.md) - Complete task definition with detailed process
+- [Feature Implementation Planning Task (PF-TSK-044)](../../../tasks/04-implementation/feature-implementation-planning-task.md) - Complete task definition with detailed process
 - [Implementation Plan Template (PF-TEM-042)](../../../templates/04-implementation/implementation-plan-template-template.md) - Template structure for implementation plans
 - [Implementation Plan Customization Guide (PF-GDE-046)](../../../guides/04-implementation/implementation-plan-customization-guide.md) - Step-by-step customization instructions
 - [Feature Implementation State Template (PF-TEM-037)](../../../templates/04-implementation/feature-implementation-state-template.md) - Permanent state tracking template
-- [Feature Tracking](../../state-tracking/permanent/feature-tracking.md) - Registry of all features and their status
-- [New-ImplementationPlan.ps1](../../scripts/file-creation/New-ImplementationPlan.ps1) - Script for creating implementation plans
-- [New-FeatureImplementationState.ps1](../../scripts/file-creation/New-FeatureImplementationState.ps1) - Script for creating feature state documents
+- [Feature Tracking](../../../../product-docs/state-tracking/permanent/feature-tracking.md) - Registry of all features and their status
+- [New-ImplementationPlan.ps1](../../../scripts/file-creation/04-implementation/New-ImplementationPlan.ps1) - Script for creating implementation plans
+- [New-FeatureImplementationState.ps1](../../../scripts/file-creation/04-implementation/New-FeatureImplementationState.ps1) - Script for creating feature state documents
 
 ---
 

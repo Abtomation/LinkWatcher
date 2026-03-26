@@ -39,7 +39,7 @@ Systematically validates selected features for dependency health, interface cont
   - **Feature Tracking** - [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) - Current status of features to be validated
   - **Validation Tracking** - Link to the active validation tracking state file for the current validation round — see [Feature Validation Guide](../../guides/05-validation/feature-validation-guide.md) for setup
   - **Validation Report Template** - [Validation Report Template](../../templates/05-validation/validation-report-template.md) - Template for creating validation reports
-  - **Component Relationship Index** - [Component Relationship Index](../../../product-docs/technical/architecture/component-relationship-index.md) - For understanding component interactions and dependencies
+  <!-- Component Relationship Index - Removed: file deleted -->
 
 - **Important (Load If Space):**
 
@@ -141,6 +141,6 @@ Before considering this task finished:
 ## Related Resources
 
 - Dependency management best practices for your technology stack
-- [Component Relationship Index](../../../product-docs/technical/architecture/component-relationship-index.md) - Understanding system component interactions
+<!-- [Component Relationship Index](../../../product-docs/technical/architecture/component-relationship-index.md) - Removed: file deleted -->
 - Integration testing best practices for your technology stack
 - External system integration documentation and patterns

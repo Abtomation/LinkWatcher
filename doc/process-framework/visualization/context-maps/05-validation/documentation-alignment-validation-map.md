@@ -115,10 +115,9 @@ graph TD
 - Validation Tracking State File - Active validation tracking matrix (file location depends on validation round)
 - [Validation Report Template](../../../templates/05-validation/validation-report-template.md) - Standardized report structure
 - [Technical Design Documents](../../../../product-docs/technical/design) - TDD directory for alignment validation
-- [Architecture Decision Records](../../../../product-docs/technical/architecture/decisions) - ADR directory for compliance validation
+- [Architecture Decision Records](../../../../product-docs/technical/architecture/design-docs/adr/adr) - ADR directory for compliance validation
 - [../../scripts/file-creation/New-ValidationReport.ps1](../../../scripts/file-creation/05-validation/New-ValidationReport.ps1) - Automation script for report generation
 - [Documentation Guide](../../../guides/05-validation/documentation-guide.md) - Documentation standards and quality criteria
 
 ---
 
-_Note: This context map highlights only the components relevant to this specific task. For a comprehensive view of all components, refer to the [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md)._

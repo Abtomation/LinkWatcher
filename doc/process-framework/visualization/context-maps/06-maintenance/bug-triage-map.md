@@ -65,18 +65,18 @@ Visual guide to the components, relationships, and information flow relevant to 
 
 ### Critical Dependencies (Must Read)
 
-- **[Bug Tracking](../../state-tracking/permanent/bug-tracking.md)** - Central registry of all bugs with current status
-- **[Feature Tracking](../../state-tracking/permanent/feature-tracking.md)** - Feature priorities and relationships for impact assessment
+- **[Bug Tracking](../../../../product-docs/state-tracking/permanent/bug-tracking.md)** - Central registry of all bugs with current status
+- **[Feature Tracking](../../../../product-docs/state-tracking/permanent/feature-tracking.md)** - Feature priorities and relationships for impact assessment
 - **[Visual Notation Guide](../../../guides/support/visual-notation-guide.md)** - For interpreting context map diagrams
 
 ### Important Context (Load If Space)
 
-- **[Feature Implementation State Files](../../state-tracking/features/)** - Affected feature's known issues, related bugs, and implementation progress
-- **[Project Architecture](../../../product-docs/technical/architecture)** - System understanding for impact assessment
+- **[Feature Implementation State Files](../../../../product-docs/state-tracking/features/)** - Affected feature's known issues, related bugs, and implementation progress
+- **[Project Architecture](../../../../product-docs/technical/architecture)** - System understanding for impact assessment
 
 ### Reference Resources (Access When Needed)
 
-- **[Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md)** - For identifying process-related bug patterns
+- **[Process Improvement Tracking](../../../state-tracking/permanent/process-improvement-tracking.md)** - For identifying process-related bug patterns
 
 ## Information Flow
 

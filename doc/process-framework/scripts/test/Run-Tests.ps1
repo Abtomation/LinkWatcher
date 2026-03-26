@@ -76,13 +76,17 @@ param(
 
 # --- Resolve project root and configs ---
 $scriptDir = if ($PSScriptRoot) { $PSScriptRoot } else { (Get-Location).Path }
-$projectRoot = (Resolve-Path (Join-Path $scriptDir "../../../..")).Path
-$configPath = Join-Path $projectRoot "doc/process-framework/project-config.json"
-
-if (-not (Test-Path $configPath)) {
-    Write-Error "project-config.json not found at: $configPath"
+$projectRoot = $scriptDir
+while ($projectRoot -and -not (Test-Path (Join-Path $projectRoot "doc/process-framework/project-config.json"))) {
+    $parent = Split-Path $projectRoot -Parent
+    if ($parent -eq $projectRoot) { $projectRoot = $null; break }
+    $projectRoot = $parent
+}
+if (-not $projectRoot) {
+    Write-Error "Could not find project root (no doc/process-framework/project-config.json found above $scriptDir)"
     exit 1
 }
+$configPath = Join-Path $projectRoot "doc/process-framework/project-config.json"
 
 $config = Get-Content $configPath -Raw | ConvertFrom-Json
 $testDir = $config.testing.testDirectory

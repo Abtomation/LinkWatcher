@@ -38,7 +38,7 @@ This task manages the systematic extension of the task-based development framewo
 
   - **Framework Extension Concept Document** - Human-provided concept document defining the extension scope, workflow, and integration strategy
   - [Framework Extension Customization Guide](../../guides/support/framework-extension-customization-guide.md) - Essential guide for customizing Framework Extension Concept documents
-  - [Task-Based Development Principles](../../../ai-tasks.md#understanding-task-based-development) - Understanding of framework principles for consistent extension
+  - [Task-Based Development Principles](../../ai-tasks.md#understanding-task-based-development) - Understanding of framework principles for consistent extension
   - [New Task Creation Process](new-task-creation-process.md) - For creating individual tasks within the extension
   - [Visual Notation Guide](/doc/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
@@ -121,7 +121,7 @@ This task manages the systematic extension of the task-based development framewo
 
 14. **🚨 CHECKPOINT**: Present completed extension components, integration test results, and remaining work to human partner for review
 15. **Update Core Framework Files**:
-    - Update [ai-tasks.md](../../../ai-tasks.md) with new tasks
+    - Update [ai-tasks.md](../../ai-tasks.md) with new tasks
     - Update [documentation-map.md](../../documentation-map.md) with all new artifacts
     - Update the appropriate [ID registry](../../PF-id-registry.json) with new ID prefixes if needed
 16. **Create Usage Documentation** demonstrating how to use the new framework extension
@@ -189,7 +189,7 @@ Before considering this task finished:
 
 - [ ] **Verify Framework Integration**: Confirm extension properly integrated
 
-  - [ ] [ai-tasks.md](../../../ai-tasks.md) updated with new tasks
+  - [ ] [ai-tasks.md](../../ai-tasks.md) updated with new tasks
   - [ ] [Documentation Map](../../documentation-map.md) updated with all new artifacts and relationships
   - [ ] [PF ID Registry](../../PF-id-registry.json) updated with new prefixes if needed
   - [ ] Permanent state files updated as defined in concept document
@@ -209,7 +209,7 @@ Before considering this task finished:
 
 ### Core Framework Resources
 
-- [Task-Based Development Principles](../../../ai-tasks.md#understanding-task-based-development) - Understanding framework principles
+- [Task-Based Development Principles](../../ai-tasks.md#understanding-task-based-development) - Understanding framework principles
 - [New Task Creation Process](new-task-creation-process.md) - For creating individual tasks within extensions
 - [Structure Change Task](structure-change-task.md) - For understanding structural modifications vs. extensions
 - [Process Improvement Task](process-improvement-task.md) - For understanding granular improvements vs. extensions

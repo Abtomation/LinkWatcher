@@ -47,7 +47,7 @@ Systematically validates selected features for security best practices, data pro
   - **API Specifications** - API contracts and endpoint definitions for input validation review
   - **Dependency Manifests** - Package dependency files (requirements.txt, package.json, etc.) for vulnerability scanning
   - **New-ValidationReport Script** - [../../scripts/file-creation/05-validation/New-ValidationReport.ps1](../../scripts/file-creation/05-validation/New-ValidationReport.ps1) - Script for generating validation reports
-  - **Component Relationship Index** - [Component Relationship Index](../../../product-docs/technical/architecture/component-relationship-index.md) - For understanding component interactions
+  <!-- Component Relationship Index - Removed: file deleted -->
 
 - **Reference Only (Access When Needed):**
   - **Architecture Decision Records** - [ADR Directory](../../../product-docs/technical/architecture) - Security-related architectural decisions
@@ -140,4 +140,4 @@ Before considering this task finished:
 
 - [Feature Validation Guide](../../guides/05-validation/feature-validation-guide.md) - Comprehensive guide for conducting feature validation
 - [Architecture Decision Records](../../../product-docs/technical/architecture) - Security-related architectural decisions
-- [Component Relationship Index](../../../product-docs/technical/architecture/component-relationship-index.md) - For understanding component interactions and data flow
+<!-- [Component Relationship Index](../../../product-docs/technical/architecture/component-relationship-index.md) - Removed: file deleted -->

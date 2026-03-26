@@ -37,7 +37,7 @@ This template guides the implementation of foundation features (0.x.x) that prov
   - [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) - Foundation feature status and dependencies
 
 - **Important (Load If Space):**
-  - [Related ADRs](../../product-docs/technical/architecture/design-docs/adr/) - Architectural decisions relevant to this foundation
+  - [Related ADRs](../../../product-docs/technical/architecture/design-docs/adr/) - Architectural decisions relevant to this foundation
   - [Dependent Features](../../../product-docs/state-tracking/permanent/feature-tracking.md) - Features that will be unblocked by this foundation
 
 ## Process
@@ -123,15 +123,15 @@ Before considering this task finished:
 
 ## Next Tasks
 
-- [**Feature Implementation Planning**](../tasks/04-implementation/feature-implementation-planning-task.md) - Plan and implement features that depend on this foundation
+- [**Feature Implementation Planning**](../../tasks/04-implementation/feature-implementation-planning-task.md) - Plan and implement features that depend on this foundation
 - [**Additional Foundation Features**](foundation-feature-template.md) - If multiple foundations needed
 
 ## Related Resources
 
-- [Architectural Integration Framework Concept](../../proposals/proposals/architectural-integration-framework-concept.md) - Framework overview and principles
-- [System Architecture Review Task](../tasks/01-planning/system-architecture-review-task.md) - Task that identifies foundation features
+<!-- - [Architectural Integration Framework Concept](../../proposals/proposals/architectural-integration-framework-concept.md) - Removed: file deleted -->
+- [System Architecture Review Task](../../tasks/01-planning/system-architecture-review.md) - Task that identifies foundation features
 - [Task Transition Guide](../../guides/framework/task-transition-guide.md) - Guidance for transitioning from foundation to regular features
-- [Architecture Decision Records System](../../product-docs/technical/architecture/design-docs/adr/README.md) - Existing ADR system with `New-ArchitectureDecision.ps1` script
+- [Architecture Decision Records System](../../../product-docs/technical/architecture/design-docs/adr/README.md) - Existing ADR system with `New-ArchitectureDecision.ps1` script
 
 ## Template Usage Notes
 

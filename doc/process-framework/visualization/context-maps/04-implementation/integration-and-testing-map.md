@@ -126,7 +126,7 @@ Test categories are defined by the project language in `project-config.json`:
 ## Related Documentation
 
 - [Integration & Testing Task Definition](/doc/process-framework/tasks/04-implementation/integration-and-testing.md) - Complete task definition (PF-TSK-053)
-- [Integration & Testing Usage Guide](/doc/process-framework/guides/03-testing/test-implementation-usage-guide.md) - Step-by-step implementation guidance
+- [Integration & Testing Usage Guide](/doc/process-framework/guides/03-testing/integration-and-testing-usage-guide.md) - Step-by-step implementation guidance
 - [Test Specification Documents](/test/specifications/feature-specs/) - Repository of test specifications
 - [Test Tracking](/test/state-tracking/permanent/test-tracking.md) - Test implementation status tracking
 - [Test Registry](/test/test-registry.yaml) - Central registry of test files with IDs and metadata
@@ -136,4 +136,3 @@ Test categories are defined by the project language in `project-config.json`:
 
 ---
 
-*Note: This context map highlights only the components relevant to this specific task. For a comprehensive view of all components, refer to the [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md).*

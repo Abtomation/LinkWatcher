@@ -62,7 +62,26 @@ Implementation plans serve a critical role in feature development by:
 5. **Quality assurance**: Defining testing strategy, performance requirements, and quality standards
 6. **Team alignment**: Providing clear guidance to engineers about how to implement the feature
 
-The implementation plan template (PF-TEM-042) is structured with these sections:
+### Template Selection by Tier
+
+The script supports a `-Tier` parameter to select the appropriate template:
+
+| Tier | Template | Lines | Use When |
+|------|----------|-------|----------|
+| 1 | `implementation-plan-tier1-template.md` | ~90 | Simple features — no data layer, state management, UI, or deployment sections |
+| 2/3 (default) | `implementation-plan-template-template.md` | ~290 | Moderate/complex features — full template with all sections |
+
+```powershell
+# Tier 1 — lightweight plan
+.\New-ImplementationPlan.ps1 -FeatureName "link-validation" -Tier 1
+
+# Tier 2/3 — full plan (default, backwards compatible)
+.\New-ImplementationPlan.ps1 -FeatureName "user-authentication"
+```
+
+### Full Template Structure (Tier 2/3)
+
+The full implementation plan template (PF-TEM-042) is structured with these sections:
 - **Executive Summary**: High-level overview for all stakeholders
 - **Architecture & Design**: Technical design decisions for all layers
 - **Implementation Approach**: Phased breakdown and task sequencing
@@ -71,6 +90,16 @@ The implementation plan template (PF-TEM-042) is structured with these sections:
 - **Risk Assessment**: Proactive identification of risks and mitigations
 - **Quality Standards**: Performance, security, and code quality requirements
 - **Deployment & Rollback**: Production deployment and rollback strategies
+
+### Tier 1 Template Structure
+
+The Tier 1 template focuses on the essentials:
+- **Overview**: Purpose, requirements, constraints
+- **Implementation Approach**: Phase breakdown, task sequence, technical approach
+- **Dependencies**: Internal component dependencies
+- **Testing Strategy**: Unit and integration tests
+- **Risk Assessment**: Single risk table
+- **Success Criteria**: Completion checklist
 
 ## Template Structure Analysis
 
@@ -471,7 +500,8 @@ Feature: Order management system with payment integration
 ## Related Resources
 
 - [Feature Implementation Planning Task (PF-TSK-044)](../../tasks/04-implementation/feature-implementation-planning-task.md) - The task that creates implementation plans
-- [Implementation Plan Template (PF-TEM-042)](../../templates/04-implementation/implementation-plan-template-template.md) - The template used by New-ImplementationPlan.ps1
+- [Implementation Plan Template (PF-TEM-042)](../../templates/04-implementation/implementation-plan-template-template.md) - Full template used by New-ImplementationPlan.ps1 (Tier 2/3)
+- [Implementation Plan Tier 1 Template](../../templates/04-implementation/implementation-plan-tier1-template.md) - Lightweight template for Tier 1 features
 - [Feature Implementation State Template](../../templates/04-implementation/feature-implementation-state-template.md) - For tracking implementation progress
 - [New-ImplementationPlan.ps1](../../scripts/file-creation/04-implementation/New-ImplementationPlan.ps1) - Script that creates implementation plan documents
 - [Task Creation Guide](../support/task-creation-guide.md) - General guidance on task frameworks

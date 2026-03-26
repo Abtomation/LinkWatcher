@@ -25,6 +25,14 @@ from linkwatcher.parser import LinkParser
 from linkwatcher.service import LinkWatcherService
 from linkwatcher.updater import LinkUpdater
 
+pytestmark = [
+    pytest.mark.feature("1.1.1"),
+    pytest.mark.priority("Standard"),
+    pytest.mark.cross_cutting(["0.1.2", "2.2.1", "2.1.1"]),
+    pytest.mark.test_type("integration"),
+    pytest.mark.specification("test/specifications/feature-specs/test-spec-1-1-1-file-system-monitoring.md"),
+]
+
 
 class TestGetFilesUnderDirectory:
     """Tests for get_files_under_directory helper (on DirectoryMoveDetector)."""
@@ -978,3 +986,52 @@ class TestDirectoryMoveCrossReferencesWithinMovedDir:
         assert "state/db.md" not in tracker_content.replace(
             "product/state/", ""
         ), "Old 'state/db.md' should be gone from tracker"
+
+    def test_no_errno2_errors_during_cross_reference_update(self, tmp_path):
+        """PD-BUG-050 regression: directory move must NOT produce Errno 2
+        errors when updating cross-references between files within the moved
+        directory.
+
+        Previous behavior: Phase 1 tried to write to moved files at their OLD
+        paths (stale DB source_file entries), causing Errno 2. Phase 1.5
+        compensated, masking the bug. This test asserts zero errors — not just
+        correct end state.
+        """
+        features_dir = tmp_path / "features"
+        features_dir.mkdir()
+        (features_dir / "a.md").write_text(
+            "# A\nSee [B](features/b.md) for details.\n"
+        )
+        (features_dir / "b.md").write_text(
+            "# B\nSee [A](features/a.md) for details.\n"
+        )
+        (features_dir / "c.md").write_text(
+            "# C\nSee [A](features/a.md) and [B](features/b.md).\n"
+        )
+        (tmp_path / "README.md").write_text(
+            "# README\n- [A](features/a.md)\n- [B](features/b.md)\n- [C](features/c.md)\n"
+        )
+
+        service = LinkWatcherService(str(tmp_path))
+        service._initial_scan()
+
+        product_dir = tmp_path / "product"
+        product_dir.mkdir()
+        new_features = product_dir / "features"
+        features_dir.rename(new_features)
+
+        move_event = DirMovedEvent(str(features_dir), str(new_features))
+        service.handler.on_moved(move_event)
+
+        # Assert zero errors — the bug manifested as Errno 2 error count > 0
+        error_count = service.handler.stats.get("errors", 0)
+        assert error_count == 0, (
+            f"Expected 0 errors during directory move, got {error_count}. "
+            "This indicates stale DB source paths causing Errno 2 (PD-BUG-050)."
+        )
+
+        # Also verify correctness (belt and suspenders)
+        readme = (tmp_path / "README.md").read_text()
+        assert "product/features/a.md" in readme
+        assert "product/features/b.md" in readme
+        assert "product/features/c.md" in readme

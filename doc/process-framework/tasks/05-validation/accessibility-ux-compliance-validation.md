@@ -47,7 +47,7 @@ Systematically validates selected features for accessibility standards complianc
   - **Design System** - Component library documentation and accessibility patterns
   - **Platform Guidelines** - Platform-specific accessibility guidelines (Material Design, Apple HIG, Web Content Accessibility Guidelines)
   - **New-ValidationReport Script** - [../../scripts/file-creation/05-validation/New-ValidationReport.ps1](../../scripts/file-creation/05-validation/New-ValidationReport.ps1) - Script for generating validation reports
-  - **Component Relationship Index** - [Component Relationship Index](../../../product-docs/technical/architecture/component-relationship-index.md) - For understanding component interactions
+  <!-- Component Relationship Index - Removed: file deleted -->
 
 - **Reference Only (Access When Needed):**
   - **Architecture Decision Records** - [ADR Directory](../../../product-docs/technical/architecture) - Accessibility-related architectural decisions
@@ -140,5 +140,5 @@ Before considering this task finished:
 ## Related Resources
 
 - [Feature Validation Guide](../../guides/05-validation/feature-validation-guide.md) - Comprehensive guide for conducting feature validation
-- [Component Relationship Index](../../../product-docs/technical/architecture/component-relationship-index.md) - For understanding component interactions
+<!-- [Component Relationship Index](../../../product-docs/technical/architecture/component-relationship-index.md) - Removed: file deleted -->
 - WCAG 2.1 Guidelines - Web Content Accessibility Guidelines (external reference)

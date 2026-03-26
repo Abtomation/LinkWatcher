@@ -5,8 +5,17 @@ This module tests the generic fallback parser that handles files
 not covered by specific parsers.
 """
 
+import pytest
+
 from linkwatcher.parsers.generic import GenericParser
 from linkwatcher.utils import looks_like_directory_path, looks_like_file_path
+
+pytestmark = [
+    pytest.mark.feature("2.1.1"),
+    pytest.mark.priority("Critical"),
+    pytest.mark.test_type("parser"),
+    pytest.mark.specification("test/specifications/feature-specs/test-spec-2-1-1-link-parsing-system.md"),
+]
 
 
 class TestGenericParser:

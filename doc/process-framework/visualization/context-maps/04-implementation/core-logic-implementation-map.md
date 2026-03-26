@@ -95,8 +95,6 @@ Implementation Finalization (PF-TSK-055)
 - [Development Guide](/doc/process-framework/guides/04-implementation/development-guide.md) - Coding best practices
 - [Definition of Done](/doc/process-framework/guides/04-implementation/definition-of-done.md) - Completion criteria
 - [Bug Reporting Guide](/doc/process-framework/guides/06-maintenance/bug-reporting-guide.md) - Bug documentation standards
-- [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Complete reference of all component relationships
+<!-- [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Removed: file deleted -->
 
 ---
-
-*Note: This context map highlights only the components relevant to this specific task. For a comprehensive view of all components, refer to the [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md).*

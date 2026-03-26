@@ -405,38 +405,40 @@ $e2eRegistryIds = $e2eRegistryEntries | ForEach-Object { $_['id'] }
 if ($e2eRegistryIds.Count -eq 0) {
     Write-Host "  SKIPPED: No E2E entries found in test-registry.yaml" -ForegroundColor Gray
 } else {
-    # Read test-tracking.md and extract E2E IDs from the dedicated section
+    # Read e2e-test-tracking.md and extract E2E IDs
     $trackingE2eIds = @()
-    $inE2eSection = $false
-    $testTrackingPath = Join-Path $ProjectRoot "test/state-tracking/permanent/test-tracking.md"
-    $trackingContent = Get-Content $testTrackingPath -Encoding UTF8
-    foreach ($tLine in $trackingContent) {
-        if ($tLine -match '^## E2E Acceptance Tests') { $inE2eSection = $true }
-        if ($inE2eSection -and $tLine -match '^## [^#]' -and $tLine -notmatch '^## E2E Acceptance Tests') { $inE2eSection = $false }
-        if ($inE2eSection -and $tLine -match '^\|\s*(TE-E2[EG]-\d+)') {
-            $trackingE2eIds += $matches[1]
+    $e2eTrackingPath = Join-Path $ProjectRoot "test/state-tracking/permanent/e2e-test-tracking.md"
+    if (-not (Test-Path $e2eTrackingPath)) {
+        Write-Host "  WARNING: e2e-test-tracking.md not found at: $e2eTrackingPath" -ForegroundColor Yellow
+        $warningCount++
+    } else {
+        $trackingContent = Get-Content $e2eTrackingPath -Encoding UTF8
+        foreach ($tLine in $trackingContent) {
+            if ($tLine -match '^\|\s*(TE-E2[EG]-\d+)') {
+                $trackingE2eIds += $matches[1]
+            }
         }
-    }
 
-    $missingInTracking = @($e2eRegistryIds | Where-Object { $_ -notin $trackingE2eIds })
-    $missingInRegistry = @($trackingE2eIds | Where-Object { $_ -notin $e2eRegistryIds })
+        $missingInTracking = @($e2eRegistryIds | Where-Object { $_ -notin $trackingE2eIds })
+        $missingInRegistry = @($trackingE2eIds | Where-Object { $_ -notin $e2eRegistryIds })
 
-    if ($missingInTracking.Count -gt 0) {
-        Write-Host "  WARNING: $($missingInTracking.Count) E2E entries in registry but not in test-tracking.md E2E section:" -ForegroundColor Yellow
-        foreach ($m in $missingInTracking) {
-            Write-Host "    - $m" -ForegroundColor Yellow
+        if ($missingInTracking.Count -gt 0) {
+            Write-Host "  WARNING: $($missingInTracking.Count) E2E entries in registry but not in e2e-test-tracking.md:" -ForegroundColor Yellow
+            foreach ($m in $missingInTracking) {
+                Write-Host "    - $m" -ForegroundColor Yellow
+            }
+            $warningCount += $missingInTracking.Count
         }
-        $warningCount += $missingInTracking.Count
-    }
-    if ($missingInRegistry.Count -gt 0) {
-        Write-Host "  WARNING: $($missingInRegistry.Count) E2E entries in test-tracking.md but not in registry:" -ForegroundColor Yellow
-        foreach ($m in $missingInRegistry) {
-            Write-Host "    - $m" -ForegroundColor Yellow
+        if ($missingInRegistry.Count -gt 0) {
+            Write-Host "  WARNING: $($missingInRegistry.Count) E2E entries in e2e-test-tracking.md but not in registry:" -ForegroundColor Yellow
+            foreach ($m in $missingInRegistry) {
+                Write-Host "    - $m" -ForegroundColor Yellow
+            }
+            $warningCount += $missingInRegistry.Count
         }
-        $warningCount += $missingInRegistry.Count
-    }
-    if ($missingInTracking.Count -eq 0 -and $missingInRegistry.Count -eq 0) {
-        Write-Host "  OK: All $($e2eRegistryIds.Count) E2E entries cross-reference correctly between registry and test-tracking.md" -ForegroundColor Green
+        if ($missingInTracking.Count -eq 0 -and $missingInRegistry.Count -eq 0) {
+            Write-Host "  OK: All $($e2eRegistryIds.Count) E2E entries cross-reference correctly between registry and e2e-test-tracking.md" -ForegroundColor Green
+        }
     }
 }
 Write-Host ""

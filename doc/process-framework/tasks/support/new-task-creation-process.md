@@ -5,7 +5,7 @@ category: Task Definition
 domain: agnostic
 version: 1.3
 created: 2025-07-06
-updated: 2026-02-15
+updated: 2026-03-25
 task_type: Discrete
 ---
 
@@ -39,7 +39,7 @@ Complete process for creating a new task from concept to implementation-ready de
   - **Task Concept Description** - Human-provided description of the new task concept and its purpose
   - [Task Creation Guide](../../guides/support/task-creation-guide.md) - Understanding task structure requirements
   - [Temporary State Tracking Customization Guide](../../guides/support/temp-state-tracking-customization-guide.md) - For creating and managing multi-session state tracking
-  - [AI Tasks System](../../../ai-tasks.md) - For updating the main task registry
+  - [AI Tasks System](../../ai-tasks.md) - For updating the main task registry
 
 - **Important (Load If Space):**
 
@@ -51,6 +51,8 @@ Complete process for creating a new task from concept to implementation-ready de
 
 - **Reference Only (Access When Needed):**
   - [Documentation Map](../../documentation-map.md) - For updating with new artifacts
+  - [Task Transition Guide](../../guides/framework/task-transition-guide.md) - For adding "Transitioning FROM" section for the new task
+  - [Process Framework Task Registry](../../infrastructure/process-framework-task-registry.md) - For adding new task entry
   - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For creating context maps
   - [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) - For tracking infrastructure completion
   - [New-Task.ps1](../../scripts/file-creation/support/New-Task.ps1) - Script for creating task definitions
@@ -165,7 +167,11 @@ Complete process for creating a new task from concept to implementation-ready de
 
 10L. **Verify Documentation Updates**: Confirm that New-Task.ps1 automatically updated documentation-map.md, tasks/README.md, and doc/process-framework/ai-tasks.md
 
-11L. **🚨 MANDATORY FINAL STEP**: Complete the [Lightweight Task Completion Checklist](#lightweight-task-completion-checklist) below
+11L. **Update Cross-Cutting Documents**: These mandatory updates are NOT automated and must be done manually for every new task:
+   - **[Task Transition Guide](../../guides/framework/task-transition-guide.md)**: Add a "Transitioning FROM [New Task Name]" section listing the tasks that typically follow this new task, with transition triggers and required handover artifacts. Update any existing scenarios that should include the new task.
+   - **[Process Framework Task Registry](../../infrastructure/process-framework-task-registry.md)**: Add a new task entry with process type, automation status, script locations, and file update patterns.
+
+12L. **🚨 MANDATORY FINAL STEP**: Complete the [Lightweight Task Completion Checklist](#lightweight-task-completion-checklist) below
 
 ### Lightweight Outputs
 
@@ -266,6 +272,9 @@ Complete process for creating a new task from concept to implementation-ready de
    **Session 4 - Documentation and Visualization:**
 
    - Update [Documentation Map](../../documentation-map.md) with all new artifacts
+   - **Update Cross-Cutting Documents** (mandatory for every new task):
+     - **[Task Transition Guide](../../guides/framework/task-transition-guide.md)**: Add a "Transitioning FROM [New Task Name]" section listing the tasks that typically follow this new task, with transition triggers and required handover artifacts. Update any existing scenarios that should include the new task.
+     - **[Process Framework Task Registry](../../infrastructure/process-framework-task-registry.md)**: Add a new task entry with process type, automation status, script locations, and file update patterns.
    - Create context map using [Visualization Creation Guide](../../guides/support/visualization-creation-guide.md) and [New-ContextMap.ps1](../../scripts/file-creation/02-design/New-ContextMap.ps1)
      ```bash
      cd /c/path/to/project/doc/process-framework/scripts/file-creation && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-ContextMap.ps1 -TaskName "Your Task Name" -WorkflowPhase "02-drafting" -MapDescription "Context map for Your Task Name task" -Confirm:$false'
@@ -297,7 +306,7 @@ Complete process for creating a new task from concept to implementation-ready de
 - **✅ AUTOMATED Documentation Updates** - Three files automatically updated by New-Task.ps1:
   - **Documentation Map** - New task added to [documentation-map.md](../../documentation-map.md) with proper categorization
   - **Tasks README** - New task added to [tasks/README.md](../README.md) in appropriate task type table
-  - **AI Tasks Registry** - New task added to [ai-tasks.md](../../../ai-tasks.md) with correct section and table format
+  - **AI Tasks Registry** - New task added to [ai-tasks.md](../../ai-tasks.md) with correct section and table format
 - **Required Directory Structure** - Only the directories actually needed for task outputs (if task creates new files)
 
 ### Session 2 Outputs (Document Creation Infrastructure - conditional)
@@ -305,7 +314,7 @@ Complete process for creating a new task from concept to implementation-ready de
 > **⚠️ CONDITIONAL**: Only produced if task creates new files as outputs
 
 - **Task Output Directory Structure** - Directories created for storing task outputs
-- **Document Creation Script** - PowerShell script for generating files created by the task (using [document-creation-script-development-guide.md](../../guides/support/document-creation-script-development-guide.md) and [document-creation-script-template.ps1](../../scripts/file-creation/document-creation-script-template.ps1))
+- **Document Creation Script** - PowerShell script for generating files created by the task (using [document-creation-script-development-guide.md](../../guides/support/document-creation-script-development-guide.md) and [document-creation-script-template.ps1](../../templates/support/document-creation-script-template.ps1))
 - **Updated ID Registry** - New ID prefix added to the appropriate [ID registry](../../PF-id-registry.json) for file types created by task
 
 ### Session 3 Outputs (Templates and Guides)
@@ -323,7 +332,7 @@ Complete process for creating a new task from concept to implementation-ready de
 
 ### Final Outputs (All Sessions Complete)
 
-- **Updated Documentation Map** - All new artifacts registered in the [documentation map](../../../documentation-map.md)
+- **Updated Documentation Map** - All new artifacts registered in the [documentation map](../../documentation-map.md)
 - **Complete Task Infrastructure** - Fully functional task with all supporting components
 - **Deleted Temporary State File** - Temporary tracking file removed after completion
 
@@ -335,7 +344,7 @@ The following state files are updated as part of this task:
 
 - [Documentation Map](../../documentation-map.md) - **AUTOMATED**: Add new task to appropriate category section
 - [Tasks README](../README.md) - **AUTOMATED**: Add new task to task type table with flexible pattern matching
-- [AI Tasks System](../../../ai-tasks.md) - **AUTOMATED**: Add new task to appropriate category with correct table format
+- [AI Tasks System](../../ai-tasks.md) - **AUTOMATED**: Add new task to appropriate category with correct table format
 
 ### 🔧 Manual Updates Required (Full Mode only)
 
@@ -366,6 +375,9 @@ The following state files are updated as part of this task:
   - [ ] **AI Agent Role assigned** with appropriate professional role, mindset, focus areas, and communication style
 - [ ] **Context Map Created**: Context map created using [New-ContextMap.ps1](../../scripts/file-creation/02-design/New-ContextMap.ps1) and customized with task-specific components
 - [ ] **Documentation Updates Verified**: Confirm New-Task.ps1 automatically updated documentation-map.md, tasks/README.md, and doc/process-framework/ai-tasks.md
+- [ ] **Cross-Cutting Updates Completed**:
+  - [ ] [Task Transition Guide](../../guides/framework/task-transition-guide.md) updated with "Transitioning FROM" section for the new task
+  - [ ] [Process Framework Task Registry](../../infrastructure/process-framework-task-registry.md) updated with new task entry
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-001" and context "New Task Creation Process (Lightweight)"
   - **⚠️ IMPORTANT**: Evaluate the New Task Creation Process itself (PF-TSK-001), not the task you created.
 
@@ -417,6 +429,9 @@ The following state files are updated as part of this task:
   - [ ] [Documentation Map](../../documentation-map.md) updated with all new artifacts
   - [ ] Context map created using [Visualization Creation Guide](../../guides/support/visualization-creation-guide.md) and [New-ContextMap.ps1](../../scripts/file-creation/02-design/New-ContextMap.ps1)
   - [ ] Context map properly shows component relationships and task context
+- [ ] **Cross-Cutting Updates Completed**:
+  - [ ] [Task Transition Guide](../../guides/framework/task-transition-guide.md) updated with "Transitioning FROM" section for the new task
+  - [ ] [Process Framework Task Registry](../../infrastructure/process-framework-task-registry.md) updated with new task entry
 
 #### Final Task Completion (All Sessions)
 

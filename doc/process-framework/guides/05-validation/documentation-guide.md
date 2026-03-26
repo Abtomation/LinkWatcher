@@ -186,7 +186,7 @@ Use tables for structured data:
 For internal links, use relative paths:
 
 ```markdown
-See the [API documentation](../../technical/api/reference.md) for more details.
+See the `[API documentation](../../technical/api/reference.md)` for more details.
 ```
 
 For external links, use full URLs:
@@ -274,7 +274,7 @@ Link to related documentation or external resources.
 ```markdown
 ## Related Resources
 
-- [Configuration Reference](../configuration.md)
+- `[Configuration Reference](../configuration.md)`
 - [Python Documentation](https://docs.python.org/)
 ```
 
@@ -326,7 +326,7 @@ def process_file(filepath: str) -> dict:
 - Include alt text for accessibility
 
 ```markdown
-![Architecture Overview](../../assets/architecture-overview.png)
+`![Architecture Overview](../../assets/architecture-overview.png)`
 ```
 
 ### Diagram Types
@@ -496,7 +496,7 @@ Common issues and their solutions.
 
 ## Related Resources
 
-- [Related Documentation](../related-doc.md)
+- `[Related Documentation](../related-doc.md)`
 - [External resource](https://example.com)
 ````
 

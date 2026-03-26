@@ -29,6 +29,14 @@ from linkwatcher.config import TESTING_CONFIG, LinkWatcherConfig
 from linkwatcher.models import LinkReference
 from linkwatcher.service import LinkWatcherService
 
+pytestmark = [
+    pytest.mark.feature("0.1.1"),
+    pytest.mark.priority("Standard"),
+    pytest.mark.cross_cutting(["1.1.1", "3.1.1", "0.1.2"]),
+    pytest.mark.test_type("integration"),
+    pytest.mark.specification("test/specifications/feature-specs/test-spec-0-1-1-core-architecture.md"),
+]
+
 
 class TestServiceLifecycle:
     """Test service startup, operation, and shutdown."""

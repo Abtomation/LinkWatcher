@@ -55,7 +55,7 @@ additional_fields:
 
   - [Important Input 1] - [Brief description with link to source]
   - [Important Input 2] - [Brief description with link to source]
-  - Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - For understanding component interactions
+  <!-- Component Relationship Index - Removed: file deleted -->
 
 - **Reference Only (Access When Needed):**
   - [Reference Input 1] - [Brief description with link to source]

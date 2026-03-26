@@ -73,8 +73,6 @@ graph TD
 - <!-- [Coding Standards](/doc/product-docs/development/guides/coding-standards.md) - File not found --> - Project-specific coding standards
 - <!-- [Unit Testing Standards](/doc/product-docs/development/guides/unit-testing-standards.md) - File not found --> - Standards for unit tests
 - [Technical Debt Tracking](../../../../product-docs/state-tracking/permanent/technical-debt-tracking.md) - Technical debt status
-- [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Complete reference of component relationships
+<!-- [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Removed: file deleted -->
 
 ---
-
-*Note: This context map highlights only the components relevant to code review. For a comprehensive view of all components, refer to the [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md).*

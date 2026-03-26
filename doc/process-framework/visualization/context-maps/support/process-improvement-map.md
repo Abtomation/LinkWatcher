@@ -71,9 +71,7 @@ graph TD
 - [Process Documentation Index](/doc/process-framework/README.md) - Index of process documentation
 - <!-- [Improvement Proposal Template](/doc/process-framework/templates/improvement-proposal-template.md) - Template/example link commented out --> - Template for improvement proposals
 - [Task Definition Directory](/doc/process-framework/tasks/) - Directory of task definitions
-- [Automation Scripts](/scripts/) - Process automation scripts
-- [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Complete reference of component relationships
+- [Automation Scripts](/doc/process-framework/scripts/) - Process automation scripts
+<!-- [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Removed: file deleted -->
 
 ---
-
-*Note: This context map highlights only the components relevant to process improvement. For a comprehensive view of all components, refer to the [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md).*

@@ -80,6 +80,7 @@ Analyze, optimize, and document development processes to improve efficiency, qua
 
 8. Implement changes in small, reviewable increments (never all at once)
    - **For bulk/repetitive changes** (same pattern across many files): after applying all changes, verify completeness with grep-based checks (e.g., confirm all target files contain the new pattern, confirm no target files still contain the old pattern)
+   > **⚠️ SCOPE BOUNDARY**: If implementing an improvement requires work that fits another task's scope — such as creating a new task definition (PF-TSK-001), reorganizing directory structures (PF-TSK-014), or extending the framework (PF-TSK-048) — do not perform that work inline. Instead, document the need, update the IMP with a delegation note, and recommend the appropriate task to the human partner.
 9. For each significant change:
    a. Present the specific change to be made
    b. **🚨 CHECKPOINT**: Get explicit approval before implementing

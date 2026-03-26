@@ -11,6 +11,13 @@ import pytest
 from linkwatcher.models import LinkReference
 from linkwatcher.parser import LinkParser
 
+pytestmark = [
+    pytest.mark.feature("2.1.1"),
+    pytest.mark.priority("Critical"),
+    pytest.mark.test_type("unit"),
+    pytest.mark.specification("test/specifications/feature-specs/test-spec-2-1-1-link-parsing-system.md"),
+]
+
 
 class TestLinkParser:
     """Test cases for LinkParser."""

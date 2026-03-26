@@ -181,7 +181,7 @@ act -j test
 
 ## Related Resources
 
-- [Testing Setup Guide](../03-testing/testing-setup-guide.md) — Set up test infrastructure (complementary to this guide)
+- [Test Infrastructure Guide](../03-testing/test-infrastructure-guide.md) — Test directory structure, tracking, and scaffolding (complementary to this guide)
 - [Release & Deployment Task](/doc/process-framework/tasks/07-deployment/release-deployment-task.md) — Release process using the CI/CD infrastructure
 - [Development Guide](../04-implementation/development-guide.md) — Development best practices
 

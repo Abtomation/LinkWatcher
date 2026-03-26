@@ -15,7 +15,8 @@ retrospective: true
 
 > **Retrospective Document**: This FDD describes the existing implemented functionality of the LinkWatcher Link Updater, documented after implementation during framework onboarding (PF-TSK-066). Content is descriptive ("what is") rather than prescriptive ("what should be").
 >
-> **Source**: Derived from [HOW_IT_WORKS.md](../../../../HOW_IT_WORKS.md) (Link Update Process section) and source code analysis of `linkwatcher/updater.py`.
+> **Source**: Derived from source code analysis of `linkwatcher/updater.py`.
+<!-- HOW_IT_WORKS.md (Link Update Process section) was removed — content superseded by this FDD and TDD PD-TDD-026 -->
 >
 > **Scope Note**: This feature consolidates old 2.2.1 (Link Updater) with all update sub-features: 2.2.2 (Relative Path Calculation), 2.2.3 (Anchor Preservation), 2.2.4 (Dry Run Mode), 2.2.5 (Backup Creation). All are implementation details of the unified updater.
 
@@ -30,12 +31,12 @@ retrospective: true
 
 ### Architecture Overview Reference
 
-> **Primary Documentation**: [HOW_IT_WORKS.md](../../../../HOW_IT_WORKS.md) — Link Update Process section
+<!-- HOW_IT_WORKS.md (Link Update Process section) was removed — content extracted into this FDD and TDD PD-TDD-026 during PF-TSK-066 -->
 > **Source**: Pre-framework project documentation (Confirmed in PF-TSK-065 analysis)
 >
 > **Purpose**: Overview of the atomic update pipeline, safety mechanisms, and link-type dispatch.
 
-**Functional Architecture Summary** (derived from HOW_IT_WORKS.md):
+**Functional Architecture Summary**:
 
 - The Link Updater receives a list of `LinkReference` objects and old/new file paths, groups them by containing file, and processes each file with bottom-to-top replacement to preserve position validity
 - Atomic writes via temp file + `shutil.move()` ensure no data loss on interruption

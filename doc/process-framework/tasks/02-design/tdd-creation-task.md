@@ -83,12 +83,12 @@ When referencing other tasks' outputs in TDDs:
 
 ## Context Requirements
 
-[View Context Map for this task](../discrete/visualization/context-maps/discrete/tdd-creation-map.md)
+[View Context Map for this task](../../visualization/context-maps/02-design/tdd-creation-map.md)
 
 - **Critical (Must Read):**
 
   - **Functional Design Document (FDD)** - For Tier 2+ features, the FDD created in the previous step containing functional requirements and user flows
-  - [System Quality Attributes](/doc/product-docs/technical/architecture/quality-attributes.md) - **MANDATORY**: System-wide quality requirements that must be analyzed and integrated into all TDDs
+  <!-- - [System Quality Attributes](/doc/product-docs/technical/architecture/quality-attributes.md) - **MANDATORY**: System-wide quality requirements — FILE REMOVED -->
   - [TDD Templates](/doc/product-docs/technical/architecture/design-docs) - Tier-specific templates for technical design documents:
   - [T1 Template](/doc/process-framework/templates/02-design/tdd-t1-template.md) - For Tier 1 (simple) features
   - [T2 Template](/doc/process-framework/templates/02-design/tdd-t2-template.md) - For Tier 2 (moderate) features
@@ -97,12 +97,12 @@ When referencing other tasks' outputs in TDDs:
 
 - **Important (Load If Space):**
 
-  - [Project Structure](/doc/product-docs/technical/architecture/project-structure.md) - Information about the project architecture
+  <!-- - [Project Structure](/doc/product-docs/technical/architecture/project-structure.md) - Removed: file deleted -->
   - [Technical Design Documents](/doc/product-docs/technical/design) - Existing design documents for reference
-  - [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - For understanding component interactions
+  <!-- [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Removed: file deleted -->
 
 - **Reference Only (Access When Needed):**
-  - [Feature Tracking](../discrete/state-tracking/permanent/feature-tracking.md) - To identify features that have been assessed but need TDDs
+  - [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) - To identify features that have been assessed but need TDDs
   - [Visual Notation Guide](/doc/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 ## Process
@@ -130,7 +130,7 @@ When referencing other tasks' outputs in TDDs:
 
 ### Quality Attribute Analysis (MANDATORY)
 
-6. **Analyze System Quality Attributes**: Review the [System Quality Attributes](/doc/product-docs/technical/architecture/quality-attributes.md) document to understand:
+6. **Analyze System Quality Attributes**: <!-- quality-attributes.md has been removed --> Identify applicable quality attributes for this feature:
    - System-wide performance, security, reliability, and usability requirements
    - Feature category-specific requirements that apply to this feature
    - Cross-cutting constraints that affect implementation
@@ -207,14 +207,14 @@ When referencing other tasks' outputs in TDDs:
 ## Outputs
 
 - **Technical Design Document** - New document in `/doc/product-docs/technical/architecture/design-docs/tdd/tdd-[assessment-id]-[feature-name]-t[tier].md`
-- **Updated Feature Tracking** - [Feature Tracking](../discrete/state-tracking/permanent/feature-tracking.md) document updated with TDD status
+- **Updated Feature Tracking** - [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) document updated with TDD status
 - **AI Session Handoff Notes** - Explicit guidance for the next AI agent session
 
 ## State Tracking
 
 The following state files are automatically updated by the .../../scripts/file-creation/New-tdd.ps1 script:
 
-- [Feature Tracking](../discrete/state-tracking/permanent/feature-tracking.md) - Automatically updated with:
+- [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) - Automatically updated with:
   - Status changed from "📋 FDD Created" (for Tier 2+) or "📊 Assessment Created" (for Tier 1) to "📝 TDD Created"
   - Link to TDD document added in the "Tech Design" column
   - TDD creation date added to Notes column
@@ -255,6 +255,6 @@ Before considering this task finished:
   - [T1 Template](/doc/process-framework/templates/02-design/tdd-t1-template.md) - For Tier 1 (simple) features
   - [T2 Template](/doc/process-framework/templates/02-design/tdd-t2-template.md) - For Tier 2 (moderate) features
   - [T3 Template](/doc/process-framework/templates/02-design/tdd-t3-template.md) - For Tier 3 (complex) features
-- [TDD Generation Script](/doc/product-docs/technical/architecture/design-docs/tdd/.../../scripts/file-creation/New-tdd.ps1) - Script for generating TDD documents
+- [TDD Generation Script](/doc/process-framework/scripts/file-creation/02-design/New-tdd.ps1) - Script for generating TDD documents
 - [Architecture Decision Records](/doc/product-docs/technical/architecture/design-docs/adr) - Repository of past architectural decisions
 - <!-- [API Design Guidelines](/doc/product-docs/technical/architecture/api-design-guidelines.md) - File not found --> - Standards for designing APIs

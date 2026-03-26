@@ -82,7 +82,7 @@ This task produces the foundational inventory that subsequent onboarding tasks (
 2. **Create Master State File** (first session only):
    - Use the automation script: `New-RetrospectiveMasterState.ps1 -ProjectName "[Project Name]"`
      - Script location: /doc/process-framework/scripts/file-creation/00-onboarding/New-RetrospectiveMasterState.ps1
-     - Automatically creates file at: `/doc/process-framework/state-tracking/temporary/retrospective-master-state.md`
+     - Automatically creates file at: `/doc/process-framework/state-tracking/temporary/old/retrospective-master-state.md`
      - Automatically fills in project name, start date, and sets status to "DISCOVERY"
    - Template reference: [Retrospective Master State Template](../../templates/00-onboarding/retrospective-state-template.md)
 
@@ -260,7 +260,7 @@ This task produces the foundational inventory that subsequent onboarding tasks (
 ### New State Files Created
 
 - **Retrospective Master State File** (TEMPORARY):
-  - Location: `/doc/process-framework/state-tracking/temporary/retrospective-master-state.md`
+  - Location: `/doc/process-framework/state-tracking/temporary/old/retrospective-master-state.md`
   - Purpose: Track codebase-wide retrospective progress across all onboarding sessions
   - Updated: After EVERY session
   - Lifecycle: Shared across all onboarding tasks (PF-TSK-064, PF-TSK-065, PF-TSK-066), archived when complete

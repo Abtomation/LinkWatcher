@@ -26,8 +26,8 @@ test_file_id: TE-TST-102
 | **Auditor** | AI Agent |
 | **Audit Date** | 2026-03-15 |
 | **Audit Status** | COMPLETED |
-| **Test Spec** | [PF-TSP-035](../../../../test/specifications/feature-specs/test-spec-0-1-1-core-architecture.md) |
-| **TDD** | [PD-TDD-021](../../technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md) |
+| **Test Spec** | [PF-TSP-035](../../specifications/feature-specs/test-spec-0-1-1-core-architecture.md) |
+| **TDD** | [PD-TDD-021](../../../doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md) |
 
 ## Test Files Audited
 

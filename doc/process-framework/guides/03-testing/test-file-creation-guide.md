@@ -362,32 +362,6 @@ After completing the test file customization:
    - Ensure mock services integrate properly with test helpers
    - Validate test file follows project testing conventions
 
-## Quality Assurance
-
-[Optional section for template customization guides. Provide comprehensive quality assurance guidance including:
-
-### Self-Review Checklist
-
-- [ ] Template sections are properly customized
-- [ ] All required fields are completed
-- [ ] Customization aligns with task requirements
-- [ ] Cross-references and links are correct
-- [ ] Examples are relevant and accurate
-
-### Validation Criteria
-
-- Functional validation: Template works as intended
-- Content validation: Information is accurate and complete
-- Integration validation: Template integrates properly with related components
-- Standards validation: Follows project conventions and standards
-
-### Integration Testing Procedures
-
-- Test template with related scripts and tools
-- Verify workflow integration points
-- Validate cross-references and dependencies
-- Confirm compatibility with existing framework components]
-
 ## Examples
 
 ### Example 1: Unit Test for Authentication Service
@@ -480,7 +454,7 @@ doc/process-framework/scripts/file-creation/03-testing/New-TestFile.ps1 -TestNam
 - [Test Specification Creation Guide](test-specification-creation-guide.md) - Guide for creating test specifications
 - Your project's testing framework documentation
 - Your project's mocking framework documentation
-- [Project Test Structure](../../../test/) - Existing test organization and patterns
+- [Project Test Structure](../../../../test/) - Existing test organization and patterns
 - [Guide Creation Best Practices Guide (PF-GDE-024)](../support/guide-creation-best-practices-guide.md) - Best practices for guide creation
 
 <!--

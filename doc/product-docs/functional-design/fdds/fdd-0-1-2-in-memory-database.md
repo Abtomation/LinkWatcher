@@ -15,7 +15,8 @@ retrospective: true
 
 > **Retrospective Document**: This FDD describes the existing implemented functionality of the LinkWatcher In-Memory Database, documented after implementation during framework onboarding (PF-TSK-066). Content is descriptive ("what is") rather than prescriptive ("what should be").
 >
-> **Source**: Derived from [0.1.3 Implementation State](../../state-tracking/features/archive/0.1.3-in-memory-database-implementation-state.md), [HOW_IT_WORKS.md](../../../../HOW_IT_WORKS.md) (Database System section), and source code analysis of `linkwatcher/database.py`.
+> **Source**: Derived from [0.1.3 Implementation State](../../state-tracking/features/archive/0.1.3-in-memory-database-implementation-state.md) and source code analysis of `linkwatcher/database.py`.
+<!-- HOW_IT_WORKS.md (Database System section) was removed — content superseded by this FDD and TDD PD-TDD-022 -->
 
 ## Feature Overview
 
@@ -28,12 +29,12 @@ retrospective: true
 
 ### Architecture Overview Reference
 
-> **📋 Primary Documentation**: [HOW_IT_WORKS.md](../../../../HOW_IT_WORKS.md) - Database System section
+<!-- HOW_IT_WORKS.md (Database System section) was removed — content extracted into this FDD and TDD PD-TDD-022 during PF-TSK-066 -->
 > **👤 Source**: Pre-framework project documentation (Confirmed in PF-TSK-065 analysis)
 >
 > **Purpose**: Overview of database structure, key features, and operational behavior.
 
-**Functional Architecture Summary** (derived from HOW_IT_WORKS.md):
+**Functional Architecture Summary**:
 
 - The database uses target-indexed storage: `Dict[str, List[LinkReference]]` where keys are target file paths and values are lists of all references to that target
 - Provides O(1) lookup performance for the critical operation: "given a moved file, find all files that reference it"

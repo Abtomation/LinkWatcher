@@ -25,8 +25,8 @@ test_file_id: TE-TST-101
 | **Auditor** | AI Agent |
 | **Audit Date** | 2026-03-15 |
 | **Audit Status** | COMPLETED |
-| **Test Spec** | [PF-TSP-038](../../../../test/specifications/feature-specs/test-spec-1-1-1-file-system-monitoring.md) |
-| **TDD** | [PD-TDD-023](../../technical/architecture/design-docs/tdd/tdd-1-1-1-file-system-monitoring-t2.md) |
+| **Test Spec** | [PF-TSP-038](../../specifications/feature-specs/test-spec-1-1-1-file-system-monitoring.md) |
+| **TDD** | [PD-TDD-023](../../../doc/product-docs/technical/architecture/design-docs/tdd/tdd-1-1-1-file-system-monitoring-t2.md) |
 
 ## Test Files Audited
 

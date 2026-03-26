@@ -66,7 +66,7 @@ ENHANCEMENT:    Test Spec Creation → Feature Enhancement → E2E Acceptance Te
 - **Important (Load If Space):**
 
   - **Feature documentation** (FDD, TDD, UI documentation) - For understanding the feature's intended behavior and user interactions
-  - [Test Tracking](../../../../test/state-tracking/permanent/test-tracking.md) - Current E2E acceptance test coverage and status
+  - [E2E Test Tracking](../../../../test/state-tracking/permanent/e2e-test-tracking.md) - Current E2E acceptance test coverage and status
   - [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) - Feature status and test coverage overview
   - **Existing test cases for the same feature** - To avoid duplication and ensure consistency
 
@@ -101,7 +101,7 @@ ENHANCEMENT:    Test Spec Creation → Feature Enhancement → E2E Acceptance Te
    ```bash
    cd /c/path/to/project/doc/process-framework/scripts/file-creation/03-testing && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-E2EAcceptanceTestCase.ps1 -TestCaseName "descriptive-name" -GroupName "group-name" -FeatureIds "X.Y.Z" -FeatureName "Feature Name" -Workflow "WF-NNN" -NewGroup -Source "Test Spec PF-TSP-NNN" -Description "Brief description" -Confirm:$false'
    ```
-   > The script automatically: creates the `E2E-NNN-[name]/` directory with `project/`, `expected/`, and `test-case.md`; assigns an E2E ID from the registry; updates the master test's "If Failed" table; adds an entry to test-tracking.md; updates feature-tracking.md Test Status. When `-NewGroup` is used, also adds a TE-E2G group row to the E2E Test Cases table and updates the Workflow Milestone Tracking table (if `-Workflow` is provided).
+   > The script automatically: creates the `E2E-NNN-[name]/` directory with `project/`, `expected/`, and `test-case.md`; assigns an E2E ID from the registry; updates the master test's "If Failed" table; adds an entry to e2e-test-tracking.md; updates feature-tracking.md Test Status. When `-NewGroup` is used, also adds a TE-E2G group row to the E2E Test Cases table and updates the Workflow Milestone Tracking table (if `-Workflow` is provided).
    >
    > When `-Scripted` is used, the script also creates a `run.ps1` skeleton and sets `Execution Mode` to `scripted` in test-case.md. Scripted test cases can be executed automatically via [Run-E2EAcceptanceTest.ps1](../../scripts/test/e2e-acceptance-testing/Run-E2EAcceptanceTest.ps1) or manually by following the Steps section.
    >
@@ -126,7 +126,7 @@ ENHANCEMENT:    Test Spec Creation → Feature Enhancement → E2E Acceptance Te
 
 ### Finalization
 
-14. **Verify state tracking updates**: Confirm that New-E2EAcceptanceTestCase.ps1 correctly updated [test-tracking.md](../../../../test/state-tracking/permanent/test-tracking.md) and [feature-tracking.md](../../../product-docs/state-tracking/permanent/feature-tracking.md) for all created test cases
+14. **Verify state tracking updates**: Confirm that New-E2EAcceptanceTestCase.ps1 correctly updated [e2e-test-tracking.md](../../../../test/state-tracking/permanent/e2e-test-tracking.md) and [feature-tracking.md](../../../product-docs/state-tracking/permanent/feature-tracking.md) for all created test cases
 15. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
@@ -137,13 +137,13 @@ ENHANCEMENT:    Test Spec Creation → Feature Enhancement → E2E Acceptance Te
   - `expected/` — Expected file state after test execution (for automated comparison)
   - `run.ps1` — (Scripted tests only) Automated test action script
 - **Master test file** — `test/e2e-acceptance-testing/templates/<group>/master-test-<group-name>.md` — Quick validation sequence for the entire group (created for new groups, updated for existing groups)
-- **Updated state tracking** — New entries in test-tracking.md and feature-tracking.md
+- **Updated state tracking** — New entries in e2e-test-tracking.md and feature-tracking.md
 
 ## State Tracking
 
 The following state files must be updated as part of this task:
 
-- [Test Tracking](../../../../test/state-tracking/permanent/test-tracking.md) — Add new E2E acceptance test entries (groups and individual cases) with status `📋 Case Created` and appropriate Test Type (`E2E Group` or `E2E Case`)
+- [E2E Test Tracking](../../../../test/state-tracking/permanent/e2e-test-tracking.md) — Add new E2E acceptance test entries (groups and individual cases) with status `📋 Case Created` and appropriate Test Type (`E2E Group` or `E2E Case`)
 - [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) — Update the feature's Test Status if E2E acceptance test coverage changes the overall status
 
 ## ⚠️ MANDATORY Task Completion Checklist
@@ -159,7 +159,7 @@ Before considering this task finished:
   - [ ] Expected results are concrete and verifiable (not vague descriptions)
   - [ ] Project fixtures contain real, complete files (not placeholder content)
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
-  - [ ] [Test Tracking](../../../../test/state-tracking/permanent/test-tracking.md) updated with all new E2E acceptance test entries
+  - [ ] [E2E Test Tracking](../../../../test/state-tracking/permanent/e2e-test-tracking.md) updated with all new E2E acceptance test entries
   - [ ] [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) Test Status updated if needed
   - [ ] Cross-cutting spec Coverage Summary updated (milestone path only — skip if not applicable)
 - [ ] **Human Review**: Human partner has reviewed and approved the test cases

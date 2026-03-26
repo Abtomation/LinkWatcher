@@ -17,6 +17,14 @@ import yaml
 from linkwatcher.config import DEFAULT_CONFIG, TESTING_CONFIG, LinkWatcherConfig
 from linkwatcher.config.settings import LinkWatcherConfig as ConfigClass
 
+pytestmark = [
+    pytest.mark.feature("0.1.3"),
+    pytest.mark.priority("Critical"),
+    pytest.mark.cross_cutting(["1.1.1", "3.1.1"]),
+    pytest.mark.test_type("unit"),
+    pytest.mark.specification("test/specifications/feature-specs/test-spec-0-1-3-configuration-system.md"),
+]
+
 
 class TestLinkWatcherConfig:
     """Test cases for LinkWatcherConfig class."""

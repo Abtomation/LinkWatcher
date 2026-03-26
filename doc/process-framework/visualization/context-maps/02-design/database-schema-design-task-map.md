@@ -73,12 +73,10 @@ graph TD
 ## Related Documentation
 
 - [Database Schema Design Task](/doc/process-framework/tasks/02-design/database-schema-design-task.md) - Complete task definition and process
-- [Database Schema Design Task Usage Guide](/doc/process-framework/guides/03-testing/database-schema-design-task-usage-guide.md) - Comprehensive usage instructions
+- [Schema Design Creation Guide](/doc/process-framework/guides/02-design/schema-design-creation-guide.md) - Comprehensive usage instructions
 - [Schema Design Template](/doc/process-framework/templates/02-design/schema-design-template.md) - Template for creating schema design documents
 - [API Design Task](/doc/process-framework/tasks/02-design/api-design-task.md) - For coordinating API changes
 - [System Architecture Review](/doc/process-framework/tasks/01-planning/system-architecture-review.md) - For architectural evaluation
-- [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Complete reference of all component relationships
+<!-- [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Removed: file deleted -->
 
 ---
-
-*Note: This context map highlights only the components relevant to this specific task. For a comprehensive view of all components, refer to the [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md).*

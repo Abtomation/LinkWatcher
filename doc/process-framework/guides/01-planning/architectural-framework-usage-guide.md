@@ -152,7 +152,7 @@ Include in Architecture Sessions Summary:
 
 ### Example: Working on Data Architecture
 
-1. **Load Context**: [Data Architecture Context Package](../../../product-docs/technical/architecture/context-packages/data-architecture-context.md)
+1. **Load Context**: Data Architecture Context Package (project-specific, create as needed)
 2. **Current Focus**: Repository pattern implementation
 3. **Next Steps**: Implement base repository interface
 4. **Update Progress**: Reflect implementation in context package
