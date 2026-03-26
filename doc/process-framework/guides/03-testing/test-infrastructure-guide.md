@@ -332,6 +332,6 @@ Validate-TestTracking.ps1           # Framework tracking consistent
 - [Test Audit Task (PF-TSK-030)](/doc/process-framework/tasks/03-testing/test-audit-task.md)
 - [E2E Acceptance Test Case Creation Task (PF-TSK-069)](/doc/process-framework/tasks/03-testing/e2e-acceptance-test-case-creation-task.md)
 - [E2E Acceptance Test Case Template (PF-TEM-054)](/doc/process-framework/templates/03-testing/e2e-acceptance-test-case-template.md)
-- [Test File Template (test-file-template.py)](/doc/process-framework/templates/03-testing/test-file-template.py)
+- [Test File Template (test-file-template.py.template)](/doc/process-framework/templates/03-testing/test-file-template.py.template)
 - [Language Config Template](/doc/process-framework/templates/support/language-config-template.json) — Template for new language configurations
 - [Language Configurations README](/doc/process-framework/languages-config/README.md) — How to add support for new languages

@@ -209,7 +209,7 @@ $customReplacements = @{
 
 # Create the document using standardized process
 try {
-    $templateName = "test-file-template$fileExtension"
+    $templateName = "test-file-template$fileExtension.template"
     $templatePath = Join-Path $projectRoot "doc/process-framework/templates/03-testing/$templateName"
 
     if (-not (Test-Path $templatePath)) {
