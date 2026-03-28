@@ -138,8 +138,8 @@ Before considering this task finished:
 
 ## Next Tasks
 
-- <!-- [**Next Task 1**](../path/to/next-task-1.md) - Template/example link commented out --> - [Brief description of how it connects]
-- <!-- [**Next Task 2**](../path/to/next-task-2.md) - Template/example link commented out --> - [Brief description of how it connects]
+- **Next Task 1** - [Brief description of how it connects]
+- **Next Task 2** - [Brief description of how it connects]
 
 <!-- For Cyclical Tasks Only -->
 
@@ -157,5 +157,5 @@ Before considering this task finished:
 
 ## Related Resources
 
-- <!-- [Resource 1](../link-to-resource1.md) - Template/example link commented out --> - [Brief description]
-- <!-- [Resource 2](../link-to-resource2.md) - Template/example link commented out --> - [Brief description]
+- Resource 1 - [Brief description]
+- Resource 2 - [Brief description]

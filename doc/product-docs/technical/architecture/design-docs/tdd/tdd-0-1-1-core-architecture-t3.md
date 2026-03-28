@@ -230,7 +230,32 @@ class LinkWatcherService:
         # Delegates to self.parser.parse_file() and self.link_db.add_link()
 ```
 
-### 4.2 Duplicate Instance Prevention
+### 4.2 Data Models (models.py)
+
+```python
+@dataclass
+class LinkReference:
+    """Represents a link reference found in a file."""
+    file_path: str        # Source file containing the link
+    line_number: int      # Line number where the link appears
+    column_start: int     # Column offset of link start
+    column_end: int       # Column offset of link end
+    link_text: str        # Raw link text as written in the source
+    link_target: str      # Resolved target path the link points to
+    link_type: str        # Parser type: 'markdown', 'yaml', 'direct', etc.
+
+@dataclass
+class FileOperation:
+    """Represents a file system operation."""
+    operation_type: str   # 'moved', 'deleted', 'created'
+    old_path: Optional[str]
+    new_path: Optional[str]
+    timestamp: datetime
+```
+
+`LinkReference` is the primary data transfer object — produced by parsers (2.1.1), stored in LinkDatabase (0.1.2), and consumed by LinkUpdater (2.2.1). `FileOperation` records file system events for logging and statistics.
+
+### 4.3 Duplicate Instance Prevention
 
 The service uses a PID-based lock file to prevent multiple instances from running on the same project simultaneously.
 
@@ -256,7 +281,7 @@ The service uses a PID-based lock file to prevent multiple instances from runnin
 
 **PowerShell Startup Script**: `start_linkwatcher_background.ps1` also checks for existing python processes associated with LinkWatcher before launching a new instance, providing a secondary guard at the script level.
 
-### 4.3 CLI Entry Point (main.py)
+### 4.4 CLI Entry Point (main.py)
 
 ```python
 def main():
@@ -280,7 +305,7 @@ def main():
     service.start(initial_scan=config.initial_scan_enabled)
 ```
 
-### 4.3 Package API (__init__.py)
+### 4.5 Package API (__init__.py)
 
 ```python
 from .database import LinkDatabase
@@ -297,10 +322,6 @@ __all__ = [
     "get_logger", "setup_logging", "LogLevel", "LogTimer", "with_context",
 ]
 ```
-
-### 4.4 final.py (Startup Helper)
-
-A minimal script that changes the working directory before launching, used for specific deployment scenarios where the CWD needs to be set before service startup.
 
 ## 5. Functional Requirements Reference
 
@@ -422,8 +443,9 @@ All dependencies are implemented and operational:
 |------|---------|---------------|
 | `linkwatcher/service.py` | LinkWatcherService class | ~200 |
 | `linkwatcher/__init__.py` | Package public API | ~30 |
+| `linkwatcher/models.py` | LinkReference and FileOperation data classes | ~30 |
+| `linkwatcher/utils.py` | Path utilities (normalize, relative path, file filtering) | ~260 |
 | `main.py` | CLI entry point | ~80 |
-| `final.py` | Startup helper | ~10 |
 
 ## 12. Open Questions
 
@@ -443,7 +465,6 @@ Fully implemented and in production use. Retrospective documentation created dur
 
 ### Known Issues
 
-- `final.py` purpose unclear — appears to be a startup helper that changes CWD before launching
 - Signal handling is Unix-style (SIGINT/SIGTERM) — Windows support relies on Python's signal emulation
 - Hard-coded extension/directory lists in handler (not from config) — technical debt identified in 1.1.1 (File Filtering)
 

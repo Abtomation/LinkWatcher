@@ -12,7 +12,7 @@
     This PowerShell script generates test files by:
     - Reading project-config.json to determine the project's primary language
     - Selecting the appropriate language-specific template
-    - Generating a unique document ID (PD-TST-XXX)
+    - Generating a unique document ID (TE-TST-XXX)
     - Creating a properly formatted test file with pytest markers
     - Updating the ID tracker in the central ID registry
     - Writing pytest markers (feature, priority, test_type, specification) into the file
@@ -52,7 +52,7 @@
     - Automatically updates the central ID registry with new ID assignments
     - Creates the output directory if it doesn't exist
     - Uses standardized document creation process
-    - Reads project-config.json + languages-config/{language}-config.json for language-aware behavior
+    - Reads project-config.json + languages-config/{language}/{language}-config.json for language-aware behavior
     - When FeatureId is provided, automatically updates test implementation tracking
     - Integrates with Process Framework automation infrastructure
     - Supports dry run mode for safe testing
@@ -60,7 +60,7 @@
     Template Metadata:
     - Script Type: Document Creation Script
     - Created: 2025-07-13
-    - Updated: 2026-03-18 (IMP-139: language-agnostic via languages-config)
+    - Updated: 2026-03-27 (IMP-244: PD-TST → TE-TST after SC-008 registry split; IMP-139: language-agnostic via languages-config)
     - For: Creating test files from language-specific templates
 #>
 
@@ -124,8 +124,8 @@ if (Test-Path $projectConfigPath) {
     Write-Warning "project-config.json not found at $projectConfigPath, defaulting to Dart"
 }
 
-# --- Language configuration from languages-config/{language}-config.json ---
-$langConfigPath = Join-Path $projectRoot "doc/process-framework/languages-config/$($language.ToLower())-config.json"
+# --- Language configuration from languages-config/{language}/{language}-config.json ---
+$langConfigPath = Join-Path $projectRoot "doc/process-framework/languages-config/$($language.ToLower())/$($language.ToLower())-config.json"
 if (-not (Test-Path $langConfigPath)) {
     Write-Error "Language config not found: $langConfigPath. Create it from languages-config/ template."
     exit 1
@@ -221,7 +221,7 @@ try {
         return
     }
 
-    $documentId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "PD-TST" -IdDescription "test_file" -DocumentName $TestName -OutputDirectory $outputDirectory -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
+    $documentId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "TE-TST" -IdDescription "test_file" -DocumentName $TestName -OutputDirectory $outputDirectory -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
 
     # Provide success details
     $details = @(

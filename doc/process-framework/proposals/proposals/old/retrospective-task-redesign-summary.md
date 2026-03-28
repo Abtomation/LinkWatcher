@@ -321,7 +321,7 @@ FEATURE TRACKING WITH TIER ASSESSMENTS ✅
 ## References
 
 - [Retrospective Feature Documentation Task (PF-TSK-060)](../tasks/cyclical/retrospective-feature-documentation-task.md)
-- [Retrospective State Template](../../../templates/00-onboarding/retrospective-state-template.md)
+- [Retrospective State Template](../../../templates/00-setup/retrospective-state-template.md)
 - [Feature Implementation State Template](../../../templates/04-implementation/feature-implementation-state-template.md)
 - [Document Types Created by Tasks](document-types-created-by-tasks.md)
 - [Original Concept](retrospective-documentation-concept.md) (superseded)

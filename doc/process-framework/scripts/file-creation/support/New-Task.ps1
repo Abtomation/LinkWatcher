@@ -15,7 +15,7 @@ param(
     [string]$Description = "",
 
     [Parameter(Mandatory = $false)]
-    [ValidateSet("00-onboarding", "01-planning", "02-design", "03-testing", "04-implementation", "05-validation", "06-maintenance", "07-deployment", "support", "cyclical")]
+    [ValidateSet("00-setup", "01-planning", "02-design", "03-testing", "04-implementation", "05-validation", "06-maintenance", "07-deployment", "support", "cyclical")]
     [string]$WorkflowPhase = "01-planning",
 
     [Parameter(Mandatory = $false)]
@@ -167,7 +167,7 @@ try {
 
             # Validate doc/process-framework/ai-tasks.md structure matches script expectations
             $expectedSections = @(
-                "### 🎓 00 - Onboarding Tasks",
+                "### 🎓 00 - Setup Tasks",
                 "### 📋 01 - Planning Tasks",
                 "### 🎨 02 - Design Tasks",
                 "### 🧪 03 - Testing Tasks",
@@ -210,7 +210,7 @@ try {
 
             # Map workflow phase to section header (doc/process-framework/ai-tasks.md uses phase-based sections)
             $phaseToSection = @{
-                "00-onboarding" = "### 🎓 00 - Onboarding Tasks"
+                "00-setup" = "### 🎓 00 - Setup Tasks"
                 "01-planning" = "### 📋 01 - Planning Tasks"
                 "02-design" = "### 🎨 02 - Design Tasks"
                 "03-testing" = "### 🧪 03 - Testing Tasks"

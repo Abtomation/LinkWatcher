@@ -61,7 +61,7 @@ Systematically validates selected features for AI agent workflow continuity, ens
 
 > **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished! 🚨**
 >
-> **⚠️ MANDATORY: Use the ../../scripts/file-creation/05-validation/New-ValidationReport.ps1 script for generating validation reports.**
+> **⚠️ MANDATORY: Use the [..\..\scripts\file-creation\05-validation\New-ValidationReport.ps1](../../scripts/file-creation/05-validation/New-ValidationReport.ps1) script for generating validation reports.**
 >
 > **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
 >
@@ -85,7 +85,7 @@ Systematically validates selected features for AI agent workflow continuity, ens
    ```powershell
    # Navigate to validation directory and create AI agent continuity report
    Set-Location "doc/product-docs/validation"
-    ..\scripts\file-creation\New-ValidationReport.ps1 -ValidationType "AIAgentContinuity" -FeatureIds "workflow-optimization" -SessionNumber 1
+    ..\..\scripts\file-creation\05-validation\New-ValidationReport.ps1 -ValidationType "AIAgentContinuity" -FeatureIds "workflow-optimization" -SessionNumber 1
    ```
 11. **Score Continuity Criteria**: Apply 4-point scoring system (0-3) to each AI agent continuity criterion
 12. **Document Findings**: Record specific workflow bottlenecks, context gaps, and optimization recommendations

@@ -12,6 +12,7 @@ from .config.settings import LinkWatcherConfig
 from .logging import LogTimer, get_logger
 from .models import LinkReference
 from .parsers import (
+    BaseParser,
     DartParser,
     GenericParser,
     JsonParser,
@@ -126,7 +127,7 @@ class LinkParser:
             )
             return []
 
-    def add_parser(self, extension: str, parser):
+    def add_parser(self, extension: str, parser: BaseParser):
         """Add a custom parser for a specific file extension."""
         self.parsers[extension.lower()] = parser
 

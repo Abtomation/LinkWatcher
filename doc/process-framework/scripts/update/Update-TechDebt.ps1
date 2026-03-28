@@ -6,8 +6,8 @@ Automates technical debt lifecycle management in the Technical Debt Tracker stat
 
 .DESCRIPTION
 This script automates debt item lifecycle management in technical-debt-tracking.md.
-Optionally updates a foundational validation tracking file when resolving debt items
-tracked in foundational validation (via -FoundationalNote and -FoundationalTrackingPath parameters).
+Optionally updates the validation tracking file when resolving or adding debt items
+tracked in validation (via -ValidationNote and -ValidationIssueId parameters).
 
 Supports three operation modes:
 1. Add new debt item: Generates next TD### ID, inserts row into Registry table, optionally
@@ -32,7 +32,7 @@ Description of the technical debt item (required for Add).
 
 .PARAMETER Category
 Category of the debt item (required for Add). Valid values:
-Architectural, Code Quality, Testing, Documentation, Performance, Security, Accessibility, UX
+Architectural, Code Quality, Testing, Documentation, Performance, Security, Accessibility, UX, Integration, Data Integrity, Observability
 
 .PARAMETER Location
 Location/path where the debt exists (required for Add). E.g., "linkwatcher/parsers/"
@@ -57,26 +57,29 @@ Additional notes about the debt item (optional for Add).
 The technical debt ID to update (e.g., "TD005"). Required for status updates.
 
 .PARAMETER NewStatus
-The new status. Valid values: Open, InProgress, Resolved. Required for status updates.
+The new status. Valid values: Open, InProgress, Resolved, Rejected. Required for status updates.
+Rejected items are moved to the Recently Resolved section (same as Resolved) with their rejection rationale preserved in the Notes column.
 
 .PARAMETER ResolutionNotes
-Description of what was done. Required when NewStatus is Resolved.
+Description of what was done. Required when NewStatus is Resolved or Rejected.
 Appended to the Notes column in the Recently Resolved table.
 
 .PARAMETER PlanLink
 Optional markdown link to the refactoring plan (e.g., "[TD006](../../../product-docs/refactoring/plans/archive/td006.md)").
 When provided, replaces the plain ID in the Recently Resolved table.
 
-.PARAMETER FoundationalNote
-Optional status text for the Critical Issues Tracking table in the foundational validation tracking file.
-Used together with -FoundationalTrackingPath. When both are provided (and NewStatus is Resolved),
-updates the matching row's Status column.
-Example: "Resolved (PF-REF-042, reduced to 681 LOC)"
+.PARAMETER ValidationNote
+Optional status text for the validation tracking file's issue tables.
+When provided (and NewStatus is Resolved), finds the row whose "Tracked As" column contains
+the DebtId and updates Status to "RESOLVED" and Assigned Session to this note.
+The validation tracking file is auto-discovered from doc/product-docs/state-tracking/temporary/validation/.
+Example: "PD-REF-042 — docstring added documenting precedence order"
 
-.PARAMETER FoundationalTrackingPath
-Optional absolute path to the validation-tracking.md file.
-Required together with -FoundationalNote for updating the Critical Issues Tracking table.
-Example: "c:\project\doc\product-docs\state-tracking\temporary\validation-tracking.md"
+.PARAMETER ValidationIssueId
+Optional validation issue ID (e.g., "R2-M-005") to link a debt item to a validation tracking row.
+On -Add: writes the newly assigned TD### into the "Tracked As" column of the matching issue row.
+On -Resolved (with -ValidationNote): not needed — the script searches by DebtId in "Tracked As" column.
+The validation tracking file is auto-discovered from doc/product-docs/state-tracking/temporary/validation/.
 
 .EXAMPLE
 # Add a new debt item
@@ -95,12 +98,20 @@ Example: "c:\project\doc\product-docs\state-tracking\temporary\validation-tracki
 .\Update-TechDebt.ps1 -DebtId "TD011" -NewStatus "Resolved" -ResolutionNotes "Replaced bare except: with except Exception:"
 
 .EXAMPLE
+# Reject a debt item (Won't Fix)
+.\Update-TechDebt.ps1 -DebtId "TD064" -NewStatus "Rejected" -ResolutionNotes "Rejected: All decisions are module-local and already documented via inline comments."
+
+.EXAMPLE
 # Resolve with plan link
 .\Update-TechDebt.ps1 -DebtId "TD006" -NewStatus "Resolved" -ResolutionNotes "Extracted public API methods." -PlanLink "[TD006](../../../product-docs/refactoring/plans/archive/td006-encapsulation-violation-fix.md)"
 
 .EXAMPLE
-# Resolve with foundational validation tracking update
-.\Update-TechDebt.ps1 -DebtId "TD022" -NewStatus "Resolved" -ResolutionNotes "Extracted ReferenceLookup class" -FoundationalNote "Resolved (PF-REF-042, reduced to 681 LOC)" -FoundationalTrackingPath "c:\project\doc\product-docs\state-tracking\temporary\validation-tracking.md"
+# Add a new debt item linked to a validation issue (auto-fills "Tracked As" column)
+.\Update-TechDebt.ps1 -Add -Description "Missing ADR for decisions" -Category "Architectural" -Location "linkwatcher/validator.py" -Priority "Medium" -EstimatedEffort "2 hours" -ValidationIssueId "R2-M-001"
+
+.EXAMPLE
+# Resolve with validation tracking update (auto-discovers validation-tracking file)
+.\Update-TechDebt.ps1 -DebtId "TD022" -NewStatus "Resolved" -ResolutionNotes "Extracted ReferenceLookup class" -ValidationNote "PD-REF-042 — reduced to 681 LOC"
 
 .NOTES
 This script is part of the Technical Debt automation system and integrates with:
@@ -111,7 +122,7 @@ This script is part of the Technical Debt automation system and integrates with:
 
 Updates the following files:
 - doc/product-docs/state-tracking/permanent/technical-debt-tracking.md (always)
-- Foundational validation tracking file at -FoundationalTrackingPath (when -FoundationalNote and -FoundationalTrackingPath are provided)
+- Validation tracking file (auto-discovered, when -ValidationNote or -ValidationIssueId are provided)
 #>
 
 [CmdletBinding(SupportsShouldProcess, DefaultParameterSetName = 'StatusUpdate')]
@@ -124,7 +135,7 @@ param(
     [string]$Description,
 
     [Parameter(Mandatory = $true, ParameterSetName = 'AddNew')]
-    [ValidateSet("Architectural", "Code Quality", "Testing", "Documentation", "Performance", "Security", "Accessibility", "UX")]
+    [ValidateSet("Architectural", "Code Quality", "Testing", "Documentation", "Performance", "Security", "Accessibility", "UX", "Integration", "Data Integrity", "Observability")]
     [string]$Category,
 
     [Parameter(Mandatory = $true, ParameterSetName = 'AddNew')]
@@ -152,7 +163,7 @@ param(
     [string]$DebtId,
 
     [Parameter(Mandatory = $true, ParameterSetName = 'StatusUpdate')]
-    [ValidateSet("Open", "InProgress", "Resolved")]
+    [ValidateSet("Open", "InProgress", "Resolved", "Rejected")]
     [string]$NewStatus,
 
     [Parameter(Mandatory = $false, ParameterSetName = 'StatusUpdate')]
@@ -162,10 +173,11 @@ param(
     [string]$PlanLink,
 
     [Parameter(Mandatory = $false, ParameterSetName = 'StatusUpdate')]
-    [string]$FoundationalNote,
+    [string]$ValidationNote,
 
+    [Parameter(Mandatory = $false, ParameterSetName = 'AddNew')]
     [Parameter(Mandatory = $false, ParameterSetName = 'StatusUpdate')]
-    [string]$FoundationalTrackingPath
+    [string]$ValidationIssueId
 )
 
 # --- Configuration ---
@@ -205,8 +217,8 @@ function Test-Prerequisites {
     }
 
     if ($PSCmdlet.ParameterSetName -eq 'StatusUpdate') {
-        if ($NewStatus -eq "Resolved" -and -not $ResolutionNotes) {
-            Write-Log "ResolutionNotes is required when transitioning to Resolved" -Level "ERROR"
+        if ($NewStatus -in @("Resolved", "Rejected") -and -not $ResolutionNotes) {
+            Write-Log "ResolutionNotes is required when transitioning to $NewStatus" -Level "ERROR"
             return $false
         }
     }
@@ -486,29 +498,103 @@ function Update-FrontmatterDate {
     return $result
 }
 
-function Update-FoundationalValidationTracking {
+function Find-ValidationTrackingFile {
     <#
     .SYNOPSIS
-    Updates the Critical Issues Tracking table in validation-tracking.md
-    when a tech debt item is resolved.
+    Auto-discovers the active validation tracking file from the standard directory.
+    Returns $null if not found.
+    #>
+    $valDir = Join-Path -Path $ProjectRoot -ChildPath "doc/product-docs/state-tracking/temporary/validation"
+    if (-not (Test-Path $valDir)) {
+        Write-Log "Validation tracking directory not found: $valDir" -Level "WARN"
+        return $null
+    }
+
+    # Find validation-tracking*.md files excluding archive directory
+    $valFiles = Get-ChildItem -Path $valDir -Filter "validation-tracking*.md" -File -ErrorAction SilentlyContinue
+    if ($valFiles.Count -eq 0) {
+        Write-Log "No validation tracking file found in $valDir" -Level "WARN"
+        return $null
+    }
+
+    # If multiple files, pick the one with the highest number suffix
+    $selected = $valFiles | Sort-Object Name -Descending | Select-Object -First 1
+    Write-Log "Auto-discovered validation tracking file: $($selected.Name)"
+    return $selected.FullName
+}
+
+function Update-ValidationTrackingLink {
+    <#
+    .SYNOPSIS
+    Writes a TD### ID into the "Tracked As" column of a validation issue row.
+    Used when adding new debt items linked to validation issues.
+    #>
+    [CmdletBinding(SupportsShouldProcess)]
+    param(
+        [string]$ValidationIssueId,
+        [string]$DebtId,
+        [string]$TrackingFilePath
+    )
+
+    $content = Get-Content $TrackingFilePath -Raw
+    $lines = [System.Collections.ArrayList]@($content -split "\r?\n")
+
+    # Find the row matching the validation issue ID in Critical Issues Tracking section
+    # Table columns: | Issue ID | Feature | Validation Type | Severity | Description | Status | Tracked As | Assigned Session |
+    $inCriticalSection = $false
+    $rowIndex = -1
+    for ($i = 0; $i -lt $lines.Count; $i++) {
+        if ($lines[$i] -match '## Critical Issues Tracking') { $inCriticalSection = $true; continue }
+        if ($inCriticalSection -and $lines[$i] -match '^## (?!Critical Issues Tracking)') { break }
+        if ($inCriticalSection -and $lines[$i] -match "^\|\s*$ValidationIssueId\s*\|") {
+            $rowIndex = $i
+            break
+        }
+    }
+
+    if ($rowIndex -eq -1) {
+        Write-Log "$ValidationIssueId not found in validation tracking Critical Issues Tracking — skipping" -Level "WARN"
+        return
+    }
+
+    # Parse the row and update the "Tracked As" column (index 6)
+    $row = $lines[$rowIndex]
+    $columns = $row -split '\|' | ForEach-Object { $_.Trim() }
+    if ($columns[0] -eq '') { $columns = $columns[1..($columns.Length - 1)] }
+    if ($columns[-1] -eq '') { $columns = $columns[0..($columns.Length - 2)] }
+
+    $columns[6] = $DebtId
+    $updatedRow = "| " + ($columns -join " | ") + " |"
+    $lines[$rowIndex] = $updatedRow
+
+    $updatedContent = ($lines -join "`r`n")
+    $updatedContent = $updatedContent -replace '(?<=^updated:\s*)\d{4}-\d{2}-\d{2}', $CurrentDate
+
+    if ($PSCmdlet.ShouldProcess($TrackingFilePath, "Link $ValidationIssueId to $DebtId in Tracked As column")) {
+        Set-Content -Path $TrackingFilePath -Value $updatedContent -NoNewline
+        Write-Log "Linked $ValidationIssueId → $DebtId in $($TrackingFilePath | Split-Path -Leaf)" -Level "SUCCESS"
+    }
+}
+
+function Update-ValidationTracking {
+    <#
+    .SYNOPSIS
+    Updates a validation issue row when resolving a linked tech debt item.
+    Searches the "Tracked As" column for the DebtId, then sets Status to RESOLVED
+    and Assigned Session to the provided note.
     #>
     [CmdletBinding(SupportsShouldProcess)]
     param(
         [string]$DebtId,
-        [string]$FoundationalNote,
-        [string]$FoundationalTrackingPath
+        [string]$ValidationNote,
+        [string]$TrackingFilePath
     )
 
-    if (-not (Test-Path $FoundationalTrackingPath)) {
-        Write-Log "Foundational validation tracking file not found: $FoundationalTrackingPath" -Level "WARN"
-        return
-    }
-
-    $content = Get-Content $FoundationalTrackingPath -Raw
+    $content = Get-Content $TrackingFilePath -Raw
     $lines = [System.Collections.ArrayList]@($content -split "\r?\n")
 
-    # Find the row in "Critical Issues Tracking" where "Tracked As" column contains the DebtId
-    # Table columns: | Issue | Severity | Source Report | Feature | Tracked As | Status |
+    # Find the row in Critical Issues Tracking where "Tracked As" column contains the DebtId
+    # Table columns: | Issue ID | Feature | Validation Type | Severity | Description | Status | Tracked As | Assigned Session |
     $inCriticalSection = $false
     $rowIndex = -1
     for ($i = 0; $i -lt $lines.Count; $i++) {
@@ -521,17 +607,18 @@ function Update-FoundationalValidationTracking {
     }
 
     if ($rowIndex -eq -1) {
-        Write-Log "$DebtId not found in validation-tracking.md Critical Issues Tracking — skipping" -Level "WARN"
+        Write-Log "$DebtId not found in validation tracking Tracked As column — skipping" -Level "WARN"
         return
     }
 
-    # Parse the row and update the Status column (last column, index 5)
+    # Parse the row and update Status (index 5) and Assigned Session (index 7)
     $row = $lines[$rowIndex]
     $columns = $row -split '\|' | ForEach-Object { $_.Trim() }
     if ($columns[0] -eq '') { $columns = $columns[1..($columns.Length - 1)] }
     if ($columns[-1] -eq '') { $columns = $columns[0..($columns.Length - 2)] }
 
-    $columns[5] = $FoundationalNote
+    $columns[5] = "RESOLVED"
+    $columns[7] = $ValidationNote
     $updatedRow = "| " + ($columns -join " | ") + " |"
     $lines[$rowIndex] = $updatedRow
 
@@ -539,9 +626,9 @@ function Update-FoundationalValidationTracking {
     $updatedContent = ($lines -join "`r`n")
     $updatedContent = $updatedContent -replace '(?<=^updated:\s*)\d{4}-\d{2}-\d{2}', $CurrentDate
 
-    if ($PSCmdlet.ShouldProcess($FoundationalTrackingPath, "Update $DebtId status to '$FoundationalNote'")) {
-        Set-Content -Path $FoundationalTrackingPath -Value $updatedContent -NoNewline
-        Write-Log "Updated $DebtId in $($FoundationalTrackingPath | Split-Path -Leaf): $FoundationalNote" -Level "SUCCESS"
+    if ($PSCmdlet.ShouldProcess($TrackingFilePath, "Update $DebtId status to RESOLVED with note '$ValidationNote'")) {
+        Set-Content -Path $TrackingFilePath -Value $updatedContent -NoNewline
+        Write-Log "Updated $DebtId in $($TrackingFilePath | Split-Path -Leaf): RESOLVED — $ValidationNote" -Level "SUCCESS"
     }
 }
 
@@ -598,6 +685,14 @@ function Main {
             Update-DebtItemFile -DebtItemId $DebtItemId -RegistryId $newDebtId
         }
 
+        # Link to validation tracking if ValidationIssueId is provided
+        if ($ValidationIssueId) {
+            $valFile = Find-ValidationTrackingFile
+            if ($valFile) {
+                Update-ValidationTrackingLink -ValidationIssueId $ValidationIssueId -DebtId $newDebtId -TrackingFilePath $valFile
+            }
+        }
+
         Write-Log "Technical debt item added successfully with ID: $newDebtId" -Level "SUCCESS"
         Write-Log "Updated file: $TargetFile"
     }
@@ -607,7 +702,7 @@ function Main {
         # Single read-modify-write cycle
         $content = Get-Content $TargetFile -Raw
 
-        $isResolution = $NewStatus -eq "Resolved"
+        $isResolution = $NewStatus -in @("Resolved", "Rejected")
 
         if ($isResolution) {
             # Move row from Registry to Recently Resolved
@@ -634,10 +729,13 @@ function Main {
             Set-Content -Path $TargetFile -Value $content -NoNewline
         }
 
-        # Update validation-tracking.md if FoundationalNote and path are provided
+        # Update validation tracking if ValidationNote is provided
         # (has its own ShouldProcess guard internally)
-        if ($isResolution -and $FoundationalNote -and $FoundationalTrackingPath) {
-            Update-FoundationalValidationTracking -DebtId $DebtId -FoundationalNote $FoundationalNote -FoundationalTrackingPath $FoundationalTrackingPath
+        if ($isResolution -and $ValidationNote) {
+            $valFile = Find-ValidationTrackingFile
+            if ($valFile) {
+                Update-ValidationTracking -DebtId $DebtId -ValidationNote $ValidationNote -TrackingFilePath $valFile
+            }
         }
 
         Write-Log "Technical debt update completed successfully" -Level "SUCCESS"

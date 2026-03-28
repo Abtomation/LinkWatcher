@@ -164,6 +164,28 @@ template_for: Enhancement State Tracking
 
 ---
 
+### Step 10: State Management Implementation
+
+- **Status**: [ ] Not started
+- **Applicable**: [Yes / No — required when enhancement changes state management, providers, or notifiers]
+- **Referenced Task Doc**: [State Management Implementation (PF-TSK-052)](../../tasks/04-implementation/state-management-implementation.md)
+- **Rationale**: [Why state management changes are or are not needed — e.g., "Enhancement adds new provider for reactive state" or "Not applicable — no state management layer in this project"]
+- **Adaptation Notes**: [Extend existing state management rather than creating new patterns. Specify which providers, stores, or notifiers are affected.]
+- **Deliverable**: [Updated state management layer, or N/A]
+- **Session**: [1 / 2 / ...]
+
+---
+
+### Step 11: UI Implementation
+
+- **Status**: [ ] Not started
+- **Applicable**: [Yes / No — required when enhancement changes user interface components, widgets, or screens]
+- **Referenced Task Doc**: [UI Implementation (PF-TSK-050)](../../tasks/04-implementation/ui-implementation.md)
+- **Rationale**: [Why UI changes are or are not needed — e.g., "Enhancement adds new settings screen" or "Not applicable — no UI in this project"]
+- **Adaptation Notes**: [Extend existing UI components rather than creating new patterns. Specify which screens, widgets, or layouts are affected.]
+- **Deliverable**: [Updated UI components, or N/A]
+- **Session**: [1 / 2 / ...]
+
 ---
 
 ### Step 12: Integration & Testing
@@ -226,7 +248,19 @@ template_for: Enhancement State Tracking
 
 ---
 
-### Step 17: Update Feature State
+### Step 17: User Documentation
+
+- **Status**: [ ] Not started
+- **Applicable**: [Yes / No — set by Feature Request Evaluation based on user-visible behavior]
+- **Referenced Task Doc**: [User Documentation Creation (PF-TSK-081)](../../tasks/07-deployment/user-documentation-creation.md)
+- **Rationale**: [Why user docs are or are not needed — e.g., "Enhancement adds new CLI option visible to users" or "Not applicable — internal refactoring with no user-facing change"]
+- **Adaptation Notes**: [Create or update handbooks in doc/product-docs/user/handbooks/. A feature may have multiple handbook entries.]
+- **Deliverable**: [New or updated handbook(s), or N/A]
+- **Session**: [1 / 2 / ...]
+
+---
+
+### Step 18: Update Feature State
 
 - **Status**: [ ] Not started
 - **Applicable**: [Yes — always required]
@@ -249,7 +283,7 @@ template_for: Enhancement State Tracking
 
 ### Session 2: [Focus Area]
 
-**Planned Steps**: [Step numbers, e.g., Steps 9-17]
+**Planned Steps**: [Step numbers, e.g., Steps 9-18]
 **Goal**: [What should be complete by end of session]
 
 ## Session Log

@@ -134,7 +134,7 @@ if (-not $ValidationDate) {
 
 # Get project root and define file paths
 $projectRoot = Get-ProjectRoot
-$validationTrackingPath = Join-Path $projectRoot "doc/product-docs/state-tracking/temporary/validation-tracking.md"
+$validationTrackingPath = Join-Path $projectRoot "doc/product-docs/state-tracking/temporary/validation/archive/validation-tracking-1.md"
 $documentationMapPath = Join-Path $projectRoot "doc/process-framework/documentation-map.md"
 $featureTrackingPath = Join-Path $projectRoot "doc/product-docs/state-tracking/permanent/feature-tracking.md"
 

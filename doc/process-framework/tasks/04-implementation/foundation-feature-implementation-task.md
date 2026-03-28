@@ -123,13 +123,14 @@ Specialized task for implementing foundation features (0.x.x) that provide archi
     Set-Location "doc/process-framework/scripts/file-creation"
 
     # Create bug report for issues found during foundation implementation
-    ../../scripts/file-creation/06-maintenance/New-BugReport.ps1 -Title "Foundation module causes circular dependency" -Description "New foundation module creates circular dependency between service components" -DiscoveredBy "Feature Implementation" -Severity "Critical" -Component "Core Foundation" -Environment "Development" -Evidence "Architecture analysis: circular dependency in src/core/"
+    ../../scripts/file-creation/06-maintenance/New-BugReport.ps1 -Title "Foundation module causes circular dependency" -Description "New foundation module creates circular dependency between service components" -DiscoveredBy "FeatureImplementation" -Severity "Critical" -Component "Core Foundation" -Environment "Development" -Evidence "Architecture analysis: circular dependency in src/core/"
     ```
 
 13. **Update Architecture Tracking**: Record the foundation implementation in [Architecture Tracking](../../../product-docs/state-tracking/permanent/architecture-tracking.md)
 14. **Verify Cross-Cutting Integration**: Ensure the foundation properly integrates with existing system components
 15. **Document Usage Patterns**: Update documentation to show how other features should interact with this foundation
-16. **Run Foundational Validation**: Execute automated validation to ensure implementation meets foundational standards:
+16. **Flag User Documentation Status**: If this foundation feature has user-visible behavior (CLI options, configuration, workflows), set the User Documentation section in the feature implementation state file to `❌ Needed`. This triggers [User Documentation Creation](../07-deployment/user-documentation-creation.md) later in the workflow. If the feature is internal-only, set to `N/A`.
+17. **Run Foundational Validation**: Execute automated validation to ensure implementation meets foundational standards:
 
     **Quick Health Check** (recommended for immediate feedback):
 
@@ -168,7 +169,7 @@ Specialized task for implementing foundation features (0.x.x) that provide archi
     - `AIAgentContinuity` - Validates code readability and context optimization
     - `All` - Runs all validation types (recommended)
 
-17. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+18. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 

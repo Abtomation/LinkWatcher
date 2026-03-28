@@ -51,7 +51,7 @@ The critical operation `get_references_to_file(target)` returns all references w
 
 ### 2. Single `threading.Lock` for All Operations
 
-All public database methods (`add_link`, `get_references_to_file`, `update_target_path`, `remove_file_links`, `remove_targets_by_path`, `get_all_targets_with_references`, `get_source_files`, `clear`, `get_stats`) acquire a single `threading.Lock` before accessing the dictionary:
+All public database methods (`add_link`, `remove_file_links`, `get_references_to_file`, `update_target_path`, `remove_targets_by_path`, `get_all_targets_with_references`, `get_source_files`, `has_target_with_basename`, `clear`, `get_stats`) acquire a single `threading.Lock` before accessing the dictionary:
 
 ```python
 self._lock = threading.Lock()
@@ -79,13 +79,13 @@ This handles the practical reality that parsers store links as they appear in so
 - **Simple thread safety**: Single lock eliminates deadlock risk and is straightforward to reason about; event rate (human-speed file operations) never saturates the lock
 - **Resilient lookups**: Three-level path resolution handles the full diversity of link storage formats without requiring parsers to normalize before storing
 - **Memory-efficient**: Single structure (target-indexed only) rather than maintaining both forward and reverse indexes
-- **Clean separation**: Database is a pure repository — no business logic; all consumers interact through a consistent 9-method public API
+- **Clean separation**: Database is a pure repository — no business logic; all consumers interact through a consistent 10-method public API
 
 ### Negative
 
 - **Source lookup is O(n)**: Querying "what does this file link to?" requires a full scan of all values — acceptable because this pattern is never used in the core workflow
 - **In-memory only**: All data is lost on service restart, requiring a fresh initial scan to rebuild the database on each run
-- **No uniqueness enforcement**: Duplicate `add_link()` calls store duplicate entries — callers are responsible for avoiding redundant additions
+- **Duplicate guard**: `add_link()` skips insertion when a reference with the same source file, line number, and column already exists under the same target key (TD100)
 - **Lock serialization**: All concurrent database operations serialize under one lock — if event throughput increases dramatically, per-key locking would be needed (not a current concern)
 
 ## Alternatives

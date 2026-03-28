@@ -53,7 +53,7 @@ function Update-TestImplementationStatus {
 
     .EXAMPLE
     $additionalUpdates = @{
-        "Test File" = "[PD-TST-001](test/unit/example_test)"
+        "Test File" = "[TE-TST-001](test/unit/example_test)"
         "Test Cases Count" = "15"
     }
     Update-TestImplementationStatus -FeatureId "1.2.3" -Status "🟡 Implementation In Progress" -AdditionalUpdates $additionalUpdates

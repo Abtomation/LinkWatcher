@@ -72,6 +72,5 @@ graph TD
 - [Architecture Decision Creation Guide](../../../guides/02-design/architecture-decision-creation-guide.md) - Comprehensive customization guide
 - [ADR Template](../../../templates/02-design/adr-template.md) - Template structure and sections
 - [New-ArchitectureDecision.ps1](../../../scripts/file-creation/02-design/New-ArchitectureDecision.ps1) - ADR creation script
-<!-- [Component Relationship Index](../../../../product-docs/technical/architecture/component-relationship-index.md) - Removed: file deleted -->
 
 ---

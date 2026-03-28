@@ -53,8 +53,6 @@ updated: 2025-05-30
 
 [List related documents with links.]
 
-- <!-- [Related Document 1](/doc/path/to/document1.md) - Template/example link commented out -->
-- <!-- [Related Document 2](/doc/path/to/document2.md) - Template/example link commented out -->
 
 ## Glossary
 

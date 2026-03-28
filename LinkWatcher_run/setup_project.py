@@ -138,11 +138,26 @@ Read-Host "Press Enter to exit"
     ps_background_content = f"""# LinkWatcher Background Starter for this project
 Write-Host "Starting LinkWatcher in background for this project..." -ForegroundColor Cyan
 
+# Ensure logs subdirectory exists
+$scriptDir = if ($PSScriptRoot) {{ $PSScriptRoot }} else {{ (Get-Location).Path }}
+$logsDir = Join-Path $scriptDir "logs"
+if (-not (Test-Path $logsDir)) {{ New-Item -ItemType Directory -Path $logsDir -Force | Out-Null }}
+
+$logFile = Join-Path $logsDir "LinkWatcherLog.txt"
+$stdoutLog = Join-Path $logsDir "LinkWatcherStdout.txt"
+$stderrLog = Join-Path $logsDir "LinkWatcherError.txt"
+
 # Start the LinkWatcher in background using Start-Process
-$process = Start-Process -FilePath "python" -ArgumentList "{linkwatcher_dir / 'main.py'}" -WindowStyle Hidden -PassThru
+$process = Start-Process -FilePath "python" ``
+    -ArgumentList "{linkwatcher_dir / 'main.py'} --log-file `"$logFile`" --debug" ``
+    -WindowStyle Hidden -PassThru ``
+    -RedirectStandardOutput $stdoutLog ``
+    -RedirectStandardError $stderrLog
 
 if ($process) {{
-    Write-Host "LinkWatcher started successfully in background (PID: $($process.Id))" -ForegroundColor Green
+    Write-Host ("LinkWatcher started successfully in background " +
+        "(PID: $($process.Id))") -ForegroundColor Green
+    Write-Host "  Log file: $logFile" -ForegroundColor Green
 }} else {{
     Write-Host "Failed to start LinkWatcher" -ForegroundColor Red
 }}

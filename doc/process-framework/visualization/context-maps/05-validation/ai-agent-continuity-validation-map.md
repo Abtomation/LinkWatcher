@@ -101,7 +101,7 @@ graph TD
 4. **Evaluate Documentation Quality**: Assess context maps, guides, and documentation for AI agent workflow support
 5. **Review Session Continuity**: Examine state tracking patterns for multi-session workflow effectiveness
 6. **Optimize Workflow Patterns**: Analyze overall task structure and process guidance for AI agent efficiency
-7. **Generate Validation Report**: Use ../../scripts/file-creation/New-ValidationReport.ps1 script with AIAgentContinuity validation type
+7. **Generate Validation Report**: Use [../../scripts/file-creation/05-validation/New-ValidationReport.ps1](../../../scripts/file-creation/05-validation/New-ValidationReport.ps1) script with AIAgentContinuity validation type
 8. **Update Tracking**: Update Validation Tracking matrix and Documentation Map with new report
 9. **Reference Support Systems**: Access AI Tasks, Templates, and Guides only when specific workflow analysis is needed
 
@@ -115,4 +115,3 @@ graph TD
 - [../../scripts/file-creation/New-ValidationReport.ps1](../../../scripts/file-creation/05-validation/New-ValidationReport.ps1) - Automation script for report generation
 
 ---
-

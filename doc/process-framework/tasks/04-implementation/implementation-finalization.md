@@ -33,7 +33,6 @@ Complete remaining items and prepare feature for production deployment. This tas
 
 ## Context Requirements
 
-<!-- [View Context Map for this task](../../visualization/context-maps/04-implementation/implementation-finalization-map.md) - To be created -->
 
 - **Critical (Must Read):**
 
@@ -74,7 +73,7 @@ Complete remaining items and prepare feature for production deployment. This tas
 
 6. **Complete Feature Documentation**: Finalize all feature documentation
    - Update code documentation (inline comments, README files)
-   - Create/update user documentation (user guides, API docs)
+   - Create/update user documentation (user guides, API docs) — see [User Documentation Creation](../07-deployment/user-documentation-creation.md) for the full handbook creation workflow. If user docs are not yet created for this feature, flag `❌ Needed` in the feature implementation state file's User Documentation section.
    - Document configuration requirements and environment variables
    - Update architecture diagrams if needed
 7. **Generate Release Notes**: Create comprehensive release notes

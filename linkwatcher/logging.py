@@ -3,6 +3,69 @@ Enhanced logging system for LinkWatcher.
 
 This module provides structured logging with multiple outputs, log levels,
 and contextual information for better debugging and monitoring.
+
+Two-module design
+-----------------
+The logging system is split across two modules:
+
+- **logging.py** (this file): Core logging infrastructure — defines all
+  classes, formatters, the global ``LinkWatcherLogger`` instance, and
+  convenience functions.  This is the module that the rest of the codebase
+  imports (``from .logging import get_logger, setup_logging``).
+
+- **logging_config.py**: Runtime configuration management — loads config
+  from YAML/JSON files, supports auto-reload on file change, and exposes
+  ``LoggingConfigManager``.  It imports *from* this module and delegates
+  all actual logging through the global logger created here.
+
+Dual structlog + stdlib pipeline
+--------------------------------
+``LinkWatcherLogger.__init__`` wires two logging backends together:
+
+1. **structlog** is configured as the *structured event API*.  All
+   application log calls (``logger.info("file_moved", path=...)`` ) flow
+   through structlog processors (timestamping, level filtering, rendering).
+
+2. **stdlib logging** acts as the *transport layer*.  structlog is set up
+   with ``LoggerFactory`` / ``BoundLogger`` from ``structlog.stdlib``, so
+   processed events are handed to a stdlib ``logging.Logger`` which owns
+   the actual handlers:
+
+   - ``ColoredFormatter`` on a ``StreamHandler`` → coloured console output
+   - ``JSONFormatter`` on a ``TimestampRotatingFileHandler`` → structured
+     JSON file logs with timestamp-based rotation
+
+Key classes
+-----------
+- ``LinkWatcherLogger`` — facade that owns both the stdlib logger and a
+  structlog bound logger, plus a ``PerformanceLogger`` for timing.
+- ``ColoredFormatter`` / ``JSONFormatter`` — stdlib formatters for console
+  and file output respectively.
+- ``TimestampRotatingFileHandler`` — ``RotatingFileHandler`` subclass that
+  names rotated files with timestamps instead of numeric suffixes.
+- ``PerformanceLogger`` — thread-safe operation timer with metric logging.
+- ``LogTimer`` — context manager for timing code blocks.
+- ``LogContext`` — thread-local key-value context injected into log records.
+
+AI Context
+----------
+- **Entry point**: ``get_logger()`` returns the global
+  ``LinkWatcherLogger`` singleton; ``setup_logging()`` initializes it.
+  All other modules import only these two plus ``LogTimer`` and
+  ``with_context``.
+- **Delegation**: logging.py owns infrastructure; logging_config.py
+  owns runtime config.  The config module imports *from* this module,
+  never the reverse.
+- **Common tasks**:
+  - Changing log format: modify ``ColoredFormatter.format()`` (console)
+    or ``JSONFormatter.format()`` (file).
+  - Adding a log output: add a new stdlib handler in
+    ``LinkWatcherLogger.__init__`` alongside the existing stream and
+    file handlers.
+  - Debugging log filtering: check ``LogFilter`` and structlog
+    processor chain in ``_configure_structlog()``.
+  - Module-level helpers: ``get_logger()``, ``setup_logging()``,
+    ``reset_logger()``, ``with_context()``, ``LogTimer``.
 """
 
 import glob
@@ -44,14 +107,27 @@ class TimestampRotatingFileHandler(logging.handlers.RotatingFileHandler):
 
         # Rename current log to timestamped backup
         if os.path.exists(self.baseFilename):
-            os.rename(self.baseFilename, backup_name)
+            try:
+                os.rename(self.baseFilename, backup_name)
+            except OSError as e:
+                print(
+                    f"WARNING: Log rotation failed to rename "
+                    f"{self.baseFilename} -> {backup_name}: {e}",
+                    file=sys.stderr,
+                )
 
         # Clean up old backups (keep only backupCount most recent)
         if self.backupCount > 0:
             pattern = f"{base}_*{ext}"
             backups = sorted(glob.glob(pattern), reverse=True)
-            for old_backup in backups[self.backupCount:]:
-                os.remove(old_backup)
+            for old_backup in backups[self.backupCount :]:
+                try:
+                    os.remove(old_backup)
+                except OSError as e:
+                    print(
+                        f"WARNING: Log rotation failed to remove " f"old backup {old_backup}: {e}",
+                        file=sys.stderr,
+                    )
 
         if not self.delay:
             self.stream = self._open()
@@ -171,7 +247,10 @@ class ColoredFormatter(logging.Formatter):
 
         # Build final message
         if self.colored:
-            formatted = f"{color}{icon} {timestamp} {level_name:8} {record.name:20} {message}{context_str}{reset}"
+            formatted = (
+                f"{color}{icon} {timestamp} {level_name:8} "
+                f"{record.name:20} {message}{context_str}{reset}"
+            )
         else:
             formatted = f"{timestamp} {level_name:8} {record.name:20} {message}{context_str}"
 
@@ -519,39 +598,3 @@ class LogTimer:
             )
         else:
             self.logger.debug(f"completed_{self.operation}", **self.kwargs)
-
-
-# Backward compatibility functions for easy migration
-def log_file_moved(old_path: str, new_path: str, references_count: int = 0):
-    """Log file move event (backward compatibility)."""
-    get_logger().file_moved(old_path, new_path, references_count)
-
-
-def log_file_deleted(file_path: str, references_count: int = 0):
-    """Log file deletion event (backward compatibility)."""
-    get_logger().file_deleted(file_path, references_count)
-
-
-def log_links_updated(file_path: str, references_updated: int):
-    """Log link update event (backward compatibility)."""
-    get_logger().links_updated(file_path, references_updated)
-
-
-def log_error(message: str, **kwargs):
-    """Log error message (backward compatibility)."""
-    get_logger().error(message, **kwargs)
-
-
-def log_warning(message: str, **kwargs):
-    """Log warning message (backward compatibility)."""
-    get_logger().warning(message, **kwargs)
-
-
-def log_info(message: str, **kwargs):
-    """Log info message (backward compatibility)."""
-    get_logger().info(message, **kwargs)
-
-
-def log_debug(message: str, **kwargs):
-    """Log debug message (backward compatibility)."""
-    get_logger().debug(message, **kwargs)

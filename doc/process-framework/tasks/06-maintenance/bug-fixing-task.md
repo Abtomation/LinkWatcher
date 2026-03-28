@@ -69,6 +69,7 @@ Diagnose, fix, and verify solutions for reported bugs or issues in the applicati
    .\New-BugFixState.ps1 -BugId "PD-BUG-XXX" -BugTitle "Bug Title" -Severity "High" -AffectedFeature "X.Y.Z — Feature Name" -EstimatedSessions 2
    ```
    After creation, **customize the state file to the specific bug**: fill in the Implementation Progress table with the files/components that will need changing, identify which documents need updating in the Documentation Updates table, and outline the resolution plan in the Fix Approach section. This plan serves as the blueprint for the fix and enables session handover.
+   **Notes column rule**: When a state file exists, keep the Notes column in bug-tracking.md minimal — link to the state file and a one-line status summary only. All session progress, root cause details, and fix approaches belong in the state file, not inline.
    For single-session bugs (Small/Medium effort), skip this step — no state file needed.
 5. **Check manual test coverage**: Review [e2e-test-tracking.md](../../../../test/state-tracking/permanent/e2e-test-tracking.md) for existing E2E test cases covering the affected behavior. If no E2E test exists and the bug involves user-observable behavior, consider creating a reproduction test case via [E2E Test Case Creation](../03-testing/e2e-acceptance-test-case-creation-task.md) before fixing.
 6. Reproduce the bug to understand its exact behavior and confirm the issue
@@ -133,6 +134,7 @@ Diagnose, fix, and verify solutions for reported bugs or issues in the applicati
     - Test results (regression tests pass, full suite regression check)
     - Manual validation test results (if applicable, from Step 19)
     - Similar issues found and addressed (from Step 18)
+    > **ADR trigger**: If the fix changed architectural behavior, introduced a new pattern, or made a design trade-off not covered by existing ADRs, recommend creating an ADR via [ADR Creation](../../tasks/02-design/adr-creation-task.md) (PF-TSK-028) as a follow-up task.
 22. Update bug status from 🟡 In Progress to 🧪 Fixed
     - **Automated Option**: Use [`Update-BugStatus.ps1`](../../scripts/update/Update-BugStatus.ps1) script:
       ```powershell
@@ -192,6 +194,7 @@ The following state files must be updated as part of this task:
   - For bugs affecting specific features: Reference related feature ID from [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md)
 - **Conditional — multi-session** (only for Large-effort or architectural bugs):
   - [Bug fix state file](../../../product-docs/state-tracking/temporary/) — created via [`New-BugFixState.ps1`](../../scripts/file-creation/06-maintenance/New-BugFixState.ps1), tracks root cause, fix approach, implementation progress, validation status, and session log. Archive to `product-docs/state-tracking/temporary/old/` when bug is closed.
+  - **Notes column**: When a state file exists, the bug-tracking.md Notes column should contain only a link to the state file and a one-line status summary (e.g., `See [state file](path). Session 2/3 complete.`). Do not duplicate session logs or fix details inline.
 - **Conditional** (only when fix changes technical design or behavior):
   - [Feature implementation state files](../../state-tracking/features/) — update implementation notes, known issues, or status
   - TDD for the affected feature — update technical design descriptions

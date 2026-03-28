@@ -97,8 +97,6 @@ graph TD
 
 ## Related Documentation
 
-<!-- - [UI/UX Design Task](../../tasks/02-design/ui-ux-design-task.md) - Complete task definition with AI agent role and execution steps (task not yet created) -->
-<!-- - [Design Guidelines (PD-UIX-001)](../../../../product-docs/technical/design/ui-ux/design-system/design-guidelines.md) - Living reference for design principles (file not yet created) -->
 - [UI Design Template](../../../templates/02-design/ui-design-template.md) - Comprehensive template for creating UI/UX Design Documents
 - [UI Design Customization Guide](../../../guides/02-design/ui-design-customization-guide.md) - 19-step guide for customizing UI Design templates
 - [Feature Tier Assessment Task](../../../tasks/01-planning/feature-tier-assessment-task.md) - Prerequisite task for determining when UI Design is needed

@@ -220,6 +220,4 @@ If files aren't being created, check that you're not running with `-WhatIf` flag
 
 ## Related Resources
 
-- <!-- [Link to related guide](../../guides/related-guide.md) - Template/example link commented out -->
-- <!-- [Link to relevant API documentation](../../api/relevant-api.md) - File not found -->
 - [External resource](https://example.com)

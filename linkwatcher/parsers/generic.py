@@ -11,6 +11,7 @@ from typing import List
 
 from ..models import LinkReference
 from .base import BaseParser
+from .patterns import QUOTED_DIR_PATTERN, QUOTED_PATH_PATTERN
 
 
 class GenericParser(BaseParser):
@@ -18,13 +19,9 @@ class GenericParser(BaseParser):
 
     def __init__(self):
         super().__init__()
-        # Pattern for quoted file paths
-        # Use permissive match inside quotes — _looks_like_file_path() validates later
-        self.quoted_pattern = re.compile(r'[\'"]([^\'"]+\.[a-zA-Z0-9]+)[\'"]')
-
-        # PD-BUG-021: Pattern for quoted directory paths (paths with separators, no extension required)
-        # Captures quoted strings containing at least one path separator (/ or \)
-        self.quoted_dir_pattern = re.compile(r'[\'"]([^\'"]*[/\\][^\'"]*)[\'"]')
+        self.quoted_pattern = QUOTED_PATH_PATTERN
+        # PD-BUG-021: Quoted directory paths (paths with separators, no extension required)
+        self.quoted_dir_pattern = QUOTED_DIR_PATTERN
 
         # Pattern for unquoted file paths (be conservative)
         self.unquoted_pattern = re.compile(r"(?:^|\s)([a-zA-Z0-9_\-./\\]+\.[a-zA-Z0-9]+)(?:\s|$)")

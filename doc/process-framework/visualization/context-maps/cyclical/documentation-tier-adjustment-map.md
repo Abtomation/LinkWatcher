@@ -73,6 +73,5 @@ graph TD
 - [Assessment Guide](/doc/process-framework/guides/01-planning/assessment-guide.md) - Detailed guide for tier determination
 - [TDD Templates](/doc/product-docs/technical/architecture/design-docs) - Tier-specific TDD templates
 - [Feature Tracking](../../../../product-docs/state-tracking/permanent/feature-tracking.md) - Feature status tracking
-<!-- [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Removed: file deleted -->
 
 ---

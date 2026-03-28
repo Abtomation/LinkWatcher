@@ -102,7 +102,7 @@ graph TD
 4. **Assess Testing Infrastructure**: Review test/ directory for coverage, maintainability, and extension testing support
 5. **Analyze Architectural Flexibility**: Review Technical Design Documents for documented extension points and scalability patterns
 6. **Perform Cross-Cutting Analysis**: Unlike feature-specific validation, this focuses on system-wide extensibility and maintainability concerns
-7. **Generate Validation Report**: Use ../../scripts/file-creation/New-ValidationReport.ps1 script with ExtensibilityMaintainability validation type
+7. **Generate Validation Report**: Use [../../scripts/file-creation/05-validation/New-ValidationReport.ps1](../../../scripts/file-creation/05-validation/New-ValidationReport.ps1) script with ExtensibilityMaintainability validation type
 8. **Update Tracking**: Update Validation Tracking matrix and Documentation Map with new report
 9. **Reference Best Practices**: Access framework, testing, and state management documentation only when specific guidance is needed
 
@@ -118,4 +118,3 @@ graph TD
 - State management documentation - State management extensibility patterns
 
 ---
-

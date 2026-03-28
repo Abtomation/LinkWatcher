@@ -460,8 +460,6 @@ Implementation Planning (this task - PF-TSK-044) →
 ### Architecture and Standards
 
 - **[Architecture Decision Records](/doc/product-docs/technical/architecture/design-docs/adr/adr/)** - Architectural constraints and decisions
-<!-- [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Removed: file deleted -->
-<!-- - **[System Quality Attributes](/doc/product-docs/technical/architecture/quality-attributes.md)** - Quality requirements impacting implementation — FILE REMOVED -->
 
 ### Testing and Validation
 

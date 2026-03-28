@@ -20,6 +20,8 @@ evaluation_scope: Testing setup - tasks, templates, scripts, guides, state track
 | Evaluator | AI Agent & Human Partner |
 | Task Reference | PF-TSK-079 (Framework Evaluation) |
 
+> **Post-Evaluation Note (2026-03-26)**: `test/test-registry.yaml` referenced throughout this report was deleted and replaced by `doc/process-framework/scripts/test/test_query.py` (AST-based pytest marker query tool). Findings N-1, N-2, R-2, S-1, S-3, S-4, U-1, and recommendations PF-IMP-204 through PF-IMP-207 relating to the registry are now resolved or superseded.
+
 ## Evaluation Scope
 
 **Scope Description**: Testing setup - tasks, templates, scripts, guides, state tracking, scalability
@@ -220,4 +222,3 @@ evaluation_scope: Testing setup - tasks, templates, scripts, guides, state track
 3. **Tooling** (PF-IMP-208): Add query script for focused test status retrieval — improves AI agent effectiveness
 4. **Consolidation** (PF-IMP-187): Merge overlapping testing guides — reduces documentation maintenance burden
 5. **Cleanup**: Decide on test-implementation-task.md — either restore to ai-tasks.md or archive with its context map
-

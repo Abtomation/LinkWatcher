@@ -16,7 +16,7 @@ This guide outlines the process for keeping the CI/CD dependency visualizations 
 
 The CI/CD dependency documentation should be reviewed and updated when:
 
-- **Workflow Changes**: Any modifications to `.github<!-- /workflows/ci.yml - File not found -->` or `.github<!-- /workflows/cd.yml - File not found -->`
+- **Workflow Changes**: Any modifications to `.github/workflows/`
 - **Environment Configuration Changes**: Updates to environment configuration files in `lib/config/`
 - **Testing Process Changes**: Modifications to testing procedures or test types
 - **Deployment Target Changes**: Adding or removing deployment targets
@@ -40,9 +40,9 @@ The CI/CD dependency documentation should be reviewed and updated when:
    - Identify any gaps that have been addressed or new gaps that have emerged
 
 3. **Update Documentation Files**:
-   - Update `doc<!-- /product-docs/development/ci-cd/ci-cd-dependencies-flowchart.md - File not found -->` (Mermaid diagram)
+   - Update CI/CD dependencies flowchart (Mermaid diagram)
    - Update `../development/ci-cd/doc/product-docs/development/ci-cd/ci-cd-dependencies-visualization.md` (ASCII visualization)
-   - Update `doc<!-- /product-docs/development/ci-cd/environment-guide.md - File not found -->` if environment details changed
+   - Update environment guide if environment details changed
 
 4. **Validation**:
    - Verify the Mermaid diagram renders correctly

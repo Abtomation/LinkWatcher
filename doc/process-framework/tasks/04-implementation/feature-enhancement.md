@@ -91,7 +91,14 @@ This task executes enhancement work on existing features by following the Enhanc
 ### Phase 4: Finalization
 
 8. **🚨 CHECKPOINT**: Present completed enhancement work, all modified artifacts, and verification results to human partner for final review
-9. **When all steps are complete**:
+9. **Verify documentation accuracy** (if the enhancement changed public APIs or data models):
+   - **Feature implementation state file** (`state-tracking/features/`) — update implementation notes, component lists, or architecture notes
+   - **TDD** — update technical design descriptions that no longer match the code (interface contracts, component diagrams, data models)
+   - **Test specification** — update expected behavior or add new test scenarios
+   - **FDD** — update functional behavior descriptions if user-facing behavior changed
+   - *Before marking N/A: briefly check each referenced document to confirm it does not describe the changed component or behavior. Skip only after verifying no documentation references the enhancement area.*
+   > **Note**: This step catches documentation drift that the Enhancement State Tracking File may not have scoped. Even if the state file did not include a design doc update step, verify here.
+10. **When all steps are complete**:
    - Verify all referenced documentation has been updated as specified in the state file
    - Update the target feature's implementation state file to reflect the enhancement
    - Run [Finalize-Enhancement.ps1](../../scripts/update/Finalize-Enhancement.ps1) to restore feature tracking status and archive the state file:
@@ -99,7 +106,7 @@ This task executes enhancement work on existing features by following the Enhanc
      cd doc/process-framework/scripts/update
      .\Finalize-Enhancement.ps1 -FeatureId "X.Y.Z"
      ```
-10. **MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+11. **MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 
@@ -129,6 +136,12 @@ Before considering this task finished:
   - [ ] All design documentation updates completed as scoped
   - [ ] All code changes implemented
   - [ ] All test changes implemented
+
+- [ ] **Verify Documentation Accuracy** (if enhancement changed public APIs or data models — Step 9):
+  - [ ] Feature implementation state file updated, or N/A — verified file does not reference changed component
+  - [ ] TDD updated, or N/A — verified no design changes affect TDD
+  - [ ] Test specification updated, or N/A — verified no behavior change affects spec
+  - [ ] FDD updated, or N/A — verified no functional change affects FDD
 
 - [ ] **Verify State Files Updated**:
   - [ ] Target feature's implementation state file updated to reflect the enhancement

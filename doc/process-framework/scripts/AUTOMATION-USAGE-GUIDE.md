@@ -14,7 +14,6 @@ This guide provides instructions for using the new automation scripts that elimi
 
 - `feature-tracking.md`
 - `test-tracking.md`
-<!-- - `component-relationship-index.md` - Removed: file deleted -->
 
 **Basic Usage**:
 

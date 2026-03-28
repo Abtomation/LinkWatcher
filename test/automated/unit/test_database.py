@@ -14,7 +14,9 @@ pytestmark = [
     pytest.mark.priority("Critical"),
     pytest.mark.cross_cutting(["0.1.1"]),
     pytest.mark.test_type("unit"),
-    pytest.mark.specification("test/specifications/feature-specs/test-spec-0-1-2-in-memory-link-database.md"),
+    pytest.mark.specification(
+        "test/specifications/feature-specs/test-spec-0-1-2-in-memory-link-database.md"
+    ),
 ]
 
 
@@ -39,6 +41,44 @@ class TestLinkDatabase:
         assert len(link_database.links["test.txt"]) == 1
         assert link_database.links["test.txt"][0] == ref
         assert "test.md" in link_database.files_with_links
+
+    def test_add_link_duplicate_detection(self, link_database):
+        """Test that adding the same reference twice does not create duplicates (TD100)."""
+        ref = LinkReference(
+            file_path="test.md",
+            line_number=5,
+            column_start=0,
+            column_end=10,
+            link_text="target.txt",
+            link_target="target.txt",
+            link_type="markdown",
+        )
+
+        link_database.add_link(ref)
+        link_database.add_link(ref)  # duplicate call
+
+        assert len(link_database.links["target.txt"]) == 1
+        assert link_database.get_stats()["total_references"] == 1
+
+    def test_add_link_same_target_different_lines(self, link_database):
+        """Test that references to the same target from different lines are both kept."""
+        ref1 = LinkReference("test.md", 1, 0, 10, "target.txt", "target.txt", "markdown")
+        ref2 = LinkReference("test.md", 5, 0, 10, "target.txt", "target.txt", "markdown")
+
+        link_database.add_link(ref1)
+        link_database.add_link(ref2)
+
+        assert len(link_database.links["target.txt"]) == 2
+
+    def test_add_link_same_line_different_columns(self, link_database):
+        """Test that two references on the same line at different columns are both kept."""
+        ref1 = LinkReference("docs.md", 1, 5, 15, "target.txt", "target.txt", "direct")
+        ref2 = LinkReference("docs.md", 1, 30, 40, "target.txt", "target.txt", "markdown")
+
+        link_database.add_link(ref1)
+        link_database.add_link(ref2)
+
+        assert len(link_database.links["target.txt"]) == 2
 
     def test_remove_file_links(self, link_database):
         """Test removing all links from a file."""
@@ -192,18 +232,24 @@ class TestLinkDatabase:
         import threading
         import time
 
-        def add_references():
+        def add_references(thread_id):
             for i in range(100):
                 ref = LinkReference(
-                    f"doc{i}.md", 1, 0, 10, f"file{i}.txt", f"file{i}.txt", "markdown"
+                    f"doc_t{thread_id}_{i}.md",
+                    1,
+                    0,
+                    10,
+                    f"file_t{thread_id}_{i}.txt",
+                    f"file_t{thread_id}_{i}.txt",
+                    "markdown",
                 )
                 link_database.add_link(ref)
                 time.sleep(0.001)  # Small delay to encourage race conditions
 
-        # Start multiple threads
+        # Start multiple threads with unique references per thread
         threads = []
-        for _ in range(3):
-            thread = threading.Thread(target=add_references)
+        for tid in range(3):
+            thread = threading.Thread(target=add_references, args=(tid,))
             threads.append(thread)
             thread.start()
 

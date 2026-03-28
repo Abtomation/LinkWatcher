@@ -69,6 +69,5 @@ graph TD
 - [Technical Design Documents](/doc/product-docs/technical/design) - Detailed feature designs
 - [Development Guide](/doc/process-framework/guides/04-implementation/development-guide.md) - Development standards and practices
 - [Feature Tracking](../../../../product-docs/state-tracking/permanent/feature-tracking.md) - Feature status tracking
-<!-- [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Removed: file deleted -->
 
 ---

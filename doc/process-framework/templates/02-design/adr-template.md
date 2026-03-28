@@ -2,9 +2,11 @@
 id: PF-TEM-016
 type: Process Framework
 category: Template
-version: 1.0
+version: 1.1
 created: 2023-06-15
-updated: 2025-07-04
+updated: 2026-03-27
+creates_document_type: Product Documentation
+creates_document_category: Architecture Decision Records
 ---
 
 # ADR-NNNN: [Title]

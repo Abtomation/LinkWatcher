@@ -10,7 +10,7 @@ Duration      : 3.41s
 Broken links:
 ------------------------------------------------------------
   CLAUDE.md:161
-    -> doc/process-framework/templates/00-onboarding/feedback-form-template.md  (markdown-standalone)
+    -> doc/process-framework/templates/00-setup/feedback-form-template.md  (markdown-standalone)
   README.md:171
     -> doc/process-framework/guides/test-infrastructure-guide.md  (markdown)
   config-examples/debug-config.yaml:34
@@ -2282,11 +2282,11 @@ Broken links:
   doc/process-framework/state-tracking/temporary/old/temp-task-creation-tech-agnostic-testing-pipeline.md:135
     -> doc/product-docs/state-tracking/permanent/feature-tracking.md  (markdown-standalone)
   doc/process-framework/state-tracking/temporary/old/temp-task-creation-tech-agnostic-testing-pipeline.md:146
-    -> doc/process-framework/tasks/00-onboarding/codebase-feature-discovery.md  (markdown-standalone)
+    -> doc/process-framework/tasks/00-setup/codebase-feature-discovery.md  (markdown-standalone)
   doc/process-framework/state-tracking/temporary/old/temp-task-creation-tech-agnostic-testing-pipeline.md:151
-    -> doc/process-framework/tasks/00-onboarding/codebase-feature-analysis.md  (markdown-standalone)
+    -> doc/process-framework/tasks/00-setup/codebase-feature-analysis.md  (markdown-standalone)
   doc/process-framework/state-tracking/temporary/old/temp-task-creation-tech-agnostic-testing-pipeline.md:156
-    -> doc/process-framework/tasks/00-onboarding/retrospective-documentation-creation.md  (markdown-standalone)
+    -> doc/process-framework/tasks/00-setup/retrospective-documentation-creation.md  (markdown-standalone)
   doc/process-framework/state-tracking/temporary/old/temp-task-creation-tech-debt-td001-td004-refactoring.md:18
     -> /doc/product-docs/refactoring/plans/technical-debt-td001-td004-resolution.md  (markdown)
   doc/process-framework/state-tracking/temporary/old/UPDATE-CODE-INVENTORY-SECTIONS.md:83

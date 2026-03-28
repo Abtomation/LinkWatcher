@@ -176,7 +176,7 @@ Review implemented code to ensure it meets quality standards, follows project co
     Set-Location "doc/process-framework/scripts/file-creation"
 
     # Create bug report for issues found during code review
-    ../../scripts/file-creation/06-maintenance/New-BugReport.ps1 -Title "Unhandled exception in data validation" -Description "Method validate_input() doesn't handle None parameter" -DiscoveredBy "Code Review" -Severity "High" -Component "Data Validation" -Environment "Development" -Evidence "Code location: src/services/validator.py:142"
+    ../../scripts/file-creation/06-maintenance/New-BugReport.ps1 -Title "Unhandled exception in data validation" -Description "Method validate_input() doesn't handle None parameter" -DiscoveredBy "CodeReview" -Severity "High" -Component "Data Validation" -Environment "Development" -Evidence "Code location: src/services/validator.py:142"
     ```
 
 ### Finalization
@@ -280,7 +280,8 @@ Before considering this task finished:
 
 - [**Feature Implementation Planning**](../04-implementation/feature-implementation-planning-task.md) - If issues were found, addresses the feedback from the code review
 - [**Code Refactoring**](code-refactoring-task.md) - If technical debt or code quality issues were identified
-- [**Release Deployment**](../07-deployment/release-deployment-task.md) - If the review passed, proceeds to deployment preparation
+- [**User Documentation Creation**](../07-deployment/user-documentation-creation.md) - If the feature introduces or changes user-visible behavior, create/update handbooks before release
+- [**Release Deployment**](../07-deployment/release-deployment-task.md) - If the review passed and user docs are complete, proceeds to deployment preparation
 
 - [**Technical Debt Assessment**](../cyclical/technical-debt-assessment-task.md) - If systemic issues were found that affect multiple features
 

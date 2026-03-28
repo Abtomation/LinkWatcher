@@ -60,8 +60,5 @@ graph TD
 
 ## Related Documentation
 
-- <!-- [Link to Documentation 1](/path/to/documentation1.md) - Template/example link commented out --> - Detailed information about Component 1
-- <!-- [Link to Documentation 2](/path/to/documentation2.md) - Template/example link commented out --> - Detailed information about Component 2
-<!-- [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Removed: file deleted -->
 
 ---

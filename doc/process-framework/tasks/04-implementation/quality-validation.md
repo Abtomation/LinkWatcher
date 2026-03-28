@@ -33,7 +33,6 @@ Validate feature implementation against quality standards, business requirements
 
 ## Context Requirements
 
-<!-- [View Context Map for this task](../../visualization/context-maps/04-implementation/quality-validation-map.md) - To be created -->
 
 - **Critical (Must Read):**
 
@@ -45,7 +44,6 @@ Validate feature implementation against quality standards, business requirements
 - **Important (Load If Space):**
 
   - **Feature Tracking** - [Feature details from feature-tracking.md](../../../product-docs/state-tracking/permanent/feature-tracking.md) for business context
-  <!-- [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Removed: file deleted -->
   - **Accessibility Guidelines** - [WCAG 2.1 Standards](https://www.w3.org/WAI/WCAG21/quickref/) for accessibility compliance
 
 - **Reference Only (Access When Needed):**
@@ -165,4 +163,3 @@ Before considering this task finished:
 - [OWASP Security Guidelines](https://owasp.org/) - Application security standards
 - [WCAG 2.1 Guidelines](https://www.w3.org/WAI/WCAG21/quickref/) - Web content accessibility guidelines
 - [Feature Implementation State Tracking Guide](../../guides/04-implementation/feature-implementation-state-tracking-guide.md) - Guide for maintaining feature state file
-<!-- [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Removed: file deleted -->

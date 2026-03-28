@@ -12,7 +12,7 @@ updated: 2025-07-28
 | Metadata | Value |
 |----------|-------|
 | Document Type | Process Guide |
-| Template Source | /doc/process-framework/templates/guide-template.md |
+| Template Source | [/doc/process-framework/templates/support/guide-template.md](/doc/process-framework/templates/support/guide-template.md) |
 | Created Date | 2024-12-19 |
 | Last Updated | 2025-07-28 |
 | Version | 2.0 |
@@ -57,7 +57,7 @@ Choose the appropriate template based on your workflow type:
 - Focus on artifact creation and integration
 
 ### Structure Change Workflows
-**Use**: `structure-change-state-template.md` (or `-rename-template.md` for renames, `-content-update-template.md` for content-only changes)
+**Use**: `structure-change-state-template.md` (or `-rename-template.md` for renames, `-content-update-template.md` for content-only changes, `-from-proposal-template.md` for proposal-backed changes)
 **Script**: `New-StructureChangeState.ps1`
 **Best For**:
 - Reorganizing existing structure
@@ -66,14 +66,17 @@ Choose the appropriate template based on your workflow type:
 - Modifying existing templates
 - Renaming/moving files or directories (use `-ChangeType "Rename"` for lightweight template)
 - Updating content across many files without moving them (use `-ChangeType "Content Update"` for lightweight template)
+- Executing changes with a detailed proposal already in place (use `-FromProposal` for lightweight execution-tracking template)
 
 **Characteristics**:
 - Modifies EXISTING artifacts (rollback essential for complex changes)
 - Full template: 5-phase structure with rollback, pilot, and metrics sections
 - Rename template: 2-phase structure (Preparation + Execution) — no pilot/rollback/metrics overhead
 - Content Update template: 2-phase structure (Preparation + Execution) — for content-only changes without file moves
+- From-proposal template: 3-phase structure (Preparation + Execute + Finalization) — execution tracking only, references proposal for details
 - Use `-ChangeType "Rename"` for simple rename/move operations
 - Use `-ChangeType "Content Update"` for content changes across files (no structural reorganization)
+- Use `-FromProposal` when a detailed proposal already exists (incompatible with Rename/Content Update types)
 
 ### Process Improvement Workflows
 **Use**: `temp-process-improvement-state-template.md`

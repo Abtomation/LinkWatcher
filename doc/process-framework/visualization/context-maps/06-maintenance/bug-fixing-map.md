@@ -79,11 +79,6 @@ graph TD
 
 ## Related Documentation
 
-- <!-- [Bug Report Templates](/doc/process-framework/templates/bug-report-template.md) - Template/example link commented out --> - Standard format for bug reports
-- <!-- [Error Log Analysis Guide](/doc/product-docs/development/guides/error-log-analysis.md) - File not found --> - How to interpret error logs
-- <!-- [Debugging Guide](/doc/product-docs/development/guides/debugging-guide.md) - File not found --> - Techniques for debugging code
-- <!-- [Unit Testing Guide](/doc/product-docs/development/guides/unit-testing-guide.md) - File not found --> - Standards for unit tests
 - [Technical Debt Tracking](../../../../product-docs/state-tracking/permanent/technical-debt-tracking.md) - Technical debt status
-<!-- [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Removed: file deleted -->
 
 ---

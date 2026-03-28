@@ -588,7 +588,6 @@ Creating a TDD for a complex real-time feature:
 - [TDD T2 Template](../../templates/02-design/tdd-t2-template.md) - Tier 2 template for moderate features
 - [TDD T3 Template](../../templates/02-design/tdd-t3-template.md) - Tier 3 template for complex features
 - [Guide Creation Best Practices Guide (PF-GDE-024)](../support/guide-creation-best-practices-guide.md) - Best practices for guide creation
-<!-- [Component Relationship Index](../../../product-docs/technical/architecture/component-relationship-index.md) - Removed: file deleted -->
 
 <!--
 TEMPLATE USAGE GUIDANCE:

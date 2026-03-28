@@ -102,11 +102,7 @@ Use this guide to determine which template to use for different documentation ne
 
 **Examples in project:**
 - [Database Reference][database-reference]
-- [Project Structure][project-structure]
-
-<!-- Reference Links -->
-[database-reference]: /doc/product-docs/technical/architecture/database-reference.md
-<!-- [project-structure]: /doc/product-docs/technical/architecture/project-structure.md - Removed: file deleted -->
+- Project Structure (deleted)
 
 #### Process Template
 
@@ -172,7 +168,7 @@ Use this guide to determine which template to use for different documentation ne
 | Documentation-only refactoring | Developers, AI Agents | Planning | Documentation-Only Refactoring Plan Template |
 | Recording feedback ratings to database | AI Agents | Reference | Feedback DB Input Template |
 
-For more general guidance on identifying documentation template needs for any project, refer to the <!-- [Documentation Template Identification Guide](/doc/process-framework/guides/documentation-template-identification.md) - Template/example link commented out -->.
+For more general guidance on identifying documentation template needs for any project, refer to the Documentation Template Identification Guide (not yet created).
 
 ## Contributing
 

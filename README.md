@@ -20,6 +20,9 @@ pip install -e .
 python main.py
 
 # 4. Move any file - watch links update automatically! ✨
+
+# 5. Or validate all links in your project
+python main.py --validate
 ```
 
 ### **Development Setup (Windows)**
@@ -65,6 +68,7 @@ dev format
 - ⚡ **High performance** - Handles large projects efficiently
 - 🔧 **Highly configurable** - Customize behavior for your needs
 - 🧪 **Dry run mode** - Preview changes before applying
+- 🔍 **Link validation** - On-demand scan for broken references
 - 📊 **Detailed statistics** - Track operations and performance
 
 ## 📖 Documentation
@@ -73,6 +77,7 @@ dev format
 |----------|-------------|
 | [Quick Reference](doc/product-docs/user/handbooks/quick-reference.md) | CLI options, config, environment variables, examples |
 | [Multi-Project Setup](doc/product-docs/user/handbooks/multi-project-setup.md) | Using across multiple projects |
+| [Link Validation](doc/product-docs/user/handbooks/link-validation.md) | Scan workspace for broken file references |
 | [File Type Quick Fix](doc/product-docs/user/handbooks/file-type-quick-fix.md) | **Quick fix** for file types not being monitored |
 | [File Type Troubleshooting](doc/product-docs/user/handbooks/troubleshooting-file-types.md) | **Detailed guide** for file type monitoring issues |
 

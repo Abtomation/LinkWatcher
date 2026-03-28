@@ -64,7 +64,7 @@ The In-Memory Database (`LinkDatabase`) provides thread-safe, target-indexed sto
 
 ### 3.4 Usability Requirements
 
-- **Developer Experience**: Simple public API with 9 methods: `add_link()`, `remove_file_links()`, `get_references_to_file()`, `update_target_path()`, `remove_targets_by_path()`, `get_all_targets_with_references()`, `get_source_files()`, `clear()`, `get_stats()`
+- **Developer Experience**: Simple public API with 12 methods: `add_link()`, `remove_file_links()`, `get_references_to_file()`, `update_target_path()`, `update_source_path()`, `remove_targets_by_path()`, `get_references_to_directory()`, `get_all_targets_with_references()`, `get_source_files()`, `has_target_with_basename()`, `clear()`, `get_stats()` (plus `last_scan` property)
 - **Transparency**: Database operates transparently; developers interact with high-level service methods rather than database directly
 
 ## 4. Technical Design
@@ -112,11 +112,18 @@ class LinkDatabase(LinkDatabaseInterface):
 ```python
 # CREATE/ADD
 def add_link(self, reference: LinkReference):
-    """Add a link reference to the database."""
+    """Add a link reference to the database (skips duplicates)."""
     with self._lock:
         target = normalize_path(reference.link_target)
         if target not in self.links:
             self.links[target] = []
+        # Guard: skip duplicate references (same source + line + column)
+        source_norm = normalize_path(reference.file_path)
+        for ref in self.links[target]:
+            if (normalize_path(ref.file_path) == source_norm
+                    and ref.line_number == reference.line_number
+                    and ref.column_start == reference.column_start):
+                return
         self.links[target].append(reference)
         self.files_with_links.add(reference.file_path)
 
@@ -206,6 +213,67 @@ def remove_file_links(self, file_path: str):
             self.logger.warning("no_references_to_remove", file_path=file_path)
 ```
 
+**Source path update (when a source file moves):**
+
+```python
+# UPDATE SOURCE
+def update_source_path(self, old_path: str, new_path: str) -> int:
+    """Update file_path on all references whose source matches old_path.
+    Returns the number of references updated.
+    Uses reverse index (_source_to_targets) for O(R) lookup instead of
+    scanning all targets — R = number of targets referenced by old_path.
+    """
+    with self._lock:
+        old_normalized = normalize_path(old_path)
+        new_normalized = normalize_path(new_path)
+        updated = 0
+
+        # Use reverse index to find only the targets referenced by old source
+        target_keys = self._source_to_targets.get(old_normalized, set())
+        for target in target_keys:
+            for ref in self.links.get(target, []):
+                if normalize_path(ref.file_path) == old_normalized:
+                    ref.file_path = new_path
+                    updated += 1
+
+        # Update reverse index: move entry from old key to new key
+        if updated:
+            targets = self._source_to_targets.pop(old_normalized, set())
+            self._source_to_targets.setdefault(new_normalized, set()).update(targets)
+            self.files_with_links.discard(old_path)
+            self.files_with_links.add(new_path)
+        return updated
+```
+
+**Directory reference query (for directory moves):**
+
+```python
+# READ (directory)
+def get_references_to_directory(self, dir_path: str) -> List[LinkReference]:
+    """Get all references whose target matches a directory path.
+    Finds references where link_target equals the directory (exact match)
+    or starts with it as a prefix (subdirectory references).
+    Used during directory moves to update directory-path string references
+    in scripts (e.g., quoted paths in PowerShell files).
+    """
+    with self._lock:
+        normalized_dir = normalize_path(dir_path)
+        dir_prefix = normalized_dir.rstrip("/") + "/"
+        all_references = []
+        seen = set()
+
+        for target_path, references in self.links.items():
+            normalized_target = normalize_path(target_path)
+            # Exact match or prefix match (subdirectory)
+            if normalized_target == normalized_dir or normalized_target.startswith(dir_prefix):
+                for ref in references:
+                    if id(ref) not in seen:
+                        seen.add(id(ref))
+                        all_references.append(ref)
+
+        return all_references
+```
+
 ### 4.3 Path Normalization
 
 **Shared utility:** The database imports `normalize_path()` from `linkwatcher/utils.py` (part of 0.1.1 Core Architecture) rather than implementing its own private method. This was consolidated during TD001/TD002 to eliminate duplicate implementations across modules.
@@ -240,7 +308,7 @@ from .utils import normalize_path
 
 #### Usability Implementation
 
-- **Simple API**: 9 public methods cover all use cases
+- **Simple API**: 12 public methods cover all use cases
 - **Transparent operation**: Service layer handles database calls; feature implementations don't interact with database directly
 
 ## 5. Cross-References

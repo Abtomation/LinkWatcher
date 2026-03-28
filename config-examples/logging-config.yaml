@@ -49,3 +49,14 @@ enable_json_parser: true
 enable_dart_parser: true
 enable_python_parser: true
 enable_generic_parser: true
+
+# Validation settings (used by --validate mode)
+# Patterns to ignore when checking for broken links.
+# Any link target containing one of these substrings is skipped.
+validation_ignored_patterns:
+  - "path/to/"
+  - "xxx"
+# Path to the per-file ignore list (relative to project root).
+# Default: "LinkWatcher/.linkwatcher-ignore"
+# Override for this project where the run dir is LinkWatcher_run/:
+validation_ignore_file: "LinkWatcher_run/.linkwatcher-ignore"

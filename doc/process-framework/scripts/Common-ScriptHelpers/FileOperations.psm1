@@ -74,7 +74,7 @@ function Get-RelevantTrackingFiles {
         "ValidationReport" {
             $trackingFiles += @(
                 @{
-                    Path = Join-Path $projectRoot "doc/product-docs/state-tracking/temporary/validation-tracking.md"
+                    Path = Join-Path $projectRoot "doc/product-docs/state-tracking/temporary/validation/archive/validation-tracking-1.md"
                     Type = "ValidationTracking"
                     Required = $true
                 }

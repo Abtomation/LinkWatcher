@@ -183,8 +183,6 @@ class ExampleComponent {
 
 ## Related Documentation
 
-- <!-- [Link to related component documentation](../../architecture/related-component.md) - Template/example link commented out -->
-- <!-- [Link to API documentation](../../api/related-api.md) - Template/example link commented out -->
 - [Link to external resources](https://example.com)
 
 ---

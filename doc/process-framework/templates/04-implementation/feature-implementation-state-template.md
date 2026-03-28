@@ -18,7 +18,7 @@ template_for: Feature State Tracking
 
 > **📖 Usage guide**: [Feature Implementation State Tracking Guide (PF-GDE-043)](../../guides/04-implementation/feature-implementation-state-tracking-guide.md)
 >
-> **Retrospective Analysis mode** (onboarding tasks [PF-TSK-064](../../tasks/00-onboarding/codebase-feature-discovery.md), [PF-TSK-065](../../tasks/00-onboarding/codebase-feature-analysis.md), [PF-TSK-066](../../tasks/00-onboarding/retrospective-documentation-creation.md)):
+> **Retrospective Analysis mode** (onboarding tasks [PF-TSK-064](../../tasks/00-setup/codebase-feature-discovery.md), [PF-TSK-065](../../tasks/00-setup/codebase-feature-analysis.md), [PF-TSK-066](../../tasks/00-setup/retrospective-documentation-creation.md)):
 > - Section 3 tracks analysis progress rather than planned tasks
 > - Section 5 (Code Inventory) is the primary deliverable — every file must be assigned
 > - Section 7 documents decisions discovered in code, not planned decisions
@@ -120,6 +120,8 @@ template_for: Feature State Tracking
 | [Doc name] | Design Spec | [STATUS] | [path]   | YYYY-MM-DD   |
 
 ### User Documentation
+
+> **Trigger for [User Documentation Creation](../../../process-framework/tasks/07-deployment/user-documentation-creation.md)**: When this feature has user-visible behavior, set Status to `❌ Needed` after implementation. The task resolves it to `✅ Created` with links. Use `N/A` for internal-only features. A feature may have multiple handbook entries.
 
 | Document   | Type         | Status   | Location | Last Updated |
 | ---------- | ------------ | -------- | -------- | ------------ |

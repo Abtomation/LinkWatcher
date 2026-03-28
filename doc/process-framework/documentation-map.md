@@ -21,13 +21,15 @@ Our tasks are organized into four categories and follow a unified structure:
 
 > **📋 Recent Enhancement (2025-08-01)**: All task definitions now include **AI Agent Role** sections that specify the professional role, mindset, focus areas, and communication style for optimal AI agent behavior during task execution.
 
-#### Onboarding Tasks
+#### Setup Tasks
 
-- [Task: Codebase Feature Discovery](tasks/00-onboarding/codebase-feature-discovery.md) - Discover all features in existing codebase and assign every source file
-- [Task: Codebase Feature Analysis](tasks/00-onboarding/codebase-feature-analysis.md) - Analyze implementation patterns, dependencies, and design decisions
-- [Task: Retrospective Documentation Creation](tasks/00-onboarding/retrospective-documentation-creation.md) - Create tier assessments and required design documentation
+- [Task: Codebase Feature Discovery](tasks/00-setup/codebase-feature-discovery.md) - Discover all features in existing codebase and assign every source file
+- [Task: Codebase Feature Analysis](tasks/00-setup/codebase-feature-analysis.md) - Analyze implementation patterns, dependencies, and design decisions
+- [Task: Retrospective Documentation Creation](tasks/00-setup/retrospective-documentation-creation.md) - Create tier assessments and required design documentation
+- [Task: Project Initiation](tasks/00-setup/project-initiation-task.md) - Initial project setup including project-config.json creation
 
 #### Discrete Tasks
+| PF-TSK-081 | [/process-framework/tasks/07-deployment/user-documentation-creation.md](/process-framework/tasks/07-deployment/user-documentation-creation.md) | Documentation | User Documentation Creation | /doc/process-framework/tasks/../../../tasks/README.md |
 
 - [Task: Feature Request Evaluation](tasks/01-planning/feature-request-evaluation.md) - Classify change requests as new features or enhancements, scope enhancements, and create Enhancement State Tracking Files
 - [Task: Feature Tier Assessment](tasks/01-planning/feature-tier-assessment-task.md) - Assess complexity of new features
@@ -67,7 +69,6 @@ Our tasks are organized into four categories and follow a unified structure:
 
 #### Support Tasks
 
-- [Task: Project Initiation](tasks/support/project-initiation-task.md) - Initial project setup including project-config.json creation
 - [Task: New Task Creation Process](tasks/support/new-task-creation-process.md) - Complete process for creating new tasks from concept to implementation-ready definition
 - [Task: Process Improvement](tasks/support/process-improvement-task.md) - Improve development processes
 - [Task: Structure Change](tasks/support/structure-change-task.md) - Manage structural changes to documentation
@@ -83,12 +84,14 @@ Our tasks are organized into four categories and follow a unified structure:
 ### Core Process Documents
 
 - [Process: Feature Tracking](../product-docs/state-tracking/permanent/feature-tracking.md) - Comprehensive list of all features with implementation status
+- [Process: Feature Request Tracking](../product-docs/state-tracking/permanent/feature-request-tracking.md) - Intake queue for product feature requests before classification by Feature Request Evaluation
 - [Process: Test Tracking](../../test/state-tracking/permanent/test-tracking.md) - Tracks implementation status of automated test files derived from test specifications
 - [Process: E2E Acceptance Test Tracking](../../test/state-tracking/permanent/e2e-test-tracking.md) - Tracks E2E acceptance test cases, workflow milestones, and execution status
 - [Process: Test Query Tool](scripts/test/test_query.py) - AST-based query tool for test metadata from pytest markers (replaces test-registry.yaml — SC-007)
 - [Process: Definition of Done](guides/04-implementation/definition-of-done.md) - Clear criteria for when a feature is considered complete
 - [Process: Technical Debt Tracking](../product-docs/state-tracking/permanent/technical-debt-tracking.md) - System for tracking and managing technical debt
-- [Process: Validation Tracking](../product-docs/state-tracking/temporary/validation-tracking.md) - Master tracking for codebase validation across all validation types
+- [Process: Validation Tracking — Round 1](../product-docs/state-tracking/temporary/validation/archive/validation-tracking-1.md) - Round 1 foundational validation tracking (completed 2026-03-16, 6 dimensions × 9 features)
+- [Process: Validation Tracking — Round 2](../product-docs/state-tracking/temporary/validation/validation-tracking-2.md) - Round 2 comprehensive re-validation tracking (10 dimensions × 8 features)
 - [Process: Feature Implementation Template](templates/04-implementation/feature-implementation-template.md) - Template for planning and implementing features
 - [Process: Implementation Plan Template](templates/04-implementation/implementation-plan-template-template.md) - Template for creating implementation plan documents that define sequenced execution strategies for feature implementation
 - [Process: Foundation Feature Template](templates/04-implementation/foundation-feature-template.md) - Template for foundation feature structure and architectural documentation
@@ -109,14 +112,19 @@ Our tasks are organized into four categories and follow a unified structure:
 - [Process: Temporary Process Improvement State Template](templates/support/temp-process-improvement-state-template.md) - Template for tracking multi-session process improvement implementation (via `New-TempTaskState.ps1 -Variant ProcessImprovement`)
 - [Process: Structure Change State Template](templates/support/structure-change-state-template.md) - Template for tracking multi-session structure change implementation
 - [Process: Structure Change State Content Update Template](templates/support/structure-change-state-content-update-template.md) - Lightweight template for content-only structure changes (no pilot/rollback/metrics sections)
+- [Process: Structure Change State From-Proposal Template](templates/support/structure-change-state-from-proposal-template.md) - Lightweight execution-tracking template for proposal-backed structure changes (phase checklist + session log only)
 - [Process: Enhancement State Tracking Template](templates/04-implementation/enhancement-state-tracking-template-template.md) - Template for tracking enhancement work on existing features, used by New-EnhancementState.ps1
 - [Process: Bug Fix State Tracking Template](templates/06-maintenance/bug-fix-state-tracking-template.md) - Template for tracking multi-session complex bug fix work, used by New-BugFixState.ps1
+- [Process: Handbook Template](templates/07-deployment/handbook-template.md) - Template for creating user-facing handbook documents, used by New-Handbook.ps1
 - [Process: Framework Extension Concept Template](templates/support/framework-extension-concept-template.md) - Template for creating framework extension concept documents
 - [Process: Framework Evaluation Report Template](templates/templates/framework-evaluation-report-template.md) - Template for structured framework evaluation reports with dimension scoring
 - [Process: Validation Report Template](templates/05-validation/validation-report-template.md) - Template for creating feature validation reports
 - [Process: Cross-Cutting Test Specification Template](templates/03-testing/cross-cutting-test-specification-template.md) - Template for test specifications spanning multiple features
 - [Process: E2E Acceptance Master Test Template](templates/03-testing/e2e-acceptance-master-test-template.md) - Template for group-level master test files with quick validation sequences
 - [Process: E2E Acceptance Test Case Template](templates/03-testing/e2e-acceptance-test-case-template.md) - Template for individual E2E acceptance test case files with exact steps, preconditions, and expected outcomes
+- [Process: Test Tracking Template](templates/03-testing/test-tracking-template.md) - Template for bootstrapping empty test-tracking.md in new projects, used by New-TestInfrastructure.ps1
+- [Process: E2E Test Tracking Template](templates/03-testing/e2e-test-tracking-template.md) - Template for bootstrapping empty e2e-test-tracking.md in new projects, used by New-TestInfrastructure.ps1
+- [Process: TE ID Registry Template](templates/03-testing/TE-id-registry-template.json) - Template for bootstrapping empty TE-id-registry.json in new projects, used by New-TestInfrastructure.ps1
 - [Process: Documentation-Only Refactoring Plan Template](templates/06-maintenance/documentation-refactoring-plan-template.md) - Template for documentation-only refactoring plans (no code metrics/test sections), used by New-RefactoringPlan.ps1 -DocumentationOnly
 - [Process: Enhancement Workflow Concept](proposals/proposals/old/enhancement-workflow-concept.md) - Framework extension concept for feature enhancement classification and execution workflow
 - ~~Process: Code Quality Standards Validation Concept~~ - 🗄️ Removed (file deleted)
@@ -130,17 +138,20 @@ Our tasks are organized into four categories and follow a unified structure:
 
 ### Automation Scripts
 
+- [Process: New Feature Request Script](scripts/file-creation/01-planning/New-FeatureRequest.ps1) - PowerShell script for adding product feature requests to feature-request-tracking.md with auto-assigned PD-FRQ IDs
 - [Process: New E2E Acceptance Test Case Script](scripts/file-creation/03-testing/New-E2EAcceptanceTestCase.ps1) - PowerShell script for creating E2E acceptance test case directories with auto-assigned E2E IDs, state tracking updates, and master test integration
 - [Process: New Bug Report Script](scripts/file-creation/06-maintenance/New-BugReport.ps1) - PowerShell script for creating standardized bug reports during task execution
 - [Process: New Bug Fix State Script](scripts/file-creation/06-maintenance/New-BugFixState.ps1) - PowerShell script for creating multi-session bug fix state tracking files (Large-effort bugs)
+- [Process: New Handbook Script](scripts/file-creation/07-deployment/New-Handbook.ps1) - PowerShell script for creating user handbook documents with auto-assigned PD-UGD IDs
 - [Process: New UI Design Script](scripts/file-creation/02-design/New-UIDesign.ps1) - PowerShell script for creating UI/UX Design documents with auto-assigned IDs and Design Guidelines references
 - [Process: New Test Specification Script](scripts/file-creation/03-testing/New-TestSpecification.ps1) - PowerShell script for creating test specifications (supports both feature-specific and cross-cutting modes via -CrossCutting switch)
 - [Process: New Process Improvement Script](scripts/file-creation/support/New-ProcessImprovement.ps1) - PowerShell script for adding new improvement opportunities to process-improvement-tracking.md with auto-assigned PF-IMP IDs
 - [Process: New Framework Evaluation Report Script](scripts/file-creation/support/New-FrameworkEvaluationReport.ps1) - PowerShell script for creating structured framework evaluation reports with auto-assigned PF-EVR IDs
+- [Process: New Test Infrastructure Script](scripts/file-creation/00-setup/New-TestInfrastructure.ps1) - Language-agnostic bootstrapping script for test directory structure, tracking files, and TE-id-registry from project-config.json and language config
 
 ### Testing Scripts
 
-- [Process: Run-Tests Script](scripts/test/Run-Tests.ps1) - Language-agnostic test runner that reads project-config.json and languages-config/{language}-config.json for dynamic category-based execution (-Category, -Quick, -All, -Coverage, -ListCategories)
+- [Process: Run-Tests Script](scripts/test/Run-Tests.ps1) - Language-agnostic test runner that reads project-config.json and languages-config/{language}/{language}-config.json for dynamic category-based execution (-Category, -Quick, -All, -Coverage, -ListCategories)
 - [Process: Language Configurations](languages-config/README.md) - Language-specific command configurations for framework scripts (testing, linting, coverage)
 - [Process: Setup-TestEnvironment Script](scripts/test/e2e-acceptance-testing/Setup-TestEnvironment.ps1) - Copies pristine test fixtures into workspace for clean E2E acceptance test execution
 - [Process: Verify-TestResult Script](scripts/test/e2e-acceptance-testing/Verify-TestResult.ps1) - Compares workspace state against expected state after E2E acceptance test execution
@@ -150,6 +161,7 @@ Our tasks are organized into four categories and follow a unified structure:
 ### State Update Scripts
 
 - [Process: Update Process Improvement Script](scripts/update/Update-ProcessImprovement.ps1) - Automates status transitions and completion moves in process-improvement-tracking.md
+- [Process: Update Feature Request Script](scripts/update/Update-FeatureRequest.ps1) - Classifies and closes feature requests in feature-request-tracking.md, updates feature-tracking.md for enhancements
 - [Process: Update Tech Debt Script](scripts/update/Update-TechDebt.ps1) - Automates technical debt lifecycle management: add new items (-Add), status transitions, and resolution moves in technical-debt-tracking.md
 - [Process: Update Language Config Script](scripts/update/Update-LanguageConfig.ps1) - Adds fields consistently across all language config files and template to prevent drift (-List to audit, -Section/-FieldName to add)
 - [Process: Update Feature Dependencies Script](scripts/update/Update-FeatureDependencies.ps1) - Auto-generates feature-dependencies.md from feature state files (Mermaid graph + priority matrix). Integrated into Validate-StateTracking.ps1 Surface 6
@@ -171,6 +183,7 @@ These documents describe what we're building:
 
 ### User Handbooks
 
+- [Product: Link Validation](../product-docs/user/handbooks/link-validation.md) - On-demand workspace scan for broken file references using --validate
 - [Product: File Type Quick Fix](../product-docs/user/handbooks/file-type-quick-fix.md) - Quick solutions for adding file type monitoring support
 - [Product: Troubleshooting File Types](../product-docs/user/handbooks/troubleshooting-file-types.md) - Detailed diagnosis and fixes for file type monitoring issues
 
@@ -248,6 +261,7 @@ These documents describe what we're building:
 - [Feature Tier Assessment Map](visualization/context-maps/01-planning/feature-tier-assessment-map.md) - Components for assessing complexity
 - [Process Improvement Map](visualization/context-maps/support/process-improvement-map.md) - Components for improving processes
 - [Release Deployment Map](visualization/context-maps/07-deployment/release-deployment-map.md) - Components for deployment
+- [User Documentation Creation Map](visualization/context-maps/07-deployment/user-documentation-creation-map.md) - Components for creating and maintaining user-facing handbook documentation
 - [Structure Change Map](visualization/context-maps/support/structure-change-map.md) - Components for structural changes
 - [Framework Extension Task Map](visualization/context-maps/support/framework-extension-task-map.md) - Context map for Framework Extension Task showing component relationships and workflow
 - [Framework Evaluation Map](visualization/context-maps/support/framework-evaluation-map.md) - Context map for Framework Evaluation task showing evaluation scope, dimensions, and output relationships
@@ -269,8 +283,6 @@ These documents describe what we're building:
 ### Product Technical Design
 
 - [Product: Technical Design Documents](../product-docs/technical/design/README.md) - Detailed technical designs for complex features
-- [Product: Project Structure](../product-docs/technical/architecture/project-structure.md) - Project directory and module structure
-- [Product: Component Relationship Index](../product-docs/technical/architecture/component-relationship-index.md) - Component dependencies and relationships
 
 ### Functional Design Documents (FDDs)
 
@@ -308,6 +320,7 @@ _Created during framework onboarding (PF-TSK-066) — documenting existing archi
 
 - [ADR: Orchestrator/Facade Pattern (PD-ADR-039)](../product-docs/technical/architecture/design-docs/adr/adr/orchestrator-facade-pattern-for-core-architecture.md) - 0.1.1 Core Architecture pattern decision
 - [ADR: Target-Indexed In-Memory Link Database (PD-ADR-040)](../product-docs/technical/architecture/design-docs/adr/adr/target-indexed-in-memory-link-database.md) - 0.1.2 In-Memory Link Database storage strategy
+- [ADR: Timer-Based Move Detection with 3-Phase Directory Batch Algorithm (PD-ADR-041)](../product-docs/technical/architecture/design-docs/adr/adr/timer-based-move-detection-with-3-phase-directory-batch-algorithm.md) - 1.1.1 File System Monitoring delete+create correlation and dual-timer strategy
 
 ### Test Specifications
 
@@ -343,6 +356,26 @@ _Created during feature validation (PF-TSK-031 through PF-TSK-036)._
 - [Validation: Documentation Alignment — Features 2.1.1–5.1.1 (PD-VAL-043)](../product-docs/validation/reports/documentation-alignment/PD-VAL-043-documentation-alignment-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) - Batch 2 — TDD alignment, FDD accuracy, code comments, feature state files (Score: 2.24/4.0 PASS)
 - [Validation: Extensibility & Maintainability — All Features (PD-VAL-044)](../product-docs/validation/reports/extensibility-maintainability/PD-VAL-044-extensibility-maintainability-features-0.1.1-0.1.2-0.1.3-1.1.1-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) - All 9 features — Modularity, extension points, configuration flexibility, testing support, scalability (Score: 3.044/4.0 PASS)
 - [Validation: AI Agent Continuity — All Features (PD-VAL-045)](../product-docs/validation/reports/ai-agent-continuity/PD-VAL-045-ai-agent-continuity-features-0.1.1-0.1.2-0.1.3-1.1.1-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md) - All 9 features — Context window optimization, documentation clarity, naming conventions, code readability, continuation points (Score: 3.244/4.0 PASS)
+
+#### Round 2 Validation Reports
+
+- [Validation: Architectural Consistency — Features 0.1.1–1.1.1 R2 (PD-VAL-046)](../product-docs/validation/reports/architectural-consistency/PD-VAL-046-architectural-consistency-features-0.1.1-0.1.2-0.1.3-1.1.1.md) - Round 2 Batch A — Pattern adherence, ADR compliance, interface consistency (Score: 2.8/3.0 PASS)
+- [Validation: Architectural Consistency — Features 2.1.1–6.1.1 R2 (PD-VAL-047)](../product-docs/validation/reports/architectural-consistency/PD-VAL-047-architectural-consistency-features-2.1.1-2.2.1-3.1.1-6.1.1.md) - Round 2 Batch B — Pattern adherence, ADR compliance, interface consistency (Score: 2.8/3.0 PASS)
+- [Validation: Code Quality — Features 0.1.1–1.1.1 R2 (PD-VAL-048)](../product-docs/validation/reports/code-quality/PD-VAL-048-code-quality-features-0.1.1-0.1.2-0.1.3-1.1.1.md) - Round 2 Batch A — Code style, complexity, error handling, SOLID principles, test coverage (Score: 2.65/3.0 PASS)
+- [Validation: Code Quality — Features 2.1.1–6.1.1 R2 (PD-VAL-060)](../product-docs/validation/reports/code-quality/PD-VAL-060-code-quality-features-2.1.1-2.2.1-3.1.1-6.1.1.md) - Round 2 Batch B — Code style, complexity, error handling, SOLID principles, test coverage (Score: 2.40/3.0 PASS)
+- [Validation: Integration Dependencies — Features 0.1.1–1.1.1 R2 (PD-VAL-049)](../product-docs/validation/reports/integration-dependencies/PD-VAL-049-integration-dependencies-features-0.1.1-0.1.2-0.1.3-1.1.1.md) - Round 2 Batch A — Service integration, state management, API contracts, data flow, dependency health (Score: 2.65/3.0 PASS)
+- [Validation: Integration Dependencies — Features 2.1.1–6.1.1 R2 (PD-VAL-058)](../product-docs/validation/reports/integration-dependencies/PD-VAL-058-integration-dependencies-features-2.1.1-2.2.1-3.1.1-6.1.1.md) - Round 2 Batch B — Parser delegation, updater data flow, logging singleton, validator isolation (Score: 2.65/3.0 PASS)
+- [Validation: Extensibility & Maintainability — Features 0.1.1–1.1.1 R2 (PD-VAL-050)](../product-docs/validation/reports/extensibility-maintainability/PD-VAL-050-extensibility-maintainability-features-0.1.1-0.1.2-0.1.3-1.1.1.md) - Round 2 Batch A — Modularity, extension points, configuration flexibility, testing support, refactoring safety (Score: 2.7/3.0 PASS)
+- [Validation: Extensibility & Maintainability — Features 2.1.1–6.1.1 R2 (PD-VAL-057)](../product-docs/validation/reports/extensibility-maintainability/PD-VAL-057-extensibility-maintainability-features-2.1.1-2.2.1-3.1.1-6.1.1.md) - Round 2 Batch B — Modularity, extension points, configuration flexibility, testing support, refactoring safety (Score: 2.5/3.0 PASS)
+- [Validation: AI Agent Continuity — Features 0.1.1–1.1.1 R2 (PD-VAL-052)](../product-docs/validation/reports/ai-agent-continuity/PD-VAL-052-ai-agent-continuity-features-0.1.1-0.1.2-0.1.3-1.1.1.md) - Round 2 Batch A — Context clarity, documentation quality, naming conventions, code readability, continuation points (Score: 2.55/3.0 PASS)
+- [Validation: AI Agent Continuity — Features 2.1.1–6.1.1 R2 (PD-VAL-061)](../product-docs/validation/reports/ai-agent-continuity/PD-VAL-061-ai-agent-continuity-features-2.1.1-2.2.1-3.1.1-6.1.1.md) - Round 2 Batch B — Context clarity, documentation quality, naming conventions, code readability, continuation points (Score: 2.45/3.0 PASS)
+- [Validation: Performance & Scalability — Features 0.1.1–1.1.1 R2 (PD-VAL-055)](../product-docs/validation/reports/performance-scalability/PD-VAL-055-performance-scalability-features-0.1.1-0.1.2-1.1.1.md) - Round 2 Session 14 — Algorithmic complexity, resource consumption, I/O efficiency, concurrency, scalability, caching (Score: 2.5/3.0 PASS)
+- [Validation: Performance & Scalability — Features 2.1.1–6.1.1 R2 (PD-VAL-059)](../product-docs/validation/reports/performance-scalability/PD-VAL-059-performance-scalability-features-2.1.1-2.2.1-6.1.1.md) - Round 2 Session 15 — Parser regex efficiency, updater atomic writes, validator I/O patterns, caching opportunities (Score: 2.3/3.0 PASS)
+- [Validation: Data Integrity — Features 0.1.2, 2.2.1, 6.1.1 R2 (PD-VAL-053)](../product-docs/validation/reports/data-integrity/PD-VAL-053-data-integrity-features-0.1.2-2.2.1-6.1.1.md) - Round 2 Session 17 — Data consistency, constraint enforcement, concurrent access, error recovery, backup patterns (Score: 2.44/3.0 PASS)
+- [Validation: Security & Data Protection — Features 0.1.3, 1.1.1, 2.2.1, 6.1.1 R2 (PD-VAL-056)](../product-docs/validation/reports/security-data-protection/PD-VAL-056-security-data-protection-features-0.1.3-1.1.1-2.2.1-6.1.1.md) - Round 2 Session 13 — Input validation, file system safety, secrets management, data protection, dependency security (Score: 2.9/3.0 PASS)
+- [Validation: Documentation Alignment — Features 0.1.1–1.1.1 R2 (PD-VAL-051)](../product-docs/validation/reports/documentation-alignment/PD-VAL-051-documentation-alignment-features-0.1.1-0.1.2-0.1.3-1.1.1.md) - Round 2 Session 7 — TDD alignment, FDD accuracy, ADR compliance, feature state file accuracy, documentation completeness (Score: 2.6/3.0 PASS)
+- [Validation: Documentation Alignment — Features 2.1.1–6.1.1 R2 (PD-VAL-062)](../product-docs/validation/reports/documentation-alignment/PD-VAL-062-documentation-alignment-features-2.1.1-2.2.1-3.1.1-6.1.1.md) - Round 2 Session 8 — TDD/FDD alignment, inline docs accuracy (Tier 1), feature state file accuracy, documentation completeness (Score: 2.66/3.0 PASS)
+- [Validation: Observability — Features 0.1.1, 1.1.1, 3.1.1, 6.1.1 R2 (PD-VAL-054)](../product-docs/validation/reports/observability/PD-VAL-054-observability-features-0.1.1-1.1.1-3.1.1-6.1.1.md) - Round 2 Session 16 — Logging coverage, structured logging, log level appropriateness, error traceability, health checks, metric instrumentation (Score: 2.31/3.0 PASS)
 
 ### Test Audit Reports
 
@@ -403,10 +436,11 @@ This diagram shows how the various documents relate to each other in the develop
 
 Our project uses a unified task structure with four task types:
 
-### Onboarding Tasks
-| PF-TSK-066 | [tasks/00-onboarding/retrospective-documentation-creation.md](tasks/00-onboarding/retrospective-documentation-creation.md) | Documentation | Retrospective Documentation Creation | [tasks/README.md](tasks/README.md) |
-| PF-TSK-065 | [tasks/00-onboarding/codebase-feature-analysis.md](tasks/00-onboarding/codebase-feature-analysis.md) | Documentation | Codebase Feature Analysis | [tasks/README.md](tasks/README.md) |
-| PF-TSK-064 | [tasks/00-onboarding/codebase-feature-discovery.md](tasks/00-onboarding/codebase-feature-discovery.md) | Documentation | Codebase Feature Discovery | [tasks/README.md](tasks/README.md) |
+### Setup Tasks
+| PF-TSK-066 | [tasks/00-setup/retrospective-documentation-creation.md](tasks/00-setup/retrospective-documentation-creation.md) | Documentation | Retrospective Documentation Creation | [tasks/README.md](tasks/README.md) |
+| PF-TSK-065 | [tasks/00-setup/codebase-feature-analysis.md](tasks/00-setup/codebase-feature-analysis.md) | Documentation | Codebase Feature Analysis | [tasks/README.md](tasks/README.md) |
+| PF-TSK-064 | [tasks/00-setup/codebase-feature-discovery.md](tasks/00-setup/codebase-feature-discovery.md) | Documentation | Codebase Feature Discovery | [tasks/README.md](tasks/README.md) |
+| PF-TSK-059 | [tasks/00-setup/project-initiation-task.md](tasks/00-setup/project-initiation-task.md) | Documentation | Project Initiation | [tasks/README.md](tasks/README.md) |
 
 ### Discrete Tasks
 | PF-TSK-078 | [tasks/04-implementation/core-logic-implementation.md](tasks/04-implementation/core-logic-implementation.md) | Documentation | Core Logic Implementation | [tasks/README.md](tasks/README.md) |

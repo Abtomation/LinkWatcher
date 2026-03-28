@@ -169,7 +169,7 @@ If bugs are found, use `New-BugReport.ps1`:
 
 ```powershell
 Set-Location "<project-root>/doc/process-framework/scripts/file-creation"
-.\New-BugReport.ps1 -Title "Description" -Description "Details" -DiscoveredBy "Test Implementation" -Severity "High" -Component "ComponentName" -Environment "Development" -Evidence "Test case reference"
+.\New-BugReport.ps1 -Title "Description" -Description "Details" -DiscoveredBy "Testing" -Severity "High" -Component "ComponentName" -Environment "Development" -Evidence "Test case reference"
 ```
 
 #### 14. Update Test Status and Validate Tracking

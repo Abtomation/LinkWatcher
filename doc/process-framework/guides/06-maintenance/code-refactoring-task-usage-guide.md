@@ -76,7 +76,7 @@ cd doc/product-docs/refactoring
 
 ### Lightweight vs Standard vs Documentation-Only Mode
 
-PF-TSK-022 includes an **Effort Assessment Gate** (Step 1) that determines which mode to use:
+PF-TSK-022 includes an **Effort Assessment Gate** (Step 1) that determines which mode to use. The agent must first assess whether the refactoring is **justified** (Proceed, Modify scope, or Rejected) before classifying the effort path. If the human approves a Rejected recommendation, the tech debt item is closed via `Update-TechDebt.ps1 -NewStatus "Rejected"` and the source task is documented in the feedback form — no refactoring plan or code changes are needed.
 
 | Criteria | Lightweight | Documentation-Only | Standard |
 |----------|-------------|-------------------|----------|

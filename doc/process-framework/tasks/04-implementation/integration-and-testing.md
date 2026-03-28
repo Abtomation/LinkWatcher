@@ -33,6 +33,7 @@ Verify unit test completeness, implement integration and cross-component tests, 
 - When integration verification is needed between components
 - Before quality validation via PF-TSK-054 (decomposed workflow)
 - Before Test Audit via PF-TSK-030 (standard workflow)
+- When resolving test-related tech debt items (category "Testing" in [Technical Debt Tracking](../../../product-docs/state-tracking/permanent/technical-debt-tracking.md)) — e.g., zero-assertion tests, anti-patterns, or coverage gaps identified by [Test Audit](../03-testing/test-audit-task.md)
 - **Prerequisites**: Feature implementation complete, TDD test requirements identified, testing framework configured
 
 ## When NOT to Use
@@ -51,7 +52,7 @@ Verify unit test completeness, implement integration and cross-component tests, 
   - **TDD (Technical Design Document)** - Testing requirements section describing test scenarios, coverage expectations, and acceptance criteria
   - **Completed Implementation Code** - All implemented feature code to be tested
   - [Test Tracking](../../../../test/state-tracking/permanent/test-tracking.md) - Current test implementation status
-  - [Test Query Tool](/test/test_query.py) - Query test files by feature, priority, and markers
+  - [Test Query Tool](/doc/process-framework/scripts/test/test_query.py) - Query test files by feature, priority, and markers
   - [Visual Notation Guide](/doc/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 - **Important (Load If Space):**
@@ -59,11 +60,8 @@ Verify unit test completeness, implement integration and cross-component tests, 
   - **Feature Tracking** - [Feature details from feature-tracking.md](../../../product-docs/state-tracking/permanent/feature-tracking.md) for context
   - **Feature Implementation State File** (if exists) - Implementation progress and context at `/doc/product-docs/state-tracking/features`
   - [Existing Test Structure](/test/) - Current test organization and patterns
-  <!-- - [Mock Services](/test/mocks/) - Directory does not exist in this project -->
-  <!-- - [Test Helpers](/test/test_helpers/) - Directory does not exist in this project -->
 
 - **Reference Only (Access When Needed):**
-  <!-- [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Removed: file deleted -->
   - **Existing Test Examples** - Similar test implementations in codebase for pattern consistency
   - [Development Guide](/doc/process-framework/guides/04-implementation/development-guide.md) - Testing standards and practices
 
@@ -173,7 +171,7 @@ Verify unit test completeness, implement integration and cross-component tests, 
     ```powershell
     Set-Location "<project-root>/doc/process-framework/scripts/file-creation"
 
-    .\New-BugReport.ps1 -Title "Service throws exception on empty input" -Description "Method fails with exception when passed empty string instead of returning proper error" -DiscoveredBy "Test Implementation" -Severity "High" -Component "Component Name" -Environment "Development" -Evidence "Test case: test_method_empty_input_returns_error"
+    .\New-BugReport.ps1 -Title "Service throws exception on empty input" -Description "Method fails with exception when passed empty string instead of returning proper error" -DiscoveredBy "Testing" -Severity "High" -Component "Component Name" -Environment "Development" -Evidence "Test case: test_method_empty_input_returns_error"
     ```
 
 23. **Mark manual test groups for re-execution**: If the feature has manual test cases, implementation changes may have invalidated previous results. Run `Update-TestExecutionStatus.ps1` to mark affected groups:

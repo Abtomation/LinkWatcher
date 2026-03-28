@@ -59,7 +59,7 @@ Systematically validates selected features for dependency health, interface cont
 
 > **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished! 🚨**
 >
-> **⚠️ MANDATORY: Use the ../../scripts/file-creation/05-validation/New-ValidationReport.ps1 script for generating validation reports.**
+> **⚠️ MANDATORY: Use the [..\..\scripts\file-creation\05-validation\New-ValidationReport.ps1](../../scripts/file-creation/05-validation/New-ValidationReport.ps1) script for generating validation reports.**
 >
 > **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
 >
@@ -82,7 +82,7 @@ Systematically validates selected features for dependency health, interface cont
    ```powershell
    # Navigate to validation directory and create integration dependencies report
    Set-Location "doc/product-docs/validation"
-    ..\scripts\file-creation\New-ValidationReport.ps1 -ValidationType "IntegrationDependencies" -FeatureIds "0.2.1,0.2.2,0.2.3,0.2.4" -SessionNumber 1
+    ..\..\scripts\file-creation\05-validation\New-ValidationReport.ps1 -ValidationType "IntegrationDependencies" -FeatureIds "0.2.1,0.2.2,0.2.3,0.2.4" -SessionNumber 1
    ```
 10. **Score Integration Criteria**: Apply 4-point scoring system (0-3) to each integration and dependency criterion
 11. **Document Findings**: Record specific dependency issues, integration problems, and improvement recommendations
@@ -141,6 +141,5 @@ Before considering this task finished:
 ## Related Resources
 
 - Dependency management best practices for your technology stack
-<!-- [Component Relationship Index](../../../product-docs/technical/architecture/component-relationship-index.md) - Removed: file deleted -->
 - Integration testing best practices for your technology stack
 - External system integration documentation and patterns

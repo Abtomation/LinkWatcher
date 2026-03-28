@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "description": "Language-specific configuration for [Language] projects using the process framework. Copy this file to languages-config/{language}-config.json and fill in the values.",
+  "description": "Language-specific configuration for [Language] projects using the process framework. Copy this file to languages-config/{language}/{language}-config.json and fill in the values.",
   "language": "[language-name]",
   "version": "1.0",
 

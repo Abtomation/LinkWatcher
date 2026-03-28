@@ -11,6 +11,7 @@ from typing import List
 
 from ..models import LinkReference
 from .base import BaseParser
+from .patterns import QUOTED_DIR_PATTERN, QUOTED_PATH_PATTERN
 
 
 class MarkdownParser(BaseParser):
@@ -19,18 +20,15 @@ class MarkdownParser(BaseParser):
     def __init__(self):
         super().__init__()
         # Pattern 1: Standard markdown links [text](link) - handles balanced parentheses
-        # This regex properly handles nested parentheses in titles
         self.link_pattern = re.compile(r"\[([^\]]+)\]\(((?:[^()]|\([^)]*\))*)\)")
 
         # Pattern 2: Standalone file references (quoted)
-        # Use permissive match inside quotes — _looks_like_file_path() validates later
-        self.quoted_pattern = re.compile(r'[\'"]([^\'"]+\.[a-zA-Z0-9]+)[\'"]')
+        self.quoted_pattern = QUOTED_PATH_PATTERN
 
         # Pattern 3: Reference-style link definitions [label]: url "title"
         self.reference_pattern = re.compile(r"^\s*\[([^\]]+)\]:\s*(.+)$")
 
         # Pattern 4: Unquoted file references (be careful in markdown)
-        # Look for file paths that are clearly standalone
         self.standalone_pattern = re.compile(r"(?:^|\s)([a-zA-Z0-9_\-./\\]+\.[a-zA-Z0-9]+)(?:\s|$)")
 
         # Pattern 5: HTML anchor tags <a href="link">text</a> (PD-BUG-011)
@@ -39,8 +37,7 @@ class MarkdownParser(BaseParser):
         )
 
         # Pattern 6: Quoted directory paths — no extension required (PD-BUG-031)
-        # Captures quoted strings containing at least one path separator (/ or \)
-        self.quoted_dir_pattern = re.compile(r'[\'"]([^\'"]*[/\\][^\'"]*)[\'"]')
+        self.quoted_dir_pattern = QUOTED_DIR_PATTERN
 
     def _extract_url_from_link_content(self, link_content: str) -> str:
         """
@@ -73,14 +70,195 @@ class MarkdownParser(BaseParser):
                 if url_part:
                     return url_part
 
-        # Check for title with parentheses (this is trickier since the outer parens are already removed)
-        # Look for pattern: url (title) where there's a space before the opening paren
+        # Check for title with parentheses (trickier since outer
+        # parens are already removed). Look for pattern: url (title)
+        # where there's a space before the opening paren
         paren_match = re.match(r"^(.+?)\s+\(([^)]*)\)$", link_content)
         if paren_match:
             return paren_match.group(1).strip()
 
         # If no title found, return the original content
         return link_content
+
+    def _is_skippable_target(self, link_target: str) -> bool:
+        """Return True if the link target is external or anchor-only."""
+        return link_target.startswith(("http://", "https://", "mailto:", "tel:", "#"))
+
+    def _overlaps_any(self, start: int, end: int, spans: List[tuple]) -> bool:
+        """Return True if the range [start, end) is contained within any span."""
+        for span_start, span_end in spans:
+            if start >= span_start and end <= span_end:
+                return True
+        return False
+
+    def _extract_standard_links(self, line: str, line_num: int, file_path: str) -> tuple:
+        """Extract standard markdown links: [text](target).
+
+        Returns (references, md_spans) where md_spans are (start, end) tuples
+        for all markdown link matches, used for overlap prevention by downstream
+        extractors.
+        """
+        refs = []
+        md_spans = []
+        for match in self.link_pattern.finditer(line):
+            md_spans.append((match.start(), match.end()))
+            link_text = match.group(1)
+            link_target = self._extract_url_from_link_content(match.group(2))
+            if self._is_skippable_target(link_target):
+                continue
+            refs.append(
+                LinkReference(
+                    file_path=file_path,
+                    line_number=line_num,
+                    column_start=match.start(),
+                    column_end=match.end(),
+                    link_text=link_text,
+                    link_target=link_target,
+                    link_type="markdown",
+                )
+            )
+        return refs, md_spans
+
+    def _extract_reference_links(
+        self, line: str, line_num: int, file_path: str
+    ) -> List[LinkReference]:
+        """Extract reference-style link definitions: [label]: url "title"."""
+        ref_match = self.reference_pattern.match(line)
+        if not ref_match:
+            return []
+        ref_target = self._extract_url_from_link_content(ref_match.group(2))
+        if self._is_skippable_target(ref_target):
+            return []
+        return [
+            LinkReference(
+                file_path=file_path,
+                line_number=line_num,
+                column_start=ref_match.start(),
+                column_end=ref_match.end(),
+                link_text=ref_match.group(1),
+                link_target=ref_target,
+                link_type="markdown-reference",
+            )
+        ]
+
+    def _extract_html_anchors(self, line: str, line_num: int, file_path: str) -> tuple:
+        """Extract HTML anchor tags: <a href="target">.
+
+        Returns (references, html_anchor_spans) where spans are used for
+        overlap prevention by downstream extractors.
+        """
+        refs = []
+        html_anchor_spans = []
+        for match in self.html_anchor_pattern.finditer(line):
+            link_target = match.group(1)
+            if self._is_skippable_target(link_target):
+                continue
+            html_anchor_spans.append((match.start(), match.end()))
+            refs.append(
+                LinkReference(
+                    file_path=file_path,
+                    line_number=line_num,
+                    column_start=match.start(1) - 1,
+                    column_end=match.end(1) + 1,
+                    link_text=link_target,
+                    link_target=link_target,
+                    link_type="html-anchor",
+                )
+            )
+        return refs, html_anchor_spans
+
+    def _extract_quoted_paths(
+        self,
+        line: str,
+        line_num: int,
+        file_path: str,
+        md_spans: List[tuple],
+        html_spans: List[tuple],
+    ) -> List[LinkReference]:
+        """Extract quoted file path references: "path/to/file.ext"."""
+        refs = []
+        for match in self.quoted_pattern.finditer(line):
+            potential_file = match.group(1)
+            if not self._looks_like_file_path(potential_file):
+                continue
+            if self._overlaps_any(match.start(), match.end(), md_spans):
+                continue
+            if self._overlaps_any(match.start(), match.end(), html_spans):
+                continue
+            refs.append(
+                LinkReference(
+                    file_path=file_path,
+                    line_number=line_num,
+                    column_start=match.start(),
+                    column_end=match.end(),
+                    link_text=potential_file,
+                    link_target=potential_file,
+                    link_type="markdown-quoted",
+                )
+            )
+        return refs
+
+    def _extract_quoted_dirs(
+        self,
+        line: str,
+        line_num: int,
+        file_path: str,
+        md_spans: List[tuple],
+        html_spans: List[tuple],
+    ) -> List[LinkReference]:
+        """Extract quoted directory path references (PD-BUG-031)."""
+        refs = []
+        for match in self.quoted_dir_pattern.finditer(line):
+            potential_dir = match.group(1)
+            _, ext = os.path.splitext(potential_dir)
+            if ext:
+                continue
+            if not self._looks_like_directory_path(potential_dir):
+                continue
+            if self._overlaps_any(match.start(), match.end(), md_spans):
+                continue
+            if self._overlaps_any(match.start(), match.end(), html_spans):
+                continue
+            refs.append(
+                LinkReference(
+                    file_path=file_path,
+                    line_number=line_num,
+                    column_start=match.start(1),
+                    column_end=match.end(1),
+                    link_text=potential_dir,
+                    link_target=potential_dir,
+                    link_type="markdown-quoted-dir",
+                )
+            )
+        return refs
+
+    def _extract_standalone_refs(
+        self,
+        line: str,
+        line_num: int,
+        file_path: str,
+        md_spans: List[tuple],
+    ) -> List[LinkReference]:
+        """Extract unquoted standalone file references."""
+        refs = []
+        for match in self.standalone_pattern.finditer(line):
+            potential_file = match.group(1)
+            if not self._looks_like_file_path(potential_file):
+                continue
+            if self._overlaps_any(match.start(1), match.end(1), md_spans):
+                continue
+            refs.append(
+                LinkReference(
+                    file_path=file_path,
+                    line_number=line_num,
+                    column_start=match.start(1),
+                    column_end=match.end(1),
+                    link_text=potential_file,
+                    link_target=potential_file,
+                    link_type="markdown-standalone",
+                )
+            )
+        return refs
 
     def parse_content(self, content: str, file_path: str) -> List[LinkReference]:
         """Parse markdown content for links."""
@@ -89,191 +267,30 @@ class MarkdownParser(BaseParser):
             references = []
 
             for line_num, line in enumerate(lines, 1):
-                # First, find standard markdown links
-                for match in self.link_pattern.finditer(line):
-                    link_text = match.group(1)
-                    link_content = match.group(2)
+                std_refs, md_spans = self._extract_standard_links(line, line_num, file_path)
+                references.extend(std_refs)
+                references.extend(self._extract_reference_links(line, line_num, file_path))
 
-                    # Extract just the URL, removing any title
-                    link_target = self._extract_url_from_link_content(link_content)
+                html_refs, html_anchor_spans = self._extract_html_anchors(line, line_num, file_path)
+                references.extend(html_refs)
 
-                    # Skip external links
-                    if link_target.startswith(("http://", "https://", "mailto:", "tel:")):
-                        continue
+                # Skip standalone/quoted extraction on reference definition lines
+                if self.reference_pattern.match(line) is not None:
+                    continue
 
-                    # Skip anchors only
-                    if link_target.startswith("#"):
-                        continue
-
-                    references.append(
-                        LinkReference(
-                            file_path=file_path,
-                            line_number=line_num,
-                            column_start=match.start(),
-                            column_end=match.end(),
-                            link_text=link_text,
-                            link_target=link_target,
-                            link_type="markdown",
-                        )
+                references.extend(
+                    self._extract_quoted_paths(
+                        line, line_num, file_path, md_spans, html_anchor_spans
                     )
-
-                # Then, look for reference-style link definitions
-                ref_match = self.reference_pattern.match(line)
-                if ref_match:
-                    ref_label = ref_match.group(1)
-                    ref_content = ref_match.group(2)
-
-                    # Extract just the URL, removing any title
-                    ref_target = self._extract_url_from_link_content(ref_content)
-
-                    # Skip external links
-                    if not ref_target.startswith(("http://", "https://", "mailto:", "tel:")):
-                        # Skip anchors only
-                        if not ref_target.startswith("#"):
-                            references.append(
-                                LinkReference(
-                                    file_path=file_path,
-                                    line_number=line_num,
-                                    column_start=ref_match.start(),
-                                    column_end=ref_match.end(),
-                                    link_text=ref_label,
-                                    link_target=ref_target,
-                                    link_type="markdown-reference",
-                                )
-                            )
-
-                # PD-BUG-011: Parse HTML anchor tags <a href="...">
-                html_anchor_spans = []
-                for match in self.html_anchor_pattern.finditer(line):
-                    link_target = match.group(1)
-
-                    # Skip external links
-                    if link_target.startswith(("http://", "https://", "mailto:", "tel:")):
-                        continue
-
-                    # Skip anchors only
-                    if link_target.startswith("#"):
-                        continue
-
-                    # Record span for overlap prevention with quoted_pattern
-                    html_anchor_spans.append((match.start(), match.end()))
-
-                    # Column positions cover the href value including quotes
-                    references.append(
-                        LinkReference(
-                            file_path=file_path,
-                            line_number=line_num,
-                            column_start=match.start(1) - 1,
-                            column_end=match.end(1) + 1,
-                            link_text=link_target,
-                            link_target=link_target,
-                            link_type="html-anchor",
-                        )
+                )
+                references.extend(
+                    self._extract_quoted_dirs(
+                        line, line_num, file_path, md_spans, html_anchor_spans
                     )
-
-                # Then, look for standalone file references
-                # Skip if this line is a reference definition
-                is_reference_line = self.reference_pattern.match(line) is not None
-
-                if not is_reference_line:
-                    # Check for quoted file paths (avoid overlapping with markdown links and HTML anchors)
-                    for match in self.quoted_pattern.finditer(line):
-                        potential_file = match.group(1)
-                        if self._looks_like_file_path(potential_file):
-                            # Check if this overlaps with any markdown link or HTML anchor
-                            overlaps = False
-                            for md_match in self.link_pattern.finditer(line):
-                                if (
-                                    match.start() >= md_match.start()
-                                    and match.end() <= md_match.end()
-                                ):
-                                    overlaps = True
-                                    break
-
-                            if not overlaps:
-                                for span_start, span_end in html_anchor_spans:
-                                    if match.start() >= span_start and match.end() <= span_end:
-                                        overlaps = True
-                                        break
-
-                            if not overlaps:
-                                references.append(
-                                    LinkReference(
-                                        file_path=file_path,
-                                        line_number=line_num,
-                                        column_start=match.start(),
-                                        column_end=match.end(),
-                                        link_text=potential_file,
-                                        link_target=potential_file,
-                                        link_type="markdown-quoted",
-                                    )
-                                )
-
-                    # PD-BUG-031: Check for quoted directory paths (no extension required)
-                    for match in self.quoted_dir_pattern.finditer(line):
-                        potential_dir = match.group(1)
-
-                        # Skip if it has a file extension (already handled by quoted_pattern)
-                        _, ext = os.path.splitext(potential_dir)
-                        if ext:
-                            continue
-
-                        if self._looks_like_directory_path(potential_dir):
-                            # Check overlap with markdown links
-                            overlaps = False
-                            for md_match in self.link_pattern.finditer(line):
-                                if (
-                                    match.start() >= md_match.start()
-                                    and match.end() <= md_match.end()
-                                ):
-                                    overlaps = True
-                                    break
-
-                            if not overlaps:
-                                for span_start, span_end in html_anchor_spans:
-                                    if match.start() >= span_start and match.end() <= span_end:
-                                        overlaps = True
-                                        break
-
-                            if not overlaps:
-                                references.append(
-                                    LinkReference(
-                                        file_path=file_path,
-                                        line_number=line_num,
-                                        column_start=match.start(1),
-                                        column_end=match.end(1),
-                                        link_text=potential_dir,
-                                        link_target=potential_dir,
-                                        link_type="markdown-quoted-dir",
-                                    )
-                                )
-
-                    # Check for standalone file references (but avoid overlapping with markdown links)
-                    for match in self.standalone_pattern.finditer(line):
-                        potential_file = match.group(1)
-                        if self._looks_like_file_path(potential_file):
-                            # Check if this overlaps with any markdown link
-                            overlaps = False
-                            for md_match in self.link_pattern.finditer(line):
-                                if (
-                                    match.start(1) >= md_match.start()
-                                    and match.end(1) <= md_match.end()
-                                ):
-                                    overlaps = True
-                                    break
-
-                            if not overlaps:
-                                references.append(
-                                    LinkReference(
-                                        file_path=file_path,
-                                        line_number=line_num,
-                                        column_start=match.start(1),
-                                        column_end=match.end(1),
-                                        link_text=potential_file,
-                                        link_target=potential_file,
-                                        link_type="markdown-standalone",
-                                    )
-                                )
+                )
+                references.extend(
+                    self._extract_standalone_refs(line, line_num, file_path, md_spans)
+                )
 
             return references
 

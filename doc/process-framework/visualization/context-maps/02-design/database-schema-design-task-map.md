@@ -77,6 +77,5 @@ graph TD
 - [Schema Design Template](/doc/process-framework/templates/02-design/schema-design-template.md) - Template for creating schema design documents
 - [API Design Task](/doc/process-framework/tasks/02-design/api-design-task.md) - For coordinating API changes
 - [System Architecture Review](/doc/process-framework/tasks/01-planning/system-architecture-review.md) - For architectural evaluation
-<!-- [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Removed: file deleted -->
 
 ---

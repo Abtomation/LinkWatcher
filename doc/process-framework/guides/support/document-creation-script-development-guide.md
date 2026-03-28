@@ -660,7 +660,7 @@ This is done via the **Process Improvement task** (PF-TSK-009) or **Framework Ex
 
 When onboarding a project that uses a language without an existing config:
 
-1. Copy the [language config template](/doc/process-framework/templates/support/language-config-template.json) to `languages-config/{language}-config.json`
+1. Copy the [language config template](/doc/process-framework/templates/support/language-config-template.json) to `languages-config/{language}/{language}-config.json`
 2. Fill in language-specific values
 3. This is done during **Project Initiation** (PF-TSK-059)
 

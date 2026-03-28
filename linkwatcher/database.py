@@ -3,12 +3,28 @@ Link database for fast lookups and updates.
 
 This module provides an in-memory database of file links that replaces
 the need to scan all files every time a change occurs.
+
+AI Context
+----------
+- **Entry point**: ``LinkDatabase`` (concrete) implements
+  ``LinkDatabaseInterface`` (ABC).  All consumers should type-hint
+  against the interface.
+- **Data structure**: ``self.links`` is a ``dict[str, list[LinkReference]]``
+  keyed by *normalized target path*.  All lookups are O(1) by target.
+  A ``threading.Lock`` guards all mutations for thread safety.
+- **Common tasks**:
+  - Adding a query method: acquire ``self._lock``, operate on
+    ``self.links``, return copies (not references) to avoid races.
+  - Debugging missing references: check ``normalize_path()`` — path
+    normalization mismatches are the most common cause.
+  - Understanding data flow: service._initial_scan → parser.parse_file
+    → database.add_link; handler events → database.remove_file_links /
+    update_source_path / get_references_to_file.
 """
 
 import os
 import threading
 from abc import ABC, abstractmethod
-from datetime import datetime
 from typing import Dict, List, Optional, Set
 
 from .logging import get_logger
@@ -84,6 +100,15 @@ class LinkDatabaseInterface(ABC):
         ...
 
     @abstractmethod
+    def has_target_with_basename(self, filename: str) -> bool:
+        """Check if any target key has the given basename.
+
+        Used for fast lookups to determine if a file is referenced
+        by any monitored file, without expensive full-path resolution.
+        """
+        ...
+
+    @abstractmethod
     def clear(self):
         """Clear all data from the database."""
         ...
@@ -103,6 +128,7 @@ class LinkDatabase(LinkDatabaseInterface):
     def __init__(self):
         self.links: Dict[str, List[LinkReference]] = {}  # target_file -> [references]
         self.files_with_links: Set[str] = set()  # files that contain links
+        self._source_to_targets: Dict[str, Set[str]] = {}  # normalized_source -> {target_keys}
         self._last_scan: Optional[float] = None
         self._lock = threading.Lock()
         self.logger = get_logger()
@@ -118,12 +144,27 @@ class LinkDatabase(LinkDatabaseInterface):
 
     def add_link(self, reference: LinkReference):
         """Add a link reference to the database."""
+        if not reference.link_target:
+            return
         with self._lock:
             target = normalize_path(reference.link_target)
             if target not in self.links:
                 self.links[target] = []
+            # Guard: skip duplicate references (same source file + line + column)
+            source_norm = normalize_path(reference.file_path)
+            for ref in self.links[target]:
+                if (
+                    normalize_path(ref.file_path) == source_norm
+                    and ref.line_number == reference.line_number
+                    and ref.column_start == reference.column_start
+                ):
+                    return
             self.links[target].append(reference)
             self.files_with_links.add(reference.file_path)
+            # Maintain reverse index: source file -> target keys
+            if source_norm not in self._source_to_targets:
+                self._source_to_targets[source_norm] = set()
+            self._source_to_targets[source_norm].add(target)
 
     def remove_file_links(self, file_path: str):
         """Remove all links from a specific file."""
@@ -133,20 +174,24 @@ class LinkDatabase(LinkDatabaseInterface):
             self.files_with_links.discard(file_path)
             self.files_with_links.discard(normalized_file_path)
 
-            # Remove references from this file
+            # Use reverse index to find only the targets referenced by this source
+            target_keys = self._source_to_targets.pop(normalized_file_path, set())
+
             removed_count = 0
-            for target, references in self.links.items():
+            for target in target_keys:
+                if target not in self.links:
+                    continue
+                references = self.links[target]
                 original_count = len(references)
-                # Use normalized path comparison to handle path variations
                 self.links[target] = [
                     ref
                     for ref in references
                     if normalize_path(ref.file_path) != normalized_file_path
                 ]
                 removed_count += original_count - len(self.links[target])
-
-            # Clean up empty entries
-            self.links = {k: v for k, v in self.links.items() if v}
+                # Clean up empty target entry
+                if not self.links[target]:
+                    del self.links[target]
 
             # Log removal results
             if removed_count > 0:
@@ -222,15 +267,22 @@ class LinkDatabase(LinkDatabaseInterface):
             pass
 
         # PD-BUG-045: Suffix match for project-root-relative references.
-        # Python imports (e.g., "utils/helpers") resolve from the Python project
-        # root, not from the importing file's directory.  When the LinkWatcher
-        # project root is an ancestor of the Python project, the DB key
-        # ("utils/helpers") is a proper suffix of the moved file's full
-        # project-relative path ("sub/project/utils/helpers").  Also try with
-        # .py extension stripped from file_norm for extensionless targets.
-        # Constraint: the reference's source file must be under the same
-        # directory subtree (the inferred sub-project root) to avoid matching
-        # unrelated files elsewhere in the project.
+        #
+        # Algorithm summary:
+        #   1. Check if file_norm ends with "/<target_norm>" (or its
+        #      extensionless form), meaning the DB key is a proper suffix of
+        #      the full project-relative path.
+        #   2. If yes, derive subtree_root = the path prefix before the suffix
+        #      (i.e., the inferred sub-project root).
+        #   3. Accept the match only if the referring file also lives under
+        #      subtree_root — this prevents false positives from identically
+        #      named files in unrelated parts of the project.
+        #
+        # Why this exists: Python imports (e.g., "utils/helpers") resolve from
+        # the Python project root, not the importing file's directory. When the
+        # LinkWatcher project root is an ancestor of the Python project, the
+        # DB key is a proper suffix of the moved file's project-relative path.
+        # Also tries with .py extension stripped for extensionless targets.
         suffix = "/" + target_norm
         subtree_root = None
         if file_norm.endswith(suffix):
@@ -311,14 +363,26 @@ class LinkDatabase(LinkDatabaseInterface):
         """
         with self._lock:
             old_normalized = normalize_path(old_path)
+            new_normalized = normalize_path(new_path)
             updated = 0
-            for references in self.links.values():
-                for ref in references:
+
+            # Use reverse index to find only the targets referenced by old source
+            target_keys = self._source_to_targets.get(old_normalized, set())
+            for target in target_keys:
+                if target not in self.links:
+                    continue
+                for ref in self.links[target]:
                     if normalize_path(ref.file_path) == old_normalized:
                         ref.file_path = new_path
                         updated += 1
-            # Update files_with_links tracking set
+
+            # Update reverse index: move entry from old key to new key
             if updated:
+                targets = self._source_to_targets.pop(old_normalized, set())
+                if new_normalized not in self._source_to_targets:
+                    self._source_to_targets[new_normalized] = set()
+                self._source_to_targets[new_normalized].update(targets)
+                # Update files_with_links tracking set
                 self.files_with_links.discard(old_path)
                 self.files_with_links.discard(old_normalized)
                 self.files_with_links.add(new_path)
@@ -388,11 +452,20 @@ class LinkDatabase(LinkDatabaseInterface):
         with self._lock:
             return set(self.files_with_links)
 
+    def has_target_with_basename(self, filename: str) -> bool:
+        """Check if any target key has the given basename."""
+        with self._lock:
+            for target_key in self.links:
+                if os.path.basename(target_key) == filename:
+                    return True
+        return False
+
     def clear(self):
         """Clear all data from the database."""
         with self._lock:
             self.links.clear()
             self.files_with_links.clear()
+            self._source_to_targets.clear()
             self.last_scan = None
 
     def get_stats(self) -> Dict[str, int]:

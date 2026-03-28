@@ -14,7 +14,7 @@
       "type": "Task",
       "directories": {
         "main": "doc/process-framework/tasks",
-        "00-onboarding": "doc/process-framework/tasks/00-onboarding",
+        "00-setup": "doc/process-framework/tasks/00-setup",
         "01-planning": "doc/process-framework/tasks/01-planning",
         "02-design": "doc/process-framework/tasks/02-design",
         "03-testing": "doc/process-framework/tasks/03-testing",
@@ -26,7 +26,7 @@
         "cyclical": "doc/process-framework/tasks/cyclical",
         "default": "01-planning"
       },
-      "nextAvailable": 81
+      "nextAvailable": 82
     },
     "PF-GDE": {
       "description": "Process Framework - Guides",
@@ -46,7 +46,7 @@
         "main": "doc/process-framework/templates",
         "default": "main"
       },
-      "nextAvailable": 65
+      "nextAvailable": 66
     },
     "PF-DOC": {
       "description": "Process Framework - Documentation",
@@ -77,7 +77,7 @@
         "process-flows": "doc/process-framework/visualization/process-flows",
         "default": "context-maps"
       },
-      "nextAvailable": 59
+      "nextAvailable": 60
     },
     "PF-PRO": {
       "description": "Process Framework - Proposals",
@@ -97,7 +97,7 @@
         "permanent": "doc/process-framework/state-tracking/permanent",
         "default": "permanent"
       },
-      "nextAvailable": 213
+      "nextAvailable": 246
     },
     "PF-STA": {
       "description": "Process Framework - State Tracking (framework only)",
@@ -110,7 +110,7 @@
         "product-temporary": "doc/product-docs/state-tracking/temporary",
         "default": "permanent"
       },
-      "nextAvailable": 66
+      "nextAvailable": 68
     },
     "PF-FEE": {
       "description": "Process Framework - Feedback Artifacts",
@@ -121,7 +121,7 @@
         "archive": "doc/process-framework/feedback/archive",
         "default": "forms"
       },
-      "nextAvailable": 465
+      "nextAvailable": 568
     },
     "PF-REV": {
       "description": "Process Framework - Review Artifacts",
@@ -131,7 +131,7 @@
         "reviews": "doc/process-framework/feedback/reviews",
         "default": "reviews"
       },
-      "nextAvailable": 16
+      "nextAvailable": 17
     },
     "PF-INF": {
       "description": "Process Framework - Infrastructure",

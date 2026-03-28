@@ -93,7 +93,7 @@ graph TD
 3. **Analyze Dependencies**: Examine dependency manifest for version constraints and lib/ directory for implementation patterns
 4. **Assess Integration Patterns**: Review external service configuration and Technical Design Documents for external system integration
 5. **Perform Cross-Feature Analysis**: Unlike other validation tasks, this focuses on integration patterns across multiple features simultaneously
-6. **Generate Validation Report**: Use ../../scripts/file-creation/New-ValidationReport.ps1 script with IntegrationDependencies validation type
+6. **Generate Validation Report**: Use [../../scripts/file-creation/05-validation/New-ValidationReport.ps1](../../../scripts/file-creation/05-validation/New-ValidationReport.ps1) script with IntegrationDependencies validation type
 7. **Update Tracking**: Update Validation Tracking matrix and Documentation Map with new report
 8. **Reference Documentation**: Access Language/Framework Documentation and Integration Tests only when specific guidance is needed
 
@@ -103,9 +103,7 @@ graph TD
 - [Feature Tracking](../../../../product-docs/state-tracking/permanent/feature-tracking.md) - Current status of features
 - Validation Tracking State File - Active validation tracking matrix (file location depends on validation round)
 - [Validation Report Template](../../../templates/05-validation/validation-report-template.md) - Standardized report structure
-<!-- [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Removed: file deleted -->
 - [../../scripts/file-creation/New-ValidationReport.ps1](../../../scripts/file-creation/05-validation/New-ValidationReport.ps1) - Automation script for report generation
 - Language/Framework Dependency Management Documentation - Official dependency management guidance
 
 ---
-

@@ -50,6 +50,9 @@ Are you ADOPTING THE FRAMEWORK into an existing project?
 │  ├─ No → Are you REVIEWING CODE?
 │  │  └─ Yes → Use [Code Review](#code-review)
 │  │
+│  ├─ No → Are you WRITING USER DOCUMENTATION (handbooks, quick-reference, README)?
+│  │  └─ Yes → Use [User Documentation Creation](#user-documentation-creation)
+│  │
 │  ├─ No → Are you PREPARING A RELEASE?
 │  │  └─ Yes → Use [Release & Deployment](#release--deployment)
 │  │
@@ -89,15 +92,16 @@ These tasks run alongside your main work:
 
 ## 📋 Task Definitions
 
-### 🎓 00 - Onboarding Tasks
+### 🎓 00 - Setup Tasks
 
-_Framework adoption and existing codebase documentation activities_
+_Project setup, framework adoption, and existing codebase documentation activities_
 
 | Task                                     | Use When                                                                                | Complexity | Link                                                                                               |
 | ---------------------------------------- | --------------------------------------------------------------------------------------- | ---------- | -------------------------------------------------------------------------------------------------- |
-| **Codebase Feature Discovery**           | Adopting process framework into existing project - discover features and assign all code | 🟡 Medium  | [→ Definition](/doc/process-framework/tasks/00-onboarding/codebase-feature-discovery.md)           |
-| **Codebase Feature Analysis**            | After feature discovery - analyze patterns, dependencies, and design decisions           | 🟡 Medium  | [→ Definition](/doc/process-framework/tasks/00-onboarding/codebase-feature-analysis.md)            |
-| **Retrospective Documentation Creation** | After analysis - create tier assessments and required design documentation               | 🔴 Complex | [→ Definition](/doc/process-framework/tasks/00-onboarding/retrospective-documentation-creation.md) |
+| **Codebase Feature Discovery**           | Adopting process framework into existing project - discover features and assign all code | 🟡 Medium  | [→ Definition](/doc/process-framework/tasks/00-setup/codebase-feature-discovery.md)           |
+| **Codebase Feature Analysis**            | After feature discovery - analyze patterns, dependencies, and design decisions           | 🟡 Medium  | [→ Definition](/doc/process-framework/tasks/00-setup/codebase-feature-analysis.md)            |
+| **Retrospective Documentation Creation** | After analysis - create tier assessments and required design documentation               | 🔴 Complex | [→ Definition](/doc/process-framework/tasks/00-setup/retrospective-documentation-creation.md) |
+| **Project Initiation**                   | Starting a new project or adapting the process framework to a new domain                | 🟡 Medium  | [→ Definition](/doc/process-framework/tasks/00-setup/project-initiation-task.md) |
 
 ### 📋 01 - Planning Tasks
 
@@ -187,6 +191,7 @@ _Release preparation and deployment activities_
 | Task                     | Use When                         | Complexity | Link                                                                                  |
 | ------------------------ | -------------------------------- | ---------- | ------------------------------------------------------------------------------------- |
 | **Release & Deployment** | Preparing and deploying releases | 🔴 Complex | [→ Definition](/doc/process-framework/tasks/07-deployment/release-deployment-task.md) |
+| **User Documentation Creation** | Feature introduces or changes user-visible behavior and needs handbook/quick-reference/README updates | 🟡 Medium | [→ Definition](/doc/process-framework/tasks/07-deployment/user-documentation-creation.md) |
 
 ### 🔁 Cyclical Tasks
 
@@ -204,7 +209,6 @@ _Meta-framework tasks that work on the process framework itself_
 | Task                          | Type     | Use When                                                                         | Link                                                                              |
 | ----------------------------- | -------- | -------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
 | **Framework Evaluation**      | Support  | Structurally evaluate the process framework or specific parts of it for completeness, consistency, redundancy, accuracy, effectiveness, automation coverage, and scalability | [→ Definition](/doc/process-framework/tasks/support/framework-evaluation.md)      |
-| **Project Initiation** | Support | Initial project setup including project-config.json creation | [→ Definition](/doc/process-framework/tasks/support/project-initiation-task.md) |
 | **New Task Creation Process** | Discrete | Creating new tasks for the framework                                             | [→ Definition](/doc/process-framework/tasks/support/new-task-creation-process.md) |
 | **Process Improvement**       | Discrete | Enhancing development workflows                                                  | [→ Definition](/doc/process-framework/tasks/support/process-improvement-task.md)  |
 | **Structure Change**          | Discrete | Reorganizing directory structures, file locations, or documentation architecture | [→ Definition](/doc/process-framework/tasks/support/structure-change-task.md)     |
@@ -220,25 +224,25 @@ _Meta-framework tasks that work on the process framework itself_
 ### For New Feature Planning (research needed)
 
 ```
-Feature Discovery → Feature Request Evaluation (classify as new) → Feature Tier Assessment → FDD Creation → [System Architecture Review] → [ADR Creation] → [API Design] → [Database Schema Design] → TDD Creation → [Test Specification Creation] → Feature Implementation Planning → [Decomposed Implementation Tasks] → Code Review → Release & Deployment
+Feature Discovery → Feature Request Evaluation (classify as new) → Feature Tier Assessment → FDD Creation → [System Architecture Review] → [ADR Creation] → [API Design] → [Database Schema Design] → TDD Creation → [Test Specification Creation] → Feature Implementation Planning → [Decomposed Implementation Tasks] → Code Review → [User Documentation Creation] → Release & Deployment
 ```
 
 ### For Complex Features
 
 ```
-Feature Request Evaluation (classify as new) → Feature Tier Assessment → FDD Creation → [System Architecture Review] → [ADR Creation] → [API Design] → [Database Schema Design] → TDD Creation → [Test Specification Creation] → Feature Implementation Planning → [Decomposed Implementation Tasks] → Integration & Testing → Test Audit → Code Review → Release & Deployment
+Feature Request Evaluation (classify as new) → Feature Tier Assessment → FDD Creation → [System Architecture Review] → [ADR Creation] → [API Design] → [Database Schema Design] → TDD Creation → [Test Specification Creation] → Feature Implementation Planning → [Decomposed Implementation Tasks] → Integration & Testing → Test Audit → Code Review → [User Documentation Creation] → Release & Deployment
 ```
 
 ### For Simple Features
 
 ```
-Feature Request Evaluation (classify as new) → Feature Tier Assessment → Feature Implementation Planning (with lightweight design) → [Decomposed Implementation Tasks] → Code Review → Release & Deployment
+Feature Request Evaluation (classify as new) → Feature Tier Assessment → Feature Implementation Planning (with lightweight design) → [Decomposed Implementation Tasks] → Code Review → [User Documentation Creation] → Release & Deployment
 ```
 
 ### For Enhancements to Existing Features
 
 ```
-Feature Request Evaluation (classify as enhancement + scope + create state file) → Feature Enhancement (execute steps from state file) → Code Review → Release & Deployment
+Feature Request Evaluation (classify as enhancement + scope + create state file) → Feature Enhancement (execute steps from state file) → Code Review → [User Documentation Creation] → Release & Deployment
 ```
 
 ### For Bug Fixes
@@ -332,6 +336,7 @@ Validation Preparation (PF-TSK-077) → [Select features + dimensions] → Dimen
 | **🔄 Workflows**        | Common Task Workflows             | Standard development workflows               | [↑ Common Workflows](#common-workflows)                                                                                                |
 | **🏗️ Infrastructure**   | Process Framework Registry        | Complete task catalog with automation status | [Process Framework Task Registry](/doc/process-framework/infrastructure/process-framework-task-registry.md)                            |
 | **📊 State Tracking**   | Feature Tracking                  | Track feature development status             | [Feature Tracking](/doc/product-docs/state-tracking/permanent/feature-tracking.md)                                                |
+| **📊 State Tracking**   | Feature Request Tracking          | Intake queue for product feature requests    | [Feature Request Tracking](/doc/product-docs/state-tracking/permanent/feature-request-tracking.md)                                |
 | **📊 State Tracking**   | Technical Debt Tracking           | Track technical debt items                   | [Technical Debt Tracking](/doc/product-docs/state-tracking/permanent/technical-debt-tracking.md)                                  |
 | **📖 Templates**        | State File Template               | Create new tracking files                    | [State File Template](/doc/process-framework/templates/support/state-file-template.md)                                               |
 | **🔧 Automation**       | Task Creation Script              | Create new framework tasks                   | [New Task Creation Process](/doc/process-framework/tasks/support/new-task-creation-process.md)                                         |
@@ -404,6 +409,7 @@ Understanding the different types of documentation helps you choose the right re
 | File                                                                                                  | Purpose                          | Status    |
 | ----------------------------------------------------------------------------------------------------- | -------------------------------- | --------- |
 | [Feature Tracking](/doc/product-docs/state-tracking/permanent/feature-tracking.md)               | Track feature development status | ✅ Active |
+| [Feature Request Tracking](/doc/product-docs/state-tracking/permanent/feature-request-tracking.md) | Intake queue for product feature requests | ✅ Active |
 | [Technical Debt Tracking](/doc/product-docs/state-tracking/permanent/technical-debt-tracking.md) | Track technical debt items       | ✅ Active |
 
 ### Creating New State Files

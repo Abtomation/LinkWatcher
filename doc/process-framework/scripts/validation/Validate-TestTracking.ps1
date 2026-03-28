@@ -55,7 +55,7 @@ if (Test-Path $configPath) {
     $testDirectory = if ($config.testing -and $config.testing.testDirectory) { $config.testing.testDirectory } elseif ($config.paths.tests) { $config.paths.tests } else { $null }
 
     if ($config.testing -and $config.testing.language) {
-        $langConfigPath = Join-Path $ProjectRoot "doc/process-framework/languages-config/$($config.testing.language)-config.json"
+        $langConfigPath = Join-Path $ProjectRoot "doc/process-framework/languages-config/$($config.testing.language)/$($config.testing.language)-config.json"
         if (Test-Path $langConfigPath) {
             $langConfig = Get-Content $langConfigPath -Raw -Encoding UTF8 | ConvertFrom-Json
         }

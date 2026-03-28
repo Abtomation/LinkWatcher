@@ -229,14 +229,25 @@ class ReferenceLookup:
                 error_type=type(e).__name__,
             )
 
-    def rescan_moved_file_links(self, old_path, new_path, abs_new_path):
-        """Rescan a moved file and properly update the link database."""
+    def rescan_moved_file_links(self, old_path, new_path, abs_new_path, content=None):
+        """Rescan a moved file and properly update the link database.
+
+        Args:
+            old_path: Relative old path (used for DB cleanup).
+            new_path: Relative new path (used for new DB entries).
+            abs_new_path: Absolute path to the file at its new location.
+            content: Pre-read file content. When provided, uses parse_content()
+                instead of parse_file() to avoid a redundant disk read.
+        """
         try:
             # Remove existing links using the OLD path (since that's what's in the database)
             self.link_db.remove_file_links(old_path)
 
             # Parse and add new links with the NEW path
-            references = self.parser.parse_file(abs_new_path)
+            if content is not None:
+                references = self.parser.parse_content(content, abs_new_path)
+            else:
+                references = self.parser.parse_file(abs_new_path)
             for ref in references:
                 # Update the reference to use the new relative path
                 ref.file_path = new_path
@@ -426,7 +437,9 @@ class ReferenceLookup:
             if not references:
                 # PD-BUG-008: Still update DB source path even with no outgoing links,
                 # so files_with_links doesn't retain the stale old path.
-                self.rescan_moved_file_links(old_file_path, new_file_path, abs_new_path)
+                self.rescan_moved_file_links(
+                    old_file_path, new_file_path, abs_new_path, content=content
+                )
                 return
 
             # Filter for relative links that might need updating
@@ -447,7 +460,9 @@ class ReferenceLookup:
             if not relative_links:
                 print(f"{Fore.CYAN}   No relative links found to update")
                 # PD-BUG-008: Still update DB source path for the moved file.
-                self.rescan_moved_file_links(old_file_path, new_file_path, abs_new_path)
+                self.rescan_moved_file_links(
+                    old_file_path, new_file_path, abs_new_path, content=content
+                )
                 return
 
             print(f"{Fore.CYAN}   Found {len(relative_links)} relative link(s) to check")
@@ -460,7 +475,9 @@ class ReferenceLookup:
                 print(f"{Fore.CYAN}   File moved within same directory, no link updates needed")
                 # PD-BUG-008: Still update DB source path — without this, subsequent
                 # moves of files referenced by this file try to open the old (non-existent) path.
-                self.rescan_moved_file_links(old_file_path, new_file_path, abs_new_path)
+                self.rescan_moved_file_links(
+                    old_file_path, new_file_path, abs_new_path, content=content
+                )
                 return
 
             original_content = content
@@ -540,7 +557,9 @@ class ReferenceLookup:
 
             # PD-BUG-008: Update DB source path via shared method (same logic
             # as early-return paths above, and as _handle_directory_moved).
-            self.rescan_moved_file_links(old_file_path, new_file_path, abs_new_path)
+            self.rescan_moved_file_links(
+                old_file_path, new_file_path, abs_new_path, content=content
+            )
 
             if links_updated > 0:
                 print(f"{Fore.GREEN}✓ Updated {links_updated} relative link(s) in moved file")

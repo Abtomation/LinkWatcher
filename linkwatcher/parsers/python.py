@@ -11,6 +11,7 @@ from typing import List
 
 from ..models import LinkReference
 from .base import BaseParser
+from .patterns import QUOTED_PATH_PATTERN
 
 # Authoritative stdlib module list on Python 3.10+; comprehensive fallback for 3.8/3.9.
 try:
@@ -237,9 +238,7 @@ class PythonParser(BaseParser):
 
     def __init__(self):
         super().__init__()
-        # Pattern for quoted file paths
-        # Use permissive match inside quotes — _looks_like_file_path() validates later
-        self.quoted_pattern = re.compile(r'[\'"]([^\'"]+\.[a-zA-Z0-9]+)[\'"]')
+        self.quoted_pattern = QUOTED_PATH_PATTERN
 
         # Pattern for file paths in comments (find all occurrences)
         self.comment_pattern = re.compile(r"([a-zA-Z0-9_\-./\\]+\.[a-zA-Z0-9]+)")
@@ -280,7 +279,8 @@ class PythonParser(BaseParser):
                 import_match = self.local_import_pattern.match(line)
                 if import_match:
                     import_path = import_match.group(1)
-                    # Convert dot notation to file path (e.g., src.utils.string_utils -> src/utils/string_utils)
+                    # Convert dot notation to file path
+                    # e.g., src.utils.string_utils -> src/utils/string_utils
                     if "." in import_path and not import_path.startswith("."):
                         file_path_candidate = import_path.replace(".", "/")
                         if self._looks_like_local_import(file_path_candidate):

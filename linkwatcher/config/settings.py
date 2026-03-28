@@ -3,20 +3,66 @@ Configuration classes for the LinkWatcher system.
 
 This module provides configuration management with support for
 loading from files, environment variables, and programmatic settings.
+
+AI Context
+----------
+- **Entry point**: ``LinkWatcherConfig`` dataclass — instantiated by
+  service or tests.  Class methods ``from_file()``, ``from_env()``,
+  and ``from_dict()`` provide alternative constructors.
+- **Precedence chain**: defaults → file → env → CLI, combined via
+  ``merge()`` (other's non-default values override this config's).
+- **Common tasks**:
+  - Adding a config field: add a dataclass field with default, then
+    add its env-var mapping in ``from_env()`` and YAML key handling
+    in ``_from_dict()``.  Update config-examples/ YAML files.
+  - Debugging config loading: ``_from_dict()`` uses ``setattr`` with
+    a dunder guard; ``from_file()`` delegates to PyYAML/json.
+  - Understanding type coercion: ``_from_dict()`` converts lists to
+    sets for ``monitored_extensions`` and ``ignored_directories``.
 """
 
+import dataclasses
 import json
+import logging
 import os
+import tempfile
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, Dict, List, Optional, Set, get_type_hints
 
 import yaml
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
 class LinkWatcherConfig:
-    """Configuration for LinkWatcher system."""
+    """Configuration for the LinkWatcher real-time link maintenance system.
+
+    Configuration precedence (highest to lowest):
+        1. CLI arguments — passed directly to LinkWatcherConfig fields
+        2. Environment variables — loaded via ``from_env(prefix)``
+        3. Configuration file (YAML/JSON) — loaded via ``from_file(path)``
+        4. Dataclass defaults — defined on each field below
+
+    Use ``merge()`` to combine two configs: the *other* config's non-default
+    values override *this* config's values, which enables the precedence
+    chain (e.g., ``file_config.merge(env_config).merge(cli_config)``).
+
+    Configuration groups:
+        - **File monitoring**: ``monitored_extensions``, ``ignored_directories``
+        - **Parsers**: ``enable_<format>_parser`` flags
+        - **Update behavior**: ``create_backups``, ``dry_run_mode``, ``atomic_updates``
+        - **Performance**: ``max_file_size_mb``, ``initial_scan_enabled``,
+          ``scan_progress_interval``
+        - **Logging**: ``log_level``, ``colored_output``, ``log_file``,
+          ``json_logs``, etc.
+        - **Validation**: ``validation_extensions``,
+          ``validation_extra_ignored_dirs``,
+          ``validation_ignored_patterns``, ``validation_ignore_file``
+        - **Move detection timing**: ``move_detect_delay``,
+          ``dir_move_max_timeout``, ``dir_move_settle_delay``
+    """
 
     # File monitoring settings
     monitored_extensions: Set[str] = field(
@@ -76,6 +122,33 @@ class LinkWatcherConfig:
     show_log_icons: bool = True
     performance_logging: bool = False
 
+    # Validation settings
+    validation_extensions: Set[str] = field(
+        default_factory=lambda: {
+            ".md",
+            ".yaml",
+            ".yml",
+            ".json",
+        }
+    )
+    validation_extra_ignored_dirs: Set[str] = field(
+        default_factory=lambda: {
+            "LinkWatcher_run",
+            "old",
+            "archive",
+            "fixtures",
+            "e2e-acceptance-testing",
+            "config-examples",
+        }
+    )
+    validation_ignored_patterns: Set[str] = field(
+        default_factory=lambda: {
+            "path/to/",
+            "xxx",
+        }
+    )
+    validation_ignore_file: str = "LinkWatcher/.linkwatcher-ignore"
+
     # Move detection timing
     move_detect_delay: float = 10.0
     dir_move_max_timeout: float = 300.0
@@ -114,6 +187,12 @@ class LinkWatcherConfig:
     def _from_dict(cls, data: Dict[str, Any]) -> "LinkWatcherConfig":
         """Create configuration from dictionary."""
         config = cls()
+        known_fields = {f.name for f in dataclasses.fields(cls)}
+
+        # Warn about unknown keys (likely typos)
+        for key in data:
+            if key not in known_fields:
+                logger.warning("Unknown configuration key '%s' — ignored (possible typo?)", key)
 
         # Convert sets from lists
         if "monitored_extensions" in data:
@@ -122,11 +201,21 @@ class LinkWatcherConfig:
         if "ignored_directories" in data:
             config.ignored_directories = set(data["ignored_directories"])
 
+        if "validation_extra_ignored_dirs" in data:
+            config.validation_extra_ignored_dirs = set(data["validation_extra_ignored_dirs"])
+
+        if "validation_ignored_patterns" in data:
+            config.validation_ignored_patterns = set(data["validation_ignored_patterns"])
+
         # Set other attributes
         for key, value in data.items():
-            if hasattr(config, key) and key not in [
+            if key.startswith("_"):
+                continue
+            if key in known_fields and key not in [
                 "monitored_extensions",
                 "ignored_directories",
+                "validation_extra_ignored_dirs",
+                "validation_ignored_patterns",
             ]:
                 setattr(config, key, value)
 
@@ -134,33 +223,50 @@ class LinkWatcherConfig:
 
     @classmethod
     def from_env(cls, prefix: str = "LINKWATCHER_") -> "LinkWatcherConfig":
-        """Load configuration from environment variables."""
+        """Load configuration from environment variables.
+
+        Environment variable names are derived from field names:
+        ``{prefix}{FIELD_NAME_UPPER}`` — e.g. ``LINKWATCHER_DRY_RUN_MODE``.
+
+        Type conversion is automatic based on the field's type annotation:
+        ``Set[str]`` splits on ``,``; ``bool`` accepts true/1/yes/on;
+        ``int`` and ``float`` are parsed; everything else is kept as a string.
+        """
         config = cls()
+        type_hints = get_type_hints(cls)
 
-        # Map environment variables to config attributes
-        env_mappings = {
-            f"{prefix}MONITORED_EXTENSIONS": "monitored_extensions",
-            f"{prefix}IGNORED_DIRECTORIES": "ignored_directories",
-            f"{prefix}CREATE_BACKUPS": "create_backups",
-            f"{prefix}DRY_RUN": "dry_run_mode",
-            f"{prefix}MAX_FILE_SIZE_MB": "max_file_size_mb",
-            f"{prefix}LOG_LEVEL": "log_level",
-            f"{prefix}COLORED_OUTPUT": "colored_output",
-        }
+        for f in dataclasses.fields(cls):
+            env_var = f"{prefix}{f.name.upper()}"
+            if env_var not in os.environ:
+                continue
 
-        for env_var, attr_name in env_mappings.items():
-            if env_var in os.environ:
-                value = os.environ[env_var]
+            value = os.environ[env_var]
+            field_type = type_hints[f.name]
 
-                # Convert string values to appropriate types
-                if attr_name in ["monitored_extensions", "ignored_directories"]:
-                    setattr(config, attr_name, set(value.split(",")))
-                elif attr_name in ["create_backups", "dry_run_mode", "colored_output"]:
-                    setattr(config, attr_name, value.lower() in ["true", "1", "yes", "on"])
-                elif attr_name == "max_file_size_mb":
-                    setattr(config, attr_name, int(value))
-                else:
-                    setattr(config, attr_name, value)
+            if field_type is Set[str] or field_type is set:
+                setattr(config, f.name, set(value.split(",")))
+            elif field_type is bool:
+                setattr(config, f.name, value.lower() in ("true", "1", "yes", "on"))
+            elif field_type is int:
+                try:
+                    setattr(config, f.name, int(value))
+                except ValueError:
+                    logger.warning(
+                        "Invalid value '%s' for env var %s (expected int) — using default",
+                        value,
+                        env_var,
+                    )
+            elif field_type is float:
+                try:
+                    setattr(config, f.name, float(value))
+                except ValueError:
+                    logger.warning(
+                        "Invalid value '%s' for env var %s (expected float) — using default",
+                        value,
+                        env_var,
+                    )
+            else:
+                setattr(config, f.name, value)
 
         return config
 
@@ -181,14 +287,31 @@ class LinkWatcherConfig:
         config_path = Path(config_path)
         data = self.to_dict()
 
-        if format.lower() == "json":
-            with open(config_path, "w", encoding="utf-8") as f:
-                json.dump(data, f, indent=2)
-        elif format.lower() in ["yaml", "yml"]:
-            with open(config_path, "w", encoding="utf-8") as f:
-                yaml.dump(data, f, default_flow_style=False, indent=2)
-        else:
+        if format.lower() not in ("json", "yaml", "yml"):
             raise ValueError(f"Unsupported format: {format}")
+
+        # Write to a temporary file first, then atomically replace the target
+        dir_path = str(config_path.parent)
+        temp_fd = None
+        temp_path = None
+        try:
+            temp_fd, temp_path = tempfile.mkstemp(dir=dir_path, suffix=config_path.suffix)
+            with os.fdopen(temp_fd, "w", encoding="utf-8") as f:
+                temp_fd = None  # os.fdopen takes ownership of the fd
+                if format.lower() == "json":
+                    json.dump(data, f, indent=2)
+                else:
+                    yaml.dump(data, f, default_flow_style=False, indent=2)
+            os.replace(temp_path, str(config_path))
+            temp_path = None  # successfully moved
+        finally:
+            if temp_fd is not None:
+                os.close(temp_fd)
+            if temp_path is not None:
+                try:
+                    os.unlink(temp_path)
+                except OSError:
+                    pass
 
     def merge(self, other: "LinkWatcherConfig") -> "LinkWatcherConfig":
         """Merge this configuration with another, returning a new instance."""

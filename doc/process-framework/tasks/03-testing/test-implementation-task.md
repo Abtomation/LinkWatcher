@@ -49,19 +49,15 @@ Implement comprehensive test cases based on existing Test Specifications, enabli
   - **Test Specification Document** - The test specification file for the feature being implemented (located in `/test/specifications/feature-specs/`)
   - [Technical Design Document](/doc/product-docs/technical/design) - The TDD for the feature to understand implementation requirements
   - [Test Tracking](../../../../test/state-tracking/permanent/test-tracking.md) - Current test implementation status
-  - [Test Query Tool](/test/test_query.py) - Query test files by feature, priority, and markers
+  - [Test Query Tool](/doc/process-framework/scripts/test/test_query.py) - Query test files by feature, priority, and markers
 
 - **Important (Load If Space):**
 
   - [Existing Test Structure](/test/) - Current test organization and patterns
-  <!-- - [Mock Services](/test/mocks/) - Directory does not exist in this project -->
-  <!-- - [Test Helpers](/test/test_helpers/) - Directory does not exist in this project -->
   - [Development Guide](/doc/process-framework/guides/04-implementation/development-guide.md) - Testing standards and practices
-  <!-- [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Removed: file deleted -->
 
 - **Reference Only (Access When Needed):**
   - [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) - Feature development status
-  <!-- - [Project Structure](/doc/product-docs/technical/architecture/project-structure.md) - Removed: file deleted -->
   - [Visual Notation Guide](/doc/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 ## Process
@@ -130,7 +126,7 @@ Implement comprehensive test cases based on existing Test Specifications, enabli
     Set-Location "<project-root>/doc/process-framework/scripts/file-creation"
 
     # Create bug report for issues found during test implementation
-    .\New-BugReport.ps1 -Title "Service throws exception on empty input" -Description "Method fails with exception when passed empty string instead of returning proper error" -DiscoveredBy "Test Implementation" -Severity "High" -Component "Component Name" -Environment "Development" -Evidence "Test case: test_method_empty_input_returns_error"
+    .\New-BugReport.ps1 -Title "Service throws exception on empty input" -Description "Method fails with exception when passed empty string instead of returning proper error" -DiscoveredBy "Testing" -Severity "High" -Component "Component Name" -Environment "Development" -Evidence "Test case: test_method_empty_input_returns_error"
     ```
 
 13. **Update Test Status**: Update test implementation status to reflect completion (automation handles initial tracking)

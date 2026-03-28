@@ -2,9 +2,9 @@
 id: PF-TSK-022
 type: Process Framework
 category: Task Definition
-version: 2.0
+version: 2.1
 created: 2025-07-21
-updated: 2026-03-04
+updated: 2026-03-27
 task_type: Discrete
 ---
 
@@ -29,6 +29,10 @@ Systematic code improvement and technical debt reduction without changing extern
 - After identifying code smells during code reviews
 - When refactoring is recommended by Technical Debt Assessment Task
 - Before major feature releases to improve code maintainability
+
+## When NOT to Use
+
+- For test quality improvements (zero-assertion tests, test anti-patterns, missing test coverage) — use [Integration & Testing](../04-implementation/integration-and-testing.md) (PF-TSK-053) instead
 
 ## Context Requirements
 
@@ -78,8 +82,20 @@ Evaluate the refactoring scope against these criteria:
 
 > **Key principle**: File count and effort alone do not determine the path. A 5-file dead code removal or config wiring change is Lightweight. A single-file class decomposition that changes interfaces is Standard.
 
-> **🚨 CHECKPOINT**: Present effort classification (Lightweight or Standard) to human partner for approval.
+> **🚨 CHECKPOINT**: Present **both** a justification recommendation **and** an effort classification to the human partner for approval.
 >
+> **Justification recommendation** (present first):
+> - **Proceed** — Refactoring is justified; benefits clearly outweigh costs and risks.
+> - **Modify scope** — Refactoring has merit but the scope should be adjusted (narrower, broader, or different approach).
+> - **Rejected** — Refactoring is not justified (cost > benefit, risk too high, issue is cosmetic, code is scheduled for replacement, etc.). Provide a brief rationale.
+>
+> **If the human approves Rejected**:
+> 1. Identify the **source** of the tech debt item (which task, session, or agent introduced it) from [Technical Debt Tracking](../../../product-docs/state-tracking/permanent/technical-debt-tracking.md).
+> 2. Update the tech debt item status to Rejected using `Update-TechDebt.ps1 -NewStatus "Rejected" -ResolutionNotes "Rejected: <rationale>"`.
+> 3. In the session's **feedback form**, document: the tech debt ID, the source task that introduced it, the Rejected rationale, and a recommendation for how the source task could avoid introducing unjustified tech debt in the future.
+> 4. Skip to the Task Completion Checklist below — no refactoring plan or code changes are needed.
+>
+> **Effort classification** (present alongside justification if recommending Proceed or Modify scope):
 > - **If Lightweight**: Read and follow the **[Lightweight Path](code-refactoring-lightweight-path.md)** document.
 > - **If Standard**: Read and follow the **[Standard Path](code-refactoring-standard-path.md)** document.
 >

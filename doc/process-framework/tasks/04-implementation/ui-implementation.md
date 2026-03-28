@@ -33,7 +33,6 @@ Build UI components and screen layouts for a feature. This task creates the user
 
 ## Context Requirements
 
-<!-- [View Context Map for this task](../../visualization/context-maps/04-implementation/ui-implementation-map.md) - To be created -->
 
 - **Critical (Must Read):**
 
@@ -144,4 +143,3 @@ Before considering this task finished:
 
 - [Feature Implementation State Tracking Guide](../../guides/04-implementation/feature-implementation-state-tracking-guide.md) - Guide for maintaining feature state file
 - **TDD UI/UX Design Section** - Technology-specific patterns, framework references, and component conventions for the feature
-

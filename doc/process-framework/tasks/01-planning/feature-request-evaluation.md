@@ -35,7 +35,8 @@ This task evaluates incoming change requests to determine whether they represent
 
 - **Critical (Must Read):**
 
-  - **Change Request** — The human partner's description of what needs to be added or changed
+  - **Change Request** — The human partner's description of what needs to be added or changed, or a queued entry in [Feature Request Tracking](../../../product-docs/state-tracking/permanent/feature-request-tracking.md)
+  - [Feature Request Tracking](../../../product-docs/state-tracking/permanent/feature-request-tracking.md) — Intake queue for product feature requests (check for "Submitted" entries)
   - [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) — Current feature inventory to identify existing features
   - [Feature Granularity Guide](../../guides/01-planning/feature-granularity-guide.md) — Defines what constitutes a well-scoped feature (used when classifying requests and validating new feature scope)
   - [Enhancement State Tracking Customization Guide](../../guides/04-implementation/enhancement-state-tracking-customization-guide.md) — Guide for customizing the Enhancement State Tracking File
@@ -63,7 +64,7 @@ This task evaluates incoming change requests to determine whether they represent
 
 ### Phase 1: Classification
 
-1. **Read the change request** — Understand what the human partner wants to add or change
+1. **Read the change request** — Understand what the human partner wants to add or change. Also check [Feature Request Tracking](../../../product-docs/state-tracking/permanent/feature-request-tracking.md) for queued requests with status "Submitted" — the human partner may point to a specific request ID, or the agent can propose which queued request to evaluate
 2. **Review feature tracking** — Read `feature-tracking.md` to understand the current feature inventory. Make yourself familiar with some potential features by looking at the feature state tracking files.
 3. **Classify the request** — Determine: is this a new feature or an enhancement to an existing feature? Apply the three validation tests from the [Feature Granularity Guide](../../guides/01-planning/feature-granularity-guide.md) to validate the scope of new features.
 4. **🚨 CHECKPOINT**: Present classification decision with rationale to human partner for approval
@@ -73,9 +74,14 @@ This task evaluates incoming change requests to determine whether they represent
 ### Phase 2a: New Feature Routing
 
 5a. **Route to existing workflow** — For new features:
-   - Add the new feature to `feature-tracking.md`
-   - Create a new feature implementation state file
+   - Add the new feature to `feature-tracking.md` and note the assigned feature ID
    - Check [User Workflow Map](/doc/product-docs/technical/design/user-workflow-map.md) — does this feature create a new user workflow or extend an existing one? Update the map accordingly
+   - **Update feature request tracking and create state file** — If this request originated from [Feature Request Tracking](../../../product-docs/state-tracking/permanent/feature-request-tracking.md), close it using [`Update-FeatureRequest.ps1`](../../scripts/update/Update-FeatureRequest.ps1). The script also creates the feature implementation state file and links it in feature-tracking:
+     ```powershell
+     cd doc/process-framework/scripts/update
+     .\Update-FeatureRequest.ps1 -RequestId "PD-FRQ-XXX" -Classification "NewFeature" -FeatureId "X.Y.Z" -FeatureName "Feature Name" -NewStatus "Completed" -Notes "Brief description"
+     ```
+     If the request did NOT originate from feature-request-tracking, create the state file manually using `New-FeatureImplementationState.ps1`.
    - Inform the human partner that the existing workflow applies (Feature Tier Assessment → Design → Implementation)
    - This task is complete. Proceed to the Task Completion Checklist.
 
@@ -114,7 +120,14 @@ This task evaluates incoming change requests to determine whether they represent
 ### Phase 3: Finalization
 
 9. **🚨 CHECKPOINT**: Present completed Enhancement State Tracking File to human partner for review before finalizing
-10. **Update feature tracking** — Set the target feature's status to "🔄 Needs Revision" in `feature-tracking.md` and add a link to the Enhancement State Tracking File in the status column
+10. **Update tracking files** — If this request originated from [Feature Request Tracking](../../../product-docs/state-tracking/permanent/feature-request-tracking.md), close the request and update feature-tracking using [`Update-FeatureRequest.ps1`](../../scripts/update/Update-FeatureRequest.ps1):
+    ```powershell
+    cd doc/process-framework/scripts/update
+    .\Update-FeatureRequest.ps1 -RequestId "PD-FRQ-XXX" -Classification "Enhancement" -FeatureId "X.Y.Z" -NewStatus "Completed" -EnhancementStateFile "Enhancement State File: [PF-STA-XXX](path/to/file.md)" -Notes "Enhancement State File created"
+    ```
+    This script moves the request to Completed in feature-request-tracking.md and sets the target feature's status to "🔄 Needs Revision" in feature-tracking.md with a link to the Enhancement State Tracking File.
+
+    If the request did NOT originate from feature-request-tracking (e.g., ad-hoc human request), manually set the target feature's status to "🔄 Needs Revision" in `feature-tracking.md` and add a link to the Enhancement State Tracking File.
 11. **MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
@@ -133,6 +146,7 @@ This task evaluates incoming change requests to determine whether they represent
 
 The following state files must be updated as part of this task:
 
+- [Feature Request Tracking](../../../product-docs/state-tracking/permanent/feature-request-tracking.md) — Update request status to Completed after classification (if request originated from this file)
 - [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) — For new features: add new entry. For enhancements: set target feature status to "🔄 Needs Revision" with link to Enhancement State Tracking File
 - **Enhancement State Tracking File** (created by this task) — In `product-docs/state-tracking/temporary/`
 - **Feature Implementation State File** — For new features: create new state file. For enhancements: no change (handled by Feature Enhancement task) — In `product-docs/state-tracking/features/`

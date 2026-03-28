@@ -119,6 +119,7 @@ This task **orchestrates** systematic changes to documentation structures, templ
    ./New-StructureChangeState.ps1 -ChangeName "Change Name" -ChangeType "Template Update|Directory Reorganization|Metadata Structure|Documentation Architecture|Rename|Content Update" -Description "Brief description"
    # Use -ChangeType "Rename" for lightweight rename/move operations (simplified template without pilot/rollback/metrics sections)
    # Use -ChangeType "Content Update" for content-only changes across files (simplified template without pilot/rollback/metrics sections)
+   # Use -FromProposal when a detailed proposal already exists — generates a lightweight state file (phase checklist + session log only, no redundant sections)
    ```
 5. Use the existing `/doc/process-framework/state-tracking/temporary` directory for transition files
 6. Create mapping documents and migration checklists in the temporary directory

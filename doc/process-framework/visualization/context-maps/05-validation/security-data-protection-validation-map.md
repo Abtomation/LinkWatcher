@@ -78,6 +78,5 @@ graph TD
 - [Security & Data Protection Validation Task](../../../tasks/05-validation/security-data-protection-validation.md) - Complete task definition and process
 - [Feature Tracking](../../../../product-docs/state-tracking/permanent/feature-tracking.md) - Current status of features
 - Validation Tracking State File - Active validation tracking matrix (file location depends on validation round)
-<!-- [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Removed: file deleted -->
 
 ---

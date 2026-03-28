@@ -103,9 +103,6 @@ When referencing other tasks' outputs in Test Specifications:
   - Pytest markers (via `test_query.py --feature X.Y.Z`) - Current test file metadata
   - [Test Tracking](/test/state-tracking/permanent/test-tracking.md) - Current test implementation status
   - [Existing Test Structure](/test/) - Current test organization and patterns
-  <!-- - [Mock Services](/test/mocks/) - Directory does not exist in this project -->
-  <!-- - [Test Helpers](/test/test_helpers/) - Directory does not exist in this project -->
-  <!-- - [Project Structure](/doc/product-docs/technical/architecture/project-structure.md) - Removed: file deleted -->
 
 - **Reference Only (Access When Needed):**
   - [Feature Tracking](/doc/product-docs/state-tracking/permanent/feature-tracking.md) - Feature development status

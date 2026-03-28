@@ -111,7 +111,7 @@ Follow these steps to create a new task:
 
    - `-TaskName`: Name of the task (required)
    - `-TaskType`: Type of task - "Discrete", "Cyclical", or "Support" (required)
-   - `-WorkflowPhase`: Workflow phase directory - "00-onboarding", "01-planning", "02-design", "03-testing", "04-implementation", "05-validation", "06-maintenance", "07-deployment", "support", "cyclical" (optional, defaults to "01-planning")
+   - `-WorkflowPhase`: Workflow phase directory - "00-setup", "01-planning", "02-design", "03-testing", "04-implementation", "05-validation", "06-maintenance", "07-deployment", "support", "cyclical" (optional, defaults to "01-planning")
    - `-Description`: Brief task description (optional)
    - `-OpenInEditor`: Switch to open the created file in the editor (optional)
 
@@ -518,7 +518,7 @@ Here's an example of creating a new categorized task following the **mandatory s
 4. **Verify Automatic Updates**: The script automatically handles:
 
    - ✅ **Tasks README**: New task added to the appropriate table
-   - ✅ **ID Tracking**: Next available ID assigned and ../../../tasks/config.json updated
+   - ✅ **ID Tracking**: Next available ID assigned and ID registry updated
    - ⚠️ **Documentation Map**: New task added to the `### Discrete Tasks` table section
      - **Note**: The documentation map has multiple task sections; the script updates the table format section
 

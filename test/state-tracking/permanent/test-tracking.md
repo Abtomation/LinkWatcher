@@ -34,7 +34,7 @@ This file tracks the implementation status of all **automated** tests derived fr
 
 | Date | Total Coverage | Tests Passed | Tests Skipped | Tests Failed | Run Type |
 |------|---------------|--------------|---------------|--------------|----------|
-| 2026-03-22 | 57% | 186 | 0 | 0 | Category: unit |
+| 2026-03-27 | — | 303 | 0 | 0 | Category: unit |
 | 2026-03-22 | 86% | 477 | 5 | 0 | All (excl. slow) |
 
 ## Testing Infrastructure
@@ -54,26 +54,27 @@ This file tracks the implementation status of all **automated** tests derived fr
 
 | Feature ID | Test Type | Test File/Case | Status | Test Cases Count | Last Executed | Last Updated | Notes |
 |------------|-----------|----------------|--------|------------------|---------------|--------------|-------|
-| 0.1.1 | Automated | [test_service.py](../../automated/unit/test_service.py) | ✅ Tests Implemented | 24 | Run 2026-03-22: 24 passed | 2026-03-22 | Core service orchestration unit tests |
-| 0.1.1 | Automated | [test_service_integration.py](../../automated/integration/test_service_integration.py) | ✅ Tests Implemented | 17 | Run 2026-03-22: 17 passed | 2026-03-22 | Service integration with subsystems |
-| 0.1.1 | Automated | [test_complex_scenarios.py](../../automated/integration/test_complex_scenarios.py) | ✅ Tests Implemented | 11 | Run 2026-03-22: 11 passed | 2026-03-22 | Complex multi-component scenarios |
-| 0.1.1 | Automated | [test_error_handling.py](../../automated/integration/test_error_handling.py) | ✅ Tests Implemented | 19 | Run 2026-03-22: 18 passed, 1 skipped | 2026-03-22 | Error handling and graceful degradation |
-| 0.1.2 | Automated | [test_database.py](../../automated/unit/test_database.py) | ✅ Tests Implemented | 26 | Run 2026-03-22: 26 passed | 2026-03-22 | In-memory database thread-safe operations |
-| 0.1.3 | Automated | [test_config.py](../../automated/test_config.py) | ✅ Tests Implemented | 10 | — | 2026-02-20 | Configuration system tests (root) |
+| 0.1.1 | Automated | [test_service.py](../../automated/unit/test_service.py) | ✅ Tests Implemented | 24 | Run 2026-03-22: 24 passed | 2026-03-22 | Core service orchestration unit tests; Audit: [TE-TAR-013](../../audits/foundation/audit-report-0-1-1-test-service.md) |
+| 0.1.1 | Automated | [test_service_integration.py](../../automated/integration/test_service_integration.py) | ✅ Tests Implemented | 17 | Run 2026-03-22: 17 passed | 2026-03-22 | Service integration with subsystems; Audit: [TE-TAR-014](../../audits/foundation/audit-report-0-1-1-test-service-integration.md) |
+| 0.1.1 | Automated | [test_complex_scenarios.py](../../automated/integration/test_complex_scenarios.py) | ✅ Tests Implemented | 11 | Run 2026-03-22: 11 passed | 2026-03-22 | Complex multi-component scenarios; Audit: [TE-TAR-015](../../audits/foundation/audit-report-0-1-1-test-complex-scenarios.md) |
+| 0.1.1 | Automated | [test_error_handling.py](../../automated/integration/test_error_handling.py) | ✅ Tests Implemented | 19 | Run 2026-03-22: 18 passed, 1 skipped | 2026-03-22 | Error handling and graceful degradation; Audit: [TE-TAR-016](../../audits/foundation/audit-report-0-1-1-test-error-handling.md) |
+| 0.1.2 | Automated | [test_database.py](../../automated/unit/test_database.py) | ✅ Tests Implemented | 26 | Run 2026-03-22: 26 passed | 2026-03-22 | In-memory database thread-safe operations; Audit: [TE-TAR-019](../../audits/foundation/audit-report-0-1-2-test-database.md) |
+| 0.1.3 | Automated | [test_config.py](../../automated/unit/test_config.py) | ✅ Tests Implemented | 10 | — | 2026-02-20 | Configuration system tests (root); Audit: [TE-TAR-020](../../audits/foundation/audit-report-0-1-3-test-config.md) |
 | 0.1.3 | Automated | [test_config.py](../../automated/unit/test_config.py) | ✅ Tests Implemented | 42 | Run 2026-03-22: 42 passed | 2026-03-22 | Configuration system unit tests |
-| 0.1.1 | Automated | [test_windows_platform.py](../../automated/integration/test_windows_platform.py) | ✅ Tests Implemented | 16 | Run 2026-03-22: 14 passed, 2 skipped | 2026-03-22 | Windows path handling integration tests |
-| 0.1.1 | Automated | [test_lock_file.py](../../automated/unit/test_lock_file.py) | ✅ Tests Implemented | 10 | Run 2026-03-22: 10 passed | 2026-03-22 | Duplicate instance prevention lock file mechanism |
+| 0.1.1 | Automated | [test_windows_platform.py](../../automated/integration/test_windows_platform.py) | ✅ Tests Implemented | 16 | Run 2026-03-22: 14 passed, 2 skipped | 2026-03-22 | Windows path handling integration tests; Audit: [TE-TAR-017](../../audits/foundation/audit-report-0-1-1-test-windows-platform.md) |
+| 0.1.1 | Automated | [test_lock_file.py](../../automated/unit/test_lock_file.py) | ✅ Tests Implemented | 10 | Run 2026-03-22: 10 passed | 2026-03-22 | Duplicate instance prevention lock file mechanism; Audit: [TE-TAR-018](../../audits/foundation/audit-report-0-1-1-test-lock-file.md) |
 
 ## 1. File Watching & Detection
 
 | Feature ID | Test Type | Test File/Case | Status | Test Cases Count | Last Executed | Last Updated | Notes |
 |------------|-----------|----------------|--------|------------------|---------------|--------------|-------|
-| 1.1.1 | Automated | [test_move_detection.py](../../automated/test_move_detection.py) | ✅ Tests Implemented | 20 | Run 2026-03-22: 20 passed | 2026-03-22 | File move detection integration |
-| 1.1.1 | Automated | [test_file_movement.py](../../automated/integration/test_file_movement.py) | ✅ Tests Implemented | 7 | Run 2026-03-22: 7 passed | 2026-03-22 | File movement handling integration |
-| 1.1.1 | Automated | [test_sequential_moves.py](../../automated/integration/test_sequential_moves.py) | ✅ Tests Implemented | 4 | Run 2026-03-22: 4 passed | 2026-03-22 | Sequential file move scenarios |
-| 1.1.1 | Automated | [test_comprehensive_file_monitoring.py](../../automated/integration/test_comprehensive_file_monitoring.py) | ✅ Tests Implemented | 7 | Run 2026-03-22: 7 passed | 2026-03-22 | Comprehensive file type monitoring |
-| 1.1.1 | Automated | [test_image_file_monitoring.py](../../automated/integration/test_image_file_monitoring.py) | ✅ Tests Implemented | 6 | Run 2026-03-22: 6 passed | 2026-03-22 | Image file monitoring |
-| 1.1.1 | Automated | [test_powershell_script_monitoring.py](../../automated/integration/test_powershell_script_monitoring.py) | ✅ Tests Implemented | 5 | Run 2026-03-22: 5 passed | 2026-03-22 | PowerShell script monitoring |
+| 1.1.1 | Automated | [test_move_detection.py](../../automated/test_move_detection.py) | ✅ Tests Implemented | 20 | Run 2026-03-22: 20 passed | 2026-03-22 | File move detection integration; Audit: [TE-TAR-025](../../audits/authentication/audit-report-1-1-1-test-move-detection.md) |
+| 1.1.1 | Automated | [test_file_movement.py](../../automated/integration/test_file_movement.py) | ✅ Tests Implemented | 7 | Run 2026-03-22: 7 passed | 2026-03-22 | File movement handling integration; Audit: [TE-TAR-026](../../audits/authentication/audit-report-1-1-1-test-file-movement.md) |
+| 1.1.1 | Automated | [test_sequential_moves.py](../../automated/integration/test_sequential_moves.py) | ✅ Tests Implemented | 4 | Run 2026-03-22: 4 passed | 2026-03-22 | Sequential file move scenarios; Audit: [TE-TAR-027](../../audits/authentication/audit-report-1-1-1-test-sequential-moves.md) |
+| 1.1.1 | Automated | [test_comprehensive_file_monitoring.py](../../automated/integration/test_comprehensive_file_monitoring.py) | ✅ Tests Implemented | 7 | Run 2026-03-22: 7 passed | 2026-03-22 | Comprehensive file type monitoring; Audit: [TE-TAR-028](../../audits/authentication/audit-report-1-1-1-test-comprehensive-file-monitoring.md) |
+| 1.1.1 | Automated | [test_image_file_monitoring.py](../../automated/integration/test_image_file_monitoring.py) | ✅ Tests Implemented | 6 | Run 2026-03-22: 6 passed | 2026-03-22 | Image file monitoring; Audit: [TE-TAR-029](../../audits/authentication/audit-report-1-1-1-test-image-file-monitoring.md) |
+| 1.1.1 | Automated | [test_powershell_script_monitoring.py](../../automated/integration/test_powershell_script_monitoring.py) | ✅ Tests Implemented | 5 | Run 2026-03-22: 5 passed | 2026-03-22 | PowerShell script monitoring; Audit: [TE-TAR-030](../../audits/authentication/audit-report-1-1-1-test-powershell-script-monitoring.md) |
+| 1.1.1 | Automated | [test_reference_lookup.py](../../automated/unit/test_reference_lookup.py) | ✅ Tests Implemented | 39 | Run 2026-03-27: 39 passed | 2026-03-27 | ReferenceLookup unit tests (TD066). 92% coverage. Path variations, reference finding, stale retry, DB cleanup, file rescanning, directory moves, link updates in moved files, path recalculation. |
 
 ## 2. Link Parsing & Update
 
@@ -87,16 +88,16 @@ This file tracks the implementation status of all **automated** tests derived fr
 | 2.1.1 | Automated | [test_dart.py](../../automated/parsers/test_dart.py) | ✅ Tests Implemented | 11 | Run 2026-03-22: 11 passed | 2026-03-22 | Dart import/part parsing |
 | 2.1.1 | Automated | [test_generic.py](../../automated/parsers/test_generic.py) | ✅ Tests Implemented | 21 | Run 2026-03-22: 21 passed | 2026-03-22 | Generic fallback parser |
 | 2.1.1 | Automated | [test_image_files.py](../../automated/parsers/test_image_files.py) | ✅ Tests Implemented | 6 | Run 2026-03-22: 6 passed | 2026-03-22 | Image file reference handling |
-| 2.2.1 | Automated | [test_updater.py](../../automated/unit/test_updater.py) | ✅ Tests Implemented | 28 | Run 2026-03-22: 28 passed | 2026-03-22 | Link updater atomic operations |
-| 2.2.1 | Automated | [test_link_updates.py](../../automated/integration/test_link_updates.py) | ✅ Tests Implemented | 26 | Run 2026-03-22: 26 passed | 2026-03-22 | Link update across file formats |
+| 2.2.1 | Automated | [test_updater.py](../../automated/unit/test_updater.py) | ✅ Tests Implemented | 28 | Run 2026-03-22: 28 passed | 2026-03-22 | Link updater atomic operations; Audit: [TE-TAR-021](../../audits/core-features/audit-report-2-2-1-test-updater.md) |
+| 2.2.1 | Automated | [test_link_updates.py](../../automated/integration/test_link_updates.py) | ✅ Tests Implemented | 26 | Run 2026-03-22: 26 passed | 2026-03-22 | Link update across file formats; Audit: [TE-TAR-022](../../audits/core-features/audit-report-2-2-1-test-link-updates.md) |
 | 2.1.1 | Automated | [test_powershell.py](../../automated/parsers/test_powershell.py) | ✅ Tests Implemented | 32 | Run 2026-03-22: 32 passed | 2026-03-22 | PowerShell parser tests — cmdlet patterns, embedded markdown links, regex filtering (PD-BUG-033), deduplication. Registered during test audit. |
 
 ## 3. Logging & Monitoring
 
 | Feature ID | Test Type | Test File/Case | Status | Test Cases Count | Last Executed | Last Updated | Notes |
 |------------|-----------|----------------|--------|------------------|---------------|--------------|-------|
-| 3.1.1 | Automated | [test_logging.py](../../automated/unit/test_logging.py) | ✅ Tests Implemented | 25 | Run 2026-03-22: 25 passed | 2026-03-22 | Logging framework core tests |
-| 3.1.1 | Automated | [test_advanced_logging.py](../../automated/unit/test_advanced_logging.py) | ✅ Tests Implemented | 19 | Run 2026-03-22: 19 passed | 2026-03-22 | Advanced logging features |
+| 3.1.1 | Automated | [test_logging.py](../../automated/unit/test_logging.py) | ✅ Tests Implemented | 25 | Run 2026-03-22: 25 passed | 2026-03-22 | Logging framework core tests; Audit: [TE-TAR-023](../../audits/core-features/audit-report-3-1-1-test-logging.md) |
+| 3.1.1 | Automated | [test_advanced_logging.py](../../automated/unit/test_advanced_logging.py) | ✅ Tests Implemented | 19 | Run 2026-03-22: 19 passed | 2026-03-22 | Advanced logging features; Audit: [TE-TAR-024](../../audits/core-features/audit-report-3-1-1-test-advanced-logging.md) |
 
 ---
 

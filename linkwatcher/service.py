@@ -3,6 +3,23 @@ Main LinkWatcher service that orchestrates all components.
 
 This module provides the main service class that coordinates the database,
 parser, updater, and file system handler.
+
+AI Context
+----------
+- **Entry point**: ``LinkWatcherService`` is the top-level orchestrator.
+  ``start()`` wires all components and begins file watching;
+  ``stop()`` tears down gracefully.
+- **Delegation**: service → handler (event dispatch), database (link
+  storage), parser (link extraction), updater (file modification).
+  Service owns the watchdog ``Observer`` and the initial scan loop.
+- **Common tasks**:
+  - Adding a new component: wire it in ``__init__``, pass to handler
+    or call from the scan loop.
+  - Debugging startup: check ``_initial_scan()`` — it walks the project
+    tree, filters via ``should_monitor_file()``, and populates the DB.
+  - Debugging shutdown: ``_signal_handler()`` and ``stop()`` coordinate
+    observer shutdown and handler cleanup.
+  - Statistics: ``get_stats()`` aggregates status from all sub-components.
 """
 
 import os
@@ -10,15 +27,17 @@ import signal
 import time
 from pathlib import Path
 
-from colorama import Fore
 from watchdog.observers import Observer
 
+from .config.defaults import DEFAULT_CONFIG
 from .config.settings import LinkWatcherConfig
-from .database import LinkDatabase, LinkDatabaseInterface
+from .database import LinkDatabase
 from .handler import LinkMaintenanceHandler
 from .logging import LogTimer, get_logger, with_context
 from .parser import LinkParser
+from .parsers.base import BaseParser
 from .updater import LinkUpdater
+from .utils import get_relative_path, should_monitor_file
 
 
 class LinkWatcherService:
@@ -78,21 +97,22 @@ class LinkWatcherService:
         Args:
             initial_scan: Whether to perform initial scan of all files
         """
-        print(f"{Fore.CYAN}🚀 Starting LinkWatcher service...")
-        print(f"{Fore.CYAN}📁 Project root: {self.project_root}")
+        self.logger.info("service_starting", project_root=str(self.project_root))
 
         try:
             # Perform initial scan if requested
             if initial_scan:
-                print(f"{Fore.YELLOW}📊 Performing initial scan...")
+                self.logger.info("initial_scan_starting")
                 with LogTimer("initial_scan", self.logger):
                     self._initial_scan()
 
                 stats = self.link_db.get_stats()
-                print(f"{Fore.GREEN}✓ Initial scan complete:")
-                print(f"   • {stats['files_with_links']} files with links")
-                print(f"   • {stats['total_references']} total references")
-                print(f"   • {stats['total_targets']} unique targets")
+                self.logger.info(
+                    "initial_scan_complete",
+                    files_with_links=stats["files_with_links"],
+                    total_references=stats["total_references"],
+                    total_targets=stats["total_targets"],
+                )
 
             # Setup file system observer
             self.logger.debug("setting_up_file_observer")
@@ -103,8 +123,7 @@ class LinkWatcherService:
             self.observer.start()
             self.running = True
 
-            print(f"{Fore.GREEN}👁️ LinkWatcher is now monitoring file changes...")
-            print(f"{Fore.CYAN}Press Ctrl+C to stop")
+            self.logger.info("monitoring_started")
 
             # Keep the service running, monitoring observer health
             try:
@@ -128,7 +147,7 @@ class LinkWatcherService:
     def stop(self):
         """Stop the LinkWatcher service."""
         if self.running:
-            print(f"\n{Fore.YELLOW}🛑 Stopping LinkWatcher service...")
+            self.logger.info("service_stopping")
             self.running = False
 
             if self.observer:
@@ -136,26 +155,29 @@ class LinkWatcherService:
                 self.observer.join()
                 self.logger.debug("file_observer_stopped")
 
-            # Print final statistics
+            # Log final statistics
             self._print_final_stats()
-            print(f"{Fore.GREEN}✓ LinkWatcher stopped")
+            self.logger.info("service_stopped")
 
     def _initial_scan(self):
         """Perform initial scan of all monitored files."""
         scanned_files = 0
+        config = self.config if self.config else DEFAULT_CONFIG
+        ignored_dirs = config.ignored_directories
+        monitored_extensions = config.monitored_extensions
 
         for root, dirs, files in os.walk(self.project_root):
             # Skip ignored directories
-            dirs[:] = [d for d in dirs if d not in self.handler.ignored_dirs]
+            dirs[:] = [d for d in dirs if d not in ignored_dirs]
 
             for file in files:
                 file_path = os.path.join(root, file)
 
-                if self.handler._should_monitor_file(file_path):
+                if should_monitor_file(file_path, monitored_extensions, ignored_dirs):
                     try:
                         references = self.parser.parse_file(file_path)
                         # Normalize file paths to relative paths before storing
-                        relative_file_path = self.handler._get_relative_path(file_path)
+                        relative_file_path = get_relative_path(file_path, str(self.project_root))
                         for ref in references:
                             # Update the reference to use relative path
                             ref.file_path = relative_file_path
@@ -163,7 +185,7 @@ class LinkWatcherService:
                         scanned_files += 1
 
                         if scanned_files % 50 == 0:  # Progress indicator
-                            print(f"{Fore.CYAN}   Scanned {scanned_files} files...")
+                            self.logger.scan_progress(scanned_files)
 
                     except Exception as e:
                         self.logger.warning(
@@ -174,7 +196,7 @@ class LinkWatcherService:
                         )
 
         self.link_db.last_scan = time.time()
-        print(f"{Fore.GREEN}   Scanned {scanned_files} files total")
+        self.logger.info("scan_complete", files_scanned=scanned_files)
 
     def _signal_handler(self, signum, frame):
         """Handle shutdown signals."""
@@ -209,20 +231,17 @@ class LinkWatcherService:
 
     def force_rescan(self):
         """Force a complete rescan of all files."""
-        print(f"{Fore.YELLOW}🔄 Forcing complete rescan...")
+        self.logger.info("rescan_starting")
         self.link_db.clear()
         self._initial_scan()
-        print(f"{Fore.GREEN}✓ Rescan complete")
+        self.logger.info("rescan_complete")
 
     def set_dry_run(self, enabled: bool):
         """Enable or disable dry run mode."""
         self.updater.set_dry_run(enabled)
-        if enabled:
-            print(f"{Fore.CYAN}🧪 Dry run mode enabled - no files will be modified")
-        else:
-            print(f"{Fore.GREEN}✏️ Dry run mode disabled - files will be modified")
+        self.logger.info("dry_run_toggled", enabled=enabled)
 
-    def add_parser(self, extension: str, parser):
+    def add_parser(self, extension: str, parser: BaseParser):
         """Add a custom parser for a specific file extension."""
         self.parser.add_parser(extension, parser)
         # Update handler's monitored extensions
@@ -230,18 +249,18 @@ class LinkWatcherService:
 
     def check_links(self) -> dict:
         """Check all links and return broken ones."""
-        print(f"{Fore.YELLOW}🔍 Checking all links...")
+        self.logger.info("link_check_starting")
 
         broken_links = []
         total_checked = 0
 
         for target_path, references in self.link_db.get_all_targets_with_references().items():
-            for ref in references:
-                total_checked += 1
+            total_checked += len(references)
 
-                # Check if target file exists
-                target_abs_path = os.path.join(self.project_root, target_path)
-                if not os.path.exists(target_abs_path):
+            # Check once per target — all references share the same path
+            target_abs_path = os.path.join(self.project_root, target_path)
+            if not os.path.exists(target_abs_path):
+                for ref in references:
                     broken_links.append(
                         {"reference": ref, "target_path": target_path, "reason": "File not found"}
                     )
@@ -253,16 +272,25 @@ class LinkWatcherService:
         }
 
         if broken_links:
-            print(f"{Fore.RED}❌ Found {len(broken_links)} broken link(s)")
-            for broken in broken_links[:10]:  # Show first 10
+            self.logger.warning(
+                "broken_links_found",
+                broken_count=len(broken_links),
+                total_checked=total_checked,
+            )
+            for broken in broken_links[:10]:
                 ref = broken["reference"]
-                print(
-                    f"   • {ref.file_path}:{ref.line_number}"
-                    f" → {broken['target_path']} ({broken['reason']})"
+                self.logger.warning(
+                    "broken_link",
+                    source=f"{ref.file_path}:{ref.line_number}",
+                    target=broken["target_path"],
+                    reason=broken["reason"],
                 )
             if len(broken_links) > 10:
-                print(f"   ... and {len(broken_links) - 10} more")
+                self.logger.warning(
+                    "broken_links_truncated",
+                    remaining=len(broken_links) - 10,
+                )
         else:
-            print(f"{Fore.GREEN}✅ All {total_checked} links are valid")
+            self.logger.info("all_links_valid", total_checked=total_checked)
 
         return result

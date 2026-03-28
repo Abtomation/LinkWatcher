@@ -117,14 +117,12 @@ graph TD
 
 | ID | Title | Status | Priority | Scope | Reported | Description | Related Feature | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| PD-BUG-051 | Link Validator reports excessive false positives from standalone and config references | ✅ Fixed | P3 | M | 2026-03-24 | The --validate feature (6.1.1) reports ~3,131 broken links after filtering (down from 43,368). Root causes: standalone parser picks up path-like text; yaml/json parsers extract config values; validator scanned archived dirs and missed template placeholders. | 6.1.1 | Component: LinkValidator; Root Cause: (1) Archived dirs scanned, (2) template placeholders not filtered, (3) data-value paths (standalone/yaml/json) resolved file-relative instead of project-root-relative; Fix S1 (2026-03-25): Ignored dirs + placeholder filter. 3131→1006 (68%); Fix S2 (2026-03-26): Project-root fallback for standalone/yaml/json types. 543→325 (40%). Tests: 7 regression tests added (56 total). Remaining 325: 180 markdown framework placeholders, 136 standalone genuine broken refs, 4 yaml config examples, 5 other. Updated: 2026-03-26 |  |  |
 | _No medium priority bugs currently active_ |
 
 ### Low Priority Bugs
 
 | ID | Title | Status | Priority | Scope | Reported | Description | Related Feature | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| _No low priority bugs currently active_ |
 | _No low priority bugs currently active_ |
 
 ## Closed Bugs
@@ -134,6 +132,7 @@ graph TD
 
 | ID | Title | Status | Priority | Scope | Reported | Description | Related Feature | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| PD-BUG-051 | Link Validator reports excessive false positives from standalone and config references | 🔒 Closed | P3 | M | 2026-03-24 | The --validate feature (6.1.1) reported ~3,131 broken links after initial filtering (down from 43,368). Root causes: standalone parser picks up path-like text; yaml/json parsers extract config values; validator scanned archived dirs and missed template placeholders. | 6.1.1 | Fixed across 4 sessions (S1–S4). S1: Ignored dirs + placeholder filter (3131→1006). S2: Project-root fallback for data-value types (543→325). S3: Doc fixes + archival details filter + validation_ignored_patterns config (283→100). S4 (2026-03-27): Per-file ignore system (.linkwatcher-ignore), ext-before-slash filter, regex metachar filter, XXX placeholder pattern, config-examples scan exclusion, dotfile root-fallback fix, 20+ doc link fixes (100→0). New features: validation_ignored_patterns config, validation_ignore_file config, .linkwatcher-ignore per-file suppression rules. Tests: 12 new tests (78 total validator tests). Closed: 2026-03-27. |
 | PD-BUG-050 | Directory move fails to update cross-references when source files are within moved directory | 🔒 Closed | P3 | M | 2026-03-23 | When a directory is moved, _handle_directory_moved processes each file via process_directory_file_move(). References found in other moved files use OLD source paths still in the DB. The updater tries to write files at OLD paths, causing Errno 2 errors. Fix: update DB source paths before cross-reference processing. | 1.1.1 | Fixed: 2026-03-25. Root cause: Stale DB source_file entries caused updater to open moved files at OLD paths (Errno 2). Fix: Added update_source_path() to DB and Phase 0 loop in _handle_directory_moved to update DB source paths before cross-reference processing. Tests Added: Yes. |
 | PD-BUG-049 | Updater tries to update moved file at old path during move processing | ❌ Rejected | P4 | Low | 2026-03-23 | During file move, updater tried to write to the moved file at its old path, causing `file_update_failed`. The internal link (`Import-Module` with hardcoded relative path) wasn't updated by LinkWatcher because the path was a fragment inside a `Join-Path` expression — a known parser limitation, not a bug. | 2.2.1 Link Updating | Rejected: 2026-03-23 — Not a LinkWatcher bug. The script used a hardcoded `Join-Path -Path (Split-Path -Parent $PSScriptRoot) -ChildPath "scripts/..."` pattern that breaks on move. Fix: adopted the walk-up resolution pattern already used by other validation scripts (Validate-AuditReport.ps1). Script-level fix applied. |
 | PD-BUG-046 | File moves not detected for non-monitored extensions even when referenced by monitored files | 🔒 Closed | P3 | S | 2026-03-18 | Non-monitored extensions (.conf, .sql, .txt etc.) invisible to move detection even when referenced by monitored files. | 1.1.1, 2.2.1 | Fixed: 2026-03-18. Root cause: `_should_monitor_file()` filter in on_deleted/on_created/on_moved blocked events for non-monitored extensions. Fix: Added `_is_known_reference_target()` fallback using fast basename check against DB keys. Also added `has_pending` check in on_created for move correlation. Files changed: handler.py. Tests added: 3 regression tests in test_move_detection.py. Verified: unit tests pass (476/477), E2E TE-E2E-005 confirmed fix works. |
@@ -189,10 +188,10 @@ graph TD
 
 ### Current Status Summary
 
-- **Total Active Bugs**: 1
+- **Total Active Bugs**: 0
 - **Critical (P1)**: 0
 - **High (P2)**: 0
-- **Medium (P3)**: 1
+- **Medium (P3)**: 0
 - **Low (P4)**: 0
 
 ---

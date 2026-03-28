@@ -65,7 +65,7 @@ if (Test-Path $projectConfigPath) {
     try {
         $projCfg = Get-Content $projectConfigPath -Raw | ConvertFrom-Json
         $lang = $projCfg.project_metadata.primary_language.ToLower()
-        $langCfgPath = Join-Path $ProjectRoot "doc/process-framework/languages-config/$lang-config.json"
+        $langCfgPath = Join-Path $ProjectRoot "doc/process-framework/languages-config/$lang/$lang-config.json"
         if (Test-Path $langCfgPath) {
             $langCfg = Get-Content $langCfgPath -Raw | ConvertFrom-Json
             $ext = $langCfg.testing.testFileExtension
@@ -316,8 +316,8 @@ if ($runAll -or $Surface -contains "TestTracking") {
         $brokenTestFiles = 0
 
         foreach ($line in $titLines) {
-            # Match table rows with test file IDs: | PD-TST-### | ...
-            if ($line -match '^\|\s*PD-TST-\d+\s*\|') {
+            # Match table rows with test file IDs: | PD-TST-### | ... or | TE-TST-### | ...
+            if ($line -match '^\|\s*(?:PD|TE)-TST-\d+\s*\|') {
                 $links = Get-MarkdownLinks -Line $line
 
                 # The test file link is typically the 1st link in the row

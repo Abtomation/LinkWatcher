@@ -104,7 +104,7 @@ graph TD
 4. **Conduct ADR Compliance Check**: Verify that Architecture Decision Records are properly implemented in the codebase
 5. **Execute API Accuracy Assessment**: Cross-reference API Documentation with actual API implementations and interfaces
 6. **Analyze Documentation Completeness**: Examine code for missing or outdated documentation requirements
-7. **Generate Validation Report**: Use ../../scripts/file-creation/New-ValidationReport.ps1 script with DocumentationAlignment validation type
+7. **Generate Validation Report**: Use [../../scripts/file-creation/05-validation/New-ValidationReport.ps1](../../../scripts/file-creation/05-validation/New-ValidationReport.ps1) script with DocumentationAlignment validation type
 8. **Update Tracking**: Update Validation Tracking matrix and Documentation Map with new report
 9. **Reference Standards**: Access Documentation Guide and creation guides only when specific guidance is needed for validation criteria
 
@@ -120,4 +120,3 @@ graph TD
 - [Documentation Guide](../../../guides/05-validation/documentation-guide.md) - Documentation standards and quality criteria
 
 ---
-

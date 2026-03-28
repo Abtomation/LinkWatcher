@@ -39,7 +39,7 @@ For batch mode: copy the "Item N" section in the generated plan for each additio
 **L7. Fill Results**: Record test results, bugs discovered, and doc updates in the plan. Complete the Results Summary table.
 
 **L8. Update State Files**:
-   - [ ] [Technical Debt Tracking](../../../product-docs/state-tracking/permanent/technical-debt-tracking.md): Mark resolved items using `Update-TechDebt.ps1 -DebtId "TD###" -NewStatus "Resolved" -ResolutionNotes "..."` — if tracked in a validation tracking file (e.g., [validation-tracking.md](../../../product-docs/state-tracking/temporary/validation-tracking.md)), also pass `-FoundationalNote "Resolved (...)" -FoundationalTrackingPath "<absolute-path>"`
+   - [ ] [Technical Debt Tracking](../../../product-docs/state-tracking/permanent/technical-debt-tracking.md): Mark resolved items using `Update-TechDebt.ps1 -DebtId "TD###" -NewStatus "Resolved" -ResolutionNotes "..."` — if tracked in a validation tracking file, also pass `-ValidationNote "PD-REF-### — description"` (validation file auto-discovered)
    - [ ] [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md): Update feature status if applicable
    - [ ] [Bug Tracking](../../../product-docs/state-tracking/permanent/bug-tracking.md): Report any discovered bugs using New-BugReport.ps1
 

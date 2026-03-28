@@ -95,6 +95,5 @@ Implementation Finalization (PF-TSK-055)
 - [Development Guide](/doc/process-framework/guides/04-implementation/development-guide.md) - Coding best practices
 - [Definition of Done](/doc/process-framework/guides/04-implementation/definition-of-done.md) - Completion criteria
 - [Bug Reporting Guide](/doc/process-framework/guides/06-maintenance/bug-reporting-guide.md) - Bug documentation standards
-<!-- [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Removed: file deleted -->
 
 ---

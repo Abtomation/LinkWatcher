@@ -26,7 +26,7 @@ The task-based approach helps to:
 
 Tasks are organized into four categories based on their nature and frequency:
 
-### Onboarding Tasks
+### Setup Tasks
 
 Framework adoption tasks for bringing an existing project into the process framework. These tasks systematically discover, analyze, and document an existing codebase.
 
@@ -44,10 +44,11 @@ Meta-framework tasks that work on the process framework itself, such as creating
 
 ## Available Tasks
 
-### Onboarding Tasks
+### Setup Tasks
 
 | Task | Description | When to Use |
 | ---- | ----------- | ----------- |
+| [User Documentation Creation](07-deployment/user-documentation-creation.md) | Create or update user-facing product documentation when features introduce or change user-visible behavior | When working on User Documentation Creation |
 | [Framework Evaluation](support/framework-evaluation.md) | Structurally evaluate the process framework or specific parts of it for completeness, consistency, redundancy, accuracy, effectiveness, automation coverage, and scalability | When working on Framework Evaluation |
 | [Core Logic Implementation](04-implementation/core-logic-implementation.md) | Implement core business logic modules, wire integration points, and write unit tests for non-foundation features after Feature Implementation Planning | When working on Core Logic Implementation |
 | [Validation Preparation](05-validation/validation-preparation.md) | Plan a validation round by selecting features and applicable dimensions, then create the tracking state file | When working on Validation Preparation |
@@ -60,15 +61,15 @@ Meta-framework tasks that work on the process framework itself, such as creating
 | [Manual Test Case Creation](03-testing/e2e-acceptance-test-case-creation-task.md) | Create concrete, reproducible manual test cases from test specifications with exact steps, file contents, and expected outcomes | When working on Manual Test Case Creation |
 | [Feature Enhancement](04-implementation/feature-enhancement.md) | Execute enhancement steps from the Enhancement State Tracking File, referencing existing task documentation for quality guidance, adapted to the amendment context | When working on Feature Enhancement |
 | [Feature Request Evaluation](01-planning/feature-request-evaluation.md) | Classify incoming change requests as new features or enhancements to existing features, and for enhancements create a scoped Enhancement State Tracking File | When working on Feature Request Evaluation |
-| [Retrospective Documentation Creation](00-onboarding/retrospective-documentation-creation.md) | Create tier assessments and required design documentation for all analyzed features | When working on Retrospective Documentation Creation |
-| [Codebase Feature Analysis](00-onboarding/codebase-feature-analysis.md) | Analyze implementation patterns, dependencies, and design decisions for each discovered feature | When working on Codebase Feature Analysis |
-| [Codebase Feature Discovery](00-onboarding/codebase-feature-discovery.md) | Systematically discover all features in an existing codebase and assign every source file to at least one feature | When working on Codebase Feature Discovery |
+| [Retrospective Documentation Creation](00-setup/retrospective-documentation-creation.md) | Create tier assessments and required design documentation for all analyzed features | When working on Retrospective Documentation Creation |
+| [Codebase Feature Analysis](00-setup/codebase-feature-analysis.md) | Analyze implementation patterns, dependencies, and design decisions for each discovered feature | When working on Codebase Feature Analysis |
+| [Codebase Feature Discovery](00-setup/codebase-feature-discovery.md) | Systematically discover all features in an existing codebase and assign every source file to at least one feature | When working on Codebase Feature Discovery |
 
 ### Discrete Tasks
 
 | Task                                                                                                  | Description                                                                                                                                        | When to Use                                               |
 | ----------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
-|[Project Initiation](support/project-initiation-task.md) | Initial project setup including project-config.json creation | When working on Project Initiation |
+|[Project Initiation](00-setup/project-initiation-task.md) | Initial project setup including project-config.json creation | When working on Project Initiation |
 | [Implementation Finalization](04-implementation/implementation-finalization.md) | Complete remaining items and prepare feature for production | When working on Implementation Finalization |
 | [Quality Validation](04-implementation/quality-validation.md) | Validate implementation against quality standards and business requirements | When working on Quality Validation |
 | [Integration and Testing](04-implementation/integration-and-testing.md) | Integrate components and establish comprehensive test coverage | When working on Integration and Testing |

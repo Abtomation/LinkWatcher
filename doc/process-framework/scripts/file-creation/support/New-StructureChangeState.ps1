@@ -15,6 +15,9 @@ param(
     [string]$ChangeType = "Template Update",
 
     [Parameter(Mandatory = $false)]
+    [switch]$FromProposal,
+
+    [Parameter(Mandatory = $false)]
     [switch]$OpenInEditor
 )
 
@@ -36,11 +39,18 @@ $additionalMetadataFields = @{
     "change_name" = ConvertTo-KebabCase -InputString $ChangeName
 }
 
-# Select template based on ChangeType
+# Validate -FromProposal is not used with Rename or Content Update (they already have lightweight templates)
+if ($FromProposal -and ($ChangeType -eq "Rename" -or $ChangeType -eq "Content Update")) {
+    Write-ProjectError -Message "-FromProposal cannot be used with ChangeType '$ChangeType' (it already has a lightweight template)" -ExitCode 1
+}
+
+# Select template based on ChangeType and -FromProposal
 if ($ChangeType -eq "Rename") {
     $templatePath = "doc/process-framework/templates/support/structure-change-state-rename-template.md"
 } elseif ($ChangeType -eq "Content Update") {
     $templatePath = "doc/process-framework/templates/support/structure-change-state-content-update-template.md"
+} elseif ($FromProposal) {
+    $templatePath = "doc/process-framework/templates/support/structure-change-state-from-proposal-template.md"
 } else {
     $templatePath = "doc/process-framework/templates/support/structure-change-state-template.md"
 }
@@ -64,26 +74,39 @@ $customFileName = "structure-change-$kebabName.md"
 try {
     $stateId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "PF-STA" -IdDescription "Structure change state for: ${ChangeName}" -DocumentName $ChangeName -OutputDirectory "doc/process-framework/state-tracking/temporary" -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -FileNamePattern $customFileName -OpenInEditor:$OpenInEditor
 
-    $details = @(
-        "",
-        "🚨🚨🚨 CRITICAL: TEMPLATE CREATED - EXTENSIVE CUSTOMIZATION REQUIRED 🚨🚨🚨",
-        "",
-        "⚠️  IMPORTANT: This script creates ONLY a structural template/framework.",
-        "⚠️  The generated file is NOT a functional document until extensively customized.",
-        "⚠️  AI agents MUST follow the referenced guide to properly customize the content.",
-        "",
-        "📖 MANDATORY CUSTOMIZATION GUIDE:",
-        "doc/process-framework/tasks/support/structure-change-task.md",
-        "",
-        "📖 MANDATORY CUSTOMIZATION GUIDE:",
-        "doc/process-framework/tasks/support/structure-change-task.md",
-        "🎯 FOCUS AREAS: Process section and mandatory steps",
-        "",
-        "⚠️  CRITICAL: Create structure change proposal BEFORE making any changes:",
-        "   Use: doc/process-framework/templates/support/structure-change-proposal-template.md",
-        "🚫 DO NOT use the generated file without proper customization!",
-        "✅ The template provides structure - YOU provide the meaningful content."
-    )
+    if ($FromProposal) {
+        $details = @(
+            "",
+            "📋 LIGHTWEIGHT STATE FILE (from proposal)",
+            "",
+            "✅ This state file tracks execution progress only.",
+            "✅ See the linked proposal document for rationale, affected files, and migration strategy.",
+            "",
+            "⚠️  CUSTOMIZE the phase checklists to match your proposal's phases.",
+            "⚠️  CROSS-CHECK: Verify every file in the proposal's affected files table",
+            "   appears in at least one phase checklist.",
+            "",
+            "📖 TASK GUIDE: doc/process-framework/tasks/support/structure-change-task.md"
+        )
+    } else {
+        $details = @(
+            "",
+            "🚨🚨🚨 CRITICAL: TEMPLATE CREATED - EXTENSIVE CUSTOMIZATION REQUIRED 🚨🚨🚨",
+            "",
+            "⚠️  IMPORTANT: This script creates ONLY a structural template/framework.",
+            "⚠️  The generated file is NOT a functional document until extensively customized.",
+            "⚠️  AI agents MUST follow the referenced guide to properly customize the content.",
+            "",
+            "📖 MANDATORY CUSTOMIZATION GUIDE:",
+            "doc/process-framework/tasks/support/structure-change-task.md",
+            "🎯 FOCUS AREAS: Process section and mandatory steps",
+            "",
+            "⚠️  CRITICAL: Create structure change proposal BEFORE making any changes:",
+            "   Use: doc/process-framework/templates/support/structure-change-proposal-template.md",
+            "🚫 DO NOT use the generated file without proper customization!",
+            "✅ The template provides structure - YOU provide the meaningful content."
+        )
+    }
 
     Write-ProjectSuccess -Message "Created structure change state file with ID: $stateId" -Details $details
 }

@@ -23,7 +23,8 @@ graph TD
     classDef important fill:#d0e8f9,stroke:#3a7bd8
     classDef reference fill:#d0f9d5,stroke:#3ad83f
 
-    ChangeRequest>Change Request] --> Classification{{Classification Process}}
+    FeatureRequestTracking[(Feature Request Tracking)] -->|Submitted requests| Classification{{Classification Process}}
+    ChangeRequest>Change Request] --> Classification
     Classification -->|New Feature| FeatureTracking[(Feature Tracking)]
     Classification -->|Enhancement| TargetProposal([Target Feature Proposal])
     TargetProposal -->|Human Approval| ScopeAssessment([Scope Assessment])
@@ -31,25 +32,31 @@ graph TD
     StateFileCreation --> EnhancementStateFile[/Enhancement State Tracking File/]
     EnhancementStateFile --> FeatureEnhancementTask([Feature Enhancement Task])
 
+    Classification -->|Both paths| UpdateFeatureRequest([Update-FeatureRequest.ps1])
+    UpdateFeatureRequest --> FeatureRequestTracking
+    UpdateFeatureRequest -->|Enhancement| FeatureTracking
+
     FeatureTracking --> FeatureStateFiles[/Feature State Files/]
     FeatureStateFiles -.-> TargetProposal
     DesignDocs[/Existing Design Docs/] -.-> ScopeAssessment
     CustomizationGuide[/Customization Guide/] --> StateFileCreation
     NewEnhancementScript([New-EnhancementState.ps1]) --> StateFileCreation
 
-    class ChangeRequest,Classification,TargetProposal critical
-    class ScopeAssessment,StateFileCreation,EnhancementStateFile important
+    class ChangeRequest,Classification,TargetProposal,FeatureRequestTracking critical
+    class ScopeAssessment,StateFileCreation,EnhancementStateFile,UpdateFeatureRequest important
     class FeatureTracking,FeatureStateFiles,DesignDocs,CustomizationGuide,NewEnhancementScript,FeatureEnhancementTask reference
 ```
 
 ## Essential Components
 
 ### Critical Components (Must Understand)
-- **Change Request**: The human partner's description of what needs to be added or changed — the primary input
+- **Feature Request Tracking**: Intake queue for product feature requests — check for "Submitted" entries before starting
+- **Change Request**: The human partner's description of what needs to be added or changed — the primary input (may also come from Feature Request Tracking)
 - **Classification Process**: Determines whether the request is a new feature or an enhancement to an existing feature
 - **Target Feature Proposal**: AI agent proposes which existing feature this enhances, with rationale. Human approval required before proceeding.
 
 ### Important Components (Should Understand)
+- **Update-FeatureRequest.ps1**: Closes the request in feature-request-tracking and updates feature-tracking (sets "Needs Revision" for enhancements)
 - **Scope Assessment**: Evaluates the enhancement using practical criteria (files affected, sessions needed, docs to update)
 - **State File Creation**: Uses New-EnhancementState.ps1 + Customization Guide to create the Enhancement State Tracking File
 - **Enhancement State Tracking File**: The primary output — a customized execution plan for the Feature Enhancement task
@@ -82,6 +89,7 @@ graph TD
 ## Related Documentation
 
 - [Feature Request Evaluation Task](../../../tasks/01-planning/feature-request-evaluation.md) — Task definition
+- [Feature Request Tracking](../../../../product-docs/state-tracking/permanent/feature-request-tracking.md) — Intake queue for product feature requests
 - [Feature Tracking](../../../../product-docs/state-tracking/permanent/feature-tracking.md) — Current feature inventory
 - [Enhancement Workflow Concept (PF-PRO-002)](../../../proposals/proposals/old/enhancement-workflow-concept.md) — Full design rationale
 

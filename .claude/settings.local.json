@@ -38,7 +38,9 @@
       "Bash(find /c/Users/ronny/VS_Code/LinkWatcher -name *-REF-* -type f)",
       "Bash(find /c/Users/ronny/VS_Code/LinkWatcher -name ART-ASS-* -type f)",
       "Bash(find /c/Users/ronny/VS_Code/LinkWatcher -name PF-VAL-* -type f)",
-      "Bash(python main.py --validate --dry-run)"
+      "Bash(python main.py --validate --dry-run)",
+      "Bash(python main.py --validate)",
+      "Bash(bash LinkWatcher_run/start_linkwatcher_background.ps1)"
     ]
   }
 }

@@ -48,10 +48,6 @@ Evaluate how new features fit into existing system architecture before implement
 - **Important (Load If Space):**
 
   - [Architectural Framework Usage Guide](../../guides/01-planning/architectural-framework-usage-guide.md) - **ESSENTIAL**: Guide for managing architectural work and context packages
-  <!-- - [Architecture Context Packages](/doc/product-docs/technical/architecture/context-packages/) - Removed: directory not present in this project -->
-  <!-- [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Removed: file deleted -->
-  <!-- - [Database Reference](/doc/product-docs/technical/architecture/database-reference.md) - Removed: file not present in this project -->
-  <!-- - [Project Structure](/doc/product-docs/technical/architecture/project-structure.md) - Removed: file deleted -->
   - [Technical Design Documents](/doc/product-docs/technical/architecture/design-docs/tdd/) - Existing TDDs for related components
 
 - **Reference Only (Access When Needed):**
@@ -193,5 +189,4 @@ Before considering this task finished:
 ## Related Resources
 
 - [Architecture Decision Records System](/doc/product-docs/technical/architecture/design-docs/adr/README.md) - For creating architectural decisions
-<!-- [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Removed: file deleted -->
 - [Feature Tier Assessment Task](feature-tier-assessment-task.md) - Prerequisite task for complexity evaluation

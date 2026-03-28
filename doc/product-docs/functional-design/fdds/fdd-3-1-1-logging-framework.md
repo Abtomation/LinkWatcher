@@ -127,9 +127,9 @@ retrospective: true
 
 ## Edge Cases & Error Handling
 
-- **3.1.1-EC-1**: If the directory for the specified log file does not exist, the system falls back to console-only logging and emits a WARNING about the missing directory
+- **3.1.1-EC-1**: If the directory for the specified log file does not exist, the system creates the directory automatically (including parent directories) and proceeds with file logging
 - **3.1.1-EC-2**: If the log file cannot be written (permissions error, disk full), the system logs the error to console and continues with console-only output
-- **3.1.1-EC-3**: If the logging config file contains invalid YAML or JSON, the system logs a WARNING and continues with the last valid configuration (or defaults if never successfully loaded)
+- **3.1.1-EC-3**: If the logging config file contains invalid YAML or JSON, the system logs an ERROR and continues with the last valid configuration (or defaults if never successfully loaded)
 - **3.1.1-EC-4**: If `setup_logging()` is called after log messages have already been emitted, the `cache_logger_on_first_use=True` structlog setting may cause some reconfiguration to not apply — the logger is effectively immutable after first use
 - **3.1.1-EC-5**: Log context set manually via `set_context()` without using the `with_context()` decorator must be explicitly cleared via `clear_context()` to avoid context leaking to subsequent operations on the same thread
 

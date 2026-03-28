@@ -4,6 +4,24 @@ Link updater for modifying files when links need to be updated.
 This module handles the actual file modifications when links need to be
 updated due to file moves or renames. Path resolution is delegated to
 PathResolver (linkwatcher.path_resolver).
+
+AI Context
+----------
+- **Entry point**: ``LinkUpdater.update_references_in_file()`` — called
+  by handler after a move is detected to rewrite link targets in a
+  single source file.
+- **Delegation**: updater → PathResolver (new relative path calculation),
+  parser-specific replace methods (``_replace_markdown_target``, etc.).
+  File I/O uses atomic tempfile-write + rename pattern.
+- **Common tasks**:
+  - Adding a new file format: add a ``_replace_<format>_target()``
+    method and wire it into ``_replace_reference_target()``.
+  - Debugging failed updates: check ``UpdateResult`` return value —
+    ``STALE`` means the old link text was not found in the file
+    (file changed between scan and update).
+  - Understanding backup behavior: controlled by ``self.backup_enabled``
+    and ``config.create_backups``.  Backups are ``.bak`` files created
+    before each write.
 """
 
 import os
@@ -12,13 +30,20 @@ import shutil
 import tempfile
 from enum import Enum
 from pathlib import Path
-from typing import Dict, List
-
-from colorama import Fore
+from typing import Dict, List, TypedDict
 
 from .logging import get_logger
 from .models import LinkReference
 from .path_resolver import PathResolver
+
+
+class UpdateStats(TypedDict):
+    """Statistics returned by update_references()."""
+
+    files_updated: int
+    references_updated: int
+    errors: int
+    stale_files: List[str]
 
 
 class UpdateResult(Enum):
@@ -42,10 +67,11 @@ class LinkUpdater:
         self.project_root = Path(project_root).resolve()
         self.logger = get_logger()
         self.path_resolver = PathResolver(project_root, self.logger)
+        self._regex_cache: Dict[str, re.Pattern] = {}
 
     def update_references(
         self, references: List[LinkReference], old_path: str, new_path: str
-    ) -> Dict:
+    ) -> UpdateStats:
         """
         Update all references from old_path to new_path.
 
@@ -103,6 +129,17 @@ class LinkUpdater:
         """
         Update references in a single file.
 
+        Algorithm (two phases):
+          Phase 1 — Line-by-line replacement (bottom-to-top order to preserve
+          line/column positions). For each reference, calculates the new target
+          path, performs stale-detection checks, and replaces the old target on
+          the matched line. Python-import module renames are collected for Phase 2.
+
+          Phase 2 — File-wide Python module usage replacement (PD-BUG-045).
+          When a Python import statement is renamed (e.g. "utils.helpers" →
+          "core.helpers"), all usages of the old module name elsewhere in the
+          file are replaced via word-boundary regex.
+
         Returns:
             UpdateResult.UPDATED if file was modified,
             UpdateResult.NO_CHANGES if no changes needed,
@@ -115,8 +152,10 @@ class LinkUpdater:
             abs_file_path = file_path
 
         if self.dry_run:
-            print(
-                f"{Fore.CYAN}[DRY RUN] Would update {len(references)} references in {abs_file_path}"
+            self.logger.info(
+                "dry_run_skip",
+                file_path=abs_file_path,
+                references_count=len(references),
             )
             return UpdateResult.UPDATED
 
@@ -214,7 +253,7 @@ class LinkUpdater:
             return UpdateResult.NO_CHANGES
 
         except Exception as e:
-            raise Exception(f"Failed to update file {abs_file_path}: {e}")
+            raise RuntimeError(f"Failed to update file {abs_file_path}: {e}")
 
     def _calculate_new_target(self, ref: LinkReference, old_path: str, new_path: str) -> str:
         """Calculate the new target path for a reference.
@@ -262,9 +301,16 @@ class LinkUpdater:
             # Update link text when it exactly matches the old target
             if link_text == ref.link_target:
                 link_text = new_target
-            return f"{match.group(1)}{link_text}{match.group(3)}{new_target}{title_part}{match.group(6)}"
+            return (
+                f"{match.group(1)}{link_text}{match.group(3)}"
+                f"{new_target}{title_part}{match.group(6)}"
+            )
 
-        return re.sub(pattern, replace_func, line)
+        compiled = self._regex_cache.get(pattern)
+        if compiled is None:
+            compiled = re.compile(pattern)
+            self._regex_cache[pattern] = compiled
+        return compiled.sub(replace_func, line)
 
     def _replace_reference_target(self, line: str, ref: LinkReference, new_target: str) -> str:
         """Replace target in reference link format [label]: target "title"."""
@@ -284,7 +330,11 @@ class LinkUpdater:
             end_part = match.group(4) if match.group(4) else ""
             return f"{match.group(1)}{new_target}{title_part}{end_part}"
 
-        return re.sub(pattern, replace_func, line)
+        compiled = self._regex_cache.get(pattern)
+        if compiled is None:
+            compiled = re.compile(pattern)
+            self._regex_cache[pattern] = compiled
+        return compiled.sub(replace_func, line)
 
     def _replace_at_position(self, line: str, ref: LinkReference, new_target: str) -> str:
         """Replace target at specific position in line."""

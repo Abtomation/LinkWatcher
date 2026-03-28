@@ -129,13 +129,13 @@ Consult your project's [Feature Tracking](../../../product-docs/state-tracking/p
 
 ### Validation Philosophy
 
-The validation framework uses a **multi-dimensional approach** where each selected feature is evaluated across 6 specialized validation types. This creates a comprehensive validation matrix (N features × 6 validation types) that ensures no aspect of code quality is overlooked.
+The validation framework uses a **multi-dimensional approach** where each selected feature is evaluated across up to 11 specialized validation dimensions. This creates a comprehensive validation matrix (N features × applicable dimensions) that ensures no aspect of code quality is overlooked.
 
 ## Validation Framework Overview
 
 ### Validation Dimensions
 
-The feature validation framework consists of 11 specialized validation dimensions (see [Dimension Catalog](#dimension-catalog) above), each designed to evaluate different aspects of code quality. The 6 original dimensions are detailed below; for the 5 newer dimensions (Security, Performance, Observability, Accessibility, Data Integrity), refer to their task definitions directly.
+The feature validation framework consists of 11 specialized validation dimensions (see [Dimension Catalog](#dimension-catalog) above), each designed to evaluate different aspects of code quality. The first 6 dimensions are detailed below; for the remaining 5 dimensions (Security, Performance, Observability, Accessibility, Data Integrity), refer to their task definitions directly.
 
 1. **Architectural Consistency Validation** (PF-TSK-031)
 
@@ -273,7 +273,7 @@ Group the selected features into batches of 2–4 per session, considering depen
 
 1. **Select Validation Type and Features**
 
-   - Choose one of the 6 validation types based on current priorities
+   - Choose one of the 11 validation dimensions based on current priorities
    - Select 2-3 features for the session (follow session planning guidelines)
    - Review the specific validation task definition for your chosen type
 
@@ -305,7 +305,7 @@ Group the selected features into batches of 2–4 per session, considering depen
 2. **Apply Validation Criteria**
 
    - Use the validation criteria specific to your chosen validation type
-   - Score each criterion on the 4-point scale (1=Poor, 2=Adequate, 3=Good, 4=Excellent)
+   - Score each criterion on the 0-3 scale (0=Not Met, 1=Partially Met, 2=Mostly Met, 3=Fully Met)
    - Document specific findings, evidence, and recommendations
 
 3. **Cross-Feature Analysis**
@@ -378,29 +378,29 @@ Group the selected features into batches of 2–4 per session, considering depen
 
 ## Scoring and Interpretation
 
-### 4-Point Scoring Scale
+### 0-3 Scoring Scale
 
-Each validation criterion uses a standardized 4-point scale:
+Each validation criterion uses a standardized 0-3 scale:
 
-- **4 - Excellent**: Exceeds expectations, exemplary implementation
+- **3 - Fully Met**: Exemplary implementation, no significant issues
 
-  - Code demonstrates best practices and innovative solutions
+  - Code demonstrates best practices and follows established patterns
   - No improvements needed, serves as a model for other features
   - Fully supports extensibility and maintainability goals
 
-- **3 - Good**: Meets requirements with minor improvements possible
+- **2 - Mostly Met**: Solid implementation, minor issues identified
 
   - Solid implementation following established patterns
   - Minor optimizations or enhancements could be beneficial
   - Generally supports project goals effectively
 
-- **2 - Adequate**: Functional but needs improvement
+- **1 - Partially Met**: Major issues requiring attention
 
   - Basic functionality works but lacks polish or optimization
   - Several areas for improvement identified
   - May require attention before major releases
 
-- **1 - Poor**: Significant issues requiring immediate attention
+- **0 - Not Met**: Fundamental problems or not implemented
   - Critical problems affecting functionality or maintainability
   - Immediate remediation required
   - May block other development work
@@ -409,13 +409,13 @@ Each validation criterion uses a standardized 4-point scale:
 
 **Overall Score Interpretation:**
 
-- **≥ 3.0**: Foundation is production-ready and well-implemented
-- **2.5-2.9**: Foundation needs targeted improvements but is functional
-- **< 2.5**: Foundation requires significant refactoring before production use
+- **≥ 2.5**: Production-ready and well-implemented
+- **2.0-2.4**: Needs targeted improvements but is functional
+- **< 2.0**: Requires significant refactoring before production use
 
 **Critical Issue Handling:**
 
-- Any criterion scoring 1 (Poor) is flagged as a critical issue
+- Any criterion scoring 0 (Not Met) is flagged as a critical issue
 - Critical issues require immediate attention regardless of overall score
 - Critical issues should be tracked and remediated before proceeding with dependent work
 
@@ -564,7 +564,7 @@ When skipping a criterion, exclude it from the score denominator so it doesn't p
 
 **Solution:**
 
-1. Review the 4-point scoring scale definitions carefully
+1. Review the 0-3 scoring scale definitions carefully
 2. Use previous validation reports as scoring examples and benchmarks
 3. Focus on relative scoring within each validation type
 4. Document specific evidence for each score to maintain consistency

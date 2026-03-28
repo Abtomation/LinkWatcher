@@ -116,7 +116,7 @@ python %USERPROFILE%\bin\main.py --project-root c:\Users\ronny\VS_Code\YourProje
 
 ### Example 3: Background Mode with Logging
 ```cmd
-python %USERPROFILE%\bin\main.py --log-file LinkWatcher_run/LinkWatcherLog_20260324-091626_20260325-224338.txt --debug
+python %USERPROFILE%\bin\main.py --log-file LinkWatcher_run/logs/LinkWatcherLog_20260324-091626_20260325-224338_20260326-141107_20260327-131638.txt --debug
 ```
 
 ## Key Benefits

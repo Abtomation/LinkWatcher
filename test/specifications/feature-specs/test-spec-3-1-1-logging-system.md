@@ -28,11 +28,11 @@ This document provides comprehensive test specifications for the **Logging Syste
 
 ### TDD Summary
 
-The Logging System provides `LinkWatcherLogger` with domain-specific methods, `LogContext` for thread-local context, `LogTimer` for performance timing, `LogFilter` for runtime filtering, `LogMetrics` for thread-safe counters, and `LoggingConfigManager` for config hot-reload. Uses structlog with dual formatters (colored console + JSON file).
+The Logging System provides `LinkWatcherLogger` with domain-specific methods, `LogContext` for thread-local context, `LogTimer` for performance timing, and `LoggingConfigManager` for config hot-reload. Uses structlog with dual formatters (colored console + JSON file).
 
 ### Test Complexity Assessment
 
-**Selected Tier**: 2 — Multiple interacting components (logger, context, filters, metrics, config manager) with threading requirements.
+**Selected Tier**: 2 — Multiple interacting components (logger, context, config manager) with threading requirements.
 
 ## Cross-References
 
@@ -113,34 +113,13 @@ The Logging System provides `LinkWatcherLogger` with domain-specific methods, `L
 
 ### Unit Tests — Advanced Logging
 
-#### LogFilter
-
-| Component | Test Focus | Key Test Cases | Fixtures |
-|-----------|-----------|----------------|----------|
-| LogFilter | Component filter | `test_component_filtering` — only allowed components pass | `Mock` records |
-| LogFilter | Operation filter | `test_operation_filtering` — only allowed operations pass | `Mock` records |
-| LogFilter | Level range | `test_level_range_filtering` — WARNING to ERROR range | `Mock` records |
-| LogFilter | File patterns | `test_file_pattern_filtering` — "docs/", ".md" patterns match | `Mock` records |
-| LogFilter | Exclude patterns | `test_exclude_pattern_filtering` — message/file_path exclusions | `Mock` records |
-| LogFilter | Time window | `test_time_window_filtering` — allowed within window, blocked after | `Mock` records |
-
-#### LogMetrics
-
-| Component | Test Focus | Key Test Cases | Fixtures |
-|-----------|-----------|----------------|----------|
-| LogMetrics | Basic counting | `test_basic_metrics_collection` — total, by level, by component, by operation | None |
-| LogMetrics | Reset | `test_metrics_reset` — total_logs back to zero | None |
-| LogMetrics | Thread safety | `test_thread_safety` — 5 threads × 100 = 500 total | `threading.Thread` |
-
 #### LoggingConfigManager
 
 | Component | Test Focus | Key Test Cases | Fixtures |
 |-----------|-----------|----------------|----------|
-| ConfigManager | JSON config | `test_config_file_loading` — loads component, operation, level filters | `tempfile` |
-| ConfigManager | YAML config | `test_yaml_config_loading` — loads file pattern, exclude filters | `tempfile` |
-| ConfigManager | Runtime filters | `test_runtime_filter_setting` — programmatic filter setup | None |
-| ConfigManager | Clear filters | `test_filter_clearing` — removes all active filters | None |
-| ConfigManager | Debug snapshot | `test_debug_snapshot` — returns timestamp, metrics, active_filters | None |
+| ConfigManager | JSON config | `test_config_file_loading` — loads JSON config file | `tempfile` |
+| ConfigManager | YAML config | `test_yaml_config_loading` — loads YAML config file | `tempfile` |
+| ConfigManager | Debug snapshot | `test_debug_snapshot` — returns timestamp, config_file, auto_reload | None |
 
 #### Integration
 
@@ -148,16 +127,14 @@ The Logging System provides `LinkWatcherLogger` with domain-specific methods, `L
 |-----------|-----------|----------------|----------|
 | Advanced setup | `test_setup_advanced_logging` | Config file returns configured manager | `tempfile` |
 | Singleton | `test_config_manager_singleton` | Same instance on repeated calls | None |
-| Filter config | `test_logging_with_filters` | Runtime filter stored correctly | None |
 
 #### Performance
 
 | Component | Test Focus | Key Test Cases | Fixtures |
 |-----------|-----------|----------------|----------|
 | Logging overhead | `test_logging_overhead` | 1000 log ops < 1 second | None |
-| Filter performance | `test_filter_performance` | 10000 filter evals < 100ms | None |
 
-**Test File**: [`test/automated/unit/test_advanced_logging.py`](../../../test/automated/unit/test_advanced_logging.py) (19 methods)
+**Test File**: [`test/automated/unit/test_advanced_logging.py`](../../../test/automated/unit/test_advanced_logging.py) (6 methods)
 
 ## Test Implementation Roadmap
 
@@ -167,18 +144,18 @@ The Logging System provides `LinkWatcherLogger` with domain-specific methods, `L
    - [x] Core logger: initialization, level change, convenience methods
    - [x] Log context: set/get/clear, thread isolation
    - [x] LogTimer: success and failure paths
-   - [x] LogFilter: all 6 filter types
-   - [x] LogMetrics: counting, reset, thread safety
+   - ~~LogFilter: removed (TD083 — dead code, never wired to handlers)~~
+   - ~~LogMetrics: removed (TD083 — dead code, record_log() never called)~~
 
 2. **Medium Priority** (Implemented ✅)
    - [x] Formatters: colored, non-colored, JSON
-   - [x] Config manager: JSON/YAML loading, runtime filters
+   - [x] Config manager: JSON/YAML loading, debug snapshots
    - [x] with_context decorator: normal and exception paths
    - [x] Performance benchmarks
 
 3. **Low Priority** (Gaps identified)
    - [ ] Config hot-reload with daemon thread (TDD: polling mtime every 1s, applies within 1 second)
-   - [ ] Invalid config handling (TDD: malformed config → WARNING, last valid retained)
+   - [ ] Invalid config handling (TDD: malformed config → ERROR, last valid retained)
    - [ ] Log file rotation at 10MB (TDD: RotatingFileHandler with 5 backups)
    - [ ] File handler failure fallback to console-only (TDD: independent handlers)
    - [ ] `cache_logger_on_first_use` behavior (TDD: structlog immutable after first call)

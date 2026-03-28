@@ -79,7 +79,7 @@
         "main": "doc/product-docs/technical/architecture/design-docs/adr",
         "default": "main"
       },
-      "nextAvailable": 41
+      "nextAvailable": 42
     },
     "PD-AIA": {
       "description": "Product Documentation - Architecture Impact Assessments",
@@ -144,7 +144,7 @@
         "handbooks": "doc/product-docs/user/handbooks",
         "default": "handbooks"
       },
-      "nextAvailable": 3
+      "nextAvailable": 4
     },
     "PD-FEA": {
       "description": "Product Documentation - Features",
@@ -230,7 +230,17 @@
         "product-temporary": "doc/product-docs/state-tracking/temporary",
         "default": "permanent"
       },
-      "nextAvailable": 65
+      "nextAvailable": 66
+    },
+    "PD-FRQ": {
+      "description": "Product Documentation - Feature Requests",
+      "category": "Product Documentation",
+      "type": "Feature Request",
+      "directories": {
+        "permanent": "doc/product-docs/state-tracking/permanent",
+        "default": "permanent"
+      },
+      "nextAvailable": 3
     },
     "PD-FIS": {
       "description": "Product Documentation - Feature Implementation States",
@@ -256,7 +266,7 @@
         "reports": "doc/product-docs/validation/reports",
         "default": "reports"
       },
-      "nextAvailable": 46
+      "nextAvailable": 63
     },
     "PD-REF": {
       "description": "Product Documentation - Refactoring Plans",
@@ -267,7 +277,7 @@
         "scripts-update": "doc/process-framework/scripts/update/doc/product-docs/refactoring/plans",
         "default": "plans"
       },
-      "nextAvailable": 74
+      "nextAvailable": 124
     },
     "PD-TDA": {
       "description": "Product Documentation - Technical Debt Assessments",

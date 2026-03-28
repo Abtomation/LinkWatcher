@@ -140,3 +140,4 @@ test_output/
 temp/
 .linkwatcher/dependency_graph.png
 LinkWatcher_run/LinkWatcherLog.txt.1
+LinkWatcher_run/logs/

@@ -1,0 +1,133 @@
+# .linkwatcher-ignore — Per-file validation suppression rules
+#
+# Format:  source_glob -> target_substring
+# A broken link is suppressed when the source file matches the glob AND
+# the link target contains the substring.
+#
+# Use sparingly — every rule here is a potential blind spot.
+# Prefer fixing the actual link over adding a rule.
+
+# ── Template placeholder paths ────────────────────────────────────────
+# Framework-generic templates use example paths that intentionally don't
+# exist in any specific project.
+doc/process-framework/templates/**/*.md -> related-design.md
+doc/process-framework/templates/**/*.md -> related-api.md
+doc/process-framework/templates/**/*.md -> related-adr.md
+doc/process-framework/templates/**/*.md -> related-document.md
+doc/process-framework/templates/**/*.md -> api-reference.md
+doc/process-framework/templates/**/*.md -> related-feature-
+doc/process-framework/templates/**/*.md -> project/docs/readme.md
+doc/process-framework/templates/**/*.md -> your-plan-file.md
+doc/process-framework/templates/**/*.md -> feature_id-feature-name-
+doc/process-framework/templates/**/*.md -> 0.1.2-data-models-
+doc/product-docs/templates/**/*.md -> related-design.md
+doc/product-docs/templates/**/*.md -> related-api.md
+doc/product-docs/templates/**/*.md -> related-adr.md
+
+# ── Guide example paths ──────────────────────────────────────────────
+# Guides use illustrative paths in code examples and prose.
+doc/process-framework/guides/05-validation/documentation-guide.md -> ../../technical/api/reference.md
+doc/process-framework/guides/05-validation/documentation-guide.md -> ../configuration.md
+doc/process-framework/guides/05-validation/documentation-guide.md -> ../../assets/architecture-overview.png
+doc/process-framework/guides/05-validation/documentation-guide.md -> ../related-doc.md
+doc/process-framework/guides/04-implementation/development-guide.md -> tdd-t3-template.md
+doc/process-framework/guides/cyclical/debt-item-creation-guide.md -> lib/auth/
+doc/process-framework/guides/03-testing/test-specification-creation-guide.md -> tdd-feature.md
+
+# ── Task definition example paths ────────────────────────────────────
+doc/process-framework/tasks/00-setup/codebase-feature-analysis.md -> feature_id-feature-name-
+doc/process-framework/tasks/00-setup/codebase-feature-analysis.md -> 0.1.2-data-models-
+doc/process-framework/tasks/01-planning/system-architecture-review.md -> .ai-workspace/dependency-maps
+doc/process-framework/tasks/02-design/tdd-creation-task.md -> api-design-guidelines.md
+
+# ── User handbook example paths ──────────────────────────────────────
+doc/product-docs/user/handbooks/quick-reference.md -> src/utils.py
+doc/product-docs/user/handbooks/quick-reference.md -> src/helpers/utils.py
+doc/product-docs/user/handbooks/quick-reference.md -> docs/api.md
+doc/product-docs/user/handbooks/quick-reference.md -> config/settings.yaml
+
+# ── Test audit README example paths ──────────────────────────────────
+doc/product-docs/test-audits/README.md -> test_example.py
+test/audits/README.md -> test_example.py
+
+# ── FDD example paths ────────────────────────────────────────────────
+doc/product-docs/functional-design/fdds/fdd-0-1-2-in-memory-database.md -> src/docs/guide.md
+doc/product-docs/functional-design/fdds/fdd-3-1-1-logging-framework.md -> old/path.md
+
+# ── Feature state files — deleted/not-yet-created file references ────
+# These are annotated with "File Removed" or "Not Found on Disk" in the
+# source files — historical records, not navigation links.
+doc/product-docs/state-tracking/features/0.1.1-core-architecture-implementation-state.md -> test_models.py
+doc/product-docs/state-tracking/features/0.1.1-core-architecture-implementation-state.md -> test_utils.py
+doc/product-docs/state-tracking/features/0.1.1-core-architecture-implementation-state.md -> scripts/benchmark.py
+doc/product-docs/state-tracking/features/0.1.3-configuration-system-implementation-state.md -> docs/configuration.md
+doc/product-docs/state-tracking/features/1.1.1-file-system-monitoring-implementation-state.md -> test_handler.py
+doc/product-docs/state-tracking/features/3.1.1-logging-system-implementation-state.md -> docs/LOGGING.md
+
+# ── Tech debt tracking — historical descriptions ─────────────────────
+# Resolved/open debt entries describe files that don't exist (yet or anymore).
+doc/product-docs/state-tracking/permanent/technical-debt-tracking.md -> scripts/setup_cicd.py
+doc/product-docs/state-tracking/permanent/technical-debt-tracking.md -> advanced-logging-config.yaml
+doc/product-docs/state-tracking/permanent/technical-debt-tracking.md -> tdd-5-1-1-cicd
+doc/product-docs/state-tracking/permanent/technical-debt-tracking.md -> .github/workflows/ci.yml
+doc/product-docs/state-tracking/permanent/technical-debt-tracking.md -> fdd-5-1-1-cicd
+doc/product-docs/state-tracking/permanent/technical-debt-tracking.md -> test_reference_lookup.py
+
+# ── Process improvement tracking — historical changelog ───────────────
+doc/process-framework/state-tracking/permanent/process-improvement-tracking.md -> Common-ScriptHelpers.psm1
+
+# ── Evaluation report — findings about deleted artifacts ──────────────
+doc/process-framework/evaluation-reports/**/*.md -> test/test-registry.yaml
+doc/process-framework/evaluation-reports/**/*.md -> test-implementation-map.md
+doc/process-framework/evaluation-reports/**/*.md -> test-infrastructure-guide.md
+doc/process-framework/evaluation-reports/**/*.md -> test-implementation-task.md
+doc/process-framework/evaluation-reports/**/*.md -> Validate-TestTracking.ps1
+
+# ── Validation report prose mentions ──────────────────────────────────
+# Reports reference files as they existed at analysis time.
+doc/product-docs/validation/reports/**/*.md -> docs/README.md
+doc/product-docs/validation/reports/**/*.md -> config/settings.py
+doc/product-docs/validation/reports/**/*.md -> config/defaults.py
+doc/product-docs/validation/reports/**/*.md -> config/__init__.py
+doc/product-docs/validation/reports/**/*.md -> .github/workflows/ci.yml
+doc/product-docs/validation/reports/**/*.md -> refactoring/plans/archive/remove-dual-print-logger-output
+doc/product-docs/validation/reports/**/*.md -> logging.py/logging_config.py
+
+# ── Test spec example paths ──────────────────────────────────────────
+test/specifications/**/*.md -> ../old.txt
+test/specifications/**/*.md -> ../new.txt
+test/specifications/**/*.md -> core/helpers.py
+test/specifications/**/*.md -> docs/
+
+# ── Context map standalone mentions ──────────────────────────────────
+doc/process-framework/visualization/context-maps/**/*.md -> integration-and-testing-map.md
+
+# ── PowerShell .\  examples in docs ──────────────────────────────────
+doc/process-framework/.ai-entry-point.md -> .\Script.ps1
+doc/process-framework/guides/01-planning/assessment-guide.md -> .\New-TierAssessment.ps1
+doc/process-framework/templates/support/temp-task-creation-state-template.md -> .\New-Task.ps1
+doc/process-framework/templates/support/temp-task-creation-state-template.md -> .\New-Template.ps1
+doc/process-framework/templates/support/temp-task-creation-state-template.md -> .\New-Guide.ps1
+doc/process-framework/templates/support/temp-task-creation-state-template.md -> .\New-ContextMap.ps1
+
+# ── Tech debt tracking — additional historical mentions ───────────────
+doc/product-docs/state-tracking/permanent/technical-debt-tracking.md -> config/settings.py
+doc/product-docs/state-tracking/permanent/technical-debt-tracking.md -> parsers/patterns.py
+doc/product-docs/state-tracking/permanent/technical-debt-tracking.md -> your-plan-file.md
+
+# ── Validation report/state prose mentions (Round 1 & 2) ─────────────
+doc/product-docs/validation/reports/**/*.md -> Makefile/setup.py
+doc/product-docs/state-tracking/temporary/validation/validation-tracking-2.md -> fields/utils.py
+
+# ── Validation tracking backup files ─────────────────────────────────
+doc/product-docs/state-tracking/temporary/validation-tracking-backup-*.md -> PD-VAL-053--features
+
+# ── Test audit report example paths ──────────────────────────────────
+test/audits/**/*.md -> assets/file.txt
+test/audits/**/*.md -> parsers/generic.py
+test/audits/**/*.md -> parsers/powershell.py
+test/audits/**/*.md -> .css/.ts/.html
+
+# ── Regex patterns extracted by parser (not file paths) ──────────────
+doc/product-docs/state-tracking/temporary/validation/validation-tracking-2.md -> a-zA-Z0-9
+doc/product-docs/validation/reports/code-quality/PD-VAL-060*.md -> a-zA-Z0-9

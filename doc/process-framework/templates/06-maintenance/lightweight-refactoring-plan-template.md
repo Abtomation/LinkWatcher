@@ -2,9 +2,9 @@
 id: PF-TEM-050
 type: Process Framework
 category: Template
-version: 1.0
+version: 1.1
 created: 2026-03-02
-updated: 2026-03-02
+updated: 2026-03-27
 usage_context: Process Framework - Refactoring Plan Creation
 description: Compact refactoring plan for changes with no architectural impact. Supports batch mode for multiple quick fixes in one session.
 creates_document_category: Refactoring Plan
@@ -27,7 +27,7 @@ priority: [Priority Level]
 - **Status**: Planning
 [Debt Item Line]- **Mode**: Lightweight (no architectural impact)
 
-<!-- Optional: Include for multi-file changes where dependency awareness matters. Omit for single-file changes. -->
+<!-- DELETE this section if single-file / no cross-component impact. Keep for multi-file changes where dependency awareness matters. -->
 ## Dependencies and Impact
 - **Affected Components**: [List files/modules that will be modified]
 - **Internal Dependencies**: [Components that depend on the changed code]

@@ -113,6 +113,7 @@ Implement core business logic modules, wire integration points, and write unit t
    - Follow existing test patterns and conventions
    - Aim for coverage targets defined in the test specification (if available)
 8. **🚨 CHECKPOINT**: Present implemented modules, test results, and any TDD deviations to human partner for review
+   > **ADR trigger**: If this implementation involved a non-obvious design choice (e.g., choosing between competing patterns, introducing a new architectural pattern, making trade-offs not covered by existing ADRs), recommend creating an ADR via [ADR Creation](../02-design/adr-creation-task.md) (PF-TSK-028) as a follow-up task.
 
 ### Finalization
 
@@ -131,7 +132,7 @@ Implement core business logic modules, wire integration points, and write unit t
     ```powershell
     # Create standardized bug report
     cd doc/process-framework/scripts/file-creation/06-maintenance
-    .\New-BugReport.ps1 -Title "Brief description" -Description "Detailed description" -DiscoveredBy "Core Logic Implementation" -Severity "High" -Component "ComponentName" -Environment "Development" -Evidence "Test case or code reference"
+    .\New-BugReport.ps1 -Title "Brief description" -Description "Detailed description" -DiscoveredBy "Development" -Severity "High" -Component "ComponentName" -Environment "Development" -Evidence "Test case or code reference"
     ```
 
     - Follow [Bug Reporting Guide](../../guides/06-maintenance/bug-reporting-guide.md) for consistent documentation
@@ -142,7 +143,8 @@ Implement core business logic modules, wire integration points, and write unit t
     - Note any deviations from TDD/FDD specifications
     - Document issues encountered and resolutions
     - Mark this task as completed in the task sequence
-13. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+13. **Flag User Documentation Status**: If this feature has user-visible behavior (CLI options, configuration, workflows), set the User Documentation section in the feature implementation state file to `❌ Needed`. This triggers [User Documentation Creation](../07-deployment/user-documentation-creation.md) later in the workflow. If the feature is internal-only, set to `N/A`.
+14. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 

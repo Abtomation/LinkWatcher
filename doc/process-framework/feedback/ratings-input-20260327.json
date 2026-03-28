@@ -1,0 +1,521 @@
+[
+  {
+    "form_id": "20260326-140755-PF-TSK-077-feedback",
+    "task_id": "PF-TSK-077",
+    "task_context": "Validation Preparation",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-03-26",
+    "session_duration_minutes": 10,
+    "review_cycle_id": "tools-review-20260327",
+    "archived_form_path": "doc/process-framework/feedback/archive/2026-03/tools-review-20260327/processed-forms/20260326-140755-PF-TSK-077-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 4,
+    "tools": [
+      {"tool_name": "Validation Preparation Task", "tool_doc_id": "PF-TSK-077", "effectiveness": 5, "clarity": 5, "completeness": 4, "efficiency": 5, "conciseness": 5},
+      {"tool_name": "Validation Tracking Template", "tool_doc_id": "PF-TEM-051", "effectiveness": 4, "clarity": 4, "completeness": 4, "efficiency": 4, "conciseness": 3},
+      {"tool_name": "Feature Validation Guide", "tool_doc_id": "PF-GDE-042", "effectiveness": 5, "clarity": 5, "completeness": 4, "efficiency": 4, "conciseness": 4}
+    ]
+  },
+  {
+    "form_id": "20260326-143346-PF-TSK-031-feedback",
+    "task_id": "PF-TSK-031",
+    "task_context": "Architectural Consistency Validation Batch A",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-03-26",
+    "session_duration_minutes": 24,
+    "review_cycle_id": "tools-review-20260327",
+    "archived_form_path": "doc/process-framework/feedback/archive/2026-03/tools-review-20260327/processed-forms/20260326-143346-PF-TSK-031-feedback.md",
+    "overall_effectiveness": 4,
+    "process_conciseness": 4,
+    "tools": [
+      {"tool_name": "Arch Consistency Task", "tool_doc_id": "PF-TSK-031", "effectiveness": 4, "clarity": 4, "completeness": 4, "efficiency": 4, "conciseness": 4},
+      {"tool_name": "New-ValidationReport.ps1", "tool_doc_id": "SCRIPT", "effectiveness": 3, "clarity": 4, "completeness": 4, "efficiency": 3, "conciseness": 4},
+      {"tool_name": "Update-TechDebt.ps1", "tool_doc_id": "SCRIPT", "effectiveness": 5, "clarity": 4, "completeness": 5, "efficiency": 5, "conciseness": 5}
+    ]
+  },
+  {
+    "form_id": "20260326-215847-PF-TSK-030-feedback",
+    "task_id": "PF-TSK-030",
+    "task_context": "Test Audit Session 1",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-03-26",
+    "session_duration_minutes": 480,
+    "review_cycle_id": "tools-review-20260327",
+    "archived_form_path": "doc/process-framework/feedback/archive/2026-03/tools-review-20260327/processed-forms/20260326-215847-PF-TSK-030-feedback.md",
+    "overall_effectiveness": 4,
+    "process_conciseness": 3,
+    "tools": [
+      {"tool_name": "Test Audit Task", "tool_doc_id": "PF-TSK-030", "effectiveness": 4, "clarity": 4, "completeness": 4, "efficiency": 3, "conciseness": 3},
+      {"tool_name": "New-TestAuditReport.ps1", "tool_doc_id": "SCRIPT", "effectiveness": 4, "clarity": 4, "completeness": 4, "efficiency": 3, "conciseness": 4},
+      {"tool_name": "Update-TestFileAuditState.ps1", "tool_doc_id": "SCRIPT", "effectiveness": 2, "clarity": 4, "completeness": 3, "efficiency": 2, "conciseness": 4}
+    ]
+  },
+  {
+    "form_id": "20260326-220827-PF-TSK-031-feedback",
+    "task_id": "PF-TSK-031",
+    "task_context": "Architectural Consistency Validation Batch B",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-03-26",
+    "session_duration_minutes": 12,
+    "review_cycle_id": "tools-review-20260327",
+    "archived_form_path": "doc/process-framework/feedback/archive/2026-03/tools-review-20260327/processed-forms/20260326-220827-PF-TSK-031-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 4,
+    "tools": [
+      {"tool_name": "Arch Consistency Task", "tool_doc_id": "PF-TSK-031", "effectiveness": 5, "clarity": 5, "completeness": 4, "efficiency": 5, "conciseness": 5},
+      {"tool_name": "New-ValidationReport.ps1", "tool_doc_id": "SCRIPT", "effectiveness": 5, "clarity": 5, "completeness": 4, "efficiency": 5, "conciseness": 5},
+      {"tool_name": "Update-TechDebt.ps1", "tool_doc_id": "SCRIPT", "effectiveness": 5, "clarity": 4, "completeness": 5, "efficiency": 5, "conciseness": 5}
+    ]
+  },
+  {
+    "form_id": "20260326-220944-PF-TSK-032-feedback",
+    "task_id": "PF-TSK-032",
+    "task_context": "Code Quality Validation Batch A",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-03-26",
+    "session_duration_minutes": 25,
+    "review_cycle_id": "tools-review-20260327",
+    "archived_form_path": "doc/process-framework/feedback/archive/2026-03/tools-review-20260327/processed-forms/20260326-220944-PF-TSK-032-feedback.md",
+    "overall_effectiveness": 4,
+    "process_conciseness": 4,
+    "tools": [
+      {"tool_name": "Code Quality Task", "tool_doc_id": "PF-TSK-032", "effectiveness": 4, "clarity": 4, "completeness": 4, "efficiency": 4, "conciseness": 4},
+      {"tool_name": "New-ValidationReport.ps1", "tool_doc_id": "SCRIPT", "effectiveness": 5, "clarity": 4, "completeness": 4, "efficiency": 5, "conciseness": 4},
+      {"tool_name": "Update-TechDebt.ps1", "tool_doc_id": "SCRIPT", "effectiveness": 5, "clarity": 4, "completeness": 4, "efficiency": 5, "conciseness": 4}
+    ]
+  },
+  {
+    "form_id": "20260326-221115-PF-TSK-033-feedback",
+    "task_id": "PF-TSK-033",
+    "task_context": "Integration Deps Validation Batch A",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-03-26",
+    "session_duration_minutes": 14,
+    "review_cycle_id": "tools-review-20260327",
+    "archived_form_path": "doc/process-framework/feedback/archive/2026-03/tools-review-20260327/processed-forms/20260326-221115-PF-TSK-033-feedback.md",
+    "overall_effectiveness": 4,
+    "process_conciseness": 4,
+    "tools": [
+      {"tool_name": "Integration Deps Task", "tool_doc_id": "PF-TSK-033", "effectiveness": 4, "clarity": 4, "completeness": 4, "efficiency": 4, "conciseness": 4},
+      {"tool_name": "New-ValidationReport.ps1", "tool_doc_id": "SCRIPT", "effectiveness": 5, "clarity": 4, "completeness": 4, "efficiency": 5, "conciseness": 4},
+      {"tool_name": "Update-TechDebt.ps1", "tool_doc_id": "SCRIPT", "effectiveness": 5, "clarity": 4, "completeness": 4, "efficiency": 5, "conciseness": 5}
+    ]
+  },
+  {
+    "form_id": "20260326-221146-PF-TSK-035-feedback",
+    "task_id": "PF-TSK-035",
+    "task_context": "Ext/Maint Validation Batch A",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-03-26",
+    "session_duration_minutes": 10,
+    "review_cycle_id": "tools-review-20260327",
+    "archived_form_path": "doc/process-framework/feedback/archive/2026-03/tools-review-20260327/processed-forms/20260326-221146-PF-TSK-035-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 4,
+    "tools": [
+      {"tool_name": "Ext/Maint Task", "tool_doc_id": "PF-TSK-035", "effectiveness": 4, "clarity": 4, "completeness": 4, "efficiency": 4, "conciseness": 4},
+      {"tool_name": "New-ValidationReport.ps1", "tool_doc_id": "SCRIPT", "effectiveness": 5, "clarity": 4, "completeness": 4, "efficiency": 5, "conciseness": 4},
+      {"tool_name": "Update-TechDebt.ps1", "tool_doc_id": "SCRIPT", "effectiveness": 5, "clarity": 4, "completeness": 5, "efficiency": 5, "conciseness": 5}
+    ]
+  },
+  {
+    "form_id": "20260326-221529-PF-TSK-036-feedback",
+    "task_id": "PF-TSK-036",
+    "task_context": "AI Continuity Validation Batch A",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-03-26",
+    "session_duration_minutes": 15,
+    "review_cycle_id": "tools-review-20260327",
+    "archived_form_path": "doc/process-framework/feedback/archive/2026-03/tools-review-20260327/processed-forms/20260326-221529-PF-TSK-036-feedback.md",
+    "overall_effectiveness": 4,
+    "process_conciseness": 4,
+    "tools": [
+      {"tool_name": "AI Continuity Task", "tool_doc_id": "PF-TSK-036", "effectiveness": 4, "clarity": 4, "completeness": 4, "efficiency": 4, "conciseness": 4},
+      {"tool_name": "New-ValidationReport.ps1", "tool_doc_id": "SCRIPT", "effectiveness": 5, "clarity": 4, "completeness": 4, "efficiency": 5, "conciseness": 4},
+      {"tool_name": "Update-TechDebt.ps1", "tool_doc_id": "SCRIPT", "effectiveness": 5, "clarity": 4, "completeness": 4, "efficiency": 5, "conciseness": 4}
+    ]
+  },
+  {
+    "form_id": "20260326-221620-PF-TSK-073-feedback",
+    "task_id": "PF-TSK-073",
+    "task_context": "Performance Validation Batch A",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-03-26",
+    "session_duration_minutes": 20,
+    "review_cycle_id": "tools-review-20260327",
+    "archived_form_path": "doc/process-framework/feedback/archive/2026-03/tools-review-20260327/processed-forms/20260326-221620-PF-TSK-073-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 4,
+    "tools": [
+      {"tool_name": "Performance Task", "tool_doc_id": "PF-TSK-073", "effectiveness": 5, "clarity": 5, "completeness": 4, "efficiency": 5, "conciseness": 4},
+      {"tool_name": "Validation Report Template", "tool_doc_id": "PF-TEM-034", "effectiveness": 4, "clarity": 4, "completeness": 4, "efficiency": 4, "conciseness": 3},
+      {"tool_name": "New-ValidationReport.ps1", "tool_doc_id": "SCRIPT", "effectiveness": 5, "clarity": 5, "completeness": 5, "efficiency": 5, "conciseness": 5}
+    ]
+  },
+  {
+    "form_id": "20260326-221649-PF-TSK-076-feedback",
+    "task_id": "PF-TSK-076",
+    "task_context": "Data Integrity Validation",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-03-26",
+    "session_duration_minutes": 22,
+    "review_cycle_id": "tools-review-20260327",
+    "archived_form_path": "doc/process-framework/feedback/archive/2026-03/tools-review-20260327/processed-forms/20260326-221649-PF-TSK-076-feedback.md",
+    "overall_effectiveness": 4,
+    "process_conciseness": 4,
+    "tools": [
+      {"tool_name": "Data Integrity Task", "tool_doc_id": "PF-TSK-076", "effectiveness": 4, "clarity": 4, "completeness": 4, "efficiency": 4, "conciseness": 4},
+      {"tool_name": "New-ValidationReport.ps1", "tool_doc_id": "SCRIPT", "effectiveness": 3, "clarity": 4, "completeness": 3, "efficiency": 3, "conciseness": 4},
+      {"tool_name": "Update-TechDebt.ps1", "tool_doc_id": "SCRIPT", "effectiveness": 5, "clarity": 5, "completeness": 4, "efficiency": 5, "conciseness": 5}
+    ]
+  },
+  {
+    "form_id": "20260326-221908-PF-TSK-072-feedback",
+    "task_id": "PF-TSK-072",
+    "task_context": "Security Validation",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-03-26",
+    "session_duration_minutes": 15,
+    "review_cycle_id": "tools-review-20260327",
+    "archived_form_path": "doc/process-framework/feedback/archive/2026-03/tools-review-20260327/processed-forms/20260326-221908-PF-TSK-072-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 4,
+    "tools": [
+      {"tool_name": "Security Task", "tool_doc_id": "PF-TSK-072", "effectiveness": 4, "clarity": 4, "completeness": 4, "efficiency": 5, "conciseness": 4},
+      {"tool_name": "New-ValidationReport.ps1", "tool_doc_id": "SCRIPT", "effectiveness": 5, "clarity": 5, "completeness": 4, "efficiency": 5, "conciseness": 5},
+      {"tool_name": "Update-TechDebt.ps1", "tool_doc_id": "SCRIPT", "effectiveness": 5, "clarity": 4, "completeness": 5, "efficiency": 5, "conciseness": 5}
+    ]
+  },
+  {
+    "form_id": "20260326-222030-PF-TSK-034-feedback",
+    "task_id": "PF-TSK-034",
+    "task_context": "Doc Alignment Validation Batch A",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-03-26",
+    "session_duration_minutes": 20,
+    "review_cycle_id": "tools-review-20260327",
+    "archived_form_path": "doc/process-framework/feedback/archive/2026-03/tools-review-20260327/processed-forms/20260326-222030-PF-TSK-034-feedback.md",
+    "overall_effectiveness": 4,
+    "process_conciseness": 4,
+    "tools": [
+      {"tool_name": "Doc Alignment Task", "tool_doc_id": "PF-TSK-034", "effectiveness": 4, "clarity": 4, "completeness": 4, "efficiency": 4, "conciseness": 4},
+      {"tool_name": "New-ValidationReport.ps1", "tool_doc_id": "SCRIPT", "effectiveness": 4, "clarity": 4, "completeness": 3, "efficiency": 4, "conciseness": 4},
+      {"tool_name": "Update-TechDebt.ps1", "tool_doc_id": "SCRIPT", "effectiveness": 5, "clarity": 5, "completeness": 5, "efficiency": 5, "conciseness": 5}
+    ]
+  },
+  {
+    "form_id": "20260326-222046-PF-TSK-074-feedback",
+    "task_id": "PF-TSK-074",
+    "task_context": "Observability Validation",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-03-26",
+    "session_duration_minutes": 15,
+    "review_cycle_id": "tools-review-20260327",
+    "archived_form_path": "doc/process-framework/feedback/archive/2026-03/tools-review-20260327/processed-forms/20260326-222046-PF-TSK-074-feedback.md",
+    "overall_effectiveness": 4,
+    "process_conciseness": 4,
+    "tools": [
+      {"tool_name": "Observability Task", "tool_doc_id": "PF-TSK-074", "effectiveness": 4, "clarity": 4, "completeness": 4, "efficiency": 4, "conciseness": 4},
+      {"tool_name": "New-ValidationReport.ps1", "tool_doc_id": "SCRIPT", "effectiveness": 3, "clarity": 4, "completeness": 3, "efficiency": 4, "conciseness": 5},
+      {"tool_name": "Update-TechDebt.ps1", "tool_doc_id": "SCRIPT", "effectiveness": 4, "clarity": 4, "completeness": 3, "efficiency": 5, "conciseness": 5}
+    ]
+  },
+  {
+    "form_id": "20260326-222115-PF-TSK-030-feedback",
+    "task_id": "PF-TSK-030",
+    "task_context": "Test Audit Session 2",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-03-26",
+    "session_duration_minutes": 18,
+    "review_cycle_id": "tools-review-20260327",
+    "archived_form_path": "doc/process-framework/feedback/archive/2026-03/tools-review-20260327/processed-forms/20260326-222115-PF-TSK-030-feedback.md",
+    "overall_effectiveness": 4,
+    "process_conciseness": 3,
+    "tools": [
+      {"tool_name": "Test Audit Task", "tool_doc_id": "PF-TSK-030", "effectiveness": 4, "clarity": 4, "completeness": 4, "efficiency": 3, "conciseness": 4},
+      {"tool_name": "New-TestAuditReport.ps1", "tool_doc_id": "SCRIPT", "effectiveness": 4, "clarity": 4, "completeness": 3, "efficiency": 4, "conciseness": 4}
+    ]
+  },
+  {
+    "form_id": "20260326-222224-PF-TSK-035-feedback",
+    "task_id": "PF-TSK-035",
+    "task_context": "Ext/Maint Validation Batch B",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-03-26",
+    "session_duration_minutes": 15,
+    "review_cycle_id": "tools-review-20260327",
+    "archived_form_path": "doc/process-framework/feedback/archive/2026-03/tools-review-20260327/processed-forms/20260326-222224-PF-TSK-035-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 4,
+    "tools": [
+      {"tool_name": "Ext/Maint Task", "tool_doc_id": "PF-TSK-035", "effectiveness": 5, "clarity": 5, "completeness": 4, "efficiency": 5, "conciseness": 5},
+      {"tool_name": "New-ValidationReport.ps1", "tool_doc_id": "SCRIPT", "effectiveness": 5, "clarity": 5, "completeness": 4, "efficiency": 5, "conciseness": 4},
+      {"tool_name": "Update-TechDebt.ps1", "tool_doc_id": "SCRIPT", "effectiveness": 5, "clarity": 5, "completeness": 5, "efficiency": 5, "conciseness": 5}
+    ]
+  },
+  {
+    "form_id": "20260326-222446-PF-TSK-033-feedback",
+    "task_id": "PF-TSK-033",
+    "task_context": "Integration Deps Validation Batch B",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-03-26",
+    "session_duration_minutes": 10,
+    "review_cycle_id": "tools-review-20260327",
+    "archived_form_path": "doc/process-framework/feedback/archive/2026-03/tools-review-20260327/processed-forms/20260326-222446-PF-TSK-033-feedback.md",
+    "overall_effectiveness": 4,
+    "process_conciseness": 4,
+    "tools": [
+      {"tool_name": "Integration Deps Task", "tool_doc_id": "PF-TSK-033", "effectiveness": 4, "clarity": 4, "completeness": 4, "efficiency": 4, "conciseness": 4},
+      {"tool_name": "New-ValidationReport.ps1", "tool_doc_id": "SCRIPT", "effectiveness": 5, "clarity": 4, "completeness": 4, "efficiency": 5, "conciseness": 4},
+      {"tool_name": "Update-TechDebt.ps1", "tool_doc_id": "SCRIPT", "effectiveness": 4, "clarity": 4, "completeness": 4, "efficiency": 4, "conciseness": 4}
+    ]
+  },
+  {
+    "form_id": "20260326-222720-PF-TSK-073-feedback",
+    "task_id": "PF-TSK-073",
+    "task_context": "Performance Validation Batch B",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-03-26",
+    "session_duration_minutes": 12,
+    "review_cycle_id": "tools-review-20260327",
+    "archived_form_path": "doc/process-framework/feedback/archive/2026-03/tools-review-20260327/processed-forms/20260326-222720-PF-TSK-073-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 4,
+    "tools": [
+      {"tool_name": "Performance Task", "tool_doc_id": "PF-TSK-073", "effectiveness": 5, "clarity": 5, "completeness": 4, "efficiency": 5, "conciseness": 4},
+      {"tool_name": "New-ValidationReport.ps1", "tool_doc_id": "SCRIPT", "effectiveness": 5, "clarity": 5, "completeness": 4, "efficiency": 5, "conciseness": 5},
+      {"tool_name": "Update-TechDebt.ps1", "tool_doc_id": "SCRIPT", "effectiveness": 5, "clarity": 5, "completeness": 5, "efficiency": 5, "conciseness": 5}
+    ]
+  },
+  {
+    "form_id": "20260326-222901-PF-TSK-032-feedback",
+    "task_id": "PF-TSK-032",
+    "task_context": "Code Quality Validation Batch B",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-03-26",
+    "session_duration_minutes": 30,
+    "review_cycle_id": "tools-review-20260327",
+    "archived_form_path": "doc/process-framework/feedback/archive/2026-03/tools-review-20260327/processed-forms/20260326-222901-PF-TSK-032-feedback.md",
+    "overall_effectiveness": 4,
+    "process_conciseness": 4,
+    "tools": [
+      {"tool_name": "Code Quality Task", "tool_doc_id": "PF-TSK-032", "effectiveness": 4, "clarity": 4, "completeness": 4, "efficiency": 4, "conciseness": 4},
+      {"tool_name": "New-ValidationReport.ps1", "tool_doc_id": "SCRIPT", "effectiveness": 5, "clarity": 4, "completeness": 4, "efficiency": 4, "conciseness": 4},
+      {"tool_name": "Update-TechDebt.ps1", "tool_doc_id": "SCRIPT", "effectiveness": 5, "clarity": 4, "completeness": 4, "efficiency": 5, "conciseness": 4}
+    ]
+  },
+  {
+    "form_id": "20260327-074728-PF-TSK-036-feedback",
+    "task_id": "PF-TSK-036",
+    "task_context": "AI Continuity Validation Batch B",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-03-27",
+    "session_duration_minutes": 20,
+    "review_cycle_id": "tools-review-20260327",
+    "archived_form_path": "doc/process-framework/feedback/archive/2026-03/tools-review-20260327/processed-forms/20260327-074728-PF-TSK-036-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 4,
+    "tools": [
+      {"tool_name": "AI Continuity Task", "tool_doc_id": "PF-TSK-036", "effectiveness": 5, "clarity": 4, "completeness": 5, "efficiency": 5, "conciseness": 4},
+      {"tool_name": "New-ValidationReport.ps1", "tool_doc_id": "SCRIPT", "effectiveness": 5, "clarity": 5, "completeness": 5, "efficiency": 5, "conciseness": 4},
+      {"tool_name": "Update-TechDebt.ps1", "tool_doc_id": "SCRIPT", "effectiveness": 5, "clarity": 5, "completeness": 5, "efficiency": 5, "conciseness": 5}
+    ]
+  },
+  {
+    "form_id": "20260327-075233-PF-TSK-030-feedback",
+    "task_id": "PF-TSK-030",
+    "task_context": "Test Audit Session 3",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-03-27",
+    "session_duration_minutes": 50,
+    "review_cycle_id": "tools-review-20260327",
+    "archived_form_path": "doc/process-framework/feedback/archive/2026-03/tools-review-20260327/processed-forms/20260327-075233-PF-TSK-030-feedback.md",
+    "overall_effectiveness": 4,
+    "process_conciseness": 3,
+    "tools": [
+      {"tool_name": "Test Audit Task", "tool_doc_id": "PF-TSK-030", "effectiveness": 4, "clarity": 4, "completeness": 4, "efficiency": 3, "conciseness": 3},
+      {"tool_name": "New-TestAuditReport.ps1", "tool_doc_id": "SCRIPT", "effectiveness": 4, "clarity": 4, "completeness": 3, "efficiency": 4, "conciseness": 4},
+      {"tool_name": "Test Audit Report Template", "tool_doc_id": "PF-TEM-XXX", "effectiveness": 4, "clarity": 4, "completeness": 4, "efficiency": 3, "conciseness": 3}
+    ]
+  },
+  {
+    "form_id": "20260327-080109-PF-TSK-034-feedback",
+    "task_id": "PF-TSK-034",
+    "task_context": "Doc Alignment Validation Batch B",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-03-27",
+    "session_duration_minutes": 15,
+    "review_cycle_id": "tools-review-20260327",
+    "archived_form_path": "doc/process-framework/feedback/archive/2026-03/tools-review-20260327/processed-forms/20260327-080109-PF-TSK-034-feedback.md",
+    "overall_effectiveness": 4,
+    "process_conciseness": 4,
+    "tools": [
+      {"tool_name": "Doc Alignment Task", "tool_doc_id": "PF-TSK-034", "effectiveness": 4, "clarity": 4, "completeness": 4, "efficiency": 4, "conciseness": 4},
+      {"tool_name": "New-ValidationReport.ps1", "tool_doc_id": "SCRIPT", "effectiveness": 4, "clarity": 4, "completeness": 3, "efficiency": 4, "conciseness": 4},
+      {"tool_name": "Update-TechDebt.ps1", "tool_doc_id": "SCRIPT", "effectiveness": 5, "clarity": 5, "completeness": 5, "efficiency": 5, "conciseness": 5}
+    ]
+  },
+  {
+    "form_id": "20260327-092733-PF-TSK-009-feedback",
+    "task_id": "PF-TSK-009",
+    "task_context": "Process Improvement - Feature Request Tracking",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-03-27",
+    "session_duration_minutes": 30,
+    "review_cycle_id": "tools-review-20260327",
+    "archived_form_path": "doc/process-framework/feedback/archive/2026-03/tools-review-20260327/processed-forms/20260327-092733-PF-TSK-009-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 4,
+    "tools": [
+      {"tool_name": "Process Improvement Task", "tool_doc_id": "PF-TSK-009", "effectiveness": 5, "clarity": 5, "completeness": 4, "efficiency": 4, "conciseness": 5},
+      {"tool_name": "New-ProcessImprovement.ps1", "tool_doc_id": "SCRIPT", "effectiveness": 5, "clarity": 5, "completeness": 4, "efficiency": 5, "conciseness": 5},
+      {"tool_name": "Update-ProcessImprovement.ps1", "tool_doc_id": "SCRIPT", "effectiveness": 5, "clarity": 5, "completeness": 5, "efficiency": 5, "conciseness": 5}
+    ]
+  },
+  {
+    "form_id": "20260327-093213-PF-TSK-009-feedback",
+    "task_id": "PF-TSK-009",
+    "task_context": "Process Improvement - 3 IMPs",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-03-27",
+    "session_duration_minutes": 33,
+    "review_cycle_id": "tools-review-20260327",
+    "archived_form_path": "doc/process-framework/feedback/archive/2026-03/tools-review-20260327/processed-forms/20260327-093213-PF-TSK-009-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 5,
+    "tools": [
+      {"tool_name": "Process Improvement Task", "tool_doc_id": "PF-TSK-009", "effectiveness": 5, "clarity": 5, "completeness": 5, "efficiency": 5, "conciseness": 5},
+      {"tool_name": "Update-ProcessImprovement.ps1", "tool_doc_id": "SCRIPT", "effectiveness": 5, "clarity": 5, "completeness": 5, "efficiency": 5, "conciseness": 5}
+    ]
+  },
+  {
+    "form_id": "20260327-105135-PF-TSK-007-feedback",
+    "task_id": "PF-TSK-007",
+    "task_context": "Bug Fixing PD-BUG-051",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-03-27",
+    "session_duration_minutes": 180,
+    "review_cycle_id": "tools-review-20260327",
+    "archived_form_path": "doc/process-framework/feedback/archive/2026-03/tools-review-20260327/processed-forms/20260327-105135-PF-TSK-007-feedback.md",
+    "overall_effectiveness": 4,
+    "process_conciseness": 4,
+    "tools": [
+      {"tool_name": "Bug Fixing Task", "tool_doc_id": "PF-TSK-007", "effectiveness": 4, "clarity": 4, "completeness": 4, "efficiency": 4, "conciseness": 4},
+      {"tool_name": "Feature Enhancement Task", "tool_doc_id": "PF-TSK-068", "effectiveness": 4, "clarity": 4, "completeness": 4, "efficiency": 4, "conciseness": 4}
+    ]
+  },
+  {
+    "form_id": "20260327-105907-PF-TSK-009-feedback",
+    "task_id": "PF-TSK-009",
+    "task_context": "Process Improvement - 3 LOW IMPs",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-03-27",
+    "session_duration_minutes": 20,
+    "review_cycle_id": "tools-review-20260327",
+    "archived_form_path": "doc/process-framework/feedback/archive/2026-03/tools-review-20260327/processed-forms/20260327-105907-PF-TSK-009-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 5,
+    "tools": [
+      {"tool_name": "Process Improvement Task", "tool_doc_id": "PF-TSK-009", "effectiveness": 5, "clarity": 5, "completeness": 4, "efficiency": 5, "conciseness": 5},
+      {"tool_name": "Update-ProcessImprovement.ps1", "tool_doc_id": "SCRIPT", "effectiveness": 5, "clarity": 5, "completeness": 5, "efficiency": 5, "conciseness": 5}
+    ]
+  },
+  {
+    "form_id": "20260327-111003-PF-TSK-022-feedback",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring TD062",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-03-27",
+    "session_duration_minutes": 30,
+    "review_cycle_id": "tools-review-20260327",
+    "archived_form_path": "doc/process-framework/feedback/archive/2026-03/tools-review-20260327/processed-forms/20260327-111003-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 4,
+    "tools": [
+      {"tool_name": "Code Refactoring Lightweight", "tool_doc_id": "PF-TSK-022", "effectiveness": 5, "clarity": 5, "completeness": 5, "efficiency": 4, "conciseness": 5},
+      {"tool_name": "New-RefactoringPlan.ps1", "tool_doc_id": "SCRIPT", "effectiveness": 5, "clarity": 5, "completeness": 5, "efficiency": 4, "conciseness": 5},
+      {"tool_name": "Update-TechDebt.ps1", "tool_doc_id": "SCRIPT", "effectiveness": 5, "clarity": 5, "completeness": 4, "efficiency": 5, "conciseness": 5}
+    ]
+  },
+  {
+    "form_id": "20260327-112021-PF-TSK-009-feedback",
+    "task_id": "PF-TSK-009",
+    "task_context": "Process Improvement - 2 IMPs",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-03-27",
+    "session_duration_minutes": 17,
+    "review_cycle_id": "tools-review-20260327",
+    "archived_form_path": "doc/process-framework/feedback/archive/2026-03/tools-review-20260327/processed-forms/20260327-112021-PF-TSK-009-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 5,
+    "tools": [
+      {"tool_name": "Process Improvement Task", "tool_doc_id": "PF-TSK-009", "effectiveness": 5, "clarity": 5, "completeness": 5, "efficiency": 5, "conciseness": 5},
+      {"tool_name": "Update-ProcessImprovement.ps1", "tool_doc_id": "SCRIPT", "effectiveness": 5, "clarity": 5, "completeness": 5, "efficiency": 5, "conciseness": 5}
+    ]
+  },
+  {
+    "form_id": "20260327-113244-PF-TSK-022-feedback",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring TD065 Won't Fix",
+    "feedback_type": "TaskLevel",
+    "form_date": "2026-03-27",
+    "session_duration_minutes": 8,
+    "review_cycle_id": "tools-review-20260327",
+    "archived_form_path": "doc/process-framework/feedback/archive/2026-03/tools-review-20260327/processed-forms/20260327-113244-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 4,
+    "process_conciseness": 4,
+    "tools": [
+      {"tool_name": "Code Refactoring Task", "tool_doc_id": "PF-TSK-022", "effectiveness": 4, "clarity": 4, "completeness": 3, "efficiency": 5, "conciseness": 5}
+    ]
+  },
+  {
+    "form_id": "20260327-113508-PF-TSK-028-feedback",
+    "task_id": "PF-TSK-028",
+    "task_context": "ADR Creation PD-ADR-041",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-03-27",
+    "session_duration_minutes": 15,
+    "review_cycle_id": "tools-review-20260327",
+    "archived_form_path": "doc/process-framework/feedback/archive/2026-03/tools-review-20260327/processed-forms/20260327-113508-PF-TSK-028-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 4,
+    "tools": [
+      {"tool_name": "ADR Creation Task", "tool_doc_id": "PF-TSK-028", "effectiveness": 5, "clarity": 5, "completeness": 4, "efficiency": 5, "conciseness": 5},
+      {"tool_name": "New-ArchitectureDecision.ps1", "tool_doc_id": "SCRIPT", "effectiveness": 5, "clarity": 4, "completeness": 4, "efficiency": 5, "conciseness": 5}
+    ]
+  },
+  {
+    "form_id": "20260327-113518-PF-TSK-022-feedback",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring TD070",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-03-27",
+    "session_duration_minutes": 9,
+    "review_cycle_id": "tools-review-20260327",
+    "archived_form_path": "doc/process-framework/feedback/archive/2026-03/tools-review-20260327/processed-forms/20260327-113518-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 4,
+    "tools": [
+      {"tool_name": "Code Refactoring Lightweight", "tool_doc_id": "PF-TSK-022", "effectiveness": 5, "clarity": 5, "completeness": 5, "efficiency": 4, "conciseness": 4},
+      {"tool_name": "New-RefactoringPlan.ps1", "tool_doc_id": "SCRIPT", "effectiveness": 5, "clarity": 5, "completeness": 5, "efficiency": 4, "conciseness": 5},
+      {"tool_name": "Update-TechDebt.ps1", "tool_doc_id": "SCRIPT", "effectiveness": 4, "clarity": 5, "completeness": 4, "efficiency": 4, "conciseness": 5}
+    ]
+  },
+  {
+    "form_id": "20260327-113750-PF-TSK-022-feedback",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring TD071",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-03-27",
+    "session_duration_minutes": 13,
+    "review_cycle_id": "tools-review-20260327",
+    "archived_form_path": "doc/process-framework/feedback/archive/2026-03/tools-review-20260327/processed-forms/20260327-113750-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 4,
+    "tools": [
+      {"tool_name": "Code Refactoring Lightweight", "tool_doc_id": "PF-TSK-022", "effectiveness": 5, "clarity": 5, "completeness": 5, "efficiency": 5, "conciseness": 4},
+      {"tool_name": "New-RefactoringPlan.ps1", "tool_doc_id": "SCRIPT", "effectiveness": 5, "clarity": 5, "completeness": 5, "efficiency": 4, "conciseness": 4},
+      {"tool_name": "Update-TechDebt.ps1", "tool_doc_id": "SCRIPT", "effectiveness": 5, "clarity": 5, "completeness": 5, "efficiency": 5, "conciseness": 5}
+    ]
+  }
+]

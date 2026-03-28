@@ -2,9 +2,9 @@
 id: PF-TEM-034
 type: Process Framework
 category: Template
-version: 1.0
+version: 1.1
 created: 2025-08-15
-updated: 2025-08-15
+updated: 2026-03-27
 usage_context: Process Framework - Validation Creation
 description: Template for feature validation reports
 creates_document_category: Validation
@@ -54,10 +54,7 @@ category: Validation Report
 version: 1.0
 created: [YYYY-MM-DD]
 updated: [YYYY-MM-DD]
-validation_type:
-  [
-    architectural-consistency|code-quality|integration-dependencies|documentation-alignment|extensibility-maintainability|ai-agent-continuity,
-  ]
+validation_type: [validation-type]
 features_validated: [e.g., "0.2.1, 0.2.2, 0.2.3"]
 validation_session: [Session number for this validation type]
 ---
@@ -69,7 +66,7 @@ validation_session: [Session number for this validation type]
 **Validation Type**: [Validation Type Name]
 **Features Validated**: [List of features, e.g., 0.2.1, 0.2.2, 0.2.3]
 **Validation Date**: [Date]
-**Overall Score**: [X.X/4.0]
+**Overall Score**: [X.X/3.0]
 **Status**: [PASS/CONDITIONAL_PASS/FAIL]
 
 ### Key Findings
@@ -103,17 +100,17 @@ validation_session: [Session number for this validation type]
 
 | Criterion     | Score | Weight   | Weighted Score | Notes        |
 | ------------- | ----- | -------- | -------------- | ------------ |
-| [Criterion 1] | [X/4] | [%]      | [X.X]          | [Brief note] |
-| [Criterion 2] | [X/4] | [%]      | [X.X]          | [Brief note] |
-| [Criterion 3] | [X/4] | [%]      | [X.X]          | [Brief note] |
-| **TOTAL**     |       | **100%** | **[X.X/4.0]**  |              |
+| [Criterion 1] | [X/3] | [%]      | [X.X]          | [Brief note] |
+| [Criterion 2] | [X/3] | [%]      | [X.X]          | [Brief note] |
+| [Criterion 3] | [X/3] | [%]      | [X.X]          | [Brief note] |
+| **TOTAL**     |       | **100%** | **[X.X/3.0]**  |              |
 
 ### Scoring Scale
 
-- **4 - Excellent**: Exceeds expectations, exemplary implementation
-- **3 - Good**: Meets expectations, solid implementation
-- **2 - Acceptable**: Meets minimum requirements, minor improvements needed
-- **1 - Poor**: Below expectations, significant improvements required
+- **3 - Fully Met**: Exemplary implementation, no significant issues
+- **2 - Mostly Met**: Solid implementation, minor issues identified
+- **1 - Partially Met**: Major issues requiring attention
+- **0 - Not Met**: Fundamental problems or not implemented
 
 ## Detailed Findings
 

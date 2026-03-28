@@ -28,6 +28,7 @@ class JsonParser(BaseParser):
 
                 # Track claimed (value, line) pairs to handle duplicate values (PD-BUG-013)
                 claimed = set()
+                self._search_start_line = 0  # Offset for O(V+L) scanning
                 self._extract_json_file_refs(data, file_path, lines, references, claimed)
 
             except json.JSONDecodeError:
@@ -44,11 +45,22 @@ class JsonParser(BaseParser):
             return []
 
     @staticmethod
-    def _find_unclaimed_line(lines: List[str], search_text: str, claimed: set) -> int:
-        """Find next line containing search_text not yet claimed for this value (PD-BUG-013)."""
-        for i, line in enumerate(lines, 1):
-            if search_text in line and (search_text, i) not in claimed:
-                return i
+    def _find_unclaimed_line(
+        lines: List[str], search_text: str, claimed: set, start_line: int = 0
+    ) -> int:
+        """Find next line containing search_text not yet claimed for this value (PD-BUG-013).
+
+        Scans from start_line for O(V+L) amortized performance instead of O(V*L).
+        Falls back to scanning lines before start_line for out-of-order edge cases.
+        """
+        # Scan from start_line forward
+        for i in range(start_line, len(lines)):
+            if search_text in lines[i] and (search_text, i + 1) not in claimed:
+                return i + 1
+        # Fallback: scan lines before start_line
+        for i in range(0, start_line):
+            if search_text in lines[i] and (search_text, i + 1) not in claimed:
+                return i + 1
         return 0
 
     def _extract_json_file_refs(
@@ -82,9 +94,10 @@ class JsonParser(BaseParser):
 
             if is_file or is_dir:
                 # Find the next unclaimed line for this value (PD-BUG-013)
-                line_num = self._find_unclaimed_line(lines, data, claimed)
+                line_num = self._find_unclaimed_line(lines, data, claimed, self._search_start_line)
                 if line_num > 0:
                     claimed.add((data, line_num))
+                    self._search_start_line = line_num - 1  # Resume from this line next time
                     # Find the column position
                     line_content = lines[line_num - 1]
                     col_start = line_content.find(f'"{data}"')

@@ -2,7 +2,81 @@
 File system event handler for the LinkWatcher system.
 
 This module handles file system events (move, delete, create) and
-coordinates the appropriate responses.
+coordinates the appropriate responses to maintain link integrity.
+
+Event Dispatch Tree
+-------------------
+LinkMaintenanceHandler extends watchdog's FileSystemEventHandler.
+The three entry points are called by the watchdog observer thread:
+
+  on_moved(event)
+    ├─ directory  → _handle_directory_moved
+    │    Walk moved dir, update DB source paths, update inbound
+    │    references per file, fix outward relative links, then
+    │    update references to the directory path itself.
+    └─ file (monitored OR known reference target)
+         → _handle_file_moved
+              Find references → update files → clean up DB →
+              fix relative links inside the moved file.
+
+  on_deleted(event)
+    ├─ directory (or Windows misreported dir-as-file)
+    │    → _handle_directory_deleted
+    │         Delegates to DirectoryMoveDetector for batch
+    │         move correlation.
+    └─ file (monitored OR known reference target)
+         → _handle_file_deleted
+              Buffers the delete in MoveDetector for
+              delete+create correlation.
+
+  on_created(event)
+    └─ file (monitored, or move detector has pending deletes)
+         → _handle_file_created
+              1. Try DirectoryMoveDetector match (priority).
+              2. Try MoveDetector match → _handle_detected_move.
+              3. Otherwise treat as new file: scan for links.
+
+Move Detection Strategies
+-------------------------
+1. **Native OS move**: Watchdog fires a single FileMovedEvent with
+   src_path and dest_path. Handled directly by on_moved.
+
+2. **Per-file delete+create correlation** (MoveDetector): On
+   platforms/editors that don't emit move events, a DELETE is
+   buffered; if a CREATE arrives within the configured delay for a
+   file with the same basename, MoveDetector matches them as a move.
+   Unmatched deletes expire via timer → _process_true_file_delete.
+
+3. **Directory batch detection** (DirectoryMoveDetector): A
+   directory delete on Windows produces individual DELETE events for
+   every child file. DirectoryMoveDetector collects these, waits for
+   corresponding CREATEs under a new parent, and confirms the batch
+   as a directory move → _handle_confirmed_dir_move.
+
+Key Collaborators
+-----------------
+- MoveDetector: per-file delete+create correlation with timer expiry.
+- DirectoryMoveDetector: batch directory move detection (Windows).
+- ReferenceLookup: find references, update DB, rescan files.
+- LinkUpdater: atomic file writes to update link text.
+- LinkDatabase: in-memory link storage queried for references.
+
+AI Context
+----------
+- **Entry point**: ``LinkMaintenanceHandler`` — instantiated by service,
+  receives all watchdog events on the observer thread.
+- **Delegation**: handler → reference_lookup (find/update refs),
+  updater (file writes), move_detector / dir_move_detector (event
+  correlation), database (link queries).
+- **Common tasks**:
+  - Adding a new event type: add an ``on_<event>`` method; follow the
+    dispatch tree above for the routing pattern.
+  - Debugging missed moves: trace the path through ``on_deleted`` →
+    MoveDetector buffer → ``on_created`` → match attempt.  Check
+    ``move_detect_delay`` config if timing-related.
+  - Debugging link updates: ``_handle_file_moved`` calls
+    ``reference_lookup.find_and_update_references()``, then
+    ``updater.update_references_in_file()`` for each affected file.
 """
 
 import os
@@ -139,7 +213,9 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
         try:
             if event.is_directory:
                 self._handle_directory_moved(event)
-            elif self._should_monitor_file(event.dest_path) or self._is_known_reference_target(event.src_path):
+            elif self._should_monitor_file(event.dest_path) or self._is_known_reference_target(
+                event.src_path
+            ):
                 # PD-BUG-046: Also process moves for non-monitored files that
                 # are known reference targets in the link database.
                 self._handle_file_moved(event)
@@ -165,7 +241,9 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
                 known_files = self._dir_move_detector.get_files_under_directory(deleted_path)
                 if known_files:
                     self._handle_directory_deleted(event)
-                elif self._should_monitor_file(event.src_path) or self._is_known_reference_target(event.src_path):
+                elif self._should_monitor_file(event.src_path) or self._is_known_reference_target(
+                    event.src_path
+                ):
                     # PD-BUG-046: Also buffer deletes for non-monitored files
                     # that are known reference targets in the link database.
                     self._handle_file_deleted(event)
@@ -569,15 +647,12 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
         their moves detected even if their own extension is not in
         monitored_extensions.
 
-        Uses a fast basename check against DB keys to avoid expensive
-        full-path resolution scans (which would block the observer thread).
+        Delegates to LinkDatabaseInterface.has_target_with_basename() for
+        a fast basename check against DB keys, avoiding expensive full-path
+        resolution scans (which would block the observer thread).
         """
         filename = os.path.basename(abs_path)
-        with self.link_db._lock:
-            for target_key in self.link_db.links:
-                if os.path.basename(target_key) == filename:
-                    return True
-        return False
+        return self.link_db.has_target_with_basename(filename)
 
     def _get_relative_path(self, abs_path: str) -> str:
         """Convert absolute path to relative path from project root."""

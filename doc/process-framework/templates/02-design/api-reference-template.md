@@ -258,8 +258,6 @@ print(f"Updated user: {updated_user.name}")
 
 ## Related Documentation
 
-- <!-- [Link to related API documentation](../../api/related-api.md) - Template/example link commented out -->
-- <!-- [Link to integration guide](../../guides/integration-guide.md) - File not found -->
 - [Link to external resources](https://example.com)
 
 ---

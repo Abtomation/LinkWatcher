@@ -3,9 +3,9 @@ id: PF-TSK-079
 type: Process Framework
 category: Task Definition
 domain: agnostic
-version: 1.0
+version: 1.1
 created: 2026-03-24
-updated: 2026-03-24
+updated: 2026-03-27
 task_type: Support
 ---
 
@@ -137,7 +137,14 @@ This task is analogous to the code validation tasks (05-validation) but targets 
    - Does the task/template complexity scale appropriately with project size?
    - Are there unnecessary overhead for simple projects or missing structure for complex ones?
 
-6. **Score Findings**: For each dimension evaluated, assign a score:
+6. **Conduct Industry Research**: For each dimension being evaluated, briefly research how comparable frameworks, industry standards, or recognized best practices address the same concern:
+   - Search for relevant framework design patterns, process maturity models, or tooling approaches
+   - Note where the evaluated artifacts align with or diverge from external norms
+   - Use findings to calibrate dimension scores (e.g., an internally "good" result may be "adequate" relative to industry practice)
+   - Include external comparisons as supporting evidence in the evaluation report
+   > This step grounds the evaluation in external reality rather than internal assumptions alone. Depth of research should be proportional to the evaluation scope — a targeted evaluation may need only a few searches, while a full framework evaluation warrants broader research.
+
+7. **Score Findings**: For each dimension evaluated, assign a score:
 
    | Score | Label | Meaning |
    |-------|-------|---------|
@@ -146,14 +153,14 @@ This task is analogous to the code validation tasks (05-validation) but targets 
    | 2 | Adequate | Notable gaps or issues; works but needs improvement |
    | 1 | Poor | Significant problems; impedes framework effectiveness |
 
-7. **Identify Improvements**: For each finding with score ≤ 3, draft an improvement entry with:
+8. **Identify Improvements**: For each finding with score ≤ 3, draft an improvement entry with:
    - Description of the issue
    - Affected artifact(s)
    - Suggested fix
    - Estimated effort (Low / Medium / High)
    - Suggested priority (Low / Medium / High)
 
-8. **🚨 CHECKPOINT**: Present evaluation findings summary to human partner:
+9. **🚨 CHECKPOINT**: Present evaluation findings summary to human partner:
    - Dimension scores with key evidence
    - Top findings (most impactful issues)
    - Proposed improvement entries
@@ -161,18 +168,18 @@ This task is analogous to the code validation tasks (05-validation) but targets 
 
 ### Finalization
 
-9. **Generate Evaluation Report**: Use the creation script to generate the report from the template:
+10. **Generate Evaluation Report**: Use the creation script to generate the report from the template:
    ```bash
    cd /c/path/to/project/doc/process-framework/scripts/file-creation/support && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-FrameworkEvaluationReport.ps1 -EvaluationScope "Description of scope" -Confirm:$false'
    ```
    Then customize the generated report with the evaluation findings, dimension scores, and improvement recommendations.
 
-10. **Register Improvement Entries**: For each approved improvement, add an IMP entry to [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) using the automation script:
+11. **Register Improvement Entries**: For each approved improvement, add an IMP entry to [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) using the automation script:
     ```bash
     cd /c/path/to/project/doc/process-framework/scripts/file-creation/support && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-ProcessImprovement.ps1 -Description "Improvement description" -Priority "MEDIUM" -Source "Framework Evaluation PF-EVR-XXX" -SourceLink "../../evaluation-reports/FILENAME.md" -Confirm:$false'
     ```
 
-11. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+12. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 

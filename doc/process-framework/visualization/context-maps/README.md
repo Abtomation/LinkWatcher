@@ -81,4 +81,3 @@ When creating a new context map:
 ## Related Resources
 
 - [Visual Notation Guide](/doc/process-framework/guides/support/visual-notation-guide.md) - Standard notation used in context maps
-<!-- [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Removed: file deleted -->

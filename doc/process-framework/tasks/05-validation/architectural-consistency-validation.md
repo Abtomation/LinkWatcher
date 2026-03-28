@@ -57,7 +57,7 @@ Systematically validates selected features for architectural pattern adherence, 
 
 > **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished! 🚨**
 >
-> **⚠️ MANDATORY: Use the ..\scripts\file-creation\New-ValidationReport.ps1 script for generating validation reports.**
+> **⚠️ MANDATORY: Use the [..\..\scripts\file-creation\05-validation\New-ValidationReport.ps1](../../scripts/file-creation/05-validation/New-ValidationReport.ps1) script for generating validation reports.**
 >
 > **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
 >
@@ -74,13 +74,13 @@ Systematically validates selected features for architectural pattern adherence, 
 
 5. **Analyze Architectural Patterns**: Examine each feature's implementation for adherence to established patterns (Repository, Service Layer, etc.)
 6. **Validate ADR Compliance**: Check that implementation follows architectural decisions documented in ADRs
-   > **When no ADR exists for a feature**: Assess whether the feature's architectural decisions are significant enough to warrant an ADR (e.g., non-obvious pattern choices, trade-offs with alternatives). If an ADR should exist, note it as a finding. If not (feature follows established project patterns without notable decisions), skip this criterion.
+   > **When no ADR exists for a feature**: Assess whether the feature's architectural decisions are significant enough to warrant an ADR (e.g., non-obvious pattern choices, trade-offs with alternatives). If an ADR should exist, note it as a finding and recommend creating one via [ADR Creation](../../tasks/02-design/adr-creation-task.md) (PF-TSK-028) as a follow-up action. If not (feature follows established project patterns without notable decisions), skip this criterion.
 7. **Assess Interface Consistency**: Verify that interfaces follow consistent patterns and contracts across features
 8. **Generate Validation Report**: Create detailed validation report using the automation script
    ```powershell
    # Navigate to validation directory and create architectural consistency report
    Set-Location "doc/product-docs/validation"
-   ..\scripts\file-creation\New-ValidationReport.ps1 -ValidationType "ArchitecturalConsistency" -FeatureIds "0.2.1,0.2.2,0.2.3" -SessionNumber 1
+   ..\..\scripts\file-creation\05-validation\New-ValidationReport.ps1 -ValidationType "ArchitecturalConsistency" -FeatureIds "0.2.1,0.2.2,0.2.3" -SessionNumber 1
    ```
 9. **Score Validation Criteria**: Apply 4-point scoring system (0-3) to each validation criterion
 10. **Document Findings**: Record specific architectural deviations, inconsistencies, and recommendations
@@ -139,4 +139,3 @@ Before considering this task finished:
 - [Feature Validation Guide](../../guides/05-validation/feature-validation-guide.md) - Comprehensive guide for conducting feature validation
 - [Architecture Decision Records](../../../product-docs/technical/architecture/design-docs/adr/adr) - Architectural decisions to validate against
 - Project architecture guidelines - Platform-specific architectural patterns
-<!-- - [Design Patterns Documentation](../../../product-docs/technical/architecture/design-patterns) - Directory does not exist -->

@@ -74,11 +74,6 @@ graph TD
 
 - [Structure Change Proposal Template](/doc/process-framework/templates/support/structure-change-proposal-template.md) - Template for change proposals
 - [Architecture Documentation](/doc/product-docs/technical/architecture) - Current architecture documentation
-<!-- [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Removed: file deleted -->
-- <!-- [Refactoring Guide](/doc/product-docs/development/guides/refactoring-guide.md) - File not found --> - Guide for code refactoring
-- <!-- [Unit Testing Guide](/doc/product-docs/development/guides/unit-testing-guide.md) - File not found --> - Guide for unit testing
-- <!-- [Build Configuration](/doc/product-docs/technical/build/build-configuration.md) - File not found --> - Build system documentation
 - [Technical Debt Tracking](../../../../product-docs/state-tracking/permanent/technical-debt-tracking.md) - Technical debt status
 
 ---
-

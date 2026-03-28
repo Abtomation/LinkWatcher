@@ -1,0 +1,63 @@
+{
+  "metadata": {
+    "name": "TE-id-registry",
+    "version": "1.0",
+    "created": "[DATE]",
+    "updated": "[DATE]",
+    "description": "Test Artifacts ID Registry - test specifications, audit reports, E2E tests, and state tracking",
+    "format": "semantic"
+  },
+  "prefixes": {
+    "TE-E2G": {
+      "description": "E2E Acceptance Testing - Test Groups",
+      "category": "Testing",
+      "type": "E2E Acceptance Test Group",
+      "directories": {
+        "templates": "test/e2e-acceptance-testing/templates",
+        "default": "templates"
+      },
+      "nextAvailable": 1
+    },
+    "TE-E2E": {
+      "description": "E2E Acceptance Testing - Test Cases",
+      "category": "Testing",
+      "type": "E2E Acceptance Test Case",
+      "directories": {
+        "templates": "test/e2e-acceptance-testing/templates",
+        "default": "templates"
+      },
+      "nextAvailable": 1
+    },
+    "TE-TSP": {
+      "description": "Test - Test Specifications",
+      "category": "Testing",
+      "type": "Test Specification",
+      "directories": {
+        "feature-specs": "test/specifications/feature-specs",
+        "cross-cutting-specs": "test/specifications/cross-cutting-specs",
+        "default": "feature-specs"
+      },
+      "nextAvailable": 1
+    },
+    "TE-TAR": {
+      "description": "Test - Test Audit Reports",
+      "category": "Testing",
+      "type": "Test Audit Report",
+      "directories": {
+        "main": "test/audits",
+        "default": "main"
+      },
+      "nextAvailable": 1
+    },
+    "TE-STA": {
+      "description": "Test - State Tracking",
+      "category": "Testing",
+      "type": "State",
+      "directories": {
+        "main": "test",
+        "default": "main"
+      },
+      "nextAvailable": 3
+    }
+  }
+}

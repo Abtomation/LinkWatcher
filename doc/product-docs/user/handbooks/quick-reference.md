@@ -23,6 +23,7 @@ python main.py --dry-run
 | `--no-initial-scan` | Skip startup scan | `--no-initial-scan` |
 | `--quiet` | Minimal output | `--quiet` |
 | `--log-file FILE` | Log to file (in addition to console) | `--log-file logs\linkwatcher.log` |
+| `--validate` | Scan for broken links and exit | `--validate` |
 | `--debug` | Enable debug logging | `--debug` |
 | `--version` | Show version | `--version` |
 
@@ -208,5 +209,6 @@ part 'models.dart';                // Part statement
 
 - [README](../../../../README.md) - Project overview and installation
 - [Multi-Project Setup](multi-project-setup.md) - Using across multiple projects
+- [Link Validation](link-validation.md) - Scan workspace for broken file references
 - [File Type Quick Fix](file-type-quick-fix.md) - Quick fix for file types not being monitored
 - [Troubleshooting File Types](troubleshooting-file-types.md) - Detailed file type monitoring guide

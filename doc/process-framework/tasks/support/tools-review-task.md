@@ -78,12 +78,25 @@ Systematically evaluate and enhance the templates, guides, and other tools by co
 8. Quantify ratings for effectiveness, clarity, completeness, and efficiency
 9. Prioritize potential improvements based on frequency and impact
 10. **🚨 CHECKPOINT**: Present analysis findings, identified themes, and prioritized improvement opportunities to human partner for approval
-11. Document improvement opportunities in the [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) file using [`New-ProcessImprovement.ps1`](../../scripts/file-creation/support/New-ProcessImprovement.ps1):
+11. **Routing Decision**: For each identified improvement, determine its target and use the appropriate script:
+
+    | If the item is... | Route to... | Script |
+    |---|---|---|
+    | Process framework improvement (task, template, guide, script, workflow) | [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) | [`New-ProcessImprovement.ps1`](../../scripts/file-creation/support/New-ProcessImprovement.ps1) |
+    | Product feature request (new capability or enhancement to existing feature) | [Feature Request Tracking](../../../product-docs/state-tracking/permanent/feature-request-tracking.md) | [`New-FeatureRequest.ps1`](../../scripts/file-creation/01-planning/New-FeatureRequest.ps1) |
+    | Bug (something broken that needs fixing) | [Bug Tracking](../../../product-docs/state-tracking/permanent/bug-tracking.md) | [`New-BugReport.ps1`](../../scripts/file-creation/06-maintenance/New-BugReport.ps1) |
+    | Technical debt (code quality issue, not broken but should be improved) | [Technical Debt Tracking](../../../product-docs/state-tracking/permanent/technical-debt-tracking.md) | [`Update-TechDebt.ps1 -Add`](../../scripts/update/Update-TechDebt.ps1) |
+
     ```powershell
+    # Process framework improvement
     .\New-ProcessImprovement.ps1 -Source "Tools Review YYYY-MM-DD" -SourceLink "../../feedback/reviews/tools-review-YYYYMMDD.md" -Description "What needs improving" -Priority "MEDIUM" -Notes "Context"
+
+    # Product feature request
+    .\New-FeatureRequest.ps1 -Source "Tools Review YYYY-MM-DD" -SourceLink "../../feedback/reviews/tools-review-YYYYMMDD.md" -Description "What is being requested" -Priority "MEDIUM" -Notes "Context"
     ```
     - **🔗 TRACEABILITY REQUIREMENT**: Use `-SourceLink` to include link to the tools review analysis file for full traceability
-12. **🚨 SCOPE BOUNDARY**: Tools Review identifies and documents improvements only. For implementation, create [Process Improvement Task](process-improvement-task.md) entries
+    - **🔍 DEDUPLICATION**: Before registering a new IMP, search both the "Current Improvement Opportunities" and "Completed Improvements" sections of [process-improvement-tracking.md](../../state-tracking/permanent/process-improvement-tracking.md) for existing entries covering the same tool or issue. Skip registration if already tracked.
+12. **🚨 SCOPE BOUNDARY**: Tools Review identifies and documents improvements only. For implementation, create [Process Improvement Task](process-improvement-task.md) entries or use [Feature Request Evaluation](../01-planning/feature-request-evaluation.md) for feature requests
 13. Archive processed feedback forms for future reference (archive paths are needed for the next step)
 14. **Record ratings in feedback database**: After archiving, record all quantified ratings from this review cycle into the feedback database:
     ```bash
@@ -94,13 +107,13 @@ Systematically evaluate and enhance the templates, guides, and other tools by co
 ### Finalization
 
 15. Verify all improvement opportunities are properly documented
-16. Ensure [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) file is updated
+16. Ensure all tracking files are updated (process-improvement-tracking, feature-request-tracking, bug-tracking, technical-debt-tracking — as applicable)
 17. Communicate identified improvements to project stakeholders
 18. **🚨 MANDATORY FINAL STEP**: Complete the Task Completion Checklist below
 
 ## Outputs
 
-- **Improvement Opportunities** - Documented improvement opportunities in [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md)
+- **Improvement Opportunities** - Documented in appropriate tracking files: [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) for framework improvements, [Feature Request Tracking](../../../product-docs/state-tracking/permanent/feature-request-tracking.md) for product feature requests, [Bug Tracking](../../../product-docs/state-tracking/permanent/bug-tracking.md) for bugs, [Technical Debt Tracking](../../../product-docs/state-tracking/permanent/technical-debt-tracking.md) for tech debt
 - **Review Summary** - Documentation of findings and identified improvements, using the [Tools Review Summary Template](../../templates/support/tools-review-summary-template.md). Create via [`New-ReviewSummary.ps1`](../../scripts/file-creation/06-maintenance/New-ReviewSummary.ps1)
 - **Ratings Database Update** - Quantified ratings recorded in `doc/process-framework/feedback/ratings.db` for trend analysis via `python doc/process-framework/scripts/feedback_db.py record` (use [feedback-db-input-template.json](../../templates/support/feedback-db-input-template.json) as reference)
 - **Process Improvement Tasks** - Created [Process Improvement Task](process-improvement-task.md) entries for implementation
@@ -110,11 +123,11 @@ Systematically evaluate and enhance the templates, guides, and other tools by co
 
 The following state files must be updated as part of this task:
 
-- [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) - Update with:
-  - New improvement opportunities identified from feedback analysis
-  - **🔗 MANDATORY**: Links to the tools review analysis file for full traceability
-  - Prioritization of pending improvements
-  - Links to created [Process Improvement Task](process-improvement-task.md) entries
+- [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) - Framework improvements identified from feedback analysis
+- [Feature Request Tracking](../../../product-docs/state-tracking/permanent/feature-request-tracking.md) - Product feature requests identified from feedback analysis
+- [Bug Tracking](../../../product-docs/state-tracking/permanent/bug-tracking.md) - Bugs identified from feedback analysis
+- [Technical Debt Tracking](../../../product-docs/state-tracking/permanent/technical-debt-tracking.md) - Technical debt items identified from feedback analysis
+- **🔗 MANDATORY**: All entries must include links to the tools review analysis file for full traceability
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
@@ -123,13 +136,13 @@ The following state files must be updated as part of this task:
 Before considering this task finished:
 
 - [ ] **Verify Outputs**: Confirm all required outputs have been produced
-  - [ ] Improvement opportunities documented in [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md)
+  - [ ] Improvement opportunities documented in appropriate tracking files (process improvements, feature requests, bugs, tech debt)
   - [ ] Review summary documenting findings and identified improvements
   - [ ] [Process Improvement Task](process-improvement-task.md) entries created for implementation
   - [ ] Archive of processed feedback forms
 - [ ] **Verify Feedback Grouping**: Ensure that only feedback forms for the same task type were analyzed together
 - [ ] **Update State Files**: Confirm all state tracking files have been updated
-  - [ ] [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) reflects identified improvement opportunities
+  - [ ] Appropriate tracking files updated (process-improvement-tracking, feature-request-tracking, bug-tracking, technical-debt-tracking)
   - [ ] [Process Improvement Task](process-improvement-task.md) entries created for implementation
 - [ ] **Solicit User Feedback**: **MANDATORY** - Actively ask the human user for their feedback on the session:
   - [ ] Ask specific questions about process effectiveness

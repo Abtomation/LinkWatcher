@@ -273,7 +273,7 @@ class TestLinkValidator:
 
     def test_standalone_link_outside_code_block_still_checked(self, tmp_path):
         """Bare paths in normal prose should still be checked."""
-        content = "# Guide\n" "\n" "See path/to/missing.md for details.\n"
+        content = "# Guide\n" "\n" "See docs/nonexistent/missing.md for details.\n"
         _create_file(str(tmp_path), "source.md", content)
 
         cfg = _make_config()
@@ -281,7 +281,7 @@ class TestLinkValidator:
         result = v.validate()
 
         targets = {bl.target_path for bl in result.broken_links}
-        assert "path/to/missing.md" in targets
+        assert "docs/nonexistent/missing.md" in targets
 
     def test_root_relative_path_resolved(self, tmp_path):
         """Paths starting with / should resolve against project root."""
@@ -643,3 +643,319 @@ class TestReportFormatting:
         path = LinkValidator.write_report(result, out_dir)
 
         assert os.path.exists(path)
+
+
+# ---------------------------------------------------------------------------
+# Validation ignored patterns (config-driven)
+# ---------------------------------------------------------------------------
+
+
+class TestValidationIgnoredPatterns:
+    """Tests for the validation_ignored_patterns config feature."""
+
+    def test_default_pattern_skips_path_to(self, tmp_path):
+        """Default 'path/to/' pattern should suppress placeholder paths."""
+        _create_file(
+            str(tmp_path),
+            "source.md",
+            "[link](path/to/document.md)\n[real](docs/missing.md)\n",
+        )
+
+        cfg = _make_config()
+        # Default includes "path/to/"
+        v = LinkValidator(str(tmp_path), cfg)
+        result = v.validate()
+
+        targets = {bl.target_path for bl in result.broken_links}
+        assert "path/to/document.md" not in targets, "path/to/ should be ignored"
+        assert "docs/missing.md" in targets, "Real broken link should still be reported"
+
+    def test_custom_pattern_skips_matching_targets(self, tmp_path):
+        """User-defined patterns should suppress matching targets."""
+        _create_file(
+            str(tmp_path),
+            "source.md",
+            "[a](example/placeholder.md)\n[b](docs/real-broken.md)\n",
+        )
+
+        cfg = _make_config(validation_ignored_patterns={"example/"})
+        v = LinkValidator(str(tmp_path), cfg)
+        result = v.validate()
+
+        targets = {bl.target_path for bl in result.broken_links}
+        assert "example/placeholder.md" not in targets
+        assert "docs/real-broken.md" in targets
+
+    def test_empty_patterns_disables_filtering(self, tmp_path):
+        """Empty pattern set should not filter anything."""
+        _create_file(
+            str(tmp_path),
+            "source.md",
+            "[link](path/to/document.md)\n",
+        )
+
+        cfg = _make_config(validation_ignored_patterns=set())
+        v = LinkValidator(str(tmp_path), cfg)
+        result = v.validate()
+
+        targets = {bl.target_path for bl in result.broken_links}
+        assert "path/to/document.md" in targets
+
+    def test_multiple_patterns(self, tmp_path):
+        """Multiple patterns should all be applied."""
+        _create_file(
+            str(tmp_path),
+            "source.md",
+            "[a](path/to/doc.md)\n[b](example/test.md)\n[c](docs/real.md)\n",
+        )
+
+        cfg = _make_config(validation_ignored_patterns={"path/to/", "example/"})
+        v = LinkValidator(str(tmp_path), cfg)
+        result = v.validate()
+
+        targets = {bl.target_path for bl in result.broken_links}
+        assert "path/to/doc.md" not in targets
+        assert "example/test.md" not in targets
+        assert "docs/real.md" in targets
+
+
+# ---------------------------------------------------------------------------
+# Archival <details> section filter
+# ---------------------------------------------------------------------------
+
+
+class TestArchivalDetailsFilter:
+    """Tests for skipping standalone links inside archival <details> blocks."""
+
+    def test_standalone_in_archival_details_skipped(self, tmp_path):
+        """Standalone paths inside a 'Closed' details block should be skipped."""
+        content = (
+            "# Bugs\n"
+            "\n"
+            "Active content here.\n"
+            "\n"
+            "<details>\n"
+            "<summary><strong>View Closed Bugs History</strong></summary>\n"
+            "\n"
+            "| Bug | Path |\n"
+            "| --- | --- |\n"
+            "| BUG-1 | some/deleted/file.md |\n"
+            "\n"
+            "</details>\n"
+        )
+        _create_file(str(tmp_path), "bugs.md", content)
+
+        cfg = _make_config()
+        v = LinkValidator(str(tmp_path), cfg)
+        result = v.validate()
+
+        targets = {bl.target_path for bl in result.broken_links}
+        assert "some/deleted/file.md" not in targets
+
+    def test_proper_link_in_archival_details_still_checked(self, tmp_path):
+        """Proper [text](path) links inside archival details ARE still checked."""
+        content = (
+            "<details>\n"
+            "<summary>View Closed History</summary>\n"
+            "\n"
+            "[link](docs/does-not-exist.md)\n"
+            "\n"
+            "</details>\n"
+        )
+        _create_file(str(tmp_path), "source.md", content)
+
+        cfg = _make_config()
+        v = LinkValidator(str(tmp_path), cfg)
+        result = v.validate()
+
+        targets = {bl.target_path for bl in result.broken_links}
+        assert "docs/does-not-exist.md" in targets
+
+    def test_non_archival_details_still_checked(self, tmp_path):
+        """Standalone paths in non-archival details blocks should still be checked."""
+        content = (
+            "<details>\n"
+            "<summary><strong>0. System Architecture</strong></summary>\n"
+            "\n"
+            "| Feature | Path |\n"
+            "| --- | --- |\n"
+            "| Core | some/nonexistent/path.md |\n"
+            "\n"
+            "</details>\n"
+        )
+        _create_file(str(tmp_path), "features.md", content)
+
+        cfg = _make_config()
+        v = LinkValidator(str(tmp_path), cfg)
+        result = v.validate()
+
+        targets = {bl.target_path for bl in result.broken_links}
+        assert "some/nonexistent/path.md" in targets
+
+    def test_completed_keyword_triggers_archival(self, tmp_path):
+        """'completed' in summary should trigger archival mode."""
+        content = (
+            "<details>\n"
+            "<summary>Show completed improvements (52 items)</summary>\n"
+            "\n"
+            "| IMP | Ref |\n"
+            "| --- | --- |\n"
+            "| IMP-1 | ../Common-ScriptHelpers.psm1 |\n"
+            "\n"
+            "</details>\n"
+        )
+        _create_file(str(tmp_path), "tracking.md", content)
+
+        cfg = _make_config()
+        v = LinkValidator(str(tmp_path), cfg)
+        result = v.validate()
+
+        targets = {bl.target_path for bl in result.broken_links}
+        assert "../Common-ScriptHelpers.psm1" not in targets
+
+    def test_archived_keyword_triggers_archival(self, tmp_path):
+        """'archived' in summary should trigger archival mode."""
+        content = (
+            "<details>\n"
+            "<summary><strong>Show archived features (2 items)</strong></summary>\n"
+            "\n"
+            "Old refs: some/old/feature.md mentioned here.\n"
+            "\n"
+            "</details>\n"
+        )
+        _create_file(str(tmp_path), "features.md", content)
+
+        cfg = _make_config()
+        v = LinkValidator(str(tmp_path), cfg)
+        result = v.validate()
+
+        targets = {bl.target_path for bl in result.broken_links}
+        assert "some/old/feature.md" not in targets
+
+    def test_history_keyword_triggers_archival(self, tmp_path):
+        """'history' in summary should trigger archival mode."""
+        content = (
+            "<details>\n"
+            "<summary>Show update history (100 entries)</summary>\n"
+            "\n"
+            "| Date | Change |\n"
+            "| --- | --- |\n"
+            "| 2026-01-01 | Fixed scripts/old-tool.ps1 path |\n"
+            "\n"
+            "</details>\n"
+        )
+        _create_file(str(tmp_path), "log.md", content)
+
+        cfg = _make_config()
+        v = LinkValidator(str(tmp_path), cfg)
+        result = v.validate()
+
+        targets = {bl.target_path for bl in result.broken_links}
+        assert "scripts/old-tool.ps1" not in targets
+
+
+# ---------------------------------------------------------------------------
+# Extension-before-slash filter
+# ---------------------------------------------------------------------------
+
+
+class TestExtBeforeSlashFilter:
+    """Targets like 'logging.py/logging_config.py' are slash-separated
+    alternatives, not real file paths."""
+
+    def test_ext_before_slash_skipped(self, tmp_path):
+        """Target with .py/ mid-path should be skipped."""
+        _create_file(str(tmp_path), "source.md", "See logging.py/logging_config.py\n")
+        cfg = _make_config()
+        v = LinkValidator(str(tmp_path), cfg)
+        result = v.validate()
+        assert result.links_checked == 0
+
+    def test_yaml_ext_before_slash_skipped(self, tmp_path):
+        """Target with .yaml/ mid-path should be skipped."""
+        _create_file(str(tmp_path), "source.md", "See config.yaml/defaults.json\n")
+        cfg = _make_config()
+        v = LinkValidator(str(tmp_path), cfg)
+        result = v.validate()
+        assert result.links_checked == 0
+
+    def test_real_path_with_extension_in_dir_still_checked(self, tmp_path):
+        """A real path like 'docs/guide.md' should still be checked."""
+        _create_file(str(tmp_path), "source.md", "[link](docs/guide.md)\n")
+        cfg = _make_config()
+        v = LinkValidator(str(tmp_path), cfg)
+        result = v.validate()
+        assert result.links_checked == 1
+
+
+# ---------------------------------------------------------------------------
+# Per-file ignore list (.linkwatcher-ignore)
+# ---------------------------------------------------------------------------
+
+
+class TestLinkwatcherIgnoreFile:
+    """Tests for the .linkwatcher-ignore per-file suppression rules."""
+
+    def _cfg_with_ignore(self, **overrides):
+        """Config with validation_ignore_file pointing to project root."""
+        return _make_config(validation_ignore_file=".linkwatcher-ignore", **overrides)
+
+    def test_ignore_rule_suppresses_matching_broken_link(self, tmp_path):
+        """A rule matching source glob and target substring should suppress."""
+        _create_file(str(tmp_path), "templates/doc.md", "[link](related-design.md)\n")
+        _create_file(
+            str(tmp_path),
+            ".linkwatcher-ignore",
+            "templates/**/*.md -> related-design.md\n",
+        )
+        v = LinkValidator(str(tmp_path), self._cfg_with_ignore())
+        result = v.validate()
+        targets = {bl.target_path for bl in result.broken_links}
+        assert "related-design.md" not in targets
+
+    def test_non_matching_rule_does_not_suppress(self, tmp_path):
+        """A rule for a different source should not suppress."""
+        _create_file(str(tmp_path), "docs/real.md", "[link](missing/file.md)\n")
+        _create_file(
+            str(tmp_path),
+            ".linkwatcher-ignore",
+            "templates/**/*.md -> missing/file.md\n",
+        )
+        v = LinkValidator(str(tmp_path), self._cfg_with_ignore())
+        result = v.validate()
+        targets = {bl.target_path for bl in result.broken_links}
+        assert "missing/file.md" in targets
+
+    def test_no_ignore_file_works_normally(self, tmp_path):
+        """Without .linkwatcher-ignore, all broken links are reported."""
+        _create_file(str(tmp_path), "source.md", "[link](missing/doc.md)\n")
+        cfg = _make_config()
+        v = LinkValidator(str(tmp_path), cfg)
+        result = v.validate()
+        assert len(result.broken_links) == 1
+
+    def test_comments_and_blank_lines_ignored(self, tmp_path):
+        """Comments and blank lines in .linkwatcher-ignore are skipped."""
+        _create_file(str(tmp_path), "source.md", "[link](missing/doc.md)\n")
+        _create_file(
+            str(tmp_path),
+            ".linkwatcher-ignore",
+            "# This is a comment\n\n  \nother/**/*.md -> missing/doc.md\n",
+        )
+        v = LinkValidator(str(tmp_path), self._cfg_with_ignore())
+        result = v.validate()
+        # Rule doesn't match source.md, so link should still be reported
+        assert len(result.broken_links) == 1
+
+    def test_target_substring_matching(self, tmp_path):
+        """Target pattern is a substring match, not exact."""
+        _create_file(str(tmp_path), "docs/report.md", "[link](some/path/README.md)\n")
+        _create_file(
+            str(tmp_path),
+            ".linkwatcher-ignore",
+            "docs/**/*.md -> README.md\n",
+        )
+        v = LinkValidator(str(tmp_path), self._cfg_with_ignore())
+        result = v.validate()
+        targets = {bl.target_path for bl in result.broken_links}
+        assert "some/path/README.md" not in targets

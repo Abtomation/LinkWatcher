@@ -17,6 +17,11 @@
     - DocumentationAlignment
     - ExtensibilityMaintainability
     - AIAgentContinuity
+    - SecurityDataProtection
+    - PerformanceScalability
+    - Observability
+    - AccessibilityUX
+    - DataIntegrity
 
 .PARAMETER FeatureIds
     Comma-separated list of feature IDs to validate (e.g., "0.2.1,0.2.2,0.2.3")
@@ -49,7 +54,9 @@
 param(
     [Parameter(Mandatory = $true)]
     [ValidateSet("ArchitecturalConsistency", "CodeQuality", "IntegrationDependencies",
-        "DocumentationAlignment", "ExtensibilityMaintainability", "AIAgentContinuity")]
+        "DocumentationAlignment", "ExtensibilityMaintainability", "AIAgentContinuity",
+        "SecurityDataProtection", "PerformanceScalability", "Observability",
+        "AccessibilityUX", "DataIntegrity")]
     [string]$ValidationType,
 
     [Parameter(Mandatory = $true)]
@@ -104,7 +111,17 @@ catch {
 # Resolve paths using project root for reliability
 $ProjectRoot = if ($useEnhancedTracking) { Get-ProjectRoot } else { (Get-Item (Join-Path $ScriptDirectory "../../../../..")).FullName }
 $TemplateFile = Join-Path $ProjectRoot "doc/process-framework/templates/05-validation/validation-report-template.md"
-$TrackingFile = Join-Path $ProjectRoot "doc/product-docs/state-tracking/temporary/validation-tracking.md"
+# Discover active validation tracking file (highest -N suffix in temporary/validation/)
+$trackingDir = Join-Path $ProjectRoot "doc/product-docs/state-tracking/temporary/validation"
+$trackingFiles = Get-ChildItem -Path $trackingDir -Filter "validation-tracking-*.md" -File |
+    Where-Object { $_.Name -match '^validation-tracking-(\d+)\.md$' } |
+    Sort-Object { [int]($_.Name -replace '^validation-tracking-(\d+)\.md$', '$1') } -Descending
+if ($trackingFiles.Count -gt 0) {
+    $TrackingFile = $trackingFiles[0].FullName
+} else {
+    Write-Warning "No validation-tracking-N.md found in $trackingDir. Tracking update will be skipped."
+    $TrackingFile = $null
+}
 $IdRegistryFile = Join-Path $ProjectRoot "doc/product-docs/PD-id-registry.json"
 
 # Validation type mappings
@@ -139,6 +156,31 @@ $ValidationTypeMap = @{
         "DisplayName" = "AI Agent Continuity"
         "ShortName"   = "ai-agent-continuity"
     }
+    "SecurityDataProtection"       = @{
+        "Directory"   = "security-data-protection"
+        "DisplayName" = "Security & Data Protection"
+        "ShortName"   = "security-data-protection"
+    }
+    "PerformanceScalability"       = @{
+        "Directory"   = "performance-scalability"
+        "DisplayName" = "Performance & Scalability"
+        "ShortName"   = "performance-scalability"
+    }
+    "Observability"                = @{
+        "Directory"   = "observability"
+        "DisplayName" = "Observability"
+        "ShortName"   = "observability"
+    }
+    "AccessibilityUX"              = @{
+        "Directory"   = "accessibility-ux"
+        "DisplayName" = "Accessibility / UX Compliance"
+        "ShortName"   = "accessibility-ux"
+    }
+    "DataIntegrity"                = @{
+        "Directory"   = "data-integrity"
+        "DisplayName" = "Data Integrity"
+        "ShortName"   = "data-integrity"
+    }
 }
 
 function Get-NextValidationId {
@@ -147,23 +189,8 @@ function Get-NextValidationId {
         Gets the next available PF-VAL ID from the registry
     #>
     try {
-        # Use absolute path resolution - navigate from script location to doc directory
-        $scriptDir = if ($MyInvocation.MyCommand.Path) {
-            Split-Path -Parent $MyInvocation.MyCommand.Path
-        }
-        else {
-            $PSScriptRoot
-        }
-
-        if (-not $scriptDir) {
-            # Fallback: use current directory and navigate up
-            $scriptDir = Split-Path -Parent (Get-Location).Path
-        }
-
-        $scriptsDir = Split-Path -Parent $scriptDir
-        $processFrameworkDir = Split-Path -Parent $scriptsDir
-        $docDir = Split-Path -Parent $processFrameworkDir
-        $absoluteIdRegistryPath = Join-Path $docDir "product-docs/PD-id-registry.json"
+        # Use the script-level $IdRegistryFile variable (computed from $ProjectRoot)
+        $absoluteIdRegistryPath = $IdRegistryFile
 
         if (-not (Test-Path $absoluteIdRegistryPath)) {
             throw "ID registry not found at: $absoluteIdRegistryPath"
@@ -259,8 +286,8 @@ function Update-ValidationTracking {
     )
 
     try {
-        if (-not (Test-Path $TrackingFile)) {
-            Write-Warning "Validation tracking file not found: $TrackingFile"
+        if (-not $TrackingFile -or -not (Test-Path $TrackingFile)) {
+            Write-Warning "No active validation tracking file found."
             Write-Warning "Please manually update the tracking file with the new report information."
             return
         }
@@ -292,6 +319,7 @@ try {
     Write-Host "   Features: $($features -join ', ')" -ForegroundColor Gray
     Write-Host "   Batch: $BatchNumber" -ForegroundColor Gray
     Write-Host "   Session: $SessionNumber" -ForegroundColor Gray
+    Write-Host "   Tracking File: $(if ($TrackingFile) { $TrackingFile } else { '(none found)' })" -ForegroundColor Gray
     Write-Host ""
 
     # Compute output path for ShouldProcess message

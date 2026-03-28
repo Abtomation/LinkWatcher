@@ -22,6 +22,7 @@ class YamlParser(BaseParser):
         try:
             lines = content.split("\n")
             references = []
+            self._search_start_line = 0  # Offset for O(V+L) scanning
 
             try:
                 # Parse YAML to find file references
@@ -93,8 +94,27 @@ class YamlParser(BaseParser):
             if ref.link_target == search_text:
                 used_positions.add((ref.line_number, ref.column_start))
 
-        # Find the next unused occurrence
-        for line_idx, line in enumerate(lines):
+        # Scan from the last-found line (values appear in file order)
+        start = self._search_start_line
+        for line_idx in range(start, len(lines)):
+            line = lines[line_idx]
+            line_num = line_idx + 1
+            col_start = 0
+            while True:
+                col_start = line.find(search_text, col_start)
+                if col_start == -1:
+                    break
+
+                pos = (line_num, col_start)
+                if pos not in used_positions:
+                    self._search_start_line = line_idx
+                    return line_num, col_start
+
+                col_start += 1  # Move past this occurrence
+
+        # Fallback: scan lines before start (handles out-of-order edge cases)
+        for line_idx in range(0, start):
+            line = lines[line_idx]
             line_num = line_idx + 1
             col_start = 0
             while True:
@@ -106,6 +126,6 @@ class YamlParser(BaseParser):
                 if pos not in used_positions:
                     return line_num, col_start
 
-                col_start += 1  # Move past this occurrence
+                col_start += 1
 
         return 0, 0

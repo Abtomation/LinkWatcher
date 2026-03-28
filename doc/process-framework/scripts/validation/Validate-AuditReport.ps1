@@ -24,13 +24,13 @@
     If specified, attempts to fix minor validation issues automatically
 
 .EXAMPLE
-    .\Validate-AuditReport.ps1 -ReportFile "foundation/audit-report-0.2.3-PD-TST-001.md"
+    .\Validate-AuditReport.ps1 -ReportFile "foundation/audit-report-0.2.3-TE-TST-001.md"
 
 .EXAMPLE
-    .\Validate-AuditReport.ps1 -ReportFile "foundation/audit-report-0.2.3-PD-TST-001.md" -Detailed
+    .\Validate-AuditReport.ps1 -ReportFile "foundation/audit-report-0.2.3-TE-TST-001.md" -Detailed
 
 .EXAMPLE
-    .\Validate-AuditReport.ps1 -ReportFile "foundation/audit-report-0.2.3-PD-TST-001.md" -Fix
+    .\Validate-AuditReport.ps1 -ReportFile "foundation/audit-report-0.2.3-TE-TST-001.md" -Fix
 
 .NOTES
     - Validates against Test Audit Report template structure
@@ -320,11 +320,11 @@ VALIDATION CRITERIA:
 
 EXAMPLE USAGE:
 # Basic validation
-./Validate-AuditReport.ps1 -ReportFile "foundation/audit-report-0.2.3-PD-TST-001.md"
+./Validate-AuditReport.ps1 -ReportFile "foundation/audit-report-0.2.3-TE-TST-001.md"
 
 # Detailed validation with all issues
-./Validate-AuditReport.ps1 -ReportFile "foundation/audit-report-0.2.3-PD-TST-001.md" -Detailed
+./Validate-AuditReport.ps1 -ReportFile "foundation/audit-report-0.2.3-TE-TST-001.md" -Detailed
 
 # Validation with automatic fixes
-./Validate-AuditReport.ps1 -ReportFile "foundation/audit-report-0.2.3-PD-TST-001.md" -Fix
+./Validate-AuditReport.ps1 -ReportFile "foundation/audit-report-0.2.3-TE-TST-001.md" -Fix
 #>

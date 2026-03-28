@@ -58,7 +58,7 @@ Systematically validates selected features for security best practices, data pro
 
 > **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished! 🚨**
 >
-> **⚠️ MANDATORY: Use the ..\scripts\file-creation\New-ValidationReport.ps1 script for generating validation reports.**
+> **⚠️ MANDATORY: Use the [..\..\scripts\file-creation\05-validation\New-ValidationReport.ps1](../../scripts/file-creation/05-validation/New-ValidationReport.ps1) script for generating validation reports.**
 >
 > **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
 >
@@ -82,7 +82,7 @@ Systematically validates selected features for security best practices, data pro
    ```powershell
    # Navigate to validation directory and create security validation report
    Set-Location "doc/product-docs/validation"
-   ..\scripts\file-creation\New-ValidationReport.ps1 -ValidationType "SecurityDataProtection" -FeatureIds "X.Y.Z,A.B.C" -SessionNumber 1
+   ..\..\scripts\file-creation\05-validation\New-ValidationReport.ps1 -ValidationType "SecurityDataProtection" -FeatureIds "X.Y.Z,A.B.C" -SessionNumber 1
    ```
 11. **Score Security Criteria**: Apply 4-point scoring system (0-3) to each security criterion
 12. **Document Findings**: Record specific security vulnerabilities, data exposure risks, and remediation recommendations with severity ratings
@@ -140,4 +140,3 @@ Before considering this task finished:
 
 - [Feature Validation Guide](../../guides/05-validation/feature-validation-guide.md) - Comprehensive guide for conducting feature validation
 - [Architecture Decision Records](../../../product-docs/technical/architecture) - Security-related architectural decisions
-<!-- [Component Relationship Index](../../../product-docs/technical/architecture/component-relationship-index.md) - Removed: file deleted -->

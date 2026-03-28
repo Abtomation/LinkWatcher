@@ -69,10 +69,6 @@ graph TD
 ## Related Documentation
 
 - [Documentation Inventory](/doc/product-docs/README.md) - Index of project documentation
-- <!-- [Documentation Review Template](/doc/process-framework/templates/documentation-review-template.md) - Template/example link commented out --> - Template for reviews
-- <!-- [Documentation Standards](/doc/process-framework/guides/documentation-standards.md) - File not found --> - Standards for documentation
-- <!-- [Documentation Structure Guide](/doc/product-docs/technical/documentation-structure.md) - File not found --> - Guide to documentation organization
 - [Technical Debt Tracking](../../../../product-docs/state-tracking/permanent/technical-debt-tracking.md) - Technical debt status
-<!-- [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Removed: file deleted -->
 
 ---

@@ -33,7 +33,6 @@ Implement the state management layer for a feature. This task creates the reacti
 
 ## Context Requirements
 
-<!-- [View Context Map for this task](../../visualization/context-maps/04-implementation/state-management-implementation-map.md) - To be created -->
 
 - **Critical (Must Read):**
 
@@ -137,4 +136,3 @@ Before considering this task finished:
 
 - [Feature Implementation State Tracking Guide](../../guides/04-implementation/feature-implementation-state-tracking-guide.md) - Guide for maintaining feature state file
 - **TDD State Management Section** - Technology-specific patterns, framework references, and state container conventions for the feature
-

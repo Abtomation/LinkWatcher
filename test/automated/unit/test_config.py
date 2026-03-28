@@ -7,22 +7,21 @@ environment variables, and validation.
 
 import json
 import os
-import tempfile
-from pathlib import Path
-from unittest.mock import mock_open, patch
+from unittest.mock import patch
 
 import pytest
 import yaml
 
 from linkwatcher.config import DEFAULT_CONFIG, TESTING_CONFIG, LinkWatcherConfig
-from linkwatcher.config.settings import LinkWatcherConfig as ConfigClass
 
 pytestmark = [
     pytest.mark.feature("0.1.3"),
     pytest.mark.priority("Critical"),
     pytest.mark.cross_cutting(["1.1.1", "3.1.1"]),
     pytest.mark.test_type("unit"),
-    pytest.mark.specification("test/specifications/feature-specs/test-spec-0-1-3-configuration-system.md"),
+    pytest.mark.specification(
+        "test/specifications/feature-specs/test-spec-0-1-3-configuration-system.md"
+    ),
 ]
 
 
@@ -102,6 +101,44 @@ class TestLinkWatcherConfig:
         assert config.create_backups is False
         assert config.log_level == "DEBUG"
         assert config.max_file_size_mb == 20
+
+    def test_from_dict_warns_on_unknown_keys(self, caplog):
+        """Test that _from_dict logs warnings for unknown configuration keys (TD069)."""
+        import logging
+
+        data = {
+            "dry_run_mode": True,
+            "dry_run": True,  # typo — unknown key
+            "nonexistent_option": "value",  # unknown key
+        }
+
+        with caplog.at_level(logging.WARNING, logger="linkwatcher.config.settings"):
+            config = LinkWatcherConfig._from_dict(data)
+
+        # Known key should be applied
+        assert config.dry_run_mode is True
+
+        # Unknown keys should each produce a warning
+        warnings = [r.message for r in caplog.records if r.levelno == logging.WARNING]
+        assert any("dry_run" in w for w in warnings)
+        assert any("nonexistent_option" in w for w in warnings)
+
+    def test_from_dict_rejects_dunder_keys(self):
+        """Test that _from_dict silently skips underscore-prefixed keys (TD076)."""
+        data = {
+            "__dict__": {"injected": True},
+            "_private": "should be ignored",
+            "__class__": "malicious",
+            "dry_run_mode": True,  # legitimate key — should still work
+        }
+
+        config = LinkWatcherConfig._from_dict(data)
+
+        # Legitimate key applied
+        assert config.dry_run_mode is True
+        # Dunder/private keys did not modify config internals
+        assert not hasattr(config, "_private")
+        assert "injected" not in getattr(config, "__dict__", {})
 
     def test_to_dict(self):
         """Test converting configuration to dictionary."""
@@ -196,7 +233,7 @@ class TestLinkWatcherConfig:
         env_vars = {
             "LINKWATCHER_MONITORED_EXTENSIONS": ".md,.txt,.yaml",
             "LINKWATCHER_IGNORED_DIRECTORIES": ".git,node_modules",
-            "LINKWATCHER_DRY_RUN": "true",
+            "LINKWATCHER_DRY_RUN_MODE": "true",
             "LINKWATCHER_CREATE_BACKUPS": "false",
             "LINKWATCHER_LOG_LEVEL": "DEBUG",
             "LINKWATCHER_MAX_FILE_SIZE_MB": "25",
@@ -218,7 +255,7 @@ class TestLinkWatcherConfig:
         """Test loading from environment with custom prefix."""
         env_vars = {
             "MYAPP_MONITORED_EXTENSIONS": ".md,.py",
-            "MYAPP_DRY_RUN": "yes",
+            "MYAPP_DRY_RUN_MODE": "yes",
             "MYAPP_LOG_LEVEL": "ERROR",
         }
 
@@ -248,7 +285,7 @@ class TestLinkWatcherConfig:
         ]
 
         for env_value, expected in boolean_tests:
-            env_vars = {"LINKWATCHER_DRY_RUN": env_value}
+            env_vars = {"LINKWATCHER_DRY_RUN_MODE": env_value}
 
             with patch.dict(os.environ, env_vars, clear=True):
                 config = LinkWatcherConfig.from_env()
@@ -299,6 +336,26 @@ class TestLinkWatcherConfig:
 
         with pytest.raises(ValueError, match="Unsupported format"):
             config.save_to_file(str(config_file), format="ini")
+
+    def test_save_to_file_is_atomic(self, temp_project_dir):
+        """Test that save_to_file uses atomic write (no leftover temp files on success)."""
+        config = LinkWatcherConfig(log_level="DEBUG", dry_run_mode=True)
+        config_file = temp_project_dir / "atomic_test.json"
+
+        files_before = set(temp_project_dir.iterdir())
+        config.save_to_file(str(config_file), format="json")
+        files_after = set(temp_project_dir.iterdir())
+
+        # Only the target file should be new — no leftover temp files
+        new_files = files_after - files_before
+        assert new_files == {config_file}
+
+        # Verify content is valid
+        import json
+
+        data = json.loads(config_file.read_text(encoding="utf-8"))
+        assert data["log_level"] == "DEBUG"
+        assert data["dry_run_mode"] is True
 
     def test_merge_configurations(self):
         """Test merging two configurations."""
@@ -585,7 +642,7 @@ class TestConfigurationIntegration:
         # Override with environment variables
         env_vars = {
             "LINKWATCHER_MONITORED_EXTENSIONS": ".md,.py,.yaml",
-            "LINKWATCHER_DRY_RUN": "true",
+            "LINKWATCHER_DRY_RUN_MODE": "true",
             "LINKWATCHER_LOG_LEVEL": "DEBUG",
         }
 
@@ -630,6 +687,39 @@ class TestConfigurationIntegration:
 
         with pytest.raises(json.JSONDecodeError):
             LinkWatcherConfig.from_file(str(config_file))
+
+    def test_validation_ignored_patterns_default(self):
+        """Test that validation_ignored_patterns has a sensible default."""
+        config = LinkWatcherConfig()
+        assert isinstance(config.validation_ignored_patterns, set)
+        assert "path/to/" in config.validation_ignored_patterns
+        assert "xxx" in config.validation_ignored_patterns
+
+    def test_validation_ignored_patterns_from_dict(self):
+        """Test loading validation_ignored_patterns from dict."""
+        data = {"validation_ignored_patterns": ["example/", "templates/"]}
+        config = LinkWatcherConfig._from_dict(data)
+        assert config.validation_ignored_patterns == {"example/", "templates/"}
+
+    def test_validation_ignored_patterns_from_yaml(self, temp_project_dir):
+        """Test loading validation_ignored_patterns from YAML config file."""
+        config_data = {
+            "validation_ignored_patterns": ["custom/pattern/", "another/"],
+            "log_level": "INFO",
+        }
+        config_file = temp_project_dir / "patterns.yaml"
+        config_file.write_text(yaml.dump(config_data))
+
+        config = LinkWatcherConfig.from_file(str(config_file))
+        assert config.validation_ignored_patterns == {"custom/pattern/", "another/"}
+
+    def test_validation_ignored_patterns_roundtrip(self, temp_project_dir):
+        """Test validation_ignored_patterns survives save/load roundtrip."""
+        config = LinkWatcherConfig(validation_ignored_patterns={"foo/", "bar/baz/"})
+        config_file = temp_project_dir / "roundtrip_patterns.json"
+        config.save_to_file(str(config_file), format="json")
+        loaded = LinkWatcherConfig.from_file(str(config_file))
+        assert loaded.validation_ignored_patterns == {"foo/", "bar/baz/"}
 
     def test_malformed_yaml_handling(self, temp_project_dir):
         """Test handling of malformed YAML configuration."""

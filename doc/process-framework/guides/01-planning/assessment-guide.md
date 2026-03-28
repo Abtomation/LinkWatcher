@@ -18,7 +18,7 @@ This guide provides a structured approach for assessing the appropriate document
 > **DO NOT manually create assessment files.** The automation script is mandatory because it:
 >
 > - Ensures proper ID sequencing and prevents conflicts
-> - Maintains the ../../../../product-docs/documentation-tiers/config.json tracking system
+> - Maintains the documentation-tiers tracking system
 > - Applies consistent formatting and metadata
 > - Prevents human errors in file naming and structure
 >

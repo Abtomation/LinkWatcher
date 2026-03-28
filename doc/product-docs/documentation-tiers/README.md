@@ -98,8 +98,8 @@ For a detailed guide on how to assess features and assign documentation tiers, s
 
 Each feature has its own assessment file in the `assessments` subfolder, named according to its assessment ID and feature ID:
 
-- `assessments<!-- /ART-ASS-001-1.1.1-email-password-registration.md - File not found -->`
-- `assessments<!-- /ART-ASS-002-1.1.2-social-login-integration.md - File not found -->`
+- `assessments/ART-ASS-001-1.1.1-email-password-registration.md`
+- `assessments/ART-ASS-002-1.1.2-social-login-integration.md`
 - etc.
 
 Each assessment is an artifact with a unique ID (ART-ASS-XXX) that is automatically assigned when the assessment is created.

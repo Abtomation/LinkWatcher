@@ -68,11 +68,6 @@ graph TD
 
 ## Related Documentation
 
-- <!-- [Feature Discovery Template](/doc/process-framework/templates/feature-discovery-template.md) - Template/example link commented out --> - Template for feature exploration
-- <!-- [User Needs Analysis Guide](/doc/product-docs/user/needs-analysis/guide.md) - File not found --> - Guide for analyzing user requirements
-- <!-- [Feature Specification Template](/doc/process-framework/templates/feature-specification-template.md) - Template/example link commented out --> - Template for feature requirements
-- <!-- [Existing Features Catalog](/doc/product-docs/technical/features-catalog.md) - File not found --> - Catalog of existing features
 - [Feature Tracking](../../../../product-docs/state-tracking/permanent/feature-tracking.md) - Feature status tracking
-<!-- [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Removed: file deleted -->
 
 ---

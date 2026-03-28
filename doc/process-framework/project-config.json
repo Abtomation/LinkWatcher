@@ -23,7 +23,7 @@
   },
 
   "testing": {
-    "description": "Test runner configuration — language-specific commands are in languages-config/{language}-config.json",
+    "description": "Test runner configuration — language-specific commands are in languages-config/{language}/{language}-config.json",
     "language": "python",
     "testDirectory": "test/automated",
     "quickCategories": ["unit", "parsers"]

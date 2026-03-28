@@ -128,7 +128,6 @@ Before considering this task finished:
 
 ## Related Resources
 
-<!-- - [Architectural Integration Framework Concept](../../proposals/proposals/architectural-integration-framework-concept.md) - Removed: file deleted -->
 - [System Architecture Review Task](../../tasks/01-planning/system-architecture-review.md) - Task that identifies foundation features
 - [Task Transition Guide](../../guides/framework/task-transition-guide.md) - Guidance for transitioning from foundation to regular features
 - [Architecture Decision Records System](../../../product-docs/technical/architecture/design-docs/adr/README.md) - Existing ADR system with `New-ArchitectureDecision.ps1` script

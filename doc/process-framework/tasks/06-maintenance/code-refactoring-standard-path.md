@@ -162,7 +162,7 @@ When bugs are discovered during refactoring, follow this decision process:
 
 ##### Phase 2: On Refactoring Completion
 
-- [ ] **Update [Technical Debt Tracking](../../../product-docs/state-tracking/permanent/technical-debt-tracking.md)**: `Update-TechDebt.ps1 -DebtId "TD###" -NewStatus "Resolved" -ResolutionNotes "..." -PlanLink "[TD###](path)"` — if the TD item is tracked in a validation tracking file (e.g., [validation-tracking.md](../../../product-docs/state-tracking/temporary/validation-tracking.md)), also pass `-FoundationalNote "Resolved (...)" -FoundationalTrackingPath "<absolute-path>"`
+- [ ] **Update [Technical Debt Tracking](../../../product-docs/state-tracking/permanent/technical-debt-tracking.md)**: `Update-TechDebt.ps1 -DebtId "TD###" -NewStatus "Resolved" -ResolutionNotes "..." -PlanLink "[TD###](path)"` — if tracked in a validation tracking file, also pass `-ValidationNote "PD-REF-### — description"` (validation file auto-discovered)
 - [ ] **Update [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md)**: Improve feature status (e.g., "🔄 Needs Revision" → "🧪 Testing")
 - [ ] **Update [Architecture Tracking](../../../product-docs/state-tracking/permanent/architecture-tracking.md)**: For foundation features (0.x.x), document architectural improvements
 - [ ] **Update [Test Tracking](../../../../test/state-tracking/permanent/test-tracking.md)**: Note test improvements or new test requirements

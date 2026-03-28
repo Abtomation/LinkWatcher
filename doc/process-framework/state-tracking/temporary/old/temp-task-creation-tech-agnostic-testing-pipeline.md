@@ -143,17 +143,17 @@ task_name: tech-agnostic-testing-pipeline
 
 - [x] Update PF-TSK-064 (Codebase Feature Discovery) — add test file classification
   - **Status**: COMPLETED
-  - **Target**: doc/process-framework/tasks/00-onboarding/codebase-feature-discovery.md
+  - **Target**: doc/process-framework/tasks/00-setup/codebase-feature-discovery.md
   - **Notes**: Added test file classification guidance in step 7, test tracking references in Related Resources. v1.2→1.3
 
 - [x] Update PF-TSK-065 (Codebase Feature Analysis) — add test validation and registry population
   - **Status**: COMPLETED
-  - **Target**: doc/process-framework/tasks/00-onboarding/codebase-feature-analysis.md
+  - **Target**: doc/process-framework/tasks/00-setup/codebase-feature-analysis.md
   - **Notes**: Extended step 4 with test-registry.yaml and test-implementation-tracking.md population, added checklist items, context requirements, related resources. v1.1→1.2
 
 - [x] Update PF-TSK-066 (Retrospective Documentation Creation) — add test spec gap closure
   - **Status**: COMPLETED
-  - **Target**: doc/process-framework/tasks/00-onboarding/retrospective-documentation-creation.md
+  - **Target**: doc/process-framework/tasks/00-setup/retrospective-documentation-creation.md
   - **Notes**: Extended step 5 with cross-cutting test specification creation guidance and New-TestSpecification.ps1 -CrossCutting usage, added context requirements. v1.2→1.3
 
 #### Phase 4: Integration & validation

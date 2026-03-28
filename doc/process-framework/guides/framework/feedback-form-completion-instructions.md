@@ -41,7 +41,6 @@ The script automatically:
 
 For detailed guidance on completing feedback forms effectively, see:
 - [Feedback Form Guide](feedback-form-guide.md) - Comprehensive guide for completing feedback forms
-<!-- - [Feedback Process Guide](../../feedback/README.md) - Removed: file deleted -->
 
 ## Integration with Tasks
 

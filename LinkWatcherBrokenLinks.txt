@@ -2,49 +2,39 @@
 LinkWatcher - Link Validation Report
 ============================================================
 
-Files scanned : 391
-Links checked : 3843
-Broken links  : 285
-Duration      : 1.91s
+Files scanned : 539
+Links checked : 4086
+Broken links  : 98
+Duration      : 2.42s
 
 Broken links:
 ------------------------------------------------------------
-  config-examples/debug-config.yaml:34
-    -> logs/linkwatcher-debug.log  (yaml)
-  config-examples/logging-config.yaml:38
-    -> logs/linkwatcher.log  (yaml)
-  config-examples/production-config.yaml:36
-    -> /var/log/linkwatcher/linkwatcher.log  (yaml)
-  doc/process-framework/.ai-entry-point.md:26
+  doc/process-framework/.ai-entry-point.md:27
     -> .\Script.ps1  (markdown-standalone)
-  doc/process-framework/documentation-map.md:272
-    -> ../product-docs/technical/architecture/project-structure.md  (markdown)
-  doc/process-framework/documentation-map.md:273
-    -> ../product-docs/technical/architecture/component-relationship-index.md  (markdown)
-  doc/process-framework/README.md:65
-    -> /doc/product-docs/path/to/document.md  (markdown)
-  doc/process-framework/evaluation-reports/20260325-framework-evaluation-testing-setup-tasks-templates-scripts-guides-state.md:93
+  doc/process-framework/documentation-map.md:32
+    -> /process-framework/tasks/07-deployment/user-documentation-creation.md  (markdown)
+  doc/process-framework/documentation-map.md:32
+    -> /doc/process-framework/tasks/../../../tasks/README.md  (markdown-standalone)
+  doc/process-framework/evaluation-reports/20260325-framework-evaluation-testing-setup-tasks-templates-scripts-guides-state.md:95
     -> visualization/context-maps/03-testing/test-implementation-map.md  (markdown-standalone)
-  doc/process-framework/evaluation-reports/20260325-framework-evaluation-testing-setup-tasks-templates-scripts-guides-state.md:108
+  doc/process-framework/evaluation-reports/20260325-framework-evaluation-testing-setup-tasks-templates-scripts-guides-state.md:110
     -> test/test-registry.yaml  (markdown-standalone)
-  doc/process-framework/evaluation-reports/20260325-framework-evaluation-testing-setup-tasks-templates-scripts-guides-state.md:123
+  doc/process-framework/evaluation-reports/20260325-framework-evaluation-testing-setup-tasks-templates-scripts-guides-state.md:125
     -> guides/test-infrastructure-guide.md  (markdown-standalone)
-  doc/process-framework/evaluation-reports/20260325-framework-evaluation-testing-setup-tasks-templates-scripts-guides-state.md:138
+  doc/process-framework/evaluation-reports/20260325-framework-evaluation-testing-setup-tasks-templates-scripts-guides-state.md:140
     -> tasks/03-testing/test-implementation-task.md  (markdown-standalone)
-  doc/process-framework/evaluation-reports/20260325-framework-evaluation-testing-setup-tasks-templates-scripts-guides-state.md:154
+  doc/process-framework/evaluation-reports/20260325-framework-evaluation-testing-setup-tasks-templates-scripts-guides-state.md:156
     -> scripts/validation/Validate-TestTracking.ps1  (markdown-standalone)
-  doc/process-framework/evaluation-reports/20260325-framework-evaluation-testing-setup-tasks-templates-scripts-guides-state.md:168
+  doc/process-framework/evaluation-reports/20260325-framework-evaluation-testing-setup-tasks-templates-scripts-guides-state.md:170
     -> test/test-registry.yaml  (markdown-standalone)
-  doc/process-framework/evaluation-reports/20260325-framework-evaluation-testing-setup-tasks-templates-scripts-guides-state.md:183
+  doc/process-framework/evaluation-reports/20260325-framework-evaluation-testing-setup-tasks-templates-scripts-guides-state.md:185
     -> test/test-registry.yaml  (markdown-standalone)
-  doc/process-framework/evaluation-reports/20260325-framework-evaluation-testing-setup-tasks-templates-scripts-guides-state.md:186
+  doc/process-framework/evaluation-reports/20260325-framework-evaluation-testing-setup-tasks-templates-scripts-guides-state.md:188
     -> test/test-registry.yaml  (markdown-standalone)
-  doc/process-framework/guides/01-planning/assessment-guide.md:21
-    -> ../../../../product-docs/documentation-tiers/config.json  (markdown-standalone)
+  doc/process-framework/feedback/feedback-forms/20260327-141811-PF-TSK-001-feedback.md:163
+    -> tasks/README.md  (markdown-standalone)
   doc/process-framework/guides/01-planning/assessment-guide.md:59
     -> .\New-TierAssessment.ps1  (markdown-standalone)
-  doc/process-framework/guides/02-design/tdd-creation-guide.md:591
-    -> ../../../product-docs/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/guides/03-testing/test-specification-creation-guide.md:370
     -> doc/product-docs/technical/design/tdd-feature.md  (markdown-quoted)
   doc/process-framework/guides/04-implementation/development-guide.md:22
@@ -55,252 +45,32 @@ Broken links:
     -> ../configuration.md  (markdown)
   doc/process-framework/guides/05-validation/documentation-guide.md:329
     -> ../../assets/architecture-overview.png  (markdown)
-  doc/process-framework/guides/05-validation/documentation-guide.md:424
-    -> relative/path/to/file.md  (markdown)
   doc/process-framework/guides/05-validation/documentation-guide.md:499
     -> ../related-doc.md  (markdown)
   doc/process-framework/guides/cyclical/debt-item-creation-guide.md:201
     -> lib/auth/  (markdown-quoted-dir)
-  doc/process-framework/guides/framework/feedback-form-completion-instructions.md:44
-    -> ../../feedback/README.md  (markdown)
-  doc/process-framework/guides/framework/terminology-guide.md:151
-    -> path/to/task.md  (markdown)
-  doc/process-framework/guides/framework/terminology-guide.md:152
-    -> path/to/guide.md  (markdown)
-  doc/process-framework/guides/framework/terminology-guide.md:153
-    -> path/to/api.md  (markdown)
-  doc/process-framework/guides/framework/terminology-guide.md:154
-    -> path/to/handbook.md  (markdown)
-  doc/process-framework/guides/framework/terminology-guide.md:155
-    -> path/to/guide.md  (markdown)
-  doc/process-framework/guides/support/script-development-quick-reference.md:223
-    -> ../../guides/related-guide.md  (markdown)
-  doc/process-framework/guides/support/script-development-quick-reference.md:224
-    -> ../../api/relevant-api.md  (markdown)
-  doc/process-framework/guides/support/task-creation-guide.md:521
-    -> ../../../tasks/config.json  (markdown-standalone)
-  doc/process-framework/guides/support/temp-state-tracking-customization-guide.md:15
-    -> /doc/process-framework/templates/guide-template.md  (markdown-standalone)
-  doc/process-framework/guides/support/visualization-creation-guide.md:110
-    -> path/to/file.md  (markdown)
-  doc/process-framework/guides/support/visualization-creation-guide.md:112
-    -> path/to/file.md  (markdown)
-  doc/process-framework/guides/support/visualization-creation-guide.md:114
-    -> path/to/file.md  (markdown)
-  doc/process-framework/infrastructure/process-framework-task-registry.md:73
-    -> ../../scripts/test/test_query.py  (markdown)
-  doc/process-framework/infrastructure/process-framework-task-registry.md:255
-    -> ../../product-docs/technical/architecture/component-relationship-index.md  (markdown)
-  doc/process-framework/infrastructure/process-framework-task-registry.md:347
-    -> ../state-tracking/permanent/architecture-context-packages.md  (markdown)
-  doc/process-framework/infrastructure/process-framework-task-registry.md:409
-    -> ../state-tracking/permanent/api-models-registry.md  (markdown)
-  doc/process-framework/infrastructure/process-framework-task-registry.md:579
-    -> ../architecture/context-packages/  (markdown)
-  doc/process-framework/infrastructure/process-framework-task-registry.md:887
-    -> ../assessments/technical-debt/  (markdown)
-  doc/process-framework/proposals/proposals/structure-change-marker-based-test-infrastructure-proposal.md:123
-    -> ../../automated/...  (markdown)
-  doc/process-framework/proposals/proposals/structure-change-marker-based-test-infrastructure-proposal.md:128
-    -> ../../automated/unit/test_service.py  (markdown)
-  doc/process-framework/state-tracking/permanent/process-improvement-tracking.md:164
+  doc/process-framework/state-tracking/permanent/process-improvement-tracking.md:425
     -> ../Common-ScriptHelpers.psm1  (markdown-standalone)
-  doc/process-framework/state-tracking/permanent/process-improvement-tracking.md:392
-    -> ../Common-ScriptHelpers.psm1  (markdown-standalone)
-  doc/process-framework/tasks/00-onboarding/codebase-feature-analysis.md:50
-    -> /test/test_query.py  (markdown)
-  doc/process-framework/tasks/00-onboarding/codebase-feature-analysis.md:101
+  doc/process-framework/tasks/00-setup/codebase-feature-analysis.md:101
     -> ./feature_id-feature-name-implementation-state.md  (markdown)
-  doc/process-framework/tasks/00-onboarding/codebase-feature-analysis.md:101
+  doc/process-framework/tasks/00-setup/codebase-feature-analysis.md:101
     -> ./0.1.2-data-models-implementation-state.md  (markdown)
-  doc/process-framework/tasks/00-onboarding/codebase-feature-analysis.md:183
-    -> /test/test_query.py  (markdown)
-  doc/process-framework/tasks/00-onboarding/codebase-feature-discovery.md:310
-    -> /test/test_query.py  (markdown)
-  doc/process-framework/tasks/00-onboarding/retrospective-documentation-creation.md:56
-    -> /test/test_query.py  (markdown)
-  doc/process-framework/tasks/01-planning/system-architecture-review.md:51
-    -> /doc/product-docs/technical/architecture/context-packages/  (markdown)
-  doc/process-framework/tasks/01-planning/system-architecture-review.md:52
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
-  doc/process-framework/tasks/01-planning/system-architecture-review.md:53
-    -> /doc/product-docs/technical/architecture/database-reference.md  (markdown)
   doc/process-framework/tasks/01-planning/system-architecture-review.md:54
-    -> /doc/product-docs/technical/architecture/project-structure.md  (markdown)
-  doc/process-framework/tasks/01-planning/system-architecture-review.md:58
     -> ../../../.ai-workspace/dependency-maps  (markdown)
-  doc/process-framework/tasks/01-planning/system-architecture-review.md:196
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
-  doc/process-framework/tasks/02-design/adr-creation-task.md:49
-    -> ../../../product-docs/technical/architecture/component-relationship-index.md  (markdown)
-  doc/process-framework/tasks/02-design/tdd-creation-task.md:91
-    -> /doc/product-docs/technical/architecture/quality-attributes.md  (markdown)
-  doc/process-framework/tasks/02-design/tdd-creation-task.md:100
-    -> /doc/product-docs/technical/architecture/project-structure.md  (markdown)
-  doc/process-framework/tasks/02-design/tdd-creation-task.md:102
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
-  doc/process-framework/tasks/02-design/tdd-creation-task.md:112
-    -> .../../scripts/file-creation/New-tdd.ps1  (markdown-standalone)
-  doc/process-framework/tasks/02-design/tdd-creation-task.md:204
-    -> .../../scripts/file-creation/New-tdd.ps1  (markdown-standalone)
-  doc/process-framework/tasks/02-design/tdd-creation-task.md:215
-    -> .../../scripts/file-creation/New-tdd.ps1  (markdown-standalone)
-  doc/process-framework/tasks/02-design/tdd-creation-task.md:240
-    -> .../../scripts/file-creation/New-tdd.ps1  (markdown-standalone)
-  doc/process-framework/tasks/02-design/tdd-creation-task.md:260
+  doc/process-framework/tasks/02-design/tdd-creation-task.md:257
     -> /doc/product-docs/technical/architecture/api-design-guidelines.md  (markdown)
-  doc/process-framework/tasks/03-testing/test-audit-task.md:56
-    -> /test/mocks/  (markdown)
-  doc/process-framework/tasks/03-testing/test-audit-task.md:57
-    -> /test/test_helpers/  (markdown)
-  doc/process-framework/tasks/03-testing/test-audit-task.md:59
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
-  doc/process-framework/tasks/03-testing/test-audit-task.md:62
-    -> /doc/product-docs/technical/architecture/project-structure.md  (markdown)
-  doc/process-framework/tasks/03-testing/test-implementation-task.md:52
-    -> /test/test_query.py  (markdown)
-  doc/process-framework/tasks/03-testing/test-implementation-task.md:57
-    -> /test/mocks/  (markdown)
-  doc/process-framework/tasks/03-testing/test-implementation-task.md:58
-    -> /test/test_helpers/  (markdown)
-  doc/process-framework/tasks/03-testing/test-implementation-task.md:60
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
-  doc/process-framework/tasks/03-testing/test-implementation-task.md:64
-    -> /doc/product-docs/technical/architecture/project-structure.md  (markdown)
-  doc/process-framework/tasks/03-testing/test-specification-creation-task.md:106
-    -> /test/mocks/  (markdown)
-  doc/process-framework/tasks/03-testing/test-specification-creation-task.md:107
-    -> /test/test_helpers/  (markdown)
-  doc/process-framework/tasks/03-testing/test-specification-creation-task.md:108
-    -> /doc/product-docs/technical/architecture/project-structure.md  (markdown)
-  doc/process-framework/tasks/04-implementation/data-layer-implementation.md:48
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
-  doc/process-framework/tasks/04-implementation/feature-implementation-planning-task.md:463
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
-  doc/process-framework/tasks/04-implementation/feature-implementation-planning-task.md:464
-    -> /doc/product-docs/technical/architecture/quality-attributes.md  (markdown)
-  doc/process-framework/tasks/04-implementation/implementation-finalization.md:36
-    -> ../../visualization/context-maps/04-implementation/implementation-finalization-map.md  (markdown)
-  doc/process-framework/tasks/04-implementation/integration-and-testing.md:54
-    -> /test/test_query.py  (markdown)
-  doc/process-framework/tasks/04-implementation/integration-and-testing.md:62
-    -> /test/mocks/  (markdown)
-  doc/process-framework/tasks/04-implementation/integration-and-testing.md:63
-    -> /test/test_helpers/  (markdown)
-  doc/process-framework/tasks/04-implementation/integration-and-testing.md:66
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
-  doc/process-framework/tasks/04-implementation/quality-validation.md:36
-    -> ../../visualization/context-maps/04-implementation/quality-validation-map.md  (markdown)
-  doc/process-framework/tasks/04-implementation/quality-validation.md:48
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
-  doc/process-framework/tasks/04-implementation/quality-validation.md:168
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
-  doc/process-framework/tasks/04-implementation/state-management-implementation.md:36
-    -> ../../visualization/context-maps/04-implementation/state-management-implementation-map.md  (markdown)
-  doc/process-framework/tasks/04-implementation/ui-implementation.md:36
-    -> ../../visualization/context-maps/04-implementation/ui-implementation-map.md  (markdown)
-  doc/process-framework/tasks/05-validation/accessibility-ux-compliance-validation.md:61
-    -> ..\scripts\file-creation\New-ValidationReport.ps1  (markdown-standalone)
-  doc/process-framework/tasks/05-validation/accessibility-ux-compliance-validation.md:143
-    -> ../../../product-docs/technical/architecture/component-relationship-index.md  (markdown)
-  doc/process-framework/tasks/05-validation/ai-agent-continuity-validation.md:108
-    -> doc/product-docs/validation/reports/ai-agent-continuity/PF-VAL-XXX-ai-agent-continuity-workflow-optimization.md  (markdown-standalone)
-  doc/process-framework/tasks/05-validation/architectural-consistency-validation.md:60
-    -> ..\scripts\file-creation\New-ValidationReport.ps1  (markdown-standalone)
-  doc/process-framework/tasks/05-validation/architectural-consistency-validation.md:142
-    -> ../../../product-docs/technical/architecture/design-patterns  (markdown)
-  doc/process-framework/tasks/05-validation/code-quality-standards-validation.md:62
-    -> ..\scripts\file-creation\New-ValidationReport.ps1  (markdown-standalone)
-  doc/process-framework/tasks/05-validation/data-integrity-validation.md:61
-    -> ..\scripts\file-creation\New-ValidationReport.ps1  (markdown-standalone)
-  doc/process-framework/tasks/05-validation/data-integrity-validation.md:144
-    -> ../../../product-docs/technical/architecture/component-relationship-index.md  (markdown)
-  doc/process-framework/tasks/05-validation/documentation-alignment-validation.md:64
-    -> ..\scripts\file-creation\New-ValidationReport.ps1  (markdown-standalone)
-  doc/process-framework/tasks/05-validation/extensibility-maintainability-validation.md:107
-    -> doc/product-docs/validation/reports/extensibility-maintainability/PF-VAL-XXX-extensibility-maintainability-cross-cutting.md  (markdown-standalone)
-  doc/process-framework/tasks/05-validation/integration-dependencies-validation.md:144
-    -> ../../../product-docs/technical/architecture/component-relationship-index.md  (markdown)
-  doc/process-framework/tasks/05-validation/observability-validation.md:61
-    -> ..\scripts\file-creation\New-ValidationReport.ps1  (markdown-standalone)
-  doc/process-framework/tasks/05-validation/observability-validation.md:144
-    -> ../../../product-docs/technical/architecture/component-relationship-index.md  (markdown)
-  doc/process-framework/tasks/05-validation/performance-scalability-validation.md:61
-    -> ..\scripts\file-creation\New-ValidationReport.ps1  (markdown-standalone)
-  doc/process-framework/tasks/05-validation/performance-scalability-validation.md:144
-    -> ../../../product-docs/technical/architecture/component-relationship-index.md  (markdown)
-  doc/process-framework/tasks/05-validation/security-data-protection-validation.md:61
-    -> ..\scripts\file-creation\New-ValidationReport.ps1  (markdown-standalone)
-  doc/process-framework/tasks/05-validation/security-data-protection-validation.md:143
-    -> ../../../product-docs/technical/architecture/component-relationship-index.md  (markdown)
-  doc/process-framework/tasks/support/framework-domain-adaptation.md:327
-    -> state-tracking/permanent/legal-document-tracking.md  (markdown-standalone)
-  doc/process-framework/tasks/support/framework-domain-adaptation.md:363
-    -> state-tracking/permanent/legal-document-tracking.md  (markdown-standalone)
-  doc/process-framework/templates/README.md:108
-    -> /doc/product-docs/technical/architecture/database-reference.md  (markdown-reference)
-  doc/process-framework/templates/README.md:109
-    -> /doc/product-docs/technical/architecture/project-structure.md  (markdown-standalone)
-  doc/process-framework/templates/README.md:175
-    -> /doc/process-framework/guides/documentation-template-identification.md  (markdown)
-  doc/process-framework/templates/02-design/api-reference-template.md:261
-    -> ../../api/related-api.md  (markdown)
-  doc/process-framework/templates/02-design/api-reference-template.md:262
-    -> ../../guides/integration-guide.md  (markdown)
-  doc/process-framework/templates/02-design/architecture-template.md:186
-    -> ../../architecture/related-component.md  (markdown)
-  doc/process-framework/templates/02-design/architecture-template.md:187
-    -> ../../api/related-api.md  (markdown)
-  doc/process-framework/templates/03-testing/e2e-acceptance-master-test-template.md:87
-    -> E2E-001-xxx/test-case.md  (markdown)
-  doc/process-framework/templates/03-testing/e2e-acceptance-master-test-template.md:88
-    -> E2E-002-xxx/test-case.md  (markdown)
-  doc/process-framework/templates/03-testing/e2e-acceptance-master-test-template.md:89
-    -> E2E-003-xxx/test-case.md  (markdown)
   doc/process-framework/templates/03-testing/e2e-acceptance-test-case-template.md:99
     -> project/docs/readme.md  (markdown-standalone)
-  doc/process-framework/templates/04-implementation/foundation-feature-template.md:131
-    -> ../../proposals/proposals/architectural-integration-framework-concept.md  (markdown)
-  doc/process-framework/templates/support/context-map-template.md:62
-    -> /path/to/documentation1.md  (markdown)
-  doc/process-framework/templates/support/context-map-template.md:63
-    -> /path/to/documentation2.md  (markdown)
   doc/process-framework/templates/support/documentation-template.md:180
     -> /doc/product-docs/technical/related-document.md  (markdown)
   doc/process-framework/templates/support/documentation-template.md:181
     -> /doc/product-docs/technical/api/api-reference.md  (markdown)
-  doc/process-framework/templates/support/faq-template.md:71
-    -> /doc/product-docs/path/to/document1.md  (markdown)
-  doc/process-framework/templates/support/faq-template.md:72
-    -> /doc/product-docs/path/to/document2.md  (markdown)
-  doc/process-framework/templates/support/guide-template.md:168
-    -> ../../guides/related-guide.md  (markdown)
-  doc/process-framework/templates/support/guide-template.md:169
-    -> ../../api/relevant-api.md  (markdown)
   doc/process-framework/templates/support/implementation-handbook-template.md:187
     -> /doc/product-docs/technical/design/related-design.md  (markdown)
   doc/process-framework/templates/support/implementation-handbook-template.md:188
     -> /doc/product-docs/technical/api/related-api.md  (markdown)
   doc/process-framework/templates/support/implementation-handbook-template.md:189
     -> /doc/product-docs/technical/architecture/adr/related-adr.md  (markdown)
-  doc/process-framework/templates/support/product-documentation-template.md:56
-    -> /doc/path/to/document1.md  (markdown)
-  doc/process-framework/templates/support/product-documentation-template.md:57
-    -> /doc/path/to/document2.md  (markdown)
-  doc/process-framework/templates/support/state-file-template.md:52
-    -> ../../tasks/task-1.md  (markdown)
-  doc/process-framework/templates/support/state-file-template.md:53
-    -> ../../tasks/task-2.md  (markdown)
-  doc/process-framework/templates/support/state-file-template.md:54
-    -> ../../tasks/task-3.md  (markdown)
-  doc/process-framework/templates/support/task-template.md:141
-    -> ../path/to/next-task-1.md  (markdown)
-  doc/process-framework/templates/support/task-template.md:142
-    -> ../path/to/next-task-2.md  (markdown)
-  doc/process-framework/templates/support/task-template.md:160
-    -> ../link-to-resource1.md  (markdown)
-  doc/process-framework/templates/support/task-template.md:161
-    -> ../link-to-resource2.md  (markdown)
   doc/process-framework/templates/support/temp-task-creation-state-template.md:55
     -> .\New-Task.ps1  (markdown-standalone)
   doc/process-framework/templates/support/temp-task-creation-state-template.md:105
@@ -308,253 +78,103 @@ Broken links:
   doc/process-framework/templates/support/temp-task-creation-state-template.md:113
     -> .\New-Guide.ps1  (markdown-standalone)
   doc/process-framework/templates/support/temp-task-creation-state-template.md:134
-    -> ..\scripts\file-creation\New-ContextMap.ps1  (markdown-standalone)
-  doc/process-framework/templates/support/user-handbook-template.md:30
-    -> /path/to/screenshot1.png  (markdown)
-  doc/process-framework/templates/support/user-handbook-template.md:38
-    -> /path/to/screenshot2.png  (markdown)
+    -> .\New-ContextMap.ps1  (markdown-standalone)
   doc/process-framework/templates/support/user-handbook-template.md:74
     -> /doc/product-docs/user/features/related-feature-1.md  (markdown)
   doc/process-framework/templates/support/user-handbook-template.md:75
     -> /doc/product-docs/user/features/related-feature-2.md  (markdown)
-  doc/process-framework/templates/support/user-handbook-template.md:89
-    -> /doc/product-docs/path/to/document1.md  (markdown)
-  doc/process-framework/templates/support/user-handbook-template.md:90
-    -> /doc/product-docs/path/to/document2.md  (markdown)
-  doc/process-framework/visualization/context-maps/README.md:84
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
-  doc/process-framework/visualization/context-maps/01-planning/feature-discovery-map.md:71
-    -> /doc/process-framework/templates/feature-discovery-template.md  (markdown)
-  doc/process-framework/visualization/context-maps/01-planning/feature-discovery-map.md:72
-    -> /doc/product-docs/user/needs-analysis/guide.md  (markdown)
-  doc/process-framework/visualization/context-maps/01-planning/feature-discovery-map.md:73
-    -> /doc/process-framework/templates/feature-specification-template.md  (markdown)
-  doc/process-framework/visualization/context-maps/01-planning/feature-discovery-map.md:74
-    -> /doc/product-docs/technical/features-catalog.md  (markdown)
-  doc/process-framework/visualization/context-maps/01-planning/feature-discovery-map.md:76
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
-  doc/process-framework/visualization/context-maps/01-planning/feature-tier-assessment-map.md:85
-    -> /doc/process-framework/templates/feature-specification-template.md  (markdown)
-  doc/process-framework/visualization/context-maps/01-planning/feature-tier-assessment-map.md:88
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
-  doc/process-framework/visualization/context-maps/01-planning/system-architecture-review-map.md:63
-    -> /path/to/documentation1.md  (markdown)
-  doc/process-framework/visualization/context-maps/01-planning/system-architecture-review-map.md:64
-    -> /path/to/documentation2.md  (markdown)
-  doc/process-framework/visualization/context-maps/01-planning/system-architecture-review-map.md:65
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
-  doc/process-framework/visualization/context-maps/02-design/adr-creation-map.md:75
-    -> ../../../../product-docs/technical/architecture/component-relationship-index.md  (markdown)
-  doc/process-framework/visualization/context-maps/02-design/api-design-task-map.md:101
-    -> ../../../state-tracking/permanent/api-models-registry.md  (markdown)
-  doc/process-framework/visualization/context-maps/02-design/api-design-task-map.md:104
-    -> ../../scripts/file-creation/New-APISpecification.ps1  (markdown-standalone)
-  doc/process-framework/visualization/context-maps/02-design/api-design-task-map.md:105
-    -> ../../scripts/file-creation/New-APIDataModel.ps1  (markdown-standalone)
-  doc/process-framework/visualization/context-maps/02-design/database-schema-design-task-map.md:80
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
-  doc/process-framework/visualization/context-maps/02-design/fdd-creation-map.md:65
-    -> ../../scripts/file-creation/New-FDD.ps1  (markdown-standalone)
-  doc/process-framework/visualization/context-maps/02-design/fdd-creation-map.md:75
-    -> ../../scripts/file-creation/New-FDD.ps1  (markdown-standalone)
-  doc/process-framework/visualization/context-maps/02-design/tdd-creation-map.md:69
-    -> /doc/product-docs/technical/architecture/project-structure.md  (markdown)
-  doc/process-framework/visualization/context-maps/02-design/tdd-creation-map.md:72
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
-  doc/process-framework/visualization/context-maps/02-design/ui-ux-design-task-map.md:100
-    -> ../../tasks/02-design/ui-ux-design-task.md  (markdown)
-  doc/process-framework/visualization/context-maps/02-design/ui-ux-design-task-map.md:101
-    -> ../../../../product-docs/technical/design/ui-ux/design-system/design-guidelines.md  (markdown)
   doc/process-framework/visualization/context-maps/03-testing/test-implementation-map.md:13
     -> visualization/context-maps/04-implementation/integration-and-testing-map.md  (markdown-standalone)
-  doc/process-framework/visualization/context-maps/04-implementation/core-logic-implementation-map.md:98
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
-  doc/process-framework/visualization/context-maps/04-implementation/data-layer-implementation-map.md:83
-    -> /doc/product-docs/technical/database/README.md  (markdown)
-  doc/process-framework/visualization/context-maps/04-implementation/data-layer-implementation-map.md:84
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
-  doc/process-framework/visualization/context-maps/04-implementation/feature-implementation-map.md:72
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
-  doc/process-framework/visualization/context-maps/05-validation/accessibility-ux-compliance-validation-map.md:81
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
-  doc/process-framework/visualization/context-maps/05-validation/ai-agent-continuity-validation-map.md:104
-    -> ../../scripts/file-creation/New-ValidationReport.ps1  (markdown-standalone)
-  doc/process-framework/visualization/context-maps/05-validation/architectural-consistency-validation-map.md:83
-    -> ../../../product-docs/technical/architecture/component-relationship-index.md  (markdown)
-  doc/process-framework/visualization/context-maps/05-validation/data-integrity-validation-map.md:81
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
-  doc/process-framework/visualization/context-maps/05-validation/documentation-alignment-validation-map.md:107
-    -> ../../scripts/file-creation/New-ValidationReport.ps1  (markdown-standalone)
-  doc/process-framework/visualization/context-maps/05-validation/extensibility-maintainability-validation-map.md:105
-    -> ../../scripts/file-creation/New-ValidationReport.ps1  (markdown-standalone)
-  doc/process-framework/visualization/context-maps/05-validation/integration-dependencies-validation-map.md:96
-    -> ../../scripts/file-creation/New-ValidationReport.ps1  (markdown-standalone)
-  doc/process-framework/visualization/context-maps/05-validation/integration-dependencies-validation-map.md:106
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
-  doc/process-framework/visualization/context-maps/05-validation/observability-validation-map.md:81
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
-  doc/process-framework/visualization/context-maps/05-validation/performance-scalability-validation-map.md:81
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
-  doc/process-framework/visualization/context-maps/05-validation/security-data-protection-validation-map.md:81
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
-  doc/process-framework/visualization/context-maps/05-validation/validation-preparation-map.md:79
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
-  doc/process-framework/visualization/context-maps/06-maintenance/bug-fixing-map.md:82
-    -> /doc/process-framework/templates/bug-report-template.md  (markdown)
-  doc/process-framework/visualization/context-maps/06-maintenance/bug-fixing-map.md:83
-    -> /doc/product-docs/development/guides/error-log-analysis.md  (markdown)
-  doc/process-framework/visualization/context-maps/06-maintenance/bug-fixing-map.md:84
-    -> /doc/product-docs/development/guides/debugging-guide.md  (markdown)
-  doc/process-framework/visualization/context-maps/06-maintenance/bug-fixing-map.md:85
-    -> /doc/product-docs/development/guides/unit-testing-guide.md  (markdown)
-  doc/process-framework/visualization/context-maps/06-maintenance/bug-fixing-map.md:87
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
-  doc/process-framework/visualization/context-maps/06-maintenance/code-refactoring-task-map.md:80
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
-  doc/process-framework/visualization/context-maps/06-maintenance/code-review-map.md:72
-    -> /doc/process-framework/templates/code-review-checklist.md  (markdown)
-  doc/process-framework/visualization/context-maps/06-maintenance/code-review-map.md:73
-    -> /doc/product-docs/development/guides/coding-standards.md  (markdown)
-  doc/process-framework/visualization/context-maps/06-maintenance/code-review-map.md:74
-    -> /doc/product-docs/development/guides/unit-testing-standards.md  (markdown)
-  doc/process-framework/visualization/context-maps/06-maintenance/code-review-map.md:76
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
-  doc/process-framework/visualization/context-maps/07-deployment/release-deployment-map.md:75
-    -> /doc/process-framework/templates/release-checklist.md  (markdown)
-  doc/process-framework/visualization/context-maps/07-deployment/release-deployment-map.md:76
-    -> /doc/process-framework/templates/release-notes-template.md  (markdown)
-  doc/process-framework/visualization/context-maps/07-deployment/release-deployment-map.md:77
-    -> /scripts/build_production.sh  (markdown)
-  doc/process-framework/visualization/context-maps/07-deployment/release-deployment-map.md:78
-    -> /scripts/deploy.sh  (markdown)
-  doc/process-framework/visualization/context-maps/07-deployment/release-deployment-map.md:79
-    -> /doc/product-docs/technical/deployment/environment-guide.md  (markdown)
-  doc/process-framework/visualization/context-maps/07-deployment/release-deployment-map.md:80
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
-  doc/process-framework/visualization/context-maps/cyclical/documentation-review-map.md:72
-    -> /doc/process-framework/templates/documentation-review-template.md  (markdown)
-  doc/process-framework/visualization/context-maps/cyclical/documentation-review-map.md:73
-    -> /doc/process-framework/guides/documentation-standards.md  (markdown)
-  doc/process-framework/visualization/context-maps/cyclical/documentation-review-map.md:74
-    -> /doc/product-docs/technical/documentation-structure.md  (markdown)
-  doc/process-framework/visualization/context-maps/cyclical/documentation-review-map.md:76
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
-  doc/process-framework/visualization/context-maps/cyclical/documentation-tier-adjustment-map.md:76
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
-  doc/process-framework/visualization/context-maps/support/process-improvement-map.md:72
-    -> /doc/process-framework/templates/improvement-proposal-template.md  (markdown)
-  doc/process-framework/visualization/context-maps/support/process-improvement-map.md:75
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
-  doc/process-framework/visualization/context-maps/support/structure-change-map.md:77
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
-  doc/process-framework/visualization/context-maps/support/structure-change-map.md:78
-    -> /doc/product-docs/development/guides/refactoring-guide.md  (markdown)
-  doc/process-framework/visualization/context-maps/support/structure-change-map.md:79
-    -> /doc/product-docs/development/guides/unit-testing-guide.md  (markdown)
-  doc/process-framework/visualization/context-maps/support/structure-change-map.md:80
-    -> /doc/product-docs/technical/build/build-configuration.md  (markdown)
-  doc/process-framework/visualization/context-maps/support/tools-review-map.md:72
-    -> /doc/process-framework/templates/tools-review-template.md  (markdown)
-  doc/process-framework/visualization/context-maps/support/tools-review-map.md:76
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
-  doc/product-docs/README.md:106
-    -> /doc/product-docs/path/to/document.md  (markdown)
-  doc/product-docs/ci-cd/ci-cd-documentation-maintenance.md:19
-    -> /workflows/ci.yml  (markdown-standalone)
-  doc/product-docs/ci-cd/ci-cd-documentation-maintenance.md:19
-    -> /workflows/cd.yml  (markdown-standalone)
-  doc/product-docs/ci-cd/ci-cd-documentation-maintenance.md:43
-    -> /product-docs/development/ci-cd/ci-cd-dependencies-flowchart.md  (markdown-standalone)
-  doc/product-docs/ci-cd/ci-cd-documentation-maintenance.md:45
-    -> /product-docs/development/ci-cd/environment-guide.md  (markdown-standalone)
-  doc/product-docs/documentation-tiers/README.md:101
-    -> /ART-ASS-001-1.1.1-email-password-registration.md  (markdown-standalone)
-  doc/product-docs/documentation-tiers/README.md:102
-    -> /ART-ASS-002-1.1.2-social-login-integration.md  (markdown-standalone)
   doc/product-docs/functional-design/fdds/fdd-0-1-2-in-memory-database.md:93
     -> src/docs/guide.md  (markdown-standalone)
   doc/product-docs/functional-design/fdds/fdd-3-1-1-logging-framework.md:96
     -> old/path.md  (markdown-standalone)
+  doc/product-docs/refactoring/plans/add-ai-context-sections-to-module-docstrings-for-session-resumption.md:24
+    -> parsers/__init__.py  (markdown-standalone)
+  doc/product-docs/refactoring/plans/add-ai-context-sections-to-module-docstrings-for-session-resumption.md:41
+    -> config/settings.py  (markdown-standalone)
+  doc/product-docs/refactoring/plans/add-ai-context-sections-to-module-docstrings-for-session-resumption.md:42
+    -> parsers/__init__.py  (markdown-standalone)
+  doc/product-docs/refactoring/plans/add-error-handling-to-timestamprotatingfilehandler-dorollover.md:23
+    -> os.rename/os.remove  (markdown-standalone)
+  doc/product-docs/refactoring/plans/extract-duplicated-quoted-path-regex-to-shared-parsers-patterns-py.md:8
+    -> parsers/patterns.py  (markdown-standalone)
+  doc/product-docs/refactoring/plans/extract-duplicated-quoted-path-regex-to-shared-parsers-patterns-py.md:14
+    -> parsers/patterns.py  (markdown-standalone)
   doc/product-docs/state-tracking/features/0.1.1-core-architecture-implementation-state.md:164
     -> test/automated/unit/test_models.py  (markdown-standalone)
   doc/product-docs/state-tracking/features/0.1.1-core-architecture-implementation-state.md:165
     -> test/automated/unit/test_utils.py  (markdown-standalone)
   doc/product-docs/state-tracking/features/0.1.1-core-architecture-implementation-state.md:242
     -> scripts/benchmark.py  (markdown-standalone)
-  doc/product-docs/state-tracking/features/0.1.3-configuration-system-implementation-state.md:116
+  doc/product-docs/state-tracking/features/0.1.3-configuration-system-implementation-state.md:124
     -> docs/configuration.md  (markdown-standalone)
-  doc/product-docs/state-tracking/features/0.1.3-configuration-system-implementation-state.md:122
+  doc/product-docs/state-tracking/features/0.1.3-configuration-system-implementation-state.md:130
     -> docs/configuration.md  (markdown-standalone)
-  doc/product-docs/state-tracking/features/1.1.1-file-system-monitoring-implementation-state.md:181
+  doc/product-docs/state-tracking/features/1.1.1-file-system-monitoring-implementation-state.md:182
     -> test/automated/unit/test_handler.py  (markdown-standalone)
   doc/product-docs/state-tracking/features/3.1.1-logging-system-implementation-state.md:127
     -> docs/LOGGING.md  (markdown-standalone)
   doc/product-docs/state-tracking/features/3.1.1-logging-system-implementation-state.md:134
     -> docs/LOGGING.md  (markdown-standalone)
-  doc/product-docs/state-tracking/permanent/bug-tracking.md:138
-    -> scripts/...  (markdown-quoted-dir)
-  doc/product-docs/state-tracking/permanent/bug-tracking.md:159
-    -> a/b/c/file.md  (markdown-standalone)
-  doc/product-docs/state-tracking/permanent/bug-tracking.md:179
-    -> app/utils.helpers  (markdown-standalone)
-  doc/product-docs/state-tracking/permanent/bug-tracking.md:180
-    -> settings/application.conf  (markdown-standalone)
-  doc/product-docs/state-tracking/permanent/technical-debt-tracking.md:76
+  doc/product-docs/state-tracking/permanent/technical-debt-tracking.md:84
     -> scripts/setup_cicd.py  (markdown-standalone)
-  doc/product-docs/state-tracking/permanent/technical-debt-tracking.md:83
+  doc/product-docs/state-tracking/permanent/technical-debt-tracking.md:91
     -> config-examples/advanced-logging-config.yaml  (markdown-standalone)
-  doc/product-docs/state-tracking/permanent/technical-debt-tracking.md:86
+  doc/product-docs/state-tracking/permanent/technical-debt-tracking.md:94
     -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-5-1-1-cicd-development-tooling-t2.md  (markdown-standalone)
-  doc/product-docs/state-tracking/permanent/technical-debt-tracking.md:93
+  doc/product-docs/state-tracking/permanent/technical-debt-tracking.md:107
+    -> config/settings.py  (markdown-standalone)
+  doc/product-docs/state-tracking/permanent/technical-debt-tracking.md:111
+    -> config/settings.py  (markdown-standalone)
+  doc/product-docs/state-tracking/permanent/technical-debt-tracking.md:118
+    -> parsers/patterns.py  (markdown-standalone)
+  doc/product-docs/state-tracking/permanent/technical-debt-tracking.md:161
     -> .github/workflows/ci.yml  (markdown-standalone)
-  doc/product-docs/state-tracking/permanent/technical-debt-tracking.md:95
+  doc/product-docs/state-tracking/permanent/technical-debt-tracking.md:163
     -> doc/product-docs/functional-design/fdds/fdd-5-1-1-cicd-development-tooling.md  (markdown-standalone)
-  doc/product-docs/state-tracking/permanent/technical-debt-tracking.md:157
+  doc/product-docs/state-tracking/permanent/technical-debt-tracking.md:227
     -> ../../refactoring/plans/your-plan-file.md  (markdown)
-  doc/product-docs/templates/templates/faq-template.md:71
-    -> /doc/product-docs/path/to/document1.md  (markdown)
-  doc/product-docs/templates/templates/faq-template.md:72
-    -> /doc/product-docs/path/to/document2.md  (markdown)
+  doc/product-docs/state-tracking/temporary/validation/validation-tracking-2.md:210
+    -> ]+\.[a-zA-Z0-9]+)[\  (markdown-quoted-dir)
+  doc/product-docs/state-tracking/temporary/validation/validation-tracking-2.md:374
+    -> fields/utils.py  (markdown-standalone)
   doc/product-docs/templates/templates/implementation-handbook-template.md:187
     -> /doc/product-docs/technical/design/related-design.md  (markdown)
   doc/product-docs/templates/templates/implementation-handbook-template.md:188
     -> /doc/product-docs/technical/api/related-api.md  (markdown)
   doc/product-docs/templates/templates/implementation-handbook-template.md:189
     -> /doc/product-docs/technical/architecture/adr/related-adr.md  (markdown)
-  doc/product-docs/templates/templates/product-documentation-template.md:56
-    -> /doc/path/to/document1.md  (markdown)
-  doc/product-docs/templates/templates/product-documentation-template.md:57
-    -> /doc/path/to/document2.md  (markdown)
-  doc/product-docs/templates/templates/user-handbook-template.md:30
-    -> /path/to/screenshot1.png  (markdown)
-  doc/product-docs/templates/templates/user-handbook-template.md:38
-    -> /path/to/screenshot2.png  (markdown)
-  doc/product-docs/templates/templates/user-handbook-template.md:89
-    -> path/to/document1.md  (markdown)
-  doc/product-docs/templates/templates/user-handbook-template.md:90
-    -> path/to/document2.md  (markdown)
   doc/product-docs/test-audits/README.md:42
     -> test/automated/unit/test_example.py  (markdown-quoted)
-  doc/product-docs/user/handbooks/quick-reference.md:87
+  doc/product-docs/user/handbooks/link-validation.md:113
+    -> LinkWatcher/.linkwatcher-ignore  (markdown-quoted-dir)
+  doc/product-docs/user/handbooks/quick-reference.md:88
     -> src/utils.py  (markdown)
-  doc/product-docs/user/handbooks/quick-reference.md:87
+  doc/product-docs/user/handbooks/quick-reference.md:88
     -> src/helpers/utils.py  (markdown)
-  doc/product-docs/user/handbooks/quick-reference.md:172
-    -> docs/api.md  (markdown)
   doc/product-docs/user/handbooks/quick-reference.md:173
+    -> docs/api.md  (markdown)
+  doc/product-docs/user/handbooks/quick-reference.md:174
     -> config/settings.yaml  (markdown)
-  doc/product-docs/validation/reports/ai-agent-continuity/PD-VAL-045-ai-agent-continuity-features-0.1.1-0.1.2-0.1.3-1.1.1-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md:318
-    -> logging.py/logging_config.py  (markdown-standalone)
   doc/product-docs/validation/reports/code-quality/PD-VAL-037-code-quality-features-0.1.1-0.1.2-0.1.3-1.1.1.md:218
     -> doc/product-docs/refactoring/plans/archive/remove-dual-print-logger-output-in-updater-py.md  (markdown-standalone)
-  doc/product-docs/validation/reports/code-quality/PD-VAL-038-code-quality-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md:46
-    -> .pre-commit-config.yaml  (markdown-standalone)
   doc/product-docs/validation/reports/code-quality/PD-VAL-038-code-quality-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md:215
     -> .github/workflows/ci.yml  (markdown-standalone)
-  doc/product-docs/validation/reports/code-quality/PD-VAL-038-code-quality-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md:215
-    -> .pre-commit-config.yaml  (markdown-standalone)
-  doc/product-docs/validation/reports/code-quality/PD-VAL-038-code-quality-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md:316
-    -> .pre-commit-config.yaml  (markdown-standalone)
+  doc/product-docs/validation/reports/code-quality/PD-VAL-048-code-quality-features-0.1.1-0.1.2-0.1.3-1.1.1.md:45
+    -> config/settings.py  (markdown-standalone)
+  doc/product-docs/validation/reports/code-quality/PD-VAL-048-code-quality-features-0.1.1-0.1.2-0.1.3-1.1.1.md:45
+    -> config/defaults.py  (markdown-standalone)
+  doc/product-docs/validation/reports/code-quality/PD-VAL-048-code-quality-features-0.1.1-0.1.2-0.1.3-1.1.1.md:45
+    -> config/__init__.py  (markdown-standalone)
+  doc/product-docs/validation/reports/code-quality/PD-VAL-048-code-quality-features-0.1.1-0.1.2-0.1.3-1.1.1.md:149
+    -> config/settings.py  (markdown-standalone)
+  doc/product-docs/validation/reports/code-quality/PD-VAL-048-code-quality-features-0.1.1-0.1.2-0.1.3-1.1.1.md:149
+    -> config/defaults.py  (markdown-standalone)
+  doc/product-docs/validation/reports/code-quality/PD-VAL-048-code-quality-features-0.1.1-0.1.2-0.1.3-1.1.1.md:149
+    -> config/__init__.py  (markdown-standalone)
+  doc/product-docs/validation/reports/code-quality/PD-VAL-060-code-quality-features-2.1.1-2.2.1-3.1.1-6.1.1.md:105
+    -> ]+\.[a-zA-Z0-9]+)[\  (markdown-quoted-dir)
   doc/product-docs/validation/reports/documentation-alignment/PD-VAL-042-documentation-alignment-features-0.1.1-0.1.2-0.1.3-1.1.1.md:29
     -> docs/README.md  (markdown-standalone)
   doc/product-docs/validation/reports/documentation-alignment/PD-VAL-042-documentation-alignment-features-0.1.1-0.1.2-0.1.3-1.1.1.md:163
@@ -565,18 +185,24 @@ Broken links:
     -> docs/README.md  (markdown-standalone)
   doc/product-docs/validation/reports/integration-dependencies/PD-VAL-041-integration-dependencies-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md:190
     -> Makefile/setup.py  (markdown-standalone)
+  doc/product-docs/validation/reports/integration-dependencies/PD-VAL-058-integration-dependencies-features-2.1.1-2.2.1-3.1.1-6.1.1.md:197
+    -> config/settings.py  (markdown-standalone)
   test/audits/README.md:42
     -> test/automated/unit/test_example.py  (markdown-quoted)
-  test/specifications/cross-cutting-specs/cross-cutting-spec-e2e-acceptance-testing-scenarios.md:184
-    -> /test/test-registry.yaml  (markdown)
-  test/specifications/feature-specs/test-spec-2-1-1-link-parsing-system.md:79
-    -> path/to/file.ext  (markdown-standalone)
+  test/audits/authentication/audit-report-1-1-1-test-comprehensive-file-monitoring.md:62
+    -> .css/.ts/.html  (markdown-standalone)
+  test/audits/authentication/audit-report-1-1-1-test-file-movement.md:137
+    -> ../assets/file.txt  (markdown-quoted)
+  test/audits/authentication/audit-report-1-1-1-test-file-movement.md:137
+    -> assets/file.txt  (markdown-quoted)
+  test/audits/authentication/audit-report-1-1-1-test-image-file-monitoring.md:83
+    -> parsers/generic.py  (markdown-standalone)
+  test/audits/authentication/audit-report-1-1-1-test-powershell-script-monitoring.md:83
+    -> parsers/powershell.py  (markdown-standalone)
   test/specifications/feature-specs/test-spec-2-2-1-link-updating.md:63
     -> ../old.txt  (markdown-standalone)
   test/specifications/feature-specs/test-spec-2-2-1-link-updating.md:63
     -> ../new.txt  (markdown-standalone)
   test/specifications/feature-specs/test-spec-2-2-1-link-updating.md:96
     -> core/helpers.py  (markdown-standalone)
-  test/specifications/feature-specs/test-spec-3-1-1-logging-system.md:123
-    -> docs/  (markdown-quoted-dir)
 ------------------------------------------------------------

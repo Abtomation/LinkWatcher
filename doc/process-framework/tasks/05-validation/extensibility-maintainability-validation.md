@@ -60,7 +60,7 @@ Systematically validates selected features for extensibility and maintainability
 
 > **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished! 🚨**
 >
-> **⚠️ MANDATORY: Use the ../../scripts/file-creation/05-validation/New-ValidationReport.ps1 script for generating validation reports.**
+> **⚠️ MANDATORY: Use the [..\..\scripts\file-creation\05-validation\New-ValidationReport.ps1](../../scripts/file-creation/05-validation/New-ValidationReport.ps1) script for generating validation reports.**
 >
 > **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
 >
@@ -84,7 +84,7 @@ Systematically validates selected features for extensibility and maintainability
    ```powershell
    # Navigate to validation directory and create extensibility maintainability report
    Set-Location "doc/product-docs/validation"
-    ..\scripts\file-creation\New-ValidationReport.ps1 -ValidationType "ExtensibilityMaintainability" -FeatureIds "cross-cutting" -SessionNumber 1
+    ..\..\scripts\file-creation\05-validation\New-ValidationReport.ps1 -ValidationType "ExtensibilityMaintainability" -FeatureIds "cross-cutting" -SessionNumber 1
    ```
 11. **Score Extensibility Criteria**: Apply 4-point scoring system (0-3) to each extensibility and maintainability criterion
 12. **Document Findings**: Record specific extensibility limitations, maintainability risks, and improvement recommendations

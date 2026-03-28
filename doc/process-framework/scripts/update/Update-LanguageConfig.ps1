@@ -13,7 +13,7 @@
     every existing language config file and the template simultaneously.
 
     Updates the following files:
-    - doc/process-framework/languages-config/*-config.json (all language configs)
+    - doc/process-framework/languages-config/{language}/{language}-config.json (all language configs)
     - doc/process-framework/templates/support/language-config-template.json (template)
 
 .PARAMETER Section
@@ -107,7 +107,7 @@ if (-not (Test-Path $templatePath)) {
 }
 
 # --- Get all language config files ---
-$configFiles = Get-ChildItem -Path $langConfigDir -Filter "*-config.json"
+$configFiles = Get-ChildItem -Path $langConfigDir -Filter "*-config.json" -Recurse
 
 # --- List mode ---
 if ($List) {

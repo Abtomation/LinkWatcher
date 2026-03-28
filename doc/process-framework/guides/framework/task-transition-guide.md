@@ -914,7 +914,7 @@ Bug Discovered → New-BugReport.ps1 Script → Bug Tracking Update → [Automat
 .\New-BugReport.ps1 -Title "Test framework timeout issues" -Description "Unit tests randomly timeout during CI/CD pipeline execution" -DiscoveredBy "Testing" -Severity "High" -Component "Test Framework" -Environment "CI/CD" -Evidence "Test audit findings: 15% of tests show intermittent timeouts"
 
 # From Code Review Task
-.\New-BugReport.ps1 -Title "SQL injection vulnerability in user input" -Description "User input not properly sanitized before database queries" -DiscoveredBy "Code Review" -Severity "Critical" -Component "User Authentication" -Environment "Development" -Evidence "Code review: src/auth/user_service.py:45-52"
+.\New-BugReport.ps1 -Title "SQL injection vulnerability in user input" -Description "User input not properly sanitized before database queries" -DiscoveredBy "CodeReview" -Severity "Critical" -Component "User Authentication" -Environment "Development" -Evidence "Code review: src/auth/user_service.py:45-52"
 
 # From Feature Implementation Task
 .\New-BugReport.ps1 -Title "Form validation fails on special characters" -Description "Registration form rejects valid email addresses with plus signs" -DiscoveredBy "Development" -Severity "Medium" -Component "User Registration" -Environment "Development" -Evidence "QA testing: emails like user+test@example.com rejected"
@@ -1122,7 +1122,7 @@ Retrospective Documentation Creation (PF-TSK-066)
 
 **Next Task Selection:**
 
-- **Always**: → [Codebase Feature Analysis (PF-TSK-065)](../../tasks/00-onboarding/codebase-feature-analysis.md)
+- **Always**: → [Codebase Feature Analysis (PF-TSK-065)](../../tasks/00-setup/codebase-feature-analysis.md)
 
 **Preparation for Next Task:**
 
@@ -1143,7 +1143,7 @@ Retrospective Documentation Creation (PF-TSK-066)
 
 **Next Task Selection:**
 
-- **Always**: → [Retrospective Documentation Creation (PF-TSK-066)](../../tasks/00-onboarding/retrospective-documentation-creation.md)
+- **Always**: → [Retrospective Documentation Creation (PF-TSK-066)](../../tasks/00-setup/retrospective-documentation-creation.md)
 
 **Preparation for Next Task:**
 
@@ -1697,7 +1697,9 @@ What type of architectural work was this ADR for?
 
 ```
 What was the review result?
-├─ Approved with no issues → Release & Deployment
+├─ Approved with no issues → Does feature change user-visible behavior?
+│  ├─ Yes, user docs needed → User Documentation Creation (PF-TSK-081)
+│  └─ No → Release & Deployment
 ├─ Minor issues identified → Address issues → Release & Deployment
 ├─ Major issues identified → Bug Fixing → Code Review (repeat)
 └─ Code quality issues identified → Code Refactoring → Code Review (repeat)
@@ -1709,6 +1711,29 @@ What was the review result?
 2. Update documentation if needed
 3. Ensure all quality gates are met
 4. Prepare release notes if proceeding to deployment
+
+### Transitioning FROM User Documentation Creation (PF-TSK-081)
+
+**Prerequisites for Transition:**
+
+- [ ] Handbook(s) created or updated via New-Handbook.ps1
+- [ ] Content customized and reviewed by human partner
+- [ ] Feature state file updated (User Documentation: Created)
+- [ ] README.md updated if applicable
+
+**Next Task Selection Decision:**
+
+```
+Documentation complete?
+├─ Yes → Release & Deployment
+└─ Needs revision → Revise handbook content → Re-review
+```
+
+**Preparation for Next Task:**
+
+1. Verify all user-facing behavior changes are documented
+2. Ensure handbook is linked from README.md documentation table if appropriate
+3. Proceed to Release & Deployment
 
 ### Transitioning FROM Code Refactoring
 

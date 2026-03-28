@@ -27,7 +27,7 @@ Guide for scaffolding CI/CD infrastructure in new or existing projects. Covers C
 ## Prerequisites
 
 - `project-config.json` exists with project name and language configured
-- Language config exists in `languages-config/{language}-config.json`
+- Language config exists in `languages-config/{language}/{language}-config.json`
 - Git repository initialized
 - Language-specific tools installed (e.g., `black`, `isort`, `flake8` for Python)
 
@@ -184,4 +184,3 @@ act -j test
 - [Test Infrastructure Guide](../03-testing/test-infrastructure-guide.md) — Test directory structure, tracking, and scaffolding (complementary to this guide)
 - [Release & Deployment Task](/doc/process-framework/tasks/07-deployment/release-deployment-task.md) — Release process using the CI/CD infrastructure
 - [Development Guide](../04-implementation/development-guide.md) — Development best practices
-

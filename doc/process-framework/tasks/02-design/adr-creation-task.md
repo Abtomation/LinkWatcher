@@ -2,9 +2,9 @@
 id: PF-TSK-028
 type: Process Framework
 category: Task Definition
-version: 1.1
+version: 1.2
 created: 2025-08-03
-updated: 2026-03-02
+updated: 2026-03-27
 task_type: Discrete
 ---
 
@@ -30,6 +30,11 @@ Create Architecture Decision Records (ADRs) to document significant architectura
 - When resolving architectural trade-offs or technical debates
 - As part of System Architecture Review tasks or Foundation Feature Implementation
 - When documenting decisions made during Feature Tier Assessment or TDD Creation
+- **Downstream triggers** (flagged by other tasks as follow-up):
+  - When [Architectural Consistency Validation](../05-validation/architectural-consistency-validation.md) identifies a missing ADR for a feature with significant undocumented decisions
+  - When [Core Logic Implementation](../04-implementation/core-logic-implementation.md) involves a non-obvious design choice or new pattern not covered by existing ADRs
+  - When [Bug Fixing](../06-maintenance/bug-fixing-task.md) changes architectural behavior or introduces a new pattern
+  - When [Code Refactoring (Standard Path)](../06-maintenance/code-refactoring-standard-path.md) changes design patterns, dependency strategies, or module boundaries
 
 ## Context Requirements
 
@@ -46,7 +51,6 @@ Create Architecture Decision Records (ADRs) to document significant architectura
   - [System Architecture Review](../01-planning/system-architecture-review.md) - For decisions arising from architectural reviews
   - [Foundation Feature Implementation](../04-implementation/foundation-feature-implementation-task.md) - For architectural decisions during foundation work
   - [Feature Tier Assessment](../01-planning/feature-tier-assessment-task.md) - For decisions identified during complexity assessment
-  <!-- [Component Relationship Index](../../../product-docs/technical/architecture/component-relationship-index.md) - Removed: file deleted -->
 
 - **Reference Only (Access When Needed):**
   - [Existing ADRs](../../../product-docs/technical/architecture/design-docs/adr/adr) - For consistency and reference

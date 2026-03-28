@@ -80,7 +80,5 @@ graph TD
 - [Feature Tracking](../../../../product-docs/state-tracking/permanent/feature-tracking.md) - Current status of features
 - Validation Tracking State File - Active validation tracking matrix (file location depends on validation round)
 - [Architecture Decision Records](../../../../product-docs/technical/architecture/design-docs/adr/adr) - Architectural standards and decisions
-<!-- [Component Relationship Index](../../../product-docs/technical/architecture/component-relationship-index.md) - Removed: file deleted -->
 
 ---
-

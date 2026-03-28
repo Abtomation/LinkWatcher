@@ -53,7 +53,7 @@
         "legacy-core-features": "doc/product-docs/test-audits/core-features",
         "default": "foundation"
       },
-      "nextAvailable": 13
+      "nextAvailable": 31
     },
     "TE-STA": {
       "description": "Test - State Tracking",
@@ -64,6 +64,19 @@
         "default": "main"
       },
       "nextAvailable": 3
+    },
+    "TE-TST": {
+      "description": "Test - Test Files",
+      "category": "Testing",
+      "type": "Test File",
+      "directories": {
+        "unit": "test/automated/unit",
+        "integration": "test/automated/integration",
+        "parsers": "test/automated/parsers",
+        "performance": "test/automated/performance",
+        "default": "unit"
+      },
+      "nextAvailable": 130
     }
   }
 }

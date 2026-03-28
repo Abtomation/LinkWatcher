@@ -69,11 +69,12 @@ retrospective: true
 ### Business Rules
 
 - **2.1.1-BR-1**: File extension matching is always case-insensitive (`.MD` is treated identically to `.md`)
-- **2.1.1-BR-2**: The dispatch dictionary maps extensions to pre-instantiated parser objects — parsers are created once at startup and reused across all calls (parsers must be stateless per-call)
+- **2.1.1-BR-2**: The dispatch dictionary maps extensions to pre-instantiated parser objects — parsers are created once at startup and reused across all calls (parsers must be stateless per-call). Registration is conditional on per-parser `enable_<format>_parser` configuration flags (see BR-7)
 - **2.1.1-BR-3**: If no specialized parser is registered for an extension, `GenericParser` is used as universal fallback — no file returns zero-result without at least a best-effort parse attempt
 - **2.1.1-BR-4**: The default registered parsers cover: `.md`/`.markdown` (Markdown), `.yaml`/`.yml` (YAML), `.json` (JSON), `.py` (Python), `.dart` (Dart), `.ps1`/`.psm1` (PowerShell)
 - **2.1.1-BR-5**: `add_parser()` and `remove_parser()` operate on the live registry — changes take effect immediately for subsequent `parse_file()` calls
 - **2.1.1-BR-6**: `GenericParser` cannot be removed via `remove_parser()` without explicitly re-registering an extension; it always handles all unregistered extensions
+- **2.1.1-BR-7**: `LinkWatcherConfig` provides 7 boolean `enable_<format>_parser` flags (one per parser: `enable_markdown_parser`, `enable_yaml_parser`, `enable_json_parser`, `enable_dart_parser`, `enable_python_parser`, `enable_powershell_parser`, `enable_generic_parser`), all defaulting to `True`. When a flag is `False`, the corresponding parser is not instantiated or registered at startup. If `enable_generic_parser` is `False`, unrecognized extensions return an empty list instead of a best-effort parse
 
 ### Acceptance Criteria
 
@@ -82,14 +83,14 @@ retrospective: true
 - **2.1.1-AC-3**: Given a `.py` file, `parse_file()` returns Python import path references
 - **2.1.1-AC-4**: Given a file with extension `.xyz` (unregistered), `parse_file()` returns whatever `GenericParser` extracts — not an empty list by default
 - **2.1.1-AC-5**: After `add_parser('.toml', custom_parser)`, calling `parse_file('pyproject.toml')` routes to `custom_parser`
-- **2.1.1-AC-5**: Given a `.ps1` file, `parse_file()` returns PowerShell file path references from comments (`#`, `<# #>`), string literals, `Join-Path` arguments, and `Import-Module` paths
+- **2.1.1-AC-5**: Given a `.ps1` file, `parse_file()` returns PowerShell file path references from comments (`#`, `<# #>`), quoted string literals (file and directory paths), and embedded markdown links
 - **2.1.1-AC-6**: `get_supported_extensions()` returns at minimum `['.md', '.markdown', '.yaml', '.yml', '.json', '.py', '.dart', '.ps1', '.psm1']`
 - **2.1.1-AC-7**: Performance timing is logged for every `parse_file()` call
 
 ### Error Conditions
 
 - **2.1.1-EC-1**: If the file cannot be read (permissions, missing), the delegated parser handles the error and returns an empty list — `parse_file()` does not raise
-- **2.1.1-EC-2**: If a parser raises an unexpected exception, it propagates to the caller (no silent swallowing at the framework level — exception handling is the caller's responsibility)
+- **2.1.1-EC-2**: If a parser raises an unexpected exception, the facade catches it, logs a warning (`file_parsing_failed`), and returns an empty list — consistent with EC-1's defensive behavior at the individual parser level
 
 ## Feature Boundaries
 

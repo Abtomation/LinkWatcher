@@ -51,7 +51,7 @@ $customFileName = "enhancement-$kebabName.md"
 
 # Build absolute template path
 $projectRoot = Get-ProjectRoot
-$processFrameworkDir = Join-Path $projectRoot "doc/product-docs"
+$processFrameworkDir = Join-Path $projectRoot "doc/process-framework"
 $templatePath = Join-Path -Path $processFrameworkDir -ChildPath "templates\04-implementation\enhancement-state-tracking-template-template.md"
 
 try {

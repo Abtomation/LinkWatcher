@@ -10,6 +10,7 @@ from typing import List
 
 from ..models import LinkReference
 from .base import BaseParser
+from .patterns import QUOTED_PATH_PATTERN
 
 
 class DartParser(BaseParser):
@@ -23,9 +24,7 @@ class DartParser(BaseParser):
         # Pattern for part statements
         self.part_pattern = re.compile(r"part\s+['\"]([^'\"]+)['\"]")
 
-        # Pattern for quoted file paths (excluding package imports)
-        # Use permissive match inside quotes — _looks_like_file_path() validates later
-        self.quoted_pattern = re.compile(r'[\'"]([^\'"]+\.[a-zA-Z0-9]+)[\'"]')
+        self.quoted_pattern = QUOTED_PATH_PATTERN
 
         # Pattern for file paths within strings (not necessarily the entire string)
         self.embedded_pattern = re.compile(r"([a-zA-Z0-9_\-./\\]+\.[a-zA-Z0-9]+)")
@@ -146,7 +145,10 @@ class DartParser(BaseParser):
         file_path: str,
         references: List[LinkReference],
     ) -> List[LinkReference]:
-        """Extract embedded file path references from a line, deduplicating against existing refs."""
+        """Extract embedded file path references from a line.
+
+        Deduplicates against existing refs.
+        """
         results = []
         for match in self.embedded_pattern.finditer(line):
             potential_file = match.group(1)

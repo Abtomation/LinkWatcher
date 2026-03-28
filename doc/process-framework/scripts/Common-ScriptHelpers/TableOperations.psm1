@@ -539,7 +539,7 @@ function Move-MarkdownTableRow {
     for ($i = $sourceHeaderIdx + 1; $i -lt $lines.Count; $i++) {
         # Stop at section boundaries
         if ($lines[$i] -match '^## ' -or ($SectionEndPattern -and $lines[$i] -match $SectionEndPattern)) { break }
-        if ($lines[$i] -match '^\|[-\s:]+\|$') { continue }  # skip separator
+        if ($lines[$i] -match '^\|[-\s:|]+$') { continue }  # skip separator
         if ($lines[$i] -match "^\|.*$RowIdPattern.*\|") {
             $rowIndex = $i
             $sourceRowText = $lines[$i]
@@ -621,7 +621,7 @@ function Move-MarkdownTableRow {
         for ($i = $destStartIdx + 1; $i -lt $lines.Count; $i++) {
             if ($lines[$i] -match '^## ' -and $i -ne $destStartIdx) { break }
             if ($SectionEndPattern -and $lines[$i] -match $SectionEndPattern) { break }
-            if ($lines[$i] -match '^\|[-\s:]+\|$') {
+            if ($lines[$i] -match '^\|[-\s:|]+$') {
                 $insertAfterIdx = $i
                 break
             }

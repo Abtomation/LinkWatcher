@@ -198,7 +198,7 @@ Project-specific settings — test directory, language, quick categories:
 }
 ```
 
-### Language Configuration (`languages-config/{language}-config.json`)
+### Language Configuration (`languages-config/{language}/{language}-config.json`)
 
 Language-specific commands — test runner, coverage, lint:
 
@@ -251,79 +251,81 @@ pwsh.exe -ExecutionPolicy Bypass -Command '& doc/process-framework/scripts/test/
 
 ## Setting Up Test Infrastructure for a New Project
 
-Use this section when adopting the process framework into an existing project or scaffolding tests for a new one. This is typically done during Project Initiation (PF-TSK-063) or the onboarding workflow (PF-TSK-064 → PF-TSK-066).
+Use this section when adopting the process framework into an existing project or scaffolding tests for a new one. This is typically done during Project Initiation (PF-TSK-059) or the setup workflow (PF-TSK-064 → PF-TSK-066).
 
-### 1. Create test directory structure
+### Automated Setup (Recommended)
 
-Create subdirectories matching your test categories in `project-config.json`:
-
-```bash
-mkdir -p test/automated/unit
-mkdir -p test/automated/integration
-mkdir -p test/automated/performance   # optional
-mkdir -p test/specifications/feature-specs
-mkdir -p test/e2e-acceptance-testing/templates
-```
-
-**Expected Result:** Subdirectories exist and `Run-Tests.ps1 -ListCategories` shows them.
-
-### 2. Configure project and language settings
-
-Ensure `project-config.json` has the testing section:
-
-```json
-{
-  "testing": {
-    "testDirectory": "test/automated",
-    "quickCategories": ["unit"],
-    "language": "<your-language>"
-  }
-}
-```
-
-Ensure a language config exists in `languages-config/{language}-config.json`. If not, create one from the [Language Config Template](/doc/process-framework/templates/support/language-config-template.json) — see the [Language Configurations README](/doc/process-framework/languages-config/README.md) for details.
-
-### 3. Create test runner configuration
-
-Each language has a native config file that the test runner reads directly. Create the appropriate config for your language:
-
-| Language | Native Config | Framework Config | Runner Setup |
-|----------|--------------|-----------------|--------------|
-| Python | `pytest.ini` or `pyproject.toml` | `python-config.json` | `pip install pytest pytest-cov` |
-| Dart | `dart_test.yaml` | `dart-config.json` | Included with Flutter SDK |
-| JavaScript | `jest.config.js` | `javascript-config.json` | `npm install --save-dev jest` |
-
-Consult your language config's `testing.baseCommand` and `testing.discoveryCommand` fields for the expected runner and discovery commands.
-
-**Expected Result:** Your language's test discovery command finds tests from the configured directory.
-
-### 4. Create shared test fixtures / setup
-
-Create a shared setup file appropriate for your language (e.g., `conftest.py` for Python, `jest.setup.js` for JavaScript). Register it in your language config's `testSetup.configFiles` array.
-
-**Expected Result:** Your language's fixture/setup discovery command shows the shared fixtures.
-
-### 5. Initialize framework tracking
-
-Ensure test files have pytest markers for framework tracking. Use `New-TestFile.ps1` which writes markers automatically:
+Run the bootstrapping script to create the entire test infrastructure:
 
 ```powershell
-# Via New-TestFile.ps1 (preferred — auto-writes markers + updates tracking)
-# Or manually via TestTracking.psm1:
-Add-PytestMarkers -TestFilePath "test/automated/unit/test_example.py" `
-  -FeatureId "X.Y.Z" -TestType "Unit" -Priority "Standard"
+cd doc/process-framework/scripts/file-creation/00-setup
+.\New-TestInfrastructure.ps1 -Language "<your-language>"
 ```
 
-**Expected Result:** `Validate-TestTracking.ps1` passes with 0 errors.
+**What it creates:**
+- `test/automated/{categories}/` — from `project-config.json` `quickCategories` + defaults
+- `test/specifications/feature-specs/` and `cross-cutting-specs/`
+- `test/e2e-acceptance-testing/templates/`, `workspace/`, `results/`
+- `test/audits/`
+- `test/state-tracking/permanent/test-tracking.md` and `e2e-test-tracking.md`
+- `test/TE-id-registry.json`
+- Shared fixture file (e.g., `conftest.py` for Python) from language config
+- Package markers (e.g., `__init__.py` for Python) where needed
+- `.gitignore` for E2E workspace/results directories
 
-### 6. Verify the setup
+**Prerequisites:**
+- `project-config.json` must exist with testing section configured
+- `languages-config/{language}/{language}-config.json` must exist — see [Language Configurations README](/doc/process-framework/languages-config/README.md)
 
-```powershell
-Run-Tests.ps1 -ListCategories      # Categories discovered
-Run-Tests.ps1 -Quick                # Quick tests pass
-Run-Tests.ps1 -All -Coverage        # Full run with coverage
-Validate-TestTracking.ps1           # Framework tracking consistent
+**Options:**
+- `-TestCategories @("unit", "api", "integration")` — override default categories
+- `-ProjectName "MyProject"` — override project name from config
+- `-WhatIf` — preview without making changes
+
+The script is **idempotent** — safe to re-run; it skips existing files and directories.
+
+### After Running the Script
+
+1. **Create native test runner config** for your language:
+
+   | Language | Native Config | Runner Setup |
+   |----------|--------------|--------------|
+   | Python | `pytest.ini` or `pyproject.toml` | `pip install pytest pytest-cov` |
+   | Dart | `dart_test.yaml` | Included with Flutter SDK |
+   | JavaScript | `jest.config.js` | `npm install --save-dev jest` |
+
+2. **Install test dependencies** for your language's test runner.
+
+3. **Verify the setup:**
+
+   ```powershell
+   Run-Tests.ps1 -ListCategories      # Categories discovered
+   Run-Tests.ps1 -Quick                # Quick tests pass
+   Validate-TestTracking.ps1           # Framework tracking consistent
+   ```
+
+### Manual Setup (Alternative)
+
+If you prefer manual setup or need to customize individual steps, ensure the following structure exists:
+
 ```
+test/
+├── automated/{categories}/     # From project-config.json quickCategories
+├── specifications/
+│   ├── feature-specs/
+│   └── cross-cutting-specs/
+├── e2e-acceptance-testing/
+│   ├── templates/
+│   ├── workspace/              # gitignored
+│   └── results/                # gitignored
+├── audits/
+├── state-tracking/permanent/
+│   ├── test-tracking.md
+│   └── e2e-test-tracking.md
+└── TE-id-registry.json
+```
+
+Create shared fixture files and package markers appropriate for your language, register them in `testSetup.configFiles` in your language config.
 
 ## Related Resources
 

@@ -2,8 +2,8 @@
 PowerShell file parser for extracting file references.
 
 This parser handles PowerShell files (.ps1, .psm1) and extracts file
-references from line comments (#), block comments (<# #>), string
-literals, Join-Path arguments, and Import-Module paths.
+references from line comments (#), block comments (<# #>), quoted
+string literals (file and directory paths), and embedded markdown links.
 """
 
 import re
@@ -11,6 +11,7 @@ from typing import List
 
 from ..models import LinkReference
 from .base import BaseParser
+from .patterns import QUOTED_DIR_PATTERN_STRICT, QUOTED_PATH_PATTERN
 
 
 class PowerShellParser(BaseParser):
@@ -18,11 +19,9 @@ class PowerShellParser(BaseParser):
 
     def __init__(self):
         super().__init__()
-        # Pattern for file paths in quoted strings (double or single)
-        self.quoted_pattern = re.compile(r'[\'"]([^\'"]+\.[a-zA-Z0-9]+)[\'"]')
-
-        # Pattern for directory paths in quoted strings (paths with separators, no extension)
-        self.quoted_dir_pattern = re.compile(r'[\'"]([^\'"]*[/\\][^\'"]+)[\'"]')
+        self.quoted_pattern = QUOTED_PATH_PATTERN
+        # Strict variant: requires content after last separator
+        self.quoted_dir_pattern = QUOTED_DIR_PATTERN_STRICT
 
         # Pattern for markdown-style links embedded in quoted strings: [text](path)
         self.embedded_md_link_pattern = re.compile(r"\]\(([^)]+[/\\][^)]*)\)")

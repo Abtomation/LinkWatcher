@@ -76,6 +76,5 @@ graph TD
 - [Feature Validation Guide](../../../guides/05-validation/feature-validation-guide.md) - Guide with Dimension Catalog
 - [Feature Tracking](../../../../product-docs/state-tracking/permanent/feature-tracking.md) - Current status of features
 - [Validation Tracking Template](../../../templates/05-validation/validation-tracking-template.md) - Template for tracking matrices
-<!-- [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Removed: file deleted -->
 
 ---

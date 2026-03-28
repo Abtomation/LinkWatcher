@@ -8,7 +8,7 @@
 
 .DESCRIPTION
     This PowerShell script generates Feature Implementation State tracking files by:
-    - Generating a unique feature ID (PF-FEA-XXX) automatically
+    - Generating a unique feature ID (PD-FIS-XXX) automatically
     - Creating a permanent living document for tracking feature implementation
     - Automatically populating metadata (feature ID, name, status)
     - Updating the ID tracker in the central ID registry
@@ -135,7 +135,7 @@ try {
     # Use FileNamePattern to preserve dots in feature ID (ConvertTo-KebabCase would replace dots with hyphens)
     $documentId = New-StandardProjectDocument `
         -TemplatePath $templatePath `
-        -IdPrefix "PF-FEA" `
+        -IdPrefix "PD-FIS" `
         -IdDescription "$FeatureName feature implementation state" `
         -DocumentName $docName `
         -DirectoryType "features" `

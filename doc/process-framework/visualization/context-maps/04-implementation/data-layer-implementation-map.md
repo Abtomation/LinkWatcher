@@ -80,7 +80,5 @@ graph TD
 - [Data Layer Implementation Task](../../../tasks/04-implementation/data-layer-implementation.md) - Complete task definition with process steps
 - [Feature Implementation State Template](../../../templates/04-implementation/feature-implementation-state-template.md) - Template for tracking implementation progress
 - [TDD Creation Guide](/doc/process-framework/guides/02-design/tdd-creation-guide.md) - Understanding technical design documents
-<!-- - [Database Schema Design Guide](/doc/product-docs/technical/database/README.md) - Database design documentation standards (file not found) -->
-<!-- [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Removed: file deleted -->
 
 ---

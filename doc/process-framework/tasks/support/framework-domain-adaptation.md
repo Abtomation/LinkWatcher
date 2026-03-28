@@ -324,7 +324,7 @@ The following state files must be updated as part of this task:
 - Legal Framework Cleanup State <!-- Removed: file deleted --> - Track review status and decisions for each document
 - [Documentation Map](../../documentation-map.md) - Update continuously as structure changes
 - [PF ID Registry](../../PF-id-registry.json) - Add new ID prefixes for legal document types
-- Legal Document Tracking <!-- To be created at: state-tracking/permanent/legal-document-tracking.md --> - Create to replace feature-tracking.md
+- Legal Document Tracking (to be created) - Create to replace feature-tracking.md
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
@@ -360,7 +360,7 @@ Before considering this task finished:
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
   - [ ] Legal Framework Cleanup State <!-- Removed: file deleted --> - All documents marked as Approved
   - [ ] [Documentation Map](../../documentation-map.md) - Reflects final structure
-  - [ ] Legal Document Tracking <!-- To be created at: state-tracking/permanent/legal-document-tracking.md --> - Created and functional
+  - [ ] Legal Document Tracking (to be created) - Created and functional
 
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-080" and context "Framework Domain Adaptation"
 

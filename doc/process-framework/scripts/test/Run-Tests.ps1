@@ -4,7 +4,7 @@
 
 .DESCRIPTION
     Reads project-config.json for project-specific settings (test directory, module name, quick categories)
-    and languages-config/{language}-config.json for language-specific commands (test runner, coverage, lint).
+    and languages-config/{language}/{language}-config.json for language-specific commands (test runner, coverage, lint).
 
     Test categories are discovered dynamically by scanning subdirectories of the test directory.
     Use -ListCategories to see available categories.
@@ -55,7 +55,7 @@
     .\Run-Tests.ps1 -Category unit -UpdateTracking
 
 .NOTES
-    Config: project-config.json (project settings) + languages-config/{language}-config.json (commands).
+    Config: project-config.json (project settings) + languages-config/{language}/{language}-config.json (commands).
     Categories are auto-discovered from test directory subdirectories.
 #>
 
@@ -100,7 +100,7 @@ if (-not $language) {
 }
 
 # --- Load language config ---
-$langConfigPath = Join-Path $projectRoot "doc/process-framework/languages-config/$language-config.json"
+$langConfigPath = Join-Path $projectRoot "doc/process-framework/languages-config/$language/$language-config.json"
 if (-not (Test-Path $langConfigPath)) {
     Write-Error "Language config not found: $langConfigPath. Create it or check testing.language in project-config.json."
     exit 1

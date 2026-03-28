@@ -84,23 +84,22 @@ Identify and document potential new features through user research, competitive 
 
 ### Finalization
 
-13. Add new features to the Feature Tracking document with:
-    - Detailed descriptions in the "Notes" column to capture reasoning and context
-    - Appropriate categorization and feature ID
-    - Initial status (⬜ Not Started)
-    - Priority assessment (P1-P5)
-    - Dependencies (if identified)
+13. Add discovered features to [Feature Request Tracking](../../../product-docs/state-tracking/permanent/feature-request-tracking.md) using [`New-FeatureRequest.ps1`](../../scripts/file-creation/01-planning/New-FeatureRequest.ps1):
+    ```powershell
+    cd doc/process-framework/scripts/file-creation/01-planning
+    .\New-FeatureRequest.ps1 -Source "Feature Discovery YYYY-MM-DD" -Description "Feature description" -Priority "HIGH|MEDIUM|LOW" -Notes "User benefit, context, dependencies"
+    ```
+    Each discovered feature becomes a separate request in feature-request-tracking.md, to be classified by [Feature Request Evaluation](feature-request-evaluation.md) (new feature vs. enhancement to existing feature).
 14. Document any technical explorations needed for complex features in the Technical Debt Tracking document
 15. **🚨 MANDATORY FINAL STEP**: Complete the Task Completion Checklist below
 
 ## Outputs
 
-- **Updated Feature Tracking** - New features added to [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) with:
-  - Clear descriptions and justifications in the "Notes" column
-  - Appropriate categories and initial status
+- **Feature Requests** - Discovered features added to [Feature Request Tracking](../../../product-docs/state-tracking/permanent/feature-request-tracking.md) with:
+  - Clear descriptions and justifications in the Notes column
   - Priority assessment
-  - Dependencies (if identified)
-  - User benefit information
+  - Dependencies and user benefit information in Notes
+  - Each request awaits classification by [Feature Request Evaluation](feature-request-evaluation.md)
 - **User Workflow Map** - [User Workflow Map](/doc/product-docs/technical/design/user-workflow-map.md) created or updated with user-facing workflows mapped to features
 - **Technical Exploration Items** - Any identified items requiring technical investigation before implementation added to [Technical Debt Tracking](../../../product-docs/state-tracking/permanent/technical-debt-tracking.md)
 
@@ -108,14 +107,7 @@ Identify and document potential new features through user research, competitive 
 
 The following state files must be updated as part of this task:
 
-- [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) - Update with:
-  - New feature entries with appropriate IDs
-  - Initial status (⬜ Not Started)
-  - Priority assessment (P1-P5)
-  - Comprehensive descriptions and context in the "Notes" column
-  - Categorical grouping
-  - Dependencies (if known)
-  - User benefit information
+- [Feature Request Tracking](../../../product-docs/state-tracking/permanent/feature-request-tracking.md) - Add discovered features as new requests with status "Submitted"
 - [Technical Debt Tracking](../../../product-docs/state-tracking/permanent/technical-debt-tracking.md) - Update with:
   - Any technical explorations needed before implementation
   - Open questions that require investigation
@@ -127,20 +119,19 @@ The following state files must be updated as part of this task:
 Before considering this task finished:
 
 - [ ] **Verify Outputs**: Confirm all required outputs have been produced
-  - [ ] New features added to Feature Tracking document with comprehensive descriptions
+  - [ ] Discovered features added to Feature Request Tracking with comprehensive descriptions
   - [ ] User benefits and justifications captured in the Notes column
   - [ ] Technical exploration items documented in Technical Debt Tracking (if applicable)
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
-  - [ ] Feature tracking document updated with new features
-  - [ ] Features properly categorized and given appropriate IDs
-  - [ ] Initial priorities assigned to all new features
-  - [ ] Dependencies identified and documented
+  - [ ] Feature Request Tracking updated with discovered features (status: Submitted)
+  - [ ] Initial priorities assigned to all new requests
+  - [ ] Dependencies identified and documented in Notes
   - [ ] Technical Debt Tracking updated with any required explorations
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-013" and context "Feature Discovery"
 
 ## Next Tasks
 
-- [**Feature Tier Assessment**](feature-tier-assessment-task.md) - Assess the complexity of newly discovered features
+- [**Feature Request Evaluation**](feature-request-evaluation.md) - Classify discovered features as new features or enhancements, then route to correct workflow
 
 ## Related Resources
 

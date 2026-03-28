@@ -131,7 +131,7 @@ When a candidate is demoted from "feature" to "sub-component" during consolidati
 
 ## Related Resources
 
-- [Codebase Feature Discovery](../../tasks/00-onboarding/codebase-feature-discovery.md) - Uses this guide during onboarding
+- [Codebase Feature Discovery](../../tasks/00-setup/codebase-feature-discovery.md) - Uses this guide during onboarding
 - [Feature Discovery](../../tasks/01-planning/feature-discovery-task.md) - Uses this guide when identifying new features
 - [Feature Request Evaluation](../../tasks/01-planning/feature-request-evaluation.md) - Uses this guide when classifying change requests
 - [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) - Where features are recorded

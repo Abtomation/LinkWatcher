@@ -45,7 +45,6 @@ Implement data models, repositories, and database integration for feature
   - **Existing Repository Patterns** - Review similar repositories in the source directory for consistency
   - **Existing Data Models** - Review similar models in the source directory for patterns
   - **Database Client Configuration** - Review database connection configuration for connection patterns
-  <!-- [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Removed: file deleted -->
 
 - **Reference Only (Access When Needed):**
   - **Database Documentation** - For understanding database client API patterns

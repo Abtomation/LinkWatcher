@@ -78,7 +78,7 @@ retrospective: true
 - **0.1.2-BR-2**: Path lookups use three-level resolution: (1) exact match, (2) anchor-stripped match (for `file.md#section` links), (3) relative-to-absolute path resolution
 - **0.1.2-BR-3**: The database is in-memory only — all data is lost on service restart, requiring a fresh initial scan to rebuild the database
 - **0.1.2-BR-4**: Each target path maps to a list of `LinkReference` instances — multiple files can reference the same target, and each reference is tracked separately
-- **0.1.2-BR-5**: Path normalization uses the database's own `_normalize_path()` method (independent of `linkwatcher/utils.py`) to ensure consistent key comparison
+- **0.1.2-BR-5**: Path normalization uses `normalize_path()` imported from `linkwatcher/utils.py` (shared with other modules via 0.1.1 Core Architecture) to ensure consistent key comparison
 
 ## User Experience Flow
 
@@ -130,7 +130,7 @@ retrospective: true
 ### Technical Dependencies
 
 - **threading** (stdlib): `threading.Lock()` for thread-safe access
-- **pathlib** (stdlib): `Path` for path normalization in `_normalize_path()`
+- **linkwatcher.utils** (internal): `normalize_path()` for consistent path key comparison (shared utility from 0.1.1 Core Architecture)
 - **typing** (stdlib): `Dict`, `List`, `Optional` for type hints
 - **Python** (>=3.8): Runtime environment with dictionary ordering guarantees
 

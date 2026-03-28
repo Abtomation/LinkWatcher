@@ -3,9 +3,9 @@ id: PF-TSK-030
 type: Process Framework
 category: Task Definition
 domain: agnostic
-version: 1.5
+version: 1.6
 created: 2025-08-07
-updated: 2026-03-17
+updated: 2026-03-27
 task_type: Discrete
 ---
 
@@ -53,13 +53,9 @@ Comprehensive quality assurance task that evaluates implemented test suites agai
 
   - [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) - Feature development status and context
   - [Existing Test Structure](/test/) - Current test organization and patterns for consistency evaluation
-  <!-- - [Mock Services](/test/mocks/) - Directory does not exist in this project -->
-  <!-- - [Test Helpers](/test/test_helpers/) - Directory does not exist in this project -->
   - [Development Guide](/doc/process-framework/guides/04-implementation/development-guide.md) - Testing standards and practices
-  <!-- [Component Relationship Index](/doc/product-docs/technical/architecture/component-relationship-index.md) - Removed: file deleted -->
 
 - **Reference Only (Access When Needed):**
-  <!-- - [Project Structure](/doc/product-docs/technical/architecture/project-structure.md) - Removed: file deleted -->
   - [Visual Notation Guide](/doc/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 ## Process
@@ -118,6 +114,9 @@ Comprehensive quality assurance task that evaluates implemented test suites agai
    # Create audit report using automation script
    ../../scripts/file-creation/03-testing/New-TestAuditReport.ps1 -FeatureId "X.X.X" -TestFilePath "test/automated/unit/test_example.py" -AuditorName "AI Agent"
 
+   # For Tests Approved outcomes where ALL six criteria pass with no findings:
+   ../../scripts/file-creation/03-testing/New-TestAuditReport.ps1 -FeatureId "X.X.X" -TestFilePath "test/automated/unit/test_example.py" -AuditorName "AI Agent" -Lightweight
+
    # Script automatically:
    # - Generates unique TE-TAR ID (format: TE-TAR-XXX)
    # - Creates audit report from template in appropriate feature category directory
@@ -162,7 +161,7 @@ Comprehensive quality assurance task that evaluates implemented test suites agai
    Set-Location "<project-root>/doc/process-framework/scripts/file-creation"
 
    # Create bug report for issues found during test audit
-   .\New-BugReport.ps1 -Title "Test failure reveals bug in component" -Description "Test consistently fails due to validation issue" -DiscoveredBy "Test Audit" -Severity "High" -Component "Component Name" -Environment "Development" -RelatedFeature "X.Y.Z"
+   .\New-BugReport.ps1 -Title "Test failure reveals bug in component" -Description "Test consistently fails due to validation issue" -DiscoveredBy "TestAudit" -Severity "High" -Component "Component Name" -Environment "Development" -RelatedFeature "X.Y.Z"
    ```
 
 12. **Assign Audit Status**: Determine audit outcome based on evaluation results:
@@ -172,7 +171,16 @@ Comprehensive quality assurance task that evaluates implemented test suites agai
 - **🔄 Needs Update**: Existing tests have issues that need fixing
 - **🔴 Tests Incomplete**: Missing tests for existing implementations
 
-13. **Validate Audit Report**: Run the validation script to verify report completeness before presenting to human partner
+13. **Register Significant Findings as Tech Debt**: For audit findings that warrant a dedicated follow-up session (e.g., zero-assertion tests, anti-patterns, structural issues across multiple test methods), register them in [Technical Debt Tracking](../../../product-docs/state-tracking/permanent/technical-debt-tracking.md) using `Update-TechDebt.ps1 -Add` with category "Testing". Minor findings that are documented in the audit report but don't need separate tracking can be skipped.
+
+    ```powershell
+    # Register significant test quality finding as tech debt
+    .\Update-TechDebt.ps1 -Add -Description "Zero-assertion tests in test_example.py (5 methods)" -Category "Testing" -Location "test/automated/unit/test_example.py" -Priority "Medium" -EstimatedEffort "Small"
+    ```
+
+    > **Routing**: Test-related tech debt items route to [Integration & Testing](../04-implementation/integration-and-testing.md) (PF-TSK-053) for resolution — not to Code Refactoring (PF-TSK-022), which handles product code improvements.
+
+14. **Validate Audit Report**: Run the validation script to verify report completeness before presenting to human partner
 
    ```powershell
    # Navigate to scripts/validation directory from project root
@@ -184,11 +192,11 @@ Comprehensive quality assurance task that evaluates implemented test suites agai
 
    Address any errors or warnings before proceeding. The script checks metadata completeness, all six evaluation criteria, audit decision consistency, required sections, and template placeholders.
 
-14. **🚨 CHECKPOINT**: Present audit findings, quality criteria scores, coverage data, discovered bugs, and proposed audit status to human partner for review and approval
+15. **🚨 CHECKPOINT**: Present audit findings, quality criteria scores, coverage data, discovered bugs, tech debt items registered, and proposed audit status to human partner for review and approval
 
 ### Finalization
 
-15. **Update Test Tracking**: **🤖 AUTOMATED** - Update test implementation tracking with audit results using automation script
+16. **Update Test Tracking**: **🤖 AUTOMATED** - Update test implementation tracking with audit results using automation script
 
 ```powershell
 # Navigate to scripts directory from project root
@@ -212,20 +220,20 @@ Set-Location "<project-root>/doc/process-framework/scripts"
 - `"Audit Failed"` → 🔴 Audit Failed
 - `"Audit In Progress"` → 🔍 Audit In Progress
 
-16. **Verify Automated Updates**: Confirm the automation script successfully updated all state files:
+17. **Verify Automated Updates**: Confirm the automation script successfully updated all state files:
 
     - **../../state-tracking/permanent/test-tracking.md**: Individual test file status with audit details
     - **../../../product-docs/state-tracking/permanent/feature-tracking.md**: Aggregated feature test status
 
-17. **Document Implementation Dependencies**: If status is "🟡 Tests Approved with Dependencies", clearly document:
+18. **Document Implementation Dependencies**: If status is "🟡 Tests Approved with Dependencies", clearly document:
 
     - Which implementations are missing and blocking tests
     - Recommended implementation priority order
     - Expected impact on feature development timeline
 
-18. **Provide Feedback**: Deliver actionable recommendations for improvement if tests need updates
+19. **Provide Feedback**: Deliver actionable recommendations for improvement if tests need updates
 
-19. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+20. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 
@@ -233,6 +241,7 @@ Set-Location "<project-root>/doc/process-framework/scripts"
 - **Updated Test Tracking** - Test tracking updated with audit status and audit report link
 - **Updated Test Registry** - Test registry updated with audit completion status
 - **Bug Reports** - Any bugs discovered during audit documented in [Bug Tracking](../../../product-docs/state-tracking/permanent/bug-tracking.md) with status 🆕 Reported
+- **Tech Debt Items** (if applicable) - Significant test quality findings registered in [Technical Debt Tracking](../../../product-docs/state-tracking/permanent/technical-debt-tracking.md) with category "Testing", routed to PF-TSK-053
 
 ## State Tracking
 
@@ -241,6 +250,7 @@ Set-Location "<project-root>/doc/process-framework/scripts"
 - [Test Tracking](../../../../test/state-tracking/permanent/test-tracking.md) - **Automatically updated** with audit status, detailed audit results, and completion timestamp
 - [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) - **Automatically updated** with intelligent aggregated test status based on all test files for the feature
 - [Bug Tracking](../../../product-docs/state-tracking/permanent/bug-tracking.md) - **Manually updated** with any bugs discovered during audit, including test context and evidence
+- [Technical Debt Tracking](../../../product-docs/state-tracking/permanent/technical-debt-tracking.md) - **Manually updated** (via `Update-TechDebt.ps1 -Add`) with significant test quality findings (category "Testing"), routed to [Integration & Testing](../04-implementation/integration-and-testing.md) (PF-TSK-053)
 
 **Key Automation Features**:
 
@@ -266,6 +276,7 @@ Before considering this task finished:
   - [ ] Executed `Update-TestFileAuditState.ps1` with appropriate parameters
   - [ ] Confirmed [Test Tracking](../../../../test/state-tracking/permanent/test-tracking.md) updated with audit status and detailed results
   - [ ] Checked [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) Test Status column shows correct aggregated status
+  - [ ] Significant test quality findings registered as tech debt items in [Technical Debt Tracking](../../../product-docs/state-tracking/permanent/technical-debt-tracking.md) (category "Testing", routed to PF-TSK-053) — or confirmed no findings warrant tech debt registration
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-030" and context "Test Audit"
 
 ## Next Tasks

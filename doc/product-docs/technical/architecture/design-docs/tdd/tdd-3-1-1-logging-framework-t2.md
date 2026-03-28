@@ -24,7 +24,7 @@ retrospective: true
 
 ### 1.1 Purpose
 
-The Logging Framework provides structured, contextual, and performance-aware logging for the entire LinkWatcher application. It is implemented across two modules: `linkwatcher/logging.py` (primary interface — `LinkWatcherLogger`, `LogContext`, `PerformanceLogger`) and `linkwatcher/logging_config.py` (advanced configuration — `LogFilter`, `LogMetrics`, `LoggingConfigManager`).
+The Logging Framework provides structured, contextual, and performance-aware logging for the entire LinkWatcher application. It is implemented across two modules: `linkwatcher/logging.py` (primary interface — `LinkWatcherLogger`, `LogContext`, `PerformanceLogger`) and `linkwatcher/logging_config.py` (runtime configuration — `LoggingConfigManager`).
 
 The framework delivers dual-mode output (colored console + JSON file), per-thread context isolation, performance timing, domain-specific convenience methods (`file_moved`, `file_deleted`, `file_created`, `links_updated`, `scan_progress`, `operation_stats`), and runtime config hot-reload — all behind a simple `get_logger()` singleton interface. Test isolation is supported via `reset_logger()` and `reset_config_manager()`.
 
@@ -56,7 +56,7 @@ The framework delivers dual-mode output (colored console + JSON file), per-threa
 
 - **Response Time**: Log calls must be non-blocking for the caller — no synchronous I/O on the calling thread (file writes are buffered by the `RotatingFileHandler`)
 - **Throughput**: Handles the rate of LinkWatcher file operations (human-speed events) without measurable overhead; structlog's processor chain adds negligible latency
-- **Resource Usage**: Log file bounded at 10 MB per file × 6 files (1 active + 5 backups) = 60 MB max disk usage; `LogMetrics` counters are lightweight integers
+- **Resource Usage**: Log file bounded at 10 MB per file × 6 files (1 active + 5 backups) = 60 MB max disk usage
 
 ### 3.2 Security Requirements
 
@@ -66,9 +66,8 @@ The framework delivers dual-mode output (colored console + JSON file), per-threa
 ### 3.3 Reliability Requirements
 
 - **Error Handling**: If file logging fails (disk full, permission denied), the system falls back to console-only output and logs the failure; console logging is not affected by file handler failures
-- **Thread Safety**: `threading.local()` provides automatic per-thread context isolation; `threading.Lock` in `LogMetrics` protects counter updates from concurrent increment races
+- **Thread Safety**: `threading.local()` provides automatic per-thread context isolation
 - **Config Integrity**: If hot-reload encounters an invalid config file, the last valid configuration is retained — the logger never enters an unconfigured state
-- **Monitoring**: `LogMetrics` accumulates per-level, per-component, and per-operation counts; `get_metrics()` returns a thread-safe copy
 
 ### 3.4 Usability Requirements
 
@@ -222,8 +221,6 @@ class LogTimer:
 class LoggingConfigManager:
     def __init__(self):
         self.logger = get_logger()
-        self.log_filter = LogFilter()
-        self.metrics = LogMetrics()
         self.config_file: Optional[Path] = None
         self.auto_reload = False
         self._config_watch_thread: Optional[threading.Thread] = None
@@ -249,9 +246,6 @@ class LoggingConfigManager:
                 last_modified = current_modified
 
     def stop_config_watching(self): ...
-    def set_runtime_filter(self, **kwargs): ...
-    def clear_filters(self): ...
-    def get_metrics(self) -> dict: return self.metrics.get_metrics()
     def create_debug_snapshot(self) -> dict: ...
 
 # Module-level singleton with reset for test isolation
@@ -314,9 +308,7 @@ Terminal (ANSI colors)          .log file (10MB rotation, 5 backups)
 #### Reliability Implementation
 
 - Console and file handlers are independent — file handler failure does not affect console output
-- `LoggingConfigManager` catches all exceptions during config reload; invalid configs are logged as WARNING and the previous config is retained
-- `LogMetrics` uses `threading.Lock` around all counter increments to prevent race condition corruption
-
+- `LoggingConfigManager` catches all exceptions during config reload; invalid configs are logged as ERROR and the previous config is retained
 #### Security Implementation
 
 - No external input reaches the logging system — all log messages are generated internally by LinkWatcher components
@@ -336,7 +328,7 @@ Terminal (ANSI colors)          .log file (10MB rotation, 5 backups)
 > **📋 Primary Documentation**: Existing test suite
 > **🔗 Link**: [test/automated/unit/test_logging.py](../../../../../../test/automated/unit/test_logging.py), [test/automated/unit/test_advanced_logging.py](../../../../../../test/automated/unit/test_advanced_logging.py)
 
-**Brief Summary**: The logging framework is covered by two unit test files. `test_logging.py` covers `LinkWatcherLogger`, `LogContext`, `PerformanceLogger`, and the singleton API. `test_advanced_logging.py` covers `LogFilter`, `LogMetrics`, and `LoggingConfigManager` including hot-reload behavior.
+**Brief Summary**: The logging framework is covered by two unit test files. `test_logging.py` covers `LinkWatcherLogger`, `LogContext`, `PerformanceLogger`, and the singleton API. `test_advanced_logging.py` covers `LoggingConfigManager` including config loading, debug snapshots, and hot-reload behavior.
 
 ## 6. Implementation Plan
 
@@ -354,7 +346,7 @@ All dependencies are fully implemented (retrospective document):
 The logging framework is split across two modules reflecting two development phases:
 
 1. `linkwatcher/logging.py` — core logging API (singleton, levels, context, timing)
-2. `linkwatcher/logging_config.py` — advanced configuration layer added later (filters, metrics, hot-reload)
+2. `linkwatcher/logging_config.py` — runtime configuration layer added later (log level management, config hot-reload)
 
 Key design decisions that shaped the implementation:
 
@@ -369,18 +361,13 @@ Key design decisions that shaped the implementation:
 - `LogTimer` provides per-operation timing; used to track initial scan time, link update time, and parse time
 - `operation_stats()` provides session-level throughput metrics on shutdown
 
-### 7.2 Reliability Monitoring
-
-- `LogMetrics` counters (`logs_by_level`, `logs_by_component`, `logs_by_operation`) provide error rate tracking
-- `get_metrics()` returns a thread-safe copy of current metrics for external inspection
-
 ## 8. Open Questions
 
 None — this is a retrospective document for a fully implemented, stable feature.
 
 **Known Technical Debt**:
 - `cache_logger_on_first_use=True` means structlog configuration is immutable after first log call — if `setup_logging()` is not called early enough in startup, the logger runs with defaults and reconfiguration has no effect. **Mitigated (PD-BUG-015)**: `LinkWatcherLogger.__init__()` now calls `structlog.reset_defaults()` before `structlog.configure()`, and `setup_logging()` closes old handlers before replacing the global logger instance
-- `LoggingConfigManager` hot-reload applies only to `LogFilter` and log level — it does not support dynamically switching between console-only and file+console output modes
+- `LoggingConfigManager` hot-reload applies only to log level — it does not support dynamically switching between console-only and file+console output modes
 
 ## 9. AI Agent Session Handoff Notes
 

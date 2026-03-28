@@ -41,7 +41,7 @@ The framework also exposes `BaseParser` (abstract base class in `linkwatcher/par
 
 1. Dual entry points: `parse_file(file_path)` for disk reads and `parse_content(content, file_path)` for pre-read content — callers never select a parser directly
 2. Extension-based dispatch in O(1) time (dict lookup, case-insensitive)
-3. All parsers pre-instantiated at startup — no per-call instantiation cost
+3. All parsers pre-instantiated at startup (conditional on `config.enable_<format>_parser` flags — all `True` by default) — no per-call instantiation cost
 4. `GenericParser` fallback ensures every file gets at least a best-effort parse
 5. Runtime extensibility via `add_parser(ext, parser)` / `remove_parser(ext)` without modifying `LinkParser`
 
@@ -66,7 +66,7 @@ The framework also exposes `BaseParser` (abstract base class in `linkwatcher/par
 
 ### 3.4 Usability Requirements
 
-- **Developer Experience**: Single import (`from linkwatcher.parser import LinkParser`), single call (`parser.parse_file(path)`) — zero configuration for standard file types
+- **Developer Experience**: Single import (`from linkwatcher.parser import LinkParser`), single call (`parser.parse_file(path)`) — zero configuration for standard file types. Per-parser `enable_<format>_parser` boolean flags in `LinkWatcherConfig` allow selectively disabling individual parsers (all enabled by default)
 - **Extensibility**: New formats require only subclassing `BaseParser` and calling `add_parser()` — no modification to `LinkParser` itself
 
 ## 4. Technical Design
@@ -144,6 +144,7 @@ LinkParser (returns to caller; returns [] on any exception)
 - **Pattern**: Facade (single entry point) + Registry dict (extension → parser instance)
 - **Why**: Pre-instantiation amortizes regex compilation cost; O(1) dispatch; `add_parser()`/`remove_parser()` enable runtime extension without modifying `LinkParser`
 - **Implication**: Parser instances must be stateless per-call; all parsers must be importable at module load time
+- **Configuration**: Each parser's registration is gated by a `config.enable_<format>_parser` boolean flag (all `True` by default). When a flag is `False`, the corresponding parser is not instantiated or registered. This applies to all 7 parsers including `GenericParser` — if `enable_generic_parser` is `False`, the generic fallback is `None` and unrecognized extensions return `[]`
 
 **Decision 2: GenericParser as Universal Fallback**
 
@@ -203,7 +204,7 @@ No API Design, Database Schema Design, or Test Specification documents exist for
 | `linkwatcher/parsers/json_parser.py` | `JsonParser` — `.json` files. Detects file path references and directory path references (PD-BUG-030). |
 | `linkwatcher/parsers/python.py` | `PythonParser` — `.py` files |
 | `linkwatcher/parsers/dart.py` | `DartParser` — `.dart` files |
-| `linkwatcher/parsers/powershell.py` | `PowerShellParser` — `.ps1`/`.psm1` files. Extracts paths from `#` line comments, `<# #>` block comments (including `.EXAMPLE`/`.NOTES` sections), quoted string literals, `Join-Path` arguments, and `Import-Module` paths. Uses regex patterns: `quoted_pattern` for double/single-quoted strings, `comment_pattern` for `#` line comments, `block_comment_pattern` for `<# ... #>` regions, `join_path_pattern` for `Join-Path -ChildPath` arguments. |
+| `linkwatcher/parsers/powershell.py` | `PowerShellParser` — `.ps1`/`.psm1` files. Extracts paths from `#` line comments, `<# #>` block comments (including `.EXAMPLE`/`.NOTES` sections), quoted string literals (file and directory paths), and embedded markdown links in quoted strings. Uses shared `QUOTED_PATH_PATTERN` and `QUOTED_DIR_PATTERN_STRICT` from `patterns.py` for quoted strings, `path_pattern` for comment/text paths, and `block_comment_start`/`block_comment_end` for `<# ... #>` region tracking. |
 | `linkwatcher/parsers/generic.py` | `GenericParser` — fallback for all other file types |
 | `test/automated/unit/test_parser.py` | Unit tests for `LinkParser` facade |
 

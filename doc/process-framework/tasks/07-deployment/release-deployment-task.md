@@ -58,29 +58,30 @@ Manage the process of preparing, versioning, and deploying releases of the appli
 ### Preparation
 
 1. Review [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) and [Technical Debt Tracking](../../../product-docs/state-tracking/permanent/technical-debt-tracking.md) to identify what's included in the release
-2. Update version numbers according to semantic versioning
-3. Generate release notes from completed features and fixed bugs
-4. Create a release branch if needed
-5. Update any configuration files for the target environment(s)
-6. **🚨 CHECKPOINT**: Present release scope, version numbers, and release notes to human partner for review
+2. **Verify user documentation completeness**: For each feature in the release scope with user-visible behavior, check the feature implementation state file's User Documentation section. If any show `❌ Needed`, trigger [User Documentation Creation](user-documentation-creation.md) before proceeding with the release.
+3. Update version numbers according to semantic versioning
+4. Generate release notes from completed features and fixed bugs
+5. Create a release branch if needed
+6. Update any configuration files for the target environment(s)
+7. **🚨 CHECKPOINT**: Present release scope, version numbers, and release notes to human partner for review
 
 ### Execution
 
-7. Run the full test suite on the release candidate
-8. **Run full pre-release test sweep**: Execute `Run-Tests.ps1 -All` to confirm all automated tests pass. This is a release gate — no deployment if tests fail. Pay special attention to **Critical** priority tests (query via `test_query.py --summary` or `pytest -m 'priority("Critical")'`) — these cover foundation features and must all pass. Extended priority tests (performance, edge cases) are informational but not release-blocking.
-9. **Verify E2E acceptance test status**: Check [e2e-test-tracking.md](../../../../test/state-tracking/permanent/e2e-test-tracking.md) for any E2E groups marked `🔄 Needs Re-execution`. All groups must show `✅ Passed` before release. If any need re-execution, trigger [E2E Acceptance Test Execution](../03-testing/e2e-acceptance-test-execution-task.md) first. Also check the **Workflow Milestone Tracking** — are all workflows in the release scope covered by E2E tests? Flag any workflow with `⬜ Not Created` status as a release risk.
-10. Verify all deployment prerequisites are met
-11. Complete the pre-deployment checklist
-12. Obtain necessary approvals
-13. **🚨 CHECKPOINT**: Present pre-deployment checklist results (including full test sweep results) and obtain explicit approval before deploying
-14. Deploy to the target environment(s)
-15. Monitor deployment logs for issues
-16. Verify application health post-deployment
-17. Run smoke tests to confirm basic functionality
+8. Run the full test suite on the release candidate
+9. **Run full pre-release test sweep**: Execute `Run-Tests.ps1 -All` to confirm all automated tests pass. This is a release gate — no deployment if tests fail. Pay special attention to **Critical** priority tests (query via `test_query.py --summary` or `pytest -m 'priority("Critical")'`) — these cover foundation features and must all pass. Extended priority tests (performance, edge cases) are informational but not release-blocking.
+10. **Verify E2E acceptance test status**: Check [e2e-test-tracking.md](../../../../test/state-tracking/permanent/e2e-test-tracking.md) for any E2E groups marked `🔄 Needs Re-execution`. All groups must show `✅ Passed` before release. If any need re-execution, trigger [E2E Acceptance Test Execution](../03-testing/e2e-acceptance-test-execution-task.md) first. Also check the **Workflow Milestone Tracking** — are all workflows in the release scope covered by E2E tests? Flag any workflow with `⬜ Not Created` status as a release risk.
+11. Verify all deployment prerequisites are met
+12. Complete the pre-deployment checklist
+13. Obtain necessary approvals
+14. **🚨 CHECKPOINT**: Present pre-deployment checklist results (including full test sweep results) and obtain explicit approval before deploying
+15. Deploy to the target environment(s)
+16. Monitor deployment logs for issues
+17. Verify application health post-deployment
+18. Run smoke tests to confirm basic functionality
 
 ### Finalization
 
-18. **Bug Discovery During Deployment**: Systematically identify and document any bugs discovered during deployment:
+19. **Bug Discovery During Deployment**: Systematically identify and document any bugs discovered during deployment:
 
     - **Deployment Failures**: Issues that prevent successful deployment
     - **Configuration Problems**: Environment-specific configuration issues
@@ -89,7 +90,7 @@ Manage the process of preparing, versioning, and deploying releases of the appli
     - **User Experience Issues**: UI/UX problems that only appear in production
     - **Data Migration Issues**: Problems with database migrations or data integrity
 
-19. **Report Discovered Bugs**: If bugs are identified during deployment:
+20. **Report Discovered Bugs**: If bugs are identified during deployment:
 
     - Use [../../scripts/file-creation/06-maintenance/New-BugReport.ps1](../../scripts/file-creation/06-maintenance/New-BugReport.ps1) script to create standardized bug reports
     - Follow [Bug Reporting Guide](../../guides/06-maintenance/bug-reporting-guide.md) for consistent documentation
@@ -105,14 +106,14 @@ Manage the process of preparing, versioning, and deploying releases of the appli
     Set-Location "doc/process-framework/scripts/file-creation"
 
     # Create bug report for issues found during deployment
-    ../../scripts/file-creation/06-maintenance/New-BugReport.ps1 -Title "API timeout in production environment" -Description "User authentication API calls timeout after 30 seconds in production but work fine in staging" -DiscoveredBy "Release Deployment" -Severity "Critical" -Component "Authentication" -Environment "Production" -Evidence "Deployment logs: /logs/deployment-2025-01-15.log"
+    ../../scripts/file-creation/06-maintenance/New-BugReport.ps1 -Title "API timeout in production environment" -Description "User authentication API calls timeout after 30 seconds in production but work fine in staging" -DiscoveredBy "Development" -Severity "Critical" -Component "Authentication" -Environment "Production" -Evidence "Deployment logs: /logs/deployment-2025-01-15.log"
     ```
 
-20. Update release status documentation
-21. Notify stakeholders of successful deployment
-22. Monitor application performance and error rates
-23. Document any issues encountered during deployment
-24. **🚨 MANDATORY FINAL STEP**: Complete the Task Completion Checklist below
+21. Update release status documentation
+22. Notify stakeholders of successful deployment
+23. Monitor application performance and error rates
+24. Document any issues encountered during deployment
+25. **🚨 MANDATORY FINAL STEP**: Complete the Task Completion Checklist below
 
 ## Outputs
 

@@ -42,7 +42,7 @@ cd doc/process-framework/scripts/file-creation
 ./New-BugReport.ps1 `
   -Title "Login form validation fails for email format" `
   -Description "The email validation accepts clearly invalid email formats like 'test@' or 'invalid.email'" `
-  -DiscoveredBy "Test Audit" `
+  -DiscoveredBy "TestAudit" `
   -Severity "High" `
   -Component "Authentication" `
   -ReproductionSteps "1. Navigate to login page`n2. Enter 'test@' in email field`n3. Click submit`n4. Form accepts invalid email" `
@@ -126,7 +126,7 @@ After creating a bug report:
 ./New-BugReport.ps1 `
   -Title "Test case TC-001 fails consistently" `
   -Description "Authentication test fails due to session timeout handling" `
-  -DiscoveredBy "Test Audit" `
+  -DiscoveredBy "TestAudit" `
   -Component "Authentication" `
   -Evidence "Test execution log: /logs/test-audit-2025-01-15.log"
 ```
@@ -137,7 +137,7 @@ After creating a bug report:
 ./New-BugReport.ps1 `
   -Title "Null pointer exception in user validation" `
   -Description "Method getUserProfile() doesn't handle null user ID parameter" `
-  -DiscoveredBy "Code Review" `
+  -DiscoveredBy "CodeReview" `
   -Severity "High" `
   -Component "User Management" `
   -Evidence "Code location: src/services/UserService.java:142"
@@ -149,7 +149,7 @@ After creating a bug report:
 ./New-BugReport.ps1 `
   -Title "Database migration fails on existing data" `
   -Description "New column addition breaks when existing records have null values" `
-  -DiscoveredBy "Feature Implementation" `
+  -DiscoveredBy "FeatureImplementation" `
   -Severity "Critical" `
   -Component "Database" `
   -RelatedFeature "User Profile Enhancement"
