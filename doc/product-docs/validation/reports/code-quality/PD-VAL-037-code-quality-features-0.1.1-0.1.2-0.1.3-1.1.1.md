@@ -215,7 +215,7 @@ validation_session: 1
 2. **Migrate print() to logger across service.py and handler.py (TD026)**
    - **Description**: Replace 46 print() calls in service.py (33) and handler.py (13) with appropriate logger levels
    - **Rationale**: Enables consistent output control, filtering, and redirection
-   - **Dependencies**: Existing refactoring plan in doc/product-docs/refactoring/plans/archive/remove-dual-print-logger-output-in-updater-py.md
+   - **Dependencies**: Existing refactoring plan in doc/product-docs/refactoring/plans/archive/remove-dual-print-logger-output-in-updater-py-td026.md
 
 ### Medium-Term Improvements
 

@@ -29,6 +29,9 @@ class PowerShellParser(BaseParser):
         # Pattern for file paths in comments and general text
         self.path_pattern = re.compile(r"([a-zA-Z0-9_\-./\\]+\.[a-zA-Z0-9]+)")
 
+        # Pattern to extract all quoted string contents (for embedded path extraction)
+        self.all_quoted_pattern = re.compile(r'[\'"]([^\'"]+)[\'"]')
+
         # Pattern to detect block comment boundaries
         self.block_comment_start = re.compile(r"<#")
         self.block_comment_end = re.compile(r"#>")
@@ -39,8 +42,24 @@ class PowerShellParser(BaseParser):
             lines = content.split("\n")
             references = []
             in_block_comment = False
+            in_here_string = False
 
             for line_num, line in enumerate(lines, 1):
+                # Track here-string state (@"..."@ and @'...'@)
+                stripped = line.strip()
+                if in_here_string:
+                    if stripped == '"@' or stripped == "'@":
+                        in_here_string = False
+                        continue
+                    # Extract paths from here-string content lines
+                    self._extract_paths_from_line(
+                        line, line_num, file_path, "powershell-here-string", references
+                    )
+                    continue
+                if stripped.endswith('@"') or stripped.endswith("@'"):
+                    in_here_string = True
+                    # Don't continue — process the assignment line normally
+
                 # Track block comment state
                 if not in_block_comment and self.block_comment_start.search(line):
                     in_block_comment = True
@@ -93,6 +112,50 @@ class PowerShellParser(BaseParser):
                                 link_type="powershell-quoted",
                             )
                         )
+                    else:
+                        # Fallback: extract embedded file paths from within
+                        # prose-like quoted strings (e.g., "Reading from: file.md")
+                        for sub_match in self.path_pattern.finditer(potential_file):
+                            sub_path = sub_match.group(1)
+                            if self._looks_like_file_path(sub_path):
+                                col_start = match.start(1) + sub_match.start(1)
+                                col_end = match.start(1) + sub_match.end(1)
+                                if (col_start, col_end) not in file_path_spans:
+                                    file_path_spans.add((col_start, col_end))
+                                    references.append(
+                                        LinkReference(
+                                            file_path=file_path,
+                                            line_number=line_num,
+                                            column_start=col_start,
+                                            column_end=col_end,
+                                            link_text=sub_path,
+                                            link_target=sub_path,
+                                            link_type="powershell-quoted",
+                                        )
+                                    )
+
+                # Quoted strings — embedded paths in strings where the extension
+                # is not at the end (e.g., "Check file.md for configuration")
+                for match in self.all_quoted_pattern.finditer(line):
+                    content = match.group(1)
+                    for sub_match in self.path_pattern.finditer(content):
+                        sub_path = sub_match.group(1)
+                        col_start = match.start(1) + sub_match.start(1)
+                        col_end = match.start(1) + sub_match.end(1)
+                        if (col_start, col_end) not in file_path_spans:
+                            if self._looks_like_file_path(sub_path):
+                                file_path_spans.add((col_start, col_end))
+                                references.append(
+                                    LinkReference(
+                                        file_path=file_path,
+                                        line_number=line_num,
+                                        column_start=col_start,
+                                        column_end=col_end,
+                                        link_text=sub_path,
+                                        link_target=sub_path,
+                                        link_type="powershell-quoted",
+                                    )
+                                )
 
                 # Quoted strings — directory paths (no extension required)
                 for match in self.quoted_dir_pattern.finditer(line):

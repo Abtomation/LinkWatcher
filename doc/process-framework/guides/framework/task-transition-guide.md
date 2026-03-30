@@ -2267,6 +2267,16 @@ RELEASE:        E2E Test Execution (all groups must pass before deployment)
 
 **Solution**: Use the decision trees in this guide and consult the task selection guide in doc/process-framework/ai-tasks.md
 
+**Common ambiguous cases:**
+
+| Situation | Correct Task | Why |
+|-----------|-------------|-----|
+| Tech debt items already assessed and tracked | Code Refactoring (PF-TSK-022) | Assessment is done — execute the fix |
+| Tech debt not yet identified or categorized | Technical Debt Assessment (cyclical) | Identification must happen before fixing |
+| Test-category debt items (e.g., missing coverage, weak assertions) | Code Refactoring (PF-TSK-022) with test focus | Test code is code — refactoring task covers test improvements. Reference the relevant test specification for scope |
+| Enhancement to existing feature | Feature Enhancement (PF-TSK-068) | Routed by Feature Request Evaluation; do not use Feature Implementation for amendments |
+| Bug discovered during another task | Bug Triage (PF-TSK-027) first | Even obvious bugs need triage for priority assignment before fixing |
+
 ### Issue: Prerequisites Not Met
 
 **Solution**: Return to previous task and complete missing outputs before transitioning

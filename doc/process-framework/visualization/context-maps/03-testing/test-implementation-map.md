@@ -10,7 +10,7 @@ task_type: Discrete
 task_name: test-implementation
 map_type: Context Map
 status: DEPRECATED
-replaced_by: visualization/context-maps/04-implementation/integration-and-testing-map.md
+replaced_by: ../04-implementation/integration-and-testing-map.md
 ---
 # Test Implementation Context Map — DEPRECATED
 

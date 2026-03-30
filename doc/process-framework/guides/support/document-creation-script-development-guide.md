@@ -574,6 +574,16 @@ Before considering any document creation script complete:
 
 **Quick validation**: Run with `-WhatIf` first, then create a real test document and verify the output. Clean up test files afterward.
 
+## Post-Modification Verification
+
+After modifying any script or tool, verify that all referencing documents are still accurate:
+
+1. **Grep for references**: Search the entire `doc/` and `test/` directories for the script filename
+2. **Read every hit** — do not dismiss any as "just a link". References in guides, task definitions, context maps, and templates may contain parameter names, paths, or behavioral descriptions that your change invalidated
+3. **Update or flag**: Fix outdated references immediately, or document them as follow-up items if the fix is out of scope
+
+This step catches stale documentation that would otherwise persist until the next Tools Review cycle.
+
 ## Advanced Topics
 
 ### Custom File Naming

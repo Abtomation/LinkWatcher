@@ -91,7 +91,7 @@ Systematically validates selected features for architectural pattern adherence, 
 12. **Update Validation Tracking**: Update the validation tracking matrix with report creation date and link
 13. **Review Quality Gates**: Check if validation meets minimum quality thresholds (average score ≥ 2.0)
 14. **Plan Remediation**: For scores below threshold, create action items for architectural improvements
-15. **🤖 AUTOMATED: Update Technical Debt Tracking**: Add any new open issues identified during validation to [Technical Debt Tracking](../../../product-docs/state-tracking/permanent/technical-debt-tracking.md) using the automation script:
+15. **🤖 AUTOMATED: Update Technical Debt Tracking**: Add any new open issues identified during validation — **apply the [Tech Debt Quality Gate](/doc/process-framework/guides/05-validation/feature-validation-guide.md#tech-debt-item-quality-gate) filters before creating each item** — to [Technical Debt Tracking](../../../product-docs/state-tracking/permanent/technical-debt-tracking.md) using the automation script:
 
     ```powershell
     .\doc\process-framework\scripts\update\Update-TechDebt.ps1 -Add -Description "Description" -Category "Category" -Location "Location" -Priority "Priority" -EstimatedEffort "Effort" -AssessmentId "PF-VAL-XXX" -Notes "Notes"

@@ -772,14 +772,12 @@ class TestArchivalDetailsFilter:
         assert "docs/does-not-exist.md" in targets
 
     def test_non_archival_details_still_checked(self, tmp_path):
-        """Standalone paths in non-archival details blocks should still be checked."""
+        """Markdown links in non-archival details blocks should still be checked."""
         content = (
             "<details>\n"
             "<summary><strong>0. System Architecture</strong></summary>\n"
             "\n"
-            "| Feature | Path |\n"
-            "| --- | --- |\n"
-            "| Core | some/nonexistent/path.md |\n"
+            "See [Core Architecture](some/nonexistent/path.md) for details.\n"
             "\n"
             "</details>\n"
         )
@@ -791,6 +789,18 @@ class TestArchivalDetailsFilter:
 
         targets = {bl.target_path for bl in result.broken_links}
         assert "some/nonexistent/path.md" in targets
+
+    def test_standalone_paths_in_table_rows_skipped(self, tmp_path):
+        """Standalone bare paths in table rows are data, not navigable links."""
+        content = "| Feature | Path |\n" "| --- | --- |\n" "| Core | some/nonexistent/path.md |\n"
+        _create_file(str(tmp_path), "features.md", content)
+
+        cfg = _make_config()
+        v = LinkValidator(str(tmp_path), cfg)
+        result = v.validate()
+
+        targets = {bl.target_path for bl in result.broken_links}
+        assert "some/nonexistent/path.md" not in targets
 
     def test_completed_keyword_triggers_archival(self, tmp_path):
         """'completed' in summary should trigger archival mode."""

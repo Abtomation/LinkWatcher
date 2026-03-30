@@ -99,6 +99,7 @@ Plans a validation round by selecting features to validate, evaluating which val
    - Consider dimension dependencies (e.g., Architectural Consistency before Integration Dependencies)
    - Group features into batches of 2-3 per dimension session
    - Estimate total sessions needed
+   - **One batch per session** — see [AI Agent Session Management](../../ai-tasks.md#-ai-agent-session-management) for the rationale
 9. **🚨 CHECKPOINT**: Present the complete validation plan to human partner for approval:
    - Feature×dimension matrix (which features get which dimensions)
    - Dimension selection rationale for non-obvious choices

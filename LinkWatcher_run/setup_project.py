@@ -143,7 +143,7 @@ $scriptDir = if ($PSScriptRoot) {{ $PSScriptRoot }} else {{ (Get-Location).Path 
 $logsDir = Join-Path $scriptDir "logs"
 if (-not (Test-Path $logsDir)) {{ New-Item -ItemType Directory -Path $logsDir -Force | Out-Null }}
 
-$logFile = Join-Path $logsDir "LinkWatcherLog.txt"
+$logFile = Join-Path $logsDir "LinkWatcherLog_20260330-082919.txt"
 $stdoutLog = Join-Path $logsDir "LinkWatcherStdout.txt"
 $stderrLog = Join-Path $logsDir "LinkWatcherError.txt"
 

@@ -432,30 +432,43 @@ Need to track something new? Use the [State File Template](/doc/process-framewor
 
 ## 🤖 AI Agent Process Checklist
 
-> **Critical Process Reminder**: Follow this checklist for every task to ensure complete execution
+> **Critical Process Reminder**: Follow this checklist for every task to ensure complete execution.
+>
+> **🚨 These rules are non-negotiable. Do not propose a "lighter approach" or skip steps regardless of task complexity.**
 
 ### BEFORE Starting Any Task:
 
-1. ✅ **Read [.ai-entry-point.md](.ai-entry-point.md)** and follow to AI Task-Based Development System
-2. ✅ **Read the COMPLETE task definition** including completion checklist
-3. ✅ **Adopt the assigned AI Agent Role** specified in the task definition for optimal task execution
-4. ✅ **Understand ALL required outputs** (not just primary deliverables)
-5. ✅ **Note feedback form requirements** BEFORE starting work
+1. ✅ **🚨 Select a task FIRST** — Task selection must be your **very first action** after reading the user's request. Do not explore code, read files, or begin any work until a task is selected from this document. Even "simple" fixes require a task framework.
+2. ✅ **Execute [.ai-entry-point.md](.ai-entry-point.md) as a startup procedure** — This is not passive context. Actively run through its checklist (LinkWatcher, time tracking, task selection) before responding to the user.
+3. ✅ **Read the COMPLETE task definition** including completion checklist — understand the full scope before starting
+4. ✅ **Adopt the assigned AI Agent Role** specified in the task definition for optimal task execution
+5. ✅ **Understand ALL required outputs** (not just primary deliverables)
+6. ✅ **Note feedback form requirements** BEFORE starting work
 
 ### DURING Task Execution:
 
-6. ✅ **Follow the task process step-by-step** as documented
-7. ✅ **Use required automation scripts** (never create files manually)
-8. ✅ **If a script fails**: Report the error → diagnose and fix the script → re-run the fixed script. Never bypass a broken script by manually creating files — fix the script first.
-9. ✅ **Update state files** as you progress through the work
+7. ✅ **Follow the task process step-by-step in order** — Do not skip steps, reorder them, or take shortcuts. Present findings at every checkpoint and wait for human approval before proceeding.
+8. ✅ **Always use automation scripts** when referenced by a task (never create tracked files manually). Scripts update surrounding infrastructure (ID registries, tracking files, counters) that manual edits miss, causing inconsistencies.
+9. ✅ **If a script fails**: Report the error → diagnose and fix the script → re-run the fixed script. Never bypass a broken script by manually creating files — fix the script first.
+10. ✅ **Update state files** as you progress through the work
 
 ### BEFORE Claiming Task Completion:
 
-10. ✅ **Verify ALL outputs** from task definition are complete
-11. ✅ **Complete ALL items** in the mandatory completion checklist
-12. ✅ **Submit feedback forms** for all tools used during the task
+11. ✅ **Verify ALL outputs by re-reading files** — Do not rely on memory. Re-read state tracking files and grep for `- [ ]` / `PENDING` / `NOT_STARTED` to confirm nothing was missed.
+12. ✅ **Complete ALL items** in the mandatory completion checklist — every checkbox, every state file update, every linked document
+13. ✅ **Submit feedback forms** for all tools used during the task
 
 > **🚨 Remember**: A task is NOT complete until the feedback forms are submitted!
+
+---
+
+## 📦 AI Agent Session Management
+
+### One Batch Per Session (Validation Tasks)
+
+**Never run multiple validation batches in the same session.** Each batch is a complete task cycle: analysis → checkpoint → report generation → state file updates → feedback form. Complete ALL finalization steps (including tech debt tracking updates and feedback form) for one batch before ending the session. The next batch starts in a fresh session.
+
+**Why**: After context compaction mid-session, finalization quality degrades — steps get skipped, state files are left inconsistent, and the human partner has to catch omissions. Keeping one batch per session ensures the full finalization sequence runs while context is still fresh.
 
 ---
 

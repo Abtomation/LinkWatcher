@@ -13,7 +13,7 @@
 #
 # PREREQUISITES:
 #   - LinkWatcher must be running in background
-#   - All three files in manual-tests/powershell-parser/ must exist:
+#   - All three files in this directory must exist:
 #     1. test-powershell-parser-patterns.ps1  (this file)
 #     2. moved/move-target.md                       (target for move test 1)
 #     3. move-target-2.ps1                    (target for move test 2)
@@ -71,43 +71,43 @@
     Runs all pattern demonstrations (does not modify any files).
 
 .EXAMPLE
-    manual-tests/powershell-parser/moved/move-target.md
+    moved/move-target.md
     This path in a .EXAMPLE section should be detected and updated.
 
 .NOTES
     Test target locations:
-    - Markdown target: manual-tests/powershell-parser/moved/move-target.md
-    - Script target: manual-tests/powershell-parser/move-target-2.ps1
+    - Markdown target: moved/move-target.md
+    - Script target: move-target-2.ps1
 
     Script Metadata:
     - Purpose: Manual testing of PowerShell parser enhancement
     - Related: Feature 2.1.1 (Link Parsing System), PF-STA-052
-    - Output Directory: manual-tests/powershell-parser
+    - Output Directory: .
 #>
 
 # =============================================================================
 # PATTERN 1: Line comments with file paths (# comment)
 # =============================================================================
 
-# Reference to the markdown target: manual-tests/powershell-parser/moved/move-target.md
-# Reference to the script target: manual-tests/powershell-parser/move-target-2.ps1
-# See also: manual-tests/powershell-parser/moved/move-target.md for details
-# The configuration is documented in manual-tests/powershell-parser/moved/move-target.md
+# Reference to the markdown target: moved/move-target.md
+# Reference to the script target: move-target-2.ps1
+# See also: moved/move-target.md for details
+# The configuration is documented in moved/move-target.md
 
 # =============================================================================
 # PATTERN 2: Quoted string literals (double-quoted)
 # =============================================================================
 
-$markdownTarget = "manual-tests/powershell-parser/moved/move-target.md"
-$scriptTarget = "manual-tests/powershell-parser/move-target-2.ps1"
-Write-Host "Reading from: manual-tests/powershell-parser/moved/move-target.md"
+$markdownTarget = "moved/move-target.md"
+$scriptTarget = "move-target-2.ps1"
+Write-Host "Reading from: moved/move-target.md"
 
 # =============================================================================
 # PATTERN 3: Quoted string literals (single-quoted)
 # =============================================================================
 
-$markdownTargetSingle = 'manual-tests/powershell-parser/moved/move-target.md'
-$scriptTargetSingle = 'manual-tests/powershell-parser/move-target-2.ps1'
+$markdownTargetSingle = 'moved/move-target.md'
+$scriptTargetSingle = 'move-target-2.ps1'
 
 # =============================================================================
 # PATTERN 4: Join-Path operations
@@ -115,31 +115,31 @@ $scriptTargetSingle = 'manual-tests/powershell-parser/move-target-2.ps1'
 
 $targetPath1 = Join-Path -Path $PSScriptRoot -ChildPath "moved/move-target.md"
 $targetPath2 = Join-Path $PSScriptRoot "move-target-2.ps1"
-$targetPath3 = Join-Path -Path "manual-tests/powershell-parser" -ChildPath "moved/move-target.md"
+$targetPath3 = Join-Path -Path "." -ChildPath "moved/move-target.md"
 
 # =============================================================================
 # PATTERN 5: Import-Module statements
 # =============================================================================
 
 # Import-Module (Join-Path -Path $PSScriptRoot -ChildPath "move-target-2.ps1") -Force
-# Import-Module "manual-tests/powershell-parser/move-target-2.ps1" -Force
+# Import-Module "move-target-2.ps1" -Force
 
 # =============================================================================
 # PATTERN 6: Test-Path and file operations
 # =============================================================================
 
-if (Test-Path "manual-tests/powershell-parser/moved/move-target.md") {
+if (Test-Path "moved/move-target.md") {
     Write-Host "Markdown target exists"
 }
 
-$content = Get-Content -Path "manual-tests/powershell-parser/moved/move-target.md" -Raw
+$content = Get-Content -Path "moved/move-target.md" -Raw
 
 # =============================================================================
 # PATTERN 7: -Path and -LiteralPath parameters
 # =============================================================================
 
-Copy-Item -Path "manual-tests/powershell-parser/moved/move-target.md" -Destination "backup.md"
-Remove-Item -LiteralPath "manual-tests/powershell-parser/moved/move-target.md" -WhatIf
+Copy-Item -Path "moved/move-target.md" -Destination "backup.md"
+Remove-Item -LiteralPath "moved/move-target.md" -WhatIf
 
 # =============================================================================
 # PATTERN 8: Here-string with paths
@@ -147,8 +147,8 @@ Remove-Item -LiteralPath "manual-tests/powershell-parser/moved/move-target.md" -
 
 $helpText = @"
 Available test files:
-  - manual-tests/powershell-parser/moved/move-target.md
-  - manual-tests/powershell-parser/move-target-2.ps1
+  - moved/move-target.md
+  - move-target-2.ps1
 "@
 
 # =============================================================================
@@ -156,17 +156,17 @@ Available test files:
 # =============================================================================
 
 $testFiles = @(
-    "manual-tests/powershell-parser/moved/move-target.md",
-    "manual-tests/powershell-parser/move-target-2.ps1"
+    "moved/move-target.md",
+    "move-target-2.ps1"
 )
 
 # =============================================================================
 # PATTERN 10: Write-Host / Write-Output with embedded paths
 # =============================================================================
 
-Write-Host "Processing file: manual-tests/powershell-parser/moved/move-target.md" -ForegroundColor Green
-Write-Output "Script location: manual-tests/powershell-parser/move-target-2.ps1"
-Write-Warning "Check manual-tests/powershell-parser/moved/move-target.md for configuration"
+Write-Host "Processing file: moved/move-target.md" -ForegroundColor Green
+Write-Output "Script location: move-target-2.ps1"
+Write-Warning "Check moved/move-target.md for configuration"
 
 # =============================================================================
 # VERIFICATION CHECKLIST

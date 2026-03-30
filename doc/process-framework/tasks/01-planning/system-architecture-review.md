@@ -51,7 +51,6 @@ Evaluate how new features fit into existing system architecture before implement
   - [Technical Design Documents](/doc/product-docs/technical/architecture/design-docs/tdd/) - Existing TDDs for related components
 
 - **Reference Only (Access When Needed):**
-  <!-- - [Code Dependency Analysis Results](../../../.ai-workspace/dependency-maps) - Removed: directory not present in this project -->
   - [Technical Debt Tracking](/doc/product-docs/state-tracking/permanent/technical-debt-tracking.md) - Known architectural issues
   - [Visual Notation Guide](/doc/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 

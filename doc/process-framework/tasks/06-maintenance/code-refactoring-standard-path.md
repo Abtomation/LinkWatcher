@@ -19,7 +19,7 @@
 1. **Create Refactoring Plan**: Use automation script to create structured refactoring plan document
 
    ```powershell
-   cd doc/process-framework/scripts/file-creation
+   cd doc/process-framework/scripts/file-creation/06-maintenance
    .\New-RefactoringPlan.ps1 -RefactoringScope "Brief description" -TargetArea "Component/Module name"
    # Add -DocumentationOnly for doc-only changes (no code metrics/test sections)
    # Add -DebtItemId "TDXXX" to auto-populate debt item reference

@@ -123,6 +123,7 @@ graph TD
 
 | ID | Title | Status | Priority | Scope | Reported | Description | Related Feature | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| PD-BUG-053 | File move during startup scan not detected | 🆕 Reported | P4 | | 2026-03-30 | When a file is moved during LinkWatcher initial scan (within 2s of startup), the move is not detected and references are not updated. TE-E2E-012 race condition. | 1.1.1 | Source: E2ETesting; Environment: Development; Component: service.py; Expected: File moves during startup should be detected and references updated; Actual: Move is invisible — references remain pointing to old path |
 | _No low priority bugs currently active_ |
 
 ## Closed Bugs
@@ -188,11 +189,11 @@ graph TD
 
 ### Current Status Summary
 
-- **Total Active Bugs**: 0
+- **Total Active Bugs**: 1
 - **Critical (P1)**: 0
 - **High (P2)**: 0
 - **Medium (P3)**: 0
-- **Low (P4)**: 0
+- **Low (P4)**: 1
 
 ---
 

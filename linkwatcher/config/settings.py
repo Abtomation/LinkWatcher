@@ -89,6 +89,7 @@ class LinkWatcherConfig:
             "dist",
             "__pycache__",
             "tests",
+            "LinkWatcher_run",
         }
     )
 
@@ -147,7 +148,7 @@ class LinkWatcherConfig:
             "xxx",
         }
     )
-    validation_ignore_file: str = "LinkWatcher/.linkwatcher-ignore"
+    validation_ignore_file: str = ".linkwatcher-ignore"
 
     # Move detection timing
     move_detect_delay: float = 10.0

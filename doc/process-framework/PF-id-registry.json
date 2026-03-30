@@ -97,7 +97,7 @@
         "permanent": "doc/process-framework/state-tracking/permanent",
         "default": "permanent"
       },
-      "nextAvailable": 246
+      "nextAvailable": 258
     },
     "PF-STA": {
       "description": "Process Framework - State Tracking (framework only)",
@@ -121,7 +121,7 @@
         "archive": "doc/process-framework/feedback/archive",
         "default": "forms"
       },
-      "nextAvailable": 568
+      "nextAvailable": 576
     },
     "PF-REV": {
       "description": "Process Framework - Review Artifacts",
@@ -131,7 +131,7 @@
         "reviews": "doc/process-framework/feedback/reviews",
         "default": "reviews"
       },
-      "nextAvailable": 17
+      "nextAvailable": 18
     },
     "PF-INF": {
       "description": "Process Framework - Infrastructure",

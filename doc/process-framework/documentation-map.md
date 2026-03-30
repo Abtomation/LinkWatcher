@@ -29,7 +29,7 @@ Our tasks are organized into four categories and follow a unified structure:
 - [Task: Project Initiation](tasks/00-setup/project-initiation-task.md) - Initial project setup including project-config.json creation
 
 #### Discrete Tasks
-| PF-TSK-081 | [/process-framework/tasks/07-deployment/user-documentation-creation.md](/process-framework/tasks/07-deployment/user-documentation-creation.md) | Documentation | User Documentation Creation | /doc/process-framework/tasks/../../../tasks/README.md |
+| PF-TSK-081 | [tasks/07-deployment/user-documentation-creation.md](tasks/07-deployment/user-documentation-creation.md) | Documentation | User Documentation Creation | [tasks/README.md](tasks/README.md) |
 
 - [Task: Feature Request Evaluation](tasks/01-planning/feature-request-evaluation.md) - Classify change requests as new features or enhancements, scope enhancements, and create Enhancement State Tracking Files
 - [Task: Feature Tier Assessment](tasks/01-planning/feature-tier-assessment-task.md) - Assess complexity of new features
@@ -165,6 +165,7 @@ Our tasks are organized into four categories and follow a unified structure:
 - [Process: Update Tech Debt Script](scripts/update/Update-TechDebt.ps1) - Automates technical debt lifecycle management: add new items (-Add), status transitions, and resolution moves in technical-debt-tracking.md
 - [Process: Update Language Config Script](scripts/update/Update-LanguageConfig.ps1) - Adds fields consistently across all language config files and template to prevent drift (-List to audit, -Section/-FieldName to add)
 - [Process: Update Feature Dependencies Script](scripts/update/Update-FeatureDependencies.ps1) - Auto-generates feature-dependencies.md from feature state files (Mermaid graph + priority matrix). Integrated into Validate-StateTracking.ps1 Surface 6
+- [Process: Update User Documentation State Script](scripts/update/Update-UserDocumentationState.ps1) - Automates PF-TSK-081 finalization: appends handbook row to feature state file Documentation Inventory and adds entry to documentation-map.md User Handbooks section
 
 ### Validation Scripts
 

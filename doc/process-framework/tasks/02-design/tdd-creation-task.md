@@ -254,4 +254,3 @@ Before considering this task finished:
   - [T3 Template](/doc/process-framework/templates/02-design/tdd-t3-template.md) - For Tier 3 (complex) features
 - [TDD Generation Script](/doc/process-framework/scripts/file-creation/02-design/New-tdd.ps1) - Script for generating TDD documents
 - [Architecture Decision Records](/doc/product-docs/technical/architecture/design-docs/adr) - Repository of past architectural decisions
-- <!-- [API Design Guidelines](/doc/product-docs/technical/architecture/api-design-guidelines.md) - File not found --> - Standards for designing APIs

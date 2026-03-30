@@ -94,7 +94,7 @@ Systematically validates selected features for data consistency, constraint enfo
 15. **Update Validation Tracking**: Update the validation tracking matrix with report creation date and link
 16. **Review Quality Gates**: Ensure validation meets minimum quality thresholds (average score ≥ 2.0)
 17. **Plan Remediation**: For scores below threshold, create action items for data integrity improvements — prioritize by data loss risk severity
-18. **🤖 AUTOMATED: Update Technical Debt Tracking**: Add any new open issues identified during validation to [Technical Debt Tracking](../../../product-docs/state-tracking/permanent/technical-debt-tracking.md) using the automation script:
+18. **🤖 AUTOMATED: Update Technical Debt Tracking**: Add any new open issues identified during validation — **apply the [Tech Debt Quality Gate](/doc/process-framework/guides/05-validation/feature-validation-guide.md#tech-debt-item-quality-gate) filters before creating each item** — to [Technical Debt Tracking](../../../product-docs/state-tracking/permanent/technical-debt-tracking.md) using the automation script:
 
     ```powershell
     .\doc\process-framework\scripts\update\Update-TechDebt.ps1 -Add -Description "Description" -Category "Data Integrity" -Location "Location" -Priority "Priority" -EstimatedEffort "Effort" -AssessmentId "PF-VAL-XXX" -Notes "Notes"

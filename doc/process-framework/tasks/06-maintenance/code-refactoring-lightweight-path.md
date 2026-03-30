@@ -13,7 +13,7 @@
 **L1. Create Lightweight Refactoring Plan**:
 
 ```powershell
-cd doc/process-framework/scripts/file-creation
+cd doc/process-framework/scripts/file-creation/06-maintenance
 .\New-RefactoringPlan.ps1 -RefactoringScope "Brief description" -TargetArea "Component/Module name" -Lightweight
 ```
 

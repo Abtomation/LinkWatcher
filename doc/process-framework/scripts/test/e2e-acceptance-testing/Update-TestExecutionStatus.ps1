@@ -115,11 +115,11 @@ $affectedWorkflows = @()
 
 foreach ($line in $lines) {
     # Track when we enter/leave the E2E Acceptance Tests section
-    if ($line -match '^## E2E Acceptance Tests') {
+    if ($line -match '^## E2E (Acceptance Tests|Test Cases)') {
         $inE2eSection = $true
     }
     # Leave E2E section when hitting another ## section (but not ### subsections)
-    if ($inE2eSection -and $line -match '^## [^#]' -and $line -notmatch '^## E2E Acceptance Tests') {
+    if ($inE2eSection -and $line -match '^## [^#]' -and $line -notmatch '^## E2E (Acceptance Tests|Test Cases)') {
         $inE2eSection = $false
     }
 

@@ -59,50 +59,53 @@ Analyze, optimize, and document development processes to improve efficiency, qua
 
 ### Preparation
 
+> **🚨 SESSION LIMIT**: Maximum **3 improvements per session**. After completing the 3rd improvement, proceed directly to finalization (Step 17) and close the session. Quality and checkpoint discipline degrade beyond 3.
+
 1. **Select improvement** from [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md)
-   > After completing an improvement (including tracking update), ask the human partner: **"Continue with another improvement or close the session?"** Each improvement follows the full checkpoint workflow independently. The feedback form is deferred until the session ends — one form covers all improvements done in the session.
-2. **Review source feedback**: Read the [Tools Review summary](../../feedback/reviews/) and/or specific feedback forms that identified this improvement
-3. **Read current state**: Examine the file(s)/tool(s) to be improved to understand the current implementation
-4. **🚨 CHECKPOINT**: Present problem analysis and proposed approach(es) to human partner
+   > After completing an improvement (including tracking update), ask the human partner: **"Continue with another improvement or close the session?"** Each improvement follows the full checkpoint workflow (Steps 1–16) independently. The feedback form is deferred until the session ends — one form covers all improvements done in the session.
+2. **Validate the IMP is still needed**: Before diving into implementation, critically evaluate whether the IMP description is still accurate and the fix is still needed. Check if the problem was already addressed by another change, if the target file/tool still exists in the described form, or if the context has changed. If the IMP is no longer valid, present findings and recommend rejection at the checkpoint.
+3. **Review source feedback**: Read the [Tools Review summary](../../feedback/reviews/) and/or specific feedback forms that identified this improvement
+4. **Read current state**: Examine the file(s)/tool(s) to be improved to understand the current implementation
+5. **🚨 CHECKPOINT**: Present problem analysis and proposed approach(es) to human partner
    > **Valid outcomes**: Approve an approach and proceed, request alternative approaches, or **reject the improvement** if analysis shows it's unnecessary (mark as Rejected in tracking and skip to finalization)
 
 ### Planning
 
-5. **For multi-session improvements**: Create a state tracking file to track progress across sessions:
+6. **For multi-session improvements**: Create a state tracking file to track progress across sessions:
    ```powershell
    .\New-TempTaskState.ps1 -TaskName "<Improvement Name>" -Variant "ProcessImprovement" -Description "<scope>"
    ```
    > Single-session improvements do not need a state file — skip this step.
-6. For complex improvements: propose multiple solution approaches with pros and cons
-7. **🚨 CHECKPOINT**: Get explicit human approval on the chosen approach
+7. For complex improvements: propose multiple solution approaches with pros and cons
+8. **🚨 CHECKPOINT**: Get explicit human approval on the chosen approach
 
 ### Execution
 
-8. Implement changes in small, reviewable increments (never all at once)
+9. Implement changes in small, reviewable increments (never all at once)
    - **For bulk/repetitive changes** (same pattern across many files): after applying all changes, verify completeness with grep-based checks (e.g., confirm all target files contain the new pattern, confirm no target files still contain the old pattern)
    > **⚠️ SCOPE BOUNDARY**: If implementing an improvement requires work that fits another task's scope — such as creating a new task definition (PF-TSK-001), reorganizing directory structures (PF-TSK-014), or extending the framework (PF-TSK-048) — do not perform that work inline. Instead, document the need, update the IMP with a delegation note, and recommend the appropriate task to the human partner.
-9. For each significant change:
-   a. Present the specific change to be made
-   b. **🚨 CHECKPOINT**: Get explicit approval before implementing
-   c. Implement the approved change
-   d. **🚨 CHECKPOINT**: Confirm the change meets expectations
-10. **Update linked documents**: Search for files that reference the changed file(s) and update or remove outdated content (guides, context maps, registry entries, templates)
-11. **Log tool change in feedback database**: Record the modification for trend analysis:
+10. For each significant change:
+    a. Present the specific change to be made
+    b. **🚨 CHECKPOINT**: Get explicit approval before implementing
+    c. Implement the approved change
+    d. **🚨 CHECKPOINT**: Confirm the change meets expectations
+11. **Update linked documents**: Search for files that reference the changed file(s) and update or remove outdated content (guides, context maps, registry entries, templates)
+12. **Log tool change in feedback database**: Record the modification for trend analysis:
     ```bash
     python doc/process-framework/scripts/feedback_db.py log-change --tool <TOOL_DOC_ID> --date <YYYY-MM-DD> --imp <IMP-XXX> --description "<what changed>"
     ```
-12. **🚨 CHECKPOINT**: Review changes with human partner
+13. **🚨 CHECKPOINT**: Review changes with human partner
 
 ### Finalization
 
-13. **🚨 CHECKPOINT**: Get final approval on the complete solution
-14. Update [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) using [Update-ProcessImprovement.ps1](../../scripts/update/Update-ProcessImprovement.ps1):
+14. **🚨 CHECKPOINT**: Get final approval on the complete solution
+15. Update [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) using [Update-ProcessImprovement.ps1](../../scripts/update/Update-ProcessImprovement.ps1):
     ```powershell
     .\Update-ProcessImprovement.ps1 -ImprovementId "IMP-XXX" -NewStatus "Completed" -Impact "HIGH|MEDIUM|LOW" -ValidationNotes "What was done."
     ```
-15. Update any other affected state files
-16. **Ask**: "Continue with another improvement or close the session?" If continuing, return to step 1 for the next improvement.
-17. **🚨 MANDATORY FINAL STEP** (session end only): Complete the Task Completion Checklist below — one feedback form covering all improvements done in this session
+16. Update any other affected state files
+17. **Ask**: "Continue with another improvement or close the session?" If continuing and session limit (3 IMPs) not reached, return to Step 1 for the next improvement. If limit reached, proceed to Step 18.
+18. **🚨 MANDATORY FINAL STEP** (session end only): Complete the Task Completion Checklist below — one feedback form covering all improvements done in this session
 
 > **Validation**: Improvements are validated through the next usage cycle. Subsequent feedback (via [Tools Review](tools-review-task.md)) will confirm whether the improvement achieved its goal.
 
@@ -136,10 +139,12 @@ The following state files must be updated as part of this task:
 Before considering this task finished:
 
 - [ ] **Verify Incremental Implementation**: Confirm the process was followed correctly
+  - [ ] Each IMP was validated as still needed before starting work (Step 2)
   - [ ] Problem analysis was presented before solutions
   - [ ] Approach was approved before any changes
   - [ ] Changes were implemented incrementally (not all at once)
   - [ ] Human feedback was received at each checkpoint
+  - [ ] Session limit of 3 IMPs was respected
 
 - [ ] **Verify Outputs**: Confirm all required outputs have been produced
   - [ ] Process documentation changes are clear and actionable

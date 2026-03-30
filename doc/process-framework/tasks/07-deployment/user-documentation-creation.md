@@ -102,8 +102,15 @@ Create or update user-facing product documentation (handbooks, quick-reference g
 
 ### Finalization
 
-10. **Update feature tracking**: Mark user documentation as available in the feature's state file or tracking entry
-11. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+10. **Update state files** using the automation script:
+    ```bash
+    cd /c/path/to/project/doc/process-framework/scripts/update && pwsh.exe -ExecutionPolicy Bypass -Command '& .\Update-UserDocumentationState.ps1 -FeatureId "X.Y.Z" -HandbookName "Feature Name" -HandbookPath "doc/product-docs/user/handbooks/filename.md" -HandbookId "PD-UGD-XXX" -Description "One-line description"'
+    ```
+    This automates updates to:
+    - Feature implementation state file (appends handbook row to Documentation Inventory)
+    - documentation-map.md (appends entry under User Handbooks section)
+11. **Update feature-tracking.md** manually if a User Docs column exists
+12. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 
@@ -111,12 +118,22 @@ Create or update user-facing product documentation (handbooks, quick-reference g
 - **Updated README.md** — Main project README updated with documentation links or feature descriptions (if applicable)
 - **Updated feature tracking** — Feature state file or tracking entry reflects that user documentation exists
 
+## Tools and Scripts
+
+- **[New-Handbook.ps1](../../scripts/file-creation/07-deployment/New-Handbook.ps1)** — Create new handbook files with auto-assigned PD-UGD IDs
+- **[Update-UserDocumentationState.ps1](../../scripts/update/Update-UserDocumentationState.ps1)** — Automate finalization state file updates (feature state file + documentation-map.md)
+- **[New-FeedbackForm.ps1](../../scripts/file-creation/support/New-FeedbackForm.ps1)** — Create feedback forms for task completion
+
 ## State Tracking
 
-The following state files must be updated as part of this task:
+The following state files are updated by `Update-UserDocumentationState.ps1`:
+
+- **Feature implementation state files** (`doc/product-docs/state-tracking/features/`) — Handbook row appended to Documentation Inventory table
+- **[Documentation Map](../../documentation-map.md)** — Handbook entry appended under User Handbooks section
+
+Manually updated:
 
 - [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) — Update documentation status for documented features (if a "User Docs" column exists, mark as ✅)
-- **Feature implementation state files** (`doc/product-docs/state-tracking/features/`) — Note that user documentation was created/updated in the implementation notes section
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
@@ -129,9 +146,10 @@ Before considering this task finished:
   - [ ] All CLI options, config keys, and defaults verified against source code
   - [ ] Quick start section provides copy-paste ready commands
   - [ ] README.md updated if applicable
-- [ ] **Update State Files**: Ensure all state tracking files have been updated
-  - [ ] Feature tracking reflects documentation status for each documented feature
-  - [ ] Feature implementation state file notes user documentation status
+- [ ] **Update State Files**: Run `Update-UserDocumentationState.ps1` and verify
+  - [ ] Feature implementation state file has handbook row in Documentation Inventory
+  - [ ] documentation-map.md has handbook entry under User Handbooks
+  - [ ] Feature tracking updated manually if User Docs column exists
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-081" and context "User Documentation Creation"
 
 ## Next Tasks
@@ -143,4 +161,5 @@ Before considering this task finished:
 
 - **Handbook template** — Created via `New-Handbook.ps1` using the handbook template
 - **Existing handbooks** — `doc/product-docs/user/handbooks/` for style and structure reference
+- **[Update-UserDocumentationState.ps1](../../scripts/update/Update-UserDocumentationState.ps1)** — Automates finalization state updates
 - [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) — Source for identifying undocumented features

@@ -102,7 +102,7 @@ _NUMERIC_SLASH_PATTERN = re.compile(r"^\d[\d.]*/.+")
 # Slash-separated alternatives where a segment before the last "/" has a file
 # extension (e.g. "logging.py/logging_config.py").  Requires at least one
 # word character before the dot so dotfile dirs (.git/, .vscode/) are safe.
-_EXT_BEFORE_SLASH_PATTERN = re.compile(r"\w\.\w{1,5}/")
+_EXT_BEFORE_SLASH_PATTERN = re.compile(r"\w\.\w{1,6}/")
 
 # Template placeholders that are not real paths.
 # Matches: YYYY, XXXX, HHMMSS, <angle-bracket>, [square-bracket] placeholders.
@@ -257,15 +257,27 @@ class LinkValidator:
 
         result.files_scanned += 1
 
-        # For markdown files, identify fenced code block lines and archival
-        # <details> sections so we can skip standalone (bare-path) links
-        # inside them.  Proper [text](path) links are still checked.
+        # For markdown files, identify fenced code block lines, archival
+        # <details> sections, and table rows so we can skip standalone
+        # (bare-path) links inside them.  Proper [text](path) links are
+        # still checked.
         code_block_lines: FrozenSet[int] = frozenset()
         archival_details_lines: FrozenSet[int] = frozenset()
+        table_row_lines: FrozenSet[int] = frozenset()
+        placeholder_lines: FrozenSet[int] = frozenset()
         if file_path.lower().endswith(".md"):
             lines = content.splitlines()
             code_block_lines = self._get_code_block_lines(lines)
             archival_details_lines = self._get_archival_details_lines(lines)
+            table_row_lines = self._get_table_row_lines(lines, code_block_lines)
+            placeholder_lines = self._get_placeholder_lines(lines)
+
+        # Template files (under any templates/ directory) contain placeholder
+        # paths that are instructional examples, not real references.  Skip
+        # standalone/quoted link types there; proper [text](path) links are
+        # still checked.
+        rel_path = os.path.relpath(file_path, self.project_root).replace("\\", "/")
+        is_template_file = "/templates/" in rel_path
 
         # Build the set of ignored patterns from config
         ignored_patterns = self.config.validation_ignored_patterns
@@ -293,6 +305,24 @@ class LinkValidator:
                 archival_details_lines
                 and ref.link_type in _STANDALONE_LINK_TYPES
                 and ref.line_number in archival_details_lines
+            ):
+                continue
+
+            # Skip standalone link types in template files (placeholder paths)
+            if is_template_file and ref.link_type in _STANDALONE_LINK_TYPES:
+                continue
+
+            # Skip all link types on lines with placeholder instructions
+            # like "*(replace with actual link)*" — these are template examples.
+            if placeholder_lines and ref.line_number in placeholder_lines:
+                continue
+
+            # Skip standalone link types in markdown table rows — bare paths
+            # in table cells are data descriptions, not navigable references.
+            if (
+                table_row_lines
+                and ref.link_type in _STANDALONE_LINK_TYPES
+                and ref.line_number in table_row_lines
             ):
                 continue
 
@@ -370,6 +400,16 @@ class LinkValidator:
         # Only filter chars that are truly impossible in paths: ^ { } |
         # (+ and $ can appear in real paths like c++/config.h or $HOME)
         if any(c in target for c in "^{}|"):
+            return False
+
+        # Skip regex fragments: "]+" (one-or-more bracket) and "\["
+        # (escaped bracket) never appear in legitimate file paths.
+        if "]+" in target or "\\[" in target:
+            return False
+
+        # Skip PowerShell invocation syntax (.\Script.ps1) — these are
+        # command examples, not file references from the document location.
+        if target.startswith(".\\") and target.lower().endswith(".ps1"):
             return False
 
         # Skip template placeholder paths (YYYYMMDD, <placeholder>, etc.)
@@ -469,6 +509,36 @@ class LinkValidator:
             if in_details and is_archival:
                 archival_lines.add(lineno)
         return frozenset(archival_lines)
+
+    @staticmethod
+    def _get_table_row_lines(lines: List[str], code_block_lines: FrozenSet[int]) -> FrozenSet[int]:
+        """Return 1-based line numbers of markdown table rows.
+
+        A line is a table row if it starts with ``|`` (after optional
+        whitespace) and is not inside a fenced code block.
+        """
+        table_lines: set = set()
+        for lineno, line in enumerate(lines, start=1):
+            if lineno in code_block_lines:
+                continue
+            stripped = line.lstrip()
+            if stripped.startswith("|"):
+                table_lines.add(lineno)
+        return frozenset(table_lines)
+
+    @staticmethod
+    def _get_placeholder_lines(lines: List[str]) -> FrozenSet[int]:
+        """Return 1-based line numbers containing placeholder instructions.
+
+        Lines with phrases like ``*(replace with actual link)*`` indicate
+        that every link on that line is an intentional template example,
+        not a real reference.
+        """
+        placeholder_lines: set = set()
+        for lineno, line in enumerate(lines, start=1):
+            if "replace with actual" in line.lower():
+                placeholder_lines.add(lineno)
+        return frozenset(placeholder_lines)
 
     @staticmethod
     def _glob_to_regex(pattern: str) -> re.Pattern:

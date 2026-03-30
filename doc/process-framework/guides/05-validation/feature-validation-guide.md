@@ -4,7 +4,7 @@ type: Document
 category: General
 version: 1.2
 created: 2025-08-17
-updated: 2026-03-04
+updated: 2026-03-29
 guide_title: Feature Validation Guide
 guide_status: Active
 guide_description: Comprehensive guide for conducting feature validation using the multi-dimension validation framework
@@ -418,6 +418,24 @@ Each validation criterion uses a standardized 0-3 scale:
 - Any criterion scoring 0 (Not Met) is flagged as a critical issue
 - Critical issues require immediate attention regardless of overall score
 - Critical issues should be tracked and remediated before proceeding with dependent work
+
+### Tech Debt Item Quality Gate
+
+Before creating a tech debt item from a validation finding, apply these filters to prevent low-quality items that will be rejected during refactoring:
+
+1. **Language-context filter**: Is this recommendation idiomatic for the project's language? Patterns from Java/C# (e.g., ABC interfaces, factory classes) may not apply to Python where duck-typing, monkey-patching, and first-class functions are idiomatic. Don't flag the absence of a pattern the language doesn't need.
+
+2. **Scale threshold**: Does the issue exist at sufficient scale to justify the fix? A 3-branch if/elif doesn't need a registry pattern. A 120-line method with clear linear flow doesn't need decomposition. Apply the pattern only when complexity actually hurts readability or maintainability.
+
+3. **Existing-state verification**: Does the issue actually exist in current code? Read the relevant code to confirm the finding before creating a TD item. Prior refactoring or implementation may have already addressed it.
+
+4. **Fix viability check**: Is the recommended fix implementable without side effects? For example, adding a threading lock to a property that is already called under a lock will cause deadlock. Verify the fix works in context.
+
+5. **Duplication vs. similarity**: Is the shared code actual duplicated business logic, or just incidental use of the same stdlib calls in different contexts? Two methods calling `os.path.exists()` for different lifecycle stages is not problematic duplication.
+
+6. **Design decision awareness**: Check ADRs and prior refactoring history before flagging architectural choices as debt. A deliberate design decision documented in an ADR is not tech debt — it's an intentional trade-off.
+
+**Only create a TD item when the finding passes all applicable filters.** If in doubt, note it as an observation in the validation report rather than creating a tracked debt item.
 
 ### Score Calculation
 

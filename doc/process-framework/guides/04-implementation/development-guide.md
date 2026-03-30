@@ -19,7 +19,7 @@ This guide provides best practices for developing the project using the defined 
    - Consult the `/doc/process-framework/state-tracking/feature-tracking.md` document
    - Update the feature status to "In Progress" 🟡
    - Create a feature branch from main/develop
-   - For complex features, create a technical design document using the appropriate template from `/doc/product-docs/technical/architecture/design-docs/` (tdd-t1-template.md, tdd-t2-template.md, or ../../development/processes/tdd-t3-template.md based on complexity)
+   - For complex features, create a technical design document using the appropriate template from `/doc/product-docs/technical/architecture/design-docs/` (tdd-t1-template.md, tdd-t2-template.md, or /doc/process-framework/templates/02-design/tdd-t3-template.md based on complexity)
 
 2. **Technical Design (for complex features)**
    - Create a technical design document in `/doc/product-docs/technical/design/`

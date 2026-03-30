@@ -168,6 +168,16 @@ This section helps prioritize improvements:
 - Make assumptions about user satisfaction
 - Skip this section
 
+## Feedback Handling Rules
+
+### Document, Don't Implement
+
+When you discover issues or improvements during finalization, **record them in the feedback form** — do not implement changes directly. Feedback flows through the Tools Review cycle (PF-TSK-010), which triages, prioritizes, and routes improvements properly. Implementing fixes inline during finalization bypasses this process and risks unreviewed changes.
+
+### Keep Feedback in the Form
+
+If a finding can be resolved by updating a task definition, guide, or template, **leave it in the feedback form only**. Do not save it to persistent memory or external tracking — the feedback form is the intake mechanism. Once the Tools Review processes the form and the relevant document is updated, memory entries about it become stale and misleading.
+
 ## Common Pitfalls to Avoid
 
 ### Rating Pitfalls

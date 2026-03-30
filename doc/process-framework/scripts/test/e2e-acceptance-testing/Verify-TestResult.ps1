@@ -135,14 +135,14 @@ foreach ($tc in $testCasesToVerify) {
         $relativePath = $expFile.FullName.Substring($expectedDir.Length + 1)
         $workspaceFile = Join-Path $workspaceProjDir $relativePath
 
-        if (-not (Test-Path $workspaceFile)) {
+        if (-not (Test-Path -LiteralPath $workspaceFile)) {
             Write-Host "  🔴 $($tc.CaseId): Missing file: $relativePath" -ForegroundColor Red
             $casePassed = $false
             continue
         }
 
-        $expContent = (Get-Content $expFile.FullName -Raw -Encoding UTF8) -replace '\r\n', "`n"
-        $wsContent = (Get-Content $workspaceFile -Raw -Encoding UTF8) -replace '\r\n', "`n"
+        $expContent = [string](Get-Content -LiteralPath $expFile.FullName -Raw -Encoding UTF8) -replace '\r\n', "`n"
+        $wsContent = [string](Get-Content -LiteralPath $workspaceFile -Raw -Encoding UTF8) -replace '\r\n', "`n"
 
         # Normalize trailing whitespace (PowerShell Set-Content may add extra newline)
         $expContent = $expContent.TrimEnd()

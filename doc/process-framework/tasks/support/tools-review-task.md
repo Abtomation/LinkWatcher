@@ -3,9 +3,9 @@ id: PF-TSK-010
 type: Process Framework
 category: Task Definition
 domain: agnostic
-version: 1.4
+version: 1.5
 created: 2023-06-15
-updated: 2026-03-04
+updated: 2026-03-29
 task_type: support
 ---
 
@@ -78,7 +78,12 @@ Systematically evaluate and enhance the templates, guides, and other tools by co
 8. Quantify ratings for effectiveness, clarity, completeness, and efficiency
 9. Prioritize potential improvements based on frequency and impact
 10. **🚨 CHECKPOINT**: Present analysis findings, identified themes, and prioritized improvement opportunities to human partner for approval
-11. **Routing Decision**: For each identified improvement, determine its target and use the appropriate script:
+11. **Create review summary skeleton**: Run [`New-ReviewSummary.ps1`](../../scripts/file-creation/06-maintenance/New-ReviewSummary.ps1) now so the filename (which includes an unpredictable HHMMSS timestamp) is known before registering IMPs. Note the created filename for use in `-SourceLink` parameters below.
+    ```powershell
+    .\New-ReviewSummary.ps1 -FormsAnalyzed <N> -TaskTypeCount <N> -DateRangeStart 'YYYY-MM-DD' -DateRangeEnd 'YYYY-MM-DD'
+    ```
+    > Content sections will be filled during Finalization (Step 17).
+12. **Routing Decision**: For each identified improvement, determine its target and use the appropriate script:
 
     | If the item is... | Route to... | Script |
     |---|---|---|
@@ -88,28 +93,29 @@ Systematically evaluate and enhance the templates, guides, and other tools by co
     | Technical debt (code quality issue, not broken but should be improved) | [Technical Debt Tracking](../../../product-docs/state-tracking/permanent/technical-debt-tracking.md) | [`Update-TechDebt.ps1 -Add`](../../scripts/update/Update-TechDebt.ps1) |
 
     ```powershell
-    # Process framework improvement
-    .\New-ProcessImprovement.ps1 -Source "Tools Review YYYY-MM-DD" -SourceLink "../../feedback/reviews/tools-review-YYYYMMDD.md" -Description "What needs improving" -Priority "MEDIUM" -Notes "Context"
+    # Process framework improvement — use the actual filename from Step 11
+    .\New-ProcessImprovement.ps1 -Source "Tools Review YYYY-MM-DD" -SourceLink "../../feedback/reviews/tools-review-YYYYMMDD-HHMMSS.md" -Description "What needs improving" -Priority "MEDIUM" -Notes "Context"
 
-    # Product feature request
-    .\New-FeatureRequest.ps1 -Source "Tools Review YYYY-MM-DD" -SourceLink "../../feedback/reviews/tools-review-YYYYMMDD.md" -Description "What is being requested" -Priority "MEDIUM" -Notes "Context"
+    # Product feature request — use the actual filename from Step 11
+    .\New-FeatureRequest.ps1 -Source "Tools Review YYYY-MM-DD" -SourceLink "../../feedback/reviews/tools-review-YYYYMMDD-HHMMSS.md" -Description "What is being requested" -Priority "MEDIUM" -Notes "Context"
     ```
-    - **🔗 TRACEABILITY REQUIREMENT**: Use `-SourceLink` to include link to the tools review analysis file for full traceability
+    - **🔗 TRACEABILITY REQUIREMENT**: Use `-SourceLink` with the actual review summary filename from Step 11 for full traceability
     - **🔍 DEDUPLICATION**: Before registering a new IMP, search both the "Current Improvement Opportunities" and "Completed Improvements" sections of [process-improvement-tracking.md](../../state-tracking/permanent/process-improvement-tracking.md) for existing entries covering the same tool or issue. Skip registration if already tracked.
-12. **🚨 SCOPE BOUNDARY**: Tools Review identifies and documents improvements only. For implementation, create [Process Improvement Task](process-improvement-task.md) entries or use [Feature Request Evaluation](../01-planning/feature-request-evaluation.md) for feature requests
-13. Archive processed feedback forms for future reference (archive paths are needed for the next step)
-14. **Record ratings in feedback database**: After archiving, record all quantified ratings from this review cycle into the feedback database:
+13. **🚨 SCOPE BOUNDARY**: Tools Review identifies and documents improvements only. For implementation, create [Process Improvement Task](process-improvement-task.md) entries or use [Feature Request Evaluation](../01-planning/feature-request-evaluation.md) for feature requests
+14. Archive processed feedback forms for future reference (archive paths are needed for the next step)
+15. **Record ratings in feedback database**: After archiving, record all quantified ratings from this review cycle into the feedback database:
     ```bash
     python doc/process-framework/scripts/feedback_db.py record --json ratings-input.json
     ```
-    Construct a JSON file using the [feedback-db-input-template.json](../../templates/support/feedback-db-input-template.json) as reference. Populate `archived_form_path` with the paths from Step 13.
+    Construct a JSON file using the [feedback-db-input-template.json](../../templates/support/feedback-db-input-template.json) as reference. Populate `archived_form_path` with the paths from Step 14.
 
 ### Finalization
 
-15. Verify all improvement opportunities are properly documented
-16. Ensure all tracking files are updated (process-improvement-tracking, feature-request-tracking, bug-tracking, technical-debt-tracking — as applicable)
-17. Communicate identified improvements to project stakeholders
-18. **🚨 MANDATORY FINAL STEP**: Complete the Task Completion Checklist below
+16. Verify all improvement opportunities are properly documented
+17. **Fill review summary content**: Complete all sections of the review summary skeleton created in Step 11 (task group analysis, cross-group themes, improvement opportunities summary, archived forms list)
+18. Ensure all tracking files are updated (process-improvement-tracking, feature-request-tracking, bug-tracking, technical-debt-tracking — as applicable)
+19. Communicate identified improvements to project stakeholders
+20. **🚨 MANDATORY FINAL STEP**: Complete the Task Completion Checklist below
 
 ## Outputs
 
