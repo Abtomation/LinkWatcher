@@ -39,6 +39,29 @@ class MarkdownParser(BaseParser):
         # Pattern 6: Quoted directory paths — no extension required (PD-BUG-031)
         self.quoted_dir_pattern = QUOTED_DIR_PATTERN
 
+        # Pattern 7: Backtick-quoted file paths — `path/to/file.ext` (PD-BUG-054)
+        self.backtick_path_pattern = re.compile(r"`([^`]+\.[a-zA-Z0-9]+)`")
+
+        # Pattern 8: Backtick-quoted directory paths — `path/to/dir` (PD-BUG-054)
+        self.backtick_dir_pattern = re.compile(r"`([^`]*[/\\][^`]*)`")
+
+        # Pattern 9: Bare path with separators — matches paths like
+        # doc/process-framework/scripts/file-creation (PD-BUG-054)
+        # Also matches leading-slash paths like /doc/process-framework/... (PD-BUG-055)
+        # Requires at least 2 path segments to reduce false positives.
+        self.bare_path_pattern = re.compile(
+            r"(?:^|(?<=\s))"
+            r"(/?[a-zA-Z0-9_.][a-zA-Z0-9_.\-]*(?:[/\\][a-zA-Z0-9_.\-]+){2,}/?)"
+            r"(?=\s|$|&&|\|)"
+        )
+
+        # Pattern 10: @-prefixed path references — @doc/path/to/file.md (PD-BUG-055)
+        # Used in CLAUDE.md for @-mention style file references.
+        # Captures the path without the @ prefix.
+        self.at_prefix_pattern = re.compile(
+            r"@([a-zA-Z0-9_.][a-zA-Z0-9_.\-]*(?:[/\\][a-zA-Z0-9_.\-]+)+)"
+        )
+
     def _extract_url_from_link_content(self, link_content: str) -> str:
         """
         Extract just the URL from link content, removing any title.
@@ -260,13 +283,152 @@ class MarkdownParser(BaseParser):
             )
         return refs
 
+    def _extract_backtick_paths(
+        self,
+        line: str,
+        line_num: int,
+        file_path: str,
+        md_spans: List[tuple],
+    ) -> List[LinkReference]:
+        """Extract backtick-quoted file paths: `path/to/file.ext` (PD-BUG-054)."""
+        refs = []
+        for match in self.backtick_path_pattern.finditer(line):
+            potential_file = match.group(1)
+            if not self._looks_like_file_path(potential_file):
+                continue
+            if self._overlaps_any(match.start(), match.end(), md_spans):
+                continue
+            refs.append(
+                LinkReference(
+                    file_path=file_path,
+                    line_number=line_num,
+                    column_start=match.start(1),
+                    column_end=match.end(1),
+                    link_text=potential_file,
+                    link_target=potential_file,
+                    link_type="markdown-backtick",
+                )
+            )
+        return refs
+
+    def _extract_backtick_dirs(
+        self,
+        line: str,
+        line_num: int,
+        file_path: str,
+        md_spans: List[tuple],
+    ) -> List[LinkReference]:
+        """Extract backtick-quoted directory paths: `path/to/dir` (PD-BUG-054)."""
+        refs = []
+        for match in self.backtick_dir_pattern.finditer(line):
+            potential_dir = match.group(1)
+            _, ext = os.path.splitext(potential_dir)
+            if ext:
+                continue
+            if not self._looks_like_directory_path(potential_dir):
+                continue
+            if self._overlaps_any(match.start(), match.end(), md_spans):
+                continue
+            refs.append(
+                LinkReference(
+                    file_path=file_path,
+                    line_number=line_num,
+                    column_start=match.start(1),
+                    column_end=match.end(1),
+                    link_text=potential_dir,
+                    link_target=potential_dir,
+                    link_type="markdown-backtick-dir",
+                )
+            )
+        return refs
+
+    def _extract_bare_paths(
+        self,
+        line: str,
+        line_num: int,
+        file_path: str,
+        all_spans: List[tuple],
+    ) -> List[LinkReference]:
+        """Extract bare paths with separators: doc/path/to/dir (PD-BUG-054)."""
+        refs = []
+        for match in self.bare_path_pattern.finditer(line):
+            potential_path = match.group(1)
+            if self._overlaps_any(match.start(1), match.end(1), all_spans):
+                continue
+            _, ext = os.path.splitext(potential_path)
+            if ext:
+                if not self._looks_like_file_path(potential_path):
+                    continue
+            else:
+                if not self._looks_like_directory_path(potential_path):
+                    continue
+            refs.append(
+                LinkReference(
+                    file_path=file_path,
+                    line_number=line_num,
+                    column_start=match.start(1),
+                    column_end=match.end(1),
+                    link_text=potential_path,
+                    link_target=potential_path,
+                    link_type="markdown-bare-path",
+                )
+            )
+        return refs
+
+    def _extract_at_prefix_paths(
+        self,
+        line: str,
+        line_num: int,
+        file_path: str,
+        all_spans: List[tuple],
+    ) -> List[LinkReference]:
+        """Extract @-prefixed path references: @doc/path/file.md (PD-BUG-055)."""
+        refs = []
+        for match in self.at_prefix_pattern.finditer(line):
+            potential_path = match.group(1)
+            if self._overlaps_any(match.start(), match.end(), all_spans):
+                continue
+            _, ext = os.path.splitext(potential_path)
+            if ext:
+                if not self._looks_like_file_path(potential_path):
+                    continue
+            else:
+                if not self._looks_like_directory_path(potential_path):
+                    continue
+            refs.append(
+                LinkReference(
+                    file_path=file_path,
+                    line_number=line_num,
+                    column_start=match.start(1),
+                    column_end=match.end(1),
+                    link_text=potential_path,
+                    link_target=potential_path,
+                    link_type="markdown-at-prefix",
+                )
+            )
+        return refs
+
     def parse_content(self, content: str, file_path: str) -> List[LinkReference]:
         """Parse markdown content for links."""
         try:
             lines = content.split("\n")
             references = []
+            in_mermaid_block = False
 
             for line_num, line in enumerate(lines, 1):
+                stripped = line.strip()
+                # Track mermaid fenced code blocks — content is illustrative,
+                # not navigable paths (PD-BUG-055)
+                if stripped.startswith("```"):
+                    if in_mermaid_block:
+                        in_mermaid_block = False
+                        continue
+                    elif stripped.startswith("```mermaid"):
+                        in_mermaid_block = True
+                        continue
+                if in_mermaid_block:
+                    continue
+
                 std_refs, md_spans = self._extract_standard_links(line, line_num, file_path)
                 references.extend(std_refs)
                 references.extend(self._extract_reference_links(line, line_num, file_path))
@@ -290,6 +452,19 @@ class MarkdownParser(BaseParser):
                 )
                 references.extend(
                     self._extract_standalone_refs(line, line_num, file_path, md_spans)
+                )
+
+                # Backtick-quoted paths and dirs (PD-BUG-054)
+                all_spans = md_spans + html_anchor_spans
+                references.extend(
+                    self._extract_backtick_paths(line, line_num, file_path, all_spans)
+                )
+                references.extend(self._extract_backtick_dirs(line, line_num, file_path, all_spans))
+                # Bare paths with separators (PD-BUG-054, PD-BUG-055)
+                references.extend(self._extract_bare_paths(line, line_num, file_path, all_spans))
+                # @-prefixed paths (PD-BUG-055)
+                references.extend(
+                    self._extract_at_prefix_paths(line, line_num, file_path, all_spans)
                 )
 
             return references

@@ -5,13 +5,14 @@ This parser handles Python files and extracts file references
 from strings and comments, excluding standard library imports.
 """
 
+import os
 import re
 import sys
 from typing import List
 
 from ..models import LinkReference
 from .base import BaseParser
-from .patterns import QUOTED_PATH_PATTERN
+from .patterns import QUOTED_DIR_PATTERN, QUOTED_PATH_PATTERN
 
 # Authoritative stdlib module list on Python 3.10+; comprehensive fallback for 3.8/3.9.
 try:
@@ -239,6 +240,8 @@ class PythonParser(BaseParser):
     def __init__(self):
         super().__init__()
         self.quoted_pattern = QUOTED_PATH_PATTERN
+        # PD-BUG-056: Quoted directory paths (paths with separators, no extension required)
+        self.quoted_dir_pattern = QUOTED_DIR_PATTERN
 
         # Pattern for file paths in comments (find all occurrences)
         self.comment_pattern = re.compile(r"([a-zA-Z0-9_\-./\\]+\.[a-zA-Z0-9]+)")
@@ -272,6 +275,28 @@ class PythonParser(BaseParser):
                                 link_text=potential_file,
                                 link_target=potential_file,
                                 link_type="python-quoted",
+                            )
+                        )
+
+                # PD-BUG-056: Look for quoted directory paths (paths without extensions)
+                for match in self.quoted_dir_pattern.finditer(line):
+                    potential_dir = match.group(1)
+
+                    # Skip if it has a file extension (already handled by quoted_pattern)
+                    _, ext = os.path.splitext(potential_dir)
+                    if ext:
+                        continue
+
+                    if self._looks_like_directory_path(potential_dir):
+                        references.append(
+                            LinkReference(
+                                file_path=file_path,
+                                line_number=line_num,
+                                column_start=match.start(1),
+                                column_end=match.end(1),
+                                link_text=potential_dir,
+                                link_target=potential_dir,
+                                link_type="python-quoted-dir",
                             )
                         )
 

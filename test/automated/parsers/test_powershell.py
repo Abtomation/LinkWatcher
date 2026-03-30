@@ -14,7 +14,9 @@ pytestmark = [
     pytest.mark.feature("2.1.1"),
     pytest.mark.priority("Critical"),
     pytest.mark.test_type("parser"),
-    pytest.mark.specification("test/specifications/feature-specs/test-spec-2-1-1-link-parsing-system.md"),
+    pytest.mark.specification(
+        "test/specifications/feature-specs/test-spec-2-1-1-link-parsing-system.md"
+    ),
 ]
 
 
@@ -343,3 +345,85 @@ class TestRegexPatternFiltering:
         refs = parser.parse_content(content, "test.ps1")
         targets = [r.link_target for r in refs]
         assert "src/utils/helpers.py" in targets
+
+
+class TestBug057BlockCommentDirectoryPaths:
+    """PD-BUG-057: Directory paths in block comments and here-strings are not detected.
+
+    Root cause: Block comment and here-string lines only get path_pattern extraction
+    (requires file extension). The quoted_dir_pattern check that detects directory
+    paths is skipped because block comment processing uses `continue`.
+    """
+
+    def test_quoted_dir_path_in_block_comment(self):
+        """Quoted directory path in block comment .EXAMPLE should be detected."""
+        parser = PowerShellParser()
+        content = (
+            "<#\n"
+            ".EXAMPLE\n"
+            '    Get-PrefixDirectories -Prefix "PF-TSK" -DirectoryType "discrete"\n'
+            '    # Returns: "doc/process-framework/tasks/discrete"\n'
+            "#>\n"
+        )
+        refs = parser.parse_content(content, "test.ps1")
+        targets = [r.link_target for r in refs]
+        assert "doc/process-framework/tasks/discrete" in targets
+
+    def test_unquoted_dir_path_in_block_comment_prose_not_detected(self):
+        """Unquoted directory paths in prose are NOT detected (scope of PD-BUG-055, not 057).
+
+        PD-BUG-057 covers quoted string literals. Unquoted prose paths like
+        "defaults to doc/path/" are a separate issue tracked as PD-BUG-055.
+        """
+        parser = PowerShellParser()
+        content = (
+            "<#\n"
+            ".PARAMETER AssessmentDirectory\n"
+            "Directory containing files "
+            "(defaults to doc/process-framework/assessments/technical-debt/)\n"
+            "#>\n"
+        )
+        refs = parser.parse_content(content, "test.ps1")
+        targets = [r.link_target for r in refs]
+        # Unquoted dir paths in prose are not detected — this is expected behavior
+        assert not any("doc/process-framework/assessments/technical-debt" in t for t in targets)
+
+    def test_quoted_dir_path_in_example_command(self):
+        """Quoted directory path in .EXAMPLE command argument should be detected."""
+        parser = PowerShellParser()
+        content = (
+            "<#\n"
+            ".EXAMPLE\n"
+            '    Test-ValidDirectoryForPrefix -Prefix "PF-FEE" '
+            '-Directory "doc/process-framework/feedback/feedback-forms"\n'
+            "#>\n"
+        )
+        refs = parser.parse_content(content, "test.ps1")
+        targets = [r.link_target for r in refs]
+        assert "doc/process-framework/feedback/feedback-forms" in targets
+
+    def test_dir_path_in_here_string(self):
+        """Directory path in here-string should be detected."""
+        parser = PowerShellParser()
+        content = (
+            '$text = @"\n' 'Location: "doc/process-framework/state-tracking/temporary"\n' '"@\n'
+        )
+        refs = parser.parse_content(content, "test.ps1")
+        targets = [r.link_target for r in refs]
+        assert "doc/process-framework/state-tracking/temporary" in targets
+
+    def test_file_path_in_block_comment_still_works(self):
+        """File paths with extensions in block comments should still be detected (no regression)."""
+        parser = PowerShellParser()
+        content = "<#\n" "See doc/guides/setup-guide.md for details\n" "#>\n"
+        refs = parser.parse_content(content, "test.ps1")
+        targets = [r.link_target for r in refs]
+        assert "doc/guides/setup-guide.md" in targets
+
+    def test_embedded_md_link_in_block_comment(self):
+        """Markdown-style link in block comment should be detected."""
+        parser = PowerShellParser()
+        content = "<#\n" "See [Guide](doc/process-framework/guides/support) for details\n" "#>\n"
+        refs = parser.parse_content(content, "test.ps1")
+        targets = [r.link_target for r in refs]
+        assert "doc/process-framework/guides/support" in targets

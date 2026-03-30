@@ -206,7 +206,7 @@
         "permanent": "doc/product-docs/state-tracking/permanent",
         "default": "permanent"
       },
-      "nextAvailable": 54
+      "nextAvailable": 60
     },
     "PD-ASS": {
       "description": "Product Documentation - Assessment Artifacts",
@@ -277,7 +277,7 @@
         "scripts-update": "doc/process-framework/scripts/update/doc/product-docs/refactoring/plans",
         "default": "plans"
       },
-      "nextAvailable": 124
+      "nextAvailable": 125
     },
     "PD-TDA": {
       "description": "Product Documentation - Technical Debt Assessments",

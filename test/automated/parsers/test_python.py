@@ -4,18 +4,17 @@ Tests for the Python parser.
 This module tests Python-specific link parsing functionality.
 """
 
-from pathlib import Path
-
 import pytest
 
-from linkwatcher.models import LinkReference
 from linkwatcher.parsers.python import PythonParser
 
 pytestmark = [
     pytest.mark.feature("2.1.1"),
     pytest.mark.priority("Critical"),
     pytest.mark.test_type("parser"),
-    pytest.mark.specification("test/specifications/feature-specs/test-spec-2-1-1-link-parsing-system.md"),
+    pytest.mark.specification(
+        "test/specifications/feature-specs/test-spec-2-1-1-link-parsing-system.md"
+    ),
 ]
 
 
@@ -245,6 +244,66 @@ DATA_FILE = 'data.csv'
 
         # Should return empty list
         assert references == []
+
+    def test_quoted_directory_paths(self, temp_project_dir):
+        """Test that quoted directory paths (no file extension) are detected.
+
+        Regression test for PD-BUG-056: Python parser did not detect string
+        literals containing directory paths like "doc/process-framework/scripts".
+        The parser only used QUOTED_PATH_PATTERN (requires file extension) and
+        missed directory references entirely.
+        """
+        parser = PythonParser()
+
+        py_file = temp_project_dir / "dir_paths.py"
+        content = '''"""Module with directory path references."""
+
+SCRIPTS_DIR = "doc/process-framework/scripts"
+TEMPLATES_DIR = "doc/process-framework/templates/templates"
+OUTPUT_DIR = "test/automated/unit"
+NESTED_DIR = "src/components/ui/widgets"
+'''
+        py_file.write_text(content)
+
+        references = parser.parse_file(str(py_file))
+        targets = [ref.link_target for ref in references]
+
+        # Should find directory path references
+        assert "doc/process-framework/scripts" in targets
+        assert "doc/process-framework/templates/templates" in targets
+        assert "test/automated/unit" in targets
+        assert "src/components/ui/widgets" in targets
+
+        # All should be python-quoted-dir type
+        dir_refs = [r for r in references if r.link_type == "python-quoted-dir"]
+        assert len(dir_refs) >= 4
+
+    def test_quoted_directory_paths_no_false_positives(self, temp_project_dir):
+        """Test that non-directory strings are not falsely detected as directories.
+
+        Regression test for PD-BUG-056: ensures the directory path detection
+        doesn't introduce false positives for version strings, URLs, etc.
+        """
+        parser = PythonParser()
+
+        py_file = temp_project_dir / "no_false_dirs.py"
+        content = '''"""Module with non-directory strings."""
+
+VERSION = "1.2.3"
+NAME = "hello world"
+URL = "https://example.com/api"
+SINGLE = "simple"
+'''
+        py_file.write_text(content)
+
+        references = parser.parse_file(str(py_file))
+        targets = [ref.link_target for ref in references]
+
+        # None of these should be detected as directory paths
+        assert "1.2.3" not in targets
+        assert "hello world" not in targets
+        assert "https://example.com/api" not in targets
+        assert "simple" not in targets
 
     def test_error_handling(self):
         """Test error handling for invalid files."""

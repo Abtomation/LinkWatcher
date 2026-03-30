@@ -76,6 +76,8 @@ class LinkWatcherConfig:
             ".txt",
             ".ps1",
             ".psm1",
+            ".bat",
+            ".toml",
         }
     )
 

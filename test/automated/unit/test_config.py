@@ -550,6 +550,30 @@ class TestDefaultConfigurations:
         assert TESTING_CONFIG.show_statistics is False
         assert TESTING_CONFIG.colored_output is False
 
+    def test_default_config_includes_bat_extension(self):
+        """Regression test for PD-BUG-058: .bat files must be monitored by default."""
+        assert ".bat" in DEFAULT_CONFIG.monitored_extensions, (
+            ".bat not in DEFAULT_CONFIG.monitored_extensions — "
+            "dev.bat contains file paths that need link maintenance"
+        )
+
+    def test_default_config_includes_toml_extension(self):
+        """Regression test for PD-BUG-058: .toml files must be monitored by default."""
+        assert ".toml" in DEFAULT_CONFIG.monitored_extensions, (
+            ".toml not in DEFAULT_CONFIG.monitored_extensions — "
+            "pyproject.toml contains file paths that need link maintenance"
+        )
+
+    def test_dataclass_default_includes_bat_extension(self):
+        """Regression test for PD-BUG-058: .bat in dataclass default_factory."""
+        config = LinkWatcherConfig()
+        assert ".bat" in config.monitored_extensions
+
+    def test_dataclass_default_includes_toml_extension(self):
+        """Regression test for PD-BUG-058: .toml in dataclass default_factory."""
+        config = LinkWatcherConfig()
+        assert ".toml" in config.monitored_extensions
+
     def test_configs_are_independent(self):
         """Test that config instances are independent."""
         # Modify one config

@@ -13,8 +13,6 @@ Test Cases Implemented:
 - CS-006: Very long file paths
 """
 
-from pathlib import Path
-
 import pytest
 from watchdog.events import FileMovedEvent
 
@@ -25,7 +23,9 @@ pytestmark = [
     pytest.mark.priority("Standard"),
     pytest.mark.cross_cutting(["2.1.1", "2.2.1", "1.1.1", "0.1.2"]),
     pytest.mark.test_type("integration"),
-    pytest.mark.specification("test/specifications/feature-specs/test-spec-0-1-1-core-architecture.md"),
+    pytest.mark.specification(
+        "test/specifications/feature-specs/test-spec-0-1-1-core-architecture.md"
+    ),
 ]
 
 
@@ -332,9 +332,8 @@ References:
         assert '"special_file.txt"' in readme_updated
         assert "'special_file.txt'" in readme_updated
 
-        # Backtick-delimited references are intentionally NOT updated
-        # (code content should not be modified — see BUG-011 determination)
-        assert "`file with spaces & symbols.txt`" in readme_updated
+        # Backtick-delimited references ARE now updated (PD-BUG-054)
+        assert "`special_file.txt`" in readme_updated
 
     def test_cs_006_very_long_file_paths(self, temp_project_dir):
         """

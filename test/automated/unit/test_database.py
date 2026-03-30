@@ -191,6 +191,94 @@ class TestLinkDatabase:
         assert len(updated_refs) == 1
         assert updated_refs[0].link_target == "new.txt#section"
 
+    def test_get_references_relative_path_resolution(self, link_database):
+        """get_references_to_file finds refs stored under relative-path keys."""
+        # Source file docs/readme.md links to ../src/main.py
+        # That resolves to src/main.py
+        ref = LinkReference(
+            "docs/readme.md", 1, 0, 15, "../src/main.py", "../src/main.py", "markdown"
+        )
+        link_database.add_link(ref)
+
+        results = link_database.get_references_to_file("src/main.py")
+        assert len(results) == 1
+        assert results[0].file_path == "docs/readme.md"
+
+        # Should NOT match a file in a different directory
+        assert link_database.get_references_to_file("other/main.py") == []
+
+    def test_get_references_filename_only_match(self, link_database):
+        """get_references_to_file finds refs stored under bare filename keys."""
+        # Source file utils/runner.py links to just "helpers.py" (same dir)
+        ref = LinkReference("utils/runner.py", 1, 0, 10, "helpers.py", "helpers.py", "python")
+        link_database.add_link(ref)
+
+        # Should match when querying the full path in same directory
+        results = link_database.get_references_to_file("utils/helpers.py")
+        assert len(results) == 1
+        assert results[0].file_path == "utils/runner.py"
+
+        # Should NOT match a file with same name in different directory
+        assert link_database.get_references_to_file("other/helpers.py") == []
+
+    def test_get_references_suffix_match(self, link_database):
+        """get_references_to_file finds project-root-relative refs (PD-BUG-045).
+
+        When a reference uses a project-root-relative path (e.g., Python import
+        'utils/helpers'), the DB key is a suffix of the full project path. The
+        match should succeed when the referring file shares the same subtree.
+        """
+        # Source: myproject/app/main.py links to utils/helpers (project-relative)
+        ref = LinkReference(
+            "myproject/app/main.py", 3, 0, 14, "utils/helpers", "utils/helpers", "python"
+        )
+        link_database.add_link(ref)
+
+        # Query for the full path — suffix match should find it
+        results = link_database.get_references_to_file("myproject/utils/helpers.py")
+        assert len(results) == 1
+        assert results[0].file_path == "myproject/app/main.py"
+        assert results[0].link_target == "utils/helpers"
+
+    def test_get_references_suffix_match_negative(self, link_database):
+        """Suffix match must NOT match when referring file is in a different subtree.
+
+        PD-BUG-045 subtree guard: key 'utils/helpers' from source
+        'otherproject/app/main.py' must NOT match 'myproject/utils/helpers.py'
+        because the two files are in different project roots.
+        """
+        ref = LinkReference(
+            "otherproject/app/main.py", 3, 0, 14, "utils/helpers", "utils/helpers", "python"
+        )
+        link_database.add_link(ref)
+
+        results = link_database.get_references_to_file("myproject/utils/helpers.py")
+        assert len(results) == 0
+
+    def test_get_references_suffix_match_extensionless(self, link_database):
+        """Suffix match works when DB key lacks extension that the queried file has.
+
+        Python imports are stored without .py extension (e.g., 'utils/helpers').
+        Querying 'myproject/utils/helpers.py' should still match via extension
+        stripping in the suffix comparison. The extension stripping is
+        extension-agnostic — any extension is stripped before comparison.
+        """
+        ref = LinkReference(
+            "myproject/app/runner.py", 5, 0, 14, "utils/helpers", "utils/helpers", "python"
+        )
+        link_database.add_link(ref)
+
+        # Match with .py extension on the queried file
+        results = link_database.get_references_to_file("myproject/utils/helpers.py")
+        assert len(results) == 1
+
+        # Extension stripping is agnostic — any extension matches the stem
+        results_js = link_database.get_references_to_file("myproject/utils/helpers.js")
+        assert len(results_js) == 1
+
+        # But a completely different filename should NOT match
+        assert link_database.get_references_to_file("myproject/utils/other.py") == []
+
     def test_get_stats(self, link_database):
         """Test database statistics."""
         # Empty database

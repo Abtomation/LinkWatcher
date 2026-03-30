@@ -68,6 +68,8 @@ Systematic code improvement and technical debt reduction without changing extern
 
 ### Step 1: Effort Assessment Gate
 
+> **⚠️ IMPORTANT: Independently verify tech debt descriptions.** Do not accept a TD item's problem description or proposed fix at face value. Read the actual target code and trace the full code path yourself. TD descriptions may be inaccurate about root cause, incomplete about scope, or propose a fix that only addresses part of the problem. Ask: "Is this the COMPLETE picture? Does the proposed fix address the dominant cost?" Map all branches, loops, and early exits before recommending Proceed.
+
 Evaluate the refactoring scope against these criteria:
 
 | Criteria | Lightweight | Standard |

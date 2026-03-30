@@ -4,18 +4,17 @@ Tests for the Markdown parser.
 This module tests markdown-specific link parsing functionality.
 """
 
-from pathlib import Path
-
 import pytest
 
-from linkwatcher.models import LinkReference
 from linkwatcher.parsers.markdown import MarkdownParser
 
 pytestmark = [
     pytest.mark.feature("2.1.1"),
     pytest.mark.priority("Critical"),
     pytest.mark.test_type("parser"),
-    pytest.mark.specification("test/specifications/feature-specs/test-spec-2-1-1-link-parsing-system.md"),
+    pytest.mark.specification(
+        "test/specifications/feature-specs/test-spec-2-1-1-link-parsing-system.md"
+    ),
 ]
 
 
@@ -419,84 +418,83 @@ Also test [shorthand reference][] style.
         for expected in expected_targets:
             assert expected in targets, f"Expected target '{expected}' not found in {targets}"
 
-    @pytest.mark.xfail(reason="Parser has no inline code backtick awareness")
     @pytest.mark.high
-    def test_mp_003_inline_code_fake_links(self, temp_project_dir):
+    def test_mp_003_backtick_quoted_paths(self, temp_project_dir):
         """
-        MP-003: Inline code with fake links
+        MP-003: Backtick-quoted file and directory paths (PD-BUG-054)
 
-        Test Case: `[fake](link.txt)` should be ignored
-        Expected: Links inside inline code are not parsed
+        Test Case: `path/to/file.ext` and `path/to/dir/` should be detected
+        Expected: Paths inside backtick inline code are parsed as references
         Priority: High
         """
         parser = MarkdownParser()
 
-        # Create markdown file with inline code containing fake links
         md_file = temp_project_dir / "test.md"
-        content = """# Inline Code Test
+        content = """# Backtick Path Test
 
-Real links:
+Real markdown links:
 - [Real link](real.txt)
 
-Fake links in inline code (should be ignored):
-- Use `[fake link](fake.txt)` in your code
-- The syntax is `[text](url)` for links
-- Example: `[config](config.yaml)`
+Backtick-quoted file paths (should be detected):
+- Use `doc/process-framework/scripts/file-creation/New-Task.ps1` to create tasks
+- The config is at `config/settings.yaml`
+
+Backtick-quoted directory paths (should be detected):
+- Scripts are in `doc/process-framework/scripts/file-creation`
+- Navigate to `doc/process-framework/tasks/support`
 
 Mixed content:
-- Real [link](mixed.txt) and `[fake](ignore.txt)` code
+- Real [link](mixed.txt) and `doc/guides/setup.md` inline
 """
         md_file.write_text(content)
 
-        # Parse the file
         references = parser.parse_file(str(md_file))
-
-        # Should find real links but not fake ones in code
         targets = [ref.link_target for ref in references]
 
-        # Should find real links
+        # Real markdown links still detected
         assert "real.txt" in targets
         assert "mixed.txt" in targets
 
-        # Should NOT find fake links in inline code
-        assert "fake.txt" not in targets
-        assert "config.yaml" not in targets
-        assert "ignore.txt" not in targets
+        # Backtick-quoted file paths detected
+        assert "doc/process-framework/scripts/file-creation/New-Task.ps1" in targets
+        assert "config/settings.yaml" in targets
 
-    @pytest.mark.xfail(reason="Parser has no fenced code block state tracking")
+        # Backtick-quoted directory paths detected
+        assert "doc/process-framework/scripts/file-creation" in targets
+        assert "doc/process-framework/tasks/support" in targets
+
+        # Backtick-quoted file path in mixed line detected
+        assert "doc/guides/setup.md" in targets
+
     @pytest.mark.high
-    def test_mp_004_code_blocks_fake_links(self, temp_project_dir):
+    def test_mp_004_code_block_bare_paths(self, temp_project_dir):
         """
-        MP-004: Code blocks with fake links
+        MP-004: Bare paths inside fenced code blocks (PD-BUG-054)
 
-        Test Case: ```[fake](link.txt)``` should be ignored
-        Expected: Links inside code blocks are not parsed
+        Test Case: Bare directory paths in code blocks should be detected
+        Expected: Paths in code blocks are parsed as references
         Priority: High
         """
         parser = MarkdownParser()
 
-        # Create markdown file with code blocks containing fake links
         md_file = temp_project_dir / "test.md"
-        content = """# Code Block Test
+        content = """# Code Block Path Test
 
 Real link before code:
 [Real link](before.txt)
 
-```markdown
-# Fake markdown in code block
-[Fake link 1](fake1.txt)
-[Fake link 2](fake2.txt)
+```powershell
+cd doc/process-framework/scripts/file-creation/support
+./New-FeedbackForm.ps1 -DocumentId "PF-TSK-XXX"
 ```
 
-```python
-# Python code with fake links
-config_file = "[config](config.txt)"
-link = "[documentation](docs.md)"
+```bash
+cd /c/path/to/project/doc/process-framework/scripts/file-creation && pwsh.exe -Command 'test'
 ```
 
 ```
 Plain code block
-[Another fake](another.txt)
+doc/process-framework/tasks/support/new-task-creation-process.md
 ```
 
 Real link after code:
@@ -504,22 +502,18 @@ Real link after code:
 """
         md_file.write_text(content)
 
-        # Parse the file
         references = parser.parse_file(str(md_file))
-
-        # Should find real links but not fake ones in code blocks
         targets = [ref.link_target for ref in references]
 
-        # Should find real links
+        # Real markdown links still detected
         assert "before.txt" in targets
         assert "after.txt" in targets
 
-        # Should NOT find fake links in code blocks
-        assert "fake1.txt" not in targets
-        assert "fake2.txt" not in targets
-        assert "config.txt" not in targets
-        assert "docs.md" not in targets
-        assert "another.txt" not in targets
+        # Bare directory path in code block detected
+        assert "doc/process-framework/scripts/file-creation/support" in targets
+
+        # Bare file path in code block detected
+        assert "doc/process-framework/tasks/support/new-task-creation-process.md" in targets
 
     @pytest.mark.medium
     def test_mp_005_html_links(self, temp_project_dir):
@@ -760,7 +754,7 @@ Edge cases:
         """
         MP-009: Escaped characters
 
-        Test Case: [text](file\.txt) with escaped characters
+        Test Case: [text](file\\.txt) with escaped characters
         Expected: Escaped characters handled correctly
         Priority: Low
         """
@@ -1055,3 +1049,121 @@ cd "doc/process-framework/methodologies/documentation-tiers"
 
         # None of these should be detected as directory paths
         assert len(dir_refs) == 0
+
+    @pytest.mark.high
+    def test_mp_010_at_prefix_paths(self, temp_project_dir):
+        """
+        MP-010: @-prefixed path references (PD-BUG-055)
+
+        Test Case: @doc/process-framework/ai-tasks.md should be detected
+        Expected: Paths prefixed with @ are parsed with @ stripped from target
+        Priority: High
+        """
+        parser = MarkdownParser()
+
+        md_file = temp_project_dir / "test.md"
+        content = """# At-Prefix Path Test
+
+1. **Read the entry point**: @doc/process-framework/.ai-entry-point.md
+2. **Select a task**: @doc/process-framework/ai-tasks.md - All work MUST be task-based
+- Tracked in @doc/process-framework/PF-id-registry.json and @doc/product-docs/PD-id-registry.json
+"""
+        md_file.write_text(content)
+
+        references = parser.parse_file(str(md_file))
+        targets = [ref.link_target for ref in references]
+
+        # @ prefix paths detected with @ stripped
+        assert "doc/process-framework/.ai-entry-point.md" in targets
+        assert "doc/process-framework/ai-tasks.md" in targets
+        assert "doc/process-framework/PF-id-registry.json" in targets
+        assert "doc/product-docs/PD-id-registry.json" in targets
+
+    @pytest.mark.high
+    def test_mp_011_leading_slash_paths(self, temp_project_dir):
+        """
+        MP-011: Leading slash path references (PD-BUG-055)
+
+        Test Case: /doc/process-framework/feedback/ should be detected
+        Expected: Paths with leading / are parsed as references
+        Priority: High
+        """
+        parser = MarkdownParser()
+
+        md_file = temp_project_dir / "test.md"
+        content = """# Leading Slash Path Test
+
+Files saved to: /doc/process-framework/feedback/feedback-forms/
+Ensure the template exists at /doc/process-framework/templates/support/feedback-form-template.md
+Navigate to /doc/process-framework/scripts/file-creation/support directory
+"""
+        md_file.write_text(content)
+
+        references = parser.parse_file(str(md_file))
+        targets = [ref.link_target for ref in references]
+
+        # Leading slash directory path detected
+        assert (
+            "/doc/process-framework/feedback/feedback-forms/" in targets
+            or "doc/process-framework/feedback/feedback-forms/" in targets
+        )
+
+        # Leading slash file path detected
+        assert (
+            "/doc/process-framework/templates/support/feedback-form-template.md" in targets
+            or "doc/process-framework/templates/support/feedback-form-template.md" in targets
+        )
+
+        # Leading slash directory path (no trailing slash) detected
+        assert (
+            "/doc/process-framework/scripts/file-creation/support" in targets
+            or "doc/process-framework/scripts/file-creation/support" in targets
+        )
+
+    @pytest.mark.medium
+    def test_mp_012_mermaid_blocks_excluded(self, temp_project_dir):
+        """
+        MP-012: Mermaid code blocks are excluded (PD-BUG-055)
+
+        Test Case: Paths in ```mermaid blocks should be ignored
+        Expected: Mermaid diagram content is purely illustrative, not parsed
+        Priority: Medium
+        """
+        parser = MarkdownParser()
+
+        md_file = temp_project_dir / "test.md"
+        content = """# Mermaid Exclusion Test
+
+Real link before:
+[Real link](before.txt)
+
+```mermaid
+graph TD
+    C --> D[cd doc/process-framework/scripts/file-creation/support]
+    W --> X[/doc/process-framework/feedback/feedback-forms/]
+```
+
+Real link after:
+[Real link](after.txt)
+
+```bash
+cd doc/process-framework/scripts/file-creation
+```
+"""
+        md_file.write_text(content)
+
+        references = parser.parse_file(str(md_file))
+        targets = [ref.link_target for ref in references]
+
+        # Real links detected
+        assert "before.txt" in targets
+        assert "after.txt" in targets
+
+        # Bash code block paths still detected (not mermaid)
+        assert "doc/process-framework/scripts/file-creation" in targets
+
+        # Mermaid content NOT detected
+        mermaid_paths = [
+            t for t in targets if "feedback-forms" in t or "file-creation/support" in t
+        ]
+        assert len(mermaid_paths) == 0, f"Mermaid paths should not be detected: {mermaid_paths}"

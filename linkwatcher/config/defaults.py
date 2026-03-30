@@ -44,6 +44,9 @@ DEFAULT_CONFIG = LinkWatcherConfig(
         ".dart",  # Dart files
         ".ps1",  # PowerShell scripts
         ".psm1",  # PowerShell modules
+        # Script and config files (PD-BUG-058)
+        ".bat",  # Windows batch scripts
+        ".toml",  # TOML configuration files
         # Media files (commonly referenced in documentation)
         ".mp4",  # Video files
         ".mp3",  # Audio files

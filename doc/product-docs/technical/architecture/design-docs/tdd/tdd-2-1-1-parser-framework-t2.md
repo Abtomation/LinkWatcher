@@ -202,7 +202,7 @@ No API Design, Database Schema Design, or Test Specification documents exist for
 | `linkwatcher/parsers/markdown.py` | `MarkdownParser` — `.md` files. Extracts `[text](path)` links, `[label]: path` reference definitions, `<a href>` tags, quoted file/directory paths (`"path"`, `'path"`, `` `path` ``), and standalone file references. Backtick-delimited paths are treated as quoted strings for both file and directory detection. |
 | `linkwatcher/parsers/yaml_parser.py` | `YamlParser` — `.yaml`/`.yml` files. Detects file path references and directory path references (PD-BUG-030). |
 | `linkwatcher/parsers/json_parser.py` | `JsonParser` — `.json` files. Detects file path references and directory path references (PD-BUG-030). |
-| `linkwatcher/parsers/python.py` | `PythonParser` — `.py` files |
+| `linkwatcher/parsers/python.py` | `PythonParser` — `.py` files. Extracts `import`/`from` statements (stdlib filtered via `sys.stdlib_module_names`), quoted string literals (file paths via `QUOTED_PATH_PATTERN`, directory paths via `QUOTED_DIR_PATTERN`), and file paths in `#` comments. |
 | `linkwatcher/parsers/dart.py` | `DartParser` — `.dart` files |
 | `linkwatcher/parsers/powershell.py` | `PowerShellParser` — `.ps1`/`.psm1` files. Extracts paths from `#` line comments, `<# #>` block comments (including `.EXAMPLE`/`.NOTES` sections), quoted string literals (file and directory paths), and embedded markdown links in quoted strings. Uses shared `QUOTED_PATH_PATTERN` and `QUOTED_DIR_PATTERN_STRICT` from `patterns.py` for quoted strings, `path_pattern` for comment/text paths, and `block_comment_start`/`block_comment_end` for `<# ... #>` region tracking. |
 | `linkwatcher/parsers/generic.py` | `GenericParser` — fallback for all other file types |

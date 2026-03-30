@@ -17,7 +17,9 @@ pytestmark = [
     pytest.mark.priority("Critical"),
     pytest.mark.cross_cutting(["1.1.1", "0.1.2"]),
     pytest.mark.test_type("unit"),
-    pytest.mark.specification("test/specifications/feature-specs/test-spec-0-1-1-core-architecture.md"),
+    pytest.mark.specification(
+        "test/specifications/feature-specs/test-spec-0-1-1-core-architecture.md"
+    ),
 ]
 
 
@@ -30,7 +32,7 @@ class TestLinkWatcherService:
 
         assert service.project_root == temp_project_dir
         assert service.observer is None
-        assert service.running == False
+        assert service.running is False
 
         # Check that components are initialized
         assert service.link_db is not None
@@ -72,7 +74,7 @@ class TestLinkWatcherService:
         assert "handler_stats" in status
         assert "last_scan" in status
 
-        assert status["running"] == False
+        assert status["running"] is False
         assert status["project_root"] == str(temp_project_dir)
 
     def test_force_rescan(self, temp_project_dir, sample_files):
@@ -106,11 +108,11 @@ class TestLinkWatcherService:
 
         # Enable dry run
         service.set_dry_run(True)
-        assert service.updater.dry_run == True
+        assert service.updater.dry_run is True
 
         # Disable dry run
         service.set_dry_run(False)
-        assert service.updater.dry_run == False
+        assert service.updater.dry_run is False
 
     def test_add_custom_parser(self, temp_project_dir):
         """Test adding a custom parser."""
@@ -206,7 +208,7 @@ class TestLinkWatcherService:
         # Test signal handler function
         service.running = True
         service._signal_handler(signal.SIGINT, None)
-        assert service.running == False
+        assert service.running is False
 
     def test_service_statistics_tracking(self, temp_project_dir, sample_files):
         """Test that service properly tracks statistics."""
@@ -440,3 +442,55 @@ class TestFileFilterOnEvents:
             # Directory workaround should fire — lookup must not be blocked
             mock_get_files.assert_called_once()
             mock_dir_handler.assert_called_once()
+
+
+class TestStartupObserverOrder:
+    """Regression test for PD-BUG-053: File move during startup scan not detected.
+
+    The observer must be started BEFORE the initial scan runs, so that file
+    moves occurring during the scan are captured by the watchdog observer.
+    If the observer starts after the scan, there is a gap where moves are
+    invisible.
+    """
+
+    def test_observer_starts_before_initial_scan(self, temp_project_dir):
+        """Observer.start() must be called before _initial_scan() runs.
+
+        Instead of running the full start() loop, we intercept _initial_scan
+        and Observer to record call order without entering the blocking main loop.
+        """
+        import threading
+
+        service = LinkWatcherService(str(temp_project_dir))
+
+        call_order = []
+
+        original_initial_scan = service._initial_scan
+
+        def tracked_initial_scan():
+            call_order.append("initial_scan")
+            original_initial_scan()
+
+        mock_observer = MagicMock()
+
+        def tracked_observer_start():
+            call_order.append("observer_start")
+            # Schedule a stop so the main loop exits quickly
+            threading.Timer(0.1, lambda: setattr(service, "running", False)).start()
+
+        mock_observer.start = tracked_observer_start
+        mock_observer.is_alive.return_value = True
+
+        with patch.object(service, "_initial_scan", side_effect=tracked_initial_scan), patch(
+            "linkwatcher.service.Observer", return_value=mock_observer
+        ):
+            service.start(initial_scan=True)
+
+        assert "observer_start" in call_order, "observer.start() was never called"
+        assert "initial_scan" in call_order, "_initial_scan() was never called"
+
+        observer_idx = call_order.index("observer_start")
+        initial_scan_idx = call_order.index("initial_scan")
+        assert (
+            observer_idx < initial_scan_idx
+        ), f"Observer must start before initial scan, but order was: {call_order}"

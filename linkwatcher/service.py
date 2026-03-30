@@ -100,6 +100,14 @@ class LinkWatcherService:
         self.logger.info("service_starting", project_root=str(self.project_root))
 
         try:
+            # Setup and start file system observer BEFORE initial scan
+            # so that file moves during the scan are captured (PD-BUG-053)
+            self.logger.debug("setting_up_file_observer")
+            self.observer = Observer()
+            self.observer.schedule(self.handler, str(self.project_root), recursive=True)
+            self.observer.start()
+            self.running = True
+
             # Perform initial scan if requested
             if initial_scan:
                 self.logger.info("initial_scan_starting")
@@ -113,15 +121,6 @@ class LinkWatcherService:
                     total_references=stats["total_references"],
                     total_targets=stats["total_targets"],
                 )
-
-            # Setup file system observer
-            self.logger.debug("setting_up_file_observer")
-            self.observer = Observer()
-            self.observer.schedule(self.handler, str(self.project_root), recursive=True)
-
-            # Start watching
-            self.observer.start()
-            self.running = True
 
             self.logger.info("monitoring_started")
 

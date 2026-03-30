@@ -51,8 +51,8 @@ class PowerShellParser(BaseParser):
                     if stripped == '"@' or stripped == "'@":
                         in_here_string = False
                         continue
-                    # Extract paths from here-string content lines
-                    self._extract_paths_from_line(
+                    # PD-BUG-057: Use full pattern extraction for here-strings
+                    self._extract_all_paths_from_line(
                         line, line_num, file_path, "powershell-here-string", references
                     )
                     continue
@@ -65,7 +65,8 @@ class PowerShellParser(BaseParser):
                     in_block_comment = True
                     # Check if block comment opens and closes on the same line
                     if self.block_comment_end.search(line[line.find("<#") + 2 :]):
-                        self._extract_paths_from_line(
+                        # PD-BUG-057: Use full pattern extraction for block comments
+                        self._extract_all_paths_from_line(
                             line, line_num, file_path, "powershell-block-comment", references
                         )
                         in_block_comment = False
@@ -74,8 +75,8 @@ class PowerShellParser(BaseParser):
                 if in_block_comment:
                     if self.block_comment_end.search(line):
                         in_block_comment = False
-                    # Extract paths from block comment lines
-                    self._extract_paths_from_line(
+                    # PD-BUG-057: Use full pattern extraction for block comments
+                    self._extract_all_paths_from_line(
                         line, line_num, file_path, "powershell-block-comment", references
                     )
                     continue
@@ -225,6 +226,142 @@ class PowerShellParser(BaseParser):
                 return i
             i += 1
         return None
+
+    def _extract_all_paths_from_line(
+        self,
+        line: str,
+        line_num: int,
+        file_path: str,
+        link_type: str,
+        references: List[LinkReference],
+    ):
+        """Extract all file paths from a line using all pattern types.
+
+        PD-BUG-057: Block comments and here-strings need the same quoted-string
+        pattern checks as regular code lines, not just the simple path_pattern.
+        """
+        file_path_spans: set = set()
+
+        # 1. Quoted file paths (with extension)
+        for match in self.quoted_pattern.finditer(line):
+            potential_file = match.group(1)
+            if self._looks_like_file_path(potential_file):
+                file_path_spans.add((match.start(1), match.end(1)))
+                references.append(
+                    LinkReference(
+                        file_path=file_path,
+                        line_number=line_num,
+                        column_start=match.start(1),
+                        column_end=match.end(1),
+                        link_text=potential_file,
+                        link_target=potential_file,
+                        link_type=link_type,
+                    )
+                )
+            else:
+                # Fallback: extract embedded file paths from prose-like strings
+                for sub_match in self.path_pattern.finditer(potential_file):
+                    sub_path = sub_match.group(1)
+                    if self._looks_like_file_path(sub_path):
+                        col_start = match.start(1) + sub_match.start(1)
+                        col_end = match.start(1) + sub_match.end(1)
+                        if (col_start, col_end) not in file_path_spans:
+                            file_path_spans.add((col_start, col_end))
+                            references.append(
+                                LinkReference(
+                                    file_path=file_path,
+                                    line_number=line_num,
+                                    column_start=col_start,
+                                    column_end=col_end,
+                                    link_text=sub_path,
+                                    link_target=sub_path,
+                                    link_type=link_type,
+                                )
+                            )
+
+        # 2. All quoted strings — embedded paths where extension is not at end
+        for match in self.all_quoted_pattern.finditer(line):
+            content = match.group(1)
+            for sub_match in self.path_pattern.finditer(content):
+                sub_path = sub_match.group(1)
+                col_start = match.start(1) + sub_match.start(1)
+                col_end = match.start(1) + sub_match.end(1)
+                if (col_start, col_end) not in file_path_spans:
+                    if self._looks_like_file_path(sub_path):
+                        file_path_spans.add((col_start, col_end))
+                        references.append(
+                            LinkReference(
+                                file_path=file_path,
+                                line_number=line_num,
+                                column_start=col_start,
+                                column_end=col_end,
+                                link_text=sub_path,
+                                link_target=sub_path,
+                                link_type=link_type,
+                            )
+                        )
+
+        # 3. Quoted directory paths (no extension required)
+        for match in self.quoted_dir_pattern.finditer(line):
+            if (match.start(1), match.end(1)) in file_path_spans:
+                continue
+            potential_dir = match.group(1)
+            if self._looks_like_directory_path(potential_dir):
+                file_path_spans.add((match.start(1), match.end(1)))
+                references.append(
+                    LinkReference(
+                        file_path=file_path,
+                        line_number=line_num,
+                        column_start=match.start(1),
+                        column_end=match.end(1),
+                        link_text=potential_dir,
+                        link_target=potential_dir,
+                        link_type=link_type,
+                    )
+                )
+
+        # 4. Embedded markdown links: [text](path)
+        for match in self.embedded_md_link_pattern.finditer(line):
+            if (match.start(1), match.end(1)) in file_path_spans:
+                continue
+            embedded_path = match.group(1)
+            clean_path = re.sub(r"\$\w+$", "", embedded_path).rstrip("/")
+            if clean_path and (
+                self._looks_like_directory_path(embedded_path)
+                or self._looks_like_file_path(embedded_path)
+                or self._looks_like_directory_path(clean_path)
+            ):
+                references.append(
+                    LinkReference(
+                        file_path=file_path,
+                        line_number=line_num,
+                        column_start=match.start(1),
+                        column_end=match.end(1),
+                        link_text=embedded_path,
+                        link_target=embedded_path,
+                        link_type=link_type,
+                    )
+                )
+
+        # 5. Unquoted file paths in text (original path_pattern extraction)
+        for match in self.path_pattern.finditer(line):
+            potential_file = match.group(1)
+            col_start = match.start(1)
+            col_end = match.end(1)
+            if (col_start, col_end) not in file_path_spans:
+                if self._looks_like_file_path(potential_file):
+                    file_path_spans.add((col_start, col_end))
+                    references.append(
+                        LinkReference(
+                            file_path=file_path,
+                            line_number=line_num,
+                            column_start=col_start,
+                            column_end=col_end,
+                            link_text=potential_file,
+                            link_target=potential_file,
+                            link_type=link_type,
+                        )
+                    )
 
     def _extract_paths_from_line(
         self,

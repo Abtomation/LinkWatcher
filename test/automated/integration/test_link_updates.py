@@ -15,10 +15,8 @@ Test Cases Implemented:
 - LR-008: Generic text files
 """
 
-from pathlib import Path
-
 import pytest
-from watchdog.events import DirMovedEvent, FileCreatedEvent, FileDeletedEvent, FileMovedEvent
+from watchdog.events import FileMovedEvent
 
 from linkwatcher.service import LinkWatcherService
 
@@ -552,7 +550,9 @@ HTML: <a href="shared.txt">link</a>
         # Verify updates
         mixed_updated = mixed_file.read_text()
         assert "common.txt" in mixed_updated
-        assert mixed_updated.count("shared.txt") == 1  # Only backtick code span preserved
+        assert (
+            mixed_updated.count("shared.txt") == 0
+        )  # All references updated including backtick (PD-BUG-054)
 
     def test_false_positive_avoidance(self, temp_project_dir):
         """Test that false positives are avoided."""
@@ -1149,7 +1149,8 @@ class TestBug033RegexNotRewrittenOnMove:
 
 
 class TestBug043PythonImportModuleLookup:
-    """Regression tests for PD-BUG-043: Python dot-notation imports not resolved during reference lookup.
+    """Regression tests for PD-BUG-043: Python dot-notation imports
+    not resolved during reference lookup.
 
     The PythonParser stores import targets in extensionless slash notation
     (e.g., ``utils/helpers``), but single-file-move lookup only tried paths
@@ -1192,16 +1193,14 @@ class TestBug043PythonImportModuleLookup:
         updated = main_file.read_text()
 
         # Import statements must be updated (dot notation)
-        assert "from core.helpers import format_name" in updated, (
-            "from-import should update to core.helpers"
-        )
-        assert "import core.helpers" in updated, (
-            "bare import should update to core.helpers"
-        )
+        assert (
+            "from core.helpers import format_name" in updated
+        ), "from-import should update to core.helpers"
+        assert "import core.helpers" in updated, "bare import should update to core.helpers"
         # Old imports must be gone
-        assert "utils.helpers" not in updated, (
-            "no reference to old module utils.helpers should remain"
-        )
+        assert (
+            "utils.helpers" not in updated
+        ), "no reference to old module utils.helpers should remain"
 
     def test_bug043_quoted_and_comment_refs_also_updated(self, temp_project_dir):
         """Quoted paths and comment references must also update on .py file move."""
@@ -1214,8 +1213,7 @@ class TestBug043PythonImportModuleLookup:
         app_dir.mkdir()
         runner_file = app_dir / "runner.py"
         runner_file.write_text(
-            'helper_file = "utils/helpers.py"\n'
-            "# utils/helpers.py contains shared utilities\n"
+            'helper_file = "utils/helpers.py"\n' "# utils/helpers.py contains shared utilities\n"
         )
 
         service = LinkWatcherService(str(temp_project_dir))
@@ -1231,12 +1229,10 @@ class TestBug043PythonImportModuleLookup:
 
         updated = runner_file.read_text()
 
-        assert "core/helpers.py" in updated, (
-            "quoted path should update to core/helpers.py"
-        )
-        assert "utils/helpers.py" not in updated, (
-            "no reference to old path utils/helpers.py should remain"
-        )
+        assert "core/helpers.py" in updated, "quoted path should update to core/helpers.py"
+        assert (
+            "utils/helpers.py" not in updated
+        ), "no reference to old path utils/helpers.py should remain"
 
 
 class TestBug045PythonModuleUsageUpdate:
@@ -1258,10 +1254,7 @@ class TestBug045PythonModuleUsageUpdate:
         app_dir.mkdir()
         runner_file = app_dir / "runner.py"
         runner_file.write_text(
-            "import utils.helpers\n"
-            "\n"
-            "def run():\n"
-            "    utils.helpers.format_name('runner')\n"
+            "import utils.helpers\n" "\n" "def run():\n" "    utils.helpers.format_name('runner')\n"
         )
 
         service = LinkWatcherService(str(temp_project_dir))
@@ -1277,15 +1270,13 @@ class TestBug045PythonModuleUsageUpdate:
 
         updated = runner_file.read_text()
 
-        assert "import core.helpers" in updated, (
-            "import statement should update to core.helpers"
-        )
-        assert "core.helpers.format_name" in updated, (
-            "module usage should update to core.helpers.format_name"
-        )
-        assert "utils.helpers" not in updated, (
-            "no reference to old module utils.helpers should remain"
-        )
+        assert "import core.helpers" in updated, "import statement should update to core.helpers"
+        assert (
+            "core.helpers.format_name" in updated
+        ), "module usage should update to core.helpers.format_name"
+        assert (
+            "utils.helpers" not in updated
+        ), "no reference to old module utils.helpers should remain"
 
     def test_bug045_multiple_usage_sites_updated(self, temp_project_dir):
         """All usage sites of the module must be updated, not just the import."""
@@ -1318,12 +1309,12 @@ class TestBug045PythonModuleUsageUpdate:
 
         updated = main_file.read_text()
 
-        assert updated.count("core.helpers") >= 4, (
-            f"expected at least 4 occurrences of core.helpers, got {updated.count('core.helpers')}"
-        )
-        assert "utils.helpers" not in updated, (
-            "no reference to old module utils.helpers should remain"
-        )
+        assert (
+            updated.count("core.helpers") >= 4
+        ), f"expected at least 4 occurrences of core.helpers, got {updated.count('core.helpers')}"
+        assert (
+            "utils.helpers" not in updated
+        ), "no reference to old module utils.helpers should remain"
 
     def test_bug045_no_false_positive_on_substring_module(self, temp_project_dir):
         """Module replacement must not affect substring matches (e.g., my_utils.helpers)."""
@@ -1336,9 +1327,7 @@ class TestBug045PythonModuleUsageUpdate:
         app_dir.mkdir()
         main_file = app_dir / "main.py"
         main_file.write_text(
-            "import utils.helpers\n"
-            "my_utils_helpers = 'unrelated'\n"
-            "utils.helpers.func()\n"
+            "import utils.helpers\n" "my_utils_helpers = 'unrelated'\n" "utils.helpers.func()\n"
         )
 
         service = LinkWatcherService(str(temp_project_dir))
@@ -1357,6 +1346,6 @@ class TestBug045PythonModuleUsageUpdate:
         assert "import core.helpers" in updated
         assert "core.helpers.func()" in updated
         # The unrelated variable name must NOT be changed
-        assert "my_utils_helpers" in updated, (
-            "substring 'my_utils_helpers' must not be affected by module rename"
-        )
+        assert (
+            "my_utils_helpers" in updated
+        ), "substring 'my_utils_helpers' must not be affected by module rename"

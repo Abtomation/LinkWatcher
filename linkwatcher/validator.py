@@ -121,6 +121,10 @@ _STANDALONE_LINK_TYPES: frozenset = frozenset(
         "markdown-standalone",
         "markdown-quoted",
         "markdown-quoted-dir",
+        "markdown-backtick",
+        "markdown-backtick-dir",
+        "markdown-bare-path",
+        "markdown-at-prefix",
     }
 )
 

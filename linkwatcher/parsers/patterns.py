@@ -13,7 +13,7 @@ QUOTED_PATH_PATTERN = re.compile(r'[\'"]([^\'"]+\.[a-zA-Z0-9]+)[\'"]')
 
 # Matches quoted strings containing at least one path separator (/ or \).
 # No extension required — captures directory references.
-# Used by: generic, markdown parsers.
+# Used by: generic, markdown, python parsers.
 QUOTED_DIR_PATTERN = re.compile(r'[\'"]([^\'"]*[/\\][^\'"]*)[\'"]')
 
 # Stricter variant: requires at least one character after the last separator.

@@ -27,6 +27,7 @@ This file tracks the status of process improvements identified through feedback 
 | ID | Source | Description | Priority | Status | Last Updated | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
 | IMP-037 | [Tools Review 2026-02-21](../../feedback/reviews/tools-review-20260221.md) | Consider reducing to single tracking surface for document status | MEDIUM | Deferred | 2026-02-21 | Proposal: [PF-PRO-005](../../proposals/proposals/old/single-tracking-surface-proposal.md). Auto-generate ../../../product-docs/state-tracking/permanent/feature-tracking.md from state files. ~50 files affected, 3-session estimate. |
+| PF-IMP-258 | Structure Change PF-TSK-014 (2026-03-30) | Add workflow-level performance validation layer. Current validation operates at feature layer only. Cross-feature performance issues (repeated rescans, sequential processing during directory moves) are invisible at feature level. Need workflow-level validation that tests key user workflows under realistic load to catch emergent interaction effects. | MEDIUM | Identified | 2026-03-30 | Discovered during doc/process-framework move: 2 of 3 perf bottlenecks (TD128, TD129) only surfaced through real cross-feature workflow, not feature-level code inspection. TD127 was found by PD-VAL-055 but TD128/TD129 were not. |
 
 ## Completed Improvements
 
@@ -725,5 +726,6 @@ The following tasks update this state file:
 | 2026-03-29 | Completed PF-IMP-257: Moved review summary creation (New-ReviewSummary.ps1) to new Step 11 before IMP registration (Step 12). Updated SourceLink examples to include HHMMSS timestamp. Added explicit Step 17 in Finalization for filling skeleton content. Renumbered steps 11-18 to 12-20. | AI Agent (PF-TSK-009) |
 | 2026-03-29 | Rejected PF-IMP-255: Rejected: current ordering is intentional — plan file serves as the checkpoint presentation artifact at L3. Reordering would require presenting scope info twice or restructuring checkpoint workflow. Overhead on rejection is minimal (one file delete). Only 2/55 forms reported this. | AI Agent (PF-TSK-009) |
 | 2026-03-29 | Completed PF-IMP-256: Added Tech Debt Item Quality Gate section to feature-validation-guide.md with 6 filters (language-context, scale threshold, existing-state verification, fix viability, duplication vs similarity, design decision awareness). Cross-referenced from all 11 validation task definitions via inline link in the Update Technical Debt Tracking step. | AI Agent (PF-TSK-009) |
+| 2026-03-30 | Added PF-IMP-258: Add workflow-level performance validation layer. Current validation operates at feature layer only. Cross-feature performance issues (repeated rescans, sequential processing during directory moves) are invisible at feature level. Need workflow-level validation that tests key user workflows under realistic load to catch emergent interaction effects. | AI Agent (PF-TSK-010) |
 
 </details>

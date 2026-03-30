@@ -81,7 +81,11 @@ The Link Parsing System uses a Registry+Facade pattern. `LinkParser` dispatches 
 | Anchor-only exclusion | `test_skip_anchor_only_links` | #section excluded, file.txt#section kept |
 | Duplicate detection | `test_avoid_duplicate_detection` | Same target as link and quoted text |
 | Line/column positions | `test_line_and_column_positions`, `test_lr_002_relative_links` | Relative paths at correct positions |
-| Code block filtering | `test_mp_003_inline_code_fake_links`, `test_mp_004_code_blocks_fake_links` | Backticks and fenced blocks |
+| Backtick path detection | `test_mp_003_backtick_quoted_paths` | Backtick-quoted file and directory paths detected (PD-BUG-054) |
+| Code block bare paths | `test_mp_004_code_block_bare_paths` | Bare directory paths in fenced code blocks detected (PD-BUG-054) |
+| @-prefix paths | `test_mp_010_at_prefix_paths` | @doc/path/file.md detected with @ stripped (PD-BUG-055) |
+| Leading-slash paths | `test_mp_011_leading_slash_paths` | /doc/path/dir/ detected as references (PD-BUG-055) |
+| Mermaid exclusion | `test_mp_012_mermaid_blocks_excluded` | ```mermaid blocks skipped entirely (PD-BUG-055) |
 | HTML links | `test_mp_005_html_links` | `<a href>`, single-quoted, spaces in names |
 | Image links | `test_mp_006_image_links` | `![alt](img)`, reference-style images |
 | Title attributes | `test_mp_007_links_with_titles` | Double, single quotes, parentheses |
@@ -143,8 +147,9 @@ The Link Parsing System uses a Registry+Facade pattern. `LinkParser` dispatches 
 | Complex file | `test_complex_python_file` | 12+ refs across constants, classes, dicts |
 | Line/column | `test_line_and_column_positions` | Position accuracy |
 | Empty/error | `test_empty_file`, `test_error_handling` | Edge cases |
+| Directory paths | `test_quoted_directory_paths`, `test_quoted_directory_paths_no_false_positives` | Quoted strings with path separators but no file extension detected as directory path references (PD-BUG-056) |
 
-**Test File**: [`test/automated/parsers/test_python.py`](../../../test/automated/parsers/test_python.py) (11 methods)
+**Test File**: [`test/automated/parsers/test_python.py`](../../../test/automated/parsers/test_python.py) (10 methods)
 
 ### Parser Tests — Dart
 
