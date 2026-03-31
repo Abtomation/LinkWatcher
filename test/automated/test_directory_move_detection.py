@@ -30,7 +30,9 @@ pytestmark = [
     pytest.mark.priority("Standard"),
     pytest.mark.cross_cutting(["0.1.2", "2.2.1", "2.1.1"]),
     pytest.mark.test_type("integration"),
-    pytest.mark.specification("test/specifications/feature-specs/test-spec-1-1-1-file-system-monitoring.md"),
+    pytest.mark.specification(
+        "test/specifications/feature-specs/test-spec-1-1-1-file-system-monitoring.md"
+    ),
 ]
 
 
@@ -999,15 +1001,9 @@ class TestDirectoryMoveCrossReferencesWithinMovedDir:
         """
         features_dir = tmp_path / "features"
         features_dir.mkdir()
-        (features_dir / "a.md").write_text(
-            "# A\nSee [B](features/b.md) for details.\n"
-        )
-        (features_dir / "b.md").write_text(
-            "# B\nSee [A](features/a.md) for details.\n"
-        )
-        (features_dir / "c.md").write_text(
-            "# C\nSee [A](features/a.md) and [B](features/b.md).\n"
-        )
+        (features_dir / "a.md").write_text("# A\nSee [B](features/b.md) for details.\n")
+        (features_dir / "b.md").write_text("# B\nSee [A](features/a.md) for details.\n")
+        (features_dir / "c.md").write_text("# C\nSee [A](features/a.md) and [B](features/b.md).\n")
         (tmp_path / "README.md").write_text(
             "# README\n- [A](features/a.md)\n- [B](features/b.md)\n- [C](features/c.md)\n"
         )
@@ -1035,3 +1031,108 @@ class TestDirectoryMoveCrossReferencesWithinMovedDir:
         assert "product/features/a.md" in readme
         assert "product/features/b.md" in readme
         assert "product/features/c.md" in readme
+
+
+class TestRelativePathPrefixUpdateOnDirectoryMove:
+    """Tests for directory moves where stored references use ../
+    relative path prefixes that prevent updater matching.
+
+    Root cause: the database stores the relative path as-is (e.g.,
+    "../doc/guides/assessments"). During a directory move, the reference
+    lookup searches by directory name variations (e.g., "doc/guides")
+    using simple prefix matching. The stored "../doc/guides/..." target
+    doesn't match because the "../" prefix and source-file-relative
+    resolution aren't accounted for in the directory search.
+    """
+
+    def test_relative_path_with_dotdot_prefix_updated_on_directory_move(self, tmp_path):
+        """A PowerShell file using ../doc/guides/... must have its reference
+        updated when doc/guides/ moves to guides/.
+
+        Reproduces the gap identified in post-move analysis: scripts in
+        process-framework/scripts/ referencing "../doc/process-framework/..."
+        were not updated because the ../  prefix prevented matching.
+        """
+        # Setup: scripts/update/Update-Debt.ps1 references ../doc/guides/debt/
+        scripts_dir = tmp_path / "scripts" / "update"
+        scripts_dir.mkdir(parents=True)
+        guides_dir = tmp_path / "doc" / "guides" / "debt"
+        guides_dir.mkdir(parents=True)
+
+        debt_readme = guides_dir / "README.md"
+        debt_readme.write_text("# Technical Debt Assessments\n")
+
+        ps_script = scripts_dir / "Update-Debt.ps1"
+        ps_script.write_text(
+            "param(\n"
+            '    [string]$AssessmentDirectory = "../doc/guides/debt"\n'
+            ")\n"
+            "\n"
+            '$UpdateScript = "../doc/guides/debt/README.md"\n'
+        )
+
+        service = LinkWatcherService(str(tmp_path))
+        service._initial_scan()
+
+        # Move doc/guides/ to guides/ (one level up)
+        new_guides = tmp_path / "guides"
+        (tmp_path / "doc" / "guides").rename(new_guides)
+
+        move_event = DirMovedEvent(
+            str(tmp_path / "doc" / "guides"),
+            str(new_guides),
+        )
+        service.handler.on_moved(move_event)
+
+        # References must be updated
+        updated = ps_script.read_text()
+        assert (
+            "doc/guides" not in updated
+        ), f"Old path 'doc/guides' should be gone from script, got:\n{updated}"
+        assert (
+            "guides/debt" in updated
+        ), f"Expected reference to new 'guides/debt' path, got:\n{updated}"
+
+    def test_four_level_deep_relative_path_updated_on_directory_move(self, tmp_path):
+        """A markdown file at depth 4 using ../../../../doc/guides/scripts/...
+        must have its reference updated when doc/guides/ moves to guides/.
+
+        Reproduces the gap from post-move analysis: a file at
+        doc/product-docs/state-tracking/features/archive/file.md
+        referenced ../../../../doc/process-framework/scripts/test/Run-Tests.ps1
+        and the deep relative path was not updated.
+        """
+        # Setup: deep file referencing doc/guides/scripts/test/Run-Tests.ps1
+        deep_dir = tmp_path / "doc" / "product" / "tracking" / "features" / "archive"
+        deep_dir.mkdir(parents=True)
+        scripts_dir = tmp_path / "doc" / "guides" / "scripts" / "test"
+        scripts_dir.mkdir(parents=True)
+
+        run_tests = scripts_dir / "Run-Tests.ps1"
+        run_tests.write_text("# Test runner script\n")
+
+        archive_file = deep_dir / "state.md"
+        archive_file.write_text(
+            "# Feature State\n\n"
+            "Run tests: [Run-Tests.ps1](../../../../doc/guides/scripts/test/Run-Tests.ps1)\n"
+        )
+
+        service = LinkWatcherService(str(tmp_path))
+        service._initial_scan()
+
+        # Move doc/guides/ to guides/
+        new_guides = tmp_path / "guides"
+        (tmp_path / "doc" / "guides").rename(new_guides)
+
+        move_event = DirMovedEvent(
+            str(tmp_path / "doc" / "guides"),
+            str(new_guides),
+        )
+        service.handler.on_moved(move_event)
+
+        # Reference must be updated — the relative path changes
+        updated = archive_file.read_text()
+        assert "doc/guides" not in updated, f"Old path 'doc/guides' should be gone, got:\n{updated}"
+        assert (
+            "Run-Tests.ps1" in updated
+        ), f"Reference to Run-Tests.ps1 should still exist, got:\n{updated}"

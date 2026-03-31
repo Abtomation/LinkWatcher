@@ -137,4 +137,4 @@ Work through one TD item at a time, in priority order: TD003 → TD001 → TD002
 
 ## Related Documentation
 - [Technical Debt Tracking](/doc/product-docs/state-tracking/permanent/technical-debt-tracking.md)
-- [Temporary State File](/doc/process-framework/state-tracking/temporary/temp-task-creation-tech-debt-td001-td004-refactoring.md)
+- [Temporary State File](/process-framework/state-tracking/temporary/temp-task-creation-tech-debt-td001-td004-refactoring.md)

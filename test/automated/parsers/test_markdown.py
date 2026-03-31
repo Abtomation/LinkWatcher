@@ -429,23 +429,25 @@ Also test [shorthand reference][] style.
         """
         parser = MarkdownParser()
 
+        file_a = "vendor/tools/scripts/New-Task.ps1"
+        dir_a = "vendor/tools/scripts"
+        dir_b = "vendor/tasks/support"
+        file_b = "doc/guides/setup.md"
+
         md_file = temp_project_dir / "test.md"
-        content = """# Backtick Path Test
-
-Real markdown links:
-- [Real link](real.txt)
-
-Backtick-quoted file paths (should be detected):
-- Use `doc/process-framework/scripts/file-creation/New-Task.ps1` to create tasks
-- The config is at `config/settings.yaml`
-
-Backtick-quoted directory paths (should be detected):
-- Scripts are in `doc/process-framework/scripts/file-creation`
-- Navigate to `doc/process-framework/tasks/support`
-
-Mixed content:
-- Real [link](mixed.txt) and `doc/guides/setup.md` inline
-"""
+        content = (
+            "# Backtick Path Test\n\n"
+            "Real markdown links:\n"
+            "- [Real link](real.txt)\n\n"
+            "Backtick-quoted file paths (should be detected):\n"
+            f"- Use `{file_a}` to create tasks\n"
+            "- The config is at `config/settings.yaml`\n\n"
+            "Backtick-quoted directory paths (should be detected):\n"
+            f"- Scripts are in `{dir_a}`\n"
+            f"- Navigate to `{dir_b}`\n\n"
+            "Mixed content:\n"
+            f"- Real [link](mixed.txt) and `{file_b}` inline\n"
+        )
         md_file.write_text(content)
 
         references = parser.parse_file(str(md_file))
@@ -456,15 +458,15 @@ Mixed content:
         assert "mixed.txt" in targets
 
         # Backtick-quoted file paths detected
-        assert "doc/process-framework/scripts/file-creation/New-Task.ps1" in targets
+        assert file_a in targets
         assert "config/settings.yaml" in targets
 
         # Backtick-quoted directory paths detected
-        assert "doc/process-framework/scripts/file-creation" in targets
-        assert "doc/process-framework/tasks/support" in targets
+        assert dir_a in targets
+        assert dir_b in targets
 
         # Backtick-quoted file path in mixed line detected
-        assert "doc/guides/setup.md" in targets
+        assert file_b in targets
 
     @pytest.mark.high
     def test_mp_004_code_block_bare_paths(self, temp_project_dir):
@@ -477,29 +479,28 @@ Mixed content:
         """
         parser = MarkdownParser()
 
+        dir_path = "vendor/tools/scripts/support"
+        file_path = "vendor/tasks/support/creation-process.md"
+
         md_file = temp_project_dir / "test.md"
-        content = """# Code Block Path Test
-
-Real link before code:
-[Real link](before.txt)
-
-```powershell
-cd doc/process-framework/scripts/file-creation/support
-./New-FeedbackForm.ps1 -DocumentId "PF-TSK-XXX"
-```
-
-```bash
-cd /c/path/to/project/doc/process-framework/scripts/file-creation && pwsh.exe -Command 'test'
-```
-
-```
-Plain code block
-doc/process-framework/tasks/support/new-task-creation-process.md
-```
-
-Real link after code:
-[Real link](after.txt)
-"""
+        content = (
+            "# Code Block Path Test\n\n"
+            "Real link before code:\n"
+            "[Real link](before.txt)\n\n"
+            "```powershell\n"
+            f"cd {dir_path}\n"
+            './New-FeedbackForm.ps1 -DocumentId "PF-TSK-XXX"\n'
+            "```\n\n"
+            "```bash\n"
+            f"cd /c/path/to/project/{dir_path} && pwsh.exe -Command 'test'\n"
+            "```\n\n"
+            "```\n"
+            "Plain code block\n"
+            f"{file_path}\n"
+            "```\n\n"
+            "Real link after code:\n"
+            "[Real link](after.txt)\n"
+        )
         md_file.write_text(content)
 
         references = parser.parse_file(str(md_file))
@@ -510,10 +511,10 @@ Real link after code:
         assert "after.txt" in targets
 
         # Bare directory path in code block detected
-        assert "doc/process-framework/scripts/file-creation/support" in targets
+        assert dir_path in targets
 
         # Bare file path in code block detected
-        assert "doc/process-framework/tasks/support/new-task-creation-process.md" in targets
+        assert file_path in targets
 
     @pytest.mark.medium
     def test_mp_005_html_links(self, temp_project_dir):
@@ -964,34 +965,38 @@ Mixed:
         PD-BUG-031 regression: Quoted directory paths (no file extension) should be detected.
 
         The markdown parser previously only used looks_like_file_path() which requires
-        a file extension. Directory paths like "doc/process-framework/tasks" were silently
+        a file extension. Directory paths like "vendor/tasks" were silently
         skipped. The fix integrates looks_like_directory_path() for quoted strings.
         """
         parser = MarkdownParser()
 
+        dir_a = "vendor/tools/scripts"
+        dir_b = "vendor/tools/templates"
+        dir_c = "lib/docs/architecture"
+        dir_d = "vendor/methods/documentation-tiers"
+
         md_file = temp_project_dir / "test.md"
-        content = """# Directory Path Test
-
-Paths in documentation:
-- Use `cd "doc/process-framework/scripts/file-creation"` to navigate
-- The templates are in "doc/process-framework/templates/templates"
-- See 'doc/product-docs/technical/architecture' for details
-
-PowerShell examples:
-```powershell
-cd "doc/process-framework/methodologies/documentation-tiers"
-```
-"""
+        content = (
+            "# Directory Path Test\n\n"
+            "Paths in documentation:\n"
+            f'- Use `cd "{dir_a}"` to navigate\n'
+            f'- The templates are in "{dir_b}"\n'
+            f"- See '{dir_c}' for details\n\n"
+            "PowerShell examples:\n"
+            "```powershell\n"
+            f'cd "{dir_d}"\n'
+            "```\n"
+        )
         md_file.write_text(content)
 
         references = parser.parse_file(str(md_file))
         targets = [ref.link_target for ref in references]
 
         # Should detect quoted directory paths (no extension)
-        assert "doc/process-framework/scripts/file-creation" in targets
-        assert "doc/process-framework/templates/templates" in targets
-        assert "doc/product-docs/technical/architecture" in targets
-        assert "doc/process-framework/methodologies/documentation-tiers" in targets
+        assert dir_a in targets
+        assert dir_b in targets
+        assert dir_c in targets
+        assert dir_d in targets
 
         # Verify link type
         dir_refs = [r for r in references if r.link_type == "markdown-quoted-dir"]
@@ -1005,25 +1010,26 @@ cd "doc/process-framework/methodologies/documentation-tiers"
         """
         parser = MarkdownParser()
 
-        md_file = temp_project_dir / "test.md"
-        content = """# Overlap Test
+        link_target = "vendor/tools/templates"
+        dir_target = "vendor/docs/guides"
 
-- [Templates directory](doc/process-framework/templates/templates)
-- Also see "doc/process-framework/guides/guides" for guides
-"""
+        md_file = temp_project_dir / "test.md"
+        content = (
+            "# Overlap Test\n\n"
+            f"- [Templates directory]({link_target})\n"
+            f'- Also see "{dir_target}" for guides\n'
+        )
         md_file.write_text(content)
 
         references = parser.parse_file(str(md_file))
 
         # The markdown link target should be detected once as "markdown" type
-        md_refs = [
-            r for r in references if r.link_target == "doc/process-framework/templates/templates"
-        ]
+        md_refs = [r for r in references if r.link_target == link_target]
         assert len(md_refs) == 1
         assert md_refs[0].link_type == "markdown"
 
         # The standalone quoted path should be detected as directory
-        dir_refs = [r for r in references if r.link_target == "doc/process-framework/guides/guides"]
+        dir_refs = [r for r in references if r.link_target == dir_target]
         assert len(dir_refs) >= 1
 
     @pytest.mark.medium
@@ -1055,70 +1061,70 @@ cd "doc/process-framework/methodologies/documentation-tiers"
         """
         MP-010: @-prefixed path references (PD-BUG-055)
 
-        Test Case: @doc/process-framework/ai-tasks.md should be detected
+        Test Case: @vendor/tools/entry-point.md should be detected
         Expected: Paths prefixed with @ are parsed with @ stripped from target
         Priority: High
         """
         parser = MarkdownParser()
 
-        md_file = temp_project_dir / "test.md"
-        content = """# At-Prefix Path Test
+        file_a = "vendor/tools/entry-point.md"
+        file_b = "vendor/tools/tasks.md"
+        file_c = "vendor/tools/id-registry.json"
+        file_d = "lib/docs/id-registry.json"
 
-1. **Read the entry point**: @doc/process-framework/.ai-entry-point.md
-2. **Select a task**: @doc/process-framework/ai-tasks.md - All work MUST be task-based
-- Tracked in @doc/process-framework/PF-id-registry.json and @doc/product-docs/PD-id-registry.json
-"""
+        md_file = temp_project_dir / "test.md"
+        content = (
+            "# At-Prefix Path Test\n\n"
+            f"1. **Read the entry point**: @{file_a}\n"
+            f"2. **Select a task**: @{file_b} - All work MUST be task-based\n"
+            f"- Tracked in @{file_c} and @{file_d}\n"
+        )
         md_file.write_text(content)
 
         references = parser.parse_file(str(md_file))
         targets = [ref.link_target for ref in references]
 
         # @ prefix paths detected with @ stripped
-        assert "doc/process-framework/.ai-entry-point.md" in targets
-        assert "doc/process-framework/ai-tasks.md" in targets
-        assert "doc/process-framework/PF-id-registry.json" in targets
-        assert "doc/product-docs/PD-id-registry.json" in targets
+        assert file_a in targets
+        assert file_b in targets
+        assert file_c in targets
+        assert file_d in targets
 
     @pytest.mark.high
     def test_mp_011_leading_slash_paths(self, temp_project_dir):
         """
         MP-011: Leading slash path references (PD-BUG-055)
 
-        Test Case: /doc/process-framework/feedback/ should be detected
+        Test Case: /vendor/data/forms/ should be detected
         Expected: Paths with leading / are parsed as references
         Priority: High
         """
         parser = MarkdownParser()
 
-        md_file = temp_project_dir / "test.md"
-        content = """# Leading Slash Path Test
+        dir_a = "vendor/data/forms"
+        file_a = "vendor/tools/templates/feedback-form-template.md"
+        dir_b = "vendor/tools/scripts/support"
 
-Files saved to: /doc/process-framework/feedback/feedback-forms/
-Ensure the template exists at /doc/process-framework/templates/support/feedback-form-template.md
-Navigate to /doc/process-framework/scripts/file-creation/support directory
-"""
+        md_file = temp_project_dir / "test.md"
+        content = (
+            "# Leading Slash Path Test\n\n"
+            f"Files saved to: /{dir_a}/\n"
+            f"Ensure the template exists at /{file_a}\n"
+            f"Navigate to /{dir_b} directory\n"
+        )
         md_file.write_text(content)
 
         references = parser.parse_file(str(md_file))
         targets = [ref.link_target for ref in references]
 
-        # Leading slash directory path detected
-        assert (
-            "/doc/process-framework/feedback/feedback-forms/" in targets
-            or "doc/process-framework/feedback/feedback-forms/" in targets
-        )
+        # Leading slash directory path detected (parser may retain trailing slash)
+        assert f"/{dir_a}/" in targets or f"/{dir_a}" in targets or dir_a in targets
 
         # Leading slash file path detected
-        assert (
-            "/doc/process-framework/templates/support/feedback-form-template.md" in targets
-            or "doc/process-framework/templates/support/feedback-form-template.md" in targets
-        )
+        assert f"/{file_a}" in targets or file_a in targets
 
         # Leading slash directory path (no trailing slash) detected
-        assert (
-            "/doc/process-framework/scripts/file-creation/support" in targets
-            or "doc/process-framework/scripts/file-creation/support" in targets
-        )
+        assert f"/{dir_b}" in targets or dir_b in targets
 
     @pytest.mark.medium
     def test_mp_012_mermaid_blocks_excluded(self, temp_project_dir):
@@ -1131,25 +1137,26 @@ Navigate to /doc/process-framework/scripts/file-creation/support directory
         """
         parser = MarkdownParser()
 
+        bash_dir = "vendor/tools/scripts"
+        mermaid_dir = "vendor/tools/scripts/support"
+        mermaid_dir2 = "vendor/data/forms"
+
         md_file = temp_project_dir / "test.md"
-        content = """# Mermaid Exclusion Test
-
-Real link before:
-[Real link](before.txt)
-
-```mermaid
-graph TD
-    C --> D[cd doc/process-framework/scripts/file-creation/support]
-    W --> X[/doc/process-framework/feedback/feedback-forms/]
-```
-
-Real link after:
-[Real link](after.txt)
-
-```bash
-cd doc/process-framework/scripts/file-creation
-```
-"""
+        content = (
+            "# Mermaid Exclusion Test\n\n"
+            "Real link before:\n"
+            "[Real link](before.txt)\n\n"
+            "```mermaid\n"
+            "graph TD\n"
+            f"    C --> D[cd {mermaid_dir}]\n"
+            f"    W --> X[/{mermaid_dir2}/]\n"
+            "```\n\n"
+            "Real link after:\n"
+            "[Real link](after.txt)\n\n"
+            "```bash\n"
+            f"cd {bash_dir}\n"
+            "```\n"
+        )
         md_file.write_text(content)
 
         references = parser.parse_file(str(md_file))
@@ -1160,10 +1167,62 @@ cd doc/process-framework/scripts/file-creation
         assert "after.txt" in targets
 
         # Bash code block paths still detected (not mermaid)
-        assert "doc/process-framework/scripts/file-creation" in targets
+        assert bash_dir in targets
 
         # Mermaid content NOT detected
-        mermaid_paths = [
-            t for t in targets if "feedback-forms" in t or "file-creation/support" in t
-        ]
+        mermaid_paths = [t for t in targets if "forms" in t or "scripts/support" in t]
         assert len(mermaid_paths) == 0, f"Mermaid paths should not be detected: {mermaid_paths}"
+
+
+class TestMarkdownParserBracketPlaceholders:
+    """PD-BUG-063: bare_path_pattern cannot match paths with [ ] template placeholders.
+
+    Root cause: bare_path_pattern uses [a-zA-Z0-9_.\\-] for path segments,
+    which excludes [ and ] characters. Known limitation, no immediate fix planned.
+    """
+
+    @pytest.mark.xfail(reason="PD-BUG-063: bare_path_pattern excludes [ ] from character class")
+    def test_bare_path_with_bracket_placeholders(self):
+        """Paths with bracket template placeholders should be detected."""
+        parser = MarkdownParser()
+        content = "Run the script at doc/framework/[category]/New-[ScriptName].ps1\n"
+        references = parser.parse_content(content, "test.md")
+        targets = [ref.link_target for ref in references]
+        assert "doc/framework/[category]/New-[ScriptName].ps1" in targets
+
+
+class TestMarkdownParserParenthesizedProsePaths:
+    """PD-BUG-064: bare_path_pattern detects paths followed by closing parenthesis."""
+
+    def test_path_in_parenthesized_prose(self):
+        """Path inside parenthesized prose should be detected."""
+        parser = MarkdownParser()
+        content = "Use the test runner (script: doc/scripts/test/Run-Tests.ps1)\n"
+        references = parser.parse_content(content, "test.md")
+        targets = [ref.link_target for ref in references]
+        assert "doc/scripts/test/Run-Tests.ps1" in targets
+
+    def test_path_in_section_header_parentheses(self):
+        """Directory path in section header parentheses should be detected."""
+        parser = MarkdownParser()
+        content = "### Script.ps1 (doc/scripts/file-creation/)\n"
+        references = parser.parse_content(content, "test.md")
+        targets = [ref.link_target for ref in references]
+        assert any("doc/scripts/file-creation" in t for t in targets)
+
+    def test_standard_markdown_link_not_double_matched(self):
+        """Standard markdown links [text](path) should not be affected by ) lookahead."""
+        parser = MarkdownParser()
+        content = "See [the guide](doc/guides/support/guide.md) for details.\n"
+        references = parser.parse_content(content, "test.md")
+        # Should have exactly one reference (the markdown link), not a duplicate bare path
+        targets = [ref.link_target for ref in references]
+        assert targets.count("doc/guides/support/guide.md") == 1
+
+    def test_path_followed_by_space_still_works(self):
+        """Existing behavior: path followed by space should still be detected."""
+        parser = MarkdownParser()
+        content = "Run doc/scripts/test/Run-Tests.ps1 to execute tests.\n"
+        references = parser.parse_content(content, "test.md")
+        targets = [ref.link_target for ref in references]
+        assert "doc/scripts/test/Run-Tests.ps1" in targets

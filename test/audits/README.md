@@ -7,8 +7,8 @@ This directory contains Test Audit Reports and related automation scripts for th
 ```
 test-audits/
 ├── README.md                           # This file
-├── (script: doc/process-framework/scripts/file-creation/03-testing/New-TestAuditReport.ps1)
-├── (script: doc/process-framework/scripts/validation/Validate-AuditReport.ps1)
+├── (script: process-framework/scripts/file-creation/03-testing/New-TestAuditReport.ps1)
+├── (script: process-framework/scripts/validation/Validate-AuditReport.ps1)
 ├── foundation/                        # Audit reports for 0.x.x features
 ├── authentication/                    # Audit reports for 1.x.x features
 └── core-features/                     # Audit reports for 2.x.x+ features
@@ -30,7 +30,7 @@ Use the `New-TestAuditReport.ps1` script to create a new audit report:
 
 ```powershell
 # Basic usage
-# Run from doc/process-framework/scripts/file-creation/03-testing/
+# Run from process-framework/scripts/file-creation/03-testing
 .\New-TestAuditReport.ps1 -FeatureId "0.2.3" -TestFilePath "test/automated/unit/test_example.py" -AuditorName "AI Agent"
 
 # Open in editor after creation
@@ -49,7 +49,7 @@ Use the `Validate-AuditReport.ps1` script to validate audit report completeness:
 
 ```powershell
 # Basic validation
-# Run from doc/process-framework/scripts/validation/
+# Run from process-framework/scripts/validation
 .\Validate-AuditReport.ps1 -ReportFile "../../../product-docs/test-audits/foundation/audit-report-0-2-3-test_example.md"
 
 # Detailed validation with all issues
@@ -92,10 +92,10 @@ The Test Audit process follows these steps:
 
 ## Related Documentation
 
-- [Test Audit Task Definition](../../doc/process-framework/tasks/03-testing/test-audit-task.md)
+- [Test Audit Task Definition](../../process-framework/tasks/03-testing/test-audit-task.md)
 - [Test Tracking](../state-tracking/permanent/test-tracking.md)
 - ~~Test Audit Concept~~ *(archived — concepts integrated into test audit task)*
-- [Test Query Tool](/doc/process-framework/scripts/test/test_query.py) - Query test file metadata via pytest markers
+- [Test Query Tool](/process-framework/scripts/test/test_query.py) - Query test file metadata via pytest markers
 
 ## File Naming Convention
 
@@ -111,7 +111,7 @@ Examples:
 
 ## Automation Scripts
 
-### New-TestAuditReport.ps1 (doc/process-framework/scripts/file-creation/03-testing/)
+### New-TestAuditReport.ps1 (process-framework/scripts/file-creation/03-testing/)
 - Creates new audit reports from template
 - Automatically determines feature category
 - Assigns unique TE-TAR ID
@@ -119,7 +119,7 @@ Examples:
 - Links audit report in test-tracking.md for the target test file
 - Provides comprehensive template with all required sections
 
-### Validate-AuditReport.ps1 (doc/process-framework/scripts/validation/)
+### Validate-AuditReport.ps1 (process-framework/scripts/validation/)
 - Validates audit report completeness
 - Checks all six evaluation criteria
 - Verifies audit decision consistency

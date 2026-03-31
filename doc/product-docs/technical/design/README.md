@@ -68,7 +68,7 @@ When creating a new system-wide technical design document:
 3. Include diagrams to illustrate system interactions and data flows
 4. Document both the "what" and the "why" of system-wide design decisions
 5. Consider how the design will be consistently applied across all features
-6. Add the document to the [Process: Documentation Map](/doc/process-framework/documentation-map.md)
+6. Add the document to the [Process: Documentation Map](/process-framework/documentation-map.md)
 
 ## When to Create Here vs. Feature TDDs
 

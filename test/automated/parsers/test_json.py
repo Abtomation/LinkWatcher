@@ -5,18 +5,17 @@ This module tests JSON-specific link parsing functionality.
 Implements JP test cases from comprehensive test documentation.
 """
 
-from pathlib import Path
-
 import pytest
 
-from linkwatcher.models import LinkReference
 from linkwatcher.parsers.json_parser import JsonParser
 
 pytestmark = [
     pytest.mark.feature("2.1.1"),
     pytest.mark.priority("Critical"),
     pytest.mark.test_type("parser"),
-    pytest.mark.specification("test/specifications/feature-specs/test-spec-2-1-1-link-parsing-system.md"),
+    pytest.mark.specification(
+        "test/specifications/feature-specs/test-spec-2-1-1-link-parsing-system.md"
+    ),
 ]
 
 
@@ -567,22 +566,28 @@ class TestJsonParserDirectoryPaths:
         """
         parser = JsonParser()
 
+        dir_a = "lib/docs/reference"
+        dir_b = "vendor/tools/scripts"
+        dir_c = "vendor/tools/templates"
+
         json_file = temp_project_dir / "registry.json"
-        json_content = """{
-  "directories": {
-    "docs": "doc/product-docs/documentation-tiers",
-    "scripts": "doc/process-framework/scripts/file-creation",
-    "templates": "doc/process-framework/templates/templates"
-  }
-}"""
+        json_content = (
+            "{\n"
+            '  "directories": {\n'
+            f'    "docs": "{dir_a}",\n'
+            f'    "scripts": "{dir_b}",\n'
+            f'    "templates": "{dir_c}"\n'
+            "  }\n"
+            "}"
+        )
         json_file.write_text(json_content)
 
         references = parser.parse_content(json_content, str(json_file))
 
         targets = [ref.link_target for ref in references]
-        assert "doc/product-docs/documentation-tiers" in targets
-        assert "doc/process-framework/scripts/file-creation" in targets
-        assert "doc/process-framework/templates/templates" in targets
+        assert dir_a in targets
+        assert dir_b in targets
+        assert dir_c in targets
 
     def test_bug030_directory_paths_coexist_with_file_paths(self, temp_project_dir):
         """
@@ -639,3 +644,65 @@ class TestJsonParserDirectoryPaths:
         assert "2.0" not in targets
         assert "A test application for unit testing" not in targets
         assert "Test User" not in targets
+
+
+class TestJsonParserCompoundStrings:
+    """PD-BUG-061: JSON parser cannot detect file paths embedded in compound command strings.
+
+    Root cause: looks_like_directory_path() is called on the entire string value.
+    The suspicious character check rejects strings containing *, (, ), etc.
+    No sub-path extraction exists. Fix must avoid false positives from wildcard patterns.
+    """
+
+    def test_compound_string_with_embedded_file_path(self):
+        """JSON array value with embedded file path should extract the path,
+        not the whole string."""
+        parser = JsonParser()
+        json_content = (
+            "{\n"
+            '  "permissions": {\n'
+            '    "allow": [\n'
+            '      "Bash(python doc/scripts/feedback_db.py *)"\n'
+            "    ]\n"
+            "  }\n"
+            "}"
+        )
+        references = parser.parse_content(json_content, "settings.json")
+        targets = [ref.link_target for ref in references]
+        assert "doc/scripts/feedback_db.py" in targets
+        # Must NOT store the whole compound string as a target
+        assert not any("Bash(" in t for t in targets)
+
+    def test_compound_string_multiple_patterns(self):
+        """Multiple compound strings should each have their embedded paths extracted."""
+        parser = JsonParser()
+        json_content = (
+            "{\n"
+            '  "allow": [\n'
+            '    "Bash(pwsh.exe -ExecutionPolicy Bypass -File scripts/deploy.ps1)",\n'
+            '    "Bash(python tools/check.py *)",\n'
+            '    "config/settings.json"\n'
+            "  ]\n"
+            "}"
+        )
+        references = parser.parse_content(json_content, "settings.json")
+        targets = [ref.link_target for ref in references]
+        assert "scripts/deploy.ps1" in targets
+        assert "tools/check.py" in targets
+        # Plain path should still work
+        assert "config/settings.json" in targets
+
+    def test_compound_string_no_false_positive_from_glob(self):
+        """A compound string with no real embedded path should not produce false positives."""
+        parser = JsonParser()
+        json_content = (
+            "{\n"
+            '  "patterns": [\n'
+            '    "some random text with spaces",\n'
+            '    "version 1.0.0 release notes"\n'
+            "  ]\n"
+            "}"
+        )
+        references = parser.parse_content(json_content, "settings.json")
+        targets = [ref.link_target for ref in references]
+        assert len(targets) == 0

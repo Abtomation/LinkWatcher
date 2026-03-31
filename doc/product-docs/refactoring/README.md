@@ -43,8 +43,8 @@ cd doc/product-docs/refactoring
 
 ### 2. **Customizing the Plan**
 
-- Follow the [Refactoring Plan Template Customization Guide](../../process-framework/guides/06-maintenance/code-refactoring-task-usage-guide.md)
-- Use the [Context Map](../../process-framework/visualization/context-maps/06-maintenance/code-refactoring-task-map.md) for component relationships
+- Follow the [Refactoring Plan Template Customization Guide](../../../process-framework/guides/06-maintenance/code-refactoring-task-usage-guide.md)
+- Use the [Context Map](../../../process-framework/visualization/context-maps/06-maintenance/code-refactoring-task-map.md) for component relationships
 
 ### 3. **Completing the Refactoring**
 
@@ -60,9 +60,9 @@ cd doc/product-docs/refactoring
 - **Purpose**: Detailed refactoring planning and strategy documents
 - **Created By**: `New-RefactoringPlan.ps1` script
 - **Templates**:
-  - Standard: [refactoring-plan-template.md](../../process-framework/templates/06-maintenance/refactoring-plan-template.md) (165 lines, full metrics/strategy/lessons)
-  - Documentation-only: [documentation-refactoring-plan-template.md](../../process-framework/templates/06-maintenance/documentation-refactoring-plan-template.md) (100 lines, doc quality baseline/verification instead of code metrics)
-  - Lightweight: [lightweight-refactoring-plan-template.md](../../process-framework/templates/06-maintenance/lightweight-refactoring-plan-template.md) (50 lines, scope/changes/results with doc checklist)
+  - Standard: [refactoring-plan-template.md](../../../process-framework/templates/06-maintenance/refactoring-plan-template.md) (165 lines, full metrics/strategy/lessons)
+  - Documentation-only: [documentation-refactoring-plan-template.md](../../../process-framework/templates/06-maintenance/documentation-refactoring-plan-template.md) (100 lines, doc quality baseline/verification instead of code metrics)
+  - Lightweight: [lightweight-refactoring-plan-template.md](../../../process-framework/templates/06-maintenance/lightweight-refactoring-plan-template.md) (50 lines, scope/changes/results with doc checklist)
 
 ### **Refactoring Summaries (PF-REF-XXX, PF-REF-SUM-XXX)**
 
@@ -89,9 +89,9 @@ cd doc/product-docs/refactoring
 
 This directory integrates with:
 
-- **[Code Refactoring Task](../../process-framework/tasks/06-maintenance/code-refactoring-task.md)** - Main task definition
-- **[Context Map](../../process-framework/visualization/context-maps/06-maintenance/code-refactoring-task-map.md)** - Component relationships
-- **[Template Customization Guide](../../process-framework/guides/06-maintenance/code-refactoring-task-usage-guide.md)** - Detailed usage instructions
+- **[Code Refactoring Task](../../../process-framework/tasks/06-maintenance/code-refactoring-task.md)** - Main task definition
+- **[Context Map](../../../process-framework/visualization/context-maps/06-maintenance/code-refactoring-task-map.md)** - Component relationships
+- **[Template Customization Guide](../../../process-framework/guides/06-maintenance/code-refactoring-task-usage-guide.md)** - Detailed usage instructions
 - **[Technical Debt Tracking](../state-tracking/permanent/technical-debt-tracking.md)** - State tracking integration
 - **[Feature Tracking](../state-tracking/permanent/feature-tracking.md)** - Feature status updates
 

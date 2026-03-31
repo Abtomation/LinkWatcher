@@ -17,7 +17,7 @@ Technical debt refers to the implied cost of future rework caused by choosing an
 
 ## Technical Debt Dimensions
 
-Technical debt items are tagged with **Primary Dimension** using the standard abbreviations from the [Development Dimensions Guide](/doc/process-framework/guides/framework/development-dimensions-guide.md), plus **TST** (Testing) for test-related debt.
+Technical debt items are tagged with **Primary Dimension** using the standard abbreviations from the [Development Dimensions Guide](/process-framework/guides/framework/development-dimensions-guide.md), plus **TST** (Testing) for test-related debt.
 
 **Valid values**: AC, CQ, ID, DA, EM, SE, PE, OB, UX, DI, TST
 
@@ -32,8 +32,8 @@ Technical debt items are tagged with **Primary Dimension** using the standard ab
 
 ## Technical Debt Registry
 
-| ID    | Description                                                | Dims        | Location                                                                     | Created Date | Priority | Estimated Effort | Status      | Resolution Date | Assessment ID | Notes                                                                                                |
-| ----- | ---------------------------------------------------------- | ----------- | ---------------------------------------------------------------------------- | ------------ | -------- | ---------------- | ----------- | --------------- | ------------- | ---------------------------------------------------------------------------------------------------- |
+| ID    | Description                                                | Dims        | Location                                                                     | Created Date | Priority | Estimated Effort | Status      | Resolution Date | Assessment ID | Workflows | Notes                                                                                                |
+| ----- | ---------------------------------------------------------- | ----------- | ---------------------------------------------------------------------------- | ------------ | -------- | ---------------- | ----------- | --------------- | ------------- | --------- | ---------------------------------------------------------------------------------------------------- |
 
 ## Recently Resolved Technical Debt
 
@@ -214,7 +214,7 @@ When adding a new technical debt item:
 
 ## Resolving Technical Debt Items
 
-Use [Update-TechDebt.ps1](../../../process-framework/scripts/update/Update-TechDebt.ps1) to automate steps 1-4:
+Use [Update-TechDebt.ps1](../../../../process-framework/scripts/update/Update-TechDebt.ps1) to automate steps 1-4:
 
 ```powershell
 # Mark as in progress

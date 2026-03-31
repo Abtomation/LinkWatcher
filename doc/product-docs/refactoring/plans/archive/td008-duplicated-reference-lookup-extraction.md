@@ -19,7 +19,7 @@ refactoring_scope: TD008 Duplicated Reference Lookup Extraction
 - **Author**: AI Agent & Human Partner
 - **Status**: Complete
 - **Tech Debt Item**: TD008 (PF-TDI-004)
-- **Assessment**: PF-TDA-001 <!-- [PF-TDA-001](/doc/process-framework/assessments/technical-debt/assessments/handler-module-structural-debt-assessment.md) - Removed: file deleted -->
+- **Assessment**: PF-TDA-001 <!-- [PF-TDA-001](/process-framework/assessments/technical-debt/assessments/handler-module-structural-debt-assessment.md) - Removed: file deleted -->
 
 ## Refactoring Scope
 
@@ -152,4 +152,4 @@ Extract Method refactoring — pull the duplicated path-format logic into privat
 
 ## Related Documentation
 - [Technical Debt Tracking](/doc/product-docs/state-tracking/permanent/technical-debt-tracking.md)
-<!-- - [PF-TDA-001 Assessment](/doc/process-framework/assessments/technical-debt/assessments/handler-module-structural-debt-assessment.md) - Removed: file deleted -->
+<!-- - [PF-TDA-001 Assessment](/process-framework/assessments/technical-debt/assessments/handler-module-structural-debt-assessment.md) - Removed: file deleted -->

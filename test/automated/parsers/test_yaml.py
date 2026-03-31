@@ -5,18 +5,17 @@ This module tests YAML-specific link parsing functionality.
 Implements YP test cases from comprehensive test documentation.
 """
 
-from pathlib import Path
-
 import pytest
 
-from linkwatcher.models import LinkReference
 from linkwatcher.parsers.yaml_parser import YamlParser
 
 pytestmark = [
     pytest.mark.feature("2.1.1"),
     pytest.mark.priority("Critical"),
     pytest.mark.test_type("parser"),
-    pytest.mark.specification("test/specifications/feature-specs/test-spec-2-1-1-link-parsing-system.md"),
+    pytest.mark.specification(
+        "test/specifications/feature-specs/test-spec-2-1-1-link-parsing-system.md"
+    ),
 ]
 
 
@@ -489,20 +488,22 @@ class TestYamlParserDirectoryPaths:
         """
         parser = YamlParser()
 
+        dir_a = "lib/docs/reference"
+        dir_b = "vendor/tools/scripts"
+        dir_c = "vendor/tools/templates"
+
         yaml_file = temp_project_dir / "dirs.yaml"
-        yaml_content = """directories:
-  docs: doc/product-docs/documentation-tiers
-  scripts: doc/process-framework/scripts/file-creation
-  templates: doc/process-framework/templates/templates
-"""
+        yaml_content = (
+            "directories:\n" f"  docs: {dir_a}\n" f"  scripts: {dir_b}\n" f"  templates: {dir_c}\n"
+        )
         yaml_file.write_text(yaml_content)
 
         references = parser.parse_content(yaml_content, str(yaml_file))
 
         targets = [ref.link_target for ref in references]
-        assert "doc/product-docs/documentation-tiers" in targets
-        assert "doc/process-framework/scripts/file-creation" in targets
-        assert "doc/process-framework/templates/templates" in targets
+        assert dir_a in targets
+        assert dir_b in targets
+        assert dir_c in targets
 
     def test_bug030_directory_paths_coexist_with_file_paths(self, temp_project_dir):
         """
@@ -528,3 +529,31 @@ class TestYamlParserDirectoryPaths:
         # Directory paths
         assert "build/output" in targets
         assert "src/components" in targets
+
+
+class TestYamlParserCompoundStrings:
+    """PD-BUG-060: YAML parser cannot detect file paths embedded in compound command strings.
+
+    Root cause: looks_like_file_path() is called on the entire string value.
+    The PD-BUG-028 heuristic rejects segments with 3+ space-separated words,
+    and there is no sub-path extraction from compound strings.
+    """
+
+    def test_compound_command_string_with_embedded_file_path(self):
+        """Compound command string containing an embedded file path should be detected."""
+        parser = YamlParser()
+        yaml_content = (
+            "hooks:\n"
+            '  - entry: "pwsh.exe -ExecutionPolicy Bypass -File doc/scripts/test/Run-Tests.ps1 -Quick"\n'  # noqa: E501
+        )
+        references = parser.parse_content(yaml_content, "config.yaml")
+        targets = [ref.link_target for ref in references]
+        assert "doc/scripts/test/Run-Tests.ps1" in targets
+
+    def test_compound_string_with_embedded_directory_path(self):
+        """Compound string with an embedded directory path should be detected."""
+        parser = YamlParser()
+        yaml_content = "hooks:\n" '  - entry: "python doc/scripts/feedback_db.py record --json"\n'
+        references = parser.parse_content(yaml_content, "config.yaml")
+        targets = [ref.link_target for ref in references]
+        assert "doc/scripts/feedback_db.py" in targets

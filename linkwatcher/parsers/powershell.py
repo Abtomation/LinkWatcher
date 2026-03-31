@@ -163,7 +163,7 @@ class PowerShellParser(BaseParser):
                     # Skip if already matched as a file path
                     if (match.start(1), match.end(1)) in file_path_spans:
                         continue
-                    potential_dir = match.group(1)
+                    potential_dir = match.group(1).strip()
                     if self._looks_like_directory_path(potential_dir):
                         file_path_spans.add((match.start(1), match.end(1)))
                         references.append(
@@ -305,7 +305,7 @@ class PowerShellParser(BaseParser):
         for match in self.quoted_dir_pattern.finditer(line):
             if (match.start(1), match.end(1)) in file_path_spans:
                 continue
-            potential_dir = match.group(1)
+            potential_dir = match.group(1).strip()
             if self._looks_like_directory_path(potential_dir):
                 file_path_spans.add((match.start(1), match.end(1)))
                 references.append(

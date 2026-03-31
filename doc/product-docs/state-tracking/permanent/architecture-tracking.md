@@ -61,7 +61,7 @@ Use the existing ADR creation script:
 cd doc/product-docs/technical/architecture/design-docs/adr/
 
 # Create new ADR
-../../../process-framework/scripts/file-creation/02-design/New-ArchitectureDecision.ps1 -Title "Repository Pattern for Data Access" -Status "Proposed"
+../../../../process-framework/scripts/file-creation/02-design/New-ArchitectureDecision.ps1 -Title "Repository Pattern for Data Access" -Status "Proposed"
 ```
 
 ### ADR Integration with Architecture Tracking
@@ -72,8 +72,8 @@ cd doc/product-docs/technical/architecture/design-docs/adr/
 ## Related Documentation
 
 ### Essential Guides
-- [Architectural Framework Usage Guide](../../../process-framework/guides/01-planning/architectural-framework-usage-guide.md) - **START HERE**: Comprehensive guide for using the architectural framework
-- [Task Transition Guide](../../../process-framework/guides/framework/task-transition-guide.md) - Workflow patterns including architectural transitions
+- [Architectural Framework Usage Guide](../../../../process-framework/guides/01-planning/architectural-framework-usage-guide.md) - **START HERE**: Comprehensive guide for using the architectural framework
+- [Task Transition Guide](../../../../process-framework/guides/framework/task-transition-guide.md) - Workflow patterns including architectural transitions
 
 ### Architecture Context Packages
 - ~~Data Architecture Context~~ - Repository pattern and data layer architecture *(context packages not yet created for this project)*
@@ -87,9 +87,9 @@ cd doc/product-docs/technical/architecture/design-docs/adr/
 
 The following tasks update this state file:
 
-- [System Architecture Review](../../../process-framework/tasks/01-planning/system-architecture-review.md): Updates when architectural analysis is completed
-- [Foundation Feature Implementation](../../../process-framework/tasks/04-implementation/foundation-feature-implementation-task.md): Updates when foundation features (0.x.x) are implemented
-- [Structure Change](../../../process-framework/tasks/support/structure-change-task.md): Updates when architectural framework changes are made
+- [System Architecture Review](../../../../process-framework/tasks/01-planning/system-architecture-review.md): Updates when architectural analysis is completed
+- [Foundation Feature Implementation](../../../../process-framework/tasks/04-implementation/foundation-feature-implementation-task.md): Updates when foundation features (0.x.x) are implemented
+- [Structure Change](../../../../process-framework/tasks/support/structure-change-task.md): Updates when architectural framework changes are made
 
 ## Update History
 

@@ -11,7 +11,7 @@ updated: 2026-03-31
 
 This document tracks the implementation status and documentation requirements for all features in the LinkWatcher project.
 
-> **v2.0 Note**: Consolidated from 42 granular features to 9 architectural-boundary-aligned features. See [Feature Consolidation State](../../../process-framework/state-tracking/temporary/old/feature-consolidation-state.md) for migration details.
+> **v2.0 Note**: Consolidated from 42 granular features to 9 architectural-boundary-aligned features. See [Feature Consolidation State](../../../../process-framework/state-tracking/temporary/old/feature-consolidation-state.md) for migration details.
 
 <details>
 <summary><strong>📋 Table of Contents</strong></summary>
@@ -79,17 +79,17 @@ This document tracks the implementation status and documentation requirements fo
 <details>
 <summary><strong>Planning & Implementation Resources</strong></summary>
 
-- [Process: Definition of Done](../../../process-framework/guides/04-implementation/definition-of-done.md): Clear criteria for when a feature is considered complete
+- [Process: Definition of Done](../../../../process-framework/guides/04-implementation/definition-of-done.md): Clear criteria for when a feature is considered complete
 - [Product: Feature Dependencies](../../technical/design/feature-dependencies.md): Auto-generated visual map and matrix of feature dependencies (run `Update-FeatureDependencies.ps1` to refresh)
 - [Process: Technical Debt Tracker](technical-debt-tracking.md): System for tracking and managing technical debt
 - [Process: Documentation Tier Assignments](../../documentation-tiers/README.md): Information about documentation tier assignments and assessment process
-- [Feature Consolidation State](../../../process-framework/state-tracking/temporary/old/feature-consolidation-state.md): Tracks the 42→9 feature consolidation migration
+- [Feature Consolidation State](../../../../process-framework/state-tracking/temporary/old/feature-consolidation-state.md): Tracks the 42→9 feature consolidation migration
 
 </details>
 
 ## Feature Categories
 
-> **📝 NOTE**: All 9 LinkWatcher features are fully implemented (retrospective — code predates the process framework). Documentation was created during onboarding ([PF-TSK-064](../../../process-framework/tasks/00-setup/codebase-feature-discovery.md)/[065](../../../process-framework/tasks/00-setup/codebase-feature-analysis.md)/[066](../../../process-framework/tasks/00-setup/retrospective-documentation-creation.md)) and is being consolidated to match the 9-feature scope.
+> **📝 NOTE**: All 9 LinkWatcher features are fully implemented (retrospective — code predates the process framework). Documentation was created during onboarding ([PF-TSK-064](../../../../process-framework/tasks/00-setup/codebase-feature-discovery.md)/[065](../../../../process-framework/tasks/00-setup/codebase-feature-analysis.md)/[066](../../../../process-framework/tasks/00-setup/retrospective-documentation-creation.md)) and is being consolidated to match the 9-feature scope.
 
 <details>
 <summary><strong>0. System Architecture & Foundation</strong></summary>
@@ -168,8 +168,8 @@ Features that have been generalized into the process framework or otherwise reti
 
 | ID | Feature | Archive Date | Rationale | Replacement |
 | -- | ------- | ------------ | --------- | ----------- |
-| [5.1.1](../features/archive/5.1.1-cicd-development-tooling-implementation-state.md) | CI/CD & Development Tooling | 2026-03-22 | Generalized into framework (PF-PRO-009, 2026-03-22). CI/CD infrastructure is now a framework concern, not a product feature. Major components deleted (ci.yml, run_tests.py, setup_cicd.py). | [CI/CD Setup Guide](../../../process-framework/guides/07-deployment/ci-cd-setup-guide.md) |
-| [4.1.1](../features/archive/4.1.1-test-suite-implementation-state.md) | Test Suite | 2026-03-22 | Generalized into framework (PF-PRO-009, 2026-03-22). Testing infrastructure is now a framework concern, not a product feature. | [Test Infrastructure Guide](../../../process-framework/guides/03-testing/test-infrastructure-guide.md) |
+| [5.1.1](../features/archive/5.1.1-cicd-development-tooling-implementation-state.md) | CI/CD & Development Tooling | 2026-03-22 | Generalized into framework (PF-PRO-009, 2026-03-22). CI/CD infrastructure is now a framework concern, not a product feature. Major components deleted (ci.yml, run_tests.py, setup_cicd.py). | [CI/CD Setup Guide](../../../../process-framework/guides/07-deployment/ci-cd-setup-guide.md) |
+| [4.1.1](../features/archive/4.1.1-test-suite-implementation-state.md) | Test Suite | 2026-03-22 | Generalized into framework (PF-PRO-009, 2026-03-22). Testing infrastructure is now a framework concern, not a product feature. | [Test Infrastructure Guide](../../../../process-framework/guides/03-testing/test-infrastructure-guide.md) |
 
 </details>
 
@@ -218,13 +218,13 @@ Features that have been generalized into the process framework or otherwise reti
 <details>
 <summary><strong>Tasks That Update This File</strong></summary>
 
-- [Feature Tier Assessment](../../../process-framework/tasks/01-planning/feature-tier-assessment-task.md): Updates when features are assessed
-- [FDD Creation](../../../process-framework/tasks/02-design/fdd-creation-task.md): Updates when FDDs are created
-- [TDD Creation](../../../process-framework/tasks/02-design/tdd-creation-task.md): Updates when technical designs are completed
-- [Test Specification Creation](../../../process-framework/tasks/03-testing/test-specification-creation-task.md): Updates Test Spec column when specs are created
-- [Feature Implementation Planning](../../../process-framework/tasks/04-implementation/feature-implementation-planning-task.md): Creates implementation plan, sets status to "In Progress"
-- [Feature Enhancement](../../../process-framework/tasks/04-implementation/feature-enhancement.md): Updates status during enhancement work
-- [Code Review](../../../process-framework/tasks/06-maintenance/code-review-task.md): Updates when reviews are completed
+- [Feature Tier Assessment](../../../../process-framework/tasks/01-planning/feature-tier-assessment-task.md): Updates when features are assessed
+- [FDD Creation](../../../../process-framework/tasks/02-design/fdd-creation-task.md): Updates when FDDs are created
+- [TDD Creation](../../../../process-framework/tasks/02-design/tdd-creation-task.md): Updates when technical designs are completed
+- [Test Specification Creation](../../../../process-framework/tasks/03-testing/test-specification-creation-task.md): Updates Test Spec column when specs are created
+- [Feature Implementation Planning](../../../../process-framework/tasks/04-implementation/feature-implementation-planning-task.md): Creates implementation plan, sets status to "In Progress"
+- [Feature Enhancement](../../../../process-framework/tasks/04-implementation/feature-enhancement.md): Updates status during enhancement work
+- [Code Review](../../../../process-framework/tasks/06-maintenance/code-review-task.md): Updates when reviews are completed
 
 </details>
 
@@ -232,21 +232,21 @@ Features that have been generalized into the process framework or otherwise reti
 
 | Date | Change | Updated By |
 |------|--------|------------|
-| 2026-03-27 | v2.12 — 6.1.1 Link Validation: User documentation created (PD-UGD-003 link-validation handbook, quick-reference updated, README updated). | [User Documentation Creation (PF-TSK-081)](../../../process-framework/tasks/07-deployment/user-documentation-creation.md) |
-| 2026-03-26 | v2.11 — 0.1.3 Configuration System set to "Needs Revision" for Ignored Patterns Configuration enhancement (PF-STA-066) | [Feature Request Evaluation (PF-TSK-067)](../../../process-framework/tasks/01-planning/feature-request-evaluation.md) |
-| 2026-03-24 | v2.10 — 6.1.1 Link Validation: Code review complete. Filtering improvements (93% false positive reduction, 46 tests). Status → 🔄 Needs Revision (PD-BUG-051 remaining false positives). | [Code Review (PF-TSK-005)](../../../process-framework/tasks/06-maintenance/code-review-task.md) |
+| 2026-03-27 | v2.12 — 6.1.1 Link Validation: User documentation created (PD-UGD-003 link-validation handbook, quick-reference updated, README updated). | [User Documentation Creation (PF-TSK-081)](../../../../process-framework/tasks/07-deployment/user-documentation-creation.md) |
+| 2026-03-26 | v2.11 — 0.1.3 Configuration System set to "Needs Revision" for Ignored Patterns Configuration enhancement (PF-STA-066) | [Feature Request Evaluation (PF-TSK-067)](../../../../process-framework/tasks/01-planning/feature-request-evaluation.md) |
+| 2026-03-24 | v2.10 — 6.1.1 Link Validation: Code review complete. Filtering improvements (93% false positive reduction, 46 tests). Status → 🔄 Needs Revision (PD-BUG-051 remaining false positives). | [Code Review (PF-TSK-005)](../../../../process-framework/tasks/06-maintenance/code-review-task.md) |
 | 2026-03-24 | v2.9 — 6.1.1 Link Validation: All 3 implementation phases complete (validator.py, CLI --validate, 20 unit tests), status → ⚙️ Implementation | Implementation |
-| 2026-03-24 | v2.8 — 6.1.1 Link Validation: Implementation plan created (PD-IMP-002), status → 📋 Implementation Planned | [Feature Implementation Planning (PF-TSK-044)](../../../process-framework/tasks/04-implementation/feature-implementation-planning-task.md) |
-| 2026-03-16 | v2.7 — 1.1.1 File System Monitoring set to "Needs Revision" for Parent Directory Reference Updates enhancement (PF-STA-058) | [Feature Request Evaluation (PF-TSK-067)](../../../process-framework/tasks/01-planning/feature-request-evaluation.md) |
-| 2026-03-16 | v2.6 — 2.1.1 Link Parsing System set to "Needs Revision" for Backtick-Delimited Path Detection enhancement (PF-STA-057) | [Feature Request Evaluation (PF-TSK-067)](../../../process-framework/tasks/01-planning/feature-request-evaluation.md) |
-| 2026-03-16 | v2.5 — Added feature 6.1.1 Link Validation in new category "6. Link Validation & Reporting" (PF-FEA-055) | [Feature Request Evaluation (PF-TSK-067)](../../../process-framework/tasks/01-planning/feature-request-evaluation.md) |
-| 2026-02-25 | v2.4 — 0.1.1 Core Architecture: Duplicate Session Prevention enhancement complete, status → 🟢 Completed | [Feature Enhancement (PF-TSK-068)](../../../process-framework/tasks/04-implementation/feature-enhancement.md) |
-| 2026-02-25 | v2.3 — 0.1.1 Core Architecture set to "Needs Revision" for Duplicate Session Prevention enhancement (PF-STA-049) | [Feature Request Evaluation (PF-TSK-067)](../../../process-framework/tasks/01-planning/feature-request-evaluation.md) |
-| 2026-02-24 | v2.2 — All 9 test specifications created (PF-TSP-035 through PF-TSP-043), Test Spec column fully populated | [Test Specification Creation (PF-TSK-012)](../../../process-framework/tasks/03-testing/test-specification-creation-task.md) |
-| 2026-02-21 | v2.1 — Created 9 consolidated feature state files (PF-FEA-046 to PF-FEA-054), linked all IDs and assessments | [Structure Change (PF-TSK-009)](../../../process-framework/tasks/support/structure-change-task.md) |
-| 2026-02-20 | v2.0 — Consolidated 42 features → 9 features | [Structure Change (PF-TSK-009)](../../../process-framework/tasks/support/structure-change-task.md) |
-| 2026-02-20 | v1.5 — Retrospective TDDs completed for all Tier 2+ features | [Retrospective Documentation Creation (PF-TSK-066)](../../../process-framework/tasks/00-setup/retrospective-documentation-creation.md) |
-| 2026-02-19 | v1.4 — Retrospective FDDs completed for all Tier 2+ features | [Retrospective Documentation Creation (PF-TSK-066)](../../../process-framework/tasks/00-setup/retrospective-documentation-creation.md) |
-| 2026-02-17 | v1.0 — Initial feature tracking with 42 features | [Codebase Feature Discovery (PF-TSK-064)](../../../process-framework/tasks/00-setup/codebase-feature-discovery.md) |
-| 2026-03-22 | Archived feature 4.1.1: Generalized into framework (PF-PRO-009, 2026-03-22). Testing infrastructure is now a framework concern, not a product feature. | [Archive-Feature.ps1](../../../process-framework/scripts/update/Archive-Feature.ps1) |
-| 2026-03-22 | Archived feature 5.1.1: Generalized into framework (PF-PRO-009, 2026-03-22). CI/CD infrastructure is now a framework concern, not a product feature. Major components deleted (ci.yml, run_tests.py, setup_cicd.py). | [Archive-Feature.ps1](../../../process-framework/scripts/update/Archive-Feature.ps1) |
+| 2026-03-24 | v2.8 — 6.1.1 Link Validation: Implementation plan created (PD-IMP-002), status → 📋 Implementation Planned | [Feature Implementation Planning (PF-TSK-044)](../../../../process-framework/tasks/04-implementation/feature-implementation-planning-task.md) |
+| 2026-03-16 | v2.7 — 1.1.1 File System Monitoring set to "Needs Revision" for Parent Directory Reference Updates enhancement (PF-STA-058) | [Feature Request Evaluation (PF-TSK-067)](../../../../process-framework/tasks/01-planning/feature-request-evaluation.md) |
+| 2026-03-16 | v2.6 — 2.1.1 Link Parsing System set to "Needs Revision" for Backtick-Delimited Path Detection enhancement (PF-STA-057) | [Feature Request Evaluation (PF-TSK-067)](../../../../process-framework/tasks/01-planning/feature-request-evaluation.md) |
+| 2026-03-16 | v2.5 — Added feature 6.1.1 Link Validation in new category "6. Link Validation & Reporting" (PF-FEA-055) | [Feature Request Evaluation (PF-TSK-067)](../../../../process-framework/tasks/01-planning/feature-request-evaluation.md) |
+| 2026-02-25 | v2.4 — 0.1.1 Core Architecture: Duplicate Session Prevention enhancement complete, status → 🟢 Completed | [Feature Enhancement (PF-TSK-068)](../../../../process-framework/tasks/04-implementation/feature-enhancement.md) |
+| 2026-02-25 | v2.3 — 0.1.1 Core Architecture set to "Needs Revision" for Duplicate Session Prevention enhancement (PF-STA-049) | [Feature Request Evaluation (PF-TSK-067)](../../../../process-framework/tasks/01-planning/feature-request-evaluation.md) |
+| 2026-02-24 | v2.2 — All 9 test specifications created (PF-TSP-035 through PF-TSP-043), Test Spec column fully populated | [Test Specification Creation (PF-TSK-012)](../../../../process-framework/tasks/03-testing/test-specification-creation-task.md) |
+| 2026-02-21 | v2.1 — Created 9 consolidated feature state files (PF-FEA-046 to PF-FEA-054), linked all IDs and assessments | [Structure Change (PF-TSK-009)](../../../../process-framework/tasks/support/structure-change-task.md) |
+| 2026-02-20 | v2.0 — Consolidated 42 features → 9 features | [Structure Change (PF-TSK-009)](../../../../process-framework/tasks/support/structure-change-task.md) |
+| 2026-02-20 | v1.5 — Retrospective TDDs completed for all Tier 2+ features | [Retrospective Documentation Creation (PF-TSK-066)](../../../../process-framework/tasks/00-setup/retrospective-documentation-creation.md) |
+| 2026-02-19 | v1.4 — Retrospective FDDs completed for all Tier 2+ features | [Retrospective Documentation Creation (PF-TSK-066)](../../../../process-framework/tasks/00-setup/retrospective-documentation-creation.md) |
+| 2026-02-17 | v1.0 — Initial feature tracking with 42 features | [Codebase Feature Discovery (PF-TSK-064)](../../../../process-framework/tasks/00-setup/codebase-feature-discovery.md) |
+| 2026-03-22 | Archived feature 4.1.1: Generalized into framework (PF-PRO-009, 2026-03-22). Testing infrastructure is now a framework concern, not a product feature. | [Archive-Feature.ps1](../../../../process-framework/scripts/update/Archive-Feature.ps1) |
+| 2026-03-22 | Archived feature 5.1.1: Generalized into framework (PF-PRO-009, 2026-03-22). CI/CD infrastructure is now a framework concern, not a product feature. Major components deleted (ci.yml, run_tests.py, setup_cicd.py). | [Archive-Feature.ps1](../../../../process-framework/scripts/update/Archive-Feature.ps1) |

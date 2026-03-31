@@ -1,0 +1,755 @@
+#!/usr/bin/env pwsh
+
+<#
+.SYNOPSIS
+    Master state validation script — validates that state tracking entries match actual files on disk.
+.DESCRIPTION
+    Checks consistency across 8 validation surfaces:
+    1. ../feature-tracking.md — all document links (FDD, TDD, ADR, Test Spec, Assessment, State File)
+    2. Feature implementation state files — Section 4 (doc inventory), Section 5 (code inventory), Section 6 (dependencies)
+    3. ../test-tracking.md — test file path references
+    4. Cross-reference consistency — feature IDs in test-registry.yaml vs feature-tracking.md
+    5. ID counter health — nextAvailable counters vs actual max IDs
+    6. Feature Dependencies — regenerate feature-dependencies.md if stale
+    7. Dimension Consistency — dimension profile presence and valid abbreviations
+    8. Workflow Tracking — workflow-feature mapping consistency and status accuracy
+
+    Created as IMP-028 from Tools Review 2026-02-21.
+.PARAMETER ProjectRoot
+    Path to the project root directory. Defaults to auto-detection from script location.
+.PARAMETER Surface
+    Which validation surfaces to run. Accepts one or more of:
+    "FeatureTracking", "StateFiles", "TestTracking", "CrossRef", "IdCounters", "FeatureDeps", "DimensionConsistency", "WorkflowTracking", "All"
+    Default: "All"
+.PARAMETER Detailed
+    Show every checked link, not just failures.
+.PARAMETER FixCounters
+    Auto-fix nextAvailable counters in ID registries (Surface 5 only).
+.EXAMPLE
+    ../Validate-StateTracking.ps1
+.EXAMPLE
+    ../Validate-StateTracking.ps1 -Surface FeatureTracking,StateFiles
+.EXAMPLE
+    ../Validate-StateTracking.ps1 -Detailed
+.EXAMPLE
+    ../Validate-StateTracking.ps1 -Surface IdCounters -FixCounters
+#>
+
+param(
+    [string]$ProjectRoot = "",
+    [string[]]$Surface = @("All"),
+    [switch]$Detailed,
+    [switch]$FixCounters
+)
+
+# --- Resolve project root ---
+if ([string]::IsNullOrWhiteSpace($ProjectRoot)) {
+    $dir = $PSScriptRoot
+    while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
+        $dir = Split-Path -Parent $dir
+    }
+    Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
+    $ProjectRoot = Get-ProjectRoot
+}
+
+# --- Globals ---
+$totalChecks = 0
+$errorCount = 0
+$warningCount = 0
+$passCount = 0
+
+$runAll = $Surface -contains "All"
+
+# --- Load language config for test file extension ---
+$projectConfigPath = Join-Path $ProjectRoot "process-framework/project-config.json"
+$testFileExtRegex = '\.py$'  # fallback
+if (Test-Path $projectConfigPath) {
+    try {
+        $projCfg = Get-Content $projectConfigPath -Raw | ConvertFrom-Json
+        $lang = $projCfg.project_metadata.primary_language.ToLower()
+        $langCfgPath = Join-Path $ProjectRoot "process-framework/languages-config/$lang/$lang-config.json"
+        if (Test-Path $langCfgPath) {
+            $langCfg = Get-Content $langCfgPath -Raw | ConvertFrom-Json
+            $ext = $langCfg.testing.testFileExtension
+            if ($ext) {
+                $testFileExtRegex = [regex]::Escape($ext) + '$'
+            }
+        }
+    } catch {
+        Write-Warning "Could not load language config, using .py fallback for test file matching"
+    }
+}
+
+# --- Helper: Resolve a markdown-relative path to an absolute path ---
+function Resolve-MarkdownLink {
+    param(
+        [string]$LinkPath,
+        [string]$SourceFileDir
+    )
+
+    # Skip anchors-only links, external URLs, and empty
+    if ([string]::IsNullOrWhiteSpace($LinkPath)) { return $null }
+    if ($LinkPath -match '^https?://') { return $null }
+    if ($LinkPath -match '^#') { return $null }
+    if ($LinkPath -match '^mailto:') { return $null }
+
+    # Skip obviously non-file links (no slash/backslash and no file extension)
+    if ($LinkPath -notmatch '../[/]' -and $LinkPath -notmatch '../../../../../../../../w{1,5}$') { return $null }
+
+    # Strip anchor fragment
+    $cleanPath = ($LinkPath -split '#')[0]
+    if ([string]::IsNullOrWhiteSpace($cleanPath)) { return $null }
+
+    # Resolve relative to source file directory
+    $combined = Join-Path $SourceFileDir $cleanPath
+    try {
+        $resolved = [System.IO.Path]::GetFullPath($combined)
+        return $resolved
+    } catch {
+        return $null
+    }
+}
+
+# --- Helper: Extract all markdown links from a line ---
+function Get-MarkdownLinks {
+    param([string]$Line)
+
+    $links = @()
+    $regex = [regex]'\[([^\]]*)\]\(([^)]+)\)'
+    $matchCollection = $regex.Matches($Line)
+    foreach ($m in $matchCollection) {
+        $links += [PSCustomObject]@{
+            Text = $m.Groups[1].Value
+            Path = $m.Groups[2].Value
+        }
+    }
+    return $links
+}
+
+# --- Helper: Find similar filenames for suggestions ---
+function Find-SimilarFile {
+    param(
+        [string]$ExpectedPath
+    )
+
+    $dir = [System.IO.Path]::GetDirectoryName($ExpectedPath)
+    $name = [System.IO.Path]::GetFileName($ExpectedPath)
+    if (-not (Test-Path $dir)) { return $null }
+
+    # Look for files with similar names in the same directory
+    $candidates = Get-ChildItem -Path $dir -File -ErrorAction SilentlyContinue | Where-Object {
+        $_.Name -ne $name
+    }
+
+    # Simple similarity: share a common prefix of 5+ chars
+    $prefix = if ($name.Length -ge 5) { $name.Substring(0, 5) } else { $name }
+    $match = $candidates | Where-Object { $_.Name.StartsWith($prefix) } | Select-Object -First 1
+    if ($match -and $match.Name) {
+        return $match.Name
+    }
+    return ""
+}
+
+# --- Helper: Record check result ---
+function Add-CheckResult {
+    param(
+        [string]$Level,  # "ERROR", "WARNING", "OK"
+        [string]$Surface,
+        [string]$Context,
+        [string]$Message
+    )
+
+    $script:totalChecks++
+    switch ($Level) {
+        "ERROR"   { $script:errorCount++; Write-Host "    $([char]0x274C) $Context : $Message" -ForegroundColor Red }
+        "WARNING" { $script:warningCount++; Write-Host "    $([char]0x26A0)  $Context : $Message" -ForegroundColor Yellow }
+        "OK"      { $script:passCount++; if ($Detailed) { Write-Host "    $([char]0x2705) $Context : $Message" -ForegroundColor Green } }
+    }
+}
+
+# =========================================================================
+Write-Host "========================================" -ForegroundColor Cyan
+Write-Host "  State Tracking Validation Report" -ForegroundColor Cyan
+Write-Host "========================================" -ForegroundColor Cyan
+Write-Host "Project Root: $ProjectRoot" -ForegroundColor Gray
+Write-Host ""
+
+# =========================================================================
+# SURFACE 1: Feature Tracking
+# =========================================================================
+if ($runAll -or $Surface -contains "FeatureTracking") {
+    Write-Host "[1/5] Feature Tracking (feature-tracking.md)" -ForegroundColor Cyan
+
+    $ftPath = Join-Path $ProjectRoot "doc/product-docs/state-tracking/permanent/feature-tracking.md"
+    if (-not (Test-Path $ftPath)) {
+        Add-CheckResult "ERROR" "FeatureTracking" "feature-tracking.md" "File not found: $ftPath"
+    } else {
+        $ftDir = [System.IO.Path]::GetDirectoryName($ftPath)
+        $ftLines = Get-Content $ftPath -Encoding UTF8
+        $featureCount = 0
+        $linkCount = 0
+
+        foreach ($line in $ftLines) {
+            # Match feature table rows: start with | [X.X.X]( or | [text](
+            # Feature rows have the pattern: | [0.1.1](path) | Name | Status | ...
+            if ($line -match '^\|\s*\[(\d+\.\d+\.\d+)\]\(') {
+                $featureId = $matches[1]
+                $featureCount++
+
+                # Extract all markdown links from this row
+                $links = Get-MarkdownLinks -Line $line
+                $validLinks = 0
+                $brokenLinks = 0
+
+                foreach ($link in $links) {
+                    $resolved = Resolve-MarkdownLink -LinkPath $link.Path -SourceFileDir $ftDir
+                    if ($null -eq $resolved) { continue }
+
+                    $linkCount++
+                    if (Test-Path $resolved) {
+                        $validLinks++
+                        Add-CheckResult "OK" "FeatureTracking" "$featureId/$($link.Text)" "Link valid"
+                    } else {
+                        $brokenLinks++
+                        $suggestion = Find-SimilarFile -ExpectedPath $resolved
+                        $msg = "Link broken: $($link.Path)"
+                        if ($suggestion -and $suggestion.Length -gt 0) {
+                            $msg += " (did you mean: " + $suggestion + "?)"
+                        }
+                        Add-CheckResult "ERROR" "FeatureTracking" "$featureId/$($link.Text)" $msg
+                    }
+                }
+
+                # In non-detailed mode, show per-feature summary for clean features
+                if (-not $Detailed -and $brokenLinks -eq 0 -and $validLinks -gt 0) {
+                    Write-Host "    $([char]0x2705) Feature $featureId : $validLinks/$validLinks links valid" -ForegroundColor Green
+                }
+            }
+        }
+
+        Write-Host "  Checked $featureCount features, $linkCount links total" -ForegroundColor Gray
+    }
+    Write-Host ""
+}
+
+# =========================================================================
+# SURFACE 2: Feature State Files
+# =========================================================================
+if ($runAll -or $Surface -contains "StateFiles") {
+    Write-Host "[2/5] Feature State Files" -ForegroundColor Cyan
+
+    $stateDir = Join-Path $ProjectRoot "doc/product-docs/state-tracking/features"
+    if (-not (Test-Path $stateDir)) {
+        Add-CheckResult "ERROR" "StateFiles" "features" "Directory not found: $stateDir"
+    } else {
+        $stateFiles = Get-ChildItem -Path $stateDir -Filter "*-implementation-state.md" -File
+        Write-Host "  Found $($stateFiles.Count) state files" -ForegroundColor Gray
+
+        foreach ($sf in $stateFiles) {
+            $sfDir = $sf.DirectoryName
+            $sfContent = Get-Content $sf.FullName -Encoding UTF8
+            $sfName = $sf.Name
+            $brokenInFile = 0
+            $validInFile = 0
+            $inSection = ""
+
+            foreach ($line in $sfContent) {
+                # Track which section we're in
+                if ($line -match '../^## 4/. Documentation Inventory') { $inSection = "Section4" }
+                elseif ($line -match '../^## 5/. Code Inventory') { $inSection = "Section5" }
+                elseif ($line -match '../^## 6/. Dependencies') { $inSection = "Section6" }
+                elseif ($line -match '^## [789]') { $inSection = "" }
+                elseif ($line -match '^## 1[0-2]') { $inSection = "" }
+
+                # Only validate links in sections 4, 5, 6
+                if ($inSection -notin @("Section4", "Section5", "Section6")) { continue }
+
+                # Skip non-table rows
+                if ($line -notmatch '^\|') { continue }
+                # Skip header separator rows
+                if ($line -match '^\|\s*-') { continue }
+
+                $links = Get-MarkdownLinks -Line $line
+                foreach ($link in $links) {
+                    $resolved = Resolve-MarkdownLink -LinkPath $link.Path -SourceFileDir $sfDir
+                    if ($null -eq $resolved) { continue }
+
+                    if (Test-Path $resolved) {
+                        $validInFile++
+                        Add-CheckResult "OK" "StateFiles" "$sfName/$inSection/$($link.Text)" "Link valid"
+                    } else {
+                        $brokenInFile++
+                        $suggestion = Find-SimilarFile -ExpectedPath $resolved
+                        $msg = "Link broken: $($link.Path)"
+                        if ($suggestion -and $suggestion.Length -gt 0) {
+                            $msg += " (did you mean: " + $suggestion + "?)"
+                        }
+                        Add-CheckResult "ERROR" "StateFiles" "$sfName/$inSection/$($link.Text)" $msg
+                    }
+                }
+            }
+
+            $total = $validInFile + $brokenInFile
+            if ($total -gt 0 -and $brokenInFile -eq 0 -and -not $Detailed) {
+                Write-Host "    $([char]0x2705) $sfName : $validInFile/$total links valid" -ForegroundColor Green
+            } elseif ($total -eq 0) {
+                Write-Host "    $([char]0x26A0)  $sfName : No links found in sections 4-6" -ForegroundColor Yellow
+                $script:warningCount++
+                $script:totalChecks++
+            }
+        }
+    }
+    Write-Host ""
+}
+
+# =========================================================================
+# SURFACE 3: Test Tracking
+# =========================================================================
+if ($runAll -or $Surface -contains "TestTracking") {
+    Write-Host "[3/5] Test Tracking" -ForegroundColor Cyan
+
+    $titPath = Join-Path $ProjectRoot "test/state-tracking/permanent/test-tracking.md"
+    if (-not (Test-Path $titPath)) {
+        Add-CheckResult "ERROR" "TestTracking" "test-tracking.md" "File not found: $titPath"
+    } else {
+        $titDir = [System.IO.Path]::GetDirectoryName($titPath)
+        $titLines = Get-Content $titPath -Encoding UTF8
+        $testFileCount = 0
+        $brokenTestFiles = 0
+
+        foreach ($line in $titLines) {
+            # Match table rows with test file IDs: | PD-TST-### | ... or | TE-TST-### | ...
+            if ($line -match '^\|\s*(?:PD|TE)-TST-\d+\s*\|') {
+                $links = Get-MarkdownLinks -Line $line
+
+                # The test file link is typically the 1st link in the row
+                foreach ($link in $links) {
+                    # Only check links that look like test file paths (not task links)
+                    if ($link.Path -match '\.\./.*tests/' -or $link.Path -match $testFileExtRegex) {
+                        $testFileCount++
+                        $resolved = Resolve-MarkdownLink -LinkPath $link.Path -SourceFileDir $titDir
+                        if ($null -eq $resolved) { continue }
+
+                        if (Test-Path $resolved) {
+                            Add-CheckResult "OK" "TestTracking" "$($link.Text)" "File exists"
+                        } else {
+                            $brokenTestFiles++
+                            Add-CheckResult "ERROR" "TestTracking" "$($link.Text)" "File not found: $($link.Path)"
+                        }
+                    }
+                }
+            }
+        }
+
+        if (-not $Detailed -and $brokenTestFiles -eq 0 -and $testFileCount -gt 0) {
+            Write-Host "    $([char]0x2705) $testFileCount/$testFileCount test file references valid" -ForegroundColor Green
+        }
+        Write-Host "  Checked $testFileCount test file references" -ForegroundColor Gray
+    }
+    Write-Host ""
+}
+
+# =========================================================================
+# SURFACE 4: Cross-Reference Consistency
+# =========================================================================
+if ($runAll -or $Surface -contains "CrossRef") {
+    Write-Host "[4/5] Cross-Reference Consistency" -ForegroundColor Cyan
+
+    # Load known feature IDs from feature-tracking.md
+    $ftPath = Join-Path $ProjectRoot "doc/product-docs/state-tracking/permanent/feature-tracking.md"
+    $knownFeatureIds = @()
+    if (Test-Path $ftPath) {
+        $ftContent = Get-Content $ftPath -Encoding UTF8
+        foreach ($line in $ftContent) {
+            if ($line -match '^\|\s*\[(\d+\.\d+\.\d+)\]') {
+                $knownFeatureIds += $matches[1]
+            }
+        }
+    }
+
+    if ($knownFeatureIds.Count -eq 0) {
+        Add-CheckResult "WARNING" "CrossRef" "feature-tracking.md" "No feature IDs found — cannot cross-reference"
+    } else {
+        Write-Host "  Known features: $($knownFeatureIds -join ', ')" -ForegroundColor Gray
+
+        # Check test-registry.yaml feature IDs
+        $registryPath = Join-Path $ProjectRoot "test/test-registry.yaml"
+        if (Test-Path $registryPath) {
+            $registryLines = Get-Content $registryPath -Encoding UTF8
+            $registryFeatureIds = @()
+            $crossCuttingIds = @()
+
+            foreach ($line in $registryLines) {
+                $trimmed = $line.Trim()
+                if ($trimmed -match 'featureId:\s*"([^"]+)"') {
+                    $fid = $matches[1]
+                    if ($fid -notin $registryFeatureIds) {
+                        $registryFeatureIds += $fid
+                    }
+                }
+                if ($trimmed -match 'crossCuttingFeatures:') {
+                    $ccMatches = [regex]::Matches($trimmed, '../[/d]+/.[/d]+/.[/d]+')
+                    foreach ($ccm in $ccMatches) {
+                        if ($ccm.Value -notin $crossCuttingIds) {
+                            $crossCuttingIds += $ccm.Value
+                        }
+                    }
+                }
+            }
+
+            # Check primary feature IDs
+            $invalidPrimary = @()
+            foreach ($fid in $registryFeatureIds) {
+                if ($fid -notin $knownFeatureIds) {
+                    $invalidPrimary += $fid
+                    Add-CheckResult "WARNING" "CrossRef" "test-registry.yaml" "Feature ID '$fid'../ not in feature-tracking.md"
+                }
+            }
+            if ($invalidPrimary.Count -eq 0) {
+                Add-CheckResult "OK" "CrossRef" "Primary feature IDs" "All $($registryFeatureIds.Count) feature IDs match"
+            }
+
+            # Check cross-cutting feature IDs
+            $invalidCC = @()
+            foreach ($ccId in $crossCuttingIds) {
+                if ($ccId -notin $knownFeatureIds) {
+                    $invalidCC += $ccId
+                    Add-CheckResult "WARNING" "CrossRef" "test-registry.yaml" "Cross-cutting feature ID '$ccId'../ not in feature-tracking.md"
+                }
+            }
+            if ($invalidCC.Count -eq 0 -and $crossCuttingIds.Count -gt 0) {
+                Add-CheckResult "OK" "CrossRef" "Cross-cutting IDs" "All $($crossCuttingIds.Count) cross-cutting feature IDs match"
+            }
+        } else {
+            Add-CheckResult "WARNING" "CrossRef" "test-registry.yaml" "File not found — skipping cross-reference checks"
+        }
+    }
+    Write-Host ""
+}
+
+# =========================================================================
+# SURFACE 5: ID Counter Health
+# =========================================================================
+if ($runAll -or $Surface -contains "IdCounters") {
+    Write-Host "[5/5] ID Counter Health" -ForegroundColor Cyan
+
+    # Load all three ID registries
+    $registryMap = @{
+        'PF' = @{ Path = (Join-Path $ProjectRoot "process-framework/PF-id-registry.json"); Registry = $null; Fixed = 0 }
+        'PD' = @{ Path = (Join-Path $ProjectRoot "doc/product-docs/PD-id-registry.json"); Registry = $null; Fixed = 0 }
+        'TE' = @{ Path = (Join-Path $ProjectRoot "test/TE-id-registry.json"); Registry = $null; Fixed = 0 }
+    }
+    $allLoaded = $true
+    foreach ($key in $registryMap.Keys) {
+        $regPath = $registryMap[$key].Path
+        if (Test-Path $regPath) {
+            $registryMap[$key].Registry = Get-Content $regPath -Raw -Encoding UTF8 | ConvertFrom-Json
+        } else {
+            Add-CheckResult "ERROR" "IdCounters" "$key-id-registry.json" "File not found: $regPath"
+            $allLoaded = $false
+        }
+    }
+
+    if ($allLoaded) {
+        # Prefixes to validate with their file patterns
+        $prefixChecks = @(
+            @{ Prefix = "PD-FIS";  Dir = "doc/product-docs/state-tracking/features";                              Pattern = "*.md"; Domain = "PD" }
+            @{ Prefix = "PD-FDD";  Dir = "doc/product-docs/functional-design/fdds";                                Pattern = "*.md"; Domain = "PD" }
+            @{ Prefix = "PD-TDD";  Dir = "doc/product-docs/technical/architecture/design-docs/tdd";                Pattern = "*.md"; Domain = "PD" }
+            @{ Prefix = "PD-ADR";  Dir = "doc/product-docs/technical/architecture/design-docs/adr/adr";            Pattern = "*.md"; Domain = "PD" }
+            @{ Prefix = "PD-ASS";  Dir = "doc/product-docs/documentation-tiers/assessments";                       Pattern = "*.md"; Domain = "PD" }
+            @{ Prefix = "TE-TSP";  Dir = "test/specifications/feature-specs";                                       Pattern = "*.md"; Domain = "TE" }
+        )
+
+        foreach ($check in $prefixChecks) {
+            $prefix = $check.Prefix
+            $domain = $check.Domain
+            $dirPath = Join-Path $ProjectRoot $check.Dir
+
+            # Get nextAvailable from the correct registry
+            $idRegistry = $registryMap[$domain].Registry
+            $registryEntry = $idRegistry.prefixes.$prefix
+            if (-not $registryEntry) {
+                Add-CheckResult "WARNING" "IdCounters" $prefix "Prefix not found in $domain-id-registry.json"
+                continue
+            }
+            $nextAvailable = $registryEntry.nextAvailable
+
+            # Scan files for max ID
+            $maxId = 0
+            if (Test-Path $dirPath) {
+                $files = Get-ChildItem -Path $dirPath -Filter $check.Pattern -File -ErrorAction SilentlyContinue
+                foreach ($file in $files) {
+                    $content = Get-Content $file.FullName -Raw -Encoding UTF8 -ErrorAction SilentlyContinue
+                    if ($content -and $content -match "id:\s*$([regex]::Escape($prefix))-(\d+)") {
+                        $num = [int]$matches[1]
+                        if ($num -gt $maxId) { $maxId = $num }
+                    }
+                }
+            }
+
+            $expectedNext = if ($maxId -gt 0) { $maxId + 1 } else { $nextAvailable }
+
+            if ($maxId -eq 0) {
+                Add-CheckResult "OK" "IdCounters" $prefix "nextAvailable=$nextAvailable (no files found with IDs to validate)"
+            } elseif ($nextAvailable -eq $expectedNext) {
+                Add-CheckResult "OK" "IdCounters" $prefix "nextAvailable=$nextAvailable, maxUsed=$prefix-$maxId"
+            } elseif ($nextAvailable -lt $expectedNext) {
+                Add-CheckResult "ERROR" "IdCounters" $prefix "nextAvailable=$nextAvailable but max ID is $prefix-$maxId (would cause collision! expected: $expectedNext)"
+                if ($FixCounters) {
+                    $idRegistry.prefixes.$prefix.nextAvailable = $expectedNext
+                    $registryMap[$domain].Fixed++
+                    Write-Host "      Fixed: nextAvailable set to $expectedNext" -ForegroundColor Magenta
+                }
+            } else {
+                # nextAvailable > expectedNext — gap exists, just a warning
+                Add-CheckResult "WARNING" "IdCounters" $prefix "nextAvailable=$nextAvailable but max ID is $prefix-$maxId (gap of $($nextAvailable - $expectedNext))"
+            }
+        }
+
+        if ($FixCounters) {
+            foreach ($key in $registryMap.Keys) {
+                if ($registryMap[$key].Fixed -gt 0) {
+                    $registryMap[$key].Registry | ConvertTo-Json -Depth 10 | Set-Content $registryMap[$key].Path -Encoding UTF8
+                    Write-Host "  Fixed $($registryMap[$key].Fixed) counter(s) in $key-id-registry.json" -ForegroundColor Magenta
+                }
+            }
+        }
+    }
+    Write-Host ""
+}
+
+# =========================================================================
+# Surface 6: Feature Dependencies freshness
+# =========================================================================
+if ($runAll -or $Surface -contains "FeatureDeps") {
+    Write-Host "========================================" -ForegroundColor Cyan
+    Write-Host "  Surface 6: Feature Dependencies" -ForegroundColor Cyan
+    Write-Host "========================================" -ForegroundColor Cyan
+
+    $depsFile = Join-Path $ProjectRoot "doc/product-docs/technical/design/feature-dependencies.md"
+    $updateScript = Join-Path $ProjectRoot "process-framework/scripts/update/Update-FeatureDependencies.ps1"
+
+    if (-not (Test-Path $updateScript)) {
+        Add-CheckResult "WARNING" "FeatureDeps" "Script" "Update-FeatureDependencies.ps1 not found"
+    } else {
+        # Check if any state file is newer than the generated dependencies file
+        $needsRegeneration = $false
+        if (-not (Test-Path $depsFile)) {
+            $needsRegeneration = $true
+        } else {
+            $depsLastWrite = (Get-Item $depsFile).LastWriteTime
+            $stateDir = Join-Path $ProjectRoot "doc/product-docs/state-tracking/features"
+            $newerFiles = Get-ChildItem -Path $stateDir -Filter "*-implementation-state.md" |
+                Where-Object { $_.LastWriteTime -gt $depsLastWrite }
+            if ($newerFiles.Count -gt 0) {
+                $needsRegeneration = $true
+            }
+        }
+
+        if ($needsRegeneration) {
+            Write-Host "  Feature state files are newer than feature-dependencies.md — regenerating..." -ForegroundColor Yellow
+            & $updateScript -Confirm:$false
+            Add-CheckResult "OK" "FeatureDeps" "Regenerated" "feature-dependencies.md updated from state files"
+        } else {
+            Add-CheckResult "OK" "FeatureDeps" "UpToDate" "feature-dependencies.md is current"
+        }
+    }
+    Write-Host ""
+}
+
+# =========================================================================
+# Surface 7: Dimension Consistency
+# =========================================================================
+if ($runAll -or $Surface -contains "DimensionConsistency") {
+    Write-Host "========================================" -ForegroundColor Cyan
+    Write-Host "  Surface 7: Dimension Consistency" -ForegroundColor Cyan
+    Write-Host "========================================" -ForegroundColor Cyan
+
+    $validDimensions = @("AC", "CQ", "ID", "DA", "EM", "SE", "PE", "OB", "UX", "DI")
+    $stateDir = Join-Path $ProjectRoot "doc/product-docs/state-tracking/features"
+
+    if (Test-Path $stateDir) {
+        $stateFiles = Get-ChildItem -Path $stateDir -Filter "*-implementation-state.md" -File
+        $filesWithProfile = 0
+        $filesWithoutProfile = 0
+
+        foreach ($file in $stateFiles) {
+            $content = Get-Content $file.FullName -Raw
+
+            # Check if Dimension Profile section exists
+            if ($content -match "## 7\. Dimension Profile") {
+                $filesWithProfile++
+
+                # Extract dimension abbreviations used and validate them
+                $dimMatches = [regex]::Matches($content, '\(([A-Z]{2})\)')
+                $usedDims = @()
+                foreach ($m in $dimMatches) {
+                    $abbr = $m.Groups[1].Value
+                    if ($usedDims -notcontains $abbr) { $usedDims += $abbr }
+                }
+
+                foreach ($abbr in $usedDims) {
+                    if ($validDimensions -notcontains $abbr) {
+                        Add-CheckResult "ERROR" "DimensionConsistency" $file.Name "Invalid dimension abbreviation: $abbr"
+                    }
+                }
+
+                # Check that importance values are valid
+                $importanceMatches = [regex]::Matches($content, '(?<=\| [^|]+ \| )(Critical|Relevant|N/A)(?= \|)')
+                if ($importanceMatches.Count -eq 0 -and $content -notmatch 'none evaluated') {
+                    Add-CheckResult "WARNING" "DimensionConsistency" $file.Name "Dimension Profile section exists but no importance values found"
+                }
+
+                Add-CheckResult "OK" "DimensionConsistency" $file.Name "Dimension Profile present with $($usedDims.Count) dimensions"
+            } else {
+                $filesWithoutProfile++
+                Add-CheckResult "WARNING" "DimensionConsistency" $file.Name "Missing Dimension Profile section (Section 7)"
+            }
+        }
+
+        Write-Host "  Feature state files: $($stateFiles.Count) total, $filesWithProfile with profiles, $filesWithoutProfile without" -ForegroundColor Gray
+    } else {
+        Add-CheckResult "WARNING" "DimensionConsistency" "Directory" "Feature state directory not found: $stateDir"
+    }
+    Write-Host ""
+}
+
+# =========================================================================
+# Surface 8: Workflow Tracking Consistency
+# =========================================================================
+if ($runAll -or $Surface -contains "WorkflowTracking") {
+    Write-Host "========================================" -ForegroundColor Cyan
+    Write-Host "  Surface 8: Workflow Tracking" -ForegroundColor Cyan
+    Write-Host "========================================" -ForegroundColor Cyan
+
+    $wfPath = Join-Path $ProjectRoot "doc/product-docs/state-tracking/permanent/user-workflow-tracking.md"
+
+    if (-not (Test-Path $wfPath)) {
+        Add-CheckResult "WARNING" "WorkflowTracking" "user-workflow-tracking.md" "File not found — workflow tracking not set up"
+    } else {
+        # Parse workflow tracking file for WF-IDs and Required Features
+        $wfContent = Get-Content $wfPath -Encoding UTF8
+        $workflowIds = @()
+        $workflowFeatures = @{}  # WF-ID → list of feature IDs
+
+        foreach ($line in $wfContent) {
+            if ($line -match '^\|\s*(WF-\d+)') {
+                $wfId = $matches[1]
+                $workflowIds += $wfId
+                $cells = $line -split '\|' | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne '' }
+                # Required Features is typically the 4th column (index 3)
+                if ($cells.Count -ge 4) {
+                    $reqFeatures = $cells[3] -split ',\s*' | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne '' }
+                    $workflowFeatures[$wfId] = $reqFeatures
+                }
+            }
+        }
+
+        Write-Host "  Found $($workflowIds.Count) workflows" -ForegroundColor Gray
+
+        # Load known feature IDs from feature-tracking.md
+        $ftPath2 = Join-Path $ProjectRoot "doc/product-docs/state-tracking/permanent/feature-tracking.md"
+        $knownFeatures2 = @()
+        if (Test-Path $ftPath2) {
+            $ftContent2 = Get-Content $ftPath2 -Encoding UTF8
+            foreach ($line in $ftContent2) {
+                if ($line -match '^\|\s*\[(\d+\.\d+\.\d+)\]') {
+                    $knownFeatures2 += $matches[1]
+                }
+            }
+        }
+
+        # Check 1: All Required Features reference valid feature IDs
+        foreach ($wfId in $workflowIds) {
+            if ($workflowFeatures.ContainsKey($wfId)) {
+                foreach ($fId in $workflowFeatures[$wfId]) {
+                    if ($fId -match '^\d+\.\d+\.\d+$') {
+                        if ($knownFeatures2 -contains $fId) {
+                            Add-CheckResult "OK" "WorkflowTracking" "$wfId/$fId" "Required feature exists in feature tracking"
+                        } else {
+                            Add-CheckResult "ERROR" "WorkflowTracking" "$wfId/$fId" "Required feature '$fId' not found in feature-tracking.md"
+                        }
+                    }
+                }
+            }
+        }
+
+        # Check 2: Feature state files' workflows: metadata references valid WF-IDs
+        $stateDir2 = Join-Path $ProjectRoot "doc/product-docs/state-tracking/features"
+        if (Test-Path $stateDir2) {
+            $stateFiles2 = Get-ChildItem -Path $stateDir2 -Filter "*-implementation-state.md" -File
+            foreach ($sf in $stateFiles2) {
+                $sfContent = Get-Content $sf.FullName -Raw -Encoding UTF8
+                # Extract feature ID from filename (e.g., 0.1.1-core-architecture-implementation-state.md)
+                $featureIdFromName = ""
+                if ($sf.Name -match '^(\d+\.\d+\.\d+)') {
+                    $featureIdFromName = $matches[1]
+                }
+
+                # Find workflows: metadata — supports both YAML list format and inline format
+                # YAML list: "workflows:\n  - WF-001\n  - WF-002"
+                # Inline: "workflows: [WF-001, WF-002]"
+                $wfList = @()
+                if ($sfContent -match 'workflows:\s*\[([^\]]*)\]') {
+                    # Inline format
+                    $wfList = $matches[1] -split ',\s*' | ForEach-Object { $_.Trim().Trim('"').Trim("'") } | Where-Object { $_ -ne '' }
+                } elseif ($sfContent -match 'workflows:') {
+                    # YAML list format — extract all "  - WF-XXX" lines after "workflows:"
+                    $wfMatches = [regex]::Matches($sfContent, '(?<=workflows:[\s\S]*?)- (WF-\d+)')
+                    foreach ($m in $wfMatches) {
+                        $wfList += $m.Groups[1].Value
+                    }
+                }
+
+                if ($wfList.Count -gt 0) {
+                    foreach ($wf in $wfList) {
+                        if ($workflowIds -contains $wf) {
+                            Add-CheckResult "OK" "WorkflowTracking" "$($sf.Name)/$wf" "Workflow reference valid"
+                        } else {
+                            Add-CheckResult "ERROR" "WorkflowTracking" "$($sf.Name)/$wf" "Workflow '$wf' not found in user-workflow-tracking.md"
+                        }
+                    }
+
+                    # Check 3: Cross-reference — if feature lists WF-ID, does that workflow list this feature?
+                    foreach ($wf in $wfList) {
+                        if ($workflowFeatures.ContainsKey($wf) -and $featureIdFromName) {
+                            if ($workflowFeatures[$wf] -contains $featureIdFromName) {
+                                Add-CheckResult "OK" "WorkflowTracking" "$($sf.Name)/$wf" "Cross-reference valid (feature listed in workflow)"
+                            } else {
+                                Add-CheckResult "WARNING" "WorkflowTracking" "$($sf.Name)/$wf" "Feature $featureIdFromName claims workflow $wf but is not listed in that workflow's Required Features"
+                            }
+                        }
+                    }
+                }
+                # Note: missing workflows: field is not an error — it may be an older state file
+            }
+        }
+    }
+    Write-Host ""
+}
+
+# =========================================================================
+# Summary
+# =========================================================================
+Write-Host "========================================" -ForegroundColor Cyan
+Write-Host "  Summary" -ForegroundColor Cyan
+Write-Host "========================================" -ForegroundColor Cyan
+Write-Host "  Total checks: $totalChecks" -ForegroundColor Gray
+Write-Host "  Passed:       $passCount" -ForegroundColor $(if ($passCount -gt 0) { "Green" } else { "Gray" })
+Write-Host "  Errors:       $errorCount" -ForegroundColor $(if ($errorCount -eq 0) { "Green" } else { "Red" })
+Write-Host "  Warnings:     $warningCount" -ForegroundColor $(if ($warningCount -eq 0) { "Green" } else { "Yellow" })
+
+if ($errorCount -eq 0 -and $warningCount -eq 0) {
+    Write-Host ""
+    Write-Host "  All checks passed!" -ForegroundColor Green
+    exit 0
+} elseif ($errorCount -eq 0) {
+    Write-Host ""
+    Write-Host "  Passed with warnings." -ForegroundColor Yellow
+    exit 0
+} else {
+    Write-Host ""
+    Write-Host "  Validation failed." -ForegroundColor Red
+    exit 1
+}

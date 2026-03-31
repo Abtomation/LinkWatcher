@@ -589,13 +589,13 @@ class TestShouldCheckTarget:
 
     def test_valid_deep_path_accepted(self):
         assert (
-            LinkValidator._should_check_target("doc/process-framework/tasks/task.md", "markdown")
+            LinkValidator._should_check_target("process-framework/tasks/task.md", "markdown")
             is True
         )
 
     def test_root_relative_accepted(self):
         assert (
-            LinkValidator._should_check_target("/doc/process-framework/tasks/task.md", "markdown")
+            LinkValidator._should_check_target("/process-framework/tasks/task.md", "markdown")
             is True
         )
 

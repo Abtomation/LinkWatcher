@@ -23,7 +23,7 @@ manual-testing/
 ### 1. Set Up Environment
 
 ```bash
-cd doc/process-framework/scripts/testing
+cd process-framework/scripts/testing
 pwsh.exe -ExecutionPolicy Bypass -Command '& .\Setup-TestEnvironment.ps1 -Group "group-name" -Clean'
 ```
 
@@ -45,8 +45,8 @@ pwsh.exe -ExecutionPolicy Bypass -Command '& .\Update-TestExecutionStatus.ps1 -G
 
 ## Related Tasks
 
-- [Manual Test Case Creation (PF-TSK-069)](/doc/process-framework/tasks/03-testing/e2e-acceptance-test-case-creation-task.md) — Creates test cases
-- [Manual Test Execution (PF-TSK-070)](/doc/process-framework/tasks/03-testing/e2e-acceptance-test-execution-task.md) — Executes test cases
+- [Manual Test Case Creation (PF-TSK-069)](/process-framework/tasks/03-testing/e2e-acceptance-test-case-creation-task.md) — Creates test cases
+- [Manual Test Execution (PF-TSK-070)](/process-framework/tasks/03-testing/e2e-acceptance-test-execution-task.md) — Executes test cases
 
 ## Important
 

@@ -157,10 +157,10 @@ pytest test/automated/performance/       # Performance tests (slower)
 ### **Alternative: Process Framework Test Runner**
 ```cmd
 # Language-agnostic test runner (reads project-config.json + languages-config/)
-pwsh.exe -ExecutionPolicy Bypass -Command '& doc/process-framework/scripts/test/Run-Tests.ps1 -ListCategories'
-pwsh.exe -ExecutionPolicy Bypass -Command '& doc/process-framework/scripts/test/Run-Tests.ps1 -Category unit'
-pwsh.exe -ExecutionPolicy Bypass -Command '& doc/process-framework/scripts/test/Run-Tests.ps1 -All -Coverage'
-pwsh.exe -ExecutionPolicy Bypass -Command '& doc/process-framework/scripts/test/Run-Tests.ps1 -Quick'
+pwsh.exe -ExecutionPolicy Bypass -Command '& process-framework/scripts/test/Run-Tests.ps1 -ListCategories'
+pwsh.exe -ExecutionPolicy Bypass -Command '& process-framework/scripts/test/Run-Tests.ps1 -Category unit'
+pwsh.exe -ExecutionPolicy Bypass -Command '& process-framework/scripts/test/Run-Tests.ps1 -All -Coverage'
+pwsh.exe -ExecutionPolicy Bypass -Command '& process-framework/scripts/test/Run-Tests.ps1 -Quick'
 ```
 
 ### **Direct pytest Commands**
@@ -173,8 +173,8 @@ pytest test/automated/ --cov=linkwatcher --cov-report=html
 ```
 
 **Test Documentation:**
-- [Test Infrastructure Guide](doc/process-framework/guides/03-testing/test-infrastructure-guide.md) - How the test/ directory connects to the process framework
-- [Test Query Tool](doc/process-framework/scripts/test/test_query.py) - Query test metadata from pytest markers (`--feature`, `--summary`, `--dump`)
+- [Test Infrastructure Guide](process-framework/guides/03-testing/test-infrastructure-guide.md) - How the test/ directory connects to the process framework
+- [Test Query Tool](process-framework/scripts/test/test_query.py) - Query test metadata from pytest markers (`--feature`, `--summary`, `--dump`)
 - [Test Specifications](test/specifications/feature-specs/) - Feature-level test specifications
 - [E2E Acceptance Tests](test/e2e-acceptance-testing) - Formal E2E acceptance test framework with E2E-* IDs
 

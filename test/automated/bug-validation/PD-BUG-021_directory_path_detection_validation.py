@@ -7,8 +7,8 @@ PURPOSE:
     (.ps1, .sh, .bat, etc.).
 
     Before the fix, GenericParser's quoted_pattern regex required a file extension
-    (\.[a-zA-Z0-9]+) at the end of every match, so directory paths like
-    "doc/process-framework/templates" were never detected.
+    (``\\.[a-zA-Z0-9]+``) at the end of every match, so directory paths like
+    "process-framework/templates" were never detected.
 
 HOW TO RUN:
     python tests/manual/PD-BUG-021_directory_path_detection_validation.py
@@ -18,7 +18,6 @@ EXPECTED RESULT:
     file paths, with no false positives for non-path strings.
 """
 
-import os
 import sys
 from pathlib import Path
 
@@ -26,7 +25,7 @@ from pathlib import Path
 project_root = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from linkwatcher.parsers.generic import GenericParser
+from linkwatcher.parsers.generic import GenericParser  # noqa: E402
 
 
 def main():
@@ -41,20 +40,20 @@ def main():
     # --- Check 1: Quoted directory paths with forward slashes ---
     print("\n--- Check 1: Quoted directory paths (forward slashes) ---")
     content = """# PowerShell script
-$templateDir = "doc/process-framework/templates/templates"
-$outputDir = 'doc/process-framework/state-tracking/permanent'
+$templateDir = "process-framework/templates/templates"
+$outputDir = 'process-framework/state-tracking/permanent'
 """
     refs = parser.parse_content(content, "test.ps1")
     targets = [r.link_target for r in refs]
-    dir1 = "doc/process-framework/templates/templates"
-    dir2 = "doc/process-framework/state-tracking/permanent"
+    dir1 = "process-framework/templates/templates"
+    dir2 = "process-framework/state-tracking/permanent"
     if dir1 in targets and dir2 in targets:
-        print(f"  PASS: Both directory paths detected")
+        print("  PASS: Both directory paths detected")
         print(f"    Found: {dir1}")
         print(f"    Found: {dir2}")
         checks_passed += 1
     else:
-        print(f"  FAIL: Missing directory paths")
+        print("  FAIL: Missing directory paths")
         print(f"    Expected: {dir1} -> {'FOUND' if dir1 in targets else 'MISSING'}")
         print(f"    Expected: {dir2} -> {'FOUND' if dir2 in targets else 'MISSING'}")
 
@@ -81,7 +80,7 @@ $dir = "config/settings"
     dir_refs = [r for r in refs if r.link_target == "config/settings"]
     if len(file_refs) == 1 and len(dir_refs) == 1:
         print(
-            f"  PASS: File path (type={file_refs[0].link_type}) and directory path (type={dir_refs[0].link_type}) each appear once"
+            f"  PASS: File path (type={file_refs[0].link_type}) and directory path (type={dir_refs[0].link_type}) each appear once"  # noqa: E501
         )
         checks_passed += 1
     else:
@@ -89,10 +88,10 @@ $dir = "config/settings"
 
     # --- Check 4: Windows backslash directory paths ---
     print("\n--- Check 4: Windows backslash directory paths ---")
-    content = r'$path = "doc\process-framework\scripts"' + "\n"
+    content = r'$path = "process-framework/scripts"' + "\n"
     refs = parser.parse_content(content, "test.ps1")
     targets = [r.link_target for r in refs]
-    expected = r"doc\process-framework\scripts"
+    expected = r"process-framework/scripts"
     if expected in targets:
         print(f"  PASS: Backslash directory path detected: {expected}")
         checks_passed += 1

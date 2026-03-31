@@ -39,7 +39,7 @@ This file tracks the implementation status of all **automated** tests derived fr
 
 ## Testing Infrastructure
 
-> Shared test fixtures, utilities, and performance benchmarks. These are project-specific implementations of the patterns described in the [Test Infrastructure Guide](/doc/process-framework/guides/03-testing/test-infrastructure-guide.md).
+> Shared test fixtures, utilities, and performance benchmarks. These are project-specific implementations of the patterns described in the [Test Infrastructure Guide](/process-framework/guides/03-testing/test-infrastructure-guide.md).
 
 | Feature ID | Test Type | Test File/Case | Status | Test Cases Count | Last Executed | Last Updated | Notes |
 |------------|-----------|----------------|--------|------------------|---------------|--------------|-------|
@@ -121,8 +121,8 @@ This file tracks automated tests at the **test file level**. Each entry represen
 ### Workflow Integration
 
 This file is updated by the following tasks:
-- **[Integration & Testing (PF-TSK-053)](../../../doc/process-framework/tasks/04-implementation/integration-and-testing.md)**: Updates automated test implementation status and test case counts
-- **[New-TestFile.ps1](../../../doc/process-framework/scripts/file-creation/03-testing/New-TestFile.ps1)**: Creates test files with pytest markers and adds tracking entry
+- **[Integration & Testing (PF-TSK-053)](../../../process-framework/tasks/04-implementation/integration-and-testing.md)**: Updates automated test implementation status and test case counts
+- **[New-TestFile.ps1](../../../process-framework/scripts/file-creation/03-testing/New-TestFile.ps1)**: Creates test files with pytest markers and adds tracking entry
 
 **Note**: Test specification status is tracked in the [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) file to avoid redundancy.
 
@@ -131,7 +131,7 @@ This file is updated by the following tasks:
 The project includes validation tooling to ensure data integrity between test tracking files and actual test files on disk:
 
 #### Validation Script
-- **Validate-TestTracking.ps1** (located in `doc/process-framework/scripts/validation/`): Validates consistency between pytest markers (via `test_query.py`), this tracking file, and actual test files on disk
+- **Validate-TestTracking.ps1** (located in `process-framework/scripts/validation`): Validates consistency between pytest markers (via `test_query.py`), this tracking file, and actual test files on disk
 - **Note**: This script is language-agnostic and works with any project configured via `project-config.json`
 
 #### Validation Capabilities
@@ -144,7 +144,7 @@ The project includes validation tooling to ensure data integrity between test tr
 #### Usage
 ```powershell
 # Run validation from project root
-doc/process-framework/scripts/validation/Validate-TestTracking.ps1
+process-framework/scripts/validation/Validate-TestTracking.ps1
 ```
 
 ### Status Transitions
@@ -165,7 +165,7 @@ doc/process-framework/scripts/validation/Validate-TestTracking.ps1
 ### Adding New Test Files
 
 When creating new automated test files:
-1. Use the [New-TestFile.ps1](../../../doc/process-framework/scripts/file-creation/03-testing/New-TestFile.ps1) script to create the test file with pytest markers
+1. Use the [New-TestFile.ps1](../../../process-framework/scripts/file-creation/03-testing/New-TestFile.ps1) script to create the test file with pytest markers
 2. Add entry to this file with "⬜ Not Started" implementation status and Test Type "Automated"
 3. Test specification status is tracked in the [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) file
 

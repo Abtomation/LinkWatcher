@@ -112,6 +112,7 @@ The Link Parsing System uses a Registry+Facade pattern. `LinkParser` dispatches 
 | Binary data | `test_yaml_with_binary_data` | `!!binary` blocks handled |
 | Quoted paths | `test_quoted_file_paths` | Single, double, unquoted, special chars |
 | Directory paths | `test_bug030_directory_paths_detected_in_yaml`, `test_bug030_directory_paths_coexist_with_file_paths` | Directory paths without extensions detected alongside file paths (PD-BUG-030) |
+| Compound string extraction | `test_compound_command_string_with_embedded_file_path`, `test_compound_string_with_embedded_directory_path` | Embedded file paths extracted from command-line strings via regex sub-path extraction (PD-BUG-060) |
 
 **Test File**: [`test/automated/parsers/test_yaml.py`](../../../test/automated/parsers/test_yaml.py) (13 methods)
 
@@ -132,8 +133,9 @@ The Link Parsing System uses a Registry+Facade pattern. `LinkParser` dispatches 
 | Large arrays | `test_large_json_arrays` | 100-element array |
 | Duplicate value line numbers | `test_bug013_duplicate_values_get_correct_line_numbers`, `test_bug013_mixed_duplicate_and_unique_values`, `test_bug013_adjacent_duplicate_values` | Same path on multiple lines gets unique correct line numbers (PD-BUG-013) |
 | Directory paths | `test_bug030_directory_paths_detected_in_json`, `test_bug030_directory_paths_coexist_with_file_paths`, `test_bug030_non_path_strings_not_detected` | Directory paths without extensions detected alongside file paths, non-path strings rejected (PD-BUG-030) |
+| Compound string extraction | `test_compound_string_with_embedded_file_path`, `test_compound_string_multiple_patterns`, `test_compound_string_no_false_positive_from_glob` | Embedded file paths extracted from compound command strings (e.g., permission patterns) via regex sub-path extraction (PD-BUG-061) |
 
-**Test File**: [`test/automated/parsers/test_json.py`](../../../test/automated/parsers/test_json.py) (17 methods)
+**Test File**: [`test/automated/parsers/test_json.py`](../../../test/automated/parsers/test_json.py) (20 methods)
 
 ### Parser Tests — Python
 

@@ -19,7 +19,7 @@ This document defines **E2E acceptance test scenarios** that validate user-facin
 **Test Type**: Cross-Cutting (E2E Acceptance)
 **Features Covered**: 0.1.1, 0.1.2, 0.1.3, 1.1.1, 2.1.1, 2.2.1, 3.1.1
 **Created**: 2026-03-18
-**User Workflow Map**: [user-workflow-map.md](/doc/product-docs/technical/design/user-workflow-map.md)
+**User Workflow Tracking**: [user-workflow-tracking.md](/doc/product-docs/state-tracking/permanent/user-workflow-tracking.md)
 **Implementation Coverage**: 19/19 spec scenarios have E2E test cases (100%), plus 3 additional runtime scenarios — see [Coverage Summary](#coverage-summary) for details
 
 ## Feature Context
@@ -48,7 +48,7 @@ LinkWatcher's core value is a **detection → parsing → updating pipeline** th
 
 ## Scenario Groups
 
-Scenarios are organized by user workflow (from [User Workflow Map](/doc/product-docs/technical/design/user-workflow-map.md)).
+Scenarios are organized by user workflow (from [User Workflow Tracking](/doc/product-docs/state-tracking/permanent/user-workflow-tracking.md)).
 
 ### WF-001: Single File Move — Links Updated
 
@@ -180,8 +180,8 @@ All 19 spec scenarios now have E2E test cases. No remaining coverage gaps.
 
 ## Related Resources
 
-- [User Workflow Map](/doc/product-docs/technical/design/user-workflow-map.md) — Workflow definitions and feature mappings
-- [Test Query Tool](/doc/process-framework/scripts/test/test_query.py) — AST-based query tool for test metadata from pytest markers (replaced test-registry.yaml)
+- [User Workflow Tracking](/doc/product-docs/state-tracking/permanent/user-workflow-tracking.md) — Workflow definitions and feature mappings
+- [Test Query Tool](/process-framework/scripts/test/test_query.py) — AST-based query tool for test metadata from pytest markers (replaced test-registry.yaml)
 - [Test Tracking](/test/state-tracking/permanent/test-tracking.md) — Implementation status
 - Feature Test Specifications:
   - [0.1.1 Core Architecture](/test/specifications/feature-specs/test-spec-0-1-1-core-architecture.md)

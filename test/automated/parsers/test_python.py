@@ -249,30 +249,35 @@ DATA_FILE = 'data.csv'
         """Test that quoted directory paths (no file extension) are detected.
 
         Regression test for PD-BUG-056: Python parser did not detect string
-        literals containing directory paths like "doc/process-framework/scripts".
+        literals containing directory paths like "vendor/tools/build".
         The parser only used QUOTED_PATH_PATTERN (requires file extension) and
         missed directory references entirely.
         """
         parser = PythonParser()
 
-        py_file = temp_project_dir / "dir_paths.py"
-        content = '''"""Module with directory path references."""
+        dir_a = "vendor/tools/build"
+        dir_b = "vendor/tools/templates"
+        dir_c = "test/automated/unit"
+        dir_d = "src/components/ui/widgets"
 
-SCRIPTS_DIR = "doc/process-framework/scripts"
-TEMPLATES_DIR = "doc/process-framework/templates/templates"
-OUTPUT_DIR = "test/automated/unit"
-NESTED_DIR = "src/components/ui/widgets"
-'''
+        py_file = temp_project_dir / "dir_paths.py"
+        content = (
+            '"""Module with directory path references."""\n\n'
+            f'SCRIPTS_DIR = "{dir_a}"\n'
+            f'TEMPLATES_DIR = "{dir_b}"\n'
+            f'OUTPUT_DIR = "{dir_c}"\n'
+            f'NESTED_DIR = "{dir_d}"\n'
+        )
         py_file.write_text(content)
 
         references = parser.parse_file(str(py_file))
         targets = [ref.link_target for ref in references]
 
         # Should find directory path references
-        assert "doc/process-framework/scripts" in targets
-        assert "doc/process-framework/templates/templates" in targets
-        assert "test/automated/unit" in targets
-        assert "src/components/ui/widgets" in targets
+        assert dir_a in targets
+        assert dir_b in targets
+        assert dir_c in targets
+        assert dir_d in targets
 
         # All should be python-quoted-dir type
         dir_refs = [r for r in references if r.link_type == "python-quoted-dir"]
@@ -314,3 +319,73 @@ SINGLE = "simple"
 
         # Should return empty list without crashing
         assert references == []
+
+
+class TestPythonParserDocstrings:
+    """PD-BUG-062: Python parser detects file paths inside triple-quoted docstrings."""
+
+    def test_docstring_with_file_paths(self):
+        """File paths in docstrings should be detected."""
+        parser = PythonParser()
+        content = (
+            '"""Usage:\n'
+            "    python doc/scripts/feedback_db.py init\n"
+            "    python doc/scripts/feedback_db.py record --json input.json\n"
+            '"""\n'
+        )
+        references = parser.parse_content(content, "script.py")
+        targets = [ref.link_target for ref in references]
+        assert "doc/scripts/feedback_db.py" in targets
+
+    def test_docstring_with_directory_paths(self):
+        """Directory paths in docstrings should be detected."""
+        parser = PythonParser()
+        content = (
+            '"""Templates in doc/scripts/templates/support/ are used for generation.\n' '"""\n'
+        )
+        references = parser.parse_content(content, "script.py")
+        targets = [ref.link_target for ref in references]
+        assert any("doc/scripts/templates/support" in t for t in targets)
+
+    def test_docstring_single_line(self):
+        """Single-line docstring with path on the same line as triple-quotes."""
+        parser = PythonParser()
+        content = '"""See doc/scripts/feedback_db.py for details."""\n'
+        references = parser.parse_content(content, "script.py")
+        targets = [ref.link_target for ref in references]
+        assert "doc/scripts/feedback_db.py" in targets
+
+    def test_docstring_single_quotes(self):
+        """Triple single-quoted docstrings should also be detected."""
+        parser = PythonParser()
+        content = "'''Usage:\n" "    python doc/scripts/feedback_db.py init\n" "'''\n"
+        references = parser.parse_content(content, "script.py")
+        targets = [ref.link_target for ref in references]
+        assert "doc/scripts/feedback_db.py" in targets
+
+    def test_docstring_link_type(self):
+        """Docstring references should have python-docstring link type."""
+        parser = PythonParser()
+        content = '"""Usage:\n' "    python doc/scripts/feedback_db.py init\n" '"""\n'
+        references = parser.parse_content(content, "script.py")
+        file_refs = [r for r in references if r.link_target == "doc/scripts/feedback_db.py"]
+        assert len(file_refs) >= 1
+        assert file_refs[0].link_type == "python-docstring"
+
+    def test_non_docstring_code_unaffected(self):
+        """Normal quoted strings outside docstrings should still use python-quoted type."""
+        parser = PythonParser()
+        content = '"""Module docstring."""\n' 'path = "src/utils/helpers.py"\n'
+        references = parser.parse_content(content, "script.py")
+        quoted_refs = [r for r in references if r.link_target == "src/utils/helpers.py"]
+        assert len(quoted_refs) >= 1
+        assert quoted_refs[0].link_type == "python-quoted"
+
+    def test_docstring_does_not_leak(self):
+        """Lines after closing triple-quote should not be treated as docstring."""
+        parser = PythonParser()
+        content = '"""Docstring."""\n' "# comment with src/utils/helpers.py\n"
+        references = parser.parse_content(content, "script.py")
+        comment_refs = [r for r in references if r.link_target == "src/utils/helpers.py"]
+        assert len(comment_refs) >= 1
+        assert comment_refs[0].link_type == "python-comment"

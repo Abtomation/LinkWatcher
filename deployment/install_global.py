@@ -11,7 +11,6 @@ Usage:
 """
 
 import argparse
-import os
 import shutil
 import subprocess
 import sys
@@ -150,7 +149,7 @@ def create_wrapper_scripts(install_dir):
 
     wrappers = {
         "linkwatcher.bat": f'@echo off\npython "{install_dir / "main.py"}" %*\n',
-        "linkwatcher.ps1": f'# LinkWatcher Wrapper Script\npython "{install_dir / "main.py"}" @args\n',
+        "linkwatcher.ps1": f'# LinkWatcher Wrapper Script\npython "{install_dir / "main.py"}" @args\n',  # noqa: E501
     }
 
     # Add check_links wrappers only if check_links.py exists
@@ -204,10 +203,10 @@ def update_startup_scripts(project_root, install_dir):
             f"\n"
             f"# Resolve project root from project-config.json\n"
             f"$scriptDir = if ($PSScriptRoot) {{ $PSScriptRoot }} else {{ (Get-Location).Path }}\n"
-            f'$configPath = Join-Path $scriptDir "..\\doc\\process-framework\\project-config.json"\n'
+            f'$configPath = Join-Path $scriptDir "..\\process-framework\\project-config.json"\n'
             f"\n"
             f"if (-not (Test-Path $configPath)) {{\n"
-            f'    Write-Host "Error: project-config.json not found at: $configPath" -ForegroundColor Red\n'
+            f'    Write-Host "Error: project-config.json not found at: $configPath" -ForegroundColor Red\n'  # noqa: E501
             f"    return\n"
             f"}}\n"
             f"\n"
@@ -215,7 +214,7 @@ def update_startup_scripts(project_root, install_dir):
             f"$projectRoot = $config.project.root_directory\n"
             f"\n"
             f"if (-not $projectRoot -or -not (Test-Path $projectRoot)) {{\n"
-            f'    Write-Host "Error: Invalid project root in project-config.json: $projectRoot" -ForegroundColor Red\n'
+            f'    Write-Host "Error: Invalid project root in project-config.json: $projectRoot" -ForegroundColor Red\n'  # noqa: E501
             f"    return\n"
             f"}}\n"
             f"\n"
@@ -226,26 +225,26 @@ def update_startup_scripts(project_root, install_dir):
             f"        $lockPid = [int](Get-Content $lockFile -Raw).Trim()\n"
             f"        $lockProcess = Get-Process -Id $lockPid -ErrorAction SilentlyContinue\n"
             f"        if ($lockProcess) {{\n"
-            f'            Write-Host "LinkWatcher is already running for $projectRoot (PID: $lockPid)" -ForegroundColor Yellow\n'
+            f'            Write-Host "LinkWatcher is already running for $projectRoot (PID: $lockPid)" -ForegroundColor Yellow\n'  # noqa: E501
             f'            Write-Host "Not starting a new instance." -ForegroundColor Yellow\n'
             f"            return\n"
             f"        }} else {{\n"
-            f'            Write-Host "Stale lock file found (PID $lockPid no longer running), will be overridden." -ForegroundColor DarkYellow\n'
+            f'            Write-Host "Stale lock file found (PID $lockPid no longer running), will be overridden." -ForegroundColor DarkYellow\n'  # noqa: E501
             f"        }}\n"
             f"    }} catch {{\n"
-            f'        Write-Host "Invalid lock file, will be overridden." -ForegroundColor DarkYellow\n'
+            f'        Write-Host "Invalid lock file, will be overridden." -ForegroundColor DarkYellow\n'  # noqa: E501
             f"    }}\n"
             f"}}\n"
             f"\n"
-            f'Write-Host "Starting LinkWatcher in background for $projectRoot..." -ForegroundColor Cyan\n'
+            f'Write-Host "Starting LinkWatcher in background for $projectRoot..." -ForegroundColor Cyan\n'  # noqa: E501
             f"\n"
             f"# Start LinkWatcher with explicit project root and logging\n"
             f'$logFile = Join-Path $scriptDir "LinkWatcherLog.txt"\n'
             f'$stdoutLog = Join-Path $scriptDir "LinkWatcherStdout.txt"\n'
             f'$stderrLog = Join-Path $scriptDir "LinkWatcherError.txt"\n'
-            f'$arguments = "{main_py_path} --project-root `"$projectRoot`" --log-file `"$logFile`" --debug"\n'
+            f'$arguments = "{main_py_path} --project-root `"$projectRoot`" --log-file `"$logFile`" --debug"\n'  # noqa: E501
             f"\n"
-            f'$process = Start-Process -FilePath "python" -ArgumentList $arguments -WorkingDirectory $projectRoot -WindowStyle Hidden -PassThru -RedirectStandardOutput $stdoutLog -RedirectStandardError $stderrLog\n'
+            f'$process = Start-Process -FilePath "python" -ArgumentList $arguments -WorkingDirectory $projectRoot -WindowStyle Hidden -PassThru -RedirectStandardOutput $stdoutLog -RedirectStandardError $stderrLog\n'  # noqa: E501
             f"\n"
             f"if ($process) {{\n"
             f"    # Write PID to lock file immediately so subsequent launches see it\n"
@@ -253,7 +252,7 @@ def update_startup_scripts(project_root, install_dir):
             f"    # Start-Process returning and main.py's acquire_lock running)\n"
             f'    $lockFile = Join-Path $projectRoot ".linkwatcher.lock"\n'
             f"    Set-Content -Path $lockFile -Value $process.Id -NoNewline\n"
-            f'    Write-Host "LinkWatcher started successfully in background (PID: $($process.Id))" -ForegroundColor Green\n'
+            f'    Write-Host "LinkWatcher started successfully in background (PID: $($process.Id))" -ForegroundColor Green\n'  # noqa: E501
             f'    Write-Host "  Project root: $projectRoot" -ForegroundColor Green\n'
             f'    Write-Host "  Log file: $logFile" -ForegroundColor Green\n'
             f"}} else {{\n"

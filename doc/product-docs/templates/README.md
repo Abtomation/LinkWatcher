@@ -36,7 +36,7 @@ To use a template:
    - Assign a unique ID following the pattern `PD-XXX-###`
    - Set the appropriate type and category
    - Update the version, creation date, and update date
-5. Add the new document to the [Process: Documentation Map](/doc/process-framework/documentation-map.md)
+5. Add the new document to the [Process: Documentation Map](/process-framework/documentation-map.md)
 
 ## Template Structure
 
@@ -56,7 +56,7 @@ If you need to create a new template type:
 1. Use the [Product Documentation Template](/doc/product-docs/templates/templates/product-documentation-template.md) as a starting point
 2. Adapt the structure to suit the specific documentation type
 3. Include clear placeholder text and instructions
-4. Add the new template to this README and to the [Process: Documentation Map](/doc/process-framework/documentation-map.md)
+4. Add the new template to this README and to the [Process: Documentation Map](/process-framework/documentation-map.md)
 
 ## Best Practices
 

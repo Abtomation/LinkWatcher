@@ -34,10 +34,11 @@ class TestPowerShellParser:
     def test_line_comment_with_path(self):
         """Test extracting file paths from # line comments."""
         parser = PowerShellParser()
-        content = "# Reference to doc/process-framework/README.md\n"
+        file_path = "vendor/tools/README.md"
+        content = f"# Reference to {file_path}\n"
         refs = parser.parse_content(content, "test.ps1")
         targets = [r.link_target for r in refs]
-        assert "doc/process-framework/README.md" in targets
+        assert file_path in targets
         assert any(r.link_type == "powershell-comment" for r in refs)
 
     def test_block_comment_with_paths(self):
@@ -255,11 +256,12 @@ class TestEmbeddedMarkdownLinks:
     def test_embedded_md_link_with_variable(self):
         """Test markdown link with PS variable at end: [text](path/$var)."""
         parser = PowerShellParser()
-        content = '$link = "[$id](doc/process-framework/assessments/$fileName)"\n'
+        dir_path = "vendor/reports/assessments"
+        content = f'$link = "[$id]({dir_path}/$fileName)"\n'
         refs = parser.parse_content(content, "test.ps1")
         embedded = [r for r in refs if r.link_type == "powershell-embedded-md-link"]
         assert len(embedded) == 1
-        assert embedded[0].link_target == "doc/process-framework/assessments/$fileName"
+        assert embedded[0].link_target == f"{dir_path}/$fileName"
 
     def test_embedded_md_link_static_path(self):
         """Test markdown link with static directory path."""
@@ -304,7 +306,8 @@ class TestEmbeddedMarkdownLinks:
         """Test that a clean directory path matched by quoted_dir_pattern is not duplicated."""
         parser = PowerShellParser()
         # This is a clean dir path — matched by quoted_dir_pattern, not embedded pattern
-        content = '-OutputDirectory "doc/process-framework/assessments"\n'
+        dir_path = "vendor/reports/assessments"
+        content = f'-OutputDirectory "{dir_path}"\n'
         refs = parser.parse_content(content, "test.ps1")
         dir_refs = [r for r in refs if r.link_type == "powershell-quoted-dir"]
         embedded = [r for r in refs if r.link_type == "powershell-embedded-md-link"]
@@ -358,16 +361,17 @@ class TestBug057BlockCommentDirectoryPaths:
     def test_quoted_dir_path_in_block_comment(self):
         """Quoted directory path in block comment .EXAMPLE should be detected."""
         parser = PowerShellParser()
+        dir_path = "vendor/tasks/active"
         content = (
             "<#\n"
             ".EXAMPLE\n"
             '    Get-PrefixDirectories -Prefix "PF-TSK" -DirectoryType "discrete"\n'
-            '    # Returns: "doc/process-framework/tasks/discrete"\n'
+            f'    # Returns: "{dir_path}"\n'
             "#>\n"
         )
         refs = parser.parse_content(content, "test.ps1")
         targets = [r.link_target for r in refs]
-        assert "doc/process-framework/tasks/discrete" in targets
+        assert dir_path in targets
 
     def test_unquoted_dir_path_in_block_comment_prose_not_detected(self):
         """Unquoted directory paths in prose are NOT detected (scope of PD-BUG-055, not 057).
@@ -376,41 +380,42 @@ class TestBug057BlockCommentDirectoryPaths:
         "defaults to doc/path/" are a separate issue tracked as PD-BUG-055.
         """
         parser = PowerShellParser()
+        dir_path = "vendor/reports/technical-debt"
         content = (
             "<#\n"
             ".PARAMETER AssessmentDirectory\n"
             "Directory containing files "
-            "(defaults to doc/process-framework/assessments/technical-debt/)\n"
+            f"(defaults to {dir_path}/)\n"
             "#>\n"
         )
         refs = parser.parse_content(content, "test.ps1")
         targets = [r.link_target for r in refs]
         # Unquoted dir paths in prose are not detected — this is expected behavior
-        assert not any("doc/process-framework/assessments/technical-debt" in t for t in targets)
+        assert not any(dir_path in t for t in targets)
 
     def test_quoted_dir_path_in_example_command(self):
         """Quoted directory path in .EXAMPLE command argument should be detected."""
         parser = PowerShellParser()
+        dir_path = "vendor/data/forms"
         content = (
             "<#\n"
             ".EXAMPLE\n"
             '    Test-ValidDirectoryForPrefix -Prefix "PF-FEE" '
-            '-Directory "doc/process-framework/feedback/feedback-forms"\n'
+            f'-Directory "{dir_path}"\n'
             "#>\n"
         )
         refs = parser.parse_content(content, "test.ps1")
         targets = [r.link_target for r in refs]
-        assert "doc/process-framework/feedback/feedback-forms" in targets
+        assert dir_path in targets
 
     def test_dir_path_in_here_string(self):
         """Directory path in here-string should be detected."""
         parser = PowerShellParser()
-        content = (
-            '$text = @"\n' 'Location: "doc/process-framework/state-tracking/temporary"\n' '"@\n'
-        )
+        dir_path = "vendor/data/cache"
+        content = '$text = @"\n' f'Location: "{dir_path}"\n' '"@\n'
         refs = parser.parse_content(content, "test.ps1")
         targets = [r.link_target for r in refs]
-        assert "doc/process-framework/state-tracking/temporary" in targets
+        assert dir_path in targets
 
     def test_file_path_in_block_comment_still_works(self):
         """File paths with extensions in block comments should still be detected (no regression)."""
@@ -423,7 +428,27 @@ class TestBug057BlockCommentDirectoryPaths:
     def test_embedded_md_link_in_block_comment(self):
         """Markdown-style link in block comment should be detected."""
         parser = PowerShellParser()
-        content = "<#\n" "See [Guide](doc/process-framework/guides/support) for details\n" "#>\n"
+        dir_path = "vendor/docs/guides"
+        content = f"<#\nSee [Guide]({dir_path}) for details\n#>\n"
         refs = parser.parse_content(content, "test.ps1")
         targets = [r.link_target for r in refs]
-        assert "doc/process-framework/guides/support" in targets
+        assert dir_path in targets
+
+
+class TestPowerShellLeadingWhitespace:
+    """PD-BUG-065: QUOTED_DIR_PATTERN_STRICT captures leading whitespace in group(1).
+
+    Root cause: The capture group [^'\"]*[/\\\\][^'\"]+ matches leading spaces
+    before the path. No .strip() is applied to the captured group at
+    powershell.py lines 166 and 308. The stored target with leading spaces
+    prevents filesystem path matching during directory moves.
+    """
+
+    def test_leading_whitespace_in_quoted_dir_path(self):
+        """Leading whitespace in quoted directory path should be stripped."""
+        parser = PowerShellParser()
+        content = 'Write-Host "  doc/framework/state-tracking/backups"\n'
+        refs = parser.parse_content(content, "test.ps1")
+        targets = [r.link_target for r in refs]
+        # The target should be trimmed — no leading spaces
+        assert "doc/framework/state-tracking/backups" in targets

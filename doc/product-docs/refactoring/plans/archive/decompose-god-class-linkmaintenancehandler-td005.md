@@ -21,7 +21,7 @@ assessment: PF-TDA-001
 - **Author**: AI Agent & Human Partner
 - **Status**: Completed
 - **Debt Item**: TD005 / PF-TDI-001
-- **Assessment**: PF-TDA-001 <!-- [PF-TDA-001](/doc/process-framework/assessments/technical-debt/assessments/handler-module-structural-debt-assessment.md) - Removed: file deleted -->
+- **Assessment**: PF-TDA-001 <!-- [PF-TDA-001](/process-framework/assessments/technical-debt/assessments/handler-module-structural-debt-assessment.md) - Removed: file deleted -->
 
 ## Refactoring Scope
 
@@ -189,5 +189,5 @@ TD015, TD016, TD017, TD018 remain open but are independent of this refactoring.
 
 ## Related Documentation
 - [Technical Debt Tracking](/doc/product-docs/state-tracking/permanent/technical-debt-tracking.md)
-<!-- - [Technical Debt Assessment PF-TDA-001](/doc/process-framework/assessments/technical-debt/assessments/handler-module-structural-debt-assessment.md) - Removed: file deleted -->
+<!-- - [Technical Debt Assessment PF-TDA-001](/process-framework/assessments/technical-debt/assessments/handler-module-structural-debt-assessment.md) - Removed: file deleted -->
 - [Previous refactoring: PF-REF-028 (Mega Method)](/doc/product-docs/refactoring/plans/archive/decompose-handle-file-moved-mega-method-into-focused-sub-methods.md)

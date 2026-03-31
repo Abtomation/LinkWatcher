@@ -136,7 +136,7 @@ exclude_lines = [
 ]
 
 [tool.pytest.ini_options]
-# NOTE: Framework wrapper config is in doc/process-framework/languages-config/python-config.json
+# NOTE: Framework wrapper config is in process-framework/languages-config/python-config.json
 #       pyproject.toml = pytest runtime config (markers, discovery, warnings, timeout)
 #       python-config.json = Run-Tests.ps1 wrapper config (CLI flags, coverage args, categories)
 testpaths = ["test/automated"]

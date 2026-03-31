@@ -58,22 +58,22 @@ goto end
 
 :test
 echo Running quick tests...
-pwsh.exe -ExecutionPolicy Bypass -Command "& doc/process-framework/scripts/test/Run-Tests.ps1 -Quick"
+pwsh.exe -ExecutionPolicy Bypass -Command "& process-framework/scripts/test/Run-Tests.ps1 -Quick"
 goto end
 
 :test-quick
 echo Running quick development tests...
-pwsh.exe -ExecutionPolicy Bypass -Command "& doc/process-framework/scripts/test/Run-Tests.ps1 -Category unit,parsers"
+pwsh.exe -ExecutionPolicy Bypass -Command "& process-framework/scripts/test/Run-Tests.ps1 -Category unit,parsers"
 goto end
 
 :test-all
 echo Running all tests...
-pwsh.exe -ExecutionPolicy Bypass -Command "& doc/process-framework/scripts/test/Run-Tests.ps1 -All"
+pwsh.exe -ExecutionPolicy Bypass -Command "& process-framework/scripts/test/Run-Tests.ps1 -All"
 goto end
 
 :coverage
 echo Running tests with coverage...
-pwsh.exe -ExecutionPolicy Bypass -Command "& doc/process-framework/scripts/test/Run-Tests.ps1 -Coverage"
+pwsh.exe -ExecutionPolicy Bypass -Command "& process-framework/scripts/test/Run-Tests.ps1 -Coverage"
 echo Coverage report generated in htmlcov/index.html
 goto end
 
@@ -122,10 +122,10 @@ goto end
 
 :ci-test
 echo Running CI test suite locally...
-pwsh.exe -ExecutionPolicy Bypass -Command "& doc/process-framework/scripts/test/Run-Tests.ps1 -Discover"
-pwsh.exe -ExecutionPolicy Bypass -Command "& doc/process-framework/scripts/test/Run-Tests.ps1 -Category unit -Coverage"
-pwsh.exe -ExecutionPolicy Bypass -Command "& doc/process-framework/scripts/test/Run-Tests.ps1 -Category parsers"
-pwsh.exe -ExecutionPolicy Bypass -Command "& doc/process-framework/scripts/test/Run-Tests.ps1 -Category integration"
+pwsh.exe -ExecutionPolicy Bypass -Command "& process-framework/scripts/test/Run-Tests.ps1 -Discover"
+pwsh.exe -ExecutionPolicy Bypass -Command "& process-framework/scripts/test/Run-Tests.ps1 -Category unit -Coverage"
+pwsh.exe -ExecutionPolicy Bypass -Command "& process-framework/scripts/test/Run-Tests.ps1 -Category parsers"
+pwsh.exe -ExecutionPolicy Bypass -Command "& process-framework/scripts/test/Run-Tests.ps1 -Category integration"
 goto end
 
 :dev-setup

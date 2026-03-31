@@ -33,7 +33,7 @@ repos:
     hooks:
       - id: pytest-quick
         name: pytest-quick
-        entry: pwsh.exe -ExecutionPolicy Bypass -File doc/process-framework/scripts/test/Run-Tests.ps1 -Quick
+        entry: pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/test/Run-Tests.ps1 -Quick
         language: system
         pass_filenames: false
         always_run: true

@@ -174,5 +174,5 @@ None — TD055 fully resolved.
 
 ## Related Documentation
 - [Technical Debt Tracking](/doc/product-docs/state-tracking/permanent/technical-debt-tracking.md)
-- [Code Quality Standards](/doc/process-framework/guides/03-testing/code-quality-standards.md)
-- [Testing Guidelines](/doc/process-framework/guides/03-testing/testing-guidelines.md)
+- [Code Quality Standards](/process-framework/guides/03-testing/code-quality-standards.md)
+- [Testing Guidelines](/process-framework/guides/03-testing/testing-guidelines.md)

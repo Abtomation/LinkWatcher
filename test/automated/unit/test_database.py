@@ -426,15 +426,15 @@ class TestGetReferencesToDirectory:
             10,
             5,
             30,
-            "doc/process-framework/scripts",
-            "doc/process-framework/scripts",
+            "process-framework/scripts",
+            "process-framework/scripts",
             "powershell-quoted-dir",
         )
         link_database.add_link(ref)
 
-        results = link_database.get_references_to_directory("doc/process-framework/scripts")
+        results = link_database.get_references_to_directory("process-framework/scripts")
         assert len(results) == 1
-        assert results[0].link_target == "doc/process-framework/scripts"
+        assert results[0].link_target == "process-framework/scripts"
 
     def test_prefix_match_subdirectory(self, link_database):
         """References targeting subdirectories of the directory path are found."""
@@ -443,15 +443,15 @@ class TestGetReferencesToDirectory:
             5,
             0,
             40,
-            "doc/process-framework/scripts/file-creation",
-            "doc/process-framework/scripts/file-creation",
+            "process-framework/scripts/file-creation",
+            "process-framework/scripts/file-creation",
             "powershell-quoted-dir",
         )
         link_database.add_link(ref)
 
-        results = link_database.get_references_to_directory("doc/process-framework/scripts")
+        results = link_database.get_references_to_directory("process-framework/scripts")
         assert len(results) == 1
-        assert results[0].link_target == "doc/process-framework/scripts/file-creation"
+        assert results[0].link_target == "process-framework/scripts/file-creation"
 
     def test_no_false_prefix_match(self, link_database):
         """Directory paths that share a prefix but aren't subdirectories are excluded."""
@@ -460,13 +460,13 @@ class TestGetReferencesToDirectory:
             5,
             0,
             40,
-            "doc/process-framework/scripts-old",
-            "doc/process-framework/scripts-old",
+            "process-framework/scripts-old",
+            "process-framework/scripts-old",
             "powershell-quoted-dir",
         )
         link_database.add_link(ref)
 
-        results = link_database.get_references_to_directory("doc/process-framework/scripts")
+        results = link_database.get_references_to_directory("process-framework/scripts")
         assert len(results) == 0
 
     def test_no_match_unrelated_path(self, link_database):
@@ -482,7 +482,7 @@ class TestGetReferencesToDirectory:
         )
         link_database.add_link(ref)
 
-        results = link_database.get_references_to_directory("doc/process-framework")
+        results = link_database.get_references_to_directory("process-framework")
         assert len(results) == 0
 
     def test_multiple_references_to_same_directory(self, link_database):

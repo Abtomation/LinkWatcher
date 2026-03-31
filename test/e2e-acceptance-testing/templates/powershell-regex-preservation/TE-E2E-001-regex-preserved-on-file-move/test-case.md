@@ -31,7 +31,7 @@ updated: 2026-03-15
 
 1. **Set up workspace**: Run `Setup-TestEnvironment.ps1 -Group powershell-regex-preservation` to copy fixtures into the workspace
    - **Tool**: Command Line
-   - **Target**: `doc/process-framework/scripts/testing/Setup-TestEnvironment.ps1`
+   - **Target**: `process-framework/scripts/testing/Setup-TestEnvironment.ps1`
 
 2. **Move the script to a subdirectory**: Drag `Update-Tracking.ps1` from `scripts/update/` into a new subdirectory `scripts/update/sub/`
    - **Tool**: File Explorer or VS Code

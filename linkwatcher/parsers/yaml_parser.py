@@ -6,6 +6,7 @@ from values throughout the YAML structure.
 """
 
 import os.path
+import re
 from typing import List
 
 import yaml
@@ -16,6 +17,11 @@ from .base import BaseParser
 
 class YamlParser(BaseParser):
     """Parser for YAML files (.yaml, .yml)."""
+
+    def __init__(self):
+        super().__init__()
+        # PD-BUG-060: Pattern for extracting file paths from compound strings
+        self.path_pattern = re.compile(r"([a-zA-Z0-9_\-./\\]+\.[a-zA-Z0-9]+)")
 
     def parse_content(self, content: str, file_path: str) -> List[LinkReference]:
         """Parse YAML content for file references."""
@@ -55,6 +61,14 @@ class YamlParser(BaseParser):
             for i, item in enumerate(data):
                 self._extract_yaml_file_refs(item, file_path, lines, references, f"{path}[{i}]")
         elif isinstance(data, str):
+            # PD-BUG-060: If the string contains spaces, it may be a compound
+            # command string with embedded paths (e.g., "pwsh.exe -File doc/scripts/Run.ps1").
+            # Try sub-path extraction first; fall through to whole-string check if nothing found.
+            if " " in data:
+                embedded = self._extract_embedded_paths(data, file_path, lines, references)
+                if embedded:
+                    return
+
             # Check for file paths (with extension) or directory paths (PD-BUG-030)
             is_file = self._looks_like_file_path(data)
             is_dir = False
@@ -129,3 +143,43 @@ class YamlParser(BaseParser):
                 col_start += 1
 
         return 0, 0
+
+    def _extract_embedded_paths(
+        self, data: str, file_path: str, lines: List[str], references: List[LinkReference]
+    ) -> bool:
+        """
+        PD-BUG-060: Extract file paths embedded within compound strings.
+
+        When a YAML string value contains spaces (e.g., a command line like
+        "pwsh.exe -File doc/scripts/Run-Tests.ps1 -Quick"), scan for path-like
+        substrings using a regex pattern.
+
+        Returns True if any embedded paths were found.
+        """
+        found = False
+        line_num = 0
+        val_col_start = 0
+        for match in self.path_pattern.finditer(data):
+            candidate = match.group(1)
+            if "/" not in candidate and "\\" not in candidate:
+                continue
+            if self._looks_like_file_path(candidate):
+                if not found:
+                    line_num, val_col_start = self._find_next_occurrence(lines, data, [])
+                    if line_num == 0:
+                        return False
+                col_start = val_col_start + match.start(1)
+                col_end = val_col_start + match.end(1)
+                references.append(
+                    LinkReference(
+                        file_path=file_path,
+                        line_number=line_num,
+                        column_start=col_start,
+                        column_end=col_end,
+                        link_text=candidate,
+                        link_target=candidate,
+                        link_type="yaml",
+                    )
+                )
+                found = True
+        return found

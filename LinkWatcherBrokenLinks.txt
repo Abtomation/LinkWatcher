@@ -2,207 +2,887 @@
 LinkWatcher - Link Validation Report
 ============================================================
 
-Files scanned : 539
-Links checked : 4086
-Broken links  : 98
-Duration      : 2.42s
+Files scanned : 492
+Links checked : 5238
+Broken links  : 438
+Duration      : 3.64s
 
 Broken links:
 ------------------------------------------------------------
-  doc/process-framework/.ai-entry-point.md:27
-    -> .\Script.ps1  (markdown-standalone)
-  doc/process-framework/documentation-map.md:32
-    -> /process-framework/tasks/07-deployment/user-documentation-creation.md  (markdown)
-  doc/process-framework/documentation-map.md:32
-    -> /doc/process-framework/tasks/../../../tasks/README.md  (markdown-standalone)
-  doc/process-framework/evaluation-reports/20260325-framework-evaluation-testing-setup-tasks-templates-scripts-guides-state.md:95
-    -> visualization/context-maps/03-testing/test-implementation-map.md  (markdown-standalone)
-  doc/process-framework/evaluation-reports/20260325-framework-evaluation-testing-setup-tasks-templates-scripts-guides-state.md:110
-    -> test/test-registry.yaml  (markdown-standalone)
-  doc/process-framework/evaluation-reports/20260325-framework-evaluation-testing-setup-tasks-templates-scripts-guides-state.md:125
-    -> guides/test-infrastructure-guide.md  (markdown-standalone)
-  doc/process-framework/evaluation-reports/20260325-framework-evaluation-testing-setup-tasks-templates-scripts-guides-state.md:140
-    -> tasks/03-testing/test-implementation-task.md  (markdown-standalone)
-  doc/process-framework/evaluation-reports/20260325-framework-evaluation-testing-setup-tasks-templates-scripts-guides-state.md:156
-    -> scripts/validation/Validate-TestTracking.ps1  (markdown-standalone)
-  doc/process-framework/evaluation-reports/20260325-framework-evaluation-testing-setup-tasks-templates-scripts-guides-state.md:170
-    -> test/test-registry.yaml  (markdown-standalone)
-  doc/process-framework/evaluation-reports/20260325-framework-evaluation-testing-setup-tasks-templates-scripts-guides-state.md:185
-    -> test/test-registry.yaml  (markdown-standalone)
-  doc/process-framework/evaluation-reports/20260325-framework-evaluation-testing-setup-tasks-templates-scripts-guides-state.md:188
-    -> test/test-registry.yaml  (markdown-standalone)
-  doc/process-framework/feedback/feedback-forms/20260327-141811-PF-TSK-001-feedback.md:163
-    -> tasks/README.md  (markdown-standalone)
-  doc/process-framework/guides/01-planning/assessment-guide.md:59
-    -> .\New-TierAssessment.ps1  (markdown-standalone)
-  doc/process-framework/guides/03-testing/test-specification-creation-guide.md:370
+  .pre-commit-config.yaml:36
+    -> doc/process-framework/scripts/test/Run-Tests.ps1  (yaml)
+  CLAUDE.md:74
+    -> docs/  (markdown-backtick-dir)
+  CLAUDE.md:104
+    -> state-tracking/temporary/  (markdown-backtick-dir)
+  CLAUDE.md:183
+    -> LinkWatcher/LinkWatcherLog.txt  (markdown-backtick)
+  post-move-remaining-refs-run2.md:68
+    -> doc/process-framework/  (markdown-backtick-dir)
+  post-move-remaining-refs-run2.md:68
+    -> doc/process-framework/  (markdown-backtick-dir)
+  post-move-remaining-refs-run2.md:70
+    -> doc/process-framework/scripts/test/Run-Tests.ps1  (markdown-standalone)
+  post-move-remaining-refs-run2.md:70
+    -> doc/process-framework/scripts/test/Run-Tests.ps1  (markdown-bare-path)
+  post-move-remaining-refs-run2.md:72
+    -> doc/process-framework/scripts/feedback_db.py  (markdown-standalone)
+  post-move-remaining-refs-run2.md:72
+    -> doc/process-framework/scripts/feedback_db.py  (markdown-bare-path)
+  post-move-remaining-refs-run2.md:78
+    -> ../../../../doc/process-framework/scripts/test/Run-Tests.ps1  (markdown)
+  post-move-remaining-refs-run2.md:78
+    -> ../../../../doc/process-framework/...  (markdown-backtick-dir)
+  post-move-remaining-refs-run2.md:84
+    -> doc/process-framework/scripts/...  (markdown-bare-path)
+  post-move-remaining-refs-run2.md:84
+    -> doc/process-framework/scripts/...  (markdown-bare-path)
+  post-move-remaining-refs-run2.md:88
+    -> /doc/process-framework/...  (markdown-backtick-dir)
+  post-move-remaining-refs-run2.md:90
+    -> /doc/process-framework/...  (markdown)
+  post-move-remaining-refs-run2.md:96
+    -> doc/process-framework/assessments/technical-debt/  (markdown-bare-path)
+  post-move-remaining-refs-run2.md:115
+    -> doc/process-framework/scripts/feedback_db.py  (markdown-standalone)
+  post-move-remaining-refs-run2.md:115
+    -> doc/process-framework/scripts/feedback_db.py  (markdown-bare-path)
+  post-move-remaining-refs-run2.md:117
+    -> ../doc/process-framework/...  (markdown-quoted-dir)
+  post-move-remaining-refs-run2.md:117
+    -> ../doc/process-framework/...  (markdown-quoted-dir)
+  post-move-remaining-refs-run2.md:117
+    -> ../doc/process-framework/assessments/technical-debt  (markdown-quoted-dir)
+  post-move-remaining-refs-run2.md:117
+    -> "../doc/process-framework/assessments/technical-debt"  (markdown-backtick-dir)
+  post-move-remaining-refs-run2.md:119
+    -> ../doc/process-framework/documentation-map.md  (markdown-backtick)
+  post-move-remaining-refs-run2.md:123
+    -> ../doc/process-framework/feedback/New-FeedbackForm.ps1  (markdown-quoted)
+  post-move-remaining-refs-run2.md:131
+    -> ../../../../../../proposals/doc/process-framework/proposals/test-framework-concept.md  (markdown-quoted)
+  post-move-remaining-refs-run2.md:131
+    -> ../../../../../../proposals/doc/process-framework/proposals/test-framework-concept.md  (markdown-quoted)
+  post-move-remaining-refs-run2.md:131
+    -> ../../../../../../proposals/doc/process-framework/...  (markdown-backtick-dir)
+  post-move-remaining-refs-run2.md:133
+    -> doc/process-framework/guides/  (markdown-backtick-dir)
+  post-move-remaining-refs-run2.md:135
+    -> /doc/process-framework/tasks/../../../tasks/README.md  (markdown-quoted)
+  post-move-remaining-refs-run2.md:135
+    -> doc/process-framework/tasks/../../../tasks/README.md  (markdown-backtick)
+  post-move-remaining-refs-run2.md:155
+    -> /c/Users/...  (markdown-backtick-dir)
+  post-move-remaining-refs-run2.md:159
+    -> /c/Users/ronny/...  (markdown-backtick-dir)
+  post-move-remaining-refs-run2.md:175
+    -> ../doc/process-framework/templates/...  (markdown-backtick-dir)
+  post-move-remaining-refs-run2.md:176
+    -> ../doc/process-framework/...  (markdown-backtick-dir)
+  post-move-remaining-refs-run2.md:178
+    -> /c/Users/...  (markdown-backtick-dir)
+  post-move-remaining-refs-run2.md:182
+    -> doc/process-framework/scripts/test/e2e-acceptance-testing/Run-E2EAcceptanceTest.ps1  (markdown-backtick)
+  post-move-remaining-refs-run2.md:187
+    -> /c/Users/...  (markdown-backtick-dir)
+  post-move-remaining-refs-run2.md:189
+    -> [a-zA-Z0-9_.\-]  (markdown-backtick-dir)
+  post-move-remaining-refs-run2.md:191
+    -> ../doc/process-framework/templates/...  (markdown-backtick-dir)
+  post-move-remaining-refs-run2.md:193
+    -> doc/process-framework/project-config.json  (markdown-backtick)
+  post-move-remaining-refs-run2.md:193
+    -> doc/process-framework/project-config.json  (markdown-bare-path)
+  post-move-remaining-refs-run2.md:211
+    -> process-framework/feedback/archive/2026-02/tools-review-20260221/.../20260219-155547-PF-TSK-066-feedback.md  (markdown-backtick)
+  post-move-remaining-refs-run2.md:212
+    -> process-framework/feedback/archive/2026-02/tools-review-20260227/.../20260227-131930-PF-TSK-023-feedback.md  (markdown-backtick)
+  post-move-remaining-refs-run2.md:213
+    -> process-framework/feedback/archive/2026-03/tools-review-20260304/.../20260304-003423-PF-TSK-034-feedback.md  (markdown-backtick)
+  post-move-remaining-refs-run2.md:214
+    -> process-framework/feedback/archive/2026-03/tools-review-20260315/.../20260314-125525-PF-TSK-014-feedback.md  (markdown-backtick)
+  post-move-remaining-refs-run2.md:215
+    -> process-framework/feedback/archive/2026-03/tools-review-20260320/.../20260318-153810-PF-TSK-009-feedback.md  (markdown-backtick)
+  post-move-remaining-refs-run2.md:216
+    -> process-framework/feedback/archive/2026-03/tools-review-20260328/.../20260327-232226-PF-TSK-022-feedback.md  (markdown-backtick)
+  post-move-remaining-refs-run2.md:217
+    -> process-framework/feedback/archive/2026-03/tools-review-20260328/.../20260327-233642-PF-TSK-022-feedback.md  (markdown-backtick)
+  post-move-remaining-refs-run2.md:218
+    -> process-framework/feedback/archive/2026-03/tools-review-20260328/.../20260327-234510-PF-TSK-022-feedback.md  (markdown-backtick)
+  post-move-remaining-refs-run2.md:219
+    -> process-framework/feedback/archive/2026-03/tools-review-20260328/.../20260327-235750-PF-TSK-022-feedback.md  (markdown-backtick)
+  post-move-remaining-refs-run2.md:223
+    -> doc/process-framework/  (markdown-backtick-dir)
+  post-move-remaining-refs.md:32
+    -> doc/process-framework/...  (markdown-bare-path)
+  post-move-remaining-refs.md:39
+    -> doc/process-framework/scripts/...  (markdown-bare-path)
+  post-move-remaining-refs.md:40
+    -> ../../../../doc/process-framework/scripts/test/Run-Tests.ps1  (markdown)
+  post-move-remaining-refs.md:40
+    -> ../../../../doc/process-framework/...  (markdown-backtick-dir)
+  post-move-remaining-refs.md:75
+    -> ../doc/process-framework/...  (markdown-quoted-dir)
+  post-move-remaining-refs.md:75
+    -> "../doc/process-framework/..."  (markdown-backtick-dir)
+  .claude/settings.local.json:8
+    -> doc/process-framework/scripts/feedback_db.py  (json)
+  .claude/settings.local.json:25
+    -> LinkWatcher/start_linkwatcher_background.ps1  (json)
+  .claude/settings.local.json:26
+    -> tests/manual/PD-BUG-013_json_duplicate_line_numbers_validation.py  (json)
+  .claude/settings.local.json:37
+    -> scripts/check_links.py  (json)
+  doc/product-docs/README.md:50
+    -> /docs/product-docs/templates/  (markdown-backtick-dir)
+  doc/product-docs/test-gaps-post-move-2026-03-31.md:14
+    -> ../doc/guides/debt  (markdown-backtick-dir)
+  doc/product-docs/test-gaps-post-move-2026-03-31.md:15
+    -> ../doc/process-framework/...  (markdown-quoted-dir)
+  doc/product-docs/test-gaps-post-move-2026-03-31.md:21
+    -> ../../../../doc/guides/scripts/test/Run-Tests.ps1  (markdown-backtick)
+  doc/product-docs/test-gaps-post-move-2026-03-31.md:35
+    -> doc/process-framework/scripts/test/Run-Tests.ps1  (markdown-standalone)
+  doc/product-docs/test-gaps-post-move-2026-03-31.md:35
+    -> doc/process-framework/scripts/test/Run-Tests.ps1  (markdown-bare-path)
+  doc/product-docs/test-gaps-post-move-2026-03-31.md:40
+    -> doc/scripts/test/Run-Tests.ps1  (markdown-standalone)
+  doc/product-docs/test-gaps-post-move-2026-03-31.md:40
+    -> doc/scripts/test/Run-Tests.ps1  (markdown-backtick)
+  doc/product-docs/test-gaps-post-move-2026-03-31.md:40
+    -> doc/scripts/test/Run-Tests.ps1  (markdown-bare-path)
+  doc/product-docs/test-gaps-post-move-2026-03-31.md:41
+    -> doc/scripts/feedback_db.py  (markdown-standalone)
+  doc/product-docs/test-gaps-post-move-2026-03-31.md:41
+    -> doc/scripts/feedback_db.py  (markdown-backtick)
+  doc/product-docs/test-gaps-post-move-2026-03-31.md:41
+    -> doc/scripts/feedback_db.py  (markdown-bare-path)
+  doc/product-docs/test-gaps-post-move-2026-03-31.md:50
+    -> doc/process-framework/scripts/feedback_db.py  (markdown-standalone)
+  doc/product-docs/test-gaps-post-move-2026-03-31.md:50
+    -> doc/process-framework/scripts/feedback_db.py  (markdown-bare-path)
+  doc/product-docs/test-gaps-post-move-2026-03-31.md:55
+    -> doc/scripts/feedback_db.py  (markdown-standalone)
+  doc/product-docs/test-gaps-post-move-2026-03-31.md:55
+    -> doc/scripts/feedback_db.py  (markdown-backtick)
+  doc/product-docs/test-gaps-post-move-2026-03-31.md:55
+    -> doc/scripts/feedback_db.py  (markdown-bare-path)
+  doc/product-docs/test-gaps-post-move-2026-03-31.md:69
+    -> doc/scripts/feedback_db.py  (markdown-standalone)
+  doc/product-docs/test-gaps-post-move-2026-03-31.md:69
+    -> doc/scripts/feedback_db.py  (markdown-backtick)
+  doc/product-docs/test-gaps-post-move-2026-03-31.md:69
+    -> doc/scripts/feedback_db.py  (markdown-bare-path)
+  doc/product-docs/test-gaps-post-move-2026-03-31.md:78
+    -> [a-zA-Z0-9_.\-]  (markdown-backtick-dir)
+  doc/product-docs/test-gaps-post-move-2026-03-31.md:94
+    -> doc/process-framework/scripts/...  (markdown-bare-path)
+  doc/product-docs/test-gaps-post-move-2026-03-31.md:95
+    -> doc/process-framework/scripts/...  (markdown-bare-path)
+  doc/product-docs/test-gaps-post-move-2026-03-31.md:100
+    -> doc/scripts/test/Run-Tests.ps1  (markdown-backtick)
+  doc/product-docs/test-gaps-post-move-2026-03-31.md:100
+    -> doc/scripts/test/Run-Tests.ps1  (markdown-bare-path)
+  doc/product-docs/test-gaps-post-move-2026-03-31.md:101
+    -> doc/scripts/file-creation/  (markdown-bare-path)
+  doc/product-docs/test-gaps-post-move-2026-03-31.md:127
+    -> doc/subdir/scripts/Run.ps1  (markdown-standalone)
+  doc/product-docs/test-gaps-post-move-2026-03-31.md:127
+    -> doc/subdir/scripts/Run.ps1  (markdown-bare-path)
+  doc/product-docs/test-gaps-post-move-2026-03-31.md:129
+    -> subdir/scripts/Run.ps1  (markdown-backtick)
+  doc/product-docs/test-gaps-post-move-2026-03-31.md:134
+    -> doc/subdir/script.py  (markdown-standalone)
+  doc/product-docs/test-gaps-post-move-2026-03-31.md:134
+    -> doc/subdir/script.py  (markdown-bare-path)
+  doc/product-docs/test-gaps-post-move-2026-03-31.md:141
+    -> ../doc/subdir/assessments  (markdown-quoted-dir)
+  doc/product-docs/ci-cd/ci-cd-documentation-maintenance.md:19
+    -> .github/workflows/  (markdown-backtick-dir)
+  doc/product-docs/ci-cd/ci-cd-documentation-maintenance.md:20
+    -> lib/config/  (markdown-backtick-dir)
+  doc/product-docs/ci-cd/ci-cd-documentation-maintenance.md:34
+    -> .github/workflows/  (markdown-backtick-dir)
+  doc/product-docs/ci-cd/ci-cd-documentation-maintenance.md:44
+    -> ../development/ci-cd/doc/product-docs/development/ci-cd/ci-cd-dependencies-visualization.md  (markdown-backtick)
+  doc/product-docs/documentation-tiers/README.md:101
+    -> assessments/ART-ASS-001-1.1.1-email-password-registration.md  (markdown-backtick)
+  doc/product-docs/documentation-tiers/README.md:102
+    -> assessments/ART-ASS-002-1.1.2-social-login-integration.md  (markdown-backtick)
+  doc/product-docs/functional-design/fdds/fdd-1-1-1-file-system-monitoring.md:60
+    -> validation/reports/code-quality/  (markdown-backtick-dir)
+  doc/product-docs/functional-design/fdds/fdd-3-1-1-logging-framework.md:18
+    -> docs/LOGGING.md  (markdown-backtick)
+  doc/product-docs/functional-design/fdds/fdd-3-1-1-logging-framework.md:33
+    -> docs/LOGGING.md  (markdown-backtick)
+  doc/product-docs/functional-design/fdds/fdd-3-1-1-logging-framework.md:38
+    -> docs/LOGGING.md  (markdown-backtick)
+  doc/product-docs/refactoring/README.md:52
+    -> summaries/  (markdown-backtick-dir)
+  doc/product-docs/refactoring/README.md:69
+    -> summaries/  (markdown-backtick-dir)
+  doc/product-docs/refactoring/README.md:76
+    -> summaries/  (markdown-backtick-dir)
+  doc/product-docs/refactoring/README.md:83
+    -> analysis/  (markdown-backtick-dir)
+  doc/product-docs/refactoring/README.md:102
+    -> summary/  (markdown-backtick-dir)
+  doc/product-docs/refactoring/README.md:102
+    -> summaries/  (markdown-backtick-dir)
+  doc/product-docs/refactoring/README.md:103
+    -> implementation-summary/  (markdown-backtick-dir)
+  doc/product-docs/refactoring/README.md:103
+    -> summaries/  (markdown-backtick-dir)
+  doc/product-docs/refactoring/README.md:104
+    -> summaries/  (markdown-backtick-dir)
+  doc/product-docs/state-tracking/features/0.1.3-configuration-system-implementation-state.md:40
+    -> config/settings.py  (markdown-backtick)
+  doc/product-docs/state-tracking/features/0.1.3-configuration-system-implementation-state.md:40
+    -> config/__init__.py  (markdown-backtick)
+  doc/product-docs/state-tracking/features/2.1.1-link-parsing-system-implementation-state.md:47
+    -> parsers/  (markdown-backtick-dir)
+  doc/product-docs/state-tracking/features/2.1.1-link-parsing-system-implementation-state.md:48
+    -> parsers/markdown.py  (markdown-backtick)
+  doc/product-docs/state-tracking/features/2.1.1-link-parsing-system-implementation-state.md:49
+    -> parsers/yaml_parser.py  (markdown-backtick)
+  doc/product-docs/state-tracking/features/2.1.1-link-parsing-system-implementation-state.md:50
+    -> parsers/json_parser.py  (markdown-backtick)
+  doc/product-docs/state-tracking/features/2.1.1-link-parsing-system-implementation-state.md:51
+    -> parsers/python.py  (markdown-backtick)
+  doc/product-docs/state-tracking/features/2.1.1-link-parsing-system-implementation-state.md:52
+    -> parsers/dart.py  (markdown-backtick)
+  doc/product-docs/state-tracking/features/2.1.1-link-parsing-system-implementation-state.md:53
+    -> parsers/powershell.py  (markdown-backtick)
+  doc/product-docs/state-tracking/features/2.1.1-link-parsing-system-implementation-state.md:54
+    -> parsers/generic.py  (markdown-backtick)
+  doc/product-docs/state-tracking/features/2.1.1-link-parsing-system-implementation-state.md:56
+    -> parsers/__init__.py  (markdown-backtick)
+  doc/product-docs/state-tracking/permanent/feature-request-tracking.md:38
+    -> ../../feedback/reviews/tools-review-20260331-103941.md  (markdown)
+  doc/product-docs/state-tracking/permanent/technical-debt-tracking.md:160
+    -> ../../../product-docs/refactoring/plans/batch-file-writes-during-directory-moves-to-avoid-redundant-i-o.md  (markdown)
+  doc/product-docs/state-tracking/permanent/user-workflow-tracking.md:9
+    -> doc/product-docs/technical/design/user-workflow-map.md  (markdown-standalone)
+  doc/product-docs/state-tracking/permanent/user-workflow-tracking.md:9
+    -> doc/product-docs/technical/design/user-workflow-map.md  (markdown-bare-path)
+  doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-2-in-memory-database-t2.md:288
+    -> docs/README.md  (markdown-backtick)
+  doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-2-in-memory-database-t2.md:288
+    -> ./docs/README.md  (markdown-backtick)
+  doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-2-in-memory-database-t2.md:288
+    -> docs\\README.md  (markdown-backtick)
+  doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-2-in-memory-database-t2.md:399
+    -> ../file.md  (markdown-backtick)
+  doc/product-docs/technical/architecture/design-docs/tdd/tdd-1-1-1-file-system-monitoring-t2.md:373
+    -> test/automated/unit/test_handler.py  (markdown-backtick)
+  doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md:215
+    -> scripts/benchmark.py  (markdown-backtick)
+  doc/product-docs/technical/design/README.md:26
+    -> technical/design/  (markdown-backtick-dir)
+  doc/product-docs/technical/design/README.md:37
+    -> technical/architecture/design-docs/tdd/  (markdown-backtick-dir)
+  doc/product-docs/test-audits/README.md:114
+    -> doc/process-framework/scripts/file-creation/03-testing/  (markdown-bare-path)
+  doc/product-docs/test-audits/README.md:122
+    -> doc/process-framework/scripts/validation/  (markdown-bare-path)
+  doc/product-docs/user/handbooks/link-validation.md:189
+    -> doc/guide.md  (markdown-backtick)
+  doc/product-docs/user/handbooks/multi-project-setup.md:58
+    -> .vscode/tasks.json  (markdown-backtick)
+  doc/product-docs/validation/reports/ai-agent-continuity/PD-VAL-045-ai-agent-continuity-features-0.1.1-0.1.2-0.1.3-1.1.1-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md:183
+    -> parsers/__init__.py  (markdown-backtick)
+  doc/product-docs/validation/reports/architectural-consistency/PD-VAL-036-architectural-consistency-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md:89
+    -> parsers/__init__.py  (markdown-backtick)
+  doc/product-docs/validation/reports/architectural-consistency/PD-VAL-036-architectural-consistency-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md:426
+    -> tests/conftest.py  (markdown-backtick)
+  doc/product-docs/validation/reports/architectural-consistency/PD-VAL-036-architectural-consistency-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md:428
+    -> tests/test_config.py  (markdown-backtick)
+  doc/product-docs/validation/reports/architectural-consistency/PD-VAL-047-architectural-consistency-features-2.1.1-2.2.1-3.1.1-6.1.1.md:95
+    -> parsers/__init__.py  (markdown-backtick)
+  doc/product-docs/validation/reports/architectural-consistency/PD-VAL-047-architectural-consistency-features-2.1.1-2.2.1-3.1.1-6.1.1.md:95
+    -> parsers/base.py  (markdown-backtick)
+  doc/product-docs/validation/reports/architectural-consistency/PD-VAL-047-architectural-consistency-features-2.1.1-2.2.1-3.1.1-6.1.1.md:95
+    -> parsers/markdown.py  (markdown-backtick)
+  doc/product-docs/validation/reports/architectural-consistency/PD-VAL-047-architectural-consistency-features-2.1.1-2.2.1-3.1.1-6.1.1.md:95
+    -> parsers/yaml_parser.py  (markdown-backtick)
+  doc/product-docs/validation/reports/architectural-consistency/PD-VAL-047-architectural-consistency-features-2.1.1-2.2.1-3.1.1-6.1.1.md:95
+    -> parsers/json_parser.py  (markdown-backtick)
+  doc/product-docs/validation/reports/architectural-consistency/PD-VAL-047-architectural-consistency-features-2.1.1-2.2.1-3.1.1-6.1.1.md:95
+    -> parsers/python.py  (markdown-backtick)
+  doc/product-docs/validation/reports/architectural-consistency/PD-VAL-047-architectural-consistency-features-2.1.1-2.2.1-3.1.1-6.1.1.md:95
+    -> parsers/dart.py  (markdown-backtick)
+  doc/product-docs/validation/reports/architectural-consistency/PD-VAL-047-architectural-consistency-features-2.1.1-2.2.1-3.1.1-6.1.1.md:95
+    -> parsers/powershell.py  (markdown-backtick)
+  doc/product-docs/validation/reports/architectural-consistency/PD-VAL-047-architectural-consistency-features-2.1.1-2.2.1-3.1.1-6.1.1.md:95
+    -> parsers/generic.py  (markdown-backtick)
+  doc/product-docs/validation/reports/code-quality/PD-VAL-060-code-quality-features-2.1.1-2.2.1-3.1.1-6.1.1.md:36
+    -> parsers/patterns.py  (markdown-backtick)
+  doc/product-docs/validation/reports/code-quality/PD-VAL-060-code-quality-features-2.1.1-2.2.1-3.1.1-6.1.1.md:232
+    -> parsers/patterns.py  (markdown-backtick)
+  doc/product-docs/validation/reports/data-integrity/PD-VAL-053-data-integrity-features-0.1.2-2.2.1-6.1.1.md:105
+    -> add/remove/update.  (markdown-bare-path)
+  doc/product-docs/validation/reports/documentation-alignment/PD-VAL-042-documentation-alignment-features-0.1.1-0.1.2-0.1.3-1.1.1.md:155
+    -> docs/configuration.md  (markdown-backtick)
+  doc/product-docs/validation/reports/documentation-alignment/PD-VAL-043-documentation-alignment-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md:302
+    -> linkwatcher/cli.py  (markdown-backtick)
+  doc/product-docs/validation/reports/documentation-alignment/PD-VAL-043-documentation-alignment-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md:392
+    -> tests/conftest.py  (markdown-backtick)
+  doc/product-docs/validation/reports/extensibility-maintainability/PD-VAL-057-extensibility-maintainability-features-2.1.1-2.2.1-3.1.1-6.1.1.md:80
+    -> parsers/base.py  (markdown-backtick)
+  doc/product-docs/validation/reports/extensibility-maintainability/PD-VAL-057-extensibility-maintainability-features-2.1.1-2.2.1-3.1.1-6.1.1.md:80
+    -> parsers/__init__.py  (markdown-backtick)
+  doc/product-docs/validation/reports/extensibility-maintainability/PD-VAL-057-extensibility-maintainability-features-2.1.1-2.2.1-3.1.1-6.1.1.md:84
+    -> parsers/base.py  (markdown-backtick)
+  doc/product-docs/validation/reports/extensibility-maintainability/PD-VAL-057-extensibility-maintainability-features-2.1.1-2.2.1-3.1.1-6.1.1.md:90
+    -> parsers/__init__.py  (markdown-backtick)
+  process-framework/.ai-entry-point.md:9
+    -> LinkWatcher/start_linkwatcher_background.ps1  (markdown-backtick)
+  process-framework/ai-tasks.md:525
+    -> LinkWatcher/start_linkwatcher_background.ps1  (markdown-backtick)
+  process-framework/evaluation-reports/20260325-framework-evaluation-testing-setup-tasks-templates-scripts-guides-state.md:23
+    -> test/test-registry.yaml  (markdown-backtick)
+  process-framework/feedback/feedback-forms/20260331-111633-PF-TSK-007-feedback.md:163
+    -> doc/process-framework/scripts/  (markdown-backtick-dir)
+  process-framework/feedback/feedback-forms/20260331-125323-PF-TSK-009-feedback.md:134
+    -> doc/process-framework/  (markdown-backtick-dir)
+  process-framework/feedback/feedback-forms/20260331-133604-PF-TSK-026-feedback.md:177
+    -> proposals/proposals/old/  (markdown-backtick-dir)
+  process-framework/feedback/reviews/tools-review-20260304-095913.md:107
+    -> Eff/Comp/Efficiency/Conciseness.  (markdown-bare-path)
+  process-framework/feedback/reviews/tools-review-20260327-121000.md:250
+    -> archive/2026-03/tools-review-20260327/processed-forms/  (markdown-backtick-dir)
+  process-framework/feedback/reviews/tools-review-20260328-102622.md:47
+    -> 06-maintenance/  (markdown-backtick-dir)
+  process-framework/guides/02-design/architecture-decision-creation-guide.md:50
+    -> doc/product-docs/technical/architecture/decisions/  (markdown-backtick-dir)
+  process-framework/guides/03-testing/e2e-acceptance-test-case-customization-guide.md:57
+    -> project/  (markdown-backtick-dir)
+  process-framework/guides/03-testing/e2e-acceptance-test-case-customization-guide.md:57
+    -> expected/  (markdown-backtick-dir)
+  process-framework/guides/03-testing/e2e-acceptance-test-case-customization-guide.md:72
+    -> project/  (markdown-backtick-dir)
+  process-framework/guides/03-testing/e2e-acceptance-test-case-customization-guide.md:85
+    -> expected/  (markdown-backtick-dir)
+  process-framework/guides/03-testing/test-audit-usage-guide.md:173
+    -> htmlcov/index.html  (markdown-backtick)
+  process-framework/guides/03-testing/test-audit-usage-guide.md:406
+    -> foundation/audit-report-0-2-4-test_app_error.md  (markdown-backtick)
+  process-framework/guides/03-testing/test-file-creation-guide.md:65
+    -> tests/unit/  (markdown-backtick-dir)
+  process-framework/guides/03-testing/test-file-creation-guide.md:66
+    -> tests/integration/  (markdown-backtick-dir)
+  process-framework/guides/03-testing/test-file-creation-guide.md:67
+    -> test/e2e/  (markdown-backtick-dir)
+  process-framework/guides/03-testing/test-file-creation-guide.md:67
+    -> tests/e2e/  (markdown-backtick-dir)
+  process-framework/guides/03-testing/test-file-creation-guide.md:200
+    -> vendor/tools/build/  (markdown-backtick-dir)
+  process-framework/guides/03-testing/test-file-creation-guide.md:200
+    -> lib/config/settings/  (markdown-backtick-dir)
+  process-framework/guides/03-testing/test-file-creation-guide.md:200
+    -> src/components/ui/  (markdown-backtick-dir)
+  process-framework/guides/03-testing/test-infrastructure-guide.md:267
+    -> cross-cutting-specs/  (markdown-backtick-dir)
+  process-framework/guides/03-testing/test-infrastructure-guide.md:268
+    -> workspace/  (markdown-backtick-dir)
+  process-framework/guides/03-testing/test-infrastructure-guide.md:268
+    -> results/  (markdown-backtick-dir)
+  process-framework/guides/03-testing/test-infrastructure-guide.md:332
+    -> vendor/tools/build/  (markdown-backtick-dir)
+  process-framework/guides/03-testing/test-infrastructure-guide.md:332
+    -> lib/config/  (markdown-backtick-dir)
+  process-framework/guides/03-testing/test-infrastructure-guide.md:332
+    -> src/components/ui/  (markdown-backtick-dir)
+  process-framework/guides/03-testing/test-specification-creation-guide.md:370
     -> doc/product-docs/technical/design/tdd-feature.md  (markdown-quoted)
-  doc/process-framework/guides/04-implementation/development-guide.md:22
-    -> ../../development/processes/tdd-t3-template.md  (markdown-standalone)
-  doc/process-framework/guides/05-validation/documentation-guide.md:189
+  process-framework/guides/04-implementation/development-guide.md:19
+    -> /process-framework/state-tracking/feature-tracking.md  (markdown-backtick)
+  process-framework/guides/04-implementation/development-guide.md:32
+    -> /doc/product-docs/development/checklists/  (markdown-backtick-dir)
+  process-framework/guides/04-implementation/development-guide.md:110
+    -> /doc/product-docs/technical/architecture/design-docs/adr/adr-template.md  (markdown-backtick)
+  process-framework/guides/04-implementation/enhancement-state-tracking-customization-guide.md:37
+    -> state-tracking/features/  (markdown-backtick-dir)
+  process-framework/guides/04-implementation/feature-implementation-state-tracking-guide.md:688
+    -> doc/product-docs/state-tracking/features/PF-FEA-012-implementation-state.md  (markdown-backtick)
+  process-framework/guides/04-implementation/feature-implementation-state-tracking-guide.md:700
+    -> services/order_service.py  (markdown-backtick)
+  process-framework/guides/05-validation/documentation-guide.md:189
     -> ../../technical/api/reference.md  (markdown)
-  doc/process-framework/guides/05-validation/documentation-guide.md:277
+  process-framework/guides/05-validation/documentation-guide.md:277
     -> ../configuration.md  (markdown)
-  doc/process-framework/guides/05-validation/documentation-guide.md:329
+  process-framework/guides/05-validation/documentation-guide.md:329
     -> ../../assets/architecture-overview.png  (markdown)
-  doc/process-framework/guides/05-validation/documentation-guide.md:499
+  process-framework/guides/05-validation/documentation-guide.md:499
     -> ../related-doc.md  (markdown)
-  doc/process-framework/guides/cyclical/debt-item-creation-guide.md:201
+  process-framework/guides/07-deployment/ci-cd-setup-guide.md:119
+    -> .github/workflows/ci.yml  (markdown-backtick)
+  process-framework/guides/cyclical/debt-item-creation-guide.md:201
     -> lib/auth/  (markdown-quoted-dir)
-  doc/process-framework/state-tracking/permanent/process-improvement-tracking.md:425
-    -> ../Common-ScriptHelpers.psm1  (markdown-standalone)
-  doc/process-framework/tasks/00-setup/codebase-feature-analysis.md:101
+  process-framework/guides/cyclical/debt-item-creation-guide.md:446
+    -> lib/widgets/forms/  (markdown-backtick-dir)
+  process-framework/guides/cyclical/debt-item-creation-guide.md:446
+    -> lib/screens/auth/  (markdown-backtick-dir)
+  process-framework/guides/cyclical/debt-item-creation-guide.md:446
+    -> lib/screens/profile/  (markdown-backtick-dir)
+  process-framework/guides/cyclical/debt-item-creation-guide.md:477
+    -> technical-debt/debt-items/  (markdown-backtick-dir)
+  process-framework/guides/framework/task-transition-guide.md:787
+    -> temporary/old/  (markdown-backtick-dir)
+  process-framework/guides/framework/task-transition-guide.md:1120
+    -> ../../state-tracking/features  (markdown)
+  process-framework/guides/framework/task-transition-guide.md:1166
+    -> /temporary/archived/  (markdown-backtick-dir)
+  process-framework/guides/framework/task-transition-guide.md:1215
+    -> state-tracking/temporary/old/  (markdown-backtick-dir)
+  process-framework/guides/framework/task-transition-guide.md:1226
+    -> temporary/old/  (markdown-backtick-dir)
+  process-framework/guides/support/document-creation-script-development-guide.md:37
+    -> PF/PD/TE-id-registry.json  (markdown-bare-path)
+  process-framework/guides/support/document-creation-script-development-guide.md:47
+    -> PF/PD/TE-id-registry.json  (markdown-bare-path)
+  process-framework/guides/support/document-creation-script-development-guide.md:58
+    -> PF/PD/TE-id-registry.json  (markdown-bare-path)
+  process-framework/guides/support/document-creation-script-development-guide.md:279
+    -> PF/PD/TE-id-registry.json  (markdown-bare-path)
+  process-framework/guides/support/document-creation-script-development-guide.md:361
+    -> templates/02-design/  (markdown-backtick-dir)
+  process-framework/guides/support/document-creation-script-development-guide.md:361
+    -> templates/support/  (markdown-backtick-dir)
+  process-framework/guides/support/document-creation-script-development-guide.md:493
+    -> PF/PD/TE-id-registry.json  (markdown-bare-path)
+  process-framework/guides/support/document-creation-script-development-guide.md:610
+    -> languages-config/  (markdown-backtick-dir)
+  process-framework/guides/support/migration-best-practices.md:184
+    -> features/archive/  (markdown-backtick-dir)
+  process-framework/guides/support/state-file-creation-guide.md:417
+    -> permanent/  (markdown-backtick-dir)
+  process-framework/guides/support/task-creation-guide.md:338
+    -> /ai-tasks.md  (markdown-backtick)
+  process-framework/guides/support/temp-state-tracking-customization-guide.md:298
+    -> temporary/old/  (markdown-backtick-dir)
+  process-framework/infrastructure/process-framework-task-registry.md:243
+    -> scripts/validation/validation-reports/  (markdown-backtick-dir)
+  process-framework/infrastructure/process-framework-task-registry.md:336
+    -> scripts/validation/validation-reports/  (markdown-backtick-dir)
+  process-framework/infrastructure/process-framework-task-registry.md:455
+    -> design-system/  (markdown-backtick-dir)
+  process-framework/infrastructure/process-framework-task-registry.md:456
+    -> mockups/  (markdown-backtick-dir)
+  process-framework/infrastructure/process-framework-task-registry.md:457
+    -> wireframes/  (markdown-backtick-dir)
+  process-framework/infrastructure/process-framework-task-registry.md:458
+    -> user-flows/  (markdown-backtick-dir)
+  process-framework/infrastructure/process-framework-task-registry.md:698
+    -> ../validation/reports/  (markdown-bare-path)
+  process-framework/infrastructure/process-framework-task-registry.md:910
+    -> assessments/technical-debt/  (markdown-backtick-dir)
+  process-framework/languages-config/README.md:30
+    -> javascript/  (markdown-backtick-dir)
+  process-framework/proposals/proposals/dimension-aware-development-integration-proposal.md:25
+    -> 05-validation/  (markdown-backtick-dir)
+  process-framework/proposals/proposals/structure-change-generalize-testing-and-ci-cd-infrastructure-into-framework-proposal.md:24
+    -> state-tracking/features/  (markdown-backtick-dir)
+  process-framework/proposals/proposals/structure-change-generalize-testing-and-ci-cd-infrastructure-into-framework-proposal.md:25
+    -> product-docs/functional-design/fdds/  (markdown-backtick-dir)
+  process-framework/proposals/proposals/structure-change-generalize-testing-and-ci-cd-infrastructure-into-framework-proposal.md:26
+    -> product-docs/technical/architecture/design-docs/tdd/  (markdown-backtick-dir)
+  process-framework/proposals/proposals/structure-change-generalize-testing-and-ci-cd-infrastructure-into-framework-proposal.md:158
+    -> state-tracking/features/4.1.1-test-suite-implementation-state.md  (markdown-backtick)
+  process-framework/proposals/proposals/structure-change-generalize-testing-and-ci-cd-infrastructure-into-framework-proposal.md:159
+    -> state-tracking/features/5.1.1-cicd-development-tooling-implementation-state.md  (markdown-backtick)
+  process-framework/proposals/proposals/structure-change-generalize-testing-and-ci-cd-infrastructure-into-framework-proposal.md:160
+    -> product-docs/functional-design/fdds/fdd-4-1-1-test-suite.md  (markdown-backtick)
+  process-framework/proposals/proposals/structure-change-generalize-testing-and-ci-cd-infrastructure-into-framework-proposal.md:161
+    -> product-docs/functional-design/fdds/fdd-5-1-1-cicd-development-tooling.md  (markdown-backtick)
+  process-framework/proposals/proposals/structure-change-generalize-testing-and-ci-cd-infrastructure-into-framework-proposal.md:162
+    -> product-docs/technical/architecture/design-docs/tdd/tdd-4-1-1-test-suite-t2.md  (markdown-backtick)
+  process-framework/proposals/proposals/structure-change-generalize-testing-and-ci-cd-infrastructure-into-framework-proposal.md:163
+    -> product-docs/technical/architecture/design-docs/tdd/tdd-5-1-1-cicd-development-tooling-t2.md  (markdown-backtick)
+  process-framework/proposals/proposals/structure-change-generalize-testing-and-ci-cd-infrastructure-into-framework-proposal.md:164
+    -> test/specifications/feature-specs/test-spec-4-1-1-test-suite.md  (markdown-backtick)
+  process-framework/proposals/proposals/structure-change-generalize-testing-and-ci-cd-infrastructure-into-framework-proposal.md:165
+    -> test/specifications/feature-specs/test-spec-5-1-1-cicd-development-tooling.md  (markdown-backtick)
+  process-framework/proposals/proposals/structure-change-generalize-testing-and-ci-cd-infrastructure-into-framework-proposal.md:168
+    -> state-tracking/permanent/feature-tracking.md  (markdown-backtick)
+  process-framework/proposals/proposals/structure-change-generalize-testing-and-ci-cd-infrastructure-into-framework-proposal.md:170
+    -> tasks/support/project-initiation-task.md  (markdown-backtick)
+  process-framework/proposals/proposals/structure-change-generalize-testing-and-ci-cd-infrastructure-into-framework-proposal.md:171
+    -> tasks/07-deployment/release-deployment-task.md  (markdown-backtick)
+  process-framework/proposals/proposals/structure-change-generalize-testing-and-ci-cd-infrastructure-into-framework-proposal.md:172
+    -> languages-config/python-config.json  (markdown-backtick)
+  process-framework/proposals/proposals/structure-change-generalize-testing-and-ci-cd-infrastructure-into-framework-proposal.md:173
+    -> templates/support/language-config-template.json  (markdown-backtick)
+  process-framework/proposals/proposals/structure-change-generalize-testing-and-ci-cd-infrastructure-into-framework-proposal.md:176
+    -> tasks/03-testing/test-specification-creation-task.md  (markdown-backtick)
+  process-framework/proposals/proposals/structure-change-generalize-testing-and-ci-cd-infrastructure-into-framework-proposal.md:177
+    -> tasks/03-testing/test-audit-task.md  (markdown-backtick)
+  process-framework/proposals/proposals/structure-change-generalize-testing-and-ci-cd-infrastructure-into-framework-proposal.md:178
+    -> tasks/03-testing/e2e-acceptance-test-execution-task.md  (markdown-backtick)
+  process-framework/proposals/proposals/structure-change-generalize-testing-and-ci-cd-infrastructure-into-framework-proposal.md:179
+    -> tasks/03-testing/e2e-acceptance-test-case-creation-task.md  (markdown-backtick)
+  process-framework/proposals/proposals/structure-change-generalize-testing-and-ci-cd-infrastructure-into-framework-proposal.md:180
+    -> tasks/04-implementation/integration-and-testing.md  (markdown-backtick)
+  process-framework/proposals/proposals/structure-change-generalize-testing-and-ci-cd-infrastructure-into-framework-proposal.md:181
+    -> guides/03-testing/test-infrastructure-guide.md  (markdown-backtick)
+  process-framework/proposals/proposals/structure-change-generalize-testing-and-ci-cd-infrastructure-into-framework-proposal.md:182
+    -> guides/03-testing/integration-and-testing-usage-guide.md  (markdown-backtick)
+  process-framework/proposals/proposals/structure-change-generalize-testing-and-ci-cd-infrastructure-into-framework-proposal.md:185
+    -> guides/03-testing/testing-setup-guide.md  (markdown-backtick)
+  process-framework/proposals/proposals/structure-change-generalize-testing-and-ci-cd-infrastructure-into-framework-proposal.md:186
+    -> guides/07-deployment/cicd-setup-guide.md  (markdown-backtick)
+  process-framework/proposals/proposals/structure-change-generalize-testing-and-ci-cd-infrastructure-into-framework-proposal.md:187
+    -> templates/07-deployment/ci-github-actions-template.yml  (markdown-backtick)
+  process-framework/proposals/proposals/structure-change-generalize-testing-and-ci-cd-infrastructure-into-framework-proposal.md:188
+    -> templates/07-deployment/pre-commit-config-template.yaml  (markdown-backtick)
+  process-framework/proposals/proposals/structure-change-generalize-testing-and-ci-cd-infrastructure-into-framework-proposal.md:189
+    -> templates/07-deployment/dev-script-template.bat  (markdown-backtick)
+  process-framework/proposals/proposals/structure-change-test-directory-consolidation-and-framework-integration-proposal.md:14
+    -> tests/  (markdown-backtick-dir)
+  process-framework/proposals/proposals/structure-change-test-directory-consolidation-and-framework-integration-proposal.md:14
+    -> manual-tests/  (markdown-backtick-dir)
+  process-framework/proposals/proposals/structure-change-test-directory-consolidation-and-framework-integration-proposal.md:14
+    -> manual_markdown_tests/  (markdown-backtick-dir)
+  process-framework/proposals/proposals/structure-change-test-directory-consolidation-and-framework-integration-proposal.md:66
+    -> tests/  (markdown-backtick-dir)
+  process-framework/proposals/proposals/structure-change-test-directory-consolidation-and-framework-integration-proposal.md:66
+    -> tests/  (markdown-backtick-dir)
+  process-framework/proposals/proposals/structure-change-test-directory-consolidation-and-framework-integration-proposal.md:67
+    -> manual-tests/  (markdown-backtick-dir)
+  process-framework/proposals/proposals/structure-change-test-directory-consolidation-and-framework-integration-proposal.md:67
+    -> manual_markdown_tests/  (markdown-backtick-dir)
+  process-framework/proposals/proposals/structure-change-test-directory-consolidation-and-framework-integration-proposal.md:68
+    -> tests/manual/  (markdown-backtick-dir)
+  process-framework/proposals/proposals/structure-change-test-directory-consolidation-and-framework-integration-proposal.md:68
+    -> test/manual-testing/  (markdown-backtick-dir)
+  process-framework/proposals/proposals/structure-change-test-directory-consolidation-and-framework-integration-proposal.md:69
+    -> tests/  (markdown-backtick-dir)
+  process-framework/proposals/proposals/structure-change-test-directory-consolidation-and-framework-integration-proposal.md:165
+    -> tests/  (markdown-backtick-dir)
+  process-framework/proposals/proposals/structure-change-test-directory-consolidation-and-framework-integration-proposal.md:167
+    -> manual-tests/  (markdown-backtick-dir)
+  process-framework/proposals/proposals/structure-change-test-directory-consolidation-and-framework-integration-proposal.md:167
+    -> manual_markdown_tests/  (markdown-backtick-dir)
+  process-framework/proposals/proposals/structure-change-test-directory-consolidation-and-framework-integration-proposal.md:169
+    -> tests/manual/  (markdown-backtick-dir)
+  process-framework/proposals/proposals/structure-change-test-directory-consolidation-and-framework-integration-proposal.md:169
+    -> test/manual-testing/  (markdown-backtick-dir)
+  process-framework/proposals/proposals/structure-change-test-directory-consolidation-and-framework-integration-proposal.md:175
+    -> tests/  (markdown-backtick-dir)
+  process-framework/proposals/proposals/structure-change-test-directory-consolidation-and-framework-integration-proposal.md:176
+    -> .github/workflows/ci.yml  (markdown-backtick)
+  process-framework/proposals/proposals/structure-change-test-directory-consolidation-and-framework-integration-proposal.md:177
+    -> ../tests/  (markdown-backtick-dir)
+  process-framework/proposals/proposals/structure-change-test-directory-consolidation-and-framework-integration-proposal.md:177
+    -> tests/  (markdown-backtick-dir)
+  process-framework/proposals/proposals/structure-change-test-directory-consolidation-and-framework-integration-proposal.md:178
+    -> tests/  (markdown-backtick-dir)
+  process-framework/proposals/proposals/structure-change-test-directory-consolidation-and-framework-integration-proposal.md:179
+    -> tests/  (markdown-backtick-dir)
+  process-framework/proposals/proposals/structure-change-test-directory-consolidation-and-framework-integration-proposal.md:211
+    -> test/test-registry.yaml  (markdown-backtick)
+  process-framework/proposals/proposals/structure-change-test-directory-consolidation-and-framework-integration-proposal.md:215
+    -> process-framework/state-tracking/features/4.1.1-test-suite-implementation-state.md  (markdown-backtick)
+  process-framework/proposals/proposals/structure-change-test-directory-consolidation-and-framework-integration-proposal.md:215
+    -> tests/  (markdown-backtick-dir)
+  process-framework/proposals/proposals/structure-change-test-directory-consolidation-and-framework-integration-proposal.md:237
+    -> tests/  (markdown-backtick-dir)
+  process-framework/proposals/proposals/structure-change-test-directory-consolidation-and-framework-integration-proposal.md:238
+    -> tests/manual/  (markdown-backtick-dir)
+  process-framework/proposals/proposals/structure-change-test-directory-consolidation-and-framework-integration-proposal.md:243
+    -> .github/workflows/ci.yml  (markdown-backtick)
+  process-framework/proposals/proposals/structure-change-test-directory-consolidation-and-framework-integration-proposal.md:244
+    -> test/test-registry.yaml  (markdown-backtick)
+  process-framework/proposals/proposals/structure-change-test-directory-consolidation-and-framework-integration-proposal.md:246
+    -> tests/  (markdown-backtick-dir)
+  process-framework/proposals/proposals/structure-change-test-directory-consolidation-and-framework-integration-proposal.md:255
+    -> manual-tests/powershell-parser/  (markdown-backtick-dir)
+  process-framework/proposals/proposals/structure-change-test-directory-consolidation-and-framework-integration-proposal.md:255
+    -> test/manual-testing/templates/  (markdown-backtick-dir)
+  process-framework/proposals/proposals/structure-change-test-directory-consolidation-and-framework-integration-proposal.md:256
+    -> manual_markdown_tests/  (markdown-backtick-dir)
+  process-framework/proposals/proposals/structure-change-test-directory-consolidation-and-framework-integration-proposal.md:256
+    -> test/manual-testing/templates/  (markdown-backtick-dir)
+  process-framework/proposals/proposals/structure-change-test-directory-consolidation-and-framework-integration-proposal.md:257
+    -> manual_markdown_tests/test_project/  (markdown-backtick-dir)
+  process-framework/proposals/proposals/structure-change-test-directory-consolidation-and-framework-integration-proposal.md:258
+    -> manual-tests/  (markdown-backtick-dir)
+  process-framework/proposals/proposals/structure-change-test-directory-consolidation-and-framework-integration-proposal.md:258
+    -> manual_markdown_tests/  (markdown-backtick-dir)
+  process-framework/proposals/proposals/structure-change-test-directory-consolidation-and-framework-integration-proposal.md:268
+    -> process-framework/guides/guides/03-testing/test-infrastructure-guide.md  (markdown-backtick)
+  process-framework/proposals/proposals/structure-change-test-directory-consolidation-and-framework-integration-proposal.md:268
+    -> test/manual-testing/  (markdown-backtick-dir)
+  process-framework/proposals/proposals/structure-change-test-directory-consolidation-and-framework-integration-proposal.md:275
+    -> tests/  (markdown-backtick-dir)
+  process-framework/proposals/proposals/structure-change-test-directory-consolidation-and-framework-integration-proposal.md:316
+    -> tests/  (markdown-backtick-dir)
+  process-framework/proposals/proposals/structure-change-test-directory-consolidation-and-framework-integration-proposal.md:340
+    -> test/manual-testing/  (markdown-backtick-dir)
+  process-framework/proposals/proposals/structure-change-test-directory-consolidation-and-framework-integration-proposal.md:341
+    -> test/manual-testing/  (markdown-backtick-dir)
+  process-framework/proposals/proposals/structure-change-test-directory-consolidation-and-framework-integration-proposal.md:342
+    -> tests/  (markdown-backtick-dir)
+  process-framework/proposals/proposals/structure-change-test-directory-consolidation-and-framework-integration-proposal.md:351
+    -> test/manual-testing/templates/  (markdown-backtick-dir)
+  process-framework/proposals/proposals/structure-change-test-directory-consolidation-and-framework-integration-proposal.md:364
+    -> tests/  (markdown-backtick-dir)
+  process-framework/proposals/proposals/structure-change-test-directory-consolidation-and-framework-integration-proposal.md:364
+    -> manual-tests/  (markdown-backtick-dir)
+  process-framework/proposals/proposals/structure-change-test-directory-consolidation-and-framework-integration-proposal.md:364
+    -> manual_markdown_tests/  (markdown-backtick-dir)
+  process-framework/proposals/proposals/structure-change-test-directory-consolidation-and-framework-integration-proposal.md:381
+    -> tests/  (markdown-backtick-dir)
+  process-framework/proposals/proposals/testing-framework-enhancements-proposal.md:44
+    -> htmlcov/  (markdown-backtick-dir)
+  process-framework/proposals/proposals/testing-framework-enhancements-proposal.md:69
+    -> languages-config/python-config.json  (markdown-backtick)
+  process-framework/state-tracking/README.md:68
+    -> support/New-TempTaskState.ps1  (markdown-backtick)
+  process-framework/state-tracking/temporary/structure-change-dimension-aware-development-integration.md:30
+    -> guides/framework/development-dimensions-guide.md  (markdown-backtick)
+  process-framework/state-tracking/temporary/structure-change-dimension-aware-development-integration.md:35
+    -> templates/04-implementation/feature-implementation-state-template.md  (markdown-backtick)
+  process-framework/state-tracking/temporary/structure-change-dimension-aware-development-integration.md:50
+    -> templates/04-implementation/enhancement-state-tracking-template-template.md  (markdown-backtick)
+  process-framework/state-tracking/temporary/structure-change-dimension-aware-development-integration.md:55
+    -> templates/06-maintenance/bug-fix-state-tracking-template.md  (markdown-backtick)
+  process-framework/state-tracking/temporary/structure-change-dimension-aware-development-integration.md:65
+    -> templates/05-validation/validation-tracking-template.md  (markdown-backtick)
+  process-framework/state-tracking/temporary/structure-change-dimension-aware-development-integration.md:66
+    -> templates/05-validation/validation-report-template.md  (markdown-backtick)
+  process-framework/state-tracking/temporary/structure-change-dimension-aware-development-integration.md:234
+    -> state-tracking/temporary/old/  (markdown-backtick-dir)
+  process-framework/tasks/00-setup/codebase-feature-analysis.md:41
+    -> ../../state-tracking/features  (markdown)
+  process-framework/tasks/00-setup/codebase-feature-analysis.md:93
+    -> ../../state-tracking/features  (markdown)
+  process-framework/tasks/00-setup/codebase-feature-analysis.md:100
+    -> ../../state-tracking/features  (markdown)
+  process-framework/tasks/00-setup/codebase-feature-analysis.md:101
     -> ./feature_id-feature-name-implementation-state.md  (markdown)
-  doc/process-framework/tasks/00-setup/codebase-feature-analysis.md:101
+  process-framework/tasks/00-setup/codebase-feature-analysis.md:101
     -> ./0.1.2-data-models-implementation-state.md  (markdown)
-  doc/process-framework/tasks/01-planning/system-architecture-review.md:54
-    -> ../../../.ai-workspace/dependency-maps  (markdown)
-  doc/process-framework/tasks/02-design/tdd-creation-task.md:257
-    -> /doc/product-docs/technical/architecture/api-design-guidelines.md  (markdown)
-  doc/process-framework/templates/03-testing/e2e-acceptance-test-case-template.md:99
-    -> project/docs/readme.md  (markdown-standalone)
-  doc/process-framework/templates/support/documentation-template.md:180
-    -> /doc/product-docs/technical/related-document.md  (markdown)
-  doc/process-framework/templates/support/documentation-template.md:181
-    -> /doc/product-docs/technical/api/api-reference.md  (markdown)
-  doc/process-framework/templates/support/implementation-handbook-template.md:187
-    -> /doc/product-docs/technical/design/related-design.md  (markdown)
-  doc/process-framework/templates/support/implementation-handbook-template.md:188
-    -> /doc/product-docs/technical/api/related-api.md  (markdown)
-  doc/process-framework/templates/support/implementation-handbook-template.md:189
-    -> /doc/product-docs/technical/architecture/adr/related-adr.md  (markdown)
-  doc/process-framework/templates/support/temp-task-creation-state-template.md:55
-    -> .\New-Task.ps1  (markdown-standalone)
-  doc/process-framework/templates/support/temp-task-creation-state-template.md:105
-    -> .\New-Template.ps1  (markdown-standalone)
-  doc/process-framework/templates/support/temp-task-creation-state-template.md:113
-    -> .\New-Guide.ps1  (markdown-standalone)
-  doc/process-framework/templates/support/temp-task-creation-state-template.md:134
-    -> .\New-ContextMap.ps1  (markdown-standalone)
-  doc/process-framework/templates/support/user-handbook-template.md:74
-    -> /doc/product-docs/user/features/related-feature-1.md  (markdown)
-  doc/process-framework/templates/support/user-handbook-template.md:75
-    -> /doc/product-docs/user/features/related-feature-2.md  (markdown)
-  doc/process-framework/visualization/context-maps/03-testing/test-implementation-map.md:13
-    -> visualization/context-maps/04-implementation/integration-and-testing-map.md  (markdown-standalone)
-  doc/product-docs/functional-design/fdds/fdd-0-1-2-in-memory-database.md:93
-    -> src/docs/guide.md  (markdown-standalone)
-  doc/product-docs/functional-design/fdds/fdd-3-1-1-logging-framework.md:96
-    -> old/path.md  (markdown-standalone)
-  doc/product-docs/refactoring/plans/add-ai-context-sections-to-module-docstrings-for-session-resumption.md:24
-    -> parsers/__init__.py  (markdown-standalone)
-  doc/product-docs/refactoring/plans/add-ai-context-sections-to-module-docstrings-for-session-resumption.md:41
-    -> config/settings.py  (markdown-standalone)
-  doc/product-docs/refactoring/plans/add-ai-context-sections-to-module-docstrings-for-session-resumption.md:42
-    -> parsers/__init__.py  (markdown-standalone)
-  doc/product-docs/refactoring/plans/add-error-handling-to-timestamprotatingfilehandler-dorollover.md:23
-    -> os.rename/os.remove  (markdown-standalone)
-  doc/product-docs/refactoring/plans/extract-duplicated-quoted-path-regex-to-shared-parsers-patterns-py.md:8
-    -> parsers/patterns.py  (markdown-standalone)
-  doc/product-docs/refactoring/plans/extract-duplicated-quoted-path-regex-to-shared-parsers-patterns-py.md:14
-    -> parsers/patterns.py  (markdown-standalone)
-  doc/product-docs/state-tracking/features/0.1.1-core-architecture-implementation-state.md:164
-    -> test/automated/unit/test_models.py  (markdown-standalone)
-  doc/product-docs/state-tracking/features/0.1.1-core-architecture-implementation-state.md:165
-    -> test/automated/unit/test_utils.py  (markdown-standalone)
-  doc/product-docs/state-tracking/features/0.1.1-core-architecture-implementation-state.md:242
-    -> scripts/benchmark.py  (markdown-standalone)
-  doc/product-docs/state-tracking/features/0.1.3-configuration-system-implementation-state.md:124
-    -> docs/configuration.md  (markdown-standalone)
-  doc/product-docs/state-tracking/features/0.1.3-configuration-system-implementation-state.md:130
-    -> docs/configuration.md  (markdown-standalone)
-  doc/product-docs/state-tracking/features/1.1.1-file-system-monitoring-implementation-state.md:182
-    -> test/automated/unit/test_handler.py  (markdown-standalone)
-  doc/product-docs/state-tracking/features/3.1.1-logging-system-implementation-state.md:127
-    -> docs/LOGGING.md  (markdown-standalone)
-  doc/product-docs/state-tracking/features/3.1.1-logging-system-implementation-state.md:134
-    -> docs/LOGGING.md  (markdown-standalone)
-  doc/product-docs/state-tracking/permanent/technical-debt-tracking.md:84
-    -> scripts/setup_cicd.py  (markdown-standalone)
-  doc/product-docs/state-tracking/permanent/technical-debt-tracking.md:91
-    -> config-examples/advanced-logging-config.yaml  (markdown-standalone)
-  doc/product-docs/state-tracking/permanent/technical-debt-tracking.md:94
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-5-1-1-cicd-development-tooling-t2.md  (markdown-standalone)
-  doc/product-docs/state-tracking/permanent/technical-debt-tracking.md:107
-    -> config/settings.py  (markdown-standalone)
-  doc/product-docs/state-tracking/permanent/technical-debt-tracking.md:111
-    -> config/settings.py  (markdown-standalone)
-  doc/product-docs/state-tracking/permanent/technical-debt-tracking.md:118
-    -> parsers/patterns.py  (markdown-standalone)
-  doc/product-docs/state-tracking/permanent/technical-debt-tracking.md:161
-    -> .github/workflows/ci.yml  (markdown-standalone)
-  doc/product-docs/state-tracking/permanent/technical-debt-tracking.md:163
-    -> doc/product-docs/functional-design/fdds/fdd-5-1-1-cicd-development-tooling.md  (markdown-standalone)
-  doc/product-docs/state-tracking/permanent/technical-debt-tracking.md:227
-    -> ../../refactoring/plans/your-plan-file.md  (markdown)
-  doc/product-docs/state-tracking/temporary/validation/validation-tracking-2.md:210
-    -> ]+\.[a-zA-Z0-9]+)[\  (markdown-quoted-dir)
-  doc/product-docs/state-tracking/temporary/validation/validation-tracking-2.md:374
-    -> fields/utils.py  (markdown-standalone)
-  doc/product-docs/templates/templates/implementation-handbook-template.md:187
-    -> /doc/product-docs/technical/design/related-design.md  (markdown)
-  doc/product-docs/templates/templates/implementation-handbook-template.md:188
-    -> /doc/product-docs/technical/api/related-api.md  (markdown)
-  doc/product-docs/templates/templates/implementation-handbook-template.md:189
-    -> /doc/product-docs/technical/architecture/adr/related-adr.md  (markdown)
-  doc/product-docs/test-audits/README.md:42
-    -> test/automated/unit/test_example.py  (markdown-quoted)
-  doc/product-docs/user/handbooks/link-validation.md:113
-    -> LinkWatcher/.linkwatcher-ignore  (markdown-quoted-dir)
-  doc/product-docs/user/handbooks/quick-reference.md:88
-    -> src/utils.py  (markdown)
-  doc/product-docs/user/handbooks/quick-reference.md:88
-    -> src/helpers/utils.py  (markdown)
-  doc/product-docs/user/handbooks/quick-reference.md:173
-    -> docs/api.md  (markdown)
-  doc/product-docs/user/handbooks/quick-reference.md:174
-    -> config/settings.yaml  (markdown)
-  doc/product-docs/validation/reports/code-quality/PD-VAL-037-code-quality-features-0.1.1-0.1.2-0.1.3-1.1.1.md:218
-    -> doc/product-docs/refactoring/plans/archive/remove-dual-print-logger-output-in-updater-py.md  (markdown-standalone)
-  doc/product-docs/validation/reports/code-quality/PD-VAL-038-code-quality-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md:215
-    -> .github/workflows/ci.yml  (markdown-standalone)
-  doc/product-docs/validation/reports/code-quality/PD-VAL-048-code-quality-features-0.1.1-0.1.2-0.1.3-1.1.1.md:45
-    -> config/settings.py  (markdown-standalone)
-  doc/product-docs/validation/reports/code-quality/PD-VAL-048-code-quality-features-0.1.1-0.1.2-0.1.3-1.1.1.md:45
-    -> config/defaults.py  (markdown-standalone)
-  doc/product-docs/validation/reports/code-quality/PD-VAL-048-code-quality-features-0.1.1-0.1.2-0.1.3-1.1.1.md:45
-    -> config/__init__.py  (markdown-standalone)
-  doc/product-docs/validation/reports/code-quality/PD-VAL-048-code-quality-features-0.1.1-0.1.2-0.1.3-1.1.1.md:149
-    -> config/settings.py  (markdown-standalone)
-  doc/product-docs/validation/reports/code-quality/PD-VAL-048-code-quality-features-0.1.1-0.1.2-0.1.3-1.1.1.md:149
-    -> config/defaults.py  (markdown-standalone)
-  doc/product-docs/validation/reports/code-quality/PD-VAL-048-code-quality-features-0.1.1-0.1.2-0.1.3-1.1.1.md:149
-    -> config/__init__.py  (markdown-standalone)
-  doc/product-docs/validation/reports/code-quality/PD-VAL-060-code-quality-features-2.1.1-2.2.1-3.1.1-6.1.1.md:105
-    -> ]+\.[a-zA-Z0-9]+)[\  (markdown-quoted-dir)
-  doc/product-docs/validation/reports/documentation-alignment/PD-VAL-042-documentation-alignment-features-0.1.1-0.1.2-0.1.3-1.1.1.md:29
-    -> docs/README.md  (markdown-standalone)
-  doc/product-docs/validation/reports/documentation-alignment/PD-VAL-042-documentation-alignment-features-0.1.1-0.1.2-0.1.3-1.1.1.md:163
-    -> docs/README.md  (markdown-standalone)
-  doc/product-docs/validation/reports/documentation-alignment/PD-VAL-042-documentation-alignment-features-0.1.1-0.1.2-0.1.3-1.1.1.md:163
-    -> docs/README.md  (markdown-standalone)
-  doc/product-docs/validation/reports/documentation-alignment/PD-VAL-042-documentation-alignment-features-0.1.1-0.1.2-0.1.3-1.1.1.md:225
-    -> docs/README.md  (markdown-standalone)
-  doc/product-docs/validation/reports/integration-dependencies/PD-VAL-041-integration-dependencies-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md:190
-    -> Makefile/setup.py  (markdown-standalone)
-  doc/product-docs/validation/reports/integration-dependencies/PD-VAL-058-integration-dependencies-features-2.1.1-2.2.1-3.1.1-6.1.1.md:197
-    -> config/settings.py  (markdown-standalone)
-  test/audits/README.md:42
-    -> test/automated/unit/test_example.py  (markdown-quoted)
-  test/audits/authentication/audit-report-1-1-1-test-comprehensive-file-monitoring.md:62
-    -> .css/.ts/.html  (markdown-standalone)
-  test/audits/authentication/audit-report-1-1-1-test-file-movement.md:137
-    -> ../assets/file.txt  (markdown-quoted)
-  test/audits/authentication/audit-report-1-1-1-test-file-movement.md:137
-    -> assets/file.txt  (markdown-quoted)
-  test/audits/authentication/audit-report-1-1-1-test-image-file-monitoring.md:83
-    -> parsers/generic.py  (markdown-standalone)
-  test/audits/authentication/audit-report-1-1-1-test-powershell-script-monitoring.md:83
-    -> parsers/powershell.py  (markdown-standalone)
-  test/specifications/feature-specs/test-spec-2-2-1-link-updating.md:63
-    -> ../old.txt  (markdown-standalone)
-  test/specifications/feature-specs/test-spec-2-2-1-link-updating.md:63
-    -> ../new.txt  (markdown-standalone)
-  test/specifications/feature-specs/test-spec-2-2-1-link-updating.md:96
-    -> core/helpers.py  (markdown-standalone)
+  process-framework/tasks/00-setup/codebase-feature-analysis.md:110
+    -> ../../state-tracking/features  (markdown)
+  process-framework/tasks/00-setup/codebase-feature-analysis.md:146
+    -> ../../state-tracking/features  (markdown)
+  process-framework/tasks/00-setup/codebase-feature-analysis.md:158
+    -> ../../state-tracking/features  (markdown)
+  process-framework/tasks/00-setup/codebase-feature-discovery.md:92
+    -> node_modules/  (markdown-backtick-dir)
+  process-framework/tasks/00-setup/codebase-feature-discovery.md:102
+    -> docs/  (markdown-backtick-dir)
+  process-framework/tasks/00-setup/project-initiation-task.md:163
+    -> languages-config/  (markdown-backtick-dir)
+  process-framework/tasks/00-setup/retrospective-documentation-creation.md:30
+    -> ../../state-tracking/features  (markdown)
+  process-framework/tasks/00-setup/retrospective-documentation-creation.md:41
+    -> ../../state-tracking/features  (markdown)
+  process-framework/tasks/00-setup/retrospective-documentation-creation.md:87
+    -> ../../state-tracking/features  (markdown)
+  process-framework/tasks/00-setup/retrospective-documentation-creation.md:104
+    -> ../../state-tracking/features  (markdown)
+  process-framework/tasks/00-setup/retrospective-documentation-creation.md:113
+    -> ../../state-tracking/features  (markdown)
+  process-framework/tasks/00-setup/retrospective-documentation-creation.md:122
+    -> ../../state-tracking/features  (markdown)
+  process-framework/tasks/00-setup/retrospective-documentation-creation.md:123
+    -> ../../state-tracking/features  (markdown)
+  process-framework/tasks/00-setup/retrospective-documentation-creation.md:140
+    -> ../../state-tracking/features  (markdown)
+  process-framework/tasks/00-setup/retrospective-documentation-creation.md:166
+    -> ../../state-tracking/features  (markdown)
+  process-framework/tasks/00-setup/retrospective-documentation-creation.md:179
+    -> ../../state-tracking/features  (markdown)
+  process-framework/tasks/00-setup/retrospective-documentation-creation.md:188
+    -> doc/archived-pre-framework/  (markdown-backtick-dir)
+  process-framework/tasks/00-setup/retrospective-documentation-creation.md:201
+    -> /temporary/  (markdown-backtick-dir)
+  process-framework/tasks/00-setup/retrospective-documentation-creation.md:201
+    -> /temporary/archived/  (markdown-backtick-dir)
+  process-framework/tasks/00-setup/retrospective-documentation-creation.md:201
+    -> /temporary/old/  (markdown-backtick-dir)
+  process-framework/tasks/00-setup/retrospective-documentation-creation.md:218
+    -> doc/archived-pre-framework/  (markdown-backtick-dir)
+  process-framework/tasks/00-setup/retrospective-documentation-creation.md:219
+    -> /temporary/archived/  (markdown-backtick-dir)
+  process-framework/tasks/00-setup/retrospective-documentation-creation.md:226
+    -> ../../state-tracking/features  (markdown)
+  process-framework/tasks/00-setup/retrospective-documentation-creation.md:248
+    -> doc/archived-pre-framework/  (markdown-backtick-dir)
+  process-framework/tasks/00-setup/retrospective-documentation-creation.md:251
+    -> /temporary/archived/  (markdown-backtick-dir)
+  process-framework/tasks/01-planning/feature-request-evaluation.md:146
+    -> product-docs/state-tracking/temporary/  (markdown-backtick-dir)
+  process-framework/tasks/01-planning/feature-request-evaluation.md:160
+    -> product-docs/state-tracking/temporary/  (markdown-backtick-dir)
+  process-framework/tasks/01-planning/feature-request-evaluation.md:161
+    -> product-docs/state-tracking/features/  (markdown-backtick-dir)
+  process-framework/tasks/01-planning/feature-tier-assessment-task.md:293
+    -> ../../../product-docs/documentation-tiers/README.md#normalized-scoring-system  (markdown)
+  process-framework/tasks/02-design/adr-creation-task.md:159
+    -> Proposed/Accepted/etc.  (markdown-bare-path)
+  process-framework/tasks/02-design/database-schema-design-task.md:84
+    -> /data/  (markdown-backtick-dir)
+  process-framework/tasks/02-design/database-schema-design-task.md:85
+    -> /doc/product-docs/technical/architecture/database-reference.md  (markdown-backtick)
+  process-framework/tasks/02-design/database-schema-design-task.md:118
+    -> /doc/product-docs/technical/architecture/database-reference.md  (markdown-backtick)
+  process-framework/tasks/02-design/database-schema-design-task.md:118
+    -> /data/  (markdown-backtick-dir)
+  process-framework/tasks/03-testing/e2e-acceptance-test-case-creation-task.md:104
+    -> project/  (markdown-backtick-dir)
+  process-framework/tasks/03-testing/e2e-acceptance-test-case-creation-task.md:104
+    -> expected/  (markdown-backtick-dir)
+  process-framework/tasks/03-testing/e2e-acceptance-test-case-creation-task.md:112
+    -> docs/  (markdown-backtick-dir)
+  process-framework/tasks/03-testing/e2e-acceptance-test-case-creation-task.md:112
+    -> archive/  (markdown-backtick-dir)
+  process-framework/tasks/03-testing/e2e-acceptance-test-case-creation-task.md:116
+    -> project/  (markdown-backtick-dir)
+  process-framework/tasks/03-testing/e2e-acceptance-test-case-creation-task.md:117
+    -> expected/  (markdown-backtick-dir)
+  process-framework/tasks/03-testing/e2e-acceptance-test-case-creation-task.md:136
+    -> project/  (markdown-backtick-dir)
+  process-framework/tasks/03-testing/e2e-acceptance-test-case-creation-task.md:137
+    -> expected/  (markdown-backtick-dir)
+  process-framework/tasks/03-testing/e2e-acceptance-test-case-creation-task.md:156
+    -> project/  (markdown-backtick-dir)
+  process-framework/tasks/03-testing/e2e-acceptance-test-case-creation-task.md:156
+    -> expected/  (markdown-backtick-dir)
+  process-framework/tasks/03-testing/e2e-acceptance-test-execution-task.md:47
+    -> project/  (markdown-backtick-dir)
+  process-framework/tasks/03-testing/e2e-acceptance-test-execution-task.md:47
+    -> expected/  (markdown-backtick-dir)
+  process-framework/tasks/03-testing/test-audit-task.md:262
+    -> /process-framework/scripts/Update-TestFileAuditState.ps1  (markdown-backtick)
+  process-framework/tasks/03-testing/test-implementation-task.md:179
+    -> ../../scripts/tests/validate-test-tracking.ps1  (markdown-backtick)
+  process-framework/tasks/04-implementation/feature-enhancement.md:37
+    -> product-docs/state-tracking/temporary/  (markdown-backtick-dir)
+  process-framework/tasks/04-implementation/feature-enhancement.md:96
+    -> state-tracking/features/  (markdown-backtick-dir)
+  process-framework/tasks/04-implementation/feature-enhancement.md:119
+    -> product-docs/state-tracking/temporary/old/  (markdown-backtick-dir)
+  process-framework/tasks/04-implementation/feature-enhancement.md:125
+    -> product-docs/state-tracking/temporary/  (markdown-backtick-dir)
+  process-framework/tasks/04-implementation/feature-enhancement.md:125
+    -> temporary/old/  (markdown-backtick-dir)
+  process-framework/tasks/04-implementation/feature-enhancement.md:150
+    -> product-docs/state-tracking/temporary/old/  (markdown-backtick-dir)
+  process-framework/tasks/04-implementation/feature-implementation-planning-task.md:103
+    -> /doc/product-docs/technical/ui-design/  (markdown-bare-path)
+  process-framework/tasks/04-implementation/feature-implementation-planning-task.md:110
+    -> /doc/product-docs/technical/testing/  (markdown-bare-path)
+  process-framework/tasks/04-implementation/feature-implementation-planning-task.md:476
+    -> /doc/product-docs/technical/testing/  (markdown-bare-path)
+  process-framework/tasks/04-implementation/foundation-feature-implementation-task.md:183
+    -> scripts/validation/validation-reports/  (markdown-backtick-dir)
+  process-framework/tasks/05-validation/documentation-alignment-validation.md:51
+    -> ../../state-tracking/features/  (markdown)
+  process-framework/tasks/05-validation/validation-preparation.md:102
+    -> state-tracking/temporary/  (markdown-backtick-dir)
+  process-framework/tasks/05-validation/validation-preparation.md:129
+    -> state-tracking/temporary/  (markdown-backtick-dir)
+  process-framework/tasks/05-validation/validation-preparation.md:136
+    -> state-tracking/temporary/  (markdown-backtick-dir)
+  process-framework/tasks/05-validation/validation-preparation.md:150
+    -> state-tracking/temporary/  (markdown-backtick-dir)
+  process-framework/tasks/06-maintenance/bug-fixing-task.md:154
+    -> state-tracking/features/  (markdown-backtick-dir)
+  process-framework/tasks/06-maintenance/bug-fixing-task.md:174
+    -> product-docs/state-tracking/temporary/old/  (markdown-backtick-dir)
+  process-framework/tasks/06-maintenance/bug-fixing-task.md:201
+    -> ../../state-tracking/features/  (markdown)
+  process-framework/tasks/06-maintenance/bug-fixing-task.md:231
+    -> product-docs/state-tracking/temporary/old/  (markdown-backtick-dir)
+  process-framework/tasks/06-maintenance/bug-triage-task.md:44
+    -> ../../state-tracking/features/  (markdown)
+  process-framework/tasks/06-maintenance/bug-triage-task.md:66
+    -> ../../state-tracking/features/  (markdown)
+  process-framework/tasks/06-maintenance/bug-triage-task.md:97
+    -> ../../../product-docs/state-tracking/permanent/bug-tracking.md#scope-levels  (markdown)
+  process-framework/tasks/cyclical/documentation-tier-adjustment-task.md:39
+    -> ../../../product-docs/documentation-tiers/README.md#normalized-scoring-system  (markdown)
+  process-framework/tasks/support/framework-domain-adaptation.md:314
+    -> /process-framework/state-tracking/permanent/legal-document-tracking.md  (markdown-backtick)
+  process-framework/tasks/support/framework-extension-task.md:97
+    -> languages-config/  (markdown-backtick-dir)
+  process-framework/tasks/support/structure-change-task.md:170
+    -> old/  (markdown-backtick-dir)
+  process-framework/tasks/support/structure-change-task.md:170
+    -> proposals/proposals/old/  (markdown-backtick-dir)
+  process-framework/tasks/support/structure-change-task.md:232
+    -> old/  (markdown-backtick-dir)
+  process-framework/tasks/support/tools-review-task.md:162
+    -> processed-forms/  (markdown-backtick-dir)
+  process-framework/tasks/support/tools-review-task.md:167
+    -> processed-forms/  (markdown-backtick-dir)
+  process-framework/templates/support/language-config-template.json:51
+    -> test/conftest.py  (json)
+  process-framework/templates/support/language-config-template.json:51
+    -> test/helpers/test_helpers.dart  (json)
+  process-framework/visualization/context-maps/README.md:44
+    -> /01-planning/  (markdown-backtick-dir)
+  process-framework/visualization/context-maps/README.md:44
+    -> /07-deployment/  (markdown-backtick-dir)
+  process-framework/visualization/context-maps/README.md:45
+    -> /support/  (markdown-backtick-dir)
+  process-framework/visualization/context-maps/README.md:46
+    -> /cyclical/  (markdown-backtick-dir)
+  process-framework/visualization/context-maps/03-testing/test-implementation-map.md:130
+    -> /test/component/  (markdown-backtick-dir)
+  process-framework/visualization/context-maps/03-testing/test-implementation-map.md:135
+    -> /test/e2e/  (markdown-backtick-dir)
+  process-framework/visualization/context-maps/04-implementation/feature-enhancement-map.md:65
+    -> temporary/old/  (markdown-backtick-dir)
+  process-framework/visualization/context-maps/04-implementation/feature-implementation-planning-map.md:133
+    -> /lib/  (markdown-backtick-dir)
+  process-framework/visualization/context-maps/07-deployment/user-documentation-creation-map.md:48
+    -> templates/07-deployment/handbook-template.md  (markdown-backtick)
+  process-framework/visualization/context-maps/support/framework-evaluation-map.md:62
+    -> tasks/  (markdown-backtick-dir)
+  process-framework/visualization/context-maps/support/framework-evaluation-map.md:63
+    -> templates/  (markdown-backtick-dir)
+  process-framework/visualization/context-maps/support/framework-evaluation-map.md:64
+    -> guides/  (markdown-backtick-dir)
+  process-framework/visualization/context-maps/support/framework-evaluation-map.md:65
+    -> scripts/  (markdown-backtick-dir)
+  process-framework/visualization/context-maps/support/framework-evaluation-map.md:69
+    -> visualization/  (markdown-backtick-dir)
+  test/audits/README.md:114
+    -> doc/process-framework/scripts/file-creation/03-testing/  (markdown-bare-path)
+  test/audits/README.md:122
+    -> doc/process-framework/scripts/validation/  (markdown-bare-path)
+  test/audits/authentication/audit-report-1-1-1-test-powershell-script-monitoring.md:59
+    -> ../scripts/setup.ps1  (markdown-backtick)
+  test/audits/authentication/audit-report-1-1-1-test-powershell-script-monitoring.md:59
+    -> ../scripts/cleanup.ps1  (markdown-backtick)
+  test/automated/bug-validation/test_procedures.md:71
+    -> docs/guide.md  (markdown-backtick)
+  test/automated/bug-validation/test_procedures.md:79
+    -> src/utils.py  (markdown-backtick)
+  test/automated/bug-validation/test_procedures.md:79
+    -> src/helpers/  (markdown-backtick-dir)
+  test/automated/bug-validation/test_procedures.md:84
+    -> assets/logo.png  (markdown-backtick)
+  test/automated/bug-validation/test_procedures.md:85
+    -> assets/images/  (markdown-backtick-dir)
+  test/automated/bug-validation/test_procedures.md:112
+    -> docs/api.md  (markdown-backtick)
+  test/automated/bug-validation/test_procedures.md:118
+    -> tests/fixtures/sample.json  (markdown-backtick)
+  test/automated/bug-validation/test_procedures.md:118
+    -> src/  (markdown-backtick-dir)
+  test/automated/bug-validation/test_procedures.md:122
+    -> assets/styles.css  (markdown-backtick)
+  test/automated/bug-validation/test_procedures.md:124
+    -> assets/css/  (markdown-backtick-dir)
+  test/automated/bug-validation/test_procedures.md:129
+    -> tests/  (markdown-backtick-dir)
+  test/automated/bug-validation/test_procedures.md:130
+    -> testing/  (markdown-backtick-dir)
+  test/specifications/feature-specs/test-spec-0-1-1-core-architecture.md:88
+    -> LinkWatcherService.start()/stop()  (markdown-backtick-dir)
 ------------------------------------------------------------

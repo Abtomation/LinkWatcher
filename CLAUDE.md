@@ -12,8 +12,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **CRITICAL**: This project uses a strict task-based approach. Before ANY work:
 
-1. **Read the entry point**: @doc/process-framework/.ai-entry-point.md
-2. **Select a task**: @doc/process-framework/ai-tasks.md - All work MUST be done within a task framework
+1. **Read the entry point**: @process-framework/.ai-entry-point.md
+2. **Select a task**: @process-framework/ai-tasks.md - All work MUST be done within a task framework
 3. **If no task fits**: Ask the user before proceeding
 
 **No exceptions** - working without a task selection violates the project methodology.
@@ -47,7 +47,7 @@ At the start of EVERY session, you must:
 **Preferred pattern** — use `pwsh.exe -Command` with the entire argument wrapped in **bash single quotes**:
 
 ```bash
-cd /c/path/to/script/directory && pwsh.exe -ExecutionPolicy Bypass -Command '& .\Script.ps1 -Param1 "value1" -Param2 "value2" -Confirm:$false'
+cd process-framework/scripts/file-creation && pwsh.exe -ExecutionPolicy Bypass -Command '& .\Script.ps1 -Param1 "value1" -Param2 "value2" -Confirm:$false'
 ```
 
 > **Key rule**: Wrap the entire `-Command` argument in bash single quotes (`'...'`). Inside, use double quotes for PowerShell string parameters. Bash single quotes prevent interpretation of `$`, `&`, and other special characters.
@@ -55,14 +55,14 @@ cd /c/path/to/script/directory && pwsh.exe -ExecutionPolicy Bypass -Command '& .
 **Fallback pattern** — for complex cases where nested quoting is problematic, write a temp `.ps1` file:
 
 ```bash
-cat > /c/path/to/project/temp.ps1 << 'ENDOFSCRIPT'
-Set-Location 'c:\path\to\script\directory'
+cat > temp.ps1 << 'ENDOFSCRIPT'
+Set-Location 'process-framework/scripts/file-creation'
 & .\Script.ps1 -Params -Confirm:$false
 ENDOFSCRIPT
-pwsh.exe -ExecutionPolicy Bypass -File /c/path/to/project/temp.ps1 && rm /c/path/to/project/temp.ps1
+pwsh.exe -ExecutionPolicy Bypass -File temp.ps1 && rm temp.ps1
 ```
 
-See @doc/process-framework/guides/support/script-development-quick-reference.md for details and examples.
+See @process-framework/guides/support/script-development-quick-reference.md for details and examples.
 
 ## Architecture Overview
 
@@ -76,7 +76,7 @@ The project maintains clear separation between two concerns:
 ### Process Framework Structure
 
 ```
-doc/process-framework/
+process-framework/
 ├── tasks/                    # Task definitions by phase
 │   ├── 01-planning/          # Feature planning and assessment
 │   ├── 02-design/            # Technical and functional design
@@ -107,13 +107,13 @@ doc/process-framework/
 
 All framework documents use structured IDs:
 - `PF-XXX-###` format (e.g., `PF-TSK-001` for tasks)
-- Tracked in @doc/process-framework/PF-id-registry.json, @doc/product-docs/PD-id-registry.json, and @test/TE-id-registry.json
+- Tracked in @process-framework/PF-id-registry.json, @doc/product-docs/PD-id-registry.json, and @test/TE-id-registry.json
 
 ## Common Commands
 
 ### Creating Framework Documents
 
-All scripts are in `doc/process-framework/scripts/file-creation`:
+All scripts are in `process-framework/scripts/file-creation`:
 
 ```powershell
 # Create new task definition
@@ -145,20 +145,20 @@ All scripts are in `doc/process-framework/scripts/file-creation`:
 
 ```powershell
 # Validate feedback forms
-doc/process-framework/scripts/validation/Validate-FeedbackForms.ps1
+process-framework/scripts/validation/Validate-FeedbackForms.ps1
 
 # Validate ID registry
-doc/process-framework/scripts/validation/validate-id-registry.ps1
+process-framework/scripts/validation/validate-id-registry.ps1
 
 # Validate state tracking (feature states, cross-references, ID counters)
-doc/process-framework/scripts/validation/Validate-StateTracking.ps1
+process-framework/scripts/validation/Validate-StateTracking.ps1
 ```
 
 ## Task Completion Requirements
 
 **CRITICAL**: Tasks are NOT complete until:
 1. All deliverables are created
-2. Feedback form is completed using templates in doc/process-framework/templates/support/feedback-form-template.md
+2. Feedback form is completed using templates in process-framework/templates/support/feedback-form-template.md
 3. Session duration is manually calculated and entered in feedback form
 4. State files are updated
 
@@ -166,14 +166,14 @@ Each task definition includes a mandatory completion checklist.
 
 ## Key References
 
-- **Task Registry**: @doc/process-framework/ai-tasks.md
-- **Documentation Map**: @doc/process-framework/documentation-map.md (index of all framework documents)
-- **Process Framework README**: @doc/process-framework/README.md
+- **Task Registry**: @process-framework/ai-tasks.md
+- **Documentation Map**: @process-framework/documentation-map.md (index of all framework documents)
+- **Process Framework README**: @process-framework/README.md
 - **Project README**: @README.md
 
 ## Visual Notation
 
-Framework uses standardized diagram formats. See @doc/process-framework/guides/support/visual-notation-guide.md for interpretation.
+Framework uses standardized diagram formats. See @process-framework/guides/support/visual-notation-guide.md for interpretation.
 
 ## LinkWatcher Workflow
 

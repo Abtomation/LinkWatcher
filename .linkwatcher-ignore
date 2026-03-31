@@ -10,35 +10,35 @@
 # ── Template placeholder paths ────────────────────────────────────────
 # Framework-generic templates use example paths that intentionally don't
 # exist in any specific project.
-doc/process-framework/templates/**/*.md -> related-design.md
-doc/process-framework/templates/**/*.md -> related-api.md
-doc/process-framework/templates/**/*.md -> related-adr.md
-doc/process-framework/templates/**/*.md -> related-document.md
-doc/process-framework/templates/**/*.md -> api-reference.md
-doc/process-framework/templates/**/*.md -> related-feature-
-doc/process-framework/templates/**/*.md -> project/docs/readme.md
-doc/process-framework/templates/**/*.md -> your-plan-file.md
-doc/process-framework/templates/**/*.md -> feature_id-feature-name-
-doc/process-framework/templates/**/*.md -> 0.1.2-data-models-
+process-framework/templates/**/*.md -> related-design.md
+process-framework/templates/**/*.md -> related-api.md
+process-framework/templates/**/*.md -> related-adr.md
+process-framework/templates/**/*.md -> related-document.md
+process-framework/templates/**/*.md -> api-reference.md
+process-framework/templates/**/*.md -> related-feature-
+process-framework/templates/**/*.md -> project/docs/readme.md
+process-framework/templates/**/*.md -> your-plan-file.md
+process-framework/templates/**/*.md -> feature_id-feature-name-
+process-framework/templates/**/*.md -> 0.1.2-data-models-
 doc/product-docs/templates/**/*.md -> related-design.md
 doc/product-docs/templates/**/*.md -> related-api.md
 doc/product-docs/templates/**/*.md -> related-adr.md
 
 # ── Guide example paths ──────────────────────────────────────────────
 # Guides use illustrative paths in code examples and prose.
-doc/process-framework/guides/05-validation/documentation-guide.md -> ../../technical/api/reference.md
-doc/process-framework/guides/05-validation/documentation-guide.md -> ../configuration.md
-doc/process-framework/guides/05-validation/documentation-guide.md -> ../../assets/architecture-overview.png
-doc/process-framework/guides/05-validation/documentation-guide.md -> ../related-doc.md
-doc/process-framework/guides/04-implementation/development-guide.md -> tdd-t3-template.md
-doc/process-framework/guides/cyclical/debt-item-creation-guide.md -> lib/auth/
-doc/process-framework/guides/03-testing/test-specification-creation-guide.md -> tdd-feature.md
+process-framework/guides/05-validation/documentation-guide.md -> ../../technical/api/reference.md
+process-framework/guides/05-validation/documentation-guide.md -> ../configuration.md
+process-framework/guides/05-validation/documentation-guide.md -> ../../assets/architecture-overview.png
+process-framework/guides/05-validation/documentation-guide.md -> ../related-doc.md
+process-framework/guides/04-implementation/development-guide.md -> tdd-t3-template.md
+process-framework/guides/cyclical/debt-item-creation-guide.md -> lib/auth/
+process-framework/guides/03-testing/test-specification-creation-guide.md -> tdd-feature.md
 
 # ── Task definition example paths ────────────────────────────────────
-doc/process-framework/tasks/00-setup/codebase-feature-analysis.md -> feature_id-feature-name-
-doc/process-framework/tasks/00-setup/codebase-feature-analysis.md -> 0.1.2-data-models-
-doc/process-framework/tasks/01-planning/system-architecture-review.md -> .ai-workspace/dependency-maps
-doc/process-framework/tasks/02-design/tdd-creation-task.md -> api-design-guidelines.md
+process-framework/tasks/00-setup/codebase-feature-analysis.md -> feature_id-feature-name-
+process-framework/tasks/00-setup/codebase-feature-analysis.md -> 0.1.2-data-models-
+process-framework/tasks/01-planning/system-architecture-review.md -> .ai-workspace/dependency-maps
+process-framework/tasks/02-design/tdd-creation-task.md -> api-design-guidelines.md
 
 # ── User handbook example paths ──────────────────────────────────────
 doc/product-docs/user/handbooks/quick-reference.md -> src/utils.py
@@ -78,14 +78,14 @@ doc/product-docs/state-tracking/permanent/technical-debt-tracking.md -> parsers/
 doc/product-docs/state-tracking/permanent/technical-debt-tracking.md -> your-plan-file.md
 
 # ── Process improvement tracking — historical changelog ───────────────
-doc/process-framework/state-tracking/permanent/process-improvement-tracking.md -> Common-ScriptHelpers.psm1
+process-framework/state-tracking/permanent/process-improvement-tracking.md -> Common-ScriptHelpers.psm1
 
 # ── Evaluation report — findings about deleted artifacts ──────────────
-doc/process-framework/evaluation-reports/**/*.md -> test/test-registry.yaml
-doc/process-framework/evaluation-reports/**/*.md -> test-implementation-map.md
-doc/process-framework/evaluation-reports/**/*.md -> test-infrastructure-guide.md
-doc/process-framework/evaluation-reports/**/*.md -> test-implementation-task.md
-doc/process-framework/evaluation-reports/**/*.md -> Validate-TestTracking.ps1
+process-framework/evaluation-reports/**/*.md -> test/test-registry.yaml
+process-framework/evaluation-reports/**/*.md -> test-implementation-map.md
+process-framework/evaluation-reports/**/*.md -> test-infrastructure-guide.md
+process-framework/evaluation-reports/**/*.md -> test-implementation-task.md
+process-framework/evaluation-reports/**/*.md -> Validate-TestTracking.ps1
 
 # ── Validation report prose mentions ──────────────────────────────────
 # Reports reference files as they existed at analysis time.
@@ -105,15 +105,15 @@ test/specifications/**/*.md -> core/helpers.py
 test/specifications/**/*.md -> docs/
 
 # ── Context map standalone mentions ──────────────────────────────────
-doc/process-framework/visualization/context-maps/**/*.md -> integration-and-testing-map.md
+process-framework/visualization/context-maps/**/*.md -> integration-and-testing-map.md
 
 # ── PowerShell .\  examples in docs ──────────────────────────────────
-doc/process-framework/.ai-entry-point.md -> .\Script.ps1
-doc/process-framework/guides/01-planning/assessment-guide.md -> .\New-TierAssessment.ps1
-doc/process-framework/templates/support/temp-task-creation-state-template.md -> .\New-Task.ps1
-doc/process-framework/templates/support/temp-task-creation-state-template.md -> .\New-Template.ps1
-doc/process-framework/templates/support/temp-task-creation-state-template.md -> .\New-Guide.ps1
-doc/process-framework/templates/support/temp-task-creation-state-template.md -> .\New-ContextMap.ps1
+process-framework/.ai-entry-point.md -> .\Script.ps1
+process-framework/guides/01-planning/assessment-guide.md -> .\New-TierAssessment.ps1
+process-framework/templates/support/temp-task-creation-state-template.md -> .\New-Task.ps1
+process-framework/templates/support/temp-task-creation-state-template.md -> .\New-Template.ps1
+process-framework/templates/support/temp-task-creation-state-template.md -> .\New-Guide.ps1
+process-framework/templates/support/temp-task-creation-state-template.md -> .\New-ContextMap.ps1
 
 # ── Validation state prose mentions ───────────────────────────────────
 doc/product-docs/state-tracking/temporary/validation/validation-tracking-2.md -> fields/utils.py
@@ -136,4 +136,4 @@ doc/product-docs/refactoring/plans/**/*.md -> config/settings.py
 doc/product-docs/refactoring/plans/**/*.md -> parsers/patterns.py
 
 # ── Feedback form prose mentions ─────────────────────────────────────
-doc/process-framework/feedback/feedback-forms/**/*.md -> tasks/README.md
+process-framework/feedback/feedback-forms/**/*.md -> tasks/README.md

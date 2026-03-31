@@ -92,7 +92,7 @@ Determines if the feature requires dedicated database schema design documentatio
 
 This comprehensive approach ensures that both documentation complexity and specialized design needs are identified early in the planning process.
 
-For a detailed guide on how to assess features and assign documentation tiers, see the [Assessment Guide](../../process-framework/guides/01-planning/assessment-guide.md).
+For a detailed guide on how to assess features and assign documentation tiers, see the [Assessment Guide](../../../process-framework/guides/01-planning/assessment-guide.md).
 
 ## File Structure
 
@@ -141,7 +141,7 @@ For details on assessment priority refer to the [Feature Tracking Document](../s
 
 ## Adjusting Tiers During Implementation
 
-During implementation, the actual complexity of a feature may differ from the initial assessment. The [Documentation Tier Adjustment Process](../../process-framework/tasks/cyclical/documentation-tier-adjustment-task.md) provides a structured approach for:
+During implementation, the actual complexity of a feature may differ from the initial assessment. The [Documentation Tier Adjustment Process](../../../process-framework/tasks/cyclical/documentation-tier-adjustment-task.md) provides a structured approach for:
 
 1. Identifying when a tier adjustment is needed during implementation
 2. Reassessing complexity factors based on implementation realities

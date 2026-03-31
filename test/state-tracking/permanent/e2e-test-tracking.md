@@ -10,7 +10,7 @@ state_type: Implementation Status
 ---
 # E2E Acceptance Test Tracking
 
-E2E acceptance tests validate user-facing workflows that span multiple features. They require a running LinkWatcher instance and simulate real user actions. See [User Workflow Map](/doc/product-docs/technical/design/user-workflow-map.md) for workflow definitions and [Cross-Cutting E2E Spec (PF-TSP-044)](/test/specifications/cross-cutting-specs/cross-cutting-spec-e2e-acceptance-testing-scenarios.md) for scenario details.
+E2E acceptance tests validate user-facing workflows that span multiple features. They require a running LinkWatcher instance and simulate real user actions. See [User Workflow Tracking](/doc/product-docs/state-tracking/permanent/user-workflow-tracking.md) for workflow definitions and [Cross-Cutting E2E Spec (PF-TSP-044)](/test/specifications/cross-cutting-specs/cross-cutting-spec-e2e-acceptance-testing-scenarios.md) for scenario details.
 
 > **Split from**: [test-tracking.md](test-tracking.md) (PF-IMP-210) — E2E section was the scalability bottleneck.
 
@@ -101,5 +101,5 @@ When creating new E2E acceptance test cases:
 This file is updated by the following tasks:
 - **E2E Acceptance Test Case Creation** (PF-TSK-069): Adds E2E acceptance test case/group entries
 - **E2E Acceptance Test Execution** (PF-TSK-070): Updates E2E acceptance test execution status and dates
-- **[Update-TestExecutionStatus.ps1](../../../doc/process-framework/scripts/test/e2e-acceptance-testing/Update-TestExecutionStatus.ps1)**: Automates status updates after test execution
-- **[New-E2EAcceptanceTestCase.ps1](../../../doc/process-framework/scripts/file-creation/03-testing/New-E2EAcceptanceTestCase.ps1)**: Automates entry creation for new test cases
+- **[Update-TestExecutionStatus.ps1](../../../process-framework/scripts/test/e2e-acceptance-testing/Update-TestExecutionStatus.ps1)**: Automates status updates after test execution
+- **[New-E2EAcceptanceTestCase.ps1](../../../process-framework/scripts/file-creation/03-testing/New-E2EAcceptanceTestCase.ps1)**: Automates entry creation for new test cases

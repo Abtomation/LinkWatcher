@@ -7,6 +7,7 @@ from string values throughout the JSON structure.
 
 import json
 import os.path
+import re
 from typing import List
 
 from ..models import LinkReference
@@ -15,6 +16,11 @@ from .base import BaseParser
 
 class JsonParser(BaseParser):
     """Parser for JSON files (.json)."""
+
+    def __init__(self):
+        super().__init__()
+        # PD-BUG-061: Pattern for extracting file paths from compound strings
+        self.path_pattern = re.compile(r"([a-zA-Z0-9_\-./\\]+\.[a-zA-Z0-9]+)")
 
     def parse_content(self, content: str, file_path: str) -> List[LinkReference]:
         """Parse JSON content for file references."""
@@ -84,6 +90,14 @@ class JsonParser(BaseParser):
                     item, file_path, lines, references, claimed, f"{path}[{i}]"
                 )
         elif isinstance(data, str):
+            # PD-BUG-061: If the string contains spaces, it may be a compound
+            # command string with embedded paths (e.g., "Bash(python doc/scripts/run.py *)").
+            # Try sub-path extraction first; fall through to whole-string check if nothing found.
+            if " " in data:
+                embedded = self._extract_embedded_paths(data, file_path, lines, references, claimed)
+                if embedded:
+                    return
+
             # Check for file paths (with extension) or directory paths (PD-BUG-030)
             is_file = self._looks_like_file_path(data)
             is_dir = False
@@ -119,3 +133,56 @@ class JsonParser(BaseParser):
                             link_type="json-dir" if is_dir else "json",
                         )
                     )
+
+    def _extract_embedded_paths(
+        self,
+        data: str,
+        file_path: str,
+        lines: List[str],
+        references: List[LinkReference],
+        claimed: set,
+    ) -> bool:
+        """
+        PD-BUG-061: Extract file paths embedded within compound strings.
+
+        When a JSON string value contains spaces (e.g., a permission pattern like
+        "Bash(python doc/scripts/run.py *)"), scan for path-like substrings
+        using a regex pattern.
+
+        Returns True if any embedded paths were found.
+        """
+        found = False
+        line_num = 0
+        val_col_start = 0
+        for match in self.path_pattern.finditer(data):
+            candidate = match.group(1)
+            if "/" not in candidate and "\\" not in candidate:
+                continue
+            if self._looks_like_file_path(candidate):
+                if not found:
+                    line_num = self._find_unclaimed_line(
+                        lines, data, claimed, self._search_start_line
+                    )
+                    if line_num == 0:
+                        return False
+                    claimed.add((data, line_num))
+                    self._search_start_line = line_num - 1
+                    line_content = lines[line_num - 1]
+                    val_col_start = line_content.find(data)
+                    if val_col_start < 0:
+                        val_col_start = 0
+                col_start = val_col_start + match.start(1)
+                col_end = val_col_start + match.end(1)
+                references.append(
+                    LinkReference(
+                        file_path=file_path,
+                        line_number=line_num,
+                        column_start=col_start,
+                        column_end=col_end,
+                        link_text=candidate,
+                        link_target=candidate,
+                        link_type="json",
+                    )
+                )
+                found = True
+        return found

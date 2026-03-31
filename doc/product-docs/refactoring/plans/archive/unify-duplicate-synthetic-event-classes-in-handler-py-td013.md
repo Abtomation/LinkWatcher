@@ -68,4 +68,4 @@ Both mimic watchdog's move event interface (`src_path`, `dest_path`, `is_directo
 
 ## Related Documentation
 - [Technical Debt Tracking](/doc/product-docs/state-tracking/permanent/technical-debt-tracking.md)
-<!-- - [Handler Module Structural Debt Assessment](/doc/process-framework/assessments/technical-debt/assessments/handler-module-structural-debt-assessment.md) - Removed: file deleted -->
+<!-- - [Handler Module Structural Debt Assessment](/process-framework/assessments/technical-debt/assessments/handler-module-structural-debt-assessment.md) - Removed: file deleted -->

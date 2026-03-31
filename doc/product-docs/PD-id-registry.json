@@ -206,7 +206,7 @@
         "permanent": "doc/product-docs/state-tracking/permanent",
         "default": "permanent"
       },
-      "nextAvailable": 60
+      "nextAvailable": 68
     },
     "PD-ASS": {
       "description": "Product Documentation - Assessment Artifacts",
@@ -223,14 +223,14 @@
       "category": "Product Documentation",
       "type": "State",
       "directories": {
-        "permanent": "doc/process-framework/state-tracking/permanent",
-        "temporary": "doc/process-framework/state-tracking/temporary",
-        "main": "doc/process-framework/state-tracking",
+        "permanent": "process-framework/state-tracking/permanent",
+        "temporary": "process-framework/state-tracking/temporary",
+        "main": "doc/product-docs/state-tracking",
         "product-permanent": "doc/product-docs/state-tracking/permanent",
         "product-temporary": "doc/product-docs/state-tracking/temporary",
         "default": "permanent"
       },
-      "nextAvailable": 66
+      "nextAvailable": 67
     },
     "PD-FRQ": {
       "description": "Product Documentation - Feature Requests",
@@ -240,7 +240,7 @@
         "permanent": "doc/product-docs/state-tracking/permanent",
         "default": "permanent"
       },
-      "nextAvailable": 3
+      "nextAvailable": 4
     },
     "PD-FIS": {
       "description": "Product Documentation - Feature Implementation States",
@@ -274,7 +274,7 @@
       "type": "Refactoring Plan",
       "directories": {
         "plans": "doc/product-docs/refactoring/plans",
-        "scripts-update": "doc/process-framework/scripts/update/doc/product-docs/refactoring/plans",
+        "scripts-update": "process-framework/scripts/update/doc/product-docs/refactoring/plans",
         "default": "plans"
       },
       "nextAvailable": 127

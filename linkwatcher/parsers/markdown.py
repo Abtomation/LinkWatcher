@@ -50,9 +50,9 @@ class MarkdownParser(BaseParser):
         # Also matches leading-slash paths like /doc/process-framework/... (PD-BUG-055)
         # Requires at least 2 path segments to reduce false positives.
         self.bare_path_pattern = re.compile(
-            r"(?:^|(?<=\s))"
+            r"(?:^|(?<=\s)|(?<=\())"
             r"(/?[a-zA-Z0-9_.][a-zA-Z0-9_.\-]*(?:[/\\][a-zA-Z0-9_.\-]+){2,}/?)"
-            r"(?=\s|$|&&|\|)"
+            r"(?=\s|$|&&|\||\))"
         )
 
         # Pattern 10: @-prefixed path references — @doc/path/to/file.md (PD-BUG-055)

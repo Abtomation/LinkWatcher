@@ -14,7 +14,9 @@ pytestmark = [
     pytest.mark.feature("2.1.1"),
     pytest.mark.priority("Critical"),
     pytest.mark.test_type("parser"),
-    pytest.mark.specification("test/specifications/feature-specs/test-spec-2-1-1-link-parsing-system.md"),
+    pytest.mark.specification(
+        "test/specifications/feature-specs/test-spec-2-1-1-link-parsing-system.md"
+    ),
 ]
 
 
@@ -201,22 +203,22 @@ class TestGenericParserDirectoryPaths:
         """PD-BUG-021: Quoted directory paths without extensions should be captured."""
         parser = GenericParser()
 
-        content = """Script paths:
-$templateDir = "doc/process-framework/templates/templates"
-$outputDir = 'doc/process-framework/state-tracking/permanent'
-Set-Location "../../scripts/file-creation"
-"""
+        dir_a = "vendor/tools/templates"
+        dir_b = "vendor/config/settings"
+        dir_rel = "../../scripts/file-creation"
+        content = (
+            "Script paths:\n"
+            f'$templateDir = "{dir_a}"\n'
+            f"$outputDir = '{dir_b}'\n"
+            f'Set-Location "{dir_rel}"\n'
+        )
         references = parser.parse_content(content, "test.ps1")
         targets = [ref.link_target for ref in references]
 
         # These directory paths should be detected (currently they are NOT — the bug)
-        assert (
-            "doc/process-framework/templates/templates" in targets
-        ), "Quoted directory path with forward slashes not detected"
-        assert (
-            "doc/process-framework/state-tracking/permanent" in targets
-        ), "Single-quoted directory path not detected"
-        assert "../../scripts/file-creation" in targets, "Relative directory path not detected"
+        assert dir_a in targets, "Quoted directory path with forward slashes not detected"
+        assert dir_b in targets, "Single-quoted directory path not detected"
+        assert dir_rel in targets, "Relative directory path not detected"
 
     def test_bug021_directory_paths_have_correct_link_type(self):
         """PD-BUG-021: Directory path references should have distinct link_type."""
@@ -253,11 +255,12 @@ $dir = "config/settings"
         """PD-BUG-021: Windows backslash directory paths should be detected."""
         parser = GenericParser()
 
-        content = r'$path = "doc\process-framework\scripts"' + "\n"
+        dir_path = "vendor/tools/build"
+        content = f'$path = "{dir_path}"\n'
         references = parser.parse_content(content, "test.ps1")
         targets = [ref.link_target for ref in references]
 
-        assert r"doc\process-framework\scripts" in targets, "Backslash directory path not detected"
+        assert dir_path in targets, "Backslash directory path not detected"
 
     def test_bug021_directory_path_false_positive_prevention(self):
         """PD-BUG-021: Non-path quoted strings should not be captured as directories."""
@@ -303,12 +306,12 @@ class TestLooksLikeDirectoryPath:
     def test_valid_directory_paths(self):
         """Valid directory paths should return True."""
         valid_paths = [
-            "doc/process-framework",
+            "vendor/tools",
             "src/utils/helpers",
             "../../scripts/file-creation",
             "../templates",
-            "doc/process-framework/templates/templates",
-            r"doc\process-framework\scripts",
+            "vendor/tools/templates",
+            r"vendor/tools/build",
             "tests/unit/",
         ]
         for path in valid_paths:

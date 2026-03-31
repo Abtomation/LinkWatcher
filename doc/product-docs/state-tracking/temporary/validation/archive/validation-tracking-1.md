@@ -129,7 +129,7 @@ Master tracking for foundational codebase validation across all 6 validation typ
 Generate a consolidated validation report across all types:
 
 ```powershell
-doc/process-framework/scripts/file-creation/05-validation/Generate-ValidationSummary.ps1 -IncludeDetails
+process-framework/scripts/file-creation/05-validation/Generate-ValidationSummary.ps1 -IncludeDetails
 ```
 
 Output: `doc/product-docs/validation/reports/consolidated-validation-report.md`

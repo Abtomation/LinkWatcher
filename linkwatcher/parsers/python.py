@@ -249,13 +249,88 @@ class PythonParser(BaseParser):
         # Pattern for local import statements (relative imports with dots/slashes)
         self.local_import_pattern = re.compile(r"^\s*(?:import|from)\s+([a-zA-Z0-9_./]+)")
 
+    # Detects triple-quote openers/closers (""" or ''').
+    _TRIPLE_QUOTE_RE = re.compile(r'"""|\'\'\'')
+    # Bare directory path (no surrounding quotes) — for docstring content.
+    _BARE_DIR_RE = re.compile(r"[a-zA-Z0-9_\-./\\]+[/\\][a-zA-Z0-9_\-./\\]*")
+
     def parse_content(self, content: str, file_path: str) -> List[LinkReference]:
         """Parse Python content for file references."""
         try:
             lines = content.split("\n")
             references = []
+            in_docstring = False
+            docstring_quote = None  # tracks which triple-quote opened the block
 
             for line_num, line in enumerate(lines, 1):
+                # --- Docstring state tracking (PD-BUG-062) ---
+                # Count triple-quote occurrences to toggle in/out of docstring
+                tq_matches = list(self._TRIPLE_QUOTE_RE.finditer(line))
+                for tq in tq_matches:
+                    q = tq.group(0)
+                    if not in_docstring:
+                        in_docstring = True
+                        docstring_quote = q
+                    elif q == docstring_quote:
+                        in_docstring = False
+                        docstring_quote = None
+
+                # Determine if this line has docstring content to scan.
+                # Pure body lines (no triple-quotes) are always scanned.
+                # Lines with triple-quotes: extract the text between/around them.
+                is_docstring_line = False
+                docstring_text = None
+                if in_docstring and not tq_matches:
+                    is_docstring_line = True
+                    docstring_text = line
+                elif tq_matches:
+                    # Extract content between/around triple-quotes on this line
+                    # e.g. '"""Templates in doc/foo/"""' → 'Templates in doc/foo/'
+                    parts = self._TRIPLE_QUOTE_RE.split(line)
+                    # parts between triple-quotes contain docstring content
+                    inner = " ".join(parts[i] for i in range(1, len(parts), 2) if i < len(parts))
+                    if inner.strip():
+                        is_docstring_line = True
+                        docstring_text = inner
+
+                if is_docstring_line and docstring_text:
+                    # Reuse comment_pattern for bare file paths (with extension)
+                    for match in self.comment_pattern.finditer(docstring_text):
+                        potential_file = match.group(1)
+                        if self._looks_like_file_path(potential_file):
+                            references.append(
+                                LinkReference(
+                                    file_path=file_path,
+                                    line_number=line_num,
+                                    column_start=match.start(1),
+                                    column_end=match.end(1),
+                                    link_text=potential_file,
+                                    link_target=potential_file,
+                                    link_type="python-docstring",
+                                )
+                            )
+                    # Bare directory paths (no extension, with path separator)
+                    for match in self._BARE_DIR_RE.finditer(docstring_text):
+                        potential_dir = match.group(0)
+                        # Skip if already captured as a file path (has extension)
+                        _, ext = os.path.splitext(potential_dir)
+                        if ext:
+                            continue
+                        if self._looks_like_directory_path(potential_dir):
+                            references.append(
+                                LinkReference(
+                                    file_path=file_path,
+                                    line_number=line_num,
+                                    column_start=match.start(0),
+                                    column_end=match.end(0),
+                                    link_text=potential_dir,
+                                    link_target=potential_dir,
+                                    link_type="python-docstring-dir",
+                                )
+                            )
+                    if not tq_matches:
+                        continue  # skip normal parsing for pure docstring body lines
+
                 # Skip standard library imports but process local imports
                 _m = _IMPORT_MODULE_RE.match(line)
                 if _m and _m.group(1) in _STDLIB_TOP_LEVEL_MODULES:
