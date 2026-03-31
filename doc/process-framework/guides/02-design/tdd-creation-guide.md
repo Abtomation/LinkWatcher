@@ -137,6 +137,32 @@ The TDD templates are designed with tier-specific structures that scale document
 - **Implementation guidance**: Tier-appropriate level of technical direction
 - **Testing considerations**: Scaled to feature complexity
 
+### Dimension-Informed Quality Attribute Depth (D10)
+
+When a feature has a **Dimension Profile** (from Feature Implementation Planning), use it to control the depth of quality attribute subsections in the TDD. The principle: **Critical dimensions get one tier higher depth** than the feature's base tier.
+
+| Base Tier | N/A Dimension | Relevant Dimension | Critical Dimension |
+|-----------|--------------|-------------------|-------------------|
+| Tier 1 | Omit subsection | Tier 1 depth (brief note) | **Tier 2 depth** (requirements + approach) |
+| Tier 2 | Omit subsection | Tier 2 depth (standard) | **Tier 3 depth** (comprehensive + measurement) |
+| Tier 3 | Omit subsection | Tier 3 depth (standard) | Tier 3 depth (already maximum) |
+
+**Dimension → TDD quality attribute subsection mapping:**
+
+| Dimension | TDD Subsection |
+|-----------|---------------|
+| SE (Security) | Security Design — threat model, input validation, auth, secrets |
+| PE (Performance) | Performance Design — complexity targets, I/O strategy, resource budgets |
+| DI (Data Integrity) | Data Integrity Design — atomicity, consistency, error recovery, backup |
+| OB (Observability) | Observability Design — logging strategy, error tracing, monitoring hooks |
+| UX (Accessibility) | Accessibility Design — standards compliance, keyboard nav, screen reader |
+| EM (Extensibility) | Extensibility Design — plugin points, configuration, upgrade paths |
+| AC, ID | Usually covered in main TDD body (component design, interfaces) |
+| CQ | Usually referenced, not detailed in TDD |
+| DA | N/A — DA is about documentation itself |
+
+See the [Development Dimensions Guide](../framework/development-dimensions-guide.md) for dimension definitions and the TDD Creation task (PF-TSK-015, step 9) for the process.
+
 ## Customization Decision Points
 
 When creating and customizing TDDs, you'll face several critical decisions that impact the effectiveness of your design documentation:

@@ -15,6 +15,9 @@ param(
     [string]$Description = "",
 
     [Parameter(Mandatory = $false)]
+    [string]$Dims = "",
+
+    [Parameter(Mandatory = $false)]
     [switch]$OpenInEditor
 )
 
@@ -43,6 +46,12 @@ $customReplacements = @{
 # Add description if provided
 if ($Description -ne "") {
     $customReplacements["[Brief description of what is being enhanced]"] = $Description
+}
+
+# Add inherited dimensions if provided
+if ($Dims -ne "") {
+    $customReplacements["[List inherited dimension abbreviations with importance]"] = $Dims
+    $additionalMetadataFields["inherited_dimensions"] = $Dims
 }
 
 # Create the document using standardized process with custom filename pattern

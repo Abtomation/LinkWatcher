@@ -42,8 +42,9 @@ Plans a validation round by selecting features to validate, evaluating which val
 
 - **Important (Load If Space):**
 
+  - **Feature Implementation State Files** - [Feature States Directory](../../../product-docs/state-tracking/features) - Implementation status details per feature, including **Dimension Profiles** (primary source for dimension applicability)
+  - **Development Dimensions Guide** - [Development Dimensions Guide](../../guides/framework/development-dimensions-guide.md) - Dimension definitions and applicability criteria
   - **Technical Design Documents** - [TDD Directory](../../../product-docs/technical/architecture/design-docs/tdd) - Feature specifications for understanding what each feature does
-  - **Feature Implementation State Files** - [Feature States Directory](../../state-tracking/features) - Implementation status details per feature
   - **Previous Validation Reports** - [Validation Reports](../../../product-docs/validation/reports) - Prior validation results for context
 
 - **Reference Only (Access When Needed):**
@@ -75,21 +76,28 @@ Plans a validation round by selecting features to validate, evaluating which val
 5. **Review Dimension Catalog**: Consult the Dimension Catalog in the [Feature Validation Guide](../../guides/05-validation/feature-validation-guide.md) to understand all available validation dimensions and their applicability criteria
 6. **Evaluate Dimension Applicability**: For each selected feature, determine which dimensions apply:
 
+   **Primary source**: Read the feature's **Dimension Profile** from its [implementation state file](../../../product-docs/state-tracking/features/). If a profile exists, use it as the starting point — the profile was evaluated during Feature Implementation Planning (PF-TSK-044) with full design context. Verify and update if implementation has changed the picture.
+
+   **Fallback** (legacy features without profiles): Evaluate from scratch using the criteria below.
+
    | Dimension | Apply When |
    |-----------|-----------|
-   | Architectural Consistency | Universal — always apply |
-   | Code Quality & Standards | Universal — always apply |
-   | Integration & Dependencies | Universal — always apply |
-   | Documentation Alignment | Universal — always apply |
-   | Extensibility & Maintainability | Apply for growing/evolving projects |
-   | AI Agent Continuity | Apply for AI-assisted development workflows |
-   | Security & Data Protection | Apply when feature handles user input, auth, sensitive data, or external APIs |
-   | Performance & Scalability | Apply when feature involves I/O, large data, real-time processing, or production load |
-   | Observability | Apply when feature has background processes, async operations, or production monitoring needs |
-   | Accessibility / UX Compliance | Apply when feature has UI components or user-facing interactions |
-   | Data Integrity | Apply when feature modifies, transforms, or migrates data |
+   | Architectural Consistency (AC) | Universal — always apply |
+   | Code Quality & Standards (CQ) | Universal — always apply |
+   | Integration & Dependencies (ID) | Universal — always apply |
+   | Documentation Alignment (DA) | Universal — always apply |
+   | Extensibility & Maintainability (EM) | Apply for growing/evolving projects |
+   | Security & Data Protection (SE) | Apply when feature handles user input, auth, sensitive data, or external APIs |
+   | Performance & Scalability (PE) | Apply when feature involves I/O, large data, real-time processing, or production load |
+   | Observability (OB) | Apply when feature has background processes, async operations, or production monitoring needs |
+   | Accessibility / UX Compliance (UX) | Apply when feature has UI components or user-facing interactions |
+   | Data Integrity (DI) | Apply when feature modifies, transforms, or migrates data |
 
    Mark dimensions as **N/A** for features where they don't apply, with brief rationale.
+
+   > **Note**: AI Agent Continuity is a standalone validation task (PF-TSK-036) — it is not a development dimension and does not appear in feature Dimension Profiles. Include it in validation rounds for projects using AI-assisted development workflows.
+
+   > **Feedback loop**: If validation discovers that a dimension was incorrectly marked N/A during planning, update the feature's Dimension Profile in its implementation state file for future work.
 
 7. **Create Validation Tracking State File**: Copy the [Validation Tracking Template](../../templates/05-validation/validation-tracking-template.md) to `state-tracking/temporary/` with a descriptive name (e.g., `validation-round-2-features-X.Y.Z-A.B.C.md`). Customize:
    - Fill in feature rows with selected features

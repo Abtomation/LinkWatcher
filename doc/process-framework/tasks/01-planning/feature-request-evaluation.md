@@ -44,7 +44,8 @@ This task evaluates incoming change requests to determine whether they represent
 
 - **Important (Load If Space):**
 
-  - Feature State Files (`state-tracking/features/X.Y.Z-*-implementation-state.md`) — Implementation state of candidate target features
+  - Feature State Files (`state-tracking/features/X.Y.Z-*-implementation-state.md`) — Implementation state of candidate target features (includes Dimension Profile for inheritance)
+  - [Development Dimensions Guide](../../guides/framework/development-dimensions-guide.md) — Dimension definitions and applicability criteria for evaluating if enhancement scope changes dimension applicability
   - Existing Design Docs (FDD, TDD, ADR) associated with the target feature — For understanding current scope and design
   - [Enhancement Workflow Concept (PF-PRO-002)](../../proposals/proposals/old/enhancement-workflow-concept.md) — Full design rationale for this workflow
 
@@ -103,11 +104,18 @@ This task evaluates incoming change requests to determine whether they represent
    - Are new tests required, or only modifications to existing tests?
    - Does the enhancement affect the feature's public interface or only internal implementation?
 
-8. **Create Enhancement State Tracking File(s)** — Use the `New-EnhancementState.ps1` script for each target feature:
+8. **Evaluate dimension impact** — For each target feature:
+   - Read the parent feature's **Dimension Profile** from its implementation state file
+   - Evaluate if the enhancement scope **changes** dimension applicability (e.g., adds SE concerns because enhancement handles new user input, or adds DI concerns because enhancement introduces file write operations)
+   - Note any dimensions that become newly Critical or Relevant, and any that are reduced
+   - This information will be recorded in the Enhancement State Tracking File's Dimension Impact Assessment section
+
+9. **Create Enhancement State Tracking File(s)** — Use the `New-EnhancementState.ps1` script for each target feature:
    ```powershell
    cd doc/process-framework/scripts/file-creation
-   ./New-EnhancementState.ps1 -TargetFeature "[Feature ID]" -EnhancementName "[Brief Name]" -Description "[Scope description]"
+   ./New-EnhancementState.ps1 -TargetFeature "[Feature ID]" -EnhancementName "[Brief Name]" -Description "[Scope description]" -Dims "SE,PE,DI"
    ```
+   The `-Dims` parameter populates the Dimension Impact Assessment section with inherited and adjusted dimensions from step 8.
    **Multi-feature requests**: Run the script once per target feature. In each generated state file, add a "Related Enhancement State Files" section listing the other state files created for the same change request, so the Feature Enhancement task can coordinate the work.
 
    Then customize each generated file following the [Enhancement State Tracking Customization Guide](../../guides/04-implementation/enhancement-state-tracking-customization-guide.md). The template contains 17 pre-defined workflow blocks mirroring the standard feature development workflow. Customization involves:
@@ -119,8 +127,8 @@ This task evaluates incoming change requests to determine whether they represent
 
 ### Phase 3: Finalization
 
-9. **🚨 CHECKPOINT**: Present completed Enhancement State Tracking File to human partner for review before finalizing
-10. **Update tracking files** — If this request originated from [Feature Request Tracking](../../../product-docs/state-tracking/permanent/feature-request-tracking.md), close the request and update feature-tracking using [`Update-FeatureRequest.ps1`](../../scripts/update/Update-FeatureRequest.ps1):
+10. **🚨 CHECKPOINT**: Present completed Enhancement State Tracking File (including Dimension Impact Assessment) to human partner for review before finalizing
+11. **Update tracking files** — If this request originated from [Feature Request Tracking](../../../product-docs/state-tracking/permanent/feature-request-tracking.md), close the request and update feature-tracking using [`Update-FeatureRequest.ps1`](../../scripts/update/Update-FeatureRequest.ps1):
     ```powershell
     cd doc/process-framework/scripts/update
     .\Update-FeatureRequest.ps1 -RequestId "PD-FRQ-XXX" -Classification "Enhancement" -FeatureId "X.Y.Z" -NewStatus "Completed" -EnhancementStateFile "Enhancement State File: [PF-STA-XXX](path/to/file.md)" -Notes "Enhancement State File created"
@@ -128,7 +136,7 @@ This task evaluates incoming change requests to determine whether they represent
     This script moves the request to Completed in feature-request-tracking.md and sets the target feature's status to "🔄 Needs Revision" in feature-tracking.md with a link to the Enhancement State Tracking File.
 
     If the request did NOT originate from feature-request-tracking (e.g., ad-hoc human request), manually set the target feature's status to "🔄 Needs Revision" in `feature-tracking.md` and add a link to the Enhancement State Tracking File.
-11. **MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+12. **MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 
@@ -138,6 +146,7 @@ This task evaluates incoming change requests to determine whether they represent
 - **For enhancements**: Customized Enhancement State Tracking File in `product-docs/state-tracking/temporary/` with:
   - Target feature identification and existing doc inventory
   - Scope assessment using practical criteria
+  - **Dimension Impact Assessment** — inherited dimensions from parent feature's profile, with any adjustments for the enhancement scope (new Critical/Relevant dimensions, reduced dimensions)
   - 17 workflow blocks each evaluated as Applicable/Not Applicable with rationale and adaptation notes
   - Session boundary planning (for multi-session enhancements)
   - **Updated feature tracking** — Target feature set to "🔄 Needs Revision" with link to state file (enhancement path only)

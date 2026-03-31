@@ -103,7 +103,8 @@ Section 4 includes an **"Existing Project Documentation"** subsection for onboar
 
 5. **Code Inventory** - Complete inventory of files created, modified, and used by the feature (see detailed explanation below)
 6. **Dependencies** - Feature, system, and code-level dependencies tracking
-7. **Design Decisions** - Architectural choices, patterns, and their rationale
+7. **Dimension Profile** - Quality dimension applicability (Critical/Relevant/N/A) evaluated during Feature Implementation Planning — see [Understanding Dimension Profiles](#understanding-dimension-profiles) below
+8. **Design Decisions** - Architectural choices, patterns, and their rationale
 
 #### Understanding Code Inventory Subsections
 
@@ -130,10 +131,21 @@ The Code Inventory section has three critical subsections with **different purpo
 > - (a) = What does my feature import? (Direct deps)
 > - (b) = Who imports my feature? (Reverse deps for impact analysis)
 
+#### Understanding Dimension Profiles
+
+The **Dimension Profile** section records which quality dimensions apply to this feature, evaluated during Feature Implementation Planning (PF-TSK-044) using the [Development Dimensions Guide](../framework/development-dimensions-guide.md).
+
+- **Purpose**: Single source of truth for dimension awareness during implementation, review, and validation
+- **Structure**: Two tables — "Applicable Dimensions" (with importance level and key considerations) and "Not Applicable" (with rationale)
+- **Importance levels**: **Critical** (central to feature quality — requires explicit checklist compliance), **Relevant** (applies but not primary concern — good practice), **N/A** (does not apply)
+- **Who populates it**: The Feature Implementation Planning task (PF-TSK-044) evaluates dimension applicability during step 5 and records it when initializing the state file
+- **Who consumes it**: Implementation tasks read Critical dimensions to focus attention; Code Review reads it to prioritize review areas; Validation Preparation uses it as the primary source for dimension selection
+- **When to update**: If implementation reveals a dimension was incorrectly evaluated (e.g., SE becomes Critical after discovering user input handling), update the profile. Validation rounds may also trigger updates via the feedback loop.
+
 ### Active Work Sections
 
-8. **Issues & Resolutions Log** - Problems encountered, tech debt, and known limitations
-9. **Next Steps** - Clear actionable guidance for next session or developer
+9. **Issues & Resolutions Log** - Problems encountered, tech debt, and known limitations
+10. **Next Steps** - Clear actionable guidance for next session or developer
 
 ## Living Documentation Principles
 

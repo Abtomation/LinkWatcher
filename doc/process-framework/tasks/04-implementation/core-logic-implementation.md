@@ -37,7 +37,7 @@ Implement core business logic modules, wire integration points, and write unit t
 
 - **Critical (Must Read):**
 
-  - **Feature Implementation State File** - The permanent state tracking document containing implementation progress, task sequence, and context
+  - **Feature Implementation State File** - The permanent state tracking document containing implementation progress, task sequence, context, and **Dimension Profile**
   - **Implementation Plan** - Task sequence and dependencies from Feature Implementation Planning (PF-TSK-044)
   - **TDD (Technical Design Document)** - Module specifications, interface contracts, and component design (if Tier 2+)
 
@@ -69,6 +69,7 @@ Implement core business logic modules, wire integration points, and write unit t
    - Understand which modules and components need to be created
    - Review task dependencies — confirm prerequisite tasks (data layer, etc.) are complete
    - Identify the specific deliverables for this coding phase
+   - **Read the feature's Dimension Profile** — note Critical dimensions that require explicit attention during implementation (e.g., SE Critical → validate all inputs, PE Critical → avoid O(n²) patterns)
 2. **Review Design Documentation**: Study the TDD and FDD (if applicable)
    - Understand interface contracts and module responsibilities
    - Note configuration points and extension requirements
@@ -122,10 +123,12 @@ Implement core business logic modules, wire integration points, and write unit t
    - Run existing test suite — confirm no regressions
    - Verify the module integrates correctly with the rest of the system
    - Check that all implementation plan items for this phase are addressed
+   - **Verify Critical dimensions are addressed**: For each Critical dimension in the feature's Dimension Profile, confirm the implementation checklist from the [Development Dimensions Guide](../../guides/framework/development-dimensions-guide.md) has been followed
 10. **Bug Discovery**: Systematically identify and document any bugs discovered during implementation or testing:
     - Implementation bugs (logic errors, edge case failures)
     - Integration problems (issues when wiring to existing components)
     - Error handling gaps (missing or inadequate error handling)
+    - Tag discovered bugs with affected dimensions (e.g., `-Dims "SE,DI"`) when creating bug reports
 
     If bugs are found that will not be fixed in this session:
 

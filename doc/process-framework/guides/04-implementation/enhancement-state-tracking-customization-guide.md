@@ -69,6 +69,19 @@ Replace each criterion in the Scope Assessment table based on your analysis:
 
 **Expected Result:** Each criterion has a specific assessment, not a placeholder.
 
+### Step 2a: Populate the Dimension Impact Assessment
+
+The Enhancement State Tracking File includes a **Dimension Impact Assessment** section (populated by the `-Dims` parameter when running `New-EnhancementState.ps1`). Customize it:
+
+1. **Review inherited dimensions**: The section shows the parent feature's Dimension Profile inherited from its implementation state file
+2. **Evaluate changes**: Determine if the enhancement scope adds, elevates, or reduces any dimensions:
+   - **New Critical/Relevant**: Does the enhancement introduce new concerns? (e.g., adds file writes → DI becomes Critical; adds user input handling → SE becomes Critical)
+   - **Reduced**: Are any parent dimensions no longer relevant for this enhancement scope?
+3. **Document key considerations**: For each applicable dimension, note specific implementation concerns for this enhancement
+4. Refer to the [Development Dimensions Guide](../framework/development-dimensions-guide.md) for dimension applicability criteria
+
+**Expected Result:** Inherited dimensions listed, any adjustments documented with rationale, key considerations per applicable dimension.
+
 ### Step 3: Populate the Documentation Inventory
 
 For each row in the Existing Documentation Inventory table:

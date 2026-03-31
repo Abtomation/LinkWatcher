@@ -19,7 +19,7 @@ cd doc/process-framework/scripts/file-creation/06-maintenance
 
 For batch mode: copy the "Item N" section in the generated plan for each additional debt item.
 
-**L2. Fill Item Scope**: For each item in the plan, fill in the Scope, Debt Item ID, and Test Baseline fields.
+**L2. Fill Item Scope**: For each item in the plan, fill in the Scope, Debt Item ID, and Test Baseline fields. Read the tech debt item's **Dims** column from [Technical Debt Tracking](../../../product-docs/state-tracking/permanent/technical-debt-tracking.md) to understand which dimension(s) the refactoring should improve along.
 
 **L3. 🚨 CHECKPOINT**: Present the plan (scope + changes) to human partner for approval before implementing.
 
@@ -42,6 +42,7 @@ For batch mode: copy the "Item N" section in the generated plan for each additio
    - [ ] [Technical Debt Tracking](../../../product-docs/state-tracking/permanent/technical-debt-tracking.md): Mark resolved items using `Update-TechDebt.ps1 -DebtId "TD###" -NewStatus "Resolved" -ResolutionNotes "..."` — if tracked in a validation tracking file, also pass `-ValidationNote "PD-REF-### — description"` (validation file auto-discovered)
    - [ ] [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md): Update feature status if applicable
    - [ ] [Bug Tracking](../../../product-docs/state-tracking/permanent/bug-tracking.md): Report any discovered bugs using New-BugReport.ps1
+   - [ ] **Archive Refactoring Plan**: Move completed plan to `doc/product-docs/refactoring/plans/archive/`
 
 **L9. 🚨 CHECKPOINT**: Present results summary to human partner for review.
 
@@ -61,4 +62,5 @@ For batch mode: copy the "Item N" section in the generated plan for each additio
   - [ ] [Technical Debt Tracking](../../../product-docs/state-tracking/permanent/technical-debt-tracking.md): resolved items updated via `Update-TechDebt.ps1`
   - [ ] [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md): feature status updated if applicable
   - [ ] [Bug Tracking](../../../product-docs/state-tracking/permanent/bug-tracking.md): any discovered bugs added
+  - [ ] Refactoring plan archived to `doc/product-docs/refactoring/plans/archive/`
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-022" and context "Code Refactoring Task"

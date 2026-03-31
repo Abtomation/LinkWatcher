@@ -81,7 +81,7 @@ Verify unit test completeness, implement integration and cross-component tests, 
 2. **Review TDD Test Requirements**: Read testing section from TDD to understand required test scenarios, acceptance criteria, and coverage thresholds
 3. **Analyze Implementation Code**: Review all implemented code to understand integration points, component boundaries, and potential failure scenarios
 4. **Identify Test Scenarios**: Determine which test types are needed based on the specification and project language (check `project-config.json` for valid test types)
-5. **Plan Test Strategy**: Map out test types needed, mock/stub requirements, test data setup, and prioritize by risk
+5. **Plan Test Strategy**: Map out test types needed, mock/stub requirements, test data setup, and prioritize by risk. **Ensure test coverage addresses Critical dimensions** from the feature's Dimension Profile — e.g., Critical PE → include performance regression tests, Critical DI → include data integrity/atomicity tests, Critical SE → include input validation and security boundary tests
 6. **🚨 CHECKPOINT**: Present test specification review, implementation code analysis, identified test scenarios, and test strategy to human partner for approval before implementation
 
 ### Execution

@@ -41,6 +41,7 @@ Systematic approach to identifying, categorizing, and prioritizing technical deb
 
 - **Important (Load If Space):**
 
+  - [Development Dimensions Guide](../../guides/framework/development-dimensions-guide.md) - Dimension definitions and abbreviations for tagging debt items with their primary dimension (AC, CQ, ID, DA, EM, SE, PE, OB, UX, DI, TST)
   - [Architecture Documentation](/doc/product-docs/technical/architecture/) - System architecture and design patterns
   - [Coding Standards](/doc/process-framework/guides/03-testing) - Project coding standards and best practices
   - **Test Coverage Reports** - Current test coverage metrics and gaps
@@ -72,20 +73,24 @@ Systematic approach to identifying, categorizing, and prioritizing technical deb
 
 ### Assessment Phase
 
-5. **Systematic Code Analysis**: Review code areas using standardized debt identification criteria:
+5. **Systematic Code Analysis**: Review code areas using the [Development Dimensions Guide](../../guides/framework/development-dimensions-guide.md) as the lens for identifying debt. Scan for issues across these categories (dimension abbreviation in parentheses):
 
-   - **Architectural Issues**: System design problems, missing patterns, coupling issues
-   - **Code Quality Issues**: Readability, maintainability, duplication, complexity
-   - **Testing Gaps**: Missing tests, inadequate coverage, test quality issues
-   - **Documentation Debt**: Missing, outdated, or inadequate documentation
-   - **Performance Issues**: Known bottlenecks, inefficient algorithms, resource usage
-   - **Security Concerns**: Vulnerabilities, insecure patterns, missing validations
-   - **Accessibility Issues**: Missing accessibility features or compliance gaps
-   - **UX Compromises**: User experience issues requiring technical solutions
+   - **Architectural Issues** (AC): System design problems, missing patterns, coupling issues
+   - **Code Quality Issues** (CQ): Readability, maintainability, duplication, complexity
+   - **Integration Issues** (ID): Fragile interfaces, tight coupling between components
+   - **Documentation Debt** (DA): Missing, outdated, or inadequate documentation
+   - **Extensibility & Maintainability Issues** (EM): Missing extension points, rigid design
+   - **Security Concerns** (SE): Vulnerabilities, insecure patterns, missing validations
+   - **Performance Issues** (PE): Known bottlenecks, inefficient algorithms, resource usage
+   - **Observability Gaps** (OB): Missing logging, insufficient error tracing
+   - **Accessibility / UX Issues** (UX): Missing accessibility features, compliance gaps, UX compromises
+   - **Data Integrity Issues** (DI): Missing atomicity, inconsistent state handling
+   - **Testing Gaps** (TST): Missing tests, inadequate coverage, test quality issues
 
 6. **Document Debt Items**: For each identified debt item, document:
    - Detailed description and location
-   - Category and severity assessment
+   - **Primary dimension(s)**: Tag with standard dimension abbreviation(s) from the [Development Dimensions Guide](../../guides/framework/development-dimensions-guide.md) — AC, CQ, ID, DA, EM, SE, PE, OB, UX, DI, or TST (Testing). This replaces the free-text category and enables prioritization by dimension impact (e.g., SE-tagged debt ranks higher)
+   - Severity assessment
    - Impact on development velocity, maintainability, and system stability
    - Estimated effort required for remediation
    - Risk assessment if left unaddressed
@@ -121,8 +126,8 @@ Systematic approach to identifying, categorizing, and prioritizing technical deb
    **OPTION B - Individual Item Addition:**
 
    ```powershell
-   # Add individual debt items manually
-   .\doc\process-framework\scripts\update\Update-TechDebt.ps1 -Add -Description "Description" -Category "Category" -Location "Location" -Priority "Priority" -EstimatedEffort "Effort" -DebtItemId "PF-TDI-XXX" -AssessmentId "PF-TDA-XXX"
+   # Add individual debt items manually (use dimension abbreviation for -Category: AC, CQ, ID, DA, EM, SE, PE, OB, UX, DI, TST)
+   .\doc\process-framework\scripts\update\Update-TechDebt.ps1 -Add -Description "Description" -Category "PE" -Location "Location" -Priority "Priority" -EstimatedEffort "Effort" -DebtItemId "PF-TDI-XXX" -AssessmentId "PF-TDA-XXX"
    ```
 
    **Automation Benefits:**

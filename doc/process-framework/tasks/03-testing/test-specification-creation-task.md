@@ -126,17 +126,18 @@ When referencing other tasks' outputs in Test Specifications:
 1. **Review the Functional Design Document (FDD)**: For Tier 2+ features, read the FDD to understand acceptance criteria and user flows that need testing
 2. **Review the Target TDD**: Read the complete Technical Design Document for the feature
 3. **Review UI Documentation** (if applicable): For features with UI interactions, review any UI documentation linked from feature tracking to identify scenarios requiring manual validation with the running system
-4. **Assess Test Complexity**: Review the feature's tier assessment to determine appropriate test depth:
+4. **Review Dimension Profile**: Read the feature's Dimension Profile from its implementation state file. Include test scenarios for **Critical** dimensions — e.g., Critical SE → security boundary tests, Critical PE → performance regression scenarios, Critical DI → data integrity edge cases. Consider creating focused test specs even for Tier 1/2 features when they have Critical SE, PE, or DI dimensions.
+5. **Assess Test Complexity**: Review the feature's tier assessment to determine appropriate test depth:
    - **Tier 1 🔵**: Basic unit tests and key integration scenarios
    - **Tier 2 🟠**: Comprehensive unit tests, integration tests, and UI/component tests
    - **Tier 3 🔴**: Full test suite including unit, integration, UI/component, and end-to-end tests
-5. **Analyze Existing Test Structure**: Review current test organization and identify patterns to follow
-6. **Identify Test Dependencies**: Determine what mocks, helpers, and test utilities are needed
-7. **🚨 CHECKPOINT**: Present test complexity assessment, existing test structure analysis, and identified dependencies to human partner for approval
+6. **Analyze Existing Test Structure**: Review current test organization and identify patterns to follow
+7. **Identify Test Dependencies**: Determine what mocks, helpers, and test utilities are needed
+8. **🚨 CHECKPOINT**: Present test complexity assessment, dimension profile test implications, existing test structure analysis, and identified dependencies to human partner for approval
 
 ### Execution
 
-8. **Create Test Specification Document**: Create a new file in `/test/specifications/feature-specs/`
+9. **Create Test Specification Document**: Create a new file in `/test/specifications/feature-specs/`
 
    ```powershell
    # Navigate to test specifications directory
@@ -147,7 +148,7 @@ When referencing other tasks' outputs in Test Specifications:
    New-Item -ItemType File -Name "test-spec-[FEATURE-ID]-[feature-name].md"
    ```
 
-9. **Define Test Categories**: Based on the TDD, create test specifications for:
+10. **Define Test Categories**: Based on the TDD, create test specifications for:
 
    - **Unit Tests**: Individual component/service testing
    - **Integration Tests**: Component interaction testing
@@ -155,7 +156,7 @@ When referencing other tasks' outputs in Test Specifications:
    - **End-to-End Tests**: Complete user flow testing (Tier 3 only)
    - **Cross-Feature Workflows**: Reference [User Workflow Map](/doc/product-docs/technical/design/user-workflow-map.md) to list which user workflows this feature participates in. For each workflow, note whether this is the **last** feature needed — if so, a cross-cutting E2E test specification should be created (milestone trigger)
 
-10. **Specify Test Cases**: For each test category, define:
+11. **Specify Test Cases**: For each test category, define:
 
     - **Test Description**: What behavior is being tested
     - **Arrange**: Setup requirements and test data
@@ -163,49 +164,49 @@ When referencing other tasks' outputs in Test Specifications:
     - **Assert**: Expected outcomes and validation criteria
     - **Edge Cases**: Boundary conditions and error scenarios
 
-11. **Classify Test Scenarios**: For each test scenario in the specification, classify as:
+12. **Classify Test Scenarios**: For each test scenario in the specification, classify as:
     - **`automated`** — Covered by unit/integration tests that an AI agent can implement and run
     - **`e2e`** — Requires human interaction with the running system (file moves, UI operations, observing real-time behavior). Validated through E2E acceptance testing
     - **`both`** — Needs automated regression test + E2E acceptance validation
 
-12. **Define E2E Acceptance Test Requirements**: For scenarios classified as `e2e` or `both`, specify in a dedicated "E2E Acceptance Test Scenarios" section:
+13. **Define E2E Acceptance Test Requirements**: For scenarios classified as `e2e` or `both`, specify in a dedicated "E2E Acceptance Test Scenarios" section:
     - What user action triggers the test
     - What file types, link formats, or system behaviors are involved
     - What the expected observable outcome is
     - Which test group this scenario belongs to (e.g., basic-file-operations, parser-specific, etc.)
 
-13. **Map TDD Components to Tests**: Create explicit mapping between:
+14. **Map TDD Components to Tests**: Create explicit mapping between:
 
     - TDD Models → Unit test specifications
     - TDD Services → Service test specifications
     - TDD Data Flow → Integration test specifications
     - TDD UI Components → UI/component test specifications
 
-14. **Define Mock Requirements**: Specify what mocks are needed and their expected behaviors
+15. **Define Mock Requirements**: Specify what mocks are needed and their expected behaviors
 
-15. **Create AI Session Context**: Add "AI Agent Session Handoff Notes" section with:
+16. **Create AI Session Context**: Add "AI Agent Session Handoff Notes" section with:
     - Summary of test specifications created
     - Priority order for test implementation
     - Specific files that need to be created/modified
     - Dependencies between test files
 
-16. **Add Clickable Links**: Ensure all file path references in the specification are clickable markdown links:
+17. **Add Clickable Links**: Ensure all file path references in the specification are clickable markdown links:
     - **Test File** references (e.g., `test/automated/unit/test_service.py`) must use markdown link format: `[path](relative/path/to/file)` with correct relative prefix
     - **Files to Reference** section paths (TDD, source code, fixtures) must be linked
     - **Source Code** references (e.g., `linkwatcher/database.py`) must be linked
     - Relative prefix from `test/specifications/feature-specs/` to project root is `../../../`
 
-17. **🚨 CHECKPOINT**: Present draft test specification with test categories, test cases, manual test scenario classifications, mock requirements, and TDD mappings to human partner for review and approval
+18. **🚨 CHECKPOINT**: Present draft test specification with test categories, test cases, dimension-informed scenarios, manual test scenario classifications, mock requirements, and TDD mappings to human partner for review and approval
 
 ### Finalization
 
-18. **Review Test Coverage**: Ensure all TDD components have corresponding test specifications
-19. **Validate Test Feasibility**: Confirm all specified tests can be implemented with available tools
-20. **Update Test Status Tracking**: Record test specification completion in tracking files
+19. **Review Test Coverage**: Ensure all TDD components have corresponding test specifications
+20. **Validate Test Feasibility**: Confirm all specified tests can be implemented with available tools
+21. **Update Test Status Tracking**: Record test specification completion in tracking files
     - Update [Feature Tracking](/doc/product-docs/state-tracking/permanent/feature-tracking.md) Test Status — set to "🔧 Automated Only" if manual test scenarios were identified but manual test cases not yet created, or "📋 Specs Created" if no manual test scenarios apply
     - Update [Test Tracking](/test/state-tracking/permanent/test-tracking.md) — add manual test scenario entries with status "⬜ Not Created" for scenarios classified as `manual` or `both`
-21. **Complete State Tracking Updates**: Ensure all tracking files are properly updated with the new test specification information
-22. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+22. **Complete State Tracking Updates**: Ensure all tracking files are properly updated with the new test specification information
+23. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 

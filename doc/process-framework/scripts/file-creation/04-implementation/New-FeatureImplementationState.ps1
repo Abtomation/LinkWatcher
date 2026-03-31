@@ -34,6 +34,14 @@
     Use "Retrospective Analysis" when creating state files for pre-existing features
     during onboarding (PF-TSK-064).
 
+.PARAMETER Dims
+    Optional hashtable mapping dimension abbreviations to "Importance|Considerations" strings.
+    Valid abbreviations: AC, CQ, ID, DA, EM, SE, PE, OB, UX, DI.
+    Importance must be: Critical, Relevant, or N/A.
+    Example: @{ "SE" = "Critical|Validate path traversal, sanitize inputs"; "UX" = "N/A|No UI components" }
+    Dimensions marked N/A go to the "Not Applicable" table; others go to "Applicable Dimensions".
+    Core dimensions (AC, CQ, ID, DA) default to Relevant if not specified.
+
 .PARAMETER OpenInEditor
     If specified, opens the created file in the default editor
 
@@ -45,6 +53,9 @@
 
 .EXAMPLE
     .\New-FeatureImplementationState.ps1 -FeatureName "core-architecture" -FeatureId "0.1.1" -ImplementationMode "Retrospective Analysis" -Description "Modular architecture"
+
+.EXAMPLE
+    .\New-FeatureImplementationState.ps1 -FeatureName "file-processor" -FeatureId "2.1.1" -Dims @{ "SE" = "Critical|Validate user paths"; "PE" = "Critical|Batch I/O"; "UX" = "N/A|CLI tool" }
 
 .NOTES
     - Requires PowerShell execution policy to allow script execution
@@ -75,6 +86,9 @@ param(
 
     [Parameter(Mandatory = $false)]
     [string]$ImplementationMode = "PLANNING",
+
+    [Parameter(Mandatory = $false)]
+    [hashtable]$Dims = @{},
 
     [Parameter(Mandatory = $false)]
     [switch]$OpenInEditor
@@ -171,6 +185,72 @@ try {
             }
         } else {
             Write-Host "  Feature Tracking file not found - skipping link creation" -ForegroundColor Yellow
+        }
+    }
+
+    # Populate Dimension Profile section if -Dims was provided
+    if ($Dims.Count -gt 0) {
+        $createdFilePath = Join-Path $projectRoot "doc/product-docs/state-tracking/features/$docName.md"
+        if (Test-Path $createdFilePath) {
+            $dimensionNames = @{
+                "AC" = "Architectural Consistency"
+                "CQ" = "Code Quality & Standards"
+                "ID" = "Integration & Dependencies"
+                "DA" = "Documentation Alignment"
+                "EM" = "Extensibility & Maintainability"
+                "SE" = "Security & Data Protection"
+                "PE" = "Performance & Scalability"
+                "OB" = "Observability"
+                "UX" = "Accessibility / UX Compliance"
+                "DI" = "Data Integrity"
+            }
+
+            $applicableRows = @()
+            $naRows = @()
+
+            foreach ($abbr in $Dims.Keys) {
+                $abbrUpper = $abbr.ToUpper()
+                if (-not $dimensionNames.ContainsKey($abbrUpper)) {
+                    Write-Host "  Warning: Unknown dimension abbreviation '$abbr' — skipping" -ForegroundColor Yellow
+                    continue
+                }
+                $fullName = $dimensionNames[$abbrUpper]
+                $parts = $Dims[$abbr] -split '\|', 2
+                $importance = $parts[0].Trim()
+                $considerations = if ($parts.Length -gt 1) { $parts[1].Trim() } else { "" }
+
+                if ($importance -eq "N/A") {
+                    $naRows += "| $fullName ($abbrUpper) | $considerations |"
+                } else {
+                    $applicableRows += "| $fullName ($abbrUpper) | $importance | $considerations |"
+                }
+            }
+
+            $fileContent = Get-Content $createdFilePath -Raw
+
+            # Replace the placeholder applicable row
+            $applicableTable = if ($applicableRows.Count -gt 0) {
+                $applicableRows -join "`n"
+            } else {
+                "| *(none evaluated)* | | |"
+            }
+            $fileContent = $fileContent -replace '\| \[Dimension Name \(ABBR\)\] \| \[Critical / Relevant\] \| \[1-line: what to watch for in this feature\] \|', $applicableTable
+
+            # Replace the placeholder N/A row
+            $naTable = if ($naRows.Count -gt 0) {
+                $naRows -join "`n"
+            } else {
+                "| *(none)* | |"
+            }
+            $fileContent = $fileContent -replace '\| \[Dimension Name \(ABBR\)\] \| \[Why this dimension does not apply\] \|', $naTable
+
+            # Replace the "Last reviewed" date
+            $fileContent = $fileContent -replace '\*\*Last reviewed\*\*: \[YYYY-MM-DD\]', "**Last reviewed**: $(Get-Date -Format 'yyyy-MM-dd')"
+
+            if ($PSCmdlet.ShouldProcess($createdFilePath, "Populate Dimension Profile")) {
+                Set-Content $createdFilePath $fileContent -Encoding UTF8
+                Write-Host "  Populated Dimension Profile ($($Dims.Count) dimensions)" -ForegroundColor Green
+            }
         }
     }
 

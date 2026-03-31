@@ -60,7 +60,7 @@ This task executes enhancement work on existing features by following the Enhanc
 
 ### Phase 1: Preparation
 
-1. **Read the Enhancement State Tracking File** — Understand the full scope of work: target feature, documentation inventory, sequenced steps, and session boundary planning
+1. **Read the Enhancement State Tracking File** — Understand the full scope of work: target feature, documentation inventory, sequenced steps, session boundary planning, and **Dimension Impact Assessment** (inherited dimensions and any adjustments for this enhancement)
 2. **Verify prerequisites** — Confirm the state file was created by Feature Request Evaluation and the target feature shows "🔄 Needs Revision" in feature tracking
 3. **Check manual test coverage** — Review [test-tracking.md](../../../../test/state-tracking/permanent/test-tracking.md) for manual test cases covering the affected feature. Note which test groups will need re-execution after the enhancement, and whether new manual test cases should be created.
 4. **Review session plan** — For multi-session enhancements, identify which steps are planned for this session
@@ -70,6 +70,7 @@ This task executes enhancement work on existing features by following the Enhanc
 
 5. **For each step in the state file**:
    - Read the referenced task documentation to understand the quality standards and process for that type of work
+   - Consider applicable dimensions per the Dimension Impact Assessment and the [Development Dimensions Guide](../../guides/framework/development-dimensions-guide.md) implementation checklists
    - Adapt the guidance to the enhancement context:
      - Amend existing design docs rather than creating new ones
      - Extend existing code rather than building from scratch

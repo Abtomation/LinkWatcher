@@ -161,7 +161,9 @@ class ReferenceLookup:
                 stale_files=stale_files,
             )
 
-    def cleanup_after_file_move(self, references, old_targets, moved_file_path=None):
+    def cleanup_after_file_move(
+        self, references, old_targets, moved_file_path=None, deferred_rescan_files=None
+    ):
         """Remove old DB entries and rescan affected files after a file move.
 
         Instead of updating the database in place, removes old references
@@ -172,6 +174,9 @@ class ReferenceLookup:
             old_targets: List of old target path variations to remove from DB.
             moved_file_path: If provided, skip this file in the rescan loop.
                 _update_links_within_moved_file handles it separately.
+            deferred_rescan_files: If provided, collect affected files into this
+                set instead of rescanning immediately. The caller is responsible
+                for rescanning after all moves are processed (TD128).
         """
         affected_files = set()
         for ref in references:
@@ -186,11 +191,17 @@ class ReferenceLookup:
             # Remove from database - thread-safe, anchor-aware removal
             self.link_db.remove_targets_by_path(old_target)
 
-        # Rescan all affected files to rebuild database entries
         # Skip the moved file itself — _update_links_within_moved_file handles it
+        if moved_file_path:
+            affected_files.discard(moved_file_path)
+
+        if deferred_rescan_files is not None:
+            # Defer rescanning — caller will do a single bulk rescan (TD128)
+            deferred_rescan_files.update(affected_files)
+            return
+
+        # Rescan all affected files to rebuild database entries
         for file_path in affected_files:
-            if file_path == moved_file_path:
-                continue
             abs_file_path = (
                 os.path.join(self.project_root, file_path)
                 if not os.path.isabs(file_path)
@@ -264,7 +275,38 @@ class ReferenceLookup:
                 error_type=type(e).__name__,
             )
 
-    def process_directory_file_move(self, old_file_path: str, new_file_path: str):
+    def collect_directory_file_refs(self, old_file_path: str, new_file_path: str):
+        """Collect references and module refs for a moved file without updating.
+
+        Used by the batched directory-move pipeline: the handler collects
+        references for ALL moved files first, then passes them to
+        updater.update_references_batch() for a single I/O pass per
+        referring file.
+
+        Args:
+            old_file_path: Relative old path of the file.
+            new_file_path: Relative new path of the file.
+
+        Returns:
+            Tuple of (file_references, module_references, old_targets) where:
+            - file_references: list of LinkReference pointing to the old path
+            - module_references: list of LinkReference for Python module paths
+              (empty list if not a .py file or no module refs found)
+            - old_targets: list of old path variations for DB cleanup
+        """
+        file_references = self.find_references(old_file_path)
+        old_targets = self.get_old_path_variations(old_file_path)
+
+        module_references = []
+        if old_file_path.endswith(".py"):
+            old_module_path = old_file_path[:-3]
+            module_references = self.link_db.get_references_to_file(old_module_path)
+
+        return file_references, module_references, old_targets
+
+    def process_directory_file_move(
+        self, old_file_path: str, new_file_path: str, deferred_rescan_files: set = None
+    ):
         """Process a single file's reference updates during a directory move.
 
         Finds references to the old path, updates them, handles stale retry,
@@ -273,6 +315,8 @@ class ReferenceLookup:
         Args:
             old_file_path: Relative old path of the file.
             new_file_path: Relative new path of the file.
+            deferred_rescan_files: If provided, collect affected files for bulk
+                rescan instead of rescanning per-file (TD128).
 
         Returns:
             Tuple of (references_updated, errors) counts.
@@ -313,7 +357,12 @@ class ReferenceLookup:
             errors += update_stats["errors"] - pre_retry_errs
 
             # Remove old DB entries and rescan affected files
-            self.cleanup_after_file_move(references, old_targets, moved_file_path=old_file_path)
+            self.cleanup_after_file_move(
+                references,
+                old_targets,
+                moved_file_path=old_file_path,
+                deferred_rescan_files=deferred_rescan_files,
+            )
 
         # Rescan the moved file for its own links
         abs_new_path = os.path.join(self.project_root, new_file_path)

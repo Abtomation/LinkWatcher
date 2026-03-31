@@ -45,7 +45,7 @@ docs = "[documentation](fake-docs.md)"
 ---
 
 **Files you can move/rename for testing:**
-- `docs/readme.md` → try moving to `documentation/readme.md`
+- `archive/readme.md` → try moving to `documentation/readme.md`
 - `config/settings.yaml` → try renaming to `config/app-settings.yaml`
 - `api/reference.txt` → try moving to `docs/api-reference.txt`
 - `assets/logo.png` → try moving to `images/logo.png`

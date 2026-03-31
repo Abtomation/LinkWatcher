@@ -557,6 +557,63 @@ if ($runAll -or $Surface -contains "FeatureDeps") {
 }
 
 # =========================================================================
+# Surface 7: Dimension Consistency
+# =========================================================================
+if ($runAll -or $Surface -contains "DimensionConsistency") {
+    Write-Host "========================================" -ForegroundColor Cyan
+    Write-Host "  Surface 7: Dimension Consistency" -ForegroundColor Cyan
+    Write-Host "========================================" -ForegroundColor Cyan
+
+    $validDimensions = @("AC", "CQ", "ID", "DA", "EM", "SE", "PE", "OB", "UX", "DI")
+    $stateDir = Join-Path $ProjectRoot "doc/product-docs/state-tracking/features"
+
+    if (Test-Path $stateDir) {
+        $stateFiles = Get-ChildItem -Path $stateDir -Filter "*-implementation-state.md" -File
+        $filesWithProfile = 0
+        $filesWithoutProfile = 0
+
+        foreach ($file in $stateFiles) {
+            $content = Get-Content $file.FullName -Raw
+
+            # Check if Dimension Profile section exists
+            if ($content -match "## 7\. Dimension Profile") {
+                $filesWithProfile++
+
+                # Extract dimension abbreviations used and validate them
+                $dimMatches = [regex]::Matches($content, '\(([A-Z]{2})\)')
+                $usedDims = @()
+                foreach ($m in $dimMatches) {
+                    $abbr = $m.Groups[1].Value
+                    if ($usedDims -notcontains $abbr) { $usedDims += $abbr }
+                }
+
+                foreach ($abbr in $usedDims) {
+                    if ($validDimensions -notcontains $abbr) {
+                        Add-CheckResult "ERROR" "DimensionConsistency" $file.Name "Invalid dimension abbreviation: $abbr"
+                    }
+                }
+
+                # Check that importance values are valid
+                $importanceMatches = [regex]::Matches($content, '(?<=\| [^|]+ \| )(Critical|Relevant|N/A)(?= \|)')
+                if ($importanceMatches.Count -eq 0 -and $content -notmatch 'none evaluated') {
+                    Add-CheckResult "WARNING" "DimensionConsistency" $file.Name "Dimension Profile section exists but no importance values found"
+                }
+
+                Add-CheckResult "OK" "DimensionConsistency" $file.Name "Dimension Profile present with $($usedDims.Count) dimensions"
+            } else {
+                $filesWithoutProfile++
+                Add-CheckResult "WARNING" "DimensionConsistency" $file.Name "Missing Dimension Profile section (Section 7)"
+            }
+        }
+
+        Write-Host "  Feature state files: $($stateFiles.Count) total, $filesWithProfile with profiles, $filesWithoutProfile without" -ForegroundColor Gray
+    } else {
+        Add-CheckResult "WARNING" "DimensionConsistency" "Directory" "Feature state directory not found: $stateDir"
+    }
+    Write-Host ""
+}
+
+# =========================================================================
 # Summary
 # =========================================================================
 Write-Host "========================================" -ForegroundColor Cyan

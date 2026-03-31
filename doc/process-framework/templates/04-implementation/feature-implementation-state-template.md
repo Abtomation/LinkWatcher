@@ -223,7 +223,29 @@ template_for: Feature State Tracking
 
 ---
 
-## 7. Design Decisions
+## 7. Dimension Profile
+
+> **📖 Reference**: [Development Dimensions Guide](/doc/process-framework/guides/framework/development-dimensions-guide.md)
+>
+> **Source**: Feature Implementation Planning | **Last reviewed**: [YYYY-MM-DD]
+>
+> Core dimensions (AC, CQ, ID, DA) are always at least Relevant — list only extended dimensions below.
+
+### Applicable Dimensions
+
+| Dimension | Importance | Key Considerations |
+|-----------|-----------|-------------------|
+| [Dimension Name (ABBR)] | [Critical / Relevant] | [1-line: what to watch for in this feature] |
+
+### Not Applicable
+
+| Dimension | Rationale |
+|-----------|-----------|
+| [Dimension Name (ABBR)] | [Why this dimension does not apply] |
+
+---
+
+## 8. Design Decisions
 
 ### Decision 1: [Decision Title]
 
@@ -272,7 +294,7 @@ template_for: Feature State Tracking
 
 ---
 
-## 8. Issues & Resolutions Log
+## 9. Issues & Resolutions Log
 
 > Populate when issues arise during work on this feature (bug fixes, blockers, investigations). For formal bug reports, use [bug-tracking.md](../../../product-docs/state-tracking/permanent/bug-tracking.md); this section provides feature-local context.
 
@@ -288,7 +310,7 @@ template_for: Feature State Tracking
 
 ---
 
-## 9. Next Steps
+## 10. Next Steps
 
 > Populate during active work on this feature. Update at the end of every work session.
 

@@ -140,11 +140,20 @@ When referencing other tasks' outputs in TDDs:
    - Define measurable targets based on system-wide requirements
    - Consider feature complexity and user impact
    - Document any quality attribute trade-offs or constraints
-9. **🚨 CHECKPOINT**: Present quality attribute analysis, feature-specific targets, and proposed technical approach to human partner for approval
+9. **Apply Dimension-Informed Quality Attribute Depth** (D10): If the feature has a Dimension Profile (from Feature Implementation Planning), use it to guide quality attribute subsection depth in the TDD:
+   - For each **Critical** dimension, treat the corresponding quality attribute subsection with **one tier higher depth** than the feature's base tier:
+     - Tier 1 + Critical → Tier 2 depth (requirements + approach)
+     - Tier 2 + Critical → Tier 3 depth (comprehensive + measurement)
+     - Tier 3 + Critical → Tier 3 depth (already maximum)
+   - For **Relevant** dimensions: use the base tier's standard depth
+   - For **N/A** dimensions: omit the corresponding subsection
+   - Dimension → TDD subsection mapping: SE → Security Design, PE → Performance Design, DI → Data Integrity Design, OB → Observability Design, UX → Accessibility Design, EM → Extensibility Design. AC, ID, CQ are typically covered in the main TDD body
+   - See [Development Dimensions Guide](../../guides/framework/development-dimensions-guide.md) for dimension definitions
+10. **🚨 CHECKPOINT**: Present quality attribute analysis, dimension-informed depth decisions, feature-specific targets, and proposed technical approach to human partner for approval
 
 ### Execution
 
-10. Create the appropriate document using the automation script:
+11. Create the appropriate document using the automation script:
 
    ```powershell
    # Navigate to the script directory
@@ -162,44 +171,44 @@ When referencing other tasks' outputs in TDDs:
    - Store the file in the /tdd subdirectory
    - Ensure the AI Agent Session Handoff Notes section is included
 
-11. Complete the document with appropriate detail for the tier, **including quality attribute requirements and implementation**:
+12. Complete the document with appropriate detail for the tier, **including quality attribute requirements and implementation** (apply dimension-informed depth from step 9):
 
 - **Tier 1 🔵**: Key implementation approach, affected components, technical constraints, and relevant quality attribute considerations
 - **Tier 2 🟠**: Basic architecture, component interactions, data model, API details, and quality attribute requirements with implementation approach
 - **Tier 3 🔴**: Comprehensive design including security, performance, edge cases, testing strategy, and detailed quality attribute implementation with measurement approach
 
-12. **MANDATORY: Include Quality Attribute Sections** in all TDDs:
+13. **MANDATORY: Include Quality Attribute Sections** in all TDDs:
 
 - **Quality Attribute Requirements**: Feature-specific quality targets based on system-wide requirements
 - **Quality Attribute Implementation**: How the technical design achieves quality targets
 - **Quality Measurement**: How quality attributes will be monitored and validated
 
-13. Include specific "AI Agent Session Handoff Notes" section in all documents with:
+14. Include specific "AI Agent Session Handoff Notes" section in all documents with:
 
 - Summary of decisions made in this session
 - Clear next steps for subsequent AI sessions
 - Explicit list of files that will need to be modified
 - Any specific implementation challenges to be aware of
 
-14. Ensure the documentation includes appropriate diagrams or visual aids:
+15. Ensure the documentation includes appropriate diagrams or visual aids:
 
 - **Tier 1 🔵**: Simple component interaction diagram (if needed)
 - **Tier 2 🟠**: Data flow diagrams and component architecture
 - **Tier 3 🔴**: Comprehensive architecture, sequence diagrams, and state charts
 
-15. **🚨 CRITICAL**: Actively request feedback from your human partner during TDD creation:
+16. **🚨 CRITICAL**: Actively request feedback from your human partner during TDD creation:
 
 - Ask specific questions about technical approach
 - Confirm appropriate level of detail for the feature's complexity tier
 - Validate security and architectural decisions
 - **NEW**: Validate quality attribute requirements and implementation approach
-16. **🚨 CHECKPOINT**: Present completed TDD draft including quality attribute sections, diagrams, and handoff notes to human partner for review and approval
+17. **🚨 CHECKPOINT**: Present completed TDD draft including dimension-informed quality attribute sections, diagrams, and handoff notes to human partner for review and approval
 
 ### Finalization
 
-17. Review the document for completeness, clarity, and appropriateness for the complexity tier, **ensuring quality attribute sections are complete**
-18. **Verify Automated Updates**: The [../../scripts/file-creation/02-design/New-tdd.ps1](../../scripts/file-creation/02-design/New-tdd.ps1) script automatically updates feature tracking - verify the updates were applied correctly
-19. **🚨 MANDATORY FINAL STEP**: Complete the Task Completion Checklist below
+18. Review the document for completeness, clarity, and appropriateness for the complexity tier, **ensuring quality attribute sections are complete and dimension-informed depth is applied**
+19. **Verify Automated Updates**: The [../../scripts/file-creation/02-design/New-tdd.ps1](../../scripts/file-creation/02-design/New-tdd.ps1) script automatically updates feature tracking - verify the updates were applied correctly
+20. **🚨 MANDATORY FINAL STEP**: Complete the Task Completion Checklist below
 
 ## Outputs
 

@@ -90,6 +90,11 @@ validation_session: [Session number for this validation type]
 | [0.2.X]    | [Feature Name] | [Implemented/Partial] | [Specific aspects validated] |
 | [0.2.Y]    | [Feature Name] | [Implemented/Partial] | [Specific aspects validated] |
 
+### Dimensions Validated
+
+**Validation Dimension**: [e.g., Architectural Consistency (AC)]
+**Dimension Source**: Implementation state file profiles / fresh evaluation
+
 ### Validation Criteria Applied
 
 [Customize this section based on validation type - see criteria sections below]

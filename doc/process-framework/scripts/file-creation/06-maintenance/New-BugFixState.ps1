@@ -22,6 +22,9 @@ param(
     [int]$EstimatedSessions = 2,
 
     [Parameter(Mandatory = $false)]
+    [string]$Dims = "",
+
+    [Parameter(Mandatory = $false)]
     [switch]$OpenInEditor
 )
 
@@ -55,6 +58,11 @@ $customReplacements = @{
 # Add affected feature if provided
 if ($AffectedFeature -ne "") {
     $customReplacements["[Feature ID] — [Feature Name]"] = $AffectedFeature
+}
+
+# Add affected dimensions if provided
+if ($Dims -ne "") {
+    $additionalMetadataFields["affected_dimensions"] = $Dims
 }
 
 # Create the document using standardized process with custom filename pattern

@@ -17,7 +17,7 @@ Supports three operation modes:
    drops Estimated Effort and Status columns, sets Resolution Date, updates frontmatter date
 
 Registry table columns (11):
-  | ID | Description | Category | Location | Created Date | Priority | Estimated Effort | Status | Resolution Date | Assessment ID | Notes |
+  | ID | Description | Dims | Location | Created Date | Priority | Estimated Effort | Status | Resolution Date | Assessment ID | Notes |
   idx: 0     1            2          3          4               5          6                  7        8                 9               10
 
 Recently Resolved table columns (9):
@@ -30,9 +30,10 @@ Switch to add a new debt item. Auto-generates the next TD### ID.
 .PARAMETER Description
 Description of the technical debt item (required for Add).
 
-.PARAMETER Category
-Category of the debt item (required for Add). Valid values:
-Architectural, Code Quality, Testing, Documentation, Performance, Security, Accessibility, UX, Integration, Data Integrity, Observability
+.PARAMETER Dims
+Dimension abbreviation(s) for the debt item (required for Add). Space-separated if multiple.
+Valid values: AC, CQ, ID, DA, EM, SE, PE, OB, UX, DI, TST
+See Development Dimensions Guide for definitions.
 
 .PARAMETER Location
 Location/path where the debt exists (required for Add). E.g., "linkwatcher/parsers/"
@@ -83,11 +84,11 @@ The validation tracking file is auto-discovered from doc/product-docs/state-trac
 
 .EXAMPLE
 # Add a new debt item
-.\Update-TechDebt.ps1 -Add -Description "Missing error handling in parser" -Category "Code Quality" -Location "linkwatcher/parsers/" -Priority "Medium" -EstimatedEffort "2 hours"
+.\Update-TechDebt.ps1 -Add -Description "Missing error handling in parser" -Dims "CQ" -Location "linkwatcher/parsers/" -Priority "Medium" -EstimatedEffort "2 hours"
 
 .EXAMPLE
 # Add a new debt item with assessment and debt item links
-.\Update-TechDebt.ps1 -Add -Description "Missing Repository Pattern" -Category "Architectural" -Location "lib/services/" -Priority "Critical" -EstimatedEffort "1-2 weeks" -AssessmentId "PF-TDA-001" -DebtItemId "PF-TDI-001"
+.\Update-TechDebt.ps1 -Add -Description "Missing Repository Pattern" -Dims "AC" -Location "lib/services/" -Priority "Critical" -EstimatedEffort "1-2 weeks" -AssessmentId "PF-TDA-001" -DebtItemId "PF-TDI-001"
 
 .EXAMPLE
 # Mark debt item as in progress
@@ -107,7 +108,7 @@ The validation tracking file is auto-discovered from doc/product-docs/state-trac
 
 .EXAMPLE
 # Add a new debt item linked to a validation issue (auto-fills "Tracked As" column)
-.\Update-TechDebt.ps1 -Add -Description "Missing ADR for decisions" -Category "Architectural" -Location "linkwatcher/validator.py" -Priority "Medium" -EstimatedEffort "2 hours" -ValidationIssueId "R2-M-001"
+.\Update-TechDebt.ps1 -Add -Description "Missing ADR for decisions" -Dims "AC" -Location "linkwatcher/validator.py" -Priority "Medium" -EstimatedEffort "2 hours" -ValidationIssueId "R2-M-001"
 
 .EXAMPLE
 # Resolve with validation tracking update (auto-discovers validation-tracking file)
@@ -135,8 +136,8 @@ param(
     [string]$Description,
 
     [Parameter(Mandatory = $true, ParameterSetName = 'AddNew')]
-    [ValidateSet("Architectural", "Code Quality", "Testing", "Documentation", "Performance", "Security", "Accessibility", "UX", "Integration", "Data Integrity", "Observability")]
-    [string]$Category,
+    [ValidateSet("AC", "CQ", "ID", "DA", "EM", "SE", "PE", "OB", "UX", "DI", "TST")]
+    [string]$Dims,
 
     [Parameter(Mandatory = $true, ParameterSetName = 'AddNew')]
     [string]$Location,
@@ -273,7 +274,7 @@ function Add-NewDebtItemContent {
         [string]$Content,
         [string]$NewDebtId,
         [string]$Description,
-        [string]$Category,
+        [string]$Dims,
         [string]$Location,
         [string]$Priority,
         [string]$EstimatedEffort,
@@ -284,8 +285,8 @@ function Add-NewDebtItemContent {
     $assessmentIdValue = if ($AssessmentId) { $AssessmentId } else { "-" }
     $notesValue = if ($Notes) { $Notes } else { "-" }
 
-    # Build new table row (11 columns)
-    $newRow = "| $NewDebtId | $Description | $Category | $Location | $CurrentDate | $Priority | $EstimatedEffort | Open | - | $assessmentIdValue | $notesValue |"
+    # Build new table row (11 columns: ID, Description, Dims, Location, Created Date, Priority, Estimated Effort, Status, Resolution Date, Assessment ID, Notes)
+    $newRow = "| $NewDebtId | $Description | $Dims | $Location | $CurrentDate | $Priority | $EstimatedEffort | Open | - | $assessmentIdValue | $notesValue |"
 
     # Find the end of the Registry table
     $lines = [System.Collections.ArrayList]@($Content -split "\r?\n")
@@ -666,7 +667,7 @@ function Main {
 
         # Insert new row into Registry table
         $content = Add-NewDebtItemContent -Content $content -NewDebtId $newDebtId `
-            -Description $Description -Category $Category -Location $Location `
+            -Description $Description -Dims $Dims -Location $Location `
             -Priority $Priority -EstimatedEffort $EstimatedEffort `
             -AssessmentId $AssessmentId -Notes $Notes
         if ($null -eq $content) {

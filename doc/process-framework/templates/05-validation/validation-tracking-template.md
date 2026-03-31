@@ -34,6 +34,8 @@ This file tracks the progress and results of the **Feature Validation Framework*
 6. **AI Agent Continuity Validation** — Context optimization, documentation clarity, readability
 
 > **Note**: These are the default core dimensions. Add or remove dimensions based on your project's needs. See the [Feature Validation Guide](../../guides/05-validation/feature-validation-guide.md) for the complete Dimension Catalog.
+>
+> **Dimension Source**: Start from each feature's **Dimension Profile** in its implementation state file (Section 7). If no profile exists (legacy features), evaluate from scratch using the [Development Dimensions Guide](../../guides/framework/development-dimensions-guide.md).
 
 ### Feature Scope
 

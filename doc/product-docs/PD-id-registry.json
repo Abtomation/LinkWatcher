@@ -277,7 +277,7 @@
         "scripts-update": "doc/process-framework/scripts/update/doc/product-docs/refactoring/plans",
         "default": "plans"
       },
-      "nextAvailable": 125
+      "nextAvailable": 127
     },
     "PD-TDA": {
       "description": "Product Documentation - Technical Debt Assessments",

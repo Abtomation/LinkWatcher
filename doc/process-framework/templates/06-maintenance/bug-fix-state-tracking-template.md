@@ -38,6 +38,18 @@ template_for: Bug Fix State Tracking
 - **Affected Components**: [List of files/modules involved]
 - **Secondary Issues Discovered**: [Any additional bugs found during investigation, or "None"]
 
+### Affected Dimensions
+
+> **Reference**: [Development Dimensions Guide](/doc/process-framework/guides/framework/development-dimensions-guide.md)
+>
+> Identify which dimensions this bug affects. Use dimension abbreviations (AC, CQ, ID, DA, EM, SE, PE, OB, UX, DI).
+
+- **[Dimension Name (ABBR)]**: [How this bug affects this dimension]
+
+### Dimension-Informed Fix Requirements
+
+- [Fix requirement derived from affected dimension — e.g., "Fix must include atomicity guarantee (DI)"]
+
 ## Fix Approach
 
 > Document the chosen approach and alternatives considered. Critical for session handover.

@@ -64,22 +64,23 @@ Specialized task for implementing foundation features (0.x.x) that provide archi
 ### Preparation
 
 1. **Review Architecture Context**: Study current architectural foundations
-2. **Analyze Cross-Cutting Impact**: Identify which components and features will be affected by this foundation implementation
-3. **Create Foundation Feature Structure**: Use [Foundation Feature Template](../../templates/04-implementation/foundation-feature-template.md) to establish the feature structure
-4. **🚨 CHECKPOINT**: Present architecture context review, cross-cutting impact analysis, and foundation feature structure to human partner for approval before implementation
+2. **Review Dimension Profile**: Read the feature's Dimension Profile from its implementation state file. Foundation features (0.x.x) typically have Critical AC and EM dimensions — verify the profile and note all Critical dimensions that must be explicitly addressed during implementation
+3. **Analyze Cross-Cutting Impact**: Identify which components and features will be affected by this foundation implementation
+4. **Create Foundation Feature Structure**: Use [Foundation Feature Template](../../templates/04-implementation/foundation-feature-template.md) to establish the feature structure
+5. **🚨 CHECKPOINT**: Present architecture context review, dimension profile review, cross-cutting impact analysis, and foundation feature structure to human partner for approval before implementation
 
 ### Execution
 
-5. **Implement Core Foundation Logic**: Develop the foundational functionality with architectural awareness
-6. **Document Architectural Decisions**: Create ADRs for significant architectural choices made during implementation
+6. **Implement Core Foundation Logic**: Develop the foundational functionality with architectural awareness, ensuring Critical dimensions from the Dimension Profile are addressed throughout implementation
+7. **Document Architectural Decisions**: Create ADRs for significant architectural choices made during implementation
    ```powershell
    # Create ADR for architectural decisions
    cd doc/process-framework/templates
    ../../scripts/file-creation/02-design/New-ArchitectureDecision.ps1 -Title "Foundation Feature Architecture Decision" -Context "Foundation implementation context"
    ```
-7. **Update Architecture Context**: Document new architectural foundations
-8. **Establish Patterns**: Document reusable patterns that other features can follow
-9. **Implement Tests**: Create tracked tests that validate both functionality and architectural constraints using `New-TestFile.ps1`
+8. **Update Architecture Context**: Document new architectural foundations
+9. **Establish Patterns**: Document reusable patterns that other features can follow
+10. **Implement Tests**: Create tracked tests that validate both functionality and architectural constraints using `New-TestFile.ps1`
 
    ```powershell
    # Create test files using automation script (writes pytest markers)
@@ -94,11 +95,11 @@ Specialized task for implementing foundation features (0.x.x) that provide archi
    # - Updates test-tracking.md with correct file links and status
    # - Updates feature-tracking.md with test implementation progress
    ```
-10. **🚨 CHECKPOINT**: Present core foundation implementation, architectural decisions, established patterns, and test results to human partner for review before finalization
+11. **🚨 CHECKPOINT**: Present core foundation implementation, architectural decisions, established patterns, test results, and dimension profile compliance to human partner for review before finalization
 
 ### Finalization
 
-11. **Bug Discovery During Foundation Implementation**: Systematically identify and document any bugs discovered during foundation implementation:
+12. **Bug Discovery During Foundation Implementation**: Systematically identify and document any bugs discovered during foundation implementation:
 
    - **Architectural Issues**: Problems with system design or component interactions
    - **Integration Problems**: Issues with existing system integration points
@@ -107,7 +108,7 @@ Specialized task for implementing foundation features (0.x.x) that provide archi
    - **Foundation Logic Errors**: Bugs in core foundational functionality
    - **Dependency Issues**: Problems with external dependencies or libraries
 
-12. **Report Discovered Bugs**: If bugs are identified during foundation implementation:
+13. **Report Discovered Bugs**: If bugs are identified during foundation implementation:
 
     - Use [../../scripts/file-creation/06-maintenance/New-BugReport.ps1](../../scripts/file-creation/06-maintenance/New-BugReport.ps1) script to create standardized bug reports
     - Follow [Bug Reporting Guide](../../guides/06-maintenance/bug-reporting-guide.md) for consistent documentation
@@ -126,11 +127,11 @@ Specialized task for implementing foundation features (0.x.x) that provide archi
     ../../scripts/file-creation/06-maintenance/New-BugReport.ps1 -Title "Foundation module causes circular dependency" -Description "New foundation module creates circular dependency between service components" -DiscoveredBy "FeatureImplementation" -Severity "Critical" -Component "Core Foundation" -Environment "Development" -Evidence "Architecture analysis: circular dependency in src/core/"
     ```
 
-13. **Update Architecture Tracking**: Record the foundation implementation in [Architecture Tracking](../../../product-docs/state-tracking/permanent/architecture-tracking.md)
-14. **Verify Cross-Cutting Integration**: Ensure the foundation properly integrates with existing system components
-15. **Document Usage Patterns**: Update documentation to show how other features should interact with this foundation
-16. **Flag User Documentation Status**: If this foundation feature has user-visible behavior (CLI options, configuration, workflows), set the User Documentation section in the feature implementation state file to `❌ Needed`. This triggers [User Documentation Creation](../07-deployment/user-documentation-creation.md) later in the workflow. If the feature is internal-only, set to `N/A`.
-17. **Run Foundational Validation**: Execute automated validation to ensure implementation meets foundational standards:
+14. **Update Architecture Tracking**: Record the foundation implementation in [Architecture Tracking](../../../product-docs/state-tracking/permanent/architecture-tracking.md)
+15. **Verify Cross-Cutting Integration**: Ensure the foundation properly integrates with existing system components
+16. **Document Usage Patterns**: Update documentation to show how other features should interact with this foundation
+17. **Flag User Documentation Status**: If this foundation feature has user-visible behavior (CLI options, configuration, workflows), set the User Documentation section in the feature implementation state file to `❌ Needed`. This triggers [User Documentation Creation](../07-deployment/user-documentation-creation.md) later in the workflow. If the feature is internal-only, set to `N/A`.
+18. **Run Foundational Validation**: Execute automated validation to ensure implementation meets foundational standards:
 
     **Quick Health Check** (recommended for immediate feedback):
 
@@ -169,7 +170,7 @@ Specialized task for implementing foundation features (0.x.x) that provide archi
     - `AIAgentContinuity` - Validates code readability and context optimization
     - `All` - Runs all validation types (recommended)
 
-18. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+19. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 

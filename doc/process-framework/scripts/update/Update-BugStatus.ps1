@@ -189,7 +189,8 @@ $StatusEmojis = @{
 #   [5] = Reported     (date)
 #   [6] = Description
 #   [7] = Related Feature
-#   [8] = Notes
+#   [8] = Dims         (dimension abbreviations, e.g., "SE DI")
+#   [9] = Notes
 
 # Priority emoji mapping
 $PriorityEmojis = @{
@@ -284,7 +285,7 @@ function Update-BugEntryContent {
     }
 
     # Update notes with status-specific information
-    $notes = $columns[8]
+    $notes = $columns[9]
     $currentDate = Get-Date -Format "yyyy-MM-dd"
 
     switch ($NewStatus) {
@@ -311,7 +312,7 @@ function Update-BugEntryContent {
     if ($notes -notmatch "Updated: $currentDate") {
         $notes += "; Updated: $currentDate"
     }
-    $columns[8] = $notes
+    $columns[9] = $notes
 
     # Reconstruct the table row and replace
     $updatedEntry = "| " + ($columns -join " | ") + " |"

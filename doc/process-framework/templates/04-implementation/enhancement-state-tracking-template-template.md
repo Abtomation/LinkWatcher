@@ -50,6 +50,18 @@ template_for: Enhancement State Tracking
 | ADR | [PD-ADR-XXX or N/A] | [Link or "None exists"] | [Amend / Create / No change] |
 | Test Specification | [PF-TSP-XXX or N/A] | [Link or "None exists"] | [Amend / Create / No change] |
 
+## Dimension Impact Assessment
+
+> **Reference**: [Development Dimensions Guide](/doc/process-framework/guides/framework/development-dimensions-guide.md)
+>
+> Inherited from parent feature ([Feature ID]): [List inherited dimension abbreviations with importance]
+> **Additional for this enhancement**: [Dimension (Importance) — rationale, or "none"]
+> **Reduced for this enhancement**: [Dimension — rationale, or "none"]
+
+### Key Dimension Considerations
+
+- **[Dimension Name (ABBR)]**: [What this enhancement must address for this dimension]
+
 ## Execution Steps
 
 > **Structure**: These steps follow the standard feature development workflow from the [Task Transition Guide](../../guides/framework/task-transition-guide.md). Each block corresponds to a task type in the workflow. The Feature Request Evaluation task (PF-TSK-067) marks each block as **Applicable** or **Not applicable** based on the enhancement scope. The Feature Enhancement task (PF-TSK-068) executes applicable blocks in order.

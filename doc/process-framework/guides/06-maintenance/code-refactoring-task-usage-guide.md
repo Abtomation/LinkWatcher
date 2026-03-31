@@ -309,6 +309,15 @@ Simplify the authentication service by extracting responsibilities and improving
 - Plan for code quality metric improvements
 - Document debt reduction achievements
 
+#### Dimension-Aware Refactoring
+
+When refactoring tech debt items, check the **Dims** column in [Technical Debt Tracking](../../../product-docs/state-tracking/permanent/technical-debt-tracking.md) to understand which quality dimension(s) the refactoring should improve along. Use the [Development Dimensions Guide](../framework/development-dimensions-guide.md) implementation checklists to verify the refactored code addresses the flagged dimension:
+
+- **PE-tagged debt**: Verify algorithmic improvements with complexity analysis or benchmarks
+- **SE-tagged debt**: Verify input validation, path sanitization, or access control improvements
+- **DI-tagged debt**: Verify atomicity, error recovery, or consistency improvements
+- **CQ-tagged debt**: Verify readability, SOLID principle adherence, or complexity reduction
+
 ## Related Resources
 
 - [Refactoring Plan Template](../../templates/06-maintenance/refactoring-plan-template.md) - Standard template for creating refactoring plans

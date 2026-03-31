@@ -67,6 +67,7 @@ Implement data models, repositories, and database integration for feature
    - Understand data layer requirements from TDD
    - Review task dependencies and blocking relationships
    - Note any architectural constraints or patterns to follow
+   - **Review DI and SE dimensions** from the feature's Dimension Profile — data layer work is particularly sensitive to Data Integrity (atomicity, consistency, error recovery) and Security (input validation, access control). Note any Critical/Relevant considerations that apply to the data layer
 2. **Review Database Schema**: Study the completed database schema design
    - Understand table structures and relationships
    - Review migration scripts that will be executed

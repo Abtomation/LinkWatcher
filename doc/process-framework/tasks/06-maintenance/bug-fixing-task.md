@@ -62,7 +62,7 @@ Diagnose, fix, and verify solutions for reported bugs or issues in the applicati
 
 1. Review the [Bug Tracking](../../../product-docs/state-tracking/permanent/bug-tracking.md) document to identify a triaged bug to fix (status 🔍 Triaged)
 2. If no triaged bugs are found but bugs with status 🆕 Reported exist, **ask the human partner** whether to switch to [Bug Triage](bug-triage-task.md) first. Do not proceed with an un-triaged bug.
-3. Verify the selected bug has been properly triaged with priority and scope assigned
+3. Verify the selected bug has been properly triaged with priority, scope, and **affected dimensions** (Dims column) assigned. Read the affected dimensions to understand which quality concerns the fix must address (e.g., `SE DI` means the fix must ensure both security and data integrity). For Large-scope bugs with a bug fix state file, review the Affected Dimensions and Dimension-Informed Fix Requirements sections.
 4. **Multi-session gate**: If the bug scope is "L" (Large) or requires architectural changes (e.g., redesigning a component, changing cross-cutting patterns), create a bug fix state tracking file:
    ```powershell
    cd doc/process-framework/scripts/file-creation
@@ -134,6 +134,7 @@ Diagnose, fix, and verify solutions for reported bugs or issues in the applicati
     - Test results (regression tests pass, full suite regression check)
     - Manual validation test results (if applicable, from Step 19)
     - Similar issues found and addressed (from Step 18)
+    - **Dimension verification**: Confirm the fix addresses all affected dimensions from the bug's Dims column (e.g., if DI was flagged, confirm atomicity/recovery is handled; if SE was flagged, confirm input validation is addressed)
     > **ADR trigger**: If the fix changed architectural behavior, introduced a new pattern, or made a design trade-off not covered by existing ADRs, recommend creating an ADR via [ADR Creation](../../tasks/02-design/adr-creation-task.md) (PF-TSK-028) as a follow-up task.
 22. Update bug status from 🟡 In Progress to 🧪 Fixed
     - **Automated Option**: Use [`Update-BugStatus.ps1`](../../scripts/update/Update-BugStatus.ps1) script:

@@ -388,14 +388,99 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
             for old_file_path, new_file_path in moved_files:
                 self.link_db.update_source_path(old_file_path, new_file_path)
 
-            # Process each moved file via ReferenceLookup
-            total_references_updated = 0
+            # Phase 1: Collect all references across moved files (TD129).
+            # Build move_groups for a single batched updater pass so each
+            # referring file is opened and written at most once.
+            move_groups = []  # [(references, old_path, new_path), ...]
+            per_file_data = []  # [(old, new, file_refs, module_refs, old_targets), ...]
+            deferred_rescan_files = set()
+
             for old_file_path, new_file_path in moved_files:
-                refs_updated, errors = self._ref_lookup.process_directory_file_move(
+                file_refs, module_refs, old_targets = self._ref_lookup.collect_directory_file_refs(
                     old_file_path, new_file_path
                 )
-                total_references_updated += refs_updated
-                self._update_stat("errors", errors)
+                per_file_data.append(
+                    (old_file_path, new_file_path, file_refs, module_refs, old_targets)
+                )
+                if file_refs:
+                    move_groups.append((file_refs, old_file_path, new_file_path))
+                if module_refs:
+                    old_module = old_file_path[:-3]
+                    new_module = new_file_path[:-3]
+                    move_groups.append((module_refs, old_module, new_module))
+
+            # Phase 1b: Batch-update all referring files in one pass (TD129).
+            total_references_updated = 0
+            if move_groups:
+                batch_stats = self.updater.update_references_batch(move_groups)
+                total_references_updated += batch_stats["references_updated"]
+                self._update_stat("errors", batch_stats["errors"])
+
+                # Stale retry: for files flagged stale, rescan and retry once
+                if batch_stats["stale_files"]:
+                    self.logger.info(
+                        "batch_stale_retry",
+                        stale_count=len(batch_stats["stale_files"]),
+                    )
+                    retry_groups = []
+                    for stale_file in batch_stats["stale_files"]:
+                        abs_stale = (
+                            os.path.join(str(self.project_root), stale_file)
+                            if not os.path.isabs(stale_file)
+                            else stale_file
+                        )
+                        if os.path.exists(abs_stale):
+                            self._ref_lookup.link_db.remove_file_links(stale_file)
+                            self._ref_lookup.rescan_file_links(abs_stale, remove_existing=False)
+                    # Re-collect references from rescanned files and retry
+                    stale_set = set(batch_stats["stale_files"])
+                    for refs, old_p, new_p in move_groups:
+                        stale_refs = [r for r in refs if r.file_path in stale_set]
+                        if stale_refs:
+                            fresh_refs = self._ref_lookup.find_references(
+                                old_p, filter_files=stale_set
+                            )
+                            if fresh_refs:
+                                retry_groups.append((fresh_refs, old_p, new_p))
+                    if retry_groups:
+                        retry_stats = self.updater.update_references_batch(retry_groups)
+                        total_references_updated += retry_stats["references_updated"]
+                        self._update_stat("errors", retry_stats["errors"])
+
+            # Phase 1c: Per-file DB cleanup and deferred rescan collection.
+            for old_fp, new_fp, file_refs, module_refs, old_targets in per_file_data:
+                if module_refs:
+                    old_module = old_fp[:-3]
+                    new_module = new_fp[:-3]
+                    self._ref_lookup.link_db.update_target_path(old_module, new_module)
+
+                if file_refs:
+                    self._ref_lookup.cleanup_after_file_move(
+                        file_refs,
+                        old_targets,
+                        moved_file_path=old_fp,
+                        deferred_rescan_files=deferred_rescan_files,
+                    )
+
+                # Rescan the moved file for its own outgoing links
+                abs_new = os.path.join(str(self.project_root), new_fp)
+                self._ref_lookup.rescan_moved_file_links(old_fp, new_fp, abs_new)
+
+            # TD128: Bulk rescan all affected files once (deduplicated)
+            if deferred_rescan_files:
+                self.logger.debug(
+                    "bulk_rescan_deferred_files",
+                    count=len(deferred_rescan_files),
+                )
+                for file_path in deferred_rescan_files:
+                    abs_file_path = (
+                        os.path.join(str(self.project_root), file_path)
+                        if not os.path.isabs(file_path)
+                        else file_path
+                    )
+                    if os.path.exists(abs_file_path):
+                        self._ref_lookup.link_db.remove_file_links(file_path)
+                        self._ref_lookup.rescan_file_links(abs_file_path, remove_existing=False)
 
             # Phase 1.5: Update outward-pointing links inside moved files
             # (PD-BUG-039 fix: directory moves must adjust relative links

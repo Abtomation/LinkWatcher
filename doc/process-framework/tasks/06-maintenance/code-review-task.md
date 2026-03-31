@@ -69,15 +69,16 @@ Review implemented code to ensure it meets quality standards, follows project co
 1. Review the [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) document to identify features with "👀 Ready for Review" status
 2. Select the next feature for code review
 3. Review the TDD to understand the intended design and requirements
-4. Review the implementation checklist to ensure all aspects are covered
-5. Set up the development environment and ensure all dependencies are installed
-6. Verify environment setup (e.g., correct Python/runtime version, tools available)
-7. Install all project dependencies (e.g., `pip install -r requirements.txt`)
-8. **🚨 CHECKPOINT**: Present feature selection, TDD review, implementation checklist, and environment setup to human partner for approval before starting code review analysis
+4. **Read the feature's Dimension Profile** from its implementation state file (or the bug's Dims column for bug fix reviews). Focus the review on **Critical** dimensions using the review focus points from the [Development Dimensions Guide](../../guides/framework/development-dimensions-guide.md)
+5. Review the implementation checklist to ensure all aspects are covered
+6. Set up the development environment and ensure all dependencies are installed
+7. Verify environment setup (e.g., correct Python/runtime version, tools available)
+8. Install all project dependencies (e.g., `pip install -r requirements.txt`)
+9. **🚨 CHECKPOINT**: Present feature selection, TDD review, dimension profile focus areas, implementation checklist, and environment setup to human partner for approval before starting code review analysis
 
 ### Pre-Review Analysis
 
-9. Run automated code quality checks:
+10. Run automated code quality checks:
    ```bash
    # Static analysis / linting
    flake8 src/ tests/               # or your project's linter
@@ -86,7 +87,7 @@ Review implemented code to ensure it meets quality standards, follows project co
    # Run tests with coverage
    pytest --cov=src tests/          # or your project's test runner
    ```
-10. Review dependency changes in the project's dependency configuration for:
+11. Review dependency changes in the project's dependency configuration for:
    - Version compatibility
    - Security implications
    - License compliance
@@ -94,7 +95,7 @@ Review implemented code to ensure it meets quality standards, follows project co
 
 ### Code Review Execution
 
-11. Examine the implemented code, focusing on:
+12. Examine the implemented code, focusing on:
     - **Coding Best Practices**: Language idioms, type safety, proper use of language features
     - **Architecture Adherence**: Design patterns, service layer, proper separation of concerns
     - **State Management**: State handling patterns, immutability, proper resource cleanup
@@ -108,25 +109,25 @@ Review implemented code to ensure it meets quality standards, follows project co
 
 ### Testing Verification
 
-12. Run and verify all test suites:
+13. Run and verify all test suites:
     ```bash
     pytest tests/unit/               # Unit tests
     pytest tests/integration/        # Integration tests
     pytest tests/                    # Full test suite
     ```
-13. Verify test coverage meets project standards (aim for >80% for critical paths)
-14. Test the feature in relevant environments (if applicable):
+14. Verify test coverage meets project standards (aim for >80% for critical paths)
+15. Test the feature in relevant environments (if applicable):
     - Development environment
     - Staging/test environment
     - Target platform(s)
 
 ### Performance & Accessibility Review
 
-15. Use profiling tools to check for:
+16. Use profiling tools to check for:
     - Unnecessary processing or redundant operations
     - Memory leaks
     - Performance bottlenecks
-16. Test accessibility features:
+17. Test accessibility features:
     - Screen reader compatibility
     - Keyboard navigation
     - Color contrast
@@ -134,7 +135,7 @@ Review implemented code to ensure it meets quality standards, follows project co
 
 ### Security Review
 
-17. Verify security considerations:
+18. Verify security considerations:
     - Input validation and sanitization
     - Secure data storage
     - Authentication token handling
@@ -143,7 +144,7 @@ Review implemented code to ensure it meets quality standards, follows project co
 
 ### Defect Discovery During Review
 
-18. **Identify Defects**: During code review, systematically identify any defects:
+19. **Identify Defects**: During code review, systematically identify any defects:
 
     - **Logic Errors**: Incorrect business logic implementation or algorithmic flaws
     - **Security Vulnerabilities**: Authentication bypasses, data exposure, injection vulnerabilities
@@ -154,7 +155,7 @@ Review implemented code to ensure it meets quality standards, follows project co
     - **Platform-Specific Issues**: Platform compatibility problems, accessibility violations
     - **Technical Debt**: Code that works but has known quality/design problems — shortcuts, suboptimal patterns, missing abstractions
 
-19. **Route Discovered Defects**: Classify each finding and route to the correct tracking system:
+20. **Route Discovered Defects**: Classify each finding and route to the correct tracking system:
 
     | Finding type | Condition | Route to | Fix task |
     |---|---|---|---|
@@ -181,16 +182,16 @@ Review implemented code to ensure it meets quality standards, follows project co
 
 ### Finalization
 
-20. **🚨 CHECKPOINT**: Present code review findings, bug reports, test results, performance analysis, and security review to human partner for review before finalization
-21. Document findings using the severity levels from the Code Review Checklist:
+21. **🚨 CHECKPOINT**: Present code review findings, bug reports, test results, performance analysis, and security review to human partner for review before finalization
+22. Document findings using the severity levels from the Code Review Checklist:
     - 🔴 **Critical**: Security vulnerabilities, crashes, data corruption
     - 🟠 **Major**: Significant functionality or maintainability issues
     - 🟡 **Minor**: Issues that should be addressed but don't block deployment
     - 🔵 **Suggestion**: Recommendations for improvement
     - 🟢 **Positive**: Acknowledge good practices and well-implemented solutions
-22. Update the feature tracking document to reflect the review status
-23. Update test implementation tracking based on test review results
-24. **🚨 MANDATORY FINAL STEP**: Complete the Task Completion Checklist below
+23. Update the feature tracking document to reflect the review status
+24. Update test implementation tracking based on test review results
+25. **🚨 MANDATORY FINAL STEP**: Complete the Task Completion Checklist below
 
 ## Outputs
 
@@ -199,7 +200,7 @@ Review implemented code to ensure it meets quality standards, follows project co
 - **Test Coverage Report** - Generated coverage report from test runner
 - **Code Quality Metrics** - Results from static analysis and formatting checks
 - **Performance Analysis** - Profiling tool findings and performance recommendations
-- **Defect Reports** - Findings routed per step 19: bugs → [Bug Tracking](../../../product-docs/state-tracking/permanent/bug-tracking.md), tech debt → [Technical Debt Tracking](../../../product-docs/state-tracking/permanent/technical-debt-tracking.md), implementation gaps → feature state file
+- **Defect Reports** - Findings routed per step 20: bugs → [Bug Tracking](../../../product-docs/state-tracking/permanent/bug-tracking.md), tech debt → [Technical Debt Tracking](../../../product-docs/state-tracking/permanent/technical-debt-tracking.md), implementation gaps → feature state file
 
 ## State Tracking
 

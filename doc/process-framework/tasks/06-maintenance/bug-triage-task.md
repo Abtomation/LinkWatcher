@@ -41,7 +41,8 @@ Systematically evaluate, prioritize, and assign reported bugs to ensure efficien
 
 - **Important (Load If Space):**
 
-  - [Feature Implementation State Files](../../state-tracking/features/) - State file for the affected feature (known issues, related bugs, implementation progress)
+  - [Feature Implementation State Files](../../state-tracking/features/) - State file for the affected feature (known issues, related bugs, implementation progress, Dimension Profile)
+  - [Development Dimensions Guide](../../guides/framework/development-dimensions-guide.md) - Dimension definitions for identifying which dimensions a bug affects
   - [Project Architecture](/doc/product-docs/technical/architecture) - Understanding system architecture for impact assessment
 
 - **Reference Only (Access When Needed):**
@@ -77,22 +78,27 @@ Systematically evaluate, prioritize, and assign reported bugs to ensure efficien
    - **High**: Major feature not working, significant user impact
    - **Medium**: Minor feature issue, workaround available
    - **Low**: Cosmetic issue, minimal user impact
-9. **Determine Priority Level**:
+9. **Identify Affected Dimensions**: Determine which development dimensions the bug impacts using the [Development Dimensions Guide](../../guides/framework/development-dimensions-guide.md):
+   - Reference the affected feature's Dimension Profile from its implementation state file for context
+   - Identify the subset of dimensions this bug affects (e.g., `SE DI` for a bug causing data loss through unsanitized input)
+   - For **Small-scope (S)** bugs: a quick dimension tag is sufficient (abbreviations only)
+   - For **Large-scope (L)** bugs: detailed dimension context will be recorded in the Bug Fix State File
+10. **Determine Priority Level**:
    - **P1 (Critical)**: System breaking, security issues - Immediate response
    - **P2 (High)**: Major functionality affected - Within 24 hours
    - **P3 (Medium)**: Minor functionality affected - Within 1 week
    - **P4 (Low)**: Cosmetic or enhancement requests - When time permits
-10. **Check for Duplicates**: Compare with existing bugs to identify duplicates
-11. **🚨 CHECKPOINT**: Present triage decisions (priority, scope, duplicates, rationale) to human partner for approval
+11. **Check for Duplicates**: Compare with existing bugs to identify duplicates
+12. **🚨 CHECKPOINT**: Present triage decisions (priority, scope, affected dimensions, duplicates, rationale) to human partner for approval
 
 ### Assignment and Documentation
 
-12. **Assign Priority and Scope**: Update bug entry with determined priority (P1-P4) and scope (S/M/L for fix complexity — see [Scope Levels](../../../product-docs/state-tracking/permanent/bug-tracking.md#scope-levels))
-13. **Provide Triage Rationale**: Document the reasoning behind priority and scope assignments
-14. **Identify Related Features**: Link bugs to affected features in Feature Tracking
+13. **Assign Priority, Scope, and Dimensions**: Update bug entry with determined priority (P1-P4), scope (S/M/L for fix complexity — see [Scope Levels](../../../product-docs/state-tracking/permanent/bug-tracking.md#scope-levels)), and affected dimensions in the **Dims** column (e.g., `SE DI`)
+14. **Provide Triage Rationale**: Document the reasoning behind priority, scope, and dimension assignments
+15. **Identify Related Features**: Link bugs to affected features in Feature Tracking
     > **Tip**: Bugs discovered during code review often lack a "Related Feature" field. During triage, identify the affected feature from [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) and populate this field.
-15. **Estimate Effort**: Provide rough effort estimate for fixing the bug
-16. **Update Bug Status**: Change status from 🆕 Reported to 🔍 Triaged
+16. **Estimate Effort**: Provide rough effort estimate for fixing the bug
+17. **Update Bug Status**: Change status from 🆕 Reported to 🔍 Triaged
     - **Manual Update**: Edit the [Bug Tracking](../../../product-docs/state-tracking/permanent/bug-tracking.md) file directly
     - **Optional Automation**: Use [`Update-BugStatus.ps1`](../../scripts/update/Update-BugStatus.ps1) script for consistent formatting:
       ```powershell
@@ -101,10 +107,10 @@ Systematically evaluate, prioritize, and assign reported bugs to ensure efficien
 
 ### Finalization
 
-17. **Update Bug Registry**: Ensure all bug information is properly recorded
-18. **Plan Next Steps**: Determine immediate next actions for high-priority bugs
-19. **Update Statistics**: Refresh bug tracking statistics
-20. **🚨 MANDATORY FINAL STEP**: Complete the Task Completion Checklist below
+18. **Update Bug Registry**: Ensure all bug information is properly recorded
+19. **Plan Next Steps**: Determine immediate next actions for high-priority bugs
+20. **Update Statistics**: Refresh bug tracking statistics
+21. **🚨 MANDATORY FINAL STEP**: Complete the Task Completion Checklist below
 
 ## Triage Decision Framework
 
@@ -187,6 +193,7 @@ Before considering this task finished:
 
   - [ ] Bug validity has been assessed for all reported bugs
   - [ ] Impact has been evaluated and scope (S/M/L) has been determined
+  - [ ] Affected dimensions have been identified and recorded in the Dims column
   - [ ] Priority has been assigned using the decision matrix
   - [ ] Duplicate bugs have been identified and consolidated
   - [ ] Triage rationale is documented for all decisions

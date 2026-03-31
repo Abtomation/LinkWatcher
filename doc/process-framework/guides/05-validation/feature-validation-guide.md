@@ -18,7 +18,9 @@ related_tasks: PF-TSK-031,PF-TSK-032,PF-TSK-033,PF-TSK-034,PF-TSK-035,PF-TSK-036
 
 This guide provides comprehensive instructions for conducting feature validation using the multi-dimension validation framework. It covers all aspects of the validation process, from preparation through execution to reporting and remediation tracking.
 
-The feature validation framework systematically evaluates a project's selected features across multiple specialized validation dimensions to ensure code quality, maintainability, security, performance, and AI agent continuity. The framework includes 11 validation dimensions — not all dimensions apply to every project or feature. Use the [Validation Preparation task](../../tasks/05-validation/validation-preparation.md) (PF-TSK-077) to select which features and dimensions to validate.
+The feature validation framework systematically evaluates a project's selected features across multiple specialized validation dimensions to ensure code quality, maintainability, security, performance, and more. The framework includes **10 development dimensions** aligned with the [Development Dimensions Guide](../framework/development-dimensions-guide.md), plus a standalone **AI Agent Continuity** validation task. Not all dimensions apply to every project or feature. Use the [Validation Preparation task](../../tasks/05-validation/validation-preparation.md) (PF-TSK-077) to select which features and dimensions to validate.
+
+> **Dimension source**: For features with a Dimension Profile in their implementation state file, use the profile as the primary source for dimension applicability during validation. See the [Development Dimensions Guide](../framework/development-dimensions-guide.md) for dimension definitions and abbreviations.
 
 > **⚠️ Project Adaptation Required**: This guide uses illustrative example feature IDs (e.g., `0.2.1`–`0.2.4`). Replace them with your project's actual features as listed in your [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) file.
 
@@ -26,7 +28,7 @@ The feature validation framework systematically evaluates a project's selected f
 
 Use this guide when:
 
-- **Conducting feature validation** using any of the 11 validation dimension tasks
+- **Conducting feature validation** using any of the 10 dimension-aligned validation tasks (plus the standalone AI Agent Continuity task)
 - **Planning validation rounds** — start with [Validation Preparation](../../tasks/05-validation/validation-preparation.md) to select features and dimensions
 - **Interpreting validation results** and creating improvement roadmaps
 - **Training new team members** on the validation framework
@@ -57,37 +59,45 @@ Use this guide when:
 
 ## Dimension Catalog
 
-The validation framework includes 11 dimensions. Each dimension has its own task definition with specialized AI agent role, validation criteria, and execution steps. **Not every dimension applies to every project or feature** — the [Validation Preparation task](../../tasks/05-validation/validation-preparation.md) guides dimension selection.
+The validation framework includes **10 development dimensions** (aligned with the [Development Dimensions Guide](../framework/development-dimensions-guide.md)) plus a **standalone AI Agent Continuity validation task**. Each dimension has its own task definition with specialized AI agent role, validation criteria, and execution steps. **Not every dimension applies to every project or feature** — the [Validation Preparation task](../../tasks/05-validation/validation-preparation.md) guides dimension selection.
 
 ### Core Dimensions (Universal — apply to all projects)
 
-| # | Dimension | Task | Focus | AI Agent Role |
-|---|-----------|------|-------|---------------|
-| 1 | **Architectural Consistency** | [PF-TSK-031](../../tasks/05-validation/architectural-consistency-validation.md) | Pattern adherence, ADR compliance, interface consistency | Software Architect |
-| 2 | **Code Quality & Standards** | [PF-TSK-032](../../tasks/05-validation/code-quality-standards-validation.md) | SOLID principles, code style, language best practices | Code Quality Auditor |
-| 3 | **Integration & Dependencies** | [PF-TSK-033](../../tasks/05-validation/integration-dependencies-validation.md) | Dependency health, interface contracts, data flow | Integration Specialist |
-| 4 | **Documentation Alignment** | [PF-TSK-034](../../tasks/05-validation/documentation-alignment-validation.md) | TDD alignment, ADR compliance, API docs accuracy | Documentation Analyst |
+| # | Abbr | Dimension | Task | Focus | AI Agent Role |
+|---|------|-----------|------|-------|---------------|
+| 1 | AC | **Architectural Consistency** | [PF-TSK-031](../../tasks/05-validation/architectural-consistency-validation.md) | Pattern adherence, ADR compliance, interface consistency | Software Architect |
+| 2 | CQ | **Code Quality & Standards** | [PF-TSK-032](../../tasks/05-validation/code-quality-standards-validation.md) | SOLID principles, code style, language best practices | Code Quality Auditor |
+| 3 | ID | **Integration & Dependencies** | [PF-TSK-033](../../tasks/05-validation/integration-dependencies-validation.md) | Dependency health, interface contracts, data flow | Integration Specialist |
+| 4 | DA | **Documentation Alignment** | [PF-TSK-034](../../tasks/05-validation/documentation-alignment-validation.md) | TDD alignment, ADR compliance, API docs accuracy | Documentation Analyst |
 
 ### Extended Dimensions (Widely applicable — evaluate per project)
 
-| # | Dimension | Task | Focus | Apply When |
-|---|-----------|------|-------|------------|
-| 5 | **Extensibility & Maintainability** | [PF-TSK-035](../../tasks/05-validation/extensibility-maintainability-validation.md) | Extension points, configuration flexibility, testing support | Growing/evolving projects |
-| 6 | **AI Agent Continuity** | [PF-TSK-036](../../tasks/05-validation/ai-agent-continuity-validation.md) | Context clarity, modular structure, documentation quality | AI-assisted development workflows |
-| 7 | **Security & Data Protection** | [PF-TSK-072](../../tasks/05-validation/security-data-protection-validation.md) | Auth, input validation, secrets management, OWASP | Features handling user input, auth, sensitive data, or external APIs |
-| 8 | **Performance & Scalability** | [PF-TSK-073](../../tasks/05-validation/performance-scalability-validation.md) | Resource efficiency, algorithmic complexity, I/O patterns | Features with I/O, large data, real-time processing, or production load |
-| 9 | **Observability** | [PF-TSK-074](../../tasks/05-validation/observability-validation.md) | Logging coverage, monitoring, alerting, error traceability | Background processes, async operations, production monitoring needs |
-| 10 | **Accessibility / UX Compliance** | [PF-TSK-075](../../tasks/05-validation/accessibility-ux-compliance-validation.md) | WCAG compliance, keyboard navigation, screen reader support | UI-focused features or user-facing interactions |
-| 11 | **Data Integrity** | [PF-TSK-076](../../tasks/05-validation/data-integrity-validation.md) | Data consistency, constraint enforcement, migration safety | Features modifying, transforming, or migrating data |
+| # | Abbr | Dimension | Task | Focus | Apply When |
+|---|------|-----------|------|-------|------------|
+| 5 | EM | **Extensibility & Maintainability** | [PF-TSK-035](../../tasks/05-validation/extensibility-maintainability-validation.md) | Extension points, configuration flexibility, testing support | Growing/evolving projects |
+| 6 | SE | **Security & Data Protection** | [PF-TSK-072](../../tasks/05-validation/security-data-protection-validation.md) | Auth, input validation, secrets management, OWASP | Features handling user input, auth, sensitive data, or external APIs |
+| 7 | PE | **Performance & Scalability** | [PF-TSK-073](../../tasks/05-validation/performance-scalability-validation.md) | Resource efficiency, algorithmic complexity, I/O patterns | Features with I/O, large data, real-time processing, or production load |
+| 8 | OB | **Observability** | [PF-TSK-074](../../tasks/05-validation/observability-validation.md) | Logging coverage, monitoring, alerting, error traceability | Background processes, async operations, production monitoring needs |
+| 9 | UX | **Accessibility / UX Compliance** | [PF-TSK-075](../../tasks/05-validation/accessibility-ux-compliance-validation.md) | WCAG compliance, keyboard navigation, screen reader support | UI-focused features or user-facing interactions |
+| 10 | DI | **Data Integrity** | [PF-TSK-076](../../tasks/05-validation/data-integrity-validation.md) | Data consistency, constraint enforcement, migration safety | Features modifying, transforming, or migrating data |
+
+### Standalone Validation Task (Not a Development Dimension)
+
+| Task | Focus | Apply When |
+|------|-------|------------|
+| **AI Agent Continuity** [PF-TSK-036](../../tasks/05-validation/ai-agent-continuity-validation.md) | Context clarity, modular structure, documentation quality for AI workflow continuity | AI-assisted development workflows |
+
+> **Why standalone?** AI Agent Continuity's unique criteria (context window optimization, continuation points) are valuable as a periodic check but don't warrant flowing through the full planning → implementation → review lifecycle as a dimension. During development, AI continuity concerns collapse into CQ (readability, naming), EM (modularity, file sizes), and DA (documentation clarity). See [Development Dimensions Guide](../framework/development-dimensions-guide.md) and proposal decision D4 for full rationale.
 
 ### Dimension Selection Guidance
 
 - **Core dimensions** (1-4) should be applied to virtually all features in any project
-- **Extended dimensions** (5-11) are evaluated per feature based on applicability criteria
+- **Extended dimensions** (5-10) are evaluated per feature based on applicability criteria — check the feature's **Dimension Profile** in its implementation state file as the primary source
+- **AI Agent Continuity** is included in validation rounds for projects using AI-assisted development, independently of the dimension profile
 - Mark non-applicable dimensions as **N/A** in the validation tracking matrix with brief rationale
 - The [Validation Preparation task](../../tasks/05-validation/validation-preparation.md) formalizes dimension selection with documented rationale
 
-> **Bounded catalog**: These 11 dimensions cover the full universe of software quality attributes. New dimensions are rare — if you think one is needed, check whether it fits as a sub-criterion of an existing dimension first.
+> **Bounded catalog**: These 10 dimensions plus the standalone AI task cover the full universe of software quality attributes. New dimensions are rare — if you think one is needed, check whether it fits as a sub-criterion of an existing dimension first.
 
 ## Prerequisites
 

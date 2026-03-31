@@ -98,7 +98,10 @@ param(
     [string]$Evidence = "",
 
     [Parameter(Mandatory = $false)]
-    [string]$RelatedFeature = ""
+    [string]$RelatedFeature = "",
+
+    [Parameter(Mandatory = $false)]
+    [string]$Dims = ""
 )
 
 # Import the common helpers
@@ -161,8 +164,11 @@ $NotesField = $NotesParts -join "; "
 # Related feature field
 $RelatedFeatureField = if ($RelatedFeature -ne "") { $RelatedFeature } else { "N/A" }
 
-# Create table row — 9-column format: ID | Title | Status | Priority | Scope | Reported | Description | Related Feature | Notes
-$TableRow = "| $BugId | $Title | 🆕 Reported | $PriorityCode | | $currentDate | $Description | $RelatedFeatureField | $NotesField |"
+# Dims field
+$DimsField = if ($Dims -ne "") { $Dims } else { "" }
+
+# Create table row — 10-column format: ID | Title | Status | Priority | Scope | Reported | Description | Related Feature | Dims | Notes
+$TableRow = "| $BugId | $Title | 🆕 Reported | $PriorityCode | | $currentDate | $Description | $RelatedFeatureField | $DimsField | $NotesField |"
 
 # Find the appropriate table and replace the "No bugs" message
 $NobugsPattern = switch ($Severity) {

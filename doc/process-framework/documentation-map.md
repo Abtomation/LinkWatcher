@@ -132,6 +132,7 @@ Our tasks are organized into four categories and follow a unified structure:
 - [Process: Test Audit Usage Guide](guides/03-testing/test-audit-usage-guide.md) - Comprehensive guide for conducting systematic test quality assessments
 - [Process: Test Infrastructure Guide](guides/03-testing/test-infrastructure-guide.md) - How the test/ directory connects to the process framework — directory conventions, automation scripts, tracking relationships, and new-project scaffolding
 - [Process: CI/CD Setup Guide](guides/07-deployment/ci-cd-setup-guide.md) - Guide for scaffolding CI/CD infrastructure (pipelines, pre-commit hooks, dev scripts)
+- [Process: Development Dimensions Guide](guides/framework/development-dimensions-guide.md) - Single authoritative reference for 10 development dimensions across all task phases (planning, implementation, review, validation)
 - [Process: Feedback Form Guide](guides/framework/feedback-form-guide.md) - Comprehensive guide for completing feedback forms effectively
 - [Process: Feedback Form Completion Instructions](guides/framework/feedback-form-completion-instructions.md) - Standardized instructions for completing feedback forms (referenced by all tasks)
 - [Process: Task Transition Guide](guides/framework/task-transition-guide.md) - Guidance on when and how to transition between related tasks

@@ -41,7 +41,7 @@ Systematic code improvement and technical debt reduction without changing extern
 - **Critical (Must Read):**
 
   - **Target Code Area** - Specific files, modules, or components to be refactored
-  - **Current Code Quality Issues** - Identified problems, code smells, or technical debt items
+  - **Current Code Quality Issues** - Identified problems, code smells, or technical debt items (check the **Dims** column in [Technical Debt Tracking](../../../product-docs/state-tracking/permanent/technical-debt-tracking.md) for the primary dimension)
   - **Existing Test Coverage** - Current test suite for the code area to ensure behavior preservation
 
 - **Important (Load If Space):**

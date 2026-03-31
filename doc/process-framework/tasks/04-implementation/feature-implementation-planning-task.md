@@ -92,6 +92,7 @@ When referencing design documents in implementation plans:
   - **Feature Tracking** - [Feature details from feature-tracking.md](../../../product-docs/state-tracking/permanent/feature-tracking.md) including feature ID, name, complexity tier, and design document links
   - **TDD (Technical Design Document)** - The approved technical design at `/doc/product-docs/technical/architecture/design-docs/tdd/` containing component architecture and implementation approach
   - **FDD (Functional Design Document)** - For Tier 2+ features, the functional requirements at `/doc/product-docs/functional-design/fdds/`
+  - **Development Dimensions Guide** - [Dimension definitions, applicability criteria, and phase-specific guidance](../../guides/framework/development-dimensions-guide.md) - **MUST READ** for evaluating dimension applicability during planning
   - **Feature Implementation State Template** - [Template for permanent state tracking](../../templates/04-implementation/feature-implementation-state-template.md) - **MUST READ** to understand living document structure
   - **Feature Implementation State Tracking Guide** - [Comprehensive guide](../../guides/04-implementation/feature-implementation-state-tracking-guide.md) for creating and maintaining feature state documents
 
@@ -144,11 +145,16 @@ When referencing design documents in implementation plans:
    - Review similar features for reusable patterns
    - Identify existing components that will be integrated with or modified
    - Note any architectural constraints from ADRs
-5. **🚨 CHECKPOINT**: Present design document review summary, codebase context assessment, and identified constraints to human partner for approval
+5. **Evaluate Dimension Applicability**: Using the [Development Dimensions Guide](../../guides/framework/development-dimensions-guide.md), evaluate which quality dimensions apply to this feature:
+   - **Core dimensions** (AC, CQ, ID, DA) are always **Relevant** or **Critical** — no evaluation needed
+   - **Extended dimensions** (EM, SE, PE, OB, UX, DI) — apply the guide's "Applicability" criteria to determine Critical / Relevant / N/A for each
+   - For each **Critical** dimension, note specific considerations that will inform implementation tasks (e.g., "SE Critical — feature handles user-provided file paths, must validate against path traversal")
+   - Map Critical dimensions to specific implementation tasks as acceptance criteria
+6. **🚨 CHECKPOINT**: Present design document review summary, codebase context assessment, dimension applicability evaluation, and identified constraints to human partner for approval
 
 ### Execution - Part 1: Implementation Roadmap Creation
 
-6. **Break Down Feature into Implementation Phases**: Organize the work into logical implementation phases:
+7. **Break Down Feature into Implementation Phases**: Organize the work into logical implementation phases:
 
    - **Data Layer**: Models, repositories, database migrations
    - **Service Layer**: Business logic, validation, external service integration
@@ -158,14 +164,14 @@ When referencing design documents in implementation plans:
    - **Integration**: API integration, authentication, navigation flows
    - **Quality Validation**: Code review, performance testing, security review
 
-7. **Identify Files and Components per Phase**: For each implementation phase, document:
+8. **Identify Files and Components per Phase**: For each implementation phase, document:
 
    - **Existing files to modify**: Specific file paths in the source directory that need changes
    - **New files to create**: File paths and purposes for new components
    - **Design documents to reference**: Which sections of [FDD](/doc/product-docs/functional-design/fdds/), [TDD](/doc/product-docs/technical/architecture/design-docs/tdd/), API, DB Schema, or UI Design documents are relevant
    - **Existing patterns to follow**: Similar features in the codebase to reference
 
-8. **Sequence Implementation Phases**: Order phases based on:
+9. **Sequence Implementation Phases**: Order phases based on:
 
    - **Technical Dependencies**: Data models before repositories, repositories before services
    - **Integration Dependencies**: External service setup before integration code
@@ -173,21 +179,21 @@ When referencing design documents in implementation plans:
    - **Testing Opportunities**: Structure for test-driven development
    - **Session Boundaries**: Natural stopping points for long-running implementations
 
-9. **Create Dependency Map**: Document explicit dependencies between phases:
+10. **Create Dependency Map**: Document explicit dependencies between phases:
 
    - Which phases BLOCK other phases (must complete before)
    - Which phases SHARE components (coordination needed across files)
    - Which phases depend on EXTERNAL systems (setup or access needed)
    - Which phases require DATABASE changes (migrations must be applied first)
 
-10. **Estimate Effort per Phase**: Provide realistic effort estimates:
+11. **Estimate Effort per Phase**: Provide realistic effort estimates:
    - **Small (S)**: 1-3 hours, single component, straightforward implementation
    - **Medium (M)**: 3-8 hours, multiple related components, moderate complexity
    - **Large (L)**: 8+ hours, complex logic, extensive integration, significant testing
 
 ### Execution - Part 2: Integration and Risk Planning
 
-11. **Identify System Integration Points**: Document where feature touches existing system:
+12. **Identify System Integration Points**: Document where feature touches existing system:
 
     - **Database**: Tables/views accessed, migrations needed, RLS policy impact
     - **Authentication**: Auth requirements, role checks, permission guards
@@ -195,24 +201,24 @@ When referencing design documents in implementation plans:
     - **Navigation**: Route definitions, deep links, navigation guards
     - **External Services**: API calls, third-party integrations, service dependencies
 
-12. **Define Testing Strategy per Phase**: Specify testing approach for each implementation task:
+13. **Define Testing Strategy per Phase**: Specify testing approach for each implementation task:
 
     - **Unit Testing**: Services, repositories, utility functions, validation logic
     - **Component Testing**: UI components, forms, user interactions
     - **Integration Testing**: Database operations, API calls, service interactions
     - **End-to-End Testing**: Complete user workflows, cross-feature scenarios
 
-13. **Assess Implementation Risks**: Identify risks and mitigation strategies:
+14. **Assess Implementation Risks**: Identify risks and mitigation strategies:
     - **Technical Risks**: Performance bottlenecks, scalability concerns, technical debt
     - **Integration Risks**: External service dependencies, breaking changes, version conflicts
     - **Timeline Risks**: Blocking dependencies, resource constraints, scope creep
     - **Quality Risks**: Insufficient test coverage, security vulnerabilities, accessibility gaps
     - **Mitigation Strategies**: Specific actions to reduce or eliminate each identified risk
-14. **🚨 CHECKPOINT**: Present implementation roadmap, dependency map, integration points, and risk assessment to human partner for review and approval
+15. **🚨 CHECKPOINT**: Present implementation roadmap, dependency map, integration points, and risk assessment to human partner for review and approval
 
 ### Execution - Part 3: Documentation Creation
 
-15. **Create Implementation Plan Document**: Use the automation script:
+16. **Create Implementation Plan Document**: Use the automation script:
 
     ```powershell
     # Navigate to script directory
@@ -229,7 +235,7 @@ When referencing design documents in implementation plans:
     - Populate template with feature information
     - Guide you to complete remaining sections
 
-16. **Complete Implementation Plan Sections**: Fill in all template sections:
+17. **Complete Implementation Plan Sections**: Fill in all template sections:
 
     - **Feature Overview**: Brief summary with links to design documents ([FDD](/doc/product-docs/functional-design/fdds/), [TDD](/doc/product-docs/technical/architecture/design-docs/tdd/), API, DB, UI)
     - **Implementation Objectives**: Clear goals and success criteria for implementation
@@ -241,7 +247,7 @@ When referencing design documents in implementation plans:
     - **Risk Assessment**: Identified risks with severity and mitigation strategies
     - **Success Criteria**: Measurable completion criteria for the implementation
 
-17. **Create Feature Implementation State File**: Use the automation script to create the permanent living document:
+18. **Create Feature Implementation State File**: Use the automation script to create the permanent living document:
 
     ```powershell
     # Navigate to script directory
@@ -261,9 +267,10 @@ When referencing design documents in implementation plans:
     - Provide structure for contextual information sections
     - Guide you to complete remaining sections
 
-18. **Initialize Feature State Document**: Complete planning-phase sections with CONTEXTUAL INFORMATION (metadata already populated by script):
+19. **Initialize Feature State Document**: Complete planning-phase sections with CONTEXTUAL INFORMATION (metadata already populated by script):
     - **Feature Overview**: Complete description with business value and scope
     - **Implementation Progress**: Copy phase sequence from implementation plan
+    - **Dimension Profile**: Record the dimension applicability evaluation from step 5 — applicable dimensions with importance level (Critical/Relevant) and key considerations, plus N/A dimensions with rationale. This is the **single source of truth** for dimension awareness during implementation
     - **Documentation Inventory**: List all design documents ([FDD](/doc/product-docs/functional-design/fdds/), [TDD](/doc/product-docs/technical/architecture/design-docs/tdd/), API, DB, UI) with direct links and which sections are relevant for each phase
     - **File and Component Context**: Document specific files in the source directory and the test directory that will be created/modified per phase
     - **Dependencies**: Document feature dependencies, system integration points, and code dependencies
@@ -271,9 +278,9 @@ When referencing design documents in implementation plans:
 
 ### Finalization
 
-19. **🚨 CHECKPOINT**: Present completed implementation plan document and initialized feature state file to human partner for final review and approval
+20. **🚨 CHECKPOINT**: Present completed implementation plan document and initialized feature state file to human partner for final review and approval
 
-20. **Validate Plan Completeness**: Review both documents for quality:
+21. **Validate Plan Completeness**: Review both documents for quality:
 
     - All implementation phases are clearly defined with reasonable scope
     - Specific file paths documented for each phase (what to create/modify in the source directory)
@@ -284,21 +291,21 @@ When referencing design documents in implementation plans:
     - Risks have specific, actionable mitigation strategies
     - Testing strategy covers all critical paths
 
-21. **Update Feature Tracking**: Update [`feature-tracking.md`](../../../product-docs/state-tracking/permanent/feature-tracking.md):
+22. **Update Feature Tracking**: Update [`feature-tracking.md`](../../../product-docs/state-tracking/permanent/feature-tracking.md):
 
     - Add link to Implementation Plan in Notes column
     - Update status to indicate planning is complete
     - Add link to Feature State document
     - Record planning completion date
 
-22. **Document Planning Decisions**: Record any significant decisions made during planning:
+23. **Document Planning Decisions**: Record any significant decisions made during planning:
 
     - Phase sequencing rationale
     - File organization approach
     - Scope trade-offs or deferrals
     - Alternative approaches considered
 
-23. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+24. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 
@@ -318,6 +325,7 @@ When referencing design documents in implementation plans:
   - **Feature Overview**: Complete feature description, business value, scope (in/out of scope)
   - **Current State Summary**: Initial state showing planning phase activities
   - **Implementation Progress**: Sequenced phase list from implementation plan (will be updated throughout implementation)
+  - **Dimension Profile**: Applicability evaluation for all 10 development dimensions — importance level (Critical/Relevant/N/A) with key considerations per applicable dimension. Single source of truth for dimension awareness during implementation, review, and validation
   - **Documentation Inventory**: Links to all design documents ([FDD](/doc/product-docs/functional-design/fdds/), [TDD](/doc/product-docs/technical/architecture/design-docs/tdd/), API, DB, UI) with:
     - Direct links to specific document sections relevant to each implementation phase
     - Status of each design document
@@ -372,6 +380,7 @@ Before considering this task finished:
   - [ ] **Feature Overview**: Complete description, business value, scope (in/out of scope)
   - [ ] **Current State Summary**: Initial state documented showing planning activities
   - [ ] **Implementation Progress**: Phase list matches implementation plan
+  - [ ] **Dimension Profile**: All 10 dimensions evaluated with importance level (Critical/Relevant/N/A); key considerations documented for applicable dimensions; N/A rationale provided for excluded dimensions
   - [ ] **Documentation Inventory**: Links to all design documents ([FDD](/doc/product-docs/functional-design/fdds/), [TDD](/doc/product-docs/technical/architecture/design-docs/tdd/), API, DB, UI) with:
     - Specific sections of each document relevant to each implementation phase
     - Current status of each design document

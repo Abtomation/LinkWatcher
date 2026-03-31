@@ -30,7 +30,7 @@ import shutil
 import tempfile
 from enum import Enum
 from pathlib import Path
-from typing import Dict, List, TypedDict
+from typing import Dict, List, Tuple, TypedDict
 
 from .logging import get_logger
 from .models import LinkReference
@@ -98,6 +98,62 @@ class LinkUpdater:
                         "stale_references_detected",
                         file_path=file_path,
                         references_count=len(file_references),
+                    )
+                else:
+                    self.logger.debug("no_changes_needed", file_path=file_path)
+            except Exception as e:
+                stats["errors"] += 1
+                self.logger.error(
+                    "file_update_failed",
+                    file_path=file_path,
+                    error=str(e),
+                    error_type=type(e).__name__,
+                )
+
+        return stats
+
+    def update_references_batch(
+        self,
+        move_groups: List[Tuple[List[LinkReference], str, str]],
+    ) -> UpdateStats:
+        """Update references for multiple old→new path pairs in a single pass.
+
+        Groups all references by their containing file so each file is opened,
+        modified, and written at most once — even when many moved files are
+        referenced from the same source file.
+
+        Args:
+            move_groups: List of (references, old_path, new_path) tuples.
+
+        Returns:
+            Aggregated UpdateStats across all groups.
+        """
+        stats: UpdateStats = {
+            "files_updated": 0,
+            "references_updated": 0,
+            "errors": 0,
+            "stale_files": [],
+        }
+
+        # Build a per-source-file list of (ref, old_path, new_path)
+        file_work: Dict[str, List[Tuple[LinkReference, str, str]]] = {}
+        for references, old_path, new_path in move_groups:
+            for ref in references:
+                file_work.setdefault(ref.file_path, []).append((ref, old_path, new_path))
+
+        for file_path, ref_tuples in file_work.items():
+            try:
+                result = self._update_file_references_multi(file_path, ref_tuples)
+                if result == UpdateResult.UPDATED:
+                    stats["files_updated"] += 1
+                    stats["references_updated"] += len(ref_tuples)
+                    self.logger.links_updated(file_path, len(ref_tuples))
+                elif result == UpdateResult.STALE:
+                    stats["stale_files"].append(file_path)
+                    self.logger.warning(
+                        "stale_references_detected",
+                        file_path=file_path,
+                        references_count=len(ref_tuples),
                     )
                 else:
                     self.logger.debug("no_changes_needed", file_path=file_path)
@@ -246,6 +302,121 @@ class LinkUpdater:
                     changes_made = True
 
             # Write the updated content if changes were made
+            if changes_made:
+                self._write_file_safely(abs_file_path, "".join(lines))
+                return UpdateResult.UPDATED
+
+            return UpdateResult.NO_CHANGES
+
+        except Exception as e:
+            raise RuntimeError(f"Failed to update file {abs_file_path}: {e}")
+
+    def _update_file_references_multi(
+        self,
+        file_path: str,
+        ref_tuples: List[Tuple[LinkReference, str, str]],
+    ) -> UpdateResult:
+        """Update references in a single file for multiple old→new path pairs.
+
+        Like _update_file_references but processes all path replacements in one
+        read→modify→write cycle. Each ref_tuple is (reference, old_path, new_path).
+
+        Returns:
+            UpdateResult.UPDATED if file was modified,
+            UpdateResult.NO_CHANGES if no changes needed,
+            UpdateResult.STALE if stale line numbers were detected.
+        """
+        if not os.path.isabs(file_path):
+            abs_file_path = os.path.join(self.project_root, file_path)
+        else:
+            abs_file_path = file_path
+
+        if self.dry_run:
+            self.logger.info(
+                "dry_run_skip",
+                file_path=abs_file_path,
+                references_count=len(ref_tuples),
+            )
+            return UpdateResult.UPDATED
+
+        try:
+            with open(abs_file_path, "r", encoding="utf-8") as f:
+                lines = f.readlines()
+
+            changes_made = False
+
+            # Build (ref, new_target) pairs, computing new_target for each
+            replacement_items = []
+            for ref, old_path, new_path in ref_tuples:
+                new_target = self._calculate_new_target(ref, old_path, new_path)
+                if new_target != ref.link_target:
+                    replacement_items.append((ref, new_target))
+
+            if not replacement_items:
+                return UpdateResult.NO_CHANGES
+
+            # Sort by line number descending, then column descending (bottom-to-top)
+            replacement_items.sort(
+                key=lambda item: (item[0].line_number, item[0].column_start),
+                reverse=True,
+            )
+
+            python_module_renames = {}
+
+            for ref, new_target in replacement_items:
+                line_idx = ref.line_number - 1
+
+                if ref.link_type == "python-import" and ref.link_text:
+                    new_module = new_target.replace("/", ".")
+                    if ref.link_text != new_module:
+                        python_module_renames[ref.link_text] = new_module
+
+                # Stale detection: line index out of bounds
+                if not (0 <= line_idx < len(lines)):
+                    self.logger.warning(
+                        "stale_line_number_detected",
+                        file_path=file_path,
+                        line_number=ref.line_number,
+                        total_lines=len(lines),
+                        link_target=ref.link_target,
+                    )
+                    return UpdateResult.STALE
+
+                line = lines[line_idx]
+
+                # Stale detection: expected target not found on this line
+                if ref.link_target not in line:
+                    if ref.link_type == "python-import" and ref.link_text and ref.link_text in line:
+                        pass
+                    elif new_target in line or (
+                        ref.link_type == "python-import" and new_target.replace("/", ".") in line
+                    ):
+                        continue
+                    else:
+                        self.logger.warning(
+                            "stale_line_content_detected",
+                            file_path=file_path,
+                            line_number=ref.line_number,
+                            expected_target=ref.link_target,
+                        )
+                        return UpdateResult.STALE
+
+                updated_line = self._replace_in_line(line, ref, new_target)
+                if updated_line != line:
+                    lines[line_idx] = updated_line
+                    changes_made = True
+
+            # Phase 2: File-wide Python module usage replacement (PD-BUG-045)
+            if python_module_renames:
+                content = "".join(lines)
+                for old_module, new_module in python_module_renames.items():
+                    pattern = r"\b" + re.escape(old_module) + r"\b"
+                    content = re.sub(pattern, new_module, content)
+                new_lines = content.splitlines(True)
+                if new_lines != lines:
+                    lines = new_lines
+                    changes_made = True
+
             if changes_made:
                 self._write_file_safely(abs_file_path, "".join(lines))
                 return UpdateResult.UPDATED

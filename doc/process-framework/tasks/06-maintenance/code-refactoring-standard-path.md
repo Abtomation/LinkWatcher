@@ -41,7 +41,7 @@
    - Document refactoring progress and blockers in the chosen tracking surface
    - Update status regularly during implementation
 
-3. **Analyze Current State**: Document current code quality issues, complexity metrics, and technical debt items
+3. **Analyze Current State**: Document current code quality issues, complexity metrics, and technical debt items. Read the tech debt item's **Dims** column from [Technical Debt Tracking](../../../product-docs/state-tracking/permanent/technical-debt-tracking.md) to understand the primary dimension(s) the refactoring should improve along — verify the refactoring plan addresses the flagged dimension(s)
 4. **Check manual test coverage**: Review [test-tracking.md](../../../../test/state-tracking/permanent/test-tracking.md) for manual test cases covering the affected functionality. Note which test groups will need re-execution after refactoring.
 5. **Verify Test Coverage**: Ensure comprehensive test coverage exists for the target code area
 5. **Create Baseline Measurements**: Record current performance metrics and code quality indicators
@@ -198,5 +198,5 @@ When bugs are discovered during refactoring, follow this decision process:
   - [ ] **Phase 1 (During)**: Temporary state tracking, bug tracking, technical debt progress documented
   - [ ] **Phase 2 (Completion)**: [Technical Debt Tracking](../../../product-docs/state-tracking/permanent/technical-debt-tracking.md) resolved items, [Feature Tracking](../../../product-docs/state-tracking/permanent/feature-tracking.md) status improved, [Architecture Tracking](../../../product-docs/state-tracking/permanent/architecture-tracking.md) updated for foundation features, [Test Tracking](../../../../test/state-tracking/permanent/test-tracking.md) updated
   - [ ] **Product Documentation**: If refactoring changed module boundaries/interfaces/design patterns — feature state file, TDD, FDD, and test spec updated (Step 12)
-  - [ ] **Phase 3 (Post)**: Temporary state archived (if created) to [old directory](../../state-tracking/temporary/old), [Architecture Tracking](../../../product-docs/state-tracking/permanent/architecture-tracking.md) updated for architectural changes
+  - [ ] **Phase 3 (Post)**: Temporary state archived (if created) to [old directory](../../state-tracking/temporary/old), [Architecture Tracking](../../../product-docs/state-tracking/permanent/architecture-tracking.md) updated for architectural changes, refactoring plan archived to `doc/product-docs/refactoring/plans/archive/`
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-022" and context "Code Refactoring Task"
