@@ -5,7 +5,6 @@ category: Task Definition
 version: 2.0
 created: 2023-06-15
 updated: 2026-03-15
-task_type: Discrete
 ---
 
 # Bug Fixing
@@ -35,18 +34,19 @@ Diagnose, fix, and verify solutions for reported bugs or issues in the applicati
 
 - **Critical (Must Read):**
 
-  - [Bug Tracking](../../../doc/product-docs/state-tracking/permanent/bug-tracking.md) - Central bug registry and status tracking
+  - [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) - Central bug registry and status tracking
   - Specific source files containing the bug
   - Tests related to the affected functionality
   - [Visual Notation Guide](/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 - **Important (Load If Space):**
 
-  - [Project Architecture](/doc/product-docs/technical/architecture) - Understanding of the system architecture
+  - [Project Architecture](/doc/technical/architecture) - Understanding of the system architecture
 
 - **Reference Only (Access When Needed):**
-  - [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) - To understand feature relationships and priorities when bugs affect specific features
+  - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - To understand feature relationships and priorities when bugs affect specific features
   - [Bug Fix State Template](../../templates/06-maintenance/bug-fix-state-tracking-template.md) - For multi-session complex bug fixes (Large effort)
+  - [Test File Creation Guide](../../guides/03-testing/test-file-creation-guide.md) - For creating new test files when coverage gaps are identified
 
 ## Process
 
@@ -60,10 +60,10 @@ Diagnose, fix, and verify solutions for reported bugs or issues in the applicati
 
 ### Preparation
 
-1. Review the [Bug Tracking](../../../doc/product-docs/state-tracking/permanent/bug-tracking.md) document to identify a triaged bug to fix (status 🔍 Triaged)
+1. Review the [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) document to identify a triaged bug to fix (status 🔍 Triaged)
 2. If no triaged bugs are found but bugs with status 🆕 Reported exist, **ask the human partner** whether to switch to [Bug Triage](bug-triage-task.md) first. Do not proceed with an un-triaged bug.
 3. Verify the selected bug has been properly triaged with priority, scope, and **affected dimensions** (Dims column) assigned. Read the affected dimensions to understand which quality concerns the fix must address (e.g., `SE DI` means the fix must ensure both security and data integrity). For Large-scope bugs with a bug fix state file, review the Affected Dimensions and Dimension-Informed Fix Requirements sections.
-4. **Assess workflow blast radius**: Check the **Workflows** column in the bug entry (or look up the Related Feature in [User Workflow Tracking](../../../doc/product-docs/state-tracking/permanent/user-workflow-tracking.md)) to identify which user workflows are affected. This informs the scope of testing needed — a bug affecting WF-001 (single file move) impacts the core value proposition and requires thorough regression testing across all referencing formats.
+4. **Assess workflow blast radius**: Check the **Workflows** column in the bug entry (or look up the Related Feature in [User Workflow Tracking](../../../doc/state-tracking/permanent/user-workflow-tracking.md)) to identify which user workflows are affected. This informs the scope of testing needed — a bug affecting WF-001 (single file move) impacts the core value proposition and requires thorough regression testing across all referencing formats.
 6. **Multi-session gate**: If the bug scope is "L" (Large) or requires architectural changes (e.g., redesigning a component, changing cross-cutting patterns), create a bug fix state tracking file:
    ```powershell
    cd process-framework/scripts/file-creation
@@ -86,7 +86,12 @@ Diagnose, fix, and verify solutions for reported bugs or issues in the applicati
    - **S-scope bugs**: Combine with Step 14 — present reproduction, root cause analysis, and proposed fix approach in a single checkpoint. After approval, skip directly to Step 15.
    - **Not-a-bug**: If investigation reveals the reported issue is expected behavior, user error, already fixed, or otherwise not a bug — present the evidence to the human partner. If they agree, transition to **Rejected** and skip to finalization:
      ```powershell
-     ../../scripts/update/Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "Rejected" -RejectionReason "Reason for rejection"
+     ../../scripts/update/Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "Rejected" -RejectionReason "Not a bug — [evidence summary]"
+     ```
+     Then skip directly to Step 29 (verify tracking update) → Step 31 (completion checklist). Steps 12–28 do not apply.
+   - **Won't Fix**: If investigation confirms a real bug but the fix cost is disproportionate to impact (e.g., requires architectural changes for an edge case, performance fix with negligible real-world benefit) — present the cost/benefit analysis to the human partner. If they agree, transition to **Rejected** and skip to finalization:
+     ```powershell
+     ../../scripts/update/Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "Rejected" -RejectionReason "Won't fix — [cost/benefit rationale]"
      ```
      Then skip directly to Step 29 (verify tracking update) → Step 31 (completion checklist). Steps 12–28 do not apply.
 
@@ -105,8 +110,11 @@ Diagnose, fix, and verify solutions for reported bugs or issues in the applicati
       - If the root cause is a pattern (e.g., off-by-one, null handling), add 1-2 boundary/edge case tests beyond the reproduction test
       - **Use strong assertions**: Assert the old/buggy value is **NOT** present (negative assertion), not just that the new/correct value **IS** present (positive assertion). Overly permissive tests that only check for the expected value can pass even when the bug persists alongside the fix.
       - Keep regression tests focused on the specific fix — note pre-existing test gaps for a future test audit rather than expanding scope here
-    - **Adding to an existing test file** (most common): Find the relevant test file in the project's test directory (see `paths.tests` in `project-config.json`). Add regression test(s) following the existing patterns in the file. After adding, update the test's pytest markers if needed (feature, priority). Test counts are automatically derived from the code.
-    - **Creating a new test file** (rare): Use [`New-TestFile.ps1`](../../scripts/file-creation/03-testing/New-TestFile.ps1) which writes pytest markers and auto-updates test-tracking.md and feature-tracking.md:
+    - **Decision: new file vs. existing file**:
+      - **Create a new test file** when: (1) no existing test file covers the affected component, (2) the bug spans multiple components not covered by a single existing file, or (3) the bug reveals a new category of behavior that doesn't fit existing test organization
+      - **Add to an existing file** (default): when a test file already covers the affected component — follow existing patterns in that file
+    - **Adding to an existing test file**: Find the relevant test file in the project's test directory (see `paths.tests` in `project-config.json`). Add regression test(s) following the existing patterns in the file. After adding, update the test's pytest markers if needed (feature, priority). Test counts are automatically derived from the code.
+    - **Creating a new test file**: Use [`New-TestFile.ps1`](../../scripts/file-creation/03-testing/New-TestFile.ps1) which writes pytest markers and auto-updates test-tracking.md and feature-tracking.md:
       ```powershell
       cd process-framework/scripts/file-creation
       .\New-TestFile.ps1 -TestName "BugDescription" -TestType "Unit" -FeatureId "X.Y.Z" -ComponentName "ComponentName"
@@ -170,9 +178,9 @@ Diagnose, fix, and verify solutions for reported bugs or issues in the applicati
       ../../scripts/update/Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "Closed" -VerificationNotes "Fix verified in production, no regressions detected"
       ```
       > **Note**: The script automatically moves the bug entry to the Closed Bugs section and recalculates Bug Statistics — no manual editing needed.
-32. Verify the [Bug Tracking](../../../doc/product-docs/state-tracking/permanent/bug-tracking.md) document was updated correctly (bug moved to Closed section, statistics updated)
-33. **If multi-session**: Archive the bug fix state file to `product-docs/state-tracking/temporary/old/` after the bug is closed
-34. **Batch opportunity**: Check [Bug Tracking](../../../doc/product-docs/state-tracking/permanent/bug-tracking.md) for additional triaged bugs. Ask the human partner if they want to fix another bug in this session before proceeding to the feedback form. If yes, loop back to Step 1 (Preparation) for the next bug. Defer the feedback form until all bugs in the session are complete.
+32. Verify the [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) document was updated correctly (bug moved to Closed section, statistics updated)
+33. **If multi-session**: Archive the bug fix state file to `doc/state-tracking/temporary/old` after the bug is closed
+34. **Batch opportunity**: Check [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) for additional triaged bugs. Ask the human partner if they want to fix another bug in this session before proceeding to the feedback form. If yes, loop back to Step 1 (Preparation) for the next bug. Defer the feedback form until all bugs in the session are complete.
 35. **🚨 MANDATORY FINAL STEP**: Complete the Task Completion Checklist below
 
 ## Outputs
@@ -180,25 +188,25 @@ Diagnose, fix, and verify solutions for reported bugs or issues in the applicati
 - **Modified Source Code** - Source code files that fix the bug
 - **Updated Tests** - New or updated test files that verify the fix
 - **Bug Fix Documentation** - Documentation of the root cause and solution approach
-- **Updated Bug Tracking** - [Bug Tracking](../../../doc/product-docs/state-tracking/permanent/bug-tracking.md) with bug status and resolution details updated
+- **Updated Bug Tracking** - [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) with bug status and resolution details updated
 
 ## State Tracking
 
 The following state files must be updated as part of this task:
 
-- [Bug Tracking](../../../doc/product-docs/state-tracking/permanent/bug-tracking.md) - Update with:
-  - Bug status progression: 🔍 Triaged → 🟡 In Progress → 🧪 Fixed → ✅ Verified (or 🟡 In Progress → ❌ Rejected for not-a-bug)
+- [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) - Update with:
+  - Bug status progression: 🔍 Triaged → 🟡 In Progress → 🧪 Fixed → ✅ Verified (or 🟡 In Progress → ❌ Rejected for not-a-bug / won't-fix)
   - Fix date and resolution details
   - Root cause analysis and solution approach
   - Link to relevant pull request or commit (if applicable)
   - Any lessons learned for future development
   - Testing verification results
-  - For bugs affecting specific features: Reference related feature ID from [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md)
+  - For bugs affecting specific features: Reference related feature ID from [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md)
 - **Conditional — multi-session** (only for Large-effort or architectural bugs):
-  - [Bug fix state file](../../../doc/product-docs/state-tracking/temporary) — created via [`New-BugFixState.ps1`](../../scripts/file-creation/06-maintenance/New-BugFixState.ps1), tracks root cause, fix approach, implementation progress, validation status, and session log. Archive to `product-docs/state-tracking/temporary/old/` when bug is closed.
+  - [Bug fix state file](/doc/state-tracking/temporary) — created via [`New-BugFixState.ps1`](../../scripts/file-creation/06-maintenance/New-BugFixState.ps1), tracks root cause, fix approach, implementation progress, validation status, and session log. Archive to `doc/state-tracking/temporary/old/` when bug is closed.
   - **Notes column**: When a state file exists, the bug-tracking.md Notes column should contain only a link to the state file and a one-line status summary (e.g., `See [state file](path). Session 2/3 complete.`). Do not duplicate session logs or fix details inline.
 - **Conditional** (only when fix changes technical design or behavior):
-  - [Feature implementation state files](../../state-tracking/features/) — update implementation notes, known issues, or status
+  - [Feature implementation state files](/doc/state-tracking/features/) — update implementation notes, known issues, or status
   - TDD for the affected feature — update technical design descriptions
   - Test specification for the affected feature — update expected behavior or test scenarios
   - FDD for the affected feature — update functional behavior descriptions
@@ -228,7 +236,7 @@ Before considering this task finished:
     - [ ] TDD updated, or N/A — verified no design changes affect TDD
     - [ ] Test specification updated, or N/A — verified no behavior change affects spec
     - [ ] FDD updated, or N/A — verified no functional change affects FDD
-  - [ ] If multi-session: bug fix state file archived to `product-docs/state-tracking/temporary/old/`
+  - [ ] If multi-session: bug fix state file archived to `doc/state-tracking/temporary/old`
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-007" and context "Bug Fixing"
 
 ## Next Tasks
@@ -238,6 +246,7 @@ Before considering this task finished:
 - [**Manual Test Execution**](../03-testing/e2e-acceptance-test-execution-task.md) - Validate the fix through manual testing of affected test groups
 - [**Bug Triage**](bug-triage-task.md) - If additional bugs are discovered during fixing
 - [**Feature Implementation Planning**](../04-implementation/feature-implementation-planning-task.md) - If the bug fix reveals the need for new functionality
+- [**Test Specification Creation**](../03-testing/test-specification-creation-task.md) - If systemic test gaps are discovered during bug investigation that warrant a formal test specification
 
 ## Related Resources
 

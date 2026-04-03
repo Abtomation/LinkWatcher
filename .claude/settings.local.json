@@ -42,7 +42,9 @@
       "Bash(python main.py --validate)",
       "Bash(bash LinkWatcher_run/start_linkwatcher_background.ps1)",
       "Bash(find /c/Users/ronny/VS_Code/LinkWatcher/test/state-tracking -type f -name *.md)",
-      "Bash(find /c/Users/ronny/VS_Code/LinkWatcher/process-framework/state-tracking -type f -name *.md)"
+      "Bash(find /c/Users/ronny/VS_Code/LinkWatcher/process-framework/state-tracking -type f -name *.md)",
+      "Bash(find /c/Users/ronny/VS_Code/LinkWatcher/process-framework/scripts/file-creation -type f -name *.ps1)",
+      "Bash(echo \"exit: $?\")"
     ]
   }
 }

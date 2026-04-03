@@ -35,7 +35,7 @@
 
 .EXAMPLE
     ./New-DesignDocument.ps1 -FeatureId "1.2.3" -FeatureName "User Authentication" -Tier 3 -OpenInEditor
-    # Creates ../../../product-docs/technical/product-docs/technical/architecture/design-docs/tdd-1.2.3-user-authentication-t3.md and opens it in the editor
+    # Creates doc/technical/doc/technical/architecture/design-docs/tdd-1.2.3-user-authentication-t3.md and opens it in the editor
 
 .EXAMPLE
     ./New-DesignDocument.ps1 -FeatureId "1.4.1" -FeatureName "Payment Processing" -Tier 2 -DryRun
@@ -116,7 +116,7 @@ $safeFeatureId = $FeatureId -replace '\.', '-'
 $customFileName = "tdd-$safeFeatureId-$safeFeatureName-t$Tier.md"
 
 try {
-    $tddId = New-StandardProjectDocument -TemplatePath $templatePaths[$Tier] -IdPrefix "PD-TDD" -IdDescription "TDD Tier $Tier for feature ${FeatureId}: ${FeatureName}" -DocumentName $FeatureName -OutputDirectory "doc/product-docs/technical/architecture/design-docs/tdd" -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -FileNamePattern $customFileName -OpenInEditor:$OpenInEditor
+    $tddId = New-StandardProjectDocument -TemplatePath $templatePaths[$Tier] -IdPrefix "PD-TDD" -IdDescription "TDD Tier $Tier for feature ${FeatureId}: ${FeatureName}" -DocumentName $FeatureName -OutputDirectory "doc/technical/architecture/design-docs/tdd" -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -FileNamePattern $customFileName -OpenInEditor:$OpenInEditor
 
     # Display success message
     $tierNames = @{
@@ -168,7 +168,7 @@ try {
             Write-Host "  - Add TDD creation date to Notes column" -ForegroundColor Cyan
         } else {
             # Prepare TDD document link
-            $tddLink = "[$tddId](../../../../product-docs/technical/architecture/design-docs/tdd/$customFileName)"
+            $tddLink = "[$tddId](/doc/technical/architecture/design-docs/tdd/$customFileName)"
 
             # Prepare additional updates for feature tracking
             $additionalUpdates = @{
@@ -205,7 +205,7 @@ try {
         Write-Warning "Failed to update feature tracking automatically: $($_.Exception.Message)"
         Write-Host "Manual Update Required:" -ForegroundColor Yellow
         Write-Host "  - Update feature $FeatureId status to '📝 TDD Created'" -ForegroundColor Cyan
-        Write-Host "  - Add TDD link: [$tddId](../../../../product-docs/technical/architecture/design-docs/tdd/$customFileName)" -ForegroundColor Cyan
+        Write-Host "  - Add TDD link: [$tddId](/doc/technical/architecture/design-docs/tdd/$customFileName)" -ForegroundColor Cyan
         Write-Host "  - Add creation date to Notes: $(Get-ProjectTimestamp -Format 'Date')" -ForegroundColor Cyan
     }
 }

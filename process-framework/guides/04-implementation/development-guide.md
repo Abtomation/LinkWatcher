@@ -16,20 +16,20 @@ This guide provides best practices for developing the project using the defined 
 ### 1. Feature Implementation Process
 
 1. **Feature Planning**
-   - Consult the `/process-framework/state-tracking/feature-tracking.md` document
+   - Consult the `/doc/state-tracking/permanent/feature-tracking.md` document
    - Update the feature status to "In Progress" 🟡
    - Create a feature branch from main/develop
-   - For complex features, create a technical design document using the appropriate template from `/doc/product-docs/technical/architecture/design-docs/` (tdd-t1-template.md, tdd-t2-template.md, or /process-framework/templates/02-design/tdd-t3-template.md based on complexity)
+   - For complex features, create a technical design document using the appropriate template from `/doc/technical/architecture/design-docs` (tdd-t1-template.md, tdd-t2-template.md, or /process-framework/templates/02-design/tdd-t3-template.md based on complexity)
 
 2. **Technical Design (for complex features)**
-   - Create a technical design document in `/doc/product-docs/technical/design/`
+   - Create a technical design document in `/doc/technical/design`
    - Document the architecture, data flow, and implementation details
    - Document any architectural decisions in Architecture Decision Records (ADRs)
    - Review the technical design before implementation
 
 3. **Implementation**
    - Follow the architecture defined in the project structure documentation <!-- project-structure.md removed -->
-   - Use the appropriate implementation checklists from `/doc/product-docs/development/checklists/`
+   - Follow the [Definition of Done](/process-framework/guides/04-implementation/definition-of-done.md) criteria
    - Implement the feature according to the technical design document or FDD requirements
    - Write tests for the feature
 
@@ -68,7 +68,7 @@ The project uses a tiered approach to technical documentation based on feature c
 2. **Tier 2 (Moderate Features)** 🟠: Lightweight TDD focusing on key sections
 3. **Tier 3 (Complex Features)** 🔴: Complete TDD with all sections
 
-For detailed information on the tiered approach, see the [Documentation Tiers](/doc/product-docs/documentation-tiers/README.md) document.
+For detailed information on the tiered approach, see the [Documentation Tiers](/doc/documentation-tiers/README.md) document.
 
 #### When to Create a Technical Design Document
 
@@ -78,14 +78,14 @@ Create a technical design document based on the feature's documentation tier:
 - **Tier 2 (🟠)**: Create a lightweight TDD using the [Lightweight Template](/process-framework/templates/02-design/tdd-t2-template.md)
 - **Tier 3 (🔴)**: Create a full TDD using the [Full Template](/process-framework/templates/02-design/tdd-t3-template.md)
 
-The documentation tier for each feature is indicated in the [Feature Tracking Document](/doc/product-docs/state-tracking/permanent/feature-tracking.md) in the format: 🔵/🟠/🔴.
+The documentation tier for each feature is indicated in the [Feature Tracking Document](/doc/state-tracking/permanent/feature-tracking.md) in the format: 🔵/🟠/🔴.
 
 #### Technical Design Document Process
 
-1. **Check Feature Tracking**: Consult the [Feature Tracking Document](/doc/product-docs/state-tracking/permanent/feature-tracking.md) to determine the documentation tier for the feature
-2. **Assess Complexity**: If the feature doesn't have a documentation tier assigned, assess its complexity using the criteria in the [Documentation Tiers](/doc/product-docs/documentation-tiers/README.md) document
+1. **Check Feature Tracking**: Consult the [Feature Tracking Document](/doc/state-tracking/permanent/feature-tracking.md) to determine the documentation tier for the feature
+2. **Assess Complexity**: If the feature doesn't have a documentation tier assigned, assess its complexity using the criteria in the [Documentation Tiers](/doc/documentation-tiers/README.md) document
 3. **Select Template**: Choose the appropriate template based on the documentation tier
-4. **Create Document**: Create the document in `/doc/product-docs/technical/design/`
+4. **Create Document**: Create the document in `/doc/technical/design`
 5. **Update Feature Tracking**: Add a link to the document in the feature tracking document
 6. **Review**: Review the document to ensure it addresses all aspects of the feature
 7. **Implement**: Use the document as a guide during implementation
@@ -107,7 +107,7 @@ Create an ADR when making a significant architectural decision, such as:
 3. Defining a data model
 4. Establishing a pattern for a particular type of feature
 
-Use the template in `/doc/product-docs/technical/architecture/design-docs/adr/adr-template.md` to create a new ADR.
+Use the template in `/process-framework/templates/02-design/adr-template.md` to create a new ADR.
 
 ## Coding Standards
 
@@ -168,7 +168,7 @@ except Exception as e:
 
 When implementing or modifying a feature, check which user workflows it participates in:
 
-1. **Find your feature's workflows**: Look at the `workflows:` field in the feature's [implementation state file](/doc/product-docs/state-tracking/features/) or consult [User Workflow Tracking](/doc/product-docs/state-tracking/permanent/user-workflow-tracking.md)
+1. **Find your feature's workflows**: Look at the `workflows:` field in the feature's [implementation state file](/doc/state-tracking/features) or consult [User Workflow Tracking](/doc/state-tracking/permanent/user-workflow-tracking.md)
 2. **Understand co-participants**: Other features sharing the same workflow may depend on your feature's interfaces — verify compatibility before changing APIs or data contracts
 3. **Test workflow paths**: After implementation changes, verify the end-to-end workflow still functions by running relevant E2E tests or manually testing the user action described in the workflow
 

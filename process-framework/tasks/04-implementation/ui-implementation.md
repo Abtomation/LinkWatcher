@@ -5,7 +5,6 @@ category: Task Definition
 version: 1.1
 created: 2025-12-13
 updated: 2026-03-24
-task_type: Discrete
 ---
 
 # UI Implementation
@@ -42,7 +41,7 @@ Build UI components and screen layouts for a feature. This task creates the user
 
 - **Important (Load If Space):**
 
-  - **Feature Tracking** - [Feature details from feature-tracking.md](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) for context
+  - **Feature Tracking** - [Feature details from feature-tracking.md](../../../doc/state-tracking/permanent/feature-tracking.md) for context
 - **Reference Only (Access When Needed):**
   - [Visual Notation Guide](/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
   - **Existing UI Examples** - Similar UI implementations in codebase for pattern consistency

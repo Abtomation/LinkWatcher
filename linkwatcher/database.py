@@ -9,9 +9,7 @@ AI Context
 - **Entry point**: ``LinkDatabase`` (concrete) implements
   ``LinkDatabaseInterface`` (ABC).  All consumers should type-hint
   against the interface.
-- **Data structure**: ``self.links`` is a ``dict[str, list[LinkReference]]``
-  keyed by *normalized target path*.  All lookups are O(1) by target.
-  A ``threading.Lock`` guards all mutations for thread safety.
+- **Thread safety**: A ``threading.Lock`` guards all mutations.
 - **Common tasks**:
   - Adding a query method: acquire ``self._lock``, operate on
     ``self.links``, return copies (not references) to avoid races.
@@ -20,12 +18,54 @@ AI Context
   - Understanding data flow: service._initial_scan → parser.parse_file
     → database.add_link; handler events → database.remove_file_links /
     update_source_path / get_references_to_file.
+
+Index Architecture
+------------------
+Five data structures store link state. All are guarded by ``self._lock``.
+
+``links`` — ``Dict[str, List[LinkReference]]``
+    Primary index. Keyed by normalized target path (may include ``#anchor``).
+    Each value is the list of references pointing at that target.
+    Mutated by: ``add_link``, ``remove_file_links``, ``update_target_path``,
+    ``remove_stale_entries``, ``clear``.
+
+``files_with_links`` — ``Set[str]``
+    Set of source file paths that contain at least one outgoing link.
+    Mutated by: ``add_link``, ``remove_file_links``, ``update_source_path``,
+    ``clear``.
+
+``_source_to_targets`` — ``Dict[str, Set[str]]``
+    Reverse index: normalized source path → set of target keys that source
+    references. Enables O(1) cleanup when a source file is removed.
+    Mutated by: ``add_link``, ``remove_file_links``, ``update_source_path``,
+    ``clear``.
+
+``_base_path_to_keys`` — ``Dict[str, Set[str]]``
+    Secondary index: base path (anchor stripped) → set of keys in ``links``
+    that share that base path. Enables anchor-aware lookups.
+    Mutated by: ``add_link``, ``_remove_key_from_indexes``,
+    ``_add_key_to_indexes``, ``clear``.
+
+``_resolved_to_keys`` — ``Dict[str, Set[str]]``
+    Secondary index: resolved absolute path → set of keys in ``links``.
+    Populated at ``add_link`` time by resolving each ref's target relative
+    to its source directory. Enables O(1) lookup in
+    ``get_references_to_file()``.
+    Mutated by: ``add_link``, ``_remove_key_from_indexes``,
+    ``_add_key_to_indexes``, ``clear``.
+
+``_key_to_resolved_paths`` — ``Dict[str, Set[str]]``
+    Reverse index: target key → set of resolved paths that map to it in
+    ``_resolved_to_keys``. Enables O(1) removal in
+    ``_remove_key_from_indexes()`` (TD138).
+    Mutated by: ``add_link``, ``_remove_key_from_indexes``,
+    ``_add_key_to_indexes``, ``clear``.
 """
 
 import os
 import threading
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional, Set
+from typing import Dict, List, Optional, Set, Tuple
 
 from .logging import get_logger
 from .models import LinkReference
@@ -125,7 +165,14 @@ class LinkDatabase(LinkDatabaseInterface):
     This replaces the need to scan all files every time.
     """
 
-    def __init__(self):
+    # Default mapping of link_type → file extension for extension-aware
+    # suffix matching.  Overridden by parser_type_extensions in config.
+    _DEFAULT_TYPE_EXTENSIONS: Dict[str, str] = {
+        "python": ".py",
+        "dart": ".dart",
+    }
+
+    def __init__(self, parser_type_extensions: Optional[Dict[str, str]] = None):
         self.links: Dict[str, List[LinkReference]] = {}  # target_file -> [references]
         self.files_with_links: Set[str] = set()  # files that contain links
         self._source_to_targets: Dict[str, Set[str]] = {}  # normalized_source -> {target_keys}
@@ -136,6 +183,17 @@ class LinkDatabase(LinkDatabaseInterface):
         # Populated at add_link() time by resolving each ref's target relative
         # to its source file. Enables O(1) lookup in get_references_to_file().
         self._resolved_to_keys: Dict[str, Set[str]] = {}
+        # Reverse index: target key -> {resolved paths that map to it}
+        # Enables O(1) removal in _remove_key_from_indexes() (TD138).
+        self._key_to_resolved_paths: Dict[str, Set[str]] = {}
+        # Secondary index: basename -> {target keys with that basename}
+        # Enables O(1) lookup in has_target_with_basename() (TD139).
+        self._basename_to_keys: Dict[str, Set[str]] = {}
+        self._parser_type_extensions: Dict[str, str] = (
+            parser_type_extensions
+            if parser_type_extensions is not None
+            else self._DEFAULT_TYPE_EXTENSIONS.copy()
+        )
         self._last_scan: Optional[float] = None
         self._lock = threading.Lock()
         self.logger = get_logger()
@@ -217,11 +275,21 @@ class LinkDatabase(LinkDatabaseInterface):
             if base_norm not in self._base_path_to_keys:
                 self._base_path_to_keys[base_norm] = set()
             self._base_path_to_keys[base_norm].add(target)
+            # Maintain basename index for O(1) has_target_with_basename() (TD139)
+            basename = os.path.basename(target)
+            if basename:
+                if basename not in self._basename_to_keys:
+                    self._basename_to_keys[basename] = set()
+                self._basename_to_keys[basename].add(target)
             # Maintain resolved-target index for O(1) lookups
             for resolved_path in self._resolve_target_paths(reference, target):
                 if resolved_path not in self._resolved_to_keys:
                     self._resolved_to_keys[resolved_path] = set()
                 self._resolved_to_keys[resolved_path].add(target)
+                # Maintain reverse index for O(1) removal (TD138)
+                if target not in self._key_to_resolved_paths:
+                    self._key_to_resolved_paths[target] = set()
+                self._key_to_resolved_paths[target].add(resolved_path)
 
     def remove_file_links(self, file_path: str):
         """Remove all links from a specific file."""
@@ -292,19 +360,21 @@ class LinkDatabase(LinkDatabaseInterface):
 
             # Phase 2: Suffix match (PD-BUG-045) — scan base paths for
             # project-root-relative references. Still O(unique_base_paths)
-            # but avoids per-ref _reference_points_to_file() on non-matches.
+            # but avoids per-ref path resolution on non-matches.
             # Each suffix-matched ref needs subtree guard validation.
             for base_path, keys in self._base_path_to_keys.items():
                 if base_path == normalized_path:
                     continue  # Already handled by direct/anchored lookup
                 suffix = "/" + base_path
                 match_path = None
+                stripped_ext = None
                 if normalized_path.endswith(suffix):
                     match_path = normalized_path
                 else:
                     path_no_ext, ext = os.path.splitext(normalized_path)
                     if ext and path_no_ext.endswith(suffix):
                         match_path = path_no_ext
+                        stripped_ext = ext
                 if match_path is None:
                     continue
                 # Derive subtree root for guard check
@@ -318,6 +388,16 @@ class LinkDatabase(LinkDatabaseInterface):
                         continue
                     for ref in self.links[key]:
                         if id(ref) not in seen:
+                            # PD-BUG-059: extension-aware filtering.
+                            # If match required extension stripping, verify
+                            # the ref's link_type is compatible with the
+                            # stripped extension.
+                            if stripped_ext is not None:
+                                expected = self._parser_type_extensions.get(
+                                    ref.link_type
+                                )
+                                if expected is not None and expected != stripped_ext:
+                                    continue
                             ref_norm = normalize_path(ref.file_path)
                             if ref_norm.startswith(subtree_root_prefix):
                                 seen.add(id(ref))
@@ -325,100 +405,49 @@ class LinkDatabase(LinkDatabaseInterface):
 
             return all_references
 
-    def _reference_points_to_file(self, ref: LinkReference, target_file_path: str) -> bool:
-        """Check if a reference points to the specified file."""
-        # Extract the base path from the link target (remove anchor if present)
-        link_target = ref.link_target
-        if "#" in link_target:
-            link_target = link_target.split("#", 1)[0]
-
-        target_norm = normalize_path(link_target)
-        file_norm = normalize_path(target_file_path)
-
-        # Direct match
-        if target_norm == file_norm:
-            return True
-
-        # Filename match (reference is just filename, target is full path)
-        if target_norm == os.path.basename(file_norm):
-            # Check if they're in the same directory
-            ref_dir = os.path.dirname(normalize_path(ref.file_path))
-            file_dir = os.path.dirname(file_norm)
-            return ref_dir == file_dir
-
-        # Relative path resolution
-        ref_dir = os.path.dirname(normalize_path(ref.file_path))
-        try:
-            # Resolve the reference relative to its containing file
-            resolved_target = os.path.normpath(os.path.join(ref_dir, target_norm)).replace(
-                "\\", "/"
-            )
-            if resolved_target == file_norm:
-                return True
-        except Exception:
-            pass
-
-        # PD-BUG-045: Suffix match for project-root-relative references.
-        #
-        # Algorithm summary:
-        #   1. Check if file_norm ends with "/<target_norm>" (or its
-        #      extensionless form), meaning the DB key is a proper suffix of
-        #      the full project-relative path.
-        #   2. If yes, derive subtree_root = the path prefix before the suffix
-        #      (i.e., the inferred sub-project root).
-        #   3. Accept the match only if the referring file also lives under
-        #      subtree_root — this prevents false positives from identically
-        #      named files in unrelated parts of the project.
-        #
-        # Why this exists: Python imports (e.g., "utils/helpers") resolve from
-        # the Python project root, not the importing file's directory. When the
-        # LinkWatcher project root is an ancestor of the Python project, the
-        # DB key is a proper suffix of the moved file's project-relative path.
-        # Also tries with .py extension stripped for extensionless targets.
-        suffix = "/" + target_norm
-        subtree_root = None
-        if file_norm.endswith(suffix):
-            subtree_root = file_norm[: -len(suffix)]
-        else:
-            file_no_ext, ext = os.path.splitext(file_norm)
-            if ext and file_no_ext.endswith(suffix):
-                subtree_root = file_no_ext[: -len(suffix)]
-        if subtree_root is not None:
-            ref_path_norm = normalize_path(ref.file_path)
-            if ref_path_norm.startswith(subtree_root + "/"):
-                return True
-
-        return False
-
     def _remove_key_from_indexes(self, key: str):
-        """Remove a key from _base_path_to_keys and _resolved_to_keys."""
+        """Remove a key from _base_path_to_keys, _resolved_to_keys, and _basename_to_keys."""
         base = key.split("#", 1)[0] if "#" in key else key
         base_norm = normalize_path(base)
         if base_norm in self._base_path_to_keys:
             self._base_path_to_keys[base_norm].discard(key)
             if not self._base_path_to_keys[base_norm]:
                 del self._base_path_to_keys[base_norm]
-        # Clean resolved index — remove key from all resolved paths
-        to_clean = []
-        for resolved_path, keys in self._resolved_to_keys.items():
-            keys.discard(key)
-            if not keys:
-                to_clean.append(resolved_path)
-        for p in to_clean:
-            del self._resolved_to_keys[p]
+        # Clean resolved index using reverse index for O(1) lookup (TD138)
+        for resolved_path in self._key_to_resolved_paths.pop(key, set()):
+            if resolved_path in self._resolved_to_keys:
+                self._resolved_to_keys[resolved_path].discard(key)
+                if not self._resolved_to_keys[resolved_path]:
+                    del self._resolved_to_keys[resolved_path]
+        # Clean basename index (TD139)
+        basename = os.path.basename(key)
+        if basename and basename in self._basename_to_keys:
+            self._basename_to_keys[basename].discard(key)
+            if not self._basename_to_keys[basename]:
+                del self._basename_to_keys[basename]
 
     def _add_key_to_indexes(self, key: str, references: List[LinkReference]):
-        """Add a key and its references to _base_path_to_keys and _resolved_to_keys."""
+        """Add a key and its references to _base_path_to_keys, _resolved_to_keys, and _basename_to_keys."""
         base = key.split("#", 1)[0] if "#" in key else key
         base_norm = normalize_path(base)
         if base_norm not in self._base_path_to_keys:
             self._base_path_to_keys[base_norm] = set()
         self._base_path_to_keys[base_norm].add(key)
+        # Maintain basename index (TD139)
+        basename = os.path.basename(key)
+        if basename:
+            if basename not in self._basename_to_keys:
+                self._basename_to_keys[basename] = set()
+            self._basename_to_keys[basename].add(key)
         for ref in references:
             for resolved_path in self._resolve_target_paths(ref, key):
                 if resolved_path not in self._resolved_to_keys:
                     self._resolved_to_keys[resolved_path] = set()
                 self._resolved_to_keys[resolved_path].add(key)
+                # Maintain reverse index for O(1) removal (TD138)
+                if key not in self._key_to_resolved_paths:
+                    self._key_to_resolved_paths[key] = set()
+                self._key_to_resolved_paths[key].add(resolved_path)
 
     def update_target_path(self, old_path: str, new_path: str):
         """Update the target path for all references."""
@@ -545,6 +574,10 @@ class LinkDatabase(LinkDatabaseInterface):
         Used during directory moves to update directory-path string references
         in scripts (e.g., quoted paths in PowerShell files).
 
+        Uses both raw key matching and the _resolved_to_keys index so that
+        relative-path targets (e.g., ../../../dir/sub) are found when searching
+        for their resolved project-root-relative form (dir/sub).
+
         Args:
             dir_path: The directory path to search for.
 
@@ -557,16 +590,30 @@ class LinkDatabase(LinkDatabaseInterface):
             dir_prefix = normalized_dir.rstrip("/") + "/"
             all_references = []
             seen = set()
+            matched_keys: set = set()
 
+            # Phase 1: Raw key matching (handles project-root-relative targets)
             for target_path, references in self.links.items():
                 normalized_target = normalize_path(target_path)
-                # Exact match: target IS the directory path
-                # Prefix match: target starts with dir_path/ (subdirectory)
                 if normalized_target == normalized_dir or normalized_target.startswith(dir_prefix):
-                    for ref in references:
-                        if id(ref) not in seen:
-                            seen.add(id(ref))
-                            all_references.append(ref)
+                    matched_keys.add(target_path)
+
+            # Phase 2: Resolved-path matching (handles relative-path targets)
+            # PD-BUG-068 fix: relative paths like ../../../dir/sub are resolved
+            # at add_link() time and indexed in _resolved_to_keys. Check those
+            # resolved paths against the directory prefix.
+            for resolved_path, keys in self._resolved_to_keys.items():
+                if resolved_path == normalized_dir or resolved_path.startswith(dir_prefix):
+                    matched_keys.update(keys)
+
+            # Collect references from all matched keys
+            for key in matched_keys:
+                if key not in self.links:
+                    continue
+                for ref in self.links[key]:
+                    if id(ref) not in seen:
+                        seen.add(id(ref))
+                        all_references.append(ref)
 
             return all_references
 
@@ -585,12 +632,12 @@ class LinkDatabase(LinkDatabaseInterface):
             return set(self.files_with_links)
 
     def has_target_with_basename(self, filename: str) -> bool:
-        """Check if any target key has the given basename."""
+        """Check if any target key has the given basename.
+
+        Uses the _basename_to_keys secondary index for O(1) lookup (TD139).
+        """
         with self._lock:
-            for target_key in self.links:
-                if os.path.basename(target_key) == filename:
-                    return True
-        return False
+            return filename in self._basename_to_keys
 
     def clear(self):
         """Clear all data from the database."""
@@ -600,6 +647,8 @@ class LinkDatabase(LinkDatabaseInterface):
             self._source_to_targets.clear()
             self._base_path_to_keys.clear()
             self._resolved_to_keys.clear()
+            self._key_to_resolved_paths.clear()
+            self._basename_to_keys.clear()
             self.last_scan = None
 
     def get_stats(self) -> Dict[str, int]:

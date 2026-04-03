@@ -877,13 +877,13 @@ class TestBug032RootRelativeWithinMovedFile:
     def test_bug032_root_relative_path_unchanged_when_script_moves_deeper(self, temp_project_dir):
         """
         PD-BUG-032: A PS1 script in a subdirectory with a project-root-relative
-        path like 'doc/product-docs/documentation-tiers/assessments' must NOT
+        path like 'doc/documentation-tiers/assessments' must NOT
         get a spurious ../ prefix when the script moves to a deeper directory.
         Reproduces the real scenario: script is already deep in the tree.
         """
         # Create the target directory that the path points to
         target_dir = (
-            temp_project_dir / "doc" / "product-docs" / "documentation-tiers" / "assessments"
+            temp_project_dir / "alpha-project" / "documentation-tiers" / "assessments"
         )
         target_dir.mkdir(parents=True)
 
@@ -893,7 +893,7 @@ class TestBug032RootRelativeWithinMovedFile:
         script_file = script_dir / "New-Assessment.ps1"
         script_content = (
             "# Script\n"
-            '$OutputDir = "doc/product-docs/documentation-tiers/assessments"\n'
+            '$OutputDir = "alpha-project/documentation-tiers/assessments"\n'
             'Write-Host "Creating assessment in $OutputDir"\n'
         )
         script_file.write_text(script_content)
@@ -917,10 +917,10 @@ class TestBug032RootRelativeWithinMovedFile:
 
         # The project-root-relative path must NOT get ../ prefix
         assert (
-            '"doc/product-docs/documentation-tiers/assessments"' in updated_content
+            '"alpha-project/documentation-tiers/assessments"' in updated_content
         ), "Project-root-relative path should remain unchanged"
         assert (
-            "../doc/product-docs" not in updated_content
+            "../alpha-project" not in updated_content
         ), "Must NOT prepend spurious ../ to project-root-relative path"
 
     def test_bug032_multiple_root_relative_paths_all_preserved(self, temp_project_dir):
@@ -929,8 +929,8 @@ class TestBug032RootRelativeWithinMovedFile:
         paths must keep ALL of them unchanged when the script moves deeper.
         """
         # Create target directories (project-root-relative targets)
-        (temp_project_dir / "doc" / "templates").mkdir(parents=True)
-        (temp_project_dir / "doc" / "state-tracking" / "permanent").mkdir(parents=True)
+        (temp_project_dir / "alpha-project" / "templates").mkdir(parents=True)
+        (temp_project_dir / "alpha-project" / "state-tracking" / "permanent").mkdir(parents=True)
 
         # Create PS1 script in a subdirectory
         script_dir = temp_project_dir / "scripts" / "update"
@@ -938,8 +938,8 @@ class TestBug032RootRelativeWithinMovedFile:
         script_file = script_dir / "Update-State.ps1"
         script_content = (
             "# Update script\n"
-            '$TemplatePath = "doc/templates"\n'
-            '$TrackingFile = "doc/state-tracking/permanent"\n'
+            '$TemplatePath = "alpha-project/templates"\n'
+            '$TrackingFile = "alpha-project/state-tracking/permanent"\n'
         )
         script_file.write_text(script_content)
 
@@ -962,13 +962,13 @@ class TestBug032RootRelativeWithinMovedFile:
 
         # Both project-root-relative paths must remain unchanged
         assert (
-            '"doc/templates"' in updated_content
+            '"alpha-project/templates"' in updated_content
         ), "First project-root-relative path should remain unchanged"
         assert (
-            '"doc/state-tracking/permanent"' in updated_content
+            '"alpha-project/state-tracking/permanent"' in updated_content
         ), "Second project-root-relative path should remain unchanged"
         assert (
-            "../doc/" not in updated_content
+            "../alpha-project/" not in updated_content
         ), "Must NOT prepend ../ to any project-root-relative path"
 
     def test_bug032_source_relative_path_still_updated_correctly(self, temp_project_dir):
@@ -1031,7 +1031,7 @@ class TestBug033RegexNotRewrittenOnMove:
         Original line 124 was corrupted from:
             if ($fileName -match 'ART-ASS-\\d+-([0-9]+\\.[0-9]+\\.[0-9]+)-')
         To:
-            if ($fileName -match '../../../product-docs/documentation-tiers/ART-ASS-/d+...')
+            if ($fileName -match 'doc/documentation-tiers/ART-ASS-/d+...')
         """
         # Create a .ps1 file with the exact regex pattern
         script_dir = temp_project_dir / "scripts" / "update"

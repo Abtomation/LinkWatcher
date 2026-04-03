@@ -123,7 +123,7 @@ try {
     # Provide success details
     $details = @(
         "Feature: $FeatureName",
-        "Location: doc/product-docs/technical/implementation-plans/$FeatureName-implementation-plan.md"
+        "Location: doc/technical/implementation-plans/$FeatureName-implementation-plan.md"
     )
 
     if ($Description -ne "") {
@@ -210,8 +210,8 @@ EXAMPLE TEST COMMANDS:
 .\New-ImplementationPlan.ps1 -FeatureName "test-feature" -Description "Test creation"
 
 # Verify created document
-Get-Content "doc/product-docs/technical/implementation-plans/test-feature-implementation-plan.md" | Select-Object -First 20
+Get-Content "doc/technical/implementation-plans/test-feature-implementation-plan.md" | Select-Object -First 20
 
 # Cleanup
-Remove-Item "doc/product-docs/technical/implementation-plans/test-feature-implementation-plan.md" -Force
+Remove-Item "doc/technical/implementation-plans/test-feature-implementation-plan.md" -Force
 #>

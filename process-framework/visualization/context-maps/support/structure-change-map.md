@@ -73,7 +73,7 @@ graph TD
 ## Related Documentation
 
 - [Structure Change Proposal Template](/process-framework/templates/support/structure-change-proposal-template.md) - Template for change proposals
-- [Architecture Documentation](/doc/product-docs/technical/architecture) - Current architecture documentation
-- [Technical Debt Tracking](../../../../doc/product-docs/state-tracking/permanent/technical-debt-tracking.md) - Technical debt status
+- [Architecture Documentation](/doc/technical/architecture) - Current architecture documentation
+- [Technical Debt Tracking](../../../../doc/state-tracking/permanent/technical-debt-tracking.md) - Technical debt status
 
 ---

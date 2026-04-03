@@ -1035,28 +1035,26 @@ class TestDirectoryMoveCrossReferencesWithinMovedDir:
 
 class TestRelativePathPrefixUpdateOnDirectoryMove:
     """Tests for directory moves where stored references use ../
-    relative path prefixes that prevent updater matching.
+    relative path prefixes.
 
-    Root cause: the database stores the relative path as-is (e.g.,
-    "../doc/guides/assessments"). During a directory move, the reference
-    lookup searches by directory name variations (e.g., "doc/guides")
-    using simple prefix matching. The stored "../doc/guides/..." target
-    doesn't match because the "../" prefix and source-file-relative
-    resolution aren't accounted for in the directory search.
+    Verifies that the database's resolved-path index correctly maps
+    relative targets (e.g., "../../alpha-project/guides/debt") back to their
+    project-root-relative form ("alpha-project/guides/debt") so that directory
+    move lookups find and update them.
     """
 
     def test_relative_path_with_dotdot_prefix_updated_on_directory_move(self, tmp_path):
-        """A PowerShell file using ../doc/guides/... must have its reference
-        updated when doc/guides/ moves to guides/.
+        """A PowerShell file using ../../alpha-project/guides/... must have its reference
+        updated when alpha-project/guides/ moves to guides/.
 
-        Reproduces the gap identified in post-move analysis: scripts in
-        process-framework/scripts/ referencing "../doc/process-framework/..."
-        were not updated because the ../  prefix prevented matching.
+        Verifies that relative paths with ../ prefixes are correctly resolved
+        via the database's resolved-path index and updated during directory moves.
         """
-        # Setup: scripts/update/Update-Debt.ps1 references ../doc/guides/debt/
+        # Setup: scripts/update/Update-Debt.ps1 references ../../alpha-project/guides/debt/
+        # (two levels up from scripts/update/ reaches project root)
         scripts_dir = tmp_path / "scripts" / "update"
         scripts_dir.mkdir(parents=True)
-        guides_dir = tmp_path / "doc" / "guides" / "debt"
+        guides_dir = tmp_path / "alpha-project" / "guides" / "debt"
         guides_dir.mkdir(parents=True)
 
         debt_readme = guides_dir / "README.md"
@@ -1065,21 +1063,21 @@ class TestRelativePathPrefixUpdateOnDirectoryMove:
         ps_script = scripts_dir / "Update-Debt.ps1"
         ps_script.write_text(
             "param(\n"
-            '    [string]$AssessmentDirectory = "../doc/guides/debt"\n'
+            '    [string]$AssessmentDirectory = "../../alpha-project/guides/debt"\n'
             ")\n"
             "\n"
-            '$UpdateScript = "../doc/guides/debt/README.md"\n'
+            '$UpdateScript = "../../alpha-project/guides/debt/README.md"\n'
         )
 
         service = LinkWatcherService(str(tmp_path))
         service._initial_scan()
 
-        # Move doc/guides/ to guides/ (one level up)
+        # Move alpha-project/guides/ to guides/ (one level up)
         new_guides = tmp_path / "guides"
-        (tmp_path / "doc" / "guides").rename(new_guides)
+        (tmp_path / "alpha-project" / "guides").rename(new_guides)
 
         move_event = DirMovedEvent(
-            str(tmp_path / "doc" / "guides"),
+            str(tmp_path / "alpha-project" / "guides"),
             str(new_guides),
         )
         service.handler.on_moved(move_event)
@@ -1087,25 +1085,25 @@ class TestRelativePathPrefixUpdateOnDirectoryMove:
         # References must be updated
         updated = ps_script.read_text()
         assert (
-            "doc/guides" not in updated
-        ), f"Old path 'doc/guides' should be gone from script, got:\n{updated}"
+            "alpha-project/guides" not in updated
+        ), f"Old path 'alpha-project/guides' should be gone from script, got:\n{updated}"
         assert (
             "guides/debt" in updated
         ), f"Expected reference to new 'guides/debt' path, got:\n{updated}"
 
     def test_four_level_deep_relative_path_updated_on_directory_move(self, tmp_path):
-        """A markdown file at depth 4 using ../../../../doc/guides/scripts/...
-        must have its reference updated when doc/guides/ moves to guides/.
+        """A markdown file at depth 5 using ../../../../../alpha-project/guides/scripts/...
+        must have its reference updated when alpha-project/guides/ moves to guides/.
 
-        Reproduces the gap from post-move analysis: a file at
-        doc/product-docs/state-tracking/features/archive/file.md
-        referenced ../../../../doc/process-framework/scripts/test/Run-Tests.ps1
-        and the deep relative path was not updated.
+        Verifies that deeply nested relative paths are correctly resolved
+        via the database's resolved-path index and updated during directory moves.
         """
-        # Setup: deep file referencing doc/guides/scripts/test/Run-Tests.ps1
-        deep_dir = tmp_path / "doc" / "product" / "tracking" / "features" / "archive"
+        # Setup: deep file referencing alpha-project/guides/scripts/test/Run-Tests.ps1
+        # File is at depth 5 (alpha-project/product/tracking/features/archive/),
+        # so 5 levels of ../ are needed to reach project root.
+        deep_dir = tmp_path / "alpha-project" / "product" / "tracking" / "features" / "archive"
         deep_dir.mkdir(parents=True)
-        scripts_dir = tmp_path / "doc" / "guides" / "scripts" / "test"
+        scripts_dir = tmp_path / "alpha-project" / "guides" / "scripts" / "test"
         scripts_dir.mkdir(parents=True)
 
         run_tests = scripts_dir / "Run-Tests.ps1"
@@ -1114,25 +1112,140 @@ class TestRelativePathPrefixUpdateOnDirectoryMove:
         archive_file = deep_dir / "state.md"
         archive_file.write_text(
             "# Feature State\n\n"
-            "Run tests: [Run-Tests.ps1](../../../../doc/guides/scripts/test/Run-Tests.ps1)\n"
+            "Run tests: [Run-Tests.ps1](../../../../../alpha-project/guides/scripts/test/Run-Tests.ps1)\n"
         )
 
         service = LinkWatcherService(str(tmp_path))
         service._initial_scan()
 
-        # Move doc/guides/ to guides/
+        # Move alpha-project/guides/ to guides/
         new_guides = tmp_path / "guides"
-        (tmp_path / "doc" / "guides").rename(new_guides)
+        (tmp_path / "alpha-project" / "guides").rename(new_guides)
 
         move_event = DirMovedEvent(
-            str(tmp_path / "doc" / "guides"),
+            str(tmp_path / "alpha-project" / "guides"),
             str(new_guides),
         )
         service.handler.on_moved(move_event)
 
         # Reference must be updated — the relative path changes
         updated = archive_file.read_text()
-        assert "doc/guides" not in updated, f"Old path 'doc/guides' should be gone, got:\n{updated}"
+        assert "alpha-project/guides" not in updated, f"Old path 'alpha-project/guides' should be gone, got:\n{updated}"
         assert (
             "Run-Tests.ps1" in updated
         ), f"Reference to Run-Tests.ps1 should still exist, got:\n{updated}"
+
+
+class TestDirectoryMoveToIgnoredDirName:
+    """Regression tests for PD-BUG-071: directory rename to an ignored-dir name
+    silently drops reference updates.
+
+    When a directory is renamed and the new name matches an entry in
+    ignored_directories, the file-level processing (Phase 0/1) is skipped
+    because should_monitor_file() rejects files in the destination. Phase 2
+    (directory-path string replacement) still catches some references, but
+    the DB source paths remain stale and moved files are not rescanned.
+    """
+
+    def test_db_source_path_updated_when_dir_renamed_to_ignored_name(self, tmp_path):
+        """DB source paths must be updated even when destination is an ignored dir.
+
+        PD-BUG-071: Renaming docs/ -> build/ (where 'build' is in
+        ignored_directories) causes Phase 0 (DB update) to be skipped because
+        moved_files is empty. The DB still records the file under the old
+        source path docs/guide.md instead of build/guide.md.
+        """
+        docs_dir = tmp_path / "docs"
+        docs_dir.mkdir()
+        guide = docs_dir / "guide.md"
+        guide.write_text("# Guide\nSee [other](../other.md) for details.")
+
+        other = tmp_path / "other.md"
+        other.write_text("# Other\nContent.")
+
+        readme = tmp_path / "README.md"
+        readme.write_text("See [guide](docs/guide.md) for details.\n")
+
+        service = LinkWatcherService(str(tmp_path))
+        service._initial_scan()
+
+        # Verify initial DB state
+        refs_before = service.link_db.get_references_to_file("docs/guide.md")
+        assert len(refs_before) >= 1
+
+        # Rename docs/ -> build/ (an ignored directory name in DEFAULT_CONFIG)
+        build_dir = tmp_path / "build"
+        docs_dir.rename(build_dir)
+
+        move_event = DirMovedEvent(str(docs_dir), str(build_dir))
+        service.handler.on_moved(move_event)
+
+        # Phase 0 check: DB source path must be updated from docs/guide.md -> build/guide.md
+        targets = service.link_db.get_all_targets_with_references()
+        source_paths = []
+        for target, refs in targets.items():
+            for ref in refs:
+                source_paths.append(ref.file_path)
+
+        assert "build/guide.md" in source_paths or not any(
+            "guide.md" in sp for sp in source_paths
+        ), (
+            f"DB should have source path 'build/guide.md' (not 'docs/guide.md'). "
+            f"Actual source paths: {source_paths}"
+        )
+        # Negative assertion: old source path must NOT remain
+        assert "docs/guide.md" not in source_paths, (
+            f"Stale source path 'docs/guide.md' should not remain in DB after move. "
+            f"Actual source paths: {source_paths}"
+        )
+
+    def test_moved_files_enumerated_when_dir_renamed_to_ignored_name(self, tmp_path):
+        """moved_files list must include files even when destination is ignored.
+
+        PD-BUG-071: The os.walk + should_monitor_file filter in
+        _handle_directory_moved produces an empty moved_files list when the
+        destination directory name is in ignored_directories, causing all
+        Phase 0/1/1.5 processing to be skipped.
+        """
+        scripts_dir = tmp_path / "scripts"
+        scripts_dir.mkdir()
+        run_py = scripts_dir / "run.py"
+        run_py.write_text("# run script")
+        config_md = scripts_dir / "config.md"
+        config_md.write_text("# config docs")
+
+        main_md = tmp_path / "main.md"
+        main_md.write_text(
+            "See [run](scripts/run.py) and [config](scripts/config.md).\n"
+        )
+
+        service = LinkWatcherService(str(tmp_path))
+        service._initial_scan()
+
+        # Rename scripts/ -> dist/ (an ignored directory name)
+        dist_dir = tmp_path / "dist"
+        scripts_dir.rename(dist_dir)
+
+        move_event = DirMovedEvent(str(scripts_dir), str(dist_dir))
+        service.handler.on_moved(move_event)
+
+        # Verify references updated in the file
+        main_content = main_md.read_text()
+        assert "dist/run.py" in main_content, (
+            f"Expected 'dist/run.py' in main.md, got: {main_content}"
+        )
+        assert "dist/config.md" in main_content, (
+            f"Expected 'dist/config.md' in main.md, got: {main_content}"
+        )
+        assert "scripts/run.py" not in main_content, (
+            f"Old 'scripts/run.py' should be gone, got: {main_content}"
+        )
+
+        # Core assertion: handler must enumerate moved files even when
+        # destination is an ignored directory. files_moved stat of 0 means
+        # Phase 0/1 were entirely skipped.
+        stats = service.handler.get_stats()
+        assert stats.get("files_moved", 0) >= 2, (
+            f"Expected at least 2 files_moved (run.py + config.md), "
+            f"got {stats.get('files_moved', 0)}. Phase 0/1 was skipped."
+        )

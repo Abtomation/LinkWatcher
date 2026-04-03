@@ -20,9 +20,8 @@ process-framework/templates/**/*.md -> project/docs/readme.md
 process-framework/templates/**/*.md -> your-plan-file.md
 process-framework/templates/**/*.md -> feature_id-feature-name-
 process-framework/templates/**/*.md -> 0.1.2-data-models-
-doc/product-docs/templates/**/*.md -> related-design.md
-doc/product-docs/templates/**/*.md -> related-api.md
-doc/product-docs/templates/**/*.md -> related-adr.md
+process-framework/templates/**/*.json -> test/conftest.py
+process-framework/templates/**/*.json -> test/helpers/test_helpers.dart
 
 # ── Guide example paths ──────────────────────────────────────────────
 # Guides use illustrative paths in code examples and prose.
@@ -31,109 +30,223 @@ process-framework/guides/05-validation/documentation-guide.md -> ../configuratio
 process-framework/guides/05-validation/documentation-guide.md -> ../../assets/architecture-overview.png
 process-framework/guides/05-validation/documentation-guide.md -> ../related-doc.md
 process-framework/guides/04-implementation/development-guide.md -> tdd-t3-template.md
-process-framework/guides/cyclical/debt-item-creation-guide.md -> lib/auth/
+process-framework/guides/cyclical/debt-item-creation-guide.md -> lib/
+process-framework/guides/cyclical/debt-item-creation-guide.md -> technical-debt/debt-items/
 process-framework/guides/03-testing/test-specification-creation-guide.md -> tdd-feature.md
+process-framework/guides/03-testing/test-file-creation-guide.md -> lib/config/settings/
+process-framework/guides/03-testing/test-file-creation-guide.md -> src/components/ui/
+process-framework/guides/03-testing/test-file-creation-guide.md -> vendor/tools/build/
+process-framework/guides/03-testing/test-file-creation-guide.md -> tests/
+process-framework/guides/03-testing/test-file-creation-guide.md -> test/e2e/
+process-framework/guides/03-testing/test-infrastructure-guide.md -> cross-cutting-specs/
+process-framework/guides/03-testing/test-infrastructure-guide.md -> results/
+process-framework/guides/03-testing/test-infrastructure-guide.md -> workspace/
+process-framework/guides/03-testing/test-infrastructure-guide.md -> lib/config/
+process-framework/guides/03-testing/test-infrastructure-guide.md -> src/components/ui/
+process-framework/guides/03-testing/test-infrastructure-guide.md -> vendor/tools/build/
+process-framework/guides/03-testing/test-audit-usage-guide.md -> htmlcov/
+process-framework/guides/03-testing/test-audit-usage-guide.md -> foundation/audit-report-0-2-4-test_app_error.md
+process-framework/guides/03-testing/e2e-acceptance-test-case-customization-guide.md -> expected/
+process-framework/guides/03-testing/e2e-acceptance-test-case-customization-guide.md -> project/
+process-framework/guides/04-implementation/enhancement-state-tracking-customization-guide.md -> state-tracking/features/
+process-framework/guides/04-implementation/feature-implementation-state-tracking-guide.md -> PF-FEA-012-implementation-state.md
+process-framework/guides/04-implementation/feature-implementation-state-tracking-guide.md -> services/order_service.py
+process-framework/guides/07-deployment/ci-cd-setup-guide.md -> .github/workflows/ci.yml
+process-framework/guides/framework/task-transition-guide.md -> /temporary/
+process-framework/guides/framework/task-transition-guide.md -> temporary/old/
+process-framework/guides/support/document-creation-script-development-guide.md -> PF/PD/TE-id-registry.json
+process-framework/guides/support/document-creation-script-development-guide.md -> templates/02-design/
+process-framework/guides/support/document-creation-script-development-guide.md -> templates/support/
+process-framework/guides/support/document-creation-script-development-guide.md -> languages-config/
+process-framework/guides/support/migration-best-practices.md -> features/archive/
+process-framework/guides/support/state-file-creation-guide.md -> permanent/
+process-framework/guides/support/task-creation-guide.md -> /ai-tasks.md
+process-framework/guides/support/temp-state-tracking-customization-guide.md -> temporary/old/
 
 # ── Task definition example paths ────────────────────────────────────
 process-framework/tasks/00-setup/codebase-feature-analysis.md -> feature_id-feature-name-
 process-framework/tasks/00-setup/codebase-feature-analysis.md -> 0.1.2-data-models-
+process-framework/tasks/00-setup/codebase-feature-discovery.md -> docs/
+process-framework/tasks/00-setup/codebase-feature-discovery.md -> node_modules/
+process-framework/tasks/00-setup/project-initiation-task.md -> languages-config/
+process-framework/tasks/00-setup/retrospective-documentation-creation.md -> doc/archived-pre-framework/
+process-framework/tasks/00-setup/retrospective-documentation-creation.md -> /temporary/
 process-framework/tasks/01-planning/system-architecture-review.md -> .ai-workspace/dependency-maps
+process-framework/tasks/02-design/adr-creation-task.md -> Proposed/Accepted/etc.
+process-framework/tasks/02-design/database-schema-design-task.md -> /data/
+process-framework/tasks/02-design/database-schema-design-task.md -> /doc/technical/architecture/database-reference.md
 process-framework/tasks/02-design/tdd-creation-task.md -> api-design-guidelines.md
+process-framework/tasks/03-testing/e2e-acceptance-test-case-creation-task.md -> project/
+process-framework/tasks/03-testing/e2e-acceptance-test-case-creation-task.md -> expected/
+process-framework/tasks/03-testing/e2e-acceptance-test-case-creation-task.md -> archive/
+process-framework/tasks/03-testing/e2e-acceptance-test-case-creation-task.md -> docs/
+process-framework/tasks/03-testing/e2e-acceptance-test-execution-task.md -> expected/
+process-framework/tasks/03-testing/e2e-acceptance-test-execution-task.md -> project/
+process-framework/tasks/04-implementation/feature-enhancement.md -> temporary/old/
+process-framework/tasks/04-implementation/feature-enhancement.md -> state-tracking/features/
+process-framework/tasks/04-implementation/foundation-feature-implementation-task.md -> scripts/validation/validation-reports/
+process-framework/tasks/05-validation/validation-preparation.md -> state-tracking/temporary/
+process-framework/tasks/06-maintenance/bug-fixing-task.md -> state-tracking/features/
+process-framework/tasks/support/framework-domain-adaptation.md -> legal-document-tracking.md
+process-framework/tasks/support/framework-extension-task.md -> languages-config/
+process-framework/tasks/support/structure-change-task.md -> old/
+process-framework/tasks/support/structure-change-task.md -> proposals/old/
+process-framework/tasks/support/tools-review-task.md -> processed-forms/
 
 # ── User handbook example paths ──────────────────────────────────────
-doc/product-docs/user/handbooks/quick-reference.md -> src/utils.py
-doc/product-docs/user/handbooks/quick-reference.md -> src/helpers/utils.py
-doc/product-docs/user/handbooks/quick-reference.md -> docs/api.md
-doc/product-docs/user/handbooks/quick-reference.md -> config/settings.yaml
-doc/product-docs/user/handbooks/link-validation.md -> LinkWatcher/.linkwatcher-ignore
+doc/user/handbooks/quick-reference.md -> src/utils.py
+doc/user/handbooks/quick-reference.md -> src/helpers/utils.py
+doc/user/handbooks/quick-reference.md -> docs/api.md
+doc/user/handbooks/quick-reference.md -> config/settings.yaml
+doc/user/handbooks/link-validation.md -> doc/guide.md
+doc/user/handbooks/multi-project-setup.md -> .vscode/tasks.json
 
 # ── Test audit README example paths ──────────────────────────────────
-doc/product-docs/test-audits/README.md -> test_example.py
 test/audits/README.md -> test_example.py
+test/audits/**/*.md -> ../scripts/cleanup.ps1
+test/audits/**/*.md -> ../scripts/setup.ps1
+test/audits/**/*.md -> .css/.ts/.html
+test/audits/**/*.md -> assets/file.txt
 
-# ── FDD example paths ────────────────────────────────────────────────
-doc/product-docs/functional-design/fdds/fdd-0-1-2-in-memory-database.md -> src/docs/guide.md
-doc/product-docs/functional-design/fdds/fdd-3-1-1-logging-framework.md -> old/path.md
+# ── FDD/TDD example paths ───────────────────────────────────────────
+doc/functional-design/fdds/fdd-0-1-2-in-memory-database.md -> src/docs/guide.md
+doc/functional-design/fdds/fdd-3-1-1-logging-framework.md -> old/path.md
+doc/functional-design/fdds/fdd-3-1-1-logging-framework.md -> docs/LOGGING.md
+doc/functional-design/fdds/fdd-1-1-1-file-system-monitoring.md -> validation/reports/code-quality/
+doc/technical/tdd/tdd-0-1-2-in-memory-database-t2.md -> docs/README.md
+doc/technical/tdd/tdd-0-1-2-in-memory-database-t2.md -> ./docs/README.md
+doc/technical/tdd/tdd-0-1-2-in-memory-database-t2.md -> docs\\README.md
+doc/technical/tdd/tdd-0-1-2-in-memory-database-t2.md -> ../file.md
+doc/technical/tdd/tdd-1-1-1-file-system-monitoring-t2.md -> test/automated/unit/test_handler.py
+doc/technical/tdd/tdd-2-1-1-parser-framework-t2.md -> scripts/benchmark.py
+doc/technical/design/README.md.bak -> technical/design/
+doc/technical/design/README.md.bak -> technical/architecture/design-docs/tdd/
 
-# ── Feature state files — deleted/not-yet-created file references ────
-# These are annotated with "File Removed" or "Not Found on Disk" in the
-# source files — historical records, not navigation links.
-doc/product-docs/state-tracking/features/0.1.1-core-architecture-implementation-state.md -> test_models.py
-doc/product-docs/state-tracking/features/0.1.1-core-architecture-implementation-state.md -> test_utils.py
-doc/product-docs/state-tracking/features/0.1.1-core-architecture-implementation-state.md -> scripts/benchmark.py
-doc/product-docs/state-tracking/features/0.1.3-configuration-system-implementation-state.md -> docs/configuration.md
-doc/product-docs/state-tracking/features/1.1.1-file-system-monitoring-implementation-state.md -> test_handler.py
-doc/product-docs/state-tracking/features/3.1.1-logging-system-implementation-state.md -> docs/LOGGING.md
+# ── CI/CD doc example paths ─────────────────────────────────────────
+doc/ci-cd/ci-cd-documentation-maintenance.md -> .github/workflows/
+doc/ci-cd/ci-cd-documentation-maintenance.md -> lib/config/
 
-# ── Tech debt tracking — historical descriptions ─────────────────────
-# Resolved/open debt entries describe files that don't exist (yet or anymore).
-doc/product-docs/state-tracking/permanent/technical-debt-tracking.md -> scripts/setup_cicd.py
-doc/product-docs/state-tracking/permanent/technical-debt-tracking.md -> advanced-logging-config.yaml
-doc/product-docs/state-tracking/permanent/technical-debt-tracking.md -> tdd-5-1-1-cicd
-doc/product-docs/state-tracking/permanent/technical-debt-tracking.md -> .github/workflows/ci.yml
-doc/product-docs/state-tracking/permanent/technical-debt-tracking.md -> fdd-5-1-1-cicd
-doc/product-docs/state-tracking/permanent/technical-debt-tracking.md -> test_reference_lookup.py
-doc/product-docs/state-tracking/permanent/technical-debt-tracking.md -> config/settings.py
-doc/product-docs/state-tracking/permanent/technical-debt-tracking.md -> parsers/patterns.py
-doc/product-docs/state-tracking/permanent/technical-debt-tracking.md -> your-plan-file.md
+# ── Documentation tiers — example project assessments ────────────────
+doc/documentation-tiers/README.md -> assessments/ART-ASS-
+
+# ── Feature state files — shorthand module references ────────────────
+# State files reference modules without linkwatcher/ prefix (convention).
+doc/state-tracking/features/**/*.md -> parsers/
+doc/state-tracking/features/**/*.md -> config/
+doc/state-tracking/features/**/*.md -> docs/configuration.md
+
+# ── Bug tracking — example repro steps ───────────────────────────────
+doc/state-tracking/permanent/bug-tracking.md -> target.md
+doc/state-tracking/permanent/bug-tracking.md -> bug-triage-task.md#steps-to-reopen
+
+# ── Tech debt tracking — historical/example references ───────────────
+doc/state-tracking/permanent/technical-debt-tracking.md -> scripts/setup_cicd.py
+doc/state-tracking/permanent/technical-debt-tracking.md -> advanced-logging-config.yaml
+doc/state-tracking/permanent/technical-debt-tracking.md -> tdd-5-1-1-cicd
+doc/state-tracking/permanent/technical-debt-tracking.md -> .github/workflows/ci.yml
+doc/state-tracking/permanent/technical-debt-tracking.md -> fdd-5-1-1-cicd
+doc/state-tracking/permanent/technical-debt-tracking.md -> test_reference_lookup.py
+doc/state-tracking/permanent/technical-debt-tracking.md -> config/settings.py
+doc/state-tracking/permanent/technical-debt-tracking.md -> parsers/patterns.py
+doc/state-tracking/permanent/technical-debt-tracking.md -> your-plan-file.md
+
+# ── User workflow tracking — planned doc reference ───────────────────
+doc/state-tracking/permanent/user-workflow-tracking.md -> user-workflow-map.md
+
+# ── Validation tracking — prose mentions ─────────────────────────────
+doc/state-tracking/temporary/validation/validation-tracking-2.md -> fields/utils.py
+
+# ── Refactoring plan shorthand module paths ──────────────────────────
+doc/refactoring/plans/**/*.md -> parsers/
+doc/refactoring/plans/**/*.md -> config/settings.py
+doc/refactoring/README.md -> summaries/
+doc/refactoring/README.md -> summary/
+doc/refactoring/README.md -> analysis/
+doc/refactoring/README.md -> implementation-summary/
+
+# ── Validation report prose mentions ─────────────────────────────────
+# Reports reference shorthand module paths and deleted files.
+doc/validation/reports/**/*.md -> parsers/
+doc/validation/reports/**/*.md -> config/
+doc/validation/reports/**/*.md -> docs/
+doc/validation/reports/**/*.md -> tests/
+doc/validation/reports/**/*.md -> .github/workflows/ci.yml
+doc/validation/reports/**/*.md -> linkwatcher/cli.py
+doc/validation/reports/**/*.md -> Makefile/setup.py
+doc/validation/reports/**/*.md -> add/remove/update.
 
 # ── Process improvement tracking — historical changelog ───────────────
 process-framework/state-tracking/permanent/process-improvement-tracking.md -> Common-ScriptHelpers.psm1
 
 # ── Evaluation report — findings about deleted artifacts ──────────────
 process-framework/evaluation-reports/**/*.md -> test/test-registry.yaml
-process-framework/evaluation-reports/**/*.md -> test-implementation-map.md
 process-framework/evaluation-reports/**/*.md -> test-infrastructure-guide.md
-process-framework/evaluation-reports/**/*.md -> test-implementation-task.md
 process-framework/evaluation-reports/**/*.md -> Validate-TestTracking.ps1
 
-# ── Validation report prose mentions ──────────────────────────────────
-# Reports reference files as they existed at analysis time.
-doc/product-docs/validation/reports/**/*.md -> docs/README.md
-doc/product-docs/validation/reports/**/*.md -> config/settings.py
-doc/product-docs/validation/reports/**/*.md -> config/defaults.py
-doc/product-docs/validation/reports/**/*.md -> config/__init__.py
-doc/product-docs/validation/reports/**/*.md -> .github/workflows/ci.yml
-doc/product-docs/validation/reports/**/*.md -> refactoring/plans/archive/remove-dual-print-logger-output
-doc/product-docs/validation/reports/**/*.md -> logging.py/logging_config.py
-doc/product-docs/validation/reports/**/*.md -> Makefile/setup.py
+# ── Infrastructure — task registry prospective output dirs ────────────
+process-framework/infrastructure/process-framework-task-registry.md -> scripts/validation/validation-reports/
+process-framework/infrastructure/process-framework-task-registry.md -> ../../doc/technical/api/
+process-framework/infrastructure/process-framework-task-registry.md -> ../../doc/technical/database/
+process-framework/infrastructure/process-framework-task-registry.md -> ../../doc/technical/design/ui-ux
+process-framework/infrastructure/process-framework-task-registry.md -> ../../doc/technical/architecture/assessments
+process-framework/infrastructure/process-framework-task-registry.md -> design-system/
+process-framework/infrastructure/process-framework-task-registry.md -> mockups/
+process-framework/infrastructure/process-framework-task-registry.md -> wireframes/
+process-framework/infrastructure/process-framework-task-registry.md -> user-flows/
+process-framework/infrastructure/process-framework-task-registry.md -> ../validation/reports/
+process-framework/infrastructure/process-framework-task-registry.md -> assessments/technical-debt/
 
-# ── Test spec example paths ──────────────────────────────────────────
+# ── Context maps — structural diagram labels ─────────────────────────
+process-framework/visualization/context-maps/**/*.md -> /01-planning/
+process-framework/visualization/context-maps/**/*.md -> /07-deployment/
+process-framework/visualization/context-maps/**/*.md -> /support/
+process-framework/visualization/context-maps/**/*.md -> /cyclical/
+process-framework/visualization/context-maps/**/*.md -> /test/component/
+process-framework/visualization/context-maps/**/*.md -> /test/e2e/
+process-framework/visualization/context-maps/**/*.md -> /lib/
+process-framework/visualization/context-maps/**/*.md -> tasks/
+process-framework/visualization/context-maps/**/*.md -> templates/
+process-framework/visualization/context-maps/**/*.md -> guides/
+process-framework/visualization/context-maps/**/*.md -> scripts/
+process-framework/visualization/context-maps/**/*.md -> visualization/
+process-framework/visualization/context-maps/**/*.md -> temporary/old/
+process-framework/visualization/context-maps/07-deployment/user-documentation-creation-map.md -> handbook-template.md
+
+# ── State tracking — structural descriptions ─────────────────────────
+process-framework/state-tracking/README.md -> support/New-TempTaskState.ps1
+process-framework/state-tracking/temporary/old/structure-change-dimension-aware-development-integration.md -> guides/framework/
+process-framework/state-tracking/temporary/old/structure-change-dimension-aware-development-integration.md -> templates/
+process-framework/state-tracking/temporary/old/structure-change-dimension-aware-development-integration.md -> state-tracking/temporary/old/
+
+# ── Languages config — planned directory ─────────────────────────────
+process-framework/languages-config/README.md -> javascript/
+
+# ── Feedback/review prose mentions ───────────────────────────────────
+process-framework/feedback/**/*.md -> proposals/old/
+process-framework/feedback/**/*.md -> Eff/Comp/Efficiency/Conciseness.
+process-framework/feedback/**/*.md -> archive/2026-03/
+process-framework/feedback/**/*.md -> 06-maintenance/
+process-framework/feedback/**/*.md -> tasks/README.md
+
+# ── Test procedure example paths ─────────────────────────────────────
+test/automated/bug-validation/test_procedures.md -> docs/
+test/automated/bug-validation/test_procedures.md -> src/
+test/automated/bug-validation/test_procedures.md -> tests/
+test/automated/bug-validation/test_procedures.md -> testing/
+test/automated/bug-validation/test_procedures.md -> assets/
+test/automated/bug-validation/test_procedures.md -> config/
+
+# ── Test spec — method name misdetection ─────────────────────────────
 test/specifications/**/*.md -> ../old.txt
 test/specifications/**/*.md -> ../new.txt
 test/specifications/**/*.md -> core/helpers.py
 test/specifications/**/*.md -> docs/
+test/specifications/feature-specs/test-spec-0-1-1-core-architecture.md -> LinkWatcherService.start()/stop()
 
-# ── Context map standalone mentions ──────────────────────────────────
-process-framework/visualization/context-maps/**/*.md -> integration-and-testing-map.md
+# ── CLAUDE.md structural descriptions ────────────────────────────────
+CLAUDE.md -> docs/
+CLAUDE.md -> state-tracking/temporary/
 
-# ── PowerShell .\  examples in docs ──────────────────────────────────
-process-framework/.ai-entry-point.md -> .\Script.ps1
-process-framework/guides/01-planning/assessment-guide.md -> .\New-TierAssessment.ps1
-process-framework/templates/support/temp-task-creation-state-template.md -> .\New-Task.ps1
-process-framework/templates/support/temp-task-creation-state-template.md -> .\New-Template.ps1
-process-framework/templates/support/temp-task-creation-state-template.md -> .\New-Guide.ps1
-process-framework/templates/support/temp-task-creation-state-template.md -> .\New-ContextMap.ps1
-
-# ── Validation state prose mentions ───────────────────────────────────
-doc/product-docs/state-tracking/temporary/validation/validation-tracking-2.md -> fields/utils.py
-doc/product-docs/state-tracking/temporary/validation-tracking-backup-*.md -> PD-VAL-053--features
-
-# ── Test audit report example paths ──────────────────────────────────
-test/audits/**/*.md -> assets/file.txt
-test/audits/**/*.md -> parsers/generic.py
-test/audits/**/*.md -> parsers/powershell.py
-test/audits/**/*.md -> .css/.ts/.html
-
-# ── Regex patterns extracted by parser (not file paths) ──────────────
-doc/product-docs/state-tracking/temporary/validation/validation-tracking-2.md -> a-zA-Z0-9
-doc/product-docs/validation/reports/code-quality/PD-VAL-060*.md -> a-zA-Z0-9
-
-# ── Refactoring plan shorthand module paths ──────────────────────────
-# Plans reference modules without linkwatcher/ prefix (convention).
-doc/product-docs/refactoring/plans/**/*.md -> parsers/__init__.py
-doc/product-docs/refactoring/plans/**/*.md -> config/settings.py
-doc/product-docs/refactoring/plans/**/*.md -> parsers/patterns.py
-
-# ── Feedback form prose mentions ─────────────────────────────────────
-process-framework/feedback/feedback-forms/**/*.md -> tasks/README.md
+# ── .claude settings — stale entries ─────────────────────────────────
+.claude/settings.local.json -> tests/manual/
+.claude/settings.local.json -> scripts/check_links.py

@@ -662,14 +662,14 @@ class TestJsonParserCompoundStrings:
             "{\n"
             '  "permissions": {\n'
             '    "allow": [\n'
-            '      "Bash(python doc/scripts/feedback_db.py *)"\n'
+            '      "Bash(python alpha-project/scripts/feedback_db.py *)"\n'
             "    ]\n"
             "  }\n"
             "}"
         )
         references = parser.parse_content(json_content, "settings.json")
         targets = [ref.link_target for ref in references]
-        assert "doc/scripts/feedback_db.py" in targets
+        assert "alpha-project/scripts/feedback_db.py" in targets
         # Must NOT store the whole compound string as a target
         assert not any("Bash(" in t for t in targets)
 

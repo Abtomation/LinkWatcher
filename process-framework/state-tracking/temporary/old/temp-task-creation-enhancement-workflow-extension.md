@@ -15,7 +15,7 @@ task_name: enhancement-workflow-extension
 ## Extension Overview
 
 - **Parent Task**: Framework Extension Task (PF-TSK-026)
-- **Concept Document**: [Enhancement Workflow Concept (PF-PRO-002)](../../proposals/proposals/old/enhancement-workflow-concept.md)
+- **Concept Document**: [Enhancement Workflow Concept (PF-PRO-002)](../../proposals/old/enhancement-workflow-concept.md)
 - **Concept Status**: APPROVED (2026-02-19)
 - **Extension Scope**: 2 tasks + 1 template + 1 script + 1 guide + framework integration edits
 
@@ -39,7 +39,7 @@ task_name: enhancement-workflow-extension
 | 9 | process-framework/ai-tasks.md | Add tasks to 01-planning and 04-implementation tables | COMPLETED | 2 |
 | 10 | task-transition-guide.md | Add enhancement workflow transitions | COMPLETED | 2 |
 | 11 | feature-implementation-task.md (PF-TSK-004) | Add deprecation notice | COMPLETED | 2 |
-| 12 | documentation-map.md | Register all new artifacts | COMPLETED | 2 |
+| 12 | PF-documentation-map.md | Register all new artifacts | COMPLETED | 2 |
 | 13 | id-registry.json | Update nextAvailable counters | COMPLETED | 2 |
 
 ## Implementation Roadmap
@@ -74,7 +74,7 @@ Steps:
 - [x] 2.7 Update process-framework/ai-tasks.md task tables with both new tasks (auto-populated by LinkWatcher)
 - [x] 2.8 Update task-transition-guide.md with enhancement workflow transitions (v1.9)
 - [x] 2.9 Add PF-TSK-004 deprecation notice (feature-implementation-task.md)
-- [x] 2.10 Update documentation-map.md with all new artifacts (tasks, context maps, template, guide, proposal)
+- [x] 2.10 Update PF-documentation-map.md with all new artifacts (tasks, context maps, template, guide, proposal)
 - [x] 2.11 Update id-registry.json — all counters verified correct (auto-updated by scripts)
 - [x] 2.12 Archive this state file to temporary/old/
 - [ ] 2.13 Feedback form for Session 2
@@ -136,7 +136,7 @@ Steps:
 - Updated process-framework/ai-tasks.md decision tree with enhancement branch
 - Updated task-transition-guide.md with enhancement workflow transitions (v1.9)
 - Added PF-TSK-004 deprecation notice
-- Updated documentation-map.md with all new artifacts
+- Updated PF-documentation-map.md with all new artifacts
 - Verified id-registry.json counters correct
 - Archived this state file
 
@@ -163,6 +163,6 @@ This state file can be archived to `temporary/old/` when:
 - [ ] process-framework/ai-tasks.md updated (decision tree + task tables)
 - [ ] task-transition-guide.md updated
 - [ ] PF-TSK-004 deprecation notice added
-- [ ] documentation-map.md updated with all new artifacts
+- [ ] PF-documentation-map.md updated with all new artifacts
 - [ ] id-registry.json counters updated
 - [ ] All feedback forms completed

@@ -8,7 +8,6 @@ updated: 2026-03-03
 map_type: Context Map
 visualization_type: Task Context
 task_name: code-refactoring-task
-task_type: Discrete
 ---
 
 # Code Refactoring Task Context Map
@@ -76,6 +75,6 @@ graph TD
 
 - [Code Refactoring Task Definition](../../../tasks/06-maintenance/code-refactoring-task.md) - Complete task definition and process
 - [Refactoring Plan Template](../../../templates/06-maintenance/refactoring-plan-template.md) - Template for creating refactoring plans
-- [Technical Debt Tracking](../../../../doc/product-docs/state-tracking/permanent/technical-debt-tracking.md) - For identifying refactoring targets
+- [Technical Debt Tracking](../../../../doc/state-tracking/permanent/technical-debt-tracking.md) - For identifying refactoring targets
 
 ---

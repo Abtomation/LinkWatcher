@@ -36,7 +36,7 @@ This clear distinction helps avoid confusion between process-related and product
 - Document creation systems
 - Process improvement guides
 
-**Directory**: `/doc/product-docs`
+**Directory**: `/doc`
 
 **ID Format**: `PF-XXX-###` (e.g., `PF-TSK-001` for a process framework task)
 
@@ -52,7 +52,7 @@ This clear distinction helps avoid confusion between process-related and product
 - Feature specifications
 - Code documentation
 
-**Directory**: `/doc/product-docs/`
+**Directory**: `/doc/`
 
 **ID Format**: `PD-XXX-###` (e.g., `PD-TDD-001` for a product technical design document)
 
@@ -77,7 +77,7 @@ doc/
 │   ├── methodologies/        # Process methodologies
 │   └── improvement/          # Process improvement
 │
-├── product-docs/             # Product-related documentation
+├── doc/             # Product-related documentation
     ├── technical/            # Technical documentation
     │   ├── design/           # TDDs and design docs
     │   ├── api/              # API documentation
@@ -126,7 +126,6 @@ category: Task Definition
 version: 1.0
 created: YYYY-MM-DD
 updated: YYYY-MM-DD
-task_type: Discrete # If applicable
 ---
 ```
 
@@ -167,7 +166,7 @@ During the transition period:
 
 If you have questions about the new terminology or organization, please refer to:
 
-- [Process: Documentation Map](../../documentation-map.md)
+- [Process: Documentation Map](../../PF-documentation-map.md)
 
 
 ---

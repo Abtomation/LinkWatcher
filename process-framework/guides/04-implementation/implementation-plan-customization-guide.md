@@ -137,7 +137,7 @@ The Tier 1 template focuses on the essentials:
    ```
 
 3. **Verify document creation**:
-   - Document created at: `doc/product-docs/technical/implementation-plans/`
+   - Document created at: `doc/technical/implementation-plans`
    - Filename format: `[feature-id]-[feature-name]-implementation-plan.md`
    - Document assigned PD-IMP-XXX ID automatically
    - Opens in default editor (if -OpenInEditor specified)

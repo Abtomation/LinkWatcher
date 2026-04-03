@@ -9,7 +9,7 @@
 .DESCRIPTION
     This PowerShell script generates user handbook documents by:
     - Generating a unique document ID (PD-UGD-XXX)
-    - Creating a properly formatted handbook file in doc/product-docs/user/handbooks/
+    - Creating a properly formatted handbook file in doc/user/handbooks/
     - Updating the ID tracker in the central ID registry
     - Providing a complete template for user-facing documentation
 
@@ -38,7 +38,7 @@
 .NOTES
     - Requires PowerShell execution policy to allow script execution
     - Automatically updates the central ID registry with new ID assignments
-    - Creates files in doc/product-docs/user/handbooks/
+    - Creates files in doc/user/handbooks/
     - Uses PD-UGD prefix from PD-id-registry.json
     - Template: process-framework/templates/07-deployment/handbook-template.md (PF-TEM-065)
 #>

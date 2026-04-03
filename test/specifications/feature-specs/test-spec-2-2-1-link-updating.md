@@ -7,7 +7,7 @@ created: 2026-02-24
 updated: 2026-02-24
 feature_id: 2.2.1
 feature_name: Link Updating
-tdd_path: doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-2-1-link-updater-t2.md
+tdd_path: doc/technical/tdd/tdd-2-2-1-link-updater-t2.md
 test_tier: 2
 retrospective: true
 ---
@@ -18,10 +18,10 @@ retrospective: true
 
 ## Overview
 
-This document provides comprehensive test specifications for the **Link Updating** feature (ID: 2.2.1), derived from the Technical Design Document [PD-TDD-026](../../../doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-2-1-link-updater-t2.md).
+This document provides comprehensive test specifications for the **Link Updating** feature (ID: 2.2.1), derived from the Technical Design Document [PD-TDD-026](../../../doc/technical/tdd/tdd-2-2-1-link-updater-t2.md).
 
 **Test Tier**: 2 (Unit + Integration)
-**TDD Reference**: [TDD PD-TDD-026](../../../doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-2-1-link-updater-t2.md)
+**TDD Reference**: [TDD PD-TDD-026](../../../doc/technical/tdd/tdd-2-2-1-link-updater-t2.md)
 **Implementation Coverage**: 36/40 scenarios implemented (90%)
 
 ## Feature Context
@@ -38,7 +38,7 @@ The `LinkUpdater` class performs atomic file modifications to update link refere
 
 ### Functional Requirements Reference
 
-> **Primary Documentation**: [FDD PD-FDD-027](../../../doc/product-docs/functional-design/fdds/fdd-2-2-1-link-updater.md)
+> **Primary Documentation**: [FDD PD-FDD-027](../../../doc/functional-design/fdds/fdd-2-2-1-link-updater.md)
 
 **Acceptance Criteria to Test**:
 - Multiple references in one file all updated in single write
@@ -138,7 +138,7 @@ The `LinkUpdater` class performs atomic file modifications to update link refere
 
 ### Files to Reference
 
-- **TDD**: [`doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-2-1-link-updater-t2.md`](../../../doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-2-1-link-updater-t2.md)
+- **TDD**: [`doc/technical/architecture/design-docs/tdd/tdd-2-2-1-link-updater-t2.md`](../../../doc/technical/tdd/tdd-2-2-1-link-updater-t2.md)
 - **Existing Tests**: [`test/automated/unit/test_updater.py`](../../../test/automated/unit/test_updater.py) (24 methods), [`test/automated/integration/test_link_updates.py`](../../../test/automated/integration/test_link_updates.py) (10 methods)
 - **Source Code**: [`linkwatcher/updater.py`](../../../linkwatcher/updater.py), [`linkwatcher/path_resolver.py`](../../../linkwatcher/path_resolver.py)
 

@@ -21,17 +21,6 @@
     ]
   },
 
-  "task_types": {
-    "description": "Valid task type classifications",
-    "values": [
-      "Discrete",
-      "Cyclical",
-      "Continuous",
-      "Support",
-      "Onboarding"
-    ]
-  },
-
   "business_domains": {
     "description": "Valid business domain identifiers for context documentation",
     "values": [

@@ -103,7 +103,7 @@ NEW 5.1.1: CI/CD & Development Tooling ← OLD 5.1.1–5.1.7
 
 | ID Range | Location | Action |
 |----------|----------|--------|
-| ART-ASS-148 through ART-ASS-190 | doc/product-docs/documentation-tiers/assessments/ | Archive all, create 9 new consolidated assessments |
+| ART-ASS-148 through ART-ASS-190 | doc/documentation-tiers/assessments | Archive all, create 9 new consolidated assessments |
 
 ---
 
@@ -113,7 +113,7 @@ NEW 5.1.1: CI/CD & Development Tooling ← OLD 5.1.1–5.1.7
 
 - [x] **1.1** Rewrite `feature-tracking.md` with 9 consolidated features
   - **Status**: COMPLETED
-  - **File**: doc/product-docs/state-tracking/permanent/feature-tracking.md
+  - **File**: doc/state-tracking/permanent/feature-tracking.md
   - **Action**: Complete rewrite — 9 features with new descriptions, key files, and linked artifacts
   - **Notes**: Each feature links to all relevant FDDs, TDDs, ADRs, test specs
 
@@ -123,19 +123,19 @@ NEW 5.1.1: CI/CD & Development Tooling ← OLD 5.1.1–5.1.7
 
 - [x] **2a.1** Update FDD-022: Core Architecture — add models.py (old 0.1.2) and utils.py (old 0.1.5) scope
   - **Status**: COMPLETED
-  - **File**: `doc/product-docs/functional-design/fdds/fdd-0-1-1-core-architecture.md`
+  - **File**: `doc/functional-design/fdds/fdd-0-1-1-core-architecture.md`
 
 - [x] **2a.2** Update FDD-026: Parser Framework — add individual parsers (old 2.1.2–2.1.7) scope
   - **Status**: COMPLETED
-  - **File**: `doc/product-docs/functional-design/fdds/fdd-2-1-1-parser-framework.md`
+  - **File**: `doc/functional-design/fdds/fdd-2-1-1-parser-framework.md`
 
 - [x] **2a.3** Update FDD-027: Link Updater — add relative paths, anchors, dry-run, backup (old 2.2.2–2.2.5) scope
   - **Status**: COMPLETED
-  - **File**: `doc/product-docs/functional-design/fdds/fdd-2-2-1-link-updater.md`
+  - **File**: `doc/functional-design/fdds/fdd-2-2-1-link-updater.md`
 
 - [x] **2a.4** Update FDD-025: Logging Framework — add colored output, stats, progress, errors (old 3.1.2–3.1.5) scope
   - **Status**: COMPLETED
-  - **File**: `doc/product-docs/functional-design/fdds/fdd-3-1-1-logging-framework.md`
+  - **File**: `doc/functional-design/fdds/fdd-3-1-1-logging-framework.md`
 
 #### 2b. FDD Renames (feature ID changes)
 
@@ -165,19 +165,19 @@ NEW 5.1.1: CI/CD & Development Tooling ← OLD 5.1.1–5.1.7
 
 - [x] **3a.1** Update TDD-021: Core Architecture — add models.py + utils.py scope
   - **Status**: COMPLETED
-  - **File**: `doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md`
+  - **File**: `doc/technical/tdd/tdd-0-1-1-core-architecture-t3.md`
 
 - [x] **3a.2** Update TDD-025: Parser Framework — add individual parsers scope
   - **Status**: COMPLETED
-  - **File**: `doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md`
+  - **File**: `doc/technical/tdd/tdd-2-1-1-parser-framework-t2.md`
 
 - [x] **3a.3** Update TDD-026: Link Updater — add sub-features scope
   - **Status**: COMPLETED
-  - **File**: `doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-2-1-link-updater-t2.md`
+  - **File**: `doc/technical/tdd/tdd-2-2-1-link-updater-t2.md`
 
 - [x] **3a.4** Update TDD-024: Logging Framework — add sub-features scope
   - **Status**: COMPLETED
-  - **File**: `doc/product-docs/technical/architecture/design-docs/tdd/tdd-3-1-1-logging-framework-t2.md`
+  - **File**: `doc/technical/tdd/tdd-3-1-1-logging-framework-t2.md`
 
 #### 3b. TDD Renames (feature ID changes)
 
@@ -205,7 +205,7 @@ NEW 5.1.1: CI/CD & Development Tooling ← OLD 5.1.1–5.1.7
 
 - [x] **4.1** Update ADR-040: Change feature ID reference from 0.1.3 → 0.1.2
   - **Status**: COMPLETED
-  - **File**: `doc/product-docs/technical/architecture/design-docs/adr/adr/target-indexed-in-memory-link-database.md`
+  - **File**: `doc/technical/adr/target-indexed-in-memory-link-database.md`
   - **Notes**: Updated feature_id, feature_name, and FDD/TDD cross-references to renamed files
 
 - [x] **4.2** Update Test Spec PF-TSP-035: Expand scope to include models.py, utils.py
@@ -215,7 +215,7 @@ NEW 5.1.1: CI/CD & Development Tooling ← OLD 5.1.1–5.1.7
 
 ### Phase 5: Assessment Consolidation
 
-- [x] **5.1** Create archive directory: `doc/product-docs/documentation-tiers/assessments/archive/`
+- [x] **5.1** Create archive directory: `doc/documentation-tiers/assessments/archive`
   - **Status**: COMPLETED
 
 - [x] **5.2** Move all 42 old assessment files (ART-ASS-148–190) to archive directory
@@ -234,7 +234,7 @@ NEW 5.1.1: CI/CD & Development Tooling ← OLD 5.1.1–5.1.7
 
 ### Phase 7: Documentation Updates
 
-- [x] **7.1** Update `process-framework/documentation-map.md` — replace all retrospective sections with 9 consolidated entries
+- [x] **7.1** Update `process-framework/PF-documentation-map.md` — replace all retrospective sections with 9 consolidated entries
   - **Status**: COMPLETED
   - **Notes**: Updated FDD, TDD, ADR, Test Spec sections; version bumped to 2.0
 
@@ -254,7 +254,7 @@ NEW 5.1.1: CI/CD & Development Tooling ← OLD 5.1.1–5.1.7
 - [x] **8.2** Verify each FDD/TDD file exists at expected path and has correct feature ID
   - **Status**: COMPLETED — PASS (8 FDDs + 8 TDDs, all correct)
 
-- [x] **8.3** Verify documentation-map.md has no broken references
+- [x] **8.3** Verify PF-documentation-map.md has no broken references
   - **Status**: COMPLETED — PASS (8 FDD + 8 TDD entries, all valid)
 
 - [x] **8.4** Verify no old feature IDs remain outside archive

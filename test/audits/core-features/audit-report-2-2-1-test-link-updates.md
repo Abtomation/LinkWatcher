@@ -2,13 +2,13 @@
 id: TE-TAR-022
 type: Document
 category: General
-version: 1.0
+version: 2.0
 created: 2026-03-26
-updated: 2026-03-26
+updated: 2026-04-03
 test_file_path: test/automated/integration/test_link_updates.py
 auditor: AI Agent
 feature_id: 2.2.1
-audit_date: 2026-03-26
+audit_date: 2026-04-03
 ---
 
 # Test Audit Report - Feature 2.2.1 (test_link_updates.py)
@@ -22,7 +22,8 @@ audit_date: 2026-03-26
 | **Test File Location** | `test/automated/integration/test_link_updates.py` |
 | **Feature Category** | CORE-FEATURES |
 | **Auditor** | AI Agent |
-| **Audit Date** | 2026-03-26 |
+| **Audit Date** | 2026-04-03 (re-audit) |
+| **Prior Audit** | 2026-03-26 (v1.0) |
 | **Audit Status** | COMPLETED |
 
 ## Test Files Audited
@@ -53,7 +54,8 @@ audit_date: 2026-03-26
 - TestLinkReferences (8 methods) covers all supported file formats: Markdown, YAML, JSON, Python, Dart, generic text — with real file move events
 - TestLinkReferenceEdgeCases covers mixed reference types in a single file and false positive avoidance (URLs, emails, versions)
 - Strong regression test coverage: PD-BUG-005 (stale detection), PD-BUG-010 (title preservation), PD-BUG-025 (substring corruption), PD-BUG-032 (root-relative), PD-BUG-033 (regex not rewritten), PD-BUG-043 (Python import lookup), PD-BUG-045 (Python module usage)
-- Minor: Some assertions use `>=` instead of exact equality (e.g., `assert len(refs) >= 4`)
+- **New since v1.0**: PD-BUG-054 fix — `test_mixed_reference_types` assertion updated from `count == 1` to `count == 0` (backtick references now also updated)
+- Minor: Some assertions use `>=` instead of exact equality (e.g., `assert len(refs) >= 4`) — unfixed from prior audit
 
 **Evidence**:
 - test_lr_001 through test_lr_008: systematic format-by-format verification
@@ -77,23 +79,24 @@ audit_date: 2026-03-26
 
 **Assessment**: PASS (3.5/4)
 
-**Code Coverage Data** _(from `Run-Tests.ps1 -Coverage`)_:
+**Code Coverage Data** _(from `pytest --cov=linkwatcher.updater`, 2026-04-03)_:
 
 | Source Module | Coverage % | Uncovered Areas |
 |---------------|-----------|-----------------|
-| updater.py | 94% | Minor error paths |
-| parser.py | 95% | Minor edge paths |
+| updater.py | 74% | Batch methods, reference-link replacement, error paths |
 
-**Overall Project Coverage**: 86%
+**Overall Project Coverage**: 89%
 
 **Findings**:
 - **Existing Implementation Coverage**: Excellent — all 8 file formats tested with real moves
-- **Code Coverage Gaps**: Minor — some parser edge cases for unusual syntax
-- **Missing Test Scenarios**: No binary file handling, no symlink move scenarios
-- **Edge Cases Coverage**: Exceptional — 7+ bug regression tests covering substring, title, stale, path type issues
+- **New since v1.0**: PD-BUG-043 and PD-BUG-045 regression classes (Python import handling) — clean additions
+- **Code Coverage Gaps**: `update_references_batch()` path not exercised via integration tests (handler uses it for directory moves, but no integration test triggers the batch path through `test_link_updates.py`)
+- **Gap**: No test for markdown reference-style links (`[label]: target "title"`) — the `_replace_reference_target()` method
+- **Prior unfixed**: No binary file handling, no symlink move scenarios
 
 **Recommendations**:
-- Consider adding test for move of binary file references (low priority)
+- Consider adding integration test for directory move triggering `update_references_batch()` path
+- Consider adding test for markdown reference-style links (low priority — rare format)
 
 ---
 
@@ -165,28 +168,42 @@ audit_date: 2026-03-26
 **Status**: ✅ TESTS_APPROVED
 
 **Rationale**:
-Comprehensive integration test suite covering all 8 supported file formats with real file move events. Exceptional regression test coverage for 7+ known bugs. High assertion density (3.3 per method) with strong behavioral verification. Minor assertion style improvements possible but no blocking issues.
+Comprehensive integration test suite covering all 8 supported file formats with real file move events. Exceptional regression test coverage for 7+ known bugs, now including PD-BUG-043 and PD-BUG-045 (Python import handling) added since prior audit. PD-BUG-054 fix correctly reflected. High assertion density (3.3 per method) with strong behavioral verification. Minor gaps (batch path, reference links) documented but not blocking.
 
 ### Critical Issues
 - None
 
-### Improvement Opportunities
-- Replace `>=` assertions with exact counts where deterministic
+### Improvement Opportunities (carried from prior audit, unfixed)
+- Replace `>=` assertions with exact counts where deterministic (LR-001)
 - Simplify complex counting assertions
+
+### New Findings (v2.0)
+- No integration test exercises `update_references_batch()` path (directory move batch processing)
+- No test for markdown reference-style links (`[label]: target`)
+- PD-BUG-054 assertion fix confirmed correct
 
 ### Strengths Identified
 - All 8 file formats tested with real moves (Markdown, YAML, JSON, Python, Dart, PowerShell, generic)
 - 7+ regression tests for known bugs with clear documentation
 - Highest assertion density in the 2.2.1 suite (3.3 per method)
 - Real watchdog FileMovedEvent integration — tests exercise actual pipeline
+- New PD-BUG-043 and PD-BUG-045 classes are well-structured with clear docstrings
 
 ## Action Items
 
 ### For Test Implementation Team
-- No required action items
+- **Low**: Add integration test for directory move batch path
+- **Low**: Replace `>=` with exact counts in LR-001
 
 ### For Feature Implementation Team
 - No action items
+
+## Audit History
+
+| Version | Date | Auditor | Key Changes |
+|---------|------|---------|-------------|
+| 1.0 | 2026-03-26 | AI Agent | Initial audit — Tests Approved |
+| 2.0 | 2026-04-03 | AI Agent | Re-audit — confirmed PD-BUG-054 fix, noted batch path gap, added PD-BUG-043/045 coverage |
 
 ## Audit Completion
 
@@ -201,5 +218,5 @@ Comprehensive integration test suite covering all 8 supported file formats with 
 ---
 
 **Audit Completed By**: AI Agent
-**Completion Date**: 2026-03-26
-**Report Version**: 1.0
+**Completion Date**: 2026-04-03
+**Report Version**: 2.0

@@ -2,16 +2,17 @@
 id: TE-TAR-019
 type: Document
 category: General
-version: 1.0
+version: 2.0
 created: 2026-03-26
-updated: 2026-03-26
+updated: 2026-04-03
 test_file_path: test/automated/unit/test_database.py
-audit_date: 2026-03-26
+audit_date: 2026-04-03
 feature_id: 0.1.2
 auditor: AI Agent
+prior_audit_date: 2026-03-26
 ---
 
-# Test Audit Report - Feature 0.1.2
+# Test Audit Report - Feature 0.1.2 (Re-Audit)
 
 ## Audit Overview
 
@@ -22,14 +23,30 @@ auditor: AI Agent
 | **Test File Location** | `test/automated/unit/test_database.py` |
 | **Feature Category** | FOUNDATION |
 | **Auditor** | AI Agent |
-| **Audit Date** | 2026-03-26 |
+| **Audit Date** | 2026-04-03 |
+| **Prior Audit** | TE-TAR-019 v1.0 (2026-03-26) — Tests Approved |
 | **Audit Status** | COMPLETED |
 
 ## Test Files Audited
 
-| Test File | Location | Test Cases | Status |
-|-----------|----------|------------|--------|
-| test_database.py | test/automated/unit/ | 26 (4 classes) | ✅ Approved |
+| Test File | Location | Test Cases | Classes | Status |
+|-----------|----------|------------|---------|--------|
+| test_database.py | test/automated/unit/ | 43 (5 classes) | TestLinkDatabase (19), TestLongPathNormalization (4), TestGetReferencesToDirectory (9), TestLinkDatabaseInterface (4), TestHasTargetWithBasename (7) | 🔄 Needs Update |
+
+### Changes Since Prior Audit (TE-TAR-019 v1.0)
+
+| Metric | Prior (2026-03-26) | Current (2026-04-03) | Delta |
+|--------|-------------------|---------------------|-------|
+| Test methods | 26 | 43 | +17 |
+| Test classes | 4 | 5 | +1 |
+| Source stmts (database.py) | ~220 est. | 304 | +~84 |
+| Coverage | 94% | 81% | -13% |
+| All passing | Yes | Yes (43/43) | — |
+
+**New tests since prior audit**:
+- TestGetReferencesToDirectory (9 tests) — directory move support, PD-BUG-068 regression
+- TestHasTargetWithBasename (7 tests) — TD139 basename index
+- Additional suffix match tests for PD-BUG-059 extension-aware matching
 
 ## Implementation Dependency Analysis
 
@@ -38,7 +55,7 @@ auditor: AI Agent
 | test_database.py | EXISTS | YES | None | N/A |
 
 **Implementation Dependencies Summary**:
-- **Testable Components**: All 6 public methods + ABC interface + directory references + long path normalization
+- **Testable Components**: All 12 public methods + ABC interface + directory references + long path normalization + basename index
 - **Missing Dependencies**: None
 - **Placeholder Tests**: None
 
@@ -47,29 +64,27 @@ auditor: AI Agent
 ### 1. Purpose Fulfillment
 **Question**: Does the test really fulfill its intended purpose?
 
-**Assessment**: PASS (3.75/4)
+**Assessment**: PASS (3.5/4)
 
 **Findings**:
-- Every public method has dedicated test with precise assertions
-- test_add_link verifies storage key, list contents, AND files_with_links (3 assertions)
-- test_remove_file_links verifies both removal AND preservation (4 assertions)
-- test_anchor_handling: two-phase behavioral test (lookup + update-through-anchor)
-- test_thread_safety uses concrete assertion (== 300) not just "no exception"
-- Regression tests (TestLongPathNormalization) clearly document PD-BUG-014
-- TestGetReferencesToDirectory: 7 tests covering exact match, prefix, false prefix, unrelated, multiple refs, mixed targets, deduplication
-- TestLinkDatabaseInterface: verifies ABC contract (4 tests)
+- Core CRUD operations thoroughly tested with precise assertions
+- test_add_link: verifies storage key, list contents, value equality, AND files_with_links (4 assertions)
+- test_remove_file_links: verifies both removal AND preservation of unrelated refs (5 assertions)
+- test_anchor_handling: two-phase behavioral test (lookup + update-through-anchor, 4 assertions)
+- test_thread_safety: concrete assertion (== 300) not just "no exception"
+- Excellent regression coverage: PD-BUG-014 (long paths), PD-BUG-045 (suffix match), PD-BUG-059 (extension-aware), PD-BUG-068 (directory relative paths)
+- ABC contract verification via TestLinkDatabaseInterface (4 tests)
+- Lifecycle tests in TestHasTargetWithBasename (add → remove → clear → update)
 
-**Evidence**:
-- Minor issue: test_normalize_path tests utils.normalize_path, not a database method — practical placement but could mislead
-
-**Recommendations**:
-- No critical improvements needed
+**Deductions**:
+- test_normalize_path tests `utils.normalize_path`, not a database method — practical placement but misleading
+- 4 public interface methods have ZERO tests (update_source_path, remove_targets_by_path, get_all_targets_with_references, get_source_files)
 
 #### Assertion Quality Assessment
 
-- **Assertion density**: ~3.5 per method (exceeds target ≥2)
-- **Behavioral assertions**: Strong — verify exact counts, specific values, correct key presence
-- **Edge case assertions**: Good for path normalization, anchor handling, thread safety
+- **Assertion density**: ~2.0 per method average (85 assertions / 43 methods). Some methods like test_remove_file_links (5) and test_get_stats (6) are strong; suffix match tests average 1-2
+- **Behavioral assertions**: Strong — verify exact counts, specific values, correct key presence, negative cases
+- **Edge case assertions**: Good — negative suffix match, cross-extension false positives, dart-vs-python extension awareness
 - **Mutation testing**: Not performed
 
 ---
@@ -77,31 +92,42 @@ auditor: AI Agent
 ### 2. Coverage Completeness
 **Question**: Are all implementable scenarios covered with tests?
 
-**Assessment**: PARTIAL (3.25/4)
+**Assessment**: PARTIAL (2.75/4)
 
-**Code Coverage Data** _(from `Run-Tests.ps1 -Coverage`)_:
+**Code Coverage Data** _(from pytest --cov)_:
 
-| Source Module | Coverage % | Uncovered Areas |
-|---------------|-----------|-----------------|
-| database.py | 94% | Lines 221-222, 241, 245, 293, 296-305 |
+| Source Module | Coverage % | Stmts | Miss | Uncovered Areas |
+|---------------|-----------|-------|------|-----------------|
+| database.py | 81% | 304 | 58 | Lines 233-234, 252, 308, 328, 355, 383, 388, 461, 466, 498, 501-510, 517-548, 556-567, 612, 626-627, 631-632 |
 
-**Overall Project Coverage**: 86%
+**Major Coverage Gaps** (4 public methods with 0% coverage):
 
-**Findings**:
-- **Existing Implementation Coverage**: Strong coverage of CRUD operations, thread safety, path normalization
-- **Code Coverage Gaps**: update_source_path() method (line 307+) has no direct unit test — exercised only indirectly through integration
-- **Missing Test Scenarios**: _replace_path_part() partial match edge case (lines 296-303) not directly tested
-- **Placeholder Test Quality**: N/A — no placeholder tests
-- **Edge Cases Coverage**: O(1) performance not verified with large datasets (noted in test spec as gap)
+| Method | Lines | Stmts | In Interface | Impact |
+|--------|-------|-------|-------------|--------|
+| `update_source_path()` | 517-548 | 32 | Yes | Used during source file renames — critical path |
+| `remove_targets_by_path()` | 556-567 | 12 | Yes | Used during file deletions — data cleanup |
+| `get_all_targets_with_references()` | 626-627 | 2 | Yes | Snapshot for iteration — thread safety concern |
+| `get_source_files()` | 631-632 | 2 | Yes | Copy of files_with_links set |
 
-**Evidence**:
-- 94% line coverage for database.py with gaps in update_source_path and _replace_path_part
-- Thread safety and path normalization well-tested
+**Minor Coverage Gaps**:
+
+| Area | Lines | Description |
+|------|-------|-------------|
+| `_replace_path_part()` partial match | 501-510 | Partial path replacement (endswith branch) |
+| `_resolve_target_paths()` exception | 233-234 | os.path.normpath exception handler |
+| `add_link()` empty target guard | 252 | Early return on empty link_target |
+| `remove_file_links()` no-refs warning | 328 | Logger warning when no references found |
+
+**Prior Audit Action Items**:
+- ❌ `update_source_path()` unit test — **still missing** (flagged 2026-03-26)
+- ❌ `_replace_path_part()` partial match test — **still missing** (flagged 2026-03-26)
 
 **Recommendations**:
-- Add unit test for update_source_path()
-- Add tests for _replace_path_part() partial match
-- Consider timing test for O(1) lookup with 10,000+ entries (low priority)
+- **Critical**: Add tests for update_source_path() — this is a critical-path method used during file renames
+- **High**: Add tests for remove_targets_by_path() — data cleanup method
+- **Medium**: Add tests for get_all_targets_with_references() and get_source_files()
+- **Medium**: Add test for _replace_path_part() partial match edge case
+- **Low**: Consider timing test for O(1) lookup with 10,000+ entries
 
 ---
 
@@ -111,17 +137,24 @@ auditor: AI Agent
 **Assessment**: PASS (3.75/4)
 
 **Findings**:
-- Clean class grouping: TestLinkDatabase (core), TestLongPathNormalization (regression), TestGetReferencesToDirectory (feature), TestLinkDatabaseInterface (contract)
-- Uses shared link_database fixture — no setup duplication
-- No duplicate tests — each has distinct purpose
+- 5 well-organized test classes with clear separation of concerns:
+  - TestLinkDatabase: core CRUD and path resolution
+  - TestLongPathNormalization: PD-BUG-014 regression
+  - TestGetReferencesToDirectory: directory move support
+  - TestLinkDatabaseInterface: ABC contract verification
+  - TestHasTargetWithBasename: basename index lifecycle
+- Uses shared `link_database` fixture — no setup duplication
+- Helper method `_make_ref()` in TestHasTargetWithBasename reduces boilerplate
 - Self-contained test methods with no inter-test dependencies
+- Clear docstrings referencing bug IDs and TDD decisions (PD-BUG-045, PD-BUG-059, PD-BUG-068, TD100, TD138, TD139)
+- No duplicate tests — each has distinct purpose
 
-**Evidence**:
-- 4 well-organized test classes with clear separation of concerns
-- Shared fixture pattern reduces boilerplate
+**Minor Issues**:
+- test_normalize_path tests `utils.normalize_path`, not a database method — could be moved to test_utils.py
+- TestLongPathNormalization tests 2-3 also test normalize_path from utils rather than database behavior directly
 
 **Recommendations**:
-- Consider moving test_normalize_path to a test_utils.py file
+- Consider moving pure normalize_path tests to a utils test file (low priority — no functional impact)
 
 ---
 
@@ -131,13 +164,10 @@ auditor: AI Agent
 **Assessment**: PASS (4.0/4)
 
 **Findings**:
-- All in-memory operations — no I/O overhead
-- Thread safety test: 300 ops (3 threads x 100) — sufficient for verification without excessive runtime
-- No unnecessary sleeps or waits
-
-**Evidence**:
-- All tests operate on in-memory LinkDatabase instance
-- Thread safety test completes in milliseconds
+- All 43 tests complete in ~1 second total
+- All in-memory operations — zero I/O overhead
+- Thread safety test: 300 ops (3 threads x 100) with 1ms delays — sufficient for race condition detection without excessive runtime
+- No unnecessary waits, sleeps, or resource allocation
 
 **Recommendations**:
 - None
@@ -150,60 +180,79 @@ auditor: AI Agent
 **Assessment**: PASS (3.75/4)
 
 **Findings**:
-- Uses link_database fixture consistently across all test classes
-- No fragile internal access — tests use public methods only
-- LinkReference construction is verbose but clear — intent is always obvious
-
-**Evidence**:
-- Shared fixture pattern ensures consistent test setup
-- No private attribute access or monkey-patching
+- Consistent `link_database` fixture usage across all 5 classes
+- Tests use public API only — no private attribute access or monkey-patching
+- LinkReference construction is verbose but explicit — intent always clear
+- Bug ID references in docstrings create clear traceability
+- Helper method `_make_ref()` pattern could be adopted more widely to reduce construction verbosity
 
 **Recommendations**:
-- None critical
+- Consider adding a shared `_make_ref` helper to conftest.py or a test utility module (low priority)
 
 ---
 
 ### 6. Integration Alignment
 **Question**: Do tests align with overall testing strategy?
 
-**Assessment**: [PASS/FAIL/PARTIAL]
+**Assessment**: PASS (3.75/4)
 
 **Findings**:
-- Correct feature marker 0.1.2 with cross_cutting 0.1.1
-- Properly categorized as unit tests
+- Correct pytest markers: `feature("0.1.2")`, `cross_cutting(["0.1.1"])`, `test_type("unit")`, `priority("Critical")`
 - Specification marker points to correct test spec (TE-TSP-036)
-- No overlap with other test files — database thread safety in test_service_integration.py tests via service layer, not direct DB operations
+- No overlap with other test files — database unit tests are cleanly separated from integration tests in test_service_integration.py
+- Test count (43) significantly exceeds scoping file estimate (34) — scoping file needs updating
 
 **Recommendations**:
-- No improvements needed
+- Update scoping state file test count from 34 to 43
 
 ## Overall Audit Summary
 
 ### Audit Decision
-**Status**: ✅ Tests Approved
+**Status**: 🔄 Needs Update
 
 **Rationale**:
-High-quality test suite with 94% coverage, no duplicates, strong assertions across all 4 test classes. Minor gap: `update_source_path()` needs direct unit test. The `TestGetReferencesToDirectory` and `TestLinkDatabaseInterface` classes demonstrate thorough boundary and contract testing.
+The existing 43 tests are high quality — well-structured, well-documented, and behaviorally sound. However, 4 public interface methods have **zero test coverage**: `update_source_path()`, `remove_targets_by_path()`, `get_all_targets_with_references()`, and `get_source_files()`. Of these, `update_source_path()` is critical-path code used during source file renames. Coverage dropped from 94% to 81% since the prior audit due to source file growth without corresponding test additions. Two prior audit action items remain unresolved.
+
+### Score Summary
+
+| Criterion | Score | Assessment |
+|-----------|-------|------------|
+| 1. Purpose Fulfillment | 3.5/4 | PASS |
+| 2. Coverage Completeness | 2.75/4 | PARTIAL |
+| 3. Test Quality & Structure | 3.75/4 | PASS |
+| 4. Performance & Efficiency | 4.0/4 | PASS |
+| 5. Maintainability | 3.75/4 | PASS |
+| 6. Integration Alignment | 3.75/4 | PASS |
+| **Overall** | **3.6/4** | **🔄 Needs Update** |
 
 ### Critical Issues
-- None
+- 4 public interface methods with zero test coverage (update_source_path, remove_targets_by_path, get_all_targets_with_references, get_source_files)
+- Coverage regression: 94% → 81%
+- 2 prior audit action items unresolved since 2026-03-26
 
-### Improvement Opportunities
-- Add unit test for `update_source_path()` method
-- Add tests for `_replace_path_part()` partial match edge case (database.py lines 296-303)
-- Consider timing test for O(1) lookup with 10,000+ entries (low priority)
+### Improvement Opportunities (Priority Order)
+1. **Critical**: Add unit tests for `update_source_path()` — critical-path method, entirely untested
+2. **High**: Add unit tests for `remove_targets_by_path()` — data cleanup method, entirely untested
+3. **Medium**: Add unit tests for `get_all_targets_with_references()` and `get_source_files()`
+4. **Medium**: Add test for `_replace_path_part()` partial match edge case (lines 501-510)
+5. **Low**: Consider timing test for O(1) lookup with 10,000+ entries
 
 ### Strengths Identified
-- Thorough boundary testing in TestGetReferencesToDirectory (7 tests)
-- ABC contract verification in TestLinkDatabaseInterface (4 tests)
-- Excellent regression coverage for PD-BUG-014 (long path normalization)
+- 17 new tests added since prior audit, covering directory moves and basename indexing
+- Excellent regression coverage for PD-BUG-014, PD-BUG-045, PD-BUG-059, PD-BUG-068
+- ABC contract verification ensures interface compliance
+- Lifecycle tests (add → lookup → update → remove → clear) in TestHasTargetWithBasename
 - Concrete thread safety assertion (== 300, not just "no exception")
+- Clean class organization with clear separation of concerns
 
 ## Action Items
 
-### For Test Implementation Team
-- [ ] Add unit test for `update_source_path()` method
-- [ ] Add tests for `_replace_path_part()` partial match edge case (lines 296-303)
+### For Test Implementation Team (Route to PF-TSK-053)
+- [ ] Add unit tests for `update_source_path()` — verify source path update, reverse index migration, files_with_links update, resolved-path index rebuild
+- [ ] Add unit tests for `remove_targets_by_path()` — verify key removal, anchored key handling, index cleanup
+- [ ] Add unit tests for `get_all_targets_with_references()` — verify snapshot copy, thread safety
+- [ ] Add unit tests for `get_source_files()` — verify copy returns set of source files
+- [ ] Add test for `_replace_path_part()` partial match (endswith branch, lines 501-510)
 
 ### For Feature Implementation Team
 - No action items
@@ -215,19 +264,22 @@ High-quality test suite with 94% coverage, no duplicates, strong assertions acro
 - [x] Specific findings documented with evidence
 - [x] Clear audit decision made with rationale
 - [x] Action items defined with assignees
-- [x] Test implementation tracking updated
-- [x] Test registry updated with audit status
+- [x] Prior audit action items reviewed and status reported
+- [x] Coverage data included with line-level detail
+- [x] Score summary with per-criterion breakdown
 
 ### Next Steps
-1. Route minor improvements to Integration & Testing (PF-TSK-053)
-2. Continue audit Session 2 for features 1.1.1, 2.1.1, 2.2.1, 3.1.1
+1. Register coverage gaps as tech debt (category: Testing, route to PF-TSK-053)
+2. Update test-tracking.md and feature-tracking.md via automation script
+3. Update scoping state file test count (34 → 43)
 
 ### Follow-up Required
-- **Re-audit Date**: Not required — minor improvements only
-- **Follow-up Items**: update_source_path() unit test
+- **Re-audit Date**: After test implementation for the 4 untested methods
+- **Follow-up Items**: update_source_path(), remove_targets_by_path(), get_all_targets_with_references(), get_source_files() unit tests
 
 ---
 
 **Audit Completed By**: AI Agent
-**Completion Date**: 2026-03-26
-**Report Version**: 1.0
+**Completion Date**: 2026-04-03
+**Report Version**: 2.0
+**Prior Version**: 1.0 (2026-03-26)

@@ -53,7 +53,7 @@ Before creating visualizations, ensure you have:
 cd process-framework/visualization
 
 # Create new context map
-../../scripts/file-creation/02-design/New-ContextMap.ps1 -TaskName "Your Task Name" -TaskType "Discrete|Cyclical|Continuous|Support" -MapDescription "Brief description"
+../../scripts/file-creation/02-design/New-ContextMap.ps1 -TaskName "Your Task Name" -WorkflowPhase "04-implementation" -MapDescription "Brief description"
 ```
 
 ### 2. Process Flow Diagrams
@@ -91,10 +91,10 @@ Before creating a context map:
 
 ```powershell
 # Basic context map creation
-../../scripts/file-creation/02-design/New-ContextMap.ps1 -TaskName "Feature Implementation" -TaskType "Discrete" -MapDescription "Context map showing all components needed for feature implementation"
+../../scripts/file-creation/02-design/New-ContextMap.ps1 -TaskName "Feature Implementation" -WorkflowPhase "04-implementation" -MapDescription "Context map showing all components needed for feature implementation"
 
 # Create and open in editor
-../../scripts/file-creation/02-design/New-ContextMap.ps1 -TaskName "Bug Fixing" -TaskType "Discrete" -MapDescription "Context map for bug fixing workflow" -OpenInEditor
+../../scripts/file-creation/02-design/New-ContextMap.ps1 -TaskName "Bug Fixing" -WorkflowPhase "06-maintenance" -MapDescription "Context map for bug fixing workflow" -OpenInEditor
 ```
 
 ### Step 3: Complete the Context Map
@@ -140,7 +140,7 @@ Update the related task definition to reference the context map:
 ```markdown
 ## Context Requirements
 
-[View Context Map for this task](../../../visualization/context-maps/[task-type]/[task-name]-map.md)
+[View Context Map for this task](../../../visualization/context-maps/[workflow-phase]/[task-name]-map.md)
 ```
 
 ## Visual Notation Standards

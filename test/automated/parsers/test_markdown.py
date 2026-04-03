@@ -432,7 +432,7 @@ Also test [shorthand reference][] style.
         file_a = "vendor/tools/scripts/New-Task.ps1"
         dir_a = "vendor/tools/scripts"
         dir_b = "vendor/tasks/support"
-        file_b = "doc/guides/setup.md"
+        file_b = "alpha-project/docs/guides/setup.md"
 
         md_file = temp_project_dir / "test.md"
         content = (
@@ -1185,10 +1185,10 @@ class TestMarkdownParserBracketPlaceholders:
     def test_bare_path_with_bracket_placeholders(self):
         """Paths with bracket template placeholders should be detected."""
         parser = MarkdownParser()
-        content = "Run the script at doc/framework/[category]/New-[ScriptName].ps1\n"
+        content = "Run the script at alpha-project/framework/[category]/New-[ScriptName].ps1\n"
         references = parser.parse_content(content, "test.md")
         targets = [ref.link_target for ref in references]
-        assert "doc/framework/[category]/New-[ScriptName].ps1" in targets
+        assert "alpha-project/framework/[category]/New-[ScriptName].ps1" in targets
 
 
 class TestMarkdownParserParenthesizedProsePaths:
@@ -1197,32 +1197,32 @@ class TestMarkdownParserParenthesizedProsePaths:
     def test_path_in_parenthesized_prose(self):
         """Path inside parenthesized prose should be detected."""
         parser = MarkdownParser()
-        content = "Use the test runner (script: doc/scripts/test/Run-Tests.ps1)\n"
+        content = "Use the test runner (script: alpha-project/scripts/test/Run-Tests.ps1)\n"
         references = parser.parse_content(content, "test.md")
         targets = [ref.link_target for ref in references]
-        assert "doc/scripts/test/Run-Tests.ps1" in targets
+        assert "alpha-project/scripts/test/Run-Tests.ps1" in targets
 
     def test_path_in_section_header_parentheses(self):
         """Directory path in section header parentheses should be detected."""
         parser = MarkdownParser()
-        content = "### Script.ps1 (doc/scripts/file-creation/)\n"
+        content = "### Script.ps1 (alpha-project/scripts/file-creation/)\n"
         references = parser.parse_content(content, "test.md")
         targets = [ref.link_target for ref in references]
-        assert any("doc/scripts/file-creation" in t for t in targets)
+        assert any("alpha-project/scripts/file-creation" in t for t in targets)
 
     def test_standard_markdown_link_not_double_matched(self):
         """Standard markdown links [text](path) should not be affected by ) lookahead."""
         parser = MarkdownParser()
-        content = "See [the guide](doc/guides/support/guide.md) for details.\n"
+        content = "See [the guide](alpha-project/docs/guides/support/guide.md) for details.\n"
         references = parser.parse_content(content, "test.md")
         # Should have exactly one reference (the markdown link), not a duplicate bare path
         targets = [ref.link_target for ref in references]
-        assert targets.count("doc/guides/support/guide.md") == 1
+        assert targets.count("alpha-project/docs/guides/support/guide.md") == 1
 
     def test_path_followed_by_space_still_works(self):
         """Existing behavior: path followed by space should still be detected."""
         parser = MarkdownParser()
-        content = "Run doc/scripts/test/Run-Tests.ps1 to execute tests.\n"
+        content = "Run alpha-project/scripts/test/Run-Tests.ps1 to execute tests.\n"
         references = parser.parse_content(content, "test.md")
         targets = [ref.link_target for ref in references]
-        assert "doc/scripts/test/Run-Tests.ps1" in targets
+        assert "alpha-project/scripts/test/Run-Tests.ps1" in targets

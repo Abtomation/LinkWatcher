@@ -78,9 +78,7 @@ doc/process-framework/state-tracking/permanent/process-improvement-tracking.md -
 
 # ── Evaluation report — findings about deleted artifacts ──────────────
 doc/process-framework/evaluation-reports/**/*.md -> test/test-registry.yaml
-doc/process-framework/evaluation-reports/**/*.md -> test-implementation-map.md
 doc/process-framework/evaluation-reports/**/*.md -> test-infrastructure-guide.md
-doc/process-framework/evaluation-reports/**/*.md -> test-implementation-task.md
 doc/process-framework/evaluation-reports/**/*.md -> Validate-TestTracking.ps1
 
 # ── Validation report prose mentions ──────────────────────────────────

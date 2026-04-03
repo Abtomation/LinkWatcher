@@ -6,7 +6,6 @@ version: 1.0
 domain: agnostic
 created: 2026-01-28
 updated: 2026-01-28
-task_type: Support
 ---
 
 # Framework Domain Adaptation
@@ -43,7 +42,7 @@ View Context Map for this task <!-- Context map not yet created: framework-domai
   - Legal Framework Cleanup State <!-- Removed: file deleted --> - Current document inventory and tracking
   - Business Context Document - Business requirements and domain context
   - [Process Framework README](../../README.md) - Understanding the framework structure
-  - [Documentation Map](../../documentation-map.md) - Complete framework structure overview
+  - [Documentation Map](../../PF-documentation-map.md) - Complete framework structure overview
 
 - **Important (Load If Space):**
 
@@ -69,7 +68,7 @@ View Context Map for this task <!-- Context map not yet created: framework-domai
 ### Phase 1: Preparation & Analysis
 
 1. **🚨 CRITICAL FIRST STEP: Framework Familiarization**
-   - Read and understand core framework documentation (README, documentation-map, ai-tasks.md)
+   - Read and understand core framework documentation (README, PF-documentation-map, ai-tasks.md)
    - Understand how the framework is supposed to work end-to-end
    - Identify main workflow paths and how components connect
    - Document understanding before proceeding
@@ -110,7 +109,7 @@ View Context Map for this task <!-- Context map not yet created: framework-domai
      - Example: Keep "Central ID management module" (don't add domain-specific suffixes)
 
    **Review Groups:**
-   1. Core Framework Understanding (README, documentation-map, ai-tasks.md, terminology-guide)
+   1. Core Framework Understanding (README, PF-documentation-map, ai-tasks.md, terminology-guide)
    2. Foundation Infrastructure (helper modules, core scripts, IdRegistry, automation-config)
    3. Document Creation Flow (scripts → templates → guides for each creation type)
    4. Task Workflow (support tasks and their context maps)
@@ -174,7 +173,7 @@ View Context Map for this task <!-- Context map not yet created: framework-domai
        3. **Validate new parameters**: Test new ValidateSet values, category options, etc.
        4. **Document test results**: Add "Tested: [test summary]" to state tracking file notes
        5. **Example test commands**:
-          - `./New-Task.ps1 -TaskType Support -TaskName "Test" -WorkflowPhase 02-drafting -WhatIf`
+          - `./New-Task.ps1 -TaskName "Test" -WorkflowPhase 02-drafting -WhatIf`
           - Verify script accepts new values and creates files in correct directories
      - **Testing is NOT optional** - mark as "Proposed" only after successful testing
      - **Include test summary in approval request** to human partner
@@ -264,7 +263,6 @@ View Context Map for this task <!-- Context map not yet created: framework-domai
       ```
     - **Update domain-config.json** with new domain values:
       - `workflow_phases.values` - Update to new domain phases (e.g., "01-planning", "02-drafting")
-      - `task_types.values` - Verify task types are domain-appropriate
       - `business_domains.values` - Update domain identifiers
       - `validation_rules.deprecated_keywords` - Add old domain keywords to detect
       - `domain` and `domain_description` - Update to reflect new domain
@@ -274,7 +272,7 @@ View Context Map for this task <!-- Context map not yet created: framework-domai
     - **Test validation with invalid values** to confirm rejection works:
       ```powershell
       # Should fail with clear error message showing valid values
-      .\New-Task.ps1 -TaskType "InvalidType" -TaskName "Test"
+      .\New-Task.ps1 -TaskName "Test" -WorkflowPhase "invalid-phase"
       ```
     - **Benefits of config-based approach**:
       - Future domain adaptations only require updating domain-config.json
@@ -310,7 +308,7 @@ View Context Map for this task <!-- Context map not yet created: framework-domai
 - **Adapted Task Definitions** - Tasks modified for legal context in `/process-framework/tasks`
 - **Adapted Templates** - Templates for legal documents and processes in `/process-framework/templates`
 - **Adapted Guides** - Guides using legal terminology and examples in `/process-framework/guides`
-- **Updated Documentation Map** - Reflects cleaned-up structure at `/process-framework/documentation-map.md`
+- **Updated Documentation Map** - Reflects cleaned-up structure at `/process-framework/PF-documentation-map.md`
 - **Legal Document Tracking** - Replacement for feature-tracking.md at `/process-framework/state-tracking/permanent/legal-document-tracking.md`
 - **Cleaned Directory Structure** - Removed unnecessary directories
 - **Updated Scripts** - Scripts adapted for legal context (parameter names, help text)
@@ -322,7 +320,7 @@ View Context Map for this task <!-- Context map not yet created: framework-domai
 The following state files must be updated as part of this task:
 
 - Legal Framework Cleanup State <!-- Removed: file deleted --> - Track review status and decisions for each document
-- [Documentation Map](../../documentation-map.md) - Update continuously as structure changes
+- [Documentation Map](../../PF-documentation-map.md) - Update continuously as structure changes
 - [PF ID Registry](../../PF-id-registry.json) - Add new ID prefixes for legal document types
 - Legal Document Tracking (to be created) - Create to replace feature-tracking.md
 
@@ -359,7 +357,7 @@ Before considering this task finished:
 
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
   - [ ] Legal Framework Cleanup State <!-- Removed: file deleted --> - All documents marked as Approved
-  - [ ] [Documentation Map](../../documentation-map.md) - Reflects final structure
+  - [ ] [Documentation Map](../../PF-documentation-map.md) - Reflects final structure
   - [ ] Legal Document Tracking (to be created) - Created and functional
 
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-080" and context "Framework Domain Adaptation"

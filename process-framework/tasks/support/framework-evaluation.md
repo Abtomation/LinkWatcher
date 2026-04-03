@@ -5,8 +5,7 @@ category: Task Definition
 domain: agnostic
 version: 1.1
 created: 2026-03-24
-updated: 2026-03-27
-task_type: Support
+updated: 2026-04-02
 ---
 
 # Framework Evaluation
@@ -40,7 +39,7 @@ This task is analogous to the code validation tasks (05-validation) but targets 
 - **Critical (Must Read):**
 
   - **Evaluation Scope** — Human partner specifies what to evaluate: entire framework, a specific phase (e.g., "03-testing tasks"), a component type (e.g., "all templates"), or a workflow (e.g., "enhancement workflow end-to-end")
-  - [Documentation Map](../../documentation-map.md) — Central index of all framework artifacts; starting point for completeness checks
+  - [Documentation Map](../../PF-documentation-map.md) — Central index of all framework artifacts; starting point for completeness checks
   - [AI Tasks System](../../ai-tasks.md) — Task registry; the authoritative list of all tasks and workflows
 
 - **Important (Load If Space):**
@@ -92,6 +91,7 @@ This task is analogous to the code validation tasks (05-validation) but targets 
    - Type (task, template, guide, script, context map, state file)
    - Last updated date (from metadata)
    - Relationships (what references it, what it references)
+   > **⚠️ Enumeration required**: Every count claimed in the evaluation report must be backed by a specific list of items in the "Artifacts in Scope" table. Do not use approximate counts (e.g., "~28 templates") — enumerate each item so downstream work can rely on accurate totals without re-auditing.
 
 5. **Evaluate Each Dimension**: For each selected dimension, systematically assess the artifacts in scope:
 
@@ -215,7 +215,7 @@ Before considering this task finished:
 
 ## Related Resources
 
-- [Documentation Map](../../documentation-map.md) — Central index of all framework artifacts
+- [Documentation Map](../../PF-documentation-map.md) — Central index of all framework artifacts
 - [Process Framework Task Registry](../../infrastructure/process-framework-task-registry.md) — Task automation status overview
 - [Task Creation Guide](../../guides/support/task-creation-guide.md) — Expected task structure and quality standards
 - [AI Tasks System](../../ai-tasks.md) — Task registry and workflow definitions

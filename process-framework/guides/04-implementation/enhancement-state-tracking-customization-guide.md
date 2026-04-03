@@ -54,7 +54,7 @@ Replace the metadata table placeholders:
 | **Change Request** | The human partner's original description of what they want |
 | **Human Approval** | Date the human partner confirmed the target feature |
 | **Estimated Sessions** | 1 for single-session work, 2+ for multi-session (based on scope assessment) |
-| **Affected Workflows** | WF-IDs from [User Workflow Tracking](/doc/product-docs/state-tracking/permanent/user-workflow-tracking.md) that this enhancement impacts, or "None". Check the target feature's `workflows:` metadata in its implementation state file for the workflows this feature participates in. |
+| **Affected Workflows** | WF-IDs from [User Workflow Tracking](/doc/state-tracking/permanent/user-workflow-tracking.md) that this enhancement impacts, or "None". Check the target feature's `workflows:` metadata in its implementation state file for the workflows this feature participates in. |
 
 **Expected Result:** All placeholder values in the Enhancement Overview table are replaced with specific content.
 
@@ -124,7 +124,7 @@ This is the most important customization step. The template contains 17 pre-defi
 | **14. Implementation Finalization** | When multi-session enhancement needs final cleanup and preparation | When single-session enhancement with no finalization needed |
 | **15. Update Tests** | When enhancement changes testable behavior and tests exist or are needed | When enhancement is trivial and manual verification suffices |
 | **16. Code Review** | When enhancement modifies core logic or has non-trivial changes | When change is trivial (e.g., single config line) |
-| **17. Update Feature State** | **Always applicable** — state file must always be updated. Also update `workflows:` metadata if the enhancement changes which workflows the feature participates in, and update [User Workflow Tracking](/doc/product-docs/state-tracking/permanent/user-workflow-tracking.md) if workflow scope changes. | Never mark as not applicable |
+| **17. Update Feature State** | **Always applicable** — state file must always be updated. Also update `workflows:` metadata if the enhancement changes which workflows the feature participates in, and update [User Workflow Tracking](/doc/state-tracking/permanent/user-workflow-tracking.md) if workflow scope changes. | Never mark as not applicable |
 
 **For Not Applicable blocks**: Set `Applicable: No`, fill the Rationale explaining why, and leave Adaptation Notes and Deliverable as "N/A". The Feature Enhancement task will skip these blocks.
 
@@ -506,6 +506,6 @@ For single-session enhancements: Remove the Session Boundary Planning section en
 - [Enhancement State Tracking Template (PF-TEM-045)](../../templates/04-implementation/enhancement-state-tracking-template-template.md) — The template that `New-EnhancementState.ps1` uses
 - [Feature Request Evaluation Task (PF-TSK-067)](../../tasks/01-planning/feature-request-evaluation.md) — The task that uses this guide
 - [Feature Enhancement Task (PF-TSK-068)](../../tasks/04-implementation/feature-enhancement.md) — The task that consumes the customized state file
-- [Enhancement Workflow Concept (PF-PRO-002)](../../proposals/proposals/old/enhancement-workflow-concept.md) — Design rationale for the workflow
+- [Enhancement Workflow Concept (PF-PRO-002)](../../proposals/old/enhancement-workflow-concept.md) — Design rationale for the workflow
 - [Task Transition Guide](../framework/task-transition-guide.md) — The standard feature development workflow that this template follows
 - [Documentation Tier Adjustment (PF-TSK-011)](../../tasks/cyclical/documentation-tier-adjustment-task.md) — Referenced by Step 1 (Tier Reassessment)

@@ -34,7 +34,7 @@
 
 .EXAMPLE
     .\Generate-ValidationSummary.ps1 -IncludeDetails
-    Generates a detailed summary at the default location (doc/product-docs/validation/reports/consolidated-validation-report.md)
+    Generates a detailed summary at the default location (doc/validation/reports/consolidated-validation-report.md)
 
 .EXAMPLE
     .\Generate-ValidationSummary.ps1 -OutputPath "executive-summary.md" -SummaryType "Executive" -ValidationTypes "Architectural,CodeQuality"
@@ -88,9 +88,9 @@ if (Test-Path $helpersPath) {
 
 # Configuration - use project-root-relative paths for reliability
 $ProjectRoot = Get-ProjectRoot
-$TrackingFilePath = Join-Path -Path $ProjectRoot -ChildPath "doc/product-docs/state-tracking/temporary/validation/archive/validation-tracking-1.md"
-$ReportsBasePath = Join-Path -Path $ProjectRoot -ChildPath "doc/product-docs/validation/reports"
-$DefaultOutputDir = Join-Path -Path $ProjectRoot -ChildPath "doc/product-docs/validation/reports"
+$TrackingFilePath = Join-Path -Path $ProjectRoot -ChildPath "doc/state-tracking/temporary/validation/archive/validation-tracking-1.md"
+$ReportsBasePath = Join-Path -Path $ProjectRoot -ChildPath "doc/validation/reports"
+$DefaultOutputDir = Join-Path -Path $ProjectRoot -ChildPath "doc/validation/reports"
 if (-not $OutputPath) {
     $OutputPath = Join-Path $DefaultOutputDir "consolidated-validation-report.md"
 }
@@ -315,7 +315,7 @@ $(if ($SummaryData.OverallStats.CriticalIssues -gt 0) {
 
 ## Related Resources
 
-- [Feature Validation Tracking](../../../../doc/product-docs/state-tracking/temporary/validation/archive/validation-tracking-1.md) - Detailed validation progress
+- [Feature Validation Tracking](../../../../doc/state-tracking/temporary/validation/archive/validation-tracking-1.md) - Detailed validation progress
 - [Feature Validation Guide](../../../guides/05-validation/feature-validation-guide.md) - Complete validation process guide
 - [Validation Reports](../../../validation/reports) - Individual validation reports by type
 

@@ -17,7 +17,7 @@ Use cases:
 - Cross-team synchronization
 
 Updates the following files atomically:
-- ../doc/product-docs/state-tracking/permanent/feature-tracking.md
+- ../doc/state-tracking/permanent/feature-tracking.md
 - ../doc/test/state-tracking/permanent/test-tracking.md
 - Additional tracking files as needed
 
@@ -179,7 +179,7 @@ if ($DryRun) {
 # Get project root and define file paths
 $projectRoot = Get-ProjectRoot
 $trackingFiles = @(
-    Join-Path $projectRoot "doc/product-docs/state-tracking/permanent/feature-tracking.md",
+    Join-Path $projectRoot "doc/state-tracking/permanent/feature-tracking.md",
     Join-Path $projectRoot "test/state-tracking/permanent/test-tracking.md"
 )
 

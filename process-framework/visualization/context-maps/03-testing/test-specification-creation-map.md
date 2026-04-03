@@ -6,7 +6,6 @@ version: 1.1
 created: 2025-07-12
 updated: 2025-08-04
 visualization_type: Task Context
-task_type: Discrete
 task_name: test-specification-creation
 map_type: Context Map
 ---
@@ -82,11 +81,11 @@ graph TD
 
 ## Related Documentation
 
-- [Technical Design Documents](/doc/product-docs/technical/design) - Repository of TDDs for features
-- [Feature Tier Assessment Guide](../../../../doc/product-docs/documentation-tiers/README.md) - Understanding complexity tiers
+- [Technical Design Documents](/doc/technical/design) - Repository of TDDs for features
+- [Feature Tier Assessment Guide](../../../../doc/documentation-tiers/README.md) - Understanding complexity tiers
 - [Development Guide](/process-framework/guides/04-implementation/development-guide.md) - Testing standards and practices
 - [Test Structure Documentation](/test/) - Current test organization patterns
-- [Feature Tracking](../../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) - Feature development status tracking
+- [Feature Tracking](../../../../doc/state-tracking/permanent/feature-tracking.md) - Feature development status tracking
 - [Test Tracking](../../../../test/state-tracking/permanent/test-tracking.md) - Test specification and implementation tracking
 - [Test Query Tool](/process-framework/scripts/test/test_query.py) - Query test file metadata via pytest markers
 

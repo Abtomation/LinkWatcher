@@ -15,7 +15,7 @@ change_name: marker-based-test-infrastructure
 ## Structure Change Overview
 - **Change Name**: Marker-Based Test Infrastructure
 - **Change ID**: SC-007
-- **Proposal Document**: [PF-PRO-012](/process-framework/proposals/proposals/structure-change-marker-based-test-infrastructure-proposal.md)
+- **Proposal Document**: [PF-PRO-012](/process-framework/proposals/structure-change-marker-based-test-infrastructure-proposal.md)
 - **Change Type**: Documentation Architecture
 - **Scope**: Replace test-registry.yaml with pytest markers as single source of truth
 - **Origin**: PF-IMP-207 (Framework Evaluation PF-EVR-001)
@@ -69,9 +69,9 @@ change_name: marker-based-test-infrastructure
 - [x] Updated 4 guides (test-infrastructure-guide, integration-and-testing-usage, test-audit-usage, AUTOMATION-USAGE-GUIDE)
 - [x] Updated 5 context maps (test-audit-map, test-implementation-map, test-specification-creation-map, core-logic-implementation-map, integration-and-testing-map)
 - [x] Updated process-framework-task-registry.md (removed registry rows/references, updated to markers)
-- [x] Updated documentation-map.md (replaced registry reference with test_query.py, updated Validate-TestTracking description)
+- [x] Updated PF-documentation-map.md (replaced registry reference with test_query.py, updated Validate-TestTracking description)
 - [x] Updated test-infrastructure-guide.md with test_query.py documentation and marker-based workflow
-- [x] Updated 2 audit READMEs (test/audits/, doc/product-docs/test-audits/) — TestFileId → TestFilePath
+- [x] Updated 2 audit READMEs (test/audits/, doc/test-audits/) — TestFileId → TestFilePath
 - [x] Updated README.md (test_query.py replaces test-registry.yaml reference)
 - [x] Updated test-tracking.md process instructions section
 - [x] Updated cross-cutting-test-specification-template.md

@@ -59,14 +59,14 @@ task_name: comprehensive-retrospective-framework-integration
 
 - [x] **Create project-config.json**
   - **Status**: COMPLETED
-  - **Location**: `process-framework/project-config.json`
+  - **Location**: `doc/project-config.json`
   - **Content**: LinkWatcher project metadata, version info, key directories
   - **Notes**: File already existed with correct LinkWatcher configuration
 
 - [x] **Update feature-tracking.md header**
   - **Status**: COMPLETED
   - **Action**: Replaced previous project name with current project name
-  - **File**: doc/product-docs/state-tracking/permanent/feature-tracking.md
+  - **File**: doc/state-tracking/permanent/feature-tracking.md
   - **Changes**: Updated title, description, feature categories (0-5), version to 1.4
   - **Notes**: Added placeholder note about Phase 2 population
 
@@ -256,7 +256,7 @@ This temporary state file can be moved to `process-framework/state-tracking/temp
 - [ ] **Phase 1 Complete**: Framework initialized (project-config.json, state files setup)
 - [ ] **Phase 2 Complete**: All features identified, assessed, and added to feature-tracking.md
 - [ ] **Phase 3 Complete**: Retrospective TDDs and ADRs created for major components
-- [ ] **Phase 4 Complete**: All state files populated and documentation-map.md updated
+- [ ] **Phase 4 Complete**: All state files populated and PF-documentation-map.md updated
 - [ ] **Feedback Complete**: Integration feedback form created documenting experience
 - [ ] **Framework Active**: Team begins using framework for all new work (bugs, features, refactoring)
 

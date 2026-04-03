@@ -5,7 +5,6 @@ category: Task Definition
 version: 1.1
 created: 2025-06-09
 updated: 2026-03-02
-task_type: Discrete
 ---
 
 # Feature Discovery
@@ -43,10 +42,10 @@ Identify and document potential new features through user research, competitive 
 - **Important (Load If Space):**
 
   - Competitive analysis data (if available)
-  - [Technical Debt Tracking](../../../doc/product-docs/state-tracking/permanent/technical-debt-tracking.md) - To identify opportunities for improvements
+  - [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) - To identify opportunities for improvements
 
 - **Reference Only (Access When Needed):**
-  - [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) - To understand existing features and gaps
+  - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - To understand existing features and gaps
 
 ## Process
 
@@ -78,13 +77,13 @@ Identify and document potential new features through user research, competitive 
    - Estimate rough complexity and priority
 9. Evaluate feature ideas against strategic goals and user needs
 10. Group related features into coherent categories
-11. **Identify user-facing workflows**: Ask *"What does the user DO with this software?"* Map each workflow to the features that enable it. Create or update [User Workflow Tracking](/doc/product-docs/state-tracking/permanent/user-workflow-tracking.md) with workflow definitions, required features, and priorities
+11. **Identify user-facing workflows**: Ask *"What does the user DO with this software?"* Map each workflow to the features that enable it. Create or update [User Workflow Tracking](/doc/state-tracking/permanent/user-workflow-tracking.md) with workflow definitions, required features, and priorities
 12. Prioritize features based on value, complexity, and strategic alignment
 12. **🚨 CHECKPOINT**: Present prioritized feature list with descriptions and rationale to human partner for approval
 
 ### Finalization
 
-13. Add discovered features to [Feature Request Tracking](../../../doc/product-docs/state-tracking/permanent/feature-request-tracking.md) using [`New-FeatureRequest.ps1`](../../scripts/file-creation/01-planning/New-FeatureRequest.ps1):
+13. Add discovered features to [Feature Request Tracking](../../../doc/state-tracking/permanent/feature-request-tracking.md) using [`New-FeatureRequest.ps1`](../../scripts/file-creation/01-planning/New-FeatureRequest.ps1):
     ```powershell
     cd process-framework/scripts/file-creation/01-planning
     .\New-FeatureRequest.ps1 -Source "Feature Discovery YYYY-MM-DD" -Description "Feature description" -Priority "HIGH|MEDIUM|LOW" -Notes "User benefit, context, dependencies"
@@ -95,20 +94,20 @@ Identify and document potential new features through user research, competitive 
 
 ## Outputs
 
-- **Feature Requests** - Discovered features added to [Feature Request Tracking](../../../doc/product-docs/state-tracking/permanent/feature-request-tracking.md) with:
+- **Feature Requests** - Discovered features added to [Feature Request Tracking](../../../doc/state-tracking/permanent/feature-request-tracking.md) with:
   - Clear descriptions and justifications in the Notes column
   - Priority assessment
   - Dependencies and user benefit information in Notes
   - Each request awaits classification by [Feature Request Evaluation](feature-request-evaluation.md)
-- **User Workflow Tracking** - [User Workflow Tracking](/doc/product-docs/state-tracking/permanent/user-workflow-tracking.md) created or updated with user-facing workflows mapped to features
-- **Technical Exploration Items** - Any identified items requiring technical investigation before implementation added to [Technical Debt Tracking](../../../doc/product-docs/state-tracking/permanent/technical-debt-tracking.md)
+- **User Workflow Tracking** - [User Workflow Tracking](/doc/state-tracking/permanent/user-workflow-tracking.md) created or updated with user-facing workflows mapped to features
+- **Technical Exploration Items** - Any identified items requiring technical investigation before implementation added to [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md)
 
 ## State Tracking
 
 The following state files must be updated as part of this task:
 
-- [Feature Request Tracking](../../../doc/product-docs/state-tracking/permanent/feature-request-tracking.md) - Add discovered features as new requests with status "Submitted"
-- [Technical Debt Tracking](../../../doc/product-docs/state-tracking/permanent/technical-debt-tracking.md) - Update with:
+- [Feature Request Tracking](../../../doc/state-tracking/permanent/feature-request-tracking.md) - Add discovered features as new requests with status "Submitted"
+- [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) - Update with:
   - Any technical explorations needed before implementation
   - Open questions that require investigation
 
@@ -136,4 +135,4 @@ Before considering this task finished:
 ## Related Resources
 
 - [Feature Granularity Guide](/process-framework/guides/01-planning/feature-granularity-guide.md) - Defines what constitutes a well-scoped feature with validation tests and scaling guidance
-- [Feature Dependencies Map](/doc/product-docs/technical/design/feature-dependencies.md) - For understanding how new features relate to existing ones
+- [Feature Dependencies Map](/doc/technical/feature-dependencies.md) - For understanding how new features relate to existing ones

@@ -39,9 +39,9 @@ target_feature: 2.1.1
 
 | Document Type | ID | Location | Action Needed |
 |---------------|-----|----------|---------------|
-| Feature State File | PF-FEA-050 | [2.1.1-link-parsing-system-implementation-state.md](../../../../doc/product-docs/state-tracking/features/2.1.1-link-parsing-system-implementation-state.md) | Update on completion |
-| FDD | PD-FDD-026 | [fdd-2-1-1-parser-framework.md](../../../../doc/product-docs/functional-design/fdds/fdd-2-1-1-parser-framework.md) | Amend — update supported link syntax to include backtick-delimited paths |
-| TDD | PD-TDD-025 | [tdd-2-1-1-parser-framework-t2.md](../../../../doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md) | Amend — update MarkdownParser pattern descriptions |
+| Feature State File | PF-FEA-050 | [2.1.1-link-parsing-system-implementation-state.md](../../../../doc/state-tracking/features/2.1.1-link-parsing-system-implementation-state.md) | Update on completion |
+| FDD | PD-FDD-026 | [fdd-2-1-1-parser-framework.md](../../../../doc/functional-design/fdds/fdd-2-1-1-parser-framework.md) | Amend — update supported link syntax to include backtick-delimited paths |
+| TDD | PD-TDD-025 | [tdd-2-1-1-parser-framework-t2.md](../../../../doc/technical/tdd/tdd-2-1-1-parser-framework-t2.md) | Amend — update MarkdownParser pattern descriptions |
 | ADR | N/A | N/A | No change |
 | Test Specification | PF-TSP-039 | [test-spec-2-1-1-link-parsing-system.md](../../../../test/specifications/feature-specs/test-spec-2-1-1-link-parsing-system.md) | No change — enhancement doesn't alter test methodology |
 

@@ -15,7 +15,7 @@ task_name: workflow-level-framework-layer
 ## Overview
 
 - **Source**: [PF-IMP-258](/process-framework/state-tracking/permanent/process-improvement-tracking.md)
-- **Concept Document**: [PF-PRO-013](/process-framework/proposals/proposals/old/workflow-level-framework-layer.md)
+- **Concept Document**: [PF-PRO-013](/process-framework/proposals/old/workflow-level-framework-layer.md)
 - **Task**: PF-TSK-026 (Framework Extension Task)
 - **Total Sessions**: 4 planned
 
@@ -25,7 +25,7 @@ task_name: workflow-level-framework-layer
 **Priority**: HIGH
 **Status**: COMPLETED
 
-- [x] Relocate `user-workflow-tracking.md` → `doc/product-docs/state-tracking/permanent/user-workflow-tracking.md`
+- [x] Relocate `user-workflow-tracking.md` → `doc/state-tracking/permanent/user-workflow-tracking.md`
 - [x] Rename file, update ID to PD-STA-066
 - [x] Add "Impl Status" and "E2E Status" columns, populate from current state
 - [x] Update all existing references (18 files updated manually — LinkWatcher didn't detect cross-directory move+rename)
@@ -34,7 +34,7 @@ task_name: workflow-level-framework-layer
 - [x] Add "Workflows" column to bug-tracking.md tables
 - [x] Add "Workflows" column to technical-debt-tracking.md
 - [x] Add "Workflows" metadata field to all 8 feature state files
-- [x] Update documentation-map.md for relocated file (already done — reference updated in Session 2)
+- [x] Update PF-documentation-map.md for relocated file (already done — reference updated in Session 2)
 
 ### Session 2: Phase 06 Maintenance + Phase 02 Design Integration
 **Priority**: HIGH
@@ -93,7 +93,7 @@ Automation (deferred from Session 3):
 - [x] Extend Validate-StateTracking.ps1 with Surface 8 (WorkflowTracking) — validates WF-ID cross-references between feature state files and user-workflow-tracking.md
 
 Finalization:
-- [x] Final documentation-map.md sweep (updated Validate-StateTracking description: 5 surfaces → 8)
+- [x] Final PF-documentation-map.md sweep (updated Validate-StateTracking description: 5 surfaces → 8)
 - [x] Update ai-tasks.md if needed (no changes needed — no new tasks)
 - [ ] Archive this state file to old/
 - [ ] Complete feedback form
@@ -138,7 +138,7 @@ Finalization:
 - Add "Workflows" column to bug-tracking.md tables
 - Add "Workflows" column to technical-debt-tracking.md
 - Add "Workflows" metadata field to all 8 feature state files
-- Update documentation-map.md for relocated file
+- Update PF-documentation-map.md for relocated file
 
 **Next Session Plan**: Complete remaining Session 1 items, then proceed to Session 2 roadmap (Phase 06 + Phase 02 task/template/guide modifications)
 
@@ -152,7 +152,7 @@ Finalization:
 - Added "Workflows" column to technical-debt-tracking.md active registry table
 - Resolved items table left as-is (different column schema, historical)
 - Added `workflows:` YAML metadata field to all 8 feature state files with WF-IDs derived from user-workflow-tracking.md
-- Confirmed documentation-map.md already references the relocated file (done in Session 2)
+- Confirmed PF-documentation-map.md already references the relocated file (done in Session 2)
 
 **Decisions**:
 - Closed bugs get empty Workflows cells (historical, no operational value in backfilling)
@@ -241,6 +241,6 @@ Finalization:
 
 - [x] All 4 sessions completed
 - [x] All items in roadmap checked off (except optional Task Transition Guide update — skipped)
-- [x] documentation-map.md updated with all changes
+- [x] PF-documentation-map.md updated with all changes
 - [ ] Feedback form completed
 - [ ] This file archived to old/

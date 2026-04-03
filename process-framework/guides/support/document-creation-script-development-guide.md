@@ -197,7 +197,7 @@ Replace the commented `# [OPTIONAL_DOCUMENTATION_UPDATES]` with any required upd
 
 ```powershell
 # Update documentation map
-$docMapPath = Join-Path -Path $PSScriptRoot -ChildPath "../documentation-map.md"
+$docMapPath = Join-Path -Path $PSScriptRoot -ChildPath "../PF-documentation-map.md"
 if (Test-Path $docMapPath) {
     if ($PSCmdlet.ShouldProcess("Update documentation map")) {
         # Add logic to update documentation map
@@ -261,7 +261,7 @@ $customReplacements = @{
 }
 
 try {
-    $documentId = New-StandardProjectDocument -TemplatePath "doc/templates/simple-template.md" -IdPrefix "PF-DOC" -IdDescription "Simple document: ${DocumentTitle}" -DocumentName $DocumentTitle -OutputDirectory "doc/documents" -Replacements $customReplacements -OpenInEditor:$OpenInEditor
+    $documentId = New-StandardProjectDocument -TemplatePath "process-framework/templates/simple-template.md" -IdPrefix "PF-DOC" -IdDescription "Simple document: ${DocumentTitle}" -DocumentName $DocumentTitle -OutputDirectory "doc/documents" -Replacements $customReplacements -OpenInEditor:$OpenInEditor
 
     Write-ProjectSuccess -Message "Created document with ID: $documentId"
 }
@@ -399,8 +399,8 @@ When your task creates files that should be organized in subdirectories, configu
 ```json
 "PD-API": {
   "directories": {
-    "specifications": "doc/product-docs/technical/api/specifications/specifications",
-    "models": "doc/product-docs/technical/api/models",
+    "specifications": "doc/technical/api/specifications/specifications",
+    "models": "doc/technical/api/models",
     "default": "specifications"
   }
 }
@@ -599,9 +599,9 @@ $documentId = New-StandardProjectDocument -FileNamePattern $customFileName ...
 ```powershell
 # Select template based on type
 $templatePath = switch ($Type) {
-    "Feature" { "../doc/templates/feature-template.md" }
-    "Bug" { "../doc/templates/bug-template.md" }
-    "Enhancement" { "../doc/templates/enhancement-template.md" }
+    "Task" { "../process-framework/templates/templates/task-template.md" }
+    "Guide" { "../process-framework/templates/templates/guide-template.md" }
+    "Feedback" { "../process-framework/templates/support/feedback-form-template.md" }
 }
 ```
 
@@ -613,7 +613,7 @@ When your script needs language-specific commands (e.g., test runners, linters, 
 
 ```powershell
 # --- Load project config ---
-$configPath = Join-Path $projectRoot "process-framework/project-config.json"
+$configPath = Join-Path $projectRoot "doc/project-config.json"
 $config = Get-Content $configPath -Raw | ConvertFrom-Json
 $language = $config.testing.language
 

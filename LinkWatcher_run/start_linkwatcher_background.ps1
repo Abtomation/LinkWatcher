@@ -2,7 +2,7 @@
 
 # Resolve project root from project-config.json
 $scriptDir = if ($PSScriptRoot) { $PSScriptRoot } else { (Get-Location).Path }
-$configPath = Join-Path $scriptDir "..\process-framework\project-config.json"
+$configPath = Join-Path $scriptDir "..\doc\project-config.json"
 
 if (-not (Test-Path $configPath)) {
     Write-Host "Error: project-config.json not found at: $configPath" -ForegroundColor Red
@@ -38,7 +38,7 @@ if (Test-Path $lockFile) {
 Write-Host "Starting LinkWatcher in background for $projectRoot..." -ForegroundColor Cyan
 
 # Start LinkWatcher with explicit project root and logging
-$logFile = Join-Path $scriptDir "LinkWatcherLog_20260331-072913_20260331-074026.txt"
+$logFile = Join-Path $scriptDir "LinkWatcherLog_20260331-072913_20260331-074026_20260331-203808_20260401-110504_20260402-102805_20260403-115312.txt"
 $stdoutLog = Join-Path $scriptDir "LinkWatcherStdout.txt"
 $stderrLog = Join-Path $scriptDir "LinkWatcherError.txt"
 $arguments = "C:\Users\ronny\bin\main.py --project-root `"$projectRoot`" --log-file `"$logFile`" --debug"

@@ -88,17 +88,23 @@ param(
     [string]$ProjectRoot = ""
 )
 
+# --- Import Common-ScriptHelpers for standardized utilities ---
+$scriptDir = if ($PSScriptRoot) { $PSScriptRoot } else { (Get-Location).Path }
+$modulePath = Join-Path -Path $scriptDir -ChildPath "../../../scripts/Common-ScriptHelpers.psm1"
+try {
+    $resolvedPath = Resolve-Path $modulePath -ErrorAction Stop
+    Import-Module $resolvedPath -Force
+} catch {
+    Write-Error "Failed to import Common-ScriptHelpers: $($_.Exception.Message)"
+    exit 1
+}
+
 # --- Resolve project root ---
 if (-not $ProjectRoot) {
-    $searchDir = $PSScriptRoot
-    while ($searchDir -and -not (Test-Path (Join-Path $searchDir ".git"))) {
-        $searchDir = Split-Path $searchDir -Parent
+    $ProjectRoot = Get-ProjectRoot
+    if (-not $ProjectRoot) {
+        Write-ProjectError -Message "Could not auto-detect project root. Use -ProjectRoot parameter." -ExitCode 1
     }
-    if (-not $searchDir) {
-        Write-Error "Could not auto-detect project root. Use -ProjectRoot parameter."
-        exit 1
-    }
-    $ProjectRoot = $searchDir
 }
 
 $templatesDir = Join-Path $ProjectRoot "test/e2e-acceptance-testing/templates"
@@ -109,12 +115,10 @@ $verifyScript = Join-Path $PSScriptRoot "Verify-TestResult.ps1"
 $trackingScript = Join-Path $PSScriptRoot "Update-TestExecutionStatus.ps1"
 
 if (-not (Test-Path $setupScript)) {
-    Write-Error "Setup-TestEnvironment.ps1 not found at: $setupScript"
-    exit 1
+    Write-ProjectError -Message "Setup-TestEnvironment.ps1 not found at: $setupScript" -ExitCode 1
 }
 if (-not (Test-Path $verifyScript)) {
-    Write-Error "Verify-TestResult.ps1 not found at: $verifyScript"
-    exit 1
+    Write-ProjectError -Message "Verify-TestResult.ps1 not found at: $verifyScript" -ExitCode 1
 }
 
 # --- Collect test cases ---
@@ -125,16 +129,14 @@ if ($TestCase -and $Group) {
     $groupDir = Join-Path $templatesDir $Group
     $tcDir = Get-ChildItem $groupDir -Directory -ErrorAction SilentlyContinue | Where-Object { $_.Name -match "^$TestCase-" }
     if (-not $tcDir) {
-        Write-Error "Test case $TestCase not found in group $Group"
-        exit 1
+        Write-ProjectError -Message "Test case $TestCase not found in group $Group" -ExitCode 1
     }
     $testCases += @{ Group = $Group; CaseDir = $tcDir.Name; CaseId = $TestCase; Path = $tcDir.FullName }
 } elseif ($Group) {
     # All test cases in a group
     $groupDir = Join-Path $templatesDir $Group
     if (-not (Test-Path $groupDir)) {
-        Write-Error "Group not found: $Group"
-        exit 1
+        Write-ProjectError -Message "Group not found: $Group" -ExitCode 1
     }
     $tcDirs = Get-ChildItem $groupDir -Directory | Where-Object { $_.Name -match '^TE-E2E-\d+' }
     foreach ($tc in $tcDirs) {
@@ -144,8 +146,7 @@ if ($TestCase -and $Group) {
 } else {
     # All groups, all test cases
     if (-not (Test-Path $templatesDir)) {
-        Write-Error "Templates directory not found: $templatesDir"
-        exit 1
+        Write-ProjectError -Message "Templates directory not found: $templatesDir" -ExitCode 1
     }
     $allGroups = Get-ChildItem $templatesDir -Directory
     foreach ($grp in $allGroups) {
@@ -241,7 +242,7 @@ function Start-LinkWatcher {
     $lwProcess = Start-Process -FilePath "python" -ArgumentList $arguments -WorkingDirectory $WatchPath -WindowStyle Hidden -PassThru -RedirectStandardOutput (Join-Path $WatchPath "lw-stdout.txt") -RedirectStandardError (Join-Path $WatchPath "lw-stderr.txt")
 
     if (-not $lwProcess) {
-        Write-Host "  ❌ Failed to start LinkWatcher" -ForegroundColor Red
+        Write-ProjectError -Message "Failed to start LinkWatcher"
         return
     }
     $dryRunLabel = if ($DryRun) { ", dry-run" } else { "" }
@@ -293,7 +294,7 @@ foreach ($tc in $scriptedCases) {
     try {
         & $setupScript -Group $tc.Group -ProjectRoot $ProjectRoot -Clean:$Clean
     } catch {
-        Write-Host "  ❌ Setup failed: $($_.Exception.Message)" -ForegroundColor Red
+        Write-ProjectError -Message "Setup failed: $($_.Exception.Message)"
         $errors++
         continue
     }
@@ -301,7 +302,7 @@ foreach ($tc in $scriptedCases) {
     # Verify workspace was created
     $workspaceProjectPath = Join-Path $workspaceCasePath "project"
     if (-not (Test-Path $workspaceProjectPath)) {
-        Write-Host "  ❌ Workspace project/ not created after setup" -ForegroundColor Red
+        Write-ProjectError -Message "Workspace project/ not created after setup"
         $errors++
         continue
     }
@@ -331,12 +332,12 @@ foreach ($tc in $scriptedCases) {
         $global:LASTEXITCODE = 0
         & $runScriptPath -WorkspacePath $workspaceCasePath
         if ($LASTEXITCODE -and $LASTEXITCODE -ne 0) {
-            Write-Host "  ❌ run.ps1 exited with code $LASTEXITCODE" -ForegroundColor Red
+            Write-ProjectError -Message "run.ps1 exited with code $LASTEXITCODE"
             $errors++
             $runFailed = $true
         }
     } catch {
-        Write-Host "  ❌ run.ps1 failed: $($_.Exception.Message)" -ForegroundColor Red
+        Write-ProjectError -Message "run.ps1 failed: $($_.Exception.Message)"
         $errors++
         $runFailed = $true
     }

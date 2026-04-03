@@ -7,7 +7,6 @@ created: 2025-07-24
 updated: 2025-07-24
 map_type: Context Map
 task_name: technical-debt-assessment-task
-task_type: Cyclical
 visualization_type: Task Context
 ---
 
@@ -96,6 +95,6 @@ When starting a technical debt assessment:
 - [Technical Debt Assessment Task](../../../tasks/cyclical/technical-debt-assessment-task.md) - Complete task definition with step-by-step process
 - [Assessment Criteria Guide](../../../guides/cyclical/assessment-criteria-guide.md) - Detailed identification criteria
 - [Prioritization Guide](../../../guides/cyclical/prioritization-guide.md) - Impact/effort prioritization framework
-- [Technical Debt Tracking](../../../../doc/product-docs/state-tracking/permanent/technical-debt-tracking.md) - Permanent state tracking
+- [Technical Debt Tracking](../../../../doc/state-tracking/permanent/technical-debt-tracking.md) - Permanent state tracking
 
 ---

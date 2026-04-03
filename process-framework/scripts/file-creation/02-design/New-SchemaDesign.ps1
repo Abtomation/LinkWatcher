@@ -33,13 +33,13 @@
     If specified, shows what would be updated without making changes
 
 .EXAMPLE
-    ../../../product-docs/technical/database/New-SchemaDesign.ps1 -FeatureName "User Authentication" -SchemaType "New"
+    doc/technical/database/New-SchemaDesign.ps1 -FeatureName "User Authentication" -SchemaType "New"
 
 .EXAMPLE
-    ../../../product-docs/technical/database/New-SchemaDesign.ps1 -FeatureName "User Profile Enhancement" -SchemaType "Modification" -Description "Add new fields for user preferences" -OpenInEditor
+    doc/technical/database/New-SchemaDesign.ps1 -FeatureName "User Profile Enhancement" -SchemaType "Modification" -Description "Add new fields for user preferences" -OpenInEditor
 
 .EXAMPLE
-    ../../../product-docs/technical/database/New-SchemaDesign.ps1 -FeatureName "Booking Fee Calculation" -SchemaType "New" -Description "Schema for booking fee calculations" -FeatureId "5.1.1"
+    doc/technical/database/New-SchemaDesign.ps1 -FeatureName "Booking Fee Calculation" -SchemaType "New" -Description "Schema for booking fee calculations" -FeatureId "5.1.1"
 
 .NOTES
     - Requires PowerShell execution policy to allow script execution
@@ -182,7 +182,7 @@ try {
                 # Prepare schema design document link for feature tracking
                 # Use the same filename pattern as New-StandardProjectDocument (kebab-case of feature name)
                 $schemaFileName = "$($FeatureName.ToLower() -replace '\s+', '-').md"
-                $relativePath = "../../../product-docs/technical/database/schemas/$schemaFileName"
+                $relativePath = "doc/technical/database/schemas/$schemaFileName"
                 $dbDesignLink = "[$documentId]($relativePath)"
 
                 # Prepare additional updates for feature tracking

@@ -26,7 +26,7 @@ feature_id: 2.2.1
 | **Audit Date** | 2026-03-15 |
 | **Audit Status** | COMPLETED |
 | **Test Spec** | [PF-TSP-040](../../specifications/feature-specs/test-spec-2-2-1-link-updating.md) |
-| **TDD** | [PD-TDD-026](../../../doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-2-1-link-updater-t2.md) |
+| **TDD** | [PD-TDD-026](../../../doc/technical/tdd/tdd-2-2-1-link-updater-t2.md) |
 
 ## Test Files Audited
 

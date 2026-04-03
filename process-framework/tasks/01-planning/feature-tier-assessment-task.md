@@ -5,7 +5,6 @@ category: Task Definition
 version: 1.4
 created: 2023-06-15
 updated: 2026-03-02
-task_type: Discrete
 ---
 
 # Feature Tier Assessment
@@ -36,11 +35,11 @@ Assess the complexity tier of unassessed features to determine appropriate docum
 - **Critical (Must Read):**
 
   - [Assessment Guide](../../guides/01-planning/assessment-guide.md) - Detailed guidelines for assessing feature complexity tiers
-  - [Documentation Tiers README](../../../doc/product-docs/documentation-tiers/README.md) - Definitions of each complexity tier and their criteria
+  - [Documentation Tiers README](../../../doc/documentation-tiers/README.md) - Definitions of each complexity tier and their criteria
   - [Visual Notation Guide](/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 - **Reference Only (Access When Needed):**
-  - [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) - List of features and their current assessment status
+  - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - List of features and their current assessment status
 
 ## Process
 
@@ -55,7 +54,7 @@ Assess the complexity tier of unassessed features to determine appropriate docum
 ### Preparation
 
 1. Review the [Assessment Guide](../../guides/01-planning/assessment-guide.md) for detailed instructions on how to perform assessments
-2. Identify features without tier assessments in the [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) document
+2. Identify features without tier assessments in the [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) document
 3. Select a feature or group of similar features to assess
 
 ### Execution
@@ -64,7 +63,7 @@ Assess the complexity tier of unassessed features to determine appropriate docum
 
    ```powershell
    # Navigate to the documentation tiers directory
-   cd ../../../doc/product-docs/documentation-tiers
+   cd ../../../doc/documentation-tiers
 
    # Create a new assessment document (ALL THREE PARAMETERS ARE MANDATORY)
    ../../scripts/file-creation/01-planning/New-Assessment.ps1 -FeatureId "X.X.X" -FeatureName "Feature Name" -FeatureDescription "Brief description of what the feature does"
@@ -88,7 +87,7 @@ Assess the complexity tier of unassessed features to determine appropriate docum
 
    ```powershell
    # Navigate to the documentation tiers directory (if not already there)
-   cd doc/product-docs/documentation-tiers
+   cd doc/documentation-tiers
 
    # Run the automated update script (AssessmentId and FeatureId are required)
    .\Update-FeatureTrackingFromAssessment.ps1 -FeatureId "X.X.X" -AssessmentId "ART-ASS-XXX"
@@ -110,14 +109,14 @@ Assess the complexity tier of unassessed features to determine appropriate docum
 
 ## Outputs
 
-- **Assessment Document** - New document in the `../../../doc/product-docs/documentation-tiers/assessments` directory with tier assignment, design requirements evaluation, and rationale
+- **Assessment Document** - New document in the `../../../doc/documentation-tiers/assessments` directory with tier assignment, design requirements evaluation, and rationale
 - **Updated Feature Tracking** - Feature entry in the tracking document updated with assessment results, including API Design and DB Design requirements
 
 ## State Tracking
 
 The following state files must be updated as part of this task:
 
-- [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) - Update with:
+- [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Update with:
   - Status change from "⬜ Not Started" to "📊 Assessment Created"
   - Documentation tier emoji (🔵/🟠/🔴)
   - UI Design column with "Yes" or "No"
@@ -289,7 +288,7 @@ When updating the feature tracking document:
 
 ## Related Resources
 
-- [Documentation Tier Assignments README](../../../doc/product-docs/documentation-tiers/README.md) - Comprehensive overview of the tier system
-- [Normalized Scoring System](../../../product-docs/documentation-tiers/README.md#normalized-scoring-system) - Details on how the scoring system works
+- [Documentation Tier Assignments README](../../../doc/documentation-tiers/README.md) - Comprehensive overview of the tier system
+- [Normalized Scoring System](/doc/documentation-tiers/README.md#normalized-scoring-system) - Details on how the scoring system works
 
 - [Task Creation and Improvement Guide](../../guides/support/task-creation-guide.md) - Guide for creating and improving tasks

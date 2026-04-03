@@ -5,7 +5,6 @@ category: Task Definition
 version: 1.4
 created: 2025-07-21
 updated: 2026-03-02
-task_type: Discrete
 change_notes: "v1.3 - Updated for IMP-097/IMP-098: Clarified database-only scope, added information flow section, updated outputs to remove non-database concerns"
 ---
 
@@ -77,26 +76,26 @@ Systematic data model planning before implementation to prevent data integrity i
 
 - **Critical (Must Read):**
 
-  - **Functional Design Document (FDD)** - For Tier 2+ features, the FDD containing functional requirements and data requirements that inform schema design (located in `/doc/product-docs/functional-design/fdds/`)
-  - [Feature Requirements](/doc/product-docs/state-tracking/permanent/feature-tracking.md) - Understanding what functionality requires database changes and confirming DB Design is required
-  - [Feature Tier Assessment](../../../doc/product-docs/documentation-tiers/assessments) - Assessment that determined database design is needed
+  - **Functional Design Document (FDD)** - For Tier 2+ features, the FDD containing functional requirements and data requirements that inform schema design (located in `/doc/functional-design/fdds`)
+  - [Feature Requirements](/doc/state-tracking/permanent/feature-tracking.md) - Understanding what functionality requires database changes and confirming DB Design is required
+  - [Feature Tier Assessment](../../../doc/documentation-tiers/assessments) - Assessment that determined database design is needed
   - **Current Database Schema** - Existing schema documentation and structure:
     - Current schema: `/data/`
-    - Database reference: `/doc/product-docs/technical/architecture/database-reference.md`
-    - Existing schema designs: `/doc/product-docs/technical/database/schemas/`
+    - Database reference: `/doc/technical/architecture/database-reference.md`
+    - Existing schema designs: `/doc/technical/database/schemas`
   - **Data Flow Requirements** - How data moves through the system and integration points
 
 - **Important (Load If Space):**
 
-  - **API Specifications** - Existing API contracts that may be affected by schema changes (located in `/doc/product-docs/technical/api/specifications/`)
+  - **API Specifications** - Existing API contracts that may be affected by schema changes (located in `/doc/technical/api/specifications`)
   - **Performance Requirements** - Scalability and performance constraints for the data model
   - **Business Rules** - Domain-specific constraints and validation requirements from FDDs
-  - **Migration History** - Previous database migrations and their outcomes (located in `/doc/product-docs/technical/database/migrations/`)
+  - **Migration History** - Previous database migrations and their outcomes (located in `/doc/technical/database/migrations`)
 
 - **Reference Only (Access When Needed):**
   - **Database Documentation** - Existing database documentation and conventions:
-    - Architecture documentation: `/doc/product-docs/technical/architecture/`
-    - Database diagrams: `/doc/product-docs/technical/database/diagrams/`
+    - Architecture documentation: `/doc/technical/architecture`
+    - Database diagrams: `/doc/technical/database/diagrams`
   - **Security Policies** - Data security and privacy requirements
   - [Visual Notation Guide](/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
@@ -112,10 +111,10 @@ Systematic data model planning before implementation to prevent data integrity i
 
 ### Preparation
 
-1. **Verify DB Design Requirement**: Confirm in the [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) document that the DB Design column shows "Yes" for this feature
-2. Review the [Feature Tier Assessment](../../../doc/product-docs/documentation-tiers/assessments) that determined database design is needed
+1. **Verify DB Design Requirement**: Confirm in the [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) document that the DB Design column shows "Yes" for this feature
+2. Review the [Feature Tier Assessment](../../../doc/documentation-tiers/assessments) that determined database design is needed
 3. **Gather Context**: Load all critical context files including feature requirements, current schema, and data flow requirements
-4. **Analyze Current State**: Review existing database schema (`/data/` and `/doc/product-docs/technical/architecture/database-reference.md`) and identify areas that will be affected by the changes
+4. **Analyze Current State**: Review existing database schema (`/data/` and `/doc/technical/architecture/database-reference.md`) and identify areas that will be affected by the changes
 5. **Validate Requirements**: Ensure all functional and non-functional requirements are clearly understood
 6. **🚨 CHECKPOINT**: Present current schema analysis, identified impact areas, and requirements to human partner for approval
 
@@ -124,7 +123,7 @@ Systematic data model planning before implementation to prevent data integrity i
 7. **Create Schema Design Document**: Use the schema design script to generate the main design document and automatically update feature tracking
    ```powershell
    # Generate schema design document with automatic feature tracking updates
-   Set-Location "doc/product-docs/technical/database"
+   Set-Location "doc/technical/database"
    ../New-SchemaDesign.ps1 -FeatureName "Feature Name" -SchemaType "New|Modification|Optimization" -FeatureId "X.X.X"
    ```
 8. **Design Data Model**: Create entity-relationship diagrams and define data structures, relationships, and constraints
@@ -138,19 +137,19 @@ Systematic data model planning before implementation to prevent data integrity i
 13. **Create Migration Scripts**: Generate production-ready migration scripts with proper rollback procedures
 14. **Document Database-Level Integration Notes**: Add brief notes on database access requirements and cross-schema dependencies (detailed API specifications belong in API Design task)
 15. **Add Cross-References**: Include brief cross-reference sections linking to API Design and Test Specification tasks where appropriate
-16. **Verify Automated Updates**: Confirm that the schema design script automatically updated the [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) document, changing the DB Design column from "Yes" to a link to the schema design
+16. **Verify Automated Updates**: Confirm that the schema design script automatically updated the [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) document, changing the DB Design column from "Yes" to a link to the schema design
 17. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 
-- **Schema Design Document** - Comprehensive data model specification in `/doc/product-docs/technical/database/schemas/[feature-name]-schema-design.md`
+- **Schema Design Document** - Comprehensive data model specification in `/doc/technical/database/schemas/[feature-name]-schema-design.md`
   - Entity definitions with fields, types, and constraints
   - Relationships and foreign keys
   - Database security policies (RLS)
   - Performance considerations (indexes, partitioning)
   - Brief cross-references to API Design and Test Specification tasks
-- **Entity-Relationship Diagram** - Visual representation of data relationships in `/doc/product-docs/technical/database/diagrams/[feature-name]-erd.md`
-- **Migration Script** - Safe database migration with rollback procedures in `/doc/product-docs/technical/database/migrations/[timestamp]-[feature-name]-migration.sql`
+- **Entity-Relationship Diagram** - Visual representation of data relationships in `/doc/technical/database/diagrams/[feature-name]-erd.md`
+- **Migration Script** - Safe database migration with rollback procedures in `/doc/technical/database/migrations/[timestamp]-[feature-name]-migration.sql`
 - **Data Dictionary** - Detailed field definitions and constraints in the schema design document
 - **Database-Level Integration Notes** - Brief notes on database access requirements and cross-schema dependencies (detailed API specifications are in API Design task)
 
@@ -158,8 +157,8 @@ Systematic data model planning before implementation to prevent data integrity i
 
 The following state files are updated as part of this task:
 
-- [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) - **AUTOMATICALLY UPDATED** by the schema design script: DB Design column changes from "Yes" to a link to the completed database schema design document
-- [Technical Debt Tracking](../../../doc/product-docs/state-tracking/permanent/technical-debt-tracking.md) - **MANUAL UPDATE REQUIRED**: Add any schema optimization opportunities identified during design
+- [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - **AUTOMATICALLY UPDATED** by the schema design script: DB Design column changes from "Yes" to a link to the completed database schema design document
+- [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) - **MANUAL UPDATE REQUIRED**: Add any schema optimization opportunities identified during design
 - **Database Schema Tracking** - Track schema changes across features (to be created as part of task infrastructure)
 
 ## ⚠️ MANDATORY Task Completion Checklist
@@ -176,8 +175,8 @@ Before considering this task finished:
   - [ ] Database-level integration notes documented (with cross-references to API Design task for detailed specifications)
   - [ ] Cross-reference sections added linking to API Design and Test Specification tasks
 - [ ] **Verify State File Updates**: Ensure all state tracking files have been updated
-  - [ ] [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) DB Design column **AUTOMATICALLY UPDATED** from "Yes" to link to completed database schema design document (verify the automation worked correctly)
-  - [ ] [Technical Debt Tracking](../../../doc/product-docs/state-tracking/permanent/technical-debt-tracking.md) **MANUALLY UPDATED** with schema optimization opportunities identified during design
+  - [ ] [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) DB Design column **AUTOMATICALLY UPDATED** from "Yes" to link to completed database schema design document (verify the automation worked correctly)
+  - [ ] [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) **MANUALLY UPDATED** with schema optimization opportunities identified during design
   - [ ] Database Schema Tracking updated with new schema changes
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-021" and context "Database Schema Design Task"
 
@@ -192,4 +191,4 @@ Before considering this task finished:
 - [System Architecture Review Task](../01-planning/system-architecture-review.md) - For evaluating how schema changes fit into existing architecture
 - [API Design Task](api-design-task.md) - For designing APIs that work with the new data model
 - [Feature Implementation Planning](../04-implementation/feature-implementation-planning-task.md) - For planning and implementing features using the designed schema
-- [Technical Debt Tracking](../../../doc/product-docs/state-tracking/permanent/technical-debt-tracking.md) - For tracking schema optimization opportunities
+- [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) - For tracking schema optimization opportunities

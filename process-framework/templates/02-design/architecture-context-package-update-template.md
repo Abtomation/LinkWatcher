@@ -4,7 +4,9 @@ type: Process Framework
 category: Template
 version: 1.1
 created: 2025-07-25
-updated: 2025-08-03
+updated: 2026-04-02
+automation: manual
+automation_rationale: Instructional template showing HOW to update context packages, not a document creation template
 creates_document_category: Guide
 creates_document_prefix: PF-GDE
 usage_context: Process Framework - Guide Creation

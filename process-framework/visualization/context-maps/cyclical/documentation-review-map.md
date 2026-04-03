@@ -68,7 +68,7 @@ graph TD
 
 ## Related Documentation
 
-- [Documentation Inventory](/doc/product-docs/README.md) - Index of project documentation
-- [Technical Debt Tracking](../../../../doc/product-docs/state-tracking/permanent/technical-debt-tracking.md) - Technical debt status
+- [Documentation Inventory](/doc/README.md) - Index of project documentation
+- [Technical Debt Tracking](../../../../doc/state-tracking/permanent/technical-debt-tracking.md) - Technical debt status
 
 ---

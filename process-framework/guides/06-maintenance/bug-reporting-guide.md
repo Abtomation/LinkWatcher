@@ -72,7 +72,7 @@ cd process-framework/scripts/file-creation
 | **Environment**       | Where bug was found          | "Development" | "Testing", "Staging", "Production"        |
 | **Evidence**          | Links to proof/documentation | ""            | Screenshot URLs, log file paths           |
 | **RelatedFeature**    | Associated feature           | ""            | Feature name or ID                        |
-| **Workflows**         | Affected user workflows      | ""            | "WF-001, WF-003" (from [User Workflow Tracking](/doc/product-docs/state-tracking/permanent/user-workflow-tracking.md)) |
+| **Workflows**         | Affected user workflows      | ""            | "WF-001, WF-003" (from [User Workflow Tracking](/doc/state-tracking/permanent/user-workflow-tracking.md)) |
 
 ## Bug Reporting Standards
 
@@ -183,7 +183,7 @@ The script provides clear feedback:
 📝 Title: Login form validation fails
 ✅ Bug report created successfully!
 📍 Bug ID: BUG-042
-📂 Added to: /doc/product-docs/state-tracking/permanent/bug-tracking.md
+📂 Added to: /doc/state-tracking/permanent/bug-tracking.md
 
 🔄 Next Steps:
   1. Run Bug Triage task to evaluate and prioritize this bug
@@ -224,7 +224,7 @@ Solution: Use only: Critical, High, Medium, Low
 
 ## Related Resources
 
-- [Bug Tracking State File](../../../doc/product-docs/state-tracking/permanent/bug-tracking.md) - Central bug registry
+- [Bug Tracking State File](../../../doc/state-tracking/permanent/bug-tracking.md) - Central bug registry
 - [Bug Triage Task](../../tasks/06-maintenance/bug-triage-task.md) - Bug evaluation and prioritization
 - [Bug Fixing Task](../../tasks/06-maintenance/bug-fixing-task.md) - Bug resolution workflow
 - [Test Audit Task](../../tasks/03-testing/test-audit-task.md) - Testing workflow with bug discovery

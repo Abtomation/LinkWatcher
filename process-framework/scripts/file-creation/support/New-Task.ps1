@@ -5,10 +5,6 @@
 [CmdletBinding(SupportsShouldProcess = $true)]
 param(
     [Parameter(Mandatory = $true)]
-    [ValidateSet("Discrete", "Cyclical", "Support", "Onboarding")]
-    [string]$TaskType,
-
-    [Parameter(Mandatory = $true)]
     [string]$TaskName,
 
     [Parameter(Mandatory = $false)]
@@ -68,11 +64,6 @@ function Format-AlignedTableRow {
     return "|" + ($paddedCells -join '|') + "|"
 }
 
-# Prepare additional metadata fields
-$additionalMetadataFields = @{
-    "task_type" = $TaskType
-}
-
 # Prepare custom replacements
 $customReplacements = @{
     "# [Task Name]"                                                                       = "# $TaskName"
@@ -86,16 +77,33 @@ $processFrameworkDir = Join-Path $projectRoot "process-framework"
 $templatePath = Join-Path -Path $processFrameworkDir -ChildPath "templates\support\task-template.md"
 
 try {
-    $taskId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "PF-TSK" -IdDescription "$TaskType task: ${TaskName}" -DocumentName $TaskName -DirectoryType $WorkflowPhase -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
+    $taskId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "PF-TSK" -IdDescription "$WorkflowPhase task: ${TaskName}" -DocumentName $TaskName -DirectoryType $WorkflowPhase -Replacements $customReplacements -OpenInEditor:$OpenInEditor
 
     Write-Verbose "Created task with ID: $taskId"
 
     # Update the documentation map
-    $docMapPath = Join-Path -Path $processFrameworkDir -ChildPath "documentation-map.md"
+    $docMapPath = Join-Path -Path $processFrameworkDir -ChildPath "PF-documentation-map.md"
     if (Test-Path $docMapPath) {
         if ($PSCmdlet.ShouldProcess("Update documentation map with new task")) {
             $docMap = Get-Content -Path $docMapPath
-            $sectionHeader = "#### $TaskType Tasks"
+            # Map workflow phase to PF-documentation-map.md section header
+            $phaseToDocMapSection = @{
+                "00-setup"          = "#### 00 - Setup Tasks"
+                "01-planning"       = "#### 01 - Planning Tasks"
+                "02-design"         = "#### 02 - Design Tasks"
+                "03-testing"        = "#### 03 - Testing Tasks"
+                "04-implementation" = "#### 04 - Implementation Tasks"
+                "05-validation"     = "#### 05 - Validation Tasks"
+                "06-maintenance"    = "#### 06 - Maintenance Tasks"
+                "07-deployment"     = "#### 07 - Deployment Tasks"
+                "support"           = "#### Support Tasks"
+                "cyclical"          = "#### Cyclical Tasks"
+            }
+            $sectionHeader = $phaseToDocMapSection[$WorkflowPhase]
+            if (-not $sectionHeader) {
+                Write-Warning "Unknown workflow phase '$WorkflowPhase' for documentation map. Manual update required."
+                return
+            }
             $sectionIndex = $docMap.IndexOf($sectionHeader)
 
             if ($sectionIndex -ge 0) {
@@ -118,12 +126,23 @@ try {
         if ($PSCmdlet.ShouldProcess("Update tasks README with new task")) {
             $tasksReadme = Get-Content -Path $tasksReadmePath
 
-            # Find the appropriate section based on task type
-            $sectionHeader = switch ($TaskType) {
-                "Discrete" { "### Discrete Tasks" }
-                "Cyclical" { "### Cyclical Tasks" }
-                "Support" { "### Discrete Tasks" }  # Support tasks are listed in Discrete section
-                "Onboarding" { "### Onboarding Tasks" }
+            # Map workflow phase to tasks/README.md section header
+            $phaseToReadmeSection = @{
+                "00-setup"          = "### 00 - Setup Tasks"
+                "01-planning"       = "### 01 - Planning Tasks"
+                "02-design"         = "### 02 - Design Tasks"
+                "03-testing"        = "### 03 - Testing Tasks"
+                "04-implementation" = "### 04 - Implementation Tasks"
+                "05-validation"     = "### 05 - Validation Tasks"
+                "06-maintenance"    = "### 06 - Maintenance Tasks"
+                "07-deployment"     = "### 07 - Deployment Tasks"
+                "support"           = "### Support Tasks"
+                "cyclical"          = "### Cyclical Tasks"
+            }
+            $sectionHeader = $phaseToReadmeSection[$WorkflowPhase]
+            if (-not $sectionHeader) {
+                Write-Warning "Unknown workflow phase '$WorkflowPhase' for tasks README. Manual update required."
+                return
             }
 
             $sectionIndex = $tasksReadme.IndexOf($sectionHeader)
@@ -227,11 +246,10 @@ try {
                 return
             }
 
-            # Support Tasks section has a different table format than other categories
             $useWhen = if ($Description -ne "") { $Description } else { "When working on $TaskName" }
             if ($WorkflowPhase -eq "support") {
-                $tableHeaderPattern = "^\| Task.*\| Type.*\| Use When.*\| Link.*\|$"
-                $cells = @("**$TaskName**", $TaskType, $useWhen, "[→ Definition]($relativePath)")
+                $tableHeaderPattern = "^\| Task.*\| Use When.*\| Link.*\|$"
+                $cells = @("**$TaskName**", $useWhen, "[→ Definition]($relativePath)")
             } else {
                 $tableHeaderPattern = "^\| Task.*\| Use When.*\| Complexity.*\| Link.*\|$"
                 $cells = @("**$TaskName**", $useWhen, "🟡 Medium", "[→ Definition]($relativePath)")
@@ -269,6 +287,95 @@ try {
         Write-Warning "AI Tasks file not found at $aiTasksPath. Manual update required."
     }
 
+    # Update the Process Framework Task Registry
+    $registryPath = Join-Path -Path $processFrameworkDir -ChildPath "infrastructure/process-framework-task-registry.md"
+    if (Test-Path $registryPath) {
+        if ($PSCmdlet.ShouldProcess("Update task registry with new task")) {
+            $registry = Get-Content -Path $registryPath -Encoding UTF8
+
+            # Map workflow phase to registry section header and entry prefix
+            $phaseToRegistry = @{
+                "00-setup"          = @{ Section = "### **SETUP TASKS**";      Prefix = "S" }
+                "01-planning"       = @{ Section = "### **DISCRETE TASKS**";   Prefix = "" }
+                "02-design"         = @{ Section = "### **DISCRETE TASKS**";   Prefix = "" }
+                "03-testing"        = @{ Section = "### **DISCRETE TASKS**";   Prefix = "" }
+                "04-implementation" = @{ Section = "### **DISCRETE TASKS**";   Prefix = "" }
+                "05-validation"     = @{ Section = "### **VALIDATION TASKS**"; Prefix = "V" }
+                "06-maintenance"    = @{ Section = "### **DISCRETE TASKS**";   Prefix = "" }
+                "07-deployment"     = @{ Section = "### **DISCRETE TASKS**";   Prefix = "" }
+                "support"           = @{ Section = "### **SUPPORT TASKS**";    Prefix = "" }
+                "cyclical"          = @{ Section = "### **CYCLICAL TASKS**";   Prefix = "" }
+            }
+
+            $registryInfo = $phaseToRegistry[$WorkflowPhase]
+            if ($registryInfo) {
+                $sectionHeader = $registryInfo.Section
+                $entryPrefix = $registryInfo.Prefix
+
+                # Find section boundaries
+                $sectionStart = -1
+                $sectionEnd = $registry.Length - 1
+                for ($i = 0; $i -lt $registry.Length; $i++) {
+                    if ($registry[$i] -eq $sectionHeader) {
+                        $sectionStart = $i
+                    } elseif ($sectionStart -ge 0 -and $i -gt $sectionStart -and $registry[$i] -match '^### \*\*') {
+                        $sectionEnd = $i - 1
+                        break
+                    }
+                }
+
+                if ($sectionStart -ge 0) {
+                    # Find the highest entry number in this section
+                    $maxNum = 0
+                    for ($i = $sectionStart; $i -le $sectionEnd; $i++) {
+                        if ($registry[$i] -match "^#### \*\*${entryPrefix}(\d+)") {
+                            $num = [int]$matches[1]
+                            if ($num -gt $maxNum) { $maxNum = $num }
+                        }
+                    }
+                    $nextNum = $maxNum + 1
+
+                    $fileName = ConvertTo-KebabCase -InputString $TaskName
+                    $relPath = "../tasks/$WorkflowPhase/$fileName.md"
+
+                    # Build skeleton entry
+                    $skeleton = @(
+                        ""
+                        "#### **${entryPrefix}${nextNum}. ${TaskName}** ([$taskId]($relPath))"
+                        ""
+                        "**`u{1F527} Process Type:** `u{1F527} **Manual** (Newly created — customize after task definition is complete)"
+                        ""
+                        "**`u{1F4CB} AUTOMATION DETAILS**"
+                        ""
+                        "- **Script:** _None — update after task customization_"
+                        "- **Output Directory:** _TBD_"
+                        ""
+                        "**`u{1F4C1} FILE OPERATIONS**"
+                        "| Operation | File Path | Update Method | Details |"
+                        "|-----------|-----------|---------------|---------|"
+                        "| _TBD_ | _Update after task customization_ | _TBD_ | _TBD_ |"
+                        ""
+                        "**`u{1F3AF} KEY IMPACTS**"
+                        ""
+                        "- **Primary output:** _Update after task customization_"
+                        "- **Enables next steps:** _TBD_"
+                        "- **Dependencies:** _TBD_"
+                    )
+
+                    # Insert before the next section (at sectionEnd + 1) or at the end of this section
+                    $insertAt = $sectionEnd + 1
+                    $registry = $registry[0..($insertAt - 1)] + $skeleton + $registry[$insertAt..($registry.Length - 1)]
+                    $registry | Set-Content -Path $registryPath -Encoding UTF8
+                    Write-Verbose "Updated task registry with skeleton entry"
+                } else {
+                    Write-Warning "Could not find section '$sectionHeader' in task registry. Manual update required."
+                }
+            } else {
+                Write-Warning "Unknown workflow phase '$WorkflowPhase' for task registry mapping. Manual update required."
+            }
+        }
+    }
+
     # Display next steps guidance
     Write-Host ""
     Write-Host "🚨 MANDATORY NEXT STEP: Task Creation Guide Review Required" -ForegroundColor Red
@@ -287,6 +394,7 @@ try {
         Write-Verbose "  - Documentation map"
         Write-Verbose "  - Tasks README"
         Write-Verbose "  - AI Tasks main entry point"
+        Write-Verbose "  - Process Framework Task Registry"
         Write-Verbose "Edit the file to complete the task documentation."
     }
 }

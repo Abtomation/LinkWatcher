@@ -86,10 +86,10 @@ $customReplacements = @{
 
 # Create the document using standardized process
 try {
-    $assessmentId = New-StandardProjectDocument -TemplatePath "process-framework/templates/01-planning/assessment-template.md" -IdPrefix "PD-ASS" -IdDescription "Assessment for feature ${FeatureId}: ${FeatureName}" -DocumentName $FeatureName -OutputDirectory "doc/product-docs/documentation-tiers/assessments" -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
+    $assessmentId = New-StandardProjectDocument -TemplatePath "process-framework/templates/01-planning/assessment-template.md" -IdPrefix "PD-ASS" -IdDescription "Assessment for feature ${FeatureId}: ${FeatureName}" -DocumentName $FeatureName -OutputDirectory "doc/documentation-tiers/assessments" -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
 
     # Rename the file to include the ID and feature ID in the filename
-    $assessmentsDir = Join-Path -Path (Get-ProjectRoot) -ChildPath "doc/product-docs/documentation-tiers/assessments"
+    $assessmentsDir = Join-Path -Path (Get-ProjectRoot) -ChildPath "doc/documentation-tiers/assessments"
     $kebabFeatureName = ConvertTo-KebabCase -InputString $FeatureName
     $oldFileName = "$kebabFeatureName.md"
     $newFileName = "$assessmentId-$FeatureId-$kebabFeatureName.md"
@@ -143,7 +143,7 @@ try {
             Write-Host "  - Add assessment link to feature tracking" -ForegroundColor Cyan
         } else {
             # Prepare assessment document link
-            $assessmentLink = "../product-docs/documentation-tiers/assessments/$newFileName)"
+            $assessmentLink = "doc/documentation-tiers/assessments/$newFileName)"
 
             # Prepare additional updates for feature tracking
             $additionalUpdates = @{
@@ -172,7 +172,7 @@ try {
         Write-Warning "Failed to update feature tracking automatically: $($_.Exception.Message)"
         Write-Host "Manual Update Required:" -ForegroundColor Yellow
         Write-Host "  - Update feature $FeatureId status to '📊 Assessment Created'" -ForegroundColor Cyan
-        Write-Host "  - Add assessment link: [$assessmentId](../../../product-docs/documentation-tiers/assessments/$newFileName)" -ForegroundColor Cyan
+        Write-Host "  - Add assessment link: [$assessmentId](/doc/documentation-tiers/assessments/$newFileName)" -ForegroundColor Cyan
     }
 }
 catch {

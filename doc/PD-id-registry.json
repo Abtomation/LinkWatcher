@@ -1,0 +1,232 @@
+{
+  "metadata": {
+    "name": "PD-id-registry",
+    "version": "1.0",
+    "created": "2026-03-24",
+    "updated": "2026-04-02",
+    "description": "Product Documentation ID Registry - project-specific document IDs",
+    "format": "semantic"
+  },
+  "prefixes": {
+    "PD-DOC": {
+      "description": "Product Documentation - Documentation",
+      "category": "Product Documentation",
+      "type": "Documentation",
+      "directories": {
+        "main": "doc",
+        "default": "main"
+      },
+      "nextAvailable": 1
+    },
+    "PD-UIX": {
+      "description": "Product Documentation - UI/UX Design",
+      "category": "Product Documentation",
+      "type": "UI/UX Design Document",
+      "directories": {
+        "features": "doc/technical/design/ui-ux/features",
+        "design-system": "doc/technical/design/ui-ux/design-system",
+        "main": "doc/technical/design/ui-ux",
+        "default": "features"
+      },
+      "nextAvailable": 3
+    },
+    "PD-TDD": {
+      "description": "Product Documentation - Technical Design Documents",
+      "category": "Product Documentation",
+      "type": "Technical Design Document",
+      "directories": {
+        "main": "doc/technical/tdd",
+        "default": "main"
+      },
+      "nextAvailable": 33
+    },
+    "PD-FDD": {
+      "description": "Product Documentation - Functional Design Documents",
+      "category": "Product Documentation",
+      "type": "Functional Design Document",
+      "directories": {
+        "fdds": "doc/functional-design/fdds",
+        "main": "doc/functional-design",
+        "default": "fdds"
+      },
+      "nextAvailable": 34
+    },
+    "PD-ADR": {
+      "description": "Product Documentation - Architecture Decision Records",
+      "category": "Product Documentation",
+      "type": "Architecture Decision Records",
+      "directories": {
+        "main": "doc/technical/adr",
+        "default": "main"
+      },
+      "nextAvailable": 42
+    },
+    "PD-IMP": {
+      "description": "Product Documentation - Implementation",
+      "category": "Product Documentation",
+      "type": "Implementation",
+      "directories": {
+        "implementation-plans": "doc/technical/implementation-plans",
+        "technical": "doc/technical",
+        "default": "implementation-plans"
+      },
+      "nextAvailable": 3
+    },
+    "PD-API": {
+      "description": "Product Documentation - API Specifications",
+      "category": "Product Documentation",
+      "type": "API Specification",
+      "directories": {
+        "specifications": "doc/technical/api/specifications",
+        "models": "doc/technical/api/models",
+        "documentation": "doc/technical/api/documentation",
+        "main": "doc/technical/api",
+        "default": "specifications"
+      },
+      "nextAvailable": 44
+    },
+    "PD-CIC": {
+      "description": "Product Documentation - CI-CD",
+      "category": "Product Documentation",
+      "type": "CI-CD",
+      "directories": {
+        "main": "doc/ci-cd",
+        "default": "main"
+      },
+      "nextAvailable": 4
+    },
+    "PD-UGD": {
+      "description": "Product Documentation - User Guides",
+      "category": "Product Documentation",
+      "type": "User Guide",
+      "directories": {
+        "handbooks": "doc/user/handbooks",
+        "default": "handbooks"
+      },
+      "nextAvailable": 4
+    },
+    "PD-FAQ": {
+      "description": "Product Documentation - FAQ",
+      "category": "Product Documentation",
+      "type": "FAQ",
+      "directories": {
+        "user": "doc/user/faq",
+        "default": "user"
+      },
+      "nextAvailable": 1
+    },
+    "PD-SCH": {
+      "description": "Product Documentation - Database Schema Design",
+      "category": "Product Documentation",
+      "type": "Schema Design",
+      "directories": {
+        "schemas": "doc/technical/database/schemas",
+        "default": "schemas"
+      },
+      "nextAvailable": 11
+    },
+    "PD-MIG": {
+      "description": "Product Documentation - Database Migration Scripts",
+      "category": "Product Documentation",
+      "type": "Migration Script",
+      "fileType": "sql",
+      "metadataFormat": "comment",
+      "directories": {
+        "migrations": "doc/technical/database/migrations",
+        "default": "migrations"
+      },
+      "nextAvailable": 1
+    },
+    "PD-ERD": {
+      "description": "Product Documentation - Entity Relationship Diagrams",
+      "category": "Product Documentation",
+      "type": "Entity Relationship Diagram",
+      "directories": {
+        "diagrams": "doc/technical/database/diagrams",
+        "default": "diagrams"
+      },
+      "nextAvailable": 1
+    },
+    "PD-BUG": {
+      "description": "Product Documentation - Bug Reports",
+      "category": "Product Documentation",
+      "type": "Bug Report",
+      "directories": {
+        "permanent": "doc/state-tracking/permanent",
+        "default": "permanent"
+      },
+      "nextAvailable": 75
+    },
+    "PD-ASS": {
+      "description": "Product Documentation - Assessment Artifacts",
+      "category": "Product Documentation",
+      "type": "Assessment",
+      "directories": {
+        "assessments": "doc/documentation-tiers/assessments",
+        "default": "assessments"
+      },
+      "nextAvailable": 201
+    },
+    "PD-STA": {
+      "description": "Product Documentation - State Tracking",
+      "category": "Product Documentation",
+      "type": "State",
+      "directories": {
+        "permanent": "process-framework/state-tracking/permanent",
+        "temporary": "process-framework/state-tracking/temporary",
+        "main": "doc/state-tracking",
+        "product-permanent": "doc/state-tracking/permanent",
+        "product-temporary": "doc/state-tracking/temporary",
+        "default": "permanent"
+      },
+      "nextAvailable": 67
+    },
+    "PD-FRQ": {
+      "description": "Product Documentation - Feature Requests",
+      "category": "Product Documentation",
+      "type": "Feature Request",
+      "directories": {
+        "permanent": "doc/state-tracking/permanent",
+        "default": "permanent"
+      },
+      "nextAvailable": 4
+    },
+    "PD-FIS": {
+      "description": "Product Documentation - Feature Implementation States",
+      "category": "Product Documentation",
+      "type": "Feature Implementation State",
+      "directories": {
+        "features": "doc/state-tracking/features",
+        "default": "features"
+      },
+      "nextAvailable": 56
+    },
+    "PD-VAL": {
+      "description": "Product Documentation - Validation Reports",
+      "category": "Product Documentation",
+      "type": "Validation Report",
+      "directories": {
+        "architectural-consistency": "doc/validation/reports/architectural-consistency",
+        "code-quality": "doc/validation/reports/code-quality",
+        "integration-dependencies": "doc/validation/reports/integration-dependencies",
+        "documentation-alignment": "doc/validation/reports/documentation-alignment",
+        "extensibility-maintainability": "doc/validation/reports/extensibility-maintainability",
+        "ai-agent-continuity": "doc/validation/reports/ai-agent-continuity",
+        "reports": "doc/validation/reports",
+        "default": "reports"
+      },
+      "nextAvailable": 81
+    },
+    "PD-REF": {
+      "description": "Product Documentation - Refactoring Plans",
+      "category": "Product Documentation",
+      "type": "Refactoring Plan",
+      "directories": {
+        "plans": "doc/refactoring/plans",
+        "scripts-update": "process-framework/scripts/update/doc/product-docs/refactoring/plans",
+        "default": "plans"
+      },
+      "nextAvailable": 158
+    }
+  }
+}

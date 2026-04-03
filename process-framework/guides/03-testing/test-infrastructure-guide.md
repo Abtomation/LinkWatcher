@@ -161,7 +161,7 @@ User Workflow Tracking (what workflows exist, which features they need)
 ```
 
 **Key files:**
-- [User Workflow Tracking](/doc/product-docs/state-tracking/permanent/user-workflow-tracking.md) — state tracking artifact mapping workflows to features
+- [User Workflow Tracking](/doc/state-tracking/permanent/user-workflow-tracking.md) — state tracking artifact mapping workflows to features
 - [Cross-cutting E2E specs](/test/specifications/cross-cutting-specs/) — scenario definitions per workflow
 - **e2e-test-tracking.md** — Workflow Milestone Tracking + E2E Test Cases table
 - **test-registry.yaml** — E2E entries only (retained until E2E marker migration in Phase 7), with `featureIds` (multi-feature), `workflow`, `group` fields and `TE-E2G-NNN` / `TE-E2E-NNN` IDs
@@ -327,11 +327,35 @@ test/
 
 Create shared fixture files and package markers appropriate for your language, register them in `testSetup.configFiles` in your language config.
 
-## Path Usage in Tests
+## Test Isolation Rules
 
-When writing inline test content that contains file or directory paths, **use synthetic paths** (e.g., `vendor/tools/build/`, `lib/config/`, `src/components/ui/`) rather than real project paths. Store paths in variables and derive both content and assertions from the same variable.
+### Never use real project directory names in test content
 
-**Why**: Real project paths in test strings break when directories are renamed or moved. Link-maintenance tools update real files but cannot update string literals inside test code, causing content and assertion strings to silently diverge.
+Test content strings (parsed text, assertion values, file content written to temp dirs) must **never** use real project directory names like `doc/`, `process-framework/`, or `linkwatcher/`. LinkWatcher treats these as real file references and rewrites them when the corresponding real directories move.
+
+### Use the `alpha-project/` synthetic namespace
+
+All test path references use the `alpha-project/` prefix, which does not exist in the real project. A shared constant `TEST_PROJECT_ROOT = "alpha-project"` is defined in `test/automated/conftest.py`.
+
+**Mapping convention:**
+| Real project path | Test equivalent |
+|---|---|
+| `doc/guides/setup.md` | `alpha-project/docs/guides/setup.md` |
+| `process-framework/templates/...` | `alpha-project/framework/templates/...` |
+| `doc/scripts/feedback_db.py` | `alpha-project/scripts/feedback_db.py` |
+
+### Safe synthetic paths (no change needed)
+
+Paths using directories that don't exist in the real project are already safe: `vendor/`, `src/`, `lib/`, `config/`, `components/`. These do not need to be replaced.
+
+### Rules summary
+
+1. **Never** use `doc/`, `process-framework/`, or `linkwatcher/` as path prefixes in test content strings
+2. **Always** use `alpha-project/` or another non-existent directory name
+3. **Store** paths in variables and derive both content and assertions from the same variable when practical
+4. Paths used only as **filesystem paths within `tmp_path`** (never written as string content) are safe regardless of name
+
+**Why**: Real project paths in test strings break when directories are renamed or moved. LinkWatcher updates real files but cannot update string literals inside test code, causing content and assertion strings to silently diverge. Git history confirms this happened in commits b3b29e2, ff5c27f, 07b1e51.
 
 See [Test File Creation Guide — Path Usage](/process-framework/guides/03-testing/test-file-creation-guide.md#path-usage-in-test-content) for the full pattern and examples.
 

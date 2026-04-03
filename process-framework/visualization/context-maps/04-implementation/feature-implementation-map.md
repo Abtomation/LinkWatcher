@@ -66,8 +66,8 @@ graph TD
 
 ## Related Documentation
 
-- [Technical Design Documents](/doc/product-docs/technical/design) - Detailed feature designs
+- [Technical Design Documents](/doc/technical/design) - Detailed feature designs
 - [Development Guide](/process-framework/guides/04-implementation/development-guide.md) - Development standards and practices
-- [Feature Tracking](../../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) - Feature status tracking
+- [Feature Tracking](../../../../doc/state-tracking/permanent/feature-tracking.md) - Feature status tracking
 
 ---

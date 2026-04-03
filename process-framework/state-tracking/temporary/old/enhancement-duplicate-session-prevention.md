@@ -39,9 +39,9 @@ target_feature: 0.1.1
 | Document Type | ID | Location | Action Needed |
 |---------------|-----|----------|---------------|
 | Feature State File | PF-FEA-046 | [0.1.1-core-architecture-implementation-state.md](../features/0.1.1-core-architecture-implementation-state.md) | Update on completion |
-| FDD | PD-FDD-022 | [fdd-0-1-1-core-architecture.md](../../../product-docs/functional-design/fdds/fdd-0-1-1-core-architecture.md) | Amend — add lifecycle guard to service behavior |
-| TDD | PD-TDD-021 | [tdd-0-1-1-core-architecture-t3.md](../../../product-docs/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md) | Amend — add lock file mechanism technical design |
-| ADR | PD-ADR-039 | [orchestrator-facade-pattern.md](../../../product-docs/technical/architecture/design-docs/adr/adr/orchestrator-facade-pattern-for-core-architecture.md) | No change — enhancement works within existing pattern |
+| FDD | PD-FDD-022 | [fdd-0-1-1-core-architecture.md](/doc/functional-design/fdds/fdd-0-1-1-core-architecture.md) | Amend — add lifecycle guard to service behavior |
+| TDD | PD-TDD-021 | [tdd-0-1-1-core-architecture-t3.md](/doc/technical/tdd/tdd-0-1-1-core-architecture-t3.md) | Amend — add lock file mechanism technical design |
+| ADR | PD-ADR-039 | [orchestrator-facade-pattern.md](/doc/technical/adr/orchestrator-facade-pattern-for-core-architecture.md) | No change — enhancement works within existing pattern |
 | Test Specification | PF-TSP-035 | [test-spec-0-1-1-core-architecture.md](../../../../test/specifications/feature-specs/test-spec-0-1-1-core-architecture.md) | Amend — add lock file test scenarios |
 
 ## Execution Steps

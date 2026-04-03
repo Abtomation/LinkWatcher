@@ -451,8 +451,8 @@ Creating a state file for tracking system component integration:
 - [New-PermanentState.ps1 Script](../../scripts/file-creation/support/New-PermanentState.ps1) - Script for creating state files
 - [State File Template](../../templates/support/state-file-template.md) - Template customized by this guide
 - [Existing Permanent State Files](../../state-tracking/permanent) - Examples of implemented state tracking
-- [Feature Tracking (PF-STA-001)](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) - Example feature state tracking
-- [Technical Debt Tracking (PF-STA-002)](../../../doc/product-docs/state-tracking/permanent/technical-debt-tracking.md) - Example technical debt tracking
+- [Feature Tracking (PF-STA-001)](../../../doc/state-tracking/permanent/feature-tracking.md) - Example feature state tracking
+- [Technical Debt Tracking (PF-STA-002)](../../../doc/state-tracking/permanent/technical-debt-tracking.md) - Example technical debt tracking
 - [Process Improvement Tracking (PF-STA-003)](../../state-tracking/permanent/process-improvement-tracking.md) - Example process tracking
 - [Guide Creation Best Practices Guide (PF-GDE-024)](guide-creation-best-practices-guide.md) - Best practices for guide creation
 

@@ -66,7 +66,6 @@ Track the status of all process framework scripts during migration to a new proj
 | Script | Purpose | Status | Domain References | Notes |
 |--------|---------|--------|------------------|-------|
 | Update-BatchFeatureStatus.ps1 | Batch update feature statuses | Not Reviewed | Uses feature-tracking.md | - |
-| Update-BugFixState.ps1 | Update bug fix state | Not Reviewed | Uses bug-tracking.md | - |
 | Update-BugStatus.ps1 | Update bug status | Not Reviewed | Uses bug-tracking.md | - |
 | Update-CodeReviewState.ps1 | Update code review state | Not Reviewed | Legal/appdev agnostic | - |
 | Update-FeatureImplementationState.ps1 | Update feature implementation state | Not Reviewed | Legal/appdev agnostic | - |
@@ -275,12 +274,12 @@ Move-Item "process-framework/state-tracking/temporary/script-inventory-tracking.
 
 **Option B: Continue Framework Adaptation**
 - Focus on **documentation content** (guides, templates) not scripts
-- Update project-specific references in `doc/product-docs/` folder
+- Update project-specific references in `doc/` folder
 - Review state tracking files for domain-specific content
 
 ### Key Files Reference
 
-- **Project Config**: `process-framework/project-config.json`
+- **Project Config**: `doc/project-config.json`
 - **Domain Config**: `process-framework/domain-config.json`
 - **Core Functions**: `process-framework/scripts/Common-ScriptHelpers/Core.psm1`
 - **This Tracking File**: `process-framework/state-tracking/temporary/script-inventory-tracking.md`

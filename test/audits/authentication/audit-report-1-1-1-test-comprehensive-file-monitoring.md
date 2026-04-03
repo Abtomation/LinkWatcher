@@ -2,9 +2,9 @@
 id: TE-TAR-028
 type: Document
 category: General
-version: 1.0
+version: 2.0
 created: 2026-03-27
-updated: 2026-03-27
+updated: 2026-04-03
 feature_id: 1.1.1
 audit_date: 2026-03-27
 test_file_path: test/automated/integration/test_comprehensive_file_monitoring.py
@@ -195,6 +195,25 @@ These 7 tests serve as effective configuration regression tests ensuring 28+ fil
 
 ---
 
+## Re-Audit History
+
+### Re-Audit: 2026-04-03
+
+**Context**: Full test suite audit (Session 4 — Feature 1.1.1 Part 1)
+**Code Changes Since Prior Audit**: None
+**Finding Status**:
+- Behavioral move test for non-standard extension: **Still missing**
+- Migration to pytest tmp_path fixture: **Still not done**
+- Deriving extensions from DEFAULT_CONFIG: **Still not done**
+- Reclassification from "integration" to "configuration": **Still not done**
+
+**Re-Audit Decision**: ✅ Tests Approved (confirmed — config regression tests serve their purpose; behavioral gap covered by other 1.1.1 files)
+
+**New Recommendation**: Register tmp_path migration + behavioral gap as single tech debt item for PF-TSK-053.
+
+---
+
 **Audit Completed By**: AI Agent
-**Completion Date**: 2026-03-27
-**Report Version**: 1.0
+**Original Audit Date**: 2026-03-27
+**Re-Audit Date**: 2026-04-03
+**Report Version**: 2.0

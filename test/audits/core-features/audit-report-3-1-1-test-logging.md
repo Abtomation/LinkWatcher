@@ -2,13 +2,14 @@
 id: TE-TAR-023
 type: Document
 category: General
-version: 1.0
+version: 2.0
 created: 2026-03-26
-updated: 2026-03-26
+updated: 2026-04-03
 feature_id: 3.1.1
 test_file_path: test/automated/unit/test_logging.py
 auditor: AI Agent
-audit_date: 2026-03-26
+audit_date: 2026-04-03
+prior_audit_date: 2026-03-26
 ---
 
 # Test Audit Report - Feature 3.1.1 (test_logging.py)
@@ -22,8 +23,9 @@ audit_date: 2026-03-26
 | **Test File Location** | `test/automated/unit/test_logging.py` |
 | **Feature Category** | CORE-FEATURES |
 | **Auditor** | AI Agent |
-| **Audit Date** | 2026-03-26 |
+| **Audit Date** | 2026-04-03 (re-audit; prior: 2026-03-26) |
 | **Audit Status** | COMPLETED |
+| **Audit Type** | Lightweight Re-audit |
 
 ## Test Files Audited
 
@@ -205,6 +207,37 @@ Excellent test suite with comprehensive coverage of all logging components. Thre
 
 ---
 
+## Re-audit: 2026-04-03
+
+### Changes Since Prior Audit (2026-03-26)
+
+**Source code changes** (commit `cf30016`):
+- `logging.py`: Added extensive AI Context docstring, added error handling (try/except OSError) in `TimestampRotatingFileHandler.doRollover()`, reformatted ColoredFormatter line, removed backward-compat functions (`log_file_moved`, `log_file_deleted`, etc.)
+- `test_logging.py`: **No changes** — test file is identical to prior audit
+
+### Re-audit Findings
+
+**All prior findings confirmed valid**. No test regressions. Key observations:
+
+1. **Source code improved**: Error handling in `doRollover()` is better (won't crash on OSError during rotation). However, this new error handling is still not covered by tests — `TimestampRotatingFileHandler` remains entirely untested.
+2. **Test count**: 25 tests (unchanged). 9 classes covering all core logging components.
+3. **Coverage**: logging.py at 85% (unchanged from prior audit).
+4. **All 25 tests pass** (run 2026-04-03, 1.71s).
+5. **Removed backward-compat functions** had no tests — removal is clean with no test impact.
+
+### Re-audit Decision
+
+**Status**: ✅ TESTS_APPROVED (confirmed)
+
+No changes to prior assessment. All six criteria scores unchanged (3.5/4 across the board).
+
+### Outstanding Gaps (carried forward)
+
+- `TimestampRotatingFileHandler.doRollover()` (lines 112-146): 34 lines, 0% coverage — log rotation with timestamp naming, backup cleanup, error handling
+- Untested convenience methods: `file_created()`, `links_updated()`, `scan_progress()`, `operation_stats()`
+
+---
+
 **Audit Completed By**: AI Agent
-**Completion Date**: 2026-03-26
-**Report Version**: 1.0
+**Completion Date**: 2026-04-03
+**Report Version**: 2.0

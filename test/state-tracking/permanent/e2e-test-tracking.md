@@ -10,7 +10,7 @@ state_type: Implementation Status
 ---
 # E2E Acceptance Test Tracking
 
-E2E acceptance tests validate user-facing workflows that span multiple features. They require a running LinkWatcher instance and simulate real user actions. See [User Workflow Tracking](/doc/product-docs/state-tracking/permanent/user-workflow-tracking.md) for workflow definitions and [Cross-Cutting E2E Spec (PF-TSP-044)](/test/specifications/cross-cutting-specs/cross-cutting-spec-e2e-acceptance-testing-scenarios.md) for scenario details.
+E2E acceptance tests validate user-facing workflows that span multiple features. They require a running LinkWatcher instance and simulate real user actions. See [User Workflow Tracking](/doc/state-tracking/permanent/user-workflow-tracking.md) for workflow definitions and [Cross-Cutting E2E Spec (PF-TSP-044)](/test/specifications/cross-cutting-specs/cross-cutting-spec-e2e-acceptance-testing-scenarios.md) for scenario details.
 
 > **Split from**: [test-tracking.md](test-tracking.md) (PF-IMP-210) — E2E section was the scalability bottleneck.
 
@@ -94,7 +94,7 @@ When creating new E2E acceptance test cases:
 1. Create test case using the E2E Acceptance Test Case Creation task (PF-TSK-069)
 2. Add entry to this file with Test Type "E2E Case" or "E2E Group" and status "📋 Case Created"
 3. Set Last Executed to "—" (not yet executed)
-4. Update [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) Test Status if needed
+4. Update [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) Test Status if needed
 
 ### Workflow Integration
 

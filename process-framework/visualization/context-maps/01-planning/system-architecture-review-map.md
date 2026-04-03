@@ -7,7 +7,6 @@ created: 2025-07-18
 updated: 2025-07-18
 task_name: system-architecture-review
 map_type: Context Map
-task_type: Discrete
 visualization_type: Task Context
 ---
 # System Architecture Review Context Map

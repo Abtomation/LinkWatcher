@@ -95,10 +95,10 @@ class TestGetPathVariations:
 
     def test_deep_path_includes_relative_and_backslash(self, lookup):
         """Path with 3+ parts generates relative (strip first dir) and backslash."""
-        result = lookup.get_path_variations("doc/sub/file.md")
-        assert "doc/sub/file.md" in result
-        assert "sub/file.md" in result  # first dir stripped
-        assert "sub\\file.md" in result  # backslash variant
+        result = lookup.get_path_variations("alpha-project/docs/sub/file.md")
+        assert "alpha-project/docs/sub/file.md" in result
+        assert "docs/sub/file.md" in result  # first dir stripped
+        assert "docs\\sub\\file.md" in result  # backslash variant
         assert "file.md" in result  # basename
 
     def test_two_level_path_no_relative_variant(self, lookup):
@@ -123,7 +123,7 @@ class TestGetPathVariations:
 
     def test_get_old_path_variations_delegates(self, lookup):
         """get_old_path_variations() returns same result as get_path_variations()."""
-        path = "doc/sub/file.md"
+        path = "alpha-project/docs/sub/file.md"
         assert lookup.get_old_path_variations(path) == lookup.get_path_variations(path)
 
 
@@ -135,7 +135,7 @@ class TestGetPathVariations:
 class TestFindReferences:
     """Tests for find_references() — multi-variation lookup with dedup."""
 
-    def _make_ref(self, file_path="src/a.md", line=1, col=0, target="doc/file.md"):
+    def _make_ref(self, file_path="src/a.md", line=1, col=0, target="alpha-project/docs/file.md"):
         return LinkReference(
             file_path=file_path,
             line_number=line,
@@ -148,12 +148,12 @@ class TestFindReferences:
 
     def test_returns_references_from_multiple_variations(self, lookup, mock_db):
         """References found via different path variations are combined."""
-        ref1 = self._make_ref(target="doc/sub/file.md")
-        ref2 = self._make_ref(file_path="src/b.md", target="sub/file.md")
+        ref1 = self._make_ref(target="alpha-project/docs/sub/file.md")
+        ref2 = self._make_ref(file_path="src/b.md", target="docs/sub/file.md")
         mock_db.get_references_to_file.side_effect = lambda v: (
-            [ref1] if v == "doc/sub/file.md" else [ref2] if v == "sub/file.md" else []
+            [ref1] if v == "alpha-project/docs/sub/file.md" else [ref2] if v == "docs/sub/file.md" else []
         )
-        result = lookup.find_references("doc/sub/file.md")
+        result = lookup.find_references("alpha-project/docs/sub/file.md")
         assert len(result) == 2
         assert ref1 in result
         assert ref2 in result
@@ -162,7 +162,7 @@ class TestFindReferences:
         """Same reference returned by multiple variations is deduplicated."""
         ref = self._make_ref()
         mock_db.get_references_to_file.return_value = [ref]
-        result = lookup.find_references("doc/sub/file.md")
+        result = lookup.find_references("alpha-project/docs/sub/file.md")
         # ref is returned for every variation, but dedup keeps only one
         assert result.count(ref) == 1
 
@@ -442,20 +442,20 @@ class TestFindDirectoryPathReferences:
     def test_queries_multiple_variations(self, lookup, mock_db):
         """Directory lookup tries exact, relative, and backslash variations."""
         mock_db.get_references_to_directory.return_value = []
-        lookup.find_directory_path_references("doc/sub/dir")
+        lookup.find_directory_path_references("alpha-project/docs/sub/dir")
 
         called_variations = [c[0][0] for c in mock_db.get_references_to_directory.call_args_list]
-        assert "doc/sub/dir" in called_variations
-        assert "sub/dir" in called_variations
-        assert "sub\\dir" in called_variations
-        assert "doc\\sub\\dir" in called_variations
+        assert "alpha-project/docs/sub/dir" in called_variations
+        assert "docs/sub/dir" in called_variations
+        assert "docs\\sub\\dir" in called_variations
+        assert "alpha-project\\docs\\sub\\dir" in called_variations
 
     def test_deduplicates_results(self, lookup, mock_db):
         """Same reference from multiple variations is deduplicated."""
-        ref = self._make_ref("src/a.md", "doc/sub/dir")
+        ref = self._make_ref("src/a.md", "alpha-project/docs/sub/dir")
         mock_db.get_references_to_directory.return_value = [ref]
 
-        result = lookup.find_directory_path_references("doc/sub/dir")
+        result = lookup.find_directory_path_references("alpha-project/docs/sub/dir")
         assert len(result) == 1
 
 
@@ -483,15 +483,15 @@ class TestCalculateUpdatedRelativePath:
     def test_project_root_relative_path_preserved(self, lookup, temp_dir):
         """Root-relative paths are not recalculated (PD-BUG-032)."""
         # Create at project root
-        root_target = temp_dir / "doc" / "templates"
+        root_target = temp_dir / "alpha-project" / "docs" / "templates"
         root_target.mkdir(parents=True, exist_ok=True)
 
         result = lookup._calculate_updated_relative_path(
-            "doc/templates",
+            "alpha-project/docs/templates",
             "scripts/file-creation/script.ps1",
             "scripts/file-creation/new-dir/script.ps1",
         )
-        assert result == "doc/templates"
+        assert result == "alpha-project/docs/templates"
 
     def test_nonexistent_target_returns_original(self, lookup, temp_dir):
         """Non-existent targets are returned unchanged (PD-BUG-033)."""
@@ -516,6 +516,32 @@ class TestCalculateUpdatedRelativePath:
                 "../target.md", "src/file.md", "dst/file.md"
             )
         assert result == "../target.md"
+
+    def test_anchor_fragment_preserved_on_move(self, lookup, temp_dir):
+        """Links with #anchor fragments are recalculated with anchor preserved.
+
+        Regression test for PD-BUG-069: _calculate_updated_relative_path()
+        included the #fragment in os.path.exists() checks, causing the check
+        to fail and the link to be returned unchanged.
+        """
+        target = temp_dir / "shared" / "data.md"
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text("# data\n## section\n")
+
+        result = lookup._calculate_updated_relative_path(
+            "../shared/data.md#section", "src/file.md", "src/deep/file.md"
+        )
+        assert result == "../../shared/data.md#section"
+
+    def test_nonexistent_target_with_anchor_returns_original(self, lookup, temp_dir):
+        """Non-existent targets with anchors are still returned unchanged.
+
+        Ensures PD-BUG-033 guard is respected even after PD-BUG-069 fix.
+        """
+        result = lookup._calculate_updated_relative_path(
+            "nonexistent/path.md#heading", "src/file.md", "dst/file.md"
+        )
+        assert result == "nonexistent/path.md#heading"
 
 
 # ---------------------------------------------------------------------------
@@ -672,10 +698,10 @@ class TestCleanupAfterDirectoryPathMove:
     def test_removes_old_directory_targets(self, lookup, mock_db):
         """Old directory path variations are removed from DB."""
         mock_db.get_references_to_directory.return_value = []
-        lookup.cleanup_after_directory_path_move("doc/old/dir", "doc/new/dir")
+        lookup.cleanup_after_directory_path_move("alpha-project/docs/old/dir", "alpha-project/docs/new/dir")
 
         remove_calls = [c[0][0] for c in mock_db.remove_targets_by_path.call_args_list]
-        assert "doc/old/dir" in remove_calls
+        assert "alpha-project/docs/old/dir" in remove_calls
 
     def test_rescans_affected_files(self, lookup, mock_db, mock_parser, temp_dir):
         """Files that referenced the old directory are rescanned."""
@@ -684,8 +710,8 @@ class TestCleanupAfterDirectoryPathMove:
             line_number=5,
             column_start=0,
             column_end=10,
-            link_text="doc/old/dir",
-            link_target="doc/old/dir",
+            link_text="alpha-project/docs/old/dir",
+            link_target="alpha-project/docs/old/dir",
             link_type="direct",
         )
         mock_db.get_references_to_directory.return_value = [ref]
@@ -695,7 +721,7 @@ class TestCleanupAfterDirectoryPathMove:
         affected.parent.mkdir(parents=True, exist_ok=True)
         affected.write_text("# script")
 
-        lookup.cleanup_after_directory_path_move("doc/old/dir", "doc/new/dir")
+        lookup.cleanup_after_directory_path_move("alpha-project/docs/old/dir", "alpha-project/docs/new/dir")
 
         # Should remove file links and rescan
         mock_db.remove_file_links.assert_called()

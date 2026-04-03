@@ -515,7 +515,7 @@ Write-Warning "run.ps1 is a skeleton — replace this with the actual test actio
     # test-registry.yaml has been retired. No registry write needed.
 
     # --- 9. Update feature-tracking.md Test Status (all features) ---
-    $featureTrackingPath = Join-Path $projectRoot "doc/product-docs/state-tracking/permanent/feature-tracking.md"
+    $featureTrackingPath = Join-Path $projectRoot "doc/state-tracking/permanent/feature-tracking.md"
     if (Test-Path $featureTrackingPath) {
         foreach ($fId in $featureIdArray) {
             try {

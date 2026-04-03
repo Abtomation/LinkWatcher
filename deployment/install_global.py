@@ -203,7 +203,7 @@ def update_startup_scripts(project_root, install_dir):
             f"\n"
             f"# Resolve project root from project-config.json\n"
             f"$scriptDir = if ($PSScriptRoot) {{ $PSScriptRoot }} else {{ (Get-Location).Path }}\n"
-            f'$configPath = Join-Path $scriptDir "..\\process-framework\\project-config.json"\n'
+            f'$configPath = Join-Path $scriptDir "..\doc\project-config.json"\n'
             f"\n"
             f"if (-not (Test-Path $configPath)) {{\n"
             f'    Write-Host "Error: project-config.json not found at: $configPath" -ForegroundColor Red\n'  # noqa: E501

@@ -45,7 +45,7 @@ Use this guide when you need to:
 
 Before you begin, ensure you have:
 
-- Access to PowerShell and the New-APIDataModel.ps1 script in `doc/product-docs/technical/api/models/`
+- Access to PowerShell and the New-APIDataModel.ps1 script in `doc/technical/api/models`
 - Understanding of the API design patterns and data structure requirements
 - Familiarity with JSON data formats and API endpoint specifications
 - Knowledge of the project's API versioning strategy
@@ -155,7 +155,7 @@ When creating API data models, you must make several key decisions that impact t
 
 1. **Navigate to the API models directory**:
    ```powershell
-   cd doc/product-docs/technical/api/models
+   cd doc/technical/api/models
    ```
 
 2. **Execute the New-APIDataModel.ps1 script**:
@@ -255,7 +255,7 @@ Creating a comprehensive user profile data model for the application:
 
 ```powershell
 # Navigate to API models directory
-cd doc/product-docs/technical/api/models
+cd doc/technical/api/models
 
 # Create user profile data model
 .\New-APIDataModel.ps1 -ModelName "User Profile" -ModelDescription "User account profile information including preferences and settings" -ApiVersion "v1" -RelatedEndpoints "/users/profile,/users/update-profile" -OpenInEditor
@@ -295,7 +295,7 @@ Creating a secure authentication request model:
 **Cause:** Script cannot locate the Common-ScriptHelpers.psm1 module due to incorrect path resolution
 
 **Solution:**
-1. Verify you're running the script from the correct directory: `doc/product-docs/technical/api/models/`
+1. Verify you're running the script from the correct directory: `doc/technical/api/models`
 2. Check that the Common-ScriptHelpers.psm1 file exists at process-framework/scripts/Common-ScriptHelpers.psm1
 3. Ensure PowerShell execution policy allows script execution: `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser`
 

@@ -46,7 +46,7 @@ Use this guide when you need to:
 Use the New-RefactoringPlan.ps1 script to create refactoring plan documents:
 
 ```powershell
-cd doc/product-docs/refactoring
+cd doc/refactoring
 ./New-RefactoringPlan.ps1 -RefactoringScope "Brief description" -TargetArea "Component/Module name"
 ```
 
@@ -55,7 +55,8 @@ cd doc/product-docs/refactoring
 - **RefactoringScope** (Required): Brief description of what will be refactored
 - **TargetArea** (Required): Specific component, module, or code area being refactored
 - **Priority** (Optional): Priority level (High/Medium/Low) - defaults to Medium
-- **Lightweight** (Optional, switch): Creates a compact plan using the [lightweight template](../../templates/06-maintenance/lightweight-refactoring-plan-template.md) (PF-TEM-050). Use for changes with no architectural impact and no interface/API changes (any file count, any effort level). Only use Standard for refactorings that redesign interfaces, decompose classes, or change architectural patterns. Mutually exclusive with -DocumentationOnly.
+- **Lightweight** (Optional, switch): Creates a compact plan using the [lightweight template](../../templates/06-maintenance/lightweight-refactoring-plan-template.md) (PF-TEM-050). Use for changes with no architectural impact and no interface/API changes (any file count, any effort level). Only use Standard for refactorings that redesign interfaces, decompose classes, or change architectural patterns. Mutually exclusive with -DocumentationOnly. By default, omits the Dependencies and Impact section (use `-IncludeDependencies` to add it for multi-file changes).
+- **IncludeDependencies** (Optional, switch): When used with `-Lightweight`, includes a Dependencies and Impact section in the generated plan. By default, lightweight plans omit this section since most are single-file with no cross-component impact.
 - **DocumentationOnly** (Optional, switch): Creates a documentation-focused plan using the [documentation-only template](../../templates/06-maintenance/documentation-refactoring-plan-template.md) (PF-TEM-052). Use for refactoring that involves only documentation changes (no code changes, no test impact). Removes code metrics, performance benchmarks, and test coverage sections. Mutually exclusive with -Lightweight.
 
 ### Example Script Usage
@@ -70,8 +71,11 @@ cd doc/product-docs/refactoring
 # Lightweight: Quick fix for bare except clauses
 ./New-RefactoringPlan.ps1 -RefactoringScope "Replace bare excepts in handler.py (TD011)" -TargetArea "linkwatcher/handler.py" -Lightweight
 
+# Lightweight with dependencies: Multi-file change needing dependency tracking
+./New-RefactoringPlan.ps1 -RefactoringScope "Consolidate path utils (TD015)" -TargetArea "linkwatcher/" -Lightweight -IncludeDependencies -DebtItemId "TD015"
+
 # Documentation-only: Fix TDD pseudocode drift
-./New-RefactoringPlan.ps1 -RefactoringScope "Fix TDD pseudocode drift (TD046)" -TargetArea "doc/product-docs/technical/" -DocumentationOnly -DebtItemId "TD046"
+./New-RefactoringPlan.ps1 -RefactoringScope "Fix TDD pseudocode drift (TD046)" -TargetArea "doc/technical" -DocumentationOnly -DebtItemId "TD046"
 ```
 
 ### Lightweight vs Standard vs Documentation-Only Mode
@@ -311,7 +315,7 @@ Simplify the authentication service by extracting responsibilities and improving
 
 #### Workflow-Aware Refactoring
 
-Before refactoring, check which user workflows the affected feature participates in by looking at the `workflows:` metadata in the feature's [implementation state file](../../../doc/product-docs/state-tracking/features/) or consulting [User Workflow Tracking](../../../doc/product-docs/state-tracking/permanent/user-workflow-tracking.md). This informs:
+Before refactoring, check which user workflows the affected feature participates in by looking at the `workflows:` metadata in the feature's [implementation state file](../../../doc/state-tracking/features/) or consulting [User Workflow Tracking](../../../doc/state-tracking/permanent/user-workflow-tracking.md). This informs:
 
 - **Regression testing scope**: Features participating in many workflows (e.g., 1.1.1 File System Monitoring appears in WF-001 through WF-006) need broader regression testing after refactoring
 - **Co-participant awareness**: If multiple features share a workflow, verify the refactored interfaces remain compatible with co-participating features
@@ -319,7 +323,7 @@ Before refactoring, check which user workflows the affected feature participates
 
 #### Dimension-Aware Refactoring
 
-When refactoring tech debt items, check the **Dims** column in [Technical Debt Tracking](../../../doc/product-docs/state-tracking/permanent/technical-debt-tracking.md) to understand which quality dimension(s) the refactoring should improve along. Use the [Development Dimensions Guide](../framework/development-dimensions-guide.md) implementation checklists to verify the refactored code addresses the flagged dimension:
+When refactoring tech debt items, check the **Dims** column in [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) to understand which quality dimension(s) the refactoring should improve along. Use the [Development Dimensions Guide](../framework/development-dimensions-guide.md) implementation checklists to verify the refactored code addresses the flagged dimension:
 
 - **PE-tagged debt**: Verify algorithmic improvements with complexity analysis or benchmarks
 - **SE-tagged debt**: Verify input validation, path sanitization, or access control improvements

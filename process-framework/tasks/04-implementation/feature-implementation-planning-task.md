@@ -5,7 +5,6 @@ category: Task Definition
 version: 1.1
 created: 2025-10-30
 updated: 2026-03-02
-task_type: Discrete
 ---
 
 # Feature Implementation Planning Task
@@ -89,25 +88,25 @@ When referencing design documents in implementation plans:
 
 - **Critical (Must Read):**
 
-  - **Feature Tracking** - [Feature details from feature-tracking.md](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) including feature ID, name, complexity tier, and design document links
-  - **TDD (Technical Design Document)** - The approved technical design at `/doc/product-docs/technical/architecture/design-docs/tdd/` containing component architecture and implementation approach
-  - **FDD (Functional Design Document)** - For Tier 2+ features, the functional requirements at `/doc/product-docs/functional-design/fdds/`
+  - **Feature Tracking** - [Feature details from feature-tracking.md](../../../doc/state-tracking/permanent/feature-tracking.md) including feature ID, name, complexity tier, and design document links
+  - **TDD (Technical Design Document)** - The approved technical design at `/doc/technical/architecture/design-docs/tdd` containing component architecture and implementation approach
+  - **FDD (Functional Design Document)** - For Tier 2+ features, the functional requirements at `/doc/functional-design/fdds`
   - **Development Dimensions Guide** - [Dimension definitions, applicability criteria, and phase-specific guidance](../../guides/framework/development-dimensions-guide.md) - **MUST READ** for evaluating dimension applicability during planning
   - **Feature Implementation State Template** - [Template for permanent state tracking](../../templates/04-implementation/feature-implementation-state-template.md) - **MUST READ** to understand living document structure
   - **Feature Implementation State Tracking Guide** - [Comprehensive guide](../../guides/04-implementation/feature-implementation-state-tracking-guide.md) for creating and maintaining feature state documents
 
 - **Important (Load If Space):**
 
-  - **API Design Documentation** - If applicable, API contracts and endpoints at `/doc/product-docs/technical/api/`
-  - **Database Schema Design** - If applicable, data model and migrations at `/doc/product-docs/technical/database/`
-  <!-- UI/UX Design Documentation - If applicable, visual specifications at /doc/product-docs/technical/ui-design/ (directory does not exist in this project) -->
+  - **API Design Documentation** - If applicable, API contracts and endpoints at `/doc/technical/api`
+  - **Database Schema Design** - If applicable, data model and migrations at `/doc/technical/database`
+  <!-- UI/UX Design Documentation - If applicable, visual specifications at /doc/technical/ui-design (directory does not exist in this project) -->
   <!-- Component Relationship Index - Removed: file deleted -->
   - **Codebase Structure** - Relevant source directories where feature components will be implemented
   - **Task Transition Guide** - [For understanding information flow between tasks](../../guides/framework/task-transition-guide.md)
 
 - **Reference Only (Access When Needed):**
-  - **Architecture Decision Records** - [ADRs](/doc/product-docs/technical/architecture/design-docs/adr/adr/) relevant to this feature
-  <!-- Test Strategy Documentation - directory /doc/product-docs/technical/testing/ does not exist in this project -->
+  - **Architecture Decision Records** - [ADRs](/doc/technical/architecture/design-docs/adr/adr) relevant to this feature
+  <!-- Test Strategy Documentation - directory /doc/technical/testing does not exist in this project -->
   - **Visual Notation Guide** - [For interpreting context map diagrams](../../guides/support/visual-notation-guide.md)
 
 ## Process
@@ -130,7 +129,7 @@ When referencing design documents in implementation plans:
    - API Design documents - if applicable, service contracts and endpoints
    - Database Schema Design - if applicable, data model and migration strategy
    - UI/UX Design documents - if applicable, visual specifications and component structure
-2. **Review Feature Context**: Load feature details from [feature-tracking.md](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md):
+2. **Review Feature Context**: Load feature details from [feature-tracking.md](../../../doc/state-tracking/permanent/feature-tracking.md):
    - Feature ID and name
    - Complexity tier (Tier 1, 2, or 3)
    - Dependencies on other features
@@ -168,7 +167,7 @@ When referencing design documents in implementation plans:
 
    - **Existing files to modify**: Specific file paths in the source directory that need changes
    - **New files to create**: File paths and purposes for new components
-   - **Design documents to reference**: Which sections of [FDD](/doc/product-docs/functional-design/fdds/), [TDD](/doc/product-docs/technical/architecture/design-docs/tdd/), API, DB Schema, or UI Design documents are relevant
+   - **Design documents to reference**: Which sections of [FDD](/doc/functional-design/fdds), [TDD](/doc/technical/architecture/design-docs/tdd), API, DB Schema, or UI Design documents are relevant
    - **Existing patterns to follow**: Similar features in the codebase to reference
 
 9. **Sequence Implementation Phases**: Order phases based on:
@@ -230,14 +229,14 @@ When referencing design documents in implementation plans:
 
     The script will:
 
-    - Create document at [`/doc/product-docs/technical/implementation-plans/`](../../../doc/product-docs/technical/implementation-plans) with assigned PD-IMP-XXX ID
+    - Create document at [`/doc/technical/implementation-plans/`](../../../doc/technical/implementation-plans) with assigned PD-IMP-XXX ID
     - Filename will include Feature ID: `[feature-id]-[feature-name]-implementation-plan.md`
     - Populate template with feature information
     - Guide you to complete remaining sections
 
 17. **Complete Implementation Plan Sections**: Fill in all template sections:
 
-    - **Feature Overview**: Brief summary with links to design documents ([FDD](/doc/product-docs/functional-design/fdds/), [TDD](/doc/product-docs/technical/architecture/design-docs/tdd/), API, DB, UI)
+    - **Feature Overview**: Brief summary with links to design documents ([FDD](/doc/functional-design/fdds), [TDD](/doc/technical/architecture/design-docs/tdd), API, DB, UI)
     - **Implementation Objectives**: Clear goals and success criteria for implementation
     - **Implementation Phases**: Sequenced breakdown with descriptions and effort estimates
     - **File and Component Mapping**: Specific file paths and components for each phase
@@ -261,7 +260,7 @@ When referencing design documents in implementation plans:
 
     - **Automatically assign** a unique Feature ID (PF-FEA-XXX) from the ID registry
     - **Update the registry** with the next available ID
-    - Create file at [`/doc/product-docs/state-tracking/features/`](../../../doc/product-docs/state-tracking/features)
+    - Create file at [`/doc/state-tracking/features/`](../../../doc/state-tracking/features)
     - Filename format: `[feature-name]-implementation-state.md` (e.g., `user-authentication-implementation-state.md`)
     - Automatically populate metadata (feature ID, name, status "PLANNING")
     - Provide structure for contextual information sections
@@ -271,7 +270,7 @@ When referencing design documents in implementation plans:
     - **Feature Overview**: Complete description with business value and scope
     - **Implementation Progress**: Copy phase sequence from implementation plan
     - **Dimension Profile**: Record the dimension applicability evaluation from step 5 — applicable dimensions with importance level (Critical/Relevant) and key considerations, plus N/A dimensions with rationale. This is the **single source of truth** for dimension awareness during implementation
-    - **Documentation Inventory**: List all design documents ([FDD](/doc/product-docs/functional-design/fdds/), [TDD](/doc/product-docs/technical/architecture/design-docs/tdd/), API, DB, UI) with direct links and which sections are relevant for each phase
+    - **Documentation Inventory**: List all design documents ([FDD](/doc/functional-design/fdds), [TDD](/doc/technical/architecture/design-docs/tdd), API, DB, UI) with direct links and which sections are relevant for each phase
     - **File and Component Context**: Document specific files in the source directory and the test directory that will be created/modified per phase
     - **Dependencies**: Document feature dependencies, system integration points, and code dependencies
     - **Next Steps**: Specify which decomposed implementation tasks to use (e.g., [Data Layer Implementation (PF-TSK-051)](data-layer-implementation.md))
@@ -291,7 +290,7 @@ When referencing design documents in implementation plans:
     - Risks have specific, actionable mitigation strategies
     - Testing strategy covers all critical paths
 
-22. **Update Feature Tracking**: Update [`feature-tracking.md`](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md):
+22. **Update Feature Tracking**: Update [`feature-tracking.md`](../../../doc/state-tracking/permanent/feature-tracking.md):
 
     - Add link to Implementation Plan in Notes column
     - Update status to indicate planning is complete
@@ -309,8 +308,8 @@ When referencing design documents in implementation plans:
 
 ## Outputs
 
-- **Implementation Plan Document** - Strategic roadmap at [`/doc/product-docs/technical/implementation-plans/`](../../../doc/product-docs/technical/implementation-plans)`[feature-id]-[feature-name]-implementation-plan.md` with assigned PD-IMP-XXX ID containing:
-  - **Feature Overview**: Brief summary with links to all design documents ([FDD](/doc/product-docs/functional-design/fdds/), [TDD](/doc/product-docs/technical/architecture/design-docs/tdd/), API, DB, UI)
+- **Implementation Plan Document** - Strategic roadmap at [`/doc/technical/implementation-plans/`](../../../doc/technical/implementation-plans)`[feature-id]-[feature-name]-implementation-plan.md` with assigned PD-IMP-XXX ID containing:
+  - **Feature Overview**: Brief summary with links to all design documents ([FDD](/doc/functional-design/fdds), [TDD](/doc/technical/architecture/design-docs/tdd), API, DB, UI)
   - **Implementation Objectives**: Clear goals and success criteria
   - **Implementation Phases**: Sequenced breakdown with descriptions and effort estimates
   - **File and Component Mapping**: Specific file paths in the source directory and the test directory for each phase
@@ -319,14 +318,14 @@ When referencing design documents in implementation plans:
   - **Testing Strategy**: Testing approach per implementation phase (unit, component, integration, e2e)
   - **Risk Assessment**: Identified risks with severity levels and specific mitigation strategies
   - **Success Criteria**: Measurable completion criteria for the implementation
-- **Feature Implementation State File** - **PERMANENT** living document at [`/doc/product-docs/state-tracking/features/`](../../../doc/product-docs/state-tracking/features)`[feature-id]-implementation-state.md` initialized with:
+- **Feature Implementation State File** - **PERMANENT** living document at [`/doc/state-tracking/features/`](../../../doc/state-tracking/features)`[feature-id]-implementation-state.md` initialized with:
 
   - **Metadata**: Feature ID, name, status "PLANNING", implementation mode
   - **Feature Overview**: Complete feature description, business value, scope (in/out of scope)
   - **Current State Summary**: Initial state showing planning phase activities
   - **Implementation Progress**: Sequenced phase list from implementation plan (will be updated throughout implementation)
   - **Dimension Profile**: Applicability evaluation for all 10 development dimensions — importance level (Critical/Relevant/N/A) with key considerations per applicable dimension. Single source of truth for dimension awareness during implementation, review, and validation
-  - **Documentation Inventory**: Links to all design documents ([FDD](/doc/product-docs/functional-design/fdds/), [TDD](/doc/product-docs/technical/architecture/design-docs/tdd/), API, DB, UI) with:
+  - **Documentation Inventory**: Links to all design documents ([FDD](/doc/functional-design/fdds), [TDD](/doc/technical/architecture/design-docs/tdd), API, DB, UI) with:
     - Direct links to specific document sections relevant to each implementation phase
     - Status of each design document
   - **File and Component Context**: **CRITICAL PREPARATION** - Detailed mapping of:
@@ -346,12 +345,12 @@ When referencing design documents in implementation plans:
 
 The following state files must be updated as part of this task:
 
-- **[Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md)** - Manual update required:
+- **[Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md)** - Manual update required:
   - Locate the feature entry in the appropriate category section
   - Add link to Implementation Plan document in the **Notes** column: `Implementation Plan: [PD-IMP-XXX](...)`
   - Add link to Feature State document in the **Notes** column: `State: [feature-id]-implementation-state.md`
   - Update status if applicable (e.g., from "📝 TDD Created" to "🟡 In Progress" when implementation begins)
-- **New Feature Implementation State File** - Create at [`/doc/product-docs/state-tracking/features/`](../../../doc/product-docs/state-tracking/features)`[feature-id]-implementation-state.md`:
+- **New Feature Implementation State File** - Create at [`/doc/state-tracking/features/`](../../../doc/state-tracking/features)`[feature-id]-implementation-state.md`:
   - Use [Feature Implementation State Template](../../templates/04-implementation/feature-implementation-state-template.md) as base
   - Follow naming convention: `[feature-id]-implementation-state.md` (e.g., `PF-FEA-012-implementation-state.md`)
   - Initialize with planning-phase information including detailed file and component context
@@ -364,8 +363,8 @@ The following state files must be updated as part of this task:
 Before considering this task finished:
 
 - [ ] **Verify Outputs - Implementation Plan Document**: Confirm implementation plan is complete and comprehensive
-  - [ ] Document created at [`/doc/product-docs/technical/implementation-plans/`](../../../doc/product-docs/technical/implementation-plans) with proper naming including Feature ID and assigned PD-IMP-XXX ID
-  - [ ] **Feature Overview**: Includes brief summary and links to all design documents ([FDD](/doc/product-docs/functional-design/fdds/), [TDD](/doc/product-docs/technical/architecture/design-docs/tdd/), API, DB, UI)
+  - [ ] Document created at [`/doc/technical/implementation-plans/`](../../../doc/technical/implementation-plans) with proper naming including Feature ID and assigned PD-IMP-XXX ID
+  - [ ] **Feature Overview**: Includes brief summary and links to all design documents ([FDD](/doc/functional-design/fdds), [TDD](/doc/technical/architecture/design-docs/tdd), API, DB, UI)
   - [ ] **Implementation Objectives**: Clear goals and success criteria defined
   - [ ] **Implementation Phases**: Sequenced breakdown with descriptions and effort estimates
   - [ ] **File and Component Mapping**: Specific file paths in the source directory documented for each phase
@@ -375,13 +374,13 @@ Before considering this task finished:
   - [ ] **Risk Assessment**: Risks identified with severity levels and specific, actionable mitigation strategies
   - [ ] **Success Criteria**: Measurable completion criteria defined
 - [ ] **Verify Outputs - Feature Implementation State File**: Confirm state document is properly initialized
-  - [ ] File created at [`/doc/product-docs/state-tracking/features/`](../../../doc/product-docs/state-tracking/features)`[feature-id]-implementation-state.md` with proper naming
+  - [ ] File created at [`/doc/state-tracking/features/`](../../../doc/state-tracking/features)`[feature-id]-implementation-state.md` with proper naming
   - [ ] **Metadata**: Feature ID, name, status "PLANNING", implementation mode
   - [ ] **Feature Overview**: Complete description, business value, scope (in/out of scope)
   - [ ] **Current State Summary**: Initial state documented showing planning activities
   - [ ] **Implementation Progress**: Phase list matches implementation plan
   - [ ] **Dimension Profile**: All 10 dimensions evaluated with importance level (Critical/Relevant/N/A); key considerations documented for applicable dimensions; N/A rationale provided for excluded dimensions
-  - [ ] **Documentation Inventory**: Links to all design documents ([FDD](/doc/product-docs/functional-design/fdds/), [TDD](/doc/product-docs/technical/architecture/design-docs/tdd/), API, DB, UI) with:
+  - [ ] **Documentation Inventory**: Links to all design documents ([FDD](/doc/functional-design/fdds), [TDD](/doc/technical/architecture/design-docs/tdd), API, DB, UI) with:
     - Specific sections of each document relevant to each implementation phase
     - Current status of each design document
   - [ ] **File and Component Context**: **CRITICAL** - Detailed mapping documented:
@@ -392,12 +391,12 @@ Before considering this task finished:
   - [ ] **Dependencies**: Feature, system, and code dependencies documented
   - [ ] **Next Steps**: Reference to decomposed implementation tasks to use (e.g., [Data Layer Implementation (PF-TSK-051)](data-layer-implementation.md))
 - [ ] **Verify Cross-References**: Ensure proper linking between documents
-  - [ ] Implementation plan references all design documents ([FDD](/doc/product-docs/functional-design/fdds/), [TDD](/doc/product-docs/technical/architecture/design-docs/tdd/), API, DB, UI)
+  - [ ] Implementation plan references all design documents ([FDD](/doc/functional-design/fdds), [TDD](/doc/technical/architecture/design-docs/tdd), API, DB, UI)
   - [ ] Feature state file references implementation plan
   - [ ] Feature state file includes specific file paths in the source directory and the test directory
   - [ ] Both documents reference feature tracking entry
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
-  - [ ] [`feature-tracking.md`](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) updated with:
+  - [ ] [`feature-tracking.md`](../../../doc/state-tracking/permanent/feature-tracking.md) updated with:
     - Link to Implementation Plan document in Notes column
     - Link to Feature State document in Notes column
     - Planning completion date in Notes column
@@ -457,7 +456,7 @@ Implementation Planning (this task - PF-TSK-044) →
 
 - **[Feature Implementation State Template](../../templates/04-implementation/feature-implementation-state-template.md)** - Template for permanent state tracking
 - **[Feature Implementation State Tracking Guide](../../guides/04-implementation/feature-implementation-state-tracking-guide.md)** - Comprehensive guide for maintaining living documents
-- **[Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md)** - Central feature tracking document
+- **[Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md)** - Central feature tracking document
 
 ### Design Documentation (Inputs)
 
@@ -468,10 +467,10 @@ Implementation Planning (this task - PF-TSK-044) →
 
 ### Architecture and Standards
 
-- **[Architecture Decision Records](/doc/product-docs/technical/architecture/design-docs/adr/adr/)** - Architectural constraints and decisions
+- **[Architecture Decision Records](/doc/technical/architecture/design-docs/adr/adr)** - Architectural constraints and decisions
 
 ### Testing and Validation
 
 - **[Test Specification Creation Task](../03-testing/test-specification-creation-task.md)** - Creating comprehensive test specifications
-<!-- Testing Strategy Documentation - directory /doc/product-docs/technical/testing/ does not exist in this project -->
+<!-- Testing Strategy Documentation - directory /doc/technical/testing does not exist in this project -->
 - **[Code Review Task](../06-maintenance/code-review-task.md)** - Post-implementation validation

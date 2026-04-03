@@ -7,7 +7,6 @@ created: 2025-08-16
 updated: 2026-03-04
 map_type: Context Map
 visualization_type: Task Context
-task_type: Discrete
 task_name: documentation-alignment-validation
 ---
 
@@ -111,11 +110,11 @@ graph TD
 ## Related Documentation
 
 - [Documentation Alignment Validation Task](../../../tasks/05-validation/documentation-alignment-validation.md) - Complete task definition and process
-- [Feature Tracking](../../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) - Current status of features
+- [Feature Tracking](../../../../doc/state-tracking/permanent/feature-tracking.md) - Current status of features
 - Validation Tracking State File - Active validation tracking matrix (file location depends on validation round)
 - [Validation Report Template](../../../templates/05-validation/validation-report-template.md) - Standardized report structure
-- [Technical Design Documents](../../../../doc/product-docs/technical/design) - TDD directory for alignment validation
-- [Architecture Decision Records](../../../../doc/product-docs/technical/architecture/design-docs/adr/adr) - ADR directory for compliance validation
+- [Technical Design Documents](/doc/technical/design) - TDD directory for alignment validation
+- [Architecture Decision Records](/doc/technical/architecture/design-docs/adr/adr) - ADR directory for compliance validation
 - [../../scripts/file-creation/New-ValidationReport.ps1](../../../scripts/file-creation/05-validation/New-ValidationReport.ps1) - Automation script for report generation
 - [Documentation Guide](../../../guides/05-validation/documentation-guide.md) - Documentation standards and quality criteria
 

@@ -74,7 +74,7 @@ graph TD
 
 - [Validation Preparation Task](../../../tasks/05-validation/validation-preparation.md) - Complete task definition and process
 - [Feature Validation Guide](../../../guides/05-validation/feature-validation-guide.md) - Guide with Dimension Catalog
-- [Feature Tracking](../../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) - Current status of features
+- [Feature Tracking](../../../../doc/state-tracking/permanent/feature-tracking.md) - Current status of features
 - [Validation Tracking Template](../../../templates/05-validation/validation-tracking-template.md) - Template for tracking matrices
 
 ---

@@ -50,8 +50,8 @@ if (-not $ProjectRoot) {
     $ProjectRoot = $searchDir
 }
 
-$workflowPath = Join-Path $ProjectRoot "doc/product-docs/state-tracking/permanent/user-workflow-tracking.md"
-$featureTrackingPath = Join-Path $ProjectRoot "doc/product-docs/state-tracking/permanent/feature-tracking.md"
+$workflowPath = Join-Path $ProjectRoot "doc/state-tracking/permanent/user-workflow-tracking.md"
+$featureTrackingPath = Join-Path $ProjectRoot "doc/state-tracking/permanent/feature-tracking.md"
 $e2eTrackingPath = Join-Path $ProjectRoot "test/state-tracking/permanent/e2e-test-tracking.md"
 
 foreach ($p in @($workflowPath, $featureTrackingPath)) {

@@ -51,7 +51,7 @@ testFiles:
     created: 2026-02-20
     updated: 2026-03-22
     testCasesCount: 5
-    tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-4-1-1-test-suite-t2.md
+    tddPath: doc/technical/architecture/design-docs/tdd/tdd-4-1-1-test-suite-t2.md
 
   - id: TE-TST-100
     featureId: "0.1.3"
@@ -82,7 +82,7 @@ testFiles:
     updated: 2026-03-18
     testCasesCount: 20
     tier: 2
-    tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-1-1-1-file-system-monitoring-t2.md
+    tddPath: doc/technical/tdd/tdd-1-1-1-file-system-monitoring-t2.md
     crossCuttingFeatures: ["2.2.1", "0.1.2"]
 
   # ─────────────────────────────────────────────────────────
@@ -101,7 +101,7 @@ testFiles:
     updated: 2026-03-17
     testCasesCount: 24
     tier: 3
-    tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md
+    tddPath: doc/technical/tdd/tdd-0-1-1-core-architecture-t3.md
     crossCuttingFeatures: ["1.1.1", "0.1.2"]
 
   - id: TE-TST-103
@@ -117,7 +117,7 @@ testFiles:
     updated: 2026-03-15
     testCasesCount: 12
     tier: 2
-    tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md
+    tddPath: doc/technical/tdd/tdd-2-1-1-parser-framework-t2.md
 
   - id: TE-TST-104
     featureId: "0.1.2"
@@ -132,7 +132,7 @@ testFiles:
     updated: 2026-03-15
     testCasesCount: 22
     tier: 2
-    tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-2-in-memory-database-t2.md
+    tddPath: doc/technical/tdd/tdd-0-1-2-in-memory-database-t2.md
     crossCuttingFeatures: ["0.1.1"]
 
   - id: TE-TST-105
@@ -148,7 +148,7 @@ testFiles:
     updated: 2026-03-15
     testCasesCount: 28
     tier: 2
-    tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-2-1-link-updater-t2.md
+    tddPath: doc/technical/tdd/tdd-2-2-1-link-updater-t2.md
     crossCuttingFeatures: ["0.1.1"]
 
   - id: TE-TST-106
@@ -180,7 +180,7 @@ testFiles:
     updated: 2026-03-03
     testCasesCount: 25
     tier: 2
-    tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-3-1-1-logging-framework-t2.md
+    tddPath: doc/technical/tdd/tdd-3-1-1-logging-framework-t2.md
 
   - id: TE-TST-108
     featureId: "3.1.1"
@@ -195,7 +195,7 @@ testFiles:
     updated: 2026-03-15
     testCasesCount: 19
     tier: 2
-    tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-3-1-1-logging-framework-t2.md
+    tddPath: doc/technical/tdd/tdd-3-1-1-logging-framework-t2.md
 
   # ─────────────────────────────────────────────────────────
   # Parser Tests (test/automated/parsers/)
@@ -213,7 +213,7 @@ testFiles:
     updated: 2026-03-15
     testCasesCount: 59
     tier: 2
-    tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md
+    tddPath: doc/technical/tdd/tdd-2-1-1-parser-framework-t2.md
 
   - id: TE-TST-110
     featureId: "2.1.1"
@@ -228,7 +228,7 @@ testFiles:
     updated: 2026-03-15
     testCasesCount: 13
     tier: 2
-    tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md
+    tddPath: doc/technical/tdd/tdd-2-1-1-parser-framework-t2.md
 
   - id: TE-TST-111
     featureId: "2.1.1"
@@ -243,7 +243,7 @@ testFiles:
     updated: 2026-03-15
     testCasesCount: 17
     tier: 2
-    tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md
+    tddPath: doc/technical/tdd/tdd-2-1-1-parser-framework-t2.md
 
   - id: TE-TST-112
     featureId: "2.1.1"
@@ -258,7 +258,7 @@ testFiles:
     updated: 2026-02-24
     testCasesCount: 8
     tier: 2
-    tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md
+    tddPath: doc/technical/tdd/tdd-2-1-1-parser-framework-t2.md
 
   - id: TE-TST-113
     featureId: "2.1.1"
@@ -273,7 +273,7 @@ testFiles:
     updated: 2026-03-15
     testCasesCount: 11
     tier: 2
-    tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md
+    tddPath: doc/technical/tdd/tdd-2-1-1-parser-framework-t2.md
 
   - id: TE-TST-114
     featureId: "2.1.1"
@@ -288,7 +288,7 @@ testFiles:
     updated: 2026-03-15
     testCasesCount: 21
     tier: 2
-    tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md
+    tddPath: doc/technical/tdd/tdd-2-1-1-parser-framework-t2.md
 
   - id: TE-TST-115
     featureId: "2.1.1"
@@ -303,7 +303,7 @@ testFiles:
     updated: 2026-03-15
     testCasesCount: 6
     tier: 2
-    tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md
+    tddPath: doc/technical/tdd/tdd-2-1-1-parser-framework-t2.md
     crossCuttingFeatures: ["1.1.1"]
 
   # ─────────────────────────────────────────────────────────
@@ -322,7 +322,7 @@ testFiles:
     updated: 2026-03-15
     testCasesCount: 17
     tier: 3
-    tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md
+    tddPath: doc/technical/tdd/tdd-0-1-1-core-architecture-t3.md
     crossCuttingFeatures: ["1.1.1", "3.1.1", "0.1.2"]
 
   - id: TE-TST-117
@@ -338,7 +338,7 @@ testFiles:
     updated: 2026-03-15
     testCasesCount: 7
     tier: 2
-    tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-1-1-1-file-system-monitoring-t2.md
+    tddPath: doc/technical/tdd/tdd-1-1-1-file-system-monitoring-t2.md
     crossCuttingFeatures: ["0.1.1", "2.1.1", "2.2.1"]
 
   - id: TE-TST-118
@@ -354,7 +354,7 @@ testFiles:
     updated: 2026-03-18
     testCasesCount: 26
     tier: 2
-    tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-2-1-link-updater-t2.md
+    tddPath: doc/technical/tdd/tdd-2-2-1-link-updater-t2.md
     crossCuttingFeatures: ["2.1.1", "0.1.1", "1.1.1"]
 
   - id: TE-TST-119
@@ -370,7 +370,7 @@ testFiles:
     updated: 2026-03-15
     testCasesCount: 11
     tier: 3
-    tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md
+    tddPath: doc/technical/tdd/tdd-0-1-1-core-architecture-t3.md
     crossCuttingFeatures: ["2.1.1", "2.2.1", "1.1.1", "0.1.2"]
 
   - id: TE-TST-120
@@ -386,7 +386,7 @@ testFiles:
     updated: 2026-03-15
     testCasesCount: 19
     tier: 3
-    tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md
+    tddPath: doc/technical/tdd/tdd-0-1-1-core-architecture-t3.md
     crossCuttingFeatures: ["2.2.1", "0.1.2", "3.1.1"]
 
   - id: TE-TST-121
@@ -402,7 +402,7 @@ testFiles:
     updated: 2026-03-15
     testCasesCount: 4
     tier: 2
-    tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-1-1-1-file-system-monitoring-t2.md
+    tddPath: doc/technical/tdd/tdd-1-1-1-file-system-monitoring-t2.md
     crossCuttingFeatures: ["0.1.2", "2.2.1", "0.1.1"]
 
   - id: TE-TST-122
@@ -418,7 +418,7 @@ testFiles:
     updated: 2026-03-15
     testCasesCount: 16
     tier: 3
-    tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md
+    tddPath: doc/technical/tdd/tdd-0-1-1-core-architecture-t3.md
     crossCuttingFeatures: ["1.1.1", "2.1.1", "2.2.1"]
 
   - id: TE-TST-123
@@ -434,7 +434,7 @@ testFiles:
     updated: 2026-03-15
     testCasesCount: 7
     tier: 2
-    tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-1-1-1-file-system-monitoring-t2.md
+    tddPath: doc/technical/tdd/tdd-1-1-1-file-system-monitoring-t2.md
     crossCuttingFeatures: ["0.1.1"]
 
   - id: TE-TST-124
@@ -450,7 +450,7 @@ testFiles:
     updated: 2026-03-15
     testCasesCount: 6
     tier: 2
-    tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-1-1-1-file-system-monitoring-t2.md
+    tddPath: doc/technical/tdd/tdd-1-1-1-file-system-monitoring-t2.md
     crossCuttingFeatures: ["2.1.1"]
 
   - id: TE-TST-125
@@ -466,7 +466,7 @@ testFiles:
     updated: 2026-02-24
     testCasesCount: 5
     tier: 2
-    tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-1-1-1-file-system-monitoring-t2.md
+    tddPath: doc/technical/tdd/tdd-1-1-1-file-system-monitoring-t2.md
     crossCuttingFeatures: ["2.2.1", "2.1.1"]
 
   # ─────────────────────────────────────────────────────────
@@ -514,7 +514,7 @@ testFiles:
     updated: 2026-02-25
     testCasesCount: 10
     tier: 3
-    tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md
+    tddPath: doc/technical/tdd/tdd-0-1-1-core-architecture-t3.md
 
   # ─────────────────────────────────────────────────────────
   # Bug Regression Tests (test/automated/)
@@ -532,7 +532,7 @@ testFiles:
     updated: 2026-03-25
     testCasesCount: 25
     tier: 2
-    tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-1-1-1-file-system-monitoring-t2.md
+    tddPath: doc/technical/tdd/tdd-1-1-1-file-system-monitoring-t2.md
     crossCuttingFeatures: ["0.1.2", "2.2.1", "2.1.1"]
 
   # ─────────────────────────────────────────────────────────
@@ -551,7 +551,7 @@ testFiles:
     updated: 2026-03-15
     testCasesCount: 32
     tier: 2
-    tddPath: doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md
+    tddPath: doc/technical/tdd/tdd-2-1-1-parser-framework-t2.md
 
   # Cross-cutting specification: E2E Acceptance Testing Scenarios
   - id: TE-TST-130

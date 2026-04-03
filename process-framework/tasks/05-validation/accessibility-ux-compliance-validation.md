@@ -5,7 +5,6 @@ category: Task Definition
 version: 1.0
 created: 2026-03-23
 updated: 2026-03-23
-task_type: Discrete
 ---
 
 # Accessibility / UX Compliance Validation
@@ -36,7 +35,7 @@ Systematically validates selected features for accessibility standards complianc
 - **Critical (Must Read):**
 
   - **Feature Validation Guide** - [Feature Validation Guide](../../guides/05-validation/feature-validation-guide.md) - Comprehensive guide for conducting feature validation
-  - **Feature Tracking** - [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) - Current status of features to be validated
+  - **Feature Tracking** - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Current status of features to be validated
   - **Validation Tracking** - Link to the active validation tracking state file for the current validation round — see [Feature Validation Guide](../../guides/05-validation/feature-validation-guide.md) for setup
   - **Validation Report Template** - [Validation Report Template](../../templates/05-validation/validation-report-template.md) - Template for creating validation reports
   - **Codebase Structure** - Source code directory - UI components and layouts for selected features
@@ -50,7 +49,7 @@ Systematically validates selected features for accessibility standards complianc
   <!-- Component Relationship Index - Removed: file deleted -->
 
 - **Reference Only (Access When Needed):**
-  - **Architecture Decision Records** - [ADR Directory](../../../doc/product-docs/technical/architecture) - Accessibility-related architectural decisions
+  - **Architecture Decision Records** - [ADR Directory](../../../doc/technical) - Accessibility-related architectural decisions
   - **Visual Notation Guide** - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting context map diagrams
   - **ID Registry** - [PD ID Registry](../../PF-id-registry.json) - For understanding validation report ID assignments
 
@@ -82,7 +81,7 @@ Systematically validates selected features for accessibility standards complianc
 11. **Generate Validation Report**: Create detailed validation report using the automation script
     ```powershell
     # Navigate to validation directory and create accessibility validation report
-    Set-Location "doc/product-docs/validation"
+    Set-Location "doc/validation"
     ..\..\scripts\file-creation\05-validation\New-ValidationReport.ps1 -ValidationType "AccessibilityUXCompliance" -FeatureIds "X.Y.Z,A.B.C" -SessionNumber 1
     ```
 12. **Score Accessibility Criteria**: Apply 4-point scoring system (0-3) to each accessibility criterion
@@ -94,7 +93,7 @@ Systematically validates selected features for accessibility standards complianc
 15. **Update Validation Tracking**: Update the validation tracking matrix with report creation date and link
 16. **Review Quality Gates**: Ensure validation meets minimum quality thresholds (average score ≥ 2.0)
 17. **Plan Remediation**: For scores below threshold, create action items for accessibility improvements — prioritize by impact on users with disabilities
-18. **🤖 AUTOMATED: Update Technical Debt Tracking**: Add any new open issues identified during validation — **apply the [Tech Debt Quality Gate](/process-framework/guides/05-validation/feature-validation-guide.md#tech-debt-item-quality-gate) filters before creating each item** — to [Technical Debt Tracking](../../../doc/product-docs/state-tracking/permanent/technical-debt-tracking.md) using the automation script:
+18. **🤖 AUTOMATED: Update Technical Debt Tracking**: Add any new open issues identified during validation — **apply the [Tech Debt Quality Gate](/process-framework/guides/05-validation/feature-validation-guide.md#tech-debt-item-quality-gate) filters before creating each item** — to [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) using the automation script:
 
     ```powershell
     process-framework/scripts/update/Update-TechDebt.ps1 -Add -Description "Description" -Category "Accessibility" -Location "Location" -Priority "Priority" -EstimatedEffort "Effort" -AssessmentId "PF-VAL-XXX" -Notes "Notes"
@@ -103,7 +102,7 @@ Systematically validates selected features for accessibility standards complianc
 
 ## Outputs
 
-- **Accessibility / UX Compliance Validation Report** - Detailed validation report with scoring and findings, created in doc/product-docs/validation/reports/accessibility-ux-compliance/PF-VAL-XXX-accessibility-ux-compliance-features-[feature-range].md
+- **Accessibility / UX Compliance Validation Report** - Detailed validation report with scoring and findings, created in doc/validation/reports/accessibility-ux-compliance/PF-VAL-XXX-accessibility-ux-compliance-features-[feature-range].md
 - **Updated Validation Tracking Matrix** - Validation tracking file updated with report creation date and link in the accessibility column for validated features
 - **Accessibility Remediation Recommendations** - List of accessibility improvements needed for features scoring below quality threshold, with WCAG criteria references (if applicable)
 
@@ -112,8 +111,8 @@ Systematically validates selected features for accessibility standards complianc
 The following state files must be updated as part of this task:
 
 - **Validation Tracking State File** - Update the active validation tracking matrix with report creation date and link (file location depends on validation round — see Feature Validation Guide)
-- [Documentation Map](../../documentation-map.md) - Add new validation report to the validation reports section
-- [Technical Debt Tracking](../../../doc/product-docs/state-tracking/permanent/technical-debt-tracking.md) - Add new open issues identified during validation to the Technical Debt Registry
+- [Product Documentation Map](../../../doc/PD-documentation-map.md) - Add new validation report to the validation reports section
+- [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) - Add new open issues identified during validation to the Technical Debt Registry
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
@@ -127,8 +126,8 @@ Before considering this task finished:
   - [ ] Quality gate assessment completed (average score ≥ 2.0 or remediation plan created)
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
   - [ ] Validation tracking state file updated with report creation date and link
-  - [ ] [Documentation Map](../../documentation-map.md) updated with new validation report entry
-  - [ ] **AUTOMATED**: [Technical Debt Tracking](../../../doc/product-docs/state-tracking/permanent/technical-debt-tracking.md) updated with new open issues using `Update-TechDebt.ps1`
+  - [ ] [Product Documentation Map](../../../doc/PD-documentation-map.md) updated with new validation report entry
+  - [ ] **AUTOMATED**: [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) updated with new open issues using `Update-TechDebt.ps1`
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-075" and context "Accessibility / UX Compliance Validation"
 
 ## Next Tasks

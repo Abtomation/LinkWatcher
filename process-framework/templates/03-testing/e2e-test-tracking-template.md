@@ -10,7 +10,7 @@ state_type: Implementation Status
 ---
 # E2E Acceptance Test Tracking
 
-E2E acceptance tests validate user-facing workflows that span multiple features. They require a running application instance and simulate real user actions. See [User Workflow Tracking](/doc/product-docs/state-tracking/permanent/user-workflow-tracking.md) for workflow definitions.
+E2E acceptance tests validate user-facing workflows that span multiple features. They require a running application instance and simulate real user actions. See [User Workflow Tracking](/doc/state-tracking/permanent/user-workflow-tracking.md) for workflow definitions.
 
 ## Status Legend
 

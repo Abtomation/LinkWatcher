@@ -5,7 +5,6 @@ category: Task Definition
 version: 1.1
 created: 2025-12-11
 updated: 2026-03-25
-task_type: Discrete
 ---
 
 # Data Layer Implementation
@@ -36,8 +35,8 @@ Implement data models, repositories, and database integration for feature
 - **Critical (Must Read):**
 
   - **Feature Implementation State File** - The permanent state tracking document at `/process-framework/state-tracking/permanent/feature-[feature-id]-implementation.md` containing implementation progress and context
-  - **Database Schema Design** - Schema specifications and migration scripts at `/doc/product-docs/technical/database/[feature-name]-schema.md`
-  - **TDD (Technical Design Document)** - Data model specifications and repository requirements at `/doc/product-docs/technical/architecture/design-docs/tdd/[feature-name]-tdd.md`
+  - **Database Schema Design** - Schema specifications and migration scripts at `/doc/technical/database/[feature-name]-schema.md`
+  - **TDD (Technical Design Document)** - Data model specifications and repository requirements at `/doc/technical/architecture/design-docs/tdd/[feature-name]-tdd.md`
   - **Implementation Roadmap** - Task sequence and dependencies from Feature Implementation Planning Task
 
 - **Important (Load If Space):**
@@ -146,7 +145,7 @@ Implement data models, repositories, and database integration for feature
 ### Automated Updates (via `New-TestFile.ps1`)
 
 - [Test Tracking](../../../test/state-tracking/permanent/test-tracking.md) - Automatically updated with test file links and status
-- [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) - Automatically updated with test implementation progress
+- [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Automatically updated with test implementation progress
 
 ### Manual Updates
 

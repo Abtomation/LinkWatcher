@@ -68,23 +68,28 @@ param(
     [string]$ProjectRoot = ""
 )
 
+# Import Common-ScriptHelpers for standardized utilities
+$scriptDir = if ($PSScriptRoot) { $PSScriptRoot } else { (Get-Location).Path }
+$modulePath = Join-Path -Path $scriptDir -ChildPath "../../../scripts/Common-ScriptHelpers.psm1"
+try {
+    $resolvedPath = Resolve-Path $modulePath -ErrorAction Stop
+    Import-Module $resolvedPath -Force
+} catch {
+    Write-Error "Failed to import Common-ScriptHelpers: $($_.Exception.Message)"
+    exit 1
+}
+
 # Validate at least one selector is provided
 if (-not $FeatureId -and -not $Group -and -not $TestCase) {
-    Write-Error "At least one of -FeatureId, -Group, or -TestCase must be specified."
-    exit 1
+    Write-ProjectError -Message "At least one of -FeatureId, -Group, or -TestCase must be specified." -ExitCode 1
 }
 
 # Resolve project root
 if (-not $ProjectRoot) {
-    $searchDir = $PSScriptRoot
-    while ($searchDir -and -not (Test-Path (Join-Path $searchDir ".git"))) {
-        $searchDir = Split-Path $searchDir -Parent
+    $ProjectRoot = Get-ProjectRoot
+    if (-not $ProjectRoot) {
+        Write-ProjectError -Message "Could not auto-detect project root. Use -ProjectRoot parameter." -ExitCode 1
     }
-    if (-not $searchDir) {
-        Write-Error "Could not auto-detect project root. Use -ProjectRoot parameter."
-        exit 1
-    }
-    $ProjectRoot = $searchDir
 }
 
 # Map status to emoji
@@ -97,11 +102,10 @@ $emojiStatus = $statusMap[$Status]
 $timestamp = Get-Date -Format "yyyy-MM-dd"
 
 $testTrackingPath = Join-Path $ProjectRoot "test/state-tracking/permanent/e2e-test-tracking.md"
-$featureTrackingPath = Join-Path $ProjectRoot "doc/product-docs/state-tracking/permanent/feature-tracking.md"
+$featureTrackingPath = Join-Path $ProjectRoot "doc/state-tracking/permanent/feature-tracking.md"
 
 if (-not (Test-Path $testTrackingPath)) {
-    Write-Error "E2E test tracking file not found: $testTrackingPath"
-    exit 1
+    Write-ProjectError -Message "E2E test tracking file not found: $testTrackingPath" -ExitCode 1
 }
 
 # Read e2e-test-tracking.md
@@ -231,9 +235,9 @@ if ($matchCount -eq 0) {
     if ($PSCmdlet.ShouldProcess($testTrackingPath, "Update $matchCount test tracking entries to '$emojiStatus'")) {
         $updatedContent = ($updatedLines -join "`n") -replace "updated: \d{4}-\d{2}-\d{2}", "updated: $timestamp"
         Set-Content $testTrackingPath $updatedContent -Encoding UTF8
-        Write-Host "  ✅ Updated $matchCount entries in e2e-test-tracking.md → $emojiStatus" -ForegroundColor Green
+        Write-ProjectSuccess -Message "Updated $matchCount entries in e2e-test-tracking.md -> $emojiStatus"
         if ($affectedWorkflows.Count -gt 0) {
-            Write-Host "  ✅ Updated milestone status for workflows: $($affectedWorkflows -join ', ')" -ForegroundColor Green
+            Write-ProjectSuccess -Message "Updated milestone status for workflows: $($affectedWorkflows -join ', ')"
         }
     }
 }
@@ -279,7 +283,7 @@ if ($affectedFeatureIds.Count -gt 0) {
             if ($PSCmdlet.ShouldProcess($featureTrackingPath, "Update Test Status for $ftUpdateCount features")) {
                 $ftUpdatedContent = ($ftUpdatedLines -join "`n") -replace "updated: \d{4}-\d{2}-\d{2}", "updated: $timestamp"
                 Set-Content $featureTrackingPath $ftUpdatedContent -Encoding UTF8
-                Write-Host "  ✅ Updated feature-tracking.md: $($affectedFeatureIds -join ', ') → $featureStatus" -ForegroundColor Green
+                Write-ProjectSuccess -Message "Updated feature-tracking.md: $($affectedFeatureIds -join ', ') -> $featureStatus"
             }
         }
     }

@@ -26,19 +26,19 @@ This guide provides a structured approach for assessing the appropriate document
 
 ### Initial Assessment
 
-1. **Identify the Feature**: Locate the feature in the [Feature Tracking Document](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) and note its ID and description.
+1. **Identify the Feature**: Locate the feature in the [Feature Tracking Document](../../../doc/state-tracking/permanent/feature-tracking.md) and note its ID and description.
 
 2. **Create Assessment File**: **MANDATORY: Use the provided automation script** to create an assessment file with the correct template:
 
    ```batch
    # Navigate to the documentation-tiers directory
-   cd doc/product-docs/documentation-tiers
+   cd doc/documentation-tiers
 
    # Run the batch wrapper (recommended - handles execution policy automatically)
-   ../../../../../../product-docs/documentation-tiers/create-assessment.bat "1.2.3" "Feature Name" "Description of the feature"
+   doc/documentation-tiers/create-assessment.bat "1.2.3" "Feature Name" "Description of the feature"
 
    # To open in editor immediately after creation
-   ../../../../../../product-docs/documentation-tiers/create-assessment.bat "1.2.3" "Feature Name" "Description of the feature" -OpenInEditor
+   doc/documentation-tiers/create-assessment.bat "1.2.3" "Feature Name" "Description of the feature" -OpenInEditor
    ```
 
    > **💡 Alternative**: If the batch wrapper doesn't work, use PowerShell directly:
@@ -98,7 +98,7 @@ This guide provides a structured approach for assessing the appropriate document
 
 7. **Document Special Considerations**: Note any special considerations that might affect the tier assignment.
 
-8. **Update the Feature Tracking Document**: Add the documentation tier emoji with link to the assessment, plus API Design and DB Design requirements (e.g., 🔵 Tier 1 with link to assessment) to the feature in the [Feature Tracking Document](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md).
+8. **Update the Feature Tracking Document**: Add the documentation tier emoji with link to the assessment, plus API Design and DB Design requirements (e.g., 🔵 Tier 1 with link to assessment) to the feature in the [Feature Tracking Document](../../../doc/state-tracking/permanent/feature-tracking.md).
 
 ### Reassessment During Implementation
 

@@ -64,9 +64,9 @@ graph TD
 
 ## Related Documentation
 
-- [TDD Templates](/doc/product-docs/technical/architecture/design-docs) - Tier-specific templates
-- [Feature Assessment](../../../../doc/product-docs/documentation-tiers/assessments) - Complexity tier assessments
-- [Existing TDDs](/doc/product-docs/technical/design) - Previously created design documents
-- [Feature Tracking](../../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) - Feature status tracking
+- [TDD Templates](/doc/technical/architecture/design-docs) - Tier-specific templates
+- [Feature Assessment](/doc/documentation-tiers/assessments) - Complexity tier assessments
+- [Existing TDDs](/doc/technical/design) - Previously created design documents
+- [Feature Tracking](../../../../doc/state-tracking/permanent/feature-tracking.md) - Feature status tracking
 
 ---

@@ -24,7 +24,7 @@ function Get-IdRegistryPath {
     if ($Prefix) {
         $prefixKey = ($Prefix -split '-')[0] + '-'
         switch ($prefixKey) {
-            'PD-' { return Join-Path -Path $docDir -ChildPath "product-docs/PD-id-registry.json" }
+            'PD-' { return Join-Path -Path $docDir -ChildPath "PD-id-registry.json" }
             'TE-' { return Join-Path -Path $projectRoot -ChildPath "test/TE-id-registry.json" }
             default { return Join-Path -Path $processFrameworkDir -ChildPath "PF-id-registry.json" }
         }

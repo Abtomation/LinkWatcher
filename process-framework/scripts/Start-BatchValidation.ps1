@@ -107,7 +107,7 @@ if (-not (Test-ScriptDependencies -RequiredModules @("Common-ScriptHelpers"))) {
 # Get project root and set default paths
 $projectRoot = Get-ProjectRoot
 if (-not $OutputDirectory) {
-    $OutputDirectory = Join-Path $projectRoot "doc/product-docs/validation/reports"
+    $OutputDirectory = Join-Path $projectRoot "doc/validation/reports"
 }
 
 # Ensure output directory exists

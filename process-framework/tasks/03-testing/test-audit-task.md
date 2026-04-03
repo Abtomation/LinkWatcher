@@ -6,7 +6,6 @@ domain: agnostic
 version: 1.6
 created: 2025-08-07
 updated: 2026-03-27
-task_type: Discrete
 ---
 
 # Test Audit
@@ -47,11 +46,11 @@ Comprehensive quality assurance task that evaluates implemented test suites agai
   - **Test Implementation Files** - The actual test files to be audited (located in the project's test directory as configured in `project-config.json`)
   - **Test Specification Document** - The test specification file for the feature being audited (located in `/test/specifications/feature-specs/`)
   - [Test Tracking](../../../test/state-tracking/permanent/test-tracking.md) - Current test implementation status and audit tracking
-  - [Technical Design Document](/doc/product-docs/technical/design) - The TDD for the feature to understand implementation requirements
+  - [Technical Design Document](/doc/technical/design) - The TDD for the feature to understand implementation requirements
 
 - **Important (Load If Space):**
 
-  - [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) - Feature development status and context
+  - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Feature development status and context
   - [Existing Test Structure](/test/) - Current test organization and patterns for consistency evaluation
   - [Development Guide](/process-framework/guides/04-implementation/development-guide.md) - Testing standards and practices
 
@@ -126,7 +125,7 @@ Comprehensive quality assurance task that evaluates implemented test suites agai
    ```
 
    **Script Location**: /process-framework/scripts/file-creation/03-testing/New-TestAuditReport.ps1
-   **Output Location**: `/doc/product-docs/test-audits/[category]/audit-report-[feature-id]-[test-file-id].md`
+   **Output Location**: `/doc/test-audits/[category]/audit-report-[feature-id]-[test-file-id].md`
 
 9. **Document Findings**: Complete the audit report with specific findings, recommendations, and audit decision
 
@@ -149,7 +148,7 @@ Comprehensive quality assurance task that evaluates implemented test suites agai
 
    - Use [New-BugReport.ps1](../../scripts/file-creation/06-maintenance/New-BugReport.ps1) script to create standardized bug reports
    - Follow [Bug Reporting Guide](../../guides/06-maintenance/bug-reporting-guide.md) for consistent documentation
-   - Add bug entries to [Bug Tracking](../../../doc/product-docs/state-tracking/permanent/bug-tracking.md) with status 🆕 Reported
+   - Add bug entries to [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) with status 🆕 Reported
    - Include test audit context and evidence in bug reports
    - Reference audit report in bug documentation
    - Note impact on test audit results
@@ -171,7 +170,7 @@ Comprehensive quality assurance task that evaluates implemented test suites agai
 - **🔄 Needs Update**: Existing tests have issues that need fixing
 - **🔴 Tests Incomplete**: Missing tests for existing implementations
 
-13. **Register Significant Findings as Tech Debt**: For audit findings that warrant a dedicated follow-up session (e.g., zero-assertion tests, anti-patterns, structural issues across multiple test methods), register them in [Technical Debt Tracking](../../../doc/product-docs/state-tracking/permanent/technical-debt-tracking.md) using `Update-TechDebt.ps1 -Add` with category "Testing". Minor findings that are documented in the audit report but don't need separate tracking can be skipped.
+13. **Register Significant Findings as Tech Debt**: For audit findings that warrant a dedicated follow-up session (e.g., zero-assertion tests, anti-patterns, structural issues across multiple test methods), register them in [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) using `Update-TechDebt.ps1 -Add` with category "Testing". Minor findings that are documented in the audit report but don't need separate tracking can be skipped.
 
     ```powershell
     # Register significant test quality finding as tech debt
@@ -187,7 +186,7 @@ Comprehensive quality assurance task that evaluates implemented test suites agai
    Set-Location "process-framework/scripts/validation"
 
    # Validate the completed audit report
-   ./Validate-AuditReport.ps1 -ReportFile "../../../product-docs/test-audits/[category]/audit-report-[feature-id]-[test-file-id].md" -Detailed
+   ./Validate-AuditReport.ps1 -ReportFile "doc/test-audits/[category]/audit-report-[feature-id]-[test-file-id].md" -Detailed
    ```
 
    Address any errors or warnings before proceeding. The script checks metadata completeness, all six evaluation criteria, audit decision consistency, required sections, and template placeholders.
@@ -203,11 +202,11 @@ Comprehensive quality assurance task that evaluates implemented test suites agai
 Set-Location "process-framework/scripts"
 
 # Update test audit state with comprehensive details
-./Update-TestFileAuditState.ps1 -TestFilePath "test/automated/unit/test_example.py" -AuditStatus "Tests Approved" -AuditorName "AI Agent" -TestCasesAudited 15 -PassedTests 14 -FailedTests 1 -MajorFindings @("Finding 1", "Finding 2") -AuditReportPath "../../../product-docs/test-audits/relative/path/to/audit-report.md"
+./Update-TestFileAuditState.ps1 -TestFilePath "test/automated/unit/test_example.py" -AuditStatus "Tests Approved" -AuditorName "AI Agent" -TestCasesAudited 15 -PassedTests 14 -FailedTests 1 -MajorFindings @("Finding 1", "Finding 2") -AuditReportPath "doc/test-audits/relative/path/to/audit-report.md"
 
 # Script automatically:
 # - Updates ../../../test/state-tracking/permanent/test-tracking.md with audit status and detailed results
-# - Updates ../../../doc/product-docs/state-tracking/permanent/feature-tracking.md with aggregated test status for the feature
+# - Updates ../../../doc/state-tracking/permanent/feature-tracking.md with aggregated test status for the feature
 # - Creates automatic backups before making changes
 # - Calculates intelligent feature-level status based on all test files
 ```
@@ -223,7 +222,7 @@ Set-Location "process-framework/scripts"
 17. **Verify Automated Updates**: Confirm the automation script successfully updated all state files:
 
     - **../../state-tracking/permanent/test-tracking.md**: Individual test file status with audit details
-    - **../../../product-docs/state-tracking/permanent/feature-tracking.md**: Aggregated feature test status
+    - **doc/state-tracking/permanent/feature-tracking.md**: Aggregated feature test status
 
 18. **Document Implementation Dependencies**: If status is "🟡 Tests Approved with Dependencies", clearly document:
 
@@ -237,20 +236,20 @@ Set-Location "process-framework/scripts"
 
 ## Outputs
 
-- **Test Audit Report** - Comprehensive document analyzing test quality with specific findings and recommendations (located in `/doc/product-docs/test-audits/[category]/`)
+- **Test Audit Report** - Comprehensive document analyzing test quality with specific findings and recommendations (located in `/doc/test-audits/[category]`)
 - **Updated Test Tracking** - Test tracking updated with audit status and audit report link
 - **Updated Test Registry** - Test registry updated with audit completion status
-- **Bug Reports** - Any bugs discovered during audit documented in [Bug Tracking](../../../doc/product-docs/state-tracking/permanent/bug-tracking.md) with status 🆕 Reported
-- **Tech Debt Items** (if applicable) - Significant test quality findings registered in [Technical Debt Tracking](../../../doc/product-docs/state-tracking/permanent/technical-debt-tracking.md) with category "Testing", routed to PF-TSK-053
+- **Bug Reports** - Any bugs discovered during audit documented in [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) with status 🆕 Reported
+- **Tech Debt Items** (if applicable) - Significant test quality findings registered in [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) with category "Testing", routed to PF-TSK-053
 
 ## State Tracking
 
 **🤖 FULLY AUTOMATED** - All state file updates are handled by the `Update-TestFileAuditState.ps1` script:
 
 - [Test Tracking](../../../test/state-tracking/permanent/test-tracking.md) - **Automatically updated** with audit status, detailed audit results, and completion timestamp
-- [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) - **Automatically updated** with intelligent aggregated test status based on all test files for the feature
-- [Bug Tracking](../../../doc/product-docs/state-tracking/permanent/bug-tracking.md) - **Manually updated** with any bugs discovered during audit, including test context and evidence
-- [Technical Debt Tracking](../../../doc/product-docs/state-tracking/permanent/technical-debt-tracking.md) - **Manually updated** (via `Update-TechDebt.ps1 -Add`) with significant test quality findings (category "Testing"), routed to [Integration & Testing](../04-implementation/integration-and-testing.md) (PF-TSK-053)
+- [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - **Automatically updated** with intelligent aggregated test status based on all test files for the feature
+- [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) - **Manually updated** with any bugs discovered during audit, including test context and evidence
+- [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) - **Manually updated** (via `Update-TechDebt.ps1 -Add`) with significant test quality findings (category "Testing"), routed to [Integration & Testing](../04-implementation/integration-and-testing.md) (PF-TSK-053)
 
 **Key Automation Features**:
 
@@ -259,7 +258,7 @@ Set-Location "process-framework/scripts"
 - **Automatic Backups**: Creates backups of all state files before making changes
 - **Comprehensive Audit Trail**: Maintains detailed history of audit results, findings, and auditor information
 
-**Script Location**: `/process-framework/scripts/Update-TestFileAuditState.ps1`
+**Script Location**: `/process-framework/scripts/update/Update-TestFileAuditState.ps1`
 **Usage Guide**: See [Automation Usage Guide](../../scripts/AUTOMATION-USAGE-GUIDE.md) for detailed examples and parameters.
 
 ## ⚠️ MANDATORY Task Completion Checklist
@@ -275,8 +274,8 @@ Before considering this task finished:
 - [ ] **Update State Files**: **🤖 AUTOMATED** - Verify automation script successfully updated all state tracking files
   - [ ] Executed `Update-TestFileAuditState.ps1` with appropriate parameters
   - [ ] Confirmed [Test Tracking](../../../test/state-tracking/permanent/test-tracking.md) updated with audit status and detailed results
-  - [ ] Checked [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) Test Status column shows correct aggregated status
-  - [ ] Significant test quality findings registered as tech debt items in [Technical Debt Tracking](../../../doc/product-docs/state-tracking/permanent/technical-debt-tracking.md) (category "Testing", routed to PF-TSK-053) — or confirmed no findings warrant tech debt registration
+  - [ ] Checked [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) Test Status column shows correct aggregated status
+  - [ ] Significant test quality findings registered as tech debt items in [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) (category "Testing", routed to PF-TSK-053) — or confirmed no findings warrant tech debt registration
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-030" and context "Test Audit"
 
 ## Next Tasks

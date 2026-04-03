@@ -89,9 +89,9 @@ graph TD
 ## Related Documentation
 
 - [Feature Request Evaluation Task](../../../tasks/01-planning/feature-request-evaluation.md) — Task definition
-- [Feature Request Tracking](../../../../doc/product-docs/state-tracking/permanent/feature-request-tracking.md) — Intake queue for product feature requests
-- [Feature Tracking](../../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) — Current feature inventory
-- [Enhancement Workflow Concept (PF-PRO-002)](../../../proposals/proposals/old/enhancement-workflow-concept.md) — Full design rationale
+- [Feature Request Tracking](../../../../doc/state-tracking/permanent/feature-request-tracking.md) — Intake queue for product feature requests
+- [Feature Tracking](../../../../doc/state-tracking/permanent/feature-tracking.md) — Current feature inventory
+- [Enhancement Workflow Concept (PF-PRO-002)](../../../proposals/old/enhancement-workflow-concept.md) — Full design rationale
 
 ---
 

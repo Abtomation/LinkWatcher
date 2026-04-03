@@ -48,7 +48,7 @@ Use this guide when you need to:
 
 Before you begin, ensure you have:
 
-- Access to PowerShell and the New-tdd.ps1 script in `doc/product-docs/technical/architecture/design-docs/tdd/`
+- Access to PowerShell and the New-tdd.ps1 script in `doc/technical/architecture/design-docs/tdd`
 - Completed Feature Tier Assessment for the feature you're documenting
 - Understanding of the feature requirements and scope
 - Familiarity with the project's architecture and component structure
@@ -400,7 +400,7 @@ Use this decision tree when deciding what to include in TDDs:
 1. **Navigate to the TDD directory**:
 
    ```powershell
-   cd doc/product-docs/technical/architecture/design-docs/tdd
+   cd doc/technical/architecture/design-docs/tdd
    ```
 
 2. **Execute the New-tdd.ps1 script** with your prepared parameters:
@@ -425,7 +425,7 @@ Use this decision tree when deciding what to include in TDDs:
 
 ### 3. Populate Workflow Context
 
-1. **Look up workflows**: Check [User Workflow Tracking](/doc/product-docs/state-tracking/permanent/user-workflow-tracking.md) for the feature's workflow participation
+1. **Look up workflows**: Check [User Workflow Tracking](/doc/state-tracking/permanent/user-workflow-tracking.md) for the feature's workflow participation
 2. **Reference FDD**: If an FDD exists, copy the workflow information from its "Workflow Participation" section
 3. **Fill in the field**: List the WF-IDs in the Workflow Context section (e.g., "WF-001, WF-002, WF-005"). If the feature doesn't participate in any workflow, write "None"
 
@@ -536,7 +536,7 @@ Creating a TDD for a moderate complexity authentication feature:
 
 ```powershell
 # Navigate to TDD directory
-cd doc/product-docs/technical/architecture/design-docs/tdd
+cd doc/technical/architecture/design-docs/tdd
 
 # Create Tier 2 TDD
 .\New-tdd.ps1 -FeatureId "2.1.4" -FeatureName "User Authentication System" -Tier 2 -OpenInEditor
@@ -594,7 +594,7 @@ Creating a TDD for a complex real-time feature:
 
 **Solution:**
 
-1. Ensure you're running from the correct directory: `doc/product-docs/technical/architecture/design-docs/tdd/`
+1. Ensure you're running from the correct directory: `doc/technical/architecture/design-docs/tdd`
 2. Verify the tier template exists in `process-framework/templates/02-design`
 3. Check PowerShell execution policy: `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser`
 4. Verify all required parameters are provided correctly

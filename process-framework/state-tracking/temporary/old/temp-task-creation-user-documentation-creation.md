@@ -34,8 +34,8 @@ task_name: user-documentation-creation
 
 | Artifact | Location | Reuse Notes |
 | --- | --- | --- |
-| PD-UGD prefix | PD-id-registry.json | Already exists, nextAvailable: 3, directory: doc/product-docs/user/handbooks |
-| Existing handbooks | doc/product-docs/user/handbooks/ | 4 existing files as style reference |
+| PD-UGD prefix | PD-id-registry.json | Already exists, nextAvailable: 3, directory: doc/user/handbooks |
+| Existing handbooks | doc/user/handbooks | 4 existing files as style reference |
 | Document Creation Script Template | process-framework/templates/support/document-creation-script-template.ps1 | Base for New-Handbook.ps1 |
 
 ## Implementation Roadmap
@@ -52,7 +52,7 @@ task_name: user-documentation-creation
 - [x] **Evaluate Task File Creation Requirements**: Task creates handbook files
   - **Status**: COMPLETED
   - **Decision**: CREATES_FILES
-  - **File Types**: Markdown handbook files in doc/product-docs/user/handbooks/
+  - **File Types**: Markdown handbook files in doc/user/handbooks
 
 - [x] **AI Tasks Registry**: Added to 07-Deployment section
   - **Status**: COMPLETED

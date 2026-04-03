@@ -12,9 +12,9 @@ All 4 validation task feedback forms identified manual tracking file updates as 
 efficiency bottleneck despite excellent tool performance (4-5/5 ratings).
 
 Updates the following files:
-- ../product-docs/state-tracking/temporary/validation-tracking.md
-- ../process-framework/documentation-map.md
-- ../doc/product-docs/state-tracking/permanent/feature-tracking.md (cross-references)
+- doc/state-tracking/temporary/validation-tracking.md
+- ../doc/PD-documentation-map.md
+- ../doc/state-tracking/permanent/feature-tracking.md (cross-references)
 
 .PARAMETER ValidationId
 The validation ID to update (e.g., "VAL-031-001", "VAL-032-002")
@@ -134,9 +134,9 @@ if (-not $ValidationDate) {
 
 # Get project root and define file paths
 $projectRoot = Get-ProjectRoot
-$validationTrackingPath = Join-Path $projectRoot "doc/product-docs/state-tracking/temporary/validation/archive/validation-tracking-1.md"
-$documentationMapPath = Join-Path $projectRoot "process-framework/documentation-map.md"
-$featureTrackingPath = Join-Path $projectRoot "doc/product-docs/state-tracking/permanent/feature-tracking.md"
+$validationTrackingPath = Join-Path $projectRoot "doc/state-tracking/temporary/validation/archive/validation-tracking-1.md"
+$documentationMapPath = Join-Path $projectRoot "doc/PD-documentation-map.md"
+$featureTrackingPath = Join-Path $projectRoot "doc/state-tracking/permanent/feature-tracking.md"
 
 Write-Host "🚀 Starting Validation Report State Update" -ForegroundColor Green
 Write-Host "   Validation ID: $ValidationId" -ForegroundColor Cyan

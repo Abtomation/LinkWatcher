@@ -4,7 +4,7 @@
 .SYNOPSIS
     Master state validation script — validates that state tracking entries match actual files on disk.
 .DESCRIPTION
-    Checks consistency across 8 validation surfaces:
+    Checks consistency across 9 validation surfaces:
     1. ../feature-tracking.md — all document links (FDD, TDD, ADR, Test Spec, Assessment, State File)
     2. Feature implementation state files — Section 4 (doc inventory), Section 5 (code inventory), Section 6 (dependencies)
     3. ../test-tracking.md — test file path references
@@ -13,13 +13,14 @@
     6. Feature Dependencies — regenerate feature-dependencies.md if stale
     7. Dimension Consistency — dimension profile presence and valid abbreviations
     8. Workflow Tracking — workflow-feature mapping consistency and status accuracy
+    9. Task Registry — all PF-TSK IDs present in process-framework-task-registry.md
 
     Created as IMP-028 from Tools Review 2026-02-21.
 .PARAMETER ProjectRoot
     Path to the project root directory. Defaults to auto-detection from script location.
 .PARAMETER Surface
     Which validation surfaces to run. Accepts one or more of:
-    "FeatureTracking", "StateFiles", "TestTracking", "CrossRef", "IdCounters", "FeatureDeps", "DimensionConsistency", "WorkflowTracking", "All"
+    "FeatureTracking", "StateFiles", "TestTracking", "CrossRef", "IdCounters", "FeatureDeps", "DimensionConsistency", "WorkflowTracking", "TaskRegistry", "All"
     Default: "All"
 .PARAMETER Detailed
     Show every checked link, not just failures.
@@ -61,7 +62,7 @@ $passCount = 0
 $runAll = $Surface -contains "All"
 
 # --- Load language config for test file extension ---
-$projectConfigPath = Join-Path $ProjectRoot "process-framework/project-config.json"
+$projectConfigPath = Join-Path $ProjectRoot "doc/project-config.json"
 $testFileExtRegex = '\.py$'  # fallback
 if (Test-Path $projectConfigPath) {
     try {
@@ -180,7 +181,7 @@ Write-Host ""
 if ($runAll -or $Surface -contains "FeatureTracking") {
     Write-Host "[1/5] Feature Tracking (feature-tracking.md)" -ForegroundColor Cyan
 
-    $ftPath = Join-Path $ProjectRoot "doc/product-docs/state-tracking/permanent/feature-tracking.md"
+    $ftPath = Join-Path $ProjectRoot "doc/state-tracking/permanent/feature-tracking.md"
     if (-not (Test-Path $ftPath)) {
         Add-CheckResult "ERROR" "FeatureTracking" "feature-tracking.md" "File not found: $ftPath"
     } else {
@@ -238,7 +239,7 @@ if ($runAll -or $Surface -contains "FeatureTracking") {
 if ($runAll -or $Surface -contains "StateFiles") {
     Write-Host "[2/5] Feature State Files" -ForegroundColor Cyan
 
-    $stateDir = Join-Path $ProjectRoot "doc/product-docs/state-tracking/features"
+    $stateDir = Join-Path $ProjectRoot "doc/state-tracking/features"
     if (-not (Test-Path $stateDir)) {
         Add-CheckResult "ERROR" "StateFiles" "features" "Directory not found: $stateDir"
     } else {
@@ -356,7 +357,7 @@ if ($runAll -or $Surface -contains "CrossRef") {
     Write-Host "[4/5] Cross-Reference Consistency" -ForegroundColor Cyan
 
     # Load known feature IDs from feature-tracking.md
-    $ftPath = Join-Path $ProjectRoot "doc/product-docs/state-tracking/permanent/feature-tracking.md"
+    $ftPath = Join-Path $ProjectRoot "doc/state-tracking/permanent/feature-tracking.md"
     $knownFeatureIds = @()
     if (Test-Path $ftPath) {
         $ftContent = Get-Content $ftPath -Encoding UTF8
@@ -436,7 +437,7 @@ if ($runAll -or $Surface -contains "IdCounters") {
     # Load all three ID registries
     $registryMap = @{
         'PF' = @{ Path = (Join-Path $ProjectRoot "process-framework/PF-id-registry.json"); Registry = $null; Fixed = 0 }
-        'PD' = @{ Path = (Join-Path $ProjectRoot "doc/product-docs/PD-id-registry.json"); Registry = $null; Fixed = 0 }
+        'PD' = @{ Path = (Join-Path $ProjectRoot "doc/PD-id-registry.json"); Registry = $null; Fixed = 0 }
         'TE' = @{ Path = (Join-Path $ProjectRoot "test/TE-id-registry.json"); Registry = $null; Fixed = 0 }
     }
     $allLoaded = $true
@@ -453,11 +454,11 @@ if ($runAll -or $Surface -contains "IdCounters") {
     if ($allLoaded) {
         # Prefixes to validate with their file patterns
         $prefixChecks = @(
-            @{ Prefix = "PD-FIS";  Dir = "doc/product-docs/state-tracking/features";                              Pattern = "*.md"; Domain = "PD" }
-            @{ Prefix = "PD-FDD";  Dir = "doc/product-docs/functional-design/fdds";                                Pattern = "*.md"; Domain = "PD" }
-            @{ Prefix = "PD-TDD";  Dir = "doc/product-docs/technical/architecture/design-docs/tdd";                Pattern = "*.md"; Domain = "PD" }
-            @{ Prefix = "PD-ADR";  Dir = "doc/product-docs/technical/architecture/design-docs/adr/adr";            Pattern = "*.md"; Domain = "PD" }
-            @{ Prefix = "PD-ASS";  Dir = "doc/product-docs/documentation-tiers/assessments";                       Pattern = "*.md"; Domain = "PD" }
+            @{ Prefix = "PD-FIS";  Dir = "doc/state-tracking/features";                              Pattern = "*.md"; Domain = "PD" }
+            @{ Prefix = "PD-FDD";  Dir = "doc/functional-design/fdds";                                Pattern = "*.md"; Domain = "PD" }
+            @{ Prefix = "PD-TDD";  Dir = "doc/technical/architecture/design-docs/tdd";                Pattern = "*.md"; Domain = "PD" }
+            @{ Prefix = "PD-ADR";  Dir = "doc/technical/architecture/design-docs/adr/adr";            Pattern = "*.md"; Domain = "PD" }
+            @{ Prefix = "PD-ASS";  Dir = "doc/documentation-tiers/assessments";                       Pattern = "*.md"; Domain = "PD" }
             @{ Prefix = "TE-TSP";  Dir = "test/specifications/feature-specs";                                       Pattern = "*.md"; Domain = "TE" }
         )
 
@@ -527,7 +528,7 @@ if ($runAll -or $Surface -contains "FeatureDeps") {
     Write-Host "  Surface 6: Feature Dependencies" -ForegroundColor Cyan
     Write-Host "========================================" -ForegroundColor Cyan
 
-    $depsFile = Join-Path $ProjectRoot "doc/product-docs/technical/design/feature-dependencies.md"
+    $depsFile = Join-Path $ProjectRoot "doc/technical/feature-dependencies.md"
     $updateScript = Join-Path $ProjectRoot "process-framework/scripts/update/Update-FeatureDependencies.ps1"
 
     if (-not (Test-Path $updateScript)) {
@@ -539,7 +540,7 @@ if ($runAll -or $Surface -contains "FeatureDeps") {
             $needsRegeneration = $true
         } else {
             $depsLastWrite = (Get-Item $depsFile).LastWriteTime
-            $stateDir = Join-Path $ProjectRoot "doc/product-docs/state-tracking/features"
+            $stateDir = Join-Path $ProjectRoot "doc/state-tracking/features"
             $newerFiles = Get-ChildItem -Path $stateDir -Filter "*-implementation-state.md" |
                 Where-Object { $_.LastWriteTime -gt $depsLastWrite }
             if ($newerFiles.Count -gt 0) {
@@ -567,7 +568,7 @@ if ($runAll -or $Surface -contains "DimensionConsistency") {
     Write-Host "========================================" -ForegroundColor Cyan
 
     $validDimensions = @("AC", "CQ", "ID", "DA", "EM", "SE", "PE", "OB", "UX", "DI")
-    $stateDir = Join-Path $ProjectRoot "doc/product-docs/state-tracking/features"
+    $stateDir = Join-Path $ProjectRoot "doc/state-tracking/features"
 
     if (Test-Path $stateDir) {
         $stateFiles = Get-ChildItem -Path $stateDir -Filter "*-implementation-state.md" -File
@@ -623,7 +624,7 @@ if ($runAll -or $Surface -contains "WorkflowTracking") {
     Write-Host "  Surface 8: Workflow Tracking" -ForegroundColor Cyan
     Write-Host "========================================" -ForegroundColor Cyan
 
-    $wfPath = Join-Path $ProjectRoot "doc/product-docs/state-tracking/permanent/user-workflow-tracking.md"
+    $wfPath = Join-Path $ProjectRoot "doc/state-tracking/permanent/user-workflow-tracking.md"
 
     if (-not (Test-Path $wfPath)) {
         Add-CheckResult "WARNING" "WorkflowTracking" "user-workflow-tracking.md" "File not found — workflow tracking not set up"
@@ -649,7 +650,7 @@ if ($runAll -or $Surface -contains "WorkflowTracking") {
         Write-Host "  Found $($workflowIds.Count) workflows" -ForegroundColor Gray
 
         # Load known feature IDs from feature-tracking.md
-        $ftPath2 = Join-Path $ProjectRoot "doc/product-docs/state-tracking/permanent/feature-tracking.md"
+        $ftPath2 = Join-Path $ProjectRoot "doc/state-tracking/permanent/feature-tracking.md"
         $knownFeatures2 = @()
         if (Test-Path $ftPath2) {
             $ftContent2 = Get-Content $ftPath2 -Encoding UTF8
@@ -676,7 +677,7 @@ if ($runAll -or $Surface -contains "WorkflowTracking") {
         }
 
         # Check 2: Feature state files' workflows: metadata references valid WF-IDs
-        $stateDir2 = Join-Path $ProjectRoot "doc/product-docs/state-tracking/features"
+        $stateDir2 = Join-Path $ProjectRoot "doc/state-tracking/features"
         if (Test-Path $stateDir2) {
             $stateFiles2 = Get-ChildItem -Path $stateDir2 -Filter "*-implementation-state.md" -File
             foreach ($sf in $stateFiles2) {
@@ -724,6 +725,76 @@ if ($runAll -or $Surface -contains "WorkflowTracking") {
                 }
                 # Note: missing workflows: field is not an error — it may be an older state file
             }
+        }
+    }
+    Write-Host ""
+}
+
+# =========================================================================
+# Surface 9: Task Registry Completeness
+# =========================================================================
+if ($runAll -or $Surface -contains "TaskRegistry") {
+    Write-Host "========================================" -ForegroundColor Cyan
+    Write-Host "  Surface 9: Task Registry" -ForegroundColor Cyan
+    Write-Host "========================================" -ForegroundColor Cyan
+
+    $registryPath = Join-Path $ProjectRoot "process-framework/infrastructure/process-framework-task-registry.md"
+    $pfIdRegistryPath = Join-Path $ProjectRoot "process-framework/PF-id-registry.json"
+
+    if (-not (Test-Path $registryPath)) {
+        Add-CheckResult "WARNING" "TaskRegistry" "process-framework-task-registry.md" "File not found — task registry not set up"
+    } elseif (-not (Test-Path $pfIdRegistryPath)) {
+        Add-CheckResult "WARNING" "TaskRegistry" "PF-id-registry.json" "File not found — cannot determine expected task IDs"
+    } else {
+        # Get all PF-TSK IDs that have been assigned (from nextAvailable counter)
+        $pfRegistry = Get-Content $pfIdRegistryPath -Raw -Encoding UTF8 | ConvertFrom-Json
+        $nextAvailable = $pfRegistry.prefixes.'PF-TSK'.nextAvailable
+        $allTaskIds = @()
+        for ($i = 1; $i -lt $nextAvailable; $i++) {
+            $allTaskIds += "PF-TSK-{0:D3}" -f $i
+        }
+
+        # Get all PF-TSK IDs mentioned in the task registry
+        $registryContent = Get-Content $registryPath -Raw -Encoding UTF8
+        $registryTaskIds = @()
+        $idMatches = [regex]::Matches($registryContent, 'PF-TSK-\d{3}')
+        foreach ($m in $idMatches) {
+            if ($registryTaskIds -notcontains $m.Value) {
+                $registryTaskIds += $m.Value
+            }
+        }
+
+        # Also get task IDs that actually have files on disk (to avoid flagging deleted tasks)
+        $taskDir = Join-Path $ProjectRoot "process-framework/tasks"
+        $taskFiles = Get-ChildItem -Path $taskDir -Recurse -Filter "*.md" -File -ErrorAction SilentlyContinue
+        $taskFileIds = @()
+        foreach ($tf in $taskFiles) {
+            $firstLines = Get-Content $tf.FullName -TotalCount 10 -Encoding UTF8 -ErrorAction SilentlyContinue
+            foreach ($line in $firstLines) {
+                if ($line -match '^id:\s*(PF-TSK-\d{3})') {
+                    $taskFileIds += $matches[1]
+                    break
+                }
+            }
+        }
+
+        Write-Host "  Task IDs assigned: $($allTaskIds.Count), In registry: $($registryTaskIds.Count), With files: $($taskFileIds.Count)" -ForegroundColor Gray
+
+        # Check: every task ID with an actual file on disk should be in the registry
+        # Exclude PF-TSK-000 (tasks/README.md index file, not an actual task)
+        $taskFileIds = $taskFileIds | Where-Object { $_ -ne "PF-TSK-000" }
+        $missingCount = 0
+        foreach ($tid in $taskFileIds) {
+            if ($registryTaskIds -contains $tid) {
+                Add-CheckResult "OK" "TaskRegistry" $tid "Present in task registry"
+            } else {
+                Add-CheckResult "ERROR" "TaskRegistry" $tid "Has task file on disk but missing from task registry"
+                $missingCount++
+            }
+        }
+
+        if ($missingCount -gt 0) {
+            Write-Host "    $([char]0x2139) $missingCount task(s) missing from registry — run New-Task.ps1 or add manually" -ForegroundColor Yellow
         }
     }
     Write-Host ""

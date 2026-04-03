@@ -83,7 +83,7 @@ Invoke-StandardScriptInitialization
 
 # Configuration
 $ProjectRoot = Get-ProjectRoot
-$TrackingFile = Join-Path -Path $ProjectRoot -ChildPath "doc/product-docs/state-tracking/permanent/feature-request-tracking.md"
+$TrackingFile = Join-Path -Path $ProjectRoot -ChildPath "doc/state-tracking/permanent/feature-request-tracking.md"
 $CurrentDate = Get-Date -Format "yyyy-MM-dd"
 
 if (-not (Test-Path $TrackingFile)) {

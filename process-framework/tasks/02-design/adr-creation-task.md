@@ -5,7 +5,6 @@ category: Task Definition
 version: 1.2
 created: 2025-08-03
 updated: 2026-03-27
-task_type: Discrete
 ---
 
 # ADR Creation
@@ -53,7 +52,7 @@ Create Architecture Decision Records (ADRs) to document significant architectura
   - [Feature Tier Assessment](../01-planning/feature-tier-assessment-task.md) - For decisions identified during complexity assessment
 
 - **Reference Only (Access When Needed):**
-  - [Existing ADRs](../../../doc/product-docs/technical/architecture/design-docs/adr/adr) - For consistency and reference
+  - [Existing ADRs](../../../doc/technical/adr) - For consistency and reference
   - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 ## Process
@@ -77,7 +76,7 @@ Create Architecture Decision Records (ADRs) to document significant architectura
 
 2. **Review Existing ADRs**: Check for related decisions or patterns
 
-   - Review existing ADRs in `/doc/product-docs/technical/architecture/design-docs/adr/adr/`
+   - Review existing ADRs in `/doc/technical/architecture/design-docs/adr/adr`
    - Identify any decisions that might be superseded or related
    - Ensure consistency with established architectural patterns
 
@@ -93,7 +92,7 @@ Create Architecture Decision Records (ADRs) to document significant architectura
 
    ```powershell
    # Navigate to ADR directory
-   cd doc/product-docs/technical/architecture/design-docs/adr
+   cd doc/technical/architecture/design-docs/adr
 
    # Create new ADR with basic information
    ..\..\scripts\file-creation\02-design\New-ArchitectureDecision.ps1 -Title "Your Decision Title" -Description "Brief description of the decision" -Status "Proposed"
@@ -136,7 +135,7 @@ Create Architecture Decision Records (ADRs) to document significant architectura
 
 ## Outputs
 
-- **Architecture Decision Record (ADR)** - Complete ADR document in `/doc/product-docs/technical/architecture/design-docs/adr/adr/` with assigned ID (PD-ADR-XXX)
+- **Architecture Decision Record (ADR)** - Complete ADR document in `/doc/technical/architecture/design-docs/adr/adr` with assigned ID (PD-ADR-XXX)
 - **Updated Documentation Map** - ADR entry added to the architecture documentation map
 - **Architectural Decision Documentation** - Comprehensive record of decision context, alternatives, and consequences
 
@@ -144,8 +143,8 @@ Create Architecture Decision Records (ADRs) to document significant architectura
 
 The following state files must be updated as part of this task:
 
-- [Architecture Tracking](../../../doc/product-docs/state-tracking/permanent/architecture-tracking.md) - Update with new architectural decision and its impact
-- [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) - Update ADR column for related features with link to created ADR
+- [Architecture Tracking](../../../doc/state-tracking/permanent/architecture-tracking.md) - Update with new architectural decision and its impact
+- [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Update ADR column for related features with link to created ADR
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
@@ -158,8 +157,8 @@ Before considering this task finished:
   - [ ] All ADR template sections properly completed (Context, Decision, Impact Assessment, Alternatives, Consequences, References)
   - [ ] ADR status appropriately set (Proposed/Accepted/etc.)
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
-  - [ ] [Architecture Tracking](../../../doc/product-docs/state-tracking/permanent/architecture-tracking.md) updated with new architectural decision
-  - [ ] [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) updated with ADR link in relevant feature entries
+  - [ ] [Architecture Tracking](../../../doc/state-tracking/permanent/architecture-tracking.md) updated with new architectural decision
+  - [ ] [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) updated with ADR link in relevant feature entries
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-028" and context "ADR Creation"
 
 ## Next Tasks
@@ -173,4 +172,4 @@ Before considering this task finished:
 - [Architecture Decision Creation Guide](../../guides/02-design/architecture-decision-creation-guide.md) - Comprehensive guide for creating and customizing ADRs
 - [ADR Template](../../templates/02-design/adr-template.md) - Template structure and sections for ADRs
 - [New-ArchitectureDecision.ps1](../../scripts/file-creation/02-design/New-ArchitectureDecision.ps1) - Script for creating new ADRs
-- [Existing ADRs](../../../doc/product-docs/technical/architecture/design-docs/adr/adr) - Reference examples and consistency patterns
+- [Existing ADRs](../../../doc/technical/adr) - Reference examples and consistency patterns

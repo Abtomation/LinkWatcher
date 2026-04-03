@@ -82,7 +82,7 @@ function Update-FeatureTrackingStatus {
 
     try {
         $projectRoot = Get-ProjectRoot
-        $featureTrackingPath = Join-Path $projectRoot "doc/product-docs/state-tracking/permanent/feature-tracking.md"
+        $featureTrackingPath = Join-Path $projectRoot "doc/state-tracking/permanent/feature-tracking.md"
 
         if (-not (Test-Path $featureTrackingPath)) {
             throw "Feature tracking file not found: $featureTrackingPath"
@@ -199,7 +199,7 @@ function Update-FeatureTrackingStatusWithAppend {
 
     try {
         $projectRoot = Get-ProjectRoot
-        $featureTrackingPath = Join-Path $projectRoot "doc/product-docs/state-tracking/permanent/feature-tracking.md"
+        $featureTrackingPath = Join-Path $projectRoot "doc/state-tracking/permanent/feature-tracking.md"
 
         if (-not (Test-Path $featureTrackingPath)) {
             throw "Feature tracking file not found: $featureTrackingPath"
@@ -404,32 +404,45 @@ function Update-MultipleTrackingFiles {
     return $results
 }
 
-function Update-FeatureTrackingSummary {
+function Get-ActiveFeatures {
     <#
     .SYNOPSIS
-    Recalculates the Progress Summary tables in feature-tracking.md from the feature data rows.
+    Parses active (non-archived) features from feature-tracking.md content.
 
     .DESCRIPTION
-    Parses all feature tables to count statuses, tiers, and documentation artifacts,
-    then regenerates the three summary sections (Implementation Status Overview,
-    Documentation Tier Distribution, Documentation Coverage).
+    Reads the feature-tracking.md markdown tables and returns an array of hashtables,
+    each containing the column values keyed by header name (ID, Feature, Status, Priority, etc.).
+    Stops parsing before the Archived Features section.
 
     .PARAMETER Content
-    The full content of feature-tracking.md as a single string.
+    The full text content of feature-tracking.md. If not provided, reads from the
+    standard location (doc/state-tracking/permanent/feature-tracking.md).
 
     .OUTPUTS
-    The updated content with recalculated summary tables.
-    #>
+    Array of hashtables, each representing one feature row with keys matching the table headers.
 
+    .EXAMPLE
+    $features = Get-ActiveFeatures
+    $features | ForEach-Object { Write-Host "$($_['ID']) - $($_['Feature'])" }
+    #>
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true)]
-        [string]$Content
+        [Parameter(Mandatory = $false)]
+        [string]$Content = ""
     )
+
+    if ([string]::IsNullOrEmpty($Content)) {
+        $projectRoot = Get-ProjectRoot
+        $trackingPath = Join-Path $projectRoot "doc/state-tracking/permanent/feature-tracking.md"
+        if (-not (Test-Path $trackingPath)) {
+            Write-Warning "Feature tracking file not found: $trackingPath"
+            return @()
+        }
+        $Content = Get-Content $trackingPath -Raw -Encoding UTF8
+    }
 
     $lines = $Content -split "`r?`n"
 
-    # Parse all feature rows from all tables
     $features = @()
     $currentHeaders = @()
 
@@ -465,6 +478,37 @@ function Update-FeatureTrackingSummary {
             $features += $feature
         }
     }
+
+    return $features
+}
+
+function Update-FeatureTrackingSummary {
+    <#
+    .SYNOPSIS
+    Recalculates the Progress Summary tables in feature-tracking.md from the feature data rows.
+
+    .DESCRIPTION
+    Parses all feature tables to count statuses, tiers, and documentation artifacts,
+    then regenerates the three summary sections (Implementation Status Overview,
+    Documentation Tier Distribution, Documentation Coverage).
+
+    .PARAMETER Content
+    The full content of feature-tracking.md as a single string.
+
+    .OUTPUTS
+    The updated content with recalculated summary tables.
+    #>
+
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]$Content
+    )
+
+    $lines = $Content -split "`r?`n"
+
+    # Parse all feature rows using shared helper
+    $features = Get-ActiveFeatures -Content $Content
 
     $total = $features.Count
     if ($total -eq 0) {
@@ -631,6 +675,7 @@ function Update-FeatureTrackingSummary {
 
 # Export functions
 Export-ModuleMember -Function @(
+    'Get-ActiveFeatures',
     'Update-FeatureTrackingStatus',
     'Update-FeatureTrackingStatusWithAppend',
     'Update-MultipleTrackingFiles',

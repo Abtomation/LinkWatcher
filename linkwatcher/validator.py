@@ -17,7 +17,7 @@ AI Context
 - **Common tasks**:
   - Adding a file type to validation: ensure the parser handles it and
     ``should_monitor_file()`` includes the extension.
-  - Debugging false positives: check ``_should_skip_target()`` for
+  - Debugging false positives: check ``_should_check_target()`` for
     skip patterns (URLs, anchors, templates) and
     ``EXTRA_IGNORED_DIRS`` for excluded directories.
   - Debugging false negatives: check ``_target_exists()`` path
@@ -28,6 +28,7 @@ import fnmatch
 import os
 import re
 import time
+from collections import defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, FrozenSet, List, Optional, Tuple
@@ -205,6 +206,8 @@ class LinkValidator:
 
         ignored_dirs = self.config.ignored_directories | self._extra_ignored_dirs
 
+        ext_timings: Dict[str, float] = defaultdict(float)
+
         for root, dirs, files in os.walk(self.project_root):
             # Prune ignored directories in-place (same pattern as _initial_scan)
             dirs[:] = [d for d in dirs if d not in ignored_dirs]
@@ -218,9 +221,32 @@ class LinkValidator:
                 if not should_monitor_file(file_path, self._validation_extensions, ignored_dirs):
                     continue
 
+                file_start = time.monotonic()
                 self._check_file(file_path, result)
+                file_elapsed = time.monotonic() - file_start
+
+                ext = os.path.splitext(filename)[1].lower() or "(no ext)"
+                ext_timings[ext] += file_elapsed
+
+                self.logger.debug(
+                    "validation_file_checked",
+                    file_path=file_path,
+                    extension=ext,
+                    duration_ms=round(file_elapsed * 1000, 1),
+                )
 
         result.duration_seconds = time.monotonic() - start
+
+        if ext_timings:
+            self.logger.debug(
+                "validation_timing_by_extension",
+                timings={
+                    ext: round(secs * 1000, 1)
+                    for ext, secs in sorted(
+                        ext_timings.items(), key=lambda x: x[1], reverse=True
+                    )
+                },
+            )
 
         self.logger.info(
             "validation_complete",
@@ -292,41 +318,10 @@ class LinkValidator:
             if not self._should_check_target(target, ref.link_type):
                 continue
 
-            # Skip targets matching user-configured ignored patterns
-            if ignored_patterns and any(p in target for p in ignored_patterns):
-                continue
-
-            # Skip standalone link types inside fenced code blocks
-            if (
-                code_block_lines
-                and ref.link_type in _STANDALONE_LINK_TYPES
-                and ref.line_number in code_block_lines
-            ):
-                continue
-
-            # Skip standalone link types inside archival <details> sections
-            if (
-                archival_details_lines
-                and ref.link_type in _STANDALONE_LINK_TYPES
-                and ref.line_number in archival_details_lines
-            ):
-                continue
-
-            # Skip standalone link types in template files (placeholder paths)
-            if is_template_file and ref.link_type in _STANDALONE_LINK_TYPES:
-                continue
-
-            # Skip all link types on lines with placeholder instructions
-            # like "*(replace with actual link)*" — these are template examples.
-            if placeholder_lines and ref.line_number in placeholder_lines:
-                continue
-
-            # Skip standalone link types in markdown table rows — bare paths
-            # in table cells are data descriptions, not navigable references.
-            if (
-                table_row_lines
-                and ref.link_type in _STANDALONE_LINK_TYPES
-                and ref.line_number in table_row_lines
+            if self._should_skip_reference(
+                ref, ignored_patterns, code_block_lines,
+                archival_details_lines, table_row_lines,
+                placeholder_lines, is_template_file,
             ):
                 continue
 
@@ -366,6 +361,54 @@ class LinkValidator:
                         link_type=ref.link_type,
                     )
                 )
+
+    @staticmethod
+    def _should_skip_reference(
+        ref: LinkReference,
+        ignored_patterns: FrozenSet[str],
+        code_block_lines: FrozenSet[int],
+        archival_details_lines: FrozenSet[int],
+        table_row_lines: FrozenSet[int],
+        placeholder_lines: FrozenSet[int],
+        is_template_file: bool,
+    ) -> bool:
+        """Decide whether a parsed reference should be skipped based on context.
+
+        Checks user-configured ignored patterns, then applies context-based
+        skip rules for standalone link types (code blocks, archival sections,
+        template files, placeholder lines, table rows).
+        """
+        target = ref.link_target
+
+        # Skip targets matching user-configured ignored patterns
+        if ignored_patterns and any(p in target for p in ignored_patterns):
+            return True
+
+        # Skip all link types on lines with placeholder instructions
+        # like "*(replace with actual link)*" — these are template examples.
+        if placeholder_lines and ref.line_number in placeholder_lines:
+            return True
+
+        # Remaining checks apply only to standalone (bare-path) link types.
+        # Proper [text](path) links are always checked regardless of context.
+        if ref.link_type not in _STANDALONE_LINK_TYPES:
+            return False
+
+        # Skip standalone links in template files (placeholder paths)
+        if is_template_file:
+            return True
+
+        # Skip standalone links inside fenced code blocks, archival
+        # <details> sections, or markdown table rows.
+        line = ref.line_number
+        if code_block_lines and line in code_block_lines:
+            return True
+        if archival_details_lines and line in archival_details_lines:
+            return True
+        if table_row_lines and line in table_row_lines:
+            return True
+
+        return False
 
     @staticmethod
     def _should_check_target(target: str, link_type: str) -> bool:
@@ -566,8 +609,8 @@ class LinkValidator:
 
             # Comment lines start with #
             source_glob -> target_substring
-            doc/templates/**/*.md -> related-design.md
-            doc/product-docs/validation/reports/**/*.md -> docs/README.md
+            process-framework/templates/**/*.md -> related-design.md
+            doc/validation/reports/**/*.md -> docs/README.md
 
         Returns a list of (compiled_source_regex, target_substring) tuples.
         """
@@ -620,7 +663,7 @@ class LinkValidator:
 
         # Root-relative paths (starting with /) resolve against project root.
         # This is the convention used by markdown links in this project:
-        # [text](/doc/process-framework/...) means <project_root>/doc/...
+        # [text](/process-framework/...) means <project_root>/doc/...
         if target.startswith("/"):
             resolved = os.path.normpath(os.path.join(self.project_root, target.lstrip("/")))
         else:

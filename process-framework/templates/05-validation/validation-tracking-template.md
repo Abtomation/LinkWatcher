@@ -175,8 +175,8 @@ This file tracks the progress and results of the **Feature Validation Framework*
 
 ### Cross-References
 
-- **Feature Implementation Status**: [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md)
-- **Quality Issues**: [Technical Debt Tracking](../../../doc/product-docs/state-tracking/permanent/technical-debt-tracking.md)
+- **Feature Implementation Status**: [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md)
+- **Quality Issues**: [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md)
 - **Test Coverage**: [Test Tracking](../../../test/state-tracking/permanent/test-tracking.md)
 
 ### Synchronization Points
@@ -215,7 +215,7 @@ This file tracks the progress and results of the **Feature Validation Framework*
      ```powershell
      process-framework/scripts/file-creation/05-validation/Generate-ValidationSummary.ps1 -IncludeDetails
      ```
-   - Output is saved to `doc/product-docs/validation/reports/consolidated-validation-report.md`
+   - Output is saved to `doc/validation/reports/consolidated-validation-report.md`
    - Review the summary for overall quality gate assessment and prioritized action items
 
 ### Update Frequency

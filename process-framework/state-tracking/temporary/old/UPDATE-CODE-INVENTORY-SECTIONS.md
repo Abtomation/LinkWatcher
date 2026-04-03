@@ -79,7 +79,7 @@ Each feature implementation state file needs:
 
 All 42 files in `process-framework/state-tracking/features`:
 
-- ../../../../doc/product-docs/state-tracking/features/0.1.1-core-architecture-implementation-state.md
+- ../../../../doc/state-tracking/features/0.1.1-core-architecture-implementation-state.md
 - ../../features/0.1.2-data-models-implementation-state.md
 - ../../features/0.1.3-in-memory-database-implementation-state.md
 - ../../features/0.1.4-configuration-system-implementation-state.md

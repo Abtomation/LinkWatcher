@@ -31,6 +31,12 @@
     When provided, auto-populates the feature_id frontmatter field and the documentation
     checklist references in the lightweight template so they point to the correct feature's docs.
 
+.PARAMETER IncludeDependencies
+    If specified (with -Lightweight), includes a Dependencies and Impact section in the lightweight plan.
+    By default, lightweight plans omit this section since most lightweight refactorings are single-file
+    with no cross-component impact. Use this flag for multi-file lightweight refactorings where
+    dependency awareness matters.
+
 .PARAMETER Lightweight
     If specified, creates a lightweight refactoring plan using the compact template (PF-TEM-050).
     Use for changes with no architectural impact (any file count, any effort level).
@@ -66,7 +72,10 @@
     .\New-RefactoringPlan.ps1 -RefactoringScope "Extract reference lookup (TD022)" -TargetArea "linkwatcher/handler.py" -Lightweight -FeatureId "1.1.1" -DebtItemId "TD022"
 
 .EXAMPLE
-    .\New-RefactoringPlan.ps1 -RefactoringScope "Fix TDD pseudocode drift (TD046)" -TargetArea "doc/product-docs/technical/" -DocumentationOnly -DebtItemId "TD046"
+    .\New-RefactoringPlan.ps1 -RefactoringScope "Consolidate path utils (TD015)" -TargetArea "linkwatcher/" -Lightweight -IncludeDependencies -DebtItemId "TD015"
+
+.EXAMPLE
+    .\New-RefactoringPlan.ps1 -RefactoringScope "Fix TDD pseudocode drift (TD046)" -TargetArea "doc/technical" -DocumentationOnly -DebtItemId "TD046"
 
 .EXAMPLE
     .\New-RefactoringPlan.ps1 -RefactoringScope "Reduce file I/O in scan cycle (TD030)" -TargetArea "linkwatcher/service.py" -Performance -DebtItemId "TD030"
@@ -106,6 +115,9 @@ param(
 
     [Parameter(Mandatory = $false)]
     [switch]$Lightweight,
+
+    [Parameter(Mandatory = $false)]
+    [switch]$IncludeDependencies,
 
     [Parameter(Mandatory = $false)]
     [switch]$DocumentationOnly,
@@ -186,6 +198,13 @@ $customReplacements = @{
     "[Author]"            = "AI Agent & Human Partner"
     "[Debt Item Line]"    = $debtItemLine
     "[Feature ID]"        = if ($FeatureId) { $FeatureId } else { "[Feature ID]" }
+    "[Dependencies Section]" = if ($Lightweight -and -not $IncludeDependencies) {
+        ""
+    } elseif ($Lightweight -and $IncludeDependencies) {
+        "## Dependencies and Impact`n- **Affected Components**: [List files/modules that will be modified]`n- **Internal Dependencies**: [Components that depend on the changed code]`n- **Risk Assessment**: [Low/Medium] — [Brief risk description]`n`n"
+    } else {
+        "[Dependencies Section]"
+    }
 }
 
 # Create the document using standardized process
@@ -212,7 +231,8 @@ try {
         if ($Lightweight) {
             $details += @(
                 "",
-                "📝 Lightweight plan created. Fill in Item sections (and optional Dependencies section for multi-file changes), then update Documentation & State Updates checklist for each item."
+                "📝 Lightweight plan created. Fill in Item sections, then update Documentation & State Updates checklist for each item.",
+                "   For multi-file changes with cross-component impact, re-create with -IncludeDependencies to add a Dependencies and Impact section."
             )
         } elseif ($DocumentationOnly) {
             $details += @(

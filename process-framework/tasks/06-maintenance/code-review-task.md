@@ -5,7 +5,6 @@ category: Task Definition
 version: 2.1
 created: 2023-06-15
 updated: 2026-03-02
-task_type: Discrete
 ---
 
 # Code Review
@@ -36,7 +35,7 @@ Review implemented code to ensure it meets quality standards, follows project co
 
 - **Critical (Must Read):**
 
-  - [Technical Design Document](/doc/product-docs/technical/design) - The technical design document for the feature
+  - [Technical Design Document](/doc/technical/design) - The technical design document for the feature
   - Source code files that were created or modified during implementation
   - [Visual Notation Guide](/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
   - Project dependency configuration file - To verify dependency changes and versions
@@ -48,8 +47,8 @@ Review implemented code to ensure it meets quality standards, follows project co
   - Environment configuration files - For environment-specific settings review
 
 - **Reference Only (Access When Needed):**
-  - [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) - To identify features with "👀 Ready for Review" status
-  - [Architecture Decision Records](/doc/product-docs/technical/architecture/design-docs/adr/) - For architectural context
+  - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - To identify features with "👀 Ready for Review" status
+  - [Architecture Decision Records](/doc/technical/architecture/design-docs/adr) - For architectural context
   - [Test Tracking](../../../test/state-tracking/permanent/test-tracking.md) - For test coverage context
 
 ## Process
@@ -66,7 +65,7 @@ Review implemented code to ensure it meets quality standards, follows project co
 
 ### Preparation
 
-1. Review the [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) document to identify features with "👀 Ready for Review" status
+1. Review the [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) document to identify features with "👀 Ready for Review" status
 2. Select the next feature for code review
 3. Review the TDD to understand the intended design and requirements
 4. **Read the feature's Dimension Profile** from its implementation state file (or the bug's Dims column for bug fix reviews). Focus the review on **Critical** dimensions using the review focus points from the [Development Dimensions Guide](../../guides/framework/development-dimensions-guide.md)
@@ -159,9 +158,9 @@ Review implemented code to ensure it meets quality standards, follows project co
 
     | Finding type | Condition | Route to | Fix task |
     |---|---|---|---|
-    | **Bug** | Wrong behavior on a released/completed feature | [Bug Tracking](../../../doc/product-docs/state-tracking/permanent/bug-tracking.md) via [New-BugReport.ps1](../../scripts/file-creation/06-maintenance/New-BugReport.ps1) | [Bug Triage](bug-triage-task.md) → [Bug Fixing](bug-fixing-task.md) |
-    | **Tech Debt** | Code works but has quality/design problems (any feature) | [Technical Debt Tracking](../../../doc/product-docs/state-tracking/permanent/technical-debt-tracking.md) via [Update-TechDebt.ps1 -Add](../../scripts/update/Update-TechDebt.ps1) | [Technical Debt Assessment](../cyclical/technical-debt-assessment-task.md) → [Code Refactoring](code-refactoring-task.md) |
-    | **Implementation Gap** | Wrong behavior on an in-progress/unreleased feature | Feature's [implementation state file](../../../doc/product-docs/state-tracking/features) section 8 (Issues & Resolutions Log) with status OPEN | Current implementation or [Feature Enhancement](../04-implementation/feature-enhancement.md) task |
+    | **Bug** | Wrong behavior on a released/completed feature | [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) via [New-BugReport.ps1](../../scripts/file-creation/06-maintenance/New-BugReport.ps1) | [Bug Triage](bug-triage-task.md) → [Bug Fixing](bug-fixing-task.md) |
+    | **Tech Debt** | Code works but has quality/design problems (any feature) | [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) via [Update-TechDebt.ps1 -Add](../../scripts/update/Update-TechDebt.ps1) | [Technical Debt Assessment](../cyclical/technical-debt-assessment-task.md) → [Code Refactoring](code-refactoring-task.md) |
+    | **Implementation Gap** | Wrong behavior on an in-progress/unreleased feature | Feature's [implementation state file](/doc/state-tracking/features) section 8 (Issues & Resolutions Log) with status OPEN | Current implementation or [Feature Enhancement](../04-implementation/feature-enhancement.md) task |
 
     For all finding types:
     - Document in the code review findings with severity levels
@@ -196,17 +195,17 @@ Review implemented code to ensure it meets quality standards, follows project co
 ## Outputs
 
 - **Code Review Document** - Comprehensive document with findings, recommendations, and positive acknowledgments
-- **Updated Feature Tracking** - [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) with review status updated
+- **Updated Feature Tracking** - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) with review status updated
 - **Test Coverage Report** - Generated coverage report from test runner
 - **Code Quality Metrics** - Results from static analysis and formatting checks
 - **Performance Analysis** - Profiling tool findings and performance recommendations
-- **Defect Reports** - Findings routed per step 20: bugs → [Bug Tracking](../../../doc/product-docs/state-tracking/permanent/bug-tracking.md), tech debt → [Technical Debt Tracking](../../../doc/product-docs/state-tracking/permanent/technical-debt-tracking.md), implementation gaps → feature state file
+- **Defect Reports** - Findings routed per step 20: bugs → [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md), tech debt → [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md), implementation gaps → feature state file
 
 ## State Tracking
 
 The following state files must be updated as part of this task:
 
-- [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) - Update with:
+- [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Update with:
   - Code review status (🟢 Completed/🔄 Needs Revision)
   - Test Summary status (recalculated based on test case implementation tracking updates)
   - Review date and time
@@ -269,7 +268,7 @@ Before considering this task finished:
   - [ ] Review follows the code review checklist completely
 
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
-  - [ ] [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) shows correct review status
+  - [ ] [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) shows correct review status
   - [ ] [Test Tracking](../../../test/state-tracking/permanent/test-tracking.md) updated with test review results
   - [ ] Review date, time, and reviewer information recorded
   - [ ] Link to review document included
@@ -297,8 +296,8 @@ Before considering this task finished:
 
 ### Project-Specific Resources
 
-- [Architecture Decision Records](/doc/product-docs/technical/architecture/design-docs/adr/) - Architectural context and decisions
-- [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) - Feature status and dependencies
+- [Architecture Decision Records](/doc/technical/architecture/design-docs/adr) - Architectural context and decisions
+- [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Feature status and dependencies
 - [Test Tracking](../../../test/state-tracking/permanent/test-tracking.md) - Test coverage and status
 
 ### Development Tools & Standards

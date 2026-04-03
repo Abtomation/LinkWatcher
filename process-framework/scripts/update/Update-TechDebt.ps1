@@ -66,21 +66,23 @@ Description of what was done. Required when NewStatus is Resolved or Rejected.
 Appended to the Notes column in the Recently Resolved table.
 
 .PARAMETER PlanLink
-Optional markdown link to the refactoring plan (e.g., "[TD006](../../../product-docs/refactoring/plans/archive/td006.md)").
+Optional markdown link to the refactoring plan (e.g., "[TD006](/doc/refactoring/plans/archive/td006.md)").
 When provided, replaces the plain ID in the Recently Resolved table.
 
 .PARAMETER ValidationNote
 Optional status text for the validation tracking file's issue tables.
 When provided (and NewStatus is Resolved), finds the row whose "Tracked As" column contains
 the DebtId and updates Status to "RESOLVED" and Assigned Session to this note.
-The validation tracking file is auto-discovered from doc/product-docs/state-tracking/temporary/validation/.
+The validation tracking file is auto-discovered from doc/state-tracking/temporary/validation/.
 Example: "PD-REF-042 — docstring added documenting precedence order"
 
 .PARAMETER ValidationIssueId
-Optional validation issue ID (e.g., "R2-M-005") to link a debt item to a validation tracking row.
+Optional validation issue ID (e.g., "R2-M-005", "OB-R3-004") to link a debt item to a validation tracking row.
 On -Add: writes the newly assigned TD### into the "Tracked As" column of the matching issue row.
-On -Resolved (with -ValidationNote): not needed — the script searches by DebtId in "Tracked As" column.
-The validation tracking file is auto-discovered from doc/product-docs/state-tracking/temporary/validation/.
+On Resolve/Reject (with -ValidationNote): searches by this ID in the "Issue ID" column instead of
+searching by DebtId in "Tracked As" column. Use this when the validation issue was tracked under a
+non-TD ID (e.g., OB-R3-004) that differs from the TD### registry ID.
+The validation tracking file is auto-discovered from doc/state-tracking/temporary/validation/.
 
 .EXAMPLE
 # Add a new debt item
@@ -104,7 +106,7 @@ The validation tracking file is auto-discovered from doc/product-docs/state-trac
 
 .EXAMPLE
 # Resolve with plan link
-.\Update-TechDebt.ps1 -DebtId "TD006" -NewStatus "Resolved" -ResolutionNotes "Extracted public API methods." -PlanLink "[TD006](../../../doc/product-docs/refactoring/plans/archive/td006-encapsulation-violation-fix.md)"
+.\Update-TechDebt.ps1 -DebtId "TD006" -NewStatus "Resolved" -ResolutionNotes "Extracted public API methods." -PlanLink "[TD006](../../../doc/refactoring/plans/archive/td006-encapsulation-violation-fix.md)"
 
 .EXAMPLE
 # Add a new debt item linked to a validation issue (auto-fills "Tracked As" column)
@@ -114,6 +116,14 @@ The validation tracking file is auto-discovered from doc/product-docs/state-trac
 # Resolve with validation tracking update (auto-discovers validation-tracking file)
 .\Update-TechDebt.ps1 -DebtId "TD022" -NewStatus "Resolved" -ResolutionNotes "Extracted ReferenceLookup class" -ValidationNote "PD-REF-042 — reduced to 681 LOC"
 
+.EXAMPLE
+# Resolve with validation tracking update when issue ID differs from TD ID
+.\Update-TechDebt.ps1 -DebtId "TD144" -NewStatus "Resolved" -ResolutionNotes "Added structured logging" -ValidationNote "Session 16 — logging added" -ValidationIssueId "OB-R3-004"
+
+.EXAMPLE
+# List valid dimension codes and descriptions
+.\Update-TechDebt.ps1 -ListDims
+
 .NOTES
 This script is part of the Technical Debt automation system and integrates with:
 - Code Refactoring Task (PF-TSK-022)
@@ -122,7 +132,7 @@ This script is part of the Technical Debt automation system and integrates with:
 - New-DebtItem.ps1
 
 Updates the following files:
-- doc/product-docs/state-tracking/permanent/technical-debt-tracking.md (always)
+- doc/state-tracking/permanent/technical-debt-tracking.md (always)
 - Validation tracking file (auto-discovered, when -ValidationNote or -ValidationIssueId are provided)
 #>
 
@@ -178,7 +188,11 @@ param(
 
     [Parameter(Mandatory = $false, ParameterSetName = 'AddNew')]
     [Parameter(Mandatory = $false, ParameterSetName = 'StatusUpdate')]
-    [string]$ValidationIssueId
+    [string]$ValidationIssueId,
+
+    # --- ListDims parameter set ---
+    [Parameter(Mandatory = $true, ParameterSetName = 'ListDims')]
+    [switch]$ListDims
 )
 
 # --- Configuration ---
@@ -190,9 +204,28 @@ while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
 Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 
 $ProjectRoot = Get-ProjectRoot
-$TargetFile = Join-Path -Path $ProjectRoot -ChildPath "doc/product-docs/state-tracking/permanent/technical-debt-tracking.md"
+$TargetFile = Join-Path -Path $ProjectRoot -ChildPath "doc/state-tracking/permanent/technical-debt-tracking.md"
 $ScriptName = "Update-TechDebt.ps1"
 $CurrentDate = Get-Date -Format "yyyy-MM-dd"
+
+# --- ListDims handler (early exit) ---
+
+if ($ListDims) {
+    Write-Host "`nValid dimension codes for -Dims parameter:`n"
+    Write-Host "  AC  — Architectural Consistency"
+    Write-Host "  CQ  — Code Quality"
+    Write-Host "  ID  — Integration Dependencies"
+    Write-Host "  DA  — Documentation Alignment"
+    Write-Host "  EM  — Extensibility & Maintainability"
+    Write-Host "  SE  — Security & Data Protection"
+    Write-Host "  PE  — Performance & Scalability"
+    Write-Host "  OB  — Observability"
+    Write-Host "  UX  — Accessibility / UX Compliance"
+    Write-Host "  DI  — Data Integrity"
+    Write-Host "  TST — Testing"
+    Write-Host ""
+    return
+}
 
 # --- Shared utilities ---
 
@@ -505,7 +538,7 @@ function Find-ValidationTrackingFile {
     Auto-discovers the active validation tracking file from the standard directory.
     Returns $null if not found.
     #>
-    $valDir = Join-Path -Path $ProjectRoot -ChildPath "doc/product-docs/state-tracking/temporary/validation"
+    $valDir = Join-Path -Path $ProjectRoot -ChildPath "doc/state-tracking/temporary/validation"
     if (-not (Test-Path $valDir)) {
         Write-Log "Validation tracking directory not found: $valDir" -Level "WARN"
         return $null
@@ -581,34 +614,48 @@ function Update-ValidationTracking {
     <#
     .SYNOPSIS
     Updates a validation issue row when resolving a linked tech debt item.
-    Searches the "Tracked As" column for the DebtId, then sets Status to RESOLVED
+    Searches by ValidationIssueId in the "Issue ID" column (preferred) or by DebtId
+    in the "Tracked As" column (fallback), then sets Status to RESOLVED
     and Assigned Session to the provided note.
     #>
     [CmdletBinding(SupportsShouldProcess)]
     param(
         [string]$DebtId,
         [string]$ValidationNote,
-        [string]$TrackingFilePath
+        [string]$TrackingFilePath,
+        [string]$ValidationIssueId
     )
 
     $content = Get-Content $TrackingFilePath -Raw
     $lines = [System.Collections.ArrayList]@($content -split "\r?\n")
 
-    # Find the row in Critical Issues Tracking where "Tracked As" column contains the DebtId
+    # Find the row in Critical Issues Tracking:
+    # - If ValidationIssueId is provided, match on Issue ID column (index 0)
+    # - Otherwise, fall back to searching "Tracked As" column for DebtId
     # Table columns: | Issue ID | Feature | Validation Type | Severity | Description | Status | Tracked As | Assigned Session |
     $inCriticalSection = $false
     $rowIndex = -1
     for ($i = 0; $i -lt $lines.Count; $i++) {
         if ($lines[$i] -match '## Critical Issues Tracking') { $inCriticalSection = $true; continue }
         if ($inCriticalSection -and $lines[$i] -match '^## (?!Critical Issues Tracking)') { break }
-        if ($inCriticalSection -and $lines[$i] -match "^\|.*\b$DebtId\b.*\|") {
-            $rowIndex = $i
-            break
+        if ($ValidationIssueId) {
+            # Match on Issue ID column (first column after leading pipe)
+            if ($inCriticalSection -and $lines[$i] -match "^\|\s*$([regex]::Escape($ValidationIssueId))\s*\|") {
+                $rowIndex = $i
+                break
+            }
+        } else {
+            # Fall back to matching DebtId anywhere in the row (Tracked As column)
+            if ($inCriticalSection -and $lines[$i] -match "^\|.*\b$DebtId\b.*\|") {
+                $rowIndex = $i
+                break
+            }
         }
     }
 
     if ($rowIndex -eq -1) {
-        Write-Log "$DebtId not found in validation tracking Tracked As column — skipping" -Level "WARN"
+        $searchDesc = if ($ValidationIssueId) { "$ValidationIssueId in Issue ID column" } else { "$DebtId in Tracked As column" }
+        Write-Log "$searchDesc not found in validation tracking — skipping" -Level "WARN"
         return
     }
 
@@ -735,7 +782,15 @@ function Main {
         if ($isResolution -and $ValidationNote) {
             $valFile = Find-ValidationTrackingFile
             if ($valFile) {
-                Update-ValidationTracking -DebtId $DebtId -ValidationNote $ValidationNote -TrackingFilePath $valFile
+                $valParams = @{
+                    DebtId           = $DebtId
+                    ValidationNote   = $ValidationNote
+                    TrackingFilePath = $valFile
+                }
+                if ($ValidationIssueId) {
+                    $valParams['ValidationIssueId'] = $ValidationIssueId
+                }
+                Update-ValidationTracking @valParams
             }
         }
 

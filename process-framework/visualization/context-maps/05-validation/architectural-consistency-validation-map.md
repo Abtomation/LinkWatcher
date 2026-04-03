@@ -7,7 +7,6 @@ created: 2025-08-15
 updated: 2025-08-15
 visualization_type: Task Context
 map_type: Context Map
-task_type: Discrete
 task_name: architectural-consistency-validation
 ---
 
@@ -77,8 +76,8 @@ graph TD
 ## Related Documentation
 
 - [Architectural Consistency Validation Task](../../../tasks/05-validation/architectural-consistency-validation.md) - Complete task definition and process
-- [Feature Tracking](../../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) - Current status of features
+- [Feature Tracking](../../../../doc/state-tracking/permanent/feature-tracking.md) - Current status of features
 - Validation Tracking State File - Active validation tracking matrix (file location depends on validation round)
-- [Architecture Decision Records](../../../../doc/product-docs/technical/architecture/design-docs/adr/adr) - Architectural standards and decisions
+- [Architecture Decision Records](/doc/technical/architecture/design-docs/adr/adr) - Architectural standards and decisions
 
 ---

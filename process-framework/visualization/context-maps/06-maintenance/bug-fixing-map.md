@@ -79,6 +79,6 @@ graph TD
 
 ## Related Documentation
 
-- [Technical Debt Tracking](../../../../doc/product-docs/state-tracking/permanent/technical-debt-tracking.md) - Technical debt status
+- [Technical Debt Tracking](../../../../doc/state-tracking/permanent/technical-debt-tracking.md) - Technical debt status
 
 ---

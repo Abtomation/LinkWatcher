@@ -569,4 +569,4 @@ Critical coverage gaps in authentication testing pose security risks. The test s
 
 ### Process Framework
 - [AI Tasks Registry](../../ai-tasks.md) - Complete task catalog and workflow integration
-- [Documentation Map](../../documentation-map.md) - Complete framework documentation overview
+- [Documentation Map](../../PF-documentation-map.md) - Complete framework documentation overview

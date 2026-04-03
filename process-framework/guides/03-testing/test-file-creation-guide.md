@@ -197,24 +197,26 @@ When creating and customizing test files, you'll face several critical decisions
 ### Path Usage in Test Content
 
 **Decision**: What file/directory paths should appear in inline test content?
-**Rule**: Use **synthetic paths** (e.g., `vendor/tools/build/`, `lib/config/settings/`, `src/components/ui/`) rather than real project paths (e.g., `process-framework/scripts/`).
+**Rule**: Use the **`alpha-project/`** synthetic namespace or other non-existent directory names (e.g., `vendor/tools/build/`, `lib/config/settings/`). **Never** use real project paths (`doc/`, `process-framework/`, `linkwatcher/`). A shared constant `TEST_PROJECT_ROOT = "alpha-project"` is defined in `test/automated/conftest.py`.
 
-**Why**: Real project paths in test content create a maintenance hazard. When directories are renamed or moved, link-maintenance tools (like LinkWatcher) update real files but cannot update string literals inside test code. This causes tests to break silently — the content string is updated but the separately hardcoded assertion string is not.
+**Why**: Real project paths in test content create a maintenance hazard. When directories are renamed or moved, LinkWatcher updates real files but cannot update string literals inside test code. This causes tests to break silently — the content string is updated but the separately hardcoded assertion string is not.
 
 **Pattern**: Store paths in variables and derive both content and assertions from the same source:
 
 ```python
-# CORRECT — single source of truth
-dir_path = "vendor/tools/build"
+# CORRECT — synthetic namespace, single source of truth
+dir_path = "alpha-project/framework/scripts"
 content = f'$dir = "{dir_path}"\n'
 refs = parser.parse_content(content, "test.ps1")
 assert dir_path in [r.link_target for r in refs]
 
-# WRONG — duplicated path strings that can diverge
+# WRONG — real project path that LinkWatcher will rewrite
 content = '$dir = "process-framework/scripts"\n'
 refs = parser.parse_content(content, "test.ps1")
 assert "process-framework/scripts" in [r.link_target for r in refs]
 ```
+
+See [Test Infrastructure Guide — Test Isolation Rules](/process-framework/guides/03-testing/test-infrastructure-guide.md#test-isolation-rules) for the complete isolation rules and mapping convention.
 
 ## Step-by-Step Instructions
 

@@ -14,8 +14,6 @@ import re
 import shutil
 from pathlib import Path
 
-from colorama import Fore
-
 from .database import LinkDatabaseInterface
 from .logging import get_logger
 from .parser import LinkParser
@@ -122,8 +120,9 @@ class ReferenceLookup:
         if not stale_files:
             return
 
-        print(
-            f"{Fore.YELLOW}🔄 Rescanning {len(stale_files)} file(s) " f"with stale line numbers..."
+        self.logger.info(
+            "rescanning_stale_files",
+            stale_file_count=len(stale_files),
         )
 
         # Rescan only the stale source files to refresh line numbers
@@ -141,7 +140,10 @@ class ReferenceLookup:
         unique_retry = self.find_references(old_path, filter_files=stale_set)
 
         if unique_retry:
-            print(f"{Fore.CYAN}🔄 Retrying with {len(unique_retry)} " f"fresh reference(s)...")
+            self.logger.info(
+                "retrying_fresh_references",
+                reference_count=len(unique_retry),
+            )
             retry_stats = self.updater.update_references(unique_retry, old_path, new_path)
 
             # Merge retry results
@@ -230,7 +232,11 @@ class ReferenceLookup:
                 self.link_db.add_link(ref)
 
             if references:
-                print(f"{Fore.GREEN}📊 Scanned {len(references)} link(s) in {rel_path}")
+                self.logger.info(
+                    "file_links_scanned",
+                    file_path=rel_path,
+                    link_count=len(references),
+                )
 
         except Exception as e:
             self.logger.warning(
@@ -265,7 +271,11 @@ class ReferenceLookup:
                 self.link_db.add_link(ref)
 
             if references:
-                print(f"{Fore.GREEN}📊 Scanned {len(references)} link(s) in {new_path}")
+                self.logger.info(
+                    "moved_file_links_scanned",
+                    file_path=new_path,
+                    link_count=len(references),
+                )
 
         except Exception as e:
             self.logger.warning(
@@ -474,7 +484,10 @@ class ReferenceLookup:
             backup_enabled: Whether to create a backup before writing.
         """
         try:
-            print(f"{Fore.CYAN}🔧 Updating links within moved file: {new_file_path}")
+            self.logger.info(
+                "updating_links_within_moved_file",
+                file_path=new_file_path,
+            )
 
             # Read the file content once — parse from the same content we'll modify
             # (PD-BUG-025: eliminates race condition between parse and read)
@@ -491,37 +504,31 @@ class ReferenceLookup:
                 )
                 return
 
-            # Filter for relative links that might need updating
-            relative_links = []
-            for ref in references:
-                # Skip absolute paths and URLs
-                if (
-                    ref.link_target.startswith("http://")
-                    or ref.link_target.startswith("https://")
-                    or ref.link_target.startswith("/")
-                    or (len(ref.link_target) > 1 and ref.link_target[1] == ":")
-                ):  # Windows drive letter
-                    continue
-
-                # This is a relative link that might need updating
-                relative_links.append(ref)
+            relative_links = self._filter_relative_links(references)
 
             if not relative_links:
-                print(f"{Fore.CYAN}   No relative links found to update")
+                self.logger.debug("no_relative_links_to_update", file_path=new_file_path)
                 # PD-BUG-008: Still update DB source path for the moved file.
                 self.rescan_moved_file_links(
                     old_file_path, new_file_path, abs_new_path, content=content
                 )
                 return
 
-            print(f"{Fore.CYAN}   Found {len(relative_links)} relative link(s) to check")
+            self.logger.debug(
+                "relative_links_found",
+                file_path=new_file_path,
+                link_count=len(relative_links),
+            )
 
-            # Calculate the directory change
+            # Check if file stayed in the same directory (no path recalculation needed)
             old_dir = os.path.dirname(old_file_path)
             new_dir = os.path.dirname(new_file_path)
 
             if old_dir == new_dir:
-                print(f"{Fore.CYAN}   File moved within same directory, no link updates needed")
+                self.logger.debug(
+                    "same_directory_move_no_updates",
+                    file_path=new_file_path,
+                )
                 # PD-BUG-008: Still update DB source path — without this, subsequent
                 # moves of files referenced by this file try to open the old (non-existent) path.
                 self.rescan_moved_file_links(
@@ -531,78 +538,14 @@ class ReferenceLookup:
 
             original_content = content
 
-            # Split into lines for line-targeted replacement (PD-BUG-025)
-            lines = content.split("\n")
-
-            # Update each relative link
-            links_updated = 0
-            for ref in relative_links:
-                # Calculate what the link should be from the new location
-                new_target = self._calculate_updated_relative_path(
-                    ref.link_target, old_file_path, new_file_path
-                )
-
-                if new_target != ref.link_target:
-                    # For markdown links, replace the target in parentheses
-                    if ref.link_type == "markdown":
-                        # Replace [text](old) with [text](new), preserving title
-                        # Escape special regex chars in the old target
-                        escaped_old = re.escape(ref.link_target)
-                        # PD-BUG-010: Include optional title group to preserve title attributes
-                        # Titles can be "double-quoted", 'single-quoted', or (parenthesized)
-                        pattern = rf"(\[[^\]]*\]\()({escaped_old})(\s+[\"'(][^\"')]*[\"')])?(\))"
-                        _nt = new_target  # capture for closure
-
-                        def _md_replace(m, nt=_nt):
-                            title = m.group(3) or ""
-                            return f"{m.group(1)}{nt}{title}{m.group(4)}"
-
-                        content = "\n".join(lines)
-                        new_content = re.sub(pattern, _md_replace, content)
-
-                        if new_content != content:
-                            lines = new_content.split("\n")
-                            links_updated += 1
-                            print(f"{Fore.GREEN}   ✓ Updated: {ref.link_target} → {new_target}")
-                        else:
-                            print(f"{Fore.YELLOW}   ⚠ Pattern not found for: {ref.link_target}")
-                    else:
-                        # PD-BUG-025: Line-targeted replacement to prevent substring corruption.
-                        # Only replace on the specific line where the parser found the reference.
-                        line_idx = ref.line_number - 1  # line_number is 1-indexed
-                        if 0 <= line_idx < len(lines) and ref.link_target in lines[line_idx]:
-                            lines[line_idx] = lines[line_idx].replace(
-                                ref.link_target, new_target, 1
-                            )
-                            links_updated += 1
-                            print(f"{Fore.GREEN}   ✓ Updated: {ref.link_target} → {new_target}")
-                        else:
-                            print(
-                                f"{Fore.YELLOW}   ⚠ Target not found on line "
-                                f"{ref.line_number}: {ref.link_target}"
-                            )
-                else:
-                    print(f"{Fore.CYAN}   = No change needed: {ref.link_target}")
-
+            # Replace links and write results
+            lines, links_updated = self._replace_links_in_lines(
+                content.split("\n"), relative_links, old_file_path, new_file_path
+            )
             content = "\n".join(lines)
 
-            # Write the updated content back to the file if there were changes
             if links_updated > 0 and content != original_content:
-                # Create backup if enabled
-                if backup_enabled:
-                    backup_path = f"{abs_new_path}.linkwatcher.bak"
-                    try:
-                        shutil.copy2(abs_new_path, backup_path)
-                    except Exception as e:
-                        self.logger.warning(
-                            "backup_creation_error",
-                            file_path=abs_new_path,
-                            error=str(e),
-                        )
-
-                # Write the updated content
-                with open(abs_new_path, "w", encoding="utf-8") as f:
-                    f.write(content)
+                self._write_with_backup(abs_new_path, content, backup_enabled)
 
             # PD-BUG-008: Update DB source path via shared method (same logic
             # as early-return paths above, and as _handle_directory_moved).
@@ -611,9 +554,16 @@ class ReferenceLookup:
             )
 
             if links_updated > 0:
-                print(f"{Fore.GREEN}✓ Updated {links_updated} relative link(s) in moved file")
+                self.logger.info(
+                    "moved_file_links_updated",
+                    file_path=new_file_path,
+                    links_updated=links_updated,
+                )
             else:
-                print(f"{Fore.CYAN}   No links needed updating")
+                self.logger.debug(
+                    "moved_file_no_links_updated",
+                    file_path=new_file_path,
+                )
 
             return links_updated
 
@@ -627,11 +577,130 @@ class ReferenceLookup:
             )
             return 0
 
+    def _filter_relative_links(self, references):
+        """Filter parsed references to only relative links that may need updating.
+
+        Excludes URLs (http/https), absolute paths (/), and Windows drive-letter
+        paths (e.g., C:).
+        """
+        relative_links = []
+        for ref in references:
+            if (
+                ref.link_target.startswith("http://")
+                or ref.link_target.startswith("https://")
+                or ref.link_target.startswith("/")
+                or (len(ref.link_target) > 1 and ref.link_target[1] == ":")
+            ):  # Windows drive letter
+                continue
+            relative_links.append(ref)
+        return relative_links
+
+    def _replace_links_in_lines(self, lines, relative_links, old_file_path, new_file_path):
+        """Replace link targets in content lines to reflect the file's new location.
+
+        For markdown links, uses regex replacement preserving title attributes
+        (PD-BUG-010). For other link types, uses line-targeted replacement to
+        prevent substring corruption (PD-BUG-025).
+
+        Returns:
+            Tuple of (updated_lines, links_updated_count).
+        """
+        links_updated = 0
+        for ref in relative_links:
+            new_target = self._calculate_updated_relative_path(
+                ref.link_target, old_file_path, new_file_path
+            )
+
+            if new_target == ref.link_target:
+                self.logger.debug(
+                    "link_no_change_needed",
+                    link_target=ref.link_target,
+                )
+                continue
+
+            if ref.link_type == "markdown":
+                # Replace [text](old) with [text](new), preserving title
+                escaped_old = re.escape(ref.link_target)
+                # PD-BUG-010: Include optional title group to preserve title attributes
+                # Titles can be "double-quoted", 'single-quoted', or (parenthesized)
+                pattern = rf"(\[[^\]]*\]\()({escaped_old})(\s+[\"'(][^\"')]*[\"')])?(\))"
+                _nt = new_target  # capture for closure
+
+                def _md_replace(m, nt=_nt):
+                    title = m.group(3) or ""
+                    return f"{m.group(1)}{nt}{title}{m.group(4)}"
+
+                content = "\n".join(lines)
+                new_content = re.sub(pattern, _md_replace, content)
+
+                if new_content != content:
+                    lines = new_content.split("\n")
+                    links_updated += 1
+                    self.logger.debug(
+                        "link_updated_in_moved_file",
+                        old_target=ref.link_target,
+                        new_target=new_target,
+                    )
+                else:
+                    self.logger.warning(
+                        "link_pattern_not_found",
+                        file_path=new_file_path,
+                        link_target=ref.link_target,
+                    )
+            else:
+                # PD-BUG-025: Line-targeted replacement to prevent substring corruption.
+                # Only replace on the specific line where the parser found the reference.
+                line_idx = ref.line_number - 1  # line_number is 1-indexed
+                if 0 <= line_idx < len(lines) and ref.link_target in lines[line_idx]:
+                    lines[line_idx] = lines[line_idx].replace(
+                        ref.link_target, new_target, 1
+                    )
+                    links_updated += 1
+                    self.logger.debug(
+                        "link_updated_in_moved_file",
+                        old_target=ref.link_target,
+                        new_target=new_target,
+                    )
+                else:
+                    self.logger.warning(
+                        "link_target_not_found_on_line",
+                        file_path=new_file_path,
+                        line_number=ref.line_number,
+                        link_target=ref.link_target,
+                    )
+
+        return lines, links_updated
+
+    def _write_with_backup(self, abs_new_path, content, backup_enabled):
+        """Write updated content to file, creating a backup first if enabled."""
+        if backup_enabled:
+            backup_path = f"{abs_new_path}.linkwatcher.bak"
+            try:
+                shutil.copy2(abs_new_path, backup_path)
+            except Exception as e:
+                self.logger.warning(
+                    "backup_creation_error",
+                    file_path=abs_new_path,
+                    error=str(e),
+                )
+
+        with open(abs_new_path, "w", encoding="utf-8") as f:
+            f.write(content)
+
     def _calculate_updated_relative_path(
         self, original_target: str, old_file_path: str, new_file_path: str
     ) -> str:
         """Calculate how a relative path should be updated when its containing file is moved."""
         try:
+            # PD-BUG-069: Strip #fragment before path resolution — os.path.exists()
+            # fails on paths containing anchors (e.g., "file.md#section").
+            # Reattach the fragment to the result after recalculation.
+            fragment = ""
+            base_target = original_target
+            if "#" in original_target:
+                base_target, frag = original_target.split("#", 1)
+                fragment = "#" + frag
+
             # Get the directories
             old_dir = os.path.dirname(old_file_path)
             new_dir = os.path.dirname(new_file_path)
@@ -643,17 +712,17 @@ class ReferenceLookup:
             # These should not be recalculated when the containing file moves.
             # When old_dir is empty (file at root), source == root resolution,
             # so we can't distinguish — fall through to source-relative (safe).
-            if old_dir and not original_target.startswith(("./", "../")):
-                root_resolved = os.path.join(str(self.project_root), original_target)
-                source_resolved = os.path.join(str(self.project_root), old_dir, original_target)
+            if old_dir and not base_target.startswith(("./", "../")):
+                root_resolved = os.path.join(str(self.project_root), base_target)
+                source_resolved = os.path.join(str(self.project_root), old_dir, base_target)
                 if os.path.exists(root_resolved) and not os.path.exists(source_resolved):
                     return original_target
 
             # Convert the original relative target to an absolute path from the old location
             if old_dir:
-                old_absolute_target = os.path.join(old_dir, original_target)
+                old_absolute_target = os.path.join(old_dir, base_target)
             else:
-                old_absolute_target = original_target
+                old_absolute_target = base_target
 
             # Normalize the path
             old_absolute_target = os.path.normpath(old_absolute_target).replace("\\", "/")
@@ -673,7 +742,7 @@ class ReferenceLookup:
                 new_relative_target = new_relative_target.replace("\\", "/")
             else:
                 new_relative_target = old_absolute_target
-            return new_relative_target
+            return new_relative_target + fragment
 
         except Exception as e:
             self.logger.warning(

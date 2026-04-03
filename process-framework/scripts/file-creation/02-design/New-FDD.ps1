@@ -171,7 +171,7 @@ try {
             Write-Host "  - Add FDD link to feature tracking" -ForegroundColor Cyan
         } else {
             # Prepare FDD document link
-            $fddLink = "[$documentId](../../../product-docs/functional-design/fdds/$customFileName)"
+            $fddLink = "[$documentId](/doc/functional-design/fdds/$customFileName)"
 
             # Prepare additional updates for feature tracking
             $additionalUpdates = @{
@@ -203,7 +203,7 @@ try {
         Write-Warning "Failed to update feature tracking automatically: $($_.Exception.Message)"
         Write-Host "Manual Update Required:" -ForegroundColor Yellow
         Write-Host "  - Update feature $FeatureId status to '📋 FDD Created'" -ForegroundColor Cyan
-        Write-Host "  - Add FDD link: [$documentId](../../../product-docs/functional-design/fdds/$customFileName)" -ForegroundColor Cyan
+        Write-Host "  - Add FDD link: [$documentId](/doc/functional-design/fdds/$customFileName)" -ForegroundColor Cyan
     }
 }
 catch {

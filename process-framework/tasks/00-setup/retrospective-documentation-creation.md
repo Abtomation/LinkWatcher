@@ -5,7 +5,6 @@ category: Task Definition
 version: 1.6
 created: 2026-02-17
 updated: 2026-03-02
-task_type: Onboarding
 ---
 
 # Retrospective Documentation Creation
@@ -27,7 +26,7 @@ This is the final onboarding task that transforms code analysis into formal desi
 
 - After [Codebase Feature Analysis (PF-TSK-065)](codebase-feature-analysis.md) is complete
 - [Master state file](../../state-tracking/temporary/old/retrospective-master-state.md) shows Phase 2 done (all features analyzed)
-- All [Feature Implementation State files](../../state-tracking/features) have enriched analysis content
+- All [Feature Implementation State files](/doc/state-tracking/features) have enriched analysis content
 - Ready to create formal design documentation
 
 ## Context Requirements
@@ -37,13 +36,13 @@ This is the final onboarding task that transforms code analysis into formal desi
 - **Critical (Must Read):**
 
   - [Retrospective Master State File](../../state-tracking/temporary/old/retrospective-master-state.md) — Read current state, verify Phase 2 complete
-  - [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) - Feature list, tiers, and documentation links
-  - [Feature Implementation State Files](../../state-tracking/features) — All enriched files from PF-TSK-065
+  - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Feature list, tiers, and documentation links
+  - [Feature Implementation State Files](/doc/state-tracking/features) — All enriched files from PF-TSK-065
   - [Feature Tier Assessment Task](../01-planning/feature-tier-assessment-task.md) - For creating tier assessments
 
 - **Important (Load If Space):**
 
-  - [Documentation Tiers README](../../../doc/product-docs/documentation-tiers/README.md) - Understanding tier documentation requirements
+  - [Documentation Tiers README](../../../doc/documentation-tiers/README.md) - Understanding tier documentation requirements
   - [FDD Creation Task](../02-design/fdd-creation-task.md) - For creating Functional Design Documents
   - [TDD Creation Task](../02-design/tdd-creation-task.md) - For creating Technical Design Documents
   - [Test Specification Creation Task](../03-testing/test-specification-creation-task.md) - For creating Test Specifications
@@ -55,7 +54,9 @@ This is the final onboarding task that transforms code analysis into formal desi
   - [Cross-Cutting Test Specification Template](../../templates/03-testing/cross-cutting-test-specification-template.md) - Template for multi-feature test specifications
   - [Test Query Tool](/process-framework/scripts/test/test_query.py) - Query test files by feature, priority, and markers
   - [Task Transition Guide](../../guides/framework/task-transition-guide.md) - Understanding documentation workflow
-  - [Documentation Map](../../documentation-map.md) - For registering new documents
+  - [PF Documentation Map](../../PF-documentation-map.md) - For registering process-framework artifacts
+  - [PD Documentation Map](../../../doc/PD-documentation-map.md) - For registering product documents (FDDs, TDDs, ADRs, validation reports)
+  - [TE Documentation Map](../../../test/TE-documentation-map.md) - For registering test specifications and audit reports
 
 ## Process
 
@@ -84,13 +85,13 @@ This is the final onboarding task that transforms code analysis into formal desi
 3. **Create or Validate Tier Assessment**:
    - **If no assessment exists**: Use [Feature Tier Assessment Task](../01-planning/feature-tier-assessment-task.md)
      - Base scores on ACTUAL code analysis from PF-TSK-065 (not assumptions)
-     - Use [Feature Implementation State file](../../state-tracking/features) as evidence
+     - Use [Feature Implementation State file](/doc/state-tracking/features) as evidence
      - Create assessment artifact
    - **If assessment already exists**: Validate against analysis findings
      - Compare assessment tier with actual complexity discovered
      - If inaccurate, update the assessment
      - Document any discrepancies in master state session notes
-   - Update [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) with tier assignment
+   - Update [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) with tier assignment
    - Update [master state](../../state-tracking/temporary/old/retrospective-master-state.md): mark feature as "📊 Assessment Created"
 
 4. **🚨 CHECKPOINT**: Present tier assessments for current batch of features for review before creating documents
@@ -101,7 +102,7 @@ This is the final onboarding task that transforms code analysis into formal desi
 
 5. **Create Functional Design Document (Tier 2+)**:
    - Use [FDD Creation Task](../02-design/fdd-creation-task.md)
-   - **Source**: [Feature Implementation State file](../../state-tracking/features) + existing code
+   - **Source**: [Feature Implementation State file](/doc/state-tracking/features) + existing code
    - **Check first**: Section 4 "Existing Project Documentation" for confirmed docs with functional/user-facing content
    - **Approach**: Descriptive (what it does) not prescriptive (what it should do)
    - **Content**: Document actual functionality, user flows, business rules as implemented
@@ -110,7 +111,7 @@ This is the final onboarding task that transforms code analysis into formal desi
 
 6. **Create Technical Design Document (Tier 2+)**:
    - Use [TDD Creation Task](../02-design/tdd-creation-task.md)
-   - **Source**: [Feature Implementation State file](../../state-tracking/features) (Component Architecture, Data Flow, Design Decisions)
+   - **Source**: [Feature Implementation State file](/doc/state-tracking/features) (Component Architecture, Data Flow, Design Decisions)
    - **Check first**: Section 4 "Existing Project Documentation" for confirmed docs with architecture/technical content
    - **Approach**: Reverse-engineer from actual code structure
    - **Content**: Document actual architecture, components, patterns, implementation decisions
@@ -119,8 +120,8 @@ This is the final onboarding task that transforms code analysis into formal desi
 
 7. **Create Test Specification (Tier 3 only)**:
    - Use [Test Specification Creation Task](../03-testing/test-specification-creation-task.md)
-   - **Check first**: The feature's test files listed in Section 6 of the [Feature Implementation State file](../../state-tracking/features); browse the existing test directory structure on disk
-   - **Source**: Existing test files (primary), [Feature Implementation State file](../../state-tracking/features) → Test Files section and [Master State File](../../state-tracking/temporary/old/retrospective-master-state.md) (secondary)
+   - **Check first**: The feature's test files listed in Section 6 of the [Feature Implementation State file](/doc/state-tracking/features); browse the existing test directory structure on disk
+   - **Source**: Existing test files (primary), [Feature Implementation State file](/doc/state-tracking/features) → Test Files section and [Master State File](../../state-tracking/temporary/old/retrospective-master-state.md) (secondary)
    - **Approach**: Document and formalize existing test coverage, then identify gaps — not design tests from scratch
    - **Adapting PF-TSK-012 steps**: The task assumes pre-implementation spec creation. For retrospective use:
      - *Preparation Steps 1-5*: Replace "Review the Target TDD" with reviewing existing test files and the feature state file
@@ -133,11 +134,11 @@ This is the final onboarding task that transforms code analysis into formal desi
    - **Cross-cutting**: If test files on disk cover multiple features, create cross-cutting test specifications using `New-TestSpecification.ps1 -CrossCutting -FeatureIds "X.Y.Z,A.B.C" -FeatureName "scenario-name"`. These go in `/test/specifications/cross-cutting-specs/`
    - **Mark**: Add "Retrospective" note in header
    - Update master state: Test Spec ✅
-   - **Multiple specs in one session**: When creating specs for several features, complete each spec fully before starting the next — create the file via `New-TestSpecification.ps1`, then update all 5 state files (feature-tracking, test-registry, id-registry, documentation-map, test-tracking) per PF-TSK-012's State Tracking section. This keeps tracking consistent and avoids end-of-session drift.
+   - **Multiple specs in one session**: When creating specs for several features, complete each spec fully before starting the next — create the file via `New-TestSpecification.ps1`, then update all 5 state files (feature-tracking, test-registry, id-registry, TE-documentation-map, test-tracking) per PF-TSK-012's State Tracking section. This keeps tracking consistent and avoids end-of-session drift.
 
 8. **Create Architecture Decision Records (Foundation 0.x.x)**:
    - Use [ADR Creation Task](../02-design/adr-creation-task.md)
-   - **Source**: [Feature Implementation State file](../../state-tracking/features) → Design Decisions
+   - **Source**: [Feature Implementation State file](/doc/state-tracking/features) → Design Decisions
    - **Content**: Document architectural patterns/decisions discovered in code
    - **Note**: Mark unknowns (alternatives considered, full rationale) clearly
    - Update master state: ADR ✅
@@ -151,7 +152,7 @@ This is the final onboarding task that transforms code analysis into formal desi
 
 10. **🚨 CHECKPOINT**: Present created documents for current batch of features for review
 
-11. **Update [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md)**:
+11. **Update [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md)**:
     - Add document links to appropriate columns as documents are created
 
 12. **Update [Master State](../../state-tracking/temporary/old/retrospective-master-state.md) After Each Session**:
@@ -163,7 +164,7 @@ This is the final onboarding task that transforms code analysis into formal desi
 
 13. **Verify Codebase Coverage**:
     - All source files assigned to at least one feature? ✅
-    - All features have [Feature Implementation State files](../../state-tracking/features)? ✅
+    - All features have [Feature Implementation State files](/doc/state-tracking/features)? ✅
     - Coverage metric = 100%? ✅
 
 14. **Verify Documentation Completeness**:
@@ -175,8 +176,8 @@ This is the final onboarding task that transforms code analysis into formal desi
     - All documents marked "Retrospective"? ✅
 
 15. **Verify Tracking Completeness**:
-    - All document links in [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md)? ✅
-    - All [Feature Implementation State files](../../state-tracking/features) linked in Feature Tracking? ✅
+    - All document links in [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md)? ✅
+    - All [Feature Implementation State files](/doc/state-tracking/features) linked in Feature Tracking? ✅
 
 16. **🚨 CHECKPOINT**: Present completeness verification results and reconciliation plan to human partner for approval
 
@@ -188,7 +189,10 @@ This is the final onboarding task that transforms code analysis into formal desi
     - Archive superseded documents: move to `doc/archived-pre-framework/`
     - Update the master state inventory with the disposition (Keep / Archived) for each document
 
-18. **Update Documentation Map**: Add all new documents to [Documentation Map](../../documentation-map.md)
+18. **Update Documentation Maps**: Add all new documents to the appropriate map:
+    - Process-framework artifacts → [PF Documentation Map](../../PF-documentation-map.md)
+    - Product documents (FDDs, TDDs, ADRs) → [PD Documentation Map](../../../doc/PD-documentation-map.md)
+    - Test specifications and audit reports → [TE Documentation Map](../../../test/TE-documentation-map.md)
 
 19. **Calculate Final Metrics**:
     - Total features documented
@@ -213,8 +217,8 @@ This is the final onboarding task that transforms code analysis into formal desi
 - **API/DB Design Documents** — Conditional per assessment, marked "Retrospective"
 
 ### Phase 4 Outputs: Finalization
-- **Updated [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md)** — All document links in appropriate columns
-- **Updated [Documentation Map](../../documentation-map.md)** — All new documents registered
+- **Updated [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md)** — All document links in appropriate columns
+- **Updated Documentation Maps** — All new documents registered in the appropriate map: product docs (FDDs/TDDs/ADRs) → [PD Documentation Map](../../../doc/PD-documentation-map.md); test specs → [TE Documentation Map](../../../test/TE-documentation-map.md); process artifacts → [PF Documentation Map](../../PF-documentation-map.md)
 - **Reconciled pre-existing documentation** — Superseded docs archived to `doc/archived-pre-framework/`, project-essential docs (README.md, CONTRIBUTING.md, etc.) kept in place
 - **Archived [Master State File](../../state-tracking/temporary/old/retrospective-master-state.md)** — Moved to `/temporary/archived/`
 
@@ -223,9 +227,11 @@ This is the final onboarding task that transforms code analysis into formal desi
 ### Existing State Files Updated
 
 - [Retrospective Master State File](../../state-tracking/temporary/old/retrospective-master-state.md) — Phase 3+4 progress, final metrics, archived on completion
-- [Feature Implementation State Files](../../state-tracking/features) — Documentation Inventory section updated with created document links
-- [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) — Tier assignments and all document links added
-- [Documentation Map](../../documentation-map.md) — All new documents registered
+- [Feature Implementation State Files](/doc/state-tracking/features) — Documentation Inventory section updated with created document links
+- [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) — Tier assignments and all document links added
+- [PD Documentation Map](../../../doc/PD-documentation-map.md) — Product documents (FDDs, TDDs, ADRs) registered
+- [TE Documentation Map](../../../test/TE-documentation-map.md) — Test specifications and audit reports registered
+- [PF Documentation Map](../../PF-documentation-map.md) — Process-framework artifacts registered
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
@@ -233,20 +239,20 @@ This is the final onboarding task that transforms code analysis into formal desi
 
 - [ ] **Phase 3 Complete: Tier Assessment & Documentation**
   - [ ] Every feature has a tier assessment (created or validated)
-  - [ ] [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) updated with all tier assignments
+  - [ ] [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) updated with all tier assignments
   - [ ] **All Tier 2+ features**: FDD created, marked "Retrospective"
   - [ ] **All Tier 2+ features**: TDD created, marked "Retrospective"
   - [ ] **All Tier 3 features**: Test Specification created, marked "Retrospective"
   - [ ] **All Foundation 0.x.x features**: ADR created where architectural decisions exist, marked "Retrospective"
   - [ ] **Conditional documents**: API/DB designs created where assessment indicates
   - [ ] All documents accurately reflect implemented code
-  - [ ] All document links added to [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md)
+  - [ ] All document links added to [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md)
 
 - [ ] **Phase 4 Complete: Finalization**
-  - [ ] [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) verified complete with ALL document links
+  - [ ] [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) verified complete with ALL document links
   - [ ] Run [`Validate-StateTracking.ps1`](../../scripts/validation/Validate-StateTracking.ps1) — 0 errors across all surfaces
   - [ ] Pre-existing documentation reconciled — each doc in master state inventory marked Keep or Archived; superseded docs moved to `doc/archived-pre-framework/`
-  - [ ] [Documentation Map](../../documentation-map.md) updated with all new documents
+  - [ ] Documentation Maps updated with all new documents: [PD Documentation Map](../../../doc/PD-documentation-map.md) (FDDs/TDDs/ADRs), [TE Documentation Map](../../../test/TE-documentation-map.md) (test specs), [PF Documentation Map](../../PF-documentation-map.md) (process artifacts)
   - [ ] Final metrics calculated and recorded in [master state](../../state-tracking/temporary/old/retrospective-master-state.md)
   - [ ] [Master State File](../../state-tracking/temporary/old/retrospective-master-state.md) archived to `/temporary/archived/`
 
@@ -274,5 +280,5 @@ After completing the full retrospective documentation effort:
 - [Codebase Feature Discovery (PF-TSK-064)](codebase-feature-discovery.md) - First onboarding task
 - [Codebase Feature Analysis (PF-TSK-065)](codebase-feature-analysis.md) - Second onboarding task (prerequisite)
 - [Feature Tier Assessment Task](../01-planning/feature-tier-assessment-task.md) - For creating tier assessments
-- [Documentation Tiers README](../../../doc/product-docs/documentation-tiers/README.md) - Tier definitions and documentation requirements
+- [Documentation Tiers README](../../../doc/documentation-tiers/README.md) - Tier definitions and documentation requirements
 - [Task Transition Guide](../../guides/framework/task-transition-guide.md) - Understanding documentation workflow

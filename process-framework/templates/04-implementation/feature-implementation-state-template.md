@@ -296,7 +296,7 @@ template_for: Feature State Tracking
 
 ## 9. Issues & Resolutions Log
 
-> Populate when issues arise during work on this feature (bug fixes, blockers, investigations). For formal bug reports, use [bug-tracking.md](../../../doc/product-docs/state-tracking/permanent/bug-tracking.md); this section provides feature-local context.
+> Populate when issues arise during work on this feature (bug fixes, blockers, investigations). For formal bug reports, use [bug-tracking.md](../../../doc/state-tracking/permanent/bug-tracking.md); this section provides feature-local context.
 
 | Issue | Severity | Status | Reported | Resolved | Root Cause | Resolution |
 | ----- | -------- | ------ | -------- | -------- | ---------- | ---------- |

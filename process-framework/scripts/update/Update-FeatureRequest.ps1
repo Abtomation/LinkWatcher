@@ -108,8 +108,8 @@ Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 
 # Configuration
 $ProjectRoot = Get-ProjectRoot
-$TrackingFile = Join-Path -Path $ProjectRoot -ChildPath "doc/product-docs/state-tracking/permanent/feature-request-tracking.md"
-$FeatureTrackingFile = Join-Path -Path $ProjectRoot -ChildPath "doc/product-docs/state-tracking/permanent/feature-tracking.md"
+$TrackingFile = Join-Path -Path $ProjectRoot -ChildPath "doc/state-tracking/permanent/feature-request-tracking.md"
+$FeatureTrackingFile = Join-Path -Path $ProjectRoot -ChildPath "doc/state-tracking/permanent/feature-tracking.md"
 $CurrentDate = Get-Date -Format "yyyy-MM-dd"
 
 function Write-Log {

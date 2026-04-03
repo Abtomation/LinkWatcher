@@ -5,9 +5,9 @@
 Comprehensive feature validation for selected features
 
 .DESCRIPTION
-This script performs comprehensive validation of selected features (0.2.1-0.2.11)
-using the complete Feature Validation Framework. It generates detailed
-validation reports, updates tracking files, and provides actionable recommendations.
+This script performs comprehensive validation of active features (dynamically loaded
+from feature-tracking.md) using the complete Feature Validation Framework. It generates
+detailed validation reports, updates tracking files, and provides actionable recommendations.
 
 Key Features:
 - Complete validation across all 6 validation types
@@ -26,8 +26,8 @@ Validation Types:
 6. AI Agent Continuity - Context optimization, documentation clarity, readability
 
 .PARAMETER FeatureIds
-Comma-separated list of feature IDs to validate (e.g., "0.2.1,0.2.2,0.2.3")
-If not specified, validates all selected features (0.2.1-0.2.11)
+Comma-separated list of feature IDs to validate (e.g., "0.1.1,0.1.2,1.1.1")
+If not specified, validates all active features from feature-tracking.md
 
 .PARAMETER ValidationType
 Type of validation to perform:
@@ -71,7 +71,7 @@ Run-FoundationalValidation.ps1
 Runs all validation types on all selected features
 
 .EXAMPLE
-Run-FoundationalValidation.ps1 -FeatureIds "0.2.1,0.2.2" -ValidationType "CodeQuality" -GenerateReports -UpdateTracking
+Run-FoundationalValidation.ps1 -FeatureIds "0.1.1,0.1.2" -ValidationType "CodeQuality" -GenerateReports -UpdateTracking
 Validates specific features for code quality and generates reports
 
 .EXAMPLE
@@ -79,8 +79,8 @@ Run-FoundationalValidation.ps1 -ValidationType "All" -GenerateReports -UpdateTra
 Comprehensive validation with detailed reports and tracking updates
 
 .EXAMPLE
-Run-FoundationalValidation.ps1 -FeatureIds "0.2.1" -ValidationType "All" -GenerateReports -UpdateTracking -Detailed
-Complete validation for a specific selected feature
+Run-FoundationalValidation.ps1 -FeatureIds "0.1.1" -ValidationType "All" -GenerateReports -UpdateTracking -Detailed
+Complete validation for a specific feature
 
 .NOTES
 This script is part of the Feature Validation Framework.
@@ -88,7 +88,7 @@ It integrates with New-ValidationReport.ps1 and Update-ValidationReportState.ps1
 for comprehensive validation workflow automation.
 #>
 
-[CmdletBinding(SupportsShouldProcess)]
+[CmdletBinding()]
 param(
     [Parameter(Mandatory = $false)]
     [string]$FeatureIds = "",
@@ -149,7 +149,7 @@ catch {
 
 # Now use Get-ProjectRoot
 $ProjectRoot = Get-ProjectRoot
-$ProcessFrameworkDir = Join-Path $ProjectRoot "doc/product-docs"
+$ProcessFrameworkDir = Join-Path $ProjectRoot "doc"
 $ScriptsDir = Join-Path $ProcessFrameworkDir "scripts"
 
 # Script paths
@@ -167,19 +167,21 @@ $ValidationTypeMap = @{
     "AIAgentContinuity"            = "AIAgentContinuity"
 }
 
-# Selected features mapping
-$FoundationalFeatures = @{
-    "0.2.1"  = @{ Name = "Repository Pattern Implementation"; Priority = "High" }
-    "0.2.2"  = @{ Name = "Service Layer Architecture"; Priority = "High" }
-    "0.2.3"  = @{ Name = "Data Models & DTOs"; Priority = "High" }
-    "0.2.4"  = @{ Name = "Error Handling Framework"; Priority = "High" }
-    "0.2.5"  = @{ Name = "Logging & Monitoring Setup"; Priority = "Medium" }
-    "0.2.6"  = @{ Name = "Navigation & Routing Framework"; Priority = "High" }
-    "0.2.7"  = @{ Name = "State Management Architecture"; Priority = "High" }
-    "0.2.8"  = @{ Name = "API Client & Network Layer"; Priority = "High" }
-    "0.2.9"  = @{ Name = "Caching & Offline Support"; Priority = "Medium" }
-    "0.2.10" = @{ Name = "Security & Authentication"; Priority = "High" }
-    "0.2.11" = @{ Name = "Performance Optimization"; Priority = "Medium" }
+# Dynamically load features from feature-tracking.md via Common-ScriptHelpers
+$FoundationalFeatures = @{}
+$activeFeatures = Get-ActiveFeatures
+foreach ($f in $activeFeatures) {
+    $idRaw = $f['ID']
+    # Extract numeric ID from markdown link format [X.Y.Z](path)
+    if ($idRaw -match '\[?(\d+\.\d+\.\d+)\]?') {
+        $featureId = $matches[1]
+        $featureName = $f['Feature'] -replace '^\s+|\s+$', ''
+        $priority = $f['Priority'] -replace '^\s+|\s+$', ''
+        $FoundationalFeatures[$featureId] = @{
+            Name     = $featureName
+            Priority = if ($priority) { $priority } else { "Medium" }
+        }
+    }
 }
 
 function Write-Progress-Safe {

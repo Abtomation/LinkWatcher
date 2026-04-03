@@ -9,7 +9,7 @@ This script automates the manual state file updates required by the Code Review 
 addressing the manual bottleneck for frequent development workflow updates.
 
 Updates the following files:
-- ../doc/product-docs/state-tracking/permanent/feature-tracking.md
+- ../doc/state-tracking/permanent/feature-tracking.md
 - ../doc/test/state-tracking/permanent/test-tracking.md
 
 .PARAMETER FeatureId
@@ -169,7 +169,7 @@ try {
     if (-not $DryRun) {
         Write-Host "Creating backups..." -ForegroundColor Yellow
         $filesToBackup = @(
-            "doc/product-docs/state-tracking/permanent/feature-tracking.md",
+            "doc/state-tracking/permanent/feature-tracking.md",
             "test/state-tracking/permanent/test-tracking.md"
         )
 

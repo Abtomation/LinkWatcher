@@ -5,7 +5,6 @@ category: Task Definition
 version: 1.1
 created: 2025-08-15
 updated: 2026-03-04
-task_type: Discrete
 ---
 
 # Architectural Consistency Validation
@@ -36,22 +35,22 @@ Systematically validates selected features for architectural pattern adherence, 
 - **Critical (Must Read):**
 
   - **Feature Validation Guide** - [Feature Validation Guide](../../guides/05-validation/feature-validation-guide.md) - Comprehensive guide for conducting feature validation
-  - **Feature Tracking** - [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) - Current status of features to be validated
+  - **Feature Tracking** - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Current status of features to be validated
   - **Validation Tracking** - Link to the active validation tracking state file for the current validation round — see [Feature Validation Guide](../../guides/05-validation/feature-validation-guide.md) for setup
   - **Validation Report Template** - [Validation Report Template](../../templates/05-validation/validation-report-template.md) - Template for creating validation reports
-  - **Architecture Decision Records** - [ADR Directory](../../../doc/product-docs/technical/architecture) - Architectural decisions to validate against
+  - **Architecture Decision Records** - [ADR Directory](../../../doc/technical) - Architectural decisions to validate against
 
 - **Important (Load If Space):**
 
   <!-- Component Relationship Index - Removed: file deleted -->
-  - **Technical Design Documents** - [TDD Directory](../../../doc/product-docs/technical/architecture/design-docs/tdd) - Technical specifications for selected features
+  - **Technical Design Documents** - [TDD Directory](../../../doc/technical/tdd) - Technical specifications for selected features
   - **Codebase Structure** - Source code directory - Source code for selected features
   - **New-ValidationReport Script** - [../../scripts/file-creation/05-validation/New-ValidationReport.ps1](../../scripts/file-creation/05-validation/New-ValidationReport.ps1) - Script for generating validation reports
 
 - **Reference Only (Access When Needed):**
   - **Visual Notation Guide** - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting context map diagrams
   - **ID Registry** - [PD ID Registry](../../PF-id-registry.json) - For understanding validation report ID assignments
-  - **Documentation Map** - [Documentation Map](../../documentation-map.md) - For updating with new validation reports
+  - **Documentation Map** - [Product Documentation Map](../../../doc/PD-documentation-map.md) - For updating with new validation reports
 
 ## Process
 
@@ -79,7 +78,7 @@ Systematically validates selected features for architectural pattern adherence, 
 8. **Generate Validation Report**: Create detailed validation report using the automation script
    ```powershell
    # Navigate to validation directory and create architectural consistency report
-   Set-Location "doc/product-docs/validation"
+   Set-Location "doc/validation"
    ..\..\scripts\file-creation\05-validation\New-ValidationReport.ps1 -ValidationType "ArchitecturalConsistency" -FeatureIds "0.2.1,0.2.2,0.2.3" -SessionNumber 1
    ```
 9. **Score Validation Criteria**: Apply 4-point scoring system (0-3) to each validation criterion
@@ -91,7 +90,7 @@ Systematically validates selected features for architectural pattern adherence, 
 12. **Update Validation Tracking**: Update the validation tracking matrix with report creation date and link
 13. **Review Quality Gates**: Check if validation meets minimum quality thresholds (average score ≥ 2.0)
 14. **Plan Remediation**: For scores below threshold, create action items for architectural improvements
-15. **🤖 AUTOMATED: Update Technical Debt Tracking**: Add any new open issues identified during validation — **apply the [Tech Debt Quality Gate](/process-framework/guides/05-validation/feature-validation-guide.md#tech-debt-item-quality-gate) filters before creating each item** — to [Technical Debt Tracking](../../../doc/product-docs/state-tracking/permanent/technical-debt-tracking.md) using the automation script:
+15. **🤖 AUTOMATED: Update Technical Debt Tracking**: Add any new open issues identified during validation — **apply the [Tech Debt Quality Gate](/process-framework/guides/05-validation/feature-validation-guide.md#tech-debt-item-quality-gate) filters before creating each item** — to [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) using the automation script:
 
     ```powershell
     process-framework/scripts/update/Update-TechDebt.ps1 -Add -Description "Description" -Category "Category" -Location "Location" -Priority "Priority" -EstimatedEffort "Effort" -AssessmentId "PF-VAL-XXX" -Notes "Notes"
@@ -100,7 +99,7 @@ Systematically validates selected features for architectural pattern adherence, 
 
 ## Outputs
 
-- **Architectural Consistency Validation Report** - Detailed validation report with scoring and findings, created in doc/product-docs/validation/reports/architectural-consistency/PF-VAL-XXX-architectural-consistency-features-[feature-range].md
+- **Architectural Consistency Validation Report** - Detailed validation report with scoring and findings, created in doc/validation/reports/architectural-consistency/PF-VAL-XXX-architectural-consistency-features-[feature-range].md
 - **Updated Validation Tracking Matrix** - Validation tracking file updated with report creation date and link in the architectural consistency column for validated features
 - **Remediation Action Items** - List of architectural improvements needed for features scoring below quality threshold (if applicable)
 
@@ -109,8 +108,8 @@ Systematically validates selected features for architectural pattern adherence, 
 The following state files must be updated as part of this task:
 
 - **Validation Tracking State File** - Update the active validation tracking matrix with report creation date and link (file location depends on validation round — see Feature Validation Guide)
-- [Documentation Map](../../documentation-map.md) - Add new validation report to the validation reports section
-- [Technical Debt Tracking](../../../doc/product-docs/state-tracking/permanent/technical-debt-tracking.md) - Add new open issues identified during validation to the Technical Debt Registry
+- [Product Documentation Map](../../../doc/PD-documentation-map.md) - Add new validation report to the validation reports section
+- [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) - Add new open issues identified during validation to the Technical Debt Registry
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
@@ -124,8 +123,8 @@ Before considering this task finished:
   - [ ] Quality gate assessment completed (average score ≥ 2.0 or remediation plan created)
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
   - [ ] Validation tracking state file updated with report creation date and link
-  - [ ] [Documentation Map](../../documentation-map.md) updated with new validation report entry
-  - [ ] **AUTOMATED**: [Technical Debt Tracking](../../../doc/product-docs/state-tracking/permanent/technical-debt-tracking.md) updated with new open issues using `Update-TechDebt.ps1`
+  - [ ] [Product Documentation Map](../../../doc/PD-documentation-map.md) updated with new validation report entry
+  - [ ] **AUTOMATED**: [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) updated with new open issues using `Update-TechDebt.ps1`
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-031" and context "Architectural Consistency Validation"
 
 ## Next Tasks
@@ -137,5 +136,5 @@ Before considering this task finished:
 ## Related Resources
 
 - [Feature Validation Guide](../../guides/05-validation/feature-validation-guide.md) - Comprehensive guide for conducting feature validation
-- [Architecture Decision Records](../../../doc/product-docs/technical/architecture/design-docs/adr/adr) - Architectural decisions to validate against
+- [Architecture Decision Records](../../../doc/technical/adr) - Architectural decisions to validate against
 - Project architecture guidelines - Platform-specific architectural patterns

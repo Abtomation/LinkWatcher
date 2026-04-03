@@ -6,7 +6,6 @@ version: 1.0
 created: 2025-07-28
 updated: 2025-07-28
 task_name: framework-extension-task
-task_type: Support
 visualization_type: Task Context
 map_type: Context Map
 ---
@@ -91,4 +90,4 @@ graph TD
 
 ---
 
-*Note: This context map highlights the components and workflow specific to the Framework Extension Task. For comprehensive framework documentation, refer to the [Documentation Map](../../../documentation-map.md).*
+*Note: This context map highlights the components and workflow specific to the Framework Extension Task. For comprehensive framework documentation, refer to the [Documentation Map](../../../PF-documentation-map.md).*

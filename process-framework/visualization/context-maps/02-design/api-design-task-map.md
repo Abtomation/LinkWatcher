@@ -5,7 +5,6 @@ category: General
 version: 1.1
 created: 2025-07-19
 updated: 2025-01-27
-task_type: Discrete
 task_name: api-design-task
 visualization_type: Task Context
 map_type: Context Map
@@ -97,7 +96,7 @@ graph TD
 
 ## Related Documentation
 
-- [Feature Tracking](/doc/product-docs/state-tracking/permanent/feature-tracking.md) - Current feature requirements and status
+- [Feature Tracking](/doc/state-tracking/permanent/feature-tracking.md) - Current feature requirements and status
 - [System Architecture Review Task](/process-framework/tasks/01-planning/system-architecture-review.md) - Prerequisite architectural analysis
 - [API Design Task](/process-framework/tasks/02-design/api-design-task.md) - Complete task definition using this context map
 - [API Specification Creation Guide](/process-framework/guides/02-design/api-specification-creation-guide.md) - How to use the [../../../scripts/file-creation/02-design/New-APISpecification.ps1](../../../scripts/file-creation/02-design/New-APISpecification.ps1) script

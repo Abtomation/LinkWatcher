@@ -5,7 +5,6 @@ category: Task Definition
 version: 2.1
 created: 2025-07-21
 updated: 2026-03-27
-task_type: Discrete
 ---
 
 # Code Refactoring Task
@@ -41,7 +40,7 @@ Systematic code improvement and technical debt reduction without changing extern
 - **Critical (Must Read):**
 
   - **Target Code Area** - Specific files, modules, or components to be refactored
-  - **Current Code Quality Issues** - Identified problems, code smells, or technical debt items (check the **Dims** column in [Technical Debt Tracking](../../../doc/product-docs/state-tracking/permanent/technical-debt-tracking.md) for the primary dimension)
+  - **Current Code Quality Issues** - Identified problems, code smells, or technical debt items (check the **Dims** column in [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) for the primary dimension)
   - **Existing Test Coverage** - Current test suite for the code area to ensure behavior preservation
 
 - **Important (Load If Space):**
@@ -55,6 +54,7 @@ Systematic code improvement and technical debt reduction without changing extern
   - **Coding Standards** - Project-specific coding conventions and style guides
   - **Performance Benchmarks** - Current performance metrics to ensure refactoring doesn't degrade performance
   - [Visual Notation Guide](/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Test File Creation Guide](../../guides/03-testing/test-file-creation-guide.md) - For creating new test files when coverage gaps are identified
 
 ## Process
 
@@ -92,12 +92,12 @@ Evaluate the refactoring scope against these criteria:
 > - **Rejected** — Refactoring is not justified (cost > benefit, risk too high, issue is cosmetic, code is scheduled for replacement, etc.). Provide a brief rationale.
 >
 > **If the human approves Rejected**:
-> 1. Identify the **source** of the tech debt item (which task, session, or agent introduced it) from [Technical Debt Tracking](../../../doc/product-docs/state-tracking/permanent/technical-debt-tracking.md).
+> 1. Identify the **source** of the tech debt item (which task, session, or agent introduced it) from [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md).
 > 2. Update the tech debt item status to Rejected using `Update-TechDebt.ps1 -NewStatus "Rejected" -ResolutionNotes "Rejected: <rationale>"`.
 > 3. In the session's **feedback form**, document: the tech debt ID, the source task that introduced it, the Rejected rationale, and a recommendation for how the source task could avoid introducing unjustified tech debt in the future.
 > 4. Skip to the Task Completion Checklist below — no refactoring plan or code changes are needed.
 >
-> **Workflow awareness**: Before proceeding, check the `workflows:` metadata in the affected feature's [implementation state file](../../../doc/product-docs/state-tracking/features/) (or look up the feature in [User Workflow Tracking](../../../doc/product-docs/state-tracking/permanent/user-workflow-tracking.md)). Note which user workflows the refactored code participates in — this informs the scope of regression testing needed after refactoring to ensure workflow correctness is preserved.
+> **Workflow awareness**: Before proceeding, check the `workflows:` metadata in the affected feature's [implementation state file](/doc/state-tracking/features/) (or look up the feature in [User Workflow Tracking](../../../doc/state-tracking/permanent/user-workflow-tracking.md)). Note which user workflows the refactored code participates in — this informs the scope of regression testing needed after refactoring to ensure workflow correctness is preserved.
 >
 > **Effort classification** (present alongside justification if recommending Proceed or Modify scope):
 > - **If Lightweight**: Read and follow the **[Lightweight Path](code-refactoring-lightweight-path.md)** document.
@@ -107,12 +107,12 @@ Evaluate the refactoring scope against these criteria:
 
 ## Outputs
 
-- **Refactoring Plan Document** - Lightweight or standard plan documenting scope, changes, and results (stored in `doc/product-docs/refactoring/plans`)
+- **Refactoring Plan Document** - Lightweight or standard plan documenting scope, changes, and results (stored in `doc/refactoring/plans`)
 - **Refactored Code** - Improved code with better structure, reduced complexity, and maintained functionality
 - **Updated Test Suite** - Enhanced or additional tests to cover refactored code areas (standard path)
 - **Quality Metrics Report** - Before/after comparison of code quality indicators and performance metrics (standard path)
 - **Technical Debt Reduction** - Documented reduction in technical debt items and code quality issues
-- **Bug Reports** - Any bugs discovered during refactoring documented in [Bug Tracking](../../../doc/product-docs/state-tracking/permanent/bug-tracking.md) with status 🆕 Reported
+- **Bug Reports** - Any bugs discovered during refactoring documented in [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) with status 🆕 Reported
 - **Updated State Files** - All relevant state tracking files updated according to the applicable path
 
 ## Next Tasks
@@ -120,7 +120,8 @@ Evaluate the refactoring scope against these criteria:
 - [**Code Review Task**](code-review-task.md) - Review refactored code for quality and correctness
 - [**Manual Test Execution**](../03-testing/e2e-acceptance-test-execution-task.md) - Execute manual tests for groups marked for re-execution after refactoring
 - [**Technical Debt Assessment Task**](../cyclical/technical-debt-assessment-task.md) - Reassess technical debt after refactoring completion
+- [**Test Specification Creation**](../03-testing/test-specification-creation-task.md) - If refactoring reveals systemic test gaps that warrant a formal test specification
 
 ## Related Resources
 
-- [Technical Debt Tracking](../../../doc/product-docs/state-tracking/permanent/technical-debt-tracking.md) - For identifying refactoring targets
+- [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) - For identifying refactoring targets

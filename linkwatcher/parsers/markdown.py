@@ -3,6 +3,29 @@ Markdown file parser for extracting link references.
 
 This parser handles standard markdown links, standalone file references,
 and other markdown-specific link formats.
+
+AI Context
+----------
+- **Entry point**: ``parse_content()`` — iterates lines, delegates to
+  per-pattern ``_extract_*()`` helpers, and returns a flat list of
+  ``LinkReference`` objects.  Mermaid fenced blocks are skipped.
+- **Pattern architecture**: 10 compiled regexes in ``__init__()``
+  covering markdown links (``[text](url)``), reference-style
+  (``[label]: url``), HTML anchors, quoted/backtick/bare/\@-prefixed
+  paths, and shared patterns from ``parsers/patterns.py``.
+- **Overlap prevention**: higher-priority extractors (standard links,
+  HTML anchors) return *span tuples* that lower-priority extractors
+  (quoted, backtick, bare, \@-prefix) check via ``_overlaps_any()``
+  to avoid duplicate matches on the same text range.
+- **Common tasks**:
+  - Adding a new link pattern: add a compiled regex in ``__init__()``,
+    create an ``_extract_<name>()`` helper returning
+    ``List[LinkReference]``, wire it into ``parse_content()`` with
+    appropriate span passing for overlap prevention.
+  - Debugging missed links: check the specific ``_extract_*()`` method
+    — each uses its own regex.  Verify span overlap is not suppressing
+    a valid match.
+  - Testing: ``test/automated/parsers/test_markdown_parser.py``.
 """
 
 import os.path
@@ -46,8 +69,8 @@ class MarkdownParser(BaseParser):
         self.backtick_dir_pattern = re.compile(r"`([^`]*[/\\][^`]*)`")
 
         # Pattern 9: Bare path with separators — matches paths like
-        # doc/process-framework/scripts/file-creation (PD-BUG-054)
-        # Also matches leading-slash paths like /doc/process-framework/... (PD-BUG-055)
+        # process-framework/scripts/file-creation (PD-BUG-054)
+        # Also matches leading-slash paths like /process-framework/... (PD-BUG-055)
         # Requires at least 2 path segments to reduce false positives.
         self.bare_path_pattern = re.compile(
             r"(?:^|(?<=\s)|(?<=\())"

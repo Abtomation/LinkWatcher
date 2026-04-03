@@ -273,10 +273,10 @@ Use this decision tree when deciding what to include in Test Specifications:
 
    ```powershell
    # Basic test specification creation
-   .\New-TestSpecification.ps1 -FeatureId "1.2.3" -FeatureName "user-authentication" -TddPath "doc/product-docs/technical/design/tdd-user-authentication.md"
+   .\New-TestSpecification.ps1 -FeatureId "1.2.3" -FeatureName "user-authentication" -TddPath "doc/technical/design/tdd-user-authentication.md"
 
    # With editor opening
-   .\New-TestSpecification.ps1 -FeatureId "AUTH-001" -FeatureName "login-flow" -TddPath "doc/product-docs/technical/design/tdd-login-flow.md" -OpenInEditor
+   .\New-TestSpecification.ps1 -FeatureId "AUTH-001" -FeatureName "login-flow" -TddPath "doc/technical/design/tdd-login-flow.md" -OpenInEditor
    ```
 
 3. **Verify test specification creation**:
@@ -300,7 +300,7 @@ Use this decision tree when deciding what to include in Test Specifications:
    - **Integration Tests**: Specify component interaction testing requirements
    - **Component Tests**: Define component-level testing requirements (if applicable)
    - **End-to-End Tests**: Specify user workflow testing (Tier 3 only)
-   - **Cross-Feature Workflows**: Reference the [User Workflow Tracking](/doc/product-docs/state-tracking/permanent/user-workflow-tracking.md) to identify which user workflows this feature participates in. For each, note whether this is the last feature needed (milestone trigger for cross-cutting E2E test specification creation)
+   - **Cross-Feature Workflows**: Reference the [User Workflow Tracking](/doc/state-tracking/permanent/user-workflow-tracking.md) to identify which user workflows this feature participates in. For each, note whether this is the last feature needed (milestone trigger for cross-cutting E2E test specification creation)
 
 3. **Create detailed test specifications**:
    - Map each TDD component to specific test requirements
@@ -326,7 +326,7 @@ Creating a test specification for a Tier 2 authentication feature:
 cd test/specifications
 
 # Create test specification
-.\New-TestSpecification.ps1 -FeatureId "1.2.3" -FeatureName "user-authentication" -TddPath "doc/product-docs/technical/design/tdd-user-authentication.md" -OpenInEditor
+.\New-TestSpecification.ps1 -FeatureId "1.2.3" -FeatureName "user-authentication" -TddPath "doc/technical/design/tdd-user-authentication.md" -OpenInEditor
 ```
 
 **Customization approach:**
@@ -344,7 +344,7 @@ Creating a comprehensive test specification for a complex booking feature:
 
 ```powershell
 # Create Tier 3 test specification
-.\New-TestSpecification.ps1 -FeatureId "ORD-001" -FeatureName "order-management" -TddPath "doc/product-docs/technical/design/tdd-order-system.md" -OpenInEditor
+.\New-TestSpecification.ps1 -FeatureId "ORD-001" -FeatureName "order-management" -TddPath "doc/technical/design/tdd-order-system.md" -OpenInEditor
 ```
 
 **Customization approach:**
@@ -367,7 +367,7 @@ Creating a comprehensive test specification for a complex booking feature:
 **Solution:**
 
 1. Verify the TDD file exists at the specified path
-2. Use relative paths from project root (e.g., "doc/product-docs/technical/design/tdd-feature.md")
+2. Use relative paths from project root (e.g., "doc/technical/design/tdd-feature.md")
 3. Check file permissions and ensure the TDD file is accessible
 4. Ensure the TDD path parameter uses forward slashes or properly escaped backslashes
 
@@ -392,7 +392,7 @@ Creating a comprehensive test specification for a complex booking feature:
 - [Test Specification Template](../../templates/03-testing/test-specification-template.md) - Template customized by this guide
 - [Test File Creation Guide](test-file-creation-guide.md) - Guide for implementing test specifications
 - [TDD Creation Guide](../02-design/tdd-creation-guide.md) - Guide for creating the source TDDs
-- [Technical Design Documents](../../../doc/product-docs/technical/design) - Source TDDs for test specifications
+- [Technical Design Documents](../../../doc/technical) - Source TDDs for test specifications
 - Your project's testing framework documentation
 - [Guide Creation Best Practices Guide (PF-GDE-024)](../support/guide-creation-best-practices-guide.md) - Best practices for guide creation
 

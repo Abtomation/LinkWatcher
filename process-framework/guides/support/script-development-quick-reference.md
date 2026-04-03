@@ -38,6 +38,7 @@ Before you begin, ensure you have:
 - Basic PowerShell knowledge
 - Understanding of project structure
 - Access to process-framework/scripts/Common-ScriptHelpers.psm1
+- PowerShell module `powershell-yaml` installed (`Install-Module powershell-yaml -Scope CurrentUser`) — required by `Get-TemplateMetadata` for YAML frontmatter parsing
 
 ## Background
 

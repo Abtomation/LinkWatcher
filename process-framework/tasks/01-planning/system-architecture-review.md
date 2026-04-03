@@ -5,7 +5,6 @@ category: Task Definition
 version: 1.1
 created: 2025-07-18
 updated: 2026-03-02
-task_type: Discrete
 ---
 
 # System Architecture Review
@@ -42,16 +41,16 @@ Evaluate how new features fit into existing system architecture before implement
   - **Functional Design Document (FDD)** - For Tier 2+ features, the FDD containing functional requirements and user flows that inform architectural decisions
   - [Feature Discovery Document](feature-discovery-task.md) - Understanding of the feature requirements and scope
   - [Feature Tier Assessment](feature-tier-assessment-task.md) - Complexity evaluation of the feature being reviewed
-  - [Architecture Tracking](../../../doc/product-docs/state-tracking/permanent/architecture-tracking.md) - Current architectural state and cross-cutting decisions
-  - [Architecture Decision Records](/doc/product-docs/technical/architecture/design-docs/adr/README.md) - Existing architectural decisions and context
+  - [Architecture Tracking](../../../doc/state-tracking/permanent/architecture-tracking.md) - Current architectural state and cross-cutting decisions
+  - [Architecture Decision Records](/doc/technical/adr) - Existing architectural decisions and context
 
 - **Important (Load If Space):**
 
   - [Architectural Framework Usage Guide](../../guides/01-planning/architectural-framework-usage-guide.md) - **ESSENTIAL**: Guide for managing architectural work and context packages
-  - [Technical Design Documents](/doc/product-docs/technical/architecture/design-docs/tdd/) - Existing TDDs for related components
+  - [Technical Design Documents](/doc/technical/architecture/design-docs/tdd) - Existing TDDs for related components
 
 - **Reference Only (Access When Needed):**
-  - [Technical Debt Tracking](/doc/product-docs/state-tracking/permanent/technical-debt-tracking.md) - Known architectural issues
+  - [Technical Debt Tracking](/doc/state-tracking/permanent/technical-debt-tracking.md) - Known architectural issues
   - [Visual Notation Guide](/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 ## Process
@@ -106,7 +105,7 @@ Evaluate how new features fit into existing system architecture before implement
 14. **Create Architecture Impact Assessment**: Document findings using assessment template
     ```powershell
     # Create architecture assessment document (when script is available)
-    cd doc/product-docs/technical/architecture/assessments
+    cd doc/technical/architecture/assessments
     ../../scripts/file-creation/02-design/New-ArchitectureAssessment.ps1 -FeatureName "Feature Name" -AssessmentType "Impact"
     ```
 15. **Risk Assessment**: Identify architectural risks, complexity factors, and potential integration issues
@@ -117,7 +116,7 @@ Evaluate how new features fit into existing system architecture before implement
 17. **Create Architectural Decisions**: Use existing ADR system if new architectural decisions are needed
     ```powershell
     # Create ADR if architectural decisions are required
-    cd doc/product-docs/technical/architecture/design-docs/adr
+    cd doc/technical/architecture/design-docs/adr
     ../../scripts/file-creation/New-ArchitectureDecision.ps1 -Title "Decision Title" -Status "Proposed"
     ```
 18. **Update Architecture Context Packages**: Update or create context packages based on architectural analysis
@@ -137,7 +136,7 @@ Evaluate how new features fit into existing system architecture before implement
 
 ## Outputs
 
-- **Architecture Impact Assessment Document** - Comprehensive analysis of architectural implications stored in `/doc/product-docs/technical/architecture/assessments/[feature-name]-architecture-impact-assessment.md`
+- **Architecture Impact Assessment Document** - Comprehensive analysis of architectural implications stored in `/doc/technical/architecture/assessments/[feature-name]-architecture-impact-assessment.md`
 - **Integration Points Specification** - Detailed integration requirements and approach documented within the assessment
 - **Component Relationship Diagram** - Visual representation of how feature fits into architecture (when applicable)
 - **Architectural Risk Assessment** - Identified risks and mitigation strategies documented in assessment
@@ -151,9 +150,9 @@ Evaluate how new features fit into existing system architecture before implement
 
 The following state files must be updated as part of this task:
 
-- [Architecture Tracking](../../../doc/product-docs/state-tracking/permanent/architecture-tracking.md) - Update with architectural analysis outcomes and next steps
-- [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) - Update feature status to "🏗️ Architecture Reviewed" and add Architecture Impact Assessment link to Arch Review column
-- [Technical Debt Tracking](../../../doc/product-docs/state-tracking/permanent/technical-debt-tracking.md) - Add any architectural debt items identified during review
+- [Architecture Tracking](../../../doc/state-tracking/permanent/architecture-tracking.md) - Update with architectural analysis outcomes and next steps
+- [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Update feature status to "🏗️ Architecture Reviewed" and add Architecture Impact Assessment link to Arch Review column
+- [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) - Add any architectural debt items identified during review
 - [Architecture Decision Log](../../state-tracking/permanent/process-improvement-tracking.md) - Record architectural decisions made during review (if applicable)
 
 ## ⚠️ MANDATORY Task Completion Checklist
@@ -171,9 +170,9 @@ Before considering this task finished:
   - [ ] Architecture context packages updated or created as needed
   - [ ] Foundation feature specification created if foundation feature needed
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
-  - [ ] [Architecture Tracking](../../../doc/product-docs/state-tracking/permanent/architecture-tracking.md) updated with session outcomes
-  - [ ] [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) updated with status "🏗️ Architecture Reviewed" and Architecture Impact Assessment link in Arch Review column
-  - [ ] [Technical Debt Tracking](../../../doc/product-docs/state-tracking/permanent/technical-debt-tracking.md) updated with any identified architectural debt
+  - [ ] [Architecture Tracking](../../../doc/state-tracking/permanent/architecture-tracking.md) updated with session outcomes
+  - [ ] [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) updated with status "🏗️ Architecture Reviewed" and Architecture Impact Assessment link in Arch Review column
+  - [ ] [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) updated with any identified architectural debt
   - [ ] [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) updated with architectural decisions made
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-019" and context "System Architecture Review"
 
@@ -187,5 +186,5 @@ Before considering this task finished:
 
 ## Related Resources
 
-- [Architecture Decision Records System](/doc/product-docs/technical/architecture/design-docs/adr/README.md) - For creating architectural decisions
+- [Architecture Decision Records System](/doc/technical/adr) - For creating architectural decisions
 - [Feature Tier Assessment Task](feature-tier-assessment-task.md) - Prerequisite task for complexity evaluation

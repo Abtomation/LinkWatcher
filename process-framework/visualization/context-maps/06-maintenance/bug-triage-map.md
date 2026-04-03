@@ -65,14 +65,14 @@ Visual guide to the components, relationships, and information flow relevant to 
 
 ### Critical Dependencies (Must Read)
 
-- **[Bug Tracking](../../../../doc/product-docs/state-tracking/permanent/bug-tracking.md)** - Central registry of all bugs with current status
-- **[Feature Tracking](../../../../doc/product-docs/state-tracking/permanent/feature-tracking.md)** - Feature priorities and relationships for impact assessment
+- **[Bug Tracking](../../../../doc/state-tracking/permanent/bug-tracking.md)** - Central registry of all bugs with current status
+- **[Feature Tracking](../../../../doc/state-tracking/permanent/feature-tracking.md)** - Feature priorities and relationships for impact assessment
 - **[Visual Notation Guide](../../../guides/support/visual-notation-guide.md)** - For interpreting context map diagrams
 
 ### Important Context (Load If Space)
 
-- **[Feature Implementation State Files](../../../../doc/product-docs/state-tracking/features)** - Affected feature's known issues, related bugs, and implementation progress
-- **[Project Architecture](../../../../doc/product-docs/technical/architecture)** - System understanding for impact assessment
+- **[Feature Implementation State Files](/doc/state-tracking/features)** - Affected feature's known issues, related bugs, and implementation progress
+- **[Project Architecture](/doc/technical/architecture)** - System understanding for impact assessment
 
 ### Reference Resources (Access When Needed)
 

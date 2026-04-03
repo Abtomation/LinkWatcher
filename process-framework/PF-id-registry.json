@@ -87,7 +87,7 @@
         "main": "process-framework/proposals",
         "default": "main"
       },
-      "nextAvailable": 14
+      "nextAvailable": 15
     },
     "PF-IMP": {
       "description": "Process Framework - Improvement Opportunities",
@@ -97,7 +97,7 @@
         "permanent": "process-framework/state-tracking/permanent",
         "default": "permanent"
       },
-      "nextAvailable": 269
+      "nextAvailable": 332
     },
     "PF-STA": {
       "description": "Process Framework - State Tracking (framework only)",
@@ -106,11 +106,11 @@
       "directories": {
         "permanent": "process-framework/state-tracking/permanent",
         "temporary": "process-framework/state-tracking/temporary",
-        "product-permanent": "doc/product-docs/state-tracking/permanent",
-        "product-temporary": "doc/product-docs/state-tracking/temporary",
+        "product-permanent": "doc/state-tracking/permanent",
+        "product-temporary": "doc/state-tracking/temporary",
         "default": "permanent"
       },
-      "nextAvailable": 69
+      "nextAvailable": 74
     },
     "PF-FEE": {
       "description": "Process Framework - Feedback Artifacts",
@@ -121,7 +121,7 @@
         "archive": "process-framework/feedback/archive",
         "default": "forms"
       },
-      "nextAvailable": 602
+      "nextAvailable": 707
     },
     "PF-REV": {
       "description": "Process Framework - Review Artifacts",
@@ -131,7 +131,7 @@
         "reviews": "process-framework/feedback/reviews",
         "default": "reviews"
       },
-      "nextAvailable": 19
+      "nextAvailable": 22
     },
     "PF-INF": {
       "description": "Process Framework - Infrastructure",
@@ -171,7 +171,7 @@
         "main": "process-framework/evaluation-reports",
         "default": "main"
       },
-      "nextAvailable": 2
+      "nextAvailable": 6
     }
   }
 }

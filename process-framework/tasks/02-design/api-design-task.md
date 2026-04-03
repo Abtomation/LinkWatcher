@@ -5,7 +5,6 @@ category: Task Definition
 version: 1.3
 created: 2025-07-19
 updated: 2026-03-02
-task_type: Discrete
 change_notes: "v1.2 - Added Information Flow section for IMP-097/IMP-098"
 ---
 
@@ -108,14 +107,14 @@ When referencing this task's outputs in other tasks:
 - **Critical (Must Read):**
 
   - **Functional Design Document (FDD)** - For Tier 2+ features, the FDD containing functional requirements and user flows that inform API design
-  - [Feature Requirements](/doc/product-docs/state-tracking/permanent/feature-tracking.md) - Understanding what functionality the API must support and confirming API Design is required
-  - [Feature Tier Assessment](../../../doc/product-docs/documentation-tiers/assessments) - Assessment that determined API design is needed
-  - [System Architecture Review Results](/doc/product-docs/technical/architecture/assessments/) - Architecture decisions that impact API design
+  - [Feature Requirements](/doc/state-tracking/permanent/feature-tracking.md) - Understanding what functionality the API must support and confirming API Design is required
+  - [Feature Tier Assessment](../../../doc/documentation-tiers/assessments) - Assessment that determined API design is needed
+  - [System Architecture Review Results](/doc/technical/architecture/assessments) - Architecture decisions that impact API design
 
 - **Important (Load If Space):**
 
-  - [Existing API Documentation](/doc/product-docs/technical/api/documentation/) - Current API patterns and conventions
-  - [Technical Design Documents](/doc/product-docs/technical/architecture/design-docs/tdd/) - Related technical designs
+  - [Existing API Documentation](/doc/technical/api/documentation) - Current API patterns and conventions
+  - [Technical Design Documents](/doc/technical/architecture/design-docs/tdd) - Related technical designs
 
 - **Reference Only (Access When Needed):**
   - [API Design Best Practices](https://restfulapi.net/) - Industry standards for REST API design
@@ -134,8 +133,8 @@ When referencing this task's outputs in other tasks:
 
 ### Preparation
 
-1. **Verify API Design Requirement**: Confirm in the [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) document that the API Design column shows "Yes" for this feature
-2. Review the [Feature Tier Assessment](../../../doc/product-docs/documentation-tiers/assessments) of this feature that determined API design is needed
+1. **Verify API Design Requirement**: Confirm in the [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) document that the API Design column shows "Yes" for this feature
+2. Review the [Feature Tier Assessment](../../../doc/documentation-tiers/assessments) of this feature that determined API design is needed
 3. Review feature requirements and understand the functionality that needs API support
 4. Examine existing API patterns and conventions in the project
 5. Identify data models and schemas that will be needed for the API
@@ -146,7 +145,7 @@ When referencing this task's outputs in other tasks:
 7. **🤖 AUTOMATED - Create API Specification Document**: Use the automation script to generate the main API contract and update feature tracking:
 
    ```powershell
-   cd doc/product-docs/technical/api/specifications
+   cd doc/technical/api/specifications
    ../../../scripts/file-creation/New-APISpecification.ps1 -APIName "[Feature Name] API" -APIDescription "[Brief description]" -APIType "REST" -FeatureId "[FeatureId]"
    ```
 
@@ -168,7 +167,7 @@ When referencing this task's outputs in other tasks:
 9. **🔄 SEMI-AUTOMATED - Create Request Data Model**: Generate detailed request schema with validation rules (only if not reusing existing model):
 
     ```powershell
-    cd doc/product-docs/technical/api/models
+    cd doc/technical/api/models
     ../../scripts/file-creation/02-design/New-APIDataModel.ps1 -ModelName "[API Name] Request" -ModelDescription "[Brief description]" -FeatureId "[FeatureId]"
     ```
 
@@ -177,37 +176,46 @@ When referencing this task's outputs in other tasks:
 10. **🔄 SEMI-AUTOMATED - Create Response Data Model**: Generate detailed response schema with field definitions (only if not reusing existing model):
 
     ```powershell
-    cd doc/product-docs/technical/api/models
+    cd doc/technical/api/models
     ../../scripts/file-creation/02-design/New-APIDataModel.ps1 -ModelName "[API Name] Response" -ModelDescription "[Brief description]" -FeatureId "[FeatureId]"
     ```
 
     **✅ AUTOMATED**: Feature tracking API Design column automatically updated with intelligent replacement/append logic
 
-11. **Review Design Consistency**: Validate API design against existing patterns and architectural decisions
-12. **🚨 CHECKPOINT**: Present complete API design including specification, data models, and contract details to human partner for review and approval
+11. **🤖 AUTOMATED - Create API Documentation** (optional): If developer-facing documentation is needed, generate it from template:
+
+    ```powershell
+    cd process-framework/scripts/file-creation/02-design
+    .\New-APIDocumentation.ps1 -APIName "[API Name]" -APIVersion "[version]" -TargetAudience "[audience]"
+    ```
+
+    This creates a user-facing documentation page in `doc/technical/api/documentation/` complementing the technical specification.
+
+12. **Review Design Consistency**: Validate API design against existing patterns and architectural decisions
+13. **🚨 CHECKPOINT**: Present complete API design including specification, data models, and contract details to human partner for review and approval
 
 ### Finalization
 
-13. **Validate Complete Design**: Ensure API specification and data models work together cohesively
-14. **✅ AUTOMATED - Feature Tracking Updates**: API specification and data model links automatically managed:
+14. **Validate Complete Design**: Ensure API specification and data models work together cohesively
+15. **✅ AUTOMATED - Feature Tracking Updates**: API specification and data model links automatically managed:
     - **../../scripts/file-creation/New-APISpecification.ps1**: Replaces "Yes" with first API spec, appends additional specs with " • " separator
     - **../../scripts/file-creation/New-APIDataModel.ps1**: Appends data model links with " • " separator using intelligent replacement/append logic
-15. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+16. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 
-- **API Specification Document** - Comprehensive API contract definition saved to `/doc/product-docs/technical/api/specifications/specifications/[api-name].md`
-- **Request Data Model** - Schema definition for request objects saved to `/doc/product-docs/technical/api/models/[api-name]-request.md`
-- **Response Data Model** - Schema definition for response objects saved to `/doc/product-docs/technical/api/models/[api-name]-response.md`
+- **API Specification Document** - Comprehensive API contract definition saved to `/doc/technical/api/specifications/specifications/[api-name].md`
+- **Request Data Model** - Schema definition for request objects saved to `/doc/technical/api/models/[api-name]-request.md`
+- **Response Data Model** - Schema definition for response objects saved to `/doc/technical/api/models/[api-name]-response.md`
 
 ## State Tracking
 
 The following state files must be updated as part of this task:
 
-- **✅ AUTOMATED** - [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) - API Design column updates:
+- **✅ AUTOMATED** - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - API Design column updates:
   - **../../scripts/file-creation/New-APISpecification.ps1**: Replaces "Yes" with first API spec, appends additional specs with " • " separator
   - **../../scripts/file-creation/New-APIDataModel.ps1**: Appends data model links with " • " separator using intelligent replacement/append logic
-- **🔧 MANUAL** - [Technical Debt Tracking](../../../doc/product-docs/state-tracking/permanent/technical-debt-tracking.md) - Record any API design decisions that create technical debt
+- **🔧 MANUAL** - [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) - Record any API design decisions that create technical debt
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
@@ -220,9 +228,9 @@ Before considering this task finished:
   - [ ] Request Data Model created with comprehensive validation rules and examples
   - [ ] Response Data Model created with complete structure and field definitions
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
-  - [ ] **✅ AUTOMATED** - [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) API Design column updates:
+  - [ ] **✅ AUTOMATED** - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) API Design column updates:
     - [x] **✅ AUTOMATED**: API specification and data model links automatically managed (intelligent replacement/append logic)
-  - [ ] **🔧 MANUAL** - [Technical Debt Tracking](../../../doc/product-docs/state-tracking/permanent/technical-debt-tracking.md) updated with any design decisions creating technical debt
+  - [ ] **🔧 MANUAL** - [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) updated with any design decisions creating technical debt
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-020" and context "API Design Task"
 
 ## Next Tasks

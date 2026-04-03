@@ -257,11 +257,11 @@ The Architectural Integration Framework is designed to evolve based on usage exp
 
 ## Related Documentation
 
-- [Architecture Tracking](../../../doc/product-docs/state-tracking/permanent/architecture-tracking.md): Current architectural state
+- [Architecture Tracking](../../../doc/state-tracking/permanent/architecture-tracking.md): Current architectural state
 - [Task Transition Guide](../framework/task-transition-guide.md): Workflow patterns including architectural transitions
 - [Foundation Feature Implementation Task](../../tasks/04-implementation/foundation-feature-implementation-task.md): Specialized task for architectural work
 - [System Architecture Review Task](../../tasks/01-planning/system-architecture-review.md): Task for architectural analysis
-- [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md): Primary feature tracking with architectural integration
+- [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md): Primary feature tracking with architectural integration
 
 ---
 

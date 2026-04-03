@@ -1188,7 +1188,7 @@ Broken links:
   doc/process-framework/guides/03-testing/test-file-creation-guide.md:483
     -> ../../../test/  (markdown)
   doc/process-framework/guides/03-testing/test-specification-creation-guide.md:423
-    -> doc/product-docs/technical/design/tdd-feature.md  (markdown-quoted)
+    -> doc/technical/design/tdd-feature.md  (markdown-quoted)
   doc/process-framework/guides/03-testing/test-specification-creation-guide.md:448
     -> ../../../doc/product-docs/technical/design/  (markdown)
   doc/process-framework/guides/04-implementation/development-guide.md:22
@@ -1762,7 +1762,7 @@ Broken links:
   doc/process-framework/state-tracking/temporary/old/enhancement-powershell-parser.md:215
     -> ../../tasks/06-maintenance/code-review-task.md  (markdown)
   doc/process-framework/state-tracking/temporary/old/feature-consolidation-state.md:116
-    -> doc/product-docs/state-tracking/permanent/feature-tracking.md  (markdown-standalone)
+    -> doc/state-tracking/permanent/feature-tracking.md  (markdown-standalone)
   doc/process-framework/state-tracking/temporary/old/retrospective-master-state.md:20
     -> ../../tasks/00-onboarding/codebase-feature-discovery.md  (markdown)
   doc/process-framework/state-tracking/temporary/old/retrospective-master-state.md:21
@@ -2230,7 +2230,7 @@ Broken links:
   doc/process-framework/state-tracking/temporary/old/temp-section5-6-restructure.md:93
     -> ../../../../linkwatcher/models.py  (markdown)
   doc/process-framework/state-tracking/temporary/old/temp-task-creation-comprehensive-retrospective-framework-integration.md:69
-    -> doc/product-docs/state-tracking/permanent/feature-tracking.md  (markdown-standalone)
+    -> doc/state-tracking/permanent/feature-tracking.md  (markdown-standalone)
   doc/process-framework/state-tracking/temporary/old/temp-task-creation-comprehensive-retrospective-framework-integration.md:98
     -> ../../tasks/01-planning/feature-tier-assessment-task.md  (markdown)
   doc/process-framework/state-tracking/temporary/old/temp-task-creation-comprehensive-retrospective-framework-integration.md:127
@@ -2280,7 +2280,7 @@ Broken links:
   doc/process-framework/state-tracking/temporary/old/temp-task-creation-tech-agnostic-testing-pipeline.md:114
     -> process-framework/scripts/file-creation/03-testing/New-TestSpecification.ps1  (markdown-standalone)
   doc/process-framework/state-tracking/temporary/old/temp-task-creation-tech-agnostic-testing-pipeline.md:135
-    -> doc/product-docs/state-tracking/permanent/feature-tracking.md  (markdown-standalone)
+    -> doc/state-tracking/permanent/feature-tracking.md  (markdown-standalone)
   doc/process-framework/state-tracking/temporary/old/temp-task-creation-tech-agnostic-testing-pipeline.md:146
     -> process-framework/tasks/00-setup/codebase-feature-discovery.md  (markdown-standalone)
   doc/process-framework/state-tracking/temporary/old/temp-task-creation-tech-agnostic-testing-pipeline.md:151
@@ -2288,7 +2288,7 @@ Broken links:
   doc/process-framework/state-tracking/temporary/old/temp-task-creation-tech-agnostic-testing-pipeline.md:156
     -> process-framework/tasks/00-setup/retrospective-documentation-creation.md  (markdown-standalone)
   doc/process-framework/state-tracking/temporary/old/temp-task-creation-tech-debt-td001-td004-refactoring.md:18
-    -> /doc/product-docs/refactoring/plans/technical-debt-td001-td004-resolution.md  (markdown)
+    -> /doc/refactoring/plans/technical-debt-td001-td004-resolution.md  (markdown)
   doc/process-framework/state-tracking/temporary/old/UPDATE-CODE-INVENTORY-SECTIONS.md:83
     -> ../../features/0.1.2-data-models-implementation-state.md  (markdown-standalone)
   doc/process-framework/state-tracking/temporary/old/UPDATE-CODE-INVENTORY-SECTIONS.md:84
@@ -2458,15 +2458,15 @@ Broken links:
   doc/process-framework/tasks/01-planning/system-architecture-review.md:51
     -> /doc/product-docs/technical/architecture/context-packages/  (markdown)
   doc/process-framework/tasks/01-planning/system-architecture-review.md:52
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/tasks/01-planning/system-architecture-review.md:53
-    -> /doc/product-docs/technical/architecture/database-reference.md  (markdown)
+    -> /doc/technical/architecture/database-reference.md  (markdown)
   doc/process-framework/tasks/01-planning/system-architecture-review.md:54
-    -> /doc/product-docs/technical/architecture/project-structure.md  (markdown)
+    -> /doc/technical/architecture/project-structure.md  (markdown)
   doc/process-framework/tasks/01-planning/system-architecture-review.md:58
     -> ../../../.ai-workspace/dependency-maps  (markdown)
   doc/process-framework/tasks/01-planning/system-architecture-review.md:196
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/tasks/01-planning/system-architecture-review.md:197
     -> ../feature-tier-assessment-task.md  (markdown)
   doc/process-framework/tasks/02-design/adr-creation-task.md:49
@@ -2490,17 +2490,17 @@ Broken links:
   doc/process-framework/tasks/02-design/tdd-creation-task.md:86
     -> ../discrete/visualization/context-maps/discrete/tdd-creation-map.md  (markdown)
   doc/process-framework/tasks/02-design/tdd-creation-task.md:91
-    -> /doc/product-docs/technical/architecture/quality-attributes.md  (markdown)
+    -> /doc/technical/architecture/quality-attributes.md  (markdown)
   doc/process-framework/tasks/02-design/tdd-creation-task.md:100
-    -> /doc/product-docs/technical/architecture/project-structure.md  (markdown)
+    -> /doc/technical/architecture/project-structure.md  (markdown)
   doc/process-framework/tasks/02-design/tdd-creation-task.md:102
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/tasks/02-design/tdd-creation-task.md:105
     -> ../discrete/state-tracking/permanent/feature-tracking.md  (markdown)
   doc/process-framework/tasks/02-design/tdd-creation-task.md:112
     -> .../../scripts/file-creation/New-tdd.ps1  (markdown-standalone)
   doc/process-framework/tasks/02-design/tdd-creation-task.md:133
-    -> /doc/product-docs/technical/architecture/quality-attributes.md  (markdown)
+    -> /doc/technical/architecture/quality-attributes.md  (markdown)
   doc/process-framework/tasks/02-design/tdd-creation-task.md:204
     -> .../../scripts/file-creation/New-tdd.ps1  (markdown-standalone)
   doc/process-framework/tasks/02-design/tdd-creation-task.md:210
@@ -2512,17 +2512,17 @@ Broken links:
   doc/process-framework/tasks/02-design/tdd-creation-task.md:240
     -> .../../scripts/file-creation/New-tdd.ps1  (markdown-standalone)
   doc/process-framework/tasks/02-design/tdd-creation-task.md:258
-    -> /doc/product-docs/technical/architecture/design-docs/tdd/.../../scripts/file-creation/New-tdd.ps1  (markdown)
+    -> /doc/technical/architecture/design-docs/tdd/scripts/file-creation/New-tdd.ps1  (markdown)
   doc/process-framework/tasks/02-design/tdd-creation-task.md:260
-    -> /doc/product-docs/technical/architecture/api-design-guidelines.md  (markdown)
+    -> /doc/technical/architecture/api-design-guidelines.md  (markdown)
   doc/process-framework/tasks/03-testing/test-audit-task.md:56
     -> /test/mocks/  (markdown)
   doc/process-framework/tasks/03-testing/test-audit-task.md:57
     -> /test/test_helpers/  (markdown)
   doc/process-framework/tasks/03-testing/test-audit-task.md:59
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/tasks/03-testing/test-audit-task.md:62
-    -> /doc/product-docs/technical/architecture/project-structure.md  (markdown)
+    -> /doc/technical/architecture/project-structure.md  (markdown)
   doc/process-framework/tasks/03-testing/test-audit-task.md:289
     -> ../../proposals/test-audit-concept.md  (markdown)
   doc/process-framework/tasks/03-testing/test-implementation-task.md:57
@@ -2530,9 +2530,9 @@ Broken links:
   doc/process-framework/tasks/03-testing/test-implementation-task.md:58
     -> /test/test_helpers/  (markdown)
   doc/process-framework/tasks/03-testing/test-implementation-task.md:60
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/tasks/03-testing/test-implementation-task.md:64
-    -> /doc/product-docs/technical/architecture/project-structure.md  (markdown)
+    -> /doc/technical/architecture/project-structure.md  (markdown)
   doc/process-framework/tasks/03-testing/test-implementation-task.md:200
     -> ../../../scripts/validation  (markdown)
   doc/process-framework/tasks/03-testing/test-specification-creation-task.md:105
@@ -2540,11 +2540,11 @@ Broken links:
   doc/process-framework/tasks/03-testing/test-specification-creation-task.md:106
     -> /test/test_helpers/  (markdown)
   doc/process-framework/tasks/03-testing/test-specification-creation-task.md:107
-    -> /doc/product-docs/technical/architecture/project-structure.md  (markdown)
+    -> /doc/technical/architecture/project-structure.md  (markdown)
   doc/process-framework/tasks/03-testing/test-specification-creation-task.md:195
     -> ../../../path  (markdown)
   doc/process-framework/tasks/04-implementation/data-layer-implementation.md:48
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/tasks/04-implementation/data-layer-implementation.md:133
     -> ../../state-tracking/permanent/feature-[feature-id]-implementation.md  (markdown)
   doc/process-framework/tasks/04-implementation/data-layer-implementation.md:153
@@ -2554,7 +2554,7 @@ Broken links:
   doc/process-framework/tasks/04-implementation/feature-enhancement.md:150
     -> ../../proposals/proposals/enhancement-workflow-concept.md  (markdown)
   doc/process-framework/tasks/04-implementation/feature-implementation-planning-task.md:103
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/tasks/04-implementation/feature-implementation-planning-task.md:108
     -> /doc/product-docs/technical/architecture/adr/  (markdown)
   doc/process-framework/tasks/04-implementation/feature-implementation-planning-task.md:109
@@ -2588,9 +2588,9 @@ Broken links:
   doc/process-framework/tasks/04-implementation/feature-implementation-planning-task.md:462
     -> /doc/product-docs/technical/architecture/adr/  (markdown)
   doc/process-framework/tasks/04-implementation/feature-implementation-planning-task.md:463
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/tasks/04-implementation/feature-implementation-planning-task.md:464
-    -> /doc/product-docs/technical/architecture/quality-attributes.md  (markdown)
+    -> /doc/technical/architecture/quality-attributes.md  (markdown)
   doc/process-framework/tasks/04-implementation/feature-implementation-planning-task.md:469
     -> /doc/product-docs/technical/testing/  (markdown)
   doc/process-framework/tasks/04-implementation/feature-implementation-planning-task.md:470
@@ -2614,7 +2614,7 @@ Broken links:
   doc/process-framework/tasks/04-implementation/implementation-finalization.md:36
     -> ../../visualization/context-maps/04-implementation/implementation-finalization-map.md  (markdown)
   doc/process-framework/tasks/04-implementation/implementation-finalization.md:48
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/tasks/04-implementation/implementation-finalization.md:134
     -> ../../state-tracking/permanent/feature-implementation-state-[feature-id].md  (markdown)
   doc/process-framework/tasks/04-implementation/implementation-finalization.md:153
@@ -2624,17 +2624,17 @@ Broken links:
   doc/process-framework/tasks/04-implementation/implementation-finalization.md:168
     -> ../05-validation/post-deployment-validation-task.md  (markdown)
   doc/process-framework/tasks/04-implementation/implementation-finalization.md:173
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/tasks/04-implementation/integration-and-testing.md:62
     -> /test/mocks/  (markdown)
   doc/process-framework/tasks/04-implementation/integration-and-testing.md:63
     -> /test/test_helpers/  (markdown)
   doc/process-framework/tasks/04-implementation/integration-and-testing.md:66
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/tasks/04-implementation/quality-validation.md:36
     -> ../../visualization/context-maps/04-implementation/quality-validation-map.md  (markdown)
   doc/process-framework/tasks/04-implementation/quality-validation.md:48
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/tasks/04-implementation/quality-validation.md:128
     -> ../../state-tracking/permanent/feature-implementation-state-[feature-id].md  (markdown)
   doc/process-framework/tasks/04-implementation/quality-validation.md:146
@@ -2642,7 +2642,7 @@ Broken links:
   doc/process-framework/tasks/04-implementation/quality-validation.md:160
     -> ../06-maintenance/bug-report-and-fix-task.md  (markdown)
   doc/process-framework/tasks/04-implementation/quality-validation.md:168
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/tasks/04-implementation/state-management-implementation.md:36
     -> ../../visualization/context-maps/04-implementation/state-management-implementation-map.md  (markdown)
   doc/process-framework/tasks/04-implementation/state-management-implementation.md:46
@@ -2674,7 +2674,7 @@ Broken links:
   doc/process-framework/tasks/05-validation/ai-agent-continuity-validation.md:54
     -> ../../../ai-tasks.md  (markdown)
   doc/process-framework/tasks/05-validation/ai-agent-continuity-validation.md:108
-    -> doc/product-docs/validation/reports/ai-agent-continuity/PF-VAL-XXX-ai-agent-continuity-workflow-optimization.md  (markdown-standalone)
+    -> doc/validation/reports/ai-agent-continuity/PF-VAL-XXX-ai-agent-continuity-workflow-optimization.md  (markdown-standalone)
   doc/process-framework/tasks/05-validation/ai-agent-continuity-validation.md:147
     -> ../../../ai-tasks.md  (markdown)
   doc/process-framework/tasks/05-validation/architectural-consistency-validation.md:46
@@ -2706,7 +2706,7 @@ Broken links:
   doc/process-framework/tasks/05-validation/extensibility-maintainability-validation.md:50
     -> ../../../product-docs/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/tasks/05-validation/extensibility-maintainability-validation.md:107
-    -> doc/product-docs/validation/reports/extensibility-maintainability/PF-VAL-XXX-extensibility-maintainability-cross-cutting.md  (markdown-standalone)
+    -> doc/validation/reports/extensibility-maintainability/PF-VAL-XXX-extensibility-maintainability-cross-cutting.md  (markdown-standalone)
   doc/process-framework/tasks/05-validation/integration-dependencies-validation.md:42
     -> ../../../product-docs/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/tasks/05-validation/integration-dependencies-validation.md:144
@@ -2810,9 +2810,9 @@ Broken links:
   doc/process-framework/tasks/support/tools-review-task.md:160
     -> ../../feedback/README.md  (markdown)
   doc/process-framework/templates/README.md:108
-    -> /doc/product-docs/technical/architecture/database-reference.md  (markdown-reference)
+    -> /doc/technical/architecture/database-reference.md  (markdown-reference)
   doc/process-framework/templates/README.md:109
-    -> /doc/product-docs/technical/architecture/project-structure.md  (markdown-reference)
+    -> /doc/technical/architecture/project-structure.md  (markdown-reference)
   doc/process-framework/templates/README.md:175
     -> /process-framework/guides/documentation-template-identification.md  (markdown)
   doc/process-framework/templates/02-design/api-reference-template.md:261
@@ -2820,19 +2820,19 @@ Broken links:
   doc/process-framework/templates/02-design/api-reference-template.md:262
     -> ../../guides/integration-guide.md  (markdown)
   doc/process-framework/templates/02-design/architecture-context-package-update-template.md:77
-    -> /doc/product-docs/technical/architecture/quality-attributes.md  (markdown)
+    -> /doc/technical/architecture/quality-attributes.md  (markdown)
   doc/process-framework/templates/02-design/architecture-context-package-update-template.md:188
-    -> /doc/product-docs/technical/architecture/quality-attributes.md  (markdown)
+    -> /doc/technical/architecture/quality-attributes.md  (markdown)
   doc/process-framework/templates/02-design/architecture-template.md:186
     -> ../../architecture/related-component.md  (markdown)
   doc/process-framework/templates/02-design/architecture-template.md:187
     -> ../../api/related-api.md  (markdown)
   doc/process-framework/templates/02-design/tdd-t1-template.md:56
-    -> /doc/product-docs/technical/architecture/quality-attributes.md  (markdown)
+    -> /doc/technical/architecture/quality-attributes.md  (markdown)
   doc/process-framework/templates/02-design/tdd-t2-template.md:46
-    -> /doc/product-docs/technical/architecture/quality-attributes.md  (markdown)
+    -> /doc/technical/architecture/quality-attributes.md  (markdown)
   doc/process-framework/templates/02-design/tdd-t3-template.md:52
-    -> /doc/product-docs/technical/architecture/quality-attributes.md  (markdown)
+    -> /doc/technical/architecture/quality-attributes.md  (markdown)
   doc/process-framework/templates/02-design/ui-design-template.md:47
     -> ../../../product-docs/technical/design/ui-ux/design-system/design-guidelines.md  (markdown)
   doc/process-framework/templates/03-testing/e2e-acceptance-master-test-template.md:87
@@ -2878,13 +2878,13 @@ Broken links:
   doc/process-framework/templates/support/context-map-template.md:63
     -> /path/to/documentation2.md  (markdown)
   doc/process-framework/templates/support/context-map-template.md:64
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/templates/support/context-map-template.md:68
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/templates/support/documentation-template.md:180
-    -> /doc/product-docs/technical/related-document.md  (markdown)
+    -> /doc/technical/related-document.md  (markdown)
   doc/process-framework/templates/support/documentation-template.md:181
-    -> /doc/product-docs/technical/api/api-reference.md  (markdown)
+    -> /doc/technical/api/api-reference.md  (markdown)
   doc/process-framework/templates/support/faq-template.md:71
     -> /doc/product-docs/path/to/document1.md  (markdown)
   doc/process-framework/templates/support/faq-template.md:72
@@ -2896,11 +2896,11 @@ Broken links:
   doc/process-framework/templates/support/guide-template.md:169
     -> ../../api/relevant-api.md  (markdown)
   doc/process-framework/templates/support/implementation-handbook-template.md:187
-    -> /doc/product-docs/technical/design/related-design.md  (markdown)
+    -> /doc/technical/design/related-design.md  (markdown)
   doc/process-framework/templates/support/implementation-handbook-template.md:188
-    -> /doc/product-docs/technical/api/related-api.md  (markdown)
+    -> /doc/technical/api/related-api.md  (markdown)
   doc/process-framework/templates/support/implementation-handbook-template.md:189
-    -> /doc/product-docs/technical/architecture/adr/related-adr.md  (markdown)
+    -> /doc/technical/architecture/adr/related-adr.md  (markdown)
   doc/process-framework/templates/support/product-documentation-template.md:56
     -> /doc/path/to/document1.md  (markdown)
   doc/process-framework/templates/support/product-documentation-template.md:57
@@ -2942,15 +2942,15 @@ Broken links:
   doc/process-framework/templates/support/user-handbook-template.md:38
     -> /path/to/screenshot2.png  (markdown)
   doc/process-framework/templates/support/user-handbook-template.md:74
-    -> /doc/product-docs/user/features/related-feature-1.md  (markdown)
+    -> /doc/user/features/related-feature-1.md  (markdown)
   doc/process-framework/templates/support/user-handbook-template.md:75
-    -> /doc/product-docs/user/features/related-feature-2.md  (markdown)
+    -> /doc/user/features/related-feature-2.md  (markdown)
   doc/process-framework/templates/support/user-handbook-template.md:89
     -> /doc/product-docs/path/to/document1.md  (markdown)
   doc/process-framework/templates/support/user-handbook-template.md:90
     -> /doc/product-docs/path/to/document2.md  (markdown)
   doc/process-framework/visualization/context-maps/README.md:84
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/00-onboarding/codebase-feature-analysis-map.md:42
     -> ../../state-tracking/temporary/retrospective-master-state.md  (markdown)
   doc/process-framework/visualization/context-maps/00-onboarding/codebase-feature-analysis-map.md:43
@@ -3038,15 +3038,15 @@ Broken links:
   doc/process-framework/visualization/context-maps/01-planning/feature-discovery-map.md:71
     -> /process-framework/templates/feature-discovery-template.md  (markdown)
   doc/process-framework/visualization/context-maps/01-planning/feature-discovery-map.md:72
-    -> /doc/product-docs/user/needs-analysis/guide.md  (markdown)
+    -> /doc/user/needs-analysis/guide.md  (markdown)
   doc/process-framework/visualization/context-maps/01-planning/feature-discovery-map.md:73
     -> /process-framework/templates/feature-specification-template.md  (markdown)
   doc/process-framework/visualization/context-maps/01-planning/feature-discovery-map.md:74
-    -> /doc/product-docs/technical/features-catalog.md  (markdown)
+    -> /doc/technical/features-catalog.md  (markdown)
   doc/process-framework/visualization/context-maps/01-planning/feature-discovery-map.md:76
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/01-planning/feature-discovery-map.md:80
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/01-planning/feature-request-evaluation-map.md:86
     -> ../../../proposals/proposals/enhancement-workflow-concept.md  (markdown)
   doc/process-framework/visualization/context-maps/01-planning/feature-tier-assessment-map.md:85
@@ -3054,21 +3054,21 @@ Broken links:
   doc/process-framework/visualization/context-maps/01-planning/feature-tier-assessment-map.md:87
     -> /process-framework/guides/03-testing/assessment-guide.md  (markdown)
   doc/process-framework/visualization/context-maps/01-planning/feature-tier-assessment-map.md:88
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/01-planning/feature-tier-assessment-map.md:94
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/01-planning/system-architecture-review-map.md:63
     -> /path/to/documentation1.md  (markdown)
   doc/process-framework/visualization/context-maps/01-planning/system-architecture-review-map.md:64
     -> /path/to/documentation2.md  (markdown)
   doc/process-framework/visualization/context-maps/01-planning/system-architecture-review-map.md:65
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/01-planning/system-architecture-review-map.md:69
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/02-design/adr-creation-map.md:75
     -> ../../../../product-docs/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/02-design/adr-creation-map.md:79
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/02-design/api-design-task-map.md:101
     -> ../../../state-tracking/permanent/api-models-registry.md  (markdown)
   doc/process-framework/visualization/context-maps/02-design/api-design-task-map.md:104
@@ -3076,13 +3076,13 @@ Broken links:
   doc/process-framework/visualization/context-maps/02-design/api-design-task-map.md:105
     -> ../../scripts/file-creation/New-APIDataModel.ps1  (markdown-standalone)
   doc/process-framework/visualization/context-maps/02-design/api-design-task-map.md:109
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/02-design/database-schema-design-task-map.md:76
     -> /process-framework/guides/03-testing/database-schema-design-task-usage-guide.md  (markdown)
   doc/process-framework/visualization/context-maps/02-design/database-schema-design-task-map.md:80
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/02-design/database-schema-design-task-map.md:84
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/02-design/fdd-creation-map.md:65
     -> ../../scripts/file-creation/New-FDD.ps1  (markdown-standalone)
   doc/process-framework/visualization/context-maps/02-design/fdd-creation-map.md:75
@@ -3094,11 +3094,11 @@ Broken links:
   doc/process-framework/visualization/context-maps/02-design/fdd-creation-map.md:86
     -> ../../state-tracking/permanent/feature-tracking.md  (markdown)
   doc/process-framework/visualization/context-maps/02-design/tdd-creation-map.md:69
-    -> /doc/product-docs/technical/architecture/project-structure.md  (markdown)
+    -> /doc/technical/architecture/project-structure.md  (markdown)
   doc/process-framework/visualization/context-maps/02-design/tdd-creation-map.md:72
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/02-design/tdd-creation-map.md:76
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/02-design/ui-ux-design-task-map.md:100
     -> ../../tasks/02-design/ui-ux-design-task.md  (markdown)
   doc/process-framework/visualization/context-maps/02-design/ui-ux-design-task-map.md:101
@@ -3112,9 +3112,9 @@ Broken links:
   doc/process-framework/visualization/context-maps/02-design/ui-ux-design-task-map.md:107
     -> ../../scripts/file-creation/New-UIDesign.ps1  (markdown)
   doc/process-framework/visualization/context-maps/03-testing/e2e-acceptance-test-case-creation-map.md:100
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/03-testing/e2e-acceptance-test-execution-map.md:89
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/03-testing/test-audit-map.md:88
     -> ../../tasks/03-testing/test-audit-task.md  (markdown)
   doc/process-framework/visualization/context-maps/03-testing/test-audit-map.md:92
@@ -3126,27 +3126,27 @@ Broken links:
   doc/process-framework/visualization/context-maps/03-testing/test-implementation-map.md:13
     -> visualization/context-maps/04-implementation/integration-and-testing-map.md  (markdown-standalone)
   doc/process-framework/visualization/context-maps/03-testing/test-implementation-map.md:153
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/03-testing/test-specification-creation-map.md:95
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/04-implementation/core-logic-implementation-map.md:98
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/04-implementation/core-logic-implementation-map.md:102
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/04-implementation/data-layer-implementation-map.md:82
-    -> /doc/product-docs/technical/architecture/design-docs/tdd/README.md  (markdown)
+    -> /doc/technical/architecture/design-docs/tdd/README.md  (markdown)
   doc/process-framework/visualization/context-maps/04-implementation/data-layer-implementation-map.md:83
-    -> /doc/product-docs/technical/database/README.md  (markdown)
+    -> /doc/technical/database/README.md  (markdown)
   doc/process-framework/visualization/context-maps/04-implementation/data-layer-implementation-map.md:84
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/04-implementation/data-layer-implementation-map.md:88
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/04-implementation/feature-enhancement-map.md:87
     -> ../../../proposals/proposals/enhancement-workflow-concept.md  (markdown)
   doc/process-framework/visualization/context-maps/04-implementation/feature-implementation-map.md:72
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/04-implementation/feature-implementation-map.md:76
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/04-implementation/feature-implementation-planning-map.md:142
     -> ../../tasks/04-implementation/feature-implementation-planning-task.md  (markdown)
   doc/process-framework/visualization/context-maps/04-implementation/feature-implementation-planning-map.md:146
@@ -3164,19 +3164,19 @@ Broken links:
   doc/process-framework/visualization/context-maps/04-implementation/foundation-feature-implementation-task-map.md:86
     -> ../../state-tracking/permanent/feature-tracking.md  (markdown)
   doc/process-framework/visualization/context-maps/04-implementation/integration-and-testing-map.md:139
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/05-validation/accessibility-ux-compliance-validation-map.md:78
     -> ../../tasks/05-validation/accessibility-ux-compliance-validation.md  (markdown)
   doc/process-framework/visualization/context-maps/05-validation/accessibility-ux-compliance-validation-map.md:79
     -> ../../state-tracking/permanent/feature-tracking.md  (markdown)
   doc/process-framework/visualization/context-maps/05-validation/accessibility-ux-compliance-validation-map.md:81
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/05-validation/accessibility-ux-compliance-validation-map.md:85
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/05-validation/ai-agent-continuity-validation-map.md:104
     -> ../../scripts/file-creation/New-ValidationReport.ps1  (markdown-standalone)
   doc/process-framework/visualization/context-maps/05-validation/ai-agent-continuity-validation-map.md:119
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/05-validation/architectural-consistency-validation-map.md:79
     -> ../../tasks/05-validation/architectural-consistency-validation-task.md  (markdown)
   doc/process-framework/visualization/context-maps/05-validation/architectural-consistency-validation-map.md:80
@@ -3186,7 +3186,7 @@ Broken links:
   doc/process-framework/visualization/context-maps/05-validation/architectural-consistency-validation-map.md:83
     -> ../../../product-docs/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/05-validation/architectural-consistency-validation-map.md:87
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/05-validation/code-quality-standards-validation-map.md:85
     -> ../../tasks/05-validation/code-quality-standards-validation-task.md  (markdown)
   doc/process-framework/visualization/context-maps/05-validation/code-quality-standards-validation-map.md:86
@@ -3196,55 +3196,55 @@ Broken links:
   doc/process-framework/visualization/context-maps/05-validation/code-quality-standards-validation-map.md:90
     -> ../../../product-docs/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/05-validation/code-quality-standards-validation-map.md:94
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/05-validation/data-integrity-validation-map.md:78
     -> ../../tasks/05-validation/data-integrity-validation.md  (markdown)
   doc/process-framework/visualization/context-maps/05-validation/data-integrity-validation-map.md:79
     -> ../../state-tracking/permanent/feature-tracking.md  (markdown)
   doc/process-framework/visualization/context-maps/05-validation/data-integrity-validation-map.md:81
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/05-validation/data-integrity-validation-map.md:85
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/05-validation/documentation-alignment-validation-map.md:107
     -> ../../scripts/file-creation/New-ValidationReport.ps1  (markdown-standalone)
   doc/process-framework/visualization/context-maps/05-validation/documentation-alignment-validation-map.md:118
     -> ../../../../product-docs/technical/architecture/decisions  (markdown)
   doc/process-framework/visualization/context-maps/05-validation/documentation-alignment-validation-map.md:124
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/05-validation/extensibility-maintainability-validation-map.md:105
     -> ../../scripts/file-creation/New-ValidationReport.ps1  (markdown-standalone)
   doc/process-framework/visualization/context-maps/05-validation/extensibility-maintainability-validation-map.md:122
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/05-validation/integration-dependencies-validation-map.md:96
     -> ../../scripts/file-creation/New-ValidationReport.ps1  (markdown-standalone)
   doc/process-framework/visualization/context-maps/05-validation/integration-dependencies-validation-map.md:106
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/05-validation/integration-dependencies-validation-map.md:112
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/05-validation/observability-validation-map.md:78
     -> ../../tasks/05-validation/observability-validation.md  (markdown)
   doc/process-framework/visualization/context-maps/05-validation/observability-validation-map.md:79
     -> ../../state-tracking/permanent/feature-tracking.md  (markdown)
   doc/process-framework/visualization/context-maps/05-validation/observability-validation-map.md:81
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/05-validation/observability-validation-map.md:85
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/05-validation/performance-scalability-validation-map.md:78
     -> ../../tasks/05-validation/performance-scalability-validation.md  (markdown)
   doc/process-framework/visualization/context-maps/05-validation/performance-scalability-validation-map.md:79
     -> ../../state-tracking/permanent/feature-tracking.md  (markdown)
   doc/process-framework/visualization/context-maps/05-validation/performance-scalability-validation-map.md:81
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/05-validation/performance-scalability-validation-map.md:85
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/05-validation/security-data-protection-validation-map.md:78
     -> ../../tasks/05-validation/security-data-protection-validation.md  (markdown)
   doc/process-framework/visualization/context-maps/05-validation/security-data-protection-validation-map.md:79
     -> ../../state-tracking/permanent/feature-tracking.md  (markdown)
   doc/process-framework/visualization/context-maps/05-validation/security-data-protection-validation-map.md:81
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/05-validation/security-data-protection-validation-map.md:85
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/05-validation/validation-preparation-map.md:75
     -> ../../tasks/05-validation/validation-preparation.md  (markdown)
   doc/process-framework/visualization/context-maps/05-validation/validation-preparation-map.md:76
@@ -3254,9 +3254,9 @@ Broken links:
   doc/process-framework/visualization/context-maps/05-validation/validation-preparation-map.md:78
     -> ../../templates/05-validation/validation-tracking-template.md  (markdown)
   doc/process-framework/visualization/context-maps/05-validation/validation-preparation-map.md:79
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/05-validation/validation-preparation-map.md:83
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/06-maintenance/bug-fixing-map.md:82
     -> /process-framework/templates/bug-report-template.md  (markdown)
   doc/process-framework/visualization/context-maps/06-maintenance/bug-fixing-map.md:83
@@ -3266,9 +3266,9 @@ Broken links:
   doc/process-framework/visualization/context-maps/06-maintenance/bug-fixing-map.md:85
     -> /doc/product-docs/development/guides/unit-testing-guide.md  (markdown)
   doc/process-framework/visualization/context-maps/06-maintenance/bug-fixing-map.md:87
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/06-maintenance/bug-fixing-map.md:91
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/06-maintenance/bug-triage-map.md:68
     -> ../../state-tracking/permanent/bug-tracking.md  (markdown)
   doc/process-framework/visualization/context-maps/06-maintenance/bug-triage-map.md:69
@@ -3284,9 +3284,9 @@ Broken links:
   doc/process-framework/visualization/context-maps/06-maintenance/code-refactoring-task-map.md:79
     -> ../../state-tracking/permanent/technical-debt-tracking.md  (markdown)
   doc/process-framework/visualization/context-maps/06-maintenance/code-refactoring-task-map.md:80
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/06-maintenance/code-refactoring-task-map.md:84
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/06-maintenance/code-review-map.md:72
     -> /process-framework/templates/code-review-checklist.md  (markdown)
   doc/process-framework/visualization/context-maps/06-maintenance/code-review-map.md:73
@@ -3294,9 +3294,9 @@ Broken links:
   doc/process-framework/visualization/context-maps/06-maintenance/code-review-map.md:74
     -> /doc/product-docs/development/guides/unit-testing-standards.md  (markdown)
   doc/process-framework/visualization/context-maps/06-maintenance/code-review-map.md:76
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/06-maintenance/code-review-map.md:80
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/07-deployment/release-deployment-map.md:75
     -> /process-framework/templates/release-checklist.md  (markdown)
   doc/process-framework/visualization/context-maps/07-deployment/release-deployment-map.md:76
@@ -3306,27 +3306,27 @@ Broken links:
   doc/process-framework/visualization/context-maps/07-deployment/release-deployment-map.md:78
     -> /scripts/deploy.sh  (markdown)
   doc/process-framework/visualization/context-maps/07-deployment/release-deployment-map.md:79
-    -> /doc/product-docs/technical/deployment/environment-guide.md  (markdown)
+    -> /doc/technical/deployment/environment-guide.md  (markdown)
   doc/process-framework/visualization/context-maps/07-deployment/release-deployment-map.md:80
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/07-deployment/release-deployment-map.md:84
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/cyclical/documentation-review-map.md:72
     -> /process-framework/templates/documentation-review-template.md  (markdown)
   doc/process-framework/visualization/context-maps/cyclical/documentation-review-map.md:73
     -> /process-framework/guides/documentation-standards.md  (markdown)
   doc/process-framework/visualization/context-maps/cyclical/documentation-review-map.md:74
-    -> /doc/product-docs/technical/documentation-structure.md  (markdown)
+    -> /doc/technical/documentation-structure.md  (markdown)
   doc/process-framework/visualization/context-maps/cyclical/documentation-review-map.md:76
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/cyclical/documentation-review-map.md:80
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/cyclical/documentation-tier-adjustment-map.md:73
     -> /process-framework/guides/03-testing/assessment-guide.md  (markdown)
   doc/process-framework/visualization/context-maps/cyclical/documentation-tier-adjustment-map.md:76
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/cyclical/documentation-tier-adjustment-map.md:80
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/cyclical/technical-debt-assessment-task-map.md:96
     -> ../../tasks/cyclical/technical-debt-assessment-task.md  (markdown)
   doc/process-framework/visualization/context-maps/cyclical/technical-debt-assessment-task-map.md:97
@@ -3336,7 +3336,7 @@ Broken links:
   doc/process-framework/visualization/context-maps/cyclical/technical-debt-assessment-task-map.md:99
     -> ../../state-tracking/permanent/technical-debt-tracking.md  (markdown)
   doc/process-framework/visualization/context-maps/cyclical/technical-debt-assessment-task-map.md:103
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/support/framework-extension-task-map.md:85
     -> ../../tasks/support/framework-extension-task.md  (markdown)
   doc/process-framework/visualization/context-maps/support/framework-extension-task-map.md:88
@@ -3344,33 +3344,33 @@ Broken links:
   doc/process-framework/visualization/context-maps/support/framework-extension-task-map.md:94
     -> ../../documentation-map.md  (markdown)
   doc/process-framework/visualization/context-maps/support/new-task-creation-process-map.md:96
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/support/process-improvement-map.md:72
     -> /process-framework/templates/improvement-proposal-template.md  (markdown)
   doc/process-framework/visualization/context-maps/support/process-improvement-map.md:74
     -> /scripts/  (markdown)
   doc/process-framework/visualization/context-maps/support/process-improvement-map.md:75
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/support/process-improvement-map.md:79
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/support/structure-change-map.md:77
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/support/structure-change-map.md:78
     -> /doc/product-docs/development/guides/refactoring-guide.md  (markdown)
   doc/process-framework/visualization/context-maps/support/structure-change-map.md:79
     -> /doc/product-docs/development/guides/unit-testing-guide.md  (markdown)
   doc/process-framework/visualization/context-maps/support/structure-change-map.md:80
-    -> /doc/product-docs/technical/build/build-configuration.md  (markdown)
+    -> /doc/technical/build/build-configuration.md  (markdown)
   doc/process-framework/visualization/context-maps/support/structure-change-map.md:85
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/support/tools-review-map.md:72
     -> /process-framework/templates/tools-review-template.md  (markdown)
   doc/process-framework/visualization/context-maps/support/tools-review-map.md:73
     -> /scripts/  (markdown)
   doc/process-framework/visualization/context-maps/support/tools-review-map.md:76
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/context-maps/support/tools-review-map.md:80
-    -> /doc/product-docs/technical/architecture/component-relationship-index.md  (markdown)
+    -> /doc/technical/architecture/component-relationship-index.md  (markdown)
   doc/process-framework/visualization/process-flows/feedback-process-flowchart.md:131
     -> ../../feedback/README.md  (markdown)
   doc/product-docs/README.md:106
@@ -3506,19 +3506,19 @@ Broken links:
   doc/product-docs/refactoring/plans/archive/extract-reference-lookup-from-handler-py-into-reference-lookup-py-td022.md:112
     -> linkwatcher/reference_lookup.py  (markdown-standalone)
   doc/product-docs/refactoring/plans/archive/extract-reference-lookup-from-handler-py-into-reference-lookup-py-td022.md:152
-    -> /doc/product-docs/refactoring/plans/decompose-god-class-linkmaintenancehandler-td005.md  (markdown)
+    -> /doc/refactoring/plans/decompose-god-class-linkmaintenancehandler-td005.md  (markdown)
   doc/product-docs/refactoring/plans/archive/extract-update-links-within-moved-file-and-handle-directory-moved-from-handler-py.md:10
     -> linkwatcher/handler.py  (markdown-standalone)
   doc/product-docs/refactoring/plans/archive/extract-update-links-within-moved-file-and-handle-directory-moved-from-handler-py.md:16
     -> linkwatcher/handler.py  (markdown-standalone)
   doc/product-docs/refactoring/plans/archive/extract-update-links-within-moved-file-and-handle-directory-moved-from-handler-py.md:176
-    -> /doc/product-docs/refactoring/plans/decompose-god-class-linkmaintenancehandler-td005.md  (markdown)
+    -> /doc/refactoring/plans/decompose-god-class-linkmaintenancehandler-td005.md  (markdown)
   doc/product-docs/refactoring/plans/archive/extract-update-links-within-moved-file-and-handle-directory-moved-from-handler-py.md:177
-    -> /doc/product-docs/refactoring/plans/extract-reference-lookup-from-handler-py-into-reference-lookup-py-td022.md  (markdown)
+    -> /doc/refactoring/plans/extract-reference-lookup-from-handler-py-into-reference-lookup-py-td022.md  (markdown)
   doc/product-docs/refactoring/plans/archive/fix-inaccurate-details-in-feature-state-files-pf-fea-050-through-pf-fea-054-td052.md:129
-    -> /doc/product-docs/refactoring/plans/fix-inaccurate-details-in-feature-state-files-pf-fea-046-through-pf-fea-049-td047.md  (markdown)
+    -> /doc/refactoring/plans/fix-inaccurate-details-in-feature-state-files-pf-fea-046-through-pf-fea-049-td047.md  (markdown)
   doc/product-docs/refactoring/plans/archive/fix-tdd-api-pseudocode-drift-in-pd-tdd-026-pd-tdd-027-and-pd-tdd-031.md:135
-    -> /doc/product-docs/refactoring/plans/fix-tdd-api-pseudocode-drift-in-pd-tdd-024-and-pd-tdd-025.md  (markdown)
+    -> /doc/refactoring/plans/fix-tdd-api-pseudocode-drift-in-pd-tdd-024-and-pd-tdd-025.md  (markdown)
   doc/product-docs/refactoring/plans/archive/move-inline-imports-to-module-level-in-handler-py-td012.md:9
     -> linkwatcher/handler.py  (markdown-standalone)
   doc/product-docs/refactoring/plans/archive/move-inline-imports-to-module-level-in-handler-py-td012.md:16
@@ -3832,11 +3832,11 @@ Broken links:
   doc/product-docs/state-tracking/features/archive/1.1.2-event-handler-implementation-state.md:116
     -> ../../../../../product-docs/functional-design/fdds/fdd-1-1-2-event-handler.md  (markdown)
   doc/product-docs/state-tracking/features/archive/1.1.2-event-handler-implementation-state.md:116
-    -> doc/product-docs/functional-design/fdds/fdd-1-1-2-event-handler.md  (markdown-standalone)
+    -> doc/functional-design/fdds/fdd-1-1-2-event-handler.md  (markdown-standalone)
   doc/product-docs/state-tracking/features/archive/1.1.2-event-handler-implementation-state.md:117
     -> ../../../../../product-docs/technical/architecture/design-docs/tdd/tdd-1-1-2-event-handler-t2.md  (markdown)
   doc/product-docs/state-tracking/features/archive/1.1.2-event-handler-implementation-state.md:117
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-1-1-2-event-handler-t2.md  (markdown-standalone)
+    -> doc/technical/architecture/design-docs/tdd/tdd-1-1-2-event-handler-t2.md  (markdown-standalone)
   doc/product-docs/state-tracking/features/archive/1.1.2-event-handler-implementation-state.md:137
     -> ../../../../../HOW_IT_WORKS.md  (markdown)
   doc/product-docs/state-tracking/features/archive/1.1.2-event-handler-implementation-state.md:153
@@ -4016,11 +4016,11 @@ Broken links:
   doc/product-docs/state-tracking/features/archive/2.1.1-parser-framework-implementation-state.md:110
     -> ../../../../../product-docs/functional-design/fdds/fdd-2-1-1-parser-framework.md  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.1-parser-framework-implementation-state.md:110
-    -> doc/product-docs/functional-design/fdds/fdd-2-1-1-parser-framework.md  (markdown-standalone)
+    -> doc/functional-design/fdds/fdd-2-1-1-parser-framework.md  (markdown-standalone)
   doc/product-docs/state-tracking/features/archive/2.1.1-parser-framework-implementation-state.md:111
     -> ../../../../../product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.1-parser-framework-implementation-state.md:111
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md  (markdown-standalone)
+    -> doc/technical/tdd/tdd-2-1-1-parser-framework-t2.md  (markdown-standalone)
   doc/product-docs/state-tracking/features/archive/2.1.1-parser-framework-implementation-state.md:131
     -> ../../../../../HOW_IT_WORKS.md  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.1-parser-framework-implementation-state.md:147
@@ -4398,11 +4398,11 @@ Broken links:
   doc/product-docs/state-tracking/features/archive/3.1.1-logging-framework-implementation-state.md:110
     -> ../../../../../product-docs/functional-design/fdds/fdd-3-1-1-logging-framework.md  (markdown)
   doc/product-docs/state-tracking/features/archive/3.1.1-logging-framework-implementation-state.md:110
-    -> doc/product-docs/functional-design/fdds/fdd-3-1-1-logging-framework.md  (markdown-standalone)
+    -> doc/functional-design/fdds/fdd-3-1-1-logging-framework.md  (markdown-standalone)
   doc/product-docs/state-tracking/features/archive/3.1.1-logging-framework-implementation-state.md:111
     -> ../../../../../product-docs/technical/architecture/design-docs/tdd/tdd-3-1-1-logging-framework-t2.md  (markdown)
   doc/product-docs/state-tracking/features/archive/3.1.1-logging-framework-implementation-state.md:111
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-3-1-1-logging-framework-t2.md  (markdown-standalone)
+    -> doc/technical/tdd/tdd-3-1-1-logging-framework-t2.md  (markdown-standalone)
   doc/product-docs/state-tracking/features/archive/3.1.1-logging-framework-implementation-state.md:123
     -> ../../../../../docs/LOGGING.md  (markdown)
   doc/product-docs/state-tracking/features/archive/3.1.1-logging-framework-implementation-state.md:123
@@ -5178,15 +5178,15 @@ Broken links:
   doc/product-docs/state-tracking/permanent/technical-debt-tracking.md:57
     -> ../../assessments/technical-debt/assessments/handler-module-structural-debt-assessment.md  (markdown)
   doc/product-docs/state-tracking/permanent/technical-debt-tracking.md:62
-    -> doc/product-docs/technical/architecture/design-docs/adr/adr/target-indexed-in-memory-link-database.md  (markdown-standalone)
+    -> doc/technical/adr/target-indexed-in-memory-link-database.md  (markdown-standalone)
   doc/product-docs/state-tracking/permanent/technical-debt-tracking.md:63
-    -> doc/product-docs/technical/architecture/design-docs/adr/adr/orchestrator-facade-pattern-for-core-architecture.md  (markdown-standalone)
+    -> doc/technical/adr/orchestrator-facade-pattern-for-core-architecture.md  (markdown-standalone)
   doc/product-docs/state-tracking/permanent/technical-debt-tracking.md:76
     -> scripts/setup_cicd.py  (markdown-standalone)
   doc/product-docs/state-tracking/permanent/technical-debt-tracking.md:83
     -> config-examples/advanced-logging-config.yaml  (markdown-standalone)
   doc/product-docs/state-tracking/permanent/technical-debt-tracking.md:86
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-5-1-1-cicd-development-tooling-t2.md  (markdown-standalone)
+    -> doc/technical/architecture/design-docs/tdd/tdd-5-1-1-cicd-development-tooling-t2.md  (markdown-standalone)
   doc/product-docs/state-tracking/permanent/technical-debt-tracking.md:87
     -> ../../product-docs/refactoring/plans/wire-parser-enable-disable-config-flags-into-linkparser-runtime.md  (markdown)
   doc/product-docs/state-tracking/permanent/technical-debt-tracking.md:92
@@ -5194,7 +5194,7 @@ Broken links:
   doc/product-docs/state-tracking/permanent/technical-debt-tracking.md:93
     -> .github/workflows/ci.yml  (markdown-standalone)
   doc/product-docs/state-tracking/permanent/technical-debt-tracking.md:95
-    -> doc/product-docs/functional-design/fdds/fdd-5-1-1-cicd-development-tooling.md  (markdown-standalone)
+    -> doc/functional-design/fdds/fdd-5-1-1-cicd-development-tooling.md  (markdown-standalone)
   doc/product-docs/state-tracking/permanent/technical-debt-tracking.md:97
     -> ../refactoring/plans/fix-inaccurate-details-in-feature-state-files-pf-fea-046-through-pf-fea-049-td047.md  (markdown)
   doc/product-docs/state-tracking/permanent/technical-debt-tracking.md:98
@@ -5230,29 +5230,29 @@ Broken links:
   doc/product-docs/templates/templates/faq-template.md:72
     -> /doc/product-docs/path/to/document2.md  (markdown)
   doc/product-docs/templates/templates/implementation-handbook-template.md:187
-    -> /doc/product-docs/technical/design/related-design.md  (markdown)
+    -> /doc/technical/design/related-design.md  (markdown)
   doc/product-docs/templates/templates/implementation-handbook-template.md:188
-    -> /doc/product-docs/technical/api/related-api.md  (markdown)
+    -> /doc/technical/api/related-api.md  (markdown)
   doc/product-docs/templates/templates/implementation-handbook-template.md:189
-    -> /doc/product-docs/technical/architecture/adr/related-adr.md  (markdown)
+    -> /doc/technical/architecture/adr/related-adr.md  (markdown)
   doc/product-docs/templates/templates/product-documentation-template.md:56
     -> /doc/path/to/document1.md  (markdown)
   doc/product-docs/templates/templates/product-documentation-template.md:57
     -> /doc/path/to/document2.md  (markdown)
   doc/product-docs/templates/templates/tdd-t1-template.md:56
-    -> /doc/product-docs/technical/architecture/quality-attributes.md  (markdown)
+    -> /doc/technical/architecture/quality-attributes.md  (markdown)
   doc/product-docs/templates/templates/tdd-t2-template.md:46
-    -> /doc/product-docs/technical/architecture/quality-attributes.md  (markdown)
+    -> /doc/technical/architecture/quality-attributes.md  (markdown)
   doc/product-docs/templates/templates/tdd-t3-template.md:52
-    -> /doc/product-docs/technical/architecture/quality-attributes.md  (markdown)
+    -> /doc/technical/architecture/quality-attributes.md  (markdown)
   doc/product-docs/templates/templates/user-handbook-template.md:30
     -> /path/to/screenshot1.png  (markdown)
   doc/product-docs/templates/templates/user-handbook-template.md:38
     -> /path/to/screenshot2.png  (markdown)
   doc/product-docs/templates/templates/user-handbook-template.md:74
-    -> /doc/product-docs/user/features/related-feature-1.md  (markdown)
+    -> /doc/user/features/related-feature-1.md  (markdown)
   doc/product-docs/templates/templates/user-handbook-template.md:75
-    -> /doc/product-docs/user/features/related-feature-2.md  (markdown)
+    -> /doc/user/features/related-feature-2.md  (markdown)
   doc/product-docs/templates/templates/user-handbook-template.md:89
     -> /doc/product-docs/path/to/document1.md  (markdown)
   doc/product-docs/templates/templates/user-handbook-template.md:90
@@ -5336,7 +5336,7 @@ Broken links:
   doc/product-docs/validation/reports/ai-agent-continuity/PD-VAL-045-ai-agent-continuity-features-0.1.1-0.1.2-0.1.3-1.1.1-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md:318
     -> logging.py/logging_config.py  (markdown-standalone)
   doc/product-docs/validation/reports/architectural-consistency/PD-VAL-035-architectural-consistency-features-0.1.1-1.1.1.md:258
-    -> doc/product-docs/refactoring/plans/decompose-god-class-linkmaintenancehandler-td005.md  (markdown-standalone)
+    -> doc/refactoring/plans/decompose-god-class-linkmaintenancehandler-td005.md  (markdown-standalone)
   doc/product-docs/validation/reports/code-quality/PD-VAL-037-code-quality-features-0.1.1-0.1.2-0.1.3-1.1.1.md:44
     -> config/settings.py  (markdown-standalone)
   doc/product-docs/validation/reports/code-quality/PD-VAL-037-code-quality-features-0.1.1-0.1.2-0.1.3-1.1.1.md:44
@@ -5348,9 +5348,9 @@ Broken links:
   doc/product-docs/validation/reports/code-quality/PD-VAL-037-code-quality-features-0.1.1-0.1.2-0.1.3-1.1.1.md:142
     -> config/__init__.py  (markdown-standalone)
   doc/product-docs/validation/reports/code-quality/PD-VAL-037-code-quality-features-0.1.1-0.1.2-0.1.3-1.1.1.md:213
-    -> doc/product-docs/refactoring/plans/decompose-handle-file-moved-mega-method-into-focused-sub-methods.md  (markdown-standalone)
+    -> doc/refactoring/plans/decompose-handle-file-moved-mega-method-into-focused-sub-methods.md  (markdown-standalone)
   doc/product-docs/validation/reports/code-quality/PD-VAL-037-code-quality-features-0.1.1-0.1.2-0.1.3-1.1.1.md:218
-    -> doc/product-docs/refactoring/plans/remove-dual-print-logger-output-in-updater-py.md  (markdown-standalone)
+    -> doc/refactoring/plans/remove-dual-print-logger-output-in-updater-py.md  (markdown-standalone)
   doc/product-docs/validation/reports/code-quality/PD-VAL-037-code-quality-features-0.1.1-0.1.2-0.1.3-1.1.1.md:285
     -> config/settings.py  (markdown-standalone)
   doc/product-docs/validation/reports/code-quality/PD-VAL-038-code-quality-features-2.1.1-2.2.1-3.1.1-4.1.1-5.1.1.md:42
@@ -5402,7 +5402,7 @@ Broken links:
   test/test-registry.yaml:45
     -> test/automated/utils.py  (yaml)
   test/test-registry.yaml:54
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-4-1-1-test-suite-t2.md  (yaml)
+    -> doc/technical/architecture/design-docs/tdd/tdd-4-1-1-test-suite-t2.md  (yaml)
   test/test-registry.yaml:59
     -> test/automated/test_config.py  (yaml)
   test/test-registry.yaml:63
@@ -5412,31 +5412,31 @@ Broken links:
   test/test-registry.yaml:80
     -> test/specifications/feature-specs/test-spec-1-1-1-file-system-monitoring.md  (yaml)
   test/test-registry.yaml:87
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-1-1-1-file-system-monitoring-t2.md  (yaml)
+    -> doc/technical/tdd/tdd-1-1-1-file-system-monitoring-t2.md  (yaml)
   test/test-registry.yaml:96
     -> test/automated/unit/test_service.py  (yaml)
   test/test-registry.yaml:100
     -> test/specifications/feature-specs/test-spec-0-1-1-core-architecture.md  (yaml)
   test/test-registry.yaml:107
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md  (yaml)
+    -> doc/technical/tdd/tdd-0-1-1-core-architecture-t3.md  (yaml)
   test/test-registry.yaml:113
     -> test/automated/unit/test_parser.py  (yaml)
   test/test-registry.yaml:117
     -> test/specifications/feature-specs/test-spec-2-1-1-link-parsing-system.md  (yaml)
   test/test-registry.yaml:124
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md  (yaml)
+    -> doc/technical/tdd/tdd-2-1-1-parser-framework-t2.md  (yaml)
   test/test-registry.yaml:129
     -> test/automated/unit/test_database.py  (yaml)
   test/test-registry.yaml:133
     -> test/specifications/feature-specs/test-spec-0-1-2-in-memory-link-database.md  (yaml)
   test/test-registry.yaml:140
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-2-in-memory-database-t2.md  (yaml)
+    -> doc/technical/tdd/tdd-0-1-2-in-memory-database-t2.md  (yaml)
   test/test-registry.yaml:146
     -> test/automated/unit/test_updater.py  (yaml)
   test/test-registry.yaml:150
     -> test/specifications/feature-specs/test-spec-2-2-1-link-updating.md  (yaml)
   test/test-registry.yaml:157
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-2-1-link-updater-t2.md  (yaml)
+    -> doc/technical/tdd/tdd-2-2-1-link-updater-t2.md  (yaml)
   test/test-registry.yaml:163
     -> test/automated/unit/test_config.py  (yaml)
   test/test-registry.yaml:167
@@ -5446,115 +5446,115 @@ Broken links:
   test/test-registry.yaml:184
     -> test/specifications/feature-specs/test-spec-3-1-1-logging-system.md  (yaml)
   test/test-registry.yaml:191
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-3-1-1-logging-framework-t2.md  (yaml)
+    -> doc/technical/tdd/tdd-3-1-1-logging-framework-t2.md  (yaml)
   test/test-registry.yaml:196
     -> test/automated/unit/test_advanced_logging.py  (yaml)
   test/test-registry.yaml:200
     -> test/specifications/feature-specs/test-spec-3-1-1-logging-system.md  (yaml)
   test/test-registry.yaml:207
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-3-1-1-logging-framework-t2.md  (yaml)
+    -> doc/technical/tdd/tdd-3-1-1-logging-framework-t2.md  (yaml)
   test/test-registry.yaml:215
     -> test/automated/parsers/test_markdown.py  (yaml)
   test/test-registry.yaml:219
     -> test/specifications/feature-specs/test-spec-2-1-1-link-parsing-system.md  (yaml)
   test/test-registry.yaml:226
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md  (yaml)
+    -> doc/technical/tdd/tdd-2-1-1-parser-framework-t2.md  (yaml)
   test/test-registry.yaml:231
     -> test/automated/parsers/test_yaml.py  (yaml)
   test/test-registry.yaml:235
     -> test/specifications/feature-specs/test-spec-2-1-1-link-parsing-system.md  (yaml)
   test/test-registry.yaml:242
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md  (yaml)
+    -> doc/technical/tdd/tdd-2-1-1-parser-framework-t2.md  (yaml)
   test/test-registry.yaml:247
     -> test/automated/parsers/test_json.py  (yaml)
   test/test-registry.yaml:251
     -> test/specifications/feature-specs/test-spec-2-1-1-link-parsing-system.md  (yaml)
   test/test-registry.yaml:258
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md  (yaml)
+    -> doc/technical/tdd/tdd-2-1-1-parser-framework-t2.md  (yaml)
   test/test-registry.yaml:263
     -> test/automated/parsers/test_python.py  (yaml)
   test/test-registry.yaml:267
     -> test/specifications/feature-specs/test-spec-2-1-1-link-parsing-system.md  (yaml)
   test/test-registry.yaml:274
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md  (yaml)
+    -> doc/technical/tdd/tdd-2-1-1-parser-framework-t2.md  (yaml)
   test/test-registry.yaml:279
     -> test/automated/parsers/test_dart.py  (yaml)
   test/test-registry.yaml:283
     -> test/specifications/feature-specs/test-spec-2-1-1-link-parsing-system.md  (yaml)
   test/test-registry.yaml:290
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md  (yaml)
+    -> doc/technical/tdd/tdd-2-1-1-parser-framework-t2.md  (yaml)
   test/test-registry.yaml:295
     -> test/automated/parsers/test_generic.py  (yaml)
   test/test-registry.yaml:299
     -> test/specifications/feature-specs/test-spec-2-1-1-link-parsing-system.md  (yaml)
   test/test-registry.yaml:306
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md  (yaml)
+    -> doc/technical/tdd/tdd-2-1-1-parser-framework-t2.md  (yaml)
   test/test-registry.yaml:311
     -> test/automated/parsers/test_image_files.py  (yaml)
   test/test-registry.yaml:315
     -> test/specifications/feature-specs/test-spec-2-1-1-link-parsing-system.md  (yaml)
   test/test-registry.yaml:322
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md  (yaml)
+    -> doc/technical/tdd/tdd-2-1-1-parser-framework-t2.md  (yaml)
   test/test-registry.yaml:331
     -> test/automated/integration/test_service_integration.py  (yaml)
   test/test-registry.yaml:335
     -> test/specifications/feature-specs/test-spec-0-1-1-core-architecture.md  (yaml)
   test/test-registry.yaml:342
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md  (yaml)
+    -> doc/technical/tdd/tdd-0-1-1-core-architecture-t3.md  (yaml)
   test/test-registry.yaml:348
     -> test/automated/integration/test_file_movement.py  (yaml)
   test/test-registry.yaml:352
     -> test/specifications/feature-specs/test-spec-1-1-1-file-system-monitoring.md  (yaml)
   test/test-registry.yaml:359
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-1-1-1-file-system-monitoring-t2.md  (yaml)
+    -> doc/technical/tdd/tdd-1-1-1-file-system-monitoring-t2.md  (yaml)
   test/test-registry.yaml:365
     -> test/automated/integration/test_link_updates.py  (yaml)
   test/test-registry.yaml:369
     -> test/specifications/feature-specs/test-spec-2-2-1-link-updating.md  (yaml)
   test/test-registry.yaml:376
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-2-1-link-updater-t2.md  (yaml)
+    -> doc/technical/tdd/tdd-2-2-1-link-updater-t2.md  (yaml)
   test/test-registry.yaml:382
     -> test/automated/integration/test_complex_scenarios.py  (yaml)
   test/test-registry.yaml:386
     -> test/specifications/feature-specs/test-spec-0-1-1-core-architecture.md  (yaml)
   test/test-registry.yaml:393
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md  (yaml)
+    -> doc/technical/tdd/tdd-0-1-1-core-architecture-t3.md  (yaml)
   test/test-registry.yaml:399
     -> test/automated/integration/test_error_handling.py  (yaml)
   test/test-registry.yaml:403
     -> test/specifications/feature-specs/test-spec-0-1-1-core-architecture.md  (yaml)
   test/test-registry.yaml:410
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md  (yaml)
+    -> doc/technical/tdd/tdd-0-1-1-core-architecture-t3.md  (yaml)
   test/test-registry.yaml:416
     -> test/automated/integration/test_sequential_moves.py  (yaml)
   test/test-registry.yaml:420
     -> test/specifications/feature-specs/test-spec-1-1-1-file-system-monitoring.md  (yaml)
   test/test-registry.yaml:427
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-1-1-1-file-system-monitoring-t2.md  (yaml)
+    -> doc/technical/tdd/tdd-1-1-1-file-system-monitoring-t2.md  (yaml)
   test/test-registry.yaml:433
     -> test/automated/integration/test_windows_platform.py  (yaml)
   test/test-registry.yaml:437
     -> test/specifications/feature-specs/test-spec-0-1-1-core-architecture.md  (yaml)
   test/test-registry.yaml:444
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md  (yaml)
+    -> doc/technical/tdd/tdd-0-1-1-core-architecture-t3.md  (yaml)
   test/test-registry.yaml:450
     -> test/automated/integration/test_comprehensive_file_monitoring.py  (yaml)
   test/test-registry.yaml:454
     -> test/specifications/feature-specs/test-spec-1-1-1-file-system-monitoring.md  (yaml)
   test/test-registry.yaml:461
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-1-1-1-file-system-monitoring-t2.md  (yaml)
+    -> doc/technical/tdd/tdd-1-1-1-file-system-monitoring-t2.md  (yaml)
   test/test-registry.yaml:467
     -> test/automated/integration/test_image_file_monitoring.py  (yaml)
   test/test-registry.yaml:471
     -> test/specifications/feature-specs/test-spec-1-1-1-file-system-monitoring.md  (yaml)
   test/test-registry.yaml:478
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-1-1-1-file-system-monitoring-t2.md  (yaml)
+    -> doc/technical/tdd/tdd-1-1-1-file-system-monitoring-t2.md  (yaml)
   test/test-registry.yaml:484
     -> test/automated/integration/test_powershell_script_monitoring.py  (yaml)
   test/test-registry.yaml:488
     -> test/specifications/feature-specs/test-spec-1-1-1-file-system-monitoring.md  (yaml)
   test/test-registry.yaml:495
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-1-1-1-file-system-monitoring-t2.md  (yaml)
+    -> doc/technical/tdd/tdd-1-1-1-file-system-monitoring-t2.md  (yaml)
   test/test-registry.yaml:504
     -> test/automated/performance/test_large_projects.py  (yaml)
   test/test-registry.yaml:518
@@ -5564,19 +5564,19 @@ Broken links:
   test/test-registry.yaml:539
     -> test/specifications/feature-specs/test-spec-0-1-1-core-architecture.md  (yaml)
   test/test-registry.yaml:546
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md  (yaml)
+    -> doc/technical/tdd/tdd-0-1-1-core-architecture-t3.md  (yaml)
   test/test-registry.yaml:554
     -> test/automated/test_directory_move_detection.py  (yaml)
   test/test-registry.yaml:558
     -> test/specifications/feature-specs/test-spec-1-1-1-file-system-monitoring.md  (yaml)
   test/test-registry.yaml:565
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-1-1-1-file-system-monitoring-t2.md  (yaml)
+    -> doc/technical/tdd/tdd-1-1-1-file-system-monitoring-t2.md  (yaml)
   test/test-registry.yaml:574
     -> test/automated/parsers/test_powershell.py  (yaml)
   test/test-registry.yaml:578
     -> test/specifications/feature-specs/test-spec-2-1-1-link-parsing-system.md  (yaml)
   test/test-registry.yaml:585
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md  (yaml)
+    -> doc/technical/tdd/tdd-2-1-1-parser-framework-t2.md  (yaml)
   test/audits/README.md:95
     -> ../../process-framework/tasks/03-testing/test-audit-task.md  (markdown)
   test/audits/README.md:97
@@ -6194,17 +6194,17 @@ Broken links:
   test/e2e-acceptance-testing/workspace/runtime-dynamic-operations/TE-E2E-013-nested-directory-move/project/README.md:7
     -> modules/plugins/auth.py  (markdown)
   test/specifications/feature-specs/test-spec-0-1-1-core-architecture.md:10
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md  (markdown-standalone)
+    -> doc/technical/tdd/tdd-0-1-1-core-architecture-t3.md  (markdown-standalone)
   test/specifications/feature-specs/test-spec-0-1-2-in-memory-link-database.md:10
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-2-in-memory-database-t2.md  (markdown-standalone)
+    -> doc/technical/tdd/tdd-0-1-2-in-memory-database-t2.md  (markdown-standalone)
   test/specifications/feature-specs/test-spec-1-1-1-file-system-monitoring.md:10
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-1-1-1-file-system-monitoring-t2.md  (markdown-standalone)
+    -> doc/technical/tdd/tdd-1-1-1-file-system-monitoring-t2.md  (markdown-standalone)
   test/specifications/feature-specs/test-spec-2-1-1-link-parsing-system.md:10
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md  (markdown-standalone)
+    -> doc/technical/tdd/tdd-2-1-1-parser-framework-t2.md  (markdown-standalone)
   test/specifications/feature-specs/test-spec-2-1-1-link-parsing-system.md:79
     -> path/to/file.ext  (markdown-standalone)
   test/specifications/feature-specs/test-spec-2-2-1-link-updating.md:10
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-2-1-link-updater-t2.md  (markdown-standalone)
+    -> doc/technical/tdd/tdd-2-2-1-link-updater-t2.md  (markdown-standalone)
   test/specifications/feature-specs/test-spec-2-2-1-link-updating.md:63
     -> ../old.txt  (markdown-standalone)
   test/specifications/feature-specs/test-spec-2-2-1-link-updating.md:63
@@ -6212,11 +6212,11 @@ Broken links:
   test/specifications/feature-specs/test-spec-2-2-1-link-updating.md:96
     -> core/helpers.py  (markdown-standalone)
   test/specifications/feature-specs/test-spec-3-1-1-logging-system.md:10
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-3-1-1-logging-framework-t2.md  (markdown-standalone)
+    -> doc/technical/tdd/tdd-3-1-1-logging-framework-t2.md  (markdown-standalone)
   test/specifications/feature-specs/test-spec-3-1-1-logging-system.md:123
     -> docs/  (markdown-quoted-dir)
   test/specifications/feature-specs/archive/test-spec-4-1-1-test-suite.md:10
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-4-1-1-test-suite-t2.md  (markdown-standalone)
+    -> doc/technical/architecture/design-docs/tdd/tdd-4-1-1-test-suite-t2.md  (markdown-standalone)
   test/specifications/feature-specs/archive/test-spec-4-1-1-test-suite.md:21
     -> ../../../doc/product-docs/technical/architecture/design-docs/tdd/tdd-4-1-1-test-suite-t2.md  (markdown)
   test/specifications/feature-specs/archive/test-spec-4-1-1-test-suite.md:24
@@ -6244,7 +6244,7 @@ Broken links:
   test/specifications/feature-specs/archive/test-spec-4-1-1-test-suite.md:156
     -> ../../../pyproject.toml  (markdown)
   test/specifications/feature-specs/archive/test-spec-5-1-1-cicd-development-tooling.md:10
-    -> doc/product-docs/technical/architecture/design-docs/tdd/tdd-5-1-1-cicd-development-tooling-t2.md  (markdown-standalone)
+    -> doc/technical/architecture/design-docs/tdd/tdd-5-1-1-cicd-development-tooling-t2.md  (markdown-standalone)
   test/specifications/feature-specs/archive/test-spec-5-1-1-cicd-development-tooling.md:21
     -> ../../../doc/product-docs/technical/architecture/design-docs/tdd/tdd-5-1-1-cicd-development-tooling-t2.md  (markdown)
   test/specifications/feature-specs/archive/test-spec-5-1-1-cicd-development-tooling.md:24

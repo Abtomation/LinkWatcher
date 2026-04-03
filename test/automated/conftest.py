@@ -15,6 +15,12 @@ import pytest
 from linkwatcher import LinkDatabase, LinkParser, LinkUpdater, LinkWatcherService
 from linkwatcher.config import TESTING_CONFIG, LinkWatcherConfig
 
+# Synthetic namespace for test content strings.
+# NEVER use real project directory names (doc/, process-framework/, linkwatcher/)
+# in test content — LinkWatcher will rewrite them when real files move.
+# See: process-framework/guides/03-testing/test-infrastructure-guide.md
+TEST_PROJECT_ROOT = "alpha-project"
+
 
 @pytest.fixture
 def temp_project_dir():

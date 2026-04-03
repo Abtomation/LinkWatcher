@@ -8,7 +8,6 @@ updated: 2025-08-07
 task_name: test-audit
 visualization_type: Task Context
 map_type: Context Map
-task_type: Discrete
 ---
 
 # Test Audit Context Map

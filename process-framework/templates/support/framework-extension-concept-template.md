@@ -2,7 +2,7 @@
 id: [DOCUMENT_ID]
 type: Process Framework
 category: Proposal
-version: 1.0
+version: 1.1
 created: [Created Date]
 updated: [Created Date]
 extension_name: [Extension Name]
@@ -21,6 +21,20 @@ extension_scope: [Extension Scope]
 | Extension Name | [Extension Name] |
 | Extension Scope | [Extension Scope] |
 | Author | [Author] |
+
+---
+
+## 🔀 Extension Type
+
+> **Select one** — this determines which template sections to use.
+
+| Type | Use When | Sections to Use |
+|------|----------|-----------------|
+| **Creation** | Extension adds entirely new artifacts (tasks, templates, guides, scripts) | Use sections as-is; remove Modification-Focused Sections |
+| **Modification** | Extension modifies existing artifacts (adds steps to tasks, updates templates, changes guides) | Use Modification-Focused Sections; remove "New Artifacts Created", "New Tasks Required", and multi-session plan |
+| **Hybrid** | Extension both creates new artifacts and modifies existing ones | Use all sections; fill in both creation and modification tables |
+
+**Selected Type**: [Creation / Modification / Hybrid]
 
 ---
 
@@ -108,7 +122,7 @@ This framework extension should be used when:
 #### Framework Integration
 - **Updated Core Framework Files**:
   - **ai-tasks.md**: New tasks integrated into main task registry
-  - **documentation-map.md**: All new artifacts and their relationships
+  - **Documentation maps**: All new artifacts and their relationships — use `PF-documentation-map.md` for process framework artifacts (tasks, guides, templates, scripts), `doc/PD-documentation-map.md` for product artifacts (TDDs, FDDs, ADRs, validation reports, handbooks), or `test/TE-documentation-map.md` for test artifacts (test specs, audit reports, E2E tests)
   - **ID registries**: New ID prefixes in the appropriate registry (PF/PD/TE-id-registry.json) for extension-created file types (if needed)
 - **Integration Documentation** - How the extension works with existing framework workflow
 
@@ -170,6 +184,9 @@ This framework extension should be used when:
 ### Artifact Dependency Map
 
 #### New Artifacts Created
+
+> **Creation/Hybrid only** — For Modification-type extensions, delete this table and use the Modification-Focused Sections instead.
+
 | Artifact Type | Name | Directory | Purpose | Serves as Input For |
 |---------------|------|-----------|---------|-------------------|
 | [Type 1] | [Name 1] | [Directory 1] | [Purpose 1] | [Task/Process 1] |
@@ -186,6 +203,9 @@ This framework extension should be used when:
 ### State Tracking Integration Strategy
 
 #### New Permanent State Files Required
+
+> **Creation/Hybrid only** — For Modification-type extensions, use the State Tracking Audit in the Modification-Focused Sections instead.
+
 - **[State File 1]**: [Purpose and what it tracks]
 - **[State File 2]**: [Purpose and what it tracks]
 
@@ -197,15 +217,58 @@ This framework extension should be used when:
 - **[Trigger 1]**: [When and what gets updated]
 - **[Trigger 2]**: [When and what gets updated]
 
+## 🔄 Modification-Focused Sections
+
+> **Use these sections for Modification or Hybrid extension types.** For Creation-only extensions, delete this entire section block.
+
+### State Tracking Audit
+
+> Identify every existing state file that this extension will modify. For each, describe the specific changes needed.
+
+| State File | Current Purpose | Modification Needed | Change Type |
+|-----------|-----------------|---------------------|-------------|
+| [State File 1] | [Current purpose] | [What will be added/changed] | Add field / Add section / Modify schema |
+| [State File 2] | [Current purpose] | [What will be added/changed] | Add field / Add section / Modify schema |
+
+**Cross-reference impact**: [Describe how state file changes affect files that read from these state files — e.g., scripts that parse the state file, tasks that reference specific fields]
+
+### Guide Update Inventory
+
+> Identify every existing guide, task definition, and documentation file that references the artifacts being modified. Each must be updated to reflect the extension's changes.
+
+| File to Update | References To | Update Needed |
+|---------------|---------------|---------------|
+| [Guide/Task/Doc 1] | [What it references] | [What needs changing — e.g., add new step reference, update section description] |
+| [Guide/Task/Doc 2] | [What it references] | [What needs changing] |
+| [Guide/Task/Doc 3] | [What it references] | [What needs changing] |
+
+**Discovery method**: [How were these references found — e.g., grep for task ID, grep for file path, manual review of context map]
+
+### Automation Integration Strategy
+
+> Describe how the extension interacts with existing automation scripts. Modifications to tasks, templates, or state files may require corresponding script updates.
+
+| Existing Script | Current Behavior | Required Change | Backward Compatible? |
+|----------------|-----------------|-----------------|---------------------|
+| [Script 1] | [What it does now] | [What needs changing] | Yes / No — [migration note if No] |
+| [Script 2] | [What it does now] | [What needs changing] | Yes / No — [migration note if No] |
+
+**New automation needed**: [Describe any new scripts required to support the modification, or state "None — existing scripts sufficient"]
+
+---
+
 ## 🔧 Implementation Roadmap
 
 ### Required Components Analysis
 
 #### New Tasks Required
-| Task Name | Task Type | Purpose | Dependencies |
-|-----------|-----------|---------|--------------|
-| [Task 1] | [Type] | [Purpose] | [Dependencies] |
-| [Task 2] | [Type] | [Purpose] | [Dependencies] |
+
+> **Creation/Hybrid only** — For Modification-type extensions, delete this table.
+
+| Task Name | Purpose | Dependencies |
+|-----------|---------|--------------|
+| [Task 1] | [Purpose] | [Dependencies] |
+| [Task 2] | [Purpose] | [Dependencies] |
 | [Task 3] | [Type] | [Purpose] | [Dependencies] |
 
 #### Supporting Infrastructure Required

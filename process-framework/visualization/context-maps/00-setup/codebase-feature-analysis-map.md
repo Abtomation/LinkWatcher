@@ -40,16 +40,16 @@ graph TD
 
 ### Critical Components (Must Understand)
 - **[Retrospective Master State File](../../../state-tracking/temporary/old/retrospective-master-state.md)**: Tracks overall progress across all onboarding phases; read to verify Phase 1 complete, update after each session with analysis progress
-- **[Feature Implementation State Files](../../../../doc/product-docs/state-tracking/features)**: Per-feature files created in PF-TSK-064 containing code inventories; these are enriched during analysis with Design Decisions, Dependencies, and Implementation Patterns
-- **[Feature Tracking](../../../../doc/product-docs/state-tracking/permanent/feature-tracking.md)**: Permanent registry of all features; used to identify which features need analysis
+- **[Feature Implementation State Files](/doc/state-tracking/features)**: Per-feature files created in PF-TSK-064 containing code inventories; these are enriched during analysis with Design Decisions, Dependencies, and Implementation Patterns
+- **[Feature Tracking](../../../../doc/state-tracking/permanent/feature-tracking.md)**: Permanent registry of all features; used to identify which features need analysis
 - **[Feature Implementation State Tracking Guide](../../../guides/04-implementation/feature-implementation-state-tracking-guide.md)**: Guide for populating Design Decisions, Dependencies, and Implementation Patterns sections
 
 ### Important Components (Should Understand)
 - **[Feature Tier Assessment Task](../../../tasks/01-planning/feature-tier-assessment-task.md)**: Understanding what complexity factors and analysis details feed into tier assessment in the next task
 
 ### Reference Components (Access When Needed)
-- **[Documentation Tiers README](../../../../doc/product-docs/documentation-tiers/README.md)**: Understanding tier documentation requirements (useful context for analysis depth)
-- **[Feature Dependencies](../../../../doc/product-docs/technical/design/feature-dependencies.md)**: Existing dependency documentation (reference when documenting cross-feature dependencies)
+- **[Documentation Tiers README](../../../../doc/documentation-tiers/README.md)**: Understanding tier documentation requirements (useful context for analysis depth)
+- **[Feature Dependencies](../../../../doc/technical/feature-dependencies.md)**: Existing dependency documentation (reference when documenting cross-feature dependencies)
 
 ## Key Relationships
 
@@ -63,7 +63,7 @@ graph TD
 
 1. **Every Session Start**: Read [Retrospective Master State](../../../state-tracking/temporary/old/retrospective-master-state.md) to verify Phase 1 complete and identify features needing analysis
 2. **Per-Feature Analysis Loop**:
-   - Read [Feature Implementation State file](../../../../doc/product-docs/state-tracking/features) with code inventory
+   - Read [Feature Implementation State file](/doc/state-tracking/features) with code inventory
    - Analyze component architecture, data flow, error handling → Document in Design Decisions section
    - Identify feature dependencies, system dependencies, code dependencies → Document in Dependencies section
    - Map test coverage, test types, test gaps → Document in Test Files section

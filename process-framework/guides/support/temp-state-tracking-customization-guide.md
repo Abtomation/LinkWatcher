@@ -200,7 +200,7 @@ Phase 4: Framework Integration & Testing
 ### Phase 2: Document Creation Infrastructure (Session 2)
 **Priority**: HIGH - Task creates TDD files
 
-- [x] **Task Output Directory**: doc/product-docs/technical/design/tdds/
+- [x] **Task Output Directory**: doc/technical/design/tdds
 - [x] **Document Creation Script**: New-TDD.ps1
 - [x] **ID Registry Update**: Add PD-TDD prefix
 ```

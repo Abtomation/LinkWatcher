@@ -42,18 +42,23 @@ param(
     [string]$ProjectRoot = ""
 )
 
+# Import Common-ScriptHelpers for standardized utilities
+$scriptDir = if ($PSScriptRoot) { $PSScriptRoot } else { (Get-Location).Path }
+$modulePath = Join-Path -Path $scriptDir -ChildPath "../../../scripts/Common-ScriptHelpers.psm1"
+try {
+    $resolvedPath = Resolve-Path $modulePath -ErrorAction Stop
+    Import-Module $resolvedPath -Force
+} catch {
+    Write-Error "Failed to import Common-ScriptHelpers: $($_.Exception.Message)"
+    exit 1
+}
+
 # Resolve project root
 if (-not $ProjectRoot) {
-    # Walk up from script location to find project root (contains .git or main.py)
-    $searchDir = $PSScriptRoot
-    while ($searchDir -and -not (Test-Path (Join-Path $searchDir ".git"))) {
-        $searchDir = Split-Path $searchDir -Parent
+    $ProjectRoot = Get-ProjectRoot
+    if (-not $ProjectRoot) {
+        Write-ProjectError -Message "Could not auto-detect project root. Use -ProjectRoot parameter." -ExitCode 1
     }
-    if (-not $searchDir) {
-        Write-Error "Could not auto-detect project root. Use -ProjectRoot parameter."
-        exit 1
-    }
-    $ProjectRoot = $searchDir
 }
 
 $templatesDir = Join-Path $ProjectRoot "test/e2e-acceptance-testing/templates"
@@ -61,8 +66,7 @@ $workspaceDir = Join-Path $ProjectRoot "test/e2e-acceptance-testing/workspace"
 
 # Validate templates directory exists
 if (-not (Test-Path $templatesDir)) {
-    Write-Error "Templates directory not found: $templatesDir"
-    exit 1
+    Write-ProjectError -Message "Templates directory not found: $templatesDir" -ExitCode 1
 }
 
 # Determine which groups to set up
@@ -70,8 +74,7 @@ $groups = @()
 if ($Group) {
     $groupPath = Join-Path $templatesDir $Group
     if (-not (Test-Path $groupPath)) {
-        Write-Error "Group not found: $groupPath"
-        exit 1
+        Write-ProjectError -Message "Group not found: $groupPath" -ExitCode 1
     }
     $groups += $Group
 } else {
@@ -140,7 +143,7 @@ foreach ($grp in $groups) {
         }
     }
 
-    Write-Host "  ✅ Set up group: $grp ($($testCases.Count) test cases)" -ForegroundColor Green
+    Write-ProjectSuccess -Message "Set up group: $grp ($($testCases.Count) test cases)"
 }
 
 Write-Host ""

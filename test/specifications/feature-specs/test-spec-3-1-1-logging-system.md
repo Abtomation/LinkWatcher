@@ -7,7 +7,7 @@ created: 2026-02-24
 updated: 2026-02-24
 feature_id: 3.1.1
 feature_name: Logging System
-tdd_path: doc/product-docs/technical/architecture/design-docs/tdd/tdd-3-1-1-logging-framework-t2.md
+tdd_path: doc/technical/tdd/tdd-3-1-1-logging-framework-t2.md
 test_tier: 2
 retrospective: true
 ---
@@ -18,10 +18,10 @@ retrospective: true
 
 ## Overview
 
-This document provides comprehensive test specifications for the **Logging System** feature (ID: 3.1.1), derived from the Technical Design Document [PD-TDD-024](../../../doc/product-docs/technical/architecture/design-docs/tdd/tdd-3-1-1-logging-framework-t2.md).
+This document provides comprehensive test specifications for the **Logging System** feature (ID: 3.1.1), derived from the Technical Design Document [PD-TDD-024](../../../doc/technical/tdd/tdd-3-1-1-logging-framework-t2.md).
 
 **Test Tier**: 2 (Unit + Integration)
-**TDD Reference**: [TDD PD-TDD-024](../../../doc/product-docs/technical/architecture/design-docs/tdd/tdd-3-1-1-logging-framework-t2.md)
+**TDD Reference**: [TDD PD-TDD-024](../../../doc/technical/tdd/tdd-3-1-1-logging-framework-t2.md)
 **Implementation Coverage**: 39/46 scenarios implemented (85%)
 
 ## Feature Context
@@ -38,7 +38,7 @@ The Logging System provides `LinkWatcherLogger` with domain-specific methods, `L
 
 ### Functional Requirements Reference
 
-> **Primary Documentation**: [FDD PD-FDD-025](../../../doc/product-docs/functional-design/fdds/fdd-3-1-1-logging-framework.md)
+> **Primary Documentation**: [FDD PD-FDD-025](../../../doc/functional-design/fdds/fdd-3-1-1-logging-framework.md)
 
 **Acceptance Criteria to Test**:
 - `--debug` flag makes DEBUG messages appear
@@ -180,7 +180,7 @@ The Logging System provides `LinkWatcherLogger` with domain-specific methods, `L
 
 ### Files to Reference
 
-- **TDD**: [`doc/product-docs/technical/architecture/design-docs/tdd/tdd-3-1-1-logging-framework-t2.md`](../../../doc/product-docs/technical/architecture/design-docs/tdd/tdd-3-1-1-logging-framework-t2.md)
+- **TDD**: [`doc/technical/architecture/design-docs/tdd/tdd-3-1-1-logging-framework-t2.md`](../../../doc/technical/tdd/tdd-3-1-1-logging-framework-t2.md)
 - **Existing Tests**: [`test/automated/unit/test_logging.py`](../../../test/automated/unit/test_logging.py) (20 methods), [`test/automated/unit/test_advanced_logging.py`](../../../test/automated/unit/test_advanced_logging.py) (19 methods)
 - **Source Code**: [`linkwatcher/logging.py`](../../../linkwatcher/logging.py), [`linkwatcher/logging_config.py`](../../../linkwatcher/logging_config.py)
 

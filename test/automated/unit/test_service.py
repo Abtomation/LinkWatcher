@@ -173,6 +173,28 @@ class TestLinkWatcherService:
         assert "reason" in broken
         assert broken["reason"] == "File not found"
 
+    def test_check_links_anchor_fragment_not_false_positive(self, temp_project_dir, file_helper):
+        """Regression test for PD-BUG-070: links with #fragment anchors should not be reported as broken."""
+        service = LinkWatcherService(str(temp_project_dir))
+
+        # Create target file (exists on disk)
+        target_file = temp_project_dir / "target.md"
+        file_helper.create_markdown_file(target_file, "# Section\nContent here.")
+
+        # Create source file with anchor link to existing file
+        source_file = temp_project_dir / "source.md"
+        file_helper.create_markdown_file(source_file, "See [section](target.md#section) for details.")
+
+        service._initial_scan()
+        result = service.check_links()
+
+        # target.md exists — the #section anchor must NOT cause a false positive
+        broken_targets = [b["target_path"] for b in result["broken_links"]]
+        assert "target.md#section" not in broken_targets, (
+            "Link with anchor fragment was incorrectly reported as broken (PD-BUG-070)"
+        )
+        assert "target.md" not in broken_targets
+
     def test_service_components_integration(self, temp_project_dir, sample_files):
         """Test that all service components work together."""
         service = LinkWatcherService(str(temp_project_dir))

@@ -5,7 +5,6 @@ category: Task Definition
 version: 1.1
 created: 2025-12-13
 updated: 2026-03-02
-task_type: Discrete
 ---
 
 # Quality Validation
@@ -43,7 +42,7 @@ Validate feature implementation against quality standards, business requirements
 
 - **Important (Load If Space):**
 
-  - **Feature Tracking** - [Feature details from feature-tracking.md](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) for business context
+  - **Feature Tracking** - [Feature details from feature-tracking.md](../../../doc/state-tracking/permanent/feature-tracking.md) for business context
   - **Accessibility Guidelines** - [WCAG 2.1 Standards](https://www.w3.org/WAI/WCAG21/quickref/) for accessibility compliance
 
 - **Reference Only (Access When Needed):**

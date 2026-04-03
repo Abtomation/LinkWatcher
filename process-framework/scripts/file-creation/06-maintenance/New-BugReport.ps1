@@ -63,6 +63,7 @@
 param(
     [Parameter(Mandatory = $true)]
     [ValidateLength(5, 100)]
+    [Alias("BugTitle")]
     [string]$Title,
 
     [Parameter(Mandatory = $true)]
@@ -75,6 +76,7 @@ param(
 
     [Parameter(Mandatory = $true)]
     [ValidateSet("Critical", "High", "Medium", "Low")]
+    [Alias("Priority")]
     [string]$Severity,
 
     [Parameter(Mandatory = $true)]
@@ -98,10 +100,14 @@ param(
     [string]$Evidence = "",
 
     [Parameter(Mandatory = $false)]
+    [Alias("AffectedFeature")]
     [string]$RelatedFeature = "",
 
     [Parameter(Mandatory = $false)]
-    [string]$Dims = ""
+    [string]$Dims = "",
+
+    [Parameter(Mandatory = $false)]
+    [string]$Workflows = ""
 )
 
 # Import the common helpers
@@ -117,7 +123,7 @@ $currentDate = Get-Date -Format "yyyy-MM-dd"
 
 # Path to bug tracking file - use project root for reliable path resolution
 $ProjectRoot = Get-ProjectRoot
-$BugTrackingFile = Join-Path -Path $ProjectRoot -ChildPath "doc/product-docs/state-tracking/permanent/bug-tracking.md"
+$BugTrackingFile = Join-Path -Path $ProjectRoot -ChildPath "doc/state-tracking/permanent/bug-tracking.md"
 
 if (-not (Test-Path $BugTrackingFile)) {
     Write-ProjectError -Message "Bug tracking file not found: $BugTrackingFile" -ExitCode 1
@@ -161,21 +167,29 @@ if ($ActualBehavior -ne "") { $NotesParts += "Actual: $ActualBehavior" }
 if ($Evidence -ne "") { $NotesParts += "Evidence: $Evidence" }
 $NotesField = $NotesParts -join "; "
 
+# Escape pipe characters in user-supplied text to prevent markdown table corruption
+$Title = $Title -replace '\|', '\|'
+$Description = $Description -replace '\|', '\|'
+$NotesField = $NotesField -replace '\|', '\|'
+
 # Related feature field
 $RelatedFeatureField = if ($RelatedFeature -ne "") { $RelatedFeature } else { "N/A" }
+
+# Workflows field
+$WorkflowsField = if ($Workflows -ne "") { $Workflows } else { "" }
 
 # Dims field
 $DimsField = if ($Dims -ne "") { $Dims } else { "" }
 
-# Create table row — 10-column format: ID | Title | Status | Priority | Scope | Reported | Description | Related Feature | Dims | Notes
-$TableRow = "| $BugId | $Title | 🆕 Reported | $PriorityCode | | $currentDate | $Description | $RelatedFeatureField | $DimsField | $NotesField |"
+# Create table row — 11-column format: ID | Title | Status | Priority | Scope | Reported | Description | Related Feature | Workflows | Dims | Notes
+$TableRow = "| $BugId | $Title | 🆕 Reported | $PriorityCode | | $currentDate | $Description | $RelatedFeatureField | $WorkflowsField | $DimsField | $NotesField |"
 
 # Find the appropriate table and replace the "No bugs" message
 $NobugsPattern = switch ($Severity) {
-    "Critical" { "\| _No critical bugs currently reported_ \|" }
+    "Critical" { "\| _No critical bugs currently active_ \|" }
     "High" { "\| _No high priority bugs currently active_ \|" }
-    "Medium" { "\| _No medium priority bugs currently reported_ \|" }
-    "Low" { "\| _No low priority bugs currently reported_ \|" }
+    "Medium" { "\| _No medium priority bugs currently active_ \|" }
+    "Low" { "\| _No low priority bugs currently active_ \|" }
 }
 
 # Replace the "no bugs" message with the new bug entry

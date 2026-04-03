@@ -6,7 +6,6 @@ version: 1.0
 created: 2025-07-21
 updated: 2025-07-21
 map_type: Context Map
-task_type: Discrete
 task_name: database-schema-design-task
 visualization_type: Task Context
 ---

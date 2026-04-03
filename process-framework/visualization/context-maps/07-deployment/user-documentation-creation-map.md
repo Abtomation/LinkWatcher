@@ -27,7 +27,7 @@ graph TD
     TaskDef --> ExistingHandbooks[/Existing Handbooks/]
     HandbookScript --> Template[/Handbook Template PF-TEM-065/]
     HandbookScript --> IdRegistry[(PD-id-registry.json)]
-    HandbookScript --> OutputDir[/doc/product-docs/user/handbooks//]
+    HandbookScript --> OutputDir[/doc/user/handbooks//]
     ExistingHandbooks --> OutputDir
     FeatureState[/Feature Implementation State/] -.-> TaskDef
     README[/README.md/] -.-> OutputDir
@@ -41,12 +41,12 @@ graph TD
 
 ### Critical Components (Must Understand)
 - **Task Definition (PF-TSK-081)**: The User Documentation Creation task — defines the full process for creating or updating user handbooks
-- **Existing Handbooks**: The 4 existing handbooks in `doc/product-docs/user/handbooks/` serve as style and structure reference
+- **Existing Handbooks**: The 4 existing handbooks in `doc/user/handbooks` serve as style and structure reference
 
 ### Important Components (Should Understand)
 - **New-Handbook.ps1**: Script to create new handbook files with auto-assigned PD-UGD IDs
 - **Handbook Template (PF-TEM-065)**: Template at `templates/07-deployment/handbook-template.md` with optional sections
-- **Output Directory**: `doc/product-docs/user/handbooks/` where handbooks are stored
+- **Output Directory**: `doc/user/handbooks` where handbooks are stored
 
 ### Reference Components (Access When Needed)
 - **Feature Implementation State**: Feature state files that flag "User Documentation: Needed/Created"
@@ -74,6 +74,6 @@ graph TD
 - [Task Definition](/process-framework/tasks/07-deployment/user-documentation-creation.md) - Full task process
 - [Handbook Template](/process-framework/templates/07-deployment/handbook-template.md) - Template for new handbooks
 - [New-Handbook.ps1](/process-framework/scripts/file-creation/07-deployment/New-Handbook.ps1) - Creation script
-- [Existing Handbooks](/doc/product-docs/user/handbooks/) - Style reference
+- [Existing Handbooks](/doc/user/handbooks) - Style reference
 
 ---

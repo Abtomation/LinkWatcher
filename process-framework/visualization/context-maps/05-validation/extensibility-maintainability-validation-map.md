@@ -8,7 +8,6 @@ updated: 2025-08-16
 map_type: Context Map
 visualization_type: Task Context
 task_name: extensibility-maintainability-validation
-task_type: Discrete
 ---
 
 # Extensibility Maintainability Validation Context Map
@@ -109,7 +108,7 @@ graph TD
 ## Related Documentation
 
 - [Extensibility Maintainability Validation Task](../../../tasks/05-validation/extensibility-maintainability-validation.md) - Complete task definition and process
-- [Feature Tracking](../../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) - Current status of features
+- [Feature Tracking](../../../../doc/state-tracking/permanent/feature-tracking.md) - Current status of features
 - Validation Tracking State File - Active validation tracking matrix (file location depends on validation round)
 - [Validation Report Template](../../../templates/05-validation/validation-report-template.md) - Standardized report structure
 - [../../scripts/file-creation/New-ValidationReport.ps1](../../../scripts/file-creation/05-validation/New-ValidationReport.ps1) - Automation script for report generation

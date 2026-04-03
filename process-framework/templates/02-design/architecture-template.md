@@ -4,7 +4,9 @@ type: Process Framework
 category: Template
 version: 1.0
 created: 2023-06-15
-updated: 2025-07-04
+updated: 2026-04-02
+automation: manual
+automation_rationale: Created once per project or major component — too infrequent to justify a script
 ---
 
 # [Component/System Name] Architecture

@@ -108,7 +108,7 @@ try {
 $projectRoot = Get-ProjectRoot
 
 # --- Language Detection via project-config.json ---
-$projectConfigPath = Join-Path $projectRoot "process-framework/project-config.json"
+$projectConfigPath = Join-Path $projectRoot "doc/project-config.json"
 $language = "Dart" # Default fallback for backward compatibility
 
 if (Test-Path $projectConfigPath) {

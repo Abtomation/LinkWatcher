@@ -19,34 +19,43 @@ cd process-framework/scripts/file-creation/06-maintenance
 
 For batch mode: copy the "Item N" section in the generated plan for each additional debt item.
 
-**L2. Fill Item Scope**: For each item in the plan, fill in the Scope, Debt Item ID, and Test Baseline fields. Read the tech debt item's **Dims** column from [Technical Debt Tracking](../../../doc/product-docs/state-tracking/permanent/technical-debt-tracking.md) to understand which dimension(s) the refactoring should improve along.
+**L2. Fill Item Scope**: For each item in the plan, fill in the Scope, Debt Item ID, and Test Baseline fields. Read the tech debt item's **Dims** column from [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) to understand which dimension(s) the refactoring should improve along.
 
-**L3. 🚨 CHECKPOINT**: Present the plan (scope + changes) to human partner for approval before implementing.
+**L3. Assess Test Coverage**: For each item, check whether existing tests exercise the specific code paths being refactored. If coverage is insufficient, write characterization tests to lock current behavior before refactoring:
+   - **Sufficient coverage**: Existing tests exercise the specific code paths being refactored (both happy paths and error/edge cases touched by the change). Proceed to L4.
+   - **Insufficient coverage**: No tests exist for the target method/class, or tests only cover happy paths while the refactoring touches error handling or edge cases. Write characterization tests first:
+     ```powershell
+     cd process-framework/scripts/file-creation/03-testing
+     .\New-TestFile.ps1 -FeatureId "X.Y.Z" -TestType "unit" -Component "ComponentName"
+     ```
+   - Characterization tests capture *current* behavior (even if imperfect) — they are a safety net, not a quality judgment.
 
-**L4. Implement Changes**: Apply refactoring. Run tests after each change to verify behavior preservation.
+**L4. 🚨 CHECKPOINT**: Present the plan (scope + changes) to human partner for approval before implementing.
 
-**L5. Run Regression Tests**: Run `Run-Tests.ps1 -All` to confirm the refactoring preserves all existing behavior across the full test suite. If manual tests exist for the affected feature, set their status to "Needs Re-execution" in test-tracking.md.
+**L5. Implement Changes**: Apply refactoring. Run tests after each change to verify behavior preservation.
 
-**L6. Complete Documentation & State Updates Checklist**: For each item in the plan, check every item in the "Documentation & State Updates" section. Each N/A requires a brief justification note in the plan (e.g., "Grepped TDD — no references to changed method"):
+**L6. Run Regression Tests**: Run `Run-Tests.ps1 -All` to confirm the refactoring preserves all existing behavior across the full test suite. If manual tests exist for the affected feature, set their status to "Needs Re-execution" in test-tracking.md.
+
+**L7. Complete Documentation & State Updates Checklist**: For each item in the plan, check every item in the "Documentation & State Updates" section. Each N/A requires a brief justification note in the plan (e.g., "Grepped TDD — no references to changed method"):
    - Feature implementation state file updated, or N/A — verified file does not reference changed component (grep state file for component/method name)
-   - TDD updated, or N/A — verified no interface/design changes documented (grep TDD for references to changed component)
+   - TDD updated, or N/A — verified no interface or significant internal design changes (new data structures, algorithm rewrites, storage layout changes) documented in TDD (grep TDD for references to changed component)
    - Test spec updated, or N/A — verified no behavior change affects spec (grep test spec for changed component)
    - FDD updated, or N/A — verified no functional change affects FDD (grep FDD for changed component)
    - ADR updated, or N/A — verified no architectural decision affected (grep ADR directory for changed component)
    - Validation tracking updated, or N/A — verified feature is not tracked or change doesn't affect validation (check validation-tracking file for feature)
    - Technical Debt Tracking: TD item marked resolved
 
-**L7. Fill Results**: Record test results, bugs discovered, and doc updates in the plan. Complete the Results Summary table.
+**L8. Fill Results**: Record test results, bugs discovered, and doc updates in the plan. Complete the Results Summary table.
 
-**L8. Update State Files**:
-   - [ ] [Technical Debt Tracking](../../../doc/product-docs/state-tracking/permanent/technical-debt-tracking.md): Mark resolved items using `Update-TechDebt.ps1 -DebtId "TD###" -NewStatus "Resolved" -ResolutionNotes "..."` — if tracked in a validation tracking file, also pass `-ValidationNote "PD-REF-### — description"` (validation file auto-discovered)
-   - [ ] [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md): Update feature status if applicable
-   - [ ] [Bug Tracking](../../../doc/product-docs/state-tracking/permanent/bug-tracking.md): Report any discovered bugs using New-BugReport.ps1
-   - [ ] **Archive Refactoring Plan**: Move completed plan to `doc/product-docs/refactoring/plans/archive/`
+**L9. Update State Files**:
+   - [ ] [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md): Mark resolved items using `Update-TechDebt.ps1 -DebtId "TD###" -NewStatus "Resolved" -ResolutionNotes "..."` — if tracked in a validation tracking file, also pass `-ValidationNote "PD-REF-### — description"` (validation file auto-discovered)
+   - [ ] [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md): Update feature status if applicable
+   - [ ] [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md): Report any discovered bugs using New-BugReport.ps1
+   - [ ] **Archive Refactoring Plan**: Move completed plan to `doc/refactoring/plans/archive`
 
-**L9. 🚨 CHECKPOINT**: Present results summary to human partner for review.
+**L10. 🚨 CHECKPOINT**: Present results summary to human partner for review.
 
-**L10. 🚨 MANDATORY FINAL STEP**: Complete the Task Completion Checklist below.
+**L11. 🚨 MANDATORY FINAL STEP**: Complete the Task Completion Checklist below.
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
@@ -59,8 +68,8 @@ For batch mode: copy the "Item N" section in the generated plan for each additio
   - [ ] Results Summary table filled in the plan
   - [ ] Any discovered bugs reported using New-BugReport.ps1
 - [ ] **Update State Files**:
-  - [ ] [Technical Debt Tracking](../../../doc/product-docs/state-tracking/permanent/technical-debt-tracking.md): resolved items updated via `Update-TechDebt.ps1`
-  - [ ] [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md): feature status updated if applicable
-  - [ ] [Bug Tracking](../../../doc/product-docs/state-tracking/permanent/bug-tracking.md): any discovered bugs added
-  - [ ] Refactoring plan archived to `doc/product-docs/refactoring/plans/archive/`
+  - [ ] [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md): resolved items updated via `Update-TechDebt.ps1`
+  - [ ] [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md): feature status updated if applicable
+  - [ ] [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md): any discovered bugs added
+  - [ ] Refactoring plan archived to `doc/refactoring/plans/archive`
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-022" and context "Code Refactoring Task"

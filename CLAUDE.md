@@ -70,7 +70,7 @@ See @process-framework/guides/support/script-development-quick-reference.md for 
 
 The project maintains clear separation between two concerns:
 
-- **Process Framework** (`doc/product-docs`): HOW to develop the project (tasks, templates, workflows)
+- **Process Framework** (`doc`): HOW to develop the project (tasks, templates, workflows)
 - **Product Documentation** (`docs/`): Project-specific documentation (testing, CI/CD, configuration, troubleshooting)
 
 ### Process Framework Structure
@@ -107,7 +107,7 @@ process-framework/
 
 All framework documents use structured IDs:
 - `PF-XXX-###` format (e.g., `PF-TSK-001` for tasks)
-- Tracked in @process-framework/PF-id-registry.json, @doc/product-docs/PD-id-registry.json, and @test/TE-id-registry.json
+- Tracked in @process-framework/PF-id-registry.json, @doc/PD-id-registry.json, and @test/TE-id-registry.json
 
 ## Common Commands
 
@@ -148,7 +148,7 @@ All scripts are in `process-framework/scripts/file-creation`:
 process-framework/scripts/validation/Validate-FeedbackForms.ps1
 
 # Validate ID registry
-process-framework/scripts/validation/validate-id-registry.ps1
+process-framework/scripts/validation/Validate-IdRegistry.ps1
 
 # Validate state tracking (feature states, cross-references, ID counters)
 process-framework/scripts/validation/Validate-StateTracking.ps1
@@ -167,7 +167,7 @@ Each task definition includes a mandatory completion checklist.
 ## Key References
 
 - **Task Registry**: @process-framework/ai-tasks.md
-- **Documentation Map**: @process-framework/documentation-map.md (index of all framework documents)
+- **Documentation Map**: @process-framework/PF-documentation-map.md (index of all framework documents)
 - **Process Framework README**: @process-framework/README.md
 - **Project README**: @README.md
 

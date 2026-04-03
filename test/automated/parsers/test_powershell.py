@@ -26,7 +26,7 @@ class TestPowerShellParser:
     def test_parser_initialization(self):
         """Test parser initialization."""
         parser = PowerShellParser()
-        assert parser.quoted_pattern is not None
+        assert parser.all_quoted_pattern is not None
         assert parser.path_pattern is not None
         assert parser.block_comment_start is not None
         assert parser.block_comment_end is not None
@@ -44,10 +44,10 @@ class TestPowerShellParser:
     def test_block_comment_with_paths(self):
         """Test extracting file paths from <# #> block comments."""
         parser = PowerShellParser()
-        content = "<#\n.NOTES\n  See doc/guides/setup-guide.md for details\n#>\n"
+        content = "<#\n.NOTES\n  See alpha-project/docs/guides/setup-guide.md for details\n#>\n"
         refs = parser.parse_content(content, "test.ps1")
         targets = [r.link_target for r in refs]
-        assert "doc/guides/setup-guide.md" in targets
+        assert "alpha-project/docs/guides/setup-guide.md" in targets
         assert any(r.link_type == "powershell-block-comment" for r in refs)
 
     def test_single_line_block_comment(self):
@@ -266,33 +266,33 @@ class TestEmbeddedMarkdownLinks:
     def test_embedded_md_link_static_path(self):
         """Test markdown link with static directory path."""
         parser = PowerShellParser()
-        content = '$link = "[Label](doc/some/directory)"\n'
+        content = '$link = "[Label](alpha-project/docs/some/directory)"\n'
         refs = parser.parse_content(content, "test.ps1")
         embedded = [r for r in refs if r.link_type == "powershell-embedded-md-link"]
         assert len(embedded) == 1
-        assert embedded[0].link_target == "doc/some/directory"
+        assert embedded[0].link_target == "alpha-project/docs/some/directory"
 
     def test_embedded_md_link_in_write_host(self):
         """Test markdown link embedded in Write-Host string."""
         parser = PowerShellParser()
         content = (
-            'Write-Host "  Add link: [$id](doc/framework/templates/$file)" '
+            'Write-Host "  Add link: [$id](alpha-project/framework/templates/$file)" '
             "-ForegroundColor Cyan\n"
         )
         refs = parser.parse_content(content, "test.ps1")
         embedded = [r for r in refs if r.link_type == "powershell-embedded-md-link"]
         assert len(embedded) == 1
-        assert embedded[0].link_target == "doc/framework/templates/$file"
+        assert embedded[0].link_target == "alpha-project/framework/templates/$file"
 
     def test_embedded_md_link_column_positions(self):
         """Test that column positions point to the path, not the full string."""
         parser = PowerShellParser()
-        content = '$x = "[text](doc/path/here)"\n'
+        content = '$x = "[text](alpha-project/docs/path/here)"\n'
         refs = parser.parse_content(content, "test.ps1")
         embedded = [r for r in refs if r.link_type == "powershell-embedded-md-link"]
         assert len(embedded) == 1
-        # The path starts after "](", verify it points to "doc/path/here"
-        assert content[embedded[0].column_start : embedded[0].column_end] == "doc/path/here"
+        # The path starts after "](", verify it points to "alpha-project/docs/path/here"
+        assert content[embedded[0].column_start : embedded[0].column_end] == "alpha-project/docs/path/here"
 
     def test_no_false_positive_non_path(self):
         """Test that non-path content in parens is not matched."""
@@ -420,10 +420,10 @@ class TestBug057BlockCommentDirectoryPaths:
     def test_file_path_in_block_comment_still_works(self):
         """File paths with extensions in block comments should still be detected (no regression)."""
         parser = PowerShellParser()
-        content = "<#\n" "See doc/guides/setup-guide.md for details\n" "#>\n"
+        content = "<#\n" "See alpha-project/docs/guides/setup-guide.md for details\n" "#>\n"
         refs = parser.parse_content(content, "test.ps1")
         targets = [r.link_target for r in refs]
-        assert "doc/guides/setup-guide.md" in targets
+        assert "alpha-project/docs/guides/setup-guide.md" in targets
 
     def test_embedded_md_link_in_block_comment(self):
         """Markdown-style link in block comment should be detected."""
@@ -447,8 +447,8 @@ class TestPowerShellLeadingWhitespace:
     def test_leading_whitespace_in_quoted_dir_path(self):
         """Leading whitespace in quoted directory path should be stripped."""
         parser = PowerShellParser()
-        content = 'Write-Host "  doc/framework/state-tracking/backups"\n'
+        content = 'Write-Host "  alpha-project/framework/state-tracking/backups"\n'
         refs = parser.parse_content(content, "test.ps1")
         targets = [r.link_target for r in refs]
         # The target should be trimmed — no leading spaces
-        assert "doc/framework/state-tracking/backups" in targets
+        assert "alpha-project/framework/state-tracking/backups" in targets

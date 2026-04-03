@@ -78,11 +78,11 @@ $projectRoot = $null
 if ($PSScriptRoot) {
     $projectRoot = (Resolve-Path (Join-Path $scriptDir "../../..")).Path
 }
-if (-not $projectRoot -or -not (Test-Path (Join-Path $projectRoot "process-framework/project-config.json"))) {
+if (-not $projectRoot -or -not (Test-Path (Join-Path $projectRoot "doc/project-config.json"))) {
     # Search upward from CWD for project-config.json
     $searchDir = (Get-Location).Path
     while ($searchDir -and $searchDir.Length -gt 3) {
-        if (Test-Path (Join-Path $searchDir "process-framework/project-config.json")) {
+        if (Test-Path (Join-Path $searchDir "doc/project-config.json")) {
             $projectRoot = $searchDir
             break
         }
@@ -90,7 +90,7 @@ if (-not $projectRoot -or -not (Test-Path (Join-Path $projectRoot "process-frame
     }
 }
 if (-not $projectRoot) {
-    Write-Error "Could not find project root (no process-framework/project-config.json found)"
+    Write-Error "Could not find project root (no doc/project-config.json found)"
     exit 1
 }
 $langConfigDir = Join-Path $projectRoot "process-framework/languages-config"

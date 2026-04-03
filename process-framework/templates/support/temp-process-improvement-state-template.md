@@ -78,7 +78,7 @@ task_name: [TASK-NAME]
   - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
   - **Documents updated**: [List of files updated]
 
-- [ ] **Update documentation map**: Add/update entries in documentation-map.md if new artifacts were created
+- [ ] **Update documentation map**: Add/update entries in PF-documentation-map.md if new artifacts were created
   - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED/SKIPPED]
   - **Reason for skip**: [If skipped — e.g., no new artifacts created]
 

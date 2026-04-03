@@ -15,7 +15,7 @@ change_name: test-directory-consolidation
 ## Structure Change Overview
 - **Change Name**: Test Directory Consolidation & Framework Integration
 - **Change ID**: SC-006
-- **Proposal Document**: [Structure Change Proposal (PF-PRO-006)](/process-framework/proposals/proposals/old/structure-change-test-directory-consolidation-and-framework-integration-proposal.md)
+- **Proposal Document**: [Structure Change Proposal (PF-PRO-006)](/process-framework/proposals/old/structure-change-test-directory-consolidation-and-framework-integration-proposal.md)
 - **Change Type**: Directory Reorganization
 - **Scope**: Consolidate 4 test directories into unified `test/` structure, formalize ad-hoc tests via PF-TSK-069, relocate test audits, create project-agnostic test runner, eliminate redundant documentation
 - **Expected Completion**: 2026-03-17
@@ -37,7 +37,7 @@ change_name: test-directory-consolidation
 | Automated test files (*.py) | ~30 | `tests/**/*.py` → `test/automated/**/*.py` | SIMPLE (move) | conftest.py, utils.py, unit/, integration/, parsers/, performance/ |
 | Bug validation scripts | 13 | `tests/manual/*.py` → `test/automated/bug-validation/*.py` | SIMPLE (move) | PD-BUG-* regression scripts |
 | Test fixtures | 4 | `tests/fixtures/*` → `test/automated/fixtures/*` | SIMPLE (move) | sample_markdown.md, sample_config.yaml, sample_data.json, __init__.py |
-| Test audit reports | 7 | `doc/product-docs/test-audits/**` → `test/audits/**` | SIMPLE (move) | 3 subdirectories: foundation/, authentication/, core-features/ |
+| Test audit reports | 7 | `doc/test-audits/**` → `test/audits/**` | SIMPLE (move) | 3 subdirectories: foundation/, authentication/, core-features/ |
 | Redundant .md files | 4 | `tests/*.md` | DELETE | README, TEST_PLAN, TEST_CASE_STATUS, TEST_CASE_TEMPLATE |
 | Ad-hoc PS parser tests | 3 | `manual-tests/powershell-parser/` | MODERATE (formalize) | Formalize via PF-TSK-069 |
 | Ad-hoc MD parser tests | 12+ | `manual_markdown_tests/` | MODERATE (formalize) | Formalize via PF-TSK-069 |
@@ -52,7 +52,7 @@ change_name: test-directory-consolidation
 | Guide (new) | `test-infrastructure-guide.md` | `process-framework/guides/03-testing` | Create — explains test/ structure | MEDIUM |
 | State File | `4.1.1-test-suite-implementation-state.md` | `process-framework/state-tracking/features` | Update all `tests/` → `test/automated/` paths | HIGH |
 | State File | `test-tracking.md` | `process-framework/state-tracking/permanent` | Update audit report path references | HIGH |
-| State File | `documentation-map.md` | `doc/product-docs` | Update test audit links, remove deleted .md refs | MEDIUM |
+| State File | `PF-documentation-map.md` | `doc` | Update test audit links, remove deleted .md refs | MEDIUM |
 | Validation Script | `Validate-TestTracking.ps1` | `process-framework/scripts/validation` | Verify paths work with new structure | MEDIUM |
 | Validation Script | `Validate-StateTracking.ps1` | `process-framework/scripts/validation` | Verify paths work with new structure | MEDIUM |
 | Audit Script | `New-TestAuditReport.ps1` | `process-framework/scripts/file-creation` | Update output path to `test/audits/` | MEDIUM |
@@ -83,7 +83,7 @@ change_name: test-directory-consolidation
   - **Delegated To**: PF-TSK-014 direct
   - **Files**: README.md, TEST_PLAN.md, TEST_CASE_STATUS.md, TEST_CASE_TEMPLATE.md
 
-- [x] **Move `doc/product-docs/test-audits/` to `test/audits/`**
+- [x] **Move `doc/test-audits` to `test/audits/`**
   - **Status**: COMPLETED
   - **Delegated To**: PF-TSK-014 direct
   - **Files**: 7 audit reports across 3 subdirectories + README.md
@@ -174,7 +174,7 @@ change_name: test-directory-consolidation
 
 - [x] **Update `New-TestAuditReport.ps1` / id-registry.json**
   - **Status**: COMPLETED
-  - **Scope**: PF-TAR `main` directory updated from `doc/product-docs/test-audits` to `test/audits` in id-registry.json
+  - **Scope**: PF-TAR `main` directory updated from `doc/test-audits` to `test/audits` in id-registry.json
 
 - [x] **Update `project-config.json`**
   - **Status**: COMPLETED
@@ -194,7 +194,7 @@ change_name: test-directory-consolidation
 
 - [x] **Update test-tracking.md audit report paths**
   - **Status**: COMPLETED
-  - **Changes**: All `../../../../doc/product-docs/test-audits` → `../../../../test/audits/` (bulk replace)
+  - **Changes**: All `../../../../doc/test-audits` → `../../../../test/audits/` (bulk replace)
 
 - [x] **Run validation scripts**
   - **Status**: COMPLETED
@@ -246,7 +246,7 @@ change_name: test-directory-consolidation
 - `New-ManualTestCase.ps1` created duplicate IDs when run from wrong cwd — cleaned up, counters reset
 
 **Next Session Plan**:
-- Update documentation-map.md (test audit links, new guide, removed files)
+- Update PF-documentation-map.md (test audit links, new guide, removed files)
 - Update task definitions (PF-TSK-053, PF-TSK-064, PF-TSK-066, PF-TSK-030)
 - Update test-tracking.md audit report paths
 - Fix validation script module loading (if needed)
@@ -306,7 +306,7 @@ change_name: test-directory-consolidation
 - [x] **Feature 4.1.1 State**: All `tests/` → `test/automated/` paths updated, deleted files noted
   - **Status**: COMPLETED
 
-- [x] **Test Tracking**: All `../../../../doc/product-docs/test-audits` → `../../../../test/audits/`
+- [x] **Test Tracking**: All `../../../../doc/test-audits` → `../../../../test/audits/`
   - **Status**: COMPLETED
 
 - [x] **Test Registry**: All ~30 filePath entries updated to `test/automated/` paths

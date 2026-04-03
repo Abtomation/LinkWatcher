@@ -33,7 +33,7 @@ This guide outlines best practices for writing and structuring documentation. Fo
 9. [Review Process](#review-process)
 10. [Documentation Maintenance](#documentation-maintenance)
 
-For a comprehensive map of all documentation files and their relationships, see the [Process: Documentation Map](../../documentation-map.md).
+For a comprehensive map of all documentation files and their relationships, see the [Process: Documentation Map](../../PF-documentation-map.md).
 
 ## Documentation Types
 
@@ -82,9 +82,9 @@ Documentation for project processes:
 
 - Place documentation files in the appropriate directories:
   - Root-level documentation (README.md, CONTRIBUTING.md, LICENSE) in the project root
-  - Technical documentation in the `/doc/product-docs/technical` directory
-  - User guides in `/doc/product-docs/user`
-  - Process documentation in `/doc/product-docs`
+  - Technical documentation in the `/doc/technical` directory
+  - User guides in `/doc/user`
+  - Process documentation in `/doc`
 
 ### Naming Conventions
 
@@ -100,7 +100,7 @@ project/
 ├── CONTRIBUTING.md
 ├── LICENSE
 ├── doc/
-│   ├── product-docs/
+│   ├── doc/
 │   │   ├── technical/
 │   │   │   ├── architecture/
 │   │   │   ├── design/
@@ -394,7 +394,7 @@ def process_file(filepath: str) -> dict:
 
 To help with this process:
 
-1. **Always consult the [Documentation Map](../../documentation-map.md)** before moving or renaming any documentation file.
+1. **Always consult the [Documentation Map](../../PF-documentation-map.md)** before moving or renaming any documentation file.
 2. The Documentation Map lists all documentation files and what other files link to them.
 3. When moving or renaming a file, update:
    - The file's entry in the Documentation Map
@@ -403,7 +403,7 @@ To help with this process:
 
 ### Updating the Documentation Map
 
-The [Documentation Map](../../documentation-map.md) must be updated whenever documentation is:
+The [Documentation Map](../../PF-documentation-map.md) must be updated whenever documentation is:
 
 - Added
 - Moved
@@ -504,7 +504,7 @@ Common issues and their solutions.
 
 ## Related Documentation
 
-- [Documentation Map](../../documentation-map.md) - Central reference for all documentation files
+- [Documentation Map](../../PF-documentation-map.md) - Central reference for all documentation files
 - [Process Improvement Task](../../tasks/support/process-improvement-task.md) - For systematic improvements to documentation processes and structure
 
 By following these guidelines, documentation will be consistent, comprehensive, and useful for all contributors.

@@ -144,7 +144,7 @@ template_for: Enhancement State Tracking
 
 - **Status**: [ ] Not started
 - **Applicable**: [Yes / No — required for Tier 3 features, or when enhancement adds testable behavior]
-- **Referenced Task Doc**: [Test Specification Creation (PF-TSK-016)](../../tasks/03-testing/test-specification-creation-task.md)
+- **Referenced Task Doc**: [Test Specification Creation (PF-TSK-012)](../../tasks/03-testing/test-specification-creation-task.md)
 - **Rationale**: [Why test specification is or is not needed — e.g., "Enhancement adds new behavior that needs test coverage" or "Not applicable — existing tests cover the change adequately"]
 - **Adaptation Notes**: [Amend existing test specification or create new test cases for the enhancement. Specify which test scenarios are affected or added.]
 - **Deliverable**: [Updated or new test specification, or N/A]
@@ -266,7 +266,7 @@ template_for: Enhancement State Tracking
 - **Applicable**: [Yes / No — set by Feature Request Evaluation based on user-visible behavior]
 - **Referenced Task Doc**: [User Documentation Creation (PF-TSK-081)](../../tasks/07-deployment/user-documentation-creation.md)
 - **Rationale**: [Why user docs are or are not needed — e.g., "Enhancement adds new CLI option visible to users" or "Not applicable — internal refactoring with no user-facing change"]
-- **Adaptation Notes**: [Create or update handbooks in doc/product-docs/user/handbooks/. A feature may have multiple handbook entries.]
+- **Adaptation Notes**: [Create or update handbooks in doc/user/handbooks A feature may have multiple handbook entries.]
 - **Deliverable**: [New or updated handbook(s), or N/A]
 - **Session**: [1 / 2 / ...]
 

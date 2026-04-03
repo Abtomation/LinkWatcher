@@ -8,7 +8,7 @@ PURPOSE:
 
     Before the fix, GenericParser's quoted_pattern regex required a file extension
     (``\\.[a-zA-Z0-9]+``) at the end of every match, so directory paths like
-    "process-framework/templates" were never detected.
+    "alpha-project/framework/templates" were never detected.
 
 HOW TO RUN:
     python tests/manual/PD-BUG-021_directory_path_detection_validation.py
@@ -40,13 +40,13 @@ def main():
     # --- Check 1: Quoted directory paths with forward slashes ---
     print("\n--- Check 1: Quoted directory paths (forward slashes) ---")
     content = """# PowerShell script
-$templateDir = "process-framework/templates/templates"
-$outputDir = 'process-framework/state-tracking/permanent'
+$templateDir = "alpha-project/framework/templates/templates"
+$outputDir = 'alpha-project/framework/state-tracking/permanent'
 """
     refs = parser.parse_content(content, "test.ps1")
     targets = [r.link_target for r in refs]
-    dir1 = "process-framework/templates/templates"
-    dir2 = "process-framework/state-tracking/permanent"
+    dir1 = "alpha-project/framework/templates/templates"
+    dir2 = "alpha-project/framework/state-tracking/permanent"
     if dir1 in targets and dir2 in targets:
         print("  PASS: Both directory paths detected")
         print(f"    Found: {dir1}")
@@ -88,10 +88,10 @@ $dir = "config/settings"
 
     # --- Check 4: Windows backslash directory paths ---
     print("\n--- Check 4: Windows backslash directory paths ---")
-    content = r'$path = "process-framework/scripts"' + "\n"
+    content = r'$path = "alpha-project/framework/scripts"' + "\n"
     refs = parser.parse_content(content, "test.ps1")
     targets = [r.link_target for r in refs]
-    expected = r"process-framework/scripts"
+    expected = r"alpha-project/framework/scripts"
     if expected in targets:
         print(f"  PASS: Backslash directory path detected: {expected}")
         checks_passed += 1

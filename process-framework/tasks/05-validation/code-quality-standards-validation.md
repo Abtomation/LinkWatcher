@@ -5,7 +5,6 @@ category: Task Definition
 version: 1.1
 created: 2025-08-15
 updated: 2026-03-02
-task_type: Discrete
 ---
 
 # Code Quality Standards Validation
@@ -36,7 +35,7 @@ Systematically validates selected features for adherence to code quality standar
 - **Critical (Must Read):**
 
   - **Feature Validation Guide** - [Feature Validation Guide](../../guides/05-validation/feature-validation-guide.md) - Comprehensive guide for conducting feature validation
-  - **Feature Tracking** - [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) - Current status of features to be validated
+  - **Feature Tracking** - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Current status of features to be validated
   - **Validation Tracking** - Link to the active validation tracking state file for the current validation round — see [Feature Validation Guide](../../guides/05-validation/feature-validation-guide.md) for setup
   - **Validation Report Template** - [Validation Report Template](../../templates/05-validation/validation-report-template.md) - Template for creating validation reports
   - **Codebase Structure** - Source code directory - Source code for selected features to analyze
@@ -81,7 +80,7 @@ Systematically validates selected features for adherence to code quality standar
 9. **Generate Validation Report**: Create detailed validation report using the automation script
    ```powershell
    # Navigate to validation directory and create code quality report
-   Set-Location "doc/product-docs/validation"
+   Set-Location "doc/validation"
    ..\..\scripts\file-creation\05-validation\New-ValidationReport.ps1 -ValidationType "CodeQuality" -FeatureIds "0.2.1,0.2.2,0.2.3" -SessionNumber 1
    ```
 10. **Score Quality Criteria**: Apply 4-point scoring system (0-3) to each quality criterion
@@ -92,7 +91,7 @@ Systematically validates selected features for adherence to code quality standar
 12. **Update Validation Tracking**: Update the validation tracking matrix with report creation date and link
 13. **Review Quality Gates**: Ensure validation meets minimum quality thresholds (average score ≥ 2.0)
 14. **Plan Remediation**: For scores below threshold, create action items for code quality improvements
-15. **🤖 AUTOMATED: Update Technical Debt Tracking**: Add any new open issues identified during validation — **apply the [Tech Debt Quality Gate](/process-framework/guides/05-validation/feature-validation-guide.md#tech-debt-item-quality-gate) filters before creating each item** — to [Technical Debt Tracking](../../../doc/product-docs/state-tracking/permanent/technical-debt-tracking.md) using the automation script:
+15. **🤖 AUTOMATED: Update Technical Debt Tracking**: Add any new open issues identified during validation — **apply the [Tech Debt Quality Gate](/process-framework/guides/05-validation/feature-validation-guide.md#tech-debt-item-quality-gate) filters before creating each item** — to [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) using the automation script:
 
     ```powershell
     process-framework/scripts/update/Update-TechDebt.ps1 -Add -Description "Description" -Category "Category" -Location "Location" -Priority "Priority" -EstimatedEffort "Effort" -AssessmentId "PF-VAL-XXX" -Notes "Notes"
@@ -102,7 +101,7 @@ Systematically validates selected features for adherence to code quality standar
 
 ## Outputs
 
-- **Code Quality Validation Report** - Detailed validation report with scoring and findings, created in doc/product-docs/validation/reports/code-quality/PF-VAL-XXX-code-quality-features-[feature-range].md
+- **Code Quality Validation Report** - Detailed validation report with scoring and findings, created in doc/validation/reports/code-quality/PF-VAL-XXX-code-quality-features-[feature-range].md
 - **Updated Validation Tracking Matrix** - Validation tracking file updated with report creation date and link in the code quality column for validated features
 - **Quality Improvement Recommendations** - List of specific code quality improvements needed for features scoring below quality threshold (if applicable)
 
@@ -111,8 +110,8 @@ Systematically validates selected features for adherence to code quality standar
 The following state files must be updated as part of this task:
 
 - **Validation Tracking State File** - Update the active validation tracking matrix with report creation date and link (file location depends on validation round — see Feature Validation Guide)
-- [Documentation Map](../../documentation-map.md) - Add new validation report to the validation reports section
-- [Technical Debt Tracking](../../../doc/product-docs/state-tracking/permanent/technical-debt-tracking.md) - Add new open issues identified during validation to the Technical Debt Registry
+- [Product Documentation Map](../../../doc/PD-documentation-map.md) - Add new validation report to the validation reports section
+- [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) - Add new open issues identified during validation to the Technical Debt Registry
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
@@ -126,8 +125,8 @@ Before considering this task finished:
   - [ ] Quality gate assessment completed (average score ≥ 2.0 or remediation plan created)
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
   - [ ] Validation tracking state file updated with report creation date and link
-  - [ ] [Documentation Map](../../documentation-map.md) updated with new validation report entry
-  - [ ] **AUTOMATED**: [Technical Debt Tracking](../../../doc/product-docs/state-tracking/permanent/technical-debt-tracking.md) updated with new open issues using `Update-TechDebt.ps1`
+  - [ ] [Product Documentation Map](../../../doc/PD-documentation-map.md) updated with new validation report entry
+  - [ ] **AUTOMATED**: [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) updated with new open issues using `Update-TechDebt.ps1`
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-032" and context "Code Quality Standards Validation"
 
 ## Next Tasks

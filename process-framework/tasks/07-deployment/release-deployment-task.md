@@ -5,7 +5,6 @@ category: Task Definition
 version: 1.2
 created: 2024-07-15
 updated: 2026-03-22
-task_type: Discrete
 ---
 
 # Release & Deployment
@@ -35,15 +34,15 @@ Manage the process of preparing, versioning, and deploying releases of the appli
 
 - **Critical (Must Read):**
 
-  - [Release Process Guide](/doc/product-docs/ci-cd/release-process.md) - Release process documentation
+  - [Release Process Guide](/doc/ci-cd/release-process.md) - Release process documentation
   - [Visual Notation Guide](/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 - **Important (Load If Space):**
 
-  - [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) - Features ready for release
+  - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Features ready for release
 
 - **Reference Only (Access When Needed):**
-  - [Technical Debt Tracking](../../../doc/product-docs/state-tracking/permanent/technical-debt-tracking.md) - Technical debt items addressed in this release
+  - [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) - Technical debt items addressed in this release
 
 ## Process
 
@@ -57,7 +56,7 @@ Manage the process of preparing, versioning, and deploying releases of the appli
 
 ### Preparation
 
-1. Review [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) and [Technical Debt Tracking](../../../doc/product-docs/state-tracking/permanent/technical-debt-tracking.md) to identify what's included in the release
+1. Review [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) and [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) to identify what's included in the release
 2. **Verify user documentation completeness**: For each feature in the release scope with user-visible behavior, check the feature implementation state file's User Documentation section. If any show `❌ Needed`, trigger [User Documentation Creation](user-documentation-creation.md) before proceeding with the release.
 3. Update version numbers according to semantic versioning
 4. Generate release notes from completed features and fixed bugs
@@ -94,7 +93,7 @@ Manage the process of preparing, versioning, and deploying releases of the appli
 
     - Use [../../scripts/file-creation/06-maintenance/New-BugReport.ps1](../../scripts/file-creation/06-maintenance/New-BugReport.ps1) script to create standardized bug reports
     - Follow [Bug Reporting Guide](../../guides/06-maintenance/bug-reporting-guide.md) for consistent documentation
-    - Add bug entries to [Bug Tracking](../../../doc/product-docs/state-tracking/permanent/bug-tracking.md) with status 🆕 Reported
+    - Add bug entries to [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) with status 🆕 Reported
     - Include deployment context and evidence in bug reports
     - Reference specific deployment logs or monitoring data
     - Note impact on deployment success and user experience
@@ -118,14 +117,14 @@ Manage the process of preparing, versioning, and deploying releases of the appli
 ## Outputs
 
 - **Release Notes** - Document release version, included features, bug fixes, and known issues (format per project convention)
-- **Bug Reports** - Any bugs discovered during deployment documented in [Bug Tracking](../../../doc/product-docs/state-tracking/permanent/bug-tracking.md) with status 🆕 Reported
+- **Bug Reports** - Any bugs discovered during deployment documented in [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) with status 🆕 Reported
 
 ## State Tracking
 
 The following state files must be updated as part of this task:
 
-- [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) - Update feature statuses to reflect release
-- [Bug Tracking](../../../doc/product-docs/state-tracking/permanent/bug-tracking.md) - Update bug statuses for fixes included in release
+- [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Update feature statuses to reflect release
+- [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) - Update bug statuses for fixes included in release
 
 ## ⚠️ MANDATORY Task Completion Checklist
 

@@ -123,7 +123,7 @@ try {
         "Feature Name: $FeatureName",
         "",
         "🎨 CRITICAL: DESIGN GUIDELINES MUST BE CONSULTED",
-        "   📖 Design Guidelines: doc/product-docs/technical/design/ui-ux/design-system/design-guidelines.md (PD-UIX-001)",
+        "   📖 Design Guidelines: doc/technical/design/ui-ux/design-system/design-guidelines.md (PD-UIX-001)",
         "   ⚠️  All UI Design work MUST follow the established design system patterns",
         ""
     )
@@ -178,7 +178,7 @@ try {
         }
         else {
             # Prepare UI Design document link
-            $uiDesignLink = "[$documentId](../../../product-docs/technical/design/ui-ux/features/$customFileName)"
+            $uiDesignLink = "[$documentId](/doc/technical/design/ui-ux/features/$customFileName)"
 
             # Prepare additional updates for feature tracking
             $additionalUpdates = @{
@@ -208,7 +208,7 @@ try {
     catch {
         Write-Warning "Failed to update feature tracking automatically: $($_.Exception.Message)"
         Write-Host "Manual Update Required:" -ForegroundColor Yellow
-        Write-Host "  - Add UI Design link for feature ${FeatureId}: [${documentId}](../../../product-docs/technical/design/ui-ux/features/${customFileName})" -ForegroundColor Cyan
+        Write-Host "  - Add UI Design link for feature ${FeatureId}: [${documentId}](/doc/technical/design/ui-ux/features/${customFileName})" -ForegroundColor Cyan
     }
 }
 catch {

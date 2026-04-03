@@ -9,7 +9,7 @@ This script automates bug status transitions in the ../bug-tracking.md state fil
 supporting the complete bug lifecycle from Reported to Closed.
 
 Updates the following file:
-- doc/product-docs/state-tracking/permanent/bug-tracking.md
+- doc/state-tracking/permanent/bug-tracking.md
 
 Supports all bug status transitions:
 - 🆕 Reported → 🔍 Triaged (Bug Triage Task)
@@ -67,6 +67,12 @@ Notes from verification process - used when transitioning to Closed
 .PARAMETER ReopenReason
 Reason for reopening the bug - used when transitioning to Reopened
 
+.PARAMETER Dims
+Development dimension abbreviations (e.g., "SE DI") - used when transitioning to Triaged
+
+.PARAMETER Workflows
+Affected user workflows (e.g., "WF-001, WF-003") - used when transitioning to Triaged
+
 .PARAMETER TriageNotes
 Triage rationale to append to the Notes field - used when transitioning to Triaged
 
@@ -75,7 +81,7 @@ Date of the status update (optional - uses current date if not specified)
 
 .EXAMPLE
 # Triage a bug
-../Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "Triaged" -Priority "High" -Scope "S" -TriageNotes "Impacts all users on startup; root cause likely in config loader"
+../Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "Triaged" -Priority "High" -Scope "S" -Dims "SE DI" -Workflows "WF-001, WF-003" -TriageNotes "Impacts all users on startup; root cause likely in config loader"
 
 .EXAMPLE
 # Start working on a bug
@@ -149,6 +155,12 @@ param(
     [string]$RejectionReason,
 
     [Parameter(Mandatory = $false)]
+    [string]$Dims,
+
+    [Parameter(Mandatory = $false)]
+    [string]$Workflows,
+
+    [Parameter(Mandatory = $false)]
     [string]$TriageNotes,
 
     [Parameter(Mandatory = $false)]
@@ -164,7 +176,7 @@ Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 
 # Configuration - use project-root-relative path for reliability
 $ProjectRoot = Get-ProjectRoot
-$BugTrackingFile = Join-Path -Path $ProjectRoot -ChildPath "doc/product-docs/state-tracking/permanent/bug-tracking.md"
+$BugTrackingFile = Join-Path -Path $ProjectRoot -ChildPath "doc/state-tracking/permanent/bug-tracking.md"
 $ScriptName = "../Update-BugStatus.ps1"
 
 # Status emoji mapping
@@ -189,8 +201,9 @@ $StatusEmojis = @{
 #   [5] = Reported     (date)
 #   [6] = Description
 #   [7] = Related Feature
-#   [8] = Dims         (dimension abbreviations, e.g., "SE DI")
-#   [9] = Notes
+#   [8] = Workflows    (affected user workflows, e.g., "WF-001, WF-003")
+#   [9] = Dims         (dimension abbreviations, e.g., "SE DI")
+#   [10] = Notes
 
 # Priority emoji mapping
 $PriorityEmojis = @{
@@ -284,8 +297,18 @@ function Update-BugEntryContent {
         $columns[4] = $UpdateData.Scope
     }
 
-    # Update notes with status-specific information
-    $notes = $columns[9]
+    # Update Workflows if provided (column [8])
+    if ($UpdateData.Workflows) {
+        $columns[8] = $UpdateData.Workflows
+    }
+
+    # Update Dims if provided (column [9])
+    if ($UpdateData.Dims) {
+        $columns[9] = $UpdateData.Dims
+    }
+
+    # Update notes with status-specific information (column [10])
+    $notes = $columns[10]
     $currentDate = Get-Date -Format "yyyy-MM-dd"
 
     switch ($NewStatus) {
@@ -312,7 +335,7 @@ function Update-BugEntryContent {
     if ($notes -notmatch "Updated: $currentDate") {
         $notes += "; Updated: $currentDate"
     }
-    $columns[9] = $notes
+    $columns[10] = $notes
 
     # Reconstruct the table row and replace
     $updatedEntry = "| " + ($columns -join " | ") + " |"
@@ -558,6 +581,8 @@ function Main {
     if ($VerificationNotes) { $updateData.VerificationNotes = $VerificationNotes }
     if ($ReopenReason) { $updateData.ReopenReason = $ReopenReason }
     if ($RejectionReason) { $updateData.RejectionReason = $RejectionReason }
+    if ($Dims) { $updateData.Dims = $Dims }
+    if ($Workflows) { $updateData.Workflows = $Workflows }
     if ($TriageNotes) { $updateData.TriageNotes = $TriageNotes }
 
     # Validate required parameters for specific status transitions

@@ -184,7 +184,7 @@ This guide provides best practices for migrating content between different docum
   2. Move feature state file to the archive directory (e.g., `features/archive/`)
   3. Update feature-tracking.md: change status to "🗄️ Archived" with rationale and date
   4. Update or archive related design documents (FDDs, TDDs, ADRs, test specs) — add archive notices pointing to replacement docs
-  5. Update documentation-map.md: mark archived entries with ~~strikethrough~~ and archive notice
+  5. Update the appropriate documentation map with archived entries marked with ~~strikethrough~~ and archive notice: use `PF-documentation-map.md` for process framework artifacts (tasks, guides, templates), `doc/PD-documentation-map.md` for product artifacts (TDDs, FDDs, ADRs, validation reports), or `test/TE-documentation-map.md` for test artifacts (test specs, audit reports)
   6. Triage cross-references: update references that should point to replacement content, leave historical references as-is
   7. Run `Validate-StateTracking.ps1` to confirm no broken links remain
 - **Regeneration**: Recreating content from source material

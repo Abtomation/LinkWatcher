@@ -96,6 +96,7 @@ class MoveDetector:
         with self._lock:
             self._pending[rel_path] = (now, file_size, abs_path)
             heapq.heappush(self._queue, (now + self._delay, rel_path))
+            pending_count = len(self._pending)
 
             self.logger.debug(
                 "move_detect_buffer_delete",
@@ -103,6 +104,10 @@ class MoveDetector:
                 file_size=file_size,
                 delay=self._delay,
             )
+
+        self.logger.performance.log_metric(
+            "move_detect_pending_count", pending_count, unit="items",
+        )
 
         # Wake the worker so it can recalculate its sleep time
         self._wake.set()
@@ -114,13 +119,20 @@ class MoveDetector:
         compatible file size. Returns the old path if a match is
         found (indicating a move), or None if no match.
         """
+        timer_id = self.logger.performance.start_timer("move_detect_match")
         with self._lock:
             if not self._pending:
+                self.logger.performance.end_timer(
+                    timer_id, "move_detect_match", result="no_pending",
+                )
                 return None
 
             try:
                 created_size = os.path.getsize(abs_path)
             except Exception:
+                self.logger.performance.end_timer(
+                    timer_id, "move_detect_match", result="size_error",
+                )
                 return None
 
             created_filename = os.path.basename(rel_path)
@@ -148,13 +160,24 @@ class MoveDetector:
                             continue
 
                         del self._pending[deleted_path]
+                        latency_ms = (current_time - delete_time) * 1000
                         self.logger.debug(
                             "move_detect_match_found",
                             old_path=deleted_path,
                             new_path=rel_path,
                         )
+                        self.logger.performance.end_timer(
+                            timer_id, "move_detect_match", result="matched",
+                        )
+                        self.logger.performance.log_metric(
+                            "move_detect_match_latency", round(latency_ms, 2),
+                            unit="ms", old_path=deleted_path, new_path=rel_path,
+                        )
                         return deleted_path
 
+        self.logger.performance.end_timer(
+            timer_id, "move_detect_match", result="no_match",
+        )
         return None
 
     @property
@@ -195,6 +218,10 @@ class MoveDetector:
                         break
 
             # Fire callbacks outside the lock to avoid deadlocks
+            if expired:
+                self.logger.performance.log_metric(
+                    "move_detect_expiry_count", len(expired), unit="items",
+                )
             for rel_path in expired:
                 self.logger.debug(
                     "move_detect_timer_expired",

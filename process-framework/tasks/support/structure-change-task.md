@@ -6,7 +6,6 @@ domain: agnostic
 version: 2.0
 created: 2025-06-07
 updated: 2026-03-15
-task_type: Discrete
 ---
 
 # Structure Change Task
@@ -39,7 +38,7 @@ This task **orchestrates** systematic changes to documentation structures, templ
 - **Critical (Must Read):**
 
   - [Structure Change Proposal](../../templates/support/structure-change-proposal-template.md) - Detailed description of proposed changes
-  - [Documentation Map](../../documentation-map.md) - Map of all documentation
+  - [Documentation Map](../../PF-documentation-map.md) - Map of all documentation
   - [Visual Notation Guide](/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 - **Important (Load If Space):**
@@ -95,7 +94,10 @@ This task **orchestrates** systematic changes to documentation structures, templ
    - Cross-references valid (check LinkWatcher log if relevant)
    - No broken links or orphaned references
 
-6. **Update Documentation Map**: Update [Documentation Map](../../documentation-map.md) if document organization changed
+6. **Update Documentation Map**: Update the appropriate map if document organization changed:
+   - Process-framework artifacts → [PF Documentation Map](../../PF-documentation-map.md)
+   - Product documents (FDDs, TDDs, ADRs, handbooks) → [PD Documentation Map](../../../doc/PD-documentation-map.md)
+   - Test artifacts (test specs, audit reports) → [TE Documentation Map](../../../test/TE-documentation-map.md)
 
 7. **🚨 MANDATORY FINAL STEP**: Complete the [Lightweight Completion Checklist](#lightweight-completion-checklist) below
 
@@ -167,7 +169,7 @@ This task **orchestrates** systematic changes to documentation structures, templ
 #### 🚨 MANDATORY Cleanup Phase
 
 16. **🚨 CRITICAL CLEANUP STEP**: Archive completed temporary state tracking files to `/process-framework/state-tracking/temporary/old`
-17. **Archive completed proposal**: Move the structure change proposal to its `old/` subdirectory (e.g., `proposals/proposals/old/`) — the proposal has served its purpose and should not remain alongside active proposals
+17. **Archive completed proposal**: Move the structure change proposal to its `old/` subdirectory (e.g., `proposals/old`) — the proposal has served its purpose and should not remain alongside active proposals
 18. Remove excessive migration mapping documents if they don't provide ongoing value
 19. Clean up any redundant documentation created during the process
 20. Update the Process Improvement Tracking file with cleanup completion
@@ -189,9 +191,11 @@ The following state files must be updated as part of this task:
 
 - **Structure Change State File** - Create using New-StructureChangeState.ps1 to track multi-session implementation progress
 - [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) - Update to reflect the process improvement
-- [Documentation Map](../../documentation-map.md) - Update if document organization changes
+- [PF Documentation Map](../../PF-documentation-map.md) - Update if process-framework document organization changes
+- [PD Documentation Map](../../../doc/PD-documentation-map.md) - Update if product document organization changes
+- [TE Documentation Map](../../../test/TE-documentation-map.md) - Update if test artifact organization changes
 
-<!-- Note to task creator: Replace placeholders with actual linked state files (e.g., [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md)) -->
+<!-- Note to task creator: Replace placeholders with actual linked state files (e.g., [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md)) -->
 
 ## ⚠️ MANDATORY Task Completion Checklists
 
@@ -206,7 +210,7 @@ The following state files must be updated as part of this task:
   - [ ] Run [`Validate-StateTracking.ps1`](../../scripts/validation/Validate-StateTracking.ps1) — 0 errors across all surfaces
 - [ ] **Update State Files**:
   - [ ] [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) updated (if this change addresses an IMP item)
-  - [ ] [Documentation Map](../../documentation-map.md) updated if document organization changed
+  - [ ] Appropriate documentation map(s) updated if document organization changed: [PF](../../PF-documentation-map.md) / [PD](../../../doc/PD-documentation-map.md) / [TE](../../../test/TE-documentation-map.md)
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-014" and context "Structure Change (Lightweight)"
 
 ---
@@ -225,7 +229,7 @@ The following state files must be updated as part of this task:
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
   - [ ] Structure change state tracking file completed and properly maintained
   - [ ] [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) updated with structure change completion
-  - [ ] [Documentation Map](../../documentation-map.md) updated if document organization changed
+  - [ ] Appropriate documentation map(s) updated if document organization changed: [PF](../../PF-documentation-map.md) / [PD](../../../doc/PD-documentation-map.md) / [TE](../../../test/TE-documentation-map.md)
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-014" and context "Structure Change (Full)"
 - [ ] **🚨 MANDATORY Cleanup Phase**: Remove temporary documentation artifacts created during the structure change:
   - [ ] **🚨 CRITICAL**: Archive completed temporary state tracking files to `/process-framework/state-tracking/temporary/old`

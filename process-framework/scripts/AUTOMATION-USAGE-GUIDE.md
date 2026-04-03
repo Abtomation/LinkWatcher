@@ -33,25 +33,25 @@ update\Update-FeatureImplementationState.ps1 -FeatureId "1.2.3" -Status "✅ Com
 update\Update-FeatureImplementationState.ps1 -FeatureId "1.2.3" -Status "🟡 In Progress" -DryRun
 ```
 
-### 2. update/Update-TestAuditState.ps1
+### 2. update/Update-TestFileAuditState.ps1
 
-**Purpose**: Automates state file updates for Test Audit Task (PF-TSK-030)
+**Purpose**: Automates state file updates for individual test files during Test Audit Task (PF-TSK-030). Uses file path as identifier (SC-007 compliant).
 
 **Files Updated**:
 
-- `test-tracking.md`
-- `feature-tracking.md`
+- `test-tracking.md` (individual test file status)
+- `feature-tracking.md` (aggregated feature test status)
 
 **Basic Usage**:
 
 ```powershell
-update\Update-TestAuditState.ps1 -FeatureId "1.2.3" -AuditStatus "Tests Approved"
+update\Update-TestFileAuditState.ps1 -TestFilePath "test/automated/unit/test_service.py" -AuditStatus "Tests Approved"
 ```
 
 **Advanced Usage**:
 
 ```powershell
-update\Update-TestAuditState.ps1 -FeatureId "1.2.3" -AuditStatus "Needs Update" -AuditorName "John Doe" -MajorFindings @("Missing edge case tests", "Incomplete mock coverage") -TestCasesAudited 15 -PassedTests 13 -FailedTests 2
+update\Update-TestFileAuditState.ps1 -TestFilePath "test/automated/unit/test_service.py" -AuditStatus "Needs Update" -AuditorName "John Doe" -MajorFindings @("Missing edge case tests", "Incomplete mock coverage") -TestCasesAudited 15 -PassedTests 13 -FailedTests 2
 ```
 
 ### 3. update/Update-CodeReviewState.ps1
@@ -205,11 +205,11 @@ update\Update-FeatureImplementationState.ps1 -FeatureId "NEW-FEATURE" -Status "�
 ### PF-TSK-030: Test Audit
 
 ```powershell
-# Start audit
-update\Update-TestAuditState.ps1 -FeatureId "FEATURE-ID" -AuditStatus "Audit In Progress" -AuditorName "Your Name"
+# Start audit for individual test file
+update\Update-TestFileAuditState.ps1 -TestFilePath "test/automated/unit/test_example.py" -AuditStatus "Audit In Progress" -AuditorName "Your Name"
 
 # Complete audit
-update\Update-TestAuditState.ps1 -FeatureId "FEATURE-ID" -AuditStatus "Tests Approved" -TestCasesAudited 20 -PassedTests 18 -FailedTests 2
+update\Update-TestFileAuditState.ps1 -TestFilePath "test/automated/unit/test_example.py" -AuditStatus "Tests Approved" -TestCasesAudited 20 -PassedTests 18 -FailedTests 2
 ```
 
 ### PF-TSK-005: Code Review
@@ -252,7 +252,7 @@ update\Update-BatchFeatureStatus.ps1 -FeatureIds @("1.1.1", "1.1.2", "1.1.3") -S
 **Files Updated**:
 
 - `validation-tracking.md`
-- `documentation-map.md`
+- `PF-documentation-map.md`
 - `feature-tracking.md` (cross-references)
 
 **Basic Usage**:

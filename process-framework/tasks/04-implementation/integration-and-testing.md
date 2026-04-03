@@ -6,7 +6,6 @@ domain: development
 version: 2.1
 created: 2025-12-13
 updated: 2026-03-25
-task_type: Discrete
 change_notes: "v2.0 - Made tech-agnostic, absorbed PF-TSK-029 (Test Implementation) automation and bug discovery workflow, unified state tracking"
 ---
 
@@ -33,7 +32,7 @@ Verify unit test completeness, implement integration and cross-component tests, 
 - When integration verification is needed between components
 - Before quality validation via PF-TSK-054 (decomposed workflow)
 - Before Test Audit via PF-TSK-030 (standard workflow)
-- When resolving test-related tech debt items (category "Testing" in [Technical Debt Tracking](../../../doc/product-docs/state-tracking/permanent/technical-debt-tracking.md)) — e.g., zero-assertion tests, anti-patterns, or coverage gaps identified by [Test Audit](../03-testing/test-audit-task.md)
+- When resolving test-related tech debt items (category "Testing" in [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md)) — e.g., zero-assertion tests, anti-patterns, or coverage gaps identified by [Test Audit](../03-testing/test-audit-task.md)
 - **Prerequisites**: Feature implementation complete, TDD test requirements identified, testing framework configured
 
 ## When NOT to Use
@@ -57,8 +56,8 @@ Verify unit test completeness, implement integration and cross-component tests, 
 
 - **Important (Load If Space):**
 
-  - **Feature Tracking** - [Feature details from feature-tracking.md](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) for context
-  - **Feature Implementation State File** (if exists) - Implementation progress and context at `/doc/product-docs/state-tracking/features`
+  - **Feature Tracking** - [Feature details from feature-tracking.md](../../../doc/state-tracking/permanent/feature-tracking.md) for context
+  - **Feature Implementation State File** (if exists) - Implementation progress and context at `/doc/state-tracking/features`
   - [Existing Test Structure](/test/) - Current test organization and patterns
 
 - **Reference Only (Access When Needed):**
@@ -162,7 +161,7 @@ Verify unit test completeness, implement integration and cross-component tests, 
 
     - Use [New-BugReport.ps1](../../scripts/file-creation/06-maintenance/New-BugReport.ps1) script to create standardized bug reports
     - Follow [Bug Reporting Guide](../../guides/06-maintenance/bug-reporting-guide.md) for consistent documentation
-    - Add bug entries to [Bug Tracking](../../../doc/product-docs/state-tracking/permanent/bug-tracking.md) with status Reported
+    - Add bug entries to [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) with status Reported
     - Include test implementation context and evidence in bug reports
     - Reference specific test cases that revealed the bugs
 
@@ -193,7 +192,7 @@ Verify unit test completeness, implement integration and cross-component tests, 
 - **Updated Test Tracking** - Test case implementation tracking updated with completion status via automation scripts
 - **Test Results Documentation** - Record of test implementation completion and coverage metrics
 - **Coverage Report** - Test coverage analysis showing percentage coverage by file/class
-- **Bug Reports** - Any bugs discovered during test implementation documented in [Bug Tracking](../../../doc/product-docs/state-tracking/permanent/bug-tracking.md) with status Reported
+- **Bug Reports** - Any bugs discovered during test implementation documented in [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) with status Reported
 - **Updated Feature Implementation State File** (if applicable) - Test implementation details, coverage metrics, and testing notes
 
 ## State Tracking
@@ -201,7 +200,7 @@ Verify unit test completeness, implement integration and cross-component tests, 
 The following state files are automatically updated by the `New-TestFile.ps1` script:
 
 - [Test Tracking](../../../test/state-tracking/permanent/test-tracking.md) - Automatically updated with Implementation In Progress status, test file links with correct relative paths, and metadata
-- [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) - Automatically updated with Test Status column reflecting implementation progress
+- [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Automatically updated with Test Status column reflecting implementation progress
 
 **Manual updates required for:**
 
@@ -228,7 +227,7 @@ Before considering this task finished:
   - [ ] Any discovered bugs reported using `New-BugReport.ps1` script with proper context and evidence
 - [ ] **Verify State Files**: Confirm all state tracking files have been automatically updated by the script
   - [ ] [Test Tracking](../../../test/state-tracking/permanent/test-tracking.md) shows correct test file links and status
-  - [ ] [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) Test Status column reflects implementation progress
+  - [ ] [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) Test Status column reflects implementation progress
 - [ ] **Manual Status Updates**: Update completion status after test implementation
   - [ ] Change test status from Implementation In Progress to Ready for Validation
   - [ ] Update test case counts with actual implemented test count

@@ -62,8 +62,9 @@ AI Context
   - Adding a log output: add a new stdlib handler in
     ``LinkWatcherLogger.__init__`` alongside the existing stream and
     file handlers.
-  - Debugging log filtering: check ``LogFilter`` and structlog
-    processor chain in ``_configure_structlog()``.
+  - Debugging log filtering: check ``structlog.stdlib.filter_by_level``
+    and the structlog processor chain configured in
+    ``LinkWatcherLogger.__init__``.
   - Module-level helpers: ``get_logger()``, ``setup_logging()``,
     ``reset_logger()``, ``with_context()``, ``LogTimer``.
 """
@@ -89,6 +90,19 @@ from colorama import Fore, Style, init
 init(autoreset=True)
 
 
+# Fallback logger for rotation errors — writes to stderr independently of
+# the file handler being rotated, avoiding circular-logging issues.
+_fallback_logger = logging.getLogger("linkwatcher._fallback")
+_fallback_logger.propagate = False
+if not _fallback_logger.handlers:
+    _fallback_handler = logging.StreamHandler(sys.stderr)
+    _fallback_handler.setFormatter(
+        logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
+    )
+    _fallback_logger.addHandler(_fallback_handler)
+    _fallback_logger.setLevel(logging.WARNING)
+
+
 class TimestampRotatingFileHandler(logging.handlers.RotatingFileHandler):
     """RotatingFileHandler that uses timestamps in rotated filenames.
 
@@ -110,10 +124,9 @@ class TimestampRotatingFileHandler(logging.handlers.RotatingFileHandler):
             try:
                 os.rename(self.baseFilename, backup_name)
             except OSError as e:
-                print(
-                    f"WARNING: Log rotation failed to rename "
-                    f"{self.baseFilename} -> {backup_name}: {e}",
-                    file=sys.stderr,
+                _fallback_logger.warning(
+                    "Log rotation failed to rename %s -> %s: %s",
+                    self.baseFilename, backup_name, e,
                 )
 
         # Clean up old backups (keep only backupCount most recent)
@@ -124,9 +137,9 @@ class TimestampRotatingFileHandler(logging.handlers.RotatingFileHandler):
                 try:
                     os.remove(old_backup)
                 except OSError as e:
-                    print(
-                        f"WARNING: Log rotation failed to remove " f"old backup {old_backup}: {e}",
-                        file=sys.stderr,
+                    _fallback_logger.warning(
+                        "Log rotation failed to remove old backup %s: %s",
+                        old_backup, e,
                     )
 
         if not self.delay:
@@ -483,9 +496,17 @@ class LinkWatcherLogger:
             event_type="link_update",
         )
 
-    def scan_progress(self, files_scanned: int, total_files: Optional[int] = None):
-        """Log scan progress."""
-        self.debug(
+    def scan_progress(self, files_scanned: int, total_files: Optional[int] = None,
+                      info_level: bool = False):
+        """Log scan progress.
+
+        Args:
+            files_scanned: Number of files scanned so far.
+            total_files: Total number of files to scan (if known).
+            info_level: If True, log at INFO level for milestone progress.
+        """
+        log_fn = self.info if info_level else self.debug
+        log_fn(
             "scan_progress",
             files_scanned=files_scanned,
             total_files=total_files,

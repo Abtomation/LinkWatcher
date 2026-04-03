@@ -75,11 +75,11 @@ dev format
 
 | Document | Description |
 |----------|-------------|
-| [Quick Reference](doc/product-docs/user/handbooks/quick-reference.md) | CLI options, config, environment variables, examples |
-| [Multi-Project Setup](doc/product-docs/user/handbooks/multi-project-setup.md) | Using across multiple projects |
-| [Link Validation](doc/product-docs/user/handbooks/link-validation.md) | Scan workspace for broken file references |
-| [File Type Quick Fix](doc/product-docs/user/handbooks/file-type-quick-fix.md) | **Quick fix** for file types not being monitored |
-| [File Type Troubleshooting](doc/product-docs/user/handbooks/troubleshooting-file-types.md) | **Detailed guide** for file type monitoring issues |
+| [Quick Reference](doc/user/handbooks/quick-reference.md) | CLI options, config, environment variables, examples |
+| [Multi-Project Setup](doc/user/handbooks/multi-project-setup.md) | Using across multiple projects |
+| [Link Validation](doc/user/handbooks/link-validation.md) | Scan workspace for broken file references |
+| [File Type Quick Fix](doc/user/handbooks/file-type-quick-fix.md) | **Quick fix** for file types not being monitored |
+| [File Type Troubleshooting](doc/user/handbooks/troubleshooting-file-types.md) | **Detailed guide** for file type monitoring issues |
 
 ## 🏗️ Architecture
 

@@ -6,7 +6,6 @@ version: 1.0
 created: 2025-08-01
 updated: 2025-08-01
 map_type: Context Map
-task_type: Discrete
 visualization_type: Task Context
 task_name: foundation-feature-implementation-task
 ---
@@ -82,8 +81,8 @@ graph TD
 - [Foundation Feature Template](../../../templates/04-implementation/foundation-feature-template.md) - Template for foundation feature structure and architectural documentation
 - [Foundation Feature Implementation Usage Guide](../../../guides/04-implementation/foundation-feature-implementation-usage-guide.md) - Comprehensive guide for using this task effectively
 
-- [Architecture Tracking](../../../../doc/product-docs/state-tracking/permanent/architecture-tracking.md) - Ongoing architectural decisions and evolution
-- [Feature Tracking](../../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) - Foundation feature status and dependencies
+- [Architecture Tracking](../../../../doc/state-tracking/permanent/architecture-tracking.md) - Ongoing architectural decisions and evolution
+- [Feature Tracking](../../../../doc/state-tracking/permanent/feature-tracking.md) - Foundation feature status and dependencies
 - [ADR Template](../../../templates/02-design/adr-template.md) - For documenting architectural decisions
 
 ---

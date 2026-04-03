@@ -2,9 +2,9 @@
 id: PF-TEM-050
 type: Process Framework
 category: Template
-version: 1.1
+version: 1.2
 created: 2026-03-02
-updated: 2026-03-27
+updated: 2026-04-02
 usage_context: Process Framework - Refactoring Plan Creation
 description: Compact refactoring plan for changes with no architectural impact. Supports batch mode for multiple quick fixes in one session.
 creates_document_category: Refactoring Plan
@@ -27,13 +27,7 @@ priority: [Priority Level]
 - **Status**: Planning
 [Debt Item Line]- **Mode**: Lightweight (no architectural impact)
 
-<!-- DELETE this section if single-file / no cross-component impact. Keep for multi-file changes where dependency awareness matters. -->
-## Dependencies and Impact
-- **Affected Components**: [List files/modules that will be modified]
-- **Internal Dependencies**: [Components that depend on the changed code]
-- **Risk Assessment**: [Low/Medium] — [Brief risk description]
-
-## Item 1: [Debt Item ID] — [Brief Description]
+[Dependencies Section]## Item 1: [Debt Item ID] — [Brief Description]
 
 **Scope**: [What will change and why — 1-3 sentences]
 
@@ -47,7 +41,7 @@ priority: [Priority Level]
 **Documentation & State Updates**:
 <!-- Check each — for N/A, write brief justification (e.g., "Grepped TDD — no references to changed method") -->
 - [ ] Feature implementation state file ([Feature ID]) updated, or N/A — verified no reference to changed component: _[justification]_
-- [ ] TDD ([Feature ID]) updated, or N/A — verified no interface/design changes documented: _[justification]_
+- [ ] TDD ([Feature ID]) updated, or N/A — verified no interface or significant internal design changes (new data structures, algorithm rewrites, storage layout changes) documented in TDD: _[justification]_
 - [ ] Test spec ([Feature ID]) updated, or N/A — verified no behavior change affects spec: _[justification]_
 - [ ] FDD ([Feature ID]) updated, or N/A — verified no functional change affects FDD: _[justification]_
 - [ ] ADR ([Feature ID]) updated, or N/A — verified no architectural decision affected: _[justification]_
@@ -65,4 +59,4 @@ priority: [Priority Level]
 | 1 | [TD###] | [Complete/Blocked] | [None/Yes] | [None/List] |
 
 ## Related Documentation
-- [Technical Debt Tracking](/doc/product-docs/state-tracking/permanent/technical-debt-tracking.md)
+- [Technical Debt Tracking](/doc/state-tracking/permanent/technical-debt-tracking.md)

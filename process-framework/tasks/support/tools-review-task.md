@@ -6,7 +6,6 @@ domain: agnostic
 version: 1.5
 created: 2023-06-15
 updated: 2026-03-29
-task_type: support
 ---
 
 # Tools Review Task
@@ -45,7 +44,7 @@ Systematically evaluate and enhance the templates, guides, and other tools by co
   - [Task Templates](../../templates) - Templates used in tasks
 
 - **Reference Only (Access When Needed):**
-  - [Documentation Map](../../documentation-map.md) - Overview of all project documentation
+  - [Documentation Map](../../PF-documentation-map.md) - Overview of all project documentation
 
 ## Process
 
@@ -81,7 +80,7 @@ Systematically evaluate and enhance the templates, guides, and other tools by co
 10. **🚨 CHECKPOINT**: Present analysis findings, identified themes, and prioritized improvement opportunities to human partner for approval
 11. **Create review summary skeleton**: Run [`New-ReviewSummary.ps1`](../../scripts/file-creation/06-maintenance/New-ReviewSummary.ps1) now so the filename (which includes an unpredictable HHMMSS timestamp) is known before registering IMPs. Note the created filename for use in `-SourceLink` parameters below.
     ```powershell
-    .\New-ReviewSummary.ps1 -FormsAnalyzed <N> -TaskTypeCount <N> -DateRangeStart 'YYYY-MM-DD' -DateRangeEnd 'YYYY-MM-DD'
+    .\New-ReviewSummary.ps1 -FormsAnalyzed <N> -DateRangeStart 'YYYY-MM-DD' -DateRangeEnd 'YYYY-MM-DD'
     ```
     > Content sections will be filled during Finalization (Step 17).
 12. **Routing Decision**: For each identified improvement, determine its target and use the appropriate script:
@@ -89,9 +88,9 @@ Systematically evaluate and enhance the templates, guides, and other tools by co
     | If the item is... | Route to... | Script |
     |---|---|---|
     | Process framework improvement (task, template, guide, script, workflow) | [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) | [`New-ProcessImprovement.ps1`](../../scripts/file-creation/support/New-ProcessImprovement.ps1) |
-    | Product feature request (new capability or enhancement to existing feature) | [Feature Request Tracking](../../../doc/product-docs/state-tracking/permanent/feature-request-tracking.md) | [`New-FeatureRequest.ps1`](../../scripts/file-creation/01-planning/New-FeatureRequest.ps1) |
-    | Bug (something broken that needs fixing) | [Bug Tracking](../../../doc/product-docs/state-tracking/permanent/bug-tracking.md) | [`New-BugReport.ps1`](../../scripts/file-creation/06-maintenance/New-BugReport.ps1) |
-    | Technical debt (code quality issue, not broken but should be improved) | [Technical Debt Tracking](../../../doc/product-docs/state-tracking/permanent/technical-debt-tracking.md) | [`Update-TechDebt.ps1 -Add`](../../scripts/update/Update-TechDebt.ps1) |
+    | Product feature request (new capability or enhancement to existing feature) | [Feature Request Tracking](../../../doc/state-tracking/permanent/feature-request-tracking.md) | [`New-FeatureRequest.ps1`](../../scripts/file-creation/01-planning/New-FeatureRequest.ps1) |
+    | Bug (something broken that needs fixing) | [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) | [`New-BugReport.ps1`](../../scripts/file-creation/06-maintenance/New-BugReport.ps1) |
+    | Technical debt (code quality issue, not broken but should be improved) | [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) | [`Update-TechDebt.ps1 -Add`](../../scripts/update/Update-TechDebt.ps1) |
 
     ```powershell
     # Process framework improvement — use the actual filename from Step 11
@@ -120,7 +119,7 @@ Systematically evaluate and enhance the templates, guides, and other tools by co
 
 ## Outputs
 
-- **Improvement Opportunities** - Documented in appropriate tracking files: [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) for framework improvements, [Feature Request Tracking](../../../doc/product-docs/state-tracking/permanent/feature-request-tracking.md) for product feature requests, [Bug Tracking](../../../doc/product-docs/state-tracking/permanent/bug-tracking.md) for bugs, [Technical Debt Tracking](../../../doc/product-docs/state-tracking/permanent/technical-debt-tracking.md) for tech debt
+- **Improvement Opportunities** - Documented in appropriate tracking files: [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) for framework improvements, [Feature Request Tracking](../../../doc/state-tracking/permanent/feature-request-tracking.md) for product feature requests, [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) for bugs, [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) for tech debt
 - **Review Summary** - Documentation of findings and identified improvements, using the [Tools Review Summary Template](../../templates/support/tools-review-summary-template.md). Create via [`New-ReviewSummary.ps1`](../../scripts/file-creation/06-maintenance/New-ReviewSummary.ps1)
 - **Ratings Database Update** - Quantified ratings recorded in `process-framework/feedback/ratings.db` for trend analysis via `python process-framework/scripts/feedback_db.py record` (use [feedback-db-input-template.json](../../templates/support/feedback-db-input-template.json) as reference)
 - **Process Improvement Tasks** - Created [Process Improvement Task](process-improvement-task.md) entries for implementation
@@ -131,9 +130,9 @@ Systematically evaluate and enhance the templates, guides, and other tools by co
 The following state files must be updated as part of this task:
 
 - [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) - Framework improvements identified from feedback analysis
-- [Feature Request Tracking](../../../doc/product-docs/state-tracking/permanent/feature-request-tracking.md) - Product feature requests identified from feedback analysis
-- [Bug Tracking](../../../doc/product-docs/state-tracking/permanent/bug-tracking.md) - Bugs identified from feedback analysis
-- [Technical Debt Tracking](../../../doc/product-docs/state-tracking/permanent/technical-debt-tracking.md) - Technical debt items identified from feedback analysis
+- [Feature Request Tracking](../../../doc/state-tracking/permanent/feature-request-tracking.md) - Product feature requests identified from feedback analysis
+- [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) - Bugs identified from feedback analysis
+- [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) - Technical debt items identified from feedback analysis
 - **🔗 MANDATORY**: All entries must include links to the tools review analysis file for full traceability
 
 ## ⚠️ MANDATORY Task Completion Checklist

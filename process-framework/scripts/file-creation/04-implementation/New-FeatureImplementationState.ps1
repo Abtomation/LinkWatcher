@@ -62,7 +62,7 @@
     - Automatically updates the central ID registry with new ID assignments
     - Creates the output directory if it doesn't exist
     - Feature state files are PERMANENT and should never be archived
-    - Files are placed in doc/product-docs/state-tracking/features/
+    - Files are placed in doc/state-tracking/features/
     - When -FeatureId is provided, automatically links the file in Feature Tracking's ID column
     - When -ImplementationMode "Retrospective Analysis" is used, adds implementation_mode to metadata
 
@@ -160,7 +160,7 @@ try {
 
     # Link in Feature Tracking if FeatureId was provided
     if ($FeatureId -ne "") {
-        $featureTrackingPath = Join-Path $projectRoot "doc/product-docs/state-tracking/permanent/feature-tracking.md"
+        $featureTrackingPath = Join-Path $projectRoot "doc/state-tracking/permanent/feature-tracking.md"
 
         if (Test-Path $featureTrackingPath) {
             $ftContent = Get-Content $featureTrackingPath -Raw
@@ -190,7 +190,7 @@ try {
 
     # Populate Dimension Profile section if -Dims was provided
     if ($Dims.Count -gt 0) {
-        $createdFilePath = Join-Path $projectRoot "doc/product-docs/state-tracking/features/$docName.md"
+        $createdFilePath = Join-Path $projectRoot "doc/state-tracking/features/$docName.md"
         if (Test-Path $createdFilePath) {
             $dimensionNames = @{
                 "AC" = "Architectural Consistency"
@@ -257,7 +257,7 @@ try {
     # Provide success details
     $details = @(
         "Feature: $FeatureName",
-        "Location: doc/product-docs/state-tracking/features/$docName.md"
+        "Location: doc/state-tracking/features/$docName.md"
     )
 
     if ($FeatureId -ne "") {
@@ -345,8 +345,8 @@ EXAMPLE TEST COMMANDS:
 .\New-FeatureImplementationState.ps1 -FeatureName "test-feature" -FeatureId "9.9.9" -ImplementationMode "Retrospective Analysis" -Description "Test retrospective creation"
 
 # Verify created document (check the actual ID assigned)
-Get-ChildItem "doc/product-docs/state-tracking/features/*test-feature*.md" | Get-Content | Select-Object -First 20
+Get-ChildItem "doc/state-tracking/features/*test-feature*.md" | Get-Content | Select-Object -First 20
 
 # Cleanup (adjust ID as needed based on what was assigned)
-Remove-Item "doc/product-docs/state-tracking/features/*test-feature*.md" -Force
+Remove-Item "doc/state-tracking/features/*test-feature*.md" -Force
 #>

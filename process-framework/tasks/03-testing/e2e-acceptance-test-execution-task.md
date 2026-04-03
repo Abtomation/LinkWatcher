@@ -6,7 +6,6 @@ domain: agnostic
 version: 1.1
 created: 2026-03-15
 updated: 2026-03-18
-task_type: Discrete
 ---
 
 # E2E Acceptance Test Execution
@@ -43,7 +42,7 @@ E2E acceptance test execution validates system behavior that cannot be covered b
 
 - **Important (Load If Space):**
 
-  - [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) — Feature-level test coverage overview
+  - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) — Feature-level test coverage overview
   - **Test case `project/` and `expected/` directories** — Fixtures and expected state for automated comparison
 
 - **Reference Only (Access When Needed):**
@@ -93,7 +92,7 @@ E2E acceptance test execution validates system behavior that cannot be covered b
    > Use `-TestCase "E2E-NNN"` for a single test case. Use `-Detailed` to see line-by-line diffs for failures.
 8a. **On failure — root cause analysis**: When a test case fails, the AI agent MUST investigate the root cause before proceeding. Check system logs, trace the event flow, and identify whether the failure is caused by a code defect, test fixture issue, infrastructure problem, or environmental factor. Document the root cause clearly.
    > **🚨 CRITICAL**: Do NOT propose or attempt to fix the issue during test execution. The purpose of this task is to discover and document failures, not to fix them. Fixes belong in a separate Bug Fixing task (PF-TSK-048).
-8b. **On failure — always file a bug**: Every test failure MUST result in a bug report, regardless of root cause. Add the bug entry to [bug-tracking.md](../../../doc/product-docs/state-tracking/permanent/bug-tracking.md) with: root cause analysis, affected test cases, component involved, and severity assessment. Increment the PD-BUG counter in [PD ID Registry](/doc/product-docs/PD-id-registry.json).
+8b. **On failure — always file a bug**: Every test failure MUST result in a bug report, regardless of root cause. Add the bug entry to [bug-tracking.md](../../../doc/state-tracking/permanent/bug-tracking.md) with: root cause analysis, affected test cases, component involved, and severity assessment. Increment the PD-BUG counter in [PD ID Registry](/doc/PD-id-registry.json).
 
 ### Finalization
 
@@ -116,7 +115,7 @@ E2E acceptance test execution validates system behavior that cannot be covered b
 The following state files are updated as part of this task:
 
 - [E2E Test Tracking](../../../test/state-tracking/permanent/e2e-test-tracking.md) — Update execution status and Last Executed date for each tested group/case (automated via `Update-TestExecutionStatus.ps1`)
-- [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) — Update Test Status based on execution results (automated via `Update-TestExecutionStatus.ps1`)
+- [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) — Update Test Status based on execution results (automated via `Update-TestExecutionStatus.ps1`)
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
@@ -130,7 +129,7 @@ Before considering this task finished:
   - [ ] Bug reports created for any genuine defects
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
   - [ ] [E2E Test Tracking](../../../test/state-tracking/permanent/e2e-test-tracking.md) — execution status and dates updated
-  - [ ] [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) — Test Status reflects current state
+  - [ ] [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) — Test Status reflects current state
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-070" and context "E2E Acceptance Test Execution"
 
 ## Next Tasks

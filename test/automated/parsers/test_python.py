@@ -329,46 +329,46 @@ class TestPythonParserDocstrings:
         parser = PythonParser()
         content = (
             '"""Usage:\n'
-            "    python doc/scripts/feedback_db.py init\n"
-            "    python doc/scripts/feedback_db.py record --json input.json\n"
+            "    python alpha-project/scripts/feedback_db.py init\n"
+            "    python alpha-project/scripts/feedback_db.py record --json input.json\n"
             '"""\n'
         )
         references = parser.parse_content(content, "script.py")
         targets = [ref.link_target for ref in references]
-        assert "doc/scripts/feedback_db.py" in targets
+        assert "alpha-project/scripts/feedback_db.py" in targets
 
     def test_docstring_with_directory_paths(self):
         """Directory paths in docstrings should be detected."""
         parser = PythonParser()
         content = (
-            '"""Templates in doc/scripts/templates/support/ are used for generation.\n' '"""\n'
+            '"""Templates in alpha-project/scripts/templates/support/ are used for generation.\n' '"""\n'
         )
         references = parser.parse_content(content, "script.py")
         targets = [ref.link_target for ref in references]
-        assert any("doc/scripts/templates/support" in t for t in targets)
+        assert any("alpha-project/scripts/templates/support" in t for t in targets)
 
     def test_docstring_single_line(self):
         """Single-line docstring with path on the same line as triple-quotes."""
         parser = PythonParser()
-        content = '"""See doc/scripts/feedback_db.py for details."""\n'
+        content = '"""See alpha-project/scripts/feedback_db.py for details."""\n'
         references = parser.parse_content(content, "script.py")
         targets = [ref.link_target for ref in references]
-        assert "doc/scripts/feedback_db.py" in targets
+        assert "alpha-project/scripts/feedback_db.py" in targets
 
     def test_docstring_single_quotes(self):
         """Triple single-quoted docstrings should also be detected."""
         parser = PythonParser()
-        content = "'''Usage:\n" "    python doc/scripts/feedback_db.py init\n" "'''\n"
+        content = "'''Usage:\n" "    python alpha-project/scripts/feedback_db.py init\n" "'''\n"
         references = parser.parse_content(content, "script.py")
         targets = [ref.link_target for ref in references]
-        assert "doc/scripts/feedback_db.py" in targets
+        assert "alpha-project/scripts/feedback_db.py" in targets
 
     def test_docstring_link_type(self):
         """Docstring references should have python-docstring link type."""
         parser = PythonParser()
-        content = '"""Usage:\n' "    python doc/scripts/feedback_db.py init\n" '"""\n'
+        content = '"""Usage:\n' "    python alpha-project/scripts/feedback_db.py init\n" '"""\n'
         references = parser.parse_content(content, "script.py")
-        file_refs = [r for r in references if r.link_target == "doc/scripts/feedback_db.py"]
+        file_refs = [r for r in references if r.link_target == "alpha-project/scripts/feedback_db.py"]
         assert len(file_refs) >= 1
         assert file_refs[0].link_type == "python-docstring"
 

@@ -342,7 +342,7 @@ Use this decision tree when deciding what to include in FDDs:
 
 ### 4. Document Workflow Participation
 
-1. **Look up workflows**: Consult [User Workflow Tracking](/doc/product-docs/state-tracking/permanent/user-workflow-tracking.md) to find which workflows this feature participates in
+1. **Look up workflows**: Consult [User Workflow Tracking](/doc/state-tracking/permanent/user-workflow-tracking.md) to find which workflows this feature participates in
 2. **Describe feature's role**: For each workflow, briefly explain what this feature contributes (e.g., "Provides file path resolution for move detection")
 3. **Identify new workflows**: If this feature enables a new user-visible workflow, note it for addition to the workflow tracking file
    ```markdown
@@ -507,7 +507,7 @@ Complete example of customizing an FDD for a user registration feature:
 - [New-FDD.ps1 Script](../../scripts/file-creation/02-design/New-FDD.ps1) - Script for creating FDD documents
 - [FDD Creation Task](../../tasks/02-design/fdd-creation-task.md) - Task definition for creating FDDs
 - [Feature Tier Assessment Task](../../tasks/01-planning/feature-tier-assessment-task.md) - Determines when FDD is required
-- [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) - Central feature tracking document
+- [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Central feature tracking document
 
 ---
 

@@ -12,7 +12,8 @@ AI Context
 - **Adding a parser**: create a new module in this package, subclass
   ``BaseParser``, implement ``parse_content()`` returning a list of
   ``LinkReference``, add an import + ``__all__`` entry here, and
-  register the extension mapping in ``LinkParser._get_parser()``.
+  register the extension mapping in ``LinkParser.__init__()`` (the
+  ``self.parsers`` dict keyed by file extension).
 - **Common tasks**:
   - Debugging missed links: check the specific parser's regex patterns
     in ``parse_content()`` — each parser uses format-specific regexes.

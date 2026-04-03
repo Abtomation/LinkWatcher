@@ -20,34 +20,6 @@ This guide provides comprehensive instructions for creating new tasks and improv
 - When evaluating the overall task structure for completeness and effectiveness
 - When integrating new development processes into the task-based approach
 
-## Task Types Overview
-
-The project organizes tasks into three categories:
-
-### 1. Discrete Tasks
-
-**Characteristics:**
-
-- One-time activities with clear start and end points
-- Performed sequentially with specific completion criteria
-- Results in specific, measurable outputs
-
-**Examples:** Feature Implementation, Bug Fixing, TDD Creation
-
-**Directory:** `../../tasks/01-planning/`, `../../tasks/02-design/`, `../../tasks/03-testing/`, `../../tasks/04-implementation/`, `../../tasks/05-validation/`, `../../tasks/06-maintenance/`, `../../tasks/07-deployment/`
-
-### 2. Cyclical Tasks
-
-**Characteristics:**
-
-- Recurring activities that follow a defined cycle
-- Performed at regular intervals or triggered by specific events
-- Follow a defined cycle with clear triggers and frequency
-
-**Examples:** Tools Review, Documentation Tier Adjustment
-
-**Directory:** `../../tasks/cyclical/`
-
 ## 🚨 CRITICAL: Understanding the Two-Phase Task Creation Process
 
 > **FUNDAMENTAL CONCEPT**: Task creation involves TWO distinct phases that must be clearly understood:
@@ -80,11 +52,10 @@ The project organizes tasks into three categories:
 
 Follow these steps to create a new task:
 
-1. **Determine the Task Type**
+1. **Determine the Workflow Phase**
 
-   - Review the characteristics of each task type
-   - Consider how the task fits into the overall workflow
-   - Determine if it's discrete, cyclical, or continuous
+   - Consider which phase the task belongs to (planning, design, testing, implementation, etc.)
+   - Choose the appropriate workflow phase directory
 
 2. **Use the Task Creation Script**
 
@@ -93,13 +64,13 @@ Follow these steps to create a new task:
    cd process-framework/scripts/file-creation
 
    # Create a new task (Interactive PowerShell)
-   .\New-Task.ps1 -TaskName "Task Name" -TaskType "Discrete" -WorkflowPhase "04-implementation" -Description "Brief task description"
+   .\New-Task.ps1 -TaskName "Task Name" -WorkflowPhase "04-implementation" -Description "Brief task description"
    ```
 
    **For Automated Execution (Bash tool/CI):**
 
    ```bash
-   cd process-framework/scripts/file-creation && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-Task.ps1 -TaskType "Discrete" -TaskName "Task Name" -WorkflowPhase "04-implementation" -Description "Brief task description" -Confirm:$false'
+   cd process-framework/scripts/file-creation && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-Task.ps1 -TaskName "Task Name" -WorkflowPhase "04-implementation" -Description "Brief task description" -Confirm:$false'
    ```
 
    **Key points:**
@@ -110,8 +81,7 @@ Follow these steps to create a new task:
    **Parameters:**
 
    - `-TaskName`: Name of the task (required)
-   - `-TaskType`: Type of task - "Discrete", "Cyclical", or "Support" (required)
-   - `-WorkflowPhase`: Workflow phase directory - "00-setup", "01-planning", "02-design", "03-testing", "04-implementation", "05-validation", "06-maintenance", "07-deployment", "support", "cyclical" (optional, defaults to "01-planning")
+   - `-WorkflowPhase`: Workflow phase directory - "00-setup", "01-planning", "02-design", "03-testing", "04-implementation", "05-validation", "06-maintenance", "07-deployment", "support", "cyclical" (required, defaults to "01-planning")
    - `-Description`: Brief task description (optional)
    - `-OpenInEditor`: Switch to open the created file in the editor (optional)
 
@@ -151,7 +121,7 @@ Follow these steps to create a new task:
 
 6. **Update the Documentation Map**
 
-   - Add the new task to the appropriate section in `process-framework/documentation-map.md`
+   - Add the new task to the appropriate section in `process-framework/PF-documentation-map.md`
    - Include the ID, file path, type, description, and linked from information
 
 7. **Update the Tasks README**
@@ -168,7 +138,7 @@ A clear, concise statement of what the task accomplishes and why it's important 
 
 #### AI Agent Role
 
-Assign a professional role that optimizes the AI agent's approach to this specific task type. Use this format:
+Assign a professional role that optimizes the AI agent's approach to this specific task. Use this format:
 
 ```markdown
 ## AI Agent Role
@@ -208,7 +178,7 @@ A prioritized list of all files, information, and resources needed to complete t
 1. **Context Map Reference**: Include a link to the relevant context map at the top of this section
 
    ```markdown
-   <!-- [View Context Map for this task](../../../visualization/context-maps/[task-type]/[task-name]-map.md) - File not found -->
+   <!-- [View Context Map for this task](../../../visualization/context-maps/[workflow-phase]/[task-name]-map.md) - File not found -->
    ```
 
 2. **Prioritized Requirements**:
@@ -236,7 +206,7 @@ A bulleted list of all files, changes, and other outputs produced by the task. U
 
 **File Path Guidelines:**
 
-- Include full paths with subdirectories (e.g., `/doc/product-docs/technical/api/specifications/specifications/[api-name].md`)
+- Include full paths with subdirectories (e.g., `/doc/technical/api/specifications/specifications/[api-name].md`)
 - Use subdirectories for better organization when task creates multiple file types
 - Ensure paths match the directory mappings configured in the ID registry
 
@@ -337,9 +307,9 @@ Periodically evaluate the task structure for:
 
 The task structure should align with the AI-Tasks workflow described in `/ai-tasks.md`:
 
-1. **Task Type Mapping**
+1. **Workflow Phase Mapping**
 
-   - Ensure categorized (01-planning through 07-deployment), cyclical, and support tasks map to the task types in AI-Tasks
+   - Ensure tasks are placed in the correct workflow phase directory (01-planning through 07-deployment, cyclical, support)
    - Verify that task definitions are referenced correctly in AI-Tasks
 
 2. **State Tracking Alignment**
@@ -423,7 +393,7 @@ The task structure should align with the AI-Tasks workflow described in `/ai-tas
 
 Here's an example of creating a new categorized task following the **mandatory script-based approach**:
 
-1. **Determine the Task Type**: This is a one-time activity with clear start/end points, so it's a Discrete Task.
+1. **Determine the Workflow Phase**: This is a maintenance activity, so it belongs in `06-maintenance`.
 
 2. **Use the Task Creation Script** (🚨 MANDATORY):
 
@@ -432,7 +402,7 @@ Here's an example of creating a new categorized task following the **mandatory s
    cd process-framework/scripts/file-creation
 
    # Create the new task using the script
-   .\New-Task.ps1 -TaskName "Code Refactoring Task" -TaskType "Discrete" -WorkflowPhase "06-maintenance" -Description "Systematically improve code quality and maintainability without changing external behavior"
+   .\New-Task.ps1 -TaskName "Code Refactoring Task" -WorkflowPhase "06-maintenance" -Description "Systematically improve code quality and maintainability without changing external behavior"
    ```
 
    **Script Output Example**:
@@ -468,7 +438,7 @@ Here's an example of creating a new categorized task following the **mandatory s
      - `Code Quality Reports` *(not yet created)* - Metrics indicating problem areas
 
    - **Reference Only (Access When Needed):**
-     - [Technical Debt Tracking](../../../doc/product-docs/state-tracking/permanent/technical-debt-tracking.md) - Items marked for refactoring
+     - [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) - Items marked for refactoring
 
    ## Process
 

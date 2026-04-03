@@ -4,7 +4,7 @@ type: Document
 category: General
 version: 1.2
 created: 2025-08-17
-updated: 2026-03-29
+updated: 2026-04-02
 guide_title: Feature Validation Guide
 guide_status: Active
 guide_description: Comprehensive guide for conducting feature validation using the multi-dimension validation framework
@@ -22,7 +22,7 @@ The feature validation framework systematically evaluates a project's selected f
 
 > **Dimension source**: For features with a Dimension Profile in their implementation state file, use the profile as the primary source for dimension applicability during validation. See the [Development Dimensions Guide](../framework/development-dimensions-guide.md) for dimension definitions and abbreviations.
 
-> **⚠️ Project Adaptation Required**: This guide uses illustrative example feature IDs (e.g., `0.2.1`–`0.2.4`). Replace them with your project's actual features as listed in your [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) file.
+> **⚠️ Project Adaptation Required**: This guide uses illustrative example feature IDs (e.g., `0.2.1`–`0.2.4`). Replace them with your project's actual features as listed in your [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) file.
 
 ## When to Use
 
@@ -105,7 +105,7 @@ Before conducting feature validation, ensure you have:
 
 - **Access to the codebase**: Full read access to the project's application code
 - **Validation framework setup**: All validation tasks, templates, and scripts are available
-- **Feature knowledge**: Understanding of the features to be validated (see [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md))
+- **Feature knowledge**: Understanding of the features to be validated (see [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md))
 - **Task system familiarity**: Experience with the AI Task-Based Development System
 - **Context maps access**: Ability to read and interpret validation task context maps
 - **Validation tracking access**: Read/write access to the validation tracking file
@@ -127,7 +127,7 @@ Features implemented across multiple sessions by different AI agents can develop
 
 ### Feature Scope
 
-Consult your project's [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) file for the definitive list of features to validate. The table below is an **illustrative example**:
+Consult your project's [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) file for the definitive list of features to validate. The table below is an **illustrative example**:
 
 | Feature ID | Feature Name            | Description                   |
 | ---------- | ----------------------- | ----------------------------- |
@@ -192,7 +192,7 @@ The validation framework creates an N×M matrix (one row per selected feature, o
 | *(feature 2)* | ⏳   | ⏳      | ⏳          | ⏳   | ... | N/A      | ⏳          | ... |
 | ...           | ...  | ...     | ...         | ...  | ... | ...      | ...         | ... |
 
-Each cell represents a validation report linking a specific feature to a dimension. **N/A** marks dimensions explicitly excluded for a feature. Populate the rows with your project's actual feature IDs from [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md).
+Each cell represents a validation report linking a specific feature to a dimension. **N/A** marks dimensions explicitly excluded for a feature. Populate the rows with your project's actual feature IDs from [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md).
 
 ## Validation Types Deep Dive
 
@@ -210,7 +210,7 @@ Each cell represents a validation report linking a specific feature to a dimensi
 
 **Session Planning**:
 
-Group the selected features into batches of 2–4 per session, considering dependencies and related functionality. When possible, **group features that co-participate in the same user workflow** (per [User Workflow Tracking](/doc/product-docs/state-tracking/permanent/user-workflow-tracking.md)) — this enables the validator to spot cross-feature issues within a single session. Example:
+Group the selected features into batches of 2–4 per session, considering dependencies and related functionality. When possible, **group features that co-participate in the same user workflow** (per [User Workflow Tracking](/doc/state-tracking/permanent/user-workflow-tracking.md)) — this enables the validator to spot cross-feature issues within a single session. Example:
 
 - Session 1: Core architecture features (e.g., data models, service layer)
 - Session 2: WF-001 cohort — features 1.1.1, 2.1.1, 2.2.1 (single file move workflow)
@@ -291,7 +291,7 @@ Group the selected features into batches of 2–4 per session, considering depen
 
    ```powershell
    # Navigate to validation directory
-   Set-Location "doc/product-docs/validation"
+   Set-Location "doc/validation"
 
    # Generate validation report for specific type and features (use your project's actual feature IDs)
    ..\scripts\file-creation\New-ValidationReport.ps1 -ValidationType "ArchitecturalConsistency" -FeatureIds "<feature-1>,<feature-2>,<feature-3>" -SessionNumber 1
@@ -377,7 +377,7 @@ Group the selected features into batches of 2–4 per session, considering depen
 
 2. **Generate Consolidated Summary**
    ```powershell
-   # Generate validation summary (outputs to doc/product-docs/validation/reports/ by default)
+   # Generate validation summary (outputs to doc/validation/reports by default)
    ../../scripts/file-creation/05-validation/Generate-ValidationSummary.ps1 -IncludeDetails
 
    # Or specify a custom output path
@@ -431,13 +431,17 @@ Each validation criterion uses a standardized 0-3 scale:
 
 ### Tech Debt Item Quality Gate
 
-Before creating a tech debt item from a validation finding, apply these filters to prevent low-quality items that will be rejected during refactoring:
+**Principle**: If an issue is significant enough to document in a validation report, it should be tracked as a tech debt item.
 
-1. **Language-context filter**: Is this recommendation idiomatic for the project's language? Patterns from Java/C# (e.g., ABC interfaces, factory classes) may not apply to Python where duck-typing, monkey-patching, and first-class functions are idiomatic. Don't flag the absence of a pattern the language doesn't need.
+> **⚠️ These filters improve TD item *quality* — they do not exclude findings from being tracked.**
 
-2. **Scale threshold**: Does the issue exist at sufficient scale to justify the fix? A 3-branch if/elif doesn't need a registry pattern. A 120-line method with clear linear flow doesn't need decomposition. Apply the pattern only when complexity actually hurts readability or maintainability.
+Apply these checks before creating a tech debt item from a validation finding:
 
-3. **Existing-state verification**: Does the issue actually exist in current code? Read the relevant code to confirm the finding before creating a TD item. Prior refactoring or implementation may have already addressed it.
+1. **Deduplication check**: Search [technical-debt-tracking.md](../../../doc/state-tracking/permanent/technical-debt-tracking.md) for existing items covering the same issue. If an existing TD item already tracks this finding, reference it in the validation report instead of creating a duplicate.
+
+2. **Existing-state verification**: Does the issue actually exist in current code? Read the relevant code to confirm the finding before creating a TD item. Prior refactoring or implementation may have already addressed it.
+
+3. **Language-context filter**: Is this recommendation idiomatic for the project's language? Patterns from Java/C# (e.g., ABC interfaces, factory classes) may not apply to Python where duck-typing, monkey-patching, and first-class functions are idiomatic. If the pattern doesn't apply, note it as an observation rather than a TD item.
 
 4. **Fix viability check**: Is the recommended fix implementable without side effects? For example, adding a threading lock to a property that is already called under a lock will cause deadlock. Verify the fix works in context.
 
@@ -445,7 +449,11 @@ Before creating a tech debt item from a validation finding, apply these filters 
 
 6. **Design decision awareness**: Check ADRs and prior refactoring history before flagging architectural choices as debt. A deliberate design decision documented in an ADR is not tech debt — it's an intentional trade-off.
 
-**Only create a TD item when the finding passes all applicable filters.** If in doubt, note it as an observation in the validation report rather than creating a tracked debt item.
+7. **Scale-informed priority**: Use the scale of the issue to set priority (LOW for minor/localized issues, MEDIUM/HIGH for widespread or impactful ones), but do not use scale as a reason to skip tracking entirely.
+
+8. **Conditionality check**: Is the finding an unconditional issue in the current code, or a conditional recommendation ("consider X if Y happens", "may need Z when scale increases")? Conditional findings should still be tracked as TD items for institutional memory, but must be prefixed with `[CONDITIONAL: trigger description]` in the Description field and set to LOW priority. This prevents them from being treated as unconditional action items — the refactoring agent should verify the trigger condition is met before acting on them.
+
+**All validation-reported findings should result in either a TD item or an explicit "not applicable" note** (with reason, citing filters 2–8 above). Never silently drop a finding.
 
 ### Score Calculation
 
@@ -509,7 +517,7 @@ When skipping a criterion, exclude it from the score denominator so it doesn't p
 
    ```powershell
    # Navigate to validation directory
-   Set-Location "doc/product-docs/validation"
+   Set-Location "doc/validation"
 
    # Generate validation report for architectural consistency (use your project's feature IDs)
    ..\scripts\file-creation\New-ValidationReport.ps1 -ValidationType "ArchitecturalConsistency" -FeatureIds "0.2.1,0.2.2,0.2.3" -SessionNumber 1
@@ -569,7 +577,7 @@ When skipping a criterion, exclude it from the score denominator so it doesn't p
 
 1. Verify ValidationType uses exact values: "Architectural", "CodeQuality", "Integration", "Documentation", "Extensibility", "AIContinuity"
 2. Ensure validation directory structure exists with all subdirectories
-3. Check that you're running the script from the correct directory (doc/product-docs/validation/)
+3. Check that you're running the script from the correct directory (doc/validation/)
 
 ### Context Loading Issues
 
@@ -673,5 +681,5 @@ When skipping a criterion, exclude it from the score denominator so it doesn't p
 ### Supporting Documentation
 
 - [AI Task-Based Development System](../../ai-tasks.md) - Main task system entry point
-- [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) - Current feature status
+- [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Current feature status
 - [Visual Notation Guide](../support/visual-notation-guide.md) - For interpreting context maps and diagrams

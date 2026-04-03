@@ -16,7 +16,7 @@ task_name: tech-agnostic-testing-pipeline
 
 - **Extension Name**: Tech-Agnostic Testing Pipeline
 - **Task**: Framework Extension Task (PF-TSK-026)
-- **Concept Document**: [PF-PRO-004](../../proposals/proposals/tech-agnostic-testing-pipeline-concept.md)
+- **Concept Document**: [PF-PRO-004](../../proposals/tech-agnostic-testing-pipeline-concept.md)
 - **Concept Approval**: 2026-02-20 (Human approved)
 - **Sessions Planned**: 3
 
@@ -42,7 +42,7 @@ task_name: tech-agnostic-testing-pipeline
 | Task (modify) | codebase-feature-analysis.md (PF-TSK-065) | ✅ COMPLETED | 3 | Test tracking population step added, v1.1→1.2 |
 | Task (modify) | retrospective-documentation-creation.md (PF-TSK-066) | ✅ COMPLETED | 3 | Cross-cutting test spec guidance added, v1.2→1.3 |
 | Script (new) | Validate-TestTracking.ps1 | ✅ COMPLETED | 3 | 5-check validation: disk, registry, duplicates, counter, feature refs |
-| State (update) | documentation-map.md | ✅ COMPLETED | 3 | Added cross-cutting template, test registry, scripts, validation section |
+| State (update) | PF-documentation-map.md | ✅ COMPLETED | 3 | Added cross-cutting template, test registry, scripts, validation section |
 
 ## Implementation Roadmap
 
@@ -132,7 +132,7 @@ task_name: tech-agnostic-testing-pipeline
 
 - [x] Update feature-tracking.md Test Status column
   - **Status**: COMPLETED (verified — no changes needed)
-  - **Target**: doc/product-docs/state-tracking/permanent/feature-tracking.md
+  - **Target**: doc/state-tracking/permanent/feature-tracking.md
   - **Notes**: All Test Status values already set correctly during Phase 2 analysis. ✅ for tested features, 🚫 for 4.1.8 (Test Documentation).
 
 ### Session 3: Onboarding Integration, Validation & Finalization (Phases 3B & 4)
@@ -163,9 +163,9 @@ task_name: tech-agnostic-testing-pipeline
   - **Target**: `process-framework/scripts/Validate-TestTracking.ps1`
   - **Notes**: 5 checks — registry vs disk, unregistered files, duplicate IDs, PD-TST counter, cross-cutting feature refs. All passed on first run.
 
-- [x] Update documentation-map.md with all new artifacts
+- [x] Update PF-documentation-map.md with all new artifacts
   - **Status**: COMPLETED
-  - **Target**: `process-framework/documentation-map.md`
+  - **Target**: `process-framework/PF-documentation-map.md`
   - **Notes**: Added cross-cutting template, test registry, New-TestSpecification script, Validate-TestTracking script, Validation Scripts section
 
 - [x] Run validation to verify registry matches disk
@@ -245,7 +245,7 @@ task_name: tech-agnostic-testing-pipeline
   - PF-TSK-066 (Documentation): Cross-cutting test spec guidance in step 5, context requirements. v1.2→1.3
 - **Phase 4 COMPLETE**: All validation and finalization items done:
   - Validate-TestTracking.ps1 created — 5-check script, all passed (29 entries, 0 errors, 0 warnings)
-  - documentation-map.md updated with all new artifacts
+  - PF-documentation-map.md updated with all new artifacts
   - id-registry.json verified — no new prefixes needed
   - Validation run confirmed full consistency
 

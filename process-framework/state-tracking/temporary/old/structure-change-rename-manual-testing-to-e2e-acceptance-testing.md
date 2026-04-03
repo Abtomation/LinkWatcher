@@ -38,11 +38,11 @@ change_name: rename-manual-testing-to-e2e-acceptance-testing
 | Guides | 3 | process-framework/guides/03-testing | COMPLEX | Customization guide, test infrastructure guide, test implementation guide |
 | Context maps | 2 | visualization/context-maps/03-testing/ | MODERATE | Rename files + update titles and component references |
 | State tracking | 2 | state-tracking/permanent/ | MODERATE | test-tracking.md, feature-tracking.md — MT-GRP/MT references |
-| Documentation map | 1 | doc/process-framework/ | COMPLEX | 8+ entry updates, section headers, script descriptions |
+| Documentation map | 1 | process-framework/ | COMPLEX | 8+ entry updates, section headers, script descriptions |
 | process-framework/ai-tasks.md | 1 | root | MODERATE | Task names, descriptions, workflow references |
 | README.md | 1 | root | SIMPLE | Test documentation section |
 | Test specs | 1 | test/specifications/ | SIMPLE | test-spec-4-1-1 references |
-| TDD/FDD docs | 2 | doc/product-docs/ | SIMPLE | Feature 4.1.1 test suite docs |
+| TDD/FDD docs | 2 | doc/ | SIMPLE | Feature 4.1.1 test suite docs |
 | Audit reports | 1 | test/audits/ | SIMPLE | audit-report-2-1-1 reference |
 | Low-impact refs | ~15 | various | SIMPLE | Scattered "manual test" mentions |
 | Archive files | ~10 | feedback/archive/, state-tracking/old/ | NONE | Leave as historical records |
@@ -267,7 +267,7 @@ change_name: rename-manual-testing-to-e2e-acceptance-testing
 - Guide renamed + updated: e2e-acceptance-test-case-customization-guide.md
 - test-infrastructure-guide.md fully updated
 - 2 context maps renamed + updated
-- documentation-map.md updated (15 edits)
+- PF-documentation-map.md updated (15 edits)
 - process-framework/ai-tasks.md updated (2 table rows)
 - test-tracking.md fully updated (IDs, type labels, links, process instructions)
 

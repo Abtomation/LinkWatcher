@@ -69,7 +69,7 @@ Historical records and LinkWatcher-specific product docs correctly left unchange
 ### Additional Files Fixed (discovered during verification)
 
 - `process-framework/guides/guides/development-guide.md` — Full adaptation: Riverpod → generic, Supabase → generic, Dart examples → Python, Escape Room sections → generic, pubspec.yaml → requirements.txt
-- `doc/product-docs/ci-cd/ci-cd-dependencies-visualization.md` — Rewrote mobile app pipeline → Python CLI pipeline
+- `doc/ci-cd/ci-cd-dependencies-visualization.md` — Rewrote mobile app pipeline → Python CLI pipeline
 - `process-framework/guides/guides/hybrid-document-creation-guide.md` — Updated Dart test examples → Python
 - `process-framework/guides/guides/implementation-guide.md` — Full adaptation of 1630-line guide: all Dart code → Python
 - `process-framework/guides/guides/task-transition-guide.md` — .dart example path → .py

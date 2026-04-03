@@ -2,9 +2,9 @@
 id: PF-GDE-035
 type: Document
 category: General
-version: 1.0
+version: 1.1
 created: 2025-07-28
-updated: 2025-07-28
+updated: 2026-04-02
 guide_title: Framework Extension Concept Customization Guide
 guide_description: Comprehensive guide for customizing Framework Extension Concept documents created by the Framework Extension Task
 guide_status: Active
@@ -90,6 +90,39 @@ The Framework Extension Concept template contains placeholder content that must 
 ## Section-by-Section Guide
 
 This section provides detailed guidance for customizing each section of the Framework Extension Concept template.
+
+### Extension Type Section
+
+**Template Content:** A table with three extension types (Creation, Modification, Hybrid)
+**Your Task:** Select the type that matches your extension and delete irrelevant sections
+
+**Customization Steps:**
+1. **Determine your extension type**:
+   - **Creation**: You are adding entirely new artifacts (new tasks, new templates, new scripts). Use the creation-oriented sections; delete the Modification-Focused Sections block.
+   - **Modification**: You are modifying existing artifacts (adding steps to tasks, updating templates, changing guides). Use the Modification-Focused Sections; delete "New Artifacts Created", "New Tasks Required", and "New Permanent State Files Required".
+   - **Hybrid**: You are both creating new artifacts and modifying existing ones. Keep all sections.
+2. **Replace `[Creation / Modification / Hybrid]`** with your selected type
+3. **Delete the sections marked for removal** based on your type selection
+
+**Example:**
+```
+BEFORE: **Selected Type**: [Creation / Modification / Hybrid]
+AFTER:  **Selected Type**: Modification
+```
+
+### Modification-Focused Sections
+
+**Template Content:** Three tables for state tracking audit, guide update inventory, and automation integration
+**Your Task:** Fill in the modification impact analysis for your extension
+
+**When to use:** Only for Modification or Hybrid extension types. Delete this entire block for Creation-only extensions.
+
+**Customization Steps:**
+1. **State Tracking Audit**: List every existing state file your extension will modify. Use `grep` to find state files that reference the artifacts you're changing. Describe the specific field/section changes needed.
+2. **Guide Update Inventory**: List every guide, task definition, and doc that references the artifacts being modified. Use `grep` for the file paths and task IDs involved. This prevents broken references after implementation.
+3. **Automation Integration Strategy**: List every script that reads from or writes to the artifacts you're modifying. Determine if each script needs changes and whether changes are backward compatible.
+
+**Key principle:** The discovery method row is important — document how you found the references so reviewers can verify completeness.
 
 ### Executive Summary Section
 
@@ -221,7 +254,7 @@ Before submitting your customized Framework Extension Concept document, verify:
 - [Task Definition Guide](task-definition-guide.md) - Guidelines for defining new tasks
 
 ### Framework Infrastructure
-- [Documentation Map](../../documentation-map.md) - Complete framework documentation index
+- [Documentation Map](../../PF-documentation-map.md) - Complete framework documentation index
 - [AI Tasks Registry](../../ai-tasks.md) - Main task registry and entry point
 - [PF ID Registry](../../PF-id-registry.json) - Document ID assignment and tracking
 
@@ -319,5 +352,5 @@ Before submitting your customized Framework Extension Concept document, verify:
 
 ### Process Framework Core
 - [AI Tasks Registry](../../ai-tasks.md) - Complete list of available tasks
-- [Documentation Map](../../documentation-map.md) - Map of all framework documentation
+- [Documentation Map](../../PF-documentation-map.md) - Map of all framework documentation
 - [Process Framework Overview](../../README.md) - Overview of the entire process framework

@@ -15,7 +15,7 @@ task_name: scenario-based-e2e-acceptance-testing
 ## Overview
 
 - **Improvement ID**: PF-IMP-145
-- **Proposal**: [PF-PRO-008](../../../proposals/scenario-based-e2e-acceptance-testing.md)
+- **Proposal**: [PF-PRO-008](../../../proposals/old/scenario-based-e2e-acceptance-testing.md)
 - **Task**: PF-TSK-009 (Process Improvement)
 - **Total Sessions**: 4 (1, 1.5, 2, 3)
 
@@ -26,7 +26,7 @@ task_name: scenario-based-e2e-acceptance-testing
 **Status**: COMPLETED
 **Date**: 2026-03-18
 
-- [ ] Create User Workflow Map (`doc/product-docs/state-tracking/permanent/user-workflow-tracking.md`)
+- [ ] Create User Workflow Map (`doc/state-tracking/permanent/user-workflow-tracking.md`)
   - Identify all LinkWatcher user-facing workflows
   - Map each workflow to required features
   - Assign priorities
@@ -40,11 +40,11 @@ task_name: scenario-based-e2e-acceptance-testing
   - E2E Test Cases sub-section with Workflow and Feature IDs columns
   - Migrate existing E2E-001–004 and E2E-GRP-01–03 entries from per-feature sections
 - [ ] Add E2E entries to test-registry.yaml for existing test cases (4 cases + 3 groups)
-- [ ] Update documentation-map.md (workflow map, cross-cutting spec, cross-cutting-specs directory)
+- [ ] Update PF-documentation-map.md (workflow map, cross-cutting spec, cross-cutting-specs directory)
 - [ ] Run Validate-StateTracking.ps1
 - [ ] Feedback form
 
-**Script bug fixed during session**: `New-TempTaskState.ps1` had garbled template path (`doc/product-docs/templates/templates/` → `process-framework/templates/support`)
+**Script bug fixed during session**: `New-TempTaskState.ps1` had garbled template path (`doc/templates/templates` → `process-framework/templates/support`)
 
 ### Session 1.5: E2E ID Rename + YAML Frontmatter
 
@@ -112,19 +112,19 @@ Rename E2E IDs to follow standard prefix convention and add YAML frontmatter to 
   - PF-GDE-049 (E2E Acceptance Test Case Customization Guide) — multi-feature examples
   - PF-GDE-018 (Task Transition Guide) — milestone-triggered E2E workflow
 - [ ] Update process-framework/ai-tasks.md — add milestone-triggered E2E workflow to Common Workflows
-- [ ] Update documentation-map.md if any new entries needed
+- [ ] Update PF-documentation-map.md if any new entries needed
 - [ ] Run Validate-StateTracking.ps1
 - [ ] Mark PF-IMP-145 as Completed in process-improvement-tracking.md
 - [ ] Feedback form (covers all 3 sessions)
 
 ## Key Decisions
 
-- **Workflow map location**: `doc/product-docs/state-tracking/permanent/user-workflow-tracking.md` — product design artifact, sibling to feature-dependencies.md. One per project, no separate template/script.
+- **Workflow map location**: `doc/state-tracking/permanent/user-workflow-tracking.md` — product design artifact, sibling to feature-dependencies.md. One per project, no separate template/script.
 - **E2E spec directory**: `test/specifications/cross-cutting-specs/` — for both Category A (e2e-spec-*) and Category B (integration-spec-*)
 - **Tracking separation**: Workflow map holds planning data; test-tracking.md holds execution tracking data. Milestone rows bridge the two.
 - **Multi-feature attribution**: `-FeatureIds` parameter (comma-separated), propagated to test-registry.yaml, test-tracking.md, and feature-tracking.md
 - **Legacy terminology**: "manual" → "E2E" in PF-TSK-012 step 12
-- **Script bug fix**: New-TempTaskState.ps1 template path corrected (doc/product-docs → doc/process-framework, templates/templates → templates/support)
+- **Script bug fix**: New-TempTaskState.ps1 template path corrected (doc → process-framework, templates/templates → templates/support)
 
 ## Completion Criteria
 

@@ -206,14 +206,14 @@ _Recurring activities triggered by events or schedules_
 
 _Meta-framework tasks that work on the process framework itself_
 
-| Task                          | Type     | Use When                                                                         | Link                                                                              |
-| ----------------------------- | -------- | -------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
-| **Framework Evaluation**      | Support  | Structurally evaluate the process framework or specific parts of it for completeness, consistency, redundancy, accuracy, effectiveness, automation coverage, and scalability | [→ Definition](/process-framework/tasks/support/framework-evaluation.md)      |
-| **New Task Creation Process** | Discrete | Creating new tasks for the framework                                             | [→ Definition](/process-framework/tasks/support/new-task-creation-process.md) |
-| **Process Improvement**       | Discrete | Enhancing development workflows                                                  | [→ Definition](/process-framework/tasks/support/process-improvement-task.md)  |
-| **Structure Change**          | Discrete | Reorganizing directory structures, file locations, or documentation architecture | [→ Definition](/process-framework/tasks/support/structure-change-task.md)     |
-| **Framework Extension Task**  | Support  | Adding new framework capabilities with multiple interconnected components        | [→ Definition](/process-framework/tasks/support/framework-extension-task.md)  |
-| **Tools Review**              | Cyclical | Evaluating and enhancing project tools                                           | [→ Definition](/process-framework/tasks/support/tools-review-task.md)         |
+| Task                          | Use When                                                                         | Link                                                                              |
+| ----------------------------- | -------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| **Framework Evaluation**      | Structurally evaluate the process framework or specific parts of it for completeness, consistency, redundancy, accuracy, effectiveness, automation coverage, and scalability | [→ Definition](/process-framework/tasks/support/framework-evaluation.md)      |
+| **New Task Creation Process** | Creating new tasks for the framework                                             | [→ Definition](/process-framework/tasks/support/new-task-creation-process.md) |
+| **Process Improvement**       | Enhancing development workflows                                                  | [→ Definition](/process-framework/tasks/support/process-improvement-task.md)  |
+| **Structure Change**          | Reorganizing directory structures, file locations, or documentation architecture | [→ Definition](/process-framework/tasks/support/structure-change-task.md)     |
+| **Framework Extension Task**  | Adding new framework capabilities with multiple interconnected components        | [→ Definition](/process-framework/tasks/support/framework-extension-task.md)  |
+| **Tools Review**              | Evaluating and enhancing project tools                                           | [→ Definition](/process-framework/tasks/support/tools-review-task.md)         |
 
 ---
 
@@ -270,7 +270,7 @@ After milestone (all features for a user workflow implemented):
   Cross-cutting E2E Test Specification (New-TestSpecification.ps1 -CrossCutting) → E2E Test Case Creation (PF-TSK-069) → E2E Test Execution (PF-TSK-070)
 ```
 
-> **Milestone trigger**: Check [User Workflow Tracking](/doc/product-docs/state-tracking/permanent/user-workflow-tracking.md) — when all required features for a workflow reach "Implemented," create the cross-cutting E2E test specification for that workflow.
+> **Milestone trigger**: Check [User Workflow Tracking](/doc/state-tracking/permanent/user-workflow-tracking.md) — when all required features for a workflow reach "Implemented," create the cross-cutting E2E test specification for that workflow.
 
 ### For Feature Validation
 
@@ -335,9 +335,9 @@ Validation Preparation (PF-TSK-077) → [Select features + dimensions] → Dimen
 | **📋 Task Definitions** | All Categorized Tasks             | Complete task workflows and processes        | [↑ Task Definitions](#task-definitions)                                                                                                |
 | **🔄 Workflows**        | Common Task Workflows             | Standard development workflows               | [↑ Common Workflows](#common-workflows)                                                                                                |
 | **🏗️ Infrastructure**   | Process Framework Registry        | Complete task catalog with automation status | [Process Framework Task Registry](/process-framework/infrastructure/process-framework-task-registry.md)                            |
-| **📊 State Tracking**   | Feature Tracking                  | Track feature development status             | [Feature Tracking](/doc/product-docs/state-tracking/permanent/feature-tracking.md)                                                |
-| **📊 State Tracking**   | Feature Request Tracking          | Intake queue for product feature requests    | [Feature Request Tracking](/doc/product-docs/state-tracking/permanent/feature-request-tracking.md)                                |
-| **📊 State Tracking**   | Technical Debt Tracking           | Track technical debt items                   | [Technical Debt Tracking](/doc/product-docs/state-tracking/permanent/technical-debt-tracking.md)                                  |
+| **📊 State Tracking**   | Feature Tracking                  | Track feature development status             | [Feature Tracking](/doc/state-tracking/permanent/feature-tracking.md)                                                |
+| **📊 State Tracking**   | Feature Request Tracking          | Intake queue for product feature requests    | [Feature Request Tracking](/doc/state-tracking/permanent/feature-request-tracking.md)                                |
+| **📊 State Tracking**   | Technical Debt Tracking           | Track technical debt items                   | [Technical Debt Tracking](/doc/state-tracking/permanent/technical-debt-tracking.md)                                  |
 | **📖 Templates**        | State File Template               | Create new tracking files                    | [State File Template](/process-framework/templates/support/state-file-template.md)                                               |
 | **🔧 Automation**       | Task Creation Script              | Create new framework tasks                   | [New Task Creation Process](/process-framework/tasks/support/new-task-creation-process.md)                                         |
 | **📝 Feedback**         | Feedback Process                  | Submit tool and task feedback                | [Feedback Process Guide](/process-framework/feedback/archive/README.md)                                                            |
@@ -408,9 +408,9 @@ Understanding the different types of documentation helps you choose the right re
 
 | File                                                                                                  | Purpose                          | Status    |
 | ----------------------------------------------------------------------------------------------------- | -------------------------------- | --------- |
-| [Feature Tracking](/doc/product-docs/state-tracking/permanent/feature-tracking.md)               | Track feature development status | ✅ Active |
-| [Feature Request Tracking](/doc/product-docs/state-tracking/permanent/feature-request-tracking.md) | Intake queue for product feature requests | ✅ Active |
-| [Technical Debt Tracking](/doc/product-docs/state-tracking/permanent/technical-debt-tracking.md) | Track technical debt items       | ✅ Active |
+| [Feature Tracking](/doc/state-tracking/permanent/feature-tracking.md)               | Track feature development status | ✅ Active |
+| [Feature Request Tracking](/doc/state-tracking/permanent/feature-request-tracking.md) | Intake queue for product feature requests | ✅ Active |
+| [Technical Debt Tracking](/doc/state-tracking/permanent/technical-debt-tracking.md) | Track technical debt items       | ✅ Active |
 
 ### Creating New State Files
 
@@ -615,12 +615,6 @@ Task-based development organizes work around specific, well-defined activities w
 - 📝 **Documentation** - Maintain clear records of what's been done
 - 🔗 **Continuity** - Track project state across development sessions
 - ⚡ **Efficiency** - Minimize overhead while maintaining quality
-
-### Task Types Explained
-
-- **Discrete**: One-time activities with clear completion criteria
-- **Cyclical**: Recurring activities triggered by events or schedules
-- **Continuous**: Ongoing activities that happen alongside other work
 
 ### Self-Documenting Workflow
 

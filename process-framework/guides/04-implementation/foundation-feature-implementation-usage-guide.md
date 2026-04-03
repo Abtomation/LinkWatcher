@@ -125,7 +125,7 @@ Foundation features are fundamentally different from regular business features:
 
 2. **Create Architectural Decision Records**
    ```powershell
-   cd doc/product-docs/technical/architecture/design-docs/adr/
+   cd doc/technical/architecture/design-docs/adr
    ../../scripts/file-creation/02-design/New-ArchitectureDecision.ps1 -Title "Foundation Authentication Pattern" -Status "Proposed"
    ```
 
@@ -424,7 +424,7 @@ Is the feature expected to take multiple sessions?
 - [Foundation Feature Implementation Task](../../tasks/04-implementation/foundation-feature-implementation-task.md) - Complete task definition
 - [Foundation Feature Template](../../templates/04-implementation/foundation-feature-template.md) - Template for foundation feature structure
 
-- [Architecture Tracking](../../../doc/product-docs/state-tracking/permanent/architecture-tracking.md) - Architectural evolution tracking
+- [Architecture Tracking](../../../doc/state-tracking/permanent/architecture-tracking.md) - Architectural evolution tracking
 - [System Architecture Review Task](../../tasks/01-planning/system-architecture-review.md) - Task that identifies foundation features
 - [Feature Implementation Planning](../../tasks/04-implementation/feature-implementation-planning-task.md) - Regular feature implementation entry point for comparison
 - [ADR Template](../../templates/02-design/adr-template.md) - For documenting architectural decisions

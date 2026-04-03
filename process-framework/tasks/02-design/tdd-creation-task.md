@@ -5,7 +5,6 @@ category: Task Definition
 version: 1.6
 created: 2023-06-15
 updated: 2026-03-02
-task_type: Discrete
 change_notes: "v1.5 - Added Information Flow and Separation of Concerns sections for IMP-097/IMP-098"
 ---
 
@@ -88,18 +87,18 @@ When referencing other tasks' outputs in TDDs:
 - **Critical (Must Read):**
 
   - **Functional Design Document (FDD)** - For Tier 2+ features, the FDD created in the previous step containing functional requirements and user flows
-  - [TDD Templates](/doc/product-docs/technical/architecture/design-docs) - Tier-specific templates for technical design documents:
+  - [TDD Templates](/doc/technical/architecture/design-docs) - Tier-specific templates for technical design documents:
   - [T1 Template](/process-framework/templates/02-design/tdd-t1-template.md) - For Tier 1 (simple) features
   - [T2 Template](/process-framework/templates/02-design/tdd-t2-template.md) - For Tier 2 (moderate) features
   - [T3 Template](/process-framework/templates/02-design/tdd-t3-template.md) - For Tier 3 (complex) features
-  - [Feature Assessment](../../../doc/product-docs/documentation-tiers/assessments) - The tier assessment for the selected feature
+  - [Feature Assessment](../../../doc/documentation-tiers/assessments) - The tier assessment for the selected feature
 
 - **Important (Load If Space):**
 
-  - [Technical Design Documents](/doc/product-docs/technical/design) - Existing design documents for reference
+  - [Technical Design Documents](/doc/technical/design) - Existing design documents for reference
 
 - **Reference Only (Access When Needed):**
-  - [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) - To identify features that have been assessed but need TDDs
+  - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - To identify features that have been assessed but need TDDs
   - [Visual Notation Guide](/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 ## Process
@@ -157,7 +156,7 @@ When referencing other tasks' outputs in TDDs:
 
    ```powershell
    # Navigate to the script directory
-   cd /doc/product-docs/technical/architecture/design-docs
+   cd /doc/technical/architecture/design-docs
 
    # Run the script with the feature information
    ../discrete/New-tdd.ps1 -FeatureId "[Assessment ID]" -FeatureName "[Feature Name]" -Tier "[1, 2, or 3]"
@@ -171,7 +170,7 @@ When referencing other tasks' outputs in TDDs:
    - Store the file in the /tdd subdirectory
    - Ensure the AI Agent Session Handoff Notes section is included
 
-12. **Populate Workflow Context**: Fill in the "Workflow Context" section by referencing the FDD's Workflow Participation section (if available) or looking up the feature in [User Workflow Tracking](/doc/product-docs/state-tracking/permanent/user-workflow-tracking.md). List the WF-IDs the feature participates in.
+12. **Populate Workflow Context**: Fill in the "Workflow Context" section by referencing the FDD's Workflow Participation section (if available) or looking up the feature in [User Workflow Tracking](/doc/state-tracking/permanent/user-workflow-tracking.md). List the WF-IDs the feature participates in.
 13. Complete the document with appropriate detail for the tier, **including quality attribute requirements and implementation** (apply dimension-informed depth from step 9):
 
 - **Tier 1 🔵**: Key implementation approach, affected components, technical constraints, and relevant quality attribute considerations
@@ -213,15 +212,15 @@ When referencing other tasks' outputs in TDDs:
 
 ## Outputs
 
-- **Technical Design Document** - New document in `/doc/product-docs/technical/architecture/design-docs/tdd/tdd-[assessment-id]-[feature-name]-t[tier].md`
-- **Updated Feature Tracking** - [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) document updated with TDD status
+- **Technical Design Document** - New document in `/doc/technical/architecture/design-docs/tdd/tdd-[assessment-id]-[feature-name]-t[tier].md`
+- **Updated Feature Tracking** - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) document updated with TDD status
 - **AI Session Handoff Notes** - Explicit guidance for the next AI agent session
 
 ## State Tracking
 
 The following state files are automatically updated by the [../../scripts/file-creation/02-design/New-tdd.ps1](../../scripts/file-creation/02-design/New-tdd.ps1) script:
 
-- [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) - Automatically updated with:
+- [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Automatically updated with:
   - Status changed from "📋 FDD Created" (for Tier 2+) or "📊 Assessment Created" (for Tier 1) to "📝 TDD Created"
   - Link to TDD document added in the "Tech Design" column
   - TDD creation date added to Notes column
@@ -258,9 +257,9 @@ Before considering this task finished:
 
 ## Related Resources
 
-- [TDD Templates](/doc/product-docs/technical/architecture/design-docs) - Tier-specific templates for technical design documents:
+- [TDD Templates](/doc/technical/architecture/design-docs) - Tier-specific templates for technical design documents:
   - [T1 Template](/process-framework/templates/02-design/tdd-t1-template.md) - For Tier 1 (simple) features
   - [T2 Template](/process-framework/templates/02-design/tdd-t2-template.md) - For Tier 2 (moderate) features
   - [T3 Template](/process-framework/templates/02-design/tdd-t3-template.md) - For Tier 3 (complex) features
 - [TDD Generation Script](/process-framework/scripts/file-creation/02-design/New-tdd.ps1) - Script for generating TDD documents
-- [Architecture Decision Records](/doc/product-docs/technical/architecture/design-docs/adr) - Repository of past architectural decisions
+- [Architecture Decision Records](/doc/technical/architecture/design-docs/adr) - Repository of past architectural decisions

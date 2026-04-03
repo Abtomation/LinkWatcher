@@ -15,7 +15,6 @@ task_name: [TASK-NAME]
 ## Task Overview
 
 - **Task Name**: [Task Name]
-- **Task Type**: [Discrete/Cyclical/Continuous/Support]
 - **Task ID**: [To be assigned by ../New-Task.ps1]
 
 ## Infrastructure Analysis
@@ -52,7 +51,7 @@ List existing artifacts that can be reused:
   - **Dependencies**: Task concept finalized, task creation guide reviewed
   - **Guide**: [Task Creation Guide](../../guides/support/task-creation-guide.md)
   - **Script**: `process-framework/scripts/file-creation/support/New-Task.ps1`
-  - **Command**: `cd process-framework/scripts/file-creation/support && .\New-Task.ps1 -TaskName "[Task Name]" -TaskType "[Discrete/Cyclical/Continuous/Support]" -Description "[Brief description]"`
+  - **Command**: `cd process-framework/scripts/file-creation/support && .\New-Task.ps1 -TaskName "[Task Name]" -WorkflowPhase "[phase]" -Description "[Brief description]"`
   - **Notes**: This creates the core task definition file with proper ID assignment
 
 - [ ] **Evaluate Task File Creation Requirements**: Determine if task creates new files as outputs
@@ -71,7 +70,7 @@ List existing artifacts that can be reused:
 
   - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED/SKIPPED]
   - **Dependencies**: Task definition completed, file types identified
-  - **Directories**: [List specific directories needed - include full paths with subdirectories, e.g., doc/product-docs/technical/api/specifications/specifications/]
+  - **Directories**: [List specific directories needed - include full paths with subdirectories, e.g., doc/technical/api/specifications/specifications/]
   - **Command**: `mkdir -p [directory-path]` or manual creation
   - **Notes**: Create the directory where task outputs will be stored. Consider using subdirectories for better organization of different file types.
 
@@ -89,7 +88,7 @@ List existing artifacts that can be reused:
   - **Dependencies**: Understanding of what file types the task will create
   - **File**: `process-framework/PF-id-registry.json` (or PD/TE registry as appropriate)
   - **New Prefix**: [e.g., PF-XXX or PD-XXX]
-  - **Directory Mapping**: [Directory where files will be stored - include subdirectories if needed, e.g., doc/product-docs/technical/api/specifications/specifications]
+  - **Directory Mapping**: [Directory where files will be stored - include subdirectories if needed, e.g., doc/technical/api/specifications/specifications]
   - **Notes**: Add new prefix entry with appropriate directory mapping. Use subdirectories for better organization when task creates multiple file types.
 
 ### Phase 3: Templates and Guides (Session 3)
@@ -117,11 +116,11 @@ List existing artifacts that can be reused:
 
 **Priority**: MEDIUM - Needed for complete task integration
 
-- [ ] **Documentation Map Update**: Update documentation-map.md with all new artifacts
+- [ ] **Documentation Map Update**: Update PF-documentation-map.md with all new artifacts
 
   - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
   - **Dependencies**: All previous phases completed, all artifacts created
-  - **File**: `process-framework/documentation-map.md`
+  - **File**: `process-framework/PF-documentation-map.md`
   - **Artifacts to Add**: [List all new files created: task definition, scripts, templates, guides, context map]
   - **Notes**: Register all new artifacts and their relationships in the documentation map
 
@@ -131,7 +130,7 @@ List existing artifacts that can be reused:
   - **Guide**: [Visualization Creation Guide](../../guides/support/visualization-creation-guide.md)
   - **Script**: process-framework/scripts/file-creation/02-design/New-ContextMap.ps1
   - **Template**: [Context Map Template](context-map-template.md)
-  - **Command**: `cd process-framework/scripts/file-creation/02-design && .\New-ContextMap.ps1 -TaskName "[Task Name]" -TaskType "[Type]" -MapDescription "Context map for [Task Name] task"`
+  - **Command**: `cd process-framework/scripts/file-creation/02-design && .\New-ContextMap.ps1 -TaskName "[Task Name]" -WorkflowPhase "[phase]" -MapDescription "Context map for [Task Name] task"`
   - **Notes**: Shows component relationships and context requirements for the task
 
 ## Session Tracking

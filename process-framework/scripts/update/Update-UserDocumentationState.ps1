@@ -9,9 +9,9 @@ This script automates the manual finalization updates required by the User Docum
 Creation task (PF-TSK-081), addressing the bottleneck identified in PF-IMP-245.
 
 Updates the following files:
-- Feature implementation state file (doc/product-docs/state-tracking/features/<FeatureId>-*-implementation-state.md)
+- Feature implementation state file (doc/state-tracking/features/<FeatureId>-*-implementation-state.md)
   Appends a User Handbook row to the Documentation Inventory table
-- documentation-map.md (process-framework/documentation-map.md)
+- PD-documentation-map.md (process-framework/PD-documentation-map.md)
   Appends a handbook entry under the "### User Handbooks" section
 
 .PARAMETER FeatureId
@@ -21,21 +21,21 @@ The feature ID (e.g., "6.1.1") used to locate the feature state file
 Display name for the handbook (e.g., "Link Validation")
 
 .PARAMETER HandbookPath
-Relative path from repo root to the handbook file (e.g., "doc/product-docs/user/handbooks/link-validation.md")
+Relative path from repo root to the handbook file (e.g., "doc/user/handbooks/link-validation.md")
 
 .PARAMETER HandbookId
 The PD-UGD ID assigned to the handbook (e.g., "PD-UGD-003")
 
 .PARAMETER Description
-One-line description for the documentation-map.md entry
+One-line description for the PD-documentation-map.md entry
 
 .EXAMPLE
 # Update state files after creating a user handbook
-.\Update-UserDocumentationState.ps1 -FeatureId "6.1.1" -HandbookName "Link Validation" -HandbookPath "doc/product-docs/user/handbooks/link-validation.md" -HandbookId "PD-UGD-003" -Description "On-demand workspace scan for broken file references using --validate"
+.\Update-UserDocumentationState.ps1 -FeatureId "6.1.1" -HandbookName "Link Validation" -HandbookPath "doc/user/handbooks/link-validation.md" -HandbookId "PD-UGD-003" -Description "On-demand workspace scan for broken file references using --validate"
 
 .EXAMPLE
 # Preview changes without modifying files
-.\Update-UserDocumentationState.ps1 -FeatureId "2.1.1" -HandbookName "Custom Parsers" -HandbookPath "doc/product-docs/user/handbooks/custom-parsers.md" -HandbookId "PD-UGD-004" -Description "How to add custom file parsers" -WhatIf
+.\Update-UserDocumentationState.ps1 -FeatureId "2.1.1" -HandbookName "Custom Parsers" -HandbookPath "doc/user/handbooks/custom-parsers.md" -HandbookId "PD-UGD-004" -Description "How to add custom file parsers" -WhatIf
 
 .NOTES
 This script addresses Process Improvement item:
@@ -77,8 +77,8 @@ Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 
 # Configuration
 $ProjectRoot = Get-ProjectRoot
-$DocMapFile = Join-Path -Path $ProjectRoot -ChildPath "process-framework/documentation-map.md"
-$FeaturesDir = Join-Path -Path $ProjectRoot -ChildPath "doc/product-docs/state-tracking/features"
+$DocMapFile = Join-Path -Path $ProjectRoot -ChildPath "doc/PD-documentation-map.md"
+$FeaturesDir = Join-Path -Path $ProjectRoot -ChildPath "doc/state-tracking/features"
 $CurrentDate = Get-Date -Format "yyyy-MM-dd"
 $ScriptName = "Update-UserDocumentationState.ps1"
 
@@ -99,7 +99,7 @@ function Test-Prerequisites {
     Write-Log "Checking prerequisites..."
 
     if (-not (Test-Path $DocMapFile)) {
-        Write-Log "documentation-map.md not found: $DocMapFile" -Level "ERROR"
+        Write-Log "PD-documentation-map.md not found: $DocMapFile" -Level "ERROR"
         return $false
     }
 
@@ -208,13 +208,13 @@ function Update-FeatureStateFile {
 }
 
 function Update-DocumentationMap {
-    Write-Log "Updating documentation-map.md..."
+    Write-Log "Updating PD-documentation-map.md..."
 
     $content = Get-Content -Path $DocMapFile -Raw
 
     # Build the new entry
     # Format: - [Product: Handbook Name](relative-path) - Description
-    # Path is relative from documentation-map.md location
+    # Path is relative from PD-documentation-map.md location
     $docMapDir = Split-Path -Parent $DocMapFile
     $handbookFullPath = Join-Path -Path $ProjectRoot -ChildPath $HandbookPath
     $relativePath = [System.IO.Path]::GetRelativePath($docMapDir, $handbookFullPath) -replace '\\', '/'
@@ -223,7 +223,7 @@ function Update-DocumentationMap {
 
     # Check if this handbook is already listed
     if ($content -match [regex]::Escape($relativePath)) {
-        Write-Log "Handbook already listed in documentation-map.md — skipping" -Level "WARN"
+        Write-Log "Handbook already listed in PD-documentation-map.md — skipping" -Level "WARN"
         return $true
     }
 
@@ -253,7 +253,7 @@ function Update-DocumentationMap {
     }
 
     if ($insertIndex -eq -1) {
-        Write-Log "Could not find User Handbooks section in documentation-map.md" -Level "ERROR"
+        Write-Log "Could not find User Handbooks section in PD-documentation-map.md" -Level "ERROR"
         Write-Log "Expected section: ### User Handbooks" -Level "ERROR"
         return $false
     }
@@ -301,7 +301,7 @@ if (-not (Update-FeatureStateFile -StateFilePath $stateFile)) {
 Write-Log ""
 Write-Log "--- Step 2: Documentation Map ---"
 if (-not (Update-DocumentationMap)) {
-    Write-Log "Failed to update documentation-map.md" -Level "ERROR"
+    Write-Log "Failed to update PD-documentation-map.md" -Level "ERROR"
     $success = $false
 }
 
@@ -311,7 +311,7 @@ if ($success) {
     Write-Log ""
     Write-Log "Updated files:"
     Write-Log "  1. $(Split-Path -Leaf $stateFile)"
-    Write-Log "  2. documentation-map.md"
+    Write-Log "  2. PD-documentation-map.md"
     Write-Log ""
     Write-Log "Remaining manual steps:"
     Write-Log "  - Update feature-tracking.md if a User Docs column exists"

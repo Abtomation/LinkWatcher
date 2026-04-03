@@ -20,8 +20,6 @@ import threading
 import time
 from typing import Callable
 
-from colorama import Fore
-
 from .logging import get_logger
 from .utils import normalize_path
 
@@ -115,16 +113,21 @@ class DirectoryMoveDetector:
             pending.max_timer.daemon = True
             pending.max_timer.start()
 
-            print(
-                f"{Fore.CYAN}📂 Buffered {len(known_files)} known file(s) "
-                f"from '{deleted_dir}' for move detection "
-                f"(max wait: {self._max_timeout}s)"
+            self._logger.info(
+                "dir_move_buffered",
+                deleted_dir=deleted_dir,
+                known_file_count=len(known_files),
+                max_timeout=self._max_timeout,
+            )
+            self._logger.performance.log_metric(
+                "dir_move_batch_size", len(known_files), unit="files",
+                deleted_dir=deleted_dir,
             )
             return True
         else:
-            print(
-                f"{Fore.YELLOW}⚠️ Directory deletion detected with no known "
-                f"files in database. Consider running a full rescan."
+            self._logger.warning(
+                "dir_deletion_no_known_files",
+                deleted_dir=deleted_dir,
             )
             return False
 
@@ -164,16 +167,31 @@ class DirectoryMoveDetector:
                             pending.matched_count += 1
                             self._reset_settle_timer(deleted_dir, pending)
 
-                            print(
-                                f"{Fore.CYAN}  📄 Matched {pending.matched_count}"
-                                f"/{pending.total_expected}: "
-                                f"{os.path.basename(created_path)}"
+                            self._logger.debug(
+                                "dir_move_file_matched",
+                                matched=pending.matched_count,
+                                total=pending.total_expected,
+                                file_name=os.path.basename(created_path),
+                            )
+                            self._logger.performance.log_metric(
+                                "dir_move_match_progress",
+                                pending.matched_count,
+                                unit="files",
+                                total=pending.total_expected,
+                                deleted_dir=deleted_dir,
                             )
 
                             if not pending.unmatched:
-                                print(
-                                    f"{Fore.GREEN}✓ All {pending.matched_count} "
-                                    f"files matched — processing directory move"
+                                self._logger.info(
+                                    "dir_move_all_files_matched",
+                                    matched_count=pending.matched_count,
+                                    deleted_dir=deleted_dir,
+                                )
+                                self._logger.performance.log_metric(
+                                    "dir_move_completion_trigger", 1, unit="event",
+                                    trigger="all_matched",
+                                    matched=pending.matched_count,
+                                    total=pending.total_expected,
                                 )
                                 self._trigger_processing(deleted_dir, pending)
                             return True
@@ -208,6 +226,7 @@ class DirectoryMoveDetector:
                         pending.matched_count = 1
                         self._reset_settle_timer(deleted_dir, pending)
 
+                        first_match_latency_ms = (time.time() - pending.timestamp) * 1000
                         self._logger.info(
                             "dir_move_detected",
                             old_dir=deleted_dir,
@@ -215,10 +234,25 @@ class DirectoryMoveDetector:
                             first_match=created_path,
                             total_expected=pending.total_expected,
                         )
+                        self._logger.performance.log_metric(
+                            "dir_move_first_match_latency",
+                            round(first_match_latency_ms, 2),
+                            unit="ms",
+                            deleted_dir=deleted_dir,
+                            new_dir=new_dir,
+                        )
 
                         if not pending.unmatched:
-                            print(
-                                f"{Fore.GREEN}✓ All files matched " f"— processing directory move"
+                            self._logger.info(
+                                "dir_move_all_files_matched",
+                                matched_count=pending.matched_count,
+                                deleted_dir=deleted_dir,
+                            )
+                            self._logger.performance.log_metric(
+                                "dir_move_completion_trigger", 1, unit="event",
+                                trigger="all_matched",
+                                matched=pending.matched_count,
+                                total=pending.total_expected,
                             )
                             self._trigger_processing(deleted_dir, pending)
                         return True
@@ -324,6 +358,12 @@ class DirectoryMoveDetector:
             matched=pending.matched_count,
             unmatched=len(pending.unmatched),
         )
+        self._logger.performance.log_metric(
+            "dir_move_completion_trigger", 1, unit="event",
+            trigger="settle_timer",
+            matched=pending.matched_count,
+            total=pending.total_expected,
+        )
         self._process_dir_move(pending)
 
     def _process_timeout(self, deleted_dir):
@@ -347,12 +387,23 @@ class DirectoryMoveDetector:
                 matched=pending.matched_count,
                 unmatched=len(pending.unmatched),
             )
+            self._logger.performance.log_metric(
+                "dir_move_completion_trigger", 1, unit="event",
+                trigger="max_timeout",
+                matched=pending.matched_count,
+                total=pending.total_expected,
+            )
             self._process_dir_move(pending)
         else:
             # No matches at all — true directory deletion
             self._logger.info(
                 "directory_true_delete",
                 deleted_dir=deleted_dir,
+                files_count=pending.total_expected,
+            )
+            self._logger.performance.log_metric(
+                "dir_move_completion_trigger", 1, unit="event",
+                trigger="max_timeout_no_match",
                 files_count=pending.total_expected,
             )
             self._process_dir_true_delete(pending)
@@ -365,6 +416,7 @@ class DirectoryMoveDetector:
         """
         old_dir = pending.deleted_dir
         new_dir = pending.new_dir
+        total_duration_ms = (time.time() - pending.timestamp) * 1000
 
         self._logger.info(
             "dir_move_processing",
@@ -372,6 +424,14 @@ class DirectoryMoveDetector:
             new_dir=new_dir,
             matched=pending.matched_count,
             unmatched=len(pending.unmatched),
+            total=pending.total_expected,
+        )
+        self._logger.performance.log_metric(
+            "dir_move_total_duration", round(total_duration_ms, 2),
+            unit="ms",
+            old_dir=old_dir,
+            new_dir=new_dir,
+            matched=pending.matched_count,
             total=pending.total_expected,
         )
 

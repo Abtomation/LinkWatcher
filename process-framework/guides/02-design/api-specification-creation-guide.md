@@ -49,7 +49,7 @@ Use this guide when you need to:
 
 Before you begin, ensure you have:
 
-- Access to PowerShell and the New-APISpecification.ps1 script in `doc/product-docs/technical/api/specifications/`
+- Access to PowerShell and the New-APISpecification.ps1 script in `doc/technical/api/specifications`
 - Understanding of API design principles and RESTful service patterns
 - Knowledge of the project's authentication and authorization requirements
 - Familiarity with JSON schema and API documentation standards
@@ -289,7 +289,7 @@ Use this decision tree when deciding what to include in API specifications:
 1. **Navigate to the API specifications directory**:
 
    ```powershell
-   cd doc/product-docs/technical/api/specifications
+   cd doc/technical/api/specifications
    ```
 
 2. **Execute the New-APISpecification.ps1 script**:
@@ -418,7 +418,7 @@ Creating a comprehensive API specification for user authentication in the applic
 
 ```powershell
 # Navigate to API specifications directory
-cd doc/product-docs/technical/api/specifications
+cd doc/technical/api/specifications
 
 # Create user authentication API specification
 .\New-APISpecification.ps1 -APIName "User Authentication API" -APIDescription "Handles user login, registration, session management, and password reset functionality" -APIType "REST" -OpenInEditor
@@ -463,7 +463,7 @@ Creating an API specification for order management functionality:
 
 **Solution:**
 
-1. Verify you're running the script from the correct directory: `doc/product-docs/technical/api/specifications/`
+1. Verify you're running the script from the correct directory: `doc/technical/api/specifications`
 2. Check that the Common-ScriptHelpers.psm1 file exists at process-framework/scripts/Common-ScriptHelpers.psm1
 3. Ensure PowerShell execution policy allows script execution: `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser`
 

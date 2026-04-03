@@ -399,5 +399,5 @@ Overall Effort: Low (1)
 
 - [Technical Debt Assessment Task Usage Guide](technical-debt-assessment-task-usage-guide.md) - Complete assessment process
 - [Assessment Criteria Guide](assessment-criteria-guide.md) - Detailed criteria for identifying debt
-- [Technical Debt Tracking](../../../doc/product-docs/state-tracking/permanent/technical-debt-tracking.md) - Permanent state tracking
+- [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) - Permanent state tracking
 - [Prioritization Matrix Template](../../templates/cyclical/prioritization-matrix-template.md) - Template for creating matrices

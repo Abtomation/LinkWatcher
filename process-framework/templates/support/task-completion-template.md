@@ -4,7 +4,9 @@ type: Process Framework
 category: Template
 version: 1.0
 created: 2025-07-04
-updated: 2025-07-04
+updated: 2026-04-02
+automation: manual
+automation_rationale: Reference snippet embedded into task definitions via New-Task.ps1 — not a standalone document
 ---
 
 # Task Completion Template

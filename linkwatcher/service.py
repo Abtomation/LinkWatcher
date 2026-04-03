@@ -70,7 +70,9 @@ class LinkWatcherService:
 
         # Initialize components
         self.logger.debug("initializing_components")
-        self.link_db = LinkDatabase()
+        self.link_db = LinkDatabase(
+            parser_type_extensions=config.parser_type_extensions if config else None
+        )
         self.parser = LinkParser(config=config)
         self.updater = LinkUpdater(str(self.project_root))
         self.handler = LinkMaintenanceHandler(
@@ -183,8 +185,10 @@ class LinkWatcherService:
                             self.link_db.add_link(ref)
                         scanned_files += 1
 
-                        if scanned_files % 50 == 0:  # Progress indicator
-                            self.logger.scan_progress(scanned_files)
+                        progress_interval = config.scan_progress_interval
+                        if scanned_files % progress_interval == 0:
+                            info_milestone = scanned_files % (progress_interval * 4) == 0
+                            self.logger.scan_progress(scanned_files, info_level=info_milestone)
 
                     except Exception as e:
                         self.logger.warning(
@@ -256,8 +260,9 @@ class LinkWatcherService:
         for target_path, references in self.link_db.get_all_targets_with_references().items():
             total_checked += len(references)
 
-            # Check once per target — all references share the same path
-            target_abs_path = os.path.join(self.project_root, target_path)
+            # Strip #fragment anchors before filesystem check (PD-BUG-070)
+            check_path = target_path.split("#", 1)[0] if "#" in target_path else target_path
+            target_abs_path = os.path.join(self.project_root, check_path)
             if not os.path.exists(target_abs_path):
                 for ref in references:
                     broken_links.append(

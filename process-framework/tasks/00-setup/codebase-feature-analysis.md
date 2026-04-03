@@ -5,7 +5,6 @@ category: Task Definition
 version: 1.3
 created: 2026-02-17
 updated: 2026-03-02
-task_type: Onboarding
 ---
 
 # Codebase Feature Analysis
@@ -37,16 +36,16 @@ This task produces enriched Feature Implementation State files that serve as the
 - **Critical (Must Read):**
 
   - [Retrospective Master State File](../../state-tracking/temporary/old/retrospective-master-state.md) — Read current state, verify Phase 1 complete
-  - [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) - Feature list and current status
-  - [Feature Implementation State Files](../../state-tracking/features) — All files created during PF-TSK-064
+  - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Feature list and current status
+  - [Feature Implementation State Files](/doc/state-tracking/features) — All files created during PF-TSK-064
   - [Feature Implementation State Tracking Guide](../../guides/04-implementation/feature-implementation-state-tracking-guide.md) - Guide for populating analysis sections
 
 - **Important (Load If Space):**
   - [Feature Tier Assessment Task](../01-planning/feature-tier-assessment-task.md) - Understanding what analysis feeds into tier assessment
 
 - **Reference Only (Access When Needed):**
-  - [Documentation Tiers README](../../../doc/product-docs/documentation-tiers/README.md) - Understanding tier documentation requirements
-  - [Feature Dependencies](../../../doc/product-docs/technical/design/feature-dependencies.md) - Existing dependency documentation
+  - [Documentation Tiers README](../../../doc/documentation-tiers/README.md) - Understanding tier documentation requirements
+  - [Feature Dependencies](../../../doc/technical/feature-dependencies.md) - Existing dependency documentation
   - [Test Query Tool](/process-framework/scripts/test/test_query.py) - Query test files by feature, priority, and markers
   - [Test Tracking](../../../test/state-tracking/permanent/test-tracking.md) - Test implementation status tracking
 
@@ -90,14 +89,14 @@ This task produces enriched Feature Implementation State files that serve as the
    - **Error Handling**: How are errors managed?
      - Exception handling patterns
      - Error propagation and recovery
-   - Document in [Feature Implementation State file](../../state-tracking/features) → Design Decisions section
+   - Document in [Feature Implementation State file](/doc/state-tracking/features) → Design Decisions section
 
 4. **Document Dependencies** (for each feature):
    - **Feature Dependencies**: Cross-feature integrations, shared components
    - **System Dependencies**: External libraries and versions
    - **Code Dependencies**: Shared utilities, base classes, interfaces
-   - **User-Facing Workflows**: Identify which user workflows this feature participates in (e.g., "file move → links updated" requires detection + parsing + updating). Create or update [User Workflow Tracking](/doc/product-docs/state-tracking/permanent/user-workflow-tracking.md) with workflow definitions, required features, and priorities
-   - Document in [Feature Implementation State file](../../state-tracking/features) → Dependencies section
+   - **User-Facing Workflows**: Identify which user workflows this feature participates in (e.g., "file move → links updated" requires detection + parsing + updating). Create or update [User Workflow Tracking](/doc/state-tracking/permanent/user-workflow-tracking.md) with workflow definitions, required features, and priorities
+   - Document in [Feature Implementation State file](/doc/state-tracking/features) → Dependencies section
    - **Format for Feature Dependency references**: Use `[feature_id Feature Name](./feature_id-feature-name-implementation-state.md)` — e.g., `**[0.1.2 Data Models](./0.1.2-data-models-implementation-state.md)**` (these are example paths within the feature state directory, not links to actual files). Do NOT use PF-FEA IDs in dependency entries.
 
 5. **🚨 CHECKPOINT**: Present analysis findings for first batch of features for review before continuing
@@ -107,11 +106,11 @@ This task produces enriched Feature Implementation State files that serve as the
    - **Test Types**: Unit, integration, parser, performance, e2e?
    - **Test Gaps**: Critical paths without tests, edge cases not covered
    - **Cross-cutting Tests**: Identify test files that validate interactions across multiple features
-   - Document in [Feature Implementation State file](../../state-tracking/features) → Test Files section
+   - Document in [Feature Implementation State file](/doc/state-tracking/features) → Test Files section
    - **Register in Test Tracking Infrastructure**:
      - Ensure each test file has pytest markers (feature, priority, test_type, cross_cutting)
      - Add entries to [Test Tracking](../../../test/state-tracking/permanent/test-tracking.md) organized by feature category
-     - Update [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) Test Status column (✅ for features with tests, 🚫 for features without)
+     - Update [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) Test Status column (✅ for features with tests, 🚫 for features without)
      - Use the automation script `New-TestFile.ps1` for registering individual test files, or batch-populate the registry directly for large existing test suites
 
 7. **🚨 CHECKPOINT**: Present test coverage gaps and cross-cutting patterns to human partner
@@ -126,7 +125,7 @@ This task produces enriched Feature Implementation State files that serve as the
 ### Finalization
 
 9. **Validate Workflow Map Completeness**:
-   - Read [User Workflow Tracking](/doc/product-docs/state-tracking/permanent/user-workflow-tracking.md) created during PF-TSK-064
+   - Read [User Workflow Tracking](/doc/state-tracking/permanent/user-workflow-tracking.md) created during PF-TSK-064
    - Verify every feature appears in at least one workflow (or is explicitly documented as not part of any user workflow with `workflows: []`)
    - Verify every workflow lists all required features — cross-check against dependency analysis from step 4
    - Update Impl Status column based on feature-tracking.md statuses
@@ -143,7 +142,7 @@ This task produces enriched Feature Implementation State files that serve as the
 
 ## Outputs
 
-- **Enriched [Feature Implementation State Files](../../state-tracking/features)** — updated with:
+- **Enriched [Feature Implementation State Files](/doc/state-tracking/features)** — updated with:
   - Design Decisions section populated
   - Dependencies section populated
   - Implementation Patterns documented
@@ -155,7 +154,7 @@ This task produces enriched Feature Implementation State files that serve as the
 ### Existing State Files Updated
 
 - [Retrospective Master State File](../../state-tracking/temporary/old/retrospective-master-state.md) — Phase 2 progress, features marked as analyzed
-- [Feature Implementation State Files](../../state-tracking/features) — Enriched with analysis content (Design Decisions, Dependencies, Implementation Patterns)
+- [Feature Implementation State Files](/doc/state-tracking/features) — Enriched with analysis content (Design Decisions, Dependencies, Implementation Patterns)
 
 ## ⚠️ MANDATORY Task Completion Checklist
 

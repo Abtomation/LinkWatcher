@@ -8,10 +8,6 @@ param(
     [string]$TaskName,
 
     [Parameter(Mandatory = $false)]
-    [ValidateSet("Discrete", "Cyclical", "Continuous", "Support")]
-    [string]$TaskType,
-
-    [Parameter(Mandatory = $false)]
     [ValidateSet("TaskCreation", "ProcessImprovement")]
     [string]$Variant = "TaskCreation",
 
@@ -31,12 +27,6 @@ Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 
 # Perform standard initialization
 Invoke-StandardScriptInitialization
-
-# Validate: TaskCreation variant requires TaskType
-if ($Variant -eq "TaskCreation" -and -not $TaskType) {
-    Write-ProjectError -Message "-TaskType is required when using -Variant TaskCreation (the default). Use -Variant ProcessImprovement for process improvement state files." -ExitCode 1
-    return
-}
 
 $kebabName = ConvertTo-KebabCase -InputString $TaskName
 $projectRoot = Get-ProjectRoot
@@ -76,13 +66,12 @@ if ($Variant -eq "ProcessImprovement") {
     # --- Task Creation variant (original behavior) ---
     $templatePath = Join-Path -Path $processFrameworkDir -ChildPath "templates\support\temp-task-creation-state-template.md"
     $customFileName = "temp-task-creation-$kebabName.md"
-    $idDescription = "Temporary task state for $TaskType task: ${TaskName}"
+    $idDescription = "Temporary task state: ${TaskName}"
 
     $expectedCompletion = (Get-Date).AddDays(30).ToString("yyyy-MM-dd")
 
     $customReplacements = @{
         "[Task Name]"                                 = $TaskName
-        "[Discrete/Cyclical/Continuous]"              = $TaskType
         "- **Expected Completion**: [YYYY-MM-DD]"     = "- **Expected Completion**: $expectedCompletion"
     }
 

@@ -40,8 +40,8 @@ target_feature: 1.1.1
 | Document Type | ID | Location | Action Needed |
 |---------------|-----|----------|---------------|
 | Feature State File | PF-FEA-049 | [1.1.1 File System Monitoring](../features/1.1.1-file-system-monitoring-implementation-state.md) | Update on completion |
-| FDD | PD-FDD-024 | [FDD: File System Monitoring](../../../product-docs/functional-design/fdds/fdd-1-1-1-file-system-monitoring.md) | Minor amend — add directory-path reference handling |
-| TDD | PD-TDD-023 | [TDD: File System Monitoring](../../../product-docs/technical/architecture/design-docs/tdd/tdd-1-1-1-file-system-monitoring-t2.md) | Amend — add directory-path update logic to move handling |
+| FDD | PD-FDD-024 | [FDD: File System Monitoring](/doc/functional-design/fdds/fdd-1-1-1-file-system-monitoring.md) | Minor amend — add directory-path reference handling |
+| TDD | PD-TDD-023 | [TDD: File System Monitoring](/doc/technical/tdd/tdd-1-1-1-file-system-monitoring-t2.md) | Amend — add directory-path update logic to move handling |
 | ADR | N/A | None exists | No change — no new architectural decision needed |
 | Test Specification | PF-TSP-038 | [Test Spec: File System Monitoring](../../../../test/specifications/feature-specs/test-spec-1-1-1-file-system-monitoring.md) | Amend — add test cases for directory-path reference updates |
 | Feature State File (secondary) | PF-FEA-050 | [2.1.1 Link Parsing System](../features/2.1.1-link-parsing-system-implementation-state.md) | Update on completion (parser change already done) |

@@ -5,7 +5,7 @@ category: Guide
 version: 2.0
 created: 2025-07-13
 updated: 2026-02-20
-change_notes: "v2.0 - Consolidated testing workflow: PF-TSK-029 absorbed into PF-TSK-053, spec-first/test-after as default path"
+change_notes: "v2.1 - Removed all PF-TSK-029 (Test Implementation) references; PF-TSK-053 (Integration & Testing) is the sole testing task"
 ---
 
 # Task Transition Guide
@@ -86,7 +86,7 @@ This matrix defines **who owns what information** to prevent duplication:
 | **Technical Design**          | TDD Creation               | Feature Implementation, Test Specification      | How the feature is implemented              |
 | **Component Architecture**    | TDD Creation               | Feature Implementation                          | Code structure and organization             |
 | **Implementation Details**    | TDD Creation               | Feature Implementation                          | Specific algorithms and approaches          |
-| **Test Plans & Cases**        | Test Specification         | Feature Implementation, Test Implementation     | Comprehensive testing strategy              |
+| **Test Plans & Cases**        | Test Specification         | Feature Implementation, Integration & Testing   | Comprehensive testing strategy              |
 | **Acceptance Criteria**       | Test Specification         | Feature Implementation, Code Review             | Definition of done                          |
 | **Working Code**              | Feature Implementation     | Code Review, Release                            | Actual implementation                       |
 
@@ -253,7 +253,7 @@ Does another task own the detailed specification?
 
 This section clarifies what each task **owns** vs. what it **references**:
 
-#### FDD Creation Task (PF-TSK-010)
+#### FDD Creation Task (PF-TSK-027)
 
 **✅ This task owns**:
 
@@ -265,7 +265,7 @@ This section clarifies what each task **owns** vs. what it **references**:
 
 **❌ Other tasks own**:
 
-- Technical implementation approach → TDD (PF-TSK-022)
+- Technical implementation approach → TDD (PF-TSK-015)
 - Database schema design → Database Schema Design (PF-TSK-021)
 - API endpoint specifications → API Design (PF-TSK-020)
 - Comprehensive test plans → Test Specification (PF-TSK-012)
@@ -284,9 +284,9 @@ This section clarifies what each task **owns** vs. what it **references**:
 **❌ Other tasks own**:
 
 - API endpoint specifications → API Design (PF-TSK-020)
-- Service integration patterns → API Design (PF-TSK-020) or TDD (PF-TSK-022)
+- Service integration patterns → API Design (PF-TSK-020) or TDD (PF-TSK-015)
 - Comprehensive test plans → Test Specification (PF-TSK-012)
-- Implementation details → TDD (PF-TSK-022) or Feature Implementation (PF-TSK-030)
+- Implementation details → TDD (PF-TSK-015) or Feature Implementation (PF-TSK-024)
 
 #### API Design Task (PF-TSK-020)
 
@@ -302,11 +302,11 @@ This section clarifies what each task **owns** vs. what it **references**:
 **❌ Other tasks own**:
 
 - Database schema details → Database Schema Design (PF-TSK-021)
-- Service implementation details → TDD (PF-TSK-022)
-- Functional requirements → FDD (PF-TSK-010)
+- Service implementation details → TDD (PF-TSK-015)
+- Functional requirements → FDD (PF-TSK-027)
 - Comprehensive test plans → Test Specification (PF-TSK-012)
 
-#### TDD Creation Task (PF-TSK-022)
+#### TDD Creation Task (PF-TSK-015)
 
 **✅ This task owns**:
 
@@ -319,11 +319,11 @@ This section clarifies what each task **owns** vs. what it **references**:
 
 **❌ Other tasks own**:
 
-- Functional requirements → FDD (PF-TSK-010)
+- Functional requirements → FDD (PF-TSK-027)
 - Database schema design → Database Schema Design (PF-TSK-021)
 - API contracts → API Design (PF-TSK-020)
 - Comprehensive test plans → Test Specification (PF-TSK-012)
-- System architecture decisions → System Architecture Review (PF-TSK-011)
+- System architecture decisions → System Architecture Review (PF-TSK-019)
 
 #### Test Specification Creation Task (PF-TSK-012)
 
@@ -338,8 +338,8 @@ This section clarifies what each task **owns** vs. what it **references**:
 
 **❌ Other tasks own**:
 
-- Functional requirements → FDD (PF-TSK-010)
-- Technical implementation → TDD (PF-TSK-022)
+- Functional requirements → FDD (PF-TSK-027)
+- Technical implementation → TDD (PF-TSK-015)
 - Database schema → Database Schema Design (PF-TSK-021)
 - API contracts → API Design (PF-TSK-020)
 
@@ -791,16 +791,16 @@ Change Request → Feature Request Evaluation → [Classification]
 #### Test Quality Assurance Path
 
 ```
-Test Implementation → Test Audit → [Conditional Branching]
+Integration & Testing → Test Audit → [Conditional Branching]
 ├─ Tests Approved → Feature Implementation → Testing (🧪) → Ready for Review (👀) → Code Review
 ├─ Tests Approved with Dependencies → [Implementation Tasks] → Feature Implementation → Testing (🧪) → Ready for Review (👀) → Code Review
-├─ Needs Update → Test Implementation (address audit findings)
-└─ Tests Incomplete → Test Implementation (add missing tests for existing code)
+├─ Needs Update → Integration & Testing (address audit findings)
+└─ Tests Incomplete → Integration & Testing (add missing tests for existing code)
 ```
 
 **Transition Criteria:**
 
-- **From Test Implementation**: Complete when test implementation reaches "🔄 Ready for Validation" status
+- **From Integration & Testing**: Complete when test implementation reaches "🔄 Ready for Validation" status
 - **To Test Audit**: When tests need systematic quality assessment
 - **From Test Audit**: Based on audit decision (4 possible outcomes)
 
@@ -817,8 +817,8 @@ Test Implementation → Test Audit → [Conditional Branching]
 
 - **✅ Tests Approved**: All implementable tests are complete and high quality → Feature Implementation → Testing (🧪) → Ready for Review (👀) → Code Review
 - **🟡 Tests Approved with Dependencies**: Current tests are good, but some await implementation → Implementation Tasks → Feature Implementation → Testing (🧪) → Ready for Review (👀) → Code Review
-- **🔄 Needs Update**: Existing tests have issues → Test Implementation (fix issues)
-- **🔴 Tests Incomplete**: Missing tests for existing code → Test Implementation (add missing tests)
+- **🔄 Needs Update**: Existing tests have issues → Integration & Testing (fix issues)
+- **🔴 Tests Incomplete**: Missing tests for existing code → Integration & Testing (add missing tests)
 
 #### Standard Code QA Path
 
@@ -853,7 +853,7 @@ The bug management workflow provides comprehensive coverage from bug discovery t
 - **Test Audit Task**: Systematic bug identification during test quality assessment
 - **Code Review Task**: Bug discovery during code quality review
 - **Feature Implementation Task**: Bug identification during quality assurance
-- **Test Implementation Task**: Bug discovery during test development
+- **Integration & Testing Task**: Bug discovery during test development
 - **Release Deployment Task**: Bug identification during deployment validation
 - **Foundation Feature Implementation Task**: Bug discovery for architectural issues
 - **Code Refactoring Task**: Bug discovery revealed during code restructuring
@@ -886,7 +886,7 @@ Bug Discovery → Bug Reporting → Bug Triage → [Priority-Based Branching]
 | **Test Audit** | During test quality assessment | Test implementation bugs, framework issues, integration problems |
 | **Code Review** | During code quality review | Logic errors, security vulnerabilities, performance issues |
 | **Feature Implementation** | During quality assurance phase | Logic errors, integration issues, UI/UX problems |
-| **Test Implementation** | During test development | Implementation bugs, test framework issues, data handling bugs |
+| **Integration & Testing** | During test development | Implementation bugs, test framework issues, data handling bugs |
 | **Release Deployment** | During deployment validation | Deployment failures, configuration problems, integration failures |
 | **Foundation Implementation** | During architectural work | Architectural issues, integration problems, foundation logic errors |
 | **Code Refactoring** | During code restructuring | Hidden dependencies, logic errors revealed by refactoring, performance issues, error handling gaps, integration issues, data handling bugs, concurrency issues, resource management problems |
@@ -1116,8 +1116,8 @@ Retrospective Documentation Creation (PF-TSK-066)
 
 - [ ] [Retrospective Master State File](../../state-tracking/temporary/old/retrospective-master-state.md) created with project name and DISCOVERY status
 - [ ] ALL source files listed and assigned to features (100% codebase file coverage)
-- [ ] ALL features added to [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) with IDs and descriptions
-- [ ] [Feature Implementation State file](../../state-tracking/features) created for every feature with complete code inventory
+- [ ] ALL features added to [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) with IDs and descriptions
+- [ ] [Feature Implementation State file](../../../doc/state-tracking/features) created for every feature with complete code inventory
 - [ ] Phase 1 marked complete in master state file
 
 **Next Task Selection:**
@@ -1160,8 +1160,8 @@ Retrospective Documentation Creation (PF-TSK-066)
 - [ ] All Tier 2+ features have FDD and TDD, marked "Retrospective"
 - [ ] All Tier 3 features have Test Specifications, marked "Retrospective"
 - [ ] All Foundation 0.x.x features have ADRs where architectural decisions exist
-- [ ] All document links added to [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md)
-- [ ] [Documentation Map](../../documentation-map.md) updated with all new documents
+- [ ] All document links added to [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md)
+- [ ] [Documentation Map](../../PF-documentation-map.md) updated with all new documents
 - [ ] Final metrics recorded in master state Completion Summary
 - [ ] [Master State File](../../state-tracking/temporary/old/retrospective-master-state.md) archived to `/temporary/archived/`
 
@@ -1181,6 +1181,32 @@ What work follows the completed onboarding?
 2. Consult retrospective documentation for design decisions and patterns
 3. Use the normal development workflow (Feature Discovery → Tier Assessment → Design → Implementation)
 4. Technical debt items identified during onboarding can be addressed via Technical Debt Assessment
+
+### Transitioning FROM Project Initiation (PF-TSK-059)
+
+**Prerequisites for Transition:**
+
+- [ ] `project-config.json` created at project root with project identification, directory mappings, and testing configuration
+- [ ] Language config file created in `languages-config/{language}/`
+- [ ] Test infrastructure scaffolded (directory structure, tracker, registry, fixtures)
+- [ ] CI/CD infrastructure set up (if applicable: pre-commit hooks, dev script, pipeline)
+- [ ] User Workflow Tracking file created at `doc/state-tracking/permanent/user-workflow-tracking.md`
+
+**Next Task Selection:**
+
+```
+What is needed next?
+├─ Framework customization needed → Framework Domain Adaptation
+├─ Features already known → Feature Request Evaluation or Feature Discovery
+├─ Adopting framework into existing codebase → Codebase Feature Discovery
+└─ Greenfield project → Begin normal development workflow (Feature Discovery)
+```
+
+**Preparation for Next Task:**
+
+1. Verify `project-config.json` is complete and test runner works (`Run-Tests.ps1 -ListCategories`)
+2. Confirm test infrastructure directories match project language and conventions
+3. Review User Workflow Tracking for initial workflow stubs to guide feature planning
 
 ### Transitioning FROM Feature Request Evaluation (PF-TSK-067)
 
@@ -1392,10 +1418,10 @@ What was the original tier assessment?
 
 **Preparation for System Architecture Review:**
 
-1. **Load Current Architecture State**: Review [Architecture Tracking](../../../doc/product-docs/state-tracking/permanent/architecture-tracking.md)
+1. **Load Current Architecture State**: Review [Architecture Tracking](../../../doc/state-tracking/permanent/architecture-tracking.md)
 2. **Gather Feature Context**: Ensure FDD and Feature Tier Assessment are complete
 3. **Identify Relevant Context Packages**: Determine which architectural context areas apply to this feature
-4. **Review Related ADRs**: Check existing [Architecture Decision Records](/doc/product-docs/technical/architecture/design-docs/adr/README.md)
+4. **Review Related ADRs**: Check existing [Architecture Decision Records](../../../doc/technical/adr)
 5. **Prepare Impact Analysis Framework**: Set up structured approach for architectural evaluation
 
 ### Transitioning FROM System Architecture Review
@@ -1542,7 +1568,7 @@ Does the feature require database schema changes?
 
 ```
 Is test-first development approach being used?
-├─ Yes → Test Implementation
+├─ Yes → Integration & Testing
 │   └─ Reason: Implement tests before feature development for TDD approach
 └─ No → Feature Implementation
     └─ Reason: Proceed directly to feature implementation with test specifications as reference
@@ -1555,13 +1581,13 @@ Is test-first development approach being used?
 3. Verify test data and environment requirements
 4. Confirm testing approach is feasible
 
-### Transitioning FROM Test Implementation
+### Transitioning FROM Integration & Testing
 
 **Prerequisites for Transition:**
 
 - [ ] Test cases implemented according to test specifications
 - [ ] Test implementation status updated to "🔄 Ready for Validation"
-- [ ] Test implementation linked in tracking files
+- [ ] Test tracking files updated with test file links and status
 - [ ] Test environment and data setup complete
 
 **Next Task Selection:**
@@ -1596,17 +1622,68 @@ Is systematic test quality assessment needed?
 What was the audit decision?
 ├─ Tests Approved → Feature Implementation → Testing (🧪) → Ready for Review (👀) → Code Review
 │   └─ Reason: Tests meet quality standards, proceed with feature development
-└─ Needs Update → Test Implementation
+└─ Needs Update → Integration & Testing
     └─ Reason: Tests require improvements before feature development
 ```
 
 **Preparation for Next Task:**
 
 1. **For Feature Implementation**: Review audit findings for any implementation considerations
-2. **For Test Implementation**: Review audit recommendations and action items
+2. **For Integration & Testing**: Review audit recommendations and action items
 3. Update test implementation tracking with appropriate status
 4. Ensure audit findings are addressed in next implementation cycle
 5. Confirm all tests are in failing state and ready for implementation
+
+### Transitioning FROM E2E Acceptance Test Case Creation (PF-TSK-069)
+
+**Prerequisites for Transition:**
+
+- [ ] Test case directories created in `test/e2e-acceptance-testing/templates/<group>/E2E-NNN-<name>/`
+- [ ] Each test case contains: `test-case.md`, `project/`, `expected/`, and `run.ps1` (for scripted tests)
+- [ ] Master test file updated at `test/e2e-acceptance-testing/templates/<group>/master-test-<group-name>.md`
+- [ ] E2E test tracking (`e2e-test-tracking.md`) updated with new test cases
+- [ ] Feature tracking updated with E2E test references
+
+**Next Task Selection:**
+
+```
+What is the context?
+├─ Test cases ready for execution → E2E Acceptance Test Execution (PF-TSK-070)
+├─ Test case creation revealed additional bugs → Bug Triage (PF-TSK-041)
+└─ More test cases needed for other groups → Continue E2E Test Case Creation (next group)
+```
+
+**Preparation for Next Task:**
+
+1. Verify all test case `project/` and `expected/` directories contain correct fixtures
+2. Confirm master test file lists all test cases in the group
+3. Review `e2e-test-tracking.md` for groups ready for execution
+
+### Transitioning FROM E2E Acceptance Test Execution (PF-TSK-070)
+
+**Prerequisites for Transition:**
+
+- [ ] All target test groups executed (or blocked with documented reasons)
+- [ ] `e2e-test-tracking.md` updated with execution status and Last Executed dates
+- [ ] `feature-tracking.md` updated with Test Status based on results
+- [ ] Bug reports created (via `New-BugReport.ps1`) for any failures discovered
+
+**Next Task Selection:**
+
+```
+What were the results?
+├─ All tests passed → Release & Deployment (if release-ready)
+│   └─ Or return to development work
+├─ Failures found → Bug Triage (PF-TSK-041) for each failure
+├─ Missing coverage discovered → E2E Test Case Creation (PF-TSK-069) for new cases
+└─ Test cases need updates (stale expectations) → E2E Test Case Creation (update existing)
+```
+
+**Preparation for Next Task:**
+
+1. Review bug reports for severity and priority assignment
+2. Check if failures block the release or can be addressed in parallel
+3. Update User Workflow Tracking if workflow-level pass/fail status changed
 
 ### Transitioning FROM Ready for Review
 
@@ -1734,6 +1811,32 @@ Documentation complete?
 1. Verify all user-facing behavior changes are documented
 2. Ensure handbook is linked from README.md documentation table if appropriate
 3. Proceed to Release & Deployment
+
+### Transitioning FROM Release & Deployment (PF-TSK-008)
+
+**Prerequisites for Transition:**
+
+- [ ] Release notes created (version, features, bug fixes, known issues)
+- [ ] All E2E test groups passed (verified in `e2e-test-tracking.md`)
+- [ ] Feature tracking updated with release version for included features
+- [ ] Bug reports created for any issues discovered during deployment validation
+
+**Next Task Selection:**
+
+```
+What happened during deployment?
+├─ Deployment successful, no issues → Begin next development cycle
+│   ├─ Features planned → Feature Request Evaluation or Feature Discovery
+│   └─ Tech debt to address → Technical Debt Assessment
+├─ Issues discovered during deployment → Bug Triage (PF-TSK-041)
+└─ Post-release monitoring reveals problems → Bug Triage (PF-TSK-041)
+```
+
+**Preparation for Next Task:**
+
+1. Archive or close completed feature state files if appropriate
+2. Review Feature Request Tracking for the next batch of work
+3. Update Technical Debt Tracking with any debt introduced during the release
 
 ### Transitioning FROM Code Refactoring
 
@@ -1901,6 +2004,23 @@ What type of improvement was made?
 - **Missing tasks identified**: → New Task Creation Process (to fill gaps)
 - **No major issues**: → Return to development work
 
+#### FROM Framework Extension Task
+
+**Prerequisites for Transition:**
+
+- [ ] Framework Extension Concept Document created and approved
+- [ ] Impact analysis documented
+- [ ] New task definitions created and integrated into `ai-tasks.md`
+- [ ] Supporting infrastructure created (templates, guides, scripts, directories)
+- [ ] Core framework files updated (`ai-tasks.md`, `PF-documentation-map.md`, PF ID Registry)
+- [ ] Temporary state tracking file completed (all phases done)
+
+**Next Task Selection:**
+
+- **Further refinements needed**: → Process Improvement (for polish and adjustments)
+- **New tasks ready to use**: → Execute the newly created extension-specific tasks
+- **Documentation updates needed**: → Structure Change (if reorganization required)
+
 ### Transitioning FROM Bug Discovery
 
 **Prerequisites for Transition:**
@@ -2045,7 +2165,7 @@ Feature Discovery → Feature Tier Assessment (Tier 2) → [System Architecture 
 ### Scenario 3: Complex Feature with Full Documentation
 
 ```
-Feature Discovery → Feature Tier Assessment (Tier 3) → System Architecture Review → API Design → Database Schema Design → TDD Creation → Test Specification Creation → Test Implementation → Feature Implementation → Code Review → Release & Deployment
+Feature Discovery → Feature Tier Assessment (Tier 3) → System Architecture Review → API Design → Database Schema Design → TDD Creation → Test Specification Creation → Integration & Testing → Feature Implementation → Code Review → Release & Deployment
 ```
 
 **Key Decision Points**: Architecture decisions, API contract completeness, database schema design, TDD quality, test specification coverage, test-first development approach
@@ -2053,7 +2173,7 @@ Feature Discovery → Feature Tier Assessment (Tier 3) → System Architecture R
 ### Scenario 4: API-Focused Feature (Any Tier)
 
 ```
-Feature Discovery → Feature Tier Assessment → System Architecture Review → API Design → [Database Schema Design] → TDD Creation → [Test Specification Creation] → [Test Implementation] → Feature Implementation → Code Review → Release & Deployment
+Feature Discovery → Feature Tier Assessment → System Architecture Review → API Design → [Database Schema Design] → TDD Creation → [Test Specification Creation] → [Integration & Testing] → Feature Implementation → Code Review → Release & Deployment
 ```
 
 **Key Decision Points**: API contract design, data model consistency, database schema alignment, integration patterns
@@ -2062,7 +2182,7 @@ Feature Discovery → Feature Tier Assessment → System Architecture Review →
 ### Scenario 5: Database-Focused Feature (Any Tier)
 
 ```
-Feature Discovery → Feature Tier Assessment → [System Architecture Review] → Database Schema Design → TDD Creation → [Test Specification Creation] → [Test Implementation] → Feature Implementation → Code Review → Release & Deployment
+Feature Discovery → Feature Tier Assessment → [System Architecture Review] → Database Schema Design → TDD Creation → [Test Specification Creation] → [Integration & Testing] → Feature Implementation → Code Review → Release & Deployment
 ```
 
 **Key Decision Points**: Database schema design, data migration planning, data integrity constraints
@@ -2071,7 +2191,7 @@ Feature Discovery → Feature Tier Assessment → [System Architecture Review] �
 ### Scenario 6: Test-First Development (TDD Approach)
 
 ```
-Feature Discovery → Feature Tier Assessment (Tier 3) → System Architecture Review → API Design → Database Schema Design → TDD Creation → Test Specification Creation → Test Implementation → Feature Implementation → Code Review → Release & Deployment
+Feature Discovery → Feature Tier Assessment (Tier 3) → System Architecture Review → API Design → Database Schema Design → TDD Creation → Test Specification Creation → Integration & Testing → Feature Implementation → Code Review → Release & Deployment
 ```
 
 **Key Decision Points**: Comprehensive test planning, test implementation before feature development
@@ -2203,7 +2323,7 @@ MILESTONE:      Test Spec Creation (milestone detected) → Cross-cutting E2E Te
 RELEASE:        E2E Test Execution (all groups must pass before deployment)
 ```
 
-**Key Decision Points**: Test Spec Creation (PF-TSK-012) classifies scenarios as e2e/automated; milestone trigger when all features for a workflow are implemented (see [User Workflow Tracking](/doc/product-docs/state-tracking/permanent/user-workflow-tracking.md)); code change tasks mark groups for re-execution; Release & Deployment gates on all groups passing
+**Key Decision Points**: Test Spec Creation (PF-TSK-012) classifies scenarios as e2e/automated; milestone trigger when all features for a workflow are implemented (see [User Workflow Tracking](../../../doc/state-tracking/permanent/user-workflow-tracking.md)); code change tasks mark groups for re-execution; Release & Deployment gates on all groups passing
 **When to Use**: Whenever system behavior needs validation through human interaction with the running application
 **Automation Scripts**: `New-E2EAcceptanceTestCase.ps1` (creates test case + updates tracking), `Setup-TestEnvironment.ps1` (prepares workspace), `Verify-TestResult.ps1` (compares results), `Update-TestExecutionStatus.ps1` (records results)
 
@@ -2275,7 +2395,7 @@ RELEASE:        E2E Test Execution (all groups must pass before deployment)
 | Tech debt not yet identified or categorized | Technical Debt Assessment (cyclical) | Identification must happen before fixing |
 | Test-category debt items (e.g., missing coverage, weak assertions) | Code Refactoring (PF-TSK-022) with test focus | Test code is code — refactoring task covers test improvements. Reference the relevant test specification for scope |
 | Enhancement to existing feature | Feature Enhancement (PF-TSK-068) | Routed by Feature Request Evaluation; do not use Feature Implementation for amendments |
-| Bug discovered during another task | Bug Triage (PF-TSK-027) first | Even obvious bugs need triage for priority assignment before fixing |
+| Bug discovered during another task | Bug Triage (PF-TSK-041) first | Even obvious bugs need triage for priority assignment before fixing |
 
 ### Issue: Prerequisites Not Met
 

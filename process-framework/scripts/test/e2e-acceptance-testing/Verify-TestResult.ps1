@@ -49,25 +49,30 @@ param(
     [string]$ProjectRoot = ""
 )
 
+# Import Common-ScriptHelpers for standardized utilities
+$scriptDir = if ($PSScriptRoot) { $PSScriptRoot } else { (Get-Location).Path }
+$modulePath = Join-Path -Path $scriptDir -ChildPath "../../../scripts/Common-ScriptHelpers.psm1"
+try {
+    $resolvedPath = Resolve-Path $modulePath -ErrorAction Stop
+    Import-Module $resolvedPath -Force
+} catch {
+    Write-Error "Failed to import Common-ScriptHelpers: $($_.Exception.Message)"
+    exit 1
+}
+
 # Resolve project root
 if (-not $ProjectRoot) {
-    $searchDir = $PSScriptRoot
-    while ($searchDir -and -not (Test-Path (Join-Path $searchDir ".git"))) {
-        $searchDir = Split-Path $searchDir -Parent
+    $ProjectRoot = Get-ProjectRoot
+    if (-not $ProjectRoot) {
+        Write-ProjectError -Message "Could not auto-detect project root. Use -ProjectRoot parameter." -ExitCode 1
     }
-    if (-not $searchDir) {
-        Write-Error "Could not auto-detect project root. Use -ProjectRoot parameter."
-        exit 1
-    }
-    $ProjectRoot = $searchDir
 }
 
 $templatesDir = Join-Path $ProjectRoot "test/e2e-acceptance-testing/templates"
 $workspaceDir = Join-Path $ProjectRoot "test/e2e-acceptance-testing/workspace"
 
 if (-not (Test-Path $workspaceDir)) {
-    Write-Error "Workspace directory not found: $workspaceDir. Run Setup-TestEnvironment.ps1 first."
-    exit 1
+    Write-ProjectError -Message "Workspace directory not found: $workspaceDir. Run Setup-TestEnvironment.ps1 first." -ExitCode 1
 }
 
 # Collect test cases to verify
@@ -79,8 +84,7 @@ if ($TestCase -and $Group) {
     if ($tcDir) {
         $testCasesToVerify += @{ Group = $Group; CaseDir = $tcDir.Name; CaseId = $TestCase }
     } else {
-        Write-Error "Test case $TestCase not found in group $Group"
-        exit 1
+        Write-ProjectError -Message "Test case $TestCase not found in group $Group" -ExitCode 1
     }
 } elseif ($Group) {
     # All test cases in a group
@@ -122,7 +126,7 @@ foreach ($tc in $testCasesToVerify) {
     }
 
     if (-not (Test-Path $workspaceProjDir)) {
-        Write-Host "  ❌ $($tc.CaseId): Workspace project/ not found — not set up?" -ForegroundColor Red
+        Write-ProjectError -Message "$($tc.CaseId): Workspace project/ not found — not set up?"
         $failed++
         continue
     }
@@ -173,7 +177,7 @@ foreach ($tc in $testCasesToVerify) {
     }
 
     if ($casePassed) {
-        Write-Host "  ✅ $($tc.CaseId): All files match expected state" -ForegroundColor Green
+        Write-ProjectSuccess -Message "$($tc.CaseId): All files match expected state"
         $passed++
     } else {
         $failed++

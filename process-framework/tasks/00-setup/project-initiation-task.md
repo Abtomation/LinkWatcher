@@ -5,7 +5,6 @@ category: Task Definition
 version: 1.1
 created: 2026-02-16
 updated: 2026-03-22
-task_type: Support
 ---
 
 # Project Initiation
@@ -34,7 +33,7 @@ Establishes foundational project configuration and metadata when initializing a 
 
 - **Critical (Must Read):**
 
-  - [Example project-config.json](../../project-config.json) - Reference template showing required structure and fields
+  - [Example project-config.json](../../../doc/project-config.json) - Reference template showing required structure and fields
   - **Project Information** - Human-provided: project name, description, repository URL, root directory path
 
 - **Important (Load If Space):**
@@ -63,7 +62,7 @@ Establishes foundational project configuration and metadata when initializing a 
    - Absolute path to project root directory
    - Repository URL (if applicable)
 
-2. **Review Example Configuration**: Read the [example project-config.json](../../project-config.json) to understand the required structure
+2. **Review Example Configuration**: Read the [example project-config.json](../../../doc/project-config.json) to understand the required structure
 
 3. **Identify Project Paths**: Determine the project's directory structure:
    - Documentation root directory
@@ -94,7 +93,7 @@ Establishes foundational project configuration and metadata when initializing a 
      "paths": {
        "description": "Project-specific directory paths relative to root",
        "documentation_root": "doc",
-       "process_framework": "doc/product-docs",
+       "process_framework": "doc",
        "source_code": "[src directory name]",
        "tests": "[test directory name]",
        "scripts": "scripts"
@@ -149,7 +148,7 @@ Establishes foundational project configuration and metadata when initializing a 
    - After running: create native test runner config (e.g., `pytest.ini` for Python)
    - After running: install test dependencies (e.g., `pip install pytest pytest-cov`)
 
-10. **Create Empty User Workflow Tracking File**: Create `/doc/product-docs/state-tracking/permanent/user-workflow-tracking.md` with an empty workflow table structure (WF-ID, Workflow Name, Description, Required Features, Priority, Impl Status, E2E Status columns). This file will be populated during Codebase Feature Discovery (PF-TSK-064) or as features are developed.
+10. **Create Empty User Workflow Tracking File**: Create `/doc/state-tracking/permanent/user-workflow-tracking.md` with an empty workflow table structure (WF-ID, Workflow Name, Description, Required Features, Priority, Impl Status, E2E Status columns). This file will be populated during Codebase Feature Discovery (PF-TSK-064) or as features are developed.
 
 11. **Set Up CI/CD Infrastructure** (optional): Follow the [CI/CD Setup Guide](/process-framework/guides/07-deployment/ci-cd-setup-guide.md) to scaffold development tooling:
     - Create pre-commit hooks config (`.pre-commit-config.yaml`)
@@ -184,7 +183,7 @@ Establishes foundational project configuration and metadata when initializing a 
 - **Language config** (if new) - `languages-config/{language}/{language}-config.json` with language-specific test runner commands
 - **Test infrastructure** - Test directory structure, test runner config, shared fixtures, empty `test-tracking.md`
 - **CI/CD infrastructure** (optional) - Pre-commit hooks, dev script, CI pipeline
-- **User Workflow Tracking** - Empty workflow tracking file at `doc/product-docs/state-tracking/permanent/user-workflow-tracking.md`
+- **User Workflow Tracking** - Empty workflow tracking file at `doc/state-tracking/permanent/user-workflow-tracking.md`
 
 ## State Tracking
 
@@ -211,7 +210,7 @@ Before considering this task finished:
   - [ ] Test runner config exists (e.g., `pytest.ini`)
   - [ ] Shared fixtures/setup file exists (e.g., `conftest.py`)
   - [ ] Pre-commit hooks work (if configured): `pre-commit run --all-files`
-  - [ ] User Workflow Tracking file exists at `doc/product-docs/state-tracking/permanent/user-workflow-tracking.md` with empty table structure
+  - [ ] User Workflow Tracking file exists at `doc/state-tracking/permanent/user-workflow-tracking.md` with empty table structure
 
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for task ID "PF-TSK-059" and context "Project Initiation"
 
@@ -222,7 +221,7 @@ Before considering this task finished:
 
 ## Related Resources
 
-- [Example project-config.json](../../project-config.json) - Reference implementation from LinkWatcher project
+- [Example project-config.json](../../../doc/project-config.json) - Reference implementation from LinkWatcher project
 - [Process Framework README](../../README.md) - Overview of framework structure and components
 - [Framework Domain Adaptation](../support/framework-domain-adaptation.md) - Comprehensive framework customization for new domains
 - [Documentation Structure Guide](../../guides/framework/documentation-structure-guide.md) - Recommended directory organization patterns

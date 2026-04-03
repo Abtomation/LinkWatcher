@@ -7,7 +7,6 @@ created: 2025-08-03
 updated: 2025-08-03
 task_name: adr-creation
 map_type: Context Map
-task_type: Discrete
 visualization_type: Task Context
 ---
 # ADR Creation Context Map

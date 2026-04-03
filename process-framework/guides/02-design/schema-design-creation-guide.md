@@ -48,7 +48,7 @@ Use this guide when you need to:
 
 Before you begin, ensure you have:
 
-- Access to PowerShell and the New-SchemaDesign.ps1 script in `doc/product-docs/technical/database/schemas/`
+- Access to PowerShell and the New-SchemaDesign.ps1 script in `doc/technical/database/schemas`
 - Understanding of database design principles and normalization concepts
 - Knowledge of the current database schema and data relationships
 - Familiarity with the project's data requirements and business logic
@@ -220,7 +220,7 @@ When creating database schema designs, you must make several key decisions that 
 1. **Navigate to the database documentation directory**:
 
    ```powershell
-   cd doc/product-docs/technical/database
+   cd doc/technical/database
    ```
 
 2. **Execute the New-SchemaDesign.ps1 script**:
@@ -341,7 +341,7 @@ Creating a schema design for enhancing user profiles with preferences and settin
 
 ```powershell
 # Navigate to database documentation directory
-cd doc/product-docs/technical/database
+cd doc/technical/database
 
 # Create schema design for user profile enhancement
 .\New-SchemaDesign.ps1 -FeatureName "User Profile Enhancement" -SchemaType "Modification" -Description "Add user preferences and notification settings" -OpenInEditor
@@ -384,7 +384,7 @@ Creating a new schema design for order management functionality:
 
 **Solution:**
 
-1. Verify you're running the script from the correct directory: `doc/product-docs/technical/database/`
+1. Verify you're running the script from the correct directory: `doc/technical/database`
 2. Check that the Common-ScriptHelpers.psm1 file exists at process-framework/scripts/Common-ScriptHelpers.psm1
 3. Ensure PowerShell execution policy allows script execution: `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser`
 

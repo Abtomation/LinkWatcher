@@ -33,7 +33,7 @@ additional_fields:
 
 ## Workflow Context
 
-**Workflows**: [List WF-IDs from [User Workflow Tracking](/doc/product-docs/state-tracking/permanent/user-workflow-tracking.md), or "None" if this feature does not participate in any user workflow]
+**Workflows**: [List WF-IDs from [User Workflow Tracking](/doc/state-tracking/permanent/user-workflow-tracking.md), or "None" if this feature does not participate in any user workflow]
 
 ## User Story
 

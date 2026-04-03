@@ -2,9 +2,9 @@
 id: PF-TEM-034
 type: Process Framework
 category: Template
-version: 1.1
+version: 1.2
 created: 2025-08-15
-updated: 2026-03-27
+updated: 2026-04-02
 usage_context: Process Framework - Validation Creation
 description: Template for feature validation reports
 creates_document_category: Validation
@@ -28,12 +28,12 @@ To create a validation report using this template:
 
 1. **Copy this template** to the appropriate validation subdirectory:
 
-   - `doc/product-docs/validation/reports/architectural-consistency`
-   - `doc/product-docs/validation/reports/code-quality`
-   - `doc/product-docs/validation/reports/integration-dependencies`
-   - `doc/product-docs/validation/reports/documentation-alignment`
-   - `doc/product-docs/validation/reports/extensibility-maintainability`
-   - `doc/product-docs/validation/reports/ai-agent-continuity`
+   - `doc/validation/reports/architectural-consistency`
+   - `doc/validation/reports/code-quality`
+   - `doc/validation/reports/integration-dependencies`
+   - `doc/validation/reports/documentation-alignment`
+   - `doc/validation/reports/extensibility-maintainability`
+   - `doc/validation/reports/ai-agent-continuity`
 
 2. **Name the file** using the pattern: `PF-VAL-XXX-[validation-type]-features-[feature-range].md`
 
@@ -157,32 +157,15 @@ validation_session: [Session number for this validation type]
 
 ### Immediate Actions (High Priority)
 
-1. **[Action Item 1]**
-
-   - **Description**: [What needs to be done]
-   - **Rationale**: [Why this is important]
-   - **Estimated Effort**: [Time/complexity estimate]
-   - **Dependencies**: [What needs to be done first]
-
-2. **[Action Item 2]**
-   - **Description**: [What needs to be done]
-   - **Rationale**: [Why this is important]
-   - **Estimated Effort**: [Time/complexity estimate]
-   - **Dependencies**: [What needs to be done first]
+- [Action item — what, why, estimated effort]
 
 ### Medium-Term Improvements
 
-1. **[Improvement 1]**
-   - **Description**: [What could be enhanced]
-   - **Benefits**: [Expected improvements]
-   - **Estimated Effort**: [Time/complexity estimate]
+- [Improvement — what, benefit, estimated effort]
 
 ### Long-Term Considerations
 
-1. **[Consideration 1]**
-   - **Description**: [Strategic improvement]
-   - **Benefits**: [Long-term value]
-   - **Planning Notes**: [When to address]
+- [Consideration — what, benefit, when to address]
 
 ## Cross-Feature Analysis
 
@@ -200,7 +183,7 @@ validation_session: [Session number for this validation type]
 
 ### Workflow Impact *(optional — include when validated features share workflows)*
 
-[For features that co-participate in user workflows (per [User Workflow Tracking](/doc/product-docs/state-tracking/permanent/user-workflow-tracking.md)), note any findings that affect end-to-end workflow correctness:]
+[For features that co-participate in user workflows (per [User Workflow Tracking](/doc/state-tracking/permanent/user-workflow-tracking.md)), note any findings that affect end-to-end workflow correctness:]
 
 - **Affected Workflows**: [WF-IDs where issues may propagate across co-participating features]
 - **Cross-Feature Risks**: [Issues in one feature that could degrade another feature's contribution to the same workflow]
@@ -208,34 +191,9 @@ validation_session: [Session number for this validation type]
 
 ## Next Steps
 
-### Follow-Up Validation
-
-- [ ] **Re-validation Required**: [List features needing re-validation after fixes]
-- [ ] **Additional Validation**: [Other validation types recommended for these features]
-
-### Tracking and Monitoring
-
-- [ ] **Update Validation Tracking**: Record results in [PF-VTR-XXX]
-- [ ] **Schedule Follow-Up**: [When to check progress on recommendations]
-
-## Appendices
-
-### Appendix A: Validation Methodology
-
-[Brief description of how validation was conducted]
-
-### Appendix B: Reference Materials
-
-- [List of documents, code files, and other materials reviewed]
-
----
-
-## Validation Sign-Off
-
-**Validator**: [AI Agent Role/Session ID]
-**Validation Date**: [Date]
-**Report Status**: [Draft/Final]
-**Next Review Date**: [Date for follow-up]
+- [ ] **Re-validation Required**: [List features needing re-validation, or "None"]
+- [ ] **Additional Validation**: [Other validation types recommended, or "None"]
+- [ ] **Update Validation Tracking**: Record results in validation tracking file
 ```
 
 ## Validation Type Specific Criteria
@@ -305,6 +263,6 @@ Customize the "Validation Criteria Applied" section with:
 - [Feature Validation Guide](/process-framework/guides/05-validation/feature-validation-guide.md)
 - [Validation Framework Tasks](/process-framework/tasks/05-validation) (validation task definitions)
 - [Template Development Guide](/process-framework/guides/support/template-development-guide.md)
-- [Feature Tracking](/doc/product-docs/state-tracking/permanent/feature-tracking.md)
+- [Feature Tracking](/doc/state-tracking/permanent/feature-tracking.md)
 
 ---

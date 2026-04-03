@@ -5,7 +5,6 @@ category: Task Definition
 version: 1.2
 created: 2025-07-26
 updated: 2026-03-25
-task_type: Discrete
 ---
 
 # Foundation Feature Implementation Task
@@ -37,7 +36,7 @@ Specialized task for implementing foundation features (0.x.x) that provide archi
 
   - [Foundation Feature Template](../../templates/04-implementation/foundation-feature-template.md) - Template for foundation feature structure and architectural documentation
 
-  - [Architecture Tracking](../../../doc/product-docs/state-tracking/permanent/architecture-tracking.md) - Ongoing architectural decisions and evolution
+  - [Architecture Tracking](../../../doc/state-tracking/permanent/architecture-tracking.md) - Ongoing architectural decisions and evolution
 
 - **Important (Load If Space):**
 
@@ -48,7 +47,7 @@ Specialized task for implementing foundation features (0.x.x) that provide archi
 
 - **Reference Only (Access When Needed):**
   - [Technical Design Document Template](../../templates/02-design/tdd-t3-template.md) - For complex architectural specifications
-  - [Documentation Map](../../documentation-map.md) - For understanding document relationships
+  - [Documentation Map](../../PF-documentation-map.md) - For understanding document relationships
   - [Visual Notation Guide](/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 ## Process
@@ -112,7 +111,7 @@ Specialized task for implementing foundation features (0.x.x) that provide archi
 
     - Use [../../scripts/file-creation/06-maintenance/New-BugReport.ps1](../../scripts/file-creation/06-maintenance/New-BugReport.ps1) script to create standardized bug reports
     - Follow [Bug Reporting Guide](../../guides/06-maintenance/bug-reporting-guide.md) for consistent documentation
-    - Add bug entries to [Bug Tracking](../../../doc/product-docs/state-tracking/permanent/bug-tracking.md) with status 🆕 Reported
+    - Add bug entries to [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) with status 🆕 Reported
     - Include foundation implementation context and evidence in bug reports
     - Reference specific architectural components or patterns affected
     - Note impact on system architecture and dependent features
@@ -127,7 +126,7 @@ Specialized task for implementing foundation features (0.x.x) that provide archi
     ../../scripts/file-creation/06-maintenance/New-BugReport.ps1 -Title "Foundation module causes circular dependency" -Description "New foundation module creates circular dependency between service components" -DiscoveredBy "FeatureImplementation" -Severity "Critical" -Component "Core Foundation" -Environment "Development" -Evidence "Architecture analysis: circular dependency in src/core/"
     ```
 
-14. **Update Architecture Tracking**: Record the foundation implementation in [Architecture Tracking](../../../doc/product-docs/state-tracking/permanent/architecture-tracking.md)
+14. **Update Architecture Tracking**: Record the foundation implementation in [Architecture Tracking](../../../doc/state-tracking/permanent/architecture-tracking.md)
 15. **Verify Cross-Cutting Integration**: Ensure the foundation properly integrates with existing system components
 16. **Document Usage Patterns**: Update documentation to show how other features should interact with this foundation
 17. **Flag User Documentation Status**: If this foundation feature has user-visible behavior (CLI options, configuration, workflows), set the User Documentation section in the feature implementation state file to `❌ Needed`. This triggers [User Documentation Creation](../07-deployment/user-documentation-creation.md) later in the workflow. If the feature is internal-only, set to `N/A`.
@@ -157,7 +156,7 @@ Specialized task for implementing foundation features (0.x.x) that provide archi
     .\Run-FoundationalValidation.ps1 -FeatureIds "[FEATURE-ID]" -ValidationType "All" -GenerateReports -UpdateTracking
 
     # Example for specific feature
-    .\Run-FoundationalValidation.ps1 -FeatureIds "0.2.1" -ValidationType "All" -GenerateReports -UpdateTracking -Detailed
+    .\Run-FoundationalValidation.ps1 -FeatureIds "0.1.1" -ValidationType "All" -GenerateReports -UpdateTracking -Detailed
     ```
 
     **Validation Types Available**:
@@ -181,20 +180,20 @@ Specialized task for implementing foundation features (0.x.x) that provide archi
 - **Foundation Usage Patterns** - Documentation of how other features should interact with this foundation
 - **Comprehensive Test Suite** - Tests that validate both functionality and architectural constraints
 - **Validation Reports** - Automated validation reports confirming implementation meets foundational standards (generated in `scripts/validation/validation-reports/`)
-- **Bug Reports** - Any bugs discovered during foundation implementation documented in [Bug Tracking](../../../doc/product-docs/state-tracking/permanent/bug-tracking.md) with status 🆕 Reported
+- **Bug Reports** - Any bugs discovered during foundation implementation documented in [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) with status 🆕 Reported
 
 ## State Tracking
 
 ### Automated Updates (via `New-TestFile.ps1`)
 
 - [Test Tracking](../../../test/state-tracking/permanent/test-tracking.md) - Automatically updated with test file links and status
-- [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) - Automatically updated with test implementation progress
+- [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Automatically updated with test implementation progress
 
 ### Manual Updates
 
 
-- [Architecture Tracking](../../../doc/product-docs/state-tracking/permanent/architecture-tracking.md) - Record foundation implementation and architectural evolution
-- [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) - Update with foundation feature status (set to "👀 Ready for Review" when implementation and testing are complete)
+- [Architecture Tracking](../../../doc/state-tracking/permanent/architecture-tracking.md) - Record foundation implementation and architectural evolution
+- [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Update with foundation feature status (set to "👀 Ready for Review" when implementation and testing are complete)
 
 **Automation Available**: Use `Update-FeatureImplementationState.ps1` to automate state file updates. See [Automation Usage Guide](../../scripts/AUTOMATION-USAGE-GUIDE.md) for examples.
 
@@ -216,8 +215,8 @@ Before considering this task finished:
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
   - [ ] Test tracking files automatically updated by `New-TestFile.ps1` (verify correctness)
 
-  - [ ] [Architecture Tracking](../../../doc/product-docs/state-tracking/permanent/architecture-tracking.md) updated with implementation record
-  - [ ] [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) updated with status set to "👀 Ready for Review"
+  - [ ] [Architecture Tracking](../../../doc/state-tracking/permanent/architecture-tracking.md) updated with implementation record
+  - [ ] [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) updated with status set to "👀 Ready for Review"
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-024" and context "Foundation Feature Implementation Task"
 
 ## Next Tasks
@@ -228,4 +227,4 @@ Before considering this task finished:
 ## Related Resources
 
 
-- [Architecture Tracking](../../../doc/product-docs/state-tracking/permanent/architecture-tracking.md) - Architectural evolution tracking
+- [Architecture Tracking](../../../doc/state-tracking/permanent/architecture-tracking.md) - Architectural evolution tracking

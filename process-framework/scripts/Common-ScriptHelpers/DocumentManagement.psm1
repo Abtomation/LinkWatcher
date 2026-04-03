@@ -39,7 +39,7 @@ function New-ProjectDocumentMetadata {
     The type of document (e.g., "Task Definition", "Technical Design Document")
 
     .PARAMETER Category
-    The document category (e.g., "Discrete", "TDD Tier 1")
+    The document category (e.g., "TDD Tier 1", "Task Definition")
 
     .PARAMETER Version
     Document version (default: "1.0")
@@ -48,7 +48,7 @@ function New-ProjectDocumentMetadata {
     Hashtable of additional metadata fields
 
     .EXAMPLE
-    $metadata = New-ProjectDocumentMetadata -DocumentId "PF-TSK-001" -DocumentType "Task Definition" -Category "Discrete"
+    $metadata = New-ProjectDocumentMetadata -DocumentId "PF-TSK-001" -DocumentType "Task Definition" -Category "Task Definition"
 
     .EXAMPLE
     $additionalFields = @{ "feature_id" = "1.2.3"; "tier" = "2" }
@@ -157,7 +157,14 @@ function Open-ProjectFileInEditor {
 function Get-TemplateMetadata {
     <#
     .SYNOPSIS
-    Extracts metadata from a template file
+    Extracts YAML frontmatter metadata from a template file.
+
+    .DESCRIPTION
+    Parses the YAML block between --- delimiters at the top of a template file.
+    Uses the powershell-yaml module (ConvertFrom-Yaml) for full YAML support
+    including nested structures, arrays, and quoted values.
+
+    Requires: powershell-yaml module (Install-Module powershell-yaml -Scope CurrentUser)
 
     .PARAMETER TemplatePath
     Path to the template file
@@ -165,6 +172,7 @@ function Get-TemplateMetadata {
     .EXAMPLE
     $metadata = Get-TemplateMetadata -TemplatePath "template.md"
     $documentType = $metadata.creates_document_type
+    $additionalFields = $metadata.additional_fields  # returns hashtable
     #>
 
     [CmdletBinding()]
@@ -172,6 +180,12 @@ function Get-TemplateMetadata {
         [Parameter(Mandatory=$true)]
         [string]$TemplatePath
     )
+
+    # Ensure powershell-yaml is available
+    if (-not (Get-Module -ListAvailable powershell-yaml)) {
+        throw "Required module 'powershell-yaml' is not installed. Run: Install-Module powershell-yaml -Scope CurrentUser"
+    }
+    Import-Module powershell-yaml -ErrorAction Stop
 
     if (-not (Test-Path $TemplatePath)) {
         throw "Template not found: $TemplatePath"
@@ -182,33 +196,7 @@ function Get-TemplateMetadata {
     # Extract the YAML metadata block
     if ($templateContent -match '(?s)^---\r?\n(.*?)\r?\n---') {
         $yamlContent = $matches[1]
-
-        # Parse YAML manually (basic parsing for our structure)
-        $metadata = @{}
-        $lines = $yamlContent -split '\r?\n'
-
-        foreach ($line in $lines) {
-            $line = $line.Trim()
-
-            # Skip empty lines and comments
-            if (-not $line -or $line.StartsWith('#')) {
-                continue
-            }
-
-            # Parse key-value pairs
-            if ($line -match '^([^:]+):\s*(.*)$') {
-                $key = $matches[1].Trim()
-                $value = $matches[2].Trim()
-
-                # Remove quotes if present
-                if ($value -match '^"(.*)"$' -or $value -match "^'(.*)'$") {
-                    $value = $matches[1]
-                }
-
-                $metadata[$key] = $value
-            }
-        }
-
+        $metadata = $yamlContent | ConvertFrom-Yaml
         return $metadata
     } else {
         throw "No metadata block found in template: $TemplatePath"
@@ -248,59 +236,6 @@ function Get-TemplateContentWithoutMetadata {
     }
 }
 
-function Invoke-StandardScriptInitialization {
-    <#
-    .SYNOPSIS
-    Performs standard initialization for document creation scripts
-
-    .DESCRIPTION
-    Handles common initialization tasks:
-    - Module loading
-    - Error action preference setting
-    - Verbose output setup
-
-    .PARAMETER RequiredModules
-    Array of required module names (default: @("IdRegistry"))
-
-    .PARAMETER OptionalModules
-    Array of optional module names (default: @("DocumentManagement"))
-
-    .EXAMPLE
-    Invoke-StandardScriptInitialization
-
-    .EXAMPLE
-    Invoke-StandardScriptInitialization -RequiredModules @("IdRegistry", "CustomModule") -OptionalModules @()
-    #>
-
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory=$false)]
-        [string[]]$RequiredModules = @("IdRegistry"),
-
-        [Parameter(Mandatory=$false)]
-        [string[]]$OptionalModules = @("DocumentManagement")
-    )
-
-    # Set error action preference
-    $ErrorActionPreference = "Stop"
-
-    # Load required modules
-    foreach ($module in $RequiredModules) {
-        Import-ProjectModule -ModuleName $module -Required | Out-Null
-        Write-Verbose "Loaded required module: $module"
-    }
-
-    # Load optional modules
-    foreach ($module in $OptionalModules) {
-        $loaded = Import-ProjectModule -ModuleName $module
-        if ($loaded) {
-            Write-Verbose "Loaded optional module: $module"
-        } else {
-            Write-Verbose "Optional module not available: $module"
-        }
-    }
-}
-
 function New-ProjectDocumentWithMetadata {
     <#
     .SYNOPSIS
@@ -326,8 +261,7 @@ function New-ProjectDocumentWithMetadata {
 
     .EXAMPLE
     $replacements = @{ "[Task Name]" = "User Authentication" }
-    $additionalFields = @{ "task_type" = "Discrete" }
-    New-ProjectDocumentWithMetadata -TemplatePath "task-template.md" -OutputPath "output.md" -DocumentId "PF-TSK-001" -Replacements $replacements -AdditionalMetadataFields $additionalFields
+    New-ProjectDocumentWithMetadata -TemplatePath "task-template.md" -OutputPath "output.md" -DocumentId "PF-TSK-001" -Replacements $replacements
     #>
 
     [CmdletBinding()]
@@ -653,9 +587,8 @@ function New-StandardProjectDocument {
     New-StandardProjectDocument -TemplatePath "templates/task-template.md" -IdPrefix "PF-TSK" -IdDescription "Bug fixing task" -DocumentName "Fix Login Issue" -OutputDirectory "tasks/discrete"
 
     .EXAMPLE
-    $additionalFields = @{ "task_type" = "Discrete" }
     $replacements = @{ "[PRIORITY]" = "High" }
-    New-StandardProjectDocument -TemplatePath "templates/task-template.md" -IdPrefix "PF-TSK" -IdDescription "Critical bug fix" -DocumentName "Fix Authentication" -DirectoryType "discrete" -AdditionalMetadataFields $additionalFields -Replacements $replacements -OpenInEditor
+    New-StandardProjectDocument -TemplatePath "templates/task-template.md" -IdPrefix "PF-TSK" -IdDescription "Critical bug fix" -DocumentName "Fix Authentication" -DirectoryType "discrete" -Replacements $replacements -OpenInEditor
     #>
 
     [CmdletBinding(SupportsShouldProcess=$true)]
@@ -825,7 +758,6 @@ Export-ModuleMember -Function @(
     'Open-ProjectFileInEditor',
     'Get-TemplateMetadata',
     'Get-TemplateContentWithoutMetadata',
-    'Invoke-StandardScriptInitialization',
     'New-ProjectDocumentWithMetadata',
     'New-ProjectDocumentWithCodeMetadata',
     'New-ProjectCodeMetadata',

@@ -7,7 +7,7 @@ created: 2026-02-24
 updated: 2026-02-26
 feature_id: 1.1.1
 feature_name: File System Monitoring
-tdd_path: doc/product-docs/technical/architecture/design-docs/tdd/tdd-1-1-1-file-system-monitoring-t2.md
+tdd_path: doc/technical/tdd/tdd-1-1-1-file-system-monitoring-t2.md
 test_tier: 2
 retrospective: true
 ---
@@ -18,10 +18,10 @@ retrospective: true
 
 ## Overview
 
-This document provides comprehensive test specifications for the **File System Monitoring** feature (ID: 1.1.1), derived from the Technical Design Document [PD-TDD-023](../../../doc/product-docs/technical/architecture/design-docs/tdd/tdd-1-1-1-file-system-monitoring-t2.md).
+This document provides comprehensive test specifications for the **File System Monitoring** feature (ID: 1.1.1), derived from the Technical Design Document [PD-TDD-023](../../../doc/technical/tdd/tdd-1-1-1-file-system-monitoring-t2.md).
 
 **Test Tier**: 2 (Unit + Integration)
-**TDD Reference**: [TDD PD-TDD-023](../../../doc/product-docs/technical/architecture/design-docs/tdd/tdd-1-1-1-file-system-monitoring-t2.md)
+**TDD Reference**: [TDD PD-TDD-023](../../../doc/technical/tdd/tdd-1-1-1-file-system-monitoring-t2.md)
 **Implementation Coverage**: 48/56 scenarios implemented (86%)
 
 ## Feature Context
@@ -38,7 +38,7 @@ File System Monitoring uses the `LinkMaintenanceHandler` class to process watchd
 
 ### Functional Requirements Reference
 
-> **Primary Documentation**: [FDD PD-FDD-024](../../../doc/product-docs/functional-design/fdds/fdd-1-1-1-file-system-monitoring.md)
+> **Primary Documentation**: [FDD PD-FDD-024](../../../doc/functional-design/fdds/fdd-1-1-1-file-system-monitoring.md)
 
 **Acceptance Criteria to Test**:
 - File move detected within seconds regardless of tool used
@@ -49,7 +49,7 @@ File System Monitoring uses the `LinkMaintenanceHandler` class to process watchd
 
 ### Technical Design Reference
 
-> **Primary Documentation**: [TDD PD-TDD-023](../../../doc/product-docs/technical/architecture/design-docs/tdd/tdd-1-1-1-file-system-monitoring-t2.md)
+> **Primary Documentation**: [TDD PD-TDD-023](../../../doc/technical/tdd/tdd-1-1-1-file-system-monitoring-t2.md)
 
 **Component Testing Strategy**:
 - `LinkMaintenanceHandler.on_moved()` — native move event routing
@@ -219,7 +219,7 @@ File System Monitoring uses the `LinkMaintenanceHandler` class to process watchd
 
 ### Files to Reference
 
-- **TDD**: [`doc/product-docs/technical/architecture/design-docs/tdd/tdd-1-1-1-file-system-monitoring-t2.md`](../../../doc/product-docs/technical/architecture/design-docs/tdd/tdd-1-1-1-file-system-monitoring-t2.md)
+- **TDD**: [`doc/technical/architecture/design-docs/tdd/tdd-1-1-1-file-system-monitoring-t2.md`](../../../doc/technical/tdd/tdd-1-1-1-file-system-monitoring-t2.md)
 - **Existing Tests**: [`test/automated/test_move_detection.py`](../../../test/automated/test_move_detection.py), [`test/automated/integration/test_file_movement.py`](../../../test/automated/integration/test_file_movement.py), [`test/automated/integration/test_sequential_moves.py`](../../../test/automated/integration/test_sequential_moves.py), [`test/automated/integration/test_comprehensive_file_monitoring.py`](../../../test/automated/integration/test_comprehensive_file_monitoring.py), [`test/automated/integration/test_image_file_monitoring.py`](../../../test/automated/integration/test_image_file_monitoring.py), [`test/automated/integration/test_powershell_script_monitoring.py`](../../../test/automated/integration/test_powershell_script_monitoring.py)
 - **Source Code**: [`linkwatcher/handler.py`](../../../linkwatcher/handler.py)
 - **Fixtures**: [`test/automated/conftest.py`](../../../test/automated/conftest.py) — `temp_project_dir`, `file_helper`

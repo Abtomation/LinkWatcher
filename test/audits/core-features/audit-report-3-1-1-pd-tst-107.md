@@ -26,7 +26,7 @@ audit_date: 2026-03-15
 | **Audit Date** | 2026-03-15 |
 | **Audit Status** | COMPLETED |
 | **Test Spec** | [PF-TSP-041](../../specifications/feature-specs/test-spec-3-1-1-logging-system.md) |
-| **TDD** | [PD-TDD-024](../../../doc/product-docs/technical/architecture/design-docs/tdd/tdd-3-1-1-logging-framework-t2.md) |
+| **TDD** | [PD-TDD-024](../../../doc/technical/tdd/tdd-3-1-1-logging-framework-t2.md) |
 
 ## Test Files Audited
 

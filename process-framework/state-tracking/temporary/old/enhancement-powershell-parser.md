@@ -39,8 +39,8 @@ target_feature: 2.1.1
 | Document Type | ID | Location | Action Needed |
 |---------------|-----|----------|---------------|
 | Feature State File | PF-FEA-050 | [2.1.1-link-parsing-system-implementation-state.md](../features/2.1.1-link-parsing-system-implementation-state.md) | Update on completion |
-| FDD | PD-FDD-026 | [fdd-2-1-1-parser-framework.md](../../../product-docs/functional-design/fdds/fdd-2-1-1-parser-framework.md) | Amend — add PowerShellParser to parser inventory |
-| TDD | PD-TDD-025 | [tdd-2-1-1-parser-framework-t2.md](../../../product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md) | Amend — add PowerShellParser component description |
+| FDD | PD-FDD-026 | [fdd-2-1-1-parser-framework.md](/doc/functional-design/fdds/fdd-2-1-1-parser-framework.md) | Amend — add PowerShellParser to parser inventory |
+| TDD | PD-TDD-025 | [tdd-2-1-1-parser-framework-t2.md](/doc/technical/tdd/tdd-2-1-1-parser-framework-t2.md) | Amend — add PowerShellParser component description |
 | ADR | N/A | N/A — no new architectural decision needed | No change |
 | Test Specification | PF-TSP-039 | [test-spec-2-1-1-link-parsing-system.md](../../../../test/specifications/feature-specs/test-spec-2-1-1-link-parsing-system.md) | Amend — add PowerShellParser test cases |
 

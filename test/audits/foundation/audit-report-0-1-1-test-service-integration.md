@@ -2,11 +2,12 @@
 id: TE-TAR-014
 type: Document
 category: General
-version: 1.0
+version: 2.0
 created: 2026-03-26
-updated: 2026-03-26
+updated: 2026-04-03
 test_file_path: test/automated/integration/test_service_integration.py
-audit_date: 2026-03-26
+audit_date: 2026-04-03
+previous_audit_date: 2026-03-26
 auditor: AI Agent
 feature_id: 0.1.1
 ---
@@ -181,27 +182,27 @@ feature_id: 0.1.1
 ## Overall Audit Summary
 
 ### Audit Decision
-**Status**: 🟡 TESTS_APPROVED_WITH_DEPENDENCIES
+**Status**: 🔄 NEEDS_UPDATE
+
+**Changes from v1.0**: Upgraded from 🟡 Approved with Dependencies to 🔄 Needs Update. The primary dependency (service.start() untested) was resolved in test_service.py via `TestStartupObserverOrder`, but the assertion quality issues in THIS file remain unaddressed and now represent the dominant concern.
 
 **Rationale**:
-Tests cover a good breadth of integration scenarios across 8 categories, but the primary dependency is that `service.start()` and Observer thread management are never tested. Assertion quality is systematically weak with multiple always-true assertions. Current tests are acceptable for the pre-start lifecycle but need strengthening for production quality.
+Tests cover good breadth across 8 integration categories, but assertion quality is systematically weak. 13 always-true assertions, 1 `assert True`, and 4 broad `except Exception: pass` blocks undermine the test suite's ability to catch real regressions. These issues are registered as tech debt for resolution via PF-TSK-053.
 
 ### Critical Issues
-- `assert True` in test_si_002 — provides zero verification
-- service.start() and Observer thread management untested
-- Weak assertions throughout provide false confidence
+- `assert True` in test_si_002 (line 167) — provides zero verification
+- 13 always-true assertions (`assert stats is not None`, `>= 0`) — false confidence
+- 4 bare `except Exception: pass` in concurrent tests — masks real failures
 
-### Improvement Opportunities
+### Improvement Opportunities (unchanged from v1.0)
 - Replace all always-true assertions with specific value checks
-- Add start/stop integration test with Observer thread verification
+- Remove `except Exception: pass` or replace with specific exception types
 - Consolidate duplicate init patterns with test_service.py
-- Fix non-deterministic test design
-- Rename misleading test (state "persistence")
+- Rename test_si_005 to "re-scan consistency" (not "persistence")
 
-### Strengths Identified
+### Strengths Identified (unchanged)
 - Good categorical organization (8 distinct integration areas)
-- Event processing pipeline tests are well-structured
-- Resource management tests verify real resource handling
+- Event processing pipeline tests (SI-006) are well-structured
 - Consistent pytest markers
 
 ## Action Items

@@ -457,16 +457,16 @@ class TestRootRelativePathHandling:
         # Create directory structure
         script_dir = temp_project_dir / "scripts" / "file-creation"
         script_dir.mkdir(parents=True)
-        target_dir = temp_project_dir / "doc" / "state-tracking"
+        target_dir = temp_project_dir / "alpha-project" / "state-tracking"
         target_dir.mkdir(parents=True)
-        new_target_dir = temp_project_dir / "doc" / "tracking"
+        new_target_dir = temp_project_dir / "alpha-project" / "tracking"
         new_target_dir.mkdir(parents=True)
 
         # Script with a root-relative path argument
         script_file = script_dir / "New-BugReport.ps1"
         content = (
             "$BugTrackingFile = Join-Path -Path $ProjectRoot "
-            '-ChildPath "doc/state-tracking/bug-tracking.md"\n'
+            '-ChildPath "alpha-project/state-tracking/bug-tracking.md"\n'
         )
         script_file.write_text(content)
 
@@ -474,21 +474,21 @@ class TestRootRelativePathHandling:
         ref = LinkReference(
             file_path="scripts/file-creation/New-BugReport.ps1",
             line_number=1,
-            column_start=content.index("doc/state-tracking"),
-            column_end=content.index("doc/state-tracking")
-            + len("doc/state-tracking/bug-tracking.md"),
-            link_text="doc/state-tracking/bug-tracking.md",
-            link_target="doc/state-tracking/bug-tracking.md",
+            column_start=content.index("alpha-project/state-tracking"),
+            column_end=content.index("alpha-project/state-tracking")
+            + len("alpha-project/state-tracking/bug-tracking.md"),
+            link_text="alpha-project/state-tracking/bug-tracking.md",
+            link_target="alpha-project/state-tracking/bug-tracking.md",
             link_type="generic-quoted",
         )
 
-        old_path = "doc/state-tracking/bug-tracking.md"
-        new_path = "doc/tracking/bug-tracking.md"
+        old_path = "alpha-project/state-tracking/bug-tracking.md"
+        new_path = "alpha-project/tracking/bug-tracking.md"
 
         new_target = updater._calculate_new_target(ref, old_path, new_path)
 
         # Must be the new root-relative path, NOT "../../tracking/bug-tracking.md"
-        assert new_target == "doc/tracking/bug-tracking.md"
+        assert new_target == "alpha-project/tracking/bug-tracking.md"
         assert not new_target.startswith(
             "../"
         ), f"Root-relative path was wrongly converted to source-relative: {new_target}"
@@ -502,27 +502,27 @@ class TestRootRelativePathHandling:
         script_dir.mkdir(parents=True)
 
         script_file = script_dir / "tool.ps1"
-        content = '$path = "doc/config/settings.yaml"\n'
+        content = '$path = "alpha-project/config/settings.yaml"\n'
         script_file.write_text(content)
 
         ref = LinkReference(
             file_path="scripts/deep/tool.ps1",
             line_number=1,
-            column_start=content.index("doc/config"),
-            column_end=content.index("doc/config") + len("doc/config/settings.yaml"),
-            link_text="doc/config/settings.yaml",
-            link_target="doc/config/settings.yaml",
+            column_start=content.index("alpha-project/config"),
+            column_end=content.index("alpha-project/config") + len("alpha-project/config/settings.yaml"),
+            link_text="alpha-project/config/settings.yaml",
+            link_target="alpha-project/config/settings.yaml",
             link_type="generic-quoted",
         )
 
         stats = updater.update_references(
-            [ref], "doc/config/settings.yaml", "doc/configuration/settings.yaml"
+            [ref], "alpha-project/config/settings.yaml", "alpha-project/configuration/settings.yaml"
         )
 
         assert stats["files_updated"] == 1
         updated = script_file.read_text()
-        assert "doc/configuration/settings.yaml" in updated
-        assert "doc/config/settings.yaml" not in updated
+        assert "alpha-project/configuration/settings.yaml" in updated
+        assert "alpha-project/config/settings.yaml" not in updated
         # Must NOT contain source-relative path
         assert "../" not in updated
 
@@ -531,7 +531,7 @@ class TestRootRelativePathHandling:
         updater = LinkUpdater(str(temp_project_dir))
         updater.set_backup_enabled(False)
 
-        doc_dir = temp_project_dir / "doc" / "guides"
+        doc_dir = temp_project_dir / "alpha-project" / "guides"
         doc_dir.mkdir(parents=True)
 
         md_file = doc_dir / "guide.md"
@@ -539,7 +539,7 @@ class TestRootRelativePathHandling:
         md_file.write_text(content)
 
         ref = LinkReference(
-            file_path="doc/guides/guide.md",
+            file_path="alpha-project/guides/guide.md",
             line_number=1,
             column_start=14,
             column_end=14 + len("../state-tracking/bug-tracking.md"),
@@ -548,12 +548,12 @@ class TestRootRelativePathHandling:
             link_type="markdown",
         )
 
-        old_path = "doc/state-tracking/bug-tracking.md"
-        new_path = "doc/tracking/bug-tracking.md"
+        old_path = "alpha-project/state-tracking/bug-tracking.md"
+        new_path = "alpha-project/tracking/bug-tracking.md"
 
         new_target = updater._calculate_new_target(ref, old_path, new_path)
 
-        # "../state-tracking/bug-tracking.md" != "doc/state-tracking/bug-tracking.md"
+        # "../state-tracking/bug-tracking.md" != "alpha-project/state-tracking/bug-tracking.md"
         # so the early check should NOT trigger; existing resolution logic handles it
         assert new_target != old_path  # should be recalculated, not returned as-is
 
@@ -566,17 +566,17 @@ class TestRootRelativePathHandling:
             line_number=1,
             column_start=0,
             column_end=30,
-            link_text="/doc/state/file.md",
-            link_target="/doc/state/file.md",
+            link_text="/alpha-project/state/file.md",
+            link_target="/alpha-project/state/file.md",
             link_type="generic-quoted",
         )
 
         new_target = updater._calculate_new_target(
-            ref, "doc/state/file.md", "doc/new-state/file.md"
+            ref, "alpha-project/state/file.md", "alpha-project/new-state/file.md"
         )
 
         # Leading slash should be preserved
-        assert new_target == "/doc/new-state/file.md"
+        assert new_target == "/alpha-project/new-state/file.md"
 
     def test_unrelated_root_relative_path_not_modified(self):
         """Test that a root-relative path NOT matching old_path is left alone."""
@@ -587,14 +587,14 @@ class TestRootRelativePathHandling:
             line_number=1,
             column_start=0,
             column_end=20,
-            link_text="doc/other/file.md",
-            link_target="doc/other/file.md",
+            link_text="alpha-project/other/file.md",
+            link_target="alpha-project/other/file.md",
             link_type="generic-quoted",
         )
 
         new_target = updater._calculate_new_target(
-            ref, "doc/state/bug-tracking.md", "doc/new-state/bug-tracking.md"
+            ref, "alpha-project/state/bug-tracking.md", "alpha-project/new-state/bug-tracking.md"
         )
 
         # Different path — should not be modified
-        assert new_target == "doc/other/file.md"
+        assert new_target == "alpha-project/other/file.md"

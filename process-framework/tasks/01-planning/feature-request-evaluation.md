@@ -6,7 +6,6 @@ domain: agnostic
 version: 1.2
 created: 2026-02-19
 updated: 2026-03-17
-task_type: Discrete
 ---
 
 # Feature Request Evaluation
@@ -35,9 +34,9 @@ This task evaluates incoming change requests to determine whether they represent
 
 - **Critical (Must Read):**
 
-  - **Change Request** — The human partner's description of what needs to be added or changed, or a queued entry in [Feature Request Tracking](../../../doc/product-docs/state-tracking/permanent/feature-request-tracking.md)
-  - [Feature Request Tracking](../../../doc/product-docs/state-tracking/permanent/feature-request-tracking.md) — Intake queue for product feature requests (check for "Submitted" entries)
-  - [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) — Current feature inventory to identify existing features
+  - **Change Request** — The human partner's description of what needs to be added or changed, or a queued entry in [Feature Request Tracking](../../../doc/state-tracking/permanent/feature-request-tracking.md)
+  - [Feature Request Tracking](../../../doc/state-tracking/permanent/feature-request-tracking.md) — Intake queue for product feature requests (check for "Submitted" entries)
+  - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) — Current feature inventory to identify existing features
   - [Feature Granularity Guide](../../guides/01-planning/feature-granularity-guide.md) — Defines what constitutes a well-scoped feature (used when classifying requests and validating new feature scope)
   - [Enhancement State Tracking Customization Guide](../../guides/04-implementation/enhancement-state-tracking-customization-guide.md) — Guide for customizing the Enhancement State Tracking File
   - [Visual Notation Guide](/process-framework/guides/support/visual-notation-guide.md) — For interpreting context map diagrams
@@ -47,7 +46,7 @@ This task evaluates incoming change requests to determine whether they represent
   - Feature State Files (`state-tracking/features/X.Y.Z-*-implementation-state.md`) — Implementation state of candidate target features (includes Dimension Profile for inheritance)
   - [Development Dimensions Guide](../../guides/framework/development-dimensions-guide.md) — Dimension definitions and applicability criteria for evaluating if enhancement scope changes dimension applicability
   - Existing Design Docs (FDD, TDD, ADR) associated with the target feature — For understanding current scope and design
-  - [Enhancement Workflow Concept (PF-PRO-002)](../../proposals/proposals/old/enhancement-workflow-concept.md) — Full design rationale for this workflow
+  - [Enhancement Workflow Concept (PF-PRO-002)](../../proposals/old/enhancement-workflow-concept.md) — Full design rationale for this workflow
 
 - **Reference Only (Access When Needed):**
   - [Feature Tier Assessment Task](feature-tier-assessment-task.md) — For routing new features to the correct workflow
@@ -65,7 +64,7 @@ This task evaluates incoming change requests to determine whether they represent
 
 ### Phase 1: Classification
 
-1. **Read the change request** — Understand what the human partner wants to add or change. Also check [Feature Request Tracking](../../../doc/product-docs/state-tracking/permanent/feature-request-tracking.md) for queued requests with status "Submitted" — the human partner may point to a specific request ID, or the agent can propose which queued request to evaluate
+1. **Read the change request** — Understand what the human partner wants to add or change. Also check [Feature Request Tracking](../../../doc/state-tracking/permanent/feature-request-tracking.md) for queued requests with status "Submitted" — the human partner may point to a specific request ID, or the agent can propose which queued request to evaluate
 2. **Review feature tracking** — Read `feature-tracking.md` to understand the current feature inventory. Make yourself familiar with some potential features by looking at the feature state tracking files.
 3. **Classify the request** — Determine: is this a new feature or an enhancement to an existing feature? Apply the three validation tests from the [Feature Granularity Guide](../../guides/01-planning/feature-granularity-guide.md) to validate the scope of new features.
 4. **🚨 CHECKPOINT**: Present classification decision with rationale to human partner for approval
@@ -76,8 +75,8 @@ This task evaluates incoming change requests to determine whether they represent
 
 5a. **Route to existing workflow** — For new features:
    - Add the new feature to `feature-tracking.md` and note the assigned feature ID
-   - Check [User Workflow Tracking](/doc/product-docs/state-tracking/permanent/user-workflow-tracking.md) — does this feature create a new user workflow or extend an existing one? Update the workflow tracking file accordingly (add new workflows, add feature to existing workflows' Required Features). Set `workflows:` metadata in the new feature's implementation state file with the applicable WF-IDs.
-   - **Update feature request tracking and create state file** — If this request originated from [Feature Request Tracking](../../../doc/product-docs/state-tracking/permanent/feature-request-tracking.md), close it using [`Update-FeatureRequest.ps1`](../../scripts/update/Update-FeatureRequest.ps1). The script also creates the feature implementation state file and links it in feature-tracking:
+   - Check [User Workflow Tracking](/doc/state-tracking/permanent/user-workflow-tracking.md) — does this feature create a new user workflow or extend an existing one? Update the workflow tracking file accordingly (add new workflows, add feature to existing workflows' Required Features). Set `workflows:` metadata in the new feature's implementation state file with the applicable WF-IDs.
+   - **Update feature request tracking and create state file** — If this request originated from [Feature Request Tracking](../../../doc/state-tracking/permanent/feature-request-tracking.md), close it using [`Update-FeatureRequest.ps1`](../../scripts/update/Update-FeatureRequest.ps1). The script also creates the feature implementation state file and links it in feature-tracking:
      ```powershell
      cd process-framework/scripts/update
      .\Update-FeatureRequest.ps1 -RequestId "PD-FRQ-XXX" -Classification "NewFeature" -FeatureId "X.Y.Z" -FeatureName "Feature Name" -NewStatus "Completed" -Notes "Brief description"
@@ -92,7 +91,7 @@ This task evaluates incoming change requests to determine whether they represent
    - Locate the candidate feature(s) in `feature-tracking.md`
    - Read each feature's implementation state file to understand its current scope
    - Locate any existing design documentation (FDD, TDD, ADR)
-   - Check [User Workflow Tracking](/doc/product-docs/state-tracking/permanent/user-workflow-tracking.md) — does this enhancement affect any user workflows? If so, note the affected WF-IDs in the enhancement scope. If the enhancement changes which workflows the feature participates in, update the feature state file's `workflows:` metadata accordingly.
+   - Check [User Workflow Tracking](/doc/state-tracking/permanent/user-workflow-tracking.md) — does this enhancement affect any user workflows? If so, note the affected WF-IDs in the enhancement scope. If the enhancement changes which workflows the feature participates in, update the feature state file's `workflows:` metadata accordingly.
    - **Multi-feature requests**: If the change request affects multiple existing features, identify all of them. Present the full list at the checkpoint below.
 6. **🚨 CHECKPOINT**: Present target feature proposal with rationale to human partner and wait for explicit approval before continuing
    - **For multi-feature requests**: Present all affected features and confirm with the human partner whether to proceed with separate Enhancement State Tracking Files for each, or whether the request should be split into independent evaluations. The default is **one state file per target feature**, each scoped to that feature's portion of the work, with cross-references linking the related state files.
@@ -128,7 +127,7 @@ This task evaluates incoming change requests to determine whether they represent
 ### Phase 3: Finalization
 
 10. **🚨 CHECKPOINT**: Present completed Enhancement State Tracking File (including Dimension Impact Assessment) to human partner for review before finalizing
-11. **Update tracking files** — If this request originated from [Feature Request Tracking](../../../doc/product-docs/state-tracking/permanent/feature-request-tracking.md), close the request and update feature-tracking using [`Update-FeatureRequest.ps1`](../../scripts/update/Update-FeatureRequest.ps1):
+11. **Update tracking files** — If this request originated from [Feature Request Tracking](../../../doc/state-tracking/permanent/feature-request-tracking.md), close the request and update feature-tracking using [`Update-FeatureRequest.ps1`](../../scripts/update/Update-FeatureRequest.ps1):
     ```powershell
     cd process-framework/scripts/update
     .\Update-FeatureRequest.ps1 -RequestId "PD-FRQ-XXX" -Classification "Enhancement" -FeatureId "X.Y.Z" -NewStatus "Completed" -EnhancementStateFile "Enhancement State File: [PF-STA-XXX](path/to/file.md)" -Notes "Enhancement State File created"
@@ -143,7 +142,7 @@ This task evaluates incoming change requests to determine whether they represent
 - **Classification Decision** — New feature or enhancement, with rationale communicated to human partner
 - **Human-approved target feature** — AI agent's proposal confirmed by human partner (enhancement path only)
 - **For new features**: New entry in `feature-tracking.md` + new feature implementation state file
-- **For enhancements**: Customized Enhancement State Tracking File in `product-docs/state-tracking/temporary/` with:
+- **For enhancements**: Customized Enhancement State Tracking File in `doc/state-tracking/temporary` with:
   - Target feature identification and existing doc inventory
   - Scope assessment using practical criteria
   - **Dimension Impact Assessment** — inherited dimensions from parent feature's profile, with any adjustments for the enhancement scope (new Critical/Relevant dimensions, reduced dimensions)
@@ -155,10 +154,10 @@ This task evaluates incoming change requests to determine whether they represent
 
 The following state files must be updated as part of this task:
 
-- [Feature Request Tracking](../../../doc/product-docs/state-tracking/permanent/feature-request-tracking.md) — Update request status to Completed after classification (if request originated from this file)
-- [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) — For new features: add new entry. For enhancements: set target feature status to "🔄 Needs Revision" with link to Enhancement State Tracking File
-- **Enhancement State Tracking File** (created by this task) — In `product-docs/state-tracking/temporary/`
-- **Feature Implementation State File** — For new features: create new state file. For enhancements: no change (handled by Feature Enhancement task) — In `product-docs/state-tracking/features/`
+- [Feature Request Tracking](../../../doc/state-tracking/permanent/feature-request-tracking.md) — Update request status to Completed after classification (if request originated from this file)
+- [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) — For new features: add new entry. For enhancements: set target feature status to "🔄 Needs Revision" with link to Enhancement State Tracking File
+- **Enhancement State Tracking File** (created by this task) — In `doc/state-tracking/temporary`
+- **Feature Implementation State File** — For new features: create new state file. For enhancements: no change (handled by Feature Enhancement task) — In `doc/state-tracking/features`
 
 ## MANDATORY Task Completion Checklist
 
@@ -188,6 +187,6 @@ Before considering this task finished:
 ## Related Resources
 
 - [Feature Granularity Guide](../../guides/01-planning/feature-granularity-guide.md) — Defines what constitutes a well-scoped feature with validation tests and scaling guidance
-- [Enhancement Workflow Concept (PF-PRO-002)](../../proposals/proposals/old/enhancement-workflow-concept.md) — Full design rationale for this workflow
-- [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) — Current feature inventory
+- [Enhancement Workflow Concept (PF-PRO-002)](../../proposals/old/enhancement-workflow-concept.md) — Full design rationale for this workflow
+- [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) — Current feature inventory
 - [Enhancement State Tracking Customization Guide](../../guides/04-implementation/enhancement-state-tracking-customization-guide.md) — Guide for customizing state files

@@ -304,7 +304,7 @@ function Get-ProjectConfig {
     Loads and caches the project-config.json file
 
     .DESCRIPTION
-    Loads project-specific configuration from process-framework/project-config.json
+    Loads project-specific configuration from doc/project-config.json
     Caches the result for performance
 
     .PARAMETER Reload
@@ -328,7 +328,7 @@ function Get-ProjectConfig {
 
     try {
         $projectRoot = Get-ProjectRoot
-        $configPath = Join-Path -Path $projectRoot -ChildPath "process-framework/project-config.json"
+        $configPath = Join-Path -Path $projectRoot -ChildPath "doc/project-config.json"
 
         if (-not (Test-Path $configPath)) {
             throw "Project configuration file not found at: $configPath"

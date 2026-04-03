@@ -7,7 +7,7 @@ created: 2026-02-19
 updated: 2026-02-25
 feature_id: 0.1.1
 feature_name: Core Architecture
-tdd_path: doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md
+tdd_path: doc/technical/tdd/tdd-0-1-1-core-architecture-t3.md
 test_tier: 3
 retrospective: true
 ---
@@ -18,10 +18,10 @@ retrospective: true
 
 ## Overview
 
-This document provides comprehensive test specifications for the **Core Architecture** feature (ID: 0.1.1), derived from the Technical Design Document [PD-TDD-021](../../../doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md).
+This document provides comprehensive test specifications for the **Core Architecture** feature (ID: 0.1.1), derived from the Technical Design Document [PD-TDD-021](../../../doc/technical/tdd/tdd-0-1-1-core-architecture-t3.md).
 
 **Test Tier**: 3 (Full Suite — unit, integration, and end-to-end)
-**TDD Reference**: [TDD PD-TDD-021](../../../doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md)
+**TDD Reference**: [TDD PD-TDD-021](../../../doc/technical/tdd/tdd-0-1-1-core-architecture-t3.md)
 **Created**: 2026-02-19
 **Implementation Coverage**: 38/46 scenarios implemented (83%)
 
@@ -45,7 +45,7 @@ The Core Architecture defines the `LinkWatcherService` class as an Orchestrator/
 
 ### Functional Requirements Reference
 
-> **📋 Primary Documentation**: [FDD PD-FDD-022](../../../doc/product-docs/functional-design/fdds/fdd-0-1-1-core-architecture.md)
+> **📋 Primary Documentation**: [FDD PD-FDD-022](../../../doc/functional-design/fdds/fdd-0-1-1-core-architecture.md)
 
 #### Testing-Level Functional Context
 
@@ -75,7 +75,7 @@ Tests validate the core service lifecycle: initialization with subsystem wiring,
 
 ### Technical Design Reference
 
-> **📋 Primary Documentation**: [TDD PD-TDD-021](../../../doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md)
+> **📋 Primary Documentation**: [TDD PD-TDD-021](../../../doc/technical/tdd/tdd-0-1-1-core-architecture-t3.md)
 
 #### Testing-Level Implementation Context
 
@@ -300,7 +300,7 @@ test/automated/
 
 ### Files to Reference
 
-- **TDD**: [`doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md`](../../../doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md)
+- **TDD**: [`doc/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md`](../../../doc/technical/tdd/tdd-0-1-1-core-architecture-t3.md)
 - **Existing Tests**: [`test/automated/unit/test_service.py`](../../../test/automated/unit/test_service.py), `test/automated/integration/test_*.py`
 - **Fixtures**: [`test/automated/conftest.py`](../../../test/automated/conftest.py) — shared test setup
 - **Test Utilities**: [`test/automated/utils.py`](../../../test/automated/utils.py) — helper functions
@@ -315,11 +315,11 @@ test/automated/
 
 ## Related Resources
 
-- **Source TDD**: [PD-TDD-021](../../../doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md)
-- **FDD**: [PD-FDD-022](../../../doc/product-docs/functional-design/fdds/fdd-0-1-1-core-architecture.md)
-- **ADR**: [PD-ADR-039](../../../doc/product-docs/technical/architecture/design-docs/adr/adr/orchestrator-facade-pattern-for-core-architecture.md)
-- **Feature Tier Assessment**: [ART-ASS-191](../../../doc/product-docs/documentation-tiers/assessments/PD-ASS-191-0-1-1-core-architecture.md)
-- **Implementation State**: [PF-FEA-003](../../../doc/product-docs/state-tracking/features/0.1.1-core-architecture-implementation-state.md)
+- **Source TDD**: [PD-TDD-021](../../../doc/technical/tdd/tdd-0-1-1-core-architecture-t3.md)
+- **FDD**: [PD-FDD-022](../../../doc/functional-design/fdds/fdd-0-1-1-core-architecture.md)
+- **ADR**: [PD-ADR-039](../../../doc/technical/adr/orchestrator-facade-pattern-for-core-architecture.md)
+- **Feature Tier Assessment**: [ART-ASS-191](../../../doc/documentation-tiers/assessments/PD-ASS-191-0-1-1-core-architecture.md)
+- **Implementation State**: [PF-FEA-003](../../../doc/state-tracking/features/0.1.1-core-architecture-implementation-state.md)
 
 ---
 

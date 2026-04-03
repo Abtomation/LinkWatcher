@@ -2,16 +2,21 @@
 id: TE-TAR-024
 type: Document
 category: General
-version: 1.0
+version: 2.0
 created: 2026-03-26
-updated: 2026-03-26
-audit_date: 2026-03-26
+updated: 2026-04-03
+audit_date: 2026-04-03
+prior_audit_date: 2026-03-26
 auditor: AI Agent
 feature_id: 3.1.1
 test_file_path: test/automated/unit/test_advanced_logging.py
 ---
 
 # Test Audit Report - Feature 3.1.1 (test_advanced_logging.py)
+
+## Re-audit Context
+
+This is a **full re-audit** replacing the prior audit from 2026-03-26. The prior audit evaluated 19 tests in 5 classes, but commit `cf30016` removed LogFilter, LogMetrics, and LoggingHandler classes (TD083: dead code removal), reducing the file to **6 tests in 3 classes**. The prior audit findings are no longer applicable.
 
 ## Audit Overview
 
@@ -22,14 +27,14 @@ test_file_path: test/automated/unit/test_advanced_logging.py
 | **Test File Location** | `test/automated/unit/test_advanced_logging.py` |
 | **Feature Category** | CORE-FEATURES |
 | **Auditor** | AI Agent |
-| **Audit Date** | 2026-03-26 |
+| **Audit Date** | 2026-04-03 (re-audit; prior: 2026-03-26) |
 | **Audit Status** | COMPLETED |
 
 ## Test Files Audited
 
 | Test File | Location | Test Cases | Status |
 |-----------|----------|------------|--------|
-| test_advanced_logging.py | test/automated/unit/ | 19 (5 classes) | ✅ Approved |
+| test_advanced_logging.py | test/automated/unit/ | 6 (3 classes) | 🔄 Needs Update |
 
 ## Implementation Dependency Analysis
 
@@ -38,38 +43,38 @@ test_file_path: test/automated/unit/test_advanced_logging.py
 | test_advanced_logging.py | EXISTS | YES | None | N/A |
 
 **Implementation Dependencies Summary**:
-- **Testable Components**: LogFilter (component, operation, level range, file pattern, exclude pattern, time window), LogMetrics (collection, reset, thread safety), LoggingConfigManager (JSON/YAML loading, runtime filters, debug snapshot), integration, performance
+- **Testable Components**: LoggingConfigManager (JSON/YAML loading, config watching, debug snapshot, _apply_config), get_config_manager singleton, setup_advanced_logging, set_log_level, reset_config_manager
 - **Missing Dependencies**: None — logging_config.py fully implemented
-- **Placeholder Tests**: 1 partial — test_logging_with_filters checks config but doesn't verify actual filtering behavior
+- **Removed Components (TD083)**: LogFilter, LogMetrics, LoggingHandler — dead code removed in commit cf30016
 
 ## Audit Evaluation
 
 ### 1. Purpose Fulfillment
 **Question**: Does the test really fulfill its intended purpose?
 
-**Assessment**: PASS (3.5/4)
+**Assessment**: PARTIAL (2.5/4)
 
 **Findings**:
-- TestLogFilter (7 methods) comprehensively covers all filter types: component, operation, level range, file pattern, exclude pattern, time window
-- TestLogMetrics (3 methods) includes thread safety verification with 5 threads x 100 operations = 500 concurrent logs
-- TestLoggingConfigManager (5 methods) tests both JSON and YAML config file loading
-- TestLoggingPerformance (2 methods) benchmarks logging overhead (1000 ops < 1.0s) and filter performance (10,000 ops < 0.1s)
-- Minor: test_logging_with_filters is incomplete — only checks config was set, not that filtering actually works
+- TestLoggingConfigManager (3 tests): Tests exist for JSON loading, YAML loading, and debug snapshot, but assertions are **shallow**
+  - `test_config_file_loading`: Only asserts `config_manager.config_file == Path(config_file)` — does NOT verify the config was actually applied (log level changed to DEBUG)
+  - `test_yaml_config_loading`: Same issue — only checks config_file attribute, not applied config
+  - `test_debug_snapshot`: Only checks key existence (`"timestamp" in snapshot`), not value correctness
+- TestAdvancedLoggingIntegration (2 tests): Setup test is minimal, singleton test is correct
+- TestLoggingPerformance (1 test): Benchmarks 1000 ops < 1s — acceptable but generous threshold
 
 **Evidence**:
-- test_level_range_filtering: verifies WARNING/ERROR pass, DEBUG/CRITICAL blocked
-- test_thread_safety: 5 threads x 100 ops, verifies total_logs == 500
-- test_logging_overhead: asserts 1000 log operations complete in under 1.0 seconds
+- Line 44: `assert config_manager.config_file == Path(config_file)` — verifies file was *stored*, not that config was *applied*
+- Line 68-70: `assert "timestamp" in snapshot` — key existence only, no value verification
 
 **Recommendations**:
-- Complete test_logging_with_filters to verify actual filtering behavior end-to-end
-- Consider tightening performance threshold (1.0s is generous for 1000 ops on modern hardware)
+- Config loading tests should verify the config was applied: assert log level actually changed after loading
+- Debug snapshot test should verify value types and content, not just key existence
 
 #### Assertion Quality Assessment
 
-- **Assertion density**: 3.0 per method (exceeds target >=2). Filter tests are particularly strong.
-- **Behavioral assertions**: Strong — tests verify filter inclusion/exclusion, metric counts, config state
-- **Edge case assertions**: Good — level range filtering, exclude patterns, time window expiration
+- **Assertion density**: 1.7 per method (below target >=2)
+- **Behavioral assertions**: Weak — mostly attribute/type checks (isinstance, `in`, ==Path), not behavioral verification
+- **Edge case assertions**: None — no error paths, no invalid input, no boundary conditions
 - **Mutation testing**: Not performed
 
 ---
@@ -77,41 +82,53 @@ test_file_path: test/automated/unit/test_advanced_logging.py
 ### 2. Coverage Completeness
 **Question**: Are all implementable scenarios covered with tests?
 
-**Assessment**: PASS (3.0/4)
+**Assessment**: NEEDS IMPROVEMENT (2.0/4)
 
-**Code Coverage Data** _(from `Run-Tests.ps1 -Coverage`)_:
+**Code Coverage Data**:
 
 | Source Module | Coverage % | Uncovered Areas |
 |---------------|-----------|-----------------|
-| logging_config.py | 85% | Some config error paths |
+| logging_config.py | 59% | 33 lines — see below |
 
-**Overall Project Coverage**: 86%
+**Uncovered Code Paths** (logging_config.py:81 stmts, 33 missing):
+- Lines 49-50: Config file not found (warning + early return)
+- Lines 66-69: Config load exception handling (try/except)
+- Lines 79-80: Invalid log level in config (ValueError handling)
+- Lines 84-90: `_start_config_watching()` — auto-reload thread setup
+- Lines 94-109: `_watch_config_file()` — entire daemon thread (polling, mtime comparison, reload)
+- Lines 113-115: `stop_config_watching()` — stop event + thread join
+- Line 145: `reset_config_manager()` — test isolation utility
+- Lines 165-168: `set_log_level()` — CLI-style level setter
 
 **Findings**:
-- **Existing Implementation Coverage**: Good — all major config manager functions tested
-- **Code Coverage Gaps**: Some config validation error paths not exercised
-- **Missing Test Scenarios**: No test for malformed config file handling, no log rotation testing
-- **Edge Cases Coverage**: Good — time window expiration, config clearing, metric reset, singleton pattern
+- **Config hot-reload is entirely untested** — the daemon thread that watches for file changes, detects mtime updates, and reloads config has 0% coverage (16 lines)
+- **All error handling paths untested** — missing config file, malformed JSON/YAML, invalid log level
+- **CLI function untested** — `set_log_level()` (4 lines)
+- **Test isolation utility untested** — `reset_config_manager()` (2 lines)
 
 **Recommendations**:
-- Add test for malformed/invalid config file handling
-- Complete incomplete integration test (test_logging_with_filters)
+- Add test for missing config file (should log warning, not crash)
+- Add test for invalid log level in config (should log warning, retain current level)
+- Add test for `set_log_level()` with both str and LogLevel inputs
+- Config hot-reload testing would significantly improve coverage but is lower priority (daemon thread testing is complex)
 
 ---
 
 ### 3. Test Quality & Structure
 **Question**: Could the test be optimized?
 
-**Assessment**: PASS (3.0/4)
+**Assessment**: PARTIAL (2.5/4)
 
 **Findings**:
-- Well-organized into 5 classes by feature area
-- Mock log records are well-constructed with realistic attributes
-- Performance tests use appropriate thresholds
-- One incomplete test (test_logging_with_filters) — documented as aspirational
+- Clean 3-class organization matching feature areas
+- Proper pytest markers with feature/priority/test_type/specification
+- Temp file cleanup with try/finally — good resource management
+- However, tests are thin — they verify setup mechanics but not behavioral outcomes
+- No parametrize usage for similar config format tests (JSON/YAML could share logic)
 
 **Recommendations**:
-- Complete or remove the incomplete integration test
+- Strengthen assertions to verify behavioral outcomes
+- Consider parametrizing JSON/YAML config tests since they follow identical patterns
 
 ---
 
@@ -121,10 +138,10 @@ test_file_path: test/automated/unit/test_advanced_logging.py
 **Assessment**: PASS (3.5/4)
 
 **Findings**:
-- Most tests complete in milliseconds
-- Performance benchmark tests are fast (1000 ops, 10000 filter checks)
-- Thread safety test uses reasonable thread count (5 x 100)
-- One test with 1.1s sleep (time window expiration) — acceptable
+- All 6 tests complete in under 2 seconds total
+- Temp file creation/cleanup is efficient
+- Performance benchmark test uses reasonable threshold (1000 ops < 1s)
+- No sleeps or unnecessary delays
 
 **Recommendations**:
 - No performance improvements needed
@@ -134,16 +151,16 @@ test_file_path: test/automated/unit/test_advanced_logging.py
 ### 5. Maintainability
 **Question**: Will these tests be maintainable long-term?
 
-**Assessment**: PASS (3.5/4)
+**Assessment**: PASS (3.0/4)
 
 **Findings**:
-- Clear class organization by feature area
-- Mock records are reusable patterns
-- Config file tests properly clean up temp files
-- Thread safety test uses proper join with timeout
+- Clean organization
+- Proper resource cleanup
+- Singleton test is well-structured
+- However, thin tests may give false confidence — passing tests with shallow assertions can mask regressions
 
 **Recommendations**:
-- No critical maintainability improvements needed
+- Strengthening assertions will also improve maintainability by catching regressions earlier
 
 ---
 
@@ -155,8 +172,8 @@ test_file_path: test/automated/unit/test_advanced_logging.py
 **Findings**:
 - Correct pytest markers: `@pytest.mark.feature("3.1.1")`
 - Properly categorized as unit tests
-- Complements test_logging.py by testing advanced features (filters, metrics, config, performance)
-- Good separation: core logging in test_logging.py, advanced features here
+- Complements test_logging.py by testing config management (vs core logging infrastructure)
+- Good separation of concerns between the two test files
 
 **Recommendations**:
 - No alignment improvements needed
@@ -164,30 +181,35 @@ test_file_path: test/automated/unit/test_advanced_logging.py
 ## Overall Audit Summary
 
 ### Audit Decision
-**Status**: ✅ TESTS_APPROVED
+**Status**: 🔄 NEEDS_UPDATE
 
 **Rationale**:
-Comprehensive test suite for advanced logging features with strong filter coverage, thread-safe metrics verification, and performance benchmarking. One incomplete integration test is a minor gap. High assertion density (3.0 per method) with behavioral verification. No blocking issues.
+After TD083 dead code removal, test_advanced_logging.py dropped from 19 to 6 tests while the remaining logging_config.py code retained its full complexity. The surviving tests cover the happy path superficially but lack behavioral assertions and miss all error handling paths. Coverage at 59% is below acceptable threshold. The config hot-reload mechanism (a key TDD requirement) is entirely untested.
 
 ### Critical Issues
-- None
+- **Shallow assertions**: Config loading tests don't verify config was actually applied (log level change)
+- **59% coverage**: Below the project's implicit standard (other logging file at 85%)
 
 ### Improvement Opportunities
-- Complete test_logging_with_filters to verify actual filtering behavior
-- Add malformed config file handling test
-- Consider tightening performance thresholds
+1. **High priority**: Strengthen config loading assertions to verify behavioral outcomes
+2. **High priority**: Add error path tests (missing file, invalid config, malformed JSON)
+3. **Medium priority**: Add `set_log_level()` and `reset_config_manager()` tests
+4. **Low priority**: Config hot-reload daemon thread testing
 
 ### Strengths Identified
-- Comprehensive filter testing (7 filter types with inclusion/exclusion verification)
-- Thread-safe metrics testing (500 concurrent operations)
-- Performance benchmarking with explicit thresholds
-- Both JSON and YAML config file format testing
-- Time window expiration edge case tested
+- Clean code organization after dead code removal
+- Proper resource management (temp files)
+- Singleton pattern correctly tested
+- Performance benchmark provides regression protection
 
 ## Action Items
 
 ### For Test Implementation Team
-- [ ] Complete test_logging_with_filters to verify actual filtering behavior (not just config)
+- [ ] Strengthen config loading assertions: verify log level changes after load (not just config_file attribute)
+- [ ] Add test for missing config file (should warn, not crash)
+- [ ] Add test for invalid log level in config (should warn, retain current level)
+- [ ] Add test for `set_log_level()` with str and LogLevel inputs
+- [ ] Add test for `reset_config_manager()` (verifies fresh singleton after reset)
 
 ### For Feature Implementation Team
 - No action items
@@ -199,11 +221,10 @@ Comprehensive test suite for advanced logging features with strong filter covera
 - [x] Specific findings documented with evidence
 - [x] Clear audit decision made with rationale
 - [x] Action items defined
-- [x] Test implementation tracking updated
-- [x] Test registry updated with audit status
+- [x] Coverage data included with specific line numbers
 
 ---
 
 **Audit Completed By**: AI Agent
-**Completion Date**: 2026-03-26
-**Report Version**: 1.0
+**Completion Date**: 2026-04-03
+**Report Version**: 2.0 (full re-audit replacing v1.0 from 2026-03-26)

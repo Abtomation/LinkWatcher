@@ -46,7 +46,7 @@ $errorCount = 0
 $warningCount = 0
 
 # --- Load project config and language config ---
-$configPath = Join-Path $ProjectRoot "process-framework/project-config.json"
+$configPath = Join-Path $ProjectRoot "doc/project-config.json"
 $langConfig = $null
 $testDirectory = $null
 
@@ -202,7 +202,7 @@ Write-Host ""
 # --- Check 4: Feature ID validation ---
 Write-Host "4. Checking feature IDs in markers..." -ForegroundColor Yellow
 
-$featureTrackingPath = Join-Path $ProjectRoot "doc/product-docs/state-tracking/permanent/feature-tracking.md"
+$featureTrackingPath = Join-Path $ProjectRoot "doc/state-tracking/permanent/feature-tracking.md"
 $knownFeatureIds = @()
 if (Test-Path $featureTrackingPath) {
     $ftContent = Get-Content $featureTrackingPath -Encoding UTF8

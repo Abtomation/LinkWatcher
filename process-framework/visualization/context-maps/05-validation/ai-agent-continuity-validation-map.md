@@ -6,7 +6,6 @@ version: 1.0
 created: 2025-08-16
 updated: 2025-08-16
 task_name: ai-agent-continuity-validation
-task_type: Discrete
 map_type: Context Map
 visualization_type: Task Context
 ---
@@ -108,9 +107,9 @@ graph TD
 ## Related Documentation
 
 - [AI Agent Continuity Validation Task](../../../tasks/05-validation/ai-agent-continuity-validation.md) - Complete task definition and process
-- [Feature Tracking](../../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) - Current status of features
+- [Feature Tracking](../../../../doc/state-tracking/permanent/feature-tracking.md) - Current status of features
 - Validation Tracking State File - Active validation tracking matrix (file location depends on validation round)
-- [Documentation Map](../../../documentation-map.md) - Process framework structure and organization
+- [Documentation Map](../../../PF-documentation-map.md) - Process framework structure and organization
 - [AI Tasks System](../../../ai-tasks.md) - Task discovery and selection patterns
 - [../../scripts/file-creation/New-ValidationReport.ps1](../../../scripts/file-creation/05-validation/New-ValidationReport.ps1) - Automation script for report generation
 

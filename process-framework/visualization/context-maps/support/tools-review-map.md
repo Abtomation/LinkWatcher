@@ -71,6 +71,6 @@ graph TD
 - [Tool Feedback Forms](/process-framework/feedback/feedback-forms) - Repository of tool feedback
 - [Automation Scripts](/process-framework/scripts) - Project automation scripts
 - [Process Improvement Task](/process-framework/tasks/support/process-improvement-task.md) - Task for implementing improvements
-- [Technical Debt Tracking](../../../../doc/product-docs/state-tracking/permanent/technical-debt-tracking.md) - Technical debt status
+- [Technical Debt Tracking](../../../../doc/state-tracking/permanent/technical-debt-tracking.md) - Technical debt status
 
 ---

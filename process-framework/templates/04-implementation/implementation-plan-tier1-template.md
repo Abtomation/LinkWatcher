@@ -91,8 +91,8 @@ tier: 1
 
 ## Related Documentation
 
-- [Feature Implementation State](../../product-docs/state-tracking/features/[feature-id]-implementation-state.md)
-- [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md)
+- [Feature Implementation State](/doc/state-tracking/features/[feature-id]-implementation-state.md)
+- [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md)
 - [Task: Feature Implementation Planning](../../tasks/04-implementation/feature-implementation-planning-task.md)
 
 ---

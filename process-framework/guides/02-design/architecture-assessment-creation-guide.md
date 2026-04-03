@@ -47,7 +47,7 @@ Use this guide when you need to:
 
 Before you begin, ensure you have:
 
-- Access to PowerShell and the New-ArchitectureAssessment.ps1 script in `doc/product-docs/technical/architecture/assessments/`
+- Access to PowerShell and the New-ArchitectureAssessment.ps1 script in `doc/technical/architecture/assessments`
 - Understanding of the project's current system architecture and components
 - Knowledge of the proposed changes or features requiring assessment
 - Familiarity with architectural risk assessment methodologies
@@ -178,7 +178,7 @@ When creating architecture assessments, you must make several key decisions that
 1. **Navigate to the architecture assessments directory**:
 
    ```powershell
-   cd doc/product-docs/technical/architecture/assessments
+   cd doc/technical/architecture/assessments
    ```
 
 2. **Execute the New-ArchitectureAssessment.ps1 script**:
@@ -291,7 +291,7 @@ Creating an architecture assessment for a new real-time booking feature:
 
 ```powershell
 # Navigate to architecture assessments directory
-cd doc/product-docs/technical/architecture/assessments
+cd doc/technical/architecture/assessments
 
 # Create architecture assessment for complex new feature
 .\New-ArchitectureAssessment.ps1 -FeatureName "Real-time Order Processing" -AssessmentType "New Feature" -AssessorName "Lead Architect" -FeatureComplexity "Tier 3" -OpenInEditor
@@ -336,7 +336,7 @@ Creating an assessment for a moderate complexity feature enhancement:
 
 **Solution:**
 
-1. Verify you're running the script from the correct directory: `doc/product-docs/technical/architecture/assessments/`
+1. Verify you're running the script from the correct directory: `doc/technical/architecture/assessments`
 2. Check that the Common-ScriptHelpers.psm1 file exists at process-framework/scripts/Common-ScriptHelpers.psm1
 3. Ensure PowerShell execution policy allows script execution: `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser`
 

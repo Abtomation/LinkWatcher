@@ -93,6 +93,6 @@ graph TD
 ## Related Documentation
 
 - [Framework Evaluation Task](/process-framework/tasks/support/framework-evaluation.md) — Task definition for this evaluation process
-- [Documentation Map](/process-framework/documentation-map.md) — Central index of all framework artifacts
+- [Documentation Map](/process-framework/PF-documentation-map.md) — Central index of all framework artifacts
 - [AI Tasks System](/process-framework/ai-tasks.md) — Task registry and workflow definitions
 - [Process Improvement Tracking](/process-framework/state-tracking/permanent/process-improvement-tracking.md) — Where IMP entries are registered

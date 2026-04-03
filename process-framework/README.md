@@ -41,9 +41,9 @@ The Process Framework documentation is organized into the following directories:
 ## Key Documents
 
 - [Terminology Guide](guides/framework/terminology-guide.md): Explains the terminology separation between Process Framework and Product Documentation
-- [Documentation Map](documentation-map.md): Central reference for all documentation files
+- [Documentation Map](PF-documentation-map.md): Central reference for all documentation files
 
-- [Architecture Tracking](../doc/product-docs/state-tracking/permanent/architecture-tracking.md): Cross-cutting architectural state management and AI agent continuity
+- [Architecture Tracking](../doc/state-tracking/permanent/architecture-tracking.md): Cross-cutting architectural state management and AI agent continuity
 
 ## Document ID Format
 
@@ -62,7 +62,7 @@ Where:
 When referencing Process Framework documents in markdown files, use the following format:
 
 ```
-[Process: Document Name](/doc/product-docs/path/to/document.md)
+[Process: Document Name](/doc/path/to/document.md)
 ```
 
 ## Relationship to Product Documentation
@@ -72,7 +72,7 @@ The Process Framework documentation is distinct from Product Documentation:
 - **Process Framework**: Defines how development is done (the process)
 - **Product Documentation**: Describes what is being built (the product)
 
-For Product Documentation, see the [Product Documentation directory](/doc/product-docs/).
+For Product Documentation, see the [Product Documentation directory](/doc/).
 
 ---
 

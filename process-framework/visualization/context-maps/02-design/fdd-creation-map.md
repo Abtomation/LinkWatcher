@@ -8,7 +8,6 @@ updated: 2025-08-01
 map_type: Context Map
 task_name: fdd-creation
 visualization_type: Task Context
-task_type: Discrete
 ---
 
 # FDD Creation Context Map
@@ -83,7 +82,7 @@ graph TD
 - [FDD Template](../../../templates/02-design/fdd-template.md) - Standardized template for creating Functional Design Documents
 - [FDD Customization Guide](../../../guides/02-design/fdd-customization-guide.md) - Step-by-step guide for customizing FDD templates
 - [Feature Tier Assessment Task](../../../tasks/01-planning/feature-tier-assessment-task.md) - Prerequisite task for determining when FDD is needed
-- [Feature Tracking](../../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) - Central tracking document for all features
+- [Feature Tracking](../../../../doc/state-tracking/permanent/feature-tracking.md) - Central tracking document for all features
 - [[../../../scripts/file-creation/02-design/New-FDD.ps1](../../../scripts/file-creation/02-design/New-FDD.ps1) Script](../../../scripts/file-creation/02-design/New-FDD.ps1) - Script for creating FDD documents
 
 ---

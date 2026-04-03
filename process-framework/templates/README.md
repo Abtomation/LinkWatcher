@@ -40,19 +40,10 @@ This directory contains template files that serve as starting points for creatin
    - Includes sections for prerequisites, detailed steps, examples, and troubleshooting
    - Best for: Installation guides, setup instructions, how-to guides
 
-3. **[Architecture Template](02-design/architecture-template.md)**
-   - For technical specifications and system architecture documentation
-   - Includes sections for architecture diagrams, component descriptions, data flows, and design decisions
-   - Best for: Database schemas, system architecture, component documentation
-
-4. **[API Reference Template](02-design/api-reference-template.md)**
-   - For API documentation and reference
-   - Includes sections for endpoints, request/response formats, authentication, and examples
+3. **[API Documentation Template](02-design/api-documentation-template.md)**
+   - For creating user-facing API documentation
+   - Includes sections for endpoints, usage patterns, integration guides
    - Best for: REST APIs, service interfaces, library documentation
-
-6. **[General Documentation Template](support/documentation-template.md)**
-   - For general-purpose documentation that doesn't fit the specialized templates
-   - Includes basic sections common to most documentation
 
 7. **[Document Creation Script Template](support/document-creation-script-template.ps1)**
    - For creating PowerShell scripts that generate documents from templates
@@ -92,31 +83,7 @@ Use this guide to determine which template to use for different documentation ne
 **Examples in project:**
 - Project-specific guides created from this template
 
-#### Architecture/Reference Template
-
-**Use when:**
-- Documenting system architecture
-- Describing technical components and their relationships
-- Providing reference information about data structures
-- Explaining design decisions and rationales
-
-**Examples in project:**
-- [Database Reference][database-reference]
-- Project Structure (deleted)
-
-#### Process Template
-
-**Use when:**
-- Documenting workflows and procedures
-- Defining roles and responsibilities
-- Creating checklists for recurring activities
-- Establishing standards and best practices
-
-**Examples in project:**
-- [Development Guide](/process-framework/guides/04-implementation/development-guide.md)
-- [Documentation Guide](/process-framework/guides/05-validation/documentation-guide.md)
-
-#### API Reference Template
+#### API Documentation Template
 
 **Use when:**
 - Documenting APIs and their endpoints
@@ -152,12 +119,8 @@ Use this guide to determine which template to use for different documentation ne
 | Feature assessment process | Developers | Procedural | Task Template |
 | Code review workflow | Developers, Reviewers | Procedural | Task Template |
 | How to set up a development environment | Developers | Instructional | Guide Template |
-| System architecture overview | Developers, Architects | Reference | Architecture Template |
-| Development workflow | Developers, Managers | Procedural | Process Template |
-| Authentication API | Developers | Reference | API Reference Template |
-| Feature implementation guide | Developers | Instructional, Reference | Task Template + Architecture Template |
-| Release process | DevOps, Managers | Procedural | Process Template |
-| Database schema | Developers | Reference | Architecture Template |
+| Authentication API | Developers | Reference | API Documentation Template |
+| Feature implementation guide | Developers | Instructional, Reference | Task Template + Guide Template |
 | User onboarding | End Users | Instructional | Guide Template |
 | PowerShell script for document creation | Developers | Development | Document Creation Script Template |
 | Automating document generation | Developers, DevOps | Development | Document Creation Script Template |

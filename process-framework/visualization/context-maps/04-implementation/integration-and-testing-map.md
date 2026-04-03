@@ -6,7 +6,6 @@ version: 2.0
 created: 2025-01-15
 updated: 2026-02-20
 visualization_type: Task Context
-task_type: Discrete
 task_name: integration-and-testing
 map_type: Context Map
 change_notes: "v2.0 - Reworked from test-implementation-map (03-testing) to integration-and-testing-map (04-implementation), absorbed PF-TSK-029 into PF-TSK-053"
@@ -130,7 +129,7 @@ Test categories are defined by the project language in `project-config.json`:
 - [Test Specification Documents](/test/specifications/feature-specs/) - Repository of test specifications
 - [Test Tracking](/test/state-tracking/permanent/test-tracking.md) - Test implementation status tracking
 - [Test Query Tool](/process-framework/scripts/test/test_query.py) - Query test file metadata via pytest markers
-- [Feature Tracking](/doc/product-docs/state-tracking/permanent/feature-tracking.md) - Feature development status tracking
+- [Feature Tracking](/doc/state-tracking/permanent/feature-tracking.md) - Feature development status tracking
 - [Bug Reporting Guide](/process-framework/guides/06-maintenance/bug-reporting-guide.md) - Standardized bug reporting procedures
 - [Development Guide](/process-framework/guides/04-implementation/development-guide.md) - Testing standards and practices
 

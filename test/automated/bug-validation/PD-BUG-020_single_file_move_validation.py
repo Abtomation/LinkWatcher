@@ -43,7 +43,7 @@ def main():
         tmp_path = Path(tmp_dir)
 
         # Create a project structure with multiple files
-        templates_dir = tmp_path / "doc" / "templates" / "templates"
+        templates_dir = tmp_path / "alpha-project" / "templates" / "templates"
         templates_dir.mkdir(parents=True)
         tests_dir = tmp_path / "test" / "specs"
         tests_dir.mkdir(parents=True)
@@ -90,7 +90,7 @@ def main():
 
         # === Test 1: _get_files_under_directory with file path ===
         print("\n--- Test 1: _get_files_under_directory with file path ---")
-        file_path = "doc/templates/templates/assessment-template.md"
+        file_path = "alpha-project/templates/templates/assessment-template.md"
         files = handler._dir_move_detector.get_files_under_directory(file_path)
         print(f"  _get_files_under_directory('{file_path}') returned {len(files)} file(s)")
         assert len(files) == 0, f"FAIL: Expected 0 files for file path, got {len(files)}: {files}"
@@ -122,7 +122,7 @@ def main():
         dir_event.is_directory = False  # Windows behavior
         handler.on_deleted(dir_event)
 
-        dir_key = "doc/templates/templates"
+        dir_key = "alpha-project/templates/templates"
         if dir_key in handler._dir_move_detector.pending_dir_moves:
             pending = handler._dir_move_detector.pending_dir_moves[dir_key]
             print(

@@ -6,7 +6,6 @@ version: 1.0
 created: 2025-10-19
 updated: 2025-10-19
 task_name: ui-ux-design-task
-task_type: Discrete
 map_type: Context Map
 visualization_type: Task Context
 ---
@@ -101,7 +100,7 @@ graph TD
 - [UI Design Customization Guide](../../../guides/02-design/ui-design-customization-guide.md) - 19-step guide for customizing UI Design templates
 - [Feature Tier Assessment Task](../../../tasks/01-planning/feature-tier-assessment-task.md) - Prerequisite task for determining when UI Design is needed
 - [FDD Creation Task](../../../tasks/02-design/fdd-creation-task.md) - Related design task for functional requirements
-- [Feature Tracking](../../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) - Central tracking document with UI Design column
+- [Feature Tracking](../../../../doc/state-tracking/permanent/feature-tracking.md) - Central tracking document with UI Design column
 - [New-UIDesign.ps1 Script](../../../scripts/file-creation/02-design/New-UIDesign.ps1) - Script for creating UI Design documents
 
 ---

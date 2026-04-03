@@ -84,7 +84,7 @@ function Update-FeatureTrackingWithArchReview {
 
     try {
         $projectRoot = Get-ProjectRoot
-        $featureTrackingPath = Join-Path -Path $projectRoot -ChildPath "doc/product-docs/state-tracking/permanent/feature-tracking.md"
+        $featureTrackingPath = Join-Path -Path $projectRoot -ChildPath "doc/state-tracking/permanent/feature-tracking.md"
 
         if (-not (Test-Path $featureTrackingPath)) {
             Write-Host "⚠️ Feature tracking file not found at: $featureTrackingPath" -ForegroundColor Yellow
@@ -94,8 +94,8 @@ function Update-FeatureTrackingWithArchReview {
         $content = Get-Content -Path $featureTrackingPath -Raw
         $currentDate = Get-Date -Format "yyyy-MM-dd"
 
-        # Create relative path from ../../../product-docs/technical/architecture/assessments/../../../product-docs/product-docs/technical/architecture/assessments/feature-tracking.md to the assessment document
-        $relativePath = "../../../product-docs/technical/architecture/assessments/assessments/$(Split-Path -Leaf $DocumentPath)"
+        # Create relative path from doc/technical/architecture/assessments/doc/technical/architecture/assessments/feature-tracking.md to the assessment document
+        $relativePath = "doc/technical/architecture/assessments/assessments/$(Split-Path -Leaf $DocumentPath)"
 
         # Pattern to match the feature row - look for the feature ID at the start of a table row
         $pattern = "(\| $FeatureId \|[^|]*\|[^|]*\|[^|]*\|[^|]*\|[^|]*\|)([^|]*\|)"
@@ -135,7 +135,7 @@ function Update-ArchitectureTracking {
 
     try {
         $projectRoot = Get-ProjectRoot
-        $archTrackingPath = Join-Path -Path $projectRoot -ChildPath "doc/product-docs/state-tracking/permanent/architecture-tracking.md"
+        $archTrackingPath = Join-Path -Path $projectRoot -ChildPath "doc/state-tracking/permanent/architecture-tracking.md"
 
         if (-not (Test-Path $archTrackingPath)) {
             Write-Host "⚠️ Architecture tracking file not found at: $archTrackingPath" -ForegroundColor Yellow
@@ -145,8 +145,8 @@ function Update-ArchitectureTracking {
         $content = Get-Content -Path $archTrackingPath -Raw
         $currentDate = Get-Date -Format "yyyy-MM-dd"
 
-        # Create relative path from ../../../product-docs/technical/architecture/assessments/../../../product-docs/product-docs/technical/architecture/assessments/architecture-tracking.md to the assessment document
-        $relativePath = "../../product-docs/technical/architecture/assessments/assessments/$(Split-Path -Leaf $DocumentPath)"
+        # Create relative path from doc/technical/architecture/assessments/doc/technical/architecture/assessments/architecture-tracking.md to the assessment document
+        $relativePath = "doc/technical/architecture/assessments/assessments/$(Split-Path -Leaf $DocumentPath)"
 
         # Find the end of the table (look for the last table row)
         $tableEndPattern = "(\|[^|]*\|[^|]*\|[^|]*\|[^|]*\|[^|]*\|[^|]*\|[^|]*\|[^|]*\|[^|]*\|[^|]*\|[^|]*\|[^|]*\|)\s*\n\s*\n"
@@ -186,10 +186,10 @@ $customReplacements = @{
 try {
     $projectRoot = Get-ProjectRoot
     $templatePath = Join-Path $projectRoot "process-framework/templates/02-design/architecture-impact-assessment-template.md"
-    $documentId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "PD-AIA" -IdDescription "Architecture Impact Assessment: ${FeatureName}" -DocumentName $FeatureName -OutputDirectory "doc/product-docs/technical/architecture/assessments/assessments" -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
+    $documentId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "PD-AIA" -IdDescription "Architecture Impact Assessment: ${FeatureName}" -DocumentName $FeatureName -OutputDirectory "doc/technical/architecture/assessments/assessments" -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
 
     # Get the created document path for state updates (use the actual filename created by New-StandardProjectDocument)
-    $documentPath = Join-Path -Path $projectRoot -ChildPath "doc/product-docs/technical/architecture/assessments/assessments/$(($FeatureName -replace '[^a-zA-Z0-9]', '-').ToLower()).md"
+    $documentPath = Join-Path -Path $projectRoot -ChildPath "doc/technical/architecture/assessments/assessments/$(($FeatureName -replace '[^a-zA-Z0-9]', '-').ToLower()).md"
 
     # Update state tracking files
     Write-Host "🔄 Updating state tracking files..." -ForegroundColor Cyan

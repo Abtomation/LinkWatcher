@@ -48,12 +48,9 @@
         "authentication": "test/audits/authentication",
         "core-features": "test/audits/core-features",
         "main": "test/audits",
-        "legacy-foundation": "doc/product-docs/test-audits/foundation",
-        "legacy-authentication": "doc/product-docs/test-audits/authentication",
-        "legacy-core-features": "doc/product-docs/test-audits/core-features",
         "default": "foundation"
       },
-      "nextAvailable": 31
+      "nextAvailable": 37
     },
     "TE-STA": {
       "description": "Test - State Tracking",

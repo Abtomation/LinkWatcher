@@ -18,9 +18,6 @@ creates_document_version: 1.0
 usage_context: Process Framework - Task Creation
 description: Creates task definition documents for process framework
 
-# Additional Fields for Generated Documents
-additional_fields:
-  task_type: "[TASK_TYPE]"
 ---
 
 # [Task Name]
@@ -44,7 +41,7 @@ additional_fields:
 
 ## Context Requirements
 
-<!-- [View Context Map for this task](../../visualization/context-maps/[task-type]/[task-name]-map.md) - Template/example link commented out -->
+<!-- [View Context Map for this task](../../visualization/context-maps/[workflow-phase]/[task-name]-map.md) - Template/example link commented out -->
 
 - **Critical (Must Read):**
 
@@ -116,7 +113,7 @@ The following state files must be updated as part of this task:
 - [State File 1] - Update with [specific information to update]
 - [State File 2] - Update with [specific information to update]
 
-<!-- Note to task creator: Replace placeholders with actual linked state files (e.g., [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md)) -->
+<!-- Note to task creator: Replace placeholders with actual linked state files (e.g., [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md)) -->
 
 ## ⚠️ MANDATORY Task Completion Checklist
 

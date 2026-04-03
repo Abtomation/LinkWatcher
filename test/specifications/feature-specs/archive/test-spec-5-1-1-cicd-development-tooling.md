@@ -7,7 +7,7 @@ created: 2026-02-24
 updated: 2026-02-24
 feature_id: 5.1.1
 feature_name: CI/CD & Development Tooling
-tdd_path: doc/product-docs/technical/architecture/design-docs/tdd/tdd-5-1-1-cicd-development-tooling-t2.md
+tdd_path: doc/technical/architecture/design-docs/tdd/tdd-5-1-1-cicd-development-tooling-t2.md
 test_tier: 2
 retrospective: true
 ---
@@ -18,10 +18,10 @@ retrospective: true
 
 ## Overview
 
-This document provides comprehensive test specifications for the **CI/CD & Development Tooling** feature (ID: 5.1.1), derived from the Technical Design Document [PD-TDD-031](../../../doc/product-docs/technical/architecture/design-docs/tdd/tdd-5-1-1-cicd-development-tooling-t2.md).
+This document provides comprehensive test specifications for the **CI/CD & Development Tooling** feature (ID: 5.1.1), derived from the Technical Design Document [PD-TDD-031](/doc/technical/architecture/design-docs/tdd/tdd-5-1-1-cicd-development-tooling-t2.md).
 
 **Test Tier**: 2 (Pipeline-level validation)
-**TDD Reference**: [TDD PD-TDD-031](../../../doc/product-docs/technical/architecture/design-docs/tdd/tdd-5-1-1-cicd-development-tooling-t2.md)
+**TDD Reference**: [TDD PD-TDD-031](/doc/technical/architecture/design-docs/tdd/tdd-5-1-1-cicd-development-tooling-t2.md)
 **Implementation Coverage**: 0/17 scenarios implemented (0%)
 
 ## Feature Context
@@ -38,7 +38,7 @@ CI/CD & Development Tooling encompasses the GitHub Actions pipeline (`.github/wo
 
 ### Functional Requirements Reference
 
-> **Primary Documentation**: [FDD PD-FDD-032](../../../doc/product-docs/functional-design/fdds/fdd-5-1-1-cicd-development-tooling.md)
+> **Primary Documentation**: [FDD PD-FDD-032](/doc/functional-design/fdds/fdd-5-1-1-cicd-development-tooling.md)
 
 **Acceptance Criteria to Test**:
 - CI triggers on all pushes and PRs
@@ -126,9 +126,9 @@ No mocks needed for pipeline-level validation. If `Run-Tests.ps1` tests are crea
 
 ### Files to Reference
 
-- **TDD**: [`doc/product-docs/technical/architecture/design-docs/tdd/tdd-5-1-1-cicd-development-tooling-t2.md`](../../../doc/product-docs/technical/architecture/design-docs/tdd/tdd-5-1-1-cicd-development-tooling-t2.md)
+- **TDD**: [`doc/technical/architecture/design-docs/tdd/tdd-5-1-1-cicd-development-tooling-t2.md`](/doc/technical/architecture/design-docs/tdd/tdd-5-1-1-cicd-development-tooling-t2.md)
 - **CI Config**: [`.github/workflows/ci.yml`](../../../.github/workflows/ci.yml)
-- **Test Runner**: [`Run-Tests.ps1`](../../../doc/process-framework/scripts/test/Run-Tests.ps1)
+- **Test Runner**: [`Run-Tests.ps1`](/process-framework/scripts/test/Run-Tests.ps1)
 - **Package Config**: [`pyproject.toml`](../../../pyproject.toml), [`setup.py`](../../../setup.py)
 - **Pre-commit**: [`.pre-commit-config.yaml`](../../../.pre-commit-config.yaml)
 - **Dev Scripts**: [`dev.bat`](../../../dev.bat), [`Makefile`](../../../Makefile)

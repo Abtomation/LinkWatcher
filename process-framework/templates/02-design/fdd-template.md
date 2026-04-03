@@ -140,7 +140,7 @@ change_notes: "v1.1 - Added cross-reference sections for IMP-097/IMP-098 (API, S
 
 ## Workflow Participation
 
-[List the user workflows this feature participates in, referencing [User Workflow Tracking](/doc/product-docs/state-tracking/permanent/user-workflow-tracking.md). For each workflow, briefly describe this feature's role.]
+[List the user workflows this feature participates in, referencing [User Workflow Tracking](/doc/state-tracking/permanent/user-workflow-tracking.md). For each workflow, briefly describe this feature's role.]
 
 | Workflow | Role in Workflow |
 |----------|-----------------|

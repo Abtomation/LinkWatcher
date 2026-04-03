@@ -19,9 +19,6 @@
 .PARAMETER FormsAnalyzed
     The number of feedback forms analyzed in this review cycle.
 
-.PARAMETER TaskTypeCount
-    The number of task types covered in this review cycle.
-
 .PARAMETER DateRangeStart
     Start date of the feedback forms date range (YYYY-MM-DD).
 
@@ -32,10 +29,10 @@
     If specified, opens the created file in the default editor.
 
 .EXAMPLE
-    .\New-ReviewSummary.ps1 -FormsAnalyzed 11 -TaskTypeCount 7 -DateRangeStart '2026-02-21' -DateRangeEnd '2026-02-26'
+    .\New-ReviewSummary.ps1 -FormsAnalyzed 11 -DateRangeStart '2026-02-21' -DateRangeEnd '2026-02-26'
 
 .EXAMPLE
-    .\New-ReviewSummary.ps1 -ReviewDate '2026-02-26' -FormsAnalyzed 11 -TaskTypeCount 7 -DateRangeStart '2026-02-21' -DateRangeEnd '2026-02-26' -OpenInEditor
+    .\New-ReviewSummary.ps1 -ReviewDate '2026-02-26' -FormsAnalyzed 11 -DateRangeStart '2026-02-21' -DateRangeEnd '2026-02-26' -OpenInEditor
 
 .NOTES
     - Requires PowerShell execution policy to allow script execution
@@ -52,9 +49,6 @@ param(
 
     [Parameter(Mandatory=$true)]
     [int]$FormsAnalyzed,
-
-    [Parameter(Mandatory=$true)]
-    [int]$TaskTypeCount,
 
     [Parameter(Mandatory=$true)]
     [string]$DateRangeStart,
@@ -81,8 +75,7 @@ $customReplacements = @{
     "# Tools Review Summary — [YYYY-MM-DD]" = "# Tools Review Summary — $ReviewDate-$timestamp"
     "| Forms Analyzed | [N] feedback forms |" = "| Forms Analyzed | $FormsAnalyzed feedback forms |"
     "| Date Range | [start date] to [end date] |" = "| Date Range | $DateRangeStart to $DateRangeEnd |"
-    "| Task Types Covered | [N] ([list task IDs]) |" = "| Task Types Covered | $TaskTypeCount ([list task IDs]) |"
-    "| Tools Evaluated | [N]+ unique tools |" = "| Tools Evaluated | [N]+ unique tools |"
+"| Tools Evaluated | [N]+ unique tools |" = "| Tools Evaluated | [N]+ unique tools |"
 }
 
 # Build filename from review date + timestamp (tools-review-YYYYMMDD-HHMMSS.md)
@@ -105,7 +98,6 @@ try {
     $details = @(
         "Review Date: $ReviewDate",
         "Forms Analyzed: $FormsAnalyzed",
-        "Task Types Covered: $TaskTypeCount",
         "Date Range: $DateRangeStart to $DateRangeEnd"
     )
 

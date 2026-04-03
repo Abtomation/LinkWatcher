@@ -15,7 +15,7 @@ change_name: generalize-validation-framework
 ## Structure Change Overview
 - **Change Name**: Generalize Validation Framework
 - **Change Type**: Content Generalization + Framework Extension
-- **Proposal**: [PF-PRO-010](../../../proposals/proposals/old/structure-change-generalize-validation-framework-proposal.md)
+- **Proposal**: [PF-PRO-010](../../../proposals/old/structure-change-generalize-validation-framework-proposal.md)
 - **Scope**: Two-part change:
   1. **Phase 1 (Generalization)**: Replace "foundational"-specific language so the framework is reusable across any feature set
   2. **Phase 2 (Framework Extension)**: Add Validation Preparation task, dimension catalog, and support for new dimension tasks
@@ -40,7 +40,7 @@ change_name: generalize-validation-framework
 | Templates | `foundational-validation-tracking.md` → `validation-tracking-template.md` | ✅ Renamed + generalized (PF-TEM-051) |
 | Templates | `validation-tracking-template.md` (abstract, no ID) | ✅ Deleted |
 | Scripts (5) | All 5 validation scripts | ✅ Content generalized |
-| Registries | `documentation-map.md`, `ai-tasks.md`, `task-registry`, `tasks/README.md` | ✅ Updated |
+| Registries | `PF-documentation-map.md`, `ai-tasks.md`, `task-registry`, `tasks/README.md` | ✅ Updated |
 | Additional | `task-transition-guide.md`, refactoring paths, lightweight template | ✅ Updated |
 
 ## Phase 2: Create All Dimension Tasks — ✅ ALL COMPLETE
@@ -94,7 +94,7 @@ change_name: generalize-validation-framework
 - Per-dimension validation (not per-feature) — better for cross-feature pattern detection
 - Validation Preparation task — owns feature scope selection and dimension applicability
 - Keep separate tasks per dimension — distinct AI agent roles and improvement paths
-- Created proposal [PF-PRO-010](../../../proposals/proposals/old/structure-change-generalize-validation-framework-proposal.md)
+- Created proposal [PF-PRO-010](../../../proposals/old/structure-change-generalize-validation-framework-proposal.md)
 
 **Additional decisions** (post-proposal):
 - Keep `foundational-validation-tracking.md` (PF-TEM-051), rename + generalize; delete abstract `validation-tracking-template.md`
@@ -108,7 +108,7 @@ change_name: generalize-validation-framework
 
 ### Session 2: 2026-03-23
 **Completed**:
-- Fixed bug in `New-Task.ps1` (wrong template path: `doc/product-docs/templates/templates/` → `process-framework/templates/support`)
+- Fixed bug in `New-Task.ps1` (wrong template path: `doc/templates/templates` → `process-framework/templates/support`)
 - Created 5 new dimension task definitions via PF-TSK-001 Lightweight Mode:
   - PF-TSK-072: Security & Data Protection Validation
   - PF-TSK-073: Performance & Scalability Validation
@@ -130,6 +130,6 @@ change_name: generalize-validation-framework
 - Updated guide: metadata, overview, matrix structure, related resources (6→11 dimensions)
 - Updated `task-transition-guide.md`: Feature Validation section with preparation step and 11 dimensions
 - Updated `ai-tasks.md`: added "For Feature Validation" common workflow section
-- Updated `documentation-map.md`: added Validation Preparation task + context map
+- Updated `PF-documentation-map.md`: added Validation Preparation task + context map
 
 **All three phases complete.** Next: finalize structure change (cleanup, validation, feedback form)

@@ -111,7 +111,6 @@ if ($LoadedFunctions.Count -gt 0) {
         'Open-ProjectFileInEditor',
         'Get-TemplateMetadata',
         'Get-TemplateContentWithoutMetadata',
-        'Invoke-StandardScriptInitialization',
         'New-ProjectDocumentWithMetadata',
         'New-ProjectDocumentWithCodeMetadata',
         'New-ProjectCodeMetadata',
@@ -124,6 +123,7 @@ if ($LoadedFunctions.Count -gt 0) {
         'Update-MultipleTrackingFiles',
         'Get-RelevantTrackingFiles',
         'Get-StateFileBackup',
+        'Get-ActiveFeatures',
         'Update-FeatureTrackingStatus'
     )
 

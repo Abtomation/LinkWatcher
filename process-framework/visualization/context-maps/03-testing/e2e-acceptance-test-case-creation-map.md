@@ -92,7 +92,7 @@ graph TD
 - [E2E Acceptance Master Test Template](/process-framework/templates/03-testing/e2e-acceptance-master-test-template.md) - Template for group-level master tests
 - [E2E Acceptance Test Case Template](/process-framework/templates/03-testing/e2e-acceptance-test-case-template.md) - Template for individual test cases
 - [Test Tracking](/test/state-tracking/permanent/test-tracking.md) - Test creation and execution status
-- [Feature Tracking](/doc/product-docs/state-tracking/permanent/feature-tracking.md) - Feature development status with test coverage
+- [Feature Tracking](/doc/state-tracking/permanent/feature-tracking.md) - Feature development status with test coverage
 - [Test Specification Creation Task](/process-framework/tasks/03-testing/test-specification-creation-task.md) - Upstream task that identifies E2E acceptance test scenarios
 
 ---

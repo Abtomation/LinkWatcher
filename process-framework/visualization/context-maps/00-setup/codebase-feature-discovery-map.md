@@ -41,15 +41,15 @@ graph TD
 ### Critical Components (Must Understand)
 - **[Retrospective Master State Template](../../../templates/00-setup/retrospective-state-template.md)**: Template for creating the master tracking file that coordinates all onboarding sessions and tracks codebase-wide coverage progress
 - **[Existing Codebase](../../..)**: The source code, tests, and configuration files that need to be systematically inventoried and assigned to features
-- **[Feature Tracking](../../../../doc/product-docs/state-tracking/permanent/feature-tracking.md)**: Permanent registry where all discovered features are added with IDs, descriptions, and status
+- **[Feature Tracking](../../../../doc/state-tracking/permanent/feature-tracking.md)**: Permanent registry where all discovered features are added with IDs, descriptions, and status
 
 ### Important Components (Should Understand)
 - **[Feature Implementation State Template](../../../templates/04-implementation/feature-implementation-state-template.md)**: Template for creating per-feature files that contain complete code inventories (files created/modified/used/tested)
 - **[Feature Implementation State Tracking Guide](../../../guides/04-implementation/feature-implementation-state-tracking-guide.md)**: Comprehensive guide explaining how to populate implementation state files with code inventories
 
 ### Reference Components (Access When Needed)
-- **[Feature Dependencies](../../../../doc/product-docs/technical/design/feature-dependencies.md)**: Documentation of feature relationships and dependencies (useful for understanding feature boundaries)
-- **[Documentation Map](../../../documentation-map.md)**: Overview of all framework documentation (helpful for orientation)
+- **[Feature Dependencies](../../../../doc/technical/feature-dependencies.md)**: Documentation of feature relationships and dependencies (useful for understanding feature boundaries)
+- **[Documentation Map](../../../PF-documentation-map.md)**: Overview of all framework documentation (helpful for orientation)
 
 ## Key Relationships
 
@@ -65,7 +65,7 @@ graph TD
 2. **Every Session Start**: Read Retrospective Master State file to understand current progress and phase
 3. **Feature Discovery Loop** (per feature):
    - Discover feature from codebase structure, documentation, or git history
-   - Add feature to [Feature Tracking](../../../../doc/product-docs/state-tracking/permanent/feature-tracking.md)
+   - Add feature to [Feature Tracking](../../../../doc/state-tracking/permanent/feature-tracking.md)
    - Create Feature Implementation State file using `New-FeatureImplementationState.ps1`
    - Populate Code Inventory section (files created/modified/used, test files)
    - Remove assigned files from master state's "Unassigned Files" list

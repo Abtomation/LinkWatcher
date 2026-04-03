@@ -76,7 +76,7 @@ graph TD
 ## Related Documentation
 
 - [Performance & Scalability Validation Task](../../../tasks/05-validation/performance-scalability-validation.md) - Complete task definition and process
-- [Feature Tracking](../../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) - Current status of features
+- [Feature Tracking](../../../../doc/state-tracking/permanent/feature-tracking.md) - Current status of features
 - Validation Tracking State File - Active validation tracking matrix (file location depends on validation round)
 
 ---

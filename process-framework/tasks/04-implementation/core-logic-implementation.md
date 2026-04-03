@@ -6,7 +6,6 @@ domain: agnostic
 version: 1.0
 created: 2026-03-24
 updated: 2026-03-24
-task_type: Discrete
 ---
 
 # Core Logic Implementation
@@ -139,8 +138,8 @@ Implement core business logic modules, wire integration points, and write unit t
     ```
 
     - Follow [Bug Reporting Guide](../../guides/06-maintenance/bug-reporting-guide.md) for consistent documentation
-    - Add bug entries to [Bug Tracking](../../../doc/product-docs/state-tracking/permanent/bug-tracking.md) with status 🆕 Reported
-11. **Update Feature Tracking**: Update [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) status to 🧪 Testing (feature is implemented and undergoing testing)
+    - Add bug entries to [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) with status 🆕 Reported
+11. **Update Feature Tracking**: Update [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) status to 🧪 Testing (feature is implemented and undergoing testing)
 12. **Update Feature Implementation State**: Document completed work
     - Update code inventory with new modules and test files
     - Note any deviations from TDD/FDD specifications
@@ -155,7 +154,7 @@ Implement core business logic modules, wire integration points, and write unit t
 - **Unit Tests** - Tracked test files (created via `New-TestFile.ps1`) covering the implemented logic, tracked via pytest markers
 - **Integration Wiring** - CLI commands, service registrations, or event hooks connecting the new module to the system
 - **Updated Feature Implementation State** - Code inventory and progress tracking updated with new components
-- **Bug Reports** (if applicable) - Any bugs discovered during implementation documented via `New-BugReport.ps1` in [Bug Tracking](../../../doc/product-docs/state-tracking/permanent/bug-tracking.md)
+- **Bug Reports** (if applicable) - Any bugs discovered during implementation documented via `New-BugReport.ps1` in [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md)
 
 ## State Tracking
 
@@ -164,17 +163,17 @@ The following state files must be updated as part of this task:
 ### Automated Updates (via `New-TestFile.ps1`)
 
 - [Test Tracking](../../../test/state-tracking/permanent/test-tracking.md) - Automatically updated with test file links and status
-- [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) - Test Status column automatically updated with implementation progress
+- [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Test Status column automatically updated with implementation progress
 
 ### Manual Updates Required
 
-- [Feature Implementation State Files](../../../doc/product-docs/state-tracking/features) - Update the feature's state file with:
+- [Feature Implementation State Files](../../../doc/state-tracking/features) - Update the feature's state file with:
   - Task sequence tracking (mark core logic implementation as in_progress, then completed)
   - Code inventory with new source modules and test files
   - Implementation notes documenting any TDD/FDD deviations or design decisions
   - Issues log if any blockers or problems were encountered
-- [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) - Update Implementation Status to 🧪 Testing (feature is implemented and undergoing testing)
-- [Bug Tracking](../../../doc/product-docs/state-tracking/permanent/bug-tracking.md) - Add entries for any bugs discovered but not fixed in this session
+- [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Update Implementation Status to 🧪 Testing (feature is implemented and undergoing testing)
+- [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) - Add entries for any bugs discovered but not fixed in this session
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
@@ -189,12 +188,12 @@ Before considering this task finished:
   - [ ] Existing test suite passes (no regressions)
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
   - [ ] Feature Implementation State file updated with code inventory and task completion
-  - [ ] [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) status set to 🧪 Testing
+  - [ ] [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) status set to 🧪 Testing
   - [ ] Implementation notes document any deviations from design specifications
   - [ ] Test tracking files automatically updated by `New-TestFile.ps1` (verify correctness)
 - [ ] **Bug Documentation**: Any bugs discovered but not fixed are documented
   - [ ] Bug reports created via `New-BugReport.ps1` (if applicable)
-  - [ ] [Bug Tracking](../../../doc/product-docs/state-tracking/permanent/bug-tracking.md) updated with 🆕 Reported entries (if applicable)
+  - [ ] [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) updated with 🆕 Reported entries (if applicable)
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-078" and context "Core Logic Implementation"
 
 ## Next Tasks

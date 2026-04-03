@@ -94,6 +94,15 @@ def get_relative_path(abs_path: str, project_root: str) -> str:
         return abs_path.replace("\\", "/")
 
 
+_COMMON_EXTENSIONS = frozenset({
+    ".md", ".txt", ".py", ".js", ".html", ".css", ".json", ".yaml", ".yml",
+    ".dart", ".java", ".cpp", ".c", ".h", ".xml", ".csv", ".pdf", ".doc",
+    ".docx", ".xls", ".xlsx", ".png", ".jpg", ".jpeg", ".gif", ".svg",
+    ".sql", ".log", ".conf", ".config", ".ini", ".properties", ".env",
+    ".sh", ".bat", ".ps1",
+})
+
+
 def looks_like_file_path(text: str) -> bool:
     """
     Check if a string looks like a file path.
@@ -116,46 +125,6 @@ def looks_like_file_path(text: str) -> bool:
     if "." not in text:
         return False
 
-    # Check for common file extensions
-    common_extensions = {
-        ".md",
-        ".txt",
-        ".py",
-        ".js",
-        ".html",
-        ".css",
-        ".json",
-        ".yaml",
-        ".yml",
-        ".dart",
-        ".java",
-        ".cpp",
-        ".c",
-        ".h",
-        ".xml",
-        ".csv",
-        ".pdf",
-        ".doc",
-        ".docx",
-        ".xls",
-        ".xlsx",
-        ".png",
-        ".jpg",
-        ".jpeg",
-        ".gif",
-        ".svg",
-        ".sql",
-        ".log",
-        ".conf",
-        ".config",
-        ".ini",
-        ".properties",
-        ".env",
-        ".sh",
-        ".bat",
-        ".ps1",
-    }
-
     # PD-BUG-028: Reject prose-like strings with embedded filenames.
     # If a path segment starts with an uppercase word and has 3+ space-separated
     # words, it's likely a sentence (e.g., "Hello from move-target-2.ps1") rather
@@ -170,7 +139,7 @@ def looks_like_file_path(text: str) -> bool:
             return False
 
     ext = os.path.splitext(text)[1].lower()
-    if ext in common_extensions:
+    if ext in _COMMON_EXTENSIONS:
         return True
 
     # Check for path-like characteristics

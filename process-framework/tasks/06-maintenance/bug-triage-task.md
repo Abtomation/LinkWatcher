@@ -5,7 +5,6 @@ category: Task Definition
 version: 1.3
 created: 2025-08-30
 updated: 2026-03-03
-task_type: Discrete
 ---
 
 # Bug Triage
@@ -35,15 +34,15 @@ Systematically evaluate, prioritize, and assign reported bugs to ensure efficien
 
 - **Critical (Must Read):**
 
-  - [Bug Tracking](../../../doc/product-docs/state-tracking/permanent/bug-tracking.md) - Current bug registry and status
-  - [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) - To understand feature priorities and relationships
+  - [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) - Current bug registry and status
+  - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - To understand feature priorities and relationships
   - [Visual Notation Guide](/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 - **Important (Load If Space):**
 
-  - [Feature Implementation State Files](../../state-tracking/features/) - State file for the affected feature (known issues, related bugs, implementation progress, Dimension Profile)
+  - [Feature Implementation State Files](/doc/state-tracking/features/) - State file for the affected feature (known issues, related bugs, implementation progress, Dimension Profile)
   - [Development Dimensions Guide](../../guides/framework/development-dimensions-guide.md) - Dimension definitions for identifying which dimensions a bug affects
-  - [Project Architecture](/doc/product-docs/technical/architecture) - Understanding system architecture for impact assessment
+  - [Project Architecture](/doc/technical/architecture) - Understanding system architecture for impact assessment
 
 - **Reference Only (Access When Needed):**
   - [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) - For process-related bug patterns
@@ -60,10 +59,10 @@ Systematically evaluate, prioritize, and assign reported bugs to ensure efficien
 
 ### Preparation
 
-1. Review the [Bug Tracking](../../../doc/product-docs/state-tracking/permanent/bug-tracking.md) document to identify bugs with status 🆕 Reported or bugs that need reopening (see [Reopen Workflow](#reopen-workflow) below)
+1. Review the [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) document to identify bugs with status 🆕 Reported or bugs that need reopening (see [Reopen Workflow](#reopen-workflow) below)
 2. Gather all available information about each bug (reproduction steps, screenshots, logs)
-3. Understand the current development priorities from [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md)
-4. For each bug, consult the affected feature's [implementation state file](../../state-tracking/features/) for known issues, related bugs, and current implementation status
+3. Understand the current development priorities from [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md)
+4. For each bug, consult the affected feature's [implementation state file](/doc/state-tracking/features/) for known issues, related bugs, and current implementation status
 5. Review any related bugs or patterns in the bug registry
 6. **🚨 CHECKPOINT**: Present bug inventory, initial analysis, and current development priorities to human partner
 
@@ -73,7 +72,7 @@ Systematically evaluate, prioritize, and assign reported bugs to ensure efficien
    - Verify reproduction steps
    - Confirm expected vs actual behavior
    - **Description Accuracy**: Compare the reported description against observed behavior. Bug descriptions frequently overstate or understate the actual impact — correct the description in the bug report to match reality before assigning severity/priority.
-   - **Bug vs Feature Request**: If the reported issue describes desired new behavior rather than broken existing behavior, reclassify it: close the bug as "Not a Bug" and route to [Feature Request Tracking](../../../doc/product-docs/state-tracking/permanent/feature-request-tracking.md) using [New-FeatureRequest.ps1](../../scripts/file-creation/01-planning/New-FeatureRequest.ps1)
+   - **Bug vs Feature Request**: If the reported issue describes desired new behavior rather than broken existing behavior, reclassify it: close the bug as "Not a Bug" and route to [Feature Request Tracking](../../../doc/state-tracking/permanent/feature-request-tracking.md) using [New-FeatureRequest.ps1](../../scripts/file-creation/01-planning/New-FeatureRequest.ps1)
 8. **Evaluate Impact and Severity**:
    - **Critical**: System crash, data loss, security vulnerability
    - **High**: Major feature not working, significant user impact
@@ -94,17 +93,17 @@ Systematically evaluate, prioritize, and assign reported bugs to ensure efficien
 
 ### Assignment and Documentation
 
-13. **Assign Priority, Scope, and Dimensions**: Update bug entry with determined priority (P1-P4), scope (S/M/L for fix complexity — see [Scope Levels](../../../product-docs/state-tracking/permanent/bug-tracking.md#scope-levels)), and affected dimensions in the **Dims** column (e.g., `SE DI`)
+13. **Assign Priority, Scope, and Dimensions**: Update bug entry with determined priority (P1-P4), scope (S/M/L for fix complexity — see [Scope Levels](/doc/state-tracking/permanent/bug-tracking.md#scope-levels)), and affected dimensions in the **Dims** column (e.g., `SE DI`)
 14. **Provide Triage Rationale**: Document the reasoning behind priority, scope, and dimension assignments
 15. **Identify Related Features**: Link bugs to affected features in Feature Tracking
-    > **Tip**: Bugs discovered during code review often lack a "Related Feature" field. During triage, identify the affected feature from [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) and populate this field.
-16. **Identify Affected Workflows**: Look up the related feature(s) in [User Workflow Tracking](../../../doc/product-docs/state-tracking/permanent/user-workflow-tracking.md) to determine which user workflows are affected. Populate the **Workflows** column in the bug entry (e.g., `WF-001, WF-003`). This helps bug fixers assess blast radius later.
+    > **Tip**: Bugs discovered during code review often lack a "Related Feature" field. During triage, identify the affected feature from [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) and populate this field.
+16. **Identify Affected Workflows**: Look up the related feature(s) in [User Workflow Tracking](../../../doc/state-tracking/permanent/user-workflow-tracking.md) to determine which user workflows are affected. Populate the **Workflows** column in the bug entry (e.g., `WF-001, WF-003`). This helps bug fixers assess blast radius later.
 17. **Estimate Effort**: Provide rough effort estimate for fixing the bug
 18. **Update Bug Status**: Change status from 🆕 Reported to 🔍 Triaged
-    - **Manual Update**: Edit the [Bug Tracking](../../../doc/product-docs/state-tracking/permanent/bug-tracking.md) file directly
+    - **Manual Update**: Edit the [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) file directly
     - **Optional Automation**: Use [`Update-BugStatus.ps1`](../../scripts/update/Update-BugStatus.ps1) script for consistent formatting:
       ```powershell
-      ../../scripts/update/Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "Triaged" -Priority "High" -Scope "S" -TriageNotes "Rationale for priority and scope"
+      ../../scripts/update/Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "Triaged" -Priority "High" -Scope "S" -Dims "SE DI" -Workflows "WF-001, WF-003" -TriageNotes "Rationale for priority and scope"
       ```
 
 ### Finalization
@@ -166,7 +165,7 @@ When a previously closed bug recurs, decide whether to **reopen** the original o
 
 ## Outputs
 
-- **Updated Bug Registry** - [Bug Tracking](../../../doc/product-docs/state-tracking/permanent/bug-tracking.md) with triaged bugs
+- **Updated Bug Registry** - [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) with triaged bugs
 - **Triage Documentation** - Clear rationale for all priority and scope assignments
 - **Effort Estimates** - Rough estimates for bug fix complexity
 - **Duplicate Identification** - Consolidated duplicate bugs with cross-references
@@ -175,7 +174,7 @@ When a previously closed bug recurs, decide whether to **reopen** the original o
 
 The following state files must be updated as part of this task:
 
-- [Bug Tracking](../../../doc/product-docs/state-tracking/permanent/bug-tracking.md) - Update with:
+- [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) - Update with:
   - Bug status changed from 🆕 Reported to 🔍 Triaged
   - Priority and scope assignments
   - Triage rationale and notes
@@ -223,7 +222,7 @@ Before considering this task finished:
 
 ## Related Resources
 
-- [Bug Tracking State File](../../../doc/product-docs/state-tracking/permanent/bug-tracking.md) - Central bug registry
-- [Feature Tracking State File](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) - Feature priorities and relationships
+- [Bug Tracking State File](../../../doc/state-tracking/permanent/bug-tracking.md) - Central bug registry
+- [Feature Tracking State File](../../../doc/state-tracking/permanent/feature-tracking.md) - Feature priorities and relationships
 - [Task Transition Guide](../../guides/framework/task-transition-guide.md) - Guidance on transitioning between tasks
 - [Task Creation and Improvement Guide](../../guides/support/task-creation-guide.md) - Guide for creating and improving tasks

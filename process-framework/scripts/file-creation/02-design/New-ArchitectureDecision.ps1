@@ -48,12 +48,12 @@ $customReplacements = @{
 try {
     $projectRoot = Get-ProjectRoot
     $templatePath = Join-Path $projectRoot "process-framework/templates/02-design/adr-template.md"
-    $arcId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "PD-ADR" -IdDescription "Architecture Decision: ${Title}" -DocumentName $Title -OutputDirectory "doc/product-docs/technical/architecture/design-docs/adr/adr" -Replacements $customReplacements -OpenInEditor:$OpenInEditor
+    $arcId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "PD-ADR" -IdDescription "Architecture Decision: ${Title}" -DocumentName $Title -OutputDirectory "doc/technical/architecture/design-docs/adr/adr" -Replacements $customReplacements -OpenInEditor:$OpenInEditor
 
     # Update tracking files automatically
     try {
         $kebabTitle = ConvertTo-KebabCase -InputString $Title
-        $documentPath = Join-Path (Get-ProjectRoot) "doc/product-docs/technical/architecture/design-docs/adr/adr/$kebabTitle.md"
+        $documentPath = Join-Path (Get-ProjectRoot) "doc/technical/architecture/design-docs/adr/adr/$kebabTitle.md"
         Write-Verbose "Constructed document path: $documentPath"
         $trackingMetadata = @{
             "title" = $Title
@@ -89,7 +89,7 @@ try {
             } else {
                 # Prepare ADR document link (relative from feature-tracking.md to ADR)
                 $kebabTitle = ConvertTo-KebabCase -InputString $Title
-                $adrLink = "[$arcId](../../../../product-docs/technical/architecture/design-docs/adr/adr/$kebabTitle.md)"
+                $adrLink = "[$arcId](/doc/technical/architecture/design-docs/adr/adr/$kebabTitle.md)"
 
                 # Prepare additional updates for feature tracking
                 $additionalUpdates = @{
@@ -117,7 +117,7 @@ try {
             Write-Host "Manual Update Required:" -ForegroundColor Yellow
             Write-Host "  - Add ADR link to feature $RelatedFeatureId" -ForegroundColor Cyan
             $kebabTitle = ConvertTo-KebabCase -InputString $Title
-            Write-Host "  - ADR link: [$arcId](../../../../product-docs/technical/architecture/design-docs/adr/adr/$kebabTitle.md)" -ForegroundColor Cyan
+            Write-Host "  - ADR link: [$arcId](/doc/technical/architecture/design-docs/adr/adr/$kebabTitle.md)" -ForegroundColor Cyan
         }
     }
 

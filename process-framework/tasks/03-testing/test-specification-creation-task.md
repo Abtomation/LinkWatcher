@@ -6,7 +6,6 @@ domain: agnostic
 version: 1.4
 created: 2025-01-15
 updated: 2026-03-15
-task_type: Discrete
 change_notes: "v1.4 - Added manual test classification steps (11-12), UI documentation review (step 3), manual test scenario output, and Manual Test Case Creation handover interface"
 ---
 
@@ -94,8 +93,8 @@ When referencing other tasks' outputs in Test Specifications:
 - **Critical (Must Read):**
 
   - **Functional Design Document (FDD)** - For Tier 2+ features, the FDD containing acceptance criteria and user flows that inform test scenarios
-  - [Technical Design Document](/doc/product-docs/technical/architecture/design-docs/tdd/) - The TDD for the feature being specified
-  - [Tier Assessments](/doc/product-docs/documentation-tiers/assessments) - Complexity assessment to determine test depth
+  - [Technical Design Document](/doc/technical/architecture/design-docs/tdd) - The TDD for the feature being specified
+  - [Tier Assessments](/doc/documentation-tiers/assessments) - Complexity assessment to determine test depth
   - [Development Guide](/process-framework/guides/04-implementation/development-guide.md) - Testing standards and practices
 
 - **Important (Load If Space):**
@@ -105,7 +104,7 @@ When referencing other tasks' outputs in Test Specifications:
   - [Existing Test Structure](/test/) - Current test organization and patterns
 
 - **Reference Only (Access When Needed):**
-  - [Feature Tracking](/doc/product-docs/state-tracking/permanent/feature-tracking.md) - Feature development status
+  - [Feature Tracking](/doc/state-tracking/permanent/feature-tracking.md) - Feature development status
   - [Visual Notation Guide](/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
   - [TE ID Registry](/test/TE-id-registry.json) - Test document ID counter management
 
@@ -154,7 +153,7 @@ When referencing other tasks' outputs in Test Specifications:
    - **Integration Tests**: Component interaction testing
    - **UI/Component Tests**: UI component testing
    - **End-to-End Tests**: Complete user flow testing (Tier 3 only)
-   - **Cross-Feature Workflows**: Reference [User Workflow Tracking](/doc/product-docs/state-tracking/permanent/user-workflow-tracking.md) to list which user workflows this feature participates in. For each workflow, note whether this is the **last** feature needed — if so, a cross-cutting E2E test specification should be created (milestone trigger)
+   - **Cross-Feature Workflows**: Reference [User Workflow Tracking](/doc/state-tracking/permanent/user-workflow-tracking.md) to list which user workflows this feature participates in. For each workflow, note whether this is the **last** feature needed — if so, a cross-cutting E2E test specification should be created (milestone trigger)
 
 11. **Specify Test Cases**: For each test category, define:
 
@@ -203,7 +202,7 @@ When referencing other tasks' outputs in Test Specifications:
 19. **Review Test Coverage**: Ensure all TDD components have corresponding test specifications
 20. **Validate Test Feasibility**: Confirm all specified tests can be implemented with available tools
 21. **Update Test Status Tracking**: Record test specification completion in tracking files
-    - Update [Feature Tracking](/doc/product-docs/state-tracking/permanent/feature-tracking.md) Test Status — set to "🔧 Automated Only" if manual test scenarios were identified but manual test cases not yet created, or "📋 Specs Created" if no manual test scenarios apply
+    - Update [Feature Tracking](/doc/state-tracking/permanent/feature-tracking.md) Test Status — set to "🔧 Automated Only" if manual test scenarios were identified but manual test cases not yet created, or "📋 Specs Created" if no manual test scenarios apply
     - Update [Test Tracking](/test/state-tracking/permanent/test-tracking.md) — add manual test scenario entries with status "⬜ Not Created" for scenarios classified as `manual` or `both`
 22. **Complete State Tracking Updates**: Ensure all tracking files are properly updated with the new test specification information
 23. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
@@ -219,9 +218,9 @@ When referencing other tasks' outputs in Test Specifications:
 
 The following state files must be updated as part of this task:
 
-- [Feature Tracking](/doc/product-docs/state-tracking/permanent/feature-tracking.md) - Update Test Status to reflect test specification creation (📋 Specs Created) and add Test Spec link
+- [Feature Tracking](/doc/state-tracking/permanent/feature-tracking.md) - Update Test Status to reflect test specification creation (📋 Specs Created) and add Test Spec link
 - [TE ID Registry](/test/TE-id-registry.json) - Update `TE-TSP.nextAvailable` counter after creating specifications
-- [Documentation Map](/process-framework/documentation-map.md) - Add new test specification entries to the Test Specifications section
+- [Test Documentation Map](/test/TE-documentation-map.md) - Add new test specification entries to the Test Specifications section
 - [Test Tracking](/test/state-tracking/permanent/test-tracking.md) - Add section if feature category is missing
 
 **Note**: If a feature is determined to not require tests (assessment/documentation features), update the Feature Tracking Test Status directly to "🚫 No Test Required" instead of using this task.
@@ -241,9 +240,9 @@ Before considering this task finished:
   - [ ] Test scenarios classified as `automated`, `manual`, or `both`
   - [ ] Manual Test Scenarios section included (if any scenarios classified as `manual` or `both`)
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
-  - [ ] [Feature Tracking](/doc/product-docs/state-tracking/permanent/feature-tracking.md) — Test Status updated (use "🔧 Automated Only" if manual scenarios identified, "📋 Specs Created" if no manual scenarios) and Test Spec link added
+  - [ ] [Feature Tracking](/doc/state-tracking/permanent/feature-tracking.md) — Test Status updated (use "🔧 Automated Only" if manual scenarios identified, "📋 Specs Created" if no manual scenarios) and Test Spec link added
   - [ ] [TE ID Registry](/test/TE-id-registry.json) — `TE-TSP.nextAvailable` counter incremented
-  - [ ] [Documentation Map](/process-framework/documentation-map.md) — New test spec entries added to Test Specifications section
+  - [ ] [Test Documentation Map](/test/TE-documentation-map.md) — New test spec entries added to Test Specifications section
   - [ ] [Test Tracking](/test/state-tracking/permanent/test-tracking.md) — Feature section added if missing; manual test scenario entries added with "⬜ Not Created" status if applicable
 - [ ] **Verify State Tracking Consistency**: Ensure all tracking files are properly updated and consistent
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](/process-framework/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-012" and context "Test Specification Creation"

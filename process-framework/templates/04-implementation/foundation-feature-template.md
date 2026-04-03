@@ -31,14 +31,14 @@ This template guides the implementation of foundation features (0.x.x) that prov
 
 - **Critical (Must Read):**
 
-  - [Architecture Context Package](../../product-docs/technical/architecture/context-packages/[architecture-area]-context.md) - Bounded architectural context for this work
-  - [Architecture Tracking](../../../doc/product-docs/state-tracking/permanent/architecture-tracking.md) - Current architectural state and decisions
-  - [Foundation Feature Specification](../../product-docs/technical/architecture/assessments/[feature-name]-foundation-specification.md) - Detailed requirements from System Architecture Review
-  - [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) - Foundation feature status and dependencies
+  - [Architecture Context Package](/doc/technical/architecture/context-packages/[architecture-area]-context.md) - Bounded architectural context for this work
+  - [Architecture Tracking](../../../doc/state-tracking/permanent/architecture-tracking.md) - Current architectural state and decisions
+  - [Foundation Feature Specification](/doc/technical/architecture/assessments/[feature-name]-foundation-specification.md) - Detailed requirements from System Architecture Review
+  - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Foundation feature status and dependencies
 
 - **Important (Load If Space):**
-  - [Related ADRs](../../../doc/product-docs/technical/architecture/design-docs/adr) - Architectural decisions relevant to this foundation
-  - [Dependent Features](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) - Features that will be unblocked by this foundation
+  - [Related ADRs](/doc/technical/architecture/design-docs/adr) - Architectural decisions relevant to this foundation
+  - [Dependent Features](../../../doc/state-tracking/permanent/feature-tracking.md) - Features that will be unblocked by this foundation
 
 ## Process
 
@@ -64,7 +64,7 @@ This template guides the implementation of foundation features (0.x.x) that prov
    - Document architectural patterns implemented
    - **Create ADRs for architectural decisions made** using existing ADR system:
      ```powershell
-     cd doc/product-docs/technical/architecture/design-docs/adr/
+     cd doc/technical/architecture/design-docs/adr
      ../../scripts/file-creation/02-design/New-ArchitectureDecision.ps1 -Title "[Decision Title]" -Status "Proposed"
      ```
    - Document integration patterns for dependent features
@@ -98,9 +98,9 @@ This template guides the implementation of foundation features (0.x.x) that prov
 
 The following state files must be updated as part of this task:
 
-- [Architecture Tracking](../../../doc/product-docs/state-tracking/permanent/architecture-tracking.md) - Update with foundation implementation outcomes
-- [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) - Mark foundation feature complete, update dependent features
-- [Architecture Context Package](../../product-docs/technical/architecture/context-packages/[architecture-area]-context.md) - Update with implementation results
+- [Architecture Tracking](../../../doc/state-tracking/permanent/architecture-tracking.md) - Update with foundation implementation outcomes
+- [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Mark foundation feature complete, update dependent features
+- [Architecture Context Package](/doc/technical/architecture/context-packages/[architecture-area]-context.md) - Update with implementation results
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
@@ -116,9 +116,9 @@ Before considering this task finished:
   - [ ] ADRs created using existing ADR system (`New-ArchitectureDecision.ps1`) for architectural decisions made
   - [ ] Handover documentation prepared for dependent features
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
-  - [ ] [Architecture Tracking](../../../doc/product-docs/state-tracking/permanent/architecture-tracking.md) updated with outcomes
-  - [ ] [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) foundation feature marked complete
-  - [ ] [Architecture Context Package](../../product-docs/technical/architecture/context-packages/[architecture-area]-context.md) updated with results
+  - [ ] [Architecture Tracking](../../../doc/state-tracking/permanent/architecture-tracking.md) updated with outcomes
+  - [ ] [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) foundation feature marked complete
+  - [ ] [Architecture Context Package](/doc/technical/architecture/context-packages/[architecture-area]-context.md) updated with results
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "Foundation Feature Implementation" and context "[Foundation Feature Name]"
 
 ## Next Tasks
@@ -130,7 +130,7 @@ Before considering this task finished:
 
 - [System Architecture Review Task](../../tasks/01-planning/system-architecture-review.md) - Task that identifies foundation features
 - [Task Transition Guide](../../guides/framework/task-transition-guide.md) - Guidance for transitioning from foundation to regular features
-- [Architecture Decision Records System](../../../doc/product-docs/technical/architecture/design-docs/adr/README.md) - Existing ADR system with `New-ArchitectureDecision.ps1` script
+- [Architecture Decision Records System](../../../doc/technical/adr) - Existing ADR system with `New-ArchitectureDecision.ps1` script
 
 ## Template Usage Notes
 

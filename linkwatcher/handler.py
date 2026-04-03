@@ -83,7 +83,6 @@ import os
 import threading
 from pathlib import Path
 
-from colorama import Fore
 from watchdog.events import (
     FileCreatedEvent,
     FileDeletedEvent,
@@ -99,7 +98,7 @@ from .move_detector import MoveDetector
 from .parser import LinkParser
 from .reference_lookup import ReferenceLookup
 from .updater import LinkUpdater
-from .utils import get_relative_path, should_monitor_file
+from .utils import get_relative_path, normalize_path, should_monitor_file
 
 
 class _SyntheticMoveEvent:
@@ -302,7 +301,12 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
             references = self._ref_lookup.find_references(old_path)
 
             if references:
-                print(f"{Fore.YELLOW}🔗 Updating {len(references)} unique references...")
+                self.logger.info(
+                    "updating_references",
+                    reference_count=len(references),
+                    old_path=old_path,
+                    new_path=new_path,
+                )
 
                 # Collect old path variations for DB cleanup FIRST
                 # before making any changes (since each update modifies the database)
@@ -367,15 +371,20 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
         self.logger.info("directory_moved", old_dir=old_dir, new_dir=new_dir)
 
         try:
-            # Find all files that were moved
+            # Find all files that were moved.
+            # PD-BUG-071: Use extension-only filtering here, NOT
+            # _should_monitor_file() which also checks ignored_directories.
+            # When a directory is renamed TO an ignored-dir name (e.g.
+            # docs/ -> build/), the destination path contains the ignored
+            # name and _should_monitor_file() rejects every file, causing
+            # Phase 0/1 to be skipped entirely.  References in non-ignored
+            # files still need updating regardless of the destination name.
             moved_files = []
             for root, dirs, files in os.walk(event.dest_path):
-                # Skip ignored directories
-                dirs[:] = [d for d in dirs if d not in self.ignored_dirs]
-
                 for file in files:
                     file_path = os.path.join(root, file)
-                    if self._should_monitor_file(file_path):
+                    file_ext = os.path.splitext(file_path)[1].lower()
+                    if file_ext in self.monitored_extensions:
                         rel_new_path = self._get_relative_path(file_path)
                         # Calculate what the old path would have been
                         rel_old_path = rel_new_path.replace(new_dir, old_dir, 1)
@@ -410,77 +419,10 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
                     move_groups.append((module_refs, old_module, new_module))
 
             # Phase 1b: Batch-update all referring files in one pass (TD129).
-            total_references_updated = 0
-            if move_groups:
-                batch_stats = self.updater.update_references_batch(move_groups)
-                total_references_updated += batch_stats["references_updated"]
-                self._update_stat("errors", batch_stats["errors"])
-
-                # Stale retry: for files flagged stale, rescan and retry once
-                if batch_stats["stale_files"]:
-                    self.logger.info(
-                        "batch_stale_retry",
-                        stale_count=len(batch_stats["stale_files"]),
-                    )
-                    retry_groups = []
-                    for stale_file in batch_stats["stale_files"]:
-                        abs_stale = (
-                            os.path.join(str(self.project_root), stale_file)
-                            if not os.path.isabs(stale_file)
-                            else stale_file
-                        )
-                        if os.path.exists(abs_stale):
-                            self._ref_lookup.link_db.remove_file_links(stale_file)
-                            self._ref_lookup.rescan_file_links(abs_stale, remove_existing=False)
-                    # Re-collect references from rescanned files and retry
-                    stale_set = set(batch_stats["stale_files"])
-                    for refs, old_p, new_p in move_groups:
-                        stale_refs = [r for r in refs if r.file_path in stale_set]
-                        if stale_refs:
-                            fresh_refs = self._ref_lookup.find_references(
-                                old_p, filter_files=stale_set
-                            )
-                            if fresh_refs:
-                                retry_groups.append((fresh_refs, old_p, new_p))
-                    if retry_groups:
-                        retry_stats = self.updater.update_references_batch(retry_groups)
-                        total_references_updated += retry_stats["references_updated"]
-                        self._update_stat("errors", retry_stats["errors"])
+            total_references_updated = self._batch_update_references(move_groups)
 
             # Phase 1c: Per-file DB cleanup and deferred rescan collection.
-            for old_fp, new_fp, file_refs, module_refs, old_targets in per_file_data:
-                if module_refs:
-                    old_module = old_fp[:-3]
-                    new_module = new_fp[:-3]
-                    self._ref_lookup.link_db.update_target_path(old_module, new_module)
-
-                if file_refs:
-                    self._ref_lookup.cleanup_after_file_move(
-                        file_refs,
-                        old_targets,
-                        moved_file_path=old_fp,
-                        deferred_rescan_files=deferred_rescan_files,
-                    )
-
-                # Rescan the moved file for its own outgoing links
-                abs_new = os.path.join(str(self.project_root), new_fp)
-                self._ref_lookup.rescan_moved_file_links(old_fp, new_fp, abs_new)
-
-            # TD128: Bulk rescan all affected files once (deduplicated)
-            if deferred_rescan_files:
-                self.logger.debug(
-                    "bulk_rescan_deferred_files",
-                    count=len(deferred_rescan_files),
-                )
-                for file_path in deferred_rescan_files:
-                    abs_file_path = (
-                        os.path.join(str(self.project_root), file_path)
-                        if not os.path.isabs(file_path)
-                        else file_path
-                    )
-                    if os.path.exists(abs_file_path):
-                        self._ref_lookup.link_db.remove_file_links(file_path)
-                        self._ref_lookup.rescan_file_links(abs_file_path, remove_existing=False)
+            self._cleanup_and_rescan_moved_files(per_file_data, deferred_rescan_files)
 
             # Phase 1.5: Update outward-pointing links inside moved files
             # (PD-BUG-039 fix: directory moves must adjust relative links
@@ -490,62 +432,8 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
                 self._update_links_within_moved_file(old_file_path, new_file_path, abs_new_path)
 
             # Phase 2: Update references to the directory path itself
-            # (e.g., quoted directory paths in PowerShell scripts)
-            #
-            # Directory-path references may target the moved directory exactly
-            # OR subdirectories within it (e.g., old_dir/assessments).  The
-            # updater's path resolver expects old_path to match ref.link_target
-            # exactly, so we group references by their link_target and compute
-            # the correct per-target old→new mapping using prefix replacement.
-            dir_refs = self._ref_lookup.find_directory_path_references(old_dir)
-            dir_refs_updated = 0
-            if dir_refs:
-                from .utils import normalize_path as _norm
-
-                old_dir_norm = _norm(old_dir)
-                old_dir_prefix = old_dir_norm.rstrip("/") + "/"
-                new_dir_norm = _norm(new_dir)
-
-                # Group references by their link_target
-                refs_by_target = {}
-                for ref in dir_refs:
-                    refs_by_target.setdefault(ref.link_target, []).append(ref)
-
-                for target, target_refs in refs_by_target.items():
-                    target_norm = _norm(target)
-                    if target_norm == old_dir_norm:
-                        # Exact directory match — use old_dir / new_dir directly
-                        ref_old = old_dir
-                        ref_new = new_dir
-                    elif target_norm.startswith(old_dir_prefix):
-                        # Subdirectory match — replace the prefix
-                        suffix = target_norm[len(old_dir_prefix) :]
-                        ref_old = target
-                        ref_new = new_dir_norm + "/" + suffix
-                    else:
-                        # Fallback (e.g., backslash variant) — simple string replace
-                        ref_old = target
-                        ref_new = (
-                            target.replace(
-                                old_dir.replace("/", "\\"),
-                                new_dir.replace("/", "\\"),
-                            )
-                            if "\\" in target
-                            else target.replace(old_dir, new_dir)
-                        )
-
-                    stats = self.updater.update_references(target_refs, ref_old, ref_new)
-                    dir_refs_updated += stats["references_updated"]
-                    self._update_stat("errors", stats["errors"])
-
-                total_references_updated += dir_refs_updated
-                self._ref_lookup.cleanup_after_directory_path_move(old_dir, new_dir)
-                self.logger.info(
-                    "directory_path_references_updated",
-                    old_dir=old_dir,
-                    new_dir=new_dir,
-                    count=dir_refs_updated,
-                )
+            dir_refs_updated = self._update_directory_path_references(old_dir, new_dir)
+            total_references_updated += dir_refs_updated
 
             self.logger.info(
                 "directory_move_completed",
@@ -565,6 +453,158 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
                 error_type=type(e).__name__,
             )
             self._update_stat("errors")
+
+    def _batch_update_references(self, move_groups):
+        """Phase 1b: Batch-update all referring files in one pass (TD129).
+
+        Performs a single batched updater pass so each referring file is opened
+        and written at most once.  If any files are flagged stale, rescans them
+        and retries once.
+
+        Returns the total number of references updated.
+        """
+        total_references_updated = 0
+        if not move_groups:
+            return total_references_updated
+
+        batch_stats = self.updater.update_references_batch(move_groups)
+        total_references_updated += batch_stats["references_updated"]
+        self._update_stat("errors", batch_stats["errors"])
+
+        # Stale retry: for files flagged stale, rescan and retry once
+        if batch_stats["stale_files"]:
+            self.logger.info(
+                "batch_stale_retry",
+                stale_count=len(batch_stats["stale_files"]),
+            )
+            for stale_file in batch_stats["stale_files"]:
+                abs_stale = (
+                    os.path.join(str(self.project_root), stale_file)
+                    if not os.path.isabs(stale_file)
+                    else stale_file
+                )
+                if os.path.exists(abs_stale):
+                    self._ref_lookup.link_db.remove_file_links(stale_file)
+                    self._ref_lookup.rescan_file_links(abs_stale, remove_existing=False)
+            # Re-collect references from rescanned files and retry
+            stale_set = set(batch_stats["stale_files"])
+            retry_groups = []
+            for refs, old_p, new_p in move_groups:
+                stale_refs = [r for r in refs if r.file_path in stale_set]
+                if stale_refs:
+                    fresh_refs = self._ref_lookup.find_references(
+                        old_p, filter_files=stale_set
+                    )
+                    if fresh_refs:
+                        retry_groups.append((fresh_refs, old_p, new_p))
+            if retry_groups:
+                retry_stats = self.updater.update_references_batch(retry_groups)
+                total_references_updated += retry_stats["references_updated"]
+                self._update_stat("errors", retry_stats["errors"])
+
+        return total_references_updated
+
+    def _cleanup_and_rescan_moved_files(self, per_file_data, deferred_rescan_files):
+        """Phase 1c: Per-file DB cleanup, deferred rescan collection, and bulk rescan.
+
+        For each moved file: updates module target paths, cleans up after move,
+        and rescans outgoing links.  Then bulk-rescans all deferred files once
+        (TD128 deduplication).
+        """
+        for old_fp, new_fp, file_refs, module_refs, old_targets in per_file_data:
+            if module_refs:
+                old_module = old_fp[:-3]
+                new_module = new_fp[:-3]
+                self._ref_lookup.link_db.update_target_path(old_module, new_module)
+
+            if file_refs:
+                self._ref_lookup.cleanup_after_file_move(
+                    file_refs,
+                    old_targets,
+                    moved_file_path=old_fp,
+                    deferred_rescan_files=deferred_rescan_files,
+                )
+
+            # Rescan the moved file for its own outgoing links
+            abs_new = os.path.join(str(self.project_root), new_fp)
+            self._ref_lookup.rescan_moved_file_links(old_fp, new_fp, abs_new)
+
+        # TD128: Bulk rescan all affected files once (deduplicated)
+        if deferred_rescan_files:
+            self.logger.debug(
+                "bulk_rescan_deferred_files",
+                count=len(deferred_rescan_files),
+            )
+            for file_path in deferred_rescan_files:
+                abs_file_path = (
+                    os.path.join(str(self.project_root), file_path)
+                    if not os.path.isabs(file_path)
+                    else file_path
+                )
+                if os.path.exists(abs_file_path):
+                    self._ref_lookup.link_db.remove_file_links(file_path)
+                    self._ref_lookup.rescan_file_links(abs_file_path, remove_existing=False)
+
+    def _update_directory_path_references(self, old_dir, new_dir):
+        """Phase 2: Update references to the directory path itself.
+
+        Handles directory-path references that target the moved directory exactly
+        or subdirectories within it (e.g., old_dir/assessments).  Groups references
+        by link_target and computes the correct per-target old->new mapping using
+        prefix replacement.
+
+        Returns the number of directory-path references updated.
+        """
+        dir_refs = self._ref_lookup.find_directory_path_references(old_dir)
+        dir_refs_updated = 0
+        if not dir_refs:
+            return dir_refs_updated
+
+        old_dir_norm = normalize_path(old_dir)
+        old_dir_prefix = old_dir_norm.rstrip("/") + "/"
+        new_dir_norm = normalize_path(new_dir)
+
+        # Group references by their link_target
+        refs_by_target = {}
+        for ref in dir_refs:
+            refs_by_target.setdefault(ref.link_target, []).append(ref)
+
+        for target, target_refs in refs_by_target.items():
+            target_norm = normalize_path(target)
+            if target_norm == old_dir_norm:
+                # Exact directory match — use old_dir / new_dir directly
+                ref_old = old_dir
+                ref_new = new_dir
+            elif target_norm.startswith(old_dir_prefix):
+                # Subdirectory match — replace the prefix
+                suffix = target_norm[len(old_dir_prefix):]
+                ref_old = target
+                ref_new = new_dir_norm + "/" + suffix
+            else:
+                # Fallback (e.g., backslash variant) — simple string replace
+                ref_old = target
+                ref_new = (
+                    target.replace(
+                        old_dir.replace("/", "\\"),
+                        new_dir.replace("/", "\\"),
+                    )
+                    if "\\" in target
+                    else target.replace(old_dir, new_dir)
+                )
+
+            stats = self.updater.update_references(target_refs, ref_old, ref_new)
+            dir_refs_updated += stats["references_updated"]
+            self._update_stat("errors", stats["errors"])
+
+        self._ref_lookup.cleanup_after_directory_path_move(old_dir, new_dir)
+        self.logger.info(
+            "directory_path_references_updated",
+            old_dir=old_dir,
+            new_dir=new_dir,
+            count=dir_refs_updated,
+        )
+
+        return dir_refs_updated
 
     def _handle_file_deleted(self, event: FileDeletedEvent):
         """Handle file deletion with delayed move detection."""
@@ -706,9 +746,6 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
                         file_path=ref.file_path,
                         line_number=ref.line_number,
                         link_text=ref.link_text,
-                    )
-                    print(
-                        f"   {Fore.YELLOW}• {ref.file_path}:" f"{ref.line_number} - {ref.link_text}"
                     )
 
             self._update_stat("files_deleted")

@@ -85,7 +85,7 @@
 
 #### Themes
 - **CRITICAL gap**: Lightweight checklist missing mandatory cross-cutting updates (task-transition-guide.md, process-framework-task-registry.md) — human partner caught omission
-- New-Task.ps1 bug: documentation-map.md section matching fails for `####` headings
+- New-Task.ps1 bug: PF-documentation-map.md section matching fails for `####` headings
 - Lightweight "Use When" auto-generation copies Purpose verbatim (minor quality issue)
 
 #### Improvement Opportunities

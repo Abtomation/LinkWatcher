@@ -6,7 +6,6 @@ version: 1.0
 created: 2025-07-12
 updated: 2025-07-12
 visualization_type: Task Context
-task_type: Support
 map_type: Context Map
 task_name: new-task-creation-process
 ---
@@ -88,7 +87,7 @@ graph TD
 - [Temporary Task State Creation Guide](../../../guides/support/temp-state-tracking-customization-guide.md) - Multi-session implementation tracking
 - [AI Tasks System](../../../ai-tasks.md) - Main task registry and categorization
 - [New-Task.ps1](../../../scripts/file-creation/support/New-Task.ps1) - Script for creating task definitions
-- [Documentation Map](../../../documentation-map.md) - Central documentation registry
+- [Documentation Map](../../../PF-documentation-map.md) - Central documentation registry
 - [Process Improvement Tracking](../../../state-tracking/permanent/process-improvement-tracking.md) - Infrastructure completion tracking
 
 ---

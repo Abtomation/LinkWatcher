@@ -7,7 +7,7 @@ created: 2026-02-24
 updated: 2026-02-24
 feature_id: 2.1.1
 feature_name: Link Parsing System
-tdd_path: doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md
+tdd_path: doc/technical/tdd/tdd-2-1-1-parser-framework-t2.md
 test_tier: 2
 retrospective: true
 ---
@@ -18,10 +18,10 @@ retrospective: true
 
 ## Overview
 
-This document provides comprehensive test specifications for the **Link Parsing System** feature (ID: 2.1.1), derived from the Technical Design Document [PD-TDD-025](../../../doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md).
+This document provides comprehensive test specifications for the **Link Parsing System** feature (ID: 2.1.1), derived from the Technical Design Document [PD-TDD-025](../../../doc/technical/tdd/tdd-2-1-1-parser-framework-t2.md).
 
 **Test Tier**: 2 (Unit + Integration)
-**TDD Reference**: [TDD PD-TDD-025](../../../doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md)
+**TDD Reference**: [TDD PD-TDD-025](../../../doc/technical/tdd/tdd-2-1-1-parser-framework-t2.md)
 **Implementation Coverage**: 107/110 scenarios implemented (97%)
 
 ## Feature Context
@@ -38,7 +38,7 @@ The Link Parsing System uses a Registry+Facade pattern. `LinkParser` dispatches 
 
 ### Functional Requirements Reference
 
-> **Primary Documentation**: [FDD PD-FDD-026](../../../doc/product-docs/functional-design/fdds/fdd-2-1-1-parser-framework.md)
+> **Primary Documentation**: [FDD PD-FDD-026](../../../doc/functional-design/fdds/fdd-2-1-1-parser-framework.md)
 
 **Acceptance Criteria to Test**:
 - `.md` file returns only markdown link references
@@ -261,7 +261,7 @@ The Link Parsing System uses a Registry+Facade pattern. `LinkParser` dispatches 
 
 ### Files to Reference
 
-- **TDD**: [`doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md`](../../../doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md)
+- **TDD**: [`doc/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md`](../../../doc/technical/tdd/tdd-2-1-1-parser-framework-t2.md)
 - **Existing Tests**: [`test/automated/unit/test_parser.py`](../../../test/automated/unit/test_parser.py), `test/automated/parsers/test_*.py` (7 files)
 - **Source Code**: [`linkwatcher/parser.py`](../../../linkwatcher/parser.py), [`linkwatcher/parsers/`](../../../linkwatcher/parsers/) (7 parser modules)
 

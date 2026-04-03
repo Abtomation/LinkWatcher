@@ -36,13 +36,13 @@
     If specified, shows what would be updated without making changes
 
 .EXAMPLE
-    ../../../product-docs/product-docs/product-docs/technical/api/models/New-APIDataModel.ps1 -ModelName "User Profile" -ModelDescription "User account profile information" -ApiVersion "v1"
+    doc/technical/api/models/New-APIDataModel.ps1 -ModelName "User Profile" -ModelDescription "User account profile information" -ApiVersion "v1"
 
 .EXAMPLE
-    ../../../product-docs/product-docs/product-docs/technical/api/models/New-APIDataModel.ps1 -ModelName "Authentication Request" -ModelDescription "Login request data structure" -ApiVersion "v1" -RelatedEndpoints "/auth/login,/auth/refresh" -OpenInEditor
+    doc/technical/api/models/New-APIDataModel.ps1 -ModelName "Authentication Request" -ModelDescription "Login request data structure" -ApiVersion "v1" -RelatedEndpoints "/auth/login,/auth/refresh" -OpenInEditor
 
 .EXAMPLE
-    ../../../product-docs/product-docs/product-docs/technical/api/models/New-APIDataModel.ps1 -ModelName "Booking Fee Model" -ModelDescription "Data structure for booking fee calculations" -ApiVersion "v1" -FeatureId "5.1.1"
+    doc/technical/api/models/New-APIDataModel.ps1 -ModelName "Booking Fee Model" -ModelDescription "Data structure for booking fee calculations" -ApiVersion "v1" -FeatureId "5.1.1"
 
 .NOTES
     This script requires:
@@ -55,7 +55,7 @@
     - Integrates with Process Framework automation infrastructure
 #>
 
-[CmdletBinding()]
+[CmdletBinding(SupportsShouldProcess = $true)]
 param(
     [Parameter(Mandatory=$true)]
     [string]$ModelName,
@@ -180,13 +180,13 @@ try {
             if ($missingFunctions.Count -eq 0 -and $missingAppendFunctions.Count -eq 0) {
                 Write-Host "`n🔄 Updating API Design state with intelligent replacement/append logic..." -ForegroundColor Cyan
 
-                # Calculate correct relative path from ../../../product-docs/product-docs/product-docs/technical/api/models/feature-tracking.md to API data model
-                # ../../../product-docs/product-docs/product-docs/technical/api/models/feature-tracking.md is at: process-framework/state-tracking/permanent/
-                # API data model is at: doc/product-docs/technical/api/models/
+                # Calculate correct relative path from doc/technical/api/models/feature-tracking.md to API data model
+                # doc/technical/api/models/feature-tracking.md is at: process-framework/state-tracking/permanent/
+                # API data model is at: doc/technical/api/models/
                 # Need to go up 3 levels (../../..) then down to the API model
                 $sanitizedModelName = $ModelName.ToLower() -replace '[^a-z0-9\s]', '' -replace '\s+', '-'
                 $actualFilename = "$sanitizedModelName-data-model.md"
-                $relativePath = "../../../product-docs/technical/api/models/$actualFilename"
+                $relativePath = "doc/technical/api/models/$actualFilename"
 
                 # Use descriptive name following 1.1.1 convention (e.g., "Request Model", "Response Model")
                 $linkDisplayName = if ($ModelName -match "Request") { "Request Model" }
@@ -227,7 +227,7 @@ try {
                 Write-Host "⚠️  Append functionality not available - using replace mode" -ForegroundColor Yellow
 
                 # Fallback to original replace behavior
-                $relativePath = "doc/product-docs/technical/api/models/$($ModelName.ToLower() -replace '\s+', '-')-data-model.md"
+                $relativePath = "doc/technical/api/models/$($ModelName.ToLower() -replace '\s+', '-')-data-model.md"
                 $apiDesignLink = "[$documentId]($relativePath)"
 
                 # Prepare additional updates for feature tracking
@@ -262,9 +262,9 @@ try {
                 Write-Host "Manual Update Required:" -ForegroundColor Yellow
                 $sanitizedModelName = $ModelName.ToLower() -replace '[^a-z0-9\s]', '' -replace '\s+', '-'
                 $actualFilename = "$sanitizedModelName-data-model.md"
-                $relativePath = "../../../product-docs/technical/api/models/$actualFilename"
+                $relativePath = "doc/technical/api/models/$actualFilename"
                 Write-Host "  - Add to feature $FeatureId API Design column: ' • [$documentId]($relativePath)'" -ForegroundColor Cyan
-                Write-Host "  - Uses intelligent logic: replaces 'Yes' or appends with ' • ' separator in ../../../product-docs/product-docs/product-docs/technical/api/models/feature-tracking.md" -ForegroundColor Cyan
+                Write-Host "  - Uses intelligent logic: replaces 'Yes' or appends with ' • ' separator in doc/technical/api/models/feature-tracking.md" -ForegroundColor Cyan
             }
         }
         catch {
@@ -272,9 +272,9 @@ try {
             Write-Host "Manual Update Required:" -ForegroundColor Yellow
             $sanitizedModelName = $ModelName.ToLower() -replace '[^a-z0-9\s]', '' -replace '\s+', '-'
             $actualFilename = "$sanitizedModelName-data-model.md"
-            $relativePath = "../../../product-docs/technical/api/models/$actualFilename"
+            $relativePath = "doc/technical/api/models/$actualFilename"
             Write-Host "  - Add to feature $FeatureId API Design column: ' • [$documentId]($relativePath)'" -ForegroundColor Cyan
-            Write-Host "  - Uses intelligent logic: replaces 'Yes' or appends with ' • ' separator in ../../../product-docs/product-docs/product-docs/technical/api/models/feature-tracking.md" -ForegroundColor Cyan
+            Write-Host "  - Uses intelligent logic: replaces 'Yes' or appends with ' • ' separator in doc/technical/api/models/feature-tracking.md" -ForegroundColor Cyan
         }
     }
 

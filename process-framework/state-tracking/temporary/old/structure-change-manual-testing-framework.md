@@ -16,7 +16,7 @@ change_name: manual-testing-framework
 
 - **Change Name**: Manual Testing Framework
 - **Change ID**: PF-STA-054
-- **Proposal Document**: [Structure Change Proposal](/process-framework/proposals/proposals/old/structure-change-manual-testing-proposal.md)
+- **Proposal Document**: [Structure Change Proposal](/process-framework/proposals/old/structure-change-manual-testing-proposal.md)
 - **Change Type**: Documentation Architecture
 - **Scope**: Introduce manual testing framework with concrete test cases, test environment management, and execution tracking. Modifies existing tasks, creates new tasks, adds templates/scripts, extends state tracking.
 - **Expected Completion**: ~5 sessions
@@ -84,7 +84,7 @@ change_name: manual-testing-framework
 
 - [x] **Structure Change Proposal**: Created comprehensive proposal document
   - **Status**: COMPLETED
-  - **Location**: `/process-framework/proposals/proposals/structure-change-manual-testing-proposal.md`
+  - **Location**: `/process-framework/proposals/structure-change-manual-testing-proposal.md`
 
 - [x] **State Tracking File**: Created this tracking file (PF-STA-054)
   - **Status**: COMPLETED

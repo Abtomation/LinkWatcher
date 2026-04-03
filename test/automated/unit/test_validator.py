@@ -366,28 +366,28 @@ class TestLinkValidator:
         (e.g. 'doc/guide.md' mentioned in a deeply nested file).
         The validator should try root resolution as fallback.
         """
-        _create_file(str(tmp_path), "doc/scripts/helper.ps1", "# helper")
+        _create_file(str(tmp_path), "alpha-project/scripts/helper.ps1", "# helper")
         # Standalone mention of a project-root-relative path in a nested file
         _create_file(
             str(tmp_path),
-            "doc/deep/nested/source.md",
-            "Run validation: doc/scripts/helper.ps1 to check.\n",
+            "alpha-project/deep/nested/source.md",
+            "Run validation: alpha-project/scripts/helper.ps1 to check.\n",
         )
 
         cfg = _make_config()
         v = LinkValidator(str(tmp_path), cfg)
         result = v.validate()
 
-        # doc/scripts/helper.ps1 exists at root — should NOT be broken
+        # alpha-project/scripts/helper.ps1 exists at root — should NOT be broken
         targets = {bl.target_path for bl in result.broken_links}
-        assert "doc/scripts/helper.ps1" not in targets
+        assert "alpha-project/scripts/helper.ps1" not in targets
 
     def test_standalone_root_relative_broken_still_detected(self, tmp_path):
         """Standalone paths that don't exist anywhere should still be broken."""
         _create_file(
             str(tmp_path),
-            "doc/deep/source.md",
-            "See doc/nonexistent/missing.md for details.\n",
+            "alpha-project/deep/source.md",
+            "See alpha-project/nonexistent/missing.md for details.\n",
         )
 
         cfg = _make_config()
@@ -395,14 +395,14 @@ class TestLinkValidator:
         result = v.validate()
 
         targets = {bl.target_path for bl in result.broken_links}
-        assert "doc/nonexistent/missing.md" in targets
+        assert "alpha-project/nonexistent/missing.md" in targets
 
     def test_standalone_in_table_root_relative_resolved(self, tmp_path):
         """Standalone paths inside table cells should also get root fallback."""
         _create_file(str(tmp_path), "scripts/tool.ps1", "# tool")
         _create_file(
             str(tmp_path),
-            "doc/report.md",
+            "alpha-project/report.md",
             "| Tool | Path |\n| --- | --- |\n| Linter | scripts/tool.ps1 |\n",
         )
 
@@ -420,11 +420,11 @@ class TestLinkValidator:
         Proper markdown links have explicit syntax — the author chose
         the relative path deliberately, so wrong paths should be flagged.
         """
-        _create_file(str(tmp_path), "doc/guide.md", "# Guide")
+        _create_file(str(tmp_path), "alpha-project/guide.md", "# Guide")
         _create_file(
             str(tmp_path),
-            "doc/deep/nested/source.md",
-            "[link](doc/guide.md)\n",  # Wrong: should be ../../guide.md
+            "alpha-project/deep/nested/source.md",
+            "[link](alpha-project/guide.md)\n",  # Wrong: should be ../../guide.md
         )
 
         cfg = _make_config()
@@ -433,7 +433,7 @@ class TestLinkValidator:
 
         # This should still be broken — proper links don't get root fallback
         targets = {bl.target_path for bl in result.broken_links}
-        assert "doc/guide.md" in targets
+        assert "alpha-project/guide.md" in targets
 
     def test_yaml_root_relative_path_resolved(self, tmp_path):
         """YAML data-value paths that exist at project root should not be broken."""
@@ -468,11 +468,11 @@ class TestLinkValidator:
 
     def test_json_root_relative_path_resolved(self, tmp_path):
         """JSON data-value paths that exist at project root should not be broken."""
-        _create_file(str(tmp_path), "doc/feedback/form.md", "# form")
+        _create_file(str(tmp_path), "alpha-project/feedback/form.md", "# form")
         _create_file(
             str(tmp_path),
             "data/ratings.json",
-            '{"source": "doc/feedback/form.md"}\n',
+            '{"source": "alpha-project/feedback/form.md"}\n',
         )
 
         cfg = _make_config()
@@ -480,7 +480,7 @@ class TestLinkValidator:
         result = v.validate()
 
         targets = {bl.target_path for bl in result.broken_links}
-        assert "doc/feedback/form.md" not in targets
+        assert "alpha-project/feedback/form.md" not in targets
 
 
 # ---------------------------------------------------------------------------
@@ -589,13 +589,13 @@ class TestShouldCheckTarget:
 
     def test_valid_deep_path_accepted(self):
         assert (
-            LinkValidator._should_check_target("process-framework/tasks/task.md", "markdown")
+            LinkValidator._should_check_target("alpha-project/framework/tasks/task.md", "markdown")
             is True
         )
 
     def test_root_relative_accepted(self):
         assert (
-            LinkValidator._should_check_target("/process-framework/tasks/task.md", "markdown")
+            LinkValidator._should_check_target("/alpha-project/framework/tasks/task.md", "markdown")
             is True
         )
 

@@ -7,7 +7,7 @@ created: 2026-02-24
 updated: 2026-02-24
 feature_id: 0.1.2
 feature_name: In-Memory Link Database
-tdd_path: doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-2-in-memory-database-t2.md
+tdd_path: doc/technical/tdd/tdd-0-1-2-in-memory-database-t2.md
 test_tier: 2
 retrospective: true
 ---
@@ -18,10 +18,10 @@ retrospective: true
 
 ## Overview
 
-This document provides comprehensive test specifications for the **In-Memory Link Database** feature (ID: 0.1.2), derived from the Technical Design Document [PD-TDD-022](../../../doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-2-in-memory-database-t2.md).
+This document provides comprehensive test specifications for the **In-Memory Link Database** feature (ID: 0.1.2), derived from the Technical Design Document [PD-TDD-022](../../../doc/technical/tdd/tdd-0-1-2-in-memory-database-t2.md).
 
 **Test Tier**: 2 (Unit + Integration)
-**TDD Reference**: [TDD PD-TDD-022](../../../doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-2-in-memory-database-t2.md)
+**TDD Reference**: [TDD PD-TDD-022](../../../doc/technical/tdd/tdd-0-1-2-in-memory-database-t2.md)
 **Implementation Coverage**: 11/15 scenarios implemented (73%)
 
 ## Feature Context
@@ -38,7 +38,7 @@ The In-Memory Link Database provides a thread-safe, target-indexed `Dict[str, Li
 
 ### Functional Requirements Reference
 
-> **Primary Documentation**: [FDD PD-FDD-023](../../../doc/product-docs/functional-design/fdds/fdd-0-1-2-in-memory-database.md)
+> **Primary Documentation**: [FDD PD-FDD-023](../../../doc/functional-design/fdds/fdd-0-1-2-in-memory-database.md)
 
 **Acceptance Criteria to Test**:
 - O(1) lookup time for target path queries
@@ -51,7 +51,7 @@ The In-Memory Link Database provides a thread-safe, target-indexed `Dict[str, Li
 
 ### Technical Design Reference
 
-> **Primary Documentation**: [TDD PD-TDD-022](../../../doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-2-in-memory-database-t2.md)
+> **Primary Documentation**: [TDD PD-TDD-022](../../../doc/technical/tdd/tdd-0-1-2-in-memory-database-t2.md)
 
 **Component Testing Strategy**:
 - `LinkDatabase.add_link()` — verify target-indexed storage and `files_with_links` tracking
@@ -76,8 +76,6 @@ The In-Memory Link Database provides a thread-safe, target-indexed `Dict[str, Li
 | LinkDatabase | Get references | `test_get_references_to_file` — returns only references pointing to queried target | `link_database` |
 | LinkDatabase | Update target path | `test_update_target_path` — migrates references from old key to new key, updates `link_target` field | `link_database` |
 | LinkDatabase | Path normalization | `test_normalize_path` — normalizes leading slashes, `./` prefixes to consistent form | `link_database` |
-| LinkDatabase | Reference matching | `test_reference_points_to_file` — correctly determines if reference in source file points to target | `link_database` |
-| LinkDatabase | Relative path resolution | `test_relative_path_resolution` — resolves `../test.txt` against source file directory | `link_database` |
 | LinkDatabase | Anchor handling | `test_anchor_handling` — finds `file.md#section` when querying `file.md`, preserves anchors through updates | `link_database` |
 | LinkDatabase | Statistics | `test_get_stats` — accurate counts for empty and populated databases | `link_database` |
 | LinkDatabase | Clear | `test_clear` — resets links, files_with_links, last_scan to empty/None | `link_database` |
@@ -139,7 +137,7 @@ The In-Memory Link Database provides a thread-safe, target-indexed `Dict[str, Li
 
 ### Files to Reference
 
-- **TDD**: [`doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-2-in-memory-database-t2.md`](../../../doc/product-docs/technical/architecture/design-docs/tdd/tdd-0-1-2-in-memory-database-t2.md)
+- **TDD**: [`doc/technical/architecture/design-docs/tdd/tdd-0-1-2-in-memory-database-t2.md`](../../../doc/technical/tdd/tdd-0-1-2-in-memory-database-t2.md)
 - **Existing Tests**: [`test/automated/unit/test_database.py`](../../../test/automated/unit/test_database.py)
 - **Source Code**: [`linkwatcher/database.py`](../../../linkwatcher/database.py)
 - **Fixtures**: [`test/automated/conftest.py`](../../../test/automated/conftest.py) — `link_database` fixture

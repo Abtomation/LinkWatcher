@@ -152,29 +152,6 @@ class TestLinkDatabase:
         assert normalize_path("../file.txt") == "../file.txt"
         assert normalize_path("docs/file.txt") == "docs/file.txt"
 
-    def test_reference_points_to_file(self, link_database):
-        """Test reference matching logic."""
-        ref = LinkReference("docs/readme.md", 1, 0, 10, "test.txt", "test.txt", "markdown")
-
-        # Direct match
-        assert link_database._reference_points_to_file(ref, "test.txt")
-
-        # Same directory match
-        assert link_database._reference_points_to_file(ref, "docs/test.txt")
-
-        # Different directory - should not match
-        assert not link_database._reference_points_to_file(ref, "other/test.txt")
-
-    def test_relative_path_resolution(self, link_database):
-        """Test relative path resolution in references."""
-        ref = LinkReference("docs/readme.md", 1, 0, 10, "../test.txt", "../test.txt", "markdown")
-
-        # Should resolve to parent directory
-        assert link_database._reference_points_to_file(ref, "test.txt")
-
-        # Should not match file in docs directory
-        assert not link_database._reference_points_to_file(ref, "docs/test.txt")
-
     def test_anchor_handling(self, link_database):
         """Test handling of anchored links."""
         ref = LinkReference("doc.md", 1, 0, 20, "test.txt#section", "test.txt#section", "markdown")
@@ -260,8 +237,8 @@ class TestLinkDatabase:
 
         Python imports are stored without .py extension (e.g., 'utils/helpers').
         Querying 'myproject/utils/helpers.py' should still match via extension
-        stripping in the suffix comparison. The extension stripping is
-        extension-agnostic — any extension is stripped before comparison.
+        stripping in the suffix comparison. Extension stripping is type-aware:
+        python refs match only .py files (PD-BUG-059).
         """
         ref = LinkReference(
             "myproject/app/runner.py", 5, 0, 14, "utils/helpers", "utils/helpers", "python"
@@ -272,12 +249,63 @@ class TestLinkDatabase:
         results = link_database.get_references_to_file("myproject/utils/helpers.py")
         assert len(results) == 1
 
-        # Extension stripping is agnostic — any extension matches the stem
+        # Python ref must NOT match .js file (PD-BUG-059)
         results_js = link_database.get_references_to_file("myproject/utils/helpers.js")
-        assert len(results_js) == 1
+        assert len(results_js) == 0
 
         # But a completely different filename should NOT match
         assert link_database.get_references_to_file("myproject/utils/other.py") == []
+
+    def test_get_references_suffix_match_cross_extension_false_positive(self, link_database):
+        """Python import must NOT match a file with a different extension (PD-BUG-059).
+
+        A Python import 'utils/helpers' (link_type='python') stored without .py
+        extension should match 'myproject/utils/helpers.py' but must NOT match
+        'myproject/utils/helpers.js'. Extension stripping must be type-aware:
+        python refs → .py only, dart refs → .dart only.
+        """
+        ref = LinkReference(
+            "myproject/app/runner.py", 5, 0, 14, "utils/helpers", "utils/helpers", "python"
+        )
+        link_database.add_link(ref)
+
+        # Python ref should match .py file
+        results_py = link_database.get_references_to_file("myproject/utils/helpers.py")
+        assert len(results_py) == 1
+
+        # Python ref must NOT match .js file (PD-BUG-059 false positive)
+        results_js = link_database.get_references_to_file("myproject/utils/helpers.js")
+        assert len(results_js) == 0, (
+            "Python import 'utils/helpers' should not match helpers.js — "
+            "extension stripping must be type-aware"
+        )
+
+        # Python ref must NOT match .dart file either
+        results_dart = link_database.get_references_to_file("myproject/utils/helpers.dart")
+        assert len(results_dart) == 0
+
+    def test_get_references_suffix_match_dart_extension_aware(self, link_database):
+        """Dart import must only match .dart files, not .py or .js (PD-BUG-059).
+
+        A Dart import 'utils/helpers' (link_type='dart') should match
+        'myproject/utils/helpers.dart' but not other extensions.
+        """
+        ref = LinkReference(
+            "myproject/lib/main.dart", 3, 0, 14, "utils/helpers", "utils/helpers", "dart"
+        )
+        link_database.add_link(ref)
+
+        # Dart ref should match .dart file
+        results_dart = link_database.get_references_to_file("myproject/utils/helpers.dart")
+        assert len(results_dart) == 1
+
+        # Dart ref must NOT match .py file
+        results_py = link_database.get_references_to_file("myproject/utils/helpers.py")
+        assert len(results_py) == 0
+
+        # Dart ref must NOT match .js file
+        results_js = link_database.get_references_to_file("myproject/utils/helpers.js")
+        assert len(results_js) == 0
 
     def test_get_stats(self, link_database):
         """Test database statistics."""
@@ -378,7 +406,7 @@ class TestLongPathNormalization:
         prefixed_target = "\\\\?\\C:\\project\\" + target.replace("/", "\\")
         non_prefixed = "C:\\project\\" + target.replace("/", "\\")
 
-        # Both forms must normalize consistently for _reference_points_to_file
+        # Both forms must normalize consistently for reference matching
         from linkwatcher.utils import normalize_path
 
         assert normalize_path(prefixed_target) == normalize_path(
@@ -426,15 +454,15 @@ class TestGetReferencesToDirectory:
             10,
             5,
             30,
-            "process-framework/scripts",
-            "process-framework/scripts",
+            "alpha-project/framework/scripts",
+            "alpha-project/framework/scripts",
             "powershell-quoted-dir",
         )
         link_database.add_link(ref)
 
-        results = link_database.get_references_to_directory("process-framework/scripts")
+        results = link_database.get_references_to_directory("alpha-project/framework/scripts")
         assert len(results) == 1
-        assert results[0].link_target == "process-framework/scripts"
+        assert results[0].link_target == "alpha-project/framework/scripts"
 
     def test_prefix_match_subdirectory(self, link_database):
         """References targeting subdirectories of the directory path are found."""
@@ -443,15 +471,15 @@ class TestGetReferencesToDirectory:
             5,
             0,
             40,
-            "process-framework/scripts/file-creation",
-            "process-framework/scripts/file-creation",
+            "alpha-project/framework/scripts/file-creation",
+            "alpha-project/framework/scripts/file-creation",
             "powershell-quoted-dir",
         )
         link_database.add_link(ref)
 
-        results = link_database.get_references_to_directory("process-framework/scripts")
+        results = link_database.get_references_to_directory("alpha-project/framework/scripts")
         assert len(results) == 1
-        assert results[0].link_target == "process-framework/scripts/file-creation"
+        assert results[0].link_target == "alpha-project/framework/scripts/file-creation"
 
     def test_no_false_prefix_match(self, link_database):
         """Directory paths that share a prefix but aren't subdirectories are excluded."""
@@ -460,13 +488,13 @@ class TestGetReferencesToDirectory:
             5,
             0,
             40,
-            "process-framework/scripts-old",
-            "process-framework/scripts-old",
+            "alpha-project/framework/scripts-old",
+            "alpha-project/framework/scripts-old",
             "powershell-quoted-dir",
         )
         link_database.add_link(ref)
 
-        results = link_database.get_references_to_directory("process-framework/scripts")
+        results = link_database.get_references_to_directory("alpha-project/framework/scripts")
         assert len(results) == 0
 
     def test_no_match_unrelated_path(self, link_database):
@@ -482,7 +510,7 @@ class TestGetReferencesToDirectory:
         )
         link_database.add_link(ref)
 
-        results = link_database.get_references_to_directory("process-framework")
+        results = link_database.get_references_to_directory("alpha-project/framework")
         assert len(results) == 0
 
     def test_multiple_references_to_same_directory(self, link_database):
@@ -492,8 +520,8 @@ class TestGetReferencesToDirectory:
             10,
             5,
             30,
-            "doc/old-dir",
-            "doc/old-dir",
+            "alpha-project/docs/old-dir",
+            "alpha-project/docs/old-dir",
             "powershell-quoted-dir",
         )
         ref2 = LinkReference(
@@ -501,14 +529,14 @@ class TestGetReferencesToDirectory:
             20,
             8,
             35,
-            "doc/old-dir",
-            "doc/old-dir",
+            "alpha-project/docs/old-dir",
+            "alpha-project/docs/old-dir",
             "powershell-quoted-dir",
         )
         link_database.add_link(ref1)
         link_database.add_link(ref2)
 
-        results = link_database.get_references_to_directory("doc/old-dir")
+        results = link_database.get_references_to_directory("alpha-project/docs/old-dir")
         assert len(results) == 2
 
     def test_mixed_file_and_directory_targets(self, link_database):
@@ -518,8 +546,8 @@ class TestGetReferencesToDirectory:
             10,
             5,
             30,
-            "doc/old-dir",
-            "doc/old-dir",
+            "alpha-project/docs/old-dir",
+            "alpha-project/docs/old-dir",
             "powershell-quoted-dir",
         )
         file_ref = LinkReference(
@@ -527,15 +555,15 @@ class TestGetReferencesToDirectory:
             1,
             0,
             20,
-            "doc/old-dir/readme.md",
-            "doc/old-dir/readme.md",
+            "alpha-project/docs/old-dir/readme.md",
+            "alpha-project/docs/old-dir/readme.md",
             "markdown",
         )
         link_database.add_link(dir_ref)
         link_database.add_link(file_ref)
 
         # Both the exact dir match and the file within should be found
-        results = link_database.get_references_to_directory("doc/old-dir")
+        results = link_database.get_references_to_directory("alpha-project/docs/old-dir")
         assert len(results) == 2
 
     def test_deduplication(self, link_database):
@@ -545,15 +573,59 @@ class TestGetReferencesToDirectory:
             10,
             5,
             30,
-            "doc/old-dir",
-            "doc/old-dir",
+            "alpha-project/docs/old-dir",
+            "alpha-project/docs/old-dir",
             "powershell-quoted-dir",
         )
         # Add same reference object to multiple keys (simulating anchored storage)
         link_database.add_link(ref)
 
-        results = link_database.get_references_to_directory("doc/old-dir")
+        results = link_database.get_references_to_directory("alpha-project/docs/old-dir")
         assert len(results) == 1
+
+    def test_relative_path_exact_directory_match(self, link_database):
+        """Relative-path references targeting a directory are found via resolved index.
+
+        Regression test for PD-BUG-068: get_references_to_directory() failed to
+        resolve relative paths like ../../../target/dir stored as link keys.
+        """
+        # A file deep in the tree references a top-level directory via relative path
+        ref = LinkReference(
+            "alpha/bravo/charlie/config.ps1",
+            15,
+            5,
+            35,
+            "../../../target/dir",
+            "../../../target/dir",
+            "powershell-quoted-dir",
+        )
+        link_database.add_link(ref)
+
+        results = link_database.get_references_to_directory("target/dir")
+        assert len(results) == 1
+        assert results[0].link_target == "../../../target/dir"
+
+    def test_relative_path_subdirectory_prefix_match(self, link_database):
+        """Relative-path references to subdirectories within moved dir are found.
+
+        Regression test for PD-BUG-068: prefix matching must work on resolved
+        paths, not just raw keys.
+        """
+        # Reference targets a subdirectory within the moved directory
+        ref = LinkReference(
+            "alpha/bravo/charlie/script.ps1",
+            20,
+            8,
+            50,
+            "../../../target/dir/nested/deep",
+            "../../../target/dir/nested/deep",
+            "powershell-quoted-dir",
+        )
+        link_database.add_link(ref)
+
+        results = link_database.get_references_to_directory("target/dir")
+        assert len(results) == 1
+        assert results[0].link_target == "../../../target/dir/nested/deep"
 
 
 class TestLinkDatabaseInterface:
@@ -592,3 +664,65 @@ class TestLinkDatabaseInterface:
 
         with pytest.raises(TypeError):
             IncompleteDB()
+
+
+class TestHasTargetWithBasename:
+    """Tests for has_target_with_basename() and the _basename_to_keys index (TD139)."""
+
+    def _make_ref(self, source, target):
+        return LinkReference(
+            file_path=source,
+            line_number=1,
+            column_start=0,
+            column_end=10,
+            link_text=target,
+            link_target=target,
+            link_type="markdown",
+        )
+
+    def test_hit(self, link_database):
+        """Basename lookup returns True when a matching target exists."""
+        link_database.add_link(self._make_ref("src/doc.md", "images/photo.png"))
+        assert link_database.has_target_with_basename("photo.png") is True
+
+    def test_miss(self, link_database):
+        """Basename lookup returns False for non-existent basenames."""
+        link_database.add_link(self._make_ref("src/doc.md", "images/photo.png"))
+        assert link_database.has_target_with_basename("missing.txt") is False
+
+    def test_empty_database(self, link_database):
+        """Basename lookup returns False on an empty database."""
+        assert link_database.has_target_with_basename("anything.txt") is False
+
+    def test_after_removal(self, link_database):
+        """Basename is no longer found after all references from that source are removed."""
+        link_database.add_link(self._make_ref("src/doc.md", "images/photo.png"))
+        assert link_database.has_target_with_basename("photo.png") is True
+        link_database.remove_file_links("src/doc.md")
+        assert link_database.has_target_with_basename("photo.png") is False
+
+    def test_after_clear(self, link_database):
+        """Basename is no longer found after clear()."""
+        link_database.add_link(self._make_ref("src/doc.md", "images/photo.png"))
+        assert link_database.has_target_with_basename("photo.png") is True
+        link_database.clear()
+        assert link_database.has_target_with_basename("photo.png") is False
+
+    def test_after_target_update(self, link_database):
+        """After update_target_path(), old basename gone and new basename present."""
+        link_database.add_link(self._make_ref("src/doc.md", "images/old.png"))
+        assert link_database.has_target_with_basename("old.png") is True
+        link_database.update_target_path("images/old.png", "assets/new.png")
+        assert link_database.has_target_with_basename("old.png") is False
+        assert link_database.has_target_with_basename("new.png") is True
+
+    def test_multiple_keys_same_basename(self, link_database):
+        """Multiple targets with the same basename — removing one leaves the other."""
+        link_database.add_link(self._make_ref("a.md", "dir1/readme.md"))
+        link_database.add_link(self._make_ref("b.md", "dir2/readme.md"))
+        assert link_database.has_target_with_basename("readme.md") is True
+        link_database.remove_file_links("a.md")
+        # dir2/readme.md still has that basename
+        assert link_database.has_target_with_basename("readme.md") is True
+        link_database.remove_file_links("b.md")
+        assert link_database.has_target_with_basename("readme.md") is False

@@ -6,7 +6,6 @@ domain: agnostic
 version: 1.0
 created: 2026-03-27
 updated: 2026-03-27
-task_type: Discrete
 ---
 
 # User Documentation Creation
@@ -41,9 +40,9 @@ Create or update user-facing product documentation (handbooks, quick-reference g
 
 - **Critical (Must Read):**
 
-  - **Feature implementation state file** (`doc/product-docs/state-tracking/features/`) — Understand what was implemented, key components, configuration options
-  - **Existing handbooks directory** (`doc/product-docs/user/handbooks/`) — Understand current structure and content to avoid duplication
-  - [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) — Identify which features need user documentation
+  - **Feature implementation state file** (`doc/state-tracking/features`) — Understand what was implemented, key components, configuration options
+  - **Existing handbooks directory** (`doc/user/handbooks`) — Understand current structure and content to avoid duplication
+  - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) — Identify which features need user documentation
   - [Visual Notation Guide](/process-framework/guides/support/visual-notation-guide.md) — For interpreting context map diagrams
 
 - **Important (Load If Space):**
@@ -81,7 +80,7 @@ Create or update user-facing product documentation (handbooks, quick-reference g
 
 ### Execution
 
-5. **Evaluate handbook directory structure**: Before creating content, assess whether the current `doc/product-docs/user/handbooks/` organization supports the new content:
+5. **Evaluate handbook directory structure**: Before creating content, assess whether the current `doc/user/handbooks` organization supports the new content:
    - Are handbooks organized by topic (setup, usage, troubleshooting, configuration)?
    - Does the new feature fit an existing category or need a new one?
    - If restructuring is needed, propose the new structure at the checkpoint
@@ -104,36 +103,36 @@ Create or update user-facing product documentation (handbooks, quick-reference g
 
 10. **Update state files** using the automation script:
     ```bash
-    cd process-framework/scripts/update && pwsh.exe -ExecutionPolicy Bypass -Command '& .\Update-UserDocumentationState.ps1 -FeatureId "X.Y.Z" -HandbookName "Feature Name" -HandbookPath "doc/product-docs/user/handbooks/filename.md" -HandbookId "PD-UGD-XXX" -Description "One-line description"'
+    cd process-framework/scripts/update && pwsh.exe -ExecutionPolicy Bypass -Command '& .\Update-UserDocumentationState.ps1 -FeatureId "X.Y.Z" -HandbookName "Feature Name" -HandbookPath "doc/user/handbooks/filename.md" -HandbookId "PD-UGD-XXX" -Description "One-line description"'
     ```
     This automates updates to:
     - Feature implementation state file (appends handbook row to Documentation Inventory)
-    - documentation-map.md (appends entry under User Handbooks section)
+    - PD-documentation-map.md (appends entry under User Handbooks section)
 11. **Update feature-tracking.md** manually if a User Docs column exists
 12. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 
-- **New or updated handbook(s)** — User-facing documentation in `doc/product-docs/user/handbooks/` created via `New-Handbook.ps1` (for new) or edited directly (for updates)
+- **New or updated handbook(s)** — User-facing documentation in `doc/user/handbooks` created via `New-Handbook.ps1` (for new) or edited directly (for updates)
 - **Updated README.md** — Main project README updated with documentation links or feature descriptions (if applicable)
 - **Updated feature tracking** — Feature state file or tracking entry reflects that user documentation exists
 
 ## Tools and Scripts
 
 - **[New-Handbook.ps1](../../scripts/file-creation/07-deployment/New-Handbook.ps1)** — Create new handbook files with auto-assigned PD-UGD IDs
-- **[Update-UserDocumentationState.ps1](../../scripts/update/Update-UserDocumentationState.ps1)** — Automate finalization state file updates (feature state file + documentation-map.md)
+- **[Update-UserDocumentationState.ps1](../../scripts/update/Update-UserDocumentationState.ps1)** — Automate finalization state file updates (feature state file + PD-documentation-map.md)
 - **[New-FeedbackForm.ps1](../../scripts/file-creation/support/New-FeedbackForm.ps1)** — Create feedback forms for task completion
 
 ## State Tracking
 
 The following state files are updated by `Update-UserDocumentationState.ps1`:
 
-- **Feature implementation state files** (`doc/product-docs/state-tracking/features/`) — Handbook row appended to Documentation Inventory table
-- **[Documentation Map](../../documentation-map.md)** — Handbook entry appended under User Handbooks section
+- **Feature implementation state files** (`doc/state-tracking/features`) — Handbook row appended to Documentation Inventory table
+- **[PD Documentation Map](../../../doc/PD-documentation-map.md)** — Handbook entry appended under User Handbooks section
 
 Manually updated:
 
-- [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) — Update documentation status for documented features (if a "User Docs" column exists, mark as ✅)
+- [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) — Update documentation status for documented features (if a "User Docs" column exists, mark as ✅)
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
@@ -148,7 +147,7 @@ Before considering this task finished:
   - [ ] README.md updated if applicable
 - [ ] **Update State Files**: Run `Update-UserDocumentationState.ps1` and verify
   - [ ] Feature implementation state file has handbook row in Documentation Inventory
-  - [ ] documentation-map.md has handbook entry under User Handbooks
+  - [ ] PD-documentation-map.md has handbook entry under User Handbooks
   - [ ] Feature tracking updated manually if User Docs column exists
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-081" and context "User Documentation Creation"
 
@@ -160,6 +159,6 @@ Before considering this task finished:
 ## Related Resources
 
 - **Handbook template** — Created via `New-Handbook.ps1` using the handbook template
-- **Existing handbooks** — `doc/product-docs/user/handbooks/` for style and structure reference
+- **Existing handbooks** — `doc/user/handbooks` for style and structure reference
 - **[Update-UserDocumentationState.ps1](../../scripts/update/Update-UserDocumentationState.ps1)** — Automates finalization state updates
-- [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) — Source for identifying undocumented features
+- [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) — Source for identifying undocumented features

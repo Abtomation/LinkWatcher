@@ -100,7 +100,7 @@ try {
 $projectRoot = Get-ProjectRoot
 
 # --- Load project-config.json ---
-$projectConfigPath = Join-Path $projectRoot "process-framework/project-config.json"
+$projectConfigPath = Join-Path $projectRoot "doc/project-config.json"
 if (-not (Test-Path $projectConfigPath)) {
     Write-Error "project-config.json not found at $projectConfigPath. Run Project Initiation (PF-TSK-059) first."
     exit 1

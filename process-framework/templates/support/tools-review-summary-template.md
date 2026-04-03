@@ -22,7 +22,6 @@ description: Standardized template for Tools Review task (PF-TSK-010) summary ou
 |-----------|-------|
 | Forms Analyzed | [N] feedback forms |
 | Date Range | [start date] to [end date] |
-| Task Types Covered | [N] ([list task IDs]) |
 | Tools Evaluated | [N]+ unique tools |
 
 ---

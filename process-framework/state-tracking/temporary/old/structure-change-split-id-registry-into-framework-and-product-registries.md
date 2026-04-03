@@ -15,7 +15,7 @@ change_name: split-id-registry-into-framework-and-product-registries
 ## Structure Change Overview
 - **Change Name**: Split ID Registry Into Framework And Product Registries
 - **Change ID**: SC-008
-- **Proposal Document**: [Structure Change Proposal PF-PRO-011](/process-framework/proposals/proposals/old/structure-change-split-id-registry-into-framework-and-product-registries-proposal.md)
+- **Proposal Document**: [Structure Change Proposal PF-PRO-011](/process-framework/proposals/old/structure-change-split-id-registry-into-framework-and-product-registries-proposal.md)
 - **Change Type**: Documentation Architecture
 - **Scope**: Split doc/id-registry.json into three domain-specific registries (PF, PD, TE) with prefix renames, metadata updates (~668 files), and script refactoring
 - **Expected Completion**: TBD (3-4 sessions)
@@ -27,17 +27,17 @@ change_name: split-id-registry-into-framework-and-product-registries
 | Scope | Old → New Prefix | Count | Location Pattern | Complexity |
 |-------|------------------|-------|------------------|------------|
 | Feedback artifacts | ART-FEE → PF-FEE | ~434 | `process-framework/feedback` | SIMPLE (bulk replace) |
-| Refactoring plans | PF-REF → PD-REF | 55 | `doc/product-docs/refactoring/plans/` | SIMPLE |
-| Assessment artifacts | ART-ASS → PD-ASS | ~53 | `doc/product-docs/documentation-tiers/assessments/` | SIMPLE |
-| Feature impl. states | PF-FEA → PD-FIS | 51 | `doc/product-docs/state-tracking/features/` | SIMPLE |
+| Refactoring plans | PF-REF → PD-REF | 55 | `doc/refactoring/plans` | SIMPLE |
+| Assessment artifacts | ART-ASS → PD-ASS | ~53 | `doc/documentation-tiers/assessments` | SIMPLE |
+| Feature impl. states | PF-FEA → PD-FIS | 51 | `doc/state-tracking/features` | SIMPLE |
 | State tracking (product) | PF-STA → PD-STA | 27 | `process-framework/state-tracking` | SIMPLE |
 | Review artifacts | ART-REV → PF-REV | 14 | `process-framework/feedback/reviews` | SIMPLE |
-| Validation reports | PF-VAL → PD-VAL | 12 | `doc/product-docs/validation/reports/` | SIMPLE |
+| Validation reports | PF-VAL → PD-VAL | 12 | `doc/validation/reports` | SIMPLE |
 | Test specifications | PF-TSP → TE-TSP | 10 | `test/specifications/` | SIMPLE |
 | Test audit reports | PF-TAR → TE-TAR | 7 | `test/audits/` | SIMPLE |
-| User guide handbooks | PD-UGD (add) | 2 | `doc/product-docs/user/handbooks/` | SIMPLE (add frontmatter) |
+| User guide handbooks | PD-UGD (add) | 2 | `doc/user/handbooks` | SIMPLE (add frontmatter) |
 | State tracking (test) | PF-STA → TE-STA | 1 | `process-framework/state-tracking/permanent` → `test/` | MODERATE (move + rename) |
-| Tier assessments README | PF-ASS → PF-DOC | 1 | `doc/product-docs/documentation-tiers/` | SIMPLE |
+| Tier assessments README | PF-ASS → PF-DOC | 1 | `doc/documentation-tiers` | SIMPLE |
 | Development guide | PD-GDE → PF-GDE | 1 | `process-framework/guides` | SIMPLE |
 | **Total** | | **~668** | | |
 
@@ -55,7 +55,7 @@ change_name: split-id-registry-into-framework-and-product-registries
 | Script | New-FeatureImplementationState.ps1 | `process-framework/scripts/file-creation/04-implementation` | Update prefix + path | MEDIUM |
 | Script | All other file-creation scripts | `process-framework/scripts/file-creation` | Update path via module | MEDIUM |
 | Documentation | CLAUDE.md | project root | Update registry reference | MEDIUM |
-| Documentation | documentation-map.md | `process-framework` | Update prefix references | MEDIUM |
+| Documentation | PF-documentation-map.md | `process-framework` | Update prefix references | MEDIUM |
 | Tasks | Multiple task definitions | `process-framework/tasks` | Update id-registry.json context refs | LOW |
 
 ## Migration Strategy
@@ -70,7 +70,7 @@ change_name: split-id-registry-into-framework-and-product-registries
 | Current Structure | New Structure | Migration Method |
 |-------------------|---------------|------------------|
 | `doc/id-registry.json` | `process-framework/PF-id-registry.json` | Move (LinkWatcher updates refs) |
-| _(new)_ | `doc/product-docs/PD-id-registry.json` | Create from extracted PD-* prefixes |
+| _(new)_ | `doc/PD-id-registry.json` | Create from extracted PD-* prefixes |
 | _(new)_ | `test/TE-id-registry.json` | Create from extracted TE-* prefixes |
 | `process-framework/feedback/README.md` | _(removed)_ | Delete |
 | `process-framework/state-tracking/permanent/test-tracking.md` | `test/test-tracking.md` | Move |
@@ -82,7 +82,7 @@ change_name: split-id-registry-into-framework-and-product-registries
 
 - [x] **Structure Change Proposal**: PF-PRO-011 created and approved
   - **Status**: COMPLETED
-  - **Location**: [Proposal](/process-framework/proposals/proposals/old/structure-change-split-id-registry-into-framework-and-product-registries-proposal.md)
+  - **Location**: [Proposal](/process-framework/proposals/old/structure-change-split-id-registry-into-framework-and-product-registries-proposal.md)
 
 - [x] **Move id-registry.json**: Move `doc/id-registry.json` → `process-framework/PF-id-registry.json`
   - **Status**: COMPLETED
@@ -96,7 +96,7 @@ change_name: split-id-registry-into-framework-and-product-registries
 
 - [x] **Create PD-id-registry.json**: Extract PD-* prefixes with renames
   - **Status**: COMPLETED (27 prefixes)
-  - **Location**: `doc/product-docs/PD-id-registry.json`
+  - **Location**: `doc/PD-id-registry.json`
 
 - [x] **Create TE-id-registry.json**: Extract TE-* prefixes with renames
   - **Status**: COMPLETED (6 prefixes)
@@ -140,7 +140,7 @@ change_name: split-id-registry-into-framework-and-product-registries
   - **Status**: COMPLETED
   - ART-FEE→PF-FEE: 269, PF-REF→PD-REF: 55, ART-ASS→PD-ASS: 52, PF-FEA→PD-FIS: 51
   - PF-STA→PD-STA: 27, ART-REV→PF-REV: 14, PF-VAL→PD-VAL: 12, PF-TSP→TE-TSP: 10
-  - PF-TAR→TE-TAR: 16 (7 in test/ + 7 in product-docs/ + 2 misc), PF-STA→TE-STA: 1
+  - PF-TAR→TE-TAR: 16 (7 in test/ + 7 in doc/ + 2 misc), PF-STA→TE-STA: 1
   - PF-ASS→PF-DOC: 1, PD-GDE→PF-GDE: 1, PD-UGD: 2 files got new frontmatter
 
 - [x] **Verify zero old prefixes remain**: Grep for all old prefixes in frontmatter
@@ -182,7 +182,7 @@ change_name: split-id-registry-into-framework-and-product-registries
 - [x] **Grep for old prefixes**: Zero frontmatter with old prefixes
   - **Status**: COMPLETED — PASS
 
-- [ ] **Archive proposal**: Move PF-PRO-011 to `proposals/proposals/old/`
+- [ ] **Archive proposal**: Move PF-PRO-011 to `proposals/old`
   - **Status**: NOT_STARTED
 
 - [ ] **Archive this state file**: Move to `state-tracking/temporary/old/`
@@ -214,7 +214,7 @@ change_name: split-id-registry-into-framework-and-product-registries
 - Updated 6 scripts (3 validation + 3 file creation)
 - Bulk-renamed prefixes in 508 files, verified zero old prefixes remain
 - Added PD-UGD frontmatter to 2 handbook files
-- Updated documentation-map.md with renamed prefix IDs
+- Updated PF-documentation-map.md with renamed prefix IDs
 - All 9 test cases pass
 - All 3 registries accessible: 11 PF + 27 PD + 6 TE = 44 prefixes
 

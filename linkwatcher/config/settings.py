@@ -15,10 +15,11 @@ AI Context
   - Adding a config field: add a dataclass field with default, then
     add its env-var mapping in ``from_env()`` and YAML key handling
     in ``_from_dict()``.  Update config-examples/ YAML files.
-  - Debugging config loading: ``_from_dict()`` uses ``setattr`` with
-    a dunder guard; ``from_file()`` delegates to PyYAML/json.
-  - Understanding type coercion: ``_from_dict()`` converts lists to
-    sets for ``monitored_extensions`` and ``ignored_directories``.
+  - Debugging config loading: ``_from_dict()`` uses ``get_type_hints``
+    to auto-detect ``Set`` fields and convert lists to sets;
+    ``from_file()`` delegates to PyYAML/json.
+  - Understanding type coercion: both ``_from_dict()`` and ``from_env()``
+    use type-hint reflection to handle ``Set[str]`` fields generically.
 """
 
 import dataclasses
@@ -144,13 +145,28 @@ class LinkWatcherConfig:
             "config-examples",
         }
     )
+    # Substring patterns matched against link targets during --validate.
+    # A broken-link report is suppressed when any pattern appears in the
+    # target path (e.g., "path/to/" skips all placeholder paths).
     validation_ignored_patterns: Set[str] = field(
         default_factory=lambda: {
             "path/to/",
             "xxx",
+            "LinkWatcher/",
         }
     )
     validation_ignore_file: str = ".linkwatcher-ignore"
+
+    # Parser type-to-extension mapping for extension-aware suffix matching.
+    # When the database matches extensionless references (e.g., Python imports)
+    # against full file paths, only the mapped extension is considered valid.
+    # Types not listed here allow any extension during suffix matching.
+    parser_type_extensions: Dict[str, str] = field(
+        default_factory=lambda: {
+            "python": ".py",
+            "dart": ".dart",
+        }
+    )
 
     # Move detection timing
     move_detect_delay: float = 10.0
@@ -191,35 +207,20 @@ class LinkWatcherConfig:
         """Create configuration from dictionary."""
         config = cls()
         known_fields = {f.name for f in dataclasses.fields(cls)}
+        type_hints = get_type_hints(cls)
 
         # Warn about unknown keys (likely typos)
         for key in data:
             if key not in known_fields:
                 logger.warning("Unknown configuration key '%s' — ignored (possible typo?)", key)
 
-        # Convert sets from lists
-        if "monitored_extensions" in data:
-            config.monitored_extensions = set(data["monitored_extensions"])
-
-        if "ignored_directories" in data:
-            config.ignored_directories = set(data["ignored_directories"])
-
-        if "validation_extra_ignored_dirs" in data:
-            config.validation_extra_ignored_dirs = set(data["validation_extra_ignored_dirs"])
-
-        if "validation_ignored_patterns" in data:
-            config.validation_ignored_patterns = set(data["validation_ignored_patterns"])
-
-        # Set other attributes
         for key, value in data.items():
-            if key.startswith("_"):
+            if key.startswith("_") or key not in known_fields:
                 continue
-            if key in known_fields and key not in [
-                "monitored_extensions",
-                "ignored_directories",
-                "validation_extra_ignored_dirs",
-                "validation_ignored_patterns",
-            ]:
+            field_type = type_hints.get(key)
+            if field_type is Set[str] or field_type is set:
+                setattr(config, key, set(value))
+            else:
                 setattr(config, key, value)
 
         return config

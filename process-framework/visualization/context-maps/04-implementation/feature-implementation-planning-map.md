@@ -40,8 +40,8 @@ graph TD
     FEATSTATE["New-FeatureImplementationState.ps1<br/>(Creates PF-FEA-XXX docs)"]
 
     OUTPUTS["📤 Planning Outputs"]
-    IMPLPLAN_DOC["Implementation Plan<br/>(PD-IMP-XXX)<br/>in /product-docs/technical/"]
-    FEATSTATE_DOC["Feature State Document<br/>(PF-FEA-XXX)<br/>in /product-docs/state-tracking/features/"]
+    IMPLPLAN_DOC["Implementation Plan<br/>(PD-IMP-XXX)<br/>in /doc/technical/"]
+    FEATSTATE_DOC["Feature State Document<br/>(PF-FEA-XXX)<br/>in /doc/state-tracking/features/"]
 
     REFERENCE["📚 Reference Materials"]
     TEMPLATE_IMPL["Implementation Plan Template<br/>(PF-TEM-042)"]
@@ -143,7 +143,7 @@ graph TD
 - [Implementation Plan Template (PF-TEM-042)](../../../templates/04-implementation/implementation-plan-template-template.md) - Template structure for implementation plans
 - [Implementation Plan Customization Guide (PF-GDE-046)](../../../guides/04-implementation/implementation-plan-customization-guide.md) - Step-by-step customization instructions
 - [Feature Implementation State Template (PF-TEM-037)](../../../templates/04-implementation/feature-implementation-state-template.md) - Permanent state tracking template
-- [Feature Tracking](../../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) - Registry of all features and their status
+- [Feature Tracking](../../../../doc/state-tracking/permanent/feature-tracking.md) - Registry of all features and their status
 - [New-ImplementationPlan.ps1](../../../scripts/file-creation/04-implementation/New-ImplementationPlan.ps1) - Script for creating implementation plans
 - [New-FeatureImplementationState.ps1](../../../scripts/file-creation/04-implementation/New-FeatureImplementationState.ps1) - Script for creating feature state documents
 

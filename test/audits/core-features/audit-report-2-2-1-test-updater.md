@@ -2,10 +2,10 @@
 id: TE-TAR-021
 type: Document
 category: General
-version: 1.0
+version: 2.0
 created: 2026-03-26
-updated: 2026-03-26
-audit_date: 2026-03-26
+updated: 2026-04-03
+audit_date: 2026-04-03
 test_file_path: test/automated/unit/test_updater.py
 feature_id: 2.2.1
 auditor: AI Agent
@@ -22,7 +22,8 @@ auditor: AI Agent
 | **Test File Location** | `test/automated/unit/test_updater.py` |
 | **Feature Category** | CORE-FEATURES |
 | **Auditor** | AI Agent |
-| **Audit Date** | 2026-03-26 |
+| **Audit Date** | 2026-04-03 (re-audit) |
+| **Prior Audit** | 2026-03-26 (v1.0) |
 | **Audit Status** | COMPLETED |
 
 ## Test Files Audited
@@ -39,6 +40,7 @@ auditor: AI Agent
 
 **Implementation Dependencies Summary**:
 - **Testable Components**: LinkUpdater initialization, dry run mode, backup, path calculation, line replacement, atomic writes, stale detection, root-relative path handling
+- **Untested New Code**: `update_references_batch()`, `_update_file_references_multi()`, `_replace_reference_target()` — added since prior audit, 0% test coverage
 - **Missing Dependencies**: None — updater.py fully implemented
 - **Placeholder Tests**: None — all tests execute real code
 
@@ -76,24 +78,31 @@ auditor: AI Agent
 ### 2. Coverage Completeness
 **Question**: Are all implementable scenarios covered with tests?
 
-**Assessment**: PASS (3.5/4)
+**Assessment**: PASS (3.0/4) _(downgraded from 3.5 — new production code untested)_
 
-**Code Coverage Data** _(from `Run-Tests.ps1 -Coverage`)_:
+**Code Coverage Data** _(from `pytest --cov=linkwatcher.updater`, 2026-04-03)_:
 
 | Source Module | Coverage % | Uncovered Areas |
 |---------------|-----------|-----------------|
-| updater.py | 94% | Minor error paths |
+| updater.py | 74% | Batch methods, reference-link replacement, error paths |
 
-**Overall Project Coverage**: 86%
+**Overall Project Coverage**: 89%
 
 **Findings**:
-- **Existing Implementation Coverage**: Excellent — all major code paths in updater.py tested
-- **Code Coverage Gaps**: Minor — some OS error paths during file writes
-- **Missing Test Scenarios**: No symlink handling tests, no permission error tests during writes, no encoding edge cases (UTF-8 BOM)
-- **Edge Cases Coverage**: Excellent — anchors, relative paths, multiple refs same file, stale detection, backup creation
+- **Coverage regression**: updater.py dropped from 94% (prior audit) to 74% due to new code added since 2026-03-26
+- **Critical gap**: `update_references_batch()` (lines 132-170) — 0% coverage, actively used by handler.py for directory moves
+- **Critical gap**: `_update_file_references_multi()` (lines 222-245) — 0% coverage, multi-path variant used by batch method
+- **Gap**: `_replace_reference_target()` (lines 424-440) — 0% coverage, handles `[label]: target` markdown reference links
+- **Gap**: `_replace_at_position()` single-quote branch (line 487) — not exercised
+- **Gap**: `_write_file_safely()` error cleanup (lines 521-528) — not exercised
+- **Gap**: `_get_cached_regex()` cache eviction (line 447) — not exercised
+- **Existing coverage**: All pre-existing code paths remain well-tested
+- **Prior unfixed**: Permission error tests still absent, symlink tests still absent
 
 **Recommendations**:
-- Consider adding permission error test for write failures (low priority)
+- **High priority**: Add unit tests for `update_references_batch()` — this is production code handling directory moves
+- **Medium priority**: Add unit test for `_replace_reference_target()` — markdown reference links
+- Consider integration test for batch path through directory move event
 
 ---
 
@@ -167,12 +176,17 @@ auditor: AI Agent
 **Status**: ✅ TESTS_APPROVED
 
 **Rationale**:
-Test suite provides comprehensive coverage of the link updater with strong behavioral assertions, excellent regression test coverage for known bugs (PD-BUG-005, PD-BUG-017), and minimal mock usage. Assertion density meets target, and test organization is clean. Minor style issues (== True) do not affect correctness.
+Existing 28 tests remain high-quality with strong behavioral assertions and excellent regression coverage. All 54 tests (unit + integration) pass with 0 failures. However, updater.py coverage has dropped from 94% to 74% due to new production methods (`update_references_batch`, `_update_file_references_multi`) that lack any test coverage. These methods are actively used by the handler for directory moves. The existing tests are approved, but new tests should be written for the untested code paths — registered as tech debt item.
 
 ### Critical Issues
-- None
+- None blocking approval
 
-### Improvement Opportunities
+### Significant Findings
+- **Coverage regression**: 94% → 74% on updater.py due to untested new batch methods (39 lines, 0% coverage)
+- `update_references_batch()` and `_update_file_references_multi()` are production code used by handler.py — registered as tech debt
+- `_replace_reference_target()` for markdown reference links has 0% coverage
+
+### Improvement Opportunities (carried from prior audit, unfixed)
 - Replace `assert X == True` with `assert X is True` (6 instances — style only)
 - Consider permission error tests for write failures
 
@@ -185,10 +199,19 @@ Test suite provides comprehensive coverage of the link updater with strong behav
 ## Action Items
 
 ### For Test Implementation Team
-- No required action items
+- **High**: Add tests for `update_references_batch()` — unit test with multiple move groups, verify per-file consolidation
+- **Medium**: Add test for `_replace_reference_target()` — `[label]: target` format replacement
+- **Low**: Fix `assert == True` style (6 instances)
 
 ### For Feature Implementation Team
 - No action items
+
+## Audit History
+
+| Version | Date | Auditor | Key Changes |
+|---------|------|---------|-------------|
+| 1.0 | 2026-03-26 | AI Agent | Initial audit — Tests Approved |
+| 2.0 | 2026-04-03 | AI Agent | Re-audit — coverage regression noted (94%→74%), batch methods untested, tech debt registered |
 
 ## Audit Completion
 
@@ -203,5 +226,5 @@ Test suite provides comprehensive coverage of the link updater with strong behav
 ---
 
 **Audit Completed By**: AI Agent
-**Completion Date**: 2026-03-26
-**Report Version**: 1.0
+**Completion Date**: 2026-04-03
+**Report Version**: 2.0

@@ -39,7 +39,7 @@
     .\Update-FeatureTrackingFromAssessment.ps1 -AssessmentId "ART-ASS-002" -FeatureId "2.1.5" -DryRun
 
 .EXAMPLE
-    .\Update-FeatureTrackingFromAssessment.ps1 -AssessmentFile "doc/product-docs/documentation-tiers/assessments/ART-ASS-003-1.4.1-payment-processing.md" -Force
+    .\Update-FeatureTrackingFromAssessment.ps1 -AssessmentFile "doc/documentation-tiers/assessments/ART-ASS-003-1.4.1-payment-processing.md" -Force
 
 .NOTES
     - Requires PowerShell execution policy to allow script execution
@@ -88,7 +88,7 @@ try {
 
     # Determine assessment file path
     if (-not $AssessmentFile) {
-        $assessmentsDir = Join-Path -Path (Get-ProjectRoot) -ChildPath "doc/product-docs/documentation-tiers/assessments"
+        $assessmentsDir = Join-Path -Path (Get-ProjectRoot) -ChildPath "doc/documentation-tiers/assessments"
 
         # Find assessment file by ID
         $assessmentFiles = Get-ChildItem -Path $assessmentsDir -Filter "$AssessmentId-*.md" -ErrorAction SilentlyContinue
@@ -215,7 +215,7 @@ try {
 
     # Get relative path to assessment from feature-tracking.md location
     $assessmentFileName = Split-Path $AssessmentFile -Leaf
-    $assessmentRelativePath = "../../../product-docs/documentation-tiers/assessments/$assessmentFileName"
+    $assessmentRelativePath = "doc/documentation-tiers/assessments/$assessmentFileName"
 
     # Put the assessment link in the Doc Tier column
     $additionalUpdates["Doc Tier"] = "[$recommendedTier]($assessmentRelativePath)"
@@ -269,7 +269,7 @@ try {
     $notesString = $assessmentNotes -join "; "
 
     # Make notes idempotent: check if this assessment is already recorded in feature-tracking.md
-    $featureTrackingPath = Join-Path -Path (Get-ProjectRoot) -ChildPath "doc/product-docs/state-tracking/permanent/feature-tracking.md"
+    $featureTrackingPath = Join-Path -Path (Get-ProjectRoot) -ChildPath "doc/state-tracking/permanent/feature-tracking.md"
     if (Test-Path $featureTrackingPath) {
         $ftContent = Get-Content $featureTrackingPath -Raw -Encoding UTF8
         if ($ftContent -match [regex]::Escape($AssessmentId)) {

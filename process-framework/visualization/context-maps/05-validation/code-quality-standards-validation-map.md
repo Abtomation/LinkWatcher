@@ -5,7 +5,6 @@ category: General
 version: 1.0
 created: 2025-08-15
 updated: 2025-08-15
-task_type: Discrete
 task_name: code-quality-standards-validation
 map_type: Context Map
 visualization_type: Task Context
@@ -84,7 +83,7 @@ graph TD
 
 - [Code Quality Standards Validation Task](../../../tasks/05-validation/code-quality-standards-validation.md) - Complete task definition and process
 
-- [Feature Tracking](../../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) - Current status of features
+- [Feature Tracking](../../../../doc/state-tracking/permanent/feature-tracking.md) - Current status of features
 - Validation Tracking State File - Active validation tracking matrix (file location depends on validation round)
 - Language Style Guide - Official language coding standards
 

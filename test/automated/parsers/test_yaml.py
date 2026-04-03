@@ -544,16 +544,16 @@ class TestYamlParserCompoundStrings:
         parser = YamlParser()
         yaml_content = (
             "hooks:\n"
-            '  - entry: "pwsh.exe -ExecutionPolicy Bypass -File doc/scripts/test/Run-Tests.ps1 -Quick"\n'  # noqa: E501
+            '  - entry: "pwsh.exe -ExecutionPolicy Bypass -File alpha-project/scripts/test/Run-Tests.ps1 -Quick"\n'  # noqa: E501
         )
         references = parser.parse_content(yaml_content, "config.yaml")
         targets = [ref.link_target for ref in references]
-        assert "doc/scripts/test/Run-Tests.ps1" in targets
+        assert "alpha-project/scripts/test/Run-Tests.ps1" in targets
 
     def test_compound_string_with_embedded_directory_path(self):
         """Compound string with an embedded directory path should be detected."""
         parser = YamlParser()
-        yaml_content = "hooks:\n" '  - entry: "python doc/scripts/feedback_db.py record --json"\n'
+        yaml_content = "hooks:\n" '  - entry: "python alpha-project/scripts/feedback_db.py record --json"\n'
         references = parser.parse_content(yaml_content, "config.yaml")
         targets = [ref.link_target for ref in references]
-        assert "doc/scripts/feedback_db.py" in targets
+        assert "alpha-project/scripts/feedback_db.py" in targets

@@ -76,7 +76,7 @@ graph TD
 ## Related Documentation
 
 - [Observability Validation Task](../../../tasks/05-validation/observability-validation.md) - Complete task definition and process
-- [Feature Tracking](../../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) - Current status of features
+- [Feature Tracking](../../../../doc/state-tracking/permanent/feature-tracking.md) - Current status of features
 - Validation Tracking State File - Active validation tracking matrix (file location depends on validation round)
 
 ---

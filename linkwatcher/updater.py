@@ -68,6 +68,7 @@ class LinkUpdater:
         self.logger = get_logger()
         self.path_resolver = PathResolver(project_root, self.logger)
         self._regex_cache: Dict[str, re.Pattern] = {}
+        self._REGEX_CACHE_MAX_SIZE = 1024
 
     def update_references(
         self, references: List[LinkReference], old_path: str, new_path: str
@@ -182,26 +183,7 @@ class LinkUpdater:
     def _update_file_references(
         self, file_path: str, references: List[LinkReference], old_path: str, new_path: str
     ) -> UpdateResult:
-        """
-        Update references in a single file.
-
-        Algorithm (two phases):
-          Phase 1 — Line-by-line replacement (bottom-to-top order to preserve
-          line/column positions). For each reference, calculates the new target
-          path, performs stale-detection checks, and replaces the old target on
-          the matched line. Python-import module renames are collected for Phase 2.
-
-          Phase 2 — File-wide Python module usage replacement (PD-BUG-045).
-          When a Python import statement is renamed (e.g. "utils.helpers" →
-          "core.helpers"), all usages of the old module name elsewhere in the
-          file are replaced via word-boundary regex.
-
-        Returns:
-            UpdateResult.UPDATED if file was modified,
-            UpdateResult.NO_CHANGES if no changes needed,
-            UpdateResult.STALE if stale line numbers were detected (file NOT modified).
-        """
-        # Resolve relative path to absolute path
+        """Update references in a single file for one old→new path pair."""
         if not os.path.isabs(file_path):
             abs_file_path = os.path.join(self.project_root, file_path)
         else:
@@ -215,31 +197,102 @@ class LinkUpdater:
             )
             return UpdateResult.UPDATED
 
+        # Build (ref, new_target) pairs, filtering out no-change items
+        replacement_items = []
+        for ref in references:
+            new_target = self._calculate_new_target(ref, old_path, new_path)
+            if new_target != ref.link_target:
+                replacement_items.append((ref, new_target))
+
+        if not replacement_items:
+            return UpdateResult.NO_CHANGES
+
+        return self._apply_replacements(abs_file_path, file_path, replacement_items)
+
+    def _update_file_references_multi(
+        self,
+        file_path: str,
+        ref_tuples: List[Tuple[LinkReference, str, str]],
+    ) -> UpdateResult:
+        """Update references in a single file for multiple old→new path pairs.
+
+        Processes all path replacements in one read→modify→write cycle.
+        Each ref_tuple is (reference, old_path, new_path).
+        """
+        if not os.path.isabs(file_path):
+            abs_file_path = os.path.join(self.project_root, file_path)
+        else:
+            abs_file_path = file_path
+
+        if self.dry_run:
+            self.logger.info(
+                "dry_run_skip",
+                file_path=abs_file_path,
+                references_count=len(ref_tuples),
+            )
+            return UpdateResult.UPDATED
+
+        # Build (ref, new_target) pairs, computing new_target for each move
+        replacement_items = []
+        for ref, old_path, new_path in ref_tuples:
+            new_target = self._calculate_new_target(ref, old_path, new_path)
+            if new_target != ref.link_target:
+                replacement_items.append((ref, new_target))
+
+        if not replacement_items:
+            return UpdateResult.NO_CHANGES
+
+        return self._apply_replacements(abs_file_path, file_path, replacement_items)
+
+    def _apply_replacements(
+        self,
+        abs_file_path: str,
+        file_path: str,
+        replacement_items: List[Tuple[LinkReference, str]],
+    ) -> UpdateResult:
+        """Apply pre-computed replacements to a single file.
+
+        Algorithm (two phases):
+          Phase 1 — Line-by-line replacement (bottom-to-top order to preserve
+          line/column positions). For each reference, performs stale-detection
+          checks and replaces the old target on the matched line. Python-import
+          module renames are collected for Phase 2.
+
+          Phase 2 — File-wide Python module usage replacement (PD-BUG-045).
+          When a Python import statement is renamed (e.g. "utils.helpers" →
+          "core.helpers"), all usages of the old module name elsewhere in the
+          file are replaced via word-boundary regex.
+
+        Args:
+            abs_file_path: Absolute path to the file.
+            file_path: Original (possibly relative) path for log messages.
+            replacement_items: Pre-filtered list of (reference, new_target) pairs
+                where new_target differs from ref.link_target.
+
+        Returns:
+            UpdateResult.UPDATED if file was modified,
+            UpdateResult.NO_CHANGES if no changes needed,
+            UpdateResult.STALE if stale line numbers were detected (file NOT modified).
+        """
         try:
-            # Read the current file content
             with open(abs_file_path, "r", encoding="utf-8") as f:
                 lines = f.readlines()
 
-            # Track if any changes were made
             changes_made = False
 
-            # Sort references by line number (descending) and column (descending)
-            # This ensures we update from bottom to top, preserving line/column positions
-            sorted_refs = sorted(
-                references, key=lambda r: (r.line_number, r.column_start), reverse=True
+            # Sort by line number (descending) and column (descending)
+            # to update from bottom to top, preserving line/column positions
+            sorted_items = sorted(
+                replacement_items,
+                key=lambda item: (item[0].line_number, item[0].column_start),
+                reverse=True,
             )
 
-            # Phase 1: Collect python-import module rename mappings
+            # Phase 1: Line-by-line replacement with stale detection
             python_module_renames = {}
 
-            for ref in sorted_refs:
+            for ref, new_target in sorted_items:
                 line_idx = ref.line_number - 1  # Convert to 0-based index
-
-                # Calculate the new target path (delegated to PathResolver)
-                new_target = self._calculate_new_target(ref, old_path, new_path)
-
-                if new_target == ref.link_target:
-                    continue  # No change needed for this reference
 
                 # Collect module rename mapping for Phase 2 (PD-BUG-045)
                 if ref.link_type == "python-import" and ref.link_text:
@@ -311,121 +364,6 @@ class LinkUpdater:
         except Exception as e:
             raise RuntimeError(f"Failed to update file {abs_file_path}: {e}")
 
-    def _update_file_references_multi(
-        self,
-        file_path: str,
-        ref_tuples: List[Tuple[LinkReference, str, str]],
-    ) -> UpdateResult:
-        """Update references in a single file for multiple old→new path pairs.
-
-        Like _update_file_references but processes all path replacements in one
-        read→modify→write cycle. Each ref_tuple is (reference, old_path, new_path).
-
-        Returns:
-            UpdateResult.UPDATED if file was modified,
-            UpdateResult.NO_CHANGES if no changes needed,
-            UpdateResult.STALE if stale line numbers were detected.
-        """
-        if not os.path.isabs(file_path):
-            abs_file_path = os.path.join(self.project_root, file_path)
-        else:
-            abs_file_path = file_path
-
-        if self.dry_run:
-            self.logger.info(
-                "dry_run_skip",
-                file_path=abs_file_path,
-                references_count=len(ref_tuples),
-            )
-            return UpdateResult.UPDATED
-
-        try:
-            with open(abs_file_path, "r", encoding="utf-8") as f:
-                lines = f.readlines()
-
-            changes_made = False
-
-            # Build (ref, new_target) pairs, computing new_target for each
-            replacement_items = []
-            for ref, old_path, new_path in ref_tuples:
-                new_target = self._calculate_new_target(ref, old_path, new_path)
-                if new_target != ref.link_target:
-                    replacement_items.append((ref, new_target))
-
-            if not replacement_items:
-                return UpdateResult.NO_CHANGES
-
-            # Sort by line number descending, then column descending (bottom-to-top)
-            replacement_items.sort(
-                key=lambda item: (item[0].line_number, item[0].column_start),
-                reverse=True,
-            )
-
-            python_module_renames = {}
-
-            for ref, new_target in replacement_items:
-                line_idx = ref.line_number - 1
-
-                if ref.link_type == "python-import" and ref.link_text:
-                    new_module = new_target.replace("/", ".")
-                    if ref.link_text != new_module:
-                        python_module_renames[ref.link_text] = new_module
-
-                # Stale detection: line index out of bounds
-                if not (0 <= line_idx < len(lines)):
-                    self.logger.warning(
-                        "stale_line_number_detected",
-                        file_path=file_path,
-                        line_number=ref.line_number,
-                        total_lines=len(lines),
-                        link_target=ref.link_target,
-                    )
-                    return UpdateResult.STALE
-
-                line = lines[line_idx]
-
-                # Stale detection: expected target not found on this line
-                if ref.link_target not in line:
-                    if ref.link_type == "python-import" and ref.link_text and ref.link_text in line:
-                        pass
-                    elif new_target in line or (
-                        ref.link_type == "python-import" and new_target.replace("/", ".") in line
-                    ):
-                        continue
-                    else:
-                        self.logger.warning(
-                            "stale_line_content_detected",
-                            file_path=file_path,
-                            line_number=ref.line_number,
-                            expected_target=ref.link_target,
-                        )
-                        return UpdateResult.STALE
-
-                updated_line = self._replace_in_line(line, ref, new_target)
-                if updated_line != line:
-                    lines[line_idx] = updated_line
-                    changes_made = True
-
-            # Phase 2: File-wide Python module usage replacement (PD-BUG-045)
-            if python_module_renames:
-                content = "".join(lines)
-                for old_module, new_module in python_module_renames.items():
-                    pattern = r"\b" + re.escape(old_module) + r"\b"
-                    content = re.sub(pattern, new_module, content)
-                new_lines = content.splitlines(True)
-                if new_lines != lines:
-                    lines = new_lines
-                    changes_made = True
-
-            if changes_made:
-                self._write_file_safely(abs_file_path, "".join(lines))
-                return UpdateResult.UPDATED
-
-            return UpdateResult.NO_CHANGES
-
-        except Exception as e:
-            raise RuntimeError(f"Failed to update file {abs_file_path}: {e}")
-
     def _calculate_new_target(self, ref: LinkReference, old_path: str, new_path: str) -> str:
         """Calculate the new target path for a reference.
 
@@ -477,10 +415,7 @@ class LinkUpdater:
                 f"{new_target}{title_part}{match.group(6)}"
             )
 
-        compiled = self._regex_cache.get(pattern)
-        if compiled is None:
-            compiled = re.compile(pattern)
-            self._regex_cache[pattern] = compiled
+        compiled = self._get_cached_regex(pattern)
         return compiled.sub(replace_func, line)
 
     def _replace_reference_target(self, line: str, ref: LinkReference, new_target: str) -> str:
@@ -501,11 +436,18 @@ class LinkUpdater:
             end_part = match.group(4) if match.group(4) else ""
             return f"{match.group(1)}{new_target}{title_part}{end_part}"
 
+        compiled = self._get_cached_regex(pattern)
+        return compiled.sub(replace_func, line)
+
+    def _get_cached_regex(self, pattern: str) -> re.Pattern:
+        """Get a compiled regex from cache, compiling and caching if needed."""
         compiled = self._regex_cache.get(pattern)
         if compiled is None:
+            if len(self._regex_cache) >= self._REGEX_CACHE_MAX_SIZE:
+                self._regex_cache.clear()
             compiled = re.compile(pattern)
             self._regex_cache[pattern] = compiled
-        return compiled.sub(replace_func, line)
+        return compiled
 
     def _replace_at_position(self, line: str, ref: LinkReference, new_target: str) -> str:
         """Replace target at specific position in line."""

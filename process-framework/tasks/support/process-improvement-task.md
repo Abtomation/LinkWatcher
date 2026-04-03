@@ -6,7 +6,6 @@ domain: agnostic
 version: 2.2
 created: 2024-07-15
 updated: 2026-03-03
-task_type: Discrete
 ---
 
 # Process Improvement
@@ -47,7 +46,7 @@ Analyze, optimize, and document development processes to improve efficiency, qua
   - [Feedback Forms](../../feedback/feedback-forms) - Source feedback forms referenced by the improvement
 
 - **Reference Only (Access When Needed):**
-  - [Feature Tracking](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) - Can be used to identify areas needing improvement
+  - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Can be used to identify areas needing improvement
 
 ## Process
 

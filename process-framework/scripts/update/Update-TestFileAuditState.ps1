@@ -13,7 +13,7 @@ SC-007: Uses file path as test file identifier (not PD-TST/TE-TST IDs).
 
 Updates the following files:
 - test/state-tracking/permanent/test-tracking.md
-- doc/product-docs/state-tracking/permanent/feature-tracking.md (aggregated status)
+- doc/state-tracking/permanent/feature-tracking.md (aggregated status)
 
 .PARAMETER TestFilePath
 Relative path to the test file being audited (e.g., "test/automated/unit/test_service.py")
@@ -284,7 +284,7 @@ try {
         $projectRoot = Get-ProjectRoot
         $filesToBackup = @(
             "test/state-tracking/permanent/test-tracking.md",
-            "doc/product-docs/state-tracking/permanent/feature-tracking.md"
+            "doc/state-tracking/permanent/feature-tracking.md"
         )
 
         $backupCount = 0

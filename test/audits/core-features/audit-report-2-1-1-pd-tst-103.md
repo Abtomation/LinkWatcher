@@ -26,7 +26,7 @@ audit_date: 2026-03-15
 | **Audit Date** | 2026-03-15 |
 | **Audit Status** | COMPLETED |
 | **Test Spec** | [PF-TSP-039](../../specifications/feature-specs/test-spec-2-1-1-link-parsing-system.md) |
-| **TDD** | [PD-TDD-025](../../../doc/product-docs/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md) |
+| **TDD** | [PD-TDD-025](../../../doc/technical/tdd/tdd-2-1-1-parser-framework-t2.md) |
 
 ## Test Files Audited
 

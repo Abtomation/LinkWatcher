@@ -20,7 +20,7 @@ target_feature: 1.1.1
 | **Target Feature** | 1.1.1 — File System Monitoring |
 | **Secondary Features Affected** | 0.1.2 — In-Memory Link Database (new prefix-based query method) |
 | **Enhancement Description** | When subdirectories move, also update references to parent directory paths by applying prefix-based replacement in the directory move handler |
-| **Change Request** | After moving `doc/product-docs/validation` to `doc/product-docs/validation/`, references to the parent directory path (e.g., `"doc/product-docs/validation/reports"` in id-registry.json) were not updated, even though references to specific subdirectories were. The directory move handler's Phase 2 only matches references whose path starts with the moved directory — it doesn't update references to ancestor/parent paths. |
+| **Change Request** | After moving `doc/validation` to `doc/product-ddoc/validation to the parent directory path (e.g., `"doc/validation/reports"` in id-registry.json) were not updated, even though references to specific subdirectories were. The directory move handler's Phase 2 only matches references whose path starts with the moved directory — it doesn't update references to ancestor/parent paths. |
 | **Human Approval** | 2026-03-16 — Target feature confirmed by human partner |
 | **Estimated Sessions** | 1 |
 | **Created By** | Feature Request Evaluation (PF-TSK-067) |
@@ -40,8 +40,8 @@ target_feature: 1.1.1
 | Document Type | ID | Location | Action Needed |
 |---------------|-----|----------|---------------|
 | Feature State File | PF-FEA-049 | [1.1.1-file-system-monitoring-implementation-state.md](../features/1.1.1-file-system-monitoring-implementation-state.md) | Update on completion |
-| FDD | PD-FDD-024 | [fdd-1-1-1-file-system-monitoring.md](../../../product-docs/functional-design/fdds/fdd-1-1-1-file-system-monitoring.md) | Amend — update directory move behavior to describe parent path updates |
-| TDD | PD-TDD-023 | [tdd-1-1-1-file-system-monitoring-t2.md](../../../product-docs/technical/architecture/design-docs/tdd/tdd-1-1-1-file-system-monitoring-t2.md) | Amend — update Phase 2 directory move handling to describe prefix-based parent path replacement |
+| FDD | PD-FDD-024 | [fdd-1-1-1-file-system-monitoring.md](/doc/functional-design/fdds/fdd-1-1-1-file-system-monitoring.md) | Amend — update directory move behavior to describe parent path updates |
+| TDD | PD-TDD-023 | [tdd-1-1-1-file-system-monitoring-t2.md](/doc/technical/tdd/tdd-1-1-1-file-system-monitoring-t2.md) | Amend — update Phase 2 directory move handling to describe prefix-based parent path replacement |
 | ADR | N/A | N/A | No change |
 | Test Specification | PF-TSP-038 | [test-spec-1-1-1-file-system-monitoring.md](../../../../test/specifications/feature-specs/test-spec-1-1-1-file-system-monitoring.md) | No change |
 

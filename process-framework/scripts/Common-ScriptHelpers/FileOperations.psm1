@@ -65,7 +65,7 @@ function Get-RelevantTrackingFiles {
         "TestSpecification" {
             $trackingFiles += @(
                 @{
-                    Path = Join-Path $projectRoot "doc/product-docs/state-tracking/permanent/test-tracking.md"
+                    Path = Join-Path $projectRoot "doc/state-tracking/permanent/test-tracking.md"
                     Type = "TestImplementation"
                     Required = $true
                 }
@@ -74,7 +74,7 @@ function Get-RelevantTrackingFiles {
         "ValidationReport" {
             $trackingFiles += @(
                 @{
-                    Path = Join-Path $projectRoot "doc/product-docs/state-tracking/temporary/validation/archive/validation-tracking-1.md"
+                    Path = Join-Path $projectRoot "doc/state-tracking/temporary/validation/archive/validation-tracking-1.md"
                     Type = "ValidationTracking"
                     Required = $true
                 }
@@ -83,7 +83,7 @@ function Get-RelevantTrackingFiles {
         "FeatureImplementation" {
             $trackingFiles += @(
                 @{
-                    Path = Join-Path $projectRoot "doc/product-docs/state-tracking/permanent/feature-tracking.md"
+                    Path = Join-Path $projectRoot "doc/state-tracking/permanent/feature-tracking.md"
                     Type = "FeatureTracking"
                     Required = $true
                 }

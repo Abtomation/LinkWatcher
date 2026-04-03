@@ -5,7 +5,6 @@ category: Task Definition
 version: 1.1
 created: 2023-06-15
 updated: 2025-06-08
-task_type: Cyclical
 ---
 
 # Documentation Tier Adjustment Task
@@ -35,12 +34,12 @@ Ensure documentation requirements remain aligned with the true complexity of fea
 
 - **Critical (Must Read):**
 
-  - [Original Assessment Document](../../../doc/product-docs/documentation-tiers/assessments) - Initial complexity assessment
-  - [Normalized Scoring System](../../../product-docs/documentation-tiers/README.md#normalized-scoring-system) - Guide for scoring complexity
+  - [Original Assessment Document](/doc/documentation-tiers/assessments) - Initial complexity assessment
+  - [Normalized Scoring System](/doc/documentation-tiers/README.md#normalized-scoring-system) - Guide for scoring complexity
   - [Visual Notation Guide](/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 - **Reference Only (Access When Needed):**
-  - [Feature Tracking Document](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) - Current documentation tier assignment
+  - [Feature Tracking Document](../../../doc/state-tracking/permanent/feature-tracking.md) - Current documentation tier assignment
 
 ## Process
 
@@ -119,7 +118,7 @@ Ensure documentation requirements remain aligned with the true complexity of fea
 
 The following state files must be updated as part of this task:
 
-- [Feature Tracking Document](../../../doc/product-docs/state-tracking/permanent/feature-tracking.md) - Update with:
+- [Feature Tracking Document](../../../doc/state-tracking/permanent/feature-tracking.md) - Update with:
   - New documentation tier emoji (🔵/🟠/🔴)
   - Link to updated assessment document
   - Date of tier adjustment

@@ -74,19 +74,23 @@ param(
     [switch]$UpdateTracking
 )
 
-# --- Resolve project root and configs ---
+# --- Import Common-ScriptHelpers for standardized utilities ---
 $scriptDir = if ($PSScriptRoot) { $PSScriptRoot } else { (Get-Location).Path }
-$projectRoot = $scriptDir
-while ($projectRoot -and -not (Test-Path (Join-Path $projectRoot "process-framework/project-config.json"))) {
-    $parent = Split-Path $projectRoot -Parent
-    if ($parent -eq $projectRoot) { $projectRoot = $null; break }
-    $projectRoot = $parent
-}
-if (-not $projectRoot) {
-    Write-Error "Could not find project root (no process-framework/project-config.json found above $scriptDir)"
+$modulePath = Join-Path -Path $scriptDir -ChildPath "../../scripts/Common-ScriptHelpers.psm1"
+try {
+    $resolvedPath = Resolve-Path $modulePath -ErrorAction Stop
+    Import-Module $resolvedPath -Force
+} catch {
+    Write-Error "Failed to import Common-ScriptHelpers: $($_.Exception.Message)"
     exit 1
 }
-$configPath = Join-Path $projectRoot "process-framework/project-config.json"
+
+# --- Resolve project root and configs ---
+$projectRoot = Get-ProjectRoot
+if (-not $projectRoot) {
+    Write-ProjectError -Message "Could not find project root" -ExitCode 1
+}
+$configPath = Join-Path $projectRoot "doc/project-config.json"
 
 $config = Get-Content $configPath -Raw | ConvertFrom-Json
 $testDir = $config.testing.testDirectory
@@ -95,15 +99,13 @@ $moduleName = $config.project.name.ToLower()
 $language = $config.testing.language
 
 if (-not $language) {
-    Write-Error "testing.language not set in project-config.json"
-    exit 1
+    Write-ProjectError -Message "testing.language not set in project-config.json" -ExitCode 1
 }
 
 # --- Load language config ---
 $langConfigPath = Join-Path $projectRoot "process-framework/languages-config/$language/$language-config.json"
 if (-not (Test-Path $langConfigPath)) {
-    Write-Error "Language config not found: $langConfigPath. Create it or check testing.language in project-config.json."
-    exit 1
+    Write-ProjectError -Message "Language config not found: $langConfigPath. Create it or check testing.language in project-config.json." -ExitCode 1
 }
 
 $langConfig = Get-Content $langConfigPath -Raw | ConvertFrom-Json
@@ -124,8 +126,7 @@ if (-not (Get-Command $baseCmd -ErrorAction SilentlyContinue)) {
         $testing.baseCommand = $testing.baseCommand -replace [regex]::Escape($baseCmd), "`"$resolvedPython`""
         Write-Host "Resolved $baseCmd to: $resolvedPython"
     } else {
-        Write-Error "$baseCmd not found in PATH or common locations. Install Python or update PATH."
-        exit 1
+        Write-ProjectError -Message "$baseCmd not found in PATH or common locations. Install Python or update PATH." -ExitCode 1
     }
 }
 
@@ -161,8 +162,7 @@ function Get-BaseCommand {
 # --- Resolve test directory relative to project root ---
 $testPath = Join-Path $projectRoot $testDir
 if (-not (Test-Path $testPath)) {
-    Write-Error "Test directory not found: $testPath"
-    exit 1
+    Write-ProjectError -Message "Test directory not found: $testPath" -ExitCode 1
 }
 
 # --- Discover categories from subdirectories ---
@@ -265,8 +265,7 @@ if ($Lint) {
 if ($Category) {
     foreach ($cat in $Category) {
         if ($cat -notin $categories) {
-            Write-Error "Unknown category '$cat'. Available: $($categories -join ', '). Use -ListCategories to see all."
-            exit 1
+            Write-ProjectError -Message "Unknown category '$cat'. Available: $($categories -join ', '). Use -ListCategories to see all." -ExitCode 1
         }
     }
     $cmd = Get-BaseCommand
@@ -551,10 +550,10 @@ if ($UpdateTracking -and $Coverage -and $script:capturedTestOutput.Count -gt 0) 
 Write-Host ""
 Write-Host ("=" * 60)
 if ($success) {
-    Write-Host "All tests completed successfully!"
+    Write-ProjectSuccess -Message "All tests completed successfully!"
 }
 else {
-    Write-Host "Some tests failed!"
+    Write-ProjectError -Message "Some tests failed!"
 }
 Write-Host ("=" * 60)
 

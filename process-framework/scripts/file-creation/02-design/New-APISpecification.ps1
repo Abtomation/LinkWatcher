@@ -13,7 +13,7 @@
     - Updating the ID tracker in the central ID registry
     - Providing a complete template for API contract definition
     - Automatically updating API Design state in feature tracking (when FeatureId provided)
-    - Appending API specification link to existing API Design content in ../../../product-docs/product-docs/product-docs/product-docs/technical/api/specifications/feature-tracking.md
+    - Appending API specification link to existing API Design content in doc/technical/api/specifications/feature-tracking.md
 
 .PARAMETER APIName
     The name of the API being specified (e.g., "User Authentication API", "Booking Management API")
@@ -36,13 +36,13 @@
     If specified, shows what would be updated without making changes
 
 .EXAMPLE
-    ../../../product-docs/technical/api/specifications/New-APISpecification.ps1 -APIName "User Authentication API" -APIDescription "Handles user login, registration, and session management"
+    doc/technical/api/specifications/New-APISpecification.ps1 -APIName "User Authentication API" -APIDescription "Handles user login, registration, and session management"
 
 .EXAMPLE
-    ../../../product-docs/technical/api/specifications/New-APISpecification.ps1 -APIName "Resource Management API" -APIDescription "Manages resource records and reservations" -APIType "REST" -OpenInEditor
+    doc/technical/api/specifications/New-APISpecification.ps1 -APIName "Resource Management API" -APIDescription "Manages resource records and reservations" -APIType "REST" -OpenInEditor
 
 .EXAMPLE
-    ../../../product-docs/technical/api/specifications/New-APISpecification.ps1 -APIName "Booking Fee API" -APIDescription "Handles booking fee calculations and processing" -APIType "REST" -FeatureId "5.1.1"
+    doc/technical/api/specifications/New-APISpecification.ps1 -APIName "Booking Fee API" -APIDescription "Handles booking fee calculations and processing" -APIType "REST" -FeatureId "5.1.1"
     Creates file: api-5.1.1-booking-fee-api.md
 
 .NOTES
@@ -58,7 +58,7 @@
     - Created for: API Design Task (PF-TSK-020)
     - Purpose: Generate API specification documents
     - ID Prefix: PD-API
-    - Output Directory: doc/product-docs/technical/api/specifications
+    - Output Directory: doc/technical/api/specifications
 #>
 
 [CmdletBinding(SupportsShouldProcess = $true)]
@@ -204,11 +204,11 @@ try {
                     $sanitizedAPIName = $APIName.ToLower() -replace '[^a-z0-9\s]', '' -replace '\s+', '-'
                     $actualFilename = "$sanitizedAPIName.md"
                 }
-                # Calculate correct relative path from ../../../product-docs/product-docs/product-docs/product-docs/technical/api/specifications/feature-tracking.md to API specification
-                # ../../../product-docs/product-docs/product-docs/product-docs/technical/api/specifications/feature-tracking.md is at: process-framework/state-tracking/permanent/
-                # API spec is at: doc/product-docs/technical/api/specifications/specifications/
+                # Calculate correct relative path from doc/technical/api/specifications/feature-tracking.md to API specification
+                # doc/technical/api/specifications/feature-tracking.md is at: process-framework/state-tracking/permanent/
+                # API spec is at: doc/technical/api/specifications/specifications/
                 # Need to go up 3 levels (../../..) then down to the API spec
-                $relativePath = "../../../product-docs/technical/api/specifications/specifications/$actualFilename"
+                $relativePath = "doc/technical/api/specifications/specifications/$actualFilename"
 
                 # Use descriptive name following 1.1.1 convention (e.g., "API Spec")
                 $linkDisplayName = "API Spec"
@@ -247,7 +247,7 @@ try {
                 Write-Host "Missing functions: $($missingFunctions -join ', ')" -ForegroundColor Yellow
                 Write-Host "Manual Update Required:" -ForegroundColor Yellow
                 Write-Host "  - Append '[$linkDisplayName]($relativePath)' to feature $FeatureId API Design column" -ForegroundColor Cyan
-                Write-Host "  - Use ' • ' separator if existing content present in ../../../product-docs/product-docs/product-docs/product-docs/technical/api/specifications/feature-tracking.md" -ForegroundColor Cyan
+                Write-Host "  - Use ' • ' separator if existing content present in doc/technical/api/specifications/feature-tracking.md" -ForegroundColor Cyan
             }
         }
         catch {
@@ -260,12 +260,12 @@ try {
                 $sanitizedAPIName = $APIName.ToLower() -replace '[^a-z0-9\s]', '' -replace '\s+', '-'
                 $actualFilename = "$sanitizedAPIName.md"
             }
-            # Calculate correct relative path from ../../../product-docs/product-docs/product-docs/product-docs/technical/api/specifications/feature-tracking.md to API specification
-            $relativePath = "../../../product-docs/technical/api/specifications/specifications/$actualFilename"
+            # Calculate correct relative path from doc/technical/api/specifications/feature-tracking.md to API specification
+            $relativePath = "doc/technical/api/specifications/specifications/$actualFilename"
             $linkDisplayName = "API Spec"
             Write-Host "Manual Update Required:" -ForegroundColor Yellow
             Write-Host "  - Append '[$linkDisplayName]($relativePath)' to feature $FeatureId API Design column" -ForegroundColor Cyan
-            Write-Host "  - Use ' • ' separator if existing content present in ../../../product-docs/product-docs/product-docs/product-docs/technical/api/specifications/feature-tracking.md" -ForegroundColor Cyan
+            Write-Host "  - Use ' • ' separator if existing content present in doc/technical/api/specifications/feature-tracking.md" -ForegroundColor Cyan
         }
     }
 }

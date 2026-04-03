@@ -20,17 +20,11 @@
 .PARAMETER Detailed
     If specified, provides detailed validation output with specific issues
 
-.PARAMETER Fix
-    If specified, attempts to fix minor validation issues automatically
-
 .EXAMPLE
     .\Validate-AuditReport.ps1 -ReportFile "foundation/audit-report-0.2.3-TE-TST-001.md"
 
 .EXAMPLE
     .\Validate-AuditReport.ps1 -ReportFile "foundation/audit-report-0.2.3-TE-TST-001.md" -Detailed
-
-.EXAMPLE
-    .\Validate-AuditReport.ps1 -ReportFile "foundation/audit-report-0.2.3-TE-TST-001.md" -Fix
 
 .NOTES
     - Validates against Test Audit Report template structure
@@ -50,10 +44,7 @@ param(
     [string]$ReportFile,
 
     [Parameter(Mandatory=$false)]
-    [switch]$Detailed,
-
-    [Parameter(Mandatory=$false)]
-    [switch]$Fix
+    [switch]$Detailed
 )
 
 # Import the common helpers with walk-up path resolution

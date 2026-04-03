@@ -319,7 +319,7 @@ The state document's Code Inventory section provides high-level tracking, but co
    - Example: `PF-FEA-012-implementation-state.md`
    - Use flat structure (one file per feature, no subdirectories)
 
-4. **Location**: Always place in `doc/product-docs/state-tracking/features`
+4. **Location**: Always place in `doc/state-tracking/features`
 
 **Expected Result**: You have a new state document ready for customization with correct naming and location.
 
@@ -347,7 +347,7 @@ The state document's Code Inventory section provides high-level tracking, but co
    ---
    ```
 
-3. **Workflows**: List the WF-IDs this feature participates in, derived from [User Workflow Tracking](/doc/product-docs/state-tracking/permanent/user-workflow-tracking.md). Use `workflows: []` if the feature does not participate in any user workflow. This field enables downstream tasks (bug triage, refactoring, validation) to quickly assess workflow blast radius without consulting the central tracking file.
+3. **Workflows**: List the WF-IDs this feature participates in, derived from [User Workflow Tracking](/doc/state-tracking/permanent/user-workflow-tracking.md). Use `workflows: []` if the feature does not participate in any user workflow. This field enables downstream tasks (bug triage, refactoring, validation) to quickly assess workflow blast radius without consulting the central tracking file.
 
 4. **Status Values**: Use appropriate status for current stage
    - `PLANNING` - During Feature Implementation Planning task
@@ -639,7 +639,7 @@ Before marking a task complete, verify:
 
    ```bash
    cp process-framework/templates/04-implementation/feature-implementation-state-template.md \
-      doc/product-docs/state-tracking/features/PF-FEA-012-implementation-state.md
+      doc/state-tracking/features/PF-FEA-012-implementation-state.md
    ```
 
 2. **Populate metadata**:
@@ -685,7 +685,7 @@ Before marking a task complete, verify:
 **Process**:
 
 1. **Open state document**:
-   `doc/product-docs/state-tracking/features/PF-FEA-012-implementation-state.md`
+   `doc/state-tracking/features/PF-FEA-012-implementation-state.md`
 
 2. **Read Current State Summary** (30 seconds):
 
@@ -834,7 +834,6 @@ Each decomposed implementation task has its own unique task ID assigned via the 
 
 ### Related Templates
 
-- [Feature Implementation Template](../../templates/04-implementation/feature-implementation-template.md) - Design document referenced from state document
 - [Task Template](../../templates/support/task-template.md) - Task structure referenced in Implementation Progress
 
 ### External Resources

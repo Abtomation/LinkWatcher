@@ -17,8 +17,8 @@ Key Features:
 - Support for specific feature targeting
 
 .PARAMETER FeatureIds
-Comma-separated list of feature IDs to validate (e.g., "0.2.1,0.2.2,0.2.3")
-If not specified, validates all selected features (0.2.1-0.2.11)
+Comma-separated list of feature IDs to validate (e.g., "0.1.1,0.1.2,1.1.1")
+If not specified, validates all active features from feature-tracking.md
 
 .PARAMETER CheckType
 Type of validation checks to perform:
@@ -62,7 +62,7 @@ Suppress progress messages, show only results
 Runs all checks on all selected features with console output
 
 .EXAMPLE
-.\Quick-ValidationCheck.ps1 -FeatureIds "0.2.1,0.2.2" -CheckType "CodeQuality" -OutputFormat "JSON" -OutputPath "validation-results.json"
+.\Quick-ValidationCheck.ps1 -FeatureIds "0.1.1,0.1.2" -CheckType "CodeQuality" -OutputFormat "JSON" -OutputPath "validation-results.json"
 Validates specific features for code quality and saves results as JSON
 
 .EXAMPLE
@@ -138,7 +138,6 @@ $ValidationChecks = @{
             Description = "Run static analysis on source directory"
             Command     = "lint"
             Severity    = "Warning"
-            Timeout     = 30
         }
         "CodeComplexity"        = @{
             Description   = "Check for overly complex functions and classes"
@@ -190,7 +189,7 @@ $ValidationChecks = @{
     "Documentation" = @{
         "TDDAlignment"     = @{
             Description = "Check if implementation matches TDD specifications"
-            TDDPath     = "doc/product-docs/technical/design"
+            TDDPath     = "doc/technical/design"
             Severity    = "Warning"
         }
         "APIDocumentation" = @{
@@ -241,19 +240,20 @@ $ValidationChecks = @{
     }
 }
 
-# Feature mapping for selected features
-$FoundationalFeatures = @{
-    "0.2.1"  = @{ Name = "Repository Pattern Implementation"; Path = "src/data/repositories" }
-    "0.2.2"  = @{ Name = "Service Layer Architecture"; Path = "src/domain/services" }
-    "0.2.3"  = @{ Name = "Data Models & DTOs"; Path = "src/data/models" }
-    "0.2.4"  = @{ Name = "Error Handling Framework"; Path = "src/core/error" }
-    "0.2.5"  = @{ Name = "Logging & Monitoring Setup"; Path = "src/core/logging" }
-    "0.2.6"  = @{ Name = "Navigation & Routing Framework"; Path = "src/core/routing" }
-    "0.2.7"  = @{ Name = "State Management Architecture"; Path = "src/presentation/providers" }
-    "0.2.8"  = @{ Name = "API Client & Network Layer"; Path = "src/data/datasources" }
-    "0.2.9"  = @{ Name = "Caching & Offline Support"; Path = "src/core/cache" }
-    "0.2.10" = @{ Name = "Security & Authentication"; Path = "src/core/auth" }
-    "0.2.11" = @{ Name = "Performance Optimization"; Path = "src/core/performance" }
+# Dynamically load features from feature-tracking.md via Common-ScriptHelpers
+$FoundationalFeatures = @{}
+$activeFeatures = Get-ActiveFeatures
+foreach ($f in $activeFeatures) {
+    $idRaw = $f['ID']
+    # Extract numeric ID from markdown link format [X.Y.Z](path)
+    if ($idRaw -match '\[?(\d+\.\d+\.\d+)\]?') {
+        $featureId = $matches[1]
+        $featureName = $f['Feature'] -replace '^\s+|\s+$', ''
+        $FoundationalFeatures[$featureId] = @{
+            Name = $featureName
+            Path = $LibPath  # Use project source root for all features
+        }
+    }
 }
 
 function Write-Progress-Safe {
@@ -365,7 +365,7 @@ function Get-ValidationResults {
         }
 
         $featureInfo = $FoundationalFeatures[$feature]
-        $featurePath = Join-Path $LibPath $featureInfo.Path.Replace("src/", "")
+        $featurePath = $featureInfo.Path
 
         Write-Progress-Safe "📋 Validating Feature $feature - $($featureInfo.Name)..." "Yellow"
 
