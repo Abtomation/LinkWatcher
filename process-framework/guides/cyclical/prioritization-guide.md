@@ -1,12 +1,10 @@
 ---
 id: PF-GDE-023
-type: Document
-category: General
+type: Process Framework
+category: Guide
 version: 1.0
 created: 2025-07-24
 updated: 2025-07-24
-guide_description: Guide for applying impact/effort matrix to prioritize debt
-guide_title: Prioritization Guide
 guide_status: Active
 ---
 # Prioritization Guide

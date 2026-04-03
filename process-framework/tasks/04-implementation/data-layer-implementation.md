@@ -36,7 +36,7 @@ Implement data models, repositories, and database integration for feature
 
   - **Feature Implementation State File** - The permanent state tracking document at `/process-framework/state-tracking/permanent/feature-[feature-id]-implementation.md` containing implementation progress and context
   - **Database Schema Design** - Schema specifications and migration scripts at `/doc/technical/database/[feature-name]-schema.md`
-  - **TDD (Technical Design Document)** - Data model specifications and repository requirements at `/doc/technical/architecture/design-docs/tdd/[feature-name]-tdd.md`
+  - **TDD (Technical Design Document)** - Data model specifications and repository requirements at `/doc/technical/tdd/[feature-name]-tdd.md`
   - **Implementation Roadmap** - Task sequence and dependencies from Feature Implementation Planning Task
 
 - **Important (Load If Space):**

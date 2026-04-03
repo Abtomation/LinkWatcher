@@ -100,7 +100,7 @@ Foundation features that provide architectural foundations for the application.
 
 |  ID  |  Feature  |  Status  |  Priority  |  Doc Tier  |  ADR  |  FDD  |  TDD  |  Test Status  |  Test Spec  |  Dependencies  |  Notes  |
 |  --  |  -------  |  ------  |  --------  |  --------  |  ---  |  ---  |  ---  |  -----------  |  ---------  |  ------------  |  -----  |
-| [0.1.1](../features/0.1.1-core-architecture-implementation-state.md) | Core Architecture | 🟢 Completed | P1 | [🔴 Tier 3](../../documentation-tiers/assessments/PD-ASS-191-0-1-1-core-architecture.md) | [PD-ADR-039](../../technical/adr/orchestrator-facade-pattern-for-core-architecture.md) | [PD-FDD-022](../../functional-design/fdds/fdd-0-1-1-core-architecture.md) | [PD-TDD-021](../../technical/tdd/tdd-0-1-1-core-architecture-t3.md) | ✅ All Passing | [PF-TSP-035](../../../test/specifications/feature-specs/test-spec-0-1-1-core-architecture.md) | — | **FOUNDATION** Service orchestrator (facade pattern), data models, path utilities, CLI entry point. Files: service.py, __init__.py, main.py, models.py, utils.py. Retrospective. Consolidates old 0.1.1 + 0.1.2 (Data Models) + 0.1.5 (Path Utilities). |
+| [0.1.1](../features/0.1.1-core-architecture-implementation-state.md) | Core Architecture | 📋 ADR Created | P1 | [🔴 Tier 3](../../documentation-tiers/assessments/PD-ASS-191-0-1-1-core-architecture.md) | [](/doc/technical/architecture/design-docs/adr/adr/test-adr.md) | [PD-FDD-022](../../functional-design/fdds/fdd-0-1-1-core-architecture.md) | [PD-TDD-021](../../technical/tdd/tdd-0-1-1-core-architecture-t3.md) | ✅ All Passing | [PF-TSP-035](../../../test/specifications/feature-specs/test-spec-0-1-1-core-architecture.md) | — | **FOUNDATION** Service orchestrator (facade pattern), data models, path utilities, CLI entry point. Files: service.py, __init__.py, main.py, models.py, utils.py. Retrospective. Consolidates old 0.1.1 + 0.1.2 (Data Models) + 0.1.5 (Path Utilities).; ADR created:  - Test ADR (2026-04-03) |
 | [0.1.2](../features/0.1.2-in-memory-link-database-implementation-state.md) | In-Memory Link Database | 🟢 Completed | P1 | [🟠 Tier 2](../../documentation-tiers/assessments/PD-ASS-192-0-1-2-in-memory-link-database.md) | [PD-ADR-040](../../technical/adr/target-indexed-in-memory-link-database.md) | [PD-FDD-023](../../functional-design/fdds/fdd-0-1-2-in-memory-database.md) | [PD-TDD-022](../../technical/tdd/tdd-0-1-2-in-memory-database-t2.md) | 🔄 Tests Need Update | [PF-TSP-036](../../../test/specifications/feature-specs/test-spec-0-1-2-in-memory-link-database.md) | 0.1.1 | **FOUNDATION** Thread-safe, target-indexed link storage with O(1) lookups. File: database.py. Retrospective. Was old 0.1.3.; Test Audit 2026-04-03: 🔄 Tests Need Update; Report: test/audits/foundation/audit-report-0-1-2-test-database.md |
 | [0.1.3](../features/0.1.3-configuration-system-implementation-state.md) | Configuration System | 🟢 Completed | P1 | [🔵 Tier 1](../../documentation-tiers/assessments/PD-ASS-193-0-1-3-configuration-system.md) | N/A | — | — | ✅ Tests Approved | [PF-TSP-037](../../../test/specifications/feature-specs/test-spec-0-1-3-configuration-system.md) | — | **FOUNDATION** Multi-source config loading (YAML/JSON/env/CLI), validation, environment presets. Files: config/settings.py, config/defaults.py, config/__init__.py, config-examples/*. Retrospective. Was old 0.1.4. No FDD/TDD (Tier 1). Enhancement PF-STA-066 (validation_ignored_patterns) completed 2026-03-26.; Test Audit 2026-04-03: ✅ Tests Approved; Report: test/audits/foundation/audit-report-0-1-3-test-config.md |
 
@@ -180,7 +180,8 @@ Features that have been generalized into the process framework or otherwise reti
 
 | Status                | Count  | Percentage |
 | --------------------- | ------ | ---------- |
-| 🟢 Completed | 7      | 87.5%      |
+| 📋 ADR Created | 1      | 12.5%      |
+| 🟢 Completed | 6      | 75%      |
 | 🔄 Needs Revision | 1      | 12.5%      |
 | **Total Active**    | **8**  | **100%**   |
 
@@ -207,7 +208,7 @@ Features that have been generalized into the process framework or otherwise reti
 |----------|--------|---------|-------|
 | FDDs | 6 | 2 (0.1.3 Configuration System, 6.1.1 Link Validation — Tier 1, not required) | |
 | TDDs | 6 | 2 (0.1.3 Configuration System, 6.1.1 Link Validation — Tier 1, not required) | |
-| ADRs | 2 | — | PD-ADR-039 (0.1.1), PD-ADR-040 (0.1.2) |
+| ADRs | 1 | — | PD-ADR-040 (0.1.2) |
 | Test Specs | 7 | 1 | |
 | Tier Assessments | 8 | 0 | |
 
@@ -250,19 +251,3 @@ Features that have been generalized into the process framework or otherwise reti
 | 2026-02-17 | v1.0 — Initial feature tracking with 42 features | [Codebase Feature Discovery (PF-TSK-064)](../../../process-framework/tasks/00-setup/codebase-feature-discovery.md) |
 | 2026-03-22 | Archived feature 4.1.1: Generalized into framework (PF-PRO-009, 2026-03-22). Testing infrastructure is now a framework concern, not a product feature. | [Archive-Feature.ps1](../../../process-framework/scripts/update/Archive-Feature.ps1) |
 | 2026-03-22 | Archived feature 5.1.1: Generalized into framework (PF-PRO-009, 2026-03-22). CI/CD infrastructure is now a framework concern, not a product feature. Major components deleted (ci.yml, run_tests.py, setup_cicd.py). | [Archive-Feature.ps1](../../../process-framework/scripts/update/Archive-Feature.ps1) |
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

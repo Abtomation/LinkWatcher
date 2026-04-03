@@ -6,6 +6,7 @@ version: 1.0
 created: 2025-01-27
 updated: 2025-01-27
 task_scope: Bug Management Workflow
+related_task: PF-TSK-041
 ---
 
 # Bug Management Context Map

@@ -1,15 +1,12 @@
 ---
 id: PF-GDE-029
-type: Document
-category: General
+type: Process Framework
+category: Guide
 version: 1.1
 created: 2025-07-27
 updated: 2025-01-27
-guide_description: Guide for customizing Technical Design Document templates
-related_script: New-tdd.ps1
-guide_title: TDD Creation Guide
-related_tasks: PF-TSK-015
-guide_status: Active
+related_script: New-TDD.ps1
+related_task: PF-TSK-015
 change_notes: "v1.1 - Added Separation of Concerns section for IMP-097/IMP-098 (cross-reference guidance)"
 ---
 
@@ -17,7 +14,7 @@ change_notes: "v1.1 - Added Separation of Concerns section for IMP-097/IMP-098 (
 
 ## Overview
 
-This guide provides comprehensive instructions for creating and customizing Technical Design Documents (TDDs) using the New-tdd.ps1 script and tier-specific templates. It helps you create appropriate design documentation based on feature complexity, ensuring architectural consistency and effective collaboration between development sessions.
+This guide provides comprehensive instructions for creating and customizing Technical Design Documents (TDDs) using the New-TDD.ps1 script and tier-specific templates. It helps you create appropriate design documentation based on feature complexity, ensuring architectural consistency and effective collaboration between development sessions.
 
 ## When to Use
 
@@ -30,7 +27,7 @@ Use this guide when you need to:
 - Plan integration with existing system components
 - Coordinate work between multiple developers on complex features
 
-> **🚨 CRITICAL**: Always use the New-tdd.ps1 script to create TDDs - never create them manually. This ensures proper ID assignment, tier-appropriate templates, and metadata integration with the framework.
+> **🚨 CRITICAL**: Always use the New-TDD.ps1 script to create TDDs - never create them manually. This ensures proper ID assignment, tier-appropriate templates, and metadata integration with the framework.
 
 ## Table of Contents
 
@@ -48,7 +45,7 @@ Use this guide when you need to:
 
 Before you begin, ensure you have:
 
-- Access to PowerShell and the New-tdd.ps1 script in `doc/technical/architecture/design-docs/tdd`
+- Access to PowerShell and the New-TDD.ps1 script in `doc/technical/tdd`
 - Completed Feature Tier Assessment for the feature you're documenting
 - Understanding of the feature requirements and scope
 - Familiarity with the project's architecture and component structure
@@ -395,25 +392,25 @@ Use this decision tree when deciding what to include in TDDs:
 
 **Expected Result:** Complete understanding of feature scope, complexity, and documentation requirements
 
-### 2. Create TDD Using New-tdd.ps1
+### 2. Create TDD Using New-TDD.ps1
 
 1. **Navigate to the TDD directory**:
 
    ```powershell
-   cd doc/technical/architecture/design-docs/tdd
+   cd doc/technical/tdd
    ```
 
-2. **Execute the New-tdd.ps1 script** with your prepared parameters:
+2. **Execute the New-TDD.ps1 script** with your prepared parameters:
 
    ```powershell
    # For Tier 1 (simple features)
-   .\New-tdd.ps1 -FeatureId "1.2.3" -FeatureName "User Profile Display" -Tier 1
+   .\New-TDD.ps1 -FeatureId "1.2.3" -FeatureName "User Profile Display" -Tier 1
 
    # For Tier 2 (moderate features)
-   .\New-tdd.ps1 -FeatureId "2.1.4" -FeatureName "Authentication System" -Tier 2 -OpenInEditor
+   .\New-TDD.ps1 -FeatureId "2.1.4" -FeatureName "Authentication System" -Tier 2 -OpenInEditor
 
    # For Tier 3 (complex features)
-   .\New-tdd.ps1 -FeatureId "3.1.1" -FeatureName "Real-time Collaboration" -Tier 3 -OpenInEditor
+   .\New-TDD.ps1 -FeatureId "3.1.1" -FeatureName "Real-time Collaboration" -Tier 3 -OpenInEditor
    ```
 
 3. **Verify TDD Creation**:
@@ -536,10 +533,10 @@ Creating a TDD for a moderate complexity authentication feature:
 
 ```powershell
 # Navigate to TDD directory
-cd doc/technical/architecture/design-docs/tdd
+cd doc/technical/tdd
 
 # Create Tier 2 TDD
-.\New-tdd.ps1 -FeatureId "2.1.4" -FeatureName "User Authentication System" -Tier 2 -OpenInEditor
+.\New-TDD.ps1 -FeatureId "2.1.4" -FeatureName "User Authentication System" -Tier 2 -OpenInEditor
 ```
 
 **Customization approach:**
@@ -558,7 +555,7 @@ Creating a TDD for a complex real-time feature:
 
 ```powershell
 # Create comprehensive Tier 3 TDD
-.\New-tdd.ps1 -FeatureId "3.1.1" -FeatureName "Real-time Collaboration" -Tier 3 -OpenInEditor
+.\New-TDD.ps1 -FeatureId "3.1.1" -FeatureName "Real-time Collaboration" -Tier 3 -OpenInEditor
 ```
 
 **Customization approach:**
@@ -577,24 +574,24 @@ Creating a TDD for a complex real-time feature:
 
 **Symptom:** TDD template doesn't match feature complexity or contains inappropriate sections
 
-**Cause:** Incorrect tier parameter provided to New-tdd.ps1 script or outdated feature assessment
+**Cause:** Incorrect tier parameter provided to New-TDD.ps1 script or outdated feature assessment
 
 **Solution:**
 
 1. Verify the feature's tier assessment document
 2. Delete the incorrectly created TDD file
-3. Re-run New-tdd.ps1 with the correct tier parameter
+3. Re-run New-TDD.ps1 with the correct tier parameter
 4. If tier assessment is outdated, complete a new Feature Tier Assessment first
 
 ### TDD Creation Script Fails
 
-**Symptom:** New-tdd.ps1 reports errors or fails to create the TDD file
+**Symptom:** New-TDD.ps1 reports errors or fails to create the TDD file
 
 **Cause:** Script path issues, missing templates, or PowerShell execution policy restrictions
 
 **Solution:**
 
-1. Ensure you're running from the correct directory: `doc/technical/architecture/design-docs/tdd`
+1. Ensure you're running from the correct directory: `doc/technical/tdd`
 2. Verify the tier template exists in `process-framework/templates/02-design`
 3. Check PowerShell execution policy: `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser`
 4. Verify all required parameters are provided correctly
@@ -617,7 +614,7 @@ Creating a TDD for a complex real-time feature:
 
 - [TDD Creation Task (PF-TSK-015)](../../tasks/02-design/tdd-creation-task.md) - The task that uses this guide
 - [Feature Tier Assessment Task](../../tasks/01-planning/feature-tier-assessment-task.md) - Required prerequisite for TDD creation
-- [New-tdd.ps1 Script](../../scripts/file-creation/02-design/New-tdd.ps1) - Script for creating TDDs
+- [New-TDD.ps1 Script](../../scripts/file-creation/02-design/New-TDD.ps1) - Script for creating TDDs
 - [TDD T1 Template](../../templates/02-design/tdd-t1-template.md) - Tier 1 template for simple features
 - [TDD T2 Template](../../templates/02-design/tdd-t2-template.md) - Tier 2 template for moderate features
 - [TDD T3 Template](../../templates/02-design/tdd-t3-template.md) - Tier 3 template for complex features

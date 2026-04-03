@@ -1,12 +1,10 @@
 ---
 id: PF-GDE-022
-type: Document
-category: General
+type: Process Framework
+category: Guide
 version: 1.0
 created: 2025-07-24
 updated: 2025-07-24
-guide_title: Assessment Criteria Guide
-guide_status: Active
 guide_description: Detailed criteria for identifying technical debt
 ---
 # Assessment Criteria Guide

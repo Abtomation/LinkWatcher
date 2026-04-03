@@ -72,7 +72,7 @@ This file tracks the implementation status of all **automated** tests derived fr
 | 1.1.1 | Automated | [test_move_detection.py](../../automated/test_move_detection.py) | ✅ Tests Implemented | 20 | Run 2026-03-22: 20 passed | 2026-03-22 | File move detection integration; Audit: [TE-TAR-025](../../audits/authentication/audit-report-1-1-1-test-move-detection.md) |
 | 1.1.1 | Automated | [test_file_movement.py](../../automated/integration/test_file_movement.py) | ✅ Tests Implemented | 7 | Run 2026-03-22: 7 passed | 2026-03-22 | File movement handling integration; Audit: [TE-TAR-026](../../audits/authentication/audit-report-1-1-1-test-file-movement.md) |
 | 1.1.1 | Automated | [test_sequential_moves.py](../../automated/integration/test_sequential_moves.py) | ✅ Tests Implemented | 4 | Run 2026-03-22: 4 passed | 2026-03-22 | Sequential file move scenarios; Audit: [TE-TAR-027](../../audits/authentication/audit-report-1-1-1-test-sequential-moves.md) |
-| 1.1.1 | Automated | [test_comprehensive_file_monitoring.py](../../automated/integration/test_comprehensive_file_monitoring.py) | ✅ Tests Implemented | 7 | Run 2026-03-22: 7 passed | 2026-03-22 | Comprehensive file type monitoring; Audit: [TE-TAR-028](../../audits/authentication/audit-report-1-1-1-test-comprehensive-file-monitoring.md) |
+| 1.1.1 | Automated | [test_comprehensive_file_monitoring.py](../../automated/unit/test_comprehensive_file_monitoring.py) | ✅ Tests Implemented | 7 | Run 2026-03-22: 7 passed | 2026-03-22 | Comprehensive file type monitoring; Audit: [TE-TAR-028](../../audits/authentication/audit-report-1-1-1-test-comprehensive-file-monitoring.md) |
 | 1.1.1 | Automated | [test_image_file_monitoring.py](../../automated/integration/test_image_file_monitoring.py) | ✅ Tests Implemented | 6 | Run 2026-03-22: 6 passed | 2026-03-22 | Image file monitoring; Audit: [TE-TAR-029](../../audits/authentication/audit-report-1-1-1-test-image-file-monitoring.md) |
 | 1.1.1 | Automated | [test_powershell_script_monitoring.py](../../automated/integration/test_powershell_script_monitoring.py) | ✅ Tests Implemented | 5 | Run 2026-03-22: 5 passed | 2026-03-22 | PowerShell script monitoring; Audit: [TE-TAR-030](../../audits/authentication/audit-report-1-1-1-test-powershell-script-monitoring.md) |
 | 1.1.1 | Automated | [test_reference_lookup.py](../../automated/unit/test_reference_lookup.py) | ✅ Tests Implemented | 39 | Run 2026-03-27: 39 passed | 2026-03-27 | ReferenceLookup unit tests (TD066). 92% coverage. Path variations, reference finding, stale retry, DB cleanup, file rescanning, directory moves, link updates in moved files, path recalculation. |
@@ -173,6 +173,3 @@ When creating new automated test files:
 ---
 
 ## Recent Updates
-
-
-

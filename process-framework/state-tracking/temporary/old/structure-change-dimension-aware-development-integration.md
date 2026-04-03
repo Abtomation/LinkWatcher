@@ -47,7 +47,7 @@ change_name: dimension-aware-development-integration
 **Goal**: Update all state tracking templates and their supporting scripts to carry dimension information.
 
 - [x] **Enhancement State Tracking**
-  - Template: `templates/04-implementation/enhancement-state-tracking-template-template.md` — added Dimension Impact Assessment section
+  - Template: `templates/04-implementation/enhancement-state-tracking-template.md` — added Dimension Impact Assessment section
   - Script: `New-EnhancementState.ps1` — added `-InheritedDimensions` parameter
   - **Status**: DONE
 - [x] **Bug Tracking + Bug Fix State**

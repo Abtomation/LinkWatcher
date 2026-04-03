@@ -32,7 +32,7 @@ E2E acceptance test execution validates system behavior that cannot be covered b
 
 ## Context Requirements
 
-[View Context Map for this task (PF-VIS-050)](../../visualization/context-maps/03-testing/e2e-acceptance-test-execution-map.md)
+[View Context Map for this task](../../visualization/context-maps/03-testing/e2e-acceptance-test-execution-map.md)
 
 - **Critical (Must Read):**
 

@@ -129,7 +129,7 @@ foreach ($line in $lines) {
 
     # Only match within the E2E section
     if ($inE2eSection -and $line -match '^\|') {
-        $cells = $line -split '\|' | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne '' }
+        $cells = Split-MarkdownTableRow $line
 
         # E2E Test Cases table columns:
         # 0: Test ID | 1: Workflow | 2: Feature IDs | 3: Test Type | 4: Test File/Case | 5: Status | 6: Last Executed | 7: Last Updated | 8: Notes
@@ -168,7 +168,7 @@ foreach ($line in $lines) {
                     }
                 }
 
-                $line = "| " + ($cells -join " | ") + " |"
+                $line = ConvertTo-MarkdownTableRow -Cells $cells
                 $matchCount++
 
                 # Collect affected feature IDs for feature-tracking update
@@ -212,7 +212,7 @@ if ($matchCount -eq 0) {
             if ($inMilestoneSection -and $line -match '^\|') {
                 foreach ($wf in $affectedWorkflows) {
                     if ($line -match [regex]::Escape($wf)) {
-                        $cells = $line -split '\|' | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne '' }
+                        $cells = Split-MarkdownTableRow $line
                         # Milestone table columns: 0:Workflow | 1:Description | 2:Required Features | 3:Features Ready | 4:E2E Spec | 5:E2E Cases | 6:Status
                         if ($cells.Count -ge 7 -and $cells[0] -match '^WF-\d+') {
                             $milestoneStatus = switch ($Status) {
@@ -221,7 +221,7 @@ if ($matchCount -eq 0) {
                                 "Needs Re-execution" { "🔄 Re-execution Needed" }
                             }
                             $cells[6] = $milestoneStatus
-                            $line = "| " + ($cells -join " | ") + " |"
+                            $line = ConvertTo-MarkdownTableRow -Cells $cells
                         }
                         break
                     }
@@ -261,7 +261,7 @@ if ($affectedFeatureIds.Count -gt 0) {
             if ($ftLine -match '^\|') {
                 foreach ($targetFId in $affectedFeatureIds) {
                     if ($ftLine -match [regex]::Escape($targetFId) -and -not $lineUpdated) {
-                        $ftCells = $ftLine -split '\|' | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne '' }
+                        $ftCells = Split-MarkdownTableRow $ftLine
                         for ($i = 0; $i -lt $ftCells.Count; $i++) {
                             if ($ftCells[$i] -match '(No Tests|No Test Required|Specs Created|In Progress|All Passing|Some Failing|Automated Only|Re-testing Needed|Tests Approved)') {
                                 $ftCells[$i] = $featureStatus
@@ -271,7 +271,7 @@ if ($affectedFeatureIds.Count -gt 0) {
                             }
                         }
                         if ($lineUpdated) {
-                            $ftLine = "| " + ($ftCells -join " | ") + " |"
+                            $ftLine = ConvertTo-MarkdownTableRow -Cells $ftCells
                         }
                     }
                 }

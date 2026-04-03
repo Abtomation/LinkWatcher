@@ -1,14 +1,12 @@
 ---
 id: PF-VIS-042
-type: Document
-category: General
+type: Process Framework
+category: Context Map
 version: 1.0
 created: 2025-12-11
 updated: 2025-12-11
-task_name: data-layer-implementation
-map_type: Context Map
-visualization_type: Task Context
 workflow_phase: 04-implementation
+related_task: PF-TSK-051
 ---
 
 # Data Layer Implementation Context Map

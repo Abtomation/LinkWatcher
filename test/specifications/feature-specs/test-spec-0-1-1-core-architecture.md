@@ -202,7 +202,7 @@ Tests cover the Orchestrator/Facade pattern: service construction wires all subs
 | Image file monitoring | 1. Create project with image refs → 2. Scan → 3. Move image → 4. Verify refs updated | PNG/SVG references updated | Binary file confusion |
 
 **Test Files**:
-- [`test/automated/integration/test_comprehensive_file_monitoring.py`](../../../test/automated/integration/test_comprehensive_file_monitoring.py) — Full monitoring pipeline
+- [`test/automated/unit/test_comprehensive_file_monitoring.py`](../../automated/unit/test_comprehensive_file_monitoring.py) — File monitoring config verification
 - [`test/automated/integration/test_image_file_monitoring.py`](../../../test/automated/integration/test_image_file_monitoring.py) (6 methods) — Image file handling
 
 ## Mock Requirements
@@ -300,7 +300,7 @@ test/automated/
 
 ### Files to Reference
 
-- **TDD**: [`doc/technical/architecture/design-docs/tdd/tdd-0-1-1-core-architecture-t3.md`](../../../doc/technical/tdd/tdd-0-1-1-core-architecture-t3.md)
+- **TDD**: [`doc/technical/tdd/tdd-0-1-1-core-architecture-t3.md`](../../../doc/technical/tdd/tdd-0-1-1-core-architecture-t3.md)
 - **Existing Tests**: [`test/automated/unit/test_service.py`](../../../test/automated/unit/test_service.py), `test/automated/integration/test_*.py`
 - **Fixtures**: [`test/automated/conftest.py`](../../../test/automated/conftest.py) — shared test setup
 - **Test Utilities**: [`test/automated/utils.py`](../../../test/automated/utils.py) — helper functions

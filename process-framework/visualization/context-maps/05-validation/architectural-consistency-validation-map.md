@@ -1,13 +1,11 @@
 ---
 id: PF-VIS-028
-type: Document
-category: General
+type: Process Framework
+category: Context Map
 version: 1.0
 created: 2025-08-15
 updated: 2025-08-15
-visualization_type: Task Context
-map_type: Context Map
-task_name: architectural-consistency-validation
+related_task: PF-TSK-031
 ---
 
 # Architectural Consistency Validation Context Map
@@ -27,7 +25,7 @@ graph TD
     ADR[ADR Directory] --> VRT
     VT --> VRS[New-ValidationReport Script]
     CRI[Component Relationship Index] -.-> TDD[Technical Design Documents]
-    LIB[lib/ Codebase] --> VRT
+    LIB[src/ Codebase] --> VRT
     VRS --> VR[(Validation Report)]
 
     class FT,VT,VRT,ADR critical
@@ -48,7 +46,7 @@ graph TD
 
 - **Component Relationship Index**: Understanding of how components interact architecturally
 - **Technical Design Documents**: Detailed specifications for selected features
-- **lib/ Codebase**: Source code implementations to analyze for architectural patterns
+- **src/ Codebase**: Source code implementations to analyze for architectural patterns
 - **New-ValidationReport Script**: Automation tool for generating validation reports
 
 ### Reference Components (Access When Needed)
@@ -61,7 +59,7 @@ graph TD
 2. **Feature Tracking → Validation Report Template**: Feature details populate the validation report structure
 3. **ADR Directory → Validation Report Template**: Architectural decisions provide validation criteria and standards
 4. **Validation Tracking → New-ValidationReport Script**: Matrix tracking guides report generation parameters
-5. **lib/ Codebase → Validation Report Template**: Source code analysis provides validation findings
+5. **src/ Codebase → Validation Report Template**: Source code analysis provides validation findings
 6. **Component Relationship Index -.-> Technical Design Documents**: Optional reference for understanding architectural context
 
 ## Implementation in AI Sessions
@@ -69,7 +67,7 @@ graph TD
 1. Begin by examining **Feature Tracking** and **Validation Tracking** to identify validation scope
 2. Load **ADR Directory** to understand architectural standards and decision criteria
 3. Review **Validation Report Template** to understand expected output structure
-4. Analyze **lib/ Codebase** implementations against architectural patterns and ADR compliance
+4. Analyze **src/ Codebase** implementations against architectural patterns and ADR compliance
 5. Use **New-ValidationReport Script** to generate standardized validation reports
 6. Update **Validation Tracking** matrix with completed validation results
 
@@ -78,6 +76,6 @@ graph TD
 - [Architectural Consistency Validation Task](../../../tasks/05-validation/architectural-consistency-validation.md) - Complete task definition and process
 - [Feature Tracking](../../../../doc/state-tracking/permanent/feature-tracking.md) - Current status of features
 - Validation Tracking State File - Active validation tracking matrix (file location depends on validation round)
-- [Architecture Decision Records](/doc/technical/architecture/design-docs/adr/adr) - Architectural standards and decisions
+- [Architecture Decision Records](/doc/technical/adr) - Architectural standards and decisions
 
 ---

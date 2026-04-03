@@ -5,7 +5,7 @@ category: Task Definition
 version: 1.0
 domain: agnostic
 created: 2026-01-28
-updated: 2026-01-28
+updated: 2026-04-03
 ---
 
 # Framework Domain Adaptation
@@ -34,20 +34,20 @@ Systematically adapt the process framework from one business domain (software de
 
 ## Context Requirements
 
-View Context Map for this task <!-- Context map not yet created: framework-domain-adaptation-map.md -->
+[View Context Map for this task](../../visualization/context-maps/support/framework-domain-adaptation-map.md)
 
 - **Critical (Must Read):**
 
-  - Framework Domain Adaptation Concept <!-- Removed: file deleted --> - Complete adaptation strategy and approach
-  - Legal Framework Cleanup State <!-- Removed: file deleted --> - Current document inventory and tracking
+  - Domain Adaptation Concept document (project-specific — create during Phase 1 or reuse from prior analysis) - Complete adaptation strategy and approach
+  - Domain Cleanup State file (project-specific — create via `New-TempTaskState.ps1` during Phase 1) - Current document inventory and tracking
   - Business Context Document - Business requirements and domain context
   - [Process Framework README](../../README.md) - Understanding the framework structure
   - [Documentation Map](../../PF-documentation-map.md) - Complete framework structure overview
 
 - **Important (Load If Space):**
 
-  - Domain Terminology Mapping <!-- Removed: file deleted --> - Software dev → Legal mappings
-  - Deletion Criteria <!-- Removed: file deleted --> - DELETE vs. ADAPT vs. KEEP guidelines
+  - Domain Terminology Mapping (project-specific — create during Phase 1 or include in concept document) - Source domain → Target domain mappings
+  - Deletion Criteria (project-specific — define during Phase 1) - DELETE vs. ADAPT vs. KEEP guidelines
   - [AI Tasks Registry](../../ai-tasks.md) - Task system overview
 
 - **Reference Only (Access When Needed):**
@@ -74,13 +74,13 @@ View Context Map for this task <!-- Context map not yet created: framework-domai
    - Document understanding before proceeding
 
 2. **Review Domain Adaptation Concept**
-   - Read Framework Domain Adaptation Concept <!-- Link removed: file deleted -->
+   - Read or create Domain Adaptation Concept document for the target domain
    - Understand the 3-decision framework: DELETE / ADAPT / KEEP
    - Review domain terminology mapping (software dev → legal)
    - Confirm deletion criteria with human partner
 
 3. **Access Temporary State Tracking File**
-   - Use existing Legal Framework Cleanup State <!-- Removed: file deleted -->
+   - Create Domain Cleanup State file via `New-TempTaskState.ps1` (or reuse existing if continuing a prior session)
    - File is organized by process flow order, not file type
    - Includes decision tracking columns (DELETE/ADAPT/KEEP + notes)
    - Update status as you progress through documents
@@ -94,7 +94,7 @@ View Context Map for this task <!-- Context map not yet created: framework-domai
 ### Phase 2: Systematic Review (Process Flow Order)
 
 5. **Review Documents in Process Flow Order**
-   - Follow the order in Legal Framework Cleanup State <!-- Removed: file deleted -->
+   - Follow the order in Domain Cleanup State file
    - For each document, make one of three decisions:
      - **DELETE**: Not applicable to legal domain
      - **ADAPT**: Reusable with modifications for legal context
@@ -319,7 +319,7 @@ View Context Map for this task <!-- Context map not yet created: framework-domai
 
 The following state files must be updated as part of this task:
 
-- Legal Framework Cleanup State <!-- Removed: file deleted --> - Track review status and decisions for each document
+- Domain Cleanup State file (created via `New-TempTaskState.ps1`) - Track review status and decisions for each document
 - [Documentation Map](../../PF-documentation-map.md) - Update continuously as structure changes
 - [PF ID Registry](../../PF-id-registry.json) - Add new ID prefixes for legal document types
 - Legal Document Tracking (to be created) - Create to replace feature-tracking.md
@@ -356,7 +356,7 @@ Before considering this task finished:
   - [ ] Temporary state file archived
 
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
-  - [ ] Legal Framework Cleanup State <!-- Removed: file deleted --> - All documents marked as Approved
+  - [ ] Domain Cleanup State file - All documents marked as Approved
   - [ ] [Documentation Map](../../PF-documentation-map.md) - Reflects final structure
   - [ ] Legal Document Tracking (to be created) - Created and functional
 
@@ -397,8 +397,8 @@ Quick reference for adaptations:
 
 ## Related Resources
 
-- Framework Domain Adaptation Concept <!-- Removed: file deleted --> - Complete strategy document
-- Legal Framework Cleanup State <!-- Removed: file deleted --> - Document tracking
+- Domain Adaptation Concept document (project-specific) - Complete strategy document
+- Domain Cleanup State file (project-specific) - Document tracking
 - Business Context Document - Business requirements and domain context
 - [New Task Creation Process](new-task-creation-process.md) - Process being followed to create this task
 - [Structure Change Task](structure-change-task.md) - Similar but different scope

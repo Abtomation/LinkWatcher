@@ -61,7 +61,7 @@
     Task: Process Improvement (PF-TSK-009), PF-IMP-134, PF-IMP-154, PF-IMP-169
 #>
 
-[CmdletBinding()]
+[CmdletBinding(SupportsShouldProcess)]
 param(
     [Parameter(Mandatory=$false)]
     [string]$TestCase = "",
@@ -282,6 +282,23 @@ foreach ($tc in $scriptedCases) {
     $workspaceCasePath = Join-Path $workspaceDir "$($tc.Group)/$($tc.CaseDir)"
 
     Write-Host "━━━ $($tc.CaseId) ($($tc.Group)/$($tc.CaseDir)) ━━━" -ForegroundColor White
+
+    if ($WhatIfPreference) {
+        Write-Host "  What if: Would execute E2E pipeline for $($tc.CaseId):" -ForegroundColor Cyan
+        Write-Host "    1. Stop LinkWatcher" -ForegroundColor DarkGray
+        Write-Host "    2. Setup-TestEnvironment.ps1 -Group $($tc.Group) -ProjectRoot $ProjectRoot -Clean:$Clean" -ForegroundColor DarkGray
+        Write-Host "    3. Start LinkWatcher (workspace-scoped)" -ForegroundColor DarkGray
+        Write-Host "    4. Execute: $runScriptPath -WorkspacePath $workspaceCasePath" -ForegroundColor DarkGray
+        Write-Host "    5. Wait ${WaitSeconds}s for propagation" -ForegroundColor DarkGray
+        Write-Host "    6. Verify-TestResult.ps1 -TestCase $($tc.CaseId) -Group $($tc.Group)" -ForegroundColor DarkGray
+        if (-not $SkipTracking) {
+            Write-Host "    7. Update-TestExecutionStatus.ps1 -TestCase $($tc.CaseId)" -ForegroundColor DarkGray
+        }
+        Write-Host "    8. Stop LinkWatcher + cleanup" -ForegroundColor DarkGray
+        $passed++
+        Write-Host ""
+        continue
+    }
 
     # Step 1: Stop any running LinkWatcher (project-level or previous workspace-scoped)
     Write-Host "  1️⃣  Stopping LinkWatcher for clean setup..." -ForegroundColor DarkGray

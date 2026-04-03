@@ -1,14 +1,12 @@
 ---
 id: PF-VIS-059
 type: Process Framework
-category: Visualization
+category: Context Map
 version: 1.0
 created: 2026-03-27
 updated: 2026-03-27
 workflow_phase: 07-deployment
-task_name: user-documentation-creation
-map_type: Context Map
-visualization_type: Task Context
+related_task: PF-TSK-081
 ---
 
 # User Documentation Creation Context Map

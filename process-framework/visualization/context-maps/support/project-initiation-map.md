@@ -1,14 +1,12 @@
 ---
 id: PF-VIS-043
-type: Document
-category: General
+type: Process Framework
+category: Context Map
 version: 1.0
 created: 2026-02-16
 updated: 2026-02-16
-visualization_type: Task Context
-task_name: project-initiation
-map_type: Context Map
 workflow_phase: support
+related_task: PF-TSK-059
 ---
 
 # Project Initiation Context Map

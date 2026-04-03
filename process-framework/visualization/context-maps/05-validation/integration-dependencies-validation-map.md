@@ -1,13 +1,11 @@
 ---
 id: PF-VIS-030
-type: Document
-category: General
+type: Process Framework
+category: Context Map
 version: 1.0
 created: 2025-08-15
 updated: 2025-08-15
-visualization_type: Task Context
-task_name: integration-dependencies-validation
-map_type: Context Map
+related_task: PF-TSK-033
 ---
 
 # Integration Dependencies Validation Context Map
@@ -28,7 +26,7 @@ graph TD
     CRI[Component Relationship Index] --> DA[Dependency Analysis]
 
     PC[(Dependency Manifest)] --> DA
-    LIB[/lib/ directory/] --> DA
+    LIB[/src/ directory/] --> DA
     SUP[(External Service Config)] --> IA[Integration Assessment]
     TDD[Technical Design Docs] --> IA
 
@@ -58,7 +56,7 @@ graph TD
 ### Important Components (Should Understand)
 
 - **Dependency Manifest (PC)**: Project dependencies and version constraints - core dependency health analysis
-- **lib/ directory (LIB)**: Source code for selected features - implementation analysis target
+- **src/ directory (LIB)**: Source code for selected features - implementation analysis target
 - **External Service Configuration (SUP)**: External system integration configurations - integration pattern analysis
 - **Technical Design Documents (TDD)**: Technical specifications for integration patterns - design validation reference
 - **Dependency Analysis (DA)**: Process of examining dependency health, versions, and compatibility
@@ -78,7 +76,7 @@ graph TD
 3. **Validation Report Template → Validation Report**: Provides standardized structure and scoring framework
 4. **Component Relationship Index → Dependency Analysis**: Essential reference for understanding component interactions
 5. **Dependency Manifest → Dependency Analysis**: Source of dependency versions, constraints, and configuration
-6. **lib/ directory → Dependency Analysis**: Contains implementation code for dependency usage analysis
+6. **src/ directory → Dependency Analysis**: Contains implementation code for dependency usage analysis
 7. **External Service Configuration → Integration Assessment**: Defines external system integration patterns
 8. **Technical Design Documents → Integration Assessment**: Provides design specifications for integration validation
 9. **Dependency Analysis → Validation Report**: Feeds dependency health findings into the validation report
@@ -89,7 +87,7 @@ graph TD
 
 1. **Start with Critical Context**: Load Feature Tracking, Validation Tracking, and Validation Report Template to understand scope and structure
 2. **Establish Component Understanding**: Review Component Relationship Index to map dependencies and integration points
-3. **Analyze Dependencies**: Examine dependency manifest for version constraints and lib/ directory for implementation patterns
+3. **Analyze Dependencies**: Examine dependency manifest for version constraints and src/ directory for implementation patterns
 4. **Assess Integration Patterns**: Review external service configuration and Technical Design Documents for external system integration
 5. **Perform Cross-Feature Analysis**: Unlike other validation tasks, this focuses on integration patterns across multiple features simultaneously
 6. **Generate Validation Report**: Use [../../scripts/file-creation/05-validation/New-ValidationReport.ps1](../../../scripts/file-creation/05-validation/New-ValidationReport.ps1) script with IntegrationDependencies validation type

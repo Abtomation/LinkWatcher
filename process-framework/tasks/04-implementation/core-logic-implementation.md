@@ -5,7 +5,7 @@ category: Task Definition
 domain: agnostic
 version: 1.0
 created: 2026-03-24
-updated: 2026-03-24
+updated: 2026-04-03
 ---
 
 # Core Logic Implementation
@@ -112,6 +112,7 @@ Implement core business logic modules, wire integration points, and write unit t
    - Cover error handling and edge cases
    - Follow existing test patterns and conventions
    - Aim for coverage targets defined in the test specification (if available)
+   - After creating or modifying tests, complete the documentation steps in the [Test File Creation Guide — Test Documentation Completeness](/process-framework/guides/03-testing/test-file-creation-guide.md#5-complete-test-documentation) section.
 8. **🚨 CHECKPOINT**: Present implemented modules, test results, and any TDD deviations to human partner for review
    > **ADR trigger**: If this implementation involved a non-obvious design choice (e.g., choosing between competing patterns, introducing a new architectural pattern, making trade-offs not covered by existing ADRs), recommend creating an ADR via [ADR Creation](../02-design/adr-creation-task.md) (PF-TSK-028) as a follow-up task.
 
@@ -191,6 +192,7 @@ Before considering this task finished:
   - [ ] [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) status set to 🧪 Testing
   - [ ] Implementation notes document any deviations from design specifications
   - [ ] Test tracking files automatically updated by `New-TestFile.ps1` (verify correctness)
+  - [ ] Run [`Validate-TestTracking.ps1`](../../scripts/validation/Validate-TestTracking.ps1) — 0 errors (if tests were added or modified)
 - [ ] **Bug Documentation**: Any bugs discovered but not fixed are documented
   - [ ] Bug reports created via `New-BugReport.ps1` (if applicable)
   - [ ] [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) updated with 🆕 Reported entries (if applicable)

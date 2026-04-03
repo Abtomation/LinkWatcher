@@ -25,6 +25,9 @@
 .PARAMETER MapDescription
     Brief description of what the context map visualizes
 
+.PARAMETER RelatedTask
+    The PF-TSK-### ID of the task this context map belongs to (e.g., "PF-TSK-028")
+
 .PARAMETER OpenInEditor
     If specified, opens the created file in the default editor
 
@@ -63,6 +66,9 @@ param(
     [string]$MapDescription = "",
 
     [Parameter(Mandatory = $false)]
+    [string]$RelatedTask = "",
+
+    [Parameter(Mandatory = $false)]
     [switch]$OpenInEditor
 )
 
@@ -81,12 +87,14 @@ try {
 # Perform standard initialization
 Invoke-StandardScriptInitialization
 
-# Prepare additional metadata fields
+# Prepare additional metadata fields (IMP-376: removed redundant task_name, map_type, visualization_type)
 $additionalMetadataFields = @{
-    "task_name"          = ConvertTo-KebabCase -InputString $TaskName
-    "workflow_phase"     = $WorkflowPhase
-    "map_type"           = "Context Map"
-    "visualization_type" = "Task Context"
+    "workflow_phase" = $WorkflowPhase
+}
+
+# Add related task if provided
+if ($RelatedTask -ne "") {
+    $additionalMetadataFields["related_task"] = $RelatedTask
 }
 
 # Prepare custom replacements based on the context map template
@@ -135,6 +143,33 @@ try {
             "🚫 DO NOT use the generated file without proper customization!",
             "✅ The template provides structure - YOU provide the meaningful content."
         )
+    }
+
+    # Auto-append entry to PF-documentation-map.md under the correct Context Maps section
+    if ($mapId -or $WhatIfPreference) {
+        $projectRoot = Get-ProjectRoot
+        $docMapPath = Join-Path -Path $projectRoot -ChildPath "process-framework/PF-documentation-map.md"
+
+        # Derive section header from WorkflowPhase
+        if ($WorkflowPhase -match '^(\d{2})-(.+)$') {
+            $num = $Matches[1]
+            $phaseName = (Get-Culture).TextInfo.ToTitleCase($Matches[2])
+            $sectionHeader = "#### $num - $phaseName Context Maps"
+        }
+        else {
+            $phaseName = (Get-Culture).TextInfo.ToTitleCase($WorkflowPhase)
+            $sectionHeader = "#### $phaseName Context Maps"
+        }
+
+        $mapFileName = "$($TaskName.ToLower().Replace(' ', '-'))-map.md"
+        $relativePath = "visualization/context-maps/$WorkflowPhase/$mapFileName"
+        $description = if ($MapDescription -ne "") { $MapDescription } else { "Components for $TaskName task" }
+        $entryLine = "- [$TaskName Map]($relativePath) - $description"
+
+        $updated = Add-DocumentationMapEntry -DocMapPath $docMapPath -SectionHeader $sectionHeader -EntryLine $entryLine -CallerCmdlet $PSCmdlet
+        if ($updated) {
+            $details += "Documentation Map: Updated (section: $sectionHeader)"
+        }
     }
 
     Write-ProjectSuccess -Message "Created context map with ID: $mapId" -Details $details

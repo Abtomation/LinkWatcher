@@ -64,9 +64,9 @@ graph TD
 
 ## Related Documentation
 
-- [TDD Templates](/doc/technical/architecture/design-docs) - Tier-specific templates
+- [TDD Templates](/process-framework/templates/02-design) - Tier-specific templates (tdd-t1, tdd-t2, tdd-t3)
 - [Feature Assessment](/doc/documentation-tiers/assessments) - Complexity tier assessments
-- [Existing TDDs](/doc/technical/design) - Previously created design documents
+- [Existing TDDs](/doc/technical/tdd) - Previously created design documents
 - [Feature Tracking](../../../../doc/state-tracking/permanent/feature-tracking.md) - Feature status tracking
 
 ---

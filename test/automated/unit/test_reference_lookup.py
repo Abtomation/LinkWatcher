@@ -151,7 +151,11 @@ class TestFindReferences:
         ref1 = self._make_ref(target="alpha-project/docs/sub/file.md")
         ref2 = self._make_ref(file_path="src/b.md", target="docs/sub/file.md")
         mock_db.get_references_to_file.side_effect = lambda v: (
-            [ref1] if v == "alpha-project/docs/sub/file.md" else [ref2] if v == "docs/sub/file.md" else []
+            [ref1]
+            if v == "alpha-project/docs/sub/file.md"
+            else [ref2]
+            if v == "docs/sub/file.md"
+            else []
         )
         result = lookup.find_references("alpha-project/docs/sub/file.md")
         assert len(result) == 2
@@ -526,7 +530,9 @@ class TestCalculateUpdatedRelativePath:
         """
         target = temp_dir / "shared" / "data.md"
         target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_text("# data\n## section\n")
+        target.write_text(
+            ".git/objects/3a/b045e54f8acd16e0d036a487eb74c269db1d9f# data\n## section\n"
+        )
 
         result = lookup._calculate_updated_relative_path(
             "../shared/data.md#section", "src/file.md", "src/deep/file.md"
@@ -603,7 +609,9 @@ class TestUpdateLinksWithinMovedFile:
     def test_markdown_link_updated(self, lookup, mock_parser, temp_dir):
         """Markdown links have their targets recalculated and updated."""
         f = temp_dir / "file.md"
-        f.write_text("# Test\n\n[link](../shared/data.md)\n")
+        f.write_text(
+            ".git/objects/3a/b045e54f8acd16e0d036a487eb74c269db1d9f# Test\n\n[link](../shared/data.md)\n"
+        )
 
         # Create the target so _calculate_updated_relative_path resolves it
         target = temp_dir / "shared" / "data.md"
@@ -662,7 +670,9 @@ class TestUpdateLinksWithinMovedFile:
     def test_backup_created_when_enabled(self, lookup, mock_parser, temp_dir):
         """Backup file is created when backup_enabled=True and links are updated."""
         f = temp_dir / "file.md"
-        f.write_text("# Test\n\n[link](../shared/data.md)\n")
+        f.write_text(
+            ".git/objects/3a/b045e54f8acd16e0d036a487eb74c269db1d9f# Test\n\n[link](../shared/data.md)\n"
+        )
 
         target = temp_dir / "shared" / "data.md"
         target.parent.mkdir(parents=True, exist_ok=True)
@@ -698,7 +708,9 @@ class TestCleanupAfterDirectoryPathMove:
     def test_removes_old_directory_targets(self, lookup, mock_db):
         """Old directory path variations are removed from DB."""
         mock_db.get_references_to_directory.return_value = []
-        lookup.cleanup_after_directory_path_move("alpha-project/docs/old/dir", "alpha-project/docs/new/dir")
+        lookup.cleanup_after_directory_path_move(
+            "alpha-project/docs/old/dir", "alpha-project/docs/new/dir"
+        )
 
         remove_calls = [c[0][0] for c in mock_db.remove_targets_by_path.call_args_list]
         assert "alpha-project/docs/old/dir" in remove_calls
@@ -721,7 +733,9 @@ class TestCleanupAfterDirectoryPathMove:
         affected.parent.mkdir(parents=True, exist_ok=True)
         affected.write_text("# script")
 
-        lookup.cleanup_after_directory_path_move("alpha-project/docs/old/dir", "alpha-project/docs/new/dir")
+        lookup.cleanup_after_directory_path_move(
+            "alpha-project/docs/old/dir", "alpha-project/docs/new/dir"
+        )
 
         # Should remove file links and rescan
         mock_db.remove_file_links.assert_called()

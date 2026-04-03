@@ -1,6 +1,7 @@
 ---
 id: PF-GDE-011
-type: Documentation
+type: Process Framework
+category: Guide
 version: 2.0
 created: 2024-12-19
 updated: 2025-07-28
@@ -200,7 +201,7 @@ Phase 4: Framework Integration & Testing
 ### Phase 2: Document Creation Infrastructure (Session 2)
 **Priority**: HIGH - Task creates TDD files
 
-- [x] **Task Output Directory**: doc/technical/design/tdds
+- [x] **Task Output Directory**: doc/technical/tdd
 - [x] **Document Creation Script**: New-TDD.ps1
 - [x] **ID Registry Update**: Add PD-TDD prefix
 ```

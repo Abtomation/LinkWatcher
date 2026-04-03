@@ -4,7 +4,7 @@ type: Process Framework
 category: Task Definition
 version: 2.1
 created: 2023-06-15
-updated: 2026-03-02
+updated: 2026-04-03
 ---
 
 # Code Review
@@ -31,11 +31,11 @@ Review implemented code to ensure it meets quality standards, follows project co
 
 ## Context Requirements
 
-- [Code Review Context Map](/process-framework/visualization/context-maps/06-maintenance/code-review-map.md) - Visual guide to the components relevant to this task
+[View Context Map for this task](../../visualization/context-maps/06-maintenance/code-review-map.md)
 
 - **Critical (Must Read):**
 
-  - [Technical Design Document](/doc/technical/design) - The technical design document for the feature
+  - [Technical Design Document](/doc/technical/tdd) - The technical design document for the feature
   - Source code files that were created or modified during implementation
   - [Visual Notation Guide](/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
   - Project dependency configuration file - To verify dependency changes and versions
@@ -48,7 +48,7 @@ Review implemented code to ensure it meets quality standards, follows project co
 
 - **Reference Only (Access When Needed):**
   - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - To identify features with "👀 Ready for Review" status
-  - [Architecture Decision Records](/doc/technical/architecture/design-docs/adr) - For architectural context
+  - [Architecture Decision Records](/doc/technical/adr) - For architectural context
   - [Test Tracking](../../../test/state-tracking/permanent/test-tracking.md) - For test coverage context
 
 ## Process
@@ -77,14 +77,15 @@ Review implemented code to ensure it meets quality standards, follows project co
 
 ### Pre-Review Analysis
 
-10. Run automated code quality checks:
+10. Run automated code quality checks using the project's configured tools:
    ```bash
-   # Static analysis / linting
-   flake8 src/ tests/               # or your project's linter
-   # Code formatting check
-   black --check src/ tests/        # or your project's formatter
-   # Run tests with coverage
-   pytest --cov=src tests/          # or your project's test runner
+   # Commands are defined in languages-config/{language}/{language}-config.json
+   # - Static analysis / linting: testing.lintCommand
+   # - Test runner with coverage: testing.baseCommand + testing.coverageArgs
+   # Project language and test directory are in doc/project-config.json
+   #
+   # Or use the framework test runner:
+   pwsh.exe -ExecutionPolicy Bypass -Command '& process-framework/scripts/test/Run-Tests.ps1 -All -Coverage'
    ```
 11. Review dependency changes in the project's dependency configuration for:
    - Version compatibility
@@ -108,11 +109,13 @@ Review implemented code to ensure it meets quality standards, follows project co
 
 ### Testing Verification
 
-13. Run and verify all test suites:
+13. Run and verify all test suites using the project's test runner:
     ```bash
-    pytest tests/unit/               # Unit tests
-    pytest tests/integration/        # Integration tests
-    pytest tests/                    # Full test suite
+    # Run by category (categories defined in languages-config/)
+    pwsh.exe -ExecutionPolicy Bypass -Command '& process-framework/scripts/test/Run-Tests.ps1 -Category unit'
+    pwsh.exe -ExecutionPolicy Bypass -Command '& process-framework/scripts/test/Run-Tests.ps1 -Category integration'
+    # Run full suite
+    pwsh.exe -ExecutionPolicy Bypass -Command '& process-framework/scripts/test/Run-Tests.ps1 -All'
     ```
 14. Verify test coverage meets project standards (aim for >80% for critical paths)
 15. Test the feature in relevant environments (if applicable):
@@ -296,7 +299,7 @@ Before considering this task finished:
 
 ### Project-Specific Resources
 
-- [Architecture Decision Records](/doc/technical/architecture/design-docs/adr) - Architectural context and decisions
+- [Architecture Decision Records](/doc/technical/adr) - Architectural context and decisions
 - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Feature status and dependencies
 - [Test Tracking](../../../test/state-tracking/permanent/test-tracking.md) - Test coverage and status
 

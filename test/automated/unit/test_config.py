@@ -291,6 +291,38 @@ class TestLinkWatcherConfig:
                 config = LinkWatcherConfig.from_env()
                 assert config.dry_run_mode == expected, f"Failed for env_value: {env_value}"
 
+    def test_from_env_invalid_int_falls_back_to_default(self, caplog):
+        """Test that non-numeric int env var is ignored with a warning (TE-TAR-020)."""
+        import logging
+
+        env_vars = {"LINKWATCHER_MAX_FILE_SIZE_MB": "abc"}
+
+        with caplog.at_level(logging.WARNING, logger="linkwatcher.config.settings"):
+            with patch.dict(os.environ, env_vars):
+                config = LinkWatcherConfig.from_env()
+
+        # Default preserved
+        assert config.max_file_size_mb == 10
+        # Warning logged
+        warnings = [r.message for r in caplog.records if r.levelno == logging.WARNING]
+        assert any("abc" in w and "MAX_FILE_SIZE_MB" in w for w in warnings)
+
+    def test_from_env_invalid_float_falls_back_to_default(self, caplog):
+        """Test that non-numeric float env var is ignored with a warning (TE-TAR-020)."""
+        import logging
+
+        env_vars = {"LINKWATCHER_MOVE_DETECT_DELAY": "not-a-number"}
+
+        with caplog.at_level(logging.WARNING, logger="linkwatcher.config.settings"):
+            with patch.dict(os.environ, env_vars):
+                config = LinkWatcherConfig.from_env()
+
+        # Default preserved
+        assert config.move_detect_delay == 10.0
+        # Warning logged
+        warnings = [r.message for r in caplog.records if r.levelno == logging.WARNING]
+        assert any("not-a-number" in w and "MOVE_DETECT_DELAY" in w for w in warnings)
+
     def test_save_to_json_file(self, temp_project_dir):
         """Test saving configuration to JSON file."""
         config = LinkWatcherConfig(
@@ -576,15 +608,13 @@ class TestDefaultConfigurations:
 
     def test_configs_are_independent(self):
         """Test that config instances are independent."""
-        # Modify one config
-        original_extensions = DEFAULT_CONFIG.monitored_extensions.copy()
-        DEFAULT_CONFIG.monitored_extensions.add(".test")
+        # Work on a copy to avoid polluting the singleton if this test fails
+        default_copy = DEFAULT_CONFIG.monitored_extensions.copy()
+        default_copy.add(".test")
 
-        # Other config should not be affected
+        # The original DEFAULT_CONFIG and TESTING_CONFIG must be unaffected
+        assert ".test" not in DEFAULT_CONFIG.monitored_extensions
         assert ".test" not in TESTING_CONFIG.monitored_extensions
-
-        # Restore original state
-        DEFAULT_CONFIG.monitored_extensions = original_extensions
 
     def test_config_validation(self):
         """Test that default configs are valid."""

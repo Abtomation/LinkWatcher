@@ -1,13 +1,11 @@
 ---
 id: PF-VIS-029
-type: Document
-category: General
+type: Process Framework
+category: Context Map
 version: 1.0
 created: 2025-08-15
 updated: 2025-08-15
-task_name: code-quality-standards-validation
-map_type: Context Map
-visualization_type: Task Context
+related_task: PF-TSK-032
 ---
 
 # Code Quality Standards Validation Context Map
@@ -24,7 +22,7 @@ graph TD
 
     FT([Feature Tracking]) --> VT([Validation Tracking])
     FT --> VRT[Validation Report Template]
-    LIB[lib/ Codebase] --> VRT
+    LIB[src/ Codebase] --> VRT
     DSG[Language Style Guide] --> VRT
     VT --> VRS[New-ValidationReport Script]
     TEST[test/ Directory] -.-> SOLID[SOLID Principles]
@@ -43,7 +41,7 @@ graph TD
 - **Feature Tracking**: Current status and details of features to be validated
 - **Validation Tracking**: Active validation tracking matrix tracking progress across all validation types
 - **Validation Report Template**: Standardized template for creating code quality validation reports
-- **lib/ Codebase**: Source code implementations to analyze for quality standards
+- **src/ Codebase**: Source code implementations to analyze for quality standards
 
 ### Important Components (Should Understand)
 
@@ -62,7 +60,7 @@ graph TD
 
 1. **Feature Tracking → Validation Tracking**: Feature status determines which features are ready for quality validation
 2. **Feature Tracking → Validation Report Template**: Feature details populate the validation report structure
-3. **lib/ Codebase → Validation Report Template**: Source code analysis provides quality findings and metrics
+3. **src/ Codebase → Validation Report Template**: Source code analysis provides quality findings and metrics
 4. **Language Style Guide → Validation Report Template**: Official standards provide validation criteria for code style
 5. **Validation Tracking → New-ValidationReport Script**: Matrix tracking guides report generation parameters
 6. **test/ Directory -.-> SOLID Principles**: Test coverage analysis supports SOLID principles evaluation
@@ -73,7 +71,7 @@ graph TD
 1. Begin by examining **Feature Tracking** and **Validation Tracking** to identify validation scope
 2. Load **Language Style Guide** and **SOLID Principles** to understand quality standards
 3. Review **Validation Report Template** to understand expected output structure
-4. Analyze **lib/ Codebase** implementations against style guides and best practices
+4. Analyze **src/ Codebase** implementations against style guides and best practices
 5. Check **test/ Directory** for coverage and quality indicators
 6. Reference **Linting Configuration** for project-specific quality configurations
 7. Use **New-ValidationReport Script** to generate standardized validation reports

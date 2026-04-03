@@ -5,11 +5,8 @@ category: Guide
 version: 1.0
 created: 2025-11-03
 updated: 2025-11-03
-guide_title: Implementation Plan Customization Guide
-guide_status: Active
-guide_description: Comprehensive guide for using New-ImplementationPlan.ps1 script and customizing implementation plan templates for specific features and project requirements
 related_script: New-ImplementationPlan.ps1
-related_tasks: PF-TSK-044
+related_task: PF-TSK-044
 ---
 
 # Implementation Plan Customization Guide
@@ -69,7 +66,7 @@ The script supports a `-Tier` parameter to select the appropriate template:
 | Tier | Template | Lines | Use When |
 |------|----------|-------|----------|
 | 1 | `implementation-plan-tier1-template.md` | ~90 | Simple features — no data layer, state management, UI, or deployment sections |
-| 2/3 (default) | `implementation-plan-template-template.md` | ~290 | Moderate/complex features — full template with all sections |
+| 2/3 (default) | `implementation-plan-template.md` | ~290 | Moderate/complex features — full template with all sections |
 
 ```powershell
 # Tier 1 — lightweight plan
@@ -500,7 +497,7 @@ Feature: Order management system with payment integration
 ## Related Resources
 
 - [Feature Implementation Planning Task (PF-TSK-044)](../../tasks/04-implementation/feature-implementation-planning-task.md) - The task that creates implementation plans
-- [Implementation Plan Template (PF-TEM-042)](../../templates/04-implementation/implementation-plan-template-template.md) - Full template used by New-ImplementationPlan.ps1 (Tier 2/3)
+- [Implementation Plan Template (PF-TEM-042)](../../templates/04-implementation/implementation-plan-template.md) - Full template used by New-ImplementationPlan.ps1 (Tier 2/3)
 - [Implementation Plan Tier 1 Template](../../templates/04-implementation/implementation-plan-tier1-template.md) - Lightweight template for Tier 1 features
 - [Feature Implementation State Template](../../templates/04-implementation/feature-implementation-state-template.md) - For tracking implementation progress
 - [New-ImplementationPlan.ps1](../../scripts/file-creation/04-implementation/New-ImplementationPlan.ps1) - Script that creates implementation plan documents

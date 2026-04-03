@@ -1,13 +1,11 @@
 ---
 id: PF-VIS-025
-type: Document
-category: General
+type: Process Framework
+category: Context Map
 version: 1.0
 created: 2025-08-01
 updated: 2025-08-01
-map_type: Context Map
-task_name: fdd-creation
-visualization_type: Task Context
+related_task: PF-TSK-027
 ---
 
 # FDD Creation Context Map

@@ -76,7 +76,7 @@ Create Architecture Decision Records (ADRs) to document significant architectura
 
 2. **Review Existing ADRs**: Check for related decisions or patterns
 
-   - Review existing ADRs in `/doc/technical/architecture/design-docs/adr/adr`
+   - Review existing ADRs in `/doc/technical/adr`
    - Identify any decisions that might be superseded or related
    - Ensure consistency with established architectural patterns
 
@@ -92,7 +92,7 @@ Create Architecture Decision Records (ADRs) to document significant architectura
 
    ```powershell
    # Navigate to ADR directory
-   cd doc/technical/architecture/design-docs/adr
+   cd doc/technical/adr
 
    # Create new ADR with basic information
    ..\..\scripts\file-creation\02-design\New-ArchitectureDecision.ps1 -Title "Your Decision Title" -Description "Brief description of the decision" -Status "Proposed"
@@ -135,9 +135,41 @@ Create Architecture Decision Records (ADRs) to document significant architectura
 
 ## Outputs
 
-- **Architecture Decision Record (ADR)** - Complete ADR document in `/doc/technical/architecture/design-docs/adr/adr` with assigned ID (PD-ADR-XXX)
+- **Architecture Decision Record (ADR)** - Complete ADR document in `/doc/technical/adr` with assigned ID (PD-ADR-XXX)
 - **Updated Documentation Map** - ADR entry added to the architecture documentation map
 - **Architectural Decision Documentation** - Comprehensive record of decision context, alternatives, and consequences
+
+## Example Output
+
+A completed ADR should look like this (abbreviated):
+
+```markdown
+# ADR: Use Event-Driven Architecture for File Change Notifications
+
+## Status
+Accepted (2026-03-15)
+
+## Context
+The system needs to notify multiple components when files are moved or
+renamed. Current approach uses direct function calls, creating tight
+coupling between the file watcher and each consumer (updater, logger,
+database).
+
+## Decision
+Adopt an event-driven pattern using an internal event bus. The file
+watcher emits FileMovedEvent objects; consumers subscribe independently.
+
+## Consequences
+- **Positive**: Components can be added/removed without modifying the watcher
+- **Positive**: Enables async processing of non-critical consumers (logging)
+- **Negative**: Debugging event flow is harder than tracing direct calls
+- **Negative**: Adds ~200 lines of event infrastructure code
+
+## Alternatives
+1. **Direct calls (status quo)** — Simple but creates N-way coupling
+2. **Callback registry** — Less coupling but no event replay capability
+3. **External message queue** — Overkill for single-process application
+```
 
 ## State Tracking
 

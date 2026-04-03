@@ -1,14 +1,11 @@
 ---
 id: PF-GDE-025
-type: Document
-category: General
+type: Process Framework
+category: Guide
 version: 1.0
 created: 2025-07-27
 updated: 2025-07-27
-guide_description: Guide for customizing technical debt item templates
-guide_title: Debt Item Creation Guide
-related_tasks: PF-TSK-023
-guide_status: Active
+related_task: PF-TSK-023
 related_script: New-DebtItem.ps1
 ---
 

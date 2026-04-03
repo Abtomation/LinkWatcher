@@ -1,14 +1,12 @@
 ---
 id: PF-VIS-049
-type: Document
-category: General
+type: Process Framework
+category: Context Map
 version: 1.0
 created: 2026-03-15
 updated: 2026-03-15
-task_name: e2e-acceptance-test-case-creation
 workflow_phase: 03-testing
-visualization_type: Task Context
-map_type: Context Map
+related_task: PF-TSK-069
 ---
 
 # E2E Acceptance Test Case Creation Context Map

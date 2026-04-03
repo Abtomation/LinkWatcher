@@ -34,7 +34,7 @@ This task produces the foundational inventory that subsequent onboarding tasks (
 
 ## Context Requirements
 
-**[📊 View Context Map for this task](../../visualization/context-maps/00-setup/codebase-feature-discovery-map.md)** - Visual guide showing all components and their relationships
+[View Context Map for this task](../../visualization/context-maps/00-setup/codebase-feature-discovery-map.md)
 
 - **Critical (Must Read):**
 

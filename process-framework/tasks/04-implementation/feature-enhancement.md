@@ -5,7 +5,7 @@ category: Task Definition
 domain: agnostic
 version: 1.1
 created: 2026-02-19
-updated: 2026-03-02
+updated: 2026-04-03
 ---
 
 # Feature Enhancement
@@ -73,7 +73,8 @@ This task executes enhancement work on existing features by following the Enhanc
    - Adapt the guidance to the enhancement context:
      - Amend existing design docs rather than creating new ones
      - Extend existing code rather than building from scratch
-     - Modify existing tests rather than creating a full new test suite (unless the state file specifies otherwise)
+     - Modify existing tests rather than creating a full new test suite (unless the state file specifies otherwise). If a new test file is needed, use [New-TestFile.ps1](../../scripts/file-creation/03-testing/New-TestFile.ps1)
+     - After creating or modifying tests, complete the documentation steps in the [Test File Creation Guide — Test Documentation Completeness](/process-framework/guides/03-testing/test-file-creation-guide.md#5-complete-test-documentation) section.
    - Execute the step
    - **Verify all modified artifacts**: If the step produces or modifies artifacts that are not covered by the project's automated test suite (e.g., scripts, configuration files, build definitions, deployment manifests), manually invoke or inspect them to confirm they work correctly before marking the step complete
    - Mark the step complete in the state file immediately after completion
@@ -136,6 +137,7 @@ Before considering this task finished:
   - [ ] All design documentation updates completed as scoped
   - [ ] All code changes implemented
   - [ ] All test changes implemented
+  - [ ] Run [`Validate-TestTracking.ps1`](../../scripts/validation/Validate-TestTracking.ps1) — 0 errors (if tests were added or modified)
 
 - [ ] **Verify Documentation Accuracy** (if enhancement changed public APIs or data models — Step 9):
   - [ ] Feature implementation state file updated, or N/A — verified file does not reference changed component

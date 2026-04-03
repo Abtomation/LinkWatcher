@@ -1,15 +1,11 @@
 ---
 id: PF-GDE-039
-type: Document
-category: General
+type: Process Framework
+category: Guide
 version: 1.1
 created: 2025-08-01
 updated: 2025-01-27
-guide_status: Active
-guide_description: Guide for customizing FDD templates after creation
-guide_category: Documentation
 related_script: New-FDD.ps1
-guide_title: FDD Customization Guide
 change_notes: "v1.1 - Added Separation of Concerns section for IMP-097/IMP-098"
 ---
 

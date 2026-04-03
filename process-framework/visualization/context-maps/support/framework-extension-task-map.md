@@ -1,13 +1,11 @@
 ---
 id: PF-VIS-023
-type: Document
-category: General
+type: Process Framework
+category: Context Map
 version: 1.0
 created: 2025-07-28
 updated: 2025-07-28
-task_name: framework-extension-task
-visualization_type: Task Context
-map_type: Context Map
+related_task: PF-TSK-026
 ---
 # Framework Extension Task Context Map
 

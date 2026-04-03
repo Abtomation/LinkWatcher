@@ -1,13 +1,11 @@
 ---
 id: PF-GDE-027
-type: Document
-category: General
+type: Process Framework
+category: Guide
 version: 1.0
 created: 2025-07-27
-updated: 2025-07-27
-guide_description: Guide for customizing test file templates
-guide_status: Active
-related_tasks: PF-TSK-012
+updated: 2026-04-03
+related_task: PF-TSK-012
 related_script: New-TestFile.ps1
 guide_title: Test File Creation Guide
 ---
@@ -39,9 +37,10 @@ Use this guide when you need to:
 4. [Customization Decision Points](#customization-decision-points) _(Optional - for template customization guides)_
 5. [Step-by-Step Instructions](#step-by-step-instructions)
 6. [Quality Assurance](#quality-assurance) _(Optional - for template customization guides)_
-7. [Examples](#examples)
-8. [Troubleshooting](#troubleshooting)
-9. [Related Resources](#related-resources)
+7. [Test Documentation Completeness](#5-complete-test-documentation)
+8. [Examples](#examples)
+9. [Troubleshooting](#troubleshooting)
+10. [Related Resources](#related-resources)
 
 ## Prerequisites
 
@@ -385,6 +384,27 @@ After completing the test file customization:
    - Check that TestEnvSetup integration functions correctly
    - Ensure mock services integrate properly with test helpers
    - Validate test file follows project testing conventions
+
+### 5. Complete Test Documentation
+
+After creating or modifying test files, complete these documentation steps to keep test specifications in sync with actual coverage.
+
+1. **Update the feature's test specification**:
+   - Locate the relevant spec in `test/specifications/feature-specs/` for the feature under test
+   - Add the new test scenario(s) — describe what is being tested and why (not just the method name)
+   - If no test specification exists yet, note this as a gap but do not create one inline — flag it for follow-up (see step 3)
+
+2. **Run `Validate-TestTracking.ps1`** to catch tracking inconsistencies:
+   ```powershell
+   pwsh.exe -ExecutionPolicy Bypass -Command '& process-framework/scripts/validation/Validate-TestTracking.ps1'
+   ```
+   Fix any errors before considering the test work complete.
+
+3. **Decide whether to escalate to formal Test Specification Creation**:
+   - **Inline update is sufficient** when: adding 1–3 scenarios to an existing spec, or the change is a straightforward regression/characterization test
+   - **Escalate to [Test Specification Creation (PF-TSK-012)](/process-framework/tasks/03-testing/test-specification-creation-task.md)** when: no spec exists for the feature, systemic test gaps are discovered (>3 new scenarios needed), or the test design requires behavioral analysis beyond what inline updates can capture
+
+> **Why this matters**: Tasks outside the formal testing pipeline (bug fixing, refactoring, feature enhancement, core logic implementation) create tests that get tracked mechanically via `New-TestFile.ps1`, but the test _specification_ — which documents what scenario is tested and why — does not get updated automatically. Without this step, test specs drift from actual coverage and become unreliable.
 
 ## Examples
 

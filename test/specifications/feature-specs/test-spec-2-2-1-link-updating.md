@@ -138,7 +138,7 @@ The `LinkUpdater` class performs atomic file modifications to update link refere
 
 ### Files to Reference
 
-- **TDD**: [`doc/technical/architecture/design-docs/tdd/tdd-2-2-1-link-updater-t2.md`](../../../doc/technical/tdd/tdd-2-2-1-link-updater-t2.md)
+- **TDD**: [`doc/technical/tdd/tdd-2-2-1-link-updater-t2.md`](../../../doc/technical/tdd/tdd-2-2-1-link-updater-t2.md)
 - **Existing Tests**: [`test/automated/unit/test_updater.py`](../../../test/automated/unit/test_updater.py) (24 methods), [`test/automated/integration/test_link_updates.py`](../../../test/automated/integration/test_link_updates.py) (10 methods)
 - **Source Code**: [`linkwatcher/updater.py`](../../../linkwatcher/updater.py), [`linkwatcher/path_resolver.py`](../../../linkwatcher/path_resolver.py)
 

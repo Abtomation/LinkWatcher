@@ -1,14 +1,11 @@
 ---
 id: PF-GDE-053
-type: Document
-category: General
+type: Process Framework
+category: Guide
 version: 1.0
 created: 2026-03-30
 updated: 2026-03-30
-guide_category: Framework
-related_tasks: PF-TSK-014
-guide_description: Single authoritative reference for 10 development dimensions across all task phases — planning, implementation, review, and validation
-guide_status: Active
+related_task: PF-TSK-014
 guide_title: Development Dimensions Guide
 ---
 

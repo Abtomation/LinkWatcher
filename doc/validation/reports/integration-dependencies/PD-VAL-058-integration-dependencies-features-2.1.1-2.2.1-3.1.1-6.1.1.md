@@ -288,7 +288,7 @@ Dependency direction is correct: no circular dependencies, proper layering from 
 
 ### Tracking and Monitoring
 
-- [x] **Update Validation Tracking**: Results recorded in [validation-round-2-all-features.md](../../../state-tracking/temporary/validation/archive/validation-tracking-2.md)
+- [x] **Update Validation Tracking**: Results recorded in [validation-round-2-all-features.md](../../../state-tracking/validation/archive/validation-tracking-2.md)
 - [ ] **Schedule Follow-Up**: After tech debt items are resolved
 
 ## Appendices

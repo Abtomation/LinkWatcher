@@ -33,6 +33,8 @@ audit_date: [Audit Date]
 
 ## Implementation Dependency Analysis
 
+<!-- Omit this section entirely if audit decision is "Tests Approved" (all dependencies met, nothing to report). -->
+
 | Test File | Implementation Status | Can Be Tested? | Blocker | Placeholder Quality |
 |-----------|----------------------|----------------|---------|-------------------|
 | [TEST_FILE_NAME] | [EXISTS/MISSING/PARTIAL] | [YES/NO/PARTIAL] | [BLOCKER_DESCRIPTION] | [GOOD/POOR/N/A] |
@@ -208,10 +210,12 @@ audit_date: [Audit Date]
 - [ ] [Action item 3 with specific details]
 
 ### For Feature Implementation Team
+<!-- Omit this subsection if audit decision is "Tests Approved" (no action needed from feature team). -->
 - [ ] [Action item 1 for feature team]
 - [ ] [Action item 2 for feature team]
 
 ### Implementation Dependencies (if status is "Tests Approved with Dependencies")
+<!-- Omit this subsection and Implementation Recommendations if audit decision is "Tests Approved". -->
 - [ ] **Priority 1**: [Missing implementation 1] - [Impact description]
 - [ ] **Priority 2**: [Missing implementation 2] - [Impact description]
 - [ ] **Priority 3**: [Missing implementation 3] - [Impact description]

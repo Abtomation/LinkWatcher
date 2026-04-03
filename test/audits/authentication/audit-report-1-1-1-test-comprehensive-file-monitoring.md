@@ -7,7 +7,7 @@ created: 2026-03-27
 updated: 2026-04-03
 feature_id: 1.1.1
 audit_date: 2026-03-27
-test_file_path: test/automated/integration/test_comprehensive_file_monitoring.py
+test_file_path: test/automated/unit/test_comprehensive_file_monitoring.py
 auditor: AI Agent
 ---
 
@@ -19,7 +19,7 @@ auditor: AI Agent
 |-------|-------|
 | **Feature ID** | 1.1.1 |
 | **Test File ID** | test_comprehensive_file_monitoring.py |
-| **Test File Location** | `test/automated/integration/test_comprehensive_file_monitoring.py` |
+| **Test File Location** | `test/automated/unit/test_comprehensive_file_monitoring.py` |
 | **Feature Category** | FILE_WATCHING |
 | **Auditor** | AI Agent |
 | **Audit Date** | 2026-03-27 |
@@ -29,7 +29,7 @@ auditor: AI Agent
 
 | Test File | Location | Test Cases | Status |
 |-----------|----------|------------|--------|
-| test_comprehensive_file_monitoring.py | test/automated/integration/test_comprehensive_file_monitoring.py | 7 | ✅ Tests Approved |
+| test_comprehensive_file_monitoring.py | test/automated/unit/test_comprehensive_file_monitoring.py | 7 | ✅ Tests Approved |
 
 ## Implementation Dependency Analysis
 

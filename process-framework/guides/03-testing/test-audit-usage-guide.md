@@ -1,14 +1,11 @@
 ---
 id: PF-GDE-041
-type: Document
-category: General
+type: Process Framework
+category: Guide
 version: 1.0
 created: 2025-08-07
 updated: 2025-08-07
-guide_title: Test Audit Usage Guide
-guide_description: Comprehensive guide for using the Test Audit task effectively to conduct quality assessments of test implementations
-guide_status: Active
-related_tasks: PF-TSK-030
+related_task: PF-TSK-030
 related_script: New-TestAuditReport.ps1
 ---
 # Test Audit Usage Guide
@@ -189,6 +186,9 @@ The Test Audit process evaluates tests against six comprehensive quality criteri
 
    # Create new audit report (example for feature 0.2.3)
    .\New-TestAuditReport.ps1 -FeatureId "0.2.3" -TestFilePath "test/automated/unit/test_example.py" -AuditorName "AI Agent"
+
+   # Re-audit: overwrite existing report (archive the old one first)
+   .\New-TestAuditReport.ps1 -FeatureId "0.2.3" -TestFilePath "test/automated/unit/test_example.py" -AuditorName "AI Agent" -Force
    ```
 
 2. **Verify Report Creation**

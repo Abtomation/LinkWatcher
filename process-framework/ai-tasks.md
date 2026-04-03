@@ -214,6 +214,7 @@ _Meta-framework tasks that work on the process framework itself_
 | **Structure Change**          | Reorganizing directory structures, file locations, or documentation architecture | [→ Definition](/process-framework/tasks/support/structure-change-task.md)     |
 | **Framework Extension Task**  | Adding new framework capabilities with multiple interconnected components        | [→ Definition](/process-framework/tasks/support/framework-extension-task.md)  |
 | **Tools Review**              | Evaluating and enhancing project tools                                           | [→ Definition](/process-framework/tasks/support/tools-review-task.md)         |
+| **Framework Domain Adaptation** | Migrating the process framework to a different business domain while preserving core structure | [→ Definition](/process-framework/tasks/support/framework-domain-adaptation.md) |
 
 ---
 
@@ -352,6 +353,7 @@ Validation Preparation (PF-TSK-077) → [Select features + dimensions] → Dimen
 | **🔧 Support Tasks**    | Structure Change                  | Reorganize framework structure               | [Structure Change Task](/process-framework/tasks/support/structure-change-task.md)                                                 |
 | **🔧 Support Tasks**    | Framework Extension               | Add new framework capabilities               | [Framework Extension Task](/process-framework/tasks/support/framework-extension-task.md)                                           |
 | **🔧 Support Tasks**    | Tools Review                      | Evaluate and enhance tools                   | [Tools Review Task](/process-framework/tasks/support/tools-review-task.md)                                                         |
+| **🔧 Support Tasks**    | Framework Domain Adaptation       | Migrate framework to different domain        | [Framework Domain Adaptation](/process-framework/tasks/support/framework-domain-adaptation.md)                                      |
 
 ---
 

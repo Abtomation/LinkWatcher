@@ -1,15 +1,12 @@
 ---
 id: PF-GDE-047
-type: Document
-category: General
+type: Process Framework
+category: Guide
 version: 2.0
 created: 2026-02-19
 updated: 2026-02-19
-guide_description: Step-by-step instructions for customizing Enhancement State Tracking files created by New-EnhancementState.ps1
-guide_title: Enhancement State Tracking Customization Guide
 related_script: New-EnhancementState.ps1
-guide_status: Active
-related_tasks: PF-TSK-067,PF-TSK-068
+related_task: PF-TSK-067,PF-TSK-068
 ---
 
 # Enhancement State Tracking Customization Guide
@@ -503,7 +500,7 @@ For single-session enhancements: Remove the Session Boundary Planning section en
 
 ## Related Resources
 
-- [Enhancement State Tracking Template (PF-TEM-045)](../../templates/04-implementation/enhancement-state-tracking-template-template.md) — The template that `New-EnhancementState.ps1` uses
+- [Enhancement State Tracking Template (PF-TEM-045)](../../templates/04-implementation/enhancement-state-tracking-template.md) — The template that `New-EnhancementState.ps1` uses
 - [Feature Request Evaluation Task (PF-TSK-067)](../../tasks/01-planning/feature-request-evaluation.md) — The task that uses this guide
 - [Feature Enhancement Task (PF-TSK-068)](../../tasks/04-implementation/feature-enhancement.md) — The task that consumes the customized state file
 - [Enhancement Workflow Concept (PF-PRO-002)](../../proposals/old/enhancement-workflow-concept.md) — Design rationale for the workflow

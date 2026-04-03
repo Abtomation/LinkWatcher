@@ -2,12 +2,12 @@
 id: PF-TEM-003
 type: Process Framework
 category: Template
-version: 1.0
+version: 1.1
 created: 2023-06-15
-updated: 2025-07-27
+updated: 2026-04-03
 status: Active
-related_script: [Optional: Script name this guide relates to]
-related_tasks: [Optional: Comma-separated task IDs this guide relates to]
+creates_document_type: Process Framework
+creates_document_category: Guide
 ---
 
 # [Guide Title]

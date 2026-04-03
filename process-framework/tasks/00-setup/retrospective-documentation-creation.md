@@ -31,7 +31,7 @@ This is the final onboarding task that transforms code analysis into formal desi
 
 ## Context Requirements
 
-**[📊 View Context Map for this task](../../visualization/context-maps/00-setup/retrospective-documentation-creation-map.md)** - Visual guide showing all components and their relationships
+[View Context Map for this task](../../visualization/context-maps/00-setup/retrospective-documentation-creation-map.md)
 
 - **Critical (Must Read):**
 

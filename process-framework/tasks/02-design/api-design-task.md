@@ -108,13 +108,13 @@ When referencing this task's outputs in other tasks:
 
   - **Functional Design Document (FDD)** - For Tier 2+ features, the FDD containing functional requirements and user flows that inform API design
   - [Feature Requirements](/doc/state-tracking/permanent/feature-tracking.md) - Understanding what functionality the API must support and confirming API Design is required
-  - [Feature Tier Assessment](../../../doc/documentation-tiers/assessments) - Assessment that determined API design is needed
-  - [System Architecture Review Results](/doc/technical/architecture/assessments) - Architecture decisions that impact API design
+  - **Feature Tier Assessment** - The tier assessment for this feature (locate via [Feature Tracking](/doc/state-tracking/permanent/feature-tracking.md))
+  - **System Architecture Review Results** - Architecture decisions that impact API design (if a review was conducted)
 
 - **Important (Load If Space):**
 
-  - [Existing API Documentation](/doc/technical/api/documentation) - Current API patterns and conventions
-  - [Technical Design Documents](/doc/technical/architecture/design-docs/tdd) - Related technical designs
+  - **Existing API Documentation** - Current API patterns and conventions for the project (if available)
+  - [Technical Design Documents](/doc/technical/tdd) - Related technical designs
 
 - **Reference Only (Access When Needed):**
   - [API Design Best Practices](https://restfulapi.net/) - Industry standards for REST API design
@@ -207,6 +207,43 @@ When referencing this task's outputs in other tasks:
 - **API Specification Document** - Comprehensive API contract definition saved to `/doc/technical/api/specifications/specifications/[api-name].md`
 - **Request Data Model** - Schema definition for request objects saved to `/doc/technical/api/models/[api-name]-request.md`
 - **Response Data Model** - Schema definition for response objects saved to `/doc/technical/api/models/[api-name]-response.md`
+
+## Example Output
+
+A completed API specification should look like this (abbreviated):
+
+```markdown
+# API Specification: User Profile API
+
+## Overview
+RESTful API for managing user profile data. All endpoints require
+Bearer token authentication.
+
+## Endpoints
+### GET /api/v1/profile/{user_id}
+- **Description**: Retrieve user profile
+- **Auth**: Required (own profile or admin role)
+- **Response**: 200 OK
+
+| Field | Type | Description |
+|-------|------|-------------|
+| user_id | UUID | Unique user identifier |
+| display_name | string | User's display name (3-50 chars) |
+| avatar_url | string? | URL to avatar image |
+
+### PUT /api/v1/profile/{user_id}
+- **Description**: Update user profile
+- **Auth**: Required (own profile only)
+- **Request Body**: { display_name?: string, avatar?: file }
+- **Response**: 200 OK (updated profile) | 422 Validation Error
+- **Rate Limit**: 10 requests/minute per user
+
+## Error Handling
+| Code | Meaning | When |
+|------|---------|------|
+| 404 | Profile not found | Invalid user_id |
+| 429 | Rate limited | Display name change within 24h |
+```
 
 ## State Tracking
 

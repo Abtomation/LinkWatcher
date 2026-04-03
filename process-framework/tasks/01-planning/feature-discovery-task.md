@@ -30,7 +30,7 @@ Identify and document potential new features through user research, competitive 
 
 ## Context Requirements
 
-- [Feature Discovery Context Map](/process-framework/visualization/context-maps/01-planning/feature-discovery-map.md) - Visual guide to the components relevant to this task
+[View Context Map for this task](../../visualization/context-maps/01-planning/feature-discovery-map.md)
 
 - **Critical (Must Read):**
 

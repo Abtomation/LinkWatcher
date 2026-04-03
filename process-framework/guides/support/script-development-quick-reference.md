@@ -1,12 +1,10 @@
 ---
 id: PF-GDE-019
-type: Document
-category: General
+type: Process Framework
+category: Guide
 version: 1.0
 created: 2025-07-21
 updated: 2025-07-21
-guide_title: Script Development Quick Reference
-guide_status: Active
 guide_description: Quick reference for common script development issues and solutions
 ---
 # Script Development Quick Reference

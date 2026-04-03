@@ -1,14 +1,12 @@
 ---
 id: PF-VIS-054
-type: Document
-category: General
+type: Process Framework
+category: Context Map
 version: 1.0
 created: 2026-03-23
 updated: 2026-03-23
-map_type: Context Map
 workflow_phase: 05-validation
-task_name: accessibility-ux-compliance-validation
-visualization_type: Task Context
+related_task: PF-TSK-075
 ---
 
 # Accessibility / UX Compliance Validation Context Map

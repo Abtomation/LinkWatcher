@@ -1,12 +1,10 @@
 ---
 id: PF-GDE-038
-type: Document
-category: General
+type: Process Framework
+category: Guide
 version: 1.0
 created: 2025-08-01
 updated: 2025-08-01
-guide_title: Foundation Feature Implementation Usage Guide
-guide_description: Comprehensive guide for using the Foundation Feature Implementation task effectively
 guide_status: Active
 ---
 # Foundation Feature Implementation Usage Guide
@@ -125,7 +123,7 @@ Foundation features are fundamentally different from regular business features:
 
 2. **Create Architectural Decision Records**
    ```powershell
-   cd doc/technical/architecture/design-docs/adr
+   cd doc/technical/adr
    ../../scripts/file-creation/02-design/New-ArchitectureDecision.ps1 -Title "Foundation Authentication Pattern" -Status "Proposed"
    ```
 

@@ -87,15 +87,15 @@ When referencing other tasks' outputs in TDDs:
 - **Critical (Must Read):**
 
   - **Functional Design Document (FDD)** - For Tier 2+ features, the FDD created in the previous step containing functional requirements and user flows
-  - [TDD Templates](/doc/technical/architecture/design-docs) - Tier-specific templates for technical design documents:
+  - **TDD Templates** - Tier-specific templates for technical design documents:
   - [T1 Template](/process-framework/templates/02-design/tdd-t1-template.md) - For Tier 1 (simple) features
   - [T2 Template](/process-framework/templates/02-design/tdd-t2-template.md) - For Tier 2 (moderate) features
   - [T3 Template](/process-framework/templates/02-design/tdd-t3-template.md) - For Tier 3 (complex) features
-  - [Feature Assessment](../../../doc/documentation-tiers/assessments) - The tier assessment for the selected feature
+  - **Feature Tier Assessment** - The tier assessment for the selected feature (locate via [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md))
 
 - **Important (Load If Space):**
 
-  - [Technical Design Documents](/doc/technical/design) - Existing design documents for reference
+  - [Technical Design Documents](/doc/technical/tdd) - Existing design documents for reference
 
 - **Reference Only (Access When Needed):**
   - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - To identify features that have been assessed but need TDDs
@@ -105,7 +105,7 @@ When referencing other tasks' outputs in TDDs:
 
 > **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished! 🚨**
 >
-> **⚠️ MANDATORY: Use the [../../scripts/file-creation/02-design/New-tdd.ps1](../../scripts/file-creation/02-design/New-tdd.ps1) script for consistency across all design documents.**
+> **⚠️ MANDATORY: Use the [../../scripts/file-creation/02-design/New-TDD.ps1](../../scripts/file-creation/02-design/New-TDD.ps1) script for consistency across all design documents.**
 >
 > **⚠️ MANDATORY: Request explicit feedback from the human partner during the TDD creation process.**
 >
@@ -156,10 +156,10 @@ When referencing other tasks' outputs in TDDs:
 
    ```powershell
    # Navigate to the script directory
-   cd /doc/technical/architecture/design-docs
+   cd /doc/technical/tdd
 
    # Run the script with the feature information
-   ../discrete/New-tdd.ps1 -FeatureId "[Assessment ID]" -FeatureName "[Feature Name]" -Tier "[1, 2, or 3]"
+   ../discrete/New-TDD.ps1 -FeatureId "[Assessment ID]" -FeatureName "[Feature Name]" -Tier "[1, 2, or 3]"
    ```
 
    The script will:
@@ -207,18 +207,50 @@ When referencing other tasks' outputs in TDDs:
 ### Finalization
 
 19. Review the document for completeness, clarity, and appropriateness for the complexity tier, **ensuring quality attribute sections are complete and dimension-informed depth is applied**
-20. **Verify Automated Updates**: The [../../scripts/file-creation/02-design/New-tdd.ps1](../../scripts/file-creation/02-design/New-tdd.ps1) script automatically updates feature tracking - verify the updates were applied correctly
+20. **Verify Automated Updates**: The [../../scripts/file-creation/02-design/New-TDD.ps1](../../scripts/file-creation/02-design/New-TDD.ps1) script automatically updates feature tracking - verify the updates were applied correctly
 21. **🚨 MANDATORY FINAL STEP**: Complete the Task Completion Checklist below
 
 ## Outputs
 
-- **Technical Design Document** - New document in `/doc/technical/architecture/design-docs/tdd/tdd-[assessment-id]-[feature-name]-t[tier].md`
+- **Technical Design Document** - New document in `/doc/technical/tdd/tdd-[assessment-id]-[feature-name]-t[tier].md`
 - **Updated Feature Tracking** - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) document updated with TDD status
 - **AI Session Handoff Notes** - Explicit guidance for the next AI agent session
 
+## Example Output
+
+A completed TDD should look like this (abbreviated, Tier 2 example):
+
+```markdown
+# TDD: User Profile Management (2.3.1) — Tier 2
+
+## 1. Overview
+### 1.1 Purpose
+Technical design for profile CRUD operations, covering data model,
+API integration, and state management.
+
+## 2. Key Requirements
+| ID | Requirement | Source |
+|----|-------------|--------|
+| KR-01 | Profile updates persist within 500ms | FDD FR-02 |
+| KR-02 | Avatar upload supports concurrent requests | FDD FR-03 |
+
+## 4. Technical Design
+### 4.1 Data Models
+class UserProfile:
+    user_id: UUID (PK, FK -> auth.users)
+    display_name: str (3-50 chars, validated)
+    avatar_url: Optional[str]
+    updated_at: datetime (auto-set on write)
+
+### 4.2 State Management
+- Profile state cached in memory after first load
+- Invalidated on successful PUT /api/profile
+- Optimistic UI update with rollback on 4xx/5xx
+```
+
 ## State Tracking
 
-The following state files are automatically updated by the [../../scripts/file-creation/02-design/New-tdd.ps1](../../scripts/file-creation/02-design/New-tdd.ps1) script:
+The following state files are automatically updated by the [../../scripts/file-creation/02-design/New-TDD.ps1](../../scripts/file-creation/02-design/New-TDD.ps1) script:
 
 - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Automatically updated with:
   - Status changed from "📋 FDD Created" (for Tier 2+) or "📊 Assessment Created" (for Tier 1) to "📝 TDD Created"
@@ -243,7 +275,7 @@ Before considering this task finished:
   - [ ] Quality attribute analysis integrated throughout technical design
   - [ ] Diagrams and visual aids are included as appropriate for the tier
   - [ ] Human partner feedback has been incorporated
-- [ ] **Verify Automated Updates**: Ensure the [../../scripts/file-creation/02-design/New-tdd.ps1](../../scripts/file-creation/02-design/New-tdd.ps1) script successfully updated state tracking files
+- [ ] **Verify Automated Updates**: Ensure the [../../scripts/file-creation/02-design/New-TDD.ps1](../../scripts/file-creation/02-design/New-TDD.ps1) script successfully updated state tracking files
   - [ ] Feature Tracking document status automatically updated from "📋 FDD Created" (for Tier 2+) or "📊 Assessment Created" (for Tier 1) to "📝 TDD Created"
   - [ ] Feature Tracking document automatically includes link to TDD in the "Tech Design" column
   - [ ] Feature Tracking document automatically updated with TDD creation date in the "Notes" column
@@ -257,9 +289,9 @@ Before considering this task finished:
 
 ## Related Resources
 
-- [TDD Templates](/doc/technical/architecture/design-docs) - Tier-specific templates for technical design documents:
+- **TDD Templates** - Tier-specific templates for technical design documents:
   - [T1 Template](/process-framework/templates/02-design/tdd-t1-template.md) - For Tier 1 (simple) features
   - [T2 Template](/process-framework/templates/02-design/tdd-t2-template.md) - For Tier 2 (moderate) features
   - [T3 Template](/process-framework/templates/02-design/tdd-t3-template.md) - For Tier 3 (complex) features
-- [TDD Generation Script](/process-framework/scripts/file-creation/02-design/New-tdd.ps1) - Script for generating TDD documents
-- [Architecture Decision Records](/doc/technical/architecture/design-docs/adr) - Repository of past architectural decisions
+- [TDD Generation Script](/process-framework/scripts/file-creation/02-design/New-TDD.ps1) - Script for generating TDD documents
+- [Architecture Decision Records](/doc/technical/adr) - Repository of past architectural decisions

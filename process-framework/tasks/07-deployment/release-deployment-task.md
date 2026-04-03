@@ -30,7 +30,7 @@ Manage the process of preparing, versioning, and deploying releases of the appli
 
 ## Context Requirements
 
-- [Release Deployment Context Map](/process-framework/visualization/context-maps/07-deployment/release-deployment-map.md) - Visual guide to the components relevant to this task
+[View Context Map for this task](../../visualization/context-maps/07-deployment/release-deployment-map.md)
 
 - **Critical (Must Read):**
 

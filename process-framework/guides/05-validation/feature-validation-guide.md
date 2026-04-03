@@ -1,15 +1,12 @@
 ---
 id: PF-GDE-042
-type: Document
-category: General
+type: Process Framework
+category: Guide
 version: 1.2
 created: 2025-08-17
 updated: 2026-04-02
-guide_title: Feature Validation Guide
-guide_status: Active
-guide_description: Comprehensive guide for conducting feature validation using the multi-dimension validation framework
 related_script: New-ValidationReport.ps1
-related_tasks: PF-TSK-031,PF-TSK-032,PF-TSK-033,PF-TSK-034,PF-TSK-035,PF-TSK-036,PF-TSK-072,PF-TSK-073,PF-TSK-074,PF-TSK-075,PF-TSK-076,PF-TSK-077
+related_task: PF-TSK-031,PF-TSK-032,PF-TSK-033,PF-TSK-034,PF-TSK-035,PF-TSK-036,PF-TSK-072,PF-TSK-073,PF-TSK-074,PF-TSK-075,PF-TSK-076,PF-TSK-077
 ---
 
 # Feature Validation Guide

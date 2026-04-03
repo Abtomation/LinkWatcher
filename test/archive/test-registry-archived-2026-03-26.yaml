@@ -424,7 +424,7 @@ testFiles:
   - id: TE-TST-123
     featureId: "1.1.1"
     fileName: test_comprehensive_file_monitoring.py
-    filePath: test/automated/integration/test_comprehensive_file_monitoring.py
+    filePath: test/automated/unit/test_comprehensive_file_monitoring.py
     testType: Integration
     priority: Standard
     componentName: Comprehensive File Monitoring

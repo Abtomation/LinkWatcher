@@ -88,7 +88,7 @@ if (Test-Path $helpersPath) {
 
 # Configuration - use project-root-relative paths for reliability
 $ProjectRoot = Get-ProjectRoot
-$TrackingFilePath = Join-Path -Path $ProjectRoot -ChildPath "doc/state-tracking/temporary/validation/archive/validation-tracking-1.md"
+$TrackingFilePath = Join-Path -Path $ProjectRoot -ChildPath "doc/state-tracking/validation/archive/validation-tracking-1.md"
 $ReportsBasePath = Join-Path -Path $ProjectRoot -ChildPath "doc/validation/reports"
 $DefaultOutputDir = Join-Path -Path $ProjectRoot -ChildPath "doc/validation/reports"
 if (-not $OutputPath) {
@@ -315,7 +315,7 @@ $(if ($SummaryData.OverallStats.CriticalIssues -gt 0) {
 
 ## Related Resources
 
-- [Feature Validation Tracking](../../../../doc/state-tracking/temporary/validation/archive/validation-tracking-1.md) - Detailed validation progress
+- [Feature Validation Tracking](../../../../doc/state-tracking/validation/archive/validation-tracking-1.md) - Detailed validation progress
 - [Feature Validation Guide](../../../guides/05-validation/feature-validation-guide.md) - Complete validation process guide
 - [Validation Reports](../../../validation/reports) - Individual validation reports by type
 

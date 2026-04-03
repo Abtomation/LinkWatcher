@@ -3,9 +3,9 @@ id: PF-TSK-079
 type: Process Framework
 category: Task Definition
 domain: agnostic
-version: 1.1
+version: 1.3
 created: 2026-03-24
-updated: 2026-04-02
+updated: 2026-04-03
 ---
 
 # Framework Evaluation
@@ -89,8 +89,6 @@ This task is analogous to the code validation tasks (05-validation) but targets 
 4. **Inventory Artifacts in Scope**: List all artifacts within the evaluation scope. For each, note:
    - File path and ID
    - Type (task, template, guide, script, context map, state file)
-   - Last updated date (from metadata)
-   - Relationships (what references it, what it references)
    > **⚠️ Enumeration required**: Every count claimed in the evaluation report must be backed by a specific list of items in the "Artifacts in Scope" table. Do not use approximate counts (e.g., "~28 templates") — enumerate each item so downstream work can rely on accurate totals without re-auditing.
 
 5. **Evaluate Each Dimension**: For each selected dimension, systematically assess the artifacts in scope:
@@ -159,6 +157,13 @@ This task is analogous to the code validation tasks (05-validation) but targets 
    - Suggested fix
    - Estimated effort (Low / Medium / High)
    - Suggested priority (Low / Medium / High)
+
+   **Multi-level solution thinking**: For significant findings (score ≤ 2 or high-priority), do not converge on a single fix immediately. Present at least three solution approaches at different ambition levels:
+   - **Incremental** — minimal change that improves the current setup without restructuring
+   - **Moderate restructuring** — targeted reorganization of the affected area that improves structure without redesigning from scratch
+   - **Clean-slate redesign** — how this area would look if built from scratch, unconstrained by the current implementation
+
+   This prevents premature convergence on the first viable strategy and ensures the human partner can weigh trade-offs across the full solution space before choosing a direction.
 
 9. **🚨 CHECKPOINT**: Present evaluation findings summary to human partner:
    - Dimension scores with key evidence

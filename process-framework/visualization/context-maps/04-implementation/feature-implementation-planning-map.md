@@ -1,14 +1,11 @@
 ---
 id: PF-VIS-041
 type: Process Framework
-category: Visualization
+category: Context Map
 version: 1.0
 created: 2025-11-03
 updated: 2025-11-03
 workflow_phase: 04-implementation
-visualization_type: Task Context Map
-task_name: feature-implementation-planning
-map_type: Context Map
 related_task: PF-TSK-044
 ---
 
@@ -140,7 +137,7 @@ graph TD
 ## Related Documentation
 
 - [Feature Implementation Planning Task (PF-TSK-044)](../../../tasks/04-implementation/feature-implementation-planning-task.md) - Complete task definition with detailed process
-- [Implementation Plan Template (PF-TEM-042)](../../../templates/04-implementation/implementation-plan-template-template.md) - Template structure for implementation plans
+- [Implementation Plan Template (PF-TEM-042)](../../../templates/04-implementation/implementation-plan-template.md) - Template structure for implementation plans
 - [Implementation Plan Customization Guide (PF-GDE-046)](../../../guides/04-implementation/implementation-plan-customization-guide.md) - Step-by-step customization instructions
 - [Feature Implementation State Template (PF-TEM-037)](../../../templates/04-implementation/feature-implementation-state-template.md) - Permanent state tracking template
 - [Feature Tracking](../../../../doc/state-tracking/permanent/feature-tracking.md) - Registry of all features and their status

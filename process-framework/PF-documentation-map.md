@@ -107,10 +107,12 @@ Our tasks are organized to mirror the `tasks/` directory structure:
 - [Task: Framework Extension Task](tasks/support/framework-extension-task.md) - Support task for fundamentally extending the framework with new functionalities and capabilities
 - [Task: Tools Review](tasks/support/tools-review-task.md) - Review and improve project tools and templates
 - [Task: Framework Evaluation](tasks/support/framework-evaluation.md) - Structurally evaluate the process framework for completeness, consistency, redundancy, accuracy, effectiveness, automation coverage, and scalability
+- [Task: Framework Domain Adaptation](tasks/support/framework-domain-adaptation.md) - Systematically adapt the process framework from one business domain to another while preserving core structure
 
 ### Core Process Documents
 
 - [Process: Test Query Tool](scripts/test/test_query.py) - AST-based query tool for test metadata from pytest markers (replaces test-registry.yaml — SC-007)
+- [Process: Ratings Extraction Tool](scripts/extract_ratings.py) - Parses feedback form markdown and generates JSON for `feedback_db.py record`, eliminating manual JSON construction during PF-TSK-010
 - [Process: Enhancement Workflow Concept](proposals/old/enhancement-workflow-concept.md) - Framework extension concept for feature enhancement classification and execution workflow
 - ~~Process: Code Quality Standards Validation Concept~~ - 🗄️ Removed (file deleted)
 
@@ -159,14 +161,15 @@ Our tasks are organized to mirror the `tasks/` directory structure:
 - [Template: Test Tracking](templates/03-testing/test-tracking-template.md) - Template for bootstrapping empty test-tracking.md in new projects, used by New-TestInfrastructure.ps1
 - [Template: E2E Test Tracking](templates/03-testing/e2e-test-tracking-template.md) - Template for bootstrapping empty e2e-test-tracking.md in new projects, used by New-TestInfrastructure.ps1
 - [Template: TE ID Registry](templates/03-testing/TE-id-registry-template.json) - Template for bootstrapping empty TE-id-registry.json in new projects, used by New-TestInfrastructure.ps1
+- [Template: Audit Tracking](templates/03-testing/audit-tracking-template.md) - Template for multi-session test audit round tracking state files, used by New-AuditTracking.ps1
 
 #### 04 - Implementation Templates
 
-- [Template: Implementation Plan](templates/04-implementation/implementation-plan-template-template.md) - Template for creating implementation plan documents that define sequenced execution strategies for feature implementation
+- [Template: Implementation Plan](templates/04-implementation/implementation-plan-template.md) - Template for creating implementation plan documents that define sequenced execution strategies for feature implementation
 - [Template: Implementation Plan Tier 1](templates/04-implementation/implementation-plan-tier1-template.md) - Lightweight implementation plan template for Tier 1 features
 - [Template: Foundation Feature](templates/04-implementation/foundation-feature-template.md) - Template for foundation feature structure and architectural documentation
 - [Template: Feature Implementation State](templates/04-implementation/feature-implementation-state-template.md) - Template for feature implementation state tracking files
-- [Template: Enhancement State Tracking](templates/04-implementation/enhancement-state-tracking-template-template.md) - Template for tracking enhancement work on existing features, used by New-EnhancementState.ps1
+- [Template: Enhancement State Tracking](templates/04-implementation/enhancement-state-tracking-template.md) - Template for tracking enhancement work on existing features, used by New-EnhancementState.ps1
 
 #### 05 - Validation Templates
 
@@ -231,8 +234,11 @@ Our tasks are organized to mirror the `tasks/` directory structure:
 - [Process: New Framework Evaluation Report Script](scripts/file-creation/support/New-FrameworkEvaluationReport.ps1) - PowerShell script for creating structured framework evaluation reports with auto-assigned PF-EVR IDs
 - [Process: New Test Infrastructure Script](scripts/file-creation/00-setup/New-TestInfrastructure.ps1) - Language-agnostic bootstrapping script for test directory structure, tracking files, and TE-id-registry from ../doc/project-config.json and language config
 - [Process: New Validation Tracking Script](scripts/file-creation/05-validation/New-ValidationTracking.ps1) - PowerShell script for creating validation tracking state files with auto-assigned PF-STA IDs for validation rounds (PF-TSK-077)
+- [Process: Generate Validation Summary Script](scripts/file-creation/05-validation/Generate-ValidationSummary.ps1) - PowerShell script for generating consolidated validation summaries from multiple validation reports with codebase health scores and improvement roadmaps
+- [Process: New Audit Tracking Script](scripts/file-creation/03-testing/New-AuditTracking.ps1) - PowerShell script for creating test audit tracking state files with auto-populated inventory from test-tracking.md for multi-session audit rounds (PF-TSK-030)
 - [Process: New Prioritization Matrix Script](scripts/file-creation/cyclical/New-PrioritizationMatrix.ps1) - PowerShell script for creating technical debt prioritization matrices with auto-assigned PD-TDA IDs (PF-TSK-023)
 - [Process: New API Documentation Script](scripts/file-creation/02-design/New-APIDocumentation.ps1) - PowerShell script for creating user-facing API documentation with auto-assigned PD-API IDs (PF-TSK-020)
+- [Process: New Review Summary Script](scripts/file-creation/06-maintenance/New-ReviewSummary.ps1) - PowerShell script for creating Tools Review Summary documents with auto-assigned ART-REV IDs and timestamped filenames (PF-TSK-010)
 
 ### Testing Scripts
 
@@ -256,7 +262,11 @@ Our tasks are organized to mirror the `tasks/` directory structure:
 
 - [Process: Validate ID Registry](scripts/validation/Validate-IdRegistry.ps1) - Validates ID registry against actual files in the repository
 - [Process: Validate Test Tracking](scripts/validation/Validate-TestTracking.ps1) - Validates pytest markers (via test_query.py) consistency with test-tracking.md and actual test files on disk
-- [Process: Validate State Tracking](scripts/validation/Validate-StateTracking.ps1) - Master validation across 9 surfaces: feature-tracking links, feature state files, test-tracking, cross-references, ID counters, feature dependencies, dimension consistency, workflow tracking, and task registry completeness
+- [Process: Validate State Tracking](scripts/validation/Validate-StateTracking.ps1) - Master validation across 12 surfaces: feature-tracking links, feature state files, test-tracking, cross-references, ID counters, feature dependencies, dimension consistency, workflow tracking, task registry completeness, metadata schema conformance, context map orphan detection, and ai-tasks.md consistency
+- [Process: Validate Feedback Forms](scripts/validation/Validate-FeedbackForms.ps1) - Validates feedback forms for completeness and identifies forms with template placeholders
+- [Process: Quick Validation Check](scripts/validation/Quick-ValidationCheck.ps1) - Quick health check for selected features covering code quality, architectural consistency, and implementation status
+- [Process: Run Foundational Validation](scripts/validation/Run-FoundationalValidation.ps1) - Comprehensive feature validation across all 6 validation types with detailed reports and tracking updates
+- [Process: Validate Audit Report](scripts/validation/Validate-AuditReport.ps1) - Validates Test Audit Reports for completeness, consistency, and quality standards
 
 ### Guides
 
@@ -369,6 +379,10 @@ Our tasks are organized to mirror the `tasks/` directory structure:
 - [Feature Enhancement Map](visualization/context-maps/04-implementation/feature-enhancement-map.md) - Components for executing enhancement steps from state file
 - [Feature Implementation Map](visualization/context-maps/04-implementation/feature-implementation-map.md) - Components for implementing features
 - [Integration & Testing Map](visualization/context-maps/04-implementation/integration-and-testing-map.md) - Components for implementing comprehensive tests and validating integration
+- [UI Implementation Map](visualization/context-maps/04-implementation/ui-implementation-map.md) - Components for building user interface components and layouts
+- [State Management Implementation Map](visualization/context-maps/04-implementation/state-management-implementation-map.md) - Components for implementing state management layer connecting data to UI
+- [Quality Validation Map](visualization/context-maps/04-implementation/quality-validation-map.md) - Components for validating implementation against quality standards and acceptance criteria
+- [Implementation Finalization Map](visualization/context-maps/04-implementation/implementation-finalization-map.md) - Components for completing remaining items and preparing feature for production
 
 #### 05 - Validation Context Maps
 
@@ -398,7 +412,6 @@ Our tasks are organized to mirror the `tasks/` directory structure:
 
 #### Cyclical Context Maps
 
-- [Documentation Review Map](visualization/context-maps/cyclical/documentation-review-map.md) - Components for reviewing documentation
 - [Documentation Tier Adjustment Map](visualization/context-maps/cyclical/documentation-tier-adjustment-map.md) - Components for adjusting tiers
 - [Technical Debt Assessment Map](visualization/context-maps/cyclical/technical-debt-assessment-task-map.md) - Context map for Technical Debt Assessment task
 
@@ -408,6 +421,7 @@ Our tasks are organized to mirror the `tasks/` directory structure:
 - [Structure Change Map](visualization/context-maps/support/structure-change-map.md) - Components for structural changes
 - [Framework Extension Task Map](visualization/context-maps/support/framework-extension-task-map.md) - Context map for Framework Extension Task showing component relationships and workflow
 - [Framework Evaluation Map](visualization/context-maps/support/framework-evaluation-map.md) - Context map for Framework Evaluation task showing evaluation scope, dimensions, and output relationships
+- [Framework Domain Adaptation Map](visualization/context-maps/support/framework-domain-adaptation-map.md) - Context map for Framework Domain Adaptation task showing adaptation phases, document classification, and execution flow
 - [Tools Review Map](visualization/context-maps/support/tools-review-map.md) - Components for reviewing tools
 
 

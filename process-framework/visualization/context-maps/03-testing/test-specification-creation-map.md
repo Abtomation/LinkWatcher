@@ -1,13 +1,11 @@
 ---
 id: PF-VIS-015
-type: Document
-category: General
+type: Process Framework
+category: Context Map
 version: 1.1
 created: 2025-07-12
 updated: 2025-08-04
-visualization_type: Task Context
-task_name: test-specification-creation
-map_type: Context Map
+related_task: PF-TSK-012
 ---
 # Test Specification Creation Context Map
 
@@ -81,7 +79,7 @@ graph TD
 
 ## Related Documentation
 
-- [Technical Design Documents](/doc/technical/design) - Repository of TDDs for features
+- [Technical Design Documents](/doc/technical/tdd) - Repository of TDDs for features
 - [Feature Tier Assessment Guide](../../../../doc/documentation-tiers/README.md) - Understanding complexity tiers
 - [Development Guide](/process-framework/guides/04-implementation/development-guide.md) - Testing standards and practices
 - [Test Structure Documentation](/test/) - Current test organization patterns

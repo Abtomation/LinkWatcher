@@ -34,7 +34,9 @@ pytestmark = [
     pytest.mark.priority("Standard"),
     pytest.mark.cross_cutting(["1.1.1", "3.1.1", "0.1.2"]),
     pytest.mark.test_type("integration"),
-    pytest.mark.specification("test/specifications/feature-specs/test-spec-0-1-1-core-architecture.md"),
+    pytest.mark.specification(
+        "test/specifications/feature-specs/test-spec-0-1-1-core-architecture.md"
+    ),
 ]
 
 
@@ -141,7 +143,7 @@ class TestServiceLifecycle:
 
         # Verify service is operational
         stats_before = service.link_db.get_stats()
-        assert stats_before["total_references"] >= 0
+        assert stats_before["total_references"] >= 1  # at least the [Link](target.txt) ref
 
         # Stop service
         service.stop()
@@ -149,7 +151,8 @@ class TestServiceLifecycle:
         # Verify cleanup
         # Database should still be accessible for final queries
         stats_after = service.link_db.get_stats()
-        assert stats_after is not None
+        assert isinstance(stats_after, dict)
+        assert "total_references" in stats_after
 
         # File watcher should be stopped
         assert service.observer is None or not service.observer.is_alive()
@@ -164,7 +167,7 @@ class TestServiceLifecycle:
         service.stop()  # Should not raise error
 
         # Service should remain in stopped state
-        assert True  # If we get here, multiple stops were handled gracefully
+        assert service.observer is None or not service.observer.is_alive()
 
 
 class TestConfigurationManagement:
@@ -201,8 +204,8 @@ class TestConfigurationManagement:
 
         # Verify new files are processed
         new_stats = service.link_db.get_stats()
-        # Stats might change depending on whether .py files were processed before
-        assert new_stats is not None
+        # After re-scan with .py added, should still have at least the .md references
+        assert new_stats["total_references"] >= initial_stats["total_references"]
 
     def test_si_003_config_validation_runtime(self, temp_project_dir):
         """Test configuration validation during runtime changes."""
@@ -264,17 +267,21 @@ class TestMultiThreadedOperation:
                     service.handler.on_moved(move_event)
                     time.sleep(0.01)
 
+        query_successes = []
+
         def query_database():
+            successes = 0
             for i in range(20):
                 try:
                     service.link_db.get_stats()
                     # Iterate over links dict instead of get_all_references()
                     for refs_list in service.link_db.links.values():
                         _ = list(refs_list)
+                    successes += 1
                     time.sleep(0.005)
-                except Exception:
-                    # Some operations might fail due to concurrency
-                    pass
+                except (KeyError, RuntimeError):
+                    pass  # Expected: dict changed size during concurrent iteration
+            query_successes.append(successes)
 
         # Run operations concurrently
         threads = [
@@ -290,17 +297,27 @@ class TestMultiThreadedOperation:
         for thread in threads:
             thread.join()
 
-        # Verify service is still operational
+        # Verify service is still operational after concurrent access
         final_stats = service.link_db.get_stats()
-        assert final_stats is not None
-        assert final_stats["total_references"] >= 0
+        assert isinstance(final_stats, dict)
+        assert "total_references" in final_stats
+        assert isinstance(final_stats["total_references"], int)
+
+        # At least some queries should have succeeded per thread
+        for successes in query_successes:
+            assert successes > 0, "All query iterations failed — possible concurrency regression"
 
     def test_si_004_thread_safety_database(self, temp_project_dir):
         """Test database thread safety."""
         service = LinkWatcherService(str(temp_project_dir))
 
-        # Concurrent database operations
+        # Concurrent database operations — track success rates
+        add_successes = []
+        remove_successes = []
+        query_successes = []
+
         def add_references():
+            successes = 0
             for i in range(50):
                 try:
                     service.link_db.add_link(
@@ -314,26 +331,33 @@ class TestMultiThreadedOperation:
                             link_type="test",
                         )
                     )
-                except Exception:
-                    # Some operations might fail, that's acceptable
-                    pass
+                    successes += 1
+                except (KeyError, RuntimeError):
+                    pass  # Expected under concurrent mutation
+            add_successes.append(successes)
 
         def remove_references():
+            successes = 0
             for i in range(25):
                 try:
                     service.link_db.remove_file_links(f"file_{i}.md")
-                except Exception:
-                    pass
+                    successes += 1
+                except (KeyError, RuntimeError):
+                    pass  # Expected under concurrent mutation
+            remove_successes.append(successes)
 
         def query_references():
+            successes = 0
             for i in range(100):
                 try:
                     service.link_db.get_stats()
                     # Iterate over links dict instead of get_all_references()
                     for refs_list in service.link_db.links.values():
                         _ = list(refs_list)
-                except Exception:
-                    pass
+                    successes += 1
+                except (KeyError, RuntimeError):
+                    pass  # Expected: dict changed size during concurrent iteration
+            query_successes.append(successes)
 
         # Run concurrent database operations
         threads = [
@@ -352,7 +376,14 @@ class TestMultiThreadedOperation:
 
         # Database should remain consistent
         stats = service.link_db.get_stats()
-        assert stats is not None
+        assert isinstance(stats, dict)
+        assert "total_references" in stats
+
+        # Verify at least some operations succeeded per thread
+        for s in add_successes:
+            assert s > 0, "All add operations failed — possible concurrency regression"
+        for s in query_successes:
+            assert s > 0, "All query operations failed — possible concurrency regression"
 
 
 class TestStatePersistence:
@@ -523,8 +554,7 @@ class TestEventProcessing:
 
         # Verify deletion was processed
         final_refs = service.link_db.get_references_to_file("renamed_source.txt")
-        # References might still exist in database but file is gone
-        assert len(final_refs) >= 0
+        assert isinstance(final_refs, list)
 
     def test_si_006_event_ordering(self, temp_project_dir):
         """Test that events are processed in correct order."""
@@ -565,7 +595,8 @@ class TestEventProcessing:
 
         # Service should handle rapid events gracefully
         stats = service.link_db.get_stats()
-        assert stats is not None
+        assert isinstance(stats, dict)
+        assert "total_references" in stats
 
 
 class TestResourceManagement:
@@ -584,7 +615,7 @@ class TestResourceManagement:
         # Create many files to test memory usage
         for i in range(100):
             test_file = temp_project_dir / f"test_{i}.md"
-            content = f"# Test {i}\n\n"
+            content = f".git/objects/3a/b045e54f8acd16e0d036a487eb74c269db1d9f# Test {i}\n\n"
             for j in range(10):
                 content += f"[Link {j}](target_{i}_{j}.txt)\n"
             test_file.write_text(content)
@@ -611,8 +642,8 @@ class TestResourceManagement:
 
         # Service should continue operating efficiently
         stats = service.link_db.get_stats()
-        assert stats is not None
-        assert stats["total_references"] > 0
+        # 100 files × 10 links each + 50 new files = significant references expected
+        assert stats["total_references"] >= 100
 
         # Cleanup
         service.stop()
@@ -634,7 +665,8 @@ class TestResourceManagement:
 
         # Should not run out of file handles
         stats = service.link_db.get_stats()
-        assert stats is not None
+        assert isinstance(stats, dict)
+        assert "total_references" in stats
 
 
 class TestServiceHealth:
@@ -658,7 +690,7 @@ class TestServiceHealth:
 
         # Check service health indicators
         stats = service.link_db.get_stats()
-        assert stats is not None
+        assert isinstance(stats, dict)
 
         # Verify expected health indicators
         assert "total_references" in stats
@@ -712,4 +744,4 @@ class TestServiceHealth:
 
         # Should be able to process new files after recovery
         stats = service.link_db.get_stats()
-        assert stats is not None
+        assert stats["total_references"] >= 1  # at least the initial scan refs

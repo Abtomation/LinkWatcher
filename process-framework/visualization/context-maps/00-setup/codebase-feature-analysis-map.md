@@ -1,14 +1,12 @@
 ---
 id: PF-VIS-045
-type: Document
-category: General
+type: Process Framework
+category: Context Map
 version: 1.0
 created: 2026-02-17
 updated: 2026-02-17
-visualization_type: Task Context
-map_type: Context Map
-task_name: codebase-feature-analysis
 workflow_phase: support
+related_task: PF-TSK-065
 ---
 
 # Codebase Feature Analysis Context Map

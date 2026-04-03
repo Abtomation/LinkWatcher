@@ -54,7 +54,7 @@ TD055: TDD PD-TDD-031 (5.1.1 CI/CD & Development Tooling) only covers 2 of 7 FDD
 
 ### Affected Components
 
-- `doc/technical/architecture/design-docs/tdd/tdd-5-1-1-cicd-development-tooling-t2.md` — the TDD being expanded
+- `doc/technical/tdd/tdd-5-1-1-cicd-development-tooling-t2.md` — the TDD being expanded
 
 ### Source Files (read-only reference)
 

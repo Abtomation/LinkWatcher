@@ -473,21 +473,20 @@ Write-Warning "run.ps1 is a skeleton — replace this with the actual test actio
             foreach ($mLine in $milestoneLines) {
                 if (-not $milestoneFound -and $mLine -match "^\|.*$([regex]::Escape($Workflow)).*\|") {
                     # Parse the row columns and append the group ID to the E2E Cases column (index 5)
-                    $cols = $mLine -split '\|' | ForEach-Object { $_.Trim() }
-                    # cols[0] = empty (before first |), cols[1..N] = actual columns, cols[-1] = empty (after last |)
-                    if ($cols.Count -ge 8) {
-                        $e2eCasesCol = $cols[6]
+                    $cols = Split-MarkdownTableRow $mLine
+                    if ($cols -and $cols.Count -ge 7) {
+                        $e2eCasesCol = $cols[5]
                         if ($e2eCasesCol -eq '—' -or $e2eCasesCol -eq '' -or $e2eCasesCol -eq '-') {
-                            $cols[6] = $grpIdForRegistry
+                            $cols[5] = $grpIdForRegistry
                         } else {
-                            $cols[6] = "$e2eCasesCol, $grpIdForRegistry"
+                            $cols[5] = "$e2eCasesCol, $grpIdForRegistry"
                         }
                         # Update status to "📋 Cases Created" if currently at an earlier stage
-                        if ($cols[7] -match '⏳|—') {
-                            $cols[7] = '📋 Cases Created'
+                        if ($cols[6] -match '⏳|—') {
+                            $cols[6] = '📋 Cases Created'
                         }
                         # Rebuild the row
-                        $mLine = "| " + ($cols[1..($cols.Count-2)] -join " | ") + " |"
+                        $mLine = ConvertTo-MarkdownTableRow -Cells $cols
                         $milestoneFound = $true
                         Write-Verbose "Updated Workflow Milestone Tracking: $Workflow += $grpIdForRegistry"
                     }

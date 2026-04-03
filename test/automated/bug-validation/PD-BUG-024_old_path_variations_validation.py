@@ -79,11 +79,17 @@ def main():
 
         # README.md that references the deep file
         readme = tmp_path / "README.md"
-        readme.write_text("# Project\n\n" "See [target](a/b/c/target.md) for details.\n")
+        readme.write_text(
+            ".git/objects/3a/b045e54f8acd16e0d036a487eb74c269db1d9f# Project\n\n"
+            "See [target](a/b/c/target.md) for details.\n"
+        )
 
         # A second file that uses a relative reference (without top dir)
         notes = tmp_path / "a" / "notes.md"
-        notes.write_text("# Notes\n\n" "Related: [target](b/c/target.md)\n")
+        notes.write_text(
+            ".git/objects/3a/b045e54f8acd16e0d036a487eb74c269db1d9f# Notes\n\n"
+            "Related: [target](b/c/target.md)\n"
+        )
 
         print("  Created structure:")
         print("    a/b/c/target.md  (file to move)")

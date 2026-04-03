@@ -1,14 +1,11 @@
 ---
 id: PF-GDE-043
-type: Document
-category: General
+type: Process Framework
+category: Guide
 version: 2.0
 created: 2025-10-30
 updated: 2026-02-27
-guide_category: Development Process
-guide_description: Comprehensive guide for creating and maintaining feature implementation state documents as living, bidirectional documentation throughout development sessions
-related_tasks: PF-TSK-044
-guide_title: Feature Implementation State Tracking Guide
+related_task: PF-TSK-044
 guide_status: Active
 ---
 

@@ -1,13 +1,11 @@
 ---
 id: PF-VIS-020
-type: Document
-category: General
+type: Process Framework
+category: Context Map
 version: 1.0
 created: 2025-07-21
 updated: 2025-07-21
-map_type: Context Map
-task_name: database-schema-design-task
-visualization_type: Task Context
+related_task: PF-TSK-021
 ---
 # Database Schema Design Task Context Map
 

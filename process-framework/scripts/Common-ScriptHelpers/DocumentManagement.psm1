@@ -750,7 +750,119 @@ function New-StandardProjectDocument {
         Write-ProjectError -Message "Failed to create document '$DocumentName': $($_.Exception.Message)" -ExitCode 1
     }
 }
-# For now, focusing on the core functions to establish the modular structure.
+function Add-DocumentationMapEntry {
+    <#
+    .SYNOPSIS
+    Appends an entry to a documentation map file under a specified section header.
+
+    .DESCRIPTION
+    Finds the target section header in the documentation map, locates the last
+    list entry under it, and inserts the new entry after it. Includes duplicate
+    detection, WhatIf support, and graceful error handling.
+
+    .PARAMETER DocMapPath
+    Absolute path to the documentation map file.
+
+    .PARAMETER SectionHeader
+    The exact section header line to find (e.g., "#### Support Guides").
+
+    .PARAMETER EntryLine
+    The complete markdown list entry to insert (e.g., "- [Guide: Name](path) - Description").
+
+    .PARAMETER CallerCmdlet
+    The $PSCmdlet from the calling script, used for ShouldProcess support.
+
+    .EXAMPLE
+    Add-DocumentationMapEntry -DocMapPath $docMapPath -SectionHeader "#### Support Guides" `
+        -EntryLine "- [Guide: My Guide](guides/support/my-guide.md) - Description" `
+        -CallerCmdlet $PSCmdlet
+    #>
+
+    [CmdletBinding(SupportsShouldProcess=$true)]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]$DocMapPath,
+
+        [Parameter(Mandatory=$true)]
+        [string]$SectionHeader,
+
+        [Parameter(Mandatory=$true)]
+        [string]$EntryLine,
+
+        [Parameter(Mandatory=$true)]
+        [System.Management.Automation.PSCmdlet]$CallerCmdlet
+    )
+
+    if (-not (Test-Path $DocMapPath)) {
+        Write-Warning "Documentation map not found: $DocMapPath. Manual update required."
+        return $false
+    }
+
+    $docMapName = [System.IO.Path]::GetFileName($DocMapPath)
+    if (-not $CallerCmdlet.ShouldProcess($docMapName, "Append entry under '$SectionHeader'")) {
+        return $false
+    }
+
+    try {
+        $docMap = Get-Content -Path $DocMapPath
+
+        # Find the section header
+        $sectionIndex = -1
+        for ($i = 0; $i -lt $docMap.Length; $i++) {
+            if ($docMap[$i] -eq $SectionHeader) {
+                $sectionIndex = $i
+                break
+            }
+        }
+
+        if ($sectionIndex -lt 0) {
+            Write-Warning "Could not find section '$SectionHeader' in $docMapName. Manual update required."
+            return $false
+        }
+
+        # Extract the relative path from the entry for duplicate check
+        $pathMatch = [regex]::Match($EntryLine, '\]\(([^)]+)\)')
+        if ($pathMatch.Success) {
+            $relativePath = $pathMatch.Groups[1].Value
+            $alreadyExists = $docMap | Where-Object { $_ -match [regex]::Escape($relativePath) }
+            if ($alreadyExists) {
+                Write-Verbose "Entry already listed in $docMapName — skipping"
+                return $false
+            }
+        }
+
+        # Find the last list entry in this section (before next header)
+        $insertIndex = $sectionIndex
+        for ($j = $sectionIndex + 1; $j -lt $docMap.Length; $j++) {
+            if ($docMap[$j] -match '^#{2,4} ') {
+                break
+            }
+            if ($docMap[$j] -match '^- \[') {
+                $insertIndex = $j
+            }
+        }
+
+        if ($insertIndex -eq $sectionIndex) {
+            # No existing entries — insert after section header + blank line
+            $insertIndex = $sectionIndex + 1
+            if ($insertIndex -lt $docMap.Length -and $docMap[$insertIndex] -eq "") {
+                $insertIndex++
+            }
+            $docMap = $docMap[0..($insertIndex - 1)] + $EntryLine + $docMap[$insertIndex..($docMap.Length - 1)]
+        }
+        else {
+            # Insert after the last list entry
+            $docMap = $docMap[0..$insertIndex] + $EntryLine + $docMap[($insertIndex + 1)..($docMap.Length - 1)]
+        }
+
+        $docMap | Set-Content -Path $DocMapPath
+        return $true
+    }
+    catch {
+        Write-Warning "Failed to update $docMapName`: $($_.Exception.Message). Manual update required."
+        return $false
+    }
+}
 
 # Export functions
 Export-ModuleMember -Function @(
@@ -761,5 +873,6 @@ Export-ModuleMember -Function @(
     'New-ProjectDocumentWithMetadata',
     'New-ProjectDocumentWithCodeMetadata',
     'New-ProjectCodeMetadata',
-    'New-StandardProjectDocument'
+    'New-StandardProjectDocument',
+    'Add-DocumentationMapEntry'
 )

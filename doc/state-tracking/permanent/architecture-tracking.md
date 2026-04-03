@@ -47,6 +47,11 @@ This file serves as a **reference and summary document** for architectural work.
 |--------------|------------|--------------|-------------------|-------------------|
 
 
+## ADR Index
+
+| ADR ID | Title | Status | Impact | Related Feature | Date |
+|--------|-------|--------|--------|-----------------|------|
+
 ## ADR Creation Workflow
 
 ### When to Create ADRs
@@ -58,14 +63,14 @@ This file serves as a **reference and summary document** for architectural work.
 Use the existing ADR creation script:
 ```powershell
 # Navigate to ADR directory
-cd doc/technical/architecture/design-docs/adr
+cd doc/technical/adr
 
 # Create new ADR
 ../../../process-framework/scripts/file-creation/02-design/New-ArchitectureDecision.ps1 -Title "Repository Pattern for Data Access" -Status "Proposed"
 ```
 
 ### ADR Integration with Architecture Tracking
-- New ADRs should be added to the ADR Index above
+- New ADRs are automatically added to the [ADR Index](#adr-index) by `New-ArchitectureDecision.ps1`
 - ADR status changes should be reflected in Current Architecture State
 - ADRs should be referenced in Architecture Context Packages
 

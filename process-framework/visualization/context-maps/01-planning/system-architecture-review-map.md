@@ -1,13 +1,11 @@
 ---
 id: PF-VIS-018
-type: Document
-category: General
+type: Process Framework
+category: Context Map
 version: 1.0
 created: 2025-07-18
 updated: 2025-07-18
-task_name: system-architecture-review
-map_type: Context Map
-visualization_type: Task Context
+related_task: PF-TSK-019
 ---
 # System Architecture Review Context Map
 

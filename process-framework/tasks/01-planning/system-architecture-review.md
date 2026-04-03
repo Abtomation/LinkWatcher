@@ -34,7 +34,7 @@ Evaluate how new features fit into existing system architecture before implement
 
 ## Context Requirements
 
-<!-- [View Context Map for this task](../../../visualization/context-maps/[task-type]/[task-name]-map.md) - Template/example link commented out -->
+[View Context Map for this task](../../visualization/context-maps/01-planning/system-architecture-review-map.md)
 
 - **Critical (Must Read):**
 
@@ -47,7 +47,7 @@ Evaluate how new features fit into existing system architecture before implement
 - **Important (Load If Space):**
 
   - [Architectural Framework Usage Guide](../../guides/01-planning/architectural-framework-usage-guide.md) - **ESSENTIAL**: Guide for managing architectural work and context packages
-  - [Technical Design Documents](/doc/technical/architecture/design-docs/tdd) - Existing TDDs for related components
+  - [Technical Design Documents](/doc/technical/tdd) - Existing TDDs for related components
 
 - **Reference Only (Access When Needed):**
   - [Technical Debt Tracking](/doc/state-tracking/permanent/technical-debt-tracking.md) - Known architectural issues
@@ -116,7 +116,7 @@ Evaluate how new features fit into existing system architecture before implement
 17. **Create Architectural Decisions**: Use existing ADR system if new architectural decisions are needed
     ```powershell
     # Create ADR if architectural decisions are required
-    cd doc/technical/architecture/design-docs/adr
+    cd doc/technical/adr
     ../../scripts/file-creation/New-ArchitectureDecision.ps1 -Title "Decision Title" -Status "Proposed"
     ```
 18. **Update Architecture Context Packages**: Update or create context packages based on architectural analysis

@@ -1,14 +1,12 @@
 ---
 id: PF-VIS-044
-type: Document
-category: General
+type: Process Framework
+category: Context Map
 version: 1.0
 created: 2026-02-17
 updated: 2026-02-17
 workflow_phase: support
-task_name: codebase-feature-discovery
-map_type: Context Map
-visualization_type: Task Context
+related_task: PF-TSK-064
 ---
 
 # Codebase Feature Discovery Context Map

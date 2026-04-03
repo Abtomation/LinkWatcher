@@ -509,7 +509,8 @@ class TestRootRelativePathHandling:
             file_path="scripts/deep/tool.ps1",
             line_number=1,
             column_start=content.index("alpha-project/config"),
-            column_end=content.index("alpha-project/config") + len("alpha-project/config/settings.yaml"),
+            column_end=content.index("alpha-project/config")
+            + len("alpha-project/config/settings.yaml"),
             link_text="alpha-project/config/settings.yaml",
             link_target="alpha-project/config/settings.yaml",
             link_type="generic-quoted",
@@ -598,3 +599,235 @@ class TestRootRelativePathHandling:
 
         # Different path — should not be modified
         assert new_target == "alpha-project/other/file.md"
+
+
+class TestReplaceReferenceTarget:
+    """Tests for _replace_reference_target() — markdown reference link format."""
+
+    def test_basic_reference_link(self):
+        """Test replacing target in basic reference link [label]: target."""
+        updater = LinkUpdater()
+        ref = LinkReference("doc.md", 1, 0, 20, "label", "old/path.md", "markdown-reference")
+        line = "[label]: old/path.md"
+
+        result = updater._replace_reference_target(line, ref, "new/path.md")
+
+        assert result == "[label]: new/path.md"
+
+    def test_reference_link_with_double_quoted_title(self):
+        """Test replacing target in reference link with double-quoted title."""
+        updater = LinkUpdater()
+        ref = LinkReference("doc.md", 1, 0, 30, "docs", "old/file.md", "markdown-reference")
+        line = '[docs]: old/file.md "Documentation"'
+
+        result = updater._replace_reference_target(line, ref, "new/file.md")
+
+        assert result == '[docs]: new/file.md "Documentation"'
+
+    def test_reference_link_with_paren_title(self):
+        """Test replacing target in reference link with parenthesized title."""
+        updater = LinkUpdater()
+        ref = LinkReference("doc.md", 1, 0, 30, "link", "old/file.md", "markdown-reference")
+        line = "[link]: old/file.md (My Title)"
+
+        result = updater._replace_reference_target(line, ref, "new/file.md")
+
+        assert result == "[link]: new/file.md (My Title)"
+
+    def test_reference_link_target_not_found(self):
+        """Test that line is unchanged when target doesn't match."""
+        updater = LinkUpdater()
+        ref = LinkReference("doc.md", 1, 0, 20, "label", "missing.md", "markdown-reference")
+        line = "[label]: other.md"
+
+        result = updater._replace_reference_target(line, ref, "new.md")
+
+        assert result == "[label]: other.md"
+
+
+class TestUpdateFileReferencesMulti:
+    """Tests for _update_file_references_multi() — multi old→new in one file."""
+
+    def test_single_ref_tuple(self, temp_project_dir):
+        """Test updating a single (ref, old, new) tuple in a file."""
+        updater = LinkUpdater(str(temp_project_dir))
+        updater.set_backup_enabled(False)
+
+        test_file = temp_project_dir / "test.md"
+        test_file.write_text("See [link](old.txt) for details.\n")
+
+        ref = LinkReference(str(test_file), 1, 5, 18, "link", "old.txt", "markdown")
+        ref_tuples = [(ref, "old.txt", "new.txt")]
+
+        result = updater._update_file_references_multi(str(test_file), ref_tuples)
+
+        assert result == UpdateResult.UPDATED
+        assert test_file.read_text() == "See [link](new.txt) for details.\n"
+
+    def test_multiple_ref_tuples_different_moves(self, temp_project_dir):
+        """Test updating multiple refs from different moves in one file."""
+        updater = LinkUpdater(str(temp_project_dir))
+        updater.set_backup_enabled(False)
+
+        test_file = temp_project_dir / "index.md"
+        test_file.write_text("- [A](alpha.md)\n- [B](beta.md)\n")
+
+        ref_a = LinkReference(str(test_file), 1, 3, 14, "A", "alpha.md", "markdown")
+        ref_b = LinkReference(str(test_file), 2, 3, 13, "B", "beta.md", "markdown")
+        ref_tuples = [
+            (ref_a, "alpha.md", "new/alpha.md"),
+            (ref_b, "beta.md", "new/beta.md"),
+        ]
+
+        result = updater._update_file_references_multi(str(test_file), ref_tuples)
+
+        assert result == UpdateResult.UPDATED
+        content = test_file.read_text()
+        assert "new/alpha.md" in content
+        assert "new/beta.md" in content
+
+    def test_no_change_when_targets_match(self, temp_project_dir):
+        """Test NO_CHANGES returned when new target equals old target."""
+        updater = LinkUpdater(str(temp_project_dir))
+        updater.set_backup_enabled(False)
+
+        test_file = temp_project_dir / "test.md"
+        test_file.write_text("See [link](same.txt) here.\n")
+
+        ref = LinkReference(str(test_file), 1, 5, 18, "link", "same.txt", "markdown")
+        # old_path == new_path → calculate_new_target returns same target
+        ref_tuples = [(ref, "same.txt", "same.txt")]
+
+        result = updater._update_file_references_multi(str(test_file), ref_tuples)
+
+        assert result == UpdateResult.NO_CHANGES
+
+    def test_dry_run_returns_updated_without_modifying(self, temp_project_dir):
+        """Test dry run reports UPDATED but doesn't modify file."""
+        updater = LinkUpdater(str(temp_project_dir))
+        updater.set_dry_run(True)
+
+        test_file = temp_project_dir / "test.md"
+        original = "See [link](old.txt) here.\n"
+        test_file.write_text(original)
+
+        ref = LinkReference(str(test_file), 1, 5, 18, "link", "old.txt", "markdown")
+        ref_tuples = [(ref, "old.txt", "new.txt")]
+
+        result = updater._update_file_references_multi(str(test_file), ref_tuples)
+
+        assert result == UpdateResult.UPDATED
+        assert test_file.read_text() == original
+
+
+class TestUpdateReferencesBatch:
+    """Tests for update_references_batch() — batch directory move API."""
+
+    def test_single_move_group(self, temp_project_dir):
+        """Test batch with a single move group."""
+        updater = LinkUpdater(str(temp_project_dir))
+        updater.set_backup_enabled(False)
+
+        test_file = temp_project_dir / "readme.md"
+        test_file.write_text("Link to [doc](old/file.md).\n")
+
+        ref = LinkReference(str(test_file), 1, 9, 22, "doc", "old/file.md", "markdown")
+        move_groups = [([ref], "old/file.md", "new/file.md")]
+
+        stats = updater.update_references_batch(move_groups)
+
+        assert stats["files_updated"] == 1
+        assert stats["references_updated"] == 1
+        assert stats["errors"] == 0
+        assert "new/file.md" in test_file.read_text()
+
+    def test_multiple_move_groups_same_file(self, temp_project_dir):
+        """Test that multiple move groups referencing the same file consolidate."""
+        updater = LinkUpdater(str(temp_project_dir))
+        updater.set_backup_enabled(False)
+
+        test_file = temp_project_dir / "index.md"
+        test_file.write_text("- [A](dir/a.md)\n- [B](dir/b.md)\n")
+
+        ref_a = LinkReference(str(test_file), 1, 3, 14, "A", "dir/a.md", "markdown")
+        ref_b = LinkReference(str(test_file), 2, 3, 14, "B", "dir/b.md", "markdown")
+
+        # Two separate move groups (as from a directory move) both touching same file
+        move_groups = [
+            ([ref_a], "dir/a.md", "new-dir/a.md"),
+            ([ref_b], "dir/b.md", "new-dir/b.md"),
+        ]
+
+        stats = updater.update_references_batch(move_groups)
+
+        assert stats["files_updated"] == 1  # consolidated into single file write
+        assert stats["references_updated"] == 2
+        assert stats["errors"] == 0
+        content = test_file.read_text()
+        assert "new-dir/a.md" in content
+        assert "new-dir/b.md" in content
+
+    def test_multiple_move_groups_different_files(self, temp_project_dir):
+        """Test batch with move groups referencing different files."""
+        updater = LinkUpdater(str(temp_project_dir))
+        updater.set_backup_enabled(False)
+
+        file_a = temp_project_dir / "a.md"
+        file_a.write_text("See [x](old/x.md).\n")
+        file_b = temp_project_dir / "b.md"
+        file_b.write_text("See [y](old/y.md).\n")
+
+        ref_a = LinkReference(str(file_a), 1, 5, 16, "x", "old/x.md", "markdown")
+        ref_b = LinkReference(str(file_b), 1, 5, 16, "y", "old/y.md", "markdown")
+
+        move_groups = [
+            ([ref_a], "old/x.md", "new/x.md"),
+            ([ref_b], "old/y.md", "new/y.md"),
+        ]
+
+        stats = updater.update_references_batch(move_groups)
+
+        assert stats["files_updated"] == 2
+        assert stats["references_updated"] == 2
+        assert stats["errors"] == 0
+
+    def test_batch_dry_run(self, temp_project_dir):
+        """Test batch in dry run mode reports success without modifying."""
+        updater = LinkUpdater(str(temp_project_dir))
+        updater.set_dry_run(True)
+
+        test_file = temp_project_dir / "test.md"
+        original = "Link [a](old.md).\n"
+        test_file.write_text(original)
+
+        ref = LinkReference(str(test_file), 1, 6, 14, "a", "old.md", "markdown")
+        move_groups = [([ref], "old.md", "new.md")]
+
+        stats = updater.update_references_batch(move_groups)
+
+        assert stats["files_updated"] == 1
+        assert stats["references_updated"] == 1
+        assert test_file.read_text() == original
+
+    def test_batch_error_handling(self, temp_project_dir):
+        """Test batch handles file errors gracefully and continues."""
+        updater = LinkUpdater(str(temp_project_dir))
+        updater.set_backup_enabled(False)
+
+        # Good file
+        good_file = temp_project_dir / "good.md"
+        good_file.write_text("See [a](old.md).\n")
+
+        ref_bad = LinkReference("nonexistent.md", 1, 0, 10, "x", "old.md", "markdown")
+        ref_good = LinkReference(str(good_file), 1, 5, 13, "a", "old.md", "markdown")
+
+        move_groups = [
+            ([ref_bad], "old.md", "new.md"),
+            ([ref_good], "old.md", "new.md"),
+        ]
+
+        stats = updater.update_references_batch(move_groups)
+
+        assert stats["errors"] == 1
+        assert stats["files_updated"] == 1
+        assert "new.md" in good_file.read_text()

@@ -1,14 +1,12 @@
 ---
 id: PF-VIS-047
-type: Document
-category: General
+type: Process Framework
+category: Context Map
 version: 1.0
 created: 2026-02-19
 updated: 2026-02-19
-task_name: feature-request-evaluation
-map_type: Context Map
 workflow_phase: 01-planning
-visualization_type: Task Context
+related_task: PF-TSK-067
 ---
 
 # Feature Request Evaluation Context Map

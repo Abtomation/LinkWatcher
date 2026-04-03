@@ -1,14 +1,11 @@
 ---
 id: PF-GDE-024
-type: Document
-category: General
+type: Process Framework
+category: Guide
 version: 1.1
 created: 2025-07-27
 updated: 2025-07-29
-guide_status: Active
-related_tasks:
-guide_description: Best practices for creating effective guides within the task framework, including prevention of task usage guide anti-patterns
-related_script: New-Guide.ps1
+related_task: related_script: New-Guide.ps1
 guide_title: Guide Creation Best Practices Guide
 ---
 

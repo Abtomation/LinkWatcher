@@ -1,14 +1,11 @@
 ---
 id: PF-GDE-050
-type: Document
+type: Process Framework
 category: Guide
 version: 1.1
 created: 2026-03-16
 updated: 2026-03-25
-guide_description: How the test/ directory connects to the process framework, including new-project scaffolding
-related_tasks: PF-TSK-053,PF-TSK-012,PF-TSK-030,PF-TSK-069,PF-TSK-070
-guide_status: Active
-guide_category: 03-testing
+related_task: PF-TSK-053,PF-TSK-012,PF-TSK-030,PF-TSK-069,PF-TSK-070
 guide_title: Test Infrastructure Guide
 ---
 

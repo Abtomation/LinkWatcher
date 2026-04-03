@@ -1,14 +1,11 @@
 ---
 id: PF-GDE-031
-type: Document
-category: General
+type: Process Framework
+category: Guide
 version: 1.1
 created: 2025-07-27
 updated: 2025-01-27
-guide_status: Active
-related_tasks: PF-TSK-020
-guide_description: Guide for customizing API specification templates
-guide_title: API Specification Creation Guide
+related_task: PF-TSK-020
 related_script: New-APISpecification.ps1
 change_notes: "v1.1 - Added Separation of Concerns section for IMP-097/IMP-098"
 ---

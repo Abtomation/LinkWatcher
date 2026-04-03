@@ -1,13 +1,11 @@
 ---
 id: PF-VIS-022
-type: Document
-category: General
+type: Process Framework
+category: Context Map
 version: 1.0
 created: 2025-07-24
 updated: 2025-07-24
-map_type: Context Map
-task_name: technical-debt-assessment-task
-visualization_type: Task Context
+related_task: PF-TSK-023
 ---
 
 # Technical Debt Assessment Task Context Map

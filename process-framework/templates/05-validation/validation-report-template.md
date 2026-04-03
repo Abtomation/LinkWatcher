@@ -258,6 +258,56 @@ Customize the "Validation Criteria Applied" section with:
 - **Code Readability**: Code is easily understood by AI agents
 - **Continuation Points**: Clear handoff points for multi-session work
 
+### Security & Data Protection Validation
+
+Customize the "Validation Criteria Applied" section with:
+
+- **Input Validation Analysis**: Proper validation, sanitization, and type checking at all data entry points
+- **Authentication & Authorization Review**: Access controls, session management, and privilege escalation paths
+- **Secrets Management Assessment**: API keys and credentials properly stored and excluded from version control
+- **Data Protection Review**: Encryption at rest/in transit, sanitized logging, and secure data disposal
+- **Dependency Security Scan**: Third-party dependencies reviewed for known vulnerabilities and outdated packages
+
+### Performance & Scalability Validation
+
+Customize the "Validation Criteria Applied" section with:
+
+- **Algorithmic Complexity Analysis**: Time and space complexity of core algorithms, identifying O(n²) patterns
+- **Resource Consumption Assessment**: Memory allocation, file handle management, and connection pooling
+- **I/O Efficiency Review**: File operations, network calls, and database queries for batching opportunities
+- **Concurrency & Thread Safety**: Thread synchronization, lock contention, and deadlock potential
+- **Scalability Pattern Evaluation**: Feature behavior as data volume increases, linear vs. non-linear scaling
+
+### Observability Validation
+
+Customize the "Validation Criteria Applied" section with:
+
+- **Logging Coverage Analysis**: Adequate logging at entry/exit points, error conditions, and state transitions
+- **Structured Logging Assessment**: Structured log formats with contextual fields (timestamps, components, operation IDs)
+- **Log Level Appropriateness**: Consistent and appropriate use of DEBUG, INFO, WARNING, ERROR, CRITICAL levels
+- **Error Traceability Review**: Exceptions include sufficient context (stack traces, input parameters, correlation IDs)
+- **Metric Instrumentation Assessment**: Key operations emit measurable signals for dashboards and alerting
+
+### Accessibility / UX Compliance Validation
+
+Customize the "Validation Criteria Applied" section with:
+
+- **Semantic Structure Analysis**: Proper semantic markup with correct headings hierarchy, landmarks, and form labels
+- **Keyboard Navigation Review**: All interactive elements reachable and operable via keyboard with proper tab order
+- **Screen Reader Compatibility**: Content properly announced by assistive technology with alt text and ARIA labels
+- **Color & Contrast Assessment**: Text and interactive elements meet WCAG AA contrast ratios (4.5:1 normal, 3:1 large)
+- **Touch Target & Interaction Review**: Interactive elements meet minimum size requirements with sufficient spacing
+
+### Data Integrity Validation
+
+Customize the "Validation Criteria Applied" section with:
+
+- **Input Data Validation Review**: Type checking, range validation, format enforcement, and null/empty handling
+- **Constraint Enforcement Analysis**: Uniqueness constraints, referential integrity, and business rule enforcement
+- **Data Transformation Correctness**: Lossless conversion, proper encoding handling, and edge case handling
+- **Concurrent Access Safety**: Race conditions, dirty reads, lost updates, and proper transaction use
+- **Backup & Recovery Patterns**: Data persistence, backup capabilities, recovery procedures, and export/import integrity
+
 ## Related Resources
 
 - [Feature Validation Guide](/process-framework/guides/05-validation/feature-validation-guide.md)

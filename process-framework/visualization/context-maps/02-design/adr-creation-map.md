@@ -1,13 +1,11 @@
 ---
 id: PF-VIS-026
-type: Document
-category: General
+type: Process Framework
+category: Context Map
 version: 1.0
 created: 2025-08-03
 updated: 2025-08-03
-task_name: adr-creation
-map_type: Context Map
-visualization_type: Task Context
+related_task: PF-TSK-028
 ---
 # ADR Creation Context Map
 

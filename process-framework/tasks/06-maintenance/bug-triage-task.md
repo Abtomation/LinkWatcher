@@ -30,7 +30,7 @@ Systematically evaluate, prioritize, and assign reported bugs to ensure efficien
 
 ## Context Requirements
 
-- [Bug Triage Context Map](/process-framework/visualization/context-maps/06-maintenance/bug-triage-map.md) - Visual guide to the components relevant to this task
+[View Context Map for this task](../../visualization/context-maps/06-maintenance/bug-triage-map.md)
 
 - **Critical (Must Read):**
 

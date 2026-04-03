@@ -4,7 +4,7 @@ type: Process Framework
 category: Task Definition
 version: 1.1
 created: 2025-08-15
-updated: 2026-03-02
+updated: 2026-04-03
 ---
 
 # Integration Dependencies Validation
@@ -95,9 +95,13 @@ Systematically validates selected features for dependency health, interface cont
 16. **🤖 AUTOMATED: Update Technical Debt Tracking**: Add any new open issues identified during validation — **apply the [Tech Debt Quality Gate](/process-framework/guides/05-validation/feature-validation-guide.md#tech-debt-item-quality-gate) filters before creating each item** — to [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) using the automation script:
 
     ```powershell
-    process-framework/scripts/update/Update-TechDebt.ps1 -Add -Description "Description" -Category "Category" -Location "Location" -Priority "Priority" -EstimatedEffort "Effort" -AssessmentId "PF-VAL-XXX" -Notes "Notes"
+    process-framework/scripts/update/Update-TechDebt.ps1 -Add -Description "Description" -Dims "ID" -Location "Location" -Priority "Priority" -EstimatedEffort "Effort" -AssessmentId "PF-VAL-XXX" -Notes "Notes"
     ```
-17. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+17. **Generate Round Summary** (if this is the final dimension in the current validation round): Generate a consolidated validation summary:
+    ```powershell
+    process-framework/scripts/file-creation/05-validation/Generate-ValidationSummary.ps1 -OutputPath "doc/validation/summaries/" -SummaryType "Detailed"
+    ```
+18. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 

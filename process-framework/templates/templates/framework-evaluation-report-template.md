@@ -34,9 +34,9 @@ creates_document_version: 1.0
 
 **Artifacts in Scope**:
 
-| # | Artifact | Type | ID | Last Updated |
-|---|----------|------|----|-------------|
-| 1 | [Artifact name] | [task/template/guide/script/etc.] | [ID] | [date] |
+| # | Artifact | Type | ID |
+|---|----------|------|----|
+| 1 | [Artifact name] | [task/template/guide/script/etc.] | [ID] |
 
 ## Dimensions Evaluated
 

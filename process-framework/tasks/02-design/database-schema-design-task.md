@@ -78,7 +78,7 @@ Systematic data model planning before implementation to prevent data integrity i
 
   - **Functional Design Document (FDD)** - For Tier 2+ features, the FDD containing functional requirements and data requirements that inform schema design (located in `/doc/functional-design/fdds`)
   - [Feature Requirements](/doc/state-tracking/permanent/feature-tracking.md) - Understanding what functionality requires database changes and confirming DB Design is required
-  - [Feature Tier Assessment](../../../doc/documentation-tiers/assessments) - Assessment that determined database design is needed
+  - **Feature Tier Assessment** - The tier assessment for this feature (locate via [Feature Tracking](/doc/state-tracking/permanent/feature-tracking.md))
   - **Current Database Schema** - Existing schema documentation and structure:
     - Current schema: `/data/`
     - Database reference: `/doc/technical/architecture/database-reference.md`
@@ -152,6 +152,40 @@ Systematic data model planning before implementation to prevent data integrity i
 - **Migration Script** - Safe database migration with rollback procedures in `/doc/technical/database/migrations/[timestamp]-[feature-name]-migration.sql`
 - **Data Dictionary** - Detailed field definitions and constraints in the schema design document
 - **Database-Level Integration Notes** - Brief notes on database access requirements and cross-schema dependencies (detailed API specifications are in API Design task)
+
+## Example Output
+
+A completed schema design should look like this (abbreviated):
+
+```markdown
+# Schema Design: User Profile (2.3.1)
+
+## Entity Definitions
+### user_profiles
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| id | UUID | PK, DEFAULT gen_random_uuid() | Profile identifier |
+| user_id | UUID | FK -> auth.users, UNIQUE, NOT NULL | Owning user |
+| display_name | VARCHAR(50) | NOT NULL, CHECK(length >= 3) | Display name |
+| avatar_url | TEXT | NULLABLE | S3 object URL |
+| updated_at | TIMESTAMPTZ | NOT NULL, DEFAULT now() | Last modification |
+
+### Relationships
+- user_profiles.user_id -> auth.users.id (1:1, CASCADE DELETE)
+
+## Indexing Strategy
+- PRIMARY: user_profiles(id)
+- UNIQUE: user_profiles(user_id) — profile lookup by user
+- INDEX: user_profiles(updated_at DESC) — recent activity queries
+
+## Migration Plan
+### Up
+ALTER TABLE public ADD user_profiles (...);
+CREATE INDEX idx_profiles_updated ON user_profiles(updated_at DESC);
+
+### Rollback
+DROP TABLE IF EXISTS public.user_profiles;
+```
 
 ## State Tracking
 

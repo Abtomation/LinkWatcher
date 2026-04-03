@@ -30,6 +30,10 @@
     Only use when ALL six evaluation criteria pass with no findings to report.
     Any other audit status (Approved with Dependencies, Needs Update, Tests Incomplete) must use the full template.
 
+.PARAMETER Force
+    If specified, overwrites an existing audit report file instead of blocking.
+    Use this for re-audits where the previous report should be replaced.
+
 .PARAMETER OpenInEditor
     If specified, opens the created file in the default editor
 
@@ -42,6 +46,10 @@
 .EXAMPLE
     .\New-TestAuditReport.ps1 -FeatureId "0.1.1" -TestFilePath "test/automated/unit/test_service.py" -Lightweight
 
+.EXAMPLE
+    .\New-TestAuditReport.ps1 -FeatureId "0.2.3" -TestFilePath "test/automated/unit/test_service.py" -Force
+    # Re-audit: overwrites the existing report for this feature/test file combination
+
 .NOTES
     - Requires PowerShell execution policy to allow script execution
     - Automatically updates the central ID registry with new ID assignments
@@ -53,7 +61,7 @@
     Script Metadata:
     - Script Type: Document Creation Script
     - Created: 2025-08-07
-    - Updated: 2026-03-27 (IMP-231: fix filename mismatch + Notes column; IMP-240: lightweight template variant)
+    - Updated: 2026-04-03 (IMP-333: add -Force flag for re-audits; IMP-231: fix filename mismatch + Notes column; IMP-240: lightweight template variant)
     - For: Creating Test Audit Report documents from templates
 #>
 
@@ -70,6 +78,9 @@ param(
 
     [Parameter(Mandatory = $false)]
     [switch]$Lightweight,
+
+    [Parameter(Mandatory = $false)]
+    [switch]$Force,
 
     [Parameter(Mandatory = $false)]
     [switch]$OpenInEditor
@@ -124,7 +135,8 @@ try {
     }
 
     $templateFile = if ($Lightweight) { "test-audit-report-lightweight-template.md" } else { "test-audit-report-template.md" }
-    $documentId = New-StandardProjectDocument -TemplatePath "process-framework/templates/03-testing/$templateFile" -IdPrefix "TE-TAR" -IdDescription "Test Audit Report for Feature $FeatureId" -DocumentName $docName -DirectoryType $featureCategory -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
+    $conflictAction = if ($Force) { "Overwrite" } else { "Error" }
+    $documentId = New-StandardProjectDocument -TemplatePath "process-framework/templates/03-testing/$templateFile" -IdPrefix "TE-TAR" -IdDescription "Test Audit Report for Feature $FeatureId" -DocumentName $docName -DirectoryType $featureCategory -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -ConflictAction $conflictAction -OpenInEditor:$OpenInEditor
 
     # --- State file updates ---
     $projectRoot = Get-ProjectRoot
@@ -241,6 +253,20 @@ try {
             "🚫 DO NOT use the generated file without proper audit completion!",
             "✅ The template provides structure - YOU provide the audit analysis."
         )
+    }
+
+    # Auto-append entry to TE-documentation-map.md under the correct audits section
+    if ($documentId -or $WhatIfPreference) {
+        $teDocMapPath = Join-Path -Path (Get-ProjectRoot) -ChildPath "test/TE-documentation-map.md"
+        $sectionHeader = "### ``audits/$featureCategory/``"
+        $auditFileName = "$docName.md"
+        $relativePath = "audits/$featureCategory/$auditFileName"
+        $entryLine = "- [Audit: $FeatureId ($documentId)]($relativePath) - Test quality assessment"
+
+        $updated = Add-DocumentationMapEntry -DocMapPath $teDocMapPath -SectionHeader $sectionHeader -EntryLine $entryLine -CallerCmdlet $PSCmdlet
+        if ($updated) {
+            $details += "Documentation Map: Updated (TE-documentation-map.md)"
+        }
     }
 
     Write-ProjectSuccess -Message "Created Test Audit Report with ID: $documentId" -Details $details

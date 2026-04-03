@@ -1,13 +1,11 @@
 ---
 id: PF-VIS-021
-type: Document
-category: General
+type: Process Framework
+category: Context Map
 version: 1.1
 created: 2025-07-21
 updated: 2026-03-03
-map_type: Context Map
-visualization_type: Task Context
-task_name: code-refactoring-task
+related_task: PF-TSK-022
 ---
 
 # Code Refactoring Task Context Map

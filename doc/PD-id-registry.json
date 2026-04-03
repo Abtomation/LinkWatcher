@@ -172,11 +172,9 @@
       "category": "Product Documentation",
       "type": "State",
       "directories": {
-        "permanent": "process-framework/state-tracking/permanent",
-        "temporary": "process-framework/state-tracking/temporary",
         "main": "doc/state-tracking",
-        "product-permanent": "doc/state-tracking/permanent",
-        "product-temporary": "doc/state-tracking/temporary",
+        "permanent": "doc/state-tracking/permanent",
+        "temporary": "doc/state-tracking/temporary",
         "default": "permanent"
       },
       "nextAvailable": 67
@@ -223,10 +221,9 @@
       "type": "Refactoring Plan",
       "directories": {
         "plans": "doc/refactoring/plans",
-        "scripts-update": "process-framework/scripts/update/doc/product-docs/refactoring/plans",
         "default": "plans"
       },
-      "nextAvailable": 158
+      "nextAvailable": 161
     }
   }
 }

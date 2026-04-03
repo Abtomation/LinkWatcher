@@ -32,7 +32,7 @@ Analyze, optimize, and document development processes to improve efficiency, qua
 
 ## Context Requirements
 
-- [Process Improvement Context Map](/process-framework/visualization/context-maps/support/process-improvement-map.md) - Visual guide to the components relevant to this task
+[View Context Map for this task](../../visualization/context-maps/support/process-improvement-map.md)
 
 - **Critical (Must Read):**
 

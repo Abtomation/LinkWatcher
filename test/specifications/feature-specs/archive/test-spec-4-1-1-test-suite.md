@@ -7,7 +7,7 @@ created: 2026-02-24
 updated: 2026-02-24
 feature_id: 4.1.1
 feature_name: Test Suite
-tdd_path: doc/technical/architecture/design-docs/tdd/tdd-4-1-1-test-suite-t2.md
+tdd_path: doc/technical/tdd/tdd-4-1-1-test-suite-t2.md
 test_tier: 2
 retrospective: true
 ---
@@ -18,10 +18,10 @@ retrospective: true
 
 ## Overview
 
-This document provides comprehensive test specifications for the **Test Suite** feature (ID: 4.1.1), derived from the Technical Design Document [PD-TDD-027](/doc/technical/architecture/design-docs/tdd/tdd-4-1-1-test-suite-t2.md).
+This document provides comprehensive test specifications for the **Test Suite** feature (ID: 4.1.1), derived from the Technical Design Document [PD-TDD-027](/doc/technical/tdd/tdd-4-1-1-test-suite-t2.md).
 
 **Test Tier**: 2 (Infrastructure validation + performance)
-**TDD Reference**: [TDD PD-TDD-027](/doc/technical/architecture/design-docs/tdd/tdd-4-1-1-test-suite-t2.md)
+**TDD Reference**: [TDD PD-TDD-027](/doc/technical/tdd/tdd-4-1-1-test-suite-t2.md)
 **Implementation Coverage**: 7/11 scenarios implemented (64%)
 
 ## Feature Context
@@ -150,7 +150,7 @@ The Test Suite infrastructure consists of pytest configuration (`pytest.ini`), s
 
 ### Files to Reference
 
-- **TDD**: [`doc/technical/architecture/design-docs/tdd/tdd-4-1-1-test-suite-t2.md`](/doc/technical/architecture/design-docs/tdd/tdd-4-1-1-test-suite-t2.md)
+- **TDD**: [`doc/technical/tdd/tdd-4-1-1-test-suite-t2.md`](/doc/technical/tdd/tdd-4-1-1-test-suite-t2.md)
 - **Infrastructure**: [`test/automated/conftest.py`](../../../test/automated/conftest.py), [`test/automated/utils.py`](../../../test/automated/utils.py), [`test/automated/test_config.py`](../../../test/automated/test_config.py)
 - **Performance Tests**: [`test/automated/performance/test_large_projects.py`](../../../test/automated/performance/test_large_projects.py)
 - **Config**: [`pyproject.toml`](../../../pyproject.toml) (test config)

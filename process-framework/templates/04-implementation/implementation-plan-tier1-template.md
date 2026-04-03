@@ -1,6 +1,6 @@
 ---
 id: PD-IMP-XXX
-type: Product Documentation
+type: Process Framework
 category: Technical - Implementation Plans
 version: 1.0
 created: [CREATION_DATE]

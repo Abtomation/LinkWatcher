@@ -1,14 +1,12 @@
 ---
 id: PF-VIS-017
-type: Document
-category: General
+type: Process Framework
+category: Context Map
 version: 2.0
 created: 2025-01-15
 updated: 2026-02-20
-visualization_type: Task Context
-task_name: integration-and-testing
-map_type: Context Map
 change_notes: "v2.0 - Reworked from test-implementation-map (03-testing) to integration-and-testing-map (04-implementation), absorbed PF-TSK-029 into PF-TSK-053"
+related_task: PF-TSK-053
 ---
 
 # Integration & Testing Context Map

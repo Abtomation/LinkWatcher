@@ -35,7 +35,9 @@ class TestPowerShellParser:
         """Test extracting file paths from # line comments."""
         parser = PowerShellParser()
         file_path = "vendor/tools/README.md"
-        content = f"# Reference to {file_path}\n"
+        content = (
+            f".git/objects/3a/b045e54f8acd16e0d036a487eb74c269db1d9f# Reference to {file_path}\n"
+        )
         refs = parser.parse_content(content, "test.ps1")
         targets = [r.link_target for r in refs]
         assert file_path in targets
@@ -165,7 +167,7 @@ class TestPowerShellParser:
     def test_multiple_paths_on_same_line(self):
         """Test extracting multiple file paths from the same line."""
         parser = PowerShellParser()
-        content = "# Copy from src/input.txt to output/result.txt\n"
+        content = ".git/objects/3a/b045e54f8acd16e0d036a487eb74c269db1d9f# Copy from src/input.txt to output/result.txt\n"
         refs = parser.parse_content(content, "test.ps1")
         targets = [r.link_target for r in refs]
         assert "src/input.txt" in targets
@@ -211,7 +213,8 @@ class TestPowerShellParser:
         parser = PowerShellParser()
         ps_file = temp_project_dir / "test-script.ps1"
         ps_file.write_text(
-            "# Script for tests/data/config.yaml\n" '$path = "src/utils/helpers.py"\n'
+            ".git/objects/3a/b045e54f8acd16e0d036a487eb74c269db1d9f# Script for tests/data/config.yaml\n"
+            '$path = "src/utils/helpers.py"\n'
         )
         refs = parser.parse_file(str(ps_file))
         targets = [r.link_target for r in refs]
@@ -244,7 +247,7 @@ class TestPowerShellParser:
     def test_backslash_paths(self):
         """Test paths using backslashes (Windows-style)."""
         parser = PowerShellParser()
-        content = "# See doc\\guides\\setup-guide.md\n"
+        content = ".git/objects/3a/b045e54f8acd16e0d036a487eb74c269db1d9f# See doc\\guides\\setup-guide.md\n"
         refs = parser.parse_content(content, "test.ps1")
         targets = [r.link_target for r in refs]
         assert "doc\\guides\\setup-guide.md" in targets
@@ -292,7 +295,10 @@ class TestEmbeddedMarkdownLinks:
         embedded = [r for r in refs if r.link_type == "powershell-embedded-md-link"]
         assert len(embedded) == 1
         # The path starts after "](", verify it points to "alpha-project/docs/path/here"
-        assert content[embedded[0].column_start : embedded[0].column_end] == "alpha-project/docs/path/here"
+        assert (
+            content[embedded[0].column_start : embedded[0].column_end]
+            == "alpha-project/docs/path/here"
+        )
 
     def test_no_false_positive_non_path(self):
         """Test that non-path content in parens is not matched."""

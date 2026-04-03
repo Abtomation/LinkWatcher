@@ -1,6 +1,6 @@
 ---
 id: PF-GDE-007
-type: Product Documentation
+type: Process Framework
 category: Guide
 version: 1.0
 created: 2025-06-10
@@ -19,16 +19,16 @@ This guide provides best practices for developing the project using the defined 
    - Consult the `/doc/state-tracking/permanent/feature-tracking.md` document
    - Update the feature status to "In Progress" 🟡
    - Create a feature branch from main/develop
-   - For complex features, create a technical design document using the appropriate template from `/doc/technical/architecture/design-docs` (tdd-t1-template.md, tdd-t2-template.md, or /process-framework/templates/02-design/tdd-t3-template.md based on complexity)
+   - For complex features, create a technical design document using the appropriate template from the TDD templates (see `/process-framework/templates/02-design/tdd-t1-template.md`, `tdd-t2-template.md`, or `tdd-t3-template.md` based on complexity)
 
 2. **Technical Design (for complex features)**
-   - Create a technical design document in `/doc/technical/design`
+   - Create a technical design document in `/doc/technical/tdd`
    - Document the architecture, data flow, and implementation details
    - Document any architectural decisions in Architecture Decision Records (ADRs)
    - Review the technical design before implementation
 
 3. **Implementation**
-   - Follow the architecture defined in the project structure documentation <!-- project-structure.md removed -->
+   - Follow the architecture defined in the technical design document and Architecture Decision Records (ADRs)
    - Follow the [Definition of Done](/process-framework/guides/04-implementation/definition-of-done.md) criteria
    - Implement the feature according to the technical design document or FDD requirements
    - Write tests for the feature
@@ -85,7 +85,7 @@ The documentation tier for each feature is indicated in the [Feature Tracking Do
 1. **Check Feature Tracking**: Consult the [Feature Tracking Document](/doc/state-tracking/permanent/feature-tracking.md) to determine the documentation tier for the feature
 2. **Assess Complexity**: If the feature doesn't have a documentation tier assigned, assess its complexity using the criteria in the [Documentation Tiers](/doc/documentation-tiers/README.md) document
 3. **Select Template**: Choose the appropriate template based on the documentation tier
-4. **Create Document**: Create the document in `/doc/technical/design`
+4. **Create Document**: Create the document in `/doc/technical/tdd`
 5. **Update Feature Tracking**: Add a link to the document in the feature tracking document
 6. **Review**: Review the document to ensure it addresses all aspects of the feature
 7. **Implement**: Use the document as a guide during implementation

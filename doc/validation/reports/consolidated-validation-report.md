@@ -103,9 +103,9 @@ validation_types: Architectural,CodeQuality,Integration,Documentation,Extensibil
 
 ## Related Resources
 
-- ~~Foundational Validation Tracking~~ - Detailed validation progress *(superseded by [Validation Tracking](../../state-tracking/temporary/validation/archive/validation-tracking-1.md))*
+- ~~Foundational Validation Tracking~~ - Detailed validation progress *(superseded by [Validation Tracking](../../state-tracking/validation/archive/validation-tracking-1.md))*
 - ~~Foundational Validation Guide~~ - Complete validation process guide *(superseded by [Feature Validation Guide](../../../process-framework/guides/05-validation/feature-validation-guide.md))*
-- [Validation Reports](./) - Individual validation reports by type
+- [Validation Reports](.git/objects/3a/b045e54f8acd16e0d036a487eb74c269db1d9f) - Individual validation reports by type
 
 ---
 

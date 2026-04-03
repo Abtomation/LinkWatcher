@@ -1,13 +1,10 @@
 ---
 id: PF-GDE-040
-type: Document
-category: General
+type: Process Framework
+category: Guide
 version: 2.0
 created: 2025-08-03
 updated: 2026-02-20
-guide_description: Comprehensive guide for using the Integration & Testing task effectively
-guide_status: Active
-guide_title: Integration & Testing Usage Guide
 change_notes: "v2.0 - Reworked for PF-TSK-053 (absorbed PF-TSK-029), made tech-agnostic"
 ---
 

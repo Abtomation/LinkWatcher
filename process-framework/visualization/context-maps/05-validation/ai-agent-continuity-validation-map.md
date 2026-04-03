@@ -1,13 +1,11 @@
 ---
 id: PF-VIS-033
-type: Document
-category: General
+type: Process Framework
+category: Context Map
 version: 1.0
 created: 2025-08-16
 updated: 2025-08-16
-task_name: ai-agent-continuity-validation
-map_type: Context Map
-visualization_type: Task Context
+related_task: PF-TSK-036
 ---
 
 # AI Agent Continuity Validation Context Map
@@ -30,7 +28,7 @@ graph TD
     TASKS[Task Definitions] --> MSA[Modular Structure Analysis]
     CMAPS[Context Maps] --> DQE[Documentation Quality Evaluation]
     STATE[State Tracking Files] --> SCR[Session Continuity Review]
-    LIB[(lib/ directory)] --> WOA[Workflow Optimization Analysis]
+    LIB[(src/ directory)] --> WOA[Workflow Optimization Analysis]
     NVRS[New-ValidationReport Script] --> VR
 
     CCA --> VR
@@ -65,7 +63,7 @@ graph TD
 - **Task Definitions (TASKS)**: Task structure and workflow patterns for AI agent execution analysis
 - **Context Maps (CMAPS)**: Visual guidance for AI agent task execution and documentation quality evaluation
 - **State Tracking Files (STATE)**: Session continuity and progress tracking patterns for multi-session workflow assessment
-- **lib/ directory (LIB)**: Code organization and modular structure for workflow optimization analysis
+- **src/ directory (LIB)**: Code organization and modular structure for workflow optimization analysis
 - **New-ValidationReport Script (NVRS)**: Automation script for generating standardized validation reports
 - **Context Clarity Assessment (CCA)**: Process of evaluating how well the codebase provides clear context for AI agents
 - **Modular Structure Analysis (MSA)**: Process of assessing code organization and component separation
@@ -88,7 +86,7 @@ graph TD
 3. **Task Definitions → Modular Structure Analysis**: Source for analyzing task structure and workflow patterns
 4. **Context Maps → Documentation Quality Evaluation**: Visual guidance components for assessing documentation effectiveness
 5. **State Tracking Files → Session Continuity Review**: Source for evaluating multi-session workflow support
-6. **lib/ directory → Workflow Optimization Analysis**: Codebase structure for assessing AI agent navigation and understanding
+6. **src/ directory → Workflow Optimization Analysis**: Codebase structure for assessing AI agent navigation and understanding
 7. **All Analysis Processes → Validation Report**: Feed their findings into the comprehensive validation report
 8. **Validation Report → Documentation Map**: Updates documentation tracking with new validation reports
 

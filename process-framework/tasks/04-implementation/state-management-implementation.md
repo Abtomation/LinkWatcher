@@ -4,7 +4,7 @@ type: Process Framework
 category: Task Definition
 version: 1.1
 created: 2025-12-13
-updated: 2026-03-24
+updated: 2026-04-03
 ---
 
 # State Management Implementation
@@ -32,6 +32,7 @@ Implement the state management layer for a feature. This task creates the reacti
 
 ## Context Requirements
 
+[View Context Map for this task](../../visualization/context-maps/04-implementation/state-management-implementation-map.md)
 
 - **Critical (Must Read):**
 
@@ -52,37 +53,61 @@ Implement the state management layer for a feature. This task creates the reacti
 > **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished! 🚨**
 >
 > **⚠️ MANDATORY: Update Feature Implementation State File throughout implementation.**
+>
+> **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
+>
+> **⚠️ MANDATORY: Never proceed past a checkpoint without presenting findings and getting explicit approval.**
 
 ### Preparation
 
 1. **Review TDD State Management Design**: Read state management architecture section from TDD to understand state container structure, patterns, and technology-specific conventions
 2. **Analyze Data Layer Output**: Review completed repository interfaces and data models from PF-TSK-051 to understand available data operations
 3. **Identify State Requirements**: Determine state objects needed, dependencies, and state mutation patterns from TDD
+   - **Review DI and PE dimensions** from the feature's Dimension Profile — state management is particularly sensitive to Data Integrity (state consistency, error recovery) and Performance (caching strategies, unnecessary re-renders). Note any Critical/Relevant considerations that apply to the state layer
 4. **Plan State Architecture**: Map out state container hierarchy, dependencies, and mutation flow
+5. **🚨 CHECKPOINT**: Present state architecture plan, container hierarchy, and dependency analysis to human partner for approval
 
 ### Execution
 
-5. **Create State Models**: Define state classes representing UI state, following immutability patterns appropriate to the chosen framework
-6. **Implement State Containers**: Create state containers/providers for dependency injection and state management
+6. **Create State Models**: Define state classes representing UI state, following immutability patterns appropriate to the chosen framework
+7. **Implement State Containers**: Create state containers/providers for dependency injection and state management
    - Repository bindings (expose data layer to state layer)
    - Mutable state containers (manage state mutations)
    - Derived/computed state (calculated from other state)
-7. **Implement State Mutation Logic**: Build state mutation handlers following the patterns specified in the TDD
+8. **Implement State Mutation Logic**: Build state mutation handlers following the patterns specified in the TDD
    - Define initial state
    - Implement state mutation methods
    - Handle async operations and side effects
    - Manage error states and loading states
-8. **Handle Side Effects**: Implement proper async patterns, error handling, and loading state management
-9. **Add State Tests**: Create unit tests for state containers and integration tests for dependency injection
-10. **Update Feature Implementation State File**: Document state management implementations, state flow patterns, and integration notes
+9. **Handle Side Effects**: Implement proper async patterns, error handling, and loading state management
+10. **Add State Tests**: Create tracked unit tests for state containers using `New-TestFile.ps1`
+
+    ```powershell
+    # Create test files using automation script (writes pytest markers)
+    cd process-framework/scripts/file-creation/03-testing
+    .\New-TestFile.ps1 -TestName "FeatureName" -TestType "Unit" -FeatureId "X.Y.Z" -ComponentName "StateContainers"
+    .\New-TestFile.ps1 -TestName "FeatureName" -TestType "Integration" -FeatureId "X.Y.Z" -ComponentName "StateDependencyInjection"
+
+    # Script automatically:
+    # - Writes pytest markers (feature, priority, test_type)
+    # - Creates test file from template with proper structure
+    # - Updates test-tracking.md with correct file links and status
+    # - Updates feature-tracking.md with test implementation progress
+    ```
+
+    - Test state containers with comprehensive unit coverage
+    - Test dependency injection integration
+    - Test error handling scenarios
+    - Test state mutation logic
+11. **🚨 CHECKPOINT**: Present implemented state containers, test results, and any TDD deviations to human partner for review and approval
 
 ### Finalization
 
-11. **Verify State Container Hierarchy**: Ensure state container dependencies are correct and no circular dependencies exist
-12. **Review State Mutation Patterns**: Confirm all state changes follow the mutation patterns specified in the TDD
-13. **Validate Test Coverage**: Ensure all state containers have comprehensive unit test coverage
-14. **Update Code Inventory**: Document all created state containers and models in Feature Implementation State File
-15. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+12. **Verify State Container Hierarchy**: Ensure state container dependencies are correct and no circular dependencies exist
+13. **Review State Mutation Patterns**: Confirm all state changes follow the mutation patterns specified in the TDD
+14. **Validate Test Coverage**: Ensure all state containers have comprehensive unit test coverage
+15. **Update Code Inventory**: Document all created state containers and models in Feature Implementation State File
+16. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 
@@ -94,7 +119,12 @@ Implement the state management layer for a feature. This task creates the reacti
 
 ## State Tracking
 
-The following state files must be updated as part of this task:
+### Automated Updates (via `New-TestFile.ps1`)
+
+- [Test Tracking](../../../test/state-tracking/permanent/test-tracking.md) - Automatically updated with test file links and status
+- [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Automatically updated with test implementation progress
+
+### Manual Updates
 
 - [Feature Implementation State File](../../state-tracking/permanent/feature-implementation-state-[feature-id].md) - Update **Code Inventory** section with all created state containers and models, update **Implementation Progress** section with state layer completion status, document any state management patterns or architectural decisions in **Implementation Notes**
 

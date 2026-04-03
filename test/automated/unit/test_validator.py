@@ -247,8 +247,12 @@ class TestLinkValidator:
             assert "LinkWatcher_run" not in bl.source_file
 
     def test_standalone_link_in_code_block_skipped(self, tmp_path):
-        """Bare paths inside fenced code blocks should be skipped."""
-        content = "# Guide\n" "\n" "```bash\n" "path/to/missing.ps1\n" "```\n"
+        """Bare paths inside fenced code blocks should be skipped.
+
+        Uses a path that does NOT match the default validation_ignored_patterns
+        ('path/to/') so the code-block filter (line 405) is actually exercised.
+        """
+        content = "# Guide\n\n```bash\ndocs/missing-script.ps1\n```\n"
         _create_file(str(tmp_path), "source.md", content)
 
         cfg = _make_config()
@@ -256,8 +260,8 @@ class TestLinkValidator:
         result = v.validate()
 
         # The bare path inside the code block should NOT appear as broken
-        for bl in result.broken_links:
-            assert "missing.ps1" not in bl.target_path
+        targets = {bl.target_path for bl in result.broken_links}
+        assert "docs/missing-script.ps1" not in targets
 
     def test_proper_link_in_code_block_still_checked(self, tmp_path):
         """Proper [text](path) links inside code blocks are still checked."""
@@ -491,113 +495,293 @@ class TestLinkValidator:
 class TestShouldCheckTarget:
     """Tests for the heuristic filters that skip non-path targets."""
 
-    def test_url_skipped(self):
-        assert LinkValidator._should_check_target("https://example.com", "markdown") is False
-
-    def test_python_import_skipped(self):
-        assert LinkValidator._should_check_target("app.utils", "python-import") is False
-
-    def test_shell_command_bash_skipped(self):
-        assert LinkValidator._should_check_target("Bash(python scripts/run.py)", "json") is False
-
-    def test_shell_command_pwsh_skipped(self):
+    @pytest.mark.parametrize(
+        "target, link_type, reason",
+        [
+            # URLs
+            ("https://example.com", "markdown", "URL prefix"),
+            # Python imports
+            ("app.utils", "python-import", "python-import link type"),
+            # Shell commands
+            ("Bash(python scripts/run.py)", "json", "Bash() command"),
+            ("pwsh.exe -ExecutionPolicy Bypass -File script.ps1", "yaml", "pwsh command"),
+            ("python main.py --validate", "generic-unquoted", "python command"),
+            ("git status", "generic-unquoted", "git command"),
+            # Wildcards / globs
+            ("*.md", "generic-unquoted", "wildcard *"),
+            ("**/*.py", "generic-unquoted", "double-star glob"),
+            ("file?.txt", "generic-unquoted", "question mark wildcard"),
+            # Spaces (prose / commands)
+            ("some random text.md", "generic-unquoted", "target with spaces"),
+            # Non-path strings (no separator)
+            ("justtext", "generic-unquoted", "no path separator"),
+            # Bare filenames (prose mentions)
+            ("readme.md", "markdown", "bare filename without separator"),
+            ("Script.ps1", "markdown-standalone", "bare filename .ps1"),
+            # Numeric / slash patterns (scores)
+            ("3.475/4.0", "markdown-standalone", "numeric slash score"),
+            ("80/100", "markdown-standalone", "numeric fraction"),
+            # Template placeholders
+            (
+                "feedback-forms/YYYYMMDD-HHMMSS-feedback.md",
+                "markdown-standalone",
+                "YYYY placeholder",
+            ),
+            (
+                "state-tracking/features/feature-implementation-state-[feature-id].md",
+                "markdown",
+                "square-bracket placeholder",
+            ),
+            (
+                "visualization/context-maps/[task-type]/[task-name]-map.md",
+                "markdown",
+                "multi square-bracket placeholder",
+            ),
+            (
+                "architecture/context-packages/[architecture-area]-context.md",
+                "markdown",
+                "single square-bracket placeholder",
+            ),
+            # Regex metacharacters (^{}|) — TD170 line 450
+            ("[^\\'\"]+\\.[a-zA-Z0-9]+", "markdown-standalone", "regex with ^ metachar"),
+            ("config{dev|prod}.yaml", "markdown-standalone", "regex with {} and |"),
+            ("src/{main|test}/app.py", "generic-unquoted", "regex with {|} braces"),
+            # Regex fragments ]+  and \[ — TD170 line 455
+            ("pattern]+(more)", "markdown-standalone", "regex ]+ fragment"),
+            ("match\\[index\\]", "markdown-standalone", "regex \\[ escaped bracket"),
+            # PowerShell .\ invocation syntax — TD170 line 460
+            (".\\Script.ps1", "markdown-standalone", "PowerShell .\\ invocation"),
+            (".\\Run-Tests.ps1", "generic-unquoted", "PowerShell .\\ invocation variant"),
+            # Separator but no extension and not dir-like — TD170 line 481
+            ("some/dir", "markdown", "separator but no ext, not dir-like"),
+        ],
+        ids=lambda x: x if isinstance(x, str) and len(x) < 40 else None,
+    )
+    def test_target_skipped(self, target, link_type, reason):
+        """Targets that are not real file paths should be rejected."""
         assert (
-            LinkValidator._should_check_target(
-                "pwsh.exe -ExecutionPolicy Bypass -File script.ps1", "yaml"
-            )
-            is False
+            LinkValidator._should_check_target(target, link_type) is False
+        ), f"Expected skip for {reason}: {target!r}"
+
+    @pytest.mark.parametrize(
+        "target, link_type, reason",
+        [
+            ("docs/guide.md", "markdown", "relative path with separator"),
+            ("./readme.md", "markdown", "dot-relative path"),
+            ("../readme.md", "markdown", "parent-relative path"),
+            ("alpha-project/framework/tasks/task.md", "markdown", "deep relative path"),
+            ("/alpha-project/framework/tasks/task.md", "markdown", "root-relative path"),
+            # Dir-like targets (ending in / or \) — TD170 lines 480-481
+            ("some-unknown-dir/", "markdown-standalone", "dir-like target ending in /"),
+            ("nested/path/subdir/", "markdown", "nested dir-like target"),
+        ],
+        ids=lambda x: x if isinstance(x, str) and len(x) < 40 else None,
+    )
+    def test_target_accepted(self, target, link_type, reason):
+        """Targets that look like real file/dir paths should be accepted."""
+        assert (
+            LinkValidator._should_check_target(target, link_type) is True
+        ), f"Expected accept for {reason}: {target!r}"
+
+
+# ---------------------------------------------------------------------------
+# Template file filtering (TD170 — line 399)
+# ---------------------------------------------------------------------------
+
+
+class TestTemplateFileFiltering:
+    """Tests for skipping standalone links in template files."""
+
+    def test_standalone_link_in_template_file_skipped(self, tmp_path):
+        """Standalone paths inside /templates/ directories should be skipped.
+
+        The check is '/templates/' in the relative path, so the templates/
+        directory must be nested (e.g. process-framework/templates/...).
+        """
+        content = "Use the path docs/some-placeholder/guide.md as reference.\n"
+        _create_file(
+            str(tmp_path), "process-framework/templates/support/example-template.md", content
         )
 
-    def test_shell_command_python_skipped(self):
-        assert (
-            LinkValidator._should_check_target("python main.py --validate", "generic-unquoted")
-            is False
+        cfg = _make_config()
+        v = LinkValidator(str(tmp_path), cfg)
+        result = v.validate()
+
+        targets = {bl.target_path for bl in result.broken_links}
+        assert "docs/some-placeholder/guide.md" not in targets
+
+    def test_proper_link_in_template_file_still_checked(self, tmp_path):
+        """Proper [text](path) links in template files ARE still checked."""
+        content = "[link](docs/does-not-exist.md)\n"
+        _create_file(
+            str(tmp_path), "process-framework/templates/support/example-template.md", content
         )
 
-    def test_shell_command_git_skipped(self):
-        assert LinkValidator._should_check_target("git status", "generic-unquoted") is False
+        cfg = _make_config()
+        v = LinkValidator(str(tmp_path), cfg)
+        result = v.validate()
 
-    def test_wildcard_glob_skipped(self):
-        assert LinkValidator._should_check_target("*.md", "generic-unquoted") is False
+        targets = {bl.target_path for bl in result.broken_links}
+        assert "docs/does-not-exist.md" in targets
 
-    def test_wildcard_double_star_skipped(self):
-        assert LinkValidator._should_check_target("**/*.py", "generic-unquoted") is False
+    def test_non_template_standalone_still_checked(self, tmp_path):
+        """Standalone paths in non-template files should still be checked."""
+        content = "See docs/nonexistent/missing.md for details.\n"
+        _create_file(str(tmp_path), "guides/real-guide.md", content)
 
-    def test_wildcard_question_mark_skipped(self):
-        assert LinkValidator._should_check_target("file?.txt", "generic-unquoted") is False
+        cfg = _make_config()
+        v = LinkValidator(str(tmp_path), cfg)
+        result = v.validate()
 
-    def test_target_with_spaces_skipped(self):
-        """Targets containing spaces are likely prose or commands, not paths."""
-        assert (
-            LinkValidator._should_check_target("some random text.md", "generic-unquoted") is False
+        targets = {bl.target_path for bl in result.broken_links}
+        assert "docs/nonexistent/missing.md" in targets
+
+
+# ---------------------------------------------------------------------------
+# Placeholder line detection (TD170 — lines 587, 390)
+# ---------------------------------------------------------------------------
+
+
+class TestPlaceholderLines:
+    """Tests for _get_placeholder_lines and placeholder line skipping."""
+
+    def test_get_placeholder_lines_detects_replace_with_actual(self):
+        """Lines with 'replace with actual' should be detected as placeholders."""
+        lines = [
+            "# Template",
+            "Normal content here.",
+            "*(replace with actual link)*",
+            "More content.",
+            "*(Replace With Actual path here)*",
+        ]
+        result = LinkValidator._get_placeholder_lines(lines)
+        assert 3 in result, "Line 3 contains 'replace with actual'"
+        assert 5 in result, "Line 5 contains 'Replace With Actual' (case insensitive)"
+        assert 1 not in result
+        assert 2 not in result
+        assert 4 not in result
+
+    def test_links_on_placeholder_lines_skipped(self, tmp_path):
+        """All link types on placeholder lines should be skipped."""
+        content = (
+            "# Template\n"
+            "\n"
+            "[real link](docs/does-not-exist.md) *(replace with actual link)*\n"
+            "\n"
+            "[normal broken](docs/also-missing.md)\n"
         )
+        _create_file(str(tmp_path), "source.md", content)
 
-    def test_non_path_string_skipped(self):
-        """Strings that don't look like file paths should be rejected."""
-        assert LinkValidator._should_check_target("justtext", "generic-unquoted") is False
+        cfg = _make_config()
+        v = LinkValidator(str(tmp_path), cfg)
+        result = v.validate()
 
-    def test_valid_relative_path_accepted(self):
-        assert LinkValidator._should_check_target("docs/guide.md", "markdown") is True
+        targets = {bl.target_path for bl in result.broken_links}
+        assert "docs/does-not-exist.md" not in targets, "Link on placeholder line should be skipped"
+        assert "docs/also-missing.md" in targets, "Normal broken link should be reported"
 
-    def test_bare_filename_skipped(self):
-        """Bare filenames without path separators are prose mentions."""
-        assert LinkValidator._should_check_target("readme.md", "markdown") is False
-        assert LinkValidator._should_check_target("Script.ps1", "markdown-standalone") is False
 
-    def test_numeric_slash_skipped(self):
-        """Scores like 3.475/4.0 should not be treated as paths."""
-        assert LinkValidator._should_check_target("3.475/4.0", "markdown-standalone") is False
-        assert LinkValidator._should_check_target("80/100", "markdown-standalone") is False
+# ---------------------------------------------------------------------------
+# _check_file error handling (TD170 — lines 270-276, 280-286)
+# ---------------------------------------------------------------------------
 
-    def test_placeholder_skipped(self):
-        """Template placeholders should be skipped."""
-        assert (
-            LinkValidator._should_check_target(
-                "feedback-forms/YYYYMMDD-HHMMSS-feedback.md", "markdown-standalone"
-            )
-            is False
-        )
 
-    def test_square_bracket_placeholder_skipped(self):
-        """Square-bracket template placeholders like [feature-id] should be skipped."""
-        assert (
-            LinkValidator._should_check_target(
-                "state-tracking/features/feature-implementation-state-[feature-id].md", "markdown"
-            )
-            is False
-        )
-        assert (
-            LinkValidator._should_check_target(
-                "visualization/context-maps/[task-type]/[task-name]-map.md", "markdown"
-            )
-            is False
-        )
-        assert (
-            LinkValidator._should_check_target(
-                "architecture/context-packages/[architecture-area]-context.md", "markdown"
-            )
-            is False
-        )
+class TestCheckFileErrorHandling:
+    """Tests for graceful handling of file read/parse errors."""
 
-    def test_dot_relative_accepted(self):
-        """Paths starting with ./ or ../ are real references."""
-        assert LinkValidator._should_check_target("./readme.md", "markdown") is True
-        assert LinkValidator._should_check_target("../readme.md", "markdown") is True
+    def test_unreadable_file_gracefully_skipped(self, tmp_path):
+        """OSError during file read should be caught without crashing."""
+        _create_file(str(tmp_path), "source.md", "[link](target.md)\n")
+        source_path = os.path.join(str(tmp_path), "source.md")
 
-    def test_valid_parent_path_accepted(self):
-        assert LinkValidator._should_check_target("../readme.md", "markdown") is True
+        cfg = _make_config()
+        v = LinkValidator(str(tmp_path), cfg)
+        result = ValidationResult()
 
-    def test_valid_deep_path_accepted(self):
-        assert (
-            LinkValidator._should_check_target("alpha-project/framework/tasks/task.md", "markdown")
-            is True
-        )
+        # Make file unreadable by removing it after validator init
+        os.remove(source_path)
+        # Directly call _check_file with a non-existent path
+        v._check_file(source_path, result)
 
-    def test_root_relative_accepted(self):
-        assert (
-            LinkValidator._should_check_target("/alpha-project/framework/tasks/task.md", "markdown")
-            is True
-        )
+        # Should not crash; files_scanned should not increment
+        assert result.files_scanned == 0
+
+    def test_parse_exception_gracefully_handled(self, tmp_path, monkeypatch):
+        """Parser exceptions during parse_content should be caught."""
+        _create_file(str(tmp_path), "source.md", "[link](target.md)\n")
+        source_path = os.path.join(str(tmp_path), "source.md")
+
+        cfg = _make_config()
+        v = LinkValidator(str(tmp_path), cfg)
+        result = ValidationResult()
+
+        # Monkeypatch parser to raise an exception
+        def _raise(*args, **kwargs):
+            raise RuntimeError("Simulated parse failure")
+
+        monkeypatch.setattr(v.parser, "parse_content", _raise)
+        v._check_file(source_path, result)
+
+        # Should not crash; files_scanned should not increment
+        assert result.files_scanned == 0
+
+
+# ---------------------------------------------------------------------------
+# _target_exists_at_root anchor stripping (TD170 — lines 647-649)
+# ---------------------------------------------------------------------------
+
+
+class TestTargetExistsAtRootAnchor:
+    """Tests for anchor stripping in _target_exists_at_root."""
+
+    def test_root_anchor_stripped_before_check(self, tmp_path):
+        """Anchored targets should strip #section before root existence check."""
+        _create_file(str(tmp_path), "docs/guide.md", "# Section")
+
+        cfg = _make_config()
+        v = LinkValidator(str(tmp_path), cfg)
+
+        assert v._target_exists_at_root("docs/guide.md#section") is True
+
+    def test_pure_anchor_at_root_always_valid(self, tmp_path):
+        """A pure #anchor target at root level should return True."""
+        cfg = _make_config()
+        v = LinkValidator(str(tmp_path), cfg)
+
+        assert v._target_exists_at_root("#some-section") is True
+
+    def test_root_anchor_missing_file(self, tmp_path):
+        """Anchored target with non-existent file at root should return False."""
+        cfg = _make_config()
+        v = LinkValidator(str(tmp_path), cfg)
+
+        assert v._target_exists_at_root("nonexistent/file.md#section") is False
+
+
+# ---------------------------------------------------------------------------
+# _target_exists pure anchor link (TD170 — lines 659-662)
+# ---------------------------------------------------------------------------
+
+
+class TestTargetExistsPureAnchor:
+    """Tests for pure anchor link handling in _target_exists."""
+
+    def test_pure_anchor_always_valid(self, tmp_path):
+        """A pure #anchor link should be treated as valid (intra-file ref)."""
+        cfg = _make_config()
+        v = LinkValidator(str(tmp_path), cfg)
+        source = os.path.join(str(tmp_path), "source.md")
+
+        assert v._target_exists(source, "#some-section") is True
+
+    def test_anchored_file_ref_resolved(self, tmp_path):
+        """A file#anchor target should strip anchor and check file existence."""
+        _create_file(str(tmp_path), "docs/guide.md", "# Section")
+        cfg = _make_config()
+        v = LinkValidator(str(tmp_path), cfg)
+        source = os.path.join(str(tmp_path), "docs", "guide.md")
+
+        assert v._target_exists(source, "guide.md#section") is True
 
 
 # ---------------------------------------------------------------------------
@@ -863,6 +1047,82 @@ class TestArchivalDetailsFilter:
         targets = {bl.target_path for bl in result.broken_links}
         assert "scripts/old-tool.ps1" not in targets
 
+    def test_summary_on_next_line_detected(self, tmp_path):
+        """<details> with <summary> on the NEXT line should still detect archival."""
+        content = (
+            "<details>\n"
+            "<summary>Show Closed Items</summary>\n"
+            "\n"
+            "Old refs: some/deleted/path.md mentioned here.\n"
+            "\n"
+            "</details>\n"
+        )
+        _create_file(str(tmp_path), "tracking.md", content)
+
+        cfg = _make_config()
+        v = LinkValidator(str(tmp_path), cfg)
+        result = v.validate()
+
+        targets = {bl.target_path for bl in result.broken_links}
+        assert "some/deleted/path.md" not in targets
+
+    def test_details_without_summary_not_archival(self, tmp_path):
+        """<details> followed by non-summary content should not trigger archival."""
+        content = (
+            "<details>\n"
+            "Some direct content without a summary tag.\n"
+            "\n"
+            "See [link](docs/does-not-exist.md) for details.\n"
+            "\n"
+            "</details>\n"
+        )
+        _create_file(str(tmp_path), "source.md", content)
+
+        cfg = _make_config()
+        v = LinkValidator(str(tmp_path), cfg)
+        result = v.validate()
+
+        targets = {bl.target_path for bl in result.broken_links}
+        assert "docs/does-not-exist.md" in targets
+
+    def test_details_summary_on_same_line(self, tmp_path):
+        """<details><summary>archival</summary> on one line should detect archival."""
+        content = (
+            "<details><summary>Click to expand closed items</summary>\n"
+            "\n"
+            "Old ref: some/archived/old-path.md mentioned here.\n"
+            "\n"
+            "</details>\n"
+        )
+        _create_file(str(tmp_path), "tracking.md", content)
+
+        cfg = _make_config()
+        v = LinkValidator(str(tmp_path), cfg)
+        result = v.validate()
+
+        targets = {bl.target_path for bl in result.broken_links}
+        assert "some/archived/old-path.md" not in targets
+
+    def test_details_with_empty_lines_then_summary(self, tmp_path):
+        """<details> followed by blank lines then <summary> should still work."""
+        content = (
+            "<details>\n"
+            "\n"
+            "<summary>View Archived Features</summary>\n"
+            "\n"
+            "Old path: some/archived/feature.md\n"
+            "\n"
+            "</details>\n"
+        )
+        _create_file(str(tmp_path), "features.md", content)
+
+        cfg = _make_config()
+        v = LinkValidator(str(tmp_path), cfg)
+        result = v.validate()
+
+        targets = {bl.target_path for bl in result.broken_links}
+        assert "some/archived/feature.md" not in targets
+
 
 # ---------------------------------------------------------------------------
 # Extension-before-slash filter
@@ -969,3 +1229,37 @@ class TestLinkwatcherIgnoreFile:
         result = v.validate()
         targets = {bl.target_path for bl in result.broken_links}
         assert "some/path/README.md" not in targets
+
+    def test_oserror_reading_ignore_file_handled(self, tmp_path, monkeypatch):
+        """OSError when reading .linkwatcher-ignore should be handled gracefully."""
+        _create_file(str(tmp_path), "source.md", "[link](missing/doc.md)\n")
+        _create_file(str(tmp_path), ".linkwatcher-ignore", "**/*.md -> missing\n")
+
+        cfg = self._cfg_with_ignore()
+        v = LinkValidator(str(tmp_path), cfg)
+
+        # Monkeypatch open to raise OSError when reading the ignore file
+        real_open = open
+
+        def _raise_on_ignore(path, *args, **kwargs):
+            if ".linkwatcher-ignore" in str(path):
+                raise OSError("Permission denied")
+            return real_open(path, *args, **kwargs)
+
+        monkeypatch.setattr("builtins.open", _raise_on_ignore)
+        rules = v._load_ignore_file()
+        assert rules == []
+
+    def test_malformed_lines_without_arrow_skipped(self, tmp_path):
+        """Lines without ' -> ' separator should be silently ignored."""
+        _create_file(str(tmp_path), "source.md", "[link](missing/doc.md)\n")
+        _create_file(
+            str(tmp_path),
+            ".linkwatcher-ignore",
+            "this line has no arrow separator\nsource.md -> missing/doc.md\n",
+        )
+        v = LinkValidator(str(tmp_path), self._cfg_with_ignore())
+        result = v.validate()
+        # The valid rule should still work despite the malformed line
+        targets = {bl.target_path for bl in result.broken_links}
+        assert "missing/doc.md" not in targets

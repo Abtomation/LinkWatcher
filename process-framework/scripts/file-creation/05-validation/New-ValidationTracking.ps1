@@ -9,7 +9,7 @@
 .DESCRIPTION
     This PowerShell script generates validation tracking state files by:
     - Generating a unique state ID (PF-STA-XXX) automatically
-    - Creating the file in doc/state-tracking/temporary/validation/
+    - Creating the file in doc/state-tracking/validation/
     - Populating round number and creation date
     - Updating the ID tracker in the central ID registry
 
@@ -29,7 +29,7 @@
 .EXAMPLE
     .\New-ValidationTracking.ps1 -RoundNumber 4
 
-    Creates validation-tracking-4.md in doc/state-tracking/temporary/validation/
+    Creates validation-tracking-4.md in doc/state-tracking/validation/
 
 .EXAMPLE
     .\New-ValidationTracking.ps1 -RoundNumber 4 -Description "Post-enhancement re-validation"
@@ -87,7 +87,7 @@ try {
         -IdPrefix "PF-STA" `
         -IdDescription "Validation tracking state for Round $RoundNumber" `
         -DocumentName "Validation Tracking Round $RoundNumber" `
-        -OutputDirectory "doc/state-tracking/temporary/validation" `
+        -OutputDirectory "doc/state-tracking/validation" `
         -Replacements $customReplacements `
         -AdditionalMetadataFields $additionalMetadataFields `
         -FileNamePattern $customFileName `
@@ -95,7 +95,7 @@ try {
 
     $details = @(
         "Round: $RoundNumber",
-        "Location: doc/state-tracking/temporary/validation/$customFileName"
+        "Location: doc/state-tracking/validation/$customFileName"
     )
 
     if ($Description -ne "") {

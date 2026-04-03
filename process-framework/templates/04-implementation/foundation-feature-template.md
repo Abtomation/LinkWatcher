@@ -37,7 +37,7 @@ This template guides the implementation of foundation features (0.x.x) that prov
   - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Foundation feature status and dependencies
 
 - **Important (Load If Space):**
-  - [Related ADRs](/doc/technical/architecture/design-docs/adr) - Architectural decisions relevant to this foundation
+  - [Related ADRs](/doc/technical/adr) - Architectural decisions relevant to this foundation
   - [Dependent Features](../../../doc/state-tracking/permanent/feature-tracking.md) - Features that will be unblocked by this foundation
 
 ## Process
@@ -64,7 +64,7 @@ This template guides the implementation of foundation features (0.x.x) that prov
    - Document architectural patterns implemented
    - **Create ADRs for architectural decisions made** using existing ADR system:
      ```powershell
-     cd doc/technical/architecture/design-docs/adr
+     cd doc/technical/adr
      ../../scripts/file-creation/02-design/New-ArchitectureDecision.ps1 -Title "[Decision Title]" -Status "Proposed"
      ```
    - Document integration patterns for dependent features

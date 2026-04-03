@@ -1,14 +1,11 @@
 ---
 id: PF-GDE-037
-type: Document
-category: General
+type: Process Framework
+category: Guide
 version: 2.0
 created: 2025-07-29
 updated: 2026-02-26
-guide_status: Active
-related_tasks: PF-TSK-009
-guide_description: Step-by-step guide for executing the Process Improvement task effectively with incremental implementation and human checkpoints
-guide_category: Task Implementation
+related_task: PF-TSK-009
 guide_title: Process Improvement Task Implementation Guide
 ---
 # Process Improvement Task Implementation Guide

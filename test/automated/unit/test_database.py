@@ -726,3 +726,181 @@ class TestHasTargetWithBasename:
         assert link_database.has_target_with_basename("readme.md") is True
         link_database.remove_file_links("b.md")
         assert link_database.has_target_with_basename("readme.md") is False
+
+
+class TestUpdateSourcePath:
+    """Tests for update_source_path() — TD163, audit TE-TAR-019."""
+
+    def test_basic_rename(self, link_database):
+        """Renaming a source file updates ref.file_path and returns count."""
+        ref = LinkReference("docs/old.md", 1, 0, 10, "target.txt", "target.txt", "markdown")
+        link_database.add_link(ref)
+
+        count = link_database.update_source_path("docs/old.md", "docs/new.md")
+
+        assert count == 1
+        assert ref.file_path == "docs/new.md"
+
+    def test_multiple_refs_from_same_source(self, link_database):
+        """All references from the renamed source are updated."""
+        ref1 = LinkReference("src/readme.md", 1, 0, 10, "a.txt", "a.txt", "markdown")
+        ref2 = LinkReference("src/readme.md", 5, 0, 10, "b.txt", "b.txt", "markdown")
+        link_database.add_link(ref1)
+        link_database.add_link(ref2)
+
+        count = link_database.update_source_path("src/readme.md", "src/guide.md")
+
+        assert count == 2
+        assert ref1.file_path == "src/guide.md"
+        assert ref2.file_path == "src/guide.md"
+
+    def test_no_refs_returns_zero(self, link_database):
+        """Non-existent source path returns 0 with no side effects."""
+        ref = LinkReference("other.md", 1, 0, 10, "target.txt", "target.txt", "markdown")
+        link_database.add_link(ref)
+
+        count = link_database.update_source_path("nonexistent.md", "renamed.md")
+
+        assert count == 0
+        assert ref.file_path == "other.md"
+
+    def test_reverse_index_migrated(self, link_database):
+        """Reverse index moves from old key to new key after rename."""
+        ref = LinkReference("old.md", 1, 0, 10, "target.txt", "target.txt", "markdown")
+        link_database.add_link(ref)
+
+        link_database.update_source_path("old.md", "new.md")
+
+        # Old source should no longer find the target
+        refs_via_old = link_database.get_references_to_file("target.txt")
+        assert all(r.file_path != "old.md" for r in refs_via_old)
+        # New source should be tracked
+        assert "new.md" in link_database.files_with_links
+        assert "old.md" not in link_database.files_with_links
+
+    def test_files_with_links_updated(self, link_database):
+        """files_with_links set reflects the rename."""
+        ref = LinkReference("alpha.md", 1, 0, 10, "t.txt", "t.txt", "markdown")
+        link_database.add_link(ref)
+        assert "alpha.md" in link_database.files_with_links
+
+        link_database.update_source_path("alpha.md", "beta.md")
+
+        assert "alpha.md" not in link_database.files_with_links
+        assert "beta.md" in link_database.files_with_links
+
+
+class TestRemoveTargetsByPath:
+    """Tests for remove_targets_by_path() — TD163, audit TE-TAR-019."""
+
+    def test_direct_key_removal(self, link_database):
+        """Removes a target that matches the path directly."""
+        ref = LinkReference("src.md", 1, 0, 10, "docs/file.txt", "docs/file.txt", "markdown")
+        link_database.add_link(ref)
+
+        count = link_database.remove_targets_by_path("docs/file.txt")
+
+        assert count == 1
+        assert "docs/file.txt" not in link_database.links
+
+    def test_anchored_key_removal(self, link_database):
+        """Removes anchored keys (e.g. file.md#section) when base path matches."""
+        ref1 = LinkReference("src.md", 1, 0, 10, "guide.md#intro", "guide.md#intro", "markdown")
+        ref2 = LinkReference("src.md", 2, 0, 10, "guide.md#details", "guide.md#details", "markdown")
+        link_database.add_link(ref1)
+        link_database.add_link(ref2)
+
+        count = link_database.remove_targets_by_path("guide.md")
+
+        assert count == 2
+        assert "guide.md#intro" not in link_database.links
+        assert "guide.md#details" not in link_database.links
+
+    def test_nonexistent_path_returns_zero(self, link_database):
+        """Non-existent path returns 0."""
+        ref = LinkReference("src.md", 1, 0, 10, "exists.txt", "exists.txt", "markdown")
+        link_database.add_link(ref)
+
+        count = link_database.remove_targets_by_path("nope.txt")
+
+        assert count == 0
+        assert "exists.txt" in link_database.links
+
+    def test_mixed_anchored_and_direct(self, link_database):
+        """Removes both direct key and anchored keys for the same base path."""
+        ref1 = LinkReference("a.md", 1, 0, 10, "doc.md", "doc.md", "markdown")
+        ref2 = LinkReference("b.md", 1, 0, 10, "doc.md#section", "doc.md#section", "markdown")
+        link_database.add_link(ref1)
+        link_database.add_link(ref2)
+
+        count = link_database.remove_targets_by_path("doc.md")
+
+        assert count == 2
+        assert "doc.md" not in link_database.links
+        assert "doc.md#section" not in link_database.links
+
+
+class TestGetAllTargetsWithReferences:
+    """Tests for get_all_targets_with_references() — TD163, audit TE-TAR-019."""
+
+    def test_empty_database(self, link_database):
+        """Empty database returns empty dict."""
+        result = link_database.get_all_targets_with_references()
+        assert result == {}
+
+    def test_returns_all_targets(self, link_database):
+        """Returns snapshot containing all targets and their references."""
+        ref1 = LinkReference("a.md", 1, 0, 10, "t1.txt", "t1.txt", "markdown")
+        ref2 = LinkReference("b.md", 1, 0, 10, "t2.txt", "t2.txt", "markdown")
+        link_database.add_link(ref1)
+        link_database.add_link(ref2)
+
+        result = link_database.get_all_targets_with_references()
+
+        assert len(result) == 2
+        assert "t1.txt" in result
+        assert "t2.txt" in result
+        assert result["t1.txt"][0].file_path == "a.md"
+
+    def test_mutation_does_not_affect_internal_state(self, link_database):
+        """Modifying the returned dict/lists does not change the database."""
+        ref = LinkReference("src.md", 1, 0, 10, "target.txt", "target.txt", "markdown")
+        link_database.add_link(ref)
+
+        snapshot = link_database.get_all_targets_with_references()
+        # Mutate the snapshot
+        snapshot["target.txt"].clear()
+        snapshot["injected"] = []
+
+        # Internal state should be unaffected
+        internal = link_database.get_all_targets_with_references()
+        assert len(internal["target.txt"]) == 1
+        assert "injected" not in internal
+
+
+class TestGetSourceFiles:
+    """Tests for get_source_files() — TD163, audit TE-TAR-019."""
+
+    def test_returns_source_files(self, link_database):
+        """Returns the set of files that contain links."""
+        ref1 = LinkReference("alpha.md", 1, 0, 10, "t.txt", "t.txt", "markdown")
+        ref2 = LinkReference("beta.md", 1, 0, 10, "t2.txt", "t2.txt", "markdown")
+        link_database.add_link(ref1)
+        link_database.add_link(ref2)
+
+        sources = link_database.get_source_files()
+
+        assert sources == {"alpha.md", "beta.md"}
+
+    def test_returned_set_is_independent_copy(self, link_database):
+        """Mutating the returned set does not affect internal state."""
+        ref = LinkReference("src.md", 1, 0, 10, "target.txt", "target.txt", "markdown")
+        link_database.add_link(ref)
+
+        sources = link_database.get_source_files()
+        sources.add("injected.md")
+        sources.discard("src.md")
+
+        # Internal state unaffected
+        assert "src.md" in link_database.get_source_files()
+        assert "injected.md" not in link_database.get_source_files()

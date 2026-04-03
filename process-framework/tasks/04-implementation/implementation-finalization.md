@@ -32,6 +32,7 @@ Complete remaining items and prepare feature for production deployment. This tas
 
 ## Context Requirements
 
+[View Context Map for this task](../../visualization/context-maps/04-implementation/implementation-finalization-map.md)
 
 - **Critical (Must Read):**
 

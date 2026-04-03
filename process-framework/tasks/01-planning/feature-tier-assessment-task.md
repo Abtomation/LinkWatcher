@@ -4,7 +4,7 @@ type: Process Framework
 category: Task Definition
 version: 1.4
 created: 2023-06-15
-updated: 2026-03-02
+updated: 2026-04-03
 ---
 
 # Feature Tier Assessment
@@ -30,7 +30,7 @@ Assess the complexity tier of unassessed features to determine appropriate docum
 
 ## Context Requirements
 
-- [Feature Tier Assessment Context Map](/process-framework/visualization/context-maps/01-planning/feature-tier-assessment-map.md) - Visual guide to the components relevant to this task
+[View Context Map for this task](../../visualization/context-maps/01-planning/feature-tier-assessment-map.md)
 
 - **Critical (Must Read):**
 
@@ -150,129 +150,7 @@ Before considering this task finished:
 
 ## Design Requirements Evaluation
 
-As part of the assessment process, evaluate whether the feature requires dedicated API and/or Database design documentation. This evaluation helps determine if specialized design tasks are needed before implementation.
-
-### UI Design Requirements
-
-Evaluate if the feature requires **UI Design** documentation by considering:
-
-**Answer "Yes" if the feature involves:**
-
-- Creating new screens or major screen layouts
-- New UI components not in the existing design system
-- Complex user interaction flows or navigation patterns
-- Custom visual design requirements (animations, transitions, illustrations)
-- Significant changes to existing UI patterns
-- Responsive design adaptations across multiple breakpoints
-- Platform-specific UI adaptations (iOS, Android, Web differences)
-- Accessibility requirements beyond standard implementations
-- Complex form designs with multi-step flows
-- Visual data presentation (charts, graphs, custom visualizations)
-
-**Answer "No" if the feature:**
-
-- Only uses existing, well-documented UI components without modification
-- Is purely backend-focused with no UI changes
-- Makes minor text or content updates to existing screens
-- Uses standard UI patterns already established in the app
-- Has minimal or no user interface requirements
-
-**Examples:**
-
-- **Yes**: "Product detail screen" (new screen layout with custom components)
-- **Yes**: "Onboarding flow redesign" (complex multi-step user flow)
-- **Yes**: "Progress tracking dashboard" (custom visual progress indicators)
-- **No**: "Database migration" (backend-only feature)
-- **No**: "Bug fix for null pointer" (code fix with no UI changes)
-
-### API Design Requirements
-
-Evaluate if the feature requires **API Design** documentation by considering:
-
-**Answer "Yes" if the feature involves:**
-
-- Creating new API endpoints or modifying existing ones
-- Complex API request/response structures
-- API integration with external services (payment providers, booking systems, maps, etc.)
-- Authentication or authorization changes affecting APIs
-- API versioning or backward compatibility concerns
-- Complex data validation or transformation in API layers
-- Real-time API features (WebSocket, Server-Sent Events)
-
-**Answer "No" if the feature:**
-
-- Only uses existing, well-documented APIs without modification
-- Is purely UI-focused with no backend API changes
-- Uses simple, standard CRUD operations on existing endpoints
-- Has minimal or no API interaction requirements
-
-**Examples:**
-
-- **Yes**: "Payment processing integration" (new payment API endpoints)
-- **Yes**: "Third-party service integration" (complex external API integration)
-- **No**: "Responsive design" (UI-only changes)
-- **No**: "FAQ section" (static content display)
-
-### Database Design Requirements
-
-Evaluate if the feature requires **Database Design** documentation by considering:
-
-**Answer "Yes" if the feature involves:**
-
-- Creating new database tables or collections
-- Modifying existing database schemas (adding/removing/changing columns)
-- Complex database relationships or foreign key constraints
-- Database indexing strategies for performance
-- Data migration requirements
-- Complex queries or stored procedures
-- Database-level security or access control changes
-- Data archiving or retention policies
-
-**Answer "No" if the feature:**
-
-- Only reads from existing database structures without changes
-- Uses existing tables with simple CRUD operations
-- Is purely UI-focused with no data storage changes
-- Uses existing data models without modification
-
-**Examples:**
-
-- **Yes**: "User management" (new user relationship tables)
-- **Yes**: "Achievement system" (new tables for points, levels, achievements)
-- **No**: "Loading state informational content" (UI enhancement only)
-- **No**: "Notification emails" (uses existing data)
-
-### Documentation in Assessment
-
-Include the design requirements evaluation in the assessment document by adding a new section:
-
-```markdown
-## Design Requirements Evaluation
-
-### UI Design Required
-
-- [ ] Yes - [Justification for why UI design is needed]
-- [ ] No - [Brief explanation of why UI design is not required]
-
-### API Design Required
-
-- [ ] Yes - [Justification for why API design is needed]
-- [ ] No - [Brief explanation of why API design is not required]
-
-### Database Design Required
-
-- [ ] Yes - [Justification for why database design is needed]
-- [ ] No - [Brief explanation of why database design is not required]
-```
-
-### Updating Feature Tracking
-
-When updating the feature tracking document:
-
-- **UI Design Column**: Enter "Yes" or "No" based on your evaluation
-- **API Design Column**: Enter "Yes" or "No" based on your evaluation
-- **DB Design Column**: Enter "Yes" or "No" based on your evaluation
-- If "Yes" for any column, the corresponding design task should be completed before or during implementation
+For detailed criteria on evaluating UI Design, API Design, and Database Design requirements, see the [Assessment Guide — Design Requirements Evaluation](../../guides/01-planning/assessment-guide.md#design-requirements-evaluation) section.
 
 ## Next Tasks
 

@@ -43,7 +43,7 @@ Plans a validation round by selecting features to validate, evaluating which val
 
   - **Feature Implementation State Files** - [Feature States Directory](/doc/state-tracking/features) - Implementation status details per feature, including **Dimension Profiles** (primary source for dimension applicability)
   - **Development Dimensions Guide** - [Development Dimensions Guide](../../guides/framework/development-dimensions-guide.md) - Dimension definitions and applicability criteria
-  - **Technical Design Documents** - [TDD Directory](/doc/technical/architecture/design-docs/tdd) - Feature specifications for understanding what each feature does
+  - **Technical Design Documents** - [TDD Directory](/doc/technical/tdd) - Feature specifications for understanding what each feature does
   - **Previous Validation Reports** - [Validation Reports](/doc/validation/reports) - Prior validation results for context
 
 - **Reference Only (Access When Needed):**

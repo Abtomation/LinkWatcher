@@ -445,7 +445,7 @@ No database schema — link storage uses an in-memory `Dict[str, List[LinkRefere
 **Existing Test Coverage**:
 - `test/automated/unit/test_service.py`: Unit tests for service lifecycle
 - `test/automated/integration/test_service_integration.py`: End-to-end service tests
-- `test/automated/integration/test_comprehensive_file_monitoring.py`: File monitoring integration
+- `test/automated/unit/test_comprehensive_file_monitoring.py`: File monitoring integration
 - Multiple integration tests exercise the full service pipeline
 
 ## 11. Implementation Plan

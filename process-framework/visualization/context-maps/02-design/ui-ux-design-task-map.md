@@ -1,13 +1,11 @@
 ---
 id: PF-VIS-034
-type: Document
-category: General
+type: Process Framework
+category: Context Map
 version: 1.0
 created: 2025-10-19
 updated: 2025-10-19
-task_name: ui-ux-design-task
-map_type: Context Map
-visualization_type: Task Context
+related_task: PF-TSK-052
 ---
 
 # UI/UX Design Task Context Map

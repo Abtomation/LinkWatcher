@@ -485,7 +485,7 @@ This structural change has significant impact on supporting infrastructure. **Th
 | Template | Change |
 |----------|--------|
 | `templates/04-implementation/feature-implementation-state-template.md` | Add Dimension Profile section (Section 6.5) |
-| `templates/04-implementation/enhancement-state-tracking-template-template.md` | Add Dimension Impact Assessment section |
+| `templates/04-implementation/enhancement-state-tracking-template.md` | Add Dimension Impact Assessment section |
 | `templates/06-maintenance/bug-fix-state-tracking-template.md` | Add Affected Dimensions to Root Cause Analysis |
 | `templates/05-validation/validation-tracking-template.md` | Add "Source: Implementation State File" reference |
 | `templates/05-validation/validation-report-template.md` | Add "Dimensions Validated" field |

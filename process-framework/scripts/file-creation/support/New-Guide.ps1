@@ -99,26 +99,17 @@ Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 # Perform standard initialization
 Invoke-StandardScriptInitialization
 
-# Prepare additional metadata fields
-$additionalMetadataFields = @{
-    "guide_title"       = $GuideTitle
-    "guide_description" = $GuideDescription
-    "guide_status"      = $GuideStatus
-}
-
-# Add category if provided
-if ($GuideCategory -ne "") {
-    $additionalMetadataFields["guide_category"] = $GuideCategory
-}
+# Prepare additional metadata fields (IMP-376: removed redundant guide_* fields)
+$additionalMetadataFields = @{}
 
 # Add related script if provided
 if ($RelatedScript -ne "") {
     $additionalMetadataFields["related_script"] = $RelatedScript
 }
 
-# Add related tasks if provided
+# Add related task if provided (singular, per metadata schema)
 if ($RelatedTasks -ne "") {
-    $additionalMetadataFields["related_tasks"] = $RelatedTasks
+    $additionalMetadataFields["related_task"] = $RelatedTasks
 }
 
 # Prepare custom replacements based on the guide template
@@ -175,6 +166,44 @@ try {
             "🚫 DO NOT use the generated file without proper customization!",
             "✅ The template provides structure - YOU provide the meaningful content."
         )
+    }
+
+    # Auto-append entry to PF-documentation-map.md under the correct Guides section
+    if ($documentId -or $WhatIfPreference) {
+        $projectRoot = Get-ProjectRoot
+        $docMapPath = Join-Path -Path $projectRoot -ChildPath "process-framework/PF-documentation-map.md"
+
+        # Derive section header from SubDirectory
+        # "01-planning" → "#### 01 - Planning Guides", "support" → "#### Support Guides"
+        if ($SubDirectory -match '^(\d{2})-(.+)$') {
+            $num = $Matches[1]
+            $name = (Get-Culture).TextInfo.ToTitleCase($Matches[2])
+            $sectionHeader = "#### $num - $name Guides"
+        }
+        else {
+            $name = (Get-Culture).TextInfo.ToTitleCase($SubDirectory)
+            $sectionHeader = "#### $name Guides"
+        }
+
+        # Validate SubDirectory against domain-config.json workflow phases
+        $domainConfigPath = Join-Path -Path $projectRoot -ChildPath "process-framework/domain-config.json"
+        if (Test-Path $domainConfigPath) {
+            $domainConfig = Get-Content -Path $domainConfigPath -Raw | ConvertFrom-Json
+            $validPhases = @($domainConfig.workflow_phases.values)
+            if ($SubDirectory -notin $validPhases -and $SubDirectory -ne "framework") {
+                Write-Warning "SubDirectory '$SubDirectory' is not in domain-config.json workflow_phases. Documentation map update may fail."
+            }
+        }
+
+        $kebabName = ConvertTo-KebabCase -InputString $GuideTitle
+        $relativePath = "guides/$SubDirectory/$kebabName.md"
+        $description = if ($GuideDescription -ne "") { $GuideDescription } else { "Guide for $GuideTitle" }
+        $entryLine = "- [Guide: $GuideTitle]($relativePath) - $description"
+
+        $updated = Add-DocumentationMapEntry -DocMapPath $docMapPath -SectionHeader $sectionHeader -EntryLine $entryLine -CallerCmdlet $PSCmdlet
+        if ($updated) {
+            $details += "Documentation Map: Updated (section: $sectionHeader)"
+        }
     }
 
     Write-ProjectSuccess -Message "Created guide with ID: $documentId" -Details $details

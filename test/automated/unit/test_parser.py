@@ -15,7 +15,9 @@ pytestmark = [
     pytest.mark.feature("2.1.1"),
     pytest.mark.priority("Critical"),
     pytest.mark.test_type("unit"),
-    pytest.mark.specification("test/specifications/feature-specs/test-spec-2-1-1-link-parsing-system.md"),
+    pytest.mark.specification(
+        "test/specifications/feature-specs/test-spec-2-1-1-link-parsing-system.md"
+    ),
 ]
 
 
@@ -262,3 +264,56 @@ This has a [markdown link](target.txt) and a "quoted_file.py".
 
         # Should have found references from all threads
         assert len(results) == 15  # 3 threads * 5 files * 1 reference each
+
+
+class TestLinkParserParseContent:
+    """Test cases for LinkParser.parse_content() facade routing."""
+
+    def test_parse_content_routes_to_specialized_parser(self):
+        """Test that parse_content routes .md content to MarkdownParser."""
+        parser = LinkParser()
+        content = ".git/objects/3a/b045e54f8acd16e0d036a487eb74c269db1d9f# Heading\n\n[Link](target.txt)\n"
+
+        references = parser.parse_content(content, "doc.md")
+
+        assert len(references) >= 1
+        pytest.assert_reference_found(references, "target.txt", "markdown")
+
+    def test_parse_content_falls_back_to_generic_parser(self):
+        """Test that parse_content falls back to GenericParser for unknown extensions."""
+        parser = LinkParser()
+        content = 'This references "some_file.txt" in quotes.\n'
+
+        references = parser.parse_content(content, "file.xyz")
+
+        assert len(references) >= 1
+        targets = [ref.link_target for ref in references]
+        assert "some_file.txt" in targets
+        for ref in references:
+            assert ref.link_type.startswith("generic")
+
+    def test_parse_content_no_parser_available(self):
+        """Test that parse_content returns [] when no parser matches and generic is disabled."""
+        from linkwatcher.config.settings import LinkWatcherConfig
+
+        config = LinkWatcherConfig()
+        config.enable_generic_parser = False
+        parser = LinkParser(config)
+
+        references = parser.parse_content("some content", "file.xyz")
+
+        assert references == []
+
+    def test_parse_content_handles_subparser_exception(self):
+        """Test that parse_content catches sub-parser exceptions and returns []."""
+        parser = LinkParser()
+
+        class ExplodingParser:
+            def parse_content(self, content, file_path):
+                raise RuntimeError("boom")
+
+        parser.add_parser(".boom", ExplodingParser())
+
+        references = parser.parse_content("anything", "file.boom")
+
+        assert references == []

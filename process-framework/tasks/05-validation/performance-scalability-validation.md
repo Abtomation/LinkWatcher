@@ -4,7 +4,7 @@ type: Process Framework
 category: Task Definition
 version: 1.0
 created: 2026-03-23
-updated: 2026-03-23
+updated: 2026-04-03
 ---
 
 # Performance & Scalability Validation
@@ -42,7 +42,7 @@ Systematically validates selected features for performance characteristics, reso
 
 - **Important (Load If Space):**
 
-  - **Technical Design Documents** - [TDD Directory](/doc/technical/architecture/design-docs/tdd) - Performance requirements and design constraints
+  - **Technical Design Documents** - [TDD Directory](/doc/technical/tdd) - Performance requirements and design constraints
   - **Performance Test Suites** - Test directory - Existing performance/benchmark tests
   - **Configuration Files** - Timeout settings, buffer sizes, thread pool configurations
   - **New-ValidationReport Script** - [../../scripts/file-creation/05-validation/New-ValidationReport.ps1](../../scripts/file-creation/05-validation/New-ValidationReport.ps1) - Script for generating validation reports
@@ -96,9 +96,13 @@ Systematically validates selected features for performance characteristics, reso
 18. **🤖 AUTOMATED: Update Technical Debt Tracking**: Add any new open issues identified during validation — **apply the [Tech Debt Quality Gate](/process-framework/guides/05-validation/feature-validation-guide.md#tech-debt-item-quality-gate) filters before creating each item** — to [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) using the automation script:
 
     ```powershell
-    process-framework/scripts/update/Update-TechDebt.ps1 -Add -Description "Description" -Category "Performance" -Location "Location" -Priority "Priority" -EstimatedEffort "Effort" -AssessmentId "PF-VAL-XXX" -Notes "Notes"
+    process-framework/scripts/update/Update-TechDebt.ps1 -Add -Description "Description" -Dims "PE" -Location "Location" -Priority "Priority" -EstimatedEffort "Effort" -AssessmentId "PF-VAL-XXX" -Notes "Notes"
     ```
-19. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+19. **Generate Round Summary** (if this is the final dimension in the current validation round): Generate a consolidated validation summary:
+    ```powershell
+    process-framework/scripts/file-creation/05-validation/Generate-ValidationSummary.ps1 -OutputPath "doc/validation/summaries/" -SummaryType "Detailed"
+    ```
+20. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 
@@ -139,4 +143,4 @@ Before considering this task finished:
 ## Related Resources
 
 - [Feature Validation Guide](../../guides/05-validation/feature-validation-guide.md) - Comprehensive guide for conducting feature validation
-- [Technical Design Documents](/doc/technical/architecture/design-docs/tdd) - Performance requirements and constraints
+- [Technical Design Documents](/doc/technical/tdd) - Performance requirements and constraints

@@ -1,14 +1,11 @@
 ---
 id: PF-GDE-052
-type: Document
-category: General
+type: Process Framework
+category: Guide
 version: 1.0
 created: 2026-03-22
 updated: 2026-03-22
-guide_description: Guide for scaffolding CI/CD infrastructure in new or existing projects. Covers CI pipelines, pre-commit hooks, dev scripts, and code quality automation.
-guide_status: Active
-guide_category: 07-deployment
-related_tasks: PF-TSK-014,PF-TSK-008
+related_task: PF-TSK-014,PF-TSK-008
 guide_title: CI-CD Setup Guide
 ---
 

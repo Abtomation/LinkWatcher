@@ -23,7 +23,7 @@ Features 4.1.1 (Test Suite) and 5.1.1 (CI/CD & Development Tooling) are tracked 
 
 - Feature state file in `state-tracking/features/`
 - FDD in `doc/functional-design/fdds`
-- TDD in `doc/technical/architecture/design-docs/tdd`
+- TDD in `doc/technical/tdd`
 - Test specification in `test/specifications/feature-specs/`
 - Validation reports referencing them
 
@@ -159,8 +159,8 @@ No duplication with proposed new guides:
 - `state-tracking/features/5.1.1-cicd-development-tooling-implementation-state.md`
 - `doc/functional-design/fdds/fdd-4-1-1-test-suite.md`
 - `doc/functional-design/fdds/fdd-5-1-1-cicd-development-tooling.md`
-- `doc/technical/architecture/design-docs/tdd/tdd-4-1-1-test-suite-t2.md`
-- `doc/technical/architecture/design-docs/tdd/tdd-5-1-1-cicd-development-tooling-t2.md`
+- `doc/technical/tdd/tdd-4-1-1-test-suite-t2.md`
+- `doc/technical/tdd/tdd-5-1-1-cicd-development-tooling-t2.md`
 - `test/specifications/feature-specs/test-spec-4-1-1-test-suite.md`
 - `test/specifications/feature-specs/test-spec-5-1-1-cicd-development-tooling.md`
 

@@ -1,14 +1,11 @@
 ---
 id: PF-GDE-048
-type: Document
-category: General
+type: Process Framework
+category: Guide
 version: 1.0
 created: 2026-02-20
 updated: 2026-02-20
-guide_category: Planning
-guide_status: Active
-guide_description: Defines what constitutes a well-scoped feature, provides validation tests for granularity, and offers scaling guidance.
-related_tasks: PF-TSK-064,PF-TSK-013,PF-TSK-067
+related_task: PF-TSK-064,PF-TSK-013,PF-TSK-067
 guide_title: Feature Granularity Guide
 ---
 

@@ -1,7 +1,7 @@
 ---
 id: PF-GDE-012
 type: Process Framework
-category: Template
+category: Guide
 version: 1.0
 created: 2025-06-05
 updated: 2025-07-04

@@ -11,7 +11,6 @@ import time
 from pathlib import Path
 
 import pytest
-
 from watchdog.events import FileCreatedEvent, FileDeletedEvent
 
 from linkwatcher.database import LinkDatabase
@@ -24,7 +23,9 @@ pytestmark = [
     pytest.mark.priority("Standard"),
     pytest.mark.cross_cutting(["2.2.1", "0.1.2"]),
     pytest.mark.test_type("integration"),
-    pytest.mark.specification("test/specifications/feature-specs/test-spec-1-1-1-file-system-monitoring.md"),
+    pytest.mark.specification(
+        "test/specifications/feature-specs/test-spec-1-1-1-file-system-monitoring.md"
+    ),
 ]
 
 
@@ -249,9 +250,7 @@ class TestBulkOperationMoveDetection:
         moved_dir = project_setup["moved_dir"]
 
         # Phase 1: Setup cleanup — buffer a delete for settings.conf
-        handler._move_detector.buffer_delete(
-            "data/settings.conf", str(settings_file)
-        )
+        handler._move_detector.buffer_delete("data/settings.conf", str(settings_file))
 
         # Phase 2: Setup copy — re-create the file at the same location
         # (simulates fixture copy; the file still exists at old path)
@@ -281,9 +280,7 @@ class TestBulkOperationMoveDetection:
         moved_dir = project_setup["moved_dir"]
 
         # Buffer a delete
-        handler._move_detector.buffer_delete(
-            "data/settings.conf", str(settings_file)
-        )
+        handler._move_detector.buffer_delete("data/settings.conf", str(settings_file))
 
         # Actually delete the old file (simulates a real move)
         settings_file.unlink()
@@ -298,8 +295,7 @@ class TestBulkOperationMoveDetection:
         matched = handler._move_detector.match_created_file(new_rel, new_abs)
 
         assert matched == "data/settings.conf", (
-            f"Real move should be detected when old file is gone, "
-            f"but got: {matched}"
+            f"Real move should be detected when old file is gone, " f"but got: {matched}"
         )
 
     def test_dir_move_rejected_when_old_dir_still_exists(self, project_setup):
@@ -485,14 +481,28 @@ class TestFileReplacementRetainsLinks:
         handler = project_setup["handler"]
         source = project_setup["source"]
 
+        # Verify links exist before deletion
+        refs_before = link_db.get_references_to_file("target.md")
+        assert len(refs_before) >= 1, "Precondition: should have at least 1 reference to target.md"
+
         # Actually delete the file
         source.unlink()
 
         # Now the timer fires for a truly deleted file
         handler._process_true_file_delete("source.md")
 
-        # The file is gone — this is expected behavior, not a bug
-        # Just verify no crash occurs (the method should handle it gracefully)
+        # files_deleted stat should be incremented
+        assert (
+            handler.stats["files_deleted"] == 1
+        ), "Expected files_deleted stat to be 1 after processing a true deletion"
+
+        # Links should still be in the database (stale entries are kept
+        # intentionally per PD-BUG-035 — they self-heal on restart)
+        refs_after = link_db.get_references_to_file("target.md")
+        assert len(refs_after) == len(refs_before), (
+            "Links should be retained in DB after true deletion "
+            "(stale entries self-heal on restart)"
+        )
 
 
 class TestNonMonitoredExtensionMoveDetection:
@@ -547,15 +557,15 @@ class TestNonMonitoredExtensionMoveDetection:
         link_db = project_setup["link_db"]
 
         # .conf should NOT be in monitored extensions
-        assert ".conf" not in handler.monitored_extensions, (
-            ".conf should not be in monitored_extensions for this test to be valid"
-        )
+        assert (
+            ".conf" not in handler.monitored_extensions
+        ), ".conf should not be in monitored_extensions for this test to be valid"
 
         # But it IS referenced by a monitored file
         refs = link_db.get_references_to_file("data/settings.conf")
-        assert len(refs) >= 1, (
-            "Expected at least 1 reference to data/settings.conf from config.yaml"
-        )
+        assert (
+            len(refs) >= 1
+        ), "Expected at least 1 reference to data/settings.conf from config.yaml"
 
     def test_on_deleted_buffers_non_monitored_referenced_file(self, project_setup):
         """PD-BUG-046: on_deleted must buffer deletes for files that are

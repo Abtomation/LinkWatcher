@@ -30,7 +30,7 @@ Ensure documentation requirements remain aligned with the true complexity of fea
 
 ## Context Requirements
 
-- [Documentation Tier Adjustment Context Map](/process-framework/visualization/context-maps/cyclical/documentation-tier-adjustment-map.md) - Visual guide to the components relevant to this task
+[View Context Map for this task](../../visualization/context-maps/cyclical/documentation-tier-adjustment-map.md)
 
 - **Critical (Must Read):**
 

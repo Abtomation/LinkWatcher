@@ -1,15 +1,12 @@
 ---
 id: PF-GDE-032
-type: Document
-category: General
+type: Process Framework
+category: Guide
 version: 1.0
 created: 2025-07-27
 updated: 2025-07-27
-guide_status: Active
-guide_title: Architecture Assessment Creation Guide
-guide_description: Guide for customizing architecture assessment templates
 related_script: New-ArchitectureAssessment.ps1
-related_tasks: PF-TSK-019
+related_task: PF-TSK-019
 ---
 
 # Architecture Assessment Creation Guide

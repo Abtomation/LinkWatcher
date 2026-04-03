@@ -30,7 +30,7 @@ Diagnose, fix, and verify solutions for reported bugs or issues in the applicati
 
 ## Context Requirements
 
-- [Bug Fixing Context Map](/process-framework/visualization/context-maps/06-maintenance/bug-fixing-map.md) - Visual guide to the components relevant to this task
+[View Context Map for this task](../../visualization/context-maps/06-maintenance/bug-fixing-map.md)
 
 - **Critical (Must Read):**
 
@@ -120,6 +120,7 @@ Diagnose, fix, and verify solutions for reported bugs or issues in the applicati
       .\New-TestFile.ps1 -TestName "BugDescription" -TestType "Unit" -FeatureId "X.Y.Z" -ComponentName "ComponentName"
       ```
     - **If multi-session**: Note test file changes in the Implementation Progress table
+    - After creating or modifying tests, complete the documentation steps in the [Test File Creation Guide — Test Documentation Completeness](/process-framework/guides/03-testing/test-file-creation-guide.md#5-complete-test-documentation) section.
 16. Develop a fix that addresses the root cause, not just the symptoms
     - **If multi-session**: Track each file change in the Implementation Progress table
 17. Verify regression tests now **PASS** with the fix applied, and test thoroughly to ensure the fix resolves the issue completely

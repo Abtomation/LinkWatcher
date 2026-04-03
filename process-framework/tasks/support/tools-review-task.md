@@ -31,7 +31,7 @@ Systematically evaluate and enhance the templates, guides, and other tools by co
 
 ## Context Requirements
 
-- [Tools Review Context Map](/process-framework/visualization/context-maps/support/tools-review-map.md) - Visual guide to the components relevant to this task
+[View Context Map for this task](../../visualization/context-maps/support/tools-review-map.md)
 
 - **Critical (Must Read):**
 
@@ -103,11 +103,19 @@ Systematically evaluate and enhance the templates, guides, and other tools by co
     - **🔍 DEDUPLICATION**: Before registering a new IMP, search both the "Current Improvement Opportunities" and "Completed Improvements" sections of [process-improvement-tracking.md](../../state-tracking/permanent/process-improvement-tracking.md) for existing entries covering the same tool or issue. Skip registration if already tracked.
 13. **🚨 SCOPE BOUNDARY**: Tools Review identifies and documents improvements only. For implementation, create [Process Improvement Task](process-improvement-task.md) entries or use [Feature Request Evaluation](../01-planning/feature-request-evaluation.md) for feature requests
 14. Archive processed feedback forms for future reference (archive paths are needed for the next step)
-15. **Record ratings in feedback database**: After archiving, record all quantified ratings from this review cycle into the feedback database:
+15. **Record ratings in feedback database**: After archiving, extract ratings from the archived forms and record them:
     ```bash
+    # Extract ratings from archived forms into JSON
+    python process-framework/scripts/extract_ratings.py \
+        --review-cycle-id "tools-review-YYYYMMDD" \
+        --archived-prefix "process-framework/feedback/archive/YYYY-MM/tools-review-YYYYMMDD/processed-forms" \
+        process-framework/feedback/archive/YYYY-MM/tools-review-YYYYMMDD/processed-forms/*feedback*.md \
+        -o ratings-input.json
+
+    # Record in database
     python process-framework/scripts/feedback_db.py record --json ratings-input.json
     ```
-    Construct a JSON file using the [feedback-db-input-template.json](../../templates/support/feedback-db-input-template.json) as reference. Populate `archived_form_path` with the paths from Step 14.
+    The [`extract_ratings.py`](../../scripts/extract_ratings.py) script parses feedback form markdown and generates JSON matching the [feedback-db-input-template.json](../../templates/support/feedback-db-input-template.json) schema. Review the output before recording.
 
 ### Finalization
 
@@ -166,7 +174,7 @@ Before considering this task finished:
   - [ ] Move only the analyzed feedback forms to the `processed-forms/` subfolder
   - [ ] **Keep Active**: Leave newly created feedback forms in the active feedback-forms folder for future analysis
   - [ ] Document which specific forms were archived vs. kept active in the review summary
-- [ ] **Record Ratings**: Feedback ratings recorded in database via `python process-framework/scripts/feedback_db.py record` using [feedback-db-input-template.json](../../templates/support/feedback-db-input-template.json) as reference (archived_form_path is now available from previous step)
+- [ ] **Record Ratings**: Extract ratings via [`extract_ratings.py`](../../scripts/extract_ratings.py) and record in database via `feedback_db.py record` (see Step 15 for commands)
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-010" and context "Tools Review"
 - [ ] **Schedule Next Review**: Set a reminder for the next tools review cycle
 

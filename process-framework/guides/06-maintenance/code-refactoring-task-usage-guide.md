@@ -1,15 +1,12 @@
 ---
 id: PF-GDE-020
-type: Document
-category: General
+type: Process Framework
+category: Guide
 version: 1.0
 created: 2025-07-21
 updated: 2025-07-29
-guide_description: Template customization guide for refactoring plan documents created by the Code Refactoring Task
-guide_title: Refactoring Plan Template Customization Guide
-guide_status: Active
 related_script: New-RefactoringPlan.ps1
-related_tasks: PF-TSK-022
+related_task: PF-TSK-022
 ---
 
 # Refactoring Plan Template Customization Guide

@@ -1,14 +1,12 @@
 ---
 id: PF-VIS-052
-type: Document
-category: General
+type: Process Framework
+category: Context Map
 version: 1.0
 created: 2026-03-23
 updated: 2026-03-23
-map_type: Context Map
 workflow_phase: 05-validation
-task_name: performance-scalability-validation
-visualization_type: Task Context
+related_task: PF-TSK-073
 ---
 
 # Performance & Scalability Validation Context Map

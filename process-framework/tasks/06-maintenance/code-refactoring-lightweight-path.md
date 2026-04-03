@@ -29,6 +29,7 @@ For batch mode: copy the "Item N" section in the generated plan for each additio
      .\New-TestFile.ps1 -FeatureId "X.Y.Z" -TestType "unit" -Component "ComponentName"
      ```
    - Characterization tests capture *current* behavior (even if imperfect) — they are a safety net, not a quality judgment.
+   - After creating or modifying tests, complete the documentation steps in the [Test File Creation Guide — Test Documentation Completeness](/process-framework/guides/03-testing/test-file-creation-guide.md#5-complete-test-documentation) section.
 
 **L4. 🚨 CHECKPOINT**: Present the plan (scope + changes) to human partner for approval before implementing.
 
@@ -71,5 +72,6 @@ For batch mode: copy the "Item N" section in the generated plan for each additio
   - [ ] [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md): resolved items updated via `Update-TechDebt.ps1`
   - [ ] [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md): feature status updated if applicable
   - [ ] [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md): any discovered bugs added
+  - [ ] Run [`Validate-TestTracking.ps1`](../../scripts/validation/Validate-TestTracking.ps1) — 0 errors (if tests were added or modified)
   - [ ] Refactoring plan archived to `doc/refactoring/plans/archive`
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-022" and context "Code Refactoring Task"

@@ -52,7 +52,7 @@ foreach ($lockFile in $lockFiles) {
 # Step 3: Create a new markdown file that references the existing settings/config.yaml
 $docsDir = Join-Path $projectPath "docs"
 New-Item -ItemType Directory -Path $docsDir -Force | Out-Null
-$guideContent = "# Guide`n`nSee [Config](../settings/config.yaml) for settings.`n"
+$guideContent = ".git/objects/3a/b045e54f8acd16e0d036a487eb74c269db1d9f# Guide`n`nSee [Config](../settings/config.yaml) for settings.`n"
 Set-Content (Join-Path $docsDir "guide.md") $guideContent -Encoding UTF8
 
 # Step 4: Restart LinkWatcher scoped to workspace

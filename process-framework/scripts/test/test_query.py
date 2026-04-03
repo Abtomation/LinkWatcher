@@ -267,7 +267,9 @@ def cmd_dump(entries, fmt):
         print(json.dumps(entries, indent=2))
     elif fmt == "yaml":
         # Simple YAML output without requiring PyYAML
-        print("# Auto-generated from pytest markers via test_query.py")
+        print(
+            ".git/objects/3a/b045e54f8acd16e0d036a487eb74c269db1d9f# Auto-generated from pytest markers via test_query.py"
+        )
         print("# Source of truth: pytestmark in test files")
         print(f"# Total: {len(entries)} files, {sum(e['test_count'] for e in entries)} tests")
         print()

@@ -1,14 +1,12 @@
 ---
 id: PF-VIS-058
-type: Document
-category: General
+type: Process Framework
+category: Context Map
 version: 1.0
 created: 2026-03-24
 updated: 2026-03-24
 workflow_phase: support
-task_name: framework-evaluation
-map_type: Context Map
-visualization_type: Task Context
+related_task: PF-TSK-079
 ---
 
 # Framework Evaluation Context Map

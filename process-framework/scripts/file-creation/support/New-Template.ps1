@@ -147,6 +147,38 @@ try {
         )
     }
 
+    # Auto-append entry to PF-documentation-map.md under the correct Templates section
+    if ($templateId -or $WhatIfPreference) {
+        $projectRoot = Get-ProjectRoot
+        $docMapPath = Join-Path -Path $projectRoot -ChildPath "process-framework/PF-documentation-map.md"
+
+        # Extract subdirectory from OutputDirectory (last path segment)
+        $subDir = Split-Path -Leaf $OutputDirectory
+
+        # Derive section header from subdirectory
+        if ($subDir -eq "templates") {
+            $sectionHeader = ".git/objects/3a/b045e54f8acd16e0d036a487eb74c269db1d9f#### Meta Templates (``templates/templates/``)"
+        }
+        elseif ($subDir -match '^(\d{2})-(.+)$') {
+            $num = $Matches[1]
+            $name = (Get-Culture).TextInfo.ToTitleCase($Matches[2])
+            $sectionHeader = "#### $num - $name Templates"
+        }
+        else {
+            $name = (Get-Culture).TextInfo.ToTitleCase($subDir)
+            $sectionHeader = "#### $name Templates"
+        }
+
+        $fileName = "$($TemplateName.ToLower().Replace(' ', '-'))-template.md"
+        $relativePath = "templates/$subDir/$fileName"
+        $entryLine = "- [Template: $TemplateName]($relativePath) - $TemplateDescription"
+
+        $updated = Add-DocumentationMapEntry -DocMapPath $docMapPath -SectionHeader $sectionHeader -EntryLine $entryLine -CallerCmdlet $PSCmdlet
+        if ($updated) {
+            $details += "Documentation Map: Updated (section: $sectionHeader)"
+        }
+    }
+
     Write-ProjectSuccess -Message "Created template with ID: $templateId" -Details $details
 }
 catch {

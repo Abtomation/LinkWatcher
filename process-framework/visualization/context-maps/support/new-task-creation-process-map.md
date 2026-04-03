@@ -1,13 +1,11 @@
 ---
 id: PF-VIS-016
-type: Document
-category: General
+type: Process Framework
+category: Context Map
 version: 1.0
 created: 2025-07-12
 updated: 2025-07-12
-visualization_type: Task Context
-map_type: Context Map
-task_name: new-task-creation-process
+related_task: PF-TSK-001
 ---
 
 # New Task Creation Process Context Map

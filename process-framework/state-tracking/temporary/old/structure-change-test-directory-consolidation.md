@@ -198,7 +198,7 @@ change_name: test-directory-consolidation
 
 - [x] **Run validation scripts**
   - **Status**: COMPLETED
-  - **Validate-TestTracking.ps1**: Fixed module loading (changed `$PSScriptRoot` to `$PSScriptRoot/../` for Common-ScriptHelpers.psm1). Result: 0 errors, 1 warning (pre-existing PD-TST counter parsing issue)
+  - **Validate-TestTracking.ps1**: Fixed module loading (changed `$PSScriptRoot` to `.git/objects/3a/b045e54f8acd16e0d036a487eb74c269db1d9f` for Common-ScriptHelpers.psm1). Result: 0 errors, 1 warning (pre-existing PD-TST counter parsing issue)
   - **Validate-StateTracking.ps1**: Result: 0 errors, 12 warnings (all pre-existing ID counter gaps)
 
 - [x] **🚨 CHECKPOINT**: All Phase 4 items completed. Validation scripts pass with 0 errors. 452 tests pass.

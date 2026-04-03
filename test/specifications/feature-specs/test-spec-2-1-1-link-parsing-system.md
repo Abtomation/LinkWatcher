@@ -160,7 +160,7 @@ The Link Parsing System uses a Registry+Facade pattern. `LinkParser` dispatches 
 | Package filtering | `test_skip_package_imports` | `dart:io`, `package:flutter` excluded |
 | Asset references | `test_parse_asset_references` | 11 asset refs (images, fonts, data) |
 | Pubspec refs | `test_parse_pubspec_references` | 8+ config file references |
-| Doc comments | `test_parse_documentation_comments` | `///` comments with file paths |
+| Doc comments | `test_parse_documentation_comments` | `/.git/objects/3a/b045e54f8acd16e0d036a487eb74c269db1d9f` comments with file paths |
 | False positives | `test_avoid_false_positives` | Versions, emails, URLs, UUIDs, SQL |
 | Flutter patterns | `test_flutter_specific_patterns` | Image.asset, AssetImage, File constructors |
 | Complex file | `test_complex_dart_file` | 22+ refs across multiple classes |
@@ -261,7 +261,7 @@ The Link Parsing System uses a Registry+Facade pattern. `LinkParser` dispatches 
 
 ### Files to Reference
 
-- **TDD**: [`doc/technical/architecture/design-docs/tdd/tdd-2-1-1-parser-framework-t2.md`](../../../doc/technical/tdd/tdd-2-1-1-parser-framework-t2.md)
+- **TDD**: [`doc/technical/tdd/tdd-2-1-1-parser-framework-t2.md`](../../../doc/technical/tdd/tdd-2-1-1-parser-framework-t2.md)
 - **Existing Tests**: [`test/automated/unit/test_parser.py`](../../../test/automated/unit/test_parser.py), `test/automated/parsers/test_*.py` (7 files)
 - **Source Code**: [`linkwatcher/parser.py`](../../../linkwatcher/parser.py), [`linkwatcher/parsers/`](../../../linkwatcher/parsers/) (7 parser modules)
 

@@ -242,7 +242,7 @@ status: FINALIZED
 | test/automated/unit/test_updater.py | Updater unit tests | 4.1.2 | ✅ |
 | test/automated/integration/__init__.py | Integration tests package init | 4.1.3 | ✅ |
 | test/automated/integration/test_complex_scenarios.py | Complex scenario integration tests | 4.1.3 | ✅ |
-| test/automated/integration/test_comprehensive_file_monitoring.py | Comprehensive file monitoring tests | 4.1.3 | ✅ |
+| test/automated/unit/test_comprehensive_file_monitoring.py | Comprehensive file monitoring tests | 4.1.3 | ✅ |
 | test/automated/integration/test_error_handling.py | Error handling integration tests | 4.1.3 | ✅ |
 | test/automated/integration/test_file_movement.py | File movement integration tests | 4.1.3 | ✅ |
 | test/automated/integration/test_image_file_monitoring.py | Image file monitoring tests | 4.1.3 | ✅ |

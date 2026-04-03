@@ -100,7 +100,7 @@ try {
     if ($Tier -eq 1) {
         $templatePath = "process-framework/templates/04-implementation/implementation-plan-tier1-template.md"
     } else {
-        $templatePath = "process-framework/templates/04-implementation/implementation-plan-template-template.md"
+        $templatePath = "process-framework/templates/04-implementation/implementation-plan-template.md"
     }
 
     if (-not (Test-Path $templatePath)) {

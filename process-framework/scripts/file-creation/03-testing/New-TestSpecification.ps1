@@ -241,6 +241,27 @@ try {
         )
     }
 
+    # Auto-append entry to TE-documentation-map.md under the correct Test Specifications section
+    if ($documentId -or $WhatIfPreference) {
+        $teDocMapPath = Join-Path -Path (Get-ProjectRoot) -ChildPath "test/TE-documentation-map.md"
+        $kebabDocName = ConvertTo-KebabCase -InputString $documentName
+        if ($CrossCutting) {
+            $sectionHeader = "### ``specifications/cross-cutting-specs/``"
+            $relativePath = "specifications/cross-cutting-specs/$kebabDocName.md"
+            $entryLine = "- [Cross-Cutting Test Spec: $FeatureName ($documentId)]($relativePath) - Cross-cutting — $FeatureName"
+        }
+        else {
+            $sectionHeader = "### ``specifications/feature-specs/``"
+            $relativePath = "specifications/feature-specs/$kebabDocName.md"
+            $entryLine = "- [Test Spec: $FeatureName ($documentId)]($relativePath) - $FeatureId — $FeatureName"
+        }
+
+        $updated = Add-DocumentationMapEntry -DocMapPath $teDocMapPath -SectionHeader $sectionHeader -EntryLine $entryLine -CallerCmdlet $PSCmdlet
+        if ($updated) {
+            $details += "Documentation Map: Updated (TE-documentation-map.md)"
+        }
+    }
+
     Write-ProjectSuccess -Message "Created Test Specification with ID: $documentId" -Details $details
 }
 catch {

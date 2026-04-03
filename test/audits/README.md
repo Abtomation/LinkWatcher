@@ -50,10 +50,10 @@ Use the `Validate-AuditReport.ps1` script to validate audit report completeness:
 ```powershell
 # Basic validation
 # Run from process-framework/scripts/validation
-.\Validate-AuditReport.ps1 -ReportFile "doc/test-audits/foundation/audit-report-0-2-3-test_example.md"
+.\Validate-AuditReport.ps1 -ReportFile "foundation/audit-report-0-2-3-test_example.md"
 
 # Detailed validation with all issues
-.\Validate-AuditReport.ps1 -ReportFile "doc/test-audits/foundation/audit-report-0-2-3-test_example.md" -Detailed
+.\Validate-AuditReport.ps1 -ReportFile "foundation/audit-report-0-2-3-test_example.md" -Detailed
 ```
 
 **Validation Checks**:

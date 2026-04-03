@@ -70,8 +70,8 @@ PD-TDD-031 (5.1.1 CI/CD) had 5 discrepancies:
 
 ### Affected Components
 - `doc/technical/tdd/tdd-2-2-1-link-updater-t2.md` — PD-TDD-026
-- `doc/technical/architecture/design-docs/tdd/tdd-4-1-1-test-suite-t2.md` — PD-TDD-027
-- `doc/technical/architecture/design-docs/tdd/tdd-5-1-1-cicd-development-tooling-t2.md` — PD-TDD-031
+- `doc/technical/tdd/tdd-4-1-1-test-suite-t2.md` — PD-TDD-027
+- `doc/technical/tdd/tdd-5-1-1-cicd-development-tooling-t2.md` — PD-TDD-031
 
 ### Dependencies and Impact
 - **Internal Dependencies**: AI agents reading TDDs for onboarding and implementation guidance

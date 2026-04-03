@@ -1,15 +1,12 @@
 ---
 id: PF-GDE-028
-type: Document
-category: General
+type: Process Framework
+category: Guide
 version: 1.1
 created: 2025-07-27
 updated: 2025-01-27
 related_script: New-TestSpecification.ps1
-guide_description: Guide for customizing test specification templates
-related_tasks: PF-TSK-012
-guide_title: Test Specification Creation Guide
-guide_status: Active
+related_task: PF-TSK-012
 change_notes: "v1.1 - Added Separation of Concerns section for IMP-097/IMP-098 (cross-reference guidance)"
 ---
 
@@ -273,10 +270,10 @@ Use this decision tree when deciding what to include in Test Specifications:
 
    ```powershell
    # Basic test specification creation
-   .\New-TestSpecification.ps1 -FeatureId "1.2.3" -FeatureName "user-authentication" -TddPath "doc/technical/design/tdd-user-authentication.md"
+   .\New-TestSpecification.ps1 -FeatureId "1.2.3" -FeatureName "user-authentication" -TddPath "doc/technical/tdd/tdd-user-authentication.md"
 
    # With editor opening
-   .\New-TestSpecification.ps1 -FeatureId "AUTH-001" -FeatureName "login-flow" -TddPath "doc/technical/design/tdd-login-flow.md" -OpenInEditor
+   .\New-TestSpecification.ps1 -FeatureId "AUTH-001" -FeatureName "login-flow" -TddPath "doc/technical/tdd/tdd-login-flow.md" -OpenInEditor
    ```
 
 3. **Verify test specification creation**:
@@ -326,7 +323,7 @@ Creating a test specification for a Tier 2 authentication feature:
 cd test/specifications
 
 # Create test specification
-.\New-TestSpecification.ps1 -FeatureId "1.2.3" -FeatureName "user-authentication" -TddPath "doc/technical/design/tdd-user-authentication.md" -OpenInEditor
+.\New-TestSpecification.ps1 -FeatureId "1.2.3" -FeatureName "user-authentication" -TddPath "doc/technical/tdd/tdd-user-authentication.md" -OpenInEditor
 ```
 
 **Customization approach:**
@@ -344,7 +341,7 @@ Creating a comprehensive test specification for a complex booking feature:
 
 ```powershell
 # Create Tier 3 test specification
-.\New-TestSpecification.ps1 -FeatureId "ORD-001" -FeatureName "order-management" -TddPath "doc/technical/design/tdd-order-system.md" -OpenInEditor
+.\New-TestSpecification.ps1 -FeatureId "ORD-001" -FeatureName "order-management" -TddPath "doc/technical/tdd/tdd-order-system.md" -OpenInEditor
 ```
 
 **Customization approach:**
@@ -367,7 +364,7 @@ Creating a comprehensive test specification for a complex booking feature:
 **Solution:**
 
 1. Verify the TDD file exists at the specified path
-2. Use relative paths from project root (e.g., "doc/technical/design/tdd-feature.md")
+2. Use relative paths from project root (e.g., "doc/technical/tdd/tdd-feature.md")
 3. Check file permissions and ensure the TDD file is accessible
 4. Ensure the TDD path parameter uses forward slashes or properly escaped backslashes
 

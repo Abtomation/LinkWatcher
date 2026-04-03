@@ -12,7 +12,7 @@ All 4 validation task feedback forms identified manual tracking file updates as 
 efficiency bottleneck despite excellent tool performance (4-5/5 ratings).
 
 Updates the following files:
-- doc/state-tracking/temporary/validation-tracking.md
+- doc/state-tracking/validation/validation-tracking.md
 - ../doc/PD-documentation-map.md
 - ../doc/state-tracking/permanent/feature-tracking.md (cross-references)
 
@@ -134,7 +134,7 @@ if (-not $ValidationDate) {
 
 # Get project root and define file paths
 $projectRoot = Get-ProjectRoot
-$validationTrackingPath = Join-Path $projectRoot "doc/state-tracking/temporary/validation/archive/validation-tracking-1.md"
+$validationTrackingPath = Join-Path $projectRoot "doc/state-tracking/validation/archive/validation-tracking-1.md"
 $documentationMapPath = Join-Path $projectRoot "doc/PD-documentation-map.md"
 $featureTrackingPath = Join-Path $projectRoot "doc/state-tracking/permanent/feature-tracking.md"
 

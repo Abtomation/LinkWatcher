@@ -1,13 +1,10 @@
 ---
 id: PF-GDE-045
-type: Document
-category: General
+type: Process Framework
+category: Guide
 version: 1.0
 created: 2025-01-18
 updated: 2025-01-18
-guide_status: Active
-guide_description: Guide for customizing UI/UX Design templates after creation
-guide_category: Documentation
 related_script: New-UIDesign.ps1
 guide_title: UI/UX Design Customization Guide
 ---

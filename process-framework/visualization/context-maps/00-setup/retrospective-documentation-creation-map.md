@@ -1,14 +1,12 @@
 ---
 id: PF-VIS-046
-type: Document
-category: General
+type: Process Framework
+category: Context Map
 version: 1.0
 created: 2026-02-17
 updated: 2026-02-17
 workflow_phase: support
-visualization_type: Task Context
-task_name: retrospective-documentation-creation
-map_type: Context Map
+related_task: PF-TSK-066
 ---
 
 # Retrospective Documentation Creation Context Map

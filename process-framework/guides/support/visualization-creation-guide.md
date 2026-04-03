@@ -6,7 +6,7 @@ version: 1.0
 created: 2025-07-11
 updated: 2025-07-27
 related_script: New-ContextMap.ps1
-related_tasks: PF-TSK-001
+related_task: PF-TSK-001
 ---
 
 # Visualization Creation Guide

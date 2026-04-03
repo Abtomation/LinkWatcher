@@ -4,7 +4,7 @@
 .SYNOPSIS
     Master state validation script — validates that state tracking entries match actual files on disk.
 .DESCRIPTION
-    Checks consistency across 9 validation surfaces:
+    Checks consistency across 12 validation surfaces:
     1. ../feature-tracking.md — all document links (FDD, TDD, ADR, Test Spec, Assessment, State File)
     2. Feature implementation state files — Section 4 (doc inventory), Section 5 (code inventory), Section 6 (dependencies)
     3. ../test-tracking.md — test file path references
@@ -14,13 +14,16 @@
     7. Dimension Consistency — dimension profile presence and valid abbreviations
     8. Workflow Tracking — workflow-feature mapping consistency and status accuracy
     9. Task Registry — all PF-TSK IDs present in process-framework-task-registry.md
+    10. Metadata Schema — YAML frontmatter conformance against domain-config.json schemas
+    11. Context Map Orphans — cross-reference context map related_task metadata against actual task files
+    12. AI Tasks Consistency — detect task files in tasks/ directories but missing from ai-tasks.md
 
     Created as IMP-028 from Tools Review 2026-02-21.
 .PARAMETER ProjectRoot
     Path to the project root directory. Defaults to auto-detection from script location.
 .PARAMETER Surface
     Which validation surfaces to run. Accepts one or more of:
-    "FeatureTracking", "StateFiles", "TestTracking", "CrossRef", "IdCounters", "FeatureDeps", "DimensionConsistency", "WorkflowTracking", "TaskRegistry", "All"
+    "FeatureTracking", "StateFiles", "TestTracking", "CrossRef", "IdCounters", "FeatureDeps", "DimensionConsistency", "WorkflowTracking", "TaskRegistry", "MetadataSchema", "ContextMapOrphans", "AiTasksConsistency", "All"
     Default: "All"
 .PARAMETER Detailed
     Show every checked link, not just failures.
@@ -579,7 +582,7 @@ if ($runAll -or $Surface -contains "DimensionConsistency") {
             $content = Get-Content $file.FullName -Raw
 
             # Check if Dimension Profile section exists
-            if ($content -match "## 7\. Dimension Profile") {
+            if ($content -match ".git/objects/3a/b045e54f8acd16e0d036a487eb74c269db1d9f## 7\. Dimension Profile") {
                 $filesWithProfile++
 
                 # Extract dimension abbreviations used and validate them
@@ -795,6 +798,254 @@ if ($runAll -or $Surface -contains "TaskRegistry") {
 
         if ($missingCount -gt 0) {
             Write-Host "    $([char]0x2139) $missingCount task(s) missing from registry — run New-Task.ps1 or add manually" -ForegroundColor Yellow
+        }
+    }
+    Write-Host ""
+}
+
+# =========================================================================
+# Surface 10: Metadata Schema Conformance
+# =========================================================================
+if ($runAll -or $Surface -contains "MetadataSchema") {
+    Write-Host "========================================" -ForegroundColor Cyan
+    Write-Host "  Surface 10: Metadata Schema" -ForegroundColor Cyan
+    Write-Host "========================================" -ForegroundColor Cyan
+
+    $domainCfgPath = Join-Path $ProjectRoot "process-framework/domain-config.json"
+    if (-not (Test-Path $domainCfgPath)) {
+        Add-CheckResult "WARNING" "MetadataSchema" "domain-config.json" "File not found — metadata schema validation skipped"
+    } else {
+        $domainCfg = Get-Content $domainCfgPath -Raw | ConvertFrom-Json
+        $schemas = $domainCfg.artifact_metadata_schemas
+
+        if (-not $schemas) {
+            Add-CheckResult "WARNING" "MetadataSchema" "domain-config.json" "No artifact_metadata_schemas section found"
+        } else {
+            # Map artifact types to directory globs
+            $artifactDirs = @{
+                "task"        = @{ dir = "process-framework/tasks"; recurse = $true }
+                "template"    = @{ dir = "process-framework/templates"; recurse = $true }
+                "guide"       = @{ dir = "process-framework/guides"; recurse = $true }
+                "context_map" = @{ dir = "process-framework/visualization/context-maps"; recurse = $true }
+            }
+
+            $totalFiles = 0
+            $conformingFiles = 0
+            $violationFiles = 0
+
+            foreach ($artifactType in $artifactDirs.Keys) {
+                $schema = $schemas.$artifactType
+                if (-not $schema) {
+                    Add-CheckResult "WARNING" "MetadataSchema" $artifactType "No schema defined in domain-config.json"
+                    continue
+                }
+
+                $searchDir = Join-Path $ProjectRoot $artifactDirs[$artifactType].dir
+                if (-not (Test-Path $searchDir)) { continue }
+
+                $mdFiles = Get-ChildItem -Path $searchDir -Filter "*.md" -Recurse -File | Where-Object {
+                    # Exclude README files — they are not artifacts with standard metadata
+                    $_.Name -ne "README.md"
+                }
+
+                foreach ($file in $mdFiles) {
+                    $totalFiles++
+                    $content = Get-Content $file.FullName -Raw -Encoding UTF8
+                    $relPath = $file.FullName.Substring($ProjectRoot.Length + 1) -replace '\\', '/'
+
+                    # Extract YAML frontmatter
+                    if ($content -notmatch '^---\s*\r?\n([\s\S]*?)\r?\n---') {
+                        Add-CheckResult "WARNING" "MetadataSchema" $relPath "No YAML frontmatter found"
+                        $violationFiles++
+                        continue
+                    }
+
+                    $frontmatter = $Matches[1]
+                    # Parse frontmatter into hashtable (simple key: value parsing)
+                    $fields = @{}
+                    foreach ($line in ($frontmatter -split '\r?\n')) {
+                        if ($line -match '^(\w[\w_]*):\s*(.*)$') {
+                            $fields[$Matches[1]] = $Matches[2].Trim()
+                        }
+                    }
+
+                    $fileHasViolation = $false
+
+                    # Check required fields
+                    foreach ($reqField in $schema.required) {
+                        if (-not $fields.ContainsKey($reqField)) {
+                            Add-CheckResult "ERROR" "MetadataSchema" $relPath "Missing required field: $reqField"
+                            $fileHasViolation = $true
+                        }
+                    }
+
+                    # Check field values (only for fields that exist)
+                    if ($schema.field_values) {
+                        # Check id pattern
+                        if ($schema.field_values.id_pattern -and $fields.ContainsKey("id")) {
+                            $idVal = $fields["id"]
+                            # Skip template placeholder IDs (contain [ or X)
+                            if ($idVal -notmatch '\[' -and $idVal -notmatch 'XXX') {
+                                if ($idVal -notmatch $schema.field_values.id_pattern) {
+                                    Add-CheckResult "ERROR" "MetadataSchema" $relPath "ID '$idVal' does not match pattern $($schema.field_values.id_pattern)"
+                                    $fileHasViolation = $true
+                                }
+                            }
+                        }
+
+                        # Check type value
+                        if ($schema.field_values.type -and $fields.ContainsKey("type")) {
+                            $typeVal = $fields["type"]
+                            $allowedTypes = @($schema.field_values.type)
+                            if ($typeVal -notin $allowedTypes) {
+                                Add-CheckResult "ERROR" "MetadataSchema" $relPath "type '$typeVal' not in allowed values: $($allowedTypes -join ', ')"
+                                $fileHasViolation = $true
+                            }
+                        }
+
+                        # Check category value
+                        if ($schema.field_values.category -and $fields.ContainsKey("category")) {
+                            $catVal = $fields["category"]
+                            $allowedCats = @($schema.field_values.category)
+                            if ($catVal -notin $allowedCats) {
+                                Add-CheckResult "ERROR" "MetadataSchema" $relPath "category '$catVal' not in allowed values: $($allowedCats -join ', ')"
+                                $fileHasViolation = $true
+                            }
+                        }
+                    }
+
+                    # Check for unknown fields (not in required or optional)
+                    $knownFields = @($schema.required) + @($schema.optional)
+                    foreach ($fieldName in $fields.Keys) {
+                        if ($fieldName -notin $knownFields) {
+                            Add-CheckResult "WARNING" "MetadataSchema" $relPath "Unknown field: $fieldName (not in schema for $artifactType)"
+                            $fileHasViolation = $true
+                        }
+                    }
+
+                    if ($fileHasViolation) {
+                        $violationFiles++
+                    } else {
+                        $conformingFiles++
+                        Add-CheckResult "OK" "MetadataSchema" $relPath "Conforms to $artifactType schema"
+                    }
+                }
+            }
+
+            Write-Host "  Scanned $totalFiles files: $conformingFiles conforming, $violationFiles with violations" -ForegroundColor Gray
+        }
+    }
+    Write-Host ""
+}
+
+# =========================================================================
+# Surface 11: Context Map Orphan Detection
+# =========================================================================
+if ($runAll -or $Surface -contains "ContextMapOrphans") {
+    Write-Host "========================================" -ForegroundColor Cyan
+    Write-Host "  Surface 11: Context Map Orphans" -ForegroundColor Cyan
+    Write-Host "========================================" -ForegroundColor Cyan
+
+    $cmDir = Join-Path $ProjectRoot "process-framework/visualization/context-maps"
+    if (-not (Test-Path $cmDir)) {
+        Add-CheckResult "WARNING" "ContextMapOrphans" "context-maps/" "Directory not found — skipped"
+    } else {
+        # Build a lookup of all task IDs from task files
+        $taskDir = Join-Path $ProjectRoot "process-framework/tasks"
+        $taskIds = @{}
+        if (Test-Path $taskDir) {
+            $taskFiles = Get-ChildItem -Path $taskDir -Filter "*.md" -Recurse -File | Where-Object { $_.Name -ne "README.md" }
+            foreach ($tf in $taskFiles) {
+                $tfContent = Get-Content $tf.FullName -Raw -Encoding UTF8
+                if ($tfContent -match '(?m)^id:\s*(PF-TSK-\d+)') {
+                    $taskIds[$Matches[1]] = $tf.FullName.Substring($ProjectRoot.Length + 1) -replace '\\', '/'
+                }
+            }
+        }
+
+        # Scan context maps for related_task references
+        $cmFiles = Get-ChildItem -Path $cmDir -Filter "*.md" -Recurse -File | Where-Object { $_.Name -ne "README.md" }
+        $orphanCount = 0
+        $checkedCount = 0
+
+        foreach ($cm in $cmFiles) {
+            $cmContent = Get-Content $cm.FullName -Raw -Encoding UTF8
+            $cmRelPath = $cm.FullName.Substring($ProjectRoot.Length + 1) -replace '\\', '/'
+
+            # Extract related_task from frontmatter
+            if ($cmContent -match '(?m)^related_task:\s*(PF-TSK-\d+)') {
+                $relatedTask = $Matches[1]
+                $checkedCount++
+
+                if ($taskIds.ContainsKey($relatedTask)) {
+                    Add-CheckResult "OK" "ContextMapOrphans" $cmRelPath "related_task $relatedTask exists at $($taskIds[$relatedTask])"
+                } else {
+                    Add-CheckResult "ERROR" "ContextMapOrphans" $cmRelPath "Orphaned — related_task $relatedTask not found in any task file"
+                    $orphanCount++
+                }
+            } elseif ($cmContent -match '^---\s*\r?\n[\s\S]*?\r?\n---') {
+                # Has frontmatter but no related_task
+                $checkedCount++
+                Add-CheckResult "WARNING" "ContextMapOrphans" $cmRelPath "No related_task field in frontmatter"
+            }
+        }
+
+        Write-Host "  Checked $checkedCount context maps: $orphanCount orphaned" -ForegroundColor Gray
+    }
+    Write-Host ""
+}
+
+# =========================================================================
+# Surface 12: AI Tasks Consistency
+# =========================================================================
+if ($runAll -or $Surface -contains "AiTasksConsistency") {
+    Write-Host "========================================" -ForegroundColor Cyan
+    Write-Host "  Surface 12: AI Tasks Consistency" -ForegroundColor Cyan
+    Write-Host "========================================" -ForegroundColor Cyan
+
+    $aiTasksPath = Join-Path $ProjectRoot "process-framework/ai-tasks.md"
+    $taskDir = Join-Path $ProjectRoot "process-framework/tasks"
+
+    if (-not (Test-Path $aiTasksPath)) {
+        Add-CheckResult "WARNING" "AiTasksConsistency" "ai-tasks.md" "File not found — skipped"
+    } elseif (-not (Test-Path $taskDir)) {
+        Add-CheckResult "WARNING" "AiTasksConsistency" "tasks/" "Directory not found — skipped"
+    } else {
+        $aiTasksContent = Get-Content $aiTasksPath -Raw -Encoding UTF8
+
+        # Collect all task IDs from task files on disk
+        $taskFiles = Get-ChildItem -Path $taskDir -Filter "*.md" -Recurse -File | Where-Object { $_.Name -ne "README.md" }
+        $diskTasks = @{}
+        foreach ($tf in $taskFiles) {
+            $firstLines = Get-Content $tf.FullName -TotalCount 10 -Encoding UTF8 -ErrorAction SilentlyContinue
+            foreach ($line in $firstLines) {
+                if ($line -match '^id:\s*(PF-TSK-\d{3})') {
+                    $relPath = $tf.FullName.Substring($ProjectRoot.Length + 1) -replace '\\', '/'
+                    $diskTasks[$matches[1]] = $relPath
+                    break
+                }
+            }
+        }
+
+        # Check which task files are referenced in ai-tasks.md
+        $missingCount = 0
+        foreach ($entry in $diskTasks.GetEnumerator() | Sort-Object Key) {
+            $taskId = $entry.Key
+            $taskFile = $entry.Value
+            # Extract just the filename to check for references (ai-tasks.md uses relative links to task files)
+            $fileName = [System.IO.Path]::GetFileName($taskFile)
+
+            if ($aiTasksContent -match [regex]::Escape($fileName) -or $aiTasksContent -match [regex]::Escape($taskId)) {
+                Add-CheckResult "OK" "AiTasksConsistency" $taskId "Referenced in ai-tasks.md ($fileName)"
+            } else {
+                Add-CheckResult "ERROR" "AiTasksConsistency" $taskId "Task file exists ($taskFile) but not referenced in ai-tasks.md"
+                $missingCount++
+            }
+        }
+
+        Write-Host "  Task files on disk: $($diskTasks.Count), Missing from ai-tasks.md: $missingCount" -ForegroundColor Gray
+        if ($missingCount -gt 0) {
+            Write-Host "    $([char]0x2139) $missingCount task(s) on disk not referenced in ai-tasks.md — add entries or remove stale files" -ForegroundColor Yellow
         }
     }
     Write-Host ""

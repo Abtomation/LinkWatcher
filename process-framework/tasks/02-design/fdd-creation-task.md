@@ -81,7 +81,7 @@ When referencing other tasks' outputs in FDDs:
 
 ## Context Requirements
 
-[FDD Creation Context Map](../../visualization/context-maps/02-design/fdd-creation-map.md)
+[View Context Map for this task](../../visualization/context-maps/02-design/fdd-creation-map.md)
 
 - **Critical (Must Read):**
 
@@ -153,6 +153,33 @@ When referencing other tasks' outputs in FDDs:
 
 - **Functional Design Document (FDD)** - Complete FDD document in `/doc/functional-design/fdds/fdd-[feature-id]-[feature-name].md` with assigned FDD ID
 - **Updated Feature Tracking** - Feature status updated to "📋 FDD Created" with FDD link in [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md)
+
+## Example Output
+
+A completed FDD should look like this (abbreviated):
+
+```markdown
+# FDD: User Profile Management (2.3.1)
+
+## Feature Overview
+Allows users to view and edit their profile information including
+display name, avatar, and notification preferences.
+
+## Functional Requirements
+### Core Functionality
+- FR-01: Users can view their current profile data
+- FR-02: Users can update display name (3-50 characters, alphanumeric + spaces)
+- FR-03: Users can upload avatar images (PNG/JPG, max 2MB, auto-resized to 256x256)
+
+### Business Rules
+- BR-01: Display name changes limited to once per 24 hours
+- BR-02: Avatar must pass content moderation before becoming visible
+
+## Acceptance Criteria
+- [ ] User can view all profile fields on a single page
+- [ ] Validation errors display inline next to the relevant field
+- [ ] Profile changes are saved atomically (all-or-nothing)
+```
 
 ## State Tracking
 

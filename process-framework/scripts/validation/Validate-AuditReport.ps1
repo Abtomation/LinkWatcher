@@ -62,11 +62,15 @@ try {
 # Perform standard initialization
 Invoke-StandardScriptInitialization
 
+# Resolve project root and audits base directory
+$ProjectRoot = Get-ProjectRoot
+$auditsDir = Join-Path $ProjectRoot "test" "audits"
+
 # Resolve the report file path
 $reportPath = if ([System.IO.Path]::IsPathRooted($ReportFile)) {
     $ReportFile
 } else {
-    Join-Path -Path $scriptDir -ChildPath $ReportFile
+    Join-Path -Path $auditsDir -ChildPath $ReportFile
 }
 
 # Check if file exists
@@ -77,7 +81,7 @@ if (-not (Test-Path $reportPath)) {
 # Read the report content
 try {
     $content = Get-Content $reportPath -Raw
-    Write-ProjectInfo -Message "Validating audit report: $(Split-Path $reportPath -Leaf)"
+    Write-Host "ℹ️  Validating audit report: $(Split-Path $reportPath -Leaf)" -ForegroundColor Cyan
 } catch {
     Write-ProjectError -Message "Failed to read audit report file: $($_.Exception.Message)" -ExitCode 1
 }
@@ -94,13 +98,13 @@ $validationResults = @{
 function Test-MetadataSection {
     param($Content)
 
-    $metadataPattern = '---\s*\n(.*?)\n---'
-    if ($Content -notmatch $metadataPattern) {
+    $metadataMatch = [regex]::Match($Content, '---\s*\r?\n([\s\S]*?)\r?\n---')
+    if (-not $metadataMatch.Success) {
         $validationResults.Errors += "Missing or malformed metadata section"
         return $false
     }
 
-    $metadata = $Matches[1]
+    $metadata = $metadataMatch.Groups[1].Value
     $requiredFields = @('id', 'feature_id', 'test_file_id', 'auditor', 'audit_date')
 
     foreach ($field in $requiredFields) {
@@ -142,15 +146,14 @@ function Test-EvaluationCriteria {
 function Test-AuditDecision {
     param($Content)
 
-    if ($Content -notmatch '\*\*Status\*\*:\s*(TESTS_APPROVED|NEEDS_UPDATE)') {
+    if ($Content -notmatch '\*\*Status\*\*:\s*[^\r\n]*(TESTS_APPROVED|Tests Approved|NEEDS_UPDATE|Needs Update)') {
         $validationResults.Errors += "Missing or invalid audit decision status"
         return $false
     }
 
-    $auditStatus = $Matches[1]
-
     # Check for rationale
-    if ($Content -notmatch '\*\*Rationale\*\*:\s*\n\[.*?\]') {
+    $rationaleMatch = [regex]::Match($Content, '\*\*Rationale\*\*:\s*\r?\n\[.*?\]')
+    if ($rationaleMatch.Success) {
         $validationResults.Warnings += "Audit decision rationale appears to be template placeholder"
     }
 
@@ -217,14 +220,14 @@ function Test-ValidationChecklist {
 }
 
 # Run all validations
-Write-ProjectInfo -Message "Running validation checks..."
+Write-Host "ℹ️  Running validation checks..." -ForegroundColor Cyan
 
-Test-MetadataSection -Content $content
-Test-RequiredSections -Content $content
-Test-EvaluationCriteria -Content $content
-Test-AuditDecision -Content $content
-Test-TemplatePlaceholders -Content $content
-Test-ValidationChecklist -Content $content
+Test-MetadataSection -Content $content | Out-Null
+Test-RequiredSections -Content $content | Out-Null
+Test-EvaluationCriteria -Content $content | Out-Null
+Test-AuditDecision -Content $content | Out-Null
+Test-TemplatePlaceholders -Content $content | Out-Null
+Test-ValidationChecklist -Content $content | Out-Null
 
 # Determine overall validation status
 $validationResults.IsValid = ($validationResults.Errors.Count -eq 0)
@@ -272,7 +275,10 @@ if ($validationResults.IsValid) {
     $details += ""
     $details += "🔧 Please address the errors before finalizing the audit report"
 
-    Write-ProjectError -Message $errorMessage -Details $details -ExitCode 1
+    foreach ($line in $details) {
+        Write-Host "  $line"
+    }
+    Write-ProjectError -Message $errorMessage -ExitCode 1
 }
 
 <#

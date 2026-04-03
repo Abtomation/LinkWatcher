@@ -137,7 +137,7 @@ The In-Memory Link Database provides a thread-safe, target-indexed `Dict[str, Li
 
 ### Files to Reference
 
-- **TDD**: [`doc/technical/architecture/design-docs/tdd/tdd-0-1-2-in-memory-database-t2.md`](../../../doc/technical/tdd/tdd-0-1-2-in-memory-database-t2.md)
+- **TDD**: [`doc/technical/tdd/tdd-0-1-2-in-memory-database-t2.md`](../../../doc/technical/tdd/tdd-0-1-2-in-memory-database-t2.md)
 - **Existing Tests**: [`test/automated/unit/test_database.py`](../../../test/automated/unit/test_database.py)
 - **Source Code**: [`linkwatcher/database.py`](../../../linkwatcher/database.py)
 - **Fixtures**: [`test/automated/conftest.py`](../../../test/automated/conftest.py) — `link_database` fixture

@@ -32,6 +32,7 @@ Validate feature implementation against quality standards, business requirements
 
 ## Context Requirements
 
+[View Context Map for this task](../../visualization/context-maps/04-implementation/quality-validation-map.md)
 
 - **Critical (Must Read):**
 

@@ -77,9 +77,9 @@ _Created during framework onboarding (PF-TSK-066), consolidated to 9-feature sco
 
 ### `state-tracking/temporary/` — Temporary State Files
 
-- [State: Validation Tracking — Round 3](state-tracking/temporary/validation/validation-tracking-3.md) - Round 3 post-enhancement re-validation tracking (10 dimensions × 8 features, workflow cohort grouping)
-- [State: Validation Tracking — Round 2](state-tracking/temporary/validation/archive/validation-tracking-2.md) - Round 2 comprehensive re-validation tracking (10 dimensions × 8 features)
-- [State: Validation Tracking — Round 1](state-tracking/temporary/validation/archive/validation-tracking-1.md) - Round 1 foundational validation tracking (completed 2026-03-16, 6 dimensions × 9 features)
+- [State: Validation Tracking — Round 3](state-tracking/validation/validation-tracking-3.md) - Round 3 post-enhancement re-validation tracking (10 dimensions × 8 features, workflow cohort grouping)
+- [State: Validation Tracking — Round 2](state-tracking/validation/archive/validation-tracking-2.md) - Round 2 comprehensive re-validation tracking (10 dimensions × 8 features)
+- [State: Validation Tracking — Round 1](state-tracking/validation/archive/validation-tracking-1.md) - Round 1 foundational validation tracking (completed 2026-03-16, 6 dimensions × 9 features)
 
 ## `technical/` — Technical Design
 

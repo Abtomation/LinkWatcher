@@ -1,12 +1,15 @@
 ---
-id: [DOCUMENT_ID]
-type: Product Documentation
-category: Architecture Impact Assessment
+id: PF-TEM-067
+type: Process Framework
+category: Template
 version: 1.0
-created: [CREATED_DATE]
-updated: [UPDATED_DATE]
-feature_name: [FEATURE_NAME]
-assessment_type: [ASSESSMENT_TYPE]
+created: 2025-07-21
+updated: 2026-04-03
+creates_document_type: Product Documentation
+creates_document_category: Architecture Impact Assessment
+creates_document_prefix: PD-AIA
+template_for: Architecture Impact Assessment
+description: Template for creating architecture impact assessments
 ---
 
 # Architecture Impact Assessment: [FEATURE_NAME]

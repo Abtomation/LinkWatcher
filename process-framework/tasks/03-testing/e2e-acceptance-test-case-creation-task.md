@@ -50,7 +50,7 @@ ENHANCEMENT:    Test Spec Creation → Feature Enhancement → E2E Acceptance Te
 
 ## Context Requirements
 
-[View Context Map for this task (PF-VIS-049)](../../visualization/context-maps/03-testing/e2e-acceptance-test-case-creation-map.md)
+[View Context Map for this task](../../visualization/context-maps/03-testing/e2e-acceptance-test-case-creation-map.md)
 
 - **Critical (Must Read):**
 

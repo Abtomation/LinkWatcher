@@ -1,12 +1,12 @@
 ---
 id: PF-TEM-017
 type: Process Framework
-category: Context Map
-version: 1.0
+category: Template
+version: 1.1
 created: 2025-06-30
-updated: 2025-06-30
-template_for:
-usage_context:
+updated: 2026-04-03
+creates_document_type: Process Framework
+creates_document_category: Context Map
 ---
 
 # [Task Name] Context Map

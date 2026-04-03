@@ -1,14 +1,12 @@
 ---
 id: PF-GDE-030
-type: Document
-category: General
+type: Process Framework
+category: Guide
 version: 1.0
 created: 2025-07-27
 updated: 2025-07-27
-guide_title: API Data Model Creation Guide
-guide_status: Active
 related_script: New-APIDataModel.ps1
-related_tasks: PF-TSK-020
+related_task: PF-TSK-020
 guide_description: Guide for customizing API data model templates
 ---
 # API Data Model Creation Guide

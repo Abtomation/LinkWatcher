@@ -420,6 +420,127 @@ function Move-BugFromClosedToActiveSectionContent {
     return ($lines -join "`r`n")
 }
 
+function Move-BugBetweenActiveSectionsContent {
+    param(
+        [string]$Content,
+        [string]$BugId,
+        [string]$TargetPriority  # "Critical", "High", "Medium", or "Low"
+    )
+
+    $priorityToSection = @{
+        "Critical" = "### Critical Bugs"
+        "High"     = "### High Priority Bugs"
+        "Medium"   = "### Medium Priority Bugs"
+        "Low"      = "### Low Priority Bugs"
+    }
+
+    $targetSectionHeader = $priorityToSection[$TargetPriority]
+    if (-not $targetSectionHeader) {
+        Write-Log "Unknown target priority '$TargetPriority'" -Level "ERROR"
+        return $null
+    }
+
+    $lines = [System.Collections.ArrayList]@($Content -split "\r?\n")
+
+    # Find the bug entry line (only in active sections, stop before Closed Bugs)
+    $bugLineIndex = -1
+    for ($i = 0; $i -lt $lines.Count; $i++) {
+        if ($lines[$i] -match "^## Closed Bugs") { break }
+        if ($lines[$i] -match "^\|\s*$BugId\s*\|") {
+            $bugLineIndex = $i
+            break
+        }
+    }
+
+    if ($bugLineIndex -eq -1) {
+        Write-Log "Bug $BugId not found in active sections for inter-section move" -Level "ERROR"
+        return $null
+    }
+
+    # Determine current section by scanning backward
+    $currentSectionHeader = ""
+    for ($i = $bugLineIndex - 1; $i -ge 0; $i--) {
+        if ($lines[$i] -match "^### (Critical|High Priority|Medium Priority|Low Priority) Bugs") {
+            $currentSectionHeader = $lines[$i]
+            break
+        }
+    }
+
+    # If already in the correct section, no move needed
+    if ($currentSectionHeader -eq $targetSectionHeader) {
+        Write-Log "Bug $BugId already in correct section ($targetSectionHeader), no move needed"
+        return $Content
+    }
+
+    Write-Log "Moving bug $BugId from '$currentSectionHeader' to '$targetSectionHeader'"
+
+    $bugLine = $lines[$bugLineIndex]
+    $lines.RemoveAt($bugLineIndex)
+
+    # Check if the source section is now empty → add placeholder
+    $sourceSectionIndex = -1
+    for ($i = [Math]::Min($bugLineIndex - 1, $lines.Count - 1); $i -ge 0; $i--) {
+        if ($lines[$i] -match "^### (Critical|High Priority|Medium Priority|Low Priority) Bugs") {
+            $sourceSectionIndex = $i
+            break
+        }
+    }
+
+    if ($sourceSectionIndex -ge 0) {
+        $hasDataRows = $false
+        for ($i = $sourceSectionIndex + 1; $i -lt $lines.Count; $i++) {
+            if ($lines[$i] -match "^(###|##) " -and $i -gt $sourceSectionIndex + 2) { break }
+            if ($lines[$i] -match "^\|\s*PD-BUG-") {
+                $hasDataRows = $true
+                break
+            }
+        }
+
+        if (-not $hasDataRows) {
+            for ($i = $sourceSectionIndex + 1; $i -lt $lines.Count; $i++) {
+                if ($lines[$i] -match "^\| -") {
+                    $sectionName = $lines[$sourceSectionIndex]
+                    $priorityLabel = if ($sectionName -match "Critical") { "critical" }
+                                     elseif ($sectionName -match "High") { "high priority" }
+                                     elseif ($sectionName -match "Medium") { "medium priority" }
+                                     else { "low priority" }
+                    $lines.Insert($i + 1, "| _No $priorityLabel bugs currently active_ |")
+                    break
+                }
+            }
+        }
+    }
+
+    # Find insertion point in target section: after last PD-BUG row, or after table separator
+    $insertAfterIndex = -1
+    $targetSectionFound = $false
+    for ($i = 0; $i -lt $lines.Count; $i++) {
+        if ($lines[$i] -eq $targetSectionHeader) {
+            $targetSectionFound = $true
+        }
+        if ($targetSectionFound) {
+            if ($i -gt 0 -and $lines[$i] -match "^(###|##) " -and $lines[$i] -ne $targetSectionHeader) { break }
+            if ($lines[$i] -match "^\|\s*PD-BUG-") { $insertAfterIndex = $i }
+            if ($lines[$i] -match "^\| -") { if ($insertAfterIndex -eq -1) { $insertAfterIndex = $i } }
+        }
+    }
+
+    if ($insertAfterIndex -eq -1) {
+        Write-Log "Could not find target section '$targetSectionHeader' for insertion" -Level "ERROR"
+        return $null
+    }
+
+    # Remove "No X bugs currently active" placeholder if present in target section
+    if ($insertAfterIndex + 1 -lt $lines.Count -and $lines[$insertAfterIndex + 1] -match "^\|\s*_No .+ bugs currently") {
+        $lines.RemoveAt($insertAfterIndex + 1)
+    }
+
+    $lines.Insert($insertAfterIndex + 1, $bugLine)
+
+    Write-Log "Moved bug $BugId to $targetSectionHeader" -Level "SUCCESS"
+    return ($lines -join "`r`n")
+}
+
 function Move-BugToClosedSectionContent {
     param(
         [string]$Content,
@@ -634,6 +755,15 @@ function Main {
     if ($null -eq $content) {
         Write-Log "Bug status update failed" -Level "ERROR"
         exit 1
+    }
+
+    # Step 1b: When priority changes within active sections (e.g., triage), move to correct section
+    if ($Priority -and $NewStatus -notin @("Closed", "Rejected", "Reopened")) {
+        $content = Move-BugBetweenActiveSectionsContent -Content $content -BugId $BugId -TargetPriority $Priority
+        if ($null -eq $content) {
+            Write-Log "Failed to move bug $BugId to $Priority section" -Level "ERROR"
+            exit 1
+        }
     }
 
     # Step 2: When closing or rejecting, move the row to the Closed Bugs section

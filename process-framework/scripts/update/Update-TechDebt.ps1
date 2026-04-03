@@ -73,7 +73,7 @@ When provided, replaces the plain ID in the Recently Resolved table.
 Optional status text for the validation tracking file's issue tables.
 When provided (and NewStatus is Resolved), finds the row whose "Tracked As" column contains
 the DebtId and updates Status to "RESOLVED" and Assigned Session to this note.
-The validation tracking file is auto-discovered from doc/state-tracking/temporary/validation/.
+The validation tracking file is auto-discovered from doc/state-tracking/validation/.
 Example: "PD-REF-042 — docstring added documenting precedence order"
 
 .PARAMETER ValidationIssueId
@@ -82,7 +82,7 @@ On -Add: writes the newly assigned TD### into the "Tracked As" column of the mat
 On Resolve/Reject (with -ValidationNote): searches by this ID in the "Issue ID" column instead of
 searching by DebtId in "Tracked As" column. Use this when the validation issue was tracked under a
 non-TD ID (e.g., OB-R3-004) that differs from the TD### registry ID.
-The validation tracking file is auto-discovered from doc/state-tracking/temporary/validation/.
+The validation tracking file is auto-discovered from doc/state-tracking/validation/.
 
 .EXAMPLE
 # Add a new debt item
@@ -538,7 +538,7 @@ function Find-ValidationTrackingFile {
     Auto-discovers the active validation tracking file from the standard directory.
     Returns $null if not found.
     #>
-    $valDir = Join-Path -Path $ProjectRoot -ChildPath "doc/state-tracking/temporary/validation"
+    $valDir = Join-Path -Path $ProjectRoot -ChildPath "doc/state-tracking/validation"
     if (-not (Test-Path $valDir)) {
         Write-Log "Validation tracking directory not found: $valDir" -Level "WARN"
         return $null

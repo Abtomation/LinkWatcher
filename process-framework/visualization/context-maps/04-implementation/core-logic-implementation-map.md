@@ -1,14 +1,12 @@
 ---
 id: PF-VIS-057
-type: Document
-category: General
+type: Process Framework
+category: Context Map
 version: 1.0
 created: 2026-03-24
 updated: 2026-03-24
-visualization_type: Task Context
 workflow_phase: 04-implementation
-task_name: core-logic-implementation
-map_type: Context Map
+related_task: PF-TSK-078
 ---
 
 # Core Logic Implementation Context Map

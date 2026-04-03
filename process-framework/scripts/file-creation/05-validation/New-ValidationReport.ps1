@@ -125,8 +125,8 @@ catch {
 # Resolve paths using project root for reliability
 $ProjectRoot = if ($useEnhancedTracking) { Get-ProjectRoot } else { (Get-Item (Join-Path $ScriptDirectory "../../../..")).FullName }
 $TemplateFile = Join-Path $ProjectRoot "process-framework/templates/05-validation/validation-report-template.md"
-# Discover active validation tracking file (highest -N suffix in temporary/validation/)
-$trackingDir = Join-Path $ProjectRoot "doc/state-tracking/temporary/validation"
+# Discover active validation tracking file (highest -N suffix in state-tracking/validation/)
+$trackingDir = Join-Path $ProjectRoot "doc/state-tracking/validation"
 $trackingFiles = Get-ChildItem -Path $trackingDir -Filter "validation-tracking-*.md" -File |
     Where-Object { $_.Name -match '^validation-tracking-(\d+)\.md$' } |
     Sort-Object { [int]($_.Name -replace '^validation-tracking-(\d+)\.md$', '$1') } -Descending
@@ -635,6 +635,25 @@ try {
         Write-Host "📊 Updating validation tracking..." -ForegroundColor White
         Update-ValidationTracking -ValidationId $validationId -ValidationType $ValidationType -ValidationConfig $validationConfig -Features $features -ReportPath $outputPath
         Write-Host ""
+
+        # Auto-append entry to PD-documentation-map.md under the correct Round section
+        $pdDocMapPath = Join-Path $ProjectRoot "doc/PD-documentation-map.md"
+        if (Test-Path $pdDocMapPath) {
+            # Derive round number from the active tracking file name
+            $roundNumber = 1
+            if ($TrackingFile -and $TrackingFile -match 'validation-tracking-(\d+)\.md$') {
+                $roundNumber = [int]$Matches[1]
+            }
+            $sectionHeader = "### Round $roundNumber Validation Reports"
+            $featureList = ($features | Sort-Object) -join ', '
+            $relPath = "validation/reports/$($validationConfig.Directory)/$fileName"
+            $entryLine = "- [Validation: $($validationConfig.DisplayName) — $featureList ($validationId)]($relPath) - Session $SessionNumber"
+
+            $updated = Add-DocumentationMapEntry -DocMapPath $pdDocMapPath -SectionHeader $sectionHeader -EntryLine $entryLine -CallerCmdlet $PSCmdlet
+            if ($updated) {
+                Write-Host "   📄 Updated: PD-documentation-map.md (section: $sectionHeader)" -ForegroundColor Gray
+            }
+        }
 
         Write-Host "🎉 Validation report created successfully!" -ForegroundColor Green
         Write-Host ""

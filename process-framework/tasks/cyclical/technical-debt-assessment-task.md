@@ -132,8 +132,8 @@ Systematic approach to identifying, categorizing, and prioritizing technical deb
    **OPTION B - Individual Item Addition:**
 
    ```powershell
-   # Add individual debt items manually (use dimension abbreviation for -Category: AC, CQ, ID, DA, EM, SE, PE, OB, UX, DI, TST)
-   process-framework/scripts/update/Update-TechDebt.ps1 -Add -Description "Description" -Category "PE" -Location "Location" -Priority "Priority" -EstimatedEffort "Effort" -DebtItemId "PF-TDI-XXX" -AssessmentId "PF-TDA-XXX"
+   # Add individual debt items manually (use dimension abbreviation for -Dims: AC, CQ, ID, DA, EM, SE, PE, OB, UX, DI, TST)
+   process-framework/scripts/update/Update-TechDebt.ps1 -Add -Description "Description" -Dims "PE" -Location "Location" -Priority "Priority" -EstimatedEffort "Effort" -DebtItemId "PF-TDI-XXX" -AssessmentId "PF-TDA-XXX"
    ```
 
    **Automation Benefits:**

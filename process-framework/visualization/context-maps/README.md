@@ -73,7 +73,6 @@ When creating a new context map:
 
 ### Cyclical Tasks
 
-- [Documentation Review Map](cyclical/documentation-review-map.md) - Components for reviewing documentation
 - [Documentation Tier Adjustment Map](cyclical/documentation-tier-adjustment-map.md) - Components for adjusting documentation tiers
 - [Tools Review Map](support/tools-review-map.md) - Components for reviewing development tools
 - [New Task Creation Process Map](support/new-task-creation-process-map.md) - Components for creating new task definitions

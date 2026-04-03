@@ -1,13 +1,11 @@
 ---
 id: PF-VIS-031
-type: Document
-category: General
+type: Process Framework
+category: Context Map
 version: 1.1
 created: 2025-08-16
 updated: 2026-03-04
-map_type: Context Map
-visualization_type: Task Context
-task_name: documentation-alignment-validation
+related_task: PF-TSK-034
 ---
 
 # Documentation Alignment Validation Context Map
@@ -29,7 +27,7 @@ graph TD
 
     ADR[(Architecture Decision Records)] --> AC[ADR Compliance Check]
     API[(API Documentation)] --> AA[API Accuracy Assessment]
-    LIB[/lib/ directory/] --> CA[Code Analysis]
+    LIB[/src/ directory/] --> CA[Code Analysis]
     NVRS[New-ValidationReport Script] --> VR
     FSF[(Feature State Files)] --> DA
 
@@ -63,7 +61,7 @@ graph TD
 
 - **Architecture Decision Records (ADR)**: Architectural decisions that must be properly implemented and followed
 - **API Documentation (API)**: API specifications that must accurately reflect actual API implementations
-- **lib/ directory (LIB)**: Source code for selected features - implementation to validate against documentation
+- **src/ directory (LIB)**: Source code for selected features - implementation to validate against documentation
 - **Feature State Files (FSF)**: Implementation state files with feature status, TDD/FDD links, and validation context
 - **New-ValidationReport Script (NVRS)**: Automation script for generating standardized validation reports
 - **Documentation Analysis (DA)**: Process of comparing TDDs with actual implementation
@@ -87,7 +85,7 @@ graph TD
 4. **Technical Design Documents → Documentation Analysis**: Primary source for TDD-implementation alignment validation
 5. **Architecture Decision Records → ADR Compliance Check**: Source for architectural decision compliance validation
 6. **API Documentation → API Accuracy Assessment**: Source for API documentation accuracy validation
-7. **lib/ directory → Code Analysis**: Contains implementation code for documentation completeness analysis
+7. **src/ directory → Code Analysis**: Contains implementation code for documentation completeness analysis
 8. **New-ValidationReport Script → Validation Report**: Automation tool for generating standardized validation reports
 9. **Documentation Analysis → Validation Report**: Feeds TDD alignment findings into the validation report
 10. **ADR Compliance Check → Validation Report**: Contributes architectural compliance analysis to the validation report
@@ -99,7 +97,7 @@ graph TD
 
 1. **Start with Critical Context**: Load Feature Tracking, Validation Tracking, and Validation Report Template to understand scope and structure
 2. **Identify Documentation Sources**: Review Technical Design Documents as primary validation targets for alignment assessment
-3. **Perform TDD Alignment Analysis**: Compare TDDs with actual implementation in lib/ directory to identify discrepancies
+3. **Perform TDD Alignment Analysis**: Compare TDDs with actual implementation in src/ directory to identify discrepancies
 4. **Conduct ADR Compliance Check**: Verify that Architecture Decision Records are properly implemented in the codebase
 5. **Execute API Accuracy Assessment**: Cross-reference API Documentation with actual API implementations and interfaces
 6. **Analyze Documentation Completeness**: Examine code for missing or outdated documentation requirements
@@ -113,8 +111,8 @@ graph TD
 - [Feature Tracking](../../../../doc/state-tracking/permanent/feature-tracking.md) - Current status of features
 - Validation Tracking State File - Active validation tracking matrix (file location depends on validation round)
 - [Validation Report Template](../../../templates/05-validation/validation-report-template.md) - Standardized report structure
-- [Technical Design Documents](/doc/technical/design) - TDD directory for alignment validation
-- [Architecture Decision Records](/doc/technical/architecture/design-docs/adr/adr) - ADR directory for compliance validation
+- [Technical Design Documents](/doc/technical/tdd) - TDD directory for alignment validation
+- [Architecture Decision Records](/doc/technical/adr) - ADR directory for compliance validation
 - [../../scripts/file-creation/New-ValidationReport.ps1](../../../scripts/file-creation/05-validation/New-ValidationReport.ps1) - Automation script for report generation
 - [Documentation Guide](../../../guides/05-validation/documentation-guide.md) - Documentation standards and quality criteria
 

@@ -308,7 +308,7 @@ Dependency direction is correct: no circular dependencies, proper layering from 
 
 ### Tracking and Monitoring
 
-- [x] **Update Validation Tracking**: Results recorded in [validation-tracking-3.md](../../../state-tracking/temporary/validation/validation-tracking-3.md)
+- [x] **Update Validation Tracking**: Results recorded in [validation-tracking-3.md](../../../state-tracking/validation/validation-tracking-3.md)
 - [ ] **Schedule Follow-Up**: After any future refactoring affecting these features
 
 ## Appendices

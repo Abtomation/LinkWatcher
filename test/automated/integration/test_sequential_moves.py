@@ -23,7 +23,9 @@ pytestmark = [
     pytest.mark.priority("Standard"),
     pytest.mark.cross_cutting(["0.1.2", "2.2.1", "0.1.1"]),
     pytest.mark.test_type("integration"),
-    pytest.mark.specification("test/specifications/feature-specs/test-spec-1-1-1-file-system-monitoring.md"),
+    pytest.mark.specification(
+        "test/specifications/feature-specs/test-spec-1-1-1-file-system-monitoring.md"
+    ),
 ]
 
 
@@ -246,66 +248,6 @@ settings:
         assert (
             len(old_refs_after_rename) == 0
         ), f"Rename failed: Old references should be 0, got {len(old_refs_after_rename)}"
-
-    def test_sm_003_debug_database_state_during_moves(self, temp_project_dir, file_helper):
-        """
-        SM-003: Debug database state during sequential moves
-
-        This test helps debug what's happening to the database during moves
-        """
-        # Setup
-        test_project_dir = temp_project_dir / "test_project"
-        test_project_dir.mkdir()
-
-        original_file = test_project_dir / "file1.txt"
-        original_file.write_text("Content")
-
-        md_file = temp_project_dir / "doc.md"
-        md_file.write_text("[Link](test_project/file1.txt)")
-
-        service = LinkWatcherService(str(temp_project_dir))
-        service._initial_scan()
-
-        def print_db_state(stage):
-            print(f"\n=== Database State - {stage} ===")
-            print(f"Total database keys: {len(service.link_db.links)}")
-            for key, refs in service.link_db.links.items():
-                if "file1" in key:
-                    print(f"  Key: '{key}' -> {len(refs)} references")
-                    for r in refs:
-                        print(f"    {r.file_path} -> '{r.link_target}'")
-
-        print_db_state("Initial")
-
-        # Move 1
-        move1_target = temp_project_dir / "file1.txt"
-        original_file.rename(move1_target)
-        move_event1 = FileMovedEvent(str(original_file), str(move1_target))
-        service.handler.on_moved(move_event1)
-        print_db_state("After Move 1")
-
-        # Move 2
-        move2_target = test_project_dir / "file1.txt"
-        move1_target.rename(move2_target)
-        move_event2 = FileMovedEvent(str(move1_target), str(move2_target))
-        service.handler.on_moved(move_event2)
-        print_db_state("After Move 2")
-
-        # Move 3 - This is where it breaks
-        documentation_dir = test_project_dir / "documentation"
-        documentation_dir.mkdir()
-        move3_target = documentation_dir / "file1.txt"
-        move2_target.rename(move3_target)
-        move_event3 = FileMovedEvent(str(move2_target), str(move3_target))
-        service.handler.on_moved(move_event3)
-        print_db_state("After Move 3")
-
-        # Test lookups
-        refs = service.link_db.get_references_to_file("test_project/documentation/file1.txt")
-        print(f"\nLookup test: References to 'test_project/documentation/file1.txt': {len(refs)}")
-
-        # This test is for debugging - it will show us what's wrong
-        # We don't assert here, just observe the output
 
 
 class TestSequentialMovesEdgeCases:

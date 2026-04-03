@@ -1,13 +1,11 @@
 ---
 id: PF-GDE-033
-type: Document
-category: General
+type: Process Framework
+category: Guide
 version: 1.1
 created: 2025-07-27
 updated: 2025-08-03
-guide_status: Active
-guide_title: Architecture Decision Creation Guide
-related_tasks: PF-TSK-019
+related_task: PF-TSK-019
 related_script: New-ArchitectureDecision.ps1
 guide_description: Guide for customizing Architecture Decision Record templates
 ---
@@ -195,7 +193,7 @@ When creating Architecture Decision Records, you must make several key decisions
 1. **Navigate to the ADR directory**:
 
    ```powershell
-   cd doc/technical/architecture/design-docs/adr
+   cd doc/technical/adr
    ```
 
 2. **Execute the New-ArchitectureDecision.ps1 script**:
@@ -329,7 +327,7 @@ Creating an ADR for selecting the state management approach in the application:
 
 ```powershell
 # Navigate to ADR directory
-cd doc/technical/architecture/design-docs/adr
+cd doc/technical/adr
 
 # Create state management decision ADR
 .\New-ArchitectureDecision.ps1 -Title "State Management Pattern Selection" -Description "Decision on state management approach for application architecture" -Status "Proposed" -OpenInEditor
@@ -382,7 +380,7 @@ Creating an ADR for database schema change management:
 
 **Solution:**
 
-1. Verify you're running the script from the correct directory: `doc/technical/architecture/design-docs/adr`
+1. Verify you're running the script from the correct directory: `doc/technical/adr`
 2. Check that the Common-ScriptHelpers.psm1 file exists at process-framework/scripts/Common-ScriptHelpers.psm1
 3. Ensure PowerShell execution policy allows script execution: `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser`
 

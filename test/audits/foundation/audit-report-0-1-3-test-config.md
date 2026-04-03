@@ -220,15 +220,15 @@ Strong test suite that grew from 42 → 53 tests since prior audit. 11 well-craf
 ## Action Items
 
 ### For Test Implementation Team
-- [ ] Add test for invalid int env var (e.g., `LINKWATCHER_MAX_FILE_SIZE_MB=abc`) — covers lines 257-258
-- [ ] Add test for invalid float env var (e.g., `LINKWATCHER_MOVE_DETECT_DELAY=abc`) — covers lines 264-267
+- [x] Add test for invalid int env var (e.g., `LINKWATCHER_MAX_FILE_SIZE_MB=abc`) — covers lines 257-258 ✅ Done (PF-TSK-053, 2026-04-03)
+- [x] Add test for invalid float env var (e.g., `LINKWATCHER_MOVE_DETECT_DELAY=abc`) — covers lines 264-267 ✅ Done (PF-TSK-053, 2026-04-03)
 - [ ] Add CLI argument loading tests when feature is implemented
 - [ ] Add configuration priority cascade test (CLI > env > file > defaults)
-- [ ] Fix test_configs_are_independent to use copy() instead of mutating singleton (carried over)
+- [x] Fix test_configs_are_independent to use copy() instead of mutating singleton (carried over) ✅ Done (PF-TSK-053, 2026-04-03)
 
 ### For State Tracking
-- [ ] Fix test-tracking line 62: link should point to `../../automated/test_config.py` (not unit/), count should be 0
-- [ ] Update test-tracking line 63: test count from 42 → 53
+- [x] Fix test-tracking line 62: link should point to `../../automated/test_config.py` (not unit/), count should be 0 ✅ Already correct (verified PF-TSK-053, 2026-04-03)
+- [x] Update test-tracking: test count updated to 55 ✅ Done (PF-TSK-053, 2026-04-03)
 
 ### For Feature Implementation Team
 - No action items

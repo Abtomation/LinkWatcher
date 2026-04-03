@@ -20,7 +20,7 @@ test_file_id: TE-TST-101
 | **Feature ID** | 1.1.1 |
 | **Feature Name** | File System Monitoring |
 | **Test File IDs** | TE-TST-101, 117, 121, 123, 124, 125, 128 |
-| **Test File Locations** | `test/automated/test_move_detection.py`, `test/automated/integration/test_file_movement.py`, `test/automated/integration/test_sequential_moves.py`, `test/automated/integration/test_comprehensive_file_monitoring.py`, `test/automated/integration/test_image_file_monitoring.py`, `test/automated/integration/test_powershell_script_monitoring.py`, `test/automated/test_directory_move_detection.py` |
+| **Test File Locations** | `test/automated/test_move_detection.py`, `test/automated/integration/test_file_movement.py`, `test/automated/integration/test_sequential_moves.py`, `test/automated/unit/test_comprehensive_file_monitoring.py`, `test/automated/integration/test_image_file_monitoring.py`, `test/automated/integration/test_powershell_script_monitoring.py`, `test/automated/test_directory_move_detection.py` |
 | **Feature Category** | FILE WATCHING |
 | **Auditor** | AI Agent |
 | **Audit Date** | 2026-03-15 |
@@ -35,7 +35,7 @@ test_file_id: TE-TST-101
 | test_move_detection.py | test/automated/test_move_detection.py | 12 | ✅ All passing |
 | test_file_movement.py | test/automated/integration/test_file_movement.py | 7 | ✅ All passing |
 | test_sequential_moves.py | test/automated/integration/test_sequential_moves.py | 4 | ✅ All passing |
-| test_comprehensive_file_monitoring.py | test/automated/integration/test_comprehensive_file_monitoring.py | 7 | ✅ All passing |
+| test_comprehensive_file_monitoring.py | test/automated/unit/test_comprehensive_file_monitoring.py | 7 | ✅ All passing |
 | test_image_file_monitoring.py | test/automated/integration/test_image_file_monitoring.py | 6 | ✅ All passing |
 | test_powershell_script_monitoring.py | test/automated/integration/test_powershell_script_monitoring.py | 5 | ✅ All passing |
 | test_directory_move_detection.py | test/automated/test_directory_move_detection.py | 21 | ✅ All passing |

@@ -1,13 +1,11 @@
 ---
 id: PF-VIS-019
-type: Document
-category: General
+type: Process Framework
+category: Context Map
 version: 1.1
 created: 2025-07-19
 updated: 2025-01-27
-task_name: api-design-task
-visualization_type: Task Context
-map_type: Context Map
+related_task: PF-TSK-020
 ---
 
 # API Design Task Context Map

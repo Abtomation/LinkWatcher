@@ -4,7 +4,7 @@ type: Process Framework
 category: Task Definition
 version: 1.1
 created: 2025-12-13
-updated: 2026-03-24
+updated: 2026-04-03
 ---
 
 # UI Implementation
@@ -32,6 +32,7 @@ Build UI components and screen layouts for a feature. This task creates the user
 
 ## Context Requirements
 
+[View Context Map for this task](../../visualization/context-maps/04-implementation/ui-implementation-map.md)
 
 - **Critical (Must Read):**
 
@@ -53,43 +54,63 @@ Build UI components and screen layouts for a feature. This task creates the user
 > **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished! 🚨**
 >
 > **⚠️ MANDATORY: Update Feature Implementation State File throughout implementation.**
+>
+> **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
+>
+> **⚠️ MANDATORY: Never proceed past a checkpoint without presenting findings and getting explicit approval.**
 
 ### Preparation
 
 1. **Review TDD UI/UX Design**: Read UI design section from TDD to understand screen layouts, component hierarchy, navigation flow, and technology-specific patterns
 2. **Analyze State Layer Output**: Review completed state management implementations from PF-TSK-056 to understand available state and actions
 3. **Identify Component Requirements**: Determine screens needed, UI components, and navigation patterns from TDD
+   - **Review AX and SE dimensions** from the feature's Dimension Profile — UI work is particularly sensitive to Accessibility/UX (semantic labels, keyboard navigation, contrast) and Security (input validation, XSS prevention). Note any Critical/Relevant considerations that apply to the UI layer
 4. **Plan Component Hierarchy**: Map out component tree structure, screen composition, and reusable component extraction
+5. **🚨 CHECKPOINT**: Present UI analysis, component hierarchy plan, and accessibility requirements to human partner for approval
 
 ### Execution
 
-5. **Create UI Components**: Build reusable UI components following single responsibility principle
+6. **Create UI Components**: Build reusable UI components following single responsibility principle
    - Create presentational components for display-only elements
    - Create stateful components for elements that need state management access
    - Extract common UI elements into shared components
-6. **Implement Screens**: Build complete screen layouts with navigation
+7. **Implement Screens**: Build complete screen layouts with navigation
    - Design responsive layouts appropriate to the target platform
    - Integrate navigation following the patterns specified in the TDD
    - Apply theming and styling consistently
-7. **Connect to State Layer**: Wire UI components to state management using the patterns specified in the TDD
+8. **Connect to State Layer**: Wire UI components to state management using the patterns specified in the TDD
    - Subscribe to reactive state updates where needed
    - Dispatch actions or call state mutations for user interactions
    - Handle loading, error, and empty states appropriately
-8. **Add UI Tests**: Create tests for UI components and screens
-   - Test component rendering with different state scenarios
-   - Test user interactions (clicks, scrolls, input)
-   - Test navigation flows
 9. **Implement Accessibility**: Add semantic labels, proper contrast, and keyboard navigation
-10. **Update Feature Implementation State File**: Document UI implementations, screen structure, and integration notes
+10. **Add UI Tests**: Create tracked tests for UI components and screens using `New-TestFile.ps1`
+
+    ```powershell
+    # Create test files using automation script (writes pytest markers)
+    cd process-framework/scripts/file-creation/03-testing
+    .\New-TestFile.ps1 -TestName "FeatureName" -TestType "Unit" -FeatureId "X.Y.Z" -ComponentName "UIComponents"
+    .\New-TestFile.ps1 -TestName "FeatureName" -TestType "Unit" -FeatureId "X.Y.Z" -ComponentName "Screens"
+
+    # Script automatically:
+    # - Writes pytest markers (feature, priority, test_type)
+    # - Creates test file from template with proper structure
+    # - Updates test-tracking.md with correct file links and status
+    # - Updates feature-tracking.md with test implementation progress
+    ```
+
+    - Test component rendering with different state scenarios
+    - Test user interactions (clicks, scrolls, input)
+    - Test navigation flows
+11. **🚨 CHECKPOINT**: Present implemented UI components, screen layouts, test results, and any TDD deviations to human partner for review and approval
 
 ### Finalization
 
-11. **Verify Component Hierarchy**: Ensure component composition follows framework best practices and avoids excessive nesting
-12. **Review Responsive Design**: Confirm layouts work across target screen sizes and orientations
-13. **Validate Accessibility**: Ensure all interactive elements have proper semantics and meet accessibility standards
-14. **Validate Test Coverage**: Ensure all screens and critical components have comprehensive UI test coverage
-15. **Update Code Inventory**: Document all created components and screens in Feature Implementation State File
-16. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+12. **Verify Component Hierarchy**: Ensure component composition follows framework best practices and avoids excessive nesting
+13. **Review Responsive Design**: Confirm layouts work across target screen sizes and orientations
+14. **Validate Accessibility**: Ensure all interactive elements have proper semantics and meet accessibility standards
+15. **Validate Test Coverage**: Ensure all screens and critical components have comprehensive UI test coverage
+16. **Update Code Inventory**: Document all created components and screens in Feature Implementation State File
+17. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 
@@ -101,7 +122,12 @@ Build UI components and screen layouts for a feature. This task creates the user
 
 ## State Tracking
 
-The following state files must be updated as part of this task:
+### Automated Updates (via `New-TestFile.ps1`)
+
+- [Test Tracking](../../../test/state-tracking/permanent/test-tracking.md) - Automatically updated with test file links and status
+- [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Automatically updated with test implementation progress
+
+### Manual Updates
 
 - [Feature Implementation State File](../../state-tracking/permanent/feature-implementation-state-[feature-id].md) - Update **Code Inventory** section with all created components and screens, update **Implementation Progress** section with UI layer completion status, document any UI/UX patterns or design decisions in **Implementation Notes**
 

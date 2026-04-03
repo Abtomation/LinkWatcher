@@ -28,7 +28,7 @@ param(
 $ErrorActionPreference = 'Stop'
 
 # --- Resolve paths ---
-$projectRoot = (Resolve-Path (Join-Path $PSScriptRoot '../../..')).Path
+$projectRoot = (Resolve-Path (Join-Path $PSScriptRoot '../../../.git/objects/3a/b045e54f8acd16e0d036a487eb74c269db1d9f')).Path
 $featuresDir = Join-Path $projectRoot 'doc/state-tracking/features'
 $trackingFile = Join-Path $projectRoot 'doc/state-tracking/permanent/feature-tracking.md'
 $outputFile = Join-Path $projectRoot 'doc/technical/feature-dependencies.md'

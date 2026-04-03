@@ -41,7 +41,8 @@ description: Creates task definition documents for process framework
 
 ## Context Requirements
 
-<!-- [View Context Map for this task](../../visualization/context-maps/[workflow-phase]/[task-name]-map.md) - Template/example link commented out -->
+<!-- Uncomment and update when context map is created:
+[View Context Map for this task](../../visualization/context-maps/[workflow-phase]/[task-name]-map.md) -->
 
 - **Critical (Must Read):**
 

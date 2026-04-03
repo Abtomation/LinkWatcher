@@ -1,15 +1,12 @@
 ---
 id: PF-GDE-034
-type: Document
-category: General
+type: Process Framework
+category: Guide
 version: 1.1
 created: 2025-07-27
 updated: 2025-01-27
 related_script: New-SchemaDesign.ps1
-guide_description: Guide for customizing database schema design templates
-guide_status: Active
-related_tasks: PF-TSK-021
-guide_title: Schema Design Creation Guide
+related_task: PF-TSK-021
 change_notes: "v1.1 - Updated for IMP-097/IMP-098: Added separation of concerns guidance and cross-referencing standards"
 ---
 

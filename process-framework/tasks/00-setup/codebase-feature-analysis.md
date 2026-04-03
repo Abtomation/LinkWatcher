@@ -31,7 +31,7 @@ This task produces enriched Feature Implementation State files that serve as the
 
 ## Context Requirements
 
-**[📊 View Context Map for this task](../../visualization/context-maps/00-setup/codebase-feature-analysis-map.md)** - Visual guide showing all components and their relationships
+[View Context Map for this task](../../visualization/context-maps/00-setup/codebase-feature-analysis-map.md)
 
 - **Critical (Must Read):**
 

@@ -1,16 +1,12 @@
 ---
 id: PF-GDE-049
-type: Document
-category: General
+type: Process Framework
+category: Guide
 version: 1.1
 created: 2026-03-15
 updated: 2026-03-18
-guide_category: guides
-guide_status: Active
-guide_title: E2E Acceptance Test Case Customization Guide
-guide_description: Step-by-step instructions for customizing E2E acceptance test case and master test templates created by New-E2EAcceptanceTestCase.ps1
 related_script: New-E2EAcceptanceTestCase.ps1
-related_tasks: PF-TSK-069
+related_task: PF-TSK-069
 ---
 
 # E2E Acceptance Test Case Customization Guide

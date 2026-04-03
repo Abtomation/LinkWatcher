@@ -1,14 +1,11 @@
 ---
 id: PF-GDE-035
-type: Document
-category: General
+type: Process Framework
+category: Guide
 version: 1.1
 created: 2025-07-28
 updated: 2026-04-02
-guide_title: Framework Extension Concept Customization Guide
-guide_description: Comprehensive guide for customizing Framework Extension Concept documents created by the Framework Extension Task
-guide_status: Active
-related_tasks: PF-TSK-026
+related_task: PF-TSK-026
 related_script: New-FrameworkExtensionConcept.ps1
 ---
 # Framework Extension Concept Customization Guide

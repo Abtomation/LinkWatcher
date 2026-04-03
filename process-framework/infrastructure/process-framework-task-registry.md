@@ -91,7 +91,7 @@ This document serves as the **comprehensive registry** of all process framework 
 | [Technical Debt Tracking](../../doc/state-tracking/permanent/technical-debt-tracking.md)                   | 3 tasks             | **MEDIUM**          |
 | Pytest Markers (via [test_query.py](/process-framework/scripts/test/test_query.py))                               | 2 tasks             | **MEDIUM**          |
 | [Documentation Map](../PF-documentation-map.md)                                                        | 6+ validation tasks | **MEDIUM**          |
-| [Validation Tracking](../../doc/state-tracking/temporary/validation/archive/validation-tracking-1.md) | 11 validation tasks | **MEDIUM**          |
+| [Validation Tracking](../../doc/state-tracking/validation/archive/validation-tracking-1.md) | 11 validation tasks | **MEDIUM**          |
 
 ## Task Catalog
 
@@ -177,7 +177,7 @@ This document serves as the **comprehensive registry** of all process framework 
 
 **📋 AUTOMATION DETAILS**
 
-- **Scripts:** Reuses design task scripts (`New-FDD.ps1`, `New-tdd.ps1`, `New-TestSpecification.ps1`, `New-ArchitectureDecision.ps1`, etc.)
+- **Scripts:** Reuses design task scripts (`New-FDD.ps1`, `New-TDD.ps1`, `New-TestSpecification.ps1`, `New-ArchitectureDecision.ps1`, etc.)
 - **Validation Script:** [`Validate-StateTracking.ps1`](../scripts/validation/Validate-StateTracking.ps1)
 - **Output Directory:** Various (`doc/functional-design/fdds/`, `doc/technical/tdd/`, `doc/technical/adr/`, `test/specifications/`)
 
@@ -247,15 +247,15 @@ This document serves as the **comprehensive registry** of all process framework 
 
 **📋 AUTOMATION DETAILS**
 
-- **Script:** [`New-tdd.ps1`](../scripts/file-creation/02-design/New-tdd.ps1)
+- **Script:** [`New-TDD.ps1`](../scripts/file-creation/02-design/New-TDD.ps1)
 - **Output Directory:** [`tdd/`](../../doc/technical/tdd)
 - **Auto-Update Function:** Built-in automated feature tracking updates
 
 **📁 FILE OPERATIONS**
 | Operation | File Path | Update Method | Details |
 |-----------|-----------|---------------|---------|
-| **Creates** | `tdd-[FeatureId]-[feature-name]-t[Tier].md` | `New-tdd.ps1` | Technical design document with architecture and implementation details |
-| **Updates** | [`feature-tracking.md`](../../doc/state-tracking/permanent/feature-tracking.md) | `New-tdd.ps1` | Status: "📋 FDD Created" (Tier 2+) or "📊 Assessment Created" (Tier 1) → "📝 TDD Created"<br/>• Add TDD link in Tech Design column<br/>• Add TDD creation date to Notes column |
+| **Creates** | `tdd-[FeatureId]-[feature-name]-t[Tier].md` | `New-TDD.ps1` | Technical design document with architecture and implementation details |
+| **Updates** | [`feature-tracking.md`](../../doc/state-tracking/permanent/feature-tracking.md) | `New-TDD.ps1` | Status: "📋 FDD Created" (Tier 2+) or "📊 Assessment Created" (Tier 1) → "📝 TDD Created"<br/>• Add TDD link in Tech Design column<br/>• Add TDD creation date to Notes column |
 
 **🎯 KEY IMPACTS**
 
@@ -323,6 +323,7 @@ This document serves as the **comprehensive registry** of all process framework 
 **📋 AUTOMATION DETAILS**
 
 - **Report Script:** [`New-TestAuditReport.ps1`](../scripts/file-creation/03-testing/New-TestAuditReport.ps1)
+- **Tracking Script:** [`New-AuditTracking.ps1`](../scripts/file-creation/03-testing/New-AuditTracking.ps1) — multi-session scoping with auto-populated inventory
 - **State Update Script:** [`Update-TestFileAuditState.ps1`](../scripts/update/Update-TestFileAuditState.ps1)
 - **Output Directory:** [`test/audits/`](../../test/audits)
 - **Auto-Update Function:** **FULLY AUTOMATED** state file updates with intelligent aggregation
@@ -458,7 +459,7 @@ This document serves as the **comprehensive registry** of all process framework 
 |-----------|-----------|---------------|---------|
 | **Creates** | Validation reports | [`Quick-ValidationCheck.ps1`](../scripts/validation/Quick-ValidationCheck.ps1) | Quick health check reports (console/JSON/CSV output) |
 | **Creates** | Comprehensive validation reports | [`Run-FoundationalValidation.ps1`](../scripts/validation/Run-FoundationalValidation.ps1) | Detailed validation reports in `scripts/validation/validation-reports/` |
-| **Updates** | [`validation-tracking.md`](../../doc/state-tracking/temporary/validation/archive/validation-tracking-1.md) | [`Run-FoundationalValidation.ps1`](../scripts/validation/Run-FoundationalValidation.ps1) | Update validation matrix with report creation dates and links |
+| **Updates** | [`validation-tracking.md`](../../doc/state-tracking/validation/archive/validation-tracking-1.md) | [`Run-FoundationalValidation.ps1`](../scripts/validation/Run-FoundationalValidation.ps1) | Update validation matrix with report creation dates and links |
 | **Updates** | [`bug-tracking.md`](../../doc/state-tracking/permanent/bug-tracking.md) (if bugs discovered) | [`New-BugReport.ps1`](../scripts/file-creation/06-maintenance/New-BugReport.ps1)| Add newly discovered bugs with 🆕 Reported status for triage |
 | **Updates** | `architecture-context-packages.md` (deleted) | Manual | Update with new architectural foundations and component relationships |
 | **Updates** | [`architecture-tracking.md`](../../doc/state-tracking/permanent/architecture-tracking.md) | Manual | Record foundation implementation and architectural evolution<br/>• Update component status and key decisions |
@@ -1040,7 +1041,7 @@ This document serves as the **comprehensive registry** of all process framework 
 **📋 AUTOMATION DETAILS**
 
 - **Script:** [`New-ValidationTracking.ps1`](../scripts/file-creation/05-validation/New-ValidationTracking.ps1)
-- **Output Directory:** `doc/state-tracking/temporary/validation/`
+- **Output Directory:** `doc/state-tracking/validation`
 - **Auto-Update Function:** ID registry only; feature×dimension matrix requires manual customization
 
 **📁 FILE OPERATIONS**
@@ -1070,12 +1071,12 @@ This document serves as the **comprehensive registry** of all process framework 
 | Operation | File Path | Update Method | Details |
 |-----------|-----------|---------------|---------|
 | **Creates** | `[PF-VAL-XXX]-[validation-type]-features-[feature-range].md` | Script | Comprehensive validation report for specific validation type |
-| **Updates** | [`validation-tracking.md`](../../doc/state-tracking/temporary/validation/archive/validation-tracking-1.md) | Auto | Update validation matrix with report creation date and link<br/>• Update specific validation type column for validated features |
+| **Updates** | [`validation-tracking.md`](../../doc/state-tracking/validation/archive/validation-tracking-1.md) | Auto | Update validation matrix with report creation date and link<br/>• Update specific validation type column for validated features |
 | **Updates** | [`documentation-map.md`](../PF-documentation-map.md) | Auto | Add new validation report to validation reports section<br/>• Include report ID, path, and description |
 
 **🎯 KEY IMPACTS**
 
-- **Primary state file:** [`validation-tracking.md`](../../doc/state-tracking/temporary/validation/archive/validation-tracking-1.md) - Tracks validation completion across features
+- **Primary state file:** [`validation-tracking.md`](../../doc/state-tracking/validation/archive/validation-tracking-1.md) - Tracks validation completion across features
 - **Documentation registry:** Updates validation report catalog
 - **Quality assurance:** Validates features meet quality standards
 - **Enables next steps:** Feature completion certification, release readiness
@@ -1359,7 +1360,7 @@ Complete catalog of all automation scripts in `process-framework/scripts/`. Scri
 | `New-Assessment.ps1` | `file-creation/01-planning/` | PF-TSK-002 | Create tier assessment documents |
 | `New-FeatureRequest.ps1` | `file-creation/01-planning/` | PF-TSK-067 | Add feature requests to feature-request-tracking.md |
 | `New-FDD.ps1` | `file-creation/02-design/` | PF-TSK-027, PF-TSK-066 | Create Functional Design Documents |
-| `New-tdd.ps1` | `file-creation/02-design/` | PF-TSK-015, PF-TSK-066 | Create Technical Design Documents |
+| `New-TDD.ps1` | `file-creation/02-design/` | PF-TSK-015, PF-TSK-066 | Create Technical Design Documents |
 | `New-ArchitectureDecision.ps1` | `file-creation/02-design/` | PF-TSK-028, PF-TSK-022, PF-TSK-066 | Create Architecture Decision Records |
 | `New-ArchitectureAssessment.ps1` | `file-creation/02-design/` | PF-TSK-019 | Create Architecture Impact Assessments |
 | `New-APISpecification.ps1` | `file-creation/02-design/` | PF-TSK-020 | Create API specification documents |
@@ -1370,6 +1371,7 @@ Complete catalog of all automation scripts in `process-framework/scripts/`. Scri
 | `New-TestSpecification.ps1` | `file-creation/03-testing/` | PF-TSK-012, PF-TSK-066 | Create test specifications (feature-specific and cross-cutting) |
 | `New-TestFile.ps1` | `file-creation/03-testing/` | PF-TSK-053, PF-TSK-065, PF-TSK-078 | Create tracked test files with pytest markers |
 | `New-TestAuditReport.ps1` | `file-creation/03-testing/` | PF-TSK-030 | Create test audit reports |
+| `New-AuditTracking.ps1` | `file-creation/03-testing/` | PF-TSK-030 | Create multi-session audit tracking state files with auto-populated inventory |
 | `New-E2EAcceptanceTestCase.ps1` | `file-creation/03-testing/` | PF-TSK-069 | Create E2E acceptance test case directories |
 | `New-ImplementationPlan.ps1` | `file-creation/04-implementation/` | PF-TSK-044 | Create implementation plan documents |
 | `New-FeatureImplementationState.ps1` | `file-creation/04-implementation/` | PF-TSK-044, PF-TSK-064, PF-TSK-067 | Create feature implementation state files |
@@ -1427,7 +1429,7 @@ Complete catalog of all automation scripts in `process-framework/scripts/`. Scri
 
 | Script | Location | Used By Task(s) | Purpose |
 |--------|----------|------------------|---------|
-| `Validate-StateTracking.ps1` | `validation/` | PF-TSK-066, multiple | Master validation: 9 surfaces (feature links, state files, test tracking, cross-refs, ID counters, dependencies, dimensions, workflows, task registry) |
+| `Validate-StateTracking.ps1` | `validation/` | PF-TSK-066, multiple | Master validation: 11 surfaces (feature links, state files, test tracking, cross-refs, ID counters, dependencies, dimensions, workflows, task registry, metadata schema, context map orphans) |
 | `Validate-TestTracking.ps1` | `validation/` | PF-TSK-053 | Validate pytest markers vs test-tracking.md and disk |
 | `Validate-IdRegistry.ps1` | `validation/` | Infrastructure | Validate ID registry against actual files |
 | `Validate-FeedbackForms.ps1` | `validation/` | PF-TSK-010 | Validate feedback form completeness |

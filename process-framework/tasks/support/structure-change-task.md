@@ -3,9 +3,9 @@ id: PF-TSK-014
 type: Process Framework
 category: Task Definition
 domain: agnostic
-version: 2.0
+version: 2.1
 created: 2025-06-07
-updated: 2026-03-15
+updated: 2026-04-03
 ---
 
 # Structure Change Task
@@ -33,7 +33,7 @@ This task **orchestrates** systematic changes to documentation structures, templ
 
 ## Context Requirements
 
-- [Structure Change Context Map](/process-framework/visualization/context-maps/support/structure-change-map.md) - Visual guide to the components relevant to this task
+[View Context Map for this task](../../visualization/context-maps/support/structure-change-map.md)
 
 - **Critical (Must Read):**
 
@@ -69,6 +69,7 @@ This task **orchestrates** systematic changes to documentation structures, templ
    | **Change type** | Single-type (rename, move, update references, add column) | Multi-type (template + guide + script + content) |
    | **Breaking changes** | No (backward-compatible or self-contained) | Yes (changes that affect other tasks/workflows) |
    | **Cross-references** | Handled by LinkWatcher or minimal manual updates | Extensive manual cross-reference updates needed |
+   | **Incoming references** | ≤ 20 files reference the affected file(s) | > 20 files reference the affected file(s) (grep to verify) |
 
    > A change qualifies as **Lightweight** if it meets ALL lightweight criteria. If ANY criterion falls into Full, use the Full process.
 
@@ -109,12 +110,22 @@ This task **orchestrates** systematic changes to documentation structures, templ
 
 #### Preparation
 
-3. **Create Structure Change Proposal**: Use the [New-StructureChangeProposal.ps1](../../scripts/file-creation/support/New-StructureChangeProposal.ps1) script:
+3. **🚨 MANDATORY Impact Analysis**: Before creating the proposal, systematically assess the full scope of the change. This step prevents incremental scope discovery during execution.
+
+   a. **Reference grep**: For each affected file, grep the entire project to find all files that reference it (markdown links, imports, script paths, string literals). Record the count and list.
+   b. **Script audit**: Identify all automation scripts that read from or write to the affected file(s). Check `process-framework/scripts/` for scripts that target these paths.
+   c. **Task definition audit**: Search task definitions (`process-framework/tasks/`) for manual update instructions referencing the affected file(s) (e.g., "update documentation-map.md").
+   d. **Infrastructure doc consultation**: Read [Process Framework Task Registry](../../infrastructure/process-framework-task-registry.md) (catalogs what each task creates/updates) and [Task Transition Guide](../../guides/framework/task-transition-guide.md) (documents handover interfaces between tasks) to identify additional downstream impacts.
+   e. **Present impact matrix**: Compile findings into a matrix (affected files × change type: link update, content update, script change, task definition change) and present at the checkpoint below.
+
+   > **Why this step exists**: SC-009 demonstrated that without structured impact analysis, scope gaps are caught incrementally by the human partner across multiple checkpoints — wasting review cycles and risking missed items.
+
+4. **Create Structure Change Proposal**: Use the [New-StructureChangeProposal.ps1](../../scripts/file-creation/support/New-StructureChangeProposal.ps1) script. Incorporate the impact matrix from Step 3 into the proposal:
    ```powershell
    cd process-framework/scripts/file-creation
    .\New-StructureChangeProposal.ps1 -ChangeName "Change Name" -Description "Brief description"
    ```
-4. **Create Structure Change State Tracking File**: Use the [New-StructureChangeState.ps1](../../scripts/file-creation/support/New-StructureChangeState.ps1) script to create tracking file with implementation roadmap
+5. **Create Structure Change State Tracking File**: Use the [New-StructureChangeState.ps1](../../scripts/file-creation/support/New-StructureChangeState.ps1) script to create tracking file with implementation roadmap
    ```powershell
    # Navigate to the state-tracking directory and create structure change state tracking file
    cd process-framework/state-tracking
@@ -123,16 +134,16 @@ This task **orchestrates** systematic changes to documentation structures, templ
    # Use -ChangeType "Content Update" for content-only changes across files (simplified template without pilot/rollback/metrics sections)
    # Use -FromProposal when a detailed proposal already exists — generates a lightweight state file (phase checklist + session log only, no redundant sections)
    ```
-5. Use the existing `/process-framework/state-tracking/temporary` directory for transition files
-6. Create mapping documents and migration checklists in the temporary directory
-7. Establish clear metrics for measuring the success of the structure change
-8. **🚨 CHECKPOINT**: Present structure change proposal, migration plan, and impact analysis to human partner for approval
+6. Use the existing `/process-framework/state-tracking/temporary` directory for transition files
+7. Create mapping documents and migration checklists in the temporary directory
+8. Establish clear metrics for measuring the success of the structure change
+9. **🚨 CHECKPOINT**: Present structure change proposal (including impact matrix from Step 3), migration plan, and impact analysis to human partner for approval
 
 #### Execution
 
 > **🚨 ORCHESTRATOR PRINCIPLE**: PF-TSK-014 plans, tracks, and coordinates structure changes. It does NOT perform specialized work inline. When a deliverable requires template creation, guide creation, script creation, or task creation, **delegate to the appropriate specialized task or process** and track completion.
 
-9. **Delegation Planning**: Review the deliverables identified in the proposal and classify each one:
+10. **Delegation Planning**: Review the deliverables identified in the proposal and classify each one:
 
    | Deliverable Type | Delegate To | Process |
    |---|---|---|
@@ -140,19 +151,19 @@ This task **orchestrates** systematic changes to documentation structures, templ
    | New/updated template | [Template Development Guide](../../guides/support/template-development-guide.md) + [New-Template.ps1](../../scripts/file-creation/support/New-Template.ps1) | Template development process |
    | New/updated guide | [New-Guide.ps1](../../scripts/file-creation/support/New-Guide.ps1) | Guide creation process |
    | New automation script | [Document Creation Script Development Guide](../../guides/support/document-creation-script-development-guide.md) + [script template](../../templates/support/document-creation-script-template.ps1) | Script development process |
-   | Content migration | PF-TSK-014 (this task) | Direct execution — see step 12 |
+   | Content migration | PF-TSK-014 (this task) | Direct execution — see step 13 |
    | Cross-reference updates | PF-TSK-014 (this task) | Direct execution — LinkWatcher handles most |
 
    Record the delegation plan in the structure change state tracking file.
 
-10. **🚨 CHECKPOINT**: Present the delegation plan to the human partner — which deliverables are delegated, which are handled directly, and the execution order.
+11. **🚨 CHECKPOINT**: Present the delegation plan to the human partner — which deliverables are delegated, which are handled directly, and the execution order.
 
-11. **Execute Delegated Work**: For each delegated deliverable:
+12. **Execute Delegated Work**: For each delegated deliverable:
     a. Start the delegated task/process (may be a separate session if context-heavy)
     b. Track completion status in the structure change state tracking file
     c. **🚨 CHECKPOINT**: Confirm each delegated deliverable meets expectations before proceeding to the next
 
-12. **Direct Execution — Migration and Updates**: Handle work that belongs to PF-TSK-014 directly:
+13. **Direct Execution — Migration and Updates**: Handle work that belongs to PF-TSK-014 directly:
     - Create migration plan for updating files affected by structure changes
     - Pilot changes on a small subset of files to validate the approach
     - **🚨 CHECKPOINT**: Present pilot results to human partner for approval before full rollout
@@ -162,21 +173,21 @@ This task **orchestrates** systematic changes to documentation structures, templ
 
 #### Finalization
 
-13. Verify all files have been updated correctly
-14. Document any issues encountered and their resolutions
-15. Update the documentation map if structure changes affected document organization
+14. Verify all files have been updated correctly
+15. Document any issues encountered and their resolutions
+16. Update the documentation map if structure changes affected document organization
 
 #### 🚨 MANDATORY Cleanup Phase
 
-16. **🚨 CRITICAL CLEANUP STEP**: Archive completed temporary state tracking files to `/process-framework/state-tracking/temporary/old`
-17. **Archive completed proposal**: Move the structure change proposal to its `old/` subdirectory (e.g., `proposals/old`) — the proposal has served its purpose and should not remain alongside active proposals
-18. Remove excessive migration mapping documents if they don't provide ongoing value
-19. Clean up any redundant documentation created during the process
-20. Update the Process Improvement Tracking file with cleanup completion
+17. **🚨 CRITICAL CLEANUP STEP**: Archive completed temporary state tracking files to `/process-framework/state-tracking/temporary/old`
+18. **Archive completed proposal**: Move the structure change proposal to its `old/` subdirectory (e.g., `proposals/old`) — the proposal has served its purpose and should not remain alongside active proposals
+19. Remove excessive migration mapping documents if they don't provide ongoing value
+20. Clean up any redundant documentation created during the process
+21. Update the Process Improvement Tracking file with cleanup completion
 
 #### Final Completion
 
-20. **🚨 MANDATORY FINAL STEP**: Complete the [Full Completion Checklist](#full-completion-checklist) below
+21. **🚨 MANDATORY FINAL STEP**: Complete the [Full Completion Checklist](#full-completion-checklist) below
 
 ## Outputs
 

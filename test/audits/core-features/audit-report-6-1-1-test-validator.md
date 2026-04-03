@@ -218,10 +218,10 @@ All six evaluation criteria pass. The test suite provides comprehensive coverage
 ## Action Items
 
 ### For Test Implementation Team
-- [ ] Parametrize `TestShouldCheckTarget` into `@pytest.mark.parametrize` table (low priority, maintainability improvement)
-- [ ] Add test for template file filtering path (`/templates/` directory detection)
-- [ ] Add test for `_get_placeholder_lines` ("replace with actual" detection)
-- [ ] Add tests for uncovered `_should_check_target` sub-filters: regex metachar `^{}|`, `]+`/`\[`, PowerShell `.\` syntax
+- [x] Parametrize `TestShouldCheckTarget` into `@pytest.mark.parametrize` table — TD169 resolved 2026-04-03
+- [x] Add test for template file filtering path (`/templates/` directory detection) — TD170 resolved 2026-04-03
+- [x] Add test for `_get_placeholder_lines` ("replace with actual" detection) — TD170 resolved 2026-04-03
+- [x] Add tests for uncovered `_should_check_target` sub-filters: regex metachar `^{}|`, `]+`/`\[`, PowerShell `.\` syntax — TD170 resolved 2026-04-03
 
 ### For Feature Implementation Team
 - N/A — feature 6.1.1 is fully implemented and maintained
@@ -253,4 +253,3 @@ All six evaluation criteria pass. The test suite provides comprehensive coverage
 **Audit Completed By**: AI Agent
 **Completion Date**: 2026-04-03
 **Report Version**: 1.0
-

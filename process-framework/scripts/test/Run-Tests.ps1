@@ -59,7 +59,7 @@
     Categories are auto-discovered from test directory subdirectories.
 #>
 
-[CmdletBinding()]
+[CmdletBinding(SupportsShouldProcess)]
 param(
     [string[]]$Category,
     [switch]$Quick,
@@ -201,6 +201,12 @@ function Invoke-TestCommand {
     if ($Description) { Write-Host "Running: $Description" }
     Write-Host "Command: $($Command -join ' ')"
     Write-Host ("=" * 60)
+
+    if ($WhatIfPreference) {
+        Write-Host "What if: Would execute $Description"
+        Write-Host "  Command: $($Command -join ' ')"
+        return $true
+    }
 
     Push-Location $projectRoot
     try {

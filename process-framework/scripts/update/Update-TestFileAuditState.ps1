@@ -62,8 +62,8 @@ This script addresses Process Improvement items:
 - SC-007: Uses file path as identifier (not PD-TST/TE-TST IDs)
 
 Created: 2025-08-29
-Updated: 2026-03-26 (SC-007: file path identifier)
-Version: 2.0
+Updated: 2026-04-03 (IMP-340: directory-aware disambiguation for duplicate filenames)
+Version: 2.1
 #>
 
 [CmdletBinding()]
@@ -131,6 +131,8 @@ if (-not $dependencyCheck.AllDependenciesMet) {
 }
 
 # Helper function to get feature ID from test file path (SC-007)
+# Uses directory-aware matching: when multiple rows share the same filename,
+# disambiguates using the directory portion of TestFilePath (IMP-340)
 function Get-FeatureIdFromTestFile {
     param([string]$TestFilePath)
 
@@ -143,23 +145,61 @@ function Get-FeatureIdFromTestFile {
 
     $fileName = Split-Path $TestFilePath -Leaf
     $content = Get-Content $testTrackingPath -Encoding UTF8
+    $escapedFileName = [regex]::Escape($fileName)
 
-    # Look for the test file name in test-tracking.md table rows
-    # 8-column format: | Feature ID | Test Type | Test File/Case | Status | ...
+    # Collect all matching rows by filename
+    $foundRows = @()
     foreach ($line in $content) {
-        if ($line -match "^\|" -and $line -match [regex]::Escape($fileName)) {
+        if ($line -match "^\|" -and $line -match $escapedFileName) {
             $cols = $line -split '\|' | ForEach-Object { $_.Trim() }
-            # cols[0]=empty, cols[1]=Feature ID, cols[2]=Test Type, cols[3]=Test File/Case, ...
             if ($cols.Count -ge 4 -and $cols[1] -match '^\d+\.\d+\.\d+$') {
-                return $cols[1]
+                $foundRows += @{ FeatureId = $cols[1]; LinkCell = $cols[3]; Line = $line }
             }
         }
     }
 
-    throw "Test file '$fileName' not found in test tracking"
+    if ($foundRows.Count -eq 0) {
+        throw "Test file '$fileName' not found in test tracking"
+    }
+
+    if ($foundRows.Count -eq 1) {
+        return $foundRows[0].FeatureId
+    }
+
+    # Multiple matches — disambiguate using directory from TestFilePath
+    # Build a suffix from input path: e.g., "test/automated/unit/test_config.py" → "unit/test_config.py"
+    $normalizedInput = $TestFilePath -replace '\\', '/'
+    $inputParts = $normalizedInput -split '/'
+    # Use parent-dir/filename as the disambiguation suffix (at minimum)
+    $suffixParts = if ($inputParts.Count -ge 2) { $inputParts[-2..-1] } else { $inputParts }
+    $suffix = ($suffixParts -join '/')
+
+    $narrowed = @()
+    foreach ($row in $foundRows) {
+        # Extract path from markdown link [name](path) in the Test File/Case column
+        if ($row.LinkCell -match '\[.*?\]\((.*?)\)') {
+            $linkPath = $Matches[1] -replace '\\', '/'
+            if ($linkPath.EndsWith($suffix)) {
+                $narrowed += $row
+            }
+        }
+    }
+
+    if ($narrowed.Count -eq 1) {
+        return $narrowed[0].FeatureId
+    }
+
+    if ($narrowed.Count -eq 0) {
+        $paths = ($foundRows | ForEach-Object { $_.LinkCell }) -join ", "
+        throw "Test file '$fileName' found $($foundRows.Count) times in test tracking but none matched path '$TestFilePath'. Entries: $paths"
+    }
+
+    $paths = ($narrowed | ForEach-Object { $_.LinkCell }) -join ", "
+    throw "Test file '$fileName' still ambiguous after path disambiguation ($($narrowed.Count) matches). Provide a more specific path. Entries: $paths"
 }
 
 # Helper function to update individual test file status (SC-007: match by file path)
+# Uses directory-aware matching to disambiguate duplicate filenames (IMP-340)
 function Update-IndividualTestFileStatus {
     param(
         [string]$TestFilePath,
@@ -187,47 +227,82 @@ function Update-IndividualTestFileStatus {
 
     $content = Get-Content $testTrackingPath -Raw
 
-    # Find the line with the test file name and update it
+    # Find all matching lines by filename, then disambiguate by path if needed
     $lines = $content -split "`r?`n"
     $updated = $false
     $escapedFileName = [regex]::Escape($fileName)
+    $normalizedInput = $TestFilePath -replace '\\', '/'
 
+    # First pass: collect all matching line indices
+    $matchingIndices = @()
     for ($i = 0; $i -lt $lines.Count; $i++) {
         if ($lines[$i] -match "^\|" -and $lines[$i] -match $escapedFileName) {
-            # Parse the current line
             $parts = $lines[$i] -split '\|'
             if ($parts.Count -ge 9) {
-                # 8-column format (SC-007):
-                # Feature ID | Test Type | Test File/Case | Status | Test Cases Count | Last Executed | Last Updated | Notes
-                # Index: 1        2            3              4          5                 6               7              8
-                # Update Status (column 4, index 4)
-                $parts[4] = " $Status "
-
-                # Update Last Updated (column 7, index 7)
-                $parts[7] = " $(Get-Date -Format 'yyyy-MM-dd') "
-
-                # Update notes if additional updates provided
-                if ($AdditionalUpdates.Count -gt 0) {
-                    $currentNotes = $parts[8].Trim()
-                    $newNotes = @()
-
-                    if ($currentNotes -and $currentNotes -ne "") {
-                        $newNotes += $currentNotes
-                    }
-
-                    foreach ($key in $AdditionalUpdates.Keys) {
-                        $newNotes += "$key`: $($AdditionalUpdates[$key])"
-                    }
-
-                    $parts[8] = " $($newNotes -join '; ') "
-                }
-
-                $lines[$i] = $parts -join '|'
-                $updated = $true
-                break
+                $matchingIndices += $i
             }
         }
     }
+
+    if ($matchingIndices.Count -eq 0) {
+        throw "Test file '$fileName' not found in test tracking"
+    }
+
+    # Determine which line to update
+    $targetIndex = -1
+    if ($matchingIndices.Count -eq 1) {
+        $targetIndex = $matchingIndices[0]
+    } else {
+        # Multiple matches — disambiguate using directory suffix from TestFilePath
+        $inputParts = $normalizedInput -split '/'
+        $suffixParts = if ($inputParts.Count -ge 2) { $inputParts[-2..-1] } else { $inputParts }
+        $suffix = ($suffixParts -join '/')
+
+        foreach ($idx in $matchingIndices) {
+            $parts = $lines[$idx] -split '\|'
+            $linkCell = $parts[3].Trim()
+            if ($linkCell -match '\[.*?\]\((.*?)\)') {
+                $linkPath = $Matches[1] -replace '\\', '/'
+                if ($linkPath.EndsWith($suffix)) {
+                    $targetIndex = $idx
+                    break
+                }
+            }
+        }
+
+        if ($targetIndex -eq -1) {
+            $paths = $matchingIndices | ForEach-Object {
+                $p = $lines[$_] -split '\|'; $p[3].Trim()
+            }
+            throw "Test file '$fileName' found $($matchingIndices.Count) times but none matched path '$TestFilePath'. Entries: $($paths -join ', ')"
+        }
+    }
+
+    # Apply the update to the target line
+    $parts = $lines[$targetIndex] -split '\|'
+    # 8-column format (SC-007):
+    # Feature ID | Test Type | Test File/Case | Status | Test Cases Count | Last Executed | Last Updated | Notes
+    # Index: 1        2            3              4          5                 6               7              8
+    $parts[4] = " $Status "
+    $parts[7] = " $(Get-Date -Format 'yyyy-MM-dd') "
+
+    if ($AdditionalUpdates.Count -gt 0) {
+        $currentNotes = $parts[8].Trim()
+        $newNotes = @()
+
+        if ($currentNotes -and $currentNotes -ne "") {
+            $newNotes += $currentNotes
+        }
+
+        foreach ($key in $AdditionalUpdates.Keys) {
+            $newNotes += "$key`: $($AdditionalUpdates[$key])"
+        }
+
+        $parts[8] = " $($newNotes -join '; ') "
+    }
+
+    $lines[$targetIndex] = $parts -join '|'
+    $updated = $true
 
     if (-not $updated) {
         throw "Test file '$fileName' not found in test tracking"

@@ -1,14 +1,12 @@
 ---
 id: PF-VIS-050
-type: Document
-category: General
+type: Process Framework
+category: Context Map
 version: 1.0
 created: 2026-03-15
 updated: 2026-03-15
-visualization_type: Task Context
 workflow_phase: 03-testing
-task_name: e2e-acceptance-test-execution
-map_type: Context Map
+related_task: PF-TSK-070
 ---
 
 # E2E Acceptance Test Execution Context Map

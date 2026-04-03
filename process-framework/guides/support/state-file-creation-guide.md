@@ -1,15 +1,11 @@
 ---
 id: PF-GDE-026
-type: Document
-category: General
+type: Process Framework
+category: Guide
 version: 1.0
 created: 2025-07-27
 updated: 2025-07-27
-guide_description: Guide for customizing state tracking file templates
-guide_status: Active
-guide_title: State File Creation Guide
-related_tasks:
-related_script: New-PermanentState.ps1
+related_task: related_script: New-PermanentState.ps1
 ---
 
 # State File Creation Guide

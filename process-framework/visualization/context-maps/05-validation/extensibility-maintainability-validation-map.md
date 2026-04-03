@@ -1,13 +1,11 @@
 ---
 id: PF-VIS-032
-type: Document
-category: General
+type: Process Framework
+category: Context Map
 version: 1.0
 created: 2025-08-16
 updated: 2025-08-16
-map_type: Context Map
-visualization_type: Task Context
-task_name: extensibility-maintainability-validation
+related_task: PF-TSK-035
 ---
 
 # Extensibility Maintainability Validation Context Map
@@ -25,7 +23,7 @@ graph TD
     FT([Feature Tracking]) --> VR[Validation Report]
     FVT([Validation Tracking]) --> VR
     VRT([Validation Report Template]) --> VR
-    LIB[(lib/ directory)] --> EA[Extensibility Analysis]
+    LIB[(src/ directory)] --> EA[Extensibility Analysis]
 
     CONFIG[Configuration Files] --> CFA[Config Flexibility Assessment]
     TEST[/test/ directory/] --> TIE[Testing Infrastructure Evaluation]
@@ -56,7 +54,7 @@ graph TD
 - **Feature Tracking (FT)**: Current status of features to be validated - provides scope and context
 - **Validation Tracking (FVT)**: Active validation tracking matrix and progress tracking - central coordination point
 - **Validation Report Template (VRT)**: Standardized template for creating validation reports with consistent structure
-- **lib/ directory (LIB)**: Source code structure for extensibility analysis - primary codebase to evaluate
+- **src/ directory (LIB)**: Source code structure for extensibility analysis - primary codebase to evaluate
 
 ### Important Components (Should Understand)
 
@@ -82,7 +80,7 @@ graph TD
 1. **Feature Tracking → Validation Report**: Provides the scope of features to be validated for extensibility and maintainability
 2. **Validation Tracking → Validation Report**: Tracks validation progress and links to completed reports
 3. **Validation Report Template → Validation Report**: Provides standardized structure and scoring framework
-4. **lib/ directory → Extensibility Analysis**: Contains source code for evaluating extension points and architectural flexibility
+4. **src/ directory → Extensibility Analysis**: Contains source code for evaluating extension points and architectural flexibility
 5. **Configuration Files → Config Flexibility Assessment**: Source for analyzing configuration patterns and environment adaptability
 6. **test/ directory → Testing Infrastructure Evaluation**: Contains test infrastructure for coverage and maintainability assessment
 7. **Technical Design Documents → Architectural Flexibility Analysis**: Documentation of architectural patterns and extension points
@@ -96,7 +94,7 @@ graph TD
 ## Implementation in AI Sessions
 
 1. **Start with Critical Context**: Load Feature Tracking, Validation Tracking, and Validation Report Template to understand scope and structure
-2. **Analyze Codebase Structure**: Review lib/ directory for extensibility patterns and architectural flexibility
+2. **Analyze Codebase Structure**: Review src/ directory for extensibility patterns and architectural flexibility
 3. **Evaluate Configuration Flexibility**: Examine configuration files for adaptability and environment-specific support
 4. **Assess Testing Infrastructure**: Review test/ directory for coverage, maintainability, and extension testing support
 5. **Analyze Architectural Flexibility**: Review Technical Design Documents for documented extension points and scalability patterns

@@ -29,13 +29,13 @@ This document catalogs all document types created by framework tasks to support 
 
 #### TDD Creation Task (PF-TSK-022)
 - **Technical Design Document** (PD-TDD-XXX)
-  - Location: `/doc/technical/architecture/design-docs/tdd`
+  - Location: `/doc/technical/tdd`
   - Format: `tdd-[assessment-id]-[feature-name]-t[tier].md`
   - Content: Technical architecture, component design, implementation approach
 
 #### ADR Creation Task (PF-TSK-023)
 - **Architecture Decision Record** (PD-ADR-XXX)
-  - Location: `/doc/technical/architecture/design-docs/adr/adr`
+  - Location: `/doc/technical/adr`
   - Format: Assigned automatically by script
   - Content: Decision context, alternatives considered, consequences
 

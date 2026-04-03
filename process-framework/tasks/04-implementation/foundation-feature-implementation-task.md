@@ -30,7 +30,7 @@ Specialized task for implementing foundation features (0.x.x) that provide archi
 
 ## Context Requirements
 
-<!-- [View Context Map for this task](../../../visualization/context-maps/[task-type]/[task-name]-map.md) - Template/example link commented out -->
+[View Context Map for this task](../../visualization/context-maps/04-implementation/foundation-feature-implementation-task-map.md)
 
 - **Critical (Must Read):**
 

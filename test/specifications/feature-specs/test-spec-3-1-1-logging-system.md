@@ -180,7 +180,7 @@ The Logging System provides `LinkWatcherLogger` with domain-specific methods, `L
 
 ### Files to Reference
 
-- **TDD**: [`doc/technical/architecture/design-docs/tdd/tdd-3-1-1-logging-framework-t2.md`](../../../doc/technical/tdd/tdd-3-1-1-logging-framework-t2.md)
+- **TDD**: [`doc/technical/tdd/tdd-3-1-1-logging-framework-t2.md`](../../../doc/technical/tdd/tdd-3-1-1-logging-framework-t2.md)
 - **Existing Tests**: [`test/automated/unit/test_logging.py`](../../../test/automated/unit/test_logging.py) (20 methods), [`test/automated/unit/test_advanced_logging.py`](../../../test/automated/unit/test_advanced_logging.py) (19 methods)
 - **Source Code**: [`linkwatcher/logging.py`](../../../linkwatcher/logging.py), [`linkwatcher/logging_config.py`](../../../linkwatcher/logging_config.py)
 
