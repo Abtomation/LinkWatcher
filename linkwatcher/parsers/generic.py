@@ -24,7 +24,11 @@ class GenericParser(BaseParser):
         self.quoted_dir_pattern = QUOTED_DIR_PATTERN
 
         # Pattern for unquoted file paths (be conservative)
-        self.unquoted_pattern = re.compile(r"(?:^|\s)([a-zA-Z0-9_\-./\\]+\.[a-zA-Z0-9]+)(?:\s|$)")
+        # PD-BUG-080: Use lookahead for trailing boundary so sentence punctuation
+        # doesn't break the match.
+        self.unquoted_pattern = re.compile(
+            r"(?:^|\s)([a-zA-Z0-9_\-./\\]+\.[a-zA-Z0-9]+)(?=[.,;:!?)\]}\s]|$)"
+        )
 
     def parse_content(self, content: str, file_path: str) -> List[LinkReference]:
         """Parse generic text content for file references."""

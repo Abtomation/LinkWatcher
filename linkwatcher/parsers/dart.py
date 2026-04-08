@@ -30,7 +30,11 @@ class DartParser(BaseParser):
         self.embedded_pattern = re.compile(r"([a-zA-Z0-9_\-./\\]+\.[a-zA-Z0-9]+)")
 
         # Pattern for standalone file references (unquoted)
-        self.standalone_pattern = re.compile(r"(?:^|\s)([a-zA-Z0-9_\-./\\]+\.[a-zA-Z0-9]+)(?:\s|$)")
+        # PD-BUG-080: Use lookahead for trailing boundary so sentence punctuation
+        # doesn't break the match.
+        self.standalone_pattern = re.compile(
+            r"(?:^|\s)([a-zA-Z0-9_\-./\\]+\.[a-zA-Z0-9]+)(?=[.,;:!?)\]}\s]|$)"
+        )
 
     def parse_content(self, content: str, file_path: str) -> List[LinkReference]:
         """Parse Dart content for file references."""
