@@ -120,7 +120,9 @@ class DirectoryMoveDetector:
                 max_timeout=self._max_timeout,
             )
             self._logger.performance.log_metric(
-                "dir_move_batch_size", len(known_files), unit="files",
+                "dir_move_batch_size",
+                len(known_files),
+                unit="files",
                 deleted_dir=deleted_dir,
             )
             return True
@@ -188,7 +190,9 @@ class DirectoryMoveDetector:
                                     deleted_dir=deleted_dir,
                                 )
                                 self._logger.performance.log_metric(
-                                    "dir_move_completion_trigger", 1, unit="event",
+                                    "dir_move_completion_trigger",
+                                    1,
+                                    unit="event",
                                     trigger="all_matched",
                                     matched=pending.matched_count,
                                     total=pending.total_expected,
@@ -249,7 +253,9 @@ class DirectoryMoveDetector:
                                 deleted_dir=deleted_dir,
                             )
                             self._logger.performance.log_metric(
-                                "dir_move_completion_trigger", 1, unit="event",
+                                "dir_move_completion_trigger",
+                                1,
+                                unit="event",
                                 trigger="all_matched",
                                 matched=pending.matched_count,
                                 total=pending.total_expected,
@@ -260,43 +266,21 @@ class DirectoryMoveDetector:
         return False
 
     def get_files_under_directory(self, dir_path):
-        """Get all files known to the database under a given directory path.
+        """Get source files known to the database under a given directory path.
 
-        Checks both link targets and source files to find all files
-        that are tracked in the database under the specified directory.
+        Returns only files from files_with_links (actual filesystem files
+        that were scanned and contain links).  Link targets are NOT included
+        because they are strings in the database that may not correspond to
+        real files, and resolving them inflates the count with phantom
+        entries that can never match filesystem create events (PD-BUG-075).
 
-        Link targets in the DB are stored as they appear in the source file
-        (relative to the source file's location), so we must resolve each
-        target to a project-root-relative path before comparing with dir_path.
+        After detection, _handle_directory_moved() uses os.walk() on the
+        actual filesystem to discover ALL moved files for link updating,
+        so detection correctness does not depend on this set being exhaustive.
         """
         dir_prefix = normalize_path(dir_path.rstrip("/\\")) + "/"
         known_files = set()
 
-        # Check link targets via thread-safe snapshot
-        all_targets = self._link_db.get_all_targets_with_references()
-        for target_path, references in all_targets.items():
-            base_target = target_path.split("#", 1)[0] if "#" in target_path else target_path
-            normalized = normalize_path(base_target)
-
-            # Direct prefix match (for already project-root-relative targets)
-            if normalized.startswith(dir_prefix):
-                known_files.add(normalized)
-                continue
-
-            # Resolve relative targets using source file paths
-            for ref in references:
-                ref_dir = os.path.dirname(normalize_path(ref.file_path))
-                try:
-                    resolved = os.path.normpath(os.path.join(ref_dir, normalized)).replace(
-                        "\\", "/"
-                    )
-                    if resolved.startswith(dir_prefix):
-                        known_files.add(resolved)
-                        break
-                except Exception:
-                    pass
-
-        # Check source files (files that contain links)
         for file_path in self._link_db.get_source_files():
             normalized = normalize_path(file_path)
             if normalized.startswith(dir_prefix):
@@ -359,7 +343,9 @@ class DirectoryMoveDetector:
             unmatched=len(pending.unmatched),
         )
         self._logger.performance.log_metric(
-            "dir_move_completion_trigger", 1, unit="event",
+            "dir_move_completion_trigger",
+            1,
+            unit="event",
             trigger="settle_timer",
             matched=pending.matched_count,
             total=pending.total_expected,
@@ -388,7 +374,9 @@ class DirectoryMoveDetector:
                 unmatched=len(pending.unmatched),
             )
             self._logger.performance.log_metric(
-                "dir_move_completion_trigger", 1, unit="event",
+                "dir_move_completion_trigger",
+                1,
+                unit="event",
                 trigger="max_timeout",
                 matched=pending.matched_count,
                 total=pending.total_expected,
@@ -402,7 +390,9 @@ class DirectoryMoveDetector:
                 files_count=pending.total_expected,
             )
             self._logger.performance.log_metric(
-                "dir_move_completion_trigger", 1, unit="event",
+                "dir_move_completion_trigger",
+                1,
+                unit="event",
                 trigger="max_timeout_no_match",
                 files_count=pending.total_expected,
             )
@@ -427,7 +417,8 @@ class DirectoryMoveDetector:
             total=pending.total_expected,
         )
         self._logger.performance.log_metric(
-            "dir_move_total_duration", round(total_duration_ms, 2),
+            "dir_move_total_duration",
+            round(total_duration_ms, 2),
             unit="ms",
             old_dir=old_dir,
             new_dir=new_dir,

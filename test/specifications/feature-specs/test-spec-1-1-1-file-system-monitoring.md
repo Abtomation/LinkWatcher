@@ -180,7 +180,8 @@ File System Monitoring uses the `LinkMaintenanceHandler` class to process watchd
 
 3. **Medium-High Priority** (Implemented ✅ — PD-BUG-019)
    - [x] Batch directory move detection via delete+create correlation (18 tests)
-   - [x] `_get_files_under_directory` database query (6 tests)
+   - [x] `_get_files_under_directory` database query (8 tests)
+   - [x] `_get_files_under_directory` phantom inflation prevention — PD-BUG-075 (3 tests)
    - [x] `_PendingDirMove` buffering and metadata (3 tests)
    - [x] `dir_prefix` trailing slash regression test (1 test)
    - [x] E2E: single, multi-file, nested directory moves (3 tests)

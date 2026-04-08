@@ -74,12 +74,18 @@ class TestGetFilesUnderDirectory:
 
         return handler, link_db, tmp_path
 
-    def test_finds_target_files(self, handler_with_db):
-        """Files that are link targets under the directory are found."""
+    def test_excludes_target_only_files(self, handler_with_db):
+        """PD-BUG-075: target-only files must NOT be in known_files.
+
+        docs/api.md is referenced by other files but contains no links
+        itself, so it is not in files_with_links and must not appear.
+        Including target-only files inflates the count with entries that
+        can never match filesystem create events.
+        """
         handler, link_db, tmp_path = handler_with_db
         files = handler._dir_move_detector.get_files_under_directory("docs")
-        # docs/api.md is a target (referenced from guide.md and README.md)
-        assert any("docs/api.md" in f for f in files)
+        # docs/api.md has no links → not a source file → must be excluded
+        assert not any("docs/api.md" in f for f in files)
 
     def test_finds_source_files(self, handler_with_db):
         """Files that contain links under the directory are found."""
@@ -109,17 +115,16 @@ class TestGetFilesUnderDirectory:
         files = handler._dir_move_detector.get_files_under_directory("nonexistent")
         assert len(files) == 0
 
-    def test_resolves_relative_targets_in_nested_project(self, tmp_path):
-        """Link targets stored as relative-to-source paths are resolved correctly.
+    def test_target_only_subdir_returns_empty(self, tmp_path):
+        """PD-BUG-075: a subdirectory containing only target-only files returns empty.
 
-        Mirrors real-world scenario: project is in a subdirectory (e.g.,
-        manual_markdown_tests/test_project/) and the markdown file at the
-        project root references files with short relative paths like
-        'api/reference.txt'.  The DB key is just 'api/reference.txt', but
-        _get_files_under_directory is called with the full project-root-
-        relative path 'sub_project/api'.  The function must resolve the
-        relative target to 'sub_project/api/reference.txt' so the prefix
-        match succeeds.
+        Previously this test verified that relative link targets were resolved
+        into the queried directory.  After PD-BUG-075, target resolution was
+        removed because it inflated known_files with phantom entries.  A
+        subdirectory that contains no source files (only files referenced by
+        links from elsewhere) correctly returns empty — directory move
+        detection for such directories relies on sibling source files or
+        the parent directory being detected instead.
         """
         link_db = LinkDatabase()
         parser = LinkParser()
@@ -132,7 +137,7 @@ class TestGetFilesUnderDirectory:
         api_dir = project_dir / "api"
         api_dir.mkdir()
         ref_file = api_dir / "reference.txt"
-        ref_file.write_text("Reference content")
+        ref_file.write_text("Reference content")  # No links → target-only
         readme = project_dir / "README.md"
         readme.write_text("# Project\n[API](api/reference.txt)\n")
 
@@ -142,11 +147,9 @@ class TestGetFilesUnderDirectory:
             ref.file_path = "sub_project/README.md"
             link_db.add_link(ref)
 
-        # DB key is "api/reference.txt" (relative to README.md)
-        # but we search with the full project-root-relative dir path
+        # sub_project/api/ has no source files → should return empty
         files = handler._dir_move_detector.get_files_under_directory("sub_project/api")
-        assert len(files) > 0
-        assert any("sub_project/api/reference.txt" in f for f in files)
+        assert len(files) == 0, f"Expected empty set for target-only directory, got {files}"
 
     def test_file_path_not_treated_as_directory(self, handler_with_db):
         """A file path passed to _get_files_under_directory returns empty set.
@@ -199,26 +202,152 @@ class TestGetFilesUnderDirectory:
         )
 
 
-class TestDirectoryDeleteBuffering:
-    """Tests that _handle_directory_deleted buffers files for move detection."""
+class TestGetFilesUnderDirectoryInflation:
+    """Regression tests for PD-BUG-075: phantom link targets inflating known_files.
+
+    When a directory has files that cross-reference each other heavily,
+    get_files_under_directory() must return only actual source files —
+    not every resolved link target that happens to fall under the directory
+    prefix.  The old code iterated ALL link targets in the database,
+    resolved each from the source file's location, and added any that
+    resolved under the queried directory.  This inflated the count from
+    ~N real files to N + (number of unique resolved target paths), making
+    the match threshold unreachable and breaking directory move detection.
+    """
 
     @pytest.fixture
-    def setup(self, tmp_path):
-        """Set up handler with files in a directory."""
+    def handler_with_cross_refs(self, tmp_path):
+        """Directory with source files that link to many non-source targets.
+
+        Reproduces PD-BUG-075: feedback files contain links to sub-paths
+        (archive/, ratings/, templates/) that are target-only — they exist
+        on disk but contain no links themselves, so they're NOT in
+        files_with_links.  The old code resolved these targets from
+        the source file's location, found they fell under "feedback/",
+        and added them to known_files as phantoms.
+        """
         link_db = LinkDatabase()
         parser = LinkParser()
         updater = LinkUpdater(str(tmp_path))
         handler = LinkMaintenanceHandler(link_db, parser, updater, str(tmp_path))
 
-        # Create directory with files
+        feedback_dir = tmp_path / "feedback"
+        feedback_dir.mkdir()
+
+        # Create sub-directories with target-only files (no links in them)
+        archive_dir = feedback_dir / "archive"
+        archive_dir.mkdir()
+        ratings_dir = feedback_dir / "ratings"
+        ratings_dir.mkdir()
+
+        target_only_count = 0
+        for i in range(20):
+            (archive_dir / f"old-form-{i}.md").write_text(f"# Archived form {i}")
+            target_only_count += 1
+        for i in range(15):
+            (ratings_dir / f"rating-{i}.md").write_text(f"# Rating {i}")
+            target_only_count += 1
+
+        # Create 5 source files that reference the target-only files
+        source_count = 5
+        for i in range(source_count):
+            archive_links = "\n".join(
+                f"- [archive {j}](archive/old-form-{j}.md)" for j in range(20)
+            )
+            rating_links = "\n".join(f"- [rating {j}](ratings/rating-{j}.md)" for j in range(15))
+            (feedback_dir / f"form{i}.md").write_text(
+                f"# Form {i}\n{archive_links}\n{rating_links}\n"
+            )
+
+        # Scan only the source files (files with links) into the database
+        # Target-only files are on disk but have no links to parse
+        for file_path in tmp_path.rglob("*.md"):
+            rel_path = str(file_path.relative_to(tmp_path)).replace("\\", "/")
+            references = parser.parse_file(str(file_path))
+            if references:  # Only files with links get added
+                for ref in references:
+                    ref.file_path = rel_path
+                    link_db.add_link(ref)
+
+        return handler, link_db, tmp_path, source_count, target_only_count
+
+    def test_no_phantom_inflation(self, handler_with_cross_refs):
+        """PD-BUG-075: known_files must not be inflated by resolved link targets.
+
+        With 5 source files under feedback/, the result should contain
+        exactly those 5 files — not 5 + 35 target-only files that happen
+        to resolve under the same directory prefix.
+        """
+        handler, link_db, tmp_path, source_count, target_only_count = handler_with_cross_refs
+        files = handler._dir_move_detector.get_files_under_directory("feedback")
+
+        # Must contain only the source files, not inflated by targets
+        assert len(files) == source_count, (
+            f"Expected {source_count} files (source files only), "
+            f"got {len(files)} — phantom link targets are inflating the count. "
+            f"Files: {sorted(files)}"
+        )
+
+    def test_only_source_files_returned(self, handler_with_cross_refs):
+        """PD-BUG-075: every entry in known_files must be an actual source file."""
+        handler, link_db, tmp_path, source_count, target_only_count = handler_with_cross_refs
+        files = handler._dir_move_detector.get_files_under_directory("feedback")
+        source_files = {f for f in link_db.get_source_files() if f.startswith("feedback/")}
+
+        # Every returned file should be a known source file
+        for f in files:
+            assert f in source_files, (
+                f"File '{f}' is in known_files but is not a source file — "
+                f"it's a phantom link target"
+            )
+
+    def test_dir_move_detection_succeeds_with_cross_refs(self, handler_with_cross_refs):
+        """PD-BUG-075: directory move detection must succeed even when files
+        cross-reference each other heavily.
+
+        Simulates: feedback/ deleted, feedback-archive/ created with same files.
+        The detector must buffer the correct count and match all real files.
+        """
+        handler, link_db, tmp_path, source_count, target_only_count = handler_with_cross_refs
+        detector = handler._dir_move_detector
+
+        # Phase 1: Buffer the directory deletion
+        result = detector.handle_directory_deleted("feedback")
+        assert result is True
+
+        pending = detector.pending_dir_moves.get("feedback")
+        assert pending is not None
+        assert pending.total_expected == source_count, (
+            f"Expected {source_count} total_expected, got {pending.total_expected} — "
+            f"phantom targets are inflating the count"
+        )
+
+
+class TestDirectoryDeleteBuffering:
+    """Tests that _handle_directory_deleted buffers files for move detection."""
+
+    @pytest.fixture
+    def setup(self, tmp_path):
+        """Set up handler with files in a directory.
+
+        PD-BUG-075: Files under the directory must contain links (be source
+        files) to be detected by get_files_under_directory(), which now only
+        returns files_with_links entries.
+        """
+        link_db = LinkDatabase()
+        parser = LinkParser()
+        updater = LinkUpdater(str(tmp_path))
+        handler = LinkMaintenanceHandler(link_db, parser, updater, str(tmp_path))
+
+        # Create directory with files that contain links (source files)
         docs_dir = tmp_path / "docs"
         docs_dir.mkdir()
         guide = docs_dir / "guide.md"
-        guide.write_text("# Guide")
+        guide.write_text("# Guide\nSee [api](api.md) for details.")
         api = docs_dir / "api.md"
-        api.write_text("# API")
+        api.write_text("# API\nSee [guide](guide.md) for details.")
 
-        # Create references to the files
+        # Create references to the files from outside
         readme = tmp_path / "README.md"
         readme.write_text("See [guide](docs/guide.md) and [api](docs/api.md).")
 
@@ -387,7 +516,7 @@ class TestDirectoryMoveViaDeleteCreate:
         new_docs_dir.mkdir()
 
         guide = docs_dir / "guide.md"
-        guide.write_text("# Guide\nContent here.")
+        guide.write_text("# Guide\nSee [README](../README.md) for details.")
 
         readme = tmp_path / "README.md"
         readme.write_text("# Project\n\nSee [guide](docs/guide.md) for details.")
@@ -446,9 +575,9 @@ class TestDirectoryMoveViaDeleteCreate:
         new_docs_dir.mkdir()
 
         guide = docs_dir / "guide.md"
-        guide.write_text("# Guide")
+        guide.write_text("# Guide\nSee [api](api.md).")
         api = docs_dir / "api.md"
-        api.write_text("# API")
+        api.write_text("# API\nSee [guide](guide.md).")
 
         readme = tmp_path / "README.md"
         readme.write_text("# Project\n\n" "- [Guide](docs/guide.md)\n" "- [API](docs/api.md)\n")
@@ -500,7 +629,7 @@ class TestDirectoryMoveViaDeleteCreate:
         new_sub_dir.mkdir()
 
         nested = sub_dir / "setup.md"
-        nested.write_text("# Setup Guide")
+        nested.write_text("# Setup Guide\nSee [README](../../README.md).")
 
         readme = tmp_path / "README.md"
         readme.write_text("See [setup](docs/guides/setup.md).")
@@ -535,7 +664,7 @@ class TestDirectoryMoveViaDeleteCreate:
         docs_dir.mkdir()
 
         guide = docs_dir / "guide.md"
-        guide.write_text("# Guide")
+        guide.write_text("# Guide\nSee [README](../README.md).")
 
         readme = tmp_path / "README.md"
         readme.write_text("See [guide](docs/guide.md).")
@@ -1112,7 +1241,8 @@ class TestRelativePathPrefixUpdateOnDirectoryMove:
         archive_file = deep_dir / "state.md"
         archive_file.write_text(
             "# Feature State\n\n"
-            "Run tests: [Run-Tests.ps1](../../../../../alpha-project/guides/scripts/test/Run-Tests.ps1)\n"
+            "Run tests: [Run-Tests.ps1]"
+            "(../../../../../alpha-project/guides/scripts/test/Run-Tests.ps1)\n"
         )
 
         service = LinkWatcherService(str(tmp_path))
@@ -1130,7 +1260,9 @@ class TestRelativePathPrefixUpdateOnDirectoryMove:
 
         # Reference must be updated — the relative path changes
         updated = archive_file.read_text()
-        assert "alpha-project/guides" not in updated, f"Old path 'alpha-project/guides' should be gone, got:\n{updated}"
+        assert (
+            "alpha-project/guides" not in updated
+        ), f"Old path 'alpha-project/guides' should be gone, got:\n{updated}"
         assert (
             "Run-Tests.ps1" in updated
         ), f"Reference to Run-Tests.ps1 should still exist, got:\n{updated}"
@@ -1215,9 +1347,7 @@ class TestDirectoryMoveToIgnoredDirName:
         config_md.write_text("# config docs")
 
         main_md = tmp_path / "main.md"
-        main_md.write_text(
-            "See [run](scripts/run.py) and [config](scripts/config.md).\n"
-        )
+        main_md.write_text("See [run](scripts/run.py) and [config](scripts/config.md).\n")
 
         service = LinkWatcherService(str(tmp_path))
         service._initial_scan()
@@ -1231,15 +1361,15 @@ class TestDirectoryMoveToIgnoredDirName:
 
         # Verify references updated in the file
         main_content = main_md.read_text()
-        assert "dist/run.py" in main_content, (
-            f"Expected 'dist/run.py' in main.md, got: {main_content}"
-        )
-        assert "dist/config.md" in main_content, (
-            f"Expected 'dist/config.md' in main.md, got: {main_content}"
-        )
-        assert "scripts/run.py" not in main_content, (
-            f"Old 'scripts/run.py' should be gone, got: {main_content}"
-        )
+        assert (
+            "dist/run.py" in main_content
+        ), f"Expected 'dist/run.py' in main.md, got: {main_content}"
+        assert (
+            "dist/config.md" in main_content
+        ), f"Expected 'dist/config.md' in main.md, got: {main_content}"
+        assert (
+            "scripts/run.py" not in main_content
+        ), f"Old 'scripts/run.py' should be gone, got: {main_content}"
 
         # Core assertion: handler must enumerate moved files even when
         # destination is an ignored directory. files_moved stat of 0 means
