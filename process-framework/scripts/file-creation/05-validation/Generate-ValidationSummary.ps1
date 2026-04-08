@@ -33,15 +33,15 @@
     If specified, opens the created summary in the default editor
 
 .EXAMPLE
-    .\Generate-ValidationSummary.ps1 -IncludeDetails
+    Generate-ValidationSummary.ps1 -IncludeDetails
     Generates a detailed summary at the default location (doc/validation/reports/consolidated-validation-report.md)
 
 .EXAMPLE
-    .\Generate-ValidationSummary.ps1 -OutputPath "executive-summary.md" -SummaryType "Executive" -ValidationTypes "Architectural,CodeQuality"
+    Generate-ValidationSummary.ps1 -OutputPath "executive-summary.md" -SummaryType "Executive" -ValidationTypes "Architectural,CodeQuality"
     Generates an executive summary for specific validation types at a custom path
 
 .EXAMPLE
-    .\Generate-ValidationSummary.ps1 -FeatureFilter "0.2.1,0.2.2,0.2.3" -IncludeDetails -OpenInEditor
+    Generate-ValidationSummary.ps1 -FeatureFilter "0.2.1,0.2.2,0.2.3" -IncludeDetails -OpenInEditor
     Generates a detailed summary filtered to specific features and opens it in the default editor
 
 .NOTES

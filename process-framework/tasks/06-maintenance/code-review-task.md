@@ -85,7 +85,7 @@ Review implemented code to ensure it meets quality standards, follows project co
    # Project language and test directory are in doc/project-config.json
    #
    # Or use the framework test runner:
-   pwsh.exe -ExecutionPolicy Bypass -Command '& process-framework/scripts/test/Run-Tests.ps1 -All -Coverage'
+   pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/test/Run-Tests.ps1 -All -Coverage
    ```
 11. Review dependency changes in the project's dependency configuration for:
    - Version compatibility
@@ -112,10 +112,10 @@ Review implemented code to ensure it meets quality standards, follows project co
 13. Run and verify all test suites using the project's test runner:
     ```bash
     # Run by category (categories defined in languages-config/)
-    pwsh.exe -ExecutionPolicy Bypass -Command '& process-framework/scripts/test/Run-Tests.ps1 -Category unit'
-    pwsh.exe -ExecutionPolicy Bypass -Command '& process-framework/scripts/test/Run-Tests.ps1 -Category integration'
+    pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/test/Run-Tests.ps1 -Category unit
+    pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/test/Run-Tests.ps1 -Category integration
     # Run full suite
-    pwsh.exe -ExecutionPolicy Bypass -Command '& process-framework/scripts/test/Run-Tests.ps1 -All'
+    pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/test/Run-Tests.ps1 -All
     ```
 14. Verify test coverage meets project standards (aim for >80% for critical paths)
 15. Test the feature in relevant environments (if applicable):

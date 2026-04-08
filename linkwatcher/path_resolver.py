@@ -22,9 +22,14 @@ class PathResolver:
     and conversion back to the original link style.
     """
 
-    def __init__(self, project_root: str = ".", logger=None):
+    def __init__(self, project_root: str = ".", logger=None, python_source_root: str = ""):
         self.project_root = Path(project_root).resolve()
         self.logger = logger or get_logger()
+        # Normalized source root prefix (e.g., "src") for stripping from
+        # Python import path comparisons.  See PD-BUG-078.
+        self._python_source_root = (
+            python_source_root.strip("/").strip("\\") if python_source_root else ""
+        )
 
     def calculate_new_target(self, ref: LinkReference, old_path: str, new_path: str) -> str:
         """Calculate the new target path for a reference."""
@@ -329,6 +334,16 @@ class PathResolver:
         old_no_ext = old_normalized[:-3] if old_normalized.endswith(".py") else old_normalized
         new_no_ext = new_normalized[:-3] if new_normalized.endswith(".py") else new_normalized
 
+        # PD-BUG-078: Strip python_source_root prefix from paths so that
+        # "src/package/module" compares as "package/module" — matching how
+        # Python imports resolve relative to the source root, not project root.
+        if self._python_source_root:
+            prefix = self._python_source_root + "/"
+            if old_no_ext.startswith(prefix):
+                old_no_ext = old_no_ext[len(prefix) :]
+            if new_no_ext.startswith(prefix):
+                new_no_ext = new_no_ext[len(prefix) :]
+
         # Check if the import path matches the old path (with or without extension)
         if target_normalized == old_normalized or target_normalized == old_no_ext:
             # Exact match - replace entirely
@@ -337,7 +352,9 @@ class PathResolver:
             old_no_ext + "/"
         ):
             # Partial match - replace the prefix
-            prefix = old_normalized if target_normalized.startswith(old_normalized + "/") else old_no_ext
+            prefix = (
+                old_normalized if target_normalized.startswith(old_normalized + "/") else old_no_ext
+            )
             suffix = target_normalized[len(prefix) :]
             return new_no_ext + suffix
 

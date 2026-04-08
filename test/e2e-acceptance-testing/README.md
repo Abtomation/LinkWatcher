@@ -24,7 +24,7 @@ manual-testing/
 
 ```bash
 cd process-framework/scripts/testing
-pwsh.exe -ExecutionPolicy Bypass -Command '& .\Setup-TestEnvironment.ps1 -Group "group-name" -Clean'
+pwsh.exe -ExecutionPolicy Bypass -Command '& Setup-TestEnvironment.ps1 -Group "group-name" -Clean'
 ```
 
 ### 2. Execute Tests
@@ -34,13 +34,13 @@ Follow the master test's Quick Validation Sequence first. If it fails, run indiv
 ### 3. Verify Results
 
 ```bash
-pwsh.exe -ExecutionPolicy Bypass -Command '& .\Verify-TestResult.ps1 -Group "group-name" -Detailed'
+pwsh.exe -ExecutionPolicy Bypass -Command '& Verify-TestResult.ps1 -Group "group-name" -Detailed'
 ```
 
 ### 4. Record Results
 
 ```bash
-pwsh.exe -ExecutionPolicy Bypass -Command '& .\Update-TestExecutionStatus.ps1 -Group "group-name" -Status "Passed"'
+pwsh.exe -ExecutionPolicy Bypass -Command '& Update-TestExecutionStatus.ps1 -Group "group-name" -Status "Passed"'
 ```
 
 ## Related Tasks

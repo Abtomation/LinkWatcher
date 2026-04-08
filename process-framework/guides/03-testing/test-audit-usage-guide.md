@@ -185,10 +185,10 @@ The Test Audit process evaluates tests against six comprehensive quality criteri
    cd process-framework/scripts/file-creation
 
    # Create new audit report (example for feature 0.2.3)
-   .\New-TestAuditReport.ps1 -FeatureId "0.2.3" -TestFilePath "test/automated/unit/test_example.py" -AuditorName "AI Agent"
+   New-TestAuditReport.ps1 -FeatureId "0.2.3" -TestFilePath "test/automated/unit/test_example.py" -AuditorName "AI Agent"
 
    # Re-audit: overwrite existing report (archive the old one first)
-   .\New-TestAuditReport.ps1 -FeatureId "0.2.3" -TestFilePath "test/automated/unit/test_example.py" -AuditorName "AI Agent" -Force
+   New-TestAuditReport.ps1 -FeatureId "0.2.3" -TestFilePath "test/automated/unit/test_example.py" -AuditorName "AI Agent" -Force
    ```
 
 2. **Verify Report Creation**
@@ -294,7 +294,7 @@ The Test Audit process evaluates tests against six comprehensive quality criteri
 3. **Validate Report Completeness**
    ```powershell
    # Validate the completed audit report
-   .\Validate-AuditReport.ps1 -ReportFile "foundation/audit-report-0-2-3-test_example.md" -Detailed
+   Validate-AuditReport.ps1 -ReportFile "foundation/audit-report-0-2-3-test_example.md" -Detailed
    ```
 
 **Expected Result:** Complete, validated audit report ready for finalization
@@ -400,7 +400,7 @@ Before finalizing any audit report, complete this comprehensive checklist:
 **Step 1: Create Audit Report**
 ```powershell
 cd process-framework/scripts/file-creation
-.\New-TestAuditReport.ps1 -FeatureId "0.2.4" -TestFilePath "test/automated/unit/test_app_error.py" -AuditorName "AI Agent"
+New-TestAuditReport.ps1 -FeatureId "0.2.4" -TestFilePath "test/automated/unit/test_app_error.py" -AuditorName "AI Agent"
 ```
 
 **Result**: Creates `foundation/audit-report-0-2-4-test_app_error.md` with TE-TAR-001 ID

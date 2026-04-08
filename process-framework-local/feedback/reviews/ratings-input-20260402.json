@@ -1,0 +1,1652 @@
+[
+  {
+    "form_id": "20260401-113050-PF-TSK-022",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-04-01",
+    "session_duration_minutes": null,
+    "review_cycle_id": "tools-review-20260402",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260402/processed-forms/20260401-113050-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 4,
+    "process_conciseness": 3,
+    "tools": [
+      {
+        "tool_name": "Code Refactoring Task - Effort Gate",
+        "tool_doc_id": "PF-TSK-022",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Standard Refactoring Path",
+        "tool_doc_id": "PF-TSK-022-STD",
+        "effectiveness": 4,
+        "clarity": 4,
+        "completeness": 4,
+        "efficiency": 3,
+        "conciseness": 3
+      },
+      {
+        "tool_name": "New-RefactoringPlan.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Update-TechDebt.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260402-103649-PF-TSK-022",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-04-02",
+    "session_duration_minutes": null,
+    "review_cycle_id": "tools-review-20260402",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260402/processed-forms/20260402-103649-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 5,
+    "tools": [
+      {
+        "tool_name": "Code Refactoring Task - Effort Gate",
+        "tool_doc_id": "PF-TSK-022",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Lightweight Refactoring Path",
+        "tool_doc_id": "PF-TSK-022-LW",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-RefactoringPlan.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Update-TechDebt.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260402-104113-PF-TSK-022",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-04-02",
+    "session_duration_minutes": null,
+    "review_cycle_id": "tools-review-20260402",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260402/processed-forms/20260402-104113-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 5,
+    "tools": [
+      {
+        "tool_name": "Code Refactoring Task - Effort Gate",
+        "tool_doc_id": "PF-TSK-022",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Lightweight Refactoring Path",
+        "tool_doc_id": "PF-TSK-022-LW",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-RefactoringPlan.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Update-TechDebt.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260402-104344-PF-TSK-022",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-04-02",
+    "session_duration_minutes": null,
+    "review_cycle_id": "tools-review-20260402",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260402/processed-forms/20260402-104344-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 5,
+    "tools": [
+      {
+        "tool_name": "Code Refactoring Task - Effort Gate",
+        "tool_doc_id": "PF-TSK-022",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Lightweight Refactoring Path",
+        "tool_doc_id": "PF-TSK-022-LW",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-RefactoringPlan.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Update-TechDebt.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260402-104355-PF-TSK-022",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-04-02",
+    "session_duration_minutes": null,
+    "review_cycle_id": "tools-review-20260402",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260402/processed-forms/20260402-104355-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 5,
+    "tools": [
+      {
+        "tool_name": "Code Refactoring Task - Effort Gate",
+        "tool_doc_id": "PF-TSK-022",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Lightweight Refactoring Path",
+        "tool_doc_id": "PF-TSK-022-LW",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-RefactoringPlan.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Update-TechDebt.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260402-104730-PF-TSK-022",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-04-02",
+    "session_duration_minutes": null,
+    "review_cycle_id": "tools-review-20260402",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260402/processed-forms/20260402-104730-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 4,
+    "tools": [
+      {
+        "tool_name": "Code Refactoring Task - Effort Gate",
+        "tool_doc_id": "PF-TSK-022",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Lightweight Refactoring Path",
+        "tool_doc_id": "PF-TSK-022-LW",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-RefactoringPlan.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Update-TechDebt.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260402-105051-PF-TSK-022",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-04-02",
+    "session_duration_minutes": null,
+    "review_cycle_id": "tools-review-20260402",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260402/processed-forms/20260402-105051-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 4,
+    "tools": [
+      {
+        "tool_name": "Code Refactoring Task - Effort Gate",
+        "tool_doc_id": "PF-TSK-022",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Lightweight Refactoring Path",
+        "tool_doc_id": "PF-TSK-022-LW",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-RefactoringPlan.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Update-TechDebt.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260402-105102-PF-TSK-022",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-04-02",
+    "session_duration_minutes": null,
+    "review_cycle_id": "tools-review-20260402",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260402/processed-forms/20260402-105102-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 5,
+    "tools": [
+      {
+        "tool_name": "Code Refactoring Task - Effort Gate",
+        "tool_doc_id": "PF-TSK-022",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Lightweight Refactoring Path",
+        "tool_doc_id": "PF-TSK-022-LW",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-RefactoringPlan.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Update-TechDebt.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260402-105306-PF-TSK-022",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-04-02",
+    "session_duration_minutes": null,
+    "review_cycle_id": "tools-review-20260402",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260402/processed-forms/20260402-105306-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 4,
+    "tools": [
+      {
+        "tool_name": "Code Refactoring Task - Effort Gate",
+        "tool_doc_id": "PF-TSK-022",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Lightweight Refactoring Path",
+        "tool_doc_id": "PF-TSK-022-LW",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-RefactoringPlan.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Update-TechDebt.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260402-105843-PF-TSK-022",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-04-02",
+    "session_duration_minutes": null,
+    "review_cycle_id": "tools-review-20260402",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260402/processed-forms/20260402-105843-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 5,
+    "tools": [
+      {
+        "tool_name": "Code Refactoring Task - Effort Gate",
+        "tool_doc_id": "PF-TSK-022",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Lightweight Refactoring Path",
+        "tool_doc_id": "PF-TSK-022-LW",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-RefactoringPlan.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Update-TechDebt.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260402-110002-PF-TSK-022",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-04-02",
+    "session_duration_minutes": null,
+    "review_cycle_id": "tools-review-20260402",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260402/processed-forms/20260402-110002-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 5,
+    "tools": [
+      {
+        "tool_name": "Code Refactoring Task - Effort Gate",
+        "tool_doc_id": "PF-TSK-022",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Lightweight Refactoring Path",
+        "tool_doc_id": "PF-TSK-022-LW",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-RefactoringPlan.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Update-TechDebt.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260402-110443-PF-TSK-022",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-04-02",
+    "session_duration_minutes": null,
+    "review_cycle_id": "tools-review-20260402",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260402/processed-forms/20260402-110443-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 4,
+    "tools": [
+      {
+        "tool_name": "Code Refactoring Task - Effort Gate",
+        "tool_doc_id": "PF-TSK-022",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Lightweight Refactoring Path",
+        "tool_doc_id": "PF-TSK-022-LW",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-RefactoringPlan.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Update-TechDebt.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260402-110938-PF-TSK-022",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-04-02",
+    "session_duration_minutes": null,
+    "review_cycle_id": "tools-review-20260402",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260402/processed-forms/20260402-110938-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 5,
+    "tools": [
+      {
+        "tool_name": "Code Refactoring Task - Effort Gate",
+        "tool_doc_id": "PF-TSK-022",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Lightweight Refactoring Path",
+        "tool_doc_id": "PF-TSK-022-LW",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-RefactoringPlan.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Update-TechDebt.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260402-111115-PF-TSK-022",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-04-02",
+    "session_duration_minutes": null,
+    "review_cycle_id": "tools-review-20260402",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260402/processed-forms/20260402-111115-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 5,
+    "tools": [
+      {
+        "tool_name": "Code Refactoring Task - Effort Gate",
+        "tool_doc_id": "PF-TSK-022",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Lightweight Refactoring Path",
+        "tool_doc_id": "PF-TSK-022-LW",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-RefactoringPlan.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Update-TechDebt.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260402-111525-PF-TSK-022",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-04-02",
+    "session_duration_minutes": null,
+    "review_cycle_id": "tools-review-20260402",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260402/processed-forms/20260402-111525-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 4,
+    "tools": [
+      {
+        "tool_name": "Code Refactoring Task - Effort Gate",
+        "tool_doc_id": "PF-TSK-022",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Lightweight Refactoring Path",
+        "tool_doc_id": "PF-TSK-022-LW",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-RefactoringPlan.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Update-TechDebt.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260402-111735-PF-TSK-022",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-04-02",
+    "session_duration_minutes": null,
+    "review_cycle_id": "tools-review-20260402",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260402/processed-forms/20260402-111735-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 4,
+    "tools": [
+      {
+        "tool_name": "Code Refactoring Task - Effort Gate",
+        "tool_doc_id": "PF-TSK-022",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Lightweight Refactoring Path",
+        "tool_doc_id": "PF-TSK-022-LW",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-RefactoringPlan.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Update-TechDebt.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260402-111739-PF-TSK-022",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-04-02",
+    "session_duration_minutes": null,
+    "review_cycle_id": "tools-review-20260402",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260402/processed-forms/20260402-111739-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 5,
+    "tools": [
+      {
+        "tool_name": "Code Refactoring Task - Effort Gate",
+        "tool_doc_id": "PF-TSK-022",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Lightweight Refactoring Path",
+        "tool_doc_id": "PF-TSK-022-LW",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-RefactoringPlan.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Update-TechDebt.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260402-112900-PF-TSK-022",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-04-02",
+    "session_duration_minutes": null,
+    "review_cycle_id": "tools-review-20260402",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260402/processed-forms/20260402-112900-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 5,
+    "tools": [
+      {
+        "tool_name": "Code Refactoring Task - Effort Gate",
+        "tool_doc_id": "PF-TSK-022",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Lightweight Refactoring Path",
+        "tool_doc_id": "PF-TSK-022-LW",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-RefactoringPlan.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Update-TechDebt.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260402-113155-PF-TSK-022",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-04-02",
+    "session_duration_minutes": null,
+    "review_cycle_id": "tools-review-20260402",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260402/processed-forms/20260402-113155-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 4,
+    "tools": [
+      {
+        "tool_name": "Code Refactoring Task - Effort Gate",
+        "tool_doc_id": "PF-TSK-022",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Lightweight Refactoring Path",
+        "tool_doc_id": "PF-TSK-022-LW",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-RefactoringPlan.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Update-TechDebt.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260402-113200-PF-TSK-022",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-04-02",
+    "session_duration_minutes": null,
+    "review_cycle_id": "tools-review-20260402",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260402/processed-forms/20260402-113200-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 5,
+    "tools": [
+      {
+        "tool_name": "Code Refactoring Task - Effort Gate",
+        "tool_doc_id": "PF-TSK-022",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Lightweight Refactoring Path",
+        "tool_doc_id": "PF-TSK-022-LW",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-RefactoringPlan.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Update-TechDebt.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260402-113554-PF-TSK-022",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-04-02",
+    "session_duration_minutes": null,
+    "review_cycle_id": "tools-review-20260402",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260402/processed-forms/20260402-113554-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 5,
+    "tools": [
+      {
+        "tool_name": "Code Refactoring Task - Effort Gate",
+        "tool_doc_id": "PF-TSK-022",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Lightweight Refactoring Path",
+        "tool_doc_id": "PF-TSK-022-LW",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-RefactoringPlan.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Update-TechDebt.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260402-113725-PF-TSK-022",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-04-02",
+    "session_duration_minutes": null,
+    "review_cycle_id": "tools-review-20260402",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260402/processed-forms/20260402-113725-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 5,
+    "tools": [
+      {
+        "tool_name": "Code Refactoring Task - Effort Gate",
+        "tool_doc_id": "PF-TSK-022",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Lightweight Refactoring Path",
+        "tool_doc_id": "PF-TSK-022-LW",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-RefactoringPlan.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Update-TechDebt.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260402-113734-PF-TSK-022",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-04-02",
+    "session_duration_minutes": null,
+    "review_cycle_id": "tools-review-20260402",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260402/processed-forms/20260402-113734-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 4,
+    "process_conciseness": 4,
+    "tools": [
+      {
+        "tool_name": "Code Refactoring Task - Effort Gate",
+        "tool_doc_id": "PF-TSK-022",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Lightweight Refactoring Path",
+        "tool_doc_id": "PF-TSK-022-LW",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-RefactoringPlan.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Update-TechDebt.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260402-113740-PF-TSK-022",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-04-02",
+    "session_duration_minutes": null,
+    "review_cycle_id": "tools-review-20260402",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260402/processed-forms/20260402-113740-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 5,
+    "tools": [
+      {
+        "tool_name": "Code Refactoring Task - Effort Gate",
+        "tool_doc_id": "PF-TSK-022",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Lightweight Refactoring Path",
+        "tool_doc_id": "PF-TSK-022-LW",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-RefactoringPlan.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Update-TechDebt.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260402-113946-PF-TSK-022",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-04-02",
+    "session_duration_minutes": null,
+    "review_cycle_id": "tools-review-20260402",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260402/processed-forms/20260402-113946-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 5,
+    "tools": [
+      {
+        "tool_name": "Code Refactoring Task - Effort Gate",
+        "tool_doc_id": "PF-TSK-022",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Lightweight Refactoring Path",
+        "tool_doc_id": "PF-TSK-022-LW",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-RefactoringPlan.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Update-TechDebt.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260402-113952-PF-TSK-022",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-04-02",
+    "session_duration_minutes": null,
+    "review_cycle_id": "tools-review-20260402",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260402/processed-forms/20260402-113952-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 5,
+    "tools": [
+      {
+        "tool_name": "Code Refactoring Task - Effort Gate",
+        "tool_doc_id": "PF-TSK-022",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Lightweight Refactoring Path",
+        "tool_doc_id": "PF-TSK-022-LW",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-RefactoringPlan.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Update-TechDebt.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260402-114007-PF-TSK-022",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-04-02",
+    "session_duration_minutes": null,
+    "review_cycle_id": "tools-review-20260402",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260402/processed-forms/20260402-114007-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 4,
+    "tools": [
+      {
+        "tool_name": "Code Refactoring Task - Effort Gate",
+        "tool_doc_id": "PF-TSK-022",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Lightweight Refactoring Path",
+        "tool_doc_id": "PF-TSK-022-LW",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-RefactoringPlan.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Update-TechDebt.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260402-114013-PF-TSK-022",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-04-02",
+    "session_duration_minutes": null,
+    "review_cycle_id": "tools-review-20260402",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260402/processed-forms/20260402-114013-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 4,
+    "tools": [
+      {
+        "tool_name": "Code Refactoring Task - Effort Gate",
+        "tool_doc_id": "PF-TSK-022",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Lightweight Refactoring Path",
+        "tool_doc_id": "PF-TSK-022-LW",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-RefactoringPlan.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Update-TechDebt.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260402-114146-PF-TSK-022",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-04-02",
+    "session_duration_minutes": null,
+    "review_cycle_id": "tools-review-20260402",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260402/processed-forms/20260402-114146-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 4,
+    "tools": [
+      {
+        "tool_name": "Code Refactoring Task - Effort Gate",
+        "tool_doc_id": "PF-TSK-022",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Lightweight Refactoring Path",
+        "tool_doc_id": "PF-TSK-022-LW",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-RefactoringPlan.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Update-TechDebt.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260402-114327-PF-TSK-022",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-04-02",
+    "session_duration_minutes": null,
+    "review_cycle_id": "tools-review-20260402",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260402/processed-forms/20260402-114327-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 4,
+    "tools": [
+      {
+        "tool_name": "Code Refactoring Task - Effort Gate",
+        "tool_doc_id": "PF-TSK-022",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Lightweight Refactoring Path",
+        "tool_doc_id": "PF-TSK-022-LW",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-RefactoringPlan.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Update-TechDebt.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260402-114629-PF-TSK-022",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-04-02",
+    "session_duration_minutes": null,
+    "review_cycle_id": "tools-review-20260402",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260402/processed-forms/20260402-114629-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 5,
+    "tools": [
+      {
+        "tool_name": "Code Refactoring Task - Effort Gate",
+        "tool_doc_id": "PF-TSK-022",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Lightweight Refactoring Path",
+        "tool_doc_id": "PF-TSK-022-LW",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-RefactoringPlan.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Update-TechDebt.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260402-114633-PF-TSK-022",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-04-02",
+    "session_duration_minutes": null,
+    "review_cycle_id": "tools-review-20260402",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260402/processed-forms/20260402-114633-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 5,
+    "tools": [
+      {
+        "tool_name": "Code Refactoring Task - Effort Gate",
+        "tool_doc_id": "PF-TSK-022",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Lightweight Refactoring Path",
+        "tool_doc_id": "PF-TSK-022-LW",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-RefactoringPlan.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Update-TechDebt.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260402-114815-PF-TSK-022",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring",
+    "feedback_type": "MultipleTools",
+    "form_date": "2026-04-02",
+    "session_duration_minutes": null,
+    "review_cycle_id": "tools-review-20260402",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260402/processed-forms/20260402-114815-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 4,
+    "tools": [
+      {
+        "tool_name": "Code Refactoring Task - Effort Gate",
+        "tool_doc_id": "PF-TSK-022",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Lightweight Refactoring Path",
+        "tool_doc_id": "PF-TSK-022-LW",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-RefactoringPlan.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Update-TechDebt.ps1",
+        "tool_doc_id": "script",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  }
+]

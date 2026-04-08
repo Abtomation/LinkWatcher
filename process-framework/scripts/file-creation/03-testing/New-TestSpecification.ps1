@@ -46,10 +46,10 @@
     If specified, opens the created file in the default editor
 
 .EXAMPLE
-    .\New-TestSpecification.ps1 -FeatureId "1.2.3" -FeatureName "user-authentication" -TddPath "doc/technical/architecture/design-docs/tdd/tdd-user-auth.md"
+    New-TestSpecification.ps1 -FeatureId "1.2.3" -FeatureName "user-authentication" -TddPath "doc/technical/architecture/design-docs/tdd/tdd-user-auth.md"
 
 .EXAMPLE
-    .\New-TestSpecification.ps1 -CrossCutting -FeatureIds "0.1.1,1.1.2,2.2.1" -FeatureName "file-movement-pipeline" -TddPath ""
+    New-TestSpecification.ps1 -CrossCutting -FeatureIds "0.1.1,1.1.2,2.2.1" -FeatureName "file-movement-pipeline" -TddPath ""
 
 .NOTES
     - Requires PowerShell execution policy to allow script execution

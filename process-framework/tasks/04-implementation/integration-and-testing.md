@@ -3,10 +3,10 @@ id: PF-TSK-053
 type: Process Framework
 category: Task Definition
 domain: development
-version: 2.1
+version: 2.2
 created: 2025-12-13
-updated: 2026-03-25
-change_notes: "v2.0 - Made tech-agnostic, absorbed PF-TSK-029 (Test Implementation) automation and bug discovery workflow, unified state tracking"
+updated: 2026-04-06
+change_notes: "v2.2 - Added Tier 1/tech-debt guidance box and conditional qualifiers for steps assuming TDD/Test Spec exist (IMP-022). Added (if applicable) to checklist items for unit-test-only sessions (IMP-023)"
 ---
 
 # Integration and Testing
@@ -47,7 +47,7 @@ Verify unit test completeness, implement integration and cross-component tests, 
 
 - **Critical (Must Read):**
 
-  - **Test Specification Document** (if exists) - The test specification for the feature (located in `/test/specifications/feature-specs/`), serving as the checklist for required test scenarios
+  - **Test Specification Document** (if exists) - The test specification for the feature (located in `/test/specifications/feature-specs`), serving as the checklist for required test scenarios
   - **TDD (Technical Design Document)** - Testing requirements section describing test scenarios, coverage expectations, and acceptance criteria
   - **Completed Implementation Code** - All implemented feature code to be tested
   - [Test Tracking](../../../test/state-tracking/permanent/test-tracking.md) - Current test implementation status
@@ -76,12 +76,14 @@ Verify unit test completeness, implement integration and cross-component tests, 
 
 ### Preparation
 
+> **Tier 1 / Tech Debt Path**: If no TDD or Test Specification exists for this feature (common for Tier 1 features and tech debt items), skip Steps 1–2 and derive test scenarios directly from the implementation code (Step 3) and the feature's state file. Steps 5–6 and checklist items referencing these artifacts are also N/A — base your test strategy on code analysis and coverage goals instead.
+
 1. **Review Test Specification** (if exists): Study the test specification document for the feature to understand test requirements, scenarios, and coverage expectations
-2. **Review TDD Test Requirements**: Read testing section from TDD to understand required test scenarios, acceptance criteria, and coverage thresholds
+2. **Review TDD Test Requirements** (if exists): Read testing section from TDD to understand required test scenarios, acceptance criteria, and coverage thresholds
 3. **Analyze Implementation Code**: Review all implemented code to understand integration points, component boundaries, and potential failure scenarios
 4. **Identify Test Scenarios**: Determine which test types are needed based on the specification and project language (check `project-config.json` for valid test types)
 5. **Plan Test Strategy**: Map out test types needed, mock/stub requirements, test data setup, and prioritize by risk. **Ensure test coverage addresses Critical dimensions** from the feature's Dimension Profile — e.g., Critical PE → include performance regression tests, Critical DI → include data integrity/atomicity tests, Critical SE → include input validation and security boundary tests
-6. **🚨 CHECKPOINT**: Present test specification review, implementation code analysis, identified test scenarios, and test strategy to human partner for approval before implementation
+6. **🚨 CHECKPOINT**: Present test specification review (if applicable), implementation code analysis, identified test scenarios, and test strategy to human partner for approval before implementation
 
 ### Execution
 
@@ -91,8 +93,8 @@ Verify unit test completeness, implement integration and cross-component tests, 
    # Create test files using automation script (generates PD-TST-[SEQUENCE] IDs)
    # Test types depend on project language (auto-detected from project-config.json)
    cd process-framework/scripts/file-creation
-   .\New-TestFile.ps1 -TestName "FeatureName" -TestType "Unit" -FeatureId "X.Y.Z" -ComponentName "ComponentName" -Priority "Critical"
-   .\New-TestFile.ps1 -TestName "FeatureName" -TestType "Integration" -FeatureId "X.Y.Z" -ComponentName "ComponentName"
+   New-TestFile.ps1 -TestName "FeatureName" -TestType "Unit" -FeatureId "X.Y.Z" -ComponentName "ComponentName" -Priority "Critical"
+   New-TestFile.ps1 -TestName "FeatureName" -TestType "Integration" -FeatureId "X.Y.Z" -ComponentName "ComponentName"
 
    # -Priority: Critical (must pass before release), Standard (default), Extended (not blocking)
    # Use Critical for foundation features, parsers, core data models
@@ -105,8 +107,8 @@ Verify unit test completeness, implement integration and cross-component tests, 
    # - Updates feature-tracking.md with test implementation progress
    ```
 
-8. **Verify Unit Test Completeness**: Review unit tests created by implementation tasks (PF-TSK-078, PF-TSK-051, PF-TSK-022) against the Test Specification
-   - Check that all specified unit test scenarios are covered
+8. **Verify Unit Test Completeness**: Review unit tests created by implementation tasks (PF-TSK-078, PF-TSK-051, PF-TSK-022) against the Test Specification (if exists) or against the implementation code
+   - Check that all specified test scenarios are covered (or, without a Test Spec, that all public methods/critical paths have tests)
    - Identify any gaps in edge case coverage, error handling, or state transitions
    - Fill remaining gaps by creating additional unit tests via `New-TestFile.ps1`
    - Verify minimum 80% code coverage for business logic
@@ -170,12 +172,12 @@ Verify unit test completeness, implement integration and cross-component tests, 
     ```powershell
     Set-Location "process-framework/scripts/file-creation"
 
-    .\New-BugReport.ps1 -Title "Service throws exception on empty input" -Description "Method fails with exception when passed empty string instead of returning proper error" -DiscoveredBy "Testing" -Severity "High" -Component "Component Name" -Environment "Development" -Evidence "Test case: test_method_empty_input_returns_error"
+    New-BugReport.ps1 -Title "Service throws exception on empty input" -Description "Method fails with exception when passed empty string instead of returning proper error" -DiscoveredBy "Testing" -Severity "High" -Component "Component Name" -Environment "Development" -Evidence "Test case: test_method_empty_input_returns_error"
     ```
 
 23. **Mark manual test groups for re-execution**: If the feature has manual test cases, implementation changes may have invalidated previous results. Run `Update-TestExecutionStatus.ps1` to mark affected groups:
     ```bash
-    cd process-framework/scripts/test/e2e-acceptance-testing && pwsh.exe -ExecutionPolicy Bypass -Command '& .\Update-TestExecutionStatus.ps1 -FeatureId "X.Y.Z" -Status "Needs Re-execution" -Reason "Implementation changes during Integration & Testing" -Confirm:$false'
+    pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/test/e2e-acceptance-testing/Update-TestExecutionStatus.ps1 -FeatureId "X.Y.Z" -Status "Needs Re-execution" -Reason "Implementation changes during Integration & Testing" -Confirm:\$false
     ```
 24. **Update Test Status**: Update test implementation status to reflect completion (automation handles initial tracking)
 24. **Validate Test Tracking**: Run validation scripts to ensure consistency
@@ -215,13 +217,13 @@ The following state files are automatically updated by the `New-TestFile.ps1` sc
 Before considering this task finished:
 
 - [ ] **Verify Outputs**: Confirm all required outputs have been produced
-  - [ ] Unit test completeness verified against Test Specification (gaps filled via `New-TestFile.ps1`)
-  - [ ] Component, integration, and e2e test files created using `New-TestFile.ps1`
+  - [ ] Unit test completeness verified against Test Specification or implementation code (gaps filled via `New-TestFile.ps1`)
+  - [ ] Component, integration, and e2e test files created using `New-TestFile.ps1` (if applicable — unit-test-only sessions skip this)
   - [ ] All tests pass when executed
   - [ ] Test coverage meets specification requirements (typically 80%+ for business logic)
-  - [ ] Integration tests validate end-to-end workflows
+  - [ ] Integration tests validate end-to-end workflows (if applicable)
   - [ ] Error handling and edge cases tested comprehensively
-  - [ ] Test mocks and fixtures created for external dependencies
+  - [ ] Test mocks and fixtures created for external dependencies (if applicable)
   - [ ] Coverage report generated and reviewed
   - [ ] Bug discovery performed systematically during test implementation
   - [ ] Any discovered bugs reported using `New-BugReport.ps1` script with proper context and evidence
@@ -237,7 +239,7 @@ Before considering this task finished:
   - [ ] Test code follows project testing conventions
   - [ ] Tests are maintainable and well-organized
   - [ ] Mock usage is appropriate and not excessive
-  - [ ] Integration tests cover critical workflows
+  - [ ] Integration tests cover critical workflows (if applicable)
   - [ ] Test execution time is reasonable (fast feedback loop)
 - [ ] **Update Feature Implementation State File** (if applicable)
   - [ ] Code Inventory section updated with test files and metrics

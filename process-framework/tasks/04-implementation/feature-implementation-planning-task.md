@@ -2,9 +2,9 @@
 id: PF-TSK-044
 type: Process Framework
 category: Task Definition
-version: 1.1
+version: 1.2
 created: 2025-10-30
-updated: 2026-03-02
+updated: 2026-04-04
 ---
 
 # Feature Implementation Planning Task
@@ -115,7 +115,7 @@ When referencing design documents in implementation plans:
 >
 > **⚠️ MANDATORY: Use the New-ImplementationPlan.ps1 script for creating implementation plan documents.**
 >
-> **⚠️ MANDATORY: Create and initialize the Feature Implementation State file using the template.**
+> **⚠️ MANDATORY: The Feature Implementation State file must already exist (created by [PF-TSK-002](../01-planning/feature-tier-assessment-task.md)). Initialize it with planning-phase content.**
 >
 > **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
 >
@@ -134,7 +134,7 @@ When referencing design documents in implementation plans:
    - Complexity tier (Tier 1, 2, or 3)
    - Dependencies on other features
    - Current status and design document links
-3. **Study Feature Implementation State Template**: **CRITICAL** - Read [feature-implementation-state-template.md](../../templates/04-implementation/feature-implementation-state-template.md) and [Feature Implementation State Tracking Guide](../../guides/04-implementation/feature-implementation-state-tracking-guide.md) to understand:
+3. **Study Feature Implementation State File**: **CRITICAL** - Read the existing Feature Implementation State file for this feature (at `/doc/state-tracking/features/`) and the [Feature Implementation State Tracking Guide](../../guides/04-implementation/feature-implementation-state-tracking-guide.md) to understand:
    - Living document structure and purpose
    - Sections that need initialization during planning
    - How this document will be maintained throughout implementation
@@ -224,7 +224,7 @@ When referencing design documents in implementation plans:
     Set-Location "process-framework/scripts/file-creation"
 
     # Create implementation plan (include Feature ID in name)
-    .\New-ImplementationPlan.ps1 -FeatureName "[feature-id]-[feature-name]" -Description "[Brief feature description]"
+    New-ImplementationPlan.ps1 -FeatureName "[feature-id]-[feature-name]" -Description "[Brief feature description]"
     ```
 
     The script will:
@@ -246,27 +246,7 @@ When referencing design documents in implementation plans:
     - **Risk Assessment**: Identified risks with severity and mitigation strategies
     - **Success Criteria**: Measurable completion criteria for the implementation
 
-18. **Create Feature Implementation State File**: Use the automation script to create the permanent living document:
-
-    ```powershell
-    # Navigate to script directory
-    Set-Location "process-framework/scripts/file-creation"
-
-    # Create feature state file with feature name and description
-    .\New-FeatureImplementationState.ps1 -FeatureName "[feature-name]" -Description "[Brief feature description]"
-    ```
-
-    The script will:
-
-    - **Automatically assign** a unique Feature ID (PF-FEA-XXX) from the ID registry
-    - **Update the registry** with the next available ID
-    - Create file at [`/doc/state-tracking/features/`](../../../doc/state-tracking/features)
-    - Filename format: `[feature-name]-implementation-state.md` (e.g., `user-authentication-implementation-state.md`)
-    - Automatically populate metadata (feature ID, name, status "PLANNING")
-    - Provide structure for contextual information sections
-    - Guide you to complete remaining sections
-
-19. **Initialize Feature State Document**: Complete planning-phase sections with CONTEXTUAL INFORMATION (metadata already populated by script):
+18. **Initialize Feature Implementation State File**: The Feature Implementation State file was already created by [Feature Tier Assessment (PF-TSK-002)](../01-planning/feature-tier-assessment-task.md). Locate it at [`/doc/state-tracking/features/`](../../../doc/state-tracking/features) and populate the planning-phase sections with CONTEXTUAL INFORMATION:
     - **Feature Overview**: Complete description with business value and scope
     - **Implementation Progress**: Copy phase sequence from implementation plan
     - **Dimension Profile**: Record the dimension applicability evaluation from step 5 — applicable dimensions with importance level (Critical/Relevant) and key considerations, plus N/A dimensions with rationale. This is the **single source of truth** for dimension awareness during implementation
@@ -277,9 +257,9 @@ When referencing design documents in implementation plans:
 
 ### Finalization
 
-20. **🚨 CHECKPOINT**: Present completed implementation plan document and initialized feature state file to human partner for final review and approval
+19. **🚨 CHECKPOINT**: Present completed implementation plan document and initialized feature state file to human partner for final review and approval
 
-21. **Validate Plan Completeness**: Review both documents for quality:
+20. **Validate Plan Completeness**: Review both documents for quality:
 
     - All implementation phases are clearly defined with reasonable scope
     - Specific file paths documented for each phase (what to create/modify in the source directory)
@@ -290,21 +270,21 @@ When referencing design documents in implementation plans:
     - Risks have specific, actionable mitigation strategies
     - Testing strategy covers all critical paths
 
-22. **Update Feature Tracking**: Update [`feature-tracking.md`](../../../doc/state-tracking/permanent/feature-tracking.md):
+21. **Update Feature Tracking**: Update [`feature-tracking.md`](../../../doc/state-tracking/permanent/feature-tracking.md):
 
     - Add link to Implementation Plan in Notes column
     - Update status to indicate planning is complete
     - Add link to Feature State document
     - Record planning completion date
 
-23. **Document Planning Decisions**: Record any significant decisions made during planning:
+22. **Document Planning Decisions**: Record any significant decisions made during planning:
 
     - Phase sequencing rationale
     - File organization approach
     - Scope trade-offs or deferrals
     - Alternative approaches considered
 
-24. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+23. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 
@@ -318,7 +298,7 @@ When referencing design documents in implementation plans:
   - **Testing Strategy**: Testing approach per implementation phase (unit, component, integration, e2e)
   - **Risk Assessment**: Identified risks with severity levels and specific mitigation strategies
   - **Success Criteria**: Measurable completion criteria for the implementation
-- **Feature Implementation State File** - **PERMANENT** living document at [`/doc/state-tracking/features/`](../../../doc/state-tracking/features)`[feature-id]-implementation-state.md` initialized with:
+- **Feature Implementation State File** - **PERMANENT** living document at [`/doc/state-tracking/features/`](../../../doc/state-tracking/features)`[feature-id]-implementation-state.md` (created by [PF-TSK-002](../01-planning/feature-tier-assessment-task.md)) initialized with planning-phase content:
 
   - **Metadata**: Feature ID, name, status "PLANNING", implementation mode
   - **Feature Overview**: Complete feature description, business value, scope (in/out of scope)
@@ -350,10 +330,8 @@ The following state files must be updated as part of this task:
   - Add link to Implementation Plan document in the **Notes** column: `Implementation Plan: [PD-IMP-XXX](...)`
   - Add link to Feature State document in the **Notes** column: `State: [feature-id]-implementation-state.md`
   - Update status if applicable (e.g., from "📝 TDD Created" to "🟡 In Progress" when implementation begins)
-- **New Feature Implementation State File** - Create at [`/doc/state-tracking/features/`](../../../doc/state-tracking/features)`[feature-id]-implementation-state.md`:
-  - Use [Feature Implementation State Template](../../templates/04-implementation/feature-implementation-state-template.md) as base
-  - Follow naming convention: `[feature-id]-implementation-state.md` (e.g., `PF-FEA-012-implementation-state.md`)
-  - Initialize with planning-phase information including detailed file and component context
+- **Feature Implementation State File** - Initialize the existing file at [`/doc/state-tracking/features/`](../../../doc/state-tracking/features)`[feature-id]-implementation-state.md` (created by [PF-TSK-002](../01-planning/feature-tier-assessment-task.md)):
+  - Populate planning-phase sections with contextual information
   - This file will be continuously updated throughout implementation (NEVER archived)
 
 ## ⚠️ MANDATORY Task Completion Checklist

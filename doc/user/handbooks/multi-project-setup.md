@@ -18,8 +18,6 @@ Use LinkWatcher from any project directory while keeping the tool files in one c
 │   ├── scripts/
 │   │   └── check_links.py           # Standalone link checker
 │   └── LinkWatcher_run/
-│       ├── start_linkwatcher.bat     # Foreground starter
-│       ├── start_linkwatcher.ps1     # PowerShell starter
 │       └── start_linkwatcher_background.ps1  # Background starter
 ├── 📁 ProjectA/
 │   └── .vscode/tasks.json           # Generated VS Code tasks
@@ -74,14 +72,8 @@ python %USERPROFILE%\bin\main.py --project-root c:\Users\ronny\VS_Code\YourProje
 python c:\Users\ronny\VS_Code\LinkWatcher\scripts\check_links.py
 ```
 
-**Using Convenience Scripts (Windows):**
+**Using Background Script (Windows):**
 ```cmd
-# Batch file (foreground)
-LinkWatcher_run\start_linkwatcher.bat
-
-# PowerShell (foreground)
-LinkWatcher_run\start_linkwatcher.ps1
-
 # PowerShell (background — recommended for development sessions)
 LinkWatcher_run\start_linkwatcher_background.ps1
 ```

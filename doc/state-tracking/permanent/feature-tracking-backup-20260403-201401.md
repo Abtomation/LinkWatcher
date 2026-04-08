@@ -11,7 +11,7 @@ updated: 2026-04-03
 
 This document tracks the implementation status and documentation requirements for all features in the LinkWatcher project.
 
-> **v2.0 Note**: Consolidated from 42 granular features to 9 architectural-boundary-aligned features. See [Feature Consolidation State](../../../process-framework/state-tracking/temporary/old/feature-consolidation-state.md) for migration details.
+> **v2.0 Note**: Consolidated from 42 granular features to 9 architectural-boundary-aligned features. See [Feature Consolidation State](../../../process-framework-local/state-tracking/temporary/old/feature-consolidation-state.md) for migration details.
 
 <details>
 <summary><strong>📋 Table of Contents</strong></summary>
@@ -83,7 +83,7 @@ This document tracks the implementation status and documentation requirements fo
 - [Product: Feature Dependencies](../../technical/feature-dependencies.md): Auto-generated visual map and matrix of feature dependencies (run `Update-FeatureDependencies.ps1` to refresh)
 - [Process: Technical Debt Tracker](technical-debt-tracking.md): System for tracking and managing technical debt
 - [Process: Documentation Tier Assignments](../../documentation-tiers/README.md): Information about documentation tier assignments and assessment process
-- [Feature Consolidation State](../../../process-framework/state-tracking/temporary/old/feature-consolidation-state.md): Tracks the 42→9 feature consolidation migration
+- [Feature Consolidation State](../../../process-framework-local/state-tracking/temporary/old/feature-consolidation-state.md): Tracks the 42→9 feature consolidation migration
 
 </details>
 

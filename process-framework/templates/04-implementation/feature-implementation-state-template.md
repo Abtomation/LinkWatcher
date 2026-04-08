@@ -2,9 +2,9 @@
 id: PF-TEM-037
 type: Process Framework
 category: Template
-version: 2.0
+version: 2.1
 created: 2025-01-20
-updated: 2026-02-27
+updated: 2026-04-04
 creates_document_prefix: PF-FIS
 creates_document_version: 1.0
 description: Template for permanent feature implementation state tracking throughout feature lifecycle
@@ -153,21 +153,17 @@ template_for: Feature State Tracking
 
 ## 5. Code Inventory
 
-### Files Created by This Feature
+### File Inventory
 
-| File Path | Purpose   | Key Components | Status   | Created    |
-| --------- | --------- | -------------- | -------- | ---------- |
-| [path]    | [Purpose] | [Components]   | [STATUS] | YYYY-MM-DD |
+| File Path | Role | Ownership | Origin | Notes |
+| --------- | ---- | --------- | ------ | ----- |
+| [path] | [Core/Supporting/Shared] | [Owned/Co-owned/External] | [Created/Modified/Pre-existing] | [Notes] |
 
-**Code Markers**: All created files include `// FEATURE: {feature-id}` header marker
+- **Role**: Core (central to feature), Supporting (used but not central), Shared (used by multiple features)
+- **Ownership**: Owned (this feature is primary owner), Co-owned (shared responsibility), External (owned by another feature)
+- **Origin**: Created (new file), Modified (changed existing file), Pre-existing (used without changes)
 
-### Files Modified by This Feature
-
-| File Path | What Changed | Reason   | Impact   | Modified   |
-| --------- | ------------ | -------- | -------- | ---------- |
-| [path]    | [Change]     | [Reason] | [Impact] | YYYY-MM-DD |
-
-**Code Markers**: All modifications include `// [FEATURE: {feature-id}]` inline markers
+**Code Markers**: Created files include `// FEATURE: {feature-id}` header marker. Modifications include `// [FEATURE: {feature-id}]` inline markers.
 
 ### Test Files
 
@@ -245,7 +241,28 @@ template_for: Feature State Tracking
 
 ---
 
-## 8. Design Decisions
+## 8. Quality Assessment
+
+> **Onboarding Quality Gate** (PF-TSK-065): Populated during Codebase Feature Analysis. Scores determine whether this feature is documented as **As-Built** (descriptive) or **Target-State** (prescriptive with gap analysis) during PF-TSK-066.
+>
+> For new features (not onboarding): _Leave this section empty — quality gate applies only during framework adoption._
+
+**Classification**: [As-Built / Target-State / Not Assessed]
+**Average Score**: [X.X] / 3.0
+
+| Dimension | Score (0-3) | Notes |
+|-----------|-------------|-------|
+| Structural clarity | [0-3] | [Brief observation] |
+| Error handling | [0-3] | [Brief observation] |
+| Data integrity | [0-3] | [Brief observation] |
+| Test coverage | [0-3] | [Brief observation] |
+| Maintainability | [0-3] | [Brief observation] |
+
+**Quality Assessment Report**: [Link to PD-QAR-XXX, if Target-State] | N/A (As-Built)
+
+---
+
+## 9. Design Decisions
 
 ### Decision 1: [Decision Title]
 
@@ -294,7 +311,7 @@ template_for: Feature State Tracking
 
 ---
 
-## 9. Issues & Resolutions Log
+## 10. Issues & Resolutions Log
 
 > Populate when issues arise during work on this feature (bug fixes, blockers, investigations). For formal bug reports, use [bug-tracking.md](../../../doc/state-tracking/permanent/bug-tracking.md); this section provides feature-local context.
 
@@ -310,7 +327,7 @@ template_for: Feature State Tracking
 
 ---
 
-## 10. Next Steps
+## 11. Next Steps
 
 > Populate during active work on this feature. Update at the end of every work session.
 

@@ -2,9 +2,9 @@
 id: PF-TSK-002
 type: Process Framework
 category: Task Definition
-version: 1.4
+version: 1.5
 created: 2023-06-15
-updated: 2026-04-03
+updated: 2026-04-04
 ---
 
 # Feature Tier Assessment
@@ -37,6 +37,11 @@ Assess the complexity tier of unassessed features to determine appropriate docum
   - [Assessment Guide](../../guides/01-planning/assessment-guide.md) - Detailed guidelines for assessing feature complexity tiers
   - [Documentation Tiers README](../../../doc/documentation-tiers/README.md) - Definitions of each complexity tier and their criteria
   - [Visual Notation Guide](/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
+
+- **Important (Load If Space):**
+
+  - [Feature Implementation State Template](../../templates/04-implementation/feature-implementation-state-template.md) - Full template for Tier 2/3 features
+  - [Feature Implementation State Lightweight Template](../../templates/04-implementation/feature-implementation-state-lightweight-template.md) - Lightweight template for Tier 1 features
 
 - **Reference Only (Access When Needed):**
   - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - List of features and their current assessment status
@@ -81,9 +86,30 @@ Assess the complexity tier of unassessed features to determine appropriate docum
 8. **🚨 CHECKPOINT**: Present assessment scores, tier assignment, and design requirements to human partner for approval
 9. Verify the assessment meets quality standards
 
+### Create Feature Implementation State File
+
+10. **Create the Feature Implementation State file** using the automation script. The tier determines which template variant to use:
+
+    ```powershell
+    # Tier 1 (lightweight template — 7 sections)
+    New-FeatureImplementationState.ps1 -FeatureName "[name]" -FeatureId "X.Y.Z" -Lightweight -Description "[description]"
+
+    # Tier 2/3 (full template — 10 sections)
+    New-FeatureImplementationState.ps1 -FeatureName "[name]" -FeatureId "X.Y.Z" -Description "[description]"
+    ```
+
+    - Script location: `/process-framework/scripts/file-creation/04-implementation/New-FeatureImplementationState.ps1`
+    - Creates file at: `/doc/state-tracking/features/[X.Y.Z]-[name]-implementation-state.md`
+    - Automatically links the file in [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md)
+    - **For retrospective onboarding**: Add `-ImplementationMode "Retrospective Analysis"` to set the correct metadata
+
+    > **Why here?** The tier determines the appropriate template variant. Creating the state file immediately after assessment ensures downstream tasks (analysis, design, implementation planning) have a state file ready to enrich.
+
+11. **🚨 CHECKPOINT**: Present the created state file to human partner for confirmation
+
 ### Finalization
 
-10. **Run the automated update script** to update feature tracking:
+12. **Run the automated update script** to update feature tracking:
 
    ```powershell
    # Navigate to the documentation tiers directory (if not already there)
@@ -103,18 +129,26 @@ Assess the complexity tier of unassessed features to determine appropriate docum
 
    **Manual verification**: After running the script, verify the feature tracking document was updated correctly
 
-11. **For existing assessments missing Design Requirements Evaluation**: If updating an assessment that was created before the Design Requirements Evaluation section was added, add the section to the existing assessment file using the template format from the [Assessment Guide](../../guides/01-planning/assessment-guide.md#design-requirements-evaluation)
-12. Document any insights or lessons learned from the assessment process
-13. **🚨 MANDATORY FINAL STEP**: Complete the Task Completion Checklist below
+13. **For existing assessments missing Design Requirements Evaluation**: If updating an assessment that was created before the Design Requirements Evaluation section was added, add the section to the existing assessment file using the template format from the [Assessment Guide](../../guides/01-planning/assessment-guide.md#design-requirements-evaluation)
+14. Document any insights or lessons learned from the assessment process
+15. **🚨 MANDATORY FINAL STEP**: Complete the Task Completion Checklist below
 
 ## Outputs
 
 - **Assessment Document** - New document in the `../../../doc/documentation-tiers/assessments` directory with tier assignment, design requirements evaluation, and rationale
+- **Feature Implementation State File** - Created at `/doc/state-tracking/features/` using lightweight template (Tier 1) or full template (Tier 2/3). This permanent living document is enriched by downstream tasks
 - **Updated Feature Tracking** - Feature entry in the tracking document updated with assessment results, including API Design and DB Design requirements
 
 ## State Tracking
 
-The following state files must be updated as part of this task:
+### New State Files Created
+
+- **Feature Implementation State File** (PERMANENT):
+  - Location: `/doc/state-tracking/features/[X.Y.Z]-[name]-implementation-state.md`
+  - Template: Lightweight (Tier 1) or Full (Tier 2/3)
+  - Lifecycle: Permanent — enriched by downstream tasks (analysis, design, implementation)
+
+### Existing State Files Updated
 
 - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Update with:
   - Status change from "⬜ Not Started" to "📊 Assessment Created"
@@ -123,6 +157,7 @@ The following state files must be updated as part of this task:
   - API Design column with "Yes" or "No"
   - DB Design column with "Yes" or "No"
   - Link to the assessment document
+  - Link to the Feature Implementation State file (auto-created by script)
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
@@ -139,6 +174,11 @@ Before considering this task finished:
   - [ ] API Design requirement clearly marked as "Yes" or "No" with justification
   - [ ] DB Design requirement clearly marked as "Yes" or "No" with justification
   - [ ] Final tier assignment is correct based on the normalized score
+- [ ] **Verify Feature Implementation State File Created**:
+  - [ ] State file created at `/doc/state-tracking/features/` with correct naming
+  - [ ] Lightweight template used for Tier 1; full template used for Tier 2/3
+  - [ ] For retrospective onboarding: `implementation_mode: Retrospective Analysis` set in metadata
+  - [ ] State file linked in Feature Tracking (auto-created by script)
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
   - [ ] Feature Tracking document status updated from "⬜ Not Started" to "📊 Assessment Created"
   - [ ] Feature Tracking document updated with correct tier emoji and assessment link

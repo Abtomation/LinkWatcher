@@ -66,7 +66,7 @@ test/
 | **pytest markers** (via `test_query.py`) | `test/automated/` | Test metadata embedded as pytest markers in test files (feature, priority, test_type) | `New-TestFile.ps1` (automated), manual edits |
 | **test-tracking.md** | `test/state-tracking/permanent` | Automated test implementation progress, audit results | `New-TestFile.ps1`, manual edits |
 | **e2e-test-tracking.md** | `test/state-tracking/permanent` | E2E acceptance test cases, workflow milestones, execution status | `New-E2EAcceptanceTestCase.ps1`, `Update-TestExecutionStatus.ps1`, manual edits |
-| **feature-tracking.md** | `process-framework/state-tracking/permanent` | Feature-level test status column | `New-TestFile.ps1`, `Update-TestExecutionStatus.ps1` |
+| **feature-tracking.md** | `process-framework-local/state-tracking/permanent` | Feature-level test status column | `New-TestFile.ps1`, `Update-TestExecutionStatus.ps1` |
 
 ### Key Principle: No Duplicate Tracking
 
@@ -82,23 +82,23 @@ The process framework eliminated redundant test tracking files. There is **no** 
 
 | Script | Location | Purpose |
 |--------|----------|---------|
-| `New-TestFile.ps1` | `scripts/file-creation/` | Create automated test files with pytest markers |
-| `New-E2EAcceptanceTestCase.ps1` | `scripts/file-creation/` | Create E2E acceptance test cases with TE-E2E/TE-E2G IDs |
-| `New-TestSpecification.ps1` | `scripts/file-creation/` | Create test specifications with PF-TSP IDs |
-| `New-TestAuditReport.ps1` | `scripts/file-creation/` | Create test audit reports with TE-TAR IDs, update test-tracking.md |
-| `Run-Tests.ps1` | `scripts/test/` | Language-agnostic test runner (reads project-config.json + languages-config/) |
+| `New-TestFile.ps1` | `scripts/file-creation` | Create automated test files with pytest markers |
+| `New-E2EAcceptanceTestCase.ps1` | `scripts/file-creation` | Create E2E acceptance test cases with TE-E2E/TE-E2G IDs |
+| `New-TestSpecification.ps1` | `scripts/file-creation` | Create test specifications with PF-TSP IDs |
+| `New-TestAuditReport.ps1` | `scripts/file-creation` | Create test audit reports with TE-TAR IDs, update test-tracking.md |
+| `Run-Tests.ps1` | `scripts/test` | Language-agnostic test runner (reads project-config.json + languages-config/) |
 | `Setup-TestEnvironment.ps1` | `scripts/test/e2e-acceptance-testing/` | Copy pristine fixtures to workspace for E2E acceptance testing |
 | `Verify-TestResult.ps1` | `scripts/test/e2e-acceptance-testing/` | Compare workspace state against expected state |
 | `Run-E2EAcceptanceTest.ps1` | `scripts/test/e2e-acceptance-testing/` | Orchestrate scripted test pipeline: Setup → run.ps1 → wait → Verify |
 | `Update-TestExecutionStatus.ps1` | `scripts/test/e2e-acceptance-testing/` | Update e2e-test-tracking.md with E2E acceptance test results |
-| `Validate-TestTracking.ps1` | `scripts/validation/` | Validate consistency between registry, tracking, and disk |
+| `Validate-TestTracking.ps1` | `scripts/validation` | Validate consistency between registry, tracking, and disk |
 
 ### Related Tasks
 
 | Task | ID | Relationship to test/ |
 |------|----|-----------------------|
 | Integration and Testing | PF-TSK-053 | Creates test files in `test/automated/` using `New-TestFile.ps1` |
-| Test Specification Creation | PF-TSK-012 | Creates specs in `test/specifications/feature-specs/` |
+| Test Specification Creation | PF-TSK-012 | Creates specs in `test/specifications/feature-specs` |
 | Test Audit | PF-TSK-030 | Creates audit reports in `test/audits/` |
 | E2E Acceptance Test Case Creation | PF-TSK-069 | Creates test cases in `test/e2e-acceptance-testing/templates/` |
 | E2E Acceptance Test Execution | PF-TSK-070 | Executes tests from `test/e2e-acceptance-testing/templates/` in `workspace/` |
@@ -122,16 +122,16 @@ LinkWatcher is started scoped to the workspace case directory (not the full proj
 
 ```bash
 # Run a single scripted test case
-pwsh.exe -ExecutionPolicy Bypass -Command '& process-framework/scripts/test/e2e-acceptance-testing/Run-E2EAcceptanceTest.ps1 -TestCase "TE-E2E-001" -Group "my-group"'
+pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/test/e2e-acceptance-testing/Run-E2EAcceptanceTest.ps1 -TestCase "TE-E2E-001" -Group "my-group"
 
 # Run all scripted tests in a group (clean workspace, detailed diffs)
-pwsh.exe -ExecutionPolicy Bypass -Command '& process-framework/scripts/test/e2e-acceptance-testing/Run-E2EAcceptanceTest.ps1 -Group "my-group" -Clean -Detailed'
+pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/test/e2e-acceptance-testing/Run-E2EAcceptanceTest.ps1 -Group "my-group" -Clean -Detailed
 
 # Run all scripted tests across all groups
-pwsh.exe -ExecutionPolicy Bypass -Command '& process-framework/scripts/test/e2e-acceptance-testing/Run-E2EAcceptanceTest.ps1'
+pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/test/e2e-acceptance-testing/Run-E2EAcceptanceTest.ps1
 
 # Increase settling delay for complex fixtures
-pwsh.exe -ExecutionPolicy Bypass -Command '& process-framework/scripts/test/e2e-acceptance-testing/Run-E2EAcceptanceTest.ps1 -Group "my-group" -SettleSeconds 5'
+pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/test/e2e-acceptance-testing/Run-E2EAcceptanceTest.ps1 -Group "my-group" -SettleSeconds 5
 ```
 
 Test cases without `run.ps1` are automatically skipped by `Run-E2EAcceptanceTest.ps1` with a message suggesting manual execution.
@@ -225,25 +225,25 @@ Use the language-agnostic test runner:
 
 ```bash
 # List available categories
-pwsh.exe -ExecutionPolicy Bypass -Command '& process-framework/scripts/test/Run-Tests.ps1 -ListCategories'
+pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/test/Run-Tests.ps1 -ListCategories
 
 # Run a specific category
-pwsh.exe -ExecutionPolicy Bypass -Command '& process-framework/scripts/test/Run-Tests.ps1 -Category unit'
+pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/test/Run-Tests.ps1 -Category unit
 
 # Quick run (categories from project-config.json quickCategories, stop on first failure)
-pwsh.exe -ExecutionPolicy Bypass -Command '& process-framework/scripts/test/Run-Tests.ps1 -Quick'
+pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/test/Run-Tests.ps1 -Quick
 
 # Multiple categories at once
-pwsh.exe -ExecutionPolicy Bypass -Command '& process-framework/scripts/test/Run-Tests.ps1 -Category unit,integration'
+pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/test/Run-Tests.ps1 -Category unit,integration
 
 # All tests with coverage
-pwsh.exe -ExecutionPolicy Bypass -Command '& process-framework/scripts/test/Run-Tests.ps1 -All -Coverage'
+pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/test/Run-Tests.ps1 -All -Coverage
 
 # Test discovery
-pwsh.exe -ExecutionPolicy Bypass -Command '& process-framework/scripts/test/Run-Tests.ps1 -Discover'
+pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/test/Run-Tests.ps1 -Discover
 
 # Run tests and auto-update test-tracking.md with per-file pass/fail results
-pwsh.exe -ExecutionPolicy Bypass -Command '& process-framework/scripts/test/Run-Tests.ps1 -Category unit -UpdateTracking'
+pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/test/Run-Tests.ps1 -Category unit -UpdateTracking
 ```
 
 ## Setting Up Test Infrastructure for a New Project
@@ -261,7 +261,7 @@ cd process-framework/scripts/file-creation/00-setup
 
 **What it creates:**
 - `test/automated/{categories}/` — from `project-config.json` `quickCategories` + defaults
-- `test/specifications/feature-specs/` and `cross-cutting-specs/`
+- `test/specifications/feature-specs` and `cross-cutting-specs/`
 - `test/e2e-acceptance-testing/templates/`, `workspace/`, `results/`
 - `test/audits/`
 - `test/state-tracking/permanent/test-tracking.md` and `e2e-test-tracking.md`
@@ -328,7 +328,7 @@ Create shared fixture files and package markers appropriate for your language, r
 
 ### Never use real project directory names in test content
 
-Test content strings (parsed text, assertion values, file content written to temp dirs) must **never** use real project directory names like `doc/`, `process-framework/`, or `linkwatcher/`. LinkWatcher treats these as real file references and rewrites them when the corresponding real directories move.
+Test content strings (parsed text, assertion values, file content written to temp dirs) must **never** use real project directory names like `doc`, `process-framework`, or `linkwatcher/`. LinkWatcher treats these as real file references and rewrites them when the corresponding real directories move.
 
 ### Use the `alpha-project/` synthetic namespace
 
@@ -343,11 +343,11 @@ All test path references use the `alpha-project/` prefix, which does not exist i
 
 ### Safe synthetic paths (no change needed)
 
-Paths using directories that don't exist in the real project are already safe: `vendor/`, `src/`, `lib/`, `config/`, `components/`. These do not need to be replaced.
+Paths using directories that don't exist in the real project are already safe: `vendor/`, `src/`, `lib`, `config/`, `components/`. These do not need to be replaced.
 
 ### Rules summary
 
-1. **Never** use `doc/`, `process-framework/`, or `linkwatcher/` as path prefixes in test content strings
+1. **Never** use `doc`, `process-framework`, or `linkwatcher/` as path prefixes in test content strings
 2. **Always** use `alpha-project/` or another non-existent directory name
 3. **Store** paths in variables and derive both content and assertions from the same variable when practical
 4. Paths used only as **filesystem paths within `tmp_path`** (never written as string content) are safe regardless of name

@@ -3,9 +3,9 @@
 id: PF-TEM-056
 type: Process Framework
 category: Template
-version: 1.2
+version: 1.3
 created: 2025-07-06
-updated: 2025-01-27
+updated: 2026-04-04
 
 # Document Creation Metadata
 template_for: TDD Tier 2 (Lightweight Technical Design Document)
@@ -17,7 +17,8 @@ creates_document_version: 1.0
 # Template Usage Context
 usage_context: Product Documentation - Technical Design Documents
 description: Creates lightweight technical design documents for Tier 2 features
-change_notes: "v1.2 - Added cross-reference sections for IMP-097/IMP-098 (Database Schema, API Specification, FDD, Test Specification)"
+change_notes: "v1.3 - Replaced Dart code examples with language-agnostic pseudocode (IMP-003)"
+documentation_mode: as-built
 
 # Additional Fields for Generated Documents
 additional_fields:
@@ -82,45 +83,30 @@ additional_fields:
 
 [Describe the key data models used by this feature]
 
-```dart
-// Example model code
-class ExampleModel {
-  final String id;
-  final String name;
-
-  ExampleModel({required this.id, required this.name});
-
-  // Factory methods, serialization, etc.
-}
+```
+# Example in your project's language
+# Define the data model with key fields
+# Include factory methods, serialization, validation as needed
 ```
 
 ### 4.2 UI Components
 
 [Describe the main UI components and their interactions]
 
-```dart
-// Example UI component
-class ExampleScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    // Implementation details
-  }
-}
+```
+# Example in your project's language
+# Define the main UI component/screen for this feature
+# Include layout structure, event handlers, and user interaction logic
 ```
 
 ### 4.3 State Management
 
 [Describe how state is managed for this feature]
 
-```dart
-// Example state management code
-class ExampleNotifier extends StateNotifier<ExampleState> {
-  ExampleNotifier() : super(ExampleState.initial());
-
-  void updateExample(String id) {
-    // Implementation details
-  }
-}
+```
+# Example in your project's language
+# Define state management approach for this feature
+# Include state initialization, update methods, and state access patterns
 ```
 
 ### 4.4 Quality Attribute Implementation
@@ -142,6 +128,12 @@ class ExampleNotifier extends StateNotifier<ExampleState> {
 [Describe how the design ensures good user experience]
 
 ## 5. Cross-References
+
+<!-- RETROSPECTIVE: For retrospective TDDs, simplify this section to a flat list of links to
+     existing documents. Remove subsections for documents that don't exist. Example:
+     - **FDD**: [PD-FDD-XXX](path)
+     - **Test Spec**: [TE-TSP-XXX](path)
+     The "Primary Documentation / Owner" scaffolding is for forward planning and can be removed. -->
 
 ### 5.1 Functional Requirements Reference
 
@@ -173,6 +165,11 @@ class ExampleNotifier extends StateNotifier<ExampleState> {
 
 ## 6. Implementation Plan
 
+<!-- RETROSPECTIVE: For retrospective TDDs, reframe this section as "Implementation Notes":
+     - §6.1: Replace "dependencies that must be implemented first" with actual dependency list
+     - §6.2: Replace "steps to implement" with a summary of how the feature was implemented
+     Remove future-tense language; describe what exists. -->
+
 ### 6.1 Dependencies
 
 [List dependencies that must be implemented first]
@@ -182,6 +179,11 @@ class ExampleNotifier extends StateNotifier<ExampleState> {
 [List the key steps to implement this feature]
 
 ## 7. Quality Measurement
+
+<!-- RETROSPECTIVE: For retrospective TDDs, reframe as "Observed Quality Characteristics":
+     Document actual performance, security posture, and reliability observed in the existing
+     implementation rather than planned monitoring targets. Remove subsections where the feature
+     has no observable metrics (e.g., no monitoring instrumentation exists). -->
 
 ### 7.1 Performance Monitoring
 

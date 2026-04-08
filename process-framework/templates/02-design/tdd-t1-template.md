@@ -18,6 +18,7 @@ creates_document_version: 1.0
 usage_context: Product Documentation - Technical Design Documents
 description: Creates lightweight planning documents for Tier 1 features
 change_notes: "v1.2 - Added cross-reference section for IMP-097/IMP-098 (Database Schema, API Specification, Test Specification)"
+documentation_mode: as-built
 
 # Additional Fields for Generated Documents
 additional_fields:

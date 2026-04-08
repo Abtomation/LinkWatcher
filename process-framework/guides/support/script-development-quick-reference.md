@@ -76,7 +76,7 @@ $customReplacements = @{
 
 # ❌ WRONG - Don't escape brackets
 $customReplacements = @{
-    "\[Feature Name\]" = $FeatureName  # This won't work!
+    "/[Feature Name/]" = $FeatureName  # This won't work!
 }
 ```
 
@@ -142,65 +142,52 @@ $documentId = New-StandardProjectDocument `
 
 ## Troubleshooting
 
-### PowerShell Script Output Not Visible (AI Agents)
+### PowerShell Script Execution (AI Agents)
 
-**Symptom:** When AI agents execute PowerShell scripts using `pwsh.exe -Command`, no output is displayed even though the script executes successfully (Exit Code 0).
+**Preferred pattern — `pwsh.exe -File`:**
 
-**Status (2026-02-28):** This issue has been **resolved** in Claude Code. Output from `pwsh.exe -Command` is now captured correctly when using bash single quotes.
-
-**Preferred Solution:** Wrap the entire `-Command` argument in **bash single quotes**:
+Use `-File` with a direct relative path from the repo root. No `cd` needed, no quoting wrappers.
 
 ```bash
-# Preferred pattern — bash single quotes prevent shell interpretation
-cd process-framework/scripts/file-creation && pwsh.exe -ExecutionPolicy Bypass -Command '& .\ScriptName.ps1 -Param "value" -Confirm:$false'
+# Preferred pattern — direct path, escape $ with backslash
+pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/ScriptName.ps1 -Param "value" -Confirm:\$false
 ```
 
 **Example:**
 ```bash
-cd process-framework/scripts/file-creation && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-FeedbackForm.ps1 -DocumentId "PF-TSK-009" -TaskContext "Process Improvement" -FeedbackType "MultipleTools" -Confirm:$false'
+pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/support/New-FeedbackForm.ps1 -DocumentId "PF-TSK-009" -TaskContext "Process Improvement" -FeedbackType "MultipleTools" -Confirm:\$false
 ```
 
-**Why this works:**
-- Bash single quotes prevent `$`, `&`, and other characters from being interpreted by bash
-- PowerShell receives the command string intact and executes it normally
-- All output streams (`Write-Host`, `Write-Output`, custom formatters) are captured
+**Why `-File` is preferred:**
+- No `cd` into the script directory needed — use the path directly
+- No bash single-quote wrapping needed
+- No `&` call operator needed
+- Only caveat: escape `$` with backslash (`\$false`) so bash doesn't interpret it as a variable
 
-**Fallback (complex quoting):** When bash single quotes conflict with the PowerShell command (e.g., the command itself contains single quotes), use a temp file:
+**Fallback — `pwsh.exe -Command`:** Use when you need PowerShell expressions, piped commands, or one-liners that aren't script files. Wrap the entire `-Command` argument in **bash single quotes**:
 
 ```bash
-cat > temp.ps1 << 'ENDOFSCRIPT'
-Set-Location 'process-framework/scripts/file-creation'
-& .\Script.ps1 -Params -Confirm:$false
-ENDOFSCRIPT
-pwsh.exe -ExecutionPolicy Bypass -File temp.ps1 && rm temp.ps1
+pwsh.exe -ExecutionPolicy Bypass -Command '& process-framework/scripts/file-creation/ScriptName.ps1 -Param "value" -Confirm:$false'
 ```
 
-**For human users:** You can continue using `pwsh.exe -Command` directly in your terminal with any quoting style — it works fine for interactive use.
+**For human users:** You can use either pattern directly in your terminal — both work fine for interactive use.
 
-**Historical context:** Prior to 2026-02-28, the Bash tool could not capture PowerShell `-Command` output. The temp file pattern was the only working approach. The solutions listed below were tested and did not work at that time:
-- `*>&1` stream redirection
-- `| Out-String` piping
-- `-NoLogo -NoProfile` flags
-- `Start-Transcript` with output capture
-- Setting `$InformationPreference`
-- Using `Write-Output` instead of `Write-Host`
+**Historical context:** Prior to 2026-02-28, the Bash tool could not capture `pwsh.exe -Command` output. A temp file pattern was the only working approach. This was resolved and `-Command` with bash single quotes works correctly. As of 2026-04-04, `-File` is the preferred pattern for its simplicity.
 
-### Double Quotes in `echo` Cause Garbled Paths (Historical — Temp File Pattern)
+### Double Quotes in `echo` Cause Garbled Paths (Historical)
 
-> **Note (2026-02-28):** This issue only applies to the legacy `echo ... > temp.ps1` pattern. With the preferred `pwsh.exe -Command '...'` pattern (bash single quotes), this problem does not occur because cmd.exe is not involved in interpreting the command string.
+> **Note:** This issue only applies to the legacy `echo ... > temp.ps1` pattern. With either the `-File` or `-Command` patterns, this problem does not occur.
 
 **Symptom:** When using the old temp file pattern, script runs successfully (Exit Code 0) but creates a nested directory structure instead of the expected file.
 
 **Cause:** cmd.exe interprets `"` double quotes inside an `echo` command, garbling parameter values.
 
-**Solution:** Use the preferred pattern instead:
+**Solution:** Use the preferred `-File` pattern instead:
 
 ```bash
-# ✅ Preferred — bash single quotes, no echo/temp file needed
-cd process-framework/scripts/file-creation/02-design && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-FDD.ps1 -FeatureId "3.1.1" -FeatureName "Parser Framework" -Confirm:$false'
+# ✅ Preferred — direct path
+pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/02-design/New-FDD.ps1 -FeatureId "3.1.1" -FeatureName "Parser Framework" -Confirm:\$false
 ```
-
-If you must use the temp file fallback, use single quotes for all parameter values inside `echo`.
 
 ### Script Fails with "Out-Null" Errors
 

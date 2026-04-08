@@ -82,7 +82,7 @@ graph TD
 
 - [Feature Enhancement Task](../../../tasks/04-implementation/feature-enhancement.md) — Task definition
 - [Feature Request Evaluation Task](../../../tasks/01-planning/feature-request-evaluation.md) — The upstream task that produces the Enhancement State Tracking File
-- [Enhancement Workflow Concept (PF-PRO-002)](../../../proposals/old/enhancement-workflow-concept.md) — Full design rationale
+- [Enhancement Workflow Concept (PF-PRO-002)](../../../../process-framework-local/proposals/old/enhancement-workflow-concept.md) — Full design rationale
 
 ---
 

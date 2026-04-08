@@ -46,6 +46,7 @@ Implement core business logic modules, wire integration points, and write unit t
   - **Existing Source Code** - Review similar modules in the source directory for patterns and conventions
   - [Development Guide](/process-framework/guides/04-implementation/development-guide.md) - Coding best practices and conventions
   - [Definition of Done](/process-framework/guides/04-implementation/definition-of-done.md) - Completion criteria
+  - [Source Code Layout](/doc/technical/architecture/source-code-layout.md) - Consult for correct file placement within feature directories
 
 - **Reference Only (Access When Needed):**
   - **Test Specification** - Expected test coverage and test case details (if created)
@@ -99,7 +100,7 @@ Implement core business logic modules, wire integration points, and write unit t
    # Create test files using automation script (writes pytest markers)
    # Test types depend on project language (auto-detected from project-config.json)
    cd process-framework/scripts/file-creation/03-testing
-   .\New-TestFile.ps1 -TestName "FeatureName" -TestType "Unit" -FeatureId "X.Y.Z" -ComponentName "ComponentName"
+   New-TestFile.ps1 -TestName "FeatureName" -TestType "Unit" -FeatureId "X.Y.Z" -ComponentName "ComponentName"
 
    # Script automatically:
    # - Writes pytest markers (feature, priority, test_type)
@@ -135,7 +136,7 @@ Implement core business logic modules, wire integration points, and write unit t
     ```powershell
     # Create standardized bug report
     cd process-framework/scripts/file-creation/06-maintenance
-    .\New-BugReport.ps1 -Title "Brief description" -Description "Detailed description" -DiscoveredBy "Development" -Severity "High" -Component "ComponentName" -Environment "Development" -Evidence "Test case or code reference"
+    New-BugReport.ps1 -Title "Brief description" -Description "Detailed description" -DiscoveredBy "Development" -Severity "High" -Component "ComponentName" -Environment "Development" -Evidence "Test case or code reference"
     ```
 
     - Follow [Bug Reporting Guide](../../guides/06-maintenance/bug-reporting-guide.md) for consistent documentation

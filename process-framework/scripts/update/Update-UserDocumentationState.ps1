@@ -31,11 +31,11 @@ One-line description for the PD-documentation-map.md entry
 
 .EXAMPLE
 # Update state files after creating a user handbook
-.\Update-UserDocumentationState.ps1 -FeatureId "6.1.1" -HandbookName "Link Validation" -HandbookPath "doc/user/handbooks/link-validation.md" -HandbookId "PD-UGD-003" -Description "On-demand workspace scan for broken file references using --validate"
+Update-UserDocumentationState.ps1 -FeatureId "6.1.1" -HandbookName "Link Validation" -HandbookPath "doc/user/handbooks/link-validation.md" -HandbookId "PD-UGD-003" -Description "On-demand workspace scan for broken file references using --validate"
 
 .EXAMPLE
 # Preview changes without modifying files
-.\Update-UserDocumentationState.ps1 -FeatureId "2.1.1" -HandbookName "Custom Parsers" -HandbookPath "doc/user/handbooks/custom-parsers.md" -HandbookId "PD-UGD-004" -Description "How to add custom file parsers" -WhatIf
+Update-UserDocumentationState.ps1 -FeatureId "2.1.1" -HandbookName "Custom Parsers" -HandbookPath "doc/user/handbooks/custom-parsers.md" -HandbookId "PD-UGD-004" -Description "How to add custom file parsers" -WhatIf
 
 .NOTES
 This script addresses Process Improvement item:

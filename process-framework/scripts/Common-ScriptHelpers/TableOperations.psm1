@@ -145,6 +145,7 @@ function ConvertTo-MarkdownTableRow {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory=$true, ParameterSetName='Cells')]
+        [AllowEmptyString()]
         [string[]]$Cells,
 
         [Parameter(Mandatory=$true, ParameterSetName='Separator')]

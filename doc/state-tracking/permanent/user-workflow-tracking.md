@@ -4,7 +4,7 @@ type: Product Documentation
 category: State Tracking
 version: 2.0
 created: 2026-03-18
-updated: 2026-03-31
+updated: 2026-04-07
 previous_id: PD-DES-002
 previous_location: doc/technical/design/user-workflow-map.md
 ---
@@ -29,14 +29,14 @@ This document maps user-facing workflows to the features that enable them and tr
 
 | ID | Workflow | User Action | Required Features | Priority | Impl Status | E2E Status |
 |----|----------|-------------|-------------------|----------|-------------|------------|
-| WF-001 | Single file move → links updated | Move/rename a file (VS Code, File Explorer, git) | 1.1.1, 2.1.1, 2.2.1 | P1 | All Implemented | ✅ Covered (TE-E2G-001–004) |
-| WF-002 | Directory move → contained refs updated | Move/rename a directory | 1.1.1, 0.1.2, 2.1.1, 2.2.1 | P1 | All Implemented | ✅ Covered (TE-E2G-005) |
-| WF-003 | Startup → initial project scan | Run `python main.py` or startup script | 0.1.1, 0.1.3, 0.1.2, 2.1.1, 1.1.1, 3.1.1 | P1 | All Implemented | 🔴 Partial (PD-BUG-053) |
-| WF-004 | Rapid sequential moves → consistency | Move multiple files in quick succession | 1.1.1, 0.1.2, 2.2.1 | P2 | All Implemented | ✅ Covered (TE-E2G-007) |
-| WF-005 | Multi-format file move → all parsers handle | Move a file referenced from MD, YAML, JSON, Python, PS1 | 2.1.1, 2.2.1, 1.1.1 | P2 | All Implemented | ✅ Covered (TE-E2G-008) |
+| WF-001 | Single file move → links updated | Move/rename a file (VS Code, File Explorer, git) | 1.1.1, 2.1.1, 2.2.1 | P1 | All Implemented | 🔄 Re-execution Needed |
+| WF-002 | Directory move → contained refs updated | Move/rename a directory | 1.1.1, 0.1.2, 2.1.1, 2.2.1 | P1 | All Implemented | 🔄 Re-execution Needed |
+| WF-003 | Startup → initial project scan | Run `python main.py` or startup script | 0.1.1, 0.1.3, 0.1.2, 2.1.1, 1.1.1, 3.1.1 | P1 | Pending: 0.1.1 | 🔄 Re-execution Needed |
+| WF-004 | Rapid sequential moves → consistency | Move multiple files in quick succession | 1.1.1, 0.1.2, 2.2.1 | P2 | All Implemented | ✅ Covered |
+| WF-005 | Multi-format file move → all parsers handle | Move a file referenced from MD, YAML, JSON, Python, PS1 | 2.1.1, 2.2.1, 1.1.1 | P2 | All Implemented | 🔄 Re-execution Needed |
 | WF-006 | Configuration change → behavior adapts | Edit config file or pass CLI arguments | 0.1.3, 1.1.1, 3.1.1 | P3 | All Implemented | Not Tested |
-| WF-007 | Dry-run mode → preview without changes | Start with `--dry-run`, move files, observe logs | 0.1.3, 0.1.1, 2.2.1, 3.1.1 | P3 | All Implemented | ✅ Covered (TE-E2G-009) |
-| WF-008 | Graceful shutdown → no corrupted files | Stop the LinkWatcher process (Ctrl+C, kill) | 0.1.1, 2.2.1, 0.1.2 | P2 | All Implemented | ✅ Covered (TE-E2G-010) |
+| WF-007 | Dry-run mode → preview without changes | Start with `--dry-run`, move files, observe logs | 0.1.3, 0.1.1, 2.2.1, 3.1.1 | P3 | Pending: 0.1.1 | ✅ Covered |
+| WF-008 | Graceful shutdown → no corrupted files | Stop the LinkWatcher process (Ctrl+C, kill) | 0.1.1, 2.2.1, 0.1.2 | P2 | Pending: 0.1.1 | ✅ Covered |
 
 ## Workflow Details
 

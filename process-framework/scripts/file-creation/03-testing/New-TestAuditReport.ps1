@@ -38,16 +38,16 @@
     If specified, opens the created file in the default editor
 
 .EXAMPLE
-    .\New-TestAuditReport.ps1 -FeatureId "0.2.3" -TestFilePath "test/automated/unit/test_service.py" -AuditorName "AI Agent"
+    New-TestAuditReport.ps1 -FeatureId "0.2.3" -TestFilePath "test/automated/unit/test_service.py" -AuditorName "AI Agent"
 
 .EXAMPLE
-    .\New-TestAuditReport.ps1 -FeatureId "1.1.2" -TestFilePath "test/automated/integration/test_auth.py" -AuditorName "QA Engineer" -OpenInEditor
+    New-TestAuditReport.ps1 -FeatureId "1.1.2" -TestFilePath "test/automated/integration/test_auth.py" -AuditorName "QA Engineer" -OpenInEditor
 
 .EXAMPLE
-    .\New-TestAuditReport.ps1 -FeatureId "0.1.1" -TestFilePath "test/automated/unit/test_service.py" -Lightweight
+    New-TestAuditReport.ps1 -FeatureId "0.1.1" -TestFilePath "test/automated/unit/test_service.py" -Lightweight
 
 .EXAMPLE
-    .\New-TestAuditReport.ps1 -FeatureId "0.2.3" -TestFilePath "test/automated/unit/test_service.py" -Force
+    New-TestAuditReport.ps1 -FeatureId "0.2.3" -TestFilePath "test/automated/unit/test_service.py" -Force
     # Re-audit: overwrites the existing report for this feature/test file combination
 
 .NOTES
@@ -313,7 +313,7 @@ Before considering this script complete, test the following:
 
 EXAMPLE TEST COMMANDS:
 # Basic test (SC-007: uses file path)
-./New-TestAuditReport.ps1 -FeatureId "0.2.3" -TestFilePath "test/automated/unit/test_service.py" -AuditorName "Test Auditor"
+New-TestAuditReport.ps1 -FeatureId "0.2.3" -TestFilePath "test/automated/unit/test_service.py" -AuditorName "Test Auditor"
 
 # Cleanup
 Remove-Item "../../audits/foundation/audit-report-0-2-3-test_service.md" -Force

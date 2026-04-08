@@ -66,7 +66,7 @@ This document serves as the **comprehensive registry** of all process framework 
 - **Quality Validation** - Manual quality auditing across multiple dimensions
 - **Implementation Finalization** - Manual deployment preparation and state file archival
 - **Validation Preparation** - Manual feature/dimension selection and validation planning
-- **Codebase Feature Analysis** - Manual deep analysis with partial test registration automation
+- **Codebase Feature Analysis** - Manual deep analysis with partial automation (test registration, master state coordination)
 - **Framework Domain Adaptation** - Manual domain-specific terminology migration
 
 ### 🚨 Critical Automation Gaps Identified
@@ -104,7 +104,7 @@ This document serves as the **comprehensive registry** of all process framework 
 **📋 AUTOMATION DETAILS**
 
 - **Script:** [`New-TestInfrastructure.ps1`](../scripts/file-creation/00-setup/New-TestInfrastructure.ps1)
-- **Output Directory:** Project root (`project-config.json`), `languages-config/`, `test/`
+- **Output Directory:** Project root (`project-config.json`), `languages-config`, `test/`
 - **Auto-Update Function:** Scaffolds test directory structure, tracking files, and TE-id-registry from project-config.json
 
 **📁 FILE OPERATIONS**
@@ -128,15 +128,16 @@ This document serves as the **comprehensive registry** of all process framework 
 
 **📋 AUTOMATION DETAILS**
 
-- **Scripts:** [`New-RetrospectiveMasterState.ps1`](../scripts/file-creation/00-setup/New-RetrospectiveMasterState.ps1), [`New-FeatureImplementationState.ps1`](../scripts/file-creation/04-implementation/New-FeatureImplementationState.ps1)
-- **Output Directory:** `doc/state-tracking/features/`, `process-framework/state-tracking/temporary/`
-- **Auto-Update Function:** Scripts create state files; feature tracking requires manual updates
+- **Scripts:** [`New-RetrospectiveMasterState.ps1`](../scripts/file-creation/00-setup/New-RetrospectiveMasterState.ps1), [`New-FeatureImplementationState.ps1`](../scripts/file-creation/04-implementation/New-FeatureImplementationState.ps1), [`Validate-OnboardingCompleteness.ps1`](../scripts/validation/Validate-OnboardingCompleteness.ps1), [`New-SourceStructure.ps1`](../scripts/file-creation/00-setup/New-SourceStructure.ps1)
+- **Output Directory:** `doc/state-tracking/features/`, `process-framework-local/state-tracking/temporary`, `{source_root}/`
+- **Auto-Update Function:** Scripts create state files and source directory structure; feature tracking requires manual updates
 
 **📁 FILE OPERATIONS**
 | Operation | File Path | Update Method | Details |
 |-----------|-----------|---------------|---------|
 | **Creates** | Retrospective Master State File | `New-RetrospectiveMasterState.ps1` | Tracks 3-phase retrospective onboarding progress |
 | **Creates** | Feature Implementation State Files (multiple) | `New-FeatureImplementationState.ps1` | One per discovered feature in `doc/state-tracking/features/` |
+| **Creates** | Source directory structure | `New-SourceStructure.ps1 -Scaffold` | Source root, shared/, feature directories, source-code-layout.md updates |
 | **Updates** | [`feature-tracking.md`](../../doc/state-tracking/permanent/feature-tracking.md) | Manual | Add discovered features with initial status |
 | **Updates** | [`user-workflow-tracking.md`](../../doc/state-tracking/permanent/user-workflow-tracking.md) | Manual | Map features to user workflows |
 
@@ -152,17 +153,19 @@ This document serves as the **comprehensive registry** of all process framework 
 
 **📋 AUTOMATION DETAILS**
 
-- **Scripts:** [`test_query.py`](../scripts/test/test_query.py), [`New-TestFile.ps1`](../scripts/file-creation/03-testing/New-TestFile.ps1)
+- **Scripts:** [`test_query.py`](../scripts/test/test_query.py), [`New-TestFile.ps1`](../scripts/file-creation/03-testing/New-TestFile.ps1), [`Update-RetrospectiveMasterState.ps1`](../scripts/update/Update-RetrospectiveMasterState.ps1), [`Update-TechDebt.ps1`](../scripts/update/Update-TechDebt.ps1)
 - **Output Directory:** Feature state files in `doc/state-tracking/features/`
-- **Auto-Update Function:** Test file registration automated; analysis is manual
+- **Auto-Update Function:** Test file registration automated; master state coordination via script; tech debt registration via script; analysis is manual
 
 **📁 FILE OPERATIONS**
 | Operation | File Path | Update Method | Details |
 |-----------|-----------|---------------|---------|
 | **Updates** | Feature Implementation State Files | Manual | Enriched with design decisions, dependencies, test coverage analysis |
-| **Updates** | [`test-tracking.md`](../../test/state-tracking/permanent/test-tracking.md) | `New-TestFile.ps1` | Register existing test files with pytest markers |
-| **Updates** | [`feature-tracking.md`](../../doc/state-tracking/permanent/feature-tracking.md) | Manual | Update Test Status column |
-| **Updates** | Retrospective Master State File | Manual | Mark Phase 2 progress |
+| **Updates** | [`test-tracking.md`](../../test/state-tracking/permanent/test-tracking.md) | `New-TestFile.ps1` | Register existing test files with pytest markers (finalization session) |
+| **Updates** | [`feature-tracking.md`](../../doc/state-tracking/permanent/feature-tracking.md) | Manual | Update Test Status column (finalization session) |
+| **Updates** | Retrospective Master State File | `Update-RetrospectiveMasterState.ps1` | Claim/complete features, recalculate Progress Overview counters |
+| **Updates** | [`user-workflow-tracking.md`](../../doc/state-tracking/permanent/user-workflow-tracking.md) | Manual | Workflow definitions updated (finalization session) |
+| **Updates** | [`technical-debt-tracking.md`](../../doc/state-tracking/permanent/technical-debt-tracking.md) | `Update-TechDebt.ps1 -Add` | Debt items from feature state files registered in central registry (finalization session) |
 
 **🎯 KEY IMPACTS**
 
@@ -650,7 +653,7 @@ This document serves as the **comprehensive registry** of all process framework 
 
 - **Script:** [`Update-BugStatus.ps1`](../scripts/update/Update-BugStatus.ps1)
 - **State Tracking Script:** [`New-BugFixState.ps1`](../scripts/file-creation/06-maintenance/New-BugFixState.ps1) (conditional — Large-effort or architectural bugs only)
-- **Output Directory:** [`temporary/`](../state-tracking/temporary/) (for multi-session bug fix state files)
+- **Output Directory:** [`temporary/`](../state-tracking/temporary) (for multi-session bug fix state files)
 - **Auto-Update Function:** Automated bug status transitions through complete lifecycle
 
 **📁 FILE OPERATIONS**
@@ -677,7 +680,7 @@ This document serves as the **comprehensive registry** of all process framework 
 - **State Tracking Script:** [`New-TempTaskState.ps1`](../scripts/file-creation/support/New-TempTaskState.ps1) (standard path only)
 - **Bug Reporting Script:** [`New-BugReport.ps1`](../scripts/file-creation/06-maintenance/New-BugReport.ps1)
 - **ADR Creation Script:** [`New-ArchitectureDecision.ps1`](../scripts/file-creation/02-design/New-ArchitectureDecision.ps1) (for architectural refactoring, standard path only)
-- **Output Directory:** [`plans/`](../../doc/refactoring/plans), [`temporary/`](../state-tracking/temporary/)
+- **Output Directory:** [`plans/`](../../doc/refactoring/plans), [`temporary/`](../state-tracking/temporary)
 - **Auto-Update Function:** Partial automation with comprehensive manual state updates
 - **Effort Gate:** Step 1 classifies as Lightweight (≤15 min, single file, no architectural impact) or Standard
 
@@ -685,7 +688,7 @@ This document serves as the **comprehensive registry** of all process framework 
 | Operation | File Path | Update Method | Details |
 |-----------|-----------|---------------|---------|
 | **Creates** | [`[PF-RFP-XXX]-[refactoring-scope].md`](/doc/refactoring/plans/) | [`New-RefactoringPlan.ps1`](../scripts/file-creation/06-maintenance/New-RefactoringPlan.ps1) | Detailed refactoring plan with scope, approach, and timeline |
-| **Creates** | [`[PF-TTS-XXX]-[task-context].md`](../state-tracking/temporary/) | [`New-TempTaskState.ps1`](../scripts/file-creation/support/New-TempTaskState.ps1) | Work-in-progress tracking for refactoring sessions (conditional: ≥ 5 items or 3+ sessions; otherwise use refactoring plan's Implementation Tracking) |
+| **Creates** | [`[PF-TTS-XXX]-[task-context].md`](../state-tracking/temporary) | [`New-TempTaskState.ps1`](../scripts/file-creation/support/New-TempTaskState.ps1) | Work-in-progress tracking for refactoring sessions (conditional: ≥ 5 items or 3+ sessions; otherwise use refactoring plan's Implementation Tracking) |
 | **Creates** | [`[PF-ADR-XXX]-[decision-title].md`](../architecture/adrs/) | [`New-ArchitectureDecision.ps1`](../scripts/file-creation/02-design/New-ArchitectureDecision.ps1) | Architecture Decision Records for architectural refactoring |
 | **Updates** | [`bug-tracking.md`](../../doc/state-tracking/permanent/bug-tracking.md) | [`New-BugReport.ps1`](../scripts/file-creation/06-maintenance/New-BugReport.ps1) | Add bugs discovered during refactoring with 4-tier severity decision matrix |
 | **Updates** | [`technical-debt-tracking.md`](../../doc/state-tracking/permanent/technical-debt-tracking.md) | [`Update-TechDebt.ps1`](../scripts/update/Update-TechDebt.ps1) | Status transitions: Open → InProgress → Resolved/Rejected (auto-moves to Recently Resolved) |
@@ -698,7 +701,7 @@ This document serves as the **comprehensive registry** of all process framework 
 
 - **Primary state file:** [`technical-debt-tracking.md`](../../doc/state-tracking/permanent/technical-debt-tracking.md) - Comprehensive 3-phase debt resolution tracking
 - **Secondary coordination:** [`feature-tracking.md`](../../doc/state-tracking/permanent/feature-tracking.md) - Updates feature quality status with clear progression path
-- **Temporary state management:** Work-in-progress tracking (conditional: < 5 items use refactoring plan's Implementation Tracking section) with archival to [`temporary/old/`](../state-tracking/temporary/old/) if created
+- **Temporary state management:** Work-in-progress tracking (conditional: < 5 items use refactoring plan's Implementation Tracking section) with archival to [`temporary/old/`](../state-tracking/temporary/old) if created
 - **Bug discovery integration:** Systematic bug identification with 4-tier decision matrix (Critical/High/Medium/Low)
 - **Architectural decision capture:** ADR creation for architectural refactoring with context package integration
 - **Code quality improvement:** Reduces technical debt and improves maintainability with comprehensive state tracking
@@ -1032,6 +1035,28 @@ This document serves as the **comprehensive registry** of all process framework 
 - **Enables next steps:** Bug Triage (for failures), Release & Deployment (for passes)
 - **Dependencies:** Requires E2E Acceptance Test Case Creation (PF-TSK-069)
 
+
+#### **30. Git Commit and Push** ([PF-TSK-082](../tasks/07-deployment/git-commit-and-push.md))
+
+**🔧 Process Type:** 🔧 **Manual** (git CLI commands executed by AI agent)
+
+**📋 AUTOMATION DETAILS**
+
+- **Script:** None — uses git CLI directly (`git add .`, `git commit`, `git push`)
+- **Output Directory:** N/A — operates on git repository
+
+**📁 FILE OPERATIONS**
+| Operation | File Path | Update Method | Details |
+|-----------|-----------|---------------|---------|
+| Stage | Working directory files | `git add .` | Stages only current working directory |
+| Commit | Git repository | `git commit` | Creates commit with descriptive message |
+| Push | Remote repository | `git push` | Pushes to origin |
+
+**🎯 KEY IMPACTS**
+
+- **Primary output:** Git commit pushed to remote repository
+- **Enables next steps:** Code persisted for future sessions or deployment
+- **Dependencies:** None — can be used after any task
 ### **VALIDATION TASKS**
 
 #### **V0. Validation Preparation** ([PF-TSK-077](../tasks/05-validation/validation-preparation.md))
@@ -1139,26 +1164,26 @@ This document serves as the **comprehensive registry** of all process framework 
 **📁 FILE OPERATIONS**
 | Operation | File Path | Update Method | Details |
 |-----------|-----------|---------------|---------|
-| **Updates** | [`process-improvement-tracking.md`](../state-tracking/permanent/process-improvement-tracking.md) | Script | Status-only: updates Status and Last Updated columns in Current table<br/>Completion: moves row from Current to Completed, updates summary count, adds Update History entry |
+| **Updates** | [`process-improvement-tracking.md`](../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) | Script | Status-only: updates Status and Last Updated columns in Current table<br/>Completion: moves row from Current to Completed, updates summary count, adds Update History entry |
 
 **🔧 USAGE EXAMPLES**
 ```powershell
 # Status-only update (e.g., Identified → In Progress)
-.\Update-ProcessImprovement.ps1 -ImprovementId "IMP-051" -NewStatus "InProgress"
+Update-ProcessImprovement.ps1 -ImprovementId "IMP-051" -NewStatus "InProgress"
 
 # Complete an improvement
-.\Update-ProcessImprovement.ps1 -ImprovementId "IMP-063" -NewStatus "Completed" -Impact "MEDIUM" -ValidationNotes "Description of what was done."
+Update-ProcessImprovement.ps1 -ImprovementId "IMP-063" -NewStatus "Completed" -Impact "MEDIUM" -ValidationNotes "Description of what was done."
 
 # Reject an improvement
-.\Update-ProcessImprovement.ps1 -ImprovementId "IMP-061" -NewStatus "Rejected" -Impact "—" -ValidationNotes "Reason for rejection."
+Update-ProcessImprovement.ps1 -ImprovementId "IMP-061" -NewStatus "Rejected" -Impact "—" -ValidationNotes "Reason for rejection."
 
 # Preview changes without modifying
-.\Update-ProcessImprovement.ps1 -ImprovementId "IMP-051" -NewStatus "InProgress" -WhatIf
+Update-ProcessImprovement.ps1 -ImprovementId "IMP-051" -NewStatus "InProgress" -WhatIf
 ```
 
 **🎯 KEY IMPACTS**
 
-- **Primary state file:** [`process-improvement-tracking.md`](../state-tracking/permanent/process-improvement-tracking.md) - Tracks improvement initiatives
+- **Primary state file:** [`process-improvement-tracking.md`](../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) - Tracks improvement initiatives
 - **Incremental implementation:** Requires explicit human approval at each checkpoint
 - **Upstream dependency:** Improvements are identified and prioritized by the Tools Review Task (PF-TSK-010)
 - **Enables next steps:** No next steps; completes cycle
@@ -1196,7 +1221,7 @@ This document serves as the **comprehensive registry** of all process framework 
 **📋 AUTOMATION DETAILS**
 
 - **Script:** [`New-StructureChangeState.ps1`](../scripts/file-creation/support/New-StructureChangeState.ps1)
-- **Output Directory:** [`temporary/`](../state-tracking/temporary/)
+- **Output Directory:** [`temporary/`](../state-tracking/temporary)
 - **Auto-Update Function:** Manual updates only
 
 **📁 FILE OPERATIONS**
@@ -1222,14 +1247,14 @@ This document serves as the **comprehensive registry** of all process framework 
 
 - **Review Script:** [`New-ReviewSummary.ps1`](../scripts/file-creation/06-maintenance/New-ReviewSummary.ps1) — Creates review summary documents with auto-assigned ART-REV IDs
 - **Improvement Script:** [`New-ProcessImprovement.ps1`](../scripts/file-creation/support/New-ProcessImprovement.ps1) — Adds improvement entries with auto-assigned PF-IMP IDs
-- **Output Directory:** `process-framework/feedback/reviews`
+- **Output Directory:** `process-framework-local/feedback/reviews`
 - **Auto-Update Function:** Review summary creation and improvement entry creation automated; tool evaluation manual
 
 **📁 FILE OPERATIONS**
 | Operation | File Path | Update Method | Details |
 |-----------|-----------|---------------|---------|
-| **Creates** | `process-framework/feedback/reviews/tools-review-YYYYMMDD.md` | Script | Review summary from template (PF-TEM-046) |
-| **Updates** | [`process-improvement-tracking.md`](../state-tracking/permanent/process-improvement-tracking.md) | Script | Adds new improvement entries via New-ProcessImprovement.ps1 |
+| **Creates** | `process-framework-local/feedback/reviews/tools-review-YYYYMMDD.md` | Script | Review summary from template (PF-TEM-046) |
+| **Updates** | [`process-improvement-tracking.md`](../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) | Script | Adds new improvement entries via New-ProcessImprovement.ps1 |
 
 **🎯 KEY IMPACTS**
 
@@ -1247,14 +1272,14 @@ This document serves as the **comprehensive registry** of all process framework 
 
 - **Report Script:** [`New-FrameworkEvaluationReport.ps1`](../scripts/file-creation/support/New-FrameworkEvaluationReport.ps1) — Creates evaluation report documents with auto-assigned PF-EVR IDs
 - **Improvement Script:** [`New-ProcessImprovement.ps1`](../scripts/file-creation/support/New-ProcessImprovement.ps1) — Adds improvement entries with auto-assigned PF-IMP IDs
-- **Output Directory:** `process-framework/evaluation-reports`
+- **Output Directory:** `process-framework-local/evaluation-reports`
 - **Auto-Update Function:** Report creation and IMP entry creation automated; dimension evaluation manual
 
 **📁 FILE OPERATIONS**
 | Operation | File Path | Update Method | Details |
 |-----------|-----------|---------------|---------|
-| **Creates** | `process-framework/evaluation-reports/YYYYMMDD-framework-evaluation-{scope}.md` | Script | Evaluation report from template (PF-TEM-064) |
-| **Updates** | [`process-improvement-tracking.md`](../state-tracking/permanent/process-improvement-tracking.md) | Script | Adds improvement entries via New-ProcessImprovement.ps1 |
+| **Creates** | `process-framework-local/evaluation-reports/YYYYMMDD-framework-evaluation-{scope}.md` | Script | Evaluation report from template (PF-TEM-064) |
+| **Updates** | [`process-improvement-tracking.md`](../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) | Script | Adds improvement entries via New-ProcessImprovement.ps1 |
 
 **🎯 KEY IMPACTS**
 
@@ -1386,6 +1411,7 @@ Complete catalog of all automation scripts in `process-framework/scripts/`. Scri
 | `New-Handbook.ps1` | `file-creation/07-deployment/` | PF-TSK-081 | Create user handbook documents |
 | `New-TestInfrastructure.ps1` | `file-creation/00-setup/` | PF-TSK-059 | Bootstrap test directory structure from project-config.json |
 | `New-RetrospectiveMasterState.ps1` | `file-creation/00-setup/` | PF-TSK-064 | Create retrospective master state for framework adoption |
+| `New-SourceStructure.ps1` | `file-creation/00-setup/` | PF-TSK-064 | Scaffold source directories (-Scaffold) or refresh layout doc (-Update) |
 | `New-Task.ps1` | `file-creation/support/` | PF-TSK-001 | Create new task definitions |
 | `New-Template.ps1` | `file-creation/support/` | PF-TSK-001 (indirect) | Create new templates |
 | `New-Guide.ps1` | `file-creation/support/` | PF-TSK-001 (indirect) | Create new guides |
@@ -1419,6 +1445,7 @@ Complete catalog of all automation scripts in `process-framework/scripts/`. Scri
 | `Update-CodeReviewState.ps1` | `update/` | PF-TSK-005 | Update code review state in feature tracking |
 | `Update-ValidationReportState.ps1` | `update/` | PF-TSK-031–036, PF-TSK-072–076 | Update validation tracking from report results |
 | `Update-BatchFeatureStatus.ps1` | `update/` | Multiple | Batch update feature statuses across feature-tracking.md |
+| `Update-RetrospectiveMasterState.ps1` | `update/` | PF-TSK-065, PF-TSK-066 | Atomic master state Feature Inventory updates (claim/complete, counter recalculation) for parallel session coordination |
 | `Update-FeatureDependencies.ps1` | `update/` | Validate-StateTracking.ps1 | Auto-generate feature-dependencies.md (Mermaid graph + matrix) |
 | `Update-WorkflowTracking.ps1` | `update/` | PF-TSK-064, PF-TSK-067 | Update user-workflow-tracking.md feature statuses |
 | `Update-LanguageConfig.ps1` | `update/` | Infrastructure | Add fields to all language config files consistently |
@@ -1429,11 +1456,12 @@ Complete catalog of all automation scripts in `process-framework/scripts/`. Scri
 
 | Script | Location | Used By Task(s) | Purpose |
 |--------|----------|------------------|---------|
-| `Validate-StateTracking.ps1` | `validation/` | PF-TSK-066, multiple | Master validation: 11 surfaces (feature links, state files, test tracking, cross-refs, ID counters, dependencies, dimensions, workflows, task registry, metadata schema, context map orphans) |
+| `Validate-StateTracking.ps1` | `validation/` | PF-TSK-066, multiple | Master validation: 13 surfaces (feature links, state files, test tracking, cross-refs, ID counters, dependencies, dimensions, workflows, task registry, metadata schema, context map orphans, ai-tasks consistency, master state consistency) |
 | `Validate-TestTracking.ps1` | `validation/` | PF-TSK-053 | Validate pytest markers vs test-tracking.md and disk |
 | `Validate-IdRegistry.ps1` | `validation/` | Infrastructure | Validate ID registry against actual files |
 | `Validate-FeedbackForms.ps1` | `validation/` | PF-TSK-010 | Validate feedback form completeness |
 | `Validate-AuditReport.ps1` | `validation/` | PF-TSK-030 | Validate audit report structure and content |
+| `Validate-OnboardingCompleteness.ps1` | `validation/` | PF-TSK-064 | Validate 100% source file coverage and feature state file existence |
 | `Quick-ValidationCheck.ps1` | `validation/` | PF-TSK-004, PF-TSK-024 | Fast health check (console/JSON/CSV output) |
 | `Run-FoundationalValidation.ps1` | `validation/` | PF-TSK-004, PF-TSK-024 | Comprehensive code quality validation |
 

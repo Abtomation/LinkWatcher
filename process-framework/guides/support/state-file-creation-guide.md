@@ -42,9 +42,9 @@ Use this guide when you need to:
 
 Before you begin, ensure you have:
 
-- Access to PowerShell and the New-PermanentState.ps1 script in `process-framework/state-tracking`
+- Access to PowerShell and the New-PermanentState.ps1 script in `process-framework-local/state-tracking`
 - Understanding of what project component or process needs state tracking
-- Familiarity with existing permanent state files in `process-framework/state-tracking/permanent`
+- Familiarity with existing permanent state files in `process-framework-local/state-tracking/permanent`
 - Knowledge of the tasks that will update this state file
 
 - Understanding of the project's state tracking patterns and conventions
@@ -206,7 +206,7 @@ When creating and customizing state tracking files, you'll face several critical
 1. **Navigate to the state tracking directory**:
 
    ```powershell
-   cd process-framework/state-tracking
+   cd process-framework-local/state-tracking
    ```
 
 2. **Execute the New-PermanentState.ps1 script**:
@@ -221,7 +221,7 @@ When creating and customizing state tracking files, you'll face several critical
 
 3. **Verify state file creation**:
    - Check the success message for the assigned ID (PF-STA-XXX)
-   - Note the file path in `process-framework/state-tracking/permanent`
+   - Note the file path in `process-framework-local/state-tracking/permanent`
    - Confirm the basic template structure was applied
 
 **Expected Result:** New state file created with proper ID assignment and basic template structure
@@ -366,7 +366,7 @@ Creating a state file to track API endpoint development:
 
 ```powershell
 # Navigate to state tracking directory
-cd process-framework/state-tracking
+cd process-framework-local/state-tracking
 
 # Create the state file
 .\New-PermanentState.ps1 -StateName "API Development Status" -Description "Tracks the development status of API endpoints and integration points" -OpenInEditor
@@ -409,7 +409,7 @@ Creating a state file for tracking system component integration:
 
 **Solution:**
 
-1. Ensure you're running from `process-framework/state-tracking` directory
+1. Ensure you're running from `process-framework-local/state-tracking` directory
 2. Check that the `permanent/` subdirectory exists and is writable
 3. Verify the full path reported in the success message
 4. If directory is missing, create it: `New-Item -ItemType Directory -Path "permanent" -Force`
@@ -449,7 +449,7 @@ Creating a state file for tracking system component integration:
 - [Existing Permanent State Files](../../state-tracking/permanent) - Examples of implemented state tracking
 - [Feature Tracking (PF-STA-001)](../../../doc/state-tracking/permanent/feature-tracking.md) - Example feature state tracking
 - [Technical Debt Tracking (PF-STA-002)](../../../doc/state-tracking/permanent/technical-debt-tracking.md) - Example technical debt tracking
-- [Process Improvement Tracking (PF-STA-003)](../../state-tracking/permanent/process-improvement-tracking.md) - Example process tracking
+- [Process Improvement Tracking (PF-STA-003)](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) - Example process tracking
 - [Guide Creation Best Practices Guide (PF-GDE-024)](guide-creation-best-practices-guide.md) - Best practices for guide creation
 
 <!--

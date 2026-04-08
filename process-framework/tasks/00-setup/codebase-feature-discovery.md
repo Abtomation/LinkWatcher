@@ -2,9 +2,10 @@
 id: PF-TSK-064
 type: Process Framework
 category: Task Definition
-version: 1.5
+domain: agnostic
+version: 1.7
 created: 2026-02-17
-updated: 2026-03-02
+updated: 2026-04-04
 ---
 
 # Codebase Feature Discovery
@@ -39,16 +40,16 @@ This task produces the foundational inventory that subsequent onboarding tasks (
 - **Critical (Must Read):**
 
   - [Retrospective Master State Template](../../templates/00-setup/retrospective-state-template.md) - Template for tracking codebase-wide progress
-  - [Feature Implementation State Template](../../templates/04-implementation/feature-implementation-state-template.md) - Template for per-feature code analysis
   - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Feature status and tier assessments
+  - [Assessment Guide](../../guides/01-planning/assessment-guide.md) - For performing tier assessments in Step 10
   - **Existing Codebase** - Source code, tests, and configuration
 
 - **Important (Load If Space):**
 
-  - [Feature Implementation State Tracking Guide](../../guides/04-implementation/feature-implementation-state-tracking-guide.md) - Comprehensive guide for using the state template
+  - [Feature Implementation State Tracking Guide](../../guides/04-implementation/feature-implementation-state-tracking-guide.md) - Guide for using the state template
 
 - **Reference Only (Access When Needed):**
-  - [Feature Dependencies](../../../doc/technical/feature-dependencies.md) - Understanding feature relationships
+  - [Feature Dependencies](../../../doc/technical/architecture/feature-dependencies.md) - Understanding feature relationships
   - [Documentation Map](../../PF-documentation-map.md) - Overview of all framework documentation
 
 ## Feature Granularity
@@ -61,9 +62,10 @@ This task produces the foundational inventory that subsequent onboarding tasks (
 
 > **CRITICAL: This is a CODEBASE-WIDE, MULTI-SESSION task. Every session must start by reading the master state file and end by updating it.**
 >
-> **Two-phase structure**:
-> - **Phase 1** (typically 1–2 sessions): Discover all features, create all Feature Implementation State files, audit existing project documentation. No code inventory yet.
-> - **Phase 2** (typically many sessions): Process source files one by one in file-by-file order, writing inventory entries immediately as each file is analyzed. Each session processes ~20–30 files.
+> **Three-phase structure**:
+> - **Phase 1** (typically 1–2 sessions): Discover all features, add to Feature Tracking, audit existing project documentation.
+> - **Phase 1b** (typically 1 session): Assess tiers for all discovered features and create Feature Implementation State files (lightweight for Tier 1, full for Tier 2/3).
+> - **Phase 2** (typically many sessions): Process source files one by one in file-by-file order, writing inventory entries into the state files. Each session processes ~20–30 files.
 >
 > **FEEDBACK: Complete feedback forms at every phase boundary and at the end of every session.**
 >
@@ -74,43 +76,46 @@ This task produces the foundational inventory that subsequent onboarding tasks (
 ### Preparation
 
 1. **Check for Existing Master State File**:
-   - Look in `/process-framework/state-tracking/temporary` for an existing retrospective master state file
+   - Look in `../../../process-framework-local/state-tracking/temporary` for an existing retrospective master state file
    - **If found**: Read it, understand current phase and progress, continue from where the previous session left off
    - **If not found**: This is the first session — proceed to step 2
 
 2. **Create Master State File** (first session only):
    - Use the automation script: `New-RetrospectiveMasterState.ps1 -ProjectName "[Project Name]"`
-     - Script location: /process-framework/scripts/file-creation/00-setup/New-RetrospectiveMasterState.ps1
-     - Automatically creates file at: `/process-framework/state-tracking/temporary/old/retrospective-master-state.md`
+     - Script location: `../../scripts/file-creation/00-setup/New-RetrospectiveMasterState.ps1`
+     - Automatically creates file at: `../../../process-framework-local/state-tracking/temporary/old/retrospective-master-state.md`
      - Automatically fills in project name, start date, and sets status to "DISCOVERY"
    - Template reference: [Retrospective Master State Template](../../templates/00-setup/retrospective-state-template.md)
 
 3. **Survey the Project Structure & List All Unassigned Files** (first session only):
    - Scan the codebase directory structure (source directories, modules, packages)
    - Review existing documentation (README, architecture docs, HOW_IT_WORKS, etc.)
-   - List ALL project source files (excluding `doc/`, `.git/`, `__pycache__/`, `node_modules/`, and other non-source directories)
+   - List ALL project source files (excluding `doc`, `.git/`, `__pycache__/`, `node_modules/`, and other non-source directories)
    - Record the complete file list in the master state file's "Unassigned Files" section — every file starts as unassigned
    - Record the total file count in master state file under Coverage Metrics
    - Identify natural feature boundaries (directories, modules, functional areas)
+   - **🔍 Framework Improvement Observations**: While surveying the project, note any conventions, build tooling, code organization approaches, or developer experience patterns that the process framework doesn't currently capture. Record observations in the master state file's "Framework Improvement Observations" section.
 
 4. **🚨 CHECKPOINT**: Present project structure overview, total file count, and initial observations about feature boundaries to human partner
 
 5. **Audit Existing Project Documentation** (first session, alongside step 4):
    - Identify all non-source documentation files (markdown, txt, rst, etc.) **outside** `doc`
      - Root docs (README.md, HOW_IT_WORKS.md, CONTRIBUTING.md, etc.)
-     - `docs/` directory files
-     - `test/` documentation files (specifications/, audits/, etc.)
+     - `docs` directory files
+     - `tests/` documentation files (specifications/, audits/, etc.)
      - Any other project-level documentation
    - For each documentation file:
      a. Classify its **Type**: Architecture Overview, User Guide, Test Plan, CI/CD, Troubleshooting, Developer Guide, Configuration, Changelog, or Other
      b. Skim its content to determine which features it describes
      c. Note what content is potentially extractable for each relevant feature
    - Record the full inventory in the master state file's "Existing Documentation Inventory" section
-   - For each affected feature: populate the "Existing Project Documentation" table in Section 4 of the feature's implementation state file, setting all entries to `Unconfirmed`
+   - Record which features each document relates to — this will be transferred to each feature's "Existing Project Documentation" table after state files are created in Step 10
+
+   - **🔍 Framework Improvement Observations**: While auditing documentation, note any documentation practices, naming conventions, or content structure approaches that could improve the process framework. Record in the master state "Framework Improvement Observations" section.
 
    > **Scope**: Only audit files with substantive documentation about features, architecture, or processes. Skip placeholder READMEs, test fixture markdown files, and process framework documentation.
 
-   > **Important**: The `doc/` directory (including the process framework) is NOT part of the codebase to be inventoried. Only source code, tests, configuration, and scripts that implement the project's functionality are tracked.
+   > **Important**: The `doc` directory (including the process framework) is NOT part of the codebase to be inventoried. Only source code, tests, configuration, and scripts that implement the project's functionality are tracked.
 
 ### Execution
 
@@ -169,28 +174,56 @@ This task produces the foundational inventory that subsequent onboarding tasks (
    d. Set status appropriately
    e. Leave tier and documentation columns empty if no assessment exists yet
 
-8. **Create Feature Implementation State Files**:
-   - Use the automation script: `New-FeatureImplementationState.ps1 -FeatureName "[name]" -FeatureId "[X.Y.Z]" -ImplementationMode "Retrospective Analysis" -Description "[description]"`
-     - Script location: /process-framework/scripts/file-creation/04-implementation/New-FeatureImplementationState.ps1
-     - Automatically creates file at: `/doc/state-tracking/features/[X.Y.Z]-[name]-implementation-state.md`
-     - Automatically sets `implementation_mode: Retrospective Analysis` in metadata
-     - Automatically links the file in [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) in the ID column (when `-FeatureId` is provided)
+   **Scaffold source directory structure:**
+   f. Run the source structure scaffold script to create feature directories and generate the initial source layout doc:
+      ```bash
+      pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/00-setup/New-SourceStructure.ps1 -Scaffold -Confirm:\$false
+      ```
+      This creates: source root directory, shared/ directory, one directory per confirmed feature, package markers, and fills the Project Configuration + Directory Tree sections in [source-code-layout.md](/doc/technical/architecture/source-code-layout.md).
+   g. Complete the **Dependency Flow** section in source-code-layout.md — document which feature directories may import from which
+   h. Complete the **File Placement Decision Tree** section — adapt the generic tree from the [Source Code Layout Guide](/process-framework/guides/00-setup/source-code-layout-guide.md) to this project's features
+   i. Validate: confirm no application source files exist at repository root
 
-   > **Sub-components:** Capabilities that were identified during discovery but classified as sub-components during consolidation review should be documented as sections or notes within their parent feature's state file. No information is lost — it's organized at the right level.
-
-9. **Create User Workflow Tracking File**:
+8. **Create User Workflow Tracking File**:
    - Based on the discovered features, identify user-facing workflows — end-to-end paths a user follows that span multiple features (e.g., "file move → links updated" requires detection + parsing + updating)
    - Create `/doc/state-tracking/permanent/user-workflow-tracking.md` with:
      - Workflow IDs (WF-001, WF-002, etc.)
      - Workflow name and description
      - Required features for each workflow
      - Impl Status and E2E Status columns (initially blank)
-   - Add `workflows:` metadata field to each Feature Implementation State file with the WF-IDs the feature participates in (use `[]` for features not part of any workflow)
+   - Record which WF-IDs each feature participates in — the `workflows:` metadata field will be added to Feature Implementation State files after they are created in Step 10
    - This file enables workflow-level tracking across the project lifecycle
 
-10. **🚨 CHECKPOINT**: Review created state files and workflow tracking with human partner before starting file-by-file inventory
+9. **🚨 CHECKPOINT**: Review workflow tracking with human partner before starting file-by-file inventory
 
-11. **Populate Code Inventories — File-by-File** (Phase 2):
+10. **Assess Feature Tiers & Create Implementation State Files**:
+
+    For each discovered feature, assess the complexity tier and create the appropriate state file. This must happen before code inventory (Phase 2) so state files exist to receive inventory entries.
+
+    **Per feature:**
+    a. Perform tier assessment following the [Feature Tier Assessment Task (PF-TSK-002)](../01-planning/feature-tier-assessment-task.md) process — base scores on initial codebase observations
+    b. Create the assessment artifact using `New-Assessment.ps1`
+    c. Create the Feature Implementation State file using the assessed tier to select the template:
+
+    ```bash
+    # Tier 1 (lightweight template)
+    pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/04-implementation/New-FeatureImplementationState.ps1 -FeatureName "[name]" -FeatureId "X.Y.Z" -Lightweight -ImplementationMode "Retrospective Analysis" -Description "[description]" -Confirm:\$false
+
+    # Tier 2/3 (full template)
+    pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/04-implementation/New-FeatureImplementationState.ps1 -FeatureName "[name]" -FeatureId "X.Y.Z" -ImplementationMode "Retrospective Analysis" -Description "[description]" -Confirm:\$false
+    ```
+
+    - **⚠️ IMPORTANT**: Use hyphenated names (e.g., `"Database-Management"` not `"Database Management"`). Spaces in filenames break markdown links in VS Code and other renderers. The script sanitizes spaces automatically, but hyphenated input is preferred for consistency.
+    - Script location: `../../scripts/file-creation/04-implementation/New-FeatureImplementationState.ps1`
+    - Automatically creates file at: `/doc/state-tracking/features/[X.Y.Z]-[name]-implementation-state.md`
+    - Automatically links the file in [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md)
+    d. Update Feature Tracking with tier assignment using `Update-FeatureTrackingFromAssessment.ps1`
+
+    > **Sub-components:** Capabilities classified as sub-components during consolidation review should be documented as sections or notes within their parent feature's state file.
+
+11. **🚨 CHECKPOINT**: Review tier assessments and created state files with human partner before starting file-by-file inventory
+
+12. **Populate Code Inventories — File-by-File** (Phase 2):
 
    The master state's "Unassigned Files" list is the work queue. Process each file in order. For every file:
 
@@ -209,9 +242,9 @@ This task produces the foundational inventory that subsequent onboarding tasks (
    - Do not skip this step — runtime references are as important as import dependencies for completeness
 
    **c. Immediately write findings to the relevant state file**
-   - Add this file to the owning feature's **"Files Created by This Feature"** table
-   - Add **EVERY** referenced file from step (a) to the owning feature's **"Files Used by This Feature"** table
-     - Include the import/reference location (e.g., `from .logging import get_logger`)
+   - Add this file to the owning feature's **"File Inventory"** table with appropriate Role, Ownership, and Origin
+   - Add **EVERY** referenced file from step (a) to the owning feature's **"File Inventory"** table
+     - Include the import/reference location in Notes (e.g., `from .logging import get_logger`)
      - List specific functions/classes used where clear (e.g., `get_logger()`, `LinkDatabase.add_link()`)
    - Do **not** hold findings in context to batch-write later — the state file IS the map, not the context window. Write immediately after each file is analyzed.
 
@@ -236,13 +269,21 @@ This task produces the foundational inventory that subsequent onboarding tasks (
 
 ### Finalization
 
-12. **Update Master State After Each Session**:
+13. **Update Master State After Each Session**:
    - Mark features as "Impl State ✅" in the Feature Inventory table
    - Update coverage metrics
    - Log session notes
    - **Complete feedback form for the session**
 
-13. **Quality Verification (Before Marking Task Complete)**:
+14. **Quality Verification (Before Marking Task Complete)**:
+    - **Automated Validation**: Run the onboarding completeness script to verify 100% coverage and state file existence:
+      ```bash
+      pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/validation/Validate-OnboardingCompleteness.ps1 -Detailed
+      ```
+      Script location: `../../scripts/validation/Validate-OnboardingCompleteness.ps1`
+      - Checks every source file is assigned to at least one feature's Code Inventory
+      - Checks every feature in feature-tracking.md has a state file
+      - **Must report PASS before proceeding**. Fix any unassigned files or missing state files first.
     - **Random Sampling**: Select 5-10 high-connectivity files (files with many dependencies) from different features
     - For each sampled file:
       - Re-read the actual import statements in the source file
@@ -251,18 +292,20 @@ This task produces the foundational inventory that subsequent onboarding tasks (
     - **If discrepancies found**: Fix them and document the pattern to prevent future occurrences
     - **Document the verification**: Add verification results to master state session notes
 
-14. **🚨 CHECKPOINT**: Present quality verification results and final coverage metrics to human partner for approval
+15. **🚨 CHECKPOINT**: Present quality verification results and final coverage metrics to human partner for approval
 
-15. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+16. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 
-- **Retrospective Master State File** — Created (or updated) with Phase 1 progress
-- **Feature Implementation State Files** (PF-FIS-XXX) — one per feature, **PERMANENT**:
+- **Retrospective Master State File** — Created (or updated) with progress
+- **Tier Assessment Artifacts** (ART-ASS-XXX) — One per feature, created in Step 10
+- **Feature Implementation State Files** (PD-FIS-XXX) — One per feature, **PERMANENT**:
   - Location: `/doc/state-tracking/features/[feature-id]-implementation-state.md`
+  - Template: Lightweight (Tier 1) or Full (Tier 2/3) — selected based on tier assessment
   - Content: Complete code inventory (files created/modified/used), test files
   - Marked: `implementation_mode: Retrospective Analysis`
-- **Updated Feature Tracking** — All features added with IDs and descriptions
+- **Updated Feature Tracking** — All features added with IDs, tiers, and descriptions
 - **User Workflow Tracking** — Initial workflow definitions with feature-to-workflow mappings
 
 ## State Tracking
@@ -270,13 +313,14 @@ This task produces the foundational inventory that subsequent onboarding tasks (
 ### New State Files Created
 
 - **Retrospective Master State File** (TEMPORARY):
-  - Location: `/process-framework/state-tracking/temporary/old/retrospective-master-state.md`
+  - Location: `../../../process-framework-local/state-tracking/temporary/old/retrospective-master-state.md`
   - Purpose: Track codebase-wide retrospective progress across all onboarding sessions
   - Updated: After EVERY session
   - Lifecycle: Shared across all onboarding tasks (PF-TSK-064, PF-TSK-065, PF-TSK-066), archived when complete
 
 - **Feature Implementation State Files** (PERMANENT) — one per feature:
   - Location: `/doc/state-tracking/features/[feature-id]-implementation-state.md`
+  - Template: Lightweight (Tier 1) or Full (Tier 2/3)
   - Marked: `implementation_mode: Retrospective Analysis`
   - Lifecycle: Permanent (never archived)
 
@@ -289,23 +333,25 @@ This task produces the foundational inventory that subsequent onboarding tasks (
 
 **🚨 TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF 🚨**
 
-- [ ] Master State File created in `/process-framework/state-tracking/temporary`
+- [ ] Master State File created in `../../../process-framework-local/state-tracking/temporary`
 - [ ] ALL features discovered and added to Feature Tracking
 - [ ] **Consolidation Review completed** (Step 6): Feature list validated against granularity criteria and approved by human partner
-- [ ] Feature Implementation State File created for EVERY feature (including Tier 1)
-- [ ] Code Inventory complete in every implementation state file
+- [ ] **Tier assessments completed** (Step 10): Every feature has a tier assessment artifact
+- [ ] **Feature Implementation State File created** for EVERY feature: Tier 1 uses lightweight template, Tier 2/3 uses full template
+- [ ] Code Inventory complete in every Feature Implementation State file
 - [ ] 100% codebase file coverage achieved (no unassigned files)
+- [ ] `Validate-OnboardingCompleteness.ps1` reports PASS
 - [ ] Existing Project Documentation audit complete — all non-source docs classified and mapped to features in master state "Existing Documentation Inventory" section
 - [ ] User Workflow Tracking file created with workflow definitions, required features, and status columns
 - [ ] `workflows:` metadata field added to all Feature Implementation State files
-- [ ] **Quality Verification completed** (Step 13): Random sample of 5-10 high-connectivity files verified, all import statements match documentation
+- [ ] **Quality Verification completed** (Step 14): Random sample of 5-10 high-connectivity files verified, all import statements match documentation
 - [ ] Phase 1 marked complete in master state file
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-064" and context "Codebase Feature Discovery"
   - **⚠️ IMPORTANT**: Evaluate the Codebase Feature Discovery task (PF-TSK-064) and its tools (master state file, feature implementation state files), not the features you discovered.
 
 ## Next Tasks
 
-- [**Codebase Feature Analysis (PF-TSK-065)**](codebase-feature-analysis.md) — Analyze implementation patterns, dependencies, and design decisions for each discovered feature
+- [**Codebase Feature Analysis (PF-TSK-065)**](codebase-feature-analysis.md) — Analyze implementation patterns, dependencies, and design decisions for each discovered feature (enriches state files created in Step 10)
 
 ## Metrics and Evaluation
 
@@ -318,7 +364,11 @@ This task produces the foundational inventory that subsequent onboarding tasks (
 
 - [Feature Granularity Guide](../../guides/01-planning/feature-granularity-guide.md) - Defines what constitutes a well-scoped feature with validation tests and scaling guidance
 - [Retrospective Master State Template](../../templates/00-setup/retrospective-state-template.md) - Template for tracking codebase-wide progress
-- [Feature Implementation State Template](../../templates/04-implementation/feature-implementation-state-template.md) - Template for per-feature code analysis
+- [Feature Implementation State Template (Full)](../../templates/04-implementation/feature-implementation-state-template.md) - Full template for Tier 2/3 features
+- [Feature Implementation State Template (Lightweight)](../../templates/04-implementation/feature-implementation-state-lightweight-template.md) - Lightweight template for Tier 1 features
+- [Assessment Guide](../../guides/01-planning/assessment-guide.md) - For performing tier assessments in Step 10
 - [Feature Implementation State Tracking Guide](../../guides/04-implementation/feature-implementation-state-tracking-guide.md) - Comprehensive guide for using the state template
 - [Test Query Tool](/process-framework/scripts/test/test_query.py) - Query test files by feature, priority, and markers
 - [Test Tracking](../../../test/state-tracking/permanent/test-tracking.md) - Test implementation status tracking (populated during PF-TSK-065)
+- [Validate-OnboardingCompleteness.ps1](../../scripts/validation/Validate-OnboardingCompleteness.ps1) - Validates 100% source file coverage and feature state file existence
+- [Onboarding Edge Cases Guide](../../guides/00-setup/onboarding-edge-cases.md) - Edge-case guidance for ambiguous file assignment, shared utilities, and confidence tagging

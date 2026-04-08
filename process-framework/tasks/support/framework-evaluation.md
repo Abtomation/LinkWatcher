@@ -49,7 +49,7 @@ This task is analogous to the code validation tasks (05-validation) but targets 
   - [Task Creation Guide](../../guides/support/task-creation-guide.md) — Defines expected task structure and quality standards
 
 - **Reference Only (Access When Needed):**
-  - [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) — For registering new IMP entries
+  - [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) — For registering new IMP entries
   - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) — For interpreting context map diagrams
   - Individual task definitions, templates, guides, scripts — loaded as needed during evaluation
 
@@ -175,27 +175,31 @@ This task is analogous to the code validation tasks (05-validation) but targets 
 
 10. **Generate Evaluation Report**: Use the creation script to generate the report from the template:
    ```bash
-   cd process-framework/scripts/file-creation/support && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-FrameworkEvaluationReport.ps1 -EvaluationScope "Description of scope" -Confirm:$false'
+   pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/support/New-FrameworkEvaluationReport.ps1 -EvaluationScope "Description of scope" -Confirm:\$false
    ```
    Then customize the generated report with the evaluation findings, dimension scores, and improvement recommendations.
 
-11. **Register Improvement Entries**: For each approved improvement, add an IMP entry to [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) using the automation script:
+11. **Register Improvement Entries**: For each approved improvement, add an IMP entry to [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) using the automation script:
     ```bash
-    cd process-framework/scripts/file-creation/support && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-ProcessImprovement.ps1 -Description "Improvement description" -Priority "MEDIUM" -Source "Framework Evaluation PF-EVR-XXX" -SourceLink "../../evaluation-reports/FILENAME.md" -Confirm:$false'
+    # Single item
+    pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/support/New-ProcessImprovement.ps1 -Description "Improvement description" -Priority "MEDIUM" -Source "Framework Evaluation PF-EVR-XXX" -SourceLink "../../evaluation-reports/FILENAME.md" -Confirm:\$false
+
+    # Batch mode (preferred for multiple improvements) — pass a JSON array file:
+    pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/support/New-ProcessImprovement.ps1 -BatchFile "improvements.json" -Confirm:\$false
     ```
 
 12. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 
-- **Framework Evaluation Report** — Structured report in `process-framework/evaluation-reports`, created via `New-FrameworkEvaluationReport.ps1`. Contains: evaluation scope, dimension scores, detailed findings per dimension, improvement recommendations, and overall assessment.
-- **Improvement Entries** — IMP entries registered in [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) for each actionable finding, with source linking back to the evaluation report.
+- **Framework Evaluation Report** — Structured report in `process-framework-local/evaluation-reports`, created via `New-FrameworkEvaluationReport.ps1`. Contains: evaluation scope, dimension scores, detailed findings per dimension, improvement recommendations, and overall assessment.
+- **Improvement Entries** — IMP entries registered in [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) for each actionable finding, with source linking back to the evaluation report.
 
 ## State Tracking
 
 The following state files must be updated as part of this task:
 
-- [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) — Add IMP entries for each improvement identified during evaluation
+- [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) — Add IMP entries for each improvement identified during evaluation
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
@@ -204,11 +208,11 @@ The following state files must be updated as part of this task:
 Before considering this task finished:
 
 - [ ] **Verify Outputs**: Confirm all required outputs have been produced
-  - [ ] Framework Evaluation Report created in `process-framework/evaluation-reports` via script
+  - [ ] Framework Evaluation Report created in `process-framework-local/evaluation-reports` via script
   - [ ] Report customized with all evaluation findings, dimension scores, and recommendations
   - [ ] All dimension scores include supporting evidence (file paths, specific examples)
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
-  - [ ] IMP entries added to [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) for each approved improvement
+  - [ ] IMP entries added to [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) for each approved improvement
   - [ ] Each IMP entry links back to the evaluation report as source
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-079" and context "Framework Evaluation"
 

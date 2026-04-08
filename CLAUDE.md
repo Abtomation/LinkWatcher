@@ -132,7 +132,7 @@ All scripts are in `process-framework/scripts/file-creation`:
 .\New-ContextMap.ps1
 
 # Create temporary state file
-.\New-TempTaskState.ps1
+New-TempTaskState.ps1
 
 # Create permanent state file
 .\New-PermanentState.ps1
@@ -175,9 +175,28 @@ Each task definition includes a mandatory completion checklist.
 
 Framework uses standardized diagram formats. See @process-framework/guides/support/visual-notation-guide.md for interpretation.
 
-## LinkWatcher Workflow
+## LinkWatcher Capabilities
 
-LinkWatcher runs in background and automatically maintains all cross-references. You can:
-- Move/rename files using VS Code, File Explorer, or git
-- LinkWatcher updates all markdown links in real-time
-- Check `LinkWatcher/LinkWatcherLog.txt` for activity logs
+> **Full reference**: @doc/user/handbooks/linkwatcher-capabilities-reference.md — consult before making assumptions.
+
+LinkWatcher runs in background and automatically maintains all cross-references. You can move/rename files using VS Code, File Explorer, or git — LinkWatcher handles all updates automatically. Check `LinkWatcher/LinkWatcherLog.txt` for activity logs.
+
+### What LinkWatcher Updates (DO NOT assume limitations)
+
+**LinkWatcher updates ALL monitored file types, not just markdown.** It updates:
+- **Markdown** (.md): standard links, reference definitions, HTML anchors, quoted/backtick/bare/@-prefixed paths
+- **Python** (.py): quoted file paths, directory paths, `import` statements (dot-to-path), docstring paths, comment paths
+- **YAML** (.yaml, .yml): full-string values, embedded paths in compound strings, directory values
+- **JSON** (.json): full-string values, embedded paths in compound strings, directory values
+- **PowerShell** (.ps1, .psm1): quoted paths, embedded markdown links, block comments, here-strings, line comments
+- **Dart** (.dart): import/part statements, quoted paths, standalone paths
+- **All other monitored types**: generic quoted/unquoted path detection
+
+**24 monitored extensions** by default including `.md`, `.yaml`, `.yml`, `.json`, `.py`, `.ps1`, `.psm1`, `.dart`, `.html`, `.js`, `.ts`, `.tsx`, `.bat`, `.toml`, `.xml`, `.csv`, `.txt`, and more.
+
+### What LinkWatcher Does NOT Do
+
+- Does not update external URLs (http/https/mailto)
+- Does not validate `#anchor` links against heading IDs
+- Does not do AST-based refactoring (textual match updates)
+- Does not interact with git history

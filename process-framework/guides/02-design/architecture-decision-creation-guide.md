@@ -200,10 +200,10 @@ When creating Architecture Decision Records, you must make several key decisions
 
    ```powershell
    # Basic ADR creation
-   .\New-ArchitectureDecision.ps1 -Title "State Management Pattern Selection" -Description "Decision on state management approach for the application"
+   New-ArchitectureDecision.ps1 -Title "State Management Pattern Selection" -Description "Decision on state management approach for the application"
 
    # With specific status and editor opening
-   .\New-ArchitectureDecision.ps1 -Title "Database Migration Strategy" -Description "Approach for handling database schema changes" -Status "Proposed" -OpenInEditor
+   New-ArchitectureDecision.ps1 -Title "Database Migration Strategy" -Description "Approach for handling database schema changes" -Status "Proposed" -OpenInEditor
    ```
 
 3. **Verify ADR creation**:
@@ -330,7 +330,7 @@ Creating an ADR for selecting the state management approach in the application:
 cd doc/technical/adr
 
 # Create state management decision ADR
-.\New-ArchitectureDecision.ps1 -Title "State Management Pattern Selection" -Description "Decision on state management approach for application architecture" -Status "Proposed" -OpenInEditor
+New-ArchitectureDecision.ps1 -Title "State Management Pattern Selection" -Description "Decision on state management approach for application architecture" -Status "Proposed" -OpenInEditor
 ```
 
 **Customization approach:**
@@ -353,7 +353,7 @@ Creating an ADR for database schema change management:
 
 ```powershell
 # Create database migration strategy ADR
-.\New-ArchitectureDecision.ps1 -Title "Database Migration Strategy" -Description "Approach for handling database schema changes and versioning" -Status "Proposed"
+New-ArchitectureDecision.ps1 -Title "Database Migration Strategy" -Description "Approach for handling database schema changes and versioning" -Status "Proposed"
 ```
 
 **Customization approach:**

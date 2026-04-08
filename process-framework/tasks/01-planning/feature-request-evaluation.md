@@ -46,7 +46,7 @@ This task evaluates incoming change requests to determine whether they represent
   - Feature State Files (`state-tracking/features/X.Y.Z-*-implementation-state.md`) — Implementation state of candidate target features (includes Dimension Profile for inheritance)
   - [Development Dimensions Guide](../../guides/framework/development-dimensions-guide.md) — Dimension definitions and applicability criteria for evaluating if enhancement scope changes dimension applicability
   - Existing Design Docs (FDD, TDD, ADR) associated with the target feature — For understanding current scope and design
-  - [Enhancement Workflow Concept (PF-PRO-002)](../../proposals/old/enhancement-workflow-concept.md) — Full design rationale for this workflow
+  - [Enhancement Workflow Concept (PF-PRO-002)](../../../process-framework-local/proposals/old/enhancement-workflow-concept.md) — Full design rationale for this workflow
 
 - **Reference Only (Access When Needed):**
   - [Feature Tier Assessment Task](feature-tier-assessment-task.md) — For routing new features to the correct workflow
@@ -82,6 +82,7 @@ This task evaluates incoming change requests to determine whether they represent
      .\Update-FeatureRequest.ps1 -RequestId "PD-FRQ-XXX" -Classification "NewFeature" -FeatureId "X.Y.Z" -FeatureName "Feature Name" -NewStatus "Completed" -Notes "Brief description"
      ```
      If the request did NOT originate from feature-request-tracking, create the state file manually using `New-FeatureImplementationState.ps1`.
+   - **Source directory auto-creation**: When `New-FeatureImplementationState.ps1` runs, it automatically calls `New-SourceStructure.ps1 -Update` to create the feature's source directory and refresh the [Source Code Layout](/doc/technical/architecture/source-code-layout.md) directory tree (only if source-code-layout.md exists).
    - Inform the human partner that the existing workflow applies (Feature Tier Assessment → Design → Implementation)
    - This task is complete. Proceed to the Task Completion Checklist.
 
@@ -112,7 +113,7 @@ This task evaluates incoming change requests to determine whether they represent
 9. **Create Enhancement State Tracking File(s)** — Use the `New-EnhancementState.ps1` script for each target feature:
    ```powershell
    cd process-framework/scripts/file-creation
-   ./New-EnhancementState.ps1 -TargetFeature "[Feature ID]" -EnhancementName "[Brief Name]" -Description "[Scope description]" -Dims "SE,PE,DI"
+   New-EnhancementState.ps1 -TargetFeature "[Feature ID]" -EnhancementName "[Brief Name]" -Description "[Scope description]" -Dims "SE,PE,DI"
    ```
    The `-Dims` parameter populates the Dimension Impact Assessment section with inherited and adjusted dimensions from step 8.
    **Multi-feature requests**: Run the script once per target feature. In each generated state file, add a "Related Enhancement State Files" section listing the other state files created for the same change request, so the Feature Enhancement task can coordinate the work.
@@ -187,6 +188,6 @@ Before considering this task finished:
 ## Related Resources
 
 - [Feature Granularity Guide](../../guides/01-planning/feature-granularity-guide.md) — Defines what constitutes a well-scoped feature with validation tests and scaling guidance
-- [Enhancement Workflow Concept (PF-PRO-002)](../../proposals/old/enhancement-workflow-concept.md) — Full design rationale for this workflow
+- [Enhancement Workflow Concept (PF-PRO-002)](../../../process-framework-local/proposals/old/enhancement-workflow-concept.md) — Full design rationale for this workflow
 - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) — Current feature inventory
 - [Enhancement State Tracking Customization Guide](../../guides/04-implementation/enhancement-state-tracking-customization-guide.md) — Guide for customizing state files

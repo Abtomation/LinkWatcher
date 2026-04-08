@@ -270,10 +270,10 @@ Use this decision tree when deciding what to include in Test Specifications:
 
    ```powershell
    # Basic test specification creation
-   .\New-TestSpecification.ps1 -FeatureId "1.2.3" -FeatureName "user-authentication" -TddPath "doc/technical/tdd/tdd-user-authentication.md"
+   New-TestSpecification.ps1 -FeatureId "1.2.3" -FeatureName "user-authentication" -TddPath "doc/technical/tdd/tdd-user-authentication.md"
 
    # With editor opening
-   .\New-TestSpecification.ps1 -FeatureId "AUTH-001" -FeatureName "login-flow" -TddPath "doc/technical/tdd/tdd-login-flow.md" -OpenInEditor
+   New-TestSpecification.ps1 -FeatureId "AUTH-001" -FeatureName "login-flow" -TddPath "doc/technical/tdd/tdd-login-flow.md" -OpenInEditor
    ```
 
 3. **Verify test specification creation**:
@@ -323,7 +323,7 @@ Creating a test specification for a Tier 2 authentication feature:
 cd test/specifications
 
 # Create test specification
-.\New-TestSpecification.ps1 -FeatureId "1.2.3" -FeatureName "user-authentication" -TddPath "doc/technical/tdd/tdd-user-authentication.md" -OpenInEditor
+New-TestSpecification.ps1 -FeatureId "1.2.3" -FeatureName "user-authentication" -TddPath "doc/technical/tdd/tdd-user-authentication.md" -OpenInEditor
 ```
 
 **Customization approach:**
@@ -341,7 +341,7 @@ Creating a comprehensive test specification for a complex booking feature:
 
 ```powershell
 # Create Tier 3 test specification
-.\New-TestSpecification.ps1 -FeatureId "ORD-001" -FeatureName "order-management" -TddPath "doc/technical/tdd/tdd-order-system.md" -OpenInEditor
+New-TestSpecification.ps1 -FeatureId "ORD-001" -FeatureName "order-management" -TddPath "doc/technical/tdd/tdd-order-system.md" -OpenInEditor
 ```
 
 **Customization approach:**

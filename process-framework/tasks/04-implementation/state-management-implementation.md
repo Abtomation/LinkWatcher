@@ -36,13 +36,14 @@ Implement the state management layer for a feature. This task creates the reacti
 
 - **Critical (Must Read):**
 
-  - **Feature Implementation State File** - The permanent state tracking document at `/process-framework/state-tracking/permanent/feature-implementation-state-[feature-id].md` containing implementation progress and context
+  - **Feature Implementation State File** - The permanent state tracking document at `/process-framework-local/state-tracking/permanent/feature-implementation-state-[feature-id].md` containing implementation progress and context
   - **TDD (Technical Design Document)** - State management design section describing state container architecture, state flow patterns, and technology-specific conventions
   - **Completed Data Layer Code** - Repository implementations and data models from PF-TSK-051
 
 - **Important (Load If Space):**
 
   - **Feature Tracking** - [Feature details from feature-tracking.md](../../../doc/state-tracking/permanent/feature-tracking.md) for context
+  - [Source Code Layout](/doc/technical/architecture/source-code-layout.md) - Consult for correct file placement within feature directories
 - **Reference Only (Access When Needed):**
   - [Visual Notation Guide](/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
   - **Existing State Management Examples** - Similar state management implementations in codebase for pattern consistency
@@ -85,8 +86,8 @@ Implement the state management layer for a feature. This task creates the reacti
     ```powershell
     # Create test files using automation script (writes pytest markers)
     cd process-framework/scripts/file-creation/03-testing
-    .\New-TestFile.ps1 -TestName "FeatureName" -TestType "Unit" -FeatureId "X.Y.Z" -ComponentName "StateContainers"
-    .\New-TestFile.ps1 -TestName "FeatureName" -TestType "Integration" -FeatureId "X.Y.Z" -ComponentName "StateDependencyInjection"
+    New-TestFile.ps1 -TestName "FeatureName" -TestType "Unit" -FeatureId "X.Y.Z" -ComponentName "StateContainers"
+    New-TestFile.ps1 -TestName "FeatureName" -TestType "Integration" -FeatureId "X.Y.Z" -ComponentName "StateDependencyInjection"
 
     # Script automatically:
     # - Writes pytest markers (feature, priority, test_type)

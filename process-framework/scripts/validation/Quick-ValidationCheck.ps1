@@ -58,15 +58,15 @@ Exit with non-zero code if critical issues are found (useful for CI/CD)
 Suppress progress messages, show only results
 
 .EXAMPLE
-.\Quick-ValidationCheck.ps1
+Quick-ValidationCheck.ps1
 Runs all checks on all selected features with console output
 
 .EXAMPLE
-.\Quick-ValidationCheck.ps1 -FeatureIds "0.1.1,0.1.2" -CheckType "CodeQuality" -OutputFormat "JSON" -OutputPath "validation-results.json"
+Quick-ValidationCheck.ps1 -FeatureIds "0.1.1,0.1.2" -CheckType "CodeQuality" -OutputFormat "JSON" -OutputPath "validation-results.json"
 Validates specific features for code quality and saves results as JSON
 
 .EXAMPLE
-.\Quick-ValidationCheck.ps1 -CheckType "UI" -Severity "Warning" -FailOnError
+Quick-ValidationCheck.ps1 -CheckType "UI" -Severity "Warning" -FailOnError
 Validates UI components, shows warnings and errors, fails on critical issues
 
 .NOTES

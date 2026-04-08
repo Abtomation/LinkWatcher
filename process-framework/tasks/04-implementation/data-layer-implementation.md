@@ -34,7 +34,7 @@ Implement data models, repositories, and database integration for feature
 
 - **Critical (Must Read):**
 
-  - **Feature Implementation State File** - The permanent state tracking document at `/process-framework/state-tracking/permanent/feature-[feature-id]-implementation.md` containing implementation progress and context
+  - **Feature Implementation State File** - The permanent state tracking document at `/process-framework-local/state-tracking/permanent/feature-[feature-id]-implementation.md` containing implementation progress and context
   - **Database Schema Design** - Schema specifications and migration scripts at `/doc/technical/database/[feature-name]-schema.md`
   - **TDD (Technical Design Document)** - Data model specifications and repository requirements at `/doc/technical/tdd/[feature-name]-tdd.md`
   - **Implementation Roadmap** - Task sequence and dependencies from Feature Implementation Planning Task
@@ -44,6 +44,7 @@ Implement data models, repositories, and database integration for feature
   - **Existing Repository Patterns** - Review similar repositories in the source directory for consistency
   - **Existing Data Models** - Review similar models in the source directory for patterns
   - **Database Client Configuration** - Review database connection configuration for connection patterns
+  - [Source Code Layout](/doc/technical/architecture/source-code-layout.md) - Consult for correct file placement within feature directories
 
 - **Reference Only (Access When Needed):**
   - **Database Documentation** - For understanding database client API patterns
@@ -103,8 +104,8 @@ Implement data models, repositories, and database integration for feature
    # Create test files using automation script (writes pytest markers)
    # Test types depend on project language (auto-detected from project-config.json)
    cd process-framework/scripts/file-creation/03-testing
-   .\New-TestFile.ps1 -TestName "FeatureName" -TestType "Unit" -FeatureId "X.Y.Z" -ComponentName "DataModel"
-   .\New-TestFile.ps1 -TestName "FeatureName" -TestType "Unit" -FeatureId "X.Y.Z" -ComponentName "Repository"
+   New-TestFile.ps1 -TestName "FeatureName" -TestType "Unit" -FeatureId "X.Y.Z" -ComponentName "DataModel"
+   New-TestFile.ps1 -TestName "FeatureName" -TestType "Unit" -FeatureId "X.Y.Z" -ComponentName "Repository"
 
    # Script automatically:
    # - Writes pytest markers (feature, priority, test_type)

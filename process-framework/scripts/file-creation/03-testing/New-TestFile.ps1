@@ -39,13 +39,13 @@
     If specified, shows what would be updated without making changes
 
 .EXAMPLE
-    .\New-TestFile.ps1 -TestName "UserAuthentication" -TestType "Unit"
+    New-TestFile.ps1 -TestName "UserAuthentication" -TestType "Unit"
 
 .EXAMPLE
-    .\New-TestFile.ps1 -TestName "ParserFramework" -TestType "Parser" -FeatureId "2.1.1" -OpenInEditor
+    New-TestFile.ps1 -TestName "ParserFramework" -TestType "Parser" -FeatureId "2.1.1" -OpenInEditor
 
 .EXAMPLE
-    .\New-TestFile.ps1 -TestName "UserAuthentication" -TestType "Unit" -FeatureId "1.2.3" -DryRun
+    New-TestFile.ps1 -TestName "UserAuthentication" -TestType "Unit" -FeatureId "1.2.3" -DryRun
 
 .NOTES
     - Requires PowerShell execution policy to allow script execution
@@ -116,6 +116,7 @@ if (Test-Path $projectConfigPath) {
         $projectConfig = Get-Content $projectConfigPath -Raw | ConvertFrom-Json
         $language = $projectConfig.project_metadata.primary_language
         $testsDir = $projectConfig.paths.tests
+        $testAutomatedDir = $projectConfig.testing.testDirectory
         Write-Host "📋 Detected project language: $language (from project-config.json)" -ForegroundColor Cyan
     } catch {
         Write-Warning "Could not parse project-config.json, defaulting to Dart"
@@ -141,6 +142,7 @@ try {
 
 $testingConfig = $langConfig.testing
 $testsRoot = if ($testsDir) { $testsDir } else { "test" }
+$testScanRoot = if ($testAutomatedDir) { $testAutomatedDir } else { $testsRoot }
 $fileExtension = $testingConfig.testFileExtension
 $namePattern = $testingConfig.testFileNamePattern
 
@@ -150,7 +152,7 @@ if (-not $fileExtension -or -not $namePattern) {
 }
 
 # --- Discover valid test types by scanning test subdirectories (same logic as Run-Tests.ps1) ---
-$testPath = Join-Path $projectRoot $testsRoot
+$testPath = Join-Path $projectRoot $testScanRoot
 $excludedDirs = @('__pycache__', '.pytest_cache', 'fixtures', 'helpers', 'utils', 'conftest', 'node_modules', '.dart_tool', 'build')
 $validTestTypes = @()
 
@@ -175,7 +177,7 @@ if (-not $matchedDir) {
 
 # Determine output directory
 $testTypeDir = $matchedDir
-$outputDirectory = Join-Path $projectRoot (Join-Path $testsRoot $testTypeDir)
+$outputDirectory = Join-Path $projectRoot (Join-Path $testScanRoot $testTypeDir)
 
 # Generate test file name from pattern
 $sanitizedName = $TestName.ToLower() -replace '\s+', '_'
@@ -221,7 +223,7 @@ try {
         return
     }
 
-    $documentId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "TE-TST" -IdDescription "test_file" -DocumentName $TestName -OutputDirectory $outputDirectory -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
+    $documentId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "TE-TST" -IdDescription "test_file" -DocumentName $TestName -OutputDirectory $outputDirectory -FileNamePattern $testFileName -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
 
     # Provide success details
     $details = @(

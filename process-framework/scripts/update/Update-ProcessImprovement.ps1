@@ -8,7 +8,7 @@ Automates improvement status updates in the Process Improvement Tracking state f
 This script automates improvement lifecycle transitions in process-improvement-tracking.md.
 
 Updates the following file:
-- process-framework/state-tracking/permanent/process-improvement-tracking.md
+- process-framework-local/state-tracking/permanent/process-improvement-tracking.md
 
 Supports two operation modes:
 1. Status-only update: Changes Status and Last Updated columns in the Current table
@@ -95,7 +95,7 @@ Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 
 # Configuration
 $ProjectRoot = Get-ProjectRoot
-$TrackingFile = Join-Path -Path $ProjectRoot -ChildPath "process-framework/state-tracking/permanent/process-improvement-tracking.md"
+$TrackingFile = Join-Path -Path $ProjectRoot -ChildPath "process-framework-local/state-tracking/permanent/process-improvement-tracking.md"
 $ScriptName = "Update-ProcessImprovement.ps1"
 $CurrentDate = Get-Date -Format "yyyy-MM-dd"
 

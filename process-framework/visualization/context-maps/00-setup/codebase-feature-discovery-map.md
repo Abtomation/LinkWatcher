@@ -46,7 +46,7 @@ graph TD
 - **[Feature Implementation State Tracking Guide](../../../guides/04-implementation/feature-implementation-state-tracking-guide.md)**: Comprehensive guide explaining how to populate implementation state files with code inventories
 
 ### Reference Components (Access When Needed)
-- **[Feature Dependencies](../../../../doc/technical/feature-dependencies.md)**: Documentation of feature relationships and dependencies (useful for understanding feature boundaries)
+- **[Feature Dependencies](../../../../doc/technical/architecture/feature-dependencies.md)**: Documentation of feature relationships and dependencies (useful for understanding feature boundaries)
 - **[Documentation Map](../../../PF-documentation-map.md)**: Overview of all framework documentation (helpful for orientation)
 
 ## Key Relationships

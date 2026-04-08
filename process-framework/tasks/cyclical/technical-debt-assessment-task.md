@@ -50,7 +50,7 @@ Systematic approach to identifying, categorizing, and prioritizing technical deb
 - **Reference Only (Access When Needed):**
   - **Performance Metrics** - Application performance data and bottlenecks
   - **Developer Feedback** - Team feedback on code maintainability and development friction
-  - [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) - Process effectiveness metrics
+  - [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) - Process effectiveness metrics
   - [Visual Notation Guide](/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 ## Process
@@ -85,6 +85,7 @@ Systematic approach to identifying, categorizing, and prioritizing technical deb
    - **Accessibility / UX Issues** (UX): Missing accessibility features, compliance gaps, UX compromises
    - **Data Integrity Issues** (DI): Missing atomicity, inconsistent state handling
    - **Testing Gaps** (TST): Missing tests, inadequate coverage, test quality issues
+   - **Source Layout Compliance** (AC): Verify files are in the correct feature directories per [Source Code Layout](/doc/technical/architecture/source-code-layout.md) — no source files at repository root, no files in wrong feature directories, naming conventions followed
 
 6. **Document Debt Items**: For each identified debt item, document:
    - Detailed description and location
@@ -104,7 +105,7 @@ Systematic approach to identifying, categorizing, and prioritizing technical deb
 
    ```powershell
    cd process-framework/scripts/file-creation/cyclical
-   .\New-PrioritizationMatrix.ps1 -MatrixName "[Assessment Name] Prioritization" -AssessmentId "[PD-TDA-XXX]" -ItemCount [N]
+   New-PrioritizationMatrix.ps1 -MatrixName "[Assessment Name] Prioritization" -AssessmentId "[PD-TDA-XXX]" -ItemCount [N]
    ```
 
    Apply impact vs. effort scoring to prioritize debt items:
@@ -182,7 +183,7 @@ Systematic approach to identifying, categorizing, and prioritizing technical deb
 The following state files must be updated as part of this task:
 
 - [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) - Add newly identified debt items with complete metadata (ID, description, category, location, priority, effort estimation, status)
-- [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) - Track assessment effectiveness and process improvements identified during the assessment
+- [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) - Track assessment effectiveness and process improvements identified during the assessment
 - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Update with debt-related blockers or considerations that may impact feature development
 
 ## ⚠️ MANDATORY Task Completion Checklist
@@ -200,7 +201,7 @@ Before considering this task finished:
   - [ ] **AUTOMATED**: [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) updated with newly identified debt items using `Update-TechnicalDebtFromAssessment.ps1`
   - [ ] **AUTOMATED**: All debt items assigned TD### IDs and linked to assessment ID (PF-TDA-XXX) via automation
   - [ ] **AUTOMATED**: Individual debt item files (PF-TDI-XXX) updated with registry IDs and marked as "Added" via automation
-  - [ ] **MANUAL**: [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) updated with assessment effectiveness metrics
+  - [ ] **MANUAL**: [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) updated with assessment effectiveness metrics
   - [ ] **MANUAL**: [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) updated with debt-related considerations (if applicable)
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-023" and context "Technical Debt Assessment"
 
@@ -242,4 +243,4 @@ Before considering this task finished:
 - [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) - Current debt registry and management strategy
 - [Code Refactoring Task](../06-maintenance/code-refactoring-task.md) - Systematic approach to debt remediation
 - [System Architecture Review](../01-planning/system-architecture-review.md) - Architectural assessment and improvement
-- [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) - Process effectiveness metrics and improvements
+- [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) - Process effectiveness metrics and improvements

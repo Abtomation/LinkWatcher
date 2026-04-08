@@ -154,8 +154,14 @@ class YamlParser(BaseParser):
         "pwsh.exe -File doc/scripts/Run-Tests.ps1 -Quick"), scan for path-like
         substrings using a regex pattern.
 
+        PD-BUG-079: For multiline strings (literal `|` or folded `>` blocks),
+        yaml.safe_load() resolves them into a single string with embedded newlines.
+        The whole resolved string won't match any single raw line, so we search
+        for each path candidate individually in the raw lines.
+
         Returns True if any embedded paths were found.
         """
+        is_multiline = "\n" in data
         found = False
         line_num = 0
         val_col_start = 0
@@ -164,22 +170,40 @@ class YamlParser(BaseParser):
             if "/" not in candidate and "\\" not in candidate:
                 continue
             if self._looks_like_file_path(candidate):
-                if not found:
-                    line_num, val_col_start = self._find_next_occurrence(lines, data, [])
-                    if line_num == 0:
-                        return False
-                col_start = val_col_start + match.start(1)
-                col_end = val_col_start + match.end(1)
-                references.append(
-                    LinkReference(
-                        file_path=file_path,
-                        line_number=line_num,
-                        column_start=col_start,
-                        column_end=col_end,
-                        link_text=candidate,
-                        link_target=candidate,
-                        link_type="yaml",
+                if is_multiline:
+                    # PD-BUG-079: Search for each candidate path directly in raw lines
+                    cand_line, cand_col = self._find_next_occurrence(lines, candidate, references)
+                    if cand_line == 0:
+                        continue
+                    references.append(
+                        LinkReference(
+                            file_path=file_path,
+                            line_number=cand_line,
+                            column_start=cand_col,
+                            column_end=cand_col + len(candidate),
+                            link_text=candidate,
+                            link_target=candidate,
+                            link_type="yaml",
+                        )
                     )
-                )
-                found = True
+                    found = True
+                else:
+                    if not found:
+                        line_num, val_col_start = self._find_next_occurrence(lines, data, [])
+                        if line_num == 0:
+                            return False
+                    col_start = val_col_start + match.start(1)
+                    col_end = val_col_start + match.end(1)
+                    references.append(
+                        LinkReference(
+                            file_path=file_path,
+                            line_number=line_num,
+                            column_start=col_start,
+                            column_end=col_end,
+                            link_text=candidate,
+                            link_target=candidate,
+                            link_type="yaml",
+                        )
+                    )
+                    found = True
         return found

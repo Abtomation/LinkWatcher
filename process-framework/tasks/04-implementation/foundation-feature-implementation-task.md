@@ -44,6 +44,7 @@ Specialized task for implementing foundation features (0.x.x) that provide archi
   - [Feature Implementation Planning](feature-implementation-planning-task.md) - Base implementation planning process for comparison
   - [ADR Template](../../templates/02-design/adr-template.md) - For documenting architectural decisions
   - [Foundation Feature Implementation Usage Guide](../../guides/04-implementation/foundation-feature-implementation-usage-guide.md) - Task-specific usage guide
+  - [Source Code Layout](/doc/technical/architecture/source-code-layout.md) - Consult for correct file placement within feature directories
 
 - **Reference Only (Access When Needed):**
   - [Technical Design Document Template](../../templates/02-design/tdd-t3-template.md) - For complex architectural specifications
@@ -85,7 +86,7 @@ Specialized task for implementing foundation features (0.x.x) that provide archi
    # Create test files using automation script (writes pytest markers)
    # Test types depend on project language (auto-detected from project-config.json)
    cd process-framework/scripts/file-creation/03-testing
-   .\New-TestFile.ps1 -TestName "FeatureName" -TestType "Unit" -FeatureId "0.X.Z" -ComponentName "ComponentName" -Priority "Critical"
+   New-TestFile.ps1 -TestName "FeatureName" -TestType "Unit" -FeatureId "0.X.Z" -ComponentName "ComponentName" -Priority "Critical"
 
    # Use Critical priority for foundation features
    # Script automatically:
@@ -136,27 +137,27 @@ Specialized task for implementing foundation features (0.x.x) that provide archi
 
     ```powershell
     # Navigate to validation scripts directory
-    Set-Location "scripts\validation"
+    Set-Location "scripts/validation"
 
     # Run quick validation check for immediate feedback
-    .\Quick-ValidationCheck.ps1
+    Quick-ValidationCheck.ps1
 
     # Or run specific checks only
-    .\Quick-ValidationCheck.ps1 -CheckType "CodeQuality"
-    .\Quick-ValidationCheck.ps1 -CheckType "Structure"
+    Quick-ValidationCheck.ps1 -CheckType "CodeQuality"
+    Quick-ValidationCheck.ps1 -CheckType "Structure"
     ```
 
     **Comprehensive Validation** (recommended for feature completion):
 
     ```powershell
     # Navigate to validation scripts directory
-    Set-Location "scripts\validation"
+    Set-Location "scripts/validation"
 
     # Run comprehensive foundational validation for the implemented feature
-    .\Run-FoundationalValidation.ps1 -FeatureIds "[FEATURE-ID]" -ValidationType "All" -GenerateReports -UpdateTracking
+    Run-FoundationalValidation.ps1 -FeatureIds "[FEATURE-ID]" -ValidationType "All" -GenerateReports -UpdateTracking
 
     # Example for specific feature
-    .\Run-FoundationalValidation.ps1 -FeatureIds "0.1.1" -ValidationType "All" -GenerateReports -UpdateTracking -Detailed
+    Run-FoundationalValidation.ps1 -FeatureIds "0.1.1" -ValidationType "All" -GenerateReports -UpdateTracking -Detailed
     ```
 
     **Validation Types Available**:

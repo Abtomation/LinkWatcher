@@ -23,7 +23,7 @@ Run this FIRST after a code change. If it passes, all individual test cases are 
 - [ ] Test environment set up via `Setup-TestEnvironment.ps1 -Group runtime-dynamic-operations -Clean`
 - [ ] LinkWatcher is **started** after setup (fresh scan indexes fixtures correctly)
 - [ ] Wait 5 seconds for initial scan to complete before executing any test steps
-- [ ] No pre-existing `docs/`, `archive/`, `utils/`, `lib/`, `tools/`, `modules/`, or `components/` directories in any test case workspace
+- [ ] No pre-existing `docs/`, `archive/`, `utils/`, `lib`, `tools/`, `modules/`, or `components/` directories in any test case workspace
 
 > **Why stop/start?** LW's dir_move_detector correlates delete+create event pairs across the workspace. The cleanup+setup cycle generates event patterns indistinguishable from actual directory moves, corrupting detection state. Stopping LW during setup eliminates this noise.
 
@@ -42,7 +42,7 @@ Run this FIRST after a code change. If it passes, all individual test cases are 
    - Expected: `README.md` and `index.md` links updated from `docs/report.md` to `docs/summary.md`
 
 3. **Create a directory and move it (TE-E2E-009)**
-   - Action: Create `utils/` with `helper.py` and `config.yaml` in TE-E2E-009's project, wait 5s, move to `lib/`
+   - Action: Create `utils/` with `helper.py` and `config.yaml` in TE-E2E-009's project, wait 5s, move to `lib`
    - Tool: Command Line or scripted via `run.ps1`
    - Target: `TE-E2E-009-directory-create-and-move/project/`
    - Expected: `README.md` links updated from `utils/helper.py` to `lib/helper.py` and `utils/config.yaml` to `lib/config.yaml`
@@ -54,7 +54,7 @@ Run this FIRST after a code change. If it passes, all individual test cases are 
    - Expected: `README.md` links updated from `utils/helper.py` to `tools/helper.py` and `utils/config.yaml` to `tools/config.yaml`
 
 5. **Create a nested directory and move it (TE-E2E-013)**
-   - Action: Create `modules/` with subdirectories `core/` and `plugins/` containing test files in TE-E2E-013's project, wait 5s, move to `lib/`
+   - Action: Create `modules/` with subdirectories `core/` and `plugins/` containing test files in TE-E2E-013's project, wait 5s, move to `lib`
    - Tool: Command Line or scripted via `run.ps1`
    - Target: `TE-E2E-013-nested-directory-move/project/`
    - Expected: `README.md` links updated from `modules/core/engine.py` to `lib/core/engine.py`, `modules/core/config.yaml` to `lib/core/config.yaml`, and `modules/plugins/auth.py` to `lib/plugins/auth.py`
@@ -90,5 +90,3 @@ Run individual test cases to isolate the issue:
 - File operations (008, 010) test single-file detection; directory operations (009, 011) test batch detection via dir_move_detector
 - Move tests (008, 009) change the parent directory; rename tests (010, 011) change only the name within the same parent
 - Nested directory move (013) extends 009 with multi-level subdirectories; internal refs test (014) validates that sibling-relative links are preserved
-
-

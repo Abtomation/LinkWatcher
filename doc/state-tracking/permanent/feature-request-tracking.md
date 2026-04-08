@@ -11,7 +11,7 @@ updated: 2026-03-27
 
 This file tracks incoming product feature requests and enhancements. It serves as an intake queue for the [Feature Request Evaluation](../../../process-framework/tasks/01-planning/feature-request-evaluation.md) task (PF-TSK-067), which classifies each request and routes it to the correct workflow.
 
-> **Scope**: This file tracks **product** feature requests only. Process framework improvements belong in [process-improvement-tracking.md](../../../process-framework/state-tracking/permanent/process-improvement-tracking.md).
+> **Scope**: This file tracks **product** feature requests only. Process framework improvements belong in [process-improvement-tracking.md](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md).
 
 ## Status Legend
 
@@ -33,9 +33,9 @@ This file tracks incoming product feature requests and enhancements. It serves a
 
 | ID | Source | Description | Feature | Classification | Status | Last Updated | Notes |
 |----|--------|-------------|---------|----------------|--------|--------------|-------|
-| PD-FRQ-001 | [Tools Review 2026-03-26](../../../process-framework/feedback/reviews/tools-review-20260326.md) | Add HTML comment filtering to link validator (--skip-comments) to exclude links inside <\!-- --> blocks from broken link counts | — | — | Submitted | 2026-03-27 | ~180 false positives from commented-out links inflate triage effort. Migrated from PF-IMP-216. |
-| PD-FRQ-002 | [Tools Review 2026-03-26](../../../process-framework/feedback/reviews/tools-review-20260326.md) | Add --summary flag to link validator for quick type-breakdown output without individual broken links | — | — | Submitted | 2026-03-27 | Requested in 2 bug-fixing forms. Would enable fast progress checks during bulk link fix sessions. Migrated from PF-IMP-217. |
-| PD-FRQ-003 | [Tools Review 2026-03-31](../../../process-framework/feedback/reviews/tools-review-20260331-103941.md) | Create run.ps1 scripts for TE-E2E-001, TE-E2E-002, TE-E2E-003, TE-E2E-004 to convert manual E2E tests to fully automated scripted execution | — | — | Submitted | 2026-03-31 | Currently these 4 test cases require manual execution. All other tests are fully scripted. |
+| PD-FRQ-001 | [Tools Review 2026-03-26](../../../process-framework-local/feedback/reviews/tools-review-20260326.md) | Add HTML comment filtering to link validator (--skip-comments) to exclude links inside <\!-- --> blocks from broken link counts | — | — | Submitted | 2026-03-27 | ~180 false positives from commented-out links inflate triage effort. Migrated from PF-IMP-216. |
+| PD-FRQ-002 | [Tools Review 2026-03-26](../../../process-framework-local/feedback/reviews/tools-review-20260326.md) | Add --summary flag to link validator for quick type-breakdown output without individual broken links | — | — | Submitted | 2026-03-27 | Requested in 2 bug-fixing forms. Would enable fast progress checks during bulk link fix sessions. Migrated from PF-IMP-217. |
+| PD-FRQ-003 | [Tools Review 2026-03-31](../../../process-framework-local/feedback/reviews/tools-review-20260331-103941.md) | Create run.ps1 scripts for TE-E2E-001, TE-E2E-002, TE-E2E-003, TE-E2E-004 to convert manual E2E tests to fully automated scripted execution | — | — | Submitted | 2026-03-31 | Currently these 4 test cases require manual execution. All other tests are fully scripted. |
 
 ## Completed Requests
 

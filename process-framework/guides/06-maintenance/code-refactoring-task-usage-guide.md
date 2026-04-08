@@ -44,7 +44,7 @@ Use the New-RefactoringPlan.ps1 script to create refactoring plan documents:
 
 ```powershell
 cd doc/refactoring
-./New-RefactoringPlan.ps1 -RefactoringScope "Brief description" -TargetArea "Component/Module name"
+New-RefactoringPlan.ps1 -RefactoringScope "Brief description" -TargetArea "Component/Module name"
 ```
 
 ### Script Parameters
@@ -60,19 +60,19 @@ cd doc/refactoring
 
 ```powershell
 # Standard: High-priority authentication service refactoring
-./New-RefactoringPlan.ps1 -RefactoringScope "Authentication Service Simplification" -TargetArea "lib/services/auth/" -Priority "High"
+New-RefactoringPlan.ps1 -RefactoringScope "Authentication Service Simplification" -TargetArea "lib/services/auth/" -Priority "High"
 
 # Standard: Database layer optimization
-./New-RefactoringPlan.ps1 -RefactoringScope "Database Access Pattern Optimization" -TargetArea "lib/data/" -Priority "Medium"
+New-RefactoringPlan.ps1 -RefactoringScope "Database Access Pattern Optimization" -TargetArea "lib/data/" -Priority "Medium"
 
 # Lightweight: Quick fix for bare except clauses
-./New-RefactoringPlan.ps1 -RefactoringScope "Replace bare excepts in handler.py (TD011)" -TargetArea "linkwatcher/handler.py" -Lightweight
+New-RefactoringPlan.ps1 -RefactoringScope "Replace bare excepts in handler.py (TD011)" -TargetArea "linkwatcher/handler.py" -Lightweight
 
 # Lightweight with dependencies: Multi-file change needing dependency tracking
-./New-RefactoringPlan.ps1 -RefactoringScope "Consolidate path utils (TD015)" -TargetArea "linkwatcher/" -Lightweight -IncludeDependencies -DebtItemId "TD015"
+New-RefactoringPlan.ps1 -RefactoringScope "Consolidate path utils (TD015)" -TargetArea "linkwatcher/" -Lightweight -IncludeDependencies -DebtItemId "TD015"
 
 # Documentation-only: Fix TDD pseudocode drift
-./New-RefactoringPlan.ps1 -RefactoringScope "Fix TDD pseudocode drift (TD046)" -TargetArea "doc/technical" -DocumentationOnly -DebtItemId "TD046"
+New-RefactoringPlan.ps1 -RefactoringScope "Fix TDD pseudocode drift (TD046)" -TargetArea "doc/technical" -DocumentationOnly -DebtItemId "TD046"
 ```
 
 ### Lightweight vs Standard vs Documentation-Only Mode

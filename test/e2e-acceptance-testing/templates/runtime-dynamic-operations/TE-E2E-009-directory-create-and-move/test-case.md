@@ -45,7 +45,7 @@ updated: 2026-03-18
    - **Duration**: Wait 5–10 seconds
    - **Observe**: LinkWatcher log should show directory move detection and reference updates for all contained files
 
-5. **Verify references updated**: Check that README.md now points to files in `lib/`
+5. **Verify references updated**: Check that README.md now points to files in `lib`
    - **Tool**: Text editor
    - **Target**: Open `README.md` and check link targets
 
@@ -68,7 +68,7 @@ See `expected/` directory for complete post-test file state.
 ### Behavioral Outcomes
 
 - LinkWatcher log shows detection of new files in `utils/`
-- LinkWatcher log shows directory move detection from `utils/` to `lib/`
+- LinkWatcher log shows directory move detection from `utils/` to `lib`
 - LinkWatcher log shows updates to `README.md` for both contained files
 - No errors or warnings in LinkWatcher log
 
@@ -79,8 +79,8 @@ See `expected/` directory for complete post-test file state.
 
 ## Pass Criteria
 
-- [ ] Both references in README.md updated from `utils/` paths to `lib/` paths
-- [ ] `helper.py` and `config.yaml` exist at `lib/` with original content
+- [ ] Both references in README.md updated from `utils/` paths to `lib` paths
+- [ ] `helper.py` and `config.yaml` exist at `lib` with original content
 - [ ] `Verify-TestResult.ps1` reports all files match expected state
 - [ ] No errors or warnings in LinkWatcher log during test execution
 

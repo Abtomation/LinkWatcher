@@ -69,10 +69,10 @@ graph TD
 ### Important Components (Should Understand)
 - **Terminology Mapping**: Source domain to target domain translation table — guides all content adaptations
 - **Deletion Criteria**: Rules for classifying documents as DELETE, ADAPT, or KEEP — confirmed with human partner before execution
-- **Task Definitions**: Individual task files in `tasks/` — reviewed and adapted for target domain terminology and workflows
+- **Task Definitions**: Individual task files in `tasks` — reviewed and adapted for target domain terminology and workflows
 - **Templates**: Document templates in `templates/` — adapted with domain-specific placeholders and examples
 - **Guides**: Process guides in `guides/` — updated with domain-appropriate terminology and references
-- **Scripts**: Automation scripts in `scripts/` — parameter names, help text, and ValidateSet values adapted for target domain
+- **Scripts**: Automation scripts in `scripts` — parameter names, help text, and ValidateSet values adapted for target domain
 - **Systematic Review**: Phase 2 process of reviewing all documents in process flow order against the 3-decision framework
 
 ### Reference Components (Access When Needed)

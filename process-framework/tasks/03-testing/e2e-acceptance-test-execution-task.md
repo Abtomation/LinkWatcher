@@ -62,7 +62,7 @@ E2E acceptance test execution validates system behavior that cannot be covered b
 2. **Install code changes globally** (if code was modified since last install): Ensure the system under test uses the latest code. For Python projects: `pip install -e .` from the project root. Skip if no code changes since last install.
 3. **Set up test environment**: Run [Setup-TestEnvironment.ps1](../../scripts/test/e2e-acceptance-testing/Setup-TestEnvironment.ps1) to copy pristine templates into the workspace:
    ```bash
-   cd process-framework/scripts/test/e2e-acceptance-testing && pwsh.exe -ExecutionPolicy Bypass -Command '& .\Setup-TestEnvironment.ps1 -Group "group-name" -Clean -Confirm:$false'
+   pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/test/e2e-acceptance-testing/Setup-TestEnvironment.ps1 -Group "group-name" -Clean -Confirm:\$false
    ```
    > Omit `-Group` to set up all groups. Use `-Clean` to remove any previous workspace state.
 4. **Review the master test** for the target group to understand the quick validation sequence
@@ -72,7 +72,7 @@ E2E acceptance test execution validates system behavior that cannot be covered b
 5. **Check for scripted test cases**: If test cases have `Execution Mode: scripted` (i.e., they have a `run.ps1` file), offer the human partner a choice:
    - **Run automatically** via [Run-E2EAcceptanceTest.ps1](../../scripts/test/e2e-acceptance-testing/Run-E2EAcceptanceTest.ps1) — stops project LW, starts a workspace-scoped LW per test case (fast scan), then runs Setup → settle → run.ps1 → wait → Verify:
      ```bash
-     cd process-framework/scripts/test/e2e-acceptance-testing && pwsh.exe -ExecutionPolicy Bypass -Command '& .\Run-E2EAcceptanceTest.ps1 -Group "group-name" -Clean -Detailed'
+     pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/test/e2e-acceptance-testing/Run-E2EAcceptanceTest.ps1 -Group "group-name" -Clean -Detailed
      ```
      > Use `-SettleSeconds N` (default: 3) to adjust the delay between scan completion and test action. Use `-WaitSeconds N` (default: 5) for propagation delay after the action.
    - **Run manually** — human follows the Steps section in test-case.md (same as manual test cases)
@@ -87,7 +87,7 @@ E2E acceptance test execution validates system behavior that cannot be covered b
    - Compare against expected results
 8. **Verify results** (manual test cases only — scripted tests verify automatically): Run [Verify-TestResult.ps1](../../scripts/test/e2e-acceptance-testing/Verify-TestResult.ps1) to compare workspace against expected state:
    ```bash
-   cd process-framework/scripts/test/e2e-acceptance-testing && pwsh.exe -ExecutionPolicy Bypass -Command '& .\Verify-TestResult.ps1 -Group "group-name" -Detailed'
+   pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/test/e2e-acceptance-testing/Verify-TestResult.ps1 -Group "group-name" -Detailed
    ```
    > Use `-TestCase "E2E-NNN"` for a single test case. Use `-Detailed` to see line-by-line diffs for failures.
 8a. **On failure — root cause analysis**: When a test case fails, the AI agent MUST investigate the root cause before proceeding. Check system logs, trace the event flow, and identify whether the failure is caused by a code defect, test fixture issue, infrastructure problem, or environmental factor. Document the root cause clearly.
@@ -98,7 +98,7 @@ E2E acceptance test execution validates system behavior that cannot be covered b
 
 9. **Record results**: For **scripted tests**, `Run-E2EAcceptanceTest.ps1` automatically calls `Update-TestExecutionStatus.ps1` per test case after verification (use `-SkipTracking` to disable). For **non-scripted tests** or to add a `-Reason` to failures, run manually:
    ```bash
-   cd process-framework/scripts/test/e2e-acceptance-testing && pwsh.exe -ExecutionPolicy Bypass -Command '& .\Update-TestExecutionStatus.ps1 -Group "group-name" -Status "Passed" -Confirm:$false'
+   pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/test/e2e-acceptance-testing/Update-TestExecutionStatus.ps1 -Group "group-name" -Status "Passed" -Confirm:\$false
    ```
    > For failures, use `-Status "Failed" -Reason "PD-BUG-NNN: description of failure"`. Always reference the bug ID.
 10. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below

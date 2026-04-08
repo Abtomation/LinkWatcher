@@ -84,7 +84,7 @@ retrospective: true
 
 ## User Experience Flow
 
-1. **Entry Point**: User runs `python main.py [options]` or uses a startup script (`start_linkwatcher.bat`, `start_linkwatcher.ps1`, etc.)
+1. **Entry Point**: User runs `python main.py [options]` or uses the background startup script (`start_linkwatcher_background.ps1`)
 2. **Configuration**: Service loads configuration from multiple sources (CLI flags, environment variables, config file, defaults) and validates parameters
 3. **Initial Scan**: Service recursively walks the project directory, parsing all monitored files and building the in-memory link database. Progress is reported to console.
 4. **Monitoring Active**: Service enters continuous monitoring mode. Console displays "Watching for changes..." message. File system events are processed automatically.

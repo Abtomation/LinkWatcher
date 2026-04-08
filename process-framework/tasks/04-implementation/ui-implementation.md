@@ -36,13 +36,14 @@ Build UI components and screen layouts for a feature. This task creates the user
 
 - **Critical (Must Read):**
 
-  - **Feature Implementation State File** - The permanent state tracking document at `/process-framework/state-tracking/permanent/feature-implementation-state-[feature-id].md` containing implementation progress and context
+  - **Feature Implementation State File** - The permanent state tracking document at `/process-framework-local/state-tracking/permanent/feature-implementation-state-[feature-id].md` containing implementation progress and context
   - **TDD (Technical Design Document)** - UI/UX design section describing screen layouts, component hierarchy, navigation flow, and technology-specific patterns
   - **Completed State Layer Code** - State management implementations from PF-TSK-056
 
 - **Important (Load If Space):**
 
   - **Feature Tracking** - [Feature details from feature-tracking.md](../../../doc/state-tracking/permanent/feature-tracking.md) for context
+  - [Source Code Layout](/doc/technical/architecture/source-code-layout.md) - Consult for correct file placement within feature directories
 - **Reference Only (Access When Needed):**
   - [Visual Notation Guide](/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
   - **Existing UI Examples** - Similar UI implementations in codebase for pattern consistency
@@ -88,8 +89,8 @@ Build UI components and screen layouts for a feature. This task creates the user
     ```powershell
     # Create test files using automation script (writes pytest markers)
     cd process-framework/scripts/file-creation/03-testing
-    .\New-TestFile.ps1 -TestName "FeatureName" -TestType "Unit" -FeatureId "X.Y.Z" -ComponentName "UIComponents"
-    .\New-TestFile.ps1 -TestName "FeatureName" -TestType "Unit" -FeatureId "X.Y.Z" -ComponentName "Screens"
+    New-TestFile.ps1 -TestName "FeatureName" -TestType "Unit" -FeatureId "X.Y.Z" -ComponentName "UIComponents"
+    New-TestFile.ps1 -TestName "FeatureName" -TestType "Unit" -FeatureId "X.Y.Z" -ComponentName "Screens"
 
     # Script automatically:
     # - Writes pytest markers (feature, priority, test_type)

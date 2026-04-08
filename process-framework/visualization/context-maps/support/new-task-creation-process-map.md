@@ -86,6 +86,6 @@ graph TD
 - [AI Tasks System](../../../ai-tasks.md) - Main task registry and categorization
 - [New-Task.ps1](../../../scripts/file-creation/support/New-Task.ps1) - Script for creating task definitions
 - [Documentation Map](../../../PF-documentation-map.md) - Central documentation registry
-- [Process Improvement Tracking](../../../state-tracking/permanent/process-improvement-tracking.md) - Infrastructure completion tracking
+- [Process Improvement Tracking](../../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) - Infrastructure completion tracking
 
 ---

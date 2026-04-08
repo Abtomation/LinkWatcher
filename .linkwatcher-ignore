@@ -176,12 +176,12 @@ doc/validation/reports/**/*.md -> Makefile/setup.py
 doc/validation/reports/**/*.md -> add/remove/update.
 
 # ── Process improvement tracking — historical changelog ───────────────
-process-framework/state-tracking/permanent/process-improvement-tracking.md -> Common-ScriptHelpers.psm1
+process-framework-local/state-tracking/permanent/process-improvement-tracking.md -> Common-ScriptHelpers.psm1
 
 # ── Evaluation report — findings about deleted artifacts ──────────────
-process-framework/evaluation-reports/**/*.md -> test/test-registry.yaml
-process-framework/evaluation-reports/**/*.md -> test-infrastructure-guide.md
-process-framework/evaluation-reports/**/*.md -> Validate-TestTracking.ps1
+process-framework-local/evaluation-reports/**/*.md -> test/test-registry.yaml
+process-framework-local/evaluation-reports/**/*.md -> test-infrastructure-guide.md
+process-framework-local/evaluation-reports/**/*.md -> Validate-TestTracking.ps1
 
 # ── Infrastructure — task registry prospective output dirs ────────────
 process-framework/infrastructure/process-framework-task-registry.md -> scripts/validation/validation-reports/
@@ -213,20 +213,20 @@ process-framework/visualization/context-maps/**/*.md -> temporary/old/
 process-framework/visualization/context-maps/07-deployment/user-documentation-creation-map.md -> handbook-template.md
 
 # ── State tracking — structural descriptions ─────────────────────────
-process-framework/state-tracking/README.md -> support/New-TempTaskState.ps1
-process-framework/state-tracking/temporary/old/structure-change-dimension-aware-development-integration.md -> guides/framework/
-process-framework/state-tracking/temporary/old/structure-change-dimension-aware-development-integration.md -> templates/
-process-framework/state-tracking/temporary/old/structure-change-dimension-aware-development-integration.md -> state-tracking/temporary/old/
+process-framework-local/state-tracking/README.md -> support/New-TempTaskState.ps1
+process-framework-local/state-tracking/temporary/old/structure-change-dimension-aware-development-integration.md -> guides/framework/
+process-framework-local/state-tracking/temporary/old/structure-change-dimension-aware-development-integration.md -> templates/
+process-framework-local/state-tracking/temporary/old/structure-change-dimension-aware-development-integration.md -> state-tracking/temporary/old/
 
 # ── Languages config — planned directory ─────────────────────────────
 process-framework/languages-config/README.md -> javascript/
 
 # ── Feedback/review prose mentions ───────────────────────────────────
-process-framework/feedback/**/*.md -> proposals/old/
-process-framework/feedback/**/*.md -> Eff/Comp/Efficiency/Conciseness.
-process-framework/feedback/**/*.md -> archive/2026-03/
-process-framework/feedback/**/*.md -> 06-maintenance/
-process-framework/feedback/**/*.md -> tasks/README.md
+process-framework-local/feedback/**/*.md -> proposals/old/
+process-framework-local/feedback/**/*.md -> Eff/Comp/Efficiency/Conciseness.
+process-framework-local/feedback/**/*.md -> archive/2026-03/
+process-framework-local/feedback/**/*.md -> 06-maintenance/
+process-framework-local/feedback/**/*.md -> tasks/README.md
 
 # ── Test procedure example paths ─────────────────────────────────────
 test/automated/bug-validation/test_procedures.md -> docs/

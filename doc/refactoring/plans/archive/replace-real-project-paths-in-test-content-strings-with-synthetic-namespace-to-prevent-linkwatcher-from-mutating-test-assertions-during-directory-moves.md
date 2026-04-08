@@ -21,7 +21,7 @@ target_area: test/automated
 
 ## Refactoring Scope
 
-Test content strings in 14 test files use real project directory names (`doc/`, `process-framework/`) as path references. When LinkWatcher runs and real files move, it parses these test files and rewrites the path strings — mutating test assertions unintentionally. Git history confirms this has happened in at least 3 bulk-update commits (b3b29e2, ff5c27f, 07b1e51).
+Test content strings in 14 test files use real project directory names (`doc`, `process-framework`) as path references. When LinkWatcher runs and real files move, it parses these test files and rewrites the path strings — mutating test assertions unintentionally. Git history confirms this has happened in at least 3 bulk-update commits (b3b29e2, ff5c27f, 07b1e51).
 
 ### Current Issues
 
@@ -32,13 +32,13 @@ Test content strings in 14 test files use real project directory names (`doc/`, 
 
 ### Scope Discovery
 
-- **Original Description**: User observed test suite uses examples overlapping with real `doc/` and `process-framework/` directories, causing confusion when structure changes trigger LinkWatcher updates in test files
+- **Original Description**: User observed test suite uses examples overlapping with real `doc` and `process-framework` directories, causing confusion when structure changes trigger LinkWatcher updates in test files
 - **Actual Scope Findings**: 176 path occurrences across 14 test files. Synthetic paths (`vendor/`, `src/`) that don't exist in the real project are already safe. The `conftest.py` fixtures properly use `tmp_path` but define no shared path namespace constant
 - **Scope Delta**: Scope matches. The synthetic paths (vendor/, src/) can be left as-is since they don't collide with real project directories
 
 ### Refactoring Goals
 
-- Goal 1: Replace all real project path references (`doc/`, `process-framework/`) in test content strings with a synthetic namespace (`alpha-project/`)
+- Goal 1: Replace all real project path references (`doc`, `process-framework`) in test content strings with a synthetic namespace (`alpha-project/`)
 - Goal 2: Define a shared constant `TEST_PROJECT_ROOT` in `conftest.py` for future test authors
 - Goal 3: Document test isolation rules in test-infrastructure-guide.md and test-file-creation-guide.md
 
@@ -82,7 +82,7 @@ Replace real project path prefixes in test content strings with a synthetic name
 
 ### Specific Techniques
 
-- **String replacement**: Replace `doc/` and `process-framework/` path prefixes in test content strings with `alpha-project/` equivalents
+- **String replacement**: Replace `doc` and `process-framework` path prefixes in test content strings with `alpha-project/` equivalents
 - **Constant extraction**: Define `TEST_PROJECT_ROOT = "alpha-project"` in conftest.py for future test authors
 - **Preserve test semantics**: Each replacement must maintain the same path structure depth and file extension to preserve parser behavior being tested
 
@@ -112,7 +112,7 @@ Replace real project path prefixes in test content strings with a synthetic name
 ### Functional Requirements
 
 - [x] All 649 tests continue to pass with identical results
-- [x] Zero real project paths (`doc/`, `process-framework/`) remain in test content strings
+- [x] Zero real project paths (`doc`, `process-framework`) remain in test content strings
 - [x] `TEST_PROJECT_ROOT` constant defined in conftest.py
 - [x] Test isolation rules documented in two guide files
 
@@ -151,4 +151,3 @@ Replace real project path prefixes in test content strings with a synthetic name
 
 ## Related Documentation
 - [Technical Debt Tracking](/doc/state-tracking/permanent/technical-debt-tracking.md)
-

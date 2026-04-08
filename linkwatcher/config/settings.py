@@ -168,6 +168,13 @@ class LinkWatcherConfig:
         }
     )
 
+    # Python source root — when set, strip this prefix from file paths
+    # before comparing with Python import targets.  For src/ layout projects,
+    # set to "src" so that "src/package/module.py" resolves to "package.module"
+    # rather than "src.package.module".  Read from project-config.json
+    # paths.source_code at startup; overridable via config file or env var.
+    python_source_root: str = ""
+
     # Move detection timing
     move_detect_delay: float = 10.0
     dir_move_max_timeout: float = 300.0

@@ -36,7 +36,7 @@ Validate feature implementation against quality standards, business requirements
 
 - **Critical (Must Read):**
 
-  - **Feature Implementation State File** - The permanent state tracking document at `/process-framework/state-tracking/permanent/feature-implementation-state-[feature-id].md` containing implementation progress and context
+  - **Feature Implementation State File** - The permanent state tracking document at `/process-framework-local/state-tracking/permanent/feature-implementation-state-[feature-id].md` containing implementation progress and context
   - **TDD (Technical Design Document)** - Acceptance criteria section describing quality requirements, performance targets, and business validation rules
   - **Completed Implementation and Tests** - All code from PF-TSK-051/056/052 and test results from PF-TSK-053
   - **Quality Standards Documentation** - Project-specific code quality standards, performance benchmarks, and security requirements

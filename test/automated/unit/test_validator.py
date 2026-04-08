@@ -551,7 +551,7 @@ class TestShouldCheckTarget:
             ("match\\[index\\]", "markdown-standalone", "regex \\[ escaped bracket"),
             # PowerShell .\ invocation syntax — TD170 line 460
             (".\\Script.ps1", "markdown-standalone", "PowerShell .\\ invocation"),
-            (".\\Run-Tests.ps1", "generic-unquoted", "PowerShell .\\ invocation variant"),
+            ("Run-Tests.ps1", "generic-unquoted", "PowerShell .\\ invocation variant"),
             # Separator but no extension and not dir-like — TD170 line 481
             ("some/dir", "markdown", "separator but no ext, not dir-like"),
         ],

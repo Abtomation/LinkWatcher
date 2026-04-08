@@ -31,13 +31,13 @@
     Optional: Project root path. Auto-detected if not specified.
 
 .EXAMPLE
-    .\Update-TestExecutionStatus.ps1 -Group "powershell-regex-preservation" -Status "Passed"
+    Update-TestExecutionStatus.ps1 -Group "powershell-regex-preservation" -Status "Passed"
 
 .EXAMPLE
-    .\Update-TestExecutionStatus.ps1 -FeatureId "1.1.1" -Status "Needs Re-execution" -Reason "Bug fix PD-BUG-032"
+    Update-TestExecutionStatus.ps1 -FeatureId "1.1.1" -Status "Needs Re-execution" -Reason "Bug fix PD-BUG-032"
 
 .EXAMPLE
-    .\Update-TestExecutionStatus.ps1 -TestCase "TE-E2E-001" -Status "Failed" -Reason "Link not updated after rename"
+    Update-TestExecutionStatus.ps1 -TestCase "TE-E2E-001" -Status "Failed" -Reason "Link not updated after rename"
 
 .NOTES
     Created: 2026-03-15

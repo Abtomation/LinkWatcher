@@ -44,7 +44,8 @@ This task executes enhancement work on existing features by following the Enhanc
   - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) — For status restoration on completion
 
 - **Reference Only (Access When Needed):**
-  - [Enhancement Workflow Concept (PF-PRO-002)](../../proposals/old/enhancement-workflow-concept.md) — Full design rationale for this workflow
+  - [Enhancement Workflow Concept (PF-PRO-002)](../../../process-framework-local/proposals/old/enhancement-workflow-concept.md) — Full design rationale for this workflow
+  - [Source Code Layout](/doc/technical/architecture/source-code-layout.md) — Consult for correct file placement within feature directories
   - Source code files affected by the enhancement
 
 ## Process
@@ -162,5 +163,5 @@ Before considering this task finished:
 ## Related Resources
 
 - [Feature Request Evaluation](../01-planning/feature-request-evaluation.md) — The task that creates the Enhancement State Tracking File consumed by this task
-- [Enhancement Workflow Concept (PF-PRO-002)](../../proposals/old/enhancement-workflow-concept.md) — Full design rationale for this workflow
+- [Enhancement Workflow Concept (PF-PRO-002)](../../../process-framework-local/proposals/old/enhancement-workflow-concept.md) — Full design rationale for this workflow
 - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) — Current feature inventory and status

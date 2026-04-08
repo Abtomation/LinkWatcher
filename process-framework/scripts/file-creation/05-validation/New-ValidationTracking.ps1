@@ -27,12 +27,12 @@
     If specified, opens the created file in the default editor.
 
 .EXAMPLE
-    .\New-ValidationTracking.ps1 -RoundNumber 4
+    New-ValidationTracking.ps1 -RoundNumber 4
 
     Creates validation-tracking-4.md in doc/state-tracking/validation/
 
 .EXAMPLE
-    .\New-ValidationTracking.ps1 -RoundNumber 4 -Description "Post-enhancement re-validation"
+    New-ValidationTracking.ps1 -RoundNumber 4 -Description "Post-enhancement re-validation"
 
 .NOTES
     Script Type: Document Creation Script

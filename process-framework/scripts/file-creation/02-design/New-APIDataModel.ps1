@@ -181,7 +181,7 @@ try {
                 Write-Host "`n🔄 Updating API Design state with intelligent replacement/append logic..." -ForegroundColor Cyan
 
                 # Calculate correct relative path from doc/technical/api/models/feature-tracking.md to API data model
-                # doc/technical/api/models/feature-tracking.md is at: process-framework/state-tracking/permanent/
+                # doc/technical/api/models/feature-tracking.md is at: process-framework-local/state-tracking/permanent/
                 # API data model is at: doc/technical/api/models/
                 # Need to go up 3 levels (../../..) then down to the API model
                 $sanitizedModelName = $ModelName.ToLower() -replace '[^a-z0-9\s]', '' -replace '\s+', '-'

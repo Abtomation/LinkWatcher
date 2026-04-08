@@ -509,7 +509,7 @@ catch {
 
      # ❌ INCORRECT - Don't escape brackets
      $customReplacements = @{
-         "\[Feature Name\]" = $FeatureName  # This won't work!
+         "/[Feature Name/]" = $FeatureName  # This won't work!
      }
      ```
 
@@ -578,7 +578,7 @@ Before considering any document creation script complete:
 
 After modifying any script or tool, verify that all referencing documents are still accurate:
 
-1. **Grep for references**: Search the entire `doc/` and `test/` directories for the script filename
+1. **Grep for references**: Search the entire `doc` and `test/` directories for the script filename
 2. **Read every hit** — do not dismiss any as "just a link". References in guides, task definitions, context maps, and templates may contain parameter names, paths, or behavioral descriptions that your change invalidated
 3. **Update or flag**: Fix outdated references immediately, or document them as follow-up items if the fix is out of scope
 
@@ -607,7 +607,7 @@ $templatePath = switch ($Type) {
 
 ### Using Language Configuration
 
-When your script needs language-specific commands (e.g., test runners, linters, coverage tools), load the language config from `languages-config/` rather than hardcoding commands.
+When your script needs language-specific commands (e.g., test runners, linters, coverage tools), load the language config from `languages-config` rather than hardcoding commands.
 
 #### Loading Language Config Pattern
 
@@ -655,13 +655,13 @@ If your new script needs a language-specific command that isn't in the language 
 
 ```powershell
 # Add to all language configs + template in one command
-.\Update-LanguageConfig.ps1 -Section "testing" -FieldName "newCommand" `
+Update-LanguageConfig.ps1 -Section "testing" -FieldName "newCommand" `
     -DefaultValue "[new command placeholder]" `
     -TemplateComment "OPTIONAL. Description of the new command." `
     -LanguageValues @{ "python" = "python -m tool {testDir}" }
 
 # Audit for drift between configs and template
-.\Update-LanguageConfig.ps1 -List
+Update-LanguageConfig.ps1 -List
 ```
 
 This is done via the **Process Improvement task** (PF-TSK-009) or **Framework Extension task** (PF-TSK-063).

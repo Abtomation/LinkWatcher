@@ -32,12 +32,12 @@
     If specified, opens the created file in the default editor.
 
 .EXAMPLE
-    .\New-AuditTracking.ps1 -RoundNumber 1
+    New-AuditTracking.ps1 -RoundNumber 1
 
     Creates audit-tracking-1.md with all auditable test files.
 
 .EXAMPLE
-    .\New-AuditTracking.ps1 -RoundNumber 2 -FeatureFilter "0.1.1,2.1.1" -Description "Foundation and parser re-audit"
+    New-AuditTracking.ps1 -RoundNumber 2 -FeatureFilter "0.1.1,2.1.1" -Description "Foundation and parser re-audit"
 
 .NOTES
     Script Type: Document Creation Script

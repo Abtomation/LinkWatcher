@@ -57,10 +57,10 @@ graph TD
 - **AI Tasks System**: Task registry and workflow definitions — authoritative source for task list and routing logic
 
 ### Important Components (Should Understand)
-- **Task Definitions**: Individual task files in `tasks/` — evaluated for structure, completeness, consistency
+- **Task Definitions**: Individual task files in `tasks` — evaluated for structure, completeness, consistency
 - **Templates**: Document templates in `templates/` — evaluated for placeholder conventions, usefulness
 - **Guides**: Process guides in `guides/` — evaluated for clarity, redundancy with task definitions
-- **Scripts**: Automation scripts in `scripts/` — evaluated for error handling, coverage, consistency
+- **Scripts**: Automation scripts in `scripts` — evaluated for error handling, coverage, consistency
 - **7 Evaluation Dimensions**: The assessment criteria (Completeness, Consistency, Redundancy, Accuracy, Effectiveness, Automation Coverage, Scalability)
 
 ### Reference Components (Access When Needed)
@@ -93,4 +93,4 @@ graph TD
 - [Framework Evaluation Task](/process-framework/tasks/support/framework-evaluation.md) — Task definition for this evaluation process
 - [Documentation Map](/process-framework/PF-documentation-map.md) — Central index of all framework artifacts
 - [AI Tasks System](/process-framework/ai-tasks.md) — Task registry and workflow definitions
-- [Process Improvement Tracking](/process-framework/state-tracking/permanent/process-improvement-tracking.md) — Where IMP entries are registered
+- [Process Improvement Tracking](/process-framework-local/state-tracking/permanent/process-improvement-tracking.md) — Where IMP entries are registered

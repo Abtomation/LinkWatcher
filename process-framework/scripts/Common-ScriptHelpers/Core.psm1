@@ -130,7 +130,7 @@ function Import-ProjectModule {
             if (-not $script:DocumentManagementPath) {
                 # Try multiple possible locations
                 $possiblePaths = @(
-                    "scripts\DocumentManagement.psm1",
+                    "scripts/DocumentManagement.psm1",
                     "process-framework/scripts/DocumentManagement.psm1",
                     "process-framework/methodologies/documentation-tiers/scripts/DocumentManagement.psm1"
                 )

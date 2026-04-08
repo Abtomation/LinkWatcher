@@ -32,13 +32,13 @@ This directory contains the infrastructure and documentation for the Code Refact
 
 ```powershell
 cd doc/refactoring
-.\New-RefactoringPlan.ps1 -RefactoringScope "User Authentication Module" -TargetArea "lib/services/auth/"
+New-RefactoringPlan.ps1 -RefactoringScope "User Authentication Module" -TargetArea "lib/services/auth/"
 
 # Lightweight mode for quick fixes (≤15 min, single file)
-.\New-RefactoringPlan.ps1 -RefactoringScope "Replace bare excepts (TD011)" -TargetArea "linkwatcher/handler.py" -Lightweight
+New-RefactoringPlan.ps1 -RefactoringScope "Replace bare excepts (TD011)" -TargetArea "linkwatcher/handler.py" -Lightweight
 
 # Documentation-only mode for doc refactoring (no code/test changes)
-.\New-RefactoringPlan.ps1 -RefactoringScope "Fix TDD pseudocode drift (TD046)" -TargetArea "doc/technical" -DocumentationOnly
+New-RefactoringPlan.ps1 -RefactoringScope "Fix TDD pseudocode drift (TD046)" -TargetArea "doc/technical" -DocumentationOnly
 ```
 
 ### 2. **Customizing the Plan**

@@ -60,14 +60,14 @@ try {
         -IdPrefix "PF-PRO" `
         -IdDescription "Structure change proposal for: ${ChangeName}" `
         -DocumentName $ChangeName `
-        -OutputDirectory "process-framework/proposals" `
+        -OutputDirectory "process-framework-local/proposals" `
         -Replacements $customReplacements `
         -FileNamePattern $customFileName `
         -OpenInEditor:$OpenInEditor
 
     # Post-process: replace Target Implementation Date (the remaining YYYY-MM-DD after first replacement)
     $projectRoot = Get-ProjectRoot
-    $outputPath = Join-Path $projectRoot "process-framework/proposals/$customFileName"
+    $outputPath = Join-Path $projectRoot "process-framework-local/proposals/$customFileName"
     if (Test-Path $outputPath) {
         $content = Get-Content $outputPath -Raw
         # Replace the remaining YYYY-MM-DD (Target Implementation Date) with the target date

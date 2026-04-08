@@ -70,10 +70,10 @@ The script supports a `-Tier` parameter to select the appropriate template:
 
 ```powershell
 # Tier 1 — lightweight plan
-.\New-ImplementationPlan.ps1 -FeatureName "link-validation" -Tier 1
+New-ImplementationPlan.ps1 -FeatureName "link-validation" -Tier 1
 
 # Tier 2/3 — full plan (default, backwards compatible)
-.\New-ImplementationPlan.ps1 -FeatureName "user-authentication"
+New-ImplementationPlan.ps1 -FeatureName "user-authentication"
 ```
 
 ### Full Template Structure (Tier 2/3)
@@ -125,12 +125,12 @@ The Tier 1 template focuses on the essentials:
 
 2. **Execute the script with your feature information**:
    ```powershell
-   .\New-ImplementationPlan.ps1 -FeatureName "[feature-id]-[feature-name]" -Description "[Brief feature description]" -OpenInEditor
+   New-ImplementationPlan.ps1 -FeatureName "[feature-id]-[feature-name]" -Description "[Brief feature description]" -OpenInEditor
    ```
 
    **Example**:
    ```powershell
-   .\New-ImplementationPlan.ps1 -FeatureName "ERM-001-user-authentication" -Description "Complete user authentication system with login, registration, and password recovery"
+   New-ImplementationPlan.ps1 -FeatureName "ERM-001-user-authentication" -Description "Complete user authentication system with login, registration, and password recovery"
    ```
 
 3. **Verify document creation**:
@@ -390,7 +390,7 @@ Feature: Add user profile display screen
 
 ```powershell
 # Create the implementation plan
-.\New-ImplementationPlan.ps1 -FeatureName "ERM-005-user-profile-display" -Description "Display user profile information with edit capability"
+New-ImplementationPlan.ps1 -FeatureName "ERM-005-user-profile-display" -Description "Display user profile information with edit capability"
 ```
 
 **Customization approach for simple feature:**
@@ -415,7 +415,7 @@ Feature: Order management system with payment integration
 
 ```powershell
 # Create the implementation plan
-.\New-ImplementationPlan.ps1 -FeatureName "ORD-012-order-system" -Description "Complete order workflow with payment processing and inventory management"
+New-ImplementationPlan.ps1 -FeatureName "ORD-012-order-system" -Description "Complete order workflow with payment processing and inventory management"
 ```
 
 **Customization approach for complex feature:**

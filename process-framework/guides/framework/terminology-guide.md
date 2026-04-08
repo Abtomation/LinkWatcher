@@ -52,7 +52,7 @@ This clear distinction helps avoid confusion between process-related and product
 - Feature specifications
 - Code documentation
 
-**Directory**: `/doc/`
+**Directory**: `/doc`
 
 **ID Format**: `PD-XXX-###` (e.g., `PD-TDD-001` for a product technical design document)
 

@@ -127,7 +127,7 @@ graph TD
 1. **Use Automation Scripts**: Execute New-ImplementationPlan.ps1 and New-FeatureImplementationState.ps1 to create documents with proper IDs
 2. **Follow Template Structure**: Customize generated templates following the guide's recommendations
 3. **Reference Design Docs**: Link implementation plan sections to specific design document sections
-4. **Document File Mappings**: Specify exact file paths in `/lib/` for each implementation phase
+4. **Document File Mappings**: Specify exact file paths in `/lib` for each implementation phase
 5. **Identify Risks**: Document technical, integration, and schedule risks with actionable mitigations
 
 ### Outputs Summary

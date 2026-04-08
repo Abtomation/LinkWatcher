@@ -10,7 +10,7 @@ change_name: [CHANGE-NAME]
 
 # Structure Change State: [Change Name]
 
-> **⚠️ TEMPORARY FILE**: This file tracks multi-session implementation of structure change. Move to `process-framework/state-tracking/temporary/old` after all changes are implemented and validated.
+> **⚠️ TEMPORARY FILE**: This file tracks multi-session implementation of structure change. Move to `process-framework-local/state-tracking/temporary/old` after all changes are implemented and validated.
 
 ## Structure Change Overview
 - **Change Name**: [Change Name]
@@ -71,7 +71,7 @@ Document the before/after structure:
   - **Delegated To**: PF-TSK-014 direct
   - **Dependencies**: Change requirements identified, impact analysis completed
   - **Template**: [Structure Change Proposal Template](structure-change-proposal-template.md)
-  - **Location**: `process-framework/state-tracking/temporary/[change-name]-structure-change-proposal.md`
+  - **Location**: `process-framework-local/state-tracking/temporary/[change-name]-structure-change-proposal.md`
   - **Notes**: Detailed proposal with rationale, affected files, migration strategy
 
 - [ ] **Backup Creation**: Create backups of all files to be modified
@@ -187,7 +187,7 @@ Document the before/after structure:
   - **Delegated To**: PF-TSK-014 direct
   - **Dependencies**: All changes validated and documented
   - **Cleanup Items**: [List temporary files, backup files, migration artifacts]
-  - **Archive Location**: `process-framework/state-tracking/temporary/old`
+  - **Archive Location**: `process-framework-local/state-tracking/temporary/old`
   - **Notes**: Preserve historical record while cleaning up working directories
 
 ## Session Tracking
@@ -324,7 +324,7 @@ Track which state files need updates as changes are implemented:
 
 ## Completion Criteria
 
-This temporary state file can be moved to `process-framework/state-tracking/temporary/old` when:
+This temporary state file can be moved to `process-framework-local/state-tracking/temporary/old` when:
 
 - [ ] All phases completed successfully
 - [ ] All test cases pass

@@ -31,10 +31,10 @@ Use the `New-TestAuditReport.ps1` script to create a new audit report:
 ```powershell
 # Basic usage
 # Run from process-framework/scripts/file-creation/03-testing
-.\New-TestAuditReport.ps1 -FeatureId "0.2.3" -TestFilePath "test/automated/unit/test_example.py" -AuditorName "AI Agent"
+New-TestAuditReport.ps1 -FeatureId "0.2.3" -TestFilePath "test/automated/unit/test_example.py" -AuditorName "AI Agent"
 
 # Open in editor after creation
-.\New-TestAuditReport.ps1 -FeatureId "1.1.2" -TestFilePath "test/automated/unit/test_auth.py" -AuditorName "QA Engineer" -OpenInEditor
+New-TestAuditReport.ps1 -FeatureId "1.1.2" -TestFilePath "test/automated/unit/test_auth.py" -AuditorName "QA Engineer" -OpenInEditor
 ```
 
 **Parameters**:
@@ -50,10 +50,10 @@ Use the `Validate-AuditReport.ps1` script to validate audit report completeness:
 ```powershell
 # Basic validation
 # Run from process-framework/scripts/validation
-.\Validate-AuditReport.ps1 -ReportFile "foundation/audit-report-0-2-3-test_example.md"
+Validate-AuditReport.ps1 -ReportFile "foundation/audit-report-0-2-3-test_example.md"
 
 # Detailed validation with all issues
-.\Validate-AuditReport.ps1 -ReportFile "foundation/audit-report-0-2-3-test_example.md" -Detailed
+Validate-AuditReport.ps1 -ReportFile "foundation/audit-report-0-2-3-test_example.md" -Detailed
 ```
 
 **Validation Checks**:
@@ -108,7 +108,7 @@ Examples:
 
 ## Automation Scripts
 
-### New-TestAuditReport.ps1 (process-framework/scripts/file-creation/03-testing/)
+### New-TestAuditReport.ps1 (process-framework/scripts/file-creation/03-testing)
 - Creates new audit reports from template
 - Automatically determines feature category
 - Assigns unique TE-TAR ID

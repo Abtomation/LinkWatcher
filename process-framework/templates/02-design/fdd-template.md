@@ -2,9 +2,9 @@
 id: PF-TEM-033
 type: Process Framework
 category: Template
-version: 1.1
+version: 1.2
 created: 2025-08-01
-updated: 2025-01-27
+updated: 2026-04-04
 usage_context: Process Framework - Functional Design Document Creation
 creates_document_prefix: PD-FDD
 template_for: Functional Design Document
@@ -12,7 +12,8 @@ creates_document_type: Process Framework
 creates_document_category: Functional Design Document
 creates_document_version: 1.0
 description: Template for creating Functional Design Documents
-change_notes: "v1.1 - Added cross-reference sections for IMP-097/IMP-098 (API, Schema, TDD, Test Specification)"
+change_notes: "v1.2 - Made comment examples domain-agnostic (IMP-003)"
+documentation_mode: as-built
 ---
 
 # [Feature Name] - Functional Design Document
@@ -26,6 +27,14 @@ change_notes: "v1.1 - Added cross-reference sections for IMP-097/IMP-098 (API, S
 
 ## Related Documentation
 
+<!-- RETROSPECTIVE: For retrospective FDDs (documenting existing features), simplify this entire
+     Related Documentation section. Replace the 4 subsections below with a simple cross-reference
+     list linking to existing docs, e.g.:
+     - **TDD**: [PD-TDD-XXX](path) — Technical design
+     - **Test Spec**: [TE-TSP-XXX](path) — Test specification
+     Remove any subsections for documents that don't exist (API Spec, Schema Design).
+     The detailed "Primary Documentation / Owner" scaffolding is for forward planning. -->
+
 > **Note**: This section provides cross-references to related technical documentation. FDDs focus on **functional-level concerns** (what the system does from a user perspective), while technical details are documented in specialized tasks.
 
 ### API Specification Reference
@@ -38,8 +47,8 @@ change_notes: "v1.1 - Added cross-reference sections for IMP-097/IMP-098 (API, S
 <!-- Brief notes on functional-level API concerns only (2-5 sentences) -->
 <!-- Focus on: user-facing API behaviors, functional data requirements, user-level error handling -->
 <!-- Examples:
-  - "Users authenticate via email/password or social login endpoints"
-  - "Feature requires real-time data updates through WebSocket API"
+  - "Users interact with feature through defined API endpoints"
+  - "Feature requires timely data updates for user-facing state changes"
   - "Users receive clear error messages for invalid input"
 -->
 
@@ -58,9 +67,9 @@ change_notes: "v1.1 - Added cross-reference sections for IMP-097/IMP-098 (API, S
 <!-- Brief notes on functional-level data concerns only (2-5 sentences) -->
 <!-- Focus on: user data requirements, functional data relationships, user-level data constraints -->
 <!-- Examples:
-  - "Users can create and manage multiple bookings"
-  - "Each booking is associated with a specific user and venue"
-  - "Users can only view their own booking history"
+  - "Users can create and manage multiple records"
+  - "Each record is associated with a specific user and category"
+  - "Users can only view their own data"
 -->
 
 **Functional Data Requirements**:
@@ -78,9 +87,9 @@ change_notes: "v1.1 - Added cross-reference sections for IMP-097/IMP-098 (API, S
 <!-- Brief notes on functional-level technical concerns only (2-5 sentences) -->
 <!-- Focus on: user-facing technical behaviors, functional performance requirements, user experience constraints -->
 <!-- Examples:
-  - "Feature provides real-time updates to users within 2 seconds"
-  - "Users can access feature offline with cached data"
-  - "Feature supports concurrent usage by multiple users"
+  - "Feature provides responsive feedback to users within acceptable latency"
+  - "Feature handles expected data volumes without degradation"
+  - "Feature supports expected concurrent usage patterns"
 -->
 
 **Functional Technical Requirements**:
@@ -100,7 +109,7 @@ change_notes: "v1.1 - Added cross-reference sections for IMP-097/IMP-098 (API, S
 <!-- Examples:
   - "All acceptance criteria must be validated through user scenario tests"
   - "Edge cases and error handling require functional testing"
-  - "User workflows must be tested end-to-end"
+  - "Key user workflows must be tested end-to-end"
 -->
 
 **Functional Testing Requirements**:
@@ -197,4 +206,6 @@ change_notes: "v1.1 - Added cross-reference sections for IMP-097/IMP-098 (API, S
 
 ---
 
+<!-- RETROSPECTIVE: Change the line below to: "This Functional Design Document was created
+     retrospectively to document the existing implementation of [Feature Name]." -->
 _This Functional Design Document should be reviewed and approved before technical design begins._

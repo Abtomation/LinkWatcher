@@ -10,7 +10,7 @@ change_name: [CHANGE-NAME]
 
 # Structure Change State: [Change Name]
 
-> **⚠️ TEMPORARY FILE**: This file tracks implementation of a rename/move structure change. Move to `process-framework/state-tracking/temporary/old` after all changes are validated.
+> **⚠️ TEMPORARY FILE**: This file tracks implementation of a rename/move structure change. Move to `process-framework-local/state-tracking/temporary/old` after all changes are validated.
 
 ## Structure Change Overview
 - **Change Name**: [Change Name]

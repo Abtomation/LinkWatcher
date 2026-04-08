@@ -80,7 +80,7 @@ Systematic data model planning before implementation to prevent data integrity i
   - [Feature Requirements](/doc/state-tracking/permanent/feature-tracking.md) - Understanding what functionality requires database changes and confirming DB Design is required
   - **Feature Tier Assessment** - The tier assessment for this feature (locate via [Feature Tracking](/doc/state-tracking/permanent/feature-tracking.md))
   - **Current Database Schema** - Existing schema documentation and structure:
-    - Current schema: `/data/`
+    - Current schema: `/data`
     - Database reference: `/doc/technical/architecture/database-reference.md`
     - Existing schema designs: `/doc/technical/database/schemas`
   - **Data Flow Requirements** - How data moves through the system and integration points
@@ -114,7 +114,7 @@ Systematic data model planning before implementation to prevent data integrity i
 1. **Verify DB Design Requirement**: Confirm in the [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) document that the DB Design column shows "Yes" for this feature
 2. Review the [Feature Tier Assessment](../../../doc/documentation-tiers/assessments) that determined database design is needed
 3. **Gather Context**: Load all critical context files including feature requirements, current schema, and data flow requirements
-4. **Analyze Current State**: Review existing database schema (`/data/` and `/doc/technical/architecture/database-reference.md`) and identify areas that will be affected by the changes
+4. **Analyze Current State**: Review existing database schema (`/data` and `/doc/technical/architecture/database-reference.md`) and identify areas that will be affected by the changes
 5. **Validate Requirements**: Ensure all functional and non-functional requirements are clearly understood
 6. **🚨 CHECKPOINT**: Present current schema analysis, identified impact areas, and requirements to human partner for approval
 

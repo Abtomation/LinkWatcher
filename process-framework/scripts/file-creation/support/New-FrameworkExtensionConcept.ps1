@@ -179,8 +179,8 @@ EXAMPLE TEST COMMANDS:
 ../../../../../../../../proposals/New-FrameworkExtensionConcept.ps1 -ExtensionName "Test Framework" -ExtensionDescription "Test extension" -ExtensionScope "Test"
 
 # Verify created document
-Get-Content "../../../../../../proposals/process-framework/proposals/test-framework-concept.md" | Select-Object -First 20
+Get-Content "../../../../../../proposals/process-framework-local/proposals/test-framework-concept.md" | Select-Object -First 20
 
 # Cleanup
-Remove-Item "../../../../../../proposals/process-framework/proposals/test-framework-concept.md" -Force
+Remove-Item "../../../../../../proposals/process-framework-local/proposals/test-framework-concept.md" -Force
 #>

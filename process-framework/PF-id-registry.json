@@ -26,7 +26,7 @@
         "cyclical": "process-framework/tasks/cyclical",
         "default": "01-planning"
       },
-      "nextAvailable": 82
+      "nextAvailable": 83
     },
     "PF-GDE": {
       "description": "Process Framework - Guides",
@@ -36,7 +36,7 @@
         "main": "process-framework/guides",
         "default": "main"
       },
-      "nextAvailable": 57
+      "nextAvailable": 59
     },
     "PF-TEM": {
       "description": "Process Framework - Templates",
@@ -46,7 +46,7 @@
         "main": "process-framework/templates",
         "default": "main"
       },
-      "nextAvailable": 68
+      "nextAvailable": 70
     },
     "PF-DOC": {
       "description": "Process Framework - Documentation",
@@ -77,59 +77,7 @@
         "process-flows": "process-framework/visualization/process-flows",
         "default": "context-maps"
       },
-      "nextAvailable": 65
-    },
-    "PF-PRO": {
-      "description": "Process Framework - Proposals",
-      "category": "Process Framework",
-      "type": "Proposal",
-      "directories": {
-        "main": "process-framework/proposals",
-        "default": "main"
-      },
-      "nextAvailable": 15
-    },
-    "PF-IMP": {
-      "description": "Process Framework - Improvement Opportunities",
-      "category": "Process Framework",
-      "type": "Improvement Opportunity",
-      "directories": {
-        "permanent": "process-framework/state-tracking/permanent",
-        "default": "permanent"
-      },
-      "nextAvailable": 384
-    },
-    "PF-STA": {
-      "description": "Process Framework - State Tracking (framework only)",
-      "category": "Process Framework",
-      "type": "State",
-      "directories": {
-        "permanent": "process-framework/state-tracking/permanent",
-        "temporary": "process-framework/state-tracking/temporary",
-        "default": "permanent"
-      },
-      "nextAvailable": 76
-    },
-    "PF-FEE": {
-      "description": "Process Framework - Feedback Artifacts",
-      "category": "Process Framework",
-      "type": "Feedback",
-      "directories": {
-        "forms": "process-framework/feedback/feedback-forms",
-        "archive": "process-framework/feedback/archive",
-        "default": "forms"
-      },
-      "nextAvailable": 747
-    },
-    "PF-REV": {
-      "description": "Process Framework - Review Artifacts",
-      "category": "Process Framework",
-      "type": "Review",
-      "directories": {
-        "reviews": "process-framework/feedback/reviews",
-        "default": "reviews"
-      },
-      "nextAvailable": 23
+      "nextAvailable": 66
     },
     "PF-INF": {
       "description": "Process Framework - Infrastructure",
@@ -138,16 +86,6 @@
       "directories": {
         "main": "process-framework/infrastructure",
         "default": "main"
-      },
-      "nextAvailable": 2
-    },
-    "PF-TMP": {
-      "description": "Process Framework - Temporary State Tracking",
-      "category": "Process Framework",
-      "type": "Temporary State",
-      "directories": {
-        "temporary": "process-framework/state-tracking/temporary",
-        "default": "temporary"
       },
       "nextAvailable": 2
     },
@@ -160,16 +98,6 @@
         "default": "guides"
       },
       "nextAvailable": 2
-    },
-    "PF-EVR": {
-      "description": "Process Framework - Evaluation Reports",
-      "category": "Process Framework",
-      "type": "Evaluation Report",
-      "directories": {
-        "main": "process-framework/evaluation-reports",
-        "default": "main"
-      },
-      "nextAvailable": 10
     }
   }
 }

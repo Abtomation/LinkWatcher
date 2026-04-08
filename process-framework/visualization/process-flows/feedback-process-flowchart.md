@@ -26,7 +26,7 @@ flowchart TD
 
     F --> G[Script automatically:]
     G --> H[• Assigns ART-FEE-XXX ID]
-    G --> I[• Creates ../../process-framework/feedback/YYYYMMDD-HHMMSS-document-id-feedback.md]
+    G --> I[• Creates ../../process-framework-local/feedback/YYYYMMDD-HHMMSS-document-id-feedback.md]
     G --> J[• Places file in feedback-forms/ subdirectory]
     G --> K[• Updates ID tracker]
     G --> L[• Pre-fills template with metadata]
@@ -49,7 +49,7 @@ flowchart TD
     U -->|No| V[All feedback forms completed]
 
     V --> W[Feedback forms stored in:]
-    W --> X[process-framework/feedback/feedback-forms/]
+    W --> X[process-framework-local/feedback/feedback-forms/]
     X --> Y[Feedback reviewed in Tools Review Task]
     Y --> Z[Task Complete]
 
@@ -70,22 +70,22 @@ flowchart TD
 
 ### File Structure
 ```
-/process-framework/feedback
+/process-framework-local/feedback
 ├── README.mdss documentation
 ├── feedback-process-flowchart.md      # This flowchart
 ├── scripts/file-creation/support/New-FeedbackForm.ps1
 ├── config.json                     # ID tracking
 └── feedback-forms/                    # All feedback files
-    ├── ../../process-framework/feedback/20250127-210602-PF-TSK-002-feedback.md
-    ├── ../../process-framework/feedback/20250527-224101-PF-TEM-001-feedback.md
-    └── [../../process-framework/feedback/YYYYMMDD-HHMMSS-document-id-feedback.md]
+    ├── ../../process-framework-local/feedback/20250127-210602-PF-TSK-002-feedback.md
+    ├── ../../process-framework-local/feedback/20250527-224101-PF-TEM-001-feedback.md
+    └── [../../process-framework-local/feedback/YYYYMMDD-HHMMSS-document-id-feedback.md]
 ```
 
 ### Naming Convention Details
 
 #### File Name Format
 ```
-../../process-framework/feedback/YYYYMMDD-HHMMSS-document-id-feedback.md
+../../process-framework-local/feedback/YYYYMMDD-HHMMSS-document-id-feedback.md
 ```
 
 #### Metadata ID Format
@@ -113,7 +113,7 @@ Individual feedback forms are not tracked in the documentation map - only the RE
 |-------|----------|
 | Script not found | Ensure you're in `/process-framework/scripts/file-creation/support` directory |
 | Permission denied | Run PowerShell as administrator or check execution policy |
-| ID tracker error | Verify `../../process-framework/feedback/../../process-framework/feedback/directory.json` exists and is properly formatted |
+| ID tracker error | Verify `../../process-framework-local/feedback/../../process-framework-local/feedback/directory.json` exists and is properly formatted |
 | Template not found | Ensure `process-framework/templates/support/feedback-form-template.md` exists |
 
 ## Best Practices
@@ -128,7 +128,7 @@ Individual feedback forms are not tracked in the documentation map - only the RE
 
 ## Related Documents
 
-- [Feedback Process Guide](../../feedback/archive/README.md) - Detailed documentation
+- [Feedback Process Guide](../../../process-framework-local/feedback/archive/README.md) - Detailed documentation
 - [Feedback Form Template](../../templates/support/feedback-form-template.md) - Template structure
 - [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) - Comprehensive completion instructions
 - [Tools Review Task](../../tasks/support/tools-review-task.md) - How feedback is used

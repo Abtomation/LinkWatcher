@@ -37,20 +37,59 @@ if (Test-Path $lockFile) {
 
 Write-Host "Starting LinkWatcher in background for $projectRoot..." -ForegroundColor Cyan
 
-# Start LinkWatcher with explicit project root and logging
-$logFile = Join-Path $scriptDir "LinkWatcherLog_20260331-072913_20260331-074026_20260331-203808_20260401-110504_20260402-102805_20260403-115312.txt"
-$stdoutLog = Join-Path $scriptDir "LinkWatcherStdout.txt"
-$stderrLog = Join-Path $scriptDir "LinkWatcherError.txt"
-$arguments = "C:\Users\ronny\bin\main.py --project-root `"$projectRoot`" --log-file `"$logFile`" --debug"
+# Resolve LinkWatcher installation directory and dedicated venv Python
+# PD-BUG-077: Never use bare 'python' — it may resolve to a project .venv
+# that lacks LinkWatcher dependencies, causing silent startup failure.
+$lwInstallDir = "C:\\Users\\ronny\\bin"
+$lwMainPy = Join-Path $lwInstallDir "main.py"
+$lwVenvPython = Join-Path $lwInstallDir ".linkwatcher-venv\\Scripts\\python.exe"
 
-$process = Start-Process -FilePath "python" -ArgumentList $arguments -WorkingDirectory $projectRoot -WindowStyle Hidden -PassThru -RedirectStandardOutput $stdoutLog -RedirectStandardError $stderrLog
+if (-not (Test-Path $lwVenvPython)) {
+    Write-Host "Error: LinkWatcher dedicated venv not found at: $lwVenvPython" -ForegroundColor Red
+    Write-Host "Run the global installer first:" -ForegroundColor Red
+    Write-Host "  python deployment/install_global.py" -ForegroundColor Yellow
+    return
+}
+
+# Start LinkWatcher with explicit project root and logging
+$logsDir = Join-Path $projectRoot "logs"
+if (-not (Test-Path $logsDir)) {
+    New-Item -ItemType Directory -Path $logsDir -Force | Out-Null
+}
+$logFile = Join-Path $logsDir "LinkWatcherLog.txt"
+$stdoutLog = Join-Path $logsDir "LinkWatcherStdout.txt"
+$stderrLog = Join-Path $logsDir "LinkWatcherError.txt"
+$arguments = "$lwMainPy --project-root `"$projectRoot`" --log-file `"$logFile`" --debug"
+
+$process = Start-Process -FilePath $lwVenvPython -ArgumentList $arguments -WorkingDirectory $projectRoot -WindowStyle Hidden -PassThru -RedirectStandardOutput $stdoutLog -RedirectStandardError $stderrLog
 
 if ($process) {
-    # Write PID to lock file immediately so subsequent launches see it
-    # (main.py also writes the lock, but there's a race window between
-    # Start-Process returning and main.py's acquire_lock running)
-    $lockFile = Join-Path $projectRoot ".linkwatcher.lock"
-    Set-Content -Path $lockFile -Value $process.Id -NoNewline
+    # Let main.py handle its own lock file acquisition.
+    # Previously this script wrote the lock file early, but that causes a
+    # race condition: main.py sees its own PID in the lock, thinks another
+    # instance is running, and exits.
+
+    # PD-BUG-077: Verify the process survives initialization.
+    # The old script reported success immediately, but the process could
+    # crash on import before doing any work.
+    Start-Sleep -Seconds 2
+    $process.Refresh()
+    if ($process.HasExited) {
+        $exitCode = $process.ExitCode
+        Write-Host "Error: LinkWatcher process exited immediately (exit code: $exitCode)" -ForegroundColor Red
+        if (Test-Path $stderrLog) {
+            $stderr = Get-Content $stderrLog -Raw
+            if ($stderr) {
+                Write-Host "Stderr output:" -ForegroundColor Red
+                Write-Host $stderr -ForegroundColor DarkRed
+            }
+        }
+        # Clean up lock file if main.py wrote one before crashing
+        $crashLockFile = Join-Path $projectRoot ".linkwatcher.lock"
+        if (Test-Path $crashLockFile) { Remove-Item $crashLockFile -Force }
+        return
+    }
+
     Write-Host "LinkWatcher started successfully in background (PID: $($process.Id))" -ForegroundColor Green
     Write-Host "  Project root: $projectRoot" -ForegroundColor Green
     Write-Host "  Log file: $logFile" -ForegroundColor Green

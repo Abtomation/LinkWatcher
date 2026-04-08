@@ -10,6 +10,11 @@ function Get-IdRegistryPath {
     .PARAMETER Prefix
     The ID prefix (e.g., "PF-TSK", "PD-TDD", "TE-TSP"). Determines which registry file to use.
     If omitted, returns the process framework registry (PF-id-registry.json).
+
+    .NOTES
+    PF- prefixes are split across two registries:
+    - process-framework/PF-id-registry.json (blueprint prefixes: PF-TSK, PF-GDE, PF-TEM, etc.)
+    - process-framework-local/PF-id-registry-local.json (local prefixes: PF-PRO, PF-IMP, PF-STA, PF-FEE, PF-REV, PF-TMP, PF-EVR)
     #>
     param(
         [Parameter(Mandatory=$false)]
@@ -19,9 +24,18 @@ function Get-IdRegistryPath {
     $processFrameworkDir = Split-Path -Parent $PSScriptRoot
     $projectRoot = Split-Path -Parent $processFrameworkDir
     $docDir = Join-Path -Path $projectRoot -ChildPath "doc"
+    $localDir = Join-Path -Path $projectRoot -ChildPath "process-framework-local"
+
+    # Local PF- prefixes that live in process-framework-local/
+    $localPrefixes = @('PF-PRO', 'PF-IMP', 'PF-STA', 'PF-FEE', 'PF-REV', 'PF-TMP', 'PF-EVR')
 
     # Hardcoded prefix-to-registry mapping
     if ($Prefix) {
+        # Check if this is a local PF- prefix
+        if ($localPrefixes -contains $Prefix) {
+            return Join-Path -Path $localDir -ChildPath "PF-id-registry-local.json"
+        }
+
         $prefixKey = ($Prefix -split '-')[0] + '-'
         switch ($prefixKey) {
             'PD-' { return Join-Path -Path $docDir -ChildPath "PD-id-registry.json" }
@@ -414,7 +428,7 @@ function Get-DirectoryForPrefixType {
 
     .EXAMPLE
     Get-DirectoryForPrefixType -Prefix "PF-FEE" -DirectoryType "forms"
-    # Returns: "process-framework/feedback/feedback-forms"
+    # Returns: "process-framework-local/feedback/feedback-forms"
     #>
     param(
         [Parameter(Mandatory=$true)]
@@ -507,7 +521,7 @@ function Test-ValidDirectoryForPrefix {
     Optional project root path for resolving relative paths
 
     .EXAMPLE
-    Test-ValidDirectoryForPrefix -Prefix "PF-FEE" -Directory "process-framework/feedback/feedback-forms"
+    Test-ValidDirectoryForPrefix -Prefix "PF-FEE" -Directory "process-framework-local/feedback/feedback-forms"
     # Returns: $true
     #>
     param(
@@ -543,8 +557,8 @@ function Get-AllPrefixes {
     #>
     $prefixes = @()
 
-    # Load all three registries
-    foreach ($samplePrefix in @('PF-TSK', 'PD-DOC', 'TE-E2G')) {
+    # Load all registries (blueprint PF, local PF, PD, TE)
+    foreach ($samplePrefix in @('PF-TSK', 'PF-PRO', 'PD-DOC', 'TE-E2G')) {
         $registryPath = Get-IdRegistryPath -Prefix $samplePrefix
         if (Test-Path $registryPath) {
             $registry = Get-IdRegistry -Prefix $samplePrefix

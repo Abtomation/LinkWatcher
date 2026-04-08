@@ -1,7 +1,7 @@
 # Finalize-Enhancement.ps1
 # Automates the mechanical finalization steps of the Feature Enhancement task (PF-TSK-068):
 # 1. Restores the target feature's status in feature-tracking.md
-# 2. Archives the Enhancement State Tracking File to state-tracking/temporary/old/
+# 2. Archives the Enhancement State Tracking File to process-framework-local/state-tracking/temporary/old/
 
 [CmdletBinding(SupportsShouldProcess = $true)]
 param(
@@ -25,7 +25,7 @@ Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 # Configuration
 $ProjectRoot = Get-ProjectRoot
 $FeatureTrackingFile = Join-Path -Path $ProjectRoot -ChildPath "doc/state-tracking/permanent/feature-tracking.md"
-$ArchiveDir = Join-Path -Path $ProjectRoot -ChildPath "process-framework/state-tracking/temporary/old"
+$ArchiveDir = Join-Path -Path $ProjectRoot -ChildPath "process-framework-local/state-tracking/temporary/old"
 
 function Write-Log {
     param([string]$Message, [string]$Level = "INFO")
@@ -48,7 +48,7 @@ if (-not (Test-Path $FeatureTrackingFile)) {
 
 # Auto-detect state file if not provided
 if (-not $StateFilePath) {
-    $tempDir = Join-Path -Path $ProjectRoot -ChildPath "process-framework/state-tracking/temporary"
+    $tempDir = Join-Path -Path $ProjectRoot -ChildPath "process-framework-local/state-tracking/temporary"
     $candidates = Get-ChildItem -Path $tempDir -Filter "enhancement-*.md" -File -ErrorAction SilentlyContinue
     if ($candidates.Count -eq 0) {
         Write-Log "No enhancement state files found in $tempDir. Provide -StateFilePath explicitly." -Level "ERROR"

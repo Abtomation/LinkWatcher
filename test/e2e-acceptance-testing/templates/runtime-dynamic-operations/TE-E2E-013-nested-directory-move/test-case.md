@@ -46,7 +46,7 @@ updated: 2026-03-18
    - **Duration**: Wait 5–10 seconds
    - **Observe**: LinkWatcher log should show directory move detection and reference updates for all contained files at both nesting levels
 
-5. **Verify references updated**: Check that README.md now points to files under `lib/`
+5. **Verify references updated**: Check that README.md now points to files under `lib`
    - **Tool**: Text editor
    - **Target**: Open `README.md` and check all link targets
 
@@ -70,7 +70,7 @@ See `expected/` directory for complete post-test file state.
 ### Behavioral Outcomes
 
 - LinkWatcher log shows detection of new files in `modules/core/` and `modules/plugins/`
-- LinkWatcher log shows directory move detection from `modules/` to `lib/`
+- LinkWatcher log shows directory move detection from `modules/` to `lib`
 - LinkWatcher log shows updates to `README.md` for all 3 contained files across both subdirectories
 - No errors or warnings in LinkWatcher log
 
@@ -81,7 +81,7 @@ See `expected/` directory for complete post-test file state.
 
 ## Pass Criteria
 
-- [ ] All 3 references in README.md updated from `modules/` paths to `lib/` paths
+- [ ] All 3 references in README.md updated from `modules/` paths to `lib` paths
 - [ ] `engine.py` and `config.yaml` exist at `lib/core/` with original content
 - [ ] `auth.py` exists at `lib/plugins/` with original content
 - [ ] `Verify-TestResult.ps1` reports all files match expected state

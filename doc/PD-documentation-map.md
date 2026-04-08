@@ -9,7 +9,7 @@ updated: 2026-04-03
 
 # Product Documentation Map
 
-This document indexes all product documentation in the `doc/` directory — what we're building, how it's designed, and its current state.
+This document indexes all product documentation in the `doc` directory — what we're building, how it's designed, and its current state.
 
 > **See also**: [Process Framework Documentation Map](/process-framework/PF-documentation-map.md) | [Test Documentation Map](/test/TE-documentation-map.md)
 
@@ -66,7 +66,7 @@ _Created during framework onboarding (PF-TSK-066), consolidated to 9-feature sco
 - [Feature State: Logging System 3.1.1](state-tracking/features/3.1.1-logging-system-implementation-state.md)
 - [Feature State: Link Validation 6.1.1](state-tracking/features/6.1.1-Link%20Validation-implementation-state.md)
 
-### `state-tracking/permanent/` — Permanent State Files
+### `state-tracking/permanent` — Permanent State Files
 
 - [State: Feature Tracking](state-tracking/permanent/feature-tracking.md) - Comprehensive list of all features with implementation status
 - [State: Feature Request Tracking](state-tracking/permanent/feature-request-tracking.md) - Intake queue for product feature requests before classification by Feature Request Evaluation
@@ -123,6 +123,7 @@ _Created during framework onboarding (PF-TSK-066), consolidated to 9-feature sco
 - [Product: Link Validation](user/handbooks/link-validation.md) - On-demand workspace scan for broken file references using --validate
 - [Product: File Type Quick Fix](user/handbooks/file-type-quick-fix.md) - Quick solutions for adding file type monitoring support
 - [Product: Troubleshooting File Types](user/handbooks/troubleshooting-file-types.md) - Detailed diagnosis and fixes for file type monitoring issues
+- [Product: LinkWatcher Capabilities Reference](user/handbooks/linkwatcher-capabilities-reference.md) - Complete reference of all detection patterns, parsers, and update triggers
 
 ## `validation/` — Validation Reports
 
@@ -185,6 +186,6 @@ _Created during feature validation (PF-TSK-031 through PF-TSK-036)._
 
 When adding new product documentation:
 1. Add the entry to the appropriate directory section in this map
-2. Use local relative paths from `doc/` (no `../doc/` prefix needed)
+2. Use local relative paths from `doc` (no `../doc/` prefix needed)
 3. For process framework documents, add to [Process Framework Documentation Map](/process-framework/PF-documentation-map.md) instead
 4. For test documents, add to [Test Documentation Map](/test/TE-documentation-map.md) instead

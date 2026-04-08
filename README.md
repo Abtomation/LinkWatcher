@@ -80,6 +80,7 @@ dev format
 | [Link Validation](doc/user/handbooks/link-validation.md) | Scan workspace for broken file references |
 | [File Type Quick Fix](doc/user/handbooks/file-type-quick-fix.md) | **Quick fix** for file types not being monitored |
 | [File Type Troubleshooting](doc/user/handbooks/troubleshooting-file-types.md) | **Detailed guide** for file type monitoring issues |
+| [Capabilities Reference](doc/user/handbooks/linkwatcher-capabilities-reference.md) | Complete reference of all detection patterns, parsers, and update triggers |
 
 ## 🏗️ Architecture
 
@@ -175,7 +176,7 @@ pytest test/automated/ --cov=linkwatcher --cov-report=html
 **Test Documentation:**
 - [Test Infrastructure Guide](process-framework/guides/03-testing/test-infrastructure-guide.md) - How the test/ directory connects to the process framework
 - [Test Query Tool](process-framework/scripts/test/test_query.py) - Query test metadata from pytest markers (`--feature`, `--summary`, `--dump`)
-- [Test Specifications](test/specifications/feature-specs/) - Feature-level test specifications
+- [Test Specifications](test/specifications/feature-specs) - Feature-level test specifications
 - [E2E Acceptance Tests](test/e2e-acceptance-testing) - Formal E2E acceptance test framework with E2E-* IDs
 
 ## 📊 Performance

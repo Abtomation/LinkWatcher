@@ -196,7 +196,7 @@ When creating and customizing test files, you'll face several critical decisions
 ### Path Usage in Test Content
 
 **Decision**: What file/directory paths should appear in inline test content?
-**Rule**: Use the **`alpha-project/`** synthetic namespace or other non-existent directory names (e.g., `vendor/tools/build/`, `lib/config/settings/`). **Never** use real project paths (`doc/`, `process-framework/`, `linkwatcher/`). A shared constant `TEST_PROJECT_ROOT = "alpha-project"` is defined in `test/automated/conftest.py`.
+**Rule**: Use the **`alpha-project/`** synthetic namespace or other non-existent directory names (e.g., `vendor/tools/build/`, `lib/config/settings/`). **Never** use real project paths (`doc`, `process-framework`, `linkwatcher/`). A shared constant `TEST_PROJECT_ROOT = "alpha-project"` is defined in `test/automated/conftest.py`.
 
 **Why**: Real project paths in test content create a maintenance hazard. When directories are renamed or moved, LinkWatcher updates real files but cannot update string literals inside test code. This causes tests to break silently — the content string is updated but the separately hardcoded assertion string is not.
 
@@ -390,13 +390,13 @@ After completing the test file customization:
 After creating or modifying test files, complete these documentation steps to keep test specifications in sync with actual coverage.
 
 1. **Update the feature's test specification**:
-   - Locate the relevant spec in `test/specifications/feature-specs/` for the feature under test
+   - Locate the relevant spec in `test/specifications/feature-specs` for the feature under test
    - Add the new test scenario(s) — describe what is being tested and why (not just the method name)
    - If no test specification exists yet, note this as a gap but do not create one inline — flag it for follow-up (see step 3)
 
 2. **Run `Validate-TestTracking.ps1`** to catch tracking inconsistencies:
-   ```powershell
-   pwsh.exe -ExecutionPolicy Bypass -Command '& process-framework/scripts/validation/Validate-TestTracking.ps1'
+   ```bash
+   pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/validation/Validate-TestTracking.ps1
    ```
    Fix any errors before considering the test work complete.
 

@@ -261,13 +261,13 @@ Use [Update-TechDebt.ps1](../../../process-framework/scripts/update/Update-TechD
 
 ```powershell
 # Mark as in progress
-.\Update-TechDebt.ps1 -DebtId "TD###" -NewStatus "InProgress"
+Update-TechDebt.ps1 -DebtId "TD###" -NewStatus "InProgress"
 
 # Resolve (moves to Recently Resolved, sets date)
-.\Update-TechDebt.ps1 -DebtId "TD###" -NewStatus "Resolved" -ResolutionNotes "What was done."
+Update-TechDebt.ps1 -DebtId "TD###" -NewStatus "Resolved" -ResolutionNotes "What was done."
 
 # Resolve with plan link
-.\Update-TechDebt.ps1 -DebtId "TD###" -NewStatus "Resolved" -ResolutionNotes "What was done." -PlanLink "[TD###](../../refactoring/plans/your-plan-file.md)"
+Update-TechDebt.ps1 -DebtId "TD###" -NewStatus "Resolved" -ResolutionNotes "What was done." -PlanLink "[TD###](../../refactoring/plans/your-plan-file.md)"
 ```
 
 After running the script:

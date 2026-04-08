@@ -16,7 +16,7 @@ Options:
     --quiet             Suppress non-error output
 
 If you want to store the logs as well
-    python main.py --log-file LinkWatcher_run/LinkWatcherLog.txt --debug
+    python main.py --log-file LinkWatcher_run/logs/linkwatcher.txt --debug
 """
 
 import argparse
@@ -28,7 +28,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 
 try:
-    from colorama import Fore, Style, init
+    from colorama import Fore, init
     from git import InvalidGitRepositoryError, Repo
 
     from linkwatcher import LinkWatcherService
@@ -44,8 +44,14 @@ except ImportError as e:
 init(autoreset=True)
 
 
-def load_config(config_path: str = None, args=None) -> LinkWatcherConfig:
-    """Load configuration from file, environment, and command line arguments."""
+def load_config(config_path: str = None, args=None, project_root: str = None) -> LinkWatcherConfig:
+    """Load configuration from file, environment, and command line arguments.
+
+    When *project_root* is provided and ``doc/project-config.json`` exists
+    there, ``paths.source_code`` is used as a fallback for
+    ``python_source_root`` (PD-BUG-078).  Explicit config-file or env-var
+    values take precedence.
+    """
     logger = get_logger()
 
     # Start with default configuration
@@ -79,7 +85,31 @@ def load_config(config_path: str = None, args=None) -> LinkWatcherConfig:
         if hasattr(args, "no_initial_scan") and args.no_initial_scan:
             config.initial_scan_enabled = False
 
+    # PD-BUG-078: Fallback — read python_source_root from project-config.json
+    # if not explicitly set via config file or env var.
+    if not config.python_source_root and project_root:
+        config.python_source_root = _read_source_root_from_project_config(project_root, logger)
+
     return config
+
+
+def _read_source_root_from_project_config(project_root: str, logger) -> str:
+    """Read paths.source_code from doc/project-config.json as python_source_root fallback."""
+    project_config_path = Path(project_root) / "doc" / "project-config.json"
+    if not project_config_path.exists():
+        return ""
+    try:
+        import json as _json
+
+        with open(project_config_path, "r", encoding="utf-8") as f:
+            data = _json.load(f)
+        source_code = data.get("paths", {}).get("source_code", "")
+        if source_code:
+            logger.debug("python_source_root_from_project_config", source_root=source_code)
+        return source_code
+    except Exception as e:
+        logger.debug("project_config_read_failed", error=str(e))
+        return ""
 
 
 def validate_project_root(project_root: str) -> Path:
@@ -175,7 +205,8 @@ def acquire_lock(project_root: Path) -> Path:
                 sys.exit(1)
             else:
                 print(
-                    f"{Fore.YELLOW}⚠️ Overriding stale lock file (PID {existing_pid} is no longer running)"
+                    f"{Fore.YELLOW}⚠️ Overriding stale lock file "
+                    f"(PID {existing_pid} is no longer running)"
                 )
         except (ValueError, OSError):
             print(f"{Fore.YELLOW}⚠️ Overriding invalid lock file")
@@ -257,7 +288,7 @@ Examples:
                 colored_output=not args.quiet,
                 show_icons=not args.quiet,
             )
-            config = load_config(args.config, args)
+            config = load_config(args.config, args, project_root=str(project_root))
             validator = LinkValidator(str(project_root), config)
 
             if not args.quiet:
@@ -299,7 +330,7 @@ Examples:
         )
 
         # Load configuration
-        config = load_config(args.config, args)
+        config = load_config(args.config, args, project_root=str(project_root))
 
         # Update logging configuration from config
         if config.log_file and not args.log_file:

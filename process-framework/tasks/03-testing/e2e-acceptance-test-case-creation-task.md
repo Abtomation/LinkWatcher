@@ -98,7 +98,7 @@ ENHANCEMENT:    Test Spec Creation → Feature Enhancement → E2E Acceptance Te
 
 5. **Create test case via script**: For each test case, run [New-E2EAcceptanceTestCase.ps1](../../scripts/file-creation/03-testing/New-E2EAcceptanceTestCase.ps1). Use `-NewGroup` for the first test case in a new group. Use `-Scripted` for test cases where the action can be automated (e.g., file moves, content edits).
    ```bash
-   cd process-framework/scripts/file-creation/03-testing && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-E2EAcceptanceTestCase.ps1 -TestCaseName "descriptive-name" -GroupName "group-name" -FeatureIds "X.Y.Z" -FeatureName "Feature Name" -Workflow "WF-NNN" -NewGroup -Source "Test Spec PF-TSP-NNN" -Description "Brief description" -Confirm:$false'
+   pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/03-testing/New-E2EAcceptanceTestCase.ps1 -TestCaseName "descriptive-name" -GroupName "group-name" -FeatureIds "X.Y.Z" -FeatureName "Feature Name" -Workflow "WF-NNN" -NewGroup -Source "Test Spec PF-TSP-NNN" -Description "Brief description" -Confirm:\$false
    ```
    > The script automatically: creates the `E2E-NNN-[name]/` directory with `project/`, `expected/`, and `test-case.md`; assigns an E2E ID from the registry; updates the master test's "If Failed" table; adds an entry to e2e-test-tracking.md; updates feature-tracking.md Test Status. When `-NewGroup` is used, also adds a TE-E2G group row to the E2E Test Cases table and updates the Workflow Milestone Tracking table (if `-Workflow` is provided).
    >
@@ -108,7 +108,7 @@ ENHANCEMENT:    Test Spec Creation → Feature Enhancement → E2E Acceptance Te
 
 6. **Customize test-case.md**: Following the [E2E Acceptance Test Case Customization Guide](../../guides/03-testing/e2e-acceptance-test-case-customization-guide.md), replace all placeholder content with:
    - **Preconditions**: Exact starting state (services running, configuration, initial file state)
-   - **Steps**: Numbered, unambiguous actions using specific tools (e.g., "In File Explorer, drag `report.md` from `docs/` to `archive/`")
+   - **Steps**: Numbered, unambiguous actions using specific tools (e.g., "In File Explorer, drag `report.md` from `docs` to `archive/`")
    - **Expected Results**: Concrete, verifiable outcomes (e.g., exact file contents after the action, specific log messages, observable UI state)
    - **Verification Method**: How to confirm pass/fail (visual inspection, verification script, log check)
    - **Pass Criteria**: Checklist of conditions that must all be true for the test to pass

@@ -77,7 +77,7 @@ Visual guide to the components, relationships, and information flow relevant to 
 
 ### Reference Resources (Access When Needed)
 
-- **[Process Improvement Tracking](../../../state-tracking/permanent/process-improvement-tracking.md)** - For identifying process-related bug patterns
+- **[Process Improvement Tracking](../../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md)** - For identifying process-related bug patterns
 
 ## Information Flow
 

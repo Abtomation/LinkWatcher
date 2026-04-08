@@ -36,7 +36,7 @@ Complete remaining items and prepare feature for production deployment. This tas
 
 - **Critical (Must Read):**
 
-  - **Feature Implementation State File** - The permanent state tracking document at `/process-framework/state-tracking/permanent/feature-implementation-state-[feature-id].md` containing implementation progress and context
+  - **Feature Implementation State File** - The permanent state tracking document at `/process-framework-local/state-tracking/permanent/feature-implementation-state-[feature-id].md` containing implementation progress and context
   - **Quality Validation Report** - Quality audit results from PF-TSK-054 confirming production readiness
   - **TDD (Technical Design Document)** - Deployment requirements section describing deployment procedures and acceptance criteria
   - **Deployment Documentation** - Project-specific deployment guides, CI/CD pipelines, and release procedures
@@ -123,7 +123,7 @@ Complete remaining items and prepare feature for production deployment. This tas
 - **Deployment Configuration** - CI/CD pipeline updates, environment configurations, and feature flag settings in deployment repositories
 - **Post-Deployment Validation Plan** - Validation procedures in `/doc/features/[feature-name]/post-deployment-validation.md` for verifying successful deployment
 - **Updated Feature Tracking** - Feature status updated to "Deployed" or "Ready for Deployment" in feature-tracking.md
-- **Archived Feature Implementation State File** - Final state file moved to `/process-framework/state-tracking/permanent/archive/feature-implementation-state-[feature-id]-completed.md`
+- **Archived Feature Implementation State File** - Final state file moved to `/process-framework-local/state-tracking/permanent/archive/feature-implementation-state-[feature-id]-completed.md`
 
 ## State Tracking
 

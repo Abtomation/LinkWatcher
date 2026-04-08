@@ -3,9 +3,9 @@ id: PF-TSK-026
 type: Process Framework
 category: Task Definition
 domain: agnostic
-version: 1.0
+version: 1.1
 created: 2025-07-26
-updated: 2025-07-26
+updated: 2026-04-06
 ---
 
 # Framework Extension Task
@@ -44,8 +44,9 @@ This task manages the systematic extension of the task-based development framewo
 - **Important (Load If Space):**
 
   - [Documentation Map](../../PF-documentation-map.md) - For understanding current framework structure and updating with new artifacts
-  - [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) - For tracking framework capability enhancements
-  - [New-TempTaskState.ps1](../../scripts/file-creation/support/New-TempTaskState.ps1) - Script for creating multi-session implementation tracking
+  - [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) - For tracking framework capability enhancements
+  - [New-TempTaskState.ps1](../../scripts/file-creation/support/New-TempTaskState.ps1) - State tracking for creation-heavy extensions
+  - [New-StructureChangeState.ps1](../../scripts/file-creation/support/New-StructureChangeState.ps1) - State tracking for modification-heavy extensions
   - [Template Development Guide](../../guides/support/template-development-guide.md) - For creating extension-specific templates
   - [Document Creation Script Development Guide](../../guides/support/document-creation-script-development-guide.md) - For creating automation scripts
 
@@ -70,10 +71,10 @@ This task manages the systematic extension of the task-based development framewo
 
 1. **Create Framework Extension Concept Document** using the standardized script:
    ```powershell
-   cd process-framework/proposals
+   cd process-framework-local/proposals
    ./New-FrameworkExtensionConcept.ps1 -ExtensionName "[Extension Name]" -ExtensionDescription "[Brief description]" -ExtensionScope "[Extension scope]" -OpenInEditor
    ```
-   - Script creates structural template in `/process-framework/proposals/[extension-name]-concept.md`
+   - Script creates structural template in `/process-framework-local/proposals/[extension-name]-concept.md`
    - **CRITICAL**: Template requires extensive customization following [Framework Extension Customization Guide](../../guides/support/framework-extension-customization-guide.md)
    - Define extension scope and new capabilities to be added
    - Specify workflow definition with clear input-process-output flow
@@ -81,19 +82,27 @@ This task manages the systematic extension of the task-based development framewo
    - Define state tracking integration strategy (new permanent state files vs. updating existing ones)
    - Include integration strategy with current framework workflow
 2. **Present Concept for Human Review** - Get explicit approval before proceeding to implementation
-3. **Analyze Framework Impact** - Document how the extension affects existing framework components
+3. **Analyze Framework Impact** — For each existing framework element (task, script, template) that the extension will modify:
+   - Read the complete element
+   - Summarize: (a) what information it has at each step, (b) what it is responsible for, (c) what it delegates
+   - Document how the extension affects it, considering its actual knowledge state
+   - **Do not propose modifications based on assumptions** — present this analysis at the checkpoint first
 4. **🚨 CHECKPOINT**: Present concept document, impact analysis, and proposed implementation approach to human partner for approval
 
 ### Phase 2: State Tracking & Planning
 
-5. **Create Temporary State Tracking File** using New-TempTaskState.ps1:
-   ```powershell
-   cd process-framework/state-tracking
-   ./New-TempTaskState.ps1 -TaskName "[Extension Name]" -Description "Framework extension for [brief description]"
-   ```
+5. **Create Temporary State Tracking File** — choose the template based on extension type:
+   - **Creation-heavy** (new tasks, templates, scripts): Use `New-TempTaskState.ps1` (TaskCreation variant):
+     ```powershell
+     New-TempTaskState.ps1 -TaskName "[Extension Name]" -Description "Framework extension for [brief description]"
+     ```
+   - **Modification-heavy** (primarily changing existing tasks, templates, scripts): Use `New-StructureChangeState.ps1` — its Affected Components Analysis and file mapping sections are a better fit:
+     ```powershell
+     New-StructureChangeState.ps1 -ChangeName "[Extension Name]" -ChangeType "Documentation Architecture" -Description "Framework extension for [brief description]"
+     ```
 6. **Develop Implementation Roadmap** with detailed multi-session breakdown in the temporary state file
 7. **Identify Required Components** (tasks, templates, guides, scripts, directories) and their dependencies
-   - If the extension introduces language-specific commands or tooling, check if new fields are needed in `languages-config/` files. Use [Update-LanguageConfig.ps1](../../scripts/update/Update-LanguageConfig.ps1) to add fields consistently across all language configs and the template.
+   - If the extension introduces language-specific commands or tooling, check if new fields are needed in `languages-config` files. Use [Update-LanguageConfig.ps1](../../scripts/update/Update-LanguageConfig.ps1) to add fields consistently across all language configs and the template.
    - For each new task, verify its "When to Use" section defines concrete triggers (specific events, states, or conditions) — not generic "when needed" statements.
 8. **Plan Integration Points** with existing framework components and state tracking files
 9. **🚨 CHECKPOINT**: Present implementation roadmap, required components list, and session plan to human partner for approval
@@ -127,14 +136,15 @@ This task manages the systematic extension of the task-based development framewo
     - Update the appropriate [ID registry](../../PF-id-registry.json) with new ID prefixes if needed
 17. **Create Usage Documentation** demonstrating how to use the new framework extension
 18. **Update Permanent State Files** as defined in the concept document
-19. **Archive Temporary State Tracking** file to `/process-framework/state-tracking/temporary/old`
-20. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+19. **Move Temporary State Tracking** file to `/process-framework-local/state-tracking/temporary/old`
+20. **Archive Completed Concept Document**: Move the framework extension concept document from `/process-framework-local/proposals/` to `/process-framework-local/proposals/old/` — the concept has served its purpose and should not remain alongside active proposals
+21. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 
 ### Concept Phase Outputs
 
-- **Framework Extension Concept Document** - Comprehensive proposal in `/process-framework/proposals/[extension-name]-concept.md` including workflow definition, artifact dependency map, and state tracking integration plan
+- **Framework Extension Concept Document** - Comprehensive proposal in `/process-framework-local/proposals/[extension-name]-concept.md` including workflow definition, artifact dependency map, and state tracking integration plan
 - **Impact Analysis** - Documentation of how the extension affects existing framework components
 
 ### Implementation Phase Outputs
@@ -155,7 +165,7 @@ The following state files must be updated as part of this task:
 
 - **Temporary State Tracking File** - Create using New-TempTaskState.ps1 to track multi-session implementation progress
 - [Documentation Map](../../PF-documentation-map.md) - Update with all new artifacts and their relationships
-- [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) - Update with framework capability enhancements
+- [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) - Update with framework capability enhancements
 - **Additional State Files** - As defined in the framework extension concept document (may include new permanent state files or updates to existing ones)
 
 ## ⚠️ MANDATORY Task Completion Checklist
@@ -196,9 +206,10 @@ Before considering this task finished:
   - [ ] Permanent state files updated as defined in concept document
 
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
-  - [ ] Temporary state tracking file archived to `/process-framework/state-tracking/temporary/old`
+  - [ ] Temporary state tracking file moved to `/process-framework-local/state-tracking/temporary/old`
+  - [ ] Framework extension concept document moved to `/process-framework-local/proposals/old/`
   - [ ] [Documentation Map](../../PF-documentation-map.md) reflects all new artifacts
-  - [ ] [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) updated with framework capability enhancement
+  - [ ] [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) updated with framework capability enhancement
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-026" and context "Framework Extension Task"
 
 ## Next Tasks
@@ -224,6 +235,7 @@ Before considering this task finished:
 
 ### State Management
 
-- [New-TempTaskState.ps1](../../scripts/file-creation/support/New-TempTaskState.ps1) - Script for multi-session implementation tracking
+- [New-TempTaskState.ps1](../../scripts/file-creation/support/New-TempTaskState.ps1) - State tracking for creation-heavy extensions
+- [New-StructureChangeState.ps1](../../scripts/file-creation/support/New-StructureChangeState.ps1) - State tracking for modification-heavy extensions
 - [Documentation Map](../../PF-documentation-map.md) - Framework structure and artifact relationships
-- [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) - Framework capability tracking
+- [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) - Framework capability tracking

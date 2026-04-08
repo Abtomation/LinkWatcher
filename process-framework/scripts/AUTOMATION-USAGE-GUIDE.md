@@ -111,7 +111,7 @@ update\Update-FeatureImplementationState.ps1 -FeatureId "1.2.3" -Status "🟡 In
 
 **Automatic Backups**: All scripts create backups before making changes
 
-- Backups stored in: `process-framework/state-tracking/backups`
+- Backups stored in: `process-framework-local/state-tracking/backups`
 - Backup naming: `{script-name}-{timestamp}-{filename}`
 
 **Validation**: All scripts include consistency validation after updates
@@ -180,7 +180,7 @@ Required dependencies not met. Please ensure Common-ScriptHelpers.psm1 is proper
 
 ```powershell
 # Backups are automatically created before changes
-# Check backup directory: process-framework/state-tracking/backups
+# Check backup directory: process-framework-local/state-tracking/backups
 # Manually restore files if needed
 ```
 

@@ -205,7 +205,7 @@ try {
                     $actualFilename = "$sanitizedAPIName.md"
                 }
                 # Calculate correct relative path from doc/technical/api/specifications/feature-tracking.md to API specification
-                # doc/technical/api/specifications/feature-tracking.md is at: process-framework/state-tracking/permanent/
+                # doc/technical/api/specifications/feature-tracking.md is at: process-framework-local/state-tracking/permanent/
                 # API spec is at: doc/technical/api/specifications/specifications/
                 # Need to go up 3 levels (../../..) then down to the API spec
                 $relativePath = "doc/technical/api/specifications/specifications/$actualFilename"

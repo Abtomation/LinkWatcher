@@ -4,7 +4,7 @@
 .SYNOPSIS
     Master state validation script — validates that state tracking entries match actual files on disk.
 .DESCRIPTION
-    Checks consistency across 12 validation surfaces:
+    Checks consistency across 14 validation surfaces:
     1. ../feature-tracking.md — all document links (FDD, TDD, ADR, Test Spec, Assessment, State File)
     2. Feature implementation state files — Section 4 (doc inventory), Section 5 (code inventory), Section 6 (dependencies)
     3. ../test-tracking.md — test file path references
@@ -17,13 +17,15 @@
     10. Metadata Schema — YAML frontmatter conformance against domain-config.json schemas
     11. Context Map Orphans — cross-reference context map related_task metadata against actual task files
     12. AI Tasks Consistency — detect task files in tasks/ directories but missing from ai-tasks.md
+    13. Master State Consistency — phase checkboxes, progress counters, and doc summary vs Feature Inventory
+    14. Source Layout — compare source-code-layout.md directory tree against actual source directories
 
     Created as IMP-028 from Tools Review 2026-02-21.
 .PARAMETER ProjectRoot
     Path to the project root directory. Defaults to auto-detection from script location.
 .PARAMETER Surface
     Which validation surfaces to run. Accepts one or more of:
-    "FeatureTracking", "StateFiles", "TestTracking", "CrossRef", "IdCounters", "FeatureDeps", "DimensionConsistency", "WorkflowTracking", "TaskRegistry", "MetadataSchema", "ContextMapOrphans", "AiTasksConsistency", "All"
+    "FeatureTracking", "StateFiles", "TestTracking", "CrossRef", "IdCounters", "FeatureDeps", "DimensionConsistency", "WorkflowTracking", "TaskRegistry", "MetadataSchema", "ContextMapOrphans", "AiTasksConsistency", "MasterStateConsistency", "SourceLayout", "All"
     Default: "All"
 .PARAMETER Detailed
     Show every checked link, not just failures.
@@ -531,7 +533,7 @@ if ($runAll -or $Surface -contains "FeatureDeps") {
     Write-Host "  Surface 6: Feature Dependencies" -ForegroundColor Cyan
     Write-Host "========================================" -ForegroundColor Cyan
 
-    $depsFile = Join-Path $ProjectRoot "doc/technical/feature-dependencies.md"
+    $depsFile = Join-Path $ProjectRoot "doc/technical/architecture/feature-dependencies.md"
     $updateScript = Join-Path $ProjectRoot "process-framework/scripts/update/Update-FeatureDependencies.ps1"
 
     if (-not (Test-Path $updateScript)) {
@@ -1046,6 +1048,425 @@ if ($runAll -or $Surface -contains "AiTasksConsistency") {
         Write-Host "  Task files on disk: $($diskTasks.Count), Missing from ai-tasks.md: $missingCount" -ForegroundColor Gray
         if ($missingCount -gt 0) {
             Write-Host "    $([char]0x2139) $missingCount task(s) on disk not referenced in ai-tasks.md — add entries or remove stale files" -ForegroundColor Yellow
+        }
+    }
+    Write-Host ""
+}
+
+# =========================================================================
+# Surface 13: Master State Consistency (IMP-004)
+# =========================================================================
+if ($runAll -or $Surface -contains "MasterStateConsistency") {
+    Write-Host "========================================" -ForegroundColor Cyan
+    Write-Host "  Surface 13: Master State Consistency" -ForegroundColor Cyan
+    Write-Host "========================================" -ForegroundColor Cyan
+
+    # Find retrospective master state files in temporary and archived directories
+    $masterStateFiles = @()
+    $tempDir = Join-Path $ProjectRoot "doc/state-tracking/temporary"
+    $archivedDir = Join-Path $ProjectRoot "doc/state-tracking/temporary/archived"
+    foreach ($dir in @($tempDir, $archivedDir)) {
+        if (Test-Path $dir) {
+            $found = Get-ChildItem -Path $dir -Filter "retrospective-master-state*.md" -File -ErrorAction SilentlyContinue
+            if ($found) { $masterStateFiles += $found }
+        }
+    }
+
+    if ($masterStateFiles.Count -eq 0) {
+        Add-CheckResult "OK" "MasterStateConsistency" "Search" "No retrospective master state files found — nothing to validate"
+    } else {
+        foreach ($msFile in $masterStateFiles) {
+            $msName = $msFile.Name
+            $msLines = Get-Content $msFile.FullName -Encoding UTF8
+            Write-Host "  Validating: $msName" -ForegroundColor Gray
+
+            # --- Parse Feature Inventory tables ---
+            # Collect status per column across all category tables
+            $inInventory = $false
+            $inventoryHeaders = @()
+            $featureRows = @()
+
+            for ($i = 0; $i -lt $msLines.Count; $i++) {
+                $line = $msLines[$i]
+
+                # Detect Feature Inventory section
+                if ($line -match '^## Feature Inventory') {
+                    $inInventory = $true
+                    continue
+                }
+                # Stop at next top-level section
+                if ($inInventory -and $line -match '^## [^F]') {
+                    $inInventory = $false
+                    continue
+                }
+                if (-not $inInventory) { continue }
+
+                # Detect category table headers
+                if ($line -match '^\|\s*Feature ID\s*\|') {
+                    # Parse header columns
+                    $inventoryHeaders = ($line -split '\|') | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne '' }
+                    continue
+                }
+                # Skip separator rows
+                if ($line -match '^\|\s*[-:]+\s*\|') { continue }
+                # Skip non-table lines
+                if ($line -notmatch '^\|') { continue }
+
+                # Parse data row
+                $cells = ($line -split '\|') | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne '' }
+                if ($cells.Count -ge 2 -and $cells[0] -match '^\d+\.\d+\.\d+') {
+                    $row = @{}
+                    for ($c = 0; $c -lt [Math]::Min($cells.Count, $inventoryHeaders.Count); $c++) {
+                        $row[$inventoryHeaders[$c]] = $cells[$c]
+                    }
+                    $featureRows += $row
+                }
+            }
+
+            if ($featureRows.Count -eq 0) {
+                Add-CheckResult "WARNING" "MasterStateConsistency" $msName "No feature rows found in Feature Inventory"
+                continue
+            }
+
+            $totalFeatures = $featureRows.Count
+            Write-Host "  Found $totalFeatures features in inventory" -ForegroundColor Gray
+
+            # --- Helper: count statuses in a column ---
+            function Get-StatusCounts {
+                param([string]$ColumnName)
+                $complete = 0; $inProgress = 0; $notStarted = 0; $na = 0
+                foreach ($row in $featureRows) {
+                    $val = $row[$ColumnName]
+                    if ($null -eq $val -or $val -eq '') { $notStarted++; continue }
+                    if ($val -match 'N/A') { $na++; continue }
+                    if ($val -match ([char]0x2705) -or $val -match '✅') { $complete++ }
+                    elseif ($val -match ([char]0x1F7E1) -or $val -match '🟡') { $inProgress++ }
+                    elseif ($val -match ([char]0x2B1C) -or $val -match '⬜') { $notStarted++ }
+                    else { $complete++ }  # Assume non-emoji non-NA content means done (e.g. tier text)
+                }
+                return @{ Complete = $complete; InProgress = $inProgress; NotStarted = $notStarted; NA = $na }
+            }
+
+            # --- Validate Phase Completion Checkboxes ---
+            # Phase 1 = Impl State column all ✅
+            # Phase 2 = Analyzed column all ✅
+            # Phase 3 = Assessed column all ✅
+            $phaseColumnMap = @{
+                1 = "Impl State"
+                2 = "Analyzed"
+                3 = "Assessed"
+            }
+
+            foreach ($phase in 1..3) {
+                $colName = $phaseColumnMap[$phase]
+                $counts = Get-StatusCounts -ColumnName $colName
+
+                $allComplete = ($counts.Complete -eq ($totalFeatures - $counts.NA)) -and $counts.NotStarted -eq 0 -and $counts.InProgress -eq 0
+
+                # Find the checkbox line for this phase
+                $checkboxLine = $msLines | Where-Object { $_ -match "Phase $phase" -and $_ -match '^\s*-\s*\[' } | Select-Object -First 1
+                if ($null -eq $checkboxLine) { continue }
+
+                $isChecked = $checkboxLine -match '^\s*-\s*\[x\]'
+
+                if ($allComplete -and -not $isChecked) {
+                    Add-CheckResult "ERROR" "MasterStateConsistency" "$msName/Phase $phase checkbox" "All $($counts.Complete) features complete in '$colName' but checkbox is unchecked"
+                } elseif (-not $allComplete -and $isChecked) {
+                    Add-CheckResult "ERROR" "MasterStateConsistency" "$msName/Phase $phase checkbox" "Checkbox is checked but inventory shows $($counts.NotStarted) not started, $($counts.InProgress) in progress"
+                } else {
+                    Add-CheckResult "OK" "MasterStateConsistency" "$msName/Phase $phase checkbox" "Checkbox matches inventory ($($counts.Complete) complete)"
+                }
+            }
+
+            # Phase 4 — check if status header says COMPLETE
+            $phase4Line = $msLines | Where-Object { $_ -match 'Phase 4' -and $_ -match '^\s*-\s*\[' } | Select-Object -First 1
+            if ($null -ne $phase4Line) {
+                $p4Checked = $phase4Line -match '^\s*-\s*\[x\]'
+                $statusLine = $msLines | Where-Object { $_ -match '^\*\*Status\*\*:' } | Select-Object -First 1
+                $isComplete = $statusLine -match 'COMPLETE'
+                if ($p4Checked -and -not $isComplete) {
+                    Add-CheckResult "WARNING" "MasterStateConsistency" "$msName/Phase 4 checkbox" "Checked but Status header does not say COMPLETE"
+                } elseif (-not $p4Checked -and $isComplete) {
+                    Add-CheckResult "WARNING" "MasterStateConsistency" "$msName/Phase 4 checkbox" "Status says COMPLETE but Phase 4 checkbox unchecked"
+                } else {
+                    Add-CheckResult "OK" "MasterStateConsistency" "$msName/Phase 4 checkbox" "Consistent with Status header"
+                }
+            }
+
+            # --- Validate Feature Progress Overview counters ---
+            $progressTableLines = @()
+            $inProgressTable = $false
+            foreach ($line in $msLines) {
+                if ($line -match '^\|\s*Phase\s*\|.*Not Started') { $inProgressTable = $true }
+                if ($inProgressTable) {
+                    if ($line -match '^\|') {
+                        $progressTableLines += $line
+                    } elseif ($progressTableLines.Count -gt 0) {
+                        break
+                    }
+                }
+            }
+
+            $phaseProgressMap = @{
+                "Phase 1" = "Impl State"
+                "Phase 2" = "Analyzed"
+                "Phase 3" = "Assessed"
+            }
+
+            foreach ($pLine in $progressTableLines) {
+                # Skip header and separator
+                if ($pLine -match 'Not Started' -or $pLine -match '^\|\s*[-:]+') { continue }
+
+                $pCells = ($pLine -split '\|') | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne '' }
+                if ($pCells.Count -lt 4) { continue }
+
+                $phaseName = $pCells[0] -replace '^\s*Phase\s+\d+:\s*', '' -replace '\s*$', ''
+                $statedNotStarted = [int]($pCells[1] -replace '[^\d]', '')
+                $statedInProgress = [int]($pCells[2] -replace '[^\d]', '')
+                $statedComplete = [int]($pCells[3] -replace '[^\d]', '')
+
+                # Determine which phase this is
+                $matchedCol = $null
+                foreach ($key in $phaseProgressMap.Keys) {
+                    if ($pCells[0] -match $key.Replace("Phase ", "Phase\s+")) {
+                        $matchedCol = $phaseProgressMap[$key]
+                        break
+                    }
+                }
+                if ($null -eq $matchedCol) { continue }
+
+                $actual = Get-StatusCounts -ColumnName $matchedCol
+                $actualApplicable = $totalFeatures - $actual.NA
+
+                $mismatch = $false
+                $details = @()
+                if ($statedNotStarted -ne $actual.NotStarted) {
+                    $mismatch = $true
+                    $details += "NotStarted: stated=$statedNotStarted actual=$($actual.NotStarted)"
+                }
+                if ($statedInProgress -ne $actual.InProgress) {
+                    $mismatch = $true
+                    $details += "InProgress: stated=$statedInProgress actual=$($actual.InProgress)"
+                }
+                if ($statedComplete -ne $actual.Complete) {
+                    $mismatch = $true
+                    $details += "Complete: stated=$statedComplete actual=$($actual.Complete)"
+                }
+
+                if ($mismatch) {
+                    Add-CheckResult "ERROR" "MasterStateConsistency" "$msName/Progress/$matchedCol" "Counter mismatch: $($details -join ', ')"
+                } else {
+                    Add-CheckResult "OK" "MasterStateConsistency" "$msName/Progress/$matchedCol" "Counters match ($statedComplete complete, $statedNotStarted not started, $statedInProgress in progress)"
+                }
+            }
+
+            # --- Validate Documentation Requirements Summary ---
+            # Validates feature count and per-column "features needing" counts.
+            # Note: ADR counts in the summary may exceed inventory ✅ count because
+            # a single feature can have multiple ADRs (e.g., ✅ with "3/3" in summary).
+            # We validate the "needed" denominator (features requiring that doc type)
+            # against the inventory's non-N/A count for FDD, TDD, Test Spec.
+            $docSummaryLines = @()
+            $inDocSummary = $false
+            foreach ($line in $msLines) {
+                if ($line -match '^\|\s*Tier\s*\|.*Feature Count') { $inDocSummary = $true }
+                if ($inDocSummary) {
+                    if ($line -match '^\|') {
+                        $docSummaryLines += $line
+                    } elseif ($docSummaryLines.Count -gt 0) {
+                        break
+                    }
+                }
+            }
+
+            # Count features needing each doc type from inventory (non-N/A entries)
+            $docColumns = @("FDD", "TDD", "Test Spec")
+            $actualDocCounts = @{}
+            foreach ($col in $docColumns) {
+                $counts = Get-StatusCounts -ColumnName $col
+                $actualDocCounts[$col] = @{
+                    Created = $counts.Complete
+                    Needed = $counts.Complete + $counts.InProgress + $counts.NotStarted
+                }
+            }
+
+            # Parse the Total row from Documentation Requirements Summary
+            $totalRow = $docSummaryLines | Where-Object { $_ -match '\*\*Total\*\*' } | Select-Object -First 1
+            if ($null -ne $totalRow) {
+                $totalCells = ($totalRow -split '\|') | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne '' }
+                # Header: Tier | Feature Count | Impl State | FDD Needed | TDD Needed | Test Spec | ADR | Total Docs Needed | Docs Created
+
+                # Check feature count
+                $statedFeatureCount = $totalCells[1] -replace '[^\d]', ''
+                if ($statedFeatureCount -and [int]$statedFeatureCount -ne $totalFeatures) {
+                    Add-CheckResult "ERROR" "MasterStateConsistency" "$msName/DocSummary/FeatureCount" "Stated $statedFeatureCount features but inventory has $totalFeatures"
+                } else {
+                    Add-CheckResult "OK" "MasterStateConsistency" "$msName/DocSummary/FeatureCount" "Feature count matches ($totalFeatures)"
+                }
+
+                # Per-column validation: FDD (index 3), TDD (index 4), Test Spec (index 5)
+                # These columns use "x/y" format where y = features needing, x = features with docs created
+                $colIndexMap = @{ "FDD" = 3; "TDD" = 4; "Test Spec" = 5 }
+                foreach ($col in $docColumns) {
+                    $idx = $colIndexMap[$col]
+                    if ($totalCells.Count -le $idx) { continue }
+                    $cellVal = $totalCells[$idx]
+
+                    # Parse "x/y" or "**x/y**" format
+                    if ($cellVal -match '(\d+)\s*/\s*(\d+)') {
+                        $statedCreated = [int]$matches[1]
+                        $statedNeeded = [int]$matches[2]
+                        $actualNeeded = $actualDocCounts[$col].Needed
+                        $actualCreated = $actualDocCounts[$col].Created
+
+                        $mismatch = $false
+                        $details = @()
+                        if ($statedNeeded -ne $actualNeeded) {
+                            $mismatch = $true
+                            $details += "needed: stated=$statedNeeded actual=$actualNeeded"
+                        }
+                        if ($statedCreated -ne $actualCreated) {
+                            $mismatch = $true
+                            $details += "created: stated=$statedCreated actual=$actualCreated"
+                        }
+
+                        if ($mismatch) {
+                            Add-CheckResult "ERROR" "MasterStateConsistency" "$msName/DocSummary/$col" "Mismatch: $($details -join ', ')"
+                        } else {
+                            Add-CheckResult "OK" "MasterStateConsistency" "$msName/DocSummary/$col" "$col counts match ($statedCreated/$statedNeeded)"
+                        }
+                    }
+                }
+
+                # Impl State column (index 2) — validate "x/y" against inventory
+                if ($totalCells.Count -gt 2) {
+                    $implCell = $totalCells[2]
+                    if ($implCell -match '(\d+)\s*/\s*(\d+)') {
+                        $statedImplCreated = [int]$matches[1]
+                        $statedImplNeeded = [int]$matches[2]
+                        $implCounts = Get-StatusCounts -ColumnName "Impl State"
+                        if ($statedImplNeeded -ne $totalFeatures) {
+                            Add-CheckResult "ERROR" "MasterStateConsistency" "$msName/DocSummary/ImplState" "Stated $statedImplNeeded needed but inventory has $totalFeatures features"
+                        } elseif ($statedImplCreated -ne $implCounts.Complete) {
+                            Add-CheckResult "ERROR" "MasterStateConsistency" "$msName/DocSummary/ImplState" "Stated $statedImplCreated created but inventory shows $($implCounts.Complete) complete"
+                        } else {
+                            Add-CheckResult "OK" "MasterStateConsistency" "$msName/DocSummary/ImplState" "Impl State counts match ($statedImplCreated/$statedImplNeeded)"
+                        }
+                    }
+                }
+            } elseif ($docSummaryLines.Count -gt 0) {
+                Add-CheckResult "WARNING" "MasterStateConsistency" "$msName/DocSummary" "Documentation Requirements Summary found but no Total row"
+            }
+        }
+    }
+    Write-Host ""
+}
+
+# =========================================================================
+# Surface 14: Source Layout — compare layout doc directory tree vs actual source dirs
+# =========================================================================
+if ($runAll -or $Surface -contains "SourceLayout") {
+    Write-Host "========================================" -ForegroundColor Cyan
+    Write-Host "  Surface 14: Source Layout" -ForegroundColor Cyan
+    Write-Host "========================================" -ForegroundColor Cyan
+
+    $layoutDocPath = Join-Path $ProjectRoot "doc/technical/architecture/source-code-layout.md"
+
+    if (-not (Test-Path $layoutDocPath)) {
+        Add-CheckResult "OK" "SourceLayout" "Search" "No source-code-layout.md found — nothing to validate"
+    } else {
+        # Read project-config.json for source root
+        $sourceCodePath = $null
+        if (Test-Path $projectConfigPath) {
+            try {
+                $pcfg = Get-Content $projectConfigPath -Raw | ConvertFrom-Json
+                $sourceCodePath = $pcfg.paths.source_code
+            } catch {}
+        }
+
+        if ([string]::IsNullOrWhiteSpace($sourceCodePath) -or $sourceCodePath -eq ".") {
+            Add-CheckResult "WARNING" "SourceLayout" "project-config.json" "paths.source_code is not set or is '.'"
+        } else {
+            $sourceRootAbs = Join-Path $ProjectRoot $sourceCodePath
+
+            if (-not (Test-Path $sourceRootAbs)) {
+                Add-CheckResult "ERROR" "SourceLayout" "SourceRoot" "Source root '$sourceCodePath' does not exist on disk but source-code-layout.md exists"
+            } else {
+                # Parse directory tree from layout doc — extract directory names from the code block
+                $layoutContent = Get-Content $layoutDocPath -Raw
+                $docDirs = @()
+
+                if ($layoutContent -match '(?s)## Directory Tree.*?```\s*\n[^\n]+/\n([\s\S]*?)```') {
+                    $treeBlock = $Matches[1]
+                    # Extract top-level directories (2 spaces indent = direct child of source root)
+                    foreach ($line in ($treeBlock -split "`n")) {
+                        if ($line -match '^  ([a-zA-Z0-9_\-]+)/$') {
+                            $docDirs += $Matches[1]
+                        }
+                    }
+                }
+
+                # Get actual directories on disk
+                $actualDirs = @()
+                if (Test-Path $sourceRootAbs) {
+                    $actualDirs = Get-ChildItem -Path $sourceRootAbs -Directory |
+                        Where-Object { $_.Name -ne "__pycache__" -and $_.Name -ne ".git" -and $_.Name -ne "node_modules" -and $_.Name -ne ".venv" -and $_.Name -ne "venv" } |
+                        ForEach-Object { $_.Name }
+                }
+
+                if ($docDirs.Count -eq 0 -and $actualDirs.Count -eq 0) {
+                    Add-CheckResult "OK" "SourceLayout" "DirTree" "Both layout doc and disk are empty"
+                } elseif ($docDirs.Count -eq 0) {
+                    Add-CheckResult "WARNING" "SourceLayout" "DirTree" "No directory tree found in layout doc but $($actualDirs.Count) directories exist on disk — run New-SourceStructure.ps1 -Update"
+                } else {
+                    # Compare: directories in doc but not on disk
+                    $missingOnDisk = $docDirs | Where-Object { $_ -notin $actualDirs }
+                    foreach ($d in $missingOnDisk) {
+                        Add-CheckResult "ERROR" "SourceLayout" "DirTree/$d" "Listed in layout doc but missing from disk"
+                    }
+
+                    # Compare: directories on disk but not in doc
+                    $missingInDoc = $actualDirs | Where-Object { $_ -notin $docDirs }
+                    foreach ($d in $missingInDoc) {
+                        Add-CheckResult "ERROR" "SourceLayout" "DirTree/$d" "Exists on disk but not in layout doc — run New-SourceStructure.ps1 -Update"
+                    }
+
+                    # All matching
+                    $matching = $docDirs | Where-Object { $_ -in $actualDirs }
+                    foreach ($d in $matching) {
+                        Add-CheckResult "OK" "SourceLayout" "DirTree/$d" "Consistent between doc and disk"
+                    }
+                }
+
+                # Check naming convention compliance
+                if (Test-Path $projectConfigPath) {
+                    try {
+                        $lang = $pcfg.testing.language.ToLower()
+                        $lcPath = Join-Path $ProjectRoot "languages-config/$lang/$lang-config.json"
+                        if (Test-Path $lcPath) {
+                            $lc = Get-Content $lcPath -Raw | ConvertFrom-Json
+                            $namingConvention = $lc.directoryStructure.directoryNaming
+                            if ($namingConvention) {
+                                foreach ($d in $actualDirs) {
+                                    $valid = switch ($namingConvention) {
+                                        "snake_case" { $d -cmatch '^[a-z][a-z0-9_]*$' }
+                                        "kebab-case" { $d -cmatch '^[a-z][a-z0-9\-]*$' }
+                                        "PascalCase" { $d -cmatch '^[A-Z][a-zA-Z0-9]*$' }
+                                        default { $true }
+                                    }
+                                    if (-not $valid) {
+                                        Add-CheckResult "WARNING" "SourceLayout" "Naming/$d" "Directory '$d' does not match $namingConvention convention"
+                                    } else {
+                                        Add-CheckResult "OK" "SourceLayout" "Naming/$d" "Matches $namingConvention convention"
+                                    }
+                                }
+                            }
+                        }
+                    } catch {
+                        # Naming check is best-effort
+                    }
+                }
+            }
         }
     }
     Write-Host ""

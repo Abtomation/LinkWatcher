@@ -33,13 +33,13 @@ Use the `New-BugReport.ps1` script located in `/process-framework/scripts/file-c
 cd process-framework/scripts/file-creation
 
 # Create a basic bug report
-./New-BugReport.ps1 -Title "Brief bug description" -Description "Detailed explanation" -DiscoveredBy "Task Name"
+New-BugReport.ps1 -Title "Brief bug description" -Description "Detailed explanation" -DiscoveredBy "Task Name"
 ```
 
 ### Complete Usage Example
 
 ```powershell
-./New-BugReport.ps1 `
+New-BugReport.ps1 `
   -Title "Login form validation fails for email format" `
   -Description "The email validation accepts clearly invalid email formats like 'test@' or 'invalid.email'" `
   -DiscoveredBy "TestAudit" `
@@ -124,7 +124,7 @@ After creating a bug report:
 ### During Test Audit
 
 ```powershell
-./New-BugReport.ps1 `
+New-BugReport.ps1 `
   -Title "Test case TC-001 fails consistently" `
   -Description "Authentication test fails due to session timeout handling" `
   -DiscoveredBy "TestAudit" `
@@ -135,7 +135,7 @@ After creating a bug report:
 ### During Code Review
 
 ```powershell
-./New-BugReport.ps1 `
+New-BugReport.ps1 `
   -Title "Null pointer exception in user validation" `
   -Description "Method getUserProfile() doesn't handle null user ID parameter" `
   -DiscoveredBy "CodeReview" `
@@ -147,7 +147,7 @@ After creating a bug report:
 ### During Feature Implementation
 
 ```powershell
-./New-BugReport.ps1 `
+New-BugReport.ps1 `
   -Title "Database migration fails on existing data" `
   -Description "New column addition breaks when existing records have null values" `
   -DiscoveredBy "FeatureImplementation" `
@@ -201,7 +201,7 @@ The script provides clear feedback:
 
 ```
 Solution: Ensure you're in the correct directory
-cd process-framework/state-tracking
+cd process-framework-local/state-tracking
 ```
 
 **Permission denied**

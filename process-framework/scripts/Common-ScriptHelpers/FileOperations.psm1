@@ -92,7 +92,7 @@ function Get-RelevantTrackingFiles {
         "CodeReview" {
             $trackingFiles += @(
                 @{
-                    Path = Join-Path $projectRoot "process-framework/state-tracking/permanent/code-review-tracking.md"
+                    Path = Join-Path $projectRoot "process-framework-local/state-tracking/permanent/code-review-tracking.md"
                     Type = "CodeReviewTracking"
                     Required = $true
                 }
@@ -101,7 +101,7 @@ function Get-RelevantTrackingFiles {
         "BugFix" {
             $trackingFiles += @(
                 @{
-                    Path = Join-Path $projectRoot "process-framework/state-tracking/permanent/bug-fix-tracking.md"
+                    Path = Join-Path $projectRoot "process-framework-local/state-tracking/permanent/bug-fix-tracking.md"
                     Type = "BugFixTracking"
                     Required = $true
                 }
@@ -110,7 +110,7 @@ function Get-RelevantTrackingFiles {
         "TestAudit" {
             $trackingFiles += @(
                 @{
-                    Path = Join-Path $projectRoot "process-framework/state-tracking/permanent/test-audit-tracking.md"
+                    Path = Join-Path $projectRoot "process-framework-local/state-tracking/permanent/test-audit-tracking.md"
                     Type = "TestAuditTracking"
                     Required = $true
                 }
@@ -148,30 +148,10 @@ function Get-StateFileBackup {
         [string]$BackupDirectory
     )
 
-    if (-not (Test-Path $FilePath)) {
-        throw "File not found for backup: $FilePath"
-    }
-
-    $fileName = [System.IO.Path]::GetFileNameWithoutExtension($FilePath)
-    $fileExtension = [System.IO.Path]::GetExtension($FilePath)
-    $timestamp = Get-ProjectTimestamp -Format "FileTimestamp"
-
-    if ($BackupDirectory) {
-        Test-ProjectPath -Path $BackupDirectory -CreateIfMissing -PathType Directory | Out-Null
-        $backupPath = Join-Path $BackupDirectory "$fileName-backup-$timestamp$fileExtension"
-    } else {
-        $directory = Split-Path -Parent $FilePath
-        $backupPath = Join-Path $directory "$fileName-backup-$timestamp$fileExtension"
-    }
-
-    try {
-        Copy-Item -Path $FilePath -Destination $backupPath -Force
-        Write-Verbose "Created backup: $backupPath"
-        return $backupPath
-    }
-    catch {
-        throw "Failed to create backup of $FilePath`: $($_.Exception.Message)"
-    }
+    # Automatic backups disabled — state files are tracked by git,
+    # making file-level backups redundant and cluttering the directory.
+    Write-Verbose "Backup skipped (automatic backups disabled): $FilePath"
+    return $null
 }
 
 # Export functions

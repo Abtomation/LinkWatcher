@@ -10,7 +10,7 @@ task_name: [TASK-NAME]
 
 # Temporary Process Improvement State: [Task Name]
 
-> **⚠️ TEMPORARY FILE**: This file tracks multi-session implementation of a process improvement. Move to `process-framework/state-tracking/temporary/old` after all phases are complete.
+> **⚠️ TEMPORARY FILE**: This file tracks multi-session implementation of a process improvement. Move to `process-framework-local/state-tracking/temporary/old` after all phases are complete.
 
 ## Improvement Overview
 
@@ -134,7 +134,7 @@ task_name: [TASK-NAME]
 
 ## Completion Criteria
 
-This temporary state file can be moved to `process-framework/state-tracking/temporary/old` when:
+This temporary state file can be moved to `process-framework-local/state-tracking/temporary/old` when:
 
 - [ ] All implementation phases are complete
 - [ ] All affected components are updated and tested

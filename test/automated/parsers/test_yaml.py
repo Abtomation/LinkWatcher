@@ -196,7 +196,6 @@ inline_array: [scripts/build.sh, scripts/deploy.sh, scripts/test.sh]
         assert "scripts/deploy.sh" in targets
         assert "scripts/test.sh" in targets
 
-    @pytest.mark.xfail(reason="YAML multiline strings treated as atomic values, not decomposed")
     def test_yp_004_multiline_strings(self, temp_project_dir):
         """
         YP-004: Multi-line strings
@@ -204,6 +203,7 @@ inline_array: [scripts/build.sh, scripts/deploy.sh, scripts/test.sh]
         Test Case: Multi-line string with file paths
         Expected: File paths in strings found
         Priority: Medium
+        Regression: PD-BUG-079
         """
         parser = YamlParser()
 
@@ -239,12 +239,19 @@ script: |
         # Should find file references in multi-line strings
         targets = [ref.link_target for ref in references]
 
+        # PD-BUG-079: Must NOT return empty — multiline paths must be detected
+        assert len(references) > 0, "No references found in multiline YAML blocks"
+
+        # Paths with directory separators (these are unambiguous file paths)
+        assert "output/report.html" in targets
+        assert "config/settings.yaml" in targets
+        assert "scripts/install.sh" in targets
+        assert "docs/usage.md" in targets
+
         # Check references found in multi-line strings
         expected_files = [
-            "input.csv",
             "output/report.html",
             "config/settings.yaml",
-            "setup.md",
             "scripts/install.sh",
             "docs/usage.md",
             "data/users.sql",
@@ -260,6 +267,35 @@ script: |
 
         # Should find most of the references (some might be filtered out)
         assert found_count >= 6
+
+    def test_yp_004b_multiline_literal_block_line_numbers(self, temp_project_dir):
+        """
+        YP-004b: Multiline literal block — verify line numbers are accurate.
+
+        Regression: PD-BUG-079
+        """
+        parser = YamlParser()
+
+        yaml_file = temp_project_dir / "multiline_lines.yaml"
+        yaml_content = (
+            "notes: |\n"
+            "  See docs/guide.md for details.\n"
+            "  Also check src/main.py for usage.\n"
+        )
+        yaml_file.write_text(yaml_content)
+
+        references = parser.parse_file(str(yaml_file))
+        targets = {ref.link_target: ref for ref in references}
+
+        assert "docs/guide.md" in targets, "docs/guide.md not found in multiline block"
+        assert "src/main.py" in targets, "src/main.py not found in multiline block"
+
+        # Verify line numbers point to actual raw lines
+        guide_ref = targets["docs/guide.md"]
+        assert guide_ref.line_number == 2  # "  See docs/guide.md for details."
+
+        main_ref = targets["src/main.py"]
+        assert main_ref.line_number == 3  # "  Also check src/main.py for usage."
 
     def test_yp_005_comments_ignored(self, temp_project_dir):
         """
@@ -553,7 +589,9 @@ class TestYamlParserCompoundStrings:
     def test_compound_string_with_embedded_directory_path(self):
         """Compound string with an embedded directory path should be detected."""
         parser = YamlParser()
-        yaml_content = "hooks:\n" '  - entry: "python alpha-project/scripts/feedback_db.py record --json"\n'
+        yaml_content = (
+            "hooks:\n" '  - entry: "python alpha-project/scripts/feedback_db.py record --json"\n'
+        )
         references = parser.parse_content(yaml_content, "config.yaml")
         targets = [ref.link_target for ref in references]
         assert "alpha-project/scripts/feedback_db.py" in targets

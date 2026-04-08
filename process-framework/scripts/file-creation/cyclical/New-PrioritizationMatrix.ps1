@@ -29,10 +29,10 @@
     If specified, opens the created file in the default editor.
 
 .EXAMPLE
-    .\New-PrioritizationMatrix.ps1 -MatrixName "Q1 2026 Debt Prioritization" -AssessmentId "PD-TDA-001"
+    New-PrioritizationMatrix.ps1 -MatrixName "Q1 2026 Debt Prioritization" -AssessmentId "PD-TDA-001"
 
 .EXAMPLE
-    .\New-PrioritizationMatrix.ps1 -MatrixName "Pre-Release Prioritization" -AssessmentId "PD-TDA-002" -ItemCount 12
+    New-PrioritizationMatrix.ps1 -MatrixName "Pre-Release Prioritization" -AssessmentId "PD-TDA-002" -ItemCount 12
 
 .NOTES
     Script Type: Document Creation Script

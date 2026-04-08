@@ -20,20 +20,18 @@ This document provides standardized instructions for completing feedback forms t
 Use the provided PowerShell script to automatically create a feedback form:
 
 ```bash
-# Navigate to script directory and run with bash single quotes:
-cd process-framework/scripts/file-creation && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-FeedbackForm.ps1 -DocumentId "[TASK-ID]" -TaskContext "[Task Name]" -FeedbackType "MultipleTools" -Confirm:$false'
+pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/support/New-FeedbackForm.ps1 -DocumentId "[TASK-ID]" -TaskContext "[Task Name]" -FeedbackType "MultipleTools" -Confirm:\$false
 ```
 
 **Replace placeholders:**
 - `[TASK-ID]`: The actual task ID (e.g., "PF-TSK-002")
 - `[Task Name]`: The actual task name (e.g., "Feature Tier Assessment")
-- Update the `cd` path to match your actual project location
 
 ### Step 2: Complete the Form
 
 The script automatically:
 - Names the file using format: `YYYYMMDD-HHMMSS-document-id-feedback.md`
-- Places the file in `/process-framework/feedback/feedback-forms`
+- Places the file in `/process-framework-local/feedback/feedback-forms`
 - Assigns unique artifact IDs (`ART-FEE-XXX`) in metadata
 - Includes a section for human user feedback (AI assistant will prompt for input)
 

@@ -44,13 +44,13 @@
     Optional: Project root path. Auto-detected if not specified.
 
 .EXAMPLE
-    .\Run-E2EAcceptanceTest.ps1 -TestCase "E2E-001" -Group "powershell-regex-preservation"
+    Run-E2EAcceptanceTest.ps1 -TestCase "E2E-001" -Group "powershell-regex-preservation"
 
 .EXAMPLE
-    .\Run-E2EAcceptanceTest.ps1 -Group "powershell-regex-preservation" -Clean -Detailed
+    Run-E2EAcceptanceTest.ps1 -Group "powershell-regex-preservation" -Clean -Detailed
 
 .EXAMPLE
-    .\Run-E2EAcceptanceTest.ps1 -WaitSeconds 10
+    Run-E2EAcceptanceTest.ps1 -WaitSeconds 10
 
 .NOTES
     Test cases must have a run.ps1 file (created via New-E2EAcceptanceTestCase.ps1 -Scripted).

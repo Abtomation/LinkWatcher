@@ -49,9 +49,9 @@ $scriptMappings = @{
 
     # Corrupted paths that need fixing
     "../../../../../../../../feedback-forms/New-TestAuditReport.ps1"                                                                                                                                                                                                                = "../$newScriptPath/New-TestAuditReport.ps1"
-    "../../feedback/New-FeedbackForm.ps1" = "../$newScriptPath/New-FeedbackForm.ps1"
+    "../../process-framework-local/feedback/New-FeedbackForm.ps1" = "../$newScriptPath/New-FeedbackForm.ps1"
     "New-FeedbackForm.ps1t"                                                                                                                                                                                                                                                                        = "../$newScriptPath/New-FeedbackForm.ps1"
-    "../process-framework/feedback/New-FeedbackForm.ps1"                                                                                                                                                                                                                                        = "../$newScriptPath/New-FeedbackForm.ps1"
+    "../process-framework-local/feedback/New-FeedbackForm.ps1"                                                                                                                                                                                                                                        = "../$newScriptPath/New-FeedbackForm.ps1"
 }
 
 Write-Host "🔍 Scanning for script references to update..." -ForegroundColor Cyan

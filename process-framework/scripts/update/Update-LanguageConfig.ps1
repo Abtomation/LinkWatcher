@@ -37,13 +37,13 @@
     List all fields across all language configs and the template, showing drift.
 
 .EXAMPLE
-    .\Update-LanguageConfig.ps1 -Section "testing" -FieldName "formatCommand" -DefaultValue "[format command]" -TemplateComment "OPTIONAL. Command to format/auto-fix test files."
+    Update-LanguageConfig.ps1 -Section "testing" -FieldName "formatCommand" -DefaultValue "[format command]" -TemplateComment "OPTIONAL. Command to format/auto-fix test files."
 
 .EXAMPLE
-    .\Update-LanguageConfig.ps1 -Section "testing" -FieldName "formatCommand" -DefaultValue "[format command]" -TemplateComment "OPTIONAL. Command to format test files." -LanguageValues @{ "python" = "python -m black {testDir}" }
+    Update-LanguageConfig.ps1 -Section "testing" -FieldName "formatCommand" -DefaultValue "[format command]" -TemplateComment "OPTIONAL. Command to format test files." -LanguageValues @{ "python" = "python -m black {testDir}" }
 
 .EXAMPLE
-    .\Update-LanguageConfig.ps1 -List
+    Update-LanguageConfig.ps1 -List
 
 .NOTES
     Used by Process Improvement (PF-TSK-009) when adding new language-specific capabilities,

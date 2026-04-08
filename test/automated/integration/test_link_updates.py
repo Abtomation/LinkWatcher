@@ -882,9 +882,7 @@ class TestBug032RootRelativeWithinMovedFile:
         Reproduces the real scenario: script is already deep in the tree.
         """
         # Create the target directory that the path points to
-        target_dir = (
-            temp_project_dir / "alpha-project" / "documentation-tiers" / "assessments"
-        )
+        target_dir = temp_project_dir / "alpha-project" / "documentation-tiers" / "assessments"
         target_dir.mkdir(parents=True)
 
         # Create a PS1 script in a subdirectory (realistic scenario)
@@ -1349,3 +1347,121 @@ class TestBug045PythonModuleUsageUpdate:
         assert (
             "my_utils_helpers" in updated
         ), "substring 'my_utils_helpers' must not be affected by module rename"
+
+
+class TestBug078PythonSourceRootImport:
+    """Regression tests for PD-BUG-078: Python import path resolver ignores src/ layout.
+
+    When a project uses src/ layout (python_source_root = "src"), moving a file
+    into src/ should produce imports relative to the source root, not the project root.
+    E.g., moving package/module.py → src/package/module.py should keep the import
+    as ``from package.module import Class``, not change it to
+    ``from src.package.module import Class``.
+    """
+
+    def test_bug078_move_into_src_layout_preserves_import(self, temp_project_dir):
+        """Moving file into src/ with python_source_root strips prefix from import."""
+        from linkwatcher.config.settings import LinkWatcherConfig
+
+        # Setup: utils/helpers.py referenced by app/main.py
+        # ("utils" is in PythonParser's local_dirs so the import is registered)
+        utils_dir = temp_project_dir / "utils"
+        utils_dir.mkdir()
+        helpers_file = utils_dir / "helpers.py"
+        helpers_file.write_text("def greet(): pass\n")
+
+        app_dir = temp_project_dir / "app"
+        app_dir.mkdir()
+        main_file = app_dir / "main.py"
+        main_file.write_text("from utils.helpers import greet\n")
+
+        # Configure with python_source_root
+        config = LinkWatcherConfig()
+        config.python_source_root = "src"
+        service = LinkWatcherService(str(temp_project_dir), config=config)
+        service._initial_scan()
+
+        # Move utils/helpers.py → src/utils/helpers.py
+        src_utils_dir = temp_project_dir / "src" / "utils"
+        src_utils_dir.mkdir(parents=True)
+        new_helpers = src_utils_dir / "helpers.py"
+        helpers_file.rename(new_helpers)
+
+        event = FileMovedEvent(str(helpers_file), str(new_helpers))
+        service.handler._handle_file_moved(event)
+
+        updated = main_file.read_text()
+        # Import should still be "from utils.helpers" (src/ stripped), NOT "from src.utils.helpers"
+        assert (
+            "from utils.helpers import greet" in updated
+        ), f"Import should stay as 'utils.helpers' (src/ stripped), got: {updated!r}"
+        assert "src.utils" not in updated, f"Import must NOT contain 'src.utils', got: {updated!r}"
+
+    def test_bug078_move_within_src_layout(self, temp_project_dir):
+        """Moving file within src/ with python_source_root produces correct import."""
+        from linkwatcher.config.settings import LinkWatcherConfig
+
+        # Setup: src/utils/helpers.py referenced by src/app/main.py
+        # The parser sees "utils.helpers" (no src. prefix) because that's how
+        # the code uses it. The file path is src/utils/helpers.py.
+        src_utils = temp_project_dir / "src" / "utils"
+        src_utils.mkdir(parents=True)
+        helpers_file = src_utils / "helpers.py"
+        helpers_file.write_text("def format_name(n): return n.title()\n")
+
+        src_app = temp_project_dir / "src" / "app"
+        src_app.mkdir(parents=True)
+        main_file = src_app / "main.py"
+        main_file.write_text("from utils.helpers import format_name\n")
+
+        config = LinkWatcherConfig()
+        config.python_source_root = "src"
+        service = LinkWatcherService(str(temp_project_dir), config=config)
+        service._initial_scan()
+
+        # Move src/utils/helpers.py → src/core/helpers.py
+        src_core = temp_project_dir / "src" / "core"
+        src_core.mkdir(parents=True)
+        new_helpers = src_core / "helpers.py"
+        helpers_file.rename(new_helpers)
+
+        event = FileMovedEvent(str(helpers_file), str(new_helpers))
+        service.handler._handle_file_moved(event)
+
+        updated = main_file.read_text()
+        assert (
+            "from core.helpers import format_name" in updated
+        ), f"Import should be 'core.helpers' (src/ stripped), got: {updated!r}"
+        assert "src.core" not in updated
+        assert "utils.helpers" not in updated
+
+    def test_bug078_no_source_root_preserves_existing_behavior(self, temp_project_dir):
+        """Without python_source_root, existing behavior is unchanged."""
+        # Setup: utils/helpers.py referenced by app/main.py
+        utils_dir = temp_project_dir / "utils"
+        utils_dir.mkdir()
+        helpers_file = utils_dir / "helpers.py"
+        helpers_file.write_text("def greet(): pass\n")
+
+        app_dir = temp_project_dir / "app"
+        app_dir.mkdir()
+        main_file = app_dir / "main.py"
+        main_file.write_text("from utils.helpers import greet\n")
+
+        # No python_source_root set (default empty string)
+        service = LinkWatcherService(str(temp_project_dir))
+        service._initial_scan()
+
+        # Move utils/helpers.py → core/helpers.py
+        core_dir = temp_project_dir / "core"
+        core_dir.mkdir()
+        new_helpers = core_dir / "helpers.py"
+        helpers_file.rename(new_helpers)
+
+        event = FileMovedEvent(str(helpers_file), str(new_helpers))
+        service.handler._handle_file_moved(event)
+
+        updated = main_file.read_text()
+        assert (
+            "from core.helpers import greet" in updated
+        ), f"Import should update to 'core.helpers', got: {updated!r}"

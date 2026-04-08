@@ -41,7 +41,27 @@ Based on the feature tier assessment:
 
 **Selected Tier**: [1|2|3] - [Brief justification for tier selection]
 
+### Conditional Sections by Tier
+
+<!-- Delete this guide after applying it to the document -->
+
+| Section | Tier 1 | Tier 2 | Tier 3 |
+|---------|--------|--------|--------|
+| Unit Tests | ✅ Core models/services only | ✅ Full | ✅ Full |
+| Integration Tests | ✅ Key data flows only | ✅ Full | ✅ Full |
+| UI/Component Tests | ❌ Remove if no UI | ✅ If feature has UI | ✅ If feature has UI |
+| End-to-End Tests | ❌ Remove section | ❌ Remove section | ✅ Include |
+| Manual Test Scenarios | ❌ Remove if none | ✅ If applicable | ✅ If applicable |
+| Cross-References: API Spec | ❌ Remove if no API | ✅ If API exists | ✅ If API exists |
+| Cross-References: DB Schema | ❌ Remove if no DB | ✅ If DB exists | ✅ If DB exists |
+
 ## Cross-References
+
+<!-- RETROSPECTIVE: For retrospective test specs, simplify this section to a flat list of links
+     to existing documents. Remove subsections for documents that don't exist (API Spec, Schema
+     Design). The "Primary Documentation / Owner" scaffolding is for forward planning. Example:
+     - **FDD**: [PD-FDD-XXX](path)
+     - **TDD**: [PD-TDD-XXX](path) -->
 
 ### Functional Requirements Reference
 
@@ -229,13 +249,10 @@ Based on the feature tier assessment:
 | ------------- | ------------------ | ------------------ | ------------- |
 | [StateChange] | [What triggers it] | [UI change]        | [How to test] |
 
-### End-to-End Tests (Tier 3 Only)
+### End-to-End Tests (Tier 3 Only — delete this section for Tier 1/2)
 
-<!-- Complete user flow testing -->
-
-#### User Journeys
-
-[Complete user flow testing for Tier 3 features]
+<!-- RETROSPECTIVE: For retrospective Tier 3 features, document existing E2E coverage
+     rather than planned user journeys. -->
 
 | User Journey  | Steps               | Success Criteria     | Failure Scenarios |
 | ------------- | ------------------- | -------------------- | ----------------- |
@@ -277,6 +294,12 @@ Based on the feature tier assessment:
 
 ## Test Implementation Roadmap
 
+<!-- RETROSPECTIVE: For retrospective test specs, reframe as "Existing Test Inventory" or
+     "Test Coverage Status". Document which tests already exist and their current state
+     (passing/failing/skipped) rather than a forward-looking priority list of tests to create.
+     The "Priority Order" structure below can be repurposed as "Coverage Gaps" listing tests
+     that should be added to improve coverage of the existing implementation. -->
+
 ### Priority Order
 
 [Priority-ordered list of tests to implement]
@@ -310,9 +333,9 @@ test/
 │       └── [feature_id]_utils_test.[ext]
 ├── integration/
 │   └── [feature_id]_integration_test.[ext]
-├── ui/
+├── ui/                                    # Tier 2+ with UI only
 │   └── [feature_id]_ui_test.[ext]
-└── e2e/
+└── e2e/                                   # Tier 3 only
     └── [feature_id]_e2e_test.[ext]
 ```
 
@@ -325,6 +348,10 @@ test/
 - [Integration tests] require [unit tests] to be passing first
 
 ## AI Agent Session Handoff Notes
+
+<!-- RETROSPECTIVE: For retrospective test specs, reframe "Implementation Context" as a summary
+     of existing test coverage and gaps. "Test Implementation Guidelines" should focus on what
+     tests to add to the existing suite, not building from scratch. -->
 
 ### Implementation Context
 

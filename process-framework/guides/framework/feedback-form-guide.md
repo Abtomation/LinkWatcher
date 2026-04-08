@@ -15,14 +15,12 @@ This guide provides comprehensive instructions for completing feedback forms eff
 
 1. **Use the automation script** (recommended):
    ```bash
-   # Navigate to script directory and run with bash single quotes:
-   cd process-framework/scripts/file-creation && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-FeedbackForm.ps1 -DocumentId "PF-TSK-XXX" -TaskContext "Task Name" -FeedbackType "MultipleTools" -Confirm:$false'
+   pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/support/New-FeedbackForm.ps1 -DocumentId "PF-TSK-XXX" -TaskContext "Task Name" -FeedbackType "MultipleTools" -Confirm:\$false
    ```
-   > **Note**: Update the path to match your actual project location
 
 2. **Manual creation**: Copy the template and follow the naming convention: `YYYYMMDD-HHMMSS-document-id-feedback.md`
 
-3. **File placement**: Save in `/process-framework/feedback/feedback-forms`
+3. **File placement**: Save in `/process-framework-local/feedback/feedback-forms`
 
 ## Time Tracking Requirements
 

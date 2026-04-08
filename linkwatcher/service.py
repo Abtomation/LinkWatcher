@@ -74,7 +74,10 @@ class LinkWatcherService:
             parser_type_extensions=config.parser_type_extensions if config else None
         )
         self.parser = LinkParser(config=config)
-        self.updater = LinkUpdater(str(self.project_root))
+        self.updater = LinkUpdater(
+            str(self.project_root),
+            python_source_root=config.python_source_root if config else "",
+        )
         self.handler = LinkMaintenanceHandler(
             self.link_db,
             self.parser,

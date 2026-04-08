@@ -319,7 +319,7 @@ try {
 
     # Save batch results
     if (-not $DryRun) {
-        $resultsPath = Join-Path $projectRoot "process-framework/state-tracking/temporary/batch-update-results-$batchId.json"
+        $resultsPath = Join-Path $projectRoot "process-framework-local/state-tracking/temporary/batch-update-results-$batchId.json"
         $batchResults | ConvertTo-Json -Depth 10 | Set-Content -Path $resultsPath -Encoding UTF8
         Write-Host "📊 Batch results saved: $resultsPath" -ForegroundColor Blue
     }
@@ -369,7 +369,7 @@ try {
         $batchResults.Duration = $batchResults.EndTime - $batchResults.StartTime
         $batchResults.Status = "FAILED"
 
-        $resultsPath = Join-Path $projectRoot "process-framework/state-tracking/temporary/batch-update-results-$batchId-FAILED.json"
+        $resultsPath = Join-Path $projectRoot "process-framework-local/state-tracking/temporary/batch-update-results-$batchId-FAILED.json"
         $batchResults | ConvertTo-Json -Depth 10 | Set-Content -Path $resultsPath -Encoding UTF8
         Write-Host "📊 Partial batch results saved: $resultsPath" -ForegroundColor Yellow
     }

@@ -7,7 +7,7 @@
     "form_date": "YYYY-MM-DD",
     "session_duration_minutes": null,
     "review_cycle_id": "tools-review-YYYYMMDD",
-    "archived_form_path": "process-framework/feedback/archive/YYYY-MM/tools-review-YYYYMMDD/processed-forms/FILENAME.md",
+    "archived_form_path": "process-framework-local/feedback/archive/YYYY-MM/tools-review-YYYYMMDD/processed-forms/FILENAME.md",
     "overall_effectiveness": 5,
     "process_conciseness": 5,
     "tools": [

@@ -8,7 +8,7 @@
     for status/tier/priority metadata, and generates:
     - A Mermaid dependency graph (color-coded by phase)
     - A feature priority matrix table
-    Writes the result to doc/technical/feature-dependencies.md.
+    Writes the result to doc/technical/architecture/feature-dependencies.md.
 
 .PARAMETER WhatIf
     Shows what would be generated without writing the file.
@@ -17,8 +17,8 @@
     Overwrites the output file even if it appears up to date.
 
 .EXAMPLE
-    .\Update-FeatureDependencies.ps1
-    .\Update-FeatureDependencies.ps1 -WhatIf
+    Update-FeatureDependencies.ps1
+    Update-FeatureDependencies.ps1 -WhatIf
 #>
 [CmdletBinding(SupportsShouldProcess)]
 param(
@@ -31,7 +31,7 @@ $ErrorActionPreference = 'Stop'
 $projectRoot = (Resolve-Path (Join-Path $PSScriptRoot '../../../.git/objects/3a/b045e54f8acd16e0d036a487eb74c269db1d9f')).Path
 $featuresDir = Join-Path $projectRoot 'doc/state-tracking/features'
 $trackingFile = Join-Path $projectRoot 'doc/state-tracking/permanent/feature-tracking.md'
-$outputFile = Join-Path $projectRoot 'doc/technical/feature-dependencies.md'
+$outputFile = Join-Path $projectRoot 'doc/technical/architecture/feature-dependencies.md'
 
 # --- Parse feature state files ---
 $stateFiles = Get-ChildItem -Path $featuresDir -Filter '*-implementation-state.md' | Sort-Object Name
@@ -206,9 +206,9 @@ $edgeCount = ($dependsOn.Values | ForEach-Object { $_.Count } | Measure-Object -
 
 $output = @"
 ---
-id: PD-DES-001
+id: PD-ARC-002
 type: Product Documentation
-category: Technical Design
+category: Architecture
 version: 2.0
 created: 2023-06-15
 updated: $generatedDate

@@ -2,6 +2,7 @@
 id: PF-TSK-059
 type: Process Framework
 category: Task Definition
+domain: agnostic
 version: 1.1
 created: 2026-02-16
 updated: 2026-03-22
@@ -74,7 +75,16 @@ Establishes foundational project configuration and metadata when initializing a 
 
 ### Execution
 
-5. **Create project-config.json File**: At the project root directory, create `project-config.json` with the following structure:
+5. **Set Up Git Repository**: Discuss and agree with human partner on git configuration:
+   - Where the git root should be (project root directory)
+   - Confirm the project directory has its own `.git` (not inherited from a parent directory)
+   - If a parent `.git` exists: warn the human partner — a repo rooted above the project tracks unrelated files and should be split
+   - Initialize `git init` in the project root if no repo exists
+   - Create an initial `.gitignore` appropriate for the project's language/framework (virtual environments, compiled files, databases, IDE files, OS files, backup files)
+   - Set up remote repository if applicable (`git remote add origin <url>`)
+   - **🚨 CHECKPOINT**: Confirm git setup with human partner before proceeding
+
+6. **Create project-config.json File**: At the project root directory, create `project-config.json` with the following structure:
 
    ```json
    {
@@ -131,35 +141,33 @@ Establishes foundational project configuration and metadata when initializing a 
    }
    ```
 
-6. **Customize Field Values**: Replace all placeholders `[...]` with actual project-specific values:
+7. **Customize Field Values**: Replace all placeholders `[...]` with actual project-specific values:
    - Use Windows path format with double backslashes (`\\`) for paths on Windows
    - Use forward slashes (`/`) for relative paths in the `paths` section
    - Set values to `null` for optional fields that don't apply
+   - **`paths.source_code`**: Set to the actual source directory name (e.g., `src`, `lib`, `app`). Do **not** leave as `"."` — this value drives the [Source Code Layout](/doc/technical/architecture/source-code-layout.md) scaffold script and validation. No directories are created at this point — that is deferred to Codebase Feature Discovery (PF-TSK-064) after features are known.
 
-7. **Validate JSON Syntax**: Ensure the file is valid JSON (check for missing commas, brackets, quotes)
-8. **Set Up Language Configuration**: Check if `languages-config/{language}/{language}-config.json` exists for the project's language. If not, copy the [language config template](/process-framework/templates/support/language-config-template.json) to `languages-config/{language}/{language}-config.json` and fill in language-specific values (test runner, coverage, lint commands). See [languages-config README](/process-framework/languages-config/README.md).
+8. **Validate JSON Syntax**: Ensure the file is valid JSON (check for missing commas, brackets, quotes)
+9. **Set Up Language Configuration**: Check if `languages-config/{language}/{language}-config.json` exists for the project's language. If not, copy the [language config template](/process-framework/templates/support/language-config-template.json) to `languages-config/{language}/{language}-config.json` and fill in language-specific values (test runner, coverage, lint commands). See [languages-config README](/process-framework/languages-config/README.md).
 
-9. **Set Up Testing Infrastructure**: Run the bootstrapping script to scaffold the test environment:
-   ```powershell
-   cd process-framework/scripts/file-creation/00-setup
-   .\New-TestInfrastructure.ps1 -Language "<language>"
+10. **Set Up Testing Infrastructure**: Run the bootstrapping script to scaffold the test environment:
+   ```bash
+   pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/00-setup/New-TestInfrastructure.ps1 -Language "<language>"
    ```
    This creates: test directory structure, tracking files (`test-tracking.md`, `e2e-test-tracking.md`), `TE-id-registry.json`, shared fixtures, and package markers. See the [Test Infrastructure Guide](/process-framework/guides/03-testing/test-infrastructure-guide.md) for details.
    - After running: create native test runner config (e.g., `pytest.ini` for Python)
    - After running: install test dependencies (e.g., `pip install pytest pytest-cov`)
-
-10. **Create Empty User Workflow Tracking File**: Create `/doc/state-tracking/permanent/user-workflow-tracking.md` with an empty workflow table structure (WF-ID, Workflow Name, Description, Required Features, Priority, Impl Status, E2E Status columns). This file will be populated during Codebase Feature Discovery (PF-TSK-064) or as features are developed.
 
 11. **Set Up CI/CD Infrastructure** (optional): Follow the [CI/CD Setup Guide](/process-framework/guides/07-deployment/ci-cd-setup-guide.md) to scaffold development tooling:
     - Create pre-commit hooks config (`.pre-commit-config.yaml`)
     - Create dev script (`dev.bat` / `dev.sh`)
     - Create CI pipeline (if using a Git hosting platform)
 
-12. **🚨 CHECKPOINT**: Present completed project-config.json, language config, test infrastructure, workflow tracking file, and CI/CD setup to human partner for review before finalization
+12. **🚨 CHECKPOINT**: Present completed project-config.json, language config, test infrastructure, and CI/CD setup to human partner for review before finalization
 
 ### Finalization
 
-13. **Verify File Location**: Confirm `project-config.json` is in the project root directory and language config is in `languages-config/`
+13. **Verify File Location**: Confirm `project-config.json` is in the project root directory and language config is in `languages-config`
 
 14. **Test Configuration**: Verify the full setup works:
     - `Run-Tests.ps1 -ListCategories` shows test categories
@@ -173,6 +181,7 @@ Establishes foundational project configuration and metadata when initializing a 
 
 ## Outputs
 
+- **Git repository** - Initialized git repo at project root with `.gitignore` and optional remote
 - **project-config.json** - JSON configuration file created at project root directory containing:
   - Project identification (name, display name, description, repository URL)
   - Directory path mappings (documentation, source code, tests, scripts)
@@ -183,11 +192,24 @@ Establishes foundational project configuration and metadata when initializing a 
 - **Language config** (if new) - `languages-config/{language}/{language}-config.json` with language-specific test runner commands
 - **Test infrastructure** - Test directory structure, test runner config, shared fixtures, empty `test-tracking.md`
 - **CI/CD infrastructure** (optional) - Pre-commit hooks, dev script, CI pipeline
-- **User Workflow Tracking** - Empty workflow tracking file at `doc/state-tracking/permanent/user-workflow-tracking.md`
 
 ## State Tracking
 
-No state files require updates for this task. The `project-config.json` itself serves as the persistent configuration state.
+### New State Files Created
+
+- **project-config.json** (PERMANENT):
+  - Location: `doc/project-config.json`
+  - Purpose: Central source of truth for project-specific settings, paths, and metadata used by automation scripts
+  - Lifecycle: Permanent (never archived)
+
+- **Language config** (PERMANENT, conditional — only if not already present):
+  - Location: `languages-config/{language}/{language}-config.json`
+  - Purpose: Language-specific command configurations for test runner, coverage, and lint tools
+  - Lifecycle: Permanent (never archived)
+
+### Existing State Files Updated
+
+None — this task creates foundational configuration before any state tracking files exist.
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
@@ -196,6 +218,10 @@ No state files require updates for this task. The `project-config.json` itself s
 Before considering this task finished:
 
 - [ ] **Verify Outputs**: Confirm all required outputs have been produced
+  - [ ] Git repository initialized at project root (`.git` directory exists)
+  - [ ] `.gitignore` exists with language-appropriate exclusions
+  - [ ] No parent directory has a `.git` that would shadow this repo
+  - [ ] Remote configured (if applicable)
   - [ ] `project-config.json` file exists at project root directory
   - [ ] All required fields are populated with project-specific values (no `[...]` placeholders remain)
   - [ ] JSON syntax is valid (file can be parsed without errors)
@@ -210,7 +236,6 @@ Before considering this task finished:
   - [ ] Test runner config exists (e.g., `pytest.ini`)
   - [ ] Shared fixtures/setup file exists (e.g., `conftest.py`)
   - [ ] Pre-commit hooks work (if configured): `pre-commit run --all-files`
-  - [ ] User Workflow Tracking file exists at `doc/state-tracking/permanent/user-workflow-tracking.md` with empty table structure
 
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for task ID "PF-TSK-059" and context "Project Initiation"
 

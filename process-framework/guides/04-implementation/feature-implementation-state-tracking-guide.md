@@ -2,9 +2,9 @@
 id: PF-GDE-043
 type: Process Framework
 category: Guide
-version: 2.0
+version: 2.2
 created: 2025-10-30
-updated: 2026-02-27
+updated: 2026-04-05
 related_task: PF-TSK-044
 guide_status: Active
 ---
@@ -74,9 +74,22 @@ Feature implementation state documents solve these problems by:
 - **Session Continuity**: Provides complete context for resuming work
 - **Bidirectional Traceability**: Links code to documentation and vice versa
 
-## Template Structure Analysis
+## Template Variants
 
-The feature implementation state template (PF-TEM-037) contains 9 sections organized to support the entire feature lifecycle:
+Two template variants exist, selected based on the feature's assessed tier:
+
+| Variant | Template ID | Sections | Use When |
+|---------|-------------|----------|----------|
+| **Full** | PF-TEM-037 | 10 | Tier 2/3 features (moderate/complex) |
+| **Lightweight** | PF-TEM-068 | 7 | Tier 1 features (simple) and retrospective analysis |
+
+The lightweight variant omits **Implementation Progress** (no multi-task sequence for simple features), **Dimension Profile** (low value for simple existing code), and merges **Issues & Resolutions** + **Next Steps** into a compact **Notes & Next Steps** section.
+
+The tier is assessed during [Feature Tier Assessment (PF-TSK-002)](../../tasks/01-planning/feature-tier-assessment-task.md), which also creates the state file. The `-Lightweight` switch on `New-FeatureImplementationState.ps1` selects the appropriate template.
+
+## Template Structure Analysis (Full Variant)
+
+The full feature implementation state template (PF-TEM-037) contains 10 sections organized to support the entire feature lifecycle:
 
 ### Core Tracking Sections
 
@@ -406,6 +419,20 @@ During planning, set up sections that will be updated throughout implementation:
    - Document all feature dependencies discovered during planning
    - List all required services and packages
    - Identify code dependencies based on design
+
+5. **Quality Assessment** (onboarding/retrospective mode only):
+   - This section is populated during PF-TSK-065 (Codebase Feature Analysis), Step 9
+   - Score the feature on 5 dimensions using the 0-3 scale:
+     - **Structural clarity**: Separation of concerns, layering, no god classes
+     - **Error handling**: Consistent patterns, no silent failures
+     - **Data integrity**: Validation at boundaries, no injection vectors
+     - **Test coverage**: Existing tests cover critical paths
+     - **Maintainability**: Readable code, reasonable complexity
+   - Score legend: 0 = absent/broken, 1 = present but problematic, 2 = adequate, 3 = well-implemented
+   - Calculate the average across all 5 dimensions
+   - **Classification**: Average >= 2.0 → **As-Built** (documented descriptively); < 2.0 → **Target-State** (documented prescriptively with gap analysis)
+   - For Target-State features: link to the Quality Assessment Report (PD-QAR-XXX) created in PF-TSK-066
+   - For new features (not onboarding): leave this section empty — the quality gate applies only during framework adoption
 
 **Expected Result**: All tracking sections are initialized and ready for continuous updates throughout implementation.
 

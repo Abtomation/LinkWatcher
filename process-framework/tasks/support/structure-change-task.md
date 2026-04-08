@@ -128,13 +128,13 @@ This task **orchestrates** systematic changes to documentation structures, templ
 5. **Create Structure Change State Tracking File**: Use the [New-StructureChangeState.ps1](../../scripts/file-creation/support/New-StructureChangeState.ps1) script to create tracking file with implementation roadmap
    ```powershell
    # Navigate to the state-tracking directory and create structure change state tracking file
-   cd process-framework/state-tracking
+   cd process-framework-local/state-tracking
    ./New-StructureChangeState.ps1 -ChangeName "Change Name" -ChangeType "Template Update|Directory Reorganization|Metadata Structure|Documentation Architecture|Rename|Content Update" -Description "Brief description"
    # Use -ChangeType "Rename" for lightweight rename/move operations (simplified template without pilot/rollback/metrics sections)
    # Use -ChangeType "Content Update" for content-only changes across files (simplified template without pilot/rollback/metrics sections)
    # Use -FromProposal when a detailed proposal already exists — generates a lightweight state file (phase checklist + session log only, no redundant sections)
    ```
-6. Use the existing `/process-framework/state-tracking/temporary` directory for transition files
+6. Use the existing `/process-framework-local/state-tracking/temporary` directory for transition files
 7. Create mapping documents and migration checklists in the temporary directory
 8. Establish clear metrics for measuring the success of the structure change
 9. **🚨 CHECKPOINT**: Present structure change proposal (including impact matrix from Step 3), migration plan, and impact analysis to human partner for approval
@@ -179,7 +179,7 @@ This task **orchestrates** systematic changes to documentation structures, templ
 
 #### 🚨 MANDATORY Cleanup Phase
 
-17. **🚨 CRITICAL CLEANUP STEP**: Archive completed temporary state tracking files to `/process-framework/state-tracking/temporary/old`
+17. **🚨 CRITICAL CLEANUP STEP**: Archive completed temporary state tracking files to `/process-framework-local/state-tracking/temporary/old`
 18. **Archive completed proposal**: Move the structure change proposal to its `old/` subdirectory (e.g., `proposals/old`) — the proposal has served its purpose and should not remain alongside active proposals
 19. Remove excessive migration mapping documents if they don't provide ongoing value
 20. Clean up any redundant documentation created during the process
@@ -201,7 +201,7 @@ This task **orchestrates** systematic changes to documentation structures, templ
 The following state files must be updated as part of this task:
 
 - **Structure Change State File** - Create using New-StructureChangeState.ps1 to track multi-session implementation progress
-- [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) - Update to reflect the process improvement
+- [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) - Update to reflect the process improvement
 - [PF Documentation Map](../../PF-documentation-map.md) - Update if process-framework document organization changes
 - [PD Documentation Map](../../../doc/PD-documentation-map.md) - Update if product document organization changes
 - [TE Documentation Map](../../../test/TE-documentation-map.md) - Update if test artifact organization changes
@@ -220,7 +220,7 @@ The following state files must be updated as part of this task:
   - [ ] Cross-references valid (no broken links)
   - [ ] Run [`Validate-StateTracking.ps1`](../../scripts/validation/Validate-StateTracking.ps1) — 0 errors across all surfaces
 - [ ] **Update State Files**:
-  - [ ] [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) updated (if this change addresses an IMP item)
+  - [ ] [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) updated (if this change addresses an IMP item)
   - [ ] Appropriate documentation map(s) updated if document organization changed: [PF](../../PF-documentation-map.md) / [PD](../../../doc/PD-documentation-map.md) / [TE](../../../test/TE-documentation-map.md)
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-014" and context "Structure Change (Lightweight)"
 
@@ -239,11 +239,11 @@ The following state files must be updated as part of this task:
   - [ ] Run `Validate-StateTracking.ps1` — 0 errors across all surfaces
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
   - [ ] Structure change state tracking file completed and properly maintained
-  - [ ] [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) updated with structure change completion
+  - [ ] [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) updated with structure change completion
   - [ ] Appropriate documentation map(s) updated if document organization changed: [PF](../../PF-documentation-map.md) / [PD](../../../doc/PD-documentation-map.md) / [TE](../../../test/TE-documentation-map.md)
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-014" and context "Structure Change (Full)"
 - [ ] **🚨 MANDATORY Cleanup Phase**: Remove temporary documentation artifacts created during the structure change:
-  - [ ] **🚨 CRITICAL**: Archive completed temporary state tracking files to `/process-framework/state-tracking/temporary/old`
+  - [ ] **🚨 CRITICAL**: Archive completed temporary state tracking files to `/process-framework-local/state-tracking/temporary/old`
   - [ ] **🚨 CRITICAL**: Archive completed structure change proposal to its `old/` subdirectory
   - [ ] Remove excessive migration mapping documents if they don't provide ongoing value
   - [ ] Clean up any redundant documentation created during the process

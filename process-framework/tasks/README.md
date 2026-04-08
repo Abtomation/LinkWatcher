@@ -104,6 +104,7 @@ The task-based approach helps to:
 
 | Task | Description | When to Use |
 | ---- | ----------- | ----------- |
+| [Git Commit and Push](07-deployment/git-commit-and-push.md) | Commit current working directory changes and push to remote repository | When working on Git Commit and Push |
 | [Release & Deployment](07-deployment/release-deployment-task.md) | Manage releases and deployments | When preparing and deploying releases |
 | [User Documentation Creation](07-deployment/user-documentation-creation.md) | Create or update user-facing product documentation | When features introduce or change user-visible behavior |
 
@@ -153,7 +154,7 @@ At the end of each task, feedback should be collected on the tools used during t
 1. **Create Feedback Form**: Use the [feedback form template](../templates/support/feedback-form-template.md)
 2. **Evaluate Tools**: Rate and provide comments on each tool's effectiveness, clarity, completeness, and efficiency
 3. **Suggest Improvements**: Document what worked well and what could be improved
-4. **Save Feedback**: Store the feedback form (artifact) in the `/process-framework/feedback/feedback-forms` directory with the naming convention `YYYYMMDD-HHMMSS-document-id-feedback.md`
+4. **Save Feedback**: Store the feedback form (artifact) in the `/process-framework-local/feedback/feedback-forms` directory with the naming convention `YYYYMMDD-HHMMSS-document-id-feedback.md`
 
 > **Important**: Feedback forms are artifacts (using ART-FEE-XXX IDs), not documents. They evaluate documents (with [PREFIX]-XXX-XXX IDs).
 
@@ -172,7 +173,7 @@ Tasks in this system are designed to be self-documenting through their outputs:
 
 State tracking is a core component of the task-based approach:
 
-1. **State Files**: Located in `/process-framework/state-tracking` directory
+1. **State Files**: Located in `/process-framework-local/state-tracking` directory
 2. **Consistent Updates**: Each task must update relevant state files
 3. **Project Status**: State files reflect the current project status
 4. **Task Transitions**: State files guide transitions between tasks

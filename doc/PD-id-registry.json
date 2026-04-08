@@ -103,7 +103,7 @@
         "handbooks": "doc/user/handbooks",
         "default": "handbooks"
       },
-      "nextAvailable": 4
+      "nextAvailable": 5
     },
     "PD-FAQ": {
       "description": "Product Documentation - FAQ",
@@ -155,7 +155,7 @@
         "permanent": "doc/state-tracking/permanent",
         "default": "permanent"
       },
-      "nextAvailable": 75
+      "nextAvailable": 82
     },
     "PD-ASS": {
       "description": "Product Documentation - Assessment Artifacts",

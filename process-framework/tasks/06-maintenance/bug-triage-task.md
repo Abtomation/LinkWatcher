@@ -45,7 +45,7 @@ Systematically evaluate, prioritize, and assign reported bugs to ensure efficien
   - [Project Architecture](/doc/technical/architecture) - Understanding system architecture for impact assessment
 
 - **Reference Only (Access When Needed):**
-  - [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) - For process-related bug patterns
+  - [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) - For process-related bug patterns
 
 ## Process
 

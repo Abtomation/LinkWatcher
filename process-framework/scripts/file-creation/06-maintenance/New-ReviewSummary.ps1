@@ -29,10 +29,10 @@
     If specified, opens the created file in the default editor.
 
 .EXAMPLE
-    .\New-ReviewSummary.ps1 -FormsAnalyzed 11 -DateRangeStart '2026-02-21' -DateRangeEnd '2026-02-26'
+    New-ReviewSummary.ps1 -FormsAnalyzed 11 -DateRangeStart '2026-02-21' -DateRangeEnd '2026-02-26'
 
 .EXAMPLE
-    .\New-ReviewSummary.ps1 -ReviewDate '2026-02-26' -FormsAnalyzed 11 -DateRangeStart '2026-02-21' -DateRangeEnd '2026-02-26' -OpenInEditor
+    New-ReviewSummary.ps1 -ReviewDate '2026-02-26' -FormsAnalyzed 11 -DateRangeStart '2026-02-21' -DateRangeEnd '2026-02-26' -OpenInEditor
 
 .NOTES
     - Requires PowerShell execution policy to allow script execution
@@ -90,7 +90,7 @@ try {
         -IdPrefix "PF-REV" `
         -IdDescription "Tools Review Summary $ReviewDate" `
         -DocumentName "tools-review-$dateForFilename-$timestamp" `
-        -OutputDirectory "process-framework/feedback/reviews" `
+        -OutputDirectory "process-framework-local/feedback/reviews" `
         -FileNamePattern $fileNamePattern `
         -Replacements $customReplacements `
         -OpenInEditor:$OpenInEditor

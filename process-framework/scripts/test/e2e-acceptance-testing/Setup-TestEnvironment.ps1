@@ -19,10 +19,10 @@
     Optional: Project root path. Auto-detected if not specified.
 
 .EXAMPLE
-    .\Setup-TestEnvironment.ps1 -Group "basic-file-operations" -Clean
+    Setup-TestEnvironment.ps1 -Group "basic-file-operations" -Clean
 
 .EXAMPLE
-    .\Setup-TestEnvironment.ps1 -Clean
+    Setup-TestEnvironment.ps1 -Clean
 
 .NOTES
     Created: 2026-03-15

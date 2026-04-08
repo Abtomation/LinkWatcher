@@ -9,7 +9,7 @@ updated: 2026-02-20
 
 # Process Framework Documentation Map
 
-This document indexes all process framework documentation in the `process-framework/` directory — tasks, templates, guides, scripts, and context maps.
+This document indexes all process framework documentation in the `process-framework` directory — tasks, templates, guides, scripts, and context maps.
 
 > **See also**: [Product Documentation Map](/doc/PD-documentation-map.md) | [Test Documentation Map](/test/TE-documentation-map.md)
 
@@ -19,7 +19,7 @@ These documents describe how we work and our development processes:
 
 ### Task Definitions
 
-Our tasks are organized to mirror the `tasks/` directory structure:
+Our tasks are organized to mirror the `tasks` directory structure:
 
 > **📋 Recent Enhancement (2025-08-01)**: All task definitions now include **AI Agent Role** sections that specify the professional role, mindset, focus areas, and communication style for optimal AI agent behavior during task execution.
 
@@ -90,6 +90,7 @@ Our tasks are organized to mirror the `tasks/` directory structure:
 - [Task: Bug Fixing](tasks/06-maintenance/bug-fixing-task.md) - Diagnose and fix bugs
 
 #### 07 - Deployment Tasks
+| PF-TSK-082 | [process-framework/tasks/07-deployment/git-commit-and-push.md](/process-framework/tasks/07-deployment/git-commit-and-push.md) | Documentation | Git Commit and Push | [tasks/README.md](/process-framework/tasks/README.md) |
 
 - [Task: Release Deployment](tasks/07-deployment/release-deployment-task.md) - Manage releases and deployments
 - [Task: User Documentation Creation](tasks/07-deployment/user-documentation-creation.md) - Feature introduces or changes user-visible behavior and needs handbook/quick-reference/README updates
@@ -113,20 +114,21 @@ Our tasks are organized to mirror the `tasks/` directory structure:
 
 - [Process: Test Query Tool](scripts/test/test_query.py) - AST-based query tool for test metadata from pytest markers (replaces test-registry.yaml — SC-007)
 - [Process: Ratings Extraction Tool](scripts/extract_ratings.py) - Parses feedback form markdown and generates JSON for `feedback_db.py record`, eliminating manual JSON construction during PF-TSK-010
-- [Process: Enhancement Workflow Concept](proposals/old/enhancement-workflow-concept.md) - Framework extension concept for feature enhancement classification and execution workflow
+- [Process: Enhancement Workflow Concept](../process-framework-local/proposals/old/enhancement-workflow-concept.md) - Framework extension concept for feature enhancement classification and execution workflow
 - ~~Process: Code Quality Standards Validation Concept~~ - 🗄️ Removed (file deleted)
 
 ### State Tracking Files
 
-#### `state-tracking/permanent/`
+#### `state-tracking/permanent`
 
-- [State: Process Improvement Tracking](state-tracking/permanent/process-improvement-tracking.md) - Process improvement opportunities and status
+- [State: Process Improvement Tracking](../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) - Process improvement opportunities and status
 
 ### Templates
 
 #### 00 - Setup Templates
 
 - [Template: Retrospective State](templates/00-setup/retrospective-state-template.md) - Template for retrospective documentation state tracking
+- [Template: Quality-Assessment-Report](templates/00-setup/quality-assessment-report-template.md) - Template for Quality Assessment Reports created during onboarding for Target-State features
 
 #### 01 - Planning Templates
 
@@ -168,7 +170,8 @@ Our tasks are organized to mirror the `tasks/` directory structure:
 - [Template: Implementation Plan](templates/04-implementation/implementation-plan-template.md) - Template for creating implementation plan documents that define sequenced execution strategies for feature implementation
 - [Template: Implementation Plan Tier 1](templates/04-implementation/implementation-plan-tier1-template.md) - Lightweight implementation plan template for Tier 1 features
 - [Template: Foundation Feature](templates/04-implementation/foundation-feature-template.md) - Template for foundation feature structure and architectural documentation
-- [Template: Feature Implementation State](templates/04-implementation/feature-implementation-state-template.md) - Template for feature implementation state tracking files
+- [Template: Feature Implementation State](templates/04-implementation/feature-implementation-state-template.md) - Full template for feature implementation state tracking files (Tier 2/3)
+- [Template: Feature Implementation State Lightweight](templates/04-implementation/feature-implementation-state-lightweight-template.md) - Lightweight template for Tier 1 features and retrospective analysis (7 sections)
 - [Template: Enhancement State Tracking](templates/04-implementation/enhancement-state-tracking-template.md) - Template for tracking enhancement work on existing features, used by New-EnhancementState.ps1
 
 #### 05 - Validation Templates
@@ -230,9 +233,12 @@ Our tasks are organized to mirror the `tasks/` directory structure:
 - [Process: New Handbook Script](scripts/file-creation/07-deployment/New-Handbook.ps1) - PowerShell script for creating user handbook documents with auto-assigned PD-UGD IDs
 - [Process: New UI Design Script](scripts/file-creation/02-design/New-UIDesign.ps1) - PowerShell script for creating UI/UX Design documents with auto-assigned IDs and Design Guidelines references
 - [Process: New Test Specification Script](scripts/file-creation/03-testing/New-TestSpecification.ps1) - PowerShell script for creating test specifications (supports both feature-specific and cross-cutting modes via -CrossCutting switch)
-- [Process: New Process Improvement Script](scripts/file-creation/support/New-ProcessImprovement.ps1) - PowerShell script for adding new improvement opportunities to process-improvement-tracking.md with auto-assigned PF-IMP IDs
+- [Process: New Process Improvement Script](scripts/file-creation/support/New-ProcessImprovement.ps1) - PowerShell script for adding new improvement opportunities to process-improvement-tracking.md with auto-assigned PF-IMP IDs (supports -BatchFile for bulk JSON input)
 - [Process: New Framework Evaluation Report Script](scripts/file-creation/support/New-FrameworkEvaluationReport.ps1) - PowerShell script for creating structured framework evaluation reports with auto-assigned PF-EVR IDs
 - [Process: New Test Infrastructure Script](scripts/file-creation/00-setup/New-TestInfrastructure.ps1) - Language-agnostic bootstrapping script for test directory structure, tracking files, and TE-id-registry from ../doc/project-config.json and language config
+- [Process: New Quality Assessment Report Script](scripts/file-creation/00-setup/New-QualityAssessmentReport.ps1) - PowerShell script for creating Quality Assessment Reports for Target-State features during onboarding with auto-assigned PD-QAR IDs
+- [Process: New Retrospective Master State Script](scripts/file-creation/00-setup/New-RetrospectiveMasterState.ps1) - PowerShell script for creating retrospective master state tracking files for parallel session coordination during PF-TSK-065/PF-TSK-066
+- [Process: New Source Structure Script](scripts/file-creation/00-setup/New-SourceStructure.ps1) - Dual-mode script for source code directory scaffolding (-Scaffold) and directory tree maintenance (-Update) based on feature tracking and language config (PF-PRO-002)
 - [Process: New Validation Tracking Script](scripts/file-creation/05-validation/New-ValidationTracking.ps1) - PowerShell script for creating validation tracking state files with auto-assigned PF-STA IDs for validation rounds (PF-TSK-077)
 - [Process: Generate Validation Summary Script](scripts/file-creation/05-validation/Generate-ValidationSummary.ps1) - PowerShell script for generating consolidated validation summaries from multiple validation reports with codebase health scores and improvement roadmaps
 - [Process: New Audit Tracking Script](scripts/file-creation/03-testing/New-AuditTracking.ps1) - PowerShell script for creating test audit tracking state files with auto-populated inventory from test-tracking.md for multi-session audit rounds (PF-TSK-030)
@@ -257,18 +263,25 @@ Our tasks are organized to mirror the `tasks/` directory structure:
 - [Process: Update Language Config Script](scripts/update/Update-LanguageConfig.ps1) - Adds fields consistently across all language config files and template to prevent drift (-List to audit, -Section/-FieldName to add)
 - [Process: Update Feature Dependencies Script](scripts/update/Update-FeatureDependencies.ps1) - Auto-generates feature-dependencies.md from feature state files (Mermaid graph + priority matrix). Integrated into Validate-StateTracking.ps1 Surface 6
 - [Process: Update User Documentation State Script](scripts/update/Update-UserDocumentationState.ps1) - Automates PF-TSK-081 finalization: appends handbook row to feature state file Documentation Inventory and adds entry to documentation-map.md User Handbooks section
+- [Process: Update Retrospective Master State Script](scripts/update/Update-RetrospectiveMasterState.ps1) - Atomic updates to retrospective master state Feature Inventory (claim/complete features, recalculate Progress Overview counters) for parallel session coordination during PF-TSK-065/PF-TSK-066
 
 ### Validation Scripts
 
 - [Process: Validate ID Registry](scripts/validation/Validate-IdRegistry.ps1) - Validates ID registry against actual files in the repository
 - [Process: Validate Test Tracking](scripts/validation/Validate-TestTracking.ps1) - Validates pytest markers (via test_query.py) consistency with test-tracking.md and actual test files on disk
-- [Process: Validate State Tracking](scripts/validation/Validate-StateTracking.ps1) - Master validation across 12 surfaces: feature-tracking links, feature state files, test-tracking, cross-references, ID counters, feature dependencies, dimension consistency, workflow tracking, task registry completeness, metadata schema conformance, context map orphan detection, and ai-tasks.md consistency
+- [Process: Validate State Tracking](scripts/validation/Validate-StateTracking.ps1) - Master validation across 13 surfaces: feature-tracking links, feature state files, test-tracking, cross-references, ID counters, feature dependencies, dimension consistency, workflow tracking, task registry completeness, metadata schema conformance, context map orphan detection, ai-tasks.md consistency, and master state consistency
+- [Process: Validate Onboarding Completeness](scripts/validation/Validate-OnboardingCompleteness.ps1) - Validates 100% source file coverage and feature state file existence after Codebase Feature Discovery (PF-TSK-064)
 - [Process: Validate Feedback Forms](scripts/validation/Validate-FeedbackForms.ps1) - Validates feedback forms for completeness and identifies forms with template placeholders
 - [Process: Quick Validation Check](scripts/validation/Quick-ValidationCheck.ps1) - Quick health check for selected features covering code quality, architectural consistency, and implementation status
 - [Process: Run Foundational Validation](scripts/validation/Run-FoundationalValidation.ps1) - Comprehensive feature validation across all 6 validation types with detailed reports and tracking updates
 - [Process: Validate Audit Report](scripts/validation/Validate-AuditReport.ps1) - Validates Test Audit Reports for completeness, consistency, and quality standards
 
 ### Guides
+
+#### 00 - Setup Guides
+
+- [Guide: Onboarding Edge Cases](guides/00-setup/onboarding-edge-cases.md) - Edge-case guidance for ambiguous file assignment, shared utilities, and confidence tagging during codebase onboarding
+- [Guide: Source Code Layout](guides/00-setup/source-code-layout-guide.md) - How to fill in the source layout doc, layer definitions, sublayer thresholds, file placement guidance, scale transition criteria
 
 #### 01 - Planning Guides
 
@@ -354,6 +367,12 @@ Our tasks are organized to mirror the `tasks/` directory structure:
 - [Context Maps README](visualization/context-maps/README.md) - Guide to using context maps for tasks
 - [Context Maps Template](templates/support/context-map-template.md) - Template for creating new context maps
 
+#### 00 - Setup Context Maps
+
+- [Codebase Feature Discovery Map](visualization/context-maps/00-setup/codebase-feature-discovery-map.md) - Components for discovering features in existing codebases
+- [Codebase Feature Analysis Map](visualization/context-maps/00-setup/codebase-feature-analysis-map.md) - Components for analyzing implementation patterns and dependencies
+- [Retrospective Documentation Creation Map](visualization/context-maps/00-setup/retrospective-documentation-creation-map.md) - Components for creating retrospective design documentation
+
 #### 01 - Planning Context Maps
 
 - [Feature Discovery Map](visualization/context-maps/01-planning/feature-discovery-map.md) - Components for exploring features
@@ -409,6 +428,7 @@ Our tasks are organized to mirror the `tasks/` directory structure:
 
 - [Release Deployment Map](visualization/context-maps/07-deployment/release-deployment-map.md) - Components for deployment
 - [User Documentation Creation Map](visualization/context-maps/07-deployment/user-documentation-creation-map.md) - Components for creating and maintaining user-facing handbook documentation
+- [Git Commit and Push Map](visualization/context-maps/07-deployment/git-commit-and-push-map.md) - Context map for Git Commit and Push task
 
 #### Cyclical Context Maps
 
@@ -429,6 +449,6 @@ Our tasks are organized to mirror the `tasks/` directory structure:
 
 When adding new process framework documentation:
 1. Add the entry to the appropriate section in this map
-2. Use local relative paths from `process-framework/` (no `../process-framework/` prefix needed)
+2. Use local relative paths from `process-framework` (no `../process-framework/` prefix needed)
 3. For product documentation (FDDs, TDDs, ADRs, validation reports, handbooks), add to [Product Documentation Map](/doc/PD-documentation-map.md) instead
 4. For test documentation (test specs, audit reports), add to [Test Documentation Map](/test/TE-documentation-map.md) instead

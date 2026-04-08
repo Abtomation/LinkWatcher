@@ -36,7 +36,7 @@ Systematically evaluate and enhance the templates, guides, and other tools by co
 - **Critical (Must Read):**
 
   - [Feedback Forms](../../feedback) - Collected feedback on tools used in previous tasks
-  - [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) - Current improvement initiatives
+  - [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) - Current improvement initiatives
   - [Visual Notation Guide](/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 - **Important (Load If Space):**
@@ -73,6 +73,8 @@ Systematically evaluate and enhance the templates, guides, and other tools by co
 
 ### Execution
 
+> **🎯 UNIT OF ANALYSIS**: The output unit is the **individual improvement opportunity**, not the feedback form or task group. Task-group analysis (Steps 6–9) organizes the reading — but when registering IMPs (Step 12), each distinct actionable change must be its own entry. If a single form contains 3 independent suggestions, that's 3 IMPs. If a theme spans multiple forms but describes one change, that's 1 IMP.
+
 6. Identify common themes and patterns across feedback **within each task group**
 7. Evaluate each task type separately to ensure consistent analysis
 8. Quantify ratings for effectiveness, clarity, completeness, and efficiency
@@ -80,27 +82,33 @@ Systematically evaluate and enhance the templates, guides, and other tools by co
 10. **🚨 CHECKPOINT**: Present analysis findings, identified themes, and prioritized improvement opportunities to human partner for approval
 11. **Create review summary skeleton**: Run [`New-ReviewSummary.ps1`](../../scripts/file-creation/06-maintenance/New-ReviewSummary.ps1) now so the filename (which includes an unpredictable HHMMSS timestamp) is known before registering IMPs. Note the created filename for use in `-SourceLink` parameters below.
     ```powershell
-    .\New-ReviewSummary.ps1 -FormsAnalyzed <N> -DateRangeStart 'YYYY-MM-DD' -DateRangeEnd 'YYYY-MM-DD'
+    New-ReviewSummary.ps1 -FormsAnalyzed <N> -DateRangeStart 'YYYY-MM-DD' -DateRangeEnd 'YYYY-MM-DD'
     ```
     > Content sections will be filled during Finalization (Step 17).
 12. **Routing Decision**: For each identified improvement, determine its target and use the appropriate script:
 
     | If the item is... | Route to... | Script |
     |---|---|---|
-    | Process framework improvement (task, template, guide, script, workflow) | [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) | [`New-ProcessImprovement.ps1`](../../scripts/file-creation/support/New-ProcessImprovement.ps1) |
+    | Process framework improvement (task, template, guide, script, workflow) | [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) | [`New-ProcessImprovement.ps1`](../../scripts/file-creation/support/New-ProcessImprovement.ps1) |
     | Product feature request (new capability or enhancement to existing feature) | [Feature Request Tracking](../../../doc/state-tracking/permanent/feature-request-tracking.md) | [`New-FeatureRequest.ps1`](../../scripts/file-creation/01-planning/New-FeatureRequest.ps1) |
     | Bug (something broken that needs fixing) | [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) | [`New-BugReport.ps1`](../../scripts/file-creation/06-maintenance/New-BugReport.ps1) |
     | Technical debt (code quality issue, not broken but should be improved) | [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) | [`Update-TechDebt.ps1 -Add`](../../scripts/update/Update-TechDebt.ps1) |
 
     ```powershell
-    # Process framework improvement — use the actual filename from Step 11
-    .\New-ProcessImprovement.ps1 -Source "Tools Review YYYY-MM-DD" -SourceLink "../../feedback/reviews/tools-review-YYYYMMDD-HHMMSS.md" -Description "What needs improving" -Priority "MEDIUM" -Notes "Context"
+    # Process framework improvement — single item
+    New-ProcessImprovement.ps1 -Source "Tools Review YYYY-MM-DD" -SourceLink "../../feedback/reviews/tools-review-YYYYMMDD-HHMMSS.md" -Description "What needs improving" -Priority "MEDIUM" -Notes "Context"
+
+    # Process framework improvements — batch mode (preferred when registering multiple IMPs)
+    # Create a JSON file with an array of improvement objects, then:
+    New-ProcessImprovement.ps1 -BatchFile "improvements.json"
+    # Each object supports: Source, SourceLink, Description (required), Priority (required), Notes, Status
 
     # Product feature request — use the actual filename from Step 11
     .\New-FeatureRequest.ps1 -Source "Tools Review YYYY-MM-DD" -SourceLink "../../feedback/reviews/tools-review-YYYYMMDD-HHMMSS.md" -Description "What is being requested" -Priority "MEDIUM" -Notes "Context"
     ```
     - **🔗 TRACEABILITY REQUIREMENT**: Use `-SourceLink` with the actual review summary filename from Step 11 for full traceability
-    - **🔍 DEDUPLICATION**: Before registering a new IMP, search both the "Current Improvement Opportunities" and "Completed Improvements" sections of [process-improvement-tracking.md](../../state-tracking/permanent/process-improvement-tracking.md) for existing entries covering the same tool or issue. Skip registration if already tracked.
+    - **🔍 DEDUPLICATION**: Before registering a new IMP, search both the "Current Improvement Opportunities" and "Completed Improvements" sections of [process-improvement-tracking.md](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) for existing entries covering the same tool or issue. Skip registration if already tracked.
+    - **🎯 GRANULARITY**: Each IMP must describe exactly one actionable change. If a theme or feedback item contains multiple independent changes (e.g., "add X to task A, add Y to task B, add Z to task C"), register each as a separate IMP. Conversely, do not split a single cohesive change across multiple IMPs.
 13. **🚨 SCOPE BOUNDARY**: Tools Review identifies and documents improvements only. For implementation, create [Process Improvement Task](process-improvement-task.md) entries or use [Feature Request Evaluation](../01-planning/feature-request-evaluation.md) for feature requests
 14. Archive processed feedback forms for future reference (archive paths are needed for the next step)
 15. **Record ratings in feedback database**: After archiving, extract ratings from the archived forms and record them:
@@ -108,8 +116,8 @@ Systematically evaluate and enhance the templates, guides, and other tools by co
     # Extract ratings from archived forms into JSON
     python process-framework/scripts/extract_ratings.py \
         --review-cycle-id "tools-review-YYYYMMDD" \
-        --archived-prefix "process-framework/feedback/archive/YYYY-MM/tools-review-YYYYMMDD/processed-forms" \
-        process-framework/feedback/archive/YYYY-MM/tools-review-YYYYMMDD/processed-forms/*feedback*.md \
+        --archived-prefix "process-framework-local/feedback/archive/YYYY-MM/tools-review-YYYYMMDD/processed-forms" \
+        process-framework-local/feedback/archive/YYYY-MM/tools-review-YYYYMMDD/processed-forms/*feedback*.md \
         -o ratings-input.json
 
     # Record in database
@@ -127,9 +135,9 @@ Systematically evaluate and enhance the templates, guides, and other tools by co
 
 ## Outputs
 
-- **Improvement Opportunities** - Documented in appropriate tracking files: [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) for framework improvements, [Feature Request Tracking](../../../doc/state-tracking/permanent/feature-request-tracking.md) for product feature requests, [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) for bugs, [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) for tech debt
+- **Improvement Opportunities** - Documented in appropriate tracking files: [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) for framework improvements, [Feature Request Tracking](../../../doc/state-tracking/permanent/feature-request-tracking.md) for product feature requests, [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) for bugs, [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) for tech debt
 - **Review Summary** - Documentation of findings and identified improvements, using the [Tools Review Summary Template](../../templates/support/tools-review-summary-template.md). Create via [`New-ReviewSummary.ps1`](../../scripts/file-creation/06-maintenance/New-ReviewSummary.ps1)
-- **Ratings Database Update** - Quantified ratings recorded in `process-framework/feedback/ratings.db` for trend analysis via `python process-framework/scripts/feedback_db.py record` (use [feedback-db-input-template.json](../../templates/support/feedback-db-input-template.json) as reference)
+- **Ratings Database Update** - Quantified ratings recorded in `process-framework-local/feedback/ratings.db` for trend analysis via `python process-framework/scripts/feedback_db.py record` (use [feedback-db-input-template.json](../../templates/support/feedback-db-input-template.json) as reference)
 - **Process Improvement Tasks** - Created [Process Improvement Task](process-improvement-task.md) entries for implementation
 - **Archive of Processed Forms** - Organized archive of processed feedback forms
 
@@ -137,7 +145,7 @@ Systematically evaluate and enhance the templates, guides, and other tools by co
 
 The following state files must be updated as part of this task:
 
-- [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) - Framework improvements identified from feedback analysis
+- [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) - Framework improvements identified from feedback analysis
 - [Feature Request Tracking](../../../doc/state-tracking/permanent/feature-request-tracking.md) - Product feature requests identified from feedback analysis
 - [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) - Bugs identified from feedback analysis
 - [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) - Technical debt items identified from feedback analysis
@@ -165,7 +173,7 @@ Before considering this task finished:
   - [ ] Gather overall satisfaction assessment
   - [ ] **Do not proceed** until user feedback has been collected and documented
 - [ ] **Archive Processed Forms**: Move analyzed feedback forms to archive (must happen before recording ratings):
-  - [ ] Create archive folder: `/process-framework/feedback/archive/YYYY-MM/tools-review-YYYYMMDD`
+  - [ ] Create archive folder: `/process-framework-local/feedback/archive/YYYY-MM/tools-review-YYYYMMDD`
   - [ ] Create subfolder: `processed-forms/` within the archive folder
   - [ ] **⚠️ CRITICAL DISTINCTION**: Only move feedback forms that were **analyzed during this session**
     - ✅ **Archive These**: Feedback forms that you reviewed, analyzed, and extracted improvements from
@@ -184,7 +192,7 @@ Before considering this task finished:
 
 ## Related Resources
 
-- [Feedback Process Guide](../../feedback/archive/README.md) - Guide for collecting and processing feedback
+- [Feedback Process Guide](../../../process-framework-local/feedback/archive/README.md) - Guide for collecting and processing feedback
 - [Task Creation and Improvement Guide](../../guides/support/task-creation-guide.md) - Guide for creating and improving tasks
 
 ## Critical Process Note

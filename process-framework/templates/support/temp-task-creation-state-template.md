@@ -10,7 +10,7 @@ task_name: [TASK-NAME]
 
 # Temporary Task Creation State: [Task Name]
 
-> **⚠️ TEMPORARY FILE**: This file tracks multi-session implementation of task creation infrastructure. Move to `process-framework/state-tracking/temporary/old` after all components are implemented.
+> **⚠️ TEMPORARY FILE**: This file tracks multi-session implementation of task creation infrastructure. Move to `process-framework-local/state-tracking/temporary/old` after all components are implemented.
 
 ## Task Overview
 
@@ -200,7 +200,7 @@ Track which state files need updates as components are implemented:
 
 ## Completion Criteria
 
-This temporary state file can be moved to `process-framework/state-tracking/temporary/old` when:
+This temporary state file can be moved to `process-framework-local/state-tracking/temporary/old` when:
 
 - [ ] All HIGH priority components are implemented (not placeholders)
 - [ ] Task definition is complete and functional

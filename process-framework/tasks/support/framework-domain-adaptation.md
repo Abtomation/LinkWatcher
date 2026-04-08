@@ -309,11 +309,11 @@ Systematically adapt the process framework from one business domain (software de
 - **Adapted Templates** - Templates for legal documents and processes in `/process-framework/templates`
 - **Adapted Guides** - Guides using legal terminology and examples in `/process-framework/guides`
 - **Updated Documentation Map** - Reflects cleaned-up structure at `/process-framework/PF-documentation-map.md`
-- **Legal Document Tracking** - Replacement for feature-tracking.md at `/process-framework/state-tracking/permanent/legal-document-tracking.md`
+- **Legal Document Tracking** - Replacement for feature-tracking.md at `/process-framework-local/state-tracking/permanent/legal-document-tracking.md`
 - **Cleaned Directory Structure** - Removed unnecessary directories
 - **Updated Scripts** - Scripts adapted for legal context (parameter names, help text)
 - **Updated ID Registry** - New ID prefixes for legal document types in the appropriate ID registry
-- **Archived Temporary State** - Domain adaptation state file archived at `/process-framework/state-tracking/temporary/old`
+- **Archived Temporary State** - Domain adaptation state file archived at `/process-framework-local/state-tracking/temporary/old`
 
 ## State Tracking
 

@@ -47,12 +47,12 @@
     Matches test-tracking.md rows by file name (SC-007: no registry lookup needed).
 
 .EXAMPLE
-    .\Run-Tests.ps1 -Category unit
-    .\Run-Tests.ps1 -Category unit,integration
-    .\Run-Tests.ps1 -All -Coverage
-    .\Run-Tests.ps1 -Quick
-    .\Run-Tests.ps1 -ListCategories
-    .\Run-Tests.ps1 -Category unit -UpdateTracking
+    Run-Tests.ps1 -Category unit
+    Run-Tests.ps1 -Category unit,integration
+    Run-Tests.ps1 -All -Coverage
+    Run-Tests.ps1 -Quick
+    Run-Tests.ps1 -ListCategories
+    Run-Tests.ps1 -Category unit -UpdateTracking
 
 .NOTES
     Config: project-config.json (project settings) + languages-config/{language}/{language}-config.json (commands).

@@ -43,7 +43,7 @@ If specified, shows what would be updated without making changes
 .\Update-FeatureImplementationState.ps1 -FeatureId "1.2.3" -Status "🟡 In Progress"
 
 .EXAMPLE
-.\Update-FeatureImplementationState.ps1 -FeatureId "1.2.3" -Status "🟢 Completed" -CompletionDate "2025-08-23" -PullRequestUrl "https://github.com/repo/pull/123"
+.\Update-FeatureImplementationState.ps1 -FeatureId "1.2.3" -Status "🟢 Completed" -CompletionDate "2025-08-23" -PullRequestUrl "https:/github.com/repo/pull/123"
 
 .EXAMPLE
 .\Update-FeatureImplementationState.ps1 -FeatureId "1.2.3" -Status "🔄 Needs Revision" -DesignDeviations "Modified authentication flow for better UX" -DryRun
@@ -308,7 +308,7 @@ catch {
     Write-Error "Feature implementation state update failed: $($_.Exception.Message)"
     Write-Host ""
     Write-Host "If backups were created, they can be found in:" -ForegroundColor Yellow
-    Write-Host "  process-framework/state-tracking/backups" -ForegroundColor Gray
+    Write-Host "  process-framework-local/state-tracking/backups" -ForegroundColor Gray
     exit 1
 }
 

@@ -40,7 +40,7 @@ Use this guide when you need to:
 Before you begin, ensure you have:
 
 - **Completed Feature Implementation** - All implementation layers (data, state, UI) are complete
-- **Test Specification Document** (if exists) - A completed test specification for the feature (in `/test/specifications/feature-specs/`)
+- **Test Specification Document** (if exists) - A completed test specification for the feature (in `/test/specifications/feature-specs`)
 - **Technical Design Document** - The TDD with testing requirements section
 - **Test Infrastructure** - Access to existing test directories, mock services, and test helpers
 - **Project Configuration** - `project-config.json` defines valid test types for the project language
@@ -55,7 +55,7 @@ The Integration & Testing task is the single post-implementation testing task in
 
 #### 1. Review Test Specification (if exists)
 
-1. Open the test specification document for your feature (located in `/test/specifications/feature-specs/`)
+1. Open the test specification document for your feature (located in `/test/specifications/feature-specs`)
 2. Study the test requirements and structure to understand what needs to be implemented
 3. Identify which test types are required based on the specification
 
@@ -94,8 +94,8 @@ Use the `New-TestFile.ps1` script to generate test files for each required categ
 ```powershell
 # Create test files using automation script (writes pytest markers)
 cd process-framework/scripts/file-creation
-.\New-TestFile.ps1 -TestName "FeatureName" -TestType "Unit" -FeatureId "X.Y.Z" -ComponentName "ComponentName"
-.\New-TestFile.ps1 -TestName "FeatureName" -TestType "Integration" -FeatureId "X.Y.Z" -ComponentName "ComponentName"
+New-TestFile.ps1 -TestName "FeatureName" -TestType "Unit" -FeatureId "X.Y.Z" -ComponentName "ComponentName"
+New-TestFile.ps1 -TestName "FeatureName" -TestType "Integration" -FeatureId "X.Y.Z" -ComponentName "ComponentName"
 
 # Script automatically:
 # - Writes pytest markers (feature, priority, test_type) into test file
@@ -166,7 +166,7 @@ If bugs are found, use `New-BugReport.ps1`:
 
 ```powershell
 Set-Location "process-framework/scripts/file-creation"
-.\New-BugReport.ps1 -Title "Description" -Description "Details" -DiscoveredBy "Testing" -Severity "High" -Component "ComponentName" -Environment "Development" -Evidence "Test case reference"
+New-BugReport.ps1 -Title "Description" -Description "Details" -DiscoveredBy "Testing" -Severity "High" -Component "ComponentName" -Environment "Development" -Evidence "Test case reference"
 ```
 
 #### 14. Update Test Status and Validate Tracking
@@ -187,8 +187,8 @@ Set-Location "process-framework/scripts/file-creation"
 ```powershell
 # Create test files for Parser Framework feature
 cd process-framework/scripts/file-creation
-.\New-TestFile.ps1 -TestName "ParserFramework" -TestType "Unit" -FeatureId "2.1.1" -ComponentName "BaseParser"
-.\New-TestFile.ps1 -TestName "ParserFramework" -TestType "Integration" -FeatureId "2.1.1" -ComponentName "ParserRegistry"
+New-TestFile.ps1 -TestName "ParserFramework" -TestType "Unit" -FeatureId "2.1.1" -ComponentName "BaseParser"
+New-TestFile.ps1 -TestName "ParserFramework" -TestType "Integration" -FeatureId "2.1.1" -ComponentName "ParserRegistry"
 ```
 
 **Unit Test Example (Python):**

@@ -153,7 +153,7 @@ The following state files must be updated as part of this task:
 - [Architecture Tracking](../../../doc/state-tracking/permanent/architecture-tracking.md) - Update with architectural analysis outcomes and next steps
 - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Update feature status to "🏗️ Architecture Reviewed" and add Architecture Impact Assessment link to Arch Review column
 - [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) - Add any architectural debt items identified during review
-- [Architecture Decision Log](../../state-tracking/permanent/process-improvement-tracking.md) - Record architectural decisions made during review (if applicable)
+- [Architecture Decision Log](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) - Record architectural decisions made during review (if applicable)
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
@@ -173,7 +173,7 @@ Before considering this task finished:
   - [ ] [Architecture Tracking](../../../doc/state-tracking/permanent/architecture-tracking.md) updated with session outcomes
   - [ ] [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) updated with status "🏗️ Architecture Reviewed" and Architecture Impact Assessment link in Arch Review column
   - [ ] [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) updated with any identified architectural debt
-  - [ ] [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) updated with architectural decisions made
+  - [ ] [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) updated with architectural decisions made
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-019" and context "System Architecture Review"
 
 ## Next Tasks

@@ -20,10 +20,10 @@
     Optional: Project root path. Auto-detected from .git marker if not specified.
 
 .EXAMPLE
-    .\Update-WorkflowTracking.ps1
+    Update-WorkflowTracking.ps1
 
 .EXAMPLE
-    .\Update-WorkflowTracking.ps1 -WhatIf
+    Update-WorkflowTracking.ps1 -WhatIf
 
 .NOTES
     Created: 2026-03-31

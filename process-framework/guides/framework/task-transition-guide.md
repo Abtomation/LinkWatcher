@@ -911,13 +911,13 @@ Bug Discovered → New-BugReport.ps1 Script → Bug Tracking Update → [Automat
 
 ```powershell
 # From Test Audit Task
-.\New-BugReport.ps1 -Title "Test framework timeout issues" -Description "Unit tests randomly timeout during CI/CD pipeline execution" -DiscoveredBy "Testing" -Severity "High" -Component "Test Framework" -Environment "CI/CD" -Evidence "Test audit findings: 15% of tests show intermittent timeouts"
+New-BugReport.ps1 -Title "Test framework timeout issues" -Description "Unit tests randomly timeout during CI/CD pipeline execution" -DiscoveredBy "Testing" -Severity "High" -Component "Test Framework" -Environment "CI/CD" -Evidence "Test audit findings: 15% of tests show intermittent timeouts"
 
 # From Code Review Task
-.\New-BugReport.ps1 -Title "SQL injection vulnerability in user input" -Description "User input not properly sanitized before database queries" -DiscoveredBy "CodeReview" -Severity "Critical" -Component "User Authentication" -Environment "Development" -Evidence "Code review: src/auth/user_service.py:45-52"
+New-BugReport.ps1 -Title "SQL injection vulnerability in user input" -Description "User input not properly sanitized before database queries" -DiscoveredBy "CodeReview" -Severity "Critical" -Component "User Authentication" -Environment "Development" -Evidence "Code review: src/auth/user_service.py:45-52"
 
 # From Feature Implementation Task
-.\New-BugReport.ps1 -Title "Form validation fails on special characters" -Description "Registration form rejects valid email addresses with plus signs" -DiscoveredBy "Development" -Severity "Medium" -Component "User Registration" -Environment "Development" -Evidence "QA testing: emails like user+test@example.com rejected"
+New-BugReport.ps1 -Title "Form validation fails on special characters" -Description "Registration form rejects valid email addresses with plus signs" -DiscoveredBy "Development" -Severity "Medium" -Component "User Registration" -Environment "Development" -Evidence "QA testing: emails like user+test@example.com rejected"
 ```
 
 #### Bug Triage Decision Process
@@ -1086,7 +1086,7 @@ Retrospective Documentation Creation (PF-TSK-066)
 [Framework Fully Adopted] → Normal Development Workflow
 ```
 
-**Shared State**: All three tasks share a single [Retrospective Master State File](../../state-tracking/temporary/old/retrospective-master-state.md) that tracks progress across phases. Each session must start by reading it and end by updating it.
+**Shared State**: All three tasks share a single [Retrospective Master State File](../../../process-framework-local/state-tracking/temporary/old/retrospective-master-state.md) that tracks progress across phases. Each session must start by reading it and end by updating it.
 
 **Transition Criteria:**
 
@@ -1114,7 +1114,7 @@ Retrospective Documentation Creation (PF-TSK-066)
 
 **Prerequisites for Transition:**
 
-- [ ] [Retrospective Master State File](../../state-tracking/temporary/old/retrospective-master-state.md) created with project name and DISCOVERY status
+- [ ] [Retrospective Master State File](../../../process-framework-local/state-tracking/temporary/old/retrospective-master-state.md) created with project name and DISCOVERY status
 - [ ] ALL source files listed and assigned to features (100% codebase file coverage)
 - [ ] ALL features added to [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) with IDs and descriptions
 - [ ] [Feature Implementation State file](../../../doc/state-tracking/features) created for every feature with complete code inventory
@@ -1139,7 +1139,7 @@ Retrospective Documentation Creation (PF-TSK-066)
 - [ ] Dependencies identified and documented for every feature
 - [ ] Test coverage mapped for every feature
 - [ ] Complexity factors noted for features without tier assessments
-- [ ] Phase 2 marked complete in [master state file](../../state-tracking/temporary/old/retrospective-master-state.md)
+- [ ] Phase 2 marked complete in [master state file](../../../process-framework-local/state-tracking/temporary/old/retrospective-master-state.md)
 
 **Next Task Selection:**
 
@@ -1163,7 +1163,7 @@ Retrospective Documentation Creation (PF-TSK-066)
 - [ ] All document links added to [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md)
 - [ ] [Documentation Map](../../PF-documentation-map.md) updated with all new documents
 - [ ] Final metrics recorded in master state Completion Summary
-- [ ] [Master State File](../../state-tracking/temporary/old/retrospective-master-state.md) archived to `/temporary/archived/`
+- [ ] [Master State File](../../../process-framework-local/state-tracking/temporary/old/retrospective-master-state.md) archived to `/temporary/archived/`
 
 **Next Task Selection:**
 
@@ -1838,6 +1838,28 @@ What happened during deployment?
 2. Review Feature Request Tracking for the next batch of work
 3. Update Technical Debt Tracking with any debt introduced during the release
 
+### Transitioning FROM Git Commit and Push (PF-TSK-082)
+
+**Prerequisites for Transition:**
+
+- [ ] All working directory changes staged and committed
+- [ ] Commit pushed successfully to remote repository
+- [ ] No sensitive files included in commit
+
+**Next Task Selection:**
+
+```
+Push completed successfully
+├─ Continuing current work → Return to active task
+├─ Session ending → No follow-up needed
+└─ Starting new work → Select appropriate task from ai-tasks.md
+```
+
+**Preparation for Next Task:**
+
+1. Verify the push was successful (commit hash confirmed on remote)
+2. Continue with the next task or end the session
+
 ### Transitioning FROM Code Refactoring
 
 **Prerequisites for Transition:**
@@ -2296,7 +2318,7 @@ Codebase Feature Discovery (PF-TSK-064) → Codebase Feature Analysis (PF-TSK-06
 **Timeline**: Multi-session per task; total depends on project size and feature count
 **Key Decision Points**: Feature boundary identification, tier assessment accuracy, documentation completeness
 **When to Use**: Adopting the process framework into an existing project with implemented but undocumented features
-**Shared State**: All three tasks share a single [Retrospective Master State File](../../state-tracking/temporary/old/retrospective-master-state.md)
+**Shared State**: All three tasks share a single [Retrospective Master State File](../../../process-framework-local/state-tracking/temporary/old/retrospective-master-state.md)
 **Automation Scripts**: `New-RetrospectiveMasterState.ps1` (creates master state), `New-FeatureImplementationState.ps1` (creates per-feature state files with code inventories)
 
 ### Scenario 16: Enhancement to Existing Feature

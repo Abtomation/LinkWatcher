@@ -29,10 +29,10 @@ The Process Framework documentation is organized into the following directories:
 
   - **[cyclical/](../process-framework/tasks/cyclical)**: Recurring tasks that follow a defined cycle
 
-- **[state-tracking/](../process-framework/state-tracking)**: Persistent project state management
+- **[state-tracking/](../process-framework-local/state-tracking)**: Persistent project state management
 
-  - **[permanent/](../process-framework/state-tracking/permanent)**: Long-term state files including architecture tracking
-  - **[temporary/](../process-framework/state-tracking/temporary)**: Short-term implementation tracking
+  - **[permanent/](../process-framework-local/state-tracking/permanent)**: Long-term state files including architecture tracking
+  - **[temporary/](../process-framework-local/state-tracking/temporary)**: Short-term implementation tracking
 
 - **[templates/](../process-framework/templates)**: Templates for creating consistent process documents
 
@@ -72,7 +72,7 @@ The Process Framework documentation is distinct from Product Documentation:
 - **Process Framework**: Defines how development is done (the process)
 - **Product Documentation**: Describes what is being built (the product)
 
-For Product Documentation, see the [Product Documentation directory](/doc/).
+For Product Documentation, see the [Product Documentation directory](/doc).
 
 ---
 

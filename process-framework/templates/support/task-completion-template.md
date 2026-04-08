@@ -22,15 +22,12 @@ Before considering this task finished:
 - [ ] **Update State Files**: Confirm all relevant state tracking documents have been updated
 - [ ] **Complete Feedback Forms**: Fill out a feedback form (artifact) for each tool/template/guide used during this task:
    ```bash
-   # Navigate to script directory and run with bash single quotes:
-   cd process-framework/scripts/file-creation && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-FeedbackForm.ps1 -DocumentId "[TASK-ID]" -TaskContext "[Task Name]" -FeedbackType "MultipleTools" -Confirm:$false'
+   pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/support/New-FeedbackForm.ps1 -DocumentId "[TASK-ID]" -TaskContext "[Task Name]" -FeedbackType "MultipleTools" -Confirm:\$false
    ```
-
-   > **Note**: Update the path to match your actual project location
 
    **Script automatically**:
    - Names file using format: `YYYYMMDD-HHMMSS-document-id-feedback.md`
-   - Places file in `/process-framework/feedback/feedback-forms`
+   - Places file in `/process-framework-local/feedback/feedback-forms`
    - Assigns unique artifact IDs (`ART-FEE-XXX`) in metadata
 
    For more details, see the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md).

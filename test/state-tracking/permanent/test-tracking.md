@@ -4,7 +4,7 @@ type: Process Framework
 category: State File
 version: 4.0
 created: 2025-07-13
-updated: 2026-03-26
+updated: 2026-04-07
 tracking_scope: Test Tracking (Automated + Manual)
 state_type: Implementation Status
 ---
@@ -90,7 +90,7 @@ This file tracks the implementation status of all **automated** tests derived fr
 | 2.1.1 | Automated | [test_generic.py](../../automated/parsers/test_generic.py) | ✅ Tests Implemented | 21 | Run 2026-03-22: 21 passed | 2026-03-22 | Generic fallback parser |
 | 2.1.1 | Automated | [test_image_files.py](../../automated/parsers/test_image_files.py) | ✅ Tests Implemented | 6 | Run 2026-03-22: 6 passed | 2026-03-22 | Image file reference handling |
 | 2.2.1 | Automated | [test_updater.py](../../automated/unit/test_updater.py) | ✅ Tests Approved | 41 | Run 2026-04-03: 41 passed | 2026-04-03 | Link updater atomic operations; TD172 resolved: +13 tests for update_references_batch (5), _update_file_references_multi (4), _replace_reference_target (4); Audit: [TE-TAR-021](../../audits/core-features/audit-report-2-2-1-test-updater.md); Auditor: AI Agent; Audit Date: 2026-04-03 |
-| 2.2.1 | Automated | [test_link_updates.py](../../automated/integration/test_link_updates.py) | ✅ Tests Approved | 26 | Run 2026-03-22: 26 passed | 2026-04-03 | Link update across file formats; Audit: [TE-TAR-022](../../audits/core-features/audit-report-2-2-1-test-link-updates.md); Major Findings: No integration test for update_references_batch() directory move path; PD-BUG-054 assertion fix confirmed correct; Audit Results: Passed: 26, Failed: 0; Audit Status: Tests Approved; Audit Report: test/audits/core-features/audit-report-2-2-1-test-link-updates.md; Test Cases Audited: 26; Auditor: AI Agent; Audit Date: 2026-04-03 |
+| 2.2.1 | Automated | [test_link_updates.py](../../automated/integration/test_link_updates.py) | ✅ Tests Approved | 29 | Run 2026-04-07: 29 passed | 2026-04-07 | Link update across file formats; +3 PD-BUG-078 regression tests (src/ layout python_source_root); Audit: [TE-TAR-022](../../audits/core-features/audit-report-2-2-1-test-link-updates.md); Major Findings: No integration test for update_references_batch() directory move path; PD-BUG-054 assertion fix confirmed correct; Audit Results: Passed: 26, Failed: 0; Audit Status: Tests Approved; Audit Report: test/audits/core-features/audit-report-2-2-1-test-link-updates.md; Test Cases Audited: 26; Auditor: AI Agent; Audit Date: 2026-04-03 |
 | 2.1.1 | Automated | [test_powershell.py](../../automated/parsers/test_powershell.py) | ✅ Tests Implemented | 32 | Run 2026-03-22: 32 passed | 2026-03-22 | PowerShell parser tests — cmdlet patterns, embedded markdown links, regex filtering (PD-BUG-033), deduplication. Registered during test audit. |
 
 ## 3. Logging & Monitoring
@@ -99,6 +99,7 @@ This file tracks the implementation status of all **automated** tests derived fr
 |------------|-----------|----------------|--------|------------------|---------------|--------------|-------|
 | 3.1.1 | Automated | [test_logging.py](../../automated/unit/test_logging.py) | ✅ Tests Approved | 25 | Run 2026-03-22: 25 passed | 2026-04-03 | Logging framework core tests; Audit: [TE-TAR-023](../../audits/core-features/audit-report-3-1-1-test-logging.md); Audit Report: test/audits/core-features/audit-report-3-1-1-test-logging.md; Major Findings: Re-audit confirms prior findings. TimestampRotatingFileHandler.doRollover still untested (34 lines). Untested convenience methods: file_created, links_updated, scan_progress, operation_stats.; Auditor: AI Agent; Audit Status: Tests Approved; Audit Results: Passed: 25, Failed: 0; Test Cases Audited: 25; Audit Date: 2026-04-03 |
 | 3.1.1 | Automated | [test_advanced_logging.py](../../automated/unit/test_advanced_logging.py) | ✅ Tests Approved | 20 | Run 2026-04-03: 20 passed | 2026-04-03 | Advanced logging features; Audit: [TE-TAR-024](../../audits/core-features/audit-report-3-1-1-test-advanced-logging.md); TD168 resolved: Added 14 tests (TestConfigLoadingErrors, TestConfigUtilities, TestConfigHotReload), strengthened 2 existing assertions. Coverage 59%->99%. Assertion density 1.7->2.4. All TE-TAR-024 findings addressed.; Test Cases Audited: 20; Audit Results: Passed: 20, Failed: 0; Audit Date: 2026-04-03; Auditor: AI Agent; Audit Report: test/audits/core-features/audit-report-3-1-1-test-advanced-logging.md; Audit Status: Tests Approved |
+| 3.1.1 | Automated | [test_pd-bug-077_startup_venv_validation.py](../../automated/bug-validation/test_pd-bug-077_startup_venv_validation.py) | 🟡 Implementation In Progress |  | — | 2026-04-07 |  |
 
 ## 6. Link Validation & Reporting
 

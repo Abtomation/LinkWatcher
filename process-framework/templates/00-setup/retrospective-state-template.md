@@ -2,9 +2,9 @@
 id: PF-TEM-049
 type: Process Framework
 category: Template
-version: 1.2
+version: 1.3
 created: 2026-02-17
-updated: 2026-02-19
+updated: 2026-04-05
 creates_document_prefix: PF-STA
 creates_document_version: 1.0
 description: Template for retrospective master state tracking during onboarding
@@ -103,10 +103,27 @@ template_for: Retrospective Master State
 > Cross-cutting index of all pre-existing project documentation audited during Phase 1 (PF-TSK-064 step 3b). Feature-level details are in each feature's Section 4 "Existing Project Documentation" table.
 >
 > For new projects: _No pre-existing project documentation — project started with process framework._
+>
+> **Consumption Status** (Phase 4 Step 17 — Gap Analysis):
+> - **Fully Consumed**: All valuable content captured in framework docs during Phase 3
+> - **Partially Consumed**: Some content extracted but sections remain uncaptured — identify gaps
+> - **Not Consumed**: Not used as source material — evaluate if content is valuable
 
-| Document | Location | Type | Mapped Features | Confirmed (Phase 2) | Notes |
-| -------- | -------- | ---- | --------------- | -------------------- | ----- |
-| [name] | [path] | [Architecture Overview / User Guide / Test Plan / CI/CD / Troubleshooting / Developer Guide / Configuration / Changelog / Other] | [Feature IDs] | [⬜ / ✅] | [notes] |
+| Document | Location | Type | Mapped Features | Confirmed (Phase 2) | Captured By | Consumption Status |
+| -------- | -------- | ---- | --------------- | -------------------- | ----------- | ------------------ |
+| [name] | [path] | [Architecture Overview / User Guide / Test Plan / CI/CD / Troubleshooting / Developer Guide / Configuration / Changelog / Other] | [Feature IDs] | [⬜ / ✅] | [Framework doc IDs that consumed this content, e.g., PD-TDD-003, PD-FDD-001] | [⬜ / Fully Consumed / Partially Consumed / Not Consumed] |
+
+---
+
+## Framework Improvement Observations
+
+> **Purpose**: During onboarding, note any conventions, tooling patterns, or practices from the adopted project that could improve the process framework itself. Accumulate observations across all three onboarding phases (PF-TSK-064, PF-TSK-065, PF-TSK-066). During PF-TSK-066 Phase 4, approved observations are formalized as PF-IMP entries.
+>
+> **What to look for**: Build tooling, testing patterns, code organization approaches, CI/CD practices, documentation conventions, developer experience features, naming conventions, or any practice that works well and the framework doesn't currently capture.
+
+| # | Observation | Phase Noted | Potential Benefit | Notes |
+|---|-------------|-------------|-------------------|-------|
+| 1 | [What the project does well or differently] | [Discovery / Analysis / Documentation] | [How this could improve the framework] | [Additional context] |
 
 ---
 
@@ -114,38 +131,15 @@ template_for: Retrospective Master State
 
 ### Session 1 - [YYYY-MM-DD]
 
-**Phase**: [Current Phase]
-**Duration**: [X hours]
-**Features Worked On**: [List of feature IDs]
-
-**Progress**:
-- [What was accomplished]
-- [Coverage change: X% → Y%]
-- [Key discoveries]
-
-**Next Steps**:
-- [Specific actions for next session]
-- [Features to process next]
-
-**Feedback Form**: [Created / Reference]
-
----
+**Phase**: [Current Phase] | **Duration**: [X hours] | **Features**: [IDs]
+**Summary**: [What was accomplished; key discoveries]
+**Feedback**: [Created / Reference]
 
 ### Session 2 - [YYYY-MM-DD]
 
-**Phase**: [Current Phase]
-**Duration**: [X hours]
-**Features Worked On**: [List of feature IDs]
-
-**Progress**:
-- [What was accomplished]
-
-**Next Steps**:
-- [Specific actions for next session]
-
-**Feedback Form**: [Created / Reference]
-
----
+**Phase**: [Current Phase] | **Duration**: [X hours] | **Features**: [IDs]
+**Summary**: [What was accomplished]
+**Feedback**: [Created / Reference]
 
 > **Continue adding session entries as needed.**
 

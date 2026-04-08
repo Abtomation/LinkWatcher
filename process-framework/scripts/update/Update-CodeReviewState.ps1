@@ -391,7 +391,7 @@ catch {
     Write-Error "Code review state update failed: $($_.Exception.Message)"
     Write-Host ""
     Write-Host "If backups were created, they can be found in:" -ForegroundColor Yellow
-    Write-Host "  process-framework/state-tracking/backups" -ForegroundColor Gray
+    Write-Host "  process-framework-local/state-tracking/backups" -ForegroundColor Gray
     exit 1
 }
 

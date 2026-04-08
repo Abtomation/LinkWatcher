@@ -75,7 +75,7 @@ _Created during framework onboarding (PF-TSK-066 / PF-TSK-012) — documenting e
 
 ## `state-tracking/` — Test State Tracking
 
-### `state-tracking/permanent/`
+### `state-tracking/permanent`
 
 - [State: Test Tracking](state-tracking/permanent/test-tracking.md) - Tracks implementation status of automated test files derived from test specifications
 - [State: E2E Acceptance Test Tracking](state-tracking/permanent/e2e-test-tracking.md) - Tracks E2E acceptance test cases, workflow milestones, and execution status

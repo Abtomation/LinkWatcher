@@ -86,43 +86,43 @@ The validation tracking file is auto-discovered from doc/state-tracking/validati
 
 .EXAMPLE
 # Add a new debt item
-.\Update-TechDebt.ps1 -Add -Description "Missing error handling in parser" -Dims "CQ" -Location "linkwatcher/parsers/" -Priority "Medium" -EstimatedEffort "2 hours"
+Update-TechDebt.ps1 -Add -Description "Missing error handling in parser" -Dims "CQ" -Location "linkwatcher/parsers/" -Priority "Medium" -EstimatedEffort "2 hours"
 
 .EXAMPLE
 # Add a new debt item with assessment and debt item links
-.\Update-TechDebt.ps1 -Add -Description "Missing Repository Pattern" -Dims "AC" -Location "lib/services/" -Priority "Critical" -EstimatedEffort "1-2 weeks" -AssessmentId "PF-TDA-001" -DebtItemId "PF-TDI-001"
+Update-TechDebt.ps1 -Add -Description "Missing Repository Pattern" -Dims "AC" -Location "lib/services/" -Priority "Critical" -EstimatedEffort "1-2 weeks" -AssessmentId "PF-TDA-001" -DebtItemId "PF-TDI-001"
 
 .EXAMPLE
 # Mark debt item as in progress
-.\Update-TechDebt.ps1 -DebtId "TD005" -NewStatus "InProgress"
+Update-TechDebt.ps1 -DebtId "TD005" -NewStatus "InProgress"
 
 .EXAMPLE
 # Resolve a debt item
-.\Update-TechDebt.ps1 -DebtId "TD011" -NewStatus "Resolved" -ResolutionNotes "Replaced bare except: with except Exception:"
+Update-TechDebt.ps1 -DebtId "TD011" -NewStatus "Resolved" -ResolutionNotes "Replaced bare except: with except Exception:"
 
 .EXAMPLE
 # Reject a debt item (Won't Fix)
-.\Update-TechDebt.ps1 -DebtId "TD064" -NewStatus "Rejected" -ResolutionNotes "Rejected: All decisions are module-local and already documented via inline comments."
+Update-TechDebt.ps1 -DebtId "TD064" -NewStatus "Rejected" -ResolutionNotes "Rejected: All decisions are module-local and already documented via inline comments."
 
 .EXAMPLE
 # Resolve with plan link
-.\Update-TechDebt.ps1 -DebtId "TD006" -NewStatus "Resolved" -ResolutionNotes "Extracted public API methods." -PlanLink "[TD006](../../../doc/refactoring/plans/archive/td006-encapsulation-violation-fix.md)"
+Update-TechDebt.ps1 -DebtId "TD006" -NewStatus "Resolved" -ResolutionNotes "Extracted public API methods." -PlanLink "[TD006](../../../doc/refactoring/plans/archive/td006-encapsulation-violation-fix.md)"
 
 .EXAMPLE
 # Add a new debt item linked to a validation issue (auto-fills "Tracked As" column)
-.\Update-TechDebt.ps1 -Add -Description "Missing ADR for decisions" -Dims "AC" -Location "linkwatcher/validator.py" -Priority "Medium" -EstimatedEffort "2 hours" -ValidationIssueId "R2-M-001"
+Update-TechDebt.ps1 -Add -Description "Missing ADR for decisions" -Dims "AC" -Location "linkwatcher/validator.py" -Priority "Medium" -EstimatedEffort "2 hours" -ValidationIssueId "R2-M-001"
 
 .EXAMPLE
 # Resolve with validation tracking update (auto-discovers validation-tracking file)
-.\Update-TechDebt.ps1 -DebtId "TD022" -NewStatus "Resolved" -ResolutionNotes "Extracted ReferenceLookup class" -ValidationNote "PD-REF-042 — reduced to 681 LOC"
+Update-TechDebt.ps1 -DebtId "TD022" -NewStatus "Resolved" -ResolutionNotes "Extracted ReferenceLookup class" -ValidationNote "PD-REF-042 — reduced to 681 LOC"
 
 .EXAMPLE
 # Resolve with validation tracking update when issue ID differs from TD ID
-.\Update-TechDebt.ps1 -DebtId "TD144" -NewStatus "Resolved" -ResolutionNotes "Added structured logging" -ValidationNote "Session 16 — logging added" -ValidationIssueId "OB-R3-004"
+Update-TechDebt.ps1 -DebtId "TD144" -NewStatus "Resolved" -ResolutionNotes "Added structured logging" -ValidationNote "Session 16 — logging added" -ValidationIssueId "OB-R3-004"
 
 .EXAMPLE
 # List valid dimension codes and descriptions
-.\Update-TechDebt.ps1 -ListDims
+Update-TechDebt.ps1 -ListDims
 
 .NOTES
 This script is part of the Technical Debt automation system and integrates with:

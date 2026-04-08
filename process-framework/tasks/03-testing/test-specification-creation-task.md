@@ -136,7 +136,7 @@ When referencing other tasks' outputs in Test Specifications:
 
 ### Execution
 
-9. **Create Test Specification Document**: Create a new file in `/test/specifications/feature-specs/`
+9. **Create Test Specification Document**: Create a new file in `/test/specifications/feature-specs`
 
    ```powershell
    # Navigate to test specifications directory
@@ -193,7 +193,7 @@ When referencing other tasks' outputs in Test Specifications:
     - **Test File** references (e.g., `test/automated/unit/test_service.py`) must use markdown link format: `[path](relative/path/to/file)` with correct relative prefix
     - **Files to Reference** section paths (TDD, source code, fixtures) must be linked
     - **Source Code** references (e.g., `linkwatcher/database.py`) must be linked
-    - Relative prefix from `test/specifications/feature-specs/` to project root is `../../../doc`
+    - Relative prefix from `test/specifications/feature-specs` to project root is `../../../doc`
 
 18. **🚨 CHECKPOINT**: Present draft test specification with test categories, test cases, dimension-informed scenarios, manual test scenario classifications, mock requirements, and TDD mappings to human partner for review and approval
 
@@ -232,7 +232,7 @@ The following state files must be updated as part of this task:
 Before considering this task finished:
 
 - [ ] **Verify Outputs**: Confirm all required outputs have been produced
-  - [ ] Test Specification Document created in `/test/specifications/feature-specs/`
+  - [ ] Test Specification Document created in `/test/specifications/feature-specs`
   - [ ] Test Implementation Roadmap included with priority ordering
   - [ ] Implementation Coverage summary line set in Overview (e.g., `0/N scenarios implemented (0%)`)
   - [ ] Mock Requirements Documentation completed

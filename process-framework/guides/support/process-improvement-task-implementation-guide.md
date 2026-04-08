@@ -36,7 +36,7 @@ Use this guide when you need to:
 Before you begin, ensure you have:
 
 - Access to the Process Improvement task definition (PF-TSK-009)
-- A prioritized improvement in [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md)
+- A prioritized improvement in [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md)
 - Access to the [Tools Review summary](../../feedback/reviews) that identified the improvement
 - Ability to make incremental changes with human partner approval
 
@@ -46,7 +46,7 @@ Before you begin, ensure you have:
 
 #### 1. Select and Understand the Improvement
 
-1. **Open** [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md)
+1. **Open** [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md)
 2. **Select** an improvement to execute (typically HIGH priority first)
 3. **Read the source**: Open the Tools Review summary linked in the improvement's "Source" column
 4. **Read specific feedback forms** if referenced — these provide the detailed context behind the improvement
@@ -155,6 +155,6 @@ Before you begin, ensure you have:
 ## Related Resources
 
 - [Process Improvement Task Definition](../../tasks/support/process-improvement-task.md) - Complete task definition with all requirements
-- [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) - State tracking for improvement initiatives
+- [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) - State tracking for improvement initiatives
 - [Tools Review Task](../../tasks/support/tools-review-task.md) - Upstream task that identifies and prioritizes improvements
 - [Feedback Form Completion Instructions](../framework/feedback-form-completion-instructions.md) - Standard feedback form procedures

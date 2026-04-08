@@ -70,12 +70,12 @@ Follow these steps to create a new task:
    **For Automated Execution (Bash tool/CI):**
 
    ```bash
-   cd process-framework/scripts/file-creation && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-Task.ps1 -TaskName "Task Name" -WorkflowPhase "04-implementation" -Description "Brief task description" -Confirm:$false'
+   pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/support/New-Task.ps1 -TaskName "Task Name" -WorkflowPhase "04-implementation" -Description "Brief task description" -Confirm:\$false
    ```
 
    **Key points:**
-   - Wrap the entire `-Command` argument in bash single quotes
-   - Use double quotes for PowerShell string parameters inside
+   - Use `-File` with the direct path from repo root — no `cd` needed
+   - Escape `$` with backslash (`\$false`) so bash doesn't interpret it
    - Includes `-Confirm:$false` to bypass interactive prompts
 
    **Parameters:**

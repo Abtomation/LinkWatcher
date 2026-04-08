@@ -404,13 +404,13 @@ Use this decision tree when deciding what to include in TDDs:
 
    ```powershell
    # For Tier 1 (simple features)
-   .\New-TDD.ps1 -FeatureId "1.2.3" -FeatureName "User Profile Display" -Tier 1
+   New-TDD.ps1 -FeatureId "1.2.3" -FeatureName "User Profile Display" -Tier 1
 
    # For Tier 2 (moderate features)
-   .\New-TDD.ps1 -FeatureId "2.1.4" -FeatureName "Authentication System" -Tier 2 -OpenInEditor
+   New-TDD.ps1 -FeatureId "2.1.4" -FeatureName "Authentication System" -Tier 2 -OpenInEditor
 
    # For Tier 3 (complex features)
-   .\New-TDD.ps1 -FeatureId "3.1.1" -FeatureName "Real-time Collaboration" -Tier 3 -OpenInEditor
+   New-TDD.ps1 -FeatureId "3.1.1" -FeatureName "Real-time Collaboration" -Tier 3 -OpenInEditor
    ```
 
 3. **Verify TDD Creation**:
@@ -536,7 +536,7 @@ Creating a TDD for a moderate complexity authentication feature:
 cd doc/technical/tdd
 
 # Create Tier 2 TDD
-.\New-TDD.ps1 -FeatureId "2.1.4" -FeatureName "User Authentication System" -Tier 2 -OpenInEditor
+New-TDD.ps1 -FeatureId "2.1.4" -FeatureName "User Authentication System" -Tier 2 -OpenInEditor
 ```
 
 **Customization approach:**
@@ -555,7 +555,7 @@ Creating a TDD for a complex real-time feature:
 
 ```powershell
 # Create comprehensive Tier 3 TDD
-.\New-TDD.ps1 -FeatureId "3.1.1" -FeatureName "Real-time Collaboration" -Tier 3 -OpenInEditor
+New-TDD.ps1 -FeatureId "3.1.1" -FeatureName "Real-time Collaboration" -Tier 3 -OpenInEditor
 ```
 
 **Customization approach:**

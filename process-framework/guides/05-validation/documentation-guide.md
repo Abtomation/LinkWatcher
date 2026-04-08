@@ -423,7 +423,7 @@ To maintain consistency across all documentation:
 
    - All links to documentation files must use Markdown format: `[Link Text](relative/path/to/file.md)`
    - Use relative paths with `./` prefix when linking to files in the same directory
-   - Use relative paths with `../` prefix when linking to files in parent directories
+   - Use relative paths with `..` prefix when linking to files in parent directories
 
 2. **Consistency Check**
    - Before committing documentation changes, verify that all links follow these formatting standards

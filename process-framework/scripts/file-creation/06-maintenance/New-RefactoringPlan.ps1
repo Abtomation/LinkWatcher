@@ -60,28 +60,28 @@
     If specified, opens the created file in the default editor
 
 .EXAMPLE
-    .\New-RefactoringPlan.ps1 -RefactoringScope "User Authentication Module" -TargetArea "lib/services/auth/"
+    New-RefactoringPlan.ps1 -RefactoringScope "User Authentication Module" -TargetArea "lib/services/auth/"
 
 .EXAMPLE
-    .\New-RefactoringPlan.ps1 -RefactoringScope "Database Layer Optimization" -TargetArea "lib/data/" -Priority "High" -OpenInEditor
+    New-RefactoringPlan.ps1 -RefactoringScope "Database Layer Optimization" -TargetArea "lib/data/" -Priority "High" -OpenInEditor
 
 .EXAMPLE
-    .\New-RefactoringPlan.ps1 -RefactoringScope "Replace bare excepts in handler.py (TD011)" -TargetArea "linkwatcher/handler.py" -Lightweight
+    New-RefactoringPlan.ps1 -RefactoringScope "Replace bare excepts in handler.py (TD011)" -TargetArea "linkwatcher/handler.py" -Lightweight
 
 .EXAMPLE
-    .\New-RefactoringPlan.ps1 -RefactoringScope "Extract reference lookup (TD022)" -TargetArea "linkwatcher/handler.py" -Lightweight -FeatureId "1.1.1" -DebtItemId "TD022"
+    New-RefactoringPlan.ps1 -RefactoringScope "Extract reference lookup (TD022)" -TargetArea "linkwatcher/handler.py" -Lightweight -FeatureId "1.1.1" -DebtItemId "TD022"
 
 .EXAMPLE
-    .\New-RefactoringPlan.ps1 -RefactoringScope "Consolidate path utils (TD015)" -TargetArea "linkwatcher/" -Lightweight -IncludeDependencies -DebtItemId "TD015"
+    New-RefactoringPlan.ps1 -RefactoringScope "Consolidate path utils (TD015)" -TargetArea "linkwatcher/" -Lightweight -IncludeDependencies -DebtItemId "TD015"
 
 .EXAMPLE
-    .\New-RefactoringPlan.ps1 -RefactoringScope "Fix TDD pseudocode drift (TD046)" -TargetArea "doc/technical" -DocumentationOnly -DebtItemId "TD046"
+    New-RefactoringPlan.ps1 -RefactoringScope "Fix TDD pseudocode drift (TD046)" -TargetArea "doc/technical" -DocumentationOnly -DebtItemId "TD046"
 
 .EXAMPLE
-    .\New-RefactoringPlan.ps1 -RefactoringScope "Reduce file I/O in scan cycle (TD030)" -TargetArea "linkwatcher/service.py" -Performance -DebtItemId "TD030"
+    New-RefactoringPlan.ps1 -RefactoringScope "Reduce file I/O in scan cycle (TD030)" -TargetArea "linkwatcher/service.py" -Performance -DebtItemId "TD030"
 
 .EXAMPLE
-    .\New-RefactoringPlan.ps1 -RefactoringScope "Decompose God Class (TD005)" -TargetArea "linkwatcher/handler.py" -Priority "High" -DebtItemId "TD005 (PF-TDI-001)"
+    New-RefactoringPlan.ps1 -RefactoringScope "Decompose God Class (TD005)" -TargetArea "linkwatcher/handler.py" -Priority "High" -DebtItemId "TD005 (PF-TDI-001)"
 
 .NOTES
     - Requires PowerShell execution policy to allow script execution
@@ -207,10 +207,25 @@ $customReplacements = @{
     }
 }
 
+# Truncate document name for filename (max 60 chars after kebab-case conversion)
+$maxFileNameLength = 60
+$kebabScope = ($RefactoringScope.ToLower() -replace '[^a-z0-9]', '-' -replace '-+', '-' -replace '^-|-$', '')
+if ($kebabScope.Length -gt $maxFileNameLength) {
+    # Cut at last hyphen within limit to avoid chopped words
+    $truncated = $kebabScope.Substring(0, $maxFileNameLength)
+    $lastHyphen = $truncated.LastIndexOf('-')
+    if ($lastHyphen -gt 20) {
+        $truncated = $truncated.Substring(0, $lastHyphen)
+    }
+    $documentNameForFile = $truncated
+} else {
+    $documentNameForFile = $RefactoringScope
+}
+
 # Create the document using standardized process
 try {
     # Use DirectoryType for ID registry-based directory resolution
-    $documentId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "PD-REF" -IdDescription "Refactoring Plan: $RefactoringScope" -DocumentName $RefactoringScope -DirectoryType "plans" -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
+    $documentId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "PD-REF" -IdDescription "Refactoring Plan: $RefactoringScope" -DocumentName $documentNameForFile -DirectoryType "plans" -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
 
     # Provide success details
     $details = @(

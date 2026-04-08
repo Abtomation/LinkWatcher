@@ -23,10 +23,10 @@
     Optional: Project root path. Auto-detected if not specified.
 
 .EXAMPLE
-    .\Verify-TestResult.ps1 -Group "basic-file-operations"
+    Verify-TestResult.ps1 -Group "basic-file-operations"
 
 .EXAMPLE
-    .\Verify-TestResult.ps1 -TestCase "E2E-001" -Group "basic-file-operations" -Detailed
+    Verify-TestResult.ps1 -TestCase "E2E-001" -Group "basic-file-operations" -Detailed
 
 .NOTES
     Created: 2026-03-15
@@ -145,8 +145,8 @@ foreach ($tc in $testCasesToVerify) {
             continue
         }
 
-        $expContent = [string](Get-Content -LiteralPath $expFile.FullName -Raw -Encoding UTF8) -replace '\r\n', "`n"
-        $wsContent = [string](Get-Content -LiteralPath $workspaceFile -Raw -Encoding UTF8) -replace '\r\n', "`n"
+        $expContent = [string](Get-Content -LiteralPath $expFile.FullName -Raw -Encoding UTF8) -replace '/r/n', "`n"
+        $wsContent = [string](Get-Content -LiteralPath $workspaceFile -Raw -Encoding UTF8) -replace '/r/n', "`n"
 
         # Normalize trailing whitespace (PowerShell Set-Content may add extra newline)
         $expContent = $expContent.TrimEnd()

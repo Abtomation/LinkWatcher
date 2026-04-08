@@ -53,7 +53,7 @@ Complete process for creating a new task from concept to implementation-ready de
   - [Task Transition Guide](../../guides/framework/task-transition-guide.md) - For adding "Transitioning FROM" section for the new task
   - [Process Framework Task Registry](../../infrastructure/process-framework-task-registry.md) - For adding new task entry
   - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For creating context maps
-  - [Process Improvement Tracking](../../state-tracking/permanent/process-improvement-tracking.md) - For tracking infrastructure completion
+  - [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) - For tracking infrastructure completion
   - [New-Task.ps1](../../scripts/file-creation/support/New-Task.ps1) - Script for creating task definitions
   - [New-TempTaskState.ps1](../../scripts/file-creation/support/New-TempTaskState.ps1) - Script for creating temporary state files
   - [New-Template.ps1](../../scripts/file-creation/support/New-Template.ps1) - Script for creating templates
@@ -102,7 +102,7 @@ Complete process for creating a new task from concept to implementation-ready de
 ### Preparation
 
 1. **Gather Task Concept**: Obtain clear description of the new task concept from human partner. Require him to take critical decisions
-2. **Create Concept Document** (Recommended): Create a comprehensive concept document in `/process-framework/proposals/[task-name]-concept.md` for human review before implementation
+2. **Create Concept Document** (Recommended): Create a comprehensive concept document in `/process-framework-local/proposals/[task-name]-concept.md` for human review before implementation
    - Include purpose, context, process outline, outputs, and integration considerations
    - Allow human partner to review and approve concept before proceeding
    - Reference concept document in temporary state tracking file
@@ -143,7 +143,7 @@ Complete process for creating a new task from concept to implementation-ready de
 
 6L. **Create Task Definition**: Use [New-Task.ps1](../../scripts/file-creation/support/New-Task.ps1) and [Task Creation Guide](../../guides/support/task-creation-guide.md)
    ```bash
-   cd process-framework/scripts/file-creation && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-Task.ps1 -TaskName "Your Task Name" -WorkflowPhase "04-implementation" -Description "Your description" -Confirm:$false'
+   pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/support/New-Task.ps1 -TaskName "Your Task Name" -WorkflowPhase "04-implementation" -Description "Your description" -Confirm:\$false
    ```
    > **📝 NAMING**: Rename the generated file to include `-task` suffix (e.g., `your-task-name.md` → `your-task-name-task.md`)
 
@@ -161,7 +161,7 @@ Complete process for creating a new task from concept to implementation-ready de
 8L. **🚨 CHECKPOINT**: Present customized task definition to human partner for review before creating supporting artifacts
 9L. **Create Context Map**: Use [New-ContextMap.ps1](../../scripts/file-creation/02-design/New-ContextMap.ps1) and customize
    ```bash
-   cd process-framework/scripts/file-creation && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-ContextMap.ps1 -TaskName "Your Task Name" -WorkflowPhase "02-drafting" -MapDescription "Context map for Your Task Name task" -Confirm:$false'
+   pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/02-design/New-ContextMap.ps1 -TaskName "Your Task Name" -WorkflowPhase "02-drafting" -MapDescription "Context map for Your Task Name task" -Confirm:\$false
    ```
 
 10L. **Verify Documentation Updates**: Confirm that New-Task.ps1 automatically updated PF-documentation-map.md, tasks/README.md, and process-framework/ai-tasks.md
@@ -192,7 +192,7 @@ Complete process for creating a new task from concept to implementation-ready de
 5. **Create Temporary State Tracking File**: Use the [New-TempTaskState.ps1](../../scripts/file-creation/support/New-TempTaskState.ps1) script to create tracking file with implementation roadmap
 
    ```bash
-   cd process-framework/scripts/file-creation && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-TempTaskState.ps1 -TaskName "Task Name" -Description "Brief task description" -Confirm:$false'
+   pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/support/New-TempTaskState.ps1 -TaskName "Task Name" -Description "Brief task description" -Confirm:\$false
    ```
 
    **Reference**: [Temporary State File Customization Guide](../../guides/support/temp-state-tracking-customization-guide.md)
@@ -214,7 +214,7 @@ Complete process for creating a new task from concept to implementation-ready de
 
    - Create task definition using [New-Task.ps1](../../scripts/file-creation/support/New-Task.ps1) and [Task Creation Guide](../../guides/support/task-creation-guide.md)
      ```bash
-     cd process-framework/scripts/file-creation && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-Task.ps1 -TaskName "Your Task Name" -WorkflowPhase "04-implementation" -Description "Your description" -Confirm:$false'
+     pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/support/New-Task.ps1 -TaskName "Your Task Name" -WorkflowPhase "04-implementation" -Description "Your description" -Confirm:\$false
      ```
      > **Note**: Script will display prominent warnings about template nature and customization requirements
      > **✨ ENHANCED**: Script now automatically updates three documentation files: PF-documentation-map.md, tasks/README.md, and process-framework/ai-tasks.md
@@ -252,13 +252,13 @@ Complete process for creating a new task from concept to implementation-ready de
 
    - Create task-specific template using [Template Development Guide](../../guides/support/template-development-guide.md) and [New-Template.ps1](../../scripts/file-creation/support/New-Template.ps1) (if task creates files)
      ```bash
-     cd process-framework/scripts/file-creation && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-Template.ps1 -TemplateName "Your Template Name" -TemplateDescription "Template description" -DocumentPrefix "PF-XXX" -DocumentCategory "YourCategory" -Confirm:$false'
+     pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/support/New-Template.ps1 -TemplateName "Your Template Name" -TemplateDescription "Template description" -DocumentPrefix "PF-XXX" -DocumentCategory "YourCategory" -Confirm:\$false
      ```
      > **Note**: Script will display prominent warnings about template nature and customization requirements. Update the path to match your actual project location. Replace `PF-XXX` with the appropriate document prefix and `YourCategory` with the document category.
 
    - Create template customization guide using [New-Guide.ps1](../../scripts/file-creation/support/New-Guide.ps1) and [Guide Creation Best Practices Guide](../../guides/support/guide-creation-best-practices-guide.md) (if task creates files)
      ```bash
-     cd process-framework/scripts/file-creation/support && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-Guide.ps1 -GuideTitle "Your Guide Name" -SubDirectory "support" -GuideDescription "Guide description" -Confirm:$false'
+     pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/support/New-Guide.ps1 -GuideTitle "Your Guide Name" -SubDirectory "support" -GuideDescription "Guide description" -Confirm:\$false
      ```
      > **Note**: Script will display prominent warnings about template nature and customization requirements. Update the path to match your actual project location.
 
@@ -277,7 +277,7 @@ Complete process for creating a new task from concept to implementation-ready de
      - **Existing task definitions**: Grep for task definitions that precede or follow the new task in the workflow. Update their "Next Tasks" and "Related Resources" sections to reference the new task where appropriate. Also check the [ai-tasks.md](../../ai-tasks.md) decision tree and workflow diagrams for needed updates (these are NOT automated by New-Task.ps1 — the script only adds the table row).
    - Create context map using [Visualization Creation Guide](../../guides/support/visualization-creation-guide.md) and [New-ContextMap.ps1](../../scripts/file-creation/02-design/New-ContextMap.ps1)
      ```bash
-     cd process-framework/scripts/file-creation && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-ContextMap.ps1 -TaskName "Your Task Name" -WorkflowPhase "02-drafting" -MapDescription "Context map for Your Task Name task" -Confirm:$false'
+     pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/02-design/New-ContextMap.ps1 -TaskName "Your Task Name" -WorkflowPhase "02-drafting" -MapDescription "Context map for Your Task Name task" -Confirm:\$false
      ```
      > **Note**: Script will display prominent warnings about template nature and customization requirements. Update the path to match your actual project location.
 
@@ -297,12 +297,12 @@ Complete process for creating a new task from concept to implementation-ready de
 
 ### Preparation Outputs (Optional but Recommended)
 
-- **Task Concept Document** - Comprehensive concept document in `/process-framework/proposals/[task-name]-concept.md` for human review and approval
+- **Task Concept Document** - Comprehensive concept document in `/process-framework-local/proposals/[task-name]-concept.md` for human review and approval
 
 ### Session 1 Outputs (Core Infrastructure)
 
 - **Task Definition File** - Generated task definition in `/process-framework/tasks/[type]/[task-name].md` with assigned AI Agent Role
-- **Temporary State Tracking File** - Multi-session implementation tracker in `/process-framework/state-tracking/temporary/temp-task-creation-[task-name].md`
+- **Temporary State Tracking File** - Multi-session implementation tracker in `/process-framework-local/state-tracking/temporary/temp-task-creation-[task-name].md`
 - **✅ AUTOMATED Documentation Updates** - Three files automatically updated by New-Task.ps1:
   - **Documentation Map** - New task added to [PF-documentation-map.md](../../PF-documentation-map.md) with proper categorization
   - **Tasks README** - New task added to [tasks/README.md](../README.md) in appropriate section table

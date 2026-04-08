@@ -135,4 +135,4 @@ Before considering this task finished:
 ## Related Resources
 
 - [Feature Granularity Guide](/process-framework/guides/01-planning/feature-granularity-guide.md) - Defines what constitutes a well-scoped feature with validation tests and scaling guidance
-- [Feature Dependencies Map](/doc/technical/feature-dependencies.md) - For understanding how new features relate to existing ones
+- [Feature Dependencies Map](/doc/technical/architecture/feature-dependencies.md) - For understanding how new features relate to existing ones

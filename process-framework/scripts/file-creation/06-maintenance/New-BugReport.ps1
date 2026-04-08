@@ -47,10 +47,10 @@
     Related feature ID if applicable (optional)
 
 .EXAMPLE
-    .\New-BugReport.ps1 -Title "Login fails with special characters" -Description "Users cannot login when password contains special characters" -DiscoveredBy "TestAudit" -Severity "High" -Component "Authentication"
+    New-BugReport.ps1 -Title "Login fails with special characters" -Description "Users cannot login when password contains special characters" -DiscoveredBy "TestAudit" -Severity "High" -Component "Authentication"
 
 .EXAMPLE
-    .\New-BugReport.ps1 -Title "Memory leak in user service" -Description "Memory usage increases over time" -DiscoveredBy "CodeReview" -Severity "Critical" -Component "Performance" -Environment "Production"
+    New-BugReport.ps1 -Title "Memory leak in user service" -Description "Memory usage increases over time" -DiscoveredBy "CodeReview" -Severity "Critical" -Component "Performance" -Environment "Production"
 
 .NOTES
     - Requires PowerShell execution policy to allow script execution

@@ -49,7 +49,7 @@ Create or update user-facing product documentation (handbooks, quick-reference g
 
   - **Source code for the feature** — Verify CLI options, configuration keys, default values, error messages
   - **Existing README.md** — Check if feature is already partially documented there
-  - **Test specifications** (`test/specifications/feature-specs/`) — Understand expected behavior and edge cases
+  - **Test specifications** (`test/specifications/feature-specs`) — Understand expected behavior and edge cases
 
 - **Reference Only (Access When Needed):**
   - **TDD/FDD for the feature** — Technical details that may need user-facing explanation
@@ -87,7 +87,7 @@ Create or update user-facing product documentation (handbooks, quick-reference g
 6. **Create or update handbook**:
    - **For new handbooks**: Use the creation script:
      ```bash
-     cd process-framework/scripts/file-creation/07-deployment && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-Handbook.ps1 -HandbookName "Feature Name" -Description "What users can do with this feature" -Confirm:$false'
+     pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/07-deployment/New-Handbook.ps1 -HandbookName "Feature Name" -Description "What users can do with this feature" -Confirm:\$false
      ```
    - **For existing handbooks**: Edit the file directly, maintaining the established structure and style
 7. **Write user-focused content**: For each feature being documented, include:
@@ -103,7 +103,7 @@ Create or update user-facing product documentation (handbooks, quick-reference g
 
 10. **Update state files** using the automation script:
     ```bash
-    cd process-framework/scripts/update && pwsh.exe -ExecutionPolicy Bypass -Command '& .\Update-UserDocumentationState.ps1 -FeatureId "X.Y.Z" -HandbookName "Feature Name" -HandbookPath "doc/user/handbooks/filename.md" -HandbookId "PD-UGD-XXX" -Description "One-line description"'
+    pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/update/Update-UserDocumentationState.ps1 -FeatureId "X.Y.Z" -HandbookName "Feature Name" -HandbookPath "doc/user/handbooks/filename.md" -HandbookId "PD-UGD-XXX" -Description "One-line description"
     ```
     This automates updates to:
     - Feature implementation state file (appends handbook row to Documentation Inventory)

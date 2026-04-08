@@ -51,5 +51,38 @@
       "configFiles": ["[e.g. 'test/conftest.py' or 'test/helpers/test_helpers.dart' or 'jest.setup.js']"],
       "discoveryCommand": "[e.g. 'python -m pytest --fixtures -q', or null if not supported]"
     }
+  },
+
+  "directoryStructure": {
+    "_comment": "REQUIRED. Defines source code directory conventions for this language. Used by New-SourceStructure.ps1 and source-code-layout.md.",
+
+    "_comment_sourceRoot": "REQUIRED. Top-level directory containing all application source code (e.g., src, lib, app).",
+    "sourceRoot": "[source root directory, e.g., src, lib, app]",
+
+    "_comment_sharedDirectory": "REQUIRED. Directory name for cross-cutting utilities shared across features.",
+    "sharedDirectory": "[shared utilities directory name, e.g., shared, core, common]",
+
+    "_comment_directoryNaming": "REQUIRED. Naming convention for directories: snake_case, kebab-case, or PascalCase.",
+    "directoryNaming": "[naming convention: snake_case, kebab-case, PascalCase]",
+
+    "_comment_fileNaming": "REQUIRED. Naming convention for source files: snake_case, camelCase, or PascalCase.",
+    "fileNaming": "[naming convention: snake_case, camelCase, PascalCase]",
+
+    "_comment_entryPoint": "REQUIRED. Main entry point file that lives directly in the source root.",
+    "entryPoint": "[main entry point file, e.g., main.py, main.dart, index.ts]",
+
+    "_comment_packageMarkers": "OPTIONAL. Files that mark a directory as a package. Empty array if language has no package markers.",
+    "packageMarkers": ["[e.g., __init__.py for Python, or empty array]"],
+
+    "_comment_layers": "REQUIRED. Sublayer directory names used when a feature directory grows beyond sublayerThreshold files.",
+    "layers": {
+      "data": { "name": "[data layer dir name]", "purpose": "[description]" },
+      "services": { "name": "[service layer dir name]", "purpose": "[description]" },
+      "ui": { "name": "[ui layer dir name]", "purpose": "[description]" }
+    },
+
+    "_comment_sublayerThreshold": "REQUIRED. Number of files in a feature directory before sublayers should be introduced.",
+    "sublayerThreshold": 8,
+    "sublayerThresholdDescription": "Add sublayers within a feature directory when it exceeds this many files"
   }
 }

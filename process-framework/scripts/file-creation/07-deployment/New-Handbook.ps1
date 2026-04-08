@@ -27,13 +27,13 @@
     If specified, opens the created file in the default editor
 
 .EXAMPLE
-    .\New-Handbook.ps1 -HandbookName "Multi-Project Setup" -Description "Guide for using LinkWatcher across multiple projects"
+    New-Handbook.ps1 -HandbookName "Multi-Project Setup" -Description "Guide for using LinkWatcher across multiple projects"
 
 .EXAMPLE
-    .\New-Handbook.ps1 -HandbookName "File Type Quick Fix" -Description "Quick solutions for file type monitoring" -Category "troubleshooting"
+    New-Handbook.ps1 -HandbookName "File Type Quick Fix" -Description "Quick solutions for file type monitoring" -Category "troubleshooting"
 
 .EXAMPLE
-    .\New-Handbook.ps1 -HandbookName "Custom Parsers" -Description "How to add custom file parsers" -Category "configuration" -OpenInEditor
+    New-Handbook.ps1 -HandbookName "Custom Parsers" -Description "How to add custom file parsers" -Category "configuration" -OpenInEditor
 
 .NOTES
     - Requires PowerShell execution policy to allow script execution

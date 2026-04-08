@@ -6,8 +6,8 @@
 | ------------- | ----------------------- |
 | Document Type | Task System Entry Point |
 | Created Date  | 2025-05-26              |
-| Last Updated  | 2025-09-01              |
-| Version       | 3.0                     |
+| Last Updated  | 2026-04-04              |
+| Version       | 3.1                     |
 | Status        | Active                  |
 
 ---
@@ -24,7 +24,7 @@
 
 ```
 Are you ADOPTING THE FRAMEWORK into an existing project?
-├─ Yes → Start with [Codebase Feature Discovery](#codebase-feature-discovery)
+├─ Yes → Start with [Codebase Feature Discovery](#codebase-feature-discovery) (includes tier assessment)
 │        Then → [Codebase Feature Analysis](#codebase-feature-analysis)
 │        Then → [Retrospective Documentation Creation](#retrospective-documentation-creation)
 │
@@ -52,6 +52,9 @@ Are you ADOPTING THE FRAMEWORK into an existing project?
 │  │
 │  ├─ No → Are you WRITING USER DOCUMENTATION (handbooks, quick-reference, README)?
 │  │  └─ Yes → Use [User Documentation Creation](#user-documentation-creation)
+│  │
+│  ├─ No → Are you COMMITTING AND PUSHING to GitHub?
+│  │  └─ Yes → Use [Git Commit and Push](#git-commit-and-push)
 │  │
 │  ├─ No → Are you PREPARING A RELEASE?
 │  │  └─ Yes → Use [Release & Deployment](#release--deployment)
@@ -100,7 +103,7 @@ _Project setup, framework adoption, and existing codebase documentation activiti
 | ---------------------------------------- | --------------------------------------------------------------------------------------- | ---------- | -------------------------------------------------------------------------------------------------- |
 | **Codebase Feature Discovery**           | Adopting process framework into existing project - discover features and assign all code | 🟡 Medium  | [→ Definition](/process-framework/tasks/00-setup/codebase-feature-discovery.md)           |
 | **Codebase Feature Analysis**            | After feature discovery - analyze patterns, dependencies, and design decisions           | 🟡 Medium  | [→ Definition](/process-framework/tasks/00-setup/codebase-feature-analysis.md)            |
-| **Retrospective Documentation Creation** | After analysis - create tier assessments and required design documentation               | 🔴 Complex | [→ Definition](/process-framework/tasks/00-setup/retrospective-documentation-creation.md) |
+| **Retrospective Documentation Creation** | After analysis - validate tier assessments and create required design documentation (FDD, TDD, ADRs) for Tier 2+ features | 🔴 Complex | [→ Definition](/process-framework/tasks/00-setup/retrospective-documentation-creation.md) |
 | **Project Initiation**                   | Starting a new project or adapting the process framework to a new domain                | 🟡 Medium  | [→ Definition](/process-framework/tasks/00-setup/project-initiation-task.md) |
 
 ### 📋 01 - Planning Tasks
@@ -190,6 +193,7 @@ _Release preparation and deployment activities_
 
 | Task                     | Use When                         | Complexity | Link                                                                                  |
 | ------------------------ | -------------------------------- | ---------- | ------------------------------------------------------------------------------------- |
+| **Git Commit and Push**  | Commit current working directory changes and push to remote repository | 🟢 Simple  | [→ Definition](/process-framework/tasks/07-deployment/git-commit-and-push.md)         |
 | **Release & Deployment** | Preparing and deploying releases | 🔴 Complex | [→ Definition](/process-framework/tasks/07-deployment/release-deployment-task.md) |
 | **User Documentation Creation** | Feature introduces or changes user-visible behavior and needs handbook/quick-reference/README updates | 🟡 Medium | [→ Definition](/process-framework/tasks/07-deployment/user-documentation-creation.md) |
 
@@ -237,7 +241,7 @@ Feature Request Evaluation (classify as new) → Feature Tier Assessment → FDD
 ### For Simple Features
 
 ```
-Feature Request Evaluation (classify as new) → Feature Tier Assessment → Feature Implementation Planning (with lightweight design) → [Decomposed Implementation Tasks] → Code Review → [User Documentation Creation] → Release & Deployment
+Feature Request Evaluation (classify as new) → Feature Tier Assessment (+ creates lightweight state file) → Feature Implementation Planning (with lightweight design) → [Decomposed Implementation Tasks] → Code Review → [User Documentation Creation] → Release & Deployment
 ```
 
 ### For Enhancements to Existing Features
@@ -245,6 +249,14 @@ Feature Request Evaluation (classify as new) → Feature Tier Assessment → Fea
 ```
 Feature Request Evaluation (classify as enhancement + scope + create state file) → Feature Enhancement (execute steps from state file) → Code Review → [User Documentation Creation] → Release & Deployment
 ```
+
+### For Framework Adoption (existing project)
+
+```
+Codebase Feature Discovery (discover + tier assessment + state files + code inventory) → Codebase Feature Analysis (enrich state files) → Retrospective Documentation Creation (FDD/TDD/ADR for Tier 2+)
+```
+
+> **Note**: Tier assessment and state file creation happen within Codebase Feature Discovery (Step 10). The assessed tier determines whether the lightweight (Tier 1) or full (Tier 2/3) state file template is used.
 
 ### For Bug Fixes
 
@@ -341,7 +353,7 @@ Validation Preparation (PF-TSK-077) → [Select features + dimensions] → Dimen
 | **📊 State Tracking**   | Technical Debt Tracking           | Track technical debt items                   | [Technical Debt Tracking](/doc/state-tracking/permanent/technical-debt-tracking.md)                                  |
 | **📖 Templates**        | State File Template               | Create new tracking files                    | [State File Template](/process-framework/templates/support/state-file-template.md)                                               |
 | **🔧 Automation**       | Task Creation Script              | Create new framework tasks                   | [New Task Creation Process](/process-framework/tasks/support/new-task-creation-process.md)                                         |
-| **📝 Feedback**         | Feedback Process                  | Submit tool and task feedback                | [Feedback Process Guide](/process-framework/feedback/archive/README.md)                                                            |
+| **📝 Feedback**         | Feedback Process                  | Submit tool and task feedback                | [Feedback Process Guide](/process-framework-local/feedback/archive/README.md)                                                            |
 | **📝 Feedback**         | Feedback Flowchart                | Visual feedback process guide                | [Feedback Process Flowchart](/process-framework/visualization/process-flows/feedback-process-flowchart.md)                                            |
 | **🎯 Guides**           | Task Transition Guide             | Guidance on task transitions                 | [Task Transition Guide](/process-framework/guides/framework/task-transition-guide.md)                                                 |
 | **🎯 Guides**           | API Specification Creation        | How to create API specifications             | [API Specification Creation Guide](/process-framework/guides/02-design/api-specification-creation-guide.md)                           |
@@ -499,7 +511,7 @@ After completing any task, use our **hybrid feedback approach**:
 
 4. **Identify follow-up actions**: Mark tools scoring ≤3 for detailed feedback
 
-**Files saved**: process-framework/feedback/feedback-forms/YYYYMMDD-HHMMSS-TASK-ID-feedback.md (template format)
+**Files saved**: process-framework-local/feedback/feedback-forms/YYYYMMDD-HHMMSS-TASK-ID-feedback.md (template format)
 
 > ⚠️ **Important**: Use **TASK ID** (e.g., PF-TSK-002) in filename, NOT artifact IDs created during task
 >
@@ -507,7 +519,7 @@ After completing any task, use our **hybrid feedback approach**:
 >
 > 📈 **Why this matters**: Your feedback drives continuous improvement through the [Tools Review Task](/process-framework/tasks/support/tools-review-task.md)
 >
-> 📋 **More details**: See the [Feedback Process Guide](/process-framework/feedback/archive/README.md)
+> 📋 **More details**: See the [Feedback Process Guide](/process-framework-local/feedback/archive/README.md)
 >
 > 🔄 **Visual guide**: See the [Feedback Process Flowchart](/process-framework/visualization/process-flows/feedback-process-flowchart.md)
 

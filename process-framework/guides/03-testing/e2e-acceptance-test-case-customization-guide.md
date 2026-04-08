@@ -32,19 +32,19 @@ Use this guide when the [E2E Acceptance Test Case Creation task (PF-TSK-069)](/p
 **New group + first test case:**
 
 ```bash
-cd process-framework/scripts/file-creation && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-E2EAcceptanceTestCase.ps1 -TestCaseName "descriptive-name" -GroupName "group-name" -FeatureIds "X.Y.Z" -FeatureName "Feature Name" -NewGroup -Source "Test Spec PF-TSP-NNN" -Description "Brief description" -Confirm:$false'
+pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/03-testing/New-E2EAcceptanceTestCase.ps1 -TestCaseName "descriptive-name" -GroupName "group-name" -FeatureIds "X.Y.Z" -FeatureName "Feature Name" -NewGroup -Source "Test Spec PF-TSP-NNN" -Description "Brief description" -Confirm:\$false
 ```
 
 **Additional test case in existing group:**
 
 ```bash
-cd process-framework/scripts/file-creation/03-testing && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-E2EAcceptanceTestCase.ps1 -TestCaseName "descriptive-name" -GroupName "group-name" -FeatureIds "X.Y.Z" -FeatureName "Feature Name" -Source "Test Spec PF-TSP-NNN" -Description "Brief description" -Confirm:$false'
+pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/03-testing/New-E2EAcceptanceTestCase.ps1 -TestCaseName "descriptive-name" -GroupName "group-name" -FeatureIds "X.Y.Z" -FeatureName "Feature Name" -Source "Test Spec PF-TSP-NNN" -Description "Brief description" -Confirm:\$false
 ```
 
 **Scripted test case (automatable):**
 
 ```bash
-cd process-framework/scripts/file-creation/03-testing && pwsh.exe -ExecutionPolicy Bypass -Command '& .\New-E2EAcceptanceTestCase.ps1 -TestCaseName "move-readme" -GroupName "group-name" -FeatureIds "X.Y.Z" -FeatureName "Feature Name" -Scripted -Source "Test Spec PF-TSP-NNN" -Description "Move readme and verify link updates" -Confirm:$false'
+pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/03-testing/New-E2EAcceptanceTestCase.ps1 -TestCaseName "move-readme" -GroupName "group-name" -FeatureIds "X.Y.Z" -FeatureName "Feature Name" -Scripted -Source "Test Spec PF-TSP-NNN" -Description "Move readme and verify link updates" -Confirm:\$false
 ```
 
 When `-Scripted` is used, the script additionally creates a `run.ps1` skeleton and sets `Execution Mode` to `scripted` in test-case.md.
@@ -148,13 +148,13 @@ Set-Content $configPath $content -Encoding UTF8
 
 ```bash
 # Via orchestrator (recommended)
-pwsh.exe -ExecutionPolicy Bypass -Command '& process-framework/scripts/test/e2e-acceptance-testing/Run-E2EAcceptanceTest.ps1 -TestCase "E2E-NNN" -Group "group-name" -Clean'
+pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/test/e2e-acceptance-testing/Run-E2EAcceptanceTest.ps1 -TestCase "E2E-NNN" -Group "group-name" -Clean
 
 # Manual pipeline (step by step)
-pwsh.exe -ExecutionPolicy Bypass -Command '& process-framework/scripts/test/e2e-acceptance-testing/Setup-TestEnvironment.ps1 -Group "group-name" -Clean'
+pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/test/e2e-acceptance-testing/Setup-TestEnvironment.ps1 -Group "group-name" -Clean
 pwsh.exe -ExecutionPolicy Bypass -File test/e2e-acceptance-testing/templates/group-name/E2E-NNN-name/run.ps1 -WorkspacePath "test/e2e-acceptance-testing/workspace/group-name/E2E-NNN-name"
 # Wait for system propagation...
-pwsh.exe -ExecutionPolicy Bypass -Command '& process-framework/scripts/test/e2e-acceptance-testing/Verify-TestResult.ps1 -TestCase "E2E-NNN" -Group "group-name"'
+pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/test/e2e-acceptance-testing/Verify-TestResult.ps1 -TestCase "E2E-NNN" -Group "group-name"
 ```
 
 ## Naming Conventions

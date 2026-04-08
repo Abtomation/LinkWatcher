@@ -29,13 +29,13 @@
     If specified, opens the created file in the default editor
 
 .EXAMPLE
-    .\New-ImplementationPlan.ps1 -FeatureName "user-authentication" -Description "User authentication and authorization system"
+    New-ImplementationPlan.ps1 -FeatureName "user-authentication" -Description "User authentication and authorization system"
 
 .EXAMPLE
-    .\New-ImplementationPlan.ps1 -FeatureName "link-validation" -Description "On-demand link health audit" -Tier 1
+    New-ImplementationPlan.ps1 -FeatureName "link-validation" -Description "On-demand link health audit" -Tier 1
 
 .EXAMPLE
-    .\New-ImplementationPlan.ps1 -FeatureName "booking-system" -Description "Resource booking and reservation" -OpenInEditor
+    New-ImplementationPlan.ps1 -FeatureName "booking-system" -Description "Resource booking and reservation" -OpenInEditor
 
 .NOTES
     - Requires PowerShell execution policy to allow script execution
@@ -207,7 +207,7 @@ Before considering this script complete, test the following:
 
 EXAMPLE TEST COMMANDS:
 # Basic test
-.\New-ImplementationPlan.ps1 -FeatureName "test-feature" -Description "Test creation"
+New-ImplementationPlan.ps1 -FeatureName "test-feature" -Description "Test creation"
 
 # Verify created document
 Get-Content "doc/technical/implementation-plans/test-feature-implementation-plan.md" | Select-Object -First 20

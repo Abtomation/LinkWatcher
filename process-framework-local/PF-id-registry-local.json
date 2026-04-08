@@ -1,0 +1,84 @@
+{
+  "metadata": {
+    "name": "PF-id-registry-local",
+    "version": "1.0",
+    "created": "2026-04-03",
+    "updated": "2026-04-03",
+    "description": "Project-local ID Registry - prefixes for project-specific artifacts (feedback, proposals, state tracking, evaluation reports). NOT part of the portable framework blueprint.",
+    "format": "semantic"
+  },
+  "prefixes": {
+    "PF-PRO": {
+      "description": "Process Framework - Proposals",
+      "category": "Process Framework",
+      "type": "Proposal",
+      "directories": {
+        "main": "process-framework-local/proposals",
+        "default": "main"
+      },
+      "nextAvailable": 16
+    },
+    "PF-IMP": {
+      "description": "Process Framework - Improvement Opportunities",
+      "category": "Process Framework",
+      "type": "Improvement Opportunity",
+      "directories": {
+        "permanent": "process-framework-local/state-tracking/permanent",
+        "default": "permanent"
+      },
+      "nextAvailable": 386
+    },
+    "PF-STA": {
+      "description": "Process Framework - State Tracking (framework only)",
+      "category": "Process Framework",
+      "type": "State",
+      "directories": {
+        "permanent": "process-framework-local/state-tracking/permanent",
+        "temporary": "process-framework-local/state-tracking/temporary",
+        "default": "permanent"
+      },
+      "nextAvailable": 77
+    },
+    "PF-FEE": {
+      "description": "Process Framework - Feedback Artifacts",
+      "category": "Process Framework",
+      "type": "Feedback",
+      "directories": {
+        "forms": "process-framework-local/feedback/feedback-forms",
+        "archive": "process-framework-local/feedback/archive",
+        "default": "forms"
+      },
+      "nextAvailable": 754
+    },
+    "PF-REV": {
+      "description": "Process Framework - Review Artifacts",
+      "category": "Process Framework",
+      "type": "Review",
+      "directories": {
+        "reviews": "process-framework-local/feedback/reviews",
+        "default": "reviews"
+      },
+      "nextAvailable": 23
+    },
+    "PF-TMP": {
+      "description": "Process Framework - Temporary State Tracking",
+      "category": "Process Framework",
+      "type": "Temporary State",
+      "directories": {
+        "temporary": "process-framework-local/state-tracking/temporary",
+        "default": "temporary"
+      },
+      "nextAvailable": 2
+    },
+    "PF-EVR": {
+      "description": "Process Framework - Evaluation Reports",
+      "category": "Process Framework",
+      "type": "Evaluation Report",
+      "directories": {
+        "main": "process-framework-local/evaluation-reports",
+        "default": "main"
+      },
+      "nextAvailable": 10
+    }
+  }
+}

@@ -38,7 +38,7 @@ if ($Description -ne "") {
 try {
     $projectRoot = Get-ProjectRoot
     $templatePath = Join-Path $projectRoot "process-framework/templates/support/state-file-template.md"
-    $permanentId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "PF-STA" -IdDescription "Permanent state tracking: ${StateName}" -DocumentName $StateName -OutputDirectory "process-framework/state-tracking/permanent" -Replacements $customReplacements -OpenInEditor:$OpenInEditor
+    $permanentId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "PF-STA" -IdDescription "Permanent state tracking: ${StateName}" -DocumentName $StateName -OutputDirectory "process-framework-local/state-tracking/permanent" -Replacements $customReplacements -OpenInEditor:$OpenInEditor
 
     $details = @(
         "",

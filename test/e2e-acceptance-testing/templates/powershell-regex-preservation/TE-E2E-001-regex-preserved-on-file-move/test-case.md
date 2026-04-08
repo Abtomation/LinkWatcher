@@ -33,7 +33,7 @@ updated: 2026-03-15
    - **Tool**: Command Line
    - **Target**: `process-framework/scripts/testing/Setup-TestEnvironment.ps1`
 
-2. **Move the script to a subdirectory**: Drag `Update-Tracking.ps1` from `scripts/update/` into a new subdirectory `scripts/update/sub/`
+2. **Move the script to a subdirectory**: Drag `Update-Tracking.ps1` from `scripts/update` into a new subdirectory `scripts/update/sub/`
    - **Tool**: File Explorer or VS Code
    - **Target**: `workspace/scripts/update/Update-Tracking.ps1` → `workspace/scripts/update/sub/Update-Tracking.ps1`
 

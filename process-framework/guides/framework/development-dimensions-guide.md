@@ -360,5 +360,5 @@ This guide defines the **10 development dimensions** — quality aspects that sh
 ## Related Resources
 
 - [Feature Validation Guide](/process-framework/guides/05-validation/feature-validation-guide.md) — Scoring methodology and thresholds for validation rounds
-- [Proposal: Dimension-Aware Development Integration (PF-PRO-013)](/process-framework/proposals/old/dimension-aware-development-integration-proposal.md) — Design rationale and decision log
+- [Proposal: Dimension-Aware Development Integration (PF-PRO-013)](/process-framework-local/proposals/old/dimension-aware-development-integration-proposal.md) — Design rationale and decision log
 - [Technical Debt Tracking](/doc/state-tracking/permanent/technical-debt-tracking.md) — Uses dimension abbreviations as Primary Dimension (+ TST)

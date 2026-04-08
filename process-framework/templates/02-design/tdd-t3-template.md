@@ -3,9 +3,9 @@
 id: PF-TEM-057
 type: Process Framework
 category: Template
-version: 1.2
+version: 1.3
 created: 2023-06-15
-updated: 2025-01-27
+updated: 2026-04-04
 
 # Document Creation Metadata
 template_for: TDD Tier 3 (Comprehensive Technical Design Document)
@@ -17,7 +17,8 @@ creates_document_version: 1.0
 # Template Usage Context
 usage_context: Product Documentation - Technical Design Documents
 description: Creates comprehensive technical design documents for Tier 3 features
-change_notes: "v1.2 - Added cross-reference sections for IMP-097/IMP-098 (Database Schema, API Specification, FDD, Test Specification)"
+change_notes: "v1.3 - Made usability requirements and comment examples domain-agnostic (IMP-003)"
+documentation_mode: as-built
 
 # Additional Fields for Generated Documents
 additional_fields:
@@ -81,9 +82,9 @@ additional_fields:
 #### Usability Requirements
 
 - **User Experience**: [UX requirements and interaction patterns]
-- **Accessibility**: [WCAG compliance and accessibility features]
-- **Internationalization**: [Multi-language and localization requirements]
-- **Mobile Experience**: [Mobile-specific usability requirements]
+- **Accessibility**: [Platform-appropriate accessibility requirements]
+- **Internationalization**: [Localization requirements, if applicable]
+- **Platform Experience**: [Platform-specific usability requirements]
 - **Loading States**: [How loading, processing, and error states are handled]
 
 ### 2.3 Constraints
@@ -181,6 +182,16 @@ class ExampleState:
         self._state[key] = value
 ```
 
+<!-- RETROSPECTIVE: For retrospective TDDs, sections 5–7 and 10 are cross-reference scaffolding.
+     Simplify to a flat list of links to existing docs and remove subsections for documents that
+     don't exist. The "Primary Documentation / Owner" scaffolding is for forward planning.
+     Section 8 (Quality Attribute Implementation): Reframe as "Observed Quality Characteristics"
+     describing actual implementation rather than planned targets.
+     Section 9 (Quality Measurement): Remove if no monitoring/metrics exist, or document
+     actual observed characteristics.
+     Section 11 (Implementation Plan): Reframe as "Implementation Notes" — describe what was
+     built and actual dependencies, not future steps/timeline. -->
+
 ## 5. Functional Requirements Reference
 
 > **📋 Primary Documentation**: FDD Creation Task (PF-TSK-010)
@@ -193,8 +204,8 @@ class ExampleState:
 <!-- Brief notes on implementation-level functional concerns only (2-5 sentences) -->
 <!-- Focus on: how functional requirements translate to technical implementation, key business rules affecting design -->
 <!-- Examples:
-  - "Feature implements user authentication workflow defined in FDD section 3.2"
-  - "Business rule: Users can only view their own bookings (enforced in service layer)"
+  - "Feature implements data processing workflow defined in FDD section 3.2"
+  - "Business rule: Users can only access their own records (enforced in service layer)"
   - "Acceptance criteria from FDD drive validation logic in data models"
 -->
 
@@ -220,8 +231,8 @@ class ExampleState:
 <!-- Brief notes on implementation-level API concerns only (2-5 sentences) -->
 <!-- Focus on: how services integrate with APIs, implementation patterns for API consumption -->
 <!-- Examples:
-  - "Service layer consumes REST endpoints defined in API specification"
-  - "API authentication handled via JWT tokens in service interceptors"
+  - "Service layer consumes endpoints defined in API specification"
+  - "Authentication handled via configured auth mechanism in service layer"
   - "Error responses from API mapped to user-friendly messages in UI layer"
 -->
 
@@ -247,9 +258,9 @@ class ExampleState:
 <!-- Brief notes on implementation-level database concerns only (2-5 sentences) -->
 <!-- Focus on: how services interact with database, query patterns, data access layer design -->
 <!-- Examples:
-  - "Repository layer implements data access patterns for users and bookings tables"
-  - "Service uses optimistic locking for concurrent booking updates"
-  - "Data access respects RLS policies defined in schema design"
+  - "Repository layer implements data access patterns for core entity tables"
+  - "Service uses optimistic locking for concurrent record updates"
+  - "Data access respects access control policies defined in schema design"
 -->
 
 **Data Access Patterns**:
@@ -397,7 +408,7 @@ class ExampleState:
 <!-- Examples:
   - "Service layer designed with dependency injection for unit test mocking"
   - "State management includes test helpers for component testing"
-  - "API integration uses test doubles for integration testing"
+  - "External integrations use test doubles for integration testing"
 -->
 
 **Testability Considerations**:

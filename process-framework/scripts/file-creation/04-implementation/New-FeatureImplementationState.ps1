@@ -29,6 +29,12 @@
     automatically links the created implementation state file in the Feature Tracking
     document's ID column, turning the bare ID into a markdown link.
 
+.PARAMETER Lightweight
+    When specified, uses the lightweight template variant (7 sections instead of 10).
+    Recommended for Tier 1 features and retrospective analysis of simple features.
+    The lightweight template omits Implementation Progress, Dimension Profile, and
+    merges Issues/Next Steps into a compact Notes section.
+
 .PARAMETER ImplementationMode
     The implementation mode to set in metadata. Defaults to "PLANNING".
     Use "Retrospective Analysis" when creating state files for pre-existing features
@@ -46,16 +52,19 @@
     If specified, opens the created file in the default editor
 
 .EXAMPLE
-    .\New-FeatureImplementationState.ps1 -FeatureName "user-authentication" -Description "User authentication and authorization system"
+    New-FeatureImplementationState.ps1 -FeatureName "user-authentication" -Description "User authentication and authorization system"
 
 .EXAMPLE
-    .\New-FeatureImplementationState.ps1 -FeatureName "booking-system" -OpenInEditor
+    New-FeatureImplementationState.ps1 -FeatureName "booking-system" -OpenInEditor
 
 .EXAMPLE
-    .\New-FeatureImplementationState.ps1 -FeatureName "core-architecture" -FeatureId "0.1.1" -ImplementationMode "Retrospective Analysis" -Description "Modular architecture"
+    New-FeatureImplementationState.ps1 -FeatureName "core-architecture" -FeatureId "0.1.1" -ImplementationMode "Retrospective Analysis" -Description "Modular architecture"
 
 .EXAMPLE
-    .\New-FeatureImplementationState.ps1 -FeatureName "file-processor" -FeatureId "2.1.1" -Dims @{ "SE" = "Critical|Validate user paths"; "PE" = "Critical|Batch I/O"; "UX" = "N/A|CLI tool" }
+    New-FeatureImplementationState.ps1 -FeatureName "simple-feature" -FeatureId "1.1.0" -Lightweight -Description "Simple Tier 1 feature"
+
+.EXAMPLE
+    New-FeatureImplementationState.ps1 -FeatureName "file-processor" -FeatureId "2.1.1" -Dims @{ "SE" = "Critical|Validate user paths"; "PE" = "Critical|Batch I/O"; "UX" = "N/A|CLI tool" }
 
 .NOTES
     - Requires PowerShell execution policy to allow script execution
@@ -83,6 +92,9 @@ param(
 
     [Parameter(Mandatory = $false)]
     [string]$FeatureId = "",
+
+    [Parameter(Mandatory = $false)]
+    [switch]$Lightweight,
 
     [Parameter(Mandatory = $false)]
     [string]$ImplementationMode = "PLANNING",
@@ -137,14 +149,21 @@ $customReplacements = @{
 try {
     # Build absolute template path using project root
     $projectRoot = Get-ProjectRoot
-    $templatePath = Join-Path $projectRoot "process-framework/templates/04-implementation/feature-implementation-state-template.md"
+    $templateFileName = if ($Lightweight) { "feature-implementation-state-lightweight-template.md" } else { "feature-implementation-state-template.md" }
+    $templatePath = Join-Path $projectRoot "process-framework/templates/04-implementation/$templateFileName"
 
     if (-not (Test-Path $templatePath)) {
-        Write-ProjectError -Message "Feature implementation state template not found at: $templatePath - Template file required: feature-implementation-state-template.md" -ExitCode 1
+        Write-ProjectError -Message "Feature implementation state template not found at: $templatePath - Template file required: $templateFileName" -ExitCode 1
+    }
+
+    if ($Lightweight) {
+        Write-Host "  Using lightweight template (Tier 1 / retrospective)" -ForegroundColor Cyan
     }
 
     # Build document name — include FeatureId prefix when provided
-    $docName = if ($FeatureId -ne "") { "$FeatureId-$FeatureName-implementation-state" } else { "$FeatureName-implementation-state" }
+    # Replace spaces with hyphens to prevent broken markdown links in VS Code and other renderers
+    $sanitizedName = $FeatureName -replace '\s+', '-'
+    $docName = if ($FeatureId -ne "") { "$FeatureId-$sanitizedName-implementation-state" } else { "$sanitizedName-implementation-state" }
 
     # Use FileNamePattern to preserve dots in feature ID (ConvertTo-KebabCase would replace dots with hyphens)
     $documentId = New-StandardProjectDocument `
@@ -188,8 +207,8 @@ try {
         }
     }
 
-    # Populate Dimension Profile section if -Dims was provided
-    if ($Dims.Count -gt 0) {
+    # Populate Dimension Profile section if -Dims was provided (full template only)
+    if ($Dims.Count -gt 0 -and -not $Lightweight) {
         $createdFilePath = Join-Path $projectRoot "doc/state-tracking/features/$docName.md"
         if (Test-Path $createdFilePath) {
             $dimensionNames = @{
@@ -250,6 +269,21 @@ try {
             if ($PSCmdlet.ShouldProcess($createdFilePath, "Populate Dimension Profile")) {
                 Set-Content $createdFilePath $fileContent -Encoding UTF8
                 Write-Host "  Populated Dimension Profile ($($Dims.Count) dimensions)" -ForegroundColor Green
+            }
+        }
+    }
+
+    # --- Post-action: Update source structure if source-code-layout.md exists ---
+    $layoutDocPath = Join-Path $projectRoot "doc/technical/architecture/source-code-layout.md"
+    if ((Test-Path $layoutDocPath) -and $FeatureName -ne "") {
+        $sourceStructureScript = Join-Path $projectRoot "process-framework/scripts/file-creation/00-setup/New-SourceStructure.ps1"
+        if (Test-Path $sourceStructureScript) {
+            try {
+                Write-Host "  Updating source structure for feature '$FeatureName'..." -ForegroundColor Cyan
+                & $sourceStructureScript -Update -FeatureName $FeatureName -Confirm:$false
+            } catch {
+                Write-Host "  Warning: Source structure update failed: $($_.Exception.Message)" -ForegroundColor Yellow
+                Write-Host "  Run manually: New-SourceStructure.ps1 -Update -FeatureName `"$FeatureName`"" -ForegroundColor Yellow
             }
         }
     }
@@ -339,10 +373,10 @@ Before considering this script complete, test the following:
 
 EXAMPLE TEST COMMANDS:
 # Basic test
-.\New-FeatureImplementationState.ps1 -FeatureName "test-feature" -Description "Test creation"
+New-FeatureImplementationState.ps1 -FeatureName "test-feature" -Description "Test creation"
 
 # Retrospective onboarding test (with feature tracking link)
-.\New-FeatureImplementationState.ps1 -FeatureName "test-feature" -FeatureId "9.9.9" -ImplementationMode "Retrospective Analysis" -Description "Test retrospective creation"
+New-FeatureImplementationState.ps1 -FeatureName "test-feature" -FeatureId "9.9.9" -ImplementationMode "Retrospective Analysis" -Description "Test retrospective creation"
 
 # Verify created document (check the actual ID assigned)
 Get-ChildItem "doc/state-tracking/features/*test-feature*.md" | Get-Content | Select-Object -First 20

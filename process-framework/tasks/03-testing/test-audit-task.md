@@ -44,7 +44,7 @@ Comprehensive quality assurance task that evaluates implemented test suites agai
 - **Critical (Must Read):**
 
   - **Test Implementation Files** - The actual test files to be audited (located in the project's test directory as configured in `project-config.json`)
-  - **Test Specification Document** - The test specification file for the feature being audited (located in `/test/specifications/feature-specs/`)
+  - **Test Specification Document** - The test specification file for the feature being audited (located in `/test/specifications/feature-specs`)
   - [Test Tracking](../../../test/state-tracking/permanent/test-tracking.md) - Current test implementation status and audit tracking
   - [Technical Design Document](/doc/technical/tdd) - The TDD for the feature to understand implementation requirements
 
@@ -178,7 +178,7 @@ Comprehensive quality assurance task that evaluates implemented test suites agai
    Set-Location "process-framework/scripts/file-creation"
 
    # Create bug report for issues found during test audit
-   .\New-BugReport.ps1 -Title "Test failure reveals bug in component" -Description "Test consistently fails due to validation issue" -DiscoveredBy "TestAudit" -Severity "High" -Component "Component Name" -Environment "Development" -RelatedFeature "X.Y.Z"
+   New-BugReport.ps1 -Title "Test failure reveals bug in component" -Description "Test consistently fails due to validation issue" -DiscoveredBy "TestAudit" -Severity "High" -Component "Component Name" -Environment "Development" -RelatedFeature "X.Y.Z"
    ```
 
 12. **Assign Audit Status**: Determine audit outcome based on evaluation results:
@@ -192,7 +192,7 @@ Comprehensive quality assurance task that evaluates implemented test suites agai
 
     ```powershell
     # Register significant test quality finding as tech debt
-    .\Update-TechDebt.ps1 -Add -Description "Zero-assertion tests in test_example.py (5 methods)" -Dims "TST" -Location "test/automated/unit/test_example.py" -Priority "Medium" -EstimatedEffort "Small"
+    Update-TechDebt.ps1 -Add -Description "Zero-assertion tests in test_example.py (5 methods)" -Dims "TST" -Location "test/automated/unit/test_example.py" -Priority "Medium" -EstimatedEffort "Small"
     ```
 
     > **Routing**: Test-related tech debt items route to [Integration & Testing](../04-implementation/integration-and-testing.md) (PF-TSK-053) for resolution — not to Code Refactoring (PF-TSK-022), which handles product code improvements.
@@ -204,7 +204,7 @@ Comprehensive quality assurance task that evaluates implemented test suites agai
    Set-Location "process-framework/scripts/validation"
 
    # Validate the completed audit report
-   ./Validate-AuditReport.ps1 -ReportFile "[category]/audit-report-[feature-id]-[test-file-id].md" -Detailed
+   Validate-AuditReport.ps1 -ReportFile "[category]/audit-report-[feature-id]-[test-file-id].md" -Detailed
    ```
 
    Address any errors or warnings before proceeding. The script checks metadata completeness, all six evaluation criteria, audit decision consistency, required sections, and template placeholders.
@@ -220,7 +220,7 @@ Comprehensive quality assurance task that evaluates implemented test suites agai
 Set-Location "process-framework/scripts"
 
 # Update test audit state with comprehensive details
-./Update-TestFileAuditState.ps1 -TestFilePath "test/automated/unit/test_example.py" -AuditStatus "Tests Approved" -AuditorName "AI Agent" -TestCasesAudited 15 -PassedTests 14 -FailedTests 1 -MajorFindings @("Finding 1", "Finding 2") -AuditReportPath "doc/test-audits/relative/path/to/audit-report.md"
+Update-TestFileAuditState.ps1 -TestFilePath "test/automated/unit/test_example.py" -AuditStatus "Tests Approved" -AuditorName "AI Agent" -TestCasesAudited 15 -PassedTests 14 -FailedTests 1 -MajorFindings @("Finding 1", "Finding 2") -AuditReportPath "doc/test-audits/relative/path/to/audit-report.md"
 
 # Script automatically:
 # - Updates ../../../test/state-tracking/permanent/test-tracking.md with audit status and detailed results

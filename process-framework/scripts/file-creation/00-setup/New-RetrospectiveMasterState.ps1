@@ -29,7 +29,7 @@
     .\New-RetrospectiveMasterState.ps1 -ProjectName "MyProject" -OpenInEditor
 
 .NOTES
-    - The output file is placed in process-framework/state-tracking/temporary/
+    - The output file is placed in process-framework-local/state-tracking/temporary/
     - The file is TEMPORARY and will be archived when onboarding is complete
     - Only one retrospective master state file should exist per project at a time
     - Assigns a PF-STA-XXX ID from the central ID registry
@@ -67,7 +67,7 @@ Invoke-StandardScriptInitialization
 # Resolve paths
 $projectRoot = Get-ProjectRoot
 $templatePath = Join-Path $projectRoot "process-framework/templates/00-setup/retrospective-state-template.md"
-$outputDir = Join-Path $projectRoot "process-framework/state-tracking/temporary"
+$outputDir = Join-Path $projectRoot "process-framework-local/state-tracking/temporary"
 $outputFile = Join-Path $outputDir "retrospective-master-state.md"
 
 # Validate template exists
@@ -128,7 +128,7 @@ try {
 
     $details = @(
         "Project: $ProjectName",
-        "Location: process-framework/state-tracking/temporary/retrospective-master-state.md",
+        "Location: doc/state-tracking/temporary/archived/retrospective-master-state.md",
         "Status: DISCOVERY",
         "Started: $today",
         "",

@@ -159,10 +159,10 @@ When creating API data models, you must make several key decisions that impact t
 2. **Execute the New-APIDataModel.ps1 script**:
    ```powershell
    # Basic API data model creation
-   .\New-APIDataModel.ps1 -ModelName "User Profile" -ModelDescription "User account profile information" -ApiVersion "v1"
+   New-APIDataModel.ps1 -ModelName "User Profile" -ModelDescription "User account profile information" -ApiVersion "v1"
 
    # With related endpoints specified
-   .\New-APIDataModel.ps1 -ModelName "Authentication Request" -ModelDescription "Login request data structure" -ApiVersion "v1" -RelatedEndpoints "/auth/login,/auth/refresh" -OpenInEditor
+   New-APIDataModel.ps1 -ModelName "Authentication Request" -ModelDescription "Login request data structure" -ApiVersion "v1" -RelatedEndpoints "/auth/login,/auth/refresh" -OpenInEditor
    ```
 
 3. **Verify data model creation**:
@@ -256,7 +256,7 @@ Creating a comprehensive user profile data model for the application:
 cd doc/technical/api/models
 
 # Create user profile data model
-.\New-APIDataModel.ps1 -ModelName "User Profile" -ModelDescription "User account profile information including preferences and settings" -ApiVersion "v1" -RelatedEndpoints "/users/profile,/users/update-profile" -OpenInEditor
+New-APIDataModel.ps1 -ModelName "User Profile" -ModelDescription "User account profile information including preferences and settings" -ApiVersion "v1" -RelatedEndpoints "/users/profile,/users/update-profile" -OpenInEditor
 ```
 
 **Customization approach:**
@@ -273,7 +273,7 @@ Creating a secure authentication request model:
 
 ```powershell
 # Create authentication request data model
-.\New-APIDataModel.ps1 -ModelName "Authentication Request" -ModelDescription "Login request data structure with security validation" -ApiVersion "v1" -RelatedEndpoints "/auth/login,/auth/refresh,/auth/logout"
+New-APIDataModel.ps1 -ModelName "Authentication Request" -ModelDescription "Login request data structure with security validation" -ApiVersion "v1" -RelatedEndpoints "/auth/login,/auth/refresh,/auth/logout"
 ```
 
 **Customization approach:**

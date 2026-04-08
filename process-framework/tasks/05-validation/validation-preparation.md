@@ -104,7 +104,7 @@ Plans a validation round by selecting features to validate, evaluating which val
 
    ```powershell
    cd process-framework/scripts/file-creation/05-validation
-   .\New-ValidationTracking.ps1 -RoundNumber [N] -Description "[Round focus]"
+   New-ValidationTracking.ps1 -RoundNumber [N] -Description "[Round focus]"
    ```
 
    Then customize:

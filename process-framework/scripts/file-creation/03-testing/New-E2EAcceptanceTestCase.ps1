@@ -55,13 +55,13 @@
     If specified, opens the created test-case.md in the default editor
 
 .EXAMPLE
-    .\New-E2EAcceptanceTestCase.ps1 -TestCaseName "single-file-rename" -GroupName "basic-file-operations" -FeatureId "1.1.1" -FeatureName "File System Monitoring" -Source "Test Spec PF-TSP-038" -Description "Verify single file rename updates all references"
+    New-E2EAcceptanceTestCase.ps1 -TestCaseName "single-file-rename" -GroupName "basic-file-operations" -FeatureId "1.1.1" -FeatureName "File System Monitoring" -Source "Test Spec PF-TSP-038" -Description "Verify single file rename updates all references"
 
 .EXAMPLE
-    .\New-E2EAcceptanceTestCase.ps1 -TestCaseName "single-file-rename" -GroupName "basic-file-operations" -FeatureId "1.1.1" -FeatureName "File System Monitoring" -NewGroup -Source "Test Spec PF-TSP-038" -Description "Verify single file rename updates all references"
+    New-E2EAcceptanceTestCase.ps1 -TestCaseName "single-file-rename" -GroupName "basic-file-operations" -FeatureId "1.1.1" -FeatureName "File System Monitoring" -NewGroup -Source "Test Spec PF-TSP-038" -Description "Verify single file rename updates all references"
 
 .EXAMPLE
-    .\New-E2EAcceptanceTestCase.ps1 -TestCaseName "move-readme-to-archive" -GroupName "basic-file-operations" -FeatureId "1.1.1" -FeatureName "File System Monitoring" -Scripted -Source "Test Spec PF-TSP-038" -Description "Move readme.md and verify link updates"
+    New-E2EAcceptanceTestCase.ps1 -TestCaseName "move-readme-to-archive" -GroupName "basic-file-operations" -FeatureId "1.1.1" -FeatureName "File System Monitoring" -Scripted -Source "Test Spec PF-TSP-038" -Description "Move readme.md and verify link updates"
 
 .NOTES
     - Requires PowerShell execution policy to allow script execution

@@ -242,9 +242,7 @@ class LinkValidator:
                 "validation_timing_by_extension",
                 timings={
                     ext: round(secs * 1000, 1)
-                    for ext, secs in sorted(
-                        ext_timings.items(), key=lambda x: x[1], reverse=True
-                    )
+                    for ext, secs in sorted(ext_timings.items(), key=lambda x: x[1], reverse=True)
                 },
             )
 
@@ -319,9 +317,13 @@ class LinkValidator:
                 continue
 
             if self._should_skip_reference(
-                ref, ignored_patterns, code_block_lines,
-                archival_details_lines, table_row_lines,
-                placeholder_lines, is_template_file,
+                ref,
+                ignored_patterns,
+                code_block_lines,
+                archival_details_lines,
+                table_row_lines,
+                placeholder_lines,
+                is_template_file,
             ):
                 continue
 
@@ -609,7 +611,7 @@ class LinkValidator:
 
             # Comment lines start with #
             source_glob -> target_substring
-            process-framework/templates/**/*.md -> related-design.md
+            process-framework/templates**/*.md -> related-design.md
             doc/validation/reports/**/*.md -> docs/README.md
 
         Returns a list of (compiled_source_regex, target_substring) tuples.
