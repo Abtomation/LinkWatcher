@@ -55,12 +55,36 @@ New-Item -ItemType Directory -Path $docsDir -Force | Out-Null
 $guideContent = "# Guide`n`nSee [Config](../settings/config.yaml) for settings.`n"
 Set-Content (Join-Path $docsDir "guide.md") $guideContent -Encoding UTF8
 
-# Step 4: Restart LinkWatcher scoped to workspace
-$startScript = Join-Path $projectRoot "LinkWatcher_run/start_linkwatcher_background.ps1"
-& $startScript -ProjectRoot $WorkspacePath
+# Step 4: Restart LinkWatcher scoped to project/ subdirectory
+# Start LW directly with python main.py (not start_linkwatcher_background.ps1,
+# which ignores -ProjectRoot and always uses project-config.json root — PD-BUG-053).
+# Scope to $projectPath (not $WorkspacePath) to avoid scanning expected/ directory.
+$mainPy = Join-Path $projectRoot "main.py"
+$logFile = Join-Path $WorkspacePath "linkwatcher-e2e.log"
+$lwArgs = "`"$mainPy`" --project-root `"$projectPath`" --log-file `"$logFile`" --debug"
+$lwProcess = Start-Process -FilePath "python" -ArgumentList $lwArgs -WorkingDirectory $projectPath -WindowStyle Hidden -PassThru -RedirectStandardOutput (Join-Path $WorkspacePath "lw-stdout.txt") -RedirectStandardError (Join-Path $WorkspacePath "lw-stderr.txt")
+Write-Host "Started LinkWatcher scoped to project (PID: $($lwProcess.Id))"
 
-# Step 5: Wait briefly (LW is starting up but not fully scanned yet)
-Start-Sleep -Seconds 2
+# Step 5: Wait for LW to start scanning before moving the file.
+# Start-Process has higher startup latency than bash background processes.
+# Poll the log file for scan_starting to confirm the observer is active
+# and the scan is in progress before triggering the move (PD-BUG-053).
+$maxWait = 15
+$elapsed = 0
+while ($elapsed -lt $maxWait) {
+    Start-Sleep -Seconds 1
+    $elapsed++
+    if (Test-Path $logFile) {
+        $logContent = Get-Content $logFile -Tail 20 -ErrorAction SilentlyContinue
+        if ($logContent -match 'initial_scan_starting|scan_progress') {
+            Write-Host "LW scan started after ${elapsed}s — moving file now"
+            break
+        }
+    }
+}
+if ($elapsed -ge $maxWait) {
+    Write-Host "Warning: scan start not detected after ${maxWait}s — moving file anyway" -ForegroundColor Yellow
+}
 
 # Step 6: Move the target file while LW is still starting/scanning
 $sourceFile = Join-Path $projectPath "settings/config.yaml"

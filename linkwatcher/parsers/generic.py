@@ -3,12 +3,40 @@ Generic file parser for extracting file references.
 
 This parser handles any text file and looks for file-like patterns
 using simple heuristics. It's used as a fallback for unsupported file types.
+
+AI Context
+----------
+- **Entry point**: ``parse_content()`` — iterates lines with a
+  three-pass strategy: quoted file paths first, then quoted
+  directory paths, then unquoted paths (only if no quoted paths
+  matched on the same line).
+- **Pattern architecture**: 3 compiled regexes in ``__init__()`` —
+  ``quoted_pattern`` and ``quoted_dir_pattern`` (shared from
+  ``parsers/patterns.py``), and ``unquoted_pattern`` (conservative
+  bare paths with lookahead boundary, PD-BUG-080).
+- **Unquoted guard**: ``_is_likely_file_reference()`` adds extra
+  validation for unquoted matches — requires path separators
+  (``/`` or ``\\``) or file-related keywords (``file``, ``path``,
+  ``include``, etc.) on the line.  Without these indicators,
+  unquoted matches are rejected to reduce false positives.
+- **Fallback role**: ``YamlParser`` and ``JsonParser`` delegate to
+  this parser when their structured parsing fails (YAML/JSON
+  decode errors).
+- **Link types**: ``GENERIC_QUOTED``, ``GENERIC_QUOTED_DIR``,
+  ``GENERIC_UNQUOTED``.
+- **Common tasks**:
+  - Debugging false positives: check ``_is_likely_file_reference()``
+    for unquoted paths, or ``_looks_like_file_path()`` /
+    ``_looks_like_directory_path()`` (from ``BaseParser``) for
+    quoted paths.
+  - Testing: ``test/automated/parsers/test_generic.py``.
 """
 
 import os.path
 import re
 from typing import List
 
+from ..link_types import LinkType
 from ..models import LinkReference
 from .base import BaseParser
 from .patterns import QUOTED_DIR_PATTERN, QUOTED_PATH_PATTERN
@@ -50,7 +78,7 @@ class GenericParser(BaseParser):
                                 column_end=match.end(1),
                                 link_text=potential_file,
                                 link_target=potential_file,
-                                link_type="generic-quoted",
+                                link_type=LinkType.GENERIC_QUOTED,
                             )
                         )
 
@@ -72,7 +100,7 @@ class GenericParser(BaseParser):
                                 column_end=match.end(1),
                                 link_text=potential_dir,
                                 link_target=potential_dir,
-                                link_type="generic-quoted-dir",
+                                link_type=LinkType.GENERIC_QUOTED_DIR,
                             )
                         )
 
@@ -93,7 +121,7 @@ class GenericParser(BaseParser):
                                         column_end=match.end(1),
                                         link_text=potential_file,
                                         link_target=potential_file,
-                                        link_type="generic-unquoted",
+                                        link_type=LinkType.GENERIC_UNQUOTED,
                                     )
                                 )
 

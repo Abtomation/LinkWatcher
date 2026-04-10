@@ -255,7 +255,6 @@ The following state files are automatically updated by the [../../scripts/file-c
 - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Automatically updated with:
   - Status changed from "📋 FDD Created" (for Tier 2+) or "📊 Assessment Created" (for Tier 1) to "📝 TDD Created"
   - Link to TDD document added in the "Tech Design" column
-  - TDD creation date added to Notes column
 
 ## ⚠️ MANDATORY Task Completion Checklist
 

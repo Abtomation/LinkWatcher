@@ -16,8 +16,12 @@ AI Context
   - Debugging missing references: check ``normalize_path()`` — path
     normalization mismatches are the most common cause.
   - Understanding data flow: service._initial_scan → parser.parse_file
-    → database.add_link; handler events → database.remove_file_links /
+    → database.add_links_batch (bulk); handler events →
+    database.add_link (single) / remove_file_links /
     update_source_path / get_references_to_file.
+  - Mutation helpers: ``_add_link_unlocked()`` contains the core
+    insertion logic (no lock). Both ``add_link`` and
+    ``add_links_batch`` delegate to it after acquiring ``self._lock``.
 
 Index Architecture
 ------------------
@@ -26,46 +30,60 @@ Five data structures store link state. All are guarded by ``self._lock``.
 ``links`` — ``Dict[str, List[LinkReference]]``
     Primary index. Keyed by normalized target path (may include ``#anchor``).
     Each value is the list of references pointing at that target.
-    Mutated by: ``add_link``, ``remove_file_links``, ``update_target_path``,
-    ``remove_stale_entries``, ``clear``.
+    Mutated by: ``add_link``/``add_links_batch``, ``remove_file_links``,
+    ``update_target_path``, ``remove_stale_entries``, ``clear``.
 
 ``files_with_links`` — ``Set[str]``
     Set of source file paths that contain at least one outgoing link.
-    Mutated by: ``add_link``, ``remove_file_links``, ``update_source_path``,
-    ``clear``.
+    Mutated by: ``add_link``/``add_links_batch``, ``remove_file_links``,
+    ``update_source_path``, ``clear``.
 
 ``_source_to_targets`` — ``Dict[str, Set[str]]``
     Reverse index: normalized source path → set of target keys that source
     references. Enables O(1) cleanup when a source file is removed.
-    Mutated by: ``add_link``, ``remove_file_links``, ``update_source_path``,
-    ``clear``.
+    Mutated by: ``add_link``/``add_links_batch``, ``remove_file_links``,
+    ``update_source_path``, ``clear``.
 
 ``_base_path_to_keys`` — ``Dict[str, Set[str]]``
     Secondary index: base path (anchor stripped) → set of keys in ``links``
     that share that base path. Enables anchor-aware lookups.
-    Mutated by: ``add_link``, ``_remove_key_from_indexes``,
+    Mutated by: ``add_link``/``add_links_batch``, ``_remove_key_from_indexes``,
     ``_add_key_to_indexes``, ``clear``.
 
 ``_resolved_to_keys`` — ``Dict[str, Set[str]]``
     Secondary index: resolved absolute path → set of keys in ``links``.
-    Populated at ``add_link`` time by resolving each ref's target relative
+    Populated at ``add_link``/``add_links_batch`` time by resolving each ref's target relative
     to its source directory. Enables O(1) lookup in
     ``get_references_to_file()``.
-    Mutated by: ``add_link``, ``_remove_key_from_indexes``,
+    Mutated by: ``add_link``/``add_links_batch``, ``_remove_key_from_indexes``,
     ``_add_key_to_indexes``, ``clear``.
 
 ``_key_to_resolved_paths`` — ``Dict[str, Set[str]]``
     Reverse index: target key → set of resolved paths that map to it in
     ``_resolved_to_keys``. Enables O(1) removal in
     ``_remove_key_from_indexes()`` (TD138).
-    Mutated by: ``add_link``, ``_remove_key_from_indexes``,
+    Mutated by: ``add_link``/``add_links_batch``, ``_remove_key_from_indexes``,
+    ``_add_key_to_indexes``, ``clear``.
+
+``_sorted_link_keys`` — ``List[str]``
+    Sorted list of keys in ``links``. Enables O(log n + m) prefix queries
+    in ``get_references_to_directory()`` via ``bisect`` (TD203).
+    Mutated by: ``add_link``/``add_links_batch``, ``_remove_key_from_indexes``,
+    ``_add_key_to_indexes``, ``clear``.
+
+``_sorted_resolved_keys`` — ``List[str]``
+    Sorted list of keys in ``_resolved_to_keys``. Enables O(log n + m)
+    prefix queries in ``get_references_to_directory()`` via ``bisect``
+    (TD203).
+    Mutated by: ``add_link``/``add_links_batch``, ``_remove_key_from_indexes``,
     ``_add_key_to_indexes``, ``clear``.
 """
 
+import bisect
 import os
 import threading
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Dict, List, Optional, Set
 
 from .logging import get_logger
 from .models import LinkReference
@@ -94,6 +112,11 @@ class LinkDatabaseInterface(ABC):
     @abstractmethod
     def add_link(self, reference: LinkReference):
         """Add a link reference to the database."""
+        ...
+
+    @abstractmethod
+    def add_links_batch(self, references: List[LinkReference]):
+        """Add multiple link references in a single lock acquisition."""
         ...
 
     @abstractmethod
@@ -189,6 +212,10 @@ class LinkDatabase(LinkDatabaseInterface):
         # Secondary index: basename -> {target keys with that basename}
         # Enables O(1) lookup in has_target_with_basename() (TD139).
         self._basename_to_keys: Dict[str, Set[str]] = {}
+        # Sorted key lists for O(log n) prefix queries in
+        # get_references_to_directory() (TD203).
+        self._sorted_link_keys: List[str] = []
+        self._sorted_resolved_keys: List[str] = []
         self._parser_type_extensions: Dict[str, str] = (
             parser_type_extensions
             if parser_type_extensions is not None
@@ -251,45 +278,60 @@ class LinkDatabase(LinkDatabaseInterface):
         if not reference.link_target:
             return
         with self._lock:
-            target = normalize_path(reference.link_target)
-            if target not in self.links:
-                self.links[target] = []
-            # Guard: skip duplicate references (same source file + line + column)
-            source_norm = normalize_path(reference.file_path)
-            for ref in self.links[target]:
-                if (
-                    normalize_path(ref.file_path) == source_norm
-                    and ref.line_number == reference.line_number
-                    and ref.column_start == reference.column_start
-                ):
-                    return
-            self.links[target].append(reference)
-            self.files_with_links.add(reference.file_path)
-            # Maintain reverse index: source file -> target keys
-            if source_norm not in self._source_to_targets:
-                self._source_to_targets[source_norm] = set()
-            self._source_to_targets[source_norm].add(target)
-            # Maintain base-path index for anchored key lookups
-            base_target = target.split("#", 1)[0] if "#" in target else target
-            base_norm = normalize_path(base_target)
-            if base_norm not in self._base_path_to_keys:
-                self._base_path_to_keys[base_norm] = set()
-            self._base_path_to_keys[base_norm].add(target)
-            # Maintain basename index for O(1) has_target_with_basename() (TD139)
-            basename = os.path.basename(target)
-            if basename:
-                if basename not in self._basename_to_keys:
-                    self._basename_to_keys[basename] = set()
-                self._basename_to_keys[basename].add(target)
-            # Maintain resolved-target index for O(1) lookups
-            for resolved_path in self._resolve_target_paths(reference, target):
-                if resolved_path not in self._resolved_to_keys:
-                    self._resolved_to_keys[resolved_path] = set()
-                self._resolved_to_keys[resolved_path].add(target)
-                # Maintain reverse index for O(1) removal (TD138)
-                if target not in self._key_to_resolved_paths:
-                    self._key_to_resolved_paths[target] = set()
-                self._key_to_resolved_paths[target].add(resolved_path)
+            self._add_link_unlocked(reference)
+
+    def add_links_batch(self, references: List[LinkReference]):
+        """Add multiple link references in a single lock acquisition."""
+        if not references:
+            return
+        with self._lock:
+            for reference in references:
+                if reference.link_target:
+                    self._add_link_unlocked(reference)
+
+    def _add_link_unlocked(self, reference: LinkReference):
+        """Add a link reference without acquiring the lock. Caller must hold self._lock."""
+        target = normalize_path(reference.link_target)
+        if target not in self.links:
+            self.links[target] = []
+            bisect.insort(self._sorted_link_keys, target)
+        # Guard: skip duplicate references (same source file + line + column)
+        source_norm = normalize_path(reference.file_path)
+        for ref in self.links[target]:
+            if (
+                normalize_path(ref.file_path) == source_norm
+                and ref.line_number == reference.line_number
+                and ref.column_start == reference.column_start
+            ):
+                return
+        self.links[target].append(reference)
+        self.files_with_links.add(reference.file_path)
+        # Maintain reverse index: source file -> target keys
+        if source_norm not in self._source_to_targets:
+            self._source_to_targets[source_norm] = set()
+        self._source_to_targets[source_norm].add(target)
+        # Maintain base-path index for anchored key lookups
+        base_target = target.split("#", 1)[0] if "#" in target else target
+        base_norm = normalize_path(base_target)
+        if base_norm not in self._base_path_to_keys:
+            self._base_path_to_keys[base_norm] = set()
+        self._base_path_to_keys[base_norm].add(target)
+        # Maintain basename index for O(1) has_target_with_basename() (TD139)
+        basename = os.path.basename(target)
+        if basename:
+            if basename not in self._basename_to_keys:
+                self._basename_to_keys[basename] = set()
+            self._basename_to_keys[basename].add(target)
+        # Maintain resolved-target index for O(1) lookups
+        for resolved_path in self._resolve_target_paths(reference, target):
+            if resolved_path not in self._resolved_to_keys:
+                self._resolved_to_keys[resolved_path] = set()
+                bisect.insort(self._sorted_resolved_keys, resolved_path)
+            self._resolved_to_keys[resolved_path].add(target)
+            # Maintain reverse index for O(1) removal (TD138)
+            if target not in self._key_to_resolved_paths:
+                self._key_to_resolved_paths[target] = set()
+            self._key_to_resolved_paths[target].add(resolved_path)
 
     def remove_file_links(self, file_path: str):
         """Remove all links from a specific file."""
@@ -393,9 +435,7 @@ class LinkDatabase(LinkDatabaseInterface):
                             # the ref's link_type is compatible with the
                             # stripped extension.
                             if stripped_ext is not None:
-                                expected = self._parser_type_extensions.get(
-                                    ref.link_type
-                                )
+                                expected = self._parser_type_extensions.get(ref.link_type)
                                 if expected is not None and expected != stripped_ext:
                                     continue
                             ref_norm = normalize_path(ref.file_path)
@@ -419,15 +459,27 @@ class LinkDatabase(LinkDatabaseInterface):
                 self._resolved_to_keys[resolved_path].discard(key)
                 if not self._resolved_to_keys[resolved_path]:
                     del self._resolved_to_keys[resolved_path]
+                    # Maintain sorted resolved keys (TD203)
+                    pos = bisect.bisect_left(self._sorted_resolved_keys, resolved_path)
+                    if (
+                        pos < len(self._sorted_resolved_keys)
+                        and self._sorted_resolved_keys[pos] == resolved_path
+                    ):
+                        self._sorted_resolved_keys.pop(pos)
         # Clean basename index (TD139)
         basename = os.path.basename(key)
         if basename and basename in self._basename_to_keys:
             self._basename_to_keys[basename].discard(key)
             if not self._basename_to_keys[basename]:
                 del self._basename_to_keys[basename]
+        # Maintain sorted link keys (TD203)
+        pos = bisect.bisect_left(self._sorted_link_keys, key)
+        if pos < len(self._sorted_link_keys) and self._sorted_link_keys[pos] == key:
+            self._sorted_link_keys.pop(pos)
 
     def _add_key_to_indexes(self, key: str, references: List[LinkReference]):
-        """Add a key and its references to _base_path_to_keys, _resolved_to_keys, and _basename_to_keys."""
+        """Add a key and its references to _base_path_to_keys,
+        _resolved_to_keys, and _basename_to_keys."""
         base = key.split("#", 1)[0] if "#" in key else key
         base_norm = normalize_path(base)
         if base_norm not in self._base_path_to_keys:
@@ -439,10 +491,13 @@ class LinkDatabase(LinkDatabaseInterface):
             if basename not in self._basename_to_keys:
                 self._basename_to_keys[basename] = set()
             self._basename_to_keys[basename].add(key)
+        # Maintain sorted link keys (TD203)
+        bisect.insort(self._sorted_link_keys, key)
         for ref in references:
             for resolved_path in self._resolve_target_paths(ref, key):
                 if resolved_path not in self._resolved_to_keys:
                     self._resolved_to_keys[resolved_path] = set()
+                    bisect.insort(self._sorted_resolved_keys, resolved_path)
                 self._resolved_to_keys[resolved_path].add(key)
                 # Maintain reverse index for O(1) removal (TD138)
                 if key not in self._key_to_resolved_paths:
@@ -501,6 +556,10 @@ class LinkDatabase(LinkDatabaseInterface):
         elif target_normalized.endswith(old_normalized):
             # Partial match - replace the ending part
             prefix_len = len(target_normalized) - len(old_normalized)
+            # TD179: segment-boundary check — character before match must be '/'
+            # to avoid cross-boundary false matches (e.g., 'my-docs/r.md' != 'docs/r.md')
+            if prefix_len > 0 and target_normalized[prefix_len - 1] != "/":
+                return target
             prefix = target[:prefix_len] if prefix_len > 0 else ""
             if target.startswith("/"):
                 return f"{prefix}{new_path}"
@@ -592,19 +651,37 @@ class LinkDatabase(LinkDatabaseInterface):
             seen = set()
             matched_keys: set = set()
 
-            # Phase 1: Raw key matching (handles project-root-relative targets)
-            for target_path, references in self.links.items():
-                normalized_target = normalize_path(target_path)
-                if normalized_target == normalized_dir or normalized_target.startswith(dir_prefix):
-                    matched_keys.add(target_path)
+            # Phase 1: Raw key matching via sorted index (TD203)
+            # Exact match: bisect for normalized_dir
+            pos = bisect.bisect_left(self._sorted_link_keys, normalized_dir)
+            if pos < len(self._sorted_link_keys) and self._sorted_link_keys[pos] == normalized_dir:
+                matched_keys.add(normalized_dir)
+            # Prefix match: all keys starting with dir_prefix
+            prefix_pos = bisect.bisect_left(self._sorted_link_keys, dir_prefix)
+            while prefix_pos < len(self._sorted_link_keys) and self._sorted_link_keys[
+                prefix_pos
+            ].startswith(dir_prefix):
+                matched_keys.add(self._sorted_link_keys[prefix_pos])
+                prefix_pos += 1
 
-            # Phase 2: Resolved-path matching (handles relative-path targets)
+            # Phase 2: Resolved-path matching via sorted index (TD203)
             # PD-BUG-068 fix: relative paths like ../../../dir/sub are resolved
             # at add_link() time and indexed in _resolved_to_keys. Check those
             # resolved paths against the directory prefix.
-            for resolved_path, keys in self._resolved_to_keys.items():
-                if resolved_path == normalized_dir or resolved_path.startswith(dir_prefix):
-                    matched_keys.update(keys)
+            pos = bisect.bisect_left(self._sorted_resolved_keys, normalized_dir)
+            if (
+                pos < len(self._sorted_resolved_keys)
+                and self._sorted_resolved_keys[pos] == normalized_dir
+            ):
+                matched_keys.update(self._resolved_to_keys.get(normalized_dir, set()))
+            prefix_pos = bisect.bisect_left(self._sorted_resolved_keys, dir_prefix)
+            while prefix_pos < len(self._sorted_resolved_keys) and self._sorted_resolved_keys[
+                prefix_pos
+            ].startswith(dir_prefix):
+                matched_keys.update(
+                    self._resolved_to_keys.get(self._sorted_resolved_keys[prefix_pos], set())
+                )
+                prefix_pos += 1
 
             # Collect references from all matched keys
             for key in matched_keys:
@@ -649,6 +726,8 @@ class LinkDatabase(LinkDatabaseInterface):
             self._resolved_to_keys.clear()
             self._key_to_resolved_paths.clear()
             self._basename_to_keys.clear()
+            self._sorted_link_keys.clear()
+            self._sorted_resolved_keys.clear()
             self.last_scan = None
 
     def get_stats(self) -> Dict[str, int]:

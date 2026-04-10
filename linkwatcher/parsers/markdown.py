@@ -11,11 +11,12 @@ AI Context
   ``LinkReference`` objects.  Mermaid fenced blocks are skipped.
 - **Pattern architecture**: 10 compiled regexes in ``__init__()``
   covering markdown links (``[text](url)``), reference-style
-  (``[label]: url``), HTML anchors, quoted/backtick/bare/\@-prefixed
+  (``[label]: url``), HTML anchors, quoted/backtick/bare/@-prefixed
   paths, and shared patterns from ``parsers/patterns.py``.
+- **Link types**: Uses ``LinkType`` enum members from ``link_types.py``.
 - **Overlap prevention**: higher-priority extractors (standard links,
   HTML anchors) return *span tuples* that lower-priority extractors
-  (quoted, backtick, bare, \@-prefix) check via ``_overlaps_any()``
+  (quoted, backtick, bare, @-prefix) check via ``_overlaps_any()``
   to avoid duplicate matches on the same text range.
 - **Common tasks**:
   - Adding a new link pattern: add a compiled regex in ``__init__()``,
@@ -32,6 +33,7 @@ import os.path
 import re
 from typing import List
 
+from ..link_types import LinkType
 from ..models import LinkReference
 from .base import BaseParser
 from .patterns import QUOTED_DIR_PATTERN, QUOTED_PATH_PATTERN
@@ -52,7 +54,11 @@ class MarkdownParser(BaseParser):
         self.reference_pattern = re.compile(r"^\s*\[([^\]]+)\]:\s*(.+)$")
 
         # Pattern 4: Unquoted file references (be careful in markdown)
-        self.standalone_pattern = re.compile(r"(?:^|\s)([a-zA-Z0-9_\-./\\]+\.[a-zA-Z0-9]+)(?:\s|$)")
+        # PD-BUG-080: Use lookahead for trailing boundary so sentence punctuation
+        # (period, comma, semicolon, etc.) doesn't break the match.
+        self.standalone_pattern = re.compile(
+            r"(?:^|\s)([a-zA-Z0-9_\-./\\]+\.[a-zA-Z0-9]+)(?=[.,;:!?)\]}\s]|$)"
+        )
 
         # Pattern 5: HTML anchor tags <a href="link">text</a> (PD-BUG-011)
         self.html_anchor_pattern = re.compile(
@@ -160,7 +166,7 @@ class MarkdownParser(BaseParser):
                     column_end=match.end(),
                     link_text=link_text,
                     link_target=link_target,
-                    link_type="markdown",
+                    link_type=LinkType.MARKDOWN,
                 )
             )
         return refs, md_spans
@@ -183,7 +189,7 @@ class MarkdownParser(BaseParser):
                 column_end=ref_match.end(),
                 link_text=ref_match.group(1),
                 link_target=ref_target,
-                link_type="markdown-reference",
+                link_type=LinkType.MARKDOWN_REFERENCE,
             )
         ]
 
@@ -208,7 +214,7 @@ class MarkdownParser(BaseParser):
                     column_end=match.end(1) + 1,
                     link_text=link_target,
                     link_target=link_target,
-                    link_type="html-anchor",
+                    link_type=LinkType.HTML_ANCHOR,
                 )
             )
         return refs, html_anchor_spans
@@ -239,7 +245,7 @@ class MarkdownParser(BaseParser):
                     column_end=match.end(),
                     link_text=potential_file,
                     link_target=potential_file,
-                    link_type="markdown-quoted",
+                    link_type=LinkType.MARKDOWN_QUOTED,
                 )
             )
         return refs
@@ -273,7 +279,7 @@ class MarkdownParser(BaseParser):
                     column_end=match.end(1),
                     link_text=potential_dir,
                     link_target=potential_dir,
-                    link_type="markdown-quoted-dir",
+                    link_type=LinkType.MARKDOWN_QUOTED_DIR,
                 )
             )
         return refs
@@ -301,7 +307,7 @@ class MarkdownParser(BaseParser):
                     column_end=match.end(1),
                     link_text=potential_file,
                     link_target=potential_file,
-                    link_type="markdown-standalone",
+                    link_type=LinkType.MARKDOWN_STANDALONE,
                 )
             )
         return refs
@@ -329,7 +335,7 @@ class MarkdownParser(BaseParser):
                     column_end=match.end(1),
                     link_text=potential_file,
                     link_target=potential_file,
-                    link_type="markdown-backtick",
+                    link_type=LinkType.MARKDOWN_BACKTICK,
                 )
             )
         return refs
@@ -360,7 +366,7 @@ class MarkdownParser(BaseParser):
                     column_end=match.end(1),
                     link_text=potential_dir,
                     link_target=potential_dir,
-                    link_type="markdown-backtick-dir",
+                    link_type=LinkType.MARKDOWN_BACKTICK_DIR,
                 )
             )
         return refs
@@ -393,7 +399,7 @@ class MarkdownParser(BaseParser):
                     column_end=match.end(1),
                     link_text=potential_path,
                     link_target=potential_path,
-                    link_type="markdown-bare-path",
+                    link_type=LinkType.MARKDOWN_BARE_PATH,
                 )
             )
         return refs
@@ -426,7 +432,7 @@ class MarkdownParser(BaseParser):
                     column_end=match.end(1),
                     link_text=potential_path,
                     link_target=potential_path,
-                    link_type="markdown-at-prefix",
+                    link_type=LinkType.MARKDOWN_AT_PREFIX,
                 )
             )
         return refs
@@ -463,26 +469,44 @@ class MarkdownParser(BaseParser):
                 if self.reference_pattern.match(line) is not None:
                     continue
 
-                references.extend(
-                    self._extract_quoted_paths(
-                        line, line_num, file_path, md_spans, html_anchor_spans
-                    )
+                quoted_refs = self._extract_quoted_paths(
+                    line, line_num, file_path, md_spans, html_anchor_spans
                 )
-                references.extend(
-                    self._extract_quoted_dirs(
-                        line, line_num, file_path, md_spans, html_anchor_spans
-                    )
+                references.extend(quoted_refs)
+
+                quoted_dir_refs = self._extract_quoted_dirs(
+                    line, line_num, file_path, md_spans, html_anchor_spans
                 )
-                references.extend(
-                    self._extract_standalone_refs(line, line_num, file_path, md_spans)
+                references.extend(quoted_dir_refs)
+
+                standalone_refs = self._extract_standalone_refs(line, line_num, file_path, md_spans)
+                references.extend(standalone_refs)
+
+                # Build comprehensive span list from all earlier patterns so that
+                # bare_path and @-prefix don't duplicate already-detected paths
+                # (PD-BUG-084)
+                all_spans = (
+                    md_spans
+                    + html_anchor_spans
+                    + [
+                        (r.column_start, r.column_end)
+                        for r in quoted_refs + quoted_dir_refs + standalone_refs
+                    ]
                 )
 
                 # Backtick-quoted paths and dirs (PD-BUG-054)
-                all_spans = md_spans + html_anchor_spans
-                references.extend(
-                    self._extract_backtick_paths(line, line_num, file_path, all_spans)
+                backtick_refs = self._extract_backtick_paths(line, line_num, file_path, all_spans)
+                references.extend(backtick_refs)
+
+                backtick_dir_refs = self._extract_backtick_dirs(
+                    line, line_num, file_path, all_spans
                 )
-                references.extend(self._extract_backtick_dirs(line, line_num, file_path, all_spans))
+                references.extend(backtick_dir_refs)
+
+                all_spans += [
+                    (r.column_start, r.column_end) for r in backtick_refs + backtick_dir_refs
+                ]
+
                 # Bare paths with separators (PD-BUG-054, PD-BUG-055)
                 references.extend(self._extract_bare_paths(line, line_num, file_path, all_spans))
                 # @-prefixed paths (PD-BUG-055)

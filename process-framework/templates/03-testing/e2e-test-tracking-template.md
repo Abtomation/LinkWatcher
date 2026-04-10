@@ -29,4 +29,5 @@ E2E acceptance tests validate user-facing workflows that span multiple features.
 
 ## E2E Acceptance Test Cases
 
-<!-- Add test case sections as workflows are implemented -->
+<!-- Convention: Groups (TE-E2G-*) act as parent headers. Cases (TE-E2E-*) listed immediately after a group belong to that group. There is no explicit parent column — the relationship is positional. -->
+<!-- Add test case rows as workflows are implemented -->

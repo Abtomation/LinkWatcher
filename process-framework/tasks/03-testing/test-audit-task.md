@@ -195,7 +195,7 @@ Comprehensive quality assurance task that evaluates implemented test suites agai
     Update-TechDebt.ps1 -Add -Description "Zero-assertion tests in test_example.py (5 methods)" -Dims "TST" -Location "test/automated/unit/test_example.py" -Priority "Medium" -EstimatedEffort "Small"
     ```
 
-    > **Routing**: Test-related tech debt items route to [Integration & Testing](../04-implementation/integration-and-testing.md) (PF-TSK-053) for resolution — not to Code Refactoring (PF-TSK-022), which handles product code improvements.
+    > **Routing**: Test-related tech debt items (zero-assertion tests, anti-patterns, coverage gaps) route to [Code Refactoring](../06-maintenance/code-refactoring-task.md) (PF-TSK-022) for resolution — use the Lightweight Path with the test-only shortcut.
 
 14. **Validate Audit Report**: Run the validation script to verify report completeness before presenting to human partner
 
@@ -293,7 +293,7 @@ Before considering this task finished:
   - [ ] Executed `Update-TestFileAuditState.ps1` with appropriate parameters
   - [ ] Confirmed [Test Tracking](../../../test/state-tracking/permanent/test-tracking.md) updated with audit status and detailed results
   - [ ] Checked [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) Test Status column shows correct aggregated status
-  - [ ] Significant test quality findings registered as tech debt items in [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) (category "Testing", routed to PF-TSK-053) — or confirmed no findings warrant tech debt registration
+  - [ ] Significant test quality findings registered as tech debt items in [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) (category "Testing", routed to PF-TSK-022) — or confirmed no findings warrant tech debt registration
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-030" and context "Test Audit"
 
 ## Next Tasks

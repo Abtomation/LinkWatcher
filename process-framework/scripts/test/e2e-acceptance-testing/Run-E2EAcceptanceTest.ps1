@@ -22,8 +22,10 @@
     If neither -TestCase nor -Group is specified, runs all scripted test cases in all groups.
 
 .PARAMETER WaitSeconds
-    Seconds to wait between action execution and verification (default: 5).
-    Allows the system under test to process events before checking results.
+    Seconds to wait between action execution and verification (default: 12).
+    Must exceed move_detect_delay (10s) plus processing buffer to avoid
+    premature verification. Allows the system under test to process events
+    before checking results.
 
 .PARAMETER SettleSeconds
     Seconds to wait after LinkWatcher initial scan completes before executing
@@ -57,8 +59,8 @@
     Test cases without run.ps1 are skipped — execute them directly following test-case.md.
 
     Created: 2026-03-18
-    Version: 1.2
-    Task: Process Improvement (PF-TSK-009), PF-IMP-134, PF-IMP-154, PF-IMP-169
+    Version: 1.3
+    Task: Process Improvement (PF-TSK-009), PF-IMP-134, PF-IMP-154, PF-IMP-169, PF-IMP-395
 #>
 
 [CmdletBinding(SupportsShouldProcess)]
@@ -70,7 +72,7 @@ param(
     [string]$Group = "",
 
     [Parameter(Mandatory=$false)]
-    [int]$WaitSeconds = 5,
+    [int]$WaitSeconds = 12,
 
     [Parameter(Mandatory=$false)]
     [int]$SettleSeconds = 3,

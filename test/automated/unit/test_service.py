@@ -174,7 +174,7 @@ class TestLinkWatcherService:
         assert broken["reason"] == "File not found"
 
     def test_check_links_anchor_fragment_not_false_positive(self, temp_project_dir, file_helper):
-        """Regression test for PD-BUG-070: links with #fragment anchors should not be reported as broken."""
+        """Regression: #fragment anchors should not be reported as broken."""
         service = LinkWatcherService(str(temp_project_dir))
 
         # Create target file (exists on disk)
@@ -183,16 +183,18 @@ class TestLinkWatcherService:
 
         # Create source file with anchor link to existing file
         source_file = temp_project_dir / "source.md"
-        file_helper.create_markdown_file(source_file, "See [section](target.md#section) for details.")
+        file_helper.create_markdown_file(
+            source_file, "See [section](target.md#section) for details."
+        )
 
         service._initial_scan()
         result = service.check_links()
 
         # target.md exists — the #section anchor must NOT cause a false positive
         broken_targets = [b["target_path"] for b in result["broken_links"]]
-        assert "target.md#section" not in broken_targets, (
-            "Link with anchor fragment was incorrectly reported as broken (PD-BUG-070)"
-        )
+        assert (
+            "target.md#section" not in broken_targets
+        ), "Link with anchor fragment was incorrectly reported as broken (PD-BUG-070)"
         assert "target.md" not in broken_targets
 
     def test_service_components_integration(self, temp_project_dir, sample_files):
@@ -224,13 +226,24 @@ class TestLinkWatcherService:
         service = LinkWatcherService(str(temp_project_dir))
 
         # Signal handlers should be set
-        # Note: This is a basic test - full signal testing would require more complex setup
-        assert hasattr(service, "_signal_handler")
+        assert signal.getsignal(signal.SIGINT) == service._signal_handler
 
         # Test signal handler function
         service.running = True
         service._signal_handler(signal.SIGINT, None)
         assert service.running is False
+
+    def test_signal_handler_skipped_when_disabled(self, temp_project_dir):
+        """Test that signal handlers are not registered when register_signals=False."""
+        import signal
+
+        handler_before = signal.getsignal(signal.SIGINT)
+        service = LinkWatcherService(str(temp_project_dir), register_signals=False)
+
+        # Signal handler should NOT have been changed
+        assert signal.getsignal(signal.SIGINT) == handler_before
+        # But the method should still exist on the instance
+        assert hasattr(service, "_signal_handler")
 
     def test_service_statistics_tracking(self, temp_project_dir, sample_files):
         """Test that service properly tracks statistics."""
@@ -516,3 +529,111 @@ class TestStartupObserverOrder:
         assert (
             observer_idx < initial_scan_idx
         ), f"Observer must start before initial scan, but order was: {call_order}"
+
+
+class TestEventDeferralDuringStartup:
+    """Regression tests for PD-BUG-053: File move during startup scan not detected.
+
+    The observer starts before initial scan, so move events can arrive before
+    the link DB has indexed referencing files.  The handler must defer all
+    filesystem events received before notify_scan_complete() is called, then
+    replay them once the DB is fully populated.
+    """
+
+    def test_events_deferred_before_scan_complete(self, temp_project_dir):
+        """Events arriving before notify_scan_complete() must be queued, not processed."""
+        service = LinkWatcherService(str(temp_project_dir))
+        handler = service.handler
+
+        # Activate deferral (as service.start() does before initial scan)
+        handler.begin_event_deferral()
+        assert not handler._scan_complete.is_set()
+
+        # Send a move event before scan is complete
+        src = temp_project_dir / "old.md"
+        dst = temp_project_dir / "new.md"
+        src.write_text("[link](target.md)")
+        dst.write_text("[link](target.md)")
+
+        event = MagicMock()
+        event.is_directory = False
+        event.src_path = str(src)
+        event.dest_path = str(dst)
+
+        with patch.object(handler, "_handle_file_moved") as mock_moved:
+            handler.on_moved(event)
+            # Must NOT have been called — event should be deferred
+            mock_moved.assert_not_called()
+
+    def test_deferred_events_replayed_after_scan_complete(self, temp_project_dir):
+        """After notify_scan_complete(), all deferred events must be replayed."""
+        service = LinkWatcherService(str(temp_project_dir))
+        handler = service.handler
+        handler.begin_event_deferral()
+
+        src = temp_project_dir / "old.md"
+        dst = temp_project_dir / "new.md"
+        src.write_text("[link](target.md)")
+        dst.write_text("[link](target.md)")
+
+        event = MagicMock()
+        event.is_directory = False
+        event.src_path = str(src)
+        event.dest_path = str(dst)
+
+        # Queue event before scan completes
+        handler.on_moved(event)
+        assert len(handler._deferred_events) == 1
+
+        # Now complete scan — deferred events should replay
+        with patch.object(handler, "_handle_file_moved") as mock_moved:
+            handler.notify_scan_complete()
+            mock_moved.assert_called_once()
+
+    def test_events_processed_normally_after_scan_complete(self, temp_project_dir):
+        """After scan completes, events must be processed immediately (not queued)."""
+        service = LinkWatcherService(str(temp_project_dir))
+        handler = service.handler
+        handler.notify_scan_complete()
+
+        src = temp_project_dir / "old.md"
+        dst = temp_project_dir / "new.md"
+        src.write_text("[link](target.md)")
+        dst.write_text("[link](target.md)")
+
+        event = MagicMock()
+        event.is_directory = False
+        event.src_path = str(src)
+        event.dest_path = str(dst)
+
+        with patch.object(handler, "_handle_file_moved") as mock_moved:
+            handler.on_moved(event)
+            mock_moved.assert_called_once()
+
+    def test_all_event_types_deferred(self, temp_project_dir):
+        """on_moved, on_deleted, on_created must all defer before scan complete."""
+        service = LinkWatcherService(str(temp_project_dir))
+        handler = service.handler
+        handler.begin_event_deferral()
+
+        f = temp_project_dir / "test.md"
+        f.write_text("content")
+
+        move_event = MagicMock()
+        move_event.is_directory = False
+        move_event.src_path = str(f)
+        move_event.dest_path = str(temp_project_dir / "test2.md")
+
+        delete_event = MagicMock()
+        delete_event.is_directory = False
+        delete_event.src_path = str(f)
+
+        create_event = MagicMock()
+        create_event.is_directory = False
+        create_event.src_path = str(temp_project_dir / "new.md")
+
+        handler.on_moved(move_event)
+        handler.on_deleted(delete_event)
+        handler.on_created(create_event)
+
+        assert len(handler._deferred_events) == 3

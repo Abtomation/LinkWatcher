@@ -4,7 +4,7 @@ type: Technical Design Document
 category: TDD Tier 2
 version: 1.0
 created: 2026-02-19
-updated: 2026-03-02
+updated: 2026-04-09
 feature_id: 1.1.1
 feature_name: File System Monitoring
 consolidates: [1.1.1-1.1.5]
@@ -70,7 +70,7 @@ The subsystem is implemented as four modules:
 - **Error Handling**: Each event handler catches exceptions per-file — errors in one file's processing don't abort the entire pipeline; errors are logged and counted in statistics
 - **Data Integrity**: After processing a move, the moved file is rescanned to ensure the database accurately reflects its new location
 - **Thread Safety**: Each detector encapsulates its own `threading.Lock` — `MoveDetector._lock` protects per-file move state and priority queue; `DirectoryMoveDetector._lock` protects batch directory move state. The worker thread, `on_created` handler, and directory move processing threads can race without data corruption
-- **Monitoring**: Statistics counters (`files_moved`, `files_deleted`, `files_created`, `links_updated`, `errors`) provide operational visibility
+- **Monitoring**: Statistics counters (`files_moved`, `files_deleted`, `files_created`, `links_updated`, `errors`) provide operational visibility; protected by `_stats_lock` (PD-BUG-026) for thread-safe increments from observer, worker, and timer threads
 
 ### 3.4 Usability Requirements
 
@@ -97,18 +97,28 @@ class FileOperation:
 ```python
 class LinkMaintenanceHandler(FileSystemEventHandler):
     def __init__(self, link_db, parser, updater, project_root,
-                 monitored_extensions=None, ignored_directories=None):
+                 monitored_extensions=None, ignored_directories=None,
+                 config=None):
         self.link_db = link_db
         self.parser = parser
         self.updater = updater
         self.project_root = Path(project_root).resolve()
         self.logger = get_logger()
 
+        # Configuration from parameters or DEFAULT_CONFIG
+        self.monitored_extensions = monitored_extensions or DEFAULT_CONFIG.monitored_extensions.copy()
+        self.ignored_dirs = ignored_directories or DEFAULT_CONFIG.ignored_directories.copy()
+
+        # Move detection timing from config or defaults
+        move_delay = config.move_detect_delay if config else DEFAULT_CONFIG.move_detect_delay
+        dir_max_timeout = config.dir_move_max_timeout if config else DEFAULT_CONFIG.dir_move_max_timeout
+        dir_settle = config.dir_move_settle_delay if config else DEFAULT_CONFIG.dir_move_settle_delay
+
         # Per-file move detection — delegated to MoveDetector (move_detector.py)
         self._move_detector = MoveDetector(
             on_move_detected=self._handle_detected_move,
             on_true_delete=self._process_true_file_delete,
-            delay=10.0,
+            delay=move_delay,
         )
 
         # Batch directory move detection — delegated to DirectoryMoveDetector (dir_move_detector.py)
@@ -117,8 +127,8 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
             project_root=self.project_root,
             on_dir_move=self._handle_confirmed_dir_move,
             on_true_file_delete=self._process_true_file_delete,
-            max_timeout=300.0,
-            settle_delay=5.0,
+            max_timeout=dir_max_timeout,
+            settle_delay=dir_settle,
         )
 
         # Reference lookup, DB management, and link updates (TD022/TD035)
@@ -130,7 +140,15 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
             logger=self.logger,
         )
 
-        # Session statistics
+        # Event deferral during initial scan (PD-BUG-053)
+        # Events arriving before the link DB is fully populated are queued
+        # and replayed after notify_scan_complete() is called.
+        self._scan_complete = threading.Event()
+        self._scan_complete.set()  # default: process events normally
+        self._deferred_events = []
+        self._deferred_lock = threading.Lock()
+
+        # Session statistics (protected by _stats_lock — PD-BUG-026)
         self.stats = {
             "files_moved": 0,
             "files_deleted": 0,
@@ -138,6 +156,36 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
             "links_updated": 0,
             "errors": 0,
         }
+        self._stats_lock = threading.Lock()
+
+    # --- Public API for scan lifecycle (PD-BUG-053) ---
+
+    def begin_event_deferral(self):
+        """Activate event deferral before initial scan starts."""
+        self._scan_complete.clear()
+
+    def notify_scan_complete(self):
+        """Signal scan done and replay all deferred events in order."""
+        self._scan_complete.set()
+        with self._deferred_lock:
+            deferred = list(self._deferred_events)
+            self._deferred_events.clear()
+        for method_name, event in deferred:
+            getattr(self, method_name)(event)
+
+    # --- Watchdog error handling ---
+
+    def on_error(self, event):
+        """Handle watchdog errors to prevent silent observer thread death."""
+        self.logger.error("watchdog_error", error=str(event))
+        self._update_stat("errors")
+
+    # --- Internal helper (PD-BUG-046) ---
+
+    def _is_known_reference_target(self, abs_path):
+        """Check if a non-monitored file is a known reference target in the DB.
+        Delegates to LinkDatabase.has_target_with_basename() for O(1) lookup."""
+        return self.link_db.has_target_with_basename(os.path.basename(abs_path))
 
 class MoveDetector:
     """Per-file move detection via delete+create correlation (move_detector.py)."""
@@ -165,16 +213,27 @@ The handler delegates move detection to two specialized detector modules, each i
 ```
 OS Event          Handler Method        Routing Logic
 ---------         --------------        -------------
-FileMovedEvent  → on_moved()          → _handle_file_moved() or _handle_directory_moved()
-FileDeletedEvent→ on_deleted()        → directory? → _dir_move_detector.handle_directory_deleted() → 3-phase pipeline
-                                        file?      → _move_detector.buffer_delete() → heapq(expiry=now+10s)
+                                        Phase 0 (all three handlers): if not _scan_complete → _defer_event() and return (PD-BUG-053)
+
+FileMovedEvent  → on_moved()          → directory? → _handle_directory_moved()
+                                        file (monitored OR _is_known_reference_target)? → _handle_file_moved()
+FileDeletedEvent→ on_deleted()        → directory (or Windows misreported dir-as-file with known DB children)?
+                                           → _handle_directory_deleted() → _dir_move_detector → 3-phase pipeline
+                                        file (monitored OR _is_known_reference_target)?
+                                           → _handle_file_deleted() → _move_detector.buffer_delete() → heapq(expiry=now+delay)
 FileCreatedEvent→ on_created()        → _dir_move_detector.match_created_file() → batch match (Phase 2)
                                         _move_detector.match_created_file()     → callback → _handle_detected_move()
                                         neither                                 → scan new file
+                                        Note: also processes creates for non-monitored files when move_detector.has_pending (PD-BUG-046)
+ErrorEvent      → on_error()          → log watchdog_error, increment errors stat (prevents silent observer thread death)
 Worker thread   → MoveDetector._expiry_worker()                → callback → _process_true_file_delete() → if file exists: rescan (PD-BUG-035)
 Timer callback  → DirectoryMoveDetector._process_dir_move_settled()  → process batch with unmatched files
 Timer callback  → DirectoryMoveDetector._process_dir_move_timeout()  → fallback: process or treat as true delete
 ```
+
+**Event deferral** (PD-BUG-053): `LinkWatcherService` calls `begin_event_deferral()` before the initial scan, then `notify_scan_complete()` after. During the deferral window, all three event handlers (`on_moved`, `on_deleted`, `on_created`) queue events in `_deferred_events` (protected by `_deferred_lock`) instead of processing them. On scan completion, queued events are replayed in arrival order. This prevents move detection against an incomplete link database.
+
+**Non-monitored reference targets** (PD-BUG-046): `_is_known_reference_target(abs_path)` checks if a file's basename appears as a target key in the link database via `has_target_with_basename()`. This allows moves/deletes of non-monitored files (e.g., `.png`, `.pdf`) to be detected when they are referenced by monitored files.
 
 **Directory move detection on Windows** (PD-BUG-019): Windows watchdog fires `FileDeletedEvent` (with `is_directory=False`) for directory deletes, followed by individual `FileCreatedEvent` for each file. The `DirectoryMoveDetector` detects this via database lookup (`get_files_under_directory`) and routes to a 3-phase batch pipeline:
 - **Phase 1 (Detect)**: Buffer known files in `_PendingDirMove`, start 300s max timer only
@@ -423,14 +482,14 @@ None — this is a retrospective document for a fully implemented, stable featur
 - ~~TD009 Duplicated Stale Retry~~ — Resolved: shared `_retry_stale_references()` method used by both pipelines
 - ~~TD018 Untracked Timers~~ — Resolved: `MoveDetector` now tracks timers in `_timers` dict, cancels on match/re-buffer (PF-REF-032). Further improved by TD107: replaced N timer threads with single worker thread + heapq priority queue (PD-REF-106)
 - ~~TD017 Inconsistent DB Update~~ — Resolved: directory moves now use same remove+rescan pattern as file moves (PF-REF-033)
-- The per-file delete buffer delay (10s) is passed as a constructor parameter to `MoveDetector` but not yet exposed via `LinkWatcherConfig`
+- ~~The per-file delete buffer delay (10s) is passed as a constructor parameter to `MoveDetector` but not yet exposed via `LinkWatcherConfig`~~ — Resolved: `config.move_detect_delay` now flows through `__init__` to `MoveDetector(delay=...)` (TD191)
 - The deduplication mechanism uses a key tuple but the implementation details warrant verification against edge cases with very rapid sequential moves
 
 ## 9. AI Agent Session Handoff Notes
 
 ### Current Status
 
-**Retrospective TDD** — Feature 1.1.1 File System Monitoring is fully implemented and stable. Originally created during onboarding (PF-TSK-066). Updated 2026-02-26 with PD-BUG-019 batch directory move detection design. Updated 2026-03-02 to reflect TD005 God Class decomposition. Updated 2026-03-04 to reflect 4-module architecture (handler.py + move_detector.py + dir_move_detector.py + reference_lookup.py) and correct pseudocode drift (TD045). Updated 2026-03-13 to add directory-path reference update logic in directory move pipeline (Enhancement PF-STA-053).
+**Retrospective TDD** — Feature 1.1.1 File System Monitoring is fully implemented and stable. Originally created during onboarding (PF-TSK-066). Updated 2026-02-26 with PD-BUG-019 batch directory move detection design. Updated 2026-03-02 to reflect TD005 God Class decomposition. Updated 2026-03-04 to reflect 4-module architecture (handler.py + move_detector.py + dir_move_detector.py + reference_lookup.py) and correct pseudocode drift (TD045). Updated 2026-03-13 to add directory-path reference update logic in directory move pipeline (Enhancement PF-STA-053). Updated 2026-04-09 (TD191/PD-REF-179): added config parameter, event deferral API (PD-BUG-053), on_error(), _is_known_reference_target (PD-BUG-046), Phase 0 deferral in event routing, _stats_lock (PD-BUG-026).
 
 ### Next Steps
 

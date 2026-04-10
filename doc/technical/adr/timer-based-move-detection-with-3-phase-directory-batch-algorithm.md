@@ -2,9 +2,9 @@
 id: PD-ADR-041
 type: Product Documentation
 category: Architecture Decision Records
-version: 1.0
+version: 1.1
 created: 2026-03-27
-updated: 2026-03-27
+updated: 2026-04-09
 feature_id: 1.1.1
 feature_name: File System Monitoring
 retrospective: true
@@ -15,7 +15,7 @@ retrospective: true
 > **Retrospective ADR**: These decisions were made during original implementation (pre-framework) and documented retroactively to resolve TD063. Content is reverse-engineered from source code analysis of `linkwatcher/move_detector.py` and `linkwatcher/dir_move_detector.py`.
 
 *Created: 2026-03-27*
-*Last updated: 2026-03-27*
+*Last updated: 2026-04-09*
 
 ## Status
 
@@ -54,7 +54,7 @@ if os.path.basename(deleted_path) == created_filename:
         return deleted_path  # Move confirmed
 ```
 
-Each pending delete has a **per-path timer**. If no matching create arrives before the timer expires, the delete is confirmed as a true deletion and forwarded to the deletion callback.
+A single daemon worker thread monitors a `heapq` priority queue of `(expiry_time, rel_path)` entries. When no matching create arrives before the entry's expiry time, the worker confirms the delete as a true deletion and forwards it to the deletion callback. The worker sleeps on a `threading.Event`, waking when new deletes are buffered or when the earliest expiry is reached.
 
 ### 2. 3-Phase Batch Detection for Directory Moves (`DirectoryMoveDetector`)
 
@@ -72,10 +72,10 @@ Directory moves use a stateful 3-phase algorithm that processes the stream of fi
 
 The two detectors use different timer strategies appropriate to their complexity:
 
-**`MoveDetector` — Single expiry timer per path**:
-- One `threading.Timer` per pending delete (default: 10s)
-- Simple timeout: if no match arrives, confirm as true delete
-- Timer is cancelled when a match is found
+**`MoveDetector` — Single worker thread + priority queue** (updated per TD107):
+- One daemon worker thread monitors a `heapq` of `(expiry_time, rel_path)` entries — O(1) threads regardless of pending delete count
+- Worker sleeps on a `threading.Event` until the earliest expiry or until woken by `buffer_delete()` adding a new entry
+- Expired entries are confirmed as true deletes; matched entries are lazily skipped in the queue
 
 **`DirectoryMoveDetector` — Dual timers per pending directory**:
 - **Max timeout** (default: 300s): Safety net ensuring the pending state is always cleaned up, even for very large directories
@@ -121,7 +121,7 @@ Partial match scenario (5 of 50 files):
 ### Negative
 
 - **Inherent race window**: If a file is genuinely deleted and a new file with the same name/size is created within the delay window, it will be misidentified as a move. The 10s default is a practical trade-off
-- **Timer resource usage**: Each pending delete spawns a `threading.Timer` thread. Under pathological conditions (mass deletion), this could create many timer threads, though they are short-lived and daemon
+- **Worker thread overhead**: The `MoveDetector` worker thread runs continuously as a daemon thread. Under normal operation, it sleeps most of the time. The `heapq` priority queue keeps thread count at O(1) regardless of pending delete volume (resolved from the original per-path `threading.Timer` design via TD107)
 - **First-match inference**: The directory move algorithm infers `new_dir` from the first matching file. If that file is a false positive, the entire directory move detection could be wrong. Filename + path structure matching mitigates this
 - **No cross-directory-move deduplication**: If a file moves between two directories that are both being tracked as pending moves, the first detector to match claims the file
 

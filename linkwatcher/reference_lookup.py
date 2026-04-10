@@ -1,23 +1,48 @@
-"""
-Reference lookup and database management for the LinkWatcher system.
+"""Reference lookup and database management for the LinkWatcher system.
 
-This module handles finding references to files in the link database,
-rescanning files to refresh database entries, retrying stale references,
-cleaning up the database after file moves, and updating links within
-moved files.
-
-Extracted from handler.py as part of TD022/TD035 decomposition.
+AI Context
+----------
+- **What this module does**: finds references to files in the link
+  database, rescans files to refresh DB entries, retries stale references,
+  cleans up the database after file moves, and updates relative links
+  within moved files.  Extracted from handler.py (TD022/TD035).
+- **Key class**: ``ReferenceLookup`` — instantiated by
+  ``LinkWatcherService`` and used exclusively by ``LinkMaintenanceHandler``
+  to separate reference management from event dispatch.
+- **Dependencies**: database (link queries/mutations), parser (link
+  extraction), updater (file writes), utils (path normalization).
+- **Common tasks**:
+  - Debugging missed references: check ``find_references()`` →
+    ``get_path_variations()`` — path format mismatches (forward/back
+    slash, with/without first directory) are the most common cause.
+  - Debugging stale update retries: ``retry_stale_references()`` rescans
+    source files once and re-queries; if retry also stales, it logs a
+    warning and moves on.
+  - Understanding DB cleanup after moves: ``cleanup_after_file_move()``
+    removes old target entries and rescans affected source files, or
+    defers rescanning to the caller for batch efficiency (TD128).
+  - Directory move processing: ``collect_directory_file_refs()`` gathers
+    refs without updating (for batch pipeline); ``process_directory_file_move()``
+    does the full per-file cycle (find → update → retry → cleanup → rescan).
+  - Link recalculation inside moved files: ``update_links_within_moved_file()``
+    reads the file, filters for relative links, recalculates targets from
+    the new location via ``_calculate_updated_relative_path()``, and writes
+    back atomically.
+  - Testing: ``test/automated/unit/test_reference_lookup.py``.
 """
 
 import os
 import re
 import shutil
+import tempfile
 from pathlib import Path
 
 from .database import LinkDatabaseInterface
+from .link_types import LinkType
 from .logging import get_logger
 from .parser import LinkParser
 from .updater import LinkUpdater
+from .utils import get_relative_path
 
 
 class ReferenceLookup:
@@ -618,7 +643,7 @@ class ReferenceLookup:
                 )
                 continue
 
-            if ref.link_type == "markdown":
+            if ref.link_type == LinkType.MARKDOWN:
                 # Replace [text](old) with [text](new), preserving title
                 escaped_old = re.escape(ref.link_target)
                 # PD-BUG-010: Include optional title group to preserve title attributes
@@ -652,9 +677,7 @@ class ReferenceLookup:
                 # Only replace on the specific line where the parser found the reference.
                 line_idx = ref.line_number - 1  # line_number is 1-indexed
                 if 0 <= line_idx < len(lines) and ref.link_target in lines[line_idx]:
-                    lines[line_idx] = lines[line_idx].replace(
-                        ref.link_target, new_target, 1
-                    )
+                    lines[line_idx] = lines[line_idx].replace(ref.link_target, new_target, 1)
                     links_updated += 1
                     self.logger.debug(
                         "link_updated_in_moved_file",
@@ -684,8 +707,20 @@ class ReferenceLookup:
                     error=str(e),
                 )
 
-        with open(abs_new_path, "w", encoding="utf-8") as f:
-            f.write(content)
+        # Write to temporary file first, then move (atomic operation)
+        temp_path = None
+        try:
+            dir_path = os.path.dirname(abs_new_path)
+            with tempfile.NamedTemporaryFile(
+                mode="w", encoding="utf-8", dir=dir_path, delete=False
+            ) as temp_file:
+                temp_path = temp_file.name
+                temp_file.write(content)
+            shutil.move(temp_path, abs_new_path)
+        except Exception:
+            if temp_path and os.path.exists(temp_path):
+                os.unlink(temp_path)
+            raise
 
     def _calculate_updated_relative_path(
         self, original_target: str, old_file_path: str, new_file_path: str
@@ -754,6 +789,4 @@ class ReferenceLookup:
 
     def _get_relative_path(self, abs_path):
         """Convert absolute path to relative path from project root."""
-        from .utils import get_relative_path
-
         return get_relative_path(abs_path, str(self.project_root))

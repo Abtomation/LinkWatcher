@@ -60,7 +60,7 @@ Test Specifications serve as the bridge between architectural design (TDDs) and 
 
 - **Behavioral Translation**: Convert architectural design into specific behavioral requirements
 - **Test Guidance**: Provide detailed specifications for test case implementation
-- **AI Session Context**: Enable AI-assisted development with comprehensive test context
+- **Routing Plan**: Map TDD components to downstream test tasks with explicit classification and routing decisions
 - **Quality Assurance**: Ensure test coverage aligns with design requirements
 - **Documentation**: Maintain traceability between design and testing
 

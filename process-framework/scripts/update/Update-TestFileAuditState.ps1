@@ -474,16 +474,13 @@ try {
         "⬜ No Tests"
     }
 
-    # Build audit note for feature tracking Notes column
-    # (feature-tracking.md has no audit-specific columns — route to Notes)
-    $featureAuditNote = "Test Audit $AuditDate`: $aggregatedStatus"
-    if ($AuditReportPath) { $featureAuditNote += "; Report: $AuditReportPath" }
-
-    $featureResult = Update-FeatureTrackingStatus -FeatureId $FeatureId -Status $aggregatedStatus -StatusColumn "Test Status" -Notes $featureAuditNote -DryRun:$DryRun
+    # Update feature tracking Test Status column only — audit details live in
+    # test-tracking.md and individual audit reports, not in the Notes column
+    # (PF-IMP-413: Notes column cleanup)
+    $featureResult = Update-FeatureTrackingStatus -FeatureId $FeatureId -Status $aggregatedStatus -StatusColumn "Test Status" -DryRun:$DryRun
 
     if ($DryRun) {
         Write-Host "  Would update feature $FeatureId test status to: $aggregatedStatus" -ForegroundColor Cyan
-        Write-Host "    Notes (append): $featureAuditNote" -ForegroundColor Gray
     } else {
         Write-Host "  ✅ Feature tracking updated successfully" -ForegroundColor Green
     }

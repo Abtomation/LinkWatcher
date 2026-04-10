@@ -338,7 +338,7 @@ function Get-TestTrackingSectionNumber {
     return ($FeatureId -split '\.')[0]
 }
 
-function Ensure-TestTrackingSection {
+function Initialize-TestTrackingSection {
     <#
     .SYNOPSIS
     Ensures that the required section exists in test-tracking.md
@@ -492,7 +492,7 @@ function Add-TestImplementationEntry {
     $timestamp = Get-ProjectTimestamp -Format "Date"
     $sectionHeader = Get-TestTrackingSectionHeader -Content $Content -FeatureId $FeatureId
     if (-not $sectionHeader) {
-        # Fallback: construct from helpers (may trigger Ensure-TestTrackingSection to create it)
+        # Fallback: construct from helpers (may trigger Initialize-TestTrackingSection to create it)
         $sectionNumber = Get-TestTrackingSectionNumber -FeatureId $FeatureId
         $sectionTitle = Get-TestTrackingSectionTitle -FeatureId $FeatureId
         $sectionHeader = "## $sectionNumber. $sectionTitle"
@@ -659,7 +659,7 @@ function Update-TestImplementationStatusEnhanced {
                     $content = Get-Content $testTrackingPath -Raw -Encoding UTF8
 
                     # Ensure the required section exists
-                    $contentWithSection = Ensure-TestTrackingSection -Content $content -FeatureId $FeatureId
+                    $contentWithSection = Initialize-TestTrackingSection -Content $content -FeatureId $FeatureId
 
                     # Add the test implementation entry (file path as identifier — SC-007)
                     $updatedContent = Add-TestImplementationEntry -Content $contentWithSection -FeatureId $FeatureId -TestFilePath $TestFilePath -Status $Status -TestCasesCount $TestCasesCount -Notes $Notes
@@ -704,7 +704,7 @@ Export-ModuleMember -Function @(
     'Add-PytestMarkers',
     'Get-TestTrackingSectionTitle',
     'Get-TestTrackingSectionNumber',
-    'Ensure-TestTrackingSection',
+    'Initialize-TestTrackingSection',
     'Add-TestImplementationEntry',
     'Update-TestImplementationStatusEnhanced'
 )

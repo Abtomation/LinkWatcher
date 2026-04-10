@@ -110,7 +110,10 @@ $outputDirectory = "process-framework/visualization/context-maps/$WorkflowPhase"
 
 # Create the document using standardized process
 try {
-    $mapId = New-StandardProjectDocument -TemplatePath "process-framework/templates/support/context-map-template.md" -IdPrefix "PF-VIS" -IdDescription "Context map for ${WorkflowPhase}: ${TaskName}" -DocumentName "$($TaskName.ToLower().Replace(' ', '-'))-map" -OutputDirectory $outputDirectory -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
+    # IMP-407: Auto-append "-map" suffix with double-suffix guard
+    $mapDocName = $TaskName.ToLower().Replace(' ', '-')
+    if ($mapDocName -notmatch '-map$') { $mapDocName = "$mapDocName-map" }
+    $mapId = New-StandardProjectDocument -TemplatePath "process-framework/templates/support/context-map-template.md" -IdPrefix "PF-VIS" -IdDescription "Context map for ${WorkflowPhase}: ${TaskName}" -DocumentName $mapDocName -OutputDirectory $outputDirectory -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
 
     # Provide success details
     $details = @(
@@ -161,7 +164,8 @@ try {
             $sectionHeader = "#### $phaseName Context Maps"
         }
 
-        $mapFileName = "$($TaskName.ToLower().Replace(' ', '-'))-map.md"
+        # IMP-407: Reuse guarded name from above
+        $mapFileName = "$mapDocName.md"
         $relativePath = "visualization/context-maps/$WorkflowPhase/$mapFileName"
         $description = if ($MapDescription -ne "") { $MapDescription } else { "Components for $TaskName task" }
         $entryLine = "- [$TaskName Map]($relativePath) - $description"

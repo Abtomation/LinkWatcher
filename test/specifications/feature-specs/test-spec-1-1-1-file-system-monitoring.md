@@ -210,21 +210,6 @@ File System Monitoring uses the `LinkMaintenanceHandler` class to process watchd
 - **Content save no-trigger** (found during test audit PF-TAR-012, 2026-03-15): TDD acceptance criteria states "Content save (without move) does NOT trigger link maintenance" — no test verifies this
 - **Sleep-based synchronization** (audit observation): Directory move tests rely on `time.sleep(2.0)` for thread completion — fragile under load, consider event-based synchronization
 
-## AI Agent Session Handoff Notes
-
-### Implementation Context
-
-**Feature Summary**: Watchdog-based file system monitoring with native move detection, per-file cross-tool move detection, batch directory move detection (PD-BUG-019), directory walks, and multi-subsystem coordination.
-**Test Focus**: Move detection correctness, batch directory move correlation, multi-format link updates, extension coverage, sequential move robustness.
-**Key Challenges**: Testing timer-based behavior deterministically; testing real watchdog events vs simulated events; testing multi-threaded batch processing with deterministic assertions.
-
-### Files to Reference
-
-- **TDD**: [`doc/technical/tdd/tdd-1-1-1-file-system-monitoring-t2.md`](../../../doc/technical/tdd/tdd-1-1-1-file-system-monitoring-t2.md)
-- **Existing Tests**: [`test/automated/test_move_detection.py`](../../../test/automated/test_move_detection.py), [`test/automated/integration/test_file_movement.py`](../../../test/automated/integration/test_file_movement.py), [`test/automated/integration/test_sequential_moves.py`](../../../test/automated/integration/test_sequential_moves.py), [`test/automated/unit/test_comprehensive_file_monitoring.py`](../../automated/unit/test_comprehensive_file_monitoring.py), [`test/automated/integration/test_image_file_monitoring.py`](../../../test/automated/integration/test_image_file_monitoring.py), [`test/automated/integration/test_powershell_script_monitoring.py`](../../../test/automated/integration/test_powershell_script_monitoring.py)
-- **Source Code**: [`linkwatcher/handler.py`](../../../linkwatcher/handler.py)
-- **Fixtures**: [`test/automated/conftest.py`](../../../test/automated/conftest.py) — `temp_project_dir`, `file_helper`
-
 ---
 
 _Retrospective Test Specification — documents existing test suite as of 2026-02-24._

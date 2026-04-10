@@ -2,9 +2,9 @@
 id: PF-TEM-063
 type: Process Framework
 category: Template
-version: 1.0
+version: 1.1
 created: 2026-03-23
-updated: 2026-03-23
+updated: 2026-04-08
 task_name: [TASK-NAME]
 ---
 
@@ -30,9 +30,9 @@ task_name: [TASK-NAME]
 
 ## Implementation Roadmap
 
-### Phase 1: Problem Analysis & Solution Design (Session 1)
+### Phase 1: Analysis & Design
 
-**Priority**: HIGH - Must complete before implementation begins
+**Priority**: HIGH — Must complete before implementation begins
 
 - [ ] **Review source feedback**: Read Tools Review summary and feedback forms
   - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
@@ -53,13 +53,14 @@ task_name: [TASK-NAME]
   - **Status**: [NOT_STARTED/APPROVED/REJECTED]
   - **Outcome**: [Approval notes or rejection reason]
 
-### Phase 2: Implementation & Testing (Session 2)
+### Phase 2: Implementation
 
-**Priority**: HIGH - Core implementation work
+**Priority**: HIGH — Core implementation work
 
-- [ ] **Implement changes**: Apply approved approach incrementally
+> Customize this phase for your specific improvement. Add more phases (Phase 2a, 2b, or renumber) if the implementation spans multiple sessions or has distinct stages.
+
+- [ ] [Describe implementation task]
   - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
-  - **Changes made**: [List of specific changes]
 
 - [ ] **Test changes**: Verify implementation works correctly
   - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
@@ -70,28 +71,17 @@ task_name: [TASK-NAME]
   - **Status**: [NOT_STARTED/APPROVED/REJECTED]
   - **Outcome**: [Approval notes or revision requests]
 
-### Phase 3: Documentation & Integration (Session 3)
+### Phase 3: Finalization
 
-**Priority**: MEDIUM - Needed for complete integration
+**Priority**: MEDIUM — Documentation, tracking, and completion
 
 - [ ] **Update linked documents**: Update guides, task definitions, context maps that reference changed components
   - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
   - **Documents updated**: [List of files updated]
 
-- [ ] **Update documentation map**: Add/update entries in PF-documentation-map.md if new artifacts were created
-  - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED/SKIPPED]
-  - **Reason for skip**: [If skipped — e.g., no new artifacts created]
-
 - [ ] **Log tool change**: Record modification in feedback database
   - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
   - **Command**: `python process-framework/scripts/feedback_db.py log-change --tool <TOOL_DOC_ID> --date <YYYY-MM-DD> --imp <IMP-XXX> --description "<what changed>"`
-
-### Phase 4: Validation & Completion (Session 4)
-
-**Priority**: MEDIUM - Final validation and tracking updates
-
-- [ ] **Final checkpoint**: Get human approval on complete solution
-  - **Status**: [NOT_STARTED/APPROVED/REJECTED]
 
 - [ ] **Update process-improvement-tracking.md**: Mark improvement as Completed
   - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]

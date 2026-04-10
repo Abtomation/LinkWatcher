@@ -34,6 +34,7 @@ from pathlib import Path
 from typing import Dict, FrozenSet, List, Optional, Tuple
 
 from .config.settings import LinkWatcherConfig
+from .link_types import LinkType
 from .logging import get_logger
 from .models import LinkReference
 from .parser import LinkParser
@@ -110,6 +111,44 @@ _EXT_BEFORE_SLASH_PATTERN = re.compile(r"\w\.\w{1,6}/")
 _PLACEHOLDER_PATTERN = re.compile(r"YYYY|XXX|HHMMSS|<[^>]+>|\[[a-z][a-z-]*\]")
 
 # ---------------------------------------------------------------------------
+# Target-skip predicates — each returns True when a target should be skipped.
+# Used by ``_should_check_target()`` to filter non-path strings.
+# ---------------------------------------------------------------------------
+
+_TARGET_SKIP_PREDICATES: tuple = (
+    # URLs
+    (lambda t, lt: t.startswith(_URL_PREFIXES), "URL prefix"),
+    # Python import targets (module paths, not file paths)
+    (lambda t, lt: lt == LinkType.PYTHON_IMPORT, "python-import link type"),
+    # Shell commands / CLI invocations
+    (lambda t, lt: bool(_COMMAND_PATTERN.match(t)), "shell command"),
+    # Wildcard / glob patterns (e.g. *.md, **/*.py)
+    (lambda t, lt: bool(_WILDCARD_PATTERN.search(t)), "wildcard/glob"),
+    # Numeric/slash patterns like "3.475/4.0" (scores, not paths)
+    (lambda t, lt: bool(_NUMERIC_SLASH_PATTERN.match(t)), "numeric/slash score"),
+    # Slash-separated alternatives where a segment has a file extension
+    (lambda t, lt: bool(_EXT_BEFORE_SLASH_PATTERN.search(t)), "ext-before-slash"),
+    # Regex metacharacters impossible in paths: ^ { } |
+    (lambda t, lt: any(c in t for c in "^{}|"), "regex metachar"),
+    # Regex fragments: ]+ or \[
+    (lambda t, lt: "]+" in t or "\\[" in t, "regex fragment"),
+    # PowerShell .\Script.ps1 invocation syntax
+    (
+        lambda t, lt: t.startswith(".\\") and t.lower().endswith(".ps1"),
+        "PowerShell .\\",
+    ),
+    # Template placeholder paths
+    (lambda t, lt: bool(_PLACEHOLDER_PATTERN.search(t)), "template placeholder"),
+    # Whitespace beyond a simple path
+    (lambda t, lt: " " in t, "contains whitespace"),
+    # Bare filenames without any path separator
+    (
+        lambda t, lt: "/" not in t and "\\" not in t and not t.startswith("."),
+        "bare filename",
+    ),
+)
+
+# ---------------------------------------------------------------------------
 # Link-type classification constants — categorise link types for special
 # resolution logic (code-block skipping, project-root fallback).
 # ---------------------------------------------------------------------------
@@ -119,13 +158,13 @@ _PLACEHOLDER_PATTERN = re.compile(r"YYYY|XXX|HHMMSS|<[^>]+>|\[[a-z][a-z-]*\]")
 # code blocks use proper link syntax ([text](path)) which has its own link_type.
 _STANDALONE_LINK_TYPES: frozenset = frozenset(
     {
-        "markdown-standalone",
-        "markdown-quoted",
-        "markdown-quoted-dir",
-        "markdown-backtick",
-        "markdown-backtick-dir",
-        "markdown-bare-path",
-        "markdown-at-prefix",
+        LinkType.MARKDOWN_STANDALONE,
+        LinkType.MARKDOWN_QUOTED,
+        LinkType.MARKDOWN_QUOTED_DIR,
+        LinkType.MARKDOWN_BACKTICK,
+        LinkType.MARKDOWN_BACKTICK_DIR,
+        LinkType.MARKDOWN_BARE_PATH,
+        LinkType.MARKDOWN_AT_PREFIX,
     }
 )
 
@@ -135,10 +174,10 @@ _STANDALONE_LINK_TYPES: frozenset = frozenset(
 # the validator applies a project-root fallback before flagging them broken.
 _DATA_VALUE_LINK_TYPES: frozenset = _STANDALONE_LINK_TYPES | frozenset(
     {
-        "yaml",
-        "yaml-dir",
-        "json",
-        "json-dir",
+        LinkType.YAML,
+        LinkType.YAML_DIR,
+        LinkType.JSON,
+        LinkType.JSON_DIR,
     }
 )
 
@@ -238,13 +277,13 @@ class LinkValidator:
         result.duration_seconds = time.monotonic() - start
 
         if ext_timings:
-            self.logger.debug(
-                "validation_timing_by_extension",
-                timings={
-                    ext: round(secs * 1000, 1)
-                    for ext, secs in sorted(ext_timings.items(), key=lambda x: x[1], reverse=True)
-                },
-            )
+            for ext, secs in sorted(ext_timings.items(), key=lambda x: x[1], reverse=True):
+                self.logger.performance.log_metric(
+                    "validation_extension_duration",
+                    round(secs * 1000, 1),
+                    unit="ms",
+                    extension=ext,
+                )
 
         self.logger.info(
             "validation_complete",
@@ -295,10 +334,12 @@ class LinkValidator:
         placeholder_lines: FrozenSet[int] = frozenset()
         if file_path.lower().endswith(".md"):
             lines = content.splitlines()
-            code_block_lines = self._get_code_block_lines(lines)
-            archival_details_lines = self._get_archival_details_lines(lines)
-            table_row_lines = self._get_table_row_lines(lines, code_block_lines)
-            placeholder_lines = self._get_placeholder_lines(lines)
+            (
+                code_block_lines,
+                archival_details_lines,
+                table_row_lines,
+                placeholder_lines,
+            ) = self._get_context_lines(lines)
 
         # Template files (under any templates/ directory) contain placeholder
         # paths that are instructional examples, not real references.  Skip
@@ -417,63 +458,11 @@ class LinkValidator:
         """Decide whether a parsed link target is worth checking on disk.
 
         Filters out URLs, Python imports, shell commands, wildcard patterns,
-        and strings that don't look like file paths.
+        and strings that don't look like file paths.  Each filter is defined
+        in the module-level ``_TARGET_SKIP_PREDICATES`` tuple for easy
+        extension and independent testability.
         """
-        # Skip URLs
-        if target.startswith(_URL_PREFIXES):
-            return False
-
-        # Skip Python import targets (module paths, not file paths)
-        if link_type == "python-import":
-            return False
-
-        # Skip shell commands / CLI invocations
-        if _COMMAND_PATTERN.match(target):
-            return False
-
-        # Skip wildcard / glob patterns (e.g. *.md, **/*.py)
-        if _WILDCARD_PATTERN.search(target):
-            return False
-
-        # Skip numeric/slash patterns like "3.475/4.0" (scores, not paths)
-        if _NUMERIC_SLASH_PATTERN.match(target):
-            return False
-
-        # Skip slash-separated alternatives like "logging.py/logging_config.py"
-        # where a directory segment has a file extension (not a real path).
-        if _EXT_BEFORE_SLASH_PATTERN.search(target):
-            return False
-
-        # Skip targets containing regex metacharacters that aren't valid in
-        # file paths (e.g. "[^\'"]+\.[a-zA-Z0-9]+" extracted from code).
-        # Only filter chars that are truly impossible in paths: ^ { } |
-        # (+ and $ can appear in real paths like c++/config.h or $HOME)
-        if any(c in target for c in "^{}|"):
-            return False
-
-        # Skip regex fragments: "]+" (one-or-more bracket) and "\["
-        # (escaped bracket) never appear in legitimate file paths.
-        if "]+" in target or "\\[" in target:
-            return False
-
-        # Skip PowerShell invocation syntax (.\Script.ps1) — these are
-        # command examples, not file references from the document location.
-        if target.startswith(".\\") and target.lower().endswith(".ps1"):
-            return False
-
-        # Skip template placeholder paths (YYYYMMDD, <placeholder>, etc.)
-        if _PLACEHOLDER_PATTERN.search(target):
-            return False
-
-        # Skip targets that contain whitespace beyond a simple path
-        # (e.g. "pwsh.exe -ExecutionPolicy Bypass ...")
-        if " " in target and not os.path.sep == " ":
-            return False
-
-        # Bare filenames without any path separator (e.g. "Script.ps1") are
-        # typically prose mentions, not navigable references.  Only check
-        # targets that contain a path component (/ or \).
-        if "/" not in target and "\\" not in target and not target.startswith("."):
+        if any(pred(target, link_type) for pred, _ in _TARGET_SKIP_PREDICATES):
             return False
 
         # Apply the existing heuristic — must look like a file or dir path
@@ -485,109 +474,87 @@ class LinkValidator:
         return True
 
     @staticmethod
-    def _get_code_block_lines(lines: List[str]) -> FrozenSet[int]:
-        """Return the set of 1-based line numbers inside fenced code blocks.
+    def _get_context_lines(
+        lines: List[str],
+    ) -> Tuple[FrozenSet[int], FrozenSet[int], FrozenSet[int], FrozenSet[int]]:
+        """Classify markdown lines by context in a single pass.
 
-        Only looks for ``` and ~~~ fences (the two CommonMark fence markers).
-        Accepts pre-read lines (from str.splitlines()) to avoid re-reading the file.
+        Returns (code_block_lines, archival_details_lines, table_row_lines,
+        placeholder_lines) — four frozensets of 1-based line numbers.
+
+        Combines what were previously four separate O(n) passes into one.
         """
         code_lines: set = set()
-        in_block = False
-        for lineno, line in enumerate(lines, start=1):
-            if _FENCE_RE.match(line):
-                if in_block:
-                    # Closing fence — this line is still part of the block
-                    code_lines.add(lineno)
-                in_block = not in_block
-                continue
-            if in_block:
-                code_lines.add(lineno)
-        return frozenset(code_lines)
-
-    @staticmethod
-    def _get_archival_details_lines(lines: List[str]) -> FrozenSet[int]:
-        """Return line numbers inside <details> blocks whose <summary> signals
-        archival content (closed, history, completed, archived).
-
-        Only standalone/quoted link types are skipped in these regions —
-        proper [text](path) links are still validated.
-        Accepts pre-read lines (from str.splitlines()) to avoid re-reading the file.
-        """
         archival_lines: set = set()
+        table_lines: set = set()
+        placeholder_lines_set: set = set()
+
+        # Code-block state
+        in_block = False
+
+        # Archival <details> state
         in_details = False
         is_archival = False
-        # Buffer summary text across lines (summary may follow <details>)
         pending_summary_check = False
+
         for lineno, line in enumerate(lines, start=1):
+            # --- Code blocks ---
+            if _FENCE_RE.match(line):
+                if in_block:
+                    code_lines.add(lineno)
+                in_block = not in_block
+                # Fence lines are not table rows or placeholder lines,
+                # but archival tracking continues across fences.
+                # Fall through to archival detection below.
+            elif in_block:
+                code_lines.add(lineno)
+
+            # --- Archival <details> ---
             if _DETAILS_OPEN_RE.search(line):
                 in_details = True
                 is_archival = False
                 pending_summary_check = True
-                # Check if <summary> is on the same line as <details>
-                summary_match = _SUMMARY_RE.search(line)
-                if summary_match:
-                    summary_text = summary_match.group(1).lower()
-                    # Strip HTML tags from summary text
-                    summary_text = re.sub(r"<[^>]+>", "", summary_text)
-                    is_archival = any(kw in summary_text for kw in _ARCHIVAL_SUMMARY_KEYWORDS)
-                    pending_summary_check = False
-                continue
-
-            if pending_summary_check and in_details:
-                # Check next lines for <summary>
                 summary_match = _SUMMARY_RE.search(line)
                 if summary_match:
                     summary_text = summary_match.group(1).lower()
                     summary_text = re.sub(r"<[^>]+>", "", summary_text)
                     is_archival = any(kw in summary_text for kw in _ARCHIVAL_SUMMARY_KEYWORDS)
                     pending_summary_check = False
-                elif not line.strip():
-                    # Empty line — keep waiting
-                    pass
-                else:
-                    # Non-summary content — no summary tag found
-                    pending_summary_check = False
-
-            if _DETAILS_CLOSE_RE.search(line):
+            elif _DETAILS_CLOSE_RE.search(line):
                 if is_archival:
                     archival_lines.add(lineno)
                 in_details = False
                 is_archival = False
-                continue
+                pending_summary_check = False
+            else:
+                if pending_summary_check and in_details:
+                    summary_match = _SUMMARY_RE.search(line)
+                    if summary_match:
+                        summary_text = summary_match.group(1).lower()
+                        summary_text = re.sub(r"<[^>]+>", "", summary_text)
+                        is_archival = any(kw in summary_text for kw in _ARCHIVAL_SUMMARY_KEYWORDS)
+                        pending_summary_check = False
+                    elif line.strip():
+                        pending_summary_check = False
+                if in_details and is_archival:
+                    archival_lines.add(lineno)
 
-            if in_details and is_archival:
-                archival_lines.add(lineno)
-        return frozenset(archival_lines)
+            # --- Table rows (only outside code blocks) ---
+            if not in_block:
+                stripped = line.lstrip()
+                if stripped.startswith("|"):
+                    table_lines.add(lineno)
 
-    @staticmethod
-    def _get_table_row_lines(lines: List[str], code_block_lines: FrozenSet[int]) -> FrozenSet[int]:
-        """Return 1-based line numbers of markdown table rows.
-
-        A line is a table row if it starts with ``|`` (after optional
-        whitespace) and is not inside a fenced code block.
-        """
-        table_lines: set = set()
-        for lineno, line in enumerate(lines, start=1):
-            if lineno in code_block_lines:
-                continue
-            stripped = line.lstrip()
-            if stripped.startswith("|"):
-                table_lines.add(lineno)
-        return frozenset(table_lines)
-
-    @staticmethod
-    def _get_placeholder_lines(lines: List[str]) -> FrozenSet[int]:
-        """Return 1-based line numbers containing placeholder instructions.
-
-        Lines with phrases like ``*(replace with actual link)*`` indicate
-        that every link on that line is an intentional template example,
-        not a real reference.
-        """
-        placeholder_lines: set = set()
-        for lineno, line in enumerate(lines, start=1):
+            # --- Placeholder lines ---
             if "replace with actual" in line.lower():
-                placeholder_lines.add(lineno)
-        return frozenset(placeholder_lines)
+                placeholder_lines_set.add(lineno)
+
+        return (
+            frozenset(code_lines),
+            frozenset(archival_lines),
+            frozenset(table_lines),
+            frozenset(placeholder_lines_set),
+        )
 
     @staticmethod
     def _glob_to_regex(pattern: str) -> re.Pattern:
@@ -597,7 +564,7 @@ class LinkValidator:
         ``*`` matches anything within a single path segment.
         """
         parts = pattern.replace("\\", "/").split("**/")
-        regex_parts = [fnmatch.translate(p).rstrip(r"\Z").rstrip("$") for p in parts]
+        regex_parts = [fnmatch.translate(p).removesuffix(r"\Z").removesuffix("$") for p in parts]
         # fnmatch.translate anchors with \Z — strip it so we can rejoin.
         # Between parts separated by **, allow zero or more directory levels.
         combined = r"(?:.+/)?".join(regex_parts)

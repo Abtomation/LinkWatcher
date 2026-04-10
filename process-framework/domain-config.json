@@ -4,7 +4,6 @@
   "version": "1.0",
   "domain": "application-development",
   "domain_description": "Application development process framework for software projects",
-
   "workflow_phases": {
     "description": "Valid workflow phase identifiers for tasks and context maps",
     "values": [
@@ -20,7 +19,6 @@
       "support"
     ]
   },
-
   "business_domains": {
     "description": "Valid business domain identifiers for context documentation",
     "values": [
@@ -31,7 +29,6 @@
     ],
     "default": "development"
   },
-
   "entity_terminology": {
     "description": "Domain-specific entity names used in documentation and code",
     "primary_entity": {
@@ -45,7 +42,6 @@
       "description": "Individual code components, modules, or classes"
     }
   },
-
   "document_categories": {
     "description": "Valid document category identifiers",
     "values": [
@@ -58,7 +54,12 @@
       "feedback"
     ]
   },
-
+  "document_type_prefixes": {
+    "description": "Maps ID prefix families to document type labels for script metadata inference",
+    "PF": "Process Framework",
+    "PD": "Product Documentation",
+    "TE": "Test"
+  },
   "framework_metadata": {
     "description": "Domain-agnostic framework settings (rarely need updates)",
     "guide_statuses": [
@@ -74,47 +75,127 @@
       "Documentation Architecture"
     ]
   },
-
   "artifact_metadata_schemas": {
     "description": "Required and optional YAML frontmatter fields per artifact type. Used by Validate-StateTracking.ps1 Surface 10 (Metadata Schema Conformance). Added by IMP-346.",
     "task": {
-      "required": ["id", "type", "category", "version", "created", "updated"],
-      "optional": ["domain", "change_notes"],
+      "required": [
+        "id",
+        "type",
+        "category",
+        "version",
+        "created",
+        "updated"
+      ],
+      "optional": [
+        "domain",
+        "change_notes"
+      ],
       "field_values": {
         "id_pattern": "^PF-TSK-\\d{3}$",
-        "type": ["Process Framework"],
-        "category": ["Task Definition"]
+        "type": [
+          "Process Framework"
+        ],
+        "category": [
+          "Task Definition"
+        ]
       }
     },
     "template": {
-      "required": ["id", "type", "category", "version", "created", "updated"],
-      "optional": ["related_task", "related_script", "creates_document_type", "creates_document_category", "status", "description", "template_for", "usage_context", "creates_document_prefix", "creates_document_version", "change_notes", "workflow_phase"],
+      "required": [
+        "id",
+        "type",
+        "category",
+        "version",
+        "created",
+        "updated"
+      ],
+      "optional": [
+        "related_task",
+        "related_script",
+        "creates_document_type",
+        "creates_document_category",
+        "status",
+        "description",
+        "template_for",
+        "usage_context",
+        "creates_document_prefix",
+        "creates_document_version",
+        "change_notes",
+        "workflow_phase"
+      ],
       "field_values": {
         "id_pattern": "^(PF-TEM-\\d{3}|TE-STA-\\d{3})$",
-        "type": ["Process Framework"],
-        "category": ["Template", "Test Specification", "Test Audit Report", "State File", "Technical - Implementation Plans", "Refactoring Plan", "Assessment", "Context Map", "Proposal", "Proposal Template", "Visualization"]
+        "type": [
+          "Process Framework"
+        ],
+        "category": [
+          "Template",
+          "Test Specification",
+          "Test Audit Report",
+          "State File",
+          "Technical - Implementation Plans",
+          "Refactoring Plan",
+          "Assessment",
+          "Context Map",
+          "Proposal",
+          "Proposal Template",
+          "Visualization"
+        ]
       }
     },
     "guide": {
-      "required": ["id", "type", "category", "version", "created", "updated"],
-      "optional": ["related_task", "related_script"],
+      "required": [
+        "id",
+        "type",
+        "category",
+        "version",
+        "created",
+        "updated"
+      ],
+      "optional": [
+        "related_task",
+        "related_script"
+      ],
       "field_values": {
         "id_pattern": "^(PF-GDE-\\d{3}|PF-MTH-\\d{3})$",
-        "type": ["Process Framework"],
-        "category": ["Guide", "Methodology", "Template"]
+        "type": [
+          "Process Framework"
+        ],
+        "category": [
+          "Guide",
+          "Methodology",
+          "Template"
+        ]
       }
     },
     "context_map": {
-      "required": ["id", "type", "category", "version", "created", "updated", "related_task"],
-      "optional": ["workflow_phase"],
+      "required": [
+        "id",
+        "type",
+        "category",
+        "version",
+        "created",
+        "updated",
+        "related_task"
+      ],
+      "optional": [
+        "workflow_phase"
+      ],
       "field_values": {
         "id_pattern": "^PF-VIS-\\d{3}$",
-        "type": ["Process Framework"],
-        "category": ["Context Map"]
+        "type": [
+          "Process Framework"
+        ],
+        "category": [
+          "Context Map"
+        ]
       }
     }
   },
-
+  "ratings_db_path": {
+    "description": "Absolute path to the central ratings database. When set, all projects share one ratings.db instead of maintaining per-project copies.",
+    "value": "C:/Users/ronny/VS_Code/FrameworkBuilder/appdev/ratings.db"
+  },
   "validation_rules": {
     "description": "Rules for Test-ScriptDomainAlignment.ps1 validation",
     "deprecated_keywords": [

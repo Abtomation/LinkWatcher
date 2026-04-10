@@ -3,11 +3,39 @@ Dart file parser for extracting file references.
 
 This parser handles Dart files and extracts import statements
 and other file references, excluding package imports.
+
+AI Context
+----------
+- **Entry point**: ``parse_content()`` — iterates lines, delegates
+  to 5 ``_extract_*()`` helpers.  Import/part lines are processed
+  separately; quoted, standalone, and embedded extractors only run
+  on non-import/non-part lines to avoid duplicates.
+- **Pattern architecture**: 5 compiled regexes in ``__init__()`` —
+  ``import_pattern`` (``import '...'``), ``part_pattern``
+  (``part '...'``), ``quoted_pattern`` (shared from
+  ``parsers/patterns.py``), ``embedded_pattern`` (bare file-like
+  substrings), and ``standalone_pattern`` (unquoted paths with
+  lookahead boundary, PD-BUG-080).
+- **Filtering**: All extractors skip ``package:`` and ``dart:``
+  scheme prefixes.  ``_extract_embedded_refs()`` additionally
+  deduplicates against previously found refs on the same line and
+  skips URL-prefixed matches (``http://``, ``https://``).
+- **Link types**: ``DART_IMPORT``, ``DART_PART``,
+  ``DART_QUOTED``, ``DART_STANDALONE``, ``DART_EMBEDDED``.
+- **Common tasks**:
+  - Adding a new link pattern: add a compiled regex in
+    ``__init__()``, create an ``_extract_<name>()`` helper
+    returning ``List[LinkReference]``, wire it into
+    ``parse_content()`` with appropriate ordering.
+  - Debugging missed imports: check that the path doesn't start
+    with ``package:`` or ``dart:`` in ``_extract_imports()``.
+  - Testing: ``test/automated/parsers/test_dart.py``.
 """
 
 import re
 from typing import List
 
+from ..link_types import LinkType
 from ..models import LinkReference
 from .base import BaseParser
 from .patterns import QUOTED_PATH_PATTERN
@@ -75,7 +103,7 @@ class DartParser(BaseParser):
                     column_end=match.end(1),
                     link_text=import_path,
                     link_target=import_path,
-                    link_type="dart-import",
+                    link_type=LinkType.DART_IMPORT,
                 )
             )
         return results
@@ -93,7 +121,7 @@ class DartParser(BaseParser):
                     column_end=match.end(1),
                     link_text=part_path,
                     link_target=part_path,
-                    link_type="dart-part",
+                    link_type=LinkType.DART_PART,
                 )
             )
         return results
@@ -114,7 +142,7 @@ class DartParser(BaseParser):
                         column_end=match.end(1),
                         link_text=potential_file,
                         link_target=potential_file,
-                        link_type="dart-quoted",
+                        link_type=LinkType.DART_QUOTED,
                     )
                 )
         return results
@@ -137,7 +165,7 @@ class DartParser(BaseParser):
                         column_end=match.end(1),
                         link_text=potential_file,
                         link_target=potential_file,
-                        link_type="dart-standalone",
+                        link_type=LinkType.DART_STANDALONE,
                     )
                 )
         return results
@@ -191,7 +219,7 @@ class DartParser(BaseParser):
                         column_end=match.end(1),
                         link_text=potential_file,
                         link_target=potential_file,
-                        link_type="dart-embedded",
+                        link_type=LinkType.DART_EMBEDDED,
                     )
                 )
         return results

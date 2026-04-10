@@ -98,6 +98,7 @@ This task executes enhancement work on existing features by following the Enhanc
    - **TDD** — update technical design descriptions that no longer match the code (interface contracts, component diagrams, data models)
    - **Test specification** — update expected behavior or add new test scenarios
    - **FDD** — update functional behavior descriptions if user-facing behavior changed
+   - **Integration Narrative** (`doc/technical/integration/`) — update if the enhancement changes how features interact in a cross-feature workflow documented by a PD-INT narrative
    - *Before marking N/A: briefly check each referenced document to confirm it does not describe the changed component or behavior. Skip only after verifying no documentation references the enhancement area.*
    > **Note**: This step catches documentation drift that the Enhancement State Tracking File may not have scoped. Even if the state file did not include a design doc update step, verify here.
 10. **When all steps are complete**:

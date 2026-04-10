@@ -24,12 +24,60 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-DB_DEFAULT_PATH = Path(__file__).resolve().parent.parent / "feedback" / "ratings.db"
+
+def _resolve_db_path() -> Path:
+    """Resolve database path: domain-config.json > fallback to local."""
+    config_path = Path(__file__).resolve().parent.parent / "domain-config.json"
+    if config_path.exists():
+        try:
+            with open(config_path) as f:
+                config = json.load(f)
+            db_setting = config.get("ratings_db_path", {})
+            if isinstance(db_setting, dict) and db_setting.get("value"):
+                db_path = Path(db_setting["value"])
+                if not db_path.parent.exists():
+                    print(
+                        f"ERROR: ratings_db_path parent directory "
+                        f"does not exist: {db_path.parent}\n"
+                        f"  Configured in: {config_path}\n"
+                        f"  Check the 'ratings_db_path.value' setting.",
+                        file=sys.stderr,
+                    )
+                    sys.exit(1)
+                return db_path
+        except (json.JSONDecodeError, OSError):
+            pass
+    return Path(__file__).resolve().parent.parent / "feedback" / "ratings.db"
+
+
+def _resolve_project_name() -> str:
+    """Resolve project name from doc/project-config.json."""
+    config_path = Path(__file__).resolve().parent.parent.parent / "doc" / "project-config.json"
+    if config_path.exists():
+        try:
+            with open(config_path) as f:
+                config = json.load(f)
+            name = config.get("project", {}).get("name")
+            if name:
+                return name
+        except (json.JSONDecodeError, OSError):
+            pass
+    print(
+        "ERROR: Could not resolve project name.\n"
+        f"  Expected: {config_path}\n"
+        "  Ensure doc/project-config.json exists with project.name field.",
+        file=sys.stderr,
+    )
+    sys.exit(1)
+
+
+DB_DEFAULT_PATH = _resolve_db_path()
 
 SCHEMA_SQL = """
 CREATE TABLE IF NOT EXISTS feedback_forms (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    form_id TEXT NOT NULL UNIQUE,
+    project_name TEXT NOT NULL,
+    form_id TEXT NOT NULL,
     task_id TEXT NOT NULL,
     task_context TEXT,
     feedback_type TEXT NOT NULL,
@@ -38,11 +86,13 @@ CREATE TABLE IF NOT EXISTS feedback_forms (
     review_cycle_id TEXT,
     archived_form_path TEXT,
     overall_effectiveness INTEGER CHECK(overall_effectiveness BETWEEN 1 AND 5),
-    process_conciseness INTEGER CHECK(process_conciseness BETWEEN 1 AND 5)
+    process_conciseness INTEGER CHECK(process_conciseness BETWEEN 1 AND 5),
+    UNIQUE(project_name, form_id)
 );
 
 CREATE TABLE IF NOT EXISTS tool_ratings (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    project_name TEXT NOT NULL,
     form_id TEXT NOT NULL,
     tool_name TEXT NOT NULL,
     tool_doc_id TEXT,
@@ -51,11 +101,12 @@ CREATE TABLE IF NOT EXISTS tool_ratings (
     completeness INTEGER CHECK(completeness BETWEEN 1 AND 5),
     efficiency INTEGER CHECK(efficiency BETWEEN 1 AND 5),
     conciseness INTEGER CHECK(conciseness BETWEEN 1 AND 5),
-    FOREIGN KEY (form_id) REFERENCES feedback_forms(form_id)
+    FOREIGN KEY (project_name, form_id) REFERENCES feedback_forms(project_name, form_id)
 );
 
 CREATE TABLE IF NOT EXISTS tool_changes (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    project_name TEXT NOT NULL,
     tool_doc_id TEXT NOT NULL,
     change_date TEXT NOT NULL,
     imp_id TEXT,
@@ -64,22 +115,135 @@ CREATE TABLE IF NOT EXISTS tool_changes (
 
 CREATE INDEX IF NOT EXISTS idx_forms_task_id ON feedback_forms(task_id);
 CREATE INDEX IF NOT EXISTS idx_forms_review_cycle ON feedback_forms(review_cycle_id);
+CREATE INDEX IF NOT EXISTS idx_forms_project ON feedback_forms(project_name);
 CREATE INDEX IF NOT EXISTS idx_ratings_form_id ON tool_ratings(form_id);
 CREATE INDEX IF NOT EXISTS idx_ratings_tool_doc_id ON tool_ratings(tool_doc_id);
+CREATE INDEX IF NOT EXISTS idx_ratings_project ON tool_ratings(project_name);
 CREATE INDEX IF NOT EXISTS idx_changes_tool_doc_id ON tool_changes(tool_doc_id);
+CREATE INDEX IF NOT EXISTS idx_changes_project ON tool_changes(project_name);
+"""
+
+MIGRATION_SQL = """
+-- Migrate from schema v1 (no project_name) to v2 (with project_name).
+-- Recreates tables because SQLite cannot add NOT NULL columns or alter constraints.
+
+ALTER TABLE feedback_forms RENAME TO _old_feedback_forms;
+ALTER TABLE tool_ratings RENAME TO _old_tool_ratings;
+ALTER TABLE tool_changes RENAME TO _old_tool_changes;
+
+CREATE TABLE feedback_forms (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    project_name TEXT NOT NULL,
+    form_id TEXT NOT NULL,
+    task_id TEXT NOT NULL,
+    task_context TEXT,
+    feedback_type TEXT NOT NULL,
+    form_date TEXT NOT NULL,
+    session_duration_minutes INTEGER,
+    review_cycle_id TEXT,
+    archived_form_path TEXT,
+    overall_effectiveness INTEGER CHECK(overall_effectiveness BETWEEN 1 AND 5),
+    process_conciseness INTEGER CHECK(process_conciseness BETWEEN 1 AND 5),
+    UNIQUE(project_name, form_id)
+);
+
+CREATE TABLE tool_ratings (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    project_name TEXT NOT NULL,
+    form_id TEXT NOT NULL,
+    tool_name TEXT NOT NULL,
+    tool_doc_id TEXT,
+    effectiveness INTEGER CHECK(effectiveness BETWEEN 1 AND 5),
+    clarity INTEGER CHECK(clarity BETWEEN 1 AND 5),
+    completeness INTEGER CHECK(completeness BETWEEN 1 AND 5),
+    efficiency INTEGER CHECK(efficiency BETWEEN 1 AND 5),
+    conciseness INTEGER CHECK(conciseness BETWEEN 1 AND 5),
+    FOREIGN KEY (project_name, form_id) REFERENCES feedback_forms(project_name, form_id)
+);
+
+CREATE TABLE tool_changes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    project_name TEXT NOT NULL,
+    tool_doc_id TEXT NOT NULL,
+    change_date TEXT NOT NULL,
+    imp_id TEXT,
+    description TEXT NOT NULL
+);
+
+INSERT INTO feedback_forms (project_name, form_id, task_id, task_context, feedback_type,
+    form_date, session_duration_minutes, review_cycle_id, archived_form_path,
+    overall_effectiveness, process_conciseness)
+SELECT '{migrate_project}', form_id, task_id, task_context, feedback_type,
+    form_date, session_duration_minutes, review_cycle_id, archived_form_path,
+    overall_effectiveness, process_conciseness
+FROM _old_feedback_forms;
+
+INSERT INTO tool_ratings (project_name, form_id, tool_name, tool_doc_id,
+    effectiveness, clarity, completeness, efficiency, conciseness)
+SELECT '{migrate_project}', form_id, tool_name, tool_doc_id,
+    effectiveness, clarity, completeness, efficiency, conciseness
+FROM _old_tool_ratings;
+
+INSERT INTO tool_changes (project_name, tool_doc_id, change_date, imp_id, description)
+SELECT '{migrate_project}', tool_doc_id, change_date, imp_id, description
+FROM _old_tool_changes;
+
+DROP TABLE _old_feedback_forms;
+DROP TABLE _old_tool_ratings;
+DROP TABLE _old_tool_changes;
+
+CREATE INDEX idx_forms_task_id ON feedback_forms(task_id);
+CREATE INDEX idx_forms_review_cycle ON feedback_forms(review_cycle_id);
+CREATE INDEX idx_forms_project ON feedback_forms(project_name);
+CREATE INDEX idx_ratings_form_id ON tool_ratings(form_id);
+CREATE INDEX idx_ratings_tool_doc_id ON tool_ratings(tool_doc_id);
+CREATE INDEX idx_ratings_project ON tool_ratings(project_name);
+CREATE INDEX idx_changes_tool_doc_id ON tool_changes(tool_doc_id);
+CREATE INDEX idx_changes_project ON tool_changes(project_name);
 """
 
 
 class FeedbackDB:
     """Core database operations for feedback ratings."""
 
-    def __init__(self, db_path: Path):
+    def __init__(self, db_path: Path, project_name: str):
         self.db_path = db_path
+        self.project_name = project_name
+
+    def _needs_migration(self, conn: sqlite3.Connection) -> bool:
+        """Check if existing database needs project_name migration."""
+        cursor = conn.execute("PRAGMA table_info(feedback_forms)")
+        columns = [row[1] for row in cursor.fetchall()]
+        return "project_name" not in columns
+
+    def _migrate(self, conn: sqlite3.Connection, migrate_project: str):
+        """Migrate v1 schema to v2 (add project_name to all tables)."""
+        sql = MIGRATION_SQL.replace("{migrate_project}", migrate_project.replace("'", "''"))
+        conn.execute("PRAGMA foreign_keys = OFF")
+        conn.executescript(sql)
+        conn.execute("PRAGMA foreign_keys = ON")
+        conn.commit()
+        count = conn.execute("SELECT COUNT(*) FROM feedback_forms").fetchone()[0]
+        print(
+            f"Migration complete: added project_name column to all tables.\n"
+            f"  Existing records tagged as project '{migrate_project}' ({count} forms).",
+            file=sys.stderr,
+        )
 
     def _connect(self) -> sqlite3.Connection:
+        if not self.db_path.exists():
+            self.db_path.parent.mkdir(parents=True, exist_ok=True)
+            conn = sqlite3.connect(str(self.db_path))
+            conn.row_factory = sqlite3.Row
+            conn.execute("PRAGMA foreign_keys = ON")
+            conn.executescript(SCHEMA_SQL)
+            conn.commit()
+            return conn
         conn = sqlite3.connect(str(self.db_path))
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA foreign_keys = ON")
+        if self._needs_migration(conn):
+            self._migrate(conn, self.project_name)
         return conn
 
     def init_db(self, force: bool = False):
@@ -113,11 +277,12 @@ class FeedbackDB:
         try:
             conn.execute(
                 """INSERT OR REPLACE INTO feedback_forms
-                   (form_id, task_id, task_context, feedback_type, form_date,
+                   (project_name, form_id, task_id, task_context, feedback_type, form_date,
                     session_duration_minutes, review_cycle_id, archived_form_path,
                     overall_effectiveness, process_conciseness)
-                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                 (
+                    self.project_name,
                     data["form_id"],
                     data["task_id"],
                     data.get("task_context"),
@@ -132,15 +297,19 @@ class FeedbackDB:
             )
 
             # Delete existing tool ratings for this form (for idempotent re-record)
-            conn.execute("DELETE FROM tool_ratings WHERE form_id = ?", (data["form_id"],))
+            conn.execute(
+                "DELETE FROM tool_ratings WHERE project_name = ? AND form_id = ?",
+                (self.project_name, data["form_id"]),
+            )
 
             for tool in data.get("tools", []):
                 conn.execute(
                     """INSERT INTO tool_ratings
-                       (form_id, tool_name, tool_doc_id,
+                       (project_name, form_id, tool_name, tool_doc_id,
                         effectiveness, clarity, completeness, efficiency, conciseness)
-                       VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                     (
+                        self.project_name,
                         data["form_id"],
                         tool["tool_name"],
                         tool.get("tool_doc_id"),
@@ -172,9 +341,11 @@ class FeedbackDB:
         conn = self._connect()
         try:
             cursor = conn.execute(
-                """INSERT INTO tool_changes (tool_doc_id, change_date, imp_id, description)
-                   VALUES (?, ?, ?, ?)""",
-                (tool_doc_id, change_date, imp_id, description),
+                """INSERT INTO tool_changes
+                   (project_name, tool_doc_id, change_date,
+                    imp_id, description)
+                   VALUES (?, ?, ?, ?, ?)""",
+                (self.project_name, tool_doc_id, change_date, imp_id, description),
             )
             conn.commit()
             return cursor.lastrowid
@@ -676,13 +847,42 @@ def cmd_record(args, db):
 
 def cmd_log_change(args, db):
     """Handle the 'log-change' subcommand."""
-    row_id = db.log_change(
-        tool_doc_id=args.tool,
-        change_date=args.date,
-        description=args.description,
-        imp_id=args.imp,
-    )
-    print(f"Logged change #{row_id}: {args.tool} — " f"{args.imp or 'no IMP'} ({args.date})")
+    if not args.batch and not (args.tool and args.date and args.description):
+        print(
+            "Error: provide either --batch or all of --tool, --date, --description", file=sys.stderr
+        )
+        sys.exit(1)
+    if args.batch:
+        src = args.batch
+        if src == "-":
+            data = json.load(sys.stdin)
+        else:
+            data = json.loads(Path(src).read_text(encoding="utf-8"))
+        if not isinstance(data, list):
+            print("Error: --batch JSON must be an array of objects", file=sys.stderr)
+            sys.exit(1)
+        count = 0
+        for entry in data:
+            row_id = db.log_change(
+                tool_doc_id=entry["tool"],
+                change_date=entry["date"],
+                description=entry["description"],
+                imp_id=entry.get("imp"),
+            )
+            print(
+                f"Logged change #{row_id}: {entry['tool']} — "
+                f"{entry.get('imp', 'no IMP')} ({entry['date']})"
+            )
+            count += 1
+        print(f"Batch complete: {count} changes logged.")
+    else:
+        row_id = db.log_change(
+            tool_doc_id=args.tool,
+            change_date=args.date,
+            description=args.description,
+            imp_id=args.imp,
+        )
+        print(f"Logged change #{row_id}: {args.tool} — " f"{args.imp or 'no IMP'} ({args.date})")
 
 
 def cmd_query(args, db):
@@ -728,6 +928,10 @@ def main():
         default=DB_DEFAULT_PATH,
         help=f"Database file path (default: {DB_DEFAULT_PATH})",
     )
+    parser.add_argument(
+        "--project",
+        help="Override project name (default: from doc/project-config.json)",
+    )
 
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
 
@@ -745,10 +949,15 @@ def main():
 
     # log-change
     p_change = subparsers.add_parser("log-change", help="Log a tool modification")
-    p_change.add_argument("--tool", required=True, help="Tool document ID")
-    p_change.add_argument("--date", required=True, help="Date of change (YYYY-MM-DD)")
+    p_change.add_argument("--tool", help="Tool document ID")
+    p_change.add_argument("--date", help="Date of change (YYYY-MM-DD)")
     p_change.add_argument("--imp", help="Improvement ID (e.g., IMP-038)")
-    p_change.add_argument("--description", required=True, help="Description of the change")
+    p_change.add_argument("--description", help="Description of the change")
+    p_change.add_argument(
+        "--batch",
+        help="Path to JSON file with array of "
+        '{tool, date, description, imp?} objects, or "-" for stdin',
+    )
 
     # query
     p_query = subparsers.add_parser("query", help="Query ratings data")
@@ -774,7 +983,8 @@ def main():
         parser.print_help()
         sys.exit(1)
 
-    db = FeedbackDB(args.db)
+    project_name = args.project or _resolve_project_name()
+    db = FeedbackDB(args.db, project_name)
 
     commands = {
         "init": cmd_init,

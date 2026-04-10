@@ -46,6 +46,7 @@ The task-based approach helps to:
 
 | Task | Description | When to Use |
 | ---- | ----------- | ----------- |
+| [Integration Narrative Creation](02-design/integration-narrative-creation.md) | Create Integration Narratives for cross-feature workflows | When all workflow features reach Implemented status, or reactively during bug fixes requiring cross-feature understanding |
 | [FDD Creation](02-design/fdd-creation-task.md) | Create Functional Design Documents for features requiring functional specification | When Tier 2+ features need functional design |
 | [TDD Creation](02-design/tdd-creation-task.md) | Create Technical Design Documents | When assessed features need technical design |
 | [ADR Creation](02-design/adr-creation-task.md) | Create Architecture Decision Records to document significant architectural decisions and their rationale | When documenting architectural decisions |
@@ -56,6 +57,8 @@ The task-based approach helps to:
 
 | Task | Description | When to Use |
 | ---- | ----------- | ----------- |
+| [Performance Baseline Capture](03-testing/performance-baseline-capture-task.md) | Run performance tests, record results in trend database, update tracking, flag regressions | When working on Performance Baseline Capture |
+| [Performance Test Creation](03-testing/performance-test-creation-task.md) | Implement performance tests from specifications, register in tracking, capture initial measurements | When working on Performance Test Creation |
 | [Test Specification Creation](03-testing/test-specification-creation-task.md) | Create comprehensive test specifications from existing Technical Design Documents | When TDDs are ready for test planning |
 | [E2E Acceptance Test Case Creation](03-testing/e2e-acceptance-test-case-creation-task.md) | Create concrete, reproducible E2E acceptance test cases from test specifications | When test specifications are ready for E2E cases |
 | [E2E Acceptance Test Execution](03-testing/e2e-acceptance-test-execution-task.md) | Execute E2E acceptance test cases systematically, record results, and report issues | When E2E test cases are ready for execution |

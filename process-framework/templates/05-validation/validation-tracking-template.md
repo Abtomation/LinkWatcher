@@ -32,8 +32,13 @@ This file tracks the progress and results of the **Feature Validation Framework*
 4. **Documentation Alignment Validation** — TDD/FDD alignment, API documentation currency
 5. **Extensibility & Maintainability Validation** — Modularity, extensibility points, scalability
 6. **AI Agent Continuity Validation** — Context optimization, documentation clarity, readability
+7. **Security & Data Protection Validation** — Auth, input validation, secrets management, OWASP
+8. **Performance & Scalability Validation** — Resource efficiency, algorithmic complexity, I/O patterns
+9. **Observability Validation** — Logging coverage, monitoring, alerting, error traceability
+10. **Accessibility / UX Compliance Validation** — WCAG compliance, keyboard navigation, screen reader support
+11. **Data Integrity Validation** — Data consistency, constraint enforcement, migration safety
 
-> **Note**: These are the default core dimensions. Add or remove dimensions based on your project's needs. See the [Feature Validation Guide](../../guides/05-validation/feature-validation-guide.md) for the complete Dimension Catalog.
+> **Note**: These are the full 11 validation dimensions. Remove dimensions not applicable to your project's feature profiles. See the [Feature Validation Guide](../../guides/05-validation/feature-validation-guide.md) for the complete Dimension Catalog.
 >
 > **Dimension Source**: Start from each feature's **Dimension Profile** in its implementation state file (Section 7). If no profile exists (legacy features), evaluate from scratch using the [Development Dimensions Guide](../../guides/framework/development-dimensions-guide.md).
 
@@ -55,12 +60,17 @@ This file tracks the progress and results of the **Feature Validation Framework*
 | Documentation Alignment         | 0/[N]           | 0                 | NOT_STARTED | TBD          |
 | Extensibility & Maintainability | 0/[N]           | 0                 | NOT_STARTED | TBD          |
 | AI Agent Continuity             | 0/[N]           | 0                 | NOT_STARTED | TBD          |
+| Security & Data Protection      | 0/[N]           | 0                 | NOT_STARTED | TBD          |
+| Performance & Scalability       | 0/[N]           | 0                 | NOT_STARTED | TBD          |
+| Observability                   | 0/[N]           | 0                 | NOT_STARTED | TBD          |
+| Accessibility / UX Compliance   | 0/[N]           | 0                 | NOT_STARTED | TBD          |
+| Data Integrity                  | 0/[N]           | 0                 | NOT_STARTED | TBD          |
 
 ### Feature-by-Feature Progress
 
-| Feature | Architectural | Code Quality | Integration | Documentation | Extensibility | AI Continuity | Overall Status |
-|---------|---------------|--------------|-------------|---------------|---------------|---------------|----------------|
-| [X.Y.Z] | ⏳ Pending | ⏳ Pending | ⏳ Pending | ⏳ Pending | ⏳ Pending | ⏳ Pending | NOT_STARTED |
+| Feature | Architectural | Code Quality | Integration | Documentation | Extensibility | AI Continuity | Security | Performance | Observability | Accessibility | Data Integrity | Overall Status |
+|---------|---------------|--------------|-------------|---------------|---------------|---------------|----------|-------------|---------------|---------------|----------------|----------------|
+| [X.Y.Z] | ⏳ Pending | ⏳ Pending | ⏳ Pending | ⏳ Pending | ⏳ Pending | ⏳ Pending | ⏳ Pending | ⏳ Pending | ⏳ Pending | ⏳ Pending | ⏳ Pending | NOT_STARTED |
 
 **Cell Content Guidelines**:
 
@@ -74,7 +84,7 @@ This file tracks the progress and results of the **Feature Validation Framework*
 
 - **NOT_STARTED**: No validations completed
 - **IN_PROGRESS**: Some validations completed, others pending
-- **VALIDATED**: All 6 validation types completed successfully
+- **VALIDATED**: All applicable validation types completed successfully
 - **ISSUES_FOUND**: Validations completed but issues require attention
 
 ## Validation Reports Registry
@@ -105,6 +115,31 @@ This file tracks the progress and results of the **Feature Validation Framework*
 |-----------|----------|------|-------|--------|--------|---------|
 
 ### AI Agent Continuity Validation Reports
+
+| Report ID | Features | Date | Score | Status | Issues | Actions |
+|-----------|----------|------|-------|--------|--------|---------|
+
+### Security & Data Protection Validation Reports
+
+| Report ID | Features | Date | Score | Status | Issues | Actions |
+|-----------|----------|------|-------|--------|--------|---------|
+
+### Performance & Scalability Validation Reports
+
+| Report ID | Features | Date | Score | Status | Issues | Actions |
+|-----------|----------|------|-------|--------|--------|---------|
+
+### Observability Validation Reports
+
+| Report ID | Features | Date | Score | Status | Issues | Actions |
+|-----------|----------|------|-------|--------|--------|---------|
+
+### Accessibility / UX Compliance Validation Reports
+
+| Report ID | Features | Date | Score | Status | Issues | Actions |
+|-----------|----------|------|-------|--------|--------|---------|
+
+### Data Integrity Validation Reports
 
 | Report ID | Features | Date | Score | Status | Issues | Actions |
 |-----------|----------|------|-------|--------|--------|---------|
@@ -150,11 +185,41 @@ This file tracks the progress and results of the **Feature Validation Framework*
 | Documentation Alignment         | N/A           | N/A   | N/A          | N/A           |
 | Extensibility & Maintainability | N/A           | N/A   | N/A          | N/A           |
 | AI Agent Continuity             | N/A           | N/A   | N/A          | N/A           |
+| Security & Data Protection      | N/A           | N/A   | N/A          | N/A           |
+| Performance & Scalability       | N/A           | N/A   | N/A          | N/A           |
+| Observability                   | N/A           | N/A   | N/A          | N/A           |
+| Accessibility / UX Compliance   | N/A           | N/A   | N/A          | N/A           |
+| Data Integrity                  | N/A           | N/A   | N/A          | N/A           |
 
 ### Feature Quality Rankings
 
 | Rank | Feature | Overall Score | Primary Strengths | Primary Weaknesses |
 |------|---------|---------------|-------------------|--------------------|
+
+## Cross-Dimensional Synthesis
+
+> **When to complete**: In a dedicated synthesis session after all dimension tasks are finished. This session reviews all dimension reports together, fills in the sections below, then runs `Generate-ValidationSummary.ps1`. Plan this as the final session in the [Session Planning](#session-planning) sequence.
+
+### Correlated Findings
+
+Findings that appear across multiple dimensions, suggesting a shared root cause:
+
+| Root Cause | Dimensions Affected | Features Affected | Evidence Summary |
+|------------|--------------------|--------------------|------------------|
+
+### Systemic Patterns
+
+Codebase-wide trends visible only when comparing findings across dimensions:
+
+| Pattern | Description | Dimensions Where Observed | Recommended Action |
+|---------|-------------|---------------------------|-------------------|
+
+### Prioritized Cross-Dimensional Remediation
+
+Actions that address root causes spanning multiple dimensions, ordered by impact:
+
+| Priority | Action | Addresses (Dimensions) | Addresses (Features) | Estimated Effort |
+|----------|--------|------------------------|----------------------|-----------------|
 
 ## Session Planning
 
@@ -162,6 +227,7 @@ This file tracks the progress and results of the **Feature Validation Framework*
 
 1. **Session 1**: [Validation Type] — [Feature Group] ([Rationale])
 2. **Session 2**: [Validation Type] — [Feature Group] ([Rationale])
+3. **Final Session**: Cross-Dimensional Synthesis — Review all dimension reports, fill in [Cross-Dimensional Synthesis](#cross-dimensional-synthesis), run `Generate-ValidationSummary.ps1`
 
 ### Next Session Details
 
@@ -210,7 +276,8 @@ This file tracks the progress and results of the **Feature Validation Framework*
    - Add critical issues to the Issues Tracking section
    - Update Overall Status for the feature
 
-4. **After All Validation Types Complete**:
+4. **After All Dimension Sessions Complete** (dedicated synthesis session):
+   - **Cross-Dimensional Synthesis**: Review all dimension reports together and fill in the [Cross-Dimensional Synthesis](#cross-dimensional-synthesis) section. Look for: (a) the same root cause flagged independently in multiple dimensions, (b) systemic codebase-wide patterns only visible when comparing dimension findings, (c) remediation actions that resolve issues across multiple dimensions at once.
    - Run `Generate-ValidationSummary.ps1` to create a consolidated report:
      ```powershell
      process-framework/scripts/file-creation/05-validation/Generate-ValidationSummary.ps1 -IncludeDetails

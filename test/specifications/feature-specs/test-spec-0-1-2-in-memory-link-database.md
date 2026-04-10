@@ -127,21 +127,6 @@ The In-Memory Link Database provides a thread-safe, target-indexed `Dict[str, Li
 - **Logging**: Warning when removing links for a file with no references — not tested
 - **Untested public methods** (found during test audit PF-TAR-006, 2026-03-15): `remove_targets_by_path()`, `get_all_targets_with_references()`, `get_source_files()` — these 3 newer methods have no dedicated tests
 
-## AI Agent Session Handoff Notes
-
-### Implementation Context
-
-**Feature Summary**: Target-indexed in-memory link storage with thread-safe operations.
-**Test Focus**: CRUD correctness, thread safety, path resolution edge cases.
-**Key Challenges**: Verifying thread safety deterministically; testing three-level path resolution.
-
-### Files to Reference
-
-- **TDD**: [`doc/technical/tdd/tdd-0-1-2-in-memory-database-t2.md`](../../../doc/technical/tdd/tdd-0-1-2-in-memory-database-t2.md)
-- **Existing Tests**: [`test/automated/unit/test_database.py`](../../../test/automated/unit/test_database.py)
-- **Source Code**: [`linkwatcher/database.py`](../../../linkwatcher/database.py)
-- **Fixtures**: [`test/automated/conftest.py`](../../../test/automated/conftest.py) — `link_database` fixture
-
 ---
 
 _Retrospective Test Specification — documents existing test suite as of 2026-02-24._

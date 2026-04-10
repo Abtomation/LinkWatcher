@@ -7,7 +7,6 @@ Copy this file to any project where you want to use LinkWatcher.
 """
 
 import json
-import os
 import sys
 from pathlib import Path
 
@@ -111,38 +110,18 @@ def create_convenience_scripts(linkwatcher_dir):
     linkwatcher_project_dir = setup_script_dir
     linkwatcher_project_dir.mkdir(exist_ok=True)
 
-    # Windows batch script
-    batch_script = linkwatcher_project_dir / "start_linkwatcher.bat"
-    batch_content = f"""@echo off
-echo Starting LinkWatcher for this project...
-python "{linkwatcher_dir / 'main.py'}"
-pause
-"""
-
-    with open(batch_script, "w") as f:
-        f.write(batch_content)
-
-    # PowerShell script
-    ps_script = linkwatcher_project_dir / "start_linkwatcher.ps1"
-    ps_content = f"""# LinkWatcher for this project
-Write-Host "Starting LinkWatcher for this project..." -ForegroundColor Cyan
-python "{linkwatcher_dir / 'main.py'}"
-Read-Host "Press Enter to exit"
-"""
-
-    with open(ps_script, "w") as f:
-        f.write(ps_content)
-
     # PowerShell background script
     ps_background_script = linkwatcher_project_dir / "start_linkwatcher_background.ps1"
     ps_background_content = f"""# LinkWatcher Background Starter for this project
 Write-Host "Starting LinkWatcher in background for this project..." -ForegroundColor Cyan
 
 # Start the LinkWatcher in background using Start-Process
-$process = Start-Process -FilePath "python" -ArgumentList "{linkwatcher_dir / 'main.py'}" -WindowStyle Hidden -PassThru
+$process = Start-Process -FilePath "python" `
+    -ArgumentList "{linkwatcher_dir / 'main.py'}" -WindowStyle Hidden -PassThru
 
 if ($process) {{
-    Write-Host "LinkWatcher started successfully in background (PID: $($process.Id))" -ForegroundColor Green
+    Write-Host "LinkWatcher started successfully in background (PID: $($process.Id))" `
+        -ForegroundColor Green
 }} else {{
     Write-Host "Failed to start LinkWatcher" -ForegroundColor Red
 }}
@@ -151,58 +130,29 @@ if ($process) {{
     with open(ps_background_script, "w") as f:
         f.write(ps_background_content)
 
-    # Shell script
-    shell_script = linkwatcher_project_dir / "start_linkwatcher.sh"
-    shell_content = f"""#!/bin/bash
-echo "Starting LinkWatcher for this project..."
-python3 "{linkwatcher_dir / 'main.py'}"
+    # Create logs directory
+    logs_dir = linkwatcher_project_dir / "logs"
+    logs_dir.mkdir(exist_ok=True)
+
+    # Create starter .linkwatcher-ignore
+    ignore_file = linkwatcher_project_dir / ".linkwatcher-ignore"
+    if not ignore_file.exists():
+        ignore_content = """# .linkwatcher-ignore — Per-file validation suppression rules
+#
+# Format:  source_glob -> target_substring
+# A broken link is suppressed when the source file matches the glob AND
+# the link target contains the substring.
+#
+# Use sparingly — every rule here is a potential blind spot.
+# Prefer fixing the actual link over adding a rule.
 """
+        with open(ignore_file, "w") as f:
+            f.write(ignore_content)
 
-    with open(shell_script, "w") as f:
-        f.write(shell_content)
-
-    # Python script for background execution (the one that works)
-    python_script = linkwatcher_project_dir / "start_link_watcher.py"
-    python_content = f'''#!/usr/bin/env python3
-"""
-Start the link watcher service with better debugging
-"""
-
-import subprocess
-import sys
-import os
-
-def main():
-    print("Starting Link Watcher Service...")
-
-    # Use the actual working LinkWatcher
-    linkwatcher_path = r"{linkwatcher_dir / 'main.py'}"
-
-    try:
-        # Run the actual working LinkWatcher
-        subprocess.run([sys.executable, linkwatcher_path], check=True)
-    except KeyboardInterrupt:
-        print("\\nStopping service...")
-    except Exception as e:
-        print(f"Error starting LinkWatcher: {{e}}")
-
-if __name__ == "__main__":
-    main()
-'''
-
-    with open(python_script, "w") as f:
-        f.write(python_content)
-
-    # Make shell script executable on Unix-like systems
-    if os.name != "nt":
-        os.chmod(shell_script, 0o755)
-
-    print("✅ Convenience scripts created in LinkWatcher directory:")
-    print(f"   - {batch_script.name}")
-    print(f"   - {ps_script.name}")
-    print(f"   - {ps_background_script.name} (for background execution)")
-    print(f"   - {shell_script.name}")
-    print(f"   - {python_script.name} (for background execution)")
+    print("✅ LinkWatcher project directory set up:")
+    print(f"   - {ps_background_script.name}")
+    print("   - logs/")
+    print("   - .linkwatcher-ignore")
     print(f"   Location: {linkwatcher_project_dir.resolve()}")
 
 
@@ -255,15 +205,11 @@ def main():
     print(f"🔗 LinkWatcher location: {linkwatcher_dir}")
 
     print("\n📋 How to use:")
-    print("1. Start LinkWatcher in FOREGROUND (for debugging):")
-    print(f"   python \"{linkwatcher_dir / 'main.py'}\"")
-    print("   # Or use convenience scripts in LinkWatcher directory:")
-    print("   ./LinkWatcher/start_linkwatcher.bat  (Windows)")
-    print("   ./LinkWatcher/start_linkwatcher.sh   (Linux/Mac)")
-
-    print("\n2. Start LinkWatcher in BACKGROUND (recommended):")
+    print("1. Start LinkWatcher in BACKGROUND (recommended):")
     print("   LinkWatcher/start_linkwatcher_background.ps1")
-    print("   # This script automatically starts LinkWatcher in background")
+
+    print("\n2. Start LinkWatcher in FOREGROUND (for debugging):")
+    print(f"   python \"{linkwatcher_dir / 'main.py'}\"")
 
     print("\n3. Check links:")
     print(f"   python \"{linkwatcher_dir / 'scripts/check_links.py'}\"")

@@ -59,7 +59,7 @@ retrospective: true
 
 - **3.1.1-FR-1**: The system SHALL provide structured log messages at five severity levels: DEBUG, INFO, WARNING, ERROR, and CRITICAL
 - **3.1.1-FR-2**: The system SHALL output human-readable, color-coded log messages to the console with emoji-based level indicators (e.g., ✅ INFO, ⚠️ WARNING, ❌ ERROR)
-- **3.1.1-FR-3**: The system SHALL optionally write JSON-formatted log messages to a rotating log file configurable via startup arguments or config file
+- **3.1.1-FR-3**: The system SHALL support a `json_logs` configuration option (config file only) that switches the structlog output format from human-readable console rendering to JSON rendering for all log outputs (console and file). Independently, the system SHALL support directing log output to a rotating file via `--log-file` (CLI) or `log_file` (config file)
 - **3.1.1-FR-4**: The system SHALL provide domain-specific log methods for LinkWatcher operations: `file_moved`, `file_deleted`, `links_updated`, `scan_progress`, and `operation_stats`
 - **3.1.1-FR-5**: The system SHALL maintain isolated per-thread logging context so that concurrent operations do not mix their contextual information
 - **3.1.1-FR-6**: The system SHALL measure and report operation timing via `PerformanceLogger` and `LogTimer` context manager
@@ -81,6 +81,8 @@ retrospective: true
 - **3.1.1-BR-3**: Log context is per-thread via `threading.local()` — each worker thread maintains its own independent context (current operation, current file path)
 - **3.1.1-BR-4**: All components share a single configured logger instance via `get_logger()`; only `setup_logging()` at startup configures the instance
 - **3.1.1-BR-5**: Config hot-reload polls the config file's `mtime` every 1 second via a daemon thread — changes are picked up within 1 second and the daemon thread terminates automatically when the service stops
+- **3.1.1-BR-6**: Configuration precedence (highest to lowest): CLI arguments → environment variables (`LINKWATCHER_*`) → config file (YAML/JSON) → dataclass defaults. When both `--log-file` (CLI) and `log_file` (config) are set, the CLI value takes priority — config file logging is only applied when no CLI `--log-file` is provided
+- **3.1.1-BR-7**: The `json_logs` option is available only via config file — no CLI flag exists. It controls the structlog processor pipeline (`JSONRenderer` vs `ConsoleRenderer`), affecting the format of all log output including console. The file handler always uses JSON format regardless of this setting
 
 ## User Experience Flow
 

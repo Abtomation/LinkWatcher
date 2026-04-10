@@ -47,7 +47,9 @@
       "Bash(echo \"exit: $?\")",
       "Bash([ -d \"/c/Users/ronny/VS_Code/LinkWatcher/doc/technical/architecture/design-docs\" ])",
       "Bash([ -d \"/c/Users/ronny/VS_Code/LinkWatcher/doc/technical/design\" ])",
-      "Bash([ -f \"/c/Users/ronny/VS_Code/LinkWatcher/doc/state-tracking/permanent/feature-tracking.md\" ])"
+      "Bash([ -f \"/c/Users/ronny/VS_Code/LinkWatcher/doc/state-tracking/permanent/feature-tracking.md\" ])",
+      "Bash(xargs grep:*)",
+      "Bash(python -c \"from linkwatcher.link_types import LinkType; print\\('Import OK,', len\\(LinkType\\), 'members'\\)\")"
     ]
   }
 }

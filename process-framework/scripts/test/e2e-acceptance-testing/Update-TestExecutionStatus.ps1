@@ -41,8 +41,8 @@
 
 .NOTES
     Created: 2026-03-15
-    Updated: 2026-03-31
-    Version: 2.2
+    Updated: 2026-04-08
+    Version: 2.3
     Task: E2E Acceptance Test Execution (PF-TSK-070)
 #>
 
@@ -188,6 +188,96 @@ foreach ($line in $lines) {
     }
 
     $updatedLines += $line
+}
+
+# --- Group status rollup when updating individual test cases ---
+# When -TestCase is used, aggregate child case statuses to update the parent group row
+if ($TestCase -and $matchCount -gt 0) {
+    # Build group -> case status map from the E2E section
+    $currentGroupIdx = -1
+    $groupCaseStatuses = @{}  # groupLineIndex -> @(caseStatuses)
+    $groupLineIndices = @()
+
+    for ($i = 0; $i -lt $updatedLines.Count; $i++) {
+        $uLine = $updatedLines[$i]
+        if ($uLine -match '^\|') {
+            $uCells = Split-MarkdownTableRow $uLine
+            if ($uCells.Count -ge 6 -and $uCells[0] -match '^TE-E2[EG]-\d+') {
+                $testType = $uCells[3].Trim()
+                if ($testType -eq 'E2E Group') {
+                    $currentGroupIdx = $i
+                    $groupLineIndices += $i
+                    if (-not $groupCaseStatuses.ContainsKey($i)) {
+                        $groupCaseStatuses[$i] = @()
+                    }
+                } elseif ($testType -eq 'E2E Case' -and $currentGroupIdx -ge 0) {
+                    $groupCaseStatuses[$currentGroupIdx] += $uCells[5].Trim()
+                }
+            }
+        }
+    }
+
+    # Update group rows where at least one child was the matched test case
+    $groupRollupCount = 0
+    foreach ($gIdx in $groupLineIndices) {
+        $caseStatuses = $groupCaseStatuses[$gIdx]
+        if ($caseStatuses.Count -eq 0) { continue }
+
+        # Check if any child case of this group was the one we just updated
+        $groupHasUpdatedCase = $false
+        for ($j = $gIdx + 1; $j -lt $updatedLines.Count; $j++) {
+            $checkLine = $updatedLines[$j]
+            if ($checkLine -match '^\|') {
+                $checkCells = Split-MarkdownTableRow $checkLine
+                if ($checkCells.Count -ge 6 -and $checkCells[0] -match '^TE-E2[EG]-\d+') {
+                    if ($checkCells[3].Trim() -eq 'E2E Group') { break }
+                    if ($checkCells[0].Trim() -eq $TestCase) {
+                        $groupHasUpdatedCase = $true
+                        break
+                    }
+                }
+            }
+        }
+        if (-not $groupHasUpdatedCase) { continue }
+
+        # Determine aggregate status
+        $hasFailed = $caseStatuses | Where-Object { $_ -match 'Failed' }
+        $allPassed = ($caseStatuses | Where-Object { $_ -match 'Passed' }).Count -eq $caseStatuses.Count
+
+        if ($allPassed) {
+            $aggregateStatus = "✅ Passed"
+        } elseif ($hasFailed) {
+            $aggregateStatus = "🔴 Failed"
+        } else {
+            $aggregateStatus = "🔄 Needs Re-execution"
+        }
+
+        $gCells = Split-MarkdownTableRow $updatedLines[$gIdx]
+        $oldGroupStatus = $gCells[5].Trim()
+        if ($oldGroupStatus -ne $aggregateStatus) {
+            $gCells[5] = $aggregateStatus
+            $gCells[6] = $timestamp
+            $gCells[7] = $timestamp
+            $updatedLines[$gIdx] = ConvertTo-MarkdownTableRow -Cells $gCells
+            $groupRollupCount++
+
+            # Collect group's features and workflows for downstream updates
+            $gFeatureIds = $gCells[2] -split ',' | ForEach-Object { $_.Trim() }
+            foreach ($fId in $gFeatureIds) {
+                if ($fId -and $affectedFeatureIds -notcontains $fId) {
+                    $affectedFeatureIds += $fId
+                }
+            }
+            $gWorkflow = $gCells[1].Trim()
+            if ($gWorkflow -and $gWorkflow -ne "—" -and $affectedWorkflows -notcontains $gWorkflow) {
+                $affectedWorkflows += $gWorkflow
+            }
+        }
+    }
+
+    if ($groupRollupCount -gt 0) {
+        Write-Host "  Group rollup: updated $groupRollupCount group(s) based on aggregated case statuses" -ForegroundColor Yellow
+    }
 }
 
 if ($matchCount -eq 0) {

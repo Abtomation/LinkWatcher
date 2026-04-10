@@ -13,9 +13,7 @@ Test Cases Implemented:
 """
 
 import shutil
-import tempfile
 import time
-from pathlib import Path
 
 import pytest
 from watchdog.events import FileMovedEvent
@@ -281,9 +279,9 @@ class TestLargeProjectHandling:
             ref_file = temp_project_dir / f"referencing_{i:03d}.md"
 
             content = f"# Referencing File {i}\n\n"
-            content += f"- [Popular file](popular_file.txt)\n"
-            content += f'- See "popular_file.txt" for details\n'
-            content += f"- Check popular_file.txt for info\n"
+            content += "- [Popular file](popular_file.txt)\n"
+            content += '- See "popular_file.txt" for details\n'
+            content += "- Check popular_file.txt for info\n"
 
             # Add some additional references to create variety
             if i > 0:
@@ -410,6 +408,86 @@ class TestLargeProjectHandling:
                     assert f"file_{j:02d}.txt" not in content
 
 
+class TestDirectoryBatchDetection:
+    """Performance tests for directory batch move detection at scale."""
+
+    @pytest.mark.slow
+    def test_ph_006_directory_batch_detection(self, temp_project_dir):
+        """
+        PH-006: Directory batch detection at scale
+
+        Simulates a directory move of 100 files across 5 subdirectories
+        using native FileMovedEvent. Measures detection + update time.
+        Expected: Complete within 30 seconds.
+        """
+        num_subdirs = 5
+        files_per_subdir = 20
+        total_files = num_subdirs * files_per_subdir
+
+        # Create source directory structure
+        src_dir = temp_project_dir / "src_project"
+        src_dir.mkdir()
+
+        all_files = []
+        for d in range(num_subdirs):
+            subdir = src_dir / f"subdir_{d:02d}"
+            subdir.mkdir()
+            for f in range(files_per_subdir):
+                file_path = subdir / f"file_{f:03d}.md"
+                # Cross-reference files in other subdirectories
+                content = f"# File {d}-{f}\n\n"
+                for other_d in range(num_subdirs):
+                    if other_d != d:
+                        other_f = f % files_per_subdir
+                        content += f"- [Link](../subdir_{other_d:02d}" f"/file_{other_f:03d}.md)\n"
+                file_path.write_text(content)
+                all_files.append(file_path)
+
+        # Create external files that reference into the directory
+        for i in range(10):
+            ext_file = temp_project_dir / f"external_{i:02d}.md"
+            content = f"# External {i}\n\n"
+            for d in range(num_subdirs):
+                content += (
+                    f"- [Ref](src_project/subdir_{d:02d}" f"/file_{i % files_per_subdir:03d}.md)\n"
+                )
+            ext_file.write_text(content)
+
+        # Initialize service and scan
+        service = LinkWatcherService(str(temp_project_dir))
+        service._initial_scan()
+
+        stats = service.link_db.get_stats()
+        print(
+            f"\nSetup: {stats['files_with_links']} files, "
+            f"{stats['total_references']} references"
+        )
+
+        # Move the entire directory
+        dest_dir = temp_project_dir / "moved_project"
+        start_time = time.time()
+
+        shutil.move(str(src_dir), str(dest_dir))
+
+        # Process as a native directory move event
+        move_event = FileMovedEvent(str(src_dir), str(dest_dir))
+        move_event.is_directory = True
+        service.handler.on_moved(move_event)
+
+        elapsed = time.time() - start_time
+
+        print(f"\nDirectory batch detection ({total_files} files, " f"{num_subdirs} subdirs):")
+        print(f"  Total time: {elapsed:.2f}s")
+        print(f"  Files/sec: {total_files / max(elapsed, 1e-9):.1f}")
+
+        assert elapsed < 30.0, f"Directory batch detection took {elapsed:.2f}s (expected <30s)"
+
+        # Verify external references were updated
+        ext_content = (temp_project_dir / "external_00.md").read_text()
+        assert "moved_project" in ext_content, "External references should point to moved_project"
+        assert "src_project" not in ext_content, "Old src_project references should be updated"
+
+
 class TestPerformanceMetrics:
     """Tests for performance monitoring and metrics."""
 
@@ -475,7 +553,6 @@ class TestPerformanceMetrics:
     def test_cpu_usage_monitoring(self, temp_project_dir):
         """Monitor CPU usage during intensive operations."""
         import threading
-        import time
 
         psutil = pytest.importorskip("psutil")
 

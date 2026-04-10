@@ -125,7 +125,12 @@ $customReplacements = @{
 # Create the document using standardized process
 try {
     $outputDir = "process-framework/guides/$SubDirectory"
-    $documentId = New-StandardProjectDocument -TemplatePath "process-framework/templates/support/guide-template.md" -IdPrefix "PF-GDE" -IdDescription "Guide: $GuideTitle" -DocumentName $GuideTitle -OutputDirectory $outputDir -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
+    # IMP-407: Auto-append "-guide" suffix with double-suffix guard
+    $guideDocName = $GuideTitle
+    if ($guideDocName -notmatch '(?i)[-\s]guide$') {
+        $guideDocName = "$guideDocName-guide"
+    }
+    $documentId = New-StandardProjectDocument -TemplatePath "process-framework/templates/support/guide-template.md" -IdPrefix "PF-GDE" -IdDescription "Guide: $GuideTitle" -DocumentName $guideDocName -OutputDirectory $outputDir -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
 
     # Provide success details
     $details = @(
@@ -195,7 +200,11 @@ try {
             }
         }
 
+        # IMP-407: Auto-append "-guide" suffix with double-suffix guard
         $kebabName = ConvertTo-KebabCase -InputString $GuideTitle
+        if ($kebabName -notmatch '-guide$') {
+            $kebabName = "$kebabName-guide"
+        }
         $relativePath = "guides/$SubDirectory/$kebabName.md"
         $description = if ($GuideDescription -ne "") { $GuideDescription } else { "Guide for $GuideTitle" }
         $entryLine = "- [Guide: $GuideTitle]($relativePath) - $description"

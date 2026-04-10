@@ -112,6 +112,7 @@
     - **FDD** — update if functional behavior or user-facing workflows changed
     - **Test spec** — update if test categories, component mappings, or coverage expectations changed
     - **Feature tracking** — update if module scope or feature boundaries shifted
+    - **Integration Narrative** (`doc/technical/integration/`) — update if refactoring changes how features interact in a cross-feature workflow documented by a PD-INT narrative
 
 ### Finalization
 

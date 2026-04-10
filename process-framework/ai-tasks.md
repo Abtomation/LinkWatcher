@@ -123,6 +123,7 @@ _Technical and functional design activities_
 
 | Task                       | Use When                                                                                  | Complexity | Link                                                                                  |
 | -------------------------- | ----------------------------------------------------------------------------------------- | ---------- | ------------------------------------------------------------------------------------- |
+| **Integration Narrative Creation** | Create Integration Narratives for cross-feature workflows                                 | 🟡 Medium  | [→ Definition](/process-framework/tasks/02-design/integration-narrative-creation.md)  |
 | **FDD Creation**           | Create functional specifications for Tier 2/3 features before technical design            | 🟡 Medium  | [→ Definition](/process-framework/tasks/02-design/fdd-creation-task.md)           |
 | **TDD Creation**           | Complex feature needs technical design                                                    | 🟡 Medium  | [→ Definition](/process-framework/tasks/02-design/tdd-creation-task.md)           |
 | **ADR Creation**           | Document significant architectural decisions with context, alternatives, and consequences | 🟢 Simple  | [→ Definition](/process-framework/tasks/02-design/adr-creation-task.md)           |
@@ -135,6 +136,8 @@ _Test planning, implementation, and quality assurance activities_
 
 | Task                            | Use When                                                                               | Complexity | Link                                                                                        |
 | ------------------------------- | -------------------------------------------------------------------------------------- | ---------- | ------------------------------------------------------------------------------------------- |
+| **Performance Test Creation**   | Implement performance tests from specifications, register in tracking, capture initial measurements | 🟡 Medium  | [→ Definition](/process-framework/tasks/03-testing/performance-test-creation-task.md)       |
+| **Performance Baseline Capture** | Run performance tests, record results in trend database, update tracking, flag regressions | 🟢 Simple  | [→ Definition](/process-framework/tasks/03-testing/performance-baseline-capture-task.md)    |
 | **E2E Acceptance Test Execution** | Execute E2E acceptance test cases systematically, record results, and report issues discovered through human interaction with the running system | 🟡 Medium | [→ Definition](/process-framework/tasks/03-testing/e2e-acceptance-test-execution-task.md) |
 | **E2E Acceptance Test Case Creation** | Create concrete, reproducible E2E acceptance test cases from test specifications with exact steps, file contents, and expected outcomes | 🟡 Medium | [→ Definition](/process-framework/tasks/03-testing/e2e-acceptance-test-case-creation-task.md) |
 | **Test Specification Creation** | Create comprehensive test specifications from TDDs for Test-First Development          | 🟡 Medium  | [→ Definition](/process-framework/tasks/03-testing/test-specification-creation-task.md) |
@@ -229,13 +232,13 @@ _Meta-framework tasks that work on the process framework itself_
 ### For New Feature Planning (research needed)
 
 ```
-Feature Discovery → Feature Request Evaluation (classify as new) → Feature Tier Assessment → FDD Creation → [System Architecture Review] → [ADR Creation] → [API Design] → [Database Schema Design] → TDD Creation → [Test Specification Creation] → Feature Implementation Planning → [Decomposed Implementation Tasks] → Code Review → [User Documentation Creation] → Release & Deployment
+Feature Discovery → Feature Request Evaluation (classify as new) → Feature Tier Assessment → FDD Creation → [System Architecture Review] → [ADR Creation] → [API Design] → [Database Schema Design] → TDD Creation → [Integration Narrative Creation] → [Test Specification Creation] → Feature Implementation Planning → [Decomposed Implementation Tasks] → Code Review → [User Documentation Creation] → Release & Deployment
 ```
 
 ### For Complex Features
 
 ```
-Feature Request Evaluation (classify as new) → Feature Tier Assessment → FDD Creation → [System Architecture Review] → [ADR Creation] → [API Design] → [Database Schema Design] → TDD Creation → [Test Specification Creation] → Feature Implementation Planning → [Decomposed Implementation Tasks] → Integration & Testing → Test Audit → Code Review → [User Documentation Creation] → Release & Deployment
+Feature Request Evaluation (classify as new) → Feature Tier Assessment → FDD Creation → [System Architecture Review] → [ADR Creation] → [API Design] → [Database Schema Design] → TDD Creation → [Integration Narrative Creation] → [Test Specification Creation] → Feature Implementation Planning → [Decomposed Implementation Tasks] → Integration & Testing → Test Audit → Code Review → [User Documentation Creation] → Release & Deployment
 ```
 
 ### For Simple Features
@@ -280,10 +283,18 @@ Structure Change → Code Review → Release & Deployment
 
 ```
 After milestone (all features for a user workflow implemented):
-  Cross-cutting E2E Test Specification (New-TestSpecification.ps1 -CrossCutting) → E2E Test Case Creation (PF-TSK-069) → E2E Test Execution (PF-TSK-070)
+  [Integration Narrative Creation (PF-TSK-083)] → Cross-cutting E2E Test Specification (New-TestSpecification.ps1 -CrossCutting) → E2E Test Case Creation (PF-TSK-069) → E2E Test Execution (PF-TSK-070)
 ```
 
-> **Milestone trigger**: Check [User Workflow Tracking](/doc/state-tracking/permanent/user-workflow-tracking.md) — when all required features for a workflow reach "Implemented," create the cross-cutting E2E test specification for that workflow.
+> **Milestone trigger**: Check [User Workflow Tracking](/doc/state-tracking/permanent/user-workflow-tracking.md) — when all required features for a workflow reach "Implemented," create the Integration Narrative first (provides verified cross-feature understanding), then create the cross-cutting E2E test specification for that workflow.
+
+### For Performance Testing
+
+```
+Test Specification Creation (PF-TSK-012, PE dimension) → Performance Test Spec → Performance Test Creation (PF-TSK-084) → Performance Baseline Capture (PF-TSK-085)
+```
+
+> **Trigger**: When PF-TSK-012 evaluates the PE dimension as Critical or Important, it produces a performance test specification using the Performance Test Spec Template. This feeds Performance Test Creation (implements tests) → Performance Baseline Capture (records results, detects regressions). Baseline Capture also runs standalone for pre-release verification and post-refactoring checks.
 
 ### For Feature Validation
 

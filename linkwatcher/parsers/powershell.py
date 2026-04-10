@@ -9,6 +9,7 @@ string literals (file and directory paths), and embedded markdown links.
 import re
 from typing import List
 
+from ..link_types import LinkType
 from ..models import LinkReference
 from .base import BaseParser
 from .patterns import QUOTED_DIR_PATTERN_STRICT
@@ -54,7 +55,7 @@ class PowerShellParser(BaseParser):
                         continue
                     # PD-BUG-057: Use full pattern extraction for here-strings
                     self._extract_all_paths_from_line(
-                        line, line_num, file_path, "powershell-here-string", references
+                        line, line_num, file_path, LinkType.POWERSHELL_HERE_STRING, references
                     )
                     continue
                 if stripped.endswith('@"') or stripped.endswith("@'"):
@@ -68,7 +69,7 @@ class PowerShellParser(BaseParser):
                     if self.block_comment_end.search(line[line.find("<#") + 2 :]):
                         # PD-BUG-057: Use full pattern extraction for block comments
                         self._extract_all_paths_from_line(
-                            line, line_num, file_path, "powershell-block-comment", references
+                            line, line_num, file_path, LinkType.POWERSHELL_BLOCK_COMMENT, references
                         )
                         in_block_comment = False
                         continue
@@ -78,7 +79,7 @@ class PowerShellParser(BaseParser):
                         in_block_comment = False
                     # PD-BUG-057: Use full pattern extraction for block comments
                     self._extract_all_paths_from_line(
-                        line, line_num, file_path, "powershell-block-comment", references
+                        line, line_num, file_path, LinkType.POWERSHELL_BLOCK_COMMENT, references
                     )
                     continue
 
@@ -93,7 +94,7 @@ class PowerShellParser(BaseParser):
                             comment_start,
                             line_num,
                             file_path,
-                            "powershell-comment",
+                            LinkType.POWERSHELL_COMMENT,
                             references,
                         )
 
@@ -101,7 +102,7 @@ class PowerShellParser(BaseParser):
                 # embedded markdown, unquoted) — delegates to shared helper
                 # to avoid duplicating the extraction logic (TD131).
                 self._extract_all_paths_from_line(
-                    line, line_num, file_path, "powershell-quoted", references
+                    line, line_num, file_path, LinkType.POWERSHELL_QUOTED, references
                 )
 
             return self._deduplicate(references)
@@ -146,8 +147,10 @@ class PowerShellParser(BaseParser):
         (block comments, here-strings) pass their own base type which
         propagates through the same derivation.
         """
-        dir_link_type = link_type + "-dir" if not link_type.endswith("-dir") else link_type
-        embedded_md_link_type = link_type.replace("quoted", "embedded-md-link")
+        dir_link_type = (
+            LinkType(link_type + "-dir") if not link_type.endswith("-dir") else link_type
+        )
+        embedded_md_link_type = LinkType(link_type.replace("quoted", "embedded-md-link"))
         file_path_spans: set = set()
 
         # 1. All quoted strings — single pass for direct file paths and embedded

@@ -30,9 +30,9 @@ The `LinkUpdater` class orchestrates all file modifications when referenced file
 
 **Location**: `linkwatcher/updater.py`
 
-**Constructor**: `__init__(self, project_root: str = ".")`
+**Constructor**: `__init__(self, project_root: str = ".", python_source_root: str = "")`
 
-Initializes `backup_enabled = True`, `dry_run = False` as instance attributes (not constructor parameters). Creates a `PathResolver` instance internally.
+Initializes `backup_enabled = True`, `dry_run = False` as instance attributes (not constructor parameters). Creates a `PathResolver` instance internally, passing `python_source_root` through for Python import path resolution (PD-BUG-078).
 
 **Public API**:
 - `update_references(references, old_path, new_path)` — Single-move entry point; returns statistics dict with keys `files_updated`, `references_updated`, `errors`, and `stale_files` (list of file paths where stale references were detected)
@@ -55,7 +55,7 @@ Initializes `backup_enabled = True`, `dry_run = False` as instance attributes (n
 
 **Location**: `linkwatcher/path_resolver.py`
 
-**Constructor**: `__init__(self, project_root, logger=None)`
+**Constructor**: `__init__(self, project_root, logger=None, python_source_root: str = "")`
 
 **Public API**:
 - `calculate_new_target(ref, old_path, new_path)` — Computes new target path for a reference, preserving anchors and link style

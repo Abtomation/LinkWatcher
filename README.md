@@ -1,6 +1,6 @@
 # LinkWatcher 2.0 - Real-time Link Maintenance System
 
-[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![Windows](https://img.shields.io/badge/platform-Windows-blue.svg)](https://www.microsoft.com/windows)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -46,7 +46,7 @@ dev format
 ## 💻 Windows Requirements
 
 - **Operating System**: Windows 10/11
-- **Python**: 3.8, 3.9, 3.10, or 3.11
+- **Python**: 3.9, 3.10, or 3.11
 - **PowerShell**: 5.1+ or PowerShell Core 7+
 - **Git**: For development and cloning
 

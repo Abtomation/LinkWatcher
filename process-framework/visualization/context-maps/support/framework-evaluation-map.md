@@ -4,7 +4,7 @@ type: Process Framework
 category: Context Map
 version: 1.0
 created: 2026-03-24
-updated: 2026-03-24
+updated: 2026-04-10
 workflow_phase: support
 related_task: PF-TSK-079
 ---
@@ -40,13 +40,16 @@ graph TD
     Dimensions --> Report[/Evaluation Report/]
     Report --> IMPs[(Process Improvement Tracking)]
     IMPs -.-> ProcImprovement{{Process Improvement Task}}
+    IMPs -.-> FrameworkExt{{Framework Extension Task}}
+    IMPs -.-> StructChange{{Structure Change Task}}
+    IMPs -.-> NewTask{{New Task Creation}}
 
     IDRegistry[(ID Registry)] -.-> Scripts
     TaskRegistry[/Task Registry/] -.-> Tasks
 
     class Scope,DocMap,AiTasks critical
     class Tasks,Templates,Guides,Scripts,Dimensions important
-    class ContextMaps,Workflows,Report,IMPs,IDRegistry,TaskRegistry,ProcImprovement reference
+    class ContextMaps,Workflows,Report,IMPs,IDRegistry,TaskRegistry,ProcImprovement,FrameworkExt,StructChange,NewTask reference
 ```
 
 ## Essential Components
@@ -68,6 +71,10 @@ graph TD
 - **Workflows**: End-to-end task sequences defined in ai-tasks.md — evaluated for executability
 - **Evaluation Report**: Output document created via `New-FrameworkEvaluationReport.ps1`
 - **Process Improvement Tracking**: State file where IMP entries are registered for follow-up
+- **Process Improvement Task**: Follow-up task for isolated, self-contained IMP entries (PF-TSK-009)
+- **Framework Extension Task**: Follow-up task for interconnected findings requiring new capabilities (PF-TSK-048)
+- **Structure Change Task**: Follow-up task for findings requiring reorganization (PF-TSK-014)
+- **New Task Creation**: Follow-up task for findings revealing missing task definitions (PF-TSK-001)
 - **ID Registry**: PF-id-registry.json — checked for accuracy during evaluation
 - **Task Registry**: Process framework task registry — automation status reference
 
@@ -77,7 +84,7 @@ graph TD
 2. **Artifacts → Dimensions**: All framework artifacts are assessed against the selected evaluation dimensions
 3. **Dimensions → Report**: Evaluation findings and scores are captured in the structured report
 4. **Report → IMPs**: Actionable findings are registered as improvement entries for follow-up
-5. **IMPs -.-> Process Improvement**: IMP entries are addressed via the Process Improvement task (PF-TSK-009)
+5. **IMPs -.-> Follow-up Tasks**: IMP entries are routed to the appropriate task based on nature: Process Improvement (PF-TSK-009) for isolated fixes, Framework Extension (PF-TSK-048) for interconnected capabilities, Structure Change (PF-TSK-014) for reorganizations, or New Task Creation (PF-TSK-001) for missing tasks
 
 ## Evaluation Flow
 
@@ -86,7 +93,7 @@ graph TD
 3. Evaluate each artifact against each selected dimension
 4. Score dimensions and document findings with evidence
 5. Generate evaluation report via script
-6. Register improvements as IMP entries in Process Improvement Tracking
+6. Register improvements as IMP entries in Process Improvement Tracking (with routing decision: IMP for isolated fixes, or delegated to Framework Extension / Structure Change / New Task Creation)
 
 ## Related Documentation
 

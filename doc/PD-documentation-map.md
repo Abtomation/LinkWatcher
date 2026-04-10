@@ -77,7 +77,8 @@ _Created during framework onboarding (PF-TSK-066), consolidated to 9-feature sco
 
 ### `state-tracking/temporary/` — Temporary State Files
 
-- [State: Validation Tracking — Round 3](state-tracking/validation/validation-tracking-3.md) - Round 3 post-enhancement re-validation tracking (10 dimensions × 8 features, workflow cohort grouping)
+- [State: Validation Tracking — Round 4](state-tracking/validation/validation-tracking-4.md) - Round 4 post-bug-fix re-validation tracking (10 dimensions × 8 features, 65 validations)
+- [State: Validation Tracking — Round 3](state-tracking/validation/archive/validation-tracking-3.md) - Round 3 post-enhancement re-validation tracking (10 dimensions × 8 features, workflow cohort grouping)
 - [State: Validation Tracking — Round 2](state-tracking/validation/archive/validation-tracking-2.md) - Round 2 comprehensive re-validation tracking (10 dimensions × 8 features)
 - [State: Validation Tracking — Round 1](state-tracking/validation/archive/validation-tracking-1.md) - Round 1 foundational validation tracking (completed 2026-03-16, 6 dimensions × 9 features)
 
@@ -113,6 +114,12 @@ _Created during framework onboarding (PF-TSK-066), consolidated to 9-feature sco
 ### `technical/` — Other
 
 - [Product: Feature Dependencies](technical/feature-dependencies.md) - Auto-generated visual map and matrix of feature dependencies
+
+### `technical/integration/` — Integration Narratives
+
+_Created via Integration Narrative Creation task (PF-TSK-083) — documenting cross-feature workflow collaboration._
+
+_(No narratives created yet — individual entries will be auto-added by New-IntegrationNarrative.ps1)_
 
 ## `user/` — User Documentation
 
@@ -181,6 +188,26 @@ _Created during feature validation (PF-TSK-031 through PF-TSK-036)._
 - [Validation: Performance & Scalability — Features 2.1.1–6.1.1 R3 (PD-VAL-078)](validation/reports/performance-scalability/PD-VAL-078-performance-scalability-features-2.1.1-2.2.1-6.1.1.md) - Session 15 (Score: 2.85/3.0 PASS)
 - [Validation: Observability — Features 0.1.1–6.1.1 R3 (PD-VAL-080)](validation/reports/observability/PD-VAL-080-observability-features-0.1.1-1.1.1-3.1.1-6.1.1.md) - Session 16 (Score: 2.60/3.0 PASS)
 - [Validation: Data Integrity — Features 0.1.2–6.1.1 R3 (PD-VAL-079)](validation/reports/data-integrity/PD-VAL-079-data-integrity-features-0.1.2-2.2.1-6.1.1.md) - Session 17 (Score: 2.61/3.0 PASS)
+
+### Round 4 Validation Reports
+
+- [Validation: Architectural Consistency — Features 0.1.1–1.1.1 R4 (PD-VAL-083)](validation/reports/architectural-consistency/PD-VAL-083-architectural-consistency-features-0.1.1-0.1.2-0.1.3-1.1.1.md) - Session 1 (Score: 2.88/3.0 PASS)
+- [Validation: Code Quality — Features 0.1.1–1.1.1 R4 (PD-VAL-082)](validation/reports/code-quality/PD-VAL-082-code-quality-features-0.1.1-0.1.2-0.1.3-1.1.1.md) - Session 3 (Score: 2.75/3.0 PASS)
+- [Validation: Integration Dependencies — Features 0.1.1–1.1.1 R4 (PD-VAL-081)](validation/reports/integration-dependencies/PD-VAL-081-integration-dependencies-features-0.1.1-0.1.2-0.1.3-1.1.1.md) - Session 5 (Score: 2.85/3.0 PASS)
+- [Validation: Architectural Consistency — Features 2.1.1–6.1.1 R4 (PD-VAL-085)](validation/reports/architectural-consistency/PD-VAL-085-architectural-consistency-features-2.1.1-2.2.1-3.1.1-6.1.1.md) - Session 2 (Score: 2.70/3.0 PASS)
+- [Validation: Integration Dependencies — Features 2.1.1–6.1.1 R4 (PD-VAL-086)](validation/reports/integration-dependencies/PD-VAL-086-integration-dependencies-features-2.1.1-2.2.1-3.1.1-6.1.1.md) - Session 6 (Score: 2.70/3.0 PASS)
+- [Validation: Code Quality — Features 2.1.1–6.1.1 R4 (PD-VAL-084)](validation/reports/code-quality/PD-VAL-084-code-quality-features-2.1.1-2.2.1-3.1.1-6.1.1.md) - Session 4 (Score: 2.45/3.0 PASS)
+- [Validation: Documentation Alignment — 0.1.1, 0.1.2, 0.1.3, 1.1.1 (PD-VAL-089)](validation/reports/documentation-alignment/PD-VAL-089-documentation-alignment-features-0.1.1-0.1.2-0.1.3-1.1.1.md) - Session 7
+- [Validation: Documentation Alignment — 2.1.1, 2.2.1, 3.1.1, 6.1.1 R4 (PD-VAL-087)](validation/reports/documentation-alignment/PD-VAL-087-documentation-alignment-features-2.1.1-2.2.1-3.1.1-6.1.1.md) - Session 8 (Score: 2.75/3.0 PASS)
+- [Validation: AI Agent Continuity — 2.1.1, 2.2.1, 3.1.1, 6.1.1 (PD-VAL-090)](validation/reports/ai-agent-continuity/PD-VAL-090-ai-agent-continuity-features-2.1.1-2.2.1-3.1.1-6.1.1.md) - Session 12
+- [Validation: Extensibility & Maintainability — 0.1.1, 0.1.2, 0.1.3, 1.1.1 (PD-VAL-091)](validation/reports/extensibility-maintainability/PD-VAL-091-extensibility-maintainability-features-0.1.1-0.1.2-0.1.3-1.1.1.md) - Session 9
+- [Validation: AI Agent Continuity — 0.1.1, 0.1.2, 0.1.3, 1.1.1 (PD-VAL-092)](validation/reports/ai-agent-continuity/PD-VAL-092-ai-agent-continuity-features-0.1.1-0.1.2-0.1.3-1.1.1.md) - Session 11
+- [Validation: Extensibility & Maintainability — 2.1.1, 2.2.1, 3.1.1, 6.1.1 (PD-VAL-094)](validation/reports/extensibility-maintainability/PD-VAL-094-extensibility-maintainability-features-2.1.1-2.2.1-3.1.1-6.1.1.md) - Session 10
+- [Validation: Observability — 0.1.1, 1.1.1, 3.1.1, 6.1.1 (PD-VAL-095)](validation/reports/observability/PD-VAL-095-observability-features-0.1.1-1.1.1-3.1.1-6.1.1.md) - Session 16
+- [Validation: Performance & Scalability — 0.1.1, 0.1.2, 1.1.1 (PD-VAL-096)](validation/reports/performance-scalability/PD-VAL-096-performance-scalability-features-0.1.1-0.1.2-1.1.1.md) - Session 14
+- [Validation: Performance & Scalability — 2.1.1, 2.2.1, 6.1.1 (PD-VAL-097)](validation/reports/performance-scalability/PD-VAL-097-performance-scalability-features-2.1.1-2.2.1-6.1.1.md) - Session 15
+- [Validation: Data Integrity — 0.1.2, 2.2.1, 6.1.1 (PD-VAL-098)](validation/reports/data-integrity/PD-VAL-098-data-integrity-features-0.1.2-2.2.1-6.1.1.md) - Session 17
+- [Validation: Security & Data Protection — 0.1.3, 1.1.1, 2.2.1, 6.1.1 (PD-VAL-099)](validation/reports/security-data-protection/PD-VAL-099-security-data-protection-features-0.1.3-1.1.1-2.2.1-6.1.1.md) - Session 13
 
 ## Maintaining This Documentation
 

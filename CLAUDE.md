@@ -24,7 +24,7 @@ At the start of EVERY session, you must:
 
 1. **Start LinkWatcher** (maintains cross-references automatically):
    ```powershell
-   LinkWatcher/start_linkwatcher_background.ps1
+   LinkWatcher_run/start_linkwatcher_background.ps1
    ```
 
 2. **Get current time** (for time tracking - use MCP server if available)
@@ -43,6 +43,12 @@ At the start of EVERY session, you must:
 **No exceptions.** If you believe one of these commands is necessary, ask the user first and explain exactly what will be lost.
 
 ## PowerShell Script Execution
+
+**Before running any script, check its parameters first:**
+```bash
+pwsh.exe -ExecutionPolicy Bypass -File path/to/Script.ps1 -?
+```
+Do not guess parameter names — scripts use `ValidateSet` constraints that reject unknown values.
 
 **Preferred pattern** — use `pwsh.exe -Command` with the entire argument wrapped in **bash single quotes**:
 
@@ -87,7 +93,7 @@ process-framework/
 │   ├── 07-deployment/        # Release preparation and deployment
 │   ├── cyclical/             # Recurring activities (documentation adjustment, tech debt)
 │   └── support/              # Meta-framework tasks (creating tasks, adapting framework)
-├── templates/templates/      # Framework document templates (task-template.md, etc.)
+├── templates/                # Framework document templates (task-template.md, etc.)
 ├── scripts/file-creation/    # PowerShell automation for creating framework documents
 ├── state-tracking/
 │   ├── permanent/            # Long-term tracking (feature-tracking.md, bug-tracking.md, etc.)

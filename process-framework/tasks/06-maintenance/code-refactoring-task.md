@@ -31,7 +31,7 @@ Systematic code improvement and technical debt reduction without changing extern
 
 ## When NOT to Use
 
-- For test quality improvements (zero-assertion tests, test anti-patterns, missing test coverage) — use [Integration & Testing](../04-implementation/integration-and-testing.md) (PF-TSK-053) instead
+- For building comprehensive test suites for new features (unit + component + integration + e2e) — use [Integration & Testing](../04-implementation/integration-and-testing.md) (PF-TSK-053) instead
 
 ## Context Requirements
 
@@ -118,6 +118,7 @@ Evaluate the refactoring scope against these criteria:
 ## Next Tasks
 
 - [**Code Review Task**](code-review-task.md) - Review refactored code for quality and correctness
+- [**Performance Baseline Capture**](../03-testing/performance-baseline-capture-task.md) - Re-capture performance baselines after refactoring to detect regressions. Recommended when the refactored code participates in performance-critical paths (check [performance-test-tracking.md](/test/state-tracking/permanent/performance-test-tracking.md) Related Features column)
 - [**Manual Test Execution**](../03-testing/e2e-acceptance-test-execution-task.md) - Execute manual tests for groups marked for re-execution after refactoring
 - [**Technical Debt Assessment Task**](../cyclical/technical-debt-assessment-task.md) - Reassess technical debt after refactoring completion
 - [**Test Specification Creation**](../03-testing/test-specification-creation-task.md) - If refactoring reveals systemic test gaps that warrant a formal test specification

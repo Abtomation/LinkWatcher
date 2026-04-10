@@ -118,7 +118,7 @@ See [FDD PD-FDD-022](../../functional-design/fdds/fdd-0-1-1-core-architecture.md
 │                   LinkWatcherService                              │
 │  (Orchestrator/Facade - service.py)                              │
 │                                                                  │
-│  __init__(project_root, config=None):                            │
+│  __init__(project_root, config=None, register_signals=True):     │
 │    ├── LinkDatabase()              ← 0.1.2                       │
 │    ├── LinkParser()                ← 2.1.1                       │
 │    ├── LinkUpdater(project_root)   ← 2.2.1                       │
@@ -186,7 +186,7 @@ See [FDD PD-FDD-022](../../functional-design/fdds/fdd-0-1-1-core-architecture.md
 class LinkWatcherService:
     """Central orchestrator — coordinates all subsystems."""
 
-    def __init__(self, project_root: str = ".", config: LinkWatcherConfig = None):
+    def __init__(self, project_root: str = ".", config: LinkWatcherConfig = None, register_signals: bool = True):
         self.project_root = Path(project_root).resolve()
         self.config = config
         self.running = False
@@ -201,23 +201,32 @@ class LinkWatcherService:
         )
         self.observer = None  # Created lazily in start()
 
-        # Register signal handlers for graceful shutdown
-        signal.signal(signal.SIGINT, self._signal_handler)
-        signal.signal(signal.SIGTERM, self._signal_handler)
+        # Register signal handlers for graceful shutdown (opt-out for embedding)
+        if register_signals:
+            signal.signal(signal.SIGINT, self._signal_handler)
+            signal.signal(signal.SIGTERM, self._signal_handler)
 
     def start(self, initial_scan: bool = True):
-        """Start monitoring: optional scan → start observer → poll."""
-        if initial_scan:
-            self._initial_scan()
+        """Start monitoring: activate event deferral → start observer → scan → replay deferred events → poll."""
+        # Activate event deferral so events arriving during initial
+        # scan are queued until the link DB is fully populated (PD-BUG-053)
+        self.handler.begin_event_deferral()
+
+        # Setup and start observer BEFORE initial scan
         self.observer = Observer()
         self.observer.schedule(self.handler, str(self.project_root), recursive=True)
         self.observer.start()
         self.running = True
-        try:
-            while self.running:
-                time.sleep(1)
-        finally:
-            self.stop()
+
+        if initial_scan:
+            self._initial_scan()
+
+        # Signal handler that DB is fully populated — replay deferred events
+        self.handler.notify_scan_complete()
+
+        while self.running:
+            time.sleep(1)
+            # Monitors observer health; restarts if thread dies
 
     def stop(self):
         """Clean shutdown: stop observer, join thread, report stats."""
@@ -310,6 +319,8 @@ The service uses a PID-based lock file to prevent multiple instances from runnin
 
 ### 4.4 CLI Entry Point (main.py)
 
+The CLI supports two mutually exclusive operational modes: **live watcher** (default) and **validation** (`--validate`).
+
 ```python
 def main():
     parser = argparse.ArgumentParser(description="LinkWatcher - Real-time link maintenance")
@@ -320,9 +331,23 @@ def main():
     parser.add_argument("--debug", action="store_true", help="Enable debug logging")
     parser.add_argument("--quiet", action="store_true", help="Suppress non-error output")
     parser.add_argument("--log-file", help="Log to file")
+    parser.add_argument("--validate", action="store_true",
+                        help="Scan workspace for broken links and exit (does not start watcher)")
     parser.add_argument("--version", action="version", version="LinkWatcher 2.0.0")
     args = parser.parse_args()
 
+    project_root = validate_project_root(args.project_root)
+
+    # --validate mode: read-only scan, no lock file needed
+    if args.validate:
+        config = load_config(args.config, args, project_root=str(project_root))
+        validator = LinkValidator(str(project_root), config)
+        result = validator.validate()           # scan workspace for broken links
+        report = LinkValidator.format_report(result)
+        LinkValidator.write_report(result, output_dir)
+        sys.exit(0 if result.is_clean else 1)   # exit 0 = clean, 1 = broken links found
+
+    # Live watcher mode (default)
     # Multi-source config loading: CLI > env > file > defaults
     config = load_config(args.config, args)
 
@@ -331,6 +356,14 @@ def main():
     service = LinkWatcherService(str(project_root), config=config)
     service.start(initial_scan=config.initial_scan_enabled)
 ```
+
+**Validation mode** (`--validate`) is a read-only operation that:
+- Does **not** acquire a lock file (multiple validations can run concurrently)
+- Does **not** start the file system watcher or observer
+- Scans all files matching `validation_extensions` config (default: `.md`, `.yaml`, `.yml`, `.json`)
+- Uses `LinkValidator` from `linkwatcher/validator.py` with context-aware skip patterns
+- Writes report to `LinkWatcherBrokenLinks.txt` (configurable via `--log-file` parent directory)
+- Exits with code 0 (all links valid) or 1 (broken links found)
 
 ### 4.5 Package API (__init__.py)
 
@@ -472,7 +505,8 @@ All dependencies are implemented and operational:
 | `linkwatcher/__init__.py` | Package public API | ~30 |
 | `linkwatcher/models.py` | LinkReference and FileOperation data classes | ~30 |
 | `linkwatcher/utils.py` | Path utilities (normalize, relative path, file filtering) | ~260 |
-| `main.py` | CLI entry point | ~80 |
+| `linkwatcher/validator.py` | Link validation engine — workspace scanning, broken link detection, report generation | ~350 |
+| `main.py` | CLI entry point (watcher + validation modes) | ~120 |
 
 ## 12. Open Questions
 

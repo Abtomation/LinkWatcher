@@ -4,7 +4,7 @@ type: Product Documentation
 category: Architecture Decision Records
 version: 1.0
 created: 2026-02-19
-updated: 2026-02-19
+updated: 2026-04-09
 feature_id: 0.1.1
 feature_name: Core Architecture
 retrospective: true
@@ -15,7 +15,7 @@ retrospective: true
 > **Retrospective ADR**: This decision was made during original implementation (pre-framework) and documented retroactively during framework onboarding (PF-TSK-066). Content is reverse-engineered from source code analysis of `linkwatcher/service.py`.
 
 *Created: 2026-02-19*
-*Last updated: 2026-02-19*
+*Last updated: 2026-04-09*
 
 ## Status
 
@@ -44,7 +44,7 @@ The key architectural question: **Where should subsystem coordination live, and 
 
 Use the **Orchestrator/Facade pattern** for `LinkWatcherService`:
 
-- The service class coordinates all subsystems but contains **zero business logic**
+- The service class coordinates all subsystems and contains **minimal business logic** — limited to orchestration-adjacent convenience methods (`_initial_scan()`, `check_links()`) that are simple, self-contained, and not worth extracting into separate components
 - All subsystem instances are created in `__init__()` (constructor injection)
 - `__init__()` registers signal handlers for graceful shutdown
 - `start()` triggers optional initial scan, creates and starts the Observer, then enters a polling loop
@@ -72,7 +72,7 @@ Additionally, **signal handler registration occurs at the service level** (not i
 
 ### Negative
 
-- **Signal handler side effect**: Service registers SIGINT/SIGTERM handlers during `__init__()` — callers embedding the service must be aware this overrides their own signal handling
+- **Signal handler side effect**: Service registers SIGINT/SIGTERM handlers during `__init__()` by default — callers embedding the service can opt out via `register_signals=False`
 - **Single-process limitation**: The Orchestrator pattern doesn't scale to multi-process architectures (not needed for LinkWatcher's use case)
 - **No dynamic subsystem loading**: Subsystems are hardcoded in `__init__()` — adding a new subsystem requires modifying the service class
 

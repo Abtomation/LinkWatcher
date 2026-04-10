@@ -32,7 +32,6 @@ Verify unit test completeness, implement integration and cross-component tests, 
 - When integration verification is needed between components
 - Before quality validation via PF-TSK-054 (decomposed workflow)
 - Before Test Audit via PF-TSK-030 (standard workflow)
-- When resolving test-related tech debt items (category "Testing" in [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md)) — e.g., zero-assertion tests, anti-patterns, or coverage gaps identified by [Test Audit](../03-testing/test-audit-task.md)
 - **Prerequisites**: Feature implementation complete, TDD test requirements identified, testing framework configured
 
 ## When NOT to Use
@@ -76,13 +75,13 @@ Verify unit test completeness, implement integration and cross-component tests, 
 
 ### Preparation
 
-> **Tier 1 / Tech Debt Path**: If no TDD or Test Specification exists for this feature (common for Tier 1 features and tech debt items), skip Steps 1–2 and derive test scenarios directly from the implementation code (Step 3) and the feature's state file. Steps 5–6 and checklist items referencing these artifacts are also N/A — base your test strategy on code analysis and coverage goals instead.
+> **Tier 1 Path**: If no TDD or Test Specification exists for this feature (common for Tier 1 features), skip Steps 1–2 and derive test scenarios directly from the implementation code (Step 3) and the feature's state file. Steps 5–6 and checklist items referencing these artifacts are also N/A — base your test strategy on code analysis and coverage goals instead.
 
 1. **Review Test Specification** (if exists): Study the test specification document for the feature to understand test requirements, scenarios, and coverage expectations
 2. **Review TDD Test Requirements** (if exists): Read testing section from TDD to understand required test scenarios, acceptance criteria, and coverage thresholds
 3. **Analyze Implementation Code**: Review all implemented code to understand integration points, component boundaries, and potential failure scenarios
 4. **Identify Test Scenarios**: Determine which test types are needed based on the specification and project language (check `project-config.json` for valid test types)
-5. **Plan Test Strategy**: Map out test types needed, mock/stub requirements, test data setup, and prioritize by risk. **Ensure test coverage addresses Critical dimensions** from the feature's Dimension Profile — e.g., Critical PE → include performance regression tests, Critical DI → include data integrity/atomicity tests, Critical SE → include input validation and security boundary tests
+5. **Plan Test Strategy**: Map out test types needed, mock/stub requirements, test data setup, and prioritize by risk. **Ensure test coverage addresses Critical dimensions** from the feature's Dimension Profile — e.g., Critical DI → include data integrity/atomicity tests, Critical SE → include input validation and security boundary tests. (Note: PE dimension is handled by the dedicated [Performance Test Creation](/process-framework/tasks/03-testing/performance-test-creation-task.md) workflow, not this task.)
 6. **🚨 CHECKPOINT**: Present test specification review (if applicable), implementation code analysis, identified test scenarios, and test strategy to human partner for approval before implementation
 
 ### Execution

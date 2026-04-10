@@ -272,10 +272,8 @@ When referencing design documents in implementation plans:
 
 21. **Update Feature Tracking**: Update [`feature-tracking.md`](../../../doc/state-tracking/permanent/feature-tracking.md):
 
-    - Add link to Implementation Plan in Notes column
     - Update status to indicate planning is complete
-    - Add link to Feature State document
-    - Record planning completion date
+    - Keep Notes column brief — implementation plan and feature state links are accessed via the feature ID column (which links to the state file)
 
 22. **Document Planning Decisions**: Record any significant decisions made during planning:
 
@@ -375,10 +373,8 @@ Before considering this task finished:
   - [ ] Both documents reference feature tracking entry
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
   - [ ] [`feature-tracking.md`](../../../doc/state-tracking/permanent/feature-tracking.md) updated with:
-    - Link to Implementation Plan document in Notes column
-    - Link to Feature State document in Notes column
-    - Planning completion date in Notes column
     - Status updated if applicable
+    - Notes column kept brief (no redundant links — implementation plan and state file are accessible via feature ID link)
 - [ ] **Validate Planning Quality**: Review planning decisions and assumptions
   - [ ] Phase breakdown is logical and manageable
   - [ ] File and component mapping is complete and accurate (all files in the source directory identified)

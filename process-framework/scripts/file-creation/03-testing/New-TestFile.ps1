@@ -180,7 +180,7 @@ $testTypeDir = $matchedDir
 $outputDirectory = Join-Path $projectRoot (Join-Path $testScanRoot $testTypeDir)
 
 # Generate test file name from pattern
-$sanitizedName = $TestName.ToLower() -replace '\s+', '_'
+$sanitizedName = $TestName.ToLower() -replace '[\s\-]+', '_'
 $testFileName = $namePattern.Replace('{name}', $sanitizedName) + $fileExtension
 
 # Prepare additional metadata fields
@@ -285,18 +285,30 @@ try {
                     Write-Host "  Priority: $Priority" -ForegroundColor Cyan
                     Write-Host "  Test File: [$testFileName]($trackingRelativePath)" -ForegroundColor Cyan
 
-                    Write-Host "DRY RUN: Would update test-tracking.md for $FeatureId" -ForegroundColor Yellow
+                    if ($testTypeDir.ToLower() -eq "performance") {
+                        Write-Host "DRY RUN: Would skip test-tracking.md (performance tests use performance-test-tracking.md)" -ForegroundColor Yellow
+                    } else {
+                        Write-Host "DRY RUN: Would update test-tracking.md for $FeatureId" -ForegroundColor Yellow
+                    }
                 } else {
                     # Write markers into the test file
                     Add-PytestMarkers -FilePath $testFileFullPath -FeatureId $FeatureId -TestType $testTypeDir.ToLower() -Priority $Priority -SpecificationPath $specPath
-
-                    # Update test implementation tracking (file path as identifier — SC-007)
-                    $updateResult = Update-TestImplementationStatusEnhanced -FeatureId $FeatureId -TestFilePath $trackingRelativePath -Status "🟡 Implementation In Progress" -DryRun:$DryRun
-
                     Write-Host "  ✅ Pytest markers written to test file" -ForegroundColor Green
-                    Write-Host "  ✅ Test implementation tracking updated" -ForegroundColor Green
-                    Write-Host "  🟡 Status: 📝 Specification Created → 🟡 Implementation In Progress" -ForegroundColor Green
-                    Write-Host "  🔗 Test file linked in tracking" -ForegroundColor Green
+
+                    if ($testTypeDir.ToLower() -eq "performance") {
+                        # Performance tests are tracked in performance-test-tracking.md (cross-cutting, Test ID based)
+                        # not in feature-based test-tracking.md
+                        Write-Host "  ℹ️  Performance test — skipping test-tracking.md update" -ForegroundColor Cyan
+                        Write-Host "  📋 Manual update required: add entry to performance-test-tracking.md" -ForegroundColor Yellow
+                        Write-Host "  📖 See: test/state-tracking/permanent/performance-test-tracking.md" -ForegroundColor Yellow
+                    } else {
+                        # Update test implementation tracking (file path as identifier — SC-007)
+                        $updateResult = Update-TestImplementationStatusEnhanced -FeatureId $FeatureId -TestFilePath $trackingRelativePath -Status "🟡 Implementation In Progress" -DryRun:$DryRun
+
+                        Write-Host "  ✅ Test implementation tracking updated" -ForegroundColor Green
+                        Write-Host "  🟡 Status: 📝 Specification Created → 🟡 Implementation In Progress" -ForegroundColor Green
+                        Write-Host "  🔗 Test file linked in tracking" -ForegroundColor Green
+                    }
                 }
             } else {
                 Write-Host "`n⚠️  Automation functions not available:" -ForegroundColor Yellow

@@ -128,20 +128,6 @@ The `LinkUpdater` class performs atomic file modifications to update link refere
 - **Atomic write safety**: `_write_file_safely` is tested for being called but not for crash recovery
 - **Encoding errors**: No test for files with encoding issues (e.g., UTF-16, binary mixed content)
 
-## AI Agent Session Handoff Notes
-
-### Implementation Context
-
-**Feature Summary**: Atomic file modifier with link-type-specific replacement, dry-run, and backup support.
-**Test Focus**: Replacement correctness across formats, dry-run isolation, backup creation, error handling.
-**Key Challenges**: Verifying atomic write safety without actually simulating crashes.
-
-### Files to Reference
-
-- **TDD**: [`doc/technical/tdd/tdd-2-2-1-link-updater-t2.md`](../../../doc/technical/tdd/tdd-2-2-1-link-updater-t2.md)
-- **Existing Tests**: [`test/automated/unit/test_updater.py`](../../../test/automated/unit/test_updater.py) (24 methods), [`test/automated/integration/test_link_updates.py`](../../../test/automated/integration/test_link_updates.py) (10 methods)
-- **Source Code**: [`linkwatcher/updater.py`](../../../linkwatcher/updater.py), [`linkwatcher/path_resolver.py`](../../../linkwatcher/path_resolver.py)
-
 ---
 
 _Retrospective Test Specification — documents existing test suite as of 2026-02-24._

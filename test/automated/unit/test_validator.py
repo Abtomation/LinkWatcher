@@ -643,9 +643,9 @@ class TestTemplateFileFiltering:
 
 
 class TestPlaceholderLines:
-    """Tests for _get_placeholder_lines and placeholder line skipping."""
+    """Tests for _get_context_lines placeholder detection and placeholder line skipping."""
 
-    def test_get_placeholder_lines_detects_replace_with_actual(self):
+    def test_get_context_lines_detects_placeholder_lines(self):
         """Lines with 'replace with actual' should be detected as placeholders."""
         lines = [
             "# Template",
@@ -654,12 +654,12 @@ class TestPlaceholderLines:
             "More content.",
             "*(Replace With Actual path here)*",
         ]
-        result = LinkValidator._get_placeholder_lines(lines)
-        assert 3 in result, "Line 3 contains 'replace with actual'"
-        assert 5 in result, "Line 5 contains 'Replace With Actual' (case insensitive)"
-        assert 1 not in result
-        assert 2 not in result
-        assert 4 not in result
+        _code, _archival, _table, placeholders = LinkValidator._get_context_lines(lines)
+        assert 3 in placeholders, "Line 3 contains 'replace with actual'"
+        assert 5 in placeholders, "Line 5 contains 'Replace With Actual' (case insensitive)"
+        assert 1 not in placeholders
+        assert 2 not in placeholders
+        assert 4 not in placeholders
 
     def test_links_on_placeholder_lines_skipped(self, tmp_path):
         """All link types on placeholder lines should be skipped."""

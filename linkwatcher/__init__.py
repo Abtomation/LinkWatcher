@@ -25,13 +25,14 @@ del _sys
 __version__ = "2.0.0"
 __author__ = "LinkWatcher Team"
 
-from .database import LinkDatabase, LinkDatabaseInterface
-from .logging import LogLevel, LogTimer, get_logger, setup_logging, with_context
-from .models import FileOperation, LinkReference
-from .parser import LinkParser
-from .path_resolver import PathResolver
-from .service import LinkWatcherService
-from .updater import LinkUpdater
+from .database import LinkDatabase, LinkDatabaseInterface  # noqa: E402
+from .logging import LogLevel, LogTimer, get_logger, setup_logging, with_context  # noqa: E402
+from .models import FileOperation, LinkReference  # noqa: E402
+from .parser import LinkParser  # noqa: E402
+from .path_resolver import PathResolver  # noqa: E402
+from .service import LinkWatcherService  # noqa: E402
+from .updater import LinkUpdater  # noqa: E402
+from .validator import LinkValidator  # noqa: E402
 
 __all__ = [
     "LinkWatcherService",
@@ -42,6 +43,8 @@ __all__ = [
     "PathResolver",
     "LinkReference",
     "FileOperation",
+    # Validation
+    "LinkValidator",
     # Logging
     "get_logger",
     "setup_logging",

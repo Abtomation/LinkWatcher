@@ -152,12 +152,15 @@ update\Update-FeatureImplementationState.ps1 -FeatureId "AUTH-001" -Status "✅ 
 
 **1. Module Import Warnings**
 
-```
-WARNING: The names of some imported commands from the module 'Common-ScriptHelpers' include unapproved verbs
-```
+`Import-Module` warnings should not be ignored — they indicate a fixable issue in the module code.
 
-- This is expected and can be ignored
-- The scripts will function normally
+| Warning Message | Cause | Fix |
+|----------------|-------|-----|
+| "include unapproved verbs" | A function uses a verb not in PowerShell's approved list | Rename the function to use an approved verb (run `Get-Verb` for the full list) |
+| "command name conflicts" | Two modules export a function with the same name | Use `-Prefix` on `Import-Module` or rename one function |
+| Other warnings | Various module-level issues | Investigate and fix the root cause in the module |
+
+> **Rule**: Do not suppress warnings with `-WarningAction SilentlyContinue` — fix the source instead.
 
 **2. Dependency Check Failures**
 

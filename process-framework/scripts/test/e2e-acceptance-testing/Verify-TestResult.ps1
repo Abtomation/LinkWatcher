@@ -145,8 +145,8 @@ foreach ($tc in $testCasesToVerify) {
             continue
         }
 
-        $expContent = [string](Get-Content -LiteralPath $expFile.FullName -Raw -Encoding UTF8) -replace '/r/n', "`n"
-        $wsContent = [string](Get-Content -LiteralPath $workspaceFile -Raw -Encoding UTF8) -replace '/r/n', "`n"
+        $expContent = [string](Get-Content -LiteralPath $expFile.FullName -Raw -Encoding UTF8) -replace '\r\n', "`n"
+        $wsContent = [string](Get-Content -LiteralPath $workspaceFile -Raw -Encoding UTF8) -replace '\r\n', "`n"
 
         # Normalize trailing whitespace (PowerShell Set-Content may add extra newline)
         $expContent = $expContent.TrimEnd()

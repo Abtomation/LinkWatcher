@@ -66,6 +66,7 @@ validation_session: [Session number for this validation type]
 **Validation Type**: [Validation Type Name]
 **Features Validated**: [List of features, e.g., 0.2.1, 0.2.2, 0.2.3]
 **Validation Date**: [Date]
+**Validation Round**: Round [RoundNumber]
 **Overall Score**: [X.X/3.0]
 **Status**: [PASS/CONDITIONAL_PASS/FAIL]
 

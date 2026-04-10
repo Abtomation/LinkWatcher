@@ -77,7 +77,15 @@ $processFrameworkDir = Join-Path $projectRoot "process-framework"
 $templatePath = Join-Path -Path $processFrameworkDir -ChildPath "templates\support\task-template.md"
 
 try {
-    $taskId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "PF-TSK" -IdDescription "$WorkflowPhase task: ${TaskName}" -DocumentName $TaskName -DirectoryType $WorkflowPhase -Replacements $customReplacements -OpenInEditor:$OpenInEditor
+    # IMP-407: Auto-append "-task" suffix with double-suffix guard
+    $taskDocName = $TaskName
+    if ($taskDocName -notmatch '(?i)[-\s]task$') {
+        $taskDocName = "$taskDocName-task"
+    }
+    # IMP-438: Compute kebab filename once and reuse across all update sections
+    $kebabFileName = ConvertTo-KebabCase -InputString $taskDocName
+
+    $taskId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "PF-TSK" -IdDescription "$WorkflowPhase task: ${TaskName}" -DocumentName $taskDocName -DirectoryType $WorkflowPhase -Replacements $customReplacements -OpenInEditor:$OpenInEditor
 
     Write-Verbose "Created task with ID: $taskId"
 
@@ -107,9 +115,9 @@ try {
             $sectionIndex = $docMap.IndexOf($sectionHeader)
 
             if ($sectionIndex -ge 0) {
-                $fileName = ConvertTo-KebabCase -InputString $TaskName
-                $relativePath = "process-framework/tasks/$WorkflowPhase/$fileName.md"
-                $newEntry = "| $taskId | [$relativePath](/$relativePath) | Documentation | $TaskName | [tasks/README.md](/process-framework/tasks/README.md) |"
+                # IMP-437: Use list format matching existing doc-map entries
+                $descriptionText = if ($Description -ne "") { $Description } else { "Task for $TaskName" }
+                $newEntry = "- [Task: $TaskName](tasks/$WorkflowPhase/$kebabFileName.md) - $descriptionText"
                 $docMap = $docMap[0..$sectionIndex] + $newEntry + $docMap[($sectionIndex + 1)..($docMap.Length - 1)]
                 $docMap | Set-Content -Path $docMapPath
                 Write-Verbose "Updated documentation map with new task"
@@ -157,9 +165,8 @@ try {
                 }
 
                 if ($tableStartIndex -gt $sectionIndex) {
-                    $fileName = ConvertTo-KebabCase -InputString $TaskName
                     $cells = @(
-                        "[$TaskName]($WorkflowPhase/$fileName.md)",
+                        "[$TaskName]($WorkflowPhase/$kebabFileName.md)",
                         $Description,
                         "When working on $TaskName"
                     )
@@ -224,8 +231,7 @@ try {
             Write-Verbose "✓ ai-tasks.md structure validation passed"
 
             # Determine the section header based on category
-            $fileName = ConvertTo-KebabCase -InputString $TaskName
-            $relativePath = "/process-framework/tasks/$WorkflowPhase/$fileName.md"
+            $relativePath = "/process-framework/tasks/$WorkflowPhase/$kebabFileName.md"
 
             # Map workflow phase to section header (process-framework/ai-tasks.md uses phase-based sections)
             $phaseToSection = @{
@@ -335,8 +341,7 @@ try {
                     }
                     $nextNum = $maxNum + 1
 
-                    $fileName = ConvertTo-KebabCase -InputString $TaskName
-                    $relPath = "../tasks/$WorkflowPhase/$fileName.md"
+                    $relPath = "../tasks/$WorkflowPhase/$kebabFileName.md"
 
                     # Build skeleton entry
                     $skeleton = @(

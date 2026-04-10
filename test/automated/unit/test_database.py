@@ -80,6 +80,48 @@ class TestLinkDatabase:
 
         assert len(link_database.links["target.txt"]) == 2
 
+    def test_add_links_batch(self, link_database):
+        """Test adding multiple references in a single batch call."""
+        refs = [
+            LinkReference("test.md", 1, 0, 10, "file1.txt", "file1.txt", "markdown"),
+            LinkReference("test.md", 2, 0, 10, "file2.txt", "file2.txt", "markdown"),
+            LinkReference("test.md", 3, 0, 10, "file1.txt", "file1.txt", "markdown"),
+        ]
+
+        link_database.add_links_batch(refs)
+
+        assert "file1.txt" in link_database.links
+        assert "file2.txt" in link_database.links
+        assert len(link_database.links["file1.txt"]) == 2
+        assert len(link_database.links["file2.txt"]) == 1
+        assert "test.md" in link_database.files_with_links
+
+    def test_add_links_batch_duplicate_detection(self, link_database):
+        """Test that batch insertion skips duplicates within the same batch."""
+        ref = LinkReference("test.md", 1, 0, 10, "target.txt", "target.txt", "markdown")
+
+        link_database.add_links_batch([ref, ref])
+
+        assert len(link_database.links["target.txt"]) == 1
+
+    def test_add_links_batch_empty(self, link_database):
+        """Test that batch insertion with empty list is a no-op."""
+        link_database.add_links_batch([])
+
+        assert link_database.get_stats()["total_references"] == 0
+
+    def test_add_links_batch_skips_empty_targets(self, link_database):
+        """Test that batch insertion skips references with empty link_target."""
+        refs = [
+            LinkReference("test.md", 1, 0, 10, "file1.txt", "file1.txt", "markdown"),
+            LinkReference("test.md", 2, 0, 10, "", "", "markdown"),
+            LinkReference("test.md", 3, 0, 10, "file2.txt", "file2.txt", "markdown"),
+        ]
+
+        link_database.add_links_batch(refs)
+
+        assert link_database.get_stats()["total_references"] == 2
+
     def test_remove_file_links(self, link_database):
         """Test removing all links from a file."""
         ref1 = LinkReference("test.md", 1, 0, 10, "docs/file1.txt", "docs/file1.txt", "markdown")
@@ -904,3 +946,53 @@ class TestGetSourceFiles:
         # Internal state unaffected
         assert "src.md" in link_database.get_source_files()
         assert "injected.md" not in link_database.get_source_files()
+
+
+class TestReplacePathPart:
+    """Tests for _replace_path_part segment-boundary logic (TD179)."""
+
+    def test_exact_match_returns_new_path(self, link_database):
+        """Exact match replaces the entire target with new_path."""
+        result = link_database._replace_path_part(
+            "docs/readme.md", "docs/readme.md", "documentation/readme.md"
+        )
+        assert result == "documentation/readme.md"
+
+    def test_exact_match_preserves_leading_slash(self, link_database):
+        """Exact match with leading slash preserves the slash prefix."""
+        result = link_database._replace_path_part(
+            "/docs/readme.md", "docs/readme.md", "documentation/readme.md"
+        )
+        assert result == "/documentation/readme.md"
+
+    def test_partial_match_valid_segment_boundary(self, link_database):
+        """Partial match at a valid segment boundary (preceding /) replaces correctly."""
+        result = link_database._replace_path_part(
+            "project/docs/readme.md", "docs/readme.md", "documentation/readme.md"
+        )
+        assert result == "project/documentation/readme.md"
+
+    def test_partial_match_cross_boundary_rejected(self, link_database):
+        """Partial match that crosses a segment boundary must NOT match (TD179).
+
+        'my-docs/readme.md' ends with 'docs/readme.md' textually, but 'my-docs'
+        is not the same segment as 'docs'. The target should be returned unchanged.
+        """
+        result = link_database._replace_path_part(
+            "my-docs/readme.md", "docs/readme.md", "documentation/readme.md"
+        )
+        assert result == "my-docs/readme.md"
+
+    def test_no_match_returns_original(self, link_database):
+        """When old_path is not found in target, return original unchanged."""
+        result = link_database._replace_path_part(
+            "other/file.md", "docs/readme.md", "documentation/readme.md"
+        )
+        assert result == "other/file.md"
+
+    def test_partial_match_at_start_of_string(self, link_database):
+        """When endswith match starts at position 0, it's effectively an exact match."""
+        result = link_database._replace_path_part(
+            "docs/readme.md", "docs/readme.md", "new/readme.md"
+        )
+        assert result == "new/readme.md"

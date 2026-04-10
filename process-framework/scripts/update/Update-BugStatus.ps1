@@ -105,6 +105,7 @@ Date of the status update (optional - uses current date if not specified)
 
 .EXAMPLE
 # Dry-run to preview changes without modifying the file
+# Runs full transformation logic and logs all actions (moves, stats recalc) but skips file write
 ../Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "InProgress" -WhatIf
 
 .NOTES
@@ -393,7 +394,7 @@ function Move-BugFromClosedToActiveSectionContent {
     $insertAfterIndex = -1
     $targetSectionFound = $false
     for ($i = 0; $i -lt $lines.Count; $i++) {
-        if ($lines[$i] -match "../^/Q$sectionHeader/E" -or $lines[$i] -eq $sectionHeader) {
+        if ($lines[$i].Trim() -eq $sectionHeader) {
             $targetSectionFound = $true
         }
         if ($targetSectionFound) {
@@ -743,11 +744,9 @@ function Main {
         }
     }
 
-    if (-not $PSCmdlet.ShouldProcess($BugTrackingFile, "Update $BugId to $NewStatus")) {
-        return
-    }
-
     # Single read-modify-write cycle to avoid file locking issues
+    # IMP-443: ShouldProcess moved to guard only the file write (line below Set-Content),
+    # so -WhatIf runs the full transformation logic and logs what would happen.
     $content = Get-Content $BugTrackingFile -Raw
 
     # Step 1: Update the bug entry (status, notes)
@@ -787,11 +786,14 @@ function Main {
     # Step 3: Recalculate statistics
     $content = Update-BugStatisticsContent -Content $content
 
-    # Single write
-    Set-Content -Path $BugTrackingFile -Value $content -NoNewline
-
-    Write-Log "Bug status update completed successfully" -Level "SUCCESS"
-    Write-Log "Updated file: $BugTrackingFile"
+    # Single write — guarded by ShouldProcess so -WhatIf skips only the file write
+    if ($PSCmdlet.ShouldProcess($BugTrackingFile, "Update $BugId to $NewStatus")) {
+        Set-Content -Path $BugTrackingFile -Value $content -NoNewline
+        Write-Log "Bug status update completed successfully" -Level "SUCCESS"
+        Write-Log "Updated file: $BugTrackingFile"
+    } else {
+        Write-Log "Dry-run complete — no file changes written" -Level "INFO"
+    }
     exit 0
 }
 

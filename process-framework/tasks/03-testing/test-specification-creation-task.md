@@ -3,10 +3,10 @@ id: PF-TSK-012
 type: Process Framework
 category: Task Definition
 domain: agnostic
-version: 1.4
+version: 2.0
 created: 2025-01-15
-updated: 2026-03-15
-change_notes: "v1.4 - Added manual test classification steps (11-12), UI documentation review (step 3), manual test scenario output, and Manual Test Case Creation handover interface"
+updated: 2026-04-10
+change_notes: "v2.0 - Restructured into Preparation/Routing/Specification phases (PF-IMP-424). Added state tracking seeding step for e2e-test-tracking and performance-test-tracking (PF-IMP-425). Standardized terminology to automated/e2e/both (PF-IMP-426). Removed AI Session Context step (not consumed by downstream tasks). Fixed Next Tasks to reference PF-TSK-069 and PF-TSK-084."
 ---
 
 # Test Specification Creation
@@ -43,16 +43,17 @@ Create comprehensive test specifications from existing Technical Design Document
 
 ### Inputs from Other Tasks
 
-- **FDD Creation Task** (Tier 2+): Functional requirements, acceptance criteria, user workflows, business rules
-- **Feature Tier Assessment**: Complexity tier, test depth requirements, quality attribute priorities
-- **TDD Creation Task**: Technical architecture, component interactions, quality attribute requirements, implementation approach
-- **API Design Task**: API contracts, endpoint specifications, request/response schemas
-- **Database Schema Design Task**: Data validation rules, security policies, performance requirements
+- **[FDD Creation](/process-framework/tasks/02-design/fdd-creation-task.md)** (Tier 2+): Functional requirements, acceptance criteria, user workflows, business rules
+- **[Feature Tier Assessment](/process-framework/tasks/01-planning/feature-tier-assessment-task.md)**: Complexity tier, test depth requirements, quality attribute priorities
+- **[TDD Creation](/process-framework/tasks/02-design/tdd-creation-task.md)**: Technical architecture, component interactions, quality attribute requirements, implementation approach
+- **[API Design](/process-framework/tasks/02-design/api-design-task.md)**: API contracts, endpoint specifications, request/response schemas
+- **[Database Schema Design](/process-framework/tasks/02-design/database-schema-design-task.md)**: Data validation rules, security policies, performance requirements
 
 ### Outputs to Other Tasks
 
-- **Feature Implementation Task**: Test cases, test data, mock strategies, validation criteria, test implementation roadmap
-- **Manual Test Case Creation** (future task): Manual test scenario requirements — scenarios classified as `manual` or `both` with user actions, expected outcomes, and test group assignments
+- **[Integration and Testing](/process-framework/tasks/04-implementation/integration-and-testing.md)**: Test cases, test data, mock strategies, validation criteria, test implementation roadmap
+- **[Performance Test Creation](/process-framework/tasks/03-testing/performance-test-creation-task.md)**: Performance test specification (when PE dimension applies) — test levels, operations, tolerances, measurement methodology
+- **[E2E Acceptance Test Case Creation](/process-framework/tasks/03-testing/e2e-acceptance-test-case-creation-task.md)**: E2E test scenario requirements — scenarios classified as `e2e` or `both` with user actions, expected outcomes, and test group assignments
 
 ### Cross-Reference Standards
 
@@ -92,7 +93,7 @@ When referencing other tasks' outputs in Test Specifications:
 
 - **Critical (Must Read):**
 
-  - **Functional Design Document (FDD)** - For Tier 2+ features, the FDD containing acceptance criteria and user flows that inform test scenarios
+  - [Functional Design Document](/doc/functional-design/fdds) - For Tier 2+ features, the FDD containing acceptance criteria and user flows that inform test scenarios
   - [Technical Design Document](/doc/technical/tdd) - The TDD for the feature being specified
   - [Tier Assessments](/doc/documentation-tiers/assessments) - Complexity assessment to determine test depth
   - [Development Guide](/process-framework/guides/04-implementation/development-guide.md) - Testing standards and practices
@@ -124,8 +125,9 @@ When referencing other tasks' outputs in Test Specifications:
 
 1. **Review the Functional Design Document (FDD)**: For Tier 2+ features, read the FDD to understand acceptance criteria and user flows that need testing
 2. **Review the Target TDD**: Read the complete Technical Design Document for the feature
-3. **Review UI Documentation** (if applicable): For features with UI interactions, review any UI documentation linked from feature tracking to identify scenarios requiring manual validation with the running system
-4. **Review Dimension Profile**: Read the feature's Dimension Profile from its implementation state file. Include test scenarios for **Critical** dimensions — e.g., Critical SE → security boundary tests, Critical PE → performance regression scenarios, Critical DI → data integrity edge cases. Consider creating focused test specs even for Tier 1/2 features when they have Critical SE, PE, or DI dimensions.
+3. **Review UI Documentation** (if applicable): For features with UI interactions, review any UI documentation linked from feature tracking to identify scenarios requiring E2E validation with the running system
+4. **Review Dimension Profile**: Read the feature's Dimension Profile from its implementation state file. Include test scenarios for **Critical** dimensions — e.g., Critical SE → security boundary tests, Critical DI → data integrity edge cases. Consider creating focused test specs even for Tier 1/2 features when they have Critical SE or DI dimensions.
+   - **PE dimension handling**: Note whether the PE dimension applies using the [Performance Testing Guide](/process-framework/guides/03-testing/performance-testing-guide.md) decision matrix. If yes, this will be captured as a routing dimension in the Routing Phase.
 5. **Assess Test Complexity**: Review the feature's tier assessment to determine appropriate test depth:
    - **Tier 1 🔵**: Basic unit tests and key integration scenarios
    - **Tier 2 🟠**: Comprehensive unit tests, integration tests, and UI/component tests
@@ -134,28 +136,58 @@ When referencing other tasks' outputs in Test Specifications:
 7. **Identify Test Dependencies**: Determine what mocks, helpers, and test utilities are needed
 8. **🚨 CHECKPOINT**: Present test complexity assessment, dimension profile test implications, existing test structure analysis, and identified dependencies to human partner for approval
 
-### Execution
+### Routing Phase
 
-9. **Create Test Specification Document**: Create a new file in `/test/specifications/feature-specs`
+> **Purpose**: Determine which downstream test tasks this feature triggers and produce an explicit routing plan before detailed specification work begins. This is the task's primary gate function — routing decisions made here inform the scope and depth of the Specification Phase.
 
-   ```powershell
-   # Navigate to test specifications directory
-   cd test/specifications/feature-specs
+9. **Identify Test Paths**: For each TDD component, make two independent routing decisions:
 
-   # Create test specification file
-   # Format: test-spec-[feature-id]-[feature-name].md
-   New-Item -ItemType File -Name "test-spec-[FEATURE-ID]-[feature-name].md"
-   ```
+   **a) Execution method classification** — who runs the test:
+   - **`automated`** — Covered by unit/integration tests that an AI agent can implement and run → feeds [Integration and Testing (PF-TSK-053)](/process-framework/tasks/04-implementation/integration-and-testing.md)
+   - **`e2e`** — Requires human interaction with the running system (file moves, UI operations, observing real-time behavior) → feeds [E2E Acceptance Test Case Creation (PF-TSK-069)](/process-framework/tasks/03-testing/e2e-acceptance-test-case-creation-task.md)
+   - **`both`** — Needs automated regression test + E2E acceptance validation → feeds both PF-TSK-053 and PF-TSK-069
 
-10. **Define Test Categories**: Based on the TDD, create test specifications for:
+   **b) Additional routing dimensions** (orthogonal to classification):
+   - **Performance (PE)** — Does the PE dimension apply (identified in Step 4)? If yes → feeds [Performance Test Creation (PF-TSK-084)](/process-framework/tasks/03-testing/performance-test-creation-task.md)
+   - **Cross-cutting** — Does this feature participate in multi-feature user workflows? Reference [User Workflow Tracking](/doc/state-tracking/permanent/user-workflow-tracking.md). If this is the **last** feature needed for a workflow, a cross-cutting E2E test specification should be created (milestone trigger)
 
-   - **Unit Tests**: Individual component/service testing
-   - **Integration Tests**: Component interaction testing
-   - **UI/Component Tests**: UI component testing
-   - **End-to-End Tests**: Complete user flow testing (Tier 3 only)
-   - **Cross-Feature Workflows**: Reference [User Workflow Tracking](/doc/state-tracking/permanent/user-workflow-tracking.md) to list which user workflows this feature participates in. For each workflow, note whether this is the **last** feature needed — if so, a cross-cutting E2E test specification should be created (milestone trigger)
+10. **Create Routing Plan**: Produce a routing summary table in the test specification document's "Routing Plan" section:
 
-11. **Specify Test Cases**: For each test category, define:
+    | Component | Classification | Performance | Cross-cutting | Downstream Task(s) |
+    |-----------|---------------|-------------|---------------|---------------------|
+    | *TDD component* | `automated` / `e2e` / `both` | Yes / No | *workflow name or —* | PF-TSK-053, PF-TSK-069, etc. |
+
+    For components classified as `e2e` or `both`, additionally note:
+    - What user action triggers the test
+    - What file types, link formats, or system behaviors are involved
+    - What the expected observable outcome is
+    - Which test group this scenario belongs to (e.g., basic-file-operations, parser-specific, etc.)
+
+11. **Seed State Tracking Files**: For each routing path identified, seed the corresponding downstream tracking file:
+    - **automated** → Add feature section to [Test Tracking](/test/state-tracking/permanent/test-tracking.md) if missing
+    - **e2e** / **both** → Add entries to [E2E Test Tracking](/test/state-tracking/permanent/e2e-test-tracking.md) with status `⬜ Not Created`
+    - **performance** → Add entries to [Performance Test Tracking](/test/state-tracking/permanent/performance-test-tracking.md) with status `⬜ Specified`
+    - Update [Feature Tracking](/doc/state-tracking/permanent/feature-tracking.md) Test Status — set to "🔧 Automated Only" if E2E scenarios were identified but E2E test cases not yet created, or "📋 Specs Created" if no E2E scenarios apply
+
+12. **🚨 CHECKPOINT**: Present routing plan table, seeded tracking entries, and E2E scenario summaries to human partner for approval before proceeding to detailed specification
+
+### Specification Phase
+
+> **Purpose**: Create detailed test specifications informed by the routing decisions above. The routing plan determines which types of test cases to write and at what depth.
+
+13. **Create Test Specification Document(s)** using the automation script:
+
+    ```bash
+    # Feature-specific test spec
+    pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/03-testing/New-TestSpecification.ps1 -FeatureId "X.Y.Z" -FeatureName "Feature Name" -Confirm:\$false
+
+    # Cross-cutting test spec (spans multiple features)
+    pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/03-testing/New-TestSpecification.ps1 -CrossCutting -FeatureName "Spec Name" -FeatureIds "X.Y.Z, A.B.C" -Confirm:\$false
+    ```
+
+    - **If PE path is in routing plan**: Create a **separate performance test specification** using the same script. Customize it using the [Performance Test Spec Template](/process-framework/templates/03-testing/performance-test-specification-template.md) structure (level-specific criteria, baseline references, measurement methodology). This spec feeds the [Performance Test Creation](/process-framework/tasks/03-testing/performance-test-creation-task.md) task — not the functional test workflow.
+
+14. **Specify Test Cases**: For each routed component, define test cases at the depth determined by the routing plan:
 
     - **Test Description**: What behavior is being tested
     - **Arrange**: Setup requirements and test data
@@ -163,31 +195,14 @@ When referencing other tasks' outputs in Test Specifications:
     - **Assert**: Expected outcomes and validation criteria
     - **Edge Cases**: Boundary conditions and error scenarios
 
-12. **Classify Test Scenarios**: For each test scenario in the specification, classify as:
-    - **`automated`** — Covered by unit/integration tests that an AI agent can implement and run
-    - **`e2e`** — Requires human interaction with the running system (file moves, UI operations, observing real-time behavior). Validated through E2E acceptance testing
-    - **`both`** — Needs automated regression test + E2E acceptance validation
-
-13. **Define E2E Acceptance Test Requirements**: For scenarios classified as `e2e` or `both`, specify in a dedicated "E2E Acceptance Test Scenarios" section:
-    - What user action triggers the test
-    - What file types, link formats, or system behaviors are involved
-    - What the expected observable outcome is
-    - Which test group this scenario belongs to (e.g., basic-file-operations, parser-specific, etc.)
-
-14. **Map TDD Components to Tests**: Create explicit mapping between:
+15. **Map TDD Components to Tests**: Create explicit mapping between:
 
     - TDD Models → Unit test specifications
     - TDD Services → Service test specifications
     - TDD Data Flow → Integration test specifications
     - TDD UI Components → UI/component test specifications
 
-15. **Define Mock Requirements**: Specify what mocks are needed and their expected behaviors
-
-16. **Create AI Session Context**: Add "AI Agent Session Handoff Notes" section with:
-    - Summary of test specifications created
-    - Priority order for test implementation
-    - Specific files that need to be created/modified
-    - Dependencies between test files
+16. **Define Mock Requirements**: Specify what mocks are needed and their expected behaviors
 
 17. **Add Clickable Links**: Ensure all file path references in the specification are clickable markdown links:
     - **Test File** references (e.g., `test/automated/unit/test_service.py`) must use markdown link format: `[path](relative/path/to/file)` with correct relative prefix
@@ -195,33 +210,33 @@ When referencing other tasks' outputs in Test Specifications:
     - **Source Code** references (e.g., `linkwatcher/database.py`) must be linked
     - Relative prefix from `test/specifications/feature-specs` to project root is `../../../doc`
 
-18. **🚨 CHECKPOINT**: Present draft test specification with test categories, test cases, dimension-informed scenarios, manual test scenario classifications, mock requirements, and TDD mappings to human partner for review and approval
+18. **🚨 CHECKPOINT**: Present draft test specification with test cases, routing-informed scope, mock requirements, and TDD mappings to human partner for review and approval
 
 ### Finalization
 
-19. **Review Test Coverage**: Ensure all TDD components have corresponding test specifications
+19. **Review Test Coverage**: Ensure all routed TDD components have corresponding test specifications
 20. **Validate Test Feasibility**: Confirm all specified tests can be implemented with available tools
-21. **Update Test Status Tracking**: Record test specification completion in tracking files
-    - Update [Feature Tracking](/doc/state-tracking/permanent/feature-tracking.md) Test Status — set to "🔧 Automated Only" if manual test scenarios were identified but manual test cases not yet created, or "📋 Specs Created" if no manual test scenarios apply
-    - Update [Test Tracking](/test/state-tracking/permanent/test-tracking.md) — add manual test scenario entries with status "⬜ Not Created" for scenarios classified as `manual` or `both`
-22. **Complete State Tracking Updates**: Ensure all tracking files are properly updated with the new test specification information
-23. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+21. **Verify State Tracking Consistency**: Re-read tracking files seeded in Step 11 and verify they are consistent with the completed specification. Correct any discrepancies.
+22. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 
 - **Test Specification Document** - Comprehensive test specifications in `/test/specifications/feature-specs/test-spec-[FEATURE-ID]-[feature-name].md`
-- **Test Implementation Roadmap** - Priority-ordered list of tests to implement, included in the specification document
+- **Routing Plan** - Component-to-downstream-task mapping table in the test specification document's "Routing Plan" section, capturing execution method classification (`automated`/`e2e`/`both`) and additional routing dimensions (PE, cross-cutting) for each TDD component
 - **Mock Requirements Documentation** - Detailed specifications for required mocks and their behaviors
-- **E2E Acceptance Test Scenarios** (if applicable) - Section within the test specification listing scenarios classified as `e2e` or `both`, with user actions, involved file types, expected outcomes, and test group assignments
+- **E2E Acceptance Test Scenarios** (if applicable) - Details within the routing plan for components classified as `e2e` or `both`, with user actions, involved file types, expected outcomes, and test group assignments
+- **Seeded State Tracking Entries** - Downstream tracking files seeded with work queue entries (Step 11) so downstream tasks have explicit queues to consume
 
 ## State Tracking
 
-The following state files must be updated as part of this task:
+The following state files must be updated as part of this task (seeded in Step 11, verified in Step 21):
 
-- [Feature Tracking](/doc/state-tracking/permanent/feature-tracking.md) - Update Test Status to reflect test specification creation (📋 Specs Created) and add Test Spec link
+- [Feature Tracking](/doc/state-tracking/permanent/feature-tracking.md) - Update Test Status (🔧 Automated Only / 📋 Specs Created) and add Test Spec link
 - [TE ID Registry](/test/TE-id-registry.json) - Update `TE-TSP.nextAvailable` counter after creating specifications
 - [Test Documentation Map](/test/TE-documentation-map.md) - Add new test specification entries to the Test Specifications section
-- [Test Tracking](/test/state-tracking/permanent/test-tracking.md) - Add section if feature category is missing
+- [Test Tracking](/test/state-tracking/permanent/test-tracking.md) - Add feature section if missing (automated path)
+- [E2E Test Tracking](/test/state-tracking/permanent/e2e-test-tracking.md) - Add entries with `⬜ Not Created` status (e2e/both path)
+- [Performance Test Tracking](/test/state-tracking/permanent/performance-test-tracking.md) - Add entries with `⬜ Specified` status (PE path)
 
 **Note**: If a feature is determined to not require tests (assessment/documentation features), update the Feature Tracking Test Status directly to "🚫 No Test Required" instead of using this task.
 
@@ -233,24 +248,26 @@ Before considering this task finished:
 
 - [ ] **Verify Outputs**: Confirm all required outputs have been produced
   - [ ] Test Specification Document created in `/test/specifications/feature-specs`
-  - [ ] Test Implementation Roadmap included with priority ordering
+  - [ ] Routing Plan table included with component-to-downstream-task mapping
   - [ ] Implementation Coverage summary line set in Overview (e.g., `0/N scenarios implemented (0%)`)
   - [ ] Mock Requirements Documentation completed
-  - [ ] AI Session Context notes included for implementation handoff
-  - [ ] Test scenarios classified as `automated`, `manual`, or `both`
-  - [ ] Manual Test Scenarios section included (if any scenarios classified as `manual` or `both`)
-- [ ] **Update State Files**: Ensure all state tracking files have been updated
-  - [ ] [Feature Tracking](/doc/state-tracking/permanent/feature-tracking.md) — Test Status updated (use "🔧 Automated Only" if manual scenarios identified, "📋 Specs Created" if no manual scenarios) and Test Spec link added
+  - [ ] Test scenarios classified as `automated`, `e2e`, or `both`
+  - [ ] E2E scenario details included in routing plan (if any scenarios classified as `e2e` or `both`)
+- [ ] **Update State Files**: Ensure all state tracking files have been seeded (Step 11) and verified (Step 21)
+  - [ ] [Feature Tracking](/doc/state-tracking/permanent/feature-tracking.md) — Test Status updated (use "🔧 Automated Only" if E2E scenarios identified, "📋 Specs Created" if no E2E scenarios) and Test Spec link added
   - [ ] [TE ID Registry](/test/TE-id-registry.json) — `TE-TSP.nextAvailable` counter incremented
   - [ ] [Test Documentation Map](/test/TE-documentation-map.md) — New test spec entries added to Test Specifications section
-  - [ ] [Test Tracking](/test/state-tracking/permanent/test-tracking.md) — Feature section added if missing; manual test scenario entries added with "⬜ Not Created" status if applicable
-- [ ] **Verify State Tracking Consistency**: Ensure all tracking files are properly updated and consistent
+  - [ ] [Test Tracking](/test/state-tracking/permanent/test-tracking.md) — Feature section added if missing (automated path)
+  - [ ] [E2E Test Tracking](/test/state-tracking/permanent/e2e-test-tracking.md) — Entries added with `⬜ Not Created` status (if e2e/both scenarios exist)
+  - [ ] [Performance Test Tracking](/test/state-tracking/permanent/performance-test-tracking.md) — Entries added with `⬜ Specified` status (if PE path applies)
+- [ ] **Verify State Tracking Consistency**: Re-read seeded tracking files and confirm consistency with completed specification
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](/process-framework/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-012" and context "Test Specification Creation"
 
 ## Next Tasks
 
 - [**Integration & Testing (PF-TSK-053)**](../04-implementation/integration-and-testing.md) - Implement automated test cases and validate integration after feature implementation
-- **Manual Test Case Creation** (future task) - Create concrete, reproducible manual test cases from the manual test scenarios identified in this specification
+- [**E2E Acceptance Test Case Creation (PF-TSK-069)**](../03-testing/e2e-acceptance-test-case-creation-task.md) - Create concrete, reproducible E2E acceptance test cases from the E2E scenarios identified in the routing plan
+- [**Performance Test Creation (PF-TSK-084)**](../03-testing/performance-test-creation-task.md) - Implement performance tests from performance test specification (when PE path applies)
 - [**Feature Implementation Planning**](../04-implementation/feature-implementation-planning-task.md) - Plan and execute feature implementation using decomposed tasks
 - [**Code Review**](../06-maintenance/code-review-task.md) - Review implemented tests and code for quality assurance
 

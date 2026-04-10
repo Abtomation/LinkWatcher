@@ -46,6 +46,7 @@ Systematically adapt the process framework from one business domain (software de
 
 - **Important (Load If Space):**
 
+  - [Script Development Quick Reference](../../guides/support/script-development-quick-reference.md) - PowerShell execution patterns and parameter checking (**always check script parameters with `-?` before running**)
   - Domain Terminology Mapping (project-specific — create during Phase 1 or include in concept document) - Source domain → Target domain mappings
   - Deletion Criteria (project-specific — define during Phase 1) - DELETE vs. ADAPT vs. KEEP guidelines
   - [AI Tasks Registry](../../ai-tasks.md) - Task system overview

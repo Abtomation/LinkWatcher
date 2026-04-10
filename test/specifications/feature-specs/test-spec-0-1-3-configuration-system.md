@@ -127,20 +127,6 @@ This file has **0 test methods** — the `testCasesCount: 10` in the registry is
 - **Priority cascade**: No test verifying CLI > env > file > defaults ordering
 - **test/automated/test_config.py miscount**: Registry showed 10 test cases but file has 0 — it's a utility module (fixed in test audit PF-TAR-007, 2026-03-15)
 
-## AI Agent Session Handoff Notes
-
-### Implementation Context
-
-**Feature Summary**: Multi-source configuration with validation, serialization, and environment presets.
-**Test Focus**: Loading from all sources, validation rules, merge behavior, error handling.
-**Key Challenges**: Testing environment variable interaction requires careful `patch.dict` usage.
-
-### Files to Reference
-
-- **Existing Tests**: [`test/automated/unit/test_config.py`](../../../test/automated/unit/test_config.py) (33 methods), [`test/automated/test_config.py`](../../../test/automated/test_config.py) (utility module)
-- **Source Code**: [`linkwatcher/config/settings.py`](../../../linkwatcher/config/settings.py), [`linkwatcher/config/defaults.py`](../../../linkwatcher/config/defaults.py), [`linkwatcher/config/__init__.py`](../../../linkwatcher/config/__init__.py)
-- **Fixtures**: [`test/automated/conftest.py`](../../../test/automated/conftest.py) — `temp_project_dir`, `test_config`
-
 ---
 
 _Retrospective Test Specification — documents existing test suite as of 2026-02-24._

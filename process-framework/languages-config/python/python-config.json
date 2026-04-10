@@ -19,7 +19,8 @@
     "markers": {
       "slow": "-m slow",
       "critical": "-m critical",
-      "notSlow": "-m \"not slow\""
+      "notSlow": "-m \"not slow\"",
+      "performance": "-m performance"
     },
     "testSetup": {
       "mechanism": "pytest-fixtures",

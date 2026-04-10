@@ -8,7 +8,7 @@ param(
     [string]$TaskName,
 
     [Parameter(Mandatory = $false)]
-    [ValidateSet("TaskCreation", "ProcessImprovement")]
+    [ValidateSet("TaskCreation", "ProcessImprovement", "FrameworkExtension")]
     [string]$Variant = "TaskCreation",
 
     [Parameter(Mandatory = $false)]
@@ -61,6 +61,31 @@ if ($Variant -eq "ProcessImprovement") {
         "",
         "💡 This template is pre-structured for process improvement workflows —",
         "   less customization needed compared to the generic task creation template."
+    )
+} elseif ($Variant -eq "FrameworkExtension") {
+    # --- Framework Extension variant ---
+    $templatePath = Join-Path -Path $processFrameworkDir -ChildPath "templates\support\temp-framework-extension-state-template.md"
+    $customFileName = "temp-framework-extension-$kebabName.md"
+    $idDescription = "Temporary framework extension state: ${TaskName}"
+
+    $customReplacements = @{
+        "[Task Name]" = $TaskName
+    }
+
+    if ($Description -ne "") {
+        $customReplacements["[Brief description of what will change]"] = $Description
+    }
+
+    $successDetails = @(
+        "",
+        "✅ Framework extension state file created.",
+        "",
+        "📖 CUSTOMIZATION GUIDE:",
+        "process-framework/guides/support/temp-state-tracking-customization-guide.md",
+        "🎯 FOCUS: Fill in Extension Overview, Artifact Tracking table, Task Impact table, and phase checklists.",
+        "",
+        "💡 This template is pre-structured for multi-artifact framework extensions —",
+        "   includes artifact tracking, task impact analysis, and multi-phase implementation."
     )
 } else {
     # --- Task Creation variant (original behavior) ---

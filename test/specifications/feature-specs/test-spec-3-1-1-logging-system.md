@@ -101,6 +101,7 @@ The Logging System provides `LinkWatcherLogger` with domain-specific methods, `L
 |-----------|-----------|----------------|----------|
 | with_context | Normal flow | `test_context_decorator` — sets context during execution, clears after | None |
 | with_context | Exception flow | `test_context_decorator_with_exception` — context cleared even on exception | None |
+| with_context | Nested decorators | `test_nested_context_decorators` — inner decorator restores outer context on exit (TD183) | None |
 
 #### Global Logger Functions
 
@@ -169,20 +170,6 @@ The Logging System provides `LinkWatcherLogger` with domain-specific methods, `L
 - **Fallback behavior**: File handler failure → console-only not tested
 - **structlog immutability**: `cache_logger_on_first_use=True` behavior not verified
 - **CLI flags**: `--debug`/`--quiet` effect on log levels not tested
-
-## AI Agent Session Handoff Notes
-
-### Implementation Context
-
-**Feature Summary**: Comprehensive logging with context, filtering, metrics, and config management.
-**Test Focus**: Component isolation (context, filters, metrics), thread safety, performance benchmarks.
-**Key Challenges**: Testing config hot-reload timing; testing structlog immutability edge case.
-
-### Files to Reference
-
-- **TDD**: [`doc/technical/tdd/tdd-3-1-1-logging-framework-t2.md`](../../../doc/technical/tdd/tdd-3-1-1-logging-framework-t2.md)
-- **Existing Tests**: [`test/automated/unit/test_logging.py`](../../../test/automated/unit/test_logging.py) (20 methods), [`test/automated/unit/test_advanced_logging.py`](../../../test/automated/unit/test_advanced_logging.py) (19 methods)
-- **Source Code**: [`linkwatcher/logging.py`](../../../linkwatcher/logging.py), [`linkwatcher/logging_config.py`](../../../linkwatcher/logging_config.py)
 
 ---
 

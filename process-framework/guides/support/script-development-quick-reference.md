@@ -62,6 +62,29 @@ try {
 }
 ```
 
+### 🚨 Module Import Warnings
+
+**Issue**: `WARNING: The names of some imported commands from the module '...' include unapproved verbs`
+
+**Cause**: A function in the module uses a verb that is not in PowerShell's approved verb list (e.g., `Ensure-Something` instead of `Initialize-Something`).
+
+**Fix**: Rename the function to use an approved verb. Do **not** suppress with `-WarningAction SilentlyContinue`.
+
+```powershell
+# List all approved verbs
+Get-Verb
+
+# Common replacements:
+#   Ensure-*     → Initialize-*  (create if absent)
+#   Parse-*      → ConvertFrom-* (transform input)
+#   Check-*      → Test-*        (verify condition)
+#   Setup-*      → Initialize-*  (prepare resource)
+#   Create-*     → New-*         (instantiate)
+#   Delete-*     → Remove-*      (dispose)
+```
+
+After renaming, update all call sites and the module's export list.
+
 ### 🚨 Template Replacements Not Working
 
 **Issue**: Placeholders like `[Feature Name]` remain unreplaced in generated documents
@@ -143,6 +166,12 @@ $documentId = New-StandardProjectDocument `
 ## Troubleshooting
 
 ### PowerShell Script Execution (AI Agents)
+
+**Before running any script, check its parameters first:**
+```bash
+pwsh.exe -ExecutionPolicy Bypass -File path/to/Script.ps1 -?
+```
+Do not guess parameter names — scripts use `ValidateSet` constraints that reject unknown values.
 
 **Preferred pattern — `pwsh.exe -File`:**
 

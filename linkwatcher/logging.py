@@ -86,8 +86,18 @@ from typing import Any, Dict, Optional, Union
 import structlog
 from colorama import Fore, Style, init
 
-# Initialize colorama for cross-platform colored output
-init(autoreset=True)
+# Lazy colorama initialization — deferred from module level to first
+# ColoredFormatter use to avoid wrapping sys.stdout/sys.stderr at import time
+# (interferes with test harnesses and non-terminal environments).
+_colorama_initialized = False
+
+
+def _ensure_colorama():
+    """Initialize colorama on first use, not at import time."""
+    global _colorama_initialized
+    if not _colorama_initialized:
+        init(autoreset=True)
+        _colorama_initialized = True
 
 
 # Fallback logger for rotation errors — writes to stderr independently of
@@ -96,9 +106,7 @@ _fallback_logger = logging.getLogger("linkwatcher._fallback")
 _fallback_logger.propagate = False
 if not _fallback_logger.handlers:
     _fallback_handler = logging.StreamHandler(sys.stderr)
-    _fallback_handler.setFormatter(
-        logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
-    )
+    _fallback_handler.setFormatter(logging.Formatter("%(asctime)s [%(levelname)s] %(message)s"))
     _fallback_logger.addHandler(_fallback_handler)
     _fallback_logger.setLevel(logging.WARNING)
 
@@ -123,10 +131,15 @@ class TimestampRotatingFileHandler(logging.handlers.RotatingFileHandler):
         if os.path.exists(self.baseFilename):
             try:
                 os.rename(self.baseFilename, backup_name)
+                logging.getLogger(__name__).info(
+                    "Log rotated: %s -> %s", self.baseFilename, backup_name
+                )
             except OSError as e:
                 _fallback_logger.warning(
                     "Log rotation failed to rename %s -> %s: %s",
-                    self.baseFilename, backup_name, e,
+                    self.baseFilename,
+                    backup_name,
+                    e,
                 )
 
         # Clean up old backups (keep only backupCount most recent)
@@ -139,7 +152,8 @@ class TimestampRotatingFileHandler(logging.handlers.RotatingFileHandler):
                 except OSError as e:
                     _fallback_logger.warning(
                         "Log rotation failed to remove old backup %s: %s",
-                        old_backup, e,
+                        old_backup,
+                        e,
                     )
 
         if not self.delay:
@@ -204,6 +218,8 @@ class ColoredFormatter(logging.Formatter):
     }
 
     def __init__(self, colored: bool = True, show_icons: bool = True):
+        if colored:
+            _ensure_colorama()
         self.colored = colored
         self.show_icons = show_icons
         super().__init__()
@@ -496,8 +512,9 @@ class LinkWatcherLogger:
             event_type="link_update",
         )
 
-    def scan_progress(self, files_scanned: int, total_files: Optional[int] = None,
-                      info_level: bool = False):
+    def scan_progress(
+        self, files_scanned: int, total_files: Optional[int] = None, info_level: bool = False
+    ):
         """Log scan progress.
 
         Args:
@@ -538,6 +555,7 @@ def reset_logger():
     """
     global _logger
     if _logger is not None:
+        _logger.debug("logger_reset", event_type="logging_lifecycle")
         for handler in _logger.logger.handlers[:]:
             handler.close()
             _logger.logger.removeHandler(handler)
@@ -569,6 +587,13 @@ def setup_logging(
         max_file_size=max_file_size,
         backup_count=backup_count,
     )
+    _logger.info(
+        "logging_configured",
+        event_type="logging_lifecycle",
+        level=level.value,
+        log_file=log_file,
+        json_logs=json_logs,
+    )
     return _logger
 
 
@@ -579,11 +604,14 @@ def with_context(**kwargs):
         @wraps(func)
         def wrapper(*args, **func_kwargs):
             logger = get_logger()
+            previous = log_context.get_context()
             logger.set_context(**kwargs)
             try:
                 return func(*args, **func_kwargs)
             finally:
                 logger.clear_context()
+                if previous:
+                    log_context.set_context(**previous)
 
         return wrapper
 

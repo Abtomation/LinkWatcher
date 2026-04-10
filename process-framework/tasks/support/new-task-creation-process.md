@@ -42,6 +42,7 @@ Complete process for creating a new task from concept to implementation-ready de
 
 - **Important (Load If Space):**
 
+  - [Script Development Quick Reference](../../guides/support/script-development-quick-reference.md) - PowerShell execution patterns and parameter checking (**always check script parameters with `-?` before running**)
   - [Document Creation Script Development Guide](../../guides/support/document-creation-script-development-guide.md) - For creating scripts when task generates new files
   - [Template Development Guide](../../guides/support/template-development-guide.md) - For creating templates when needed
   - [Documentation Structure Guide](../../guides/framework/documentation-structure-guide.md) - For organizing and structuring documentation

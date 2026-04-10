@@ -30,7 +30,9 @@ pytestmark = [
     pytest.mark.feature("3.1.1"),
     pytest.mark.priority("Standard"),
     pytest.mark.test_type("unit"),
-    pytest.mark.specification("test/specifications/feature-specs/test-spec-3-1-1-logging-system.md"),
+    pytest.mark.specification(
+        "test/specifications/feature-specs/test-spec-3-1-1-logging-system.md"
+    ),
 ]
 
 
@@ -489,6 +491,40 @@ class TestWithContextDecorator:
         # Context should still be cleared
         assert log_context.get_context() == {}
 
+    def test_nested_context_decorators(self):
+        """Test that nested @with_context preserves outer context (TD183)."""
+
+        @with_context(component="outer", operation="outer_op")
+        def outer_function():
+            outer_ctx = log_context.get_context()
+
+            @with_context(component="inner", operation="inner_op")
+            def inner_function():
+                return log_context.get_context()
+
+            inner_ctx = inner_function()
+            after_inner_ctx = log_context.get_context()
+            return outer_ctx, inner_ctx, after_inner_ctx
+
+        log_context.clear_context()
+
+        outer_ctx, inner_ctx, after_inner_ctx = outer_function()
+
+        # Outer context should have outer values
+        assert outer_ctx["component"] == "outer"
+        assert outer_ctx["operation"] == "outer_op"
+
+        # Inner context should have inner values (overwriting outer)
+        assert inner_ctx["component"] == "inner"
+        assert inner_ctx["operation"] == "inner_op"
+
+        # After inner returns, outer context should be restored
+        assert after_inner_ctx["component"] == "outer"
+        assert after_inner_ctx["operation"] == "outer_op"
+
+        # After outer returns, context should be fully cleared
+        assert log_context.get_context() == {}
+
 
 class TestGlobalLoggerFunctions:
     """Test global logger setup and access functions."""
@@ -553,8 +589,6 @@ class TestStructlogCacheIsolation:
 
         Regression test for PD-BUG-015.
         """
-        import linkwatcher.logging as lm
-
         temp_dir = tempfile.mkdtemp()
         try:
             log_file = Path(temp_dir) / "old_logger.log"
@@ -574,7 +608,7 @@ class TestStructlogCacheIsolation:
             old_handler = old_file_handlers[0]
 
             # Replace with new logger — should close old handlers
-            new_logger = setup_logging(level=LogLevel.INFO)
+            setup_logging(level=LogLevel.INFO)
 
             # The old file handler's stream should be closed
             # (RotatingFileHandler.close() sets stream to None)

@@ -4,7 +4,7 @@ type: Process Framework
 category: Task Definition
 version: 2.0
 created: 2023-06-15
-updated: 2026-03-15
+updated: 2026-04-08
 ---
 
 # Bug Fixing
@@ -101,10 +101,12 @@ Diagnose, fix, and verify solutions for reported bugs or issues in the applicati
     - **If multi-session**: Update the Root Cause Analysis section in the bug fix state file
 13. Consider alternative approaches to fixing the issue
     - **If multi-session**: Document chosen approach and alternatives in the Fix Approach section
+    - **Scope reassessment**: If root cause analysis reveals the fix is simpler than the triaged scope suggested (e.g., L-scope bug requires only a small, isolated change), reassess the scope downward. Present the revised scope at the Step 14 checkpoint — if approved, the multi-session gate (Step 6) no longer applies: archive any state file created prematurely, and proceed as a single-session fix.
 14. **🚨 CHECKPOINT**: Present root cause analysis, proposed fix approach (with alternatives and trade-offs), and test strategy to human partner for approval
     - **S-scope bugs**: If already covered in the combined Step 11 checkpoint, skip this step.
 15. **Write regression test(s) BEFORE implementing the fix** — this confirms the test actually catches the bug:
     - Write test(s) that reproduce the exact bug scenario and verify they **FAIL**
+    - **Verify the test fails for the right reason**: Inspect the failure output — confirm the test setup actually exercises the target code path and that the failure corresponds to the bug, not to a setup error, import issue, or unrelated assertion. A test that fails for the wrong reason gives false confidence when it later "passes."
     - **Test strategy**:
       - Prefer unit tests for isolated logic bugs; add integration tests when the bug involves component interaction
       - If the root cause is a pattern (e.g., off-by-one, null handling), add 1-2 boundary/edge case tests beyond the reproduction test
@@ -113,7 +115,7 @@ Diagnose, fix, and verify solutions for reported bugs or issues in the applicati
     - **Decision: new file vs. existing file**:
       - **Create a new test file** when: (1) no existing test file covers the affected component, (2) the bug spans multiple components not covered by a single existing file, or (3) the bug reveals a new category of behavior that doesn't fit existing test organization
       - **Add to an existing file** (default): when a test file already covers the affected component — follow existing patterns in that file
-    - **Adding to an existing test file**: Find the relevant test file in the project's test directory (see `paths.tests` in `project-config.json`). Add regression test(s) following the existing patterns in the file. After adding, update the test's pytest markers if needed (feature, priority). Test counts are automatically derived from the code.
+    - **Adding to an existing test file**: Find the relevant test file in the project's test directory (see `paths.tests` in `project-config.json`). Add regression test(s) following the existing patterns in the file. After adding, update the test's pytest markers if needed (feature, priority). Then update the "Test Cases Count" column for the affected file in [test-tracking.md](../../../test/state-tracking/permanent/test-tracking.md) — this is not automated when adding to existing files (only `New-TestFile.ps1` sets the initial count for new files).
     - **Creating a new test file**: Use [`New-TestFile.ps1`](../../scripts/file-creation/03-testing/New-TestFile.ps1) which writes pytest markers and auto-updates test-tracking.md and feature-tracking.md:
       ```powershell
       cd process-framework/scripts/file-creation
@@ -164,6 +166,7 @@ Diagnose, fix, and verify solutions for reported bugs or issues in the applicati
     - **TDD** — update technical design descriptions that no longer match the code
     - **Test specification** — update expected behavior or add new test scenarios
     - **FDD** — update functional behavior descriptions if user-facing behavior changed
+    - **Integration Narrative** (`doc/technical/integration/`) — update if the fix changes how features interact in a cross-feature workflow documented by a PD-INT narrative
     - *Before marking N/A: briefly check each referenced document to confirm it does not describe the changed component or behavior. Skip only after verifying no documentation references the fix area.*
     - **If multi-session**: Update the Documentation Updates table in the bug fix state file
 28. Refactor code if necessary for better maintainability

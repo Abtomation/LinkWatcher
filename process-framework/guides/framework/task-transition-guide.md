@@ -325,6 +325,25 @@ This section clarifies what each task **owns** vs. what it **references**:
 - Comprehensive test plans → Test Specification (PF-TSK-012)
 - System architecture decisions → System Architecture Review (PF-TSK-019)
 
+#### Integration Narrative Creation Task (PF-TSK-083)
+
+**✅ This task owns**:
+
+- Cross-feature workflow documentation (how 2+ features collaborate at runtime)
+- Component interaction diagrams spanning feature boundaries
+- Data flow sequences across features
+- Callback/event chains between features
+- Configuration propagation across feature boundaries
+- Error handling across feature boundaries
+- TDD/Code divergence notes (reporting discrepancies as tech debt)
+
+**❌ Other tasks own**:
+
+- Individual feature technical design → TDD (PF-TSK-015)
+- Individual feature functional design → FDD (PF-TSK-027)
+- Test plans for cross-feature workflows → Test Specification (PF-TSK-012)
+- Architectural decisions → ADR Creation (PF-TSK-016)
+
 #### Test Specification Creation Task (PF-TSK-012)
 
 **✅ This task owns**:

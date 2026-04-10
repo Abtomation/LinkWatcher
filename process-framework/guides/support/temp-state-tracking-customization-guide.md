@@ -96,6 +96,22 @@ Choose the appropriate template based on your workflow type:
 - Phase 4: Validation and completion
 - Includes: IMP references, affected components table, validation criteria
 
+### Framework Extension Workflows
+**Use**: `temp-framework-extension-state-template.md`
+**Script**: `New-TempTaskState.ps1 -Variant FrameworkExtension`
+**Best For**:
+- Multi-artifact framework extensions (PF-TSK-048)
+- New capabilities requiring multiple interconnected components (tasks, templates, scripts, guides)
+- Extensions where artifact dependencies and task impact need explicit tracking
+
+**Characteristics**:
+- Purpose-built for multi-artifact work — includes Artifact Tracking and Task Impact tables
+- Phase 1: Concept & Approval
+- Phase 2: Artifact Creation (in dependency order)
+- Phase 3: Integration & Task Updates (wiring into existing framework)
+- Phase 4: Finalization (testing, documentation, completion)
+- Includes: artifact status tracking, existing task impact analysis, session planning
+
 ## Phase Customization Patterns
 
 ### Standard 4-Phase Pattern (Task Creation)
@@ -119,10 +135,17 @@ Phase 5: Validation & Cleanup
 
 #### For Process Improvements
 ```markdown
-Phase 1: Problem Analysis & Solution Design
-Phase 2: Implementation & Testing
-Phase 3: Documentation & Integration
-Phase 4: Validation & Rollout
+Phase 1: Analysis & Design
+Phase 2: Implementation (add more phases if needed)
+Phase 3: Finalization
+```
+
+#### For Framework Extensions
+```markdown
+Phase 1: Concept & Approval
+Phase 2: Artifact Creation
+Phase 3: Integration & Task Updates
+Phase 4: Finalization
 ```
 
 #### For Framework Extensions
@@ -256,23 +279,45 @@ Phase 4: Framework Integration & Testing
 
 **Phase Adaptation**:
 ```markdown
-### Phase 1: Problem Analysis & Solution Design
+### Phase 1: Analysis & Design
 - [x] **Problem Identification**: Feedback forms are inconsistent
 - [x] **Solution Design**: Standardized feedback form template
 - [x] **Impact Assessment**: Affects all task definitions
 
-### Phase 2: Implementation & Testing
+### Phase 2: Implementation
 - [x] **Template Creation**: New standardized feedback template
 - [x] **Script Enhancement**: Update New-FeedbackForm.ps1
 - [x] **Pilot Testing**: Test with 3 different task types
 
-### Phase 3: Documentation & Integration
+### Phase 3: Finalization
 - [x] **Usage Guide**: How to use new feedback system
 - [x] **Task Updates**: Update all task definitions to reference new template
 
 ### Phase 4: Validation & Rollout
 - [x] **System Testing**: Verify all tasks work with new feedback system
 - [x] **Documentation Map**: Update with new feedback components
+```
+
+### Example 5: Framework Extension
+**Scenario**: Adding performance testing support to the framework
+
+**Template**: `temp-framework-extension-state-template.md` (via `New-TempTaskState.ps1 -Variant FrameworkExtension`)
+
+**Artifact Tracking**:
+```markdown
+| Artifact | Type | Location | Creator Task | Status |
+|----------|------|----------|-------------|--------|
+| performance-test-spec-template.md | Template | templates/03-testing/ | PF-TSK-048 | COMPLETED |
+| New-PerformanceTestSpec.ps1 | Script | scripts/file-creation/03-testing/ | PF-TSK-048 | IN_PROGRESS |
+| performance-testing-guide.md | Guide | guides/03-testing/ | PF-TSK-048 | NOT_STARTED |
+```
+
+**Task Impact**:
+```markdown
+| Task | ID | Change Required | Status |
+|------|----|----|--------|
+| Test Specification Creation | PF-TSK-029 | Add performance test spec reference | NOT_STARTED |
+| Run-Tests.ps1 | — | Add performance category support | NOT_STARTED |
 ```
 
 ## Integration Best Practices

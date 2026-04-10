@@ -26,7 +26,7 @@ When transitioning to Completed or Rejected:
 The improvement ID to update (e.g., "IMP-063")
 
 .PARAMETER NewStatus
-The new status. Valid values: Identified, Prioritized, InProgress, Completed, Deferred, Rejected
+The new status. Valid values: Identified, Prioritized, InProgress, Completed, Deferred, Delegated, Rejected
 
 .PARAMETER Impact
 Impact level (HIGH, MEDIUM, LOW). Required when NewStatus is Completed or Rejected.
@@ -69,7 +69,7 @@ param(
     [string]$ImprovementId,
 
     [Parameter(Mandatory = $true)]
-    [ValidateSet("Identified", "Prioritized", "InProgress", "Completed", "Deferred", "Rejected")]
+    [ValidateSet("Identified", "Prioritized", "InProgress", "Completed", "Deferred", "Delegated", "Rejected")]
     [string]$NewStatus,
 
     [Parameter(Mandatory = $false)]
@@ -160,16 +160,19 @@ function Update-StatusInPlace {
     Write-Log "Found improvement entry for $ImprovementId"
 
     # Parse columns: | ID | Source | Description | Priority | Status | Last Updated | Notes |
-    $columns = $currentEntry -split '\|' | ForEach-Object { $_.Trim() }
-    if ($columns[0] -eq '') { $columns = $columns[1..($columns.Length - 1)] }
-    # Remove trailing empty element
-    if ($columns[-1] -eq '') { $columns = $columns[0..($columns.Length - 2)] }
+    $columns = Split-MarkdownTableRow $currentEntry
+    if ($null -eq $columns -or $columns.Count -ne 7) {
+        $actualCount = if ($null -eq $columns) { 0 } else { $columns.Count }
+        Write-Log "Malformed table row for $ImprovementId`: expected 7 columns, found $actualCount. Check for unescaped pipe characters in cell content." -Level "ERROR"
+        Write-Log "Raw row: $currentEntry" -Level "ERROR"
+        return $null
+    }
 
     # Update Status (index 4) and Last Updated (index 5)
     $columns[4] = $NewStatus
     $columns[5] = $CurrentDate
 
-    $updatedEntry = "| " + ($columns -join " | ") + " |"
+    $updatedEntry = ConvertTo-MarkdownTableRow -Cells $columns
     $result = $Content.Replace($currentEntry, $updatedEntry)
 
     Write-Log "Updated $ImprovementId status to: $NewStatus" -Level "SUCCESS"

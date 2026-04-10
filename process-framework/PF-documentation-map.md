@@ -39,6 +39,7 @@ Our tasks are organized to mirror the `tasks` directory structure:
 
 #### 02 - Design Tasks
 
+- [Task: Integration Narrative Creation](tasks/02-design/integration-narrative-creation.md) - Create Integration Narratives explaining how 2+ features collaborate in cross-cutting workflows
 - [Task: FDD Creation](tasks/02-design/fdd-creation-task.md) - Create Functional Design Documents for Tier 2+ features
 - [Task: TDD Creation](tasks/02-design/tdd-creation-task.md) - Create Technical Design Documents
 - [Task: ADR Creation](tasks/02-design/adr-creation-task.md) - Document significant architectural decisions with context, alternatives, and consequences
@@ -47,6 +48,8 @@ Our tasks are organized to mirror the `tasks` directory structure:
 
 #### 03 - Testing Tasks
 
+- [Task: Performance Test Creation](tasks/03-testing/performance-test-creation-task.md) - Implement performance tests from specifications, register in tracking, capture initial measurements
+- [Task: Performance Baseline Capture](tasks/03-testing/performance-baseline-capture-task.md) - Run performance tests, record results in trend database, update tracking, flag regressions
 - [Task: Test Specification Creation](tasks/03-testing/test-specification-creation-task.md) - Create comprehensive test specifications from TDDs
 - [Task: E2E Acceptance Test Case Creation](tasks/03-testing/e2e-acceptance-test-case-creation-task.md) - Create concrete, reproducible E2E acceptance test cases from test specifications with exact steps, file contents, and expected outcomes
 - [Task: E2E Acceptance Test Execution](tasks/03-testing/e2e-acceptance-test-execution-task.md) - Execute E2E acceptance test cases systematically, record results, and report issues through human interaction with the running system
@@ -90,7 +93,7 @@ Our tasks are organized to mirror the `tasks` directory structure:
 - [Task: Bug Fixing](tasks/06-maintenance/bug-fixing-task.md) - Diagnose and fix bugs
 
 #### 07 - Deployment Tasks
-| PF-TSK-082 | [process-framework/tasks/07-deployment/git-commit-and-push.md](/process-framework/tasks/07-deployment/git-commit-and-push.md) | Documentation | Git Commit and Push | [tasks/README.md](/process-framework/tasks/README.md) |
+- [Task: Git Commit and Push](tasks/07-deployment/git-commit-and-push.md) - Commit current working directory changes and push to remote repository
 
 - [Task: Release Deployment](tasks/07-deployment/release-deployment-task.md) - Manage releases and deployments
 - [Task: User Documentation Creation](tasks/07-deployment/user-documentation-creation.md) - Feature introduces or changes user-visible behavior and needs handbook/quick-reference/README updates
@@ -150,6 +153,7 @@ Our tasks are organized to mirror the `tasks` directory structure:
 - [Template: API Documentation](templates/02-design/api-documentation-template.md) - Template for user-facing API documentation
 - [Template: API Reference](templates/02-design/api-reference-template.md) - Template for API reference documentation
 - [Template: Schema Design](templates/02-design/schema-design-template.md) - Template for database schema design documents
+- [Template: Integration Narrative](templates/02-design/integration-narrative-template.md) - Template for creating Integration Narrative documents that explain how 2+ features collaborate in cross-cutting workflows
 
 #### 03 - Testing Templates
 
@@ -164,6 +168,7 @@ Our tasks are organized to mirror the `tasks` directory structure:
 - [Template: E2E Test Tracking](templates/03-testing/e2e-test-tracking-template.md) - Template for bootstrapping empty e2e-test-tracking.md in new projects, used by New-TestInfrastructure.ps1
 - [Template: TE ID Registry](templates/03-testing/TE-id-registry-template.json) - Template for bootstrapping empty TE-id-registry.json in new projects, used by New-TestInfrastructure.ps1
 - [Template: Audit Tracking](templates/03-testing/audit-tracking-template.md) - Template for multi-session test audit round tracking state files, used by New-AuditTracking.ps1
+- [Template: Performance Test Specification](templates/03-testing/performance-test-specification-template.md) - Template for performance test specifications with level-specific criteria, baseline references, and measurement methodology
 
 #### 04 - Implementation Templates
 
@@ -217,12 +222,10 @@ Our tasks are organized to mirror the `tasks` directory structure:
 - [Template: Structure Change Proposal](templates/support/structure-change-proposal-template.md) - Template for structure change proposals
 - [Template: Temporary Task Creation State](templates/support/temp-task-creation-state-template.md) - Template for tracking multi-session task creation implementation
 - [Template: Temporary Process Improvement State](templates/support/temp-process-improvement-state-template.md) - Template for tracking multi-session process improvement implementation (via `New-TempTaskState.ps1 -Variant ProcessImprovement`)
+- [Template: Temporary Framework Extension State](templates/support/temp-framework-extension-state-template.md) - Template for tracking multi-session framework extension implementation with artifact tracking and task impact analysis (via `New-TempTaskState.ps1 -Variant FrameworkExtension`)
 - [Template: Document Creation Script](templates/support/document-creation-script-template.ps1) - PowerShell template for document creation scripts
 - [Template: Update Script](templates/support/update-script-template.ps1) - PowerShell template for state update scripts
-
-#### Meta Templates (`templates/templates/`)
-
-- [Template: Framework Evaluation Report](templates/templates/framework-evaluation-report-template.md) - Template for structured framework evaluation reports with dimension scoring
+- [Template: Framework Evaluation Report](templates/support/framework-evaluation-report-template.md) - Template for structured framework evaluation reports with dimension scoring
 
 ### Automation Scripts
 
@@ -244,6 +247,7 @@ Our tasks are organized to mirror the `tasks` directory structure:
 - [Process: New Audit Tracking Script](scripts/file-creation/03-testing/New-AuditTracking.ps1) - PowerShell script for creating test audit tracking state files with auto-populated inventory from test-tracking.md for multi-session audit rounds (PF-TSK-030)
 - [Process: New Prioritization Matrix Script](scripts/file-creation/cyclical/New-PrioritizationMatrix.ps1) - PowerShell script for creating technical debt prioritization matrices with auto-assigned PD-TDA IDs (PF-TSK-023)
 - [Process: New API Documentation Script](scripts/file-creation/02-design/New-APIDocumentation.ps1) - PowerShell script for creating user-facing API documentation with auto-assigned PD-API IDs (PF-TSK-020)
+- [Process: New Integration Narrative Script](scripts/file-creation/02-design/New-IntegrationNarrative.ps1) - PowerShell script for creating Integration Narrative documents with auto-assigned PD-INT IDs, auto-updates PD-documentation-map.md and user-workflow-tracking.md (PF-TSK-083)
 - [Process: New Review Summary Script](scripts/file-creation/06-maintenance/New-ReviewSummary.ps1) - PowerShell script for creating Tools Review Summary documents with auto-assigned ART-REV IDs and timestamped filenames (PF-TSK-010)
 
 ### Testing Scripts
@@ -254,6 +258,7 @@ Our tasks are organized to mirror the `tasks` directory structure:
 - [Process: Verify-TestResult Script](scripts/test/e2e-acceptance-testing/Verify-TestResult.ps1) - Compares workspace state against expected state after E2E acceptance test execution
 - [Process: Run-E2EAcceptanceTest Script](scripts/test/e2e-acceptance-testing/Run-E2EAcceptanceTest.ps1) - Orchestrates scripted E2E acceptance test pipeline: Setup → run.ps1 → wait → Verify
 - [Process: Update-TestExecutionStatus Script](scripts/test/e2e-acceptance-testing/Update-TestExecutionStatus.ps1) - Updates e2e-test-tracking.md and feature-tracking.md with E2E acceptance test execution results
+- [Process: Performance Results Database](scripts/test/performance_db.py) - SQLite-based performance results storage with record/trend/regressions/export subcommands for baseline management and regression detection
 
 ### State Update Scripts
 
@@ -299,6 +304,7 @@ Our tasks are organized to mirror the `tasks` directory structure:
 - [Guide: Architecture Assessment Creation](guides/02-design/architecture-assessment-creation-guide.md) - Guide for customizing architecture assessment templates
 - [Guide: Architecture Decision Creation](guides/02-design/architecture-decision-creation-guide.md) - Guide for customizing Architecture Decision Record templates
 - [Guide: Schema Design Creation](guides/02-design/schema-design-creation-guide.md) - Guide for customizing database schema design templates
+- [Guide: Integration Narrative Customization](guides/02-design/integration-narrative-customization-guide.md) - Step-by-step instructions for customizing Integration Narrative template sections with emphasis on source code verification
 
 #### 03 - Testing Guides
 
@@ -308,6 +314,7 @@ Our tasks are organized to mirror the `tasks` directory structure:
 - [Guide: Test File Creation](guides/03-testing/test-file-creation-guide.md) - Guide for customizing test file templates
 - [Guide: Integration & Testing Usage](guides/03-testing/integration-and-testing-usage-guide.md) - Comprehensive guide for using the Integration & Testing task (PF-TSK-053) effectively
 - [Guide: E2E Acceptance Test Case Customization](guides/03-testing/e2e-acceptance-test-case-customization-guide.md) - Step-by-step instructions for customizing E2E acceptance test case and master test templates created by New-E2EAcceptanceTestCase.ps1
+- [Guide: Performance Testing](guides/03-testing/performance-testing-guide.md) - 4-level performance testing methodology with baselines, trend tracking, and decision matrix
 
 #### 04 - Implementation Guides
 
@@ -385,6 +392,7 @@ Our tasks are organized to mirror the `tasks` directory structure:
 - [API Design Map](visualization/context-maps/02-design/api-design-task-map.md) - Components for designing API contracts and specifications
 - [FDD Creation Map](visualization/context-maps/02-design/fdd-creation-map.md) - Components for creating Functional Design Documents
 - [TDD Creation Map](visualization/context-maps/02-design/tdd-creation-map.md) - Components for creating design documents
+- [Integration Narrative Creation Map](visualization/context-maps/02-design/integration-narrative-creation-map.md) - Components for creating Integration Narrative documents that explain how 2+ features collaborate in cross-cutting workflows
 
 #### 03 - Testing Context Maps
 

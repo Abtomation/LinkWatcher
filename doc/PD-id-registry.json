@@ -155,7 +155,7 @@
         "permanent": "doc/state-tracking/permanent",
         "default": "permanent"
       },
-      "nextAvailable": 82
+      "nextAvailable": 86
     },
     "PD-ASS": {
       "description": "Product Documentation - Assessment Artifacts",
@@ -213,7 +213,7 @@
         "reports": "doc/validation/reports",
         "default": "reports"
       },
-      "nextAvailable": 81
+      "nextAvailable": 100
     },
     "PD-REF": {
       "description": "Product Documentation - Refactoring Plans",
@@ -223,7 +223,47 @@
         "plans": "doc/refactoring/plans",
         "default": "plans"
       },
-      "nextAvailable": 161
+      "nextAvailable": 191
+    },
+    "PD-TDA": {
+      "description": "Product Documentation - Technical Debt Assessments",
+      "category": "Product Documentation",
+      "type": "Technical Debt Assessment",
+      "directories": {
+        "assessments": "doc/technical-debt/assessments",
+        "default": "assessments"
+      },
+      "nextAvailable": 1
+    },
+    "PD-TDI": {
+      "description": "Product Documentation - Technical Debt Items",
+      "category": "Product Documentation",
+      "type": "Technical Debt Item",
+      "directories": {
+        "debt-items": "doc/technical-debt/debt-items",
+        "default": "debt-items"
+      },
+      "nextAvailable": 1
+    },
+    "PD-TDM": {
+      "description": "Product Documentation - Technical Debt Matrices",
+      "category": "Product Documentation",
+      "type": "Technical Debt Matrix",
+      "directories": {
+        "matrices": "doc/technical-debt/matrices",
+        "default": "matrices"
+      },
+      "nextAvailable": 1
+    },
+    "PD-INT": {
+      "description": "Product Documentation - Integration Narratives",
+      "category": "Product Documentation",
+      "type": "Integration Narrative",
+      "directories": {
+        "main": "doc/technical/integration",
+        "default": "main"
+      },
+      "nextAvailable": 1
     }
   }
 }

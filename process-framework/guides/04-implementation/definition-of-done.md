@@ -76,11 +76,12 @@ For features involving **API integration**:
 
 To ensure good performance:
 
-- [ ] Feature does not cause noticeable UI lag or jank
-- [ ] Feature does not cause excessive memory usage
-- [ ] Feature does not cause excessive battery drain
-- [ ] Feature does not cause excessive network usage
-- [ ] Feature has been profiled for performance issues
+- [ ] Feature does not cause noticeable latency degradation in core operations (scan, move handling, validation)
+- [ ] Feature does not cause excessive memory usage (RSS stays within resource bounds)
+- [ ] No regression in Operation benchmarks (verified via Performance Baseline Capture if hot-path code changed)
+- [ ] If feature modifies a parser, database, updater, or handler subsystem: relevant Component benchmarks pass
+- [ ] If feature affects scaling characteristics: Scale tests pass at expected thresholds
+- [ ] Performance test tracking updated if new tests were added (see [Performance Test Tracking](/test/state-tracking/permanent/performance-test-tracking.md))
 
 ## Security Requirements
 

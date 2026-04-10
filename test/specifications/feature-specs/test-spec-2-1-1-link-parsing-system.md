@@ -251,20 +251,6 @@ The Link Parsing System uses a Registry+Facade pattern. `LinkParser` dispatches 
 - ~~**Directory path detection**: GenericParser did not detect quoted directory paths (no file extension)~~ — **Covered** by PD-BUG-021 fix (`TestGenericParserDirectoryPaths`, 6 methods)
 - ~~**JSON duplicate value line numbers**: JsonParser assigned same line number to all occurrences of a repeated path value~~ — **Covered** by PD-BUG-013 fix (`TestJsonParserDuplicateLineNumbers`, 3 methods)
 
-## AI Agent Session Handoff Notes
-
-### Implementation Context
-
-**Feature Summary**: Registry+Facade parser system with 6 format-specific parsers and generic fallback.
-**Test Focus**: Dispatch correctness, per-parser syntax coverage, false positive avoidance, edge cases.
-**Key Challenges**: Maintaining false positive lists across parsers; testing code block exclusion in markdown.
-
-### Files to Reference
-
-- **TDD**: [`doc/technical/tdd/tdd-2-1-1-parser-framework-t2.md`](../../../doc/technical/tdd/tdd-2-1-1-parser-framework-t2.md)
-- **Existing Tests**: [`test/automated/unit/test_parser.py`](../../../test/automated/unit/test_parser.py), `test/automated/parsers/test_*.py` (7 files)
-- **Source Code**: [`linkwatcher/parser.py`](../../../linkwatcher/parser.py), [`linkwatcher/parsers/`](../../../linkwatcher/parsers/) (7 parser modules)
-
 ---
 
 _Retrospective Test Specification — documents existing test suite as of 2026-02-24._

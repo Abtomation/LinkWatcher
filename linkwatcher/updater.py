@@ -32,6 +32,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Dict, List, Tuple, TypedDict
 
+from .link_types import LinkType
 from .logging import get_logger
 from .models import LinkReference
 from .path_resolver import PathResolver
@@ -297,7 +298,7 @@ class LinkUpdater:
                 line_idx = ref.line_number - 1  # Convert to 0-based index
 
                 # Collect module rename mapping for Phase 2 (PD-BUG-045)
-                if ref.link_type == "python-import" and ref.link_text:
+                if ref.link_type == LinkType.PYTHON_IMPORT and ref.link_text:
                     new_module = new_target.replace("/", ".")
                     if ref.link_text != new_module:
                         python_module_renames[ref.link_text] = new_module
@@ -320,10 +321,15 @@ class LinkUpdater:
                     # For Python imports, link_target uses slash notation
                     # (e.g. "src/utils/file_utils") but the line has dot
                     # notation ("src.utils.file_utils").  Check link_text too.
-                    if ref.link_type == "python-import" and ref.link_text and ref.link_text in line:
+                    if (
+                        ref.link_type == LinkType.PYTHON_IMPORT
+                        and ref.link_text
+                        and ref.link_text in line
+                    ):
                         pass  # Not stale — found via dot-notation link_text
                     elif new_target in line or (
-                        ref.link_type == "python-import" and new_target.replace("/", ".") in line
+                        ref.link_type == LinkType.PYTHON_IMPORT
+                        and new_target.replace("/", ".") in line
                     ):
                         continue  # Already handled by an earlier replacement
                     else:
@@ -376,10 +382,10 @@ class LinkUpdater:
     def _replace_in_line(self, line: str, ref: LinkReference, new_target: str) -> str:
         """Replace the target in a line based on the reference information."""
         # Handle different link types appropriately
-        if ref.link_type == "markdown":
+        if ref.link_type == LinkType.MARKDOWN:
             # For markdown links [text](target), replace just the target part
             return self._replace_markdown_target(line, ref, new_target)
-        elif ref.link_type == "markdown-reference":
+        elif ref.link_type == LinkType.MARKDOWN_REFERENCE:
             # For reference links [label]: target "title", replace just the target part
             return self._replace_reference_target(line, ref, new_target)
         else:
@@ -454,7 +460,7 @@ class LinkUpdater:
     def _replace_at_position(self, line: str, ref: LinkReference, new_target: str) -> str:
         """Replace target at specific position in line."""
         # Special handling for Python imports - replace the text, not the target
-        if ref.link_type == "python-import":
+        if ref.link_type == LinkType.PYTHON_IMPORT:
             # For Python imports, we need to replace the dot notation in the line
             # Convert new_target (slash notation) back to dot notation
             new_import_text = new_target.replace("/", ".")
@@ -474,14 +480,26 @@ class LinkUpdater:
 
         # For quoted references, the text might include quotes
         if (
-            ref.link_type in ["markdown-quoted", "quoted", "python-quoted", "html-anchor"]
+            ref.link_type
+            in [
+                LinkType.MARKDOWN_QUOTED,
+                LinkType.QUOTED,
+                LinkType.PYTHON_QUOTED,
+                LinkType.HTML_ANCHOR,
+            ]
             and text_at_position.startswith('"')
             and text_at_position.endswith('"')
         ):
             # Replace just the content inside quotes
             return line[:start_col] + f'"{new_target}"' + line[end_col:]
         elif (
-            ref.link_type in ["markdown-quoted", "quoted", "python-quoted", "html-anchor"]
+            ref.link_type
+            in [
+                LinkType.MARKDOWN_QUOTED,
+                LinkType.QUOTED,
+                LinkType.PYTHON_QUOTED,
+                LinkType.HTML_ANCHOR,
+            ]
             and text_at_position.startswith("'")
             and text_at_position.endswith("'")
         ):

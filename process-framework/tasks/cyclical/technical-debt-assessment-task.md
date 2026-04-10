@@ -40,7 +40,7 @@ Systematic approach to identifying, categorizing, and prioritizing technical deb
 
 - **Important (Load If Space):**
 
-  - [Development Dimensions Guide](../../guides/framework/development-dimensions-guide.md) - Dimension definitions and abbreviations for tagging debt items with their primary dimension (AC, CQ, ID, DA, EM, SE, PE, OB, UX, DI, TST)
+  - [Development Dimensions Guide](../../guides/framework/development-dimensions-guide.md) - Dimension definitions and abbreviations for tagging debt items with their primary dimension (AC, CQ, ID, DA, EM, SE, PE, OB, UX, DI, TST, AIC)
   - [Architecture Documentation](/doc/technical/architecture) - System architecture and design patterns
   - [Coding Standards](/process-framework/guides/03-testing) - Project coding standards and best practices
   - **Test Coverage Reports** - Current test coverage metrics and gaps
@@ -89,7 +89,7 @@ Systematic approach to identifying, categorizing, and prioritizing technical deb
 
 6. **Document Debt Items**: For each identified debt item, document:
    - Detailed description and location
-   - **Primary dimension(s)**: Tag with standard dimension abbreviation(s) from the [Development Dimensions Guide](../../guides/framework/development-dimensions-guide.md) — AC, CQ, ID, DA, EM, SE, PE, OB, UX, DI, or TST (Testing). This replaces the free-text category and enables prioritization by dimension impact (e.g., SE-tagged debt ranks higher)
+   - **Primary dimension(s)**: Tag with standard dimension abbreviation(s) from the [Development Dimensions Guide](../../guides/framework/development-dimensions-guide.md) — AC, CQ, ID, DA, EM, SE, PE, OB, UX, DI, TST (Testing), or AIC (AI Agent Continuity). This replaces the free-text category and enables prioritization by dimension impact (e.g., SE-tagged debt ranks higher)
    - Severity assessment
    - Impact on development velocity, maintainability, and system stability
    - Estimated effort required for remediation
@@ -133,7 +133,7 @@ Systematic approach to identifying, categorizing, and prioritizing technical deb
    **OPTION B - Individual Item Addition:**
 
    ```powershell
-   # Add individual debt items manually (use dimension abbreviation for -Dims: AC, CQ, ID, DA, EM, SE, PE, OB, UX, DI, TST)
+   # Add individual debt items manually (use dimension abbreviation for -Dims: AC, CQ, ID, DA, EM, SE, PE, OB, UX, DI, TST, AIC)
    process-framework/scripts/update/Update-TechDebt.ps1 -Add -Description "Description" -Dims "PE" -Location "Location" -Priority "Priority" -EstimatedEffort "Effort" -DebtItemId "PF-TDI-XXX" -AssessmentId "PF-TDA-XXX"
    ```
 

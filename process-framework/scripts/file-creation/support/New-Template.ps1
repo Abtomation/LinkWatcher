@@ -24,7 +24,7 @@
     The category of documents that will be created from this template (e.g., "Task", "Guide", "Reference")
 
 .PARAMETER OutputDirectory
-    The directory where the template should be saved (defaults to templates directory)
+    The subdirectory under process-framework/templates/ where the template should be saved (e.g., "03-testing", "support"). Short names are auto-prefixed with process-framework/templates/. Defaults to process-framework/templates/.
 
 .PARAMETER OpenInEditor
     If specified, opens the created file in the default editor
@@ -65,7 +65,7 @@ param(
     [string]$DocumentCategory,
 
     [Parameter(Mandatory = $false)]
-    [string]$OutputDirectory = "process-framework/templates/templates",
+    [string]$OutputDirectory = "process-framework/templates",
 
     [Parameter(Mandatory = $false)]
     [switch]$OpenInEditor
@@ -88,14 +88,23 @@ Invoke-StandardScriptInitialization
 # Get current date in YYYY-MM-DD format
 $currentDate = Get-Date -Format "yyyy-MM-dd"
 
+# Infer document type from prefix using domain-config.json
+$domainConfig = Get-DomainConfig
+$prefixFamily = ($DocumentPrefix -split '-')[0]
+$documentType = if ($domainConfig.document_type_prefixes.$prefixFamily) {
+    $domainConfig.document_type_prefixes.$prefixFamily
+} else {
+    "Process Framework"
+}
+
 # Prepare additional metadata fields
 $additionalMetadataFields = @{
     "template_for"              = $DocumentCategory
-    "creates_document_type"     = "Process Framework"
+    "creates_document_type"     = $documentType
     "creates_document_category" = $DocumentCategory
     "creates_document_prefix"   = $DocumentPrefix
     "creates_document_version"  = "1.0"
-    "usage_context"             = "Process Framework - $DocumentCategory Creation"
+    "usage_context"             = "$documentType - $DocumentCategory Creation"
     "description"               = $TemplateDescription
 }
 
@@ -103,7 +112,7 @@ $additionalMetadataFields = @{
 $customReplacements = @{
     "[Template Name]"                                                                                                                                                    = $TemplateName
     "[Brief description of what this template is for and when it should be used. Explain the type of document this template will generate and its role in the project.]" = $TemplateDescription
-    "[Document type - e.g., Process Framework, Product Documentation]"                                                                                                   = "Process Framework"
+    "[Document type - e.g., Process Framework, Product Documentation]"                                                                                                   = $documentType
     "[Specific category - e.g., Task, Guide, Reference]"                                                                                                                 = $DocumentCategory
     "[Required Section 1]"                                                                                                                                               = "Overview"
     "[Description of what should go in this section]"                                                                                                                    = "Provide a concise overview of the $DocumentCategory being documented."
@@ -114,9 +123,18 @@ $customReplacements = @{
     "**Last Updated:** 2025-07-15"                                                                                                                                       = "**Last Updated:** $currentDate"
 }
 
+# IMP-439: Normalize OutputDirectory to be relative to process-framework/templates/
+$templateBase = "process-framework/templates"
+if ($OutputDirectory -and -not $OutputDirectory.StartsWith($templateBase)) {
+    $OutputDirectory = "$templateBase/$OutputDirectory"
+}
+
 # Create the template using standardized process
 try {
-    $templateId = New-StandardProjectDocument -TemplatePath "process-framework/templates/support/template-base-template.md" -IdPrefix "PF-TEM" -IdDescription "$TemplateName template" -DocumentName "$($TemplateName.ToLower().Replace(' ', '-'))-template" -OutputDirectory $OutputDirectory -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
+    # IMP-407: Auto-append "-template" suffix with double-suffix guard
+    $templateDocName = $TemplateName.ToLower().Replace(' ', '-')
+    if ($templateDocName -notmatch '-template$') { $templateDocName = "$templateDocName-template" }
+    $templateId = New-StandardProjectDocument -TemplatePath "process-framework/templates/support/template-base-template.md" -IdPrefix "PF-TEM" -IdDescription "$TemplateName template" -DocumentName $templateDocName -OutputDirectory $OutputDirectory -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
 
     # Provide success details
     $details = @(
@@ -125,7 +143,7 @@ try {
         "Document Prefix: $DocumentPrefix",
         "Document Category: $DocumentCategory",
         "",
-        "Template saved to: $OutputDirectory\$($TemplateName.ToLower().Replace(' ', '-'))-template.md"
+        "Template saved to: $OutputDirectory\$templateDocName.md"
     )
 
     # Add next steps if not opening in editor
@@ -156,10 +174,7 @@ try {
         $subDir = Split-Path -Leaf $OutputDirectory
 
         # Derive section header from subdirectory
-        if ($subDir -eq "templates") {
-            $sectionHeader = ".git/objects/3a/b045e54f8acd16e0d036a487eb74c269db1d9f#### Meta Templates (``templates/templates/``)"
-        }
-        elseif ($subDir -match '^(\d{2})-(.+)$') {
+        if ($subDir -match '^(\d{2})-(.+)$') {
             $num = $Matches[1]
             $name = (Get-Culture).TextInfo.ToTitleCase($Matches[2])
             $sectionHeader = "#### $num - $name Templates"
@@ -169,7 +184,8 @@ try {
             $sectionHeader = "#### $name Templates"
         }
 
-        $fileName = "$($TemplateName.ToLower().Replace(' ', '-'))-template.md"
+        # IMP-407: Reuse guarded name from above
+        $fileName = "$templateDocName.md"
         $relativePath = "templates/$subDir/$fileName"
         $entryLine = "- [Template: $TemplateName]($relativePath) - $TemplateDescription"
 

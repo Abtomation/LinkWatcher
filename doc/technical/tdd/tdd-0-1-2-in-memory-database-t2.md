@@ -112,6 +112,11 @@ class LinkDatabase(LinkDatabaseInterface):
         # Enables O(1) lookup in has_target_with_basename() (TD139)
         self._basename_to_keys: Dict[str, Set[str]] = {}
 
+        # Sorted key lists for O(log n + m) prefix queries in
+        # get_references_to_directory() via bisect (TD203)
+        self._sorted_link_keys: List[str] = []
+        self._sorted_resolved_keys: List[str] = []
+
         # Parser type -> expected file extension mapping for
         # extension-aware suffix matching (PD-BUG-059)
         self._parser_type_extensions: Dict[str, str] = (
@@ -354,17 +359,25 @@ def get_references_to_directory(self, dir_path: str) -> List[LinkReference]:
         dir_prefix = normalized_dir.rstrip("/") + "/"
         matched_keys = set()
 
-        # Phase 1: Raw key prefix matching (project-root-relative targets)
-        for target_path in self.links:
-            normalized_target = normalize_path(target_path)
-            if normalized_target == normalized_dir or normalized_target.startswith(dir_prefix):
-                matched_keys.add(target_path)
+        # Phase 1: Raw key matching via sorted index (TD203)
+        # Exact match via bisect, then prefix range scan
+        pos = bisect.bisect_left(self._sorted_link_keys, normalized_dir)
+        if pos < len(self._sorted_link_keys) and self._sorted_link_keys[pos] == normalized_dir:
+            matched_keys.add(normalized_dir)
+        prefix_pos = bisect.bisect_left(self._sorted_link_keys, dir_prefix)
+        while prefix_pos < len(self._sorted_link_keys) and self._sorted_link_keys[prefix_pos].startswith(dir_prefix):
+            matched_keys.add(self._sorted_link_keys[prefix_pos])
+            prefix_pos += 1
 
-        # Phase 2: Resolved-path matching (relative-path targets)
+        # Phase 2: Resolved-path matching via sorted index (TD203)
         # PD-BUG-068 fix: check _resolved_to_keys for resolved paths
-        for resolved_path, keys in self._resolved_to_keys.items():
-            if resolved_path == normalized_dir or resolved_path.startswith(dir_prefix):
-                matched_keys.update(keys)
+        pos = bisect.bisect_left(self._sorted_resolved_keys, normalized_dir)
+        if pos < len(self._sorted_resolved_keys) and self._sorted_resolved_keys[pos] == normalized_dir:
+            matched_keys.update(self._resolved_to_keys.get(normalized_dir, set()))
+        prefix_pos = bisect.bisect_left(self._sorted_resolved_keys, dir_prefix)
+        while prefix_pos < len(self._sorted_resolved_keys) and self._sorted_resolved_keys[prefix_pos].startswith(dir_prefix):
+            matched_keys.update(self._resolved_to_keys.get(self._sorted_resolved_keys[prefix_pos], set()))
+            prefix_pos += 1
 
         # Collect deduplicated references from all matched keys
         all_references = []

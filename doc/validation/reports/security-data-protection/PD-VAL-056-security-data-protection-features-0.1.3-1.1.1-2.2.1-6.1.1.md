@@ -18,7 +18,7 @@ validation_round: 2
 **Validation Type**: Security & Data Protection
 **Features Validated**: 0.1.3, 1.1.1, 2.2.1, 6.1.1
 **Validation Date**: 2026-03-26
-**Validation Round**: 2 (Session 13 — all applicable features)
+**Validation Round**: Round 2
 **Overall Score**: 2.9/3.0
 **Status**: PASS
 

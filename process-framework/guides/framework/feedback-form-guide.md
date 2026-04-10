@@ -148,7 +148,7 @@ Use this section for:
 ### Follow-up Actions
 This section helps prioritize improvements:
 - **Tools Needing Detailed Feedback**: Any tool scoring ≤3 in any criteria
-- **Process Improvements**: Specific workflow enhancements to consider
+- **Process Improvements**: Specific workflow enhancements to consider (document only — do not register PF-IMP entries; that is handled by PF-TSK-009/PF-TSK-010)
 - **Documentation Streamlining**: Areas where documentation could be more concise
 
 ### Human User Feedback

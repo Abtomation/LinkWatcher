@@ -145,6 +145,7 @@ Implement core business logic modules, wire integration points, and write unit t
 12. **Update Feature Implementation State**: Document completed work
     - Update code inventory with new modules and test files
     - Note any deviations from TDD/FDD specifications
+    - **Cross-TDD check**: For each file modified or created, grep the TDD directory (`doc/technical/tdd/`) for that filename. If another feature's TDD documents the file, verify the TDD still accurately describes the file's behavior and update it if needed.
     - Document issues encountered and resolutions
     - Mark this task as completed in the task sequence
 13. **Flag User Documentation Status**: If this feature has user-visible behavior (CLI options, configuration, workflows), set the User Documentation section in the feature implementation state file to `❌ Needed`. This triggers [User Documentation Creation](../07-deployment/user-documentation-creation.md) later in the workflow. If the feature is internal-only, set to `N/A`.

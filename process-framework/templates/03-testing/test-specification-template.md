@@ -9,7 +9,7 @@ feature_id: [FEATURE-ID]
 feature_name: [FEATURE-NAME]
 tdd_path: [TDD-PATH]
 test_tier: [1|2|3]
-change_notes: "v1.2 - Added Manual Test Scenarios section for manual/automated test classification"
+change_notes: "v2.0 - Added Routing Plan section (PF-IMP-424). Renamed Manual Test Scenarios to E2E Acceptance Test Scenarios with standardized terminology (PF-IMP-426). Removed AI Agent Session Handoff Notes section (not consumed by downstream tasks)."
 ---
 
 # Test Specification: [FEATURE-NAME]
@@ -51,7 +51,7 @@ Based on the feature tier assessment:
 | Integration Tests | ✅ Key data flows only | ✅ Full | ✅ Full |
 | UI/Component Tests | ❌ Remove if no UI | ✅ If feature has UI | ✅ If feature has UI |
 | End-to-End Tests | ❌ Remove section | ❌ Remove section | ✅ Include |
-| Manual Test Scenarios | ❌ Remove if none | ✅ If applicable | ✅ If applicable |
+| E2E Acceptance Test Scenarios | ❌ Remove if none | ✅ If applicable | ✅ If applicable |
 | Cross-References: API Spec | ❌ Remove if no API | ✅ If API exists | ✅ If API exists |
 | Cross-References: DB Schema | ❌ Remove if no DB | ✅ If DB exists | ✅ If DB exists |
 
@@ -171,6 +171,33 @@ Based on the feature tier assessment:
 - [Services/dependencies to mock based on TDD design]
 - [Test isolation strategy for components]
 
+## Routing Plan
+
+<!-- This section maps each TDD component to its downstream test tasks. It is the primary gate artifact:
+     routing decisions here determine which downstream tasks (PF-TSK-053, PF-TSK-069, PF-TSK-084) have work to do.
+     Complete this section BEFORE writing detailed test cases below. -->
+
+> **Classification values**: `automated` (AI-runnable unit/integration tests), `e2e` (requires human interaction with running system), `both` (automated regression + E2E acceptance validation)
+
+| Component | Classification | Performance | Cross-cutting | Downstream Task(s) |
+|-----------|---------------|-------------|---------------|---------------------|
+| [TDD component] | `automated` / `e2e` / `both` | Yes / No | [workflow name or —] | PF-TSK-053 / PF-TSK-069 / PF-TSK-084 |
+
+### E2E Scenario Details
+
+<!-- For components classified as `e2e` or `both`, provide the details below. Remove this subsection if no E2E scenarios exist. -->
+
+| Scenario ID | Component | User Action | Involved File Types / Behaviors | Expected Outcome | Test Group |
+|-------------|-----------|-------------|--------------------------------|------------------|------------|
+| [E2E-001] | [TDD component] | [What the human tester does] | [File types, link formats, system behaviors] | [Observable expected result] | [e.g., basic-file-operations] |
+
+<!-- Notes for downstream tasks:
+- Each E2E scenario listed here becomes a work queue item for PF-TSK-069 (E2E Acceptance Test Case Creation)
+- PF-TSK-069 will create concrete, executable test cases with exact file contents and verification criteria
+- Test Groups help organize related scenarios for batch execution via master tests
+- Performance entries feed PF-TSK-084 (Performance Test Creation)
+-->
+
 ## Test Categories
 
 ### Unit Tests
@@ -258,21 +285,7 @@ Based on the feature tier assessment:
 | ------------- | ------------------- | -------------------- | ----------------- |
 | [JourneyName] | [Step-by-step flow] | [Success definition] | [Failure cases]   |
 
-### Manual Test Scenarios
-
-<!-- Scenarios requiring human interaction with the running system. Remove this section if no scenarios are classified as manual or both. -->
-
-> **Purpose**: This section identifies test scenarios that cannot be fully validated through automated tests and require manual interaction with the running system. Each scenario classified as `manual` or `both` during step 11 of the task process should have an entry here.
-
-| Scenario ID | Description | Classification | User Action | Involved Components | Expected Outcome | Test Group |
-|-------------|-------------|----------------|-------------|---------------------|------------------|------------|
-| [MS-001] | [What behavior is being validated] | [manual/both] | [What the human tester does] | [File types, link formats, system behaviors] | [Observable expected result] | [e.g., basic-file-operations] |
-
-<!-- Notes for Manual Test Case Creation task:
-- Each scenario listed here becomes an input for the Manual Test Case Creation task
-- The Manual Test Case Creation task will create concrete, executable test cases with exact file contents and verification criteria
-- Test Groups help organize related scenarios for batch execution via master tests
--->
+<!-- E2E Acceptance Test Scenarios are now captured in the Routing Plan section above (E2E Scenario Details table). -->
 
 ## Mock Requirements
 
@@ -347,46 +360,8 @@ test/
 - [Test C] depends on [Mock D] being available
 - [Integration tests] require [unit tests] to be passing first
 
-## AI Agent Session Handoff Notes
-
-<!-- RETROSPECTIVE: For retrospective test specs, reframe "Implementation Context" as a summary
-     of existing test coverage and gaps. "Test Implementation Guidelines" should focus on what
-     tests to add to the existing suite, not building from scratch. -->
-
-### Implementation Context
-
-[Summary for AI agents implementing the tests]
-
-**Feature Summary**: [Brief description of what the feature does]
-**Test Focus**: [What aspects are most critical to test]
-**Key Challenges**: [Potential implementation challenges]
-
-### Test Implementation Guidelines
-
-[Specific guidance for AI agents]
-
-1. **Start with**: [Which tests to implement first]
-2. **Mock Strategy**: [How to approach mocking]
-3. **Test Data**: [Where to find or how to create test data]
-4. **Validation Points**: [Key things to validate in tests]
-
-### Files to Reference
-
-[Specific files the AI agent should review]
-
-- **TDD**: `[TDD-PATH]` - Complete technical specification
-- **Existing Tests**: `test/` - Current test patterns and structure
-- **Mock Services**: `test/mocks/` - Available mock implementations
-- **Test Helpers**: `test/test_helpers/` - Utility functions for testing
-
-### Success Criteria
-
-[How to know when test implementation is complete]
-
-- [ ] All high-priority tests implemented and passing
-- [ ] Mock requirements satisfied
-- [ ] Test coverage meets tier requirements
-- [ ] Integration with existing test suite successful
+<!-- AI Agent Session Handoff Notes section removed (v2.0) — routing plan and seeded tracking entries
+     provide downstream task orientation. Downstream tasks read the routing plan directly. -->
 - [ ] Documentation updated with test results
 
 ## Related Resources

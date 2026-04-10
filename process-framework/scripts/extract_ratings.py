@@ -15,7 +15,9 @@ Usage:
     # With review cycle ID and archived path prefix
     python process-framework/scripts/extract_ratings.py \\
         --review-cycle-id tools-review-20260403 \\
-        --archived-prefix "process-framework/feedback/archive/2026-04/tools-review-20260403/processed-forms" \\
+        --archived-prefix \\
+            "process-framework-local/feedback/archive/\\
+            2026-04/tools-review-20260403/processed-forms" \\
         feedback-forms/*.md
 
     # Output to file
@@ -200,7 +202,8 @@ def extract_form(
 def main():
     parser = argparse.ArgumentParser(
         description="Extract ratings from feedback form markdown files for feedback_db.py record",
-        epilog="Output can be piped directly: extract_ratings.py forms/*.md | feedback_db.py record --json -",
+        epilog="Output can be piped directly: "
+        "extract_ratings.py forms/*.md | feedback_db.py record --json -",
     )
     parser.add_argument("files", nargs="+", help="Feedback form markdown file(s)")
     parser.add_argument(
@@ -209,7 +212,8 @@ def main():
     )
     parser.add_argument(
         "--archived-prefix",
-        help="Path prefix for archived forms (e.g., process-framework/feedback/archive/2026-04/...)",
+        help="Path prefix for archived forms "
+        "(e.g., process-framework-local/feedback/archive/2026-04/...)",
     )
     parser.add_argument(
         "-o",

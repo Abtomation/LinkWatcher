@@ -258,7 +258,7 @@ This document serves as the **comprehensive registry** of all process framework 
 | Operation | File Path | Update Method | Details |
 |-----------|-----------|---------------|---------|
 | **Creates** | `tdd-[FeatureId]-[feature-name]-t[Tier].md` | `New-TDD.ps1` | Technical design document with architecture and implementation details |
-| **Updates** | [`feature-tracking.md`](../../doc/state-tracking/permanent/feature-tracking.md) | `New-TDD.ps1` | Status: "📋 FDD Created" (Tier 2+) or "📊 Assessment Created" (Tier 1) → "📝 TDD Created"<br/>• Add TDD link in Tech Design column<br/>• Add TDD creation date to Notes column |
+| **Updates** | [`feature-tracking.md`](../../doc/state-tracking/permanent/feature-tracking.md) | `New-TDD.ps1` | Status: "📋 FDD Created" (Tier 2+) or "📊 Assessment Created" (Tier 1) → "📝 TDD Created"<br/>• Add TDD link in Tech Design column |
 
 **🎯 KEY IMPACTS**
 
@@ -1057,6 +1057,70 @@ This document serves as the **comprehensive registry** of all process framework 
 - **Primary output:** Git commit pushed to remote repository
 - **Enables next steps:** Code persisted for future sessions or deployment
 - **Dependencies:** None — can be used after any task
+
+#### **31. Integration Narrative Creation** ([PF-TSK-083](../tasks/02-design/integration-narrative-creation.md))
+
+**🔧 Process Type:** 🔧 **Semi-Automated** (Script creates narrative file with ID, manual customization of content required)
+
+**📋 AUTOMATION DETAILS**
+
+- **Script:** [`New-IntegrationNarrative.ps1`](../scripts/file-creation/02-design/New-IntegrationNarrative.ps1)
+- **Output Directory:** `doc/technical/integration/`
+- **Auto-Update Function:** PD-id-registry.json (via Common-ScriptHelpers), PD-documentation-map.md (custom append), user-workflow-tracking.md "Integration Doc" column (by WorkflowId)
+
+**📁 FILE OPERATIONS**
+| Operation | File Path | Update Method | Details |
+|-----------|-----------|---------------|---------|
+| Create | `doc/technical/integration/[workflow]-integration-narrative.md` | Script | Integration Narrative with PD-INT ID |
+| Update | `doc/PD-id-registry.json` | Script (auto) | Increment PD-INT nextAvailable counter |
+| Update | `doc/PD-documentation-map.md` | Script (auto) | Append narrative entry to Integration Narratives section |
+| Update | `doc/state-tracking/permanent/user-workflow-tracking.md` | Script (auto) | Set "Integration Doc" column to PD-INT ID (by WorkflowId parameter) |
+
+**🎯 KEY IMPACTS**
+
+- **Primary output:** Integration Narrative (PD-INT-XXX) documenting cross-feature workflow collaboration
+- **Enables next steps:** E2E Acceptance Test Case Creation (PF-TSK-069) — narrative provides verified cross-feature understanding for test design
+- **Dependencies:** All workflow features must be Implemented in user-workflow-tracking.md
+
+#### **32. Performance Test Creation** ([PF-TSK-084](../tasks/03-testing/performance-test-creation-task.md))
+
+**🔧 Process Type:** 🔧 **Manual** (Newly created — customize after task definition is complete)
+
+**📋 AUTOMATION DETAILS**
+
+- **Script:** _None — update after task customization_
+- **Output Directory:** _TBD_
+
+**📁 FILE OPERATIONS**
+| Operation | File Path | Update Method | Details |
+|-----------|-----------|---------------|---------|
+| _TBD_ | _Update after task customization_ | _TBD_ | _TBD_ |
+
+**🎯 KEY IMPACTS**
+
+- **Primary output:** _Update after task customization_
+- **Enables next steps:** _TBD_
+- **Dependencies:** _TBD_
+
+#### **33. Performance Baseline Capture** ([PF-TSK-085](../tasks/03-testing/performance-baseline-capture-task.md))
+
+**🔧 Process Type:** 🔧 **Manual** (Newly created — customize after task definition is complete)
+
+**📋 AUTOMATION DETAILS**
+
+- **Script:** _None — update after task customization_
+- **Output Directory:** _TBD_
+
+**📁 FILE OPERATIONS**
+| Operation | File Path | Update Method | Details |
+|-----------|-----------|---------------|---------|
+| _TBD_ | _Update after task customization_ | _TBD_ | _TBD_ |
+
+**🎯 KEY IMPACTS**
+
+- **Primary output:** _Update after task customization_
+- **Enables next steps:** _TBD_
+- **Dependencies:** _TBD_
 ### **VALIDATION TASKS**
 
 #### **V0. Validation Preparation** ([PF-TSK-077](../tasks/05-validation/validation-preparation.md))

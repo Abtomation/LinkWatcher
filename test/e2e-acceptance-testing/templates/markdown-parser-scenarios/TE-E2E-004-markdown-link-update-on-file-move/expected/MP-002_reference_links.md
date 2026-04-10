@@ -20,5 +20,5 @@ This file tests reference-style markdown links with REAL files.
 [unused]: test_project/file2.txttion/file2.txt
 
 **Expected Results:**
-- Should find: test_project/inline.txt, test_project/docs/readme.md, test_project/config/settings.yaml, test_project/api/reference.txt, test_project/file1.txt, test_project/file2.txttion/file2.txt
+- Should find: test_project/inline.txt, test_project/archive/readme.md, test_project/config/settings.yaml, test_project/api/reference.txt, test_project/file1.txt, test_project/file2.txttion/file2.txt
 - All these files actually exist and can be moved/renamed for testing!

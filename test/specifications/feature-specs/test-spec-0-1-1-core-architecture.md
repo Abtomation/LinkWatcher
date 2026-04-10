@@ -283,36 +283,6 @@ test/automated/
 - **Loose assertions** (found during test audit PF-TAR-011, 2026-03-15): Several integration tests use `>= N` rather than exact counts, which could hide partial failures. Low priority but worth tightening.
 - **Permissive error recovery validation**: Some error handling tests (EH-001 through EH-008) verify service doesn't crash but don't validate actual recovery occurred (e.g., `assert service.link_db is not None` without checking DB state)
 
-## AI Agent Session Handoff Notes
-
-### Implementation Context
-
-**Feature Summary**: Core Architecture is the top-level orchestrator (`LinkWatcherService`) that coordinates database, parser, updater, handler, and observer subsystems.
-**Test Focus**: Service lifecycle, subsystem wiring, initial scan, file movement pipeline
-**Key Challenges**: Testing signal handling and Observer thread lifecycle without flaky tests
-
-### Test Implementation Guidelines
-
-1. **Start with**: Unit tests in `test_service.py` — they test the service API surface
-2. **Mock Strategy**: Use real subsystems (not mocks) since the service is a thin coordinator
-3. **Test Data**: Use `temp_project_dir` and `sample_files` fixtures from `conftest.py`
-4. **Validation Points**: Database population after scan, link update correctness after file moves
-
-### Files to Reference
-
-- **TDD**: [`doc/technical/tdd/tdd-0-1-1-core-architecture-t3.md`](../../../doc/technical/tdd/tdd-0-1-1-core-architecture-t3.md)
-- **Existing Tests**: [`test/automated/unit/test_service.py`](../../../test/automated/unit/test_service.py), `test/automated/integration/test_*.py`
-- **Fixtures**: [`test/automated/conftest.py`](../../../test/automated/conftest.py) — shared test setup
-- **Test Utilities**: [`test/automated/utils.py`](../../../test/automated/utils.py) — helper functions
-
-### Success Criteria
-
-- [x] All high-priority tests implemented and passing
-- [x] Mock requirements satisfied (using fixture-based approach)
-- [x] Integration test coverage across all file formats
-- [x] Windows platform compatibility tests passing
-- [ ] Signal handling and thread lifecycle tests (identified gap)
-
 ## Related Resources
 
 - **Source TDD**: [PD-TDD-021](../../../doc/technical/tdd/tdd-0-1-1-core-architecture-t3.md)

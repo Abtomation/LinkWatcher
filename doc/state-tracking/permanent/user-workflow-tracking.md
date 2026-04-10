@@ -27,16 +27,16 @@ This document maps user-facing workflows to the features that enable them and tr
 
 ## Workflows
 
-| ID | Workflow | User Action | Required Features | Priority | Impl Status | E2E Status |
-|----|----------|-------------|-------------------|----------|-------------|------------|
-| WF-001 | Single file move → links updated | Move/rename a file (VS Code, File Explorer, git) | 1.1.1, 2.1.1, 2.2.1 | P1 | All Implemented | 🔴 Failing |
-| WF-002 | Directory move → contained refs updated | Move/rename a directory | 1.1.1, 0.1.2, 2.1.1, 2.2.1 | P1 | All Implemented | 🔴 Failing |
-| WF-003 | Startup → initial project scan | Run `python main.py` or startup script | 0.1.1, 0.1.3, 0.1.2, 2.1.1, 1.1.1, 3.1.1 | P1 | Pending: 0.1.1 | 🔴 Failing |
-| WF-004 | Rapid sequential moves → consistency | Move multiple files in quick succession | 1.1.1, 0.1.2, 2.2.1 | P2 | All Implemented | ✅ Covered |
-| WF-005 | Multi-format file move → all parsers handle | Move a file referenced from MD, YAML, JSON, Python, PS1 | 2.1.1, 2.2.1, 1.1.1 | P2 | All Implemented | 🔴 Failing |
-| WF-006 | Configuration change → behavior adapts | Edit config file or pass CLI arguments | 0.1.3, 1.1.1, 3.1.1 | P3 | All Implemented | Not Tested |
-| WF-007 | Dry-run mode → preview without changes | Start with `--dry-run`, move files, observe logs | 0.1.3, 0.1.1, 2.2.1, 3.1.1 | P3 | Pending: 0.1.1 | ✅ Covered |
-| WF-008 | Graceful shutdown → no corrupted files | Stop the LinkWatcher process (Ctrl+C, kill) | 0.1.1, 2.2.1, 0.1.2 | P2 | Pending: 0.1.1 | ✅ Covered |
+| ID | Workflow | User Action | Required Features | Priority | Impl Status | E2E Status | Integration Doc |
+|----|----------|-------------|-------------------|----------|-------------|------------|-----------------|
+| WF-001 | Single file move → links updated | Move/rename a file (VS Code, File Explorer, git) | 1.1.1, 2.1.1, 2.2.1 | P1 | All Implemented | 🔄 Re-execution Needed | — |
+| WF-002 | Directory move → contained refs updated | Move/rename a directory | 1.1.1, 0.1.2, 2.1.1, 2.2.1 | P1 | All Implemented | 🔄 Re-execution Needed | — |
+| WF-003 | Startup → initial project scan | Run `python main.py` or startup script | 0.1.1, 0.1.3, 0.1.2, 2.1.1, 1.1.1, 3.1.1 | P1 | Pending: 0.1.1 | 🔴 Failing | — |
+| WF-004 | Rapid sequential moves → consistency | Move multiple files in quick succession | 1.1.1, 0.1.2, 2.2.1 | P2 | All Implemented | 🔄 Re-execution Needed | — |
+| WF-005 | Multi-format file move → all parsers handle | Move a file referenced from MD, YAML, JSON, Python, PS1 | 2.1.1, 2.2.1, 1.1.1 | P2 | All Implemented | 🔄 Re-execution Needed | — |
+| WF-006 | Configuration change → behavior adapts | Edit config file or pass CLI arguments | 0.1.3, 1.1.1, 3.1.1 | P3 | All Implemented | Not Tested | — |
+| WF-007 | Dry-run mode → preview without changes | Start with `--dry-run`, move files, observe logs | 0.1.3, 0.1.1, 2.2.1, 3.1.1 | P3 | Pending: 0.1.1 | ✅ Covered | — |
+| WF-008 | Graceful shutdown → no corrupted files | Stop the LinkWatcher process (Ctrl+C, kill) | 0.1.1, 2.2.1, 0.1.2 | P2 | Pending: 0.1.1 | ✅ Covered | — |
 
 ## Workflow Details
 
@@ -87,5 +87,3 @@ User starts LinkWatcher in dry-run mode to see what changes would be made withou
 
 User stops LinkWatcher while file moves may be in progress. No files should be left in a corrupted or partially-updated state. Atomic writes ensure either full update or no change.
 </details>
-
-

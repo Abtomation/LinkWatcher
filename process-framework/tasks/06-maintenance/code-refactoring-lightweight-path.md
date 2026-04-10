@@ -67,6 +67,8 @@ For batch mode: copy the "Item N" section in the generated plan for each additio
 
    > **Tier 1 shortcut**: If the feature is Tier 1 and has no design documents (TDD, FDD, ADR, test spec), batch items 2–5 below as N/A with a single justification: *"Tier 1 feature — no design documents exist for [feature name]."* Still check items 1 (feature state file), 6 (validation tracking), and 7 (tech debt) individually.
 
+   > **Test-only shortcut**: If the refactoring targets exclusively test code (no production code changes), batch items 1–6 below as N/A with a single justification: *"Test-only refactoring — no production code changes; design and state documents do not reference test internals."* Still check item 7 (tech debt) individually.
+
    1. Feature implementation state file updated, or N/A — verified file does not reference changed component (grep state file for component/method name)
    2. TDD updated, or N/A — verified no interface or significant internal design changes (new data structures, algorithm rewrites, storage layout changes) documented in TDD (grep TDD for references to changed component)
    3. Test spec updated, or N/A — verified no behavior change affects spec (grep test spec for changed component)

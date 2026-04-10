@@ -599,8 +599,8 @@ $documentId = New-StandardProjectDocument -FileNamePattern $customFileName ...
 ```powershell
 # Select template based on type
 $templatePath = switch ($Type) {
-    "Task" { "../process-framework/templates/templates/task-template.md" }
-    "Guide" { "../process-framework/templates/templates/guide-template.md" }
+    "Task" { "../process-framework/templates/support/task-template.md" }
+    "Guide" { "../process-framework/templates/support/guide-template.md" }
     "Feedback" { "../process-framework/templates/support/feedback-form-template.md" }
 }
 ```

@@ -2,9 +2,9 @@
 id: PF-GDE-035
 type: Process Framework
 category: Guide
-version: 1.1
+version: 1.2
 created: 2025-07-28
-updated: 2026-04-02
+updated: 2026-04-09
 related_task: PF-TSK-026
 related_script: New-FrameworkExtensionConcept.ps1
 ---
@@ -78,6 +78,8 @@ The Framework Extension Concept template contains placeholder content that must 
 3. **Include concrete examples** of how the extension will be used
 4. **Define measurable success criteria** for the extension
 
+> **⚠️ Project-specific adaptation**: Define categories, levels, and terminology specific to YOUR project's architecture. Do not copy generic industry terminology — study the project's existing patterns first (see Pre-Concept Analysis in [Framework Extension Task](../../tasks/support/framework-extension-task.md) Step 1) and derive categories that match the project's actual structure.
+
 ### Phase 3: Integration Planning
 1. **Map dependencies** on existing framework components
 2. **Identify integration points** with current processes
@@ -120,6 +122,32 @@ AFTER:  **Selected Type**: Modification
 3. **Automation Integration Strategy**: List every script that reads from or writes to the artifacts you're modifying. Determine if each script needs changes and whether changes are backward compatible.
 
 **Key principle:** The discovery method row is important — document how you found the references so reviewers can verify completeness.
+
+### Existing Project Precedents Section
+
+**Template Content:** Table for documenting how the project already handles similar or analogous cases
+**Your Task:** Research existing patterns before designing the extension
+
+**Customization Steps:**
+1. **Search the codebase** for existing workflows, tasks, or patterns that solve similar problems to what the extension addresses
+2. **Fill in the precedent table** with concrete file paths and descriptions — do not leave this generic
+3. **Write the Key Takeaways** summarizing what to reuse, what gaps exist, and what the extension adds that is genuinely new
+4. **Verify each precedent** by reading the referenced files — do not rely on assumptions about what exists
+
+**Key principle:** This section must be completed *before* designing the Core Process Overview or artifact lists. The precedents inform the design.
+
+### Interfaces to Existing Framework Section
+
+**Template Content:** Three sub-tables for task interfaces, state file interfaces, and artifact interfaces
+**Your Task:** Map every touchpoint between the extension and the existing framework
+
+**Customization Steps:**
+1. **Task Interfaces**: List every existing task that feeds into or consumes from this extension. Specify the direction (upstream input, downstream consumer, or modified by extension) and what flows between them.
+2. **State File Interfaces**: List every state file the extension reads from or writes to. Be specific about which fields or sections are affected.
+3. **Artifact Interfaces**: List every existing artifact type (templates, guides, tracking files) the extension uses or updates.
+4. **Verify with grep**: Use `grep` for task IDs, file paths, and state file names to ensure completeness.
+
+**Key principle:** If a touchpoint is not listed here, it will likely be missed during implementation. Err on the side of over-documenting interfaces.
 
 ### Executive Summary Section
 

@@ -3,6 +3,35 @@ Python file parser for extracting file references.
 
 This parser handles Python files and extracts file references
 from strings and comments, excluding standard library imports.
+
+AI Context
+----------
+- **Entry point**: ``parse_content()`` — iterates lines with a
+  docstring state machine (triple-quote tracking via
+  ``_TRIPLE_QUOTE_RE``) and delegates to inline extraction blocks
+  for each link category.
+- **Pattern architecture**: 5 compiled regexes — ``quoted_pattern``
+  and ``quoted_dir_pattern`` (shared from ``parsers/patterns.py``),
+  ``comment_pattern`` (bare file paths), ``local_import_pattern``
+  (``import``/``from`` statements), and ``_BARE_DIR_RE`` (directory
+  paths in docstrings).  A module-level ``_IMPORT_MODULE_RE`` guards
+  stdlib filtering.
+- **Stdlib filtering**: ``_STDLIB_TOP_LEVEL_MODULES`` (frozenset)
+  filters standard library imports.  ``_looks_like_local_import()``
+  additionally requires known prefixes (``src``, ``lib``, etc.) or
+  3+ path segments for dot-notation imports.
+- **Link types**: ``PYTHON_QUOTED``, ``PYTHON_QUOTED_DIR``,
+  ``PYTHON_IMPORT``, ``PYTHON_COMMENT``, ``PYTHON_DOCSTRING``,
+  ``PYTHON_DOCSTRING_DIR``.
+- **Common tasks**:
+  - Adding a new extraction category: add a regex, create an
+    extraction block inside ``parse_content()``, and emit
+    ``LinkReference`` objects with a new or existing ``LinkType``.
+  - Debugging missed imports: check ``_looks_like_local_import()``
+    prefix list and ``_STDLIB_TOP_LEVEL_MODULES`` filtering.
+  - Debugging missed docstring paths: verify triple-quote state
+    tracking toggles correctly for the input.
+  - Testing: ``test/automated/parsers/test_python.py``.
 """
 
 import os
@@ -10,6 +39,7 @@ import re
 import sys
 from typing import List
 
+from ..link_types import LinkType
 from ..models import LinkReference
 from .base import BaseParser
 from .patterns import QUOTED_DIR_PATTERN, QUOTED_PATH_PATTERN
@@ -306,7 +336,7 @@ class PythonParser(BaseParser):
                                     column_end=match.end(1),
                                     link_text=potential_file,
                                     link_target=potential_file,
-                                    link_type="python-docstring",
+                                    link_type=LinkType.PYTHON_DOCSTRING,
                                 )
                             )
                     # Bare directory paths (no extension, with path separator)
@@ -325,7 +355,7 @@ class PythonParser(BaseParser):
                                     column_end=match.end(0),
                                     link_text=potential_dir,
                                     link_target=potential_dir,
-                                    link_type="python-docstring-dir",
+                                    link_type=LinkType.PYTHON_DOCSTRING_DIR,
                                 )
                             )
                     if not tq_matches:
@@ -349,7 +379,7 @@ class PythonParser(BaseParser):
                                 column_end=match.end(1),
                                 link_text=potential_file,
                                 link_target=potential_file,
-                                link_type="python-quoted",
+                                link_type=LinkType.PYTHON_QUOTED,
                             )
                         )
 
@@ -371,7 +401,7 @@ class PythonParser(BaseParser):
                                 column_end=match.end(1),
                                 link_text=potential_dir,
                                 link_target=potential_dir,
-                                link_type="python-quoted-dir",
+                                link_type=LinkType.PYTHON_QUOTED_DIR,
                             )
                         )
 
@@ -392,7 +422,7 @@ class PythonParser(BaseParser):
                                     column_end=import_match.end(1),
                                     link_text=import_path,
                                     link_target=file_path_candidate,
-                                    link_type="python-import",
+                                    link_type=LinkType.PYTHON_IMPORT,
                                 )
                             )
 
@@ -413,7 +443,7 @@ class PythonParser(BaseParser):
                                     column_end=comment_start + match.end(1),
                                     link_text=potential_file,
                                     link_target=potential_file,
-                                    link_type="python-comment",
+                                    link_type=LinkType.PYTHON_COMMENT,
                                 )
                             )
 

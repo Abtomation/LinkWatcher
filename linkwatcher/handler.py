@@ -191,6 +191,15 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
             logger=self.logger,
         )
 
+        # Event deferral during initial scan (PD-BUG-053)
+        # When activated by begin_event_deferral(), events arriving before
+        # the link DB is fully populated are queued and replayed after
+        # notify_scan_complete() is called.  Default: no deferral (set).
+        self._scan_complete = threading.Event()
+        self._scan_complete.set()  # default: process events normally
+        self._deferred_events = []
+        self._deferred_lock = threading.Lock()
+
         # Statistics (protected by _stats_lock — PD-BUG-026)
         self.stats = {
             "files_moved": 0,
@@ -207,8 +216,40 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
             ignored_dirs=list(self.ignored_dirs),
         )
 
+    def begin_event_deferral(self):
+        """Activate event deferral before initial scan starts (PD-BUG-053)."""
+        self._scan_complete.clear()
+        self.logger.debug("event_deferral_activated")
+
+    def _defer_event(self, method_name, event):
+        """Queue an event for replay after initial scan completes (PD-BUG-053)."""
+        with self._deferred_lock:
+            self._deferred_events.append((method_name, event))
+        self.logger.debug(
+            "event_deferred_during_scan",
+            event_type=method_name,
+            path=getattr(event, "src_path", "unknown"),
+        )
+
+    def notify_scan_complete(self):
+        """Signal that initial scan is done and replay all deferred events (PD-BUG-053)."""
+        self._scan_complete.set()
+        with self._deferred_lock:
+            deferred = list(self._deferred_events)
+            self._deferred_events.clear()
+        if deferred:
+            self.logger.info(
+                "replaying_deferred_events",
+                count=len(deferred),
+            )
+            for method_name, event in deferred:
+                getattr(self, method_name)(event)
+
     def on_moved(self, event):
         """Handle file/directory move events."""
+        if not self._scan_complete.is_set():
+            self._defer_event("on_moved", event)
+            return
         try:
             if event.is_directory:
                 self._handle_directory_moved(event)
@@ -229,6 +270,9 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
 
     def on_deleted(self, event):
         """Handle file/directory deletion events."""
+        if not self._scan_complete.is_set():
+            self._defer_event("on_deleted", event)
+            return
         try:
             if event.is_directory:
                 self._handle_directory_deleted(event)
@@ -257,6 +301,9 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
 
     def on_created(self, event):
         """Handle file/directory creation events."""
+        if not self._scan_complete.is_set():
+            self._defer_event("on_created", event)
+            return
         try:
             if not event.is_directory and (
                 self._should_monitor_file(event.src_path)
@@ -492,9 +539,7 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
             for refs, old_p, new_p in move_groups:
                 stale_refs = [r for r in refs if r.file_path in stale_set]
                 if stale_refs:
-                    fresh_refs = self._ref_lookup.find_references(
-                        old_p, filter_files=stale_set
-                    )
+                    fresh_refs = self._ref_lookup.find_references(old_p, filter_files=stale_set)
                     if fresh_refs:
                         retry_groups.append((fresh_refs, old_p, new_p))
             if retry_groups:
@@ -577,7 +622,7 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
                 ref_new = new_dir
             elif target_norm.startswith(old_dir_prefix):
                 # Subdirectory match — replace the prefix
-                suffix = target_norm[len(old_dir_prefix):]
+                suffix = target_norm[len(old_dir_prefix) :]
                 ref_old = target
                 ref_new = new_dir_norm + "/" + suffix
             else:
@@ -757,6 +802,10 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
                 error_type=type(e).__name__,
             )
             self._update_stat("errors")
+
+    def add_monitored_extension(self, extension: str):
+        """Add a file extension to the set of monitored extensions."""
+        self.monitored_extensions.add(extension.lower())
 
     def _should_monitor_file(self, file_path: str) -> bool:
         """Check if a file should be monitored."""

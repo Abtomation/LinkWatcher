@@ -4,11 +4,49 @@ Path resolution for link target calculation.
 This module handles resolving and calculating new link target paths
 when files are moved or renamed. It is a pure calculation module
 with no file I/O or text replacement logic.
+
+AI Context
+----------
+Entry point: PathResolver.calculate_new_target(ref, old_path, new_path)
+    Dispatches based on link type:
+    - Python imports (LinkType.PYTHON_IMPORT) → _calculate_new_python_import()
+    - All other link types → _calculate_new_target_relative()
+    Anchor fragments (#section) are stripped before resolution and reattached after.
+
+Resolution flow (_calculate_new_target_relative):
+    Two early-exit checks run before the match strategies:
+    1. Direct path equality — original target equals old_path (root-relative style)
+    2. Directory prefix match — original target starts with old_path + "/"
+
+    If neither early-exit matches, 4 match strategies are tried in order:
+    1. _match_direct — exact normalized path comparison after resolving to absolute
+    2. _match_stripped — strips leading "/" to compare absolute vs relative forms
+    3. _match_resolved — resolves old_path relative to source file directory,
+       plus a filename-only fallback for bare filenames in the same directory
+    4. Suffix match (inline, PD-BUG-045) — for nested project contexts where
+       old_path is a full nested path but the link target is a short suffix;
+       constrained to source files under the same sub-project root
+
+    On match: _convert_to_original_link_type() reconstructs the link preserving
+    the original style (absolute, relative, filename-only, separator style).
+    On no match or exception: returns the original target unchanged.
+
+Python import handler (_calculate_new_python_import):
+    Compares extensionless paths (strips .py). Supports python_source_root
+    config to strip a prefix like "src/" so imports match project-root paths
+    (PD-BUG-078). Uses the same suffix match strategy for nested projects
+    (PD-BUG-045).
+
+Key design decisions:
+    - Pure calculation: no file I/O, no text replacement (updater.py handles that)
+    - Graceful degradation: all exceptions caught and logged, original target returned
+    - Path normalization uses forward slashes internally throughout
 """
 
 import os
 from pathlib import Path
 
+from .link_types import LinkType
 from .logging import get_logger
 from .models import LinkReference
 from .utils import normalize_path
@@ -36,7 +74,7 @@ class PathResolver:
         original_target = ref.link_target
 
         # Special handling for Python imports
-        if ref.link_type == "python-import":
+        if ref.link_type == LinkType.PYTHON_IMPORT:
             return self._calculate_new_python_import(
                 original_target, old_path, new_path, ref.file_path
             )

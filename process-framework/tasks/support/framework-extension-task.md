@@ -3,9 +3,9 @@ id: PF-TSK-026
 type: Process Framework
 category: Task Definition
 domain: agnostic
-version: 1.1
+version: 1.2
 created: 2025-07-26
-updated: 2026-04-06
+updated: 2026-04-09
 ---
 
 # Framework Extension Task
@@ -43,9 +43,10 @@ This task manages the systematic extension of the task-based development framewo
 
 - **Important (Load If Space):**
 
+  - [Script Development Quick Reference](../../guides/support/script-development-quick-reference.md) - PowerShell execution patterns and parameter checking (**always check script parameters with `-?` before running**)
   - [Documentation Map](../../PF-documentation-map.md) - For understanding current framework structure and updating with new artifacts
   - [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) - For tracking framework capability enhancements
-  - [New-TempTaskState.ps1](../../scripts/file-creation/support/New-TempTaskState.ps1) - State tracking for creation-heavy extensions
+  - [New-TempTaskState.ps1](../../scripts/file-creation/support/New-TempTaskState.ps1) - State tracking for creation-heavy extensions (use `-Variant FrameworkExtension` for multi-artifact tracking)
   - [New-StructureChangeState.ps1](../../scripts/file-creation/support/New-StructureChangeState.ps1) - State tracking for modification-heavy extensions
   - [Template Development Guide](../../guides/support/template-development-guide.md) - For creating extension-specific templates
   - [Document Creation Script Development Guide](../../guides/support/document-creation-script-development-guide.md) - For creating automation scripts
@@ -69,7 +70,14 @@ This task manages the systematic extension of the task-based development framewo
 
 ### Phase 1: Concept Development & Approval
 
-1. **Create Framework Extension Concept Document** using the standardized script:
+1. **Pre-Concept Analysis** — before creating the concept document, study the landscape:
+   - (a) **Read the [Task Transition Guide](../../guides/framework/task-transition-guide.md)** to understand how existing tasks connect and hand over work
+   - (b) **Study existing project patterns** solving similar problems — identify precedents in the project's current workflow (e.g., how E2E tracking handles non-standard test types, how validation dimensions were modularized)
+   - (c) **Establish the abstraction model** — what are the natural levels in the project's architecture? Define categories specific to the project, not copied from generic industry terminology
+   - (d) **Trace the full lifecycle end-to-end** — who triggers → who plans → who creates → who runs → who records → who reviews → how do you know what's left?
+   - (e) **Evaluate scalability, abstraction level, and ownership** for every new concept — will this scale as the project grows? Does it match the project's architecture? Who owns each artifact, process, and decision?
+   > Each sub-step should produce a concrete answer. If you cannot answer a question, that is a gap to resolve before proceeding.
+2. **Create Framework Extension Concept Document** using the standardized script:
    ```powershell
    cd process-framework-local/proposals
    ./New-FrameworkExtensionConcept.ps1 -ExtensionName "[Extension Name]" -ExtensionDescription "[Brief description]" -ExtensionScope "[Extension scope]" -OpenInEditor
@@ -81,42 +89,43 @@ This task manages the systematic extension of the task-based development framewo
    - Create artifact dependency map showing how new artifacts serve as inputs for subsequent tasks
    - Define state tracking integration strategy (new permanent state files vs. updating existing ones)
    - Include integration strategy with current framework workflow
-2. **Present Concept for Human Review** - Get explicit approval before proceeding to implementation
-3. **Analyze Framework Impact** — For each existing framework element (task, script, template) that the extension will modify:
+3. **Present Concept for Human Review** - Get explicit approval before proceeding to implementation
+4. **Analyze Framework Impact** — For each existing framework element (task, script, template) that the extension will modify:
    - Read the complete element
    - Summarize: (a) what information it has at each step, (b) what it is responsible for, (c) what it delegates
    - Document how the extension affects it, considering its actual knowledge state
    - **Do not propose modifications based on assumptions** — present this analysis at the checkpoint first
-4. **🚨 CHECKPOINT**: Present concept document, impact analysis, and proposed implementation approach to human partner for approval
+   > **Validation script check**: If the extension modifies state file structure (columns, sections, headings), identify which [Validate-StateTracking.ps1](../../scripts/validation/Validate-StateTracking.ps1) surfaces parse those files and include them in the impact analysis. Run `Validate-StateTracking.ps1` before and after changes to catch regressions.
+5. **🚨 CHECKPOINT**: Present concept document, impact analysis, and proposed implementation approach to human partner for approval
 
 ### Phase 2: State Tracking & Planning
 
-5. **Create Temporary State Tracking File** — choose the template based on extension type:
-   - **Creation-heavy** (new tasks, templates, scripts): Use `New-TempTaskState.ps1` (TaskCreation variant):
+6. **Create Temporary State Tracking File** — choose the template based on extension type:
+   - **Creation-heavy** (new tasks, templates, scripts): Use `New-TempTaskState.ps1` (FrameworkExtension variant):
      ```powershell
-     New-TempTaskState.ps1 -TaskName "[Extension Name]" -Description "Framework extension for [brief description]"
+     New-TempTaskState.ps1 -TaskName "[Extension Name]" -Variant "FrameworkExtension" -Description "Framework extension for [brief description]"
      ```
    - **Modification-heavy** (primarily changing existing tasks, templates, scripts): Use `New-StructureChangeState.ps1` — its Affected Components Analysis and file mapping sections are a better fit:
      ```powershell
      New-StructureChangeState.ps1 -ChangeName "[Extension Name]" -ChangeType "Documentation Architecture" -Description "Framework extension for [brief description]"
      ```
-6. **Develop Implementation Roadmap** with detailed multi-session breakdown in the temporary state file
-7. **Identify Required Components** (tasks, templates, guides, scripts, directories) and their dependencies
+7. **Develop Implementation Roadmap** with detailed multi-session breakdown in the temporary state file
+8. **Identify Required Components** (tasks, templates, guides, scripts, directories) and their dependencies
    - If the extension introduces language-specific commands or tooling, check if new fields are needed in `languages-config` files. Use [Update-LanguageConfig.ps1](../../scripts/update/Update-LanguageConfig.ps1) to add fields consistently across all language configs and the template.
    - For each new task, verify its "When to Use" section defines concrete triggers (specific events, states, or conditions) — not generic "when needed" statements.
-8. **Plan Integration Points** with existing framework components and state tracking files
-9. **🚨 CHECKPOINT**: Present implementation roadmap, required components list, and session plan to human partner for approval
+9. **Plan Integration Points** with existing framework components and state tracking files
+10. **🚨 CHECKPOINT**: Present implementation roadmap, required components list, and session plan to human partner for approval
 
 ### Phase 3: Multi-Session Implementation
 
-10. **Execute Session-by-Session Implementation** following the detailed roadmap in temporary state tracking file:
+11. **Execute Session-by-Session Implementation** following the detailed roadmap in temporary state tracking file:
     - **Session 1**: Core task definitions and primary infrastructure
     - **Session 2**: Supporting templates and document creation scripts
     - **Session 3**: Usage guides and integration documentation
     - **Session 4**: Framework integration and testing
-11. **Modify Existing Task Definitions** (if the extension requires inserting steps into existing tasks):
+12. **Modify Existing Task Definitions** (if the extension requires inserting steps into existing tasks):
     > **Step renumbering warning**: Inserting or removing numbered steps triggers cascading renumbering of all subsequent steps plus internal "Step N" cross-references. For large tasks (e.g., Bug Fixing) this can involve 10+ sequential edits. To reduce effort and errors: (1) add steps at the end of a phase where possible to minimize renumbering, (2) batch-verify all "Step" references with grep after renumbering to catch stale cross-references.
-12. **Progressive Component Creation** using two-phase document creation approach:
+13. **Progressive Component Creation** using two-phase document creation approach:
     - **Phase A - Structure Generation**: Use scripts (New-Task.ps1, New-Template.ps1, New-Guide.ps1) to generate basic document frameworks
       - ⚠️ **CRITICAL**: Script outputs are STARTING POINTS requiring extensive customization
       - Scripts create structural frameworks with placeholder content that MUST be replaced
@@ -124,21 +133,22 @@ This task manages the systematic extension of the task-based development framewo
       - Templates require comprehensive content development following Template Development Guide
       - Guides require extensive customization following Guide Creation Best Practices Guide
       - Tasks require detailed process definition following Task Creation Guide
-13. **Update Temporary State Tracking** after each session with progress and next steps
-14. **Integration Testing** to ensure compatibility with existing framework components
+    > **⚠️ Cross-cutting reminder**: Each task created via [PF-TSK-001](new-task-creation-process.md) includes mandatory cross-cutting updates (Step 12L) — Task Transition Guide, Process Framework Task Registry, and existing task definitions' Next Tasks/Related Resources sections. Complete these during Phase 3 for each new task, not deferred to Phase 4.
+14. **Update Temporary State Tracking** after each session with progress and next steps
+15. **Integration Testing** to ensure compatibility with existing framework components
 
 ### Phase 4: Framework Integration & Finalization
 
-15. **🚨 CHECKPOINT**: Present completed extension components, integration test results, and remaining work to human partner for review
-16. **Update Core Framework Files**:
+16. **🚨 CHECKPOINT**: Present completed extension components, integration test results, and remaining work to human partner for review
+17. **Update Core Framework Files**:
     - Update [ai-tasks.md](../../ai-tasks.md) with new tasks
     - Update [PF-documentation-map.md](../../PF-documentation-map.md) with all new artifacts
     - Update the appropriate [ID registry](../../PF-id-registry.json) with new ID prefixes if needed
-17. **Create Usage Documentation** demonstrating how to use the new framework extension
-18. **Update Permanent State Files** as defined in the concept document
-19. **Move Temporary State Tracking** file to `/process-framework-local/state-tracking/temporary/old`
-20. **Archive Completed Concept Document**: Move the framework extension concept document from `/process-framework-local/proposals/` to `/process-framework-local/proposals/old/` — the concept has served its purpose and should not remain alongside active proposals
-21. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+18. **Create Usage Documentation** demonstrating how to use the new framework extension
+19. **Update Permanent State Files** as defined in the concept document
+20. **Move Temporary State Tracking** file to `/process-framework-local/state-tracking/temporary/old`
+21. **Archive Completed Concept Document**: Move the framework extension concept document from `/process-framework-local/proposals/` to `/process-framework-local/proposals/old/` — the concept has served its purpose and should not remain alongside active proposals
+22. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 
@@ -235,7 +245,7 @@ Before considering this task finished:
 
 ### State Management
 
-- [New-TempTaskState.ps1](../../scripts/file-creation/support/New-TempTaskState.ps1) - State tracking for creation-heavy extensions
+- [New-TempTaskState.ps1](../../scripts/file-creation/support/New-TempTaskState.ps1) - State tracking for creation-heavy extensions (use `-Variant FrameworkExtension` for multi-artifact tracking)
 - [New-StructureChangeState.ps1](../../scripts/file-creation/support/New-StructureChangeState.ps1) - State tracking for modification-heavy extensions
 - [Documentation Map](../../PF-documentation-map.md) - Framework structure and artifact relationships
 - [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) - Framework capability tracking

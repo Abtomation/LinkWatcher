@@ -96,35 +96,40 @@ Systematically validates selected features for documentation alignment, ensuring
 6. **ADR Compliance Validation**: Verify that architectural decisions documented in ADRs are properly implemented and followed
 7. **API Documentation Accuracy**: Cross-reference API documentation with actual API implementations and interfaces
 8. **Documentation Completeness Assessment**: Identify missing documentation for implemented features and functionality
-9. **Generate Validation Report**: Create detailed validation report using the automation script
+9. **Integration Narrative Accuracy**: For features that participate in cross-feature workflows documented by Integration Narratives (`doc/technical/integration/`), verify that:
+   - The narrative accurately describes the current interaction patterns between features (compare against source code)
+   - Component diagrams and data flow sequences reflect the actual implementation
+   - Any TDD/Code divergences noted in the narrative are still accurate
+   - If no Integration Narrative exists for a workflow where the feature participates, note this as a documentation gap (not a validation failure)
+10. **Generate Validation Report**: Create detailed validation report using the automation script
    ```powershell
    # Navigate to validation directory and create documentation alignment report
    Set-Location "doc/validation"
     ..\..\scripts\file-creation\05-validation\New-ValidationReport.ps1 -ValidationType "DocumentationAlignment" -FeatureIds "0.2.1,0.2.2,0.2.3,0.2.4" -SessionNumber 1
    ```
-10. **Score Documentation Criteria**: Apply 4-point scoring system (0-3) to each documentation alignment criterion
-11. **Document Findings**: Record specific documentation gaps, inconsistencies, and improvement recommendations
-12. **Root Cause Analysis**: For each significant documentation gap identified:
-    - Identify which task in the development workflow should have created or updated the documentation (e.g., TDD Creation, Feature Implementation, Code Refactoring)
+11. **Score Documentation Criteria**: Apply 4-point scoring system (0-3) to each documentation alignment criterion
+12. **Document Findings**: Record specific documentation gaps, inconsistencies, and improvement recommendations
+13. **Root Cause Analysis**: For each significant documentation gap identified:
+    - Identify which task in the development workflow should have created or updated the documentation (e.g., TDD Creation, Feature Implementation, Integration Narrative Creation, Code Refactoring)
     - Check whether that task's process steps or completion checklist explicitly require this documentation update
     - If the originating task lacks coverage, record it as a process improvement opportunity (via New-ProcessImprovement.ps1) in addition to the documentation remediation action item
-13. **🚨 CHECKPOINT**: Present documentation alignment scoring, gap analysis findings, root cause analysis, and remediation recommendations to human partner for review before finalization
+14. **🚨 CHECKPOINT**: Present documentation alignment scoring, gap analysis findings, root cause analysis, and remediation recommendations to human partner for review before finalization
 
 ### Finalization
 
-14. **Update Validation Tracking**: Update the validation tracking matrix with report creation date and link
-15. **Review Quality Gates**: Ensure validation meets minimum quality thresholds (average score ≥ 2.0)
-16. **Plan Remediation**: For scores below threshold, create action items for documentation improvements
-17. **🤖 AUTOMATED: Update Technical Debt Tracking**: Add any new open issues identified during validation — **apply the [Tech Debt Quality Gate](/process-framework/guides/05-validation/feature-validation-guide.md#tech-debt-item-quality-gate) filters before creating each item** — to [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) using the automation script:
+15. **Update Validation Tracking**: Update the validation tracking matrix with report creation date and link
+16. **Review Quality Gates**: Ensure validation meets minimum quality thresholds (average score ≥ 2.0)
+17. **Plan Remediation**: For scores below threshold, create action items for documentation improvements
+18. **🤖 AUTOMATED: Update Technical Debt Tracking**: Add any new open issues identified during validation — **apply the [Tech Debt Quality Gate](/process-framework/guides/05-validation/feature-validation-guide.md#tech-debt-item-quality-gate) filters before creating each item** — to [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) using the automation script:
 
     ```powershell
     process-framework/scripts/update/Update-TechDebt.ps1 -Add -Description "Description" -Dims "DA" -Location "Location" -Priority "Priority" -EstimatedEffort "Effort" -AssessmentId "PF-VAL-XXX" -Notes "Notes"
     ```
-18. **Generate Round Summary** (if this is the final dimension in the current validation round): Generate a consolidated validation summary:
+19. **Generate Round Summary** (if this is the final dimension in the current validation round): Generate a consolidated validation summary:
     ```powershell
     process-framework/scripts/file-creation/05-validation/Generate-ValidationSummary.ps1 -OutputPath "doc/validation/summaries/" -SummaryType "Detailed"
     ```
-19. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+20. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 

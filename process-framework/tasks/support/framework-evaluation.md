@@ -3,9 +3,9 @@ id: PF-TSK-079
 type: Process Framework
 category: Task Definition
 domain: agnostic
-version: 1.3
+version: 1.4
 created: 2026-03-24
-updated: 2026-04-03
+updated: 2026-04-10
 ---
 
 # Framework Evaluation
@@ -157,6 +157,15 @@ This task is analogous to the code validation tasks (05-validation) but targets 
    - Suggested fix
    - Estimated effort (Low / Medium / High)
    - Suggested priority (Low / Medium / High)
+   - Route to (see routing guidance below)
+
+   > **Routing guidance**: Not all findings belong as standalone IMPs. Before listing improvements, group related findings that share a root cause or solution, then decide per finding/group:
+   > - **IMP** (default) — isolated, self-contained improvement executable via [Process Improvement](process-improvement-task.md) (PF-TSK-009)
+   > - **PF-TSK-048** — interconnected findings that together require a new framework capability (new task + template + script + guide). Register as IMP but mark for delegation to [Framework Extension](framework-extension-task.md)
+   > - **PF-TSK-014** — findings that require file moves, directory reorganization, or structural changes. Register as IMP but mark for delegation to [Structure Change](structure-change-task.md)
+   > - **PF-TSK-001** — findings that reveal a missing task definition. Register as IMP but mark for delegation to [New Task Creation Process](new-task-creation-process.md)
+   >
+   > Present routing decisions at the Step 9 checkpoint for human approval.
 
    **Multi-level solution thinking**: For significant findings (score ≤ 2 or high-priority), do not converge on a single fix immediately. Present at least three solution approaches at different ambition levels:
    - **Incremental** — minimal change that improves the current setup without restructuring
@@ -168,7 +177,7 @@ This task is analogous to the code validation tasks (05-validation) but targets 
 9. **🚨 CHECKPOINT**: Present evaluation findings summary to human partner:
    - Dimension scores with key evidence
    - Top findings (most impactful issues)
-   - Proposed improvement entries
+   - Proposed improvement entries with routing decisions (IMP vs delegated task)
    - Get approval before generating the report
 
 ### Finalization
@@ -187,6 +196,7 @@ This task is analogous to the code validation tasks (05-validation) but targets 
     # Batch mode (preferred for multiple improvements) — pass a JSON array file:
     pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/support/New-ProcessImprovement.ps1 -BatchFile "improvements.json" -Confirm:\$false
     ```
+    > **Routed findings**: IMPs marked for delegation in Step 8 should still be registered (for traceability), but include the target task in the Notes column (e.g., "Delegate to PF-TSK-048 — interconnected with IMP-XXX, IMP-YYY"). After registration, use [Update-ProcessImprovement.ps1](../../scripts/update/Update-ProcessImprovement.ps1) to set their status to `Deferred`.
 
 12. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 

@@ -12,12 +12,50 @@ Usage:
 
 import argparse
 import shutil
+import signal
 import subprocess
 import sys
 from pathlib import Path
 
 # Default install location
 DEFAULT_INSTALL_DIR = Path.home() / "bin"
+
+
+def stop_running_linkwatcher(project_root):
+    """Stop any running LinkWatcher instance before installation.
+
+    Reads .linkwatcher.lock to find the PID and terminates the process.
+    This prevents Permission denied errors when overwriting venv files.
+    """
+    lock_file = project_root / ".linkwatcher.lock"
+    if not lock_file.exists():
+        return
+
+    try:
+        pid = int(lock_file.read_text().strip())
+    except (ValueError, OSError):
+        return
+
+    import os
+    import platform
+
+    try:
+        if platform.system() == "Windows":
+            subprocess.run(
+                ["taskkill", "/F", "/PID", str(pid)],
+                capture_output=True,
+            )
+        else:
+            os.kill(pid, signal.SIGTERM)
+        print(f"OK: Stopped running LinkWatcher (PID: {pid})")
+    except (ProcessLookupError, PermissionError, OSError):
+        pass
+
+    # Clean up lock file
+    try:
+        lock_file.unlink(missing_ok=True)
+    except OSError:
+        pass
 
 
 def check_python_version():
@@ -143,20 +181,124 @@ def install_linkwatcher(project_root, install_dir):
     return True
 
 
+def create_linkwatcher_venv(install_dir):
+    """Create a dedicated virtual environment for LinkWatcher.
+
+    PD-BUG-077: Using bare 'python' in wrapper/startup scripts resolves to a
+    project's .venv in projects with virtual environments, causing silent import
+    failures. A dedicated venv ensures LinkWatcher always has its dependencies.
+    """
+    venv_dir = install_dir / ".linkwatcher-venv"
+    venv_python = venv_dir / "Scripts" / "python.exe"
+    requirements = install_dir / "requirements.txt"
+
+    print(f"\nCreating dedicated LinkWatcher venv at: {venv_dir}")
+
+    # Create venv
+    try:
+        subprocess.run(
+            [sys.executable, "-m", "venv", str(venv_dir)],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+    except subprocess.CalledProcessError as e:
+        print(f"ERROR: Failed to create venv: {e.stderr}")
+        return False
+
+    # Install dependencies — prefer requirements.txt, fall back to pyproject.toml
+    try:
+        subprocess.run(
+            [str(venv_python), "-m", "pip", "install", "--upgrade", "pip", "--quiet"],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        if requirements.exists():
+            subprocess.run(
+                [str(venv_python), "-m", "pip", "install", "-r", str(requirements), "--quiet"],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+        else:
+            # Fall back to installing from pyproject.toml in install dir
+            subprocess.run(
+                [str(venv_python), "-m", "pip", "install", str(install_dir), "--quiet"],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+    except subprocess.CalledProcessError as e:
+        print(f"ERROR: Failed to install dependencies into venv: {e.stderr}")
+        return False
+
+    # Verify
+    try:
+        result = subprocess.run(
+            [str(venv_python), "-c", "import watchdog; import yaml; import git; print('OK')"],
+            capture_output=True,
+            text=True,
+        )
+        if result.stdout.strip() == "OK":
+            print("OK: LinkWatcher venv created and verified")
+            return True
+        else:
+            print(f"ERROR: Venv verification failed: {result.stderr}")
+            return False
+    except Exception as e:
+        print(f"ERROR: Venv verification failed: {e}")
+        return False
+
+
 def create_wrapper_scripts(install_dir):
-    """Create wrapper scripts for easy execution."""
+    """Create wrapper scripts for easy execution.
+
+    PD-BUG-077: All wrappers use the dedicated .linkwatcher-venv Python
+    instead of bare 'python' to avoid resolving to a project's .venv.
+    """
     scripts_created = []
 
+    # Use venv Python path in all wrappers
+    venv_python_rel = r".linkwatcher-venv\Scripts\python.exe"
+
     wrappers = {
-        "linkwatcher.bat": f'@echo off\npython "{install_dir / "main.py"}" %*\n',
-        "linkwatcher.ps1": f'# LinkWatcher Wrapper Script\npython "{install_dir / "main.py"}" @args\n',  # noqa: E501
+        "linkwatcher.bat": (
+            f"@echo off\n"
+            f"REM PD-BUG-077: Use dedicated venv Python instead of bare python\n"
+            f'set "LWPYTHON=%~dp0{venv_python_rel}"\n'
+            f'if not exist "%LWPYTHON%" (\n'
+            f"    echo Error: LinkWatcher venv not found."
+            f" Run: python deployment/install_global.py\n"
+            f"    exit /b 1\n"
+            f")\n"
+            f'"%LWPYTHON%" "%~dp0main.py" %*\n'
+        ),
+        "linkwatcher.ps1": (
+            f"# LinkWatcher Wrapper Script\n"
+            f"# PD-BUG-077: Use dedicated venv Python instead of bare 'python'\n"
+            f'$lwVenvPython = Join-Path $PSScriptRoot "{venv_python_rel}"\n'
+            f"if (-not (Test-Path $lwVenvPython)) {{\n"
+            f'    Write-Host "Error: LinkWatcher venv not found. Run: python deployment/install_global.py" -ForegroundColor Red\n'  # noqa: E501
+            f"    exit 1\n"
+            f"}}\n"
+            f'& $lwVenvPython "$PSScriptRoot\\main.py" @args\n'
+        ),
     }
 
     # Add check_links wrappers only if check_links.py exists
     if (install_dir / "scripts" / "check_links.py").exists():
-        wrappers[
-            "checklinks.bat"
-        ] = f'@echo off\npython "{install_dir / "scripts" / "check_links.py"}" %*\n'
+        wrappers["checklinks.bat"] = (
+            f"@echo off\n"
+            f"REM PD-BUG-077: Use dedicated venv Python instead of bare python\n"
+            f'set "LWPYTHON=%~dp0{venv_python_rel}"\n'
+            f'if not exist "%LWPYTHON%" (\n'
+            f"    echo Error: LinkWatcher venv not found."
+            f" Run: python deployment/install_global.py\n"
+            f"    exit /b 1\n"
+            f")\n"
+            f'"%LWPYTHON%" "%~dp0scripts\\check_links.py" %*\n'
+        )
 
     for name, content in wrappers.items():
         script_path = install_dir / name
@@ -172,38 +314,26 @@ def create_wrapper_scripts(install_dir):
 
 
 def update_startup_scripts(project_root, install_dir):
-    """Update LinkWatcher_run/ startup scripts to point to the install directory."""
+    """Update LinkWatcher_run/ startup scripts to point to the install directory.
+
+    PD-BUG-077: Uses dedicated venv Python, adds startup verification,
+    and does not write early lock file (avoids race condition with main.py).
+    """
     run_dir = project_root / "LinkWatcher_run"
     if not run_dir.exists():
         print("Skipping startup script update (LinkWatcher_run/ not found)")
         return
 
-    main_py_path = install_dir / "main.py"
+    lw_install_dir = str(install_dir).replace("\\", "\\\\")
+    venv_python_rel = r".linkwatcher-venv\\Scripts\\python.exe"
 
     scripts = {
-        "start_linkwatcher.bat": (
-            f"@echo off\n"
-            f"echo Starting LinkWatcher for this project...\n"
-            f'python "{main_py_path}"\n'
-            f"pause\n"
-        ),
-        "start_linkwatcher.sh": (
-            f"#!/bin/bash\n"
-            f'echo "Starting LinkWatcher for this project..."\n'
-            f'python3 "{main_py_path}"\n'
-        ),
-        "start_linkwatcher.ps1": (
-            f"# LinkWatcher for this project\n"
-            f'Write-Host "Starting LinkWatcher for this project..." -ForegroundColor Cyan\n'
-            f'python "{main_py_path}"\n'
-            f'Read-Host "Press Enter to exit"\n'
-        ),
         "start_linkwatcher_background.ps1": (
             f"# LinkWatcher Background Starter for this project\n"
             f"\n"
             f"# Resolve project root from project-config.json\n"
             f"$scriptDir = if ($PSScriptRoot) {{ $PSScriptRoot }} else {{ (Get-Location).Path }}\n"
-            f'$configPath = Join-Path $scriptDir "..\doc\project-config.json"\n'
+            f'$configPath = Join-Path $scriptDir "..\\doc\\project-config.json"\n'
             f"\n"
             f"if (-not (Test-Path $configPath)) {{\n"
             f'    Write-Host "Error: project-config.json not found at: $configPath" -ForegroundColor Red\n'  # noqa: E501
@@ -238,20 +368,59 @@ def update_startup_scripts(project_root, install_dir):
             f"\n"
             f'Write-Host "Starting LinkWatcher in background for $projectRoot..." -ForegroundColor Cyan\n'  # noqa: E501
             f"\n"
-            f"# Start LinkWatcher with explicit project root and logging\n"
-            f'$logFile = Join-Path $scriptDir "LinkWatcherLog.txt"\n'
-            f'$stdoutLog = Join-Path $scriptDir "LinkWatcherStdout.txt"\n'
-            f'$stderrLog = Join-Path $scriptDir "LinkWatcherError.txt"\n'
-            f'$arguments = "{main_py_path} --project-root `"$projectRoot`" --log-file `"$logFile`" --debug"\n'  # noqa: E501
+            f"# Resolve LinkWatcher installation directory and dedicated venv Python\n"
+            f"# PD-BUG-077: Never use bare 'python' — it may resolve to a project .venv\n"
+            f"# that lacks LinkWatcher dependencies, causing silent startup failure.\n"
+            f'$lwInstallDir = "{lw_install_dir}"\n'
+            f'$lwMainPy = Join-Path $lwInstallDir "main.py"\n'
+            f'$lwVenvPython = Join-Path $lwInstallDir "{venv_python_rel}"\n'
             f"\n"
-            f'$process = Start-Process -FilePath "python" -ArgumentList $arguments -WorkingDirectory $projectRoot -WindowStyle Hidden -PassThru -RedirectStandardOutput $stdoutLog -RedirectStandardError $stderrLog\n'  # noqa: E501
+            f"if (-not (Test-Path $lwVenvPython)) {{\n"
+            f'    Write-Host "Error: LinkWatcher dedicated venv not found at: $lwVenvPython" -ForegroundColor Red\n'  # noqa: E501
+            f'    Write-Host "Run the global installer first:" -ForegroundColor Red\n'
+            f'    Write-Host "  python deployment/install_global.py" -ForegroundColor Yellow\n'
+            f"    return\n"
+            f"}}\n"
+            f"\n"
+            f"# Start LinkWatcher with explicit project root and logging\n"
+            f'$logsDir = Join-Path $projectRoot "logs"\n'
+            f"if (-not (Test-Path $logsDir)) {{\n"
+            f"    New-Item -ItemType Directory -Path $logsDir -Force | Out-Null\n"
+            f"}}\n"
+            f'$logFile = Join-Path $logsDir "LinkWatcherLog.txt"\n'
+            f'$stdoutLog = Join-Path $logsDir "LinkWatcherStdout.txt"\n'
+            f'$stderrLog = Join-Path $logsDir "LinkWatcherError.txt"\n'
+            f'$arguments = "$lwMainPy --project-root `"$projectRoot`" --log-file `"$logFile`" --debug"\n'  # noqa: E501
+            f"\n"
+            f"$process = Start-Process -FilePath $lwVenvPython -ArgumentList $arguments -WorkingDirectory $projectRoot -WindowStyle Hidden -PassThru -RedirectStandardOutput $stdoutLog -RedirectStandardError $stderrLog\n"  # noqa: E501
             f"\n"
             f"if ($process) {{\n"
-            f"    # Write PID to lock file immediately so subsequent launches see it\n"
-            f"    # (main.py also writes the lock, but there's a race window between\n"
-            f"    # Start-Process returning and main.py's acquire_lock running)\n"
-            f'    $lockFile = Join-Path $projectRoot ".linkwatcher.lock"\n'
-            f"    Set-Content -Path $lockFile -Value $process.Id -NoNewline\n"
+            f"    # Let main.py handle its own lock file acquisition.\n"
+            f"    # Previously this script wrote the lock file early, but that causes a\n"
+            f"    # race condition: main.py sees its own PID in the lock, thinks another\n"
+            f"    # instance is running, and exits.\n"
+            f"\n"
+            f"    # PD-BUG-077: Verify the process survives initialization.\n"
+            f"    # The old script reported success immediately, but the process could\n"
+            f"    # crash on import before doing any work.\n"
+            f"    Start-Sleep -Seconds 2\n"
+            f"    $process.Refresh()\n"
+            f"    if ($process.HasExited) {{\n"
+            f"        $exitCode = $process.ExitCode\n"
+            f'        Write-Host "Error: LinkWatcher process exited immediately (exit code: $exitCode)" -ForegroundColor Red\n'  # noqa: E501
+            f"        if (Test-Path $stderrLog) {{\n"
+            f"            $stderr = Get-Content $stderrLog -Raw\n"
+            f"            if ($stderr) {{\n"
+            f'                Write-Host "Stderr output:" -ForegroundColor Red\n'
+            f"                Write-Host $stderr -ForegroundColor DarkRed\n"
+            f"            }}\n"
+            f"        }}\n"
+            f"        # Clean up lock file if main.py wrote one before crashing\n"
+            f'        $crashLockFile = Join-Path $projectRoot ".linkwatcher.lock"\n'
+            f"        if (Test-Path $crashLockFile) {{ Remove-Item $crashLockFile -Force }}\n"
+            f"        return\n"
+            f"    }}\n"
+            f"\n"
             f'    Write-Host "LinkWatcher started successfully in background (PID: $($process.Id))" -ForegroundColor Green\n'  # noqa: E501
             f'    Write-Host "  Project root: $projectRoot" -ForegroundColor Green\n'
             f'    Write-Host "  Log file: $logFile" -ForegroundColor Green\n'
@@ -276,12 +445,15 @@ def update_startup_scripts(project_root, install_dir):
 
 
 def test_installation(install_dir):
-    """Test if the installation works."""
+    """Test if the installation works using the dedicated venv Python."""
     print("\nTesting installation...")
+
+    venv_python = install_dir / ".linkwatcher-venv" / "Scripts" / "python.exe"
+    python_exe = str(venv_python) if venv_python.exists() else sys.executable
 
     try:
         result = subprocess.run(
-            [sys.executable, str(install_dir / "main.py"), "--help"],
+            [python_exe, str(install_dir / "main.py"), "--help"],
             capture_output=True,
             text=True,
         )
@@ -317,6 +489,8 @@ def main():
     print(f"Source:  {project_root}")
     print(f"Target:  {install_dir}")
 
+    stop_running_linkwatcher(project_root)
+
     if not check_python_version():
         sys.exit(1)
 
@@ -326,6 +500,10 @@ def main():
 
     if not install_linkwatcher(project_root, install_dir):
         print("\nERROR: Installation failed during file copying")
+        sys.exit(1)
+
+    if not create_linkwatcher_venv(install_dir):
+        print("\nERROR: Failed to create dedicated LinkWatcher venv")
         sys.exit(1)
 
     create_wrapper_scripts(install_dir)

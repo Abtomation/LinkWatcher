@@ -2,7 +2,7 @@
 id: [DOCUMENT_ID]
 type: Process Framework
 category: Proposal
-version: 1.1
+version: 1.3
 created: [Created Date]
 updated: [Created Date]
 extension_name: [Extension Name]
@@ -69,6 +69,43 @@ This framework extension should be used when:
 - [Specific Example 3]: [Detailed scenario description]
 - [Specific Example 4]: [Detailed scenario description]
 
+## 🔎 Existing Project Precedents
+
+> **Before designing the extension**, study how the project already handles similar or analogous cases. This prevents reinventing patterns that exist and ensures the extension builds on proven approaches.
+
+| Precedent | Where It Lives | What It Does | How It Relates to This Extension |
+|-----------|---------------|--------------|----------------------------------|
+| [Existing pattern/workflow 1] | [File path or component] | [What it accomplishes] | [Reuse opportunity, gap it doesn't cover, or contrast] |
+| [Existing pattern/workflow 2] | [File path or component] | [What it accomplishes] | [Reuse opportunity, gap it doesn't cover, or contrast] |
+| [Existing pattern/workflow 3] | [File path or component] | [What it accomplishes] | [Reuse opportunity, gap it doesn't cover, or contrast] |
+
+**Key takeaways**: [Summarize what the project already does well, what gaps remain, and what patterns to reuse vs. replace]
+
+## 🔌 Interfaces to Existing Framework
+
+> Define how this extension connects to existing tasks, state files, and artifacts. Every extension touches the framework — make the touchpoints explicit.
+
+### Task Interfaces
+
+| Existing Task | Interface Type | Description |
+|--------------|----------------|-------------|
+| [Task name (ID)] | Upstream input / Downstream consumer / Modified by extension | [What data or artifacts flow between this task and the extension] |
+| [Task name (ID)] | Upstream input / Downstream consumer / Modified by extension | [What data or artifacts flow between this task and the extension] |
+
+### State File Interfaces
+
+| State File | Read / Write / Both | What the Extension Uses or Updates |
+|-----------|---------------------|-----------------------------------|
+| [State file name] | [Read / Write / Both] | [Specific fields, sections, or entries affected] |
+| [State file name] | [Read / Write / Both] | [Specific fields, sections, or entries affected] |
+
+### Artifact Interfaces
+
+| Existing Artifact | Relationship | Description |
+|------------------|--------------|-------------|
+| [Artifact type/name] | Input to extension / Updated by extension / Referenced by extension | [How the extension uses or affects this artifact] |
+| [Artifact type/name] | Input to extension / Updated by extension / Referenced by extension | [How the extension uses or affects this artifact] |
+
 ## 🏗️ Core Process Overview
 
 ### Phase 1: [Phase 1 Name]
@@ -93,57 +130,6 @@ This framework extension should be used when:
 13. **[Step 13]** - [Description of thirteenth step]
 14. **[Step 14]** - [Description of fourteenth step]
 15. **[Step 15]** - [Description of fifteenth step]
-
-## 📋 Expected Outputs
-
-### Concept Phase Outputs
-- **[Extension Name] Concept Document** - Comprehensive proposal including:
-  - **Workflow Definition**: Clear input-process-output flow for the extension
-  - **Artifact Dependency Map**: How new artifacts serve as inputs for subsequent tasks
-  - **State Tracking Integration Plan**: Whether new permanent state files are needed or existing ones will be updated
-  - **Integration Strategy**: How the extension connects with current framework workflow
-- **Impact Analysis** - How the extension affects existing framework components
-
-### Implementation Phase Outputs
-
-#### Core Extension Components
-- **New Task Definitions** - Multiple interconnected tasks with clear:
-  - Input requirements from existing framework components
-  - Process workflows showing artifact creation and usage
-  - Output specifications that serve as inputs for subsequent work
-  - State tracking responsibilities and update triggers
-
-#### Supporting Infrastructure
-- **Templates** - Document templates for extension outputs with metadata integration
-- **Guides** - Usage and implementation guides showing workflow integration
-- **Scripts** - Automation scripts following established development patterns
-- **Directory Structure** - Organized storage for extension artifacts
-
-#### Framework Integration
-- **Updated Core Framework Files**:
-  - **ai-tasks.md**: New tasks integrated into main task registry
-  - **Documentation maps**: All new artifacts and their relationships — use `PF-documentation-map.md` for process framework artifacts (tasks, guides, templates, scripts), `doc/PD-documentation-map.md` for product artifacts (TDDs, FDDs, ADRs, validation reports, handbooks), or `test/TE-documentation-map.md` for test artifacts (test specs, audit reports, E2E tests)
-  - **ID registries**: New ID prefixes in the appropriate registry (PF/PD/TE-id-registry.json) for extension-created file types (if needed)
-- **Integration Documentation** - How the extension works with existing framework workflow
-
-### State Tracking Outputs
-
-#### Temporary Implementation Tracking
-- **Temporary State Tracking File** - Multi-session implementation tracker with:
-  - Detailed component creation roadmap
-  - Artifact dependency tracking
-  - Integration checkpoint verification
-  - Progress markers for multi-session handover
-
-#### Permanent State Integration
-- **New Permanent State Files** (if required by extension):
-  - Purpose-specific state tracking for ongoing extension processes
-  - Cross-references with existing permanent state files
-  - Clear update triggers and maintenance procedures
-- **Updated Existing Permanent State Files**:
-  - **Process Improvement Tracking**: Framework capability enhancements
-  - **Documentation Map**: New artifact relationships and dependencies
-  - Enhanced status categories for extension-related processes
 
 ## 🔗 Integration with Task-Based Development Principles
 
@@ -192,6 +178,11 @@ This framework extension should be used when:
 | [Type 1] | [Name 1] | [Directory 1] | [Purpose 1] | [Task/Process 1] |
 | [Type 2] | [Name 2] | [Directory 2] | [Purpose 2] | [Task/Process 2] |
 | [Type 3] | [Name 3] | [Directory 3] | [Purpose 3] | [Task/Process 3] |
+
+> **Design checklist** — verify for each artifact listed above:
+> - [ ] **Referenced by**: Which files/tasks will link to or read this artifact?
+> - [ ] **Creator**: Which task or script creates this artifact?
+> - [ ] **Updater**: Who is responsible for keeping this artifact current? What triggers an update?
 
 #### Dependencies on Existing Artifacts
 | Required Artifact | Source | Usage |
@@ -271,6 +262,12 @@ This framework extension should be used when:
 | [Task 2] | [Purpose] | [Dependencies] |
 | [Task 3] | [Type] | [Purpose] | [Dependencies] |
 
+> **Design checklist** — verify for each task listed above:
+> - [ ] **Trigger**: What specific event, state, or condition triggers this task?
+> - [ ] **Output storage**: Where is this task's output stored?
+> - [ ] **Interface to prev/next task**: How is handover to the previous and next task ensured in a self-documenting way?
+> - [ ] **Redundancy check**: What steps of existing tasks become redundant with this new task?
+
 #### Supporting Infrastructure Required
 | Component Type | Name | Purpose | Priority |
 |----------------|------|---------|----------|
@@ -285,6 +282,11 @@ This framework extension should be used when:
 | [Point 1] | [Component 1] | [Method 1] |
 | [Point 2] | [Component 2] | [Method 2] |
 | [Point 3] | [Component 3] | [Method 3] |
+
+> **Framework integration reminder** — after implementation, update these core framework files:
+> - **ai-tasks.md**: Register new tasks in the main task registry
+> - **Documentation maps**: Add new artifacts to the appropriate map (`PF-documentation-map.md` for process framework, `doc/PD-documentation-map.md` for product, `test/TE-documentation-map.md` for test)
+> - **ID registries**: Add new ID prefixes to the appropriate registry (PF/PD/TE-id-registry.json) if the extension creates new file types
 
 ### Multi-Session Implementation Plan
 

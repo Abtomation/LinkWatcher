@@ -41,6 +41,7 @@ Systematically evaluate and enhance the templates, guides, and other tools by co
 
 - **Important (Load If Space):**
 
+  - [Script Development Quick Reference](../../guides/support/script-development-quick-reference.md) - PowerShell execution patterns and parameter checking (**always check script parameters with `-?` before running**)
   - [Task Templates](../../templates) - Templates used in tasks
 
 - **Reference Only (Access When Needed):**

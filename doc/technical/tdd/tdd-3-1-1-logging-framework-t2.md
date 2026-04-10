@@ -173,16 +173,20 @@ class LogContext:
 log_context = LogContext()
 
 def with_context(**kwargs):
-    """Decorator: sets context before call, clears on exit via try/finally."""
+    """Decorator: sets context before call, restores previous context on exit.
+    Supports nesting — inner decorator restores outer's context via save/restore."""
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **func_kwargs):
             logger = get_logger()
+            previous = log_context.get_context()
             logger.set_context(**kwargs)
             try:
                 return func(*args, **func_kwargs)
             finally:
                 logger.clear_context()
+                if previous:
+                    log_context.set_context(**previous)
         return wrapper
     return decorator
 ```

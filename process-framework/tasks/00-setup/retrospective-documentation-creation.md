@@ -42,6 +42,7 @@ This is the final onboarding task that transforms code analysis into formal desi
 
 - **Important (Load If Space):**
 
+  - [Script Development Quick Reference](../../guides/support/script-development-quick-reference.md) - PowerShell execution patterns and parameter checking (**always check script parameters with `-?` before running**)
   - [Documentation Tiers README](../../../doc/documentation-tiers/README.md) - Understanding tier documentation requirements
   - [FDD Creation Task](../02-design/fdd-creation-task.md) - For creating Functional Design Documents
   - [TDD Creation Task](../02-design/tdd-creation-task.md) - For creating Technical Design Documents
@@ -104,11 +105,13 @@ This is the final onboarding task that transforms code analysis into formal desi
    **As-Built features** (average score >= 2.0):
    - **Approach**: Descriptive (what it does) not prescriptive (what it should do)
    - **Content**: Document actual functionality, user flows, business rules as implemented
+   - **Parameter flow tracing**: For each configuration parameter, trace its entry point (CLI arg, config file, environment variable), the code path it controls, and document precedence when multiple sources can set the same parameter
    - **Mark**: Add "Retrospective" note in header. Set `documentation_mode: as-built` in metadata
 
    **Target-State features** (average score < 2.0):
    - **Approach**: Prescriptive (what the correct design should be), informed by current implementation
    - **Content**: Document intended functionality, user flows, business rules as they should work
+   - **Parameter flow tracing**: For each configuration parameter, trace its entry point (CLI arg, config file, environment variable), the code path it controls, and document precedence when multiple sources can set the same parameter
    - **Gap Analysis section**: For each gap between current and target state, describe:
      - What currently exists
      - What the target state should be

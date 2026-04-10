@@ -68,15 +68,29 @@ Analyze, optimize, and document development processes to improve efficiency, qua
    |-----------|----------|--------|
    | **Still Valid?** | Is the problem still present and accurately described? (Check if already fixed, target still exists, context unchanged) | Yes / No |
    | **Recurring Value** | Will this benefit multiple future sessions, not just a one-off scenario? | High / Medium / Low |
-   | **Framework Fit** | Does this align with framework principles and existing patterns? | Good / Marginal / Poor |
+   | **Framework Fit** | Does this align with framework principles and existing patterns? (If the fix requires creating new artifacts rather than modifying existing tooling, route to PF-TSK-048/PF-TSK-001 instead.) | Good / Marginal / Poor |
    | **Maintainability** | Will the change be easy to maintain, or does it add complexity/fragility? | Improves / Neutral / Degrades |
    | **Complexity-to-Benefit** | Is the implementation effort proportional to the expected benefit? | Favorable / Balanced / Unfavorable |
 
    > Fill in this table and present it at the Step 5 checkpoint. If **Still Valid?** is No, recommend rejection. If multiple criteria rate poorly (Low/Poor/Degrades/Unfavorable), recommend rejection with rationale.
+   >
+   > **Task routing**: Before proceeding, check the nature of the solution:
+   > - **Content update** to existing file (adding a callout, fixing a template, updating guidance) → continue with PF-TSK-009
+   > - **Structural change** (moving files, renaming directories, reorganizing sections) → delegate to [Structure Change Task](structure-change-task.md) (PF-TSK-014)
+   > - **New framework capability** (new task, new template + script + guide, new workflow) → delegate to [Framework Extension Task](framework-extension-task.md) (PF-TSK-048)
+   >
+   > If delegating, mark the IMP as Deferred with a delegation note and recommend the target task to the human partner.
 3. **Review source feedback**: Read the [Tools Review summary](../../feedback/reviews) and/or specific feedback forms that identified this improvement
 4. **Read current state**: Examine the file(s)/tool(s) to be improved to understand the current implementation
 5. **🚨 CHECKPOINT**: Present problem analysis and proposed approach(es) to human partner
    > **Valid outcomes**: Approve an approach and proceed, request alternative approaches, or **reject the improvement** if analysis shows it's unnecessary (mark as Rejected in tracking and skip to finalization)
+   >
+   > **Reclassification**: If the IMP describes valid work that is not a process improvement, reject it and route to the correct tracker:
+   > - **Product bug** → [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) via [New-BugReport.ps1](../../scripts/file-creation/06-maintenance/New-BugReport.ps1)
+   > - **Feature request** → [Feature Request Tracking](../../../doc/state-tracking/permanent/feature-request-tracking.md) via [New-FeatureRequest.ps1](../../scripts/file-creation/01-planning/New-FeatureRequest.ps1)
+   > - **Technical / test infrastructure debt** → [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) via [Update-TechDebt.ps1 -Add](../../scripts/update/Update-TechDebt.ps1)
+   >
+   > Include the new item's ID in the IMP rejection note (e.g., "Reclassified as PD-TDI-XXX") so the routing is traceable.
 
 ### Planning
 
@@ -92,6 +106,8 @@ Analyze, optimize, and document development processes to improve efficiency, qua
 
 9. Implement changes in small, reviewable increments (never all at once)
    - **For bulk/repetitive changes** (same pattern across many files): after applying all changes, verify completeness with grep-based checks (e.g., confirm all target files contain the new pattern, confirm no target files still contain the old pattern)
+   > **⚠️ PRE-IMPLEMENTATION CHECK**: Before creating or modifying any tracked file, verify whether an automation script exists for that operation (check `process-framework/scripts/file-creation/` and `process-framework/scripts/update/`). Always use scripts when available — they update surrounding infrastructure (ID registries, tracking files, counters) that manual edits miss.
+   >
    > **⚠️ SCOPE BOUNDARY**: If implementing an improvement requires work that fits another task's scope — such as creating a new task definition (PF-TSK-001), reorganizing directory structures (PF-TSK-014), or extending the framework (PF-TSK-048) — do not perform that work inline. Instead, document the need, update the IMP with a delegation note, and recommend the appropriate task to the human partner.
 10. For each significant change:
     a. Present the specific change to be made
@@ -117,6 +133,7 @@ Analyze, optimize, and document development processes to improve efficiency, qua
     Update-ProcessImprovement.ps1 -ImprovementId "IMP-XXX" -NewStatus "Completed" -Impact "HIGH|MEDIUM|LOW" -ValidationNotes "What was done."
     ```
 16. Update any other affected state files
+    > If a temp state file was created in Step 6, mark its checkboxes complete and move it to `process-framework-local/state-tracking/temporary/old/`.
 17. **Ask**: "Continue with another improvement or close the session?" If continuing and session limit (3 IMPs) not reached, return to Step 1 for the next improvement. If limit reached, proceed to Step 18.
 18. **🚨 MANDATORY FINAL STEP** (session end only): Complete the Task Completion Checklist below — one feedback form covering all improvements done in this session
 

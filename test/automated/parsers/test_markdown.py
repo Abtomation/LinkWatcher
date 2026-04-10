@@ -89,9 +89,11 @@ Also mentions "tests/parsers/file.txt" in quotes.
         quoted_refs = [ref for ref in references if ref.link_type == "markdown-quoted"]
         assert len(quoted_refs) >= 3
 
-    @pytest.mark.xfail(reason="Trailing punctuation breaks standalone regex boundary match")
     def test_parse_standalone_file_references(self, temp_project_dir):
-        """Test parsing standalone file references."""
+        """Test parsing standalone file references.
+
+        Regression: PD-BUG-080
+        """
         parser = MarkdownParser()
 
         # Create markdown file with standalone references
@@ -106,18 +108,51 @@ Also references path/to/document.md in the text.
         # Parse the file
         references = parser.parse_file(str(md_file))
 
+        # PD-BUG-080: Must NOT miss paths followed by sentence punctuation
+        targets = [ref.link_target for ref in references]
+        assert (
+            "another_file.json" in targets
+        ), "another_file.json not found — trailing period broke standalone match"
+        assert "tests/parsers/file.txt" in targets
+        assert "path/to/document.md" in targets
+
         # Should find standalone references
         assert len(references) >= 3
-
-        # Check specific references
-        targets = [ref.link_target for ref in references]
-        assert "tests/parsers/file.txt" in targets
-        assert "another_file.json" in targets
-        assert "path/to/document.md" in targets
 
         # Check link types
         standalone_refs = [ref for ref in references if ref.link_type == "markdown-standalone"]
         assert len(standalone_refs) >= 3
+
+    def test_parse_standalone_trailing_punctuation_variants(self, temp_project_dir):
+        """Test standalone paths followed by various sentence punctuation.
+
+        Regression: PD-BUG-080
+        """
+        parser = MarkdownParser()
+
+        md_file = temp_project_dir / "punct.md"
+        content = """# Punctuation tests
+
+See docs/guide.md.
+Check src/main.py,
+Read config/app.yaml;
+Open lib/utils.js:
+Run tests/run.sh!
+Try tools/check.py?
+Inside (path/to/file.txt) parentheses.
+"""
+        md_file.write_text(content)
+
+        references = parser.parse_file(str(md_file))
+        targets = [ref.link_target for ref in references]
+
+        assert "docs/guide.md" in targets, "Period boundary failed"
+        assert "src/main.py" in targets, "Comma boundary failed"
+        assert "config/app.yaml" in targets, "Semicolon boundary failed"
+        assert "lib/utils.js" in targets, "Colon boundary failed"
+        assert "tests/run.sh" in targets, "Exclamation boundary failed"
+        assert "tools/check.py" in targets, "Question mark boundary failed"
+        assert "path/to/file.txt" in targets, "Closing paren boundary failed"
 
     def test_skip_external_links(self, temp_project_dir):
         """Test that external links are skipped."""
@@ -1226,3 +1261,70 @@ class TestMarkdownParserParenthesizedProsePaths:
         references = parser.parse_content(content, "test.md")
         targets = [ref.link_target for ref in references]
         assert "alpha-project/scripts/test/Run-Tests.ps1" in targets
+
+
+class TestMarkdownParserBarePathProseFiltering:
+    """PD-BUG-084: bare_path_pattern should not duplicate standalone detections on prose lines.
+
+    Root cause: all_spans passed to _extract_bare_paths only included standard
+    markdown link and HTML anchor spans. Paths already detected by standalone,
+    quoted, or backtick patterns were re-detected by bare_path, causing false
+    positive duplicates that corrupt prose/comment text during updates.
+    """
+
+    def test_prose_comment_no_bare_path_duplicate(self):
+        """Prose line with file paths should not produce bare-path duplicates."""
+        parser = MarkdownParser()
+        content = "- Should find: test_project/docs/readme.md\n"
+        references = parser.parse_content(content, "test.md")
+        bare_path_refs = [r for r in references if r.link_type == "markdown-bare-path"]
+        # standalone already detects this path; bare_path should not duplicate it
+        assert len(bare_path_refs) == 0, (
+            f"bare_path should not duplicate standalone detection, got: "
+            f"{[r.link_target for r in bare_path_refs]}"
+        )
+
+    def test_prose_comma_separated_no_bare_path_duplicate(self):
+        """Comma-separated paths in prose should not produce bare-path duplicates."""
+        parser = MarkdownParser()
+        content = (
+            "- Should find: test_project/docs/readme.md, "
+            "test_project/config/settings.yaml, "
+            "test_project/api/reference.txt\n"
+        )
+        references = parser.parse_content(content, "test.md")
+        bare_path_refs = [r for r in references if r.link_type == "markdown-bare-path"]
+        assert len(bare_path_refs) == 0, (
+            f"bare_path should not duplicate standalone detections, got: "
+            f"{[r.link_target for r in bare_path_refs]}"
+        )
+
+    def test_standalone_still_detects_prose_paths(self):
+        """Standalone pattern should still detect paths in prose (pre-existing behavior)."""
+        parser = MarkdownParser()
+        content = "- Should find: test_project/docs/readme.md\n"
+        references = parser.parse_content(content, "test.md")
+        standalone_refs = [r for r in references if r.link_type == "markdown-standalone"]
+        targets = [r.link_target for r in standalone_refs]
+        assert "test_project/docs/readme.md" in targets
+
+    def test_bare_path_unique_directory_detection_preserved(self):
+        """bare_path should still detect directory paths that standalone cannot."""
+        parser = MarkdownParser()
+        # Directory path (no extension) — only bare_path detects this
+        content = "See process-framework/scripts/file-creation for details.\n"
+        references = parser.parse_content(content, "test.md")
+        bare_path_refs = [r for r in references if r.link_type == "markdown-bare-path"]
+        targets = [r.link_target for r in bare_path_refs]
+        assert any("process-framework/scripts/file-creation" in t for t in targets)
+
+    def test_bare_path_no_duplicate_with_inline_prose(self):
+        """Path in mid-sentence prose should not be duplicated by bare_path."""
+        parser = MarkdownParser()
+        content = "See test_project/docs/readme.md for details\n"
+        references = parser.parse_content(content, "test.md")
+        bare_path_refs = [r for r in references if r.link_type == "markdown-bare-path"]
+        assert len(bare_path_refs) == 0, (
+            f"bare_path should not duplicate standalone detection, got: "
+            f"{[r.link_target for r in bare_path_refs]}"
+        )

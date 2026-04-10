@@ -275,8 +275,8 @@ function Get-PriorRoundData {
         $result.ReportId = $Matches[1]
     }
 
-    # Extract round number from "Round N" pattern
-    if ($content -match 'Round\s+(\d+)') {
+    # Extract round number from "**Validation Round**: Round N" metadata line
+    if ($content -match '(?m)^\*\*Validation Round\*\*:\s*Round\s+(\d+)') {
         $result.RoundNumber = [int]$Matches[1]
     }
 
@@ -388,6 +388,56 @@ function Build-TrendComparisonSection {
     return $sb.ToString()
 }
 
+function Get-FeatureInfo {
+    <#
+    .SYNOPSIS
+        Parses feature-tracking.md to extract feature ID → name and status mappings.
+    .OUTPUTS
+        Hashtable mapping feature IDs (e.g., "0.1.1") to @{ Name = "..."; Status = "..." }
+    #>
+    param([string[]]$FeatureIds)
+
+    $featureTrackingPath = Join-Path $ProjectRoot "doc/state-tracking/permanent/feature-tracking.md"
+    $result = @{}
+
+    if (-not (Test-Path $featureTrackingPath)) {
+        Write-Warning "Feature tracking file not found: $featureTrackingPath. Feature names will use placeholders."
+        foreach ($id in $FeatureIds) {
+            $result[$id] = @{ Name = "[Feature Name]"; Status = "[Status]" }
+        }
+        return $result
+    }
+
+    $content = Get-Content $featureTrackingPath -Raw
+    $lines = $content -split "`n"
+
+    # Parse table rows matching feature IDs: | [X.Y.Z](link) | Feature Name | Status | ...
+    # Also handle: | [X.Y.Z](<link with spaces>) | Feature Name | Status | ...
+    foreach ($line in $lines) {
+        foreach ($id in $FeatureIds) {
+            $escapedId = [regex]::Escape($id)
+            if ($line -match "^\|\s*\[$escapedId\]\([^)]+\)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|") {
+                $name = $Matches[1].Trim()
+                $rawStatus = $Matches[2].Trim()
+                # Strip emoji prefixes for clean status text
+                $cleanStatus = $rawStatus -replace '^[^\w]*\s*', ''
+                if ($cleanStatus -eq '') { $cleanStatus = $rawStatus }
+                $result[$id] = @{ Name = $name; Status = $cleanStatus }
+            }
+        }
+    }
+
+    # Fill in any missing features with placeholders
+    foreach ($id in $FeatureIds) {
+        if (-not $result.ContainsKey($id)) {
+            Write-Warning "Feature $id not found in feature-tracking.md. Using placeholder."
+            $result[$id] = @{ Name = "[Feature Name]"; Status = "[Status]" }
+        }
+    }
+
+    return $result
+}
+
 function New-ValidationReportFromTemplate {
     <#
     .SYNOPSIS
@@ -418,6 +468,12 @@ function New-ValidationReportFromTemplate {
 
         $documentTemplate = $templateContent.Substring($documentTemplateStart + 11, $documentTemplateEnd - $documentTemplateStart - 11).Trim()
 
+        # Derive round number from the active tracking file name
+        $roundNumber = 1
+        if ($TrackingFile -and $TrackingFile -match 'validation-tracking-(\d+)\.md$') {
+            $roundNumber = [int]$Matches[1]
+        }
+
         # Replace placeholders
         $currentDate = Get-Date -Format 'yyyy-MM-dd'
         $featureRange = ($Features | Sort-Object) -join '-'
@@ -434,6 +490,54 @@ function New-ValidationReportFromTemplate {
         $reportContent = $reportContent -replace '\[e\.g\., "0\.2\.1, 0\.2\.2, 0\.2\.3"\]', ('"' + $featureList + '"')
         $reportContent = $reportContent -replace '\[Session number for this validation type\]', $SessionNumber.ToString()
         $reportContent = $reportContent -replace '\[Date\]', $currentDate
+        $reportContent = $reportContent -replace '\[RoundNumber\]', $roundNumber.ToString()
+
+        # Pre-populate Features Included table from feature-tracking.md
+        $featureInfo = Get-FeatureInfo -FeatureIds $Features
+        if ($featureInfo.Count -gt 0) {
+            # Build replacement rows for the Features Included table
+            $featureRows = ($Features | Sort-Object | ForEach-Object {
+                $info = $featureInfo[$_]
+                "| $_ | $($info.Name) | $($info.Status) | Full feature |"
+            }) -join "`n"
+
+            # Replace the two placeholder rows in the Features Included table
+            $placeholderPattern = '(?m)\| \[0\.2\.X\].*\n\| \[0\.2\.Y\].*'
+            if ($reportContent -match $placeholderPattern) {
+                $reportContent = $reportContent -replace $placeholderPattern, $featureRows
+                Write-Host "   ✅ Pre-populated Features Included table ($($Features.Count) features)" -ForegroundColor Green
+            }
+
+            # Build replacement Detailed Findings sections
+            $detailedSections = ($Features | Sort-Object | ForEach-Object {
+                $info = $featureInfo[$_]
+                @"
+### Feature $_ - $($info.Name)
+
+#### Strengths
+
+- [Positive finding 1]
+- [Positive finding 2]
+
+#### Issues Identified
+
+| Severity          | Issue               | Impact               | Recommendation       |
+| ----------------- | ------------------- | -------------------- | -------------------- |
+| [High/Medium/Low] | [Issue description] | [Impact description] | [Recommended action] |
+
+#### Validation Details
+
+[Detailed analysis specific to this feature]
+"@
+            }) -join "`n`n"
+
+            # Replace the two placeholder Detailed Findings sections
+            $detailedPattern = '(?ms)### \[Feature 0\.2\.X\].*?### \[Feature 0\.2\.Y\].*?\[Detailed analysis specific to this feature\]'
+            if ($reportContent -match $detailedPattern) {
+                $reportContent = $reportContent -replace $detailedPattern, $detailedSections
+                Write-Host "   ✅ Pre-populated Detailed Findings sections ($($Features.Count) features)" -ForegroundColor Green
+            }
+        }
 
         # Inject trend comparison sections if prior round report was provided
         if ($script:PriorRoundData) {
@@ -639,11 +743,6 @@ try {
         # Auto-append entry to PD-documentation-map.md under the correct Round section
         $pdDocMapPath = Join-Path $ProjectRoot "doc/PD-documentation-map.md"
         if (Test-Path $pdDocMapPath) {
-            # Derive round number from the active tracking file name
-            $roundNumber = 1
-            if ($TrackingFile -and $TrackingFile -match 'validation-tracking-(\d+)\.md$') {
-                $roundNumber = [int]$Matches[1]
-            }
             $sectionHeader = "### Round $roundNumber Validation Reports"
             $featureList = ($features | Sort-Object) -join ', '
             $relPath = "validation/reports/$($validationConfig.Directory)/$fileName"

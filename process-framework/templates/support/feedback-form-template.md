@@ -205,6 +205,7 @@ Was the sequence of tool usage logical and efficient?
 - [ ] [Tool Name ([PREFIX]-XXX-XXX)] - Scored ≤3 in [criteria] - Requires detailed feedback form
 
 ### Process Improvements to Consider
+<!-- NOTE: Only document suggestions here. Do NOT register PF-IMP entries or run New-ProcessImprovement.ps1 — that is the job of PF-TSK-009/PF-TSK-010. -->
 - [ ] [Specific improvement suggestion]
 - [ ] [Specific improvement suggestion]
 

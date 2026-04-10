@@ -16,11 +16,18 @@
 .PARAMETER EvaluationScope
     Description of what is being evaluated (e.g., "Full framework", "03-testing tasks", "All templates")
 
+.PARAMETER Dimensions
+    Optional list of dimensions to include in the report. When omitted, all 7 dimensions are included.
+    Valid values: Completeness, Consistency, Redundancy, Accuracy, Effectiveness, AutomationCoverage, Scalability
+
 .PARAMETER OpenInEditor
     If specified, opens the created file in the default editor
 
 .EXAMPLE
     .\New-FrameworkEvaluationReport.ps1 -EvaluationScope "Full framework review"
+
+.EXAMPLE
+    .\New-FrameworkEvaluationReport.ps1 -EvaluationScope "03-testing tasks and scripts" -Dimensions Completeness,Consistency,Accuracy
 
 .EXAMPLE
     .\New-FrameworkEvaluationReport.ps1 -EvaluationScope "03-testing tasks and scripts" -OpenInEditor
@@ -36,6 +43,10 @@
 param(
     [Parameter(Mandatory = $true)]
     [string]$EvaluationScope,
+
+    [Parameter(Mandatory = $false)]
+    [ValidateSet("Completeness", "Consistency", "Redundancy", "Accuracy", "Effectiveness", "AutomationCoverage", "Scalability")]
+    [string[]]$Dimensions,
 
     [Parameter(Mandatory = $false)]
     [switch]$OpenInEditor
@@ -54,7 +65,7 @@ Invoke-StandardScriptInitialization
 try {
     # Get project root for dynamic path resolution
     $projectRoot = Get-ProjectRoot
-    $templatePath = Join-Path $projectRoot "process-framework/templates/templates/framework-evaluation-report-template.md"
+    $templatePath = Join-Path $projectRoot "process-framework/templates/support/framework-evaluation-report-template.md"
 
     # Generate date for filename
     $dateStamp = Get-Date -Format "yyyyMMdd"
@@ -85,10 +96,75 @@ try {
         -FileNamePattern "$dateStamp-framework-evaluation-$scopeSlug.md" `
         -OpenInEditor:$OpenInEditor
 
+    # Post-process: remove unselected dimensions if -Dimensions was specified
+    if ($documentId -and $Dimensions) {
+        # Map dimension names to their template numbers and display names
+        $dimMap = [ordered]@{
+            "Completeness"      = @{ Number = 1; Display = "Completeness";      FindingPrefix = "C" }
+            "Consistency"       = @{ Number = 2; Display = "Consistency";        FindingPrefix = "N" }
+            "Redundancy"        = @{ Number = 3; Display = "Redundancy";         FindingPrefix = "R" }
+            "Accuracy"          = @{ Number = 4; Display = "Accuracy";           FindingPrefix = "A" }
+            "Effectiveness"     = @{ Number = 5; Display = "Effectiveness";      FindingPrefix = "E" }
+            "AutomationCoverage"= @{ Number = 6; Display = "Automation Coverage"; FindingPrefix = "U" }
+            "Scalability"       = @{ Number = 7; Display = "Scalability";        FindingPrefix = "S" }
+        }
+
+        $excludeNumbers = @()
+        foreach ($dim in $dimMap.Keys) {
+            if ($dim -notin $Dimensions) {
+                $excludeNumbers += $dimMap[$dim].Number
+            }
+        }
+
+        if ($excludeNumbers.Count -gt 0) {
+            # Find the created file
+            $outputDir = Join-Path $projectRoot "process-framework-local/evaluation-reports"
+            $createdFile = Get-ChildItem $outputDir -Filter "*$scopeSlug*" | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+
+            if ($createdFile) {
+                $content = Get-Content $createdFile.FullName -Raw
+
+                # Remove rows from the summary table for excluded dimensions
+                foreach ($num in $excludeNumbers) {
+                    $content = $content -replace "(?m)^\| $num \|[^\r\n]*\r?\n", ""
+                }
+
+                # Remove detailed finding sections for excluded dimensions
+                foreach ($num in $excludeNumbers) {
+                    # Match ### N. Name through the next --- separator and trailing blank lines
+                    $content = $content -replace "(?ms)### $num\. [^\r\n]+\r?\n.*?(?=\r?\n---\r?\n)\r?\n---\r?\n(\r?\n)*", ""
+                }
+
+                # Renumber remaining summary table rows and detailed sections
+                $newNum = 1
+                foreach ($dim in $dimMap.Keys) {
+                    if ($dim -in $Dimensions) {
+                        $oldNum = $dimMap[$dim].Number
+                        if ($oldNum -ne $newNum) {
+                            $displayName = $dimMap[$dim].Display
+                            # Renumber summary table row
+                            $content = $content -replace "(?m)^\| $oldNum \| $displayName", "| $newNum | $displayName"
+                            # Renumber detailed section header
+                            $content = $content -replace "(?m)^### $oldNum\. $displayName", "### $newNum. $displayName"
+                        }
+                        $newNum++
+                    }
+                }
+
+                if ($PSCmdlet.ShouldProcess($createdFile.FullName, "Filter dimensions to: $($Dimensions -join ', ')")) {
+                    Set-Content -Path $createdFile.FullName -Value $content -NoNewline
+                }
+            }
+        }
+    }
+
     if ($documentId) {
         $details = @(
             "Evaluation Scope: $EvaluationScope"
         )
+        if ($Dimensions) {
+            $details += "Dimensions: $($Dimensions -join ', ')"
+        }
 
         if (-not $OpenInEditor) {
             $details += @(

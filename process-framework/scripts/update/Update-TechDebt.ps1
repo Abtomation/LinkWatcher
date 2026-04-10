@@ -32,7 +32,7 @@ Description of the technical debt item (required for Add).
 
 .PARAMETER Dims
 Dimension abbreviation(s) for the debt item (required for Add). Space-separated if multiple.
-Valid values: AC, CQ, ID, DA, EM, SE, PE, OB, UX, DI, TST
+Valid values: AC, CQ, ID, DA, EM, SE, PE, OB, UX, DI, TST, AIC
 See Development Dimensions Guide for definitions.
 
 .PARAMETER Location
@@ -53,6 +53,19 @@ When provided, updates the debt item file with the assigned TD### registry ID.
 
 .PARAMETER Notes
 Additional notes about the debt item (optional for Add).
+
+.PARAMETER Section
+Target section for updates. Currently only "Resolved" is supported.
+When set to "Resolved", updates notes on items already in the Recently Resolved section.
+Use with -ResolvedDebtId and -UpdateNotes.
+
+.PARAMETER ResolvedDebtId
+The technical debt ID to update in the Recently Resolved section (e.g., "TD011").
+Required when -Section "Resolved" is used.
+
+.PARAMETER UpdateNotes
+Text to append to the Notes column of the resolved item.
+Required when -Section "Resolved" is used.
 
 .PARAMETER DebtId
 The technical debt ID to update (e.g., "TD005"). Required for status updates.
@@ -121,6 +134,10 @@ Update-TechDebt.ps1 -DebtId "TD022" -NewStatus "Resolved" -ResolutionNotes "Extr
 Update-TechDebt.ps1 -DebtId "TD144" -NewStatus "Resolved" -ResolutionNotes "Added structured logging" -ValidationNote "Session 16 — logging added" -ValidationIssueId "OB-R3-004"
 
 .EXAMPLE
+# Update notes on an already-resolved item
+Update-TechDebt.ps1 -Section "Resolved" -ResolvedDebtId "TD011" -UpdateNotes "Plan link: [TD011](../archive/td011.md)"
+
+.EXAMPLE
 # List valid dimension codes and descriptions
 Update-TechDebt.ps1 -ListDims
 
@@ -146,7 +163,7 @@ param(
     [string]$Description,
 
     [Parameter(Mandatory = $true, ParameterSetName = 'AddNew')]
-    [ValidateSet("AC", "CQ", "ID", "DA", "EM", "SE", "PE", "OB", "UX", "DI", "TST")]
+    [ValidateSet("AC", "CQ", "ID", "DA", "EM", "SE", "PE", "OB", "UX", "DI", "TST", "AIC")]
     [string]$Dims,
 
     [Parameter(Mandatory = $true, ParameterSetName = 'AddNew')]
@@ -189,6 +206,18 @@ param(
     [Parameter(Mandatory = $false, ParameterSetName = 'AddNew')]
     [Parameter(Mandatory = $false, ParameterSetName = 'StatusUpdate')]
     [string]$ValidationIssueId,
+
+    # --- ResolvedUpdate parameter set ---
+    [Parameter(Mandatory = $true, ParameterSetName = 'ResolvedUpdate')]
+    [ValidateSet("Resolved")]
+    [string]$Section,
+
+    [Parameter(Mandatory = $true, ParameterSetName = 'ResolvedUpdate')]
+    [ValidatePattern('^TD\d+$')]
+    [string]$ResolvedDebtId,
+
+    [Parameter(Mandatory = $true, ParameterSetName = 'ResolvedUpdate')]
+    [string]$UpdateNotes,
 
     # --- ListDims parameter set ---
     [Parameter(Mandatory = $true, ParameterSetName = 'ListDims')]
@@ -680,6 +709,59 @@ function Update-ValidationTracking {
     }
 }
 
+function Update-ResolvedNotes {
+    <#
+    .SYNOPSIS
+    Updates the Notes column of a debt item already in the Recently Resolved section.
+    #>
+    param(
+        [string]$Content,
+        [string]$DebtId,
+        [string]$UpdateNotes
+    )
+
+    $lines = [System.Collections.ArrayList]@($Content -split "\r?\n")
+
+    # Find the debt item row in the Recently Resolved section
+    $rowIndex = -1
+    $inResolvedSection = $false
+    for ($i = 0; $i -lt $lines.Count; $i++) {
+        if ($lines[$i] -match "^## Recently Resolved") { $inResolvedSection = $true; continue }
+        if ($inResolvedSection -and $lines[$i] -match "^## (?!Recently Resolved)") { break }
+        if ($inResolvedSection -and $lines[$i] -match "^\|\s*(?:\[)?$DebtId(?:\]|\s*\|)") {
+            $rowIndex = $i
+            break
+        }
+    }
+
+    if ($rowIndex -eq -1) {
+        Write-Log "Could not find $DebtId in Recently Resolved section" -Level "ERROR"
+        return $null
+    }
+
+    # Parse the row columns (9 columns in Recently Resolved table)
+    # | ID | Description | Category | Location | Created Date | Priority | Resolution Date | Assessment ID | Notes |
+    $row = $lines[$rowIndex]
+    $columns = $row -split '\|' | ForEach-Object { $_.Trim() }
+    if ($columns[0] -eq '') { $columns = $columns[1..($columns.Length - 1)] }
+    if ($columns[-1] -eq '') { $columns = $columns[0..($columns.Length - 2)] }
+
+    # Append to Notes column (index 8)
+    $currentNotes = $columns[8]
+    if ($currentNotes -and $currentNotes -ne '-') {
+        $columns[8] = "$currentNotes $UpdateNotes"
+    }
+    else {
+        $columns[8] = $UpdateNotes
+    }
+
+    $updatedRow = "| " + ($columns -join " | ") + " |"
+    $lines[$rowIndex] = $updatedRow
+
+    Write-Log "Updated notes for $DebtId in Recently Resolved section" -Level "SUCCESS"
+    return ($lines -join "`r`n")
+}
+
 # --- Main ---
 
 function Main {
@@ -688,6 +770,10 @@ function Main {
     if ($PSCmdlet.ParameterSetName -eq 'AddNew') {
         Write-Log "Operation: Add new debt item"
         Write-Log "Description: $Description"
+    }
+    elseif ($PSCmdlet.ParameterSetName -eq 'ResolvedUpdate') {
+        Write-Log "Operation: Update resolved item notes"
+        Write-Log "Debt ID: $ResolvedDebtId"
     }
     else {
         Write-Log "Operation: Status update"
@@ -742,6 +828,25 @@ function Main {
         }
 
         Write-Log "Technical debt item added successfully with ID: $newDebtId" -Level "SUCCESS"
+        Write-Log "Updated file: $TargetFile"
+    }
+    elseif ($PSCmdlet.ParameterSetName -eq 'ResolvedUpdate') {
+        # --- Update notes on resolved item ---
+        $content = Get-Content $TargetFile -Raw
+
+        $content = Update-ResolvedNotes -Content $content -DebtId $ResolvedDebtId -UpdateNotes $UpdateNotes
+        if ($null -eq $content) {
+            Write-Log "Failed to update notes for $ResolvedDebtId in Recently Resolved section" -Level "ERROR"
+            exit 1
+        }
+
+        $content = Update-FrontmatterDate -Content $content
+
+        if ($PSCmdlet.ShouldProcess($TargetFile, "Update notes for $ResolvedDebtId in Recently Resolved section")) {
+            Set-Content -Path $TargetFile -Value $content -NoNewline
+        }
+
+        Write-Log "Resolved item notes updated successfully" -Level "SUCCESS"
         Write-Log "Updated file: $TargetFile"
     }
     else {

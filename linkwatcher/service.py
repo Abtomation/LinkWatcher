@@ -51,7 +51,12 @@ class LinkWatcherService:
     4. Provides status and statistics
     """
 
-    def __init__(self, project_root: str = ".", config: LinkWatcherConfig = None):
+    def __init__(
+        self,
+        project_root: str = ".",
+        config: LinkWatcherConfig = None,
+        register_signals: bool = True,
+    ):
         self.project_root = Path(project_root).resolve()
         self.config = config
         self.logger = get_logger()
@@ -89,8 +94,9 @@ class LinkWatcherService:
         )
 
         # Setup signal handlers for graceful shutdown
-        signal.signal(signal.SIGINT, self._signal_handler)
-        signal.signal(signal.SIGTERM, self._signal_handler)
+        if register_signals:
+            signal.signal(signal.SIGINT, self._signal_handler)
+            signal.signal(signal.SIGTERM, self._signal_handler)
 
         self.logger.info("service_initialized", project_root=str(self.project_root))
 
@@ -105,6 +111,10 @@ class LinkWatcherService:
         self.logger.info("service_starting", project_root=str(self.project_root))
 
         try:
+            # Activate event deferral so events arriving during initial
+            # scan are queued until the link DB is fully populated (PD-BUG-053)
+            self.handler.begin_event_deferral()
+
             # Setup and start file system observer BEFORE initial scan
             # so that file moves during the scan are captured (PD-BUG-053)
             self.logger.debug("setting_up_file_observer")
@@ -126,6 +136,10 @@ class LinkWatcherService:
                     total_references=stats["total_references"],
                     total_targets=stats["total_targets"],
                 )
+
+            # Signal handler that DB is fully populated — replay any
+            # events that arrived during the initial scan (PD-BUG-053)
+            self.handler.notify_scan_complete()
 
             self.logger.info("monitoring_started")
 
@@ -166,6 +180,7 @@ class LinkWatcherService:
     def _initial_scan(self):
         """Perform initial scan of all monitored files."""
         scanned_files = 0
+        scan_errors = 0
         config = self.config if self.config else DEFAULT_CONFIG
         ignored_dirs = config.ignored_directories
         monitored_extensions = config.monitored_extensions
@@ -185,7 +200,7 @@ class LinkWatcherService:
                         for ref in references:
                             # Update the reference to use relative path
                             ref.file_path = relative_file_path
-                            self.link_db.add_link(ref)
+                        self.link_db.add_links_batch(references)
                         scanned_files += 1
 
                         progress_interval = config.scan_progress_interval
@@ -194,6 +209,7 @@ class LinkWatcherService:
                             self.logger.scan_progress(scanned_files, info_level=info_milestone)
 
                     except Exception as e:
+                        scan_errors += 1
                         self.logger.warning(
                             "file_scan_failed",
                             file_path=file_path,
@@ -202,7 +218,7 @@ class LinkWatcherService:
                         )
 
         self.link_db.last_scan = time.time()
-        self.logger.info("scan_complete", files_scanned=scanned_files)
+        self.logger.info("scan_complete", files_scanned=scanned_files, scan_errors=scan_errors)
 
     def _signal_handler(self, signum, frame):
         """Handle shutdown signals."""
@@ -251,7 +267,7 @@ class LinkWatcherService:
         """Add a custom parser for a specific file extension."""
         self.parser.add_parser(extension, parser)
         # Update handler's monitored extensions
-        self.handler.monitored_extensions.add(extension.lower())
+        self.handler.add_monitored_extension(extension)
 
     def check_links(self) -> dict:
         """Check all links and return broken ones."""

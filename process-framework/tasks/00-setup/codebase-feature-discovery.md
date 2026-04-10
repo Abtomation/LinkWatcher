@@ -46,6 +46,7 @@ This task produces the foundational inventory that subsequent onboarding tasks (
 
 - **Important (Load If Space):**
 
+  - [Script Development Quick Reference](../../guides/support/script-development-quick-reference.md) - PowerShell execution patterns and parameter checking (**always check script parameters with `-?` before running**)
   - [Feature Implementation State Tracking Guide](../../guides/04-implementation/feature-implementation-state-tracking-guide.md) - Guide for using the state template
 
 - **Reference Only (Access When Needed):**

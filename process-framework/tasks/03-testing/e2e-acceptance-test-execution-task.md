@@ -74,9 +74,21 @@ E2E acceptance test execution validates system behavior that cannot be covered b
      ```bash
      pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/test/e2e-acceptance-testing/Run-E2EAcceptanceTest.ps1 -Group "group-name" -Clean -Detailed
      ```
-     > Use `-SettleSeconds N` (default: 3) to adjust the delay between scan completion and test action. Use `-WaitSeconds N` (default: 5) for propagation delay after the action.
+     > Use `-SettleSeconds N` (default: 3) to adjust the delay between scan completion and test action. Use `-WaitSeconds N` (default: 12) for propagation delay after the action.
    - **Run manually** — human follows the Steps section in test-case.md (same as manual test cases)
    > If all test cases in a group are scripted and the human chooses automatic execution, `Run-E2EAcceptanceTest.ps1` handles the entire pipeline. Skip to step 8 for result recording.
+5a. **Start workspace-scoped LinkWatcher** (manual test cases only — scripted tests handle this automatically):
+    Manual E2E tests need LinkWatcher watching the test workspace, not the project root. Before executing manual test steps:
+    ```bash
+    # 1. Stop project-level LinkWatcher
+    pwsh.exe -ExecutionPolicy Bypass -Command 'Get-Content .linkwatcher.lock | ForEach-Object { Stop-Process -Id $_ -Force -ErrorAction SilentlyContinue }'
+
+    # 2. Start workspace-scoped LinkWatcher (adjust path to the test case workspace)
+    python main.py --project-root test/e2e-acceptance-testing/workspace/<group-name>/<test-case-id> --debug &
+
+    # 3. Wait for initial scan to complete before executing test steps
+    ```
+    > After testing, stop the workspace LW (`kill` or Ctrl+C) and restart the project-level LW: `LinkWatcher_run/start_linkwatcher_background.ps1`
 6. **Execute master test first** (manual test cases): Follow the master test's Quick Validation Sequence step by step
    - **If master test passes** → Group is validated. Skip to step 9.
    - **If master test fails** → Continue to step 7 to isolate the issue.

@@ -32,7 +32,7 @@ pytestmark = [
 ]
 
 
-class Test[TEST_NAME]:
+class Test[TEST_FILE_NAME]:
     """[TEST_TYPE] tests for [COMPONENT_NAME] component."""
 
     @pytest.fixture(autouse=True)

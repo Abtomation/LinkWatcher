@@ -2,6 +2,40 @@
 Utility functions for the LinkWatcher system.
 
 This module contains common utility functions used across the system.
+
+AI Context
+----------
+- **Role**: Stateless pure-function library for path manipulation and
+  file-classification heuristics.  No classes, no instance state — every
+  function is a free function importable by any module.
+- **High-traffic functions and primary callers**:
+  - ``normalize_path()`` — canonical forward-slash form.
+    Called by database.py, handler.py, path_resolver.py, service.py,
+    validator.py, dir_move_detector.py.
+  - ``should_monitor_file()`` — extension + ignored-dir filter.
+    Called by handler.py, service.py, validator.py.
+  - ``get_relative_path()`` — absolute-to-project-relative conversion.
+    Called by database.py, handler.py, service.py, reference_lookup.py.
+  - ``looks_like_file_path()`` / ``looks_like_directory_path()`` —
+    heuristic classifiers for parser-extracted text.
+    Called by parsers/base.py (``BaseParser``).
+  - ``safe_file_read()`` — multi-encoding file reader with fallback.
+    Called by database.py, reference_lookup.py, validator.py.
+  - ``should_ignore_directory()`` — basename-level dir filter.
+    Called by handler.py, service.py.
+  - ``find_line_number()`` — linear search for text in line list.
+    Called by validator.py.
+- **Common tasks**:
+  - Adding a new utility: add a free function here, import where needed.
+    No registration or wiring required.
+  - Debugging false-positive file detection: check
+    ``looks_like_file_path()`` heuristics — URL prefixes, prose
+    rejection (PD-BUG-028), and ``_COMMON_EXTENSIONS`` set.
+  - Debugging path mismatches: check ``normalize_path()`` — handles
+    Windows long-path prefix stripping (PD-BUG-014) and
+    forward-slash normalization.
+- **Testing**: ``test/automated/unit/test_utils.py`` (not on disk —
+  noted in 0.1.1 state file as missing).
 """
 
 import os
@@ -94,13 +128,46 @@ def get_relative_path(abs_path: str, project_root: str) -> str:
         return abs_path.replace("\\", "/")
 
 
-_COMMON_EXTENSIONS = frozenset({
-    ".md", ".txt", ".py", ".js", ".html", ".css", ".json", ".yaml", ".yml",
-    ".dart", ".java", ".cpp", ".c", ".h", ".xml", ".csv", ".pdf", ".doc",
-    ".docx", ".xls", ".xlsx", ".png", ".jpg", ".jpeg", ".gif", ".svg",
-    ".sql", ".log", ".conf", ".config", ".ini", ".properties", ".env",
-    ".sh", ".bat", ".ps1",
-})
+_COMMON_EXTENSIONS = frozenset(
+    {
+        ".md",
+        ".txt",
+        ".py",
+        ".js",
+        ".html",
+        ".css",
+        ".json",
+        ".yaml",
+        ".yml",
+        ".dart",
+        ".java",
+        ".cpp",
+        ".c",
+        ".h",
+        ".xml",
+        ".csv",
+        ".pdf",
+        ".doc",
+        ".docx",
+        ".xls",
+        ".xlsx",
+        ".png",
+        ".jpg",
+        ".jpeg",
+        ".gif",
+        ".svg",
+        ".sql",
+        ".log",
+        ".conf",
+        ".config",
+        ".ini",
+        ".properties",
+        ".env",
+        ".sh",
+        ".bat",
+        ".ps1",
+    }
+)
 
 
 def looks_like_file_path(text: str) -> bool:
