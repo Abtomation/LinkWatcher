@@ -140,7 +140,7 @@ _Test planning, implementation, and quality assurance activities_
 | **Performance Baseline Capture** | Run performance tests, record results in trend database, update tracking, flag regressions | 🟢 Simple  | [→ Definition](/process-framework/tasks/03-testing/performance-baseline-capture-task.md)    |
 | **E2E Acceptance Test Execution** | Execute E2E acceptance test cases systematically, record results, and report issues discovered through human interaction with the running system | 🟡 Medium | [→ Definition](/process-framework/tasks/03-testing/e2e-acceptance-test-execution-task.md) |
 | **E2E Acceptance Test Case Creation** | Create concrete, reproducible E2E acceptance test cases from test specifications with exact steps, file contents, and expected outcomes | 🟡 Medium | [→ Definition](/process-framework/tasks/03-testing/e2e-acceptance-test-case-creation-task.md) |
-| **Test Specification Creation** | Create comprehensive test specifications from TDDs for Test-First Development          | 🟡 Medium  | [→ Definition](/process-framework/tasks/03-testing/test-specification-creation-task.md) |
+| **Test Specification Creation** | Create automated test specifications from TDDs for Test-First Development              | 🟡 Medium  | [→ Definition](/process-framework/tasks/03-testing/test-specification-creation-task.md) |
 | **Test Audit**                  | Quality assurance evaluation of implemented test suites against effectiveness criteria | 🟡 Medium  | [→ Definition](/process-framework/tasks/03-testing/test-audit-task.md)                  |
 
 ### ⚙️ 04 - Implementation Tasks
@@ -291,10 +291,10 @@ After milestone (all features for a user workflow implemented):
 ### For Performance Testing
 
 ```
-Test Specification Creation (PF-TSK-012, PE dimension) → Performance Test Spec → Performance Test Creation (PF-TSK-084) → Performance Baseline Capture (PF-TSK-085)
+[Implementation complete] → Performance Testing Guide decision matrix → Performance Test Creation (PF-TSK-084) → Performance Baseline Capture (PF-TSK-085)
 ```
 
-> **Trigger**: When PF-TSK-012 evaluates the PE dimension as Critical or Important, it produces a performance test specification using the Performance Test Spec Template. This feeds Performance Test Creation (implements tests) → Performance Baseline Capture (records results, detects regressions). Baseline Capture also runs standalone for pre-release verification and post-refactoring checks.
+> **Trigger**: After implementation, consult the [Performance Testing Guide](/process-framework/guides/03-testing/performance-testing-guide.md) decision matrix to determine if performance tests are needed (e.g., changes to parsers, database, scaling characteristics). Performance Test Creation implements tests; Baseline Capture records results and detects regressions. Baseline Capture also runs standalone for pre-release verification and post-refactoring checks.
 
 ### For Feature Validation
 
@@ -488,6 +488,10 @@ Need to track something new? Use the [State File Template](/process-framework/te
 ---
 
 ## 📦 AI Agent Session Management
+
+### Feedback Forms for Multi-Session Tasks
+
+Complete one feedback form at the end of **each session**, not at the end of the entire task. Feedback from early sessions degrades if deferred to the final session.
 
 ### One Batch Per Session (Validation Tasks)
 

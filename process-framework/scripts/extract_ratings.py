@@ -130,13 +130,13 @@ def parse_tools(content: str) -> list[dict]:
             else:
                 ratings[dimension.lower()] = None
 
-        tools.append(
-            {
-                "tool_name": tool_name,
-                "tool_doc_id": tool_doc_id,
-                **ratings,
-            }
-        )
+        tool_entry = {
+            "tool_name": tool_name,
+            **ratings,
+        }
+        if tool_doc_id is not None:
+            tool_entry["tool_doc_id"] = tool_doc_id
+        tools.append(tool_entry)
 
     return tools
 

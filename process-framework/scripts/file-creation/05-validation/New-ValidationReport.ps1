@@ -38,6 +38,11 @@
     (criterion-level and per-feature) into the generated report. Accepts absolute paths
     or paths relative to the project root.
 
+.PARAMETER DryRunGenerate
+    Creates the report file for inspection but skips ID registry increment, validation
+    tracking updates, and documentation map updates. Uses placeholder ID "PD-VAL-DRY".
+    Useful for testing the script without consuming real IDs or modifying tracking state.
+
 .EXAMPLE
     ../../../../../../validation/New-ValidationReport.ps1 -ValidationType "ArchitecturalConsistency" -FeatureIds "0.2.1,0.2.2,0.2.3"
 
@@ -53,9 +58,14 @@
 
     Creates an AI agent continuity report with R2→R3 trend comparison sections pre-populated from the R2 report
 
+.EXAMPLE
+    ../../../../../../validation/New-ValidationReport.ps1 -ValidationType "CodeQuality" -FeatureIds "0.2.1" -DryRunGenerate
+
+    Creates a code quality report with placeholder ID (PD-VAL-DRY), no registry/tracking/doc-map side effects
+
 .NOTES
     Author: AI Framework Extension
-    Version: 1.0
+    Version: 1.1
     Created: 2025-08-15
 
     This script is part of the Feature Validation Framework.
@@ -80,7 +90,10 @@ param(
     [int]$SessionNumber = 1,
 
     [Parameter(Mandatory = $false)]
-    [string]$PriorRoundReport = ""
+    [string]$PriorRoundReport = "",
+
+    [Parameter(Mandatory = $false)]
+    [switch]$DryRunGenerate
 )
 
 # Configuration
@@ -709,10 +722,15 @@ try {
     $outputDir = Join-Path $ProjectRoot "doc/validation/reports/$($validationConfig.Directory)"
 
     if ($PSCmdlet.ShouldProcess("$outputDir", "Create $($validationConfig.DisplayName) validation report for features $($features -join ', ')")) {
-        # Get next validation ID
-        Write-Host "🆔 Assigning validation ID..." -ForegroundColor White
-        $validationId = Get-NextValidationId
-        Write-Host "   Assigned ID: $validationId" -ForegroundColor Green
+        # Get next validation ID (or placeholder in dry-run mode)
+        if ($DryRunGenerate) {
+            Write-Host "⚠️  DRY-RUN MODE: Using placeholder ID, skipping registry/tracking/doc-map updates" -ForegroundColor Yellow
+            $validationId = "PD-VAL-DRY"
+        } else {
+            Write-Host "🆔 Assigning validation ID..." -ForegroundColor White
+            $validationId = Get-NextValidationId
+            Write-Host "   Assigned ID: $validationId" -ForegroundColor Green
+        }
         Write-Host ""
 
         # Create output path
@@ -736,21 +754,29 @@ try {
         Write-Host ""
 
         # Update tracking — directly update reports registry and overall progress
-        Write-Host "📊 Updating validation tracking..." -ForegroundColor White
-        Update-ValidationTracking -ValidationId $validationId -ValidationType $ValidationType -ValidationConfig $validationConfig -Features $features -ReportPath $outputPath
+        if ($DryRunGenerate) {
+            Write-Host "📊 Skipping validation tracking update (dry-run mode)" -ForegroundColor Yellow
+        } else {
+            Write-Host "📊 Updating validation tracking..." -ForegroundColor White
+            Update-ValidationTracking -ValidationId $validationId -ValidationType $ValidationType -ValidationConfig $validationConfig -Features $features -ReportPath $outputPath
+        }
         Write-Host ""
 
         # Auto-append entry to PD-documentation-map.md under the correct Round section
-        $pdDocMapPath = Join-Path $ProjectRoot "doc/PD-documentation-map.md"
-        if (Test-Path $pdDocMapPath) {
-            $sectionHeader = "### Round $roundNumber Validation Reports"
-            $featureList = ($features | Sort-Object) -join ', '
-            $relPath = "validation/reports/$($validationConfig.Directory)/$fileName"
-            $entryLine = "- [Validation: $($validationConfig.DisplayName) — $featureList ($validationId)]($relPath) - Session $SessionNumber"
+        if ($DryRunGenerate) {
+            Write-Host "📄 Skipping PD-documentation-map.md update (dry-run mode)" -ForegroundColor Yellow
+        } else {
+            $pdDocMapPath = Join-Path $ProjectRoot "doc/PD-documentation-map.md"
+            if (Test-Path $pdDocMapPath) {
+                $sectionHeader = "### Round $roundNumber Validation Reports"
+                $featureList = ($features | Sort-Object) -join ', '
+                $relPath = "validation/reports/$($validationConfig.Directory)/$fileName"
+                $entryLine = "- [Validation: $($validationConfig.DisplayName) — $featureList ($validationId)]($relPath) - Session $SessionNumber"
 
-            $updated = Add-DocumentationMapEntry -DocMapPath $pdDocMapPath -SectionHeader $sectionHeader -EntryLine $entryLine -CallerCmdlet $PSCmdlet
-            if ($updated) {
-                Write-Host "   📄 Updated: PD-documentation-map.md (section: $sectionHeader)" -ForegroundColor Gray
+                $updated = Add-DocumentationMapEntry -DocMapPath $pdDocMapPath -SectionHeader $sectionHeader -EntryLine $entryLine -CallerCmdlet $PSCmdlet
+                if ($updated) {
+                    Write-Host "   📄 Updated: PD-documentation-map.md (section: $sectionHeader)" -ForegroundColor Gray
+                }
             }
         }
 

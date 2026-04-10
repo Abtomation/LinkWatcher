@@ -59,8 +59,8 @@
     Test cases without run.ps1 are skipped — execute them directly following test-case.md.
 
     Created: 2026-03-18
-    Version: 1.3
-    Task: Process Improvement (PF-TSK-009), PF-IMP-134, PF-IMP-154, PF-IMP-169, PF-IMP-395
+    Version: 1.4
+    Task: Process Improvement (PF-TSK-009), PF-IMP-134, PF-IMP-154, PF-IMP-169, PF-IMP-395, PF-IMP-472
 #>
 
 [CmdletBinding(SupportsShouldProcess)]
@@ -285,11 +285,32 @@ foreach ($tc in $scriptedCases) {
 
     Write-Host "━━━ $($tc.CaseId) ($($tc.Group)/$($tc.CaseDir)) ━━━" -ForegroundColor White
 
+    # Parse test-case.md frontmatter for lw_flags and skip_lw_start
+    $testCaseMd = Join-Path $tc.Path "test-case.md"
+    $useDryRun = $false
+    $skipLwStart = $false
+    if (Test-Path $testCaseMd) {
+        $tcContent = Get-Content $testCaseMd -Raw -ErrorAction SilentlyContinue
+        if ($tcContent -match '(?m)^lw_flags:\s*"([^"]*)"') {
+            $lwFlags = $Matches[1]
+            if ($lwFlags -match '--dry-run') {
+                $useDryRun = $true
+            }
+        }
+        if ($tcContent -match '(?m)^skip_lw_start:\s*true') {
+            $skipLwStart = $true
+        }
+    }
+
     if ($WhatIfPreference) {
         Write-Host "  What if: Would execute E2E pipeline for $($tc.CaseId):" -ForegroundColor Cyan
         Write-Host "    1. Stop LinkWatcher" -ForegroundColor DarkGray
         Write-Host "    2. Setup-TestEnvironment.ps1 -Group $($tc.Group) -ProjectRoot $ProjectRoot -Clean:$Clean" -ForegroundColor DarkGray
-        Write-Host "    3. Start LinkWatcher (workspace-scoped)" -ForegroundColor DarkGray
+        if ($skipLwStart) {
+            Write-Host "    3. Skip LinkWatcher start (skip_lw_start)" -ForegroundColor DarkYellow
+        } else {
+            Write-Host "    3. Start LinkWatcher (workspace-scoped)" -ForegroundColor DarkGray
+        }
         Write-Host "    4. Execute: $runScriptPath -WorkspacePath $workspaceCasePath" -ForegroundColor DarkGray
         Write-Host "    5. Wait ${WaitSeconds}s for propagation" -ForegroundColor DarkGray
         Write-Host "    6. Verify-TestResult.ps1 -TestCase $($tc.CaseId) -Group $($tc.Group)" -ForegroundColor DarkGray
@@ -326,23 +347,15 @@ foreach ($tc in $scriptedCases) {
         continue
     }
 
-    # Parse test-case.md frontmatter for lw_flags (e.g., --dry-run)
-    $testCaseMd = Join-Path $tc.Path "test-case.md"
-    $useDryRun = $false
-    if (Test-Path $testCaseMd) {
-        $tcContent = Get-Content $testCaseMd -Raw -ErrorAction SilentlyContinue
-        if ($tcContent -match '(?m)^lw_flags:\s*"([^"]*)"') {
-            $lwFlags = $Matches[1]
-            if ($lwFlags -match '--dry-run') {
-                $useDryRun = $true
-            }
-        }
-    }
-
     # Step 3: Start LinkWatcher scoped to workspace (not full project)
-    $dryRunMsg = if ($useDryRun) { " in dry-run mode" } else { "" }
-    Write-Host "  3️⃣  Starting LinkWatcher (workspace-scoped${dryRunMsg})..." -ForegroundColor DarkGray
-    Start-LinkWatcher -WatchPath $workspaceCasePath -SettleDelay $SettleSeconds -DryRun:$useDryRun
+    # Skipped when test-case.md sets skip_lw_start: true (test manages its own LW lifecycle)
+    if ($skipLwStart) {
+        Write-Host "  3️⃣  Skipping LinkWatcher start (skip_lw_start — test manages own LW)" -ForegroundColor DarkYellow
+    } else {
+        $dryRunMsg = if ($useDryRun) { " in dry-run mode" } else { "" }
+        Write-Host "  3️⃣  Starting LinkWatcher (workspace-scoped${dryRunMsg})..." -ForegroundColor DarkGray
+        Start-LinkWatcher -WatchPath $workspaceCasePath -SettleDelay $SettleSeconds -DryRun:$useDryRun
+    }
 
     # Step 4: Execute run.ps1
     Write-Host "  4️⃣  Executing run.ps1..." -ForegroundColor DarkGray
@@ -394,6 +407,7 @@ foreach ($tc in $scriptedCases) {
     }
 
     # Step 8: Stop LinkWatcher (workspace-scoped or project-level if run.ps1 restarted it)
+    # Always stop — even when skip_lw_start, run.ps1 may have started its own LW instance
     Stop-LinkWatcher -LockPath $workspaceLockFile
     Stop-LinkWatcher -LockPath $projectLockFile
     Remove-Item (Join-Path $workspaceCasePath "linkwatcher-e2e.log") -Force -ErrorAction SilentlyContinue

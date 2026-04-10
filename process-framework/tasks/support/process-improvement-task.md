@@ -5,7 +5,7 @@ category: Task Definition
 domain: agnostic
 version: 2.2
 created: 2024-07-15
-updated: 2026-03-03
+updated: 2026-04-10
 ---
 
 # Process Improvement
@@ -83,9 +83,11 @@ Analyze, optimize, and document development processes to improve efficiency, qua
 3. **Review source feedback**: Read the [Tools Review summary](../../feedback/reviews) and/or specific feedback forms that identified this improvement
 4. **Read current state**: Examine the file(s)/tool(s) to be improved to understand the current implementation
 5. **🚨 CHECKPOINT**: Present problem analysis and proposed approach(es) to human partner
+   > **Format**: Begin with a **Problem Summary** (1-2 sentences explaining what the IMP addresses and why it matters), then the evaluation table from Step 2, then proposed approach(es).
+   >
    > **Valid outcomes**: Approve an approach and proceed, request alternative approaches, or **reject the improvement** if analysis shows it's unnecessary (mark as Rejected in tracking and skip to finalization)
    >
-   > **Reclassification**: If the IMP describes valid work that is not a process improvement, reject it and route to the correct tracker:
+   > **Reclassification**: If the IMP describes valid work that is not a process improvement, reject it and route to the correct tracker. Use the **domain heuristic**: `process-framework/`, `doc/` = IMP; `linkwatcher/` = BUG; `test/` = either (infrastructure = IMP, product defect = BUG).
    > - **Product bug** → [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) via [New-BugReport.ps1](../../scripts/file-creation/06-maintenance/New-BugReport.ps1)
    > - **Feature request** → [Feature Request Tracking](../../../doc/state-tracking/permanent/feature-request-tracking.md) via [New-FeatureRequest.ps1](../../scripts/file-creation/01-planning/New-FeatureRequest.ps1)
    > - **Technical / test infrastructure debt** → [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) via [Update-TechDebt.ps1 -Add](../../scripts/update/Update-TechDebt.ps1)
@@ -115,6 +117,7 @@ Analyze, optimize, and document development processes to improve efficiency, qua
     c. Implement the approved change
     d. **🚨 CHECKPOINT**: Confirm the change meets expectations
 11. **Update linked documents**: Search for files that reference the changed file(s) and update or remove outdated content (guides, context maps, registry entries, templates)
+    > **Don't dismiss grep hits as "just links"**: For each reference found, read the surrounding paragraph — descriptions, parameter examples, and usage guidance may reference the old behavior and need updating even when the link itself is correct.
 12. **Log tool change in feedback database**: Record the modification for trend analysis:
     ```bash
     # Single change:

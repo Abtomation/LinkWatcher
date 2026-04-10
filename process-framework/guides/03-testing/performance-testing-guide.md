@@ -2,9 +2,9 @@
 id: PF-GDE-060
 type: Process Framework
 category: Guide
-version: 1.0
+version: 1.1
 created: 2026-04-09
-updated: 2026-04-09
+updated: 2026-04-10
 ---
 
 # Performance Testing Guide
@@ -169,7 +169,7 @@ None of the above?
 
 Performance testing is triggered at these points:
 
-1. **Test Spec Creation (PF-TSK-012)** — PE dimension applicable? → use Performance Test Spec Template
+1. **After implementation** — Apply the [decision matrix](#decision-matrix) to determine if performance tests are needed for the implemented code changes
 2. **Definition of Done** — "No regression in Operation benchmarks (verified via Baseline Capture)"
 3. **Pre-release verification** — Run Baseline Capture, verify no regressions
 4. **Post-refactoring** — If performance-affecting code changed, trigger Baseline Capture
@@ -220,6 +220,64 @@ Add `@pytest.mark.slow` for tests taking >10 seconds.
 - **Generous tolerances**: Thresholds should be 3-5x worse than typical measurements. The test catches regressions, not noise.
 - **No CI sensitivity**: Don't set thresholds that pass on fast hardware but fail on slow CI runners
 - **Temp directories**: Always use `tmp_path` to avoid filesystem caching effects from prior runs
+
+### Benchmarking Internal Components
+
+Some components are not designed for isolated use — they have no public API, rely on callbacks, or lack clean shutdown methods. These still need benchmarking when they sit on a hot path. Use these patterns:
+
+**Pattern 1: Direct instantiation with stub callbacks**
+
+When a component is callback-driven, instantiate it directly and inject minimal callbacks to capture results:
+
+```python
+# Component uses callbacks — inject stubs to observe behavior
+results = []
+
+def on_result(old_path, new_path):
+    results.append((old_path, new_path))
+
+def on_fallback(path):
+    pass  # Unused code path for this benchmark
+
+component = InternalComponent(
+    on_success=on_result,
+    on_failure=on_fallback,
+    delay=10.0,
+)
+```
+
+**Pattern 2: Simulating multi-step internal protocols**
+
+Some components require a specific call sequence that mirrors their runtime usage (e.g., buffering a delete, then matching a create). Time only the step you care about:
+
+```python
+# Setup: feed the component its precondition
+component.buffer_delete(rel_src, abs_src)
+
+# Move the file on disk (simulating the OS event)
+src.rename(dest)
+
+# Time the actual operation under test
+start = time.time()
+result = component.match_created_file(rel_dest, abs_dest)
+elapsed = time.time() - start
+```
+
+**Pattern 3: Cleanup without a public stop method**
+
+Components not designed for isolated testing may lack a `stop()` or `close()` method. Use `try/finally` with internal flags or attributes:
+
+```python
+try:
+    # ... benchmark code ...
+finally:
+    component._stopped = True  # Access internal flag if no public API
+    # Or: component._timer.cancel() if using threading timers
+```
+
+Document any internal attribute access with a comment explaining why — these are fragile and may break if the component is refactored.
+
+**When to use these patterns**: Level 1 (Component Benchmarks) where the target subsystem has no service-level entry point. If the component *can* be exercised through a higher-level API, prefer that — it's more realistic and less fragile.
 
 ## Baseline Management
 
@@ -323,9 +381,8 @@ Stores historical measurements for trend analysis. Each record includes test ID,
 
 | Task | Role in Performance Testing |
 |------|---------------------------|
-| Test Spec Creation (PF-TSK-012) | Plans what to test (PE dimension → performance test spec) |
-| Performance Test Creation | Implements tests from spec, registers in tracking |
-| Performance Baseline Capture | Runs tests, records results, detects regressions |
+| Performance Test Creation (PF-TSK-084) | Implements tests using the decision matrix, registers in tracking |
+| Performance Baseline Capture (PF-TSK-085) | Runs tests, records results, detects regressions |
 
 ## Troubleshooting
 

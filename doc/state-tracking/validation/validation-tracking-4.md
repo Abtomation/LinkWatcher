@@ -184,60 +184,59 @@ This file tracks the progress and results of **Validation Round 4** — a post-b
 
 ### High Priority Issues
 
-| Issue ID | Feature | Validation Type | Severity | Description | Status | Assigned Session |
-|----------|---------|-----------------|----------|-------------|--------|------------------|
-| R4-CQ-H01 | 6.1.1 | Code Quality | High | `_glob_to_regex` uses `rstrip(r"\Z")` which strips characters not substring — incorrect ignore pattern matching | OPEN | — |
+| Issue ID | Feature | Validation Type | Severity | Description | Status | Tracked As | Assigned Session |
+|----------|---------|-----------------|----------|-------------|--------|------------|------------------|
+| R4-CQ-H01 | 6.1.1 | Code Quality | High | `_glob_to_regex` uses `rstrip(r"\Z")` which strips characters not substring — incorrect ignore pattern matching | OPEN | — | — |
 
 ### Medium Priority Issues
 
-| Issue ID | Feature | Validation Type | Severity | Description | Status | Assigned Session |
-|----------|---------|-----------------|----------|-------------|--------|------------------|
-| R4-CQ-M01 | 3.1.1 | Code Quality | Medium | `with_context` decorator clears ALL context in finally — nested usage breaks outer context | OPEN | — |
-| R4-CQ-M02 | 2.1.1 | Code Quality | Medium | YAML/JSON parsers share ~80% structural logic but implemented independently | OPEN | — |
-| R4-CQ-M03 | 2.2.1 | Code Quality | Medium | `_update_file_references` / `_update_file_references_multi` share ~80% identical logic | OPEN | — |
-| R4-CQ-M04 | 2.1.1/2.2.1/6.1.1 | Code Quality | Medium | Magic string link types across all features — no enum/constants | OPEN | — |
-| R4-CQ-M05 | 6.1.1 | Code Quality | Medium | `_should_check_target` ~70 lines, 12+ if/return branches — very high complexity | OPEN | — |
-| R4-CQ-M06 | 3.1.1 | Code Quality | Medium | `colorama.init(autoreset=True)` at module import has side effects on stdout/stderr | OPEN | — |
-| R4-DA-M01 | 2.2.1 | Documentation Alignment | Medium | TDD PD-TDD-026 constructor signature missing `python_source_root` parameter added during PD-BUG-078 (TD187) | OPEN | — |
-| R4-DA-M02 | 3.1.1 | Documentation Alignment | Medium | FDD PD-FDD-025 missing CLI vs config file precedence rules and `json_logs` console format option documentation (TD188) | RESOLVED | — |
-| R4-EM-M01 | 6.1.1 | Extensibility & Maintainability | Medium | `_target_exists()` reimplements path resolution independently of PathResolver — maintenance risk and drift potential (TD189) | OPEN | — |
-| R4-PE-M01 | 6.1.1 | Performance & Scalability | Medium | Validator makes 4 separate O(n) passes per markdown file for context detection (TD204) (`_get_code_block_lines`, `_get_archival_details_lines`, `_get_table_row_lines`, `_get_placeholder_lines`) instead of a single combined pass | OPEN | — |
+| Issue ID | Feature | Validation Type | Severity | Description | Status | Tracked As | Assigned Session |
+|----------|---------|-----------------|----------|-------------|--------|------------|------------------|
+| R4-CQ-M01 | 3.1.1 | Code Quality | Medium | `with_context` decorator clears ALL context in finally — nested usage breaks outer context | OPEN | — | — |
+| R4-CQ-M02 | 2.1.1 | Code Quality | Medium | YAML/JSON parsers share ~80% structural logic but implemented independently | OPEN | — | — |
+| R4-CQ-M03 | 2.2.1 | Code Quality | Medium | `_update_file_references` / `_update_file_references_multi` share ~80% identical logic | OPEN | — | — |
+| R4-CQ-M04 | 2.1.1/2.2.1/6.1.1 | Code Quality | Medium | Magic string link types across all features — no enum/constants | OPEN | — | — |
+| R4-CQ-M05 | 6.1.1 | Code Quality | Medium | `_should_check_target` ~70 lines, 12+ if/return branches — very high complexity | OPEN | — | — |
+| R4-CQ-M06 | 3.1.1 | Code Quality | Medium | `colorama.init(autoreset=True)` at module import has side effects on stdout/stderr | OPEN | — | — |
+| R4-DA-M01 | 2.2.1 | Documentation Alignment | Medium | TDD PD-TDD-026 constructor signature missing `python_source_root` parameter added during PD-BUG-078 (TD187) | OPEN | — | — |
+| R4-DA-M02 | 3.1.1 | Documentation Alignment | Medium | FDD PD-FDD-025 missing CLI vs config file precedence rules and `json_logs` console format option documentation (TD188) | RESOLVED | — | — |
+| R4-EM-M01 | 6.1.1 | Extensibility & Maintainability | Medium | `_target_exists()` reimplements path resolution independently of PathResolver — maintenance risk and drift potential (TD189) | OPEN | — | — |
+| R4-PE-M01 | 6.1.1 | Performance & Scalability | Medium | Validator makes 4 separate O(n) passes per markdown file for context detection (TD204) (`_get_code_block_lines`, `_get_archival_details_lines`, `_get_table_row_lines`, `_get_placeholder_lines`) instead of a single combined pass | OPEN | — | — |
 
 ### Low Priority Issues
 
-| Issue ID | Feature | Validation Type | Severity | Description | Status | Assigned Session |
-|----------|---------|-----------------|----------|-------------|--------|------------------|
-| R4-AC-L01 | 0.1.1 | Architectural Consistency | Low | Business logic in orchestrator: _initial_scan() and check_links() contain filesystem walking, parsing, and link checking logic — ADR-039 specifies keeping service free of business logic (TD177) | OPEN | — |
-| R4-AC-L02 | 0.1.1 | Architectural Consistency | Low | service.add_parser() directly mutates handler.monitored_extensions — breaks handler encapsulation (TD178) | OPEN | — |
-| R4-AC-L03 | 0.1.2 | Architectural Consistency | Low | database.py _replace_path_part() uses endswith without segment-boundary check — could match across path boundaries (TD179) | RESOLVED | — |
-| R4-DA-L01 | 2.2.1 | Documentation Alignment | Low | `_get_cached_regex()` method and `_REGEX_CACHE_MAX_SIZE` constant not documented in TDD PD-TDD-026 | OPEN | — |
-| R4-DA-L02 | 2.2.1 | Documentation Alignment | Low | Module docstring in `updater.py` references non-existent `update_references_in_file()` method | OPEN | — |
-| R4-DA-L03 | 3.1.1 | Documentation Alignment | Low | FDD FR-4 does not document `scan_progress()` `info_level` parameter (present in TDD) | OPEN | — |
-| R4-DA-L04 | 3.1.1 | Documentation Alignment | Low | FDD FR-3 conflates `json_logs` file output with console output format selection | RESOLVED | PD-REF-175 — FR-3 rewritten to separate json_logs (all output) from file logging |
-| R4-AIC-L01 | 0.1.2 | AI Agent Continuity | Low | `models.py` `LinkReference` lacks AI Context section and `link_type` field documentation — most-queried model in codebase has no orientation guidance | OPEN | — |
-| R4-AIC-L02 | 1.1.1 | AI Agent Continuity | Low | `utils.py` has no AI Context section despite being imported by 5+ modules — navigation blind spot for AI agents | OPEN | — |
-| R4-AIC-L03 | 1.1.1 | AI Agent Continuity | Low | `reference_lookup.py` class docstring lacks "Common tasks" pattern used in other AI Context sections — no debugging scenario mapping | OPEN | — |
-| R4-AIC-L04 | 0.1.1 | AI Agent Continuity | Low | [CONDITIONAL: only if service grows beyond ~300 lines] `_initial_scan()` and `check_links()` contain inline business logic rather than delegating to components | OPEN | — |
-| R4-EM-L01 | 2.1.1 | Extensibility & Maintainability | Low | [CONDITIONAL: if significant parser logic changes needed] YAML/JSON parsers share ~80% structural logic but implemented independently | OPEN | — |
-| R4-EM-L02 | 2.2.1 | Extensibility & Maintainability | Low | [CONDITIONAL: if new link types added frequently] `_replace_in_line` dispatches by link_type using if/elif chain — no registry pattern | OPEN | — |
-| R4-EM-L03 | 3.1.1 | Extensibility & Maintainability | Low | logging.py at 622 lines is dense — `LinkWatcherLogger.__init__` handles both structlog configuration AND stdlib handler setup | OPEN | — |
-| R4-EM-L04 | 6.1.1 | Extensibility & Maintainability | Low | [CONDITIONAL: if more skip patterns needed] `_should_check_target()` ~70 lines with 12+ if/return branches — high cyclomatic complexity | OPEN | — |
-| R4-PE-L01 | 0.1.1/0.1.2 | Performance & Scalability | Low | [CONDITIONAL: 10k+ files] `_initial_scan()` calls `add_link()` per reference — no batch insertion API; 50k+ individual lock acquisitions during startup (TD202) | OPEN | — |
-| R4-PE-L02 | 0.1.2 | Performance & Scalability | Low | [CONDITIONAL: large DBs] `get_references_to_directory()` linear scan of ALL link keys + resolved paths O(K+R) — no prefix index (TD203) | OPEN | — |
-
-| R4-PE-L01 | 2.1.1 | Performance & Scalability | Low | YAML parser _find_next_occurrence() has O(L*v) worst-case line scan for each YAML value with fallback rescan | OPEN | — |
-| R4-PE-L02 | 2.1.1 | Performance & Scalability | Low | Dart parser _extract_embedded_refs() checks all accumulated references O(r) per embedded match | OPEN | — |
-| R4-PE-L03 | 2.1.1 | Performance & Scalability | Low | Markdown parser _overlaps_any() is O(m) linear scan per match against span list | OPEN | — |
-| R4-PE-L04 | 2.1.1 | Performance & Scalability | Low | [CONDITIONAL] Generic parser redundant quoted_pattern.search(line) after finditer() | OPEN | — |
-| R4-PE-L05 | 2.2.1 | Performance & Scalability | Low | Regex cache clear-all eviction at 1024 entries instead of LRU | OPEN | — |
-| R4-PE-L06 | 2.2.1 | Performance & Scalability | Low | Phase 2 rejoins all lines for file-wide regex per Python module rename | OPEN | — |
-| R4-OB-L01 | 0.1.1 | Observability | Low | `_initial_scan()` logs individual `file_scan_failed` warnings but doesn't track cumulative scan error count — operators cannot determine scan health ratio | OPEN | — |
-| R4-OB-L02 | 1.1.1 | Observability | Low | [CONDITIONAL: if production stability issues arise] No health indicator for MoveDetector worker thread — if `_expiry_worker` crashes, pending deletes never expire | OPEN | — |
-| R4-OB-L03 | 1.1.1 | Observability | Low | [CONDITIONAL: if monitoring dashboards needed] `get_stats()` exposes counters but not queue depths (pending moves count, pending dir moves count) | OPEN | — |
-| R4-OB-L04 | 3.1.1 | Observability | Low | `setup_logging()` and `reset_logger()` don't log their own invocations — config changes and logger resets are invisible in logs | OPEN | — |
-| R4-OB-L05 | 3.1.1 | Observability | Low | `TimestampRotatingFileHandler.doRollover()` logs to `_fallback_logger` only — rotation events invisible in primary log stream | OPEN | — |
-| R4-OB-L06 | 3.1.1 | Observability | Low | [CONDITIONAL: if log volume becomes a concern] No self-instrumentation metrics: log throughput, handler errors, rotation count | OPEN | — |
-| R4-OB-L07 | 6.1.1 | Observability | Low | Per-extension timing uses manual `time.monotonic()` instead of `PerformanceLogger.log_metric()` — timing data outside standard metric pipeline | OPEN | — |
+| Issue ID | Feature | Validation Type | Severity | Description | Status | Tracked As | Assigned Session |
+|----------|---------|-----------------|----------|-------------|--------|------------|------------------|
+| R4-AC-L01 | 0.1.1 | Architectural Consistency | Low | Business logic in orchestrator: _initial_scan() and check_links() contain filesystem walking, parsing, and link checking logic — ADR-039 specifies keeping service free of business logic (TD177) | OPEN | — | — |
+| R4-AC-L02 | 0.1.1 | Architectural Consistency | Low | service.add_parser() directly mutates handler.monitored_extensions — breaks handler encapsulation (TD178) | OPEN | — | — |
+| R4-AC-L03 | 0.1.2 | Architectural Consistency | Low | database.py _replace_path_part() uses endswith without segment-boundary check — could match across path boundaries (TD179) | RESOLVED | — | — |
+| R4-DA-L01 | 2.2.1 | Documentation Alignment | Low | `_get_cached_regex()` method and `_REGEX_CACHE_MAX_SIZE` constant not documented in TDD PD-TDD-026 | OPEN | — | — |
+| R4-DA-L02 | 2.2.1 | Documentation Alignment | Low | Module docstring in `updater.py` references non-existent `update_references_in_file()` method | OPEN | — | — |
+| R4-DA-L03 | 3.1.1 | Documentation Alignment | Low | FDD FR-4 does not document `scan_progress()` `info_level` parameter (present in TDD) | OPEN | — | — |
+| R4-DA-L04 | 3.1.1 | Documentation Alignment | Low | FDD FR-3 conflates `json_logs` file output with console output format selection | RESOLVED | — | PD-REF-175 — FR-3 rewritten to separate json_logs (all output) from file logging |
+| R4-AIC-L01 | 0.1.2 | AI Agent Continuity | Low | `models.py` `LinkReference` lacks AI Context section and `link_type` field documentation — most-queried model in codebase has no orientation guidance | OPEN | — | — |
+| R4-AIC-L02 | 1.1.1 | AI Agent Continuity | Low | `utils.py` has no AI Context section despite being imported by 5+ modules — navigation blind spot for AI agents | OPEN | — | — |
+| R4-AIC-L03 | 1.1.1 | AI Agent Continuity | Low | `reference_lookup.py` class docstring lacks "Common tasks" pattern used in other AI Context sections — no debugging scenario mapping | OPEN | — | — |
+| R4-AIC-L04 | 0.1.1 | AI Agent Continuity | Low | [CONDITIONAL: only if service grows beyond ~300 lines] `_initial_scan()` and `check_links()` contain inline business logic rather than delegating to components | OPEN | — | — |
+| R4-EM-L01 | 2.1.1 | Extensibility & Maintainability | Low | [CONDITIONAL: if significant parser logic changes needed] YAML/JSON parsers share ~80% structural logic but implemented independently | OPEN | — | — |
+| R4-EM-L02 | 2.2.1 | Extensibility & Maintainability | Low | [CONDITIONAL: if new link types added frequently] `_replace_in_line` dispatches by link_type using if/elif chain — no registry pattern | OPEN | — | — |
+| R4-EM-L03 | 3.1.1 | Extensibility & Maintainability | Low | logging.py at 622 lines is dense — `LinkWatcherLogger.__init__` handles both structlog configuration AND stdlib handler setup | OPEN | — | — |
+| R4-EM-L04 | 6.1.1 | Extensibility & Maintainability | Low | [CONDITIONAL: if more skip patterns needed] `_should_check_target()` ~70 lines with 12+ if/return branches — high cyclomatic complexity | OPEN | — | — |
+| R4-PE-L01 | 0.1.1/0.1.2 | Performance & Scalability | Low | [CONDITIONAL: 10k+ files] `_initial_scan()` calls `add_link()` per reference — no batch insertion API; 50k+ individual lock acquisitions during startup (TD202) | OPEN | — | — |
+| R4-PE-L02 | 0.1.2 | Performance & Scalability | Low | [CONDITIONAL: large DBs] `get_references_to_directory()` linear scan of ALL link keys + resolved paths O(K+R) — no prefix index (TD203) | OPEN | — | — |
+| R4-PE-L01 | 2.1.1 | Performance & Scalability | Low | YAML parser _find_next_occurrence() has O(L*v) worst-case line scan for each YAML value with fallback rescan | OPEN | — | — |
+| R4-PE-L02 | 2.1.1 | Performance & Scalability | Low | Dart parser _extract_embedded_refs() checks all accumulated references O(r) per embedded match | OPEN | — | — |
+| R4-PE-L03 | 2.1.1 | Performance & Scalability | Low | Markdown parser _overlaps_any() is O(m) linear scan per match against span list | OPEN | — | — |
+| R4-PE-L04 | 2.1.1 | Performance & Scalability | Low | [CONDITIONAL] Generic parser redundant quoted_pattern.search(line) after finditer() | OPEN | — | — |
+| R4-PE-L05 | 2.2.1 | Performance & Scalability | Low | Regex cache clear-all eviction at 1024 entries instead of LRU | OPEN | — | — |
+| R4-PE-L06 | 2.2.1 | Performance & Scalability | Low | Phase 2 rejoins all lines for file-wide regex per Python module rename | OPEN | — | — |
+| R4-OB-L01 | 0.1.1 | Observability | Low | `_initial_scan()` logs individual `file_scan_failed` warnings but doesn't track cumulative scan error count — operators cannot determine scan health ratio | OPEN | — | — |
+| R4-OB-L02 | 1.1.1 | Observability | Low | [CONDITIONAL: if production stability issues arise] No health indicator for MoveDetector worker thread — if `_expiry_worker` crashes, pending deletes never expire | OPEN | — | — |
+| R4-OB-L03 | 1.1.1 | Observability | Low | [CONDITIONAL: if monitoring dashboards needed] `get_stats()` exposes counters but not queue depths (pending moves count, pending dir moves count) | OPEN | — | — |
+| R4-OB-L04 | 3.1.1 | Observability | Low | `setup_logging()` and `reset_logger()` don't log their own invocations — config changes and logger resets are invisible in logs | OPEN | — | — |
+| R4-OB-L05 | 3.1.1 | Observability | Low | `TimestampRotatingFileHandler.doRollover()` logs to `_fallback_logger` only — rotation events invisible in primary log stream | OPEN | — | — |
+| R4-OB-L06 | 3.1.1 | Observability | Low | [CONDITIONAL: if log volume becomes a concern] No self-instrumentation metrics: log throughput, handler errors, rotation count | OPEN | — | — |
+| R4-OB-L07 | 6.1.1 | Observability | Low | Per-extension timing uses manual `time.monotonic()` instead of `PerformanceLogger.log_metric()` — timing data outside standard metric pipeline | OPEN | — | — |
 
 ## Remediation Tracking
 
@@ -322,10 +321,10 @@ Same batching strategy as Round 3: workflow cohort grouping with Batch A (founda
 
 ### Cross-References
 
-- **Feature Implementation Status**: [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md)
-- **Quality Issues**: [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md)
+- **Feature Implementation Status**: [Feature Tracking](../permanent/feature-tracking.md)
+- **Quality Issues**: [Technical Debt Tracking](../permanent/technical-debt-tracking.md)
 - **Test Coverage**: [Test Tracking](../../../test/state-tracking/permanent/test-tracking.md)
-- **User Workflows**: [User Workflow Tracking](../../../doc/state-tracking/permanent/user-workflow-tracking.md)
+- **User Workflows**: [User Workflow Tracking](../permanent/user-workflow-tracking.md)
 - **Prior Validation**: [Round 3 Tracking](archive/validation-tracking-3.md)
 
 ### Synchronization Points

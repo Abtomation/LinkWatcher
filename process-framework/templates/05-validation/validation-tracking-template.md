@@ -148,18 +148,18 @@ This file tracks the progress and results of the **Feature Validation Framework*
 
 ### High Priority Issues
 
-| Issue ID | Feature | Validation Type | Severity | Description | Status | Assigned Session |
-|----------|---------|-----------------|----------|-------------|--------|------------------|
+| Issue ID | Feature | Validation Type | Severity | Description | Status | Tracked As | Assigned Session |
+|----------|---------|-----------------|----------|-------------|--------|------------|------------------|
 
 ### Medium Priority Issues
 
-| Issue ID | Feature | Validation Type | Severity | Description | Status | Assigned Session |
-|----------|---------|-----------------|----------|-------------|--------|------------------|
+| Issue ID | Feature | Validation Type | Severity | Description | Status | Tracked As | Assigned Session |
+|----------|---------|-----------------|----------|-------------|--------|------------|------------------|
 
 ### Low Priority Issues
 
-| Issue ID | Feature | Validation Type | Severity | Description | Status | Assigned Session |
-|----------|---------|-----------------|----------|-------------|--------|------------------|
+| Issue ID | Feature | Validation Type | Severity | Description | Status | Tracked As | Assigned Session |
+|----------|---------|-----------------|----------|-------------|--------|------------|------------------|
 
 ## Remediation Tracking
 
@@ -192,6 +192,8 @@ This file tracks the progress and results of the **Feature Validation Framework*
 | Data Integrity                  | N/A           | N/A   | N/A          | N/A           |
 
 ### Feature Quality Rankings
+
+> **Auto-populated** by `Generate-ValidationSummary.ps1` from per-feature scores in validation reports. Run the script after all dimension sessions are complete.
 
 | Rank | Feature | Overall Score | Primary Strengths | Primary Weaknesses |
 |------|---------|---------------|-------------------|--------------------|

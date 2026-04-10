@@ -21,6 +21,13 @@ For batch mode: copy the "Item N" section in the generated plan for each additio
 
 **L2. Fill Item Scope**: For each item in the plan, fill in the Scope, Debt Item ID, and Test Baseline fields. Read the tech debt item's **Dims** column from [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) to understand which dimension(s) the refactoring should improve along.
 
+   > **DA-category guidance**: For Documentation Alignment items (Dims column contains "DA"), trace the root cause of the drift before fixing it:
+   > 1. Identify the originating task/session that introduced the drift (use `git log` on the affected files)
+   > 2. Document the drift mechanism (e.g., "implementation changed in PF-TSK-053 session but TDD not updated")
+   > 3. Record findings in the refactoring plan's Scope section
+   >
+   > Understanding *why* documentation drifted is often the primary deliverable for DA items — the text fix itself is secondary.
+
 **L3. Capture Test Baseline**: Before any code changes, run the full test suite and record the exact pass/fail state. This baseline is the accountability anchor — any NEW failures after refactoring are owned by this session.
 
    > **Documentation-only exemption**: If the change modifies only documentation files (no `.py`/`.js`/code files changed), skip this step and note in the plan: *"Documentation-only change — test baseline skipped."*
@@ -68,6 +75,8 @@ For batch mode: copy the "Item N" section in the generated plan for each additio
    > **Tier 1 shortcut**: If the feature is Tier 1 and has no design documents (TDD, FDD, ADR, test spec), batch items 2–5 below as N/A with a single justification: *"Tier 1 feature — no design documents exist for [feature name]."* Still check items 1 (feature state file), 6 (validation tracking), and 7 (tech debt) individually.
 
    > **Test-only shortcut**: If the refactoring targets exclusively test code (no production code changes), batch items 1–6 below as N/A with a single justification: *"Test-only refactoring — no production code changes; design and state documents do not reference test internals."* Still check item 7 (tech debt) individually.
+
+   > **Documentation-only shortcut**: If the refactoring modifies only documentation files, docstrings, or comments (no behavioral code changes), batch items 1–6 below as N/A with a single justification: *"Documentation-only change — no behavioral code changes; design and state documents do not need updates for [description of change]."* Still check item 7 (tech debt) individually.
 
    1. Feature implementation state file updated, or N/A — verified file does not reference changed component (grep state file for component/method name)
    2. TDD updated, or N/A — verified no interface or significant internal design changes (new data structures, algorithm rewrites, storage layout changes) documented in TDD (grep TDD for references to changed component)

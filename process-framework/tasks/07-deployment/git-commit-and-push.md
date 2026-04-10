@@ -2,9 +2,10 @@
 id: PF-TSK-082
 type: Process Framework
 category: Task Definition
-version: 1.0
+domain: agnostic
+version: 1.1
 created: 2026-04-07
-updated: 2026-04-07
+updated: 2026-04-10
 ---
 
 # Git Commit and Push
@@ -38,6 +39,8 @@ Commit all changes in the current working directory and push them to the remote 
   - [CLAUDE.md](/CLAUDE.md) — Project-level git constraints (prohibited commands)
 
 ## Process
+
+> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished! 🚨**
 
 ### Step 1: Gather State
 
@@ -128,6 +131,11 @@ pwsh.exe -ExecutionPolicy Bypass -File LinkWatcher/start_linkwatcher_background.
 
 Report the commit hash and summary to the human partner.
 
+## Tools and Scripts
+
+- **[start_linkwatcher_background.ps1](/LinkWatcher_run/start_linkwatcher_background.ps1)** — Start LinkWatcher in background (Step 8: restart after push)
+- **[New-FeedbackForm.ps1](../../scripts/file-creation/support/New-FeedbackForm.ps1)** — Create feedback forms for task completion
+
 ## Outputs
 
 - **Git commit** — A new commit on the current branch containing only working directory changes
@@ -141,14 +149,16 @@ This task does not update any process framework state files. It operates on the 
 
 **🚨 TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF 🚨**
 
-- [ ] **Staging scope verified**: Only files within the current working directory were staged
-- [ ] **Gitignore check completed**: Files matching common gitignore patterns reviewed with human partner
-- [ ] **No sensitive files committed**: Safety check passed (no .env, keys, credentials)
-- [ ] **LinkWatcher stopped**: LinkWatcher process stopped before committing
-- [ ] **Commit created**: Descriptive commit message with co-authored-by trailer
-- [ ] **Push successful**: Changes pushed to remote repository
-- [ ] **LinkWatcher restarted**: LinkWatcher running again after push
-- [ ] **Confirmation given**: Commit hash and summary reported to human partner
+- [ ] **Verify Process**: Confirm all steps were followed
+  - [ ] Staging scope verified: Only files within the current working directory were staged
+  - [ ] Gitignore check completed: Files matching common gitignore patterns reviewed with human partner
+  - [ ] No sensitive files committed: Safety check passed (no .env, keys, credentials)
+  - [ ] LinkWatcher stopped before committing
+  - [ ] Commit created with descriptive message and co-authored-by trailer
+  - [ ] Push successful: Changes pushed to remote repository
+  - [ ] LinkWatcher restarted after push
+  - [ ] Confirmation given: Commit hash and summary reported to human partner
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-082" and context "Git Commit and Push"
 
 ## Next Tasks
 
@@ -157,3 +167,5 @@ This task does not update any process framework state files. It operates on the 
 ## Related Resources
 
 - [Release & Deployment Task](/process-framework/tasks/07-deployment/release-deployment-task.md) — For formal release preparation (broader scope than a simple push)
+- [Visual Notation Guide](/process-framework/guides/support/visual-notation-guide.md) — For interpreting context map diagrams
+- [Task Creation and Improvement Guide](../../guides/support/task-creation-guide.md) — Guide for creating and improving tasks

@@ -94,8 +94,9 @@ Evaluate the refactoring scope against these criteria:
 > **If the human approves Rejected**:
 > 1. Identify the **source** of the tech debt item (which task, session, or agent introduced it) from [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md).
 > 2. Update the tech debt item status to Rejected using `Update-TechDebt.ps1 -NewStatus "Rejected" -ResolutionNotes "Rejected: <rationale>"`.
-> 3. In the session's **feedback form**, document: the tech debt ID, the source task that introduced it, the Rejected rationale, and a recommendation for how the source task could avoid introducing unjustified tech debt in the future.
-> 4. Skip to the Task Completion Checklist below — no refactoring plan or code changes are needed.
+> 3. **Root cause analysis**: Read the source task's guidance (the specific section/dimension that produced the TD item) and analyze **why** it generated an unjustified item — e.g., missing language-context filter, overly broad pattern matching, aspirational standard treated as actual practice. In the session's **feedback form**, document: the tech debt ID, the source task, the analysis of what guidance gap allowed the false positive, and a concrete recommendation for improving the source task (e.g., a process improvement via `New-ProcessImprovement.ps1`).
+> 4. **Aspirational standard check**: If the rejection reason is that the referenced standard (ADR, guideline, or design doc) describes aspirational behavior rather than actual practice, update the standard to reflect reality — or create a process improvement (via `New-ProcessImprovement.ps1`) to do so — before closing the rejection. Leaving an inaccurate standard in place causes repeat false-positive TDs in future validation rounds.
+> 5. Skip to the Task Completion Checklist below — no refactoring plan or code changes are needed.
 >
 > **Workflow awareness**: Before proceeding, check the `workflows:` metadata in the affected feature's [implementation state file](/doc/state-tracking/features/) (or look up the feature in [User Workflow Tracking](../../../doc/state-tracking/permanent/user-workflow-tracking.md)). Note which user workflows the refactored code participates in — this informs the scope of regression testing needed after refactoring to ensure workflow correctness is preserved.
 >

@@ -25,7 +25,7 @@ This task bridges the gap between test specifications (which define _what_ to te
 
 ## When to Use
 
-- After a test specification flags scenarios as `manual` or `both` (new feature workflow)
+- After a cross-cutting E2E test specification identifies scenarios requiring E2E validation (milestone workflow)
 - Before bug fixing, when a reproduction case needs to be defined so the fix can be verified (bug fix workflow)
 - Before refactoring, when current correct behavior needs to be captured as a baseline (tech debt workflow)
 - After a feature enhancement, when new behavior needs E2E acceptance validation (enhancement workflow)
@@ -35,15 +35,15 @@ This task bridges the gap between test specifications (which define _what_ to te
 The position of this task varies by context:
 
 ```
-NEW FEATURE:    Test Spec Creation → Implementation → E2E Acceptance Test Case Creation → E2E Acceptance Test Execution
+MILESTONE:      [All workflow features implemented] → Cross-cutting E2E Spec → E2E Acceptance Test Case Creation → E2E Acceptance Test Execution
 BUG FIX:        E2E Acceptance Test Case Creation (reproduction case) → Bug Fixing → E2E Acceptance Test Execution
 TECH DEBT:      E2E Acceptance Test Case Creation (capture behavior) → Code Refactoring → E2E Acceptance Test Execution
-ENHANCEMENT:    Test Spec Creation → Feature Enhancement → E2E Acceptance Test Case Creation → E2E Acceptance Test Execution
+ENHANCEMENT:    Feature Enhancement → E2E Acceptance Test Case Creation → E2E Acceptance Test Execution
 ```
 
 ### Prerequisites
 
-- **New feature path**: Test specification exists with E2E acceptance test scenarios section populated
+- **Milestone path**: Cross-cutting E2E test specification exists with scenarios defined for the workflow
 - **Bug fix path**: Bug report exists with reproduction steps (even if incomplete)
 - **Tech debt path**: Refactoring plan exists identifying affected functionality
 - **Enhancement path**: Enhancement state tracking file exists with scope defined
@@ -54,7 +54,7 @@ ENHANCEMENT:    Test Spec Creation → Feature Enhancement → E2E Acceptance Te
 
 - **Critical (Must Read):**
 
-  - **Test Specification** (new feature/enhancement paths) - E2E acceptance test scenarios section identifying what needs E2E acceptance validation
+  - **Cross-Cutting E2E Test Specification** (milestone path) - E2E acceptance test scenarios identifying what needs E2E acceptance validation
   - **Cross-Cutting E2E Test Specification** (milestone path) - [Cross-cutting E2E spec](/test/specifications/cross-cutting-specs/) defining scenarios that span multiple features, organized by user workflow
   - [User Workflow Tracking](/doc/state-tracking/permanent/user-workflow-tracking.md) - Workflow definitions and feature mappings for multi-feature test cases
   - **Bug Report** (bug fix path) - Reproduction steps and expected vs. actual behavior
@@ -83,7 +83,7 @@ ENHANCEMENT:    Test Spec Creation → Feature Enhancement → E2E Acceptance Te
 
 1. **Identify the workflow context**: Determine which path triggered this task (new feature, bug fix, tech debt, or enhancement) — this affects what inputs are available and what the test cases need to demonstrate
 2. **Review inputs based on context**:
-   - **New feature/enhancement**: Read the test specification's E2E acceptance test scenarios section. Identify which scenarios need individual test cases and which group they belong to
+   - **New feature/enhancement**: Read the cross-cutting E2E test specification's scenarios section. Identify which scenarios need individual test cases and which group they belong to
    - **Cross-feature milestone**: Read the [cross-cutting E2E test specification](/test/specifications/cross-cutting-specs/) for the triggered workflow. Use `-FeatureIds` to attribute the test case to all participating features and `-Workflow` to link to the workflow map
    - **Bug fix**: Read the bug report. Extract the reproduction steps and define what "fixed" looks like as a concrete expected outcome
    - **Tech debt**: Read the refactoring plan. Identify behaviors that must be preserved and create baseline E2E acceptance test cases that capture current correct behavior
@@ -171,7 +171,7 @@ Before considering this task finished:
 
 ## Related Resources
 
-- [Test Specification Creation](test-specification-creation-task.md) — Upstream task that identifies which scenarios need E2E acceptance test cases
+- [Test Specification Creation](test-specification-creation-task.md) — Automated test specification task (E2E scenarios come from cross-cutting specs, not per-feature test specs)
 - [New-E2EAcceptanceTestCase.ps1](../../scripts/file-creation/03-testing/New-E2EAcceptanceTestCase.ps1) — Creation script for test case directories with automatic state tracking updates
 - [E2E Acceptance Test Case Template](../../templates/03-testing/e2e-acceptance-test-case-template.md) — Template for individual test case files
 - [E2E Acceptance Master Test Template](../../templates/03-testing/e2e-acceptance-master-test-template.md) — Template for group-level quick validation files

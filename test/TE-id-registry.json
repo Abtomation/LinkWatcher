@@ -5,7 +5,8 @@
     "created": "2026-03-24",
     "updated": "2026-03-26",
     "description": "Test Artifacts ID Registry - test specifications, audit reports, E2E tests, and state tracking",
-    "format": "semantic"
+    "format": "semantic",
+    "id_gaps_policy": "Gaps in ID sequences are expected. IDs are consumed by scripts at creation time; if the script fails or the output is discarded, the ID is not reclaimed. Do not manually reassign or fill gaps."
   },
   "prefixes": {
     "TE-E2G": {

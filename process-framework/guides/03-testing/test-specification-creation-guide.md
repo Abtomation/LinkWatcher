@@ -2,9 +2,9 @@
 id: PF-GDE-028
 type: Process Framework
 category: Guide
-version: 1.1
+version: 1.2
 created: 2025-07-27
-updated: 2025-01-27
+updated: 2026-04-10
 related_script: New-TestSpecification.ps1
 related_task: PF-TSK-012
 change_notes: "v1.1 - Added Separation of Concerns section for IMP-097/IMP-098 (cross-reference guidance)"
@@ -59,18 +59,20 @@ Test Specifications serve as the bridge between architectural design (TDDs) and 
 ### Purpose of Test Specifications
 
 - **Behavioral Translation**: Convert architectural design into specific behavioral requirements
-- **Test Guidance**: Provide detailed specifications for test case implementation
-- **Routing Plan**: Map TDD components to downstream test tasks with explicit classification and routing decisions
+- **Test Guidance**: Provide detailed specifications for automated test case implementation
+- **Component Mapping**: Map TDD components to test types (unit, integration, component)
 - **Quality Assurance**: Ensure test coverage aligns with design requirements
 - **Documentation**: Maintain traceability between design and testing
 
+> **Scope**: Test specifications cover automated tests only. E2E acceptance tests are identified through cross-cutting milestone triggers (see [ai-tasks.md workflows](/process-framework/ai-tasks.md#common-workflows)). Performance tests are identified at implementation time using the [Performance Testing Guide](/process-framework/guides/03-testing/performance-testing-guide.md) decision matrix.
+
 ### Tier-Based Test Specifications
 
-Test specifications scale with feature complexity:
+Automated test depth scales with feature complexity:
 
-- **Tier 1**: Basic unit tests and key integration scenarios
-- **Tier 2**: Comprehensive unit, integration, and component tests
-- **Tier 3**: Full test suite including unit, integration, component, and end-to-end tests
+- **Tier 1**: Core unit tests and key integration scenarios — focus on happy paths and critical edge cases
+- **Tier 2**: Comprehensive unit, integration, and component tests — broader edge case coverage
+- **Tier 3**: Full automated test suite with exhaustive edge cases, error paths, and component interaction tests
 
 ### Integration with TDDs
 
@@ -296,8 +298,7 @@ Use this decision tree when deciding what to include in Test Specifications:
    - **Unit Tests**: Map TDD models and services to unit test specifications
    - **Integration Tests**: Specify component interaction testing requirements
    - **Component Tests**: Define component-level testing requirements (if applicable)
-   - **End-to-End Tests**: Specify user workflow testing (Tier 3 only)
-   - **Cross-Feature Workflows**: Reference the [User Workflow Tracking](/doc/state-tracking/permanent/user-workflow-tracking.md) to identify which user workflows this feature participates in. For each, note whether this is the last feature needed (milestone trigger for cross-cutting E2E test specification creation)
+   - **End-to-End Tests**: Specify automated end-to-end workflow testing (Tier 3 only)
 
 3. **Create detailed test specifications**:
    - Map each TDD component to specific test requirements

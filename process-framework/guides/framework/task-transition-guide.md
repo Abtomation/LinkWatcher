@@ -2356,15 +2356,13 @@ Change Request → Feature Request Evaluation (PF-TSK-067) → Feature Enhanceme
 E2E acceptance test cases are created and executed at different points depending on the context:
 
 ```
-NEW FEATURE:    ... → Test Spec Creation (classifies E2E scenarios) → Implementation → E2E Test Case Creation → E2E Test Execution
+MILESTONE:      [All workflow features implemented] → Integration Narrative → Cross-cutting E2E Test Spec → E2E Test Case Creation → E2E Test Execution
 BUG FIX:        E2E Test Case Creation (reproduction case) → Bug Fixing → E2E Test Execution (validate fix)
 TECH DEBT:      E2E Test Case Creation (capture behavior) → Code Refactoring → E2E Test Execution (verify preservation)
-ENHANCEMENT:    ... → Test Spec Creation → Feature Enhancement → E2E Test Case Creation → E2E Test Execution
-MILESTONE:      Test Spec Creation (milestone detected) → Cross-cutting E2E Test Spec → E2E Test Case Creation → E2E Test Execution
 RELEASE:        E2E Test Execution (all groups must pass before deployment)
 ```
 
-**Key Decision Points**: Test Spec Creation (PF-TSK-012) classifies scenarios as e2e/automated; milestone trigger when all features for a workflow are implemented (see [User Workflow Tracking](../../../doc/state-tracking/permanent/user-workflow-tracking.md)); code change tasks mark groups for re-execution; Release & Deployment gates on all groups passing
+**Key Decision Points**: Milestone trigger when all features for a workflow are implemented (see [User Workflow Tracking](../../../doc/state-tracking/permanent/user-workflow-tracking.md)); code change tasks mark groups for re-execution; Release & Deployment gates on all groups passing. Note: Test Spec Creation (PF-TSK-012) covers automated tests only — E2E identification happens at cross-cutting milestones.
 **When to Use**: Whenever system behavior needs validation through human interaction with the running application
 **Automation Scripts**: `New-E2EAcceptanceTestCase.ps1` (creates test case + updates tracking), `Setup-TestEnvironment.ps1` (prepares workspace), `Verify-TestResult.ps1` (compares results), `Update-TestExecutionStatus.ps1` (records results)
 

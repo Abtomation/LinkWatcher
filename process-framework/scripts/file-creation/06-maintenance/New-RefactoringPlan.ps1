@@ -52,7 +52,7 @@
 
 .PARAMETER Performance
     If specified, creates a performance-focused refactoring plan using the performance template (PF-TEM-066).
-    Replaces code quality metrics with performance baselines (I/O counts, timing, throughput, memory).
+    Replaces code quality metrics with user-defined performance baselines (e.g., I/O counts, timing, throughput, memory, or algorithmic complexity).
     Use for refactorings that target measurable performance improvement rather than code quality.
     Mutually exclusive with -Lightweight and -DocumentationOnly.
 
@@ -258,8 +258,8 @@ try {
         } elseif ($Performance) {
             $details += @(
                 "",
-                "📝 Performance plan created. Code quality metrics replaced with performance baselines (I/O, timing, throughput, memory).",
-                "   Fill in performance baseline measurements, targets, and optimization techniques."
+                "📝 Performance plan created. Code quality metrics replaced with user-defined performance baselines.",
+                "   Define 2-4 metrics relevant to your refactoring (I/O, timing, complexity class, etc.) and fill in baselines and targets."
             )
         } else {
             $details += @(

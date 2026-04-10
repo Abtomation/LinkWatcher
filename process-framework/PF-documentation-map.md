@@ -113,6 +113,11 @@ Our tasks are organized to mirror the `tasks` directory structure:
 - [Task: Framework Evaluation](tasks/support/framework-evaluation.md) - Structurally evaluate the process framework for completeness, consistency, redundancy, accuracy, effectiveness, automation coverage, and scalability
 - [Task: Framework Domain Adaptation](tasks/support/framework-domain-adaptation.md) - Systematically adapt the process framework from one business domain to another while preserving core structure
 
+### Infrastructure
+
+- [Infrastructure: Process Framework Task Registry](infrastructure/process-framework-task-registry.md) - Comprehensive catalog of all tasks with automation status, script locations, and file update patterns
+- [Infrastructure: Task Trigger & Output Traceability](infrastructure/task-trigger-output-traceability.md) - Maps every task to its trigger condition (state file status), output traceability (state updates), and self-documentation assessment
+
 ### Core Process Documents
 
 - [Process: Test Query Tool](scripts/test/test_query.py) - AST-based query tool for test metadata from pytest markers (replaces test-registry.yaml — SC-007)
@@ -190,7 +195,7 @@ Our tasks are organized to mirror the `tasks` directory structure:
 - [Template: Refactoring Plan](templates/06-maintenance/refactoring-plan-template.md) - Template for code refactoring plans
 - [Template: Lightweight Refactoring Plan](templates/06-maintenance/lightweight-refactoring-plan-template.md) - Lightweight template for simple refactoring plans
 - [Template: Documentation-Only Refactoring Plan](templates/06-maintenance/documentation-refactoring-plan-template.md) - Template for documentation-only refactoring plans (no code metrics/test sections), used by New-RefactoringPlan.ps1 -DocumentationOnly
-- [Template: Performance Refactoring Plan](templates/06-maintenance/performance-refactoring-plan-template.md) - Template for performance-focused refactoring plans (I/O counts, timing, throughput, memory baselines), used by New-RefactoringPlan.ps1 -Performance
+- [Template: Performance Refactoring Plan](templates/06-maintenance/performance-refactoring-plan-template.md) - Template for performance-focused refactoring plans with user-defined metrics (I/O, timing, algorithmic complexity, etc.), used by New-RefactoringPlan.ps1 -Performance
 
 #### 07 - Deployment Templates
 
@@ -242,8 +247,8 @@ Our tasks are organized to mirror the `tasks` directory structure:
 - [Process: New Quality Assessment Report Script](scripts/file-creation/00-setup/New-QualityAssessmentReport.ps1) - PowerShell script for creating Quality Assessment Reports for Target-State features during onboarding with auto-assigned PD-QAR IDs
 - [Process: New Retrospective Master State Script](scripts/file-creation/00-setup/New-RetrospectiveMasterState.ps1) - PowerShell script for creating retrospective master state tracking files for parallel session coordination during PF-TSK-065/PF-TSK-066
 - [Process: New Source Structure Script](scripts/file-creation/00-setup/New-SourceStructure.ps1) - Dual-mode script for source code directory scaffolding (-Scaffold) and directory tree maintenance (-Update) based on feature tracking and language config (PF-PRO-002)
-- [Process: New Validation Tracking Script](scripts/file-creation/05-validation/New-ValidationTracking.ps1) - PowerShell script for creating validation tracking state files with auto-assigned PF-STA IDs for validation rounds (PF-TSK-077)
-- [Process: Generate Validation Summary Script](scripts/file-creation/05-validation/Generate-ValidationSummary.ps1) - PowerShell script for generating consolidated validation summaries from multiple validation reports with codebase health scores and improvement roadmaps
+- [Process: New Validation Tracking Script](scripts/file-creation/05-validation/New-ValidationTracking.ps1) - PowerShell script for creating validation tracking state files with auto-assigned PF-STA IDs, auto-populated Feature Scope from feature-tracking.md, prior round quality scores, and optional prior round archiving (PF-TSK-077)
+- [Process: Generate Validation Summary Script](scripts/file-creation/05-validation/Generate-ValidationSummary.ps1) - PowerShell script for generating consolidated validation summaries from multiple validation reports with codebase health scores, improvement roadmaps, and auto-populated Feature Quality Rankings in the tracking file
 - [Process: New Audit Tracking Script](scripts/file-creation/03-testing/New-AuditTracking.ps1) - PowerShell script for creating test audit tracking state files with auto-populated inventory from test-tracking.md for multi-session audit rounds (PF-TSK-030)
 - [Process: New Prioritization Matrix Script](scripts/file-creation/cyclical/New-PrioritizationMatrix.ps1) - PowerShell script for creating technical debt prioritization matrices with auto-assigned PD-TDA IDs (PF-TSK-023)
 - [Process: New API Documentation Script](scripts/file-creation/02-design/New-APIDocumentation.ps1) - PowerShell script for creating user-facing API documentation with auto-assigned PD-API IDs (PF-TSK-020)

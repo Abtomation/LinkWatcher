@@ -672,7 +672,10 @@ When skipping a criterion, exclude it from the score denominator so it doesn't p
 ### Automation Scripts
 
 - [New-ValidationReport.ps1](../../scripts/file-creation/05-validation/New-ValidationReport.ps1) - Generate validation report templates
-- [Update-ValidationReportState.ps1](../../scripts/update/Update-ValidationReportState.ps1) - Update tracking with validation results
+- [Update-ValidationReportState.ps1](../../scripts/update/Update-ValidationReportState.ps1) - Atomically update validation tracking file (Feature-by-Feature cells, Overall Progress counters, Reports Registry). Use instead of manual Read→Edit→Write to prevent concurrent access issues during parallel sessions:
+  ```bash
+  pwsh.exe -ExecutionPolicy Bypass -Command '& process-framework/scripts/update/Update-ValidationReportState.ps1 -TrackingFile "doc/state-tracking/validation/validation-tracking-N.md" -Dimension "Architectural Consistency" -FeatureIds @("0.1.1","0.1.2") -ReportId "PD-VAL-XXX" -ReportPath "/doc/validation/reports/architectural-consistency/PD-VAL-XXX-report.md" -Score "2.88/3.0" -Issues "0 High, 0 Medium, 3 Low" -Actions "No immediate actions"'
+  ```
 - [Generate-ValidationSummary.ps1](../../scripts/file-creation/05-validation/Generate-ValidationSummary.ps1) - Create consolidated validation summaries
 
 ### Supporting Documentation

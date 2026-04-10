@@ -4,7 +4,7 @@ type: Process Framework
 category: Task Definition
 version: 1.1
 created: 2025-08-16
-updated: 2026-04-03
+updated: 2026-04-10
 ---
 
 # Extensibility Maintainability Validation
@@ -74,11 +74,14 @@ Systematically validates selected features for extensibility and maintainability
 
 ### Execution
 
+> **Language-Context Awareness**: Before scoring, identify the project's primary language(s) and their idiomatic extensibility patterns. Score based on whether the code is extensible *for its language ecosystem*, not against patterns from other paradigms. What constitutes good extensibility varies significantly between languages — consult language-specific best practices rather than applying universal OOP recommendations.
+
 5. **Extension Points Analysis**: Evaluate how well the codebase supports future feature additions and modifications
 6. **Configuration Flexibility Assessment**: Analyze configuration patterns and environment-specific adaptability
 7. **Testing Infrastructure Evaluation**: Assess test coverage, test maintainability, and testing support for extensions
 8. **Code Maintainability Review**: Evaluate code organization, documentation, and refactoring support
 9. **Architectural Flexibility Analysis**: Assess how well the architecture supports scaling and evolution
+   > **Justified divergence check**: Not every pattern difference is a defect. Before flagging an inconsistency, verify that different design constraints (stateless vs stateful, pure vs side-effecting, hot-path vs setup-only) don't justify the divergence. "No issues found" is a valid validation outcome — do not manufacture findings to fill a report.
 10. **Generate Validation Report**: Create detailed validation report using the automation script
    ```powershell
    # Navigate to validation directory and create extensibility maintainability report

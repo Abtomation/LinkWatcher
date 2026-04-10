@@ -8,7 +8,7 @@ Output formatting and utility functions for PowerShell scripts
 
 .DESCRIPTION
 This module provides standardized functionality for:
-- Success and error message formatting
+- Success, info, warning, and error message formatting
 - Path validation and creation
 - Timestamp generation in various formats
 - String conversion utilities
@@ -41,6 +41,62 @@ function Write-ProjectSuccess {
     )
 
     Write-Host "✅ $Message" -ForegroundColor Green
+
+    foreach ($detail in $Details) {
+        Write-Host "   $detail" -ForegroundColor Gray
+    }
+}
+
+function Write-ProjectInfo {
+    <#
+    .SYNOPSIS
+    Writes a standardized informational message
+
+    .PARAMETER Message
+    The informational message to display
+
+    .PARAMETER Details
+    Optional array of detail lines to display
+    #>
+
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]$Message,
+
+        [Parameter(Mandatory=$false)]
+        [string[]]$Details = @()
+    )
+
+    Write-Host "ℹ️ $Message" -ForegroundColor Cyan
+
+    foreach ($detail in $Details) {
+        Write-Host "   $detail" -ForegroundColor Gray
+    }
+}
+
+function Write-ProjectWarning {
+    <#
+    .SYNOPSIS
+    Writes a standardized warning message
+
+    .PARAMETER Message
+    The warning message to display
+
+    .PARAMETER Details
+    Optional array of detail lines to display
+    #>
+
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]$Message,
+
+        [Parameter(Mandatory=$false)]
+        [string[]]$Details = @()
+    )
+
+    Write-Host "⚠️ $Message" -ForegroundColor Yellow
 
     foreach ($detail in $Details) {
         Write-Host "   $detail" -ForegroundColor Gray
@@ -270,6 +326,8 @@ function Invoke-StandardScriptInitialization {
 # Export functions
 Export-ModuleMember -Function @(
     'Write-ProjectSuccess',
+    'Write-ProjectInfo',
+    'Write-ProjectWarning',
     'Write-ProjectError',
     'Test-ProjectPath',
     'Get-ProjectTimestamp',

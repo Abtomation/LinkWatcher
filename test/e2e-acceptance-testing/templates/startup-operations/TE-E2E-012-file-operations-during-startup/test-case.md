@@ -6,6 +6,7 @@ feature_ids: ["0.1.1", "0.1.2", "0.1.3", "1.1.1", "2.1.1", "2.2.1"]
 workflow: WF-003
 priority: P1
 execution_mode: scripted
+skip_lw_start: true
 estimated_duration: 5 minutes
 source: Cross-Cutting Spec PF-TSP-044, Scenario S-011
 created: 2026-03-18

@@ -165,6 +165,8 @@ template_for: Feature State Tracking
 
 **Code Markers**: Created files include `// FEATURE: {feature-id}` header marker. Modifications include `// [FEATURE: {feature-id}]` inline markers.
 
+> **Do not include LOC counts, method counts, or other size metrics** in file descriptions. These are point-in-time snapshots that go stale as code evolves and add maintenance burden without clear value. Use `wc -l` or `grep` to check current sizes on demand.
+
 ### Test Files
 
 | Test File | Type | Coverage Areas | Status   | Created    |

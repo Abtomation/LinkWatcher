@@ -4,7 +4,7 @@ type: Process Framework
 category: Guide
 version: 1.0
 created: 2025-07-13
-updated: 2025-07-13
+updated: 2026-04-10
 ---
 
 # Feedback Form Completion Instructions
@@ -54,6 +54,8 @@ When creating or updating task definitions, reference this guide instead of dupl
 2. Follow the instructions in this guide
 3. Use the specific task ID and name for your current task
 4. Complete all feedback forms before considering the task finished
+
+> **⚠️ SCOPE FREEZE during finalization**: If you discover new improvement opportunities, bugs, or process issues while completing feedback forms, record them as observations in the feedback form — do not stop to implement them. Finalization is for documenting what happened, not for starting new work. Implementing changes during finalization breaks checkpoint discipline and risks incomplete session closure.
 
 ## Benefits of This Approach
 

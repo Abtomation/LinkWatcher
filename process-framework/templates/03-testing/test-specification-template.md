@@ -9,7 +9,7 @@ feature_id: [FEATURE-ID]
 feature_name: [FEATURE-NAME]
 tdd_path: [TDD-PATH]
 test_tier: [1|2|3]
-change_notes: "v2.0 - Added Routing Plan section (PF-IMP-424). Renamed Manual Test Scenarios to E2E Acceptance Test Scenarios with standardized terminology (PF-IMP-426). Removed AI Agent Session Handoff Notes section (not consumed by downstream tasks)."
+change_notes: "v3.0 - Replaced Routing Plan with Component-to-Test Mapping (PF-IMP-486/PF-EVR-012). E2E/performance routing removed — decided at cross-cutting milestone and implementation time respectively."
 ---
 
 # Test Specification: [FEATURE-NAME]
@@ -33,11 +33,13 @@ This document provides comprehensive test specifications for the **[FEATURE-NAME
 
 ### Test Complexity Assessment
 
-Based on the feature tier assessment:
+Automated test depth based on feature tier assessment:
 
-- **Tier 1 🔵**: Basic unit tests and key integration scenarios
-- **Tier 2 🟠**: Comprehensive unit tests, integration tests, and UI/component tests
-- **Tier 3 🔴**: Full test suite including unit, integration, widget, and end-to-end tests
+- **Tier 1 🔵**: Core unit tests and key integration scenarios — focus on happy paths and critical edge cases
+- **Tier 2 🟠**: Comprehensive unit tests, integration tests, and UI/component tests — broader edge case coverage
+- **Tier 3 🔴**: Full automated test suite with exhaustive edge cases, error paths, and component interaction tests
+
+> **Note**: Tier determines automated test depth only. E2E acceptance test applicability is decided in the Routing Phase, not by tier.
 
 **Selected Tier**: [1|2|3] - [Brief justification for tier selection]
 
@@ -51,7 +53,7 @@ Based on the feature tier assessment:
 | Integration Tests | ✅ Key data flows only | ✅ Full | ✅ Full |
 | UI/Component Tests | ❌ Remove if no UI | ✅ If feature has UI | ✅ If feature has UI |
 | End-to-End Tests | ❌ Remove section | ❌ Remove section | ✅ Include |
-| E2E Acceptance Test Scenarios | ❌ Remove if none | ✅ If applicable | ✅ If applicable |
+| E2E Acceptance Test Scenarios | ❌ Not in scope | ❌ Not in scope | ❌ Not in scope |
 | Cross-References: API Spec | ❌ Remove if no API | ✅ If API exists | ✅ If API exists |
 | Cross-References: DB Schema | ❌ Remove if no DB | ✅ If DB exists | ✅ If DB exists |
 
@@ -171,32 +173,16 @@ Based on the feature tier assessment:
 - [Services/dependencies to mock based on TDD design]
 - [Test isolation strategy for components]
 
-## Routing Plan
+## Component-to-Test Mapping
 
-<!-- This section maps each TDD component to its downstream test tasks. It is the primary gate artifact:
-     routing decisions here determine which downstream tasks (PF-TSK-053, PF-TSK-069, PF-TSK-084) have work to do.
-     Complete this section BEFORE writing detailed test cases below. -->
+<!-- Map each TDD component to the type of automated test it needs. This mapping guides the Specification Phase below. -->
 
-> **Classification values**: `automated` (AI-runnable unit/integration tests), `e2e` (requires human interaction with running system), `both` (automated regression + E2E acceptance validation)
-
-| Component | Classification | Performance | Cross-cutting | Downstream Task(s) |
-|-----------|---------------|-------------|---------------|---------------------|
-| [TDD component] | `automated` / `e2e` / `both` | Yes / No | [workflow name or —] | PF-TSK-053 / PF-TSK-069 / PF-TSK-084 |
-
-### E2E Scenario Details
-
-<!-- For components classified as `e2e` or `both`, provide the details below. Remove this subsection if no E2E scenarios exist. -->
-
-| Scenario ID | Component | User Action | Involved File Types / Behaviors | Expected Outcome | Test Group |
-|-------------|-----------|-------------|--------------------------------|------------------|------------|
-| [E2E-001] | [TDD component] | [What the human tester does] | [File types, link formats, system behaviors] | [Observable expected result] | [e.g., basic-file-operations] |
-
-<!-- Notes for downstream tasks:
-- Each E2E scenario listed here becomes a work queue item for PF-TSK-069 (E2E Acceptance Test Case Creation)
-- PF-TSK-069 will create concrete, executable test cases with exact file contents and verification criteria
-- Test Groups help organize related scenarios for batch execution via master tests
-- Performance entries feed PF-TSK-084 (Performance Test Creation)
--->
+| TDD Component | Test Type(s) | Key Test Focus |
+|----------------|-------------|----------------|
+| [ModelName] | Unit | [Data validation, state transitions] |
+| [ServiceName] | Unit, Integration | [Business logic, dependency interaction] |
+| [DataFlow] | Integration | [Component interaction, data pipeline] |
+| [UIComponent] | Component | [User interaction, rendering] |
 
 ## Test Categories
 
@@ -285,7 +271,8 @@ Based on the feature tier assessment:
 | ------------- | ------------------- | -------------------- | ----------------- |
 | [JourneyName] | [Step-by-step flow] | [Success definition] | [Failure cases]   |
 
-<!-- E2E Acceptance Test Scenarios are now captured in the Routing Plan section above (E2E Scenario Details table). -->
+<!-- E2E acceptance tests are identified through cross-cutting milestone triggers, not per-feature test specs.
+     See ai-tasks.md "For E2E Acceptance Testing (milestone-triggered)" workflow. -->
 
 ## Mock Requirements
 

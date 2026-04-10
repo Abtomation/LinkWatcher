@@ -166,58 +166,58 @@ This file tracks the progress and results of **Validation Round 3** — a compre
 
 ### High Priority Issues
 
-| Issue ID | Feature | Validation Type | Severity | Description | Status | Assigned Session |
-|----------|---------|-----------------|----------|-------------|--------|------------------|
+| Issue ID | Feature | Validation Type | Severity | Description | Status | Tracked As | Assigned Session |
+|----------|---------|-----------------|----------|-------------|--------|------------|------------------|
 
 ### Medium Priority Issues
 
-| Issue ID | Feature | Validation Type | Severity | Description | Status | Assigned Session |
-|----------|---------|-----------------|----------|-------------|--------|------------------|
-| CQ-R3-001 | 1.1.1 | Code Quality | Medium | 22 print() calls in reference_lookup.py (15), dir_move_detector.py (5), handler.py (2) mixing user output with structured logging | Resolved | PD-REF-131 (TD134) |
-| CQ-R3-002 | 1.1.1 | Code Quality | Medium | `update_links_within_moved_file()` ~140 LOC with mixed concerns (read, parse, filter, calculate, replace, write, rescan) | Open | — |
-| DA-R3-001 | 2.2.1 | Documentation Alignment | Medium | TDD PD-TDD-026 missing `update_references_batch()` and `_update_file_references_multi()` batch API documentation | Open | — |
-| DA-R3-002 | 2.2.1 | Documentation Alignment | Medium | TDD PD-TDD-026 `UpdateStats` documented as dict but code uses `TypedDict` | Open | — |
-| DA-R3-007 | 0.1.1 | Documentation Alignment | Medium | TDD PD-TDD-021 missing 5 public methods: `force_rescan()`, `set_dry_run()`, `add_parser()`, `check_links()`, `get_status()` | Open | — |
-| DA-R3-008 | 0.1.2 | Documentation Alignment | Medium | TDD PD-TDD-022 missing `_base_path_to_keys` index, `_parser_type_extensions` dict, and expanded multi-phase suffix matching algorithm | Open | — |
-| DA-R3-009 | 0.1.2 | Documentation Alignment | Medium | TDD PD-TDD-022 missing `update_source_path()` method documentation | Open | — |
-| AI-R3-001 | 0.1.2 | AI Agent Continuity | Medium | database.py grew 406→662 LOC (+63%) with 3 secondary indexes — needs index architecture comment block | Open | — |
-| AI-R3-002 | 1.1.1 | AI Agent Continuity | Medium | `_handle_directory_moved()` ~200 LOC with 6 non-sequential phases (0/1/1b/1c/1.5/2) — extract helpers | Open | — |
-| AI-R3-003 | 6.1.1 | AI Agent Continuity | Medium | AI Context references `_should_skip_target()` (actual: `_should_check_target()`) and `EXTRA_IGNORED_DIRS` (actual: configurable `self._extra_ignored_dirs`) | Open | — |
-| AI-R3-004 | 3.1.1 | AI Agent Continuity | Medium | AI Context references nonexistent `LogFilter` and `_configure_structlog()` — removed during refactoring | Open | — |
-| OB-R3-002 | 1.1.1 | Observability | Medium | No metric instrumentation for move detection operations — cannot measure buffer→match latency, match success rate, or timer expiry rate for tuning `move_detect_delay` and `dir_move_settle_delay` | Open | — |
+| Issue ID | Feature | Validation Type | Severity | Description | Status | Tracked As | Assigned Session |
+|----------|---------|-----------------|----------|-------------|--------|------------|------------------|
+| CQ-R3-001 | 1.1.1 | Code Quality | Medium | 22 print() calls in reference_lookup.py (15), dir_move_detector.py (5), handler.py (2) mixing user output with structured logging | Resolved | — | PD-REF-131 (TD134) |
+| CQ-R3-002 | 1.1.1 | Code Quality | Medium | `update_links_within_moved_file()` ~140 LOC with mixed concerns (read, parse, filter, calculate, replace, write, rescan) | Open | — | — |
+| DA-R3-001 | 2.2.1 | Documentation Alignment | Medium | TDD PD-TDD-026 missing `update_references_batch()` and `_update_file_references_multi()` batch API documentation | Open | — | — |
+| DA-R3-002 | 2.2.1 | Documentation Alignment | Medium | TDD PD-TDD-026 `UpdateStats` documented as dict but code uses `TypedDict` | Open | — | — |
+| DA-R3-007 | 0.1.1 | Documentation Alignment | Medium | TDD PD-TDD-021 missing 5 public methods: `force_rescan()`, `set_dry_run()`, `add_parser()`, `check_links()`, `get_status()` | Open | — | — |
+| DA-R3-008 | 0.1.2 | Documentation Alignment | Medium | TDD PD-TDD-022 missing `_base_path_to_keys` index, `_parser_type_extensions` dict, and expanded multi-phase suffix matching algorithm | Open | — | — |
+| DA-R3-009 | 0.1.2 | Documentation Alignment | Medium | TDD PD-TDD-022 missing `update_source_path()` method documentation | Open | — | — |
+| AI-R3-001 | 0.1.2 | AI Agent Continuity | Medium | database.py grew 406→662 LOC (+63%) with 3 secondary indexes — needs index architecture comment block | Open | — | — |
+| AI-R3-002 | 1.1.1 | AI Agent Continuity | Medium | `_handle_directory_moved()` ~200 LOC with 6 non-sequential phases (0/1/1b/1c/1.5/2) — extract helpers | Open | — | — |
+| AI-R3-003 | 6.1.1 | AI Agent Continuity | Medium | AI Context references `_should_skip_target()` (actual: `_should_check_target()`) and `EXTRA_IGNORED_DIRS` (actual: configurable `self._extra_ignored_dirs`) | Open | — | — |
+| AI-R3-004 | 3.1.1 | AI Agent Continuity | Medium | AI Context references nonexistent `LogFilter` and `_configure_structlog()` — removed during refactoring | Open | — | — |
+| OB-R3-002 | 1.1.1 | Observability | Medium | No metric instrumentation for move detection operations — cannot measure buffer→match latency, match success rate, or timer expiry rate for tuning `move_detect_delay` and `dir_move_settle_delay` | Open | — | — |
 
 ### Low Priority Issues
 
-| Issue ID | Feature | Validation Type | Severity | Description | Status | Assigned Session |
-|----------|---------|-----------------|----------|-------------|--------|------------------|
-| AC-R3-001 | 0.1.1 | Architectural Consistency | Low | `utils.py` mixes path utilities and file heuristics — two distinct concerns | Open | — |
-| AC-R3-002 | 0.1.2 | Architectural Consistency | Low | `_reference_points_to_file()` method appears unused after index optimization | Open | — |
-| AC-R3-003 | 0.1.3 | Architectural Consistency | Low | `_from_dict()` uses explicit set-field handling vs `from_env()` uses type-hint reflection — minor inconsistency | Open | — |
-| DA-R3-003 | 2.2.1 | Documentation Alignment | Low | TDD/FDD incorrectly list colorama as external dependency of updater.py | Open | — |
-| DA-R3-004 | 3.1.1 | Documentation Alignment | Low | FDD BR-1 says CRITICAL color is bright red but code uses bright magenta | Open | — |
-| DA-R3-005 | 3.1.1 | Documentation Alignment | Low | AI Context docstring references non-existent LogFilter and _configure_structlog() | Open | — |
-| DA-R3-006 | 6.1.1 | Documentation Alignment | Low | AI Context docstring references _should_skip_target() vs actual _should_check_target() | Open | — |
-| DA-R3-007 | 2.1.1 | Documentation Alignment | Low | FDD PD-FDD-026 has duplicate AC-5 entries | Open | — |
-| DA-R3-008 | 0.1.1 | Documentation Alignment | Low | FDD PD-FDD-022 lists monitored_extensions as 6 types but actual has 11 (.ps1, .psm1, .bat, .toml, .txt added) | Open | — |
-| DA-R3-009 | 0.1.1 | Documentation Alignment | Low | FDD PD-FDD-022 edge case says "2-second buffer" but actual move detection uses 10-second buffer | Open | — |
-| DA-R3-010 | 0.1.2 | Documentation Alignment | Low | TDD PD-TDD-022 documents `get_all_targets_with_references()` returning `Dict[str, int]` but actual returns `Dict[str, List[LinkReference]]` | Resolved | TD158 Rejected — false positive: TDD already documents correct type |
-| DA-R3-011 | 1.1.1 | Documentation Alignment | Low | FDD PD-FDD-024 missing PD-BUG-053 (observer-before-scan) and PD-BUG-071 (extension-only filter) edge cases | Open | — |
-| DA-R3-012 | 0.1.3 | Documentation Alignment | Low | `validation_ignored_patterns` and `parser_type_extensions` config fields lack inline documentation | Open | — |
-| AC-R3-004 | 2.2.1 | Architectural Consistency | Low | `_update_file_references()` and `_update_file_references_multi()` share ~80% identical structure — DRY violation | Open | — |
-| AC-R3-005 | 6.1.1 | Architectural Consistency | Low | `_check_file()` method handles file reading, parsing, line classification, and link checking — consider extracting skip-logic filter chain | Open | — |
-| AI-R3-005 | 2.1.1 | AI Agent Continuity | Low | markdown.py (474 LOC, most complex parser) lacks AI Context section | Open | — |
-| AI-R3-006 | 2.1.1 | AI Agent Continuity | Low | parsers/__init__.py AI Context references `LinkParser._get_parser()` which doesn't exist — parser routing is in constructor | Open | — |
-| AI-R3-007 | 2.2.1 | AI Agent Continuity | Low | `_update_file_references_multi()` lacks algorithm docstring equivalent to `_update_file_references()` Phase 1/Phase 2 summary | Open | — |
-| AI-R3-008 | 6.1.1 | AI Agent Continuity | Low | `_check_file()` ~130 LOC with 6 sequential skip conditions approaching density threshold | Open | — |
-| OB-R3-003 | 0.1.1 | Observability | Low | `_initial_scan()` progress logging only emits every 50 files at DEBUG level — no visible progress at INFO for large projects | Open | — |
-| OB-R3-004 | 3.1.1 | Observability | Low | `TimestampRotatingFileHandler.doRollover()` uses raw `print()` to stderr for rotation failure warnings instead of structured logging | Resolved | PD-REF-142 — replaced raw print() with fallback stderr logger |
-| OB-R3-005 | 6.1.1 | Observability | Low | No per-file timing within validation scan — diagnosing slow validation requires external profiling | Open | — |
-| OB-R3-006 | 3.1.1 | Observability | Low | AI Context docstring references `LogFilter` and `_configure_structlog()` which don't exist (same as DA-R3-005/AI-R3-004) | Open | — |
-| PS-R3-001 | 0.1.2 | Performance & Scalability | Low | `_remove_key_from_indexes()` iterates ALL `_resolved_to_keys` entries O(R) to discard a key during target removal — needs reverse index (TD138) | Open | — |
-| PS-R3-002 | 0.1.2 | Performance & Scalability | Low | `has_target_with_basename()` iterates ALL target keys O(N) on observer event-dispatch path — needs basename index (TD139) | Open | — |
-| PS-R3-003 | 2.1.1 | Performance & Scalability | Low | `looks_like_file_path()` rebuilds 37-element `common_extensions` set per call — promote to module-level `frozenset` (TD141) | Open | Session 15 |
-| PS-R3-004 | 2.2.1 | Performance & Scalability | Low | `_regex_cache` grows unbounded across LinkUpdater lifetime — needs size cap or LRU eviction (TD142) | Open | Session 15 |
-| PS-R3-005 | 2.1.1 | Performance & Scalability | Low | PowerShellParser runs `all_quoted_pattern` after `quoted_pattern` on every code line — redundant regex pass (TD146) | Open | Session 15 |
+| Issue ID | Feature | Validation Type | Severity | Description | Status | Tracked As | Assigned Session |
+|----------|---------|-----------------|----------|-------------|--------|------------|------------------|
+| AC-R3-001 | 0.1.1 | Architectural Consistency | Low | `utils.py` mixes path utilities and file heuristics — two distinct concerns | Open | — | — |
+| AC-R3-002 | 0.1.2 | Architectural Consistency | Low | `_reference_points_to_file()` method appears unused after index optimization | Open | — | — |
+| AC-R3-003 | 0.1.3 | Architectural Consistency | Low | `_from_dict()` uses explicit set-field handling vs `from_env()` uses type-hint reflection — minor inconsistency | Open | — | — |
+| DA-R3-003 | 2.2.1 | Documentation Alignment | Low | TDD/FDD incorrectly list colorama as external dependency of updater.py | Open | — | — |
+| DA-R3-004 | 3.1.1 | Documentation Alignment | Low | FDD BR-1 says CRITICAL color is bright red but code uses bright magenta | Open | — | — |
+| DA-R3-005 | 3.1.1 | Documentation Alignment | Low | AI Context docstring references non-existent LogFilter and _configure_structlog() | Open | — | — |
+| DA-R3-006 | 6.1.1 | Documentation Alignment | Low | AI Context docstring references _should_skip_target() vs actual _should_check_target() | Open | — | — |
+| DA-R3-007 | 2.1.1 | Documentation Alignment | Low | FDD PD-FDD-026 has duplicate AC-5 entries | Open | — | — |
+| DA-R3-008 | 0.1.1 | Documentation Alignment | Low | FDD PD-FDD-022 lists monitored_extensions as 6 types but actual has 11 (.ps1, .psm1, .bat, .toml, .txt added) | Open | — | — |
+| DA-R3-009 | 0.1.1 | Documentation Alignment | Low | FDD PD-FDD-022 edge case says "2-second buffer" but actual move detection uses 10-second buffer | Open | — | — |
+| DA-R3-010 | 0.1.2 | Documentation Alignment | Low | TDD PD-TDD-022 documents `get_all_targets_with_references()` returning `Dict[str, int]` but actual returns `Dict[str, List[LinkReference]]` | Resolved | — | TD158 Rejected — false positive: TDD already documents correct type |
+| DA-R3-011 | 1.1.1 | Documentation Alignment | Low | FDD PD-FDD-024 missing PD-BUG-053 (observer-before-scan) and PD-BUG-071 (extension-only filter) edge cases | Open | — | — |
+| DA-R3-012 | 0.1.3 | Documentation Alignment | Low | `validation_ignored_patterns` and `parser_type_extensions` config fields lack inline documentation | Open | — | — |
+| AC-R3-004 | 2.2.1 | Architectural Consistency | Low | `_update_file_references()` and `_update_file_references_multi()` share ~80% identical structure — DRY violation | Open | — | — |
+| AC-R3-005 | 6.1.1 | Architectural Consistency | Low | `_check_file()` method handles file reading, parsing, line classification, and link checking — consider extracting skip-logic filter chain | Open | — | — |
+| AI-R3-005 | 2.1.1 | AI Agent Continuity | Low | markdown.py (474 LOC, most complex parser) lacks AI Context section | Open | — | — |
+| AI-R3-006 | 2.1.1 | AI Agent Continuity | Low | parsers/__init__.py AI Context references `LinkParser._get_parser()` which doesn't exist — parser routing is in constructor | Open | — | — |
+| AI-R3-007 | 2.2.1 | AI Agent Continuity | Low | `_update_file_references_multi()` lacks algorithm docstring equivalent to `_update_file_references()` Phase 1/Phase 2 summary | Open | — | — |
+| AI-R3-008 | 6.1.1 | AI Agent Continuity | Low | `_check_file()` ~130 LOC with 6 sequential skip conditions approaching density threshold | Open | — | — |
+| OB-R3-003 | 0.1.1 | Observability | Low | `_initial_scan()` progress logging only emits every 50 files at DEBUG level — no visible progress at INFO for large projects | Open | — | — |
+| OB-R3-004 | 3.1.1 | Observability | Low | `TimestampRotatingFileHandler.doRollover()` uses raw `print()` to stderr for rotation failure warnings instead of structured logging | Resolved | — | PD-REF-142 — replaced raw print() with fallback stderr logger |
+| OB-R3-005 | 6.1.1 | Observability | Low | No per-file timing within validation scan — diagnosing slow validation requires external profiling | Open | — | — |
+| OB-R3-006 | 3.1.1 | Observability | Low | AI Context docstring references `LogFilter` and `_configure_structlog()` which don't exist (same as DA-R3-005/AI-R3-004) | Open | — | — |
+| PS-R3-001 | 0.1.2 | Performance & Scalability | Low | `_remove_key_from_indexes()` iterates ALL `_resolved_to_keys` entries O(R) to discard a key during target removal — needs reverse index (TD138) | Open | — | — |
+| PS-R3-002 | 0.1.2 | Performance & Scalability | Low | `has_target_with_basename()` iterates ALL target keys O(N) on observer event-dispatch path — needs basename index (TD139) | Open | — | — |
+| PS-R3-003 | 2.1.1 | Performance & Scalability | Low | `looks_like_file_path()` rebuilds 37-element `common_extensions` set per call — promote to module-level `frozenset` (TD141) | Open | — | Session 15 |
+| PS-R3-004 | 2.2.1 | Performance & Scalability | Low | `_regex_cache` grows unbounded across LinkUpdater lifetime — needs size cap or LRU eviction (TD142) | Open | — | Session 15 |
+| PS-R3-005 | 2.1.1 | Performance & Scalability | Low | PowerShellParser runs `all_quoted_pattern` after `quoted_pattern` on every code line — redundant regex pass (TD146) | Open | — | Session 15 |
 
 ## Remediation Tracking
 

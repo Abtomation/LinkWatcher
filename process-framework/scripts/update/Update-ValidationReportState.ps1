@@ -1,451 +1,539 @@
-﻿#!/usr/bin/env pwsh
+#!/usr/bin/env pwsh
 
 <#
 .SYNOPSIS
-Automates state file updates for Validation Tasks (PF-TSK-031, 032, 033, 034)
+Atomically updates validation tracking state files after a validation session.
 
 .DESCRIPTION
-This script automates the manual state file updates required by validation tasks,
-addressing the critical bottleneck identified in the Process Improvement Tracking (IMP-058).
+Updates a validation tracking file in a single atomic read-modify-write cycle,
+eliminating the manual Read-Edit-Write cycle that caused concurrent access issues
+during parallel validation sessions (IMP-449).
 
-All 4 validation task feedback forms identified manual tracking file updates as the primary
-efficiency bottleneck despite excellent tool performance (4-5/5 ratings).
+Updates three sections of the tracking file:
+1. Feature-by-Feature Progress — marks features as validated with date and report link
+2. Overall Progress — recalculates Items Validated and Reports Generated counters
+3. Validation Reports Registry — adds report entry to the dimension section
 
-Updates the following files:
-- doc/state-tracking/validation/validation-tracking.md
-- ../doc/PD-documentation-map.md
-- ../doc/state-tracking/permanent/feature-tracking.md (cross-references)
+Also recalculates per-feature Overall Status and updates frontmatter date.
 
-.PARAMETER ValidationId
-The validation ID to update (e.g., "VAL-031-001", "VAL-032-002")
+.PARAMETER TrackingFile
+Path to the validation tracking state file (e.g., doc/state-tracking/validation/validation-tracking-4.md).
+Can be absolute or relative to the project root.
 
-.PARAMETER ValidationStatus
-The validation status:
-- "Validation In Progress"
-- "Validation Completed"
-- "Needs Revision"
-- "Validation Failed"
+.PARAMETER Dimension
+The validation dimension being reported.
 
-.PARAMETER ValidatorName
-Name of the person conducting the validation
+.PARAMETER FeatureIds
+Array of feature IDs covered by this validation report.
 
-.PARAMETER ValidationFindings
-Array of key validation findings or issues identified
-
-.PARAMETER ValidationScore
-Overall validation score (1-10 scale, optional)
-
-.PARAMETER ValidationDate
-Date when validation was completed (optional - uses current date if not specified)
+.PARAMETER ReportId
+The validation report ID (e.g., "PD-VAL-083").
 
 .PARAMETER ReportPath
-Path to the generated validation report (optional)
+Path to the validation report file, relative to project root with leading slash
+(e.g., "/doc/validation/reports/architectural-consistency/PD-VAL-083-report.md").
 
-.PARAMETER FeatureId
-Associated feature ID for cross-reference updates (optional)
+.PARAMETER Score
+Dimension score string (e.g., "2.88/3.0"). Optional.
 
-.PARAMETER ValidationNotes
-Additional notes about the validation process (optional)
+.PARAMETER ReportStatus
+Report pass/fail status. Defaults to "PASS".
 
-.PARAMETER DryRun
-If specified, shows what would be updated without making changes
+.PARAMETER Issues
+Issue summary string (e.g., "0 High, 1 Medium, 3 Low"). Optional.
+
+.PARAMETER Actions
+Action summary for the registry table. Optional.
+
+.PARAMETER Date
+Validation date in YYYY-MM-DD format. Defaults to today.
 
 .EXAMPLE
-../Update-ValidationReportState.ps1 -ValidationId "VAL-031-001" -ValidationStatus "Validation In Progress" -ValidatorName "AI Agent"
+Update-ValidationReportState.ps1 -TrackingFile "doc/state-tracking/validation/validation-tracking-4.md" `
+    -Dimension "Architectural Consistency" -FeatureIds @("0.1.1","0.1.2","0.1.3","1.1.1") `
+    -ReportId "PD-VAL-083" -ReportPath "/doc/validation/reports/architectural-consistency/PD-VAL-083-report.md" `
+    -Score "2.88/3.0" -Issues "0 High, 0 Medium, 3 Low" -Actions "No immediate actions required"
 
 .EXAMPLE
-../Update-ValidationReportState.ps1 -ValidationId "VAL-031-001" -ValidationStatus "Validation Completed" -ValidatorName "AI Agent" -ValidationScore 8 -ValidationFindings @("Minor pattern inconsistencies", "Good overall architecture")
-
-.EXAMPLE
-../Update-ValidationReportState.ps1 -ValidationId "VAL-032-002" -ValidationStatus "Needs Revision" -ValidatorName "AI Agent" -ValidationFindings @("Code quality issues found", "Documentation gaps") -DryRun
+# Preview changes without modifying the file
+Update-ValidationReportState.ps1 -TrackingFile "doc/state-tracking/validation/validation-tracking-4.md" `
+    -Dimension "Code Quality & Standards" -FeatureIds @("2.1.1","2.2.1","3.1.1","6.1.1") `
+    -ReportId "PD-VAL-084" -ReportPath "/doc/validation/reports/code-quality/PD-VAL-084-report.md" `
+    -WhatIf
 
 .NOTES
-Version: 1.0
+Version: 2.0
 Created: 2025-08-23
-Part of: Process Framework Automation Phase 3A
-Addresses: IMP-058 (Validation task automation enhancement)
+Rewritten: 2026-04-10
+Addresses: IMP-449 (Concurrent access during parallel validation sessions)
+Pattern: Single read-modify-write cycle following Update-ProcessImprovement.ps1
 #>
 
-[CmdletBinding()]
+[CmdletBinding(SupportsShouldProcess)]
 param(
-    [Parameter(Mandatory = $true)]
-    [string]$ValidationId,
+    [Parameter(Mandatory)]
+    [string]$TrackingFile,
 
-    [Parameter(Mandatory = $true)]
-    [ValidateSet("Validation In Progress", "Validation Completed", "Needs Revision", "Validation Failed")]
-    [string]$ValidationStatus,
+    [Parameter(Mandatory)]
+    [ValidateSet(
+        "Architectural Consistency",
+        "Code Quality & Standards",
+        "Integration & Dependencies",
+        "Documentation Alignment",
+        "Extensibility & Maintainability",
+        "AI Agent Continuity",
+        "Security & Data Protection",
+        "Performance & Scalability",
+        "Observability",
+        "Accessibility / UX Compliance",
+        "Data Integrity"
+    )]
+    [string]$Dimension,
 
-    [Parameter(Mandatory = $true)]
-    [string]$ValidatorName,
+    [Parameter(Mandatory)]
+    [string[]]$FeatureIds,
 
-    [Parameter(Mandatory = $false)]
-    [string[]]$ValidationFindings = @(),
+    [Parameter(Mandatory)]
+    [string]$ReportId,
 
-    [Parameter(Mandatory = $false)]
-    [ValidateRange(1, 10)]
-    [int]$ValidationScore,
-
-    [Parameter(Mandatory = $false)]
-    [string]$ValidationDate,
-
-    [Parameter(Mandatory = $false)]
+    [Parameter(Mandatory)]
     [string]$ReportPath,
 
-    [Parameter(Mandatory = $false)]
-    [string]$FeatureId,
-
-    [Parameter(Mandatory = $false)]
-    [string]$ValidationNotes,
-
-    [Parameter(Mandatory = $false)]
-    [ValidateSet("Architectural Consistency", "Code Quality & Standards", "Integration & Dependencies", "Documentation Alignment", "Extensibility & Maintainability", "AI Agent Continuity")]
-    [string]$ValidationType,
-
-    [Parameter(Mandatory = $false)]
-    [switch]$DryRun
+    [string]$Score,
+    [string]$ReportStatus = "PASS",
+    [string]$Issues,
+    [string]$Actions,
+    [string]$Date
 )
 
-# Import required modules
-$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+# --- Module import ---
+$scriptDir = if ($PSScriptRoot) { $PSScriptRoot } else { (Get-Location).Path }
 $dir = $scriptDir
 while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
     $dir = Split-Path -Parent $dir
 }
-Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
+if ($dir) {
+    Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
+}
 
-# Verify that required functions are available
-$requiredFunctions = @("Get-ProjectRoot", "Update-DocumentTrackingFiles")
-$missingFunctions = @()
-foreach ($func in $requiredFunctions) {
-    if (-not (Get-Command $func -ErrorAction SilentlyContinue)) {
-        $missingFunctions += $func
+# --- Configuration ---
+$ScriptName = "Update-ValidationReportState.ps1"
+$CurrentDate = Get-Date -Format "yyyy-MM-dd"
+$CurrentTimestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+
+if (-not $Date) { $Date = $CurrentDate }
+
+# Resolve tracking file path
+if (Get-Command Get-ProjectRoot -ErrorAction SilentlyContinue) {
+    $ProjectRoot = Get-ProjectRoot
+} else {
+    $ProjectRoot = (Get-Location).Path
+}
+
+if ([System.IO.Path]::IsPathRooted($TrackingFile)) {
+    $ResolvedTrackingFile = $TrackingFile
+} else {
+    $ResolvedTrackingFile = Join-Path $ProjectRoot $TrackingFile
+}
+
+# Dimension-to-column-header mapping
+$DimensionColumnHeaders = @{
+    "Architectural Consistency"       = "Arch"
+    "Code Quality & Standards"        = "Quality"
+    "Integration & Dependencies"      = "Integration"
+    "Documentation Alignment"         = "Docs"
+    "Extensibility & Maintainability" = "Extensibility"
+    "AI Agent Continuity"             = "AI Continuity"
+    "Security & Data Protection"      = "Security"
+    "Performance & Scalability"       = "Performance"
+    "Observability"                   = "Observability"
+    "Accessibility / UX Compliance"   = "Accessibility"
+    "Data Integrity"                  = "Data Integrity"
+}
+
+# --- Logging ---
+function Write-Log {
+    param([string]$Level, [string]$Message)
+    $color = switch ($Level) {
+        "INFO"    { "Cyan" }
+        "SUCCESS" { "Green" }
+        "WARN"    { "Yellow" }
+        "ERROR"   { "Red" }
+        default   { "White" }
     }
+    Write-Host "[$CurrentTimestamp] [$Level] $Message" -ForegroundColor $color
 }
 
-if ($missingFunctions.Count -gt 0) {
-    Write-Warning "Missing functions: $($missingFunctions -join ', ')"
-    Write-Host "Continuing with basic functionality..." -ForegroundColor Yellow
-}
-
-# Set default values
-if (-not $ValidationDate) {
-    $ValidationDate = Get-Date -Format "yyyy-MM-dd"
-}
-
-# Get project root and define file paths
-$projectRoot = Get-ProjectRoot
-$validationTrackingPath = Join-Path $projectRoot "doc/state-tracking/validation/archive/validation-tracking-1.md"
-$documentationMapPath = Join-Path $projectRoot "doc/PD-documentation-map.md"
-$featureTrackingPath = Join-Path $projectRoot "doc/state-tracking/permanent/feature-tracking.md"
-
-Write-Host "🚀 Starting Validation Report State Update" -ForegroundColor Green
-Write-Host "   Validation ID: $ValidationId" -ForegroundColor Cyan
-Write-Host "   Status: $ValidationStatus" -ForegroundColor Cyan
-Write-Host "   Validator: $ValidatorName" -ForegroundColor Cyan
-if ($DryRun) {
-    Write-Host "   🔍 DRY RUN MODE - No files will be modified" -ForegroundColor Yellow
-}
-
-# Create backup before making changes
-if (-not $DryRun) {
-    Write-Host "📦 Creating backups..." -ForegroundColor Blue
-    $backupInfo = Get-StateFileBackup -FilePaths @($validationTrackingPath, $documentationMapPath, $featureTrackingPath) -BackupPrefix "ValidationReportState-$ValidationId"
-    Write-Host "   Backups created: $($backupInfo.BackupDirectory)" -ForegroundColor Green
-}
-
-# Prepare update data
-$updateData = @{
-    ValidationId       = $ValidationId
-    Status             = $ValidationStatus
-    ValidatorName      = $ValidatorName
-    ValidationDate     = $ValidationDate
-    ValidationFindings = $ValidationFindings
-    ValidationScore    = $ValidationScore
-    ReportPath         = $ReportPath
-    ValidationNotes    = $ValidationNotes
-}
-
-# Define files to update using enhanced tracking system
-$trackingFiles = @()
-
-# Always update validation tracking
-if (Test-Path $validationTrackingPath) {
-    $trackingFiles += @{
-        Path     = $validationTrackingPath
-        Type     = "ValidationTracking"
-        Required = $true
+# --- Prerequisites ---
+function Test-Prerequisites {
+    if (-not (Test-Path $ResolvedTrackingFile)) {
+        Write-Log "ERROR" "Tracking file not found: $ResolvedTrackingFile"
+        return $false
     }
+    return $true
 }
 
-# Always update documentation map
-if (Test-Path $documentationMapPath) {
-    $trackingFiles += @{
-        Path     = $documentationMapPath
-        Type     = "DocumentationMap"
-        Required = $false
-    }
-}
+# --- Transformation Functions ---
+# Each takes a lines array and returns a modified lines array.
 
-# Add feature tracking if FeatureId is provided
-if ($FeatureId -and (Test-Path $featureTrackingPath)) {
-    $trackingFiles += @{
-        Path     = $featureTrackingPath
-        Type     = "Feature"
-        Required = $false
-    }
-    $updateData.FeatureId = $FeatureId
-}
+function Update-FeatureByFeatureCells {
+    param([string[]]$Lines)
 
-try {
-    if ($DryRun) {
-        Write-Host "🔍 DRY RUN - Would update the following files:" -ForegroundColor Yellow
-        foreach ($file in $trackingFiles) {
-            Write-Host "   📄 $($file.Path)" -ForegroundColor Cyan
-            Write-Host "      Type: $($file.Type)" -ForegroundColor Gray
-        }
+    $columnHeader = $DimensionColumnHeaders[$Dimension]
+    $cellValue = "[$Date]($ReportPath)"
 
-        Write-Host "🔍 DRY RUN - Update data:" -ForegroundColor Yellow
-        $updateData.GetEnumerator() | ForEach-Object {
-            if ($_.Value -and $_.Value -ne "") {
-                Write-Host "   $($_.Key): $($_.Value)" -ForegroundColor Gray
-            }
+    # Find the Feature-by-Feature table header
+    $headerIdx = -1
+    for ($i = 0; $i -lt $Lines.Count; $i++) {
+        if ($Lines[$i] -match '^\|\s*Feature\s*\|' -and $Lines[$i] -match 'Overall') {
+            $headerIdx = $i
+            break
         }
     }
-    else {
-        # Use enhanced tracking system to update files
-        Write-Host "📝 Updating tracking files..." -ForegroundColor Blue
 
-        # Determine validation type
-        $actualValidationType = if ($ValidationType) {
-            $ValidationType
-        }
-        else {
-            # Try to detect from ValidationId or ReportPath
-            $detectedType = "Unknown"
-            if ($ValidationId -match "architectural-consistency" -or $ReportPath -match "architectural-consistency") {
-                $detectedType = "Architectural Consistency"
-            }
-            elseif ($ValidationId -match "code-quality" -or $ReportPath -match "code-quality") {
-                $detectedType = "Code Quality & Standards"
-            }
-            elseif ($ValidationId -match "integration-dependencies" -or $ReportPath -match "integration-dependencies") {
-                $detectedType = "Integration & Dependencies"
-            }
-            elseif ($ValidationId -match "documentation-alignment" -or $ReportPath -match "documentation-alignment") {
-                $detectedType = "Documentation Alignment"
-            }
-            elseif ($ValidationId -match "extensibility-maintainability" -or $ReportPath -match "extensibility-maintainability") {
-                $detectedType = "Extensibility & Maintainability"
-            }
-            elseif ($ValidationId -match "ai-agent-continuity" -or $ReportPath -match "ai-agent-continuity") {
-                $detectedType = "AI Agent Continuity"
-            }
-            $detectedType
-        }
-
-        # Prepare metadata for enhanced tracking
-        $metadata = @{
-            validation_type = $actualValidationType
-            features        = if ($FeatureId) { $FeatureId } else { "../N/A" }
-            validator       = $ValidatorName
-            score           = $ValidationScore
-            status          = $ValidationStatus
-            findings        = if ($ValidationFindings) { $ValidationFindings -join "; " } else { "../N/A" }
-            notes           = $ValidationNotes
-        }
-
-        # Update tracking files using enhanced system
-        $documentPath = if ($ReportPath) { $ReportPath } else { "validation-update" }
-        Update-DocumentTrackingFiles -DocumentId $ValidationId -DocumentType "ValidationReport" -DocumentPath $documentPath -Metadata $metadata
-
-        Write-Host "✅ Tracking files updated successfully" -ForegroundColor Green
+    if ($headerIdx -eq -1) {
+        Write-Log "WARN" "Could not find Feature-by-Feature Progress table"
+        return $Lines
     }
 
-    Write-Host "🎉 Validation Report State Update completed successfully!" -ForegroundColor Green
+    # Parse column headers to find target column index
+    $headers = $Lines[$headerIdx] -split '\|' | ForEach-Object { $_.Trim() }
+    # After split: [0]="" [1]="Feature" [2]="Arch" ... [N]="Overall" [N+1]=""
+    $columnIdx = -1
+    for ($c = 0; $c -lt $headers.Count; $c++) {
+        if ($headers[$c] -eq $columnHeader) {
+            $columnIdx = $c
+            break
+        }
+    }
 
+    if ($columnIdx -eq -1) {
+        Write-Log "WARN" "Could not find column '$columnHeader' in Feature-by-Feature table"
+        return $Lines
+    }
+
+    # Update feature rows (start after header + separator)
+    for ($i = $headerIdx + 2; $i -lt $Lines.Count; $i++) {
+        $line = $Lines[$i]
+        if ($line -notmatch '^\|') { break }
+
+        $cells = $line -split '\|'
+        $featureCell = $cells[1].Trim()
+
+        $matched = $false
+        foreach ($fid in $FeatureIds) {
+            if ($featureCell -match [regex]::Escape($fid)) {
+                $matched = $true
+                break
+            }
+        }
+
+        if ($matched -and $columnIdx -lt $cells.Count) {
+            $currentValue = $cells[$columnIdx].Trim()
+
+            if ($currentValue -match '^\u2b33|^\u23f3|Pending|In Progress') {
+                # Cell is pending or in progress — update it
+                $cells[$columnIdx] = " $cellValue "
+                $Lines[$i] = $cells -join '|'
+                Write-Log "SUCCESS" "Updated: $featureCell [$columnHeader] -> $cellValue"
+            } elseif ($currentValue -eq 'N/A') {
+                Write-Log "INFO" "Skipped: $featureCell [$columnHeader] is N/A"
+            } else {
+                Write-Log "INFO" "Skipped: $featureCell [$columnHeader] already set: $currentValue"
+            }
+        }
+    }
+
+    return $Lines
 }
-catch {
-    Write-Error "❌ Error updating validation report state: $($_.Exception.Message)"
 
-    if (-not $DryRun -and $backupInfo) {
-        Write-Host "🔄 Attempting to restore from backup..." -ForegroundColor Yellow
-        # Restore logic would go here if needed
+function Update-OverallProgress {
+    param([string[]]$Lines)
+
+    $columnHeader = $DimensionColumnHeaders[$Dimension]
+
+    # First, gather validated counts from Feature-by-Feature table
+    $fbfHeaderIdx = -1
+    for ($i = 0; $i -lt $Lines.Count; $i++) {
+        if ($Lines[$i] -match '^\|\s*Feature\s*\|' -and $Lines[$i] -match 'Overall') {
+            $fbfHeaderIdx = $i
+            break
+        }
     }
 
+    if ($fbfHeaderIdx -eq -1) { return $Lines }
+
+    # Find column index in Feature-by-Feature table
+    $fbfHeaders = $Lines[$fbfHeaderIdx] -split '\|' | ForEach-Object { $_.Trim() }
+    $fbfColumnIdx = -1
+    for ($c = 0; $c -lt $fbfHeaders.Count; $c++) {
+        if ($fbfHeaders[$c] -eq $columnHeader) {
+            $fbfColumnIdx = $c
+            break
+        }
+    }
+
+    if ($fbfColumnIdx -eq -1) { return $Lines }
+
+    # Count validated and total applicable from Feature-by-Feature column
+    $totalApplicable = 0
+    $totalValidated = 0
+    for ($i = $fbfHeaderIdx + 2; $i -lt $Lines.Count; $i++) {
+        if ($Lines[$i] -notmatch '^\|') { break }
+        $cells = $Lines[$i] -split '\|'
+        if ($fbfColumnIdx -lt $cells.Count) {
+            $cellValue = $cells[$fbfColumnIdx].Trim()
+            if ($cellValue -ne 'N/A' -and $cellValue -ne '') {
+                $totalApplicable++
+                # A cell is "validated" if it contains a date link [YYYY-MM-DD](...)
+                if ($cellValue -match '^\[?\d{4}-\d{2}-\d{2}') {
+                    $totalValidated++
+                }
+            }
+        }
+    }
+
+    # Find the Overall Progress table and update the dimension row
+    $progressHeaderIdx = -1
+    for ($i = 0; $i -lt $Lines.Count; $i++) {
+        if ($Lines[$i] -match '^\|\s*Validation Type\s*\|') {
+            $progressHeaderIdx = $i
+            break
+        }
+    }
+
+    if ($progressHeaderIdx -eq -1) {
+        Write-Log "WARN" "Could not find Overall Progress table"
+        return $Lines
+    }
+
+    # Find the row matching this dimension (handles number prefix like "1. Architectural Consistency")
+    $dimPattern = [regex]::Escape($Dimension)
+    for ($i = $progressHeaderIdx + 2; $i -lt $Lines.Count; $i++) {
+        if ($Lines[$i] -notmatch '^\|') { break }
+
+        if ($Lines[$i] -match $dimPattern) {
+            $cells = $Lines[$i] -split '\|'
+            # Expected columns: [0]="" [1]=DimensionName [2]=ItemsValidated [3]=ReportsGenerated [4]=Status [5]=NextSession [6]=""
+
+            # Update Items Validated
+            $cells[2] = " $totalValidated/$totalApplicable "
+
+            # Update Reports Generated (increment only if report is new — check registry)
+            $escapedId = [regex]::Escape($ReportId)
+            $reportAlreadyExists = ($Lines | Where-Object { $_ -match $escapedId }).Count -gt 0
+            $currentReports = 0
+            if ($cells[3].Trim() -match '^\d+$') {
+                $currentReports = [int]$cells[3].Trim()
+            }
+            if (-not $reportAlreadyExists) {
+                $cells[3] = " $($currentReports + 1) "
+            } else {
+                $cells[3] = " $currentReports "
+            }
+
+            # Update Status
+            if ($totalValidated -ge $totalApplicable) {
+                $cells[4] = " COMPLETED "
+                $cells[5] = " — "
+            } else {
+                $cells[4] = " IN_PROGRESS "
+            }
+
+            $Lines[$i] = $cells -join '|'
+            $finalReports = if (-not $reportAlreadyExists) { $currentReports + 1 } else { $currentReports }
+            Write-Log "SUCCESS" "Overall Progress: $Dimension -> $totalValidated/$totalApplicable validated, $finalReports reports"
+            break
+        }
+    }
+
+    return $Lines
+}
+
+function Add-RegistryEntry {
+    param([string[]]$Lines)
+
+    # Check if report already exists in registry (idempotent)
+    $escapedId = [regex]::Escape($ReportId)
+    foreach ($line in $Lines) {
+        if ($line -match $escapedId) {
+            Write-Log "INFO" "Registry entry for $ReportId already exists — skipping"
+            return $Lines
+        }
+    }
+
+    # Find the registry section for this dimension
+    $dimPattern = [regex]::Escape($Dimension)
+    $sectionIdx = -1
+    for ($i = 0; $i -lt $Lines.Count; $i++) {
+        if ($Lines[$i] -match "^###\s+\d*\.?\s*$dimPattern\s+Validation Reports") {
+            $sectionIdx = $i
+            break
+        }
+    }
+
+    if ($sectionIdx -eq -1) {
+        Write-Log "WARN" "Could not find registry section for '$Dimension Validation Reports'"
+        return $Lines
+    }
+
+    # Find the table under this section header
+    $tableHeaderIdx = -1
+    for ($i = $sectionIdx + 1; $i -lt $Lines.Count; $i++) {
+        if ($Lines[$i] -match '^\|\s*Report ID\s*\|') {
+            $tableHeaderIdx = $i
+            break
+        }
+        if ($Lines[$i] -match '^###') { break }  # Hit next section
+    }
+
+    if ($tableHeaderIdx -eq -1) {
+        Write-Log "WARN" "Could not find registry table under '$Dimension Validation Reports'"
+        return $Lines
+    }
+
+    # Find the insertion point — after the last data row (or after separator if empty)
+    $insertIdx = $tableHeaderIdx + 2  # After header + separator
+    for ($i = $tableHeaderIdx + 2; $i -lt $Lines.Count; $i++) {
+        if ($Lines[$i] -match '^\|') {
+            $insertIdx = $i + 1  # After this data row
+        } else {
+            break
+        }
+    }
+
+    # Build the new row
+    $featureList = $FeatureIds -join ', '
+    $scoreVal = if ($Score) { $Score } else { "—" }
+    $issuesVal = if ($Issues) { $Issues } else { "—" }
+    $actionsVal = if ($Actions) { $Actions } else { "—" }
+    $newRow = "| [$ReportId]($ReportPath) | $featureList | $Date | $scoreVal | $ReportStatus | $issuesVal | $actionsVal |"
+
+    # Insert the new row
+    $result = [System.Collections.ArrayList]::new($Lines)
+    $result.Insert($insertIdx, $newRow)
+    Write-Log "SUCCESS" "Added registry entry: $ReportId ($featureList)"
+
+    return $result.ToArray()
+}
+
+function Update-FeatureOverallStatus {
+    param([string[]]$Lines)
+
+    # Find the Feature-by-Feature table
+    $headerIdx = -1
+    for ($i = 0; $i -lt $Lines.Count; $i++) {
+        if ($Lines[$i] -match '^\|\s*Feature\s*\|' -and $Lines[$i] -match 'Overall') {
+            $headerIdx = $i
+            break
+        }
+    }
+
+    if ($headerIdx -eq -1) { return $Lines }
+
+    $headers = $Lines[$headerIdx] -split '\|' | ForEach-Object { $_.Trim() }
+
+    # Find the Overall column index
+    $overallIdx = -1
+    for ($c = 0; $c -lt $headers.Count; $c++) {
+        if ($headers[$c] -eq 'Overall') {
+            $overallIdx = $c
+            break
+        }
+    }
+
+    if ($overallIdx -eq -1) { return $Lines }
+
+    # For each feature row, check if this feature was in our update set
+    for ($i = $headerIdx + 2; $i -lt $Lines.Count; $i++) {
+        if ($Lines[$i] -notmatch '^\|') { break }
+
+        $cells = $Lines[$i] -split '\|'
+        $featureCell = $cells[1].Trim()
+
+        $isTargetFeature = $false
+        foreach ($fid in $FeatureIds) {
+            if ($featureCell -match [regex]::Escape($fid)) {
+                $isTargetFeature = $true
+                break
+            }
+        }
+
+        if (-not $isTargetFeature) { continue }
+
+        # Check all dimension cells (columns 2 through overallIdx-1)
+        $allDone = $true
+        $anyFailed = $false
+        for ($c = 2; $c -lt $overallIdx; $c++) {
+            if ($c -ge $cells.Count) { continue }
+            $val = $cells[$c].Trim()
+            if ($val -eq 'N/A' -or $val -eq '') { continue }
+            if ($val -match '^\[?\d{4}-\d{2}-\d{2}') {
+                # Validated
+            } elseif ($val -match 'Failed') {
+                $anyFailed = $true
+                $allDone = $false
+            } else {
+                $allDone = $false
+            }
+        }
+
+        $newStatus = if ($anyFailed) { "ISSUES_FOUND" }
+                     elseif ($allDone) { "VALIDATED" }
+                     else { "IN_PROGRESS" }
+
+        $currentStatus = $cells[$overallIdx].Trim()
+        if ($currentStatus -ne $newStatus) {
+            $cells[$overallIdx] = " $newStatus "
+            $Lines[$i] = $cells -join '|'
+            Write-Log "SUCCESS" "Feature $featureCell Overall: $currentStatus -> $newStatus"
+        }
+    }
+
+    return $Lines
+}
+
+function Update-FrontmatterDate {
+    param([string[]]$Lines)
+
+    for ($i = 0; $i -lt [Math]::Min(20, $Lines.Count); $i++) {
+        if ($Lines[$i] -match '^updated:\s*\d{4}-\d{2}-\d{2}') {
+            $Lines[$i] = "updated: $CurrentDate"
+            Write-Log "SUCCESS" "Updated frontmatter date to $CurrentDate"
+            break
+        }
+    }
+
+    return $Lines
+}
+
+# --- Main ---
+
+Write-Log "INFO" "Starting Validation Report State Update — $ScriptName"
+Write-Log "INFO" "Tracking file: $ResolvedTrackingFile"
+Write-Log "INFO" "Dimension: $Dimension"
+Write-Log "INFO" "Features: $($FeatureIds -join ', ')"
+Write-Log "INFO" "Report: $ReportId"
+
+if (-not (Test-Prerequisites)) {
     exit 1
 }
 
-# Helper functions for specific file updates
-function Update-ValidationTrackingFile {
-    param(
-        [string]$FilePath,
-        [hashtable]$UpdateData
-    )
+# Single read
+$lines = Get-Content $ResolvedTrackingFile -Encoding UTF8
 
-    if (-not (Test-Path $FilePath)) {
-        Write-Warning "Validation tracking file not found: $FilePath"
-        return
-    }
+# Chain transformations
+$lines = Update-FeatureByFeatureCells -Lines $lines
+$lines = Update-OverallProgress -Lines $lines
+$lines = Add-RegistryEntry -Lines $lines
+$lines = Update-FeatureOverallStatus -Lines $lines
+$lines = Update-FrontmatterDate -Lines $lines
 
-    $content = Get-Content $FilePath -Raw
-
-    # Extract validation type from ValidationId (e.g., VAL-031-001 -> 031 -> Architectural Consistency)
-    $validationType = Get-ValidationTypeFromId -ValidationId $UpdateData.ValidationId
-
-    # Update the validation progress matrix
-    $progressPattern = "(\| $validationType \| )(\d+/\d+)( \| )(\d+)( \| )([A-Z_]+)( \| )([^|]+)( \|)"
-
-    if ($content -match $progressPattern) {
-        $currentValidated = [int]($matches[2].Split('/')[0])
-        $totalItems = [int]($matches[2].Split('/')[1])
-        $currentReports = [int]$matches[4]
-
-        # Update counts based on status
-        if ($UpdateData.Status -eq "Validation Completed") {
-            $newValidated = $currentValidated + 1
-            $newReports = $currentReports + 1
-            $newStatus = "IN_PROGRESS"
-        }
-        elseif ($UpdateData.Status -eq "Validation In Progress") {
-            $newValidated = $currentValidated
-            $newReports = $currentReports
-            $newStatus = "IN_PROGRESS"
-        }
-        else {
-            $newValidated = $currentValidated
-            $newReports = $currentReports
-            $newStatus = "NEEDS_REVISION"
-        }
-
-        $replacement = "$($matches[1])$newValidated/$totalItems$($matches[3])$newReports$($matches[5])$newStatus$($matches[7])$($UpdateData.ValidationDate)$($matches[9])"
-        $content = $content -replace $progressPattern, $replacement
-    }
-
-    # Add detailed validation entry if not exists
-    $detailsSection = "## Detailed Validation Results"
-    if ($content -notmatch [regex]::Escape($detailsSection)) {
-        $content += "`n`n$detailsSection`n`n"
-    }
-
-    # Add validation entry
-    $validationEntry = @"
-
-### $($UpdateData.ValidationId) - $validationType
-**Status**: $($UpdateData.Status)
-**Validator**: $($UpdateData.ValidatorName)
-**Date**: $($UpdateData.ValidationDate)
-"@
-
-    if ($UpdateData.ValidationScore) {
-        $validationEntry += "`n**Score**: $($UpdateData.ValidationScore)/10  "
-    }
-
-    if ($UpdateData.ValidationFindings -and $UpdateData.ValidationFindings.Count -gt 0) {
-        $validationEntry += "`n**Key Findings**:  "
-        foreach ($finding in $UpdateData.ValidationFindings) {
-            $validationEntry += "`n- $finding"
-        }
-    }
-
-    if ($UpdateData.ReportPath) {
-        $validationEntry += "`n**Report**: [$($UpdateData.ValidationId) Report]($($UpdateData.ReportPath))  "
-    }
-
-    if ($UpdateData.ValidationNotes) {
-        $validationEntry += "`n**Notes**: $($UpdateData.ValidationNotes)  "
-    }
-
-    $content += $validationEntry
-
-    Set-Content -Path $FilePath -Value $content -Encoding UTF8
-}
-
-function Update-DocumentationMapFile {
-    param(
-        [string]$FilePath,
-        [hashtable]$UpdateData
-    )
-
-    if (-not (Test-Path $FilePath)) {
-        Write-Warning "Documentation map file not found: $FilePath"
-        return
-    }
-
-    # Add validation report to documentation map if ReportPath is provided
-    if ($UpdateData.ReportPath) {
-        $content = Get-Content $FilePath -Raw
-
-        # Find validation reports section or create it
-        $validationSection = "## Validation Reports"
-        if ($content -notmatch [regex]::Escape($validationSection)) {
-            $content += "`n`n$validationSection`n`n"
-        }
-
-        # Add report entry
-        $reportEntry = "- [$($UpdateData.ValidationId)](../$($UpdateData.ReportPath)) - $($UpdateData.Status) ($($UpdateData.ValidationDate))"
-
-        # Check if entry already exists
-        if ($content -notmatch [regex]::Escape($UpdateData.ValidationId)) {
-            $content += "`n$reportEntry"
-            Set-Content -Path $FilePath -Value $content -Encoding UTF8
-        }
-    }
-}
-
-function Update-FeatureTrackingCrossReference {
-    param(
-        [string]$FilePath,
-        [hashtable]$UpdateData
-    )
-
-    if (-not (Test-Path $FilePath) -or -not $UpdateData.FeatureId) {
-        return
-    }
-
-    # Update feature tracking with validation cross-reference
-    $content = Get-Content $FilePath -Raw
-
-    # Find the feature entry and add validation reference
-    $featurePattern = "(\| $($UpdateData.FeatureId) \|[^|]+\|[^|]+\|[^|]+\|[^|]+\|)([^|]*?)(\|)"
-
-    if ($content -match $featurePattern) {
-        $currentValidations = $matches[2].Trim()
-        $validationRef = "[$($UpdateData.ValidationId)]"
-
-        if ($currentValidations -eq "" -or $currentValidations -eq "-") {
-            $newValidations = $validationRef
-        }
-        elseif ($currentValidations -notmatch [regex]::Escape($UpdateData.ValidationId)) {
-            $newValidations = "$currentValidations, $validationRef"
-        }
-        else {
-            $newValidations = $currentValidations
-        }
-
-        $replacement = "$($matches[1])$newValidations$($matches[3])"
-        $content = $content -replace $featurePattern, $replacement
-
-        Set-Content -Path $FilePath -Value $content -Encoding UTF8
-    }
-}
-
-function Get-ValidationTypeFromId {
-    param([string]$ValidationId)
-
-    # Extract task number from ValidationId (e.g., VAL-031-001 -> 031)
-    if ($ValidationId -match "../VAL-(/d{3})-/d+") {
-        $taskNumber = $matches[1]
-
-        switch ($taskNumber) {
-            "031" { return "Architectural Consistency" }
-            "032" { return "Code Quality & Standards" }
-            "033" { return "Integration & Dependencies" }
-            "034" { return "Documentation Alignment" }
-            "035" { return "Extensibility & Maintainability" }
-            "036" { return "AI Agent Continuity" }
-            default { return "Unknown Validation Type" }
-        }
-    }
-
-    return "Unknown Validation Type"
+# Single write
+if ($PSCmdlet.ShouldProcess($ResolvedTrackingFile, "Update validation tracking for $Dimension ($ReportId)")) {
+    $lines | Set-Content $ResolvedTrackingFile -Encoding UTF8
+    Write-Log "SUCCESS" "Validation tracking updated successfully"
+    Write-Log "INFO" "Updated file: $ResolvedTrackingFile"
+} else {
+    Write-Log "INFO" "WhatIf mode — no changes written"
 }

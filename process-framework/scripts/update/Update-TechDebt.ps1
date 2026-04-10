@@ -90,9 +90,10 @@ The validation tracking file is auto-discovered from doc/state-tracking/validati
 Example: "PD-REF-042 — docstring added documenting precedence order"
 
 .PARAMETER ValidationIssueId
-Optional validation issue ID (e.g., "R2-M-005", "OB-R3-004") to link a debt item to a validation tracking row.
-On -Add: writes the newly assigned TD### into the "Tracked As" column of the matching issue row.
-On Resolve/Reject (with -ValidationNote): searches by this ID in the "Issue ID" column instead of
+Optional validation issue ID(s) (e.g., "R2-M-005", "OB-R3-004") to link a debt item to validation tracking row(s).
+Accepts a single string or an array of strings for secondary findings resolved by the same fix.
+On -Add: writes the newly assigned TD### into the "Tracked As" column of each matching issue row.
+On Resolve/Reject (with -ValidationNote): searches by each ID in the "Issue ID" column instead of
 searching by DebtId in "Tracked As" column. Use this when the validation issue was tracked under a
 non-TD ID (e.g., OB-R3-004) that differs from the TD### registry ID.
 The validation tracking file is auto-discovered from doc/state-tracking/validation/.
@@ -132,6 +133,10 @@ Update-TechDebt.ps1 -DebtId "TD022" -NewStatus "Resolved" -ResolutionNotes "Extr
 .EXAMPLE
 # Resolve with validation tracking update when issue ID differs from TD ID
 Update-TechDebt.ps1 -DebtId "TD144" -NewStatus "Resolved" -ResolutionNotes "Added structured logging" -ValidationNote "Session 16 — logging added" -ValidationIssueId "OB-R3-004"
+
+.EXAMPLE
+# Resolve with primary and secondary validation issue IDs (one fix resolves multiple findings)
+Update-TechDebt.ps1 -DebtId "TD188" -NewStatus "Resolved" -ResolutionNotes "Updated FDD FR-3" -ValidationNote "PD-REF-175 — FR-3 rewritten" -ValidationIssueId "R4-DA-M02","R4-DA-L04"
 
 .EXAMPLE
 # Update notes on an already-resolved item
@@ -205,7 +210,7 @@ param(
 
     [Parameter(Mandatory = $false, ParameterSetName = 'AddNew')]
     [Parameter(Mandatory = $false, ParameterSetName = 'StatusUpdate')]
-    [string]$ValidationIssueId,
+    [string[]]$ValidationIssueId,
 
     # --- ResolvedUpdate parameter set ---
     [Parameter(Mandatory = $true, ParameterSetName = 'ResolvedUpdate')]
@@ -823,7 +828,9 @@ function Main {
         if ($ValidationIssueId) {
             $valFile = Find-ValidationTrackingFile
             if ($valFile) {
-                Update-ValidationTrackingLink -ValidationIssueId $ValidationIssueId -DebtId $newDebtId -TrackingFilePath $valFile
+                foreach ($issueId in $ValidationIssueId) {
+                    Update-ValidationTrackingLink -ValidationIssueId $issueId -DebtId $newDebtId -TrackingFilePath $valFile
+                }
             }
         }
 
@@ -887,15 +894,25 @@ function Main {
         if ($isResolution -and $ValidationNote) {
             $valFile = Find-ValidationTrackingFile
             if ($valFile) {
-                $valParams = @{
-                    DebtId           = $DebtId
-                    ValidationNote   = $ValidationNote
-                    TrackingFilePath = $valFile
-                }
                 if ($ValidationIssueId) {
-                    $valParams['ValidationIssueId'] = $ValidationIssueId
+                    # Loop over each validation issue ID (supports secondary findings)
+                    foreach ($issueId in $ValidationIssueId) {
+                        $valParams = @{
+                            DebtId           = $DebtId
+                            ValidationNote   = $ValidationNote
+                            TrackingFilePath = $valFile
+                            ValidationIssueId = $issueId
+                        }
+                        Update-ValidationTracking @valParams
+                    }
+                } else {
+                    $valParams = @{
+                        DebtId           = $DebtId
+                        ValidationNote   = $ValidationNote
+                        TrackingFilePath = $valFile
+                    }
+                    Update-ValidationTracking @valParams
                 }
-                Update-ValidationTracking @valParams
             }
         }
 

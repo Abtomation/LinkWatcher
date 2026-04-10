@@ -107,6 +107,10 @@ Systematically evaluate and enhance the templates, guides, and other tools by co
     # Product feature request — use the actual filename from Step 11
     .\New-FeatureRequest.ps1 -Source "Tools Review YYYY-MM-DD" -SourceLink "../../feedback/reviews/tools-review-YYYYMMDD-HHMMSS.md" -Description "What is being requested" -Priority "MEDIUM" -Notes "Context"
     ```
+    - **🏷️ BUG vs IMP CLASSIFICATION**: The distinction is **domain-based**, not severity-based. Use the file location as the primary heuristic:
+      - `process-framework/`, `doc/` → **IMP** (process framework tooling, even if the script crashes)
+      - `linkwatcher/` → **BUG** (product code)
+      - `test/` → either: test infrastructure issues (runner scripts, tracking) = **IMP**; product test defects = **BUG**
     - **🔗 TRACEABILITY REQUIREMENT**: Use `-SourceLink` with the actual review summary filename from Step 11 for full traceability
     - **🔍 DEDUPLICATION**: Before registering a new IMP, search both the "Current Improvement Opportunities" and "Completed Improvements" sections of [process-improvement-tracking.md](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) for existing entries covering the same tool or issue. Skip registration if already tracked.
     - **🎯 GRANULARITY**: Each IMP must describe exactly one actionable change. If a theme or feedback item contains multiple independent changes (e.g., "add X to task A, add Y to task B, add Z to task C"), register each as a separate IMP. Conversely, do not split a single cohesive change across multiple IMPs.

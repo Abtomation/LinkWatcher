@@ -14,7 +14,7 @@ updated: 2026-04-09
 
 Implement performance tests from a performance test specification. This task covers measurement design, threshold-setting against baselines, test registration in performance-test-tracking.md, and lifecycle transition from ⬜ Specified to 📋 Created.
 
-This task is the **execution** counterpart to Test Spec Creation (PF-TSK-012), which plans what to test. PF-TSK-012 decides which performance dimensions need testing; this task implements those tests.
+Implement performance tests identified through the [Performance Testing Guide](/process-framework/guides/03-testing/performance-testing-guide.md) decision matrix. Performance test needs are identified after implementation when the actual code changes can be assessed against the decision matrix criteria (parser changes, algorithm changes, scaling characteristics, etc.).
 
 ## AI Agent Role
 
@@ -25,16 +25,16 @@ This task is the **execution** counterpart to Test Spec Creation (PF-TSK-012), w
 
 ## When to Use
 
-- PF-TSK-012 (Test Spec Creation) produced a performance test specification with PE dimension requirements
-- Standalone when adding performance coverage for untested areas identified in the cross-cutting performance spec
+- After implementation, when the [Performance Testing Guide](/process-framework/guides/03-testing/performance-testing-guide.md) decision matrix identifies performance test needs (e.g., parser changes, algorithm changes, scaling characteristics)
 - When performance-test-tracking.md has `⬜ Specified` entries that need implementation
 - When expanding performance coverage after discovering gaps during Baseline Capture
+- Standalone when adding performance coverage for untested areas
 
 ## Context Requirements
 
 - **Critical (Must Read):**
 
-  - **Performance Test Specification** — the spec produced by PF-TSK-012 defining what to test (specific spec linked in the triggering task handover)
+  - **Performance Testing Guide** — [Decision matrix](/process-framework/guides/03-testing/performance-testing-guide.md#decision-matrix) determining which test levels apply to the code changes
   - [Performance Testing Guide](/process-framework/guides/03-testing/performance-testing-guide.md) — Test levels, measurement methodology, threshold-setting, avoiding flaky benchmarks
   - [Performance Test Tracking](/test/state-tracking/permanent/performance-test-tracking.md) — Current test inventory and baselines
 
@@ -55,7 +55,7 @@ This task is the **execution** counterpart to Test Spec Creation (PF-TSK-012), w
 
 ### Preparation
 
-1. **Read the performance test specification** produced by PF-TSK-012. Identify all tests to be created — each should have a level (Component/Operation/Scale/Resource), operation description, and success criteria.
+1. **Identify performance tests needed** using the [Performance Testing Guide decision matrix](/process-framework/guides/03-testing/performance-testing-guide.md#decision-matrix). For each affected component, determine the test level (Component/Operation/Scale/Resource), operation description, and success criteria.
 
 2. **Read performance-test-tracking.md** to understand existing coverage. Note any `⬜ Specified` entries that already exist for the tests in the spec.
 
@@ -127,5 +127,5 @@ Before considering this task finished:
 
 - [Performance Testing Guide](/process-framework/guides/03-testing/performance-testing-guide.md) — Measurement methodology and best practices
 - [Performance Test Tracking](/test/state-tracking/permanent/performance-test-tracking.md) — Test registry and baselines
-- [Test Specification Creation](/process-framework/tasks/03-testing/test-specification-creation-task.md) — Upstream task that produces the spec
+- [Test Specification Creation](/process-framework/tasks/03-testing/test-specification-creation-task.md) — Automated test specification task (does not route performance tests)
 - [Performance Baseline Capture](/process-framework/tasks/03-testing/performance-baseline-capture-task.md) — Downstream task that records baselines

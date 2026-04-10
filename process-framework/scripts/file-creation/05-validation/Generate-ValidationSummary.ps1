@@ -223,6 +223,302 @@ function Get-ReportIssueCounts {
     return $counts
 }
 
+# --- Extract per-feature scores from a single report ---
+# Supports two table formats:
+#   Format A (row-per-feature): | Feature | criteria... | Average/Overall |
+#   Format B (column-per-feature): | Criterion | X.Y.Z | X.Y.Z | ... | Average |
+#     with a **Feature Average** or **Dimension Average** row at the bottom
+function Get-PerFeatureScoresFromReport {
+    param([string]$Content)
+
+    $scores = @{}  # feature_id -> average_score
+    $lines = $Content -split "`n"
+
+    # --- Try Format A first: row-per-feature tables ---
+    # Look for tables with "| Feature |" header and "Average" or "Overall" last column
+    for ($i = 0; $i -lt $lines.Count; $i++) {
+        $line = $lines[$i]
+        if ($line -match '^\|\s*Feature\s*\|' -and $line -match '(Average|Overall)\s*\|') {
+            $headers = $line -split '\|' | ForEach-Object { $_.Trim() }
+            # Find the Average/Overall column index (last meaningful column)
+            $avgColIdx = -1
+            for ($c = $headers.Count - 1; $c -ge 0; $c--) {
+                if ($headers[$c] -match '^(Average|Overall)$') {
+                    $avgColIdx = $c
+                    break
+                }
+            }
+            if ($avgColIdx -eq -1) { continue }
+
+            # Skip separator row
+            $j = $i + 1
+            if ($j -lt $lines.Count -and $lines[$j] -match '^\|\s*[-:]+') { $j++ }
+
+            # Parse data rows
+            while ($j -lt $lines.Count -and $lines[$j] -match '^\|') {
+                $cells = $lines[$j] -split '\|' | ForEach-Object { $_.Trim() }
+                $featureCell = if ($cells.Count -gt 1) { $cells[1] } else { "" }
+
+                # Skip summary rows (bold **Average**, **Batch Average**, etc.)
+                if ($featureCell -match '^\*\*') { $j++; continue }
+
+                if ($featureCell -match '^(\d+\.\d+\.\d+)') {
+                    $featureId = $Matches[1]
+                    $avgCell = if ($avgColIdx -lt $cells.Count) { $cells[$avgColIdx] } else { "" }
+                    if ($avgCell -match '(\d+\.?\d*)') {
+                        $scores[$featureId] = [decimal]$Matches[1]
+                    }
+                }
+                $j++
+            }
+
+            if ($scores.Count -gt 0) { return $scores }
+        }
+    }
+
+    # --- Try Format B: column-per-feature tables ---
+    # Look for tables with "| Criterion |" header where other columns are feature IDs
+    for ($i = 0; $i -lt $lines.Count; $i++) {
+        $line = $lines[$i]
+        if ($line -match '^\|\s*Criterion\s*\|' -and $line -match '\d+\.\d+\.\d+') {
+            $headers = $line -split '\|' | ForEach-Object { $_.Trim() }
+
+            # Extract feature IDs from column headers
+            $featureColumns = @{}  # column_index -> feature_id
+            for ($c = 0; $c -lt $headers.Count; $c++) {
+                if ($headers[$c] -match '^(\d+\.\d+\.\d+)') {
+                    $featureColumns[$c] = $Matches[1]
+                }
+            }
+            if ($featureColumns.Count -eq 0) { continue }
+
+            # Find the **Feature Average** or **Dimension Average** row
+            $j = $i + 1
+            while ($j -lt $lines.Count -and $lines[$j] -match '^\|') {
+                if ($lines[$j] -match '\*\*(Feature|Dimension|Batch)\s*Average\*\*') {
+                    $cells = $lines[$j] -split '\|' | ForEach-Object { $_.Trim() }
+                    foreach ($colIdx in $featureColumns.Keys) {
+                        $fid = $featureColumns[$colIdx]
+                        $cell = if ($colIdx -lt $cells.Count) { $cells[$colIdx] } else { "" }
+                        # Remove bold markers
+                        $cell = $cell -replace '\*\*', ''
+                        if ($cell -match '(\d+\.?\d*)') {
+                            $scores[$fid] = [decimal]$Matches[1]
+                        }
+                    }
+                    break
+                }
+                $j++
+            }
+
+            if ($scores.Count -gt 0) { return $scores }
+        }
+    }
+
+    return $scores
+}
+
+# --- Parse feature names from tracking file's Feature Scope table ---
+function Get-FeatureNamesFromTracking {
+    param([string]$TrackingContent)
+
+    $names = @{}  # feature_id -> feature_name
+    $lines = $TrackingContent -split "`n"
+    $inTable = $false
+
+    foreach ($line in $lines) {
+        if ($line -match '^\|\s*Feature ID\s*\|\s*Feature Name') {
+            $inTable = $true
+            continue
+        }
+        if ($inTable) {
+            if ($line -match '^\|\s*[-:]+') { continue }
+            if ($line -match '^\|') {
+                $cells = $line -split '\|' | ForEach-Object { $_.Trim() }
+                $idCell = if ($cells.Count -gt 1) { $cells[1] } else { "" }
+                $nameCell = if ($cells.Count -gt 2) { $cells[2] } else { "" }
+                if ($idCell -match '^\d+\.\d+\.\d+$' -and $nameCell) {
+                    $names[$idCell] = $nameCell
+                }
+            } else {
+                break
+            }
+        }
+    }
+
+    return $names
+}
+
+# --- Build Feature Quality Rankings table and update tracking file ---
+function Update-FeatureQualityRankings {
+    param(
+        [hashtable]$SummaryData,
+        [string]$TrackingFilePath,
+        [string]$TrackingContent,
+        [string]$ReportsBasePath,
+        [hashtable]$ValidationTypeMap,
+        [hashtable]$ValidationTypeDisplayNames,
+        [string[]]$RoundReportIds
+    )
+
+    # Collect per-feature per-dimension scores
+    # Structure: $featureScores[featureId][dimensionKey] = score
+    $featureScores = @{}
+
+    foreach ($dimKey in $SummaryData.ValidationTypes.Keys) {
+        if (-not $ValidationTypeMap.ContainsKey($dimKey)) { continue }
+
+        $reportsDir = Join-Path $ReportsBasePath $ValidationTypeMap[$dimKey]
+        if (-not (Test-Path $reportsDir)) { continue }
+
+        $roundReports = Get-ChildItem $reportsDir -Filter "*.md" | Where-Object {
+            foreach ($id in $RoundReportIds) {
+                if ($_.Name.StartsWith($id)) { return $true }
+            }
+            return $false
+        }
+
+        foreach ($report in $roundReports) {
+            $content = Get-Content $report.FullName -Raw
+            $perFeature = Get-PerFeatureScoresFromReport -Content $content
+
+            foreach ($fid in $perFeature.Keys) {
+                if (-not $featureScores.ContainsKey($fid)) {
+                    $featureScores[$fid] = @{}
+                }
+                $featureScores[$fid][$dimKey] = $perFeature[$fid]
+            }
+        }
+    }
+
+    if ($featureScores.Count -eq 0) {
+        Write-Host "   No per-feature scores found — skipping Feature Quality Rankings" -ForegroundColor Yellow
+        return
+    }
+
+    # Get feature names from tracking file
+    $featureNames = Get-FeatureNamesFromTracking -TrackingContent $TrackingContent
+
+    # Short display names for dimensions (matching manual Round 4 style)
+    $dimShortNames = @{
+        "Architectural"  = "Arch"
+        "CodeQuality"    = "Code Quality"
+        "Integration"    = "Integration"
+        "Documentation"  = "Docs"
+        "Extensibility"  = "Extensibility"
+        "AIContinuity"   = "AI Continuity"
+        "Security"       = "Security"
+        "Performance"    = "Performance"
+        "Observability"  = "Observability"
+        "Accessibility"  = "Accessibility"
+        "DataIntegrity"  = "Data Integrity"
+    }
+
+    # Calculate overall average and find strengths/weaknesses per feature
+    $rankings = @()
+    foreach ($fid in $featureScores.Keys) {
+        $dimScores = $featureScores[$fid]
+        $allScores = $dimScores.Values | ForEach-Object { [decimal]$_ }
+        $avg = ($allScores | Measure-Object -Average).Average
+
+        # Find top strengths (highest-scoring dimensions, top 3)
+        $sorted = $dimScores.GetEnumerator() | Sort-Object -Property Value -Descending
+        $sortedAsc = $dimScores.GetEnumerator() | Sort-Object -Property Value
+
+        $strengths = $sorted | Select-Object -First 3 | ForEach-Object {
+            $shortName = if ($dimShortNames.ContainsKey($_.Key)) { $dimShortNames[$_.Key] } else { $_.Key }
+            "$shortName ($($_.Value.ToString("F2")))"
+        }
+
+        # Find weaknesses (lowest-scoring dimensions, bottom 1-2 that are below average)
+        $weakest = $sortedAsc | Select-Object -First 1
+        $weakThreshold = [decimal]$weakest.Value + 0.15
+        $weaknesses = $sortedAsc | Where-Object { [decimal]$_.Value -le $weakThreshold } | ForEach-Object {
+            $shortName = if ($dimShortNames.ContainsKey($_.Key)) { $dimShortNames[$_.Key] } else { $_.Key }
+            "$shortName ($($_.Value.ToString("F2")))"
+        }
+
+        $displayName = if ($featureNames.ContainsKey($fid)) { "$fid $($featureNames[$fid])" } else { $fid }
+
+        $rankings += [PSCustomObject]@{
+            FeatureId   = $fid
+            DisplayName = $displayName
+            Average     = $avg
+            Strengths   = ($strengths -join ", ")
+            Weaknesses  = ($weaknesses -join ", ")
+        }
+    }
+
+    # Sort by average descending
+    $rankings = $rankings | Sort-Object -Property Average -Descending
+
+    # Build table rows
+    $tableRows = @()
+    $rank = 1
+    foreach ($r in $rankings) {
+        $tableRows += "| $rank | $($r.DisplayName) | $($r.Average.ToString("F2"))/3.0 | $($r.Strengths) | $($r.Weaknesses) |"
+        $rank++
+    }
+
+    # Update the tracking file: replace the empty/existing Feature Quality Rankings table
+    $lines = (Get-Content $TrackingFilePath -Encoding UTF8)
+    $headerIdx = -1
+    for ($i = 0; $i -lt $lines.Count; $i++) {
+        if ($lines[$i] -match '^###\s+Feature Quality Rankings') {
+            $headerIdx = $i
+            break
+        }
+    }
+
+    if ($headerIdx -eq -1) {
+        Write-Host "   Could not find '### Feature Quality Rankings' section in tracking file — skipping" -ForegroundColor Yellow
+        return
+    }
+
+    # Find the table header row (| Rank | Feature | ...)
+    $tableHeaderIdx = -1
+    for ($i = $headerIdx + 1; $i -lt $lines.Count; $i++) {
+        if ($lines[$i] -match '^\|\s*Rank\s*\|') {
+            $tableHeaderIdx = $i
+            break
+        }
+        if ($lines[$i] -match '^##[^#]') { break }  # Hit next section
+    }
+
+    if ($tableHeaderIdx -eq -1) {
+        Write-Host "   Could not find Feature Quality Rankings table header — skipping" -ForegroundColor Yellow
+        return
+    }
+
+    # Find extent of existing table (header + separator + any data rows)
+    $tableEndIdx = $tableHeaderIdx + 2  # After header + separator
+    for ($i = $tableHeaderIdx + 2; $i -lt $lines.Count; $i++) {
+        if ($lines[$i] -match '^\|') {
+            $tableEndIdx = $i + 1
+        } else {
+            break
+        }
+    }
+
+    # Replace: keep header + separator, replace data rows
+    $result = [System.Collections.ArrayList]::new()
+    # Lines before the data rows (header + separator)
+    for ($i = 0; $i -lt ($tableHeaderIdx + 2); $i++) {
+        [void]$result.Add($lines[$i])
+    }
+    # Insert new data rows
+    foreach ($row in $tableRows) {
+        [void]$result.Add($row)
+    }
+    # Lines after old table
+    for ($i = $tableEndIdx; $i -lt $lines.Count; $i++) {
+        [void]$result.Add($lines[$i])
+    }
+
+    $result.ToArray() | Set-Content $TrackingFilePath -Encoding UTF8
+    Write-Host "   Updated Feature Quality Rankings in tracking file ($($rankings.Count) features ranked)" -ForegroundColor Green
+}
+
 # --- Main execution ---
 
 # Parse parameters
@@ -494,6 +790,18 @@ validation_types: $($SelectedValidationTypes -join ',')
     # Write summary to file
     if ($PSCmdlet.ShouldProcess($OutputPath, "Write validation summary")) {
         $SummaryContent | Set-Content $OutputPath -Encoding UTF8
+    }
+
+    # Update Feature Quality Rankings in tracking file
+    if ($PSCmdlet.ShouldProcess($TrackingFilePath, "Update Feature Quality Rankings")) {
+        Update-FeatureQualityRankings `
+            -SummaryData $SummaryData `
+            -TrackingFilePath $TrackingFilePath `
+            -TrackingContent $TrackingContent `
+            -ReportsBasePath $ReportsBasePath `
+            -ValidationTypeMap $ValidationTypeMap `
+            -ValidationTypeDisplayNames $ValidationTypeDisplayNames `
+            -RoundReportIds $RoundReportIds
     }
 
     Write-Host "Validation summary generated successfully!" -ForegroundColor Green

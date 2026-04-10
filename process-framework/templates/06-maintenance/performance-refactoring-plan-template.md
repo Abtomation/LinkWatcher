@@ -2,11 +2,11 @@
 id: PF-TEM-066
 type: Process Framework
 category: Refactoring Plan
-version: 1.0
+version: 1.1
 created: 2026-03-31
-updated: 2026-03-31
+updated: 2026-04-10
 usage_context: Process Framework - Refactoring Plan Creation
-description: Refactoring plan for performance-focused changes. Replaces code quality metrics with performance baselines (I/O counts, timing, throughput, memory).
+description: Refactoring plan for performance-focused changes. Replaces code quality metrics with performance baselines (user-defined metrics such as I/O counts, timing, throughput, memory, or algorithmic complexity).
 creates_document_category: Refactoring Plan
 creates_document_type: Process Framework
 creates_document_version: 1.0
@@ -26,7 +26,7 @@ priority: [Priority Level]
 - **Created**: [Creation Date]
 - **Author**: [Author]
 - **Status**: Planning
-- **Mode**: Performance (I/O, timing, throughput focus)
+- **Mode**: Performance (define metrics below — e.g., I/O counts, timing, throughput, memory, or algorithmic complexity)
 [Debt Item Line]
 ## Refactoring Scope
 <!-- Detailed description of what will be refactored and why -->
@@ -52,12 +52,19 @@ priority: [Priority Level]
 ## Current State Analysis
 
 ### Performance Baseline
-<!-- Record current performance characteristics before refactoring -->
-- **I/O Operations**: [Count and type — e.g., "47 file reads per scan cycle"]
-- **Timing**: [Key operation durations — e.g., "full scan: 2.3s, single file update: 150ms"]
-- **Throughput**: [Processing rate — e.g., "~200 files/sec during initial scan"]
-- **Memory**: [Peak/steady-state usage — e.g., "85 MB peak during 1000-file project"]
-- **Measurement Method**: [How baselines were captured — e.g., "pytest --benchmark, cProfile, manual timing"]
+<!-- Record current performance characteristics before refactoring.
+     Define 2-4 metrics relevant to your refactoring type:
+       - I/O-focused: I/O Operations, Timing, Throughput, Memory
+       - Algorithmic: Complexity Class, Operation Count, Lookup/Search Time, Space Complexity
+       - Latency-focused: P50/P95/P99 Latency, Request Rate, Error Rate
+     Delete unused example rows and add your own. -->
+
+| Metric | Baseline Value | Measurement Method |
+|--------|---------------|-------------------|
+| [Metric 1 — e.g., I/O Operations] | [e.g., "47 file reads per scan cycle"] | [e.g., cProfile] |
+| [Metric 2 — e.g., Timing] | [e.g., "full scan: 2.3s"] | [e.g., pytest --benchmark] |
+| [Metric 3 — e.g., Complexity Class] | [e.g., "O(n) linear scan"] | [e.g., code analysis] |
+| [Metric 4 — e.g., Memory] | [e.g., "85 MB peak"] | [e.g., tracemalloc] |
 
 ### Affected Components
 <!-- List all files, modules, or components that will be modified -->
@@ -114,11 +121,14 @@ priority: [Priority Level]
 ## Success Criteria
 
 ### Performance Targets
-<!-- Measurable performance improvements expected from refactoring -->
-- **I/O Operations**: Target [X]% reduction / [specific target]
-- **Timing**: Target [X]% improvement / [specific target]
-- **Throughput**: Target [X]% improvement / [specific target]
-- **Memory**: Target [X]% reduction / [specific target]
+<!-- Measurable performance improvements expected from refactoring.
+     Use the same metrics defined in Performance Baseline above. -->
+| Metric | Target | Rationale |
+|--------|--------|-----------|
+| [Metric 1] | [e.g., "≤10 file reads per scan cycle" or "50% reduction"] | [Why this target] |
+| [Metric 2] | [e.g., "full scan < 1.0s"] | [Why this target] |
+| [Metric 3] | [e.g., "O(log n) lookup"] | [Why this target] |
+| [Metric 4] | [e.g., "≤50 MB peak"] | [Why this target] |
 
 ### Functional Requirements
 <!-- Ensure no functional changes -->
@@ -136,20 +146,24 @@ priority: [Priority Level]
 | [Date] | [Phase] | [Description] | [Issues] | [Next steps] |
 
 ### Performance Tracking
+<!-- Copy metric names from Performance Baseline. Update Current column after each phase. -->
 | Metric | Baseline | Current | Target | Status |
 |--------|----------|---------|--------|--------|
-| I/O Operations | [Baseline] | [Current] | [Target] | [Status] |
-| Timing | [Baseline] | [Current] | [Target] | [Status] |
-| Throughput | [Baseline] | [Current] | [Target] | [Status] |
-| Memory | [Baseline] | [Current] | [Target] | [Status] |
+| [Metric 1] | [Baseline] | [Current] | [Target] | [Status] |
+| [Metric 2] | [Baseline] | [Current] | [Target] | [Status] |
+| [Metric 3] | [Baseline] | [Current] | [Target] | [Status] |
+| [Metric 4] | [Baseline] | [Current] | [Target] | [Status] |
 
 ## Results and Lessons Learned
 
 ### Final Performance Results
-- **I/O Operations**: [Final count] (Change: [+/-X%])
-- **Timing**: [Final timing] (Change: [+/-X%])
-- **Throughput**: [Final rate] (Change: [+/-X%])
-- **Memory**: [Final usage] (Change: [+/-X%])
+<!-- Copy metric names from Performance Baseline. -->
+| Metric | Baseline | Final | Change |
+|--------|----------|-------|--------|
+| [Metric 1] | [Baseline] | [Final] | [+/-X%] |
+| [Metric 2] | [Baseline] | [Final] | [+/-X%] |
+| [Metric 3] | [Baseline] | [Final] | [+/-X%] |
+| [Metric 4] | [Baseline] | [Final] | [+/-X%] |
 
 ### Achievements
 <!-- Document what was successfully accomplished -->

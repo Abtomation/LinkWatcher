@@ -104,11 +104,17 @@ Plans a validation round by selecting features to validate, evaluating which val
 
    ```powershell
    cd process-framework/scripts/file-creation/05-validation
-   New-ValidationTracking.ps1 -RoundNumber [N] -Description "[Round focus]"
+   New-ValidationTracking.ps1 -RoundNumber [N] -Description "[Round focus]" -ArchivePriorRound
    ```
 
+   The script auto-populates:
+   - **Feature Scope** table from feature-tracking.md (all active features)
+   - **Prior round quality scores** (R(N-1) Score column) from the previous round's tracking file
+   - **Prior Round reference** link in Purpose & Context section
+   - `-ArchivePriorRound` moves the prior round's tracking file to `archive/`
+
    Then customize:
-   - Fill in feature rows with selected features
+   - Review auto-populated feature rows for accuracy (remove features not in scope, add Workflow Cohort)
    - Add/remove dimension columns based on which dimensions are selected
    - Mark N/A cells for features where specific dimensions don't apply
 8. **Plan Session Sequence**: Determine the order of dimension validation sessions:
