@@ -109,7 +109,7 @@ $SourceColumn = if ($SourceLink -ne "") {
 }
 
 # Build the table row — 8-column format: ID | Source | Description | Feature | Classification | Status | Last Updated | Notes
-$TableRow = "| $RequestId | $SourceColumn | $Description | — | — | Submitted | $CurrentDate | $Notes |"
+$TableRow = "| $RequestId | $SourceColumn | $Description | — | — | 📥 Submitted | $CurrentDate | $Notes |"
 
 # Read current content
 $Content = Get-Content -Path $TrackingFile -Raw -Encoding UTF8

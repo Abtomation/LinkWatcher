@@ -113,7 +113,7 @@ _Created during framework onboarding (PF-TSK-066), consolidated to 9-feature sco
 
 ### `technical/` — Other
 
-- [Product: Feature Dependencies](technical/feature-dependencies.md) - Auto-generated visual map and matrix of feature dependencies
+- [Product: Feature Dependencies](technical/architecture/feature-dependencies.md) - Auto-generated visual map and matrix of feature dependencies
 
 ### `technical/integration/` — Integration Narratives
 

@@ -1,0 +1,13 @@
+# LinkWatcher config — archive/ directory is ignored
+monitored_extensions:
+  - ".md"
+  - ".yaml"
+
+ignored_directories:
+  - ".git"
+  - "archive"
+
+dry_run_mode: false
+atomic_updates: true
+initial_scan_enabled: true
+log_level: "INFO"

@@ -195,3 +195,5 @@ Write-Host "  Total:     $($testCasesToVerify.Count)" -ForegroundColor Cyan
 if ($failed -gt 0) {
     exit 1
 }
+
+exit 0

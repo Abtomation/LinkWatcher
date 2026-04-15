@@ -16,7 +16,7 @@ Supports two operation modes:
 2. Status-only update: Changes Status column (for Deferred/Rejected transitions)
 
 For enhancements, also updates feature-tracking.md to set the target feature's status
-to "Needs Revision" with a link to the Enhancement State Tracking File.
+to "Needs Enhancement" with a link to the Enhancement State Tracking File.
 
 .PARAMETER RequestId
 The feature request ID to update (e.g., "PD-FRQ-001")
@@ -40,7 +40,7 @@ state file and link it in feature-tracking.md.
 
 .PARAMETER EnhancementStateFile
 Path or link to the Enhancement State Tracking File (enhancement classification only).
-When provided, feature-tracking.md is updated to set the target feature to "Needs Revision"
+When provided, feature-tracking.md is updated to set the target feature to "Needs Enhancement"
 with a link to this file.
 
 .PARAMETER UpdatedBy
@@ -338,7 +338,7 @@ function Update-FeatureTrackingForEnhancement {
 
     $ftContent = Get-Content $FeatureTrackingFile -Raw
 
-    # Find the feature row and update Status column to "🔄 Needs Revision"
+    # Find the feature row and update Status column to "🔄 Needs Enhancement"
     # The feature ID might be wrapped in a link: [6.1.1](path)
     $featurePattern = "\|[^\n]*(?:\[$([regex]::Escape($FeatureId))\]|$([regex]::Escape($FeatureId)))[^\n]*\|"
     $ftMatch = [regex]::Match($ftContent, $featurePattern)
@@ -354,7 +354,7 @@ function Update-FeatureTrackingForEnhancement {
         -Content $ftContent `
         -FeatureId $FeatureId `
         -StatusColumn "Status" `
-        -Status "🔄 Needs Revision" `
+        -Status "🔄 Needs Enhancement" `
         -Notes $EnhancementStateFile
 
     if ($ftContent) {
@@ -362,7 +362,7 @@ function Update-FeatureTrackingForEnhancement {
         $ftContent = $ftContent -replace '(?<=^updated:\s*)\d{4}-\d{2}-\d{2}', $CurrentDate
 
         Set-Content -Path $FeatureTrackingFile -Value $ftContent -NoNewline
-        Write-Log "Updated feature $FeatureId to 'Needs Revision' in feature-tracking.md" -Level "SUCCESS"
+        Write-Log "Updated feature $FeatureId to 'Needs Enhancement' in feature-tracking.md" -Level "SUCCESS"
     } else {
         Write-Log "Failed to update feature-tracking.md — update manually" -Level "WARN"
     }
@@ -387,6 +387,14 @@ function Main {
 
     # Single read-modify-write cycle for feature-request-tracking.md
     $content = Get-Content $TrackingFile -Raw
+
+    # Map CLI parameter values to emoji display values for the tracking file
+    $StatusDisplayMap = @{
+        "Completed" = "✅ Completed"
+        "Deferred"  = "⏸️ Deferred"
+        "Rejected"  = "❌ Rejected"
+    }
+    $DisplayStatus = $StatusDisplayMap[$NewStatus]
 
     $isCompletion = $NewStatus -eq "Completed"
     $isDeferReject = $NewStatus -in @("Deferred", "Rejected")
@@ -418,7 +426,7 @@ function Main {
         if ($columns[0] -eq '') { $columns = $columns[1..($columns.Length - 1)] }
         if ($columns[-1] -eq '') { $columns = $columns[0..($columns.Length - 2)] }
 
-        $columns[5] = $NewStatus
+        $columns[5] = $DisplayStatus
         $columns[6] = $CurrentDate
         if ($Notes) {
             if ($columns[7] -and $columns[7] -ne "—") {
@@ -430,13 +438,13 @@ function Main {
 
         $updatedEntry = "| " + ($columns -join " | ") + " |"
         $content = $content.Replace($currentEntry, $updatedEntry)
-        Write-Log "Updated $RequestId status to $NewStatus" -Level "SUCCESS"
+        Write-Log "Updated $RequestId status to $DisplayStatus" -Level "SUCCESS"
     }
 
     # Step 4: Add Update History entry
     $classLabel = if ($Classification -eq "NewFeature") { "New Feature" } elseif ($Classification -eq "Enhancement") { "Enhancement" } else { "" }
     $historyNote = switch ($NewStatus) {
-        "Completed" { "Classified $RequestId as $classLabel (feature $FeatureId) — $NewStatus" }
+        "Completed" { "Classified $RequestId as $classLabel (feature $FeatureId) — $DisplayStatus" }
         "Deferred"  { "Deferred $RequestId`: $Notes" }
         "Rejected"  { "Rejected $RequestId`: $Notes" }
     }

@@ -59,7 +59,7 @@ Systematically evaluate, prioritize, and assign reported bugs to ensure efficien
 
 ### Preparation
 
-1. Review the [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) document to identify bugs with status 🆕 Reported or bugs that need reopening (see [Reopen Workflow](#reopen-workflow) below)
+1. Review the [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) document to identify bugs with status 🆕 Needs Triage or bugs that need reopening (see [Reopen Workflow](#reopen-workflow) below)
 2. Gather all available information about each bug (reproduction steps, screenshots, logs)
 3. Understand the current development priorities from [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md)
 4. For each bug, consult the affected feature's [implementation state file](/doc/state-tracking/features/) for known issues, related bugs, and current implementation status
@@ -103,11 +103,11 @@ Systematically evaluate, prioritize, and assign reported bugs to ensure efficien
     > **Tip**: Bugs discovered during code review often lack a "Related Feature" field. During triage, identify the affected feature from [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) and populate this field.
 16. **Identify Affected Workflows**: Look up the related feature(s) in [User Workflow Tracking](../../../doc/state-tracking/permanent/user-workflow-tracking.md) to determine which user workflows are affected. Populate the **Workflows** column in the bug entry (e.g., `WF-001, WF-003`). This helps bug fixers assess blast radius later.
 17. **Estimate Effort**: Provide rough effort estimate for fixing the bug
-18. **Update Bug Status**: Change status from 🆕 Reported to 🔍 Triaged
+18. **Update Bug Status**: Change status from 🆕 Needs Triage to 🔍 Needs Fix
     - **Manual Update**: Edit the [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) file directly
     - **Optional Automation**: Use [`Update-BugStatus.ps1`](../../scripts/update/Update-BugStatus.ps1) script for consistent formatting:
       ```powershell
-      ../../scripts/update/Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "Triaged" -Priority "High" -Scope "S" -Dims "SE DI" -Workflows "WF-001, WF-003" -TriageNotes "Rationale for priority and scope"
+      ../../scripts/update/Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "NeedsFix" -Priority "High" -Scope "S" -Dims "SE DI" -Workflows "WF-001, WF-003" -TriageNotes "Rationale for priority and scope"
       ```
 
 ### Finalization
@@ -179,7 +179,7 @@ When a previously closed bug recurs, decide whether to **reopen** the original o
 The following state files must be updated as part of this task:
 
 - [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) - Update with:
-  - Bug status changed from 🆕 Reported to 🔍 Triaged
+  - Bug status changed from 🆕 Needs Triage to 🔍 Needs Fix
   - Priority and scope assignments
   - Triage rationale and notes
   - Effort estimates
@@ -213,10 +213,10 @@ Before considering this task finished:
 
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
   - [ ] Bug Tracking document reflects all triage decisions
-  - [ ] Bug status updated from 🆕 Reported to 🔍 Triaged
+  - [ ] Bug status updated from 🆕 Needs Triage to 🔍 Needs Fix
   - [ ] Statistics section is updated with current numbers
   - [ ] All required fields are populated for triaged bugs
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-041" and context "Bug Triage"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-041" and context "Bug Triage"
 
 ## Next Tasks
 
@@ -228,5 +228,5 @@ Before considering this task finished:
 
 - [Bug Tracking State File](../../../doc/state-tracking/permanent/bug-tracking.md) - Central bug registry
 - [Feature Tracking State File](../../../doc/state-tracking/permanent/feature-tracking.md) - Feature priorities and relationships
-- [Task Transition Guide](../../guides/framework/task-transition-guide.md) - Guidance on transitioning between tasks
+- [Task Transition Registry](../../infrastructure/task-transition-registry.md) - Guidance on transitioning between tasks
 - [Task Creation and Improvement Guide](../../guides/support/task-creation-guide.md) - Guide for creating and improving tasks

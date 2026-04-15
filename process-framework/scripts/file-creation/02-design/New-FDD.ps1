@@ -181,11 +181,47 @@ try {
         if (-not $dependencyCheck.AllDependenciesMet) {
             Write-Warning "Automation dependencies not available. Feature tracking must be updated manually."
             Write-Host "Manual Update Required:" -ForegroundColor Yellow
-            Write-Host "  - Update Status: 📊 Assessment Created → 📋 FDD Created" -ForegroundColor Cyan
+            Write-Host "  - Check DB/API Design columns and set next status" -ForegroundColor Cyan
             Write-Host "  - Add FDD link to feature tracking" -ForegroundColor Cyan
         } else {
             # Prepare FDD document link
             $fddLink = "[$documentId](/doc/functional-design/fdds/$customFileName)"
+
+            # Determine next status based on DB/API Design columns
+            $featureTrackingPath = Join-Path (Get-ProjectRoot) "doc/state-tracking/permanent/feature-tracking.md"
+            $ftContent = Get-Content $featureTrackingPath -Raw
+            $featureRow = [regex]::Match($ftContent, "\|[^\r\n]*\b$([regex]::Escape($FeatureId))\b[^\r\n]*\|")
+            $nextStatus = "📝 Needs TDD"  # default fallback
+            if ($featureRow.Success) {
+                $cols = $featureRow.Value -split '\|' | ForEach-Object { $_.Trim() }
+                # Check DB Design and API Design columns for "Yes"
+                $colText = $featureRow.Value
+                if ($colText -match '\|\s*Yes\s*\|.*DB Design' -or ($cols | Where-Object { $_ -eq 'Yes' }).Count -ge 1) {
+                    # Parse columns to find DB Design and API Design values
+                    # Column order varies — search for "Yes" in design columns
+                }
+                # Simpler approach: check if "Yes" appears in DB Design position and API Design position
+                $hasDbDesign = $colText -match 'DB Design'  # header check not useful here
+            }
+            # Read header to find column indices
+            $ftLines = $ftContent -split "`n"
+            $headerLine = $ftLines | Where-Object { $_ -match 'Feature.*Status.*DB Design|DB Design.*API Design' } | Select-Object -First 1
+            if ($headerLine) {
+                $headers = $headerLine -split '\|' | ForEach-Object { $_.Trim() }
+                $dbIdx = [array]::IndexOf($headers, "DB Design")
+                $apiIdx = [array]::IndexOf($headers, "API Design")
+                if ($dbIdx -ge 0 -and $apiIdx -ge 0 -and $featureRow.Success) {
+                    $cols = $featureRow.Value -split '\|' | ForEach-Object { $_.Trim() }
+                    $dbVal = if ($dbIdx -lt $cols.Count) { $cols[$dbIdx] } else { "No" }
+                    $apiVal = if ($apiIdx -lt $cols.Count) { $cols[$apiIdx] } else { "No" }
+                    if ($dbVal -eq "Yes") {
+                        $nextStatus = "🗄️ Needs DB Design"
+                    } elseif ($apiVal -eq "Yes") {
+                        $nextStatus = "🔌 Needs API Design"
+                    }
+                    # else stays "📝 Needs TDD"
+                }
+            }
 
             # Prepare additional updates for feature tracking
             $additionalUpdates = @{
@@ -197,7 +233,7 @@ try {
 
             if ($DryRun) {
                 Write-Host "DRY RUN: Would update feature tracking for $FeatureId" -ForegroundColor Yellow
-                Write-Host "  Status: 📊 Assessment Created → 📋 FDD Created" -ForegroundColor Cyan
+                Write-Host "  Status: 📋 Needs FDD → $nextStatus" -ForegroundColor Cyan
                 Write-Host "  FDD Link: $fddLink" -ForegroundColor Cyan
                 Write-Host "  Notes: $automationNotes" -ForegroundColor Cyan
             } else {
@@ -205,10 +241,10 @@ try {
                 Write-Host "  🔍 Validating prerequisites..." -ForegroundColor Cyan
 
                 # Update feature tracking with FDD completion
-                $updateResult = Update-FeatureTrackingStatus -FeatureId $FeatureId -Status "📋 FDD Created" -AdditionalUpdates $additionalUpdates -Notes $automationNotes
+                $updateResult = Update-FeatureTrackingStatus -FeatureId $FeatureId -Status $nextStatus -AdditionalUpdates $additionalUpdates -Notes $automationNotes
 
                 Write-Host "  ✅ Feature tracking updated successfully" -ForegroundColor Green
-                Write-Host "  📋 Status: 📊 Assessment Created → 📋 FDD Created" -ForegroundColor Green
+                Write-Host "  📋 Status: 📋 Needs FDD → $nextStatus" -ForegroundColor Green
                 Write-Host "  🔗 FDD linked in feature tracking" -ForegroundColor Green
             }
         }
@@ -216,7 +252,7 @@ try {
     catch {
         Write-Warning "Failed to update feature tracking automatically: $($_.Exception.Message)"
         Write-Host "Manual Update Required:" -ForegroundColor Yellow
-        Write-Host "  - Update feature $FeatureId status to '📋 FDD Created'" -ForegroundColor Cyan
+        Write-Host "  - Check DB/API Design columns and set next status (🗄️/🔌/📝)" -ForegroundColor Cyan
         Write-Host "  - Add FDD link: [$documentId](/doc/functional-design/fdds/$customFileName)" -ForegroundColor Cyan
     }
 }

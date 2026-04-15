@@ -693,7 +693,7 @@ class TestUpdateLinksWithinMovedFile:
             "src/file.md", "src/deep/file.md", str(f), backup_enabled=True
         )
 
-        backup_path = Path(str(f) + ".linkwatcher.bak")
+        backup_path = Path(str(f) + ".bak")
         assert backup_path.exists()
 
 

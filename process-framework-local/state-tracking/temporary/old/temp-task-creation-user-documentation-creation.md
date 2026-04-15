@@ -91,7 +91,7 @@ task_name: user-documentation-creation
 
 - [x] **Task Transition Guide**: Added "Transitioning FROM User Documentation Creation" section + updated Code Review transition
   - **Status**: COMPLETED
-  - **File**: process-framework/guides/framework/task-transition-guide.md
+  - **File**: process-framework/infrastructure/task-transition-registry.md
 
 - [x] **Process Framework Task Registry**: Added entry #18 for PF-TSK-081
   - **Status**: COMPLETED

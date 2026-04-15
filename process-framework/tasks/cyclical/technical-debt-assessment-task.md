@@ -203,7 +203,7 @@ Before considering this task finished:
   - [ ] **AUTOMATED**: Individual debt item files (PF-TDI-XXX) updated with registry IDs and marked as "Added" via automation
   - [ ] **MANUAL**: [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) updated with assessment effectiveness metrics
   - [ ] **MANUAL**: [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) updated with debt-related considerations (if applicable)
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-023" and context "Technical Debt Assessment"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-023" and context "Technical Debt Assessment"
 
 ## Next Tasks
 

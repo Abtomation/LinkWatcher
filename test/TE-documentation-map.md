@@ -35,6 +35,18 @@ _Created during test audit sessions (PF-TSK-030)._
 - [Audit: Link Updating 2.2.1](audits/core-features/audit-report-2-2-1-pd-tst-105.md) - Updater test quality assessment
 - [Audit: Logging System 3.1.1](audits/core-features/audit-report-3-1-1-pd-tst-107.md) - Logging test quality assessment
 
+### `audits/performance/`
+
+_Performance test audit reports (PF-TSK-030 with `-TestType Performance`). 4 criteria: Measurement Methodology, Tolerance Appropriateness, Baseline Readiness, Regression Detection Config._
+
+_(No reports yet — directory created for future use)_
+
+### `audits/e2e/`
+
+_E2E acceptance test audit reports (PF-TSK-030 with `-TestType E2E`). 5 criteria: Fixture Correctness, Scenario Completeness, Expected Outcome Accuracy, Reproducibility, Precondition Coverage._
+
+_(No reports yet — directory created for future use)_
+
 ## `e2e-acceptance-testing/` — E2E Acceptance Tests
 
 - [E2E Acceptance Testing README](e2e-acceptance-testing/README.md) - Overview and test execution guide

@@ -131,7 +131,7 @@ Before considering this task finished:
   - [ ] Validation tracking state file updated with report creation date and link
   - [ ] [Product Documentation Map](../../../doc/PD-documentation-map.md) updated with new validation report entry
   - [ ] **AUTOMATED**: [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) updated with new open issues using `Update-TechDebt.ps1`
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-032" and context "Code Quality Standards Validation"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-032" and context "Code Quality Standards Validation"
 
 ## Next Tasks
 

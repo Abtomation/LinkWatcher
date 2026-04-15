@@ -115,7 +115,7 @@ Implement core business logic modules, wire integration points, and write unit t
    - Aim for coverage targets defined in the test specification (if available)
    - After creating or modifying tests, complete the documentation steps in the [Test File Creation Guide — Test Documentation Completeness](/process-framework/guides/03-testing/test-file-creation-guide.md#5-complete-test-documentation) section.
 8. **🚨 CHECKPOINT**: Present implemented modules, test results, and any TDD deviations to human partner for review
-   > **ADR trigger**: If this implementation involved a non-obvious design choice (e.g., choosing between competing patterns, introducing a new architectural pattern, making trade-offs not covered by existing ADRs), recommend creating an ADR via [ADR Creation](../02-design/adr-creation-task.md) (PF-TSK-028) as a follow-up task.
+   > **ADR trigger**: If this implementation involved a non-obvious design choice (e.g., choosing between competing patterns, introducing a new architectural pattern, making trade-offs not covered by existing ADRs), create an ADR using [New-ArchitectureDecision.ps1](/process-framework/scripts/file-creation/02-design/New-ArchitectureDecision.ps1) and the [Architecture Decision Creation Guide](/process-framework/guides/02-design/architecture-decision-creation-guide.md).
 
 ### Finalization
 
@@ -140,8 +140,8 @@ Implement core business logic modules, wire integration points, and write unit t
     ```
 
     - Follow [Bug Reporting Guide](../../guides/06-maintenance/bug-reporting-guide.md) for consistent documentation
-    - Add bug entries to [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) with status 🆕 Reported
-11. **Update Feature Tracking**: Update [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) status to 🧪 Testing (feature is implemented and undergoing testing)
+    - Add bug entries to [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) with status 🆕 Needs Triage
+11. **Update Feature Tracking**: Update [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) status to 👀 Needs Review (feature is implemented and undergoing testing)
 12. **Update Feature Implementation State**: Document completed work
     - Update code inventory with new modules and test files
     - Note any deviations from TDD/FDD specifications
@@ -175,7 +175,7 @@ The following state files must be updated as part of this task:
   - Code inventory with new source modules and test files
   - Implementation notes documenting any TDD/FDD deviations or design decisions
   - Issues log if any blockers or problems were encountered
-- [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Update Implementation Status to 🧪 Testing (feature is implemented and undergoing testing)
+- [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Update Implementation Status to 👀 Needs Review (feature is implemented and undergoing testing)
 - [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) - Add entries for any bugs discovered but not fixed in this session
 
 ## ⚠️ MANDATORY Task Completion Checklist
@@ -191,14 +191,14 @@ Before considering this task finished:
   - [ ] Existing test suite passes (no regressions)
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
   - [ ] Feature Implementation State file updated with code inventory and task completion
-  - [ ] [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) status set to 🧪 Testing
+  - [ ] [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) status set to 👀 Needs Review
   - [ ] Implementation notes document any deviations from design specifications
   - [ ] Test tracking files automatically updated by `New-TestFile.ps1` (verify correctness)
   - [ ] Run [`Validate-TestTracking.ps1`](../../scripts/validation/Validate-TestTracking.ps1) — 0 errors (if tests were added or modified)
 - [ ] **Bug Documentation**: Any bugs discovered but not fixed are documented
   - [ ] Bug reports created via `New-BugReport.ps1` (if applicable)
-  - [ ] [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) updated with 🆕 Reported entries (if applicable)
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-078" and context "Core Logic Implementation"
+  - [ ] [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) updated with 🆕 Needs Triage entries (if applicable)
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-078" and context "Core Logic Implementation"
 
 ## Next Tasks
 
@@ -213,4 +213,4 @@ Before considering this task finished:
 - [Foundation Feature Implementation](foundation-feature-implementation-task.md) (PF-TSK-022) - Alternative for 0.x.x architectural foundation features
 - [Development Guide](../../guides/04-implementation/development-guide.md) - Coding best practices
 - [Definition of Done](../../guides/04-implementation/definition-of-done.md) - Completion criteria
-- [Task Transition Guide](../../guides/framework/task-transition-guide.md) - Guidance on transitioning between decomposed tasks
+- [Task Transition Registry](../../infrastructure/task-transition-registry.md) - Guidance on transitioning between decomposed tasks

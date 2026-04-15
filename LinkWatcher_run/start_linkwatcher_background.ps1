@@ -1,8 +1,5 @@
 # LinkWatcher Background Starter for this project
 
-[CmdletBinding()]
-param()
-
 # Resolve project root from project-config.json
 $scriptDir = if ($PSScriptRoot) { $PSScriptRoot } else { (Get-Location).Path }
 $configPath = Join-Path $scriptDir "..\doc\project-config.json"

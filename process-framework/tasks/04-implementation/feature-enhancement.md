@@ -24,7 +24,7 @@ This task executes enhancement work on existing features by following the Enhanc
 ## When to Use
 
 - When the Feature Request Evaluation task has produced an Enhancement State Tracking File for an enhancement
-- When the target feature's status in feature tracking shows "🔄 Needs Revision" with a link to the Enhancement State Tracking File
+- When the target feature's status in feature tracking shows "🔄 Needs Enhancement" with a link to the Enhancement State Tracking File
 - When continuing a multi-session enhancement where the state file shows remaining incomplete steps
 
 ## Context Requirements
@@ -61,7 +61,7 @@ This task executes enhancement work on existing features by following the Enhanc
 ### Phase 1: Preparation
 
 1. **Read the Enhancement State Tracking File** — Understand the full scope of work: target feature, documentation inventory, sequenced steps, session boundary planning, and **Dimension Impact Assessment** (inherited dimensions and any adjustments for this enhancement)
-2. **Verify prerequisites** — Confirm the state file was created by Feature Request Evaluation and the target feature shows "🔄 Needs Revision" in feature tracking
+2. **Verify prerequisites** — Confirm the state file was created by Feature Request Evaluation and the target feature shows "🔄 Needs Enhancement" in feature tracking
 3. **Check manual test coverage** — Review [test-tracking.md](../../../test/state-tracking/permanent/test-tracking.md) for manual test cases covering the affected feature. Note which test groups will need re-execution after the enhancement, and whether new manual test cases should be created.
 4. **Review session plan** — For multi-session enhancements, identify which steps are planned for this session
 4. **🚨 CHECKPOINT**: Present enhancement scope, session plan, and state file overview to human partner for approval before executing steps
@@ -117,7 +117,7 @@ This task executes enhancement work on existing features by following the Enhanc
 - **Updated tests** — New or modified tests covering the enhancement
 - **Updated design documentation** — Amended FDD, TDD, and/or ADR as scoped in the state file
 - **Updated feature implementation state file** — Target feature's state reflects the enhancement
-- **Restored feature tracking status** — Target feature status restored from "🔄 Needs Revision" to appropriate status, state file link removed
+- **Restored feature tracking status** — Target feature status restored from "🔄 Needs Enhancement" to appropriate status, state file link removed
 - **Archived Enhancement State Tracking File** — Completed state file moved to `doc/state-tracking/temporary/old`
 
 ## State Tracking
@@ -125,7 +125,7 @@ This task executes enhancement work on existing features by following the Enhanc
 The following state files must be updated as part of this task:
 
 - **Enhancement State Tracking File** (`doc/state-tracking/temporary`) — Mark each step complete as work progresses; archive to `temporary/old/` on completion
-- [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) — Restore target feature status on completion (remove "🔄 Needs Revision" and state file link)
+- [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) — Restore target feature status on completion (remove "🔄 Needs Enhancement" and state file link)
 - **Target feature's implementation state file** (`state-tracking/features/X.Y.Z-*.md`) — Update to reflect the enhancement work
 
 ## MANDATORY Task Completion Checklist
@@ -149,10 +149,10 @@ Before considering this task finished:
 
 - [ ] **Verify State Files Updated**:
   - [ ] Target feature's implementation state file updated to reflect the enhancement
-  - [ ] Feature tracking status restored (removed "🔄 Needs Revision", set appropriate status, removed state file link)
+  - [ ] Feature tracking status restored (removed "🔄 Needs Enhancement", set appropriate status, removed state file link)
   - [ ] Enhancement State Tracking File archived to `doc/state-tracking/temporary/old`
 
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-068" and context "Feature Enhancement"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-068" and context "Feature Enhancement"
 
 ## Next Tasks
 

@@ -150,7 +150,7 @@ Before considering this task finished:
   - [ ] Security vulnerabilities addressed or documented for remediation
   - [ ] Accessibility compliance meets project standards
   - [ ] Business acceptance criteria validated successfully
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-054" and context "Quality Validation"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-054" and context "Quality Validation"
 
 ## Next Tasks
 

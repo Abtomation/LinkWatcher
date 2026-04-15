@@ -1,7 +1,8 @@
 ﻿# New-TestAuditReport.ps1
 # Creates a new Test Audit Report with an automatically assigned ID
 # Uses the central ID registry system and standardized document creation
-# Updates test-tracking.md: appends audit report link in Notes column for the target test file
+# Supports three test types: Automated (default), Performance, E2E
+# Updates the appropriate tracking file with audit report link
 # SC-007: Uses file path as test file identifier (not TE-TST/PD-TST IDs)
 
 <#
@@ -11,9 +12,12 @@
 .DESCRIPTION
     This PowerShell script generates Test Audit Report documents by:
     - Generating a unique document ID (TE-TAR-XXX)
-    - Creating a properly formatted audit report file
+    - Creating a properly formatted audit report file using the type-specific template
     - Updating the ID tracker in the central ID registry
-    - Updating test-tracking.md: appends audit report link in Notes column for the target test file
+    - Updating the appropriate tracking file:
+      - Automated: test-tracking.md (Notes column)
+      - Performance: performance-test-tracking.md (Audit Status + Audit Report columns)
+      - E2E: e2e-test-tracking.md (Audit Status + Audit Report columns)
     - Providing a complete template for test quality assessment
 
 .PARAMETER FeatureId
@@ -25,10 +29,16 @@
 .PARAMETER AuditorName
     Name of the auditor conducting the assessment (default: "AI Agent")
 
+.PARAMETER TestType
+    The type of test being audited. Determines template and tracking file routing.
+    - "Automated" (default): Unit/integration tests → test-tracking.md, 6 criteria
+    - "Performance": Performance benchmarks/scale tests → performance-test-tracking.md, 4 criteria
+    - "E2E": E2E acceptance tests → e2e-test-tracking.md, 5 criteria
+
 .PARAMETER Lightweight
     If specified, uses the lightweight template for Tests Approved outcomes.
-    Only use when ALL six evaluation criteria pass with no findings to report.
-    Any other audit status (Approved with Dependencies, Needs Update, Tests Incomplete) must use the full template.
+    Only applies to Automated test type (Performance and E2E have no lightweight variant).
+    Only use when ALL evaluation criteria pass with no findings to report.
 
 .PARAMETER Force
     If specified, overwrites an existing audit report file instead of blocking.
@@ -41,7 +51,10 @@
     New-TestAuditReport.ps1 -FeatureId "0.2.3" -TestFilePath "test/automated/unit/test_service.py" -AuditorName "AI Agent"
 
 .EXAMPLE
-    New-TestAuditReport.ps1 -FeatureId "1.1.2" -TestFilePath "test/automated/integration/test_auth.py" -AuditorName "QA Engineer" -OpenInEditor
+    New-TestAuditReport.ps1 -TestType Performance -FeatureId "2.1.1" -TestFilePath "test/automated/performance/test_benchmark.py" -AuditorName "AI Agent"
+
+.EXAMPLE
+    New-TestAuditReport.ps1 -TestType E2E -FeatureId "1.1.1" -TestFilePath "test/e2e-acceptance-testing/templates/powershell-regex-preservation/TE-E2E-001-regex-preserved-on-file-move/test-case.md"
 
 .EXAMPLE
     New-TestAuditReport.ps1 -FeatureId "0.1.1" -TestFilePath "test/automated/unit/test_service.py" -Lightweight
@@ -61,12 +74,16 @@
     Script Metadata:
     - Script Type: Document Creation Script
     - Created: 2025-08-07
-    - Updated: 2026-04-03 (IMP-333: add -Force flag for re-audits; IMP-231: fix filename mismatch + Notes column; IMP-240: lightweight template variant)
+    - Updated: 2026-04-13 (IMP-495: add -TestType param for Performance/E2E audit support with type-specific templates and tracking file routing)
     - For: Creating Test Audit Report documents from templates
 #>
 
 [CmdletBinding(SupportsShouldProcess = $true)]
 param(
+    [Parameter(Mandatory = $false)]
+    [ValidateSet("Automated", "Performance", "E2E")]
+    [string]$TestType = "Automated",
+
     [Parameter(Mandatory = $true)]
     [string]$FeatureId,
 
@@ -96,12 +113,24 @@ Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 # Perform standard initialization
 Invoke-StandardScriptInitialization
 
-# Determine feature category based on feature ID
-$featureCategory = switch -Regex ($FeatureId) {
-    '^0\.' { "foundation" }
-    '^1\.' { "authentication" }
-    '^[2-9]\.' { "core-features" }
-    default { "foundation" }
+# Validate -Lightweight is only used with Automated test type
+if ($Lightweight -and $TestType -ne "Automated") {
+    Write-ProjectError -Message "-Lightweight is only supported for Automated test type (not $TestType)" -ExitCode 1
+}
+
+# Determine output directory and feature category based on TestType
+$featureCategory = switch ($TestType) {
+    "Performance" { "performance" }
+    "E2E" { "e2e" }
+    default {
+        # Automated: route by feature ID prefix
+        switch -Regex ($FeatureId) {
+            '^0\.' { "foundation" }
+            '^1\.' { "authentication" }
+            '^[2-9]\.' { "core-features" }
+            default { "foundation" }
+        }
+    }
 }
 
 # Derive a short name from the test file path for document naming
@@ -134,7 +163,11 @@ try {
         return
     }
 
-    $templateFile = if ($Lightweight) { "test-audit-report-lightweight-template.md" } else { "test-audit-report-template.md" }
+    $templateFile = switch ($TestType) {
+        "Performance" { "performance-test-audit-report-template.md" }
+        "E2E" { "e2e-test-audit-report-template.md" }
+        default { if ($Lightweight) { "test-audit-report-lightweight-template.md" } else { "test-audit-report-template.md" } }
+    }
     $conflictAction = if ($Force) { "Overwrite" } else { "Error" }
     $documentId = New-StandardProjectDocument -TemplatePath "process-framework/templates/03-testing/$templateFile" -IdPrefix "TE-TAR" -IdDescription "Test Audit Report for Feature $FeatureId" -DocumentName $docName -DirectoryType $featureCategory -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -ConflictAction $conflictAction -OpenInEditor:$OpenInEditor
 
@@ -142,80 +175,159 @@ try {
     $projectRoot = Get-ProjectRoot
     $stateUpdates = @()
 
-    # 1. Update test-tracking.md: link audit report for the test file (SC-007: match by file path, not ID)
-    $testTrackingPath = Join-Path $projectRoot "test/state-tracking/permanent/test-tracking.md"
-    if (Test-Path $testTrackingPath) {
-        $trackingContent = Get-Content $testTrackingPath -Raw -Encoding UTF8
+    # Build the audit report link (relative from tracking file to audit report)
+    $auditFileName = "$(ConvertTo-KebabCase -InputString $docName).md"
 
-        # Build relative path from test-tracking.md to the audit report
-        # Use kebab-case to match the actual filename created by New-StandardProjectDocument
-        $auditFileName = "$(ConvertTo-KebabCase -InputString $docName).md"
+    # Route state file updates based on TestType
+    if ($TestType -eq "Automated") {
+        # --- Automated: Update test-tracking.md Notes column (SC-007: match by file path, not ID) ---
+        $testTrackingPath = Join-Path $projectRoot "test/state-tracking/permanent/test-tracking.md"
         $auditRelativePath = "../../audits/$featureCategory/$auditFileName"
         $auditLink = "[$documentId]($auditRelativePath)"
 
-        # Find the row matching the test file name and append audit link to Notes column
-        # Uses header-based column lookup (same pattern as Update-MarkdownTable) for safety
-        $lines = $trackingContent -split '\r?\n'
-        $updatedLines = @()
-        $rowUpdated = $false
-        $columnIndices = @{}
+        if (Test-Path $testTrackingPath) {
+            $trackingContent = Get-Content $testTrackingPath -Raw -Encoding UTF8
 
-        foreach ($line in $lines) {
-            # Parse table headers to find column indices by name
-            if (-not $rowUpdated -and $line -match '^\|.*\|$' -and $columnIndices.Count -eq 0 -and $line -notmatch '^\|[-\s:]+\|$') {
-                $rawHeaders = $line -split '\|'
-                if ($rawHeaders.Count -gt 2) { $rawHeaders = $rawHeaders[1..($rawHeaders.Count-2)] }
-                $headers = $rawHeaders | ForEach-Object { $_.Trim() }
-                for ($j = 0; $j -lt $headers.Count; $j++) {
-                    if ($headers[$j] -ne '') { $columnIndices[$headers[$j]] = $j }
+            # Find the row matching the test file name and append audit link to Notes column
+            # Uses header-based column lookup (same pattern as Update-MarkdownTable) for safety
+            $lines = $trackingContent -split '\r?\n'
+            $updatedLines = @()
+            $rowUpdated = $false
+            $columnIndices = @{}
+
+            foreach ($line in $lines) {
+                # Parse table headers to find column indices by name
+                if (-not $rowUpdated -and $line -match '^\|.*\|$' -and $columnIndices.Count -eq 0 -and $line -notmatch '^\|[-\s:]+\|$') {
+                    $rawHeaders = $line -split '\|'
+                    if ($rawHeaders.Count -gt 2) { $rawHeaders = $rawHeaders[1..($rawHeaders.Count-2)] }
+                    $headers = $rawHeaders | ForEach-Object { $_.Trim() }
+                    for ($j = 0; $j -lt $headers.Count; $j++) {
+                        if ($headers[$j] -ne '') { $columnIndices[$headers[$j]] = $j }
+                    }
+                    # Reset on each new table header (test-tracking has multiple tables)
+                    if (-not $columnIndices.ContainsKey("Test File/Case") -or -not $columnIndices.ContainsKey("Notes")) {
+                        $columnIndices = @{}
+                    }
                 }
-                # Reset on each new table header (test-tracking has multiple tables)
-                if (-not $columnIndices.ContainsKey("Test File/Case") -or -not $columnIndices.ContainsKey("Notes")) {
+                # Reset column indices when leaving a table (new section)
+                elseif ($line -match '^#' -and $columnIndices.Count -gt 0) {
                     $columnIndices = @{}
                 }
-            }
-            # Reset column indices when leaving a table (new section)
-            elseif ($line -match '^#' -and $columnIndices.Count -gt 0) {
-                $columnIndices = @{}
-            }
 
-            if (-not $rowUpdated -and $columnIndices.Count -gt 0 -and $line -match "^\|.*$([regex]::Escape($testFileName)).*\|") {
-                $rawCols = $line -split '\|'
-                if ($rawCols.Count -gt 2) { $rawCols = $rawCols[1..($rawCols.Count-2)] }
-                $cols = $rawCols | ForEach-Object { $_.Trim() }
+                if (-not $rowUpdated -and $columnIndices.Count -gt 0 -and $line -match "^\|.*$([regex]::Escape($testFileName)).*\|") {
+                    $rawCols = $line -split '\|'
+                    if ($rawCols.Count -gt 2) { $rawCols = $rawCols[1..($rawCols.Count-2)] }
+                    $cols = $rawCols | ForEach-Object { $_.Trim() }
 
-                # Validate column exists and append audit link to Notes
-                $notesIdx = $columnIndices["Notes"]
-                if ($notesIdx -lt $cols.Count) {
-                    $existingNotes = $cols[$notesIdx]
-                    if ($existingNotes -and $existingNotes -ne "-" -and $existingNotes -ne "") {
-                        $cols[$notesIdx] = "$existingNotes; Audit: $auditLink"
-                    } else {
-                        $cols[$notesIdx] = "Audit: $auditLink"
+                    # Validate column exists and append audit link to Notes
+                    $notesIdx = $columnIndices["Notes"]
+                    if ($notesIdx -lt $cols.Count) {
+                        $existingNotes = $cols[$notesIdx]
+                        if ($existingNotes -and $existingNotes -ne "-" -and $existingNotes -ne "") {
+                            $cols[$notesIdx] = "$existingNotes; Audit: $auditLink"
+                        } else {
+                            $cols[$notesIdx] = "Audit: $auditLink"
+                        }
+                        $line = "| " + ($cols -join " | ") + " |"
+                        $rowUpdated = $true
                     }
-                    $line = "| " + ($cols -join " | ") + " |"
-                    $rowUpdated = $true
                 }
+                $updatedLines += $line
             }
-            $updatedLines += $line
-        }
 
-        if ($rowUpdated) {
-            $updatedContent = $updatedLines -join "`n"
-            if ($PSCmdlet.ShouldProcess($testTrackingPath, "Update test-tracking.md: append audit report link in Notes for $testFileName")) {
-                Set-Content $testTrackingPath $updatedContent -Encoding UTF8
-                $stateUpdates += "test-tracking.md: $testFileName Notes ← $documentId"
+            if ($rowUpdated) {
+                $updatedContent = $updatedLines -join "`n"
+                if ($PSCmdlet.ShouldProcess($testTrackingPath, "Update test-tracking.md: append audit report link in Notes for $testFileName")) {
+                    Set-Content $testTrackingPath $updatedContent -Encoding UTF8
+                    $stateUpdates += "test-tracking.md: $testFileName Notes ← $documentId"
+                }
+            } else {
+                Write-Warning "Could not find $testFileName in test-tracking.md (or table missing Test File/Case / Notes columns) — manual update needed"
             }
         } else {
-            Write-Warning "Could not find $testFileName in test-tracking.md (or table missing Test File/Case / Notes columns) — manual update needed"
+            Write-Warning "Test tracking file not found: $testTrackingPath"
         }
-    } else {
-        Write-Warning "Test tracking file not found: $testTrackingPath"
+    }
+    else {
+        # --- Performance / E2E: Update Audit Status and Audit Report columns in dedicated tracking file ---
+        $trackingRelPath = switch ($TestType) {
+            "Performance" { "test/state-tracking/permanent/performance-test-tracking.md" }
+            "E2E" { "test/state-tracking/permanent/e2e-test-tracking.md" }
+        }
+        $trackingFilePath = Join-Path $projectRoot $trackingRelPath
+        $auditRelativePath = "../../audits/$featureCategory/$auditFileName"
+        $auditLink = "[$documentId]($auditRelativePath)"
+
+        if (Test-Path $trackingFilePath) {
+            $trackingContent = Get-Content $trackingFilePath -Raw -Encoding UTF8
+
+            # Find the row matching the test file name and update Audit Status + Audit Report columns
+            $lines = $trackingContent -split '\r?\n'
+            $updatedLines = @()
+            $rowUpdated = $false
+            $columnIndices = @{}
+
+            foreach ($line in $lines) {
+                # Parse table headers to find column indices by name
+                if (-not $rowUpdated -and $line -match '^\|.*\|$' -and $columnIndices.Count -eq 0 -and $line -notmatch '^\|[-\s:]+\|$') {
+                    $rawHeaders = $line -split '\|'
+                    if ($rawHeaders.Count -gt 2) { $rawHeaders = $rawHeaders[1..($rawHeaders.Count-2)] }
+                    $headers = $rawHeaders | ForEach-Object { $_.Trim() }
+                    for ($j = 0; $j -lt $headers.Count; $j++) {
+                        if ($headers[$j] -ne '') { $columnIndices[$headers[$j]] = $j }
+                    }
+                    # Require both audit columns exist in this table
+                    if (-not $columnIndices.ContainsKey("Audit Status") -or -not $columnIndices.ContainsKey("Audit Report")) {
+                        $columnIndices = @{}
+                    }
+                }
+                # Reset column indices when leaving a table (new section)
+                elseif ($line -match '^#' -and $columnIndices.Count -gt 0) {
+                    $columnIndices = @{}
+                }
+
+                if (-not $rowUpdated -and $columnIndices.Count -gt 0 -and $line -match "^\|.*$([regex]::Escape($testFileName)).*\|") {
+                    $rawCols = $line -split '\|'
+                    if ($rawCols.Count -gt 2) { $rawCols = $rawCols[1..($rawCols.Count-2)] }
+                    $cols = $rawCols | ForEach-Object { $_.Trim() }
+
+                    # Update Audit Status to "🔍 Audit In Progress" and Audit Report to the link
+                    $auditStatusIdx = $columnIndices["Audit Status"]
+                    $auditReportIdx = $columnIndices["Audit Report"]
+                    if ($auditStatusIdx -lt $cols.Count -and $auditReportIdx -lt $cols.Count) {
+                        $cols[$auditStatusIdx] = "🔍 Audit In Progress"
+                        $cols[$auditReportIdx] = $auditLink
+                        $line = "| " + ($cols -join " | ") + " |"
+                        $rowUpdated = $true
+                    }
+                }
+                $updatedLines += $line
+            }
+
+            if ($rowUpdated) {
+                $updatedContent = $updatedLines -join "`n"
+                $trackingFileName = Split-Path $trackingFilePath -Leaf
+                if ($PSCmdlet.ShouldProcess($trackingFilePath, "Update $trackingFileName: set Audit Status/Report for $testFileName")) {
+                    Set-Content $trackingFilePath $updatedContent -Encoding UTF8
+                    $stateUpdates += "$trackingFileName`: $testFileName Audit ← $documentId"
+                }
+            } else {
+                $trackingFileName = Split-Path $trackingFilePath -Leaf
+                Write-Warning "Could not find $testFileName in $trackingFileName (or table missing Audit Status / Audit Report columns) — manual update needed"
+            }
+        } else {
+            Write-Warning "Tracking file not found: $trackingFilePath"
+        }
     }
 
     # Provide success details
-    $variantLabel = if ($Lightweight) { "Lightweight" } else { "Standard" }
+    $variantLabel = switch ($TestType) {
+        "Performance" { "Performance (4 criteria)" }
+        "E2E" { "E2E (5 criteria)" }
+        default { if ($Lightweight) { "Automated Lightweight" } else { "Automated Standard (6 criteria)" } }
+    }
     $details = @(
+        "Test Type: $TestType",
         "Feature ID: $FeatureId",
         "Test File: $TestFilePath",
         "Auditor: $AuditorName",

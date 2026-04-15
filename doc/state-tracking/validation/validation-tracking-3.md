@@ -43,7 +43,7 @@ This file tracks the progress and results of **Validation Round 3** — a compre
 | 2.1.1 | Link Parsing System | Completed | P1 | WF-001, WF-002, WF-003, WF-005 | markdown.py: +564, powershell.py: +221, python.py: +108, json: +92, yaml: +78 |
 | 2.2.1 | Link Updating | Completed | P1 | WF-001, WF-002, WF-004, WF-005, WF-007, WF-008 | updater.py: +241 lines |
 | 3.1.1 | Logging System | Completed | P1 | WF-003, WF-006, WF-007 | logging.py: +123, logging_config.py: -301 (refactored) |
-| 6.1.1 | Link Validation | Needs Revision | P2 | — | validator.py: +394 lines major enhancements |
+| 6.1.1 | Link Validation | Needs Enhancement | P2 | — | validator.py: +394 lines major enhancements |
 
 ## Dimension Applicability Matrix
 

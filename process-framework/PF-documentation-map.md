@@ -42,11 +42,11 @@ Our tasks are organized to mirror the `tasks` directory structure:
 - [Task: Integration Narrative Creation](tasks/02-design/integration-narrative-creation.md) - Create Integration Narratives explaining how 2+ features collaborate in cross-cutting workflows
 - [Task: FDD Creation](tasks/02-design/fdd-creation-task.md) - Create Functional Design Documents for Tier 2+ features
 - [Task: TDD Creation](tasks/02-design/tdd-creation-task.md) - Create Technical Design Documents
-- [Task: ADR Creation](tasks/02-design/adr-creation-task.md) - Document significant architectural decisions with context, alternatives, and consequences
 - [Task: API Design](tasks/02-design/api-design-task.md) - Design comprehensive API contracts and specifications before implementation begins
 - [Task: Database Schema Design](tasks/02-design/database-schema-design-task.md) - Plan data model changes before coding to prevent data integrity issues
 
 #### 03 - Testing Tasks
+- [Task: Performance and E2E Test Scoping](tasks/03-testing/performance-and-e2e-test-scoping-task.md) - Identify per-feature performance and E2E test needs after code review
 
 - [Task: Performance Test Creation](tasks/03-testing/performance-test-creation-task.md) - Implement performance tests from specifications, register in tracking, capture initial measurements
 - [Task: Performance Baseline Capture](tasks/03-testing/performance-baseline-capture-task.md) - Run performance tests, record results in trend database, update tracking, flag regressions
@@ -115,8 +115,9 @@ Our tasks are organized to mirror the `tasks` directory structure:
 
 ### Infrastructure
 
-- [Infrastructure: Process Framework Task Registry](infrastructure/process-framework-task-registry.md) - Comprehensive catalog of all tasks with automation status, script locations, and file update patterns
-- [Infrastructure: Task Trigger & Output Traceability](infrastructure/task-trigger-output-traceability.md) - Maps every task to its trigger condition (state file status), output traceability (state updates), and self-documentation assessment
+- [Infrastructure: Process Framework Task Registry](infrastructure/process-framework-task-registry.md) - Comprehensive catalog of all tasks with automation status, script locations, file update patterns, trigger/output chains (`🔗 TRIGGER & OUTPUT` blocks), State File Trigger Index, and trigger chain diagrams
+- [Infrastructure: Task Transition Registry](infrastructure/task-transition-registry.md) - Per-task transition procedures: prerequisites, handover artifacts, and next-task routing (moved from guides/framework/task-transition-guide.md; Information Flow content extracted to PF-GDE-062)
+- ~~Infrastructure: Task Trigger & Output Traceability~~ — **MERGED** into [Process Framework Task Registry](infrastructure/process-framework-task-registry.md) (2026-04-12)
 
 ### Core Process Documents
 
@@ -166,6 +167,8 @@ Our tasks are organized to mirror the `tasks` directory structure:
 - [Template: Cross-Cutting Test Specification](templates/03-testing/cross-cutting-test-specification-template.md) - Template for test specifications spanning multiple features
 - [Template: Test Audit Report](templates/03-testing/test-audit-report-template.md) - Template for systematic test quality assessment reports
 - [Template: Test Audit Report Lightweight](templates/03-testing/test-audit-report-lightweight-template.md) - Lightweight template for test audit reports
+- [Template: Performance Test Audit Report](templates/03-testing/performance-test-audit-report-template.md) - Template for performance test audit reports with 4 criteria: Measurement Methodology, Tolerance Appropriateness, Baseline Readiness, Regression Detection Config
+- [Template: E2E Test Audit Report](templates/03-testing/e2e-test-audit-report-template.md) - Template for E2E acceptance test audit reports with 5 criteria: Fixture Correctness, Scenario Completeness, Expected Outcome Accuracy, Reproducibility, Precondition Coverage
 - [Template: Test File](templates/03-testing/test-file-template.py.template) - Python test file template with pytest markers
 - [Template: E2E Acceptance Master Test](templates/03-testing/e2e-acceptance-master-test-template.md) - Template for group-level master test files with quick validation sequences
 - [Template: E2E Acceptance Test Case](templates/03-testing/e2e-acceptance-test-case-template.md) - Template for individual E2E acceptance test case files with exact steps, preconditions, and expected outcomes
@@ -174,6 +177,8 @@ Our tasks are organized to mirror the `tasks` directory structure:
 - [Template: TE ID Registry](templates/03-testing/TE-id-registry-template.json) - Template for bootstrapping empty TE-id-registry.json in new projects, used by New-TestInfrastructure.ps1
 - [Template: Audit Tracking](templates/03-testing/audit-tracking-template.md) - Template for multi-session test audit round tracking state files, used by New-AuditTracking.ps1
 - [Template: Performance Test Specification](templates/03-testing/performance-test-specification-template.md) - Template for performance test specifications with level-specific criteria, baseline references, and measurement methodology
+- [Template: Performance Test Audit Report](templates/03-testing/performance-test-audit-report-template.md) - Template for performance test audit reports with 4 criteria: Measurement Methodology, Tolerance Appropriateness, Baseline Readiness, Regression Detection Config
+- [Template: E2E Test Audit Report](templates/03-testing/e2e-test-audit-report-template.md) - Template for E2E acceptance test audit reports with 5 criteria: Fixture Correctness, Scenario Completeness, Expected Outcome Accuracy, Reproducibility, Precondition Coverage
 
 #### 04 - Implementation Templates
 
@@ -219,10 +224,13 @@ Our tasks are organized to mirror the `tasks` directory structure:
 - [Template: Feedback DB Input](templates/support/feedback-db-input-template.json) - JSON reference template for `feedback_db.py record --json` input format
 - [Template: Language Config](templates/support/language-config-template.json) - JSON template for adding new language configurations to languages-config/
 - [Template: Tools Review Summary](templates/support/tools-review-summary-template.md) - Standardized template for Tools Review task (PF-TSK-010) summary output documents
-- [Template: Framework Extension Concept](templates/support/framework-extension-concept-template.md) - Template for creating framework extension concept documents
+- [Template: Framework Extension Concept](templates/support/framework-extension-concept-template.md) - Template for creating framework extension concept documents (Hybrid type; also used as base)
+- [Template: Framework Extension Concept Creation](templates/support/framework-extension-concept-creation-template.md) - Creation-type template for extensions that add entirely new artifacts
+- [Template: Framework Extension Concept Modification](templates/support/framework-extension-concept-modification-template.md) - Modification-type template for extensions that modify existing artifacts
 - [Template: Structure Change State](templates/support/structure-change-state-template.md) - Template for tracking multi-session structure change implementation
 - [Template: Structure Change State Content Update](templates/support/structure-change-state-content-update-template.md) - Lightweight template for content-only structure changes (no pilot/rollback/metrics sections)
 - [Template: Structure Change State From-Proposal](templates/support/structure-change-state-from-proposal-template.md) - Lightweight execution-tracking template for proposal-backed structure changes (phase checklist + session log only)
+- [Template: Structure Change State Framework Extension](templates/support/structure-change-state-framework-extension-template.md) - Lightweight template for framework extension structure changes (artifact tracking, no pilot/rollback/metrics)
 - [Template: Structure Change State Rename](templates/support/structure-change-state-rename-template.md) - Template for rename-focused structure changes
 - [Template: Structure Change Proposal](templates/support/structure-change-proposal-template.md) - Template for structure change proposals
 - [Template: Temporary Task Creation State](templates/support/temp-task-creation-state-template.md) - Template for tracking multi-session task creation implementation
@@ -236,9 +244,12 @@ Our tasks are organized to mirror the `tasks` directory structure:
 
 - [Process: New Feature Request Script](scripts/file-creation/01-planning/New-FeatureRequest.ps1) - PowerShell script for adding product feature requests to feature-request-tracking.md with auto-assigned PD-FRQ IDs
 - [Process: New E2E Acceptance Test Case Script](scripts/file-creation/03-testing/New-E2EAcceptanceTestCase.ps1) - PowerShell script for creating E2E acceptance test case directories with auto-assigned E2E IDs, state tracking updates, and master test integration
+- [Process: New Performance Test Entry Script](scripts/file-creation/03-testing/New-PerformanceTestEntry.ps1) - PowerShell script for adding performance test entries to performance-test-tracking.md with auto-assigned test IDs (BM-xxx/PH-xxx via TE-id-registry), level-section insertion, and summary updates (PF-TSK-086)
+- [Process: New Workflow Entry Script](scripts/file-creation/03-testing/New-WorkflowEntry.ps1) - PowerShell script for adding user workflow entries to user-workflow-tracking.md with auto-assigned WF-xxx IDs (via PD-id-registry), table row + details section (PF-TSK-086)
+- [Process: New E2E Milestone Entry Script](scripts/file-creation/03-testing/New-E2EMilestoneEntry.ps1) - PowerShell script for adding workflow milestone entries to e2e-test-tracking.md Workflow Milestone Tracking table, validates WF-xxx exists, counts ready features (PF-TSK-086)
 - [Process: New Bug Report Script](scripts/file-creation/06-maintenance/New-BugReport.ps1) - PowerShell script for creating standardized bug reports during task execution
 - [Process: New Bug Fix State Script](scripts/file-creation/06-maintenance/New-BugFixState.ps1) - PowerShell script for creating multi-session bug fix state tracking files (Large-effort bugs)
-- [Process: New Handbook Script](scripts/file-creation/07-deployment/New-Handbook.ps1) - PowerShell script for creating user handbook documents with auto-assigned PD-UGD IDs
+- [Process: New Handbook Script](scripts/file-creation/07-deployment/New-Handbook.ps1) - PowerShell script for creating user handbook documents with auto-assigned PD-UGD IDs, auto-updates PD-documentation-map.md (PF-IMP-541)
 - [Process: New UI Design Script](scripts/file-creation/02-design/New-UIDesign.ps1) - PowerShell script for creating UI/UX Design documents with auto-assigned IDs and Design Guidelines references
 - [Process: New Test Specification Script](scripts/file-creation/03-testing/New-TestSpecification.ps1) - PowerShell script for creating test specifications (supports both feature-specific and cross-cutting modes via -CrossCutting switch)
 - [Process: New Process Improvement Script](scripts/file-creation/support/New-ProcessImprovement.ps1) - PowerShell script for adding new improvement opportunities to process-improvement-tracking.md with auto-assigned PF-IMP IDs (supports -BatchFile for bulk JSON input)
@@ -274,6 +285,7 @@ Our tasks are organized to mirror the `tasks` directory structure:
 - [Process: Update Feature Dependencies Script](scripts/update/Update-FeatureDependencies.ps1) - Auto-generates feature-dependencies.md from feature state files (Mermaid graph + priority matrix). Integrated into Validate-StateTracking.ps1 Surface 6
 - [Process: Update User Documentation State Script](scripts/update/Update-UserDocumentationState.ps1) - Automates PF-TSK-081 finalization: appends handbook row to feature state file Documentation Inventory and adds entry to documentation-map.md User Handbooks section
 - [Process: Update Retrospective Master State Script](scripts/update/Update-RetrospectiveMasterState.ps1) - Atomic updates to retrospective master state Feature Inventory (claim/complete features, recalculate Progress Overview counters) for parallel session coordination during PF-TSK-065/PF-TSK-066
+- [Process: Update Performance Tracking Script](scripts/update/Update-PerformanceTracking.ps1) - Automates performance test lifecycle management: status transitions (⬜→📋→✅→⚠️), column updates (Baseline, Last Result, Test File), and summary recalculation in performance-test-tracking.md (PF-TSK-084, PF-TSK-085)
 
 ### Validation Scripts
 
@@ -320,6 +332,7 @@ Our tasks are organized to mirror the `tasks` directory structure:
 - [Guide: Integration & Testing Usage](guides/03-testing/integration-and-testing-usage-guide.md) - Comprehensive guide for using the Integration & Testing task (PF-TSK-053) effectively
 - [Guide: E2E Acceptance Test Case Customization](guides/03-testing/e2e-acceptance-test-case-customization-guide.md) - Step-by-step instructions for customizing E2E acceptance test case and master test templates created by New-E2EAcceptanceTestCase.ps1
 - [Guide: Performance Testing](guides/03-testing/performance-testing-guide.md) - 4-level performance testing methodology with baselines, trend tracking, and decision matrix
+- [Guide: Performance and E2E Test Scoping](guides/03-testing/performance-and-e2e-test-scoping-guide.md) - Decision matrix and worked examples for identifying per-feature performance and E2E test needs
 
 #### 04 - Implementation Guides
 
@@ -355,9 +368,8 @@ Our tasks are organized to mirror the `tasks` directory structure:
 - [Guide: Development Dimensions](guides/framework/development-dimensions-guide.md) - Single authoritative reference for 10 development dimensions across all task phases (planning, implementation, review, validation)
 - [Guide: Terminology](guides/framework/terminology-guide.md) - Explains the terminology separation between Process Framework and Product Documentation
 - [Guide: Documentation Structure](guides/framework/documentation-structure-guide.md) - Guide for organizing documentation structure within the framework
-- [Guide: Feedback Form](guides/framework/feedback-form-guide.md) - Comprehensive guide for completing feedback forms effectively
-- [Guide: Feedback Form Completion Instructions](guides/framework/feedback-form-completion-instructions.md) - Standardized instructions for completing feedback forms (referenced by all tasks)
-- [Guide: Task Transition](guides/framework/task-transition-guide.md) - Guidance on when and how to transition between related tasks
+- [Guide: Feedback Form](guides/framework/feedback-form-guide.md) - Comprehensive guide for completing feedback forms effectively (referenced by all tasks)
+- [Guide: Information Flow](guides/framework/information-flow-guide.md) - Information flow patterns, task ownership boundaries, cross-reference standards, and separation of concerns between tasks
 
 #### Support Guides
 
@@ -384,6 +396,7 @@ Our tasks are organized to mirror the `tasks` directory structure:
 - [Codebase Feature Discovery Map](visualization/context-maps/00-setup/codebase-feature-discovery-map.md) - Components for discovering features in existing codebases
 - [Codebase Feature Analysis Map](visualization/context-maps/00-setup/codebase-feature-analysis-map.md) - Components for analyzing implementation patterns and dependencies
 - [Retrospective Documentation Creation Map](visualization/context-maps/00-setup/retrospective-documentation-creation-map.md) - Components for creating retrospective design documentation
+- [Project Initiation Map](visualization/context-maps/00-setup/project-initiation-map.md) - Components for initial project setup and framework adoption
 
 #### 01 - Planning Context Maps
 

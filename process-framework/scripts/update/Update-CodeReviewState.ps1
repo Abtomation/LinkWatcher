@@ -16,7 +16,7 @@ Updates the following files:
 The feature ID being reviewed (e.g., "1.2.3")
 
 .PARAMETER ReviewStatus
-The code review status (e.g., "Completed", "Needs Revision", "In Progress")
+The code review status (e.g., "Completed", "Needs Enhancement", "In Progress")
 
 .PARAMETER ReviewDate
 Date of the code review completion (optional - uses current date if not specified)
@@ -49,7 +49,7 @@ If specified, shows what would be updated without making changes
 .\Update-CodeReviewState.ps1 -FeatureId "1.2.3" -ReviewStatus "Completed" -ReviewerName "Jane Smith"
 
 .EXAMPLE
-.\Update-CodeReviewState.ps1 -FeatureId "1.2.3" -ReviewStatus "Needs Revision" -ReviewerName "John Doe" -MajorFindings @("Missing error handling", "Inconsistent naming") -DryRun
+.\Update-CodeReviewState.ps1 -FeatureId "1.2.3" -ReviewStatus "Needs Enhancement" -ReviewerName "John Doe" -MajorFindings @("Missing error handling", "Inconsistent naming") -DryRun
 
 .EXAMPLE
 .\Update-CodeReviewState.ps1 -FeatureId "1.2.3" -ReviewStatus "Completed" -ReviewerName "Alice Johnson" -CodeQualityScore 8 -ReviewDocumentPath "../doc/reviews/review-1.2.3-feature.md"
@@ -69,7 +69,7 @@ param(
     [string]$FeatureId,
 
     [Parameter(Mandatory=$true)]
-    [ValidateSet("In Progress", "Completed", "Needs Revision", "Approved with Comments", "Rejected")]
+    [ValidateSet("In Progress", "Completed", "Needs Enhancement", "Approved with Comments", "Rejected")]
     [string]$ReviewStatus,
 
     [Parameter(Mandatory=$true)]
@@ -216,7 +216,7 @@ try {
     $featureReviewStatus = switch ($ReviewStatus) {
         "In Progress" { "🔍 Review In Progress" }
         "Completed" { "✅ Review Completed" }
-        "Needs Revision" { "🔄 Needs Revision" }
+        "Needs Enhancement" { "🔄 Needs Enhancement" }
         "Approved with Comments" { "✅ Approved with Comments" }
         "Rejected" { "🔴 Review Rejected" }
     }
@@ -359,7 +359,7 @@ try {
         # Next steps guidance
         Write-Host ""
         Write-Host "Next Steps:" -ForegroundColor Yellow
-        if ($ReviewStatus -eq "Needs Revision") {
+        if ($ReviewStatus -eq "Needs Enhancement") {
             Write-Host "  1. Address the identified issues in the code" -ForegroundColor Gray
             Write-Host "  2. Update implementation based on review feedback" -ForegroundColor Gray
             Write-Host "  3. Request follow-up review when ready" -ForegroundColor Gray

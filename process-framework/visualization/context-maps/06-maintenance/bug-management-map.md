@@ -83,7 +83,7 @@ Comprehensive visual guide to the complete bug management workflow, showing the 
 ### 2. State Flow Management
 
 - **Bug Tracking State** → Central registry for all bugs
-- **Status Lifecycle** → 🆕 Reported → 🔍 Triaged → 🔧 In Progress → 🧪 Testing → ✅ Fixed → 🟢 Closed
+- **Status Lifecycle** → 🆕 Needs Triage → 🔍 Needs Fix → 🔧 In Progress → 👀 Needs Review → 🔒 Closed → 🟢 Closed
 - **Cross-References** → Links to features, tests, and code changes
 
 ### 3. Priority-Based Workflow

@@ -1,0 +1,4 @@
+project:
+  name: "test-project"
+  schema: "schemas/missing-schema.yaml"
+  version: "1.0.0"

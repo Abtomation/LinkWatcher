@@ -176,7 +176,7 @@ Before considering this task finished:
     - [ ] Code inventory with new models and repositories
     - [ ] Implementation notes documenting any deviations or decisions
     - [ ] Issues log if any problems were encountered
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-051" and context "Data Layer Implementation"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-051" and context "Data Layer Implementation"
 
 ## Next Tasks
 
@@ -185,4 +185,4 @@ Before considering this task finished:
 ## Related Resources
 
 - [Feature Implementation State Template](../../templates/04-implementation/feature-implementation-state-template.md) - Template for tracking implementation progress
-- [Task Transition Guide](../../guides/framework/task-transition-guide.md) - Guidance on transitioning between decomposed tasks
+- [Task Transition Registry](../../infrastructure/task-transition-registry.md) - Guidance on transitioning between decomposed tasks

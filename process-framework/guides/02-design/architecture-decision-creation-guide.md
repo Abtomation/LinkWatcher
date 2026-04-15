@@ -5,7 +5,6 @@ category: Guide
 version: 1.1
 created: 2025-07-27
 updated: 2025-08-03
-related_task: PF-TSK-019
 related_script: New-ArchitectureDecision.ps1
 guide_description: Guide for customizing Architecture Decision Record templates
 ---
@@ -49,7 +48,7 @@ Before you begin, ensure you have:
 - Understanding of the architectural decision that needs to be documented
 - Knowledge of the context, alternatives, and consequences of the decision
 - Familiarity with Architecture Decision Record (ADR) principles and formats
-- Access to the System Architecture Review Task (PF-TSK-019) documentation
+- Awareness of which parent task triggered ADR creation (e.g., System Architecture Review, Foundation Feature Implementation, Code Refactoring)
 - Understanding of the project's architectural principles and constraints
 
 ## Background
@@ -412,7 +411,7 @@ New-ArchitectureDecision.ps1 -Title "Database Migration Strategy" -Description "
 
 ## Related Resources
 
-- [System Architecture Review Task (PF-TSK-019)](../../tasks/01-planning/system-architecture-review.md) - The task that uses this guide
+- [System Architecture Review Task (PF-TSK-082)](../../tasks/01-planning/system-architecture-review.md) - One of the tasks that uses this guide
 - [New-ArchitectureDecision.ps1 Script](../../scripts/file-creation/02-design/New-ArchitectureDecision.ps1) - Script for creating ADRs
 - [ADR Template](../../templates/02-design/adr-template.md) - Template customized by this guide
 - [Architecture Assessment Creation Guide (PF-GDE-032)](architecture-assessment-creation-guide.md) - Guide for creating related architecture assessments

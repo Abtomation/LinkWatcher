@@ -3,9 +3,9 @@ id: PF-TSK-026
 type: Process Framework
 category: Task Definition
 domain: agnostic
-version: 1.2
+version: 1.3
 created: 2025-07-26
-updated: 2026-04-09
+updated: 2026-04-14
 ---
 
 # Framework Extension Task
@@ -53,6 +53,7 @@ This task manages the systematic extension of the task-based development framewo
 
 - **Reference Only (Access When Needed):**
   - [PF ID Registry](../../PF-id-registry.json) - For adding new ID prefixes for extension-created file types
+  - [Process Framework Task Registry — Trigger & Output](../../infrastructure/process-framework-task-registry.md) - For studying existing trigger/output chains (`🔗 TRIGGER & OUTPUT` blocks and State File Trigger Index)
   - [Structure Change Task](structure-change-task.md) - For understanding structural modifications vs. extensions
   - [Process Improvement Task](process-improvement-task.md) - For understanding granular improvements vs. extensions
 
@@ -71,7 +72,8 @@ This task manages the systematic extension of the task-based development framewo
 ### Phase 1: Concept Development & Approval
 
 1. **Pre-Concept Analysis** — before creating the concept document, study the landscape:
-   - (a) **Read the [Task Transition Guide](../../guides/framework/task-transition-guide.md)** to understand how existing tasks connect and hand over work
+   - (a) **Read the [Task Transition Registry](../../infrastructure/task-transition-registry.md)** to understand how existing tasks connect and hand over work
+   - (a2) **Study the [Process Framework Task Registry — Trigger & Output](../../infrastructure/process-framework-task-registry.md)** (`🔗 TRIGGER & OUTPUT` blocks and State File Trigger Index) to understand which state file statuses trigger which tasks and what outputs each task produces — this reveals the full signal chain the extension must integrate with
    - (b) **Study existing project patterns** solving similar problems — identify precedents in the project's current workflow (e.g., how E2E tracking handles non-standard test types, how validation dimensions were modularized)
    - (c) **Establish the abstraction model** — what are the natural levels in the project's architecture? Define categories specific to the project, not copied from generic industry terminology
    - (d) **Trace the full lifecycle end-to-end** — who triggers → who plans → who creates → who runs → who records → who reviews → how do you know what's left?
@@ -80,8 +82,9 @@ This task manages the systematic extension of the task-based development framewo
 2. **Create Framework Extension Concept Document** using the standardized script:
    ```powershell
    cd process-framework-local/proposals
-   ./New-FrameworkExtensionConcept.ps1 -ExtensionName "[Extension Name]" -ExtensionDescription "[Brief description]" -ExtensionScope "[Extension scope]" -OpenInEditor
+   ./New-FrameworkExtensionConcept.ps1 -ExtensionName "[Extension Name]" -ExtensionDescription "[Brief description]" -Type [Creation/Modification/Hybrid] -ExtensionScope "[Extension scope]" -OpenInEditor
    ```
+   - **`-Type`** selects a type-specific template: `Creation` (new artifacts only), `Modification` (changes to existing artifacts only), or `Hybrid` (both)
    - Script creates structural template in `/process-framework-local/proposals/[extension-name]-concept.md`
    - **CRITICAL**: Template requires extensive customization following [Framework Extension Customization Guide](../../guides/support/framework-extension-customization-guide.md)
    - Define extension scope and new capabilities to be added
@@ -96,6 +99,8 @@ This task manages the systematic extension of the task-based development framewo
    - Document how the extension affects it, considering its actual knowledge state
    - **Do not propose modifications based on assumptions** — present this analysis at the checkpoint first
    > **Validation script check**: If the extension modifies state file structure (columns, sections, headings), identify which [Validate-StateTracking.ps1](../../scripts/validation/Validate-StateTracking.ps1) surfaces parse those files and include them in the impact analysis. Run `Validate-StateTracking.ps1` before and after changes to catch regressions.
+   >
+   > **Column-index impact check**: If the extension modifies tracking file structure (adds, removes, or reorders columns), grep for `Split-MarkdownTableRow` and hardcoded column index patterns (e.g., `\[3\]`, `\[4\]`) in all scripts that reference the modified tracking file. Scripts that *read* column indices break just as silently as scripts that *write* them.
 5. **🚨 CHECKPOINT**: Present concept document, impact analysis, and proposed implementation approach to human partner for approval
 
 ### Phase 2: State Tracking & Planning
@@ -105,9 +110,9 @@ This task manages the systematic extension of the task-based development framewo
      ```powershell
      New-TempTaskState.ps1 -TaskName "[Extension Name]" -Variant "FrameworkExtension" -Description "Framework extension for [brief description]"
      ```
-   - **Modification-heavy** (primarily changing existing tasks, templates, scripts): Use `New-StructureChangeState.ps1` — its Affected Components Analysis and file mapping sections are a better fit:
+   - **Modification-heavy** (primarily changing existing tasks, templates, scripts): Use `New-StructureChangeState.ps1` with the `"Framework Extension"` ChangeType — lightweight artifact tracking without pilot/rollback/metrics:
      ```powershell
-     New-StructureChangeState.ps1 -ChangeName "[Extension Name]" -ChangeType "Documentation Architecture" -Description "Framework extension for [brief description]"
+     New-StructureChangeState.ps1 -ChangeName "[Extension Name]" -ChangeType "Framework Extension" -Description "Framework extension for [brief description]"
      ```
 7. **Develop Implementation Roadmap** with detailed multi-session breakdown in the temporary state file
 8. **Identify Required Components** (tasks, templates, guides, scripts, directories) and their dependencies
@@ -133,7 +138,7 @@ This task manages the systematic extension of the task-based development framewo
       - Templates require comprehensive content development following Template Development Guide
       - Guides require extensive customization following Guide Creation Best Practices Guide
       - Tasks require detailed process definition following Task Creation Guide
-    > **⚠️ Cross-cutting reminder**: Each task created via [PF-TSK-001](new-task-creation-process.md) includes mandatory cross-cutting updates (Step 12L) — Task Transition Guide, Process Framework Task Registry, and existing task definitions' Next Tasks/Related Resources sections. Complete these during Phase 3 for each new task, not deferred to Phase 4.
+    > **⚠️ Cross-cutting reminder**: Each task created via [PF-TSK-001](new-task-creation-process.md) includes mandatory cross-cutting updates (Step 12L) — Task Transition Guide, Process Framework Task Registry, Task Trigger & Output Traceability, and existing task definitions' Next Tasks/Related Resources sections. Complete these during Phase 3 for each new task, not deferred to Phase 4.
 14. **Update Temporary State Tracking** after each session with progress and next steps
 15. **Integration Testing** to ensure compatibility with existing framework components
 
@@ -220,7 +225,7 @@ Before considering this task finished:
   - [ ] Framework extension concept document moved to `/process-framework-local/proposals/old/`
   - [ ] [Documentation Map](../../PF-documentation-map.md) reflects all new artifacts
   - [ ] [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) updated with framework capability enhancement
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-026" and context "Framework Extension Task"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-026" and context "Framework Extension Task"
 
 ## Next Tasks
 

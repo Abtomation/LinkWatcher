@@ -49,7 +49,6 @@ The task-based approach helps to:
 | [Integration Narrative Creation](02-design/integration-narrative-creation.md) | Create Integration Narratives for cross-feature workflows | When all workflow features reach Implemented status, or reactively during bug fixes requiring cross-feature understanding |
 | [FDD Creation](02-design/fdd-creation-task.md) | Create Functional Design Documents for features requiring functional specification | When Tier 2+ features need functional design |
 | [TDD Creation](02-design/tdd-creation-task.md) | Create Technical Design Documents | When assessed features need technical design |
-| [ADR Creation](02-design/adr-creation-task.md) | Create Architecture Decision Records to document significant architectural decisions and their rationale | When documenting architectural decisions |
 | [API Design Task](02-design/api-design-task.md) | Design comprehensive API contracts and specifications before implementation begins | When features require API contracts |
 | [Database Schema Design Task](02-design/database-schema-design-task.md) | Systematic data model planning before implementation to prevent data integrity issues | When features require data model changes |
 
@@ -57,6 +56,7 @@ The task-based approach helps to:
 
 | Task | Description | When to Use |
 | ---- | ----------- | ----------- |
+| [Performance and E2E Test Scoping](03-testing/performance-and-e2e-test-scoping-task.md) | Identify per-feature performance and E2E test needs after code review | When working on Performance and E2E Test Scoping |
 | [Performance Baseline Capture](03-testing/performance-baseline-capture-task.md) | Run performance tests, record results in trend database, update tracking, flag regressions | When working on Performance Baseline Capture |
 | [Performance Test Creation](03-testing/performance-test-creation-task.md) | Implement performance tests from specifications, register in tracking, capture initial measurements | When working on Performance Test Creation |
 | [Test Specification Creation](03-testing/test-specification-creation-task.md) | Create comprehensive test specifications from existing Technical Design Documents | When TDDs are ready for test planning |
@@ -159,7 +159,7 @@ At the end of each task, feedback should be collected on the tools used during t
 3. **Suggest Improvements**: Document what worked well and what could be improved
 4. **Save Feedback**: Store the feedback form (artifact) in the `/process-framework-local/feedback/feedback-forms` directory with the naming convention `YYYYMMDD-HHMMSS-document-id-feedback.md`
 
-> **Important**: Feedback forms are artifacts (using ART-FEE-XXX IDs), not documents. They evaluate documents (with [PREFIX]-XXX-XXX IDs).
+> **Important**: Feedback forms are artifacts (using PF-FEE-XXX IDs), not documents. They evaluate documents (with [PREFIX]-XXX-XXX IDs).
 
 This feedback is essential for the continuous improvement of project tools and processes. The [Tools Review Task](support/tools-review-task.md) uses this feedback to identify and implement improvements.
 

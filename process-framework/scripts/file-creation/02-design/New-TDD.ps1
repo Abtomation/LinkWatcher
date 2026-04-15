@@ -176,7 +176,7 @@ try {
         if (-not $dependencyCheck.AllDependenciesMet) {
             Write-Warning "Automation dependencies not available. Feature tracking must be updated manually."
             Write-Host "Manual Update Required:" -ForegroundColor Yellow
-            Write-Host "  - Update Status: 📋 FDD Created (Tier 2+) or 📊 Assessment Created (Tier 1) → 📝 TDD Created" -ForegroundColor Cyan
+            Write-Host "  - Update Status: 📝 Needs TDD → 🧪 Needs Test Spec" -ForegroundColor Cyan
             Write-Host "  - Add TDD link to Tech Design column" -ForegroundColor Cyan
         } else {
             # Prepare TDD document link
@@ -187,22 +187,21 @@ try {
                 "Tech Design" = $tddLink
             }
 
-            # Determine expected previous status based on tier
-            $expectedPreviousStatus = if ($Tier -eq "1") { "📊 Assessment Created" } else { "📋 FDD Created" }
+            $expectedPreviousStatus = "📝 Needs TDD"
 
             if ($DryRun) {
                 Write-Host "DRY RUN: Would update feature tracking for $FeatureId" -ForegroundColor Yellow
-                Write-Host "  Status: $expectedPreviousStatus → 📝 TDD Created" -ForegroundColor Cyan
+                Write-Host "  Status: $expectedPreviousStatus → 🧪 Needs Test Spec" -ForegroundColor Cyan
                 Write-Host "  Tech Design Link: $tddLink" -ForegroundColor Cyan
             } else {
                 # Validate prerequisites based on tier
                 Write-Host "  🔍 Validating prerequisites for Tier $Tier..." -ForegroundColor Cyan
 
                 # Update feature tracking with TDD completion (PF-IMP-413: no Notes append)
-                $updateResult = Update-FeatureTrackingStatus -FeatureId $FeatureId -Status "📝 TDD Created" -AdditionalUpdates $additionalUpdates
+                $updateResult = Update-FeatureTrackingStatus -FeatureId $FeatureId -Status "🧪 Needs Test Spec" -AdditionalUpdates $additionalUpdates
 
                 Write-Host "  ✅ Feature tracking updated successfully" -ForegroundColor Green
-                Write-Host "  📝 Status: $expectedPreviousStatus → 📝 TDD Created" -ForegroundColor Green
+                Write-Host "  🧪 Status: $expectedPreviousStatus → 🧪 Needs Test Spec" -ForegroundColor Green
                 Write-Host "  🔗 TDD linked in Tech Design column" -ForegroundColor Green
             }
         }
@@ -210,7 +209,7 @@ try {
     catch {
         Write-Warning "Failed to update feature tracking automatically: $($_.Exception.Message)"
         Write-Host "Manual Update Required:" -ForegroundColor Yellow
-        Write-Host "  - Update feature $FeatureId status to '📝 TDD Created'" -ForegroundColor Cyan
+        Write-Host "  - Update feature $FeatureId status to '🧪 Needs Test Spec'" -ForegroundColor Cyan
         Write-Host "  - Add TDD link: [$tddId](/doc/technical/architecture/design-docs/tdd/$customFileName)" -ForegroundColor Cyan
         Write-Host "  - Add creation date to Notes: $(Get-ProjectTimestamp -Format 'Date')" -ForegroundColor Cyan
     }

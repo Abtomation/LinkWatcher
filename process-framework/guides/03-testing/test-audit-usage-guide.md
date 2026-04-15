@@ -2,9 +2,9 @@
 id: PF-GDE-041
 type: Process Framework
 category: Guide
-version: 1.0
+version: 2.0
 created: 2025-08-07
-updated: 2025-08-07
+updated: 2026-04-13
 related_task: PF-TSK-030
 related_script: New-TestAuditReport.ps1
 ---
@@ -12,7 +12,7 @@ related_script: New-TestAuditReport.ps1
 
 ## Overview
 
-This guide provides comprehensive instructions for using the Test Audit task (PF-TSK-030) to conduct systematic quality assessments of test implementations. The Test Audit task enables AI agents to evaluate test suites against six quality criteria and make informed decisions about test approval or improvement needs.
+This guide provides comprehensive instructions for using the Test Audit task (PF-TSK-030) to conduct systematic quality assessments of test implementations across three test types: automated (unit/integration/parser), performance, and E2E acceptance tests. The task uses type-specific criteria and templates to evaluate tests and make informed decisions about approval or improvement needs.
 
 ## When to Use
 
@@ -67,9 +67,40 @@ Test audits follow a quality-first approach:
 - **Constructive Feedback**: Focus on improvement opportunities and actionable recommendations
 - **Consistency**: Apply the same standards across all test implementations
 
+## Test Type Selection
+
+PF-TSK-030 supports three test types, each with distinct criteria, templates, and tracking files. Determine the test type **before** starting the audit:
+
+| Test Type | When to Audit | Tracking File | Criteria Count | Template |
+|-----------|--------------|---------------|----------------|----------|
+| **Automated** (default) | After `✅ Tests Implemented` in test-tracking.md | test-tracking.md | 6 criteria | Standard or Lightweight |
+| **Performance** | After `📋 Created` in performance-test-tracking.md | performance-test-tracking.md | 4 criteria | Performance Audit (PF-TEM-073) |
+| **E2E** | After `📋 Case Created` in e2e-test-tracking.md | e2e-test-tracking.md | 5 criteria | E2E Audit (PF-TEM-074) |
+
+Use `-TestType Performance` or `-TestType E2E` with all audit scripts. Omitting `-TestType` defaults to Automated for backward compatibility.
+
+## Minor Fix Authority
+
+During any audit, you may implement fixes directly if they meet **all** of these conditions:
+- Takes **≤15 minutes**
+- Falls into an **allowed fix type**: assertion additions, test renames, dead test removal, trivial fixture fixes, missing pytest markers
+- Does **not** create new test methods/files, refactor structure, or fix infrastructure
+
+Document each fix in the audit report's "Minor Fixes Applied" section. This avoids routing trivial issues through the Tech Debt → Code Refactoring pipeline.
+
+## Scalability Guidance
+
+For large test suites, not every test needs individual audit:
+
+- **Risk-based sampling**: Critical-path tests get full audit; stable utility tests get spot checks or can be skipped
+- **Batch patterns**: Group tests by feature or type; audit one batch per session
+- **Re-audit triggers**: Re-audit when (a) major refactoring of tested code, (b) coverage drops >10%, (c) 6+ months since last audit, (d) test failures increase without code changes
+
 ## Audit Criteria Overview
 
-The Test Audit process evaluates tests against six comprehensive quality criteria. Each criterion must be assessed with specific findings, evidence, and recommendations.
+### Automated Test Criteria
+
+The automated test audit evaluates tests against six comprehensive quality criteria. Each criterion must be assessed with specific findings, evidence, and recommendations.
 
 ### 1. Purpose Fulfillment
 **Question**: Does the test really fulfill its intended purpose?
@@ -148,6 +179,114 @@ The Test Audit process evaluates tests against six comprehensive quality criteri
 - Compatibility with CI/CD pipeline
 
 **Assessment Levels**: PASS (fully aligned), PARTIAL (mostly aligned with minor adjustments needed), FAIL (alignment issues requiring changes)
+
+### Performance Test Criteria
+
+Performance test audits evaluate against four criteria specific to benchmark and scale tests. These criteria assess whether the test will produce reliable, meaningful baselines.
+
+#### 1. Measurement Methodology
+**Question**: Is the test measuring the right thing with appropriate precision?
+
+**Focus Areas**:
+- Warmup cycles — sufficient to reach steady state
+- Iteration count — enough for statistical significance
+- Timing precision — `time.perf_counter()` preferred over `time.time()`
+- Isolation — measurement free from external interference (I/O, GC, other processes)
+- Result stability — low coefficient of variation across runs
+
+**Assessment Levels**: PASS (stable, well-isolated measurements), PARTIAL (mostly stable with minor issues), FAIL (unreliable or poorly isolated)
+
+#### 2. Tolerance Appropriateness
+**Question**: Are thresholds realistic, meaningful, and calibrated to observed variance?
+
+**Focus Areas**:
+- Tolerance derived from observed variance, not arbitrary values
+- Sensitivity balance — not too tight (noisy false alarms) or too loose (misses regressions)
+- Level-appropriate — Component (L1) benchmarks have tighter tolerance than Scale (L3) tests
+- Units consistency with measurement
+
+**Assessment Levels**: PASS (well-calibrated), PARTIAL (acceptable but could be refined), FAIL (arbitrary or clearly wrong)
+
+#### 3. Baseline Readiness
+**Question**: Is the test ready for reliable baseline capture?
+
+**Focus Areas**:
+- Clean setup/teardown with no leftover state
+- Deterministic results in consistent environment
+- No external dependencies that vary between runs
+- Environment requirements documented
+
+**Assessment Levels**: PASS (ready for baseline), PARTIAL (minor environment issues), FAIL (not ready — results would be unreliable)
+
+#### 4. Regression Detection Config
+**Question**: Will this test actually catch meaningful regressions?
+
+**Focus Areas**:
+- Minimum detectable regression size
+- False positive rate under normal variance
+- Comparison method (absolute threshold, percentage delta, statistical test)
+- Trend tracking via performance_db.py
+
+**Assessment Levels**: PASS (effective detection), PARTIAL (would catch large regressions but miss subtle ones), FAIL (unable to distinguish regression from noise)
+
+### E2E Acceptance Test Criteria
+
+E2E test audits evaluate against five criteria specific to acceptance tests with fixtures. These criteria assess whether the test will produce valid, reproducible results when executed.
+
+#### 1. Fixture Correctness
+**Question**: Are `project/` and `expected/` directories accurate?
+
+**Focus Areas**:
+- Files in `project/` match scenario described in test-case.md
+- Files in `expected/` show correct outcome for the scenario
+- No stale content, placeholders, or content copied from other tests
+- All necessary files present
+
+**Assessment Levels**: PASS (accurate fixtures), PARTIAL (mostly correct with minor issues), FAIL (incorrect or stale fixtures)
+
+#### 2. Scenario Completeness
+**Question**: Does the test cover the full user workflow end-to-end?
+
+**Focus Areas**:
+- All workflow steps from user-workflow-tracking.md exercised
+- Boundary conditions included (empty files, special characters, nested directories)
+- Error paths covered where applicable
+- Cross-feature integration points tested
+
+**Assessment Levels**: PASS (complete scenario), PARTIAL (main path covered, edge cases missing), FAIL (incomplete scenario)
+
+#### 3. Expected Outcome Accuracy
+**Question**: Are the expected results actually correct?
+
+**Focus Areas**:
+- Updated links in expected files resolve to valid targets
+- Content differences between project/ and expected/ are all intentional
+- Expected outcomes verified by manual review
+- No "copy of project/" without actual expected changes
+
+**Assessment Levels**: PASS (verified correct), PARTIAL (mostly correct with minor issues), FAIL (incorrect expectations)
+
+#### 4. Reproducibility
+**Question**: Can the test produce consistent results independently?
+
+**Focus Areas**:
+- No hidden state dependencies between tests
+- Clean setup via Setup-TestEnvironment.ps1
+- Passes on fresh workspace with no prior runs
+- Not sensitive to timing or race conditions
+
+**Assessment Levels**: PASS (fully reproducible), PARTIAL (usually passes but occasionally flaky), FAIL (unreliable)
+
+#### 5. Precondition Coverage
+**Question**: Are preconditions documented and enforceable?
+
+**Focus Areas**:
+- All preconditions listed in test-case.md
+- run.ps1 validates or sets up preconditions
+- LinkWatcher dependency documented if required
+- OS/Python/tool requirements documented
+
+**Assessment Levels**: PASS (well-documented and enforced), PARTIAL (documented but not enforced), FAIL (undocumented preconditions)
 
 ## Step-by-Step Instructions
 

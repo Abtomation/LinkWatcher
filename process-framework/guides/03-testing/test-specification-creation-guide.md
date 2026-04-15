@@ -64,7 +64,7 @@ Test Specifications serve as the bridge between architectural design (TDDs) and 
 - **Quality Assurance**: Ensure test coverage aligns with design requirements
 - **Documentation**: Maintain traceability between design and testing
 
-> **Scope**: Test specifications cover automated tests only. E2E acceptance tests are identified through cross-cutting milestone triggers (see [ai-tasks.md workflows](/process-framework/ai-tasks.md#common-workflows)). Performance tests are identified at implementation time using the [Performance Testing Guide](/process-framework/guides/03-testing/performance-testing-guide.md) decision matrix.
+> **Scope**: Test specifications cover automated tests only. E2E acceptance tests are identified through cross-cutting milestone triggers (see [ai-tasks.md workflows](/process-framework/ai-tasks.md#common-workflows)). Performance tests are identified after code review by the [Performance & E2E Test Scoping task (PF-TSK-086)](/process-framework/tasks/03-testing/performance-and-e2e-test-scoping-task.md) using the [decision matrix](/process-framework/guides/03-testing/performance-and-e2e-test-scoping-guide.md#performance-test-decision-matrix).
 
 ### Tier-Based Test Specifications
 
@@ -80,7 +80,7 @@ Test specifications are derived from TDDs and must reference the source TDD, mai
 
 ## Separation of Concerns and Cross-Referencing
 
-> **📋 Detailed Guidance**: See [Task Transition Guide - Information Flow Section](../framework/task-transition-guide.md#information-flow-and-separation-of-concerns)
+> **📋 Detailed Guidance**: See [Task Transition Guide - Information Flow Section](../../infrastructure/task-transition-registry.md#information-flow-and-separation-of-concerns)
 
 Test Specifications focus exclusively on **testing-level concerns**: test cases, test data, mock strategies, validation criteria, and test implementation guidance. This section helps you understand what to document in detail vs. what to reference from other tasks.
 

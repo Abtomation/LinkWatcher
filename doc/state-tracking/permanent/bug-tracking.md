@@ -34,17 +34,16 @@ This document tracks the lifecycle of bugs and issues in the LinkWatcher project
 
 ### Bug Status
 
-| Symbol | Status      | Description                                           |
-| ------ | ----------- | ----------------------------------------------------- |
-| 🆕     | Reported    | Bug has been reported but not yet triaged             |
-| 🔍     | Triaged     | Bug has been evaluated and prioritized                |
-| 🟡     | In Progress | Bug is currently being investigated or fixed          |
-| 🧪     | Fixed       | Bug fix has been implemented and is ready for testing |
-| ✅     | Verified    | Bug fix has been tested and confirmed working         |
-| 🔒     | Closed      | Bug has been resolved and closed                      |
-| 🔄     | Reopened    | Previously closed bug has been reopened               |
-| ❌     | Rejected    | Bug report was determined to be invalid or not a bug  |
-| 🚫     | Duplicate   | Bug is a duplicate of another existing bug            |
+| Symbol | Status        | Description                                                    | Next Task  |
+| ------ | ------------- | -------------------------------------------------------------- | ---------- |
+| 🆕     | Needs Triage  | Bug reported, awaiting evaluation and prioritization           | PF-TSK-041 |
+| 🔍     | Needs Fix     | Triaged and prioritized, ready for bug fixing                  | PF-TSK-007 |
+| 🟡     | In Progress   | Bug is currently being investigated or fixed                   | —          |
+| 👀     | Needs Review  | Fix implemented and tested, awaiting Code Review verification  | PF-TSK-005 |
+| 🔒     | Closed        | Reviewed, verified, and resolved                               | —          |
+| 🔄     | Reopened      | Previously closed bug has recurred — needs re-triage           | PF-TSK-041 |
+| ❌     | Rejected      | Not a bug or won't fix — terminal state                        | —          |
+| 🚫     | Duplicate     | Duplicate of another existing bug — terminal state             | —          |
 
 ### Priority Levels
 
@@ -84,19 +83,21 @@ This document tracks the lifecycle of bugs and issues in the LinkWatcher project
 
 ```mermaid
 graph TD
-    A[Bug Discovered] --> B[🆕 Reported]
+    A[Bug Discovered] --> B[🆕 Needs Triage]
     B --> C[Bug Triage Process]
-    C --> D[🔍 Triaged]
-    D --> E[🟡 In Progress]
-    E --> F[🧪 Fixed]
-    F --> G[🧪 Testing]
-    G --> H{Test Result}
-    H -->|Pass| I[✅ Verified]
-    H -->|Fail| J[🔄 Reopened]
-    I --> K[🔒 Closed]
-    J --> E
+    C --> D[🔍 Needs Fix]
     C --> L[❌ Rejected]
     C --> M[🚫 Duplicate]
+    D --> E[🟡 In Progress]
+    E --> F{Scope?}
+    F -->|S-scope quick path| G[Self-Review + 🔒 Closed]
+    F -->|M/L-scope| H[👀 Needs Review]
+    H --> I[Code Review]
+    I -->|Approved| K[🔒 Closed]
+    I -->|Issues found| E
+    K --> N{L-scope + architectural?}
+    N -->|AI assessment: yes| O[🔎 Needs Test Scoping]
+    N -->|No| P[Done]
 ```
 
 ## Bug Registry
@@ -212,6 +213,11 @@ graph TD
 | PD-BUG-082 | Verify-TestResult.ps1 CRLF normalization regex uses literal slashes | 🔒 Closed | P3 | S | 2026-04-08 | Lines 148-149 use -replace forward-slash-r-forward-slash-n (literal chars) instead of backtick-r-backtick-n (PowerShell escape). CRLF normalization never fires, causing false positive mismatches for every file LinkWatcher updates. | N/A |  | DI | Source: E2ETesting; Environment: Development; Component: E2E Test Infrastructure; Expected: Line ending normalization should make CRLF vs LF transparent in comparison; Actual: Every file updated by LinkWatcher reports as mismatch even when content is identical; Triaged: 2026-04-08; Triage Rationale: P3 confirmed — test infrastructure bug, not user-facing, trivial 2-line regex fix, contained to E2E verification pipeline. S scope — single-session fix <30min.; Fix: Changed -replace '/r/n' to -replace '\r\n' on lines 148-149 of Verify-TestResult.ps1; Root Cause: Literal forward slashes used instead of regex backslash escapes for CRLF pattern; Tests Added: No; Updated: 2026-04-08; Verification: Fix verified by code review — regex pattern corrected from literal /r/n to \r\n. No regressions possible (isolated 2-char change in regex pattern). Self-verifying on next E2E test run. |  |  |
 | PD-BUG-084 | ~~Markdown bare path detection updates paths in prose comment text (false positive)~~ — Invalid: bare path updates in prose are correct behavior | 🚫 Invalid | P4 | S | 2026-04-08 | bare_path_pattern updates paths in prose/comment lines. Originally reported as false positive but determined to be correct behavior — bare paths in prose are valid update targets. TE-E2E-004 expected files were corrected to reflect this. | 2.1.1 | WF-001 | DI | Source: E2ETesting; Environment: Development; Component: parsers/markdown.py bare_path_pattern; **Invalidated (2026-04-08):** Bare path updates in prose/comment text are correct LinkWatcher behavior. Expected files in TE-E2E-004 were wrong, not the parser. Updated expected files and TE-E2E-004 now passes.; Updated: 2026-04-08 |  |
 | PD-BUG-053 | File move during startup scan not detected | 🔒 Closed | P4 | S | 2026-03-30 | When a file is moved during LinkWatcher initial scan (within 2s of startup), the move is not detected and references are not updated. TE-E2E-012 race condition. Move event arrives before link DB has indexed referencing files. | 1.1.1 |  |  | Source: E2ETesting; Environment: Development; Component: service.py; Reopened 2026-04-03 — previous fix insufficient; Confirmed still failing 2026-04-08; Updated: 2026-04-08; Fix: Added event deferral mechanism during initial scan; Root Cause: Move events processed before link DB fully populated; Tests Added: Yes; Verification: 755 passed, 0 failed. 4 new regression tests verify deferral mechanism.; Reopen Reason: TE-E2E-012 still fails after global reinstall. README.md and docs/guide.md references not updated (config/ to settings/ move not applied). Event deferral mechanism insufficient for real-world timing.; Fix: Fixed run.ps1 to start LW scoped to project/ via direct python invocation instead of start_linkwatcher_background.ps1 which silently ignored -ProjectRoot. Added scan-start polling and 300 ballast fixture files to exercise deferral mechanism.; Root Cause: start_linkwatcher_background.ps1 ignores -ProjectRoot parameter, always reads from project-config.json. This caused LW to watch the entire main project (~90s scan) instead of the test workspace. The process was killed before deferred events could be replayed.; Tests Added: Yes; Updated: 2026-04-09; Verification: TE-E2E-012 passes. TE-E2E-004 passes (no regression). Full automated suite: 751 passed, 0 failures. Deferral mechanism confirmed working via log inspection (3 deferred events replayed, DELETE+CREATE correlated, move detected, 2 references updated). |  |  |  |  |  |  |
+| PD-BUG-087 | should_monitor_file checks ancestor directories above project-root | 🔒 Closed | P3 | S | 2026-04-12 | The should_monitor_file() function in linkwatcher/utils.py:67-70 checks ALL parts of the absolute file path against ignored_directories, including ancestor directories above --project-root. When --validate is run with --project-root pointing to a directory that has an ignored dir name in its ancestor path (e.g., e2e-acceptance-testing), all files are filtered out and zero files are scanned. The check should only consider path parts relative to the project root. | 6.1.1 | WF-009 | DQ | Source: E2ETesting; Environment: Development; Component: linkwatcher/utils.py; Repro: 1. Run: python main.py --validate --project-root test/e2e-acceptance-testing/workspace/.../project 2. Observe Files scanned: 0 despite valid .md/.yaml files existing in the project directory 3. Root cause: Path(...).parts includes e2e-acceptance-testing which is in validation_extra_ignored_dirs; Expected: Validation scans all files under --project-root regardless of ancestor directory names; Actual: Validation scans 0 files because ancestor directory e2e-acceptance-testing matches validation_extra_ignored_dirs; Triage: S-scope: single function fix in utils.py:67-70. should_monitor_file checks absolute path parts including ancestors above project-root.; Updated: 2026-04-12; Fix: Added optional project_root parameter to should_monitor_file() ��� when provided, only checks path parts relative to root, ignoring ancestor directories; Root Cause: should_monitor_file() checked ALL absolute path parts against ignored_dirs, including ancestors above project-root; Tests Added: Yes; Verification: 5 regression tests pass (TE-TST-131). Full suite 776 passed, 0 failures. Fix adds optional project_root param to should_monitor_file; all 3 callers (validator, service, handler) now pass their project root. |  |  |  |  |
+| PD-BUG-086 | Run-E2EAcceptanceTest.ps1 ignores lw_flags other than --dry-run | ❌ Rejected | P3 |  | 2026-04-12 | The Start-LinkWatcher function in Run-E2EAcceptanceTest.ps1 only supports -DryRun switch. Other lw_flags from test-case.md frontmatter (e.g. --config) are parsed but silently dropped. This causes all configuration-related E2E tests (TE-E2G-012) to fail because LinkWatcher starts with defaults instead of the test-specific config. | 0.1.3 | WF-006 |  | Source: E2ETesting; Environment: Development; Component: Run-E2EAcceptanceTest.ps1; Repro: 1. Run: Run-E2EAcceptanceTest.ps1 -Group configuration-behavior-adaptation -Clean -Detailed. 2. All 3 test cases fail because --config flag is not passed to LinkWatcher.; Expected: Start-LinkWatcher should accept and forward all lw_flags from test-case.md frontmatter to the LinkWatcher process, not just --dry-run.; Actual: lw_flags are parsed at line 294 but only --dry-run is checked. Start-LinkWatcher function (line 227) has no parameter for additional flags. The --config flag is silently ignored.; Evidence: TE-E2E-023: YAML updated when config says only .md monitored. TE-E2E-024: archive/ file updated when config says ignored. TE-E2E-025: no .bak files when config says create_backups:true.; Rejected: Not a product bug. Component Run-E2EAcceptanceTest.ps1 is process framework tooling (process-framework/scripts/), not product code. Reclassified as process improvement.; Updated: 2026-04-13 |  |
+| PD-BUG-089 | Run-E2EAcceptanceTest.ps1 treats expected non-zero exit codes as errors | ❌ Rejected | P4 |  | 2026-04-12 | The orchestrator Run-E2EAcceptanceTest.ps1 treats any non-zero exit code from run.ps1 as an error, skipping the Verify step and marking the test as Error. Validation test cases (TE-E2E-027, TE-E2E-028) expect exit code 1 (broken links found), but the orchestrator cannot distinguish expected from unexpected non-zero exits. | N/A |  |  | Source: E2ETesting; Environment: Development; Component: Run-E2EAcceptanceTest.ps1; Repro: 1. Run: Run-E2EAcceptanceTest.ps1 -Group link-validation-audit -Clean -Detailed 2. Observe TE-E2E-027 and TE-E2E-028 marked as Errors 3. Exit code 1 from run.ps1 treated as failure, Verify skipped; Expected: Orchestrator should support expected_exit_code metadata in test cases (default 0). If run.ps1 exit matches expected, proceed to Verify.; Actual: Any non-zero exit from run.ps1 causes Error status and skips verification. Tracking is not updated for these test cases.; Rejected: Not a product bug. Component Run-E2EAcceptanceTest.ps1 is process framework tooling (process-framework/scripts/), not product code. Reclassified as process improvement.; Updated: 2026-04-13 |  |
+| PD-BUG-088 | Validation skips bare-filename markdown links | 🔒 Closed | P3 | S | 2026-04-12 | The _TARGET_SKIP_PREDICATES in validator.py contains a bare filename predicate that rejects any link target without / or \ separators. This causes all bare-filename markdown links like [text](file.md) to be silently skipped during --validate mode. Only links with path separators (e.g., docs/file.md) are checked. | 6.1.1 | WF-009 | RE | Source: E2ETesting; Environment: Development; Component: linkwatcher/validator.py; Repro: 1. Create a markdown file with a bare-filename link: [Missing](missing-guide.md) 2. Run python main.py --validate --project-root <dir> 3. Observe that the broken link is NOT reported; Expected: Broken bare-filename markdown links should be detected and reported with Broken links count incremented; Actual: Bare-filename links are skipped by _should_check_target() due to the bare filename predicate at lines 145-147. Links checked count excludes them entirely.; Triage: Confirmed: bare filename predicate in _TARGET_SKIP_PREDICATES (validator.py:144-148) unconditionally skips targets without path separators regardless of link_type. Proper markdown links like [text](file.md) are incorrectly filtered. Fix: make predicate link-type-aware. Small effort.; Updated: 2026-04-13; Fix: Made bare filename predicate link-type-aware via _EXPLICIT_LINK_TYPES frozenset; Root Cause: Bare filename predicate in _TARGET_SKIP_PREDICATES unconditionally skipped targets without path separators regardless of link_type; Tests Added: Yes; Verification: 780 tests pass, 4 new regression tests verify fix, no regressions |  |  |  |  |  |
+| PD-BUG-090 | Backup file uses .linkwatcher.bak suffix instead of .bak | 🔒 Closed | P4 | S | 2026-04-14 | When create_backups is enabled in config, LinkUpdater._write_file_safely() creates backup files with .linkwatcher.bak suffix (e.g. readme.md.linkwatcher.bak) instead of the expected .bak suffix (readme.md.bak). Config option documented as creating .bak files. | 0.1.3 | WF-006 | DA | Source: E2ETesting; Environment: Development; Component: linkwatcher/updater.py; Repro: 1. Set create_backups: true in config.yaml. 2. Move a file that is referenced by other files. 3. Check the referencing file directory for .bak files — find .linkwatcher.bak instead.; Expected: Backup file created as readme.md.bak; Actual: Backup file created as readme.md.linkwatcher.bak (line 516 of updater.py); Evidence: E2E test TE-E2E-025 workspace shows readme.md.linkwatcher.bak in docs/ directory; Triage: Confirmed: code uses .linkwatcher.bak suffix (updater.py:516) but docs/docstring promise .bak. Backups work correctly, just wrong suffix. Single-line fix. Effort: ~15 min.; Updated: 2026-04-14; Fix: Changed backup suffix from .linkwatcher.bak to .bak in updater.py and reference_lookup.py; Root Cause: Hardcoded .linkwatcher.bak suffix instead of .bak in two backup creation sites; Tests Added: Yes; Verification: Fix verified: unit tests pass (780/780), E2E test TE-E2E-025 passes, backup files now use .bak suffix as documented |  |  |  |  |
 
 </details>
 
@@ -280,7 +286,7 @@ Use the **`New-BugReport.ps1`** script for standardized bug creation:
 #### Manual Method
 
 1. Use the next sequential bug ID (PD-BUG-001, PD-BUG-002, etc.)
-2. Start with status 🆕 Reported
+2. Start with status 🆕 Needs Triage
 3. Fill in all required fields
 4. Place in appropriate priority section
 5. Reference related feature ID if applicable

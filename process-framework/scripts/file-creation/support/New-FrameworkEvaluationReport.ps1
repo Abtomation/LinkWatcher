@@ -131,8 +131,15 @@ try {
 
                 # Remove detailed finding sections for excluded dimensions
                 foreach ($num in $excludeNumbers) {
-                    # Match ### N. Name through the next --- separator and trailing blank lines
-                    $content = $content -replace "(?ms)### $num\. [^\r\n]+\r?\n.*?(?=\r?\n---\r?\n)\r?\n---\r?\n(\r?\n)*", ""
+                    # Match ### N. Name through the next --- separator (or next ## heading for the last dimension)
+                    # Try --- delimited first, then fall back to ## heading delimited
+                    $pattern = "(?ms)### $num\. [^\r\n]+\r?\n.*?(?=\r?\n---\r?\n)\r?\n---\r?\n(\r?\n)*"
+                    if ($content -match $pattern) {
+                        $content = $content -replace $pattern, ""
+                    } else {
+                        # Last dimension: no --- after it, match up to the next ## heading
+                        $content = $content -replace "(?ms)### $num\. [^\r\n]+\r?\n.*?(?=\r?\n## )", "`n"
+                    }
                 }
 
                 # Renumber remaining summary table rows and detailed sections

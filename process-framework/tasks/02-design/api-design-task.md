@@ -44,7 +44,7 @@ Design comprehensive API contracts and specifications before implementation begi
 
 ## When to Use
 
-- When the [Feature Tier Assessment](../01-planning/feature-tier-assessment-task.md) indicates "Yes" in the API Design column
+- When the feature status in [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) is `🔌 Needs API Design`
 - Before implementing any feature that requires new API endpoints or modifies existing ones
 - When creating microservices or service interfaces that will be consumed by other components
 - After completing System Architecture Review but before TDD Creation
@@ -53,7 +53,7 @@ Design comprehensive API contracts and specifications before implementation begi
 
 ## Information Flow
 
-> **📋 Detailed Guidance**: See [Task Transition Guide - Information Flow Section](../../guides/framework/task-transition-guide.md#information-flow-and-separation-of-concerns)
+> **📋 Detailed Guidance**: See [Information Flow Guide](../../guides/framework/information-flow-guide.md)
 
 This task focuses exclusively on **API-level concerns**: endpoint specifications, request/response contracts, authentication patterns, and service integration protocols.
 
@@ -249,9 +249,9 @@ Bearer token authentication.
 
 The following state files must be updated as part of this task:
 
-- **✅ AUTOMATED** - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - API Design column updates:
-  - **../../scripts/file-creation/New-APISpecification.ps1**: Replaces "Yes" with first API spec, appends additional specs with " • " separator
-  - **../../scripts/file-creation/New-APIDataModel.ps1**: Appends data model links with " • " separator using intelligent replacement/append logic
+- **✅ AUTOMATED** - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md):
+  - API Design column: Replaces "Yes" with first API spec link, appends additional specs with " • " separator
+  - Status: set to `📝 Needs TDD` (API Design is always the last design step before TDD)
 - **🔧 MANUAL** - [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) - Record any API design decisions that create technical debt
 
 ## ⚠️ MANDATORY Task Completion Checklist
@@ -268,7 +268,7 @@ Before considering this task finished:
   - [ ] **✅ AUTOMATED** - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) API Design column updates:
     - [x] **✅ AUTOMATED**: API specification and data model links automatically managed (intelligent replacement/append logic)
   - [ ] **🔧 MANUAL** - [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) updated with any design decisions creating technical debt
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-020" and context "API Design Task"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-020" and context "API Design Task"
 
 ## Next Tasks
 

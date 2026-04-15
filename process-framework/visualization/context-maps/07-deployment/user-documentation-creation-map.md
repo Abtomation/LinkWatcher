@@ -25,6 +25,7 @@ graph TD
     TaskDef --> ExistingHandbooks[/Existing Handbooks/]
     HandbookScript --> Template[/Handbook Template PF-TEM-065/]
     HandbookScript --> IdRegistry[(PD-id-registry.json)]
+    HandbookScript --> DocMap[/PD-documentation-map.md/]
     HandbookScript --> OutputDir[/doc/user/handbooks//]
     ExistingHandbooks --> OutputDir
     FeatureState[/Feature Implementation State/] -.-> TaskDef
@@ -32,7 +33,7 @@ graph TD
 
     class TaskDef,ExistingHandbooks critical
     class HandbookScript,Template,OutputDir important
-    class FeatureState,IdRegistry,README reference
+    class FeatureState,IdRegistry,DocMap,README reference
 ```
 
 ## Essential Components
@@ -42,7 +43,7 @@ graph TD
 - **Existing Handbooks**: The 4 existing handbooks in `doc/user/handbooks` serve as style and structure reference
 
 ### Important Components (Should Understand)
-- **New-Handbook.ps1**: Script to create new handbook files with auto-assigned PD-UGD IDs
+- **New-Handbook.ps1**: Script to create new handbook files with auto-assigned PD-UGD IDs; auto-appends entry to PD-documentation-map.md
 - **Handbook Template (PF-TEM-065)**: Template at `templates/07-deployment/handbook-template.md` with optional sections
 - **Output Directory**: `doc/user/handbooks` where handbooks are stored
 
@@ -57,7 +58,8 @@ graph TD
 2. **Task Definition → New-Handbook.ps1**: Use script for new handbook creation (never create manually)
 3. **New-Handbook.ps1 → Template**: Script creates files from the handbook template
 4. **New-Handbook.ps1 → ID Registry**: Script auto-assigns PD-UGD-### IDs
-5. **Feature State -.-> Task**: Feature state files trigger the task when they flag user docs as needed
+5. **New-Handbook.ps1 → PD-documentation-map.md**: Script auto-appends handbook entry under User Handbooks section
+6. **Feature State -.-> Task**: Feature state files trigger the task when they flag user docs as needed
 
 ## Implementation in AI Sessions
 

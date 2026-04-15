@@ -23,7 +23,7 @@ Visual guide to the components, relationships, and information flow relevant to 
 │                                                                                             │
 │  INPUT SOURCES                    EVALUATION PROCESS                    OUTPUT TARGETS      │
 │  ┌─────────────────┐             ┌─────────────────────┐              ┌───────────────┐     │
-│  │ 🆕 Bug Reports  │────────────▶│   TRIAGE ANALYSIS  │─────────────▶│ 🔍 Triaged   │     │
+│  │ 🆕 Bug Reports  │────────────▶│   TRIAGE ANALYSIS  │─────────────▶│ 🔍 Needs Fix   │     │
 │  │ • User Reports  │             │                     │              │   Bug Registry│     │
 │  │ • Test Failures │             │ 1. Validity Check   │              │               │     │
 │  │ • Code Reviews  │             │ 2. Impact Assessment│              │ • Priority    │     │
@@ -99,7 +99,7 @@ Visual guide to the components, relationships, and information flow relevant to 
 
 ### Output Generation
 
-1. **Bug Registry Update** → Status change from 🆕 Reported (or 🔄 Reopened) to 🔍 Triaged
+1. **Bug Registry Update** → Status change from 🆕 Needs Triage (or 🔄 Reopened) to 🔍 Needs Fix
 2. **Documentation** → Rationale, priority, severity, estimates
 3. **Workflow Trigger** → Enable next tasks (Bug Fixing, Feature Implementation)
 

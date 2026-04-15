@@ -121,7 +121,11 @@ Assess the complexity tier of unassessed features to determine appropriate docum
 
    **⚠️ CRITICAL**: This script automatically updates the feature tracking document with:
 
-   - Status change from "⬜ Not Started" to "📊 Assessment Created"
+   - Status change from "⬜ Needs Assessment" to next status:
+     - Tier 2+: `📋 Needs FDD`
+     - Tier 1 with DB Design = Yes: `🗄️ Needs DB Design`
+     - Tier 1 with API Design = Yes (no DB): `🔌 Needs API Design`
+     - Tier 1 with neither: `📝 Needs TDD`
    - Documentation tier emoji (🔵/🟠/🔴) and assessment link
    - UI Design column with "Yes" or "No" based on the assessment
    - API Design column with "Yes" or "No" based on the assessment
@@ -151,7 +155,7 @@ Assess the complexity tier of unassessed features to determine appropriate docum
 ### Existing State Files Updated
 
 - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Update with:
-  - Status change from "⬜ Not Started" to "📊 Assessment Created"
+  - Status change from "⬜ Needs Assessment" to "📋 Needs FDD" (Tier 2+) or next design status (Tier 1: `🗄️`/`🔌`/`📝` based on DB/API columns)
   - Documentation tier emoji (🔵/🟠/🔴)
   - UI Design column with "Yes" or "No"
   - API Design column with "Yes" or "No"
@@ -180,13 +184,13 @@ Before considering this task finished:
   - [ ] For retrospective onboarding: `implementation_mode: Retrospective Analysis` set in metadata
   - [ ] State file linked in Feature Tracking (auto-created by script)
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
-  - [ ] Feature Tracking document status updated from "⬜ Not Started" to "📊 Assessment Created"
+  - [ ] Feature Tracking document status updated from "⬜ Needs Assessment" to "📋 Needs FDD" (Tier 2+) or next design status (Tier 1: `🗄️`/`🔌`/`📝` based on DB/API columns)
   - [ ] Feature Tracking document updated with correct tier emoji and assessment link
   - [ ] Feature Tracking document UI Design column updated with "Yes" or "No" based on assessment
   - [ ] Feature Tracking document API Design column updated with "Yes" or "No" based on assessment
   - [ ] Feature Tracking document DB Design column updated with "Yes" or "No" based on assessment
   - [ ] For existing assessments: Added Design Requirements Evaluation section if it was missing
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-002" and context "Feature Tier Assessment"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-002" and context "Feature Tier Assessment"
 
 ## Design Requirements Evaluation
 
@@ -194,7 +198,7 @@ For detailed criteria on evaluating UI Design, API Design, and Database Design r
 
 ## Next Tasks
 
-**📋 For guidance on choosing the next task, see the [Task Transition Guide](../../guides/framework/task-transition-guide.md)**
+**📋 For guidance on choosing the next task, see the [Task Transition Registry](../../infrastructure/task-transition-registry.md)**
 
 **Based on Tier Assessment Result:**
 

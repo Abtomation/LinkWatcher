@@ -27,6 +27,7 @@ execution_mode: [manual / scripted]
 estimated_duration: [X minutes]
 source: [Test Spec / Bug Report / Refactoring Plan] — [SOURCE-ID]
 lw_flags: ""
+expected_exit_code: 0
 created: [YYYY-MM-DD]
 updated: [YYYY-MM-DD]
 ---

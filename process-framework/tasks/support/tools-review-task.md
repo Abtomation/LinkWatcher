@@ -171,12 +171,6 @@ Before considering this task finished:
 - [ ] **Update State Files**: Confirm all state tracking files have been updated
   - [ ] Appropriate tracking files updated (process-improvement-tracking, feature-request-tracking, bug-tracking, technical-debt-tracking)
   - [ ] [Process Improvement Task](process-improvement-task.md) entries created for implementation
-- [ ] **Solicit User Feedback**: **MANDATORY** - Actively ask the human user for their feedback on the session:
-  - [ ] Ask specific questions about process effectiveness
-  - [ ] Request feedback on any issues or challenges observed
-  - [ ] Solicit suggestions for improvement
-  - [ ] Gather overall satisfaction assessment
-  - [ ] **Do not proceed** until user feedback has been collected and documented
 - [ ] **Archive Processed Forms**: Move analyzed feedback forms to archive (must happen before recording ratings):
   - [ ] Create archive folder: `/process-framework-local/feedback/archive/YYYY-MM/tools-review-YYYYMMDD`
   - [ ] Create subfolder: `processed-forms/` within the archive folder
@@ -188,7 +182,7 @@ Before considering this task finished:
   - [ ] **Keep Active**: Leave newly created feedback forms in the active feedback-forms folder for future analysis
   - [ ] Document which specific forms were archived vs. kept active in the review summary
 - [ ] **Record Ratings**: Extract ratings via [`extract_ratings.py`](../../scripts/extract_ratings.py) and record in database via `feedback_db.py record` (see Step 15 for commands)
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-010" and context "Tools Review"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-010" and context "Tools Review"
 - [ ] **Schedule Next Review**: Set a reminder for the next tools review cycle
 
 ## Next Tasks
@@ -199,7 +193,3 @@ Before considering this task finished:
 
 - [Feedback Process Guide](../../../process-framework-local/feedback/archive/README.md) - Guide for collecting and processing feedback
 - [Task Creation and Improvement Guide](../../guides/support/task-creation-guide.md) - Guide for creating and improving tasks
-
-## Critical Process Note
-
-**USER FEEDBACK IS MANDATORY**: The AI assistant must actively solicit and collect human user feedback before completing any feedback form. This is not optional - the process cannot be considered complete without genuine user input on the session's effectiveness, challenges, and improvement suggestions.

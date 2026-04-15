@@ -113,7 +113,7 @@ New-BugReport.ps1 `
 
 After creating a bug report:
 
-1. **Automatic Status**: Bug gets status "🆕 Reported"
+1. **Automatic Status**: Bug gets status "🆕 Needs Triage"
 2. **Triage Required**: Bug needs evaluation via Bug Triage task
 3. **Priority Assignment**: Triage will assign business priority
 4. **Assignment**: Triage will recommend developer/team
@@ -156,6 +156,24 @@ New-BugReport.ps1 `
   -RelatedFeature "User Profile Enhancement"
 ```
 
+### Pre-Triaged Bug Reports
+
+When the reporter already has complete root cause analysis and scope, use `-PreTriaged` to create the bug directly in `🔍 Needs Fix` status, skipping the separate triage step:
+
+```powershell
+New-BugReport.ps1 `
+  -Title "Parser skips backtick-delimited paths" `
+  -Description "Markdown parser ignores paths wrapped in backticks" `
+  -DiscoveredBy "CodeReview" `
+  -Severity "Medium" `
+  -Component "Parsers" `
+  -PreTriaged `
+  -Scope "Single parser module" `
+  -RelatedFeature "2.1.1"
+```
+
+> **When to use**: During code review, validation, or refactoring when you've already identified root cause, affected scope, and severity. The bug proceeds directly to Bug Fixing (PF-TSK-007).
+
 ## Best Practices
 
 ### Do's
@@ -172,7 +190,7 @@ New-BugReport.ps1 `
 - ❌ **Don't assign yourself**: Let triage recommend assignment
 - ❌ **Don't duplicate**: Check existing bugs first
 - ❌ **Don't be vague**: Provide specific, actionable information
-- ❌ **Don't skip triage**: All bugs need proper evaluation
+- ❌ **Don't skip triage**: All bugs need proper evaluation (use `-PreTriaged` only when you have complete root cause)
 
 ## Script Output
 

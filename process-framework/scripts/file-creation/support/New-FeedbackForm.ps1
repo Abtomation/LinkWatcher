@@ -54,9 +54,16 @@ try {
         $customReplacements["| Task Context | [Brief description of what was accomplished] |"] = "| Task Context | $TaskContext |"
     }
 
+    # Override frontmatter additional_fields with actual values (PF-IMP-534)
+    $additionalMetadataFields = @{
+        "feedback_type" = $feedbackTypeDisplay
+        "task_context"  = $TaskContext
+        "document_id"   = $DocumentId
+    }
+
     # Create document using standardized process
     $templatePath = "process-framework/templates/support/feedback-form-template.md"
-    $artifactId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "PF-FEE" -IdDescription "Feedback form for ${DocumentId}" -DocumentName "$DocumentId-feedback" -OutputDirectory "process-framework-local/feedback/$OutputDir" -Replacements $customReplacements -FileNamePattern "$formattedTimestamp-$DocumentId-feedback.md" -OpenInEditor:$OpenInEditor
+    $artifactId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "PF-FEE" -IdDescription "Feedback form for ${DocumentId}" -DocumentName "$DocumentId-feedback" -OutputDirectory "process-framework-local/feedback/$OutputDir" -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -FileNamePattern "$formattedTimestamp-$DocumentId-feedback.md" -OpenInEditor:$OpenInEditor
 
     if ($artifactId) {
         $details = @(

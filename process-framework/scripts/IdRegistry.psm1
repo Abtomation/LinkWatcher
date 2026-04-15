@@ -36,6 +36,17 @@ function Get-IdRegistryPath {
             return Join-Path -Path $localDir -ChildPath "PF-id-registry-local.json"
         }
 
+        # Performance test prefixes (BM, PH) live in the TE registry
+        $testPrefixes = @('BM', 'PH')
+        if ($testPrefixes -contains $Prefix) {
+            return Join-Path -Path $projectRoot -ChildPath "test/TE-id-registry.json"
+        }
+
+        # User workflow prefix (WF) lives in the PD registry
+        if ($Prefix -eq 'WF') {
+            return Join-Path -Path $docDir -ChildPath "PD-id-registry.json"
+        }
+
         $prefixKey = ($Prefix -split '-')[0] + '-'
         switch ($prefixKey) {
             'PD-' { return Join-Path -Path $docDir -ChildPath "PD-id-registry.json" }

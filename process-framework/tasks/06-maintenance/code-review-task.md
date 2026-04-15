@@ -47,7 +47,7 @@ Review implemented code to ensure it meets quality standards, follows project co
   - Environment configuration files - For environment-specific settings review
 
 - **Reference Only (Access When Needed):**
-  - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - To identify features with "👀 Ready for Review" status
+  - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - To identify features with "👀 Needs Review" status
   - [Architecture Decision Records](/doc/technical/adr) - For architectural context
   - [Test Tracking](../../../test/state-tracking/permanent/test-tracking.md) - For test coverage context
 
@@ -65,7 +65,7 @@ Review implemented code to ensure it meets quality standards, follows project co
 
 ### Preparation
 
-1. Review the [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) document to identify features with "👀 Ready for Review" status
+1. Review the [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) document to identify features with "👀 Needs Review" status
 2. Select the next feature for code review
 3. Review the TDD to understand the intended design and requirements
 4. **Read the feature's Dimension Profile** from its implementation state file (or the bug's Dims column for bug fix reviews). Focus the review on **Critical** dimensions using the review focus points from the [Development Dimensions Guide](../../guides/framework/development-dimensions-guide.md)
@@ -192,7 +192,10 @@ Review implemented code to ensure it meets quality standards, follows project co
     - 🔵 **Suggestion**: Recommendations for improvement
     - 🟢 **Positive**: Acknowledge good practices and well-implemented solutions
 23. Update the feature tracking document to reflect the review status
-24. Update test implementation tracking based on test review results
+24. **Bug fix reviews**: If this review is for a bug fix (identified by the bug's Dims column rather than a feature implementation state file), update [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md):
+    - **On approval**: Transition bug from 👀 Needs Review → 🔒 Closed using `Update-BugStatus.ps1 -BugId "PD-BUG-XXX" -NewStatus "Closed" -VerificationNotes "Code review approved, no regressions"`. The script automatically moves the entry to the Closed section and recalculates statistics.
+    - **On rejection**: Transition bug back to 🟡 In Progress and route back to Bug Fixing (PF-TSK-007) with review findings.
+25. Update test implementation tracking based on test review results
 25. **🚨 MANDATORY FINAL STEP**: Complete the Task Completion Checklist below
 
 ## Outputs
@@ -209,13 +212,14 @@ Review implemented code to ensure it meets quality standards, follows project co
 The following state files must be updated as part of this task:
 
 - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Update with:
-  - Code review status (🟢 Completed/🔄 Needs Revision)
+  - Code review status (🔎 Needs Test Scoping/🔄 Needs Enhancement)
   - Test Summary status (recalculated based on test case implementation tracking updates)
   - Review date and time
   - Link to review document
   - Reviewer information (AI Agent + human partner collaboration)
   - List of major findings or concerns
   - Performance and accessibility notes
+- [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) - **Conditional** (only for bug fix reviews): Transition bug from 👀 Needs Review → 🔒 Closed on approval, or back to 🟡 In Progress on rejection
 - [Test Tracking](../../../test/state-tracking/permanent/test-tracking.md) - Update test status based on review:
   - Confirm "✅ Tests Implemented" if tests are passing and well-implemented
   - Change to "🔴 Tests Failing" if test issues are found
@@ -271,20 +275,20 @@ Before considering this task finished:
   - [ ] Review follows the code review checklist completely
 
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
-  - [ ] [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) shows correct review status
+  - [ ] [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) shows correct review status (`🔎 Needs Test Scoping` if passed, `🔄 Needs Enhancement` if not)
   - [ ] [Test Tracking](../../../test/state-tracking/permanent/test-tracking.md) updated with test review results
   - [ ] Review date, time, and reviewer information recorded
   - [ ] Link to review document included
   - [ ] Major findings and performance notes summarized in the tracking document
   - [ ] Test coverage percentages updated
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-005" and context "Code Review"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-005" and context "Code Review"
 
 ## Next Tasks
 
+- [**Performance & E2E Test Scoping (PF-TSK-086)**](../03-testing/performance-and-e2e-test-scoping-task.md) - If the review passed, feature moves to `🔎 Needs Test Scoping` for performance and E2E test needs identification
 - [**Feature Implementation Planning**](../04-implementation/feature-implementation-planning-task.md) - If issues were found, addresses the feedback from the code review
 - [**Code Refactoring**](code-refactoring-task.md) - If technical debt or code quality issues were identified
 - [**User Documentation Creation**](../07-deployment/user-documentation-creation.md) - If the feature introduces or changes user-visible behavior, create/update handbooks before release
-- [**Release Deployment**](../07-deployment/release-deployment-task.md) - If the review passed and user docs are complete, proceeds to deployment preparation
 
 - [**Technical Debt Assessment**](../cyclical/technical-debt-assessment-task.md) - If systemic issues were found that affect multiple features
 

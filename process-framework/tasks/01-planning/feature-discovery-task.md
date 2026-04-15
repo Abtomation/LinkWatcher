@@ -106,7 +106,7 @@ Identify and document potential new features through user research, competitive 
 
 The following state files must be updated as part of this task:
 
-- [Feature Request Tracking](../../../doc/state-tracking/permanent/feature-request-tracking.md) - Add discovered features as new requests with status "Submitted"
+- [Feature Request Tracking](../../../doc/state-tracking/permanent/feature-request-tracking.md) - Add discovered features as new requests with status "📥 Submitted"
 - [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) - Update with:
   - Any technical explorations needed before implementation
   - Open questions that require investigation
@@ -122,11 +122,11 @@ Before considering this task finished:
   - [ ] User benefits and justifications captured in the Notes column
   - [ ] Technical exploration items documented in Technical Debt Tracking (if applicable)
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
-  - [ ] Feature Request Tracking updated with discovered features (status: Submitted)
+  - [ ] Feature Request Tracking updated with discovered features (status: 📥 Submitted)
   - [ ] Initial priorities assigned to all new requests
   - [ ] Dependencies identified and documented in Notes
   - [ ] Technical Debt Tracking updated with any required explorations
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-013" and context "Feature Discovery"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-013" and context "Feature Discovery"
 
 ## Next Tasks
 

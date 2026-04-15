@@ -149,7 +149,7 @@ Before considering this task finished:
   - [ ] Feature implementation state file has handbook row in Documentation Inventory
   - [ ] PD-documentation-map.md has handbook entry under User Handbooks
   - [ ] Feature tracking updated manually if User Docs column exists
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-081" and context "User Documentation Creation"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-081" and context "User Documentation Creation"
 
 ## Next Tasks
 

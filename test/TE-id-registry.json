@@ -17,7 +17,7 @@
         "templates": "test/e2e-acceptance-testing/templates",
         "default": "templates"
       },
-      "nextAvailable": 12
+      "nextAvailable": 14
     },
     "TE-E2E": {
       "description": "E2E Acceptance Testing - Test Cases",
@@ -27,7 +27,7 @@
         "templates": "test/e2e-acceptance-testing/templates",
         "default": "templates"
       },
-      "nextAvailable": 23
+      "nextAvailable": 29
     },
     "TE-TSP": {
       "description": "Test - Test Specifications",
@@ -74,7 +74,27 @@
         "performance": "test/automated/performance",
         "default": "unit"
       },
-      "nextAvailable": 131
+      "nextAvailable": 132
+    },
+    "BM": {
+      "description": "Performance - Benchmark Tests (Component Level 1, Operation Level 2)",
+      "category": "Testing",
+      "type": "Performance Benchmark",
+      "directories": {
+        "performance": "test/automated/performance",
+        "default": "performance"
+      },
+      "nextAvailable": 7
+    },
+    "PH": {
+      "description": "Performance - Scale and Resource Tests (Scale Level 3, Resource Level 4)",
+      "category": "Testing",
+      "type": "Performance Scale Test",
+      "directories": {
+        "performance": "test/automated/performance",
+        "default": "performance"
+      },
+      "nextAvailable": 7
     }
   }
 }

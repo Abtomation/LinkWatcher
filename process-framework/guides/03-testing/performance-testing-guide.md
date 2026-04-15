@@ -20,7 +20,7 @@ Performance testing is a **cross-cutting concern** — tests are not owned by in
 Consult this guide when:
 
 - **Creating new performance tests** — use the test level definitions and measurement methodology
-- **Deciding whether a feature needs performance tests** — use the decision matrix
+- **Deciding whether a feature needs performance tests** — see the [Performance & E2E Test Scoping Guide](/process-framework/guides/03-testing/performance-and-e2e-test-scoping-guide.md) (decision matrix lives there)
 - **Setting or updating baselines** — follow the baseline management process
 - **Interpreting trend data** — use the trend analysis section to understand regressions vs. noise
 
@@ -136,40 +136,13 @@ def test_bm_001_parsing_throughput(self, tmp_path):
 
 ## Decision Matrix
 
-Use this matrix to determine whether a feature change requires performance testing.
-
-### Does This Change Need Performance Tests?
-
-```
-Feature changes a parser or database module?
-├─ Yes → Update relevant Component benchmarks (Level 1)
-│
-Feature changes an end-to-end operation pipeline?
-├─ Yes → Verify Operation benchmarks don't regress (Level 2)
-│
-Feature changes data structures, algorithms, or scaling characteristics?
-├─ Yes → Update Scale tests (Level 3)
-│
-Feature changes memory allocation, caching, or concurrency?
-├─ Yes → Verify Resource bounds (Level 4)
-│
-None of the above?
-└─ No performance testing needed for this feature
-```
-
-### By Feature Tier
-
-| Feature Tier | Default Performance Testing | Exceptions |
-|-------------|---------------------------|-----------|
-| Tier 1 (Simple) | Not required | Required if touching a hot-path component |
-| Tier 2 (Medium) | PE dimension evaluation during Test Spec Creation | Always when touching parsers, updater, or handler |
-| Tier 3 (Complex) | PE dimension included by default | Mandatory for all hot-path components |
+> **Migrated**: The performance test decision matrix has moved to the [Performance & E2E Test Scoping Guide](/process-framework/guides/03-testing/performance-and-e2e-test-scoping-guide.md#performance-test-decision-matrix), which is the authoritative reference for "when to create performance tests." This guide focuses on "how to test" — levels, baselines, and trends.
 
 ### Trigger Points in the Workflow
 
 Performance testing is triggered at these points:
 
-1. **After implementation** — Apply the [decision matrix](#decision-matrix) to determine if performance tests are needed for the implemented code changes
+1. **After code review** — The [Performance & E2E Test Scoping task (PF-TSK-086)](/process-framework/tasks/03-testing/performance-and-e2e-test-scoping-task.md) applies the decision matrix and adds entries to performance-test-tracking.md
 2. **Definition of Done** — "No regression in Operation benchmarks (verified via Baseline Capture)"
 3. **Pre-release verification** — Run Baseline Capture, verify no regressions
 4. **Post-refactoring** — If performance-affecting code changed, trigger Baseline Capture
@@ -368,7 +341,9 @@ python process-framework/scripts/test/performance_db.py export --format csv
 
 Combined registry + baselines + lifecycle status. Single source of truth for all performance tests.
 
-**Lifecycle**: ⬜ Specified → 📋 Created → ✅ Baselined → ⚠️ Stale
+**Lifecycle**: ⬜ Specified → 📋 Created → 🔍 Audit Approved → ✅ Baselined → ⚠️ Stale
+
+> **Audit gate**: Newly created tests (`📋 Created`) must pass [Test Audit (PF-TSK-030)](/process-framework/tasks/03-testing/test-audit-task.md) with `-TestType Performance` before baseline capture. The `⚠️ Stale` → `✅ Baselined` path is exempt (tests were already audited when first created).
 
 ### Results Database
 
@@ -381,7 +356,8 @@ Stores historical measurements for trend analysis. Each record includes test ID,
 
 | Task | Role in Performance Testing |
 |------|---------------------------|
-| Performance Test Creation (PF-TSK-084) | Implements tests using the decision matrix, registers in tracking |
+| Performance & E2E Test Scoping (PF-TSK-086) | Identifies which performance tests are needed per feature (owns the decision matrix) |
+| Performance Test Creation (PF-TSK-084) | Implements tests from `⬜ Specified` entries in tracking, registers in tracking |
 | Performance Baseline Capture (PF-TSK-085) | Runs tests, records results, detects regressions |
 
 ## Troubleshooting
@@ -412,6 +388,7 @@ Stores historical measurements for trend analysis. Each record includes test ID,
 
 ## Related Resources
 
+- [Performance & E2E Test Scoping Guide](/process-framework/guides/03-testing/performance-and-e2e-test-scoping-guide.md) — Decision matrix for "when to test" (companion to this guide's "how to test")
 - [Performance Test Tracking](/test/state-tracking/permanent/performance-test-tracking.md) — Registry of all performance tests with baselines
 - [Performance Results Database](/process-framework/scripts/test/performance_db.py) — Trend storage and query tool
 - [Test Infrastructure Guide](/process-framework/guides/03-testing/test-infrastructure-guide.md) — How test/ connects to the framework

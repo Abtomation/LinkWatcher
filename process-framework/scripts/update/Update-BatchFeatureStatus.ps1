@@ -26,8 +26,14 @@ Array of feature IDs to update (e.g., @("1.2.1", "1.2.2", "1.2.3"))
 
 .PARAMETER Status
 The new status to apply to all features:
+- "⬜ Needs Assessment"
+- "📋 Needs FDD"
+- "📝 Needs TDD"
+- "🧪 Needs Test Spec"
+- "🔧 Needs Impl Plan"
 - "🟡 In Progress"
-- "🔄 Needs Revision"
+- "👀 Needs Review"
+- "🔄 Needs Enhancement"
 - "🟢 Completed"
 - "🔴 Blocked"
 - "⏸️ On Hold"
@@ -89,7 +95,7 @@ param(
     [string[]]$FeatureIds,
 
     [Parameter(Mandatory = $true)]
-    [ValidateSet("🟡 In Progress", "🧪 Testing", "👀 Ready for Review", "🔄 Needs Revision", "🟢 Completed", "🔴 Blocked", "⏸️ On Hold")]
+    [ValidateSet("⬜ Needs Assessment", "📋 Needs FDD", "🗄️ Needs DB Design", "🔌 Needs API Design", "📝 Needs TDD", "🧪 Needs Test Spec", "🔧 Needs Impl Plan", "🟡 In Progress", "👀 Needs Review", "🔎 Needs Test Scoping", "🔄 Needs Enhancement", "🟢 Completed", "🔴 Blocked", "⏸️ On Hold")]
     [string]$Status,
 
     [Parameter(Mandatory = $true)]
@@ -179,8 +185,8 @@ if ($DryRun) {
 # Get project root and define file paths
 $projectRoot = Get-ProjectRoot
 $trackingFiles = @(
-    Join-Path $projectRoot "doc/state-tracking/permanent/feature-tracking.md",
-    Join-Path $projectRoot "test/state-tracking/permanent/test-tracking.md"
+    (Join-Path $projectRoot "doc/state-tracking/permanent/feature-tracking.md"),
+    (Join-Path $projectRoot "test/state-tracking/permanent/test-tracking.md")
 )
 
 # Confirmation prompt for bulk operations (unless Force is specified)
@@ -197,8 +203,12 @@ if (-not $Force -and -not $DryRun) {
 # Create comprehensive backup before making changes
 if (-not $DryRun) {
     Write-Host "📦 Creating comprehensive backup..." -ForegroundColor Blue
-    $backupInfo = Get-StateFileBackup -FilePaths $trackingFiles -BackupReason "BatchFeatureUpdate-$batchId"
-    Write-Host "   Backups created: $($backupInfo.BackupDirectory)" -ForegroundColor Green
+    foreach ($file in $trackingFiles) {
+        if (Test-Path $file) {
+            Get-StateFileBackup -FilePath $file | Out-Null
+        }
+    }
+    Write-Host "   Backups processed for $($trackingFiles.Count) files" -ForegroundColor Green
 }
 
 # Initialize batch tracking
@@ -273,36 +283,41 @@ try {
             Write-Host "   📄 $file" -ForegroundColor Cyan
         }
     } else {
-        # Perform atomic batch update
-        Write-Host "🔄 Executing atomic batch update..." -ForegroundColor Blue
+        # Perform batch update by iterating over features
+        Write-Host "🔄 Executing batch update..." -ForegroundColor Blue
 
-        # Use the Update-MultipleTrackingFiles function for atomic operations
-        $batchUpdateResult = Update-MultipleTrackingFiles -UpdateOperations $updateOperations -FilePaths $trackingFiles -BatchId $batchId
+        # Build tracking file info array for Update-MultipleTrackingFiles
+        $trackingFileInfos = @(
+            @{ Path = $trackingFiles[0]; Type = "Feature"; Required = $true },
+            @{ Path = $trackingFiles[1]; Type = "Test"; Required = $false }
+        )
 
-        if ($batchUpdateResult.Success) {
-            $batchResults.ProcessedFeatures = $updateOperations
-            $batchResults.FilesModified = $batchUpdateResult.ModifiedFiles
+        foreach ($operation in $updateOperations) {
+            try {
+                Write-Host "   🔄 Updating feature $($operation.FeatureId)..." -ForegroundColor Cyan
+                Update-MultipleTrackingFiles `
+                    -TrackingFiles $trackingFileInfos `
+                    -FeatureId $operation.FeatureId `
+                    -StatusColumn "Status" `
+                    -Status $operation.Status `
+                    -Notes $operation.UpdateNotes | Out-Null
 
-            Write-Host "✅ Batch update completed successfully!" -ForegroundColor Green
-
-            # Synchronize cross-references
-            Write-Host "🔄 Synchronizing cross-references..." -ForegroundColor Blue
-            Sync-CrossReferencedFiles -FilePaths $trackingFiles
-
-            # Validate consistency
-            Write-Host "✅ Validating file consistency..." -ForegroundColor Blue
-            $validationResult = Validate-StateFileConsistency -FilePaths $trackingFiles
-
-            if ($validationResult.IsValid) {
-                Write-Host "✅ All files updated successfully and are consistent!" -ForegroundColor Green
-            } else {
-                Write-Warning "⚠️ Consistency validation found issues:"
-                $validationResult.Issues | ForEach-Object { Write-Warning "   $_" }
+                $batchResults.ProcessedFeatures += $operation
+                Write-Host "   ✅ Feature $($operation.FeatureId) updated" -ForegroundColor Green
+            } catch {
+                Write-Warning "   ⚠️ Failed to update feature $($operation.FeatureId): $($_.Exception.Message)"
+                $batchResults.FailedFeatures += @{
+                    FeatureId = $operation.FeatureId
+                    Error = $_.Exception.Message
+                }
+                if (-not $ContinueOnError) {
+                    throw
+                }
             }
-
-        } else {
-            throw "Batch update failed: $($batchUpdateResult.Error)"
         }
+
+        $batchResults.FilesModified = $trackingFiles
+        Write-Host "✅ Batch update completed!" -ForegroundColor Green
     }
 
     # Generate final summary
@@ -317,11 +332,20 @@ try {
         FilesModified = $batchResults.FilesModified.Count
     }
 
-    # Save batch results
+    # Save batch results and clean up prior successful results
     if (-not $DryRun) {
-        $resultsPath = Join-Path $projectRoot "process-framework-local/state-tracking/temporary/batch-update-results-$batchId.json"
+        $resultsDir = Join-Path $projectRoot "process-framework-local/state-tracking/temporary"
+        $resultsPath = Join-Path $resultsDir "batch-update-results-$batchId.json"
         $batchResults | ConvertTo-Json -Depth 10 | Set-Content -Path $resultsPath -Encoding UTF8
         Write-Host "📊 Batch results saved: $resultsPath" -ForegroundColor Blue
+
+        # Remove prior successful batch results (keep failed ones for investigation)
+        $priorResults = Get-ChildItem -Path $resultsDir -Filter "batch-update-results-BATCH-UPDATE-*.json" |
+            Where-Object { $_.Name -notlike "*-FAILED.json" -and $_.FullName -ne (Resolve-Path $resultsPath).Path }
+        foreach ($old in $priorResults) {
+            Remove-Item $old.FullName -Force
+            Write-Host "🧹 Cleaned up old batch result: $($old.Name)" -ForegroundColor DarkGray
+        }
     }
 
     # Display comprehensive summary

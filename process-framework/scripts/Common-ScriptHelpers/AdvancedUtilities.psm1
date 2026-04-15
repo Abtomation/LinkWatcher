@@ -81,7 +81,12 @@ function Test-ScriptDependencies {
         # Check required modules
         foreach ($module in $RequiredModules) {
             try {
-                $moduleInfo = Get-Module -Name $module -ListAvailable -ErrorAction Stop
+                # Check already-loaded modules first (catches project-local modules
+                # imported by path), then fall back to ListAvailable for installed modules
+                $moduleInfo = Get-Module -Name $module -ErrorAction SilentlyContinue
+                if (-not $moduleInfo) {
+                    $moduleInfo = Get-Module -Name $module -ListAvailable -ErrorAction SilentlyContinue
+                }
                 if ($moduleInfo) {
                     $dependencyResults.AvailableModules += $module
                     Write-Verbose "Module available: $module"

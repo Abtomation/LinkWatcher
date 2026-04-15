@@ -3,9 +3,9 @@ id: PF-TSK-059
 type: Process Framework
 category: Task Definition
 domain: agnostic
-version: 1.1
+version: 1.2
 created: 2026-02-16
-updated: 2026-03-22
+updated: 2026-04-14
 ---
 
 # Project Initiation
@@ -30,7 +30,7 @@ Establishes foundational project configuration and metadata when initializing a 
 
 ## Context Requirements
 
-[View Context Map for this task](../../visualization/context-maps/support/project-initiation-map.md)
+[View Context Map for this task](../../visualization/context-maps/00-setup/project-initiation-map.md)
 
 - **Critical (Must Read):**
 
@@ -73,9 +73,14 @@ Establishes foundational project configuration and metadata when initializing a 
    - Scripts directory
 4. **🚨 CHECKPOINT**: Present gathered project information and identified paths to human partner for confirmation before creating configuration file
 
+5. **Decide on Foundation Category (0.x)**: Ask the human partner whether this project needs architectural foundation features before business features. Foundation features (0.x category) are appropriate when the project requires custom frameworks, core infrastructure patterns, or shared architectural enablers that business features will build on. This is an **opt-in decision** — not all projects need a foundation layer.
+   > If yes: after Project Initiation completes, follow the [Architecture-First workflow](/process-framework/ai-tasks.md#for-greenfield-projects-architecture-first) to implement 0.x features before business features.
+   >
+   > If no: proceed directly to business feature workflows after Project Initiation.
+
 ### Execution
 
-5. **Set Up Git Repository**: Discuss and agree with human partner on git configuration:
+6. **Set Up Git Repository**: Discuss and agree with human partner on git configuration:
    - Where the git root should be (project root directory)
    - Confirm the project directory has its own `.git` (not inherited from a parent directory)
    - If a parent `.git` exists: warn the human partner — a repo rooted above the project tracks unrelated files and should be split
@@ -84,7 +89,7 @@ Establishes foundational project configuration and metadata when initializing a 
    - Set up remote repository if applicable (`git remote add origin <url>`)
    - **🚨 CHECKPOINT**: Confirm git setup with human partner before proceeding
 
-6. **Create project-config.json File**: At the project root directory, create `project-config.json` with the following structure:
+7. **Create project-config.json File**: In the `doc/` directory, create `project-config.json` with the following structure:
 
    ```json
    {
@@ -141,16 +146,16 @@ Establishes foundational project configuration and metadata when initializing a 
    }
    ```
 
-7. **Customize Field Values**: Replace all placeholders `[...]` with actual project-specific values:
+8. **Customize Field Values**: Replace all placeholders `[...]` with actual project-specific values:
    - Use Windows path format with double backslashes (`\\`) for paths on Windows
    - Use forward slashes (`/`) for relative paths in the `paths` section
    - Set values to `null` for optional fields that don't apply
-   - **`paths.source_code`**: Set to the actual source directory name (e.g., `src`, `lib`, `app`). Do **not** leave as `"."` — this value drives the [Source Code Layout](/doc/technical/architecture/source-code-layout.md) scaffold script and validation. No directories are created at this point — that is deferred to Codebase Feature Discovery (PF-TSK-064) after features are known.
+   - **`paths.source_code`**: Set to the actual source directory name (e.g., `src`, `lib`, `app`). Do **not** leave as `"."` — this value drives the [Source Code Layout](/doc/technical/architecture/source-code-layout.md) scaffold script and validation. The `source-code-layout.md` file should already exist at `doc/technical/architecture/` (created from the blueprint template). No directories are created at this point — that is deferred to Codebase Feature Discovery (PF-TSK-064) after features are known.
 
-8. **Validate JSON Syntax**: Ensure the file is valid JSON (check for missing commas, brackets, quotes)
-9. **Set Up Language Configuration**: Check if `languages-config/{language}/{language}-config.json` exists for the project's language. If not, copy the [language config template](/process-framework/templates/support/language-config-template.json) to `languages-config/{language}/{language}-config.json` and fill in language-specific values (test runner, coverage, lint commands). See [languages-config README](/process-framework/languages-config/README.md).
+9. **Validate JSON Syntax**: Ensure the file is valid JSON (check for missing commas, brackets, quotes)
+10. **Set Up Language Configuration**: Check if `languages-config/{language}/{language}-config.json` exists for the project's language. If not, copy the [language config template](/process-framework/templates/support/language-config-template.json) to `languages-config/{language}/{language}-config.json` and fill in language-specific values (test runner, coverage, lint commands). See [languages-config README](/process-framework/languages-config/README.md).
 
-10. **Set Up Testing Infrastructure**: Run the bootstrapping script to scaffold the test environment:
+11. **Set Up Testing Infrastructure**: Run the bootstrapping script to scaffold the test environment:
    ```bash
    pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/00-setup/New-TestInfrastructure.ps1 -Language "<language>"
    ```
@@ -158,31 +163,31 @@ Establishes foundational project configuration and metadata when initializing a 
    - After running: create native test runner config (e.g., `pytest.ini` for Python)
    - After running: install test dependencies (e.g., `pip install pytest pytest-cov`)
 
-11. **Set Up CI/CD Infrastructure** (optional): Follow the [CI/CD Setup Guide](/process-framework/guides/07-deployment/ci-cd-setup-guide.md) to scaffold development tooling:
+12. **Set Up CI/CD Infrastructure** (optional): Follow the [CI/CD Setup Guide](/process-framework/guides/07-deployment/ci-cd-setup-guide.md) to scaffold development tooling:
     - Create pre-commit hooks config (`.pre-commit-config.yaml`)
     - Create dev script (`dev.bat` / `dev.sh`)
     - Create CI pipeline (if using a Git hosting platform)
 
-12. **🚨 CHECKPOINT**: Present completed project-config.json, language config, test infrastructure, and CI/CD setup to human partner for review before finalization
+13. **🚨 CHECKPOINT**: Present completed project-config.json, language config, test infrastructure, and CI/CD setup to human partner for review before finalization
 
 ### Finalization
 
-13. **Verify File Location**: Confirm `project-config.json` is in the project root directory and language config is in `languages-config`
+14. **Verify File Location**: Confirm `project-config.json` is in `doc/` and language config is in `languages-config`
 
-14. **Test Configuration**: Verify the full setup works:
+15. **Test Configuration**: Verify the full setup works:
     - `Run-Tests.ps1 -ListCategories` shows test categories
     - `Run-Tests.ps1 -Quick` runs successfully (if test files exist)
     - `pre-commit run --all-files` passes (if pre-commit was set up)
     - `dev test` works (if dev script was created)
 
-15. **Document Project-Specific Notes**: If there are any non-standard configurations or important context, add comments to this task or create a project README
+16. **Document Project-Specific Notes**: If there are any non-standard configurations or important context, add comments to this task or create a project README
 
-16. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+17. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 
 - **Git repository** - Initialized git repo at project root with `.gitignore` and optional remote
-- **project-config.json** - JSON configuration file created at project root directory containing:
+- **project-config.json** - JSON configuration file created at `doc/project-config.json` containing:
   - Project identification (name, display name, description, repository URL)
   - Directory path mappings (documentation, source code, tests, scripts)
   - Testing configuration (language, test directory, quick categories)
@@ -222,7 +227,7 @@ Before considering this task finished:
   - [ ] `.gitignore` exists with language-appropriate exclusions
   - [ ] No parent directory has a `.git` that would shadow this repo
   - [ ] Remote configured (if applicable)
-  - [ ] `project-config.json` file exists at project root directory
+  - [ ] `project-config.json` file exists at `doc/project-config.json`
   - [ ] All required fields are populated with project-specific values (no `[...]` placeholders remain)
   - [ ] JSON syntax is valid (file can be parsed without errors)
   - [ ] Paths use correct format (double backslashes for absolute Windows paths, forward slashes for relative paths)
@@ -237,7 +242,7 @@ Before considering this task finished:
   - [ ] Shared fixtures/setup file exists (e.g., `conftest.py`)
   - [ ] Pre-commit hooks work (if configured): `pre-commit run --all-files`
 
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for task ID "PF-TSK-059" and context "Project Initiation"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for task ID "PF-TSK-059" and context "Project Initiation"
 
 ## Next Tasks
 

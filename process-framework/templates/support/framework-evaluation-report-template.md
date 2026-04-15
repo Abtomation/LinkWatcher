@@ -2,9 +2,9 @@
 id: PF-TEM-064
 type: Process Framework
 category: Template
-version: 1.0
+version: 1.1
 created: 2026-03-24
-updated: 2026-03-24
+updated: 2026-04-14
 description: Template for structured framework evaluation reports with dimension scoring
 creates_document_prefix: PF-EVR
 template_for: Evaluation Report
@@ -55,6 +55,8 @@ creates_document_version: 1.0
 **Score Legend**: 4 = Excellent, 3 = Good, 2 = Adequate, 1 = Poor
 
 ## Detailed Findings
+
+> **Cross-cutting findings**: When a finding affects 2+ dimensions, record it once in the [Cross-Cutting Findings](#cross-cutting-findings) section below and reference it by ID (e.g., "See X-1") in each affected dimension's table. Do not repeat the full description under each dimension.
 
 ### 1. Completeness
 
@@ -151,6 +153,14 @@ creates_document_version: 1.0
 | # | Finding | Severity | Affected Artifact(s) |
 |---|---------|----------|---------------------|
 | S-1 | [Description] | [High/Medium/Low] | [File path(s)] |
+
+## Cross-Cutting Findings
+
+> Findings that affect 2+ dimensions are listed here once. Each dimension's findings table references these by ID rather than repeating the description.
+
+| # | Finding | Severity | Affected Dimensions | Affected Artifact(s) |
+|---|---------|----------|---------------------|---------------------|
+| X-1 | [Description of cross-cutting issue] | [High/Medium/Low] | [e.g., Consistency, Accuracy] | [File path(s)] |
 
 ## Industry Research Context
 

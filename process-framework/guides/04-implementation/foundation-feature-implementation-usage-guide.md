@@ -411,7 +411,7 @@ Is the feature expected to take multiple sessions?
 
 ### Related Resources for Mode Selection
 
-- [Task Transition Guide](../framework/task-transition-guide.md) - Decomposed task workflow details
+- [Task Transition Registry](../../infrastructure/task-transition-registry.md) - Decomposed task workflow details
 - [Feature Implementation Planning (PF-TSK-044)](../../tasks/04-implementation/feature-implementation-planning-task.md) - Entry point for decomposed implementation
 - [Feature Implementation Planning (PF-TSK-044)](../../tasks/04-implementation/feature-implementation-planning-task.md) - Decomposed mode entry point
 - [Feature Implementation State Template](../../templates/04-implementation/feature-implementation-state-template.md) - State file for decomposed mode

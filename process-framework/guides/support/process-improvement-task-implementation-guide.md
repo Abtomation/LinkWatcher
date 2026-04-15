@@ -79,7 +79,7 @@ Before you begin, ensure you have:
    - Get approval
    - Make the change
    - Confirm it meets expectations
-3. **Update linked documents** — search for files that reference the changed file(s) and update or remove outdated content
+3. **Verify linked documents** — grep for each modified file's path/filename, read surrounding context for each hit, build a hit list table with dispositions (Updated / No change needed), and present it at the review checkpoint
 
 **Expected Result:** All changes implemented with human approval at each step
 
@@ -157,4 +157,4 @@ Before you begin, ensure you have:
 - [Process Improvement Task Definition](../../tasks/support/process-improvement-task.md) - Complete task definition with all requirements
 - [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) - State tracking for improvement initiatives
 - [Tools Review Task](../../tasks/support/tools-review-task.md) - Upstream task that identifies and prioritizes improvements
-- [Feedback Form Completion Instructions](../framework/feedback-form-completion-instructions.md) - Standard feedback form procedures
+- [Feedback Form Guide](../framework/feedback-form-guide.md) - Standard feedback form procedures

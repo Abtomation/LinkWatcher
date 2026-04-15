@@ -28,7 +28,7 @@ Before considering this task finished:
    **Script automatically**:
    - Names file using format: `YYYYMMDD-HHMMSS-document-id-feedback.md`
    - Places file in `/process-framework-local/feedback/feedback-forms`
-   - Assigns unique artifact IDs (`ART-FEE-XXX`) in metadata
+   - Assigns unique artifact IDs (`PF-FEE-XXX`) in metadata
 
    For more details, see the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md).
 

@@ -230,15 +230,18 @@ function Start-LinkWatcher {
         [string]$WatchPath,
         [int]$MaxWaitSeconds = 30,
         [int]$SettleDelay = 3,
-        [switch]$DryRun
+        [string]$LwFlags = ""
     )
 
     # Start LinkWatcher scoped to the workspace directory (not full project)
     $mainPy = Join-Path $ProjectRoot "main.py"
     $logFile = Join-Path $WatchPath "linkwatcher-e2e.log"
     $arguments = "`"$mainPy`" --project-root `"$WatchPath`" --log-file `"$logFile`" --debug"
-    if ($DryRun) {
-        $arguments += " --dry-run"
+
+    # Resolve <workspace> placeholder and append any extra flags from test-case.md
+    if ($LwFlags -ne "") {
+        $resolvedFlags = $LwFlags -replace '<workspace>', $WatchPath
+        $arguments += " $resolvedFlags"
     }
 
     $lwProcess = Start-Process -FilePath "python" -ArgumentList $arguments -WorkingDirectory $WatchPath -WindowStyle Hidden -PassThru -RedirectStandardOutput (Join-Path $WatchPath "lw-stdout.txt") -RedirectStandardError (Join-Path $WatchPath "lw-stderr.txt")
@@ -247,8 +250,8 @@ function Start-LinkWatcher {
         Write-ProjectError -Message "Failed to start LinkWatcher"
         return
     }
-    $dryRunLabel = if ($DryRun) { ", dry-run" } else { "" }
-    Write-Host "  ▶️  LinkWatcher started scoped to workspace (PID: $($lwProcess.Id)${dryRunLabel})" -ForegroundColor DarkGray
+    $flagsLabel = if ($LwFlags -ne "") { ", flags: $LwFlags" } else { "" }
+    Write-Host "  ▶️  LinkWatcher started scoped to workspace (PID: $($lwProcess.Id)${flagsLabel})" -ForegroundColor DarkGray
 
     # Wait for initial scan to complete by polling the log file
     $startTime = Get-Date
@@ -285,20 +288,21 @@ foreach ($tc in $scriptedCases) {
 
     Write-Host "━━━ $($tc.CaseId) ($($tc.Group)/$($tc.CaseDir)) ━━━" -ForegroundColor White
 
-    # Parse test-case.md frontmatter for lw_flags and skip_lw_start
+    # Parse test-case.md frontmatter for lw_flags, skip_lw_start, expected_exit_code
     $testCaseMd = Join-Path $tc.Path "test-case.md"
-    $useDryRun = $false
+    $lwFlags = ""
     $skipLwStart = $false
+    $expectedExitCode = 0
     if (Test-Path $testCaseMd) {
         $tcContent = Get-Content $testCaseMd -Raw -ErrorAction SilentlyContinue
         if ($tcContent -match '(?m)^lw_flags:\s*"([^"]*)"') {
             $lwFlags = $Matches[1]
-            if ($lwFlags -match '--dry-run') {
-                $useDryRun = $true
-            }
         }
         if ($tcContent -match '(?m)^skip_lw_start:\s*true') {
             $skipLwStart = $true
+        }
+        if ($tcContent -match '(?m)^expected_exit_code:\s*(\d+)') {
+            $expectedExitCode = [int]$Matches[1]
         }
     }
 
@@ -309,9 +313,11 @@ foreach ($tc in $scriptedCases) {
         if ($skipLwStart) {
             Write-Host "    3. Skip LinkWatcher start (skip_lw_start)" -ForegroundColor DarkYellow
         } else {
-            Write-Host "    3. Start LinkWatcher (workspace-scoped)" -ForegroundColor DarkGray
+            $flagsMsg = if ($lwFlags -ne "") { " with flags: $lwFlags" } else { "" }
+            Write-Host "    3. Start LinkWatcher (workspace-scoped${flagsMsg})" -ForegroundColor DarkGray
         }
-        Write-Host "    4. Execute: $runScriptPath -WorkspacePath $workspaceCasePath" -ForegroundColor DarkGray
+        $exitCodeMsg = if ($expectedExitCode -ne 0) { " (expected exit code: $expectedExitCode)" } else { "" }
+        Write-Host "    4. Execute: $runScriptPath -WorkspacePath $workspaceCasePath${exitCodeMsg}" -ForegroundColor DarkGray
         Write-Host "    5. Wait ${WaitSeconds}s for propagation" -ForegroundColor DarkGray
         Write-Host "    6. Verify-TestResult.ps1 -TestCase $($tc.CaseId) -Group $($tc.Group)" -ForegroundColor DarkGray
         if (-not $SkipTracking) {
@@ -352,9 +358,9 @@ foreach ($tc in $scriptedCases) {
     if ($skipLwStart) {
         Write-Host "  3️⃣  Skipping LinkWatcher start (skip_lw_start — test manages own LW)" -ForegroundColor DarkYellow
     } else {
-        $dryRunMsg = if ($useDryRun) { " in dry-run mode" } else { "" }
-        Write-Host "  3️⃣  Starting LinkWatcher (workspace-scoped${dryRunMsg})..." -ForegroundColor DarkGray
-        Start-LinkWatcher -WatchPath $workspaceCasePath -SettleDelay $SettleSeconds -DryRun:$useDryRun
+        $flagsMsg = if ($lwFlags -ne "") { " with flags: $lwFlags" } else { "" }
+        Write-Host "  3️⃣  Starting LinkWatcher (workspace-scoped${flagsMsg})..." -ForegroundColor DarkGray
+        Start-LinkWatcher -WatchPath $workspaceCasePath -SettleDelay $SettleSeconds -LwFlags $lwFlags
     }
 
     # Step 4: Execute run.ps1
@@ -363,8 +369,8 @@ foreach ($tc in $scriptedCases) {
     try {
         $global:LASTEXITCODE = 0
         & $runScriptPath -WorkspacePath $workspaceCasePath
-        if ($LASTEXITCODE -and $LASTEXITCODE -ne 0) {
-            Write-ProjectError -Message "run.ps1 exited with code $LASTEXITCODE"
+        if ($LASTEXITCODE -ne $expectedExitCode) {
+            Write-ProjectError -Message "run.ps1 exited with code $LASTEXITCODE (expected $expectedExitCode)"
             $errors++
             $runFailed = $true
         }

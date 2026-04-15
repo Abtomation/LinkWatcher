@@ -9,9 +9,10 @@
 .DESCRIPTION
     This PowerShell script generates Framework Extension Concept documents by:
     - Generating a unique document ID (PF-PRO-XXX)
+    - Selecting a type-specific template (Creation, Modification, or Hybrid)
     - Creating a properly formatted concept document file
     - Updating the ID tracker in the central ID registry
-    - Providing a complete template for framework extension planning
+    - Providing a focused template for framework extension planning
 
 .PARAMETER ExtensionName
     The name of the framework extension (e.g., "Architecture Framework", "Testing Framework")
@@ -22,25 +23,33 @@
 .PARAMETER ExtensionScope
     The scope of the extension (e.g., "Multi-component", "Single-domain", "Cross-cutting")
 
+.PARAMETER Type
+    The extension type, which selects the appropriate template:
+    - Creation: Extension adds entirely new artifacts (tasks, templates, guides, scripts)
+    - Modification: Extension modifies existing artifacts (adds steps to tasks, updates templates)
+    - Hybrid: Extension both creates new artifacts and modifies existing ones
+
 .PARAMETER OpenInEditor
     If specified, opens the created file in the default editor
 
 .EXAMPLE
-    ../../../../../../../../proposals/New-FrameworkExtensionConcept.ps1 -ExtensionName "Architecture Framework" -ExtensionDescription "Comprehensive architecture design and review framework"
+    New-FrameworkExtensionConcept.ps1 -ExtensionName "Architecture Framework" -ExtensionDescription "Comprehensive architecture design and review framework" -Type Creation
 
 .EXAMPLE
-    ../../../../../../../../proposals/New-FrameworkExtensionConcept.ps1 -ExtensionName "Testing Framework" -ExtensionDescription "Automated testing infrastructure and processes" -ExtensionScope "Multi-component" -OpenInEditor
+    New-FrameworkExtensionConcept.ps1 -ExtensionName "Testing Framework" -ExtensionDescription "Automated testing infrastructure and processes" -Type Modification -ExtensionScope "Multi-component" -OpenInEditor
 
 .NOTES
     - Requires PowerShell execution policy to allow script execution
     - Automatically updates the central ID registry with new ID assignments
     - Creates the output directory if it doesn't exist
     - Uses standardized document creation process
+    - Template selection: Creation and Modification use dedicated templates; Hybrid uses the full template
 
     Template Metadata:
     - Template ID: PF-TEM-020
     - Template Type: Document Creation Script
     - Created: 2025-07-28
+    - Updated: 2026-04-14
     - For: Creating PowerShell scripts that generate framework extension concept documents
 #>
 
@@ -54,6 +63,10 @@ param(
 
     [Parameter(Mandatory=$false)]
     [string]$ExtensionScope = "",
+
+    [Parameter(Mandatory=$true)]
+    [ValidateSet("Creation", "Modification", "Hybrid")]
+    [string]$Type,
 
     [Parameter(Mandatory=$false)]
     [switch]$OpenInEditor
@@ -85,12 +98,22 @@ $customReplacements = @{
     "[Extension Scope]" = if ($ExtensionScope -ne "") { $ExtensionScope } else { "Multi-component" }
     "[Created Date]" = Get-Date -Format "yyyy-MM-dd"
     "[Author]" = "AI Agent & Human Partner"
+    "[Creation / Modification / Hybrid]" = $Type
 }
+
+# Select template based on extension type
+$templatePath = switch ($Type) {
+    "Creation"     { "process-framework/templates/support/framework-extension-concept-creation-template.md" }
+    "Modification" { "process-framework/templates/support/framework-extension-concept-modification-template.md" }
+    "Hybrid"       { "process-framework/templates/support/framework-extension-concept-template.md" }
+}
+
+Write-Verbose "Extension type: $Type — using template: $templatePath"
 
 # Create the document using standardized process
 try {
     # Use DirectoryType for ID registry-based directory resolution
-    $documentId = New-StandardProjectDocument -TemplatePath "process-framework/templates/support/framework-extension-concept-template.md" -IdPrefix "PF-PRO" -IdDescription "Framework Extension Concept: ${ExtensionName}" -DocumentName $ExtensionName -DirectoryType "main" -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
+    $documentId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "PF-PRO" -IdDescription "Framework Extension Concept: ${ExtensionName}" -DocumentName $ExtensionName -DirectoryType "main" -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
 
     # Provide success details
     $details = @(

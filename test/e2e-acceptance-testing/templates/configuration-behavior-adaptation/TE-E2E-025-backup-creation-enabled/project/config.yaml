@@ -1,0 +1,12 @@
+# LinkWatcher config — backup creation enabled
+monitored_extensions:
+  - ".md"
+
+ignored_directories:
+  - ".git"
+
+create_backups: true
+dry_run_mode: false
+atomic_updates: true
+initial_scan_enabled: true
+log_level: "INFO"

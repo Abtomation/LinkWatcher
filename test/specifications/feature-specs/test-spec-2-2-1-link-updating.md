@@ -68,7 +68,7 @@ The `LinkUpdater` class performs atomic file modifications to update link refere
 | LinkUpdater | Dry-run update | `test_update_references_dry_run` — reports success, file unchanged | `temp_project_dir` |
 | LinkUpdater | Real update | `test_update_references_real_mode` — file content modified | `temp_project_dir` |
 | LinkUpdater | Multi-ref same file | `test_update_multiple_references_same_file` — 3 refs all updated | `temp_project_dir` |
-| LinkUpdater | Backup creation | `test_update_references_with_backup` — .linkwatcher.bak created with original content | `temp_project_dir` |
+| LinkUpdater | Backup creation | `test_update_references_with_backup` — .bak created with original content | `temp_project_dir` |
 | LinkUpdater | Error handling | `test_update_references_error_handling` — non-existent file: 1 error, 0 updates | None |
 | LinkUpdater | Atomic writes | `test_atomic_file_operations` — _write_file_safely called during updates | `temp_project_dir` |
 | LinkUpdater | Link text update (PD-BUG-012) | `test_link_text_updated_when_matches_old_target` — text matching old target updated to new target | None |

@@ -73,7 +73,7 @@ Systematically validates selected features for architectural pattern adherence, 
 
 5. **Analyze Architectural Patterns**: Examine each feature's implementation for adherence to established patterns (Repository, Service Layer, etc.)
 6. **Validate ADR Compliance**: Check that implementation follows architectural decisions documented in ADRs
-   > **When no ADR exists for a feature**: Assess whether the feature's architectural decisions are significant enough to warrant an ADR (e.g., non-obvious pattern choices, trade-offs with alternatives). If an ADR should exist, note it as a finding and recommend creating one via [ADR Creation](../../tasks/02-design/adr-creation-task.md) (PF-TSK-028) as a follow-up action. If not (feature follows established project patterns without notable decisions), skip this criterion.
+   > **When no ADR exists for a feature**: Assess whether the feature's architectural decisions are significant enough to warrant an ADR (e.g., non-obvious pattern choices, trade-offs with alternatives). If an ADR should exist, note it as a finding and recommend creating one using [New-ArchitectureDecision.ps1](/process-framework/scripts/file-creation/02-design/New-ArchitectureDecision.ps1) and the [Architecture Decision Creation Guide](/process-framework/guides/02-design/architecture-decision-creation-guide.md). If not (feature follows established project patterns without notable decisions), skip this criterion.
 7. **Assess Interface Consistency**: Verify that interfaces follow consistent patterns and contracts across features
    > **Justified divergence check**: Not every pattern difference is a defect. Before flagging an inconsistency, verify that different design constraints (stateless vs stateful, pure vs side-effecting, hot-path vs setup-only) don't justify the divergence. "No issues found" is a valid validation outcome — do not manufacture findings to fill a report.
 8. **Generate Validation Report**: Create detailed validation report using the automation script
@@ -130,7 +130,7 @@ Before considering this task finished:
   - [ ] Validation tracking state file updated with report creation date and link
   - [ ] [Product Documentation Map](../../../doc/PD-documentation-map.md) updated with new validation report entry
   - [ ] **AUTOMATED**: [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) updated with new open issues using `Update-TechDebt.ps1`
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-031" and context "Architectural Consistency Validation"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-031" and context "Architectural Consistency Validation"
 
 ## Next Tasks
 

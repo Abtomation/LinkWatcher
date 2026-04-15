@@ -1,0 +1,11 @@
+# LinkWatcher config — only .md files monitored
+monitored_extensions:
+  - ".md"
+
+ignored_directories:
+  - ".git"
+
+dry_run_mode: false
+atomic_updates: true
+initial_scan_enabled: true
+log_level: "INFO"

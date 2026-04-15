@@ -98,7 +98,7 @@ The state-file-template.md provides a standardized structure for all permanent s
 **Critical customization area**: Must be tailored to the specific type of state being tracked
 **Examples**:
 
-- Feature tracking: Not Started, Assessment Created, TDD Created, In Progress, Testing, Complete
+- Feature tracking: Needs Assessment, Needs FDD, Needs TDD, Needs Test Spec, Needs Impl Plan, In Progress, Needs Review, Completed
 - Technical debt: Identified, Prioritized, In Progress, Resolved, Deferred
 - Process improvement: Identified, Prioritized, In Progress, Completed, Rejected
 
@@ -245,7 +245,7 @@ When creating and customizing state tracking files, you'll face several critical
 2. **Add domain-specific status values** if needed:
 
    - For technical debt: Identified, Prioritized, In Progress, Resolved, Deferred
-   - For features: Assessment Created, TDD Created, Implementation Started, Testing, Complete
+   - For features: Needs Assessment, Needs FDD, Needs TDD, Needs Test Spec, Needs Impl Plan, In Progress, Needs Review, Completed
    - For processes: Identified, Analyzed, Designed, Implemented, Validated
 
 3. **Ensure status progression logic** makes sense:

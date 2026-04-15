@@ -74,12 +74,11 @@
    If refactoring involves architectural changes, create Architecture Decision Records:
 
    ```powershell
-   # Navigate to ADR creation directory
-   Set-Location "process-framework/scripts/file-creation/02-design"
-
    # Create ADR for architectural decisions made during refactoring
-   New-ArchitectureDecision.ps1 -Title "[Decision Title]" -Context "[Refactoring context and need for decision]"
+   process-framework/scripts/file-creation/02-design/New-ArchitectureDecision.ps1 -Title "[Decision Title]" -Context "[Refactoring context and need for decision]"
    ```
+
+   Follow the [Architecture Decision Creation Guide](/process-framework/guides/02-design/architecture-decision-creation-guide.md) for content customization.
 
    **When to Create ADRs During Refactoring**:
 
@@ -92,8 +91,7 @@
    **Integration Requirements**:
 
    - Link ADR to refactoring plan in the plan document
-   - Update [Architecture Tracking](../../../doc/state-tracking/permanent/architecture-tracking.md)
-   - Update relevant [Architecture Tracking](../../../doc/state-tracking/permanent/architecture-tracking.md) with decision impact
+   - Update [Architecture Tracking](../../../doc/state-tracking/permanent/architecture-tracking.md) with decision impact
 
 12. **Implement Incremental Changes**: Apply refactoring in small, testable increments
     - Run existing tests after each change to ensure behavior preservation
@@ -178,7 +176,7 @@ When bugs are discovered during refactoring, follow this decision process:
 
     - Use [../../scripts/file-creation/06-maintenance/New-BugReport.ps1](../../scripts/file-creation/06-maintenance/New-BugReport.ps1) script to create standardized bug reports
     - Follow [Bug Reporting Guide](../../guides/06-maintenance/bug-reporting-guide.md) for consistent documentation
-    - Add bug entries to [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) with status 🆕 Reported
+    - Add bug entries to [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) with status 🆕 Needs Triage
     - Include refactoring context and evidence in bug reports
     - Reference specific code areas or patterns that revealed the bugs
     - Note impact on refactoring goals and code quality improvements
@@ -212,7 +210,7 @@ When bugs are discovered during refactoring, follow this decision process:
 ##### Phase 2: On Refactoring Completion
 
 - [ ] **Update [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md)**: `Update-TechDebt.ps1 -DebtId "TD###" -NewStatus "Resolved" -ResolutionNotes "..." -PlanLink "[TD###](path)"` — if tracked in a validation tracking file, also pass `-ValidationNote "PD-REF-### — description"` (validation file auto-discovered)
-- [ ] **Update [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md)**: Improve feature status (e.g., "🔄 Needs Revision" → "🧪 Testing")
+- [ ] **Update [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md)**: Improve feature status (e.g., "🔄 Needs Enhancement" → "🟡 In Progress")
 - [ ] **Update [Architecture Tracking](../../../doc/state-tracking/permanent/architecture-tracking.md)**: For foundation features (0.x.x), document architectural improvements
 - [ ] **Update [Test Tracking](../../../test/state-tracking/permanent/test-tracking.md)**: Note test improvements or new test requirements
 - [ ] **Mark manual test groups for re-execution** (if applicable): `Update-TestExecutionStatus.ps1 -FeatureId "X.Y.Z" -Status "Needs Re-execution" -Reason "Refactoring [scope]"`
@@ -251,4 +249,4 @@ When bugs are discovered during refactoring, follow this decision process:
   - [ ] **Product Documentation**: If refactoring changed module boundaries/interfaces/design patterns — feature state file, TDD, FDD, and test spec updated (Step 13)
   - [ ] **Phase 3 (Post)**: Temporary state archived (if created) to [old directory](../../state-tracking/temporary/old), [Architecture Tracking](../../../doc/state-tracking/permanent/architecture-tracking.md) updated for architectural changes, refactoring plan archived to `doc/refactoring/plans/archive`
   - [ ] If file moves changed the source directory structure: run `New-SourceStructure.ps1 -Update` to refresh the [Source Code Layout](/doc/technical/architecture/source-code-layout.md) directory tree
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-022" and context "Code Refactoring Task"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-022" and context "Code Refactoring Task"

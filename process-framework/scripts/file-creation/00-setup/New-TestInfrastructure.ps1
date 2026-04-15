@@ -57,7 +57,7 @@
     - Requires project-config.json to exist (run Project Initiation first)
     - Requires languages-config/{language}/{language}-config.json to exist
     - Safe to re-run: skips existing files and directories
-    - Used during Project Initiation (PF-TSK-059) Step 9
+    - Used during Project Initiation (PF-TSK-059) Step 11
 
     Script Type: Infrastructure Bootstrapping Script
     Created: 2026-03-26

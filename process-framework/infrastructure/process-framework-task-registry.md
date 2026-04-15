@@ -28,7 +28,6 @@ This document serves as the **comprehensive registry** of all process framework 
 - **TDD Creation Task** - Complete automation with feature tracking updates
 - **System Architecture Review Task** - Complete automation with feature tracking and architecture tracking updates
 - **Test Specification Creation Task** - Complete automation with feature tracking updates
-- **ADR Creation Task** - Complete automation with architecture tracking, feature tracking, and documentation map updates
 - **API Design Task** - Complete automation with feature tracking updates and automatic API specification linking
 - **Database Schema Design Task** - Complete automation with feature tracking updates and DB Design column linking
 - **UI/UX Design Task** - Complete automation with feature tracking updates and UI Design column linking
@@ -50,7 +49,6 @@ This document serves as the **comprehensive registry** of all process framework 
 - **Project Initiation** - Human provides data; `New-TestInfrastructure.ps1` scaffolds infrastructure
 - **Codebase Feature Discovery** - Manual analysis with scripted state file creation
 - **Retrospective Documentation Creation** - Reuses existing design doc scripts; validation automated
-- **Feature Implementation Task** (⚠️ DEPRECATED) - Manual coding with automated quality validation and bug discovery integration
 - **Foundation Feature Implementation Task** - Manual foundational coding with comprehensive automated validation and bug discovery integration
 - **Code Refactoring Task** - Manual refactoring with scripted planning (`New-RefactoringPlan.ps1`) and tech debt management
 - **Core Logic Implementation Task** - Manual implementation with automated test tracking via `New-TestFile.ps1`
@@ -63,6 +61,7 @@ This document serves as the **comprehensive registry** of all process framework 
 - **State Management Implementation** - Manual state layer with automated test tracking via `New-TestFile.ps1`
 - **Structure Change Task** - Script creates state tracking, manual implementation
 - **Performance Baseline Capture** - Manual test execution with automated result recording via `performance_db.py`
+- **Performance & E2E Test Scoping** - Manual decision matrix application; scripted tracking updates via `New-PerformanceTestEntry.ps1`, `New-WorkflowEntry.ps1`, `New-E2EMilestoneEntry.ps1`, `Update-BatchFeatureStatus.ps1`
 - **Validation Dimension Tasks (V1-V11)** - Manual analysis; scripted report creation and tracking updates (11 tasks)
 
 ### 🔄 Partially Automated Tasks (Script for File Creation, Manual Analysis)
@@ -120,13 +119,13 @@ This document serves as the **comprehensive registry** of all process framework 
 **📋 AUTOMATION DETAILS**
 
 - **Script:** [`New-TestInfrastructure.ps1`](../scripts/file-creation/00-setup/New-TestInfrastructure.ps1)
-- **Output Directory:** Project root (`project-config.json`), `languages-config`, `test/`
+- **Output Directory:** `doc/` (`project-config.json`), `languages-config`, `test/`
 - **Auto-Update Function:** Scaffolds test directory structure, tracking files, and TE-id-registry from project-config.json
 
 **📁 FILE OPERATIONS**
 | Operation | File Path | Update Method | Details |
 |-----------|-----------|---------------|---------|
-| **Creates** | `project-config.json` | Manual | Project configuration with name, language, paths, features list |
+| **Creates** | `doc/project-config.json` | Manual | Project configuration with name, language, paths, features list |
 | **Creates** | `languages-config/{language}/{language}-config.json` | Manual | Language-specific command configurations for testing, linting, coverage |
 | **Creates** | `test/` directory structure | `New-TestInfrastructure.ps1` | Test directories, tracking files, TE-id-registry.json |
 | **Creates** | [`user-workflow-tracking.md`](../../doc/state-tracking/permanent/user-workflow-tracking.md) | Manual | User workflow to feature mapping |
@@ -135,8 +134,11 @@ This document serves as the **comprehensive registry** of all process framework 
 **🎯 KEY IMPACTS**
 
 - **Primary output:** Project configuration and test infrastructure scaffolding
-- **Enables next steps:** Codebase Feature Discovery (existing projects), Feature Discovery (new projects)
 - **Dependencies:** None — this is the starting point for new projects or framework adoption
+
+**🔗 TRIGGER & OUTPUT** (Self-Doc: No)
+- **Trigger:** _(user request)_
+- **Output:** Creates `project-config.json`, test infra _(no tracking status)_
 
 #### **S2. Codebase Feature Discovery** ([PF-TSK-064](../tasks/00-setup/codebase-feature-discovery.md))
 
@@ -161,8 +163,11 @@ This document serves as the **comprehensive registry** of all process framework 
 **🎯 KEY IMPACTS**
 
 - **Primary state file:** [`feature-tracking.md`](../../doc/state-tracking/permanent/feature-tracking.md) - Populates feature inventory from existing codebase
-- **Enables next steps:** Codebase Feature Analysis (PF-TSK-065)
 - **Dependencies:** Requires Project Initiation (PF-TSK-059) or existing project-config.json
+
+**🔗 TRIGGER & OUTPUT** (Self-Doc: Partial)
+- **Trigger:** _(user request)_ / `retrospective-master-state.md` → Phase = `DISCOVERY`
+- **Output:** `retrospective-master-state.md` → Phase 1 = `100%`; `feature-tracking.md` → `⬜ Needs Assessment`; `user-workflow-tracking.md` → created
 
 #### **S3. Codebase Feature Analysis** ([PF-TSK-065](../tasks/00-setup/codebase-feature-analysis.md))
 
@@ -188,8 +193,11 @@ This document serves as the **comprehensive registry** of all process framework 
 
 - **Primary state file:** Feature Implementation State Files - Enriched with implementation analysis
 - **Secondary coordination:** [`test-tracking.md`](../../test/state-tracking/permanent/test-tracking.md) - Existing tests registered
-- **Enables next steps:** Retrospective Documentation Creation (PF-TSK-066)
 - **Dependencies:** Requires Codebase Feature Discovery (PF-TSK-064)
+
+**🔗 TRIGGER & OUTPUT** (Self-Doc: Yes)
+- **Trigger:** `retrospective-master-state.md` → Phase 1 = `100%`
+- **Output:** `retrospective-master-state.md` → Phase 2 = `100%`
 
 #### **S4. Retrospective Documentation Creation** ([PF-TSK-066](../tasks/00-setup/retrospective-documentation-creation.md))
 
@@ -219,8 +227,11 @@ This document serves as the **comprehensive registry** of all process framework 
 **🎯 KEY IMPACTS**
 
 - **Primary state file:** [`feature-tracking.md`](../../doc/state-tracking/permanent/feature-tracking.md) - Completes retrospective documentation workflow
-- **Enables next steps:** Normal development workflow (implementation, validation, etc.)
 - **Dependencies:** Requires Codebase Feature Analysis (PF-TSK-065)
+
+**🔗 TRIGGER & OUTPUT** (Self-Doc: Yes)
+- **Trigger:** `retrospective-master-state.md` → Phase 2 = `100%`
+- **Output:** `feature-tracking.md` → FDD/TDD/ADR columns populated; `test-tracking.md` → test files registered (TE-TST-XXX)
 
 ### **DISCRETE TASKS**
 
@@ -239,13 +250,16 @@ This document serves as the **comprehensive registry** of all process framework 
 |-----------|-----------|---------------|---------|
 | **Creates** | `[ART-ASS-XXX]-[FeatureId]-[feature-name].md` | `New-Assessment.ps1` | Assessment document with tier analysis |
 | **Creates** | Feature Implementation State File | `New-FeatureImplementationState.ps1` | State tracking file for the assessed feature |
-| **Updates** | [`feature-tracking.md`](../../doc/state-tracking/permanent/feature-tracking.md) | `Update-FeatureTrackingFromAssessment.ps1` | Status: "⬜ Not Started" → "📊 Assessment Created"<br/>• Add tier emoji (🔵/🟠/🔴)<br/>• Set API Design: "Yes"/"No"<br/>• Set DB Design: "Yes"/"No"<br/>• Link to assessment document<br/>**⚠️ MUST run update script after assessment creation** |
+| **Updates** | [`feature-tracking.md`](../../doc/state-tracking/permanent/feature-tracking.md) | `Update-FeatureTrackingFromAssessment.ps1` | Status: "⬜ Needs Assessment" → "📋 Needs FDD" (T2+) / "📝 Needs TDD" (T1)<br/>• Add tier emoji (🔵/🟠/🔴)<br/>• Set API Design: "Yes"/"No"<br/>• Set DB Design: "Yes"/"No"<br/>• Link to assessment document<br/>**⚠️ MUST run update script after assessment creation** |
 
 **🎯 KEY IMPACTS**
 
 - **Primary state file:** [`feature-tracking.md`](../../doc/state-tracking/permanent/feature-tracking.md) - Initiates feature documentation workflow
-- **Enables next steps:** FDD Creation (Tier 2+), TDD Creation (all tiers)
 - **Dependencies:** Requires feature discovery completion
+
+**🔗 TRIGGER & OUTPUT** (Self-Doc: Yes)
+- **Trigger:** `feature-tracking.md` → `⬜ Needs Assessment`
+- **Output:** `feature-tracking.md` → `📋 Needs FDD` (T2+) / next design status (T1: `🗄️`/`🔌`/`📝` based on DB/API columns) + tier emoji + API/DB/UI Design = `Yes`/`No`
 
 #### **2. FDD Creation Task** ([PF-TSK-027](../tasks/02-design/fdd-creation-task.md))
 
@@ -261,13 +275,16 @@ This document serves as the **comprehensive registry** of all process framework 
 | Operation | File Path | Update Method | Details |
 |-----------|-----------|---------------|---------|
 | **Creates** | `fdd-[feature-id]-[feature-name].md` | `New-FDD.ps1` | Functional design document with requirements and specifications |
-| **Updates** | [`feature-tracking.md`](../../doc/state-tracking/permanent/feature-tracking.md) | `New-FDD.ps1` | Status: "📊 Assessment Created" → "📋 FDD Created"<br/>• Add FDD document link in FDD column<br/>• Add FDD creation date to Notes |
+| **Updates** | [`feature-tracking.md`](../../doc/state-tracking/permanent/feature-tracking.md) | `New-FDD.ps1` | Status: "📋 Needs FDD" → "📝 Needs TDD"<br/>• Add FDD document link in FDD column<br/>• Add FDD creation date to Notes |
 
 **🎯 KEY IMPACTS**
 
 - **Primary state file:** [`feature-tracking.md`](../../doc/state-tracking/permanent/feature-tracking.md) - Advances feature documentation workflow
-- **Enables next steps:** TDD Creation, Feature Implementation
 - **Dependencies:** Requires Feature Tier Assessment (Tier 2+ features only)
+
+**🔗 TRIGGER & OUTPUT** (Self-Doc: Yes)
+- **Trigger:** `feature-tracking.md` → `📋 Needs FDD`
+- **Output:** `feature-tracking.md` → next design status (`🗄️`/`🔌`/`📝` based on DB/API columns) + FDD link
 
 #### **3. TDD Creation Task** ([PF-TSK-015](../tasks/02-design/tdd-creation-task.md))
 
@@ -283,13 +300,16 @@ This document serves as the **comprehensive registry** of all process framework 
 | Operation | File Path | Update Method | Details |
 |-----------|-----------|---------------|---------|
 | **Creates** | `tdd-[FeatureId]-[feature-name]-t[Tier].md` | `New-TDD.ps1` | Technical design document with architecture and implementation details |
-| **Updates** | [`feature-tracking.md`](../../doc/state-tracking/permanent/feature-tracking.md) | `New-TDD.ps1` | Status: "📋 FDD Created" (Tier 2+) or "📊 Assessment Created" (Tier 1) → "📝 TDD Created"<br/>• Add TDD link in Tech Design column |
+| **Updates** | [`feature-tracking.md`](../../doc/state-tracking/permanent/feature-tracking.md) | `New-TDD.ps1` | Status: "📝 Needs TDD" → "🧪 Needs Test Spec"<br/>• Add TDD link in Tech Design column |
 
 **🎯 KEY IMPACTS**
 
 - **Primary state file:** [`feature-tracking.md`](../../doc/state-tracking/permanent/feature-tracking.md) - Completes technical design phase
-- **Enables next steps:** Test Specification Creation, API Design, Database Schema Design
 - **Dependencies:** Requires Feature Tier Assessment, optionally FDD Creation (Tier 2+)
+
+**🔗 TRIGGER & OUTPUT** (Self-Doc: Yes)
+- **Trigger:** `feature-tracking.md` → `📝 Needs TDD`
+- **Output:** `feature-tracking.md` → `🧪 Needs Test Spec` + TDD link
 
 #### **4. Test Specification Creation Task** ([PF-TSK-012](../tasks/03-testing/test-specification-creation-task.md))
 
@@ -305,7 +325,7 @@ This document serves as the **comprehensive registry** of all process framework 
 | Operation | File Path | Update Method | Details |
 |-----------|-----------|---------------|---------|
 | **Creates** | `test-spec-[FeatureId]-[FeatureName].md` | `New-TestSpecification.ps1` | Comprehensive test specification document |
-| **Updates** | [`feature-tracking.md`](../../doc/state-tracking/permanent/feature-tracking.md) | `New-TestSpecification.ps1` | Status: "🏗️ Architecture Reviewed" → "📋 Specs Created"<br/>• Add Test Spec link in Test Spec column<br/>• Add specification creation date to Notes |
+| **Updates** | [`feature-tracking.md`](../../doc/state-tracking/permanent/feature-tracking.md) | `New-TestSpecification.ps1` | Status: "🧪 Needs Test Spec" → "🔧 Needs Impl Plan"<br/>• Add Test Spec link in Test Spec column<br/>• Add specification creation date to Notes |
 | **Updates** | [`TE-id-registry.json`](../../test/TE-id-registry.json) | `New-TestSpecification.ps1` | Update TE-TSP nextAvailable counter |
 | **Updates** | [`TE-documentation-map.md`](../../test/TE-documentation-map.md) | `New-TestSpecification.ps1` | Add new test spec entry |
 | **Updates** | [`test-tracking.md`](../../test/state-tracking/permanent/test-tracking.md) | Manual | Add feature section if missing |
@@ -313,8 +333,11 @@ This document serves as the **comprehensive registry** of all process framework 
 **🎯 KEY IMPACTS**
 
 - **Primary state file:** [`feature-tracking.md`](../../doc/state-tracking/permanent/feature-tracking.md) - Updates feature test status
-- **Enables next steps:** Integration & Testing Task (PF-TSK-053)
 - **Dependencies:** Requires System Architecture Review completion
+
+**🔗 TRIGGER & OUTPUT** (Self-Doc: Yes)
+- **Trigger:** `feature-tracking.md` → `🧪 Needs Test Spec`
+- **Output:** `feature-tracking.md` → `🔧 Needs Impl Plan`
 
 #### **5. Integration & Testing Task** ([PF-TSK-053](../tasks/04-implementation/integration-and-testing.md))
 
@@ -332,7 +355,7 @@ This document serves as the **comprehensive registry** of all process framework 
 | Operation | File Path | Update Method | Details |
 |-----------|-----------|---------------|---------|
 | **Creates** | Test files (multiple) | `New-TestFile.ps1` | Test files in appropriate test directories with pytest markers (feature, priority, test_type) |
-| **Updates** | [`bug-tracking.md`](../../doc/state-tracking/permanent/bug-tracking.md) (if bugs discovered) | [`New-BugReport.ps1`](../scripts/file-creation/06-maintenance/New-BugReport.ps1)| Add newly discovered bugs with 🆕 Reported status for triage |
+| **Updates** | [`bug-tracking.md`](../../doc/state-tracking/permanent/bug-tracking.md) (if bugs discovered) | [`New-BugReport.ps1`](../scripts/file-creation/06-maintenance/New-BugReport.ps1)| Add newly discovered bugs with 🆕 Needs Triage status for triage |
 | **Updates** | [`test-tracking.md`](../../test/state-tracking/permanent/test-tracking.md) | `New-TestFile.ps1` | Status: "📝 Specification Created" → "🟡 Implementation In Progress"<br/>• Add test file links with correct relative paths<br/>• Use filename as display name<br/>• Update test cases count, last updated date, notes |
 | **Updates** | [`feature-tracking.md`](../../doc/state-tracking/permanent/feature-tracking.md) | `New-TestFile.ps1` | Update Test Status based on implementation progress<br/>• Automatic status mapping from test implementation to feature tracking<br/>• Coordinate status across multiple state files |
 | **Updates** | Feature Implementation State File (if applicable) | Manual | Test implementation details, coverage metrics, and testing notes |
@@ -344,8 +367,11 @@ This document serves as the **comprehensive registry** of all process framework 
 - **Pytest markers:** Written into test files as single source of truth (query via `test_query.py`)
 - **Bug discovery integration:** Includes systematic bug identification during test development with standardized reporting via `New-BugReport.ps1`
 - **Manual completion required:** Status updates from 🟡 Implementation In Progress to 🔄 Ready for Validation, test case counts
-- **Enables next steps:** Test Audit Task, Quality Validation (PF-TSK-054), Bug Triage (for discovered bugs)
 - **Dependencies:** Requires feature implementation completion; Test Specification (if exists) provides test blueprint
+
+**🔗 TRIGGER & OUTPUT** (Self-Doc: Partial)
+- **Trigger:** Feature impl state file → all impl tasks = `completed`
+- **Output:** `test-tracking.md` → `✅ Tests Implemented`; Feature impl state file → task = `completed`
 
 #### **6. Test Audit Task** ([PF-TSK-030](../tasks/03-testing/test-audit-task.md))
 
@@ -353,30 +379,38 @@ This document serves as the **comprehensive registry** of all process framework 
 
 **📋 AUTOMATION DETAILS**
 
-- **Report Script:** [`New-TestAuditReport.ps1`](../scripts/file-creation/03-testing/New-TestAuditReport.ps1)
-- **Tracking Script:** [`New-AuditTracking.ps1`](../scripts/file-creation/03-testing/New-AuditTracking.ps1) — multi-session scoping with auto-populated inventory
-- **State Update Script:** [`Update-TestFileAuditState.ps1`](../scripts/update/Update-TestFileAuditState.ps1)
-- **Output Directory:** [`test/audits/`](../../test/audits)
-- **Auto-Update Function:** **FULLY AUTOMATED** state file updates with intelligent aggregation
+- **Report Script:** [`New-TestAuditReport.ps1`](../scripts/file-creation/03-testing/New-TestAuditReport.ps1) — supports `-TestType` (Automated/Performance/E2E) for template and tracking file routing
+- **Tracking Script:** [`New-AuditTracking.ps1`](../scripts/file-creation/03-testing/New-AuditTracking.ps1) — multi-session scoping with auto-populated inventory; supports `-TestType` for source routing
+- **State Update Script:** [`Update-TestFileAuditState.ps1`](../scripts/update/Update-TestFileAuditState.ps1) — supports `-TestType` for multi-tracking-file updates
+- **Output Directories:** [`test/audits/`](../../test/audits) (Automated), [`test/audits/performance/`](../../test/audits/performance) (Performance), [`test/audits/e2e/`](../../test/audits/e2e) (E2E)
+- **Auto-Update Function:** **FULLY AUTOMATED** state file updates with intelligent aggregation (Automated type); direct Audit Status/Report column updates (Performance/E2E types)
 
 **📁 FILE OPERATIONS**
 | Operation | File Path | Update Method | Details |
 |-----------|-----------|---------------|---------|
 | **Creates** | `[TE-TAR-XXX]-[feature-id]-[test-file-id].md` | `New-TestAuditReport.ps1` | Test audit report with quality assessment and recommendations |
-| **Updates** | [`test-tracking.md`](../../test/state-tracking/permanent/test-tracking.md) | `New-TestAuditReport.ps1` | Appends audit report link in Notes column for the target test file (preserves Test File/Case) |
-| **Updates** | [`bug-tracking.md`](../../doc/state-tracking/permanent/bug-tracking.md) (if bugs discovered) | [`New-BugReport.ps1`](../scripts/file-creation/06-maintenance/New-BugReport.ps1)| Add newly discovered bugs with 🆕 Reported status for triage |
-| **Updates** | [`test-tracking.md`](../../test/state-tracking/permanent/test-tracking.md) | `Update-TestFileAuditState.ps1` | **AUTOMATED**: Update individual test file audit status with comprehensive details<br/>• Audit status (✅ Tests Approved/🔴 Audit Failed/🔄 Needs Update)<br/>• Detailed audit results (passed/failed test counts)<br/>• Auditor information and major findings<br/>• Audit date and completion timestamp |
-| **Updates** | [`feature-tracking.md`](../../doc/state-tracking/permanent/feature-tracking.md) | `Update-TestFileAuditState.ps1` | **AUTOMATED**: Intelligent aggregated test status calculation<br/>• 🔴 Tests Failed Audit (any test fails)<br/>• 🟡 Tests Partially Approved (mixed statuses)<br/>• ✅ Tests Approved (all tests approved)<br/>• Last audit date tracking |
+| **Updates** | [`test-tracking.md`](../../test/state-tracking/permanent/test-tracking.md) | `New-TestAuditReport.ps1` | (Automated type) Appends audit report link in Notes column for the target test file |
+| **Updates** | [`performance-test-tracking.md`](../../test/state-tracking/permanent/performance-test-tracking.md) | `New-TestAuditReport.ps1` | (Performance type) Updates Audit Status + Audit Report columns |
+| **Updates** | [`e2e-test-tracking.md`](../../test/state-tracking/permanent/e2e-test-tracking.md) | `New-TestAuditReport.ps1` | (E2E type) Updates Audit Status + Audit Report columns |
+| **Updates** | [`bug-tracking.md`](../../doc/state-tracking/permanent/bug-tracking.md) (if bugs discovered) | [`New-BugReport.ps1`](../scripts/file-creation/06-maintenance/New-BugReport.ps1)| Add newly discovered bugs with 🆕 Needs Triage status for triage |
+| **Updates** | [`test-tracking.md`](../../test/state-tracking/permanent/test-tracking.md) | `Update-TestFileAuditState.ps1` | (Automated type) **AUTOMATED**: Update individual test file audit status with comprehensive details |
+| **Updates** | [`performance-test-tracking.md`](../../test/state-tracking/permanent/performance-test-tracking.md) | `Update-TestFileAuditState.ps1` | (Performance type) Updates Audit Status + Audit Report columns directly |
+| **Updates** | [`e2e-test-tracking.md`](../../test/state-tracking/permanent/e2e-test-tracking.md) | `Update-TestFileAuditState.ps1` | (E2E type) Updates Audit Status + Audit Report columns directly |
+| **Updates** | [`feature-tracking.md`](../../doc/state-tracking/permanent/feature-tracking.md) | `Update-TestFileAuditState.ps1` | (Automated type) **AUTOMATED**: Intelligent aggregated test status calculation |
 | **Updates** | [`technical-debt-tracking.md`](../../doc/state-tracking/permanent/technical-debt-tracking.md) | `Update-TechDebt.ps1 -Add` (conditional) | Register significant test quality findings as tech debt items |
 
 **🎯 KEY IMPACTS**
 
-- **Primary state file:** [`test-tracking.md`](../../test/state-tracking/permanent/test-tracking.md) - Quality gate for test completion with automated audit tracking
-- **Intelligent aggregation:** [`feature-tracking.md`](../../doc/state-tracking/permanent/feature-tracking.md) - Automated feature-level test status based on all test files
-- **Quality assurance:** Validates test implementation meets standards with comprehensive audit trail
+- **Primary state files:** [`test-tracking.md`](../../test/state-tracking/permanent/test-tracking.md) (Automated), [`performance-test-tracking.md`](../../test/state-tracking/permanent/performance-test-tracking.md) (Performance), [`e2e-test-tracking.md`](../../test/state-tracking/permanent/e2e-test-tracking.md) (E2E)
+- **Intelligent aggregation:** [`feature-tracking.md`](../../doc/state-tracking/permanent/feature-tracking.md) - Automated feature-level test status (Automated type only)
+- **Audit gate:** `🔍 Audit Approved` status is a hard prerequisite for Performance Baseline Capture (PF-TSK-085) and E2E Test Execution (PF-TSK-070) for newly created tests
+- **Quality assurance:** Type-specific criteria — 6 criteria (Automated), 4 criteria (Performance), 5 criteria (E2E)
 - **Bug discovery integration:** Includes comprehensive bug identification during audit process with standardized reporting via `New-BugReport.ps1`
-- **Enables next steps:** Feature Implementation (if tests approved), Bug Triage (for discovered bugs)
-- **Dependencies:** Requires Test Implementation completion
+- **Dependencies:** Requires test implementation/creation completion for the relevant test type
+
+**🔗 TRIGGER & OUTPUT** (Self-Doc: Partial)
+- **Trigger:** `test-tracking.md` → `✅ Tests Implemented` + no audit
+- **Output:** `test-tracking.md` → audit status + report link; `bug-tracking.md` → `🆕 Needs Triage` (if bugs found)
 
 #### **7. Feature Implementation Task** (PF-TSK-004) — ⚠️ DEPRECATED
 
@@ -399,8 +433,8 @@ This document serves as the **comprehensive registry** of all process framework 
 | **Creates** | Validation reports | [`Quick-ValidationCheck.ps1`](../scripts/validation/Quick-ValidationCheck.ps1) | Quick health check reports (console/JSON/CSV output) |
 | **Creates** | Quality validation reports | [`Run-FoundationalValidation.ps1`](../scripts/validation/Run-FoundationalValidation.ps1) | Code quality validation reports for selected features |
 | **Creates** | `[api-name]-docs.md` (API features only) | Manual | API Consumer Documentation with usage examples and integration guidance |
-| **Updates** | [`bug-tracking.md`](../../doc/state-tracking/permanent/bug-tracking.md) (if bugs discovered) | [`New-BugReport.ps1`](../scripts/file-creation/06-maintenance/New-BugReport.ps1)| Add newly discovered bugs with 🆕 Reported status for triage |
-| **Updates** | [`feature-tracking.md`](../../doc/state-tracking/permanent/feature-tracking.md) | Manual | Update implementation status (🟡 In Progress/🔄 Needs Revision/🟢 Completed)<br/>• Add implementation start and completion dates<br/>• Link to relevant pull request or commit<br/>• **API Design column**: Manually add consumer documentation link for API features<br/>• Document design deviations with justification |
+| **Updates** | [`bug-tracking.md`](../../doc/state-tracking/permanent/bug-tracking.md) (if bugs discovered) | [`New-BugReport.ps1`](../scripts/file-creation/06-maintenance/New-BugReport.ps1)| Add newly discovered bugs with 🆕 Needs Triage status for triage |
+| **Updates** | [`feature-tracking.md`](../../doc/state-tracking/permanent/feature-tracking.md) | Manual | Update implementation status (🟡 In Progress/🔄 Needs Enhancement/🟢 Completed)<br/>• Add implementation start and completion dates<br/>• Link to relevant pull request or commit<br/>• **API Design column**: Manually add consumer documentation link for API features<br/>• Document design deviations with justification |
 | **Updates** | [`test-tracking.md`](../../test/state-tracking/permanent/test-tracking.md) | Manual | Update test implementation status during development<br/>• Change status based on implementation progress |
 
 **🎯 KEY IMPACTS**
@@ -410,9 +444,10 @@ This document serves as the **comprehensive registry** of all process framework 
 - **API consumer documentation:** Creates post-implementation consumer documentation for API features with working examples
 - **Architecture impact:** Updates component relationships and dependencies
 - **Bug discovery integration:** Includes systematic bug identification during Quality Assurance phase with standardized reporting via `New-BugReport.ps1`
-- **Enables next steps:** Code Review Task, Bug Fixing (if needed), Bug Triage (for discovered bugs)
 - **Dependencies:** Requires Test Audit approval, completed design documents
 - **⚠️ Automation Enhancement:** Now includes automated quality validation with reporting
+
+**🔗 TRIGGER & OUTPUT** — ⚠️ DEPRECATED (see decomposed tasks 7a–26)
 
 #### **7a. Data Layer Implementation Task** ([PF-TSK-051](../tasks/04-implementation/data-layer-implementation.md))
 
@@ -442,8 +477,11 @@ This document serves as the **comprehensive registry** of all process framework 
 - **Primary state file:** Feature Implementation State File - Tracks data layer implementation progress within multi-task feature workflow
 - **Code artifacts:** Creates foundational data access layer for feature (models, repositories, database integration)
 - **Dependencies:** Provides data access interfaces for state management layer
-- **Enables next steps:** State Management Implementation Task (PF-TSK-056), Integration & Testing
 - **Prerequisites:** Feature Implementation Planning Task (PF-TSK-044), Database Schema Design completed, migrations prepared
+
+**🔗 TRIGGER & OUTPUT** (Self-Doc: Partial)
+- **Trigger:** `feature-tracking.md` + Feature impl state file → `🟡 In Progress` + task = `not_started` in sequence
+- **Output:** Feature impl state file → task = `completed`
 
 #### **7b. Core Logic Implementation Task** ([PF-TSK-078](../tasks/04-implementation/core-logic-implementation.md))
 
@@ -464,7 +502,7 @@ This document serves as the **comprehensive registry** of all process framework 
 | **Creates** | Unit tests | `New-TestFile.ps1` | Tracked test files with pytest markers in project test directory |
 | **Creates** | Bug reports (if applicable) | `New-BugReport.ps1` | Bug reports for issues not fixed in this session |
 | **Updates** | [Feature Implementation State Files](../../doc/state-tracking/features) | Manual | Code inventory, task sequence, implementation notes, issues log |
-| **Updates** | [Feature Tracking](../../doc/state-tracking/permanent/feature-tracking.md) | Manual | Status → 🧪 Testing |
+| **Updates** | [Feature Tracking](../../doc/state-tracking/permanent/feature-tracking.md) | Manual | Status → 👀 Needs Review |
 | **Updates** | [Test Tracking](../../test/state-tracking/permanent/test-tracking.md) | `New-TestFile.ps1` | Automated test file links and status |
 | **Updates** | [Bug Tracking](../../doc/state-tracking/permanent/bug-tracking.md) | Manual | Bug entries if bugs discovered (optional) |
 
@@ -473,8 +511,11 @@ This document serves as the **comprehensive registry** of all process framework 
 - **Primary state file:** Feature Implementation State File - Tracks core logic implementation progress within multi-task feature workflow
 - **Code artifacts:** Creates core business logic modules, integration wiring, and tracked unit tests
 - **Dependencies:** May depend on Data Layer Implementation (PF-TSK-051) for data access
-- **Enables next steps:** Integration & Testing (PF-TSK-053), Quality Validation (PF-TSK-054)
 - **Prerequisites:** Feature Implementation Planning (PF-TSK-044), design documentation (TDD/FDD if Tier 2+)
+
+**🔗 TRIGGER & OUTPUT** (Self-Doc: Partial)
+- **Trigger:** `feature-tracking.md` + Feature impl state file → `🟡 In Progress` + task = `not_started` in sequence
+- **Output:** `feature-tracking.md` → `👀 Needs Review`; Feature impl state file → task = `completed`; Feature impl state file → User Documentation = `❌ Needed` (if user-visible)
 
 #### **8. Foundation Feature Implementation Task** ([PF-TSK-024](../tasks/04-implementation/foundation-feature-implementation-task.md))
 
@@ -495,7 +536,7 @@ This document serves as the **comprehensive registry** of all process framework 
 | **Creates** | Validation reports | [`Quick-ValidationCheck.ps1`](../scripts/validation/Quick-ValidationCheck.ps1) | Quick health check reports (console/JSON/CSV output) |
 | **Creates** | Comprehensive validation reports | [`Run-FoundationalValidation.ps1`](../scripts/validation/Run-FoundationalValidation.ps1) | Detailed validation reports in `scripts/validation/validation-reports/` |
 | **Updates** | [`validation-tracking.md`](../../doc/state-tracking/validation/archive/validation-tracking-1.md) | [`Run-FoundationalValidation.ps1`](../scripts/validation/Run-FoundationalValidation.ps1) | Update validation matrix with report creation dates and links |
-| **Updates** | [`bug-tracking.md`](../../doc/state-tracking/permanent/bug-tracking.md) (if bugs discovered) | [`New-BugReport.ps1`](../scripts/file-creation/06-maintenance/New-BugReport.ps1)| Add newly discovered bugs with 🆕 Reported status for triage |
+| **Updates** | [`bug-tracking.md`](../../doc/state-tracking/permanent/bug-tracking.md) (if bugs discovered) | [`New-BugReport.ps1`](../scripts/file-creation/06-maintenance/New-BugReport.ps1)| Add newly discovered bugs with 🆕 Needs Triage status for triage |
 | **Updates** | [`architecture-tracking.md`](../../doc/state-tracking/permanent/architecture-tracking.md) | Manual | Record foundation implementation and architectural evolution<br/>• Update component status and key decisions |
 | **Updates** | [`feature-tracking.md`](../../doc/state-tracking/permanent/feature-tracking.md) | Manual | Update with foundation feature completion status |
 | **Updates** | [`test-tracking.md`](../../test/state-tracking/permanent/test-tracking.md) | `New-TestFile.ps1` (auto) | Automated test registration when creating test files |
@@ -508,37 +549,14 @@ This document serves as the **comprehensive registry** of all process framework 
 - **Quality assurance:** Comprehensive validation across all 6 validation types (Architectural, Code Quality, Integration, Documentation, Extensibility, AI Agent Continuity)
 - **Architecture foundation:** Establishes core architectural components and patterns
 - **Bug discovery integration:** Includes systematic bug identification during Finalization phase for architectural and foundation issues with standardized reporting via `New-BugReport.ps1`
-- **Enables next steps:** Dependent feature implementations, architectural reviews, Bug Triage (for discovered bugs)
 - **Dependencies:** Requires architectural design decisions and planning
 - **⚠️ Automation Enhancement:** Now includes automated validation with comprehensive reporting
 
-#### **9. ADR Creation Task** ([PF-TSK-028](../tasks/02-design/adr-creation-task.md))
+**🔗 TRIGGER & OUTPUT** (Self-Doc: Partial)
+- **Trigger:** `feature-tracking.md` + Feature impl state file → Feature ID = `0.x.x` + task = `not_started` in sequence
+- **Output:** `feature-tracking.md` → `👀 Needs Review`; Feature impl state file → task = `completed`
 
-**🔧 Process Type:** 🤖 **Fully Automated** (Script creates files AND updates state)
-
-**📋 AUTOMATION DETAILS**
-
-- **Script:** [`New-ArchitectureDecision.ps1`](../scripts/file-creation/02-design/New-ArchitectureDecision.ps1)
-- **Output Directory:** [`adr/`](../../doc/technical/adr)
-- **Auto-Update Function:** `Update-DocumentTrackingFiles` + Script updates
-
-**📁 FILE OPERATIONS**
-| Operation | File Path | Update Method | Details |
-|-----------|-----------|---------------|---------|
-| **Creates** | `[kebab-case-title].md` | `New-ArchitectureDecision.ps1` | Architecture Decision Record with context, decision, and consequences |
-| **Updates** | [`architecture-tracking.md`](../../doc/state-tracking/permanent/architecture-tracking.md) | `New-ArchitectureDecision.ps1` | Update with new architectural decision and its impact<br/>• Record decision context and consequences |
-| **Updates** | [`feature-tracking.md`](../../doc/state-tracking/permanent/feature-tracking.md) | `New-ArchitectureDecision.ps1` | Update ADR column for related features with link to created ADR |
-| **Updates** | [`documentation-map.md`](../PF-documentation-map.md) | `New-ArchitectureDecision.ps1` | Add new ADR to appropriate architecture decisions section based on document ID pattern |
-
-**🎯 KEY IMPACTS**
-
-- **Primary state file:** [`architecture-tracking.md`](../../doc/state-tracking/permanent/architecture-tracking.md) - Records architectural decisions
-- **Secondary coordination:** [`feature-tracking.md`](../../doc/state-tracking/permanent/feature-tracking.md) - Links decisions to features
-- **Documentation registry:** Updates ADR documentation map
-- **Enables next steps:** Feature Implementation with architectural guidance
-- **Dependencies:** Requires architectural analysis and decision-making
-
-#### **10. API Design Task** ([PF-TSK-020](../tasks/02-design/api-design-task.md))
+#### **9. API Design Task** ([PF-TSK-020](../tasks/02-design/api-design-task.md))
 
 **🔧 Process Type:** 🤖 **Fully Automated** (Script creates files AND updates state)
 
@@ -565,8 +583,11 @@ This document serves as the **comprehensive registry** of all process framework 
 - **Design-time focus:** Creates contract-first API specifications and data models before implementation
 - **Technical debt tracking:** Documents design trade-offs and future improvements (manual)
 - **Data models registry:** Maintains registry of all API data models (manual)
-- **Enables next steps:** TDD Creation, Test Specification Creation, Feature Implementation
 - **Dependencies:** Requires Feature Tier Assessment indicating "Yes" in API Design column
+
+**🔗 TRIGGER & OUTPUT** (Self-Doc: Yes)
+- **Trigger:** `feature-tracking.md` → `🔌 Needs API Design`
+- **Output:** `feature-tracking.md` → API Design = link to spec + `📝 Needs TDD`
 
 #### **11. Database Schema Design Task** ([PF-TSK-021](../tasks/02-design/database-schema-design-task.md))
 
@@ -592,9 +613,12 @@ This document serves as the **comprehensive registry** of all process framework 
 - **Primary state file:** [`feature-tracking.md`](../../doc/state-tracking/permanent/feature-tracking.md) - Completes database design requirement with automated state updates
 - **Technical debt tracking:** [`technical-debt-tracking.md`](../../doc/state-tracking/permanent/technical-debt-tracking.md) Documents schema optimization opportunities (manual update required)
 - **Database evolution:** Creates migration scripts for schema changes
-- **Enables next steps:** Feature Implementation with database support
 - **Dependencies:** Requires TDD completion and tier assessment with DB Design = "Yes"
 - **📋 Multi-file creation:** Creates design document + migrations + diagrams
+
+**🔗 TRIGGER & OUTPUT** (Self-Doc: Yes)
+- **Trigger:** `feature-tracking.md` → `🗄️ Needs DB Design`
+- **Output:** `feature-tracking.md` → DB Design = link to schema + next status (`🔌`/`📝` based on API column)
 
 #### **12. UI/UX Design Task** (PF-TSK-043 — task file not present in this project)
 
@@ -622,9 +646,12 @@ This document serves as the **comprehensive registry** of all process framework 
 - **Design consistency:** Ensures visual design standards are documented before implementation
 - **User experience planning:** Creates user flows and interaction patterns
 - **Implementation guidance:** Provides clear design specifications for developers
-- **Enables next steps:** Feature Implementation with UI/UX design support
 - **Dependencies:** Requires TDD completion and feature assessment
 - **📋 Multi-type creation:** Creates design documents across 4 design types (design-system, mockup, wireframe, user-flow)
+
+**🔗 TRIGGER & OUTPUT** (Self-Doc: No — task file not present in this project)
+- **Trigger:** _(user request)_ — Tier assessment with UI Design = `Yes`
+- **Output:** `feature-tracking.md` → UI Design = link to design doc
 
 #### **13. Code Review Task** ([PF-TSK-005](../tasks/06-maintenance/code-review-task.md))
 
@@ -639,8 +666,8 @@ This document serves as the **comprehensive registry** of all process framework 
 **📁 FILE OPERATIONS**
 | Operation | File Path | Update Method | Details |
 |-----------|-----------|---------------|---------|
-| **Updates** | [`bug-tracking.md`](../../doc/state-tracking/permanent/bug-tracking.md) (if bugs discovered) | [`New-BugReport.ps1`](../scripts/file-creation/06-maintenance/New-BugReport.ps1)| Add newly discovered bugs with 🆕 Reported status for triage |
-| **Updates** | [`feature-tracking.md`](../../doc/state-tracking/permanent/feature-tracking.md) | Manual | Update code review status (🟢 Completed/🔄 Needs Revision)<br/>• Add review date, reviewer information<br/>• Link to review document, list major findings |
+| **Updates** | [`bug-tracking.md`](../../doc/state-tracking/permanent/bug-tracking.md) (if bugs discovered) | [`New-BugReport.ps1`](../scripts/file-creation/06-maintenance/New-BugReport.ps1)| Add newly discovered bugs with 🆕 Needs Triage status for triage |
+| **Updates** | [`feature-tracking.md`](../../doc/state-tracking/permanent/feature-tracking.md) | Manual | Update code review status (🟢 Completed/🔄 Needs Enhancement)<br/>• Add review date, reviewer information<br/>• Link to review document, list major findings |
 | **Updates** | [`test-tracking.md`](../../test/state-tracking/permanent/test-tracking.md) | Manual | Update test status based on review findings<br/>• Confirm "✅ Tests Implemented" or change to "🔴 Tests Failing"/"🔄 Needs Update" |
 | **Updates** | [`technical-debt-tracking.md`](../../doc/state-tracking/permanent/technical-debt-tracking.md) | `Update-TechDebt.ps1` (conditional) | Register tech debt findings discovered during review |
 | **Updates** | Feature Implementation State Files | Manual (conditional) | Implementation gaps logged in Issues & Resolutions Log |
@@ -651,8 +678,11 @@ This document serves as the **comprehensive registry** of all process framework 
 - **Test validation:** Confirms test implementation quality and coverage
 - **Quality assurance:** Validates code meets standards and requirements
 - **Bug discovery integration:** Includes systematic bug identification during code review with standardized reporting via `New-BugReport.ps1`
-- **Enables next steps:** Release Deployment (if approved), Bug Fixing (if issues found), Bug Triage (for discovered bugs)
 - **Dependencies:** Requires Feature Implementation completion
+
+**🔗 TRIGGER & OUTPUT** (Self-Doc: Yes)
+- **Trigger:** `feature-tracking.md` → `👀 Needs Review`
+- **Output:** `feature-tracking.md` → `🔎 Needs Test Scoping` or `🔄 Needs Enhancement`
 
 #### **14. Bug Triage Task** ([PF-TSK-041](../tasks/06-maintenance/bug-triage-task.md))
 
@@ -667,15 +697,18 @@ This document serves as the **comprehensive registry** of all process framework 
 **📁 FILE OPERATIONS**
 | Operation | File Path | Update Method | Details |
 |-----------|-----------|---------------|---------|
-| **Updates** | [`bug-tracking.md`](../../doc/state-tracking/permanent/bug-tracking.md) | [`Update-BugStatus.ps1`](../scripts/update/Update-BugStatus.ps1) | Update bug status from 🆕 Reported to 🔍 Triaged<br/>• Automated priority (P1-P4) and scope (S/M/L) assignments<br/>• Automated status emoji updates (🔍 Triaged)<br/>• Automated timestamp and notes updates<br/>• Auto-moves bugs between active/Closed sections on Close/Reopen<br/>**Usage:** `.\Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "Triaged" -Priority "High" -Scope "S"` |
+| **Updates** | [`bug-tracking.md`](../../doc/state-tracking/permanent/bug-tracking.md) | [`Update-BugStatus.ps1`](../scripts/update/Update-BugStatus.ps1) | Update bug status from 🆕 Needs Triage to 🔍 Needs Fix<br/>• Automated priority (P1-P4) and scope (S/M/L) assignments<br/>• Automated status emoji updates (🔍 Needs Fix)<br/>• Automated timestamp and notes updates<br/>• Auto-moves bugs between active/Closed sections on Close/Reopen<br/>**Usage:** `.\Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "NeedsFix" -Priority "High" -Scope "S"` |
 
 **🎯 KEY IMPACTS**
 
 - **Primary state file:** [`bug-tracking.md`](../../doc/state-tracking/permanent/bug-tracking.md) - Central bug registry and prioritization with automated state management
 - **Quality gate:** Ensures bugs are properly evaluated before development resources are allocated
 - **Resource allocation:** Provides priority-based assignment recommendations
-- **Enables next steps:** Bug Fixing (for triaged bugs), Feature Implementation (if bugs reveal feature gaps)
 - **Dependencies:** Requires bug reports from users, testing, or code review
+
+**🔗 TRIGGER & OUTPUT** (Self-Doc: Yes)
+- **Trigger:** `bug-tracking.md` → `🆕 Needs Triage`
+- **Output:** `bug-tracking.md` → `🔍 Needs Fix` + priority (P1-P4) + scope (S/M/L) + Dims
 
 #### **15. Bug Fixing Task** ([PF-TSK-007](../tasks/06-maintenance/bug-fixing-task.md))
 
@@ -692,7 +725,7 @@ This document serves as the **comprehensive registry** of all process framework 
 | Operation | File Path | Update Method | Details |
 |-----------|-----------|---------------|---------|
 | **Creates** | Bug Fix State File (conditional) | `New-BugFixState.ps1` | Multi-session state tracking for Large-effort or architectural bugs |
-| **Updates** | [`bug-tracking.md`](../../doc/state-tracking/permanent/bug-tracking.md) | [`Update-BugStatus.ps1`](../scripts/update/Update-BugStatus.ps1) | Update bug status through lifecycle:<br/>• 🔍 Triaged → 🔧 In Progress → 🧪 Testing → ✅ Fixed → 🟢 Closed<br/>• Automated status emoji updates and timestamp tracking<br/>• Automated notes management and metadata tracking<br/>• Automated fix details, root cause, and PR linking<br/>• **Closure automation**: auto-moves bug to Closed Bugs section, recalculates Bug Statistics |
+| **Updates** | [`bug-tracking.md`](../../doc/state-tracking/permanent/bug-tracking.md) | [`Update-BugStatus.ps1`](../scripts/update/Update-BugStatus.ps1) | Update bug status through lifecycle:<br/>• 🔍 Needs Fix → 🟡 In Progress → 👀 Needs Review (M/L-scope) or → 🔒 Closed (S-scope quick path)<br/>• Automated status emoji updates and timestamp tracking<br/>• Automated notes management and metadata tracking<br/>• Automated fix details, root cause, and PR linking<br/>• **Closure automation**: auto-moves bug to Closed Bugs section, recalculates Bug Statistics |
 | **Updates** | [`test-tracking.md`](../../test/state-tracking/permanent/test-tracking.md) | `New-TestFile.ps1` / Manual | Register regression tests added for the fix |
 | **Updates** | [`e2e-test-tracking.md`](../../test/state-tracking/permanent/e2e-test-tracking.md) | `Update-TestExecutionStatus.ps1` (conditional) | Mark affected E2E tests for re-execution |
 | **Updates** | Feature Implementation State Files | Manual (conditional) | When fix changes technical design |
@@ -702,9 +735,12 @@ This document serves as the **comprehensive registry** of all process framework 
 
 - **Primary state file:** [`bug-tracking.md`](../../doc/state-tracking/permanent/bug-tracking.md) - Tracks bug resolution progress through complete lifecycle with automated state management
 - **Quality improvement:** Resolves identified issues and defects systematically
-- **Enables next steps:** Testing (🧪), Code Review, Bug Verification, Release Deployment
 - **Dependencies:** Requires triaged bugs from Bug Triage Task
 - **Integration:** Works with all development tasks that perform bug discovery
+
+**🔗 TRIGGER & OUTPUT** (Self-Doc: Yes)
+- **Trigger:** `bug-tracking.md` → `🔍 Needs Fix`
+- **Output:** `bug-tracking.md` → `🟡 In Progress` → `👀 Needs Review` (M/L-scope) or → `🔒 Closed` (S-scope quick path); `e2e-test-tracking.md` → affected groups → `🔄 Needs Re-execution`
 
 #### **16. Code Refactoring Task** ([PF-TSK-022](../tasks/06-maintenance/code-refactoring-task.md))
 
@@ -716,7 +752,7 @@ This document serves as the **comprehensive registry** of all process framework 
 - **Templates:** Standard ([`refactoring-plan-template.md`](../templates/06-maintenance/refactoring-plan-template.md)), Documentation-only ([`documentation-refactoring-plan-template.md`](../templates/06-maintenance/documentation-refactoring-plan-template.md)), or Lightweight ([`lightweight-refactoring-plan-template.md`](../templates/06-maintenance/lightweight-refactoring-plan-template.md))
 - **State Tracking Script:** [`New-TempTaskState.ps1`](../scripts/file-creation/support/New-TempTaskState.ps1) (standard path only)
 - **Bug Reporting Script:** [`New-BugReport.ps1`](../scripts/file-creation/06-maintenance/New-BugReport.ps1)
-- **ADR Creation Script:** [`New-ArchitectureDecision.ps1`](../scripts/file-creation/02-design/New-ArchitectureDecision.ps1) (for architectural refactoring, standard path only)
+- **Architecture Decision Script:** [`New-ArchitectureDecision.ps1`](../scripts/file-creation/02-design/New-ArchitectureDecision.ps1) (for architectural refactoring, standard path only)
 - **Output Directory:** [`plans/`](../../doc/refactoring/plans), [`temporary/`](../state-tracking/temporary)
 - **Auto-Update Function:** Partial automation with comprehensive manual state updates
 - **Effort Gate:** Step 1 classifies as Lightweight (≤15 min, single file, no architectural impact) or Standard
@@ -729,7 +765,7 @@ This document serves as the **comprehensive registry** of all process framework 
 | **Creates** | [`[PF-ADR-XXX]-[decision-title].md`](../architecture/adrs/) | [`New-ArchitectureDecision.ps1`](../scripts/file-creation/02-design/New-ArchitectureDecision.ps1) | Architecture Decision Records for architectural refactoring |
 | **Updates** | [`bug-tracking.md`](../../doc/state-tracking/permanent/bug-tracking.md) | [`New-BugReport.ps1`](../scripts/file-creation/06-maintenance/New-BugReport.ps1) | Add bugs discovered during refactoring with 4-tier severity decision matrix |
 | **Updates** | [`technical-debt-tracking.md`](../../doc/state-tracking/permanent/technical-debt-tracking.md) | [`Update-TechDebt.ps1`](../scripts/update/Update-TechDebt.ps1) | Status transitions: Open → InProgress → Resolved/Rejected (auto-moves to Recently Resolved) |
-| **Updates** | [`architecture-tracking.md`](../../doc/state-tracking/permanent/architecture-tracking.md) | Manual | Improve feature status (e.g., "🔄 Needs Revision" → "🧪 Testing") |
+| **Updates** | [`architecture-tracking.md`](../../doc/state-tracking/permanent/architecture-tracking.md) | Manual | Improve feature status (e.g., "🔄 Needs Enhancement" → "🟡 In Progress") |
 | **Updates** | [`feature-tracking.md`](../../doc/state-tracking/permanent/feature-tracking.md) | Manual | For foundation features (0.x.x), document architectural improvements |
 | **Updates** | [`test-tracking.md`](../../test/state-tracking/permanent/test-tracking.md) | Manual | Note test improvements or new test requirements |
 | **Updates** | Product documentation (TDD, FDD, feature state file, test spec) | Manual | When refactoring changes module boundaries, interfaces, or design patterns (Step 12) |
@@ -742,9 +778,12 @@ This document serves as the **comprehensive registry** of all process framework 
 - **Bug discovery integration:** Systematic bug identification with 4-tier decision matrix (Critical/High/Medium/Low)
 - **Architectural decision capture:** ADR creation for architectural refactoring with context package integration
 - **Code quality improvement:** Reduces technical debt and improves maintainability with comprehensive state tracking
-- **Enables next steps:** Testing phase for features with improved status, Bug Triage (for discovered bugs), Code Review
 - **Dependencies:** Requires technical debt assessment and prioritization
 - **⚠️ Enhanced Process:** Now includes comprehensive bug discovery workflow, ADR integration, and 3-phase state management
+
+**🔗 TRIGGER & OUTPUT** (Self-Doc: Yes)
+- **Trigger:** `technical-debt-tracking.md` → Active items (not Resolved/Deferred)
+- **Output:** `technical-debt-tracking.md` → `Resolved`; `e2e-test-tracking.md` → affected groups → `🔄 Needs Re-execution`
 
 #### **17. Release Deployment Task** ([PF-TSK-008](../tasks/07-deployment/release-deployment-task.md))
 
@@ -759,7 +798,7 @@ This document serves as the **comprehensive registry** of all process framework 
 **📁 FILE OPERATIONS**
 | Operation | File Path | Update Method | Details |
 |-----------|-----------|---------------|---------|
-| **Updates** | [`bug-tracking.md`](../../doc/state-tracking/permanent/bug-tracking.md) (if bugs discovered) | [`New-BugReport.ps1`](../scripts/file-creation/06-maintenance/New-BugReport.ps1)| Add newly discovered bugs with 🆕 Reported status for triage |
+| **Updates** | [`bug-tracking.md`](../../doc/state-tracking/permanent/bug-tracking.md) (if bugs discovered) | [`New-BugReport.ps1`](../scripts/file-creation/06-maintenance/New-BugReport.ps1)| Add newly discovered bugs with 🆕 Needs Triage status for triage |
 | **Updates** | [`feature-tracking.md`](../../doc/state-tracking/permanent/feature-tracking.md) | Manual | Update deployment status for released features<br/>• Add release version and deployment date |
 
 **🎯 KEY IMPACTS**
@@ -768,9 +807,12 @@ This document serves as the **comprehensive registry** of all process framework 
 - **Release coordination:** Manages feature releases and version tracking
 - **Production deployment:** Moves features from development to production
 - **Bug discovery integration:** Includes systematic bug identification during deployment validation with standardized reporting via `New-BugReport.ps1`
-- **Enables next steps:** Post-deployment monitoring, user feedback collection, Bug Triage (for discovered bugs)
 - **Dependencies:** Requires Code Review approval and successful testing
 - **⚠️ Automation Gap:** Medium-priority candidate for deployment status automation
+
+**🔗 TRIGGER & OUTPUT** (Self-Doc: Partial)
+- **Trigger:** _(user request)_ — checks `e2e-test-tracking.md`, feature impl state files
+- **Output:** `feature-tracking.md` → feature statuses updated for release; `bug-tracking.md` → included fixes updated
 
 #### **18. User Documentation Creation** ([PF-TSK-081](../tasks/07-deployment/user-documentation-creation.md))
 
@@ -781,14 +823,15 @@ This document serves as the **comprehensive registry** of all process framework 
 - **Creation Script:** [`New-Handbook.ps1`](../scripts/file-creation/07-deployment/New-Handbook.ps1)
 - **Finalization Script:** [`Update-UserDocumentationState.ps1`](../scripts/update/Update-UserDocumentationState.ps1)
 - **Output Directory:** [`doc/user/handbooks/`](../../doc/user/handbooks)
-- **Auto-Update Function:** Auto-assigns PD-UGD IDs, creates handbook from template; finalization script updates feature state file and PD-documentation-map.md
+- **Auto-Update Function:** Auto-assigns PD-UGD IDs, creates handbook from template, auto-appends entry to PD-documentation-map.md; finalization script updates feature state file and PD-documentation-map.md (duplicate-safe)
 
 **📁 FILE OPERATIONS**
 | Operation | File Path | Update Method | Details |
 |-----------|-----------|---------------|---------|
 | **Creates** | `[handbook-name].md` in `doc/user/handbooks` | `New-Handbook.ps1` | User handbook document with auto-assigned PD-UGD-XXX ID |
+| **Updates** | [`PD-documentation-map.md`](../../doc/PD-documentation-map.md) | `New-Handbook.ps1` | Auto-appends handbook entry under User Handbooks section at creation time |
 | **Updates** | Feature implementation state file | `Update-UserDocumentationState.ps1` | Appends handbook row to Documentation Inventory table |
-| **Updates** | [`PD-documentation-map.md`](../../doc/PD-documentation-map.md) | `Update-UserDocumentationState.ps1` | Adds handbook entry under User Handbooks section |
+| **Updates** | [`PD-documentation-map.md`](../../doc/PD-documentation-map.md) | `Update-UserDocumentationState.ps1` | Adds handbook entry under User Handbooks section (duplicate-safe) |
 | **Updates** | [`README.md`](../../doc/README.md) (if applicable) | Manual | Add handbook to documentation table |
 
 **🎯 KEY IMPACTS**
@@ -796,9 +839,12 @@ This document serves as the **comprehensive registry** of all process framework 
 - **Primary output:** User-facing handbook documents in `doc/user/handbooks`
 - **Finalization automation:** `Update-UserDocumentationState.ps1` automates feature state file and PD-documentation-map.md updates
 - **Triggered by:** Features with user-visible behavior changes (flagged in feature state files)
-- **Enables next steps:** Release & Deployment
 - **Dependencies:** Requires feature implementation complete and Code Review passed
 - **Template:** [`handbook-template.md`](../templates/07-deployment/handbook-template.md) (PF-TEM-065)
+
+**🔗 TRIGGER & OUTPUT** (Self-Doc: Yes)
+- **Trigger:** Feature impl state file → User Documentation = `❌ Needed`
+- **Output:** Feature impl state file → Documentation Inventory → handbook link added
 
 #### **19. System Architecture Review** ([PF-TSK-019](../tasks/01-planning/system-architecture-review.md))
 
@@ -814,7 +860,7 @@ This document serves as the **comprehensive registry** of all process framework 
 | Operation | File Path | Update Method | Details |
 |-----------|-----------|---------------|---------|
 | **Creates** | `[PD-AIA-XXX]-[feature-name]-architecture-impact-assessment.md` | `New-ArchitectureAssessment.ps1` | Architecture Impact Assessment document with system integration analysis |
-| **Updates** | [`feature-tracking.md`](../../doc/state-tracking/permanent/feature-tracking.md) | `New-ArchitectureAssessment.ps1` | Status: "📋 FDD Created" → "🏗️ Architecture Reviewed"<br/>• Add Architecture Impact Assessment link in Arch Review column<br/>• Add architecture review completion date to Notes |
+| **Updates** | [`feature-tracking.md`](../../doc/state-tracking/permanent/feature-tracking.md) | `New-ArchitectureAssessment.ps1` | Status: no primary status change<br/>• Add Architecture Impact Assessment link in Arch Review column<br/>• Add architecture review completion date to Notes |
 | **Updates** | [`architecture-tracking.md`](../../doc/state-tracking/permanent/architecture-tracking.md) | `New-ArchitectureAssessment.ps1` | Add new architecture impact entry with assessment details and cross-references |
 | **Updates** | [`technical-debt-tracking.md`](../../doc/state-tracking/permanent/technical-debt-tracking.md) | Manual (conditional) | Architectural debt items identified during review |
 | **Updates** | [`process-improvement-tracking.md`](../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) | Manual (conditional) | Architectural decisions made during review |
@@ -823,8 +869,11 @@ This document serves as the **comprehensive registry** of all process framework 
 
 - **Primary state file:** [`feature-tracking.md`](../../doc/state-tracking/permanent/feature-tracking.md) - Advances feature through architecture review phase
 - **Secondary coordination:** [`architecture-tracking.md`](../../doc/state-tracking/permanent/architecture-tracking.md) - Tracks architectural decisions and impacts
-- **Enables next steps:** Test Specification Creation, API Design, Database Schema Design
 - **Dependencies:** Requires FDD Creation (Tier 2+ features) or TDD Creation (Tier 1 features)
+
+**🔗 TRIGGER & OUTPUT** (Self-Doc: Partial)
+- **Trigger:** `feature-tracking.md` → Tier 2+ after FDD
+- **Output:** `feature-tracking.md` → Arch Review column → link (no primary status change)
 
 #### **20. Feature Discovery Task** ([PF-TSK-013](../tasks/01-planning/feature-discovery-task.md))
 
@@ -839,15 +888,18 @@ This document serves as the **comprehensive registry** of all process framework 
 **📁 FILE OPERATIONS**
 | Operation | File Path | Update Method | Details |
 |-----------|-----------|---------------|---------|
-| **Updates** | [`feature-request-tracking.md`](../../doc/state-tracking/permanent/feature-request-tracking.md) | `New-FeatureRequest.ps1` | Add discovered features as new requests with status "Submitted" |
+| **Updates** | [`feature-request-tracking.md`](../../doc/state-tracking/permanent/feature-request-tracking.md) | `New-FeatureRequest.ps1` | Add discovered features as new requests with status "📥 Submitted" |
 | **Updates** | [`technical-debt-tracking.md`](../../doc/state-tracking/permanent/technical-debt-tracking.md) | Manual | Technical explorations needed before implementation |
 
 **🎯 KEY IMPACTS**
 
 - **Primary state file:** [`feature-request-tracking.md`](../../doc/state-tracking/permanent/feature-request-tracking.md) - Routes discovered features through evaluation pipeline
 - **Requirements gathering:** Captures initial feature requirements and scope
-- **Enables next steps:** Feature Request Evaluation (PF-TSK-067)
 - **Dependencies:** Requires business requirements and stakeholder input
+
+**🔗 TRIGGER & OUTPUT** (Self-Doc: No)
+- **Trigger:** _(user request)_
+- **Output:** `feature-request-tracking.md` → `📥 Submitted`; `user-workflow-tracking.md` → creates/updates workflow definitions
 
 #### **21. Feature Request Evaluation** ([PF-TSK-067](../tasks/01-planning/feature-request-evaluation.md))
 
@@ -864,7 +916,7 @@ This document serves as the **comprehensive registry** of all process framework 
 |-----------|-----------|---------------|---------|
 | **Creates** | Enhancement State Tracking File (enhancements) | `New-EnhancementState.ps1` | Scoped enhancement steps with Dimension Impact Assessment |
 | **Creates** | Feature Implementation State File (new features) | `New-FeatureImplementationState.ps1` | For new features routed to Feature Tier Assessment |
-| **Updates** | [`feature-request-tracking.md`](../../doc/state-tracking/permanent/feature-request-tracking.md) | `Update-FeatureRequest.ps1` | Request status: Submitted → Classified (New Feature/Enhancement) → Closed |
+| **Updates** | [`feature-request-tracking.md`](../../doc/state-tracking/permanent/feature-request-tracking.md) | `Update-FeatureRequest.ps1` | Request status: 📥 Submitted → Classified (New Feature/Enhancement) → ✅ Completed |
 | **Updates** | [`feature-tracking.md`](../../doc/state-tracking/permanent/feature-tracking.md) | `Update-FeatureRequest.ps1` | For enhancements: adds enhancement status to existing feature entry |
 | **Updates** | [`user-workflow-tracking.md`](../../doc/state-tracking/permanent/user-workflow-tracking.md) | Manual | Updated for new features that map to user workflows |
 
@@ -874,8 +926,11 @@ This document serves as the **comprehensive registry** of all process framework 
 - **Routing function:** Classifies change requests and routes to correct workflow:
   - New features → Feature Tier Assessment (PF-TSK-002)
   - Enhancements → Feature Enhancement (PF-TSK-068) via Enhancement State Tracking File
-- **Enables next steps:** Feature Tier Assessment (new features) or Feature Enhancement (enhancements)
 - **Dependencies:** Requires feature request in feature-request-tracking.md
+
+**🔗 TRIGGER & OUTPUT** (Self-Doc: Yes)
+- **Trigger:** `feature-request-tracking.md` → `📥 Submitted`
+- **Output:** `feature-request-tracking.md` → `✅ Completed`; `feature-tracking.md` → `⬜ Needs Assessment` (new) or `🔄 Needs Enhancement` + state file link (enhancement); `user-workflow-tracking.md` → adds/maps workflows
 
 #### **22. Feature Implementation Planning** ([PF-TSK-044](../tasks/04-implementation/feature-implementation-planning-task.md))
 
@@ -898,8 +953,11 @@ This document serves as the **comprehensive registry** of all process framework 
 
 - **Primary output:** Implementation Plan with sequenced tasks and dependency graph
 - **Secondary output:** Feature Implementation State File for multi-session tracking
-- **Enables next steps:** Data Layer Implementation (PF-TSK-051), Core Logic Implementation (PF-TSK-078), UI Implementation (PF-TSK-052)
 - **Dependencies:** Requires completed design documents (TDD, FDD if Tier 2+, Test Specification)
+
+**🔗 TRIGGER & OUTPUT** (Self-Doc: Yes)
+- **Trigger:** `feature-tracking.md` → `🔧 Needs Impl Plan`
+- **Output:** `feature-tracking.md` → `🟡 In Progress`; Feature impl state file → task sequence initialized (`not_started`)
 
 #### **23. UI Implementation** ([PF-TSK-052](../tasks/04-implementation/ui-implementation.md))
 
@@ -925,8 +983,11 @@ This document serves as the **comprehensive registry** of all process framework 
 
 - **Primary state file:** Feature Implementation State File - Tracks UI implementation progress
 - **Code artifacts:** UI components, screen implementations, navigation configuration, UI tests
-- **Enables next steps:** Integration & Testing (PF-TSK-053), State Management Implementation (PF-TSK-056)
 - **Dependencies:** Requires Feature Implementation Planning (PF-TSK-044), UI/UX Design (if applicable)
+
+**🔗 TRIGGER & OUTPUT** (Self-Doc: Partial)
+- **Trigger:** Feature impl state file → prior task (PF-TSK-056) = `completed`
+- **Output:** Feature impl state file → task = `completed`
 
 #### **24. State Management Implementation** ([PF-TSK-056](../tasks/04-implementation/state-management-implementation.md))
 
@@ -952,8 +1013,11 @@ This document serves as the **comprehensive registry** of all process framework 
 
 - **Primary state file:** Feature Implementation State File - Tracks state management implementation
 - **Code artifacts:** State models, containers/providers, mutation handlers, state tests
-- **Enables next steps:** Integration & Testing (PF-TSK-053), UI Implementation (PF-TSK-052)
 - **Dependencies:** Requires Data Layer Implementation (PF-TSK-051) for data access interfaces
+
+**🔗 TRIGGER & OUTPUT** (Self-Doc: Partial)
+- **Trigger:** Feature impl state file → prior task (PF-TSK-051) = `completed`
+- **Output:** Feature impl state file → task = `completed`
 
 #### **25. Quality Validation** ([PF-TSK-054](../tasks/04-implementation/quality-validation.md))
 
@@ -975,8 +1039,11 @@ This document serves as the **comprehensive registry** of all process framework 
 
 - **Primary state file:** Feature Implementation State File - Quality validation results
 - **Quality gate:** Validates implementation against quality standards and business requirements
-- **Enables next steps:** Implementation Finalization (PF-TSK-055)
 - **Dependencies:** Requires Integration & Testing (PF-TSK-053) completion
+
+**🔗 TRIGGER & OUTPUT** (Self-Doc: Partial)
+- **Trigger:** Feature impl state file → PF-TSK-053 = `completed`
+- **Output:** Feature impl state file → task = `completed` + quality metrics
 
 #### **26. Implementation Finalization** ([PF-TSK-055](../tasks/04-implementation/implementation-finalization.md))
 
@@ -998,8 +1065,11 @@ This document serves as the **comprehensive registry** of all process framework 
 **🎯 KEY IMPACTS**
 
 - **Primary state file:** [`feature-tracking.md`](../../doc/state-tracking/permanent/feature-tracking.md) - Feature reaches deployment-ready status
-- **Enables next steps:** Release & Deployment (PF-TSK-008), User Documentation Creation (PF-TSK-081)
 - **Dependencies:** Requires Quality Validation (PF-TSK-054) and Code Review (PF-TSK-005) approval
+
+**🔗 TRIGGER & OUTPUT** (Self-Doc: Partial)
+- **Trigger:** Feature impl state file → PF-TSK-054 = `completed`
+- **Output:** `feature-tracking.md` → `Deployed` / `Ready for Deployment`
 
 #### **27. Feature Enhancement** ([PF-TSK-068](../tasks/04-implementation/feature-enhancement.md))
 
@@ -1015,7 +1085,7 @@ This document serves as the **comprehensive registry** of all process framework 
 | Operation | File Path | Update Method | Details |
 |-----------|-----------|---------------|---------|
 | **Updates** | Enhancement State Tracking File | Manual | Steps marked complete; archived upon finalization |
-| **Updates** | [`feature-tracking.md`](../../doc/state-tracking/permanent/feature-tracking.md) | `Finalize-Enhancement.ps1` | Status restored (removes "🔄 Needs Revision") |
+| **Updates** | [`feature-tracking.md`](../../doc/state-tracking/permanent/feature-tracking.md) | `Finalize-Enhancement.ps1` | Status restored (removes "🔄 Needs Enhancement") |
 | **Updates** | Feature Implementation State File | Manual | Updated to reflect enhancement changes |
 | **Updates** | [`test-tracking.md`](../../test/state-tracking/permanent/test-tracking.md) | Manual | Manual test groups set to "Needs Re-execution" |
 | **Updates** | Design documents (FDD, TDD, ADR) | Manual | Amended to reflect enhancement scope |
@@ -1024,8 +1094,11 @@ This document serves as the **comprehensive registry** of all process framework 
 
 - **Primary state file:** Enhancement State Tracking File - Drives step-by-step enhancement execution
 - **Secondary coordination:** [`feature-tracking.md`](../../doc/state-tracking/permanent/feature-tracking.md) - Status lifecycle management
-- **Enables next steps:** Code Review (PF-TSK-005), User Documentation Creation (PF-TSK-081)
 - **Dependencies:** Requires Enhancement State Tracking File from Feature Request Evaluation (PF-TSK-067)
+
+**🔗 TRIGGER & OUTPUT** (Self-Doc: Yes)
+- **Trigger:** `feature-tracking.md` → `🔄 Needs Enhancement` + state file link
+- **Output:** `feature-tracking.md` → previous status restored (enhancement removed)
 
 #### **28. E2E Acceptance Test Case Creation** ([PF-TSK-069](../tasks/03-testing/e2e-acceptance-test-case-creation-task.md))
 
@@ -1048,8 +1121,12 @@ This document serves as the **comprehensive registry** of all process framework 
 **🎯 KEY IMPACTS**
 
 - **Primary state file:** [`e2e-test-tracking.md`](../../test/state-tracking/permanent/e2e-test-tracking.md) - E2E test case inventory
-- **Enables next steps:** E2E Acceptance Test Execution (PF-TSK-070)
 - **Dependencies:** Requires cross-cutting Test Specification (TE-TSP) and user workflow milestones met
+- **Next step:** Test Audit (PF-TSK-030 with `-TestType E2E`) — audit gate before execution
+
+**🔗 TRIGGER & OUTPUT** (Self-Doc: Partial)
+- **Trigger:** E2E spec / bug report / refactoring plan _(multi-path)_
+- **Output:** `e2e-test-tracking.md` → `📋 Case Created` → (audit gate) → `🔍 Audit Approved`
 
 #### **29. E2E Acceptance Test Execution** ([PF-TSK-070](../tasks/03-testing/e2e-acceptance-test-execution-task.md))
 
@@ -1077,8 +1154,11 @@ This document serves as the **comprehensive registry** of all process framework 
 
 - **Primary state file:** [`e2e-test-tracking.md`](../../test/state-tracking/permanent/e2e-test-tracking.md) - Execution results tracking
 - **Bug discovery:** Failures generate bug reports via `New-BugReport.ps1`
-- **Enables next steps:** Bug Triage (for failures), Release & Deployment (for passes)
-- **Dependencies:** Requires E2E Acceptance Test Case Creation (PF-TSK-069)
+- **Dependencies:** Requires E2E Acceptance Test Case Creation (PF-TSK-069). **Audit gate**: `📋 Case Created` entries must have `🔍 Audit Approved` Audit Status (via Test Audit PF-TSK-030 with `-TestType E2E`) before execution. `🔄 Needs Re-execution` entries are exempt.
+
+**🔗 TRIGGER & OUTPUT** (Self-Doc: Yes)
+- **Trigger:** `e2e-test-tracking.md` → `🔄 Needs Re-execution` or `📋 Case Created` (with `🔍 Audit Approved`)
+- **Output:** `e2e-test-tracking.md` → `✅ Passed` or `🔴 Failed`
 
 
 #### **30. Git Commit and Push** ([PF-TSK-082](../tasks/07-deployment/git-commit-and-push.md))
@@ -1100,8 +1180,11 @@ This document serves as the **comprehensive registry** of all process framework 
 **🎯 KEY IMPACTS**
 
 - **Primary output:** Git commit pushed to remote repository
-- **Enables next steps:** Code persisted for future sessions or deployment
 - **Dependencies:** None — can be used after any task
+
+**🔗 TRIGGER & OUTPUT** (Self-Doc: No)
+- **Trigger:** _(user request)_
+- **Output:** _(git only — no state file update)_
 
 #### **31. Integration Narrative Creation** ([PF-TSK-083](../tasks/02-design/integration-narrative-creation.md))
 
@@ -1124,30 +1207,37 @@ This document serves as the **comprehensive registry** of all process framework 
 **🎯 KEY IMPACTS**
 
 - **Primary output:** Integration Narrative (PD-INT-XXX) documenting cross-feature workflow collaboration
-- **Enables next steps:** E2E Acceptance Test Case Creation (PF-TSK-069) — narrative provides verified cross-feature understanding for test design
 - **Dependencies:** All workflow features must be Implemented in user-workflow-tracking.md
+
+**🔗 TRIGGER & OUTPUT** (Self-Doc: Yes)
+- **Trigger:** `user-workflow-tracking.md` → all workflow features = `Implemented` + Integration Doc empty
+- **Output:** `user-workflow-tracking.md` → Integration Doc = PD-INT-XXX link
 
 #### **32. Performance Test Creation** ([PF-TSK-084](../tasks/03-testing/performance-test-creation-task.md))
 
-**🔧 Process Type:** 🔧 **Manual Task** (No automation scripts — manual test implementation with manual tracking updates)
+**🔧 Process Type:** 🔄 **Semi-Automated** (Manual test implementation with automated tracking updates via `Update-PerformanceTracking.ps1`)
 
 **📋 AUTOMATION DETAILS**
 
-- **Script:** None (test files created manually, tracking updated manually)
+- **Script:** [`Update-PerformanceTracking.ps1`](../scripts/update/Update-PerformanceTracking.ps1) — Status transitions ⬜ → 📋, column updates, summary recalculation
 - **Output Directory:** `test/automated/performance/`
 
 **📁 FILE OPERATIONS**
 | Operation | File Path | Update Method | Details |
 |-----------|-----------|---------------|---------|
 | **Creates** | Performance test files | Manual | Test files in `test/automated/performance/` |
-| **Updates** | [`performance-test-tracking.md`](../../test/state-tracking/permanent/performance-test-tracking.md) | Manual | Add rows, update statuses ⬜ Specified → 📋 Created, update summary counts |
+| **Updates** | [`performance-test-tracking.md`](../../test/state-tracking/permanent/performance-test-tracking.md) | `Update-PerformanceTracking.ps1` | Status ⬜ → 📋, Test File column, summary recalculation |
 | **Updates** | [`feature-tracking.md`](../../doc/state-tracking/permanent/feature-tracking.md) | Manual | Update if test coverage changes affect feature status |
 
 **🎯 KEY IMPACTS**
 
 - **Primary output:** Performance test files with measurable output; updated performance-test-tracking.md
-- **Enables next steps:** Performance Baseline Capture (PF-TSK-085) — new tests need initial baselines
 - **Dependencies:** Requires implementation complete; Performance Testing Guide decision matrix determines test needs
+- **Next step:** Test Audit (PF-TSK-030 with `-TestType Performance`) — audit gate before baseline capture
+
+**🔗 TRIGGER & OUTPUT** (Self-Doc: Yes)
+- **Trigger:** `performance-test-tracking.md` → `⬜ Specified` entries (created by PF-TSK-086)
+- **Output:** `performance-test-tracking.md` → `⬜ Specified` → `📋 Created` → (audit gate) → `🔍 Audit Approved`
 
 #### **33. Performance Baseline Capture** ([PF-TSK-085](../tasks/03-testing/performance-baseline-capture-task.md))
 
@@ -1155,13 +1245,13 @@ This document serves as the **comprehensive registry** of all process framework 
 
 **📋 AUTOMATION DETAILS**
 
-- **Script:** [`performance_db.py`](../scripts/test/performance_db.py) — `record`, `trend`, `regressions` subcommands
+- **Scripts:** [`Update-PerformanceTracking.ps1`](../scripts/update/Update-PerformanceTracking.ps1) — Status transitions 📋 → ✅, column updates, summary recalculation; [`performance_db.py`](../scripts/test/performance_db.py) — `record`, `trend`, `regressions` subcommands
 - **Output Directory:** `performance-results.db` (SQLite database)
 
 **📁 FILE OPERATIONS**
 | Operation | File Path | Update Method | Details |
 |-----------|-----------|---------------|---------|
-| **Updates** | [`performance-test-tracking.md`](../../test/state-tracking/permanent/performance-test-tracking.md) | Manual | Update Last Result, Last Run, Status columns; lifecycle transitions 📋 → ✅ |
+| **Updates** | [`performance-test-tracking.md`](../../test/state-tracking/permanent/performance-test-tracking.md) | `Update-PerformanceTracking.ps1` | Status 📋 → ✅, Baseline/Last Result/Last Run columns, summary recalculation |
 | **Updates** | `performance-results.db` | `performance_db.py record` | Record measured values with timestamp for trend analysis |
 | **Updates** | [`bug-tracking.md`](../../doc/state-tracking/permanent/bug-tracking.md) | Manual (conditional) | If regression detected and filed as bug |
 | **Updates** | [`technical-debt-tracking.md`](../../doc/state-tracking/permanent/technical-debt-tracking.md) | Manual (conditional) | If trend degradation filed as tech debt |
@@ -1169,8 +1259,43 @@ This document serves as the **comprehensive registry** of all process framework 
 **🎯 KEY IMPACTS**
 
 - **Primary output:** Recorded baseline results in performance-results.db; updated performance-test-tracking.md
-- **Enables next steps:** Regression detection for subsequent captures; pre-release verification
-- **Dependencies:** Requires Performance Test Creation (PF-TSK-084) — tests must exist at 📋 Created or ✅ Baselined
+- **Dependencies:** Requires Performance Test Creation (PF-TSK-084) — tests must exist at 📋 Created or ✅ Baselined. **Audit gate**: `📋 Created` entries must have `🔍 Audit Approved` Audit Status (via Test Audit PF-TSK-030 with `-TestType Performance`) before baseline capture. `⚠️ Stale` entries are exempt.
+
+**🔗 TRIGGER & OUTPUT** (Self-Doc: Yes)
+- **Trigger:** `performance-test-tracking.md` → `📋 Created` (with `🔍 Audit Approved`) or `⚠️ Stale`
+- **Output:** `performance-test-tracking.md` → `✅ Baselined`; `bug-tracking.md` → `🆕 Needs Triage` (if regression)
+
+#### **34. Performance and E2E Test Scoping** ([PF-TSK-086](../tasks/03-testing/performance-and-e2e-test-scoping-task.md))
+
+**🔧 Process Type:** ⚙️ **Script-Assisted** (AI agent applies decision matrix; scripts handle tracking file updates)
+
+**📋 AUTOMATION DETAILS**
+
+- **Scripts:**
+  - `scripts/file-creation/03-testing/New-PerformanceTestEntry.ps1` — adds `⬜ Specified` rows to performance-test-tracking.md (auto-assigns BM/PH IDs via TE-id-registry)
+  - `scripts/file-creation/03-testing/New-WorkflowEntry.ps1` — adds untracked workflows to user-workflow-tracking.md (auto-assigns WF IDs via PD-id-registry)
+  - `scripts/file-creation/03-testing/New-E2EMilestoneEntry.ps1` — adds milestone rows to e2e-test-tracking.md (validates WF-xxx exists, counts ready features)
+  - `scripts/update/Update-BatchFeatureStatus.ps1` — sets feature status to `🟢 Completed`
+  - `scripts/update/Update-WorkflowTracking.ps1` — syncs workflow Impl Status and E2E Status
+- **Output Directory:** Rows in existing tracking files (no new files created)
+
+**📁 FILE OPERATIONS**
+| Operation | File Path | Update Method | Details |
+|-----------|-----------|---------------|---------|
+| Add perf test rows | test/state-tracking/permanent/performance-test-tracking.md | New-PerformanceTestEntry.ps1 | `⬜ Specified` entries + summary update |
+| Add workflow rows | doc/state-tracking/permanent/user-workflow-tracking.md | New-WorkflowEntry.ps1 | New cross-feature workflows discovered during scoping |
+| Add E2E milestones | test/state-tracking/permanent/e2e-test-tracking.md | New-E2EMilestoneEntry.ps1 | Workflow Milestone Tracking table |
+| Update feature status | doc/state-tracking/permanent/feature-tracking.md | Update-BatchFeatureStatus.ps1 | `🔎 Needs Test Scoping` → `🟢 Completed` |
+| Sync workflow status | doc/state-tracking/permanent/user-workflow-tracking.md | Update-WorkflowTracking.ps1 | Derives Impl Status + E2E Status |
+
+**🎯 KEY IMPACTS**
+
+- **Primary output:** Performance test specifications in tracking file; E2E milestone entries for ready workflows; feature status advanced to Completed
+- **Dependencies:** Triggered by Code Review (PF-TSK-005) setting status to `🔎 Needs Test Scoping`
+
+**🔗 TRIGGER & OUTPUT** (Self-Doc: Yes)
+- **Trigger:** `feature-tracking.md` → `🔎 Needs Test Scoping`
+- **Output:** `feature-tracking.md` → `🟢 Completed`; `performance-test-tracking.md` → `⬜ Specified` (if perf tests needed); `e2e-test-tracking.md` → milestone entries (if workflow E2E-ready); `user-workflow-tracking.md` → untracked workflows added
 ### **VALIDATION TASKS**
 
 #### **V0. Validation Preparation** ([PF-TSK-077](../tasks/05-validation/validation-preparation.md))
@@ -1194,8 +1319,11 @@ This document serves as the **comprehensive registry** of all process framework 
 
 - **Entry point:** Required before any validation dimension tasks — selects features, evaluates dimension applicability, creates tracking
 - **Primary output:** Validation Tracking State File with feature×dimension matrix and session sequence
-- **Enables next steps:** All 11 validation dimension tasks (PF-TSK-031 through PF-TSK-076)
 - **Dependencies:** Requires completed features ready for validation
+
+**🔗 TRIGGER & OUTPUT** (Self-Doc: No)
+- **Trigger:** _(user request)_
+- **Output:** Validation tracking state file → feature × dimension matrix created
 
 #### **V1-V11. Validation Dimension Tasks** (11 tasks: Architectural Consistency, Code Quality Standards, Integration Dependencies, Documentation Alignment, Extensibility Maintainability, AI Agent Continuity, Security & Data Protection, Performance & Scalability, Observability, Accessibility / UX Compliance, Data Integrity)
 
@@ -1220,8 +1348,11 @@ This document serves as the **comprehensive registry** of all process framework 
 - **Primary state file:** [Validation Tracking](../../doc/state-tracking/validation/archive/validation-tracking-1.md) - Tracks validation completion across features
 - **Documentation registry:** Updates validation report catalog in PD-documentation-map.md
 - **Quality assurance:** Validates features meet quality standards across 11 dimensions
-- **Enables next steps:** Feature completion certification, release readiness
 - **Dependencies:** Requires Validation Preparation (PF-TSK-077) and completed features
+
+**🔗 TRIGGER & OUTPUT** (Self-Doc: Partial)
+- **Trigger:** Validation tracking → dimension assigned in matrix
+- **Output:** `technical-debt-tracking.md` → new items (Dims: AC, CQ, ID, DA, EM, SE, PE, OB, UX, DI)
 
 **📋 VALIDATION TYPES:**
 
@@ -1263,9 +1394,12 @@ This document serves as the **comprehensive registry** of all process framework 
 
 - **Primary state file:** [`documentation-map.md`](../PF-documentation-map.md) - Updates task catalog
 - **Process framework evolution:** Extends framework capabilities with new tasks
-- **Enables next steps:** New task becomes immediately available in AI workflows
 - **Dependencies:** Requires task analysis and design completion
 - **✅ Automation Gap Closed (IMP-283):** Registry update now automated via New-Task.ps1; drift detected by Validate-StateTracking.ps1 Surface 9
+
+**🔗 TRIGGER & OUTPUT** (Self-Doc: No)
+- **Trigger:** _(user request)_
+- **Output:** `ai-tasks.md`, `PF-documentation-map.md` → task registered
 
 #### **S6. Process Improvement Task** ([PF-TSK-009](../tasks/support/process-improvement-task.md))
 
@@ -1303,8 +1437,11 @@ Update-ProcessImprovement.ps1 -ImprovementId "IMP-051" -NewStatus "InProgress" -
 - **Primary state file:** [`process-improvement-tracking.md`](../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) - Tracks improvement initiatives
 - **Incremental implementation:** Requires explicit human approval at each checkpoint
 - **Upstream dependency:** Improvements are identified and prioritized by the Tools Review Task (PF-TSK-010)
-- **Enables next steps:** No next steps; completes cycle
 - **Dependencies:** Requires prioritized improvement in process-improvement-tracking.md
+
+**🔗 TRIGGER & OUTPUT** (Self-Doc: Yes)
+- **Trigger:** `process-improvement-tracking.md` → Active items (not Completed/Deferred)
+- **Output:** `process-improvement-tracking.md` → `✅ Completed`
 
 #### **S7. Framework Extension Task** ([PF-TSK-026](../tasks/support/framework-extension-task.md))
 
@@ -1330,9 +1467,12 @@ Update-ProcessImprovement.ps1 -ImprovementId "IMP-051" -NewStatus "InProgress" -
 - **Framework evolution:** Extends process framework with new capabilities
 - **Concept documentation:** Creates structured proposals for framework changes
 - **Strategic planning:** Guides framework development and enhancement
-- **Enables next steps:** Framework implementation and integration
 - **Dependencies:** Requires framework analysis and extension design
 - **⚠️ Automation Gap:** Low-priority candidate for extension tracking
+
+**🔗 TRIGGER & OUTPUT** (Self-Doc: No)
+- **Trigger:** _(user request)_
+- **Output:** `ai-tasks.md`, `PF-documentation-map.md`, ID registry → updated
 
 #### **S8. Structure Change Task** ([PF-TSK-014](../tasks/support/structure-change-task.md))
 
@@ -1359,9 +1499,12 @@ Update-ProcessImprovement.ps1 -ImprovementId "IMP-051" -NewStatus "InProgress" -
 - **Structure evolution:** Manages changes to framework and documentation structure
 - **Change tracking:** Documents structural modifications and their rationale
 - **Impact management:** Coordinates updates across affected files and processes
-- **Enables next steps:** Structural implementation and validation
 - **Dependencies:** Requires structural analysis and change planning
 - **⚠️ Automation Gap:** Medium-priority candidate for change impact automation
+
+**🔗 TRIGGER & OUTPUT** (Self-Doc: Partial)
+- **Trigger:** `process-improvement-tracking.md` / _(user request)_ → IMP item routed to PF-TSK-014
+- **Output:** Documentation maps → updated; `process-improvement-tracking.md` → IMP item → `Completed`
 
 #### **S9. Tools Review Task** ([PF-TSK-010](../tasks/support/tools-review-task.md))
 
@@ -1389,8 +1532,11 @@ Update-ProcessImprovement.ps1 -ImprovementId "IMP-051" -NewStatus "InProgress" -
 - **Tool optimization:** Evaluates and improves development and documentation tools
 - **Efficiency improvement:** Identifies better tools and workflows
 - **Technology evolution:** Keeps framework aligned with current best practices
-- **Enables next steps:** Process Improvement Task
 - **Dependencies:** Requires Feedback Forms
+
+**🔗 TRIGGER & OUTPUT** (Self-Doc: No)
+- **Trigger:** _(schedule / task count)_ + unprocessed feedback forms in `process-framework-local/feedback/feedback-forms/`
+- **Output:** `process-improvement-tracking.md` → new IMP items; `bug-tracking.md` → `🆕 Needs Triage` (if bugs); `feature-request-tracking.md` → `📥 Submitted` (if features)
 
 #### **S10. Framework Evaluation Task** ([PF-TSK-079](../tasks/support/framework-evaluation.md))
 
@@ -1414,8 +1560,11 @@ Update-ProcessImprovement.ps1 -ImprovementId "IMP-051" -NewStatus "InProgress" -
 - **Framework quality:** Structurally evaluates process framework across 7 dimensions (Completeness, Consistency, Redundancy, Accuracy, Effectiveness, Automation Coverage, Scalability)
 - **Flexible scope:** Can target full framework, specific phases, component types, workflows, or targeted artifact sets
 - **Improvement pipeline:** Findings registered as IMP entries for Process Improvement Task follow-up
-- **Enables next steps:** Process Improvement Task, Structure Change Task, New Task Creation Process
 - **Dependencies:** Requires Documentation Map and AI Tasks System as evaluation entry points
+
+**🔗 TRIGGER & OUTPUT** (Self-Doc: No)
+- **Trigger:** _(schedule / user request)_
+- **Output:** `process-improvement-tracking.md` → new IMP items (triggers PF-TSK-009)
 
 #### **S11. Framework Domain Adaptation** ([PF-TSK-080](../tasks/support/framework-domain-adaptation.md))
 
@@ -1438,8 +1587,11 @@ Update-ProcessImprovement.ps1 -ImprovementId "IMP-051" -NewStatus "InProgress" -
 - **Framework evolution:** Adapts process framework to new project domains
 - **Terminology alignment:** Translates domain-specific terms across all framework documents
 - **Cross-reference integrity:** Updates all internal references after domain adaptation
-- **Enables next steps:** Normal framework usage in adapted domain
 - **Dependencies:** Requires understanding of both source and target domains
+
+**🔗 TRIGGER & OUTPUT** (Self-Doc: No)
+- **Trigger:** _(user request)_
+- **Output:** All framework files → domain-adapted
 
 ### **CYCLICAL TASKS**
 
@@ -1475,10 +1627,13 @@ Update-ProcessImprovement.ps1 -ImprovementId "IMP-051" -NewStatus "InProgress" -
 - **Strategic planning:** Informs refactoring and improvement priorities with detailed impact analysis
 - **Prevents duplicates:** **AUTOMATED** linking system ensures debt items are properly tracked and not duplicated
 - **Workflow efficiency:** **ELIMINATED** manual registry integration bottleneck - assessment findings automatically integrated
-- **Enables next steps:** Code Refactoring Task (using prioritized debt items from assessment)
 - **Dependencies:** Requires codebase analysis and technical expertise
 - **Integration workflow:** **FULLY AUTOMATED** process for moving assessment findings into permanent tracking system
 - **⚠️ AUTOMATION BREAKTHROUGH:** Task moved from Semi-Automated to Fully Automated with new registry integration scripts
+
+**🔗 TRIGGER & OUTPUT** (Self-Doc: No)
+- **Trigger:** _(schedule / user request)_
+- **Output:** `technical-debt-tracking.md` → new items added (triggers PF-TSK-022)
 
 #### **C2. Documentation Tier Adjustment Task** ([PF-TSK-011](../tasks/cyclical/documentation-tier-adjustment-task.md))
 
@@ -1499,8 +1654,388 @@ Update-ProcessImprovement.ps1 -ImprovementId "IMP-051" -NewStatus "InProgress" -
 
 - **Primary state file:** [`feature-tracking.md`](../../doc/state-tracking/permanent/feature-tracking.md) - Tier reclassification
 - **Triggered by:** Complexity changes discovered during implementation
-- **Enables next steps:** Additional design documentation (if tier increases) or documentation reduction (if tier decreases)
 - **Dependencies:** Requires active implementation revealing complexity mismatch
+
+**🔗 TRIGGER & OUTPUT** (Self-Doc: No)
+- **Trigger:** _(user recognition)_ — complexity change during implementation
+- **Output:** `feature-tracking.md` → tier emoji updated (🔵/🟠/🔴)
+
+---
+
+## State File Trigger Index
+
+Which status in which file triggers which task.
+
+| State File | Status Value | Triggers Task |
+|------------|-------------|---------------|
+| `feature-request-tracking.md` | `📥 Submitted` | PF-TSK-067 Feature Request Evaluation |
+| `feature-tracking.md` | `⬜ Needs Assessment` | PF-TSK-002 Feature Tier Assessment |
+| `feature-tracking.md` | `📋 Needs FDD` | PF-TSK-027 FDD Creation |
+| `feature-tracking.md` | `📝 Needs TDD` | PF-TSK-015 TDD Creation |
+| `feature-tracking.md` | `🧪 Needs Test Spec` | PF-TSK-012 Test Spec Creation |
+| `feature-tracking.md` | `🔧 Needs Impl Plan` | PF-TSK-044 Feature Implementation Planning |
+| `feature-tracking.md` | `👀 Needs Review` | PF-TSK-005 Code Review |
+| `feature-tracking.md` | `🔎 Needs Test Scoping` | PF-TSK-086 Performance & E2E Test Scoping |
+| `feature-tracking.md` | `🔄 Needs Enhancement` + state file link | PF-TSK-068 Feature Enhancement |
+| `feature-tracking.md` | `🗄️ Needs DB Design` | PF-TSK-021 DB Schema Design |
+| `feature-tracking.md` | `🔌 Needs API Design` | PF-TSK-020 API Design |
+| Feature impl state file | User Documentation = `❌ Needed` | PF-TSK-081 User Documentation Creation |
+| Feature impl state file | Task sequence: task = `not_started` | PF-TSK-051/056/052/078/053/054/055 (per plan) |
+| `bug-tracking.md` | `🆕 Needs Triage` | PF-TSK-041 Bug Triage |
+| `bug-tracking.md` | `🔍 Needs Fix` | PF-TSK-007 Bug Fixing |
+| `technical-debt-tracking.md` | Active items | PF-TSK-022 Code Refactoring |
+| `e2e-test-tracking.md` | `🔄 Needs Re-execution` | PF-TSK-070 E2E Test Execution |
+| `performance-test-tracking.md` | `⬜ Specified` (self-created, multi-session resume) | PF-TSK-084 Performance Test Creation |
+| `performance-test-tracking.md` | `📋 Created` / `⚠️ Stale` | PF-TSK-085 Performance Baseline Capture |
+| `user-workflow-tracking.md` | All features = `Implemented` + Integration Doc empty | PF-TSK-083 Integration Narrative Creation |
+| `retrospective-master-state.md` | Phase 1 = `100%` | PF-TSK-065 Codebase Feature Analysis |
+| `retrospective-master-state.md` | Phase 2 = `100%` | PF-TSK-066 Retrospective Documentation Creation |
+| `process-improvement-tracking.md` | Active items | PF-TSK-009 Process Improvement |
+| Validation tracking state file | Dimension assigned in matrix | PF-TSK-031 through PF-TSK-076 (11 dimension tasks) |
+
+---
+
+## Trigger Chain Diagrams
+
+Visual representations of how state file statuses chain together to drive task execution.
+
+> Dashed lines = cross-file edges. Solid lines = same-file transitions.
+> Edge labels: TSK-XXX = executing task, condition after space.
+
+### 1. Main Pipeline — feature-tracking.md
+
+The primary status chain from feature intake through completion.
+
+```mermaid
+graph TD
+    FRQ[Submitted - feature-request-tracking]
+
+    FRQ -->|"TSK-067 new feature"| NA
+    FRQ -->|"TSK-067 enhancement"| NE
+
+    NA[Needs Assessment]
+
+    NA -->|"TSK-002 T2+"| NFDD
+    NA -->|"TSK-002 T1 DB=Y"| NDB
+    NA -->|"TSK-002 T1 API=Y"| NAPI
+    NA -->|"TSK-002 T1 neither"| NTDD
+
+    NFDD[Needs FDD]
+
+    NFDD -->|"TSK-027 DB=Y"| NDB
+    NFDD -->|"TSK-027 API=Y no DB"| NAPI
+    NFDD -->|"TSK-027 neither"| NTDD
+
+    NDB[Needs DB Design]
+
+    NDB -->|"TSK-021 API=Y"| NAPI
+    NDB -->|"TSK-021 no API"| NTDD
+
+    NAPI[Needs API Design]
+
+    NAPI -->|"TSK-020"| NTDD
+
+    NTDD[Needs TDD]
+
+    NTDD -->|"TSK-015"| NTS
+
+    NTS[Needs Test Spec]
+
+    NTS -->|"TSK-012"| NIP
+
+    NIP[Needs Impl Plan]
+
+    NIP -->|"TSK-044"| IP
+
+    IP[In Progress]
+
+    IP -->|"TSK-078 or TSK-024"| NR
+    IP -.->|"creates"| IMPL_STATE[impl-state: not_started]
+    IMPL_STATE -.->|"TSK-051 thru 055"| NR
+
+    NR[Needs Review]
+
+    NR -->|"TSK-005 pass"| NTSC
+    NR -->|"TSK-005 issues"| NE
+
+    NTSC[Needs Test Scoping]
+
+    NTSC -->|"TSK-086"| DONE[Completed]
+
+    NE[Needs Enhancement]
+
+    NE -->|"TSK-068"| NR
+
+    NTSC -.->|"TSK-086 perf tests"| PERF[Specified - perf-test-tracking]
+    NTSC -.->|"TSK-086 E2E ready"| E2E[milestone - e2e-test-tracking]
+    NTSC -.->|"TSK-086 new WFs"| WF[workflows - user-workflow-tracking]
+
+    IP -.->|"user-visible"| UDOC[impl-state: User Docs Needed]
+    UDOC -.->|"TSK-081"| UDOC_DONE[impl-state: Handbook created]
+
+    classDef entry fill:#cce5ff,stroke:#004085,stroke-width:2px,color:#000000
+    classDef design fill:#fff3cd,stroke:#856404,stroke-width:2px,color:#000000
+    classDef impl fill:#d4edda,stroke:#155724,stroke-width:2px,color:#000000
+    classDef review fill:#f8d7da,stroke:#721c24,stroke-width:2px,color:#000000
+    classDef done fill:#155724,stroke:#000000,stroke-width:3px,color:#ffffff
+    classDef loop fill:#fff3cd,stroke:#856404,stroke-width:3px,color:#000000
+    classDef crossfile fill:#e2d9f3,stroke:#4a235a,stroke-width:1px,stroke-dasharray:5 5,color:#000000
+
+    class FRQ entry
+    class NA entry
+    class NFDD,NDB,NAPI,NTDD design
+    class NTS,NIP,IP impl
+    class NR,NTSC review
+    class DONE done
+    class NE loop
+    class IMPL_STATE,PERF,E2E,WF,UDOC,UDOC_DONE crossfile
+```
+
+### 2. Implementation Detail — feature-impl-state
+
+The decomposed implementation task sequence within a single feature's state file.
+
+```mermaid
+graph TD
+    PLAN[TSK-044 creates plan]
+
+    PLAN -->|"task sequence"| DL[Data Layer: not_started]
+
+    DL -->|"TSK-051"| DL_DONE[Data Layer: completed]
+
+    DL_DONE -->|"next in sequence"| SM[State Mgmt: not_started]
+
+    SM -->|"TSK-056"| SM_DONE[State Mgmt: completed]
+
+    SM_DONE -->|"next in sequence"| UI[UI: not_started]
+
+    UI -->|"TSK-052"| UI_DONE[UI: completed]
+
+    UI_DONE -->|"all impl done"| INT[Integration and Testing: not_started]
+
+    INT -->|"TSK-053"| INT_DONE[Integration and Testing: completed]
+
+    INT_DONE --> QV[Quality Validation: not_started]
+
+    QV -->|"TSK-054"| QV_DONE[Quality Validation: completed]
+
+    QV_DONE --> FIN[Finalization: not_started]
+
+    FIN -->|"TSK-055"| FIN_DONE[Finalization: completed]
+
+    FIN_DONE -.->|"sets"| NR[Needs Review - feature-tracking]
+
+    DL_DONE -->|"alt: Core Logic path"| CL[Core Logic: not_started]
+    CL -->|"TSK-078"| CL_DONE[Core Logic: completed]
+    CL_DONE -.->|"sets directly"| NR
+
+    classDef notstarted fill:#ffffff,stroke:#333333,stroke-width:1px,color:#000000
+    classDef completed fill:#d4edda,stroke:#155724,stroke-width:2px,color:#000000
+    classDef plan fill:#cce5ff,stroke:#004085,stroke-width:2px,color:#000000
+    classDef crossfile fill:#e2d9f3,stroke:#4a235a,stroke-width:1px,stroke-dasharray:5 5,color:#000000
+
+    class PLAN plan
+    class DL,SM,UI,INT,QV,FIN,CL notstarted
+    class DL_DONE,SM_DONE,UI_DONE,INT_DONE,QV_DONE,FIN_DONE,CL_DONE completed
+    class NR crossfile
+```
+
+### 3. Bug Lifecycle — bug-tracking.md
+
+```mermaid
+graph TD
+    DISC[Bug discovered during any task]
+
+    DISC -->|"New-BugReport.ps1"| REP[Reported]
+
+    REP -->|"TSK-041 Bug Triage"| TRI[Triaged - P1 thru P4, S/M/L]
+
+    TRI -->|"TSK-007 Bug Fixing"| PROG[In Progress]
+
+    PROG --> FIX[Fixed]
+
+    FIX -.->|"Code Review"| VER[Verified]
+
+    VER --> CLOSED[Closed]
+
+    FIX -.->|"review fails"| PROG
+
+    TRI -.->|"triggers"| E2E_RE[e2e-test-tracking: Needs Re-execution]
+
+    classDef bug fill:#f8d7da,stroke:#721c24,stroke-width:2px,color:#000000
+    classDef done fill:#155724,stroke:#000000,stroke-width:3px,color:#ffffff
+    classDef trigger fill:#ffffff,stroke:#333333,stroke-width:1px,color:#000000
+    classDef crossfile fill:#e2d9f3,stroke:#4a235a,stroke-width:1px,stroke-dasharray:5 5,color:#000000
+
+    class DISC trigger
+    class REP,TRI,PROG,FIX,VER bug
+    class CLOSED done
+    class E2E_RE crossfile
+```
+
+### 4a. Performance Test Chain — performance-test-tracking.md
+
+```mermaid
+graph TD
+    SCOPE[TSK-086 Test Scoping]
+
+    SCOPE -.->|"perf tests needed"| SPEC[Specified]
+
+    SPEC -->|"TSK-084 Perf Test Creation"| CREATED[Created]
+
+    CREATED -->|"TSK-085 Baseline Capture"| BASE[Baselined]
+
+    CREATED -->|"stale after changes"| STALE[Stale]
+
+    STALE -->|"TSK-085 re-capture"| BASE
+
+    BASE -.->|"regression detected"| BUG[bug-tracking: Reported]
+
+    classDef perf fill:#d4edda,stroke:#155724,stroke-width:2px,color:#000000
+    classDef alert fill:#fff3cd,stroke:#856404,stroke-width:2px,color:#000000
+    classDef done fill:#155724,stroke:#000000,stroke-width:3px,color:#ffffff
+    classDef crossfile fill:#e2d9f3,stroke:#4a235a,stroke-width:1px,stroke-dasharray:5 5,color:#000000
+
+    class SCOPE,SPEC,CREATED perf
+    class STALE alert
+    class BASE done
+    class BUG crossfile
+```
+
+### 4b. E2E Test Chain — e2e-test-tracking.md
+
+```mermaid
+graph TD
+    SCOPE[TSK-086 Test Scoping]
+
+    SCOPE -.->|"workflow E2E-ready"| MILE[Milestone entry added]
+
+    MILE -->|"TSK-069 Case Creation"| CASES[Case Created]
+
+    CASES -->|"TSK-070 Execution"| PASS[Passed]
+    CASES -->|"TSK-070 Execution"| FAIL[Failed]
+
+    REFACTOR[Code Refactoring TSK-022] -.->|"affected groups"| REEXEC[Needs Re-execution]
+    BUGFIX[Bug Fixing TSK-007] -.->|"affected groups"| REEXEC
+
+    REEXEC -->|"TSK-070 re-run"| PASS
+    REEXEC -->|"TSK-070 re-run"| FAIL
+
+    classDef e2e fill:#cce5ff,stroke:#004085,stroke-width:2px,color:#000000
+    classDef pass fill:#155724,stroke:#000000,stroke-width:3px,color:#ffffff
+    classDef fail fill:#721c24,stroke:#000000,stroke-width:3px,color:#ffffff
+    classDef crossfile fill:#e2d9f3,stroke:#4a235a,stroke-width:1px,stroke-dasharray:5 5,color:#000000
+
+    class SCOPE,MILE,CASES,REEXEC e2e
+    class PASS pass
+    class FAIL fail
+    class REFACTOR,BUGFIX crossfile
+```
+
+### 5. Validation Fan-out — validation-tracking state file
+
+```mermaid
+graph TD
+    PREP[TSK-077 Validation Preparation]
+
+    PREP -->|"creates matrix"| TRACK[Validation Tracking State File]
+
+    TRACK -->|"dimension assigned"| AC[TSK-031 Architectural Consistency]
+    TRACK -->|"dimension assigned"| CQ[TSK-032 Code Quality Standards]
+    TRACK -->|"dimension assigned"| ID[TSK-033 Integration Dependencies]
+    TRACK -->|"dimension assigned"| DA[TSK-034 Documentation Alignment]
+    TRACK -->|"dimension assigned"| EM[TSK-035 Extensibility Maintainability]
+    TRACK -->|"dimension assigned"| AAC[TSK-036 AI Agent Continuity]
+    TRACK -->|"dimension assigned"| SE[TSK-072 Security and Data Protection]
+    TRACK -->|"dimension assigned"| PE[TSK-073 Performance and Scalability]
+    TRACK -->|"dimension assigned"| OB[TSK-074 Observability]
+    TRACK -->|"dimension assigned"| UX[TSK-075 Accessibility UX Compliance]
+    TRACK -->|"dimension assigned"| DI[TSK-076 Data Integrity]
+
+    AC -.-> TD_OUT[technical-debt-tracking: new items]
+    CQ -.-> TD_OUT
+    ID -.-> TD_OUT
+    DA -.-> TD_OUT
+    EM -.-> TD_OUT
+    AAC -.-> TD_OUT
+    SE -.-> TD_OUT
+    PE -.-> TD_OUT
+    OB -.-> TD_OUT
+    UX -.-> TD_OUT
+    DI -.-> TD_OUT
+
+    classDef prep fill:#cce5ff,stroke:#004085,stroke-width:2px,color:#000000
+    classDef dim fill:#fff3cd,stroke:#856404,stroke-width:2px,color:#000000
+    classDef crossfile fill:#e2d9f3,stroke:#4a235a,stroke-width:1px,stroke-dasharray:5 5,color:#000000
+
+    class PREP prep
+    class TRACK prep
+    class AC,CQ,ID,DA,EM,AAC,SE,PE,OB,UX,DI dim
+    class TD_OUT crossfile
+```
+
+### 6. Cross-File Overview
+
+How the state file chains connect to each other. Each node is a state file, each edge shows which task writes from one file's context into another.
+
+```mermaid
+graph LR
+    FRT[feature-request-tracking]
+    FT[feature-tracking]
+    IMPL[feature-impl-state files]
+    BT[bug-tracking]
+    TDT[technical-debt-tracking]
+    TT[test-tracking]
+    PTT[performance-test-tracking]
+    E2ET[e2e-test-tracking]
+    UWT[user-workflow-tracking]
+    VT[validation-tracking]
+    PIT[process-improvement-tracking]
+    RMS[retrospective-master-state]
+
+    FRT -->|"TSK-067"| FT
+    FT -->|"TSK-044"| IMPL
+    IMPL -->|"TSK-078/024/055"| FT
+    FT -->|"TSK-086"| PTT
+    FT -->|"TSK-086"| E2ET
+    FT -->|"TSK-086"| UWT
+
+    IMPL -->|"TSK-053/078"| TT
+    IMPL -->|"TSK-081"| IMPL
+
+    VT -->|"TSK-031 thru 076"| TDT
+    TDT -->|"TSK-022"| E2ET
+
+    BT -->|"TSK-007"| E2ET
+
+    RMS -->|"TSK-065"| FT
+    RMS -->|"TSK-066"| FT
+    FRT -->|"TSK-067"| UWT
+    PIT -->|"TSK-009"| PIT
+
+    classDef primary fill:#cce5ff,stroke:#004085,stroke-width:2px,color:#000000
+    classDef secondary fill:#d4edda,stroke:#155724,stroke-width:2px,color:#000000
+    classDef support fill:#fff3cd,stroke:#856404,stroke-width:2px,color:#000000
+
+    class FT,IMPL primary
+    class BT,TT,PTT,E2ET,TDT secondary
+    class FRT,UWT,VT,PIT,RMS support
+```
+
+### Diagram Legend
+
+| Style | Meaning |
+|-------|---------|
+| Blue fill, dark blue border | Entry points, assessment, preparation |
+| Yellow fill, dark yellow border | Design phase or validation dimensions |
+| Green fill, dark green border | Implementation phase, completed steps |
+| Pink fill, dark red border | Review phase, bug statuses |
+| Dark green fill, white text | Terminal status - Completed, Baselined, Passed, Closed |
+| Dark red fill, white text | Terminal failure - Failed |
+| Yellow fill, thick border | Enhancement loop or stale warning |
+| Light purple, dashed border | Cross-file node - status lives in a different state file |
+| Solid arrow | Same-file status transition |
+| Dashed arrow | Cross-file trigger or output |
 
 ---
 
@@ -1516,7 +2051,7 @@ Complete catalog of all automation scripts in `process-framework/scripts/`. Scri
 | `New-FeatureRequest.ps1` | `file-creation/01-planning/` | PF-TSK-067 | Add feature requests to feature-request-tracking.md |
 | `New-FDD.ps1` | `file-creation/02-design/` | PF-TSK-027, PF-TSK-066 | Create Functional Design Documents |
 | `New-TDD.ps1` | `file-creation/02-design/` | PF-TSK-015, PF-TSK-066 | Create Technical Design Documents |
-| `New-ArchitectureDecision.ps1` | `file-creation/02-design/` | PF-TSK-028, PF-TSK-022, PF-TSK-066 | Create Architecture Decision Records |
+| `New-ArchitectureDecision.ps1` | `file-creation/02-design/` | PF-TSK-022, PF-TSK-043, PF-TSK-066, PF-TSK-082 | Create Architecture Decision Records (inline in parent tasks) |
 | `New-ArchitectureAssessment.ps1` | `file-creation/02-design/` | PF-TSK-019 | Create Architecture Impact Assessments |
 | `New-APISpecification.ps1` | `file-creation/02-design/` | PF-TSK-020 | Create API specification documents |
 | `New-APIDataModel.ps1` | `file-creation/02-design/` | PF-TSK-020 | Create API data model documents |
@@ -1552,7 +2087,7 @@ Complete catalog of all automation scripts in `process-framework/scripts/`. Scri
 | `New-PermanentState.ps1` | `file-creation/support/` | Various | Create permanent state tracking files |
 | `New-StructureChangeState.ps1` | `file-creation/support/` | PF-TSK-014 | Create structure change state tracking files |
 | `New-StructureChangeProposal.ps1` | `file-creation/support/` | PF-TSK-014 | Create structure change proposal documents |
-| `New-FrameworkExtensionConcept.ps1` | `file-creation/support/` | PF-TSK-026 | Create framework extension concept documents |
+| `New-FrameworkExtensionConcept.ps1` | `file-creation/support/` | PF-TSK-026 | Create framework extension concept documents (`-Type Creation/Modification/Hybrid` selects template) |
 | `New-FrameworkEvaluationReport.ps1` | `file-creation/support/` | PF-TSK-079 | Create framework evaluation reports |
 | `New-ProcessImprovement.ps1` | `file-creation/support/` | PF-TSK-010, PF-TSK-079 | Add improvement entries to process-improvement-tracking.md |
 | `New-TechnicalDebtAssessment.ps1` | `file-creation/cyclical/` | PF-TSK-023 | Create technical debt assessment documents |
@@ -1607,8 +2142,9 @@ Complete catalog of all automation scripts in `process-framework/scripts/`. Scri
 | `Verify-TestResult.ps1` | `test/e2e-acceptance-testing/` | PF-TSK-070 | Compare workspace vs expected state |
 | `Update-TestExecutionStatus.ps1` | `test/e2e-acceptance-testing/` | PF-TSK-070 | Update tracking with E2E execution results |
 | `test_query.py` | `test/` | PF-TSK-065, PF-TSK-053 | AST-based query tool for pytest markers |
+| `Update-PerformanceTracking.ps1` | `test/state-tracking/permanent/` | PF-TSK-084, PF-TSK-085 | Performance test lifecycle management: status transitions, column updates, summary recalculation |
 | `performance_db.py` | `test/` | PF-TSK-084, PF-TSK-085 | SQLite-based performance results storage with record/trend/regressions/export subcommands |
-| `feedback_db.py` | `.` | PF-TSK-010 (indirect) | Feedback database recording and querying |
+| `feedback_db.py` | `.` | PF-TSK-010 (indirect) | Feedback database recording, querying, and trend alerting (`alerts` subcommand) |
 | `extract_ratings.py` | `.` | PF-TSK-010 (indirect) | Parse feedback form markdown and generate JSON for feedback_db.py record |
 
 ### Orchestration & Utility Scripts

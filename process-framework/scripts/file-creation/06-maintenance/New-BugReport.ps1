@@ -46,11 +46,22 @@
 .PARAMETER RelatedFeature
     Related feature ID if applicable (optional)
 
+.PARAMETER PreTriaged
+    When set, creates the bug directly in 🔍 Needs Fix status instead of 🆕 Needs Triage.
+    Use when the reporter already has complete root cause analysis and scope.
+    Requires -Scope to be specified.
+
+.PARAMETER Scope
+    Bug scope description (e.g., "Single file", "Multi-module"). Required when -PreTriaged is set.
+
 .EXAMPLE
     New-BugReport.ps1 -Title "Login fails with special characters" -Description "Users cannot login when password contains special characters" -DiscoveredBy "TestAudit" -Severity "High" -Component "Authentication"
 
 .EXAMPLE
     New-BugReport.ps1 -Title "Memory leak in user service" -Description "Memory usage increases over time" -DiscoveredBy "CodeReview" -Severity "Critical" -Component "Performance" -Environment "Production"
+
+.EXAMPLE
+    New-BugReport.ps1 -Title "Parser skips backtick paths" -Description "Markdown parser ignores backtick-delimited paths" -DiscoveredBy "CodeReview" -Severity "Medium" -Component "Parsers" -PreTriaged -Scope "Single parser module" -RelatedFeature "2.1.1"
 
 .NOTES
     - Requires PowerShell execution policy to allow script execution
@@ -107,7 +118,13 @@ param(
     [string]$Dims = "",
 
     [Parameter(Mandatory = $false)]
-    [string]$Workflows = ""
+    [string]$Workflows = "",
+
+    [Parameter(Mandatory = $false)]
+    [switch]$PreTriaged,
+
+    [Parameter(Mandatory = $false)]
+    [string]$Scope = ""
 )
 
 # Import the common helpers
@@ -117,6 +134,11 @@ while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
 }
 Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 Invoke-StandardScriptInitialization
+
+# Validate -PreTriaged requires -Scope
+if ($PreTriaged -and -not $Scope) {
+    Write-ProjectError -Message "-PreTriaged requires -Scope to be specified." -ExitCode 1
+}
 
 # Get current date in YYYY-MM-DD format
 $currentDate = Get-Date -Format "yyyy-MM-dd"
@@ -181,8 +203,12 @@ $WorkflowsField = if ($Workflows -ne "") { $Workflows } else { "" }
 # Dims field
 $DimsField = if ($Dims -ne "") { $Dims } else { "" }
 
+# Determine status and scope based on -PreTriaged
+$BugStatus = if ($PreTriaged) { "🔍 Needs Fix" } else { "🆕 Needs Triage" }
+$ScopeField = if ($Scope -ne "") { $Scope -replace '\|', '\|' } else { "" }
+
 # Create table row — 11-column format: ID | Title | Status | Priority | Scope | Reported | Description | Related Feature | Workflows | Dims | Notes
-$TableRow = "| $BugId | $Title | 🆕 Reported | $PriorityCode | | $currentDate | $Description | $RelatedFeatureField | $WorkflowsField | $DimsField | $NotesField |"
+$TableRow = "| $BugId | $Title | $BugStatus | $PriorityCode | $ScopeField | $currentDate | $Description | $RelatedFeatureField | $WorkflowsField | $DimsField | $NotesField |"
 
 # Find the appropriate table and replace the "No bugs" message
 $NobugsPattern = switch ($Severity) {
@@ -228,7 +254,7 @@ if ($UpdatedContent -eq $Content) {
 }
 
 # Update statistics - count all active bug rows (everything before "## Closed Bugs" section)
-# Active statuses: 🆕 Reported, 🔍 Triaged, 🟡 In Progress, 🧪 Fixed, 🔄 Reopened
+# Active statuses: 🆕 Needs Triage, 🔍 Needs Fix, 🟡 In Progress, 👀 Needs Review, 🔄 Reopened
 $ClosedSectionIndex = $UpdatedContent.IndexOf("## Closed Bugs")
 $ActiveSection = if ($ClosedSectionIndex -gt 0) { $UpdatedContent.Substring(0, $ClosedSectionIndex) } else { $UpdatedContent }
 
@@ -285,11 +311,18 @@ try {
 
     Write-Host ""
     Write-Host "🔄 Next Steps:" -ForegroundColor Yellow
-    Write-Host "  1. Run Bug Triage task to evaluate and prioritize this bug" -ForegroundColor White
-    Write-Host "  2. Bug will be assigned priority and severity during triage" -ForegroundColor White
-    Write-Host "  3. After triage, bug can be assigned for fixing" -ForegroundColor White
-    Write-Host ""
-    Write-Host "💡 Tip: Use 'Bug Triage' task to process all reported bugs" -ForegroundColor Cyan
+    if ($PreTriaged) {
+        Write-Host "  1. Bug created in Triaged status — skip triage, proceed to Bug Fixing task" -ForegroundColor White
+        Write-Host "  2. Use Update-BugStatus.ps1 to transition to In Progress when work begins" -ForegroundColor White
+        Write-Host ""
+        Write-Host "💡 Tip: Use 'Bug Fixing' task (PF-TSK-007) to fix this bug" -ForegroundColor Cyan
+    } else {
+        Write-Host "  1. Run Bug Triage task to evaluate and prioritize this bug" -ForegroundColor White
+        Write-Host "  2. Bug will be assigned priority and severity during triage" -ForegroundColor White
+        Write-Host "  3. After triage, bug can be assigned for fixing" -ForegroundColor White
+        Write-Host ""
+        Write-Host "💡 Tip: Use 'Bug Triage' task to process all reported bugs" -ForegroundColor Cyan
+    }
 }
 catch {
     Write-ProjectError -Message "Failed to create bug report: $($_.Exception.Message)" -ExitCode 1

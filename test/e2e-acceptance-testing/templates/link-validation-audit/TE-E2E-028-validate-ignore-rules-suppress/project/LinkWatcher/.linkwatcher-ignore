@@ -1,0 +1,5 @@
+# Ignore rules for validation test case TE-E2E-028
+# Format: source_glob -> target_substring
+
+# Suppress the intentional broken link in readme.md
+docs/readme.md -> templates/placeholder.md

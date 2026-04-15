@@ -16,6 +16,8 @@ This guide provides comprehensive instructions for customizing Framework Extensi
 
 > **🚨 CRITICAL**: The New-FrameworkExtensionConcept.ps1 script creates only a TEMPLATE requiring extensive customization. This guide is essential for creating functional concept documents.
 
+> **Extension Type**: The script requires a `-Type` parameter (`Creation`, `Modification`, or `Hybrid`) which selects a type-specific template. Creation-type extensions use a template focused on new artifacts and multi-session plans. Modification-type extensions use a template focused on state tracking audits, guide update inventories, and automation integration. Hybrid uses the full template with all sections.
+
 ## When to Use This Guide
 
 Use this guide when you have:

@@ -75,7 +75,8 @@ foreach ($line in $ftLines) {
         $cells = $line -split '\|' | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne '' }
         if ($cells.Count -ge 3) {
             $statusCell = $cells[2]  # Status is 3rd column (0-indexed: ID, Feature, Status)
-            $isCompleted = $statusCell -match '🟢'
+            # A feature is "implemented" if it passed code review: 🟢 Completed OR 🔎 Needs Test Scoping
+            $isCompleted = $statusCell -match '🟢|🔎'
             $featureStatuses[$fId] = @{
                 Status = $statusCell
                 IsCompleted = $isCompleted

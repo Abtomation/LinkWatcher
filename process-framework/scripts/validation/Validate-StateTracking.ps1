@@ -5,7 +5,7 @@
     Master state validation script — validates that state tracking entries match actual files on disk.
 .DESCRIPTION
     Checks consistency across 14 validation surfaces:
-    1. ../feature-tracking.md — all document links (FDD, TDD, ADR, Test Spec, Assessment, State File)
+    1. ../feature-tracking.md — all document links (FDD, TDD, Test Spec, Assessment, State File)
     2. Feature implementation state files — Section 4 (doc inventory), Section 5 (code inventory), Section 6 (dependencies)
     3. ../test-tracking.md — test file path references
     4. Cross-reference consistency — feature IDs in test-registry.yaml vs feature-tracking.md

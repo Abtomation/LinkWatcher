@@ -139,7 +139,7 @@ try {
         if (-not $dependencyCheck.AllDependenciesMet) {
             Write-Warning "Automation dependencies not available. Feature tracking must be updated manually."
             Write-Host "Manual Update Required:" -ForegroundColor Yellow
-            Write-Host "  - Update Status: ⬜ Not Started → 📊 Assessment Created" -ForegroundColor Cyan
+            Write-Host "  - Update Status: Assessment link added (status updated by Update-FeatureTrackingFromAssessment.ps1 after tier determination)" -ForegroundColor Cyan
             Write-Host "  - Add assessment link to feature tracking" -ForegroundColor Cyan
         } else {
             # Prepare assessment document link
@@ -155,23 +155,24 @@ try {
 
             if ($DryRun) {
                 Write-Host "DRY RUN: Would update feature tracking for $FeatureId" -ForegroundColor Yellow
-                Write-Host "  Status: ⬜ Not Started → 📊 Assessment Created" -ForegroundColor Cyan
+                Write-Host "  Status: Assessment link added (status updated by Update-FeatureTrackingFromAssessment.ps1 after tier determination)" -ForegroundColor Cyan
                 Write-Host "  Assessment Link: $assessmentLink" -ForegroundColor Cyan
                 Write-Host "  Notes: $automationNotes" -ForegroundColor Cyan
             } else {
-                # Update feature tracking with assessment completion
-                $updateResult = Update-FeatureTrackingStatus -FeatureId $FeatureId -Status "📊 Assessment Created" -AdditionalUpdates $additionalUpdates -Notes $automationNotes
+                # Link assessment in feature tracking without changing primary status
+                # Status will be set by Update-FeatureTrackingFromAssessment.ps1 after tier is determined
+                $updateResult = Update-FeatureTrackingStatus -FeatureId $FeatureId -AdditionalUpdates $additionalUpdates -Notes $automationNotes
 
                 Write-Host "  ✅ Feature tracking updated successfully" -ForegroundColor Green
-                Write-Host "  📊 Status: ⬜ Not Started → 📊 Assessment Created" -ForegroundColor Green
                 Write-Host "  🔗 Assessment linked in feature tracking" -ForegroundColor Green
+                Write-Host "  ℹ️  Run Update-FeatureTrackingFromAssessment.ps1 after filling in the assessment to set the next-action status" -ForegroundColor Yellow
             }
         }
     }
     catch {
         Write-Warning "Failed to update feature tracking automatically: $($_.Exception.Message)"
         Write-Host "Manual Update Required:" -ForegroundColor Yellow
-        Write-Host "  - Update feature $FeatureId status to '📊 Assessment Created'" -ForegroundColor Cyan
+        Write-Host "  - Run Update-FeatureTrackingFromAssessment.ps1 after completing assessment" -ForegroundColor Cyan
         Write-Host "  - Add assessment link: [$assessmentId](/doc/documentation-tiers/assessments/$newFileName)" -ForegroundColor Cyan
     }
 }

@@ -3,15 +3,15 @@
 id: PF-TEM-007
 type: Process Framework
 category: Template
-version: 2.0
+version: 2.1
 created: 2023-06-15
-updated: 2025-07-08
+updated: 2026-04-14
 
 # Document Creation Metadata
 template_for: Tool Feedback Form
 creates_document_type: Artifact
 creates_document_category: Feedback
-creates_document_prefix: PF-FBK
+creates_document_prefix: PF-FEE
 creates_document_version: 1.0
 
 # Template Usage Context
@@ -189,6 +189,18 @@ Was the sequence of tool usage logical and efficient?
 ### Specific suggestions
 [Provide specific, actionable suggestions for improving the tool]
 
+## Human Intervention Log
+*Record each instance where the human partner corrected, redirected, or supplemented the AI agent's work. Each entry is a potential documentation gap — if the docs were complete, the correction may not have been needed. Skip this section if no interventions occurred.*
+
+| # | What Human Said | What AI Modified | Doc with Gap | Suggested Fix |
+|---|----------------|-----------------|-------------|---------------|
+| 1 | [Correction or redirection given] | [What the AI changed in response] | [Document ID or "N/A — inherently human decision"] | [Specific doc update that would prevent recurrence, or "None — judgment call"] |
+| 2 | [Correction or redirection given] | [What the AI changed in response] | [Document ID or "N/A — inherently human decision"] | [Specific doc update that would prevent recurrence, or "None — judgment call"] |
+
+*Add rows as needed. Mark "N/A — inherently human decision" when the correction reflects a preference or judgment that cannot be codified.*
+
+---
+
 ## Additional Context
 
 ### Task-specific challenges
@@ -216,11 +228,9 @@ Was the sequence of tool usage logical and efficient?
 ---
 
 ## Human User Feedback
-*AI assistant MUST actively solicit user feedback before completing this section*
+*This section is for the human partner to fill independently after the session ends. AI agents should leave this section empty.*
 
-> **CRITICAL**: Do not fill this section without first asking the human user for their input.
-
-[User feedback will be documented here after being actively solicited by the AI assistant]
+[Human partner fills this section after the session]
 
 ---
 

@@ -105,6 +105,19 @@ try {
         "Description: $Description"
     )
 
+    # Auto-append entry to PD-documentation-map.md under User Handbooks section
+    if ($documentId -or $WhatIfPreference) {
+        $docMapPath = Join-Path -Path $projectRoot -ChildPath "doc/PD-documentation-map.md"
+        $sectionHeader = "### ``user/handbooks/``"
+        $kebabName = ConvertTo-KebabCase -InputString $HandbookName
+        $entryLine = "- [Product: $HandbookName ($documentId)](user/handbooks/$kebabName.md) - $Description"
+
+        $updated = Add-DocumentationMapEntry -DocMapPath $docMapPath -SectionHeader $sectionHeader -EntryLine $entryLine -CallerCmdlet $PSCmdlet
+        if ($updated) {
+            $details += "Documentation Map: Updated (PD-documentation-map.md)"
+        }
+    }
+
     if (-not $OpenInEditor) {
         $details += @(
             "",

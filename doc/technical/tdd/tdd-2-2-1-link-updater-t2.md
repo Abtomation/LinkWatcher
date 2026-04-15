@@ -142,7 +142,7 @@ _apply_replacements(abs_file_path, file_path, replacement_items)
   │         └── default → _replace_at_position()
   │              └── "python-import" → replace dot-notation link_text
   └── _write_file_safely(file_path, modified_content)
-       ├── create .linkwatcher.bak (if backup_enabled)
+       ├── create .bak (if backup_enabled)
        ├── write to NamedTemporaryFile (same directory)
        └── shutil.move(temp → original)  [atomic rename]
 ```

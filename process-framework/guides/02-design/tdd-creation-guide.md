@@ -216,7 +216,7 @@ When creating and customizing TDDs, you'll face several critical decisions that 
 
 ## Separation of Concerns and Cross-Referencing
 
-> **📋 Detailed Guidance**: See [Task Transition Guide - Information Flow Section](../framework/task-transition-guide.md#information-flow-and-separation-of-concerns)
+> **📋 Detailed Guidance**: See [Task Transition Guide - Information Flow Section](../../infrastructure/task-transition-registry.md#information-flow-and-separation-of-concerns)
 
 Technical Design Documents focus exclusively on **implementation-level concerns**: component architecture, design patterns, service implementation, state management, and technical integration. This section helps you understand what to document in detail vs. what to reference from other tasks.
 

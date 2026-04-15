@@ -156,7 +156,7 @@
         "permanent": "doc/state-tracking/permanent",
         "default": "permanent"
       },
-      "nextAvailable": 86
+      "nextAvailable": 91
     },
     "PD-ASS": {
       "description": "Product Documentation - Assessment Artifacts",
@@ -188,7 +188,7 @@
         "permanent": "doc/state-tracking/permanent",
         "default": "permanent"
       },
-      "nextAvailable": 4
+      "nextAvailable": 5
     },
     "PD-FIS": {
       "description": "Product Documentation - Feature Implementation States",
@@ -265,6 +265,16 @@
         "default": "main"
       },
       "nextAvailable": 1
+    },
+    "WF": {
+      "description": "Product Documentation - User Workflow Tracking Entries",
+      "category": "Product Documentation",
+      "type": "User Workflow",
+      "directories": {
+        "main": "doc/state-tracking/permanent",
+        "default": "main"
+      },
+      "nextAvailable": 10
     }
   }
 }

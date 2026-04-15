@@ -59,7 +59,7 @@ graph TD
 ### Reference Components (Access When Needed)
 - **Updated Source Code / Tests / Design Docs**: The outputs produced by executing steps
 - **Feature State File**: Target feature's implementation state — updated on finalization
-- **Feature Tracking**: Status restored from "🔄 Needs Revision" to appropriate status on finalization
+- **Feature Tracking**: Status restored from "🔄 Needs Enhancement" to appropriate status on finalization
 - **Archived State File**: Completed state file moved to `temporary/old/`
 - **Existing Design Docs / Source Code**: The existing artifacts being amended or extended
 

@@ -53,7 +53,7 @@ graph TD
 
 ### Important Components (Should Understand)
 - **Integration Wiring**: CLI commands, service registrations, or event hooks connecting new modules to the existing system
-- **Feature Tracking**: Central feature status document — updated to 🧪 Testing upon task completion
+- **Feature Tracking**: Central feature status document — updated to 👀 Needs Review upon task completion
 - **Test Tracking**: Automatically updated by `New-TestFile.ps1` with test file links and status
 
 ### Reference Components (Access When Needed)

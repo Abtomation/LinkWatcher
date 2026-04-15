@@ -24,7 +24,7 @@ Transform completed design documentation (FDD, TDD, API Design, Database Schema 
 
 ## Information Flow
 
-> **📋 Detailed Guidance**: See [Task Transition Guide - Information Flow Section](../../guides/framework/task-transition-guide.md#information-flow-and-separation-of-concerns)
+> **📋 Detailed Guidance**: See [Information Flow Guide](../../guides/framework/information-flow-guide.md)
 
 ### Inputs from Other Tasks
 
@@ -102,7 +102,7 @@ When referencing design documents in implementation plans:
   <!-- UI/UX Design Documentation - If applicable, visual specifications at /doc/technical/ui-design (directory does not exist in this project) -->
   <!-- Component Relationship Index - Removed: file deleted -->
   - **Codebase Structure** - Relevant source directories where feature components will be implemented
-  - **Task Transition Guide** - [For understanding information flow between tasks](../../guides/framework/task-transition-guide.md)
+  - **Information Flow Guide** - [For understanding information flow between tasks](../../guides/framework/information-flow-guide.md)
 
 - **Reference Only (Access When Needed):**
   - **Architecture Decision Records** - [ADRs](/doc/technical/adr) relevant to this feature
@@ -327,7 +327,7 @@ The following state files must be updated as part of this task:
   - Locate the feature entry in the appropriate category section
   - Add link to Implementation Plan document in the **Notes** column: `Implementation Plan: [PD-IMP-XXX](...)`
   - Add link to Feature State document in the **Notes** column: `State: [feature-id]-implementation-state.md`
-  - Update status if applicable (e.g., from "📝 TDD Created" to "🟡 In Progress" when implementation begins)
+  - Update status if applicable (e.g., from "🔧 Needs Impl Plan" to "🟡 In Progress" when implementation begins)
 - **Feature Implementation State File** - Initialize the existing file at [`/doc/state-tracking/features/`](../../../doc/state-tracking/features)`[feature-id]-implementation-state.md` (created by [PF-TSK-002](../01-planning/feature-tier-assessment-task.md)):
   - Populate planning-phase sections with contextual information
   - This file will be continuously updated throughout implementation (NEVER archived)
@@ -384,7 +384,7 @@ Before considering this task finished:
   - [ ] Integration risks are identified
   - [ ] Testing strategy is comprehensive
   - [ ] Mitigation strategies are actionable
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-044" and context "Feature Implementation Planning Task"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-044" and context "Feature Implementation Planning Task"
 
 ## Next Tasks
 
@@ -424,7 +424,7 @@ Implementation Planning (this task - PF-TSK-044) →
 
 - **[Data Layer Implementation (PF-TSK-051)](data-layer-implementation.md)** - First decomposed implementation task for data models and repositories
 - **[Task Creation Guide](../../guides/support/task-creation-guide.md)** - How to create decomposed implementation tasks using New-Task.ps1
-- **[Task Transition Guide](../../guides/framework/task-transition-guide.md)** - Information flow and separation of concerns between tasks
+- **[Information Flow Guide](../../guides/framework/information-flow-guide.md)** - Information flow and separation of concerns between tasks
 
 ### State Tracking and Documentation
 

@@ -34,7 +34,7 @@ graph TD
     TechDebt --> QAR[/Quality Assessment Report/]
     EnrichedStates --> TestSpec[Test Spec Creation Task]
     TestSpec --> TestMigration[Test Migration via PF-TSK-053]
-    EnrichedStates --> ADR[ADR Creation Task]
+    EnrichedStates --> ADR[ADR Creation via Script]
     DocTiers[Documentation Tiers] --> TierTask
     DocMap[Documentation Map] -.-> FeatureTracking
     APITask[API Design Task] -.-> FDD_AB
@@ -59,7 +59,8 @@ graph TD
 - **[TDD Creation Task](../../../tasks/02-design/tdd-creation-task.md)**: Task for creating Technical Design Documents (Tier 2+) reverse-engineered from code
 - **[Test Specification Creation Task](../../../tasks/03-testing/test-specification-creation-task.md)**: Task for creating Test Specifications (Tier 2+) documenting existing tests
 - **[Integration and Testing Task](../../../tasks/04-implementation/integration-and-testing.md)**: Task for migrating pre-existing tests to framework structure (Tier 2+, migration mode)
-- **[ADR Creation Task](../../../tasks/02-design/adr-creation-task.md)**: Task for creating Architecture Decision Records (Foundation 0.x.x) documenting architectural patterns
+- **[Architecture Decision Creation Guide](../../../guides/02-design/architecture-decision-creation-guide.md)**: Guide for creating Architecture Decision Records (Foundation 0.x.x) documenting architectural patterns
+- **[New-ArchitectureDecision.ps1](../../../scripts/file-creation/02-design/New-ArchitectureDecision.ps1)**: Script for creating ADRs with auto-tracking
 
 ### Reference Components (Access When Needed)
 - **[Documentation Map](../../../PF-documentation-map.md)**: Registry for all new documents created (update after finalization)
@@ -82,7 +83,7 @@ graph TD
 1. **Every Session Start**: Read [Retrospective Master State](../../../../process-framework-local/state-tracking/temporary/old/retrospective-master-state.md) to verify Phase 2 complete and identify features needing assessment/documentation
 2. **Per-Feature Documentation Loop** (priority: Foundation → Tier 3 → Tier 2):
    - **Assess**: Create/validate tier assessment using [Feature Tier Assessment Task](../../../tasks/01-planning/feature-tier-assessment-task.md) based on analysis from enriched implementation state
-   - **Update Tracking**: Add tier to [Feature Tracking](../../../../doc/state-tracking/permanent/feature-tracking.md), mark "📊 Assessment Created" in master state
+   - **Update Tracking**: Add tier to [Feature Tracking](../../../../doc/state-tracking/permanent/feature-tracking.md), mark "📋 Needs FDD" in master state
    - **Document Tier 2+ Features** (check Section 8 "Quality Assessment" for classification):
      - **As-Built features**: Create descriptive FDD/TDD (mark "Retrospective", set `documentation_mode: as-built`)
      - **Target-State features**: Create prescriptive FDD/TDD with Gap Analysis section (mark "Retrospective — Target-State", set `documentation_mode: target-state`)
@@ -93,7 +94,7 @@ graph TD
      - Migrate pre-existing tests using [Integration and Testing Task](../../../tasks/04-implementation/integration-and-testing.md) in migration mode (restructure to framework template, assign TE-TST IDs, add pytest markers, remove originals)
      - Add document links to Feature Tracking
    - **Document Foundation Features**:
-     - Create ADRs using [ADR Creation Task](../../../tasks/02-design/adr-creation-task.md) for architectural decisions (mark unknowns clearly, mark "Retrospective")
+     - Create ADRs using [New-ArchitectureDecision.ps1](../../../scripts/file-creation/02-design/New-ArchitectureDecision.ps1) and the [Architecture Decision Creation Guide](../../../guides/02-design/architecture-decision-creation-guide.md) for architectural decisions (mark unknowns clearly, mark "Retrospective")
      - Add document links to Feature Tracking
    - **Conditional Documents**: Create API/DB design docs if tier assessment indicates
 3. **Every Session End**: Update [Retrospective Master State](../../../../process-framework-local/state-tracking/temporary/old/retrospective-master-state.md) with completed assessments and documents, log session notes
@@ -112,7 +113,8 @@ graph TD
 - [TDD Creation Task](../../../tasks/02-design/tdd-creation-task.md) - How to create Technical Design Documents
 - [Test Specification Creation Task](../../../tasks/03-testing/test-specification-creation-task.md) - How to create Test Specifications
 - [Integration and Testing Task](../../../tasks/04-implementation/integration-and-testing.md) - How to migrate pre-existing tests to framework structure
-- [ADR Creation Task](../../../tasks/02-design/adr-creation-task.md) - How to create Architecture Decision Records
+- [Architecture Decision Creation Guide](../../../guides/02-design/architecture-decision-creation-guide.md) - How to create Architecture Decision Records
+- [New-ArchitectureDecision.ps1](../../../scripts/file-creation/02-design/New-ArchitectureDecision.ps1) - Script for ADR creation
 - [Quality Assessment Report Template](../../../templates/00-setup/quality-assessment-report-template.md) - Template for Target-State feature quality reports
 - [New-QualityAssessmentReport.ps1](../../../scripts/file-creation/00-setup/New-QualityAssessmentReport.ps1) - Script for creating Quality Assessment Reports
 - [Visual Notation Guide](../../../guides/support/visual-notation-guide.md) - Understanding diagram symbols and notation

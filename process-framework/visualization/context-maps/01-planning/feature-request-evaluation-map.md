@@ -48,13 +48,13 @@ graph TD
 ## Essential Components
 
 ### Critical Components (Must Understand)
-- **Feature Request Tracking**: Intake queue for product feature requests — check for "Submitted" entries before starting
+- **Feature Request Tracking**: Intake queue for product feature requests — check for "📥 Submitted" entries before starting
 - **Change Request**: The human partner's description of what needs to be added or changed — the primary input (may also come from Feature Request Tracking)
 - **Classification Process**: Determines whether the request is a new feature or an enhancement to an existing feature
 - **Target Feature Proposal**: AI agent proposes which existing feature this enhances, with rationale. Human approval required before proceeding.
 
 ### Important Components (Should Understand)
-- **Update-FeatureRequest.ps1**: Closes the request in feature-request-tracking and updates feature-tracking (sets "Needs Revision" for enhancements)
+- **Update-FeatureRequest.ps1**: Closes the request in feature-request-tracking and updates feature-tracking (sets "Needs Enhancement" for enhancements)
 - **Scope Assessment**: Evaluates the enhancement using practical criteria (files affected, sessions needed, docs to update)
 - **State File Creation**: Uses New-EnhancementState.ps1 + Customization Guide to create the Enhancement State Tracking File
 - **Enhancement State Tracking File**: The primary output — a customized execution plan for the Feature Enhancement task
@@ -82,7 +82,7 @@ graph TD
 2. For enhancements: read candidate feature state files and propose the target feature
 3. After human approval: assess scope using practical criteria, referencing existing design docs
 4. Use New-EnhancementState.ps1 to create the state file, then customize following the guide
-5. Update feature tracking with "🔄 Needs Revision" status and link to state file
+5. Update feature tracking with "🔄 Needs Enhancement" status and link to state file
 
 ## Related Documentation
 

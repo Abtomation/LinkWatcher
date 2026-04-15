@@ -3,9 +3,9 @@ id: PF-TSK-064
 type: Process Framework
 category: Task Definition
 domain: agnostic
-version: 1.7
+version: 1.8
 created: 2026-02-17
-updated: 2026-04-04
+updated: 2026-04-14
 ---
 
 # Codebase Feature Discovery
@@ -180,7 +180,7 @@ This task produces the foundational inventory that subsequent onboarding tasks (
       ```bash
       pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/00-setup/New-SourceStructure.ps1 -Scaffold -Confirm:\$false
       ```
-      This creates: source root directory, shared/ directory, one directory per confirmed feature, package markers, and fills the Project Configuration + Directory Tree sections in [source-code-layout.md](/doc/technical/architecture/source-code-layout.md).
+      This creates: source root directory, shared/ directory, one directory per confirmed feature, package markers, and fills the Project Configuration + Directory Tree placeholder sections in [source-code-layout.md](/doc/technical/architecture/source-code-layout.md) (this file is created from the blueprint template during Project Initiation or must exist before running this script).
    g. Complete the **Dependency Flow** section in source-code-layout.md — document which feature directories may import from which
    h. Complete the **File Placement Decision Tree** section — adapt the generic tree from the [Source Code Layout Guide](/process-framework/guides/00-setup/source-code-layout-guide.md) to this project's features
    i. Validate: confirm no application source files exist at repository root
@@ -347,7 +347,7 @@ This task produces the foundational inventory that subsequent onboarding tasks (
 - [ ] `workflows:` metadata field added to all Feature Implementation State files
 - [ ] **Quality Verification completed** (Step 14): Random sample of 5-10 high-connectivity files verified, all import statements match documentation
 - [ ] Phase 1 marked complete in master state file
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-064" and context "Codebase Feature Discovery"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-064" and context "Codebase Feature Discovery"
   - **⚠️ IMPORTANT**: Evaluate the Codebase Feature Discovery task (PF-TSK-064) and its tools (master state file, feature implementation state files), not the features you discovered.
 
 ## Next Tasks

@@ -192,7 +192,9 @@ class LinkWatcherService:
             for file in files:
                 file_path = os.path.join(root, file)
 
-                if should_monitor_file(file_path, monitored_extensions, ignored_dirs):
+                if should_monitor_file(
+                    file_path, monitored_extensions, ignored_dirs, str(self.project_root)
+                ):
                     try:
                         references = self.parser.parse_file(file_path)
                         # Normalize file paths to relative paths before storing

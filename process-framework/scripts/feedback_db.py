@@ -15,6 +15,8 @@ Usage:
     python process-framework/scripts/feedback_db.py query --all
     python process-framework/scripts/feedback_db.py report
     python process-framework/scripts/feedback_db.py report --task PF-TSK-009
+    python process-framework/scripts/feedback_db.py alerts
+    python process-framework/scripts/feedback_db.py alerts --threshold 2.5 --min-ratings 5
 """
 
 import argparse
@@ -535,6 +537,56 @@ class FeedbackDB:
         finally:
             conn.close()
 
+    def get_alerts(self, threshold: float = 3.0, min_ratings: int = 3) -> list:
+        """Get tools with average overall score below threshold.
+
+        Returns tools sorted by avg_overall ascending (worst first).
+        Each row includes the lowest-scoring dimension name.
+        """
+        conn = self._connect()
+        try:
+            rows = conn.execute(
+                """SELECT
+                       COALESCE(tr.tool_doc_id, tr.tool_name) as tool_identifier,
+                       tr.tool_name,
+                       tr.tool_doc_id,
+                       ROUND(AVG(tr.effectiveness), 1) as avg_effectiveness,
+                       ROUND(AVG(tr.clarity), 1) as avg_clarity,
+                       ROUND(AVG(tr.completeness), 1) as avg_completeness,
+                       ROUND(AVG(tr.efficiency), 1) as avg_efficiency,
+                       ROUND(AVG(tr.conciseness), 1) as avg_conciseness,
+                       ROUND((AVG(tr.effectiveness) + AVG(tr.clarity) +
+                              AVG(tr.completeness) + AVG(tr.efficiency) +
+                              AVG(tr.conciseness)) / 5.0, 1) as avg_overall,
+                       COUNT(*) as appearances
+                   FROM tool_ratings tr
+                   GROUP BY COALESCE(tr.tool_doc_id, tr.tool_name)
+                   HAVING COUNT(*) >= ?
+                      AND (AVG(tr.effectiveness) + AVG(tr.clarity) +
+                           AVG(tr.completeness) + AVG(tr.efficiency) +
+                           AVG(tr.conciseness)) / 5.0 < ?
+                   ORDER BY avg_overall ASC""",
+                (min_ratings, threshold),
+            ).fetchall()
+
+            results = []
+            for r in rows:
+                d = dict(r)
+                # Find lowest dimension
+                dims = {
+                    "effectiveness": d["avg_effectiveness"],
+                    "clarity": d["avg_clarity"],
+                    "completeness": d["avg_completeness"],
+                    "efficiency": d["avg_efficiency"],
+                    "conciseness": d["avg_conciseness"],
+                }
+                lowest_dim = min(dims, key=dims.get)
+                d["lowest_dimension"] = f"{lowest_dim} ({dims[lowest_dim]})"
+                results.append(d)
+            return results
+        finally:
+            conn.close()
+
 
 class MarkdownReporter:
     """Generate markdown trend reports from the database."""
@@ -918,6 +970,29 @@ def cmd_report(args, db):
         print(output)
 
 
+def cmd_alerts(args, db):
+    """Handle the 'alerts' subcommand."""
+    alerts = db.get_alerts(threshold=args.threshold, min_ratings=args.min_ratings)
+    if not alerts:
+        print(f"No tools below threshold {args.threshold} " f"(min {args.min_ratings} ratings).")
+        sys.exit(0)
+
+    print(f"ALERT: {len(alerts)} tool(s) below threshold {args.threshold}\n")
+    rows = []
+    for a in alerts:
+        rows.append(
+            {
+                "Tool": a["tool_name"],
+                "Doc ID": a["tool_doc_id"] or "--",
+                "Avg Score": a["avg_overall"],
+                "Ratings": a["appearances"],
+                "Lowest Dimension": a["lowest_dimension"],
+            }
+        )
+    print(format_table(rows))
+    sys.exit(1)
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Feedback Ratings Database — Persistent storage for feedback form ratings."
@@ -977,6 +1052,21 @@ def main():
     p_report.add_argument("--tool", help="Report for specific tool")
     p_report.add_argument("--output", help="Write report to file")
 
+    # alerts
+    p_alerts = subparsers.add_parser("alerts", help="Flag tools with ratings below threshold")
+    p_alerts.add_argument(
+        "--threshold",
+        type=float,
+        default=3.0,
+        help="Alert threshold for average overall score (default: 3.0)",
+    )
+    p_alerts.add_argument(
+        "--min-ratings",
+        type=int,
+        default=3,
+        help="Minimum number of ratings required (default: 3)",
+    )
+
     args = parser.parse_args()
 
     if not args.command:
@@ -992,6 +1082,7 @@ def main():
         "log-change": cmd_log_change,
         "query": cmd_query,
         "report": cmd_report,
+        "alerts": cmd_alerts,
     }
     commands[args.command](args, db)
 

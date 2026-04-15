@@ -6,19 +6,18 @@ Automates bug status updates in the Bug Tracking state file
 
 .DESCRIPTION
 This script automates bug status transitions in the ../bug-tracking.md state file,
-supporting the complete bug lifecycle from Reported to Closed.
+supporting the complete bug lifecycle from Needs Triage to Closed.
 
 Updates the following file:
 - doc/state-tracking/permanent/bug-tracking.md
 
 Supports all bug status transitions:
-- 🆕 Reported → 🔍 Triaged (Bug Triage Task)
-- 🔍 Triaged → 🟡 In Progress (Bug Fixing Task)
-- 🟡 In Progress → 🧪 Testing (Bug Fixing Task)
-- 🧪 Testing → ✅ Fixed (Bug Fixing Task)
-- ✅ Fixed → 🔒 Closed (Bug Verification)
-- 🟡 In Progress → ❌ Rejected (Bug Fixing Task — not-a-bug)
-- Any Status → 🔄 Reopened (Bug Verification)
+- 🆕 Needs Triage → 🔍 Needs Fix (Bug Triage Task)
+- 🔍 Needs Fix → 🟡 In Progress (Bug Fixing Task)
+- 🟡 In Progress → 👀 Needs Review (Bug Fixing Task)
+- 👀 Needs Review → 🔒 Closed (Code Review Task)
+- Any Active Status → ❌ Rejected (Bug Fixing Task — not-a-bug / won't-fix)
+- Any Status → 🔄 Reopened (Bug Triage Task)
 
 When transitioning to Closed:
 - Automatically moves the bug entry from its active priority table to the Closed Bugs section
@@ -33,16 +32,20 @@ The bug ID to update (e.g., "BUG-001")
 
 .PARAMETER NewStatus
 The new status for the bug. Valid values:
-- "Triaged" (🔍)
-- "InProgress" (🟡)
-- "Testing" (🧪)
-- "Fixed" (✅)
-- "Closed" (🔒) — auto-moves to Closed section, recalculates stats
-- "Reopened" (🔄)
-- "Rejected" (❌) — not-a-bug, auto-moves to Closed section, recalculates stats
+- "NeedsFix" (🔍 Needs Fix)
+- "InProgress" (🟡 In Progress)
+- "NeedsReview" (👀 Needs Review)
+- "Closed" (🔒 Closed) — auto-moves to Closed section, recalculates stats
+- "Reopened" (🔄 Reopened)
+- "Rejected" (❌ Rejected) — not-a-bug, auto-moves to Closed section, recalculates stats
+
+.PARAMETER FastClose
+S-scope quick path: chains NeedsFix → InProgress → Closed in one call.
+Requires: Priority, FixDetails, VerificationNotes. Scope defaults to "S" if not specified.
+Use this for small bugs that are triaged, fixed, and closed in a single session.
 
 .PARAMETER Priority
-Bug priority (Critical, High, Medium, Low) - used when transitioning to Triaged
+Bug priority (Critical, High, Medium, Low) - used when transitioning to NeedsFix or with -FastClose
 
 .PARAMETER Scope
 Bug fix scope (S, M, L) - used to indicate fix complexity and whether a state file is needed
@@ -50,16 +53,16 @@ Bug fix scope (S, M, L) - used to indicate fix complexity and whether a state fi
 
 
 .PARAMETER FixDetails
-Details about the fix implementation - used when transitioning to Fixed
+Details about the fix implementation - used when transitioning to NeedsReview
 
 .PARAMETER RootCause
-Root cause analysis - used when transitioning to Fixed
+Root cause analysis - used when transitioning to NeedsReview
 
 .PARAMETER TestsAdded
-Whether regression tests were added (Yes/No) - used when transitioning to Fixed
+Whether regression tests were added (Yes/No) - used when transitioning to NeedsReview
 
 .PARAMETER PullRequestUrl
-URL to the pull request containing the fix - used when transitioning to Fixed
+URL to the pull request containing the fix - used when transitioning to NeedsReview
 
 .PARAMETER VerificationNotes
 Notes from verification process - used when transitioning to Closed
@@ -68,32 +71,32 @@ Notes from verification process - used when transitioning to Closed
 Reason for reopening the bug - used when transitioning to Reopened
 
 .PARAMETER Dims
-Development dimension abbreviations (e.g., "SE DI") - used when transitioning to Triaged
+Development dimension abbreviations (e.g., "SE DI") - used when transitioning to NeedsFix
 
 .PARAMETER Workflows
-Affected user workflows (e.g., "WF-001, WF-003") - used when transitioning to Triaged
+Affected user workflows (e.g., "WF-001, WF-003") - used when transitioning to NeedsFix
 
 .PARAMETER TriageNotes
-Triage rationale to append to the Notes field - used when transitioning to Triaged
+Triage rationale to append to the Notes field - used when transitioning to NeedsFix
 
 .PARAMETER UpdateDate
 Date of the status update (optional - uses current date if not specified)
 
 .EXAMPLE
-# Triage a bug
-../Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "Triaged" -Priority "High" -Scope "S" -Dims "SE DI" -Workflows "WF-001, WF-003" -TriageNotes "Impacts all users on startup; root cause likely in config loader"
+# Triage a bug (set to Needs Fix)
+../Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "NeedsFix" -Priority "High" -Scope "S" -Dims "SE DI" -Workflows "WF-001, WF-003" -TriageNotes "Impacts all users on startup; root cause likely in config loader"
 
 .EXAMPLE
 # Start working on a bug
 ../Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "InProgress"
 
 .EXAMPLE
-# Mark bug as fixed
-../Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "Fixed" -FixDetails "Fixed null pointer exception in user validation" -RootCause "Missing null check" -TestsAdded "Yes" -PullRequestUrl "https:/github.com/repo/pull/123"
+# Mark bug as ready for code review
+../Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "NeedsReview" -FixDetails "Fixed null pointer exception in user validation" -RootCause "Missing null check" -TestsAdded "Yes" -PullRequestUrl "https:/github.com/repo/pull/123"
 
 .EXAMPLE
-# Close a verified bug
-../Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "Closed" -VerificationNotes "Fix verified in production, no regressions detected"
+# Close a bug after code review verification
+../Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "Closed" -VerificationNotes "Code review approved, fix verified, no regressions detected"
 
 .EXAMPLE
 # Reopen a bug
@@ -104,6 +107,10 @@ Date of the status update (optional - uses current date if not specified)
 ../Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "Rejected" -RejectionReason "Expected behavior per design spec"
 
 .EXAMPLE
+# S-scope quick path: triage + fix + close in one call
+../Update-BugStatus.ps1 -BugId "BUG-001" -FastClose -Priority "Medium" -Scope "S" -Dims "CQ" -FixDetails "Fixed off-by-one in loop boundary" -RootCause "Loop used < instead of <=" -TestsAdded "Yes" -VerificationNotes "S-scope quick path: human-approved at checkpoint"
+
+.EXAMPLE
 # Dry-run to preview changes without modifying the file
 # Runs full transformation logic and logs all actions (moves, stats recalc) but skips file write
 ../Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "InProgress" -WhatIf
@@ -112,18 +119,21 @@ Date of the status update (optional - uses current date if not specified)
 This script is part of the Bug Management automation system and integrates with:
 - Bug Triage Task (PF-TSK-041)
 - Bug Fixing Task (PF-TSK-007)
-- Bug Verification processes
+- Code Review Task (PF-TSK-005) — verifies bug fixes
 #>
 
-[CmdletBinding(SupportsShouldProcess)]
+[CmdletBinding(SupportsShouldProcess, DefaultParameterSetName = 'SingleStatus')]
 param(
     [Parameter(Mandatory = $true)]
     [ValidatePattern('^(BUG|PD-BUG)-\d+$')]
     [string]$BugId,
 
-    [Parameter(Mandatory = $true)]
-    [ValidateSet("Triaged", "InProgress", "Testing", "Fixed", "Closed", "Reopened", "Rejected")]
+    [Parameter(Mandatory = $true, ParameterSetName = 'SingleStatus')]
+    [ValidateSet("NeedsFix", "InProgress", "NeedsReview", "Closed", "Reopened", "Rejected")]
     [string]$NewStatus,
+
+    [Parameter(Mandatory = $true, ParameterSetName = 'FastClose')]
+    [switch]$FastClose,
 
     [Parameter(Mandatory = $false)]
     [ValidateSet("Critical", "High", "Medium", "Low")]
@@ -182,14 +192,24 @@ $ScriptName = "../Update-BugStatus.ps1"
 
 # Status emoji mapping
 $StatusEmojis = @{
-    "Reported"   = "🆕"
-    "Triaged"    = "🔍"
-    "InProgress" = "🟡"
-    "Testing"    = "🧪"
-    "Fixed"      = "✅"
-    "Closed"     = "🔒"
-    "Reopened"   = "🔄"
-    "Rejected"   = "❌"
+    "NeedsTriage"  = "🆕"
+    "NeedsFix"     = "🔍"
+    "InProgress"   = "🟡"
+    "NeedsReview"  = "👀"
+    "Closed"       = "🔒"
+    "Reopened"     = "🔄"
+    "Rejected"     = "❌"
+}
+
+# Display name mapping (ValidateSet value → human-readable status text)
+$StatusDisplayNames = @{
+    "NeedsTriage"  = "Needs Triage"
+    "NeedsFix"     = "Needs Fix"
+    "InProgress"   = "In Progress"
+    "NeedsReview"  = "Needs Review"
+    "Closed"       = "Closed"
+    "Reopened"     = "Reopened"
+    "Rejected"     = "Rejected"
 }
 
 # Column index mapping for bug-tracking.md table rows
@@ -285,7 +305,8 @@ function Update-BugEntryContent {
 
     # Update status
     $statusEmoji = Get-StatusEmoji -Status $NewStatus
-    $columns[2] = "$statusEmoji $NewStatus"
+    $displayName = $StatusDisplayNames[$NewStatus]
+    $columns[2] = "$statusEmoji $displayName"
 
     # Update priority if provided
     if ($UpdateData.Priority) {
@@ -313,10 +334,10 @@ function Update-BugEntryContent {
     $currentDate = Get-Date -Format "yyyy-MM-dd"
 
     switch ($NewStatus) {
-        "Triaged" {
+        "NeedsFix" {
             if ($UpdateData.TriageNotes) { $notes += "; Triage: $($UpdateData.TriageNotes)" }
         }
-        "Fixed" {
+        "NeedsReview" {
             if ($UpdateData.FixDetails) { $notes += "; Fix: $($UpdateData.FixDetails)" }
             if ($UpdateData.RootCause) { $notes += "; Root Cause: $($UpdateData.RootCause)" }
             if ($UpdateData.TestsAdded) { $notes += "; Tests Added: $($UpdateData.TestsAdded)" }
@@ -342,7 +363,7 @@ function Update-BugEntryContent {
     $updatedEntry = "| " + ($columns -join " | ") + " |"
     $result = $Content.Replace($currentEntry, $updatedEntry)
 
-    Write-Log "Successfully updated bug $BugId to status: $statusEmoji $NewStatus" -Level "SUCCESS"
+    Write-Log "Successfully updated bug $BugId to status: $statusEmoji $displayName" -Level "SUCCESS"
     return $result
 }
 
@@ -686,11 +707,76 @@ function Main {
 
     Write-Log "Starting Bug Status Update - $ScriptName"
     Write-Log "Bug ID: $BugId"
-    Write-Log "New Status: $NewStatus"
 
     if (-not (Test-Prerequisites)) {
         exit 1
     }
+
+    # --- FastClose: chain NeedsFix → InProgress → Closed in one call ---
+    if ($FastClose) {
+        Write-Log "Mode: FastClose (S-scope quick path)" -Level "INFO"
+
+        # Validate required parameters for FastClose
+        if (-not $Priority) {
+            Write-Log "Priority is required for -FastClose" -Level "ERROR"; exit 1
+        }
+        if (-not $FixDetails) {
+            Write-Log "FixDetails is required for -FastClose" -Level "ERROR"; exit 1
+        }
+        if (-not $VerificationNotes) {
+            Write-Log "VerificationNotes is required for -FastClose" -Level "ERROR"; exit 1
+        }
+
+        $content = Get-Content $BugTrackingFile -Raw
+
+        # Phase 1: NeedsFix (triage)
+        $triageData = @{ Priority = $Priority }
+        if ($Scope) { $triageData.Scope = $Scope } else { $triageData.Scope = "S" }
+        if ($Dims) { $triageData.Dims = $Dims }
+        if ($Workflows) { $triageData.Workflows = $Workflows }
+        if ($TriageNotes) { $triageData.TriageNotes = $TriageNotes }
+        $content = Update-BugEntryContent -Content $content -BugId $BugId -NewStatus "NeedsFix" -UpdateData $triageData
+        if ($null -eq $content) { Write-Log "FastClose failed at NeedsFix" -Level "ERROR"; exit 1 }
+        Write-Log "FastClose phase 1/3: 🔍 Needs Fix" -Level "SUCCESS"
+
+        # Move to correct priority section (non-fatal if already in correct section)
+        $movedContent = Move-BugBetweenActiveSectionsContent -Content $content -BugId $BugId -TargetPriority $Priority
+        if ($null -ne $movedContent) { $content = $movedContent }
+        else { Write-Log "Bug already in correct priority section or move skipped" -Level "INFO" }
+
+        # Phase 2: InProgress
+        $content = Update-BugEntryContent -Content $content -BugId $BugId -NewStatus "InProgress" -UpdateData @{}
+        if ($null -eq $content) { Write-Log "FastClose failed at InProgress" -Level "ERROR"; exit 1 }
+        Write-Log "FastClose phase 2/3: 🟡 In Progress" -Level "SUCCESS"
+
+        # Phase 3: Closed (with fix details and verification)
+        $closeData = @{}
+        if ($FixDetails) { $closeData.FixDetails = $FixDetails }
+        if ($RootCause) { $closeData.RootCause = $RootCause }
+        if ($TestsAdded) { $closeData.TestsAdded = $TestsAdded }
+        if ($PullRequestUrl) { $closeData.PullRequestUrl = $PullRequestUrl }
+        if ($VerificationNotes) { $closeData.VerificationNotes = $VerificationNotes }
+        $content = Update-BugEntryContent -Content $content -BugId $BugId -NewStatus "Closed" -UpdateData $closeData
+        if ($null -eq $content) { Write-Log "FastClose failed at Closed" -Level "ERROR"; exit 1 }
+        Write-Log "FastClose phase 3/3: 🔒 Closed" -Level "SUCCESS"
+
+        # Move to Closed section and recalculate stats
+        $content = Move-BugToClosedSectionContent -Content $content -BugId $BugId
+        if ($null -eq $content) { Write-Log "Failed to move bug to Closed section" -Level "ERROR"; exit 1 }
+        $content = Update-BugStatisticsContent -Content $content
+
+        if ($PSCmdlet.ShouldProcess($BugTrackingFile, "FastClose $BugId (NeedsFix → InProgress → Closed)")) {
+            Set-Content -Path $BugTrackingFile -Value $content -NoNewline
+            Write-Log "FastClose completed successfully — bug $BugId closed" -Level "SUCCESS"
+            Write-Log "Updated file: $BugTrackingFile"
+        } else {
+            Write-Log "Dry-run complete — no file changes written" -Level "INFO"
+        }
+        exit 0
+    }
+
+    # --- Standard single-status update ---
+    Write-Log "New Status: $NewStatus"
 
     # Prepare update data
     $updateData = @{}
@@ -709,18 +795,18 @@ function Main {
 
     # Validate required parameters for specific status transitions
     switch ($NewStatus) {
-        "Triaged" {
+        "NeedsFix" {
             if (-not $Priority) {
-                Write-Log "Priority is required when transitioning to Triaged status" -Level "ERROR"
+                Write-Log "Priority is required when transitioning to NeedsFix status" -Level "ERROR"
                 exit 1
             }
         }
         "InProgress" {
             # No additional validation needed
         }
-        "Fixed" {
+        "NeedsReview" {
             if (-not $FixDetails) {
-                Write-Log "FixDetails is required when transitioning to Fixed status" -Level "ERROR"
+                Write-Log "FixDetails is required when transitioning to NeedsReview status" -Level "ERROR"
                 exit 1
             }
         }

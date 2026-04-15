@@ -46,7 +46,7 @@ This file tracks the progress and results of **Validation Round 4** — a post-b
 | 2.1.1 | Link Parsing System | Completed | P1 | WF-001, WF-002, WF-003, WF-005 | markdown.py: +38 uncommitted, yaml_parser.py: +58/-16, dart.py: +6/-1, generic.py: +6/-1 |
 | 2.2.1 | Link Updating | Completed | P1 | WF-001, WF-002, WF-004, WF-005, WF-007, WF-008 | updater.py: +6/-2 (PD-BUG-075) |
 | 3.1.1 | Logging System | Completed | P1 | WF-003, WF-006, WF-007 | No direct changes (regression check) |
-| 6.1.1 | Link Validation | Needs Revision | P2 | — | validator.py: +16/-9, path_resolver.py: +21/-2 (PD-BUG-075) |
+| 6.1.1 | Link Validation | Needs Enhancement | P2 | — | validator.py: +16/-9, path_resolver.py: +21/-2 (PD-BUG-075) |
 
 ## Validation Progress Matrix
 

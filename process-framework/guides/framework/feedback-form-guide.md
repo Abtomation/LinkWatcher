@@ -2,9 +2,9 @@
 id: PF-GDE-012
 type: Process Framework
 category: Guide
-version: 1.0
+version: 1.1
 created: 2025-06-05
-updated: 2025-07-04
+updated: 2026-04-14
 ---
 
 # Feedback Form Guide
@@ -151,22 +151,34 @@ This section helps prioritize improvements:
 - **Process Improvements**: Specific workflow enhancements to consider (document only — do not register PF-IMP entries; that is handled by PF-TSK-009/PF-TSK-010)
 - **Documentation Streamlining**: Areas where documentation could be more concise
 
-### Human User Feedback
-**CRITICAL**: The AI assistant must actively solicit user feedback before completing this section.
+### Human Intervention Log
+Use this section to capture each instance where the human partner corrected or redirected the AI agent during the task. The goal is **documentation gap detection**, not blame — each intervention is a signal that a task definition, guide, or template may be missing information.
 
-**Required approach**:
-1. Ask specific questions about process effectiveness
-2. Request feedback on observed issues or challenges
-3. Solicit suggestions for improvement
-4. Gather overall satisfaction assessment
-5. Document the actual user responses
+**When to fill**: After completing the task work, as part of session finalization. Review the session and identify moments where the human partner stepped in.
+
+**How to fill each column**:
+- **What Human Said**: The correction, redirection, or information the human provided (paraphrase, keep brief)
+- **What AI Modified**: What the AI changed as a result (e.g., "switched from approach A to B", "added missing validation step")
+- **Doc with Gap**: The document ID (e.g., PF-TSK-009, PF-GDE-012) whose missing or unclear guidance caused the issue. Use "N/A — inherently human decision" for preference-based corrections that cannot be codified
+- **Suggested Fix**: A specific, actionable documentation update that would prevent recurrence (e.g., "Add callout to Step 3 about X"). Use "None — judgment call" when the correction was situational
+
+**Skip this section entirely** if no human interventions occurred during the session.
+
+**Key principle**: Not every intervention is a doc gap. Some corrections reflect situational judgment, personal preference, or novel circumstances that no documentation could anticipate. Use the "N/A" and "None" options honestly — inflating doc-gap counts undermines the signal.
+
+### Human User Feedback
+This section is **reserved for the human partner** to fill independently after the session ends. The AI agent must leave it empty.
 
 **Do not**:
-- Fill this section without user input
-- Make assumptions about user satisfaction
-- Skip this section
+- Solicit human feedback during the session
+- Fill this section with assumed or inferred feedback
+- Skip creating the section (it must be present in the template for the human to fill)
 
 ## Feedback Handling Rules
+
+### Scope Freeze During Finalization
+
+> **⚠️ SCOPE FREEZE during finalization**: If you discover new improvement opportunities, bugs, or process issues while completing feedback forms, record them as observations in the feedback form — do not stop to implement them. Finalization is for documenting what happened, not for starting new work. Implementing changes during finalization breaks checkpoint discipline and risks incomplete session closure.
 
 ### Document, Don't Implement
 
@@ -226,7 +238,7 @@ Before submitting your feedback form, verify:
 - [ ] Improvement suggestions are actionable and specific
 - [ ] Human user feedback has been actively solicited and documented
 - [ ] File is saved with correct naming convention in correct location
-- [ ] Metadata ID is properly assigned (ART-FEE-XXX format)
+- [ ] Metadata ID is properly assigned (PF-FEE-XXX format)
 
 ## Getting Help
 

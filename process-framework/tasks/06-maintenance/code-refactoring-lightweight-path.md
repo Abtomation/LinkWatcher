@@ -115,4 +115,4 @@ For batch mode: copy the "Item N" section in the generated plan for each additio
   - [ ] Run [`Validate-TestTracking.ps1`](../../scripts/validation/Validate-TestTracking.ps1) — 0 errors (if tests were added or modified)
   - [ ] Refactoring plan archived to `doc/refactoring/plans/archive`
   - [ ] If file moves changed the source directory structure: run `New-SourceStructure.ps1 -Update` to refresh the [Source Code Layout](/doc/technical/architecture/source-code-layout.md) directory tree
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-022" and context "Code Refactoring Task"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-022" and context "Code Refactoring Task"

@@ -8,6 +8,8 @@
     After executing E2E acceptance tests, this script updates tracking files with results.
     Reads from e2e-test-tracking.md (split from test-tracking.md per PF-IMP-210).
     Can mark individual E2E test cases, entire groups, or all tests for a feature.
+    When multiple selectors are specified, all must match (AND logic), enabling
+    per-case filtering within a group (e.g., -Group + -TestCase updates only that case).
     Updates feature-tracking.md Test Status for all features listed in the entry's Feature IDs column.
     Updates Workflow Milestone Tracking row status based on aggregate test results.
 
@@ -39,10 +41,13 @@
 .EXAMPLE
     Update-TestExecutionStatus.ps1 -TestCase "TE-E2E-001" -Status "Failed" -Reason "Link not updated after rename"
 
+.EXAMPLE
+    Update-TestExecutionStatus.ps1 -Group "powershell-regex-preservation" -TestCase "TE-E2E-005" -Status "Failed" -Reason "Case 5 failed, others passed"
+
 .NOTES
     Created: 2026-03-15
-    Updated: 2026-04-08
-    Version: 2.3
+    Updated: 2026-04-14
+    Version: 2.5
     Task: E2E Acceptance Test Execution (PF-TSK-070)
 #>
 
@@ -132,39 +137,40 @@ foreach ($line in $lines) {
         $cells = Split-MarkdownTableRow $line
 
         # E2E Test Cases table columns:
-        # 0: Test ID | 1: Workflow | 2: Feature IDs | 3: Test Type | 4: Test File/Case | 5: Status | 6: Last Executed | 7: Last Updated | 8: Notes
+        # 0: Test ID | 1: Workflow | 2: Feature IDs | 3: Test Type | 4: Test File/Case | 5: Status | 6: Last Executed | 7: Last Updated | 8: Audit Status | 9: Audit Report | 10: Notes
         if ($cells.Count -ge 6 -and $cells[0] -match '^TE-E2[EG]-\d+') {
             $testId = $cells[0]
             $workflowCol = $cells[1]
             $featureIdsCol = $cells[2]
 
-            $isMatch = $false
-
-            # Match by test case ID
-            if ($TestCase -and $testId -eq $TestCase) {
-                $isMatch = $true
-            }
-
-            # Match by group name (check Test File/Case column for group name)
-            if ($Group -and $line -match [regex]::Escape($Group)) {
-                $isMatch = $true
-            }
-
-            # Match by feature ID (check if Feature IDs column contains the target feature)
-            if ($FeatureId -and $featureIdsCol -match [regex]::Escape($FeatureId)) {
-                $isMatch = $true
-            }
+            # AND logic: all specified selectors must match
+            $matchTestCase = (-not $TestCase) -or ($testId -eq $TestCase)
+            $matchGroup = (-not $Group) -or ($line -match [regex]::Escape($Group))
+            $matchFeature = (-not $FeatureId) -or ($featureIdsCol -match [regex]::Escape($FeatureId))
+            $isMatch = $matchTestCase -and $matchGroup -and $matchFeature
 
             if ($isMatch) {
                 # Update Status (index 5), Last Executed (index 6), Last Updated (index 7)
                 $cells[5] = $emojiStatus
                 $cells[6] = $timestamp
                 $cells[7] = $timestamp
-                if ($Reason -and $cells.Count -ge 9) {
-                    # For individual test case updates, always overwrite notes.
-                    # For group/feature updates, only fill in empty notes to preserve case-level notes.
-                    if ($TestCase -or -not $cells[8].Trim()) {
-                        $cells[8] = $Reason
+                # Notes column management (index 10):
+                # - Passed without -Reason: clear stale notes (e.g., old failure reasons)
+                # - Passed with -Reason: set the explicit reason (overrides default clear)
+                # - Failed/Re-execution with -Reason: set the reason
+                # - Failed/Re-execution without -Reason: leave notes unchanged
+                if ($cells.Count -ge 11) {
+                    if ($Status -eq "Passed" -and -not $Reason) {
+                        # Clear stale notes on pass (PF-IMP-533)
+                        if ($TestCase -or -not $cells[10].Trim()) {
+                            $cells[10] = ""
+                        }
+                    } elseif ($Reason) {
+                        # For individual test case updates, always overwrite notes.
+                        # For group/feature updates, only fill in empty notes to preserve case-level notes.
+                        if ($TestCase -or -not $cells[10].Trim()) {
+                            $cells[10] = $Reason
+                        }
                     }
                 }
 

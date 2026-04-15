@@ -157,7 +157,7 @@ Before considering this task finished:
   - [ ] Navigation flows function correctly
   - [ ] Component naming follows project conventions
   - [ ] Code follows framework best practices as specified in TDD
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-052" and context "UI Implementation"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-052" and context "UI Implementation"
 
 ## Next Tasks
 

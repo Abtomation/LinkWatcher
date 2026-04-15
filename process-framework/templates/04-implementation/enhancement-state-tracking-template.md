@@ -64,7 +64,7 @@ template_for: Enhancement State Tracking
 
 ## Execution Steps
 
-> **Structure**: These steps follow the standard feature development workflow from the [Task Transition Guide](../../guides/framework/task-transition-guide.md). Each block corresponds to a task type in the workflow. The Feature Request Evaluation task (PF-TSK-067) marks each block as **Applicable** or **Not applicable** based on the enhancement scope. The Feature Enhancement task (PF-TSK-068) executes applicable blocks in order.
+> **Structure**: These steps follow the standard feature development workflow from the [Task Transition Registry](../../infrastructure/task-transition-registry.md). Each block corresponds to a task type in the workflow. The Feature Request Evaluation task (PF-TSK-067) marks each block as **Applicable** or **Not applicable** based on the enhancement scope. The Feature Enhancement task (PF-TSK-068) executes applicable blocks in order.
 
 ---
 
@@ -318,5 +318,5 @@ template_for: Enhancement State Tracking
 - [ ] All applicable execution steps marked complete
 - [ ] All non-applicable steps confirmed as "Not applicable" with rationale
 - [ ] Target feature's implementation state file updated to reflect enhancement
-- [ ] Feature tracking status restored (removed "🔄 Needs Revision", set appropriate status, removed state file link)
+- [ ] Feature tracking status restored (removed "🔄 Needs Enhancement", set appropriate status, removed state file link)
 - [ ] This file archived to `state-tracking/temporary/old/`

@@ -8,11 +8,15 @@
 
 .DESCRIPTION
     This PowerShell script validates Test Audit Report documents by checking:
-    - All six evaluation criteria are addressed
+    - All type-specific evaluation criteria are addressed:
+      - Automated (6 criteria): Purpose Fulfillment, Coverage Completeness, etc.
+      - Performance (4 criteria): Measurement Methodology, Tolerance Appropriateness, etc.
+      - E2E (5 criteria): Fixture Correctness, Scenario Completeness, etc.
     - Audit decision consistency with findings
     - Required sections are completed
     - Proper linking to test files and tracking
     - Metadata completeness and accuracy
+    - Test type is auto-detected from report content, or can be specified via -TestType
 
 .PARAMETER ReportFile
     Path to the audit report file to validate
@@ -42,6 +46,10 @@
 param(
     [Parameter(Mandatory=$true)]
     [string]$ReportFile,
+
+    [Parameter(Mandatory=$false)]
+    [ValidateSet("Automated", "Performance", "E2E")]
+    [string]$TestType = "",
 
     [Parameter(Mandatory=$false)]
     [switch]$Detailed
@@ -86,6 +94,18 @@ try {
     Write-ProjectError -Message "Failed to read audit report file: $($_.Exception.Message)" -ExitCode 1
 }
 
+# Auto-detect test type from content if not provided
+if ($TestType -eq "") {
+    if ($content -match 'Measurement Methodology' -and $content -match 'Tolerance Appropriateness') {
+        $TestType = "Performance"
+    } elseif ($content -match 'Fixture Correctness' -and $content -match 'Scenario Completeness') {
+        $TestType = "E2E"
+    } else {
+        $TestType = "Automated"
+    }
+    Write-Host "ℹ️  Auto-detected test type: $TestType" -ForegroundColor Cyan
+}
+
 # Initialize validation results
 $validationResults = @{
     IsValid = $true
@@ -117,26 +137,47 @@ function Test-MetadataSection {
 }
 
 function Test-EvaluationCriteria {
-    param($Content)
+    param($Content, $Type)
 
-    $requiredCriteria = @(
-        'Purpose Fulfillment',
-        'Coverage Completeness',
-        'Test Quality & Structure',
-        'Performance & Efficiency',
-        'Maintainability',
-        'Integration Alignment'
-    )
+    $requiredCriteria = switch ($Type) {
+        "Performance" {
+            @(
+                'Measurement Methodology',
+                'Tolerance Appropriateness',
+                'Baseline Readiness',
+                'Regression Detection Config'
+            )
+        }
+        "E2E" {
+            @(
+                'Fixture Correctness',
+                'Scenario Completeness',
+                'Expected Outcome Accuracy',
+                'Reproducibility',
+                'Precondition Coverage'
+            )
+        }
+        default {
+            @(
+                'Purpose Fulfillment',
+                'Coverage Completeness',
+                'Test Quality & Structure',
+                'Performance & Efficiency',
+                'Maintainability',
+                'Integration Alignment'
+            )
+        }
+    }
 
     $missingCriteria = @()
     foreach ($criteria in $requiredCriteria) {
-        if ($Content -notmatch "### \d+\.\s*$criteria") {
+        if ($Content -notmatch "###\s+\d+\.\s*$([regex]::Escape($criteria))") {
             $missingCriteria += $criteria
         }
     }
 
     if ($missingCriteria.Count -gt 0) {
-        $validationResults.Errors += "Missing evaluation criteria: $($missingCriteria -join ', ')"
+        $validationResults.Errors += "Missing $Type evaluation criteria: $($missingCriteria -join ', ')"
         return $false
     }
 
@@ -224,7 +265,7 @@ Write-Host "ℹ️  Running validation checks..." -ForegroundColor Cyan
 
 Test-MetadataSection -Content $content | Out-Null
 Test-RequiredSections -Content $content | Out-Null
-Test-EvaluationCriteria -Content $content | Out-Null
+Test-EvaluationCriteria -Content $content -Type $TestType | Out-Null
 Test-AuditDecision -Content $content | Out-Null
 Test-TemplatePlaceholders -Content $content | Out-Null
 Test-ValidationChecklist -Content $content | Out-Null

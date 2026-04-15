@@ -204,15 +204,31 @@ try {
                     # Validate prerequisites - ensure DB Design requirement exists
                     Write-Host "  🔍 Validating prerequisites..." -ForegroundColor Cyan
 
-                    # Update feature tracking with DB Design completion (preserve current status, just update DB Design column)
-                    # We need to provide the current status to preserve it since the function requires a status parameter
-                    # For now, we'll use a dummy status column to avoid changing the main Status column
-                    $updateResult = Update-FeatureTrackingStatus -FeatureId $FeatureId -AdditionalUpdates $additionalUpdates -Notes $automationNotes -Status "DB Design Completed" -StatusColumn "DB_Design_Status_Dummy"
+                    # Determine next status based on API Design column
+                    $featureTrackingPath = Join-Path (Get-ProjectRoot) "doc/state-tracking/permanent/feature-tracking.md"
+                    $ftContent = Get-Content $featureTrackingPath -Raw
+                    $featureRow = [regex]::Match($ftContent, "\|[^\r\n]*\b$([regex]::Escape($FeatureId))\b[^\r\n]*\|")
+                    $nextStatus = "📝 Needs TDD"  # default
+                    $ftLines = $ftContent -split "`n"
+                    $headerLine = $ftLines | Where-Object { $_ -match 'API Design' } | Select-Object -First 1
+                    if ($headerLine -and $featureRow.Success) {
+                        $headers = $headerLine -split '\|' | ForEach-Object { $_.Trim() }
+                        $apiIdx = [array]::IndexOf($headers, "API Design")
+                        if ($apiIdx -ge 0) {
+                            $cols = $featureRow.Value -split '\|' | ForEach-Object { $_.Trim() }
+                            $apiVal = if ($apiIdx -lt $cols.Count) { $cols[$apiIdx] } else { "No" }
+                            if ($apiVal -eq "Yes") {
+                                $nextStatus = "🔌 Needs API Design"
+                            }
+                        }
+                    }
+
+                    # Update feature tracking with DB Design completion and next status
+                    $updateResult = Update-FeatureTrackingStatus -FeatureId $FeatureId -Status $nextStatus -AdditionalUpdates $additionalUpdates -Notes $automationNotes
 
                     Write-Host "  ✅ Feature tracking updated successfully" -ForegroundColor Green
                     Write-Host "  🔗 DB Design: Yes → [$documentId]($relativePath)" -ForegroundColor Green
-                    Write-Host "  📋 Schema design linked in feature tracking" -ForegroundColor Green
-                    Write-Host "  📝 Feature tracking updated with DB design completion" -ForegroundColor Green
+                    Write-Host "  📋 Status: 🗄️ Needs DB Design → $nextStatus" -ForegroundColor Green
                 }
             }
         }

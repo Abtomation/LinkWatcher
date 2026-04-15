@@ -262,7 +262,7 @@ function Invoke-SelectedScript {
     switch ($script.Name) {
         "update/Update-FeatureImplementationState.ps1" {
             $params.FeatureId = Get-ParameterInput -ParameterName "FeatureId" -Description "Feature identifier (e.g., 1.2.1)"
-            $params.ImplementationStatus = Get-ParameterInput -ParameterName "ImplementationStatus" -Description "Implementation status" -ValidValues @("🟡 In Progress", "🔄 Needs Revision", "🟢 Completed", "🔴 Blocked", "⏸️ On Hold")
+            $params.ImplementationStatus = Get-ParameterInput -ParameterName "ImplementationStatus" -Description "Implementation status" -ValidValues @("🟡 In Progress", "👀 Needs Review", "🔄 Needs Enhancement", "🟢 Completed", "🔴 Blocked", "⏸️ On Hold")
             $params.DeveloperName = Get-ParameterInput -ParameterName "DeveloperName" -Description "Developer name"
         }
         "update/Update-TestAuditState.ps1" {
@@ -272,7 +272,7 @@ function Invoke-SelectedScript {
         }
         "update/Update-CodeReviewState.ps1" {
             $params.FeatureId = Get-ParameterInput -ParameterName "FeatureId" -Description "Feature identifier (e.g., 1.2.1)"
-            $params.ReviewStatus = Get-ParameterInput -ParameterName "ReviewStatus" -Description "Review status" -ValidValues @("In Progress", "Completed", "Needs Revision", "Approved")
+            $params.ReviewStatus = Get-ParameterInput -ParameterName "ReviewStatus" -Description "Review status" -ValidValues @("In Progress", "Completed", "Needs Enhancement", "Approved")
             $params.ReviewerName = Get-ParameterInput -ParameterName "ReviewerName" -Description "Reviewer name"
         }
         "update/Update-ValidationReportState.ps1" {
@@ -295,7 +295,7 @@ function Invoke-SelectedScript {
         "update/Update-BatchFeatureStatus.ps1" {
             $featureIdsInput = Get-ParameterInput -ParameterName "FeatureIds" -Description "Feature IDs (comma-separated, e.g., 1.2.1,1.2.2,1.2.3)"
             $params.FeatureIds = $featureIdsInput -split ',' | ForEach-Object { $_.Trim() }
-            $params.Status = Get-ParameterInput -ParameterName "Status" -Description "New status" -ValidValues @("🟡 In Progress", "🔄 Needs Revision", "🟢 Completed", "🔴 Blocked", "⏸️ On Hold")
+            $params.Status = Get-ParameterInput -ParameterName "Status" -Description "New status" -ValidValues @("⬜ Needs Assessment", "📋 Needs FDD", "📝 Needs TDD", "🧪 Needs Test Spec", "🔧 Needs Impl Plan", "🟡 In Progress", "👀 Needs Review", "🔄 Needs Enhancement", "🟢 Completed", "🔴 Blocked", "⏸️ On Hold")
             $params.UpdateType = Get-ParameterInput -ParameterName "UpdateType" -Description "Update type" -ValidValues @("StatusOnly", "Milestone", "Sprint", "Release", "Full")
         }
     }

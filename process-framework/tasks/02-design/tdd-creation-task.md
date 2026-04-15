@@ -33,7 +33,7 @@ Create a detailed technical design document for a feature that provides a compre
 
 ## Information Flow
 
-> **📋 Detailed Guidance**: See [Task Transition Guide - Information Flow Section](../../guides/framework/task-transition-guide.md#information-flow-and-separation-of-concerns)
+> **📋 Detailed Guidance**: See [Information Flow Guide](../../guides/framework/information-flow-guide.md)
 
 ### Inputs from Other Tasks
 
@@ -253,7 +253,7 @@ class UserProfile:
 The following state files are automatically updated by the [../../scripts/file-creation/02-design/New-TDD.ps1](../../scripts/file-creation/02-design/New-TDD.ps1) script:
 
 - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Automatically updated with:
-  - Status changed from "📋 FDD Created" (for Tier 2+) or "📊 Assessment Created" (for Tier 1) to "📝 TDD Created"
+  - Status changed from "📝 Needs TDD" to "🧪 Needs Test Spec"
   - Link to TDD document added in the "Tech Design" column
 
 ## ⚠️ MANDATORY Task Completion Checklist
@@ -275,10 +275,10 @@ Before considering this task finished:
   - [ ] Diagrams and visual aids are included as appropriate for the tier
   - [ ] Human partner feedback has been incorporated
 - [ ] **Verify Automated Updates**: Ensure the [../../scripts/file-creation/02-design/New-TDD.ps1](../../scripts/file-creation/02-design/New-TDD.ps1) script successfully updated state tracking files
-  - [ ] Feature Tracking document status automatically updated from "📋 FDD Created" (for Tier 2+) or "📊 Assessment Created" (for Tier 1) to "📝 TDD Created"
+  - [ ] Feature Tracking document status automatically updated from "📝 Needs TDD" to "🧪 Needs Test Spec"
   - [ ] Feature Tracking document automatically includes link to TDD in the "Tech Design" column
   - [ ] Feature Tracking document automatically updated with TDD creation date in the "Notes" column
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-015" and context "TDD Creation"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-015" and context "TDD Creation"
 
 ## Next Tasks
 

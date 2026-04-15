@@ -67,6 +67,7 @@ Choose the appropriate template based on your workflow type:
 - Modifying existing templates
 - Renaming/moving files or directories (use `-ChangeType "Rename"` for lightweight template)
 - Updating content across many files without moving them (use `-ChangeType "Content Update"` for lightweight template)
+- Adding/modifying framework documentation artifacts (use `-ChangeType "Framework Extension"` for lightweight template)
 - Executing changes with a detailed proposal already in place (use `-FromProposal` for lightweight execution-tracking template)
 
 **Characteristics**:
@@ -74,10 +75,12 @@ Choose the appropriate template based on your workflow type:
 - Full template: 5-phase structure with rollback, pilot, and metrics sections
 - Rename template: 2-phase structure (Preparation + Execution) — no pilot/rollback/metrics overhead
 - Content Update template: 2-phase structure (Preparation + Execution) — for content-only changes without file moves
+- Framework Extension template: 3-phase structure (Preparation + Create/Modify + Validation) — artifact tracking tables, no pilot/rollback/metrics
 - From-proposal template: 3-phase structure (Preparation + Execute + Finalization) — execution tracking only, references proposal for details
 - Use `-ChangeType "Rename"` for simple rename/move operations
 - Use `-ChangeType "Content Update"` for content changes across files (no structural reorganization)
-- Use `-FromProposal` when a detailed proposal already exists (incompatible with Rename/Content Update types)
+- Use `-ChangeType "Framework Extension"` for framework doc additions/modifications (templates, scripts, guides)
+- Use `-FromProposal` when a detailed proposal already exists (incompatible with Rename/Content Update/Framework Extension types)
 
 ### Process Improvement Workflows
 **Use**: `temp-process-improvement-state-template.md`
@@ -372,4 +375,4 @@ Phase 4: Framework Integration & Testing
 - [Task Creation Guide](task-creation-guide.md) - For creating task definitions
 - [Template Development Guide](template-development-guide.md) - For creating templates
 - [Document Creation Script Development Guide](document-creation-script-development-guide.md) - For creating automation scripts
-- [Feedback Form Completion Instructions](../framework/feedback-form-completion-instructions.md) - For completing feedback forms
+- [Feedback Form Guide](../framework/feedback-form-guide.md) - For completing feedback forms

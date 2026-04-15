@@ -13,7 +13,7 @@ related_task: PF-TSK-067,PF-TSK-068
 
 ## Overview
 
-This guide provides step-by-step instructions for customizing Enhancement State Tracking files after they are created by `New-EnhancementState.ps1`. The generated file contains pre-defined workflow blocks that follow the standard feature development workflow from the [Task Transition Guide](../framework/task-transition-guide.md). Each block must be evaluated and marked as applicable or not applicable for the specific enhancement. This guide is used during the Feature Request Evaluation task (PF-TSK-067).
+This guide provides step-by-step instructions for customizing Enhancement State Tracking files after they are created by `New-EnhancementState.ps1`. The generated file contains pre-defined workflow blocks that follow the standard feature development workflow from the [Task Transition Registry](../../infrastructure/task-transition-registry.md). Each block must be evaluated and marked as applicable or not applicable for the specific enhancement. This guide is used during the Feature Request Evaluation task (PF-TSK-067).
 
 ## When to Use
 
@@ -504,5 +504,5 @@ For single-session enhancements: Remove the Session Boundary Planning section en
 - [Feature Request Evaluation Task (PF-TSK-067)](../../tasks/01-planning/feature-request-evaluation.md) — The task that uses this guide
 - [Feature Enhancement Task (PF-TSK-068)](../../tasks/04-implementation/feature-enhancement.md) — The task that consumes the customized state file
 - [Enhancement Workflow Concept (PF-PRO-002)](../../../process-framework-local/proposals/old/enhancement-workflow-concept.md) — Design rationale for the workflow
-- [Task Transition Guide](../framework/task-transition-guide.md) — The standard feature development workflow that this template follows
+- [Task Transition Registry](../../infrastructure/task-transition-registry.md) — The standard feature development workflow that this template follows
 - [Documentation Tier Adjustment (PF-TSK-011)](../../tasks/cyclical/documentation-tier-adjustment-task.md) — Referenced by Step 1 (Tier Reassessment)

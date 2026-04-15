@@ -109,7 +109,7 @@ template_for: Bug Fix State Tracking
 
 This file can be archived to `state-tracking/temporary/old/` when:
 
-- [ ] Bug status is ✅ Verified / 🔒 Closed
+- [ ] Bug status is 🔒 Closed (verified via Code Review)
 - [ ] All implementation progress items are Done
 - [ ] All validation checks pass
 - [ ] Documentation updates completed (or confirmed N/A)

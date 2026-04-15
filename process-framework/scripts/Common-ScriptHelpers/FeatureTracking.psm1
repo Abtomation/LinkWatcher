@@ -37,7 +37,7 @@ function Update-FeatureTrackingStatus {
     The feature ID to update
 
     .PARAMETER Status
-    The new status (e.g., "🟡 In Progress", "🟢 Completed", "🔄 Needs Revision")
+    The new status (e.g., "🟡 In Progress", "🟢 Completed", "🔄 Needs Enhancement")
 
     .PARAMETER StatusColumn
     The column to update (e.g., "Status", "Test Status", "Implementation Status")

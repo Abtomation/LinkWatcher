@@ -3,9 +3,9 @@ id: PF-TSK-069
 type: Process Framework
 category: Task Definition
 domain: agnostic
-version: 1.1
+version: 1.2
 created: 2026-03-15
-updated: 2026-03-18
+updated: 2026-04-13
 ---
 
 # E2E Acceptance Test Case Creation
@@ -162,11 +162,12 @@ Before considering this task finished:
   - [ ] [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) Test Status updated if needed
   - [ ] Cross-cutting spec Coverage Summary updated (milestone path only — skip if not applicable)
 - [ ] **Human Review**: Human partner has reviewed and approved the test cases
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-069" and context "E2E Acceptance Test Case Creation"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-069" and context "E2E Acceptance Test Case Creation"
 
 ## Next Tasks
 
-- [**E2E Acceptance Test Execution**](e2e-acceptance-test-execution-task.md) — Execute the test cases created by this task. For new feature and enhancement paths, this happens after implementation is complete. For bug fix and tech debt paths, this happens after the code change
+- [**Test Audit**](/process-framework/tasks/03-testing/test-audit-task.md) (with `-TestType E2E`) — Audit newly created E2E test cases before execution. Test cases must reach `🔍 Audit Approved` status before proceeding to E2E Test Execution
+- [**E2E Acceptance Test Execution**](e2e-acceptance-test-execution-task.md) — Execute the test cases created by this task. For new feature and enhancement paths, this happens after implementation is complete. For bug fix and tech debt paths, this happens after the code change. Requires `🔍 Audit Approved` audit status
 - [**Bug Triage**](../06-maintenance/bug-triage-task.md) — If test case creation reveals additional bugs or inconsistencies during fixture preparation
 
 ## Related Resources

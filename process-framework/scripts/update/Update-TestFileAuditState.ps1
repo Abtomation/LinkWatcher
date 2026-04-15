@@ -6,14 +6,17 @@ Automates state file updates for individual Test File Audit (PF-TSK-030)
 
 .DESCRIPTION
 This script automates the manual state file updates required by the Test Audit Task,
-focusing on individual test files rather than entire features. This addresses the
-critical bottleneck identified in the Process Improvement Tracking (IMP-087).
+focusing on individual test files rather than entire features. Supports three test types:
+- Automated (default): Updates test-tracking.md + feature-tracking.md
+- Performance: Updates performance-test-tracking.md Audit Status/Report columns
+- E2E: Updates e2e-test-tracking.md Audit Status/Report columns
 
 SC-007: Uses file path as test file identifier (not PD-TST/TE-TST IDs).
 
-Updates the following files:
-- test/state-tracking/permanent/test-tracking.md
-- doc/state-tracking/permanent/feature-tracking.md (aggregated status)
+Updates the following files (based on -TestType):
+- Automated: test-tracking.md + feature-tracking.md (aggregated status)
+- Performance: performance-test-tracking.md (Audit Status + Audit Report columns)
+- E2E: e2e-test-tracking.md (Audit Status + Audit Report columns)
 
 .PARAMETER TestFilePath
 Relative path to the test file being audited (e.g., "test/automated/unit/test_service.py")
@@ -62,12 +65,16 @@ This script addresses Process Improvement items:
 - SC-007: Uses file path as identifier (not PD-TST/TE-TST IDs)
 
 Created: 2025-08-29
-Updated: 2026-04-03 (IMP-340: directory-aware disambiguation for duplicate filenames)
-Version: 2.1
+Updated: 2026-04-13 (IMP-495: add -TestType param for Performance/E2E audit support)
+Version: 3.0
 #>
 
 [CmdletBinding()]
 param(
+    [Parameter(Mandatory=$false)]
+    [ValidateSet("Automated", "Performance", "E2E")]
+    [string]$TestType = "Automated",
+
     [Parameter(Mandatory=$true)]
     [string]$TestFilePath,
 
@@ -319,6 +326,7 @@ function Update-IndividualTestFileStatus {
 try {
     Write-Host "Test File Audit State Update" -ForegroundColor Green
     Write-Host "============================" -ForegroundColor Green
+    Write-Host "Test Type: $TestType" -ForegroundColor Cyan
     Write-Host "Test File: $TestFilePath" -ForegroundColor Cyan
     Write-Host "Audit Status: $AuditStatus" -ForegroundColor Cyan
 
@@ -326,6 +334,122 @@ try {
         Write-Host "DRY RUN MODE - No changes will be made" -ForegroundColor Yellow
         Write-Host ""
     }
+
+    # --- Performance / E2E: update dedicated tracking file Audit Status + Audit Report columns ---
+    if ($TestType -ne "Automated") {
+        $projectRoot = Get-ProjectRoot
+        $trackingRelPath = switch ($TestType) {
+            "Performance" { "test/state-tracking/permanent/performance-test-tracking.md" }
+            "E2E" { "test/state-tracking/permanent/e2e-test-tracking.md" }
+        }
+        $trackingFilePath = Join-Path $projectRoot $trackingRelPath
+        $trackingFileName = Split-Path $trackingFilePath -Leaf
+        $testFileName = Split-Path $TestFilePath -Leaf
+
+        if (-not (Test-Path $trackingFilePath)) {
+            throw "Tracking file not found: $trackingFilePath"
+        }
+
+        # Map audit status to emoji-prefixed status
+        $auditStatusDisplay = switch ($AuditStatus) {
+            "Audit In Progress" { "🔍 Audit In Progress" }
+            "Tests Approved" { "✅ Approved" }
+            "Needs Update" { "🔄 Needs Update" }
+            "Audit Failed" { "🔴 Failed" }
+        }
+
+        # Build audit report link if path provided
+        $auditReportLink = "—"
+        if ($AuditReportPath) {
+            $reportFileName = Split-Path $AuditReportPath -Leaf
+            $reportBaseName = [System.IO.Path]::GetFileNameWithoutExtension($reportFileName)
+            # Build relative path from tracking file to audit report
+            $auditCategory = switch ($TestType) { "Performance" { "performance" }; "E2E" { "e2e" } }
+            $auditRelPath = "../../audits/$auditCategory/$reportFileName"
+            $auditReportLink = "[$reportBaseName]($auditRelPath)"
+        }
+
+        if ($DryRun) {
+            Write-Host "DRY RUN: Would update $trackingFileName for $testFileName" -ForegroundColor Cyan
+            Write-Host "  Audit Status: $auditStatusDisplay" -ForegroundColor Gray
+            Write-Host "  Audit Report: $auditReportLink" -ForegroundColor Gray
+        } else {
+            # Create backup
+            $backupResult = Get-StateFileBackup -FilePath $trackingFilePath
+            Write-Host "Backup created for $trackingFileName" -ForegroundColor Green
+
+            $trackingContent = Get-Content $trackingFilePath -Raw -Encoding UTF8
+            $lines = $trackingContent -split '\r?\n'
+            $updatedLines = @()
+            $rowUpdated = $false
+            $columnIndices = @{}
+            $escapedFileName = [regex]::Escape($testFileName)
+
+            foreach ($line in $lines) {
+                # Parse table headers to find column indices by name
+                if (-not $rowUpdated -and $line -match '^\|.*\|$' -and $columnIndices.Count -eq 0 -and $line -notmatch '^\|[-\s:]+\|$') {
+                    $rawHeaders = $line -split '\|'
+                    if ($rawHeaders.Count -gt 2) { $rawHeaders = $rawHeaders[1..($rawHeaders.Count-2)] }
+                    $headers = $rawHeaders | ForEach-Object { $_.Trim() }
+                    for ($j = 0; $j -lt $headers.Count; $j++) {
+                        if ($headers[$j] -ne '') { $columnIndices[$headers[$j]] = $j }
+                    }
+                    if (-not $columnIndices.ContainsKey("Audit Status") -or -not $columnIndices.ContainsKey("Audit Report")) {
+                        $columnIndices = @{}
+                    }
+                }
+                elseif ($line -match '^#' -and $columnIndices.Count -gt 0) {
+                    $columnIndices = @{}
+                }
+
+                if (-not $rowUpdated -and $columnIndices.Count -gt 0 -and $line -match "^\|.*$escapedFileName.*\|") {
+                    $rawCols = $line -split '\|'
+                    if ($rawCols.Count -gt 2) { $rawCols = $rawCols[1..($rawCols.Count-2)] }
+                    $cols = $rawCols | ForEach-Object { $_.Trim() }
+
+                    $auditStatusIdx = $columnIndices["Audit Status"]
+                    $auditReportIdx = $columnIndices["Audit Report"]
+                    if ($auditStatusIdx -lt $cols.Count -and $auditReportIdx -lt $cols.Count) {
+                        $cols[$auditStatusIdx] = $auditStatusDisplay
+                        $cols[$auditReportIdx] = $auditReportLink
+                        $line = "| " + ($cols -join " | ") + " |"
+                        $rowUpdated = $true
+                    }
+                }
+                $updatedLines += $line
+            }
+
+            if ($rowUpdated) {
+                $updatedContent = $updatedLines -join "`n"
+                Set-Content $trackingFilePath $updatedContent -Encoding UTF8
+                Write-Host "  ✅ $trackingFileName updated: $testFileName Audit Status ← $auditStatusDisplay" -ForegroundColor Green
+            } else {
+                Write-Warning "Could not find $testFileName in $trackingFileName — manual update needed"
+            }
+        }
+
+        # Summary for Performance/E2E
+        Write-Host ""
+        Write-Host "Test File Audit State Update Summary" -ForegroundColor Green
+        Write-Host "====================================" -ForegroundColor Green
+        Write-Host "Test Type: $TestType" -ForegroundColor White
+        Write-Host "Test File: $TestFilePath" -ForegroundColor White
+        Write-Host "Audit Status: $AuditStatus" -ForegroundColor White
+        Write-Host ""
+        Write-Host "Files Updated:" -ForegroundColor White
+        Write-Host "  ✅ $trackingFileName (Audit Status + Audit Report)" -ForegroundColor Green
+
+        if ($DryRun) {
+            Write-Host ""
+            Write-Host "DRY RUN COMPLETED - No actual changes were made" -ForegroundColor Yellow
+        } else {
+            Write-Host ""
+            Write-Host "✅ Test file audit state update completed successfully!" -ForegroundColor Green
+        }
+        return
+    }
+
+    # --- Automated: existing behavior ---
 
     # Get the feature ID for this test file (SC-007: lookup by file path)
     $FeatureId = Get-FeatureIdFromTestFile -TestFilePath $TestFilePath

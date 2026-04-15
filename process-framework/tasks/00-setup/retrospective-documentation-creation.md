@@ -48,14 +48,15 @@ This is the final onboarding task that transforms code analysis into formal desi
   - [TDD Creation Task](../02-design/tdd-creation-task.md) - For creating Technical Design Documents
   - [Test Specification Creation Task](../03-testing/test-specification-creation-task.md) - For creating Test Specifications
   - [Integration and Testing Task](../04-implementation/integration-and-testing.md) - For migrating pre-existing tests to framework structure (Step 8, migration mode)
-  - [ADR Creation Task](../02-design/adr-creation-task.md) - For creating Architecture Decision Records
+  - [Architecture Decision Creation Guide](/process-framework/guides/02-design/architecture-decision-creation-guide.md) - For creating Architecture Decision Records
+  - [New-ArchitectureDecision.ps1](/process-framework/scripts/file-creation/02-design/New-ArchitectureDecision.ps1) - Script for creating ADRs
 
 - **Reference Only (Access When Needed):**
   - [API Design Task](../02-design/api-design-task.md) - For documenting existing API contracts
   - [Database Schema Design Task](../02-design/database-schema-design-task.md) - For documenting existing schema
   - [Cross-Cutting Test Specification Template](../../templates/03-testing/cross-cutting-test-specification-template.md) - Template for multi-feature test specifications
   - [Test Query Tool](/process-framework/scripts/test/test_query.py) - Query test files by feature, priority, and markers
-  - [Task Transition Guide](../../guides/framework/task-transition-guide.md) - Understanding documentation workflow
+  - [Task Transition Registry](../../infrastructure/task-transition-registry.md) - Understanding documentation workflow
   - [PF Documentation Map](../../PF-documentation-map.md) - For registering process-framework artifacts
   - [PD Documentation Map](../../../doc/PD-documentation-map.md) - For registering product documents (FDDs, TDDs, ADRs, validation reports)
   - [TE Documentation Map](../../../test/TE-documentation-map.md) - For registering test specifications and audit reports
@@ -174,7 +175,7 @@ This is the final onboarding task that transforms code analysis into formal desi
    - Update master state: Tests Migrated ✅ for this feature
 
 9. **Create Architecture Decision Records (Foundation 0.x.x)**:
-   - Use [ADR Creation Task](../02-design/adr-creation-task.md)
+   - Create ADR using [New-ArchitectureDecision.ps1](/process-framework/scripts/file-creation/02-design/New-ArchitectureDecision.ps1), following the [Architecture Decision Creation Guide](/process-framework/guides/02-design/architecture-decision-creation-guide.md) for content customization
    - **Source**: [Feature Implementation State file](/doc/state-tracking/features) → Design Decisions
    - **Content**: Document architectural patterns/decisions discovered in code
    - **Note**: Mark unknowns (alternatives considered, full rationale) clearly
@@ -353,7 +354,7 @@ This is the final onboarding task that transforms code analysis into formal desi
   - [ ] Final metrics calculated and recorded in [master state](../../../process-framework-local/state-tracking/temporary/old/retrospective-master-state.md)
   - [ ] [Master State File](../../../process-framework-local/state-tracking/temporary/old/retrospective-master-state.md) archived to `/temporary/archived/`
 
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-066" and context "Retrospective Documentation Creation"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-066" and context "Retrospective Documentation Creation"
   - **⚠️ IMPORTANT**: Evaluate the Retrospective Documentation Creation task (PF-TSK-066) and its tools (tier assessment workflow, documentation creation process), not the documents you created.
 
 ## Next Tasks
@@ -378,5 +379,5 @@ After completing the full retrospective documentation effort:
 - [Codebase Feature Analysis (PF-TSK-065)](codebase-feature-analysis.md) - Second onboarding task (prerequisite)
 - [Feature Tier Assessment Task](../01-planning/feature-tier-assessment-task.md) - For creating tier assessments
 - [Documentation Tiers README](../../../doc/documentation-tiers/README.md) - Tier definitions and documentation requirements
-- [Task Transition Guide](../../guides/framework/task-transition-guide.md) - Understanding documentation workflow
+- [Task Transition Registry](../../infrastructure/task-transition-registry.md) - Understanding documentation workflow
 - [Onboarding Edge Cases Guide](../../guides/00-setup/onboarding-edge-cases.md) - Edge-case guidance for ambiguous file assignment, shared utilities, and confidence tagging

@@ -51,8 +51,8 @@ Complete process for creating a new task from concept to implementation-ready de
 
 - **Reference Only (Access When Needed):**
   - [Documentation Map](../../PF-documentation-map.md) - For updating with new artifacts
-  - [Task Transition Guide](../../guides/framework/task-transition-guide.md) - For adding "Transitioning FROM" section for the new task
-  - [Process Framework Task Registry](../../infrastructure/process-framework-task-registry.md) - For adding new task entry
+  - [Task Transition Registry](../../infrastructure/task-transition-registry.md) - For adding "Transitioning FROM" section for the new task
+  - [Process Framework Task Registry](../../infrastructure/process-framework-task-registry.md) - For adding new task entry (includes trigger/output chain via `🔗 TRIGGER & OUTPUT` blocks and State File Trigger Index)
   - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For creating context maps
   - [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) - For tracking infrastructure completion
   - [New-Task.ps1](../../scripts/file-creation/support/New-Task.ps1) - Script for creating task definitions
@@ -168,8 +168,8 @@ Complete process for creating a new task from concept to implementation-ready de
 10L. **Verify Documentation Updates**: Confirm that New-Task.ps1 automatically updated PF-documentation-map.md, tasks/README.md, and process-framework/ai-tasks.md
 
 11L. **Update Cross-Cutting Documents**: These mandatory updates are NOT automated and must be done manually for every new task:
-   - **[Task Transition Guide](../../guides/framework/task-transition-guide.md)**: Add a "Transitioning FROM [New Task Name]" section listing the tasks that typically follow this new task, with transition triggers and required handover artifacts. Update any existing scenarios that should include the new task.
-   - **[Process Framework Task Registry](../../infrastructure/process-framework-task-registry.md)**: Add a new task entry with process type, automation status, script locations, and file update patterns.
+   - **[Task Transition Registry](../../infrastructure/task-transition-registry.md)**: Add a "Transitioning FROM [New Task Name]" section listing the tasks that typically follow this new task, with transition triggers and required handover artifacts. Update any existing scenarios that should include the new task.
+   - **[Process Framework Task Registry](../../infrastructure/process-framework-task-registry.md)**: Add a new task entry with process type, automation status, script locations, and file update patterns. Also add a `🔗 TRIGGER & OUTPUT` block (Self-Doc, Trigger, Output) and update the State File Trigger Index (if the task has a state-file trigger).
    - **Existing task definitions**: Grep for task definitions that precede or follow the new task in the workflow. Update their "Next Tasks" and "Related Resources" sections to reference the new task where appropriate. Also check the [ai-tasks.md](../../ai-tasks.md) decision tree and workflow diagrams for needed updates (these are NOT automated by New-Task.ps1 — the script only adds the table row).
 
 12L. **🚨 MANDATORY FINAL STEP**: Complete the [Lightweight Task Completion Checklist](#lightweight-task-completion-checklist) below
@@ -273,8 +273,8 @@ Complete process for creating a new task from concept to implementation-ready de
 
    - Update [Documentation Map](../../PF-documentation-map.md) with all new artifacts
    - **Update Cross-Cutting Documents** (mandatory for every new task):
-     - **[Task Transition Guide](../../guides/framework/task-transition-guide.md)**: Add a "Transitioning FROM [New Task Name]" section listing the tasks that typically follow this new task, with transition triggers and required handover artifacts. Update any existing scenarios that should include the new task.
-     - **[Process Framework Task Registry](../../infrastructure/process-framework-task-registry.md)**: Add a new task entry with process type, automation status, script locations, and file update patterns.
+     - **[Task Transition Registry](../../infrastructure/task-transition-registry.md)**: Add a "Transitioning FROM [New Task Name]" section listing the tasks that typically follow this new task, with transition triggers and required handover artifacts. Update any existing scenarios that should include the new task.
+     - **[Process Framework Task Registry](../../infrastructure/process-framework-task-registry.md)**: Add a new task entry with process type, automation status, script locations, and file update patterns. Also add a `🔗 TRIGGER & OUTPUT` block (Self-Doc, Trigger, Output) and update the State File Trigger Index (if the task has a state-file trigger).
      - **Existing task definitions**: Grep for task definitions that precede or follow the new task in the workflow. Update their "Next Tasks" and "Related Resources" sections to reference the new task where appropriate. Also check the [ai-tasks.md](../../ai-tasks.md) decision tree and workflow diagrams for needed updates (these are NOT automated by New-Task.ps1 — the script only adds the table row).
    - Create context map using [Visualization Creation Guide](../../guides/support/visualization-creation-guide.md) and [New-ContextMap.ps1](../../scripts/file-creation/02-design/New-ContextMap.ps1)
      ```bash
@@ -377,11 +377,12 @@ The following state files are updated as part of this task:
 - [ ] **Context Map Created**: Context map created using [New-ContextMap.ps1](../../scripts/file-creation/02-design/New-ContextMap.ps1) and customized with task-specific components
 - [ ] **Documentation Updates Verified**: Confirm New-Task.ps1 automatically updated PF-documentation-map.md, tasks/README.md, and process-framework/ai-tasks.md
 - [ ] **Cross-Cutting Updates Completed**:
-  - [ ] [Task Transition Guide](../../guides/framework/task-transition-guide.md) updated with "Transitioning FROM" section for the new task
+  - [ ] [Task Transition Registry](../../infrastructure/task-transition-registry.md) updated with "Transitioning FROM" section for the new task
   - [ ] [Process Framework Task Registry](../../infrastructure/process-framework-task-registry.md) updated with new task entry
+  - [ ] [Process Framework Task Registry](../../infrastructure/process-framework-task-registry.md) `🔗 TRIGGER & OUTPUT` block and State File Trigger Index updated for new task
   - [ ] Existing task definitions updated — "Next Tasks" and "Related Resources" sections of related tasks reference the new task where appropriate
   - [ ] [ai-tasks.md](../../ai-tasks.md) decision tree and workflow diagrams updated if the new task changes the workflow
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-001" and context "New Task Creation Process (Lightweight)"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-001" and context "New Task Creation Process (Lightweight)"
   - **⚠️ IMPORTANT**: Evaluate the New Task Creation Process itself (PF-TSK-001), not the task you created.
 
 ---
@@ -433,8 +434,9 @@ The following state files are updated as part of this task:
   - [ ] Context map created using [Visualization Creation Guide](../../guides/support/visualization-creation-guide.md) and [New-ContextMap.ps1](../../scripts/file-creation/02-design/New-ContextMap.ps1)
   - [ ] Context map properly shows component relationships and task context
 - [ ] **Cross-Cutting Updates Completed**:
-  - [ ] [Task Transition Guide](../../guides/framework/task-transition-guide.md) updated with "Transitioning FROM" section for the new task
+  - [ ] [Task Transition Registry](../../infrastructure/task-transition-registry.md) updated with "Transitioning FROM" section for the new task
   - [ ] [Process Framework Task Registry](../../infrastructure/process-framework-task-registry.md) updated with new task entry
+  - [ ] [Process Framework Task Registry](../../infrastructure/process-framework-task-registry.md) `🔗 TRIGGER & OUTPUT` block and State File Trigger Index updated for new task
   - [ ] Existing task definitions updated — "Next Tasks" and "Related Resources" sections of related tasks reference the new task where appropriate
   - [ ] [ai-tasks.md](../../ai-tasks.md) decision tree and workflow diagrams updated if the new task changes the workflow
 
@@ -445,7 +447,7 @@ The following state files are updated as part of this task:
   - [ ] [Documentation Map](../../PF-documentation-map.md) updated with all new artifacts
   - [ ] Temporary state tracking file deleted (task infrastructure complete)
   - [ ] Task fully functional and ready for use
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-001" and context "New Task Creation Process (Full Mode)"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-001" and context "New Task Creation Process (Full Mode)"
   - **⚠️ IMPORTANT**: Evaluate the New Task Creation Process itself (PF-TSK-001), not the task you created. Assess how well the process worked, the effectiveness of the tools used (New-Task.ps1, guides, etc.), and the clarity of the process steps.
 
 ## Next Tasks

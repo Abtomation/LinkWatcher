@@ -49,6 +49,9 @@ This task **orchestrates** systematic changes to documentation structures, templ
   - [Process Framework Documentation](../../README.md) - Current documentation structure
   - [Feedback Forms](../../feedback/feedback-forms) - Feedback related to current structure
 
+- **Reference Only (Access When Needed):**
+  - [Process Framework Task Registry — Trigger & Output fields](../../infrastructure/process-framework-task-registry.md) - Consult trigger/output blocks and State File Trigger Index when changes affect task trigger conditions or state file interactions
+
 ## Process
 
 > **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished! 🚨**
@@ -91,6 +94,7 @@ This task **orchestrates** systematic changes to documentation structures, templ
    - Use established scripts when creating new documents ([New-Template.ps1](../../scripts/file-creation/support/New-Template.ps1), [New-Guide.ps1](../../scripts/file-creation/support/New-Guide.ps1), etc.)
    - For markdown table changes, consider [Add-MarkdownTableColumn.ps1](../../scripts/Add-MarkdownTableColumn.ps1)
    - **For file/directory moves**: Follow the [File and Directory Move Procedure](#file-and-directory-move-procedure) below
+   - **For file splits** (one file into two): Follow the [File Split Procedure](#file-split-procedure) below
 
 5. **🚨 CHECKPOINT**: Present implemented changes and affected files to human partner for review
 6. **Verify**: Confirm all changes are correct:
@@ -128,6 +132,24 @@ When moving or renaming files/directories as part of a structure change, follow 
 
 ---
 
+### File Split Procedure
+
+When splitting one file into two separate files (e.g., extracting a section into its own document), follow this procedure:
+
+1. **Create the new file** with the content to be extracted. Use established scripts if applicable (e.g., `New-Guide.ps1`, `New-Template.ps1`)
+2. **Remove the extracted content** from the original file
+3. **If the original file needs to move or rename** (e.g., its scope changed), follow the [File and Directory Move Procedure](#file-and-directory-move-procedure) for that step
+4. **Review all references to the original file** — this is the critical split-specific step:
+   - Grep for all files referencing the original file path
+   - For each reference, check whether it refers to content that stayed in the original file, moved to the new file, or is relevant to both
+   - Update references accordingly: some will stay, some will point to the new file, and some may need to reference both files
+   - Pay special attention to anchor links (`#section`) — sections that moved to the new file need their references redirected
+5. **Update documentation maps** — add the new file and update the original file's entry if its scope or description changed
+
+> **Why manual review is required**: LinkWatcher updates references when files move, but a split creates a *new* file — it doesn't know which references should point to the new file vs. the original. Every reference must be evaluated by the agent.
+
+---
+
 ### Full Process
 
 > For large, multi-type, or breaking structure changes.
@@ -140,7 +162,7 @@ When moving or renaming files/directories as part of a structure change, follow 
    a. **Reference grep**: For each affected file, grep the entire project to find all files that reference it (markdown links, imports, script paths, string literals). Record the count and list.
    b. **Script audit**: Identify all automation scripts that read from or write to the affected file(s). Check `process-framework/scripts/` for scripts that target these paths.
    c. **Task definition audit**: Search task definitions (`process-framework/tasks/`) for manual update instructions referencing the affected file(s) (e.g., "update documentation-map.md").
-   d. **Infrastructure doc consultation**: Read [Process Framework Task Registry](../../infrastructure/process-framework-task-registry.md) (catalogs what each task creates/updates) and [Task Transition Guide](../../guides/framework/task-transition-guide.md) (documents handover interfaces between tasks) to identify additional downstream impacts.
+   d. **Infrastructure doc consultation**: Read [Process Framework Task Registry](../../infrastructure/process-framework-task-registry.md) (catalogs what each task creates/updates) and [Task Transition Registry](../../infrastructure/task-transition-registry.md) (documents handover interfaces between tasks) to identify additional downstream impacts.
    e. **Present impact matrix**: Compile findings into a matrix (affected files × change type: link update, content update, script change, task definition change) and present at the checkpoint below.
 
    > **Why this step exists**: SC-009 demonstrated that without structured impact analysis, scope gaps are caught incrementally by the human partner across multiple checkpoints — wasting review cycles and risking missed items.
@@ -154,9 +176,10 @@ When moving or renaming files/directories as part of a structure change, follow 
    ```powershell
    # Navigate to the state-tracking directory and create structure change state tracking file
    cd process-framework-local/state-tracking
-   ./New-StructureChangeState.ps1 -ChangeName "Change Name" -ChangeType "Template Update|Directory Reorganization|Metadata Structure|Documentation Architecture|Rename|Content Update" -Description "Brief description"
+   ./New-StructureChangeState.ps1 -ChangeName "Change Name" -ChangeType "Template Update|Directory Reorganization|Metadata Structure|Documentation Architecture|Rename|Content Update|Framework Extension" -Description "Brief description"
    # Use -ChangeType "Rename" for lightweight rename/move operations (simplified template without pilot/rollback/metrics sections)
    # Use -ChangeType "Content Update" for content-only changes across files (simplified template without pilot/rollback/metrics sections)
+   # Use -ChangeType "Framework Extension" for adding/modifying framework docs (artifact tracking, no pilot/rollback/metrics)
    # Use -FromProposal when a detailed proposal already exists — generates a lightweight state file (phase checklist + session log only, no redundant sections)
    ```
 7. Use the existing `/process-framework-local/state-tracking/temporary` directory for transition files
@@ -195,6 +218,7 @@ When moving or renaming files/directories as part of a structure change, follow 
     - Implement changes across remaining files
     - For markdown table changes, consider [Add-MarkdownTableColumn.ps1](../../scripts/Add-MarkdownTableColumn.ps1)
     - **For file/directory moves**: Follow the [File and Directory Move Procedure](#file-and-directory-move-procedure)
+    - **For file splits** (one file into two): Follow the [File Split Procedure](#file-split-procedure)
 
 #### Finalization
 
@@ -247,7 +271,7 @@ The following state files must be updated as part of this task:
 - [ ] **Update State Files**:
   - [ ] [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) updated (if this change addresses an IMP item)
   - [ ] Appropriate documentation map(s) updated if document organization changed: [PF](../../PF-documentation-map.md) / [PD](../../../doc/PD-documentation-map.md) / [TE](../../../test/TE-documentation-map.md)
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-014" and context "Structure Change (Lightweight)"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-014" and context "Structure Change (Lightweight)"
 
 ---
 
@@ -266,7 +290,7 @@ The following state files must be updated as part of this task:
   - [ ] Structure change state tracking file completed and properly maintained
   - [ ] [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) updated with structure change completion
   - [ ] Appropriate documentation map(s) updated if document organization changed: [PF](../../PF-documentation-map.md) / [PD](../../../doc/PD-documentation-map.md) / [TE](../../../test/TE-documentation-map.md)
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-014" and context "Structure Change (Full)"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-014" and context "Structure Change (Full)"
 - [ ] **🚨 MANDATORY Cleanup Phase**: Remove temporary documentation artifacts created during the structure change:
   - [ ] **🚨 CRITICAL**: Archive completed temporary state tracking files to `/process-framework-local/state-tracking/temporary/old`
   - [ ] **🚨 CRITICAL**: Archive completed structure change proposal to its `old/` subdirectory

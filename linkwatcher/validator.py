@@ -111,6 +111,22 @@ _EXT_BEFORE_SLASH_PATTERN = re.compile(r"\w\.\w{1,6}/")
 _PLACEHOLDER_PATTERN = re.compile(r"YYYY|XXX|HHMMSS|<[^>]+>|\[[a-z][a-z-]*\]")
 
 # ---------------------------------------------------------------------------
+# Explicit link syntax types — link types where the author wrote deliberate
+# link markup, so bare filenames (no path separator) are valid targets.
+# E.g. [text](file.md), [label]: file.md, <a href="file.md">.
+# All other link types use heuristic/standalone detection where bare names
+# are more likely prose mentions than intentional links.  (BUG-088)
+# ---------------------------------------------------------------------------
+
+_EXPLICIT_LINK_TYPES: frozenset = frozenset(
+    {
+        LinkType.MARKDOWN,
+        LinkType.MARKDOWN_REFERENCE,
+        LinkType.HTML_ANCHOR,
+    }
+)
+
+# ---------------------------------------------------------------------------
 # Target-skip predicates — each returns True when a target should be skipped.
 # Used by ``_should_check_target()`` to filter non-path strings.
 # ---------------------------------------------------------------------------
@@ -141,9 +157,14 @@ _TARGET_SKIP_PREDICATES: tuple = (
     (lambda t, lt: bool(_PLACEHOLDER_PATTERN.search(t)), "template placeholder"),
     # Whitespace beyond a simple path
     (lambda t, lt: " " in t, "contains whitespace"),
-    # Bare filenames without any path separator
+    # Bare filenames without any path separator — skip unless the link type
+    # uses explicit link syntax where bare filenames are valid targets
+    # (e.g. [text](file.md), [label]: file.md, <a href="file.md">).  (BUG-088)
     (
-        lambda t, lt: "/" not in t and "\\" not in t and not t.startswith("."),
+        lambda t, lt: lt not in _EXPLICIT_LINK_TYPES
+        and "/" not in t
+        and "\\" not in t
+        and not t.startswith("."),
         "bare filename",
     ),
 )
@@ -257,7 +278,9 @@ class LinkValidator:
                 # Only validate documentation files — source code files (.py,
                 # .ps1, etc.) contain string/comment paths that are data values,
                 # not document cross-references.
-                if not should_monitor_file(file_path, self._validation_extensions, ignored_dirs):
+                if not should_monitor_file(
+                    file_path, self._validation_extensions, ignored_dirs, self.project_root
+                ):
                     continue
 
                 file_start = time.monotonic()

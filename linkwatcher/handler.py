@@ -809,7 +809,9 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
 
     def _should_monitor_file(self, file_path: str) -> bool:
         """Check if a file should be monitored."""
-        return should_monitor_file(file_path, self.monitored_extensions, self.ignored_dirs)
+        return should_monitor_file(
+            file_path, self.monitored_extensions, self.ignored_dirs, str(self.project_root)
+        )
 
     def _is_known_reference_target(self, abs_path: str) -> bool:
         """Check if a file is a known reference target in the link database.

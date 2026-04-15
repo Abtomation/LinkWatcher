@@ -126,7 +126,6 @@ _Technical and functional design activities_
 | **Integration Narrative Creation** | Create Integration Narratives for cross-feature workflows                                 | 🟡 Medium  | [→ Definition](/process-framework/tasks/02-design/integration-narrative-creation.md)  |
 | **FDD Creation**           | Create functional specifications for Tier 2/3 features before technical design            | 🟡 Medium  | [→ Definition](/process-framework/tasks/02-design/fdd-creation-task.md)           |
 | **TDD Creation**           | Complex feature needs technical design                                                    | 🟡 Medium  | [→ Definition](/process-framework/tasks/02-design/tdd-creation-task.md)           |
-| **ADR Creation**           | Document significant architectural decisions with context, alternatives, and consequences | 🟢 Simple  | [→ Definition](/process-framework/tasks/02-design/adr-creation-task.md)           |
 | **API Design**             | Design comprehensive API contracts and specifications before implementation begins        | 🟡 Medium  | [→ Definition](/process-framework/tasks/02-design/api-design-task.md)             |
 | **Database Schema Design** | Plan data model changes before coding to prevent data integrity issues                    | 🟡 Medium  | [→ Definition](/process-framework/tasks/02-design/database-schema-design-task.md) |
 
@@ -136,6 +135,7 @@ _Test planning, implementation, and quality assurance activities_
 
 | Task                            | Use When                                                                               | Complexity | Link                                                                                        |
 | ------------------------------- | -------------------------------------------------------------------------------------- | ---------- | ------------------------------------------------------------------------------------------- |
+| **Performance and E2E Test Scoping** | Identify per-feature performance and E2E test needs after code review                  | 🟡 Medium  | [→ Definition](/process-framework/tasks/03-testing/performance-and-e2e-test-scoping-task.md) |
 | **Performance Test Creation**   | Implement performance tests from specifications, register in tracking, capture initial measurements | 🟡 Medium  | [→ Definition](/process-framework/tasks/03-testing/performance-test-creation-task.md)       |
 | **Performance Baseline Capture** | Run performance tests, record results in trend database, update tracking, flag regressions | 🟢 Simple  | [→ Definition](/process-framework/tasks/03-testing/performance-baseline-capture-task.md)    |
 | **E2E Acceptance Test Execution** | Execute E2E acceptance test cases systematically, record results, and report issues discovered through human interaction with the running system | 🟡 Medium | [→ Definition](/process-framework/tasks/03-testing/e2e-acceptance-test-execution-task.md) |
@@ -227,30 +227,30 @@ _Meta-framework tasks that work on the process framework itself_
 
 ## 🔄 Common Workflows
 
-**📋 For detailed guidance on task transitions, see the [Task Transition Guide](/process-framework/guides/framework/task-transition-guide.md)**
+**📋 For detailed guidance on task transitions, see the [Task Transition Registry](/process-framework/infrastructure/task-transition-registry.md)**
 
 ### For New Feature Planning (research needed)
 
 ```
-Feature Discovery → Feature Request Evaluation (classify as new) → Feature Tier Assessment → FDD Creation → [System Architecture Review] → [ADR Creation] → [API Design] → [Database Schema Design] → TDD Creation → [Integration Narrative Creation] → [Test Specification Creation] → Feature Implementation Planning → [Decomposed Implementation Tasks] → Code Review → [User Documentation Creation] → Release & Deployment
+Feature Discovery → Feature Request Evaluation (classify as new) → Feature Tier Assessment → FDD Creation → [System Architecture Review] → [API Design] → [Database Schema Design] → TDD Creation → [Integration Narrative Creation] → [Test Specification Creation] → Feature Implementation Planning → [Decomposed Implementation Tasks] → Code Review → Performance & E2E Test Scoping (PF-TSK-086) → [User Documentation Creation] → Release & Deployment
 ```
 
 ### For Complex Features
 
 ```
-Feature Request Evaluation (classify as new) → Feature Tier Assessment → FDD Creation → [System Architecture Review] → [ADR Creation] → [API Design] → [Database Schema Design] → TDD Creation → [Integration Narrative Creation] → [Test Specification Creation] → Feature Implementation Planning → [Decomposed Implementation Tasks] → Integration & Testing → Test Audit → Code Review → [User Documentation Creation] → Release & Deployment
+Feature Request Evaluation (classify as new) → Feature Tier Assessment → FDD Creation → [System Architecture Review] → [API Design] → [Database Schema Design] → TDD Creation → [Integration Narrative Creation] → [Test Specification Creation] → Feature Implementation Planning → [Decomposed Implementation Tasks] → Integration & Testing → Test Audit → Code Review → Performance & E2E Test Scoping (PF-TSK-086) → [User Documentation Creation] → Release & Deployment
 ```
 
 ### For Simple Features
 
 ```
-Feature Request Evaluation (classify as new) → Feature Tier Assessment (+ creates lightweight state file) → Feature Implementation Planning (with lightweight design) → [Decomposed Implementation Tasks] → Code Review → [User Documentation Creation] → Release & Deployment
+Feature Request Evaluation (classify as new) → Feature Tier Assessment (+ creates lightweight state file) → Feature Implementation Planning (with lightweight design) → [Decomposed Implementation Tasks] → Code Review → Performance & E2E Test Scoping (PF-TSK-086) → [User Documentation Creation] → Release & Deployment
 ```
 
 ### For Enhancements to Existing Features
 
 ```
-Feature Request Evaluation (classify as enhancement + scope + create state file) → Feature Enhancement (execute steps from state file) → Code Review → [User Documentation Creation] → Release & Deployment
+Feature Request Evaluation (classify as enhancement + scope + create state file) → Feature Enhancement (execute steps from state file) → Code Review → Performance & E2E Test Scoping (PF-TSK-086) → [User Documentation Creation] → Release & Deployment
 ```
 
 ### For Framework Adoption (existing project)
@@ -261,16 +261,27 @@ Codebase Feature Discovery (discover + tier assessment + state files + code inve
 
 > **Note**: Tier assessment and state file creation happen within Codebase Feature Discovery (Step 10). The assessed tier determines whether the lightweight (Tier 1) or full (Tier 2/3) state file template is used.
 
+### For Greenfield Projects (Architecture-First)
+
+```
+Project Initiation → [Feature Request Evaluation → Feature Tier Assessment → [ADR Creation] → TDD Creation → Foundation Feature Implementation] (repeat for each 0.x feature) → then use standard workflows above for business features (1.x+)
+```
+
+> **When to use**: For new projects that need architectural foundations (0.x features) before business features. The 0.x foundation category is an opt-in decision made during [Project Initiation](/process-framework/tasks/00-setup/project-initiation-task.md). Complete all foundation features first — business feature workflows (Simple/Complex/Enhancement above) depend on the architectural patterns established by 0.x features.
+
 ### For Bug Fixes
 
 ```
-Bug Fixing → Code Review → Release & Deployment
+M/L-scope: Bug Fixing → Code Review → Release & Deployment
+S-scope quick path: Bug Fixing (with inline triage + self-review) → Release & Deployment
 ```
+
+> **L-scope architectural fixes**: The AI agent may route to Performance & E2E Test Scoping (PF-TSK-086) after Code Review if the fix changes feature behavior significantly.
 
 ### For Technical Debt Reduction
 
 ```
-[Technical Debt Assessment (if not yet assessed)] → Code Refactoring → Code Review → Release & Deployment
+[Technical Debt Assessment (if not yet assessed)] → Code Refactoring → Code Review → Performance & E2E Test Scoping (PF-TSK-086) → Release & Deployment
 ```
 
 ### For Documentation/Process Changes
@@ -279,22 +290,29 @@ Bug Fixing → Code Review → Release & Deployment
 Structure Change → Code Review → Release & Deployment
 ```
 
+> **Note**: Documentation/process changes don't go through Performance & E2E Test Scoping since they don't affect product code.
+
 ### For E2E Acceptance Testing (milestone-triggered)
 
 ```
-After milestone (all features for a user workflow implemented):
-  [Integration Narrative Creation (PF-TSK-083)] → Cross-cutting E2E Test Specification (New-TestSpecification.ps1 -CrossCutting) → E2E Test Case Creation (PF-TSK-069) → E2E Test Execution (PF-TSK-070)
+Performance & E2E Test Scoping (PF-TSK-086) identifies workflow as E2E-ready →
+  [Integration Narrative Creation (PF-TSK-083)] → Cross-cutting E2E Test Specification (New-TestSpecification.ps1 -CrossCutting) → E2E Test Case Creation (PF-TSK-069) → Test Audit (PF-TSK-030, -TestType E2E) → E2E Test Execution (PF-TSK-070)
 ```
 
-> **Milestone trigger**: Check [User Workflow Tracking](/doc/state-tracking/permanent/user-workflow-tracking.md) — when all required features for a workflow reach "Implemented," create the Integration Narrative first (provides verified cross-feature understanding), then create the cross-cutting E2E test specification for that workflow.
+> **Milestone trigger**: The [Performance & E2E Test Scoping task (PF-TSK-086)](/process-framework/tasks/03-testing/performance-and-e2e-test-scoping-task.md) checks [User Workflow Tracking](/doc/state-tracking/permanent/user-workflow-tracking.md) after each feature passes code review. When all required features for a workflow are implemented, the scoping task adds a milestone entry to e2e-test-tracking.md. Create the Integration Narrative first (provides verified cross-feature understanding), then the cross-cutting E2E test specification.
+>
+> **Audit gate**: Newly created E2E test cases must pass Test Audit (`🔍 Audit Approved`) before execution. Test cases marked `🔄 Needs Re-execution` are exempt (already audited).
 
 ### For Performance Testing
 
 ```
-[Implementation complete] → Performance Testing Guide decision matrix → Performance Test Creation (PF-TSK-084) → Performance Baseline Capture (PF-TSK-085)
+Performance & E2E Test Scoping (PF-TSK-086) identifies perf tests needed →
+  Performance Test Creation (PF-TSK-084) → Test Audit (PF-TSK-030, -TestType Performance) → Performance Baseline Capture (PF-TSK-085)
 ```
 
-> **Trigger**: After implementation, consult the [Performance Testing Guide](/process-framework/guides/03-testing/performance-testing-guide.md) decision matrix to determine if performance tests are needed (e.g., changes to parsers, database, scaling characteristics). Performance Test Creation implements tests; Baseline Capture records results and detects regressions. Baseline Capture also runs standalone for pre-release verification and post-refactoring checks.
+> **Trigger**: The [Performance & E2E Test Scoping task (PF-TSK-086)](/process-framework/tasks/03-testing/performance-and-e2e-test-scoping-task.md) applies the [decision matrix](/process-framework/guides/03-testing/performance-and-e2e-test-scoping-guide.md#performance-test-decision-matrix) after code review and adds `⬜ Specified` entries to performance-test-tracking.md. Performance Test Creation implements tests from those entries; Baseline Capture records results and detects regressions. Baseline Capture also runs standalone for pre-release verification and post-refactoring checks.
+>
+> **Audit gate**: Newly created performance tests must pass Test Audit (`🔍 Audit Approved`) before baseline capture. Tests marked `⚠️ Stale` are exempt (already audited).
 
 ### For Feature Validation
 
@@ -366,7 +384,7 @@ Validation Preparation (PF-TSK-077) → [Select features + dimensions] → Dimen
 | **🔧 Automation**       | Task Creation Script              | Create new framework tasks                   | [New Task Creation Process](/process-framework/tasks/support/new-task-creation-process.md)                                         |
 | **📝 Feedback**         | Feedback Process                  | Submit tool and task feedback                | [Feedback Process Guide](/process-framework-local/feedback/archive/README.md)                                                            |
 | **📝 Feedback**         | Feedback Flowchart                | Visual feedback process guide                | [Feedback Process Flowchart](/process-framework/visualization/process-flows/feedback-process-flowchart.md)                                            |
-| **🎯 Guides**           | Task Transition Guide             | Guidance on task transitions                 | [Task Transition Guide](/process-framework/guides/framework/task-transition-guide.md)                                                 |
+| **🎯 Guides**           | Task Transition Guide             | Guidance on task transitions                 | [Task Transition Registry](/process-framework/infrastructure/task-transition-registry.md)                                                 |
 | **🎯 Guides**           | API Specification Creation        | How to create API specifications             | [API Specification Creation Guide](/process-framework/guides/02-design/api-specification-creation-guide.md)                           |
 | **🎯 Guides**           | API Data Model Creation           | How to create API data models                | [API Data Model Creation Guide](/process-framework/guides/02-design/api-data-model-creation-guide.md)                                 |
 | **🎯 Guides**           | Foundation Feature Implementation | Comprehensive implementation guidance        | [Foundation Feature Implementation Usage Guide](/process-framework/guides/04-implementation/foundation-feature-implementation-usage-guide.md) |
@@ -481,9 +499,9 @@ Need to track something new? Use the [State File Template](/process-framework/te
 
 11. ✅ **Verify ALL outputs by re-reading files** — Do not rely on memory. Re-read state tracking files and grep for `- [ ]` / `PENDING` / `NOT_STARTED` to confirm nothing was missed.
 12. ✅ **Complete ALL items** in the mandatory completion checklist — every checkbox, every state file update, every linked document
-13. ✅ **Submit feedback forms** for all tools used during the task
+13. ✅ **Complete feedback forms** for all tools used during the task — do not solicit human feedback; leave the "Human User Feedback" section for the human partner to fill after the session
 
-> **🚨 Remember**: A task is NOT complete until the feedback forms are submitted!
+> **🚨 Remember**: A task is NOT complete until the feedback forms are completed!
 
 ---
 
@@ -505,32 +523,21 @@ Complete one feedback form at the end of **each session**, not at the end of the
 
 ### Tool Feedback Process
 
-After completing any task, use our **hybrid feedback approach**:
+At the end of each session, the AI agent creates a feedback form and **fills in all sections** except "Human User Feedback" — that section is left for the human partner to complete independently after the session.
 
 1. **Create feedback form** using the automation script:
 
-   ```powershell
-   cd process-framework/scripts/file-creation/support
-   ./New-FeedbackForm.ps1 -DocumentId "PF-TSK-XXX" -TaskContext "Task Name" -FeedbackType "MultipleTools"
+   ```bash
+   pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/support/New-FeedbackForm.ps1 -DocumentId "PF-TSK-XXX" -TaskContext "Task Name" -FeedbackType "MultipleTools" -Confirm:\$false
    ```
 
    **FeedbackType options**: `"SingleTool"`, `"MultipleTools"`, `"TaskLevel"` (also accepts `"Single Tool"`, `"Multiple Tools"`, `"Task-Level"`)
 
-2. **Choose evaluation mode** in the enhanced template:
-
-   - **Task-Level**: Evaluate overall process effectiveness
-   - **Multiple Tools**: Rate each tool used (effectiveness, clarity, completeness, efficiency, **conciseness**)
-   - **Single Tool**: Detailed evaluation of specific tool
-
-3. **Critical focus on conciseness**: Every evaluation must assess if documentation contains only task-essential information
-
-4. **Identify follow-up actions**: Mark tools scoring ≤3 for detailed feedback
+2. **Fill in all sections** except "Human User Feedback" — that section is left for the human partner to complete after the session
 
 **Files saved**: process-framework-local/feedback/feedback-forms/YYYYMMDD-HHMMSS-TASK-ID-feedback.md (template format)
 
 > ⚠️ **Important**: Use **TASK ID** (e.g., PF-TSK-002) in filename, NOT artifact IDs created during task
->
-> 🎯 **Conciseness Focus**: Combat overdocumentation by evaluating information relevance
 >
 > 📈 **Why this matters**: Your feedback drives continuous improvement through the [Tools Review Task](/process-framework/tasks/support/tools-review-task.md)
 >

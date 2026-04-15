@@ -94,7 +94,7 @@ Manage the process of preparing, versioning, and deploying releases of the appli
 
     - Use [../../scripts/file-creation/06-maintenance/New-BugReport.ps1](../../scripts/file-creation/06-maintenance/New-BugReport.ps1) script to create standardized bug reports
     - Follow [Bug Reporting Guide](../../guides/06-maintenance/bug-reporting-guide.md) for consistent documentation
-    - Add bug entries to [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) with status 🆕 Reported
+    - Add bug entries to [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) with status 🆕 Needs Triage
     - Include deployment context and evidence in bug reports
     - Reference specific deployment logs or monitoring data
     - Note impact on deployment success and user experience
@@ -118,7 +118,7 @@ Manage the process of preparing, versioning, and deploying releases of the appli
 ## Outputs
 
 - **Release Notes** - Document release version, included features, bug fixes, and known issues (format per project convention)
-- **Bug Reports** - Any bugs discovered during deployment documented in [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) with status 🆕 Reported
+- **Bug Reports** - Any bugs discovered during deployment documented in [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) with status 🆕 Needs Triage
 
 ## State Tracking
 
@@ -141,7 +141,7 @@ Before considering this task finished:
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
   - [ ] Feature tracking updated to reflect released features
   - [ ] Bug tracking updated for fixes included in release
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-008" and context "Release & Deployment"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-008" and context "Release & Deployment"
 
 ## Next Tasks
 

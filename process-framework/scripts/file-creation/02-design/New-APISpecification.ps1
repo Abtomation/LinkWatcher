@@ -229,13 +229,12 @@ try {
                     $appendUpdates = @{
                         "API Design" = $apiDesignLink
                     }
-                    $updateResult = Update-FeatureTrackingStatusWithAppend -FeatureId $FeatureId -Status "📋 API Design Created" -AppendUpdates $appendUpdates -Notes $automationNotes -DryRun:$DryRun
+                    $updateResult = Update-FeatureTrackingStatusWithAppend -FeatureId $FeatureId -Status "📝 Needs TDD" -AppendUpdates $appendUpdates -Notes $automationNotes -DryRun:$DryRun
 
                     if ($updateResult) {
                         Write-Host "  ✅ API Design state updated successfully with append" -ForegroundColor Green
                         Write-Host "  🔗 API Design: Appended [$linkDisplayName]($relativePath)" -ForegroundColor Green
-                        Write-Host "  📋 API specification linked in feature tracking with • separator" -ForegroundColor Green
-                        Write-Host "  📝 Feature tracking updated with API specification completion" -ForegroundColor Green
+                        Write-Host "  📋 Status: 🔌 Needs API Design → 📝 Needs TDD" -ForegroundColor Green
                     }
                     else {
                         Write-Warning "API Design state update returned no result - check feature tracking manually"

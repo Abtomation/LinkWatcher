@@ -4,7 +4,7 @@ type: Process Framework
 category: State Tracking
 version: 2.0
 created: 2023-06-15
-updated: 2026-04-08
+updated: 2026-04-14
 ---
 
 # LinkWatcher - Feature Tracking Document
@@ -33,18 +33,22 @@ This document tracks the implementation status and documentation requirements fo
 
 ### Implementation Status
 
-| Symbol | Status                | Description                                                                           |
-| ------ | --------------------- | ------------------------------------------------------------------------------------- |
-| ⬜     | Not Started           | Feature implementation has not begun                                                  |
-| 📊     | Assessment Created    | Feature complexity assessment has been completed                                      |
-| 📋     | FDD Created           | Functional Design Document has been created (Tier 2+ features)                        |
-| 🏗️     | Architecture Reviewed | System Architecture Review has been completed with architectural decisions documented |
-| 📝     | TDD Created           | Technical Design Document has been created                                            |
-| 🟡     | In Progress           | Feature is currently being implemented                                                |
-| 🧪     | Testing               | Feature is complete but undergoing testing                                            |
-| 👀     | Ready for Review      | Feature has passed testing and is ready for code review                               |
-| 🟢     | Completed             | Feature is fully implemented and meets all requirements                               |
-| 🔄     | Needs Revision        | Feature requires changes based on feedback                                            |
+| Symbol | Status                | Description                                                                           | Next Task |
+| ------ | --------------------- | ------------------------------------------------------------------------------------- | --------- |
+| ⬜     | Needs Assessment      | Feature added, needs complexity/tier assessment                                       | PF-TSK-002 |
+| 📋     | Needs FDD             | Assessment done (Tier 2+), needs Functional Design Document                           | PF-TSK-027 |
+| 🗄️     | Needs DB Design       | FDD done (or Assessment for T1), DB Design column = `Yes`, needs database schema      | PF-TSK-021 |
+| 🔌     | Needs API Design      | DB Design done (or not needed), API Design column = `Yes`, needs API specification    | PF-TSK-020 |
+| 📝     | Needs TDD             | All design tasks done, needs Technical Design Document                                | PF-TSK-015 |
+| 🧪     | Needs Test Spec       | TDD done, needs test specification                                                    | PF-TSK-012 |
+| 🔧     | Needs Impl Plan       | Test spec done, needs implementation planning                                         | PF-TSK-044 |
+| 🟡     | In Progress           | Implementation plan created, work underway (detail in impl state file)                | Per impl state file |
+| 👀     | Needs Review          | Implementation complete, needs code review                                            | PF-TSK-005 |
+| 🔎     | Needs Test Scoping    | Code review passed, needs performance and E2E test needs identification               | PF-TSK-086 |
+| 🟢     | Completed             | Test scoping complete (or not needed), feature fully complete                          | — |
+| 🔄     | Needs Enhancement     | Enhancement scoped, needs execution (see linked state file)                           | PF-TSK-068 |
+
+> **Design status branching**: After FDD (Tier 2+) or Assessment (Tier 1), the next status depends on the API/DB Design columns set by Tier Assessment. Order: DB Design first → API Design → TDD. If a design is not needed (`No`), that status is skipped. ADRs are tracked cross-cuttingly in the [ADR Index](architecture-tracking.md#adr-index), not per-feature.
 
 ### Documentation Tier
 
@@ -83,6 +87,8 @@ Bad: `See [state file](path). Updated 2026-04-01. Status: In Progress.`
 | -------- | --------------------------------------- |
 | P1       | Critical - Must have for MVP            |
 | P2       | High - Important for core functionality |
+| P3       | Medium - Nice to have, improves experience |
+| P4       | Low - Future consideration              |
 
 ## Related Documents
 
@@ -90,7 +96,7 @@ Bad: `See [state file](path). Updated 2026-04-01. Status: In Progress.`
 <summary><strong>Planning & Implementation Resources</strong></summary>
 
 - [Process: Definition of Done](../../../process-framework/guides/04-implementation/definition-of-done.md): Clear criteria for when a feature is considered complete
-- [Product: Feature Dependencies](../../technical/feature-dependencies.md): Auto-generated visual map and matrix of feature dependencies (run `Update-FeatureDependencies.ps1` to refresh)
+- [Product: Feature Dependencies](../../technical/architecture/feature-dependencies.md): Auto-generated visual map and matrix of feature dependencies (run `Update-FeatureDependencies.ps1` to refresh)
 - [Process: Technical Debt Tracker](technical-debt-tracking.md): System for tracking and managing technical debt
 - [Process: Documentation Tier Assignments](../../documentation-tiers/README.md): Information about documentation tier assignments and assessment process
 - [Feature Consolidation State](../../../process-framework-local/state-tracking/temporary/old/feature-consolidation-state.md): Tracks the 42→9 feature consolidation migration
@@ -99,8 +105,6 @@ Bad: `See [state file](path). Updated 2026-04-01. Status: In Progress.`
 
 ## Feature Categories
 
-> **📝 NOTE**: All 9 LinkWatcher features are fully implemented (retrospective — code predates the process framework). Documentation was created during onboarding ([PF-TSK-064](../../../process-framework/tasks/00-setup/codebase-feature-discovery.md)/[065](../../../process-framework/tasks/00-setup/codebase-feature-analysis.md)/[066](../../../process-framework/tasks/00-setup/retrospective-documentation-creation.md)) and is being consolidated to match the 9-feature scope.
-
 <details>
 <summary><strong>0. System Architecture & Foundation</strong></summary>
 
@@ -108,11 +112,11 @@ Bad: `See [state file](path). Updated 2026-04-01. Status: In Progress.`
 
 Foundation features that provide architectural foundations for the application.
 
-|  ID  |  Feature  |  Status  |  Priority  |  Doc Tier  |  ADR  |  FDD  |  TDD  |  Test Status  |  Test Spec  |  Dependencies  |  Notes  |
-|  --  |  -------  |  ------  |  --------  |  --------  |  ---  |  ---  |  ---  |  -----------  |  ---------  |  ------------  |  -----  |
-| [0.1.1](../features/0.1.1-core-architecture-implementation-state.md) | Core Architecture | 📋 ADR Created | P1 | [🔴 Tier 3](../../documentation-tiers/assessments/PD-ASS-191-0-1-1-core-architecture.md) | [](/doc/technical/architecture/design-docs/adr/adr/test-adr.md) | [PD-FDD-022](../../functional-design/fdds/fdd-0-1-1-core-architecture.md) | [PD-TDD-021](../../technical/tdd/tdd-0-1-1-core-architecture-t3.md) | 🔴 Some Failing | [PF-TSP-035](../../../test/specifications/feature-specs/test-spec-0-1-1-core-architecture.md) | — | **FOUNDATION** Service orchestrator, data models, path utilities, CLI entry point |
-| [0.1.2](../features/0.1.2-in-memory-link-database-implementation-state.md) | In-Memory Link Database | 🟢 Completed | P1 | [🟠 Tier 2](../../documentation-tiers/assessments/PD-ASS-192-0-1-2-in-memory-link-database.md) | [PD-ADR-040](../../technical/adr/target-indexed-in-memory-link-database.md) | [PD-FDD-023](../../functional-design/fdds/fdd-0-1-2-in-memory-database.md) | [PD-TDD-022](../../technical/tdd/tdd-0-1-2-in-memory-database-t2.md) | 🔄 Tests Need Update | [PF-TSP-036](../../../test/specifications/feature-specs/test-spec-0-1-2-in-memory-link-database.md) | 0.1.1 | **FOUNDATION** Thread-safe, target-indexed link storage with O(1) lookups |
-| [0.1.3](../features/0.1.3-configuration-system-implementation-state.md) | Configuration System | 🟢 Completed | P1 | [🔵 Tier 1](../../documentation-tiers/assessments/PD-ASS-193-0-1-3-configuration-system.md) | N/A | — | — | 🔴 Some Failing | [PF-TSP-037](../../../test/specifications/feature-specs/test-spec-0-1-3-configuration-system.md) | — | **FOUNDATION** Multi-source config loading, validation, environment presets |
+|  ID  |  Feature  |  Status  |  Priority  |  Doc Tier  |  FDD  |  TDD  |  Test Status  |  Test Spec  |  Dependencies  |  Notes  |
+|  --  |  -------  |  ------  |  --------  |  --------  |  ---  |  ---  |  -----------  |  ---------  |  ------------  |  -----  |
+| [0.1.1](../features/0.1.1-core-architecture-implementation-state.md) | Core Architecture | 🟢 Completed | P1 | [🔴 Tier 3](../../documentation-tiers/assessments/PD-ASS-191-0-1-1-core-architecture.md) | [PD-FDD-022](../../functional-design/fdds/fdd-0-1-1-core-architecture.md) | [PD-TDD-021](../../technical/tdd/tdd-0-1-1-core-architecture-t3.md) | 🔄 Re-testing Needed | [PF-TSP-035](../../../test/specifications/feature-specs/test-spec-0-1-1-core-architecture.md) | — | **FOUNDATION** Service orchestrator, data models, path utilities, CLI entry point |
+| [0.1.2](../features/0.1.2-in-memory-link-database-implementation-state.md) | In-Memory Link Database | 🟢 Completed | P1 | [🟠 Tier 2](../../documentation-tiers/assessments/PD-ASS-192-0-1-2-in-memory-link-database.md) | [PD-FDD-023](../../functional-design/fdds/fdd-0-1-2-in-memory-database.md) | [PD-TDD-022](../../technical/tdd/tdd-0-1-2-in-memory-database-t2.md) | 🔄 Tests Need Update | [PF-TSP-036](../../../test/specifications/feature-specs/test-spec-0-1-2-in-memory-link-database.md) | 0.1.1 | **FOUNDATION** Thread-safe, target-indexed link storage with O(1) lookups |
+| [0.1.3](../features/0.1.3-configuration-system-implementation-state.md) | Configuration System | 🟢 Completed | P1 | [🔵 Tier 1](../../documentation-tiers/assessments/PD-ASS-193-0-1-3-configuration-system.md) | — | — | 🔄 Re-testing Needed | [PF-TSP-037](../../../test/specifications/feature-specs/test-spec-0-1-3-configuration-system.md) | — | **FOUNDATION** Multi-source config loading, validation, environment presets |
 
 </details>
 
@@ -125,7 +129,7 @@ Real-time file system monitoring and movement detection.
 
 |  ID  |  Feature  |  Status  |  Priority  |  Doc Tier  |  FDD  |  TDD  |  Test Status  |  Test Spec  |  Dependencies  |  Notes  |
 |  --  |  -------  |  ------  |  --------  |  --------  |  ---  |  ---  |  -----------  |  ---------  |  ------------  |  -----  |
-| [1.1.1](../features/1.1.1-file-system-monitoring-implementation-state.md) | File System Monitoring | 🟢 Completed | P1 | [🟠 Tier 2](../../documentation-tiers/assessments/PD-ASS-194-1-1-1-file-system-monitoring.md) | [PD-FDD-024](../../functional-design/fdds/fdd-1-1-1-file-system-monitoring.md) | [PD-TDD-023](../../technical/tdd/tdd-1-1-1-file-system-monitoring-t2.md) | 🟡 Tests Partially Approved | [PF-TSP-044](../../../test/specifications/cross-cutting-specs/cross-cutting-spec-e2e-acceptance-testing-scenarios.md) | 0.1.1 | Watchdog event handling, move detection, directory moves, file filtering |
+| [1.1.1](../features/1.1.1-file-system-monitoring-implementation-state.md) | File System Monitoring | 🟢 Completed | P1 | [🟠 Tier 2](../../documentation-tiers/assessments/PD-ASS-194-1-1-1-file-system-monitoring.md) | [PD-FDD-024](../../functional-design/fdds/fdd-1-1-1-file-system-monitoring.md) | [PD-TDD-023](../../technical/tdd/tdd-1-1-1-file-system-monitoring-t2.md) | 🔄 Re-testing Needed | [PF-TSP-044](../../../test/specifications/cross-cutting-specs/cross-cutting-spec-e2e-acceptance-testing-scenarios.md) | 0.1.1 | Watchdog event handling, move detection, directory moves, file filtering |
 
 </details>
 
@@ -138,8 +142,8 @@ Parser implementations for different file formats and link update mechanisms.
 
 |  ID  |  Feature  |  Status  |  Priority  |  Doc Tier  |  FDD  |  TDD  |  Test Status  |  Test Spec  |  Dependencies  |  Notes  |
 |  --  |  -------  |  ------  |  --------  |  --------  |  ---  |  ---  |  -----------  |  ---------  |  ------------  |  -----  |
-| [2.1.1](../features/2.1.1-link-parsing-system-implementation-state.md) | Link Parsing System | 🟢 Completed | P1 | [🟠 Tier 2](../../documentation-tiers/assessments/PD-ASS-195-2-1-1-link-parsing-system.md) | [PD-FDD-026](../../functional-design/fdds/fdd-2-1-1-parser-framework.md) | [PD-TDD-025](../../technical/tdd/tdd-2-1-1-parser-framework-t2.md) | 🟡 Tests Partially Approved | [PF-TSP-039](../../../test/specifications/feature-specs/test-spec-2-1-1-link-parsing-system.md) | 0.1.1 | Parser registry/facade with 7 format-specific parsers |
-| [2.2.1](../features/2.2.1-link-updating-implementation-state.md) | Link Updating | 🟢 Completed | P1 | [🟠 Tier 2](../../documentation-tiers/assessments/PD-ASS-196-2-2-1-link-updating.md) | [PD-FDD-027](../../functional-design/fdds/fdd-2-2-1-link-updater.md) | [PD-TDD-026](../../technical/tdd/tdd-2-2-1-link-updater-t2.md) | 🔴 Some Failing | [PF-TSP-040](../../../test/specifications/feature-specs/test-spec-2-2-1-link-updating.md) | 0.1.1 | Reference updating with relative path calculation, atomic writes, dry-run mode |
+| [2.1.1](../features/2.1.1-link-parsing-system-implementation-state.md) | Link Parsing System | 🟢 Completed | P1 | [🟠 Tier 2](../../documentation-tiers/assessments/PD-ASS-195-2-1-1-link-parsing-system.md) | [PD-FDD-026](../../functional-design/fdds/fdd-2-1-1-parser-framework.md) | [PD-TDD-025](../../technical/tdd/tdd-2-1-1-parser-framework-t2.md) | 🔄 Re-testing Needed | [PF-TSP-039](../../../test/specifications/feature-specs/test-spec-2-1-1-link-parsing-system.md) | 0.1.1 | Parser registry/facade with 7 format-specific parsers |
+| [2.2.1](../features/2.2.1-link-updating-implementation-state.md) | Link Updating | 🟢 Completed | P1 | [🟠 Tier 2](../../documentation-tiers/assessments/PD-ASS-196-2-2-1-link-updating.md) | [PD-FDD-027](../../functional-design/fdds/fdd-2-2-1-link-updater.md) | [PD-TDD-026](../../technical/tdd/tdd-2-2-1-link-updater-t2.md) | 🔄 Re-testing Needed | [PF-TSP-040](../../../test/specifications/feature-specs/test-spec-2-2-1-link-updating.md) | 0.1.1 | Reference updating with relative path calculation, atomic writes, dry-run mode |
 
 </details>
 
@@ -152,7 +156,7 @@ Logging system and operational monitoring features.
 
 |  ID  |  Feature  |  Status  |  Priority  |  Doc Tier  |  FDD  |  TDD  |  Test Status  |  Test Spec  |  Dependencies  |  Notes  |
 |  --  |  -------  |  ------  |  --------  |  --------  |  ---  |  ---  |  -----------  |  ---------  |  ------------  |  -----  |
-| [3.1.1](../features/3.1.1-logging-system-implementation-state.md) | Logging System | 🟢 Completed | P1 | [🟠 Tier 2](../../documentation-tiers/assessments/PD-ASS-197-3-1-1-logging-system.md) | [PD-FDD-025](../../functional-design/fdds/fdd-3-1-1-logging-framework.md) | [PD-TDD-024](../../technical/tdd/tdd-3-1-1-logging-framework-t2.md) | 🔄 Tests Need Update | [PF-TSP-041](../../../test/specifications/feature-specs/test-spec-3-1-1-logging-system.md) | 0.1.3 | Structured logging, colored console, JSON file logging, log rotation, runtime filtering |
+| [3.1.1](../features/3.1.1-logging-system-implementation-state.md) | Logging System | 🟢 Completed | P1 | [🟠 Tier 2](../../documentation-tiers/assessments/PD-ASS-197-3-1-1-logging-system.md) | [PD-FDD-025](../../functional-design/fdds/fdd-3-1-1-logging-framework.md) | [PD-TDD-024](../../technical/tdd/tdd-3-1-1-logging-framework-t2.md) | 🔄 Re-testing Needed | [PF-TSP-041](../../../test/specifications/feature-specs/test-spec-3-1-1-logging-system.md) | 0.1.3 | Structured logging, colored console, JSON file logging, log rotation, runtime filtering |
 
 </details>
 
@@ -165,7 +169,7 @@ On-demand link health auditing and broken link reporting.
 
 |  ID  |  Feature  |  Status  |  Priority  |  Doc Tier  |  FDD  |  TDD  |  Test Status  |  Test Spec  |  Dependencies  |  Notes  |
 |  --  |  -------  |  ------  |  --------  |  --------  |  ---  |  ---  |  -----------  |  ---------  |  ------------  |  -----  |
-| [6.1.1](<../features/6.1.1-Link Validation-implementation-state.md>) | Link Validation | 🔄 Needs Revision | P2 | [🔵 Tier 1](../../documentation-tiers/assessments/PD-ASS-200-6.1.1-link-validation.md) | N/A | — | 🔴 Some Failing | — | 0.1.1, 2.1.1 | On-demand broken link scanning with context-aware filtering. PD-BUG-051 open (remaining false positives) |
+| [6.1.1](<../features/6.1.1-Link Validation-implementation-state.md>) | Link Validation | 🟢 Completed | P2 | [🔵 Tier 1](../../documentation-tiers/assessments/PD-ASS-200-6.1.1-link-validation.md) | N/A | — | 🔄 Re-testing Needed | — | 0.1.1, 2.1.1 | On-demand broken link scanning with context-aware filtering. PD-BUG-051 open (remaining false positives). PD-BUG-088: bare-filename markdown links skipped in validation |
 
 </details>
 
@@ -190,9 +194,7 @@ Features that have been generalized into the process framework or otherwise reti
 
 | Status                | Count  | Percentage |
 | --------------------- | ------ | ---------- |
-| 📋 ADR Created | 1      | 12.5%      |
-| 🟢 Completed | 6      | 75%      |
-| 🔄 Needs Revision | 1      | 12.5%      |
+| 🟢 Completed | 8      | 100%      |
 | **Total Active**    | **8**  | **100%**   |
 
 > **📝 NOTE**: All 8 active features are fully implemented in code (retrospective). The status reflects documentation completeness, not implementation progress. All features have passing tests. See [Archived Features](#archived-features) for retired features.
@@ -218,7 +220,7 @@ Features that have been generalized into the process framework or otherwise reti
 |----------|--------|---------|-------|
 | FDDs | 6 | 2 (0.1.3 Configuration System, 6.1.1 Link Validation — Tier 1, not required) | |
 | TDDs | 6 | 2 (0.1.3 Configuration System, 6.1.1 Link Validation — Tier 1, not required) | |
-| ADRs | 1 | — | PD-ADR-040 (0.1.2) |
+| ADRs | 0 | — |  |
 | Test Specs | 7 | 1 | |
 | Tier Assessments | 8 | 0 | |
 
@@ -236,6 +238,7 @@ Features that have been generalized into the process framework or otherwise reti
 - [Feature Implementation Planning](../../../process-framework/tasks/04-implementation/feature-implementation-planning-task.md): Creates implementation plan, sets status to "In Progress"
 - [Feature Enhancement](../../../process-framework/tasks/04-implementation/feature-enhancement.md): Updates status during enhancement work
 - [Code Review](../../../process-framework/tasks/06-maintenance/code-review-task.md): Updates when reviews are completed
+- [Performance & E2E Test Scoping](../../../process-framework/tasks/03-testing/performance-e2e-test-scoping-task.md): Updates status from `🔎 Needs Test Scoping` to `🟢 Completed` after test needs identification
 
 </details>
 
@@ -243,6 +246,12 @@ Features that have been generalized into the process framework or otherwise reti
 
 | Date | Change | Updated By |
 |------|--------|------------|
+| 2026-04-12 | v2.18 — 6.1.1 Link Validation: Test scoping complete (no new performance tests needed — BM-005 already covers validation mode at L2; WF-009 "Link health audit" added to user-workflow-tracking.md and e2e-test-tracking.md milestone), status → 🟢 Completed | [Performance & E2E Test Scoping (PF-TSK-086)](../../../process-framework/tasks/03-testing/performance-and-e2e-test-scoping-task.md) |
+| 2026-04-12 | v2.17 — 3.1.1 Logging System: Test scoping complete (no performance tests needed — logging is not hot-path per scoping guide; no new E2E milestones — all 3 workflows WF-003/006/007 already have milestone entries), status → 🟢 Completed | [Performance & E2E Test Scoping (PF-TSK-086)](../../../process-framework/tasks/03-testing/performance-and-e2e-test-scoping-task.md) |
+| 2026-04-12 | v2.16 — 2.1.1 Link Parsing System: Test scoping complete (no new performance tests needed — BM-001/BM-003/BM-005/PH-003 already cover parser system at L1/L2/L3; no new E2E tests — all 4 workflows WF-001/002/003/005 already have milestones and test cases), status → 🟢 Completed | [Performance & E2E Test Scoping (PF-TSK-086)](../../../process-framework/tasks/03-testing/performance-and-e2e-test-scoping-task.md) |
+| 2026-04-12 | v2.15 — 0.1.3 Configuration System: Test scoping complete (no performance tests needed — config is not hot-path; WF-006 milestone added to e2e-test-tracking.md), status → 🟢 Completed | [Performance & E2E Test Scoping (PF-TSK-086)](../../../process-framework/tasks/03-testing/performance-and-e2e-test-scoping-task.md) |
+| 2026-04-12 | v2.14 — 0.1.1 Core Architecture: Test scoping complete (no new performance/E2E tests needed — existing coverage adequate), status → 🟢 Completed | [Performance & E2E Test Scoping (PF-TSK-086)](../../../process-framework/tasks/03-testing/performance-and-e2e-test-scoping-task.md) |
+| 2026-04-11 | v2.13 — **Next-Action Status Model**: Replaced last-completed statuses with next-action statuses (PF-PRO-018/PF-STA-083). Legend restructured, 0.1.1 → Completed, 6.1.1 → Needs Enhancement. Parallel design tasks (ADR/API/DB) gated by scripts, not primary status chain. | [Structure Change (PF-TSK-014)](../../../process-framework/tasks/support/structure-change-task.md) |
 | 2026-03-27 | v2.12 — 6.1.1 Link Validation: User documentation created (PD-UGD-003 link-validation handbook, quick-reference updated, README updated). | [User Documentation Creation (PF-TSK-081)](../../../process-framework/tasks/07-deployment/user-documentation-creation.md) |
 | 2026-03-26 | v2.11 — 0.1.3 Configuration System set to "Needs Revision" for Ignored Patterns Configuration enhancement (PF-STA-066) | [Feature Request Evaluation (PF-TSK-067)](../../../process-framework/tasks/01-planning/feature-request-evaluation.md) |
 | 2026-03-24 | v2.10 — 6.1.1 Link Validation: Code review complete. Filtering improvements (93% false positive reduction, 46 tests). Status → 🔄 Needs Revision (PD-BUG-051 remaining false positives). | [Code Review (PF-TSK-005)](../../../process-framework/tasks/06-maintenance/code-review-task.md) |

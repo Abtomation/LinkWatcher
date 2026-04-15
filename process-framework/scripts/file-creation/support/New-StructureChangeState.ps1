@@ -11,7 +11,7 @@ param(
     [string]$Description = "",
 
     [Parameter(Mandatory = $false)]
-    [ValidateSet("Template Update", "Directory Reorganization", "Metadata Structure", "Documentation Architecture", "Rename", "Content Update")]
+    [ValidateSet("Template Update", "Directory Reorganization", "Metadata Structure", "Documentation Architecture", "Rename", "Content Update", "Framework Extension")]
     [string]$ChangeType = "Template Update",
 
     [Parameter(Mandatory = $false)]
@@ -39,8 +39,8 @@ $additionalMetadataFields = @{
     "change_name" = ConvertTo-KebabCase -InputString $ChangeName
 }
 
-# Validate -FromProposal is not used with Rename or Content Update (they already have lightweight templates)
-if ($FromProposal -and ($ChangeType -eq "Rename" -or $ChangeType -eq "Content Update")) {
+# Validate -FromProposal is not used with lightweight ChangeTypes (they already have dedicated templates)
+if ($FromProposal -and ($ChangeType -eq "Rename" -or $ChangeType -eq "Content Update" -or $ChangeType -eq "Framework Extension")) {
     Write-ProjectError -Message "-FromProposal cannot be used with ChangeType '$ChangeType' (it already has a lightweight template)" -ExitCode 1
 }
 
@@ -49,6 +49,8 @@ if ($ChangeType -eq "Rename") {
     $templatePath = "process-framework/templates/support/structure-change-state-rename-template.md"
 } elseif ($ChangeType -eq "Content Update") {
     $templatePath = "process-framework/templates/support/structure-change-state-content-update-template.md"
+} elseif ($ChangeType -eq "Framework Extension") {
+    $templatePath = "process-framework/templates/support/structure-change-state-framework-extension-template.md"
 } elseif ($FromProposal) {
     $templatePath = "process-framework/templates/support/structure-change-state-from-proposal-template.md"
 } else {
@@ -85,6 +87,19 @@ try {
             "⚠️  CUSTOMIZE the phase checklists to match your proposal's phases.",
             "⚠️  CROSS-CHECK: Verify every file in the proposal's affected files table",
             "   appears in at least one phase checklist.",
+            "",
+            "📖 TASK GUIDE: process-framework/tasks/support/structure-change-task.md"
+        )
+    } elseif ($ChangeType -eq "Framework Extension") {
+        $details = @(
+            "",
+            "📋 LIGHTWEIGHT STATE FILE (framework extension)",
+            "",
+            "✅ Tracks new and modified artifacts for a framework extension.",
+            "✅ No pilot/rollback/metrics sections — framework doc changes are low-risk.",
+            "",
+            "⚠️  FILL IN the New Artifacts and Modified Artifacts tables.",
+            "⚠️  CUSTOMIZE the phase checklists to match your extension scope.",
             "",
             "📖 TASK GUIDE: process-framework/tasks/support/structure-change-task.md"
         )

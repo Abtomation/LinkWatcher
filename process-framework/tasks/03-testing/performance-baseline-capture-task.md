@@ -3,9 +3,9 @@ id: PF-TSK-085
 type: Process Framework
 category: Task Definition
 domain: agnostic
-version: 1.0
+version: 1.1
 created: 2026-04-09
-updated: 2026-04-09
+updated: 2026-04-13
 ---
 
 # Performance Baseline Capture
@@ -53,17 +53,19 @@ Unlike Performance Test Creation (which writes test code), this task **executes*
 
 ### Preparation
 
-1. **Read performance-test-tracking.md** to identify which tests to run:
+1. **[Performance Test Tracking](/test/state-tracking/permanent/performance-test-tracking.md)** to identify which tests to run:
    - `📋 Created` entries → need initial baselines
    - `⚠️ Stale` entries → need re-capture
    - `✅ Baselined` entries → run for regression check if triggered by code change
    - Optionally filter by Related Features column if triggered by a specific feature change
 
-2. **Check environment** — close unnecessary applications, ensure consistent test conditions. Note any environmental factors that could affect results.
+2. **🚨 Verify audit gate for `📋 Created` entries**: Before capturing baselines for newly created tests, confirm their **Audit Status** column shows `🔍 Audit Approved` in performance-test-tracking.md. Tests at `📋 Created` that have not been audited (Audit Status is empty or `⬜ Not Audited`) **must** pass [Test Audit (PF-TSK-030)](/process-framework/tasks/03-testing/test-audit-task.md) with `-TestType Performance` first. This gate does **not** apply to `⚠️ Stale` or `✅ Baselined` entries (they were already audited when first created).
+
+3. **Check environment** — close unnecessary applications, ensure consistent test conditions. Note any environmental factors that could affect results.
 
 ### Execution
 
-3. **Run performance tests**:
+4. **Run performance tests**:
    ```bash
    # Run all performance tests
    python -m pytest test/automated/performance/ -v -s -m performance
@@ -75,9 +77,9 @@ Unlike Performance Test Creation (which writes test code), this task **executes*
    python -m pytest test/automated/performance/ -v -s -k "bm_001 or bm_003"
    ```
 
-4. **Extract measured values** from test output. For each test, note the primary metric (throughput, latency, completion time).
+5. **Extract measured values** from test output. For each test, note the primary metric (throughput, latency, completion time).
 
-5. **Record results in the database**:
+6. **Record results in the database**:
    ```bash
    # Record each measurement
    python process-framework/scripts/test/performance_db.py record \
@@ -86,12 +88,12 @@ Unlike Performance Test Creation (which writes test code), this task **executes*
    # Repeat for each test
    ```
 
-6. **Check for regressions**:
+7. **Check for regressions**:
    ```bash
    python process-framework/scripts/test/performance_db.py regressions
    ```
 
-7. **🚨 CHECKPOINT**: Present results summary:
+8. **🚨 CHECKPOINT**: Present results summary:
    - Tests run and their measured values
    - Comparison to previous baselines (% change)
    - Any regressions detected
@@ -99,7 +101,7 @@ Unlike Performance Test Creation (which writes test code), this task **executes*
 
 ### Regression Handling
 
-8. **If regressions detected**:
+9. **If regressions detected**:
    - Identify the likely cause (recent commits, environmental change)
    - Assess severity: tolerance breach vs. trend degradation
    - **Tolerance breach** → file as bug via Bug Triage (PF-TSK-024)
@@ -108,19 +110,34 @@ Unlike Performance Test Creation (which writes test code), this task **executes*
 
 ### Finalization
 
-9. **Update performance-test-tracking.md**:
-   - Update Last Result and Last Run columns for all tested entries
-   - Transition `📋 Created` → `✅ Baselined` for newly baselined tests
-   - Update Baseline column if this is an intentional re-baseline
-   - Mark entries as `⚠️ Stale` if code has changed significantly since last capture
-   - Recalculate Summary table
+10. **Update performance-test-tracking.md** using the automation script for each tested entry:
+   ```bash
+   # Initial baseline (Created → Baselined)
+   pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/update/Update-PerformanceTracking.ps1 -TestId "<BM-xxx|PH-xxx>" -NewStatus "Baselined" -Baseline "<value with units>" -LastResult "<measured value>"
 
-10. **Review trends** for key tests:
+   # Refresh existing baseline results (Baselined → Baselined)
+   pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/update/Update-PerformanceTracking.ps1 -TestId "<BM-xxx|PH-xxx>" -NewStatus "Baselined" -LastResult "<measured value>"
+
+   # Intentional re-baseline with new threshold (Stale → Baselined)
+   pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/update/Update-PerformanceTracking.ps1 -TestId "<BM-xxx|PH-xxx>" -NewStatus "Baselined" -Baseline "<new baseline>" -LastResult "<measured value>"
+
+   # Mark as stale (code changed significantly since last capture)
+   pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/update/Update-PerformanceTracking.ps1 -TestId "<BM-xxx|PH-xxx>" -NewStatus "Stale"
+   ```
+   The script handles status transitions, column updates, LastRun date (auto-populated), and Summary table recalculation automatically.
+
+11. **Review trends** for key tests:
     ```bash
     python process-framework/scripts/test/performance_db.py trend --test-id BM-001 --last 5
     ```
 
-11. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+12. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+
+## Tools and Scripts
+
+- **[Update-PerformanceTracking.ps1](/process-framework/scripts/update/Update-PerformanceTracking.ps1)** — Automate status transitions, column updates, and summary recalculation in performance-test-tracking.md (📋 → ✅, refresh results, mark ⚠️ Stale)
+- **[performance_db.py](/process-framework/scripts/test/performance_db.py)** — Record measurements, query trends, detect regressions (`record`, `trend`, `regressions` subcommands)
+- **[New-FeedbackForm.ps1](/process-framework/scripts/file-creation/support/New-FeedbackForm.ps1)** — Create feedback forms for task completion
 
 ## Outputs
 
@@ -150,7 +167,7 @@ Before considering this task finished:
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
   - [ ] [Performance Test Tracking](/test/state-tracking/permanent/performance-test-tracking.md) — Last Result, Last Run, Status columns updated
   - [ ] Summary table recalculated
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-085" and context "Performance Baseline Capture"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-085" and context "Performance Baseline Capture"
 
 ## Next Tasks
 
@@ -164,3 +181,4 @@ Before considering this task finished:
 - [Performance Test Tracking](/test/state-tracking/permanent/performance-test-tracking.md) — Test registry and baselines
 - [Performance Results Database](/process-framework/scripts/test/performance_db.py) — Trend storage and query tool
 - [Performance Test Creation](/process-framework/tasks/03-testing/performance-test-creation-task.md) — Upstream task that creates tests
+- [Test Audit](/process-framework/tasks/03-testing/test-audit-task.md) — Audit gate task; `📋 Created` tests must be audited before baseline capture

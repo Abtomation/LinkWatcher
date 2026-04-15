@@ -113,12 +113,12 @@ Evaluate how new features fit into existing system architecture before implement
 ### Finalization
 
 16. **Define Integration Strategy**: Outline approach for integrating the feature into existing architecture
-17. **Create Architectural Decisions**: Use existing ADR system if new architectural decisions are needed
+17. **Create Architectural Decisions**: If new architectural decisions were made, create ADRs using the script and guide:
     ```powershell
     # Create ADR if architectural decisions are required
-    cd doc/technical/adr
-    ../../scripts/file-creation/New-ArchitectureDecision.ps1 -Title "Decision Title" -Status "Proposed"
+    process-framework/scripts/file-creation/02-design/New-ArchitectureDecision.ps1 -Title "Decision Title" -Status "Proposed"
     ```
+    Follow the [Architecture Decision Creation Guide](/process-framework/guides/02-design/architecture-decision-creation-guide.md) for content customization.
 18. **Update Architecture Context Packages**: Update or create context packages based on architectural analysis
     - Update existing context packages with new information
     - Create new context packages if new architectural areas identified
@@ -151,7 +151,7 @@ Evaluate how new features fit into existing system architecture before implement
 The following state files must be updated as part of this task:
 
 - [Architecture Tracking](../../../doc/state-tracking/permanent/architecture-tracking.md) - Update with architectural analysis outcomes and next steps
-- [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Update feature status to "🏗️ Architecture Reviewed" and add Architecture Impact Assessment link to Arch Review column
+- [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Add Architecture Impact Assessment link to Arch Review column (no primary status change)
 - [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) - Add any architectural debt items identified during review
 - [Architecture Decision Log](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) - Record architectural decisions made during review (if applicable)
 
@@ -171,10 +171,10 @@ Before considering this task finished:
   - [ ] Foundation feature specification created if foundation feature needed
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
   - [ ] [Architecture Tracking](../../../doc/state-tracking/permanent/architecture-tracking.md) updated with session outcomes
-  - [ ] [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) updated with status "🏗️ Architecture Reviewed" and Architecture Impact Assessment link in Arch Review column
+  - [ ] [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) updated with Architecture Impact Assessment link in Arch Review column (no primary status change)
   - [ ] [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) updated with any identified architectural debt
   - [ ] [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) updated with architectural decisions made
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-019" and context "System Architecture Review"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-019" and context "System Architecture Review"
 
 ## Next Tasks
 

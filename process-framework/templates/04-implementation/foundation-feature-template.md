@@ -119,7 +119,7 @@ Before considering this task finished:
   - [ ] [Architecture Tracking](../../../doc/state-tracking/permanent/architecture-tracking.md) updated with outcomes
   - [ ] [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) foundation feature marked complete
   - [ ] [Architecture Context Package](/doc/technical/architecture/context-packages/[architecture-area]-context.md) updated with results
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "Foundation Feature Implementation" and context "[Foundation Feature Name]"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "Foundation Feature Implementation" and context "[Foundation Feature Name]"
 
 ## Next Tasks
 
@@ -129,7 +129,7 @@ Before considering this task finished:
 ## Related Resources
 
 - [System Architecture Review Task](../../tasks/01-planning/system-architecture-review.md) - Task that identifies foundation features
-- [Task Transition Guide](../../guides/framework/task-transition-guide.md) - Guidance for transitioning from foundation to regular features
+- [Task Transition Registry](../../infrastructure/task-transition-registry.md) - Guidance for transitioning from foundation to regular features
 - [Architecture Decision Records System](../../../doc/technical/adr) - Existing ADR system with `New-ArchitectureDecision.ps1` script
 
 ## Template Usage Notes

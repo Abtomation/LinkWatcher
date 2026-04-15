@@ -16,7 +16,7 @@ Updates the following files:
 The feature ID to update (e.g., "1.2.3")
 
 .PARAMETER Status
-The implementation status (e.g., "🟡 In Progress", "🔄 Needs Revision", "🟢 Completed")
+The implementation status (e.g., "🟡 In Progress", "🔄 Needs Enhancement", "🟢 Completed")
 
 .PARAMETER StartDate
 Implementation start date (optional - uses current date if not specified)
@@ -46,7 +46,7 @@ If specified, shows what would be updated without making changes
 .\Update-FeatureImplementationState.ps1 -FeatureId "1.2.3" -Status "🟢 Completed" -CompletionDate "2025-08-23" -PullRequestUrl "https:/github.com/repo/pull/123"
 
 .EXAMPLE
-.\Update-FeatureImplementationState.ps1 -FeatureId "1.2.3" -Status "🔄 Needs Revision" -DesignDeviations "Modified authentication flow for better UX" -DryRun
+.\Update-FeatureImplementationState.ps1 -FeatureId "1.2.3" -Status "🔄 Needs Enhancement" -DesignDeviations "Modified authentication flow for better UX" -DryRun
 
 .NOTES
 This script addresses Process Improvement items:
@@ -63,7 +63,7 @@ param(
     [string]$FeatureId,
 
     [Parameter(Mandatory = $true)]
-    [ValidateSet("🟡 In Progress", "🧪 Testing", "👀 Ready for Review", "🔄 Needs Revision", "🟢 Completed")]
+    [ValidateSet("🟡 In Progress", "👀 Needs Review", "🔄 Needs Enhancement", "🟢 Completed")]
     [string]$Status,
 
     [Parameter(Mandatory = $false)]
@@ -198,7 +198,7 @@ try {
 
     $testStatus = switch ($Status) {
         "🟡 In Progress" { "🟡 Implementation In Progress" }
-        "🔄 Needs Revision" { "🔄 Needs Update" }
+        "🔄 Needs Enhancement" { "🔄 Needs Update" }
         "🟢 Completed" { "✅ Tests Implemented" }
     }
 

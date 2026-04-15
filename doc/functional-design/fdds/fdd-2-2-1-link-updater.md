@@ -65,14 +65,14 @@ retrospective: true
 - **2.2.1-UI-1**: No direct user interaction — the Link Updater is invoked by the service layer when file movements are detected
 - **2.2.1-UI-2**: Users observe update activity through log output showing which files were modified and how many references were updated
 - **2.2.1-UI-3**: Users can enable `dry_run` mode to preview changes without modifying any files
-- **2.2.1-UI-4**: Users can enable `backup_enabled` to create `.linkwatcher.bak` copies before modifications
+- **2.2.1-UI-4**: Users can enable `backup_enabled` to create `.bak` copies before modifications
 
 ### Business Rules
 
 - **2.2.1-BR-1**: References within a file are always processed bottom-to-top (descending line/column order) to preserve character position validity
 - **2.2.1-BR-2**: Atomic writes use a `NamedTemporaryFile` in the same directory as the original file, ensuring same-filesystem `shutil.move()` is an atomic rename
 - **2.2.1-BR-3**: When `dry_run=True`, the system logs `[DRY RUN] Would update...` messages and accumulates statistics but performs no file I/O
-- **2.2.1-BR-4**: When `backup_enabled=True` (default), a `.linkwatcher.bak` copy is created before the atomic write
+- **2.2.1-BR-4**: When `backup_enabled=True` (default), a `.bak` copy is created before the atomic write
 - **2.2.1-BR-5**: Backup creation failure is non-blocking — the update proceeds even if backup fails (graceful degradation)
 - **2.2.1-BR-6**: Each link type has its own replacement method, ensuring syntax-correct modifications (markdown inline, reference-style, generic position-based)
 - **2.2.1-BR-7**: When a markdown link's display text exactly matches the old link target path, both the display text and the target are updated to the new path (PD-BUG-012)
@@ -83,7 +83,7 @@ retrospective: true
 - **2.2.1-AC-2**: Given multiple references on the same line, the rightmost reference is updated first, preserving position validity for the leftmost
 - **2.2.1-AC-3**: Given `dry_run=True`, no files are modified on disk but statistics accurately reflect what would change
 - **2.2.1-AC-4**: Given a power failure during write, either the original or fully-updated file exists — never a partial write
-- **2.2.1-AC-5**: Given `backup_enabled=True`, a `.linkwatcher.bak` file exists alongside each modified file
+- **2.2.1-AC-5**: Given `backup_enabled=True`, a `.bak` file exists alongside each modified file
 - **2.2.1-AC-6**: Given a reference with an anchor (`#section`), the anchor is preserved in the updated path
 
 ### Edge Cases and Error Handling

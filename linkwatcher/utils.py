@@ -41,11 +41,14 @@ AI Context
 import os
 import re
 from pathlib import Path
-from typing import Set
+from typing import Optional, Set
 
 
 def should_monitor_file(
-    file_path: str, monitored_extensions: Set[str], ignored_dirs: Set[str]
+    file_path: str,
+    monitored_extensions: Set[str],
+    ignored_dirs: Set[str],
+    project_root: Optional[str] = None,
 ) -> bool:
     """
     Check if a file should be monitored based on extension and directory.
@@ -54,6 +57,9 @@ def should_monitor_file(
         file_path: Path to the file
         monitored_extensions: Set of file extensions to monitor (e.g., {'.md', '.py'})
         ignored_dirs: Set of directory names to ignore (e.g., {'.git', 'node_modules'})
+        project_root: If provided, only check path parts relative to this root.
+            This prevents false rejections when the project lives under a
+            directory whose name matches an ignored dir (PD-BUG-087).
 
     Returns:
         True if file should be monitored, False otherwise
@@ -63,9 +69,19 @@ def should_monitor_file(
     if file_ext not in monitored_extensions:
         return False
 
-    # Check if file is in an ignored directory
-    path_parts = Path(file_path).parts
-    for part in path_parts:
+    # Check if file is in an ignored directory.
+    # When project_root is provided, only check the portion of the path
+    # below the project root — ancestor directories are irrelevant.
+    if project_root:
+        try:
+            rel_parts = Path(file_path).relative_to(project_root).parts
+        except ValueError:
+            # file_path is not under project_root; fall back to full path
+            rel_parts = Path(file_path).parts
+    else:
+        rel_parts = Path(file_path).parts
+
+    for part in rel_parts:
         if part in ignored_dirs:
             return False
 

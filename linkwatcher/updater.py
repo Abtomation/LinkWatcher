@@ -513,7 +513,7 @@ class LinkUpdater:
         """Write file content safely with backup and atomic operation."""
         # Create backup if enabled
         if self.backup_enabled:
-            backup_path = f"{file_path}.linkwatcher.bak"
+            backup_path = f"{file_path}.bak"
             try:
                 shutil.copy2(file_path, backup_path)
             except Exception as e:

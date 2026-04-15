@@ -91,7 +91,7 @@ When schema designs reference other tasks:
 - **Reference API Design**: API endpoints, service integration, data access patterns from application layer
 - **Reference Test Specification**: Comprehensive test plans, test cases, testing procedures
 
-> **📋 See Also**: [Task Transition Guide - Information Flow Section](../framework/task-transition-guide.md#task-transitions) for comprehensive cross-referencing patterns.
+> **📋 See Also**: [Task Transition Guide - Information Flow Section](../../infrastructure/task-transition-registry.md#task-transitions) for comprehensive cross-referencing patterns.
 
 ## Template Structure Analysis
 

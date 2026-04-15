@@ -81,7 +81,7 @@ Verify unit test completeness, implement integration and cross-component tests, 
 2. **Review TDD Test Requirements** (if exists): Read testing section from TDD to understand required test scenarios, acceptance criteria, and coverage thresholds
 3. **Analyze Implementation Code**: Review all implemented code to understand integration points, component boundaries, and potential failure scenarios
 4. **Identify Test Scenarios**: Determine which test types are needed based on the specification and project language (check `project-config.json` for valid test types)
-5. **Plan Test Strategy**: Map out test types needed, mock/stub requirements, test data setup, and prioritize by risk. **Ensure test coverage addresses Critical dimensions** from the feature's Dimension Profile — e.g., Critical DI → include data integrity/atomicity tests, Critical SE → include input validation and security boundary tests. (Note: PE dimension is handled by the dedicated [Performance Test Creation](/process-framework/tasks/03-testing/performance-test-creation-task.md) workflow, not this task.)
+5. **Plan Test Strategy**: Map out test types needed, mock/stub requirements, test data setup, and prioritize by risk. **Ensure test coverage addresses Critical dimensions** from the feature's Dimension Profile — e.g., Critical DI → include data integrity/atomicity tests, Critical SE → include input validation and security boundary tests. (Note: PE dimension is handled by the dedicated [Performance & E2E Test Scoping](/process-framework/tasks/03-testing/performance-and-e2e-test-scoping-task.md) → [Performance Test Creation](/process-framework/tasks/03-testing/performance-test-creation-task.md) workflow, not this task.)
 6. **🚨 CHECKPOINT**: Present test specification review (if applicable), implementation code analysis, identified test scenarios, and test strategy to human partner for approval before implementation
 
 ### Execution
@@ -244,7 +244,7 @@ Before considering this task finished:
   - [ ] Code Inventory section updated with test files and metrics
   - [ ] Implementation Progress section reflects testing completion
   - [ ] Testing patterns and challenges documented in Implementation Notes
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-053" and context "Integration & Testing"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-053" and context "Integration & Testing"
 
 ## Next Tasks
 

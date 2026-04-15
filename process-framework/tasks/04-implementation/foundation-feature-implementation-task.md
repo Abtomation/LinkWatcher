@@ -72,12 +72,12 @@ Specialized task for implementing foundation features (0.x.x) that provide archi
 ### Execution
 
 6. **Implement Core Foundation Logic**: Develop the foundational functionality with architectural awareness, ensuring Critical dimensions from the Dimension Profile are addressed throughout implementation
-7. **Document Architectural Decisions**: Create ADRs for significant architectural choices made during implementation
+7. **Document Architectural Decisions**: If significant architectural choices were made during implementation, create ADRs using the script and guide:
    ```powershell
    # Create ADR for architectural decisions
-   cd process-framework/templates
-   ../../scripts/file-creation/02-design/New-ArchitectureDecision.ps1 -Title "Foundation Feature Architecture Decision" -Context "Foundation implementation context"
+   process-framework/scripts/file-creation/02-design/New-ArchitectureDecision.ps1 -Title "Foundation Feature Architecture Decision" -Context "Foundation implementation context"
    ```
+   Follow the [Architecture Decision Creation Guide](/process-framework/guides/02-design/architecture-decision-creation-guide.md) for content customization.
 8. **Update Architecture Context**: Document new architectural foundations
 9. **Establish Patterns**: Document reusable patterns that other features can follow
 10. **Implement Tests**: Create tracked tests that validate both functionality and architectural constraints using `New-TestFile.ps1`
@@ -112,7 +112,7 @@ Specialized task for implementing foundation features (0.x.x) that provide archi
 
     - Use [../../scripts/file-creation/06-maintenance/New-BugReport.ps1](../../scripts/file-creation/06-maintenance/New-BugReport.ps1) script to create standardized bug reports
     - Follow [Bug Reporting Guide](../../guides/06-maintenance/bug-reporting-guide.md) for consistent documentation
-    - Add bug entries to [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) with status 🆕 Reported
+    - Add bug entries to [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) with status 🆕 Needs Triage
     - Include foundation implementation context and evidence in bug reports
     - Reference specific architectural components or patterns affected
     - Note impact on system architecture and dependent features
@@ -181,7 +181,7 @@ Specialized task for implementing foundation features (0.x.x) that provide archi
 - **Foundation Usage Patterns** - Documentation of how other features should interact with this foundation
 - **Comprehensive Test Suite** - Tests that validate both functionality and architectural constraints
 - **Validation Reports** - Automated validation reports confirming implementation meets foundational standards (generated in `scripts/validation/validation-reports/`)
-- **Bug Reports** - Any bugs discovered during foundation implementation documented in [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) with status 🆕 Reported
+- **Bug Reports** - Any bugs discovered during foundation implementation documented in [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) with status 🆕 Needs Triage
 
 ## State Tracking
 
@@ -194,7 +194,7 @@ Specialized task for implementing foundation features (0.x.x) that provide archi
 
 
 - [Architecture Tracking](../../../doc/state-tracking/permanent/architecture-tracking.md) - Record foundation implementation and architectural evolution
-- [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Update with foundation feature status (set to "👀 Ready for Review" when implementation and testing are complete)
+- [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Update with foundation feature status (set to "👀 Needs Review" when implementation and testing are complete)
 
 **Automation Available**: Use `Update-FeatureImplementationState.ps1` to automate state file updates. See [Automation Usage Guide](../../scripts/AUTOMATION-USAGE-GUIDE.md) for examples.
 
@@ -217,8 +217,8 @@ Before considering this task finished:
   - [ ] Test tracking files automatically updated by `New-TestFile.ps1` (verify correctness)
 
   - [ ] [Architecture Tracking](../../../doc/state-tracking/permanent/architecture-tracking.md) updated with implementation record
-  - [ ] [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) updated with status set to "👀 Ready for Review"
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-024" and context "Foundation Feature Implementation Task"
+  - [ ] [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) updated with status set to "👀 Needs Review"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-024" and context "Foundation Feature Implementation Task"
 
 ## Next Tasks
 

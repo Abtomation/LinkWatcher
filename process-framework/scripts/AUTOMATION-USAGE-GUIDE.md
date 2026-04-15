@@ -72,7 +72,7 @@ update\Update-CodeReviewState.ps1 -FeatureId "1.2.3" -ReviewStatus "Completed" -
 **Advanced Usage**:
 
 ```powershell
-update\Update-CodeReviewState.ps1 -FeatureId "1.2.3" -ReviewStatus "Needs Revision" -ReviewerName "John Doe" -MajorFindings @("Missing error handling", "Inconsistent naming") -SecurityIssues @("SQL injection vulnerability") -CodeQualityScore 6
+update\Update-CodeReviewState.ps1 -FeatureId "1.2.3" -ReviewStatus "Needs Enhancement" -ReviewerName "John Doe" -MajorFindings @("Missing error handling", "Inconsistent naming") -SecurityIssues @("SQL injection vulnerability") -CodeQualityScore 6
 ```
 
 ## Common Parameters
@@ -97,7 +97,7 @@ update\Update-CodeReviewState.ps1 -FeatureId "1.2.3" -ReviewStatus "Needs Revisi
 
 - `In Progress`
 - `Completed`
-- `Needs Revision`
+- `Needs Enhancement`
 - `Approved with Comments`
 - `Rejected`
 

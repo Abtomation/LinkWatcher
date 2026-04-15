@@ -3,7 +3,7 @@ id: PF-VIS-001
 type: Documentation
 version: 1.0
 created: 2025-06-03
-updated: 2025-06-05
+updated: 2026-04-14
 ---
 
 # Feedback Process Flowchart
@@ -25,8 +25,8 @@ flowchart TD
     E --> F[./New-FeedbackForm.ps1 -DocumentId PREFIX-XXX-XXX -TaskContext Task Name -FeedbackType MultipleTools]
 
     F --> G[Script automatically:]
-    G --> H[• Assigns ART-FEE-XXX ID]
-    G --> I[• Creates ../../process-framework-local/feedback/YYYYMMDD-HHMMSS-document-id-feedback.md]
+    G --> H[• Assigns PF-FEE-XXX ID]
+    G --> I[• Creates YYYYMMDD-HHMMSS-document-id-feedback.md]
     G --> J[• Places file in feedback-forms/ subdirectory]
     G --> K[• Updates ID tracker]
     G --> L[• Pre-fills template with metadata]
@@ -70,31 +70,19 @@ flowchart TD
 
 ### File Structure
 ```
-/process-framework-local/feedback
-├── README.mdss documentation
-├── feedback-process-flowchart.md      # This flowchart
-├── scripts/file-creation/support/New-FeedbackForm.ps1
-├── config.json                     # ID tracking
-└── feedback-forms/                    # All feedback files
-    ├── ../../process-framework-local/feedback/20250127-210602-PF-TSK-002-feedback.md
-    ├── ../../process-framework-local/feedback/20250527-224101-PF-TEM-001-feedback.md
-    └── [../../process-framework-local/feedback/YYYYMMDD-HHMMSS-document-id-feedback.md]
+process-framework-local/feedback/
+├── archive/                           # Processed forms (by review cycle)
+└── feedback-forms/                    # Active feedback files
+    ├── YYYYMMDD-HHMMSS-PF-TSK-002-feedback.md
+    └── ...
 ```
 
-### Naming Convention Details
+ID tracking is managed by `process-framework-local/PF-id-registry-local.json` (prefix `PF-FEE`).
 
-#### File Name Format
-```
-../../process-framework-local/feedback/YYYYMMDD-HHMMSS-document-id-feedback.md
-```
+### Naming Convention
 
-#### Metadata ID Format
-```yaml
----
-id: PF-FEE-XXX  # Automatically assigned
-type: Artifact
----
-```
+- **File name**: `YYYYMMDD-HHMMSS-document-id-feedback.md`
+- **Metadata ID**: `PF-FEE-XXX` (automatically assigned by script)
 
 ## Integration Points
 
@@ -111,20 +99,11 @@ Individual feedback forms are not tracked in the documentation map - only the RE
 
 | Issue | Solution |
 |-------|----------|
-| Script not found | Ensure you're in `/process-framework/scripts/file-creation/support` directory |
-| Permission denied | Run PowerShell as administrator or check execution policy |
-| ID tracker error | Verify `../../process-framework-local/feedback/../../process-framework-local/feedback/directory.json` exists and is properly formatted |
-| Template not found | Ensure `process-framework/templates/support/feedback-form-template.md` exists |
+| Script not found | Run via `pwsh.exe -File process-framework/scripts/file-creation/support/New-FeedbackForm.ps1` |
+| ID registry error | Verify `process-framework-local/PF-id-registry-local.json` exists and has a `PF-FEE` prefix entry |
+| Template not found | Verify `process-framework/templates/support/feedback-form-template.md` exists |
 
-## Best Practices
-
-1. **Complete feedback immediately** after task completion while details are fresh
-2. **Be specific** in comments and suggestions
-3. **Rate honestly** - both strengths and weaknesses help improve tools
-4. **Include context** about how the tool was used in your specific task
-5. **Suggest actionable improvements** rather than just identifying problems
-6. **Provide human feedback** when prompted by the AI assistant to capture user perspective
-7. **Be honest about process efficiency** and time tracking accuracy
+> For detailed best practices and completion instructions, see the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md).
 
 ## Related Documents
 

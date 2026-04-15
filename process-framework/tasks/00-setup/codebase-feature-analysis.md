@@ -118,6 +118,7 @@ This task produces enriched Feature Implementation State files that serve as the
    - **Test Gaps**: Critical paths without tests, edge cases not covered
    - **Cross-cutting Tests**: Identify test files that validate interactions across multiple features
    - Document in [Feature Implementation State file](/doc/state-tracking/features) → Test Files section
+   > **If no tests exist for this feature**: record "No tests" in the state file Test Files section, and flag as a test gap for future Test Specification Creation.
    > **Note**: Test tracking infrastructure updates are deferred to finalization _(see [Parallel Session Rules](#process))_.
 
 8. **🚨 CHECKPOINT**: Present test coverage gaps and cross-cutting patterns to human partner
@@ -239,7 +240,7 @@ This task produces enriched Feature Implementation State files that serve as the
   - [ ] Workflow map validated — all features mapped to workflows, no orphan workflows, Impl Status column updated
 - [ ] All features show ✅ in "Analyzed" column of [master state file](../../../process-framework-local/state-tracking/temporary/old/retrospective-master-state.md)
 - [ ] Phase 2 marked complete in master state file
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-065" and context "Codebase Feature Analysis"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-065" and context "Codebase Feature Analysis"
   - **⚠️ IMPORTANT**: Evaluate the Codebase Feature Analysis task (PF-TSK-065) and its tools (feature implementation state files, analysis process), not the features you analyzed.
 
 ## Next Tasks

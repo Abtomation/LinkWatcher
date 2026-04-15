@@ -88,28 +88,28 @@ Write-Log "Feature ID: $FeatureId"
 Write-Log "Restored Status: $RestoredStatus"
 Write-Log "State File: $StateFilePath"
 
-# Step 1: Update feature-tracking.md — replace "🔄 Needs Revision (...)" with restored status
+# Step 1: Update feature-tracking.md — replace "🔄 Needs Enhancement (...)" with restored status
 $content = Get-Content $FeatureTrackingFile -Raw
 
-# Pattern: match the feature row (| ID | Feature | Status |) and replace the Needs Revision status
+# Pattern: match the feature row (| ID | Feature | Status |) and replace the Needs Enhancement status
 # The feature ID is in a markdown link like [1.1.1](path) in the ID column
 # The status contains nested parens from markdown link: ([PF-STA-XXX](path))
 $escapedId = [regex]::Escape($FeatureId)
-$pattern = "(?m)(^\|[^\|]*$escapedId[^\|]*\|[^\|]*\|)\s*🔄 Needs Revision\s*\(.*?\)\)\s*(\|)"
+$pattern = "(?m)(^\|[^\|]*$escapedId[^\|]*\|[^\|]*\|)\s*🔄 Needs Enhancement\s*\(.*?\)\)\s*(\|)"
 $match = [regex]::Match($content, $pattern)
 
 if (-not $match.Success) {
     # Try without parenthetical link
-    $pattern2 = "(?m)(^\|[^\|]*$escapedId[^\|]*\|[^\|]*\|)\s*🔄 Needs Revision\s*(\|)"
+    $pattern2 = "(?m)(^\|[^\|]*$escapedId[^\|]*\|[^\|]*\|)\s*🔄 Needs Enhancement\s*(\|)"
     $match = [regex]::Match($content, $pattern2)
 }
 
 if (-not $match.Success) {
-    Write-Log "Could not find feature $FeatureId with '🔄 Needs Revision' status in feature tracking" -Level "ERROR"
+    Write-Log "Could not find feature $FeatureId with '🔄 Needs Enhancement' status in feature tracking" -Level "ERROR"
     exit 1
 }
 
-Write-Log "Found feature $FeatureId with Needs Revision status"
+Write-Log "Found feature $FeatureId with Needs Enhancement status"
 
 if ($PSCmdlet.ShouldProcess($FeatureTrackingFile, "Restore feature $FeatureId status to '$RestoredStatus'")) {
     $updatedContent = [regex]::Replace($content, $pattern, "`${1} $RestoredStatus `${2}")

@@ -3,9 +3,9 @@ id: PF-TSK-079
 type: Process Framework
 category: Task Definition
 domain: agnostic
-version: 1.4
+version: 1.5
 created: 2026-03-24
-updated: 2026-04-10
+updated: 2026-04-14
 ---
 
 # Framework Evaluation
@@ -45,6 +45,7 @@ This task is analogous to the code validation tasks (05-validation) but targets 
 - **Important (Load If Space):**
 
   - [Process Framework Task Registry](../../infrastructure/process-framework-task-registry.md) — Automation status, script locations, file update patterns per task
+  - [Process Framework Task Registry — Trigger & Output](../../infrastructure/process-framework-task-registry.md) — Task trigger conditions, output statuses, State File Trigger Index, and trigger chain diagrams
   - [PF ID Registry](../../PF-id-registry.json) — ID prefixes, directory mappings, counter state
   - [Task Creation Guide](../../guides/support/task-creation-guide.md) — Defines expected task structure and quality standards
 
@@ -60,6 +61,20 @@ This task is analogous to the code validation tasks (05-validation) but targets 
 > **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
 >
 > **⚠️ MANDATORY: Never proceed past a checkpoint without presenting findings and getting explicit approval.**
+
+### Session Scope
+
+An evaluation may span multiple sessions depending on the scope and the depth of analysis required. This is expected and must not be used as justification to shortcut any step. Specifically:
+
+- **Large evaluation scopes** (full framework, multi-phase) will naturally require multiple sessions for artifact inventory and dimension analysis alone
+- **Data-driven validation** (Step 8) may require its own dedicated session(s) to collect and analyze historical data before conclusions can be drawn
+- **Each session** must complete its planned work fully — including all checkpoint presentations and state file updates — before closing. Do not start a new analysis phase if the current one cannot be finished with proper finalization
+- **Use a temporary state file** for multi-session evaluations to track which artifacts have been assessed, which dimensions are complete, and what remains:
+  ```bash
+  pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/support/New-TempTaskState.ps1 -TaskName "<Evaluation Scope>" -Description "<scope description>" -Confirm:\$false
+  ```
+
+The quality of an evaluation depends on thoroughness, not speed. A multi-session evaluation that properly validates every finding is more valuable than a single-session evaluation that relies on assumptions.
 
 ### Preparation
 
@@ -174,6 +189,16 @@ This task is analogous to the code validation tasks (05-validation) but targets 
 
    This prevents premature convergence on the first viable strategy and ensures the human partner can weigh trade-offs across the full solution space before choosing a direction.
 
+   **Data-driven validation for removal/merge proposals**: When a finding proposes **removing, merging, or fundamentally restructuring** an existing framework mechanism (e.g., reducing feedback dimensions, merging templates, consolidating tasks), the proposal must be validated against historical data before it can become an IMP. This means:
+   - Trace the mechanism's actual contribution by analyzing historical data (e.g., which feedback dimensions triggered which IMPs, how often a template section was used, which task steps prevented errors)
+   - Quantify the mechanism's unique signal — would the improvements it surfaced still have been identified without it?
+   - Present the data analysis at the checkpoint, not just the proposal
+   - If the data shows the mechanism carries unique, non-redundant signal, the removal/merge proposal must be rejected regardless of how intuitive it seems
+
+   This validation may require its own multi-session data collection effort (see Session Scope below). The cost of collecting data is always lower than the cost of removing a mechanism that was silently preventing problems.
+
+   > **Rationale**: IMP-525 (2026-04-14) proposed reducing feedback form dimensions from 5 to 3 based on intuitive reasoning about correlation. Data-driven analysis of 309 IMPs across 31 reviews showed all 5 dimensions carry distinct, non-redundant improvement signal. The proposal was rejected. This step exists to prevent similar premature structural changes.
+
 9. **🚨 CHECKPOINT**: Present evaluation findings summary to human partner:
    - Dimension scores with key evidence
    - Top findings (most impactful issues)
@@ -202,7 +227,7 @@ This task is analogous to the code validation tasks (05-validation) but targets 
 
 ## Outputs
 
-- **Framework Evaluation Report** — Structured report in `process-framework-local/evaluation-reports`, created via `New-FrameworkEvaluationReport.ps1`. Contains: evaluation scope, dimension scores, detailed findings per dimension, improvement recommendations, and overall assessment.
+- **Framework Evaluation Report** — Structured report in `process-framework-local/evaluation-reports`, created via `New-FrameworkEvaluationReport.ps1`. Contains: evaluation scope, dimension scores, detailed findings per dimension, cross-cutting findings (issues spanning 2+ dimensions listed once), improvement recommendations, and overall assessment.
 - **Improvement Entries** — IMP entries registered in [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) for each actionable finding, with source linking back to the evaluation report.
 
 ## State Tracking
@@ -224,7 +249,7 @@ Before considering this task finished:
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
   - [ ] IMP entries added to [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) for each approved improvement
   - [ ] Each IMP entry links back to the evaluation report as source
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-079" and context "Framework Evaluation"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-079" and context "Framework Evaluation"
 
 ## Next Tasks
 

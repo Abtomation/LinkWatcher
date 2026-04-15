@@ -515,8 +515,8 @@ class TestShouldCheckTarget:
             ("some random text.md", "generic-unquoted", "target with spaces"),
             # Non-path strings (no separator)
             ("justtext", "generic-unquoted", "no path separator"),
-            # Bare filenames (prose mentions)
-            ("readme.md", "markdown", "bare filename without separator"),
+            # Bare filenames (prose mentions — standalone link types only)
+            ("readme.md", "markdown-standalone", "bare filename standalone"),
             ("Script.ps1", "markdown-standalone", "bare filename .ps1"),
             # Numeric / slash patterns (scores)
             ("3.475/4.0", "markdown-standalone", "numeric slash score"),
@@ -571,6 +571,11 @@ class TestShouldCheckTarget:
             ("../readme.md", "markdown", "parent-relative path"),
             ("alpha-project/framework/tasks/task.md", "markdown", "deep relative path"),
             ("/alpha-project/framework/tasks/task.md", "markdown", "root-relative path"),
+            # Bare filenames with explicit link syntax (BUG-088)
+            ("file.md", "markdown", "bare filename in markdown link"),
+            ("missing-guide.md", "markdown", "bare filename with hyphen in markdown link"),
+            ("readme.md", "markdown-reference", "bare filename in reference def"),
+            ("page.html", "html-anchor", "bare filename in HTML anchor"),
             # Dir-like targets (ending in / or \) — TD170 lines 480-481
             ("some-unknown-dir/", "markdown-standalone", "dir-like target ending in /"),
             ("nested/path/subdir/", "markdown", "nested dir-like target"),

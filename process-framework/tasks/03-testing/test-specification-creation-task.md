@@ -39,7 +39,7 @@ Create automated test specifications from existing Technical Design Documents (T
 
 ## Information Flow
 
-> **📋 Detailed Guidance**: See [Task Transition Guide - Information Flow Section](../../guides/framework/task-transition-guide.md#information-flow-and-separation-of-concerns)
+> **📋 Detailed Guidance**: See [Information Flow Guide](../../guides/framework/information-flow-guide.md)
 
 ### Inputs from Other Tasks
 
@@ -206,7 +206,7 @@ Before considering this task finished:
   - [ ] [TE ID Registry](/test/TE-id-registry.json) — `TE-TSP.nextAvailable` counter incremented
   - [ ] [Test Documentation Map](/test/TE-documentation-map.md) — New test spec entries added to Test Specifications section
   - [ ] [Test Tracking](/test/state-tracking/permanent/test-tracking.md) — Feature section added if missing
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](/process-framework/guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-012" and context "Test Specification Creation"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-012" and context "Test Specification Creation"
 
 ## Next Tasks
 

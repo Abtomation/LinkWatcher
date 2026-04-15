@@ -5,8 +5,6 @@ This module tests the file updating functionality when links need
 to be changed due to file moves or renames.
 """
 
-from pathlib import Path
-
 import pytest
 
 from linkwatcher.models import LinkReference
@@ -28,8 +26,8 @@ class TestLinkUpdater:
         """Test updater initialization."""
         updater = LinkUpdater()
 
-        assert updater.backup_enabled == True
-        assert updater.dry_run == False
+        assert updater.backup_enabled is True
+        assert updater.dry_run is False
 
     def test_set_dry_run_mode(self):
         """Test enabling/disabling dry run mode."""
@@ -37,11 +35,11 @@ class TestLinkUpdater:
 
         # Enable dry run
         updater.set_dry_run(True)
-        assert updater.dry_run == True
+        assert updater.dry_run is True
 
         # Disable dry run
         updater.set_dry_run(False)
-        assert updater.dry_run == False
+        assert updater.dry_run is False
 
     def test_set_backup_enabled(self):
         """Test enabling/disabling backup creation."""
@@ -49,11 +47,11 @@ class TestLinkUpdater:
 
         # Disable backups
         updater.set_backup_enabled(False)
-        assert updater.backup_enabled == False
+        assert updater.backup_enabled is False
 
         # Enable backups
         updater.set_backup_enabled(True)
-        assert updater.backup_enabled == True
+        assert updater.backup_enabled is True
 
     def test_group_references_by_file(self):
         """Test grouping references by their containing file."""
@@ -246,10 +244,10 @@ Also a reference to "old.txt" in quotes.
         ref = LinkReference(str(test_file), 1, 11, 25, "link", "old.txt", "markdown")
 
         # Update references
-        stats = updater.update_references([ref], "old.txt", "new.txt")
+        updater.update_references([ref], "old.txt", "new.txt")
 
         # Should create backup file
-        backup_file = temp_project_dir / "test.md.linkwatcher.bak"
+        backup_file = temp_project_dir / "test.md.bak"
         assert backup_file.exists()
         assert backup_file.read_text() == original_content
 

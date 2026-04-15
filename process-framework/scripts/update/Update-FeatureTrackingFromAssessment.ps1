@@ -60,7 +60,7 @@ param(
     [string]$AssessmentFile,
 
     [Parameter(Mandatory=$false)]
-    [ValidateSet("📊 Assessment Created", "📋 FDD Created", "📝 TDD Created", "🟡 In Progress", "🧪 Testing", "👀 Ready for Review", "🟢 Completed", "🔴 Blocked", "⏸️ On Hold")]
+    [ValidateSet("⬜ Needs Assessment", "📋 Needs FDD", "🗄️ Needs DB Design", "🔌 Needs API Design", "📝 Needs TDD", "🧪 Needs Test Spec", "🔧 Needs Impl Plan", "🟡 In Progress", "👀 Needs Review", "🔄 Needs Enhancement", "🟢 Completed", "🔴 Blocked", "⏸️ On Hold")]
     [string]$Status,
 
     [Parameter(Mandatory=$false)]
@@ -205,9 +205,24 @@ try {
         $recommendedTier = $tierEmojis[$recommendedTier]
     }
 
-    # Determine appropriate status if not provided
+    # Determine appropriate next-action status if not provided
+    # Tier 2+ features need FDD next
+    # Tier 1 features skip FDD — next status depends on DB/API Design columns:
+    #   DB Design needed → 🗄️ Needs DB Design
+    #   API Design needed (no DB) → 🔌 Needs API Design
+    #   Neither → 📝 Needs TDD
     if (-not $Status) {
-        $Status = "📊 Assessment Created"
+        if ($recommendedTier -match 'Tier 1|🔵') {
+            if ($dbDesignRequired) {
+                $Status = "🗄️ Needs DB Design"
+            } elseif ($apiDesignRequired) {
+                $Status = "🔌 Needs API Design"
+            } else {
+                $Status = "📝 Needs TDD"
+            }
+        } else {
+            $Status = "📋 Needs FDD"
+        }
     }
 
     # Prepare additional updates

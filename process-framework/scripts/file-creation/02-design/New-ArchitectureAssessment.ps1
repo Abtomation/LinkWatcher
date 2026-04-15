@@ -101,19 +101,15 @@ function Update-FeatureTrackingWithArchReview {
         $pattern = "(\| $FeatureId \|[^|]*\|[^|]*\|[^|]*\|[^|]*\|[^|]*\|)([^|]*\|)"
 
         if ($content -match $pattern) {
-            # Replace the status from "📋 FDD Created" to "🏗️ Architecture Reviewed" and add arch review link
+            # Add arch review link to ADR column (do NOT change primary status — it's a parallel design task)
             $updatedContent = $content -replace $pattern, "`$1 [$DocumentId]($relativePath) |"
-
-            # Update the status to "🏗️ Architecture Reviewed" regardless of current status
-            $statusPattern = "(\| $FeatureId \|[^|]*\|)\s*[^|]*\s*(\|)"
-            $updatedContent = $updatedContent -replace $statusPattern, "`$1 🏗️ Architecture Reviewed `$2"
 
             # Add architecture review completion note to the Notes column (14th column)
             $notesPattern = "(\| $FeatureId \|(?:[^|]*\|){12}[^|]*?)(\s*\|)"
             $updatedContent = $updatedContent -replace $notesPattern, "`$1 - Architecture review completed ($currentDate)`$2"
 
             Set-Content -Path $featureTrackingPath -Value $updatedContent -NoNewline
-            Write-Host "✅ Updated feature tracking for $FeatureId with architecture review completion" -ForegroundColor Green
+            Write-Host "✅ Updated feature tracking for $FeatureId — ADR column populated (primary status unchanged)" -ForegroundColor Green
         }
         else {
             Write-Host "⚠️ Could not find feature $FeatureId in feature tracking file for status update" -ForegroundColor Yellow
@@ -226,7 +222,7 @@ try {
             "✅ The template provides structure - YOU provide the meaningful content.",
             "",
             "✅ AUTOMATED STATE UPDATES COMPLETED:",
-            "   • Feature tracking updated: $FeatureId status → 🏗️ Architecture Reviewed",
+            "   • Feature tracking updated: $FeatureId ADR column populated (primary status unchanged)",
             "   • Architecture tracking updated with new assessment entry",
             "   • Arch Review column populated with assessment link",
             "",

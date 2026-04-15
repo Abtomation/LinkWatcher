@@ -35,7 +35,7 @@ This task evaluates incoming change requests to determine whether they represent
 - **Critical (Must Read):**
 
   - **Change Request** — The human partner's description of what needs to be added or changed, or a queued entry in [Feature Request Tracking](../../../doc/state-tracking/permanent/feature-request-tracking.md)
-  - [Feature Request Tracking](../../../doc/state-tracking/permanent/feature-request-tracking.md) — Intake queue for product feature requests (check for "Submitted" entries)
+  - [Feature Request Tracking](../../../doc/state-tracking/permanent/feature-request-tracking.md) — Intake queue for product feature requests (check for "📥 Submitted" entries)
   - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) — Current feature inventory to identify existing features
   - [Feature Granularity Guide](../../guides/01-planning/feature-granularity-guide.md) — Defines what constitutes a well-scoped feature (used when classifying requests and validating new feature scope)
   - [Enhancement State Tracking Customization Guide](../../guides/04-implementation/enhancement-state-tracking-customization-guide.md) — Guide for customizing the Enhancement State Tracking File
@@ -64,7 +64,7 @@ This task evaluates incoming change requests to determine whether they represent
 
 ### Phase 1: Classification
 
-1. **Read the change request** — Understand what the human partner wants to add or change. Also check [Feature Request Tracking](../../../doc/state-tracking/permanent/feature-request-tracking.md) for queued requests with status "Submitted" — the human partner may point to a specific request ID, or the agent can propose which queued request to evaluate
+1. **Read the change request** — Understand what the human partner wants to add or change. Also check [Feature Request Tracking](../../../doc/state-tracking/permanent/feature-request-tracking.md) for queued requests with status "📥 Submitted" — the human partner may point to a specific request ID, or the agent can propose which queued request to evaluate
 2. **Review feature tracking** — Read `feature-tracking.md` to understand the current feature inventory. Make yourself familiar with some potential features by looking at the feature state tracking files.
 3. **Classify the request** — Determine: is this a new feature or an enhancement to an existing feature? Apply the three validation tests from the [Feature Granularity Guide](../../guides/01-planning/feature-granularity-guide.md) to validate the scope of new features.
 4. **🚨 CHECKPOINT**: Present classification decision with rationale to human partner for approval
@@ -133,9 +133,9 @@ This task evaluates incoming change requests to determine whether they represent
     cd process-framework/scripts/update
     .\Update-FeatureRequest.ps1 -RequestId "PD-FRQ-XXX" -Classification "Enhancement" -FeatureId "X.Y.Z" -NewStatus "Completed" -EnhancementStateFile "Enhancement State File: [PF-STA-XXX](path/to/file.md)" -Notes "Enhancement State File created"
     ```
-    This script moves the request to Completed in feature-request-tracking.md and sets the target feature's status to "🔄 Needs Revision" in feature-tracking.md with a link to the Enhancement State Tracking File.
+    This script moves the request to ✅ Completed in feature-request-tracking.md and sets the target feature's status to "🔄 Needs Enhancement" in feature-tracking.md with a link to the Enhancement State Tracking File.
 
-    If the request did NOT originate from feature-request-tracking (e.g., ad-hoc human request), manually set the target feature's status to "🔄 Needs Revision" in `feature-tracking.md` and add a link to the Enhancement State Tracking File.
+    If the request did NOT originate from feature-request-tracking (e.g., ad-hoc human request), manually set the target feature's status to "🔄 Needs Enhancement" in `feature-tracking.md` and add a link to the Enhancement State Tracking File.
 12. **MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
@@ -149,14 +149,14 @@ This task evaluates incoming change requests to determine whether they represent
   - **Dimension Impact Assessment** — inherited dimensions from parent feature's profile, with any adjustments for the enhancement scope (new Critical/Relevant dimensions, reduced dimensions)
   - 17 workflow blocks each evaluated as Applicable/Not Applicable with rationale and adaptation notes
   - Session boundary planning (for multi-session enhancements)
-  - **Updated feature tracking** — Target feature set to "🔄 Needs Revision" with link to state file (enhancement path only)
+  - **Updated feature tracking** — Target feature set to "🔄 Needs Enhancement" with link to state file (enhancement path only)
 
 ## State Tracking
 
 The following state files must be updated as part of this task:
 
-- [Feature Request Tracking](../../../doc/state-tracking/permanent/feature-request-tracking.md) — Update request status to Completed after classification (if request originated from this file)
-- [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) — For new features: add new entry. For enhancements: set target feature status to "🔄 Needs Revision" with link to Enhancement State Tracking File
+- [Feature Request Tracking](../../../doc/state-tracking/permanent/feature-request-tracking.md) — Update request status to ✅ Completed after classification (if request originated from this file)
+- [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) — For new features: add new entry. For enhancements: set target feature status to "🔄 Needs Enhancement" with link to Enhancement State Tracking File
 - **Enhancement State Tracking File** (created by this task) — In `doc/state-tracking/temporary`
 - **Feature Implementation State File** — For new features: create new state file. For enhancements: no change (handled by Feature Enhancement task) — In `doc/state-tracking/features`
 
@@ -176,9 +176,9 @@ Before considering this task finished:
   - [ ] State file customized following Enhancement State Tracking Customization Guide
   - [ ] All 17 workflow blocks evaluated as Applicable/Not Applicable with rationale
   - [ ] Session boundary planning included (if multi-session)
-  - [ ] Target feature status set to "🔄 Needs Revision" in feature tracking with link to state file
+  - [ ] Target feature status set to "🔄 Needs Enhancement" in feature tracking with link to state file
 
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-067" and context "Feature Request Evaluation"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-067" and context "Feature Request Evaluation"
 
 ## Next Tasks
 

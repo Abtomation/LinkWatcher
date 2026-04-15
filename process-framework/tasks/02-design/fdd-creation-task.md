@@ -32,7 +32,7 @@ Create comprehensive Functional Design Documents (FDD) that capture functional r
 
 ## Information Flow
 
-> **📋 Detailed Guidance**: See [Task Transition Guide - Information Flow Section](../../guides/framework/task-transition-guide.md#information-flow-and-separation-of-concerns)
+> **📋 Detailed Guidance**: See [Information Flow Guide](../../guides/framework/information-flow-guide.md)
 
 ### Inputs from Other Tasks
 
@@ -152,7 +152,10 @@ When referencing other tasks' outputs in FDDs:
 ## Outputs
 
 - **Functional Design Document (FDD)** - Complete FDD document in `/doc/functional-design/fdds/fdd-[feature-id]-[feature-name].md` with assigned FDD ID
-- **Updated Feature Tracking** - Feature status updated to "📋 FDD Created" with FDD link in [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md)
+- **Updated Feature Tracking** - Feature status updated based on design columns in [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md):
+  - DB Design = `Yes` → status set to `🗄️ Needs DB Design`
+  - DB Design = `No`, API Design = `Yes` → status set to `🔌 Needs API Design`
+  - Both = `No` → status set to `📝 Needs TDD`
 
 ## Example Output
 
@@ -185,7 +188,7 @@ display name, avatar, and notification preferences.
 
 The following state files are automatically updated by the ../../scripts/file-creation/02-design/New-FDD.ps1 script:
 
-- [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Automatically updated with feature status "📋 FDD Created" and FDD document link in the FDD column
+- [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Automatically updated with FDD document link in the FDD column and next design status (`🗄️ Needs DB Design` / `🔌 Needs API Design` / `📝 Needs TDD` based on DB/API Design columns)
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
@@ -200,9 +203,9 @@ Before considering this task finished:
   - [ ] Acceptance criteria are testable and measurable
   - [ ] Edge cases and error handling scenarios identified
 - [ ] **Verify Automated Updates**: Ensure the ../../scripts/file-creation/02-design/New-FDD.ps1 script successfully updated state tracking files
-  - [ ] [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) automatically updated with FDD link and status "📋 FDD Created"
+  - [ ] [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) automatically updated with FDD link and next design status
 - [ ] **Human Consultation Completed**: Confirmed that human partner was consulted about feature behavior and requirements
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-027" and context "FDD Creation"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-027" and context "FDD Creation"
 
 ## Next Tasks
 

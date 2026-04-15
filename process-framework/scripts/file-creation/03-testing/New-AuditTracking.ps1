@@ -1,6 +1,6 @@
 # New-AuditTracking.ps1
 # Creates a new test audit tracking state file for a multi-session audit round
-# Auto-populates inventory from test-tracking.md
+# Auto-populates inventory from the appropriate tracking file based on -TestType
 
 <#
 .SYNOPSIS
@@ -10,7 +10,10 @@
     This PowerShell script generates audit tracking state files by:
     - Generating a unique state ID (PF-STA-XXX) automatically
     - Creating the file in test/state-tracking/audit/
-    - Auto-populating the test file inventory from test-tracking.md
+    - Auto-populating the inventory from the appropriate tracking file:
+      - Automated (default): test-tracking.md
+      - Performance: performance-test-tracking.md
+      - E2E: e2e-test-tracking.md
     - Optionally filtering to specific features
     - Updating the ID tracker in the central ID registry
 
@@ -47,6 +50,10 @@
 
 [CmdletBinding(SupportsShouldProcess = $true)]
 param(
+    [Parameter(Mandatory = $false)]
+    [ValidateSet("Automated", "Performance", "E2E")]
+    [string]$TestType = "Automated",
+
     [Parameter(Mandatory = $true)]
     [int]$RoundNumber,
 
@@ -73,13 +80,20 @@ Invoke-StandardScriptInitialization
 $today = Get-Date -Format "yyyy-MM-dd"
 $projectRoot = Get-ProjectRoot
 
-# --- Parse test-tracking.md to build inventory ---
-$testTrackingPath = Join-Path $projectRoot "test/state-tracking/permanent/test-tracking.md"
-if (-not (Test-Path $testTrackingPath)) {
-    Write-ProjectError -Message "test-tracking.md not found at: $testTrackingPath" -ExitCode 1
+# --- Parse the appropriate tracking file to build inventory ---
+$trackingRelPath = switch ($TestType) {
+    "Performance" { "test/state-tracking/permanent/performance-test-tracking.md" }
+    "E2E" { "test/state-tracking/permanent/e2e-test-tracking.md" }
+    default { "test/state-tracking/permanent/test-tracking.md" }
+}
+$trackingFilePath = Join-Path $projectRoot $trackingRelPath
+$trackingFileName = Split-Path $trackingFilePath -Leaf
+
+if (-not (Test-Path $trackingFilePath)) {
+    Write-ProjectError -Message "$trackingFileName not found at: $trackingFilePath" -ExitCode 1
 }
 
-$trackingContent = Get-Content $testTrackingPath -Raw
+$trackingContent = Get-Content $trackingFilePath -Raw
 
 # Parse feature filter into array
 $featureFilterList = @()
@@ -87,56 +101,137 @@ if ($FeatureFilter -ne "") {
     $featureFilterList = $FeatureFilter -split "," | ForEach-Object { $_.Trim() }
 }
 
-# Auditable statuses — test files that are candidates for audit
-$auditableStatuses = @(
-    "Tests Implemented",
-    "Tests Approved",
-    "Tests Approved with Dependencies",
-    "Needs Update"
-)
-
-# Parse all test tables from test-tracking.md using shared table helpers
-# Start from "## 0." to skip Status Legend and Coverage Summary tables
-$allTestRows = ConvertFrom-MarkdownTable -Content $trackingContent -Section "## 0." -AllTables -ResolveLinkColumn @("Test File/Case")
-
-# Filter to auditable automated test files
 $inventoryRows = @()
 $rowNumber = 0
 
-foreach ($row in $allTestRows) {
-    # Skip non-automated tests
-    if ($row.'Test Type' -ne "Automated") { continue }
+if ($TestType -eq "Performance") {
+    # --- Performance: parse performance-test-tracking.md ---
+    $auditableStatuses = @("Created", "Baselined", "Stale")
 
-    # Skip infrastructure entries (Feature ID is em-dash variants)
-    $featureId = $row.'Feature ID'
-    if ($featureId -eq [string][char]0x2014 -or $featureId -eq "---" -or $featureId -eq "--") { continue }
+    # Parse all level tables (they all share the same column structure)
+    $allPerfRows = ConvertFrom-MarkdownTable -Content $trackingContent -Section "## Test Inventory" -AllTables -ResolveLinkColumn @("Test File")
 
-    # Apply feature filter if specified
-    if ($featureFilterList.Count -gt 0 -and $featureId -notin $featureFilterList) { continue }
+    foreach ($row in $allPerfRows) {
+        $testId = $row.'Test ID'
+        if (-not $testId -or $testId -notmatch '^(BM|PH)-') { continue }
 
-    # Check if status is auditable
-    $statusCell = $row.'Status'
-    $isAuditable = $false
-    foreach ($status in $auditableStatuses) {
-        if ($statusCell -match [regex]::Escape($status)) {
-            $isAuditable = $true
-            break
+        # Apply feature filter on Related Features column
+        if ($featureFilterList.Count -gt 0) {
+            $relatedFeatures = $row.'Related Features' -split ',' | ForEach-Object { $_.Trim() }
+            $matchesFilter = $false
+            foreach ($f in $featureFilterList) {
+                if ($f -in $relatedFeatures) { $matchesFilter = $true; break }
+            }
+            if (-not $matchesFilter) { continue }
         }
+
+        # Check if status is auditable (skip ⬜ Specified — no implementation yet)
+        $statusCell = $row.'Status'
+        $isAuditable = $false
+        foreach ($status in $auditableStatuses) {
+            if ($statusCell -match [regex]::Escape($status)) { $isAuditable = $true; break }
+        }
+        if (-not $isAuditable) { continue }
+
+        # Skip already-audited entries (Audit Status is not "—")
+        $auditStatus = $row.'Audit Status'
+        if ($auditStatus -and $auditStatus -ne '—' -and $auditStatus -match 'Approved') { continue }
+
+        $operation = $row.'Operation'
+        $displayStatus = $statusCell -replace '^[^\w]*', ''
+
+        $rowNumber++
+        $inventoryRows += ConvertTo-MarkdownTableRow -Cells @("$rowNumber", $testId, $operation, $displayStatus, "Pending", "—", "—", "—")
     }
-    if (-not $isAuditable) { continue }
+}
+elseif ($TestType -eq "E2E") {
+    # --- E2E: parse e2e-test-tracking.md ---
+    $auditableStatuses = @("Case Created", "Passed", "Failed", "Needs Re-execution")
 
-    # Test file name already resolved from markdown link by ResolveLinkColumn
-    $testFileName = $row.'Test File/Case'
+    # Parse the E2E Test Cases table
+    $allE2eRows = ConvertFrom-MarkdownTable -Content $trackingContent -Section "## E2E Test Cases" -AllTables -ResolveLinkColumn @("Test File/Case")
 
-    # Determine display status (strip emoji prefix)
-    $displayStatus = $statusCell -replace '^[^\w]*', ''
+    foreach ($row in $allE2eRows) {
+        $testId = $row.'Test ID'
+        if (-not $testId -or $testId -notmatch '^TE-E2[EG]-') { continue }
 
-    $rowNumber++
-    $inventoryRows += ConvertTo-MarkdownTableRow -Cells @("$rowNumber", $featureId, $testFileName, $displayStatus, "Pending", "—", "—", "—")
+        # Apply feature filter on Feature IDs column
+        if ($featureFilterList.Count -gt 0) {
+            $featureIds = $row.'Feature IDs' -split ',' | ForEach-Object { $_.Trim() }
+            $matchesFilter = $false
+            foreach ($f in $featureFilterList) {
+                if ($f -in $featureIds) { $matchesFilter = $true; break }
+            }
+            if (-not $matchesFilter) { continue }
+        }
+
+        # Check if status is auditable
+        $statusCell = $row.'Status'
+        $isAuditable = $false
+        foreach ($status in $auditableStatuses) {
+            if ($statusCell -match [regex]::Escape($status)) { $isAuditable = $true; break }
+        }
+        if (-not $isAuditable) { continue }
+
+        # Skip already-audited entries
+        $auditStatus = $row.'Audit Status'
+        if ($auditStatus -and $auditStatus -ne '—' -and $auditStatus -match 'Approved') { continue }
+
+        $testFile = $row.'Test File/Case'
+        $displayStatus = $statusCell -replace '^[^\w]*', ''
+
+        $rowNumber++
+        $inventoryRows += ConvertTo-MarkdownTableRow -Cells @("$rowNumber", $testId, $testFile, $displayStatus, "Pending", "—", "—", "—")
+    }
+}
+else {
+    # --- Automated: existing behavior — parse test-tracking.md ---
+    $auditableStatuses = @(
+        "Tests Implemented",
+        "Tests Approved",
+        "Tests Approved with Dependencies",
+        "Needs Update"
+    )
+
+    # Parse all test tables from test-tracking.md using shared table helpers
+    # Start from "## 0." to skip Status Legend and Coverage Summary tables
+    $allTestRows = ConvertFrom-MarkdownTable -Content $trackingContent -Section "## 0." -AllTables -ResolveLinkColumn @("Test File/Case")
+
+    foreach ($row in $allTestRows) {
+        # Skip non-automated tests
+        if ($row.'Test Type' -ne "Automated") { continue }
+
+        # Skip infrastructure entries (Feature ID is em-dash variants)
+        $featureId = $row.'Feature ID'
+        if ($featureId -eq [string][char]0x2014 -or $featureId -eq "---" -or $featureId -eq "--") { continue }
+
+        # Apply feature filter if specified
+        if ($featureFilterList.Count -gt 0 -and $featureId -notin $featureFilterList) { continue }
+
+        # Check if status is auditable
+        $statusCell = $row.'Status'
+        $isAuditable = $false
+        foreach ($status in $auditableStatuses) {
+            if ($statusCell -match [regex]::Escape($status)) {
+                $isAuditable = $true
+                break
+            }
+        }
+        if (-not $isAuditable) { continue }
+
+        # Test file name already resolved from markdown link by ResolveLinkColumn
+        $testFileName = $row.'Test File/Case'
+
+        # Determine display status (strip emoji prefix)
+        $displayStatus = $statusCell -replace '^[^\w]*', ''
+
+        $rowNumber++
+        $inventoryRows += ConvertTo-MarkdownTableRow -Cells @("$rowNumber", $featureId, $testFileName, $displayStatus, "Pending", "—", "—", "—")
+    }
 }
 
 if ($inventoryRows.Count -eq 0) {
-    Write-ProjectError -Message "No auditable test files found in test-tracking.md matching the specified criteria." -ExitCode 1
+    Write-ProjectError -Message "No auditable test files found in $trackingFileName matching the specified criteria." -ExitCode 1
 }
 
 $inventoryContent = $inventoryRows -join "`n"
@@ -161,7 +256,8 @@ $additionalMetadataFields = @{
     "audit_round" = "$RoundNumber"
 }
 
-$customFileName = "audit-tracking-$RoundNumber.md"
+$typeSuffix = switch ($TestType) { "Performance" { "-performance" }; "E2E" { "-e2e" }; default { "" } }
+$customFileName = "audit-tracking$typeSuffix-$RoundNumber.md"
 
 try {
     $documentId = New-StandardProjectDocument `

@@ -27,7 +27,7 @@ Systematic data model planning before implementation to prevent data integrity i
 
 ## When to Use
 
-- When the [Feature Tier Assessment](../01-planning/feature-tier-assessment-task.md) indicates "Yes" in the DB Design column
+- When the feature status in [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) is `🗄️ Needs DB Design`
 - Features requiring new data structures or database schema modifications
 - Before implementing any feature that changes the data model
 - When existing schema needs optimization or refactoring
@@ -37,7 +37,7 @@ Systematic data model planning before implementation to prevent data integrity i
 
 ## Information Flow
 
-> **📋 Detailed Guidance**: See [Task Transition Guide - Information Flow Section](../../guides/framework/task-transition-guide.md#task-transitions) for comprehensive information flow patterns.
+> **📋 Detailed Guidance**: See [Information Flow Guide](../../guides/framework/information-flow-guide.md) for comprehensive information flow patterns.
 
 ### Inputs from Other Tasks
 
@@ -191,7 +191,9 @@ DROP TABLE IF EXISTS public.user_profiles;
 
 The following state files are updated as part of this task:
 
-- [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - **AUTOMATICALLY UPDATED** by the schema design script: DB Design column changes from "Yes" to a link to the completed database schema design document
+- [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - **AUTOMATICALLY UPDATED** by the schema design script:
+  - DB Design column: changes from "Yes" to a link to the completed database schema design document
+  - Status: set to `🔌 Needs API Design` (if API Design = `Yes`) or `📝 Needs TDD` (if API Design = `No`)
 - [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) - **MANUAL UPDATE REQUIRED**: Add any schema optimization opportunities identified during design
 - **Database Schema Tracking** - Track schema changes across features (to be created as part of task infrastructure)
 
@@ -212,7 +214,7 @@ Before considering this task finished:
   - [ ] [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) DB Design column **AUTOMATICALLY UPDATED** from "Yes" to link to completed database schema design document (verify the automation worked correctly)
   - [ ] [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) **MANUALLY UPDATED** with schema optimization opportunities identified during design
   - [ ] Database Schema Tracking updated with new schema changes
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Completion Instructions](../../guides/framework/feedback-form-completion-instructions.md) for each tool used, using task ID "PF-TSK-021" and context "Database Schema Design Task"
+- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-021" and context "Database Schema Design Task"
 
 ## Next Tasks
 

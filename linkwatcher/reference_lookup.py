@@ -697,7 +697,7 @@ class ReferenceLookup:
     def _write_with_backup(self, abs_new_path, content, backup_enabled):
         """Write updated content to file, creating a backup first if enabled."""
         if backup_enabled:
-            backup_path = f"{abs_new_path}.linkwatcher.bak"
+            backup_path = f"{abs_new_path}.bak"
             try:
                 shutil.copy2(abs_new_path, backup_path)
             except Exception as e:

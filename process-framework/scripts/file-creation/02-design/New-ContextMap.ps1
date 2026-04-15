@@ -26,7 +26,7 @@
     Brief description of what the context map visualizes
 
 .PARAMETER RelatedTask
-    The PF-TSK-### ID of the task this context map belongs to (e.g., "PF-TSK-028")
+    The PF-TSK-### ID of the task this context map belongs to (e.g., "PF-TSK-006")
 
 .PARAMETER OpenInEditor
     If specified, opens the created file in the default editor

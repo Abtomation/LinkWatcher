@@ -113,7 +113,7 @@ The FDD template consists of several interconnected sections that work together 
 
 ## Separation of Concerns and Cross-Referencing
 
-> **📋 Detailed Guidance**: See [Task Transition Guide - Information Flow Section](../framework/task-transition-guide.md#information-flow-and-separation-of-concerns)
+> **📋 Detailed Guidance**: See [Task Transition Guide - Information Flow Section](../../infrastructure/task-transition-registry.md#information-flow-and-separation-of-concerns)
 
 Functional Design Documents focus exclusively on **functional-level concerns**: user stories, functional requirements, business rules, user workflows, and acceptance criteria from a user perspective. This section helps you understand what to document in detail vs. what to reference from other tasks.
 
