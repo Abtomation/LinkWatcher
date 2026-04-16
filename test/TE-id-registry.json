@@ -48,10 +48,11 @@
         "foundation": "test/audits/foundation",
         "authentication": "test/audits/authentication",
         "core-features": "test/audits/core-features",
+        "e2e": "test/audits/e2e",
         "main": "test/audits",
         "default": "foundation"
       },
-      "nextAvailable": 37
+      "nextAvailable": 65
     },
     "TE-STA": {
       "description": "Test - State Tracking",

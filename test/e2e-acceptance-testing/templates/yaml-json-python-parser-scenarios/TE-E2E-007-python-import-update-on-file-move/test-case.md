@@ -60,10 +60,11 @@ updated: 2026-03-18
 | File | Line/Section | Before | After |
 |------|-------------|--------|-------|
 | `app/main.py` | Line 2 (from import) | `from utils.helpers import format_name` | `from core.helpers import format_name` |
-| `app/main.py` | Line 5 (quoted path) | `HELPERS_PATH = "core/helpers.py"` | `HELPERS_PATH = "core/helpers.py"` |
-| `app/main.py` | Line 6 (comment ref) | `# See core/helpers.py for details` | `# See core/helpers.py for details` |
+| `app/main.py` | Line 6 (quoted path) | `HELPERS_PATH = "utils/helpers.py"` | `HELPERS_PATH = "core/helpers.py"` |
+| `app/main.py` | Line 7 (comment ref) | `# See utils/helpers.py for details` | `# See core/helpers.py for details` |
 | `app/runner.py` | Line 1 (import) | `import utils.helpers` | `import core.helpers` |
-| `app/runner.py` | Line 4 (quoted path) | `helper_file = "core/helpers.py"` | `helper_file = "core/helpers.py"` |
+| `app/runner.py` | Line 5 (quoted path) | `helper_file = "utils/helpers.py"` | `helper_file = "core/helpers.py"` |
+| `app/runner.py` | Line 8 (dotted call) | `utils.helpers.format_name("runner")` | `core.helpers.format_name("runner")` |
 
 References to `utils/__init__.py` must remain **unchanged** in both files (it was not moved).
 

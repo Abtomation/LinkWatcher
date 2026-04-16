@@ -22,11 +22,22 @@ When transitioning to Completed or Rejected:
 - Adds an Update History entry
 - Updates frontmatter updated date
 
+PARAMETER REQUIREMENTS BY STATUS:
+  Status                Required Parameters
+  ----------            -------------------
+  NeedsPrioritization   (none beyond ImprovementId, NewStatus)
+  NeedsImplementation   (none beyond ImprovementId, NewStatus)
+  InProgress            (none beyond ImprovementId, NewStatus)
+  Deferred              (none beyond ImprovementId, NewStatus)
+  Delegated             (none beyond ImprovementId, NewStatus)
+  Completed             -Impact (HIGH|MEDIUM|LOW), -ValidationNotes (description of what was done)
+  Rejected              -Impact (HIGH|MEDIUM|LOW|—), -ValidationNotes (rejection rationale)
+
 .PARAMETER ImprovementId
 The improvement ID to update (e.g., "IMP-063")
 
 .PARAMETER NewStatus
-The new status. Valid values: Identified, Prioritized, InProgress, Completed, Deferred, Delegated, Rejected
+The new status. Valid values: NeedsPrioritization, NeedsImplementation, InProgress, Completed, Deferred, Delegated, Rejected
 
 .PARAMETER Impact
 Impact level (HIGH, MEDIUM, LOW). Required when NewStatus is Completed or Rejected.
@@ -39,6 +50,10 @@ Custom note for the Update History table. Auto-generated if not provided.
 
 .PARAMETER UpdatedBy
 Who performed the update (default: "AI Agent (PF-TSK-009)")
+
+.EXAMPLE
+# Mark improvement as needing implementation (after prioritization)
+Update-ProcessImprovement.ps1 -ImprovementId "IMP-063" -NewStatus "NeedsImplementation"
 
 .EXAMPLE
 # Mark improvement as in progress
@@ -69,7 +84,7 @@ param(
     [string]$ImprovementId,
 
     [Parameter(Mandatory = $true)]
-    [ValidateSet("Identified", "Prioritized", "InProgress", "Completed", "Deferred", "Delegated", "Rejected")]
+    [ValidateSet("NeedsPrioritization", "NeedsImplementation", "InProgress", "Completed", "Deferred", "Delegated", "Rejected")]
     [string]$NewStatus,
 
     [Parameter(Mandatory = $false)]
@@ -98,6 +113,17 @@ $ProjectRoot = Get-ProjectRoot
 $TrackingFile = Join-Path -Path $ProjectRoot -ChildPath "process-framework-local/state-tracking/permanent/process-improvement-tracking.md"
 $ScriptName = "Update-ProcessImprovement.ps1"
 $CurrentDate = Get-Date -Format "yyyy-MM-dd"
+
+# Display name mapping (ValidateSet value → human-readable status text in tracking file)
+$StatusDisplayNames = @{
+    "NeedsPrioritization" = "Needs Prioritization"
+    "NeedsImplementation" = "Needs Implementation"
+    "InProgress"          = "In Progress"
+    "Completed"           = "Completed"
+    "Deferred"            = "Deferred"
+    "Delegated"           = "Delegated"
+    "Rejected"            = "Rejected"
+}
 
 function Write-Log {
     param([string]$Message, [string]$Level = "INFO")
@@ -169,13 +195,14 @@ function Update-StatusInPlace {
     }
 
     # Update Status (index 4) and Last Updated (index 5)
-    $columns[4] = $NewStatus
+    $displayName = $StatusDisplayNames[$NewStatus]
+    $columns[4] = $displayName
     $columns[5] = $CurrentDate
 
     $updatedEntry = ConvertTo-MarkdownTableRow -Cells $columns
     $result = $Content.Replace($currentEntry, $updatedEntry)
 
-    Write-Log "Updated $ImprovementId status to: $NewStatus" -Level "SUCCESS"
+    Write-Log "Updated $ImprovementId status to: $displayName" -Level "SUCCESS"
     return $result
 }
 
@@ -233,7 +260,7 @@ function Update-SummaryCount {
     foreach ($line in ($Content -split "\r?\n")) {
         if ($line -match "^## Completed Improvements") { $inCompletedSection = $true }
         if ($inCompletedSection -and $line -match "^\s*</details>") { break }
-        if ($inCompletedSection -and $line -match "^\|\s*IMP-\d+") { $count++ }
+        if ($inCompletedSection -and $line -match "^\|\s*(PF-)?IMP-\d+") { $count++ }
     }
 
     # Update the <summary> tag: "Show completed improvements (N items)"
@@ -339,7 +366,7 @@ function Main {
             $UpdateHistoryNote = "$statusLabel $ImprovementId`: $ValidationNotes"
         }
         else {
-            $UpdateHistoryNote = "Updated $ImprovementId status to $NewStatus"
+            $UpdateHistoryNote = "Updated $ImprovementId status to $($StatusDisplayNames[$NewStatus])"
         }
     }
 

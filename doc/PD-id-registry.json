@@ -104,7 +104,7 @@
         "handbooks": "doc/user/handbooks",
         "default": "handbooks"
       },
-      "nextAvailable": 5
+      "nextAvailable": 7
     },
     "PD-FAQ": {
       "description": "Product Documentation - FAQ",
@@ -224,7 +224,7 @@
         "plans": "doc/refactoring/plans",
         "default": "plans"
       },
-      "nextAvailable": 191
+      "nextAvailable": 192
     },
     "PD-TDA": {
       "description": "Product Documentation - Technical Debt Assessments",

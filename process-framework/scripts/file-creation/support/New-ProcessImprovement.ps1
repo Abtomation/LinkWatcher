@@ -29,7 +29,7 @@
     Additional context or details (optional)
 
 .PARAMETER Status
-    Initial status (default: "Identified"). Valid: Identified, Prioritized
+    Initial status (default: "NeedsPrioritization"). Valid: NeedsPrioritization, NeedsImplementation
 
 .PARAMETER UpdatedBy
     Who created the entry (default: "AI Agent (PF-TSK-010)")
@@ -80,8 +80,8 @@ param(
     [string]$Notes = "",
 
     [Parameter(Mandatory = $false, ParameterSetName = "Single")]
-    [ValidateSet("Identified", "Prioritized")]
-    [string]$Status = "Identified",
+    [ValidateSet("NeedsPrioritization", "NeedsImplementation")]
+    [string]$Status = "NeedsPrioritization",
 
     [Parameter(Mandatory = $true, ParameterSetName = "Batch")]
     [ValidateScript({ Test-Path $_ })]
@@ -106,6 +106,12 @@ $CurrentDate = Get-Date -Format "yyyy-MM-dd"
 
 if (-not (Test-Path $TrackingFile)) {
     Write-ProjectError -Message "Tracking file not found: $TrackingFile" -ExitCode 1
+}
+
+# Display name mapping (ValidateSet value → human-readable status text in tracking file)
+$StatusDisplayNames = @{
+    "NeedsPrioritization" = "Needs Prioritization"
+    "NeedsImplementation" = "Needs Implementation"
 }
 
 # --- Core logic: add a single improvement to the tracking file ---
@@ -134,7 +140,8 @@ function Add-SingleImprovement {
     }
 
     # Build the table row — 7-column format: ID | Source | Description | Priority | Status | Last Updated | Notes
-    $TableRow = "| $ImprovementId | $SourceColumn | $ItemDescription | $ItemPriority | $ItemStatus | $CurrentDate | $ItemNotes |"
+    $displayStatus = $StatusDisplayNames[$ItemStatus]
+    $TableRow = "| $ImprovementId | $SourceColumn | $ItemDescription | $ItemPriority | $displayStatus | $CurrentDate | $ItemNotes |"
 
     # Read current content
     $Content = Get-Content -Path $TrackingFile -Raw -Encoding UTF8
@@ -237,7 +244,7 @@ if ($PSCmdlet.ParameterSetName -eq "Batch") {
 
     # Validate all items before consuming any IDs
     $validPriorities = @("HIGH", "MEDIUM", "LOW")
-    $validStatuses = @("Identified", "Prioritized")
+    $validStatuses = @("NeedsPrioritization", "NeedsImplementation")
     for ($idx = 0; $idx -lt $items.Count; $idx++) {
         $item = $items[$idx]
         $errors = @()
@@ -245,7 +252,7 @@ if ($PSCmdlet.ParameterSetName -eq "Batch") {
         if (-not $item.Description) { $errors += "missing Description" }
         if (-not $item.Priority) { $errors += "missing Priority" }
         elseif ($item.Priority -notin $validPriorities) { $errors += "invalid Priority '$($item.Priority)' (must be HIGH, MEDIUM, or LOW)" }
-        if ($item.Status -and $item.Status -notin $validStatuses) { $errors += "invalid Status '$($item.Status)' (must be Identified or Prioritized)" }
+        if ($item.Status -and $item.Status -notin $validStatuses) { $errors += "invalid Status '$($item.Status)' (must be NeedsPrioritization or NeedsImplementation)" }
         if ($errors.Count -gt 0) {
             Write-ProjectError -Message "Item [$idx]: $($errors -join '; ')" -ExitCode 1
         }
@@ -263,7 +270,7 @@ if ($PSCmdlet.ParameterSetName -eq "Batch") {
             -ItemDescription $item.Description `
             -ItemPriority $item.Priority `
             -ItemNotes $(if ($item.Notes) { $item.Notes } else { "" }) `
-            -ItemStatus $(if ($item.Status) { $item.Status } else { "Identified" }) `
+            -ItemStatus $(if ($item.Status) { $item.Status } else { "NeedsPrioritization" }) `
             -ItemUpdatedBy $UpdatedBy
 
         if ($result) {

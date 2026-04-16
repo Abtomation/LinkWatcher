@@ -1,7 +1,7 @@
 ---
 id: TE-E2G-008
 type: E2E Acceptance Test Group
-feature_ids: ["2.1.1, 2.2.1, 1.1.1"]
+feature_ids: ["2.1.1", "2.2.1", "1.1.1"]
 workflow: WF-005
 test_cases_count: 1
 estimated_duration: 5 minutes

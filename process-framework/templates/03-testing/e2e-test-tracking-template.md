@@ -14,13 +14,13 @@ E2E acceptance tests validate user-facing workflows that span multiple features.
 
 ## Status Legend
 
-| Status | Description |
-|--------|-------------|
-| 📋 **Case Created** | E2E acceptance test case exists but has never been executed |
-| ✅ **Passed** | Last execution passed |
-| 🔴 **Failed** | Last execution failed |
-| 🔄 **Needs Re-execution** | Code changes invalidated the last result |
-| ⬜ **Not Created** | E2E acceptance test case needed but not yet created |
+| Symbol | Status | Description | Next Task |
+|--------|--------|-------------|-----------|
+| ⬜ | **Not Created** | E2E acceptance test case needed but not yet created | PF-TSK-069 |
+| 📋 | **Needs Execution** | E2E acceptance test case exists but has never been executed | PF-TSK-070 |
+| ✅ | **Passed** | Last execution passed — no action needed | — |
+| 🔴 | **Failed** | Last execution failed — needs bug triage | PF-TSK-041 |
+| 🔄 | **Needs Re-execution** | Code changes invalidated the last result | PF-TSK-070 |
 
 ## Workflow Milestone Tracking
 

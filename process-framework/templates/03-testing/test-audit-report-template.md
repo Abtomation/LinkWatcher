@@ -181,8 +181,8 @@ audit_date: [Audit Date]
 **Status**: [TESTS_APPROVED/TESTS_APPROVED_WITH_DEPENDENCIES/NEEDS_UPDATE/TESTS_INCOMPLETE]
 
 **Status Definitions**:
-- **✅ Tests Approved**: All implementable tests are complete and high quality
-- **🟡 Tests Approved with Dependencies**: Current tests are good, but some tests await implementation
+- **✅ Audit Approved**: All implementable tests are complete and high quality
+- **🟡 Approved — Pending Dependencies**: Current tests are good, but some tests await implementation
 - **🔄 Needs Update**: Existing tests have issues that need fixing
 - **🔴 Tests Incomplete**: Missing tests for existing implementations
 
@@ -214,7 +214,7 @@ audit_date: [Audit Date]
 - [ ] [Action item 1 for feature team]
 - [ ] [Action item 2 for feature team]
 
-### Implementation Dependencies (if status is "Tests Approved with Dependencies")
+### Implementation Dependencies (if status is "Approved — Pending Dependencies")
 <!-- Omit this subsection and Implementation Recommendations if audit decision is "Tests Approved". -->
 - [ ] **Priority 1**: [Missing implementation 1] - [Impact description]
 - [ ] **Priority 2**: [Missing implementation 2] - [Impact description]

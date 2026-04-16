@@ -261,7 +261,22 @@ try {
         if (Test-Path $trackingFilePath) {
             $trackingContent = Get-Content $trackingFilePath -Raw -Encoding UTF8
 
-            # Find the row matching the test file name and update Audit Status + Audit Report columns
+            # For E2E tests, match by TE-E2E-xxx Test ID from parent directory instead of
+            # basename (all E2E cases share "test-case.md", causing first-row collision).
+            # Performance tests keep basename matching (unique filenames).
+            if ($TestType -eq "E2E") {
+                $parentDir = Split-Path (Split-Path $TestFilePath -Parent) -Leaf
+                if ($parentDir -match '(TE-E2E-\d+)') {
+                    $rowMatchPattern = [regex]::Escape($Matches[1])
+                } else {
+                    Write-Warning "Could not extract TE-E2E-xxx ID from path '$TestFilePath' — falling back to basename match"
+                    $rowMatchPattern = [regex]::Escape($testFileName)
+                }
+            } else {
+                $rowMatchPattern = [regex]::Escape($testFileName)
+            }
+
+            # Find the row matching the test identifier and update Audit Status + Audit Report columns
             $lines = $trackingContent -split '\r?\n'
             $updatedLines = @()
             $rowUpdated = $false
@@ -286,7 +301,7 @@ try {
                     $columnIndices = @{}
                 }
 
-                if (-not $rowUpdated -and $columnIndices.Count -gt 0 -and $line -match "^\|.*$([regex]::Escape($testFileName)).*\|") {
+                if (-not $rowUpdated -and $columnIndices.Count -gt 0 -and $line -match "^\|.*$rowMatchPattern.*\|") {
                     $rawCols = $line -split '\|'
                     if ($rawCols.Count -gt 2) { $rawCols = $rawCols[1..($rawCols.Count-2)] }
                     $cols = $rawCols | ForEach-Object { $_.Trim() }
@@ -307,7 +322,7 @@ try {
             if ($rowUpdated) {
                 $updatedContent = $updatedLines -join "`n"
                 $trackingFileName = Split-Path $trackingFilePath -Leaf
-                if ($PSCmdlet.ShouldProcess($trackingFilePath, "Update $trackingFileName: set Audit Status/Report for $testFileName")) {
+                if ($PSCmdlet.ShouldProcess($trackingFilePath, "Update ${trackingFileName}: set Audit Status/Report for ${testFileName}")) {
                     Set-Content $trackingFilePath $updatedContent -Encoding UTF8
                     $stateUpdates += "$trackingFileName`: $testFileName Audit ← $documentId"
                 }

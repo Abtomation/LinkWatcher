@@ -266,7 +266,7 @@ A baseline is a recorded measurement of a performance test on a specific commit.
 | Significant code refactoring | Re-capture affected baselines |
 | Hardware/environment change | Re-capture all baselines |
 | Pre-release | Capture release baseline |
-| Baseline marked ⚠️ Stale | Re-capture |
+| Baseline marked ⚠️ Needs Re-baseline | Re-capture |
 
 ### How to Capture Baselines
 
@@ -301,7 +301,7 @@ A baseline becomes **stale** when:
 - The baseline is older than a project-defined threshold (e.g., 2 releases)
 - Environmental conditions have changed (OS update, hardware change)
 
-Stale baselines are marked ⚠️ in the tracking file and should be re-captured.
+Stale baselines are marked ⚠️ Needs Re-baseline in the tracking file and should be re-captured.
 
 ## Trend Analysis
 
@@ -341,9 +341,9 @@ python process-framework/scripts/test/performance_db.py export --format csv
 
 Combined registry + baselines + lifecycle status. Single source of truth for all performance tests.
 
-**Lifecycle**: ⬜ Specified → 📋 Created → 🔍 Audit Approved → ✅ Baselined → ⚠️ Stale
+**Lifecycle**: ⬜ Needs Creation → 📋 Needs Baseline → 🔍 Audit Approved → ✅ Baselined → ⚠️ Needs Re-baseline
 
-> **Audit gate**: Newly created tests (`📋 Created`) must pass [Test Audit (PF-TSK-030)](/process-framework/tasks/03-testing/test-audit-task.md) with `-TestType Performance` before baseline capture. The `⚠️ Stale` → `✅ Baselined` path is exempt (tests were already audited when first created).
+> **Audit gate**: Newly created tests (`📋 Needs Baseline`) must pass [Test Audit (PF-TSK-030)](/process-framework/tasks/03-testing/test-audit-task.md) with `-TestType Performance` before baseline capture. The `⚠️ Needs Re-baseline` → `✅ Baselined` path is exempt (tests were already audited when first created).
 
 ### Results Database
 
@@ -357,7 +357,7 @@ Stores historical measurements for trend analysis. Each record includes test ID,
 | Task | Role in Performance Testing |
 |------|---------------------------|
 | Performance & E2E Test Scoping (PF-TSK-086) | Identifies which performance tests are needed per feature (owns the decision matrix) |
-| Performance Test Creation (PF-TSK-084) | Implements tests from `⬜ Specified` entries in tracking, registers in tracking |
+| Performance Test Creation (PF-TSK-084) | Implements tests from `⬜ Needs Creation` entries in tracking, registers in tracking |
 | Performance Baseline Capture (PF-TSK-085) | Runs tests, records results, detects regressions |
 
 ## Troubleshooting

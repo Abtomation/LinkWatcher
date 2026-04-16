@@ -127,10 +127,12 @@ _(No narratives created yet — individual entries will be auto-added by New-Int
 
 - [Product: Quick Reference](user/handbooks/quick-reference.md) - CLI options, config, environment variables, examples
 - [Product: Multi-Project Setup](user/handbooks/multi-project-setup.md) - Using across multiple projects
-- [Product: Link Validation](user/handbooks/link-validation.md) - On-demand workspace scan for broken file references using --validate
-- [Product: File Type Quick Fix](user/handbooks/file-type-quick-fix.md) - Quick solutions for adding file type monitoring support
-- [Product: Troubleshooting File Types](user/handbooks/troubleshooting-file-types.md) - Detailed diagnosis and fixes for file type monitoring issues
-- [Product: LinkWatcher Capabilities Reference](user/handbooks/linkwatcher-capabilities-reference.md) - Complete reference of all detection patterns, parsers, and update triggers
+- [Product: Link Validation (PD-UGD-003)](user/handbooks/link-validation.md) - On-demand workspace scan for broken file references using --validate
+- [Product: File Type Quick Fix (PD-UGD-001)](user/handbooks/file-type-quick-fix.md) - Quick solutions for adding file type monitoring support
+- [Product: Troubleshooting File Types (PD-UGD-002)](user/handbooks/troubleshooting-file-types.md) - Detailed diagnosis and fixes for file type monitoring issues
+- [Product: LinkWatcher Capabilities Reference (PD-UGD-004)](user/handbooks/linkwatcher-capabilities-reference.md) - Complete reference of all detection patterns, parsers, and update triggers
+- [Product: Configuration Guide (PD-UGD-005)](user/handbooks/configuration-guide.md) - Complete guide to configuring LinkWatcher: config files, CLI arguments, environment variables, presets, and the ignore system
+- [Product: Logging and Monitoring (PD-UGD-006)](user/handbooks/logging-and-monitoring.md) - Guide to configuring logging output, file logging, log rotation, and the real-time monitoring dashboard
 
 ## `validation/` — Validation Reports
 

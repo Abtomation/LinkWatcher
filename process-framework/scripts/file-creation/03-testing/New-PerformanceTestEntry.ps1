@@ -9,7 +9,7 @@
 .DESCRIPTION
     This PowerShell script creates new performance test entries by:
     - Auto-assigning the next available test ID (BM-xxx or PH-xxx based on level)
-    - Inserting a row into the correct level section with status "⬜ Specified"
+    - Inserting a row into the correct level section with status "⬜ Needs Creation"
     - Updating the Summary table counts
     - Used by the Performance & E2E Test Scoping task (PF-TSK-086)
 
@@ -43,7 +43,7 @@
 .NOTES
     - Test IDs are auto-assigned via the central ID registry (TE-id-registry.json)
     - BM-xxx prefix for Levels 1-2 (benchmarks), PH-xxx for Levels 3-4 (scale/resource)
-    - New entries are created with status "⬜ Specified" — Baseline, Last Result, Last Run, Test File, Audit Status, and Audit Report are set to "—"
+    - New entries are created with status "⬜ Needs Creation" — Baseline, Last Result, Last Run, Test File, Audit Status, and Audit Report are set to "—"
     - The Summary table is automatically updated with new counts
 #>
 
@@ -115,7 +115,7 @@ Write-Host "Tolerance: $Tolerance" -ForegroundColor Cyan
 # --- Step 2: Build the table row ---
 # Columns: Test ID | Operation | Related Features | Status | Baseline | Tolerance | Last Result | Last Run | Test File | Audit Status | Audit Report | Spec Ref
 $specRefValue = if ($SpecRef -ne "") { $SpecRef } else { $Rationale }
-$tableRow = "| $testId | $Operation | $RelatedFeatures | ⬜ Specified | — | $Tolerance | — | — | — | — | — | $specRefValue |"
+$tableRow = "| $testId | $Operation | $RelatedFeatures | ⬜ Needs Creation | — | $Tolerance | — | — | — | — | — | $specRefValue |"
 
 # --- Step 3: Find the correct section and insert after the last data row ---
 if (-not $PSCmdlet.ShouldProcess($TrackingFile, "Add performance test entry '$testId' to Level $Level section")) {
@@ -169,17 +169,17 @@ $lines.Insert($insertAfterIndex + 1, $tableRow)
 Write-Host "Inserted $testId into $sectionHeading" -ForegroundColor Green
 
 # --- Step 4: Update the Summary table ---
-# Find the summary row for this level and increment Total and ⬜ Specified counts
+# Find the summary row for this level and increment Total and ⬜ Needs Creation counts
 $summaryLabel = $config.SummaryLabel
 for ($i = 0; $i -lt $lines.Count; $i++) {
     if ($lines[$i] -match "^\|\s*$summaryLabel\s*\|") {
-        # Parse the summary row: | Level | Total | ✅ Baselined | 📋 Created | ⬜ Specified | ⚠️ Stale |
+        # Parse the summary row: | Level | Total | ✅ Baselined | 📋 Needs Baseline | ⬜ Needs Creation | ⚠️ Needs Re-baseline |
         $cells = $lines[$i] -split '\|' | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne '' }
         if ($cells.Count -ge 6) {
             $total = [int]$cells[1] + 1
             $specified = [int]$cells[4] + 1
             $lines[$i] = "| $summaryLabel | $total | $($cells[2]) | $($cells[3]) | $specified | $($cells[5]) |"
-            Write-Host "Updated Summary: $summaryLabel Total=$total, Specified=$specified" -ForegroundColor Green
+            Write-Host "Updated Summary: $summaryLabel Total=$total, NeedsCreation=$specified" -ForegroundColor Green
         }
         break
     }

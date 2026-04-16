@@ -5,7 +5,7 @@ category: Task Definition
 domain: agnostic
 version: 2.4
 created: 2024-07-15
-updated: 2026-04-14
+updated: 2026-04-15
 ---
 
 # Process Improvement
@@ -62,6 +62,11 @@ Analyze, optimize, and document development processes to improve efficiency, qua
 
 1. **Select improvement** from [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md)
    > After completing an improvement (including tracking update), ask the human partner: **"Continue with another improvement or close the session?"** Each improvement follows the full checkpoint workflow (Steps 1–16) independently. The feedback form is deferred until the session ends — one form covers all improvements done in the session.
+   >
+   > **⚠️ PARALLEL SESSION CHECK**: Before starting work, verify the IMP's current status. If it is already **In Progress**, another session may be working on it — flag this to the human partner and do not proceed until confirmed safe. If the status is **Needs Prioritization** or **Needs Implementation**, claim the IMP by setting it to **In Progress** before any other work:
+   > ```powershell
+   > Update-ProcessImprovement.ps1 -ImprovementId "IMP-XXX" -NewStatus "InProgress"
+   > ```
 2. **Evaluate the IMP**: Before diving into implementation, assess the improvement against structured criteria. First check validity, then evaluate implementation merit:
 
    | Criterion | Question | Rating |
@@ -71,11 +76,11 @@ Analyze, optimize, and document development processes to improve efficiency, qua
    | **Framework Fit** | Does this align with framework principles and existing patterns? (If the fix requires creating new artifacts rather than modifying existing tooling, route to PF-TSK-048/PF-TSK-001 instead.) | Good / Marginal / Poor |
    | **Maintainability** | Will the change be easy to maintain, or does it add complexity/fragility? | Improves / Neutral / Degrades |
    | **Complexity-to-Benefit** | Is the implementation effort proportional to the expected benefit? | Favorable / Balanced / Unfavorable |
-   | **Data-Driven Validation** | *(Only for IMPs that propose removing, merging, or restructuring an existing mechanism.)* Is there quantitative evidence from the feedback pipeline (ratings DB, review summaries, IMP history) that the mechanism's signal is truly redundant or non-contributory? | Required / Not Applicable |
+   | **Data-Driven Validation** | Is there data anywhere in the project (feedback DB, review summaries, IMP history, code metrics, git history, test results, etc.) that could validate or invalidate this IMP's premise? If yes, has it been analyzed? | Analyzed / No Data Available |
 
    > Fill in this table and present it at the Step 5 checkpoint. If **Still Valid?** is No, recommend rejection. If multiple criteria rate poorly (Low/Poor/Degrades/Unfavorable), recommend rejection with rationale.
    >
-   > **Data-driven validation gate**: When **Data-Driven Validation** is "Required", do not proceed to implementation until the analysis is complete. This may require a dedicated multi-session data collection effort (create a temp state file via Step 6). The analysis must trace the mechanism's actual contribution by examining historical data — e.g., which IMPs it triggered, how often it surfaced unique signal, what fix types it led to. If the data shows the mechanism carries unique, non-redundant signal, reject the IMP regardless of intuitive appeal. See [Framework Evaluation](framework-evaluation.md) (PF-TSK-079) Step 8 for the full methodology and the IMP-525 precedent.
+   > **Data-driven validation gate**: When **Data-Driven Validation** is "Analyzed", do not proceed to implementation until the analysis is complete. This may require a dedicated multi-session data collection effort (create a temp state file via Step 6). Data sources are unrestricted — feedback DB ratings, review summaries, IMP history, code metrics, git history, test results, or anything else relevant. If the data contradicts the IMP's premise, reject the IMP regardless of intuitive appeal. See [Framework Evaluation](framework-evaluation.md) (PF-TSK-079) Step 8 for methodology and the IMP-525 precedent.
    >
    > **Task routing**: Before proceeding, check the nature of the solution:
    > - **Content update** to existing file (adding a callout, fixing a template, updating guidance) → continue with PF-TSK-009

@@ -2,9 +2,20 @@
 
 > **Purpose**: Single source of truth for all performance tests — registry, baselines, lifecycle status, and related features.
 >
-> **Lifecycle**: ⬜ Specified → 📋 Created → 🔍 Audit → ✅ Baselined → ⚠️ Stale
+> **Lifecycle**: ⬜ Needs Creation → 📋 Needs Baseline → ✅ Baselined → ⚠️ Needs Re-baseline
 >
 > **Related**: [Performance Testing Guide](/process-framework/guides/03-testing/performance-testing-guide.md) | [Results Database](/process-framework/scripts/test/performance_db.py)
+
+## Status Legend
+
+| Symbol | Status              | Description                                                                          | Next Task  |
+| ------ | ------------------- | ------------------------------------------------------------------------------------ | ---------- |
+| ⬜     | Needs Creation      | Test specified by scoping task, needs implementation                                 | PF-TSK-084 |
+| 📋     | Needs Baseline      | Test created, needs audit (separate Audit Status column) then baseline capture       | PF-TSK-085 |
+| ✅     | Baselined           | Baseline captured, stable — monitoring for regressions                               | —          |
+| ⚠️     | Needs Re-baseline   | Baseline is stale due to code changes, needs re-capture                              | PF-TSK-085 |
+
+> **Audit gate**: Tests in "Needs Baseline" status must pass Test Audit (`🔍 Audit Approved` in the Audit Status column) before baseline capture. Audit status is tracked per-test in the Audit Status column, not in the main lifecycle.
 
 ## Test Inventory
 
@@ -46,7 +57,7 @@
 
 ## Summary
 
-| Level | Total | ✅ Baselined | 📋 Created | ⬜ Specified | ⚠️ Stale |
+| Level | Total | ✅ Baselined | 📋 Needs Baseline | ⬜ Needs Creation | ⚠️ Needs Re-baseline |
 |-------|-------|-------------|-----------|-------------|----------|
 | Component | 5 | 5 | 0 | 0 | 0 |
 | Operation | 3 | 3 | 0 | 0 | 0 |

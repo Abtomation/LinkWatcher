@@ -531,7 +531,7 @@ Is test-first development approach being used?
 **Prerequisites for Transition:**
 
 - [ ] Test cases implemented according to test specifications
-- [ ] Test implementation status updated to "🔄 Ready for Validation"
+- [ ] Test implementation status updated to "🔄 Needs Audit"
 - [ ] Test tracking files updated with test file links and status
 - [ ] Test environment and data setup complete
 
@@ -566,8 +566,8 @@ Is systematic test quality assessment needed?
 ```
 What test type was audited?
 ├─ Automated → 4-outcome decision tree:
-│  ├─ ✅ Tests Approved → Feature Implementation → 👀 Needs Review → Code Review
-│  ├─ 🟡 Tests Approved with Dependencies → Implementation Tasks → Feature Implementation
+│  ├─ ✅ Audit Approved → Feature Implementation → 👀 Needs Review → Code Review
+│  ├─ 🟡 Approved — Pending Dependencies → Implementation Tasks → Feature Implementation
 │  ├─ 🔄 Needs Update → Integration & Testing (fix issues)
 │  └─ 🔴 Tests Incomplete → Integration & Testing (add missing tests)
 │
@@ -741,7 +741,7 @@ What did the scoping task identify?
 
 **Preparation for Next Task:**
 
-1. Performance test entries at `⬜ Specified` in performance-test-tracking.md (if applicable)
+1. Performance test entries at `⬜ Needs Creation` in performance-test-tracking.md (if applicable)
 2. E2E milestone entry added to e2e-test-tracking.md (if applicable)
 3. Rationale documented for all "no tests needed" decisions
 
@@ -750,7 +750,7 @@ What did the scoping task identify?
 **Prerequisites for Transition:**
 
 - [ ] Performance tests implemented with required pytest markers
-- [ ] performance-test-tracking.md updated: `⬜ Specified → 📋 Created` with Test File links
+- [ ] performance-test-tracking.md updated: `⬜ Needs Creation → 📋 Needs Baseline` with Test File links
 - [ ] All new tests pass when run
 
 **Next Task Selection:**
@@ -764,7 +764,7 @@ Tests created?
 
 **Preparation for Next Task:**
 
-1. Verify all new test entries show `📋 Created` in performance-test-tracking.md
+1. Verify all new test entries show `📋 Needs Baseline` in performance-test-tracking.md
 2. Ensure test files are committed and accessible for audit review
 
 ### Transitioning FROM Performance Baseline Capture (PF-TSK-085)

@@ -55,7 +55,7 @@ function Update-FeatureTrackingStatus {
     Update-FeatureTrackingStatus -FeatureId "1.2.3" -Status "🟢 Completed" -StatusColumn "Implementation Status"
 
     .EXAMPLE
-    $updates = @{ "Test Status" = "✅ Tests Implemented"; "Code Review" = "Completed" }
+    $updates = @{ "Test Status" = "✅ Audit Approved"; "Code Review" = "Completed" }
     Update-FeatureTrackingStatus -FeatureId "1.2.3" -Status "🟢 Completed" -AdditionalUpdates $updates
     #>
 

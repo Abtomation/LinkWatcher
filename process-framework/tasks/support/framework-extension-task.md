@@ -3,9 +3,9 @@ id: PF-TSK-026
 type: Process Framework
 category: Task Definition
 domain: agnostic
-version: 1.3
+version: 1.4
 created: 2025-07-26
-updated: 2026-04-14
+updated: 2026-04-15
 ---
 
 # Framework Extension Task
@@ -102,6 +102,10 @@ This task manages the systematic extension of the task-based development framewo
    >
    > **Column-index impact check**: If the extension modifies tracking file structure (adds, removes, or reorders columns), grep for `Split-MarkdownTableRow` and hardcoded column index patterns (e.g., `\[3\]`, `\[4\]`) in all scripts that reference the modified tracking file. Scripts that *read* column indices break just as silently as scripts that *write* them.
 5. **🚨 CHECKPOINT**: Present concept document, impact analysis, and proposed implementation approach to human partner for approval
+   > **Single-session lightweight path**: If the extension meets **all** of these criteria — (1) modification-type (changes existing artifacts only, no new tasks/templates/guides), (2) completable in a single session, (3) no new ID prefixes needed — then at this checkpoint, propose the lightweight path to the human partner. If approved:
+   > - **Skip Phase 2 entirely** (Steps 6–10: no temp state file, no roadmap, no session planning)
+   > - **Phase 3 compresses to**: Implement modifications (Step 12) → verify linked documents with grep sweep → integration testing (Step 15)
+   > - **Phase 4 compresses to**: Checkpoint (Step 16) → update core framework files (Step 17) → update permanent state files (Step 19) → completion checklist (Step 22). Skip Steps 18 (usage docs), 20 (state file archival), and 21 (concept archival — archive concept inline at this step instead).
 
 ### Phase 2: State Tracking & Planning
 
@@ -187,7 +191,7 @@ The following state files must be updated as part of this task:
 
 **🚨 TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF 🚨**
 
-> **Note**: This is a multi-session task. Complete verification applies to the ENTIRE extension across all sessions.
+> **Note**: This is typically a multi-session task. Complete verification applies to the ENTIRE extension across all sessions. For **single-session lightweight path** extensions (approved at Step 5), items marked *(full path only)* can be skipped.
 
 Before considering this task finished:
 
@@ -200,7 +204,7 @@ Before considering this task finished:
   - [ ] State tracking integration strategy defined (new permanent state files vs. updating existing ones)
   - [ ] Human approval obtained for concept before implementation
 
-- [ ] **Verify Implementation Phase**: Confirm all extension components implemented using two-phase approach
+- [ ] **Verify Implementation Phase**: Confirm all extension components implemented using two-phase approach *(full path only)*
 
   - [ ] **Phase A - Structure Generation**: All document structures generated using appropriate scripts
     - [ ] Task definitions created using New-Task.ps1 (structural framework only)
@@ -221,7 +225,7 @@ Before considering this task finished:
   - [ ] Permanent state files updated as defined in concept document
 
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
-  - [ ] Temporary state tracking file moved to `/process-framework-local/state-tracking/temporary/old`
+  - [ ] Temporary state tracking file moved to `/process-framework-local/state-tracking/temporary/old` *(full path only)*
   - [ ] Framework extension concept document moved to `/process-framework-local/proposals/old/`
   - [ ] [Documentation Map](../../PF-documentation-map.md) reflects all new artifacts
   - [ ] [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) updated with framework capability enhancement

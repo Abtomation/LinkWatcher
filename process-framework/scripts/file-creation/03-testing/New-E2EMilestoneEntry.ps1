@@ -21,7 +21,7 @@
     Optional link to the E2E test specification. Defaults to "—" (to be created).
 
 .PARAMETER Status
-    Initial status (default: "⬜ Not Created"). Use "📋 Case Created" if a test case already exists.
+    Initial status (default: "⬜ Not Created"). Use "📋 Needs Execution" if a test case already exists.
 
 .EXAMPLE
     New-E2EMilestoneEntry.ps1 -WorkflowId "WF-009"
@@ -46,7 +46,7 @@ param(
     [string]$SpecRef = "—",
 
     [Parameter(Mandatory = $false)]
-    [ValidateSet("⬜ Not Created", "📋 Case Created")]
+    [ValidateSet("⬜ Not Created", "📋 Needs Execution")]
     [string]$Status = "⬜ Not Created"
 )
 

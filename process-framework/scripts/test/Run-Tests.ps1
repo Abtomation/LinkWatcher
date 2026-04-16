@@ -427,7 +427,7 @@ if ($UpdateTracking -and $script:capturedTestOutput.Count -gt 0) {
             if ($stats.Skipped -gt 0) { $runNote += ", $($stats.Skipped) skipped" }
 
             $updatesByFileName[$fileName] = @{
-                Status = if ($stats.Failed -gt 0 -or $stats.Error -gt 0) { "🔴 Tests Failing" } else { "✅ Tests Implemented" }
+                Status = if ($stats.Failed -gt 0 -or $stats.Error -gt 0) { "🔴 Needs Fix" } else { "✅ Audit Approved" }
                 TestCasesCount = "$total"
                 RunNote = $runNote
                 FilePath = $filePath

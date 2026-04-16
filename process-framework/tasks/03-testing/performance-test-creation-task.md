@@ -12,9 +12,9 @@ updated: 2026-04-13
 
 ## Purpose & Context
 
-Implement performance tests from a performance test specification. This task covers measurement design, threshold-setting against baselines, test registration in performance-test-tracking.md, and lifecycle transition from ⬜ Specified to 📋 Created.
+Implement performance tests from a performance test specification. This task covers measurement design, threshold-setting against baselines, test registration in performance-test-tracking.md, and lifecycle transition from ⬜ Needs Creation to 📋 Needs Baseline.
 
-Implement performance tests identified by the [Performance & E2E Test Scoping task (PF-TSK-086)](/process-framework/tasks/03-testing/performance-and-e2e-test-scoping-task.md). Performance test needs appear as `⬜ Specified` entries in performance-test-tracking.md after the scoping task applies the [decision matrix](/process-framework/guides/03-testing/performance-and-e2e-test-scoping-guide.md#performance-test-decision-matrix) against a feature's code changes.
+Implement performance tests identified by the [Performance & E2E Test Scoping task (PF-TSK-086)](/process-framework/tasks/03-testing/performance-and-e2e-test-scoping-task.md). Performance test needs appear as `⬜ Needs Creation` entries in performance-test-tracking.md after the scoping task applies the [decision matrix](/process-framework/guides/03-testing/performance-and-e2e-test-scoping-guide.md#performance-test-decision-matrix) against a feature's code changes.
 
 ## AI Agent Role
 
@@ -25,7 +25,7 @@ Implement performance tests identified by the [Performance & E2E Test Scoping ta
 
 ## When to Use
 
-- When performance-test-tracking.md has `⬜ Specified` entries created by the [Performance & E2E Test Scoping task (PF-TSK-086)](/process-framework/tasks/03-testing/performance-and-e2e-test-scoping-task.md)
+- When performance-test-tracking.md has `⬜ Needs Creation` entries created by the [Performance & E2E Test Scoping task (PF-TSK-086)](/process-framework/tasks/03-testing/performance-and-e2e-test-scoping-task.md)
 - When expanding performance coverage after discovering gaps during Baseline Capture
 - Standalone when adding performance coverage for untested areas
 
@@ -34,7 +34,7 @@ Implement performance tests identified by the [Performance & E2E Test Scoping ta
 - **Critical (Must Read):**
 
   - [Performance Testing Guide](/process-framework/guides/03-testing/performance-testing-guide.md) — Test levels, measurement methodology, threshold-setting, avoiding flaky benchmarks
-  - [Performance & E2E Test Scoping Guide](/process-framework/guides/03-testing/performance-and-e2e-test-scoping-guide.md) — Decision matrix that produced the `⬜ Specified` entries
+  - [Performance & E2E Test Scoping Guide](/process-framework/guides/03-testing/performance-and-e2e-test-scoping-guide.md) — Decision matrix that produced the `⬜ Needs Creation` entries
   - [Performance Test Tracking](/test/state-tracking/permanent/performance-test-tracking.md) — Current test inventory and baselines
 
 - **Important (Load If Space):**
@@ -54,7 +54,7 @@ Implement performance tests identified by the [Performance & E2E Test Scoping ta
 
 ### Preparation
 
-1. **Read performance-test-tracking.md** and identify all `⬜ Specified` entries. These were created by the [Performance & E2E Test Scoping task (PF-TSK-086)](/process-framework/tasks/03-testing/performance-and-e2e-test-scoping-task.md) using the [decision matrix](/process-framework/guides/03-testing/performance-and-e2e-test-scoping-guide.md#performance-test-decision-matrix). Each entry includes the test level, target subsystem, and rationale.
+1. **Read performance-test-tracking.md** and identify all `⬜ Needs Creation` entries. These were created by the [Performance & E2E Test Scoping task (PF-TSK-086)](/process-framework/tasks/03-testing/performance-and-e2e-test-scoping-task.md) using the [decision matrix](/process-framework/guides/03-testing/performance-and-e2e-test-scoping-guide.md#performance-test-decision-matrix). Each entry includes the test level, target subsystem, and rationale.
 
 2. **Review existing tests** to understand coverage and patterns. Check if any existing tests partially cover the specified entries.
 
@@ -71,9 +71,9 @@ Implement performance tests identified by the [Performance & E2E Test Scoping ta
 
 6. **Update tracking file** — for each test implemented, transition its status using the automation script:
    ```bash
-   pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/update/Update-PerformanceTracking.ps1 -TestId "<BM-xxx|PH-xxx>" -NewStatus "Created" -TestFile "[test_file.py](/test/automated/performance/test_file.py)"
+   pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/update/Update-PerformanceTracking.ps1 -TestId "<BM-xxx|PH-xxx>" -NewStatus "NeedsBaseline" -TestFile "[test_file.py](/test/automated/performance/test_file.py)"
    ```
-   The script transitions `⬜ Specified → 📋 Created`, fills the Test File column, and recalculates the Summary table automatically.
+   The script transitions `⬜ Needs Creation → 📋 Needs Baseline`, fills the Test File column, and recalculates the Summary table automatically.
 
 7. **Run the new tests** to verify they pass and produce measurable output:
    ```bash
@@ -86,7 +86,7 @@ Implement performance tests identified by the [Performance & E2E Test Scoping ta
 
 9. **Verify tracking file summary** — the Summary table is recalculated automatically by the update script. Verify counts are correct.
 
-10. **Verify all specified tests are accounted for** — grep for `⬜ Specified` in the tracking file. Any remaining entries are deferred to a future session.
+10. **Verify all specified tests are accounted for** — grep for `⬜ Needs Creation` in the tracking file. Any remaining entries are deferred to a future session.
 
 11. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
@@ -98,7 +98,7 @@ Implement performance tests identified by the [Performance & E2E Test Scoping ta
 ## Outputs
 
 - **New/updated performance test files** in `test/automated/performance/`
-- **Updated performance-test-tracking.md** — new rows at `📋 Created` status with test file references
+- **Updated performance-test-tracking.md** — new rows at `📋 Needs Baseline` status with test file references
 - **Test execution output** — measured values for each new test (used by Baseline Capture task)
 
 ## State Tracking

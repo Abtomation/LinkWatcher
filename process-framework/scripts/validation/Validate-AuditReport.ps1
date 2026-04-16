@@ -125,7 +125,11 @@ function Test-MetadataSection {
     }
 
     $metadata = $metadataMatch.Groups[1].Value
-    $requiredFields = @('id', 'feature_id', 'test_file_id', 'auditor', 'audit_date')
+    $requiredFields = @('id', 'feature_id', 'auditor', 'audit_date')
+    # Accept either test_file_id or test_file_path (E2E template uses test_file_path)
+    if ($metadata -notmatch 'test_file_id\s*:' -and $metadata -notmatch 'test_file_path\s*:') {
+        $validationResults.Errors += "Missing required metadata field: test_file_id or test_file_path"
+    }
 
     foreach ($field in $requiredFields) {
         if ($metadata -notmatch "$field\s*:") {
@@ -187,7 +191,7 @@ function Test-EvaluationCriteria {
 function Test-AuditDecision {
     param($Content)
 
-    if ($Content -notmatch '\*\*Status\*\*:\s*[^\r\n]*(TESTS_APPROVED|Tests Approved|NEEDS_UPDATE|Needs Update)') {
+    if ($Content -notmatch '\*\*Status\*\*:\s*[^\r\n]*(TESTS_APPROVED|Tests Approved|NEEDS_UPDATE|Needs Update|Audit Approved|AUDIT_APPROVED|Audit Failed|AUDIT_FAILED)') {
         $validationResults.Errors += "Missing or invalid audit decision status"
         return $false
     }
@@ -206,7 +210,7 @@ function Test-RequiredSections {
 
     $requiredSections = @(
         'Audit Overview',
-        'Test Files Audited',
+        'Test(s| Files) Audited',
         'Audit Evaluation',
         'Overall Audit Summary',
         'Action Items',

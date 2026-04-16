@@ -81,7 +81,7 @@ The task uses a decision matrix (in the scoping guide) to determine performance 
      ```bash
      pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/03-testing/New-PerformanceTestEntry.ps1 -Level <1-4> -Operation "<description>" -RelatedFeatures "<feature IDs>" -Tolerance "<threshold>" -Rationale "<decision matrix trigger>"
      ```
-     The script auto-assigns test IDs (BM-xxx or PH-xxx), inserts into the correct level section with status `⬜ Specified`, and updates the Summary table.
+     The script auto-assigns test IDs (BM-xxx or PH-xxx), inserts into the correct level section with status `⬜ Needs Creation`, and updates the Summary table.
    - **If no performance tests needed**: Document rationale in the checkpoint summary (e.g., "Feature only adds configuration options, no hot-path changes")
 
 ### Phase 3: E2E Test Scoping
@@ -125,7 +125,7 @@ The task uses a decision matrix (in the scoping guide) to determine performance 
 
 ## Outputs
 
-- **Performance scoping decision** — Either new rows in [performance-test-tracking.md](/test/state-tracking/permanent/performance-test-tracking.md) (status `⬜ Specified`) or documented rationale for "no performance tests needed"
+- **Performance scoping decision** — Either new rows in [performance-test-tracking.md](/test/state-tracking/permanent/performance-test-tracking.md) (status `⬜ Needs Creation`) or documented rationale for "no performance tests needed"
 - **E2E scoping decision** — Either new/updated entries in [e2e-test-tracking.md](/test/state-tracking/permanent/e2e-test-tracking.md) or documented rationale for "no E2E scenarios identified"
 - **Newly discovered workflows** — Any cross-feature interactions added to [user-workflow-tracking.md](/doc/state-tracking/permanent/user-workflow-tracking.md) that were not previously tracked (if any)
 - **Updated feature status** — Feature moved from `🔎 Needs Test Scoping` to `🟢 Completed` in [feature-tracking.md](/doc/state-tracking/permanent/feature-tracking.md)
@@ -153,7 +153,7 @@ Before considering this task finished:
   - [ ] Each decision (test needed / not needed) has documented rationale
   - [ ] No duplicate entries created in tracking files
 - [ ] **Verify Outputs**: Confirm all required outputs have been produced
-  - [ ] Performance test entries added to [performance-test-tracking.md](/test/state-tracking/permanent/performance-test-tracking.md) (if needed) with status `⬜ Specified`
+  - [ ] Performance test entries added to [performance-test-tracking.md](/test/state-tracking/permanent/performance-test-tracking.md) (if needed) with status `⬜ Needs Creation`
   - [ ] E2E test entries added to [e2e-test-tracking.md](/test/state-tracking/permanent/e2e-test-tracking.md) (if needed)
   - [ ] Rationale documented for any "no tests needed" decisions
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
@@ -163,8 +163,8 @@ Before considering this task finished:
 
 ## Next Tasks
 
-- [**Performance Test Creation (PF-TSK-084)**](/process-framework/tasks/03-testing/performance-test-creation-task.md) - If performance tests were identified, implement them from the `⬜ Specified` entries in performance-test-tracking.md. Full downstream lifecycle: `⬜ Specified → 📋 Created → 🔍 Audit Approved → ✅ Baselined`
-- [**E2E Acceptance Test Case Creation (PF-TSK-069)**](/process-framework/tasks/03-testing/e2e-acceptance-test-case-creation-task.md) - If E2E tests were identified for newly E2E-ready workflows. Full downstream lifecycle: `📋 Case Created → 🔍 Audit Approved → ✅ Passed`
+- [**Performance Test Creation (PF-TSK-084)**](/process-framework/tasks/03-testing/performance-test-creation-task.md) - If performance tests were identified, implement them from the `⬜ Needs Creation` entries in performance-test-tracking.md. Full downstream lifecycle: `⬜ Needs Creation → 📋 Needs Baseline → 🔍 Audit Approved → ✅ Baselined`
+- [**E2E Acceptance Test Case Creation (PF-TSK-069)**](/process-framework/tasks/03-testing/e2e-acceptance-test-case-creation-task.md) - If E2E tests were identified for newly E2E-ready workflows. Full downstream lifecycle: `📋 Needs Execution → 🔍 Audit Approved → ✅ Passed`
 - [**Release & Deployment (PF-TSK-018)**](/process-framework/tasks/07-deployment/release-deployment-task.md) - If no tests are needed and the feature is ready for release
 
 > **Audit gate**: Both performance tests and E2E test cases must pass [Test Audit (PF-TSK-030)](/process-framework/tasks/03-testing/test-audit-task.md) before proceeding to baseline capture or execution respectively. The audit step is mandatory for newly created tests — see each downstream task's prerequisites for details.

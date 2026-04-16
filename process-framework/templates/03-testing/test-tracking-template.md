@@ -18,17 +18,17 @@ This file tracks the implementation status of all **automated** tests derived fr
 
 ### Automated Test Statuses
 
-| Status | Description |
-|--------|-------------|
-| 📝 **Specification Created** | Test specification document has been created but tests not yet implemented |
-| 🟡 **Implementation In Progress** | Test implementation has started but is not complete |
-| 🔄 **Ready for Validation** | Tests are implemented and ready for audit validation |
-| ✅ **Tests Implemented** | All tests from specification have been implemented and are passing |
-| 🟡 **Tests Approved with Dependencies** | Tests are approved by audit but some tests await implementation dependencies |
-| 🔴 **Tests Failing** | Tests are implemented but some are currently failing |
-| ⛔ **Implementation Blocked** | Test implementation is blocked by dependencies or issues |
-| 🔄 **Needs Update** | Test specification or implementation needs updates due to code changes or audit findings |
-| 🗑️ **Removed** | Test file has been removed due to being outdated or no longer needed |
+| Status | Description | Next Task |
+|--------|-------------|-----------|
+| 📝 **Needs Implementation** | Test specification exists, tests not yet implemented | PF-TSK-053 |
+| 🟡 **Implementation In Progress** | Test implementation has started but is not complete | — |
+| 🔄 **Needs Audit** | Tests are implemented and ready for audit validation | PF-TSK-030 |
+| ✅ **Audit Approved** | All tests passed audit and are production-ready | — |
+| 🟡 **Approved — Pending Dependencies** | Tests passed audit but some await implementation dependencies | — |
+| 🔴 **Needs Fix** | Tests are implemented but some are currently failing | — |
+| ⛔ **Implementation Blocked** | Test implementation is blocked by dependencies or issues | — |
+| 🔄 **Needs Update** | Test specification or implementation needs updates due to code changes or audit findings | — |
+| 🗑️ **Removed** | Test file has been removed due to being outdated or no longer needed | — |
 
 ## Coverage Summary
 

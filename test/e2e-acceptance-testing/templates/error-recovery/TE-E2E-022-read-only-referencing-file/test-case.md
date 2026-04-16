@@ -2,8 +2,8 @@
 id: TE-E2E-022
 type: E2E Acceptance Test Case
 group: TE-E2G-011
-feature_ids: ["0.1.1, 2.2.1, 3.1.1"]
-workflow: WF-009
+feature_ids: ["0.1.1", "2.2.1", "3.1.1"]
+workflow: —
 priority: P2
 execution_mode: scripted
 estimated_duration: 5 minutes

@@ -42,9 +42,8 @@ This file tracks the progress and results of a **Test Audit round** across all t
 ### Inventory Legend
 
 **Current Status** — from test-tracking.md:
-- **Tests Implemented**: Ready for first audit
-- **Tests Approved**: Previously approved, eligible for re-audit
-- **Tests Approved with Dependencies**: Previously approved with dependency caveats
+- **Audit Approved**: Previously approved, eligible for re-audit
+- **Approved — Pending Dependencies**: Previously approved with dependency caveats
 - **Needs Update**: Previously audited, needs re-audit after changes
 
 **Audit Status** — updated during this round:

@@ -310,9 +310,9 @@ Performance & E2E Test Scoping (PF-TSK-086) identifies perf tests needed →
   Performance Test Creation (PF-TSK-084) → Test Audit (PF-TSK-030, -TestType Performance) → Performance Baseline Capture (PF-TSK-085)
 ```
 
-> **Trigger**: The [Performance & E2E Test Scoping task (PF-TSK-086)](/process-framework/tasks/03-testing/performance-and-e2e-test-scoping-task.md) applies the [decision matrix](/process-framework/guides/03-testing/performance-and-e2e-test-scoping-guide.md#performance-test-decision-matrix) after code review and adds `⬜ Specified` entries to performance-test-tracking.md. Performance Test Creation implements tests from those entries; Baseline Capture records results and detects regressions. Baseline Capture also runs standalone for pre-release verification and post-refactoring checks.
+> **Trigger**: The [Performance & E2E Test Scoping task (PF-TSK-086)](/process-framework/tasks/03-testing/performance-and-e2e-test-scoping-task.md) applies the [decision matrix](/process-framework/guides/03-testing/performance-and-e2e-test-scoping-guide.md#performance-test-decision-matrix) after code review and adds `⬜ Needs Creation` entries to performance-test-tracking.md. Performance Test Creation implements tests from those entries; Baseline Capture records results and detects regressions. Baseline Capture also runs standalone for pre-release verification and post-refactoring checks.
 >
-> **Audit gate**: Newly created performance tests must pass Test Audit (`🔍 Audit Approved`) before baseline capture. Tests marked `⚠️ Stale` are exempt (already audited).
+> **Audit gate**: Newly created performance tests must pass Test Audit (`🔍 Audit Approved`) before baseline capture. Tests marked `⚠️ Needs Re-baseline` are exempt (already audited).
 
 ### For Feature Validation
 

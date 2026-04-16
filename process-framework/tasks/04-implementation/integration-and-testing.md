@@ -206,7 +206,7 @@ The following state files are automatically updated by the `New-TestFile.ps1` sc
 **Manual updates required for:**
 
 - Updating test case counts after implementation completion
-- Changing status from Implementation In Progress to Ready for Validation
+- Changing status from Implementation In Progress to Needs Audit
 - Updating Feature Implementation State File (if applicable) with test metrics and notes
 
 ## MANDATORY Task Completion Checklist
@@ -230,7 +230,7 @@ Before considering this task finished:
   - [ ] [Test Tracking](../../../test/state-tracking/permanent/test-tracking.md) shows correct test file links and status
   - [ ] [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) Test Status column reflects implementation progress
 - [ ] **Manual Status Updates**: Update completion status after test implementation
-  - [ ] Change test status from Implementation In Progress to Ready for Validation
+  - [ ] Change test status from Implementation In Progress to Needs Audit
   - [ ] Update test case counts with actual implemented test count
 - [ ] **Run Validation**: Execute validation scripts to ensure tracking consistency
   - [ ] Run `Validate-TestTracking.ps1` and verify no errors

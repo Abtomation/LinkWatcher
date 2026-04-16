@@ -119,7 +119,7 @@ When adding rows to [performance-test-tracking.md](/test/state-tracking/permanen
 
 | Field | Value |
 |-------|-------|
-| Status | `⬜ Specified` |
+| Status | `⬜ Needs Creation` |
 | Test Level | Level 1/2/3/4 per decision matrix |
 | Target | Specific subsystem or operation |
 | Feature | The feature ID that triggered this entry |
@@ -207,10 +207,10 @@ For features that were marked Completed before this task existed, apply the same
 
 After scoping identifies test needs, the downstream lifecycle includes an **audit gate** before baseline capture or execution:
 
-- **Performance tests**: `⬜ Specified → 📋 Created` (PF-TSK-084) → `🔍 Audit Approved` (PF-TSK-030, `-TestType Performance`) → `✅ Baselined` (PF-TSK-085)
-- **E2E test cases**: `📋 Case Created` (PF-TSK-069) → `🔍 Audit Approved` (PF-TSK-030, `-TestType E2E`) → `✅ Passed` (PF-TSK-070)
+- **Performance tests**: `⬜ Needs Creation → 📋 Needs Baseline` (PF-TSK-084) → `🔍 Audit Approved` (PF-TSK-030, `-TestType Performance`) → `✅ Baselined` (PF-TSK-085)
+- **E2E test cases**: `📋 Needs Execution` (PF-TSK-069) → `🔍 Audit Approved` (PF-TSK-030, `-TestType E2E`) → `✅ Passed` (PF-TSK-070)
 
-The audit gate is mandatory for newly created tests. Re-executions (`⚠️ Stale` for performance, `🔄 Needs Re-execution` for E2E) are exempt.
+The audit gate is mandatory for newly created tests. Re-executions (`⚠️ Needs Re-baseline` for performance, `🔄 Needs Re-execution` for E2E) are exempt.
 
 ## Related Resources
 

@@ -217,7 +217,7 @@ $StatusDisplayNames = @{
 #   [0] = ID           (e.g., PD-BUG-001)
 #   [1] = Title
 #   [2] = Status       (emoji + status text)
-#   [3] = Priority     (P1/P2/P3/P4)
+#   [3] = Priority     (Critical/High/Medium/Low)
 #   [4] = Scope        (S/M/L)
 #   [5] = Reported     (date)
 #   [6] = Description
@@ -310,8 +310,7 @@ function Update-BugEntryContent {
 
     # Update priority if provided
     if ($UpdateData.Priority) {
-        $priorityMap = @{ "Critical" = "P1"; "High" = "P2"; "Medium" = "P3"; "Low" = "P4" }
-        $columns[3] = $priorityMap[$UpdateData.Priority]
+        $columns[3] = $UpdateData.Priority
     }
 
     # Update scope if provided
@@ -401,10 +400,10 @@ function Move-BugFromClosedToActiveSectionContent {
     $priorityValue = $columns[3].Trim()
 
     $sectionHeader = switch ($priorityValue) {
-        "P1" { "### Critical Bugs" }
-        "P2" { "### High Priority Bugs" }
-        "P3" { "### Medium Priority Bugs" }
-        "P4" { "### Low Priority Bugs" }
+        "Critical" { "### Critical Bugs" }
+        "High"     { "### High Priority Bugs" }
+        "Medium"   { "### Medium Priority Bugs" }
+        "Low"      { "### Low Priority Bugs" }
         default {
             Write-Log "Unknown priority '$priorityValue' for bug $BugId, defaulting to Medium" -Level "WARN"
             "### Medium Priority Bugs"
@@ -690,12 +689,12 @@ function Update-BugStatisticsContent {
 
     $result = $Content
     $result = $result -replace '- \*\*Total Active Bugs\*\*:.*', "- **Total Active Bugs**: $totalActive"
-    $result = $result -replace '- \*\*Critical \(P1\)\*\*:.*', (Format-StatLine "Critical (P1)" $bugIds.Critical)
-    $result = $result -replace '- \*\*High \(P2\)\*\*:.*', (Format-StatLine "High (P2)" $bugIds.High)
-    $result = $result -replace '- \*\*Medium \(P3\)\*\*:.*', (Format-StatLine "Medium (P3)" $bugIds.Medium)
-    $result = $result -replace '- \*\*Low \(P4\)\*\*:.*', (Format-StatLine "Low (P4)" $bugIds.Low)
+    $result = $result -replace '- \*\*Critical\*\*:.*', (Format-StatLine "Critical" $bugIds.Critical)
+    $result = $result -replace '- \*\*High\*\*:.*', (Format-StatLine "High" $bugIds.High)
+    $result = $result -replace '- \*\*Medium\*\*:.*', (Format-StatLine "Medium" $bugIds.Medium)
+    $result = $result -replace '- \*\*Low\*\*:.*', (Format-StatLine "Low" $bugIds.Low)
 
-    Write-Log "Updated bug statistics: $totalActive active ($($bugIds.Critical.Count) P1, $($bugIds.High.Count) P2, $($bugIds.Medium.Count) P3, $($bugIds.Low.Count) P4)" -Level "SUCCESS"
+    Write-Log "Updated bug statistics: $totalActive active ($($bugIds.Critical.Count) Critical, $($bugIds.High.Count) High, $($bugIds.Medium.Count) Medium, $($bugIds.Low.Count) Low)" -Level "SUCCESS"
     return $result
 }
 

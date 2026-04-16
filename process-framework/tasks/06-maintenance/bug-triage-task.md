@@ -88,16 +88,16 @@ Systematically evaluate, prioritize, and assign reported bugs to ensure efficien
    - For **Small-scope (S)** bugs: a quick dimension tag is sufficient (abbreviations only)
    - For **Large-scope (L)** bugs: detailed dimension context will be recorded in the Bug Fix State File
 10. **Determine Priority Level**:
-   - **P1 (Critical)**: System breaking, security issues - Immediate response
-   - **P2 (High)**: Major functionality affected - Within 24 hours
-   - **P3 (Medium)**: Minor functionality affected - Within 1 week
-   - **P4 (Low)**: Cosmetic or enhancement requests - When time permits
+   - **Critical**: System breaking, security issues - Immediate response
+   - **High**: Major functionality affected - Within 24 hours
+   - **Medium**: Minor functionality affected - Within 1 week
+   - **Low**: Cosmetic or enhancement requests - When time permits
 11. **Check for Duplicates**: Compare with existing bugs to identify duplicates
 12. **🚨 CHECKPOINT**: Present triage decisions (priority, scope, affected dimensions, duplicates, rationale) to human partner for approval
 
 ### Assignment and Documentation
 
-13. **Assign Priority, Scope, and Dimensions**: Update bug entry with determined priority (P1-P4), scope (S/M/L for fix complexity — see [Scope Levels](/doc/state-tracking/permanent/bug-tracking.md#scope-levels)), and affected dimensions in the **Dims** column (e.g., `SE DI`)
+13. **Assign Priority, Scope, and Dimensions**: Update bug entry with determined priority (Critical/High/Medium/Low), scope (S/M/L for fix complexity — see [Scope Levels](/doc/state-tracking/permanent/bug-tracking.md#scope-levels)), and affected dimensions in the **Dims** column (e.g., `SE DI`)
 14. **Provide Triage Rationale**: Document the reasoning behind priority, scope, and dimension assignments
 15. **Identify Related Features**: Link bugs to affected features in Feature Tracking
     > **Tip**: Bugs discovered during code review often lack a "Related Feature" field. During triage, identify the affected feature from [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) and populate this field.
@@ -121,17 +121,17 @@ Systematically evaluate, prioritize, and assign reported bugs to ensure efficien
 
 ### Priority Assignment Matrix
 
-| Impact | Frequency | Priority      |
-| ------ | --------- | ------------- |
-| High   | High      | P1 (Critical) |
-| High   | Medium    | P2 (High)     |
-| High   | Low       | P2 (High)     |
-| Medium | High      | P2 (High)     |
-| Medium | Medium    | P3 (Medium)   |
-| Medium | Low       | P3 (Medium)   |
-| Low    | High      | P3 (Medium)   |
-| Low    | Medium    | P4 (Low)      |
-| Low    | Low       | P4 (Low)      |
+| Impact | Frequency | Priority |
+| ------ | --------- | -------- |
+| High   | High      | Critical |
+| High   | Medium    | High     |
+| High   | Low       | High     |
+| Medium | High      | High     |
+| Medium | Medium    | Medium   |
+| Medium | Low       | Medium   |
+| Low    | High      | Medium   |
+| Low    | Medium    | Low      |
+| Low    | Low       | Low      |
 
 ### Severity vs Priority Guidelines
 
@@ -142,8 +142,8 @@ Systematically evaluate, prioritize, and assign reported bugs to ensure efficien
 
 ### Special Considerations
 
-- **Security Issues**: Always P1 regardless of other factors
-- **Data Loss Bugs**: Always P1 regardless of other factors
+- **Security Issues**: Always Critical regardless of other factors
+- **Data Loss Bugs**: Always Critical regardless of other factors
 - **Regression Bugs**: Priority based on affected feature priority
 - **Performance Issues**: Priority based on user impact and frequency
 
@@ -164,7 +164,7 @@ When a previously closed bug recurs, decide whether to **reopen** the original o
    ../../scripts/update/Update-BugStatus.ps1 -BugId "PD-BUG-XXX" -NewStatus "Reopened" -ReopenReason "Description of why the bug recurred"
    ```
    This automatically moves the entry from the Closed section back to the correct active priority table and recalculates statistics.
-2. **Re-evaluate priority and scope** — the original P-level and scope may no longer apply (e.g., a P4 bug that now causes data loss becomes P1)
+2. **Re-evaluate priority and scope** — the original priority and scope may no longer apply (e.g., a Low bug that now causes data loss becomes Critical)
 3. **Continue with the normal Evaluation steps** (Steps 6-9) to update the triage rationale
 
 ## Outputs

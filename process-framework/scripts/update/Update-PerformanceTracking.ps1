@@ -12,10 +12,10 @@ Updates the following file:
 - test/state-tracking/permanent/performance-test-tracking.md
 
 Supports the complete performance test lifecycle:
-- ⬜ Specified → 📋 Created (Performance Test Creation — PF-TSK-084)
-- 📋 Created → ✅ Baselined (Performance Baseline Capture — PF-TSK-085)
-- ✅ Baselined → ⚠️ Stale (Baseline Capture — stale detection)
-- ⚠️ Stale → ✅ Baselined (Baseline Capture — re-baseline)
+- ⬜ Needs Creation → 📋 Needs Baseline (Performance Test Creation — PF-TSK-084)
+- 📋 Needs Baseline → ✅ Baselined (Performance Baseline Capture — PF-TSK-085)
+- ✅ Baselined → ⚠️ Needs Re-baseline (Baseline Capture — stale detection)
+- ⚠️ Needs Re-baseline → ✅ Baselined (Baseline Capture — re-baseline)
 - ✅ Baselined → ✅ Baselined (Baseline Capture — refresh results without status change)
 
 After each row update, the Summary table is automatically recalculated.
@@ -25,9 +25,9 @@ The test ID to update (e.g., "BM-001", "PH-003")
 
 .PARAMETER NewStatus
 The new lifecycle status for the test. Valid values:
-- "Created" (📋) — test code implemented, requires -TestFile
+- "NeedsBaseline" (📋) — test code implemented, requires -TestFile
 - "Baselined" (✅) — baseline captured, requires -Baseline
-- "Stale" (⚠️) — needs re-capture
+- "NeedsRebaseline" (⚠️) — baseline stale, needs re-capture
 
 .PARAMETER TestFile
 Path to the test file (relative to project root, with markdown link format).
@@ -55,11 +55,11 @@ Update the specification reference. Optional.
 Example: "TE-TSP-039"
 
 .EXAMPLE
-# Mark a test as implemented (Specified → Created)
-Update-PerformanceTracking.ps1 -TestId "BM-007" -NewStatus "Created" -TestFile "[test_new.py](/test/automated/performance/test_new.py)"
+# Mark a test as implemented (Needs Creation → Needs Baseline)
+Update-PerformanceTracking.ps1 -TestId "BM-007" -NewStatus "NeedsBaseline" -TestFile "[test_new.py](/test/automated/performance/test_new.py)"
 
 .EXAMPLE
-# Capture initial baseline (Created → Baselined)
+# Capture initial baseline (Needs Baseline → Baselined)
 Update-PerformanceTracking.ps1 -TestId "BM-007" -NewStatus "Baselined" -Baseline "120.0 files/sec" -LastResult "120.0 files/sec"
 
 .EXAMPLE
@@ -68,7 +68,7 @@ Update-PerformanceTracking.ps1 -TestId "BM-001" -NewStatus "Baselined" -LastResu
 
 .EXAMPLE
 # Mark test as stale
-Update-PerformanceTracking.ps1 -TestId "BM-001" -NewStatus "Stale"
+Update-PerformanceTracking.ps1 -TestId "BM-001" -NewStatus "NeedsRebaseline"
 
 .EXAMPLE
 # Re-baseline a stale test
@@ -80,7 +80,7 @@ Update-PerformanceTracking.ps1 -TestId "BM-001" -NewStatus "Baselined" -LastResu
 
 .NOTES
 This script is part of the Performance Testing automation system and integrates with:
-- Performance & E2E Test Scoping (PF-TSK-086) — creates ⬜ Specified entries via New-PerformanceTestEntry.ps1
+- Performance & E2E Test Scoping (PF-TSK-086) — creates ⬜ Needs Creation entries via New-PerformanceTestEntry.ps1
 - Performance Test Creation (PF-TSK-084) — transitions ⬜ → 📋
 - Performance Baseline Capture (PF-TSK-085) — transitions 📋 → ✅, refreshes results
 #>
@@ -92,7 +92,7 @@ param(
     [string]$TestId,
 
     [Parameter(Mandatory = $true)]
-    [ValidateSet("Created", "Baselined", "Stale")]
+    [ValidateSet("NeedsBaseline", "Baselined", "NeedsRebaseline")]
     [string]$NewStatus,
 
     [Parameter(Mandatory = $false)]
@@ -129,10 +129,18 @@ $ScriptName = "Update-PerformanceTracking.ps1"
 
 # Status emoji mapping
 $StatusEmojis = @{
-    "Specified" = "⬜"
-    "Created"   = "📋"
-    "Baselined" = "✅"
-    "Stale"     = "⚠️"
+    "NeedsCreation"   = "⬜"
+    "NeedsBaseline"   = "📋"
+    "Baselined"       = "✅"
+    "NeedsRebaseline" = "⚠️"
+}
+
+# Status display names (for data cell text)
+$StatusDisplay = @{
+    "NeedsCreation"   = "Needs Creation"
+    "NeedsBaseline"   = "Needs Baseline"
+    "Baselined"       = "Baselined"
+    "NeedsRebaseline" = "Needs Re-baseline"
 }
 
 # Column index mapping for performance-test-tracking.md table rows
@@ -152,10 +160,10 @@ $StatusEmojis = @{
 
 # Valid status transitions: from → [allowed targets]
 $ValidTransitions = @{
-    "Specified" = @("Created")
-    "Created"   = @("Baselined")
-    "Baselined" = @("Baselined", "Stale")
-    "Stale"     = @("Baselined")
+    "NeedsCreation"   = @("NeedsBaseline")
+    "NeedsBaseline"   = @("Baselined")
+    "Baselined"       = @("Baselined", "NeedsRebaseline")
+    "NeedsRebaseline" = @("Baselined")
 }
 
 function Write-Log {
@@ -233,10 +241,10 @@ function Update-TestEntryContent {
         return $null
     }
 
-    Write-Log "Status transition: $($StatusEmojis[$currentStatus]) $currentStatus → $($StatusEmojis[$NewStatus]) $NewStatus"
+    Write-Log "Status transition: $($StatusEmojis[$currentStatus]) $($StatusDisplay[$currentStatus]) → $($StatusEmojis[$NewStatus]) $($StatusDisplay[$NewStatus])"
 
     # Update status column
-    $columns[3] = "$($StatusEmojis[$NewStatus]) $NewStatus"
+    $columns[3] = "$($StatusEmojis[$NewStatus]) $($StatusDisplay[$NewStatus])"
 
     # Update optional columns
     if ($UpdateData.TestFile)  { $columns[8] = $UpdateData.TestFile }
@@ -252,7 +260,7 @@ function Update-TestEntryContent {
     $updatedEntry = ConvertTo-MarkdownTableRow -Cells $columns
     $result = $Content.Replace($currentEntry, $updatedEntry)
 
-    Write-Log "Updated ${TestId}: $($StatusEmojis[$NewStatus]) $NewStatus" -Level "SUCCESS"
+    Write-Log "Updated ${TestId}: $($StatusEmojis[$NewStatus]) $($StatusDisplay[$NewStatus])" -Level "SUCCESS"
     return $result
 }
 
@@ -269,7 +277,7 @@ function Update-SummaryTableContent {
 
     $counts = @{}
     foreach ($level in $levelMap.Values) {
-        $counts[$level] = @{ Total = 0; Baselined = 0; Created = 0; Specified = 0; Stale = 0 }
+        $counts[$level] = @{ Total = 0; Baselined = 0; NeedsBaseline = 0; NeedsCreation = 0; NeedsRebaseline = 0 }
     }
 
     $currentLevel = ""
@@ -288,15 +296,15 @@ function Update-SummaryTableContent {
         if ($currentLevel -and $line -match "^\|\s*(BM|PH)-") {
             $counts[$currentLevel].Total++
             if ($line -match "✅") { $counts[$currentLevel].Baselined++ }
-            elseif ($line -match "📋") { $counts[$currentLevel].Created++ }
-            elseif ($line -match "⬜") { $counts[$currentLevel].Specified++ }
-            elseif ($line -match "⚠️") { $counts[$currentLevel].Stale++ }
+            elseif ($line -match "📋") { $counts[$currentLevel].NeedsBaseline++ }
+            elseif ($line -match "⬜") { $counts[$currentLevel].NeedsCreation++ }
+            elseif ($line -match "⚠️") { $counts[$currentLevel].NeedsRebaseline++ }
         }
     }
 
     # Calculate totals
-    $totalCounts = @{ Total = 0; Baselined = 0; Created = 0; Specified = 0; Stale = 0 }
-    $statusKeys = @("Total", "Baselined", "Created", "Specified", "Stale")
+    $totalCounts = @{ Total = 0; Baselined = 0; NeedsBaseline = 0; NeedsCreation = 0; NeedsRebaseline = 0 }
+    $statusKeys = @("Total", "Baselined", "NeedsBaseline", "NeedsCreation", "NeedsRebaseline")
     foreach ($level in @("Component", "Operation", "Scale", "Resource")) {
         foreach ($status in $statusKeys) {
             $totalCounts[$status] += $counts[$level][$status]
@@ -308,17 +316,17 @@ function Update-SummaryTableContent {
     foreach ($level in $levelOrder) {
         $c = $counts[$level]
         $oldPattern = "\|\s*$level\s*\|[^\r\n]*"
-        $newRow = "| $level | $($c.Total) | $($c.Baselined) | $($c.Created) | $($c.Specified) | $($c.Stale) |"
+        $newRow = "| $level | $($c.Total) | $($c.Baselined) | $($c.NeedsBaseline) | $($c.NeedsCreation) | $($c.NeedsRebaseline) |"
         $Content = [regex]::Replace($Content, $oldPattern, $newRow)
     }
 
     # Replace total row (bold formatting)
     $t = $totalCounts
     $oldTotalPattern = "\|\s*\*\*Total\*\*\s*\|[^\r\n]*"
-    $newTotalRow = "| **Total** | **$($t.Total)** | **$($t.Baselined)** | **$($t.Created)** | **$($t.Specified)** | **$($t.Stale)** |"
+    $newTotalRow = "| **Total** | **$($t.Total)** | **$($t.Baselined)** | **$($t.NeedsBaseline)** | **$($t.NeedsCreation)** | **$($t.NeedsRebaseline)** |"
     $Content = [regex]::Replace($Content, $oldTotalPattern, $newTotalRow)
 
-    Write-Log "Updated Summary table: $($t.Total) total ($($t.Baselined) baselined, $($t.Created) created, $($t.Specified) specified, $($t.Stale) stale)" -Level "SUCCESS"
+    Write-Log "Updated Summary table: $($t.Total) total ($($t.Baselined) baselined, $($t.NeedsBaseline) needs baseline, $($t.NeedsCreation) needs creation, $($t.NeedsRebaseline) needs re-baseline)" -Level "SUCCESS"
     return $Content
 }
 
@@ -333,9 +341,9 @@ function Main {
 
     # Validate required parameters for specific transitions
     switch ($NewStatus) {
-        "Created" {
+        "NeedsBaseline" {
             if (-not $TestFile) {
-                Write-Log "TestFile is required when transitioning to Created status" -Level "ERROR"
+                Write-Log "TestFile is required when transitioning to NeedsBaseline status" -Level "ERROR"
                 exit 1
             }
         }
@@ -347,9 +355,9 @@ function Main {
             if ($testMatch.Success) {
                 $tempColumns = Split-MarkdownTableRow -Line $testMatch.Value
                 $currentStatus = Get-CurrentStatus -StatusCell $tempColumns[3]
-                # Baseline is required when transitioning FROM Created or Stale
-                if ($currentStatus -in @("Created", "Stale") -and -not $Baseline) {
-                    Write-Log "Baseline is required when transitioning from $currentStatus to Baselined" -Level "ERROR"
+                # Baseline is required when transitioning FROM NeedsBaseline or NeedsRebaseline
+                if ($currentStatus -in @("NeedsBaseline", "NeedsRebaseline") -and -not $Baseline) {
+                    Write-Log "Baseline is required when transitioning from $($StatusDisplay[$currentStatus]) to Baselined" -Level "ERROR"
                     exit 1
                 }
                 # When refreshing (Baselined → Baselined), LastResult is required

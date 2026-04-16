@@ -306,7 +306,7 @@ try {
                         $updateResult = Update-TestImplementationStatusEnhanced -FeatureId $FeatureId -TestFilePath $trackingRelativePath -Status "🟡 Implementation In Progress" -DryRun:$DryRun
 
                         Write-Host "  ✅ Test implementation tracking updated" -ForegroundColor Green
-                        Write-Host "  🟡 Status: 📝 Specification Created → 🟡 Implementation In Progress" -ForegroundColor Green
+                        Write-Host "  🟡 Status: 📝 Needs Implementation → 🟡 Implementation In Progress" -ForegroundColor Green
                         Write-Host "  🔗 Test file linked in tracking" -ForegroundColor Green
                     }
                 }

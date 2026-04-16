@@ -152,27 +152,27 @@ E2E acceptance tests use **no mocks** — they run against the actual LinkWatche
 | E2E ID | Scenario | Group | Status |
 |--------|----------|-------|--------|
 | TE-E2E-001 | S-007: Regex patterns preserved during PS1 move | TE-E2G-001 | ✅ Passed |
-| TE-E2E-002 | S-002: Move MD file referenced in PS1 comments | TE-E2G-002 | 📋 Case Created |
-| TE-E2E-003 | S-002: Move PS1 script referenced via Import-Module | TE-E2G-002 | 📋 Case Created |
-| TE-E2E-004 | S-001: Move MD file with standard links + special chars | TE-E2G-003 | 📋 Case Created |
-| TE-E2E-005 | S-003: Move file referenced from YAML configs | TE-E2G-004 | 📋 Case Created |
-| TE-E2E-006 | S-004: Move file referenced from JSON configs | TE-E2G-004 | 📋 Case Created |
-| TE-E2E-007 | S-005: Move Python module referenced via imports | TE-E2G-004 | 📋 Case Created |
-| TE-E2E-008 | Runtime file create + move | TE-E2G-005 | 📋 Case Created |
-| TE-E2E-009 | S-008: Runtime directory create + move | TE-E2G-005 | 📋 Case Created |
-| TE-E2E-010 | Runtime file create + rename | TE-E2G-005 | 📋 Case Created |
-| TE-E2E-011 | Runtime directory create + rename | TE-E2G-005 | 📋 Case Created |
-| TE-E2E-012 | S-011: File operations during startup | TE-E2G-006 | 📋 Case Created |
-| TE-E2E-013 | S-009: Nested directory move | TE-E2G-005 | 📋 Case Created |
-| TE-E2E-014 | S-010: Directory move — internal refs preserved | TE-E2G-005 | 📋 Case Created |
-| TE-E2E-015 | S-012: Startup with custom config (exclude dirs) | TE-E2G-006 | 📋 Case Created |
-| TE-E2E-016 | S-013: Two files moved within 1 second | TE-E2G-007 | 📋 Case Created |
-| TE-E2E-017 | S-014: Move file, then move referencing file | TE-E2G-007 | 📋 Case Created |
-| TE-E2E-018 | S-015: File referenced from MD, YAML, JSON, Python | TE-E2G-008 | 📋 Case Created |
-| TE-E2E-019 | S-016: Move file in dry-run mode | TE-E2G-009 | 📋 Case Created |
-| TE-E2E-020 | S-017: Stop during idle | TE-E2G-010 | 📋 Case Created |
-| TE-E2E-021 | S-018: Stop immediately after file move | TE-E2G-010 | 📋 Case Created |
-| TE-E2E-022 | S-019: Read-only referencing file | TE-E2G-011 | 📋 Case Created |
+| TE-E2E-002 | S-002: Move MD file referenced in PS1 comments | TE-E2G-002 | 📋 Needs Execution |
+| TE-E2E-003 | S-002: Move PS1 script referenced via Import-Module | TE-E2G-002 | 📋 Needs Execution |
+| TE-E2E-004 | S-001: Move MD file with standard links + special chars | TE-E2G-003 | 📋 Needs Execution |
+| TE-E2E-005 | S-003: Move file referenced from YAML configs | TE-E2G-004 | 📋 Needs Execution |
+| TE-E2E-006 | S-004: Move file referenced from JSON configs | TE-E2G-004 | 📋 Needs Execution |
+| TE-E2E-007 | S-005: Move Python module referenced via imports | TE-E2G-004 | 📋 Needs Execution |
+| TE-E2E-008 | Runtime file create + move | TE-E2G-005 | 📋 Needs Execution |
+| TE-E2E-009 | S-008: Runtime directory create + move | TE-E2G-005 | 📋 Needs Execution |
+| TE-E2E-010 | Runtime file create + rename | TE-E2G-005 | 📋 Needs Execution |
+| TE-E2E-011 | Runtime directory create + rename | TE-E2G-005 | 📋 Needs Execution |
+| TE-E2E-012 | S-011: File operations during startup | TE-E2G-006 | 📋 Needs Execution |
+| TE-E2E-013 | S-009: Nested directory move | TE-E2G-005 | 📋 Needs Execution |
+| TE-E2E-014 | S-010: Directory move — internal refs preserved | TE-E2G-005 | 📋 Needs Execution |
+| TE-E2E-015 | S-012: Startup with custom config (exclude dirs) | TE-E2G-006 | 📋 Needs Execution |
+| TE-E2E-016 | S-013: Two files moved within 1 second | TE-E2G-007 | 📋 Needs Execution |
+| TE-E2E-017 | S-014: Move file, then move referencing file | TE-E2G-007 | 📋 Needs Execution |
+| TE-E2E-018 | S-015: File referenced from MD, YAML, JSON, Python | TE-E2G-008 | 📋 Needs Execution |
+| TE-E2E-019 | S-016: Move file in dry-run mode | TE-E2G-009 | 📋 Needs Execution |
+| TE-E2E-020 | S-017: Stop during idle | TE-E2G-010 | 📋 Needs Execution |
+| TE-E2E-021 | S-018: Stop immediately after file move | TE-E2G-010 | 📋 Needs Execution |
+| TE-E2E-022 | S-019: Read-only referencing file | TE-E2G-011 | 📋 Needs Execution |
 
 ### Coverage Gaps
 

@@ -28,7 +28,7 @@ Unlike Performance Test Creation (which writes test code), this task **executes*
 - After Performance Test Creation — new tests need initial baselines (📋 → ✅)
 - After code changes to hot paths — verify no regression
 - Pre-release verification — capture release baseline, confirm no regressions
-- When performance-test-tracking.md has ⚠️ Stale entries that need refresh
+- When performance-test-tracking.md has ⚠️ Needs Re-baseline entries that need refresh
 - Periodic health check (e.g., quarterly or before major releases)
 
 ## Context Requirements
@@ -54,12 +54,12 @@ Unlike Performance Test Creation (which writes test code), this task **executes*
 ### Preparation
 
 1. **[Performance Test Tracking](/test/state-tracking/permanent/performance-test-tracking.md)** to identify which tests to run:
-   - `📋 Created` entries → need initial baselines
-   - `⚠️ Stale` entries → need re-capture
+   - `📋 Needs Baseline` entries → need initial baselines
+   - `⚠️ Needs Re-baseline` entries → need re-capture
    - `✅ Baselined` entries → run for regression check if triggered by code change
    - Optionally filter by Related Features column if triggered by a specific feature change
 
-2. **🚨 Verify audit gate for `📋 Created` entries**: Before capturing baselines for newly created tests, confirm their **Audit Status** column shows `🔍 Audit Approved` in performance-test-tracking.md. Tests at `📋 Created` that have not been audited (Audit Status is empty or `⬜ Not Audited`) **must** pass [Test Audit (PF-TSK-030)](/process-framework/tasks/03-testing/test-audit-task.md) with `-TestType Performance` first. This gate does **not** apply to `⚠️ Stale` or `✅ Baselined` entries (they were already audited when first created).
+2. **🚨 Verify audit gate for `📋 Needs Baseline` entries**: Before capturing baselines for newly created tests, confirm their **Audit Status** column shows `🔍 Audit Approved` in performance-test-tracking.md. Tests at `📋 Needs Baseline` that have not been audited (Audit Status is empty or `⬜ Not Audited`) **must** pass [Test Audit (PF-TSK-030)](/process-framework/tasks/03-testing/test-audit-task.md) with `-TestType Performance` first. This gate does **not** apply to `⚠️ Needs Re-baseline` or `✅ Baselined` entries (they were already audited when first created).
 
 3. **Check environment** — close unnecessary applications, ensure consistent test conditions. Note any environmental factors that could affect results.
 
@@ -135,7 +135,7 @@ Unlike Performance Test Creation (which writes test code), this task **executes*
 
 ## Tools and Scripts
 
-- **[Update-PerformanceTracking.ps1](/process-framework/scripts/update/Update-PerformanceTracking.ps1)** — Automate status transitions, column updates, and summary recalculation in performance-test-tracking.md (📋 → ✅, refresh results, mark ⚠️ Stale)
+- **[Update-PerformanceTracking.ps1](/process-framework/scripts/update/Update-PerformanceTracking.ps1)** — Automate status transitions, column updates, and summary recalculation in performance-test-tracking.md (📋 → ✅, refresh results, mark ⚠️ Needs Re-baseline)
 - **[performance_db.py](/process-framework/scripts/test/performance_db.py)** — Record measurements, query trends, detect regressions (`record`, `trend`, `regressions` subcommands)
 - **[New-FeedbackForm.ps1](/process-framework/scripts/file-creation/support/New-FeedbackForm.ps1)** — Create feedback forms for task completion
 
@@ -181,4 +181,4 @@ Before considering this task finished:
 - [Performance Test Tracking](/test/state-tracking/permanent/performance-test-tracking.md) — Test registry and baselines
 - [Performance Results Database](/process-framework/scripts/test/performance_db.py) — Trend storage and query tool
 - [Performance Test Creation](/process-framework/tasks/03-testing/performance-test-creation-task.md) — Upstream task that creates tests
-- [Test Audit](/process-framework/tasks/03-testing/test-audit-task.md) — Audit gate task; `📋 Created` tests must be audited before baseline capture
+- [Test Audit](/process-framework/tasks/03-testing/test-audit-task.md) — Audit gate task; `📋 Needs Baseline` tests must be audited before baseline capture

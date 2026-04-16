@@ -221,8 +221,8 @@ The following state files must be updated as part of this task:
   - Performance and accessibility notes
 - [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) - **Conditional** (only for bug fix reviews): Transition bug from 👀 Needs Review → 🔒 Closed on approval, or back to 🟡 In Progress on rejection
 - [Test Tracking](../../../test/state-tracking/permanent/test-tracking.md) - Update test status based on review:
-  - Confirm "✅ Tests Implemented" if tests are passing and well-implemented
-  - Change to "🔴 Tests Failing" if test issues are found
+  - Confirm "✅ Audit Approved" if tests are passing and well-implemented
+  - Change to "🔴 Needs Fix" if test issues are found
   - Change to "🔄 Needs Update" if tests need updates due to code changes
   - Update test coverage percentages
 

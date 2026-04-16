@@ -60,7 +60,7 @@ E2E acceptance test execution validates system behavior that cannot be covered b
 
 1. **Identify what needs testing**: Review [e2e-test-tracking.md](../../../test/state-tracking/permanent/e2e-test-tracking.md) for groups marked `🔄 Needs Re-execution`. Also check the **Workflow Milestone Tracking** section for workflows with `⬜ Not Created` status — these may need test case creation (PF-TSK-069) first. For release validation, identify all groups that must pass.
 
-2. **🚨 Verify audit gate for `📋 Case Created` entries**: Before executing newly created test cases, confirm their **Audit Status** column shows `🔍 Audit Approved` in e2e-test-tracking.md. Test cases at `📋 Case Created` that have not been audited (Audit Status is empty or `⬜ Not Audited`) **must** pass [Test Audit (PF-TSK-030)](/process-framework/tasks/03-testing/test-audit-task.md) with `-TestType E2E` first. This gate does **not** apply to `🔄 Needs Re-execution` entries (they were already audited when first created).
+2. **🚨 Verify audit gate for `📋 Needs Execution` entries**: Before executing newly created test cases, confirm their **Audit Status** column shows `🔍 Audit Approved` in e2e-test-tracking.md. Test cases at `📋 Needs Execution` that have not been audited (Audit Status is empty or `⬜ Not Audited`) **must** pass [Test Audit (PF-TSK-030)](/process-framework/tasks/03-testing/test-audit-task.md) with `-TestType E2E` first. This gate does **not** apply to `🔄 Needs Re-execution` entries (they were already audited when first created).
 3. **Install code changes globally** (if code was modified since last install): Ensure the system under test uses the latest code. Run `python deployment/install_global.py` from the project root — this copies source files, creates/updates the dedicated LinkWatcher venv, and updates startup scripts. Skip if no code changes since last install.
 4. **Set up test environment**: Run [Setup-TestEnvironment.ps1](../../scripts/test/e2e-acceptance-testing/Setup-TestEnvironment.ps1) to copy pristine templates into the workspace:
    ```bash
@@ -153,7 +153,7 @@ Before considering this task finished:
 
 ## Related Resources
 
-- [Test Audit](/process-framework/tasks/03-testing/test-audit-task.md) — Audit gate task; `📋 Case Created` test cases must be audited before execution
+- [Test Audit](/process-framework/tasks/03-testing/test-audit-task.md) — Audit gate task; `📋 Needs Execution` test cases must be audited before execution
 - [E2E Acceptance Test Case Creation Task](manual-test-case-creation-task.md) — Upstream task that creates the test cases executed here
 - [Setup-TestEnvironment.ps1](../../scripts/test/e2e-acceptance-testing/Setup-TestEnvironment.ps1) — Environment setup script
 - [Run-E2EAcceptanceTest.ps1](../../scripts/test/e2e-acceptance-testing/Run-E2EAcceptanceTest.ps1) — Orchestrator for scripted test cases (workspace-scoped LW → Setup → settle → run.ps1 → wait → Verify)

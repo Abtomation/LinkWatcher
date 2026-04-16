@@ -199,7 +199,7 @@ try {
     $testStatus = switch ($Status) {
         "🟡 In Progress" { "🟡 Implementation In Progress" }
         "🔄 Needs Enhancement" { "🔄 Needs Update" }
-        "🟢 Completed" { "✅ Tests Implemented" }
+        "🟢 Completed" { "✅ Audit Approved" }
     }
 
     $testResult = Update-TestImplementationStatus -FeatureId $FeatureId -Status $testStatus -DryRun:$DryRun

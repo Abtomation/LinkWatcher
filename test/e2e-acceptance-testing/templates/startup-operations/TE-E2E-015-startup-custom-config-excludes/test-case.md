@@ -2,14 +2,15 @@
 id: TE-E2E-015
 type: E2E Acceptance Test Case
 group: TE-E2G-006
-feature_ids: ["0.1.1, 0.1.3, 0.1.2, 2.1.1, 1.1.1"]
+feature_ids: ["0.1.1", "0.1.3", "0.1.2", "2.1.1", "1.1.1"]
 workflow: WF-003
 priority: P2
 execution_mode: scripted
+lw_flags: "--config <workspace>/project/config.yaml"
 estimated_duration: 5 minutes
 source: Cross-Cutting Spec PF-TSP-044 S-012
 created: 2026-03-18
-updated: 2026-03-18
+updated: 2026-04-15
 ---
 
 # Test Case: TE-E2E-015 Startup with Custom Config Excludes

@@ -2,7 +2,7 @@
 id: TE-E2E-019
 type: E2E Acceptance Test Case
 group: TE-E2G-009
-feature_ids: ["0.1.3, 0.1.1, 2.2.1, 3.1.1"]
+feature_ids: ["0.1.3", "0.1.1", "2.2.1", "3.1.1"]
 workflow: WF-007
 priority: P3
 execution_mode: scripted

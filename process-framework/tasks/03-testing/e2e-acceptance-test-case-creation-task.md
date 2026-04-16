@@ -142,7 +142,7 @@ ENHANCEMENT:    Feature Enhancement → E2E Acceptance Test Case Creation → E2
 
 The following state files must be updated as part of this task:
 
-- [E2E Test Tracking](../../../test/state-tracking/permanent/e2e-test-tracking.md) — Add new E2E acceptance test entries (groups and individual cases) with status `📋 Case Created` and appropriate Test Type (`E2E Group` or `E2E Case`)
+- [E2E Test Tracking](../../../test/state-tracking/permanent/e2e-test-tracking.md) — Add new E2E acceptance test entries (groups and individual cases) with status `📋 Needs Execution` and appropriate Test Type (`E2E Group` or `E2E Case`)
 - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) — Update the feature's Test Status if E2E acceptance test coverage changes the overall status
 
 ## ⚠️ MANDATORY Task Completion Checklist

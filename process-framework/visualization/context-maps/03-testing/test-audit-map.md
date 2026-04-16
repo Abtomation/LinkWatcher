@@ -39,8 +39,8 @@ graph TD
     PerfReport --> AuditDecision
     E2EReport --> AuditDecision
 
-    AuditDecision --> |Tests Approved| TrackingUpdate[Test Tracking]
-    AuditDecision --> |Tests Approved with Dependencies| DepTracking[Implementation Dependencies]
+    AuditDecision --> |Audit Approved| TrackingUpdate[Test Tracking]
+    AuditDecision --> |Approved — Pending Dependencies| DepTracking[Implementation Dependencies]
     AuditDecision --> |Needs Update| TrackingUpdate
     AuditDecision --> |Tests Incomplete| TrackingUpdate
     DepTracking --> TrackingUpdate
@@ -73,7 +73,7 @@ graph TD
 - **Five E2E Criteria** (E2E): Fixture Correctness, Scenario Completeness, Expected Outcome Accuracy, Reproducibility, Precondition Coverage
 - **Test Specifications**: Original test specifications that define expected test behavior and coverage
 - **Audit Reports**: Type-specific audit documentation — standard audit report (Automated), performance audit report, or E2E audit report
-- **Audit Decision**: Four possible outcomes (Tests Approved, Tests Approved with Dependencies, Needs Update, Tests Incomplete)
+- **Audit Decision**: Four possible outcomes (Audit Approved, Approved — Pending Dependencies, Needs Update, Tests Incomplete)
 - **Test Tracking**: Type-specific tracking files — test-tracking.md (Automated), performance-test-tracking.md (Performance), e2e-test-tracking.md (E2E)
 
 ### Reference Components (Access When Needed)

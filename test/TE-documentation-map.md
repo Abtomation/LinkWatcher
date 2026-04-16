@@ -43,6 +43,34 @@ _(No reports yet — directory created for future use)_
 
 ### `audits/e2e/`
 
+- [Audit: 1.1.1 (TE-TAR-037)](audits/e2e/audit-report-1-1-1-test-case.md) - Test quality assessment
+- [Audit: 2.1.1 (TE-TAR-038)](audits/e2e/audit-report-2-1-1-test-case.md) - Test quality assessment
+- [Audit: TE-E2E-003 (TE-TAR-039)](audits/e2e/audit-report-TE-E2E-003-test-case.md) - Test quality assessment
+- [Audit: TE-E2E-004 (TE-TAR-040)](audits/e2e/audit-report-TE-E2E-004-test-case.md) - Test quality assessment
+- [Audit: TE-E2E-005 (TE-TAR-041)](audits/e2e/audit-report-TE-E2E-005-test-case.md) - Test quality assessment
+- [Audit: TE-E2E-006 (TE-TAR-042)](audits/e2e/audit-report-TE-E2E-006-test-case.md) - Test quality assessment
+- [Audit: TE-E2E-007 (TE-TAR-043)](audits/e2e/audit-report-TE-E2E-007-test-case.md) - Test quality assessment
+- [Audit: TE-E2G-007 (TE-TAR-044)](audits/e2e/audit-report-TE-E2G-007-test-case.md) - Test quality assessment
+- [Audit: TE-E2E-017 (TE-TAR-045)](audits/e2e/audit-report-TE-E2E-017-test-case.md) - Test quality assessment
+- [Audit: TE-E2E-018 (TE-TAR-046)](audits/e2e/audit-report-TE-E2E-018-test-case.md) - Test quality assessment
+- [Audit: TE-E2E-019 (TE-TAR-047)](audits/e2e/audit-report-TE-E2E-019-test-case.md) - Test quality assessment
+- [Audit: 0.1.1 (TE-TAR-048)](audits/e2e/audit-report-0-1-1-test-case.md) - Test quality assessment
+- [Audit: te-e2e-021 (TE-TAR-049)](audits/e2e/audit-report-te-e2e-021-test-case.md) - Test quality assessment
+- [Audit: te-e2e-022 (TE-TAR-050)](audits/e2e/audit-report-te-e2e-022-test-case.md) - Test quality assessment
+- [Audit: te-e2e-023 (TE-TAR-051)](audits/e2e/audit-report-te-e2e-023-test-case.md) - Test quality assessment
+- [Audit: te-e2e-024 (TE-TAR-052)](audits/e2e/audit-report-te-e2e-024-test-case.md) - Test quality assessment
+- [Audit: te-e2e-025 (TE-TAR-053)](audits/e2e/audit-report-te-e2e-025-test-case.md) - Test quality assessment
+- [Audit: te-e2e-026 (TE-TAR-054)](audits/e2e/audit-report-te-e2e-026-test-case.md) - Test quality assessment
+- [Audit: te-e2e-027 (TE-TAR-055)](audits/e2e/audit-report-te-e2e-027-test-case.md) - Test quality assessment
+- [Audit: te-e2e-028 (TE-TAR-056)](audits/e2e/audit-report-te-e2e-028-test-case.md) - Test quality assessment
+- [Audit: TE-E2E-008 (TE-TAR-057)](audits/e2e/audit-report-TE-E2E-008-test-case.md) - Test quality assessment
+- [Audit: TE-E2E-009 (TE-TAR-058)](audits/e2e/audit-report-TE-E2E-009-test-case.md) - Test quality assessment
+- [Audit: TE-E2E-010 (TE-TAR-059)](audits/e2e/audit-report-TE-E2E-010-test-case.md) - Test quality assessment
+- [Audit: TE-E2E-011 (TE-TAR-060)](audits/e2e/audit-report-TE-E2E-011-test-case.md) - Test quality assessment
+- [Audit: TE-E2E-013 (TE-TAR-061)](audits/e2e/audit-report-TE-E2E-013-test-case.md) - Test quality assessment
+- [Audit: TE-E2E-014 (TE-TAR-062)](audits/e2e/audit-report-TE-E2E-014-test-case.md) - Test quality assessment
+- [Audit: TE-E2E-012 (TE-TAR-063)](audits/e2e/audit-report-TE-E2E-012-test-case.md) - Test quality assessment
+- [Audit: TE-E2E-015 (TE-TAR-064)](audits/e2e/audit-report-TE-E2E-015-test-case.md) - Test quality assessment
 _E2E acceptance test audit reports (PF-TSK-030 with `-TestType E2E`). 5 criteria: Fixture Correctness, Scenario Completeness, Expected Outcome Accuracy, Reproducibility, Precondition Coverage._
 
 _(No reports yet — directory created for future use)_

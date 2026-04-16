@@ -346,6 +346,21 @@ try {
         $trackingFileName = Split-Path $trackingFilePath -Leaf
         $testFileName = Split-Path $TestFilePath -Leaf
 
+        # For E2E tests, match by TE-E2E-xxx Test ID from parent directory instead of
+        # basename (all E2E cases share "test-case.md", causing first-row collision).
+        # Performance tests keep basename matching (unique filenames).
+        if ($TestType -eq "E2E") {
+            $parentDir = Split-Path (Split-Path $TestFilePath -Parent) -Leaf
+            if ($parentDir -match '(TE-E2E-\d+)') {
+                $rowMatchPattern = [regex]::Escape($Matches[1])
+            } else {
+                Write-Warning "Could not extract TE-E2E-xxx ID from path '$TestFilePath' — falling back to basename match"
+                $rowMatchPattern = [regex]::Escape($testFileName)
+            }
+        } else {
+            $rowMatchPattern = [regex]::Escape($testFileName)
+        }
+
         if (-not (Test-Path $trackingFilePath)) {
             throw "Tracking file not found: $trackingFilePath"
         }
@@ -383,8 +398,6 @@ try {
             $updatedLines = @()
             $rowUpdated = $false
             $columnIndices = @{}
-            $escapedFileName = [regex]::Escape($testFileName)
-
             foreach ($line in $lines) {
                 # Parse table headers to find column indices by name
                 if (-not $rowUpdated -and $line -match '^\|.*\|$' -and $columnIndices.Count -eq 0 -and $line -notmatch '^\|[-\s:]+\|$') {
@@ -402,7 +415,7 @@ try {
                     $columnIndices = @{}
                 }
 
-                if (-not $rowUpdated -and $columnIndices.Count -gt 0 -and $line -match "^\|.*$escapedFileName.*\|") {
+                if (-not $rowUpdated -and $columnIndices.Count -gt 0 -and $line -match "^\|.*$rowMatchPattern.*\|") {
                     $rawCols = $line -split '\|'
                     if ($rawCols.Count -gt 2) { $rawCols = $rawCols[1..($rawCols.Count-2)] }
                     $cols = $rawCols | ForEach-Object { $_.Trim() }
@@ -531,7 +544,7 @@ try {
     # Map audit status to test implementation status
     $testImplStatus = switch ($AuditStatus) {
         "Audit In Progress" { "🔍 Audit In Progress" }
-        "Tests Approved" { "✅ Tests Approved" }
+        "Tests Approved" { "✅ Audit Approved" }
         "Needs Update" { "🔄 Needs Update" }
         "Audit Failed" { "🔴 Audit Failed" }
     }
@@ -586,11 +599,11 @@ try {
         "🔄 Tests Need Update"
     } elseif ($featureTestStatuses -contains "🔍 Audit In Progress") {
         "🔍 Audit In Progress"
-    } elseif ($featureTestStatuses -notcontains "✅ Tests Approved" -and $featureTestStatuses.Count -gt 0) {
+    } elseif ($featureTestStatuses -notcontains "✅ Audit Approved" -and $featureTestStatuses.Count -gt 0) {
         "🟡 Tests In Progress"
-    } elseif ($featureTestStatuses -contains "✅ Tests Approved" -and $featureTestStatuses.Count -gt 0) {
-        if (($featureTestStatuses | Where-Object { $_ -eq "✅ Tests Approved" }).Count -eq $featureTestStatuses.Count) {
-            "✅ Tests Approved"
+    } elseif ($featureTestStatuses -contains "✅ Audit Approved" -and $featureTestStatuses.Count -gt 0) {
+        if (($featureTestStatuses | Where-Object { $_ -eq "✅ Audit Approved" }).Count -eq $featureTestStatuses.Count) {
+            "✅ Audit Approved"
         } else {
             "🟡 Tests Partially Approved"
         }

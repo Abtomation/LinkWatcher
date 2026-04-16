@@ -24,7 +24,7 @@ update\Update-FeatureImplementationState.ps1 -FeatureId "1.2.3" -Status "🟡 In
 **Advanced Usage**:
 
 ```powershell
-update\Update-FeatureImplementationState.ps1 -FeatureId "1.2.3" -Status "✅ Completed" -CompletionDate "2025-08-23" -ImplementationNotes "Added user authentication flow" -TestStatus "✅ Tests Implemented"
+update\Update-FeatureImplementationState.ps1 -FeatureId "1.2.3" -Status "✅ Completed" -CompletionDate "2025-08-23" -ImplementationNotes "Added user authentication flow" -TestStatus "✅ Audit Approved"
 ```
 
 **Dry Run (Recommended First)**:
@@ -137,7 +137,7 @@ update\Update-FeatureImplementationState.ps1 -FeatureId "1.2.3" -Status "🟡 In
 ### 3. Provide Context Information
 
 ```powershell
-update\Update-FeatureImplementationState.ps1 -FeatureId "AUTH-001" -Status "✅ Completed" -ImplementationNotes "Implemented OAuth2 integration with Google and GitHub providers" -TestStatus "✅ Tests Implemented"
+update\Update-FeatureImplementationState.ps1 -FeatureId "AUTH-001" -Status "✅ Completed" -ImplementationNotes "Implemented OAuth2 integration with Google and GitHub providers" -TestStatus "✅ Audit Approved"
 ```
 
 ### 4. Review Script Output
@@ -202,7 +202,7 @@ Required dependencies not met. Please ensure Common-ScriptHelpers.psm1 is proper
 update\Update-FeatureImplementationState.ps1 -FeatureId "NEW-FEATURE" -Status "🟡 In Progress"
 
 # Complete implementation
-update\Update-FeatureImplementationState.ps1 -FeatureId "NEW-FEATURE" -Status "✅ Completed" -TestStatus "✅ Tests Implemented"
+update\Update-FeatureImplementationState.ps1 -FeatureId "NEW-FEATURE" -Status "✅ Completed" -TestStatus "✅ Audit Approved"
 ```
 
 ### PF-TSK-030: Test Audit

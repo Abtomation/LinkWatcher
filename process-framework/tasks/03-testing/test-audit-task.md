@@ -15,8 +15,8 @@ updated: 2026-04-13
 Comprehensive quality assurance task that evaluates test suites against type-specific effectiveness, completeness, and maintainability criteria. Serves as a quality gate between test creation and production use across three test categories:
 
 - **Automated tests** (unit/integration/parser) — quality gate between implementation and feature development
-- **Performance tests** — quality gate between test creation (`📋 Created`) and baseline capture (`✅ Baselined`)
-- **E2E acceptance tests** — quality gate between case creation (`📋 Case Created`) and execution (`✅ Passed`/`🔴 Failed`)
+- **Performance tests** — quality gate between test creation (`📋 Needs Baseline`) and baseline capture (`✅ Baselined`)
+- **E2E acceptance tests** — quality gate between case creation (`📋 Needs Execution`) and execution (`✅ Passed`/`🔴 Failed`)
 
 **🚨 CRITICAL SCOPE CLARIFICATION**: This task is primarily **EVALUATION ONLY**. However, **minor fixes ≤15 minutes** may be implemented directly during the audit (see [Minor Fix Authority](#minor-fix-authority)). All other issues should be documented in the audit report for separate implementation tasks.
 
@@ -29,19 +29,19 @@ Comprehensive quality assurance task that evaluates test suites against type-spe
 
 ## When to Use
 
-- **Automated tests**: After test implementation is complete (status: "✅ Tests Implemented") — before tests are considered production-ready
-- **Performance tests**: After performance test creation (status: "📋 Created") — **mandatory** before baseline capture (PF-TSK-085)
-- **E2E acceptance tests**: After E2E test case creation (status: "📋 Case Created") — **mandatory** before execution (PF-TSK-070)
+- **Automated tests**: After test implementation is complete (status: "✅ Audit Approved") — before tests are considered production-ready
+- **Performance tests**: After performance test creation (status: "📋 Needs Baseline") — **mandatory** before baseline capture (PF-TSK-085)
+- **E2E acceptance tests**: After E2E test case creation (status: "📋 Needs Execution") — **mandatory** before execution (PF-TSK-070)
 - When test quality concerns are raised during code review
 - As part of quality gates for critical features
 - When comprehensive test validation is required (any test type)
 
 ## When NOT to Use
 
-- For tests that are still in development (status: "🟡 Implementation In Progress" or "🔄 Ready for Validation")
+- For tests that are still in development (status: "🟡 Implementation In Progress" or "🔄 Needs Audit")
 - For features marked as "🚫 No Test Required"
 - For simple tests that don't warrant comprehensive audit (use discretion based on feature complexity)
-- For performance tests with status `⚠️ Stale` — these have already been audited; re-capture directly via PF-TSK-085
+- For performance tests with status `⚠️ Needs Re-baseline` — these have already been audited; re-capture directly via PF-TSK-085
 - For E2E tests with status `🔄 Needs Re-execution` — these have already been audited; re-execute directly via PF-TSK-070
 
 ## Context Requirements
@@ -87,9 +87,9 @@ Before starting the audit, determine the test type. This determines which criter
 
 | Test Type | Trigger Status | Tracking File | Audit Criteria | Report Template |
 |-----------|---------------|---------------|----------------|-----------------|
-| **Automated** (default) | `✅ Tests Implemented` | test-tracking.md | 6 criteria (see [Automated Test Criteria](#automated-test-criteria)) | Standard or Lightweight |
-| **Performance** | `📋 Created` | performance-test-tracking.md | 4 criteria (see [Performance Test Criteria](#performance-test-criteria)) | Performance Audit |
-| **E2E** | `📋 Case Created` | e2e-test-tracking.md | 5 criteria (see [E2E Test Criteria](#e2e-test-criteria)) | E2E Audit |
+| **Automated** (default) | `✅ Audit Approved` | test-tracking.md | 6 criteria (see [Automated Test Criteria](#automated-test-criteria)) | Standard or Lightweight |
+| **Performance** | `📋 Needs Baseline` | performance-test-tracking.md | 4 criteria (see [Performance Test Criteria](#performance-test-criteria)) | Performance Audit |
+| **E2E** | `📋 Needs Execution` | e2e-test-tracking.md | 5 criteria (see [E2E Test Criteria](#e2e-test-criteria)) | E2E Audit |
 
 ### Preparation
 
@@ -285,8 +285,8 @@ Before starting the audit, determine the test type. This determines which criter
 13. **Assign Audit Status**: Determine audit outcome based on evaluation results:
 
     **For Automated tests**:
-    - **✅ Tests Approved**: All implementable tests are complete and high quality
-    - **🟡 Tests Approved with Dependencies**: Current tests are good, but some tests await implementation
+    - **✅ Audit Approved**: All implementable tests are complete and high quality
+    - **🟡 Approved — Pending Dependencies**: Current tests are good, but some tests await implementation
     - **🔄 Needs Update**: Existing tests have issues that need fixing
     - **🔴 Tests Incomplete**: Missing tests for existing implementations
 
@@ -350,8 +350,8 @@ Update-TestFileAuditState.ps1 -TestType E2E -TestFilePath "test/e2e-acceptance-t
 **Available Audit Statuses**:
 
 Automated tests:
-- `"Tests Approved"` → ✅ Tests Approved
-- `"Tests Approved with Dependencies"` → 🟡 Tests Approved with Dependencies
+- `"Tests Approved"` → ✅ Audit Approved
+- `"Tests Approved with Dependencies"` → 🟡 Approved — Pending Dependencies
 - `"Needs Update"` → 🔄 Needs Update
 - `"Audit Failed"` → 🔴 Audit Failed
 - `"Audit In Progress"` → 🔍 Audit In Progress
@@ -367,7 +367,7 @@ Performance and E2E tests:
     - **Performance**: performance-test-tracking.md + feature-tracking.md
     - **E2E**: e2e-test-tracking.md + feature-tracking.md
 
-19. **Document Implementation Dependencies** (Automated tests only): If status is "🟡 Tests Approved with Dependencies", clearly document:
+19. **Document Implementation Dependencies** (Automated tests only): If status is "🟡 Approved — Pending Dependencies", clearly document:
 
     - Which implementations are missing and blocking tests
     - Recommended implementation priority order

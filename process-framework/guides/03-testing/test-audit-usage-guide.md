@@ -18,7 +18,7 @@ This guide provides comprehensive instructions for using the Test Audit task (PF
 
 Use this guide when:
 
-- Test implementations have reached "🔄 Ready for Validation" status
+- Test implementations have reached "🔄 Needs Audit" status
 - You need to conduct systematic quality assessment of test suites
 - Test files require evaluation against established quality criteria
 - You're transitioning tests from implementation to approved status
@@ -42,7 +42,7 @@ Use this guide when:
 Before you begin, ensure you have:
 
 - **AI Agent Role**: Quality Assurance Engineer with analytical mindset
-- **Test Status**: Test implementation must be in "🔄 Ready for Validation" status
+- **Test Status**: Test implementation must be in "🔄 Needs Audit" status
 - **Context Access**: Access to test files, implementation code, and specifications
 - **Documentation**: Test Tracking file and Test Registry available
 - **Tools**: PowerShell execution capability for audit report generation
@@ -50,7 +50,7 @@ Before you begin, ensure you have:
 
 ## Background
 
-The Test Audit task was created to address the quality assurance gap between test implementation and test approval. Previously, tests moved directly from "Implementation In Progress" to "Tests Implemented" without systematic quality evaluation. This led to potential quality issues and inconsistent test standards.
+The Test Audit task was created to address the quality assurance gap between test implementation and test approval. Previously, tests moved directly from "Implementation In Progress" to "Audit Approved" without systematic quality evaluation. This led to potential quality issues and inconsistent test standards.
 
 ### Key Concepts
 
@@ -73,9 +73,9 @@ PF-TSK-030 supports three test types, each with distinct criteria, templates, an
 
 | Test Type | When to Audit | Tracking File | Criteria Count | Template |
 |-----------|--------------|---------------|----------------|----------|
-| **Automated** (default) | After `✅ Tests Implemented` in test-tracking.md | test-tracking.md | 6 criteria | Standard or Lightweight |
-| **Performance** | After `📋 Created` in performance-test-tracking.md | performance-test-tracking.md | 4 criteria | Performance Audit (PF-TEM-073) |
-| **E2E** | After `📋 Case Created` in e2e-test-tracking.md | e2e-test-tracking.md | 5 criteria | E2E Audit (PF-TEM-074) |
+| **Automated** (default) | After `✅ Audit Approved` in test-tracking.md | test-tracking.md | 6 criteria | Standard or Lightweight |
+| **Performance** | After `📋 Needs Baseline` in performance-test-tracking.md | performance-test-tracking.md | 4 criteria | Performance Audit (PF-TEM-073) |
+| **E2E** | After `📋 Needs Execution` in e2e-test-tracking.md | e2e-test-tracking.md | 5 criteria | E2E Audit (PF-TEM-074) |
 
 Use `-TestType Performance` or `-TestType E2E` with all audit scripts. Omitting `-TestType` defaults to Automated for backward compatibility.
 
@@ -293,7 +293,7 @@ E2E test audits evaluate against five criteria specific to acceptance tests with
 ### 1. Preparation and Context Gathering
 
 1. **Identify Test for Audit**
-   - Locate test entry in Test Tracking with "🔄 Ready for Validation" status
+   - Locate test entry in Test Tracking with "🔄 Needs Audit" status
    - Note the Feature ID, Test File ID, and test file location
    - Verify test file exists and is accessible
 
@@ -442,7 +442,7 @@ E2E test audits evaluate against five criteria specific to acceptance tests with
 
 1. **Update Test Tracking**
    - Change status based on audit decision:
-     - **TESTS_APPROVED** → "✅ Tests Implemented"
+     - **TESTS_APPROVED** → "✅ Audit Approved"
      - **NEEDS_UPDATE** → "🔄 Needs Update"
    - Update last updated date
    - Add audit completion note

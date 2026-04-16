@@ -52,7 +52,7 @@ When `-Scripted` is used, the script additionally creates a `run.ps1` skeleton a
 **Script output:**
 - `test/e2e-acceptance-testing/templates/<group>/E2E-NNN-<name>/` directory with `test-case.md`, `project/`, `expected/`
 - If `-NewGroup`: `master-test-<group-name>.md` in the group directory
-- Updated test-tracking.md (new entry with status `📋 Case Created`)
+- Updated test-tracking.md (new entry with status `📋 Needs Execution`)
 - Updated feature-tracking.md (Test Status updated)
 - Updated master test "If Failed" table (new row added)
 

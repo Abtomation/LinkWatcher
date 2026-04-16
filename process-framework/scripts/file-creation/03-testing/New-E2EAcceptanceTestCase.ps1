@@ -408,7 +408,7 @@ Write-Warning "run.ps1 is a skeleton — replace this with the actual test actio
 
         # Build the new row for the dedicated E2E Test Cases table
         # Columns: Test ID | Workflow | Feature IDs | Test Type | Test File/Case | Status | Last Executed | Last Updated | Audit Status | Audit Report | Notes
-        $newRow = "| $e2eId | $workflowCol | $featureIdsDisplay | E2E Case | $testCaseLink | 📋 Case Created | — | $timestamp | — | — | $trackingNotes |"
+        $newRow = "| $e2eId | $workflowCol | $featureIdsDisplay | E2E Case | $testCaseLink | 📋 Needs Execution | — | $timestamp | — | — | $trackingNotes |"
 
         # Build TE-E2G group row if -NewGroup (inserted before the test case row)
         $newGroupRow = $null
@@ -416,7 +416,7 @@ Write-Warning "run.ps1 is a skeleton — replace this with the actual test actio
             $masterTestRelativePath = "../../../../test/e2e-acceptance-testing/templates/$GroupName/master-test-$GroupName.md"
             $masterTestLink = "[master-test-$GroupName.md]($masterTestRelativePath)"
             $groupNotes = ($GroupName -replace '-', ' ')
-            $newGroupRow = "| $grpIdForRegistry | $workflowCol | $featureIdsDisplay | E2E Group | $masterTestLink | 📋 Case Created | — | $timestamp | — | — | $groupNotes |"
+            $newGroupRow = "| $grpIdForRegistry | $workflowCol | $featureIdsDisplay | E2E Group | $masterTestLink | 📋 Needs Execution | — | $timestamp | — | — | $groupNotes |"
         }
 
         # Find the E2E Test Cases table and append the row(s) before the --- separator

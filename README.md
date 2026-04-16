@@ -76,10 +76,12 @@ dev format
 | Document | Description |
 |----------|-------------|
 | [Quick Reference](doc/user/handbooks/quick-reference.md) | CLI options, config, environment variables, examples |
+| [Configuration Guide](doc/user/handbooks/configuration-guide.md) | Config files, CLI args, env vars, presets, ignore system |
 | [Multi-Project Setup](doc/user/handbooks/multi-project-setup.md) | Using across multiple projects |
 | [Link Validation](doc/user/handbooks/link-validation.md) | Scan workspace for broken file references |
 | [File Type Quick Fix](doc/user/handbooks/file-type-quick-fix.md) | **Quick fix** for file types not being monitored |
 | [File Type Troubleshooting](doc/user/handbooks/troubleshooting-file-types.md) | **Detailed guide** for file type monitoring issues |
+| [Logging and Monitoring](doc/user/handbooks/logging-and-monitoring.md) | Debug logging, file logging, log rotation, monitoring dashboard |
 | [Capabilities Reference](doc/user/handbooks/linkwatcher-capabilities-reference.md) | Complete reference of all detection patterns, parsers, and update triggers |
 
 ## 🏗️ Architecture

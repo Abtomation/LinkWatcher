@@ -85,7 +85,7 @@ param(
     [string[]]$MajorFindings = @(),
 
     [Parameter(Mandatory=$false)]
-    [ValidateSet("No Change", "✅ Tests Implemented", "🔄 Needs Update", "🔴 Tests Failing")]
+    [ValidateSet("No Change", "✅ Audit Approved", "🔄 Needs Update", "🔴 Needs Fix")]
     [string]$TestStatusUpdate = "No Change",
 
     [Parameter(Mandatory=$false)]

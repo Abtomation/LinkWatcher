@@ -1,7 +1,7 @@
 ---
 id: TE-E2G-011
 type: E2E Acceptance Test Group
-feature_ids: ["0.1.1, 2.2.1, 3.1.1"]
+feature_ids: ["0.1.1", "2.2.1", "3.1.1"]
 test_cases_count: 1
 estimated_duration: 5 minutes
 created: 2026-03-18

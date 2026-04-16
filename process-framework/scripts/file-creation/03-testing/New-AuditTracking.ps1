@@ -106,7 +106,7 @@ $rowNumber = 0
 
 if ($TestType -eq "Performance") {
     # --- Performance: parse performance-test-tracking.md ---
-    $auditableStatuses = @("Created", "Baselined", "Stale")
+    $auditableStatuses = @("Needs Baseline", "Baselined", "Needs Re-baseline")
 
     # Parse all level tables (they all share the same column structure)
     $allPerfRows = ConvertFrom-MarkdownTable -Content $trackingContent -Section "## Test Inventory" -AllTables -ResolveLinkColumn @("Test File")
@@ -125,7 +125,7 @@ if ($TestType -eq "Performance") {
             if (-not $matchesFilter) { continue }
         }
 
-        # Check if status is auditable (skip ⬜ Specified — no implementation yet)
+        # Check if status is auditable (skip ⬜ Needs Creation — no implementation yet)
         $statusCell = $row.'Status'
         $isAuditable = $false
         foreach ($status in $auditableStatuses) {
@@ -146,7 +146,7 @@ if ($TestType -eq "Performance") {
 }
 elseif ($TestType -eq "E2E") {
     # --- E2E: parse e2e-test-tracking.md ---
-    $auditableStatuses = @("Case Created", "Passed", "Failed", "Needs Re-execution")
+    $auditableStatuses = @("Needs Execution", "Passed", "Failed", "Needs Re-execution")
 
     # Parse the E2E Test Cases table
     $allE2eRows = ConvertFrom-MarkdownTable -Content $trackingContent -Section "## E2E Test Cases" -AllTables -ResolveLinkColumn @("Test File/Case")
@@ -187,9 +187,9 @@ elseif ($TestType -eq "E2E") {
 else {
     # --- Automated: existing behavior — parse test-tracking.md ---
     $auditableStatuses = @(
-        "Tests Implemented",
-        "Tests Approved",
-        "Tests Approved with Dependencies",
+        "Audit Approved",
+        "Approved",
+        "Approved — Pending Dependencies",
         "Needs Update"
     )
 

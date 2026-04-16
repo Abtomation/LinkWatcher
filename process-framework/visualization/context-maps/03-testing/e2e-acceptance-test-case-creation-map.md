@@ -56,7 +56,7 @@ graph TD
 - **Expected State**: Post-test file state for automated comparison — enables verification script to confirm pass/fail
 
 ### Reference Components (Access When Needed)
-- **Test Tracking**: Records E2E acceptance test creation status (📋 Case Created) and execution results
+- **Test Tracking**: Records E2E acceptance test creation status (📋 Needs Execution) and execution results
 - **Feature Tracking**: Feature-level test coverage overview — updated when E2E acceptance test coverage changes
 - **E2E Acceptance Test Execution**: Downstream task that executes the test cases created here
 
@@ -68,7 +68,7 @@ graph TD
 4. **Templates → Test Case Creation**: Both templates provide structural frameworks that are customized for each specific test case
 5. **Test Case Creation → Master Test File**: Master test is created first (top-down), covering key scenarios from all test cases in the group
 6. **Test Case Creation → Test Case Directories**: Individual test cases with project fixtures and expected state enable both manual execution and automated verification
-7. **Test Case Creation -.-> Test Tracking**: New entries added with status 📋 Case Created
+7. **Test Case Creation -.-> Test Tracking**: New entries added with status 📋 Needs Execution
 8. **Test Case Creation -.-> Feature Tracking**: Test Status updated if E2E acceptance test coverage changes the overall status
 9. **Master Test + Test Cases → E2E Acceptance Test Execution**: Completed test cases are consumed by the execution task
 

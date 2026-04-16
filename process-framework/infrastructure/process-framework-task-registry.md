@@ -356,7 +356,7 @@ This document serves as the **comprehensive registry** of all process framework 
 |-----------|-----------|---------------|---------|
 | **Creates** | Test files (multiple) | `New-TestFile.ps1` | Test files in appropriate test directories with pytest markers (feature, priority, test_type) |
 | **Updates** | [`bug-tracking.md`](../../doc/state-tracking/permanent/bug-tracking.md) (if bugs discovered) | [`New-BugReport.ps1`](../scripts/file-creation/06-maintenance/New-BugReport.ps1)| Add newly discovered bugs with 🆕 Needs Triage status for triage |
-| **Updates** | [`test-tracking.md`](../../test/state-tracking/permanent/test-tracking.md) | `New-TestFile.ps1` | Status: "📝 Specification Created" → "🟡 Implementation In Progress"<br/>• Add test file links with correct relative paths<br/>• Use filename as display name<br/>• Update test cases count, last updated date, notes |
+| **Updates** | [`test-tracking.md`](../../test/state-tracking/permanent/test-tracking.md) | `New-TestFile.ps1` | Status: "📝 Needs Implementation" → "🟡 Implementation In Progress"<br/>• Add test file links with correct relative paths<br/>• Use filename as display name<br/>• Update test cases count, last updated date, notes |
 | **Updates** | [`feature-tracking.md`](../../doc/state-tracking/permanent/feature-tracking.md) | `New-TestFile.ps1` | Update Test Status based on implementation progress<br/>• Automatic status mapping from test implementation to feature tracking<br/>• Coordinate status across multiple state files |
 | **Updates** | Feature Implementation State File (if applicable) | Manual | Test implementation details, coverage metrics, and testing notes |
 
@@ -366,12 +366,12 @@ This document serves as the **comprehensive registry** of all process framework 
 - **Secondary coordination:** [`feature-tracking.md`](../../doc/state-tracking/permanent/feature-tracking.md) - Updates feature test status
 - **Pytest markers:** Written into test files as single source of truth (query via `test_query.py`)
 - **Bug discovery integration:** Includes systematic bug identification during test development with standardized reporting via `New-BugReport.ps1`
-- **Manual completion required:** Status updates from 🟡 Implementation In Progress to 🔄 Ready for Validation, test case counts
+- **Manual completion required:** Status updates from 🟡 Implementation In Progress to 🔄 Needs Audit, test case counts
 - **Dependencies:** Requires feature implementation completion; Test Specification (if exists) provides test blueprint
 
 **🔗 TRIGGER & OUTPUT** (Self-Doc: Partial)
 - **Trigger:** Feature impl state file → all impl tasks = `completed`
-- **Output:** `test-tracking.md` → `✅ Tests Implemented`; Feature impl state file → task = `completed`
+- **Output:** `test-tracking.md` → `✅ Audit Approved`; Feature impl state file → task = `completed`
 
 #### **6. Test Audit Task** ([PF-TSK-030](../tasks/03-testing/test-audit-task.md))
 
@@ -409,7 +409,7 @@ This document serves as the **comprehensive registry** of all process framework 
 - **Dependencies:** Requires test implementation/creation completion for the relevant test type
 
 **🔗 TRIGGER & OUTPUT** (Self-Doc: Partial)
-- **Trigger:** `test-tracking.md` → `✅ Tests Implemented` + no audit
+- **Trigger:** `test-tracking.md` → `✅ Audit Approved` + no audit
 - **Output:** `test-tracking.md` → audit status + report link; `bug-tracking.md` → `🆕 Needs Triage` (if bugs found)
 
 #### **7. Feature Implementation Task** (PF-TSK-004) — ⚠️ DEPRECATED
@@ -668,7 +668,7 @@ This document serves as the **comprehensive registry** of all process framework 
 |-----------|-----------|---------------|---------|
 | **Updates** | [`bug-tracking.md`](../../doc/state-tracking/permanent/bug-tracking.md) (if bugs discovered) | [`New-BugReport.ps1`](../scripts/file-creation/06-maintenance/New-BugReport.ps1)| Add newly discovered bugs with 🆕 Needs Triage status for triage |
 | **Updates** | [`feature-tracking.md`](../../doc/state-tracking/permanent/feature-tracking.md) | Manual | Update code review status (🟢 Completed/🔄 Needs Enhancement)<br/>• Add review date, reviewer information<br/>• Link to review document, list major findings |
-| **Updates** | [`test-tracking.md`](../../test/state-tracking/permanent/test-tracking.md) | Manual | Update test status based on review findings<br/>• Confirm "✅ Tests Implemented" or change to "🔴 Tests Failing"/"🔄 Needs Update" |
+| **Updates** | [`test-tracking.md`](../../test/state-tracking/permanent/test-tracking.md) | Manual | Update test status based on review findings<br/>• Confirm "✅ Audit Approved" or change to "🔴 Needs Fix"/"🔄 Needs Update" |
 | **Updates** | [`technical-debt-tracking.md`](../../doc/state-tracking/permanent/technical-debt-tracking.md) | `Update-TechDebt.ps1` (conditional) | Register tech debt findings discovered during review |
 | **Updates** | Feature Implementation State Files | Manual (conditional) | Implementation gaps logged in Issues & Resolutions Log |
 
@@ -697,7 +697,7 @@ This document serves as the **comprehensive registry** of all process framework 
 **📁 FILE OPERATIONS**
 | Operation | File Path | Update Method | Details |
 |-----------|-----------|---------------|---------|
-| **Updates** | [`bug-tracking.md`](../../doc/state-tracking/permanent/bug-tracking.md) | [`Update-BugStatus.ps1`](../scripts/update/Update-BugStatus.ps1) | Update bug status from 🆕 Needs Triage to 🔍 Needs Fix<br/>• Automated priority (P1-P4) and scope (S/M/L) assignments<br/>• Automated status emoji updates (🔍 Needs Fix)<br/>• Automated timestamp and notes updates<br/>• Auto-moves bugs between active/Closed sections on Close/Reopen<br/>**Usage:** `.\Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "NeedsFix" -Priority "High" -Scope "S"` |
+| **Updates** | [`bug-tracking.md`](../../doc/state-tracking/permanent/bug-tracking.md) | [`Update-BugStatus.ps1`](../scripts/update/Update-BugStatus.ps1) | Update bug status from 🆕 Needs Triage to 🔍 Needs Fix<br/>• Automated priority (Critical/High/Medium/Low) and scope (S/M/L) assignments<br/>• Automated status emoji updates (🔍 Needs Fix)<br/>• Automated timestamp and notes updates<br/>• Auto-moves bugs between active/Closed sections on Close/Reopen<br/>**Usage:** `.\Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "NeedsFix" -Priority "High" -Scope "S"` |
 
 **🎯 KEY IMPACTS**
 
@@ -708,7 +708,7 @@ This document serves as the **comprehensive registry** of all process framework 
 
 **🔗 TRIGGER & OUTPUT** (Self-Doc: Yes)
 - **Trigger:** `bug-tracking.md` → `🆕 Needs Triage`
-- **Output:** `bug-tracking.md` → `🔍 Needs Fix` + priority (P1-P4) + scope (S/M/L) + Dims
+- **Output:** `bug-tracking.md` → `🔍 Needs Fix` + priority (Critical/High/Medium/Low) + scope (S/M/L) + Dims
 
 #### **15. Bug Fixing Task** ([PF-TSK-007](../tasks/06-maintenance/bug-fixing-task.md))
 
@@ -1126,7 +1126,7 @@ This document serves as the **comprehensive registry** of all process framework 
 
 **🔗 TRIGGER & OUTPUT** (Self-Doc: Partial)
 - **Trigger:** E2E spec / bug report / refactoring plan _(multi-path)_
-- **Output:** `e2e-test-tracking.md` → `📋 Case Created` → (audit gate) → `🔍 Audit Approved`
+- **Output:** `e2e-test-tracking.md` → `📋 Needs Execution` → (audit gate) → `🔍 Audit Approved`
 
 #### **29. E2E Acceptance Test Execution** ([PF-TSK-070](../tasks/03-testing/e2e-acceptance-test-execution-task.md))
 
@@ -1154,10 +1154,10 @@ This document serves as the **comprehensive registry** of all process framework 
 
 - **Primary state file:** [`e2e-test-tracking.md`](../../test/state-tracking/permanent/e2e-test-tracking.md) - Execution results tracking
 - **Bug discovery:** Failures generate bug reports via `New-BugReport.ps1`
-- **Dependencies:** Requires E2E Acceptance Test Case Creation (PF-TSK-069). **Audit gate**: `📋 Case Created` entries must have `🔍 Audit Approved` Audit Status (via Test Audit PF-TSK-030 with `-TestType E2E`) before execution. `🔄 Needs Re-execution` entries are exempt.
+- **Dependencies:** Requires E2E Acceptance Test Case Creation (PF-TSK-069). **Audit gate**: `📋 Needs Execution` entries must have `🔍 Audit Approved` Audit Status (via Test Audit PF-TSK-030 with `-TestType E2E`) before execution. `🔄 Needs Re-execution` entries are exempt.
 
 **🔗 TRIGGER & OUTPUT** (Self-Doc: Yes)
-- **Trigger:** `e2e-test-tracking.md` → `🔄 Needs Re-execution` or `📋 Case Created` (with `🔍 Audit Approved`)
+- **Trigger:** `e2e-test-tracking.md` → `🔄 Needs Re-execution` or `📋 Needs Execution` (with `🔍 Audit Approved`)
 - **Output:** `e2e-test-tracking.md` → `✅ Passed` or `🔴 Failed`
 
 
@@ -1236,8 +1236,8 @@ This document serves as the **comprehensive registry** of all process framework 
 - **Next step:** Test Audit (PF-TSK-030 with `-TestType Performance`) — audit gate before baseline capture
 
 **🔗 TRIGGER & OUTPUT** (Self-Doc: Yes)
-- **Trigger:** `performance-test-tracking.md` → `⬜ Specified` entries (created by PF-TSK-086)
-- **Output:** `performance-test-tracking.md` → `⬜ Specified` → `📋 Created` → (audit gate) → `🔍 Audit Approved`
+- **Trigger:** `performance-test-tracking.md` → `⬜ Needs Creation` entries (created by PF-TSK-086)
+- **Output:** `performance-test-tracking.md` → `⬜ Needs Creation` → `📋 Needs Baseline` → (audit gate) → `🔍 Audit Approved`
 
 #### **33. Performance Baseline Capture** ([PF-TSK-085](../tasks/03-testing/performance-baseline-capture-task.md))
 
@@ -1259,10 +1259,10 @@ This document serves as the **comprehensive registry** of all process framework 
 **🎯 KEY IMPACTS**
 
 - **Primary output:** Recorded baseline results in performance-results.db; updated performance-test-tracking.md
-- **Dependencies:** Requires Performance Test Creation (PF-TSK-084) — tests must exist at 📋 Created or ✅ Baselined. **Audit gate**: `📋 Created` entries must have `🔍 Audit Approved` Audit Status (via Test Audit PF-TSK-030 with `-TestType Performance`) before baseline capture. `⚠️ Stale` entries are exempt.
+- **Dependencies:** Requires Performance Test Creation (PF-TSK-084) — tests must exist at 📋 Needs Baseline or ✅ Baselined. **Audit gate**: `📋 Needs Baseline` entries must have `🔍 Audit Approved` Audit Status (via Test Audit PF-TSK-030 with `-TestType Performance`) before baseline capture. `⚠️ Needs Re-baseline` entries are exempt.
 
 **🔗 TRIGGER & OUTPUT** (Self-Doc: Yes)
-- **Trigger:** `performance-test-tracking.md` → `📋 Created` (with `🔍 Audit Approved`) or `⚠️ Stale`
+- **Trigger:** `performance-test-tracking.md` → `📋 Needs Baseline` (with `🔍 Audit Approved`) or `⚠️ Needs Re-baseline`
 - **Output:** `performance-test-tracking.md` → `✅ Baselined`; `bug-tracking.md` → `🆕 Needs Triage` (if regression)
 
 #### **34. Performance and E2E Test Scoping** ([PF-TSK-086](../tasks/03-testing/performance-and-e2e-test-scoping-task.md))
@@ -1272,7 +1272,7 @@ This document serves as the **comprehensive registry** of all process framework 
 **📋 AUTOMATION DETAILS**
 
 - **Scripts:**
-  - `scripts/file-creation/03-testing/New-PerformanceTestEntry.ps1` — adds `⬜ Specified` rows to performance-test-tracking.md (auto-assigns BM/PH IDs via TE-id-registry)
+  - `scripts/file-creation/03-testing/New-PerformanceTestEntry.ps1` — adds `⬜ Needs Creation` rows to performance-test-tracking.md (auto-assigns BM/PH IDs via TE-id-registry)
   - `scripts/file-creation/03-testing/New-WorkflowEntry.ps1` — adds untracked workflows to user-workflow-tracking.md (auto-assigns WF IDs via PD-id-registry)
   - `scripts/file-creation/03-testing/New-E2EMilestoneEntry.ps1` — adds milestone rows to e2e-test-tracking.md (validates WF-xxx exists, counts ready features)
   - `scripts/update/Update-BatchFeatureStatus.ps1` — sets feature status to `🟢 Completed`
@@ -1282,7 +1282,7 @@ This document serves as the **comprehensive registry** of all process framework 
 **📁 FILE OPERATIONS**
 | Operation | File Path | Update Method | Details |
 |-----------|-----------|---------------|---------|
-| Add perf test rows | test/state-tracking/permanent/performance-test-tracking.md | New-PerformanceTestEntry.ps1 | `⬜ Specified` entries + summary update |
+| Add perf test rows | test/state-tracking/permanent/performance-test-tracking.md | New-PerformanceTestEntry.ps1 | `⬜ Needs Creation` entries + summary update |
 | Add workflow rows | doc/state-tracking/permanent/user-workflow-tracking.md | New-WorkflowEntry.ps1 | New cross-feature workflows discovered during scoping |
 | Add E2E milestones | test/state-tracking/permanent/e2e-test-tracking.md | New-E2EMilestoneEntry.ps1 | Workflow Milestone Tracking table |
 | Update feature status | doc/state-tracking/permanent/feature-tracking.md | Update-BatchFeatureStatus.ps1 | `🔎 Needs Test Scoping` → `🟢 Completed` |
@@ -1295,7 +1295,7 @@ This document serves as the **comprehensive registry** of all process framework 
 
 **🔗 TRIGGER & OUTPUT** (Self-Doc: Yes)
 - **Trigger:** `feature-tracking.md` → `🔎 Needs Test Scoping`
-- **Output:** `feature-tracking.md` → `🟢 Completed`; `performance-test-tracking.md` → `⬜ Specified` (if perf tests needed); `e2e-test-tracking.md` → milestone entries (if workflow E2E-ready); `user-workflow-tracking.md` → untracked workflows added
+- **Output:** `feature-tracking.md` → `🟢 Completed`; `performance-test-tracking.md` → `⬜ Needs Creation` (if perf tests needed); `e2e-test-tracking.md` → milestone entries (if workflow E2E-ready); `user-workflow-tracking.md` → untracked workflows added
 ### **VALIDATION TASKS**
 
 #### **V0. Validation Preparation** ([PF-TSK-077](../tasks/05-validation/validation-preparation.md))
@@ -1419,7 +1419,7 @@ This document serves as the **comprehensive registry** of all process framework 
 
 **🔧 USAGE EXAMPLES**
 ```powershell
-# Status-only update (e.g., Identified → In Progress)
+# Status-only update (e.g., Needs Prioritization → In Progress)
 Update-ProcessImprovement.ps1 -ImprovementId "IMP-051" -NewStatus "InProgress"
 
 # Complete an improvement
@@ -1685,8 +1685,8 @@ Which status in which file triggers which task.
 | `bug-tracking.md` | `🔍 Needs Fix` | PF-TSK-007 Bug Fixing |
 | `technical-debt-tracking.md` | Active items | PF-TSK-022 Code Refactoring |
 | `e2e-test-tracking.md` | `🔄 Needs Re-execution` | PF-TSK-070 E2E Test Execution |
-| `performance-test-tracking.md` | `⬜ Specified` (self-created, multi-session resume) | PF-TSK-084 Performance Test Creation |
-| `performance-test-tracking.md` | `📋 Created` / `⚠️ Stale` | PF-TSK-085 Performance Baseline Capture |
+| `performance-test-tracking.md` | `⬜ Needs Creation` (self-created, multi-session resume) | PF-TSK-084 Performance Test Creation |
+| `performance-test-tracking.md` | `📋 Needs Baseline` / `⚠️ Needs Re-baseline` | PF-TSK-085 Performance Baseline Capture |
 | `user-workflow-tracking.md` | All features = `Implemented` + Integration Doc empty | PF-TSK-083 Integration Narrative Creation |
 | `retrospective-master-state.md` | Phase 1 = `100%` | PF-TSK-065 Codebase Feature Analysis |
 | `retrospective-master-state.md` | Phase 2 = `100%` | PF-TSK-066 Retrospective Documentation Creation |
@@ -1848,7 +1848,7 @@ graph TD
 
     DISC -->|"New-BugReport.ps1"| REP[Reported]
 
-    REP -->|"TSK-041 Bug Triage"| TRI[Triaged - P1 thru P4, S/M/L]
+    REP -->|"TSK-041 Bug Triage"| TRI[Triaged - Critical/High/Medium/Low, S/M/L]
 
     TRI -->|"TSK-007 Bug Fixing"| PROG[In Progress]
 
@@ -1910,7 +1910,7 @@ graph TD
 
     SCOPE -.->|"workflow E2E-ready"| MILE[Milestone entry added]
 
-    MILE -->|"TSK-069 Case Creation"| CASES[Case Created]
+    MILE -->|"TSK-069 Case Creation"| CASES[Needs Execution]
 
     CASES -->|"TSK-070 Execution"| PASS[Passed]
     CASES -->|"TSK-070 Execution"| FAIL[Failed]

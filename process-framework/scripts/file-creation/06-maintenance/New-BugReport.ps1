@@ -173,13 +173,8 @@ $TableSection = switch ($Severity) {
     "Low" { "### Low Priority Bugs" }
 }
 
-# Map severity to priority code
-$PriorityCode = switch ($Severity) {
-    "Critical" { "P1" }
-    "High"     { "P2" }
-    "Medium"   { "P3" }
-    "Low"      { "P4" }
-}
+# Priority uses text format (Critical/High/Medium/Low) — same as technical-debt-tracking
+$PriorityText = $Severity
 
 # Build Notes field: Source first, then component/environment, then optional details
 $NotesParts = @("Source: $DiscoveredBy", "Environment: $Environment", "Component: $Component")
@@ -208,7 +203,7 @@ $BugStatus = if ($PreTriaged) { "🔍 Needs Fix" } else { "🆕 Needs Triage" }
 $ScopeField = if ($Scope -ne "") { $Scope -replace '\|', '\|' } else { "" }
 
 # Create table row — 11-column format: ID | Title | Status | Priority | Scope | Reported | Description | Related Feature | Workflows | Dims | Notes
-$TableRow = "| $BugId | $Title | $BugStatus | $PriorityCode | $ScopeField | $currentDate | $Description | $RelatedFeatureField | $WorkflowsField | $DimsField | $NotesField |"
+$TableRow = "| $BugId | $Title | $BugStatus | $PriorityText | $ScopeField | $currentDate | $Description | $RelatedFeatureField | $WorkflowsField | $DimsField | $NotesField |"
 
 # Find the appropriate table and replace the "No bugs" message
 $NobugsPattern = switch ($Severity) {
@@ -262,15 +257,15 @@ $ActiveCount = ([regex]::Matches($ActiveSection, '\| PD-BUG-\d+')).Count
 $UpdatedContent = [regex]::Replace($UpdatedContent, '(\*\*Total Active Bugs\*\*: )\d+', "`${1}$ActiveCount")
 
 # Update priority-specific counts - count all active bug rows by priority code
-$CriticalCount = ([regex]::Matches($ActiveSection, '\| PD-BUG-\d+.*\| P1 \|')).Count
-$HighCount = ([regex]::Matches($ActiveSection, '\| PD-BUG-\d+.*\| P2 \|')).Count
-$MediumCount = ([regex]::Matches($ActiveSection, '\| PD-BUG-\d+.*\| P3 \|')).Count
-$LowCount = ([regex]::Matches($ActiveSection, '\| PD-BUG-\d+.*\| P4 \|')).Count
+$CriticalCount = ([regex]::Matches($ActiveSection, '\| PD-BUG-\d+.*\| Critical \|')).Count
+$HighCount = ([regex]::Matches($ActiveSection, '\| PD-BUG-\d+.*\| High \|')).Count
+$MediumCount = ([regex]::Matches($ActiveSection, '\| PD-BUG-\d+.*\| Medium \|')).Count
+$LowCount = ([regex]::Matches($ActiveSection, '\| PD-BUG-\d+.*\| Low \|')).Count
 
-$UpdatedContent = [regex]::Replace($UpdatedContent, '(\*\*Critical \(P1\)\*\*: )\d+', "`${1}$CriticalCount")
-$UpdatedContent = [regex]::Replace($UpdatedContent, '(\*\*High \(P2\)\*\*: )\d+', "`${1}$HighCount")
-$UpdatedContent = [regex]::Replace($UpdatedContent, '(\*\*Medium \(P3\)\*\*: )\d+', "`${1}$MediumCount")
-$UpdatedContent = [regex]::Replace($UpdatedContent, '(\*\*Low \(P4\)\*\*: )\d+', "`${1}$LowCount")
+$UpdatedContent = [regex]::Replace($UpdatedContent, '(\*\*Critical\*\*: )\d+', "`${1}$CriticalCount")
+$UpdatedContent = [regex]::Replace($UpdatedContent, '(\*\*High\*\*: )\d+', "`${1}$HighCount")
+$UpdatedContent = [regex]::Replace($UpdatedContent, '(\*\*Medium\*\*: )\d+', "`${1}$MediumCount")
+$UpdatedContent = [regex]::Replace($UpdatedContent, '(\*\*Low\*\*: )\d+', "`${1}$LowCount")
 
 # Update source analysis based on DiscoveredBy parameter
 $SourceMap = @{
