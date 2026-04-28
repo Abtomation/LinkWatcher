@@ -15,7 +15,7 @@ retrospective: true
 
 > **Retrospective Document**: This FDD describes the existing implemented functionality of the LinkWatcher Event Handler, documented after implementation during framework onboarding (PF-TSK-066). Content is descriptive ("what is") rather than prescriptive ("what should be").
 >
-> **Source**: Derived from [1.1.2 Implementation State](../../state-tracking/features/archive/1.1.2-event-handler-implementation-state.md) and source code analysis of `linkwatcher/handler.py`.
+> **Source**: Derived from [1.1.2 Implementation State](../../state-tracking/features/archive/1.1.2-event-handler-implementation-state.md) and source code analysis of `src/linkwatcher/handler.py`.
 <!-- HOW_IT_WORKS.md (Event Handler section) was removed — content superseded by this FDD and TDD PD-TDD-023 -->
 
 ## Feature Overview

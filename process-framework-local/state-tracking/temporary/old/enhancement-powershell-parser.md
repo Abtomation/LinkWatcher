@@ -28,7 +28,7 @@ target_feature: 2.1.1
 
 | Criterion | Assessment |
 |-----------|------------|
-| **Files Affected** | 4 files: new `linkwatcher/parsers/powershell.py`, modify `linkwatcher/parsers/__init__.py` (export), modify `linkwatcher/parser.py` (register `.ps1`), new `tests/parsers/test_powershell.py` |
+| **Files Affected** | 4 files: new `src/linkwatcher/parsers/powershell.py`, modify `src/linkwatcher/parsers/__init__.py` (export), modify `src/linkwatcher/parser.py` (register `.ps1`), new `tests/parsers/test_powershell.py` |
 | **Design Docs to Amend** | FDD (PD-FDD-026) — add PowerShellParser to parser inventory. TDD (PD-TDD-025) — add PowerShellParser component description. |
 | **New Tests Required** | Yes — new `tests/parsers/test_powershell.py` with test cases for `#` comments, `<# #>` block comments, `Join-Path`/`Import-Module` patterns, `.EXAMPLE` sections |
 | **Interface Impact** | Internal only — `LinkParser.parse_file()` API unchanged; new parser registered transparently via existing registry |
@@ -166,7 +166,7 @@ target_feature: 2.1.1
 - **Applicable**: Yes
 - **Referenced Task Doc**: [Integration & Testing (PF-TSK-053)](../../tasks/04-implementation/integration-and-testing.md)
 - **Rationale**: New parser must integrate with the facade dispatch and the updater. Verify that `.ps1` files are correctly routed to PowerShellParser and that detected paths are updated correctly when files move.
-- **Adaptation Notes**: 1) Create `linkwatcher/parsers/powershell.py` extending `BaseParser`. 2) Register `.ps1` extension in `parser.py`. 3) Export from `parsers/__init__.py`. 4) Test end-to-end: parse a real `.ps1` file and verify `LinkReference` objects are returned for paths in comments, block comments, `Join-Path`, and `Import-Module`. 5) Manually verify against existing project `.ps1` files.
+- **Adaptation Notes**: 1) Create `src/linkwatcher/parsers/powershell.py` extending `BaseParser`. 2) Register `.ps1` extension in `parser.py`. 3) Export from `parsers/__init__.py`. 4) Test end-to-end: parse a real `.ps1` file and verify `LinkReference` objects are returned for paths in comments, block comments, `Join-Path`, and `Import-Module`. 5) Manually verify against existing project `.ps1` files.
 - **Deliverable**: PowerShellParser implemented, registered, and integration-verified
 - **Session**: 1
 

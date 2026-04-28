@@ -31,7 +31,7 @@ validation_session: 6
 
 ### Immediate Actions Required
 
-- [ ] Export `LinkValidator` in `linkwatcher/__init__.py` for package API completeness
+- [ ] Export `LinkValidator` in `src/linkwatcher/__init__.py` for package API completeness
 - [ ] Evaluate consolidating path resolution logic between `reference_lookup.py` and `path_resolver.py`
 
 ## Validation Scope
@@ -175,7 +175,7 @@ validation_session: 6
 
 | Severity | Issue | Impact | Recommendation |
 |----------|-------|--------|----------------|
-| Medium | `LinkValidator` not exported in `linkwatcher/__init__.py` | Package API incomplete — external consumers must use deep import `from linkwatcher.validator import LinkValidator` | Add to `__init__.py` exports |
+| Medium | `LinkValidator` not exported in `src/linkwatcher/__init__.py` | Package API incomplete — external consumers must use deep import `from linkwatcher.validator import LinkValidator` | Add to `__init__.py` exports |
 | Low | Validator has no integration with live-watching pipeline | Cannot validate links incrementally during watch mode — only batch `--validate` | Consider offering incremental validation after file moves (low priority — current design is intentional) |
 | Low | `_exists_cache` has no size limit or TTL | Could grow unbounded in very large projects; stale entries if files created/deleted during long validation | Add max size or use LRU cache |
 

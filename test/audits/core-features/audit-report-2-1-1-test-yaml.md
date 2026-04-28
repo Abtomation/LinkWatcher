@@ -81,7 +81,7 @@ audit_date: 2026-04-03
 
 | Source Module | Coverage % | Uncovered Areas |
 |---------------|-----------|-----------------|
-| linkwatcher/parsers/yaml_parser.py | 96% | 4 lines — lines 49-51 (exception handler in parse_content), line 141 (edge case in _extract_yaml_file_refs) |
+| src/linkwatcher/parsers/yaml_parser.py | 96% | 4 lines — lines 49-51 (exception handler in parse_content), line 141 (edge case in _extract_yaml_file_refs) |
 
 **Findings**:
 - **Existing Implementation Coverage**: 96% — excellent

@@ -250,7 +250,11 @@ When referencing design documents in implementation plans:
     - **Feature Overview**: Complete description with business value and scope
     - **Implementation Progress**: Copy phase sequence from implementation plan
     - **Dimension Profile**: Record the dimension applicability evaluation from step 5 — applicable dimensions with importance level (Critical/Relevant) and key considerations, plus N/A dimensions with rationale. This is the **single source of truth** for dimension awareness during implementation
-    - **Documentation Inventory**: List all design documents ([FDD](/doc/functional-design/fdds), [TDD](/doc/technical/tdd), API, DB, UI) with direct links and which sections are relevant for each phase
+    - **Documentation Inventory**: List all design documents ([FDD](/doc/functional-design/fdds), [TDD](/doc/technical/tdd), API, DB, UI) with direct links and which sections are relevant for each phase. **Also populate the `### User Documentation` subsection** by applying the [Diátaxis Content Type Guide](../../guides/07-deployment/diataxis-content-type-guide.md):
+      - Evaluate whether this feature has user-visible behavior (new CLI options, configuration, workflows, commands)
+      - If **no user-visible behavior**: add a single row with Content Type `N/A` and Status `N/A` plus a brief rationale (e.g., "internal foundation feature")
+      - If **user-visible behavior**: apply the guide's [decision matrix](../../guides/07-deployment/diataxis-content-type-guide.md#decision-matrix) and [typical mappings](../../guides/07-deployment/diataxis-content-type-guide.md#typical-mappings) to identify which content types the feature will likely need. Create **one row per identified content type**, each with the appropriate Content Type set and Status `❌ Needed`
+      - Each row with status `❌ Needed` is independently a trigger for [User Documentation Creation (PF-TSK-081)](../07-deployment/user-documentation-creation.md) after test scoping; the feature is `🟢 Completed` only when all rows are `✅ Created`
     - **File and Component Context**: Document specific files in the source directory and the test directory that will be created/modified per phase
     - **Dependencies**: Document feature dependencies, system integration points, and code dependencies
     - **Next Steps**: Specify which decomposed implementation tasks to use (e.g., [Data Layer Implementation (PF-TSK-051)](data-layer-implementation.md))

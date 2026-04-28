@@ -36,7 +36,7 @@
     - "E2E": E2E acceptance tests → e2e-test-tracking.md, 5 criteria
 
 .PARAMETER Lightweight
-    If specified, uses the lightweight template for Tests Approved outcomes.
+    If specified, uses the lightweight template for Audit Approved outcomes.
     Only applies to Automated test type (Performance and E2E have no lightweight variant).
     Only use when ALL evaluation criteria pass with no findings to report.
 
@@ -74,7 +74,7 @@
     Script Metadata:
     - Script Type: Document Creation Script
     - Created: 2025-08-07
-    - Updated: 2026-04-13 (IMP-495: add -TestType param for Performance/E2E audit support with type-specific templates and tracking file routing)
+    - Updated: 2026-04-28 (IMP-587: pre-populate Test File Path/Name, Audit Status, and TE-E2E-XXX placeholders; harmonize template placeholder names to Title Case)
     - For: Creating Test Audit Report documents from templates
 #>
 
@@ -137,6 +137,16 @@ $featureCategory = switch ($TestType) {
 $testFileName = Split-Path $TestFilePath -Leaf
 $testFileBaseName = [System.IO.Path]::GetFileNameWithoutExtension($testFileName)
 
+# Extract TE-E2E-XXX ID from parent directory for E2E tests
+# (used both for placeholder replacement and for row-matching in tracking files)
+$e2eTestCaseId = $null
+if ($TestType -eq "E2E") {
+    $parentDir = Split-Path (Split-Path $TestFilePath -Parent) -Leaf
+    if ($parentDir -match '(TE-E2E-\d+)') {
+        $e2eTestCaseId = $Matches[1]
+    }
+}
+
 # Prepare additional metadata fields
 $additionalMetadataFields = @{
     "feature_id"     = $FeatureId
@@ -149,9 +159,15 @@ $additionalMetadataFields = @{
 $customReplacements = @{
     "[Feature ID]"       = $FeatureId
     "[Test File ID]"     = $testFileName
+    "[Test File Name]"   = $testFileName
+    "[Test File Path]"   = $TestFilePath
+    "[Audit Status]"     = "🔍 Audit In Progress"
     "[Auditor Name]"     = $AuditorName
     "[Audit Date]"       = Get-Date -Format "yyyy-MM-dd"
     "[Feature Category]" = $featureCategory.ToUpper()
+}
+if ($e2eTestCaseId) {
+    $customReplacements["[TE-E2E-XXX]"] = $e2eTestCaseId
 }
 
 # Create the document using standardized process
@@ -261,13 +277,12 @@ try {
         if (Test-Path $trackingFilePath) {
             $trackingContent = Get-Content $trackingFilePath -Raw -Encoding UTF8
 
-            # For E2E tests, match by TE-E2E-xxx Test ID from parent directory instead of
-            # basename (all E2E cases share "test-case.md", causing first-row collision).
+            # For E2E tests, match by TE-E2E-xxx Test ID (extracted earlier from parent directory)
+            # instead of basename — all E2E cases share "test-case.md", causing first-row collision.
             # Performance tests keep basename matching (unique filenames).
             if ($TestType -eq "E2E") {
-                $parentDir = Split-Path (Split-Path $TestFilePath -Parent) -Leaf
-                if ($parentDir -match '(TE-E2E-\d+)') {
-                    $rowMatchPattern = [regex]::Escape($Matches[1])
+                if ($e2eTestCaseId) {
+                    $rowMatchPattern = [regex]::Escape($e2eTestCaseId)
                 } else {
                     Write-Warning "Could not extract TE-E2E-xxx ID from path '$TestFilePath' — falling back to basename match"
                     $rowMatchPattern = [regex]::Escape($testFileName)
@@ -374,7 +389,7 @@ try {
             "🎯 What you need to complete:",
             "   • Conduct systematic audit against all six quality criteria",
             "   • Document specific findings and recommendations",
-            "   • Make clear audit decision (Tests Approved or Needs Update)",
+            "   • Make clear audit decision (Audit Approved or Needs Update)",
             "   • Update test implementation tracking with audit results",
             "",
             "🚫 DO NOT use the generated file without proper audit completion!",

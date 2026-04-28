@@ -6,14 +6,14 @@ version: 1.0
 created: 2026-03-27
 updated: 2026-03-27
 refactoring_scope: Add warning log for unknown keys in _from_dict() config loading
-target_area: linkwatcher/config/settings.py
+target_area: src/linkwatcher/config/settings.py
 mode: lightweight
 priority: Medium
 ---
 
 # Lightweight Refactoring Plan: Add warning log for unknown keys in _from_dict() config loading
 
-- **Target Area**: linkwatcher/config/settings.py
+- **Target Area**: src/linkwatcher/config/settings.py
 - **Priority**: Medium
 - **Created**: 2026-03-27
 - **Author**: AI Agent & Human Partner

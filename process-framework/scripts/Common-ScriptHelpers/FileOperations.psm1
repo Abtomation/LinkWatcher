@@ -154,10 +154,136 @@ function Get-StateFileBackup {
     return $null
 }
 
-# Export functions
-Export-ModuleMember -Function @(
-    'Get-RelevantTrackingFiles',
-    'Get-StateFileBackup'
-)
+function Assert-LineInFile {
+    <#
+    .SYNOPSIS
+    Asserts that a file contains a pattern at least N times; throws on mismatch.
 
-Write-Verbose "FileOperations module loaded with 3 functions"
+    .DESCRIPTION
+    Read-after-write verification helper. Call this immediately after a script
+    writes to a file with a deterministic post-condition. If the expected pattern
+    is absent (or appears fewer than MinOccurrences times), the function throws
+    with a descriptive error so the failure surfaces at the moment of the bad
+    write rather than being buried in a downstream warning or success banner.
+
+    .PARAMETER Path
+    Absolute or relative path to the file to inspect. Read with -Raw, so
+    multi-line patterns are supported.
+
+    .PARAMETER Pattern
+    Regex pattern (default) or literal substring (with -Literal). Matched against
+    the entire file content.
+
+    .PARAMETER Literal
+    When specified, Pattern is treated as a literal substring instead of a regex.
+
+    .PARAMETER MinOccurrences
+    Minimum required match count. Defaults to 1.
+
+    .PARAMETER Context
+    Optional caller-supplied context appended to the error message to aid
+    diagnosis (e.g., the operation that just completed).
+
+    .EXAMPLE
+    Assert-LineInFile -Path "doc/PD-documentation-map.md" -Pattern "PD-INT-001.*workflow"
+
+    .EXAMPLE
+    Assert-LineInFile -Path "config.yaml" -Pattern "version: 2.0" -Literal -Context "post-bump"
+    #>
+
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]$Path,
+
+        [Parameter(Mandatory=$true)]
+        [string]$Pattern,
+
+        [switch]$Literal,
+
+        [int]$MinOccurrences = 1,
+
+        [string]$Context
+    )
+
+    $contextSuffix = if ($Context) { " (context: $Context)" } else { "" }
+
+    if (-not (Test-Path -LiteralPath $Path)) {
+        throw "Assert-LineInFile: file not found: '$Path'$contextSuffix"
+    }
+
+    $content = Get-Content -LiteralPath $Path -Raw -Encoding UTF8
+    if ($null -eq $content) { $content = "" }
+
+    if ($Literal) {
+        $count = 0
+        $idx = 0
+        if ($Pattern.Length -gt 0) {
+            while (($idx = $content.IndexOf($Pattern, $idx)) -ge 0) {
+                $count++
+                $idx += $Pattern.Length
+            }
+        }
+        $patternKind = "literal"
+    } else {
+        try {
+            $regexMatches = [regex]::Matches($content, $Pattern)
+            $count = $regexMatches.Count
+        } catch {
+            throw "Assert-LineInFile: invalid regex pattern '$Pattern' for '$Path'$contextSuffix : $($_.Exception.Message)"
+        }
+        $patternKind = "regex"
+    }
+
+    if ($count -lt $MinOccurrences) {
+        throw "Assert-LineInFile: $patternKind pattern '$Pattern' found $count time(s) in '$Path', expected at least $MinOccurrences$contextSuffix"
+    }
+}
+
+function Test-LineInFile {
+    <#
+    .SYNOPSIS
+    Returns $true if a file contains a pattern at least N times; $false otherwise.
+
+    .DESCRIPTION
+    Non-throwing companion to Assert-LineInFile. Use this when the caller wants
+    to branch on presence/absence without throwing. Same parameters as
+    Assert-LineInFile.
+
+    .EXAMPLE
+    if (Test-LineInFile -Path "log.txt" -Pattern "ERROR") { Write-Warning "errors present" }
+    #>
+
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]$Path,
+
+        [Parameter(Mandatory=$true)]
+        [string]$Pattern,
+
+        [switch]$Literal,
+
+        [int]$MinOccurrences = 1,
+
+        [string]$Context
+    )
+
+    try {
+        Assert-LineInFile @PSBoundParameters
+        return $true
+    } catch {
+        return $false
+    }
+}
+
+# Export functions
+$ExportedFunctions = @(
+    'Get-RelevantTrackingFiles',
+    'Get-StateFileBackup',
+    'Assert-LineInFile',
+    'Test-LineInFile'
+)
+Export-ModuleMember -Function $ExportedFunctions
+
+Write-Verbose "FileOperations module loaded with $($ExportedFunctions.Count) functions"

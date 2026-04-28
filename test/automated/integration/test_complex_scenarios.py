@@ -200,9 +200,7 @@ Back to "file_a.md" for context.
 
         # Create file that references only src version
         build = temp_project_dir / "BUILD.md"
-        build.write_text(
-            '.git/objects/3a/b045e54f8acd16e0d036a487eb74c269db1d9f# Build\n\nCompile "src/file.txt" first.'
-        )
+        build.write_text('# Build\n\nCompile "src/file.txt" first.')
 
         # Initialize service
         service = LinkWatcherService(str(temp_project_dir))
@@ -418,7 +416,7 @@ class TestComplexScenarioEdgeCases:
 
         # Create file with references to all
         readme = temp_project_dir / "README.md"
-        content = ".git/objects/3a/b045e54f8acd16e0d036a487eb74c269db1d9f# Files\n\n"
+        content = "# Files\n\n"
         for i in range(5):
             content += f"- [File {i}](file_{i}.txt)\n"
         readme.write_text(content)

@@ -250,13 +250,13 @@ Validation was conducted by systematically reading all source files for each fea
 ### Appendix B: Reference Materials
 
 **Source Code Reviewed**:
-- `linkwatcher/parser.py` — LinkParser Facade
-- `linkwatcher/parsers/` — All 8 parser implementations (base, markdown, yaml, json, python, dart, powershell, generic)
-- `linkwatcher/updater.py` — LinkUpdater
-- `linkwatcher/path_resolver.py` — PathResolver
-- `linkwatcher/logging.py` — Logging system
-- `linkwatcher/logging_config.py` — Logging configuration manager
-- `linkwatcher/validator.py` — Link Validator
+- `src/linkwatcher/parser.py` — LinkParser Facade
+- `src/linkwatcher/parsers` — All 8 parser implementations (base, markdown, yaml, json, python, dart, powershell, generic)
+- `src/linkwatcher/updater.py` — LinkUpdater
+- `src/linkwatcher/path_resolver.py` — PathResolver
+- `src/linkwatcher/logging.py` — Logging system
+- `src/linkwatcher/logging_config.py` — Logging configuration manager
+- `src/linkwatcher/validator.py` — Link Validator
 
 **Design Documents Reviewed**:
 - TDD-025: Link Parsing System (PD-TDD-025)

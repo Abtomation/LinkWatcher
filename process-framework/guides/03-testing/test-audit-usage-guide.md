@@ -56,7 +56,7 @@ The Test Audit task was created to address the quality assurance gap between tes
 
 - **Quality Gate**: Test audits serve as a quality gate ensuring only high-quality tests are approved
 - **Six Evaluation Criteria**: Systematic assessment framework covering all aspects of test quality
-- **Audit Decision**: Binary decision (Tests Approved or Needs Update) based on comprehensive evaluation
+- **Audit Decision**: Binary decision (Audit Approved or Needs Update) based on comprehensive evaluation
 - **Status Workflow**: Integration with test implementation tracking for seamless workflow management
 
 ### Audit Philosophy
@@ -406,7 +406,6 @@ E2E test audits evaluate against five criteria specific to acceptance tests with
 
 2. **Make Audit Decision**
    - **✅ TESTS_APPROVED**: All implementable tests are complete and high quality
-   - **🟡 TESTS_APPROVED_WITH_DEPENDENCIES**: Current tests are good, but some tests await implementation
    - **🔄 NEEDS_UPDATE**: Existing tests have issues that need fixing
    - **🔴 TESTS_INCOMPLETE**: Missing tests for existing implementations
 

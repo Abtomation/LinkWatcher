@@ -103,7 +103,7 @@ Choose the appropriate template based on your workflow type:
 **Use**: `temp-framework-extension-state-template.md`
 **Script**: `New-TempTaskState.ps1 -Variant FrameworkExtension`
 **Best For**:
-- Multi-artifact framework extensions (PF-TSK-048)
+- Multi-artifact framework extensions (PF-TSK-026)
 - New capabilities requiring multiple interconnected components (tasks, templates, scripts, guides)
 - Extensions where artifact dependencies and task impact need explicit tracking
 
@@ -117,12 +117,13 @@ Choose the appropriate template based on your workflow type:
 
 ## Phase Customization Patterns
 
-### Standard 4-Phase Pattern (Task Creation)
+### Standard 5-Phase Pattern (Task Creation)
 ```markdown
 Phase 1: Core Task Infrastructure
 Phase 2: Document Creation Infrastructure (conditional)
 Phase 3: Templates and Guides
 Phase 4: Documentation and Visualization
+Phase 5: Framework Evaluation (mandatory quality gate)
 ```
 
 ### Migration 5-Phase Pattern (Structure Changes)
@@ -310,9 +311,9 @@ Phase 4: Framework Integration & Testing
 ```markdown
 | Artifact | Type | Location | Creator Task | Status |
 |----------|------|----------|-------------|--------|
-| performance-test-spec-template.md | Template | templates/03-testing/ | PF-TSK-048 | COMPLETED |
-| New-PerformanceTestSpec.ps1 | Script | scripts/file-creation/03-testing/ | PF-TSK-048 | IN_PROGRESS |
-| performance-testing-guide.md | Guide | guides/03-testing/ | PF-TSK-048 | NOT_STARTED |
+| performance-test-spec-template.md | Template | templates/03-testing/ | PF-TSK-026 | COMPLETED |
+| New-PerformanceTestSpec.ps1 | Script | scripts/file-creation/03-testing/ | PF-TSK-026 | IN_PROGRESS |
+| performance-testing-guide.md | Guide | guides/03-testing/ | PF-TSK-026 | NOT_STARTED |
 ```
 
 **Task Impact**:

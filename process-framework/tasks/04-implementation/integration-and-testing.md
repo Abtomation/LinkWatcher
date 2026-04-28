@@ -208,6 +208,11 @@ The following state files are automatically updated by the `New-TestFile.ps1` sc
 - Updating test case counts after implementation completion
 - Changing status from Implementation In Progress to Needs Audit
 - Updating Feature Implementation State File (if applicable) with test metrics and notes
+- **Closing audit-flagged gaps**: if this session added tests that close findings from a prior `TE-TAR-*` audit report (gap-filling rather than net-new test file creation), the existing test file's audit status in `test-tracking.md` retains the stale status from the original audit. After tests pass and the associated TD is resolved, update the audit status via:
+  ```powershell
+  Update-TestFileAuditState.ps1 -TestFilePath <test file> -AuditStatus "Audit Approved" -AuditReportPath <original TE-TAR report>
+  ```
+  Only use `Audit Approved` if ALL findings from the audit are now addressed — otherwise route to [Test Audit (PF-TSK-030)](../03-testing/test-audit-task.md) for a re-audit.
 
 ## MANDATORY Task Completion Checklist
 
@@ -232,6 +237,7 @@ Before considering this task finished:
 - [ ] **Manual Status Updates**: Update completion status after test implementation
   - [ ] Change test status from Implementation In Progress to Needs Audit
   - [ ] Update test case counts with actual implemented test count
+  - [ ] If this session closed audit-flagged gaps (TE-TAR-* findings): audit status updated via `Update-TestFileAuditState.ps1` OR routed to re-audit (PF-TSK-030)
 - [ ] **Run Validation**: Execute validation scripts to ensure tracking consistency
   - [ ] Run `Validate-TestTracking.ps1` and verify no errors
 - [ ] **Code Quality Verification**

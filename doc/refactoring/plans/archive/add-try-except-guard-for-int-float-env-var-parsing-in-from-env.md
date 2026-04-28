@@ -7,13 +7,13 @@ created: 2026-03-27
 updated: 2026-03-27
 mode: lightweight
 refactoring_scope: Add try/except guard for int/float env var parsing in from_env()
-target_area: linkwatcher/config/settings.py
+target_area: src/linkwatcher/config/settings.py
 priority: Medium
 ---
 
 # Lightweight Refactoring Plan: Add try/except guard for int/float env var parsing in from_env()
 
-- **Target Area**: linkwatcher/config/settings.py
+- **Target Area**: src/linkwatcher/config/settings.py
 - **Priority**: Medium
 - **Created**: 2026-03-27
 - **Author**: AI Agent & Human Partner

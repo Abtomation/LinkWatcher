@@ -188,7 +188,7 @@ When bugs are discovered during refactoring, follow this decision process:
     Set-Location "process-framework/scripts/file-creation"
 
     # Create bug report for issues found during refactoring
-    ../../scripts/file-creation/06-maintenance/New-BugReport.ps1 -Title "Race condition in async data processing" -Description "Refactoring revealed race condition in async data processing that causes intermittent data corruption" -DiscoveredBy "Refactoring" -Severity "High" -Component "Data Processing" -Environment "Development" -Evidence "Code analysis during refactoring: src/services/data_processor.py:89-102"
+    ../../scripts/file-creation/06-maintenance/New-BugReport.ps1 -Title "Race condition in async data processing" -Description "Refactoring revealed race condition in async data processing that causes intermittent data corruption" -DiscoveredBy "Refactoring" -Severity "High" -Component "Data Processing" -Environment "Development" -Evidence "Code analysis during refactoring: process_async_batch() in src/services/data_processor.py (near lines 89-102 as of 2025-01-15)"
     ```
 
 18. **Validate Behavior Preservation & Diff Against Baseline**: Run full test suite (`Run-Tests.ps1 -All`) and compare results against the Step 5 baseline. If manual tests exist for the affected features, set their status to "Needs Re-execution" in test-tracking.md.
@@ -210,6 +210,12 @@ When bugs are discovered during refactoring, follow this decision process:
 ##### Phase 2: On Refactoring Completion
 
 - [ ] **Update [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md)**: `Update-TechDebt.ps1 -DebtId "TD###" -NewStatus "Resolved" -ResolutionNotes "..." -PlanLink "[TD###](path)"` — if tracked in a validation tracking file, also pass `-ValidationNote "PD-REF-### — description"` (validation file auto-discovered)
+- [ ] **Audit-flagged TD closure** (only if the resolved TD's Source column or resolution notes reference a `TE-TAR-*` audit report): after `Update-TechDebt.ps1` completes, close the audit status loop — otherwise `test-tracking.md` and `feature-tracking.md` retain the stale audit status from the original audit report (the gap that caused feature 0.1.2 to sit in split-brain state for ~2 weeks).
+    - **If the resolution closes ALL findings from that audit** — run:
+      ```powershell
+      Update-TestFileAuditState.ps1 -TestFilePath <test file> -AuditStatus "Audit Approved" -AuditReportPath <original TE-TAR report>
+      ```
+    - **If findings are only partially addressed** — do NOT mark as "Audit Approved". Route to [Test Audit (PF-TSK-030)](../03-testing/test-audit-task.md) for a re-audit instead.
 - [ ] **Update [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md)**: Improve feature status (e.g., "🔄 Needs Enhancement" → "🟡 In Progress")
 - [ ] **Update [Architecture Tracking](../../../doc/state-tracking/permanent/architecture-tracking.md)**: For foundation features (0.x.x), document architectural improvements
 - [ ] **Update [Test Tracking](../../../test/state-tracking/permanent/test-tracking.md)**: Note test improvements or new test requirements

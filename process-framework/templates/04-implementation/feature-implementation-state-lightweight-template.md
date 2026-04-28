@@ -79,11 +79,13 @@ template_for: Feature State Tracking (Lightweight)
 
 ### User Documentation
 
-> **Trigger for [User Documentation Creation](../../../process-framework/tasks/07-deployment/user-documentation-creation.md)**: When this feature has user-visible behavior, set Status to `❌ Needed` after implementation. The task resolves it to `✅ Created` with links. Use `N/A` for internal-only features. A feature may have multiple handbook entries.
+> **Trigger for [User Documentation Creation](../../../process-framework/tasks/07-deployment/user-documentation-creation.md)**: When this feature has user-visible behavior, identify required Diátaxis content types (tutorials/how-to/reference/explanation) during PF-TSK-081's analysis step, then add one row per required content type with Status `❌ Needed`. The task resolves each row to `✅ Created` with a link. Use `N/A` for internal-only features. Feature is `🟢 Completed` only when ALL rows are `✅ Created`.
+>
+> **Content Type column** values: declared in [PD-id-registry.json](../../../doc/PD-id-registry.json) under `PD-UGD.subdirectories.values`. Framework default: `tutorials`, `how-to`, `reference`, `explanation` (Diátaxis).
 
-| Document   | Type         | Status   | Location | Last Updated |
+| Document   | Content Type | Status   | Location | Last Updated |
 | ---------- | ------------ | -------- | -------- | ------------ |
-| [Doc name] | End User Doc | [STATUS] | [path]   | YYYY-MM-DD   |
+| [Doc name] | how-to       | [STATUS] | [path]   | YYYY-MM-DD   |
 
 ### Existing Project Documentation
 

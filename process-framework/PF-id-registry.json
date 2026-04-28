@@ -37,7 +37,7 @@
         "main": "process-framework/guides",
         "default": "main"
       },
-      "nextAvailable": 63
+      "nextAvailable": 64
     },
     "PF-TEM": {
       "description": "Process Framework - Templates",
@@ -97,6 +97,16 @@
       "directories": {
         "guides": "process-framework/guides",
         "default": "guides"
+      },
+      "nextAvailable": 2
+    },
+    "PF-SST": {
+      "description": "Process Framework - Shareable State Tracking (travels with the framework across projects)",
+      "category": "Process Framework",
+      "type": "Shareable State",
+      "directories": {
+        "permanent": "process-framework/state-tracking/permanent",
+        "default": "permanent"
       },
       "nextAvailable": 2
     }

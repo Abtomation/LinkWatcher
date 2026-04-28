@@ -21,7 +21,7 @@ mode: lightweight
 - **Mode**: Lightweight (no architectural impact)
 
 ## Dependencies and Impact
-- **Affected Components**: linkwatcher/reference_lookup.py, linkwatcher/dir_move_detector.py, linkwatcher/handler.py
+- **Affected Components**: src/linkwatcher/reference_lookup.py, src/linkwatcher/dir_move_detector.py, src/linkwatcher/handler.py
 - **Internal Dependencies**: All three modules already use `get_logger()` from linkwatcher.logging — no new dependencies introduced
 - **Risk Assessment**: Low — mechanical replacement of print() with logger calls; no logic changes
 
@@ -64,4 +64,3 @@ mode: lightweight
 
 ## Related Documentation
 - [Technical Debt Tracking](/doc/state-tracking/permanent/technical-debt-tracking.md)
-

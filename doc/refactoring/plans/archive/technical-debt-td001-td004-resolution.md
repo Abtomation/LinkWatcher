@@ -7,13 +7,13 @@ created: 2026-02-23
 updated: 2026-02-23
 refactoring_scope: Technical Debt TD001-TD004 Resolution
 priority: Medium
-target_area: linkwatcher/utils.py, linkwatcher/database.py, linkwatcher/handler.py, linkwatcher/config/settings.py
+target_area: src/linkwatcher/utils.py, src/linkwatcher/database.py, src/linkwatcher/handler.py, src/linkwatcher/config/settings.py
 ---
 
 # Refactoring Plan: Technical Debt TD001-TD004 Resolution
 
 ## Overview
-- **Target Area**: linkwatcher/utils.py, linkwatcher/database.py, linkwatcher/handler.py, linkwatcher/config/settings.py
+- **Target Area**: src/linkwatcher/utils.py, src/linkwatcher/database.py, src/linkwatcher/handler.py, src/linkwatcher/config/settings.py
 - **Priority**: Medium
 - **Created**: 2026-02-23
 - **Author**: AI Agent & Human Partner
@@ -51,13 +51,13 @@ Resolve 4 open technical debt items (TD001-TD004) identified during PF-TSK-065 f
 
 ### Affected Components
 
-- `linkwatcher/utils.py` — TD001 (remove dead code), TD002 (consolidate), TD003 (callers)
-- `linkwatcher/database.py` — TD002 (private `_normalize_path()` at line 160)
-- `linkwatcher/updater.py` — TD002 (private `_normalize_path()`)
-- `linkwatcher/handler.py` — TD004 (hard-coded extensions/dirs at lines 50-91)
-- `linkwatcher/config/settings.py` — TD004 (unused fields)
-- `linkwatcher/parsers/*.py` — TD003 (6 parsers using print() for error output)
-- `linkwatcher/parsers/base.py` — TD003 (base parser wrapper)
+- `src/linkwatcher/utils.py` — TD001 (remove dead code), TD002 (consolidate), TD003 (callers)
+- `src/linkwatcher/database.py` — TD002 (private `_normalize_path()` at line 160)
+- `src/linkwatcher/updater.py` — TD002 (private `_normalize_path()`)
+- `src/linkwatcher/handler.py` — TD004 (hard-coded extensions/dirs at lines 50-91)
+- `src/linkwatcher/config/settings.py` — TD004 (unused fields)
+- `src/linkwatcher/parsers/*.py` — TD003 (6 parsers using print() for error output)
+- `src/linkwatcher/parsers/base.py` — TD003 (base parser wrapper)
 
 ### Dependencies and Impact
 

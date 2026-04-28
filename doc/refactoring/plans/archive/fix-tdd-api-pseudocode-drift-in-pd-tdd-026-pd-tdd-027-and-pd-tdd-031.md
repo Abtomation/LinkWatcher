@@ -119,7 +119,7 @@ Read each TDD alongside its source code, identify every discrepancy, and update 
 ## Results and Lessons Learned
 
 ### Achievements
-- PD-TDD-026: 10 discrepancies fixed — all pseudocode now matches `linkwatcher/updater.py` and `linkwatcher/path_resolver.py`
+- PD-TDD-026: 10 discrepancies fixed — all pseudocode now matches `src/linkwatcher/updater.py` and `src/linkwatcher/path_resolver.py`
 - PD-TDD-027: 6 discrepancies fixed — test structure documentation now matches actual `tests/` directory
 - PD-TDD-031: 5 discrepancies fixed — CI pipeline documentation now matches `.github/workflows/ci.yml`
 - No bugs discovered during documentation review

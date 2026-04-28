@@ -341,7 +341,7 @@ python process-framework/scripts/test/performance_db.py export --format csv
 
 Combined registry + baselines + lifecycle status. Single source of truth for all performance tests.
 
-**Lifecycle**: ⬜ Needs Creation → 📋 Needs Baseline → 🔍 Audit Approved → ✅ Baselined → ⚠️ Needs Re-baseline
+**Lifecycle**: ⬜ Needs Creation → 📋 Needs Baseline → ✅ Audit Approved → ✅ Baselined → ⚠️ Needs Re-baseline
 
 > **Audit gate**: Newly created tests (`📋 Needs Baseline`) must pass [Test Audit (PF-TSK-030)](/process-framework/tasks/03-testing/test-audit-task.md) with `-TestType Performance` before baseline capture. The `⚠️ Needs Re-baseline` → `✅ Baselined` path is exempt (tests were already audited when first created).
 

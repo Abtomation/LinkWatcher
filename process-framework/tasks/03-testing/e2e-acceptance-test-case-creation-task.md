@@ -166,8 +166,8 @@ Before considering this task finished:
 
 ## Next Tasks
 
-- [**Test Audit**](/process-framework/tasks/03-testing/test-audit-task.md) (with `-TestType E2E`) — Audit newly created E2E test cases before execution. Test cases must reach `🔍 Audit Approved` status before proceeding to E2E Test Execution
-- [**E2E Acceptance Test Execution**](e2e-acceptance-test-execution-task.md) — Execute the test cases created by this task. For new feature and enhancement paths, this happens after implementation is complete. For bug fix and tech debt paths, this happens after the code change. Requires `🔍 Audit Approved` audit status
+- [**Test Audit**](/process-framework/tasks/03-testing/test-audit-task.md) (with `-TestType E2E`) — Audit newly created E2E test cases before execution. Test cases must reach `✅ Audit Approved` status before proceeding to E2E Test Execution
+- [**E2E Acceptance Test Execution**](e2e-acceptance-test-execution-task.md) — Execute the test cases created by this task. For new feature and enhancement paths, this happens after implementation is complete. For bug fix and tech debt paths, this happens after the code change. Requires `✅ Audit Approved` audit status
 - [**Bug Triage**](../06-maintenance/bug-triage-task.md) — If test case creation reveals additional bugs or inconsistencies during fixture preparation
 
 ## Related Resources

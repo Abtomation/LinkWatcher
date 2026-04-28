@@ -7,13 +7,13 @@ created: 2026-03-27
 updated: 2026-03-27
 refactoring_scope: Add observability logging to LinkValidator.validate()
 priority: Medium
-target_area: linkwatcher/validator.py
+target_area: src/linkwatcher/validator.py
 mode: lightweight
 ---
 
 # Lightweight Refactoring Plan: Add observability logging to LinkValidator.validate()
 
-- **Target Area**: linkwatcher/validator.py
+- **Target Area**: src/linkwatcher/validator.py
 - **Priority**: Medium
 - **Created**: 2026-03-27
 - **Author**: AI Agent & Human Partner

@@ -16,7 +16,7 @@ retrospective: true
 
 > **Retrospective Document**: This TDD describes the existing technical design of the LinkWatcher Parser Framework, documented after implementation during framework onboarding (PF-TSK-066). Content is reverse-engineered from source code analysis.
 >
-> **Source**: Derived from source code analysis of `linkwatcher/parser.py`, `linkwatcher/parsers/base.py`, and `linkwatcher/parsers/`.
+> **Source**: Derived from source code analysis of `src/linkwatcher/parser.py`, `src/linkwatcher/parsers/base.py`, and `src/linkwatcher/parsers`.
 >
 > **Scope Note**: This feature consolidates old 2.1.1 (Parser Framework) with all individual parser sub-features: 2.1.2 (Markdown Parser), 2.1.3 (YAML Parser), 2.1.4 (JSON Parser), 2.1.5 (Python Parser), 2.1.6 (Dart Parser), and 2.1.7 (Generic Parser).
 
@@ -24,9 +24,9 @@ retrospective: true
 
 ### 1.1 Purpose
 
-The Parser Framework provides a single, uniform interface for extracting file references from any file type in the project. It is implemented as `LinkParser` in `linkwatcher/parser.py` — a facade that maintains a dispatch dictionary mapping file extensions to pre-instantiated parser objects. Callers invoke `parse_file(file_path)` to parse from disk or `parse_content(content, file_path)` to parse already-read content, and receive a `List[LinkReference]` without needing to know which parser handles which format. Both methods catch all exceptions and return `[]` on failure.
+The Parser Framework provides a single, uniform interface for extracting file references from any file type in the project. It is implemented as `LinkParser` in `src/linkwatcher/parser.py` — a facade that maintains a dispatch dictionary mapping file extensions to pre-instantiated parser objects. Callers invoke `parse_file(file_path)` to parse from disk or `parse_content(content, file_path)` to parse already-read content, and receive a `List[LinkReference]` without needing to know which parser handles which format. Both methods catch all exceptions and return `[]` on failure.
 
-The framework also exposes `BaseParser` (abstract base class in `linkwatcher/parsers/base.py`) as the extension contract. `BaseParser.parse_file()` is a concrete method that reads the file and delegates to the abstract `parse_content()` method, enabling new file format support by subclassing `BaseParser`, implementing `parse_content()`, and calling `add_parser()`.
+The framework also exposes `BaseParser` (abstract base class in `src/linkwatcher/parsers/base.py`) as the extension contract. `BaseParser.parse_file()` is a concrete method that reads the file and delegates to the abstract `parse_content()` method, enabling new file format support by subclassing `BaseParser`, implementing `parse_content()`, and calling `add_parser()`.
 
 ### 1.2 Related Features
 
@@ -187,25 +187,25 @@ No API Design, Database Schema Design, or Test Specification documents exist for
 
 ### 6.1 Dependencies
 
-- `linkwatcher/models.py` — `LinkReference` return type
-- `linkwatcher/logging.py` — `get_logger()`, `LogTimer`
-- `linkwatcher/utils.py` — `safe_file_read()`, `looks_like_file_path()` (used by `BaseParser`)
-- All parser modules in `linkwatcher/parsers/` — must be importable at `LinkParser.__init__()` time
+- `src/linkwatcher/models.py` — `LinkReference` return type
+- `src/linkwatcher/logging.py` — `get_logger()`, `LogTimer`
+- `src/linkwatcher/utils.py` — `safe_file_read()`, `looks_like_file_path()` (used by `BaseParser`)
+- All parser modules in `src/linkwatcher/parsers` — must be importable at `LinkParser.__init__()` time
 
 ### 6.2 Key Files
 
 | File | Role |
 | ---- | ---- |
-| `linkwatcher/parser.py` | `LinkParser` facade — dispatch registry and public API |
-| `linkwatcher/parsers/base.py` | `BaseParser` abstract class — extension contract |
-| `linkwatcher/parsers/__init__.py` | Package init — exports all parser classes |
-| `linkwatcher/parsers/markdown.py` | `MarkdownParser` — `.md` files. Extracts `[text](path)` links, `[label]: path` reference definitions, `<a href>` tags, quoted file/directory paths (`"path"`, `'path"`, `` `path` ``), and standalone file references. Backtick-delimited paths are treated as quoted strings for both file and directory detection. |
-| `linkwatcher/parsers/yaml_parser.py` | `YamlParser` — `.yaml`/`.yml` files. Detects file path references and directory path references (PD-BUG-030). Extracts embedded file paths from compound strings (e.g., command lines) via regex sub-path extraction (PD-BUG-060). |
-| `linkwatcher/parsers/json_parser.py` | `JsonParser` — `.json` files. Detects file path references and directory path references (PD-BUG-030). Extracts embedded file paths from compound strings (e.g., permission patterns) via regex sub-path extraction (PD-BUG-061). |
-| `linkwatcher/parsers/python.py` | `PythonParser` — `.py` files. Extracts `import`/`from` statements (stdlib filtered via `sys.stdlib_module_names`), quoted string literals (file paths via `QUOTED_PATH_PATTERN`, directory paths via `QUOTED_DIR_PATTERN`), file paths in `#` comments, and bare file/directory paths inside triple-quoted docstrings (`"""`/`'''`) via docstring state tracking (PD-BUG-062). |
-| `linkwatcher/parsers/dart.py` | `DartParser` — `.dart` files |
-| `linkwatcher/parsers/powershell.py` | `PowerShellParser` — `.ps1`/`.psm1` files. Extracts paths from `#` line comments, `<# #>` block comments (including `.EXAMPLE`/`.NOTES` sections), quoted string literals (file and directory paths), and embedded markdown links in quoted strings. Uses shared `QUOTED_PATH_PATTERN` and `QUOTED_DIR_PATTERN_STRICT` from `patterns.py` for quoted strings, `path_pattern` for comment/text paths, and `block_comment_start`/`block_comment_end` for `<# ... #>` region tracking. |
-| `linkwatcher/parsers/generic.py` | `GenericParser` — fallback for all other file types |
+| `src/linkwatcher/parser.py` | `LinkParser` facade — dispatch registry and public API |
+| `src/linkwatcher/parsers/base.py` | `BaseParser` abstract class — extension contract |
+| `src/linkwatcher/parsers/__init__.py` | Package init — exports all parser classes |
+| `src/linkwatcher/parsers/markdown.py` | `MarkdownParser` — `.md` files. Extracts `[text](path)` links, `[label]: path` reference definitions, `<a href>` tags, quoted file/directory paths (`"path"`, `'path"`, `` `path` ``), and standalone file references. Backtick-delimited paths are treated as quoted strings for both file and directory detection. |
+| `src/linkwatcher/parsers/yaml_parser.py` | `YamlParser` — `.yaml`/`.yml` files. Detects file path references and directory path references (PD-BUG-030). Extracts embedded file paths from compound strings (e.g., command lines) via regex sub-path extraction (PD-BUG-060). |
+| `src/linkwatcher/parsers/json_parser.py` | `JsonParser` — `.json` files. Detects file path references and directory path references (PD-BUG-030). Extracts embedded file paths from compound strings (e.g., permission patterns) via regex sub-path extraction (PD-BUG-061). |
+| `src/linkwatcher/parsers/python.py` | `PythonParser` — `.py` files. Extracts `import`/`from` statements (stdlib filtered via `sys.stdlib_module_names`), quoted string literals (file paths via `QUOTED_PATH_PATTERN`, directory paths via `QUOTED_DIR_PATTERN`), file paths in `#` comments, and bare file/directory paths inside triple-quoted docstrings (`"""`/`'''`) via docstring state tracking (PD-BUG-062). |
+| `src/linkwatcher/parsers/dart.py` | `DartParser` — `.dart` files |
+| `src/linkwatcher/parsers/powershell.py` | `PowerShellParser` — `.ps1`/`.psm1` files. Extracts paths from `#` line comments, `<# #>` block comments (including `.EXAMPLE`/`.NOTES` sections), quoted string literals (file and directory paths), and embedded markdown links in quoted strings. Uses shared `QUOTED_PATH_PATTERN` and `QUOTED_DIR_PATTERN_STRICT` from `patterns.py` for quoted strings, `path_pattern` for comment/text paths, and `block_comment_start`/`block_comment_end` for `<# ... #>` region tracking. |
+| `src/linkwatcher/parsers/generic.py` | `GenericParser` — fallback for all other file types |
 | `test/automated/unit/test_parser.py` | Unit tests for `LinkParser` facade |
 
 ## 7. Quality Measurement

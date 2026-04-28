@@ -90,6 +90,6 @@
 
 ## Additional Work Done
 
-- **File links added**: All 42 state files now have proper markdown file links in Section 6 Code Dependencies (e.g., `[linkwatcher/models.py](../../../../linkwatcher/models.py)` instead of backtick paths)
+- **File links added**: All 42 state files now have proper markdown file links in Section 6 Code Dependencies (e.g., `[linkwatcher/models.py](../../../../src/linkwatcher/models.py)` instead of backtick paths)
 - **Tech debt recorded**: 3 items for feature 0.1.5 (TD001-TD003) added to both `technical-debt-tracking.md` and feature state file Section 8
 - **Completed across sessions**: Sessions 12-13 of PF-TSK-065

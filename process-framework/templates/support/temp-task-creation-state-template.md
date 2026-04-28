@@ -133,6 +133,15 @@ List existing artifacts that can be reused:
   - **Command**: `cd process-framework/scripts/file-creation/02-design && .\New-ContextMap.ps1 -TaskName "[Task Name]" -WorkflowPhase "[phase]" -MapDescription "Context map for [Task Name] task"`
   - **Notes**: Shows component relationships and context requirements for the task
 
+### Phase 5: Framework Evaluation (Separate Session)
+
+**Priority**: HIGH - Must complete before new task can be used in production
+
+- [ ] **Framework Evaluation**: Run [Framework Evaluation](../../tasks/support/framework-evaluation.md) (PF-TSK-062) targeting the new task to validate completeness, consistency, and integration quality
+  - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
+  - **Dependencies**: All previous phases completed — task definition, templates, guides, scripts, context map, and documentation updates finalized
+  - **Notes**: This is a mandatory quality gate. The new task must not be used in production workflows until Framework Evaluation passes. Run as a dedicated session.
+
 ## Session Tracking
 
 ### Session 1: [YYYY-MM-DD]
@@ -206,6 +215,7 @@ This temporary state file can be moved to `process-framework-local/state-trackin
 - [ ] Task definition is complete and functional
 - [ ] All state files are updated
 - [ ] Documentation map reflects all new artifacts
+- [ ] Framework Evaluation (PF-TSK-062) completed for the new task
 - [ ] Feedback forms are completed for the task creation process
 
 ## Notes and Decisions

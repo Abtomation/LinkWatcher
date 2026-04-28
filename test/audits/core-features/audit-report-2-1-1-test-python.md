@@ -82,7 +82,7 @@ audit_date: 2026-04-03
 
 | Source Module | Coverage % | Uncovered Areas |
 |---------------|-----------|-----------------|
-| linkwatcher/parsers/python.py | 93% | 7 lines — lines 20-21 (Python 3.8/3.9 fallback for stdlib_module_names), lines 387, 422-424, 436 (rare branches) |
+| src/linkwatcher/parsers/python.py | 93% | 7 lines — lines 20-21 (Python 3.8/3.9 fallback for stdlib_module_names), lines 387, 422-424, 436 (rare branches) |
 
 **Findings**:
 - **Existing Implementation Coverage**: 93% — excellent

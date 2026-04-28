@@ -168,7 +168,7 @@ process-framework-local/        # NEW — project-specific, never overwritten
 
 ### deployment/install_global.py
 
-No direct references to the 4 moving directories. Only copies `linkwatcher/` and `config-examples/`. **Relevance**: Pattern for a future `Sync-ProcessFramework.ps1` script that deploys the blueprint to other projects.
+No direct references to the 4 moving directories. Only copies `src/linkwatcher` and `config-examples/`. **Relevance**: Pattern for a future `Sync-ProcessFramework.ps1` script that deploys the blueprint to other projects.
 
 ## Migration Strategy
 

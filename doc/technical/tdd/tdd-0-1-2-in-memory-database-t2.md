@@ -15,7 +15,7 @@ retrospective: true
 
 > **Retrospective Document**: This TDD describes the existing technical design of the LinkWatcher In-Memory Database, documented after implementation during framework onboarding (PF-TSK-066). Content is reverse-engineered from source code analysis.
 >
-> **Source**: Derived from [0.1.3 Implementation State](../../state-tracking/features/archive/0.1.3-in-memory-database-implementation-state.md) and source code analysis of `linkwatcher/database.py`.
+> **Source**: Derived from [0.1.3 Implementation State](../../state-tracking/features/archive/0.1.3-in-memory-database-implementation-state.md) and source code analysis of `src/linkwatcher/database.py`.
 
 ## 1. Overview
 
@@ -393,7 +393,7 @@ def get_references_to_directory(self, dir_path: str) -> List[LinkReference]:
 
 ### 4.3 Path Normalization
 
-**Shared utility:** The database imports `normalize_path()` from `linkwatcher/utils.py` (part of 0.1.1 Core Architecture) rather than implementing its own private method. This was consolidated during TD001/TD002 to eliminate duplicate implementations across modules.
+**Shared utility:** The database imports `normalize_path()` from `src/linkwatcher/utils.py` (part of 0.1.1 Core Architecture) rather than implementing its own private method. This was consolidated during TD001/TD002 to eliminate duplicate implementations across modules.
 
 ```python
 from .utils import normalize_path

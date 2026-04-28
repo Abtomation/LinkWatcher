@@ -186,7 +186,7 @@ As a Tier 1 feature, 0.1.3 was evaluated using the **Configuration/Code Document
    - **Estimated Effort**: 30 minutes
 
 2. **Update FDD PD-FDD-023 (0.1.2)**
-   - Fix BR-5: Change "database's own `_normalize_path()` method (independent of `linkwatcher/utils.py`)" to "shared `normalize_path()` from `linkwatcher/utils.py`"
+   - Fix BR-5: Change "database's own `_normalize_path()` method (independent of `src/linkwatcher/utils.py`)" to "shared `normalize_path()` from `src/linkwatcher/utils.py`"
    - Update method count references from 9 to 11
    - **Estimated Effort**: 15 minutes
 
@@ -253,15 +253,15 @@ Validation was conducted by systematically reading each feature's TDD, FDD, and 
 ### Appendix B: Reference Materials
 
 **Source Code Files Reviewed**:
-- `linkwatcher/service.py` — 0.1.1 Core Architecture
-- `linkwatcher/models.py` — 0.1.1 Data Models
-- `linkwatcher/utils.py` — 0.1.1 Path Utilities
-- `linkwatcher/__init__.py` — 0.1.1 Package API
+- `src/linkwatcher/service.py` — 0.1.1 Core Architecture
+- `src/linkwatcher/models.py` — 0.1.1 Data Models
+- `src/linkwatcher/utils.py` — 0.1.1 Path Utilities
+- `src/linkwatcher/__init__.py` — 0.1.1 Package API
 - `main.py` — 0.1.1 CLI Entry Point
-- `linkwatcher/database.py` — 0.1.2 In-Memory Link Database
-- `linkwatcher/config/settings.py` — 0.1.3 Configuration System
-- `linkwatcher/config/defaults.py` — 0.1.3 Environment Presets
-- `linkwatcher/handler.py` — 1.1.1 Event Handler (verified structure)
+- `src/linkwatcher/database.py` — 0.1.2 In-Memory Link Database
+- `src/linkwatcher/config/settings.py` — 0.1.3 Configuration System
+- `src/linkwatcher/config/defaults.py` — 0.1.3 Environment Presets
+- `src/linkwatcher/handler.py` — 1.1.1 Event Handler (verified structure)
 
 **Documentation Files Reviewed**:
 - TDD PD-TDD-021, FDD PD-FDD-022, ADR PD-ADR-039 (0.1.1)

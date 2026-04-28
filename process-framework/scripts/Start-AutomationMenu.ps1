@@ -81,14 +81,6 @@ $availableScripts = @{
         UseCases = @("Feature completion", "Status updates", "Implementation tracking")
     }
     "2" = @{
-        Name = "update/Update-TestAuditState.ps1"
-        Description = "Update test audit status and results"
-        Category = "Testing"
-        Complexity = "Basic"
-        CommonParams = @("FeatureId", "AuditStatus", "AuditorName")
-        UseCases = @("Test audits", "Quality assurance", "Test validation")
-    }
-    "3" = @{
         Name = "update/Update-CodeReviewState.ps1"
         Description = "Update code review status and feedback"
         Category = "Code Quality"
@@ -96,7 +88,7 @@ $availableScripts = @{
         CommonParams = @("FeatureId", "ReviewStatus", "ReviewerName")
         UseCases = @("Code reviews", "Quality checks", "Peer reviews")
     }
-    "4" = @{
+    "3" = @{
         Name = "update/Update-ValidationReportState.ps1"
         Description = "Update validation task status and findings"
         Category = "Validation"
@@ -104,23 +96,7 @@ $availableScripts = @{
         CommonParams = @("ValidationId", "ValidationStatus", "ValidatorName")
         UseCases = @("Validation tasks", "Quality validation", "Compliance checks")
     }
-    "5" = @{
-        Name = "Start-BatchValidation.ps1"
-        Description = "Process multiple features for validation in batches"
-        Category = "Batch Processing"
-        Complexity = "Advanced"
-        CommonParams = @("ValidationType", "FeatureIds", "ValidatorName")
-        UseCases = @("Bulk validation", "Sprint validation", "Release validation")
-    }
-    "6" = @{
-        Name = "Start-BatchAudit.ps1"
-        Description = "Process multiple test files for audit in batches"
-        Category = "Batch Processing"
-        Complexity = "Advanced"
-        CommonParams = @("FeatureIds", "AuditorName", "FeatureCategory")
-        UseCases = @("Bulk audits", "Category audits", "Sprint audits")
-    }
-    "7" = @{
+    "4" = @{
         Name = "update/Update-BatchFeatureStatus.ps1"
         Description = "Update multiple features simultaneously across tracking files"
         Category = "Batch Processing"
@@ -136,7 +112,7 @@ $scriptsToShow = $availableScripts.Clone()
 if ($QuickMode) {
     # Show only most common scripts
     $scriptsToShow = @{}
-    @("1", "2", "3", "4") | ForEach-Object {
+    @("1", "2", "3") | ForEach-Object {
         $scriptsToShow[$_] = $availableScripts[$_]
     }
 }
@@ -184,22 +160,18 @@ function Show-CommonWorkflows {
     Write-Host "1. Feature Implementation Workflow:" -ForegroundColor Yellow
     Write-Host "   • Start: update/Update-FeatureImplementationState.ps1 (In Progress)" -ForegroundColor Gray
     Write-Host "   • Review: update/Update-CodeReviewState.ps1 (Completed)" -ForegroundColor Gray
-    Write-Host "   • Test: update/Update-TestAuditState.ps1 (Tests Approved)" -ForegroundColor Gray
     Write-Host "   • Complete: update/Update-FeatureImplementationState.ps1 (Completed)" -ForegroundColor Gray
     Write-Host ""
 
     Write-Host "2. Validation Workflow:" -ForegroundColor Yellow
     Write-Host "   • Individual: Update-ValidationReportState.ps1" -ForegroundColor Gray
-    Write-Host "   • Batch: Start-BatchValidation.ps1" -ForegroundColor Gray
     Write-Host ""
 
     Write-Host "3. Sprint Completion Workflow:" -ForegroundColor Yellow
-    Write-Host "   • Audit: Start-BatchAudit.ps1 (by category)" -ForegroundColor Gray
     Write-Host "   • Status: update/Update-BatchFeatureStatus.ps1 (Sprint completion)" -ForegroundColor Gray
     Write-Host ""
 
     Write-Host "4. Release Preparation Workflow:" -ForegroundColor Yellow
-    Write-Host "   • Validation: Start-BatchValidation.ps1 (all types)" -ForegroundColor Gray
     Write-Host "   • Final Status: update/Update-BatchFeatureStatus.ps1 (Release)" -ForegroundColor Gray
     Write-Host ""
 }
@@ -265,11 +237,6 @@ function Invoke-SelectedScript {
             $params.ImplementationStatus = Get-ParameterInput -ParameterName "ImplementationStatus" -Description "Implementation status" -ValidValues @("🟡 In Progress", "👀 Needs Review", "🔄 Needs Enhancement", "🟢 Completed", "🔴 Blocked", "⏸️ On Hold")
             $params.DeveloperName = Get-ParameterInput -ParameterName "DeveloperName" -Description "Developer name"
         }
-        "update/Update-TestAuditState.ps1" {
-            $params.FeatureId = Get-ParameterInput -ParameterName "FeatureId" -Description "Feature identifier (e.g., 1.2.1)"
-            $params.AuditStatus = Get-ParameterInput -ParameterName "AuditStatus" -Description "Audit status" -ValidValues @("Audit In Progress", "Tests Approved", "Tests Need Revision", "Tests Failed")
-            $params.AuditorName = Get-ParameterInput -ParameterName "AuditorName" -Description "Auditor name"
-        }
         "update/Update-CodeReviewState.ps1" {
             $params.FeatureId = Get-ParameterInput -ParameterName "FeatureId" -Description "Feature identifier (e.g., 1.2.1)"
             $params.ReviewStatus = Get-ParameterInput -ParameterName "ReviewStatus" -Description "Review status" -ValidValues @("In Progress", "Completed", "Needs Enhancement", "Approved")
@@ -279,18 +246,6 @@ function Invoke-SelectedScript {
             $params.ValidationId = Get-ParameterInput -ParameterName "ValidationId" -Description "Validation identifier (e.g., VAL-031-001)"
             $params.ValidationStatus = Get-ParameterInput -ParameterName "ValidationStatus" -Description "Validation status" -ValidValues @("Validation In Progress", "Validation Completed", "Needs Revision", "Validation Failed")
             $params.ValidatorName = Get-ParameterInput -ParameterName "ValidatorName" -Description "Validator name"
-        }
-        "Start-BatchValidation.ps1" {
-            $params.ValidationType = Get-ParameterInput -ParameterName "ValidationType" -Description "Validation type" -ValidValues @("Architectural", "CodeQuality", "Integration", "Documentation", "Extensibility", "AIAgent")
-            $featureIdsInput = Get-ParameterInput -ParameterName "FeatureIds" -Description "Feature IDs (comma-separated, e.g., 1.2.1,1.2.2,1.2.3)"
-            $params.FeatureIds = $featureIdsInput -split ',' | ForEach-Object { $_.Trim() }
-            $params.ValidatorName = Get-ParameterInput -ParameterName "ValidatorName" -Description "Validator name"
-        }
-        "Start-BatchAudit.ps1" {
-            $featureIdsInput = Get-ParameterInput -ParameterName "FeatureIds" -Description "Feature IDs (comma-separated, e.g., 1.2.1,1.2.2,1.2.3)"
-            $params.FeatureIds = $featureIdsInput -split ',' | ForEach-Object { $_.Trim() }
-            $params.AuditorName = Get-ParameterInput -ParameterName "AuditorName" -Description "Auditor name"
-            $params.FeatureCategory = Get-ParameterInput -ParameterName "FeatureCategory" -Description "Feature category" -ValidValues @("Authentication", "UI", "API", "Data", "Integration", "Foundation")
         }
         "update/Update-BatchFeatureStatus.ps1" {
             $featureIdsInput = Get-ParameterInput -ParameterName "FeatureIds" -Description "Feature IDs (comma-separated, e.g., 1.2.1,1.2.2,1.2.3)"

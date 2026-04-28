@@ -6,14 +6,14 @@ version: 1.0
 created: 2026-03-02
 updated: 2026-03-02
 refactoring_scope: Unify Duplicate Synthetic Event Classes in handler.py (TD013)
-target_area: linkwatcher/handler.py
+target_area: src/linkwatcher/handler.py
 priority: Low
 ---
 
 # Refactoring Plan: Unify Duplicate Synthetic Event Classes (TD013)
 
 ## Overview
-- **Target Area**: linkwatcher/handler.py
+- **Target Area**: src/linkwatcher/handler.py
 - **Priority**: Low
 - **Created**: 2026-03-02
 - **Author**: AI Agent & Human Partner

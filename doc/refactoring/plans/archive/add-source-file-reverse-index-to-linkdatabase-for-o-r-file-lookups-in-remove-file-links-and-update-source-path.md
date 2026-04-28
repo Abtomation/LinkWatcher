@@ -8,12 +8,12 @@ updated: 2026-03-27
 refactoring_scope: Add source-file reverse index to LinkDatabase for O(R_file) lookups in remove_file_links and update_source_path
 priority: Medium
 mode: lightweight
-target_area: linkwatcher/database.py
+target_area: src/linkwatcher/database.py
 ---
 
 # Lightweight Refactoring Plan: Add source-file reverse index to LinkDatabase for O(R_file) lookups in remove_file_links and update_source_path
 
-- **Target Area**: linkwatcher/database.py
+- **Target Area**: src/linkwatcher/database.py
 - **Priority**: Medium
 - **Created**: 2026-03-27
 - **Author**: AI Agent & Human Partner

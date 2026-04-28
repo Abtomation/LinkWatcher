@@ -28,8 +28,9 @@
     Acceptance threshold (e.g., ">50 files/sec", "<10s", "<100MB increase")
 
 .PARAMETER Rationale
-    Why this test is needed — which decision matrix question was triggered.
-    Stored as a comment in the Spec Ref column for traceability.
+    Why this test is needed — which decision matrix question was triggered (10-500 chars).
+    Stored as a comment in the Spec Ref column for traceability. Compress longer drafts;
+    if a fuller analysis is needed, link to a test specification via -SpecRef.
 
 .PARAMETER SpecRef
     Optional link to a test specification (e.g., "PF-TSP-039"). Defaults to rationale text.
@@ -66,7 +67,16 @@ param(
     [string]$Tolerance,
 
     [Parameter(Mandatory = $true)]
-    [ValidateLength(10, 500)]
+    [ValidateScript({
+        if ($_.Length -lt 10) {
+            throw "Rationale is too short ($($_.Length) chars; minimum 10). Provide a more substantive rationale."
+        }
+        if ($_.Length -gt 500) {
+            $over = $_.Length - 500
+            throw "Rationale is too long ($($_.Length) chars; maximum 500, $over over). The rationale is stored as a comment in the Spec Ref column — compress; if fuller analysis is needed, link to a test specification via -SpecRef."
+        }
+        $true
+    })]
     [string]$Rationale,
 
     [Parameter(Mandatory = $false)]

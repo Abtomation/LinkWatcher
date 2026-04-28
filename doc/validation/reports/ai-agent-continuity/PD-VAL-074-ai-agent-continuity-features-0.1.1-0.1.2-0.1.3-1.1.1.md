@@ -287,18 +287,18 @@ Validation was conducted by:
 ### Appendix B: Reference Materials
 
 **Source Files Reviewed:**
-- `linkwatcher/service.py` (299 LOC) — 0.1.1
-- `linkwatcher/models.py` (33 LOC) — 0.1.1
-- `linkwatcher/utils.py` (269 LOC) — 0.1.1
-- `linkwatcher/__init__.py` (52 LOC) — 0.1.1
-- `linkwatcher/database.py` (662 LOC) — 0.1.2
-- `linkwatcher/config/settings.py` (387 LOC) — 0.1.3
-- `linkwatcher/config/defaults.py` (135 LOC) — 0.1.3
-- `linkwatcher/config/__init__.py` (18 LOC) — 0.1.3
-- `linkwatcher/handler.py` (766 LOC) — 1.1.1
-- `linkwatcher/move_detector.py` (211 LOC) — 1.1.1
-- `linkwatcher/dir_move_detector.py` (420 LOC) — 1.1.1
-- `linkwatcher/reference_lookup.py` (700 LOC) — 1.1.1
+- `src/linkwatcher/service.py` (299 LOC) — 0.1.1
+- `src/linkwatcher/models.py` (33 LOC) — 0.1.1
+- `src/linkwatcher/utils.py` (269 LOC) — 0.1.1
+- `src/linkwatcher/__init__.py` (52 LOC) — 0.1.1
+- `src/linkwatcher/database.py` (662 LOC) — 0.1.2
+- `src/linkwatcher/config/settings.py` (387 LOC) — 0.1.3
+- `src/linkwatcher/config/defaults.py` (135 LOC) — 0.1.3
+- `src/linkwatcher/config/__init__.py` (18 LOC) — 0.1.3
+- `src/linkwatcher/handler.py` (766 LOC) — 1.1.1
+- `src/linkwatcher/move_detector.py` (211 LOC) — 1.1.1
+- `src/linkwatcher/dir_move_detector.py` (420 LOC) — 1.1.1
+- `src/linkwatcher/reference_lookup.py` (700 LOC) — 1.1.1
 
 **Prior Validation Reports:**
 - PD-VAL-052 — AI Agent Continuity Round 2 Batch A (2026-03-26, score 2.55/3.0)

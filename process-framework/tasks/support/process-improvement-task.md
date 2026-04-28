@@ -73,19 +73,22 @@ Analyze, optimize, and document development processes to improve efficiency, qua
    |-----------|----------|--------|
    | **Still Valid?** | Is the problem still present and accurately described? (Check if already fixed, target still exists, context unchanged) | Yes / No |
    | **Recurring Value** | Will this benefit multiple future sessions, not just a one-off scenario? | High / Medium / Low |
-   | **Framework Fit** | Does this align with framework principles and existing patterns? (If the fix requires creating new artifacts rather than modifying existing tooling, route to PF-TSK-048/PF-TSK-001 instead.) | Good / Marginal / Poor |
+   | **Framework Fit** | Does this align with framework principles and existing patterns? (If the fix requires creating new artifacts rather than modifying existing tooling, route to PF-TSK-026/PF-TSK-001 instead.) | Good / Marginal / Poor |
    | **Maintainability** | Will the change be easy to maintain, or does it add complexity/fragility? | Improves / Neutral / Degrades |
    | **Complexity-to-Benefit** | Is the implementation effort proportional to the expected benefit? | Favorable / Balanced / Unfavorable |
+   | **Minimum Viability** | Could a simpler change (warning-only, doc-only, smaller scope, or *no change at all*) solve the same problem? If yes, prefer the simpler change unless concrete evidence shows it's insufficient. | Yes / No / Not Explored |
    | **Data-Driven Validation** | Is there data anywhere in the project (feedback DB, review summaries, IMP history, code metrics, git history, test results, etc.) that could validate or invalidate this IMP's premise? If yes, has it been analyzed? | Analyzed / No Data Available |
 
    > Fill in this table and present it at the Step 5 checkpoint. If **Still Valid?** is No, recommend rejection. If multiple criteria rate poorly (Low/Poor/Degrades/Unfavorable), recommend rejection with rationale.
+   >
+   > **Minimum-viability gate**: If **Minimum Viability** is "Yes" or "Not Explored", the Step 5 checkpoint must explicitly compare the proposed approach against the simpler alternative — present both options to the human partner before committing.
    >
    > **Data-driven validation gate**: When **Data-Driven Validation** is "Analyzed", do not proceed to implementation until the analysis is complete. This may require a dedicated multi-session data collection effort (create a temp state file via Step 6). Data sources are unrestricted — feedback DB ratings, review summaries, IMP history, code metrics, git history, test results, or anything else relevant. If the data contradicts the IMP's premise, reject the IMP regardless of intuitive appeal. See [Framework Evaluation](framework-evaluation.md) (PF-TSK-079) Step 8 for methodology and the IMP-525 precedent.
    >
    > **Task routing**: Before proceeding, check the nature of the solution:
    > - **Content update** to existing file (adding a callout, fixing a template, updating guidance) → continue with PF-TSK-009
    > - **Structural change** (moving files, renaming directories, reorganizing sections) → delegate to [Structure Change Task](structure-change-task.md) (PF-TSK-014)
-   > - **New framework capability** (new task, new template + script + guide, new workflow) → delegate to [Framework Extension Task](framework-extension-task.md) (PF-TSK-048)
+   > - **New framework capability** (new task, new template + script + guide, new workflow) → delegate to [Framework Extension Task](framework-extension-task.md) (PF-TSK-026)
    >
    > If delegating, mark the IMP as Deferred with a delegation note and recommend the target task to the human partner.
 3. **Review source feedback**: Read the [Tools Review summary](../../feedback/reviews) and/or specific feedback forms that identified this improvement
@@ -95,7 +98,7 @@ Analyze, optimize, and document development processes to improve efficiency, qua
    >
    > **Valid outcomes**: Approve an approach and proceed, request alternative approaches, or **reject the improvement** if analysis shows it's unnecessary (mark as Rejected in tracking and skip to finalization)
    >
-   > **Reclassification**: If the IMP describes valid work that is not a process improvement, reject it and route to the correct tracker. Use the **domain heuristic**: `process-framework/`, `doc/` = IMP; `linkwatcher/` = BUG; `test/` = either (infrastructure = IMP, product defect = BUG).
+   > **Reclassification**: If the IMP describes valid work that is not a process improvement, reject it and route to the correct tracker. Use the **domain heuristic**: `process-framework/`, `doc/` = IMP; `src/linkwatcher` = BUG; `test/` = either (infrastructure = IMP, product defect = BUG).
    > - **Product bug** → [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) via [New-BugReport.ps1](../../scripts/file-creation/06-maintenance/New-BugReport.ps1)
    > - **Feature request** → [Feature Request Tracking](../../../doc/state-tracking/permanent/feature-request-tracking.md) via [New-FeatureRequest.ps1](../../scripts/file-creation/01-planning/New-FeatureRequest.ps1)
    > - **Technical / test infrastructure debt** → [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) via [Update-TechDebt.ps1 -Add](../../scripts/update/Update-TechDebt.ps1)
@@ -111,6 +114,7 @@ Analyze, optimize, and document development processes to improve efficiency, qua
    > Single-session improvements do not need a state file — skip this step.
 7. For complex improvements: propose multiple solution approaches with pros and cons
 8. **🚨 CHECKPOINT**: Get explicit human approval on the chosen approach
+   > **Skip if Step 7 was not used and Step 5 already approved a single concrete approach.** Step 5's "approve an approach and proceed" outcome covers both checkpoints when there are no alternatives to deliberate.
 
 ### Execution
 
@@ -118,7 +122,7 @@ Analyze, optimize, and document development processes to improve efficiency, qua
    - **For bulk/repetitive changes** (same pattern across many files): after applying all changes, verify completeness with grep-based checks (e.g., confirm all target files contain the new pattern, confirm no target files still contain the old pattern)
    > **⚠️ PRE-IMPLEMENTATION CHECK**: Before creating or modifying any tracked file, verify whether an automation script exists for that operation (check `process-framework/scripts/file-creation/` and `process-framework/scripts/update/`). Always use scripts when available — they update surrounding infrastructure (ID registries, tracking files, counters) that manual edits miss.
    >
-   > **⚠️ SCOPE BOUNDARY**: If implementing an improvement requires work that fits another task's scope — such as creating a new task definition (PF-TSK-001), reorganizing directory structures (PF-TSK-014), or extending the framework (PF-TSK-048) — do not perform that work inline. Instead, document the need, update the IMP with a delegation note, and recommend the appropriate task to the human partner.
+   > **⚠️ SCOPE BOUNDARY**: If implementing an improvement requires work that fits another task's scope — such as creating a new task definition (PF-TSK-001), reorganizing directory structures (PF-TSK-014), or extending the framework (PF-TSK-026) — do not perform that work inline. Instead, document the need, update the IMP with a delegation note, and recommend the appropriate task to the human partner.
 10. For each significant change:
     a. Present the specific change to be made
     b. **🚨 CHECKPOINT**: Get explicit approval before implementing
@@ -144,6 +148,13 @@ Analyze, optimize, and document development processes to improve efficiency, qua
     # Multiple changes (batch via stdin):
     echo '[{"tool": "ID-1", "date": "YYYY-MM-DD", "imp": "IMP-XXX", "description": "..."}, {"tool": "ID-2", "date": "YYYY-MM-DD", "imp": "IMP-XXX", "description": "..."}]' | python process-framework/scripts/feedback_db.py log-change --batch -
     ```
+
+    > **⚠️ Unknown tool_doc_id?** The script blocks unknown IDs to prevent silent typos. Before logging, verify the canonical ID:
+    > ```bash
+    > python process-framework/scripts/feedback_db.py list-tools --filter <substring>
+    > ```
+    > If the tool is genuinely new (first-time registration), add `--new-tool` to acknowledge.
+
 13. **🚨 CHECKPOINT**: Review changes with human partner — **must include the Step 11 hit list** showing all grep hits and their dispositions
 
 ### Finalization

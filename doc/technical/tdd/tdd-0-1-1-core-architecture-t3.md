@@ -16,7 +16,7 @@ retrospective: true
 
 > **Retrospective Document**: This TDD describes the existing technical design of the LinkWatcher Core Architecture, documented after implementation during framework onboarding (PF-TSK-066). Content is reverse-engineered from source code analysis.
 >
-> **Source**: Derived from source code analysis of `linkwatcher/service.py`, `linkwatcher/__init__.py`, `linkwatcher/models.py`, `linkwatcher/utils.py`, and `main.py`.
+> **Source**: Derived from source code analysis of `src/linkwatcher/service.py`, `src/linkwatcher/__init__.py`, `src/linkwatcher/models.py`, `src/linkwatcher/utils.py`, and `main.py`.
 
 >
 > **Scope Note**: This feature consolidates old 0.1.1 (Core Architecture), 0.1.2 (Data Models), and 0.1.5 (Path Utilities).
@@ -361,7 +361,7 @@ def main():
 - Does **not** acquire a lock file (multiple validations can run concurrently)
 - Does **not** start the file system watcher or observer
 - Scans all files matching `validation_extensions` config (default: `.md`, `.yaml`, `.yml`, `.json`)
-- Uses `LinkValidator` from `linkwatcher/validator.py` with context-aware skip patterns
+- Uses `LinkValidator` from `src/linkwatcher/validator.py` with context-aware skip patterns
 - Writes report to `LinkWatcherBrokenLinks.txt` (configurable via `--log-file` parent directory)
 - Exits with code 0 (all links valid) or 1 (broken links found)
 
@@ -501,11 +501,11 @@ All dependencies are implemented and operational:
 
 | File | Purpose | LOC (approx) |
 |------|---------|---------------|
-| `linkwatcher/service.py` | LinkWatcherService class | ~200 |
-| `linkwatcher/__init__.py` | Package public API | ~30 |
-| `linkwatcher/models.py` | LinkReference and FileOperation data classes | ~30 |
-| `linkwatcher/utils.py` | Path utilities (normalize, relative path, file filtering) | ~260 |
-| `linkwatcher/validator.py` | Link validation engine — workspace scanning, broken link detection, report generation | ~350 |
+| `src/linkwatcher/service.py` | LinkWatcherService class | ~200 |
+| `src/linkwatcher/__init__.py` | Package public API | ~30 |
+| `src/linkwatcher/models.py` | LinkReference and FileOperation data classes | ~30 |
+| `src/linkwatcher/utils.py` | Path utilities (normalize, relative path, file filtering) | ~260 |
+| `src/linkwatcher/validator.py` | Link validation engine — workspace scanning, broken link detection, report generation | ~350 |
 | `main.py` | CLI entry point (watcher + validation modes) | ~120 |
 
 ## 12. Open Questions

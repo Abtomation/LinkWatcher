@@ -328,7 +328,7 @@ Create shared fixture files and package markers appropriate for your language, r
 
 ### Never use real project directory names in test content
 
-Test content strings (parsed text, assertion values, file content written to temp dirs) must **never** use real project directory names like `doc`, `process-framework`, or `linkwatcher/`. LinkWatcher treats these as real file references and rewrites them when the corresponding real directories move.
+Test content strings (parsed text, assertion values, file content written to temp dirs) must **never** use real project directory names like `doc`, `process-framework`, or `src/linkwatcher`. LinkWatcher treats these as real file references and rewrites them when the corresponding real directories move.
 
 ### Use the `alpha-project/` synthetic namespace
 
@@ -347,7 +347,7 @@ Paths using directories that don't exist in the real project are already safe: `
 
 ### Rules summary
 
-1. **Never** use `doc`, `process-framework`, or `linkwatcher/` as path prefixes in test content strings
+1. **Never** use `doc`, `process-framework`, or `src/linkwatcher` as path prefixes in test content strings
 2. **Always** use `alpha-project/` or another non-existent directory name
 3. **Store** paths in variables and derive both content and assertions from the same variable when practical
 4. Paths used only as **filesystem paths within `tmp_path`** (never written as string content) are safe regardless of name

@@ -23,9 +23,11 @@ Created: 2025-08-26
 $scriptPath = Split-Path -Parent $PSScriptRoot
 $coreModule = Join-Path -Path $scriptPath -ChildPath "Common-ScriptHelpers\Core.psm1"
 $outputModule = Join-Path -Path $scriptPath -ChildPath "Common-ScriptHelpers\OutputFormatting.psm1"
+$idRegistryModule = Join-Path -Path $scriptPath -ChildPath "IdRegistry.psm1"
 
 if (Test-Path $coreModule) { Import-Module $coreModule -Force }
 if (Test-Path $outputModule) { Import-Module $outputModule -Force }
+if (Test-Path $idRegistryModule) { Import-Module $idRegistryModule -Force }
 
 function New-ProjectDocumentMetadata {
     <#
@@ -568,6 +570,27 @@ function New-StandardProjectDocument {
     .PARAMETER DirectoryType
     Semantic directory type for ID-based directory resolution (optional)
 
+    .PARAMETER Subdirectory
+    Optional Layer 1 (L1) subdirectory to append to the resolved output directory.
+    Represents content type in the faceted documentation taxonomy (e.g., Diataxis
+    content types: tutorials, how-to, reference, explanation).
+
+    When the registry entry for -IdPrefix declares a `subdirectories.values` array,
+    the value is validated against that array. When the field is absent or empty,
+    any value is accepted (backward compatible with IMP-568 behavior).
+
+    Works with both -DirectoryType (appended to registry-resolved path) and
+    -OutputDirectory (appended to explicit path). The subdirectory is created
+    automatically if it does not exist.
+
+    .PARAMETER Topic
+    Optional Layer 2 (L2) subdirectory appended after -Subdirectory. Represents
+    the project-specific topic/domain area in the faceted documentation taxonomy.
+
+    When the registry entry for -IdPrefix declares a non-empty `topics.values` array,
+    the value is validated against that array. When the field is absent or empty,
+    any value is accepted (projects that haven't declared L2 can skip this parameter).
+
     .PARAMETER Replacements
     Hashtable of additional string replacements to apply
 
@@ -589,6 +612,16 @@ function New-StandardProjectDocument {
     .EXAMPLE
     $replacements = @{ "[PRIORITY]" = "High" }
     New-StandardProjectDocument -TemplatePath "templates/task-template.md" -IdPrefix "PF-TSK" -IdDescription "Critical bug fix" -DocumentName "Fix Authentication" -DirectoryType "discrete" -Replacements $replacements -OpenInEditor
+
+    .EXAMPLE
+    New-StandardProjectDocument -TemplatePath "templates/handbook-template.md" -IdPrefix "PD-UGD" -IdDescription "How-to guide" -DocumentName "Configure Logging" -DirectoryType "handbooks" -Subdirectory "how-to"
+    # Creates file in doc/user/handbooks/how-to/configure-logging.md
+    # Subdirectory validated against PD-UGD.subdirectories.values (Diataxis content types)
+
+    .EXAMPLE
+    New-StandardProjectDocument -TemplatePath "templates/handbook-template.md" -IdPrefix "PD-UGD" -IdDescription "Reference" -DocumentName "Networking API" -DirectoryType "handbooks" -Subdirectory "reference" -Topic "networking"
+    # Creates file in doc/user/handbooks/reference/networking/networking-api.md
+    # Topic validated against PD-UGD.topics.values (project-declared)
     #>
 
     [CmdletBinding(SupportsShouldProcess=$true)]
@@ -610,6 +643,12 @@ function New-StandardProjectDocument {
 
         [Parameter(Mandatory=$false)]
         [string]$DirectoryType,
+
+        [Parameter(Mandatory=$false)]
+        [string]$Subdirectory,
+
+        [Parameter(Mandatory=$false)]
+        [string]$Topic,
 
         [Parameter(Mandatory=$false)]
         [hashtable]$Replacements = @{},
@@ -656,6 +695,38 @@ function New-StandardProjectDocument {
         } else {
             # Use default directory for prefix
             $resolvedOutputDir = Get-ProjectIdDirectory -Prefix $IdPrefix -CreateIfMissing
+        }
+
+        # Append optional subdirectory (IMP-568: generic subdirectory support)
+        # IMP-571: Faceted documentation taxonomy validation
+        # - L1 (Subdirectory): Diataxis content type, validated against registry `subdirectories.values`
+        # - L2 (Topic): Project-specific topic, validated against registry `topics.values`
+        # Validation only applies when the registry declares the values; otherwise backward-compatible passthrough.
+        if ($Subdirectory -or $Topic) {
+            $prefixInfo = $null
+            try { $prefixInfo = Get-PrefixInfo -Prefix $IdPrefix } catch { $prefixInfo = $null }
+
+            if ($Subdirectory) {
+                if ($prefixInfo -and $prefixInfo.subdirectories -and $prefixInfo.subdirectories.values) {
+                    $validValues = @($prefixInfo.subdirectories.values)
+                    if ($validValues.Count -gt 0 -and $validValues -notcontains $Subdirectory) {
+                        throw "Invalid -Subdirectory '$Subdirectory' for prefix '$IdPrefix'. Valid values: $($validValues -join ', ')"
+                    }
+                }
+                $resolvedOutputDir = Join-Path -Path $resolvedOutputDir -ChildPath $Subdirectory
+                Test-ProjectPath -Path $resolvedOutputDir -CreateIfMissing -PathType Directory | Out-Null
+            }
+
+            if ($Topic) {
+                if ($prefixInfo -and $prefixInfo.topics -and $prefixInfo.topics.values) {
+                    $validTopics = @($prefixInfo.topics.values)
+                    if ($validTopics.Count -gt 0 -and $validTopics -notcontains $Topic) {
+                        throw "Invalid -Topic '$Topic' for prefix '$IdPrefix'. Valid values: $($validTopics -join ', ')"
+                    }
+                }
+                $resolvedOutputDir = Join-Path -Path $resolvedOutputDir -ChildPath $Topic
+                Test-ProjectPath -Path $resolvedOutputDir -CreateIfMissing -PathType Directory | Out-Null
+            }
         }
 
         # Determine file extension based on template

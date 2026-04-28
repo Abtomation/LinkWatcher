@@ -6,14 +6,14 @@ version: 1.0
 created: 2026-03-02
 updated: 2026-03-02
 mode: lightweight
-target_area: linkwatcher/move_detector.py
+target_area: src/linkwatcher/move_detector.py
 priority: Medium
 refactoring_scope: Track and cancel per-file move detection timers in MoveDetector
 ---
 
 # Lightweight Refactoring Plan: Track and cancel per-file move detection timers in MoveDetector
 
-- **Target Area**: linkwatcher/move_detector.py
+- **Target Area**: src/linkwatcher/move_detector.py
 - **Priority**: Medium
 - **Created**: 2026-03-02
 - **Author**: AI Agent & Human Partner

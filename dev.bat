@@ -79,20 +79,20 @@ goto end
 
 :lint
 echo Running linting checks...
-flake8 linkwatcher tests --max-line-length=100 --extend-ignore=E203,W503
-black --check linkwatcher tests
-isort --check-only linkwatcher tests
+flake8 src/linkwatcher tests --max-line-length=100 --extend-ignore=E203,W503
+black --check src/linkwatcher tests
+isort --check-only src/linkwatcher tests
 goto end
 
 :format
 echo Formatting code...
-black linkwatcher tests
-isort linkwatcher tests
+black src/linkwatcher tests
+isort src/linkwatcher tests
 goto end
 
 :type-check
 echo Running type checking...
-mypy linkwatcher --ignore-missing-imports
+mypy src/linkwatcher --ignore-missing-imports
 goto end
 
 :clean

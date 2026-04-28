@@ -8,12 +8,12 @@ updated: 2026-03-27
 mode: lightweight
 refactoring_scope: Replace print() calls with structured logger calls in service.py
 priority: Medium
-target_area: linkwatcher/service.py
+target_area: src/linkwatcher/service.py
 ---
 
 # Lightweight Refactoring Plan: Replace print() calls with structured logger calls in service.py
 
-- **Target Area**: linkwatcher/service.py
+- **Target Area**: src/linkwatcher/service.py
 - **Priority**: Medium
 - **Created**: 2026-03-27
 - **Author**: AI Agent & Human Partner
@@ -22,7 +22,7 @@ target_area: linkwatcher/service.py
 
 ## Item 1: TD099 — Replace print() with structured logger in service.py
 
-**Scope**: All 20 `print()` calls in `linkwatcher/service.py` bypass the structured logging pipeline (structlog → ColoredFormatter console + JSONFormatter file). Replace with `self.logger.info()` / `self.logger.debug()` calls so that service lifecycle events, scan progress, and link check results appear in both console and file log streams. The ColoredFormatter already handles colored console output, so direct `Fore.*` usage becomes unnecessary.
+**Scope**: All 20 `print()` calls in `src/linkwatcher/service.py` bypass the structured logging pipeline (structlog → ColoredFormatter console + JSONFormatter file). Replace with `self.logger.info()` / `self.logger.debug()` calls so that service lifecycle events, scan progress, and link check results appear in both console and file log streams. The ColoredFormatter already handles colored console output, so direct `Fore.*` usage becomes unnecessary.
 
 **Changes Made**:
 <!-- Fill in after implementation -->

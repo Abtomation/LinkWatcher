@@ -21,6 +21,7 @@
     - test/state-tracking/permanent/
     - test/state-tracking/permanent/test-tracking.md (from template)
     - test/state-tracking/permanent/e2e-test-tracking.md (from template)
+    - test/state-tracking/permanent/performance-test-tracking.md (from template)
     - test/TE-id-registry.json (from template)
     - Shared fixture file (e.g., conftest.py for Python) from language config
     - Package marker files (e.g., __init__.py for Python) where needed
@@ -269,6 +270,12 @@ New-FileFromTemplate `
     -TargetPath "test/state-tracking/permanent/e2e-test-tracking.md" `
     -TemplatePath "$templateBase/e2e-test-tracking-template.md" `
     -Description "E2E test tracking state file" `
+    -Replacements $templateReplacements
+
+New-FileFromTemplate `
+    -TargetPath "test/state-tracking/permanent/performance-test-tracking.md" `
+    -TemplatePath "$templateBase/performance-test-tracking-template.md" `
+    -Description "Performance test tracking state file" `
     -Replacements $templateReplacements
 
 New-FileFromTemplate `

@@ -21,7 +21,7 @@ target_area: LinkDatabase
 - **Mode**: Lightweight (no architectural impact)
 
 ## Dependencies and Impact
-- **Affected Components**: `linkwatcher/database.py` (index maintenance + lookup rewrite)
+- **Affected Components**: `src/linkwatcher/database.py` (index maintenance + lookup rewrite)
 - **Internal Dependencies**: `linkwatcher/handler.py:_is_known_reference_target()` calls `has_target_with_basename()` — behavior unchanged (same return values)
 - **Risk Assessment**: Low — additive secondary index following established pattern (`_base_path_to_keys`, `_resolved_to_keys`). No API/interface changes.
 
@@ -60,4 +60,3 @@ target_area: LinkDatabase
 
 ## Related Documentation
 - [Technical Debt Tracking](/doc/state-tracking/permanent/technical-debt-tracking.md)
-

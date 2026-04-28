@@ -2,6 +2,7 @@
   "permissions": {
     "allow": [
       "Bash(pwsh.exe -ExecutionPolicy Bypass -File *)",
+      "Bash(pwsh.exe -ExecutionPolicy Bypass -File * 2>&1)",
       "Bash(pwsh.exe -ExecutionPolicy Bypass -Command *)",
       "Bash(pwsh.exe -File *)",
       "Bash(cd * && pwsh.exe -ExecutionPolicy Bypass -Command *)",
@@ -25,7 +26,7 @@
       "Bash(bash LinkWatcher/start_linkwatcher_background.ps1)",
       "Bash(python tests/manual/PD-BUG-013_json_duplicate_line_numbers_validation.py)",
       "Bash(python -c \":*)",
-      "Bash(wc -l /c/Users/ronny/VS_Code/LinkWatcher/linkwatcher/parsers/*.py)",
+      "Bash(wc -l /c/Users/ronny/VS_Code/LinkWatcher/src/linkwatcher/parsers/*.py)",
       "Bash(find /c/Users/ronny/VS_Code/LinkWatcher/config-examples -type f -name *.yaml -o -name *.yml -o -name *.json)",
       "Bash(pwsh.exe -Command 'Get-Process python* -ErrorAction SilentlyContinue | Select-Object Id, ProcessName, StartTime | Format-Table -AutoSize')",
       "Bash(pwsh.exe -Command 'Get-Process -Id 18364 -ErrorAction SilentlyContinue | Select-Object Id, ProcessName, StartTime | Format-Table -AutoSize')",
@@ -49,7 +50,10 @@
       "Bash([ -d \"/c/Users/ronny/VS_Code/LinkWatcher/doc/technical/design\" ])",
       "Bash([ -f \"/c/Users/ronny/VS_Code/LinkWatcher/doc/state-tracking/permanent/feature-tracking.md\" ])",
       "Bash(xargs grep:*)",
-      "Bash(python -c \"from linkwatcher.link_types import LinkType; print\\('Import OK,', len\\(LinkType\\), 'members'\\)\")"
+      "Bash(python -c \"from linkwatcher.link_types import LinkType; print\\('Import OK,', len\\(LinkType\\), 'members'\\)\")",
+      "PowerShell(& ./LinkWatcher_run/start_linkwatcher_background.ps1)",
+      "Bash(powershell.exe -NoProfile -Command \"Get-Process python* -ErrorAction SilentlyContinue | Select-Object Id,ProcessName,StartTime | Format-Table -AutoSize\")",
+      "Bash(python -c ' *)"
     ]
   }
 }

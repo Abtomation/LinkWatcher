@@ -40,9 +40,9 @@ priority: High
 - **Technical Debt**: TD006 — High priority, Low effort
 
 ### Affected Components
-- `linkwatcher/database.py` — Add 3 new public API methods
-- `linkwatcher/handler.py` — Replace 3 direct accesses with API calls
-- `linkwatcher/service.py` — Replace 1 direct access with API call
+- `src/linkwatcher/database.py` — Add 3 new public API methods
+- `src/linkwatcher/handler.py` — Replace 3 direct accesses with API calls
+- `src/linkwatcher/service.py` — Replace 1 direct access with API call
 
 ### Dependencies and Impact
 - **Internal Dependencies**: handler.py and service.py depend on database.py public API

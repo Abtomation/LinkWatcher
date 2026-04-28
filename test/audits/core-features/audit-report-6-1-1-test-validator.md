@@ -81,7 +81,7 @@ auditor: AI Agent
 
 | Source Module | Coverage % | Uncovered Areas |
 |---------------|-----------|-----------------|
-| linkwatcher/validator.py | 90% (281/312 stmts) | Error handlers, template file filter, placeholder lines, some skip filters, archival edge cases |
+| src/linkwatcher/validator.py | 90% (281/312 stmts) | Error handlers, template file filter, placeholder lines, some skip filters, archival edge cases |
 
 **Overall Project Coverage**: 89% (full suite)
 
@@ -99,7 +99,7 @@ auditor: AI Agent
 - **Edge Cases Coverage**: Good — empty workspace, pure anchors, mixed results, code blocks, archival details, table rows all covered
 
 **Evidence**:
-- Coverage report: `Name: linkwatcher\validator.py | Stmts: 312 | Miss: 31 | Cover: 90% | Missing: 270-276, 280-286, 390, 399, 405, 450, 455, 460, 480-481, 527-531, 542-547, 587, 628, 632-633, 647-649, 659-662`
+- Coverage report: `Name: src/linkwatcher/validator.py | Stmts: 312 | Miss: 31 | Cover: 90% | Missing: 270-276, 280-286, 390, 399, 405, 450, 455, 460, 480-481, 527-531, 542-547, 587, 628, 632-633, 647-649, 659-662`
 - Of 31 uncovered statements: ~12 are error handling (acceptable), ~19 are functional logic (improvement opportunity)
 
 **Recommendations**:
@@ -182,7 +182,7 @@ auditor: AI Agent
 
 **Findings**:
 - Proper pytest markers set at module level: `feature("6.1.1")`, `priority("Standard")`, `test_type("unit")` — consistent with project conventions
-- Test file follows project directory structure: `test/automated/unit/test_validator.py` mirrors `linkwatcher/validator.py`
+- Test file follows project directory structure: `test/automated/unit/test_validator.py` mirrors `src/linkwatcher/validator.py`
 - Uses project-standard fixtures (`tmp_path`) and test patterns (class-based organization, helper functions)
 - No CLI integration tests for `--validate` flag, but this is appropriate for unit test scope — CLI integration would belong in a separate integration test file
 - Feature 6.1.1 is Tier 1, so the unit test file alone provides adequate coverage without requiring a separate integration test file

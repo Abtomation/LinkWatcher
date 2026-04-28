@@ -75,6 +75,10 @@ try {
 # Perform standard initialization
 Invoke-StandardScriptInitialization
 
+# Soak verification (PF-PRO-028 — see process-framework/state-tracking/permanent/script-soak-tracking.md)
+$soakScriptId = "process-framework/scripts/file-creation/02-design/New-IntegrationNarrative.ps1"
+$soakInSoak   = Test-ScriptInSoak -ScriptId $soakScriptId -ScriptPath $PSCommandPath
+
 # Prepare additional metadata fields
 $additionalMetadataFields = @{
     "workflow_id" = $WorkflowId
@@ -110,6 +114,12 @@ try {
         -FileNamePattern $customFileName `
         -OpenInEditor:$OpenInEditor
 
+    # Read-after-write verification: confirm the document file landed with the expected ID
+    if ($documentId -and -not $WhatIfPreference) {
+        $createdNarrativePath = Join-Path -Path $projectRoot -ChildPath "doc/technical/integration/$customFileName"
+        Assert-LineInFile -Path $createdNarrativePath -Pattern ("id:\s*" + [regex]::Escape($documentId)) -Context "Integration Narrative frontmatter id"
+    }
+
     # Provide success details
     $details = @(
         "Workflow: $WorkflowName",
@@ -120,43 +130,27 @@ try {
         $details += "Description: $Description"
     }
 
-    # Add next steps if not opening in editor
+    # Pointer to customization guide
     if (-not $OpenInEditor) {
-        $details += @(
-            "",
-            "🚨🚨🚨 CRITICAL: TEMPLATE CREATED - EXTENSIVE CUSTOMIZATION REQUIRED 🚨🚨🚨",
-            "",
-            "⚠️  IMPORTANT: This script creates ONLY a structural template/framework.",
-            "⚠️  The generated file is NOT a functional document until extensively customized.",
-            "⚠️  AI agents MUST follow the referenced guide to properly customize the content.",
-            "",
-            "📖 MANDATORY CUSTOMIZATION GUIDE:",
-            "process-framework/guides/02-design/integration-narrative-customization-guide.md",
-            "🎯 FOCUS AREAS: 'Component Interaction Diagram' and 'Data Flow Sequence' sections",
-            "",
-            "🎯 What the guide will teach you:",
-            "   • How to map cross-feature interaction points from source code",
-            "   • Creating component interaction diagrams with Mermaid",
-            "   • Documenting callback/event chains across feature boundaries",
-            "   • Identifying configuration propagation paths",
-            "",
-            "🚫 DO NOT use the generated file without proper customization!",
-            "✅ The template provides structure - YOU provide the verified content from source code."
-        )
+        $details += "Customization required — see process-framework/guides/02-design/integration-narrative-customization-guide.md"
     }
 
     # Auto-append entry to PD-documentation-map.md under Integration Narratives section
     if ($documentId -or $WhatIfPreference) {
         $docMapPath = Join-Path -Path $projectRoot -ChildPath "doc/PD-documentation-map.md"
-        $sectionHeader = "### Integration Narratives"
+        $sectionHeader = "### ``technical/integration/`` — Integration Narratives"
         $descriptionText = if ($Description -ne "") { $Description } else { "Integration narrative for $WorkflowName workflow" }
         $entryLine = "- [Integration Narrative: $WorkflowName ($documentId)](technical/integration/$customFileName) - $WorkflowId — $descriptionText"
 
         $updated = Add-DocumentationMapEntry -DocMapPath $docMapPath -SectionHeader $sectionHeader -EntryLine $entryLine -CallerCmdlet $PSCmdlet
         if ($updated) {
+            # Read-after-write verification: catch silent-success failures (the original IMP-586 trigger).
+            if (-not $WhatIfPreference) {
+                Assert-LineInFile -Path $docMapPath -Pattern $entryLine -Literal -Context "doc-map entry for $documentId under '$sectionHeader'"
+            }
             $details += "Documentation Map: Updated (PD-documentation-map.md)"
         } else {
-            $details += "Documentation Map: Section '### Integration Narratives' not found — add entry manually"
+            $details += "Documentation Map: Section '$sectionHeader' not found — add entry manually"
         }
     }
 
@@ -213,6 +207,8 @@ try {
                                     $rowCols[$colIndex] = $docLink
                                     $trackingLines[$targetIndex] = $rowCols -join '|'
                                     Set-Content -Path $workflowTrackingPath -Value $trackingLines -NoNewline:$false
+                                    # Read-after-write verification: confirm the workflow row actually carries the new doc link.
+                                    Assert-LineInFile -Path $workflowTrackingPath -Pattern $docLink -Literal -Context "workflow-tracking row $WorkflowId Integration Doc"
                                     $details += "Workflow Tracking: Updated $WorkflowId Integration Doc → $documentId"
                                 }
                             }
@@ -235,8 +231,17 @@ try {
     }
 
     Write-ProjectSuccess -Message "Created Integration Narrative with ID: $documentId" -Details $details
+
+    if ($soakInSoak) {
+        Confirm-SoakInvocation -ScriptId $soakScriptId -Outcome success
+    }
 }
 catch {
+    if ($soakInSoak) {
+        $soakErrMsg = $_.Exception.Message
+        if ($soakErrMsg.Length -gt 80) { $soakErrMsg = $soakErrMsg.Substring(0, 80) + "..." }
+        Confirm-SoakInvocation -ScriptId $soakScriptId -Outcome failure -Notes $soakErrMsg
+    }
     Write-ProjectError -Message "Failed to create Integration Narrative: $($_.Exception.Message)" -ExitCode 1
 }
 
@@ -258,7 +263,7 @@ Before considering this script complete, test the following:
 
 CUSTOMIZATION REQUIREMENTS:
 - Ensure integration-narrative-template.md exists in process-framework/templates/02-design/
-- Ensure "### Integration Narratives" section exists in PD-documentation-map.md
+- Ensure "### `technical/integration/` — Integration Narratives" section exists in PD-documentation-map.md
 - Ensure "Integration Doc" column exists in user-workflow-tracking.md (added in Phase 4)
 - Verify process-framework/guides/02-design/integration-narrative-customization-guide.md exists
 #>

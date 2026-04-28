@@ -321,11 +321,11 @@ For Tier 1 feature 6.1.1, inline documentation quality (docstrings, comments, co
 - Tier Assessment PD-ASS-200
 
 **Source Code Reviewed**:
-- linkwatcher/parser.py, linkwatcher/parsers/*.py (10 files)
-- linkwatcher/updater.py, linkwatcher/path_resolver.py
-- linkwatcher/logging.py, linkwatcher/logging_config.py
-- linkwatcher/validator.py
-- linkwatcher/models.py
+- src/linkwatcher/parser.py, linkwatcher/parsers/*.py (10 files)
+- src/linkwatcher/updater.py, src/linkwatcher/path_resolver.py
+- src/linkwatcher/logging.py, src/linkwatcher/logging_config.py
+- src/linkwatcher/validator.py
+- src/linkwatcher/models.py
 
 ---
 

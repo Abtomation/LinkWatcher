@@ -94,7 +94,7 @@ validation_session: 13
 
 ### Feature 0.1.3 - Configuration System
 
-**Source files**: `linkwatcher/config/settings.py` (383 lines)
+**Source files**: `src/linkwatcher/config/settings.py` (383 lines)
 
 #### Strengths
 
@@ -124,7 +124,7 @@ validation_session: 13
 
 ### Feature 1.1.1 - File System Monitoring
 
-**Source files**: `linkwatcher/handler.py` (845 lines), `linkwatcher/dir_move_detector.py` (471 lines), `linkwatcher/utils.py` (238 lines)
+**Source files**: `src/linkwatcher/handler.py` (845 lines), `src/linkwatcher/dir_move_detector.py` (471 lines), `src/linkwatcher/utils.py` (238 lines)
 
 #### Strengths
 
@@ -152,7 +152,7 @@ validation_session: 13
 
 ### Feature 2.2.1 - Link Updating
 
-**Source files**: `linkwatcher/updater.py` (539 lines)
+**Source files**: `src/linkwatcher/updater.py` (539 lines)
 
 #### Strengths
 
@@ -179,7 +179,7 @@ validation_session: 13
 
 ### Feature 6.1.1 - Link Validation
 
-**Source files**: `linkwatcher/validator.py` (722 lines)
+**Source files**: `src/linkwatcher/validator.py` (722 lines)
 
 #### Strengths
 

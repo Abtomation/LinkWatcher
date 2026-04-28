@@ -42,7 +42,7 @@ validation_session: 1
 |---|---|---|---|
 | 0.1.1 | Core Architecture | Implemented | service.py (293 LOC), __init__.py, models.py (32 LOC), utils.py (254 LOC) |
 | 0.1.2 | In-Memory Link Database | Implemented | database.py (240 LOC) |
-| 0.1.3 | Configuration System | Implemented | linkwatcher/config/settings.py (238 LOC), linkwatcher/config/defaults.py, linkwatcher/config/__init__.py |
+| 0.1.3 | Configuration System | Implemented | src/linkwatcher/config/settings.py (238 LOC), src/linkwatcher/config/defaults.py, src/linkwatcher/config/__init__.py |
 | 1.1.1 | File System Monitoring | Implemented | handler.py (681 LOC), move_detector.py (112 LOC), dir_move_detector.py (409 LOC), reference_lookup.py (256 LOC) |
 
 ### Validation Criteria Applied
@@ -140,7 +140,7 @@ validation_session: 1
 
 ### Feature 0.1.3 - Configuration System
 
-**Files**: linkwatcher/config/settings.py (238 LOC), linkwatcher/config/defaults.py (~160 LOC), linkwatcher/config/__init__.py (~20 LOC)
+**Files**: src/linkwatcher/config/settings.py (238 LOC), src/linkwatcher/config/defaults.py (~160 LOC), src/linkwatcher/config/__init__.py (~20 LOC)
 
 #### Per-Criterion Scores
 
@@ -269,7 +269,7 @@ Code quality validation was conducted by systematically reading all source files
 
 ### Appendix B: Reference Materials
 
-- Source files: linkwatcher/service.py, __init__.py, models.py, utils.py, database.py, linkwatcher/config/settings.py, linkwatcher/config/defaults.py, handler.py, move_detector.py, dir_move_detector.py, reference_lookup.py
+- Source files: src/linkwatcher/service.py, __init__.py, models.py, utils.py, database.py, src/linkwatcher/config/settings.py, src/linkwatcher/config/defaults.py, handler.py, move_detector.py, dir_move_detector.py, reference_lookup.py
 - Test specifications: PF-TSP-035, PF-TSP-036, PF-TSP-037, PF-TSP-038
 - Technical debt tracking: TD005, TD019, TD020, TD022, TD026
 - ADRs: PD-ADR-039 (Orchestrator/Facade), PD-ADR-040 (Target-Indexed DB)
@@ -283,7 +283,7 @@ Code quality validation was conducted by systematically reading all source files
 | models.py | 32 | 0 | 2 | 0 | 0 |
 | utils.py | 254 | 7 | 0 | 0 | 0 |
 | database.py | 240 | 13 | 1 | 0 | 4 |
-| linkwatcher/config/settings.py | 238 | 10 | 1 | 0 | 0 |
+| src/linkwatcher/config/settings.py | 238 | 10 | 1 | 0 | 0 |
 | handler.py | 681 | 24 | 2 | 13 | 29 |
 | move_detector.py | 112 | 5 | 1 | 0 | 0 |
 | dir_move_detector.py | 409 | 12 | 2 | 5 | 11 |

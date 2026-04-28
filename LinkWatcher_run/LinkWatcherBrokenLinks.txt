@@ -1580,9 +1580,9 @@ Broken links:
   doc/process-framework/scripts/AUTOMATION-USAGE-GUIDE.md:372
     -> ../state-tracking/temporary/automation-enhancement-phase3b-implementation-20250823.md  (markdown)
   doc/process-framework/scripts/update/doc/product-docs/refactoring/plans/wire-parser-enable-disable-config-flags-into-linkparser-runtime.md:11
-    -> linkwatcher/config/settings.py  (markdown-standalone)
+    -> src/linkwatcher/config/settings.py  (markdown-standalone)
   doc/process-framework/scripts/update/doc/product-docs/refactoring/plans/wire-parser-enable-disable-config-flags-into-linkparser-runtime.md:17
-    -> linkwatcher/service.py  (markdown-standalone)
+    -> src/linkwatcher/service.py  (markdown-standalone)
   doc/process-framework/state-tracking/permanent/process-improvement-tracking.md:44
     -> process-framework/ai-tasks.md  (markdown-standalone)
   doc/process-framework/state-tracking/permanent/process-improvement-tracking.md:86
@@ -1770,45 +1770,45 @@ Broken links:
   doc/process-framework/state-tracking/temporary/old/retrospective-master-state.md:22
     -> ../../tasks/00-onboarding/retrospective-documentation-creation.md  (markdown)
   doc/process-framework/state-tracking/temporary/old/retrospective-master-state.md:158
-    -> linkwatcher/__init__.py  (markdown-standalone)
+    -> src/linkwatcher/__init__.py  (markdown-standalone)
   doc/process-framework/state-tracking/temporary/old/retrospective-master-state.md:159
-    -> linkwatcher/models.py  (markdown-standalone)
+    -> src/linkwatcher/models.py  (markdown-standalone)
   doc/process-framework/state-tracking/temporary/old/retrospective-master-state.md:160
-    -> linkwatcher/database.py  (markdown-standalone)
+    -> src/linkwatcher/database.py  (markdown-standalone)
   doc/process-framework/state-tracking/temporary/old/retrospective-master-state.md:161
-    -> linkwatcher/config/__init__.py  (markdown-standalone)
+    -> src/linkwatcher/config/__init__.py  (markdown-standalone)
   doc/process-framework/state-tracking/temporary/old/retrospective-master-state.md:162
-    -> linkwatcher/config/defaults.py  (markdown-standalone)
+    -> src/linkwatcher/config/defaults.py  (markdown-standalone)
   doc/process-framework/state-tracking/temporary/old/retrospective-master-state.md:163
-    -> linkwatcher/config/settings.py  (markdown-standalone)
+    -> src/linkwatcher/config/settings.py  (markdown-standalone)
   doc/process-framework/state-tracking/temporary/old/retrospective-master-state.md:164
-    -> linkwatcher/utils.py  (markdown-standalone)
+    -> src/linkwatcher/utils.py  (markdown-standalone)
   doc/process-framework/state-tracking/temporary/old/retrospective-master-state.md:166
-    -> linkwatcher/service.py  (markdown-standalone)
+    -> src/linkwatcher/service.py  (markdown-standalone)
   doc/process-framework/state-tracking/temporary/old/retrospective-master-state.md:167
-    -> linkwatcher/parser.py  (markdown-standalone)
+    -> src/linkwatcher/parser.py  (markdown-standalone)
   doc/process-framework/state-tracking/temporary/old/retrospective-master-state.md:168
-    -> linkwatcher/parsers/__init__.py  (markdown-standalone)
+    -> src/linkwatcher/parsers/__init__.py  (markdown-standalone)
   doc/process-framework/state-tracking/temporary/old/retrospective-master-state.md:169
-    -> linkwatcher/parsers/base.py  (markdown-standalone)
+    -> src/linkwatcher/parsers/base.py  (markdown-standalone)
   doc/process-framework/state-tracking/temporary/old/retrospective-master-state.md:170
-    -> linkwatcher/parsers/markdown.py  (markdown-standalone)
+    -> src/linkwatcher/parsers/markdown.py  (markdown-standalone)
   doc/process-framework/state-tracking/temporary/old/retrospective-master-state.md:171
-    -> linkwatcher/parsers/yaml_parser.py  (markdown-standalone)
+    -> src/linkwatcher/parsers/yaml_parser.py  (markdown-standalone)
   doc/process-framework/state-tracking/temporary/old/retrospective-master-state.md:172
-    -> linkwatcher/parsers/json_parser.py  (markdown-standalone)
+    -> src/linkwatcher/parsers/json_parser.py  (markdown-standalone)
   doc/process-framework/state-tracking/temporary/old/retrospective-master-state.md:173
-    -> linkwatcher/parsers/python.py  (markdown-standalone)
+    -> src/linkwatcher/parsers/python.py  (markdown-standalone)
   doc/process-framework/state-tracking/temporary/old/retrospective-master-state.md:174
-    -> linkwatcher/parsers/dart.py  (markdown-standalone)
+    -> src/linkwatcher/parsers/dart.py  (markdown-standalone)
   doc/process-framework/state-tracking/temporary/old/retrospective-master-state.md:175
-    -> linkwatcher/parsers/generic.py  (markdown-standalone)
+    -> src/linkwatcher/parsers/generic.py  (markdown-standalone)
   doc/process-framework/state-tracking/temporary/old/retrospective-master-state.md:176
-    -> linkwatcher/updater.py  (markdown-standalone)
+    -> src/linkwatcher/updater.py  (markdown-standalone)
   doc/process-framework/state-tracking/temporary/old/retrospective-master-state.md:177
-    -> linkwatcher/logging.py  (markdown-standalone)
+    -> src/linkwatcher/logging.py  (markdown-standalone)
   doc/process-framework/state-tracking/temporary/old/retrospective-master-state.md:178
-    -> linkwatcher/logging_config.py  (markdown-standalone)
+    -> src/linkwatcher/logging_config.py  (markdown-standalone)
   doc/process-framework/state-tracking/temporary/old/retrospective-master-state.md:197
     -> .pre-commit-config.yaml  (markdown-standalone)
   doc/process-framework/state-tracking/temporary/old/retrospective-master-state.md:205
@@ -2228,7 +2228,7 @@ Broken links:
   doc/process-framework/state-tracking/temporary/old/temp-section5-6-restructure.md:10
     -> ../../../../path  (markdown)
   doc/process-framework/state-tracking/temporary/old/temp-section5-6-restructure.md:93
-    -> ../../../../linkwatcher/models.py  (markdown)
+    -> ../../../../src/linkwatcher/models.py  (markdown)
   doc/process-framework/state-tracking/temporary/old/temp-task-creation-comprehensive-retrospective-framework-integration.md:69
     -> doc/state-tracking/permanent/feature-tracking.md  (markdown-standalone)
   doc/process-framework/state-tracking/temporary/old/temp-task-creation-comprehensive-retrospective-framework-integration.md:98
@@ -3402,11 +3402,11 @@ Broken links:
   doc/product-docs/documentation-tiers/README.md:144
     -> ../../tasks/cyclical/documentation-tier-adjustment-task.md  (markdown)
   doc/product-docs/documentation-tiers/assessments/PD-ASS-194-1-1-1-file-system-monitoring.md:21
-    -> linkwatcher/handler.py  (markdown-standalone)
+    -> src/linkwatcher/handler.py  (markdown-standalone)
   doc/product-docs/documentation-tiers/assessments/PD-ASS-194-1-1-1-file-system-monitoring.md:64
-    -> linkwatcher/handler.py  (markdown-standalone)
+    -> src/linkwatcher/handler.py  (markdown-standalone)
   doc/product-docs/documentation-tiers/assessments/PD-ASS-194-1-1-1-file-system-monitoring.md:74
-    -> linkwatcher/handler.py  (markdown-standalone)
+    -> src/linkwatcher/handler.py  (markdown-standalone)
   doc/product-docs/functional-design/fdds/fdd-0-1-1-core-architecture.md:18
     -> ../../../../HOW_IT_WORKS.md  (markdown)
   doc/product-docs/functional-design/fdds/fdd-0-1-1-core-architecture.md:33
@@ -3448,29 +3448,29 @@ Broken links:
   doc/product-docs/functional-design/fdds/archive/fdd-5-1-1-cicd-development-tooling.md:208
     -> ../../../process-framework/state-tracking/permanent/feature-tracking.md  (markdown)
   doc/product-docs/refactoring/plans/wire-parser-enable-disable-config-flags-into-linkparser-runtime.md:11
-    -> linkwatcher/config/settings.py  (markdown-standalone)
+    -> src/linkwatcher/config/settings.py  (markdown-standalone)
   doc/product-docs/refactoring/plans/wire-parser-enable-disable-config-flags-into-linkparser-runtime.md:17
-    -> linkwatcher/service.py  (markdown-standalone)
+    -> src/linkwatcher/service.py  (markdown-standalone)
   doc/product-docs/refactoring/plans/archive/add-missing-wraps-decorator-to-with-context-in-logging-py-td028.md:11
-    -> linkwatcher/logging.py  (markdown-standalone)
+    -> src/linkwatcher/logging.py  (markdown-standalone)
   doc/product-docs/refactoring/plans/archive/add-missing-wraps-decorator-to-with-context-in-logging-py-td028.md:16
-    -> linkwatcher/logging.py  (markdown-standalone)
+    -> src/linkwatcher/logging.py  (markdown-standalone)
   doc/product-docs/refactoring/plans/archive/add-reset-functions-for-global-singletons-in-logging-modules.md:8
-    -> linkwatcher/logging_config.py  (markdown-standalone)
+    -> src/linkwatcher/logging_config.py  (markdown-standalone)
   doc/product-docs/refactoring/plans/archive/add-reset-functions-for-global-singletons-in-logging-modules.md:16
-    -> linkwatcher/logging_config.py  (markdown-standalone)
+    -> src/linkwatcher/logging_config.py  (markdown-standalone)
   doc/product-docs/refactoring/plans/archive/consolidate-3-pass-get-references-to-file-into-single-pass.md:10
-    -> linkwatcher/database.py  (markdown-standalone)
+    -> src/linkwatcher/database.py  (markdown-standalone)
   doc/product-docs/refactoring/plans/archive/consolidate-3-pass-get-references-to-file-into-single-pass.md:16
-    -> linkwatcher/database.py  (markdown-standalone)
+    -> src/linkwatcher/database.py  (markdown-standalone)
   doc/product-docs/refactoring/plans/archive/decompose-dartparser-parse-content-monolithic-method-into-focused-sub-methods.md:11
-    -> linkwatcher/parsers/dart.py  (markdown-standalone)
+    -> src/linkwatcher/parsers/dart.py  (markdown-standalone)
   doc/product-docs/refactoring/plans/archive/decompose-dartparser-parse-content-monolithic-method-into-focused-sub-methods.md:16
-    -> linkwatcher/parsers/dart.py  (markdown-standalone)
+    -> src/linkwatcher/parsers/dart.py  (markdown-standalone)
   doc/product-docs/refactoring/plans/archive/decompose-god-class-linkmaintenancehandler-td005.md:10
-    -> linkwatcher/handler.py  (markdown-standalone)
+    -> src/linkwatcher/handler.py  (markdown-standalone)
   doc/product-docs/refactoring/plans/archive/decompose-god-class-linkmaintenancehandler-td005.md:18
-    -> linkwatcher/handler.py  (markdown-standalone)
+    -> src/linkwatcher/handler.py  (markdown-standalone)
   doc/product-docs/refactoring/plans/archive/decompose-god-class-linkmaintenancehandler-td005.md:24
     -> /process-framework/assessments/technical-debt/assessments/handler-module-structural-debt-assessment.md  (markdown)
   doc/product-docs/refactoring/plans/archive/decompose-god-class-linkmaintenancehandler-td005.md:192
@@ -3486,13 +3486,13 @@ Broken links:
   doc/product-docs/refactoring/plans/archive/expand-tdd-pd-tdd-031-to-cover-all-7-fdd-subsystems.md:178
     -> /process-framework/guides/03-testing/testing-guidelines.md  (markdown)
   doc/product-docs/refactoring/plans/archive/extract-match-strategies-from-calculate-new-target-relative-in-updater-py.md:9
-    -> linkwatcher/updater.py  (markdown-standalone)
+    -> src/linkwatcher/updater.py  (markdown-standalone)
   doc/product-docs/refactoring/plans/archive/extract-match-strategies-from-calculate-new-target-relative-in-updater-py.md:16
-    -> linkwatcher/updater.py  (markdown-standalone)
+    -> src/linkwatcher/updater.py  (markdown-standalone)
   doc/product-docs/refactoring/plans/archive/extract-pathresolver-from-linkupdater-td033.md:8
-    -> linkwatcher/updater.py  (markdown-standalone)
+    -> src/linkwatcher/updater.py  (markdown-standalone)
   doc/product-docs/refactoring/plans/archive/extract-pathresolver-from-linkupdater-td033.md:16
-    -> linkwatcher/updater.py  (markdown-standalone)
+    -> src/linkwatcher/updater.py  (markdown-standalone)
   doc/product-docs/refactoring/plans/archive/extract-pathresolver-from-linkupdater-td033.md:103
     -> test/automated/unit/test_updater.py  (markdown-standalone)
   doc/product-docs/refactoring/plans/archive/extract-pathresolver-from-linkupdater-td033.md:174
@@ -3500,17 +3500,17 @@ Broken links:
   doc/product-docs/refactoring/plans/archive/extract-pathresolver-from-linkupdater-td033.md:175
     -> /process-framework/guides/03-testing/testing-guidelines.md  (markdown)
   doc/product-docs/refactoring/plans/archive/extract-reference-lookup-from-handler-py-into-reference-lookup-py-td022.md:10
-    -> linkwatcher/handler.py  (markdown-standalone)
+    -> src/linkwatcher/handler.py  (markdown-standalone)
   doc/product-docs/refactoring/plans/archive/extract-reference-lookup-from-handler-py-into-reference-lookup-py-td022.md:16
-    -> linkwatcher/handler.py  (markdown-standalone)
+    -> src/linkwatcher/handler.py  (markdown-standalone)
   doc/product-docs/refactoring/plans/archive/extract-reference-lookup-from-handler-py-into-reference-lookup-py-td022.md:112
-    -> linkwatcher/reference_lookup.py  (markdown-standalone)
+    -> src/linkwatcher/reference_lookup.py  (markdown-standalone)
   doc/product-docs/refactoring/plans/archive/extract-reference-lookup-from-handler-py-into-reference-lookup-py-td022.md:152
     -> /doc/refactoring/plans/decompose-god-class-linkmaintenancehandler-td005.md  (markdown)
   doc/product-docs/refactoring/plans/archive/extract-update-links-within-moved-file-and-handle-directory-moved-from-handler-py.md:10
-    -> linkwatcher/handler.py  (markdown-standalone)
+    -> src/linkwatcher/handler.py  (markdown-standalone)
   doc/product-docs/refactoring/plans/archive/extract-update-links-within-moved-file-and-handle-directory-moved-from-handler-py.md:16
-    -> linkwatcher/handler.py  (markdown-standalone)
+    -> src/linkwatcher/handler.py  (markdown-standalone)
   doc/product-docs/refactoring/plans/archive/extract-update-links-within-moved-file-and-handle-directory-moved-from-handler-py.md:176
     -> /doc/refactoring/plans/decompose-god-class-linkmaintenancehandler-td005.md  (markdown)
   doc/product-docs/refactoring/plans/archive/extract-update-links-within-moved-file-and-handle-directory-moved-from-handler-py.md:177
@@ -3520,9 +3520,9 @@ Broken links:
   doc/product-docs/refactoring/plans/archive/fix-tdd-api-pseudocode-drift-in-pd-tdd-026-pd-tdd-027-and-pd-tdd-031.md:135
     -> /doc/refactoring/plans/fix-tdd-api-pseudocode-drift-in-pd-tdd-024-and-pd-tdd-025.md  (markdown)
   doc/product-docs/refactoring/plans/archive/move-inline-imports-to-module-level-in-handler-py-td012.md:9
-    -> linkwatcher/handler.py  (markdown-standalone)
+    -> src/linkwatcher/handler.py  (markdown-standalone)
   doc/product-docs/refactoring/plans/archive/move-inline-imports-to-module-level-in-handler-py-td012.md:16
-    -> linkwatcher/handler.py  (markdown-standalone)
+    -> src/linkwatcher/handler.py  (markdown-standalone)
   doc/product-docs/refactoring/plans/archive/move-inline-imports-to-module-level-in-handler-py-td012.md:21
     -> ../../assessments/technical-debt/assessments/handler-module-structural-debt-assessment.md  (markdown)
   doc/product-docs/refactoring/plans/archive/move-inline-imports-to-module-level-in-handler-py-td012.md:77
@@ -3532,23 +3532,23 @@ Broken links:
   doc/product-docs/refactoring/plans/archive/remove-broken-documentation-links-from-readme-md.md:30
     -> old/link_watcher_old.py  (markdown)
   doc/product-docs/refactoring/plans/archive/remove-dual-print-logger-output-in-service-py-td034.md:9
-    -> linkwatcher/service.py  (markdown-standalone)
+    -> src/linkwatcher/service.py  (markdown-standalone)
   doc/product-docs/refactoring/plans/archive/remove-dual-print-logger-output-in-service-py-td034.md:16
-    -> linkwatcher/service.py  (markdown-standalone)
+    -> src/linkwatcher/service.py  (markdown-standalone)
   doc/product-docs/refactoring/plans/archive/remove-dual-print-logger-output-pattern-in-handler-py-td010.md:8
-    -> linkwatcher/handler.py  (markdown-standalone)
+    -> src/linkwatcher/handler.py  (markdown-standalone)
   doc/product-docs/refactoring/plans/archive/remove-dual-print-logger-output-pattern-in-handler-py-td010.md:16
-    -> linkwatcher/handler.py  (markdown-standalone)
+    -> src/linkwatcher/handler.py  (markdown-standalone)
   doc/product-docs/refactoring/plans/archive/remove-dual-print-logger-output-pattern-in-handler-py-td010.md:128
     -> /process-framework/assessments/technical-debt/assessments/handler-module-structural-debt-assessment.md  (markdown)
   doc/product-docs/refactoring/plans/archive/remove-export-logs-placeholder-from-loggingconfigmanager.md:9
-    -> linkwatcher/logging_config.py  (markdown-standalone)
+    -> src/linkwatcher/logging_config.py  (markdown-standalone)
   doc/product-docs/refactoring/plans/archive/remove-export-logs-placeholder-from-loggingconfigmanager.md:16
-    -> linkwatcher/logging_config.py  (markdown-standalone)
+    -> src/linkwatcher/logging_config.py  (markdown-standalone)
   doc/product-docs/refactoring/plans/archive/remove-inline-import-re-in-updater-py.md:11
-    -> linkwatcher/updater.py  (markdown-standalone)
+    -> src/linkwatcher/updater.py  (markdown-standalone)
   doc/product-docs/refactoring/plans/archive/remove-inline-import-re-in-updater-py.md:16
-    -> linkwatcher/updater.py  (markdown-standalone)
+    -> src/linkwatcher/updater.py  (markdown-standalone)
   doc/product-docs/refactoring/plans/archive/remove-non-existent-requirements-test-txt-from-ci-pipeline-use-pyproject-toml-test-extras-instead.md:32
     -> scripts/setup_cicd.py  (markdown-standalone)
   doc/product-docs/refactoring/plans/archive/remove-non-existent-requirements-test-txt-from-ci-pipeline-use-pyproject-toml-test-extras-instead.md:33
@@ -3556,69 +3556,69 @@ Broken links:
   doc/product-docs/refactoring/plans/archive/remove-non-existent-requirements-test-txt-from-ci-pipeline-use-pyproject-toml-test-extras-instead.md:35
     -> tests/README.md  (markdown-standalone)
   doc/product-docs/refactoring/plans/archive/remove-redundant-db-queries-in-collect-path-updates-td015.md:9
-    -> linkwatcher/handler.py  (markdown-standalone)
+    -> src/linkwatcher/handler.py  (markdown-standalone)
   doc/product-docs/refactoring/plans/archive/remove-redundant-db-queries-in-collect-path-updates-td015.md:16
-    -> linkwatcher/handler.py  (markdown-standalone)
+    -> src/linkwatcher/handler.py  (markdown-standalone)
   doc/product-docs/refactoring/plans/archive/remove-repeated-inline-path-import-in-updater-py-td014.md:9
-    -> linkwatcher/updater.py  (markdown-standalone)
+    -> src/linkwatcher/updater.py  (markdown-standalone)
   doc/product-docs/refactoring/plans/archive/remove-repeated-inline-path-import-in-updater-py-td014.md:16
-    -> linkwatcher/updater.py  (markdown-standalone)
+    -> src/linkwatcher/updater.py  (markdown-standalone)
   doc/product-docs/refactoring/plans/archive/remove-repeated-inline-path-import-in-updater-py-td014.md:21
     -> ../../assessments/technical-debt/assessments/handler-module-structural-debt-assessment.md  (markdown)
   doc/product-docs/refactoring/plans/archive/replace-8-module-stdlib-regex-with-comprehensive-set-lookup-using-sys-stdlib-module-names-3-10-with-fallback.md:10
-    -> linkwatcher/parsers/python.py  (markdown-standalone)
+    -> src/linkwatcher/parsers/python.py  (markdown-standalone)
   doc/product-docs/refactoring/plans/archive/replace-8-module-stdlib-regex-with-comprehensive-set-lookup-using-sys-stdlib-module-names-3-10-with-fallback.md:16
-    -> linkwatcher/parsers/python.py  (markdown-standalone)
+    -> src/linkwatcher/parsers/python.py  (markdown-standalone)
   doc/product-docs/refactoring/plans/archive/replace-8-module-stdlib-regex-with-comprehensive-set-lookup-using-sys-stdlib-module-names-3-10-with-fallback.md:137
     -> /process-framework/guides/03-testing/code-quality-standards.md  (markdown)
   doc/product-docs/refactoring/plans/archive/replace-8-module-stdlib-regex-with-comprehensive-set-lookup-using-sys-stdlib-module-names-3-10-with-fallback.md:138
     -> /process-framework/guides/03-testing/testing-guidelines.md  (markdown)
   doc/product-docs/refactoring/plans/archive/replace-bare-except-clauses-in-handler-py-td011.md:10
-    -> linkwatcher/handler.py  (markdown-standalone)
+    -> src/linkwatcher/handler.py  (markdown-standalone)
   doc/product-docs/refactoring/plans/archive/replace-bare-except-clauses-in-handler-py-td011.md:16
-    -> linkwatcher/handler.py  (markdown-standalone)
+    -> src/linkwatcher/handler.py  (markdown-standalone)
   doc/product-docs/refactoring/plans/archive/replace-bare-except-clauses-in-handler-py-td011.md:21
     -> ../../assessments/technical-debt/assessments/handler-module-structural-debt-assessment.md  (markdown)
   doc/product-docs/refactoring/plans/archive/replace-bare-except-clauses-in-handler-py-td011.md:107
     -> /process-framework/assessments/technical-debt/assessments/handler-module-structural-debt-assessment.md  (markdown)
   doc/product-docs/refactoring/plans/archive/replace-bare-except-with-except-exception-in-database-py.md:11
-    -> linkwatcher/database.py  (markdown-standalone)
+    -> src/linkwatcher/database.py  (markdown-standalone)
   doc/product-docs/refactoring/plans/archive/replace-bare-except-with-except-exception-in-database-py.md:16
-    -> linkwatcher/database.py  (markdown-standalone)
+    -> src/linkwatcher/database.py  (markdown-standalone)
   doc/product-docs/refactoring/plans/archive/replace-generic-exception-with-ioerror-in-safe-file-read.md:11
-    -> linkwatcher/utils.py  (markdown-standalone)
+    -> src/linkwatcher/utils.py  (markdown-standalone)
   doc/product-docs/refactoring/plans/archive/replace-generic-exception-with-ioerror-in-safe-file-read.md:16
-    -> linkwatcher/utils.py  (markdown-standalone)
+    -> src/linkwatcher/utils.py  (markdown-standalone)
   doc/product-docs/refactoring/plans/archive/td006-encapsulation-violation-fix.md:106
     -> /process-framework/assessments/technical-debt/assessments/handler-module-structural-debt-assessment.md  (markdown)
   doc/product-docs/refactoring/plans/archive/td008-duplicated-reference-lookup-extraction.md:8
-    -> linkwatcher/handler.py  (markdown-standalone)
+    -> src/linkwatcher/handler.py  (markdown-standalone)
   doc/product-docs/refactoring/plans/archive/td008-duplicated-reference-lookup-extraction.md:16
-    -> linkwatcher/handler.py  (markdown-standalone)
+    -> src/linkwatcher/handler.py  (markdown-standalone)
   doc/product-docs/refactoring/plans/archive/td008-duplicated-reference-lookup-extraction.md:22
     -> /process-framework/assessments/technical-debt/assessments/handler-module-structural-debt-assessment.md  (markdown)
   doc/product-docs/refactoring/plans/archive/td008-duplicated-reference-lookup-extraction.md:155
     -> /process-framework/assessments/technical-debt/assessments/handler-module-structural-debt-assessment.md  (markdown)
   doc/product-docs/refactoring/plans/archive/td020-and-td024-in-updater-py.md:9
-    -> linkwatcher/updater.py  (markdown-standalone)
+    -> src/linkwatcher/updater.py  (markdown-standalone)
   doc/product-docs/refactoring/plans/archive/td020-and-td024-in-updater-py.md:16
-    -> linkwatcher/updater.py  (markdown-standalone)
+    -> src/linkwatcher/updater.py  (markdown-standalone)
   doc/product-docs/refactoring/plans/archive/technical-debt-td001-td004-resolution.md:10
-    -> linkwatcher/config/settings.py  (markdown-standalone)
+    -> src/linkwatcher/config/settings.py  (markdown-standalone)
   doc/product-docs/refactoring/plans/archive/technical-debt-td001-td004-resolution.md:16
-    -> linkwatcher/config/settings.py  (markdown-standalone)
+    -> src/linkwatcher/config/settings.py  (markdown-standalone)
   doc/product-docs/refactoring/plans/archive/technical-debt-td001-td004-resolution.md:50
     -> config/settings.py  (markdown-standalone)
   doc/product-docs/refactoring/plans/archive/technical-debt-td001-td004-resolution.md:140
     -> /process-framework-local/state-tracking/temporary/temp-task-creation-tech-debt-td001-td004-refactoring.md  (markdown)
   doc/product-docs/refactoring/plans/archive/track-and-cancel-per-file-move-detection-timers-in-movedetector.md:9
-    -> linkwatcher/move_detector.py  (markdown-standalone)
+    -> src/linkwatcher/move_detector.py  (markdown-standalone)
   doc/product-docs/refactoring/plans/archive/track-and-cancel-per-file-move-detection-timers-in-movedetector.md:16
-    -> linkwatcher/move_detector.py  (markdown-standalone)
+    -> src/linkwatcher/move_detector.py  (markdown-standalone)
   doc/product-docs/refactoring/plans/archive/unify-duplicate-synthetic-event-classes-in-handler-py-td013.md:9
-    -> linkwatcher/handler.py  (markdown-standalone)
+    -> src/linkwatcher/handler.py  (markdown-standalone)
   doc/product-docs/refactoring/plans/archive/unify-duplicate-synthetic-event-classes-in-handler-py-td013.md:16
-    -> linkwatcher/handler.py  (markdown-standalone)
+    -> src/linkwatcher/handler.py  (markdown-standalone)
   doc/product-docs/refactoring/plans/archive/unify-duplicate-synthetic-event-classes-in-handler-py-td013.md:21
     -> ../../assessments/technical-debt/assessments/handler-module-structural-debt-assessment.md  (markdown)
   doc/product-docs/refactoring/plans/archive/unify-duplicate-synthetic-event-classes-in-handler-py-td013.md:71
@@ -3632,15 +3632,15 @@ Broken links:
   doc/product-docs/state-tracking/features/0.1.1-core-architecture-implementation-state.md:165
     -> test/automated/unit/test_utils.py  (markdown-standalone)
   doc/product-docs/state-tracking/features/0.1.1-core-architecture-implementation-state.md:227
-    -> linkwatcher/database.py  (markdown-standalone)
+    -> src/linkwatcher/database.py  (markdown-standalone)
   doc/product-docs/state-tracking/features/0.1.1-core-architecture-implementation-state.md:229
-    -> linkwatcher/parser.py  (markdown-standalone)
+    -> src/linkwatcher/parser.py  (markdown-standalone)
   doc/product-docs/state-tracking/features/0.1.1-core-architecture-implementation-state.md:230
-    -> linkwatcher/updater.py  (markdown-standalone)
+    -> src/linkwatcher/updater.py  (markdown-standalone)
   doc/product-docs/state-tracking/features/0.1.1-core-architecture-implementation-state.md:231
-    -> linkwatcher/logging.py  (markdown-standalone)
+    -> src/linkwatcher/logging.py  (markdown-standalone)
   doc/product-docs/state-tracking/features/0.1.1-core-architecture-implementation-state.md:232
-    -> linkwatcher/config/settings.py  (markdown-standalone)
+    -> src/linkwatcher/config/settings.py  (markdown-standalone)
   doc/product-docs/state-tracking/features/0.1.1-core-architecture-implementation-state.md:238
     -> test/automated/unit/test_service.py  (markdown-standalone)
   doc/product-docs/state-tracking/features/0.1.1-core-architecture-implementation-state.md:240
@@ -3648,17 +3648,17 @@ Broken links:
   doc/product-docs/state-tracking/features/0.1.1-core-architecture-implementation-state.md:242
     -> scripts/benchmark.py  (markdown-standalone)
   doc/product-docs/state-tracking/features/0.1.1-core-architecture-implementation-state.md:244
-    -> linkwatcher/database.py  (markdown-standalone)
+    -> src/linkwatcher/database.py  (markdown-standalone)
   doc/product-docs/state-tracking/features/0.1.1-core-architecture-implementation-state.md:246
-    -> linkwatcher/parser.py  (markdown-standalone)
+    -> src/linkwatcher/parser.py  (markdown-standalone)
   doc/product-docs/state-tracking/features/0.1.1-core-architecture-implementation-state.md:247
-    -> linkwatcher/updater.py  (markdown-standalone)
+    -> src/linkwatcher/updater.py  (markdown-standalone)
   doc/product-docs/state-tracking/features/0.1.2-in-memory-link-database-implementation-state.md:26
     -> ../temporary/feature-consolidation-state.md  (markdown)
   doc/product-docs/state-tracking/features/0.1.2-in-memory-link-database-implementation-state.md:185
-    -> linkwatcher/models.py  (markdown-standalone)
+    -> src/linkwatcher/models.py  (markdown-standalone)
   doc/product-docs/state-tracking/features/0.1.2-in-memory-link-database-implementation-state.md:186
-    -> linkwatcher/utils.py  (markdown-standalone)
+    -> src/linkwatcher/utils.py  (markdown-standalone)
   doc/product-docs/state-tracking/features/0.1.3-configuration-system-implementation-state.md:26
     -> ../temporary/feature-consolidation-state.md  (markdown)
   doc/product-docs/state-tracking/features/0.1.3-configuration-system-implementation-state.md:116
@@ -3692,35 +3692,35 @@ Broken links:
   doc/product-docs/state-tracking/features/archive/0.1.2-data-models-implementation-state.md:131
     -> ../../../../../HOW_IT_WORKS.md  (markdown)
   doc/product-docs/state-tracking/features/archive/0.1.2-data-models-implementation-state.md:147
-    -> ../../../../linkwatcher/models.py  (markdown)
+    -> ../../../../src/linkwatcher/models.py  (markdown)
   doc/product-docs/state-tracking/features/archive/0.1.2-data-models-implementation-state.md:157
     -> ../../../../tests/unit/test_service.py  (markdown)
   doc/product-docs/state-tracking/features/archive/0.1.2-data-models-implementation-state.md:158
     -> ../../../../tests/unit/test_database.py  (markdown)
   doc/product-docs/state-tracking/features/archive/0.1.2-data-models-implementation-state.md:220
-    -> ../../../../linkwatcher/__init__.py  (markdown)
+    -> ../../../../src/linkwatcher/__init__.py  (markdown)
   doc/product-docs/state-tracking/features/archive/0.1.2-data-models-implementation-state.md:221
-    -> ../../../../linkwatcher/database.py  (markdown)
+    -> ../../../../src/linkwatcher/database.py  (markdown)
   doc/product-docs/state-tracking/features/archive/0.1.2-data-models-implementation-state.md:222
-    -> ../../../../linkwatcher/handler.py  (markdown)
+    -> ../../../../src/linkwatcher/handler.py  (markdown)
   doc/product-docs/state-tracking/features/archive/0.1.2-data-models-implementation-state.md:223
-    -> ../../../../linkwatcher/parser.py  (markdown)
+    -> ../../../../src/linkwatcher/parser.py  (markdown)
   doc/product-docs/state-tracking/features/archive/0.1.2-data-models-implementation-state.md:224
-    -> ../../../../linkwatcher/updater.py  (markdown)
+    -> ../../../../src/linkwatcher/updater.py  (markdown)
   doc/product-docs/state-tracking/features/archive/0.1.2-data-models-implementation-state.md:225
-    -> ../../../../linkwatcher/parsers/base.py  (markdown)
+    -> ../../../../src/linkwatcher/parsers/base.py  (markdown)
   doc/product-docs/state-tracking/features/archive/0.1.2-data-models-implementation-state.md:226
-    -> ../../../../linkwatcher/parsers/markdown.py  (markdown)
+    -> ../../../../src/linkwatcher/parsers/markdown.py  (markdown)
   doc/product-docs/state-tracking/features/archive/0.1.2-data-models-implementation-state.md:227
-    -> ../../../../linkwatcher/parsers/yaml_parser.py  (markdown)
+    -> ../../../../src/linkwatcher/parsers/yaml_parser.py  (markdown)
   doc/product-docs/state-tracking/features/archive/0.1.2-data-models-implementation-state.md:228
-    -> ../../../../linkwatcher/parsers/json_parser.py  (markdown)
+    -> ../../../../src/linkwatcher/parsers/json_parser.py  (markdown)
   doc/product-docs/state-tracking/features/archive/0.1.2-data-models-implementation-state.md:229
-    -> ../../../../linkwatcher/parsers/python.py  (markdown)
+    -> ../../../../src/linkwatcher/parsers/python.py  (markdown)
   doc/product-docs/state-tracking/features/archive/0.1.2-data-models-implementation-state.md:230
-    -> ../../../../linkwatcher/parsers/dart.py  (markdown)
+    -> ../../../../src/linkwatcher/parsers/dart.py  (markdown)
   doc/product-docs/state-tracking/features/archive/0.1.2-data-models-implementation-state.md:231
-    -> ../../../../linkwatcher/parsers/generic.py  (markdown)
+    -> ../../../../src/linkwatcher/parsers/generic.py  (markdown)
   doc/product-docs/state-tracking/features/archive/0.1.3-in-memory-database-implementation-state.md:16
     -> ../../guides/guides/04-implementation/feature-implementation-state-tracking-guide.md  (markdown)
   doc/product-docs/state-tracking/features/archive/0.1.3-in-memory-database-implementation-state.md:18
@@ -3732,19 +3732,19 @@ Broken links:
   doc/product-docs/state-tracking/features/archive/0.1.3-in-memory-database-implementation-state.md:136
     -> ../../../../../HOW_IT_WORKS.md  (markdown)
   doc/product-docs/state-tracking/features/archive/0.1.3-in-memory-database-implementation-state.md:152
-    -> ../../../../linkwatcher/database.py  (markdown)
+    -> ../../../../src/linkwatcher/database.py  (markdown)
   doc/product-docs/state-tracking/features/archive/0.1.3-in-memory-database-implementation-state.md:162
     -> ../../../../tests/unit/test_database.py  (markdown)
   doc/product-docs/state-tracking/features/archive/0.1.3-in-memory-database-implementation-state.md:214
-    -> ../../../../linkwatcher/models.py  (markdown)
+    -> ../../../../src/linkwatcher/models.py  (markdown)
   doc/product-docs/state-tracking/features/archive/0.1.3-in-memory-database-implementation-state.md:215
-    -> ../../../../linkwatcher/logging.py  (markdown)
+    -> ../../../../src/linkwatcher/logging.py  (markdown)
   doc/product-docs/state-tracking/features/archive/0.1.3-in-memory-database-implementation-state.md:223
-    -> ../../../../linkwatcher/__init__.py  (markdown)
+    -> ../../../../src/linkwatcher/__init__.py  (markdown)
   doc/product-docs/state-tracking/features/archive/0.1.3-in-memory-database-implementation-state.md:224
-    -> ../../../../linkwatcher/service.py  (markdown)
+    -> ../../../../src/linkwatcher/service.py  (markdown)
   doc/product-docs/state-tracking/features/archive/0.1.3-in-memory-database-implementation-state.md:225
-    -> ../../../../linkwatcher/handler.py  (markdown)
+    -> ../../../../src/linkwatcher/handler.py  (markdown)
   doc/product-docs/state-tracking/features/archive/0.1.4-configuration-system-implementation-state.md:16
     -> ../../guides/guides/04-implementation/feature-implementation-state-tracking-guide.md  (markdown)
   doc/product-docs/state-tracking/features/archive/0.1.4-configuration-system-implementation-state.md:18
@@ -3758,11 +3758,11 @@ Broken links:
   doc/product-docs/state-tracking/features/archive/0.1.4-configuration-system-implementation-state.md:138
     -> ../../../../../QUICK_REFERENCE.md  (markdown)
   doc/product-docs/state-tracking/features/archive/0.1.4-configuration-system-implementation-state.md:154
-    -> ../../../../linkwatcher/config/__init__.py  (markdown)
+    -> ../../../../src/linkwatcher/config/__init__.py  (markdown)
   doc/product-docs/state-tracking/features/archive/0.1.4-configuration-system-implementation-state.md:155
     -> ../../../../linkwatcher/config/defaults.py  (markdown)
   doc/product-docs/state-tracking/features/archive/0.1.4-configuration-system-implementation-state.md:156
-    -> ../../../../linkwatcher/config/settings.py  (markdown)
+    -> ../../../../src/linkwatcher/config/settings.py  (markdown)
   doc/product-docs/state-tracking/features/archive/0.1.4-configuration-system-implementation-state.md:166
     -> ../../../../tests/unit/test_config.py  (markdown)
   doc/product-docs/state-tracking/features/archive/0.1.4-configuration-system-implementation-state.md:167
@@ -3790,15 +3790,15 @@ Broken links:
   doc/product-docs/state-tracking/features/archive/0.1.5-path-utilities-implementation-state.md:133
     -> ../../../../../HOW_IT_WORKS.md  (markdown)
   doc/product-docs/state-tracking/features/archive/0.1.5-path-utilities-implementation-state.md:149
-    -> ../../../../linkwatcher/utils.py  (markdown)
+    -> ../../../../src/linkwatcher/utils.py  (markdown)
   doc/product-docs/state-tracking/features/archive/0.1.5-path-utilities-implementation-state.md:159
     -> ../../../../tests/unit/test_service.py  (markdown)
   doc/product-docs/state-tracking/features/archive/0.1.5-path-utilities-implementation-state.md:160
     -> ../../../../tests/integration/test_file_movement.py  (markdown)
   doc/product-docs/state-tracking/features/archive/0.1.5-path-utilities-implementation-state.md:210
-    -> ../../../../linkwatcher/handler.py  (markdown)
+    -> ../../../../src/linkwatcher/handler.py  (markdown)
   doc/product-docs/state-tracking/features/archive/0.1.5-path-utilities-implementation-state.md:211
-    -> ../../../../linkwatcher/parsers/base.py  (markdown)
+    -> ../../../../src/linkwatcher/parsers/base.py  (markdown)
   doc/product-docs/state-tracking/features/archive/1.1.1-watchdog-integration-implementation-state.md:16
     -> ../../guides/guides/04-implementation/feature-implementation-state-tracking-guide.md  (markdown)
   doc/product-docs/state-tracking/features/archive/1.1.1-watchdog-integration-implementation-state.md:18
@@ -3810,13 +3810,13 @@ Broken links:
   doc/product-docs/state-tracking/features/archive/1.1.1-watchdog-integration-implementation-state.md:130
     -> ../../../../../HOW_IT_WORKS.md  (markdown)
   doc/product-docs/state-tracking/features/archive/1.1.1-watchdog-integration-implementation-state.md:146
-    -> ../../../../linkwatcher/service.py  (markdown)
+    -> ../../../../src/linkwatcher/service.py  (markdown)
   doc/product-docs/state-tracking/features/archive/1.1.1-watchdog-integration-implementation-state.md:156
     -> ../../../../tests/unit/test_service.py  (markdown)
   doc/product-docs/state-tracking/features/archive/1.1.1-watchdog-integration-implementation-state.md:157
     -> ../../../../tests/integration/test_service_integration.py  (markdown)
   doc/product-docs/state-tracking/features/archive/1.1.1-watchdog-integration-implementation-state.md:203
-    -> ../../../../linkwatcher/handler.py  (markdown)
+    -> ../../../../src/linkwatcher/handler.py  (markdown)
   doc/product-docs/state-tracking/features/archive/1.1.1-watchdog-integration-implementation-state.md:211
     -> ../../../../tests/unit/test_service.py  (markdown)
   doc/product-docs/state-tracking/features/archive/1.1.1-watchdog-integration-implementation-state.md:212
@@ -3840,7 +3840,7 @@ Broken links:
   doc/product-docs/state-tracking/features/archive/1.1.2-event-handler-implementation-state.md:137
     -> ../../../../../HOW_IT_WORKS.md  (markdown)
   doc/product-docs/state-tracking/features/archive/1.1.2-event-handler-implementation-state.md:153
-    -> ../../../../linkwatcher/handler.py  (markdown)
+    -> ../../../../src/linkwatcher/handler.py  (markdown)
   doc/product-docs/state-tracking/features/archive/1.1.2-event-handler-implementation-state.md:154
     -> ../../../../debug/debug_directory_handler.py  (markdown)
   doc/product-docs/state-tracking/features/archive/1.1.2-event-handler-implementation-state.md:155
@@ -3860,17 +3860,17 @@ Broken links:
   doc/product-docs/state-tracking/features/archive/1.1.2-event-handler-implementation-state.md:171
     -> ../../../../tests/integration/test_windows_platform.py  (markdown)
   doc/product-docs/state-tracking/features/archive/1.1.2-event-handler-implementation-state.md:238
-    -> ../../../../linkwatcher/handler.py  (markdown)
+    -> ../../../../src/linkwatcher/handler.py  (markdown)
   doc/product-docs/state-tracking/features/archive/1.1.2-event-handler-implementation-state.md:239
-    -> ../../../../linkwatcher/database.py  (markdown)
+    -> ../../../../src/linkwatcher/database.py  (markdown)
   doc/product-docs/state-tracking/features/archive/1.1.2-event-handler-implementation-state.md:240
-    -> ../../../../linkwatcher/updater.py  (markdown)
+    -> ../../../../src/linkwatcher/updater.py  (markdown)
   doc/product-docs/state-tracking/features/archive/1.1.2-event-handler-implementation-state.md:241
-    -> ../../../../linkwatcher/parser.py  (markdown)
+    -> ../../../../src/linkwatcher/parser.py  (markdown)
   doc/product-docs/state-tracking/features/archive/1.1.2-event-handler-implementation-state.md:242
-    -> ../../../../linkwatcher/utils.py  (markdown)
+    -> ../../../../src/linkwatcher/utils.py  (markdown)
   doc/product-docs/state-tracking/features/archive/1.1.2-event-handler-implementation-state.md:250
-    -> ../../../../linkwatcher/service.py  (markdown)
+    -> ../../../../src/linkwatcher/service.py  (markdown)
   doc/product-docs/state-tracking/features/archive/1.1.2-event-handler-implementation-state.md:251
     -> ../../../../tests/unit/test_handler.py  (markdown)
   doc/product-docs/state-tracking/features/archive/1.1.2-event-handler-implementation-state.md:252
@@ -3888,21 +3888,21 @@ Broken links:
   doc/product-docs/state-tracking/features/archive/1.1.3-initial-scan-implementation-state.md:132
     -> ../../../../../HOW_IT_WORKS.md  (markdown)
   doc/product-docs/state-tracking/features/archive/1.1.3-initial-scan-implementation-state.md:148
-    -> ../../../../linkwatcher/service.py  (markdown)
+    -> ../../../../src/linkwatcher/service.py  (markdown)
   doc/product-docs/state-tracking/features/archive/1.1.3-initial-scan-implementation-state.md:158
     -> ../../../../tests/unit/test_service.py  (markdown)
   doc/product-docs/state-tracking/features/archive/1.1.3-initial-scan-implementation-state.md:159
     -> ../../../../tests/integration/test_service_integration.py  (markdown)
   doc/product-docs/state-tracking/features/archive/1.1.3-initial-scan-implementation-state.md:218
-    -> ../../../../linkwatcher/service.py  (markdown)
+    -> ../../../../src/linkwatcher/service.py  (markdown)
   doc/product-docs/state-tracking/features/archive/1.1.3-initial-scan-implementation-state.md:219
-    -> ../../../../linkwatcher/database.py  (markdown)
+    -> ../../../../src/linkwatcher/database.py  (markdown)
   doc/product-docs/state-tracking/features/archive/1.1.3-initial-scan-implementation-state.md:220
-    -> ../../../../linkwatcher/parser.py  (markdown)
+    -> ../../../../src/linkwatcher/parser.py  (markdown)
   doc/product-docs/state-tracking/features/archive/1.1.3-initial-scan-implementation-state.md:221
-    -> ../../../../linkwatcher/handler.py  (markdown)
+    -> ../../../../src/linkwatcher/handler.py  (markdown)
   doc/product-docs/state-tracking/features/archive/1.1.3-initial-scan-implementation-state.md:229
-    -> ../../../../linkwatcher/service.py  (markdown)
+    -> ../../../../src/linkwatcher/service.py  (markdown)
   doc/product-docs/state-tracking/features/archive/1.1.3-initial-scan-implementation-state.md:230
     -> ../../../../tests/unit/test_service.py  (markdown)
   doc/product-docs/state-tracking/features/archive/1.1.3-initial-scan-implementation-state.md:231
@@ -3924,7 +3924,7 @@ Broken links:
   doc/product-docs/state-tracking/features/archive/1.1.4-file-filtering-implementation-state.md:130
     -> ../../../../../docs/TROUBLESHOOTING_FILE_TYPES.md  (markdown)
   doc/product-docs/state-tracking/features/archive/1.1.4-file-filtering-implementation-state.md:146
-    -> ../../../../linkwatcher/handler.py  (markdown)
+    -> ../../../../src/linkwatcher/handler.py  (markdown)
   doc/product-docs/state-tracking/features/archive/1.1.4-file-filtering-implementation-state.md:156
     -> ../../../../tests/integration/test_comprehensive_file_monitoring.py  (markdown)
   doc/product-docs/state-tracking/features/archive/1.1.4-file-filtering-implementation-state.md:157
@@ -3932,17 +3932,17 @@ Broken links:
   doc/product-docs/state-tracking/features/archive/1.1.4-file-filtering-implementation-state.md:158
     -> ../../../../tests/integration/test_powershell_script_monitoring.py  (markdown)
   doc/product-docs/state-tracking/features/archive/1.1.4-file-filtering-implementation-state.md:208
-    -> ../../../../linkwatcher/handler.py  (markdown)
+    -> ../../../../src/linkwatcher/handler.py  (markdown)
   doc/product-docs/state-tracking/features/archive/1.1.4-file-filtering-implementation-state.md:209
-    -> ../../../../linkwatcher/utils.py  (markdown)
+    -> ../../../../src/linkwatcher/utils.py  (markdown)
   doc/product-docs/state-tracking/features/archive/1.1.4-file-filtering-implementation-state.md:210
-    -> ../../../../linkwatcher/config/settings.py  (markdown)
+    -> ../../../../src/linkwatcher/config/settings.py  (markdown)
   doc/product-docs/state-tracking/features/archive/1.1.4-file-filtering-implementation-state.md:211
-    -> ../../../../linkwatcher/service.py  (markdown)
+    -> ../../../../src/linkwatcher/service.py  (markdown)
   doc/product-docs/state-tracking/features/archive/1.1.4-file-filtering-implementation-state.md:219
-    -> ../../../../linkwatcher/handler.py  (markdown)
+    -> ../../../../src/linkwatcher/handler.py  (markdown)
   doc/product-docs/state-tracking/features/archive/1.1.4-file-filtering-implementation-state.md:220
-    -> ../../../../linkwatcher/service.py  (markdown)
+    -> ../../../../src/linkwatcher/service.py  (markdown)
   doc/product-docs/state-tracking/features/archive/1.1.4-file-filtering-implementation-state.md:221
     -> ../../../../tests/integration/test_comprehensive_file_monitoring.py  (markdown)
   doc/product-docs/state-tracking/features/archive/1.1.4-file-filtering-implementation-state.md:222
@@ -3960,7 +3960,7 @@ Broken links:
   doc/product-docs/state-tracking/features/archive/1.1.5-real-time-monitoring-implementation-state.md:131
     -> ../../../../../HOW_IT_WORKS.md  (markdown)
   doc/product-docs/state-tracking/features/archive/1.1.5-real-time-monitoring-implementation-state.md:147
-    -> ../../../../linkwatcher/service.py  (markdown)
+    -> ../../../../src/linkwatcher/service.py  (markdown)
   doc/product-docs/state-tracking/features/archive/1.1.5-real-time-monitoring-implementation-state.md:148
     -> ../../../../LinkWatcher/start_linkwatcher_background.ps1  (markdown)
   doc/product-docs/state-tracking/features/archive/1.1.5-real-time-monitoring-implementation-state.md:149
@@ -3978,17 +3978,17 @@ Broken links:
   doc/product-docs/state-tracking/features/archive/1.1.5-real-time-monitoring-implementation-state.md:164
     -> ../../../../tests/integration/test_error_handling.py  (markdown)
   doc/product-docs/state-tracking/features/archive/1.1.5-real-time-monitoring-implementation-state.md:213
-    -> ../../../../linkwatcher/service.py  (markdown)
+    -> ../../../../src/linkwatcher/service.py  (markdown)
   doc/product-docs/state-tracking/features/archive/1.1.5-real-time-monitoring-implementation-state.md:214
-    -> ../../../../linkwatcher/handler.py  (markdown)
+    -> ../../../../src/linkwatcher/handler.py  (markdown)
   doc/product-docs/state-tracking/features/archive/1.1.5-real-time-monitoring-implementation-state.md:215
-    -> ../../../../linkwatcher/database.py  (markdown)
+    -> ../../../../src/linkwatcher/database.py  (markdown)
   doc/product-docs/state-tracking/features/archive/1.1.5-real-time-monitoring-implementation-state.md:216
-    -> ../../../../linkwatcher/parser.py  (markdown)
+    -> ../../../../src/linkwatcher/parser.py  (markdown)
   doc/product-docs/state-tracking/features/archive/1.1.5-real-time-monitoring-implementation-state.md:217
-    -> ../../../../linkwatcher/updater.py  (markdown)
+    -> ../../../../src/linkwatcher/updater.py  (markdown)
   doc/product-docs/state-tracking/features/archive/1.1.5-real-time-monitoring-implementation-state.md:218
-    -> ../../../../linkwatcher/logging.py  (markdown)
+    -> ../../../../src/linkwatcher/logging.py  (markdown)
   doc/product-docs/state-tracking/features/archive/1.1.5-real-time-monitoring-implementation-state.md:226
     -> ../../../../main.py  (markdown)
   doc/product-docs/state-tracking/features/archive/1.1.5-real-time-monitoring-implementation-state.md:227
@@ -4024,41 +4024,41 @@ Broken links:
   doc/product-docs/state-tracking/features/archive/2.1.1-parser-framework-implementation-state.md:131
     -> ../../../../../HOW_IT_WORKS.md  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.1-parser-framework-implementation-state.md:147
-    -> ../../../../linkwatcher/parser.py  (markdown)
+    -> ../../../../src/linkwatcher/parser.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.1-parser-framework-implementation-state.md:148
-    -> ../../../../linkwatcher/parsers/__init__.py  (markdown)
+    -> ../../../../src/linkwatcher/parsers/__init__.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.1-parser-framework-implementation-state.md:149
-    -> ../../../../linkwatcher/parsers/base.py  (markdown)
+    -> ../../../../src/linkwatcher/parsers/base.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.1-parser-framework-implementation-state.md:159
     -> ../../../../tests/unit/test_parser.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.1-parser-framework-implementation-state.md:225
-    -> ../../../../linkwatcher/models.py  (markdown)
+    -> ../../../../src/linkwatcher/models.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.1-parser-framework-implementation-state.md:226
-    -> ../../../../linkwatcher/logging.py  (markdown)
+    -> ../../../../src/linkwatcher/logging.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.1-parser-framework-implementation-state.md:227
-    -> ../../../../linkwatcher/utils.py  (markdown)
+    -> ../../../../src/linkwatcher/utils.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.1-parser-framework-implementation-state.md:228
-    -> ../../../../linkwatcher/parsers/markdown.py  (markdown)
+    -> ../../../../src/linkwatcher/parsers/markdown.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.1-parser-framework-implementation-state.md:228
     -> .md/.markdown  (markdown-standalone)
   doc/product-docs/state-tracking/features/archive/2.1.1-parser-framework-implementation-state.md:229
-    -> ../../../../linkwatcher/parsers/yaml_parser.py  (markdown)
+    -> ../../../../src/linkwatcher/parsers/yaml_parser.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.1-parser-framework-implementation-state.md:229
     -> .yaml/.yml  (markdown-standalone)
   doc/product-docs/state-tracking/features/archive/2.1.1-parser-framework-implementation-state.md:230
-    -> ../../../../linkwatcher/parsers/json_parser.py  (markdown)
+    -> ../../../../src/linkwatcher/parsers/json_parser.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.1-parser-framework-implementation-state.md:231
-    -> ../../../../linkwatcher/parsers/python.py  (markdown)
+    -> ../../../../src/linkwatcher/parsers/python.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.1-parser-framework-implementation-state.md:232
-    -> ../../../../linkwatcher/parsers/dart.py  (markdown)
+    -> ../../../../src/linkwatcher/parsers/dart.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.1-parser-framework-implementation-state.md:233
-    -> ../../../../linkwatcher/parsers/generic.py  (markdown)
+    -> ../../../../src/linkwatcher/parsers/generic.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.1-parser-framework-implementation-state.md:241
-    -> ../../../../linkwatcher/__init__.py  (markdown)
+    -> ../../../../src/linkwatcher/__init__.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.1-parser-framework-implementation-state.md:242
-    -> ../../../../linkwatcher/service.py  (markdown)
+    -> ../../../../src/linkwatcher/service.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.1-parser-framework-implementation-state.md:243
-    -> ../../../../linkwatcher/handler.py  (markdown)
+    -> ../../../../src/linkwatcher/handler.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.1-parser-framework-implementation-state.md:244
     -> ../../../../scripts/check_links.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.1-parser-framework-implementation-state.md:245
@@ -4086,7 +4086,7 @@ Broken links:
   doc/product-docs/state-tracking/features/archive/2.1.2-markdown-parser-implementation-state.md:127
     -> ../../../../../MARKDOWN_TEST_CASES_SUMMARY.md  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.2-markdown-parser-implementation-state.md:143
-    -> ../../../../linkwatcher/parsers/markdown.py  (markdown)
+    -> ../../../../src/linkwatcher/parsers/markdown.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.2-markdown-parser-implementation-state.md:153
     -> ../../../../tests/parsers/test_markdown.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.2-markdown-parser-implementation-state.md:154
@@ -4096,13 +4096,13 @@ Broken links:
   doc/product-docs/state-tracking/features/archive/2.1.2-markdown-parser-implementation-state.md:156
     -> ../../../../manual_markdown_tests/test_runner.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.2-markdown-parser-implementation-state.md:204
-    -> ../../../../linkwatcher/parsers/base.py  (markdown)
+    -> ../../../../src/linkwatcher/parsers/base.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.2-markdown-parser-implementation-state.md:205
-    -> ../../../../linkwatcher/models.py  (markdown)
+    -> ../../../../src/linkwatcher/models.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.2-markdown-parser-implementation-state.md:213
-    -> ../../../../linkwatcher/parser.py  (markdown)
+    -> ../../../../src/linkwatcher/parser.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.2-markdown-parser-implementation-state.md:214
-    -> ../../../../linkwatcher/parsers/__init__.py  (markdown)
+    -> ../../../../src/linkwatcher/parsers/__init__.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.2-markdown-parser-implementation-state.md:215
     -> ../../../../tests/parsers/test_markdown.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.2-markdown-parser-implementation-state.md:216
@@ -4120,21 +4120,21 @@ Broken links:
   doc/product-docs/state-tracking/features/archive/2.1.3-yaml-parser-implementation-state.md:122
     -> ../../../../../HOW_IT_WORKS.md  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.3-yaml-parser-implementation-state.md:138
-    -> ../../../../linkwatcher/parsers/yaml_parser.py  (markdown)
+    -> ../../../../src/linkwatcher/parsers/yaml_parser.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.3-yaml-parser-implementation-state.md:148
     -> ../../../../tests/parsers/test_yaml.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.3-yaml-parser-implementation-state.md:149
     -> ../../../../tests/fixtures/sample_config.yaml  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.3-yaml-parser-implementation-state.md:203
-    -> ../../../../linkwatcher/parsers/base.py  (markdown)
+    -> ../../../../src/linkwatcher/parsers/base.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.3-yaml-parser-implementation-state.md:204
-    -> ../../../../linkwatcher/parsers/generic.py  (markdown)
+    -> ../../../../src/linkwatcher/parsers/generic.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.3-yaml-parser-implementation-state.md:205
-    -> ../../../../linkwatcher/models.py  (markdown)
+    -> ../../../../src/linkwatcher/models.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.3-yaml-parser-implementation-state.md:213
-    -> ../../../../linkwatcher/parser.py  (markdown)
+    -> ../../../../src/linkwatcher/parser.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.3-yaml-parser-implementation-state.md:214
-    -> ../../../../linkwatcher/parsers/__init__.py  (markdown)
+    -> ../../../../src/linkwatcher/parsers/__init__.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.3-yaml-parser-implementation-state.md:215
     -> ../../../../tests/parsers/test_yaml.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.4-json-parser-implementation-state.md:16
@@ -4148,21 +4148,21 @@ Broken links:
   doc/product-docs/state-tracking/features/archive/2.1.4-json-parser-implementation-state.md:120
     -> ../../../../../HOW_IT_WORKS.md  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.4-json-parser-implementation-state.md:136
-    -> ../../../../linkwatcher/parsers/json_parser.py  (markdown)
+    -> ../../../../src/linkwatcher/parsers/json_parser.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.4-json-parser-implementation-state.md:146
     -> ../../../../tests/parsers/test_json.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.4-json-parser-implementation-state.md:147
     -> ../../../../tests/fixtures/sample_data.json  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.4-json-parser-implementation-state.md:199
-    -> ../../../../linkwatcher/parsers/base.py  (markdown)
+    -> ../../../../src/linkwatcher/parsers/base.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.4-json-parser-implementation-state.md:200
-    -> ../../../../linkwatcher/parsers/generic.py  (markdown)
+    -> ../../../../src/linkwatcher/parsers/generic.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.4-json-parser-implementation-state.md:201
-    -> ../../../../linkwatcher/models.py  (markdown)
+    -> ../../../../src/linkwatcher/models.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.4-json-parser-implementation-state.md:209
-    -> ../../../../linkwatcher/parser.py  (markdown)
+    -> ../../../../src/linkwatcher/parser.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.4-json-parser-implementation-state.md:210
-    -> ../../../../linkwatcher/parsers/__init__.py  (markdown)
+    -> ../../../../src/linkwatcher/parsers/__init__.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.4-json-parser-implementation-state.md:211
     -> ../../../../tests/parsers/test_json.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.5-python-parser-implementation-state.md:16
@@ -4176,7 +4176,7 @@ Broken links:
   doc/product-docs/state-tracking/features/archive/2.1.5-python-parser-implementation-state.md:123
     -> ../../../../../HOW_IT_WORKS.md  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.5-python-parser-implementation-state.md:139
-    -> ../../../../linkwatcher/parsers/python.py  (markdown)
+    -> ../../../../src/linkwatcher/parsers/python.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.5-python-parser-implementation-state.md:140
     -> ../../../../debug/test_python_imports.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.5-python-parser-implementation-state.md:141
@@ -4184,13 +4184,13 @@ Broken links:
   doc/product-docs/state-tracking/features/archive/2.1.5-python-parser-implementation-state.md:151
     -> ../../../../tests/parsers/test_python.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.5-python-parser-implementation-state.md:198
-    -> ../../../../linkwatcher/parsers/base.py  (markdown)
+    -> ../../../../src/linkwatcher/parsers/base.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.5-python-parser-implementation-state.md:199
-    -> ../../../../linkwatcher/models.py  (markdown)
+    -> ../../../../src/linkwatcher/models.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.5-python-parser-implementation-state.md:207
-    -> ../../../../linkwatcher/parser.py  (markdown)
+    -> ../../../../src/linkwatcher/parser.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.5-python-parser-implementation-state.md:208
-    -> ../../../../linkwatcher/parsers/__init__.py  (markdown)
+    -> ../../../../src/linkwatcher/parsers/__init__.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.5-python-parser-implementation-state.md:209
     -> ../../../../tests/parsers/test_python.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.5-python-parser-implementation-state.md:210
@@ -4206,17 +4206,17 @@ Broken links:
   doc/product-docs/state-tracking/features/archive/2.1.6-dart-parser-implementation-state.md:124
     -> ../../../../../HOW_IT_WORKS.md  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.6-dart-parser-implementation-state.md:140
-    -> ../../../../linkwatcher/parsers/dart.py  (markdown)
+    -> ../../../../src/linkwatcher/parsers/dart.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.6-dart-parser-implementation-state.md:150
     -> ../../../../tests/parsers/test_dart.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.6-dart-parser-implementation-state.md:197
-    -> ../../../../linkwatcher/parsers/base.py  (markdown)
+    -> ../../../../src/linkwatcher/parsers/base.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.6-dart-parser-implementation-state.md:198
-    -> ../../../../linkwatcher/models.py  (markdown)
+    -> ../../../../src/linkwatcher/models.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.6-dart-parser-implementation-state.md:206
-    -> ../../../../linkwatcher/parser.py  (markdown)
+    -> ../../../../src/linkwatcher/parser.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.6-dart-parser-implementation-state.md:207
-    -> ../../../../linkwatcher/parsers/__init__.py  (markdown)
+    -> ../../../../src/linkwatcher/parsers/__init__.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.6-dart-parser-implementation-state.md:208
     -> ../../../../tests/parsers/test_dart.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.7-generic-parser-implementation-state.md:16
@@ -4230,21 +4230,21 @@ Broken links:
   doc/product-docs/state-tracking/features/archive/2.1.7-generic-parser-implementation-state.md:122
     -> ../../../../../HOW_IT_WORKS.md  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.7-generic-parser-implementation-state.md:138
-    -> ../../../../linkwatcher/parsers/generic.py  (markdown)
+    -> ../../../../src/linkwatcher/parsers/generic.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.7-generic-parser-implementation-state.md:148
     -> ../../../../tests/parsers/test_generic.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.7-generic-parser-implementation-state.md:202
-    -> ../../../../linkwatcher/parsers/base.py  (markdown)
+    -> ../../../../src/linkwatcher/parsers/base.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.7-generic-parser-implementation-state.md:203
-    -> ../../../../linkwatcher/models.py  (markdown)
+    -> ../../../../src/linkwatcher/models.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.7-generic-parser-implementation-state.md:211
-    -> ../../../../linkwatcher/parser.py  (markdown)
+    -> ../../../../src/linkwatcher/parser.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.7-generic-parser-implementation-state.md:212
-    -> ../../../../linkwatcher/parsers/__init__.py  (markdown)
+    -> ../../../../src/linkwatcher/parsers/__init__.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.7-generic-parser-implementation-state.md:213
-    -> ../../../../linkwatcher/parsers/yaml_parser.py  (markdown)
+    -> ../../../../src/linkwatcher/parsers/yaml_parser.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.7-generic-parser-implementation-state.md:214
-    -> ../../../../linkwatcher/parsers/json_parser.py  (markdown)
+    -> ../../../../src/linkwatcher/parsers/json_parser.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.7-generic-parser-implementation-state.md:215
     -> ../../../../tests/parsers/test_generic.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.1.7-generic-parser-implementation-state.md:216
@@ -4260,7 +4260,7 @@ Broken links:
   doc/product-docs/state-tracking/features/archive/2.2.1-link-updater-implementation-state.md:126
     -> ../../../../../HOW_IT_WORKS.md  (markdown)
   doc/product-docs/state-tracking/features/archive/2.2.1-link-updater-implementation-state.md:142
-    -> ../../../../linkwatcher/updater.py  (markdown)
+    -> ../../../../src/linkwatcher/updater.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.2.1-link-updater-implementation-state.md:143
     -> ../../../../scripts/check_links.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.2.1-link-updater-implementation-state.md:144
@@ -4270,15 +4270,15 @@ Broken links:
   doc/product-docs/state-tracking/features/archive/2.2.1-link-updater-implementation-state.md:155
     -> ../../../../tests/integration/test_link_updates.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.2.1-link-updater-implementation-state.md:208
-    -> ../../../../linkwatcher/models.py  (markdown)
+    -> ../../../../src/linkwatcher/models.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.2.1-link-updater-implementation-state.md:209
-    -> ../../../../linkwatcher/logging.py  (markdown)
+    -> ../../../../src/linkwatcher/logging.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.2.1-link-updater-implementation-state.md:217
-    -> ../../../../linkwatcher/__init__.py  (markdown)
+    -> ../../../../src/linkwatcher/__init__.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.2.1-link-updater-implementation-state.md:218
-    -> ../../../../linkwatcher/service.py  (markdown)
+    -> ../../../../src/linkwatcher/service.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.2.1-link-updater-implementation-state.md:219
-    -> ../../../../linkwatcher/handler.py  (markdown)
+    -> ../../../../src/linkwatcher/handler.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.2.1-link-updater-implementation-state.md:220
     -> ../../../../tests/unit/test_updater.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.2.1-link-updater-implementation-state.md:221
@@ -4304,13 +4304,13 @@ Broken links:
   doc/product-docs/state-tracking/features/archive/2.2.2-relative-path-calculation-implementation-state.md:124
     -> ../../../../../HOW_IT_WORKS.md  (markdown)
   doc/product-docs/state-tracking/features/archive/2.2.2-relative-path-calculation-implementation-state.md:144
-    -> ../../../../linkwatcher/updater.py  (markdown)
+    -> ../../../../src/linkwatcher/updater.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.2.2-relative-path-calculation-implementation-state.md:150
     -> ../../../../tests/unit/test_updater.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.2.2-relative-path-calculation-implementation-state.md:151
     -> ../../../../tests/integration/test_link_updates.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.2.2-relative-path-calculation-implementation-state.md:197
-    -> ../../../../linkwatcher/models.py  (markdown)
+    -> ../../../../src/linkwatcher/models.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.2.3-anchor-preservation-implementation-state.md:16
     -> ../../guides/guides/04-implementation/feature-implementation-state-tracking-guide.md  (markdown)
   doc/product-docs/state-tracking/features/archive/2.2.3-anchor-preservation-implementation-state.md:18
@@ -4322,15 +4322,15 @@ Broken links:
   doc/product-docs/state-tracking/features/archive/2.2.3-anchor-preservation-implementation-state.md:121
     -> ../../../../../HOW_IT_WORKS.md  (markdown)
   doc/product-docs/state-tracking/features/archive/2.2.3-anchor-preservation-implementation-state.md:141
-    -> ../../../../linkwatcher/updater.py  (markdown)
+    -> ../../../../src/linkwatcher/updater.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.2.3-anchor-preservation-implementation-state.md:147
     -> ../../../../tests/unit/test_updater.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.2.3-anchor-preservation-implementation-state.md:148
     -> ../../../../tests/integration/test_link_updates.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.2.3-anchor-preservation-implementation-state.md:194
-    -> ../../../../linkwatcher/updater.py  (markdown)
+    -> ../../../../src/linkwatcher/updater.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.2.3-anchor-preservation-implementation-state.md:195
-    -> ../../../../linkwatcher/models.py  (markdown)
+    -> ../../../../src/linkwatcher/models.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.2.4-dry-run-mode-implementation-state.md:16
     -> ../../guides/guides/04-implementation/feature-implementation-state-tracking-guide.md  (markdown)
   doc/product-docs/state-tracking/features/archive/2.2.4-dry-run-mode-implementation-state.md:18
@@ -4344,9 +4344,9 @@ Broken links:
   doc/product-docs/state-tracking/features/archive/2.2.4-dry-run-mode-implementation-state.md:125
     -> ../../../../../QUICK_REFERENCE.md  (markdown)
   doc/product-docs/state-tracking/features/archive/2.2.4-dry-run-mode-implementation-state.md:145
-    -> ../../../../linkwatcher/service.py  (markdown)
+    -> ../../../../src/linkwatcher/service.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.2.4-dry-run-mode-implementation-state.md:146
-    -> ../../../../linkwatcher/updater.py  (markdown)
+    -> ../../../../src/linkwatcher/updater.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.2.4-dry-run-mode-implementation-state.md:147
     -> ../../../../main.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.2.4-dry-run-mode-implementation-state.md:153
@@ -4354,13 +4354,13 @@ Broken links:
   doc/product-docs/state-tracking/features/archive/2.2.4-dry-run-mode-implementation-state.md:154
     -> ../../../../tests/integration/test_service_integration.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.2.4-dry-run-mode-implementation-state.md:209
-    -> ../../../../linkwatcher/updater.py  (markdown)
+    -> ../../../../src/linkwatcher/updater.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.2.4-dry-run-mode-implementation-state.md:210
-    -> ../../../../linkwatcher/service.py  (markdown)
+    -> ../../../../src/linkwatcher/service.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.2.4-dry-run-mode-implementation-state.md:211
-    -> ../../../../linkwatcher/logging.py  (markdown)
+    -> ../../../../src/linkwatcher/logging.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.2.4-dry-run-mode-implementation-state.md:212
-    -> ../../../../linkwatcher/config/settings.py  (markdown)
+    -> ../../../../src/linkwatcher/config/settings.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.2.4-dry-run-mode-implementation-state.md:220
     -> ../../../../main.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.2.5-backup-creation-implementation-state.md:16
@@ -4374,19 +4374,19 @@ Broken links:
   doc/product-docs/state-tracking/features/archive/2.2.5-backup-creation-implementation-state.md:123
     -> ../../../../../HOW_IT_WORKS.md  (markdown)
   doc/product-docs/state-tracking/features/archive/2.2.5-backup-creation-implementation-state.md:143
-    -> ../../../../linkwatcher/updater.py  (markdown)
+    -> ../../../../src/linkwatcher/updater.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.2.5-backup-creation-implementation-state.md:149
     -> ../../../../tests/unit/test_updater.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.2.5-backup-creation-implementation-state.md:150
     -> ../../../../tests/integration/test_link_updates.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.2.5-backup-creation-implementation-state.md:203
-    -> ../../../../linkwatcher/updater.py  (markdown)
+    -> ../../../../src/linkwatcher/updater.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.2.5-backup-creation-implementation-state.md:204
-    -> ../../../../linkwatcher/service.py  (markdown)
+    -> ../../../../src/linkwatcher/service.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.2.5-backup-creation-implementation-state.md:205
-    -> ../../../../linkwatcher/logging.py  (markdown)
+    -> ../../../../src/linkwatcher/logging.py  (markdown)
   doc/product-docs/state-tracking/features/archive/2.2.5-backup-creation-implementation-state.md:206
-    -> ../../../../linkwatcher/config/settings.py  (markdown)
+    -> ../../../../src/linkwatcher/config/settings.py  (markdown)
   doc/product-docs/state-tracking/features/archive/3.1.1-logging-framework-implementation-state.md:16
     -> ../../guides/guides/04-implementation/feature-implementation-state-tracking-guide.md  (markdown)
   doc/product-docs/state-tracking/features/archive/3.1.1-logging-framework-implementation-state.md:18
@@ -4410,9 +4410,9 @@ Broken links:
   doc/product-docs/state-tracking/features/archive/3.1.1-logging-framework-implementation-state.md:131
     -> ../../../../../docs/LOGGING.md  (markdown)
   doc/product-docs/state-tracking/features/archive/3.1.1-logging-framework-implementation-state.md:147
-    -> ../../../../linkwatcher/logging.py  (markdown)
+    -> ../../../../src/linkwatcher/logging.py  (markdown)
   doc/product-docs/state-tracking/features/archive/3.1.1-logging-framework-implementation-state.md:148
-    -> ../../../../linkwatcher/logging_config.py  (markdown)
+    -> ../../../../src/linkwatcher/logging_config.py  (markdown)
   doc/product-docs/state-tracking/features/archive/3.1.1-logging-framework-implementation-state.md:150
     -> ../../../../config-examples/logging-config.yaml  (markdown)
   doc/product-docs/state-tracking/features/archive/3.1.1-logging-framework-implementation-state.md:151
@@ -4428,19 +4428,19 @@ Broken links:
   doc/product-docs/state-tracking/features/archive/3.1.1-logging-framework-implementation-state.md:224
     -> ../../../../main.py  (markdown)
   doc/product-docs/state-tracking/features/archive/3.1.1-logging-framework-implementation-state.md:225
-    -> ../../../../linkwatcher/__init__.py  (markdown)
+    -> ../../../../src/linkwatcher/__init__.py  (markdown)
   doc/product-docs/state-tracking/features/archive/3.1.1-logging-framework-implementation-state.md:226
-    -> ../../../../linkwatcher/database.py  (markdown)
+    -> ../../../../src/linkwatcher/database.py  (markdown)
   doc/product-docs/state-tracking/features/archive/3.1.1-logging-framework-implementation-state.md:227
-    -> ../../../../linkwatcher/handler.py  (markdown)
+    -> ../../../../src/linkwatcher/handler.py  (markdown)
   doc/product-docs/state-tracking/features/archive/3.1.1-logging-framework-implementation-state.md:228
-    -> ../../../../linkwatcher/parser.py  (markdown)
+    -> ../../../../src/linkwatcher/parser.py  (markdown)
   doc/product-docs/state-tracking/features/archive/3.1.1-logging-framework-implementation-state.md:229
-    -> ../../../../linkwatcher/service.py  (markdown)
+    -> ../../../../src/linkwatcher/service.py  (markdown)
   doc/product-docs/state-tracking/features/archive/3.1.1-logging-framework-implementation-state.md:230
-    -> ../../../../linkwatcher/updater.py  (markdown)
+    -> ../../../../src/linkwatcher/updater.py  (markdown)
   doc/product-docs/state-tracking/features/archive/3.1.1-logging-framework-implementation-state.md:231
-    -> ../../../../linkwatcher/logging_config.py  (markdown)
+    -> ../../../../src/linkwatcher/logging_config.py  (markdown)
   doc/product-docs/state-tracking/features/archive/3.1.1-logging-framework-implementation-state.md:232
     -> ../../../../examples/logging_demo.py  (markdown)
   doc/product-docs/state-tracking/features/archive/3.1.1-logging-framework-implementation-state.md:233
@@ -4458,7 +4458,7 @@ Broken links:
   doc/product-docs/state-tracking/features/archive/3.1.2-colored-console-output-implementation-state.md:120
     -> ../../../../../docs/LOGGING.md  (markdown)
   doc/product-docs/state-tracking/features/archive/3.1.2-colored-console-output-implementation-state.md:140
-    -> ../../../../linkwatcher/logging.py  (markdown)
+    -> ../../../../src/linkwatcher/logging.py  (markdown)
   doc/product-docs/state-tracking/features/archive/3.1.2-colored-console-output-implementation-state.md:146
     -> ../../../../tests/unit/test_logging.py  (markdown)
   doc/product-docs/state-tracking/features/archive/3.1.3-statistics-tracking-implementation-state.md:16
@@ -4472,15 +4472,15 @@ Broken links:
   doc/product-docs/state-tracking/features/archive/3.1.3-statistics-tracking-implementation-state.md:123
     -> ../../../../../docs/LOGGING.md  (markdown)
   doc/product-docs/state-tracking/features/archive/3.1.3-statistics-tracking-implementation-state.md:143
-    -> ../../../../linkwatcher/service.py  (markdown)
+    -> ../../../../src/linkwatcher/service.py  (markdown)
   doc/product-docs/state-tracking/features/archive/3.1.3-statistics-tracking-implementation-state.md:149
     -> ../../../../tests/unit/test_service.py  (markdown)
   doc/product-docs/state-tracking/features/archive/3.1.3-statistics-tracking-implementation-state.md:150
     -> ../../../../tests/integration/test_service_integration.py  (markdown)
   doc/product-docs/state-tracking/features/archive/3.1.3-statistics-tracking-implementation-state.md:189
-    -> ../../../../linkwatcher/logging.py  (markdown)
+    -> ../../../../src/linkwatcher/logging.py  (markdown)
   doc/product-docs/state-tracking/features/archive/3.1.3-statistics-tracking-implementation-state.md:190
-    -> ../../../../linkwatcher/config/settings.py  (markdown)
+    -> ../../../../src/linkwatcher/config/settings.py  (markdown)
   doc/product-docs/state-tracking/features/archive/3.1.4-progress-reporting-implementation-state.md:16
     -> ../../guides/guides/04-implementation/feature-implementation-state-tracking-guide.md  (markdown)
   doc/product-docs/state-tracking/features/archive/3.1.4-progress-reporting-implementation-state.md:18
@@ -4492,13 +4492,13 @@ Broken links:
   doc/product-docs/state-tracking/features/archive/3.1.4-progress-reporting-implementation-state.md:119
     -> ../../../../../docs/LOGGING.md  (markdown)
   doc/product-docs/state-tracking/features/archive/3.1.4-progress-reporting-implementation-state.md:139
-    -> ../../../../linkwatcher/service.py  (markdown)
+    -> ../../../../src/linkwatcher/service.py  (markdown)
   doc/product-docs/state-tracking/features/archive/3.1.4-progress-reporting-implementation-state.md:140
-    -> ../../../../linkwatcher/logging.py  (markdown)
+    -> ../../../../src/linkwatcher/logging.py  (markdown)
   doc/product-docs/state-tracking/features/archive/3.1.4-progress-reporting-implementation-state.md:146
     -> ../../../../tests/unit/test_service.py  (markdown)
   doc/product-docs/state-tracking/features/archive/3.1.4-progress-reporting-implementation-state.md:189
-    -> ../../../../linkwatcher/logging.py  (markdown)
+    -> ../../../../src/linkwatcher/logging.py  (markdown)
   doc/product-docs/state-tracking/features/archive/3.1.5-error-reporting-implementation-state.md:16
     -> ../../guides/guides/04-implementation/feature-implementation-state-tracking-guide.md  (markdown)
   doc/product-docs/state-tracking/features/archive/3.1.5-error-reporting-implementation-state.md:18
@@ -4512,7 +4512,7 @@ Broken links:
   doc/product-docs/state-tracking/features/archive/3.1.5-error-reporting-implementation-state.md:123
     -> ../../../../../docs/LOGGING.md  (markdown)
   doc/product-docs/state-tracking/features/archive/3.1.5-error-reporting-implementation-state.md:143
-    -> ../../../../linkwatcher/logging.py  (markdown)
+    -> ../../../../src/linkwatcher/logging.py  (markdown)
   doc/product-docs/state-tracking/features/archive/3.1.5-error-reporting-implementation-state.md:149
     -> ../../../../tests/unit/test_logging.py  (markdown)
   doc/product-docs/state-tracking/features/archive/3.1.5-error-reporting-implementation-state.md:150
@@ -4548,7 +4548,7 @@ Broken links:
   doc/product-docs/state-tracking/features/archive/4.1.1-test-framework-implementation-state.md:146
     -> ../../../../tests/test_config.py  (markdown)
   doc/product-docs/state-tracking/features/archive/4.1.1-test-framework-implementation-state.md:198
-    -> ../../../../linkwatcher/__init__.py  (markdown)
+    -> ../../../../src/linkwatcher/__init__.py  (markdown)
   doc/product-docs/state-tracking/features/archive/4.1.1-test-framework-implementation-state.md:199
     -> ../../../../linkwatcher/config/  (markdown)
   doc/product-docs/state-tracking/features/archive/4.1.1-test-framework-implementation-state.md:208
@@ -4652,17 +4652,17 @@ Broken links:
   doc/product-docs/state-tracking/features/archive/4.1.2-unit-tests-implementation-state.md:196
     -> ../../../../tests/conftest.py  (markdown)
   doc/product-docs/state-tracking/features/archive/4.1.2-unit-tests-implementation-state.md:197
-    -> ../../../../linkwatcher/database.py  (markdown)
+    -> ../../../../src/linkwatcher/database.py  (markdown)
   doc/product-docs/state-tracking/features/archive/4.1.2-unit-tests-implementation-state.md:198
-    -> ../../../../linkwatcher/models.py  (markdown)
+    -> ../../../../src/linkwatcher/models.py  (markdown)
   doc/product-docs/state-tracking/features/archive/4.1.2-unit-tests-implementation-state.md:199
-    -> ../../../../linkwatcher/service.py  (markdown)
+    -> ../../../../src/linkwatcher/service.py  (markdown)
   doc/product-docs/state-tracking/features/archive/4.1.2-unit-tests-implementation-state.md:200
-    -> ../../../../linkwatcher/parser.py  (markdown)
+    -> ../../../../src/linkwatcher/parser.py  (markdown)
   doc/product-docs/state-tracking/features/archive/4.1.2-unit-tests-implementation-state.md:201
-    -> ../../../../linkwatcher/updater.py  (markdown)
+    -> ../../../../src/linkwatcher/updater.py  (markdown)
   doc/product-docs/state-tracking/features/archive/4.1.2-unit-tests-implementation-state.md:202
-    -> ../../../../linkwatcher/logging.py  (markdown)
+    -> ../../../../src/linkwatcher/logging.py  (markdown)
   doc/product-docs/state-tracking/features/archive/4.1.2-unit-tests-implementation-state.md:203
     -> ../../../../linkwatcher/config/  (markdown)
   doc/product-docs/state-tracking/features/archive/4.1.2-unit-tests-implementation-state.md:211
@@ -4706,15 +4706,15 @@ Broken links:
   doc/product-docs/state-tracking/features/archive/4.1.3-integration-tests-implementation-state.md:200
     -> ../../../../tests/conftest.py  (markdown)
   doc/product-docs/state-tracking/features/archive/4.1.3-integration-tests-implementation-state.md:201
-    -> ../../../../linkwatcher/service.py  (markdown)
+    -> ../../../../src/linkwatcher/service.py  (markdown)
   doc/product-docs/state-tracking/features/archive/4.1.3-integration-tests-implementation-state.md:202
-    -> ../../../../linkwatcher/database.py  (markdown)
+    -> ../../../../src/linkwatcher/database.py  (markdown)
   doc/product-docs/state-tracking/features/archive/4.1.3-integration-tests-implementation-state.md:203
-    -> ../../../../linkwatcher/models.py  (markdown)
+    -> ../../../../src/linkwatcher/models.py  (markdown)
   doc/product-docs/state-tracking/features/archive/4.1.3-integration-tests-implementation-state.md:204
-    -> ../../../../linkwatcher/parser.py  (markdown)
+    -> ../../../../src/linkwatcher/parser.py  (markdown)
   doc/product-docs/state-tracking/features/archive/4.1.3-integration-tests-implementation-state.md:205
-    -> ../../../../linkwatcher/updater.py  (markdown)
+    -> ../../../../src/linkwatcher/updater.py  (markdown)
   doc/product-docs/state-tracking/features/archive/4.1.3-integration-tests-implementation-state.md:213
     -> ../../../../run_tests.py  (markdown)
   doc/product-docs/state-tracking/features/archive/4.1.4-parser-tests-implementation-state.md:16
@@ -4750,19 +4750,19 @@ Broken links:
   doc/product-docs/state-tracking/features/archive/4.1.4-parser-tests-implementation-state.md:203
     -> ../../../../tests/conftest.py  (markdown)
   doc/product-docs/state-tracking/features/archive/4.1.4-parser-tests-implementation-state.md:204
-    -> ../../../../linkwatcher/models.py  (markdown)
+    -> ../../../../src/linkwatcher/models.py  (markdown)
   doc/product-docs/state-tracking/features/archive/4.1.4-parser-tests-implementation-state.md:205
-    -> ../../../../linkwatcher/parsers/markdown.py  (markdown)
+    -> ../../../../src/linkwatcher/parsers/markdown.py  (markdown)
   doc/product-docs/state-tracking/features/archive/4.1.4-parser-tests-implementation-state.md:206
-    -> ../../../../linkwatcher/parsers/yaml_parser.py  (markdown)
+    -> ../../../../src/linkwatcher/parsers/yaml_parser.py  (markdown)
   doc/product-docs/state-tracking/features/archive/4.1.4-parser-tests-implementation-state.md:207
-    -> ../../../../linkwatcher/parsers/json_parser.py  (markdown)
+    -> ../../../../src/linkwatcher/parsers/json_parser.py  (markdown)
   doc/product-docs/state-tracking/features/archive/4.1.4-parser-tests-implementation-state.md:208
-    -> ../../../../linkwatcher/parsers/python.py  (markdown)
+    -> ../../../../src/linkwatcher/parsers/python.py  (markdown)
   doc/product-docs/state-tracking/features/archive/4.1.4-parser-tests-implementation-state.md:209
-    -> ../../../../linkwatcher/parsers/dart.py  (markdown)
+    -> ../../../../src/linkwatcher/parsers/dart.py  (markdown)
   doc/product-docs/state-tracking/features/archive/4.1.4-parser-tests-implementation-state.md:210
-    -> ../../../../linkwatcher/parsers/generic.py  (markdown)
+    -> ../../../../src/linkwatcher/parsers/generic.py  (markdown)
   doc/product-docs/state-tracking/features/archive/4.1.4-parser-tests-implementation-state.md:218
     -> ../../../../run_tests.py  (markdown)
   doc/product-docs/state-tracking/features/archive/4.1.5-performance-tests-implementation-state.md:16
@@ -4786,15 +4786,15 @@ Broken links:
   doc/product-docs/state-tracking/features/archive/4.1.5-performance-tests-implementation-state.md:199
     -> ../../../../tests/conftest.py  (markdown)
   doc/product-docs/state-tracking/features/archive/4.1.5-performance-tests-implementation-state.md:200
-    -> ../../../../linkwatcher/database.py  (markdown)
+    -> ../../../../src/linkwatcher/database.py  (markdown)
   doc/product-docs/state-tracking/features/archive/4.1.5-performance-tests-implementation-state.md:201
-    -> ../../../../linkwatcher/parser.py  (markdown)
+    -> ../../../../src/linkwatcher/parser.py  (markdown)
   doc/product-docs/state-tracking/features/archive/4.1.5-performance-tests-implementation-state.md:202
-    -> ../../../../linkwatcher/service.py  (markdown)
+    -> ../../../../src/linkwatcher/service.py  (markdown)
   doc/product-docs/state-tracking/features/archive/4.1.5-performance-tests-implementation-state.md:203
-    -> ../../../../linkwatcher/config/__init__.py  (markdown)
+    -> ../../../../src/linkwatcher/config/__init__.py  (markdown)
   doc/product-docs/state-tracking/features/archive/4.1.5-performance-tests-implementation-state.md:204
-    -> ../../../../linkwatcher/models.py  (markdown)
+    -> ../../../../src/linkwatcher/models.py  (markdown)
   doc/product-docs/state-tracking/features/archive/4.1.5-performance-tests-implementation-state.md:212
     -> ../../../../run_tests.py  (markdown)
   doc/product-docs/state-tracking/features/archive/4.1.5-performance-tests-implementation-state.md:213
@@ -4822,7 +4822,7 @@ Broken links:
   doc/product-docs/state-tracking/features/archive/4.1.6-test-fixtures-implementation-state.md:137
     -> ../../../../manual_test/  (markdown)
   doc/product-docs/state-tracking/features/archive/4.1.6-test-fixtures-implementation-state.md:194
-    -> ../../../../linkwatcher/parsers/markdown.py  (markdown)
+    -> ../../../../src/linkwatcher/parsers/markdown.py  (markdown)
   doc/product-docs/state-tracking/features/archive/4.1.6-test-fixtures-implementation-state.md:194
     -> manual_markdown_tests/test_runner.py  (markdown-standalone)
   doc/product-docs/state-tracking/features/archive/4.1.6-test-fixtures-implementation-state.md:203
@@ -4844,9 +4844,9 @@ Broken links:
   doc/product-docs/state-tracking/features/archive/4.1.7-test-utilities-implementation-state.md:136
     -> ../../../../scripts/create_test_structure.py  (markdown)
   doc/product-docs/state-tracking/features/archive/4.1.7-test-utilities-implementation-state.md:208
-    -> ../../../../linkwatcher/models.py  (markdown)
+    -> ../../../../src/linkwatcher/models.py  (markdown)
   doc/product-docs/state-tracking/features/archive/4.1.7-test-utilities-implementation-state.md:209
-    -> ../../../../linkwatcher/service.py  (markdown)
+    -> ../../../../src/linkwatcher/service.py  (markdown)
   doc/product-docs/state-tracking/features/archive/4.1.7-test-utilities-implementation-state.md:217
     -> ../../../../tests/conftest.py  (markdown)
   doc/product-docs/state-tracking/features/archive/4.1.7-test-utilities-implementation-state.md:219
@@ -5132,13 +5132,13 @@ Broken links:
   doc/product-docs/state-tracking/permanent/bug-tracking.md:137
     -> scripts/...  (markdown-quoted-dir)
   doc/product-docs/state-tracking/permanent/bug-tracking.md:143
-    -> linkwatcher/utils.py  (markdown-standalone)
+    -> src/linkwatcher/utils.py  (markdown-standalone)
   doc/product-docs/state-tracking/permanent/bug-tracking.md:158
     -> a/b/c/file.md  (markdown-standalone)
   doc/product-docs/state-tracking/permanent/bug-tracking.md:163
     -> parsers/generic.py  (markdown-standalone)
   doc/product-docs/state-tracking/permanent/bug-tracking.md:167
-    -> linkwatcher/logging.py  (markdown-standalone)
+    -> src/linkwatcher/logging.py  (markdown-standalone)
   doc/product-docs/state-tracking/permanent/bug-tracking.md:178
     -> app/utils.helpers  (markdown-standalone)
   doc/product-docs/state-tracking/permanent/bug-tracking.md:179
@@ -5190,7 +5190,7 @@ Broken links:
   doc/product-docs/state-tracking/permanent/technical-debt-tracking.md:87
     -> ../../product-docs/refactoring/plans/wire-parser-enable-disable-config-flags-into-linkparser-runtime.md  (markdown)
   doc/product-docs/state-tracking/permanent/technical-debt-tracking.md:92
-    -> linkwatcher/reference_lookup.py  (markdown-standalone)
+    -> src/linkwatcher/reference_lookup.py  (markdown-standalone)
   doc/product-docs/state-tracking/permanent/technical-debt-tracking.md:93
     -> .github/workflows/ci.yml  (markdown-standalone)
   doc/product-docs/state-tracking/permanent/technical-debt-tracking.md:95
@@ -5198,11 +5198,11 @@ Broken links:
   doc/product-docs/state-tracking/permanent/technical-debt-tracking.md:97
     -> ../refactoring/plans/fix-inaccurate-details-in-feature-state-files-pf-fea-046-through-pf-fea-049-td047.md  (markdown)
   doc/product-docs/state-tracking/permanent/technical-debt-tracking.md:98
-    -> linkwatcher/handler.py  (markdown-standalone)
+    -> src/linkwatcher/handler.py  (markdown-standalone)
   doc/product-docs/state-tracking/permanent/technical-debt-tracking.md:101
-    -> linkwatcher/updater.py  (markdown-standalone)
+    -> src/linkwatcher/updater.py  (markdown-standalone)
   doc/product-docs/state-tracking/permanent/technical-debt-tracking.md:103
-    -> linkwatcher/updater.py  (markdown-standalone)
+    -> src/linkwatcher/updater.py  (markdown-standalone)
   doc/product-docs/state-tracking/permanent/technical-debt-tracking.md:105
     -> ../../assessments/technical-debt/assessments/handler-module-structural-debt-assessment.md  (markdown)
   doc/product-docs/state-tracking/permanent/technical-debt-tracking.md:157

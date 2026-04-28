@@ -24,7 +24,6 @@ This file tracks the implementation status of all **automated** tests derived fr
 | 🟡 **Implementation In Progress** | Test implementation has started but is not complete | — |
 | 🔄 **Needs Audit** | Tests are implemented and ready for audit validation | PF-TSK-030 |
 | ✅ **Audit Approved** | All tests passed audit and are production-ready | — |
-| 🟡 **Approved — Pending Dependencies** | Tests passed audit but some await implementation dependencies | — |
 | 🔴 **Needs Fix** | Tests are implemented but some are currently failing | — |
 | ⛔ **Implementation Blocked** | Test implementation is blocked by dependencies or issues | — |
 | 🔄 **Needs Update** | Test specification or implementation needs updates due to code changes or audit findings | — |

@@ -24,7 +24,7 @@
     Optional markdown link target for the source. When provided, the Source column renders as [Source](SourceLink).
 
 .PARAMETER Description
-    What is being requested
+    What is being requested (10-500 chars; for table-row brevity, compress longer drafts and move detailed context to -Notes).
 
 .PARAMETER Priority
     Priority level: HIGH, MEDIUM, or LOW
@@ -59,7 +59,16 @@ param(
     [string]$SourceLink = "",
 
     [Parameter(Mandatory = $true)]
-    [ValidateLength(10, 500)]
+    [ValidateScript({
+        if ($_.Length -lt 10) {
+            throw "Description is too short ($($_.Length) chars; minimum 10). Provide a more substantive description."
+        }
+        if ($_.Length -gt 500) {
+            $over = $_.Length - 500
+            throw "Description is too long ($($_.Length) chars; maximum 500, $over over). For table-row brevity, compress the description and move detailed context to -Notes."
+        }
+        $true
+    })]
     [string]$Description,
 
     [Parameter(Mandatory = $true)]

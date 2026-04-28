@@ -60,7 +60,7 @@ $totalUpdates = 0
 $filesProcessed = 0
 
 # Get all markdown files in the doc directory
-$markdownFiles = Get-ChildItem -Path $rootPath -Filter "../*.md" -Recurse
+$markdownFiles = Get-ChildItem -Path $rootPath -Filter "*.md" -Recurse
 
 foreach ($file in $markdownFiles) {
     $content = Get-Content -Path $file.FullName -Raw

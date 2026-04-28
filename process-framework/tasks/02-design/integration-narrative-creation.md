@@ -2,6 +2,7 @@
 id: PF-TSK-083
 type: Process Framework
 category: Task Definition
+domain: agnostic
 version: 1.0
 created: 2026-04-08
 updated: 2026-04-08
@@ -34,8 +35,7 @@ This task creates Integration Narratives — focused documents that explain how 
 
 ## Context Requirements
 
-<!-- Uncomment and update when context map is created:
-[View Context Map for this task](../../visualization/context-maps/02-design/integration-narrative-creation-map.md) -->
+[View Context Map for this task](../../visualization/context-maps/02-design/integration-narrative-creation-map.md)
 
 - **Critical (Must Read):**
 
@@ -97,7 +97,7 @@ This task creates Integration Narratives — focused documents that explain how 
 
 7. **Report TDD/code divergence as technical debt** — Compare what TDDs say about cross-feature interactions with what the code actually does. For each discrepancy found, report it as technical debt using the automation script:
    ```bash
-   pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/update/Update-TechDebt.ps1 -Add -Title "TDD divergence: [description]" -Category "Documentation" -Severity "Medium" -Confirm:\$false
+   pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/update/Update-TechDebt.ps1 -Add -Description "TDD divergence: [description]" -Dims "DA" -Location "[path/to/tdd-or-code]" -Priority "Medium" -EstimatedEffort "S" -Confirm:\$false
    ```
    The Integration Narrative itself should document the **actual** state (what the code does), not the outdated TDD claims.
 
@@ -124,7 +124,16 @@ This task creates Integration Narratives — focused documents that explain how 
     - [user-workflow-tracking.md](/doc/state-tracking/permanent/user-workflow-tracking.md) — "Integration Doc" column set to the assigned PD-INT ID for the specified workflow
     - [PD-documentation-map.md](/doc/PD-documentation-map.md) — narrative entry appended to "Integration Narratives" section
 
-13. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+    **Recovery from script warnings**: If the script emitted a warning in its stdout (e.g., "Documentation Map: Section ... not found — add entry manually", "Workflow Tracking: 'Integration Doc' column not found", "Workflow Tracking: WF-XXX not found"), the auto-update silently failed:
+
+    1. **Manually patch** the affected file with the entry the script could not write.
+    2. **Check for existing tech debt** — grep [technical-debt-tracking.md](/doc/state-tracking/permanent/technical-debt-tracking.md) for `New-IntegrationNarrative.ps1` and the failing behavior. The same script defect has been filed redundantly across sessions (e.g., TD221/TD222/TD225/TD230 are 4 entries for one regex bug). Only file a new entry if no open match exists.
+    3. **File new tech debt** (if not duplicate) via:
+       ```bash
+       pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/update/Update-TechDebt.ps1 -Add -Description "New-IntegrationNarrative.ps1: [behavior]" -Dims "CQ" -Location "process-framework/scripts/file-creation/02-design/New-IntegrationNarrative.ps1" -Priority "Low" -EstimatedEffort "S" -Confirm:\$false
+       ```
+
+12. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 
@@ -150,7 +159,7 @@ Before considering this task finished:
   - [ ] Integration Narrative created via `New-IntegrationNarrative.ps1` (not manually)
   - [ ] All template sections filled in with verified content (no placeholders remaining)
   - [ ] Cross-feature interactions verified against actual source code (not just TDDs)
-  - [ ] TDD/code divergence documented if found
+  - [ ] TDD/code divergence reported as tech debt items if found
   - [ ] Human partner reviewed and approved the narrative content
 - [ ] **Verify Auto-Updated State Files**: Confirm script correctly updated all tracking files
   - [ ] [User Workflow Tracking](/doc/state-tracking/permanent/user-workflow-tracking.md) "Integration Doc" column set to correct PD-INT ID

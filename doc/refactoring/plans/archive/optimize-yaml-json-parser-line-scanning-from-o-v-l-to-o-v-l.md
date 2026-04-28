@@ -21,7 +21,7 @@ priority: Medium
 - **Mode**: Lightweight (no architectural impact)
 
 ## Dependencies and Impact
-- **Affected Components**: linkwatcher/parsers/yaml_parser.py, linkwatcher/parsers/json_parser.py
+- **Affected Components**: src/linkwatcher/parsers/yaml_parser.py, src/linkwatcher/parsers/json_parser.py
 - **Internal Dependencies**: Both parsers are used by the parser registry; no external API changes
 - **Risk Assessment**: Low — internal scanning optimization, same outputs, same signatures
 

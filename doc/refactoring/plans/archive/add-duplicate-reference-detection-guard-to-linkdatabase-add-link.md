@@ -22,7 +22,7 @@ refactoring_scope: Add duplicate reference detection guard to LinkDatabase.add_l
 
 ## Item 1: TD100 — Add duplicate reference detection guard to add_link()
 
-**Scope**: `LinkDatabase.add_link()` in `linkwatcher/database.py` blindly appends every `LinkReference` without checking if an identical reference (same source file, line number, and normalized target) already exists. Add a duplicate-detection guard that skips insertion when the reference is already present. This prevents inflated stats, redundant update work during file moves, and potential issues if `rescan_file_links(remove_existing=False)` is used.
+**Scope**: `LinkDatabase.add_link()` in `src/linkwatcher/database.py` blindly appends every `LinkReference` without checking if an identical reference (same source file, line number, and normalized target) already exists. Add a duplicate-detection guard that skips insertion when the reference is already present. This prevents inflated stats, redundant update work during file moves, and potential issues if `rescan_file_links(remove_existing=False)` is used.
 
 **Changes Made**:
 - [x] Added duplicate check in `add_link()` before appending — guards on normalized source file + line number + column_start (`database.py:154-159`)

@@ -24,7 +24,7 @@ mode: lightweight
 
 **Scope**: Replace `link_db.update_target_path()` in `_handle_directory_moved` with the same remove+rescan pattern used by file moves (`_cleanup_database_after_file_move`). Also upgrade reference lookup from exact-path `get_references_to_file()` to multi-format `_find_references_multi_format()` + `_collect_path_updates()`. This ensures both code paths use identical DB update logic, eliminating inconsistent edge-case behaviors and stale reference metadata.
 
-**Changes** (all in `linkwatcher/handler.py`, `_handle_directory_moved` method):
+**Changes** (all in `src/linkwatcher/handler.py`, `_handle_directory_moved` method):
 - [x] Replace `self.link_db.get_references_to_file(old_file_path)` with `self._find_references_multi_format(old_file_path)`
 - [x] Add `path_updates = self._collect_path_updates(old_file_path, new_file_path)` after finding references
 - [x] Replace `self.link_db.update_target_path(old_file_path, new_file_path)` with `self._cleanup_database_after_file_move(references, path_updates, moved_file_path=old_file_path)`

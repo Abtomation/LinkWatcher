@@ -530,9 +530,7 @@ class TestCalculateUpdatedRelativePath:
         """
         target = temp_dir / "shared" / "data.md"
         target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_text(
-            ".git/objects/3a/b045e54f8acd16e0d036a487eb74c269db1d9f# data\n## section\n"
-        )
+        target.write_text("# data\n## section\n")
 
         result = lookup._calculate_updated_relative_path(
             "../shared/data.md#section", "src/file.md", "src/deep/file.md"
@@ -609,9 +607,7 @@ class TestUpdateLinksWithinMovedFile:
     def test_markdown_link_updated(self, lookup, mock_parser, temp_dir):
         """Markdown links have their targets recalculated and updated."""
         f = temp_dir / "file.md"
-        f.write_text(
-            ".git/objects/3a/b045e54f8acd16e0d036a487eb74c269db1d9f# Test\n\n[link](../shared/data.md)\n"
-        )
+        f.write_text("# Test\n\n[link](../shared/data.md)\n")
 
         # Create the target so _calculate_updated_relative_path resolves it
         target = temp_dir / "shared" / "data.md"
@@ -670,9 +666,7 @@ class TestUpdateLinksWithinMovedFile:
     def test_backup_created_when_enabled(self, lookup, mock_parser, temp_dir):
         """Backup file is created when backup_enabled=True and links are updated."""
         f = temp_dir / "file.md"
-        f.write_text(
-            ".git/objects/3a/b045e54f8acd16e0d036a487eb74c269db1d9f# Test\n\n[link](../shared/data.md)\n"
-        )
+        f.write_text("# Test\n\n[link](../shared/data.md)\n")
 
         target = temp_dir / "shared" / "data.md"
         target.parent.mkdir(parents=True, exist_ok=True)

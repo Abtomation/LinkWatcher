@@ -5,7 +5,7 @@ category: Refactoring Plan
 version: 1.0
 created: 2026-04-09
 updated: 2026-04-09
-target_area: linkwatcher/models.py
+target_area: src/linkwatcher/models.py
 priority: Medium
 refactoring_scope: Fix stale link_type documentation in models.py LinkReference
 debt_item: TD193
@@ -15,7 +15,7 @@ mode: documentation-only
 # Documentation Refactoring Plan: Fix stale link_type documentation in models.py LinkReference
 
 ## Overview
-- **Target Area**: linkwatcher/models.py
+- **Target Area**: src/linkwatcher/models.py
 - **Priority**: Medium
 - **Created**: 2026-04-09
 - **Author**: AI Agent & Human Partner
@@ -50,7 +50,7 @@ mode: documentation-only
 - **Consistency**: Inconsistent — other modules (e.g., `markdown.py`) have AI Context sections; `models.py` does not
 
 ### Affected Documents
-- `linkwatcher/models.py` — Update module docstring, `LinkReference` class docstring, and `link_type` field comment
+- `src/linkwatcher/models.py` — Update module docstring, `LinkReference` class docstring, and `link_type` field comment
 
 ### Dependencies and Impact
 - **Cross-references**: No documents reference `models.py` inline comments; the change is self-contained
@@ -60,7 +60,7 @@ mode: documentation-only
 ## Refactoring Strategy
 
 ### Approach
-Single-phase edit to `linkwatcher/models.py`: update module docstring with AI Context, expand `LinkReference` class docstring, and fix `link_type` inline comment to reference `LinkType` enum.
+Single-phase edit to `src/linkwatcher/models.py`: update module docstring with AI Context, expand `LinkReference` class docstring, and fix `link_type` inline comment to reference `LinkType` enum.
 
 ### Implementation Plan
 1. **Phase 1**: Update `models.py` documentation

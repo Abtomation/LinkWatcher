@@ -27,7 +27,9 @@
     Priority level: P1, P2, P3, or P4
 
 .PARAMETER Description
-    One-paragraph description for the Workflow Details section
+    One-paragraph description for the Workflow Details section (10-1000 chars;
+    compress longer drafts to a single paragraph — multi-paragraph workflow detail
+    belongs in a dedicated Integration Narrative, not in this row).
 
 .PARAMETER ImplStatus
     Implementation status (default: "Pending"). Examples: "All Implemented", "Pending: 0.1.1"
@@ -63,7 +65,16 @@ param(
     [string]$Priority,
 
     [Parameter(Mandatory = $true)]
-    [ValidateLength(10, 1000)]
+    [ValidateScript({
+        if ($_.Length -lt 10) {
+            throw "Description is too short ($($_.Length) chars; minimum 10). Provide a more substantive description."
+        }
+        if ($_.Length -gt 1000) {
+            $over = $_.Length - 1000
+            throw "Description is too long ($($_.Length) chars; maximum 1000, $over over). Compress to a single paragraph for the Workflow Details section — multi-paragraph workflow detail belongs in a dedicated Integration Narrative."
+        }
+        $true
+    })]
     [string]$Description,
 
     [Parameter(Mandatory = $false)]

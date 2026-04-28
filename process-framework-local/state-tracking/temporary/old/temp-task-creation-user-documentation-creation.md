@@ -1,180 +1,133 @@
 ---
-id: PF-STA-067
-type: Document
+id: PF-STA-091
+type: Process Framework
 category: State Tracking
 version: 1.0
-created: 2026-03-27
-updated: 2026-03-27
+created: 2026-04-16
+updated: 2026-04-16
 task_name: user-documentation-creation
+task_id: PF-TSK-081
 ---
 
-# Temporary Task Creation State: User Documentation Creation
+# User Documentation Tracking: PF-TSK-081
 
-> **⚠️ TEMPORARY FILE**: This file tracks multi-session implementation of task creation infrastructure. Move to `process-framework-local/state-tracking/temporary/old` after all components are implemented.
+> **Temporary state file** tracking missing user documentation across all features. Move to `process-framework-local/state-tracking/temporary/old` when all documentation gaps are resolved.
 
-## Task Overview
+## Overview
 
-- **Task Name**: User Documentation Creation
-- **Task Type**: Discrete
-- **Task ID**: PF-TSK-081
-- **Source**: PF-IMP-228 (delegated from PF-TSK-009)
+- **Task**: [User Documentation Creation (PF-TSK-081)](/process-framework/tasks/07-deployment/user-documentation-creation.md)
+- **Scope**: Audit all 8 active features for user-facing documentation coverage
+- **Goal**: Ensure every feature with user-visible behavior has appropriate handbook coverage and is formally tracked in its state file
 
-## Infrastructure Analysis
+## Documentation Coverage Status
 
-### Required Artifacts
+### Status Legend
 
-| Artifact Type | Name | Status | Priority | Notes |
-| --- | --- | --- | --- | --- |
-| Task Definition | user-documentation-creation.md | COMPLETED | HIGH | Created in tasks/07-deployment/ |
-| Script | New-Handbook.ps1 | NEEDED | HIGH | Creates handbook files from template with PD-UGD IDs |
-| Template | handbook-template.md | NEEDED | HIGH | Template for user handbook files |
-| Context Map | user-documentation-creation-map.md | NEEDED | MEDIUM | Visual component relationships |
+| Symbol | Status | Description |
+|--------|--------|-------------|
+| ✅ | Complete | Handbook exists AND tracked in feature state file |
+| 📝 | Partially Covered | Handbook exists but NOT formally tracked in state file |
+| ❌ | Needed | Feature has user-visible behavior, no dedicated handbook |
+| ⬜ | Covered Elsewhere | Feature documented in general reference handbooks, no dedicated handbook needed |
+| 🚫 | Not Applicable | Internal/architectural feature with no direct user interaction |
 
-### Available for Reuse
+### Feature Documentation Matrix
 
-| Artifact | Location | Reuse Notes |
-| --- | --- | --- |
-| PD-UGD prefix | PD-id-registry.json | Already exists, nextAvailable: 3, directory: doc/user/handbooks |
-| Existing handbooks | doc/user/handbooks | 4 existing files as style reference |
-| Document Creation Script Template | process-framework/templates/support/document-creation-script-template.ps1 | Base for New-Handbook.ps1 |
+| Feature ID | Feature Name | User-Facing? | Doc Status | Existing Coverage | Action Required |
+|------------|-------------|-------------|------------|-------------------|-----------------|
+| 0.1.1 | Core Architecture | Partial (CLI entry, startup) | ⬜ Covered Elsewhere | [quick-reference.md](/doc/user/handbooks/quick-reference.md) covers CLI | Evaluate: startup/CLI docs sufficient? |
+| 0.1.2 | In-Memory Link Database | No | 🚫 Not Applicable | — | None — internal component |
+| 0.1.3 | Configuration System | **Yes** (config files, CLI args, env vars) | ✅ Complete | [configuration-guide.md](/doc/user/handbooks/configuration-guide.md) (PD-UGD-005) | Done — handbook created, state file + doc map updated |
+| 1.1.1 | File System Monitoring | Partial (file type filtering) | ✅ Complete | [file-type-quick-fix.md](/doc/user/handbooks/file-type-quick-fix.md) (PD-UGD-001), [troubleshooting-file-types.md](/doc/user/handbooks/troubleshooting-file-types.md) (PD-UGD-002) | Done — formalized in state file + doc map IDs added |
+| 2.1.1 | Link Parsing System | Indirect (parser behavior) | ⬜ Covered Elsewhere | [capabilities-reference.md](/doc/user/handbooks/linkwatcher-capabilities-reference.md) covers all parser patterns | Evaluate: sufficient for users? |
+| 2.2.1 | Link Updating | Indirect (update behavior) | ⬜ Covered Elsewhere | [capabilities-reference.md](/doc/user/handbooks/linkwatcher-capabilities-reference.md) covers update triggers | Evaluate: sufficient for users? |
+| 3.1.1 | Logging System | **Yes** (debug mode, log files, rotation, dashboard) | ✅ Complete | [logging-and-monitoring.md](/doc/user/handbooks/logging-and-monitoring.md) (PD-UGD-006) | Done — handbook created, state file + doc map updated |
+| 6.1.1 | Link Validation | Yes | ✅ Complete | [link-validation.md](/doc/user/handbooks/link-validation.md) (PD-UGD-003) | None — already tracked |
 
-## Implementation Roadmap
+### Existing Handbooks (Not Feature-Specific)
 
-### Phase 1: Core Task Infrastructure (Session 1) — 2026-03-27
+| Handbook | ID | Covers | Tracked By Feature? |
+|----------|----|--------|---------------------|
+| [file-type-quick-fix.md](/doc/user/handbooks/file-type-quick-fix.md) | PD-UGD-001 | Quick fix for file type monitoring | 1.1.1 ✅ |
+| [troubleshooting-file-types.md](/doc/user/handbooks/troubleshooting-file-types.md) | PD-UGD-002 | Detailed file type troubleshooting | 1.1.1 ✅ |
+| [link-validation.md](/doc/user/handbooks/link-validation.md) | PD-UGD-003 | Validation mode (`--validate`) | 6.1.1 ✅ |
+| [linkwatcher-capabilities-reference.md](/doc/user/handbooks/linkwatcher-capabilities-reference.md) | PD-UGD-004 | Detection patterns, parsers, update triggers | — (cross-cutting) |
+| [configuration-guide.md](/doc/user/handbooks/configuration-guide.md) | PD-UGD-005 | Config files, CLI args, env vars, presets, ignore system | 0.1.3 ✅ |
+| [logging-and-monitoring.md](/doc/user/handbooks/logging-and-monitoring.md) | PD-UGD-006 | Debug logging, file logging, rotation, dashboard | 3.1.1 ✅ |
+| [quick-reference.md](/doc/user/handbooks/quick-reference.md) | — | CLI options, config basics, env vars, examples | — (cross-cutting, no ID) |
+| [multi-project-setup.md](/doc/user/handbooks/multi-project-setup.md) | — | Multi-project/multi-root setup | — (cross-cutting, no ID) |
 
-**Priority**: HIGH - Must complete before task can be used
+## Action Items
 
-- [x] **Task Definition File**: Created via New-Task.ps1, fully customized
-  - **Status**: COMPLETED
-  - **Location**: process-framework/tasks/07-deployment/user-documentation-creation.md
-  - **ID**: PF-TSK-081
+### Priority 1: Create New Handbooks
 
-- [x] **Evaluate Task File Creation Requirements**: Task creates handbook files
-  - **Status**: COMPLETED
-  - **Decision**: CREATES_FILES
-  - **File Types**: Markdown handbook files in doc/user/handbooks
+- [x] **Configuration System Handbook** — PD-UGD-005, [configuration-guide.md](/doc/user/handbooks/configuration-guide.md)
+  - Created 2026-04-16. Covers: config file reference (30+ settings), CLI arguments, env vars, presets, ignore system
+  - State file updated via `Update-UserDocumentationState.ps1`, README.md updated
 
-- [x] **AI Tasks Registry**: Added to 07-Deployment section
-  - **Status**: COMPLETED
+- [x] **Logging System Handbook** — PD-UGD-006, [logging-and-monitoring.md](/doc/user/handbooks/logging-and-monitoring.md)
+  - Created 2026-04-16. Covers: CLI logging flags, 9 config settings, console output colors/icons, JSON file logging, timestamp-based log rotation, logging dashboard, runtime config reload, troubleshooting
+  - State file updated via `Update-UserDocumentationState.ps1`, README.md updated
 
-- [x] **Documentation Map + Tasks README**: Auto-updated by New-Task.ps1
-  - **Status**: COMPLETED
+### Priority 2: Formalize Existing Coverage
 
-### Phase 2: Document Creation Infrastructure (Session 2)
+- [x] **1.1.1 File System Monitoring** — Ran `Update-UserDocumentationState.ps1` twice to formally track file-type-quick-fix.md (PD-UGD-001) and troubleshooting-file-types.md (PD-UGD-002) in feature state file
+- [x] **1.1.1 File System Monitoring** — Verified and added handbook IDs (PD-UGD-001 through PD-UGD-004) to PD-documentation-map.md entries. Fixed incorrect ID assignments in Existing Handbooks table (was PD-UGD-004/005, actually PD-UGD-001/002)
 
-**Priority**: HIGH - Script and template for creating handbooks
+### Priority 3: Evaluate Coverage Sufficiency
 
-- [x] **Document Creation Script**: New-Handbook.ps1
-  - **Status**: COMPLETED
-  - **Location**: process-framework/scripts/file-creation/07-deployment/New-Handbook.ps1
-  - **ID Prefix**: PD-UGD (already in PD-id-registry.json)
-  - **Parameters**: -HandbookName (mandatory), -Description (mandatory), -Category (optional: setup/usage/troubleshooting/configuration/reference)
-  - **Notes**: Uses New-StandardProjectDocument with PD-UGD prefix. Tested with -WhatIf and real creation.
-
-- [x] **Handbook Template**: handbook-template.md
-  - **Status**: COMPLETED
-  - **Location**: process-framework/templates/07-deployment/handbook-template.md
-  - **ID**: PF-TEM-065
-  - **Structure**: Metadata → Overview → Prerequisites → Quick Start → Configuration → Step-by-Step Instructions → Tips → Troubleshooting → Related Documentation
-  - **Notes**: Sections are optional — AI agent removes unused sections during customization
-
-- [x] **ID Registry**: PD-UGD already exists — no update needed
-  - **Status**: COMPLETED (pre-existing). PF-TEM nextAvailable updated 65→66 for template.
-
-### Phase 3: Cross-Cutting Updates and Visualization (Session 3)
-
-**Priority**: MEDIUM - Integration and documentation
-
-- [x] **Context Map**: Created and customized (PF-VIS-059)
-  - **Status**: COMPLETED
-  - **Location**: process-framework/visualization/context-maps/07-deployment/user-documentation-creation-map.md
-
-- [x] **Task Transition Guide**: Added "Transitioning FROM User Documentation Creation" section + updated Code Review transition
-  - **Status**: COMPLETED
-  - **File**: process-framework/infrastructure/task-transition-registry.md
-
-- [x] **Process Framework Task Registry**: Added entry #18 for PF-TSK-081
-  - **Status**: COMPLETED
-  - **File**: process-framework/infrastructure/process-framework-task-registry.md
-
-- [x] **Documentation Map**: All artifacts verified (task def, template, script, context map)
-  - **Status**: COMPLETED
-
-- [x] **Update PF-IMP-228**: Marked Completed via Update-ProcessImprovement.ps1
-  - **Status**: COMPLETED
+- [x] **0.1.1 Core Architecture** — ✅ Sufficient. quick-reference.md covers all CLI options, startup output, and troubleshooting. configuration-guide.md covers config in depth. No user-facing behavior unique to Core Architecture is missing — service orchestrator, data models, path utilities are internal.
+- [x] **2.1.1 Link Parsing System** — ✅ Sufficient. capabilities-reference.md has comprehensive "Link Detection by Parser" section covering all 7 parsers with pattern tables and examples per file type.
+- [x] **2.2.1 Link Updating** — ✅ Sufficient. capabilities-reference.md covers "What Triggers Updates" (3 detection strategies, move behavior). quick-reference.md has "What Happens When You Move a File" walkthrough. Atomic updates, dry-run, backups covered in capabilities-reference and configuration-guide.
 
 ## Session Tracking
 
-### Session 1: 2026-03-27
+### Session 1: 2026-04-16
 
-**Focus**: Task definition creation + framework integration (within PF-TSK-009 → PF-TSK-001 switch)
+**Focus**: Scope assessment, state file creation, first handbook
 **Completed**:
-- Task definition created and fully customized (PF-TSK-081)
-- AI Tasks registry updated manually (script had stale "Onboarding" header — fixed in New-Task.ps1)
-- Documentation Map and Tasks README auto-updated by New-Task.ps1
-- Temp state file created and customized
-- **Framework integration (workflow positioning + trigger mechanism)**:
-  - ai-tasks.md: Added flowchart branch for user documentation + updated 4 workflow chains (Code Review → [User Documentation Creation] → Release & Deployment)
-  - Code Review task (PF-TSK-005): Added User Documentation Creation as next task
-  - Feature implementation state template: Added trigger note to User Documentation section (❌ Needed → ✅ Created)
-  - Enhancement state tracking template: Added Step 17 (User Documentation) before Update Feature State (renumbered to Step 18)
-  - Implementation Finalization (PF-TSK-055): Step 6 now references PF-TSK-081 and instructs to flag ❌ Needed
-  - Release & Deployment (PF-TSK-?): Added Step 2 — verify user docs completeness as release gate
-  - Foundation Feature Implementation (PF-TSK-049): Added Step 16 — flag user docs status in feature state file
-  - Core Logic Implementation (PF-TSK-078): Added Step 13 — flag user docs status in feature state file
-
-**Issues/Blockers**:
-- New-Task.ps1 had stale section header "00 - Onboarding Tasks" instead of "00 - Setup Tasks" — fixed in script
+- Audited all 8 features for user documentation coverage
+- Created this tracking state file (PF-STA-091)
+- Created Configuration Guide handbook (PD-UGD-005) for feature 0.1.3
+- Updated feature state file, PD-documentation-map.md, and README.md
 
 **Next Session Plan**:
-- Session 2: Create New-Handbook.ps1 script and handbook-template.md
+- Formalize existing handbooks for 1.1.1 (Priority 2)
+- Evaluate coverage sufficiency for 0.1.1, 2.1.1, 2.2.1 (Priority 3)
 
-### Session 2: 2026-03-27
+### Session 2: 2026-04-16
 
-**Focus**: Document creation infrastructure (script + template)
+**Focus**: Logging System handbook creation (Priority 1, feature 3.1.1)
 **Completed**:
-- Handbook template created (PF-TEM-065) at templates/07-deployment/handbook-template.md
-- New-Handbook.ps1 script created at scripts/file-creation/07-deployment/New-Handbook.ps1
-- Script tested with -WhatIf (correct target path, no side effects) and real creation (PD-UGD-003 assigned, proper content)
-- Test file cleaned up and PD-UGD counter reverted to 3
-- PF-TEM nextAvailable updated 65→66 in PF-id-registry.json
-
-**Issues/Blockers**: None
+- Created Logging and Monitoring handbook (PD-UGD-006) for feature 3.1.1
+- Verified all CLI options, config keys, and defaults against source code
+- Updated feature state file via `Update-UserDocumentationState.ps1`
+- Updated README.md documentation table
+- Updated tracking state file matrix and action items
 
 **Next Session Plan**:
-- Session 3: Context map, Task Transition Guide update, Task Registry update, documentation map verification, PF-IMP-228 closure, feedback form
+- Formalize existing handbooks for 1.1.1 (Priority 2)
+- Evaluate coverage sufficiency for 0.1.1, 2.1.1, 2.2.1 (Priority 3)
 
-### Session 3: 2026-03-27
+### Session 3: 2026-04-16
 
-**Focus**: Cross-cutting updates, visualization, and finalization
+**Focus**: Priority 2 (formalize) + Priority 3 (evaluate sufficiency)
 **Completed**:
-- Context map created via New-ContextMap.ps1 (PF-VIS-059) and fully customized
-- Task Transition Guide updated: added "FROM User Documentation Creation" section + updated Code Review decision tree
-- Process Framework Task Registry: added entry #18 for PF-TSK-081
-- Documentation map: added context map entry, verified all artifacts registered
-- PF-IMP-228 marked Completed via Update-ProcessImprovement.ps1
-- Feedback form completed
+- Ran `Update-UserDocumentationState.ps1` twice for 1.1.1: file-type-quick-fix (PD-UGD-001), troubleshooting-file-types (PD-UGD-002)
+- Added PD-UGD IDs (001–004) to PD-documentation-map.md entries that were missing them
+- Fixed incorrect ID assignments in Existing Handbooks table (was PD-UGD-004/005, actually PD-UGD-001/002)
+- Evaluated 0.1.1, 2.1.1, 2.2.1: all three have sufficient coverage via cross-cutting handbooks (quick-reference, capabilities-reference, configuration-guide)
+- All Priority 1/2/3 items resolved — only feedback form remains
 
-**Issues/Blockers**: None
+**Next**: Complete feedback form for PF-TSK-081, then archive this state file
 
 ## Completion Criteria
 
-This temporary state file can be moved to `process-framework-local/state-tracking/temporary/old` when:
+This state file can be archived when:
 
-- [x] Task definition complete and functional (PF-TSK-081)
-- [x] New-Handbook.ps1 creation script implemented and tested
-- [x] handbook-template.md created and customized (PF-TEM-065)
-- [x] Context map created (PF-VIS-059)
-- [x] Cross-cutting documents updated (Task Transition Guide, Task Registry)
-- [x] Documentation map verified
-- [x] PF-IMP-228 marked Completed
-- [x] Feedback forms completed
-
-## Notes and Decisions
-
-### Key Decisions Made
-
-- **Workflow phase**: 07-deployment — user docs are a release-readiness concern, not implementation
-- **Full Mode**: Task creates new file types (handbooks via script), needs template + script
-- **PD-UGD prefix reuse**: Already exists in PD-id-registry.json, no new prefix needed
-- **No usage guide**: Task definition is self-contained; handbook template customization is straightforward
+- [x] All Priority 1 handbooks are created
+- [x] All Priority 2 formalizations are complete
+- [x] All Priority 3 evaluations are resolved — all three features (0.1.1, 2.1.1, 2.2.1) have sufficient coverage via cross-cutting handbooks
+- [x] All feature state files reflect accurate user documentation status
+- [x] PD-documentation-map.md is up to date with all handbooks
+- [x] Feedback form completed for PF-TSK-081 — PF-FEE-953 (Session 3, 2026-04-16)

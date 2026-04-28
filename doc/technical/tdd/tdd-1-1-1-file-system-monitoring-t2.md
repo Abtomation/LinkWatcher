@@ -16,7 +16,7 @@ retrospective: true
 
 > **Retrospective Document**: This TDD describes the existing technical design of the LinkWatcher Event Handler, documented after implementation during framework onboarding (PF-TSK-066). Content is reverse-engineered from source code analysis.
 >
-> **Source**: Derived from [1.1.2 Implementation State](../../state-tracking/features/archive/1.1.2-event-handler-implementation-state.md) and source code analysis of `linkwatcher/handler.py`, `linkwatcher/move_detector.py`, and `linkwatcher/dir_move_detector.py`.
+> **Source**: Derived from [1.1.2 Implementation State](../../state-tracking/features/archive/1.1.2-event-handler-implementation-state.md) and source code analysis of `src/linkwatcher/handler.py`, `src/linkwatcher/move_detector.py`, and `src/linkwatcher/dir_move_detector.py`.
 
 ## 1. Overview
 
@@ -25,10 +25,10 @@ retrospective: true
 The Event Handler subsystem is the central coordinator for real-time file system event processing. It bridges the watchdog file monitoring layer and the link maintenance subsystems (database, parser, updater). It receives raw OS-level file events and orchestrates the full "file moved → links updated" pipeline, including timer-based mechanisms to detect moves reported as delete+create pairs.
 
 The subsystem is implemented as four modules:
-- **`linkwatcher/handler.py`** — `LinkMaintenanceHandler`: Central coordinator that receives watchdog events, delegates to detectors, and orchestrates the link update pipeline
-- **`linkwatcher/reference_lookup.py`** — `ReferenceLookup`: Reference resolution and DB management — multi-format path lookup, stale reference retry, database cleanup after moves, and file rescanning (extracted from handler.py via TD022)
-- **`linkwatcher/move_detector.py`** — `MoveDetector`: Per-file move detection state machine (delete+create correlation with priority-queue expiry via single worker thread)
-- **`linkwatcher/dir_move_detector.py`** — `DirectoryMoveDetector`: Batch directory move detection state machine (3-phase: detect, confirm, apply)
+- **`src/linkwatcher/handler.py`** — `LinkMaintenanceHandler`: Central coordinator that receives watchdog events, delegates to detectors, and orchestrates the link update pipeline
+- **`src/linkwatcher/reference_lookup.py`** — `ReferenceLookup`: Reference resolution and DB management — multi-format path lookup, stale reference retry, database cleanup after moves, and file rescanning (extracted from handler.py via TD022)
+- **`src/linkwatcher/move_detector.py`** — `MoveDetector`: Per-file move detection state machine (delete+create correlation with priority-queue expiry via single worker thread)
+- **`src/linkwatcher/dir_move_detector.py`** — `DirectoryMoveDetector`: Batch directory move detection state machine (3-phase: detect, confirm, apply)
 
 ### 1.2 Related Features
 
@@ -81,7 +81,7 @@ The subsystem is implemented as four modules:
 
 ### 4.1 Data Models
 
-**Primary data model: `FileOperation`** (from `linkwatcher/models.py`):
+**Primary data model: `FileOperation`** (from `src/linkwatcher/models.py`):
 
 ```python
 @dataclass
@@ -250,25 +250,44 @@ dedup_key = (source_path, dest_path, file_size, modification_time)
 **File move pipeline** (`_handle_file_moved`):
 
 ```python
-def _handle_file_moved(self, src_path: str, dest_path: str):
-    # Step 1: Find all files that reference the old path
-    references = self.link_db.get_references_to_file(src_path)
+def _handle_file_moved(self, event: FileMovedEvent):
+    # Step 1: Resolve relative paths from event
+    old_path = self._get_relative_path(event.src_path)
+    new_path = self._get_relative_path(event.dest_path)
+    if not old_path or not new_path:
+        return
 
-    # Step 2: Update links in all referencing files
-    updated_count = self.updater.update_references(references, src_path, dest_path)
+    # Step 2: Look up references via ReferenceLookup (TD022 delegation)
+    # Uses path-format variations (raw, abs, with/without ./ prefix)
+    references = self._ref_lookup.find_references(old_path)
 
-    # Step 3: Update links WITHIN the moved file (single-read: read → parse_content → line-targeted replace)
-    # PD-BUG-025: Uses parse_content() to avoid double-read race; line-targeted replacement prevents substring corruption
+    if references:
+        # Step 3: Capture old path variations BEFORE any mutation
+        # — required for correct DB cleanup since updates mutate the DB
+        old_targets = self._ref_lookup.get_old_path_variations(old_path)
 
-    # Step 4: Rescan the moved file to rebuild its own link entries
-    new_links = self.parser.parse_file(dest_path)
-    self.link_db.remove_file_links(src_path)
-    for link in new_links:
-        self.link_db.add_link(link)
+        # Step 4: Update files first (before modifying the DB)
+        update_stats = self.updater.update_references(references, old_path, new_path)
 
-    # Step 4: Update statistics and log
-    self.stats["files_moved"] += 1
-    self.stats["links_updated"] += updated_count
+        # Step 5: Retry references with stale line numbers
+        # (rescans affected files and retries once — TD009 dedup)
+        self._ref_lookup.retry_stale_references(old_path, new_path, update_stats)
+
+        # Step 6: Remove old DB entries and rescan affected files
+        # moved_file_path skips the moved file — handled by Step 7
+        self._ref_lookup.cleanup_after_file_move(
+            references, old_targets, moved_file_path=old_path
+        )
+
+        self._update_stat("links_updated", update_stats["references_updated"])
+        self._update_stat("errors", update_stats["errors"])
+
+    # Step 7: Update links WITHIN the moved file (PD-BUG-025 single-read pattern)
+    # Handles content updates AND DB updates for the moved file's own entries
+    if self._should_monitor_file(event.dest_path):
+        self._update_links_within_moved_file(old_path, new_path, event.dest_path)
+
+    self._update_stat("files_moved")
 ```
 
 **Directory move pipeline** (`_handle_directory_moved`):
@@ -305,15 +324,12 @@ def _handle_directory_moved(self, src_dir: str, dest_dir: str):
         self.updater.update_references(dir_references, src_dir, dest_dir)
         self._ref_lookup.cleanup_after_directory_path_move(src_dir, dest_dir)
 
-    # Phase 3: Update references to parent/ancestor directory paths
-    # When src_dir = "a/b/c/d", find references targeting "a/b/c", "a/b", "a"
-    # and apply prefix replacement (old_parent → new_parent) so ancestor
-    # references stay consistent. Uses find_parent_directory_references().
-    parent_refs = self._ref_lookup.find_parent_directory_references(src_dir, dest_dir)
-    if parent_refs:
-        for old_parent, new_parent, refs in parent_refs:
-            self.updater.update_references(refs, old_parent, new_parent)
-            self._ref_lookup.cleanup_after_directory_path_move(old_parent, new_parent)
+    # Note: parent/ancestor directory-path references are not updated.
+    # When a subdirectory moves, the parent directory's own filesystem path is
+    # unchanged, so references targeting any ancestor remain valid. The pipeline
+    # only adjusts: refs to files in the moved subtree (Phase 1), relative links
+    # within moved files (Phase 1b), and refs to the moved directory itself or
+    # its descendants (Phase 2).
 ```
 
 **Per-file move detection** (delegated to `MoveDetector` in `move_detector.py`):
@@ -439,13 +455,13 @@ class DirectoryMoveDetector:
 
 All dependencies are fully implemented (retrospective document):
 
-- `linkwatcher/database.py` (0.1.2) — link database
-- `linkwatcher/parser.py` (2.1.1) — file parser
-- `linkwatcher/updater.py` (2.2.1) — link updater
-- `linkwatcher/utils.py` (0.1.1) — path utilities (part of Core Architecture)
-- `linkwatcher/reference_lookup.py` (1.1.1) — reference resolution and DB management (extracted from handler.py via TD022)
-- `linkwatcher/move_detector.py` (1.1.1) — per-file move detection state machine (extracted from handler.py via TD005)
-- `linkwatcher/dir_move_detector.py` (1.1.1) — batch directory move detection state machine (extracted from handler.py via TD005)
+- `src/linkwatcher/database.py` (0.1.2) — link database
+- `src/linkwatcher/parser.py` (2.1.1) — file parser
+- `src/linkwatcher/updater.py` (2.2.1) — link updater
+- `src/linkwatcher/utils.py` (0.1.1) — path utilities (part of Core Architecture)
+- `src/linkwatcher/reference_lookup.py` (1.1.1) — reference resolution and DB management (extracted from handler.py via TD022)
+- `src/linkwatcher/move_detector.py` (1.1.1) — per-file move detection state machine (extracted from handler.py via TD005)
+- `src/linkwatcher/dir_move_detector.py` (1.1.1) — batch directory move detection state machine (extracted from handler.py via TD005)
 
 ### 6.2 Implementation Notes (Retrospective)
 

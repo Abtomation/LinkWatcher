@@ -15,7 +15,7 @@ retrospective: true
 
 > **Retrospective Document**: This FDD describes the existing implemented functionality of the LinkWatcher Parser Framework, documented after implementation during framework onboarding (PF-TSK-066). Content is descriptive ("what is") rather than prescriptive ("what should be").
 >
-> **Source**: Derived from source code analysis of `linkwatcher/parser.py` and `linkwatcher/parsers/`.
+> **Source**: Derived from source code analysis of `src/linkwatcher/parser.py` and `src/linkwatcher/parsers`.
 <!-- HOW_IT_WORKS.md (Parser System section) was removed — content superseded by this FDD and TDD PD-TDD-025 -->
 >
 > **Scope Note**: This feature consolidates old 2.1.1 (Parser Framework) with all individual parser implementations: 2.1.2 (Markdown), 2.1.3 (YAML), 2.1.4 (JSON), 2.1.5 (Python), 2.1.6 (Dart), 2.1.7 (Generic). The framework and all parsers are a single cohesive subsystem.

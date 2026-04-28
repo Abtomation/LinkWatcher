@@ -17,7 +17,9 @@
     The title/summary of the bug
 
 .PARAMETER Description
-    Detailed description of the bug
+    Detailed description of the bug (10-500 chars; this is the table-row summary —
+    compress longer drafts and put reproduction detail in -ReproductionSteps,
+    -ExpectedBehavior, -ActualBehavior, or -Evidence).
 
 .PARAMETER DiscoveredBy
     How the bug was discovered (TestAudit, CodeReview, UserReport, Testing, E2ETesting, Monitoring, Development, FeatureImplementation, Refactoring)
@@ -78,7 +80,16 @@ param(
     [string]$Title,
 
     [Parameter(Mandatory = $true)]
-    [ValidateLength(10, 500)]
+    [ValidateScript({
+        if ($_.Length -lt 10) {
+            throw "Description is too short ($($_.Length) chars; minimum 10). Provide a more substantive description."
+        }
+        if ($_.Length -gt 500) {
+            $over = $_.Length - 500
+            throw "Description is too long ($($_.Length) chars; maximum 500, $over over). This is the table-row summary — compress the description and put reproduction detail in -ReproductionSteps, -ExpectedBehavior, -ActualBehavior, or -Evidence."
+        }
+        $true
+    })]
     [string]$Description,
 
     [Parameter(Mandatory = $true)]

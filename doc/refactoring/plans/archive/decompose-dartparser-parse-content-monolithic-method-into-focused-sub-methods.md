@@ -8,12 +8,12 @@ updated: 2026-03-03
 refactoring_scope: Decompose DartParser.parse_content monolithic method into focused sub-methods
 mode: lightweight
 priority: Medium
-target_area: linkwatcher/parsers/dart.py
+target_area: src/linkwatcher/parsers/dart.py
 ---
 
 # Lightweight Refactoring Plan: Decompose DartParser.parse_content monolithic method into focused sub-methods
 
-- **Target Area**: linkwatcher/parsers/dart.py
+- **Target Area**: src/linkwatcher/parsers/dart.py
 - **Priority**: Medium
 - **Created**: 2026-03-03
 - **Author**: AI Agent & Human Partner

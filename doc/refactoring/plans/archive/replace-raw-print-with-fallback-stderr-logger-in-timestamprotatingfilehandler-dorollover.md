@@ -7,13 +7,13 @@ created: 2026-04-02
 updated: 2026-04-02
 priority: Medium
 mode: lightweight
-target_area: linkwatcher/logging.py
+target_area: src/linkwatcher/logging.py
 refactoring_scope: Replace raw print() with fallback stderr logger in TimestampRotatingFileHandler.doRollover()
 ---
 
 # Lightweight Refactoring Plan: Replace raw print() with fallback stderr logger in TimestampRotatingFileHandler.doRollover()
 
-- **Target Area**: linkwatcher/logging.py
+- **Target Area**: src/linkwatcher/logging.py
 - **Priority**: Medium
 - **Created**: 2026-04-02
 - **Author**: AI Agent & Human Partner
@@ -52,4 +52,3 @@ refactoring_scope: Replace raw print() with fallback stderr logger in TimestampR
 
 ## Related Documentation
 - [Technical Debt Tracking](/doc/state-tracking/permanent/technical-debt-tracking.md)
-

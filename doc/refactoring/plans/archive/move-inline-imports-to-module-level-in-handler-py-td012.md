@@ -6,14 +6,14 @@ version: 1.0
 created: 2026-03-02
 updated: 2026-03-02
 refactoring_scope: Move Inline Imports to Module Level in handler.py (TD012)
-target_area: linkwatcher/handler.py
+target_area: src/linkwatcher/handler.py
 priority: Low
 ---
 
 # Refactoring Plan: Move Inline Imports to Module Level in handler.py (TD012)
 
 ## Overview
-- **Target Area**: linkwatcher/handler.py
+- **Target Area**: src/linkwatcher/handler.py
 - **Priority**: Low
 - **Created**: 2026-03-02
 - **Author**: AI Agent & Human Partner
@@ -44,7 +44,7 @@ Two standard library imports used inside method bodies instead of at module leve
 
 ### Affected Components
 
-- `linkwatcher/handler.py` — module-level imports section and `_update_links_within_moved_file` method
+- `src/linkwatcher/handler.py` — module-level imports section and `_update_links_within_moved_file` method
 
 ## Refactoring Strategy
 

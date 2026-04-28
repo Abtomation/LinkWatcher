@@ -6,14 +6,14 @@ version: 1.0
 created: 2026-04-09
 updated: 2026-04-09
 priority: Medium
-target_area: linkwatcher/logging.py
+target_area: src/linkwatcher/logging.py
 refactoring_scope: Defer colorama.init() from module-level to first ColoredFormatter use
 mode: lightweight
 ---
 
 # Lightweight Refactoring Plan: Defer colorama.init() from module-level to first ColoredFormatter use
 
-- **Target Area**: linkwatcher/logging.py
+- **Target Area**: src/linkwatcher/logging.py
 - **Priority**: Medium
 - **Created**: 2026-04-09
 - **Author**: AI Agent & Human Partner
@@ -22,7 +22,7 @@ mode: lightweight
 
 ## Item 1: TD185 — Defer colorama.init() from module-level to first ColoredFormatter use
 
-**Scope**: `colorama.init(autoreset=True)` at line 90 of `linkwatcher/logging.py` wraps `sys.stdout`/`sys.stderr` at import time, causing side effects in test harnesses and non-terminal environments. Replace with lazy initialization on first `ColoredFormatter` instantiation with `colored=True`, using a module-level `_colorama_initialized` flag.
+**Scope**: `colorama.init(autoreset=True)` at line 90 of `src/linkwatcher/logging.py` wraps `sys.stdout`/`sys.stderr` at import time, causing side effects in test harnesses and non-terminal environments. Replace with lazy initialization on first `ColoredFormatter` instantiation with `colored=True`, using a module-level `_colorama_initialized` flag.
 
 **Changes Made**:
 - [x] Removed `init(autoreset=True)` call at module level (was line 90)

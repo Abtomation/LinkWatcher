@@ -27,8 +27,15 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
+# --- Import common helpers ---
+$dir = $PSScriptRoot
+while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
+    $dir = Split-Path -Parent $dir
+}
+Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
+
 # --- Resolve paths ---
-$projectRoot = (Resolve-Path (Join-Path $PSScriptRoot '../../../.git/objects/3a/b045e54f8acd16e0d036a487eb74c269db1d9f')).Path
+$projectRoot = Get-ProjectRoot
 $featuresDir = Join-Path $projectRoot 'doc/state-tracking/features'
 $trackingFile = Join-Path $projectRoot 'doc/state-tracking/permanent/feature-tracking.md'
 $outputFile = Join-Path $projectRoot 'doc/technical/architecture/feature-dependencies.md'

@@ -12,7 +12,7 @@ retrospective: true
 
 # ADR-040: Target-Indexed In-Memory Link Database
 
-> **Retrospective ADR**: This decision was made during original implementation (pre-framework) and documented retroactively during framework onboarding (PF-TSK-066). Content is reverse-engineered from source code analysis of `linkwatcher/database.py`.
+> **Retrospective ADR**: This decision was made during original implementation (pre-framework) and documented retroactively during framework onboarding (PF-TSK-066). Content is reverse-engineered from source code analysis of `src/linkwatcher/database.py`.
 
 *Created: 2026-02-19*
 *Last updated: 2026-02-19*
@@ -37,7 +37,7 @@ The key architectural question: **How should link references be indexed, protect
 
 ## Decision
 
-Three tightly coupled design decisions implement the in-memory database (`linkwatcher/database.py`):
+Three tightly coupled design decisions implement the in-memory database (`src/linkwatcher/database.py`):
 
 ### 1. Target-Indexed Storage: `Dict[str, List[LinkReference]]`
 
@@ -135,7 +135,7 @@ Require all stored paths to be normalized before insertion; accept only exact-ma
 - [FDD PD-FDD-023](../../functional-design/fdds/fdd-0-1-2-in-memory-database.md) — Functional requirements for In-Memory Link Database
 - [TDD PD-TDD-022](../tdd/tdd-0-1-2-in-memory-database-t2.md) — Technical design document with implementation details
 
-- `linkwatcher/database.py` — Primary implementation file
+- `src/linkwatcher/database.py` — Primary implementation file
 
 ---
 

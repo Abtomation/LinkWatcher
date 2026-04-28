@@ -5,7 +5,7 @@ category: Assessment
 version: 1.0
 created: [Identification Date]
 updated: [Identification Date]
-debt_category: [Debt Category]
+debt_dim: [Dimension]
 debt_priority: [Initial Priority]
 debt_location: [Location/Component]
 ---
@@ -15,7 +15,7 @@ debt_location: [Location/Component]
 ## Item Overview
 
 - **Item Title**: [Debt Item Title]
-- **Category**: [Debt Category]
+- **Dimension**: [Dimension]
 - **Priority**: [Initial Priority]
 - **Status**: Identified
 - **Identified Date**: [Identification Date]

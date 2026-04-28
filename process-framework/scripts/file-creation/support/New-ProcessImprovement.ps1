@@ -20,7 +20,7 @@
     Optional markdown link target for the source. When provided, the Source column renders as [Source](SourceLink).
 
 .PARAMETER Description
-    What needs to be improved
+    What needs to be improved (10-500 chars; for table-row brevity, compress longer drafts and move detailed context to -Notes).
 
 .PARAMETER Priority
     Priority level: HIGH, MEDIUM, or LOW
@@ -57,6 +57,7 @@
     - Adds entry to "Current Improvement Opportunities" table
     - Note: existing entries use IMP-### format; new entries use PF-IMP-### format
     - Batch mode: pass a JSON file with an array of improvement objects to register multiple items at once
+    - Batch mode applies the same length constraints as Single mode (Source 3-200, Description 10-500); the entire batch aborts on the first item with errors before any IDs are consumed
 #>
 
 [CmdletBinding(SupportsShouldProcess = $true, DefaultParameterSetName = "Single")]
@@ -69,7 +70,16 @@ param(
     [string]$SourceLink = "",
 
     [Parameter(Mandatory = $true, ParameterSetName = "Single")]
-    [ValidateLength(10, 500)]
+    [ValidateScript({
+        if ($_.Length -lt 10) {
+            throw "Description is too short ($($_.Length) chars; minimum 10). Provide a more substantive description."
+        }
+        if ($_.Length -gt 500) {
+            $over = $_.Length - 500
+            throw "Description is too long ($($_.Length) chars; maximum 500, $over over). For table-row brevity, compress the description and move detailed context to -Notes."
+        }
+        $true
+    })]
     [string]$Description,
 
     [Parameter(Mandatory = $true, ParameterSetName = "Single")]
@@ -249,7 +259,17 @@ if ($PSCmdlet.ParameterSetName -eq "Batch") {
         $item = $items[$idx]
         $errors = @()
         if (-not $item.Source) { $errors += "missing Source" }
+        elseif ($item.Source.Length -lt 3) { $errors += "Source is too short ($($item.Source.Length) chars; minimum 3)" }
+        elseif ($item.Source.Length -gt 200) {
+            $over = $item.Source.Length - 200
+            $errors += "Source is too long ($($item.Source.Length) chars; maximum 200, $over over) — shorten the source label"
+        }
         if (-not $item.Description) { $errors += "missing Description" }
+        elseif ($item.Description.Length -lt 10) { $errors += "Description is too short ($($item.Description.Length) chars; minimum 10) — provide a more substantive description" }
+        elseif ($item.Description.Length -gt 500) {
+            $over = $item.Description.Length - 500
+            $errors += "Description is too long ($($item.Description.Length) chars; maximum 500, $over over) — for table-row brevity, compress the description and move detailed context to the Notes field"
+        }
         if (-not $item.Priority) { $errors += "missing Priority" }
         elseif ($item.Priority -notin $validPriorities) { $errors += "invalid Priority '$($item.Priority)' (must be HIGH, MEDIUM, or LOW)" }
         if ($item.Status -and $item.Status -notin $validStatuses) { $errors += "invalid Status '$($item.Status)' (must be NeedsPrioritization or NeedsImplementation)" }

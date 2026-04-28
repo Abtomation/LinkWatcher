@@ -58,12 +58,12 @@ This feature adds a single new module and modifies the CLI entry point. No chang
 
 | Component | Used For | Methods/APIs |
 |-----------|----------|--------------|
-| `linkwatcher/parser.py` → `LinkParser` | Parse files to extract link references | `parse_file(file_path) → List[LinkReference]` |
-| `linkwatcher/utils.py` | File filtering and path utilities | `should_monitor_file()`, `normalize_path()`, `looks_like_file_path()`, `safe_file_read()` |
-| `linkwatcher/models.py` → `LinkReference` | Link data structure | `file_path`, `line_number`, `link_target`, `link_type` |
-| `linkwatcher/config/` | Configuration (extensions, ignored dirs) | `monitored_extensions`, `ignored_directories` |
+| `src/linkwatcher/parser.py` → `LinkParser` | Parse files to extract link references | `parse_file(file_path) → List[LinkReference]` |
+| `src/linkwatcher/utils.py` | File filtering and path utilities | `should_monitor_file()`, `normalize_path()`, `looks_like_file_path()`, `safe_file_read()` |
+| `src/linkwatcher/models.py` → `LinkReference` | Link data structure | `file_path`, `line_number`, `link_target`, `link_type` |
+| `src/linkwatcher/config` | Configuration (extensions, ignored dirs) | `monitored_extensions`, `ignored_directories` |
 
-**Pattern reused**: `LinkWatcherService._initial_scan()` ([service.py](../../../linkwatcher/service.py)) — same walk + parse pattern, different post-processing.
+**Pattern reused**: `LinkWatcherService._initial_scan()` ([service.py](../../../src/linkwatcher/service.py)) — same walk + parse pattern, different post-processing.
 
 ### Data Flow
 
@@ -88,7 +88,7 @@ Walk monitored files (os.walk + should_monitor_file)
 
 | Action | File | Details |
 |--------|------|---------|
-| Create | `linkwatcher/validator.py` | `LinkValidator` class, `ValidationResult` and `BrokenLink` dataclasses |
+| Create | `src/linkwatcher/validator.py` | `LinkValidator` class, `ValidationResult` and `BrokenLink` dataclasses |
 
 Deliverables:
 - `BrokenLink` dataclass: source file, line number, target path, link type
@@ -209,7 +209,7 @@ Key test scenarios:
 
 | File | Action | Purpose |
 |------|--------|---------|
-| `linkwatcher/validator.py` | Create | Core validation logic, report generation |
+| `src/linkwatcher/validator.py` | Create | Core validation logic, report generation |
 | `main.py` | Modify | Add `--validate` CLI flag and early-exit branch |
 | `test/automated/unit/test_validator.py` | Create | Unit tests |
 

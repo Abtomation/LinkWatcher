@@ -8,13 +8,13 @@ updated: 2026-04-09
 debt_item: TD180
 priority: Medium
 refactoring_scope: Extract shared structured-data tree-walk logic from YAML/JSON parsers
-target_area: linkwatcher/parsers
+target_area: src/linkwatcher/parsers
 ---
 
 # Refactoring Plan: Extract shared structured-data tree-walk logic from YAML/JSON parsers
 
 ## Overview
-- **Target Area**: linkwatcher/parsers
+- **Target Area**: src/linkwatcher/parsers
 - **Priority**: Medium
 - **Created**: 2026-04-09
 - **Author**: AI Agent & Human Partner
@@ -49,13 +49,13 @@ YamlParser and JsonParser share duplicated structural logic for recursive tree w
 
 ### Affected Components
 
-- `linkwatcher/parsers/yaml_parser.py` (210 lines) — YamlParser with `_extract_yaml_file_refs`, `_find_next_occurrence`, `_extract_embedded_paths`
-- `linkwatcher/parsers/json_parser.py` (189 lines) — JsonParser with `_extract_json_file_refs`, `_find_unclaimed_line`, `_extract_embedded_paths`
-- `linkwatcher/parsers/base.py` (82 lines) — BaseParser base class, target for shared methods
+- `src/linkwatcher/parsers/yaml_parser.py` (210 lines) — YamlParser with `_extract_yaml_file_refs`, `_find_next_occurrence`, `_extract_embedded_paths`
+- `src/linkwatcher/parsers/json_parser.py` (189 lines) — JsonParser with `_extract_json_file_refs`, `_find_unclaimed_line`, `_extract_embedded_paths`
+- `src/linkwatcher/parsers/base.py` (82 lines) — BaseParser base class, target for shared methods
 
 ### Dependencies and Impact
 
-- **Internal Dependencies**: `linkwatcher/parsers/__init__.py` imports both parsers; `linkwatcher/parser.py` dispatches to them via extension mapping. Tests in `test/automated/parsers/test_yaml.py` (18 tests) and `test/automated/parsers/test_json.py` (17 tests, 1 xfail).
+- **Internal Dependencies**: `src/linkwatcher/parsers/__init__.py` imports both parsers; `src/linkwatcher/parser.py` dispatches to them via extension mapping. Tests in `test/automated/parsers/test_yaml.py` (18 tests) and `test/automated/parsers/test_json.py` (17 tests, 1 xfail).
 - **External Dependencies**: None
 - **Risk Assessment**: Low — structural-only refactoring, no public API changes, comprehensive test coverage
 

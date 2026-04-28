@@ -7,13 +7,13 @@ created: 2026-03-02
 updated: 2026-03-02
 priority: Medium
 refactoring_scope: Replace Bare Except Clauses in handler.py (TD011)
-target_area: linkwatcher/handler.py
+target_area: src/linkwatcher/handler.py
 ---
 
 # Refactoring Plan: Replace Bare Except Clauses in handler.py (TD011)
 
 ## Overview
-- **Target Area**: linkwatcher/handler.py
+- **Target Area**: src/linkwatcher/handler.py
 - **Priority**: Medium
 - **Created**: 2026-03-02
 - **Author**: AI Agent & Human Partner

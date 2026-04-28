@@ -130,7 +130,7 @@ doc/ci-cd/ci-cd-documentation-maintenance.md -> lib/config/
 doc/documentation-tiers/README.md -> assessments/ART-ASS-
 
 # ── Feature state files — shorthand module references ────────────────
-# State files reference modules without linkwatcher/ prefix (convention).
+# State files reference modules without src/linkwatcher/ prefix (convention).
 doc/state-tracking/features/**/*.md -> parsers/
 doc/state-tracking/features/**/*.md -> config/
 doc/state-tracking/features/**/*.md -> docs/configuration.md
@@ -171,7 +171,7 @@ doc/validation/reports/**/*.md -> config/
 doc/validation/reports/**/*.md -> docs/
 doc/validation/reports/**/*.md -> tests/
 doc/validation/reports/**/*.md -> .github/workflows/ci.yml
-doc/validation/reports/**/*.md -> linkwatcher/cli.py
+doc/validation/reports/**/*.md -> src/linkwatcher/cli.py
 doc/validation/reports/**/*.md -> Makefile/setup.py
 doc/validation/reports/**/*.md -> add/remove/update.
 

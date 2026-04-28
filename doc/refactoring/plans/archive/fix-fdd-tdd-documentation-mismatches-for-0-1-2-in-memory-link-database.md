@@ -28,7 +28,7 @@ target_area: FDD PD-FDD-023, TDD PD-TDD-022
 **Assessment Source**: PD-VAL-051 (Documentation Alignment Validation Round 2 Session 7)
 
 **Changes Made**:
-- [x] FDD BR-5 (line 81): Corrected `_normalize_path()` claim → `normalize_path()` imported from `linkwatcher/utils.py`
+- [x] FDD BR-5 (line 81): Corrected `_normalize_path()` claim → `normalize_path()` imported from `src/linkwatcher/utils.py`
 - [x] FDD Technical Dependencies (line 133): Replaced `pathlib` reference → `linkwatcher.utils` for `normalize_path()`
 - [x] TDD method count summary (line 67): Updated from 9 to 12 methods, added `update_source_path()`, `get_references_to_directory()`, `has_target_with_basename()`, and `last_scan` property
 - [x] TDD pseudocode section (~line 207): Added pseudocode for `update_source_path()` and `get_references_to_directory()` matching documentation depth of existing CRUD methods

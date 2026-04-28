@@ -189,7 +189,6 @@ else {
     $auditableStatuses = @(
         "Audit Approved",
         "Approved",
-        "Approved — Pending Dependencies",
         "Needs Update"
     )
 

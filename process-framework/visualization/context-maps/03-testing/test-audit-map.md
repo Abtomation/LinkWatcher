@@ -40,10 +40,8 @@ graph TD
     E2EReport --> AuditDecision
 
     AuditDecision --> |Audit Approved| TrackingUpdate[Test Tracking]
-    AuditDecision --> |Approved — Pending Dependencies| DepTracking[Implementation Dependencies]
     AuditDecision --> |Needs Update| TrackingUpdate
     AuditDecision --> |Tests Incomplete| TrackingUpdate
-    DepTracking --> TrackingUpdate
 
     TrackingUpdate --> AutoTracking[/test-tracking.md/]
     TrackingUpdate --> PerfTracking[/performance-test-tracking.md/]
@@ -55,7 +53,7 @@ graph TD
 
     class TestType,TestFiles,DepAnalysis critical
     class AutoCriteria,PerfCriteria,E2ECriteria,AuditReport,PerfReport,E2EReport,AuditDecision,TrackingUpdate important
-    class DepTracking,AutoTracking,PerfTracking,E2ETracking,TestSpecs,ValidationScript reference
+    class AutoTracking,PerfTracking,E2ETracking,TestSpecs,ValidationScript reference
 ```
 
 ## Essential Components
@@ -73,12 +71,11 @@ graph TD
 - **Five E2E Criteria** (E2E): Fixture Correctness, Scenario Completeness, Expected Outcome Accuracy, Reproducibility, Precondition Coverage
 - **Test Specifications**: Original test specifications that define expected test behavior and coverage
 - **Audit Reports**: Type-specific audit documentation — standard audit report (Automated), performance audit report, or E2E audit report
-- **Audit Decision**: Four possible outcomes (Audit Approved, Approved — Pending Dependencies, Needs Update, Tests Incomplete)
+- **Audit Decision**: Three possible outcomes (Audit Approved, Needs Update, Tests Incomplete)
 - **Test Tracking**: Type-specific tracking files — test-tracking.md (Automated), performance-test-tracking.md (Performance), e2e-test-tracking.md (E2E)
 
 ### Reference Components (Access When Needed)
 
-- **Implementation Dependencies**: Documentation of missing implementations that block tests (Automated type)
 - **Tracking Files**: test-tracking.md, performance-test-tracking.md, e2e-test-tracking.md — type-specific Audit Status and Audit Report columns
 - **Validation Script**: Automated validation tool with type-specific section validation
 
@@ -88,7 +85,7 @@ graph TD
 2. **Test Files → Type-Specific Criteria**: Test files are evaluated against the criteria matching their type
 3. **Criteria + Context → Audit Report**: Assessment results combine with type-specific context to create the appropriate audit report
 4. **Audit Report → Type-Specific Tracking**: Audit decisions update the correct tracking file's Audit Status column (test-tracking.md, performance-test-tracking.md, or e2e-test-tracking.md)
-5. **Audit Decision → Downstream Gate**: `🔍 Audit Approved` status is a hard prerequisite for Performance Baseline Capture (PF-TSK-085) and E2E Test Execution (PF-TSK-070) for newly created tests
+5. **Audit Decision → Downstream Gate**: `✅ Audit Approved` status is a hard prerequisite for Performance Baseline Capture (PF-TSK-085) and E2E Test Execution (PF-TSK-070) for newly created tests
 6. **Audit Report -.-> Validation Script**: Type-aware validation ensures the correct criteria sections are present
 
 ## Implementation in AI Sessions

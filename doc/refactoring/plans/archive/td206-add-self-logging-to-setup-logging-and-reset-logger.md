@@ -22,7 +22,7 @@ refactoring_scope: TD206: Add self-logging to setup_logging and reset_logger
 
 ## Item 1: TD206 — Add self-logging to setup_logging() and reset_logger()
 
-**Scope**: `setup_logging()` and `reset_logger()` in `linkwatcher/logging.py` don't log their own invocations, making config changes and logger resets invisible in log output. Add INFO log on setup (after creating new logger) and DEBUG log on reset (before closing handlers). Dimension: OB (Observability).
+**Scope**: `setup_logging()` and `reset_logger()` in `src/linkwatcher/logging.py` don't log their own invocations, making config changes and logger resets invisible in log output. Add INFO log on setup (after creating new logger) and DEBUG log on reset (before closing handlers). Dimension: OB (Observability).
 
 **Changes Made**:
 - [x] Add `_logger.debug("logger_reset", event_type="logging_lifecycle")` in `reset_logger()` before closing handlers (logging.py:553)

@@ -38,9 +38,9 @@ priority: Medium
 ## Current State Analysis
 
 ### Affected Components
-- `linkwatcher/updater.py` — Added `update_references_batch()` and `_update_file_references_multi()`
-- `linkwatcher/reference_lookup.py` — Added `collect_directory_file_refs()`
-- `linkwatcher/handler.py` — Restructured `_handle_directory_moved` loop into collect→batch-update→cleanup phases
+- `src/linkwatcher/updater.py` — Added `update_references_batch()` and `_update_file_references_multi()`
+- `src/linkwatcher/reference_lookup.py` — Added `collect_directory_file_refs()`
+- `src/linkwatcher/handler.py` — Restructured `_handle_directory_moved` loop into collect→batch-update→cleanup phases
 
 ### Dependencies and Impact
 - **Internal Dependencies**: handler.py orchestrates the pipeline; reference_lookup.py and updater.py provide the building blocks

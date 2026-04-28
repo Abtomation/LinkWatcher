@@ -5,7 +5,7 @@ category: General
 version: 1.0
 created: 2026-03-02
 updated: 2026-03-02
-target_area: linkwatcher/handler.py
+target_area: src/linkwatcher/handler.py
 priority: High
 refactoring_scope: TD008 Duplicated Reference Lookup Extraction
 ---
@@ -13,7 +13,7 @@ refactoring_scope: TD008 Duplicated Reference Lookup Extraction
 # Refactoring Plan: TD008 Duplicated Reference Lookup Extraction
 
 ## Overview
-- **Target Area**: linkwatcher/handler.py
+- **Target Area**: src/linkwatcher/handler.py
 - **Priority**: High
 - **Created**: 2026-03-02
 - **Author**: AI Agent & Human Partner
@@ -52,7 +52,7 @@ refactoring_scope: TD008 Duplicated Reference Lookup Extraction
 - **Test suite**: 344 passed, 9 pre-existing failures, 4 skipped
 
 ### Affected Components
-- `linkwatcher/handler.py` — the only file modified (all 3 duplication sites are internal)
+- `src/linkwatcher/handler.py` — the only file modified (all 3 duplication sites are internal)
 
 ### Dependencies and Impact
 - **Internal Dependencies**: `_handle_file_moved` is called from `on_moved` event handler and `_process_pending_dir_move`

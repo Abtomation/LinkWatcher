@@ -104,7 +104,17 @@
         "handbooks": "doc/user/handbooks",
         "default": "handbooks"
       },
-      "nextAvailable": 7
+      "subdirectories": {
+        "description": "L1: Diataxis content type - the reader's cognitive mode (https://diataxis.fr/)",
+        "values": ["tutorials", "how-to", "reference", "explanation"],
+        "default": "how-to"
+      },
+      "topics": {
+        "description": "L2: Project-specific topic/domain area - which part of the system the doc covers. Empty array means L2 is not yet declared for this project.",
+        "values": [],
+        "default": null
+      },
+      "nextAvailable": 9
     },
     "PD-FAQ": {
       "description": "Product Documentation - FAQ",
@@ -156,7 +166,7 @@
         "permanent": "doc/state-tracking/permanent",
         "default": "permanent"
       },
-      "nextAvailable": 91
+      "nextAvailable": 97
     },
     "PD-ASS": {
       "description": "Product Documentation - Assessment Artifacts",
@@ -224,7 +234,7 @@
         "plans": "doc/refactoring/plans",
         "default": "plans"
       },
-      "nextAvailable": 192
+      "nextAvailable": 201
     },
     "PD-TDA": {
       "description": "Product Documentation - Technical Debt Assessments",
@@ -264,7 +274,7 @@
         "main": "doc/technical/integration",
         "default": "main"
       },
-      "nextAvailable": 1
+      "nextAvailable": 11
     },
     "WF": {
       "description": "Product Documentation - User Workflow Tracking Entries",

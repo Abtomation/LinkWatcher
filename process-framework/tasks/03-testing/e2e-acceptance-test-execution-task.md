@@ -60,7 +60,7 @@ E2E acceptance test execution validates system behavior that cannot be covered b
 
 1. **Identify what needs testing**: Review [e2e-test-tracking.md](../../../test/state-tracking/permanent/e2e-test-tracking.md) for groups marked `🔄 Needs Re-execution`. Also check the **Workflow Milestone Tracking** section for workflows with `⬜ Not Created` status — these may need test case creation (PF-TSK-069) first. For release validation, identify all groups that must pass.
 
-2. **🚨 Verify audit gate for `📋 Needs Execution` entries**: Before executing newly created test cases, confirm their **Audit Status** column shows `🔍 Audit Approved` in e2e-test-tracking.md. Test cases at `📋 Needs Execution` that have not been audited (Audit Status is empty or `⬜ Not Audited`) **must** pass [Test Audit (PF-TSK-030)](/process-framework/tasks/03-testing/test-audit-task.md) with `-TestType E2E` first. This gate does **not** apply to `🔄 Needs Re-execution` entries (they were already audited when first created).
+2. **🚨 Verify audit gate for `📋 Needs Execution` entries**: Before executing newly created test cases, confirm their **Audit Status** column shows `✅ Audit Approved` in e2e-test-tracking.md. Test cases at `📋 Needs Execution` that have not been audited (Audit Status is empty or `⬜ Not Audited`) **must** pass [Test Audit (PF-TSK-030)](/process-framework/tasks/03-testing/test-audit-task.md) with `-TestType E2E` first. This gate does **not** apply to `🔄 Needs Re-execution` entries (they were already audited when first created).
 3. **Install code changes globally** (if code was modified since last install): Ensure the system under test uses the latest code. Run `python deployment/install_global.py` from the project root — this copies source files, creates/updates the dedicated LinkWatcher venv, and updates startup scripts. Skip if no code changes since last install.
 4. **Set up test environment**: Run [Setup-TestEnvironment.ps1](../../scripts/test/e2e-acceptance-testing/Setup-TestEnvironment.ps1) to copy pristine templates into the workspace:
    ```bash
@@ -105,7 +105,7 @@ E2E acceptance test execution validates system behavior that cannot be covered b
    ```
    > Use `-TestCase "E2E-NNN"` for a single test case. Use `-Detailed` to see line-by-line diffs for failures.
 9a. **On failure — root cause analysis**: When a test case fails, the AI agent MUST investigate the root cause before proceeding. Check system logs, trace the event flow, and identify whether the failure is caused by a code defect, test fixture issue, infrastructure problem, or environmental factor. Document the root cause clearly.
-   > **🚨 CRITICAL**: Do NOT propose or attempt to fix the issue during test execution. The purpose of this task is to discover and document failures, not to fix them. Fixes belong in a separate Bug Fixing task (PF-TSK-048).
+   > **🚨 CRITICAL**: Do NOT propose or attempt to fix the issue during test execution. The purpose of this task is to discover and document failures, not to fix them. Fixes belong in a separate Bug Fixing task (PF-TSK-007).
 9b. **On failure — always file a bug**: Every test failure MUST result in a bug report, regardless of root cause. Add the bug entry to [bug-tracking.md](../../../doc/state-tracking/permanent/bug-tracking.md) with: root cause analysis, affected test cases, component involved, and severity assessment. Increment the PD-BUG counter in [PD ID Registry](/doc/PD-id-registry.json).
 
 ### Finalization

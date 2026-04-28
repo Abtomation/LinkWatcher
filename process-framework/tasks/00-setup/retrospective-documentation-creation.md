@@ -190,7 +190,7 @@ This is the final onboarding task that transforms code analysis into formal desi
    - For each gap identified in the FDD and TDD Gap Analysis sections:
      - Create a tech debt item using:
        ```powershell
-       pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/update/Update-TechDebt.ps1 -Add -Description "<gap description>" -Priority "<CRITICAL|HIGH|MEDIUM|LOW>" -Source "Onboarding QAR: <Feature Name>" -Notes "Gap <GAP-ID> from Quality Assessment Report <PD-QAR-XXX>"
+       pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/update/Update-TechDebt.ps1 -Add -Description "<gap description>" -Dims "<DIM_CODE>" -Location "<path/to/file-or-directory>" -Priority "<CRITICAL|HIGH|MEDIUM|LOW>" -EstimatedEffort "<S|M|L>" -AssessmentId "PD-QAR-XXX" -Notes "Gap <GAP-ID> for <Feature Name>"
        ```
      - Record the assigned PD-TDI-XXX ID
    - Update the Feature Implementation State file Section 10 "Known Limitations & Tech Debt" with links to created items
@@ -209,31 +209,49 @@ This is the final onboarding task that transforms code analysis into formal desi
    - Update Feature Implementation State file Section 8 "Quality Assessment Report" link
    - Update master state: QAR ✅ for this feature
 
+13. **Assess User Documentation Coverage** (all features, including Tier 1):
+   > Unlike Steps 5-12, this assessment applies to all features regardless of tier — user-visible behavior is independent of feature complexity. Tier 1 features with CLI commands, configuration, or user workflows still need this assessment.
+
+   - **Purpose**: Apply the [Diátaxis Content Type Guide](../../guides/07-deployment/diataxis-content-type-guide.md) to populate the `### User Documentation` section in the [Feature Implementation State file](/doc/state-tracking/features) with one row per relevant content type, mirroring what [Feature Implementation Planning (PF-TSK-044)](../04-implementation/feature-implementation-planning-task.md) does for new features.
+
+   - **Step 13a — Apply decision matrix**: Use the [Diátaxis Content Type Guide](../../guides/07-deployment/diataxis-content-type-guide.md#decision-matrix) to identify which content types are relevant for this feature. Internal/architectural features may have no relevant types — that's valid (use a single `N/A` row with rationale).
+
+   - **Step 13b — For each relevant content type, assess existing coverage**:
+     - Grep `doc/user/handbooks/` for feature-related terms (CLI options, config keys, component names) to identify dedicated and cross-cutting coverage
+     - Categorize using the [status taxonomy](../../guides/07-deployment/diataxis-content-type-guide.md#status-taxonomy): `✅ Created — [link]` / `✅ Covered Elsewhere — [link]` / `❌ Needed`
+     - Mark non-relevant types as `N/A`
+
+   - **Step 13c — Populate state file**: Add one row per relevant content type to the `### User Documentation` section. See [examples in the guide](../../guides/07-deployment/diataxis-content-type-guide.md#examples).
+
+   - **Step 13d — Flag feature**: If any row is `❌ Needed`, set the feature to `📖 Needs User Docs` in [feature-tracking.md](../../../doc/state-tracking/permanent/feature-tracking.md) to enter the [PF-TSK-081](../07-deployment/user-documentation-creation.md) queue post-onboarding.
+
+   - Update master state: User Doc Audit ✅ for this feature
+
 #### After Each Feature
 
-13. **🚨 CHECKPOINT**: Present created documents for current batch of features for review
+14. **🚨 CHECKPOINT**: Present created documents for current batch of features for review
 
-14. **Update [Feature Implementation State File](/doc/state-tracking/features)** for the feature:
+15. **Update [Feature Implementation State File](/doc/state-tracking/features)** for the feature:
     - **Section 3 (Progress)**: Mark documentation milestones as complete (FDD ✅, TDD ✅, Test Spec ✅, ADR ✅ as applicable)
     - **Section 4 (Quick Links)**: Add links to all created documents (FDD, TDD, Test Spec, ADR, QAR)
     - **Section 10 (Next Steps)**: Update to reflect documentation is complete; replace any stale "pending documentation" markers with actual next actions (e.g., implementation planning, enhancement work)
 
-15. **Update [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md)**:
+16. **Update [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md)**:
     - Add document links to appropriate columns as documents are created
 
-16. **Update [Master State](../../../process-framework-local/state-tracking/temporary/old/retrospective-master-state.md) After Each Session**:
+17. **Update [Master State](../../../process-framework-local/state-tracking/temporary/old/retrospective-master-state.md) After Each Session**:
    - Mark assessment and document completion status per feature
    - Log session notes
    - **Complete feedback form for the session**
 
 ### Phase 4: Finalization
 
-17. **Verify Codebase Coverage**:
+18. **Verify Codebase Coverage**:
     - All source files assigned to at least one feature? ✅
     - All features have [Feature Implementation State files](/doc/state-tracking/features)? ✅
     - Coverage metric = 100%? ✅
 
-18. **Verify Documentation Completeness**:
+19. **Verify Documentation Completeness**:
     - All features have tier assessments (created or validated)? ✅
     - All Tier 2+ features have FDD and TDD? ✅
     - All Tier 2+ features have Test Specifications? ✅
@@ -243,13 +261,13 @@ This is the final onboarding task that transforms code analysis into formal desi
     - All Target-State features have Quality Assessment Reports with tech debt items? ✅
     - All documents marked "Retrospective" (or "Retrospective — Target-State")? ✅
 
-19. **Verify Tracking Completeness**:
+20. **Verify Tracking Completeness**:
     - All document links in [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md)? ✅
     - All [Feature Implementation State files](/doc/state-tracking/features) linked in Feature Tracking? ✅
 
-20. **🚨 CHECKPOINT**: Present completeness verification results and reconciliation plan to human partner for approval
+21. **🚨 CHECKPOINT**: Present completeness verification results and reconciliation plan to human partner for approval
 
-21. **Pre-existing Documentation Gap Analysis**:
+22. **Pre-existing Documentation Gap Analysis**:
     > **Goal**: Verify that all valuable content from pre-existing documentation has been consumed by framework docs created during Phase 3. After onboarding, no pre-existing docs should remain as active references outside the framework tree.
     - Review the master state "Existing Documentation Inventory" table
     - For each pre-existing document, assess consumption status:
@@ -264,7 +282,7 @@ This is the final onboarding task that transforms code analysis into formal desi
     - Rewrite root `README.md` to reference framework documentation exclusively
     - Update the master state inventory with the consumption status and target framework doc(s) for each document
 
-22. **Harvest Framework Improvement Ideas**:
+23. **Harvest Framework Improvement Ideas**:
     > **Goal**: Formalize any observations accumulated during onboarding (PF-TSK-064, PF-TSK-065, and this task) into actionable PF-IMP entries for the framework's continuous improvement cycle.
     - Review the master state "Framework Improvement Observations" section
     - For each observation, evaluate: Is this an actionable improvement the framework should adopt?
@@ -279,22 +297,22 @@ This is the final onboarding task that transforms code analysis into formal desi
       ```
     - If no observations were recorded during onboarding, note "No framework improvement observations" in the master state session log and skip this step
 
-23. **Update Documentation Maps**: Add all new documents to the appropriate map:
+24. **Update Documentation Maps**: Add all new documents to the appropriate map:
     - Process-framework artifacts → [PF Documentation Map](../../PF-documentation-map.md)
     - Product documents (FDDs, TDDs, ADRs) → [PD Documentation Map](../../../doc/PD-documentation-map.md)
     - Test specifications and audit reports → [TE Documentation Map](../../../test/TE-documentation-map.md)
 
-24. **Calculate Final Metrics**:
+25. **Calculate Final Metrics**:
     - Total features documented
     - Total documents created (by type)
     - Total sessions and time spent
     - Coverage percentage achieved
     - Record in [master state file](../../../process-framework-local/state-tracking/temporary/old/retrospective-master-state.md) Completion Summary section
 
-25. **Archive Master State File**:
+26. **Archive Master State File**:
     - Move from `/temporary/` to `/temporary/archived/` (or `/temporary/old/`)
 
-26. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+27. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 
@@ -307,6 +325,7 @@ This is the final onboarding task that transforms code analysis into formal desi
 - **API/DB Design Documents** — Conditional per assessment, marked "Retrospective"
 - **Quality Assessment Reports** (PD-QAR-XXX) — One per Target-State feature, linking dimension scores to tech debt items with remediation sequence
 - **Tech Debt Items** (PD-TDI-XXX) — Auto-generated from gap analysis in Target-State FDDs/TDDs
+- **User Documentation Audit** — Per-feature Diátaxis content-type rows populated in `### User Documentation` of each [Feature Implementation State file](/doc/state-tracking/features); features with `❌ Needed` rows flagged `📖 Needs User Docs` to enter the [PF-TSK-081](../07-deployment/user-documentation-creation.md) queue
 
 ### Phase 4 Outputs: Finalization
 - **Updated [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md)** — All document links in appropriate columns
@@ -341,6 +360,7 @@ This is the final onboarding task that transforms code analysis into formal desi
   - [ ] **Conditional documents**: API/DB designs created where assessment indicates
   - [ ] **All Target-State features**: Tech debt items generated from FDD/TDD gap analysis (Steps 11)
   - [ ] **All Target-State features**: Quality Assessment Report created with dimension scores, gap analysis, and remediation sequence (Step 12)
+  - [ ] **All features (including Tier 1)**: User documentation coverage assessed (Step 13); per-content-type rows populated in `### User Documentation` of each Feature Implementation State file; features with `❌ Needed` rows flagged `📖 Needs User Docs` in feature-tracking.md
   - [ ] All As-Built documents accurately reflect implemented code; all Target-State documents describe intended design with gap analysis
   - [ ] All [Feature Implementation State files](/doc/state-tracking/features) updated: Section 3 progress, Section 4 Quick Links, Section 10 Next Steps reflect created documents
   - [ ] All document links added to [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md)

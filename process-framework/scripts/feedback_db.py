@@ -13,6 +13,8 @@ Usage:
     python process-framework/scripts/feedback_db.py query --task PF-TSK-009
     python process-framework/scripts/feedback_db.py query --tool PF-TSK-007
     python process-framework/scripts/feedback_db.py query --all
+    python process-framework/scripts/feedback_db.py list-tools
+    python process-framework/scripts/feedback_db.py list-tools --filter integration
     python process-framework/scripts/feedback_db.py report
     python process-framework/scripts/feedback_db.py report --task PF-TSK-009
     python process-framework/scripts/feedback_db.py alerts
@@ -351,6 +353,51 @@ class FeedbackDB:
             )
             conn.commit()
             return cursor.lastrowid
+        finally:
+            conn.close()
+
+    def is_known_tool(self, tool_doc_id: str) -> bool:
+        """True if tool_doc_id has prior usage in tool_changes or tool_ratings (this project)."""
+        conn = self._connect()
+        try:
+            row = conn.execute(
+                """SELECT 1 FROM tool_changes WHERE project_name = ? AND tool_doc_id = ?
+                   UNION SELECT 1 FROM tool_ratings WHERE project_name = ? AND tool_doc_id = ?
+                   LIMIT 1""",
+                (self.project_name, tool_doc_id, self.project_name, tool_doc_id),
+            ).fetchone()
+            return row is not None
+        finally:
+            conn.close()
+
+    def list_tools(self, name_filter: str = None) -> list:
+        """Return distinct tool_doc_ids with usage counts in both tables (project-scoped)."""
+        conn = self._connect()
+        try:
+            rows = conn.execute(
+                """SELECT tool_doc_id,
+                          SUM(CASE WHEN source = 'changes' THEN cnt ELSE 0 END) as changes,
+                          SUM(CASE WHEN source = 'ratings' THEN cnt ELSE 0 END) as ratings
+                   FROM (
+                       SELECT tool_doc_id, 'changes' as source, COUNT(*) as cnt
+                       FROM tool_changes
+                       WHERE project_name = ? AND tool_doc_id IS NOT NULL
+                       GROUP BY tool_doc_id
+                       UNION ALL
+                       SELECT tool_doc_id, 'ratings' as source, COUNT(*) as cnt
+                       FROM tool_ratings
+                       WHERE project_name = ? AND tool_doc_id IS NOT NULL
+                       GROUP BY tool_doc_id
+                   )
+                   GROUP BY tool_doc_id
+                   ORDER BY tool_doc_id""",
+                (self.project_name, self.project_name),
+            ).fetchall()
+            result = [dict(r) for r in rows]
+            if name_filter:
+                f = name_filter.lower()
+                result = [r for r in result if f in r["tool_doc_id"].lower()]
+            return result
         finally:
             conn.close()
 
@@ -897,6 +944,26 @@ def cmd_record(args, db):
         print(f"Recorded form {form_id} with {tool_count} tool ratings.")
 
 
+def _block_unknown_tools(db, tool_ids, new_tool_flag):
+    """Block log-change with unknown tool_doc_ids unless --new-tool acknowledged."""
+    if new_tool_flag:
+        return
+    unknown = [t for t in tool_ids if not db.is_known_tool(t)]
+    if unknown:
+        print("ERROR: Unknown tool_doc_id(s) for this project:", file=sys.stderr)
+        for t in unknown:
+            print(f"  {t}", file=sys.stderr)
+        print(
+            "\nRun 'python feedback_db.py list-tools' to browse canonical IDs.",
+            file=sys.stderr,
+        )
+        print(
+            "Pass --new-tool if this is a legitimately new tool registration.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+
 def cmd_log_change(args, db):
     """Handle the 'log-change' subcommand."""
     if not args.batch and not (args.tool and args.date and args.description):
@@ -913,6 +980,7 @@ def cmd_log_change(args, db):
         if not isinstance(data, list):
             print("Error: --batch JSON must be an array of objects", file=sys.stderr)
             sys.exit(1)
+        _block_unknown_tools(db, [entry["tool"] for entry in data], args.new_tool)
         count = 0
         for entry in data:
             row_id = db.log_change(
@@ -928,6 +996,7 @@ def cmd_log_change(args, db):
             count += 1
         print(f"Batch complete: {count} changes logged.")
     else:
+        _block_unknown_tools(db, [args.tool], args.new_tool)
         row_id = db.log_change(
             tool_doc_id=args.tool,
             change_date=args.date,
@@ -968,6 +1037,19 @@ def cmd_report(args, db):
         print(f"Report written to {args.output}")
     else:
         print(output)
+
+
+def cmd_list_tools(args, db):
+    """Handle the 'list-tools' subcommand."""
+    rows = db.list_tools(name_filter=args.filter)
+    if not rows:
+        if args.filter:
+            print(f"No tool_doc_ids match filter '{args.filter}'.")
+        else:
+            print("No tool_doc_ids logged yet for this project.")
+        return
+    print(format_table(rows))
+    print(f"\nTotal: {len(rows)} distinct tool_doc_ids")
 
 
 def cmd_alerts(args, db):
@@ -1033,6 +1115,11 @@ def main():
         help="Path to JSON file with array of "
         '{tool, date, description, imp?} objects, or "-" for stdin',
     )
+    p_change.add_argument(
+        "--new-tool",
+        action="store_true",
+        help="Acknowledge a first-time tool_doc_id registration (bypasses unknown-ID block)",
+    )
 
     # query
     p_query = subparsers.add_parser("query", help="Query ratings data")
@@ -1051,6 +1138,13 @@ def main():
     p_report.add_argument("--task", help="Report for specific task")
     p_report.add_argument("--tool", help="Report for specific tool")
     p_report.add_argument("--output", help="Write report to file")
+
+    # list-tools
+    p_list = subparsers.add_parser(
+        "list-tools",
+        help="List distinct tool_doc_ids from tool_changes and tool_ratings (project-scoped)",
+    )
+    p_list.add_argument("--filter", help="Case-insensitive substring filter on tool_doc_id")
 
     # alerts
     p_alerts = subparsers.add_parser("alerts", help="Flag tools with ratings below threshold")
@@ -1081,6 +1175,7 @@ def main():
         "record": cmd_record,
         "log-change": cmd_log_change,
         "query": cmd_query,
+        "list-tools": cmd_list_tools,
         "report": cmd_report,
         "alerts": cmd_alerts,
     }

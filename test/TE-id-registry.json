@@ -49,10 +49,11 @@
         "authentication": "test/audits/authentication",
         "core-features": "test/audits/core-features",
         "e2e": "test/audits/e2e",
+        "performance": "test/audits/performance",
         "main": "test/audits",
         "default": "foundation"
       },
-      "nextAvailable": 65
+      "nextAvailable": 69
     },
     "TE-STA": {
       "description": "Test - State Tracking",
@@ -62,7 +63,7 @@
         "main": "test",
         "default": "main"
       },
-      "nextAvailable": 3
+      "nextAvailable": 4
     },
     "TE-TST": {
       "description": "Test - Test Files",

@@ -5,7 +5,7 @@ category: General
 version: 1.0
 created: 2026-03-02
 updated: 2026-03-02
-target_area: linkwatcher/handler.py
+target_area: src/linkwatcher/handler.py
 priority: Medium
 refactoring_scope: Remove dual print+logger output pattern in handler.py (TD010)
 ---
@@ -13,7 +13,7 @@ refactoring_scope: Remove dual print+logger output pattern in handler.py (TD010)
 # Refactoring Plan: Remove dual print+logger output pattern in handler.py (TD010)
 
 ## Overview
-- **Target Area**: linkwatcher/handler.py
+- **Target Area**: src/linkwatcher/handler.py
 - **Priority**: Medium
 - **Created**: 2026-03-02
 - **Author**: AI Agent & Human Partner
@@ -43,7 +43,7 @@ refactoring_scope: Remove dual print+logger output pattern in handler.py (TD010)
 - **Print-only errors**: 6
 
 ### Affected Components
-- `linkwatcher/handler.py` — all changes confined to this file
+- `src/linkwatcher/handler.py` — all changes confined to this file
 
 ### Dependencies and Impact
 - **Internal Dependencies**: 19 test files covering handler.py functionality

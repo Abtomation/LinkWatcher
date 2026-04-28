@@ -21,8 +21,8 @@ target_area: Core Architecture / Service
 - **Mode**: Lightweight (no architectural impact)
 
 ## Dependencies and Impact
-- **Affected Components**: `linkwatcher/service.py`, `linkwatcher/logging.py`
-- **Internal Dependencies**: `scan_progress_interval` config field in `linkwatcher/config/settings.py` (already exists, not currently used by service.py)
+- **Affected Components**: `src/linkwatcher/service.py`, `src/linkwatcher/logging.py`
+- **Internal Dependencies**: `scan_progress_interval` config field in `src/linkwatcher/config/settings.py` (already exists, not currently used by service.py)
 - **Risk Assessment**: Low — logging-only change, no behavior/functional impact
 
 ## Item 1: TD143 — Add INFO-level scan progress for large projects
@@ -55,4 +55,3 @@ target_area: Core Architecture / Service
 
 ## Related Documentation
 - [Technical Debt Tracking](/doc/state-tracking/permanent/technical-debt-tracking.md)
-

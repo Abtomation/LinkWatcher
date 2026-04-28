@@ -280,11 +280,11 @@ Validation conducted by systematically reading all source files for each feature
 ### Appendix B: Reference Materials
 
 **Source Files Reviewed:**
-- `linkwatcher/service.py`, `linkwatcher/__init__.py`, `linkwatcher/models.py`, `linkwatcher/utils.py`
-- `linkwatcher/database.py`
-- `linkwatcher/config/settings.py`, `linkwatcher/config/defaults.py`
-- `linkwatcher/handler.py`, `linkwatcher/move_detector.py`, `linkwatcher/dir_move_detector.py`, `linkwatcher/reference_lookup.py`
-- `linkwatcher/parser.py`, `linkwatcher/updater.py`
+- `src/linkwatcher/service.py`, `src/linkwatcher/__init__.py`, `src/linkwatcher/models.py`, `src/linkwatcher/utils.py`
+- `src/linkwatcher/database.py`
+- `src/linkwatcher/config/settings.py`, `src/linkwatcher/config/defaults.py`
+- `src/linkwatcher/handler.py`, `src/linkwatcher/move_detector.py`, `src/linkwatcher/dir_move_detector.py`, `src/linkwatcher/reference_lookup.py`
+- `src/linkwatcher/parser.py`, `src/linkwatcher/updater.py`
 
 **Prior Validation Reports:**
 - PD-VAL-050 (Extensibility & Maintainability, Round 2 Batch A)

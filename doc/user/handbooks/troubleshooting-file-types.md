@@ -46,7 +46,7 @@ If moving/renaming files of a specific type (e.g., `.ps1`, `.sh`, `.bat`) doesn'
    ```
 
 2. **Check Default Configuration**
-   - Open `linkwatcher/config/defaults.py`
+   - Open `src/linkwatcher/config/defaults.py`
    - Look for your file extension in the `monitored_extensions` set
    - Example:
    ```python
@@ -67,11 +67,11 @@ If moving/renaming files of a specific type (e.g., `.ps1`, `.sh`, `.bat`) doesn'
 ### Step 2: Verify Parser Support
 
 1. **Check if Parser Exists**
-   - Look in `linkwatcher/parsers/` directory
+   - Look in `src/linkwatcher/parsers` directory
    - Common parsers: `markdown.py`, `python.py`, `generic.py`
 
 2. **Check Parser Registration**
-   - Open `linkwatcher/parser.py`
+   - Open `src/linkwatcher/parser.py`
    - Look for your file extension in the parser mapping:
    ```python
    def _get_parser_for_file(self, file_path: str):
@@ -115,7 +115,7 @@ For script files (`.ps1`, `.sh`, `.bat`, `.cmd`):
 
 1. **Add to Monitored Extensions**
    ```python
-   # In linkwatcher/config/defaults.py
+   # In src/linkwatcher/config/defaults.py
    monitored_extensions={
        # ... existing extensions
        ".ps1",  # PowerShell scripts
@@ -135,7 +135,7 @@ For config files (`.ini`, `.conf`, `.cfg`):
 
 1. **Add to Monitored Extensions**
    ```python
-   # In linkwatcher/config/defaults.py
+   # In src/linkwatcher/config/defaults.py
    monitored_extensions={
        # ... existing extensions
        ".ini",   # INI configuration files
@@ -150,7 +150,7 @@ For documentation (`.rst`, `.adoc`, `.tex`):
 
 1. **Add to Monitored Extensions**
    ```python
-   # In linkwatcher/config/defaults.py
+   # In src/linkwatcher/config/defaults.py
    monitored_extensions={
        # ... existing extensions
        ".rst",   # reStructuredText

@@ -155,6 +155,7 @@ This task manages the systematic extension of the task-based development framewo
     - Update the appropriate [ID registry](../../PF-id-registry.json) with new ID prefixes if needed
 18. **Create Usage Documentation** demonstrating how to use the new framework extension
 19. **Update Permanent State Files** as defined in the concept document
+    - **For each new PowerShell script created by this extension**, register it for soak verification with `Register-SoakScript -ScriptId <relative-path-from-project-root> -ScriptPath <absolute-path>` (loaded via `Common-ScriptHelpers`). The script's first 5 successful invocations must then call `Confirm-SoakInvocation -Outcome success` after agent verification — see [`script-soak-tracking.md`](../../state-tracking/permanent/script-soak-tracking.md) and [PF-PRO-028 Script Self-Verification](../../../process-framework-local/proposals/old/script-self-verification.md). Skip for non-script artifacts (templates, guides, state files, sub-modules).
 20. **Move Temporary State Tracking** file to `/process-framework-local/state-tracking/temporary/old`
 21. **Archive Completed Concept Document**: Move the framework extension concept document from `/process-framework-local/proposals/` to `/process-framework-local/proposals/old/` — the concept has served its purpose and should not remain alongside active proposals
 22. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
@@ -229,6 +230,8 @@ Before considering this task finished:
   - [ ] Framework extension concept document moved to `/process-framework-local/proposals/old/`
   - [ ] [Documentation Map](../../PF-documentation-map.md) reflects all new artifacts
   - [ ] [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) updated with framework capability enhancement
+  - [ ] **Soak verification registered**: every new PowerShell script created by this extension is registered in [`script-soak-tracking.md`](../../state-tracking/permanent/script-soak-tracking.md) via `Register-SoakScript` (verifies via `Get-SoakStatus -ScriptId <id>`). N/A if the extension created no new scripts.
+  - [ ] **Module helper `-WhatIf` verification**: Any new `.psm1` helper that exposes `[CmdletBinding(SupportsShouldProcess=$true)]` has been smoke-tested by invocation from a script (not just an in-process call from a non-module pwsh session), confirming `$WhatIfPreference` is honored across the module boundary. Module SessionState isolation prevents preference inheritance via the scope chain; helpers must read the caller's preference explicitly via `$PSCmdlet.SessionState.PSVariable.GetValue('WhatIfPreference')`. N/A if no module helpers were created. (See `ExecutionVerification.psm1::_Test-CallerWhatIf` for the canonical pattern.)
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-026" and context "Framework Extension Task"
 
 ## Next Tasks

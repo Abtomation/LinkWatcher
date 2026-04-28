@@ -34,9 +34,11 @@ _Created during test audit sessions (PF-TSK-030)._
 - [Audit: Link Parsing System 2.1.1 (TE-TAR-010)](audits/core-features/audit-report-2-1-1-pd-tst-103.md) - Parser test quality assessment
 - [Audit: Link Updating 2.2.1](audits/core-features/audit-report-2-2-1-pd-tst-105.md) - Updater test quality assessment
 - [Audit: Logging System 3.1.1](audits/core-features/audit-report-3-1-1-pd-tst-107.md) - Logging test quality assessment
+- [Audit: 6.1.1 (TE-TAR-065)](audits/core-features/audit-report-6-1-1-test_shouldmonitorfileancestorpath.md) - Test quality assessment
 
 ### `audits/performance/`
 
+- [Audit: 2.1.1 (TE-TAR-066)](audits/performance/audit-report-2-1-1-test_benchmark.md) - Test quality assessment
 _Performance test audit reports (PF-TSK-030 with `-TestType Performance`). 4 criteria: Measurement Methodology, Tolerance Appropriateness, Baseline Readiness, Regression Detection Config._
 
 _(No reports yet — directory created for future use)_

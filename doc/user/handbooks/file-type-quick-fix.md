@@ -16,7 +16,7 @@ updated: 2025-01-01
 **Most Common Cause:** File extension not monitored
 
 **Quick Fix:**
-1. Open `linkwatcher/config/defaults.py`
+1. Open `src/linkwatcher/config/defaults.py`
 2. Find the `monitored_extensions` section
 3. Add your extension:
    ```python

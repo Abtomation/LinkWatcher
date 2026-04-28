@@ -53,7 +53,6 @@ The following are auto-populated by `New-IntegrationNarrative.ps1` — no custom
 | Callback/Event Chains | Event propagation across feature boundaries | Conditional |
 | Configuration Propagation | Config values affecting multiple features | Conditional |
 | Error Handling Across Boundaries | Error propagation and recovery | Yes |
-| TDD/Code Divergence Notes | Discrepancies found during creation | Conditional |
 
 **Conditional** sections: Include when the workflow uses that mechanism. Replace with the provided "not applicable" text when it doesn't apply.
 
@@ -89,12 +88,6 @@ Complete sections in template order — later sections build on earlier ones:
 - Omit purely internal feature components (those belong in TDDs)
 - Include data stores only if multiple features read/write them
 - Show 5-15 components; beyond 15, consider splitting
-
-### TDD Trust Decision
-
-**Decision**: When TDD and source code disagree, which to document?
-
-**Answer**: Always document the source code behavior. Report the divergence as technical debt via `Update-TechDebt.ps1` and note it in the TDD/Code Divergence Notes section.
 
 ## Step-by-Step Instructions
 
@@ -171,14 +164,6 @@ This is the most important section — it traces the complete data transformatio
 
 **Expected Result:** One or more error scenarios documented with origin, propagation, impact, and recovery.
 
-### 8. Record TDD/Code Divergence
-
-1. Review the divergences found during Steps 3-7.
-2. For each divergence, add a row to the table: which TDD, what it claims, what the code does, and the tech debt ID (from `Update-TechDebt.ps1` — reported in task Step 7).
-3. If no divergences were found, replace the table with the "no divergences" text in the template comments.
-
-**Expected Result:** A divergence table or an explicit "no divergences" statement.
-
 ## Quality Assurance
 
 ### Self-Review Checklist
@@ -188,7 +173,7 @@ This is the most important section — it traces the complete data transformatio
 - [ ] Data types/structures at each boundary are specified (not just "data")
 - [ ] Specific function/method names are used (not just class/module names)
 - [ ] All conditional sections have content or explicit "not applicable" statements
-- [ ] TDD/code divergences are reported as tech debt items
+- [ ] TDD/code divergences are reported as tech debt items via `Update-TechDebt.ps1`
 - [ ] Diagram uses correct Visual Notation Guide symbols
 
 ### Completeness Check
@@ -205,7 +190,7 @@ If any of these would still require reading 3+ separate documents, the narrative
 
 ### Example: Filling in a Data Flow Sequence Step
 
-**Source code reading** (`linkwatcher/handler.py`):
+**Source code reading** (`src/linkwatcher/handler.py`):
 ```python
 def on_moved(self, event):
     old_path = event.src_path
@@ -242,7 +227,7 @@ When a workflow uses direct function calls with no callbacks:
 
 **Cause:** Code evolved after TDD was written.
 
-**Solution:** Document the code's actual behavior in the narrative. Report the divergence via `Update-TechDebt.ps1` and add a row to the TDD/Code Divergence Notes table.
+**Solution:** Document the code's actual behavior in the narrative. Report the divergence via `Update-TechDebt.ps1`.
 
 ### Unclear Where One Workflow Ends and Another Begins
 

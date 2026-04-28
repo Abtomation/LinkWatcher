@@ -15,7 +15,7 @@ retrospective: true
 
 > **Retrospective Document**: This FDD describes the existing implemented functionality of the LinkWatcher Logging Framework, documented after implementation during framework onboarding (PF-TSK-066). Content is descriptive ("what is") rather than prescriptive ("what should be").
 >
-> **Source**: Derived from `docs/LOGGING.md` (removed — content now captured in this FDD) and source code analysis of `linkwatcher/logging.py` and `linkwatcher/logging_config.py`.
+> **Source**: Derived from `docs/LOGGING.md` (removed — content now captured in this FDD) and source code analysis of `src/linkwatcher/logging.py` and `src/linkwatcher/logging_config.py`.
 >
 > **Scope Note**: This feature consolidates old 3.1.1 (Logging Framework) with all logging sub-features: 3.1.2 (Colored Console Output), 3.1.3 (Statistics Tracking), 3.1.4 (Progress Reporting), 3.1.5 (Error Reporting). All are aspects of the unified logging system.
 

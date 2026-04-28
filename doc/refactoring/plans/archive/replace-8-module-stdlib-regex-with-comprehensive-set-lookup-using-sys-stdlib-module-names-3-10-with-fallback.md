@@ -7,13 +7,13 @@ created: 2026-03-03
 updated: 2026-03-03
 refactoring_scope: Replace 8-module stdlib regex with comprehensive set lookup using sys.stdlib_module_names (3.10+) with fallback
 priority: Medium
-target_area: linkwatcher/parsers/python.py
+target_area: src/linkwatcher/parsers/python.py
 ---
 
 # Refactoring Plan: Replace 8-module stdlib regex with comprehensive set lookup using sys.stdlib_module_names (3.10+) with fallback
 
 ## Overview
-- **Target Area**: linkwatcher/parsers/python.py
+- **Target Area**: src/linkwatcher/parsers/python.py
 - **Priority**: Medium
 - **Created**: 2026-03-03
 - **Author**: AI Agent & Human Partner
@@ -41,11 +41,11 @@ TD038: PythonParser stdlib exclusion list only has 8 modules — causes false-po
 - **False-positive surface**: Any dotted stdlib import with 3+ segments triggers `_looks_like_local_import()`
 
 ### Affected Components
-- `linkwatcher/parsers/python.py` — PythonParser class: replace `stdlib_import_pattern` regex with set-based lookup
+- `src/linkwatcher/parsers/python.py` — PythonParser class: replace `stdlib_import_pattern` regex with set-based lookup
 - `tests/parsers/test_python.py` — Add test for previously-unfiltered stdlib imports
 
 ### Dependencies and Impact
-- **Internal Dependencies**: `linkwatcher/handler.py` and `linkwatcher/service.py` use PythonParser via parser registry; no interface change
+- **Internal Dependencies**: `src/linkwatcher/handler.py` and `src/linkwatcher/service.py` use PythonParser via parser registry; no interface change
 - **External Dependencies**: None
 - **Risk Assessment**: Low — behavior change is strictly narrowing (fewer false positives, no new matches)
 

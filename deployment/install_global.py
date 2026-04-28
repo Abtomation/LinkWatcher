@@ -128,9 +128,10 @@ def install_linkwatcher(project_root, install_dir):
     ]
 
     # Core directories to copy (full replacement)
+    # (source_path, dest_name) — source relative to project_root, dest is flat name in install_dir
     core_dirs = [
-        "linkwatcher",
-        "config-examples",
+        ("src/linkwatcher", "linkwatcher"),
+        ("config-examples", "config-examples"),
     ]
 
     # Optional files (copy if they exist, skip silently if not)
@@ -162,9 +163,9 @@ def install_linkwatcher(project_root, install_dir):
             print(f"   Skipped (not found): {file_name}")
 
     # Copy directories (full replacement to avoid stale .pyc etc.)
-    for dir_name in core_dirs:
-        source_dir_path = project_root / dir_name
-        dest_dir_path = install_dir / dir_name
+    for source_name, dest_name in core_dirs:
+        source_dir_path = project_root / source_name
+        dest_dir_path = install_dir / dest_name
 
         if source_dir_path.exists():
             if dest_dir_path.exists():
@@ -174,9 +175,9 @@ def install_linkwatcher(project_root, install_dir):
                 dest_dir_path,
                 ignore=shutil.ignore_patterns("__pycache__", "*.pyc"),
             )
-            print(f"   Copied directory: {dir_name}")
+            print(f"   Copied directory: {source_name} -> {dest_name}")
         else:
-            print(f"   WARNING: Directory not found: {dir_name}")
+            print(f"   WARNING: Directory not found: {source_name}")
 
     return True
 

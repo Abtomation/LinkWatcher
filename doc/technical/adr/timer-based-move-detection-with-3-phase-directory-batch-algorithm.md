@@ -12,7 +12,7 @@ retrospective: true
 
 # ADR-041: Timer-Based Move Detection with 3-Phase Directory Batch Algorithm
 
-> **Retrospective ADR**: These decisions were made during original implementation (pre-framework) and documented retroactively to resolve TD063. Content is reverse-engineered from source code analysis of `linkwatcher/move_detector.py` and `linkwatcher/dir_move_detector.py`.
+> **Retrospective ADR**: These decisions were made during original implementation (pre-framework) and documented retroactively to resolve TD063. Content is reverse-engineered from source code analysis of `src/linkwatcher/move_detector.py` and `src/linkwatcher/dir_move_detector.py`.
 
 *Created: 2026-03-27*
 *Last updated: 2026-04-09*
@@ -187,9 +187,9 @@ Partial match scenario (5 of 50 files):
 
 ## References
 
-- `linkwatcher/move_detector.py` — Per-file move detection implementation
-- `linkwatcher/dir_move_detector.py` — Directory batch move detection implementation
-- `linkwatcher/handler.py` — Event routing and orchestration between detectors
+- `src/linkwatcher/move_detector.py` — Per-file move detection implementation
+- `src/linkwatcher/dir_move_detector.py` — Directory batch move detection implementation
+- `src/linkwatcher/handler.py` — Event routing and orchestration between detectors
 - [TDD: File System Monitoring (PD-TDD-023)](/doc/technical/tdd/tdd-1-1-1-file-system-monitoring-t2.md) — Technical design for the overall monitoring system
 - [FDD: File System Monitoring (PD-FDD-024)](/doc/functional-design/fdds/fdd-1-1-1-file-system-monitoring.md) — Functional design for file system monitoring
 - [Validation: Architectural Consistency R2 Batch A (PD-VAL-046)](/doc/validation/reports/architectural-consistency/PD-VAL-046-architectural-consistency-features-0.1.1-0.1.2-0.1.3-1.1.1.md) — Validation report that identified TD063

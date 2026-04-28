@@ -30,7 +30,7 @@ priority: Medium
 - [x] Section 7 Decision 2: Fixed signal handler registration from "during `start()`" to "in `__init__()`"
 - [x] Section 7 Decision 3: Updated title and content from "Named Tuple for FileOperation" to "Dataclass for Both"
 - [x] Section 7 Implementation Patterns: Updated Data Model Pattern description
-- [x] Section 5: Added `linkwatcher/path_resolver.py` to Code Inventory
+- [x] Section 5: Added `src/linkwatcher/path_resolver.py` to Code Inventory
 - [x] Section 9: Updated Next Steps — test spec PF-TSP-035 already exists
 
 **Test Baseline**: N/A — documentation-only changes, no code modified

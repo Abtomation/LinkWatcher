@@ -595,3 +595,37 @@ class TestYamlParserCompoundStrings:
         references = parser.parse_content(yaml_content, "config.yaml")
         targets = [ref.link_target for ref in references]
         assert "alpha-project/scripts/feedback_db.py" in targets
+
+    def test_bug_092_multi_document_yaml_dir_paths(self, temp_project_dir):
+        """
+        PD-BUG-092: Multi-document YAML (--- delimiters) must still detect
+        directory paths. Previously, yaml.safe_load() raised ComposerError
+        and fell back to GenericParser which lacks bare dir path detection,
+        causing ~256 files to retain stale references after a directory move.
+        """
+        parser = YamlParser()
+        yaml_content = (
+            "# First document\n"
+            "target_area: linkwatcher/parsers\n"
+            "reference: linkwatcher/handler.py\n"
+            "---\n"
+            "# Second document\n"
+            "source_area: linkwatcher/updater\n"
+        )
+        references = parser.parse_content(yaml_content, "config.yaml")
+        targets = [ref.link_target for ref in references]
+        # Both documents' values must be extracted
+        assert (
+            "linkwatcher/parsers" in targets
+        ), f"Directory path from first document missed; got: {targets}"
+        assert (
+            "linkwatcher/updater" in targets
+        ), f"Directory path from second document missed; got: {targets}"
+        assert (
+            "linkwatcher/handler.py" in targets
+        ), f"File path from first document missed; got: {targets}"
+        # Must use YAML link types (not GENERIC_* from fallback)
+        link_types = {r.link_type for r in references}
+        assert all(
+            "generic" not in lt for lt in link_types
+        ), f"Should not fall back to GenericParser; got link_types: {link_types}"

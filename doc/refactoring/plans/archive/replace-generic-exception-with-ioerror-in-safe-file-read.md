@@ -8,12 +8,12 @@ updated: 2026-03-03
 priority: Medium
 mode: lightweight
 refactoring_scope: Replace generic Exception with IOError in safe_file_read
-target_area: linkwatcher/utils.py
+target_area: src/linkwatcher/utils.py
 ---
 
 # Lightweight Refactoring Plan: Replace generic Exception with IOError in safe_file_read
 
-- **Target Area**: linkwatcher/utils.py
+- **Target Area**: src/linkwatcher/utils.py
 - **Priority**: Medium
 - **Created**: 2026-03-03
 - **Author**: AI Agent & Human Partner

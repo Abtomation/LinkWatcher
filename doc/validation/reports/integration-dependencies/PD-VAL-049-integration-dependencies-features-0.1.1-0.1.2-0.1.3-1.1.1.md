@@ -287,14 +287,14 @@ Validation conducted by reading complete source code for all four features plus 
 
 ### Appendix B: Reference Materials
 
-- `linkwatcher/service.py` — Feature 0.1.1 orchestrator
-- `linkwatcher/database.py` — Feature 0.1.2 data store with ABC interface
-- `linkwatcher/config/settings.py` — Feature 0.1.3 configuration dataclass
-- `linkwatcher/config/defaults.py` — Feature 0.1.3 predefined configurations
-- `linkwatcher/handler.py` — Feature 1.1.1 event handler
-- `linkwatcher/reference_lookup.py` — Supporting module for handler decomposition
-- `linkwatcher/models.py` — Shared data models (LinkReference, FileOperation)
-- `linkwatcher/utils.py` — Shared utility functions
+- `src/linkwatcher/service.py` — Feature 0.1.1 orchestrator
+- `src/linkwatcher/database.py` — Feature 0.1.2 data store with ABC interface
+- `src/linkwatcher/config/settings.py` — Feature 0.1.3 configuration dataclass
+- `src/linkwatcher/config/defaults.py` — Feature 0.1.3 predefined configurations
+- `src/linkwatcher/handler.py` — Feature 1.1.1 event handler
+- `src/linkwatcher/reference_lookup.py` — Supporting module for handler decomposition
+- `src/linkwatcher/models.py` — Shared data models (LinkReference, FileOperation)
+- `src/linkwatcher/utils.py` — Shared utility functions
 - `pyproject.toml` — External dependency declarations
 - [PD-VAL-046](../architectural-consistency/PD-VAL-046-architectural-consistency-features-0.1.1-0.1.2-0.1.3-1.1.1.md) — Round 2 Architectural Consistency report (identified same `_is_known_reference_target` issue)
 

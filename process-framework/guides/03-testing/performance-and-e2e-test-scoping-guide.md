@@ -78,11 +78,11 @@ For this project, the following are hot-path components (processing every file o
 
 | Component | Module(s) | Why Hot Path |
 |-----------|-----------|-------------|
-| Parser registry/facade | `linkwatcher/parsers/` | Called for every monitored file |
-| Link database | `linkwatcher/database.py` | Queried on every file event |
-| Link updater | `linkwatcher/updater.py` | Runs on every detected move |
-| Move detector | `linkwatcher/handler.py` | Processes every filesystem event |
-| File scanner | `linkwatcher/service.py` (scan methods) | Initial scan touches all files |
+| Parser registry/facade | `src/linkwatcher/parsers` | Called for every monitored file |
+| Link database | `src/linkwatcher/database.py` | Queried on every file event |
+| Link updater | `src/linkwatcher/updater.py` | Runs on every detected move |
+| Move detector | `src/linkwatcher/handler.py` | Processes every filesystem event |
+| File scanner | `src/linkwatcher/service.py` (scan methods) | Initial scan touches all files |
 
 Changes to configuration, logging, CLI, or documentation are **not** hot-path and typically don't need performance tests.
 
@@ -149,7 +149,7 @@ When no tests are needed, the rationale must be documented in the checkpoint sum
 **Feature**: 2.1.1 Link Parsing System — adds backtick path detection to markdown parser
 
 **Decision matrix walkthrough**:
-- *Changes a parser or database module?* — **Yes**, modifies `linkwatcher/parsers/markdown_parser.py`. → **Level 1 Component benchmark needed** for markdown parser throughput
+- *Changes a parser or database module?* — **Yes**, modifies `src/linkwatcher/parsers/markdown_parser.py`. → **Level 1 Component benchmark needed** for markdown parser throughput
 - *Changes an end-to-end operation pipeline?* — **Yes**, parsing is part of initial scan and file-move handling. → **Level 2 Operation benchmark** should be verified (regression check, not new test if one exists)
 - *Changes data structures, algorithms, or scaling?* — No, same algorithm, new pattern match only
 - *Changes memory allocation, caching, or concurrency?* — No
@@ -161,7 +161,7 @@ When no tests are needed, the rationale must be documented in the checkpoint sum
 **Feature**: 0.1.3 Configuration System — adds new `validation_extensions` config option
 
 **Decision matrix walkthrough**:
-- *Changes a parser or database module?* — No, only `linkwatcher/config.py`
+- *Changes a parser or database module?* — No, only `src/linkwatcher/config.py`
 - *Changes an end-to-end operation pipeline?* — No, config loading happens once at startup
 - *Changes data structures, algorithms, or scaling?* — No
 - *Changes memory allocation, caching, or concurrency?* — No
@@ -207,8 +207,8 @@ For features that were marked Completed before this task existed, apply the same
 
 After scoping identifies test needs, the downstream lifecycle includes an **audit gate** before baseline capture or execution:
 
-- **Performance tests**: `⬜ Needs Creation → 📋 Needs Baseline` (PF-TSK-084) → `🔍 Audit Approved` (PF-TSK-030, `-TestType Performance`) → `✅ Baselined` (PF-TSK-085)
-- **E2E test cases**: `📋 Needs Execution` (PF-TSK-069) → `🔍 Audit Approved` (PF-TSK-030, `-TestType E2E`) → `✅ Passed` (PF-TSK-070)
+- **Performance tests**: `⬜ Needs Creation → 📋 Needs Baseline` (PF-TSK-084) → `✅ Audit Approved` (PF-TSK-030, `-TestType Performance`) → `✅ Baselined` (PF-TSK-085)
+- **E2E test cases**: `📋 Needs Execution` (PF-TSK-069) → `✅ Audit Approved` (PF-TSK-030, `-TestType E2E`) → `✅ Passed` (PF-TSK-070)
 
 The audit gate is mandatory for newly created tests. Re-executions (`⚠️ Needs Re-baseline` for performance, `🔄 Needs Re-execution` for E2E) are exempt.
 

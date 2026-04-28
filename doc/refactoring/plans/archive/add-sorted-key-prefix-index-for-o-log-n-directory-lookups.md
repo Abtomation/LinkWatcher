@@ -49,7 +49,7 @@ priority: Medium
 - **Measurement Method**: Algorithmic analysis; 9 existing unit tests verify correctness
 
 ### Affected Components
-- `linkwatcher/database.py` — `LinkDatabase` class: `__init__`, `add_link`, `_remove_key_from_indexes`, `_add_key_to_indexes`, `clear`, `get_references_to_directory`
+- `src/linkwatcher/database.py` — `LinkDatabase` class: `__init__`, `add_link`, `_remove_key_from_indexes`, `_add_key_to_indexes`, `clear`, `get_references_to_directory`
 
 ### Dependencies and Impact
 - **Internal Dependencies**: `reference_lookup.py` calls `get_references_to_directory()` — no API change

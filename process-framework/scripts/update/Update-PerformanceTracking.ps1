@@ -311,20 +311,35 @@ function Update-SummaryTableContent {
         }
     }
 
-    # Replace each summary row
+    # Locate Summary section to scope replacements (prevents collateral damage
+    # to inventory table headers that also contain the literal "Operation").
+    $summaryStart = $Content.IndexOf("## Summary")
+    if ($summaryStart -lt 0) {
+        Write-Log "Summary section not found in tracking file — skipping summary update" -Level "WARN"
+        return $Content
+    }
+    $nextHeader = [regex]::Match($Content.Substring($summaryStart + 1), "(?m)^##\s")
+    $summaryEnd = if ($nextHeader.Success) { $summaryStart + 1 + $nextHeader.Index } else { $Content.Length }
+    $preamble = $Content.Substring(0, $summaryStart)
+    $summary  = $Content.Substring($summaryStart, $summaryEnd - $summaryStart)
+    $postamble = $Content.Substring($summaryEnd)
+
+    # Replace each summary row (within Summary section only)
     $levelOrder = @("Component", "Operation", "Scale", "Resource")
     foreach ($level in $levelOrder) {
         $c = $counts[$level]
         $oldPattern = "\|\s*$level\s*\|[^\r\n]*"
         $newRow = "| $level | $($c.Total) | $($c.Baselined) | $($c.NeedsBaseline) | $($c.NeedsCreation) | $($c.NeedsRebaseline) |"
-        $Content = [regex]::Replace($Content, $oldPattern, $newRow)
+        $summary = [regex]::Replace($summary, $oldPattern, $newRow)
     }
 
-    # Replace total row (bold formatting)
+    # Replace total row (bold formatting; safe but kept inside scope for consistency)
     $t = $totalCounts
     $oldTotalPattern = "\|\s*\*\*Total\*\*\s*\|[^\r\n]*"
     $newTotalRow = "| **Total** | **$($t.Total)** | **$($t.Baselined)** | **$($t.NeedsBaseline)** | **$($t.NeedsCreation)** | **$($t.NeedsRebaseline)** |"
-    $Content = [regex]::Replace($Content, $oldTotalPattern, $newTotalRow)
+    $summary = [regex]::Replace($summary, $oldTotalPattern, $newTotalRow)
+
+    $Content = $preamble + $summary + $postamble
 
     Write-Log "Updated Summary table: $($t.Total) total ($($t.Baselined) baselined, $($t.NeedsBaseline) needs baseline, $($t.NeedsCreation) needs creation, $($t.NeedsRebaseline) needs re-baseline)" -Level "SUCCESS"
     return $Content

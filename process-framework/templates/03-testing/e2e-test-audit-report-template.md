@@ -22,11 +22,11 @@ usage_context: Used by New-TestAuditReport.ps1 -TestType E2E during PF-TSK-030
 | **Feature ID** | [Feature ID] |
 | **Test Case ID** | [TE-E2E-XXX] |
 | **Test Group** | [TE-E2G-XXX] |
-| **Test Case Location** | `[TEST_CASE_PATH]` |
+| **Test Case Location** | `[Test File Path]` |
 | **Workflow** | [WF-XXX: Workflow description] |
 | **Auditor** | [Auditor Name] |
 | **Audit Date** | [Audit Date] |
-| **Audit Status** | [PENDING/IN_PROGRESS/COMPLETED] |
+| **Audit Status** | [Audit Status] |
 
 ## Tests Audited
 
@@ -135,7 +135,7 @@ usage_context: Used by New-TestAuditReport.ps1 -TestType E2E during PF-TSK-030
 **Status**: [AUDIT_APPROVED/NEEDS_UPDATE/AUDIT_FAILED]
 
 **Status Definitions**:
-- **🔍 Audit Approved**: All criteria pass — test is ready for execution
+- **✅ Audit Approved**: All criteria pass — test is ready for execution
 - **🔄 Needs Update**: Test case or fixtures need corrections before execution
 - **🔴 Audit Failed**: Scenario fundamentally flawed or fixtures incorrect
 

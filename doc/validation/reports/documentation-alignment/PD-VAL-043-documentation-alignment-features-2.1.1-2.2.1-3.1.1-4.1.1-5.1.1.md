@@ -247,7 +247,7 @@ Five documentation alignment criteria, each scored on a 4-point scale (1=Poor, 2
 | Major | FDD references deleted `setup.py` as still existing (5.1.6-FR-1, BR-1) | FDD §5.1.6 | Documents non-existent file | Remove setup.py references |
 | Major | FDD references deleted `Makefile` in 6+ requirements and acceptance criteria | FDD §5.1.7 | Multiple references to non-existent file | Remove all Makefile references |
 | Major | Feature state lists wrong CI job names ("lint", "coverage" — actual: "quality", "performance") | State §1 | Unreliable CI documentation | Update job names |
-| Major | `pyproject.toml` entry point references non-existent `linkwatcher/cli.py` module | pyproject.toml, FDD §5.1.6 | Console command would fail | Create cli.py or fix entry point |
+| Major | `pyproject.toml` entry point references non-existent `src/linkwatcher/cli.py` module | pyproject.toml, FDD §5.1.6 | Console command would fail | Create cli.py or fix entry point |
 | Minor | FDD references deleted `CI_CD_IMPLEMENTATION_SUMMARY.md` source document | FDD header | Broken provenance reference | Remove reference |
 | Minor | Feature state claims mypy runs as pre-commit hook — it does not | State §1 | Wrong hook description | Remove mypy from hooks list |
 | Minor | FDD coverage exclusion patterns incomplete (lists 4 of 10 actual patterns) | FDD §5.1.4 | Understated exclusion coverage | Update pattern list |
@@ -300,7 +300,7 @@ Five documentation alignment criteria, each scored on a 4-point scale (1=Poor, 2
    - **Benefits**: Prevents callers from writing incorrect error handling
    - **Estimated Effort**: Low (30 minutes)
 
-3. **Create `linkwatcher/cli.py` or fix entry point**
+3. **Create `src/linkwatcher/cli.py` or fix entry point**
    - **Description**: The `pyproject.toml` entry point references `linkwatcher.cli:main` which does not exist. Either create the module or update to point to `main.py`
    - **Benefits**: Fixes a functional issue that would affect pip-installed usage
    - **Estimated Effort**: Low (30 minutes)
@@ -387,9 +387,9 @@ Documentation surfaces validated:
 ### Appendix B: Reference Materials
 
 **Source Code Files Reviewed**:
-- `linkwatcher/parser.py`, `linkwatcher/parsers/base.py`, `linkwatcher/parsers/markdown.py`, `linkwatcher/parsers/yaml_parser.py`, `linkwatcher/parsers/json_parser.py`, `linkwatcher/parsers/python.py`, `linkwatcher/parsers/dart.py`, `linkwatcher/parsers/generic.py`
-- `linkwatcher/updater.py`, `linkwatcher/path_resolver.py`
-- `linkwatcher/logging.py`, `linkwatcher/logging_config.py`
+- `src/linkwatcher/parser.py`, `src/linkwatcher/parsers/base.py`, `src/linkwatcher/parsers/markdown.py`, `src/linkwatcher/parsers/yaml_parser.py`, `src/linkwatcher/parsers/json_parser.py`, `src/linkwatcher/parsers/python.py`, `src/linkwatcher/parsers/dart.py`, `src/linkwatcher/parsers/generic.py`
+- `src/linkwatcher/updater.py`, `src/linkwatcher/path_resolver.py`
+- `src/linkwatcher/logging.py`, `src/linkwatcher/logging_config.py`
 - `pytest.ini`, `run_tests.py`, `tests/conftest.py`, `pyproject.toml`
 - `.github/workflows/ci.yml`, `dev.bat`, `.pre-commit-config.yaml`
 

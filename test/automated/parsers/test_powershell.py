@@ -35,9 +35,7 @@ class TestPowerShellParser:
         """Test extracting file paths from # line comments."""
         parser = PowerShellParser()
         file_path = "vendor/tools/README.md"
-        content = (
-            f".git/objects/3a/b045e54f8acd16e0d036a487eb74c269db1d9f# Reference to {file_path}\n"
-        )
+        content = f"# Reference to {file_path}\n"
         refs = parser.parse_content(content, "test.ps1")
         targets = [r.link_target for r in refs]
         assert file_path in targets
@@ -167,7 +165,7 @@ class TestPowerShellParser:
     def test_multiple_paths_on_same_line(self):
         """Test extracting multiple file paths from the same line."""
         parser = PowerShellParser()
-        content = ".git/objects/3a/b045e54f8acd16e0d036a487eb74c269db1d9f# Copy from src/input.txt to output/result.txt\n"
+        content = "# Copy from src/input.txt to output/result.txt\n"
         refs = parser.parse_content(content, "test.ps1")
         targets = [r.link_target for r in refs]
         assert "src/input.txt" in targets
@@ -213,8 +211,7 @@ class TestPowerShellParser:
         parser = PowerShellParser()
         ps_file = temp_project_dir / "test-script.ps1"
         ps_file.write_text(
-            ".git/objects/3a/b045e54f8acd16e0d036a487eb74c269db1d9f# Script for tests/data/config.yaml\n"
-            '$path = "src/utils/helpers.py"\n'
+            "# Script for tests/data/config.yaml\n" '$path = "src/utils/helpers.py"\n'
         )
         refs = parser.parse_file(str(ps_file))
         targets = [r.link_target for r in refs]
@@ -247,7 +244,7 @@ class TestPowerShellParser:
     def test_backslash_paths(self):
         """Test paths using backslashes (Windows-style)."""
         parser = PowerShellParser()
-        content = ".git/objects/3a/b045e54f8acd16e0d036a487eb74c269db1d9f# See doc\\guides\\setup-guide.md\n"
+        content = "# See doc\\guides\\setup-guide.md\n"
         refs = parser.parse_content(content, "test.ps1")
         targets = [r.link_target for r in refs]
         assert "doc\\guides\\setup-guide.md" in targets
@@ -323,29 +320,33 @@ class TestEmbeddedMarkdownLinks:
 
 
 class TestRegexPatternFiltering:
-    """PD-BUG-033: Regex patterns in quoted strings must not be detected as file paths.
+    """PD-BUG-033 + PD-BUG-095: Regex patterns in quoted strings must not be
+    detected as file paths.
 
-    Note: The parser still extracts these patterns (it has no semantic awareness).
-    The fix is in _calculate_updated_relative_path() in reference_lookup.py, which
-    skips rewriting references whose resolved target doesn't exist on disk.
-    See TestBug033RegexNotRewrittenOnMove in tests/integration/test_link_updates.py
-    for the integration-level regression tests.
+    Layered defense:
+    - **Layer 1 (PD-BUG-095)**: ``utils.looks_like_regex_or_glob`` rejects regex/glob
+      strings at the parser level so they never enter the link database.
+    - **Layer 2 (PD-BUG-033 + PD-BUG-095)**: existence checks in
+      ``reference_lookup._calculate_updated_relative_path`` and
+      ``path_resolver._calculate_new_target_relative`` refuse to mutate when the
+      proposed target doesn't exist on disk.
 
-    These parser-level tests document the current extraction behavior.
+    See ``TestBug033RegexNotRewrittenOnMove`` and
+    ``TestBug095RegexAndGlobNotCorruptedOnDirectoryMove`` in
+    ``test/automated/integration/test_link_updates.py`` for end-to-end regression tests.
     """
 
-    def test_parser_extracts_regex_as_dir_path(self):
-        """Document that the parser currently extracts regex strings with backslashes.
-
-        This is expected — the fix is in the updater layer, not the parser.
-        The parser sees backslashes as path separators (quoted_dir_pattern).
+    def test_parser_filters_regex_with_quantified_escape(self):
+        """PD-BUG-095 Layer 1: parser must reject regex strings with quantified
+        escape sequences (e.g. ``ART-ASS-\\d+``) so they never enter the database.
         """
         parser = PowerShellParser()
         content = r"if ($fileName -match 'ART-ASS-\d+-([0-9]+\.[0-9]+\.[0-9]+)-') {" + "\n"
         refs = parser.parse_content(content, "test.ps1")
-        # Parser DOES extract this (by design — filtered at update time)
         regex_refs = [r for r in refs if "ART-ASS" in r.link_target]
-        assert len(regex_refs) >= 1, "Parser should extract regex string (filtered at update layer)"
+        assert len(regex_refs) == 0, (
+            "Parser must reject regex strings (PD-BUG-095 Layer 1)"
+        )
 
     def test_legitimate_single_quoted_path_still_detected(self):
         """Single-quoted file paths must still be detected by the parser."""

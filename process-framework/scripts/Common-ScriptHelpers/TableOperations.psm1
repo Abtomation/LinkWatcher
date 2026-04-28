@@ -72,7 +72,11 @@ function Split-MarkdownTableRow {
 
     if (-not $Line -or $Line -notmatch '^\|.*\|$') { return $null }
 
-    $raw = $Line -split '\|'
+    # Split on '|' only when not preceded by '\' so cells can embed escaped pipes
+    # (markdown's \| escape). Cells are returned in raw form — backslash-escapes are
+    # preserved so the row round-trips through ConvertTo-MarkdownTableRow without
+    # corrupting subsequent parses.
+    $raw = $Line -split '(?<!\\)\|'
     if ($raw.Count -le 2) { return @() }
     $raw = $raw[1..($raw.Count-2)]
     return @($raw | ForEach-Object { $_.Trim() })
@@ -401,7 +405,7 @@ function Update-MarkdownTable {
 
     .EXAMPLE
     # Match on Feature ID column (not first column)
-    $updatedContent = Update-MarkdownTable -Content $content -FeatureId "0.1.1" -MatchColumn "Feature ID" -StatusColumn "Status" -Status "✅ Tests Approved"
+    $updatedContent = Update-MarkdownTable -Content $content -FeatureId "0.1.1" -MatchColumn "Feature ID" -StatusColumn "Status" -Status "✅ Audit Approved"
     #>
 
     [CmdletBinding()]

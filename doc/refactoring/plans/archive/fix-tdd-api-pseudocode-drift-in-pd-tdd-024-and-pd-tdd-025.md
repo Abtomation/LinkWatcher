@@ -104,8 +104,8 @@ Read each TDD alongside its source code, identify every discrepancy, and update 
 ## Results and Lessons Learned
 
 ### Achievements
-- PD-TDD-024: 13 discrepancies fixed — all pseudocode now matches `linkwatcher/logging.py` and `linkwatcher/logging_config.py`
-- PD-TDD-025: 7 discrepancies fixed — all pseudocode now matches `linkwatcher/parser.py` and `linkwatcher/parsers/base.py`
+- PD-TDD-024: 13 discrepancies fixed — all pseudocode now matches `src/linkwatcher/logging.py` and `src/linkwatcher/logging_config.py`
+- PD-TDD-025: 7 discrepancies fixed — all pseudocode now matches `src/linkwatcher/parser.py` and `src/linkwatcher/parsers/base.py`
 - No bugs discovered during documentation review
 
 ### Remaining Technical Debt

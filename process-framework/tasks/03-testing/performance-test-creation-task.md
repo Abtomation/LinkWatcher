@@ -126,8 +126,8 @@ Before considering this task finished:
 
 ## Next Tasks
 
-- **[Test Audit](/process-framework/tasks/03-testing/test-audit-task.md)** (with `-TestType Performance`) — Audit newly created performance tests before baseline capture. Tests must reach `🔍 Audit Approved` status before proceeding to Baseline Capture
-- **[Performance Baseline Capture](/process-framework/tasks/03-testing/performance-baseline-capture-task.md)** — Run the newly created tests and capture initial baselines (📋 → ✅). Requires `🔍 Audit Approved` audit status
+- **[Test Audit](/process-framework/tasks/03-testing/test-audit-task.md)** (with `-TestType Performance`) — Audit newly created performance tests before baseline capture. Tests must reach `✅ Audit Approved` status before proceeding to Baseline Capture
+- **[Performance Baseline Capture](/process-framework/tasks/03-testing/performance-baseline-capture-task.md)** — Run the newly created tests and capture initial baselines (📋 → ✅). Requires `✅ Audit Approved` audit status
 - **[Code Review](/process-framework/tasks/06-maintenance/code-review-task.md)** — Review new test code for quality
 
 ## Related Resources

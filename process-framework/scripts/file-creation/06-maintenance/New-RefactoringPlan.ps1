@@ -66,10 +66,10 @@
     New-RefactoringPlan.ps1 -RefactoringScope "Database Layer Optimization" -TargetArea "lib/data/" -Priority "High" -OpenInEditor
 
 .EXAMPLE
-    New-RefactoringPlan.ps1 -RefactoringScope "Replace bare excepts in handler.py (TD011)" -TargetArea "linkwatcher/handler.py" -Lightweight
+    New-RefactoringPlan.ps1 -RefactoringScope "Replace bare excepts in handler.py (TD011)" -TargetArea "src/linkwatcher/handler.py" -Lightweight
 
 .EXAMPLE
-    New-RefactoringPlan.ps1 -RefactoringScope "Extract reference lookup (TD022)" -TargetArea "linkwatcher/handler.py" -Lightweight -FeatureId "1.1.1" -DebtItemId "TD022"
+    New-RefactoringPlan.ps1 -RefactoringScope "Extract reference lookup (TD022)" -TargetArea "src/linkwatcher/handler.py" -Lightweight -FeatureId "1.1.1" -DebtItemId "TD022"
 
 .EXAMPLE
     New-RefactoringPlan.ps1 -RefactoringScope "Consolidate path utils (TD015)" -TargetArea "linkwatcher/" -Lightweight -IncludeDependencies -DebtItemId "TD015"
@@ -78,10 +78,10 @@
     New-RefactoringPlan.ps1 -RefactoringScope "Fix TDD pseudocode drift (TD046)" -TargetArea "doc/technical" -DocumentationOnly -DebtItemId "TD046"
 
 .EXAMPLE
-    New-RefactoringPlan.ps1 -RefactoringScope "Reduce file I/O in scan cycle (TD030)" -TargetArea "linkwatcher/service.py" -Performance -DebtItemId "TD030"
+    New-RefactoringPlan.ps1 -RefactoringScope "Reduce file I/O in scan cycle (TD030)" -TargetArea "src/linkwatcher/service.py" -Performance -DebtItemId "TD030"
 
 .EXAMPLE
-    New-RefactoringPlan.ps1 -RefactoringScope "Decompose God Class (TD005)" -TargetArea "linkwatcher/handler.py" -Priority "High" -DebtItemId "TD005 (PF-TDI-001)"
+    New-RefactoringPlan.ps1 -RefactoringScope "Decompose God Class (TD005)" -TargetArea "src/linkwatcher/handler.py" -Priority "High" -DebtItemId "TD005 (PF-TDI-001)"
 
 .NOTES
     - Requires PowerShell execution policy to allow script execution

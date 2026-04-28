@@ -44,6 +44,8 @@
       "category": "Testing",
       "type": "Test Audit Report",
       "directories": {
+        "performance": "test/audits/performance",
+        "e2e": "test/audits/e2e",
         "main": "test/audits",
         "default": "main"
       },
@@ -57,7 +59,7 @@
         "main": "test",
         "default": "main"
       },
-      "nextAvailable": 3
+      "nextAvailable": 4
     }
   }
 }

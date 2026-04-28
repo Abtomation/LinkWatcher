@@ -90,7 +90,7 @@ validation_session: 14
 
 ### Feature 0.1.1 - Core Architecture
 
-**Source**: `linkwatcher/service.py` (312 lines)
+**Source**: `src/linkwatcher/service.py` (312 lines)
 
 #### Strengths
 
@@ -118,7 +118,7 @@ validation_session: 14
 
 ### Feature 0.1.2 - In-Memory Link Database
 
-**Source**: `linkwatcher/database.py` (663 lines), `linkwatcher/models.py` (33 lines)
+**Source**: `src/linkwatcher/database.py` (663 lines), `src/linkwatcher/models.py` (33 lines)
 
 #### Strengths
 
@@ -155,7 +155,7 @@ validation_session: 14
 
 ### Feature 1.1.1 - File System Monitoring
 
-**Source**: `linkwatcher/handler.py` (845 lines), `linkwatcher/utils.py` (238 lines), `linkwatcher/dir_move_detector.py` (471 lines)
+**Source**: `src/linkwatcher/handler.py` (845 lines), `src/linkwatcher/utils.py` (238 lines), `src/linkwatcher/dir_move_detector.py` (471 lines)
 
 #### Strengths
 

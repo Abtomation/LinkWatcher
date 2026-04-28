@@ -251,16 +251,16 @@ Validation was conducted by:
 
 ### Appendix B: Reference Materials
 
-- `linkwatcher/service.py` — Core Architecture implementation
-- `linkwatcher/database.py` — In-Memory Link Database implementation
-- `linkwatcher/config/settings.py` — Configuration System implementation
-- `linkwatcher/config/defaults.py` — Default configuration presets
-- `linkwatcher/handler.py` — File System Monitoring event handler
-- `linkwatcher/move_detector.py` — Per-file move detection
-- `linkwatcher/dir_move_detector.py` — Directory batch move detection
-- `linkwatcher/reference_lookup.py` — Reference lookup and DB management
-- `linkwatcher/models.py` — Core data models
-- `linkwatcher/utils.py` — Utility functions
+- `src/linkwatcher/service.py` — Core Architecture implementation
+- `src/linkwatcher/database.py` — In-Memory Link Database implementation
+- `src/linkwatcher/config/settings.py` — Configuration System implementation
+- `src/linkwatcher/config/defaults.py` — Default configuration presets
+- `src/linkwatcher/handler.py` — File System Monitoring event handler
+- `src/linkwatcher/move_detector.py` — Per-file move detection
+- `src/linkwatcher/dir_move_detector.py` — Directory batch move detection
+- `src/linkwatcher/reference_lookup.py` — Reference lookup and DB management
+- `src/linkwatcher/models.py` — Core data models
+- `src/linkwatcher/utils.py` — Utility functions
 - `doc/technical/adr/orchestrator-facade-pattern-for-core-architecture.md` — ADR-039
 - `doc/technical/adr/target-indexed-in-memory-link-database.md` — ADR-040
 - `doc/technical/adr/timer-based-move-detection-with-3-phase-directory-batch-algorithm.md` — ADR-041

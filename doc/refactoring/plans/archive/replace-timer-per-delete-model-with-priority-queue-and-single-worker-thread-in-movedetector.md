@@ -47,10 +47,10 @@ debt_item: TD107
 - **Full regression**: 596 passed, 5 skipped, 7 xfailed
 
 ### Affected Components
-- `linkwatcher/move_detector.py` — sole file modified
+- `src/linkwatcher/move_detector.py` — sole file modified
 
 ### Dependencies and Impact
-- **Internal Dependencies**: `linkwatcher/handler.py` instantiates `MoveDetector` and calls `buffer_delete()`, `match_created_file()`, `has_pending`
+- **Internal Dependencies**: `src/linkwatcher/handler.py` instantiates `MoveDetector` and calls `buffer_delete()`, `match_created_file()`, `has_pending`
 - **External Dependencies**: None
 - **Risk Assessment**: Low — public API unchanged, all tests pass
 

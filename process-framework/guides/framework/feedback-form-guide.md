@@ -18,6 +18,8 @@ This guide provides comprehensive instructions for completing feedback forms eff
    pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/support/New-FeedbackForm.ps1 -DocumentId "PF-TSK-XXX" -TaskContext "Task Name" -FeedbackType "MultipleTools" -Confirm:\$false
    ```
 
+   The script auto-prunes Tool sections to match `-FeedbackType`: `SingleTool` → 1 section, `MultipleTools` → 2 sections, `TaskLevel` → no Tool sections (heading removed). If you need additional Tool sections, copy the Tool 2 block in the generated file and renumber.
+
 2. **Manual creation**: Copy the template and follow the naming convention: `YYYYMMDD-HHMMSS-document-id-feedback.md`
 
 3. **File placement**: Save in `/process-framework-local/feedback/feedback-forms`

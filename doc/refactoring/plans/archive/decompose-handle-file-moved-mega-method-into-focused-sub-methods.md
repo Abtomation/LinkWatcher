@@ -23,7 +23,7 @@ target_area: handler.py
 
 ## Refactoring Scope
 
-`_handle_file_moved` in `linkwatcher/handler.py` (lines 272-407, ~136 lines) combines reference lookup, update orchestration, stale retry logic, database cleanup, and statistics reporting in a single method. After TD008 extracted helper methods (`_find_references_multi_format`, `_get_old_path_variations`, `_get_path_variations`), the method shrunk from ~270 to ~136 lines but still has 6+ distinct responsibilities.
+`_handle_file_moved` in `src/linkwatcher/handler.py` (lines 272-407, ~136 lines) combines reference lookup, update orchestration, stale retry logic, database cleanup, and statistics reporting in a single method. After TD008 extracted helper methods (`_find_references_multi_format`, `_get_old_path_variations`, `_get_path_variations`), the method shrunk from ~270 to ~136 lines but still has 6+ distinct responsibilities.
 
 ### Current Issues
 
@@ -51,7 +51,7 @@ target_area: handler.py
 
 ### Affected Components
 
-- `linkwatcher/handler.py` — Only file modified (internal method extraction)
+- `src/linkwatcher/handler.py` — Only file modified (internal method extraction)
 
 ### Dependencies and Impact
 

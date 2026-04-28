@@ -22,7 +22,7 @@ target_area: reference_lookup
 
 ## Item 1: TD195 — Add Common tasks AI Context subsection to reference_lookup.py
 
-**Scope**: Add a module-level AI Context docstring with "Common tasks" subsection to `linkwatcher/reference_lookup.py`, mapping debugging scenarios to specific methods. This brings the module in line with the pattern used in 11+ peer modules (database.py, handler.py, service.py, etc.) that were updated in cf30016 (2026-03-28) but reference_lookup.py was missed. Dimension: DA (Documentation Alignment).
+**Scope**: Add a module-level AI Context docstring with "Common tasks" subsection to `src/linkwatcher/reference_lookup.py`, mapping debugging scenarios to specific methods. This brings the module in line with the pattern used in 11+ peer modules (database.py, handler.py, service.py, etc.) that were updated in cf30016 (2026-03-28) but reference_lookup.py was missed. Dimension: DA (Documentation Alignment).
 
 **Changes Made**:
 <!-- Fill in after implementation -->

@@ -172,7 +172,9 @@ Complete process for creating a new task from concept to implementation-ready de
    - **[Process Framework Task Registry](../../infrastructure/process-framework-task-registry.md)**: Add a new task entry with process type, automation status, script locations, and file update patterns. Also add a `🔗 TRIGGER & OUTPUT` block (Self-Doc, Trigger, Output) and update the State File Trigger Index (if the task has a state-file trigger).
    - **Existing task definitions**: Grep for task definitions that precede or follow the new task in the workflow. Update their "Next Tasks" and "Related Resources" sections to reference the new task where appropriate. Also check the [ai-tasks.md](../../ai-tasks.md) decision tree and workflow diagrams for needed updates (these are NOT automated by New-Task.ps1 — the script only adds the table row).
 
-12L. **🚨 MANDATORY FINAL STEP**: Complete the [Lightweight Task Completion Checklist](#lightweight-task-completion-checklist) below
+12L. **Framework Evaluation (separate session)**: Run [Framework Evaluation](framework-evaluation.md) (PF-TSK-062) targeting the new task in a dedicated session to validate completeness, consistency, and integration quality. The new task must **not** be used in production workflows until Framework Evaluation passes.
+
+13L. **🚨 MANDATORY FINAL STEP**: Complete the [Lightweight Task Completion Checklist](#lightweight-task-completion-checklist) below
 
 ### Lightweight Outputs
 
@@ -248,6 +250,7 @@ Complete process for creating a new task from concept to implementation-ready de
      - Use `DirectoryType` parameter for ID registry-based directory resolution
      - Configure subdirectory mappings in ID registry if needed
    - Update [PF ID Registry](../../PF-id-registry.json) with new ID prefix for file types created by task
+   - **Register the new document creation script for soak verification** with `Register-SoakScript -ScriptId <relative-path-from-project-root> -ScriptPath <absolute-path>` (loaded via `Common-ScriptHelpers`). The script's first 5 successful real invocations must then call `Confirm-SoakInvocation -Outcome success` after agent verification of the on-disk effects — see [`script-soak-tracking.md`](../../state-tracking/permanent/script-soak-tracking.md) and [PF-PRO-028 Script Self-Verification](../../../process-framework-local/proposals/old/script-self-verification.md).
 
    **Session 3 - Templates and Guides:**
 
@@ -281,6 +284,12 @@ Complete process for creating a new task from concept to implementation-ready de
      pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/02-design/New-ContextMap.ps1 -TaskName "Your Task Name" -WorkflowPhase "02-drafting" -MapDescription "Context map for Your Task Name task" -Confirm:\$false
      ```
      > **Note**: Script will display prominent warnings about template nature and customization requirements. Update the path to match your actual project location.
+
+   **Session 5 - Framework Evaluation (mandatory, separate session):**
+
+   - Run [Framework Evaluation](framework-evaluation.md) (PF-TSK-062) targeting the new task to validate completeness, consistency, and integration quality
+   - The new task must **not** be used in production workflows until Framework Evaluation passes
+   > **⚠️ MANDATORY**: This session must run as a dedicated session after all task infrastructure is finalized. Do not combine with Session 4.
 
 8. **Track Progress**: Update the temporary state file after each session with:
    - Completed items and their status
@@ -330,6 +339,10 @@ Complete process for creating a new task from concept to implementation-ready de
 
 - **Updated Documentation Map** - All new artifacts registered in [PF-documentation-map.md](../../PF-documentation-map.md)
 - **Context Map** - Visual representation of task context and component relationships (created using visualization-creation-guide.md and New-ContextMap.ps1)
+
+### Session 5 Outputs (Framework Evaluation)
+
+- **Framework Evaluation Report** - Evaluation of the new task for completeness, consistency, and integration quality via [Framework Evaluation](framework-evaluation.md) (PF-TSK-062)
 
 ### Final Outputs (All Sessions Complete)
 
@@ -382,6 +395,10 @@ The following state files are updated as part of this task:
   - [ ] [Process Framework Task Registry](../../infrastructure/process-framework-task-registry.md) `🔗 TRIGGER & OUTPUT` block and State File Trigger Index updated for new task
   - [ ] Existing task definitions updated — "Next Tasks" and "Related Resources" sections of related tasks reference the new task where appropriate
   - [ ] [ai-tasks.md](../../ai-tasks.md) decision tree and workflow diagrams updated if the new task changes the workflow
+- [ ] **Framework Evaluation Completed**:
+  - [ ] [Framework Evaluation](framework-evaluation.md) (PF-TSK-062) run targeting the new task in a dedicated session
+  - [ ] Evaluation confirms completeness, consistency, and integration quality
+  - [ ] Any issues identified during evaluation are resolved
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-001" and context "New Task Creation Process (Lightweight)"
   - **⚠️ IMPORTANT**: Evaluate the New Task Creation Process itself (PF-TSK-001), not the task you created.
 
@@ -418,6 +435,7 @@ The following state files are updated as part of this task:
   - [ ] Document creation script created using [Document Creation Script Development Guide](../../guides/support/document-creation-script-development-guide.md) and [Document Creation Script Template](../../templates/support/document-creation-script-template.ps1)
   - [ ] ID registry updated with new prefix for file types created by task
   - [ ] Script tested and functional
+  - [ ] Script registered for soak verification — entry visible in [`script-soak-tracking.md`](../../state-tracking/permanent/script-soak-tracking.md) (verify via `Get-SoakStatus -ScriptId <relative-path>`)
 
 #### Session 3 Completion (Templates and Guides)
 
@@ -440,6 +458,13 @@ The following state files are updated as part of this task:
   - [ ] Existing task definitions updated — "Next Tasks" and "Related Resources" sections of related tasks reference the new task where appropriate
   - [ ] [ai-tasks.md](../../ai-tasks.md) decision tree and workflow diagrams updated if the new task changes the workflow
 
+#### Session 5 Completion (Framework Evaluation)
+
+- [ ] **Framework Evaluation Completed**:
+  - [ ] [Framework Evaluation](framework-evaluation.md) (PF-TSK-062) run targeting the new task in a dedicated session
+  - [ ] Evaluation confirms completeness, consistency, and integration quality
+  - [ ] Any issues identified during evaluation are resolved
+
 #### Final Task Completion (All Sessions)
 
 - [ ] **All Infrastructure Complete**:
@@ -454,7 +479,8 @@ The following state files are updated as part of this task:
 
 ### Lightweight Mode — Next Tasks
 
-- **New Task Usage** — The new task is ready for use immediately after completion
+- **[Framework Evaluation](framework-evaluation.md)** (PF-TSK-062) — Mandatory quality gate in a separate session before the new task can be used in production workflows
+- **New Task Usage** — The new task is ready for use after Framework Evaluation passes
 
 ### Full Mode — Next Tasks
 
@@ -462,6 +488,7 @@ The following state files are updated as part of this task:
   - Session 2: Document creation infrastructure (if task creates new files)
   - Session 3: Templates and guides creation
   - Session 4: Visualization and context mapping
+  - Session 5: Framework Evaluation (PF-TSK-062) — mandatory quality gate before task can be used
 - **Track Progress** — Update temporary state file after each session with completed items and next steps
 - **Delete Temporary State File** — Remove the temporary tracking file once all infrastructure is complete and functional
 

@@ -40,9 +40,9 @@ validation_session: 1
 
 | Feature ID | Feature Name | Implementation Status | Validation Focus |
 |---|---|---|---|
-| 2.1.1 | Link Parsing System | Implemented | linkwatcher/parser.py (112 LOC), linkwatcher/parsers/base.py (77 LOC), linkwatcher/parsers/__init__.py (25 LOC), + 6 parser modules (878 LOC total) |
-| 2.2.1 | Link Updating | Implemented | linkwatcher/updater.py (614 LOC) |
-| 3.1.1 | Logging Framework | Implemented | linkwatcher/logging.py (512 LOC), linkwatcher/logging_config.py (439 LOC) |
+| 2.1.1 | Link Parsing System | Implemented | src/linkwatcher/parser.py (112 LOC), src/linkwatcher/parsers/base.py (77 LOC), src/linkwatcher/parsers/__init__.py (25 LOC), + 6 parser modules (878 LOC total) |
+| 2.2.1 | Link Updating | Implemented | src/linkwatcher/updater.py (614 LOC) |
+| 3.1.1 | Logging Framework | Implemented | src/linkwatcher/logging.py (512 LOC), src/linkwatcher/logging_config.py (439 LOC) |
 | 4.1.1 | Test Suite | Implemented | run_tests.py (236 LOC), pytest.ini (44 LOC), conftest.py (179 LOC) |
 | 5.1.1 | CI/CD & Development Tooling | Implemented | ci.yml (192 LOC), dev.bat (140 LOC), Makefile (107 LOC), pyproject.toml (164 LOC), .pre-commit-config.yaml (40 LOC) |
 
@@ -78,7 +78,7 @@ validation_session: 1
 
 ### Feature 2.1.1 - Link Parsing System
 
-**Files**: parser.py (112 LOC), linkwatcher/parsers/base.py (77 LOC), linkwatcher/parsers/__init__.py (25 LOC), markdown.py (242 LOC), yaml_parser.py (102 LOC), json_parser.py (90 LOC), dart.py (191 LOC), python.py (121 LOC), generic.py (133 LOC)
+**Files**: parser.py (112 LOC), src/linkwatcher/parsers/base.py (77 LOC), src/linkwatcher/parsers/__init__.py (25 LOC), markdown.py (242 LOC), yaml_parser.py (102 LOC), json_parser.py (90 LOC), dart.py (191 LOC), python.py (121 LOC), generic.py (133 LOC)
 
 #### Per-Criterion Scores
 
@@ -314,7 +314,7 @@ Code quality validation was conducted by systematically reading all source files
 
 ### Appendix B: Reference Materials
 
-- Source files: parser.py, linkwatcher/parsers/base.py, linkwatcher/parsers/__init__.py, parsers/markdown.py, parsers/yaml_parser.py, parsers/json_parser.py, parsers/dart.py, parsers/python.py, linkwatcher/parsers/generic.py, updater.py, logging.py, logging_config.py, run_tests.py, conftest.py, pytest.ini, ci.yml, dev.bat, Makefile, pyproject.toml, .pre-commit-config.yaml
+- Source files: parser.py, src/linkwatcher/parsers/base.py, src/linkwatcher/parsers/__init__.py, parsers/markdown.py, parsers/yaml_parser.py, parsers/json_parser.py, parsers/dart.py, parsers/python.py, src/linkwatcher/parsers/generic.py, updater.py, logging.py, logging_config.py, run_tests.py, conftest.py, pytest.ini, ci.yml, dev.bat, Makefile, pyproject.toml, .pre-commit-config.yaml
 - Test specifications: PF-TSP-039, PF-TSP-040, PF-TSP-041, PF-TSP-042, PF-TSP-043
 - Technical debt tracking: TD020, TD026, TD028
 
@@ -322,17 +322,17 @@ Code quality validation was conducted by systematically reading all source files
 
 | Module | LOC | Methods | Classes | Print Calls | Logger Calls |
 |---|---|---|---|---|---|
-| linkwatcher/parser.py | 112 | 5 | 1 | 0 | 4 |
-| linkwatcher/parsers/base.py | 77 | 5 | 1 | 0 | 1 |
-| linkwatcher/parsers/__init__.py | 25 | 0 | 0 | 0 | 0 |
-| linkwatcher/parsers/markdown.py | 242 | 2 | 1 | 0 | 1 |
-| linkwatcher/parsers/yaml_parser.py | 102 | 3 | 1 | 0 | 1 |
-| linkwatcher/parsers/json_parser.py | 90 | 3 | 1 | 0 | 1 |
-| linkwatcher/parsers/dart.py | 191 | 2 | 1 | 0 | 1 |
-| linkwatcher/parsers/python.py | 121 | 3 | 1 | 0 | 1 |
-| linkwatcher/parsers/generic.py | 133 | 3 | 1 | 0 | 1 |
-| linkwatcher/updater.py | 614 | 20 | 2 | 1 | 8 |
-| linkwatcher/logging.py | 512 | 22 | 5 | 0 | 0 |
+| src/linkwatcher/parser.py | 112 | 5 | 1 | 0 | 4 |
+| src/linkwatcher/parsers/base.py | 77 | 5 | 1 | 0 | 1 |
+| src/linkwatcher/parsers/__init__.py | 25 | 0 | 0 | 0 | 0 |
+| src/linkwatcher/parsers/markdown.py | 242 | 2 | 1 | 0 | 1 |
+| src/linkwatcher/parsers/yaml_parser.py | 102 | 3 | 1 | 0 | 1 |
+| src/linkwatcher/parsers/json_parser.py | 90 | 3 | 1 | 0 | 1 |
+| src/linkwatcher/parsers/dart.py | 191 | 2 | 1 | 0 | 1 |
+| src/linkwatcher/parsers/python.py | 121 | 3 | 1 | 0 | 1 |
+| src/linkwatcher/parsers/generic.py | 133 | 3 | 1 | 0 | 1 |
+| src/linkwatcher/updater.py | 614 | 20 | 2 | 1 | 8 |
+| src/linkwatcher/logging.py | 512 | 22 | 5 | 0 | 0 |
 | logging_config.py | 439 | 18 | 4 | 0 | 11 |
 | run_tests.py | 236 | 10 | 0 | 15 | 0 |
 | conftest.py | 179 | 10 | 0 | 0 | 0 |

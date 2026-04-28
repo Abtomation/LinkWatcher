@@ -152,7 +152,7 @@ try {
     if ($tddId -or $WhatIfPreference) {
         $projectRoot = Get-ProjectRoot
         $docMapPath = Join-Path -Path $projectRoot -ChildPath "doc/PD-documentation-map.md"
-        $sectionHeader = ".git/objects/3a/b045e54f8acd16e0d036a487eb74c269db1d9f### ``technical/tdd/`` — Technical Design Documents (TDDs)``technical/tdd/`` — Technical Design Documents (TDDs)"
+        $sectionHeader = "### ``technical/tdd/`` — Technical Design Documents (TDDs)"
         $entryLine = "- [TDD: $FeatureName ($tddId)](technical/tdd/$customFileName) - $FeatureId Tier $Tier — $($tierNames[$Tier])"
 
         $updated = Add-DocumentationMapEntry -DocMapPath $docMapPath -SectionHeader $sectionHeader -EntryLine $entryLine -CallerCmdlet $PSCmdlet

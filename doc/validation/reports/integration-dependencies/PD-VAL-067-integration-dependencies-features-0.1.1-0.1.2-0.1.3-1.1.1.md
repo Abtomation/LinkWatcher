@@ -254,19 +254,19 @@ Validation was conducted through direct source code review of all four feature i
 
 ### Appendix B: Reference Materials
 
-- `linkwatcher/service.py` — Core Architecture orchestrator
-- `linkwatcher/database.py` — In-Memory Link Database with interface
-- `linkwatcher/config/settings.py` — Configuration system
-- `linkwatcher/config/defaults.py` — Default configuration values
-- `linkwatcher/handler.py` — File System Monitoring event handler
-- `linkwatcher/move_detector.py` — Per-file move detection
-- `linkwatcher/dir_move_detector.py` — Directory move detection
-- `linkwatcher/reference_lookup.py` — Reference lookup and DB management
-- `linkwatcher/parser.py` — Parser coordinator
-- `linkwatcher/updater.py` — Link updater with path resolution
-- `linkwatcher/path_resolver.py` — Path resolution logic
-- `linkwatcher/models.py` — Data models (LinkReference, FileOperation)
-- `linkwatcher/utils.py` — Utility functions
+- `src/linkwatcher/service.py` — Core Architecture orchestrator
+- `src/linkwatcher/database.py` — In-Memory Link Database with interface
+- `src/linkwatcher/config/settings.py` — Configuration system
+- `src/linkwatcher/config/defaults.py` — Default configuration values
+- `src/linkwatcher/handler.py` — File System Monitoring event handler
+- `src/linkwatcher/move_detector.py` — Per-file move detection
+- `src/linkwatcher/dir_move_detector.py` — Directory move detection
+- `src/linkwatcher/reference_lookup.py` — Reference lookup and DB management
+- `src/linkwatcher/parser.py` — Parser coordinator
+- `src/linkwatcher/updater.py` — Link updater with path resolution
+- `src/linkwatcher/path_resolver.py` — Path resolution logic
+- `src/linkwatcher/models.py` — Data models (LinkReference, FileOperation)
+- `src/linkwatcher/utils.py` — Utility functions
 - R2 Integration reports: PD-VAL-049, PD-VAL-058
 
 ---

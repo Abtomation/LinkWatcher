@@ -22,7 +22,7 @@ target_area: Link Parsing System
 
 ## Item 1: TD086 — Decompose MarkdownParser.parse_content into pattern-specific extraction methods
 
-**Scope**: `parse_content()` in `linkwatcher/parsers/markdown.py` (lines 82-279, ~198 lines) is the single largest method in the codebase. It handles 6 distinct regex patterns (standard links, reference-style links, HTML anchors, quoted paths, quoted directories, standalone references) in one flat loop with duplicated overlap-checking logic. Decompose into private `_extract_*` methods per pattern, and extract the shared overlap-checking into a helper, to reduce complexity and improve maintainability.
+**Scope**: `parse_content()` in `src/linkwatcher/parsers/markdown.py` (lines 82-279, ~198 lines) is the single largest method in the codebase. It handles 6 distinct regex patterns (standard links, reference-style links, HTML anchors, quoted paths, quoted directories, standalone references) in one flat loop with duplicated overlap-checking logic. Decompose into private `_extract_*` methods per pattern, and extract the shared overlap-checking into a helper, to reduce complexity and improve maintainability.
 
 **Changes Made**:
 - [x] Extract `_is_skippable_target()` shared helper for external/anchor link filtering

@@ -21,11 +21,11 @@ usage_context: Used by New-TestAuditReport.ps1 -TestType Performance during PF-T
 |-------|-------|
 | **Feature ID** | [Feature ID] |
 | **Test File ID** | [Test File ID] |
-| **Test File Location** | `[TEST_FILE_PATH]` |
+| **Test File Location** | `[Test File Path]` |
 | **Performance Level** | [Component (L1) / Operation (L2) / Scale (L3) / Resource (L4)] |
 | **Auditor** | [Auditor Name] |
 | **Audit Date** | [Audit Date] |
-| **Audit Status** | [PENDING/IN_PROGRESS/COMPLETED] |
+| **Audit Status** | [Audit Status] |
 
 ## Tests Audited
 
@@ -116,7 +116,7 @@ usage_context: Used by New-TestAuditReport.ps1 -TestType Performance during PF-T
 **Status**: [AUDIT_APPROVED/NEEDS_UPDATE/AUDIT_FAILED]
 
 **Status Definitions**:
-- **🔍 Audit Approved**: All criteria pass — test is ready for baseline capture
+- **✅ Audit Approved**: All criteria pass — test is ready for baseline capture
 - **🔄 Needs Update**: Test has issues that need fixing before baseline capture
 - **🔴 Audit Failed**: Fundamental methodology or measurement issues
 

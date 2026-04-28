@@ -82,7 +82,7 @@ test_file_path: test/automated/parsers/test_markdown.py
 
 | Source Module | Coverage % | Uncovered Areas |
 |---------------|-----------|-----------------|
-| linkwatcher/parsers/markdown.py | 90% | 19 lines — edge cases in specific _extract_* helpers (likely error paths and rare pattern branches) |
+| src/linkwatcher/parsers/markdown.py | 90% | 19 lines — edge cases in specific _extract_* helpers (likely error paths and rare pattern branches) |
 
 **Overall Project Coverage**: 89%
 

@@ -6,14 +6,14 @@ version: 1.0
 created: 2026-04-02
 updated: 2026-04-02
 priority: Medium
-target_area: linkwatcher/parsers/markdown.py
+target_area: src/linkwatcher/parsers/markdown.py
 refactoring_scope: Add AI Context docstring to markdown.py
 mode: lightweight
 ---
 
 # Lightweight Refactoring Plan: Add AI Context docstring to markdown.py
 
-- **Target Area**: linkwatcher/parsers/markdown.py
+- **Target Area**: src/linkwatcher/parsers/markdown.py
 - **Priority**: Medium
 - **Created**: 2026-04-02
 - **Author**: AI Agent & Human Partner
@@ -22,7 +22,7 @@ mode: lightweight
 
 ## Item 1: TD161 — Add AI Context docstring to markdown.py
 
-**Scope**: Add an AI Context section to the module docstring of `linkwatcher/parsers/markdown.py` (474 LOC, most complex parser). All other core modules have this section. The AI Context section provides architectural orientation for AI agents navigating the module. Dimension: DA (Documentation Alignment).
+**Scope**: Add an AI Context section to the module docstring of `src/linkwatcher/parsers/markdown.py` (474 LOC, most complex parser). All other core modules have this section. The AI Context section provides architectural orientation for AI agents navigating the module. Dimension: DA (Documentation Alignment).
 
 **Changes Made**:
 <!-- Fill in after implementation -->
@@ -50,4 +50,3 @@ mode: lightweight
 
 ## Related Documentation
 - [Technical Debt Tracking](/doc/state-tracking/permanent/technical-debt-tracking.md)
-

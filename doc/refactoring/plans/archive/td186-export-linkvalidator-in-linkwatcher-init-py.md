@@ -5,24 +5,24 @@ category: Refactoring Plan
 version: 1.0
 created: 2026-04-09
 updated: 2026-04-09
-target_area: linkwatcher/__init__.py
+target_area: src/linkwatcher/__init__.py
 priority: Medium
-refactoring_scope: TD186: Export LinkValidator in linkwatcher/__init__.py
+refactoring_scope: TD186: Export LinkValidator in src/linkwatcher/__init__.py
 mode: lightweight
 ---
 
-# Lightweight Refactoring Plan: TD186: Export LinkValidator in linkwatcher/__init__.py
+# Lightweight Refactoring Plan: TD186: Export LinkValidator in src/linkwatcher/__init__.py
 
-- **Target Area**: linkwatcher/__init__.py
+- **Target Area**: src/linkwatcher/__init__.py
 - **Priority**: Medium
 - **Created**: 2026-04-09
 - **Author**: AI Agent & Human Partner
 - **Status**: Complete
 - **Mode**: Lightweight (no architectural impact)
 
-## Item 1: TD186 — Export LinkValidator in linkwatcher/__init__.py
+## Item 1: TD186 — Export LinkValidator in src/linkwatcher/__init__.py
 
-**Scope**: Add `LinkValidator` to `linkwatcher/__init__.py` imports and `__all__` list so external consumers can use `from linkwatcher import LinkValidator` instead of requiring the deep import `from linkwatcher.validator import LinkValidator`.
+**Scope**: Add `LinkValidator` to `src/linkwatcher/__init__.py` imports and `__all__` list so external consumers can use `from linkwatcher import LinkValidator` instead of requiring the deep import `from linkwatcher.validator import LinkValidator`.
 
 **Changes Made**:
 <!-- Fill in after implementation -->

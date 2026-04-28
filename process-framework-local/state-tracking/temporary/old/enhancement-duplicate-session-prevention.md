@@ -28,7 +28,7 @@ target_feature: 0.1.1
 
 | Criterion | Assessment |
 |-----------|------------|
-| **Files Affected** | 3 source files: `main.py` (lock check at entry), `linkwatcher/service.py` (lock lifecycle management), `LinkWatcher_run/start_linkwatcher_background.ps1` (process check before launch). 1 test file: new or extended test for lock mechanism. 2 design docs: FDD and TDD minor amendments. |
+| **Files Affected** | 3 source files: `main.py` (lock check at entry), `src/linkwatcher/service.py` (lock lifecycle management), `LinkWatcher_run/start_linkwatcher_background.ps1` (process check before launch). 1 test file: new or extended test for lock mechanism. 2 design docs: FDD and TDD minor amendments. |
 | **Design Docs to Amend** | FDD (PD-FDD-022) — add lifecycle guard to functional behavior. TDD (PD-TDD-021) — add lock file technical design. ADR: not needed (no new architectural pattern). |
 | **New Tests Required** | Yes — test lock file creation/cleanup, detection of existing instance, stale lock file handling |
 | **Interface Impact** | Internal only — public API (`service.start()` / `service.stop()`) unchanged; guard is transparent to callers |

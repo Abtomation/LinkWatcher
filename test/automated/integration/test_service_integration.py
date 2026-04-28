@@ -615,7 +615,7 @@ class TestResourceManagement:
         # Create many files to test memory usage
         for i in range(100):
             test_file = temp_project_dir / f"test_{i}.md"
-            content = f".git/objects/3a/b045e54f8acd16e0d036a487eb74c269db1d9f# Test {i}\n\n"
+            content = f"# Test {i}\n\n"
             for j in range(10):
                 content += f"[Link {j}](target_{i}_{j}.txt)\n"
             test_file.write_text(content)

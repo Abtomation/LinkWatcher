@@ -22,7 +22,7 @@ mode: lightweight
 
 ## Item 1: TD152 — Extract skip-logic from _check_file()
 
-**Scope**: Extract a `_should_skip_reference()` method from `_check_file()` in `linkwatcher/validator.py` to consolidate 5 redundant skip conditions (ignored patterns, code block, archival details, template file, placeholder lines, table rows) that currently repeat the `ref.link_type in _STANDALONE_LINK_TYPES` check. Reduces `_check_file` by ~35 lines and groups all per-reference skip logic in one testable method. Dims: AC (Architectural Consistency).
+**Scope**: Extract a `_should_skip_reference()` method from `_check_file()` in `src/linkwatcher/validator.py` to consolidate 5 redundant skip conditions (ignored patterns, code block, archival details, template file, placeholder lines, table rows) that currently repeat the `ref.link_type in _STANDALONE_LINK_TYPES` check. Reduces `_check_file` by ~35 lines and groups all per-reference skip logic in one testable method. Dims: AC (Architectural Consistency).
 
 **Changes Made**:
 - [x] Extracted `_should_skip_reference()` static method (validator.py:397-441) — consolidates 6 skip conditions into one method with early return for non-standalone types
@@ -50,4 +50,3 @@ mode: lightweight
 
 ## Related Documentation
 - [Technical Debt Tracking](/doc/state-tracking/permanent/technical-debt-tracking.md)
-

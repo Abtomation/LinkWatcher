@@ -21,7 +21,7 @@ target_area: reference_lookup.py
 - **Mode**: Lightweight (no architectural impact)
 
 ## Dependencies and Impact
-- **Affected Components**: `linkwatcher/reference_lookup.py`, `linkwatcher/handler.py`
+- **Affected Components**: `src/linkwatcher/reference_lookup.py`, `src/linkwatcher/handler.py`
 - **Internal Dependencies**: `handler.py._handle_directory_moved()` calls `reference_lookup.process_directory_file_move()` in a loop
 - **Risk Assessment**: Low — Internal performance optimization; no interface changes, no behavioral change
 

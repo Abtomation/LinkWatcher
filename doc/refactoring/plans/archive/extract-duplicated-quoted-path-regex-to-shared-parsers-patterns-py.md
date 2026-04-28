@@ -21,16 +21,16 @@ mode: lightweight
 - **Mode**: Lightweight (no architectural impact)
 
 ## Dependencies and Impact
-- **Affected Components**: `linkwatcher/parsers/patterns.py` (new), `generic.py`, `markdown.py`, `python.py`, `powershell.py`, `dart.py`
+- **Affected Components**: `src/linkwatcher/parsers/patterns.py` (new), `generic.py`, `markdown.py`, `python.py`, `powershell.py`, `dart.py`
 - **Internal Dependencies**: All 5 parsers import from new `patterns.py`; no external consumers affected (patterns are internal implementation detail)
 - **Risk Assessment**: Low — extracting compile-time constants; regex behavior identical; full test suite validates
 
 ## Item 1: TD087 — Extract duplicated quoted path regex to shared constants module
 
-**Scope**: Create `linkwatcher/parsers/patterns.py` with pre-compiled shared regex constants (`QUOTED_PATH_PATTERN`, `QUOTED_DIR_PATTERN`, `QUOTED_DIR_PATTERN_STRICT`). Replace inline `re.compile()` calls in 5 parsers with imports from this module. The PowerShell parser uses a stricter dir pattern variant (`[^\'"]+` vs `[^\'"]*` at end) which is preserved as a separate constant.
+**Scope**: Create `src/linkwatcher/parsers/patterns.py` with pre-compiled shared regex constants (`QUOTED_PATH_PATTERN`, `QUOTED_DIR_PATTERN`, `QUOTED_DIR_PATTERN_STRICT`). Replace inline `re.compile()` calls in 5 parsers with imports from this module. The PowerShell parser uses a stricter dir pattern variant (`[^\'"]+` vs `[^\'"]*` at end) which is preserved as a separate constant.
 
 **Changes Made**:
-- [x] Create `linkwatcher/parsers/patterns.py` with `QUOTED_PATH_PATTERN`, `QUOTED_DIR_PATTERN`, `QUOTED_DIR_PATTERN_STRICT`
+- [x] Create `src/linkwatcher/parsers/patterns.py` with `QUOTED_PATH_PATTERN`, `QUOTED_DIR_PATTERN`, `QUOTED_DIR_PATTERN_STRICT`
 - [x] Update `generic.py` to import from `patterns`
 - [x] Update `markdown.py` to import from `patterns`
 - [x] Update `python.py` to import from `patterns`

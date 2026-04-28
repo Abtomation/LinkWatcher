@@ -40,11 +40,11 @@ target_area: database.py, handler.py, reference_lookup.py, service.py, dir_move_
 - Convert `last_scan` from plain attribute to abstract property
 
 ## Affected Components
-- `linkwatcher/database.py` — ABC definition + LinkDatabase inheritance + last_scan property
-- `linkwatcher/handler.py` — Type hint update
-- `linkwatcher/reference_lookup.py` — Type hint update
-- `linkwatcher/service.py` — Added interface import
-- `linkwatcher/__init__.py` — Export ABC
+- `src/linkwatcher/database.py` — ABC definition + LinkDatabase inheritance + last_scan property
+- `src/linkwatcher/handler.py` — Type hint update
+- `src/linkwatcher/reference_lookup.py` — Type hint update
+- `src/linkwatcher/service.py` — Added interface import
+- `src/linkwatcher/__init__.py` — Export ABC
 
 ## Results
 

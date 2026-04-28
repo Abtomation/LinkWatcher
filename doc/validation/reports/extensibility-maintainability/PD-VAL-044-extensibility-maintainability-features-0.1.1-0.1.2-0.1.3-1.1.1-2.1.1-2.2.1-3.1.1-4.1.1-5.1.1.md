@@ -391,7 +391,7 @@ Validation conducted by examining source code across all 9 foundational features
 
 - Source files: linkwatcher/*.py, linkwatcher/parsers/*.py, linkwatcher/config/*.py
 - Test files: tests/conftest.py, tests/ directory structure
-- Configuration: pyproject.toml, config/defaults.py, linkwatcher/config/settings.py
+- Configuration: pyproject.toml, config/defaults.py, src/linkwatcher/config/settings.py
 - CI/CD: .github/workflows/ci.yml, dev.bat
 - Previous validation reports: PF-VAL-035 through PF-VAL-043
 

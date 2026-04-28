@@ -6,14 +6,14 @@ version: 1.0
 created: 2026-03-27
 updated: 2026-03-27
 priority: Medium
-target_area: linkwatcher/updater.py
+target_area: src/linkwatcher/updater.py
 refactoring_scope: Add TypedDict for update_references return type
 mode: lightweight
 ---
 
 # Lightweight Refactoring Plan: Add TypedDict for update_references return type
 
-- **Target Area**: linkwatcher/updater.py
+- **Target Area**: src/linkwatcher/updater.py
 - **Priority**: Medium
 - **Created**: 2026-03-27
 - **Author**: AI Agent & Human Partner
@@ -25,7 +25,7 @@ mode: lightweight
 **Scope**: `update_references()` returns `Dict` with mixed value types (`int` for counters + `list` for `stale_files`). Add a `UpdateStats` TypedDict to provide static type safety. No runtime behavior change — TypedDict is a dict at runtime.
 
 **Changes Made**:
-- [x] Add `UpdateStats` TypedDict to `linkwatcher/updater.py` (lines 40-46)
+- [x] Add `UpdateStats` TypedDict to `src/linkwatcher/updater.py` (lines 40-46)
 - [x] Update `update_references()` return annotation from `Dict` to `UpdateStats`
 
 **Test Baseline**: 597 passed, 5 skipped, 7 xfailed

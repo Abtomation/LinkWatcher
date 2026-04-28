@@ -77,7 +77,6 @@ This file tracks the progress and results of a **Test Audit round** across all t
 
 **Current Status** — from test-tracking.md:
 - **Audit Approved**: Previously approved, eligible for re-audit
-- **Approved — Pending Dependencies**: Previously approved with dependency caveats
 - **Needs Update**: Previously audited, needs re-audit after changes
 
 **Audit Status** — updated during this round:

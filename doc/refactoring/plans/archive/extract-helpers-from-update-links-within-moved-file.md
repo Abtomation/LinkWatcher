@@ -22,7 +22,7 @@ mode: lightweight
 
 ## Item 1: TD135 — Extract helpers from update_links_within_moved_file()
 
-**Scope**: Extract three private helpers from `update_links_within_moved_file()` in `linkwatcher/reference_lookup.py` to separate mixed concerns (read, parse, filter, calculate, replace, write, rescan). The method is ~200 LOC mixing content I/O, link filtering, path recalculation, content replacement (markdown-specific + generic), backup/write, and DB rescan. After extraction the main method becomes a clear orchestrator. No interface or signature changes.
+**Scope**: Extract three private helpers from `update_links_within_moved_file()` in `src/linkwatcher/reference_lookup.py` to separate mixed concerns (read, parse, filter, calculate, replace, write, rescan). The method is ~200 LOC mixing content I/O, link filtering, path recalculation, content replacement (markdown-specific + generic), backup/write, and DB rescan. After extraction the main method becomes a clear orchestrator. No interface or signature changes.
 
 **Helpers to extract**:
 1. `_filter_relative_links(references)` — filters out URLs, absolute paths, Windows drive-letter paths
@@ -57,4 +57,3 @@ mode: lightweight
 
 ## Related Documentation
 - [Technical Debt Tracking](/doc/state-tracking/permanent/technical-debt-tracking.md)
-

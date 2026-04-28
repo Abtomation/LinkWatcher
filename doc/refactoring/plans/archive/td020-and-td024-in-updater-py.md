@@ -6,14 +6,14 @@ version: 1.0
 created: 2026-03-03
 updated: 2026-03-03
 refactoring_scope: TD020 and TD024 in updater.py
-target_area: linkwatcher/updater.py
+target_area: src/linkwatcher/updater.py
 priority: Medium
 mode: lightweight
 ---
 
 # Lightweight Refactoring Plan: TD020 and TD024 in updater.py
 
-- **Target Area**: linkwatcher/updater.py
+- **Target Area**: src/linkwatcher/updater.py
 - **Priority**: Medium
 - **Created**: 2026-03-03
 - **Author**: AI Agent & Human Partner

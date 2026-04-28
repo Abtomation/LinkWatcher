@@ -36,7 +36,7 @@ Valid values: AC, CQ, ID, DA, EM, SE, PE, OB, UX, DI, TST, AIC
 See Development Dimensions Guide for definitions.
 
 .PARAMETER Location
-Location/path where the debt exists (required for Add). E.g., "linkwatcher/parsers/"
+Location/path where the debt exists (required for Add). E.g., "src/linkwatcher/parsers"
 
 .PARAMETER Priority
 Priority level (required for Add). Valid values: Critical, High, Medium, Low
@@ -100,7 +100,7 @@ The validation tracking file is auto-discovered from doc/state-tracking/validati
 
 .EXAMPLE
 # Add a new debt item
-Update-TechDebt.ps1 -Add -Description "Missing error handling in parser" -Dims "CQ" -Location "linkwatcher/parsers/" -Priority "Medium" -EstimatedEffort "2 hours"
+Update-TechDebt.ps1 -Add -Description "Missing error handling in parser" -Dims "CQ" -Location "src/linkwatcher/parsers" -Priority "Medium" -EstimatedEffort "2 hours"
 
 .EXAMPLE
 # Add a new debt item with assessment and debt item links
@@ -124,7 +124,7 @@ Update-TechDebt.ps1 -DebtId "TD006" -NewStatus "Resolved" -ResolutionNotes "Extr
 
 .EXAMPLE
 # Add a new debt item linked to a validation issue (auto-fills "Tracked As" column)
-Update-TechDebt.ps1 -Add -Description "Missing ADR for decisions" -Dims "AC" -Location "linkwatcher/validator.py" -Priority "Medium" -EstimatedEffort "2 hours" -ValidationIssueId "R2-M-001"
+Update-TechDebt.ps1 -Add -Description "Missing ADR for decisions" -Dims "AC" -Location "src/linkwatcher/validator.py" -Priority "Medium" -EstimatedEffort "2 hours" -ValidationIssueId "R2-M-001"
 
 .EXAMPLE
 # Resolve with validation tracking update (auto-discovers validation-tracking file)

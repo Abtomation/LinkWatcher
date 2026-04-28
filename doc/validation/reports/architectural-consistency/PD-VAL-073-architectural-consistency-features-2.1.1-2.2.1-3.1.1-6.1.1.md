@@ -223,14 +223,14 @@ Validation was conducted by reading all source code files for the 4 features, co
 
 ### Appendix B: Reference Materials
 
-- `linkwatcher/parser.py` — Link Parsing System coordinator (2.1.1)
-- `linkwatcher/parsers/base.py` — BaseParser ABC (2.1.1)
-- `linkwatcher/updater.py` — Link Updater (2.2.1)
-- `linkwatcher/path_resolver.py` — Path resolution (2.2.1)
-- `linkwatcher/logging.py` — Logging System (3.1.1)
-- `linkwatcher/validator.py` — Link Validation (6.1.1)
-- `linkwatcher/models.py` — Data models
-- `linkwatcher/utils.py` — Utility functions
+- `src/linkwatcher/parser.py` — Link Parsing System coordinator (2.1.1)
+- `src/linkwatcher/parsers/base.py` — BaseParser ABC (2.1.1)
+- `src/linkwatcher/updater.py` — Link Updater (2.2.1)
+- `src/linkwatcher/path_resolver.py` — Path resolution (2.2.1)
+- `src/linkwatcher/logging.py` — Logging System (3.1.1)
+- `src/linkwatcher/validator.py` — Link Validation (6.1.1)
+- `src/linkwatcher/models.py` — Data models
+- `src/linkwatcher/utils.py` — Utility functions
 
 ---
 

@@ -1,3 +1,12 @@
+---
+id: PD-UGD-007
+type: Product Documentation
+category: User Guide
+version: 1.0
+created: 2025-12-01
+updated: 2026-04-16
+---
+
 # LinkWatcher 2.0 - Quick Reference Guide
 
 ## Quick Start

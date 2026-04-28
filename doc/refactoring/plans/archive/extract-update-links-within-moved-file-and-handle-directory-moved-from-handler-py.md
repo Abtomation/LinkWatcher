@@ -7,13 +7,13 @@ created: 2026-03-03
 updated: 2026-03-03
 priority: Medium
 refactoring_scope: Extract _update_links_within_moved_file and _handle_directory_moved from handler.py
-target_area: linkwatcher/handler.py
+target_area: src/linkwatcher/handler.py
 ---
 
 # Refactoring Plan: Extract _update_links_within_moved_file and _handle_directory_moved from handler.py
 
 ## Overview
-- **Target Area**: linkwatcher/handler.py
+- **Target Area**: src/linkwatcher/handler.py
 - **Priority**: Medium
 - **Created**: 2026-03-03
 - **Author**: AI Agent & Human Partner
@@ -45,8 +45,8 @@ Continuation of TD005 (God Class decomposition). Handler.py was reduced from 140
 
 ### Affected Components
 
-- `linkwatcher/handler.py` — Source: extract methods out
-- `linkwatcher/reference_lookup.py` (256 LOC) — Destination for `_handle_directory_moved` logic (already handles reference lookup + DB cleanup for file moves)
+- `src/linkwatcher/handler.py` — Source: extract methods out
+- `src/linkwatcher/reference_lookup.py` (256 LOC) — Destination for `_handle_directory_moved` logic (already handles reference lookup + DB cleanup for file moves)
 - New or existing module — Destination for `_update_links_within_moved_file` + `_calculate_updated_relative_path`
 
 ### Dependencies and Impact

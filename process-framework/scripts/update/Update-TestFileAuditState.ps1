@@ -22,7 +22,7 @@ Updates the following files (based on -TestType):
 Relative path to the test file being audited (e.g., "test/automated/unit/test_service.py")
 
 .PARAMETER AuditStatus
-The audit status (e.g., "Tests Approved", "Needs Update", "Audit In Progress")
+The audit status (e.g., "Audit Approved", "Needs Update", "Audit In Progress")
 
 .PARAMETER AuditReportPath
 Path to the audit report document
@@ -49,13 +49,13 @@ Number of tests that failed the audit (optional)
 If specified, shows what would be updated without making changes
 
 .EXAMPLE
-Update-TestFileAuditState.ps1 -TestFilePath "test/automated/unit/test_service.py" -AuditStatus "Tests Approved" -AuditReportPath "test/audits/foundation/audit-report-0-1-1-test_service.md"
+Update-TestFileAuditState.ps1 -TestFilePath "test/automated/unit/test_service.py" -AuditStatus "Audit Approved" -AuditReportPath "test/audits/foundation/audit-report-0-1-1-test_service.md"
 
 .EXAMPLE
 Update-TestFileAuditState.ps1 -TestFilePath "test/automated/unit/test_service.py" -AuditStatus "Needs Update" -AuditorName "John Doe" -MajorFindings @("Missing edge case tests", "Incomplete mock coverage") -DryRun
 
 .EXAMPLE
-Update-TestFileAuditState.ps1 -TestFilePath "test/automated/unit/test_service.py" -AuditStatus "Tests Approved" -TestCasesAudited 15 -PassedTests 13 -FailedTests 2
+Update-TestFileAuditState.ps1 -TestFilePath "test/automated/unit/test_service.py" -AuditStatus "Audit Approved" -TestCasesAudited 15 -PassedTests 13 -FailedTests 2
 
 .NOTES
 This script addresses Process Improvement items:
@@ -79,7 +79,7 @@ param(
     [string]$TestFilePath,
 
     [Parameter(Mandatory=$true)]
-    [ValidateSet("Audit In Progress", "Tests Approved", "Needs Update", "Audit Failed")]
+    [ValidateSet("Audit In Progress", "Audit Approved", "Needs Update", "Audit Failed")]
     [string]$AuditStatus,
 
     [Parameter(Mandatory=$false)]
@@ -368,9 +368,9 @@ try {
         # Map audit status to emoji-prefixed status
         $auditStatusDisplay = switch ($AuditStatus) {
             "Audit In Progress" { "🔍 Audit In Progress" }
-            "Tests Approved" { "✅ Approved" }
+            "Audit Approved" { "✅ Audit Approved" }
             "Needs Update" { "🔄 Needs Update" }
-            "Audit Failed" { "🔴 Failed" }
+            "Audit Failed" { "🔴 Audit Failed" }
         }
 
         # Build audit report link if path provided
@@ -400,7 +400,7 @@ try {
             $columnIndices = @{}
             foreach ($line in $lines) {
                 # Parse table headers to find column indices by name
-                if (-not $rowUpdated -and $line -match '^\|.*\|$' -and $columnIndices.Count -eq 0 -and $line -notmatch '^\|[-\s:]+\|$') {
+                if ($line -match '^\|.*\|$' -and $columnIndices.Count -eq 0 -and $line -notmatch '^\|[-\s:]+\|$') {
                     $rawHeaders = $line -split '\|'
                     if ($rawHeaders.Count -gt 2) { $rawHeaders = $rawHeaders[1..($rawHeaders.Count-2)] }
                     $headers = $rawHeaders | ForEach-Object { $_.Trim() }
@@ -415,7 +415,7 @@ try {
                     $columnIndices = @{}
                 }
 
-                if (-not $rowUpdated -and $columnIndices.Count -gt 0 -and $line -match "^\|.*$rowMatchPattern.*\|") {
+                if ($columnIndices.Count -gt 0 -and $line -match "^\|.*$rowMatchPattern.*\|") {
                     $rawCols = $line -split '\|'
                     if ($rawCols.Count -gt 2) { $rawCols = $rawCols[1..($rawCols.Count-2)] }
                     $cols = $rawCols | ForEach-Object { $_.Trim() }
@@ -544,7 +544,7 @@ try {
     # Map audit status to test implementation status
     $testImplStatus = switch ($AuditStatus) {
         "Audit In Progress" { "🔍 Audit In Progress" }
-        "Tests Approved" { "✅ Audit Approved" }
+        "Audit Approved" { "✅ Audit Approved" }
         "Needs Update" { "🔄 Needs Update" }
         "Audit Failed" { "🔴 Audit Failed" }
     }
@@ -592,18 +592,18 @@ try {
         }
     }
 
-    # Calculate aggregated status
+    # Calculate aggregated status (emits feature-tracking.md legend vocabulary per SC-027)
     $aggregatedStatus = if ($featureTestStatuses -contains "🔴 Audit Failed") {
-        "🔴 Tests Failed Audit"
+        "🔴 Some Failing"
     } elseif ($featureTestStatuses -contains "🔄 Needs Update") {
-        "🔄 Tests Need Update"
+        "🔄 Re-testing Needed"
     } elseif ($featureTestStatuses -contains "🔍 Audit In Progress") {
         "🔍 Audit In Progress"
     } elseif ($featureTestStatuses -notcontains "✅ Audit Approved" -and $featureTestStatuses.Count -gt 0) {
-        "🟡 Tests In Progress"
+        "🟡 In Progress"
     } elseif ($featureTestStatuses -contains "✅ Audit Approved" -and $featureTestStatuses.Count -gt 0) {
         if (($featureTestStatuses | Where-Object { $_ -eq "✅ Audit Approved" }).Count -eq $featureTestStatuses.Count) {
-            "✅ Audit Approved"
+            "✅ All Passing"
         } else {
             "🟡 Tests Partially Approved"
         }
@@ -679,7 +679,7 @@ try {
             Write-Host "  1. Address the identified issues in test file $testFileName" -ForegroundColor Gray
             Write-Host "  2. Re-run tests after fixes are applied" -ForegroundColor Gray
             Write-Host "  3. Schedule follow-up audit when ready" -ForegroundColor Gray
-        } elseif ($AuditStatus -eq "Tests Approved") {
+        } elseif ($AuditStatus -eq "Audit Approved") {
             Write-Host "  1. Test file $testFileName is approved" -ForegroundColor Gray
             Write-Host "  2. Check if all tests for feature $FeatureId are approved" -ForegroundColor Gray
             Write-Host "  3. If all tests approved, feature is ready for implementation" -ForegroundColor Gray

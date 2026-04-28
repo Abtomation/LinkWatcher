@@ -66,10 +66,10 @@ New-RefactoringPlan.ps1 -RefactoringScope "Authentication Service Simplification
 New-RefactoringPlan.ps1 -RefactoringScope "Database Access Pattern Optimization" -TargetArea "lib/data/" -Priority "Medium"
 
 # Lightweight: Quick fix for bare except clauses
-New-RefactoringPlan.ps1 -RefactoringScope "Replace bare excepts in handler.py (TD011)" -TargetArea "linkwatcher/handler.py" -Lightweight
+New-RefactoringPlan.ps1 -RefactoringScope "Replace bare excepts in handler.py (TD011)" -TargetArea "src/linkwatcher/handler.py" -Lightweight
 
 # Lightweight with dependencies: Multi-file change needing dependency tracking
-New-RefactoringPlan.ps1 -RefactoringScope "Consolidate path utils (TD015)" -TargetArea "linkwatcher/" -Lightweight -IncludeDependencies -DebtItemId "TD015"
+New-RefactoringPlan.ps1 -RefactoringScope "Consolidate path utils (TD015)" -TargetArea "src/linkwatcher" -Lightweight -IncludeDependencies -DebtItemId "TD015"
 
 # Documentation-only: Fix TDD pseudocode drift
 New-RefactoringPlan.ps1 -RefactoringScope "Fix TDD pseudocode drift (TD046)" -TargetArea "doc/technical" -DocumentationOnly -DebtItemId "TD046"

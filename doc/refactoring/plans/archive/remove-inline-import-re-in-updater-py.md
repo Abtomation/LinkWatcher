@@ -8,12 +8,12 @@ updated: 2026-03-03
 refactoring_scope: Remove inline import re in updater.py
 priority: Medium
 mode: lightweight
-target_area: linkwatcher/updater.py
+target_area: src/linkwatcher/updater.py
 ---
 
 # Lightweight Refactoring Plan: Remove inline import re in updater.py
 
-- **Target Area**: linkwatcher/updater.py
+- **Target Area**: src/linkwatcher/updater.py
 - **Priority**: Medium
 - **Created**: 2026-03-03
 - **Author**: AI Agent & Human Partner

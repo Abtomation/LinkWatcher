@@ -7,13 +7,13 @@ created: 2026-04-02
 updated: 2026-04-02
 priority: Medium
 mode: lightweight
-target_area: linkwatcher/parsers/powershell.py
+target_area: src/linkwatcher/parsers/powershell.py
 refactoring_scope: Eliminate redundant all_quoted_pattern regex pass in PowerShellParser
 ---
 
 # Lightweight Refactoring Plan: Eliminate redundant all_quoted_pattern regex pass in PowerShellParser
 
-- **Target Area**: linkwatcher/parsers/powershell.py
+- **Target Area**: src/linkwatcher/parsers/powershell.py
 - **Priority**: Medium
 - **Created**: 2026-04-02
 - **Author**: AI Agent & Human Partner
@@ -54,4 +54,3 @@ refactoring_scope: Eliminate redundant all_quoted_pattern regex pass in PowerShe
 
 ## Related Documentation
 - [Technical Debt Tracking](/doc/state-tracking/permanent/technical-debt-tracking.md)
-

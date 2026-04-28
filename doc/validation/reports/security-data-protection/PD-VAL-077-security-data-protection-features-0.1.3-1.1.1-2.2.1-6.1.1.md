@@ -105,7 +105,7 @@ Primary security concerns: (1) defense-in-depth against malformed input, (2) saf
 
 ### Feature 0.1.3 — Configuration System
 
-**Files reviewed**: `linkwatcher/config/settings.py`
+**Files reviewed**: `src/linkwatcher/config/settings.py`
 **Key changes since R2**: +196 lines, enhancement PF-STA-066 completed
 
 #### Strengths
@@ -139,7 +139,7 @@ Primary security concerns: (1) defense-in-depth against malformed input, (2) saf
 
 ### Feature 1.1.1 — File System Monitoring
 
-**Files reviewed**: `linkwatcher/handler.py`, `linkwatcher/move_detector.py`, `linkwatcher/dir_move_detector.py`
+**Files reviewed**: `src/linkwatcher/handler.py`, `src/linkwatcher/move_detector.py`, `src/linkwatcher/dir_move_detector.py`
 **Key changes since R2**: +190 lines, handler decomposition completed
 
 #### Strengths
@@ -172,7 +172,7 @@ Primary security concerns: (1) defense-in-depth against malformed input, (2) saf
 
 ### Feature 2.2.1 — Link Updating
 
-**Files reviewed**: `linkwatcher/updater.py`, `linkwatcher/path_resolver.py`
+**Files reviewed**: `src/linkwatcher/updater.py`, `src/linkwatcher/path_resolver.py`
 **Key changes since R2**: +241 lines, `update_references_batch()` and `_update_file_references_multi()` added
 
 #### Strengths
@@ -206,7 +206,7 @@ Primary security concerns: (1) defense-in-depth against malformed input, (2) saf
 
 ### Feature 6.1.1 — Link Validation
 
-**Files reviewed**: `linkwatcher/validator.py`
+**Files reviewed**: `src/linkwatcher/validator.py`
 **Key changes since R2**: +394 lines, major enhancements — configurable validation extensions/dirs, `.linkwatcher-ignore` file support, code-block/archival/table/placeholder line skipping
 
 #### Strengths
@@ -308,14 +308,14 @@ Security analysis was conducted by:
 
 ### Appendix B: Reference Materials
 
-- `linkwatcher/config/settings.py` — Configuration loading, env var parsing, validation, atomic saves
-- `linkwatcher/handler.py` — File system event handling, handler decomposition
-- `linkwatcher/move_detector.py` — Delete+create move correlation
-- `linkwatcher/dir_move_detector.py` — Directory move detection
-- `linkwatcher/reference_lookup.py` — Reference finding and DB management
-- `linkwatcher/updater.py` — Atomic file writes, reference replacement (single + batch)
-- `linkwatcher/path_resolver.py` — Path resolution for link target calculation
-- `linkwatcher/validator.py` — Workspace scanning, broken link detection, ignore file support
+- `src/linkwatcher/config/settings.py` — Configuration loading, env var parsing, validation, atomic saves
+- `src/linkwatcher/handler.py` — File system event handling, handler decomposition
+- `src/linkwatcher/move_detector.py` — Delete+create move correlation
+- `src/linkwatcher/dir_move_detector.py` — Directory move detection
+- `src/linkwatcher/reference_lookup.py` — Reference finding and DB management
+- `src/linkwatcher/updater.py` — Atomic file writes, reference replacement (single + batch)
+- `src/linkwatcher/path_resolver.py` — Path resolution for link target calculation
+- `src/linkwatcher/validator.py` — Workspace scanning, broken link detection, ignore file support
 - `pyproject.toml` — Dependency declarations
 - `PD-VAL-056` — R2 Security & Data Protection validation report (baseline)
 

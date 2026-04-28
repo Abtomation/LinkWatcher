@@ -249,16 +249,16 @@ Source code review of all implementation files for the three features. Compared 
 
 ### Appendix B: Reference Materials
 
-- `linkwatcher/service.py` — 0.1.1 Core Architecture (299 lines)
-- `linkwatcher/database.py` — 0.1.2 In-Memory Link Database (662 lines)
-- `linkwatcher/handler.py` — 1.1.1 File System Monitoring, event dispatch (766 lines)
-- `linkwatcher/move_detector.py` — 1.1.1 Per-file move detection (211 lines)
-- `linkwatcher/dir_move_detector.py` — 1.1.1 Directory batch move detection (420 lines)
-- `linkwatcher/reference_lookup.py` — 1.1.1 Reference management (700 lines)
-- `linkwatcher/utils.py` — Shared path utilities (269 lines)
-- `linkwatcher/config/settings.py` — Configuration system (387 lines)
-- `linkwatcher/config/defaults.py` — Default config values (135 lines)
-- `linkwatcher/updater.py` — Link updater with batch API
+- `src/linkwatcher/service.py` — 0.1.1 Core Architecture (299 lines)
+- `src/linkwatcher/database.py` — 0.1.2 In-Memory Link Database (662 lines)
+- `src/linkwatcher/handler.py` — 1.1.1 File System Monitoring, event dispatch (766 lines)
+- `src/linkwatcher/move_detector.py` — 1.1.1 Per-file move detection (211 lines)
+- `src/linkwatcher/dir_move_detector.py` — 1.1.1 Directory batch move detection (420 lines)
+- `src/linkwatcher/reference_lookup.py` — 1.1.1 Reference management (700 lines)
+- `src/linkwatcher/utils.py` — Shared path utilities (269 lines)
+- `src/linkwatcher/config/settings.py` — Configuration system (387 lines)
+- `src/linkwatcher/config/defaults.py` — Default config values (135 lines)
+- `src/linkwatcher/updater.py` — Link updater with batch API
 - PD-VAL-055 — R2 Performance & Scalability report (baseline comparison)
 
 ---

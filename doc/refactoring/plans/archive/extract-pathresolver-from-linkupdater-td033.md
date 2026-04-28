@@ -5,7 +5,7 @@ category: General
 version: 1.0
 created: 2026-03-03
 updated: 2026-03-03
-target_area: linkwatcher/updater.py
+target_area: src/linkwatcher/updater.py
 refactoring_scope: Extract PathResolver from LinkUpdater (TD033)
 priority: Medium
 ---
@@ -13,7 +13,7 @@ priority: Medium
 # Refactoring Plan: Extract PathResolver from LinkUpdater (TD033)
 
 ## Overview
-- **Target Area**: linkwatcher/updater.py
+- **Target Area**: src/linkwatcher/updater.py
 - **Priority**: Medium
 - **Created**: 2026-03-03
 - **Author**: AI Agent & Human Partner
@@ -31,7 +31,7 @@ Extract path resolution logic from `LinkUpdater` into a standalone `PathResolver
 
 ### Refactoring Goals
 
-- Extract `PathResolver` class into `linkwatcher/path_resolver.py` containing all path calculation methods
+- Extract `PathResolver` class into `src/linkwatcher/path_resolver.py` containing all path calculation methods
 - LinkUpdater delegates to PathResolver for path calculations, retaining file I/O and text replacement
 - All 386 existing tests pass without modification (behavior preservation)
 - No changes to public API (`update_references`, `set_dry_run`, `set_backup_enabled`)
@@ -47,9 +47,9 @@ Extract path resolution logic from `LinkUpdater` into a standalone `PathResolver
 
 ### Affected Components
 
-- `linkwatcher/updater.py` — Remove path resolution methods, add PathResolver dependency
-- `linkwatcher/path_resolver.py` — New file containing extracted PathResolver class
-- `linkwatcher/__init__.py` — Export PathResolver
+- `src/linkwatcher/updater.py` — Remove path resolution methods, add PathResolver dependency
+- `src/linkwatcher/path_resolver.py` — New file containing extracted PathResolver class
+- `src/linkwatcher/__init__.py` — Export PathResolver
 - `tests/unit/test_updater.py` — Tests calling private path methods will need import updates
 
 ### Dependencies and Impact
@@ -73,12 +73,12 @@ Extract path resolution logic from `LinkUpdater` into a standalone `PathResolver
 
 ### Implementation Plan
 
-1. **Phase 1**: Create `linkwatcher/path_resolver.py` with PathResolver class
+1. **Phase 1**: Create `src/linkwatcher/path_resolver.py` with PathResolver class
    - Copy all 10 path resolution methods
    - PathResolver takes `project_root` and `logger` in constructor
    - Public API: `calculate_new_target(ref, old_path, new_path) -> str`
 
-2. **Phase 2**: Update `linkwatcher/updater.py`
+2. **Phase 2**: Update `src/linkwatcher/updater.py`
    - Import PathResolver, instantiate in `__init__`
    - Replace `_calculate_new_target` body with delegation to `self.path_resolver.calculate_new_target()`
    - Remove the 9 extracted private methods
@@ -126,7 +126,7 @@ Extract path resolution logic from `LinkUpdater` into a standalone `PathResolver
 
 | Date | Phase | Completed Work | Issues Encountered | Next Steps |
 |------|-------|----------------|-------------------|------------|
-| 2026-03-03 | Phase 1 | Created `linkwatcher/path_resolver.py` with 10 methods (332 LOC) | None | Update updater.py |
+| 2026-03-03 | Phase 1 | Created `src/linkwatcher/path_resolver.py` with 10 methods (332 LOC) | None | Update updater.py |
 | 2026-03-03 | Phase 2 | Updated `updater.py` to delegate; removed 9 private methods | None | Update exports |
 | 2026-03-03 | Phase 3 | Added PathResolver to `__init__.py` exports; all 386 tests pass | None | State files |
 

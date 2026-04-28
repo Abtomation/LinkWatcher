@@ -88,7 +88,7 @@ This threat model means the primary security concerns are: (1) defense-in-depth 
 
 ### Feature 0.1.3 — Configuration System
 
-**Files reviewed**: `linkwatcher/config/settings.py`, `linkwatcher/config/defaults.py`
+**Files reviewed**: `src/linkwatcher/config/settings.py`, `src/linkwatcher/config/defaults.py`
 
 #### Strengths
 
@@ -120,7 +120,7 @@ This threat model means the primary security concerns are: (1) defense-in-depth 
 
 ### Feature 1.1.1 — File System Monitoring
 
-**Files reviewed**: `linkwatcher/handler.py`, `linkwatcher/move_detector.py`, `linkwatcher/dir_move_detector.py`
+**Files reviewed**: `src/linkwatcher/handler.py`, `src/linkwatcher/move_detector.py`, `src/linkwatcher/dir_move_detector.py`
 
 #### Strengths
 
@@ -151,7 +151,7 @@ This threat model means the primary security concerns are: (1) defense-in-depth 
 
 ### Feature 2.2.1 — Link Updating
 
-**Files reviewed**: `linkwatcher/updater.py`, `linkwatcher/path_resolver.py`
+**Files reviewed**: `src/linkwatcher/updater.py`, `src/linkwatcher/path_resolver.py`
 
 #### Strengths
 
@@ -182,7 +182,7 @@ This threat model means the primary security concerns are: (1) defense-in-depth 
 
 ### Feature 6.1.1 — Link Validation
 
-**Files reviewed**: `linkwatcher/validator.py`
+**Files reviewed**: `src/linkwatcher/validator.py`
 
 #### Strengths
 
@@ -288,15 +288,15 @@ Security analysis was conducted by:
 
 ### Appendix B: Reference Materials
 
-- `linkwatcher/config/settings.py` — Configuration loading, env var parsing, validation
-- `linkwatcher/config/defaults.py` — Default configuration instances
-- `linkwatcher/handler.py` — File system event handling
-- `linkwatcher/move_detector.py` — Delete+create move correlation
-- `linkwatcher/dir_move_detector.py` — Directory move detection
-- `linkwatcher/updater.py` — Atomic file writes, reference replacement
-- `linkwatcher/path_resolver.py` — Path resolution for link target calculation
-- `linkwatcher/validator.py` — Workspace scanning, broken link detection
-- `linkwatcher/utils.py` — Path normalization, file monitoring utilities
+- `src/linkwatcher/config/settings.py` — Configuration loading, env var parsing, validation
+- `src/linkwatcher/config/defaults.py` — Default configuration instances
+- `src/linkwatcher/handler.py` — File system event handling
+- `src/linkwatcher/move_detector.py` — Delete+create move correlation
+- `src/linkwatcher/dir_move_detector.py` — Directory move detection
+- `src/linkwatcher/updater.py` — Atomic file writes, reference replacement
+- `src/linkwatcher/path_resolver.py` — Path resolution for link target calculation
+- `src/linkwatcher/validator.py` — Workspace scanning, broken link detection
+- `src/linkwatcher/utils.py` — Path normalization, file monitoring utilities
 - `pyproject.toml` — Dependency declarations
 - `.gitignore` — Secret file exclusions
 

@@ -22,23 +22,23 @@ refactoring_scope: Extract magic string link types into LinkType enum
 
 ## Item 1: TD181 — Extract magic string link types into LinkType enum
 
-**Scope**: 38 unique link type magic strings (including derived powershell variants) scattered across 11 files in linkwatcher/ with no central definition. Created `LinkType(str, Enum)` in `linkwatcher/link_types.py` with 38 members and replaced all string literals with enum members. Using `str` mixin ensures backward compatibility — `LinkType.MARKDOWN == "markdown"` is `True`, so no interface change.
+**Scope**: 38 unique link type magic strings (including derived powershell variants) scattered across 11 files in linkwatcher/ with no central definition. Created `LinkType(str, Enum)` in `src/linkwatcher/link_types.py` with 38 members and replaced all string literals with enum members. Using `str` mixin ensures backward compatibility — `LinkType.MARKDOWN == "markdown"` is `True`, so no interface change.
 
 **Dims**: CQ (Code Quality)
 
 **Changes Made**:
-- [x] Created `linkwatcher/link_types.py` with `LinkType(str, Enum)` containing 38 members (7 parser families + legacy)
-- [x] Updated `linkwatcher/parsers/markdown.py` — replaced 10 string literals with enum members
-- [x] Updated `linkwatcher/parsers/python.py` — replaced 6 string literals
-- [x] Updated `linkwatcher/parsers/yaml_parser.py` — replaced 3 string literals (1 conditional + 2 direct)
-- [x] Updated `linkwatcher/parsers/json_parser.py` — replaced 2 string literals (1 conditional + 1 direct)
-- [x] Updated `linkwatcher/parsers/dart.py` — replaced 5 string literals
-- [x] Updated `linkwatcher/parsers/powershell.py` — replaced 4 direct string arguments + 2 dynamic derivations with `LinkType()` lookups
-- [x] Updated `linkwatcher/parsers/generic.py` — replaced 3 string literals
-- [x] Updated `linkwatcher/validator.py` — replaced 2 frozensets + 1 lambda comparison with enum members
-- [x] Updated `linkwatcher/updater.py` — replaced 6 comparisons + 2 list memberships with enum members
-- [x] Updated `linkwatcher/path_resolver.py` — replaced 1 comparison
-- [x] Updated `linkwatcher/reference_lookup.py` — replaced 1 comparison
+- [x] Created `src/linkwatcher/link_types.py` with `LinkType(str, Enum)` containing 38 members (7 parser families + legacy)
+- [x] Updated `src/linkwatcher/parsers/markdown.py` — replaced 10 string literals with enum members
+- [x] Updated `src/linkwatcher/parsers/python.py` — replaced 6 string literals
+- [x] Updated `src/linkwatcher/parsers/yaml_parser.py` — replaced 3 string literals (1 conditional + 2 direct)
+- [x] Updated `src/linkwatcher/parsers/json_parser.py` — replaced 2 string literals (1 conditional + 1 direct)
+- [x] Updated `src/linkwatcher/parsers/dart.py` — replaced 5 string literals
+- [x] Updated `src/linkwatcher/parsers/powershell.py` — replaced 4 direct string arguments + 2 dynamic derivations with `LinkType()` lookups
+- [x] Updated `src/linkwatcher/parsers/generic.py` — replaced 3 string literals
+- [x] Updated `src/linkwatcher/validator.py` — replaced 2 frozensets + 1 lambda comparison with enum members
+- [x] Updated `src/linkwatcher/updater.py` — replaced 6 comparisons + 2 list memberships with enum members
+- [x] Updated `src/linkwatcher/path_resolver.py` — replaced 1 comparison
+- [x] Updated `src/linkwatcher/reference_lookup.py` — replaced 1 comparison
 
 **Test Baseline**: 756 passed, 1 failed (pre-existing: test_bug025_yaml_substring_path_not_corrupted), 5 skipped, 4 deselected, 4 xfailed
 **Test Result**: 758 passed, 0 failed, 5 skipped, 4 deselected, 4 xfailed (baseline had 1 pre-existing failure resolved by external fix to validator.py rstrip→removesuffix; no new failures from this refactoring)

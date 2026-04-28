@@ -291,7 +291,7 @@ All three components use constructor injection (callbacks) and maintain clean se
 ### Appendix A: Validation Methodology
 
 Validation was conducted by:
-1. Reading all source files in `linkwatcher/` directory (13 Python modules + 7 parser modules)
+1. Reading all source files in `src/linkwatcher` directory (13 Python modules + 7 parser modules)
 2. Reading both Architecture Decision Records (PD-ADR-039, PD-ADR-040)
 3. Mapping each ADR decision point to code evidence
 4. Analyzing import graph for dependency direction
@@ -300,16 +300,16 @@ Validation was conducted by:
 
 ### Appendix B: Reference Materials
 
-- `linkwatcher/service.py` — Core Architecture implementation (~290 LOC)
-- `linkwatcher/database.py` — In-Memory Link Database implementation (~240 LOC)
-- `linkwatcher/handler.py` — File System Monitoring handler (~870 LOC)
-- `linkwatcher/parser.py` — Parser Registry/Facade (~112 LOC)
-- `linkwatcher/parsers/base.py` — Parser ABC (~77 LOC)
-- `linkwatcher/updater.py` — Link Updater (~633 LOC)
-- `linkwatcher/utils.py` — Shared utilities (~255 LOC)
-- `linkwatcher/models.py` — Data models (~33 LOC)
-- `linkwatcher/move_detector.py` — Per-file move detection (~113 LOC)
-- `linkwatcher/config/settings.py` — Configuration system (~238 LOC)
+- `src/linkwatcher/service.py` — Core Architecture implementation (~290 LOC)
+- `src/linkwatcher/database.py` — In-Memory Link Database implementation (~240 LOC)
+- `src/linkwatcher/handler.py` — File System Monitoring handler (~870 LOC)
+- `src/linkwatcher/parser.py` — Parser Registry/Facade (~112 LOC)
+- `src/linkwatcher/parsers/base.py` — Parser ABC (~77 LOC)
+- `src/linkwatcher/updater.py` — Link Updater (~633 LOC)
+- `src/linkwatcher/utils.py` — Shared utilities (~255 LOC)
+- `src/linkwatcher/models.py` — Data models (~33 LOC)
+- `src/linkwatcher/move_detector.py` — Per-file move detection (~113 LOC)
+- `src/linkwatcher/config/settings.py` — Configuration system (~238 LOC)
 - PD-ADR-039: Orchestrator/Facade Pattern for Core Architecture
 - PD-ADR-040: Target-Indexed In-Memory Link Database
 

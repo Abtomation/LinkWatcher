@@ -6,14 +6,14 @@ version: 1.0
 created: 2026-03-03
 updated: 2026-03-03
 priority: Medium
-target_area: linkwatcher/service.py
+target_area: src/linkwatcher/service.py
 refactoring_scope: Remove dual print+logger output in service.py (TD034)
 mode: lightweight
 ---
 
 # Lightweight Refactoring Plan: Remove dual print+logger output in service.py (TD034)
 
-- **Target Area**: linkwatcher/service.py
+- **Target Area**: src/linkwatcher/service.py
 - **Priority**: Medium
 - **Created**: 2026-03-03
 - **Author**: AI Agent & Human Partner

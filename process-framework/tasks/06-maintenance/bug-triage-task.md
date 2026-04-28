@@ -75,7 +75,7 @@ Systematically evaluate, prioritize, and assign reported bugs to ensure efficien
    - **Bug vs Feature Request**: If the reported issue describes desired new behavior rather than broken existing behavior, reclassify it: close the bug as "Not a Bug" and route to [Feature Request Tracking](../../../doc/state-tracking/permanent/feature-request-tracking.md) using [New-FeatureRequest.ps1](../../scripts/file-creation/01-planning/New-FeatureRequest.ps1)
    - **Bug vs Process Improvement**: If the issue affects process framework tooling rather than the product itself, reclassify it as a process improvement — not a product bug. Use the file-location heuristic:
      - `doc/` or `process-framework/` → always a process improvement (route to [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) via [New-ProcessImprovement.ps1](../../scripts/file-creation/support/New-ProcessImprovement.ps1))
-     - `linkwatcher/` (product source code) → product bug (continue triage)
+     - `src/linkwatcher` (product source code) → product bug (continue triage)
      - `test/` → evaluate case by case (test infrastructure issues are process improvements; test failures exposing product defects are bugs)
 8. **Evaluate Impact and Severity**:
    - **Critical**: System crash, data loss, security vulnerability

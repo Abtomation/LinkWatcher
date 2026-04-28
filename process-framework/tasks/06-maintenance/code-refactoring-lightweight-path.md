@@ -72,24 +72,31 @@ For batch mode: copy the "Item N" section in the generated plan for each additio
 
 **L8. Complete Documentation & State Updates Checklist**: For each item in the plan, check every item in the "Documentation & State Updates" section. Each N/A requires a brief justification note in the plan (e.g., "Grepped TDD — no references to changed method"):
 
-   > **Tier 1 shortcut**: If the feature is Tier 1 and has no design documents (TDD, FDD, ADR, test spec), batch items 2–5 below as N/A with a single justification: *"Tier 1 feature — no design documents exist for [feature name]."* Still check items 1 (feature state file), 6 (validation tracking), and 7 (tech debt) individually.
+   > **Tier 1 shortcut**: If the feature is Tier 1 and has no design documents (TDD, FDD, ADR, test spec), batch items 2–5 below as N/A with a single justification: *"Tier 1 feature — no design documents exist for [feature name]."* Still check items 1 (feature state file), 6 (integration narrative), 7 (validation tracking), and 8 (tech debt) individually.
 
-   > **Test-only shortcut**: If the refactoring targets exclusively test code (no production code changes), batch items 1–6 below as N/A with a single justification: *"Test-only refactoring — no production code changes; design and state documents do not reference test internals."* Still check item 7 (tech debt) individually.
+   > **Test-only shortcut**: If the refactoring targets exclusively test code (no production code changes), batch items 1–7 below as N/A with a single justification: *"Test-only refactoring — no production code changes; design and state documents do not reference test internals."* Still check item 8 (tech debt) individually.
 
-   > **Documentation-only shortcut**: If the refactoring modifies only documentation files, docstrings, or comments (no behavioral code changes), batch items 1–6 below as N/A with a single justification: *"Documentation-only change — no behavioral code changes; design and state documents do not need updates for [description of change]."* Still check item 7 (tech debt) individually.
+   > **Documentation-only shortcut**: If the refactoring modifies only documentation files, docstrings, or comments (no behavioral code changes), batch items 1–7 below as N/A with a single justification: *"Documentation-only change — no behavioral code changes; design and state documents do not need updates for [description of change]."* Still check item 8 (tech debt) individually.
 
    1. Feature implementation state file updated, or N/A — verified file does not reference changed component (grep state file for component/method name)
    2. TDD updated, or N/A — verified no interface or significant internal design changes (new data structures, algorithm rewrites, storage layout changes) documented in TDD (grep TDD for references to changed component)
    3. Test spec updated, or N/A — verified no behavior change affects spec (grep test spec for changed component)
    4. FDD updated, or N/A — verified no functional change affects FDD (grep FDD for changed component)
    5. ADR updated, or N/A — verified no architectural decision affected (grep ADR directory for changed component)
-   6. Validation tracking updated, or N/A — verified feature is not tracked or change doesn't affect validation (check validation-tracking file for feature)
-   7. Technical Debt Tracking: TD item marked resolved
+   6. Integration Narrative updated, or N/A — verified no PD-INT narrative in `doc/technical/integration/` references the refactored component (grep narrative directory for component/method name)
+   7. Validation tracking updated, or N/A — verified feature is not tracked or change doesn't affect validation (check validation-tracking file for feature)
+   8. Technical Debt Tracking: TD item marked resolved
 
 **L9. Fill Results**: Record test results, bugs discovered, and doc updates in the plan. Complete the Results Summary table.
 
 **L10. Update State Files**:
    - [ ] [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md): Mark resolved items using `Update-TechDebt.ps1 -DebtId "TD###" -NewStatus "Resolved" -ResolutionNotes "..."` — if tracked in a validation tracking file, also pass `-ValidationNote "PD-REF-### — description"` (validation file auto-discovered)
+   - [ ] **Audit-flagged TD closure** (only if the resolved TD's Source column or resolution notes reference a `TE-TAR-*` audit report): after `Update-TechDebt.ps1` completes, close the audit status loop — otherwise `test-tracking.md` and `feature-tracking.md` retain the stale audit status from the original audit report (the gap that caused feature 0.1.2 to sit in split-brain state for ~2 weeks).
+       - **If the resolution closes ALL findings from that audit** — run:
+         ```powershell
+         Update-TestFileAuditState.ps1 -TestFilePath <test file> -AuditStatus "Audit Approved" -AuditReportPath <original TE-TAR report>
+         ```
+       - **If findings are only partially addressed** — do NOT mark as "Audit Approved". Route to [Test Audit (PF-TSK-030)](../03-testing/test-audit-task.md) for a re-audit instead.
    - [ ] [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md): Update feature status if applicable
    - [ ] [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md): Report any discovered bugs using New-BugReport.ps1
    - [ ] **Archive Refactoring Plan**: Move completed plan to `doc/refactoring/plans/archive`

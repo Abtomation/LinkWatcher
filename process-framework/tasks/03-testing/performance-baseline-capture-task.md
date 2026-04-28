@@ -59,7 +59,7 @@ Unlike Performance Test Creation (which writes test code), this task **executes*
    - `✅ Baselined` entries → run for regression check if triggered by code change
    - Optionally filter by Related Features column if triggered by a specific feature change
 
-2. **🚨 Verify audit gate for `📋 Needs Baseline` entries**: Before capturing baselines for newly created tests, confirm their **Audit Status** column shows `🔍 Audit Approved` in performance-test-tracking.md. Tests at `📋 Needs Baseline` that have not been audited (Audit Status is empty or `⬜ Not Audited`) **must** pass [Test Audit (PF-TSK-030)](/process-framework/tasks/03-testing/test-audit-task.md) with `-TestType Performance` first. This gate does **not** apply to `⚠️ Needs Re-baseline` or `✅ Baselined` entries (they were already audited when first created).
+2. **🚨 Verify audit gate for `📋 Needs Baseline` entries**: Before capturing baselines for newly created tests, confirm their **Audit Status** column shows `✅ Audit Approved` in performance-test-tracking.md. Tests at `📋 Needs Baseline` that have not been audited (Audit Status is empty or `⬜ Not Audited`) **must** pass [Test Audit (PF-TSK-030)](/process-framework/tasks/03-testing/test-audit-task.md) with `-TestType Performance` first. This gate does **not** apply to `⚠️ Needs Re-baseline` or `✅ Baselined` entries (they were already audited when first created).
 
 3. **Check environment** — close unnecessary applications, ensure consistent test conditions. Note any environmental factors that could affect results.
 

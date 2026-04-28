@@ -6,14 +6,14 @@ version: 1.0
 created: 2026-03-02
 updated: 2026-03-02
 refactoring_scope: Remove Repeated Inline Path Import in updater.py (TD014)
-target_area: linkwatcher/updater.py
+target_area: src/linkwatcher/updater.py
 priority: Low
 ---
 
 # Refactoring Plan: Remove Repeated Inline Path Import (TD014)
 
 ## Overview
-- **Target Area**: linkwatcher/updater.py
+- **Target Area**: src/linkwatcher/updater.py
 - **Priority**: Low
 - **Created**: 2026-03-02
 - **Author**: AI Agent & Human Partner

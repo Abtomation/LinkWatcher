@@ -7,13 +7,13 @@ created: 2026-03-03
 updated: 2026-03-03
 refactoring_scope: Extract reference lookup from handler.py into reference_lookup.py (TD022)
 priority: Medium
-target_area: linkwatcher/handler.py
+target_area: src/linkwatcher/handler.py
 ---
 
 # Refactoring Plan: Extract reference lookup from handler.py into reference_lookup.py (TD022)
 
 ## Overview
-- **Target Area**: linkwatcher/handler.py
+- **Target Area**: src/linkwatcher/handler.py
 - **Priority**: Medium
 - **Created**: 2026-03-03
 - **Author**: AI Agent & Human Partner
@@ -29,7 +29,7 @@ TD005 decomposed `LinkMaintenanceHandler` into `handler.py`, `move_detector.py`,
 - 7 methods (~195 lines) form a cohesive "reference lookup and DB management" concern that doesn't belong in the event handler
 
 ### Refactoring Goals
-- Extract reference lookup and DB management methods into `ReferenceLookup` class in `linkwatcher/reference_lookup.py`
+- Extract reference lookup and DB management methods into `ReferenceLookup` class in `src/linkwatcher/reference_lookup.py`
 - Reduce handler.py from 873 to ~680 lines (~22% reduction)
 - Handler becomes a pure orchestrator; reference work is delegated to `ReferenceLookup`
 
@@ -41,8 +41,8 @@ TD005 decomposed `LinkMaintenanceHandler` into `handler.py`, `move_detector.py`,
 - **Technical Debt**: TD022 open (this item)
 
 ### Affected Components
-- `linkwatcher/handler.py` — Remove 7 methods, add ReferenceLookup instantiation, update all call sites
-- `linkwatcher/reference_lookup.py` — New module containing extracted `ReferenceLookup` class
+- `src/linkwatcher/handler.py` — Remove 7 methods, add ReferenceLookup instantiation, update all call sites
+- `src/linkwatcher/reference_lookup.py` — New module containing extracted `ReferenceLookup` class
 - `tests/test_move_detection.py` — 3 tests call `handler._get_old_path_variations()` directly; update to use `handler._ref_lookup.get_old_path_variations()`
 
 ### Dependencies and Impact
@@ -61,7 +61,7 @@ Extract Move Object (composition pattern). Create a `ReferenceLookup` class that
 - **Preserve interface**: Methods keep the same signatures (drop `self` prefix convention: `_find_references_multi_format` → `find_references`)
 
 ### Implementation Plan
-1. **Phase 1**: Create `linkwatcher/reference_lookup.py` with `ReferenceLookup` class containing all 7 methods
+1. **Phase 1**: Create `src/linkwatcher/reference_lookup.py` with `ReferenceLookup` class containing all 7 methods
 2. **Phase 2**: Update `handler.py` — instantiate `ReferenceLookup` in `__init__`, replace `self._method()` calls with `self._ref_lookup.method()` calls, remove extracted methods
 3. **Phase 3**: Update tests — fix 3 direct method calls in `test_move_detection.py`
 4. **Phase 4**: Run full test suite, verify 386 passed
@@ -109,7 +109,7 @@ Extract Move Object (composition pattern). Create a `ReferenceLookup` class that
 | Date | Phase | Completed Work | Issues Encountered | Next Steps |
 |------|-------|----------------|-------------------|------------|
 | 2026-03-03 | Analysis | Code analysis, call graph, test coverage review | None | Create reference_lookup.py |
-| 2026-03-03 | Phase 1 | Created linkwatcher/reference_lookup.py (233 lines) | None | Update handler.py |
+| 2026-03-03 | Phase 1 | Created src/linkwatcher/reference_lookup.py (233 lines) | None | Update handler.py |
 | 2026-03-03 | Phase 2 | Updated handler.py: instantiated ReferenceLookup, delegated 14 call sites, removed 7 methods | None | Update tests |
 | 2026-03-03 | Phase 3 | Updated 3 tests in test_move_detection.py | None | Run full suite |
 | 2026-03-03 | Phase 4 | Full suite: 386 passed, 5 skipped, 7 xfailed (identical to baseline) | None | State updates |

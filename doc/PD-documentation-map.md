@@ -119,14 +119,22 @@ _Created during framework onboarding (PF-TSK-066), consolidated to 9-feature sco
 
 _Created via Integration Narrative Creation task (PF-TSK-083) — documenting cross-feature workflow collaboration._
 
-_(No narratives created yet — individual entries will be auto-added by New-IntegrationNarrative.ps1)_
+- [Product: Startup (PD-INT-001)](technical/integration/startup-integration-narrative.md) - WF-003 startup and initial project scan: how Core Architecture, Configuration, Logging, Database, Parser, and File System Monitoring collaborate from `python main.py` to active monitoring
+- [Product: Single File Move (PD-INT-002)](technical/integration/single-file-move-integration-narrative.md) - WF-001 single-file move pipeline: how File System Monitoring, In-Memory Database, Parser Framework, and Link Updater collaborate from watchdog event detection to atomic reference rewrites and DB re-sync
+- [Product: Dry-Run Mode (PD-INT-003)](technical/integration/dry-run-mode-integration-narrative.md) - WF-007 dry-run preview mode: how Configuration System, Core Architecture, Link Updater, and Logging Framework collaborate to short-circuit disk writes and report intended changes as structured log events
+- [Product: Multi-Format File Move (PD-INT-004)](technical/integration/multi-format-file-move-integration-narrative.md) - WF-005 multi-format file move: how File System Monitoring, Parser Framework, and Link Updater collaborate so a single move correctly rewrites references across MD, YAML, JSON, Python, PS1, and generic-fallback formats via `link_type`-tagged `LinkReference` dispatch
+- [Product: Link Health Audit (PD-INT-005)](technical/integration/link-health-audit-integration-narrative.md) - WF-009 validation mode: how Core Architecture, Configuration System, Parser Framework, and Link Validation collaborate when `python main.py --validate` performs a read-only workspace scan and writes `LinkWatcherBrokenLinks.txt` — standalone from the live-watching pipeline (no lock, no observer, no service, no database)
+- [Product: Directory Move (PD-INT-006)](technical/integration/directory-move-integration-narrative.md) - WF-002 directory move pipeline: how File System Monitoring (DirectoryMoveDetector 3-phase state machine with settle+max timers + native `DirMovedEvent`), In-Memory Database, Parser Framework, and Link Updater collaborate through the 5-phase batched pipeline (Phase 0 source-path re-key, Phase 1/1b/1c batched collect→single-pass update (TD129)→deferred bulk rescan (TD128), Phase 1.5 inside-file relative links, Phase 2 directory-path refs) to update every inbound reference, every contained file's outward links, and every reference to the directory path itself in a single orchestrated flow
+- [Product: Rapid Sequential Moves (PD-INT-007)](technical/integration/rapid-sequential-moves-integration-narrative.md) - WF-004 rapid sequential moves: how File System Monitoring, In-Memory Database, and Link Updater preserve consistency when multiple file moves arrive in tight succession — observer-thread serialization, MoveDetector pending-map concurrency, DB lock contention, and the stale-reference retry cascade
+- [Product: Graceful Shutdown (PD-INT-008)](technical/integration/graceful-shutdown-integration-narrative.md) - WF-008 graceful shutdown: how Core Architecture (signal handlers, observer lifecycle, lock file), Link Updater (atomic temp-file + rename writes), and In-Memory Database (discard-on-exit; no persistence) collaborate so Ctrl+C / SIGTERM never leaves files partially written — from signal delivery through observer drain to lock release
+- [Product: Configuration Change (PD-INT-009)](technical/integration/configuration-change-integration-narrative.md) - WF-006 configuration change: how Configuration System, Core Architecture, File System Monitoring, Parser Framework, Link Updater, and Logging Framework collaborate at startup so values from YAML/JSON files, `LINKWATCHER_*` env vars, and CLI flags cascade into per-component constructor arguments, post-`__init__` setters, and the logging singleton — one-shot propagation with no hot-reload
 
 ## `user/` — User Documentation
 
 ### `user/handbooks/`
 
-- [Product: Quick Reference](user/handbooks/quick-reference.md) - CLI options, config, environment variables, examples
-- [Product: Multi-Project Setup](user/handbooks/multi-project-setup.md) - Using across multiple projects
+- [Product: Quick Reference (PD-UGD-007)](user/handbooks/quick-reference.md) - CLI options, config, environment variables, examples
+- [Product: Multi-Project Setup (PD-UGD-008)](user/handbooks/multi-project-setup.md) - Using across multiple projects
 - [Product: Link Validation (PD-UGD-003)](user/handbooks/link-validation.md) - On-demand workspace scan for broken file references using --validate
 - [Product: File Type Quick Fix (PD-UGD-001)](user/handbooks/file-type-quick-fix.md) - Quick solutions for adding file type monitoring support
 - [Product: Troubleshooting File Types (PD-UGD-002)](user/handbooks/troubleshooting-file-types.md) - Detailed diagnosis and fixes for file type monitoring issues

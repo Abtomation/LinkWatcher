@@ -359,7 +359,7 @@ if ($affectedFeatureIds.Count -gt 0) {
                     if ($ftLine -match [regex]::Escape($targetFId) -and -not $lineUpdated) {
                         $ftCells = Split-MarkdownTableRow $ftLine
                         for ($i = 0; $i -lt $ftCells.Count; $i++) {
-                            if ($ftCells[$i] -match '(No Tests|No Test Required|Specs Created|In Progress|All Passing|Some Failing|Automated Only|Re-testing Needed|Tests Approved)') {
+                            if ($ftCells[$i] -match '(No Tests|No Test Required|Specs Created|In Progress|Audit In Progress|Tests Partially Approved|All Passing|Some Failing|Automated Only|Re-testing Needed)') {
                                 $ftCells[$i] = $featureStatus
                                 $lineUpdated = $true
                                 $ftUpdateCount++

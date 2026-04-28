@@ -92,9 +92,9 @@ prior_audit_date: 2026-03-26
 
 | Source Module | Coverage % | Uncovered Areas |
 |---------------|-----------|-----------------|
-| linkwatcher/config/settings.py | 94% | Lines 257-258, 264-267, 312-318 |
-| linkwatcher/config/__init__.py | 100% | None |
-| linkwatcher/config/defaults.py | 100% | None |
+| src/linkwatcher/config/settings.py | 94% | Lines 257-258, 264-267, 312-318 |
+| src/linkwatcher/config/__init__.py | 100% | None |
+| src/linkwatcher/config/defaults.py | 100% | None |
 
 **Coverage Change**: settings.py dropped from 100% → 94% since prior audit. New code was added for:
 - Lines 257-258: `except ValueError` handler for invalid int env vars (e.g., `LINKWATCHER_MAX_FILE_SIZE_MB=abc`)

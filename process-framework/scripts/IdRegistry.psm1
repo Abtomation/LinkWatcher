@@ -106,26 +106,21 @@ function Update-NextAvailableCounter {
     )
 
     $registryPath = Get-IdRegistryPath -Prefix $Prefix
-    try {
-        $content = Get-Content -Path $registryPath -Raw
+    $content = Get-Content -Path $registryPath -Raw
 
-        # Find the specific prefix section and update only the nextAvailable value
-        # Use a more robust pattern that handles multiline JSON
-        $pattern = "(`"$Prefix`":\s*\{[\s\S]*?`"nextAvailable`":\s*)(\d+)"
-        $replacement = "`${1}$NewValue"
+    # Find the specific prefix section and update only the nextAvailable value
+    # Use a more robust pattern that handles multiline JSON
+    $pattern = "(`"$Prefix`":\s*\{[\s\S]*?`"nextAvailable`":\s*)(\d+)"
+    $replacement = "`${1}$NewValue"
 
-        $updatedContent = $content -replace $pattern, $replacement
+    $updatedContent = $content -replace $pattern, $replacement
 
-        if ($updatedContent -eq $content) {
-            Write-Warning "No nextAvailable counter found for prefix '$Prefix' - update skipped"
-        } else {
-            $updatedContent | Set-Content -Path $registryPath -Encoding UTF8 -NoNewline
-            Write-Verbose "Updated nextAvailable for $Prefix to $NewValue (formatting preserved)"
-        }
+    if ($updatedContent -eq $content) {
+        throw "No 'nextAvailable' counter found for prefix '$Prefix' in registry '$registryPath'. The counter must exist before IDs can be assigned. Add a 'nextAvailable' field to the prefix entry, set to one greater than the highest existing ID for this prefix on disk."
     }
-    catch {
-        Write-Warning "Failed to update nextAvailable counter: $($_.Exception.Message)"
-    }
+
+    $updatedContent | Set-Content -Path $registryPath -Encoding UTF8 -NoNewline
+    Write-Verbose "Updated nextAvailable for $Prefix to $NewValue (formatting preserved)"
 }
 
 function Save-IdRegistry {

@@ -6,14 +6,14 @@ version: 1.0
 created: 2026-03-27
 updated: 2026-03-27
 priority: Medium
-target_area: linkwatcher/service.py
+target_area: src/linkwatcher/service.py
 refactoring_scope: Remove handler private method coupling in service.py _initial_scan
 mode: lightweight
 ---
 
 # Lightweight Refactoring Plan: Remove handler private method coupling in service.py _initial_scan
 
-- **Target Area**: linkwatcher/service.py
+- **Target Area**: src/linkwatcher/service.py
 - **Priority**: Medium
 - **Created**: 2026-03-27
 - **Author**: AI Agent & Human Partner
@@ -22,7 +22,7 @@ mode: lightweight
 
 ## Item 1: TD067 — Remove handler private method coupling in _initial_scan
 
-**Scope**: `service.py:_initial_scan()` accesses three handler internals: `self.handler.ignored_dirs`, `self.handler._should_monitor_file()`, and `self.handler._get_relative_path()`. All three have public equivalents available — `should_monitor_file()` and `get_relative_path()` in `linkwatcher/utils.py`, and `config.ignored_directories` on the service's own config. Replace handler private method calls with direct util imports and config access.
+**Scope**: `service.py:_initial_scan()` accesses three handler internals: `self.handler.ignored_dirs`, `self.handler._should_monitor_file()`, and `self.handler._get_relative_path()`. All three have public equivalents available — `should_monitor_file()` and `get_relative_path()` in `src/linkwatcher/utils.py`, and `config.ignored_directories` on the service's own config. Replace handler private method calls with direct util imports and config access.
 
 **Changes Made**:
 - [x] Import `should_monitor_file` and `get_relative_path` from `linkwatcher.utils` in `service.py`

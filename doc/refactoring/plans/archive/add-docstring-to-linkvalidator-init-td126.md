@@ -5,7 +5,7 @@ category: Refactoring Plan
 version: 1.0
 created: 2026-03-27
 updated: 2026-03-27
-target_area: linkwatcher/validator.py
+target_area: src/linkwatcher/validator.py
 refactoring_scope: Add docstring to LinkValidator.__init__ (TD126)
 mode: lightweight
 priority: Medium
@@ -13,7 +13,7 @@ priority: Medium
 
 # Lightweight Refactoring Plan: Add docstring to LinkValidator.__init__ (TD126)
 
-- **Target Area**: linkwatcher/validator.py
+- **Target Area**: src/linkwatcher/validator.py
 - **Priority**: Medium
 - **Created**: 2026-03-27
 - **Author**: AI Agent & Human Partner
@@ -22,7 +22,7 @@ priority: Medium
 
 ## Item 1: TD126 — Add docstring to LinkValidator.__init__
 
-**Scope**: Add a docstring to `LinkValidator.__init__` in `linkwatcher/validator.py`. This is the only public method in the class without a docstring, flagged by Documentation Alignment validation (R2-L-028).
+**Scope**: Add a docstring to `LinkValidator.__init__` in `src/linkwatcher/validator.py`. This is the only public method in the class without a docstring, flagged by Documentation Alignment validation (R2-L-028).
 
 **Changes Made**:
 <!-- Fill in after implementation -->

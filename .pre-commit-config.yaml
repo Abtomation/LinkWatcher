@@ -38,3 +38,10 @@ repos:
         pass_filenames: false
         always_run: true
         stages: [commit]
+      - id: no-git-objects-literal
+        name: Detect .git/objects/ literal paths (corruption guard, PF-IMP-615)
+        entry: pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/validation/Check-GitObjectsLiteral.ps1
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [commit]

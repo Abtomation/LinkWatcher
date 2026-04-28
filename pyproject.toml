@@ -59,7 +59,7 @@ Repository = "https://github.com/linkwatcher/linkwatcher.git"
 "Bug Tracker" = "https://github.com/linkwatcher/linkwatcher/issues"
 
 [tool.setuptools.packages.find]
-where = ["."]
+where = ["src"]
 include = ["linkwatcher*"]
 
 [tool.setuptools.package-data]
@@ -108,7 +108,7 @@ warn_unreachable = true
 strict_equality = true
 
 [tool.coverage.run]
-source = ["linkwatcher"]
+source = ["src/linkwatcher"]
 omit = [
     "*/tests/*",
     "*/test_*",

@@ -7,7 +7,7 @@ created: 2026-03-02
 updated: 2026-03-02
 refactoring_scope: Decompose God Class LinkMaintenanceHandler (TD005)
 priority: High
-target_area: linkwatcher/handler.py
+target_area: src/linkwatcher/handler.py
 debt_item: TD005 (PF-TDI-001)
 assessment: PF-TDA-001
 ---
@@ -15,7 +15,7 @@ assessment: PF-TDA-001
 # Refactoring Plan: Decompose God Class LinkMaintenanceHandler (TD005)
 
 ## Overview
-- **Target Area**: linkwatcher/handler.py
+- **Target Area**: src/linkwatcher/handler.py
 - **Priority**: High
 - **Created**: 2026-03-02
 - **Author**: AI Agent & Human Partner
@@ -34,8 +34,8 @@ Extract two self-contained state machine classes from `LinkMaintenanceHandler` t
 - **TD009**: Duplicated stale retry logic between file and directory moves (~90 lines)
 
 ### Refactoring Goals
-- Extract `MoveDetector` class into `linkwatcher/move_detector.py` (per-file move detection via delete+create correlation)
-- Extract `DirectoryMoveDetector` class into `linkwatcher/dir_move_detector.py` (batch directory move detection with 3-phase approach)
+- Extract `MoveDetector` class into `src/linkwatcher/move_detector.py` (per-file move detection via delete+create correlation)
+- Extract `DirectoryMoveDetector` class into `src/linkwatcher/dir_move_detector.py` (batch directory move detection with 3-phase approach)
 - Slim `LinkMaintenanceHandler` to event dispatch + move/update orchestration
 - Resolve TD009 (duplicated stale retry) as part of directory move extraction
 
@@ -66,10 +66,10 @@ Extract two self-contained state machine classes from `LinkMaintenanceHandler` t
 | Utilities | `_should_monitor_file`, `_get_relative_path`, `get_stats`, `reset_stats` | ~16 | handler.py |
 
 ### Affected Components
-- `linkwatcher/handler.py` - Primary target, will be decomposed
-- `linkwatcher/move_detector.py` - New file (per-file move detection)
-- `linkwatcher/dir_move_detector.py` - New file (directory move detection)
-- `linkwatcher/service.py` - May need import updates if it references handler internals
+- `src/linkwatcher/handler.py` - Primary target, will be decomposed
+- `src/linkwatcher/move_detector.py` - New file (per-file move detection)
+- `src/linkwatcher/dir_move_detector.py` - New file (directory move detection)
+- `src/linkwatcher/service.py` - May need import updates if it references handler internals
 - `tests/test_move_detection.py` - May need import updates
 - `tests/test_directory_move_detection.py` - May need import updates
 
@@ -91,7 +91,7 @@ Extract two self-contained state machine classes from `LinkMaintenanceHandler` t
 ### Implementation Plan
 
 1. **Phase 3A**: Extract `MoveDetector` (~150 lines)
-   - Create `linkwatcher/move_detector.py` with `MoveDetector` class
+   - Create `src/linkwatcher/move_detector.py` with `MoveDetector` class
    - Move `pending_deletes`, `move_detection_delay`, `move_detection_lock` state
    - Move `_handle_file_deleted`, `_process_delayed_delete`, `_detect_potential_move`, `_handle_detected_move`
    - Handler delegates `on_deleted` (non-directory) and `on_created` (move matching) to `MoveDetector`
@@ -99,7 +99,7 @@ Extract two self-contained state machine classes from `LinkMaintenanceHandler` t
    - Run all tests to verify
 
 2. **Phase 3B**: Extract `DirectoryMoveDetector` (~355 lines)
-   - Create `linkwatcher/dir_move_detector.py` with `DirectoryMoveDetector` class
+   - Create `src/linkwatcher/dir_move_detector.py` with `DirectoryMoveDetector` class
    - Move `_PendingDirMove`, `pending_dir_moves`, `dir_move_lock`, timer settings
    - Move all `_match_dir_move_file`, `_handle_directory_deleted`, `_reset_dir_move_settle_timer`, `_trigger_dir_move_processing`, `_process_dir_move_settled`, `_process_dir_move_timeout`, `_process_dir_move`, `_resolve_unmatched_files`, `_process_dir_true_delete`, `_process_true_file_delete`, `_get_files_under_directory`
    - Handler delegates directory deletion events and file creation matching to `DirectoryMoveDetector`

@@ -7,13 +7,13 @@ created: 2026-04-02
 updated: 2026-04-02
 priority: Medium
 mode: lightweight
-target_area: linkwatcher/config/settings.py
+target_area: src/linkwatcher/config/settings.py
 refactoring_scope: Unify _from_dict() set handling with type-hint reflection (TD151)
 ---
 
 # Lightweight Refactoring Plan: Unify _from_dict() set handling with type-hint reflection (TD151)
 
-- **Target Area**: linkwatcher/config/settings.py
+- **Target Area**: src/linkwatcher/config/settings.py
 - **Priority**: Medium
 - **Created**: 2026-04-02
 - **Author**: AI Agent & Human Partner
@@ -50,4 +50,3 @@ refactoring_scope: Unify _from_dict() set handling with type-hint reflection (TD
 
 ## Related Documentation
 - [Technical Debt Tracking](/doc/state-tracking/permanent/technical-debt-tracking.md)
-

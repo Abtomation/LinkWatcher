@@ -21,8 +21,8 @@ priority: Medium
 - **Mode**: Lightweight (no architectural impact)
 
 ## Dependencies and Impact
-- **Affected Components**: `linkwatcher/move_detector.py`, `linkwatcher/dir_move_detector.py`
-- **Internal Dependencies**: Both modules are instantiated by `linkwatcher/handler.py`. `PerformanceLogger` from `linkwatcher/logging.py` is the metric API (already used elsewhere).
+- **Affected Components**: `src/linkwatcher/move_detector.py`, `src/linkwatcher/dir_move_detector.py`
+- **Internal Dependencies**: Both modules are instantiated by `src/linkwatcher/handler.py`. `PerformanceLogger` from `src/linkwatcher/logging.py` is the metric API (already used elsewhere).
 - **Risk Assessment**: Low — purely additive `log_metric()` calls at existing code paths; no behavior or interface changes.
 
 ## Item 1: TD140 — Add metric instrumentation to MoveDetector and DirectoryMoveDetector
@@ -55,4 +55,3 @@ priority: Medium
 
 ## Related Documentation
 - [Technical Debt Tracking](/doc/state-tracking/permanent/technical-debt-tracking.md)
-

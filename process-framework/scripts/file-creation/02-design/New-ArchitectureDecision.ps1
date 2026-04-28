@@ -107,7 +107,7 @@ try {
     if ($arcId -or $WhatIfPreference) {
         $projectRoot = Get-ProjectRoot
         $docMapPath = Join-Path -Path $projectRoot -ChildPath "doc/PD-documentation-map.md"
-        $sectionHeader = ".git/objects/3a/b045e54f8acd16e0d036a487eb74c269db1d9f### ``technical/adr/`` — Architecture Decision Records (ADRs)"
+        $sectionHeader = "### ``technical/adr/`` — Architecture Decision Records (ADRs)"
         $kebabTitle = ConvertTo-KebabCase -InputString $Title
         $description = if ($Description -ne "") { $Description } else { "Architecture decision: $Title" }
         $entryLine = "- [ADR: $Title ($arcId)](technical/adr/$kebabTitle.md) - $description"

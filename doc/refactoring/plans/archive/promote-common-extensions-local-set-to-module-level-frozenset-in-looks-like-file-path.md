@@ -7,13 +7,13 @@ created: 2026-04-02
 updated: 2026-04-02
 mode: lightweight
 refactoring_scope: Promote common_extensions local set to module-level frozenset in looks_like_file_path()
-target_area: linkwatcher/utils.py
+target_area: src/linkwatcher/utils.py
 priority: Medium
 ---
 
 # Lightweight Refactoring Plan: Promote common_extensions local set to module-level frozenset in looks_like_file_path()
 
-- **Target Area**: linkwatcher/utils.py
+- **Target Area**: src/linkwatcher/utils.py
 - **Priority**: Medium
 - **Created**: 2026-04-02
 - **Author**: AI Agent & Human Partner
@@ -22,7 +22,7 @@ priority: Medium
 
 ## Item 1: TD141 — Promote common_extensions to module-level frozenset
 
-**Scope**: `looks_like_file_path()` in `linkwatcher/utils.py` rebuilds a 35-element `common_extensions` set as a local variable on every call. This function is called from all 7 parsers (via `base.py._looks_like_file_path()`) and from `validator.py`, potentially hundreds of times per scan. Promote to module-level `frozenset` to avoid repeated allocation. Dims: PE (Performance).
+**Scope**: `looks_like_file_path()` in `src/linkwatcher/utils.py` rebuilds a 35-element `common_extensions` set as a local variable on every call. This function is called from all 7 parsers (via `base.py._looks_like_file_path()`) and from `validator.py`, potentially hundreds of times per scan. Promote to module-level `frozenset` to avoid repeated allocation. Dims: PE (Performance).
 
 **Changes Made**:
 - [x] Moved `common_extensions` set from inside `looks_like_file_path()` to module-level `_COMMON_EXTENSIONS` frozenset (linkwatcher/utils.py)
@@ -52,4 +52,3 @@ priority: Medium
 
 ## Related Documentation
 - [Technical Debt Tracking](/doc/state-tracking/permanent/technical-debt-tracking.md)
-

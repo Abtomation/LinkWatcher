@@ -77,7 +77,7 @@ Six data integrity criteria evaluated per the task definition (PF-TSK-076):
 
 ### Feature 0.1.2 — In-Memory Link Database
 
-**Source**: `linkwatcher/database.py` (407 lines)
+**Source**: `src/linkwatcher/database.py` (407 lines)
 
 #### Strengths
 
@@ -112,7 +112,7 @@ Six data integrity criteria evaluated per the task definition (PF-TSK-076):
 
 ### Feature 2.2.1 — Link Updating
 
-**Source**: `linkwatcher/updater.py` (374 lines), `linkwatcher/path_resolver.py` (360 lines)
+**Source**: `src/linkwatcher/updater.py` (374 lines), `src/linkwatcher/path_resolver.py` (360 lines)
 
 #### Strengths
 
@@ -147,7 +147,7 @@ Six data integrity criteria evaluated per the task definition (PF-TSK-076):
 
 ### Feature 6.1.1 — Link Validation
 
-**Source**: `linkwatcher/validator.py` (466 lines)
+**Source**: `src/linkwatcher/validator.py` (466 lines)
 
 #### Strengths
 

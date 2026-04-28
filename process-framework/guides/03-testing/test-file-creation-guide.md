@@ -196,7 +196,7 @@ When creating and customizing test files, you'll face several critical decisions
 ### Path Usage in Test Content
 
 **Decision**: What file/directory paths should appear in inline test content?
-**Rule**: Use the **`alpha-project/`** synthetic namespace or other non-existent directory names (e.g., `vendor/tools/build/`, `lib/config/settings/`). **Never** use real project paths (`doc`, `process-framework`, `linkwatcher/`). A shared constant `TEST_PROJECT_ROOT = "alpha-project"` is defined in `test/automated/conftest.py`.
+**Rule**: Use the **`alpha-project/`** synthetic namespace or other non-existent directory names (e.g., `vendor/tools/build/`, `lib/config/settings/`). **Never** use real project paths (`doc`, `process-framework`, `src/linkwatcher`). A shared constant `TEST_PROJECT_ROOT = "alpha-project"` is defined in `test/automated/conftest.py`.
 
 **Why**: Real project paths in test content create a maintenance hazard. When directories are renamed or moved, LinkWatcher updates real files but cannot update string literals inside test code. This causes tests to break silently — the content string is updated but the separately hardcoded assertion string is not.
 

@@ -504,6 +504,47 @@ Also test [shorthand reference][] style.
         assert file_b in targets
 
     @pytest.mark.high
+    def test_mp_003a_backtick_paths_with_line_numbers(self, temp_project_dir):
+        """
+        MP-003a: Backtick-quoted file paths with :line_number suffix (PD-BUG-093)
+
+        Test Case: `handler.py:503` and `file.md:42-51` should be detected as
+                   file paths with the :line_number suffix stripped
+        Expected: link_target contains the file path WITHOUT the :digits suffix
+        Priority: High
+        """
+        parser = MarkdownParser()
+
+        md_file = temp_project_dir / "test.md"
+        content = (
+            "# Backtick Line Number Test\n\n"
+            "References with line numbers:\n"
+            "- See `src/linkwatcher/handler.py:503` for details\n"
+            "- Check `parsers/markdown.py:72` for the pattern\n"
+            "- Lines `doc/guide.md:42-51` explain the flow\n\n"
+            "Plain backtick paths still work:\n"
+            "- Use `src/linkwatcher/service.py` directly\n"
+        )
+        md_file.write_text(content)
+
+        references = parser.parse_file(str(md_file))
+        targets = [ref.link_target for ref in references]
+
+        # Paths with :line_number suffix are detected with suffix stripped
+        assert "src/linkwatcher/handler.py" in targets
+        assert "parsers/markdown.py" in targets
+        assert "doc/guide.md" in targets
+
+        # :line_number suffix must NOT be part of link_target
+        for target in targets:
+            assert ":503" not in target, f"line number leaked into target: {target}"
+            assert ":72" not in target, f"line number leaked into target: {target}"
+            assert ":42-51" not in target, f"line range leaked into target: {target}"
+
+        # Plain backtick paths still work
+        assert "src/linkwatcher/service.py" in targets
+
+    @pytest.mark.high
     def test_mp_004_code_block_bare_paths(self, temp_project_dir):
         """
         MP-004: Bare paths inside fenced code blocks (PD-BUG-054)
@@ -1328,3 +1369,60 @@ class TestMarkdownParserBarePathProseFiltering:
             f"bare_path should not duplicate standalone detection, got: "
             f"{[r.link_target for r in bare_path_refs]}"
         )
+
+    def test_bug_092_frontmatter_directory_paths(self):
+        """
+        PD-BUG-092: Markdown files with YAML frontmatter containing bare
+        directory paths (e.g., `target_area: linkwatcher/parsers`) must
+        have those paths detected. Previously, frontmatter was not parsed
+        as YAML and prose regex required 3+ path segments, so 2-segment
+        directory refs in frontmatter were missed — leaving ~256 files
+        with stale references after a directory move.
+        """
+        parser = MarkdownParser()
+        content = (
+            "---\n"
+            "id: PD-STA-001\n"
+            "target_area: linkwatcher/parsers\n"
+            "related_file: linkwatcher/handler.py\n"
+            "created: 2026-01-01\n"
+            "---\n"
+            "\n"
+            "# Task Document\n"
+            "\n"
+            "Content below the frontmatter.\n"
+        )
+        references = parser.parse_content(content, "test.md")
+        targets = [r.link_target for r in references]
+        assert (
+            "linkwatcher/parsers" in targets
+        ), f"Bare directory path in frontmatter not detected; got: {targets}"
+        assert (
+            "linkwatcher/handler.py" in targets
+        ), f"File path in frontmatter not detected; got: {targets}"
+
+    def test_bug_092_frontmatter_line_numbers(self):
+        """
+        PD-BUG-092: Frontmatter path refs must report correct line numbers
+        so the updater can perform textual replacements on the right line.
+        """
+        parser = MarkdownParser()
+        content = (
+            "---\n" "id: PD-STA-001\n" "target_area: linkwatcher/parsers\n" "---\n" "\n" "Body.\n"
+        )
+        references = parser.parse_content(content, "test.md")
+        dir_refs = [r for r in references if r.link_target == "linkwatcher/parsers"]
+        assert len(dir_refs) == 1, f"Expected 1 ref, got {len(dir_refs)}: {dir_refs}"
+        assert dir_refs[0].line_number == 3, f"Expected line 3, got {dir_refs[0].line_number}"
+
+    def test_bug_092_no_frontmatter_no_regression(self):
+        """
+        PD-BUG-092: Files without frontmatter must not be affected by the
+        frontmatter-parsing change — no spurious references, existing
+        patterns still work.
+        """
+        parser = MarkdownParser()
+        content = "# Title\n" "\n" "See [link](target.md) for details.\n"
+        references = parser.parse_content(content, "test.md")
+        targets = [r.link_target for r in references]
+        assert targets == ["target.md"], f"Unexpected refs: {targets}"

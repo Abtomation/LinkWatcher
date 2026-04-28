@@ -7,13 +7,13 @@ created: 2026-04-02
 updated: 2026-04-02
 refactoring_scope: Add index architecture comment block to database.py
 priority: Medium
-target_area: linkwatcher/database.py
+target_area: src/linkwatcher/database.py
 mode: lightweight
 ---
 
 # Lightweight Refactoring Plan: Add index architecture comment block to database.py
 
-- **Target Area**: linkwatcher/database.py
+- **Target Area**: src/linkwatcher/database.py
 - **Priority**: Medium
 - **Created**: 2026-04-02
 - **Author**: AI Agent & Human Partner
@@ -49,4 +49,3 @@ mode: lightweight
 
 ## Related Documentation
 - [Technical Debt Tracking](/doc/state-tracking/permanent/technical-debt-tracking.md)
-

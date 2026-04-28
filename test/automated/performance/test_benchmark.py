@@ -8,6 +8,11 @@ Test Cases:
 - BM-001: File parsing throughput
 - BM-002: Database add/lookup/update operations
 - BM-003: Initial scan performance
+- BM-004: Updater throughput
+- BM-005: Validation mode performance
+- BM-006: Delete+create correlation timing
+
+Timing uses time.perf_counter() for monotonic, sub-microsecond resolution.
 """
 
 import time
@@ -87,7 +92,7 @@ class TestParsingBenchmark:
 
         # Benchmark
         parseable_extensions = {".md", ".txt", ".json", ".yaml"}
-        start_time = time.time()
+        start_time = time.perf_counter()
         total_references = 0
 
         for file in files:
@@ -95,7 +100,7 @@ class TestParsingBenchmark:
                 references = parser.parse_file(str(file))
                 total_references += len(references)
 
-        elapsed = time.time() - start_time
+        elapsed = time.perf_counter() - start_time
         files_parsed = len([f for f in files if f.suffix in parseable_extensions])
         files_per_second = files_parsed / elapsed
 
@@ -104,7 +109,9 @@ class TestParsingBenchmark:
         print(f"  {total_references} references found")
         print(f"  {total_references / elapsed:.1f} references/second")
 
-        assert elapsed < 10.0, f"Parsing {files_parsed} files took {elapsed:.2f}s (expected <10s)"
+        assert (
+            files_per_second > 50
+        ), f"Parsing throughput {files_per_second:.1f} files/sec (expected >50)"
         assert total_references > 0, "Should find at least some references"
 
 
@@ -116,13 +123,17 @@ class TestDatabaseBenchmark:
         """
         BM-002: Database add/lookup/update throughput
 
-        Measures database CRUD operation speed with 1000 references.
+        Adds are timed against a 10000-ref population so the timing window exceeds
+        the 100ms noise floor (audit TE-TAR-066 Criterion 1, option a). Lookups and
+        updates are timed against a separate 1000-ref database — `get_references_to_file`
+        scales with database size, so a smaller, production-realistic db keeps lookup
+        timing meaningful and prevents a 10x population from dominating the measurement.
         """
-        db = LinkDatabase()
-        num_operations = 1000
-
-        references = []
-        for i in range(num_operations):
+        # Build small db for lookup/update operations (production-realistic db size)
+        small_db = LinkDatabase()
+        small_num = 1000
+        small_refs = []
+        for i in range(small_num):
             ref = LinkReference(
                 file_path=f"doc_{i}.md",
                 line_number=1,
@@ -132,38 +143,72 @@ class TestDatabaseBenchmark:
                 link_target=f"file_{i}.txt",
                 link_type="markdown",
             )
-            references.append(ref)
+            small_refs.append(ref)
+            small_db.add_link(ref)
 
-        # Benchmark adds
-        start_time = time.time()
-        for ref in references:
-            db.add_link(ref)
-        add_time = time.time() - start_time
+        # Build references for adds benchmark (larger set for timing precision)
+        add_num = 10000
+        add_refs = []
+        for i in range(add_num):
+            ref = LinkReference(
+                file_path=f"add_doc_{i}.md",
+                line_number=1,
+                column_start=0,
+                column_end=10,
+                link_text=f"add_file_{i}.txt",
+                link_target=f"add_file_{i}.txt",
+                link_type="markdown",
+            )
+            add_refs.append(ref)
+        add_db = LinkDatabase()
 
-        # Benchmark lookups (sample every 10th)
-        start_time = time.time()
-        for i in range(0, num_operations, 10):
-            db.get_references_to_file(f"file_{i}.txt")
-        lookup_time = time.time() - start_time
+        # Warmup — exercise add/lookup/update paths on a separate db instance
+        # to avoid polluting the timed dbs (audit Criterion 1).
+        warmup_db = LinkDatabase()
+        for ref in small_refs[:100]:
+            warmup_db.add_link(ref)
+        for i in range(0, 100, 10):
+            warmup_db.get_references_to_file(f"file_{i}.txt")
+        for i in range(0, 100, 10):
+            warmup_db.update_target_path(f"file_{i}.txt", f"warmup_{i}.txt")
 
-        # Benchmark updates (sample every 20th)
-        start_time = time.time()
-        for i in range(0, num_operations, 20):
-            db.update_target_path(f"file_{i}.txt", f"new_file_{i}.txt")
-        update_time = time.time() - start_time
+        # Benchmark adds (10000 ops on fresh empty db — ~150ms+ window)
+        start_time = time.perf_counter()
+        for ref in add_refs:
+            add_db.add_link(ref)
+        add_time = time.perf_counter() - start_time
 
-        adds_per_sec = num_operations / max(add_time, 1e-9)
-        lookups_per_sec = (num_operations // 10) / max(lookup_time, 1e-9)
-        updates_per_sec = (num_operations // 20) / max(update_time, 1e-9)
+        # Benchmark lookups (100 ops on 1000-entry db)
+        lookup_count = 0
+        start_time = time.perf_counter()
+        for i in range(0, small_num, 10):
+            small_db.get_references_to_file(f"file_{i}.txt")
+            lookup_count += 1
+        lookup_time = time.perf_counter() - start_time
 
-        print(f"\nDatabase operations ({num_operations} refs):")
-        print(f"  Adds:    {adds_per_sec:.0f}/s ({add_time:.3f}s)")
-        print(f"  Lookups: {lookups_per_sec:.0f}/s ({lookup_time:.3f}s)")
-        print(f"  Updates: {updates_per_sec:.0f}/s ({update_time:.3f}s)")
+        # Benchmark updates (50 ops on 1000-entry db)
+        update_count = 0
+        start_time = time.perf_counter()
+        for i in range(0, small_num, 20):
+            small_db.update_target_path(f"file_{i}.txt", f"new_file_{i}.txt")
+            update_count += 1
+        update_time = time.perf_counter() - start_time
 
-        assert add_time < 5.0, f"Adding {num_operations} refs took {add_time:.2f}s"
-        assert lookup_time < 2.0, f"Lookups took {lookup_time:.2f}s"
-        assert update_time < 2.0, f"Updates took {update_time:.2f}s"
+        adds_per_sec = add_num / max(add_time, 1e-9)
+        lookups_per_sec = lookup_count / max(lookup_time, 1e-9)
+        updates_per_sec = update_count / max(update_time, 1e-9)
+
+        print(f"\nDatabase operations:")
+        print(f"  Adds:    {adds_per_sec:.0f}/s ({add_time:.3f}s, {add_num} ops on empty db)")
+        print(f"  Lookups: {lookups_per_sec:.0f}/s ({lookup_time:.3f}s, {lookup_count} ops on {small_num}-entry db)")
+        print(f"  Updates: {updates_per_sec:.0f}/s ({update_time:.3f}s, {update_count} ops on {small_num}-entry db)")
+
+        # Tolerances calibrated to post-rework measurements at ~3-5x of current
+        # observed values on this hardware (TD215, TE-TAR-066 Criterion 2). PF-TSK-085
+        # will recalibrate once formal baselines are captured.
+        assert add_time < 3.0, f"Adding {add_num} refs took {add_time:.2f}s (expected <3.0s)"
+        assert lookup_time < 1.8, f"Lookups took {lookup_time:.2f}s (expected <1.8s)"
+        assert update_time < 0.2, f"Updates took {update_time:.3f}s (expected <0.2s)"
 
 
 class TestInitialScanBenchmark:
@@ -183,9 +228,9 @@ class TestInitialScanBenchmark:
 
         service = LinkWatcherService(str(temp_project_dir))
 
-        start_time = time.time()
+        start_time = time.perf_counter()
         service._initial_scan()
-        elapsed = time.time() - start_time
+        elapsed = time.perf_counter() - start_time
 
         stats = service.link_db.get_stats()
 
@@ -223,6 +268,21 @@ class TestUpdaterBenchmark:
                 f"# Source {i}\n\n" f"- [Target](target.txt)\n" f'- See "target.txt" for details\n'
             )
 
+        # Warmup: instantiate a separate service + scan against a warmup tempdir
+        # to prime caches/JIT before the timed move (audit Criterion 1). Warmup dir
+        # is OUTSIDE temp_project_dir so it's not included in the main service scan.
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as warmup_dir_str:
+            warmup_dir = Path(warmup_dir_str)
+            warmup_target = warmup_dir / "warmup_target.txt"
+            warmup_target.write_text("Warmup")
+            for i in range(5):
+                wsrc = warmup_dir / f"warmup_src_{i}.md"
+                wsrc.write_text(f"# Warmup {i}\n[w](warmup_target.txt)\n")
+            warmup_service = LinkWatcherService(str(warmup_dir))
+            warmup_service._initial_scan()
+
         # Scan to populate the database
         service = LinkWatcherService(str(temp_project_dir))
         service._initial_scan()
@@ -236,10 +296,10 @@ class TestUpdaterBenchmark:
         new_target.parent.mkdir()
         target_file.rename(new_target)
 
-        start_time = time.time()
+        start_time = time.perf_counter()
         move_event = FileMovedEvent(str(target_file), str(new_target))
         service.handler.on_moved(move_event)
-        elapsed = time.time() - start_time
+        elapsed = time.perf_counter() - start_time
 
         files_per_sec = num_files / max(elapsed, 1e-9)
 
@@ -267,14 +327,25 @@ class TestValidationBenchmark:
         Measures full workspace validation scan on 100 files.
         Expected: Complete within 10 seconds.
         """
+        import tempfile
+
         num_files = 100
         create_benchmark_files(temp_project_dir, num_files)
 
+        # Warmup: run validation on a small separate tempdir to prime caches/JIT
+        # before the timed pass (audit Criterion 1). Warmup dir is OUTSIDE
+        # temp_project_dir so it's not included in the main validator's scan.
+        with tempfile.TemporaryDirectory() as warmup_dir_str:
+            warmup_dir = Path(warmup_dir_str)
+            create_benchmark_files(warmup_dir, 5)
+            warmup_validator = LinkValidator(str(warmup_dir))
+            warmup_validator.validate()
+
         validator = LinkValidator(str(temp_project_dir))
 
-        start_time = time.time()
+        start_time = time.perf_counter()
         result = validator.validate()
-        elapsed = time.time() - start_time
+        elapsed = time.perf_counter() - start_time
 
         print(f"\nValidation mode ({num_files} file sets):")
         print(f"  {elapsed:.3f}s total")
@@ -297,13 +368,12 @@ class TestCorrelationBenchmark:
 
         Measures how fast MoveDetector correlates delete+create pairs.
         20 file moves simulated as sequential buffer_delete + match_created_file.
-        Expected: <100ms average per correlation, 100% match rate.
         """
         num_moves = 20
         matched = 0
         timings = []
 
-        # Create files to get real file sizes
+        # Create files to get real file sizes (production set + warmup set)
         files = []
         for i in range(num_moves):
             src = temp_project_dir / f"file_{i:03d}.txt"
@@ -311,6 +381,14 @@ class TestCorrelationBenchmark:
             dest = temp_project_dir / "dest"
             dest.mkdir(exist_ok=True)
             files.append((src, dest / f"file_{i:03d}.txt"))
+
+        warmup_files = []
+        warmup_dest = temp_project_dir / "warmup_dest"
+        warmup_dest.mkdir(exist_ok=True)
+        for i in range(2):
+            src = temp_project_dir / f"warmup_{i:03d}.txt"
+            src.write_text(f"Warmup {i}")
+            warmup_files.append((src, warmup_dest / f"warmup_{i:03d}.txt"))
 
         # Use MoveDetector directly (no callbacks needed for timing)
         moves_detected = []
@@ -327,6 +405,14 @@ class TestCorrelationBenchmark:
             delay=10.0,
         )
 
+        # Warmup: 2 throwaway delete+create cycles to prime caches/JIT
+        for src, dest in warmup_files:
+            rel_src = str(src.relative_to(temp_project_dir))
+            rel_dest = str(dest.relative_to(temp_project_dir))
+            detector.buffer_delete(rel_src, str(src))
+            src.rename(dest)
+            detector.match_created_file(rel_dest, str(dest))
+
         for src, dest in files:
             rel_src = str(src.relative_to(temp_project_dir))
             rel_dest = str(dest.relative_to(temp_project_dir))
@@ -338,9 +424,9 @@ class TestCorrelationBenchmark:
             src.rename(dest)
 
             # Time the correlation
-            start = time.time()
+            start = time.perf_counter()
             old_path = detector.match_created_file(rel_dest, str(dest))
-            correlation_time = time.time() - start
+            correlation_time = time.perf_counter() - start
 
             timings.append(correlation_time)
             if old_path is not None:
@@ -359,5 +445,6 @@ class TestCorrelationBenchmark:
         print(f"  Max: {max_ms:.2f}ms")
         print(f"  Match rate: {match_rate:.0f}%")
 
-        assert avg_ms < 100, f"Average correlation {avg_ms:.2f}ms (expected <100ms)"
+        # Tolerance calibrated to post-rework measurements at ~5-7x baseline (TD215).
+        assert avg_ms < 25, f"Average correlation {avg_ms:.2f}ms (expected <25ms)"
         assert match_rate == 100, f"Match rate {match_rate:.0f}% (expected 100%)"

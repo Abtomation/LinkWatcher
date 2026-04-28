@@ -15,7 +15,7 @@ retrospective: true
 
 > **Retrospective Document**: This FDD describes the existing implemented functionality of the LinkWatcher Link Updater, documented after implementation during framework onboarding (PF-TSK-066). Content is descriptive ("what is") rather than prescriptive ("what should be").
 >
-> **Source**: Derived from source code analysis of `linkwatcher/updater.py`.
+> **Source**: Derived from source code analysis of `src/linkwatcher/updater.py`.
 <!-- HOW_IT_WORKS.md (Link Update Process section) was removed — content superseded by this FDD and TDD PD-TDD-026 -->
 >
 > **Scope Note**: This feature consolidates old 2.2.1 (Link Updater) with all update sub-features: 2.2.2 (Relative Path Calculation), 2.2.3 (Anchor Preservation), 2.2.4 (Dry Run Mode), 2.2.5 (Backup Creation). All are implementation details of the unified updater.

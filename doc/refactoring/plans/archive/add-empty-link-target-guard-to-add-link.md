@@ -8,12 +8,12 @@ updated: 2026-03-27
 mode: lightweight
 priority: Medium
 refactoring_scope: Add empty link_target guard to add_link()
-target_area: linkwatcher/database.py
+target_area: src/linkwatcher/database.py
 ---
 
 # Lightweight Refactoring Plan: Add empty link_target guard to add_link()
 
-- **Target Area**: linkwatcher/database.py
+- **Target Area**: src/linkwatcher/database.py
 - **Priority**: Medium
 - **Created**: 2026-03-27
 - **Author**: AI Agent & Human Partner

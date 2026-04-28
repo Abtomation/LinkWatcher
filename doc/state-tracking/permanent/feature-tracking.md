@@ -4,7 +4,7 @@ type: Process Framework
 category: State Tracking
 version: 2.0
 created: 2023-06-15
-updated: 2026-04-15
+updated: 2026-04-28
 ---
 
 # LinkWatcher - Feature Tracking Document
@@ -45,7 +45,8 @@ This document tracks the implementation status and documentation requirements fo
 | 🟡     | In Progress           | Implementation plan created, work underway (detail in impl state file)                | Per impl state file |
 | 👀     | Needs Review          | Implementation complete, needs code review                                            | PF-TSK-005 |
 | 🔎     | Needs Test Scoping    | Code review passed, needs performance and E2E test needs identification               | PF-TSK-086 |
-| 🟢     | Completed             | Test scoping complete (or not needed), feature fully complete                          | — |
+| 📖     | Needs User Docs       | Test scoping complete, feature has user-visible behavior needing documentation         | PF-TSK-081 |
+| 🟢     | Completed             | All scoping and documentation complete (or not needed), feature fully complete         | — |
 | 🔄     | Needs Enhancement     | Enhancement scoped, needs execution (see linked state file)                           | PF-TSK-068 |
 
 > **Design status branching**: After FDD (Tier 2+) or Assessment (Tier 1), the next status depends on the API/DB Design columns set by Tier Assessment. Order: DB Design first → API Design → TDD. If a design is not needed (`No`), that status is skipped. ADRs are tracked cross-cuttingly in the [ADR Index](architecture-tracking.md#adr-index), not per-feature.
@@ -60,16 +61,18 @@ This document tracks the implementation status and documentation requirements fo
 
 ### Test Status Legend
 
-| Symbol | Status              | Description                                                            |
-| ------ | ------------------- | ---------------------------------------------------------------------- |
-| ⬜     | No Tests            | No test specifications exist for this feature                          |
-| 🚫     | No Test Required    | Feature explicitly marked as not requiring tests                       |
-| 📋     | Specs Created       | Test specifications exist but implementation not started               |
-| 🟡     | In Progress         | Some tests implemented, some pending                                   |
-| ✅     | All Passing         | All automated AND manual tests implemented and passing                 |
-| 🔴     | Some Failing        | Some tests are failing                                                 |
-| 🔧     | Automated Only      | Only automated tests exist; manual test cases not yet created          |
-| 🔄     | Re-testing Needed   | Code changes require manual test re-execution                          |
+| Symbol | Status                     | Description                                                                 |
+| ------ | -------------------------- | --------------------------------------------------------------------------- |
+| ⬜     | No Tests                   | No test specifications exist for this feature                               |
+| 🚫     | No Test Required           | Feature explicitly marked as not requiring tests                            |
+| 📋     | Specs Created              | Test specifications exist but implementation not started                    |
+| 🟡     | In Progress                | Some tests implemented, some pending                                        |
+| 🔍     | Audit In Progress          | At least one test file is currently undergoing audit                        |
+| 🟡     | Tests Partially Approved   | Some test files passed audit; others are still pending audit                |
+| ✅     | All Passing                | All automated AND manual tests implemented and passing                      |
+| 🔴     | Some Failing               | One or more tests are failing or failed audit                               |
+| 🔧     | Automated Only             | Only automated tests exist; manual test cases not yet created               |
+| 🔄     | Re-testing Needed          | Code changes or audit findings require test updates / re-execution          |
 
 ### Notes Column Convention
 
@@ -115,7 +118,7 @@ Foundation features that provide architectural foundations for the application.
 |  ID  |  Feature  |  Status  |  Priority  |  Doc Tier  |  FDD  |  TDD  |  Test Status  |  Test Spec  |  Dependencies  |  Notes  |
 |  --  |  -------  |  ------  |  --------  |  --------  |  ---  |  ---  |  -----------  |  ---------  |  ------------  |  -----  |
 | [0.1.1](../features/0.1.1-core-architecture-implementation-state.md) | Core Architecture | 🟢 Completed | P1 | [🔴 Tier 3](../../documentation-tiers/assessments/PD-ASS-191-0-1-1-core-architecture.md) | [PD-FDD-022](../../functional-design/fdds/fdd-0-1-1-core-architecture.md) | [PD-TDD-021](../../technical/tdd/tdd-0-1-1-core-architecture-t3.md) | ✅ All Passing | [PF-TSP-035](../../../test/specifications/feature-specs/test-spec-0-1-1-core-architecture.md) | — | **FOUNDATION** Service orchestrator, data models, path utilities, CLI entry point |
-| [0.1.2](../features/0.1.2-in-memory-link-database-implementation-state.md) | In-Memory Link Database | 🟢 Completed | P1 | [🟠 Tier 2](../../documentation-tiers/assessments/PD-ASS-192-0-1-2-in-memory-link-database.md) | [PD-FDD-023](../../functional-design/fdds/fdd-0-1-2-in-memory-database.md) | [PD-TDD-022](../../technical/tdd/tdd-0-1-2-in-memory-database-t2.md) | 🔄 Tests Need Update | [PF-TSP-036](../../../test/specifications/feature-specs/test-spec-0-1-2-in-memory-link-database.md) | 0.1.1 | **FOUNDATION** Thread-safe, target-indexed link storage with O(1) lookups |
+| [0.1.2](../features/0.1.2-in-memory-link-database-implementation-state.md) | In-Memory Link Database | 🟢 Completed | P1 | [🟠 Tier 2](../../documentation-tiers/assessments/PD-ASS-192-0-1-2-in-memory-link-database.md) | [PD-FDD-023](../../functional-design/fdds/fdd-0-1-2-in-memory-database.md) | [PD-TDD-022](../../technical/tdd/tdd-0-1-2-in-memory-database-t2.md) | ✅ All Passing | [PF-TSP-036](../../../test/specifications/feature-specs/test-spec-0-1-2-in-memory-link-database.md) | 0.1.1 | **FOUNDATION** Thread-safe, target-indexed link storage with O(1) lookups; TD163 resolved (2026-04-03): +14 tests, coverage 81%→93%, 57/57 passing. Audit: [TE-TAR-019](../../../test/audits/foundation/audit-report-0-1-2-test-database.md) |
 | [0.1.3](../features/0.1.3-configuration-system-implementation-state.md) | Configuration System | 🟢 Completed | P1 | [🔵 Tier 1](../../documentation-tiers/assessments/PD-ASS-193-0-1-3-configuration-system.md) | — | — | ✅ All Passing | [PF-TSP-037](../../../test/specifications/feature-specs/test-spec-0-1-3-configuration-system.md) | — | **FOUNDATION** Multi-source config loading, validation, environment presets |
 
 </details>

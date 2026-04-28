@@ -1379,3 +1379,87 @@ class TestDirectoryMoveToIgnoredDirName:
             f"Expected at least 2 files_moved (run.py + config.md), "
             f"got {stats.get('files_moved', 0)}. Phase 0/1 was skipped."
         )
+
+
+class TestDirectoryMovePhase15CounterPropagation:
+    """PD-BUG-091: directory_move_completed log must include Phase 1.5 counts
+    in total_references_updated.
+
+    Root cause: _update_links_within_moved_file performs actual updates and
+    increments handler.stats, but the handler wrapper had no return statement,
+    so the count was dropped. The directory_move_completed log then reported
+    only Phase 1b + Phase 2 contributions, under-reporting actual work.
+    """
+
+    def test_phase_1_5_updates_counted_in_directory_move_log(self, tmp_path):
+        """Relative links rewritten inside moved files (Phase 1.5) must be
+        added to total_references_updated in the directory_move_completed log.
+        """
+        from unittest.mock import MagicMock
+
+        # External target outside the directory that will move
+        (tmp_path / "external.md").write_text("# External\n")
+
+        # Directory to move, containing a file with relative link to external
+        src_dir = tmp_path / "docs"
+        src_dir.mkdir()
+        inner = src_dir / "inner.md"
+        inner.write_text("# Inner\n\nSee [external](../external.md).\n")
+
+        service = LinkWatcherService(str(tmp_path))
+        service._initial_scan()
+
+        # Capture log events emitted by the handler
+        mock_logger = MagicMock()
+        service.handler.logger = mock_logger
+
+        # Move docs/ to sub/docs/ so inner.md's relative link must be rewritten
+        # from ../external.md to ../../external.md (1 Phase 1.5 update)
+        sub_dir = tmp_path / "sub"
+        sub_dir.mkdir()
+        new_docs = sub_dir / "docs"
+        src_dir.rename(new_docs)
+
+        move_event = DirMovedEvent(str(src_dir), str(new_docs))
+        service.handler.on_moved(move_event)
+
+        # Sanity: the actual Phase 1.5 update happened on disk
+        inner_content = (new_docs / "inner.md").read_text()
+        assert "../../external.md" in inner_content, (
+            f"Precondition: Phase 1.5 must have rewritten the relative link. "
+            f"Got: {inner_content!r}"
+        )
+
+        # Find the directory_move_completed log event
+        completion_calls = [
+            c
+            for c in mock_logger.info.call_args_list
+            if c.args and c.args[0] == "directory_move_completed"
+        ]
+        assert len(completion_calls) == 1, (
+            f"Expected exactly one directory_move_completed log, " f"got {len(completion_calls)}"
+        )
+
+        total = completion_calls[0].kwargs["total_references_updated"]
+
+        # Negative assertion (the key BUG-091 assertion): total must NOT be 0
+        # when Phase 1.5 has done work. Before the fix, Phase 1.5 contributions
+        # were silently dropped and total_references_updated reported 0.
+        assert total != 0, (
+            f"BUG-091: total_references_updated is 0 despite Phase 1.5 "
+            f"rewriting a relative link. Phase 1.5 return value must be "
+            f"propagated into the counter."
+        )
+        # Positive assertion: exactly 1 link was updated by Phase 1.5 in this
+        # scenario (no external refs, no dir-path refs → Phase 1b=0, Phase 2=0)
+        assert total == 1, (
+            f"Expected total_references_updated == 1 (single Phase 1.5 " f"update), got {total}"
+        )
+        # Guard against double-counting in handler.stats: Phase 1.5 is added
+        # to handler.stats from within _update_links_within_moved_file, so the
+        # directory move handler must not add it again via total.
+        stats = service.handler.get_stats()
+        assert stats.get("links_updated", 0) == 1, (
+            f"Expected handler.stats['links_updated'] == 1 (single Phase 1.5 "
+            f"update, no double-counting), got {stats.get('links_updated')}"
+        )

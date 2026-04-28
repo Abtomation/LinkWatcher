@@ -123,7 +123,7 @@ signal/slot connections, or any mechanism where one feature triggers
 behavior in another feature.
 
 For each chain, specify:
-- Where the callback/event is registered (file:line if possible)
+- Where the callback/event is registered (file path and function/class name; optionally add "near line N as of YYYY-MM-DD" as a supplementary hint)
 - What triggers it
 - What happens when it fires
 - Which feature boundaries are crossed
@@ -176,23 +176,6 @@ is exactly what this section enables.
 - **Propagation**: [How the error travels across feature boundaries — exception, error code, null/empty result]
 - **Impact**: [What downstream features do when they receive this error]
 - **Recovery**: [How the workflow recovers — retry, skip, abort, partial result]
-
-## TDD/Code Divergence Notes
-
-<!--
-Document any discrepancies found between TDD documentation and actual implementation
-during the creation of this narrative. Each divergence should also be reported as
-technical debt via Update-TechDebt.ps1 (the Integration Narrative Creation task
-handles this in Step 7).
-
-If no divergences were found, replace with:
-"No divergences found between TDD documentation and source code implementation
-for the cross-feature interactions documented in this narrative."
--->
-
-| TDD | Documented Behavior | Actual Code Behavior | Tech Debt ID |
-|-----|--------------------|--------------------|-------------|
-| [TDD ID] | [What the TDD says] | [What the code actually does] | [PD-TDI-XXX] |
 
 ---
 

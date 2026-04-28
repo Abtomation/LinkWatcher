@@ -105,15 +105,13 @@ $customReplacements = @{
     "[Date]"                                                                                                 = Get-Date -Format "yyyy-MM-dd"
 }
 
-# Set output directory based on workflow phase
-$outputDirectory = "process-framework/visualization/context-maps/$WorkflowPhase"
-
 # Create the document using standardized process
 try {
     # IMP-407: Auto-append "-map" suffix with double-suffix guard
     $mapDocName = $TaskName.ToLower().Replace(' ', '-')
     if ($mapDocName -notmatch '-map$') { $mapDocName = "$mapDocName-map" }
-    $mapId = New-StandardProjectDocument -TemplatePath "process-framework/templates/support/context-map-template.md" -IdPrefix "PF-VIS" -IdDescription "Context map for ${WorkflowPhase}: ${TaskName}" -DocumentName $mapDocName -OutputDirectory $outputDirectory -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
+    # IMP-568: Use -DirectoryType with -Subdirectory instead of manually constructed -OutputDirectory
+    $mapId = New-StandardProjectDocument -TemplatePath "process-framework/templates/support/context-map-template.md" -IdPrefix "PF-VIS" -IdDescription "Context map for ${WorkflowPhase}: ${TaskName}" -DocumentName $mapDocName -DirectoryType "context-maps" -Subdirectory $WorkflowPhase -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
 
     # Provide success details
     $details = @(
@@ -121,7 +119,7 @@ try {
         "Workflow Phase: $WorkflowPhase"
     )
 
-    $details += "Output Directory: $outputDirectory"
+    $details += "Output Directory: process-framework/visualization/context-maps/$WorkflowPhase"
 
     # Add conditional details
     if ($MapDescription -ne "") {

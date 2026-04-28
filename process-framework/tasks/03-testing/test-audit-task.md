@@ -3,9 +3,9 @@ id: PF-TSK-030
 type: Process Framework
 category: Task Definition
 domain: agnostic
-version: 2.0
+version: 2.1
 created: 2025-08-07
-updated: 2026-04-13
+updated: 2026-04-28
 ---
 
 # Test Audit
@@ -286,17 +286,18 @@ Before starting the audit, determine the test type. This determines which criter
 
     **For Automated tests**:
     - **✅ Audit Approved**: All implementable tests are complete and high quality
-    - **🟡 Approved — Pending Dependencies**: Current tests are good, but some tests await implementation
     - **🔄 Needs Update**: Existing tests have issues that need fixing
     - **🔴 Tests Incomplete**: Missing tests for existing implementations
 
     **For Performance tests**:
-    - **🔍 Audit Approved**: All criteria pass — test is ready for baseline capture
+    - **✅ Audit Approved**: All criteria pass — test is ready for baseline capture
+    - **🔍 Audit In Progress**: Multi-session audit underway — interim state until approved or marked Needs Update
     - **🔄 Needs Update**: Test has issues that need fixing before baseline capture
     - **🔴 Audit Failed**: Fundamental methodology or measurement issues
 
     **For E2E tests**:
-    - **🔍 Audit Approved**: All criteria pass — test is ready for execution
+    - **✅ Audit Approved**: All criteria pass — test is ready for execution
+    - **🔍 Audit In Progress**: Multi-session audit underway — interim state until approved or marked Needs Update
     - **🔄 Needs Update**: Test case or fixtures need corrections before execution
     - **🔴 Audit Failed**: Scenario fundamentally flawed or fixtures incorrect
 
@@ -332,7 +333,7 @@ Before starting the audit, determine the test type. This determines which criter
 Set-Location "process-framework/scripts"
 
 # Automated tests (default)
-Update-TestFileAuditState.ps1 -TestFilePath "test/automated/unit/test_example.py" -AuditStatus "Tests Approved" -AuditorName "AI Agent" -TestCasesAudited 15 -PassedTests 14 -FailedTests 1 -MajorFindings @("Finding 1", "Finding 2") -AuditReportPath "test/audits/relative/path/to/audit-report.md"
+Update-TestFileAuditState.ps1 -TestFilePath "test/automated/unit/test_example.py" -AuditStatus "Audit Approved" -AuditorName "AI Agent" -TestCasesAudited 15 -PassedTests 14 -FailedTests 1 -MajorFindings @("Finding 1", "Finding 2") -AuditReportPath "test/audits/relative/path/to/audit-report.md"
 
 # Performance tests
 Update-TestFileAuditState.ps1 -TestType Performance -TestFilePath "test/automated/performance/test_benchmark.py" -AuditStatus "Audit Approved" -AuditorName "AI Agent" -AuditReportPath "test/audits/performance/audit-report.md"
@@ -350,14 +351,14 @@ Update-TestFileAuditState.ps1 -TestType E2E -TestFilePath "test/e2e-acceptance-t
 **Available Audit Statuses**:
 
 Automated tests:
-- `"Tests Approved"` → ✅ Audit Approved
-- `"Tests Approved with Dependencies"` → 🟡 Approved — Pending Dependencies
+- `"Audit Approved"` → ✅ Audit Approved
 - `"Needs Update"` → 🔄 Needs Update
 - `"Audit Failed"` → 🔴 Audit Failed
 - `"Audit In Progress"` → 🔍 Audit In Progress
 
 Performance and E2E tests:
-- `"Audit Approved"` → 🔍 Audit Approved
+- `"Audit Approved"` → ✅ Audit Approved
+- `"Audit In Progress"` → 🔍 Audit In Progress
 - `"Needs Update"` → 🔄 Needs Update
 - `"Audit Failed"` → 🔴 Audit Failed
 
@@ -367,15 +368,9 @@ Performance and E2E tests:
     - **Performance**: performance-test-tracking.md + feature-tracking.md
     - **E2E**: e2e-test-tracking.md + feature-tracking.md
 
-19. **Document Implementation Dependencies** (Automated tests only): If status is "🟡 Approved — Pending Dependencies", clearly document:
+19. **Provide Feedback**: Deliver actionable recommendations for improvement if tests need updates
 
-    - Which implementations are missing and blocking tests
-    - Recommended implementation priority order
-    - Expected impact on feature development timeline
-
-20. **Provide Feedback**: Deliver actionable recommendations for improvement if tests need updates
-
-21. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+20. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 
@@ -435,11 +430,11 @@ Before considering this task finished:
 - [**Integration & Testing (PF-TSK-053)**](../04-implementation/integration-and-testing.md) - If tests need updates, return to test implementation with audit recommendations
 
 **After Performance test audit**:
-- [**Performance Baseline Capture (PF-TSK-085)**](performance-baseline-capture-task.md) - If audit approved (`🔍 Audit Approved`), proceed with baseline capture
+- [**Performance Baseline Capture (PF-TSK-085)**](performance-baseline-capture-task.md) - If audit approved (`✅ Audit Approved`), proceed with baseline capture
 - [**Performance Test Creation (PF-TSK-084)**](performance-test-creation-task.md) - If tests need updates, return to test creation with audit recommendations
 
 **After E2E test audit**:
-- [**E2E Acceptance Test Execution (PF-TSK-070)**](e2e-acceptance-test-execution-task.md) - If audit approved (`🔍 Audit Approved`), proceed with execution
+- [**E2E Acceptance Test Execution (PF-TSK-070)**](e2e-acceptance-test-execution-task.md) - If audit approved (`✅ Audit Approved`), proceed with execution
 - [**E2E Acceptance Test Case Creation (PF-TSK-069)**](e2e-acceptance-test-case-creation-task.md) - If tests need updates, return to case creation with audit recommendations
 
 **Any test type**:

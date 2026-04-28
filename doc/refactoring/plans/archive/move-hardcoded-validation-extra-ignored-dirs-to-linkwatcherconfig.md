@@ -21,7 +21,7 @@ mode: lightweight
 - **Mode**: Lightweight (no architectural impact)
 
 ## Dependencies and Impact
-- **Affected Components**: `linkwatcher/config/settings.py`, `linkwatcher/validator.py`
+- **Affected Components**: `src/linkwatcher/config/settings.py`, `src/linkwatcher/validator.py`
 - **Internal Dependencies**: `LinkValidator` consumes `LinkWatcherConfig`; `service.py` passes config to validator
 - **Risk Assessment**: Low — Adding a config field with the same default values; no behavioral change unless user overrides
 

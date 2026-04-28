@@ -8,12 +8,12 @@ updated: 2026-03-03
 mode: lightweight
 refactoring_scope: Add missing @wraps decorator to with_context in logging.py (TD028)
 priority: Medium
-target_area: linkwatcher/logging.py
+target_area: src/linkwatcher/logging.py
 ---
 
 # Lightweight Refactoring Plan: Add missing @wraps decorator to with_context in logging.py (TD028)
 
-- **Target Area**: linkwatcher/logging.py
+- **Target Area**: src/linkwatcher/logging.py
 - **Priority**: Medium
 - **Created**: 2026-03-03
 - **Author**: AI Agent & Human Partner

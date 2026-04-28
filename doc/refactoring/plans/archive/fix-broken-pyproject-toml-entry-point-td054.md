@@ -22,7 +22,7 @@ target_area: pyproject.toml
 
 ## Item 1: TD054 — Fix broken pyproject.toml entry point
 
-**Scope**: The `[project.scripts]` section references `linkwatcher.cli:main`, but `linkwatcher/cli.py` does not exist. The actual entry point is `main.py` at the project root, which is not inside the `linkwatcher` package and cannot serve as a setuptools console_scripts entry point. Fix: remove the broken `[project.scripts]` section since the application is run via `python main.py`.
+**Scope**: The `[project.scripts]` section references `linkwatcher.cli:main`, but `src/linkwatcher/cli.py` does not exist. The actual entry point is `main.py` at the project root, which is not inside the `linkwatcher` package and cannot serve as a setuptools console_scripts entry point. Fix: remove the broken `[project.scripts]` section since the application is run via `python main.py`.
 
 **Changes Made**:
 - [x] Removed `[project.scripts]` section from pyproject.toml (lines 56-57)

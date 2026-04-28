@@ -264,23 +264,23 @@ Validation conducted by reading all source files for features 2.1.1-5.1.1, traci
 
 ### Appendix B: Reference Materials
 
-- `linkwatcher/parser.py` — LinkParser facade (2.1.1)
-- `linkwatcher/parsers/__init__.py` — Parser package exports (2.1.1)
-- `linkwatcher/parsers/base.py` — BaseParser ABC (2.1.1)
-- `linkwatcher/parsers/markdown.py` — MarkdownParser (2.1.1)
-- `linkwatcher/parsers/yaml_parser.py` — YamlParser (2.1.1)
-- `linkwatcher/parsers/json_parser.py` — JsonParser (2.1.1)
-- `linkwatcher/parsers/python.py` — PythonParser (2.1.1)
-- `linkwatcher/parsers/dart.py` — DartParser (2.1.1)
-- `linkwatcher/parsers/generic.py` — GenericParser (2.1.1)
-- `linkwatcher/updater.py` — LinkUpdater (2.2.1)
-- `linkwatcher/path_resolver.py` — PathResolver (2.2.1)
-- `linkwatcher/reference_lookup.py` — ReferenceLookup (integration of 2.1.1 + 2.2.1 + 0.1.2)
-- `linkwatcher/logging.py` — Logging system (3.1.1)
-- `linkwatcher/logging_config.py` — Advanced logging configuration (3.1.1)
-- `linkwatcher/models.py` — Shared data models
-- `linkwatcher/utils.py` — Shared utility functions
-- `linkwatcher/__init__.py` — Package exports
+- `src/linkwatcher/parser.py` — LinkParser facade (2.1.1)
+- `src/linkwatcher/parsers/__init__.py` — Parser package exports (2.1.1)
+- `src/linkwatcher/parsers/base.py` — BaseParser ABC (2.1.1)
+- `src/linkwatcher/parsers/markdown.py` — MarkdownParser (2.1.1)
+- `src/linkwatcher/parsers/yaml_parser.py` — YamlParser (2.1.1)
+- `src/linkwatcher/parsers/json_parser.py` — JsonParser (2.1.1)
+- `src/linkwatcher/parsers/python.py` — PythonParser (2.1.1)
+- `src/linkwatcher/parsers/dart.py` — DartParser (2.1.1)
+- `src/linkwatcher/parsers/generic.py` — GenericParser (2.1.1)
+- `src/linkwatcher/updater.py` — LinkUpdater (2.2.1)
+- `src/linkwatcher/path_resolver.py` — PathResolver (2.2.1)
+- `src/linkwatcher/reference_lookup.py` — ReferenceLookup (integration of 2.1.1 + 2.2.1 + 0.1.2)
+- `src/linkwatcher/logging.py` — Logging system (3.1.1)
+- `src/linkwatcher/logging_config.py` — Advanced logging configuration (3.1.1)
+- `src/linkwatcher/models.py` — Shared data models
+- `src/linkwatcher/utils.py` — Shared utility functions
+- `src/linkwatcher/__init__.py` — Package exports
 - `run_tests.py` — Test runner (4.1.1)
 - `dev.bat` — Development commands (5.1.1)
 - `pyproject.toml` — Project configuration (5.1.1)

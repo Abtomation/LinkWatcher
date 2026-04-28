@@ -123,6 +123,7 @@ Our tasks are organized to mirror the `tasks` directory structure:
 
 - [Process: Test Query Tool](scripts/test/test_query.py) - AST-based query tool for test metadata from pytest markers (replaces test-registry.yaml — SC-007)
 - [Process: Ratings Extraction Tool](scripts/extract_ratings.py) - Parses feedback form markdown and generates JSON for `feedback_db.py record`, eliminating manual JSON construction during PF-TSK-010
+- [Process: ExecutionVerification Module](scripts/Common-ScriptHelpers/ExecutionVerification.psm1) - Common-ScriptHelpers sub-module providing `Register-SoakScript` / `Test-ScriptInSoak` / `Confirm-SoakInvocation` / `Get-SoakStatus` for script self-verification (PF-PRO-028, PF-TSK-026). Backs the soak workflow that requires explicit agent acknowledgment over 5 successful invocations of newly registered or hash-changed scripts.
 - [Process: Enhancement Workflow Concept](../process-framework-local/proposals/old/enhancement-workflow-concept.md) - Framework extension concept for feature enhancement classification and execution workflow
 - ~~Process: Code Quality Standards Validation Concept~~ - 🗄️ Removed (file deleted)
 
@@ -131,6 +132,10 @@ Our tasks are organized to mirror the `tasks` directory structure:
 #### `state-tracking/permanent`
 
 - [State: Process Improvement Tracking](../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) - Process improvement opportunities and status
+
+#### `process-framework/state-tracking/permanent` (shareable across projects)
+
+- [State: Script Soak Tracking](state-tracking/permanent/script-soak-tracking.md) - Per-script soak counters and history for the Script Self-Verification workflow (PF-PRO-028, PF-TSK-026). Lives in the shareable `process-framework/` location (not `process-framework-local/`) because the scripts it tracks are themselves shared across projects. Uses the `PF-SST` (Shareable State Tracking) prefix from the main framework registry.
 
 ### Templates
 
@@ -174,6 +179,7 @@ Our tasks are organized to mirror the `tasks` directory structure:
 - [Template: E2E Acceptance Test Case](templates/03-testing/e2e-acceptance-test-case-template.md) - Template for individual E2E acceptance test case files with exact steps, preconditions, and expected outcomes
 - [Template: Test Tracking](templates/03-testing/test-tracking-template.md) - Template for bootstrapping empty test-tracking.md in new projects, used by New-TestInfrastructure.ps1
 - [Template: E2E Test Tracking](templates/03-testing/e2e-test-tracking-template.md) - Template for bootstrapping empty e2e-test-tracking.md in new projects, used by New-TestInfrastructure.ps1
+- [Template: Performance Test Tracking](templates/03-testing/performance-test-tracking-template.md) - Template for bootstrapping empty performance-test-tracking.md in new projects, used by New-TestInfrastructure.ps1
 - [Template: TE ID Registry](templates/03-testing/TE-id-registry-template.json) - Template for bootstrapping empty TE-id-registry.json in new projects, used by New-TestInfrastructure.ps1
 - [Template: Audit Tracking](templates/03-testing/audit-tracking-template.md) - Template for multi-session test audit round tracking state files, used by New-AuditTracking.ps1
 - [Template: Performance Test Specification](templates/03-testing/performance-test-specification-template.md) - Template for performance test specifications with level-specific criteria, baseline references, and measurement methodology
@@ -249,7 +255,7 @@ Our tasks are organized to mirror the `tasks` directory structure:
 - [Process: New E2E Milestone Entry Script](scripts/file-creation/03-testing/New-E2EMilestoneEntry.ps1) - PowerShell script for adding workflow milestone entries to e2e-test-tracking.md Workflow Milestone Tracking table, validates WF-xxx exists, counts ready features (PF-TSK-086)
 - [Process: New Bug Report Script](scripts/file-creation/06-maintenance/New-BugReport.ps1) - PowerShell script for creating standardized bug reports during task execution
 - [Process: New Bug Fix State Script](scripts/file-creation/06-maintenance/New-BugFixState.ps1) - PowerShell script for creating multi-session bug fix state tracking files (Large-effort bugs)
-- [Process: New Handbook Script](scripts/file-creation/07-deployment/New-Handbook.ps1) - PowerShell script for creating user handbook documents with auto-assigned PD-UGD IDs, auto-updates PD-documentation-map.md (PF-IMP-541)
+- [Process: New Handbook Script](scripts/file-creation/07-deployment/New-Handbook.ps1) - PowerShell script for creating user handbook documents with auto-assigned PD-UGD IDs, category-based subdirectory organization via -Subdirectory, auto-updates PD-documentation-map.md (PF-IMP-541, PF-IMP-568)
 - [Process: New UI Design Script](scripts/file-creation/02-design/New-UIDesign.ps1) - PowerShell script for creating UI/UX Design documents with auto-assigned IDs and Design Guidelines references
 - [Process: New Test Specification Script](scripts/file-creation/03-testing/New-TestSpecification.ps1) - PowerShell script for creating test specifications (supports both feature-specific and cross-cutting modes via -CrossCutting switch)
 - [Process: New Process Improvement Script](scripts/file-creation/support/New-ProcessImprovement.ps1) - PowerShell script for adding new improvement opportunities to process-improvement-tracking.md with auto-assigned PF-IMP IDs (supports -BatchFile for bulk JSON input)
@@ -283,7 +289,7 @@ Our tasks are organized to mirror the `tasks` directory structure:
 - [Process: Update Tech Debt Script](scripts/update/Update-TechDebt.ps1) - Automates technical debt lifecycle management: add new items (-Add), status transitions, and resolution moves in technical-debt-tracking.md
 - [Process: Update Language Config Script](scripts/update/Update-LanguageConfig.ps1) - Adds fields consistently across all language config files and template to prevent drift (-List to audit, -Section/-FieldName to add)
 - [Process: Update Feature Dependencies Script](scripts/update/Update-FeatureDependencies.ps1) - Auto-generates feature-dependencies.md from feature state files (Mermaid graph + priority matrix). Integrated into Validate-StateTracking.ps1 Surface 6
-- [Process: Update User Documentation State Script](scripts/update/Update-UserDocumentationState.ps1) - Automates PF-TSK-081 finalization: appends handbook row to feature state file Documentation Inventory and adds entry to documentation-map.md User Handbooks section
+- [Process: Update User Documentation State Script](scripts/update/Update-UserDocumentationState.ps1) - Automates PF-TSK-081 finalization: appends handbook row to feature state file Documentation Inventory
 - [Process: Update Retrospective Master State Script](scripts/update/Update-RetrospectiveMasterState.ps1) - Atomic updates to retrospective master state Feature Inventory (claim/complete features, recalculate Progress Overview counters) for parallel session coordination during PF-TSK-065/PF-TSK-066
 - [Process: Update Performance Tracking Script](scripts/update/Update-PerformanceTracking.ps1) - Automates performance test lifecycle management: status transitions (⬜→📋→✅→⚠️), column updates (Baseline, Last Result, Test File), and summary recalculation in performance-test-tracking.md (PF-TSK-084, PF-TSK-085)
 
@@ -291,12 +297,13 @@ Our tasks are organized to mirror the `tasks` directory structure:
 
 - [Process: Validate ID Registry](scripts/validation/Validate-IdRegistry.ps1) - Validates ID registry against actual files in the repository
 - [Process: Validate Test Tracking](scripts/validation/Validate-TestTracking.ps1) - Validates pytest markers (via test_query.py) consistency with test-tracking.md and actual test files on disk
-- [Process: Validate State Tracking](scripts/validation/Validate-StateTracking.ps1) - Master validation across 13 surfaces: feature-tracking links, feature state files, test-tracking, cross-references, ID counters, feature dependencies, dimension consistency, workflow tracking, task registry completeness, metadata schema conformance, context map orphan detection, ai-tasks.md consistency, and master state consistency
+- [Process: Validate State Tracking](scripts/validation/Validate-StateTracking.ps1) - Master validation across 15 surfaces: feature-tracking links, feature state files, test-tracking, cross-references, ID counters, feature dependencies, dimension consistency, workflow tracking, task registry completeness, metadata schema conformance, context map orphan detection, ai-tasks.md consistency, master state consistency, source layout, and test status aggregation consistency
 - [Process: Validate Onboarding Completeness](scripts/validation/Validate-OnboardingCompleteness.ps1) - Validates 100% source file coverage and feature state file existence after Codebase Feature Discovery (PF-TSK-064)
 - [Process: Validate Feedback Forms](scripts/validation/Validate-FeedbackForms.ps1) - Validates feedback forms for completeness and identifies forms with template placeholders
 - [Process: Quick Validation Check](scripts/validation/Quick-ValidationCheck.ps1) - Quick health check for selected features covering code quality, architectural consistency, and implementation status
 - [Process: Run Foundational Validation](scripts/validation/Run-FoundationalValidation.ps1) - Comprehensive feature validation across all 6 validation types with detailed reports and tracking updates
 - [Process: Validate Audit Report](scripts/validation/Validate-AuditReport.ps1) - Validates Test Audit Reports for completeness, consistency, and quality standards
+- [Process: Check Git Objects Literal](scripts/validation/Check-GitObjectsLiteral.ps1) - Pre-commit guard against `.git/objects/<2-hex>/<38-hex>` literal corruption (PF-IMP-615). Wired into `.pre-commit-config.yaml` as the `no-git-objects-literal` hook. Exits 1 with file:line violations when staged content matches the pattern; allowlists 3 forensic-record files
 
 ### Guides
 
@@ -356,6 +363,7 @@ Our tasks are organized to mirror the `tasks` directory structure:
 #### 07 - Deployment Guides
 
 - [Guide: CI/CD Setup](guides/07-deployment/ci-cd-setup-guide.md) - Guide for scaffolding CI/CD infrastructure (pipelines, pre-commit hooks, dev scripts)
+- [Guide: Diataxis Content Type Guide](guides/07-deployment/diataxis-content-type-guide.md) - Canonical Diataxis decision matrix and status taxonomy for user documentation classification. Referenced by PF-TSK-044, PF-TSK-066, and PF-TSK-081.
 
 #### Cyclical Guides
 

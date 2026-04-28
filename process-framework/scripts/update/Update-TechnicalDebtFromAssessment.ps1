@@ -123,13 +123,13 @@ function Find-AssessmentDebtItems {
     }
 
     $debtItems = @()
-    $debtItemFiles = Get-ChildItem -Path $debtItemsDir -Filter "../*.md" -ErrorAction SilentlyContinue
+    $debtItemFiles = Get-ChildItem -Path $debtItemsDir -Filter "*.md" -ErrorAction SilentlyContinue
 
     foreach ($file in $debtItemFiles) {
         $content = Get-Content $file.FullName -Raw -ErrorAction SilentlyContinue
 
         # Check if this debt item references our assessment
-        if ($content -match $AssessmentId -or $file.Name -match "../PF-TDI-/d+") {
+        if ($content -match $AssessmentId -or $file.Name -match "^PF-TDI-\d+") {
             # Extract debt item metadata
             $debtItem = Parse-DebtItemFile -FilePath $file.FullName -Content $content
             if ($debtItem) {
@@ -151,7 +151,7 @@ function Parse-DebtItemFile {
     try {
         # Extract debt item ID from filename (PF-TDI-XXX)
         $fileName = [System.IO.Path]::GetFileNameWithoutExtension($FilePath)
-        $debtItemIdMatch = [regex]::Match($fileName, '../PF-TDI-/d+')
+        $debtItemIdMatch = [regex]::Match($fileName, 'PF-TDI-\d+')
         if (-not $debtItemIdMatch.Success) {
             Write-Log "Could not extract debt item ID from filename: $fileName" -Level "WARN"
             return $null
@@ -171,25 +171,40 @@ function Parse-DebtItemFile {
             $debtItem.Title = $titleMatch.Groups[1].Value -replace '-', ' '
         }
 
-        # Extract metadata from content
-        if ($Content -match '(?s)## Debt Item Details.*?### Category\s*([^\r\n]+)') {
-            $debtItem.Category = $matches[1].Trim()
+        # Extract metadata from content — aligned with current debt-item-template.md structure.
+        # Strategy: frontmatter for structured fields (dim/priority/location); Item Overview bullets as fallback;
+        # Problem Statement paragraph for description; Total Estimated Effort bullet for effort.
+
+        # Parse frontmatter block first
+        if ($Content -match '(?ms)^---\s*\r?\n(.*?)^---') {
+            $frontmatter = $matches[1]
+            if ($frontmatter -match '(?m)^debt_dim:\s*([^\r\n]+)')      { $debtItem.Dim      = $matches[1].Trim() }
+            if ($frontmatter -match '(?m)^debt_priority:\s*([^\r\n]+)') { $debtItem.Priority = $matches[1].Trim() }
+            if ($frontmatter -match '(?m)^debt_location:\s*([^\r\n]+)') { $debtItem.Location = $matches[1].Trim() }
         }
 
-        if ($Content -match '(?s)### Location/Component\s*([^\r\n]+)') {
-            $debtItem.Location = $matches[1].Trim()
+        # Item Overview bullets — richer source, also used as fallback for frontmatter placeholders
+        if ($Content -match '(?m)^-\s*\*\*Dimension\*\*:\s*([^\r\n]+)') {
+            $bulletDim = $matches[1].Trim()
+            if (-not $debtItem.Dim -or $debtItem.Dim -like '`[*`]*') { $debtItem.Dim = $bulletDim }
+        }
+        if ($Content -match '(?m)^-\s*\*\*Priority\*\*:\s*([^\r\n]+)') {
+            $bulletPriority = $matches[1].Trim()
+            if (-not $debtItem.Priority -or $debtItem.Priority -like '`[*`]*') { $debtItem.Priority = $bulletPriority }
+        }
+        if ($Content -match '(?m)^-\s*\*\*Location/Component\*\*:\s*([^\r\n]+)') {
+            $bulletLocation = $matches[1].Trim()
+            if (-not $debtItem.Location -or $debtItem.Location -like '`[*`]*') { $debtItem.Location = $bulletLocation }
         }
 
-        if ($Content -match '(?s)### Priority Assessment\s*([^\r\n]+)') {
-            $debtItem.Priority = $matches[1].Trim()
-        }
-
-        if ($Content -match '(?s)### Estimated Effort\s*([^\r\n]+)') {
-            $debtItem.EstimatedEffort = $matches[1].Trim()
-        }
-
-        if ($Content -match '(?s)### Description\s*([^\r\n]+)') {
+        # Description: first non-blank line under ### Problem Statement
+        if ($Content -match '(?s)### Problem Statement\s*\r?\n\s*([^\r\n]+)') {
             $debtItem.Description = $matches[1].Trim()
+        }
+
+        # Estimated Effort: summary value from "Total Estimated Effort" bullet under ### Estimated Effort
+        if ($Content -match '(?m)^-\s*\*\*Total Estimated Effort\*\*:\s*([^\r\n]+)') {
+            $debtItem.EstimatedEffort = $matches[1].Trim()
         }
 
         # Check registry integration status
@@ -232,7 +247,7 @@ function Process-DebtItem {
     # Validate required fields
     $missingFields = @()
     if (-not $DebtItem.Description -or $DebtItem.Description -eq '') { $missingFields += 'Description' }
-    if (-not $DebtItem.Category -or $DebtItem.Category -eq '') { $missingFields += 'Category' }
+    if (-not $DebtItem.Dim -or $DebtItem.Dim -eq '') { $missingFields += 'Dim' }
     if (-not $DebtItem.Location -or $DebtItem.Location -eq '') { $missingFields += 'Location' }
     if (-not $DebtItem.Priority -or $DebtItem.Priority -eq '') { $missingFields += 'Priority' }
     if (-not $DebtItem.EstimatedEffort -or $DebtItem.EstimatedEffort -eq '') { $missingFields += 'EstimatedEffort' }
@@ -245,7 +260,7 @@ function Process-DebtItem {
     if ($DryRun) {
         Write-Log "[DRY RUN] Would add debt item to registry:" -Level "INFO"
         Write-Log "  Description: $($DebtItem.Description)" -Level "INFO"
-        Write-Log "  Category: $($DebtItem.Category)" -Level "INFO"
+        Write-Log "  Dim: $($DebtItem.Dim)" -Level "INFO"
         Write-Log "  Location: $($DebtItem.Location)" -Level "INFO"
         Write-Log "  Priority: $($DebtItem.Priority)" -Level "INFO"
         Write-Log "  Estimated Effort: $($DebtItem.EstimatedEffort)" -Level "INFO"
@@ -257,7 +272,7 @@ function Process-DebtItem {
         $UpdateScript,
         "-Add",
         "-Description", "`"$($DebtItem.Description)`"",
-        "-Category", "`"$($DebtItem.Category)`"",
+        "-Dims", "`"$($DebtItem.Dim)`"",
         "-Location", "`"$($DebtItem.Location)`"",
         "-Priority", "`"$($DebtItem.Priority)`"",
         "-EstimatedEffort", "`"$($DebtItem.EstimatedEffort)`"",

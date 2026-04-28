@@ -176,7 +176,7 @@ The quality of an evaluation depends on thoroughness, not speed. A multi-session
 
    > **Routing guidance**: Not all findings belong as standalone IMPs. Before listing improvements, group related findings that share a root cause or solution, then decide per finding/group:
    > - **IMP** (default) — isolated, self-contained improvement executable via [Process Improvement](process-improvement-task.md) (PF-TSK-009)
-   > - **PF-TSK-048** — interconnected findings that together require a new framework capability (new task + template + script + guide). Register as IMP but mark for delegation to [Framework Extension](framework-extension-task.md)
+   > - **PF-TSK-026** — interconnected findings that together require a new framework capability (new task + template + script + guide). Register as IMP but mark for delegation to [Framework Extension](framework-extension-task.md)
    > - **PF-TSK-014** — findings that require file moves, directory reorganization, or structural changes. Register as IMP but mark for delegation to [Structure Change](structure-change-task.md)
    > - **PF-TSK-001** — findings that reveal a missing task definition. Register as IMP but mark for delegation to [New Task Creation Process](new-task-creation-process.md)
    >
@@ -221,7 +221,7 @@ The quality of an evaluation depends on thoroughness, not speed. A multi-session
     # Batch mode (preferred for multiple improvements) — pass a JSON array file:
     pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/support/New-ProcessImprovement.ps1 -BatchFile "improvements.json" -Confirm:\$false
     ```
-    > **Routed findings**: IMPs marked for delegation in Step 8 should still be registered (for traceability), but include the target task in the Notes column (e.g., "Delegate to PF-TSK-048 — interconnected with IMP-XXX, IMP-YYY"). After registration, use [Update-ProcessImprovement.ps1](../../scripts/update/Update-ProcessImprovement.ps1) to set their status to `Deferred`.
+    > **Routed findings**: IMPs marked for delegation in Step 8 should still be registered (for traceability), but include the target task in the Notes column (e.g., "Delegate to PF-TSK-026 — interconnected with IMP-XXX, IMP-YYY"). After registration, use [Update-ProcessImprovement.ps1](../../scripts/update/Update-ProcessImprovement.ps1) to set their status to `Deferred`.
 
 12. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 

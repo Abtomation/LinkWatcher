@@ -156,7 +156,7 @@ try {
     if ($documentId -or $WhatIfPreference) {
         $projectRoot = Get-ProjectRoot
         $docMapPath = Join-Path -Path $projectRoot -ChildPath "doc/PD-documentation-map.md"
-        $sectionHeader = ".git/objects/3a/b045e54f8acd16e0d036a487eb74c269db1d9f### ``functional-design/fdds/``"
+        $sectionHeader = "### ``functional-design/fdds/``"
         $description = if ($Description -ne "") { "$FeatureId — $Description" } else { "$FeatureId Functional Design Document" }
         $entryLine = "- [FDD: $FeatureName ($documentId)](functional-design/fdds/$customFileName) - $description"
 

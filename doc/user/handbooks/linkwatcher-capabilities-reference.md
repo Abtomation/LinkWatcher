@@ -41,8 +41,9 @@ All extensions are configurable via `monitored_extensions` in config.
 | Backtick paths | `` `path/to/file.ext` `` and `` `path/to/dir` `` |
 | Bare paths | `process-framework/scripts/file` (2+ segments required) |
 | @-prefixed paths | `@doc/path/to/file.md` |
+| YAML frontmatter values | `target_area: linkwatcher/parsers` in leading `---...---` block |
 
-Mermaid code blocks are skipped (illustrative content, not navigable links).
+Mermaid code blocks are skipped (illustrative content, not navigable links). YAML frontmatter values are parsed as YAML (via the YAML parser), so both file and directory path values are detected — including 2-segment bare directory paths that the prose patterns reject.
 
 ### Python (.py)
 
@@ -63,6 +64,8 @@ Standard library imports are automatically filtered out. Local imports must star
 | Full-string file values | `key: "path/file.ext"` |
 | Embedded paths in strings | `"pwsh.exe -File doc/scripts/Run.ps1"` |
 | Directory path values | `key: "path/to/dir"` |
+
+Multi-document YAML streams (multiple `---` separated documents) are fully supported — all documents are walked. Falls back to generic parser only on true YAMLError.
 
 ### JSON (.json)
 

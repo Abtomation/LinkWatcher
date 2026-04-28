@@ -6,14 +6,14 @@ version: 1.0
 created: 2026-03-27
 updated: 2026-03-27
 refactoring_scope: Add structured logging to MoveDetector buffer/match/expire algorithm
-target_area: linkwatcher/move_detector.py
+target_area: src/linkwatcher/move_detector.py
 priority: Medium
 mode: lightweight
 ---
 
 # Lightweight Refactoring Plan: Add structured logging to MoveDetector buffer/match/expire algorithm
 
-- **Target Area**: linkwatcher/move_detector.py
+- **Target Area**: src/linkwatcher/move_detector.py
 - **Priority**: Medium
 - **Created**: 2026-03-27
 - **Author**: AI Agent & Human Partner

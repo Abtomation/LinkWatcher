@@ -47,7 +47,7 @@ Before you begin, ensure you have:
 - Understanding of the technical debt item you want to document
 - Familiarity with the project's codebase structure and components
 - Access to the Technical Debt Assessment Task (PF-TSK-023) if this item was identified during an assessment
-- Knowledge of the debt item's location, category, and initial priority assessment
+- Knowledge of the debt item's location, dimension, and initial priority assessment
 
 ## Background
 
@@ -69,7 +69,7 @@ The debt-item-template.md is structured to capture comprehensive information abo
 ### Core Metadata Section
 
 - **Document ID**: Automatically assigned (PF-TDI-XXX format)
-- **Debt Category**: Categorizes the type of debt (Code Quality, Security, Performance, Architecture, Documentation)
+- **Dimension**: Classifies the debt by development dimension. One of the 11 canonical codes: AC (Architectural Consistency), CQ (Code Quality), ID (Integration Dependencies), DA (Documentation Alignment), EM (Extensibility & Maintainability), SE (Security & Data Protection), PE (Performance & Scalability), OB (Observability), UX (Accessibility / UX Compliance), DI (Data Integrity), TST (Testing)
 - **Debt Priority**: Initial priority assessment (Critical, High, Medium, Low)
 - **Debt Location**: Component or area where the debt exists
 
@@ -125,17 +125,22 @@ Provides a quick summary of the debt item with key identifying information. This
 
 When customizing debt item templates, you'll face several critical decisions that impact the effectiveness of your documentation:
 
-### Category Selection Decision
+### Dimension Selection Decision
 
-**Decision**: Which debt category best describes this item?
-**Options**: Code Quality, Security, Performance, Architecture, Documentation
-**Criteria**:
+**Decision**: Which development dimension best describes this debt item?
+**Options** (canonical 11-Dim taxonomy):
 
-- Code Quality: Maintainability, readability, duplication issues
-- Security: Vulnerabilities, authentication, authorization problems
-- Performance: Speed, memory usage, scalability issues
-- Architecture: Design patterns, component structure, coupling problems
-- Documentation: Missing or outdated documentation
+- **AC** — Architectural Consistency: Design patterns, component structure, coupling problems, pattern deviations
+- **CQ** — Code Quality: Maintainability, readability, duplication, SOLID violations
+- **ID** — Integration Dependencies: Interface contracts, data flow integrity, dependency health
+- **DA** — Documentation Alignment: Missing or outdated documentation, TDD/code divergence
+- **EM** — Extensibility & Maintainability: Rigid extension points, configuration inflexibility
+- **SE** — Security & Data Protection: Vulnerabilities, authentication, authorization, secrets management
+- **PE** — Performance & Scalability: Speed, memory usage, algorithmic complexity, scaling limits
+- **OB** — Observability: Missing logging, monitoring gaps, diagnostic traceability issues
+- **UX** — Accessibility / UX Compliance: Inclusive design gaps, keyboard navigation, a11y standards
+- **DI** — Data Integrity: Consistency, constraint enforcement, migration safety, recovery patterns
+- **TST** — Testing: Zero-assertion tests, coverage gaps, flaky tests, test infrastructure debt
   **Impact**: Affects prioritization algorithms and assignment to appropriate team members
 
 ### Priority Assessment Decision
@@ -193,7 +198,7 @@ When customizing debt item templates, you'll face several critical decisions tha
 2. **Collect required parameters** for the New-DebtItem.ps1 script:
 
    - **ItemTitle**: Clear, descriptive title (e.g., "Outdated Authentication Library", "Duplicated Validation Logic")
-   - **Category**: Choose from Code Quality, Security, Performance, Architecture, Documentation
+   - **Dimension**: Choose one of the 11 canonical codes (AC/CQ/ID/DA/EM/SE/PE/OB/UX/DI/TST) — see "Dimension Selection Decision" above for descriptions
    - **Priority**: Initial assessment - Critical, High, Medium, Low
    - **Location**: Component or area where debt exists (e.g., "lib/auth/", "UI Components", "Database Layer")
 
@@ -216,10 +221,10 @@ When customizing debt item templates, you'll face several critical decisions tha
 
    ```powershell
    # Basic usage
-   .\New-DebtItem.ps1 -ItemTitle "Outdated Authentication Library" -Category "Security" -Priority "High" -Location "lib/auth/"
+   .\New-DebtItem.ps1 -ItemTitle "Outdated Authentication Library" -Dim "SE" -Priority "High" -Location "lib/auth/"
 
    # With editor opening
-   .\New-DebtItem.ps1 -ItemTitle "Duplicated Validation Logic" -Category "Code Quality" -Priority "Medium" -Location "UI Components" -OpenInEditor
+   .\New-DebtItem.ps1 -ItemTitle "Duplicated Validation Logic" -Dim "CQ" -Priority "Medium" -Location "UI Components" -OpenInEditor
    ```
 
 3. **Verify the debt item creation**:
@@ -253,7 +258,7 @@ When customizing debt item templates, you'll face several critical decisions tha
 
 ### 4. Complete Impact and Effort Assessment
 
-1. **Assess Business Impact** for each category:
+1. **Assess Business Impact** across each dimension:
 
    - **User Experience**: Rate High/Medium/Low and describe impact on users
    - **Performance**: Evaluate system performance implications
@@ -312,7 +317,7 @@ After completing the debt item customization:
    - Test that cross-references and dependencies are correctly documented
 
 3. **Review for Consistency**:
-   - Check that category, priority, and impact assessments align
+   - Check that dimension, priority, and impact assessments align
    - Ensure effort estimates are reasonable for the described scope
    - Verify that the remediation plan addresses the identified problems
 
@@ -335,7 +340,7 @@ Comprehensive quality assurance ensures your debt item documentation meets frame
 
 **Framework Integration:**
 
-- [ ] Category selection aligns with the type of technical debt
+- [ ] Dimension selection aligns with the type of technical debt
 - [ ] Priority assessment reflects actual business and technical impact
 - [ ] Dependencies and relationships are correctly documented
 - [ ] Links to related assessments or tasks are accurate
@@ -367,7 +372,7 @@ Comprehensive quality assurance ensures your debt item documentation meets frame
 **Integration Validation:**
 
 - Debt item connects properly to related framework components
-- Category and priority align with project standards
+- Dimension and priority align with project standards
 - Dependencies are correctly identified and documented
 - Item supports broader technical debt management objectives
 
@@ -412,7 +417,7 @@ Creating a debt item for an outdated authentication library:
 cd process-framework/assessments
 
 # Create the debt item
-.\New-DebtItem.ps1 -ItemTitle "Outdated Authentication Library" -Category "Security" -Priority "High" -Location "lib/auth/"
+.\New-DebtItem.ps1 -ItemTitle "Outdated Authentication Library" -Dim "SE" -Priority "High" -Location "lib/auth/"
 ```
 
 **Customization approach:**
@@ -432,7 +437,7 @@ Creating a debt item for code duplication:
 
 ```powershell
 # Create with editor opening for immediate customization
-.\New-DebtItem.ps1 -ItemTitle "Duplicated Validation Logic" -Category "Code Quality" -Priority "Medium" -Location "UI Components" -OpenInEditor
+.\New-DebtItem.ps1 -ItemTitle "Duplicated Validation Logic" -Dim "CQ" -Priority "Medium" -Location "UI Components" -OpenInEditor
 ```
 
 **Customization approach:**

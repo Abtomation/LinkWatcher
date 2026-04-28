@@ -266,13 +266,84 @@ This has a [markdown link](target.txt) and a "quoted_file.py".
         assert len(results) == 15  # 3 threads * 5 files * 1 reference each
 
 
+class TestLinkParserMaxFileSize:
+    """Tests for LinkParser file-size gate (TD227 — max_file_size_mb wire-in)."""
+
+    def test_under_limit_file_parses_normally(self, temp_project_dir, file_helper):
+        """A file smaller than max_file_size_mb is parsed and returns references."""
+        from linkwatcher.config.settings import LinkWatcherConfig
+
+        config = LinkWatcherConfig(max_file_size_mb=1)
+        parser = LinkParser(config)
+
+        md_file = temp_project_dir / "small.md"
+        file_helper.create_markdown_file(md_file, "# Doc\n\n[Link](target.txt)\n")
+
+        references = parser.parse_file(str(md_file))
+
+        assert len(references) >= 1
+        targets = [ref.link_target for ref in references]
+        assert "target.txt" in targets
+
+    def test_oversize_file_is_skipped(self, temp_project_dir):
+        """A file larger than max_file_size_mb returns [] without invoking the parser."""
+        from linkwatcher.config.settings import LinkWatcherConfig
+
+        config = LinkWatcherConfig(max_file_size_mb=1)
+        parser = LinkParser(config)
+
+        big_file = temp_project_dir / "big.md"
+        # Write ~1.5 MB of content with a link inside — would normally yield references
+        body = "# Big\n\n[Link](target.txt)\n" + ("padding " * (1024 * 200))
+        big_file.write_text(body, encoding="utf-8")
+        assert big_file.stat().st_size > 1 * 1024 * 1024
+
+        references = parser.parse_file(str(big_file))
+
+        assert references == []
+
+    def test_size_check_disabled_when_zero(self, temp_project_dir):
+        """max_file_size_mb=0 disables the check; oversized files still parse."""
+        from linkwatcher.config.settings import LinkWatcherConfig
+
+        # The validate() method rejects max_file_size_mb<=0, but parse_file should
+        # still tolerate it as "disabled" — we set the attribute directly to bypass
+        # validation and exercise the parser-level branch.
+        config = LinkWatcherConfig()
+        parser = LinkParser(config)
+        parser.max_file_size_mb = 0  # disable
+
+        big_file = temp_project_dir / "big.md"
+        body = "# Big\n\n[Link](target.txt)\n" + ("padding " * (1024 * 200))
+        big_file.write_text(body, encoding="utf-8")
+        assert big_file.stat().st_size > 1 * 1024 * 1024
+
+        references = parser.parse_file(str(big_file))
+
+        assert len(references) >= 1
+        targets = [ref.link_target for ref in references]
+        assert "target.txt" in targets
+
+    def test_missing_file_still_returns_empty(self):
+        """Stat failures on missing files do not trigger the size gate;
+        the existing graceful-empty-result behavior is preserved."""
+        from linkwatcher.config.settings import LinkWatcherConfig
+
+        config = LinkWatcherConfig(max_file_size_mb=1)
+        parser = LinkParser(config)
+
+        references = parser.parse_file("does_not_exist.md")
+
+        assert references == []
+
+
 class TestLinkParserParseContent:
     """Test cases for LinkParser.parse_content() facade routing."""
 
     def test_parse_content_routes_to_specialized_parser(self):
         """Test that parse_content routes .md content to MarkdownParser."""
         parser = LinkParser()
-        content = ".git/objects/3a/b045e54f8acd16e0d036a487eb74c269db1d9f# Heading\n\n[Link](target.txt)\n"
+        content = "# Heading\n\n[Link](target.txt)\n"
 
         references = parser.parse_content(content, "doc.md")
 

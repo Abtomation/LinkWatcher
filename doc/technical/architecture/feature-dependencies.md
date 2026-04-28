@@ -1,16 +1,16 @@
 ---
-id: PD-DES-001
+id: PD-ARC-002
 type: Product Documentation
-category: Technical Design
+category: Architecture
 version: 2.0
 created: 2023-06-15
-updated: 2026-04-03
+updated: 2026-04-28
 generated: true
 ---
 
 # Feature Dependencies Map
 
-> **Auto-generated** by Update-FeatureDependencies.ps1 on 2026-04-03.
+> **Auto-generated** by Update-FeatureDependencies.ps1 on 2026-04-28.
 > Source: feature state files in doc/state-tracking/features/.
 > Do not edit manually — changes will be overwritten on next generation.
 
@@ -89,18 +89,18 @@ graph TD
 | 2.1.1 | Link Parsing System | Link Processing | 0.1.1 | P1 | 🟠 Tier 2 | 🟢 Completed |
 | 2.2.1 | Link Updating | Link Processing | 0.1.1, 0.1.2, 3.1.1 | P1 | 🟠 Tier 2 | 🟢 Completed |
 | 3.1.1 | Logging System | Monitoring | 0.1.3 | P1 | 🟠 Tier 2 | 🟢 Completed |
-| 6.1.1 | Link Validation | Validation | 0.1.1, 2.1.1 | P2 | 🔵 Tier 1 | 🔄 Needs Enhancement |
+| 6.1.1 | Link Validation | Validation | 0.1.1, 2.1.1 | P2 | 🔵 Tier 1 | 🟢 Completed |
 
 ## Dependency Summary
 
 ### Most Depended-On Features (highest fan-in)
 
 - **0.1.1 Core Architecture**: 5 features depend on this
-- **0.1.2 In-Memory Link Database**: 3 features depend on this
 - **2.1.1 Link Parsing System**: 3 features depend on this
-- **0.1.3 Configuration System**: 2 features depend on this
+- **0.1.2 In-Memory Link Database**: 3 features depend on this
 - **3.1.1 Logging System**: 2 features depend on this
 - **2.2.1 Link Updating**: 2 features depend on this
+- **0.1.3 Configuration System**: 2 features depend on this
 - **1.1.1 File System Monitoring**: 1 features depend on this
 
 ### Features With No Dependencies (root nodes)

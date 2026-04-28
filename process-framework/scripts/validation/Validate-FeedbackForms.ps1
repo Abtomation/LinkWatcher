@@ -5,7 +5,7 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory=$false)]
-    [string]$FeedbackFormsPath = "feedback-forms",
+    [string]$FeedbackFormsPath = "",
 
     [Parameter(Mandatory=$false)]
     [switch]$ShowComplete,
@@ -33,10 +33,14 @@ Write-Host "🔍 Validating Feedback Forms..." -ForegroundColor Cyan
 Write-Host ""
 
 # Get all feedback form files
-if ([System.IO.Path]::IsPathRooted($FeedbackFormsPath)) {
+if ([string]::IsNullOrEmpty($FeedbackFormsPath)) {
+    # Default: derive canonical location from project root (works regardless of CWD)
+    $projectRoot = Get-ProjectRoot
+    $feedbackFormsDir = Join-Path $projectRoot "process-framework-local/feedback/feedback-forms"
+} elseif ([System.IO.Path]::IsPathRooted($FeedbackFormsPath)) {
     $feedbackFormsDir = $FeedbackFormsPath
 } else {
-    $feedbackFormsDir = Join-Path (Get-Location) "$FeedbackFormsPath"
+    $feedbackFormsDir = Join-Path (Get-Location) $FeedbackFormsPath
 }
 $feedbackFiles = Get-ChildItem -Path $feedbackFormsDir -Filter "*.md" | Sort-Object Name
 

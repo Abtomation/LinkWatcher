@@ -265,19 +265,19 @@ Scoring uses the Round 2 convention: 3-point scale (0=Poor, 1=Below expectations
 
 ### Appendix B: Reference Materials
 
-- `linkwatcher/parser.py` — Main LinkParser coordinator with extension-based dispatch
-- `linkwatcher/parsers/base.py` — BaseParser ABC with `parse_file()` and `parse_content()`
-- `linkwatcher/parsers/markdown.py` — MarkdownParser with 6 regex patterns and overlap detection
-- `linkwatcher/parsers/yaml_parser.py` — YamlParser with `yaml.safe_load` + recursive extraction
-- `linkwatcher/parsers/json_parser.py` — JsonParser with `json.loads` + recursive extraction
-- `linkwatcher/parsers/python.py` — PythonParser with stdlib import filtering
-- `linkwatcher/parsers/powershell.py` — PowerShellParser with block comment tracking and deduplication
-- `linkwatcher/parsers/dart.py` — DartParser with import/part statement extraction
-- `linkwatcher/parsers/generic.py` — GenericParser fallback for unsupported file types
-- `linkwatcher/updater.py` — LinkUpdater with atomic writes and bottom-to-top processing
-- `linkwatcher/path_resolver.py` — PathResolver with multi-strategy match detection
-- `linkwatcher/validator.py` — LinkValidator with workspace scanning and code block detection
-- `linkwatcher/utils.py` — Path utilities, file monitoring helpers, `looks_like_file_path()`
+- `src/linkwatcher/parser.py` — Main LinkParser coordinator with extension-based dispatch
+- `src/linkwatcher/parsers/base.py` — BaseParser ABC with `parse_file()` and `parse_content()`
+- `src/linkwatcher/parsers/markdown.py` — MarkdownParser with 6 regex patterns and overlap detection
+- `src/linkwatcher/parsers/yaml_parser.py` — YamlParser with `yaml.safe_load` + recursive extraction
+- `src/linkwatcher/parsers/json_parser.py` — JsonParser with `json.loads` + recursive extraction
+- `src/linkwatcher/parsers/python.py` — PythonParser with stdlib import filtering
+- `src/linkwatcher/parsers/powershell.py` — PowerShellParser with block comment tracking and deduplication
+- `src/linkwatcher/parsers/dart.py` — DartParser with import/part statement extraction
+- `src/linkwatcher/parsers/generic.py` — GenericParser fallback for unsupported file types
+- `src/linkwatcher/updater.py` — LinkUpdater with atomic writes and bottom-to-top processing
+- `src/linkwatcher/path_resolver.py` — PathResolver with multi-strategy match detection
+- `src/linkwatcher/validator.py` — LinkValidator with workspace scanning and code block detection
+- `src/linkwatcher/utils.py` — Path utilities, file monitoring helpers, `looks_like_file_path()`
 
 ---
 

@@ -5,7 +5,7 @@ category: Refactoring Plan
 version: 1.0
 created: 2026-03-27
 updated: 2026-03-27
-target_area: linkwatcher/updater.py
+target_area: src/linkwatcher/updater.py
 refactoring_scope: Replace generic Exception with RuntimeError in updater.py
 priority: Medium
 mode: lightweight
@@ -13,7 +13,7 @@ mode: lightweight
 
 # Lightweight Refactoring Plan: Replace generic Exception with RuntimeError in updater.py
 
-- **Target Area**: linkwatcher/updater.py
+- **Target Area**: src/linkwatcher/updater.py
 - **Priority**: Medium
 - **Created**: 2026-03-27
 - **Author**: AI Agent & Human Partner
@@ -22,7 +22,7 @@ mode: lightweight
 
 ## Item 1: TD118 — Replace generic Exception with RuntimeError
 
-**Scope**: Line 255 of `linkwatcher/updater.py` raises bare `Exception` in `_update_file_references()`. Change to `RuntimeError` for better error specificity. The caller (`update_references` line 103) catches `Exception`, so this is fully backward-compatible.
+**Scope**: Line 255 of `src/linkwatcher/updater.py` raises bare `Exception` in `_update_file_references()`. Change to `RuntimeError` for better error specificity. The caller (`update_references` line 103) catches `Exception`, so this is fully backward-compatible.
 
 **Changes Made**:
 <!-- Fill in after implementation -->

@@ -10,7 +10,7 @@ task_name: [TASK-NAME]
 
 # Temporary Framework Extension State: [Task Name]
 
-> **⚠️ TEMPORARY FILE**: This file tracks multi-session implementation of a framework extension (PF-TSK-048). Move to `process-framework-local/state-tracking/temporary/old` after all phases are complete.
+> **⚠️ TEMPORARY FILE**: This file tracks multi-session implementation of a framework extension (PF-TSK-026). Move to `process-framework-local/state-tracking/temporary/old` after all phases are complete.
 
 ## Extension Overview
 
@@ -24,11 +24,11 @@ task_name: [TASK-NAME]
 
 | Artifact | Type | Location | Creator Task | Updater Task(s) | Status |
 |----------|------|----------|-------------|-----------------|--------|
-| [artifact-name.md] | Template | [target path] | PF-TSK-048 | [tasks that update it] | NOT_STARTED |
-| [script-name.ps1] | Script | [target path] | PF-TSK-048 | [tasks that update it] | NOT_STARTED |
-| [guide-name.md] | Guide | [target path] | PF-TSK-048 | [tasks that update it] | NOT_STARTED |
+| [artifact-name.md] | Template | [target path] | PF-TSK-026 | [tasks that update it] | NOT_STARTED |
+| [script-name.ps1] | Script | [target path] | PF-TSK-026 | [tasks that update it] | NOT_STARTED |
+| [guide-name.md] | Guide | [target path] | PF-TSK-026 | [tasks that update it] | NOT_STARTED |
 | [task-name.md] | Task Def | [target path] | PF-TSK-001 | [tasks that update it] | NOT_STARTED |
-| [context-map.md] | Context Map | [target path] | PF-TSK-048 | [tasks that update it] | NOT_STARTED |
+| [context-map.md] | Context Map | [target path] | PF-TSK-026 | [tasks that update it] | NOT_STARTED |
 
 **Status Legend**: NOT_STARTED | IN_PROGRESS | COMPLETED | DEFERRED
 
@@ -107,7 +107,7 @@ Existing tasks affected by this extension:
 - [ ] **Log tool changes**: Record modifications in feedback database
   - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
 
-- [ ] **Complete feedback form**: Submit feedback for PF-TSK-048
+- [ ] **Complete feedback form**: Submit feedback for PF-TSK-026
   - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
 
 ## Session Tracking

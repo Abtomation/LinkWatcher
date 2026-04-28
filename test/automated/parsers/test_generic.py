@@ -8,7 +8,11 @@ not covered by specific parsers.
 import pytest
 
 from linkwatcher.parsers.generic import GenericParser
-from linkwatcher.utils import looks_like_directory_path, looks_like_file_path
+from linkwatcher.utils import (
+    looks_like_directory_path,
+    looks_like_file_path,
+    looks_like_regex_or_glob,
+)
 
 pytestmark = [
     pytest.mark.feature("2.1.1"),
@@ -368,3 +372,116 @@ class TestBug028ProseFilenameRejection:
         assert looks_like_file_path("../config.yaml") is True
         assert looks_like_file_path("path/to/file.md") is True
         assert looks_like_file_path("move-target-2.ps1") is True
+
+
+class TestBug095LooksLikeRegexOrGlob:
+    """PD-BUG-095: regex/glob strings must not be classified as paths.
+
+    The detector ``looks_like_regex_or_glob`` flags strings that contain glob
+    meta-characters (``*``, ``**``, ``?``) or regex constructs (``\\d``, ``\\s``,
+    ``\\w``, character classes ``[…]``, anchors ``^``/``$``, alternation ``|``).
+    ``looks_like_file_path`` and ``looks_like_directory_path`` short-circuit to
+    False when this detector returns True, preventing such strings from entering
+    the link database via any parser.
+    """
+
+    def test_glob_star_extension(self):
+        """Bare globs like '*.md' must be detected."""
+        assert looks_like_regex_or_glob("*.md") is True
+        assert looks_like_regex_or_glob("*.ps1") is True
+
+    def test_double_star_glob(self):
+        """Recursive globs '**/*.ext' must be detected."""
+        assert looks_like_regex_or_glob("**/*.md") is True
+        assert looks_like_regex_or_glob("src/**/*.py") is True
+
+    def test_single_char_glob(self):
+        """Single-char glob '?' must be detected."""
+        assert looks_like_regex_or_glob("file?.txt") is True
+
+    def test_regex_digit_class_escape(self):
+        """Regex escapes \\d, \\s, \\w must be detected (raw backslash sequences)."""
+        assert looks_like_regex_or_glob("doc/foo/bar-\\d+") is True
+        assert looks_like_regex_or_glob("\\s+") is True
+        assert looks_like_regex_or_glob("ART-ASS-\\d+-\\w+") is True
+
+    def test_regex_escaped_dot(self):
+        """\\. (escaped dot) is a strong regex signal."""
+        assert looks_like_regex_or_glob("file\\.md") is True
+        assert looks_like_regex_or_glob("[0-9]+\\.[0-9]+") is True
+
+    def test_regex_character_class(self):
+        """Character classes like [a-z], [^abc], [0-9] must be detected."""
+        assert looks_like_regex_or_glob("[a-z]+") is True
+        assert looks_like_regex_or_glob("doc/[a-z]+\\.md") is True
+        assert looks_like_regex_or_glob("[^abc]") is True
+
+    def test_regex_anchors(self):
+        """^ and $ as line anchors must be detected when used in regex context."""
+        assert looks_like_regex_or_glob("^## Section") is True
+        assert looks_like_regex_or_glob("foo$") is True
+
+    def test_regex_alternation(self):
+        """| alternation outside URL/MIME context must be detected."""
+        # Regex with alternation between path-like alternatives
+        assert looks_like_regex_or_glob("(foo|bar)/baz") is True
+
+    def test_regex_escaped_brackets(self):
+        """\\[ \\] (escaped brackets in regex) must be detected."""
+        assert looks_like_regex_or_glob("\\[x\\]\\s+Tier") is True
+
+    def test_normal_paths_not_detected(self):
+        """Real paths without regex/glob meta must return False."""
+        normals = [
+            "config.yaml",
+            "../config.yaml",
+            "path/to/file.md",
+            "doc/state-tracking/permanent",
+            "move-target-2.ps1",
+            "src/linkwatcher/utils.py",
+        ]
+        for path in normals:
+            assert looks_like_regex_or_glob(path) is False, f"False positive for '{path}'"
+
+    def test_filenames_with_dashes_underscores_dots_not_detected(self):
+        """Real filenames with non-meta punctuation must not be detected."""
+        assert looks_like_regex_or_glob("PD-BUG-095.md") is False
+        assert looks_like_regex_or_glob("file_v1.0.json") is False
+        assert looks_like_regex_or_glob("test.bak.txt") is False
+
+
+class TestBug095PathDetectorsRejectRegexAndGlob:
+    """PD-BUG-095: looks_like_file_path and looks_like_directory_path must reject
+    regex/glob strings even when they would otherwise satisfy path heuristics
+    (e.g., '*.md' has a known extension; 'doc/foo/bar-\\d+' has '/' separators).
+    """
+
+    def test_glob_with_known_extension_rejected(self):
+        """'*.md' has a known extension but is a glob — must be rejected."""
+        assert looks_like_file_path("*.md") is False
+        assert looks_like_file_path("*.ps1") is False
+
+    def test_glob_with_path_separator_rejected(self):
+        """'**/*.py' has '/' but is a glob — must be rejected."""
+        assert looks_like_file_path("**/*.py") is False
+        assert looks_like_directory_path("**/sub") is False
+
+    def test_regex_with_path_prefix_rejected(self):
+        """'doc/foo/bar-\\d+' has '/' but is a regex — must be rejected."""
+        assert looks_like_file_path("doc/foo/bar-\\d+") is False
+        assert looks_like_directory_path("doc/foo/bar-\\d+") is False
+
+    def test_regex_character_class_with_extension_rejected(self):
+        """'doc/[a-z]+\\.md' has '/' and looks like an extension but is regex."""
+        assert looks_like_file_path("doc/[a-z]+\\.md") is False
+        assert looks_like_directory_path("doc/[a-z]+") is False
+
+    def test_anchored_regex_rejected(self):
+        """'^## 4\\. Documentation' is a regex (anchor + escape) — must be rejected."""
+        assert looks_like_file_path("^## 4\\. Documentation") is False
+
+    def test_normal_paths_still_accepted(self):
+        """Real paths without regex/glob meta must still pass."""
+        assert looks_like_file_path("doc/foo/bar.md") is True
+        assert looks_like_file_path("config.yaml") is True
+        assert looks_like_directory_path("doc/foo/bar") is True

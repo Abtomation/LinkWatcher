@@ -138,7 +138,7 @@ Five documentation alignment criteria, each scored on a 4-point scale (1=Poor, 2
 | Major | TDD describes private `_normalize_path()` class method — code uses shared `normalize_path()` from `utils.py` | TDD §4.2-4.3 | Architecture misrepresented (shared utility vs private method) | Update TDD |
 | Major | TDD documents only 6 of 9 public methods — missing `remove_targets_by_path()`, `get_all_targets_with_references()`, `get_source_files()` | TDD §3.4, §4.2 | Incomplete API specification | Update TDD |
 | Major | FDD body uses `0.1.3-` prefix throughout despite metadata saying `feature_id: 0.1.2` | FDD body (all FR/AC/BR/EC IDs) | Pre-consolidation IDs confusing | Update all prefixes to `0.1.2-` |
-| Major | FDD BR-5 incorrectly claims database normalization is "independent of `linkwatcher/utils.py`" | FDD BR-5 | Factually wrong architectural claim | Update BR-5 |
+| Major | FDD BR-5 incorrectly claims database normalization is "independent of `src/linkwatcher/utils.py`" | FDD BR-5 | Factually wrong architectural claim | Update BR-5 |
 | Major | Feature state: Uses wrong method names (`remove_links_for_file()`, `get_links_to_target()`, `get_all_links()`) — actual names differ | PF-FEA-047 §1 | Would confuse developers reading state file | Update method names |
 | Major | Feature state: Lists only 5 key operations, actual code has 9 public methods | PF-FEA-047 §1 | Incomplete API description | Update feature description |
 | Minor | FDD lists `pathlib` as dependency — code uses `os.path`, not `pathlib` | FDD Technical Dependencies | Wrong dependency | Update to `os` |
@@ -316,10 +316,10 @@ Documentation surfaces validated:
 ### Appendix B: Reference Materials
 
 **Source Code Files Reviewed**:
-- `linkwatcher/service.py`, `linkwatcher/__init__.py`, `linkwatcher/models.py`, `linkwatcher/utils.py`, `main.py`
-- `linkwatcher/database.py`
-- `linkwatcher/config/settings.py`, `linkwatcher/config/defaults.py`, `linkwatcher/config/__init__.py`
-- `linkwatcher/handler.py`, `linkwatcher/move_detector.py`, `linkwatcher/dir_move_detector.py`, `linkwatcher/reference_lookup.py`
+- `src/linkwatcher/service.py`, `src/linkwatcher/__init__.py`, `src/linkwatcher/models.py`, `src/linkwatcher/utils.py`, `main.py`
+- `src/linkwatcher/database.py`
+- `src/linkwatcher/config/settings.py`, `src/linkwatcher/config/defaults.py`, `src/linkwatcher/config/__init__.py`
+- `src/linkwatcher/handler.py`, `src/linkwatcher/move_detector.py`, `src/linkwatcher/dir_move_detector.py`, `src/linkwatcher/reference_lookup.py`
 
 **Documentation Files Reviewed**:
 - TDDs: PD-TDD-021, PD-TDD-022, PD-TDD-023

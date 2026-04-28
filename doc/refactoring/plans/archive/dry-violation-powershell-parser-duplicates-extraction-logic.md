@@ -6,14 +6,14 @@ version: 1.0
 created: 2026-04-02
 updated: 2026-04-02
 priority: Medium
-target_area: linkwatcher/parsers/powershell.py
+target_area: src/linkwatcher/parsers/powershell.py
 mode: lightweight
 refactoring_scope: DRY violation: PowerShell parser duplicates extraction logic
 ---
 
 # Lightweight Refactoring Plan: DRY violation: PowerShell parser duplicates extraction logic
 
-- **Target Area**: linkwatcher/parsers/powershell.py
+- **Target Area**: src/linkwatcher/parsers/powershell.py
 - **Priority**: Medium
 - **Created**: 2026-04-02
 - **Author**: AI Agent & Human Partner
@@ -53,4 +53,3 @@ refactoring_scope: DRY violation: PowerShell parser duplicates extraction logic
 
 ## Related Documentation
 - [Technical Debt Tracking](/doc/state-tracking/permanent/technical-debt-tracking.md)
-

@@ -113,29 +113,37 @@ The task uses a decision matrix (in the scoping guide) to determine performance 
     - E2E test decisions (workflow readiness evaluation, with rationale)
     - Any newly added workflows in user-workflow-tracking.md (from Step 9)
     - Proposed entries for tracking files
-13. **Update feature status**: Set the feature's status to `🟢 Completed`:
+13. **Check user documentation needs**: Read the feature's implementation state file (`doc/state-tracking/features/`) and check the `### User Documentation` subsection under Documentation Inventory:
+    - If status is `❌ Needed` → the feature needs user documentation before completion. Set status to `📖 Needs User Docs` in Step 14.
+    - If status is `✅ Created` or `N/A` → no user documentation needed. Set status to `🟢 Completed` in Step 14.
+    - If the `### User Documentation` subsection is missing → flag this to the human partner. The section should have been populated during implementation planning (PF-TSK-044). Add it now with the correct value before proceeding.
+14. **Update feature status**: Set the feature's status based on the user documentation check:
     ```bash
+    # If user docs needed:
+    pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/update/Update-BatchFeatureStatus.ps1 -FeatureIds "<X.Y.Z>" -Status "📖 Needs User Docs" -UpdateType "StatusOnly" -Force
+
+    # If user docs NOT needed (N/A or already created):
     pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/update/Update-BatchFeatureStatus.ps1 -FeatureIds "<X.Y.Z>" -Status "🟢 Completed" -UpdateType "StatusOnly" -Force
     ```
-14. **Update workflow statuses**: Run the workflow tracking sync to propagate the status change:
+15. **Update workflow statuses**: Run the workflow tracking sync to propagate the status change:
     ```bash
     pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/update/Update-WorkflowTracking.ps1
     ```
-15. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+16. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 
 - **Performance scoping decision** — Either new rows in [performance-test-tracking.md](/test/state-tracking/permanent/performance-test-tracking.md) (status `⬜ Needs Creation`) or documented rationale for "no performance tests needed"
 - **E2E scoping decision** — Either new/updated entries in [e2e-test-tracking.md](/test/state-tracking/permanent/e2e-test-tracking.md) or documented rationale for "no E2E scenarios identified"
 - **Newly discovered workflows** — Any cross-feature interactions added to [user-workflow-tracking.md](/doc/state-tracking/permanent/user-workflow-tracking.md) that were not previously tracked (if any)
-- **Updated feature status** — Feature moved from `🔎 Needs Test Scoping` to `🟢 Completed` in [feature-tracking.md](/doc/state-tracking/permanent/feature-tracking.md)
+- **Updated feature status** — Feature moved from `🔎 Needs Test Scoping` to either `📖 Needs User Docs` (if user documentation needed) or `🟢 Completed` (if not needed) in [feature-tracking.md](/doc/state-tracking/permanent/feature-tracking.md)
 - **Updated workflow status** — [user-workflow-tracking.md](/doc/state-tracking/permanent/user-workflow-tracking.md) updated if feature completion changes workflow readiness
 
 ## State Tracking
 
 The following state files must be updated as part of this task:
 
-- [Feature Tracking](/doc/state-tracking/permanent/feature-tracking.md) - Update feature status from `🔎 Needs Test Scoping` to `🟢 Completed`
+- [Feature Tracking](/doc/state-tracking/permanent/feature-tracking.md) - Update feature status from `🔎 Needs Test Scoping` to `📖 Needs User Docs` or `🟢 Completed` (based on User Documentation status in state file)
 - [Performance Test Tracking](/test/state-tracking/permanent/performance-test-tracking.md) - Add rows for identified performance test needs (if any)
 - [E2E Test Tracking](/test/state-tracking/permanent/e2e-test-tracking.md) - Add/update entries for E2E-ready workflows (if any)
 - [User Workflow Tracking](/doc/state-tracking/permanent/user-workflow-tracking.md) - Update workflow status if feature completion changes readiness
@@ -157,14 +165,15 @@ Before considering this task finished:
   - [ ] E2E test entries added to [e2e-test-tracking.md](/test/state-tracking/permanent/e2e-test-tracking.md) (if needed)
   - [ ] Rationale documented for any "no tests needed" decisions
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
-  - [ ] [Feature Tracking](/doc/state-tracking/permanent/feature-tracking.md) shows `🟢 Completed` for the scoped feature
+  - [ ] [Feature Tracking](/doc/state-tracking/permanent/feature-tracking.md) shows `📖 Needs User Docs` or `🟢 Completed` for the scoped feature (based on User Documentation status check)
   - [ ] [User Workflow Tracking](/doc/state-tracking/permanent/user-workflow-tracking.md) updated if applicable
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-086" and context "Performance & E2E Test Scoping"
 
 ## Next Tasks
 
-- [**Performance Test Creation (PF-TSK-084)**](/process-framework/tasks/03-testing/performance-test-creation-task.md) - If performance tests were identified, implement them from the `⬜ Needs Creation` entries in performance-test-tracking.md. Full downstream lifecycle: `⬜ Needs Creation → 📋 Needs Baseline → 🔍 Audit Approved → ✅ Baselined`
-- [**E2E Acceptance Test Case Creation (PF-TSK-069)**](/process-framework/tasks/03-testing/e2e-acceptance-test-case-creation-task.md) - If E2E tests were identified for newly E2E-ready workflows. Full downstream lifecycle: `📋 Needs Execution → 🔍 Audit Approved → ✅ Passed`
+- [**Performance Test Creation (PF-TSK-084)**](/process-framework/tasks/03-testing/performance-test-creation-task.md) - If performance tests were identified, implement them from the `⬜ Needs Creation` entries in performance-test-tracking.md. Full downstream lifecycle: `⬜ Needs Creation → 📋 Needs Baseline → ✅ Audit Approved → ✅ Baselined`
+- [**E2E Acceptance Test Case Creation (PF-TSK-069)**](/process-framework/tasks/03-testing/e2e-acceptance-test-case-creation-task.md) - If E2E tests were identified for newly E2E-ready workflows. Full downstream lifecycle: `📋 Needs Execution → ✅ Audit Approved → ✅ Passed`
+- [**User Documentation Creation (PF-TSK-081)**](/process-framework/tasks/07-deployment/user-documentation-creation.md) - If user documentation is needed (feature status set to `📖 Needs User Docs`). Creates handbooks, then sets feature to `🟢 Completed`
 - [**Release & Deployment (PF-TSK-018)**](/process-framework/tasks/07-deployment/release-deployment-task.md) - If no tests are needed and the feature is ready for release
 
 > **Audit gate**: Both performance tests and E2E test cases must pass [Test Audit (PF-TSK-030)](/process-framework/tasks/03-testing/test-audit-task.md) before proceeding to baseline capture or execution respectively. The audit step is mandatory for newly created tests — see each downstream task's prerequisites for details.

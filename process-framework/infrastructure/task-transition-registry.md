@@ -500,6 +500,36 @@ Does the feature require database schema changes?
 3. Verify migration plan is feasible and safe
 4. Prepare database context for technical design decisions
 
+### Transitioning FROM Integration Narrative Creation (PF-TSK-083)
+
+**Prerequisites for Transition:**
+
+- [ ] Integration Narrative created via New-IntegrationNarrative.ps1
+- [ ] All cross-feature interactions verified against source code
+- [ ] Data flow, callback chains, and error propagation paths documented
+- [ ] user-workflow-tracking.md updated with Integration Doc link
+
+**Next Task Selection:**
+
+```
+Is a cross-cutting E2E test specification needed for this workflow?
+├─ Yes (all workflow features implemented + E2E milestone exists) →
+│   Cross-cutting E2E Test Specification (New-TestSpecification.ps1 -CrossCutting)
+│   → then E2E Test Case Creation (PF-TSK-069) → Test Audit → E2E Execution
+│   └─ Reason: Integration Narrative provides verified cross-feature understanding for E2E tests
+├─ No (workflow not yet E2E-ready) → Continue with other work
+│   └─ Reason: Remaining workflow features must reach Implemented status first
+└─ Documentation validation round active? → Documentation Alignment Validation
+    └─ Reason: Integration Narratives are validated as part of documentation accuracy checks
+```
+
+**Preparation for Next Task:**
+
+1. Review narrative for complete coverage of cross-feature touchpoints
+2. Confirm all participating features are listed in user-workflow-tracking.md
+3. Verify the workflow's E2E readiness status in e2e-test-tracking.md
+4. Ensure narrative includes sufficient detail for E2E test case design (data formats, expected states, error scenarios)
+
 ### Transitioning FROM Test Specification Creation
 
 **Prerequisites for Transition:**
@@ -557,7 +587,7 @@ Is systematic test quality assessment needed?
 **Prerequisites for Transition:**
 
 - [ ] Test audit report completed with type-appropriate criteria assessed (6 Automated / 4 Performance / 5 E2E)
-- [ ] Audit decision made (Tests Approved or Needs Update)
+- [ ] Audit decision made (Audit Approved or Needs Update)
 - [ ] Type-specific tracking file updated with audit results (test-tracking.md, performance-test-tracking.md, or e2e-test-tracking.md)
 - [ ] Audit report validated using Validate-AuditReport.ps1
 
@@ -565,9 +595,8 @@ Is systematic test quality assessment needed?
 
 ```
 What test type was audited?
-├─ Automated → 4-outcome decision tree:
+├─ Automated → 3-outcome decision tree:
 │  ├─ ✅ Audit Approved → Feature Implementation → 👀 Needs Review → Code Review
-│  ├─ 🟡 Approved — Pending Dependencies → Implementation Tasks → Feature Implementation
 │  ├─ 🔄 Needs Update → Integration & Testing (fix issues)
 │  └─ 🔴 Tests Incomplete → Integration & Testing (add missing tests)
 │
@@ -586,8 +615,8 @@ What test type was audited?
 
 1. **For Feature Implementation** (Automated): Review audit findings for any implementation considerations
 2. **For Integration & Testing** (Automated): Review audit recommendations and action items
-3. **For Performance Baseline Capture** (Performance): Verify Audit Status shows `🔍 Audit Approved` in performance-test-tracking.md
-4. **For E2E Test Execution** (E2E): Verify Audit Status shows `🔍 Audit Approved` in e2e-test-tracking.md
+3. **For Performance Baseline Capture** (Performance): Verify Audit Status shows `✅ Audit Approved` in performance-test-tracking.md
+4. **For E2E Test Execution** (E2E): Verify Audit Status shows `✅ Audit Approved` in e2e-test-tracking.md
 5. Update type-specific tracking file with appropriate status
 6. Ensure audit findings are addressed before proceeding
 
@@ -605,7 +634,7 @@ What test type was audited?
 
 ```
 What is the context?
-├─ Test cases ready → Test Audit (PF-TSK-030, -TestType E2E) → 🔍 Audit Approved → E2E Test Execution (PF-TSK-070)
+├─ Test cases ready → Test Audit (PF-TSK-030, -TestType E2E) → ✅ Audit Approved → E2E Test Execution (PF-TSK-070)
 │   └─ Reason: Newly created test cases must be audited before execution
 ├─ Test case creation revealed additional bugs → Bug Triage (PF-TSK-041)
 └─ More test cases needed for other groups → Continue E2E Test Case Creation (next group)
@@ -723,7 +752,8 @@ What was the review result?
 - [ ] Performance decision matrix applied against feature's code changes
 - [ ] E2E milestone readiness evaluated for all relevant workflows
 - [ ] Any untracked cross-feature interactions added to user-workflow-tracking.md
-- [ ] Feature status updated to `🟢 Completed`
+- [ ] User Documentation status checked in feature state file (Step 13)
+- [ ] Feature status updated to `📖 Needs User Docs` or `🟢 Completed` (based on User Documentation status)
 
 **Next Task Selection Decision:**
 
@@ -733,10 +763,10 @@ What did the scoping task identify?
 ├─ Workflow now E2E-ready → E2E Test Case Creation (PF-TSK-069) → Test Audit (-TestType E2E) → E2E Execution
 │  (preceded by Integration Narrative Creation if none exists)
 ├─ Both perf + E2E needed → Performance Test Creation first, then E2E (each with audit gate)
-├─ Neither needed → Does feature change user-visible behavior?
-│  ├─ Yes → User Documentation Creation (PF-TSK-081)
-│  └─ No → Release & Deployment
-└─ Tests already exist for identified needs → Release & Deployment
+├─ Neither needed → Check feature state file ### User Documentation status:
+│  ├─ ❌ Needed → Feature set to 📖 Needs User Docs → User Documentation Creation (PF-TSK-081)
+│  └─ N/A or ✅ Created → Feature set to 🟢 Completed → Release & Deployment
+└─ Tests already exist for identified needs → Check user documentation status (same as above)
 ```
 
 **Preparation for Next Task:**
@@ -744,6 +774,7 @@ What did the scoping task identify?
 1. Performance test entries at `⬜ Needs Creation` in performance-test-tracking.md (if applicable)
 2. E2E milestone entry added to e2e-test-tracking.md (if applicable)
 3. Rationale documented for all "no tests needed" decisions
+4. Feature status set to `📖 Needs User Docs` if user documentation needed (for PF-TSK-081 pickup)
 
 ### Transitioning FROM Performance Test Creation (PF-TSK-084)
 
@@ -796,20 +827,22 @@ What were the results?
 
 - [ ] Handbook(s) created or updated via New-Handbook.ps1
 - [ ] Content customized and reviewed by human partner
-- [ ] Feature state file updated (User Documentation: Created)
+- [ ] Feature state file `### User Documentation` updated to `✅ Created` via Update-UserDocumentationState.ps1
+- [ ] Feature status set from `📖 Needs User Docs` to `🟢 Completed` via Update-BatchFeatureStatus.ps1
 - [ ] README.md updated if applicable
 
 **Next Task Selection Decision:**
 
 ```
 Documentation complete?
-├─ Yes → Release & Deployment
+├─ Yes → Feature set to 🟢 Completed → Release & Deployment
 └─ Needs revision → Revise handbook content → Re-review
 ```
 
 **Preparation for Next Task:**
 
 1. Verify all user-facing behavior changes are documented
+2. Feature status is `🟢 Completed` in feature-tracking.md
 2. Ensure handbook is linked from README.md documentation table if appropriate
 3. Proceed to Release & Deployment
 

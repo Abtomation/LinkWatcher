@@ -81,7 +81,7 @@ auditor: AI Agent
 
 | Source Module | Coverage % | Uncovered Areas |
 |---------------|-----------|-----------------|
-| linkwatcher/parser.py | 69% | Lines 79-89 (no-parser-available + exception handler in parse_file), Lines 98-128 (entire parse_content method) |
+| src/linkwatcher/parser.py | 69% | Lines 79-89 (no-parser-available + exception handler in parse_file), Lines 98-128 (entire parse_content method) |
 
 **Overall Project Coverage**: 89% (full suite)
 
@@ -236,4 +236,3 @@ N/A — Tests Approved without dependency conditions.
 **Audit Completed By**: AI Agent
 **Completion Date**: 2026-04-03
 **Report Version**: 1.0
-

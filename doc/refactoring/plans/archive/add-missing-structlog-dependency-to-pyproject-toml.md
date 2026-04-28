@@ -22,7 +22,7 @@ priority: Medium
 
 ## Item 1: TD043 — Add missing structlog dependency to pyproject.toml
 
-**Scope**: `structlog` is imported in `linkwatcher/logging.py` (line 21) and used extensively (17 references) but is not declared in `pyproject.toml` `[project.dependencies]`. This means a clean `pip install linkwatcher` in a fresh environment will fail with `ModuleNotFoundError`. Fix: add `structlog>=21.0.0` to the dependencies list.
+**Scope**: `structlog` is imported in `src/linkwatcher/logging.py` (line 21) and used extensively (17 references) but is not declared in `pyproject.toml` `[project.dependencies]`. This means a clean `pip install linkwatcher` in a fresh environment will fail with `ModuleNotFoundError`. Fix: add `structlog>=21.0.0` to the dependencies list.
 
 **Changes Made**:
 - [x] Add `"structlog>=21.0.0"` to `[project.dependencies]` in `pyproject.toml`

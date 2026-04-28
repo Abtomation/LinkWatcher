@@ -155,27 +155,27 @@ status: FINALIZED
 
 | File Path | Notes | Candidate Feature | Status |
 |-----------|-------|-------------------|--------|
-| linkwatcher/__init__.py | Package init, exports all public APIs | 0.1.1 | ✅ |
-| linkwatcher/models.py | LinkReference, FileOperation data models | 0.1.2 | ✅ |
-| linkwatcher/database.py | In-memory link database, thread-safe | 0.1.3 | ✅ |
-| linkwatcher/config/__init__.py | Config package init | 0.1.4 | ✅ |
-| linkwatcher/config/defaults.py | Default configuration values | 0.1.4 | ✅ |
-| linkwatcher/config/settings.py | LinkWatcherConfig class, multi-source loading | 0.1.4 | ✅ |
-| linkwatcher/utils.py | Path utility functions, Windows path handling | 0.1.5 | ✅ |
-| ../../../../linkwatcher/handler.py | File system event handler (move/create/delete) | 1.1.2 | ✅ |
-| linkwatcher/service.py | Main orchestration service (LinkWatcherService) | 0.1.1 | ✅ |
-| linkwatcher/parser.py | LinkParser facade orchestrating all parsers | 2.1.1 | ✅ |
-| linkwatcher/parsers/__init__.py | Parsers package init | 2.1.1 | ✅ |
-| linkwatcher/parsers/base.py | BaseParser abstract class | 2.1.1 | ✅ |
-| linkwatcher/parsers/markdown.py | Markdown link parser | 2.1.2 | ✅ |
-| linkwatcher/parsers/yaml_parser.py | YAML file reference parser | 2.1.3 | ✅ |
-| linkwatcher/parsers/json_parser.py | JSON file reference parser | 2.1.4 | ✅ |
-| linkwatcher/parsers/python.py | Python import parser | 2.1.5 | ✅ |
-| linkwatcher/parsers/dart.py | Dart import/part parser | 2.1.6 | ✅ |
-| linkwatcher/parsers/generic.py | Generic fallback parser | 2.1.7 | ✅ |
-| linkwatcher/updater.py | Atomic link update with safety mechanisms | 2.2.1 | ✅ |
-| linkwatcher/logging.py | Logging framework, structured logging | 3.1.1 | ✅ |
-| linkwatcher/logging_config.py | Advanced logging configuration | 3.1.1 | ✅ |
+| src/linkwatcher/__init__.py | Package init, exports all public APIs | 0.1.1 | ✅ |
+| src/linkwatcher/models.py | LinkReference, FileOperation data models | 0.1.2 | ✅ |
+| src/linkwatcher/database.py | In-memory link database, thread-safe | 0.1.3 | ✅ |
+| src/linkwatcher/config/__init__.py | Config package init | 0.1.4 | ✅ |
+| src/linkwatcher/config/defaults.py | Default configuration values | 0.1.4 | ✅ |
+| src/linkwatcher/config/settings.py | LinkWatcherConfig class, multi-source loading | 0.1.4 | ✅ |
+| src/linkwatcher/utils.py | Path utility functions, Windows path handling | 0.1.5 | ✅ |
+| ../../../../src/linkwatcher/handler.py | File system event handler (move/create/delete) | 1.1.2 | ✅ |
+| src/linkwatcher/service.py | Main orchestration service (LinkWatcherService) | 0.1.1 | ✅ |
+| src/linkwatcher/parser.py | LinkParser facade orchestrating all parsers | 2.1.1 | ✅ |
+| src/linkwatcher/parsers/__init__.py | Parsers package init | 2.1.1 | ✅ |
+| src/linkwatcher/parsers/base.py | BaseParser abstract class | 2.1.1 | ✅ |
+| src/linkwatcher/parsers/markdown.py | Markdown link parser | 2.1.2 | ✅ |
+| src/linkwatcher/parsers/yaml_parser.py | YAML file reference parser | 2.1.3 | ✅ |
+| src/linkwatcher/parsers/json_parser.py | JSON file reference parser | 2.1.4 | ✅ |
+| src/linkwatcher/parsers/python.py | Python import parser | 2.1.5 | ✅ |
+| src/linkwatcher/parsers/dart.py | Dart import/part parser | 2.1.6 | ✅ |
+| src/linkwatcher/parsers/generic.py | Generic fallback parser | 2.1.7 | ✅ |
+| src/linkwatcher/updater.py | Atomic link update with safety mechanisms | 2.2.1 | ✅ |
+| src/linkwatcher/logging.py | Logging framework, structured logging | 3.1.1 | ✅ |
+| src/linkwatcher/logging_config.py | Advanced logging configuration | 3.1.1 | ✅ |
 
 ### Root / Entry Points (4 files)
 
@@ -578,15 +578,15 @@ status: FINALIZED
 **Quality Verification Performed** (Task Step 8):
 
 9 high-connectivity files sampled across 4 feature state files:
-- `linkwatcher/__init__.py` → verified against 0.1.1
-- `linkwatcher/service.py` → verified against 0.1.1
+- `src/linkwatcher/__init__.py` → verified against 0.1.1
+- `src/linkwatcher/service.py` → verified against 0.1.1
 - `main.py` → verified against 0.1.1
-- `linkwatcher/handler.py` → verified against 1.1.2
-- `linkwatcher/parser.py` → verified against 2.1.1
-- `linkwatcher/updater.py` → verified against 2.2.1
+- `src/linkwatcher/handler.py` → verified against 1.1.2
+- `src/linkwatcher/parser.py` → verified against 2.1.1
+- `src/linkwatcher/updater.py` → verified against 2.2.1
 - `manual_test/src/main.py` → verified against 4.1.6 (batch-processed file)
 - `manual_markdown_tests/test_project/manual_test.py` → verified against 4.1.6 (batch-processed file)
-- `linkwatcher/database.py` → partially verified (imports confirmed)
+- `src/linkwatcher/database.py` → partially verified (imports confirmed)
 
 **Discrepancies Found and Fixed**:
 

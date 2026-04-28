@@ -8,12 +8,12 @@ updated: 2026-03-27
 priority: Medium
 mode: lightweight
 refactoring_scope: Add event flow overview to handler.py module docstring (TD071)
-target_area: linkwatcher/handler.py
+target_area: src/linkwatcher/handler.py
 ---
 
 # Lightweight Refactoring Plan: Add event flow overview to handler.py module docstring (TD071)
 
-- **Target Area**: linkwatcher/handler.py
+- **Target Area**: src/linkwatcher/handler.py
 - **Priority**: Medium
 - **Created**: 2026-03-27
 - **Author**: AI Agent & Human Partner

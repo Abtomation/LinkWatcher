@@ -21,7 +21,7 @@ priority: Medium
 - **Mode**: Lightweight (no architectural impact)
 
 ## Dependencies and Impact
-- **Affected Components**: linkwatcher/logging.py, linkwatcher/validator.py, linkwatcher/parsers/__init__.py
+- **Affected Components**: src/linkwatcher/logging.py, src/linkwatcher/validator.py, src/linkwatcher/parsers/__init__.py
 - **Internal Dependencies**: None — docstring-only changes, no code behavior affected
 - **Risk Assessment**: Low — only AI Context docstrings are modified
 
@@ -58,4 +58,3 @@ priority: Medium
 
 ## Related Documentation
 - [Technical Debt Tracking](/doc/state-tracking/permanent/technical-debt-tracking.md)
-

@@ -275,11 +275,11 @@ Source code for all four features was read in full. Each file was evaluated agai
 
 ### Appendix B: Reference Materials
 
-- `linkwatcher/parsers/` — all 10 parser modules (base.py, markdown.py, powershell.py, python.py, json_parser.py, yaml_parser.py, generic.py, dart.py, patterns.py, __init__.py)
-- `linkwatcher/updater.py` — link updating module
-- `linkwatcher/logging.py` — core logging infrastructure
-- `linkwatcher/logging_config.py` — runtime logging configuration
-- `linkwatcher/validator.py` — link validation module
+- `src/linkwatcher/parsers` — all 10 parser modules (base.py, markdown.py, powershell.py, python.py, json_parser.py, yaml_parser.py, generic.py, dart.py, patterns.py, __init__.py)
+- `src/linkwatcher/updater.py` — link updating module
+- `src/linkwatcher/logging.py` — core logging infrastructure
+- `src/linkwatcher/logging_config.py` — runtime logging configuration
+- `src/linkwatcher/validator.py` — link validation module
 
 ---
 

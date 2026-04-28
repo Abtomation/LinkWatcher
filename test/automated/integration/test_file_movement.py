@@ -251,14 +251,10 @@ Refer to [file](file.txt) in same directory.
 
         # Create multiple files in docs directory
         file1 = docs_dir / "guide.md"
-        file1.write_text(
-            ".git/objects/3a/b045e54f8acd16e0d036a487eb74c269db1d9f# Guide\nContent here"
-        )
+        file1.write_text("# Guide\nContent here")
 
         file2 = docs_dir / "api.md"
-        file2.write_text(
-            ".git/objects/3a/b045e54f8acd16e0d036a487eb74c269db1d9f# API\nAPI documentation"
-        )
+        file2.write_text("# API\nAPI documentation")
 
         file3 = docs_dir / "config.yaml"
         file3.write_text("setting: value")

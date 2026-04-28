@@ -81,7 +81,8 @@ task_name: [TASK-NAME]
 
 - [ ] **Log tool change**: Record modification in feedback database
   - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
-  - **Command**: `python process-framework/scripts/feedback_db.py log-change --tool <TOOL_DOC_ID> --date <YYYY-MM-DD> --imp <IMP-XXX> --description "<what changed>"`
+  - **Verify canonical ID first**: `python process-framework/scripts/feedback_db.py list-tools --filter <substring>`
+  - **Command**: `python process-framework/scripts/feedback_db.py log-change --tool <TOOL_DOC_ID> --date <YYYY-MM-DD> --imp <IMP-XXX> --description "<what changed>"` (add `--new-tool` if it's a first-time tool registration)
 
 - [ ] **Update process-improvement-tracking.md**: Mark improvement as Completed
   - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]

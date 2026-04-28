@@ -16,19 +16,19 @@ retrospective: true
 
 > **Retrospective Document**: This TDD describes the existing implemented architecture of the LinkWatcher Link Updater, documented after implementation during framework onboarding (PF-TSK-066).
 >
-> **Source**: Derived from source code analysis of `linkwatcher/updater.py` and `linkwatcher/path_resolver.py`.
+> **Source**: Derived from source code analysis of `src/linkwatcher/updater.py` and `src/linkwatcher/path_resolver.py`.
 >
 > **Scope Note**: This feature consolidates old 2.2.1 (Link Updater) with all sub-features: 2.2.2 (Relative Path Calculation), 2.2.3 (Anchor Preservation), 2.2.4 (Dry Run Mode), and 2.2.5 (Backup Creation).
 
 ## Technical Overview
 
-The `LinkUpdater` class orchestrates all file modifications when referenced files move. It exposes two entry points: `update_references()` for single file moves, and `update_references_batch()` for multiple simultaneous moves (e.g., directory moves) which groups all references by containing file so each file is opened and written at most once. Both paths delegate per-file work through a shared replacement pipeline (`_apply_replacements()`) that implements: (1) sort references bottom-to-top within each file, (2) detect stale references (line out of bounds or target not found on expected line), (3) apply replacements via `_replace_in_line()` dispatcher and write atomically. Each file update returns an `UpdateResult` enum (`UPDATED`, `STALE`, or `NO_CHANGES`). Path resolution is delegated to the `PathResolver` class (`linkwatcher/path_resolver.py`). The class exposes two safety flags (`dry_run`, `backup_enabled`) as instance attributes and returns accumulated statistics including a `stale_files` list.
+The `LinkUpdater` class orchestrates all file modifications when referenced files move. It exposes two entry points: `update_references()` for single file moves, and `update_references_batch()` for multiple simultaneous moves (e.g., directory moves) which groups all references by containing file so each file is opened and written at most once. Both paths delegate per-file work through a shared replacement pipeline (`_apply_replacements()`) that implements: (1) sort references bottom-to-top within each file, (2) detect stale references (line out of bounds or target not found on expected line), (3) apply replacements via `_replace_in_line()` dispatcher and write atomically. Each file update returns an `UpdateResult` enum (`UPDATED`, `STALE`, or `NO_CHANGES`). Path resolution is delegated to the `PathResolver` class (`src/linkwatcher/path_resolver.py`). The class exposes two safety flags (`dry_run`, `backup_enabled`) as instance attributes and returns accumulated statistics including a `stale_files` list.
 
 ## Component Architecture
 
 ### LinkUpdater Class
 
-**Location**: `linkwatcher/updater.py`
+**Location**: `src/linkwatcher/updater.py`
 
 **Constructor**: `__init__(self, project_root: str = ".", python_source_root: str = "")`
 
@@ -53,7 +53,7 @@ Initializes `backup_enabled = True`, `dry_run = False` as instance attributes (n
 
 ### PathResolver Class
 
-**Location**: `linkwatcher/path_resolver.py`
+**Location**: `src/linkwatcher/path_resolver.py`
 
 **Constructor**: `__init__(self, project_root, logger=None, python_source_root: str = "")`
 
@@ -73,7 +73,7 @@ Initializes `backup_enabled = True`, `dry_run = False` as instance attributes (n
 
 ### UpdateResult Enum
 
-**Location**: `linkwatcher/updater.py`
+**Location**: `src/linkwatcher/updater.py`
 
 ```python
 class UpdateResult(Enum):

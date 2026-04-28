@@ -1,3 +1,12 @@
+---
+id: PD-UGD-008
+type: Product Documentation
+category: User Guide
+version: 1.0
+created: 2025-12-01
+updated: 2026-04-16
+---
+
 # LinkWatcher Multi-Project Setup Guide
 
 This guide explains how to use LinkWatcher across multiple projects from a single installation.
@@ -11,7 +20,7 @@ Use LinkWatcher from any project directory while keeping the tool files in one c
 📁 VS_Code/
 ├── 📁 LinkWatcher/                    # Tool installation (this repo)
 │   ├── main.py                       # Main entry point
-│   ├── linkwatcher/                  # Core package
+│   ├── src/linkwatcher/               # Core package
 │   ├── deployment/
 │   │   ├── install_global.py         # Global installer
 │   │   └── setup_project.py         # Per-project setup

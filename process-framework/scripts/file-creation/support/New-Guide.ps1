@@ -124,13 +124,13 @@ $customReplacements = @{
 
 # Create the document using standardized process
 try {
-    $outputDir = "process-framework/guides/$SubDirectory"
     # IMP-407: Auto-append "-guide" suffix with double-suffix guard
     $guideDocName = $GuideTitle
     if ($guideDocName -notmatch '(?i)[-\s]guide$') {
         $guideDocName = "$guideDocName-guide"
     }
-    $documentId = New-StandardProjectDocument -TemplatePath "process-framework/templates/support/guide-template.md" -IdPrefix "PF-GDE" -IdDescription "Guide: $GuideTitle" -DocumentName $guideDocName -OutputDirectory $outputDir -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
+    # IMP-568: Use -DirectoryType with -Subdirectory instead of manually constructed -OutputDirectory
+    $documentId = New-StandardProjectDocument -TemplatePath "process-framework/templates/support/guide-template.md" -IdPrefix "PF-GDE" -IdDescription "Guide: $GuideTitle" -DocumentName $guideDocName -DirectoryType "main" -Subdirectory $SubDirectory -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
 
     # Provide success details
     $details = @(

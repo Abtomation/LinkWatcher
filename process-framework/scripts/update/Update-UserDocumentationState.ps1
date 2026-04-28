@@ -8,11 +8,11 @@ Automates state file updates when user documentation (handbooks) is created via 
 This script automates the manual finalization updates required by the User Documentation
 Creation task (PF-TSK-081), addressing the bottleneck identified in PF-IMP-245.
 
-Updates the following files:
+Updates the following file:
 - Feature implementation state file (doc/state-tracking/features/<FeatureId>-*-implementation-state.md)
   Appends a User Handbook row to the Documentation Inventory table
-- PD-documentation-map.md (process-framework/PD-documentation-map.md)
-  Appends a handbook entry under the "### User Handbooks" section
+
+Note: PD-documentation-map.md is NOT updated by this script — New-Handbook.ps1 already handles that.
 
 .PARAMETER FeatureId
 The feature ID (e.g., "6.1.1") used to locate the feature state file
@@ -27,15 +27,22 @@ Relative path from repo root to the handbook file (e.g., "doc/user/handbooks/lin
 The PD-UGD ID assigned to the handbook (e.g., "PD-UGD-003")
 
 .PARAMETER Description
-One-line description for the PD-documentation-map.md entry
+One-line description for the PD-documentation-map.md entry (10-500 chars; this is the
+Documentation Inventory row description — compress longer drafts; the full content
+lives in the handbook itself).
+
+.PARAMETER ContentType
+Diátaxis content type for the handbook. Valid values are declared in
+doc/PD-id-registry.json under PD-UGD.subdirectories.values. Framework default:
+tutorials, how-to, reference, explanation. Defaults to "how-to".
 
 .EXAMPLE
 # Update state files after creating a user handbook
-Update-UserDocumentationState.ps1 -FeatureId "6.1.1" -HandbookName "Link Validation" -HandbookPath "doc/user/handbooks/link-validation.md" -HandbookId "PD-UGD-003" -Description "On-demand workspace scan for broken file references using --validate"
+Update-UserDocumentationState.ps1 -FeatureId "6.1.1" -HandbookName "Link Validation" -HandbookPath "doc/user/handbooks/how-to/link-validation.md" -HandbookId "PD-UGD-003" -ContentType "how-to" -Description "On-demand workspace scan for broken file references using --validate"
 
 .EXAMPLE
 # Preview changes without modifying files
-Update-UserDocumentationState.ps1 -FeatureId "2.1.1" -HandbookName "Custom Parsers" -HandbookPath "doc/user/handbooks/custom-parsers.md" -HandbookId "PD-UGD-004" -Description "How to add custom file parsers" -WhatIf
+Update-UserDocumentationState.ps1 -FeatureId "2.1.1" -HandbookName "Custom Parsers" -HandbookPath "doc/user/handbooks/how-to/custom-parsers.md" -HandbookId "PD-UGD-004" -ContentType "how-to" -Description "How to add custom file parsers" -WhatIf
 
 .NOTES
 This script addresses Process Improvement item:
@@ -64,8 +71,20 @@ param(
     [string]$HandbookId,
 
     [Parameter(Mandatory = $true)]
-    [ValidateLength(10, 500)]
-    [string]$Description
+    [ValidateScript({
+        if ($_.Length -lt 10) {
+            throw "Description is too short ($($_.Length) chars; minimum 10). Provide a more substantive description."
+        }
+        if ($_.Length -gt 500) {
+            $over = $_.Length - 500
+            throw "Description is too long ($($_.Length) chars; maximum 500, $over over). This is the Documentation Inventory row description — compress the description; the full content lives in the handbook itself."
+        }
+        $true
+    })]
+    [string]$Description,
+
+    [Parameter(Mandatory = $false)]
+    [string]$ContentType = "how-to"
 )
 
 # Import the common helpers for Get-ProjectRoot
@@ -77,7 +96,6 @@ Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 
 # Configuration
 $ProjectRoot = Get-ProjectRoot
-$DocMapFile = Join-Path -Path $ProjectRoot -ChildPath "doc/PD-documentation-map.md"
 $FeaturesDir = Join-Path -Path $ProjectRoot -ChildPath "doc/state-tracking/features"
 $CurrentDate = Get-Date -Format "yyyy-MM-dd"
 $ScriptName = "Update-UserDocumentationState.ps1"
@@ -97,11 +115,6 @@ function Write-Log {
 
 function Test-Prerequisites {
     Write-Log "Checking prerequisites..."
-
-    if (-not (Test-Path $DocMapFile)) {
-        Write-Log "PD-documentation-map.md not found: $DocMapFile" -Level "ERROR"
-        return $false
-    }
 
     if (-not (Test-Path $FeaturesDir)) {
         Write-Log "Features directory not found: $FeaturesDir" -Level "ERROR"
@@ -155,7 +168,7 @@ function Update-FeatureStateFile {
     $handbookFullPath = Join-Path -Path $ProjectRoot -ChildPath $HandbookPath
     $relativePath = [System.IO.Path]::GetRelativePath($stateFileDir, $handbookFullPath) -replace '\\', '/'
 
-    $newRow = "| User Handbook ($HandbookId) | User Guide | `u{2705} Complete | [$handbookFilename]($relativePath) | $CurrentDate |"
+    $newRow = "| User Handbook ($HandbookId) | $ContentType | `u{2705} Complete | [$handbookFilename]($relativePath) | $CurrentDate |"
 
     # Check if a User Handbook row already exists for this handbook
     if ($content -match [regex]::Escape($HandbookId)) {
@@ -163,26 +176,32 @@ function Update-FeatureStateFile {
         return $true
     }
 
-    # Find the Design Documentation table and append after the last row
-    # Pattern: look for the table under "### Design Documentation" and append after the last | ... | row
+    # Find the User Documentation table and append/replace rows
+    # Pattern: look for the table under "### User Documentation" within Documentation Inventory
     $lines = Get-Content -Path $StateFilePath
     $insertIndex = -1
+    $placeholderIndex = -1
     $inDocInventory = $false
-    $inDesignDocTable = $false
+    $inUserDocTable = $false
 
     for ($i = 0; $i -lt $lines.Count; $i++) {
-        if ($lines[$i] -match '^## 4\.\s*Documentation Inventory') {
+        # Match both "## 4." and "## 3." (lightweight template uses Section 3 for Doc Inventory)
+        if ($lines[$i] -match '^## \d+\.\s*Documentation Inventory') {
             $inDocInventory = $true
             continue
         }
-        if ($inDocInventory -and $lines[$i] -match '^### Design Documentation') {
-            $inDesignDocTable = $true
+        if ($inDocInventory -and $lines[$i] -match '^### User Documentation') {
+            $inUserDocTable = $true
             continue
         }
-        if ($inDesignDocTable) {
-            # Skip header and separator rows
+        if ($inUserDocTable) {
+            # Track table rows (skip header and separator)
             if ($lines[$i] -match '^\|.*\|$') {
                 $insertIndex = $i
+                # Check for placeholder or ❌ Needed rows that should be replaced
+                if ($lines[$i] -match '\[Doc name\]|\[STATUS\]|❌ Needed|❌') {
+                    $placeholderIndex = $i
+                }
             }
             # Stop if we hit a blank line or new section after table rows
             elseif ($insertIndex -gt -1 -and ($lines[$i] -match '^\s*$' -or $lines[$i] -match '^#')) {
@@ -192,77 +211,24 @@ function Update-FeatureStateFile {
     }
 
     if ($insertIndex -eq -1) {
-        Write-Log "Could not find Design Documentation table in state file" -Level "ERROR"
-        Write-Log "Expected section: ## 4. Documentation Inventory > ### Design Documentation" -Level "ERROR"
+        Write-Log "Could not find User Documentation table in state file" -Level "ERROR"
+        Write-Log "Expected section: ## N. Documentation Inventory > ### User Documentation" -Level "ERROR"
+        Write-Log "Ensure the feature state file has a ### User Documentation subsection." -Level "ERROR"
         return $false
     }
 
-    if ($PSCmdlet.ShouldProcess($StateFilePath, "Append User Handbook row to Design Documentation table")) {
+    if ($PSCmdlet.ShouldProcess($StateFilePath, "Update User Documentation table with handbook row")) {
         $newLines = [System.Collections.ArrayList]::new($lines)
-        $newLines.Insert($insertIndex + 1, $newRow)
+        if ($placeholderIndex -gt -1) {
+            # Replace the placeholder or ❌ Needed row
+            $newLines[$placeholderIndex] = $newRow
+            Write-Log "Replaced placeholder/needed row at line $($placeholderIndex + 1)" -Level "SUCCESS"
+        } else {
+            # Append after the last table row
+            $newLines.Insert($insertIndex + 1, $newRow)
+            Write-Log "Appended handbook row after line $($insertIndex + 1)" -Level "SUCCESS"
+        }
         $newLines | Set-Content -Path $StateFilePath -Encoding utf8
-        Write-Log "Appended handbook row after line $($insertIndex + 1)" -Level "SUCCESS"
-    }
-
-    return $true
-}
-
-function Update-DocumentationMap {
-    Write-Log "Updating PD-documentation-map.md..."
-
-    $content = Get-Content -Path $DocMapFile -Raw
-
-    # Build the new entry
-    # Format: - [Product: Handbook Name](relative-path) - Description
-    # Path is relative from PD-documentation-map.md location
-    $docMapDir = Split-Path -Parent $DocMapFile
-    $handbookFullPath = Join-Path -Path $ProjectRoot -ChildPath $HandbookPath
-    $relativePath = [System.IO.Path]::GetRelativePath($docMapDir, $handbookFullPath) -replace '\\', '/'
-
-    $newEntry = "- [Product: $HandbookName]($relativePath) - $Description"
-
-    # Check if this handbook is already listed
-    if ($content -match [regex]::Escape($relativePath)) {
-        Write-Log "Handbook already listed in PD-documentation-map.md — skipping" -Level "WARN"
-        return $true
-    }
-
-    # Find the "### User Handbooks" section and append after the last "- [Product: ..." line
-    $lines = Get-Content -Path $DocMapFile
-    $insertIndex = -1
-    $inUserHandbooks = $false
-
-    for ($i = 0; $i -lt $lines.Count; $i++) {
-        if ($lines[$i] -match '^### User Handbooks') {
-            $inUserHandbooks = $true
-            continue
-        }
-        if ($inUserHandbooks) {
-            if ($lines[$i] -match '^- \[Product:') {
-                $insertIndex = $i
-            }
-            # Stop if we hit a blank line followed by a new section, or a new ### heading
-            elseif ($insertIndex -gt -1 -and $lines[$i] -match '^###?\s') {
-                break
-            }
-            elseif ($insertIndex -gt -1 -and $lines[$i] -match '^\s*$') {
-                # Blank line after entries — this is the end of the section
-                break
-            }
-        }
-    }
-
-    if ($insertIndex -eq -1) {
-        Write-Log "Could not find User Handbooks section in PD-documentation-map.md" -Level "ERROR"
-        Write-Log "Expected section: ### User Handbooks" -Level "ERROR"
-        return $false
-    }
-
-    if ($PSCmdlet.ShouldProcess($DocMapFile, "Append handbook entry to User Handbooks section")) {
-        $newLines = [System.Collections.ArrayList]::new($lines)
-        $newLines.Insert($insertIndex + 1, $newEntry)
-        $newLines | Set-Content -Path $DocMapFile -Encoding utf8
-        Write-Log "Appended handbook entry after line $($insertIndex + 1)" -Level "SUCCESS"
     }
 
     return $true
@@ -292,31 +258,24 @@ if (-not $stateFile) {
 $success = $true
 
 Write-Log ""
-Write-Log "--- Step 1: Feature State File ---"
+Write-Log "--- Feature State File ---"
 if (-not (Update-FeatureStateFile -StateFilePath $stateFile)) {
     Write-Log "Failed to update feature state file" -Level "ERROR"
     $success = $false
 }
 
 Write-Log ""
-Write-Log "--- Step 2: Documentation Map ---"
-if (-not (Update-DocumentationMap)) {
-    Write-Log "Failed to update PD-documentation-map.md" -Level "ERROR"
-    $success = $false
-}
-
-Write-Log ""
 if ($success) {
-    Write-Log "=== All updates completed successfully ===" -Level "SUCCESS"
+    Write-Log "=== Update completed successfully ===" -Level "SUCCESS"
     Write-Log ""
-    Write-Log "Updated files:"
+    Write-Log "Updated file:"
     Write-Log "  1. $(Split-Path -Leaf $stateFile)"
-    Write-Log "  2. PD-documentation-map.md"
     Write-Log ""
     Write-Log "Remaining manual steps:"
-    Write-Log "  - Update feature-tracking.md if a User Docs column exists"
+    Write-Log "  - Set feature status to 🟢 Completed via Update-BatchFeatureStatus.ps1"
     Write-Log "  - Update README.md documentation table if applicable"
+    Write-Log "  - PD-documentation-map.md is handled by New-Handbook.ps1 (no action needed)"
 } else {
-    Write-Log "=== Some updates failed — review errors above ===" -Level "ERROR"
+    Write-Log "=== Update failed — review errors above ===" -Level "ERROR"
     exit 1
 }

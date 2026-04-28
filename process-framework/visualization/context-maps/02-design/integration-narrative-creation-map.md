@@ -49,14 +49,14 @@ graph TD
 ### Important Components (Should Understand)
 
 - **New-IntegrationNarrative.ps1 Script**: Creates narrative files with PD-INT IDs, auto-updates PD-id-registry.json, PD-documentation-map.md, and user-workflow-tracking.md "Integration Doc" column
-- **Integration Narrative Template**: Standardized structure with 8 sections: Workflow Overview, Participating Features, Component Interaction Diagram, Data Flow Sequence, Callback/Event Chains, Configuration Propagation, Error Handling, TDD/Code Divergence Notes
+- **Integration Narrative Template**: Standardized structure with 7 sections: Workflow Overview, Participating Features, Component Interaction Diagram, Data Flow Sequence, Callback/Event Chains, Configuration Propagation, Error Handling
 - **Customization Guide**: Step-by-step instructions (PF-GDE-059) for customizing the template with 3 decision points and QA checklist
 - **Human Consultation**: Required at 2 checkpoints — after feature inventory (Step 5) and after draft review (Step 12)
 
 ### Reference Components (Access When Needed)
 
 - **TDD Documents**: Technical Design Documents for participating features — read for design intent, but verify against source code
-- **Source Files**: Actual implementation code in `linkwatcher/` — the authoritative source for how features interact
+- **Source Files**: Actual implementation code in `src/linkwatcher` — the authoritative source for how features interact
 - **PD-documentation-map.md**: Auto-updated by script to add narrative entries under "Integration Narratives" section
 - **User Workflow Tracking**: Input (which workflow to document) and output (script fills "Integration Doc" column with PD-INT ID)
 

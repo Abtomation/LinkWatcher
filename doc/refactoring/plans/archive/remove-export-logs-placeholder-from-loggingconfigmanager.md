@@ -6,14 +6,14 @@ version: 1.0
 created: 2026-03-03
 updated: 2026-03-03
 refactoring_scope: Remove export_logs placeholder from LoggingConfigManager
-target_area: linkwatcher/logging_config.py
+target_area: src/linkwatcher/logging_config.py
 priority: Medium
 mode: lightweight
 ---
 
 # Lightweight Refactoring Plan: Remove export_logs placeholder from LoggingConfigManager
 
-- **Target Area**: linkwatcher/logging_config.py
+- **Target Area**: src/linkwatcher/logging_config.py
 - **Priority**: Medium
 - **Created**: 2026-03-03
 - **Author**: AI Agent & Human Partner
@@ -22,7 +22,7 @@ mode: lightweight
 
 ## Item 1: TD037 — Remove `export_logs` placeholder from LoggingConfigManager
 
-**Scope**: Remove the `export_logs` method (lines 336-353) from `LoggingConfigManager` in `linkwatcher/logging_config.py`. The method is a placeholder that logs a request and returns 0 — it has no callers, no tests, and no implementation. Dead code that promises functionality not delivered.
+**Scope**: Remove the `export_logs` method (lines 336-353) from `LoggingConfigManager` in `src/linkwatcher/logging_config.py`. The method is a placeholder that logs a request and returns 0 — it has no callers, no tests, and no implementation. Dead code that promises functionality not delivered.
 
 **Changes Made**:
 - [x] Removed `export_logs` method (18 lines) from `LoggingConfigManager` class. Method was a placeholder returning 0 with no callers or tests.

@@ -107,8 +107,9 @@ This task produces the foundational inventory that subsequent onboarding tasks (
      - Any other project-level documentation
    - For each documentation file:
      a. Classify its **Type**: Architecture Overview, User Guide, Test Plan, CI/CD, Troubleshooting, Developer Guide, Configuration, Changelog, or Other
-     b. Skim its content to determine which features it describes
-     c. Note what content is potentially extractable for each relevant feature
+     b. For user-facing documents (User Guide, Troubleshooting, handbooks), also classify the **Diátaxis content type**: `tutorials` (guided learning), `how-to` (task-oriented), `reference` (facts/lookup), or `explanation` (concepts/why). This informs later placement when docs are migrated to the declared taxonomy. See [PD-id-registry.json](../../../doc/PD-id-registry.json) `PD-UGD.subdirectories.values` for the project's declared content types.
+     c. Skim its content to determine which features it describes
+     d. Note what content is potentially extractable for each relevant feature
    - Record the full inventory in the master state file's "Existing Documentation Inventory" section
    - Record which features each document relates to — this will be transferred to each feature's "Existing Project Documentation" table after state files are created in Step 10
 

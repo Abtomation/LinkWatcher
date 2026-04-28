@@ -5,7 +5,7 @@ category: Refactoring Plan
 version: 1.0
 created: 2026-03-27
 updated: 2026-03-27
-target_area: linkwatcher/config/settings.py
+target_area: src/linkwatcher/config/settings.py
 mode: lightweight
 refactoring_scope: Add class docstring documenting configuration precedence to LinkWatcherConfig
 priority: Medium
@@ -13,7 +13,7 @@ priority: Medium
 
 # Lightweight Refactoring Plan: Add class docstring documenting configuration precedence to LinkWatcherConfig
 
-- **Target Area**: linkwatcher/config/settings.py
+- **Target Area**: src/linkwatcher/config/settings.py
 - **Priority**: Medium
 - **Created**: 2026-03-27
 - **Author**: AI Agent & Human Partner

@@ -81,7 +81,7 @@ audit_date: 2026-04-03
 
 | Source Module | Coverage % | Uncovered Areas |
 |---------------|-----------|-----------------|
-| linkwatcher/parsers/json_parser.py | 92% | 7 lines — lines 49-51 (exception handler), line 69 (edge case in _find_unclaimed_line fallback), lines 122-123, 173 (rare branches) |
+| src/linkwatcher/parsers/json_parser.py | 92% | 7 lines — lines 49-51 (exception handler), line 69 (edge case in _find_unclaimed_line fallback), lines 122-123, 173 (rare branches) |
 
 **Findings**:
 - **Existing Implementation Coverage**: 92% — very good

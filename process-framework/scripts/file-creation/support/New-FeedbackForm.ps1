@@ -66,6 +66,40 @@ try {
     $artifactId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "PF-FEE" -IdDescription "Feedback form for ${DocumentId}" -DocumentName "$DocumentId-feedback" -OutputDirectory "process-framework-local/feedback/$OutputDir" -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -FileNamePattern "$formattedTimestamp-$DocumentId-feedback.md" -OpenInEditor:$OpenInEditor
 
     if ($artifactId) {
+        # Prune Tool sections to match FeedbackType (PF-IMP-582):
+        #   Single Tool    -> 1 section, Multiple Tools -> 2 sections, Task-Level -> 0 sections
+        # Skip in -WhatIf since no file was written.
+        if (-not $WhatIfPreference) {
+            $toolsToKeep = switch ($feedbackTypeDisplay) {
+                "Single Tool"    { 1 }
+                "Multiple Tools" { 2 }
+                "Task-Level"     { 0 }
+                default          { 3 }
+            }
+
+            if ($toolsToKeep -lt 3) {
+                $generatedFile = Join-Path (Get-ProjectRoot) "process-framework-local/feedback/$OutputDir/$formattedTimestamp-$DocumentId-feedback.md"
+
+                if (Test-Path $generatedFile) {
+                    $content = Get-Content $generatedFile -Raw
+
+                    switch ($toolsToKeep) {
+                        0 {
+                            $content = $content -replace '(?ms)## Tool Evaluation\r?\n.*?---\r?\n\r?\n', ''
+                        }
+                        1 {
+                            $content = $content -replace '(?ms)### Tool 2: \[Tool Name \(\[PREFIX\]-XXX-XXX\)\] \*\(Optional\)\*.*?(?=\*\[Add more tool sections as needed\]\*)', ''
+                        }
+                        2 {
+                            $content = $content -replace '(?ms)### Tool 3: \[Tool Name \(\[PREFIX\]-XXX-XXX\)\] \*\(Optional\)\*.*?(?=\*\[Add more tool sections as needed\]\*)', ''
+                        }
+                    }
+
+                    [System.IO.File]::WriteAllText($generatedFile, $content, [System.Text.UTF8Encoding]::new($false))
+                }
+            }
+        }
+
         $details = @(
             "Feedback Type: $feedbackTypeDisplay"
         )

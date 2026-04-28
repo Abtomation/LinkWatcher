@@ -6,14 +6,14 @@ version: 1.0
 created: 2026-03-02
 updated: 2026-03-02
 priority: Medium
-target_area: linkwatcher/handler.py
+target_area: src/linkwatcher/handler.py
 mode: lightweight
 refactoring_scope: Remove redundant DB queries in _collect_path_updates (TD015)
 ---
 
 # Lightweight Refactoring Plan: Remove redundant DB queries in _collect_path_updates (TD015)
 
-- **Target Area**: linkwatcher/handler.py
+- **Target Area**: src/linkwatcher/handler.py
 - **Priority**: Medium
 - **Created**: 2026-03-02
 - **Author**: AI Agent & Human Partner

@@ -5,7 +5,7 @@ category: Refactoring Plan
 version: 1.0
 created: 2026-03-27
 updated: 2026-03-27
-target_area: linkwatcher/logging.py
+target_area: src/linkwatcher/logging.py
 refactoring_scope: Add error handling to TimestampRotatingFileHandler.doRollover
 mode: lightweight
 priority: Medium
@@ -13,7 +13,7 @@ priority: Medium
 
 # Lightweight Refactoring Plan: Add error handling to TimestampRotatingFileHandler.doRollover
 
-- **Target Area**: linkwatcher/logging.py
+- **Target Area**: src/linkwatcher/logging.py
 - **Priority**: Medium
 - **Created**: 2026-03-27
 - **Author**: AI Agent & Human Partner

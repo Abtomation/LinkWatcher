@@ -6,14 +6,14 @@ version: 1.0
 created: 2026-03-27
 updated: 2026-03-27
 mode: lightweight
-target_area: linkwatcher/logging_config.py
+target_area: src/linkwatcher/logging_config.py
 refactoring_scope: Remove dead LogFilter, LoggingHandler, LogMetrics classes and unused CLI filter functions
 priority: Medium
 ---
 
 # Lightweight Refactoring Plan: Remove dead LogFilter, LoggingHandler, LogMetrics classes and unused CLI filter functions
 
-- **Target Area**: linkwatcher/logging_config.py
+- **Target Area**: src/linkwatcher/logging_config.py
 - **Priority**: Medium
 - **Created**: 2026-03-27
 - **Author**: AI Agent & Human Partner
@@ -21,7 +21,7 @@ priority: Medium
 - **Mode**: Lightweight (no architectural impact)
 
 ## Dependencies and Impact
-- **Affected Components**: `linkwatcher/logging_config.py`, `test/automated/unit/test_advanced_logging.py`
+- **Affected Components**: `src/linkwatcher/logging_config.py`, `test/automated/unit/test_advanced_logging.py`
 - **Internal Dependencies**: None — removed classes/functions are never called from production code
 - **Risk Assessment**: Low — dead code removal only, no behavior change
 

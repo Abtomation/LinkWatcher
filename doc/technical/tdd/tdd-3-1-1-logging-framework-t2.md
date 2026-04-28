@@ -16,7 +16,7 @@ retrospective: true
 
 > **Retrospective Document**: This TDD describes the existing technical design of the LinkWatcher Logging Framework, documented after implementation during framework onboarding (PF-TSK-066). Content is reverse-engineered from source code analysis.
 >
-> **Source**: Derived from source code analysis of `linkwatcher/logging.py` and `linkwatcher/logging_config.py`.
+> **Source**: Derived from source code analysis of `src/linkwatcher/logging.py` and `src/linkwatcher/logging_config.py`.
 >
 > **Scope Note**: This feature consolidates old 3.1.1 (Logging Framework) with all sub-features: 3.1.2 (Colored Console Output), 3.1.3 (Statistics Tracking), 3.1.4 (Progress Reporting), and 3.1.5 (Error Reporting).
 
@@ -24,7 +24,7 @@ retrospective: true
 
 ### 1.1 Purpose
 
-The Logging Framework provides structured, contextual, and performance-aware logging for the entire LinkWatcher application. It is implemented across two modules: `linkwatcher/logging.py` (primary interface — `LinkWatcherLogger`, `LogContext`, `PerformanceLogger`) and `linkwatcher/logging_config.py` (runtime configuration — `LoggingConfigManager`).
+The Logging Framework provides structured, contextual, and performance-aware logging for the entire LinkWatcher application. It is implemented across two modules: `src/linkwatcher/logging.py` (primary interface — `LinkWatcherLogger`, `LogContext`, `PerformanceLogger`) and `src/linkwatcher/logging_config.py` (runtime configuration — `LoggingConfigManager`).
 
 The framework delivers dual-mode output (colored console + JSON file), per-thread context isolation, performance timing, domain-specific convenience methods (`file_moved`, `file_deleted`, `file_created`, `links_updated`, `scan_progress`, `operation_stats`), and runtime config hot-reload — all behind a simple `get_logger()` singleton interface. Test isolation is supported via `reset_logger()` and `reset_config_manager()`.
 
@@ -79,7 +79,7 @@ The framework delivers dual-mode output (colored console + JSON file), per-threa
 
 ### 4.1 Core Components
 
-**`LinkWatcherLogger`** (`linkwatcher/logging.py`) — Primary interface:
+**`LinkWatcherLogger`** (`src/linkwatcher/logging.py`) — Primary interface:
 
 ```python
 class LinkWatcherLogger:
@@ -114,7 +114,7 @@ class LinkWatcherLogger:
     def operation_stats(self, **stats): ...
 ```
 
-**Module-level singleton** (`linkwatcher/logging.py`):
+**Module-level singleton** (`src/linkwatcher/logging.py`):
 
 ```python
 _logger: Optional[LinkWatcherLogger] = None
@@ -146,7 +146,7 @@ def reset_logger():
     _logger = None
 ```
 
-**`LogContext`** (`linkwatcher/logging.py`) — Thread-local context:
+**`LogContext`** (`src/linkwatcher/logging.py`) — Thread-local context:
 
 ```python
 class LogContext:
@@ -191,7 +191,7 @@ def with_context(**kwargs):
     return decorator
 ```
 
-**`PerformanceLogger` + `LogTimer`** (`linkwatcher/logging.py`):
+**`PerformanceLogger` + `LogTimer`** (`src/linkwatcher/logging.py`):
 
 ```python
 class LogTimer:
@@ -219,7 +219,7 @@ class LogTimer:
             self.logger.debug(f"completed_{self.operation}", **self.kwargs)
 ```
 
-**`LoggingConfigManager`** (`linkwatcher/logging_config.py`) — Advanced config:
+**`LoggingConfigManager`** (`src/linkwatcher/logging_config.py`) — Advanced config:
 
 ```python
 class LoggingConfigManager:
@@ -340,7 +340,7 @@ Terminal (ANSI colors)          .log file (10MB rotation, 5 backups)
 
 All dependencies are fully implemented (retrospective document):
 
-- `linkwatcher/config/settings.py` (0.1.3) — `LinkWatcherConfig` for optional config integration
+- `src/linkwatcher/config/settings.py` (0.1.3) — `LinkWatcherConfig` for optional config integration
 - `structlog` — structured logging processor chain
 - `colorama` — ANSI color output on Windows
 - `PyYAML` — YAML config file parsing (optional, `LoggingConfigManager` only)
@@ -349,8 +349,8 @@ All dependencies are fully implemented (retrospective document):
 
 The logging framework is split across two modules reflecting two development phases:
 
-1. `linkwatcher/logging.py` — core logging API (singleton, levels, context, timing)
-2. `linkwatcher/logging_config.py` — runtime configuration layer added later (log level management, config hot-reload)
+1. `src/linkwatcher/logging.py` — core logging API (singleton, levels, context, timing)
+2. `src/linkwatcher/logging_config.py` — runtime configuration layer added later (log level management, config hot-reload)
 
 Key design decisions that shaped the implementation:
 

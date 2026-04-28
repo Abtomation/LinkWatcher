@@ -109,7 +109,7 @@ Systematically evaluate and enhance the templates, guides, and other tools by co
     ```
     - **🏷️ BUG vs IMP CLASSIFICATION**: The distinction is **domain-based**, not severity-based. Use the file location as the primary heuristic:
       - `process-framework/`, `doc/` → **IMP** (process framework tooling, even if the script crashes)
-      - `linkwatcher/` → **BUG** (product code)
+      - `src/linkwatcher` → **BUG** (product code)
       - `test/` → either: test infrastructure issues (runner scripts, tracking) = **IMP**; product test defects = **BUG**
     - **🔗 TRACEABILITY REQUIREMENT**: Use `-SourceLink` with the actual review summary filename from Step 11 for full traceability
     - **🔍 DEDUPLICATION**: Before registering a new IMP, search both the "Current Improvement Opportunities" and "Completed Improvements" sections of [process-improvement-tracking.md](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) for existing entries covering the same tool or issue. Skip registration if already tracked.

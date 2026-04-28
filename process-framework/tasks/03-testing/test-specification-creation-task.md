@@ -161,7 +161,7 @@ When referencing other tasks' outputs in Test Specifications:
 13. **Add Clickable Links**: Ensure all file path references in the specification are clickable markdown links:
     - **Test File** references (e.g., `test/automated/unit/test_service.py`) must use markdown link format: `[path](relative/path/to/file)` with correct relative prefix
     - **Files to Reference** section paths (TDD, source code, fixtures) must be linked
-    - **Source Code** references (e.g., `linkwatcher/database.py`) must be linked
+    - **Source Code** references (e.g., `src/linkwatcher/database.py`) must be linked
     - Relative prefix from `test/specifications/feature-specs` to project root is `../../../doc`
 
 14. **🚨 CHECKPOINT**: Present draft test specification with test cases, mock requirements, and TDD mappings to human partner for review and approval

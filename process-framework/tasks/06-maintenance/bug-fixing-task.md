@@ -64,7 +64,7 @@ Diagnose, fix, and verify solutions for reported bugs or issues in the applicati
 2. If no bugs with status 🔍 Needs Fix are found but bugs with status 🆕 Needs Triage exist, **ask the human partner** whether to switch to [Bug Triage](bug-triage-task.md) first. Do not proceed with an un-triaged bug.
 3. Verify the selected bug has been properly triaged with priority, scope, and **affected dimensions** (Dims column) assigned. Read the affected dimensions to understand which quality concerns the fix must address (e.g., `SE DI` means the fix must ensure both security and data integrity). For Large-scope bugs with a bug fix state file, review the Affected Dimensions and Dimension-Informed Fix Requirements sections.
 4. **Assess workflow blast radius**: Check the **Workflows** column in the bug entry (or look up the Related Feature in [User Workflow Tracking](../../../doc/state-tracking/permanent/user-workflow-tracking.md)) to identify which user workflows are affected. This informs the scope of testing needed — a bug affecting WF-001 (single file move) impacts the core value proposition and requires thorough regression testing across all referencing formats.
-6. **Multi-session gate**: If the bug scope is "L" (Large) or requires architectural changes (e.g., redesigning a component, changing cross-cutting patterns), create a bug fix state tracking file:
+5. **Multi-session gate**: If the bug scope is "L" (Large) or requires architectural changes (e.g., redesigning a component, changing cross-cutting patterns), create a bug fix state tracking file:
    ```powershell
    cd process-framework/scripts/file-creation
    New-BugFixState.ps1 -BugId "PD-BUG-XXX" -BugTitle "Bug Title" -Severity "High" -AffectedFeature "X.Y.Z — Feature Name" -EstimatedSessions 2
@@ -72,8 +72,8 @@ Diagnose, fix, and verify solutions for reported bugs or issues in the applicati
    After creation, **customize the state file to the specific bug**: fill in the Implementation Progress table with the files/components that will need changing, identify which documents need updating in the Documentation Updates table, and outline the resolution plan in the Fix Approach section. This plan serves as the blueprint for the fix and enables session handover.
    **Notes column rule**: When a state file exists, keep the Notes column in bug-tracking.md minimal — link to the state file and a one-line status summary only. All session progress, root cause details, and fix approaches belong in the state file, not inline.
    For single-session bugs (Small/Medium effort), skip this step — no state file needed.
-7. **Check manual test coverage**: Review [e2e-test-tracking.md](../../../test/state-tracking/permanent/e2e-test-tracking.md) for existing E2E test cases covering the affected behavior. If no E2E test exists and the bug involves user-observable behavior, consider creating a reproduction test case via [E2E Test Case Creation](../03-testing/e2e-acceptance-test-case-creation-task.md) before fixing.
-8. Reproduce the bug to understand its exact behavior and confirm the issue
+6. **Check manual test coverage**: Review [e2e-test-tracking.md](../../../test/state-tracking/permanent/e2e-test-tracking.md) for existing E2E test cases covering the affected behavior. If no E2E test exists and the bug involves user-observable behavior, consider creating a reproduction test case via [E2E Test Case Creation](../03-testing/e2e-acceptance-test-case-creation-task.md) before fixing.
+7. Reproduce the bug to understand its exact behavior and confirm the issue
    - For code-structural bugs (e.g., missing error handling, absent code paths), confirming the gap through code review serves as reproduction
 8. Document the reproduction steps for future reference
 9. Analyze the affected code area to understand the context
@@ -92,18 +92,18 @@ Diagnose, fix, and verify solutions for reported bugs or issues in the applicati
        ../../scripts/update/Update-BugStatus.ps1 -BugId "BUG-001" -FastClose -Priority "Medium" -Scope "S" -Dims "CQ" -FixDetails "..." -RootCause "..." -TestsAdded "Yes" -VerificationNotes "S-scope quick path: human-approved at checkpoint"
        ```
        This chains NeedsFix → InProgress → Closed in a single script call. No separate Code Review task needed.
-     - Skip Step 24. Proceed directly to the completion checklist (Step 35)
+     - Skip Step 24. Proceed directly to the completion checklist (Step 33)
    - **M/L-scope bugs**: Combine with Step 14 — present reproduction, root cause analysis, and proposed fix approach in a single checkpoint. After approval, skip directly to Step 15.
    - **Not-a-bug**: If investigation reveals the reported issue is expected behavior, user error, already fixed, or otherwise not a bug — present the evidence to the human partner. If they agree, transition to **Rejected** and skip to finalization:
      ```powershell
      ../../scripts/update/Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "Rejected" -RejectionReason "Not a bug — [evidence summary]"
      ```
-     Then skip directly to Step 29 (verify tracking update) → Step 35 (completion checklist). Steps 12–28 do not apply.
+     Then skip directly to Step 29 (verify tracking update) → Step 33 (completion checklist). Steps 12–28 do not apply.
    - **Won't Fix**: If investigation confirms a real bug but the fix cost is disproportionate to impact (e.g., requires architectural changes for an edge case, performance fix with negligible real-world benefit) — present the cost/benefit analysis to the human partner. If they agree, transition to **Rejected** and skip to finalization:
      ```powershell
      ../../scripts/update/Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "Rejected" -RejectionReason "Won't fix — [cost/benefit rationale]"
      ```
-     Then skip directly to Step 29 (verify tracking update) → Step 35 (completion checklist). Steps 12–28 do not apply.
+     Then skip directly to Step 29 (verify tracking update) → Step 33 (completion checklist). Steps 12–28 do not apply.
 
 ### Execution
 
@@ -111,7 +111,7 @@ Diagnose, fix, and verify solutions for reported bugs or issues in the applicati
     - **If multi-session**: Update the Root Cause Analysis section in the bug fix state file
 13. Consider alternative approaches to fixing the issue
     - **If multi-session**: Document chosen approach and alternatives in the Fix Approach section
-    - **Scope reassessment**: If root cause analysis reveals the fix is simpler than the triaged scope suggested (e.g., L-scope bug requires only a small, isolated change), reassess the scope downward. Present the revised scope at the Step 14 checkpoint — if approved, the multi-session gate (Step 6) no longer applies: archive any state file created prematurely, and proceed as a single-session fix.
+    - **Scope reassessment**: If root cause analysis reveals the fix is simpler than the triaged scope suggested (e.g., L-scope bug requires only a small, isolated change), reassess the scope downward. Present the revised scope at the Step 14 checkpoint — if approved, the multi-session gate (Step 5) no longer applies: archive any state file created prematurely, and proceed as a single-session fix.
 14. **🚨 CHECKPOINT**: Present root cause analysis, proposed fix approach (with alternatives and trade-offs), and test strategy to human partner for approval
     - **S-scope bugs**: If already covered in the combined Step 11 checkpoint, skip this step.
 15. **Write regression test(s) BEFORE implementing the fix** — this confirms the test actually catches the bug:
@@ -191,7 +191,7 @@ Diagnose, fix, and verify solutions for reported bugs or issues in the applicati
 31. **If multi-session**: Archive the bug fix state file to `doc/state-tracking/temporary/old` after the bug is closed
 32. **Batch opportunity**: Check [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) for additional bugs with status 🔍 Needs Fix. Ask the human partner if they want to fix another bug in this session before proceeding to the feedback form. If yes, loop back to Step 1 (Preparation) for the next bug. Defer the feedback form until all bugs in the session are complete.
     > **Note**: Bug status transitions to 🔒 Closed happen in Code Review (PF-TSK-005), not in this task — except for S-scope quick path bugs which are closed at Step 11. This task exits at 👀 Needs Review for M/L-scope bugs.
-35. **🚨 MANDATORY FINAL STEP**: Complete the Task Completion Checklist below
+33. **🚨 MANDATORY FINAL STEP**: Complete the Task Completion Checklist below
 
 ## Outputs
 
@@ -253,7 +253,7 @@ Before considering this task finished:
 
 - [**Code Review**](code-review-task.md) - Reviews the bug fix for quality and correctness; transitions bug from 👀 Needs Review → 🔒 Closed on approval (not needed for S-scope quick path)
 - [**Performance & E2E Test Scoping**](../03-testing/performance-and-e2e-test-scoping-task.md) - If L-scope fix changes feature behavior significantly (AI agent self-assessment at Step 23)
-- [**Manual Test Case Creation**](../03-testing/e2e-acceptance-test-case-creation-task.md) - Create reproduction/verification test cases for the bug (if not already created in Step 7)
+- [**Manual Test Case Creation**](../03-testing/e2e-acceptance-test-case-creation-task.md) - Create reproduction/verification test cases for the bug (if not already created in Step 6)
 - [**Manual Test Execution**](../03-testing/e2e-acceptance-test-execution-task.md) - Validate the fix through manual testing of affected test groups
 - [**Bug Triage**](bug-triage-task.md) - If additional bugs are discovered during fixing
 - [**Feature Implementation Planning**](../04-implementation/feature-implementation-planning-task.md) - If the bug fix reveals the need for new functionality

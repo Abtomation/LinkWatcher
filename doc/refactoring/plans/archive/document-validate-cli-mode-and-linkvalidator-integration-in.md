@@ -78,7 +78,7 @@ Additive changes to TDD-0-1-1. No existing content is removed or rewritten — o
    - Step 1.2: Add validation mode flow after the argparse block showing the scan-and-exit path
 
 2. **Phase 2**: Update Section 11.2 Key Source Files
-   - Step 2.1: Add `linkwatcher/validator.py` with description
+   - Step 2.1: Add `src/linkwatcher/validator.py` with description
 
 ## Verification Approach
 

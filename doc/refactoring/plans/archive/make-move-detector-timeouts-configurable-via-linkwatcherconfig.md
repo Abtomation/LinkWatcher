@@ -47,10 +47,10 @@ target_area: handler.py, settings.py, defaults.py, service.py
 - **Technical Debt**: TD057 open
 
 ### Affected Components
-- `linkwatcher/config/settings.py` — Config dataclass, needs new fields + validation
-- `linkwatcher/config/defaults.py` — DEFAULT_CONFIG instance, needs explicit defaults
-- `linkwatcher/handler.py` — Reads hardcoded values, needs to accept config
-- `linkwatcher/service.py` — Creates handler, needs to pass config through
+- `src/linkwatcher/config/settings.py` — Config dataclass, needs new fields + validation
+- `src/linkwatcher/config/defaults.py` — DEFAULT_CONFIG instance, needs explicit defaults
+- `src/linkwatcher/handler.py` — Reads hardcoded values, needs to accept config
+- `src/linkwatcher/service.py` — Creates handler, needs to pass config through
 
 ### Dependencies and Impact
 - **Internal Dependencies**: MoveDetector and DirectoryMoveDetector already accept these as constructor params — no changes needed
@@ -77,10 +77,10 @@ Add config fields with current hardcoded values as defaults, then wire config th
 - **Technical Debt**: TD057 resolved
 
 ### Changes Made
-- `linkwatcher/config/settings.py`: Added 3 float fields + 3 validation checks
-- `linkwatcher/config/defaults.py`: Added 3 explicit defaults in DEFAULT_CONFIG
-- `linkwatcher/handler.py`: Added `config` parameter, reads timing from config with DEFAULT_CONFIG fallback
-- `linkwatcher/service.py`: Passes `config=config` to handler constructor
+- `src/linkwatcher/config/settings.py`: Added 3 float fields + 3 validation checks
+- `src/linkwatcher/config/defaults.py`: Added 3 explicit defaults in DEFAULT_CONFIG
+- `src/linkwatcher/handler.py`: Added `config` parameter, reads timing from config with DEFAULT_CONFIG fallback
+- `src/linkwatcher/service.py`: Passes `config=config` to handler constructor
 - `test/automated/unit/test_config.py`: Added 10 new tests (2 default/custom, 3 validation, 3 wiring, 2 roundtrip)
 
 ### Bugs Discovered

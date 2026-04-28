@@ -266,10 +266,10 @@ Validation conducted by comparing source code against TDD, FDD, and inline docum
 - FDD PD-FDD-026 (2.1.1 Parser Framework)
 - FDD PD-FDD-027 (2.2.1 Link Updater)
 - FDD PD-FDD-025 (3.1.1 Logging Framework)
-- Source: `linkwatcher/parser.py`, `linkwatcher/parsers/markdown.py`, `linkwatcher/parsers/yaml_parser.py`, `linkwatcher/parsers/json_parser.py`, `linkwatcher/parsers/python.py`, `linkwatcher/parsers/powershell.py`
-- Source: `linkwatcher/updater.py`, `linkwatcher/path_resolver.py`
-- Source: `linkwatcher/logging.py`, `linkwatcher/logging_config.py`
-- Source: `linkwatcher/validator.py`
+- Source: `src/linkwatcher/parser.py`, `src/linkwatcher/parsers/markdown.py`, `src/linkwatcher/parsers/yaml_parser.py`, `src/linkwatcher/parsers/json_parser.py`, `src/linkwatcher/parsers/python.py`, `src/linkwatcher/parsers/powershell.py`
+- Source: `src/linkwatcher/updater.py`, `src/linkwatcher/path_resolver.py`
+- Source: `src/linkwatcher/logging.py`, `src/linkwatcher/logging_config.py`
+- Source: `src/linkwatcher/validator.py`
 - Feature state files: PD-FIS-050, PD-FIS-051, PD-FIS-052 (3.1.1), PD-FIS-055 (6.1.1)
 
 ---

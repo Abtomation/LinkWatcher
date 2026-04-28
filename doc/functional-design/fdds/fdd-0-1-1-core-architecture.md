@@ -15,7 +15,7 @@ retrospective: true
 
 > **Retrospective Document**: This FDD describes the existing implemented functionality of the LinkWatcher Core Architecture, documented after implementation during framework onboarding (PF-TSK-066). Content is descriptive ("what is") rather than prescriptive ("what should be").
 >
-> **Source**: Derived from source code analysis of `linkwatcher/service.py`, `linkwatcher/__init__.py`, `linkwatcher/models.py`, `linkwatcher/utils.py`, and `main.py`.
+> **Source**: Derived from source code analysis of `src/linkwatcher/service.py`, `src/linkwatcher/__init__.py`, `src/linkwatcher/models.py`, `src/linkwatcher/utils.py`, and `main.py`.
 <!-- HOW_IT_WORKS.md was removed — content superseded by this FDD and TDD PD-TDD-021 -->
 >
 > **Scope Note**: This feature consolidates old 0.1.1 (Core Architecture), 0.1.2 (Data Models), and 0.1.5 (Path Utilities) into a single feature covering the service orchestrator, data models, path utilities, and CLI entry point.
@@ -78,7 +78,7 @@ retrospective: true
 
 - **0.1.1-BR-1**: Configuration loading follows strict priority: CLI arguments override environment variables, which override config file values, which override built-in defaults
 - **0.1.1-BR-2**: Initial scan is optional (controlled by `initial_scan` config flag, default: True) — when disabled, the service starts monitoring immediately without building the initial link database
-- **0.1.1-BR-3**: Only files with monitored extensions are processed during scan and monitoring; all others are ignored. The default set (~32 extensions) covers documentation/text (`.md`, `.txt`, `.yaml`, `.yml`, `.json`, `.xml`, `.csv`), web development (`.html`, `.htm`, `.css`, `.js`, `.ts`, `.jsx`, `.tsx`, `.vue`, `.php`), images (`.png`, `.jpg`, `.jpeg`, `.gif`, `.svg`, `.webp`, `.ico`), documents (`.pdf`), source code (`.py`, `.dart`, `.ps1`, `.psm1`), scripts/config (`.bat`, `.toml`), and media (`.mp4`, `.mp3`, `.wav`). The set is user-configurable via the `monitored_extensions` config field (see `linkwatcher/config/defaults.py` for the authoritative default list)
+- **0.1.1-BR-3**: Only files with monitored extensions are processed during scan and monitoring; all others are ignored. The default set (~32 extensions) covers documentation/text (`.md`, `.txt`, `.yaml`, `.yml`, `.json`, `.xml`, `.csv`), web development (`.html`, `.htm`, `.css`, `.js`, `.ts`, `.jsx`, `.tsx`, `.vue`, `.php`), images (`.png`, `.jpg`, `.jpeg`, `.gif`, `.svg`, `.webp`, `.ico`), documents (`.pdf`), source code (`.py`, `.dart`, `.ps1`, `.psm1`), scripts/config (`.bat`, `.toml`), and media (`.mp4`, `.mp3`, `.wav`). The set is user-configurable via the `monitored_extensions` config field (see `src/linkwatcher/config/defaults.py` for the authoritative default list)
 - **0.1.1-BR-4**: Directories listed in the exclusion list (`.git`, `__pycache__`, `node_modules`, etc.) are skipped during both scan and monitoring
 - **0.1.1-BR-5**: The service runs as a foreground blocking process (via `while self.running: time.sleep(1)` loop) — background execution requires external process management (e.g., startup scripts)
 

@@ -273,12 +273,12 @@ Validation was conducted by:
 ### Appendix B: Reference Materials
 
 **Source Files Reviewed:**
-- `linkwatcher/service.py` — Core Architecture (0.1.1)
-- `linkwatcher/database.py` — In-Memory Link Database (0.1.2)
-- `linkwatcher/config/settings.py` — Configuration System (0.1.3)
-- `linkwatcher/handler.py` — File System Monitoring (1.1.1)
-- `linkwatcher/move_detector.py` — File System Monitoring (1.1.1)
-- `linkwatcher/models.py` — Data models
+- `src/linkwatcher/service.py` — Core Architecture (0.1.1)
+- `src/linkwatcher/database.py` — In-Memory Link Database (0.1.2)
+- `src/linkwatcher/config/settings.py` — Configuration System (0.1.3)
+- `src/linkwatcher/handler.py` — File System Monitoring (1.1.1)
+- `src/linkwatcher/move_detector.py` — File System Monitoring (1.1.1)
+- `src/linkwatcher/models.py` — Data models
 
 **Design Documents Reviewed:**
 - PD-TDD-021: Core Architecture TDD (Tier 3)

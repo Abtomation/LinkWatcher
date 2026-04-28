@@ -4,7 +4,7 @@
 .SYNOPSIS
     Master state validation script — validates that state tracking entries match actual files on disk.
 .DESCRIPTION
-    Checks consistency across 14 validation surfaces:
+    Checks consistency across 15 validation surfaces:
     1. ../feature-tracking.md — all document links (FDD, TDD, Test Spec, Assessment, State File)
     2. Feature implementation state files — Section 4 (doc inventory), Section 5 (code inventory), Section 6 (dependencies)
     3. ../test-tracking.md — test file path references
@@ -19,13 +19,14 @@
     12. AI Tasks Consistency — detect task files in tasks/ directories but missing from ai-tasks.md
     13. Master State Consistency — phase checkboxes, progress counters, and doc summary vs Feature Inventory
     14. Source Layout — compare source-code-layout.md directory tree against actual source directories
+    15. Test Status Aggregation — cross-check feature-tracking Test Status against aggregated test-tracking statuses (PF-IMP-573)
 
     Created as IMP-028 from Tools Review 2026-02-21.
 .PARAMETER ProjectRoot
     Path to the project root directory. Defaults to auto-detection from script location.
 .PARAMETER Surface
     Which validation surfaces to run. Accepts one or more of:
-    "FeatureTracking", "StateFiles", "TestTracking", "CrossRef", "IdCounters", "FeatureDeps", "DimensionConsistency", "WorkflowTracking", "TaskRegistry", "MetadataSchema", "ContextMapOrphans", "AiTasksConsistency", "MasterStateConsistency", "SourceLayout", "All"
+    "FeatureTracking", "StateFiles", "TestTracking", "CrossRef", "IdCounters", "FeatureDeps", "DimensionConsistency", "WorkflowTracking", "TaskRegistry", "MetadataSchema", "ContextMapOrphans", "AiTasksConsistency", "MasterStateConsistency", "SourceLayout", "TestStatusAggregation", "All"
     Default: "All"
 .PARAMETER Detailed
     Show every checked link, not just failures.
@@ -100,7 +101,7 @@ function Resolve-MarkdownLink {
     if ($LinkPath -match '^mailto:') { return $null }
 
     # Skip obviously non-file links (no slash/backslash and no file extension)
-    if ($LinkPath -notmatch '../[/]' -and $LinkPath -notmatch '../../../../../../../../w{1,5}$') { return $null }
+    if ($LinkPath -notmatch '[/\\]' -and $LinkPath -notmatch '\.\w{1,5}$') { return $null }
 
     # Strip anchor fragment
     $cleanPath = ($LinkPath -split '#')[0]
@@ -261,9 +262,9 @@ if ($runAll -or $Surface -contains "StateFiles") {
 
             foreach ($line in $sfContent) {
                 # Track which section we're in
-                if ($line -match '../^## 4/. Documentation Inventory') { $inSection = "Section4" }
-                elseif ($line -match '../^## 5/. Code Inventory') { $inSection = "Section5" }
-                elseif ($line -match '../^## 6/. Dependencies') { $inSection = "Section6" }
+                if ($line -match '^## 4\. Documentation Inventory') { $inSection = "Section4" }
+                elseif ($line -match '^## 5\. Code Inventory') { $inSection = "Section5" }
+                elseif ($line -match '^## 6\. Dependencies') { $inSection = "Section6" }
                 elseif ($line -match '^## [789]') { $inSection = "" }
                 elseif ($line -match '^## 1[0-2]') { $inSection = "" }
 
@@ -394,7 +395,7 @@ if ($runAll -or $Surface -contains "CrossRef") {
                     }
                 }
                 if ($trimmed -match 'crossCuttingFeatures:') {
-                    $ccMatches = [regex]::Matches($trimmed, '../[/d]+/.[/d]+/.[/d]+')
+                    $ccMatches = [regex]::Matches($trimmed, '[\d]+\.[\d]+\.[\d]+')
                     foreach ($ccm in $ccMatches) {
                         if ($ccm.Value -notin $crossCuttingIds) {
                             $crossCuttingIds += $ccm.Value
@@ -584,7 +585,7 @@ if ($runAll -or $Surface -contains "DimensionConsistency") {
             $content = Get-Content $file.FullName -Raw
 
             # Check if Dimension Profile section exists
-            if ($content -match ".git/objects/3a/b045e54f8acd16e0d036a487eb74c269db1d9f## 7\. Dimension Profile") {
+            if ($content -match "## 7\. Dimension Profile") {
                 $filesWithProfile++
 
                 # Extract dimension abbreviations used and validate them
@@ -1468,6 +1469,151 @@ if ($runAll -or $Surface -contains "SourceLayout") {
                 }
             }
         }
+    }
+    Write-Host ""
+}
+
+# =========================================================================
+# Surface 15: Test Status Aggregation Consistency
+# =========================================================================
+# Cross-checks per-feature aggregated test statuses from test-tracking.md
+# against the Test Status column in feature-tracking.md. Catches split-brain
+# states (e.g. 0.1.2 on 2026-04-17 had test-tracking ✅ Audit Approved but
+# feature-tracking 🔄 Tests Need Update for ~2 weeks).
+#
+# Mirrors aggregation logic from Update-TestFileAuditState.ps1 (~lines 595-612)
+# with one deliberate extension: 🔴 Needs Fix in test-tracking aggregates to
+# "🔴 Some Failing" (the writer only emits this when invoked explicitly with
+# -AuditStatus "Audit Failed"), so without the extension a feature with only
+# 🔴 Needs Fix rows would falsely aggregate to "in progress".
+#
+# Post-SC-027: both writers and legend use the unified feature-tracking.md
+# legend vocabulary, so comparison is direct string equality (no canonical-
+# group mapping needed).
+# =========================================================================
+if ($runAll -or $Surface -contains "TestStatusAggregation") {
+    Write-Host "========================================" -ForegroundColor Cyan
+    Write-Host "  Surface 15: Test Status Aggregation Consistency" -ForegroundColor Cyan
+    Write-Host "========================================" -ForegroundColor Cyan
+
+    $ttPath = Join-Path $ProjectRoot "test/state-tracking/permanent/test-tracking.md"
+    $ftPath = Join-Path $ProjectRoot "doc/state-tracking/permanent/feature-tracking.md"
+
+    if (-not (Test-Path $ttPath)) {
+        Add-CheckResult "ERROR" "TestStatusAggregation" "test-tracking.md" "File not found: $ttPath"
+    } elseif (-not (Test-Path $ftPath)) {
+        Add-CheckResult "ERROR" "TestStatusAggregation" "feature-tracking.md" "File not found: $ftPath"
+    } else {
+        # Valid feature-tracking.md Test Status legend values (SC-027 unified legend)
+        $validStatuses = @(
+            '⬜ No Tests',
+            '🚫 No Test Required',
+            '📋 Specs Created',
+            '🟡 In Progress',
+            '🔍 Audit In Progress',
+            '🟡 Tests Partially Approved',
+            '✅ All Passing',
+            '🔴 Some Failing',
+            '🔧 Automated Only',
+            '🔄 Re-testing Needed'
+        )
+
+        # Normalize a status string by collapsing whitespace, for robust comparison
+        function Get-NormalizedStatus {
+            param([string]$Status)
+            return ($Status -replace '\s+', ' ').Trim()
+        }
+
+        # Aggregate test-tracking statuses for one feature into a single
+        # feature-tracking legend value (emits SC-027 vocabulary). Mirrors
+        # Update-TestFileAuditState.ps1 with the 🔴 Needs Fix extension noted above.
+        function Get-AggregatedTestStatus {
+            param([string[]]$Statuses)
+            if ($null -eq $Statuses -or $Statuses.Count -eq 0) { return "⬜ No Tests" }
+            if (@($Statuses | Where-Object { $_ -match '🔴\s*(Audit\s*Failed|Needs\s*Fix)' }).Count -gt 0) { return "🔴 Some Failing" }
+            if (@($Statuses | Where-Object { $_ -match '🔄\s*Needs\s*Update' }).Count -gt 0)               { return "🔄 Re-testing Needed" }
+            if (@($Statuses | Where-Object { $_ -match '🔍\s*Audit\s*In\s*Progress' }).Count -gt 0)        { return "🔍 Audit In Progress" }
+            $approved = @($Statuses | Where-Object { $_ -match '^✅\s*Audit\s*Approved' })
+            if ($approved.Count -eq 0)                  { return "🟡 In Progress" }
+            if ($approved.Count -eq $Statuses.Count)    { return "✅ All Passing" }
+            return "🟡 Tests Partially Approved"
+        }
+
+        # --- Step 1: Build per-feature test-status map from test-tracking.md ---
+        $testStatusByFeature = @{}
+        $ttLines = Get-Content $ttPath -Encoding UTF8
+        foreach ($line in $ttLines) {
+            if ($line -notmatch '^\|') { continue }
+            $cols = $line -split '\|' | ForEach-Object { $_.Trim() }
+            # 8-col format: | "" | Feature ID | Test Type | Test File/Case | Status | Test Cases Count | Last Executed | Last Updated | Notes |
+            if ($cols.Count -lt 6) { continue }
+            $featureId = $cols[1]
+            # Skip header, separator, and infrastructure rows (Feature ID = "—" or "Feature ID")
+            if ($featureId -notmatch '^\d+\.\d+\.\d+$') { continue }
+            $status = $cols[4]
+            if (-not $testStatusByFeature.ContainsKey($featureId)) {
+                $testStatusByFeature[$featureId] = @()
+            }
+            $testStatusByFeature[$featureId] += $status
+        }
+
+        # --- Step 2: Walk feature-tracking.md feature rows and compare ---
+        $ftLines = Get-Content $ftPath -Encoding UTF8
+        $checked = 0
+        foreach ($line in $ftLines) {
+            # Feature rows: | [X.X.X](path) | Feature | Status | Priority | Doc Tier | FDD | TDD | Test Status | Test Spec | Dependencies | Notes |
+            if ($line -notmatch '^\|\s*\[\d+\.\d+\.\d+\]') { continue }
+            $cols = $line -split '\|' | ForEach-Object { $_.Trim() }
+            if ($cols.Count -lt 9) { continue }
+            if ($cols[1] -notmatch '\[(\d+\.\d+\.\d+)\]') { continue }
+            $featureId = $Matches[1]
+            $actualStatus = $cols[8]
+            # Skip archived rows (empty Test Status)
+            if ([string]::IsNullOrWhiteSpace($actualStatus) -or $actualStatus -eq '—') { continue }
+
+            $actualNorm = Get-NormalizedStatus $actualStatus
+
+            # Skip manually-designated 🚫 No Test Required (exempt from aggregation check)
+            if ($actualNorm -eq '🚫 No Test Required') {
+                Add-CheckResult "OK" "TestStatusAggregation" $featureId "Manually marked 🚫 No Test Required (skipped)"
+                continue
+            }
+
+            $featureStatuses = if ($testStatusByFeature.ContainsKey($featureId)) { $testStatusByFeature[$featureId] } else { @() }
+            $expectedStatus = Get-AggregatedTestStatus -Statuses $featureStatuses
+            $expectedNorm = Get-NormalizedStatus $expectedStatus
+
+            $checked++
+
+            # Unknown actual status is a warning (hand-typed value not in legend)
+            if ($actualNorm -notin $validStatuses) {
+                Add-CheckResult "WARNING" "TestStatusAggregation" $featureId "Test Status '$actualStatus' not in legend — review for typo or update SC-027 legend"
+                continue
+            }
+
+            # 🔧 Automated Only actual is consistent with ✅ All Passing expected (manual flag intent)
+            if ($actualNorm -eq '🔧 Automated Only' -and $expectedNorm -eq '✅ All Passing') {
+                Add-CheckResult "OK" "TestStatusAggregation" $featureId "🔧 Automated Only consistent with all-passing aggregate"
+                continue
+            }
+
+            # Orphan claim: feature claims ✅ All Passing but no test-tracking rows exist
+            if ($actualNorm -eq '✅ All Passing' -and $featureStatuses.Count -eq 0) {
+                Add-CheckResult "ERROR" "TestStatusAggregation" $featureId "Feature claims '$actualStatus' but test-tracking.md has no entries for this feature"
+                continue
+            }
+
+            if ($actualNorm -ne $expectedNorm) {
+                $statusSummary = if ($featureStatuses.Count -gt 0) {
+                    ($featureStatuses | Group-Object | ForEach-Object { "$($_.Name) (x$($_.Count))" }) -join ", "
+                } else { "no test entries" }
+                Add-CheckResult "ERROR" "TestStatusAggregation" $featureId "Mismatch — feature-tracking shows '$actualStatus' but test-tracking aggregates to '$expectedStatus'. Underlying: $statusSummary"
+            } else {
+                Add-CheckResult "OK" "TestStatusAggregation" $featureId "Test status consistent ($actualNorm)"
+            }
+        }
+
+        Write-Host "  Checked $checked feature(s)" -ForegroundColor Gray
     }
     Write-Host ""
 }

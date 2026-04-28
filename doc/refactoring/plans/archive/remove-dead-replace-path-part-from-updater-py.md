@@ -22,10 +22,10 @@ refactoring_scope: Remove dead _replace_path_part from updater.py
 
 ## Item 1: TD027 — Remove dead `_replace_path_part()` from updater.py
 
-**Scope**: Remove the `_replace_path_part()` method (lines 443-457) from `linkwatcher/updater.py` — it was included in the original commit but never called. The updater uses `_calculate_new_target_relative()` instead. Also remove 3 associated dead tests from `tests/unit/test_updater.py` and update test-spec-2-2-1.
+**Scope**: Remove the `_replace_path_part()` method (lines 443-457) from `src/linkwatcher/updater.py` — it was included in the original commit but never called. The updater uses `_calculate_new_target_relative()` instead. Also remove 3 associated dead tests from `tests/unit/test_updater.py` and update test-spec-2-2-1.
 
 **Changes Made**:
-- [x] Removed `_replace_path_part()` method from `linkwatcher/updater.py` (was lines 443-457, 15 lines)
+- [x] Removed `_replace_path_part()` method from `src/linkwatcher/updater.py` (was lines 443-457, 15 lines)
 - [x] Removed 3 test methods from `tests/unit/test_updater.py` (was lines 136-159): `test_replace_path_part_exact_match`, `test_replace_path_part_partial_match`, `test_replace_path_part_no_match`
 - [x] Updated test spec `test-spec-2-2-1-link-updating.md` — removed 3 test case rows
 

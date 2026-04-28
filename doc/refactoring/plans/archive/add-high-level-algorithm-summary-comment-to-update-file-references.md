@@ -5,7 +5,7 @@ category: Refactoring Plan
 version: 1.0
 created: 2026-03-27
 updated: 2026-03-27
-target_area: linkwatcher/updater.py
+target_area: src/linkwatcher/updater.py
 priority: Medium
 refactoring_scope: Add high-level algorithm summary comment to _update_file_references
 mode: lightweight
@@ -13,7 +13,7 @@ mode: lightweight
 
 # Lightweight Refactoring Plan: Add high-level algorithm summary comment to _update_file_references
 
-- **Target Area**: linkwatcher/updater.py
+- **Target Area**: src/linkwatcher/updater.py
 - **Priority**: Medium
 - **Created**: 2026-03-27
 - **Author**: AI Agent & Human Partner

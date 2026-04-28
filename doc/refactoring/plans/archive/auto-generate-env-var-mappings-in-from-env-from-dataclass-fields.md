@@ -8,12 +8,12 @@ updated: 2026-03-27
 refactoring_scope: Auto-generate env var mappings in from_env() from dataclass fields
 priority: Medium
 mode: lightweight
-target_area: linkwatcher/config/settings.py
+target_area: src/linkwatcher/config/settings.py
 ---
 
 # Lightweight Refactoring Plan: Auto-generate env var mappings in from_env() from dataclass fields
 
-- **Target Area**: linkwatcher/config/settings.py
+- **Target Area**: src/linkwatcher/config/settings.py
 - **Priority**: Medium
 - **Created**: 2026-03-27
 - **Author**: AI Agent & Human Partner

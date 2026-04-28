@@ -299,22 +299,22 @@ Validation was conducted by:
 ### Appendix B: Reference Materials
 
 **Source Files Reviewed:**
-- `linkwatcher/parser.py` (140 LOC) — 2.1.1
-- `linkwatcher/parsers/__init__.py` (44 LOC) — 2.1.1
-- `linkwatcher/parsers/base.py` (81 LOC) — 2.1.1
-- `linkwatcher/parsers/markdown.py` (474 LOC) — 2.1.1
-- `linkwatcher/parsers/yaml_parser.py` (185 LOC) — 2.1.1
-- `linkwatcher/parsers/json_parser.py` (188 LOC) — 2.1.1
-- `linkwatcher/parsers/python.py` (436 LOC) — 2.1.1
-- `linkwatcher/parsers/dart.py` (193 LOC) — 2.1.1
-- `linkwatcher/parsers/powershell.py` (411 LOC) — 2.1.1
-- `linkwatcher/parsers/generic.py` (129 LOC) — 2.1.1
-- `linkwatcher/parsers/patterns.py` (22 LOC) — 2.1.1 (NEW since R2)
-- `linkwatcher/updater.py` (594 LOC) — 2.2.1
-- `linkwatcher/path_resolver.py` (359 LOC) — 2.2.1
-- `linkwatcher/logging.py` (600 LOC) — 3.1.1
-- `linkwatcher/logging_config.py` (168 LOC) — 3.1.1
-- `linkwatcher/validator.py` (676 LOC) — 6.1.1
+- `src/linkwatcher/parser.py` (140 LOC) — 2.1.1
+- `src/linkwatcher/parsers/__init__.py` (44 LOC) — 2.1.1
+- `src/linkwatcher/parsers/base.py` (81 LOC) — 2.1.1
+- `src/linkwatcher/parsers/markdown.py` (474 LOC) — 2.1.1
+- `src/linkwatcher/parsers/yaml_parser.py` (185 LOC) — 2.1.1
+- `src/linkwatcher/parsers/json_parser.py` (188 LOC) — 2.1.1
+- `src/linkwatcher/parsers/python.py` (436 LOC) — 2.1.1
+- `src/linkwatcher/parsers/dart.py` (193 LOC) — 2.1.1
+- `src/linkwatcher/parsers/powershell.py` (411 LOC) — 2.1.1
+- `src/linkwatcher/parsers/generic.py` (129 LOC) — 2.1.1
+- `src/linkwatcher/parsers/patterns.py` (22 LOC) — 2.1.1 (NEW since R2)
+- `src/linkwatcher/updater.py` (594 LOC) — 2.2.1
+- `src/linkwatcher/path_resolver.py` (359 LOC) — 2.2.1
+- `src/linkwatcher/logging.py` (600 LOC) — 3.1.1
+- `src/linkwatcher/logging_config.py` (168 LOC) — 3.1.1
+- `src/linkwatcher/validator.py` (676 LOC) — 6.1.1
 
 **Prior Validation Reports:**
 - PD-VAL-061 — AI Agent Continuity Round 2 Batch B (2026-03-27, score 2.45/3.0)

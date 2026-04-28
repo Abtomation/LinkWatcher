@@ -22,7 +22,7 @@ refactoring_scope: Update FDD monitored_extensions list to match actual implemen
 
 ## Item 1: TD156 — FDD monitored_extensions list outdated (6 vs ~32 actual)
 
-**Scope**: FDD PD-FDD-022 business rule 0.1.1-BR-3 hard-codes 6 extensions (`.md`, `.yaml`, `.yml`, `.json`, `.py`, `.dart`) but the actual default set in `linkwatcher/config/defaults.py` contains ~32 extensions across 6 categories (docs, web dev, images, documents, source code, scripts/config, media). The FDD should reference the configurable nature and current default categories rather than listing a stale subset.
+**Scope**: FDD PD-FDD-022 business rule 0.1.1-BR-3 hard-codes 6 extensions (`.md`, `.yaml`, `.yml`, `.json`, `.py`, `.dart`) but the actual default set in `src/linkwatcher/config/defaults.py` contains ~32 extensions across 6 categories (docs, web dev, images, documents, source code, scripts/config, media). The FDD should reference the configurable nature and current default categories rather than listing a stale subset.
 
 **Dims**: DA (Documentation Alignment)
 
@@ -52,4 +52,3 @@ refactoring_scope: Update FDD monitored_extensions list to match actual implemen
 
 ## Related Documentation
 - [Technical Debt Tracking](/doc/state-tracking/permanent/technical-debt-tracking.md)
-

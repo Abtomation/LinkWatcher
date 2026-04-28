@@ -229,17 +229,17 @@ Validation conducted by reading all source files for features 0.1.1-1.1.1, traci
 
 ### Appendix B: Reference Materials
 
-- `linkwatcher/service.py` — Core Architecture orchestrator
-- `linkwatcher/database.py` — In-Memory Link Database
-- `linkwatcher/models.py` — Shared data models
-- `linkwatcher/config/settings.py` — Configuration classes
-- `linkwatcher/config/defaults.py` — Default configuration presets
-- `linkwatcher/handler.py` — File System Monitoring event handler
-- `linkwatcher/move_detector.py` — Per-file move detection
-- `linkwatcher/dir_move_detector.py` — Directory move detection
-- `linkwatcher/reference_lookup.py` — Reference lookup and DB management
-- `linkwatcher/utils.py` — Shared utility functions
-- `linkwatcher/__init__.py` — Package exports
+- `src/linkwatcher/service.py` — Core Architecture orchestrator
+- `src/linkwatcher/database.py` — In-Memory Link Database
+- `src/linkwatcher/models.py` — Shared data models
+- `src/linkwatcher/config/settings.py` — Configuration classes
+- `src/linkwatcher/config/defaults.py` — Default configuration presets
+- `src/linkwatcher/handler.py` — File System Monitoring event handler
+- `src/linkwatcher/move_detector.py` — Per-file move detection
+- `src/linkwatcher/dir_move_detector.py` — Directory move detection
+- `src/linkwatcher/reference_lookup.py` — Reference lookup and DB management
+- `src/linkwatcher/utils.py` — Shared utility functions
+- `src/linkwatcher/__init__.py` — Package exports
 - `pyproject.toml` — Project dependencies and configuration
 
 ---

@@ -6,7 +6,7 @@ version: 1.0
 created: 2026-04-09
 updated: 2026-04-09
 debt_item: TD194
-target_area: linkwatcher/utils.py
+target_area: src/linkwatcher/utils.py
 priority: Low
 mode: documentation-only
 feature_id: 0.1.1
@@ -16,7 +16,7 @@ refactoring_scope: Add AI Context docblock to utils.py and fix phantom function 
 # Documentation Refactoring Plan: Add AI Context docblock to utils.py and fix phantom function names in feature state file
 
 ## Overview
-- **Target Area**: linkwatcher/utils.py
+- **Target Area**: src/linkwatcher/utils.py
 - **Priority**: Low
 - **Created**: 2026-04-09
 - **Author**: AI Agent & Human Partner
@@ -28,7 +28,7 @@ refactoring_scope: Add AI Context docblock to utils.py and fix phantom function 
 <!-- Detailed description of what documentation will be refactored and why -->
 
 ### Current Issues
-- Issue 1: `linkwatcher/utils.py` has no AI Context docblock despite being imported by 8 modules — navigation blind spot for AI agents
+- Issue 1: `src/linkwatcher/utils.py` has no AI Context docblock despite being imported by 8 modules — navigation blind spot for AI agents
 - Issue 2: Feature state file `0.1.1-core-architecture-implementation-state.md` lists `calculate_relative_path()` and `is_subpath()` as key components of utils.py, but **neither function exists or ever existed in git history**. Actual function is `get_relative_path()`. Missing functions: `looks_like_file_path()`, `looks_like_directory_path()`, `safe_file_read()`, `find_line_number()`, `should_ignore_directory()`
 
 ### Scope Discovery
@@ -55,7 +55,7 @@ The documentation drift has two distinct causes:
 - **Consistency**: 12/29 linkwatcher modules have AI Context sections; utils.py is a gap in the pattern
 
 ### Affected Documents
-- Document 1: `linkwatcher/utils.py` — Add AI Context docblock section to module docstring
+- Document 1: `src/linkwatcher/utils.py` — Add AI Context docblock section to module docstring
 - Document 2: `doc/state-tracking/features/0.1.1-core-architecture-implementation-state.md` — Fix phantom function names in Code Inventory table
 
 ### Dependencies and Impact
@@ -71,7 +71,7 @@ The documentation drift has two distinct causes:
 Add AI Context docblock following the established pattern from validator.py/markdown.py. Fix state file function names by cross-referencing actual `def` statements in utils.py.
 
 ### Implementation Plan
-1. **Phase 1**: Add AI Context docblock to `linkwatcher/utils.py`
+1. **Phase 1**: Add AI Context docblock to `src/linkwatcher/utils.py`
    - Step 1.1: Write AI Context section covering entry points, 8 importers, and common tasks
    - Step 1.2: Verify format matches established pattern (validator.py, markdown.py)
 

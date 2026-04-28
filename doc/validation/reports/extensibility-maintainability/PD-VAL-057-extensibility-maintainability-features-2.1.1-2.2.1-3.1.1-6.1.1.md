@@ -294,10 +294,10 @@ Validation conducted by systematically reading all source files for each feature
 ### Appendix B: Reference Materials
 
 **Source Files Reviewed:**
-- `linkwatcher/parser.py`, `linkwatcher/parsers/base.py`, `linkwatcher/parsers/__init__.py` + 7 parser modules
-- `linkwatcher/updater.py`, `linkwatcher/path_resolver.py`
-- `linkwatcher/logging.py`, `linkwatcher/logging_config.py`
-- `linkwatcher/validator.py`
+- `src/linkwatcher/parser.py`, `src/linkwatcher/parsers/base.py`, `src/linkwatcher/parsers/__init__.py` + 7 parser modules
+- `src/linkwatcher/updater.py`, `src/linkwatcher/path_resolver.py`
+- `src/linkwatcher/logging.py`, `src/linkwatcher/logging_config.py`
+- `src/linkwatcher/validator.py`
 
 **Test Files Referenced:**
 - `test/automated/unit/test_parser.py`, `test/automated/unit/test_updater.py`

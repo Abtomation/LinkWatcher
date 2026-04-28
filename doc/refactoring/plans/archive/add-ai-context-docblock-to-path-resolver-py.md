@@ -22,7 +22,7 @@ mode: lightweight
 
 ## Item 1: TD200 — Add AI Context docblock to path_resolver.py
 
-**Scope**: Add a structured AI Context docblock to `linkwatcher/path_resolver.py` documenting the entry point (`calculate_new_target`), 4 match strategies (direct, stripped, resolved, suffix), and Python import special-case handler. Documentation-only change — no behavioral code modifications.
+**Scope**: Add a structured AI Context docblock to `src/linkwatcher/path_resolver.py` documenting the entry point (`calculate_new_target`), 4 match strategies (direct, stripped, resolved, suffix), and Python import special-case handler. Documentation-only change — no behavioral code modifications.
 
 **Changes Made**:
 <!-- Fill in after implementation -->

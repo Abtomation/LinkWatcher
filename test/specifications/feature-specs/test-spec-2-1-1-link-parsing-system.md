@@ -66,8 +66,12 @@ The Link Parsing System uses a Registry+Facade pattern. `LinkParser` dispatches 
 | LinkParser | Empty file | `test_parse_empty_file` — returns empty list | `temp_project_dir` |
 | LinkParser | Binary file | `test_parse_binary_file` — returns empty list, no crash | `temp_project_dir` |
 | LinkParser | Thread safety | `test_parser_thread_safety` — 3 threads × 5 files = 15 refs | `temp_project_dir`, `file_helper` |
+| LinkParser | Size gate — under limit | `test_under_limit_file_parses_normally` — file < `max_file_size_mb` parses normally (TD227) | `temp_project_dir`, `file_helper` |
+| LinkParser | Size gate — oversized | `test_oversize_file_is_skipped` — file > `max_file_size_mb` returns `[]`, logs `file_skipped_oversize` (TD227) | `temp_project_dir` |
+| LinkParser | Size gate — disabled | `test_size_check_disabled_when_zero` — `max_file_size_mb=0` bypasses gate even for large files (TD227) | `temp_project_dir` |
+| LinkParser | Size gate — missing file | `test_missing_file_still_returns_empty` — stat failure on missing file does not trigger gate; graceful empty result preserved (TD227) | None |
 
-**Test File**: [`test/automated/unit/test_parser.py`](../../../test/automated/unit/test_parser.py) (12 methods)
+**Test File**: [`test/automated/unit/test_parser.py`](../../../test/automated/unit/test_parser.py) (16 methods)
 
 ### Parser Tests — Markdown
 
@@ -160,7 +164,7 @@ The Link Parsing System uses a Registry+Facade pattern. `LinkParser` dispatches 
 | Package filtering | `test_skip_package_imports` | `dart:io`, `package:flutter` excluded |
 | Asset references | `test_parse_asset_references` | 11 asset refs (images, fonts, data) |
 | Pubspec refs | `test_parse_pubspec_references` | 8+ config file references |
-| Doc comments | `test_parse_documentation_comments` | `/.git/objects/3a/b045e54f8acd16e0d036a487eb74c269db1d9f` comments with file paths |
+| Doc comments | `test_parse_documentation_comments` | `///` comments with file paths |
 | False positives | `test_avoid_false_positives` | Versions, emails, URLs, UUIDs, SQL |
 | Flutter patterns | `test_flutter_specific_patterns` | Image.asset, AssetImage, File constructors |
 | Complex file | `test_complex_dart_file` | 22+ refs across multiple classes |

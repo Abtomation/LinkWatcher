@@ -7,13 +7,13 @@ created: 2026-04-02
 updated: 2026-04-02
 refactoring_scope: TD130: Extract shared replacement logic from _update_file_references and _update_file_references_multi
 mode: lightweight
-target_area: linkwatcher/updater.py
+target_area: src/linkwatcher/updater.py
 priority: Medium
 ---
 
 # Lightweight Refactoring Plan: TD130: Extract shared replacement logic from _update_file_references and _update_file_references_multi
 
-- **Target Area**: linkwatcher/updater.py
+- **Target Area**: src/linkwatcher/updater.py
 - **Priority**: Medium
 - **Created**: 2026-04-02
 - **Author**: AI Agent & Human Partner
@@ -52,4 +52,3 @@ priority: Medium
 
 ## Related Documentation
 - [Technical Debt Tracking](/doc/state-tracking/permanent/technical-debt-tracking.md)
-

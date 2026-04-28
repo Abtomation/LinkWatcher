@@ -7,13 +7,13 @@ created: 2026-04-02
 updated: 2026-04-02
 refactoring_scope: Add inline documentation for validation_ignored_patterns config field in settings.py
 priority: Medium
-target_area: linkwatcher/config/settings.py
+target_area: src/linkwatcher/config/settings.py
 mode: lightweight
 ---
 
 # Lightweight Refactoring Plan: Add inline documentation for validation_ignored_patterns config field in settings.py
 
-- **Target Area**: linkwatcher/config/settings.py
+- **Target Area**: src/linkwatcher/config/settings.py
 - **Priority**: Medium
 - **Created**: 2026-04-02
 - **Author**: AI Agent & Human Partner
@@ -22,7 +22,7 @@ mode: lightweight
 
 ## Item 1: TD160 — Add inline documentation for validation_ignored_patterns
 
-**Scope**: Add a comment above `validation_ignored_patterns` in `linkwatcher/config/settings.py` explaining what the patterns match against and how they're used. The TD160 description also mentions `parser_type_extensions`, but that field already has a 3-line comment (lines 158-160) — no change needed there. Dimension: DA (Documentation Alignment).
+**Scope**: Add a comment above `validation_ignored_patterns` in `src/linkwatcher/config/settings.py` explaining what the patterns match against and how they're used. The TD160 description also mentions `parser_type_extensions`, but that field already has a 3-line comment (lines 158-160) — no change needed there. Dimension: DA (Documentation Alignment).
 
 **Changes Made**:
 - [x] Added 3-line inline comment above `validation_ignored_patterns` field in `linkwatcher/config/settings.py:148` explaining substring matching against link targets during `--validate`. Note: `parser_type_extensions` (also mentioned in TD160) already had adequate documentation — no change needed.
@@ -52,4 +52,3 @@ mode: lightweight
 
 ## Related Documentation
 - [Technical Debt Tracking](/doc/state-tracking/permanent/technical-debt-tracking.md)
-

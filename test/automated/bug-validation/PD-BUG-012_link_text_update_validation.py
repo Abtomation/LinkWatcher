@@ -50,9 +50,7 @@ def main():
 
         # Create PowerShell script
         ps1_file = project / "scripts" / "deploy.ps1"
-        ps1_file.write_text(
-            ".git/objects/3a/b045e54f8acd16e0d036a487eb74c269db1d9f# PowerShell Deployment Script\nWrite-Host 'Deploying...'\n"
-        )
+        ps1_file.write_text("# PowerShell Deployment Script\nWrite-Host 'Deploying...'\n")
 
         # Create markdown with various link text patterns
         md_file = project / "docs" / "guide.md"

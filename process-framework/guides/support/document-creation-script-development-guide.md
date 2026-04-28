@@ -394,7 +394,39 @@ $documentId = New-StandardProjectDocument -OutputDirectory "doc/custom/path" ...
 
 ### Subdirectory Handling
 
-When your task creates files that should be organized in subdirectories, configure the ID registry to map directory types to subdirectories:
+There are two approaches for organizing documents into subdirectories:
+
+**Approach 1: `-Subdirectory` parameter with optional registry-declared validation (recommended)**
+
+Use the `-Subdirectory` parameter on `New-StandardProjectDocument` to append a runtime-determined subdirectory. You can optionally declare valid values in the ID registry under the prefix's `subdirectories` field for validation, or omit the field for freeform acceptance:
+
+```powershell
+# Base path from ID registry, L1 subdirectory appended at runtime
+$documentId = New-StandardProjectDocument -DirectoryType "handbooks" -Subdirectory $ContentType -IdPrefix "PD-UGD" ...
+# Creates in: doc/user/handbooks/{content-type}/
+
+# Add -Topic for L2 (faceted taxonomy — content type × topic)
+$documentId = New-StandardProjectDocument -DirectoryType "handbooks" -Subdirectory $ContentType -Topic $TopicArea -IdPrefix "PD-UGD" ...
+# Creates in: doc/user/handbooks/{content-type}/{topic}/
+```
+
+Registry schema for validation (optional — omit fields for freeform passthrough):
+
+```json
+"PD-UGD": {
+  "subdirectories": {
+    "values": ["tutorials", "how-to", "reference", "explanation"],
+    "default": "how-to"
+  },
+  "topics": { "values": [], "default": null }
+}
+```
+
+Scripts using this pattern: `New-Handbook.ps1` (`-ContentType`, `-Topic`), `New-ContextMap.ps1` (`-WorkflowPhase`), `New-Guide.ps1` (`-SubDirectory`).
+
+**Approach 2: Multiple directory types in ID registry (for fixed categories)**
+
+When subdirectories are static and predefined, declare them directly in the ID registry:
 
 ```json
 "PD-API": {
@@ -412,6 +444,13 @@ Then use `DirectoryType` in your script:
 # This will create files in the subdirectory defined in ID registry
 $documentId = New-StandardProjectDocument -DirectoryType "specifications" -IdPrefix "PD-API" ...
 ```
+
+**When to use which:**
+
+| Approach | Use when | Example |
+|----------|----------|---------|
+| `-Subdirectory` | Categories are open-ended, caller-determined, or validated at the script level | Handbook categories, workflow phases, guide subdirectories |
+| Multiple directory types | Categories are fixed and known at framework design time | API specs vs. models, feature-specs vs. cross-cutting-specs |
 
 **Benefits of DirectoryType over OutputDirectory:**
 

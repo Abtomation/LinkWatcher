@@ -3,9 +3,9 @@ id: PF-TSK-014
 type: Process Framework
 category: Task Definition
 domain: agnostic
-version: 2.1
+version: 2.2
 created: 2025-06-07
-updated: 2026-04-08
+updated: 2026-04-28
 ---
 
 # Structure Change Task
@@ -82,6 +82,8 @@ This task **orchestrates** systematic changes to documentation structures, templ
 
    > If Lightweight → continue to [Lightweight Process](#lightweight-process)
    > If Full → continue to [Full Process](#full-process)
+   >
+   > **Mechanical Variant**: If the change exits Lightweight on file count alone but is *pure text substitution* (status-label rename, terminology update, deprecation propagation) with no new templates/scripts/tasks/guides and no breaking changes — use the Full path with the [Mechanical Rename Variant](#mechanical-rename-variant) shortcut. Proposal not required.
 
 ---
 
@@ -96,18 +98,22 @@ This task **orchestrates** systematic changes to documentation structures, templ
    - **For file/directory moves**: Follow the [File and Directory Move Procedure](#file-and-directory-move-procedure) below
    - **For file splits** (one file into two): Follow the [File Split Procedure](#file-split-procedure) below
 
-5. **🚨 CHECKPOINT**: Present implemented changes and affected files to human partner for review
-6. **Verify**: Confirm all changes are correct:
+5. **Grep sweep for replaced patterns**: Before the checkpoint, grep the entire project for old values/patterns being replaced (status labels, terminology, naming conventions). LinkWatcher updates path references automatically, but does **not** update text patterns — status labels in particular are typically scattered across task definitions, guides, scripts, context maps, and test specs. Update any active references found and bring sweep results to the checkpoint.
+
+   > File/directory moves and file splits already include grep verification in their dedicated procedures — this step covers the broader case (non-path replacements).
+
+6. **🚨 CHECKPOINT**: Present implemented changes and affected files to human partner for review
+7. **Verify**: Confirm all changes are correct:
    - All affected files updated
    - Cross-references valid (check LinkWatcher log if relevant)
    - No broken links or orphaned references
 
-7. **Update Documentation Map**: Update the appropriate map if document organization changed:
+8. **Update Documentation Map**: Update the appropriate map if document organization changed:
    - Process-framework artifacts → [PF Documentation Map](../../PF-documentation-map.md)
    - Product documents (FDDs, TDDs, ADRs, handbooks) → [PD Documentation Map](../../../doc/PD-documentation-map.md)
    - Test artifacts (test specs, audit reports) → [TE Documentation Map](../../../test/TE-documentation-map.md)
 
-8. **🚨 MANDATORY FINAL STEP**: Complete the [Lightweight Completion Checklist](#lightweight-completion-checklist) below
+9. **🚨 MANDATORY FINAL STEP**: Complete the [Lightweight Completion Checklist](#lightweight-completion-checklist) below
 
 ---
 
@@ -154,6 +160,15 @@ When splitting one file into two separate files (e.g., extracting a section into
 
 > For large, multi-type, or breaking structure changes.
 
+#### Mechanical Rename Variant
+
+> **When to use**: If the only reason this change exited Lightweight is file count, and the change is *pure text substitution* (single-type, no breaking changes, no new templates/scripts/tasks/guides), the proposal is overkill. Run the Full path with these shortcuts:
+> - **Skip Step 5** (no proposal). Skip to Step 6 directly.
+> - In Step 6, use `-ChangeType "Content Update"` (or `"Rename"` for path moves).
+> - **Skip Steps 11–13** (no delegation — nothing to delegate by definition).
+> - Run the [Lightweight grep sweep](#lightweight-process) (its Step 5) before the execution checkpoint, then continue with Step 14 (Direct Execution).
+> - In cleanup (Step 19), there is no proposal to archive — skip that bullet only.
+
 #### Preparation
 
 3. **Study LinkWatcher capabilities**: Read the [LinkWatcher Capabilities Reference](/doc/user/handbooks/linkwatcher-capabilities-reference.md) to understand what LinkWatcher updates automatically and what requires manual attention. Do not assume — the reference is authoritative. This knowledge is essential for accurate impact analysis (next step) and for distinguishing LinkWatcher-handled updates from manual work during execution.
@@ -172,6 +187,7 @@ When splitting one file into two separate files (e.g., extracting a section into
    cd process-framework/scripts/file-creation
    .\New-StructureChangeProposal.ps1 -ChangeName "Change Name" -Description "Brief description"
    ```
+   > **Skip if [Mechanical Rename Variant](#mechanical-rename-variant) applies.**
 6. **Create Structure Change State Tracking File**: Use the [New-StructureChangeState.ps1](../../scripts/file-creation/support/New-StructureChangeState.ps1) script to create tracking file with implementation roadmap
    ```powershell
    # Navigate to the state-tracking directory and create structure change state tracking file

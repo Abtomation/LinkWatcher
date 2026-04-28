@@ -276,18 +276,18 @@ Scoring uses the Round 3 convention: 3-point scale (0=Poor, 1=Below expectations
 
 ### Appendix B: Reference Materials
 
-- `linkwatcher/parser.py` — Main LinkParser coordinator with extension-based dispatch
-- `linkwatcher/parsers/base.py` — BaseParser ABC with `parse_file()` and `parse_content()`
-- `linkwatcher/parsers/markdown.py` — MarkdownParser with 10 regex patterns and span-based overlap architecture
-- `linkwatcher/parsers/yaml_parser.py` — YamlParser with `yaml.safe_load` + O(V+L) positional scanning
-- `linkwatcher/parsers/json_parser.py` — JsonParser with `json.loads` + O(V+L) positional scanning
-- `linkwatcher/parsers/python.py` — PythonParser with stdlib import filtering
-- `linkwatcher/parsers/powershell.py` — PowerShellParser with block comment tracking and deduplication
-- `linkwatcher/parsers/generic.py` — GenericParser fallback for unsupported file types
-- `linkwatcher/updater.py` — LinkUpdater with atomic writes, `_regex_cache`, and batch API
-- `linkwatcher/path_resolver.py` — PathResolver with multi-strategy match detection
-- `linkwatcher/validator.py` — LinkValidator with single-read architecture, existence cache, and line classification
-- `linkwatcher/utils.py` — Path utilities, `looks_like_file_path()`, `should_monitor_file()`
+- `src/linkwatcher/parser.py` — Main LinkParser coordinator with extension-based dispatch
+- `src/linkwatcher/parsers/base.py` — BaseParser ABC with `parse_file()` and `parse_content()`
+- `src/linkwatcher/parsers/markdown.py` — MarkdownParser with 10 regex patterns and span-based overlap architecture
+- `src/linkwatcher/parsers/yaml_parser.py` — YamlParser with `yaml.safe_load` + O(V+L) positional scanning
+- `src/linkwatcher/parsers/json_parser.py` — JsonParser with `json.loads` + O(V+L) positional scanning
+- `src/linkwatcher/parsers/python.py` — PythonParser with stdlib import filtering
+- `src/linkwatcher/parsers/powershell.py` — PowerShellParser with block comment tracking and deduplication
+- `src/linkwatcher/parsers/generic.py` — GenericParser fallback for unsupported file types
+- `src/linkwatcher/updater.py` — LinkUpdater with atomic writes, `_regex_cache`, and batch API
+- `src/linkwatcher/path_resolver.py` — PathResolver with multi-strategy match detection
+- `src/linkwatcher/validator.py` — LinkValidator with single-read architecture, existence cache, and line classification
+- `src/linkwatcher/utils.py` — Path utilities, `looks_like_file_path()`, `should_monitor_file()`
 - `doc/validation/reports/performance-scalability/PD-VAL-059-performance-scalability-features-2.1.1-2.2.1-6.1.1.md` — R2 report for comparison
 
 ---

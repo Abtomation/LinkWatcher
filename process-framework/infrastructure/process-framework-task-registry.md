@@ -403,7 +403,7 @@ This document serves as the **comprehensive registry** of all process framework 
 
 - **Primary state files:** [`test-tracking.md`](../../test/state-tracking/permanent/test-tracking.md) (Automated), [`performance-test-tracking.md`](../../test/state-tracking/permanent/performance-test-tracking.md) (Performance), [`e2e-test-tracking.md`](../../test/state-tracking/permanent/e2e-test-tracking.md) (E2E)
 - **Intelligent aggregation:** [`feature-tracking.md`](../../doc/state-tracking/permanent/feature-tracking.md) - Automated feature-level test status (Automated type only)
-- **Audit gate:** `🔍 Audit Approved` status is a hard prerequisite for Performance Baseline Capture (PF-TSK-085) and E2E Test Execution (PF-TSK-070) for newly created tests
+- **Audit gate:** `✅ Audit Approved` status is a hard prerequisite for Performance Baseline Capture (PF-TSK-085) and E2E Test Execution (PF-TSK-070) for newly created tests
 - **Quality assurance:** Type-specific criteria — 6 criteria (Automated), 4 criteria (Performance), 5 criteria (E2E)
 - **Bug discovery integration:** Includes comprehensive bug identification during audit process with standardized reporting via `New-BugReport.ps1`
 - **Dependencies:** Requires test implementation/creation completion for the relevant test type
@@ -505,6 +505,7 @@ This document serves as the **comprehensive registry** of all process framework 
 | **Updates** | [Feature Tracking](../../doc/state-tracking/permanent/feature-tracking.md) | Manual | Status → 👀 Needs Review |
 | **Updates** | [Test Tracking](../../test/state-tracking/permanent/test-tracking.md) | `New-TestFile.ps1` | Automated test file links and status |
 | **Updates** | [Bug Tracking](../../doc/state-tracking/permanent/bug-tracking.md) | Manual | Bug entries if bugs discovered (optional) |
+| **Updates** | Product documentation (TDD, integration narrative) | Manual | Cross-TDD check and Cross-integration-narrative check (Step 12) — verify other features' docs still accurately describe modified files |
 
 **🎯 KEY IMPACTS**
 
@@ -768,7 +769,7 @@ This document serves as the **comprehensive registry** of all process framework 
 | **Updates** | [`architecture-tracking.md`](../../doc/state-tracking/permanent/architecture-tracking.md) | Manual | Improve feature status (e.g., "🔄 Needs Enhancement" → "🟡 In Progress") |
 | **Updates** | [`feature-tracking.md`](../../doc/state-tracking/permanent/feature-tracking.md) | Manual | For foundation features (0.x.x), document architectural improvements |
 | **Updates** | [`test-tracking.md`](../../test/state-tracking/permanent/test-tracking.md) | Manual | Note test improvements or new test requirements |
-| **Updates** | Product documentation (TDD, FDD, feature state file, test spec) | Manual | When refactoring changes module boundaries, interfaces, or design patterns (Step 12) |
+| **Updates** | Product documentation (TDD, FDD, feature state file, test spec, integration narrative) | Manual | When refactoring changes module boundaries, interfaces, or design patterns (Step 12) |
 
 **🎯 KEY IMPACTS**
 
@@ -823,21 +824,20 @@ This document serves as the **comprehensive registry** of all process framework 
 - **Creation Script:** [`New-Handbook.ps1`](../scripts/file-creation/07-deployment/New-Handbook.ps1)
 - **Finalization Script:** [`Update-UserDocumentationState.ps1`](../scripts/update/Update-UserDocumentationState.ps1)
 - **Output Directory:** [`doc/user/handbooks/`](../../doc/user/handbooks)
-- **Auto-Update Function:** Auto-assigns PD-UGD IDs, creates handbook from template, auto-appends entry to PD-documentation-map.md; finalization script updates feature state file and PD-documentation-map.md (duplicate-safe)
+- **Auto-Update Function:** Auto-assigns PD-UGD IDs, creates handbook from template, auto-appends entry to PD-documentation-map.md; finalization script updates feature state file Documentation Inventory
 
 **📁 FILE OPERATIONS**
 | Operation | File Path | Update Method | Details |
 |-----------|-----------|---------------|---------|
-| **Creates** | `[handbook-name].md` in `doc/user/handbooks` | `New-Handbook.ps1` | User handbook document with auto-assigned PD-UGD-XXX ID |
+| **Creates** | `[handbook-name].md` in `doc/user/handbooks/<content-type>/[<topic>/]` | `New-Handbook.ps1` | User handbook document with auto-assigned PD-UGD-XXX ID, organized by Diátaxis content type (L1) and optional project topic (L2) — values declared in `PD-id-registry.json` |
 | **Updates** | [`PD-documentation-map.md`](../../doc/PD-documentation-map.md) | `New-Handbook.ps1` | Auto-appends handbook entry under User Handbooks section at creation time |
 | **Updates** | Feature implementation state file | `Update-UserDocumentationState.ps1` | Appends handbook row to Documentation Inventory table |
-| **Updates** | [`PD-documentation-map.md`](../../doc/PD-documentation-map.md) | `Update-UserDocumentationState.ps1` | Adds handbook entry under User Handbooks section (duplicate-safe) |
 | **Updates** | [`README.md`](../../doc/README.md) (if applicable) | Manual | Add handbook to documentation table |
 
 **🎯 KEY IMPACTS**
 
-- **Primary output:** User-facing handbook documents in `doc/user/handbooks`
-- **Finalization automation:** `Update-UserDocumentationState.ps1` automates feature state file and PD-documentation-map.md updates
+- **Primary output:** User-facing handbook documents in `doc/user/handbooks/<content-type>/[<topic>/]` (L1 Diátaxis content type, optional L2 topic)
+- **Finalization automation:** `Update-UserDocumentationState.ps1` automates feature state file updates (Documentation Inventory); PD-documentation-map.md is handled by `New-Handbook.ps1` at creation time
 - **Triggered by:** Features with user-visible behavior changes (flagged in feature state files)
 - **Dependencies:** Requires feature implementation complete and Code Review passed
 - **Template:** [`handbook-template.md`](../templates/07-deployment/handbook-template.md) (PF-TEM-065)
@@ -1126,7 +1126,7 @@ This document serves as the **comprehensive registry** of all process framework 
 
 **🔗 TRIGGER & OUTPUT** (Self-Doc: Partial)
 - **Trigger:** E2E spec / bug report / refactoring plan _(multi-path)_
-- **Output:** `e2e-test-tracking.md` → `📋 Needs Execution` → (audit gate) → `🔍 Audit Approved`
+- **Output:** `e2e-test-tracking.md` → `📋 Needs Execution` → (audit gate) → `✅ Audit Approved`
 
 #### **29. E2E Acceptance Test Execution** ([PF-TSK-070](../tasks/03-testing/e2e-acceptance-test-execution-task.md))
 
@@ -1154,10 +1154,10 @@ This document serves as the **comprehensive registry** of all process framework 
 
 - **Primary state file:** [`e2e-test-tracking.md`](../../test/state-tracking/permanent/e2e-test-tracking.md) - Execution results tracking
 - **Bug discovery:** Failures generate bug reports via `New-BugReport.ps1`
-- **Dependencies:** Requires E2E Acceptance Test Case Creation (PF-TSK-069). **Audit gate**: `📋 Needs Execution` entries must have `🔍 Audit Approved` Audit Status (via Test Audit PF-TSK-030 with `-TestType E2E`) before execution. `🔄 Needs Re-execution` entries are exempt.
+- **Dependencies:** Requires E2E Acceptance Test Case Creation (PF-TSK-069). **Audit gate**: `📋 Needs Execution` entries must have `✅ Audit Approved` Audit Status (via Test Audit PF-TSK-030 with `-TestType E2E`) before execution. `🔄 Needs Re-execution` entries are exempt.
 
 **🔗 TRIGGER & OUTPUT** (Self-Doc: Yes)
-- **Trigger:** `e2e-test-tracking.md` → `🔄 Needs Re-execution` or `📋 Needs Execution` (with `🔍 Audit Approved`)
+- **Trigger:** `e2e-test-tracking.md` → `🔄 Needs Re-execution` or `📋 Needs Execution` (with `✅ Audit Approved`)
 - **Output:** `e2e-test-tracking.md` → `✅ Passed` or `🔴 Failed`
 
 
@@ -1237,7 +1237,7 @@ This document serves as the **comprehensive registry** of all process framework 
 
 **🔗 TRIGGER & OUTPUT** (Self-Doc: Yes)
 - **Trigger:** `performance-test-tracking.md` → `⬜ Needs Creation` entries (created by PF-TSK-086)
-- **Output:** `performance-test-tracking.md` → `⬜ Needs Creation` → `📋 Needs Baseline` → (audit gate) → `🔍 Audit Approved`
+- **Output:** `performance-test-tracking.md` → `⬜ Needs Creation` → `📋 Needs Baseline` → (audit gate) → `✅ Audit Approved`
 
 #### **33. Performance Baseline Capture** ([PF-TSK-085](../tasks/03-testing/performance-baseline-capture-task.md))
 
@@ -1259,10 +1259,10 @@ This document serves as the **comprehensive registry** of all process framework 
 **🎯 KEY IMPACTS**
 
 - **Primary output:** Recorded baseline results in performance-results.db; updated performance-test-tracking.md
-- **Dependencies:** Requires Performance Test Creation (PF-TSK-084) — tests must exist at 📋 Needs Baseline or ✅ Baselined. **Audit gate**: `📋 Needs Baseline` entries must have `🔍 Audit Approved` Audit Status (via Test Audit PF-TSK-030 with `-TestType Performance`) before baseline capture. `⚠️ Needs Re-baseline` entries are exempt.
+- **Dependencies:** Requires Performance Test Creation (PF-TSK-084) — tests must exist at 📋 Needs Baseline or ✅ Baselined. **Audit gate**: `📋 Needs Baseline` entries must have `✅ Audit Approved` Audit Status (via Test Audit PF-TSK-030 with `-TestType Performance`) before baseline capture. `⚠️ Needs Re-baseline` entries are exempt.
 
 **🔗 TRIGGER & OUTPUT** (Self-Doc: Yes)
-- **Trigger:** `performance-test-tracking.md` → `📋 Needs Baseline` (with `🔍 Audit Approved`) or `⚠️ Needs Re-baseline`
+- **Trigger:** `performance-test-tracking.md` → `📋 Needs Baseline` (with `✅ Audit Approved`) or `⚠️ Needs Re-baseline`
 - **Output:** `performance-test-tracking.md` → `✅ Baselined`; `bug-tracking.md` → `🆕 Needs Triage` (if regression)
 
 #### **34. Performance and E2E Test Scoping** ([PF-TSK-086](../tasks/03-testing/performance-and-e2e-test-scoping-task.md))
@@ -1285,7 +1285,7 @@ This document serves as the **comprehensive registry** of all process framework 
 | Add perf test rows | test/state-tracking/permanent/performance-test-tracking.md | New-PerformanceTestEntry.ps1 | `⬜ Needs Creation` entries + summary update |
 | Add workflow rows | doc/state-tracking/permanent/user-workflow-tracking.md | New-WorkflowEntry.ps1 | New cross-feature workflows discovered during scoping |
 | Add E2E milestones | test/state-tracking/permanent/e2e-test-tracking.md | New-E2EMilestoneEntry.ps1 | Workflow Milestone Tracking table |
-| Update feature status | doc/state-tracking/permanent/feature-tracking.md | Update-BatchFeatureStatus.ps1 | `🔎 Needs Test Scoping` → `🟢 Completed` |
+| Update feature status | doc/state-tracking/permanent/feature-tracking.md | Update-BatchFeatureStatus.ps1 | `🔎 Needs Test Scoping` → `📖 Needs User Docs` or `🟢 Completed` (based on User Documentation status in state file) |
 | Sync workflow status | doc/state-tracking/permanent/user-workflow-tracking.md | Update-WorkflowTracking.ps1 | Derives Impl Status + E2E Status |
 
 **🎯 KEY IMPACTS**
@@ -1389,6 +1389,7 @@ This document serves as the **comprehensive registry** of all process framework 
 | **Updates** | [`tasks/README.md`](../tasks/README.md) | [`New-Task.ps1`](../scripts/file-creation/support/New-Task.ps1) | Add new task to task type table with flexible pattern matching |
 | **Updates** | [`ai-tasks.md`](../ai-tasks.md) | [`New-Task.ps1`](../scripts/file-creation/support/New-Task.ps1) | Add new task to AI Tasks main entry point with correct section and table format |
 | **Updates** | [`process-framework-task-registry.md`](process-framework-task-registry.md) | [`New-Task.ps1`](../scripts/file-creation/support/New-Task.ps1) | **NEW (IMP-283)**: Add skeleton entry to task registry — customize after task definition is complete |
+| **Updates** | [`script-soak-tracking.md`](../state-tracking/permanent/script-soak-tracking.md) | Manual via `Register-SoakScript` | Conditional (Session 2 only): if the task creates a new document creation script, register it for 5-invocation soak verification (PF-PRO-028). |
 
 **🎯 KEY IMPACTS**
 
@@ -1460,6 +1461,7 @@ Update-ProcessImprovement.ps1 -ImprovementId "IMP-051" -NewStatus "InProgress" -
 | **Creates** | Temporary state tracking file | `New-TempTaskState.ps1` | Multi-session implementation tracking |
 | **Updates** | [`PF-documentation-map.md`](../PF-documentation-map.md) | Manual | Register new framework documents |
 | **Updates** | [`process-improvement-tracking.md`](../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) | Manual | Track extension progress if linked to IMP entry |
+| **Updates** | [`script-soak-tracking.md`](../state-tracking/permanent/script-soak-tracking.md) | Manual via `Register-SoakScript` | Conditional: if the extension creates new PowerShell scripts, each is registered for 5-invocation soak verification (PF-PRO-028). |
 | **Updates** | Multiple process framework files (varies) | Manual | Updates vary based on extension scope |
 
 **🎯 KEY IMPACTS**
@@ -1679,7 +1681,7 @@ Which status in which file triggers which task.
 | `feature-tracking.md` | `🔄 Needs Enhancement` + state file link | PF-TSK-068 Feature Enhancement |
 | `feature-tracking.md` | `🗄️ Needs DB Design` | PF-TSK-021 DB Schema Design |
 | `feature-tracking.md` | `🔌 Needs API Design` | PF-TSK-020 API Design |
-| Feature impl state file | User Documentation = `❌ Needed` | PF-TSK-081 User Documentation Creation |
+| Feature impl state file | `### User Documentation` = `❌ Needed` | PF-TSK-086 sets `📖 Needs User Docs` → PF-TSK-081 User Documentation Creation |
 | Feature impl state file | Task sequence: task = `not_started` | PF-TSK-051/056/052/078/053/054/055 (per plan) |
 | `bug-tracking.md` | `🆕 Needs Triage` | PF-TSK-041 Bug Triage |
 | `bug-tracking.md` | `🔍 Needs Fix` | PF-TSK-007 Bug Fixing |
@@ -2102,12 +2104,12 @@ Complete catalog of all automation scripts in `process-framework/scripts/`. Scri
 | `Update-FeatureTrackingFromAssessment.ps1` | `update/` | PF-TSK-002 | Update feature-tracking.md from assessment results |
 | `Update-FeatureRequest.ps1` | `update/` | PF-TSK-067 | Classify/close feature requests, update feature-tracking.md |
 | `Update-BugStatus.ps1` | `update/` | PF-TSK-041, PF-TSK-007 | Bug status lifecycle management |
-| `Update-TestFileAuditState.ps1` | `update/` | PF-TSK-030 | Update test tracking with audit results |
+| `Update-TestFileAuditState.ps1` | `update/` | PF-TSK-030, PF-TSK-022, PF-TSK-053 | Update test tracking with audit results (primary: Test Audit; secondary: audit-flagged TD closure during refactoring / integration & testing) |
 | `Update-ProcessImprovement.ps1` | `update/` | PF-TSK-009 | Process improvement status transitions |
 | `Update-TechDebt.ps1` | `update/` | PF-TSK-022, PF-TSK-023 | Tech debt status management (Add, StatusUpdate, Resolve) |
 | `Update-TechnicalDebtFromAssessment.ps1` | `update/` | PF-TSK-023 | Bulk assessment→registry integration |
 | `Finalize-Enhancement.ps1` | `update/` | PF-TSK-068 | Restore feature tracking status, archive enhancement state |
-| `Update-UserDocumentationState.ps1` | `update/` | PF-TSK-081 | Update feature state file and PF-documentation-map.md for handbooks |
+| `Update-UserDocumentationState.ps1` | `update/` | PF-TSK-081 | Update feature state file `### User Documentation` section for handbooks |
 | `Update-FeatureImplementationState.ps1` | `update/` | PF-TSK-044, PF-TSK-078 | Update feature implementation state files programmatically |
 | `Update-CodeReviewState.ps1` | `update/` | PF-TSK-005 | Update code review state in feature tracking |
 | `Update-ValidationReportState.ps1` | `update/` | PF-TSK-031–036, PF-TSK-072–076 | Update validation tracking from report results |
@@ -2123,7 +2125,7 @@ Complete catalog of all automation scripts in `process-framework/scripts/`. Scri
 
 | Script | Location | Used By Task(s) | Purpose |
 |--------|----------|------------------|---------|
-| `Validate-StateTracking.ps1` | `validation/` | PF-TSK-066, multiple | Master validation: 13 surfaces (feature links, state files, test tracking, cross-refs, ID counters, dependencies, dimensions, workflows, task registry, metadata schema, context map orphans, ai-tasks consistency, master state consistency) |
+| `Validate-StateTracking.ps1` | `validation/` | PF-TSK-066, multiple | Master validation: 15 surfaces (feature links, state files, test tracking, cross-refs, ID counters, dependencies, dimensions, workflows, task registry, metadata schema, context map orphans, ai-tasks consistency, master state consistency, source layout, test status aggregation) |
 | `Validate-TestTracking.ps1` | `validation/` | PF-TSK-053 | Validate pytest markers vs test-tracking.md and disk |
 | `Validate-IdRegistry.ps1` | `validation/` | Infrastructure | Validate ID registry against actual files |
 | `Validate-FeedbackForms.ps1` | `validation/` | PF-TSK-010 | Validate feedback form completeness |
@@ -2152,7 +2154,5 @@ Complete catalog of all automation scripts in `process-framework/scripts/`. Scri
 | Script | Location | Purpose |
 |--------|----------|---------|
 | `Start-AutomationMenu.ps1` | `.` | Interactive menu for all automation scripts |
-| `Start-BatchAudit.ps1` | `.` | Orchestrate batch test audit sessions |
-| `Start-BatchValidation.ps1` | `.` | Orchestrate batch validation sessions |
 | `Add-MarkdownTableColumn.ps1` | `.` | Utility: add columns to markdown tables |
 | `environment-variable-fallback-pattern.ps1` | `patterns/` | Reference pattern for environment variable handling |

@@ -5,7 +5,7 @@ category: Refactoring Plan
 version: 1.0
 created: 2026-03-27
 updated: 2026-03-27
-target_area: linkwatcher/validator.py
+target_area: src/linkwatcher/validator.py
 mode: lightweight
 priority: Medium
 refactoring_scope: Add target existence cache to LinkValidator
@@ -13,7 +13,7 @@ refactoring_scope: Add target existence cache to LinkValidator
 
 # Lightweight Refactoring Plan: Add target existence cache to LinkValidator
 
-- **Target Area**: linkwatcher/validator.py
+- **Target Area**: src/linkwatcher/validator.py
 - **Priority**: Medium
 - **Created**: 2026-03-27
 - **Author**: AI Agent & Human Partner

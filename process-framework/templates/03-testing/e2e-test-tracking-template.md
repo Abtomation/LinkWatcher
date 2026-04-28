@@ -14,6 +14,8 @@ E2E acceptance tests validate user-facing workflows that span multiple features.
 
 ## Status Legend
 
+### Lifecycle Status
+
 | Symbol | Status | Description | Next Task |
 |--------|--------|-------------|-----------|
 | ⬜ | **Not Created** | E2E acceptance test case needed but not yet created | PF-TSK-069 |
@@ -21,6 +23,20 @@ E2E acceptance tests validate user-facing workflows that span multiple features.
 | ✅ | **Passed** | Last execution passed — no action needed | — |
 | 🔴 | **Failed** | Last execution failed — needs bug triage | PF-TSK-041 |
 | 🔄 | **Needs Re-execution** | Code changes invalidated the last result | PF-TSK-070 |
+
+### Audit Status
+
+Tracked per-test in the **Audit Status** column. Set by [Test Audit (PF-TSK-030)](/process-framework/tasks/03-testing/test-audit-task.md) with `-TestType E2E`.
+
+| Symbol | Status | Description |
+|--------|--------|-------------|
+| 🔍 | **Audit Approved** | All audit criteria pass — test is ready for execution |
+| 🔍 | **Audit In Progress** | Multi-session audit underway — interim state until approved or marked Needs Update |
+| 🔄 | **Needs Update** | Test case or fixtures need corrections before execution |
+| 🔴 | **Audit Failed** | Scenario fundamentally flawed or fixtures incorrect |
+| — | _(not yet audited)_ | Test case has not undergone audit. **Only valid** when Lifecycle Status is `📋 Needs Execution`. A `✅ Passed` or `🔴 Failed` row with `Audit Status = —` is a compliance hole (e.g., test executed without prior audit) and needs retroactive audit. |
+
+> **Audit gate**: Tests in `📋 Needs Execution` status must reach `✅ Audit Approved` in the Audit Status column before execution. The audit gate enforces a one-way flow: Lifecycle Status `✅ Passed` or `🔴 Failed` implies an approved audit. Tests at `🔄 Needs Re-execution` are exempt (already audited prior to first execution).
 
 ## Workflow Milestone Tracking
 

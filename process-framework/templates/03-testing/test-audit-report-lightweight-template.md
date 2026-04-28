@@ -22,17 +22,17 @@ audit_date: [Audit Date]
 |-------|-------|
 | **Feature ID** | [Feature ID] |
 | **Test File ID** | [Test File ID] |
-| **Test File Location** | `[TEST_FILE_PATH]` |
+| **Test File Location** | `[Test File Path]` |
 | **Feature Category** | [Feature Category] |
 | **Auditor** | [Auditor Name] |
 | **Audit Date** | [Audit Date] |
-| **Audit Status** | ✅ Tests Approved |
+| **Audit Status** | ✅ Audit Approved |
 
 ## Test Files Audited
 
 | Test File | Location | Test Cases | Status |
 |-----------|----------|------------|--------|
-| [TEST_FILE_NAME] | [TEST_FILE_PATH] | [TEST_CASE_COUNT] | ✅ Tests Approved |
+| [Test File Name] | [Test File Path] | [TEST_CASE_COUNT] | ✅ Audit Approved |
 
 ## Evaluation Summary
 
@@ -47,7 +47,7 @@ audit_date: [Audit Date]
 
 ## Audit Decision
 
-**Status**: ✅ Tests Approved
+**Status**: ✅ Audit Approved
 
 **Rationale**: [Brief explanation confirming all criteria met — 2-3 sentences max]
 

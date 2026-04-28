@@ -88,13 +88,13 @@ dev format
 
 LinkWatcher 2.0 features a modular architecture:
 
-- **`linkwatcher/service.py`** - Main orchestration service
-- **`linkwatcher/database.py`** - Link storage and management
-- **`linkwatcher/parsers/`** - File-type specific parsers
-- **`linkwatcher/updater.py`** - Safe file modification
-- **`linkwatcher/handler.py`** - File system event handling
-- **`linkwatcher/logging.py`** - Enhanced structured logging system
-- **`linkwatcher/logging_config.py`** - Advanced logging configuration
+- **`src/linkwatcher/service.py`** - Main orchestration service
+- **`src/linkwatcher/database.py`** - Link storage and management
+- **`src/linkwatcher/parsers`** - File-type specific parsers
+- **`src/linkwatcher/updater.py`** - Safe file modification
+- **`src/linkwatcher/handler.py`** - File system event handling
+- **`src/linkwatcher/logging.py`** - Enhanced structured logging system
+- **`src/linkwatcher/logging_config.py`** - Advanced logging configuration
 
 ## 📊 Enhanced Logging System
 

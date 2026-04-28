@@ -7,13 +7,13 @@ created: 2026-03-03
 updated: 2026-03-03
 priority: Medium
 refactoring_scope: Consolidate 3-pass get_references_to_file into single pass
-target_area: linkwatcher/database.py
+target_area: src/linkwatcher/database.py
 mode: lightweight
 ---
 
 # Lightweight Refactoring Plan: Consolidate 3-pass get_references_to_file into single pass
 
-- **Target Area**: linkwatcher/database.py
+- **Target Area**: src/linkwatcher/database.py
 - **Priority**: Medium
 - **Created**: 2026-03-03
 - **Author**: AI Agent & Human Partner

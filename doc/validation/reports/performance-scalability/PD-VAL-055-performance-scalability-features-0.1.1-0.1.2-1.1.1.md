@@ -245,16 +245,16 @@ Scoring uses the Round 2 convention: 3-point scale (0=Poor, 1=Below expectations
 
 ### Appendix B: Reference Materials
 
-- `linkwatcher/service.py` — Core Architecture orchestrator
-- `linkwatcher/models.py` — Data models (LinkReference, FileOperation)
-- `linkwatcher/database.py` — In-Memory Link Database with target-indexed dict
-- `linkwatcher/handler.py` — File system event handler with move detection dispatch
-- `linkwatcher/move_detector.py` — Per-file delete+create correlation
-- `linkwatcher/dir_move_detector.py` — 3-phase batch directory move detection
-- `linkwatcher/reference_lookup.py` — Reference lookup, stale retry, DB cleanup
-- `linkwatcher/updater.py` — File modification with atomic writes
-- `linkwatcher/utils.py` — Path normalization, file monitoring utilities
-- `linkwatcher/config/defaults.py` — Default configuration values
+- `src/linkwatcher/service.py` — Core Architecture orchestrator
+- `src/linkwatcher/models.py` — Data models (LinkReference, FileOperation)
+- `src/linkwatcher/database.py` — In-Memory Link Database with target-indexed dict
+- `src/linkwatcher/handler.py` — File system event handler with move detection dispatch
+- `src/linkwatcher/move_detector.py` — Per-file delete+create correlation
+- `src/linkwatcher/dir_move_detector.py` — 3-phase batch directory move detection
+- `src/linkwatcher/reference_lookup.py` — Reference lookup, stale retry, DB cleanup
+- `src/linkwatcher/updater.py` — File modification with atomic writes
+- `src/linkwatcher/utils.py` — Path normalization, file monitoring utilities
+- `src/linkwatcher/config/defaults.py` — Default configuration values
 
 ---
 

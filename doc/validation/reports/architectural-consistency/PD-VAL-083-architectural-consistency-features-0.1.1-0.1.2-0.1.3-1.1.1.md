@@ -92,7 +92,7 @@ validation_session: 1
 
 ### Feature 0.1.1 — Core Architecture
 
-**Source files**: `linkwatcher/service.py`, `linkwatcher/__init__.py`
+**Source files**: `src/linkwatcher/service.py`, `src/linkwatcher/__init__.py`
 **ADR**: PD-ADR-039 (Orchestrator/Facade Pattern)
 
 #### Strengths
@@ -122,7 +122,7 @@ validation_session: 1
 
 ### Feature 0.1.2 — In-Memory Link Database
 
-**Source files**: `linkwatcher/database.py`
+**Source files**: `src/linkwatcher/database.py`
 **ADR**: PD-ADR-040 (Target-Indexed In-Memory Link Database)
 
 #### Strengths
@@ -151,7 +151,7 @@ validation_session: 1
 
 ### Feature 0.1.3 — Configuration System
 
-**Source files**: `linkwatcher/config/settings.py`, `linkwatcher/config/defaults.py`, `linkwatcher/config/__init__.py`
+**Source files**: `src/linkwatcher/config/settings.py`, `src/linkwatcher/config/defaults.py`, `src/linkwatcher/config/__init__.py`
 **ADR**: None (standard configuration pattern — no non-obvious architectural decisions)
 
 #### Strengths
@@ -180,7 +180,7 @@ validation_session: 1
 
 ### Feature 1.1.1 — File System Monitoring
 
-**Source files**: `linkwatcher/handler.py`, `linkwatcher/move_detector.py`, `linkwatcher/dir_move_detector.py`, `linkwatcher/reference_lookup.py`
+**Source files**: `src/linkwatcher/handler.py`, `src/linkwatcher/move_detector.py`, `src/linkwatcher/dir_move_detector.py`, `src/linkwatcher/reference_lookup.py`
 **ADR**: PD-ADR-041 (Timer-Based Move Detection with 3-Phase Directory Batch Algorithm)
 
 #### Strengths

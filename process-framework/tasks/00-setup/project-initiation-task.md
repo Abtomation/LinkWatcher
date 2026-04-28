@@ -163,26 +163,53 @@ Establishes foundational project configuration and metadata when initializing a 
    - After running: create native test runner config (e.g., `pytest.ini` for Python)
    - After running: install test dependencies (e.g., `pip install pytest pytest-cov`)
 
-12. **Set Up CI/CD Infrastructure** (optional): Follow the [CI/CD Setup Guide](/process-framework/guides/07-deployment/ci-cd-setup-guide.md) to scaffold development tooling:
+12. **Declare User Documentation Taxonomy** (in `doc/PD-id-registry.json`): Confirm or customize the documentation taxonomy for the project. The framework default follows the Diátaxis standard (tutorials / how-to / reference / explanation); you can accept these as-is or customize.
+
+    Open [PD-id-registry.json](../../../doc/PD-id-registry.json) (created during framework adoption) and verify the `PD-UGD` prefix has the `subdirectories` (L1) and `topics` (L2) fields:
+
+    ```json
+    "PD-UGD": {
+      "description": "Product Documentation - User Guides",
+      "directories": { "handbooks": "doc/user/handbooks", "default": "handbooks" },
+      "subdirectories": {
+        "description": "L1: Diátaxis content type — the reader's cognitive mode",
+        "values": ["tutorials", "how-to", "reference", "explanation"],
+        "default": "how-to"
+      },
+      "topics": {
+        "description": "L2: Project-specific topic/domain area — which part of the system the doc covers",
+        "values": [],
+        "default": null
+      },
+      "nextAvailable": 1
+    }
+    ```
+
+    **Decisions to make**:
+    - **L1 (content types)**: Accept Diátaxis defaults unless you have a strong reason to rename (e.g., `guides` instead of `how-to`). Keeping the standard aids onboarding.
+    - **L2 (topics)**: Leave `values: []` for new projects — L2 becomes useful once any L1 directory exceeds ~15-20 docs. When you're ready, populate with the project's primary domain areas (e.g., `["networking", "storage", "security"]` for an infrastructure platform, `["auth", "payments", "users"]` for an API service). L2 represents **topic/domain area**, not audience segments or document formats.
+    - Framework default is appropriate for 95% of projects; skip customization unless your domain strongly suggests otherwise.
+
+13. **Set Up CI/CD Infrastructure** (optional): Follow the [CI/CD Setup Guide](/process-framework/guides/07-deployment/ci-cd-setup-guide.md) to scaffold development tooling:
     - Create pre-commit hooks config (`.pre-commit-config.yaml`)
     - Create dev script (`dev.bat` / `dev.sh`)
     - Create CI pipeline (if using a Git hosting platform)
 
-13. **🚨 CHECKPOINT**: Present completed project-config.json, language config, test infrastructure, and CI/CD setup to human partner for review before finalization
+14. **🚨 CHECKPOINT**: Present completed project-config.json, language config, test infrastructure, documentation taxonomy, and CI/CD setup to human partner for review before finalization
 
 ### Finalization
 
-14. **Verify File Location**: Confirm `project-config.json` is in `doc/` and language config is in `languages-config`
+15. **Verify File Location**: Confirm `project-config.json` is in `doc/` and language config is in `languages-config`
 
-15. **Test Configuration**: Verify the full setup works:
+16. **Test Configuration**: Verify the full setup works:
     - `Run-Tests.ps1 -ListCategories` shows test categories
     - `Run-Tests.ps1 -Quick` runs successfully (if test files exist)
     - `pre-commit run --all-files` passes (if pre-commit was set up)
     - `dev test` works (if dev script was created)
 
-16. **Document Project-Specific Notes**: If there are any non-standard configurations or important context, add comments to this task or create a project README
+17. **Document Project-Specific Notes**: If there are any non-standard configurations or important context, add comments to this task or create a project README
 
-17. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+18. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 

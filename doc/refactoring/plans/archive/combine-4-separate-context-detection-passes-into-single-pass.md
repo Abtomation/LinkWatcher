@@ -22,7 +22,7 @@ refactoring_scope: Combine 4 separate context detection passes into single pass
 
 ## Item 1: TD204 — Combine 4 context detection passes into single pass
 
-**Scope**: Replace 4 separate `_get_*_lines()` static methods (code blocks, archival details, table rows, placeholder lines) with a single `_get_context_lines()` method that returns all 4 frozensets in one pass over the lines. Dims: PE (Performance). Single file: `linkwatcher/validator.py`.
+**Scope**: Replace 4 separate `_get_*_lines()` static methods (code blocks, archival details, table rows, placeholder lines) with a single `_get_context_lines()` method that returns all 4 frozensets in one pass over the lines. Dims: PE (Performance). Single file: `src/linkwatcher/validator.py`.
 
 **Changes Made**:
 - [x] Replaced 4 static methods (`_get_code_block_lines`, `_get_archival_details_lines`, `_get_table_row_lines`, `_get_placeholder_lines`) with single `_get_context_lines()` returning a 4-tuple of frozensets

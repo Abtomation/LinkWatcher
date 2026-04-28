@@ -15,7 +15,7 @@ retrospective: true
 
 > **Retrospective Document**: This FDD describes the existing implemented functionality of the LinkWatcher In-Memory Database, documented after implementation during framework onboarding (PF-TSK-066). Content is descriptive ("what is") rather than prescriptive ("what should be").
 >
-> **Source**: Derived from [0.1.3 Implementation State](../../state-tracking/features/archive/0.1.3-in-memory-database-implementation-state.md) and source code analysis of `linkwatcher/database.py`.
+> **Source**: Derived from [0.1.3 Implementation State](../../state-tracking/features/archive/0.1.3-in-memory-database-implementation-state.md) and source code analysis of `src/linkwatcher/database.py`.
 <!-- HOW_IT_WORKS.md (Database System section) was removed — content superseded by this FDD and TDD PD-TDD-022 -->
 
 ## Feature Overview
@@ -78,7 +78,7 @@ retrospective: true
 - **0.1.2-BR-2**: Path lookups use three-level resolution: (1) exact match, (2) anchor-stripped match (for `file.md#section` links), (3) relative-to-absolute path resolution
 - **0.1.2-BR-3**: The database is in-memory only — all data is lost on service restart, requiring a fresh initial scan to rebuild the database
 - **0.1.2-BR-4**: Each target path maps to a list of `LinkReference` instances — multiple files can reference the same target, and each reference is tracked separately
-- **0.1.2-BR-5**: Path normalization uses `normalize_path()` imported from `linkwatcher/utils.py` (shared with other modules via 0.1.1 Core Architecture) to ensure consistent key comparison
+- **0.1.2-BR-5**: Path normalization uses `normalize_path()` imported from `src/linkwatcher/utils.py` (shared with other modules via 0.1.1 Core Architecture) to ensure consistent key comparison
 
 ## User Experience Flow
 

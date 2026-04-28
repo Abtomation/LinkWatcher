@@ -72,7 +72,7 @@ graph TD
 - **Evaluation Report**: Output document created via `New-FrameworkEvaluationReport.ps1`
 - **Process Improvement Tracking**: State file where IMP entries are registered for follow-up
 - **Process Improvement Task**: Follow-up task for isolated, self-contained IMP entries (PF-TSK-009)
-- **Framework Extension Task**: Follow-up task for interconnected findings requiring new capabilities (PF-TSK-048)
+- **Framework Extension Task**: Follow-up task for interconnected findings requiring new capabilities (PF-TSK-026)
 - **Structure Change Task**: Follow-up task for findings requiring reorganization (PF-TSK-014)
 - **New Task Creation**: Follow-up task for findings revealing missing task definitions (PF-TSK-001)
 - **ID Registry**: PF-id-registry.json — checked for accuracy during evaluation
@@ -84,7 +84,7 @@ graph TD
 2. **Artifacts → Dimensions**: All framework artifacts are assessed against the selected evaluation dimensions
 3. **Dimensions → Report**: Evaluation findings and scores are captured in the structured report
 4. **Report → IMPs**: Actionable findings are registered as improvement entries for follow-up
-5. **IMPs -.-> Follow-up Tasks**: IMP entries are routed to the appropriate task based on nature: Process Improvement (PF-TSK-009) for isolated fixes, Framework Extension (PF-TSK-048) for interconnected capabilities, Structure Change (PF-TSK-014) for reorganizations, or New Task Creation (PF-TSK-001) for missing tasks
+5. **IMPs -.-> Follow-up Tasks**: IMP entries are routed to the appropriate task based on nature: Process Improvement (PF-TSK-009) for isolated fixes, Framework Extension (PF-TSK-026) for interconnected capabilities, Structure Change (PF-TSK-014) for reorganizations, or New Task Creation (PF-TSK-001) for missing tasks
 
 ## Evaluation Flow
 

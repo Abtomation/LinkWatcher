@@ -293,11 +293,11 @@ Validation conducted by systematically reading all source files for each feature
 ### Appendix B: Reference Materials
 
 **Source Files Reviewed:**
-- `linkwatcher/parser.py`, `linkwatcher/parsers/base.py`, `linkwatcher/parsers/__init__.py`, `linkwatcher/parsers/patterns.py` + 7 parser modules (markdown, python, powershell, json, yaml, dart, generic)
-- `linkwatcher/updater.py`, `linkwatcher/path_resolver.py`
-- `linkwatcher/logging.py`, `linkwatcher/logging_config.py`
-- `linkwatcher/validator.py`
-- `linkwatcher/config/settings.py`
+- `src/linkwatcher/parser.py`, `src/linkwatcher/parsers/base.py`, `src/linkwatcher/parsers/__init__.py`, `src/linkwatcher/parsers/patterns.py` + 7 parser modules (markdown, python, powershell, json, yaml, dart, generic)
+- `src/linkwatcher/updater.py`, `src/linkwatcher/path_resolver.py`
+- `src/linkwatcher/logging.py`, `src/linkwatcher/logging_config.py`
+- `src/linkwatcher/validator.py`
+- `src/linkwatcher/config/settings.py`
 
 **Prior Validation Reports:**
 - PD-VAL-057 (Extensibility & Maintainability, Round 2 Batch B — baseline comparison)

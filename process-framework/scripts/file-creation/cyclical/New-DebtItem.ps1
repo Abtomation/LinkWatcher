@@ -16,8 +16,12 @@
 .PARAMETER ItemTitle
     Title/name of the technical debt item (e.g., "Outdated Authentication Library", "Duplicated Validation Logic")
 
-.PARAMETER Category
-    Category of the debt item (e.g., "Code Quality", "Security", "Performance", "Architecture", "Documentation")
+.PARAMETER Dim
+    Development dimension of the debt item. Must be one of the 11 canonical dimension codes:
+    AC (Architectural Consistency), CQ (Code Quality), ID (Integration Dependencies),
+    DA (Documentation Alignment), EM (Extensibility & Maintainability), SE (Security & Data Protection),
+    PE (Performance & Scalability), OB (Observability), UX (Accessibility / UX Compliance),
+    DI (Data Integrity), TST (Testing). Run `Update-TechDebt.ps1 -ListDims` to see the list.
 
 .PARAMETER Priority
     Initial priority assessment (e.g., "High", "Medium", "Low", "Critical")
@@ -32,13 +36,13 @@
     If specified, opens the created file in the default editor
 
 .EXAMPLE
-    ../../../../../../../../../../../assessments/New-DebtItem.ps1 -ItemTitle "Outdated Authentication Library" -Category "Security" -Priority "High" -Location "lib/auth/"
+    ../../../../../../../../../../../assessments/New-DebtItem.ps1 -ItemTitle "Outdated Authentication Library" -Dim "SE" -Priority "High" -Location "lib/auth/"
 
 .EXAMPLE
-    ../../../../../../../../../../../assessments/New-DebtItem.ps1 -ItemTitle "Duplicated Validation Logic" -Category "Code Quality" -Priority "Medium" -Location "UI Components" -OpenInEditor
+    ../../../../../../../../../../../assessments/New-DebtItem.ps1 -ItemTitle "Duplicated Validation Logic" -Dim "CQ" -Priority "Medium" -Location "UI Components" -OpenInEditor
 
 .EXAMPLE
-    ../../../../../../../../../../../assessments/New-DebtItem.ps1 -ItemTitle "Missing Error Handling" -Category "Code Quality" -Priority "High" -Location "lib/services/" -AssessmentId "PF-TDA-001"
+    ../../../../../../../../../../../assessments/New-DebtItem.ps1 -ItemTitle "Missing Error Handling" -Dim "CQ" -Priority "High" -Location "lib/services/" -AssessmentId "PF-TDA-001"
 
 .NOTES
     - Requires PowerShell execution policy to allow script execution
@@ -58,7 +62,8 @@ param(
     [string]$ItemTitle,
 
     [Parameter(Mandatory = $false)]
-    [string]$Category = "Code Quality",
+    [ValidateSet("AC","CQ","ID","DA","EM","SE","PE","OB","UX","DI","TST")]
+    [string]$Dim = "CQ",
 
     [Parameter(Mandatory = $false)]
     [string]$Priority = "Medium",
@@ -85,7 +90,7 @@ Invoke-StandardScriptInitialization
 
 # Prepare additional metadata fields
 $additionalMetadataFields = @{
-    "debt_category" = ConvertTo-KebabCase -InputString $Category
+    "debt_dim"      = $Dim
     "debt_priority" = ConvertTo-KebabCase -InputString $Priority
     "debt_location" = ConvertTo-KebabCase -InputString $Location
 }
@@ -93,7 +98,7 @@ $additionalMetadataFields = @{
 # Prepare custom replacements
 $customReplacements = @{
     "[Debt Item Title]"                         = $ItemTitle
-    "[Debt Category]"                           = $Category
+    "[Dimension]"                               = $Dim
     "[Initial Priority]"                        = $Priority
     "[Location/Component]"                      = $Location
     "[Identification Date]"                     = Get-Date -Format "yyyy-MM-dd"
@@ -110,13 +115,13 @@ try {
     # Provide success details
     $details = @(
         "Item Title: $ItemTitle",
-        "Category: $Category",
+        "Dimension: $Dim",
         "Priority: $Priority",
         "Location: $Location",
         "",
         "🤖 AUTOMATION AVAILABLE:",
         "To automatically add this item to technical-debt-tracking.md, run:",
-        "process-framework/scripts/update/Update-TechDebt.ps1 -Add -Description '$ItemTitle' -Category '$Category' -Location '$Location' -Priority '$Priority' -EstimatedEffort '[SPECIFY_EFFORT]' -DebtItemId '$documentId' -AssessmentId '$AssessmentId' -Confirm:`$false",
+        "process-framework/scripts/update/Update-TechDebt.ps1 -Add -Description '$ItemTitle' -Dims '$Dim' -Location '$Location' -Priority '$Priority' -EstimatedEffort '[SPECIFY_EFFORT]' -DebtItemId '$documentId' -AssessmentId '$AssessmentId' -Confirm:`$false",
         "",
         "Manual steps (if not using automation):",
         "1. Complete the debt item details using the provided template",

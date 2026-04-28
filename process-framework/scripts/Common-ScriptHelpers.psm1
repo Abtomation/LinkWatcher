@@ -47,7 +47,8 @@ $SubModules = @(
     "DocumentManagement.psm1",
     "StateFileManagement.psm1",
     "BatchProcessing.psm1",
-    "AdvancedUtilities.psm1"
+    "AdvancedUtilities.psm1",
+    "ExecutionVerification.psm1"
 )
 
 Write-Verbose "Loading Common-ScriptHelpers v3.0 (Modularized Architecture)"
@@ -124,7 +125,9 @@ if ($LoadedFunctions.Count -gt 0) {
         'Get-RelevantTrackingFiles',
         'Get-StateFileBackup',
         'Get-ActiveFeatures',
-        'Update-FeatureTrackingStatus'
+        'Update-FeatureTrackingStatus',
+        'Assert-LineInFile',
+        'Test-LineInFile'
     )
 
     # Batch processing functions
@@ -142,8 +145,16 @@ if ($LoadedFunctions.Count -gt 0) {
         'Test-ModuleCompatibility'
     )
 
+    # Execution verification functions (soak helpers — PF-TSK-026 / PF-PRO-028)
+    $VerificationFunctions = @(
+        'Register-SoakScript',
+        'Test-ScriptInSoak',
+        'Confirm-SoakInvocation',
+        'Get-SoakStatus'
+    )
+
     # Combine all functions for export
-    $AllExportedFunctions = $CoreFunctions + $OutputFunctions + $DocumentFunctions + $StateFunctions + $BatchFunctions + $AdvancedFunctions
+    $AllExportedFunctions = $CoreFunctions + $OutputFunctions + $DocumentFunctions + $StateFunctions + $BatchFunctions + $AdvancedFunctions + $VerificationFunctions
 }
 
 # Export all functions to maintain backward compatibility

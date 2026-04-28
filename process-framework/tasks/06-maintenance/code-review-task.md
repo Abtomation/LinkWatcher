@@ -179,7 +179,7 @@ Review implemented code to ensure it meets quality standards, follows project co
     Set-Location "process-framework/scripts/file-creation"
 
     # Create bug report for issues found during code review
-    ../../scripts/file-creation/06-maintenance/New-BugReport.ps1 -Title "Unhandled exception in data validation" -Description "Method validate_input() doesn't handle None parameter" -DiscoveredBy "CodeReview" -Severity "High" -Component "Data Validation" -Environment "Development" -Evidence "Code location: src/services/validator.py:142"
+    ../../scripts/file-creation/06-maintenance/New-BugReport.ps1 -Title "Unhandled exception in data validation" -Description "Method validate_input() doesn't handle None parameter" -DiscoveredBy "CodeReview" -Severity "High" -Component "Data Validation" -Environment "Development" -Evidence "Code location: validate_input() in src/services/validator.py (near line 142 as of 2025-01-15)"
     ```
 
 ### Finalization

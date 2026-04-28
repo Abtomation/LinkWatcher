@@ -232,13 +232,13 @@ _Meta-framework tasks that work on the process framework itself_
 ### For New Feature Planning (research needed)
 
 ```
-Feature Discovery → Feature Request Evaluation (classify as new) → Feature Tier Assessment → FDD Creation → [System Architecture Review] → [API Design] → [Database Schema Design] → TDD Creation → [Integration Narrative Creation] → [Test Specification Creation] → Feature Implementation Planning → [Decomposed Implementation Tasks] → Code Review → Performance & E2E Test Scoping (PF-TSK-086) → [User Documentation Creation] → Release & Deployment
+Feature Discovery → Feature Request Evaluation (classify as new) → Feature Tier Assessment → FDD Creation → [System Architecture Review] → [API Design] → [Database Schema Design] → TDD Creation → [Test Specification Creation] → Feature Implementation Planning → [Decomposed Implementation Tasks] → Code Review → Performance & E2E Test Scoping (PF-TSK-086) → [User Documentation Creation] → Release & Deployment
 ```
 
 ### For Complex Features
 
 ```
-Feature Request Evaluation (classify as new) → Feature Tier Assessment → FDD Creation → [System Architecture Review] → [API Design] → [Database Schema Design] → TDD Creation → [Integration Narrative Creation] → [Test Specification Creation] → Feature Implementation Planning → [Decomposed Implementation Tasks] → Integration & Testing → Test Audit → Code Review → Performance & E2E Test Scoping (PF-TSK-086) → [User Documentation Creation] → Release & Deployment
+Feature Request Evaluation (classify as new) → Feature Tier Assessment → FDD Creation → [System Architecture Review] → [API Design] → [Database Schema Design] → TDD Creation → [Test Specification Creation] → Feature Implementation Planning → [Decomposed Implementation Tasks] → Integration & Testing → Test Audit → Code Review → Performance & E2E Test Scoping (PF-TSK-086) → [User Documentation Creation] → Release & Deployment
 ```
 
 ### For Simple Features
@@ -301,7 +301,7 @@ Performance & E2E Test Scoping (PF-TSK-086) identifies workflow as E2E-ready →
 
 > **Milestone trigger**: The [Performance & E2E Test Scoping task (PF-TSK-086)](/process-framework/tasks/03-testing/performance-and-e2e-test-scoping-task.md) checks [User Workflow Tracking](/doc/state-tracking/permanent/user-workflow-tracking.md) after each feature passes code review. When all required features for a workflow are implemented, the scoping task adds a milestone entry to e2e-test-tracking.md. Create the Integration Narrative first (provides verified cross-feature understanding), then the cross-cutting E2E test specification.
 >
-> **Audit gate**: Newly created E2E test cases must pass Test Audit (`🔍 Audit Approved`) before execution. Test cases marked `🔄 Needs Re-execution` are exempt (already audited).
+> **Audit gate**: Newly created E2E test cases must pass Test Audit (`✅ Audit Approved`) before execution. Test cases marked `🔄 Needs Re-execution` are exempt (already audited).
 
 ### For Performance Testing
 
@@ -312,7 +312,7 @@ Performance & E2E Test Scoping (PF-TSK-086) identifies perf tests needed →
 
 > **Trigger**: The [Performance & E2E Test Scoping task (PF-TSK-086)](/process-framework/tasks/03-testing/performance-and-e2e-test-scoping-task.md) applies the [decision matrix](/process-framework/guides/03-testing/performance-and-e2e-test-scoping-guide.md#performance-test-decision-matrix) after code review and adds `⬜ Needs Creation` entries to performance-test-tracking.md. Performance Test Creation implements tests from those entries; Baseline Capture records results and detects regressions. Baseline Capture also runs standalone for pre-release verification and post-refactoring checks.
 >
-> **Audit gate**: Newly created performance tests must pass Test Audit (`🔍 Audit Approved`) before baseline capture. Tests marked `⚠️ Needs Re-baseline` are exempt (already audited).
+> **Audit gate**: Newly created performance tests must pass Test Audit (`✅ Audit Approved`) before baseline capture. Tests marked `⚠️ Needs Re-baseline` are exempt (already audited).
 
 ### For Feature Validation
 

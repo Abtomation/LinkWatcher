@@ -215,7 +215,7 @@ Test fixtures are organized into three tiers: static fixture files in `tests/fix
 | `linkwatcher.updater.LinkUpdater` | Update operations | Integration Tests, Test Framework |
 | `linkwatcher.models.LinkReference` | Test data creation and verification | Integration Tests, Parser Tests |
 | All `linkwatcher.parsers.*` classes | Test targets | Parser Tests |
-| `linkwatcher/parsers/markdown.py` | `MarkdownParser` used by manual test runner | Test Fixtures |
+| `src/linkwatcher/parsers/markdown.py` | `MarkdownParser` used by manual test runner | Test Fixtures |
 | `tests/conftest.py` | Shared fixtures and custom assertions | All subsystems |
 | `tests/test_config.py` | Environment configs and sample data constants | Test Framework, Test Fixtures |
 | `pytest` (>=7.0) | Test framework and fixture system | All subsystems |

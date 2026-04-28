@@ -12,7 +12,7 @@ retrospective: true
 
 # ADR-039: Orchestrator/Facade Pattern for Core Architecture
 
-> **Retrospective ADR**: This decision was made during original implementation (pre-framework) and documented retroactively during framework onboarding (PF-TSK-066). Content is reverse-engineered from source code analysis of `linkwatcher/service.py`.
+> **Retrospective ADR**: This decision was made during original implementation (pre-framework) and documented retroactively during framework onboarding (PF-TSK-066). Content is reverse-engineered from source code analysis of `src/linkwatcher/service.py`.
 
 *Created: 2026-02-19*
 *Last updated: 2026-04-09*
@@ -108,8 +108,8 @@ Subsystems loaded dynamically from a registry or configuration.
 - [FDD PD-FDD-022](../../functional-design/fdds/fdd-0-1-1-core-architecture.md) — Functional requirements for Core Architecture
 - [TDD PD-TDD-021](../tdd/tdd-0-1-1-core-architecture-t3.md) — Technical design document with component diagrams
 
-- `linkwatcher/service.py` — Primary implementation file (~200 LOC)
-- `linkwatcher/__init__.py` — Package public API surface
+- `src/linkwatcher/service.py` — Primary implementation file (~200 LOC)
+- `src/linkwatcher/__init__.py` — Package public API surface
 
 ---
 

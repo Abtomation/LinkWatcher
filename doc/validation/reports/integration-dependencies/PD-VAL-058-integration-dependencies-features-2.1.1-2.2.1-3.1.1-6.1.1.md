@@ -299,16 +299,16 @@ Validation conducted by reading complete source code for all four features plus 
 
 ### Appendix B: Reference Materials
 
-- `linkwatcher/parser.py` — Feature 2.1.1 facade/coordinator
-- `linkwatcher/parsers/__init__.py` — Feature 2.1.1 parser registry exports
-- `linkwatcher/parsers/base.py` — Feature 2.1.1 abstract base class
-- `linkwatcher/updater.py` — Feature 2.2.1 file modification logic
-- `linkwatcher/path_resolver.py` — Feature 2.2.1 path resolution (extracted via TD035)
-- `linkwatcher/logging.py` — Feature 3.1.1 core logging (7 classes, ~558 lines)
-- `linkwatcher/logging_config.py` — Feature 3.1.1 advanced configuration management
-- `linkwatcher/validator.py` — Feature 6.1.1 workspace validation scanner
-- `linkwatcher/models.py` — Shared data models (LinkReference, FileOperation)
-- `linkwatcher/utils.py` — Shared utility functions
+- `src/linkwatcher/parser.py` — Feature 2.1.1 facade/coordinator
+- `src/linkwatcher/parsers/__init__.py` — Feature 2.1.1 parser registry exports
+- `src/linkwatcher/parsers/base.py` — Feature 2.1.1 abstract base class
+- `src/linkwatcher/updater.py` — Feature 2.2.1 file modification logic
+- `src/linkwatcher/path_resolver.py` — Feature 2.2.1 path resolution (extracted via TD035)
+- `src/linkwatcher/logging.py` — Feature 3.1.1 core logging (7 classes, ~558 lines)
+- `src/linkwatcher/logging_config.py` — Feature 3.1.1 advanced configuration management
+- `src/linkwatcher/validator.py` — Feature 6.1.1 workspace validation scanner
+- `src/linkwatcher/models.py` — Shared data models (LinkReference, FileOperation)
+- `src/linkwatcher/utils.py` — Shared utility functions
 - `pyproject.toml` — External dependency declarations
 - [PD-VAL-049](../integration-dependencies/PD-VAL-049-integration-dependencies-features-0.1.1-0.1.2-0.1.3-1.1.1.md) — Round 2 Integration & Dependencies Batch A report
 

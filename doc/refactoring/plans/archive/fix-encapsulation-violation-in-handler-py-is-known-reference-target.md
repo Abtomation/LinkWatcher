@@ -21,7 +21,7 @@ priority: Medium
 - **Mode**: Lightweight (no architectural impact)
 
 ## Dependencies and Impact
-- **Affected Components**: linkwatcher/database.py (ABC + concrete class), linkwatcher/handler.py (consumer)
+- **Affected Components**: src/linkwatcher/database.py (ABC + concrete class), src/linkwatcher/handler.py (consumer)
 - **Internal Dependencies**: handler.py calls link_db methods; test_database.py, test_handler.py test these modules
 - **Risk Assessment**: Low — additive method on ABC with single concrete implementation; handler change is mechanical delegation
 

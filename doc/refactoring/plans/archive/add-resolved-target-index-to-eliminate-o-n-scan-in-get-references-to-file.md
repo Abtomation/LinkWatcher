@@ -8,12 +8,12 @@ updated: 2026-03-30
 priority: Medium
 mode: lightweight
 refactoring_scope: Add resolved-target index to eliminate O(n) scan in get_references_to_file
-target_area: linkwatcher/database.py
+target_area: src/linkwatcher/database.py
 ---
 
 # Lightweight Refactoring Plan: Add resolved-target index to eliminate O(n) scan in get_references_to_file
 
-- **Target Area**: linkwatcher/database.py
+- **Target Area**: src/linkwatcher/database.py
 - **Priority**: Medium
 - **Created**: 2026-03-30
 - **Author**: AI Agent & Human Partner

@@ -141,7 +141,7 @@ New-BugReport.ps1 `
   -DiscoveredBy "CodeReview" `
   -Severity "High" `
   -Component "User Management" `
-  -Evidence "Code location: src/services/UserService.java:142"
+  -Evidence "Code location: getUserProfile() in src/services/UserService.java (near line 142 as of 2025-01-15)"
 ```
 
 ### During Feature Implementation

@@ -299,10 +299,10 @@ Source code review of all primary implementation files for features 2.1.1, 2.2.1
 ### Appendix B: Files Reviewed
 
 **Source Files:**
-- linkwatcher/parsers/base.py, generic.py, markdown.py, python.py, json_parser.py, yaml_parser.py, powershell.py, dart.py
-- linkwatcher/updater.py
-- linkwatcher/logging.py, linkwatcher/logging_config.py
-- linkwatcher/validator.py
+- src/linkwatcher/parsers/base.py, generic.py, markdown.py, python.py, json_parser.py, yaml_parser.py, powershell.py, dart.py
+- src/linkwatcher/updater.py
+- src/linkwatcher/logging.py, src/linkwatcher/logging_config.py
+- src/linkwatcher/validator.py
 
 **Test Files:**
 - test/automated/parsers/test_generic_parser.py, test_markdown_parser.py, test_powershell_parser.py, test_dart_parser.py, test_json_parser.py, test_python_parser.py, test_yaml_parser.py

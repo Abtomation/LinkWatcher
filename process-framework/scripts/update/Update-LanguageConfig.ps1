@@ -76,7 +76,7 @@ $scriptDir = if ($PSScriptRoot) { $PSScriptRoot } else { (Get-Location).Path }
 # Try PSScriptRoot-based resolution first, fall back to searching upward for project-config.json
 $projectRoot = $null
 if ($PSScriptRoot) {
-    $projectRoot = (Resolve-Path (Join-Path $scriptDir "../../../.git/objects/3a/b045e54f8acd16e0d036a487eb74c269db1d9f")).Path
+    $projectRoot = (Resolve-Path (Join-Path $scriptDir "../../..")).Path
 }
 if (-not $projectRoot -or -not (Test-Path (Join-Path $projectRoot "doc/project-config.json"))) {
     # Search upward from CWD for project-config.json

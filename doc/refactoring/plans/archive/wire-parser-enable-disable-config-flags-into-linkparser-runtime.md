@@ -8,13 +8,13 @@ updated: 2026-03-17
 priority: Medium
 debt_item: TD056
 refactoring_scope: Wire parser enable/disable config flags into LinkParser runtime
-target_area: linkwatcher/parser.py, linkwatcher/config/settings.py
+target_area: src/linkwatcher/parser.py, src/linkwatcher/config/settings.py
 ---
 
 # Refactoring Plan: Wire parser enable/disable config flags into LinkParser runtime
 
 ## Overview
-- **Target Area**: linkwatcher/parser.py, linkwatcher/config/settings.py, linkwatcher/config/defaults.py, linkwatcher/service.py
+- **Target Area**: src/linkwatcher/parser.py, src/linkwatcher/config/settings.py, src/linkwatcher/config/defaults.py, src/linkwatcher/service.py
 - **Priority**: High
 - **Created**: 2026-03-17
 - **Author**: AI Agent & Human Partner
@@ -41,10 +41,10 @@ target_area: linkwatcher/parser.py, linkwatcher/config/settings.py
 ## Current State Analysis
 
 ### Affected Components
-- `linkwatcher/config/settings.py` — Added missing flag
-- `linkwatcher/config/defaults.py` — Added missing flag to DEFAULT_CONFIG
-- `linkwatcher/parser.py` — Conditional parser registration based on config
-- `linkwatcher/service.py` — Passes config to LinkParser
+- `src/linkwatcher/config/settings.py` — Added missing flag
+- `src/linkwatcher/config/defaults.py` — Added missing flag to DEFAULT_CONFIG
+- `src/linkwatcher/parser.py` — Conditional parser registration based on config
+- `src/linkwatcher/service.py` — Passes config to LinkParser
 - `test/automated/unit/test_parser.py` — 12 new tests
 
 ### Dependencies and Impact

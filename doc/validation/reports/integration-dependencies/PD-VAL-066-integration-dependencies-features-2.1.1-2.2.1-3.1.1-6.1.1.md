@@ -319,19 +319,19 @@ Validation conducted by reading complete source code for all four features plus 
 
 ### Appendix B: Reference Materials
 
-- `linkwatcher/parser.py` — Feature 2.1.1 facade/coordinator
-- `linkwatcher/parsers/__init__.py` — Feature 2.1.1 parser registry exports
-- `linkwatcher/parsers/base.py` — Feature 2.1.1 abstract base class
-- `linkwatcher/parsers/markdown.py` — Feature 2.1.1 markdown parser (10 extraction patterns)
-- `linkwatcher/parsers/patterns.py` — Feature 2.1.1 shared regex constants
-- `linkwatcher/updater.py` — Feature 2.2.1 file modification logic (single + batch)
-- `linkwatcher/path_resolver.py` — Feature 2.2.1 path resolution (extracted via TD033)
-- `linkwatcher/logging.py` — Feature 3.1.1 core logging (~600 lines)
-- `linkwatcher/logging_config.py` — Feature 3.1.1 configuration management (~168 lines, simplified from R2)
-- `linkwatcher/validator.py` — Feature 6.1.1 workspace validation scanner (~677 lines)
-- `linkwatcher/models.py` — Shared data models (LinkReference, FileOperation)
-- `linkwatcher/utils.py` — Shared utility functions
-- `linkwatcher/config/settings.py` — Configuration dataclass with validation settings
+- `src/linkwatcher/parser.py` — Feature 2.1.1 facade/coordinator
+- `src/linkwatcher/parsers/__init__.py` — Feature 2.1.1 parser registry exports
+- `src/linkwatcher/parsers/base.py` — Feature 2.1.1 abstract base class
+- `src/linkwatcher/parsers/markdown.py` — Feature 2.1.1 markdown parser (10 extraction patterns)
+- `src/linkwatcher/parsers/patterns.py` — Feature 2.1.1 shared regex constants
+- `src/linkwatcher/updater.py` — Feature 2.2.1 file modification logic (single + batch)
+- `src/linkwatcher/path_resolver.py` — Feature 2.2.1 path resolution (extracted via TD033)
+- `src/linkwatcher/logging.py` — Feature 3.1.1 core logging (~600 lines)
+- `src/linkwatcher/logging_config.py` — Feature 3.1.1 configuration management (~168 lines, simplified from R2)
+- `src/linkwatcher/validator.py` — Feature 6.1.1 workspace validation scanner (~677 lines)
+- `src/linkwatcher/models.py` — Shared data models (LinkReference, FileOperation)
+- `src/linkwatcher/utils.py` — Shared utility functions
+- `src/linkwatcher/config/settings.py` — Configuration dataclass with validation settings
 - `pyproject.toml` — External dependency declarations
 - [PD-VAL-058](PD-VAL-058-integration-dependencies-features-2.1.1-2.2.1-3.1.1-6.1.1.md) — Round 2 Integration & Dependencies Batch B report
 

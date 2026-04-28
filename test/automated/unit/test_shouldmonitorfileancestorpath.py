@@ -108,3 +108,24 @@ class TestShouldMonitorFileAncestorPath:
         result = should_monitor_file(file_path, monitored, ignored, project_root)
 
         assert result is False
+
+    def test_file_not_under_project_root_falls_back_to_full_path(self):
+        """TD214: When file_path is not under project_root, Path.relative_to
+        raises ValueError; the function must fall back to checking the full
+        path's parts against ignored_dirs — defensive against watcher events
+        reporting files outside the configured project_root (no crash, ignored
+        filter still applies)."""
+        # Arrange — file lives under a DIFFERENT path tree than project_root,
+        # so Path(file_path).relative_to(project_root) raises ValueError.
+        project_root = os.path.normpath("/repo/project-a")
+        file_path = os.path.normpath("/other/repo/.git/config.md")
+        monitored = {".md"}
+        ignored = {".git"}
+
+        # Act — must not raise; must fall back to full-path parts.
+        result = should_monitor_file(file_path, monitored, ignored, project_root)
+
+        # Assert — fallback inspects full path, finds ".git" → rejects.
+        assert result is False, (
+            "ValueError fallback must still apply ignored-dirs filter using full path parts"
+        )

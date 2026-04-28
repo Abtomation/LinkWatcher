@@ -43,7 +43,7 @@ This script:
 - Checks Python version (3.8+ required)
 - Installs/updates pip dependencies from `pyproject.toml`
 - Removes stale files from previous installs (e.g., old `link_watcher.py`)
-- Copies `main.py`, `pyproject.toml`, `linkwatcher/` package, and `config-examples/`
+- Copies `main.py`, `pyproject.toml`, `src/linkwatcher` package, and `config-examples/`
 - Excludes `__pycache__` and `.pyc` files from the copy
 - Creates wrapper scripts (`linkwatcher.bat`, `linkwatcher.ps1`, `checklinks.bat`)
 - Updates all startup scripts in `LinkWatcher_run/` to point to the install path
@@ -89,7 +89,7 @@ Get-Content LinkWatcher_run/LinkWatcherLog.txt.1 -Tail 20
 |--------|-------------|---------|
 | `main.py` | `~/bin/main.py` | Entry point |
 | `requirements.txt` | `~/bin/requirements.txt` | Dependencies |
-| `linkwatcher/` | `~/bin/linkwatcher/` | Core package (all modules) |
+| `src/linkwatcher` | `~/bin/linkwatcher/` | Core package (all modules) |
 | `config-examples/` | `~/bin/config-examples/` | Example configurations |
 | `scripts/check_links.py` | `~/bin/scripts/check_links.py` | Link checker utility (optional) |
 

@@ -16,7 +16,7 @@ Test Cases Implemented:
 """
 
 import pytest
-from watchdog.events import FileMovedEvent
+from watchdog.events import DirMovedEvent, FileMovedEvent
 
 from linkwatcher.service import LinkWatcherService
 
@@ -1146,6 +1146,243 @@ class TestBug033RegexNotRewrittenOnMove:
         assert "(ART-ASS-\\d+)-" in updated_content, "Regex pattern should be preserved unchanged"
 
 
+class TestBug095RegexAndGlobNotCorruptedOnDirectoryMove:
+    """Regression tests for PD-BUG-095: regex/glob strings corrupted on directory or
+    target-side move.
+
+    BUG-033 covers the source-file-move path (``reference_lookup._calculate_updated_relative_path``);
+    its existence-check guard does not run when the target/directory is what moves.
+    BUG-095 closes the gap on two layers:
+
+    1. Parser (``utils.looks_like_file_path`` / ``looks_like_directory_path``) must reject
+       glob meta-chars (``*``, ``**``, ``?``) and regex escape sequences (``\\d``, ``\\s``, ``\\w``,
+       ``\\.``, ``[…]``, ``^``, ``$``, ``|``) so the strings never enter the link database.
+    2. ``path_resolver._calculate_new_target_relative`` must not mutate a target whose
+       resolved old path doesn't exist on disk (mirrors PD-BUG-033 in reference_lookup).
+    """
+
+    def test_bug095_regex_with_path_prefix_not_corrupted_on_dir_move(self, temp_project_dir):
+        """Regex 'doc/foo/bar-\\d+' must be preserved when 'doc/foo' is moved.
+
+        Pre-fix corruption observed: 'doc/foo/bar-\\d+' → 'doc/bar/bar-/d+'
+        (path prefix updated AND backslash in \\d normalized to /).
+        """
+        doc_foo = temp_project_dir / "doc" / "foo"
+        doc_foo.mkdir(parents=True)
+        # Real file inside the moved directory so the directory move is detected
+        (doc_foo / "real.md").write_text("# real")
+
+        scripts_dir = temp_project_dir / "scripts"
+        scripts_dir.mkdir()
+        script_file = scripts_dir / "Match.ps1"
+        script_file.write_text(
+            "# Regex referencing doc/foo paths\n"
+            "if ($x -match 'doc/foo/bar-\\d+') { $matches[1] }\n"
+        )
+
+        service = LinkWatcherService(str(temp_project_dir))
+        service._initial_scan()
+
+        # Move doc/foo → doc/bar (directory move)
+        new_doc = temp_project_dir / "doc" / "bar"
+        doc_foo.rename(new_doc)
+        service.handler.on_moved(DirMovedEvent(str(doc_foo), str(new_doc)))
+
+        updated = script_file.read_text()
+
+        # Negative assertions: corrupted forms must NOT appear
+        assert "/d+" not in updated, (
+            "Backslash in \\d regex escape was normalized to forward slash (corruption)"
+        )
+        assert "doc/bar/bar-" not in updated, (
+            "Path prefix in regex was rewritten as if it were a real path"
+        )
+        # Positive assertion: original regex preserved verbatim
+        assert "'doc/foo/bar-\\d+'" in updated, "Original regex must be preserved"
+
+    def test_bug095_glob_filter_not_corrupted_on_source_move(self, temp_project_dir):
+        """Glob '*.md' (a Get-ChildItem -Filter argument) must be preserved when the
+        containing script is moved deeper.
+
+        Pre-fix corruption observed: '*.md' → '../*.md' (extra '../' prepended on each
+        deeper move, eventually piling up).
+        """
+        scripts_dir = temp_project_dir / "scripts"
+        scripts_dir.mkdir()
+        script_file = scripts_dir / "List-Files.ps1"
+        script_file.write_text(
+            "# List markdown files\n"
+            "$files = Get-ChildItem -Path . -Filter '*.md' -Recurse\n"
+        )
+
+        service = LinkWatcherService(str(temp_project_dir))
+        service._initial_scan()
+
+        # Move script deeper: scripts/ → scripts/sub/
+        sub_dir = scripts_dir / "sub"
+        sub_dir.mkdir()
+        new_script = sub_dir / "List-Files.ps1"
+        script_file.rename(new_script)
+        service.handler.on_moved(FileMovedEvent(str(script_file), str(new_script)))
+
+        updated = new_script.read_text()
+
+        # Negative assertion: corrupted forms must NOT appear
+        assert "'../*.md'" not in updated, "Glob '*.md' was rewritten with relative '../' prefix"
+        # Positive assertion: glob preserved verbatim
+        assert "'*.md'" in updated, "Glob filter '*.md' must be preserved unchanged"
+
+    def test_bug095_regex_with_character_class_preserved_on_dir_move(self, temp_project_dir):
+        """Regex containing a character class ``[a-z]+`` must not enter the database
+        as a path, so it cannot be rewritten on any move.
+        """
+        doc_dir = temp_project_dir / "doc" / "guides"
+        doc_dir.mkdir(parents=True)
+        (doc_dir / "real.md").write_text("# real")
+
+        scripts_dir = temp_project_dir / "scripts"
+        scripts_dir.mkdir()
+        script_file = scripts_dir / "Validate.ps1"
+        script_file.write_text(
+            "# Validate filenames\n"
+            "if ($name -match 'doc/guides/[a-z]+\\.md') { Write-Host 'match' }\n"
+        )
+
+        service = LinkWatcherService(str(temp_project_dir))
+        service._initial_scan()
+
+        # Move doc/guides → doc/manuals
+        new_dir = temp_project_dir / "doc" / "manuals"
+        doc_dir.rename(new_dir)
+        service.handler.on_moved(DirMovedEvent(str(doc_dir), str(new_dir)))
+
+        updated = script_file.read_text()
+
+        # Negative: regex character-class delimiters / escape must not be normalized
+        assert "/.md" not in updated, "Backslash in \\.md regex escape was normalized to /"
+        assert "doc/manuals/[a-z]" not in updated, (
+            "Character-class regex was rewritten as if it were a real path prefix"
+        )
+        # Positive: regex preserved verbatim
+        assert "'doc/guides/[a-z]+\\.md'" in updated, "Original regex must be preserved"
+
+    def test_bug095_real_path_still_updates_alongside_regex_on_dir_move(self, temp_project_dir):
+        """A script with BOTH a regex and a real directory path: only the real path is
+        updated; the regex stays unchanged. Verifies both layers cooperate without
+        regressing legitimate updates.
+        """
+        doc_foo = temp_project_dir / "doc" / "foo"
+        doc_foo.mkdir(parents=True)
+        (doc_foo / "real.md").write_text("# real")
+
+        scripts_dir = temp_project_dir / "scripts"
+        scripts_dir.mkdir()
+        script_file = scripts_dir / "Mixed.ps1"
+        script_file.write_text(
+            "# Mixed: regex + real path reference\n"
+            "$root = 'doc/foo'\n"
+            "if ($x -match 'doc/foo/bar-\\d+') { $matches[1] }\n"
+        )
+
+        service = LinkWatcherService(str(temp_project_dir))
+        service._initial_scan()
+
+        new_doc = temp_project_dir / "doc" / "bar"
+        doc_foo.rename(new_doc)
+        service.handler.on_moved(DirMovedEvent(str(doc_foo), str(new_doc)))
+
+        updated = script_file.read_text()
+
+        # Real directory string was updated
+        assert "$root = 'doc/bar'" in updated, "Real directory reference should update on dir move"
+        # Regex unchanged: no path-prefix rewrite, no backslash normalization
+        assert "/d+" not in updated, "Regex \\d must not be normalized to /d"
+        assert "'doc/foo/bar-\\d+'" in updated, "Regex must be preserved verbatim"
+
+
+class TestBug095PathResolverExistenceGuard:
+    """PD-BUG-095 Layer 2: ``PathResolver._calculate_new_target_relative`` must
+    refuse to mutate when the proposed new target doesn't exist on disk. Mirrors
+    PD-BUG-033's existence check in ``reference_lookup``.
+
+    Invokes ``PathResolver`` directly with a constructed ``LinkReference`` so the
+    test exercises the guard even when Layer 1 (parser-level rejection) is bypassed
+    or absent (e.g., a future parser change, an externally-injected DB entry).
+    """
+
+    def test_layer2_rejects_mutation_when_proposed_target_does_not_exist(
+        self, temp_project_dir
+    ):
+        from linkwatcher.link_types import LinkType
+        from linkwatcher.models import LinkReference
+        from linkwatcher.path_resolver import PathResolver
+
+        # Real directory exists at old location (so prefix-match early-exit fires)
+        doc_foo = temp_project_dir / "doc" / "foo"
+        doc_foo.mkdir(parents=True)
+        (doc_foo / "real.md").write_text("# real")
+
+        resolver = PathResolver(project_root=str(temp_project_dir))
+
+        # Forge a regex-shaped link target that incidentally matches the prefix
+        # after backslash normalization (the documented BUG-095 scenario).
+        ref = LinkReference(
+            file_path="scripts/Mixed.ps1",
+            line_number=1,
+            column_start=0,
+            column_end=20,
+            link_text="doc/foo/bar-\\d+",
+            link_target="doc/foo/bar-\\d+",
+            link_type=LinkType.POWERSHELL_QUOTED,
+        )
+
+        result = resolver.calculate_new_target(ref, "doc/foo", "doc/bar")
+
+        # Negative assertion: corrupted form must not be returned
+        assert "/d+" not in result, (
+            "Layer 2 existence guard failed: backslash was normalized to / "
+            "and the corrupted result was returned"
+        )
+        # Positive assertion: original target preserved
+        assert result == "doc/foo/bar-\\d+", (
+            f"Layer 2 should return original target unchanged when proposed new path "
+            f"doesn't exist (got '{result}')"
+        )
+
+    def test_layer2_still_updates_real_directory_path(self, temp_project_dir):
+        """Sanity check: the existence guard must not block legitimate updates.
+        A real directory reference still maps correctly through the prefix-match
+        early-exit when the new directory exists on disk.
+        """
+        from linkwatcher.link_types import LinkType
+        from linkwatcher.models import LinkReference
+        from linkwatcher.path_resolver import PathResolver
+
+        # Move has already happened on disk: doc/foo no longer exists, doc/bar does
+        new_dir = temp_project_dir / "doc" / "bar"
+        new_dir.mkdir(parents=True)
+        (new_dir / "real.md").write_text("# real")
+
+        resolver = PathResolver(project_root=str(temp_project_dir))
+
+        ref = LinkReference(
+            file_path="scripts/Mixed.ps1",
+            line_number=1,
+            column_start=0,
+            column_end=20,
+            link_text="doc/foo/real.md",
+            link_target="doc/foo/real.md",
+            link_type=LinkType.POWERSHELL_QUOTED,
+        )
+
+        result = resolver.calculate_new_target(ref, "doc/foo", "doc/bar")
+
+        assert result == "doc/bar/real.md", (
+            f"Real path under moved directory should be updated to new location "
+            f"(got '{result}')"
+        )
+
+
 class TestBug043PythonImportModuleLookup:
     """Regression tests for PD-BUG-043: Python dot-notation imports
     not resolved during reference lookup.
@@ -1347,6 +1584,294 @@ class TestBug045PythonModuleUsageUpdate:
         assert (
             "my_utils_helpers" in updated
         ), "substring 'my_utils_helpers' must not be affected by module rename"
+
+
+class TestBug094PythonImportDoubleApply:
+    """Regression tests for PD-BUG-094: Phase 2 module usage replacement double-applies prefix.
+
+    When moving linkwatcher/ to src/linkwatcher/, Phase 1 updates import statements
+    and records the rename mapping. Phase 2 then does a file-wide re.sub using word
+    boundaries (\\b), but \\b fires between '.' and 'l' in 'src.linkwatcher' because
+    '.' is not a \\w character. This causes 'linkwatcher.module' to match inside the
+    already-updated 'src.linkwatcher.module', producing 'src.src.linkwatcher.module'.
+    """
+
+    def test_bug094_dir_move_no_double_prefix(self, temp_project_dir):
+        """Moving dir into a prefix path must not double-apply the new prefix."""
+        # Use "utils" (in PythonParser's local_dirs) so imports get registered.
+        # Move utils/ → src/utils/ to trigger the prefix-overlap scenario.
+        utils_dir = temp_project_dir / "utils"
+        utils_dir.mkdir()
+        module_file = utils_dir / "helpers.py"
+        module_file.write_text("def helper(): pass\n")
+
+        app_dir = temp_project_dir / "app"
+        app_dir.mkdir()
+        main_file = app_dir / "main.py"
+        main_file.write_text(
+            "import utils.helpers\n" "\n" "def run():\n" "    utils.helpers.helper()\n"
+        )
+
+        service = LinkWatcherService(str(temp_project_dir))
+        service._initial_scan()
+
+        src_dir = temp_project_dir / "src"
+        src_dir.mkdir()
+        new_utils_dir = src_dir / "utils"
+        utils_dir.rename(new_utils_dir)
+
+        event = FileMovedEvent(str(module_file), str(new_utils_dir / "helpers.py"))
+        service.handler._handle_file_moved(event)
+
+        updated = main_file.read_text()
+
+        assert "import src.utils.helpers" in updated, "import should update to src.utils.helpers"
+        assert (
+            "src.utils.helpers.helper()" in updated
+        ), "usage site should update to src.utils.helpers.helper()"
+        assert "src.src." not in updated, "prefix must not be double-applied (src.src.utils)"
+
+    def test_bug094_usage_site_still_updated(self, temp_project_dir):
+        """Phase 2 must still update usage sites that have NOT been touched by Phase 1."""
+        # Move utils/ → src/utils/ with multiple usage sites
+        utils_dir = temp_project_dir / "utils"
+        utils_dir.mkdir()
+        module_file = utils_dir / "engine.py"
+        module_file.write_text("class Engine: pass\n")
+
+        app_dir = temp_project_dir / "app"
+        app_dir.mkdir()
+        main_file = app_dir / "main.py"
+        main_file.write_text(
+            "import utils.engine\n"
+            "\n"
+            "x = utils.engine.Engine()\n"
+            "y = utils.engine.Engine()\n"
+            "print(utils.engine)\n"
+        )
+
+        service = LinkWatcherService(str(temp_project_dir))
+        service._initial_scan()
+
+        src_dir = temp_project_dir / "src"
+        src_dir.mkdir()
+        new_utils_dir = src_dir / "utils"
+        utils_dir.rename(new_utils_dir)
+
+        event = FileMovedEvent(str(module_file), str(new_utils_dir / "engine.py"))
+        service.handler._handle_file_moved(event)
+
+        updated = main_file.read_text()
+
+        # All 4 occurrences (1 import + 3 usage) should be updated
+        assert updated.count("src.utils.engine") >= 4, (
+            f"expected at least 4 occurrences of src.utils.engine, "
+            f"got {updated.count('src.utils.engine')}"
+        )
+        assert "src.src." not in updated, "prefix must not be double-applied"
+
+    def test_bug094_dot_preceded_module_not_replaced(self, temp_project_dir):
+        """A module name preceded by '.' (already part of a longer path) must not match."""
+        pkg_dir = temp_project_dir / "core"
+        pkg_dir.mkdir()
+        module_file = pkg_dir / "engine.py"
+        module_file.write_text("def run(): pass\n")
+
+        app_dir = temp_project_dir / "app"
+        app_dir.mkdir()
+        main_file = app_dir / "main.py"
+        main_file.write_text(
+            "import core.engine\n"
+            "\n"
+            "# Already has a prefix: pkg.core.engine should NOT be touched\n"
+            "note = 'see pkg.core.engine for details'\n"
+            "core.engine.run()\n"
+        )
+
+        service = LinkWatcherService(str(temp_project_dir))
+        service._initial_scan()
+
+        lib_dir = temp_project_dir / "lib"
+        lib_dir.mkdir()
+        new_engine = lib_dir / "engine.py"
+        module_file.rename(new_engine)
+
+        event = FileMovedEvent(str(module_file), str(new_engine))
+        service.handler._handle_file_moved(event)
+
+        updated = main_file.read_text()
+
+        assert "import lib.engine" in updated
+        assert "lib.engine.run()" in updated
+        # pkg.core.engine must NOT become pkg.lib.engine
+        assert "pkg.core.engine" in updated, "dot-preceded module name must not be replaced"
+
+    def test_bug094_from_import_no_double_prefix(self, temp_project_dir):
+        """TD212: 'from X import Y' form must not double-apply when target dir moves into prefix path.
+
+        BUG-094 negative-lookbehind regex (?<![.\\w]) was reasoned to handle the
+        'from' form symmetrically with the 'import X' form, but the existing
+        TestBug094PythonImportDoubleApply tests only cover 'import X' + 'X.usage'.
+        This test verifies the lookbehind correctly prevents double-application
+        when the import statement uses 'from X import Y' syntax and the new
+        module name contains the old as a prefix (utils.helpers → src.utils.helpers).
+        """
+        # Use "utils" (in PythonParser's local_dirs) so imports get registered
+        utils_dir = temp_project_dir / "utils"
+        utils_dir.mkdir()
+        module_file = utils_dir / "helpers.py"
+        module_file.write_text("def helper(): pass\n")
+
+        app_dir = temp_project_dir / "app"
+        app_dir.mkdir()
+        main_file = app_dir / "main.py"
+        main_file.write_text(
+            "from utils.helpers import helper\n"
+            "\n"
+            "def run():\n"
+            "    helper()\n"
+            "    utils.helpers.helper()\n"
+        )
+
+        service = LinkWatcherService(str(temp_project_dir))
+        service._initial_scan()
+
+        # Move utils/ → src/utils/ — triggers prefix-overlap scenario
+        src_dir = temp_project_dir / "src"
+        src_dir.mkdir()
+        new_utils_dir = src_dir / "utils"
+        utils_dir.rename(new_utils_dir)
+
+        event = FileMovedEvent(str(module_file), str(new_utils_dir / "helpers.py"))
+        service.handler._handle_file_moved(event)
+
+        updated = main_file.read_text()
+
+        assert (
+            "from src.utils.helpers import helper" in updated
+        ), "from-import should update to src.utils.helpers"
+        assert (
+            "src.utils.helpers.helper()" in updated
+        ), "usage site should update to src.utils.helpers.helper()"
+        assert "src.src." not in updated, "prefix must not be double-applied (src.src.utils)"
+
+    def test_bug094_phase2_multi_rename_order_independent(self, temp_project_dir):
+        """TD213: Phase 2 file-wide regex sub must be order-independent for multiple renames.
+
+        Directly invokes _apply_replacements with unique PYTHON_IMPORT replacement_items
+        to exercise the Phase 2 multi-rename path in isolation. This bypasses the
+        dir-move ref-collection layer that produces duplicate refs (PD-BUG-096),
+        so the test focuses solely on the negative-lookbehind behavior asserted
+        by TD213: when python_module_renames has multiple entries, the lookbehind
+        (?<![.\\w]) prevents cross-interference between renames.
+        """
+        from linkwatcher.link_types import LinkType
+        from linkwatcher.models import LinkReference
+
+        main_file = temp_project_dir / "main.py"
+        main_file.write_text(
+            "import utils.a\n"
+            "import utils.b\n"
+            "\n"
+            "def run():\n"
+            "    utils.a.fa()\n"
+            "    utils.b.fb()\n"
+        )
+
+        service = LinkWatcherService(str(temp_project_dir))
+
+        # Construct UNIQUE PYTHON_IMPORT refs manually (no duplicates) to bypass
+        # PD-BUG-096's duplicate-refs path and exercise Phase 2 multi-rename cleanly.
+        ref_a = LinkReference(
+            file_path="main.py",
+            line_number=1,
+            column_start=7,
+            column_end=14,
+            link_text="utils.a",
+            link_target="utils/a",
+            link_type=LinkType.PYTHON_IMPORT,
+        )
+        ref_b = LinkReference(
+            file_path="main.py",
+            line_number=2,
+            column_start=7,
+            column_end=14,
+            link_text="utils.b",
+            link_target="utils/b",
+            link_type=LinkType.PYTHON_IMPORT,
+        )
+
+        replacement_items = [
+            (ref_a, "src/utils/a"),
+            (ref_b, "src/utils/b"),
+        ]
+
+        service.updater._apply_replacements(str(main_file), "main.py", replacement_items)
+
+        updated = main_file.read_text()
+
+        # Phase 1 line-by-line: imports correctly updated to single prefix
+        assert "import src.utils.a" in updated, "Phase 1 should update import to src.utils.a"
+        assert "import src.utils.b" in updated, "Phase 1 should update import to src.utils.b"
+        # Phase 2 file-wide regex: usage sites correctly updated for both renames
+        assert "src.utils.a.fa()" in updated, "Phase 2 should update usage to src.utils.a.fa()"
+        assert "src.utils.b.fb()" in updated, "Phase 2 should update usage to src.utils.b.fb()"
+        # No double-application — verifies multi-rename + lookbehind cooperation
+        # (the property TD213 asserts: order-independent multi-rename via lookbehind)
+        assert "src.src." not in updated, "lookbehind must prevent double-prefix for any rename"
+
+    @pytest.mark.xfail(
+        strict=True,
+        reason="PD-BUG-096: dir-move duplicates PYTHON_IMPORT refs (file_refs + module_refs), "
+        "causing Phase 1's unbounded str.replace to double-apply prefix on import lines. "
+        "Remove xfail when PD-BUG-096 is fixed.",
+    )
+    def test_bug094_dir_move_multi_import_no_double_prefix(self, temp_project_dir):
+        """Regression test for PD-BUG-096 (also covers TD213's multi-rename intent at integration level).
+
+        When utils/ moves to src/utils/ and main.py imports BOTH utils.a and utils.b,
+        the dir-move path produces duplicate refs in _apply_replacements, causing
+        Phase 1's unbounded str.replace to substring-match inside the already-prefixed
+        result, producing 'import src.src.utils.a' instead of 'import src.utils.a'.
+
+        Currently xfail; will pass once PD-BUG-096 is fixed.
+        """
+        utils_dir = temp_project_dir / "utils"
+        utils_dir.mkdir()
+        a_file = utils_dir / "a.py"
+        a_file.write_text("def fa(): pass\n")
+        b_file = utils_dir / "b.py"
+        b_file.write_text("def fb(): pass\n")
+
+        app_dir = temp_project_dir / "app"
+        app_dir.mkdir()
+        main_file = app_dir / "main.py"
+        main_file.write_text(
+            "import utils.a\n"
+            "import utils.b\n"
+            "\n"
+            "def run():\n"
+            "    utils.a.fa()\n"
+            "    utils.b.fb()\n"
+        )
+
+        service = LinkWatcherService(str(temp_project_dir))
+        service._initial_scan()
+
+        src_dir = temp_project_dir / "src"
+        src_dir.mkdir()
+        new_utils_dir = src_dir / "utils"
+        utils_dir.rename(new_utils_dir)
+
+        service.handler.on_moved(DirMovedEvent(str(utils_dir), str(new_utils_dir)))
+
+        updated = main_file.read_text()
+
+        assert "import src.utils.a" in updated
+        assert "import src.utils.b" in updated
+        assert "src.utils.a.fa()" in updated
+        assert "src.utils.b.fb()" in updated
+        assert "src.src." not in updated, "prefix must not be double-applied for any rename"
 
 
 class TestBug078PythonSourceRootImport:
